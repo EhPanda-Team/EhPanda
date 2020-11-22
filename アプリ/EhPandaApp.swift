@@ -11,7 +11,7 @@ import SwiftUI
 struct EhPandaApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            HomeView()
         }
     }
 }
