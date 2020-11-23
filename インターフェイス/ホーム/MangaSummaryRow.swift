@@ -25,37 +25,18 @@ struct MangaSummaryRow: View {
                     .font(.subheadline)
                     .foregroundColor(.gray)
                 HStack {
-                    let rating = manga.rating
-                    let fillCount = Int(rating)
-                    let halfCount = /* Int(rating - 0.5) == fillCount ? 1 : */ 0
-                    let emptyCount = 5 - fillCount - halfCount
-                    
-                    
-                    ForEach(0..<fillCount) { _ in
-                        Image(systemName: "star.fill")
-                            .foregroundColor(.yellow)
-                            .imageScale(.small)
-                    }
-//                    ForEach(0..<halfCount) { _ in
-//                        Image(systemName: "star.lefthalf.fill")
-//                            .foregroundColor(.yellow)
-//                            .imageScale(.small)
-//                    }
-                    ForEach(0..<emptyCount) { _ in
-                        Image(systemName: "star")
-                            .foregroundColor(.yellow)
-                            .imageScale(.small)
-                    }
+                    StarView(rating: manga.rating)
                 }
                 HStack(alignment: .bottom) {
-                    Text(manga.category)
+                    Text(manga.translatedCategory)
+                        .fontWeight(.bold)
                         .lineLimit(1)
                         .font(.footnote)
                         .foregroundColor(.white)
-                        .padding(EdgeInsets(top: 1, leading: 3, bottom: 1, trailing: 3))
+                        .padding(.init(top: 1, leading: 3, bottom: 1, trailing: 3))
                         .background(
                             RoundedRectangle(cornerRadius: 2)
-                                .foregroundColor(.blue)
+                                .foregroundColor(Color(manga.color))
                         )
                     Spacer()
                     Text(manga.publishedTime)
@@ -71,13 +52,42 @@ struct MangaSummaryRow: View {
     }
 }
 
-final class ImageContainer: ObservableObject {
+struct StarView: View {
+    let rating: Float
+    
+    var fillCount: Int {
+        get { Int(rating) }
+    }
+    var halfCount: Int {
+        get { Int(rating - 0.5) == fillCount ? 1 : 0 }
+    }
+    var emptyCount: Int {
+        get { 5 - fillCount - halfCount }
+    }
+    
+    var body: some View {
+        ForEach(0..<fillCount) { _ in
+            Image(systemName: "star.fill")
+                .foregroundColor(.yellow)
+                .imageScale(.small)
+        }
+        ForEach(0..<halfCount) { _ in
+            Image(systemName: "star.lefthalf.fill")
+                .foregroundColor(.yellow)
+                .imageScale(.small)
+        }
+        ForEach(0..<emptyCount) { _ in
+            Image(systemName: "star")
+                .foregroundColor(.yellow)
+                .imageScale(.small)
+        }
+    }
+}
 
-    // @PublishedをつけるとSwiftUIのViewへデータが更新されたことを通知してくれる
+final class ImageContainer: ObservableObject {
     @Published var image = Image("test")
 
     init(from resource: String) {
-        // ネットワークから画像データ取得
         guard let URL = URL(string: resource) else { return }
         let session = URLSession(configuration: .default)
         let task = session.dataTask(with: URL, completionHandler: { [weak self] data, _, _ in
@@ -87,7 +97,6 @@ final class ImageContainer: ObservableObject {
             }
 
             DispatchQueue.main.async {
-                // 宣言時に@Publishedを付けているので、プロパティを更新すればView側に更新が通知される
                 self?.image = Image(uiImage: networkImage)
             }
             session.invalidateAndCancel()

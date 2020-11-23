@@ -11,18 +11,14 @@ class Common {
     }
 }
 
-public func cPrint(_ string: String) {
-    print(Common.currentClassName() + ": " + (string))
-}
-
 public func ePrint(_ error: Error) {
-    cPrint(error.localizedDescription)
+    print(error.localizedDescription)
 }
 
 public func ePrint(_ string: String) {
-    cPrint(string)
+    print(string)
 }
 
 public func ePrint(_ string: String?) {
-    cPrint(string ?? "エラーの内容が解析できませんでした")
+    print(string ?? "エラーの内容が解析できませんでした")
 }

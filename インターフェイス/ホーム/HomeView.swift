@@ -14,8 +14,8 @@ struct HomeView: View {
             ScrollView {
                 LazyVStack {
                     if let mangaItems = items {
-                        ForEach(0..<mangaItems.count) { index in
-                            MangaSummaryRow(container: ImageContainer(from: mangaItems[index].coverURL), manga: mangaItems[index])
+                        ForEach(mangaItems) { item in
+                            MangaSummaryRow(container: ImageContainer(from: item.coverURL), manga: item)
                         }
                     }
                 }

@@ -24,19 +24,12 @@ class RequestManager {
         return mangaItems
     }
     
-    func parseHTML(_ URL: URL, _ threshold: Int? = nil) -> [Manga]? {
+    func parseHTML(_ url: URL, _ threshold: Int? = nil) -> [Manga]? {
         var mangaItems = [Manga]()
-//        var titles = [String]()
-//        var ratings = [Float]()
-//        var categories = [String]()
-//        var uploaders = [String]()
-//        var publishedTimes = [String]()
-//        var coverURLs = [String]()
-//        var detailURLs = [String]()
         
         var document: HTMLDocument?
         do {
-            document = try Kanna.HTML(url: URL, encoding: .utf8)
+            document = try Kanna.HTML(url: url, encoding: .utf8)
         } catch {
             ePrint(error)
         }
@@ -44,23 +37,16 @@ class RequestManager {
         guard let doc = document else { return nil }
         for link in doc.xpath("//tr") {
             
+            guard let gl2cNode = link.at_xpath("//td [@class='gl2c']") else { continue }
             guard let title = link.at_xpath("//div [@class='glink']")?.text else { continue }
-            guard let rating = parseRatingString(link.at_xpath("//td [@class='gl2c']")?.at_xpath("//div [@class='ir']")?.toHTML) else { continue }
+            guard let rating = parseRatingString(gl2cNode.at_xpath("//div [@class='ir']")?.toHTML) else { continue }
             guard let category = link.at_xpath("//td [@class='gl1c glcat'] //div")?.text else { continue }
             guard let uploader = link.at_xpath("//td [@class='gl4c glhide']")?.at_xpath("//a")?.text else { continue }
-            guard let publishedTime = link.at_xpath("//td [@class='gl2c']")?.at_xpath("//div [@onclick]")?.text else { continue }
-            guard let coverURL = parseCoverURL(link.at_xpath("//td [@class='gl2c']")?.at_xpath("//div [@class='glthumb']")?.at_css("img")) else { continue }
+            guard let publishedTime = gl2cNode.at_xpath("//div [@onclick]")?.text else { continue }
+            guard let coverURL = parseCoverURL(gl2cNode.at_xpath("//div [@class='glthumb']")?.at_css("img")) else { continue }
             guard let detailURL = link.at_xpath("//td [@class='gl3c glname'] //a")?["href"] else { continue }
             
-//            titles.append(title)
-//            ratings.append(rating)
-//            categories.append(category)
-//            uploaders.append(uploader)
-//            publishedTimes.append(publishedTime)
-//            coverURLs.append(coverURL)
-//            detailURLs.append(detailURL)
-            let manga = Manga(title: title, rating: rating, category: category, uploader: uploader, publishedTime: publishedTime, coverURL: coverURL, detailURL: detailURL)
-            mangaItems.append(manga)
+            mangaItems.append(Manga(title: title, rating: rating, category: category, uploader: uploader, publishedTime: publishedTime, coverURL: coverURL, detailURL: detailURL))
         }
         
         if let threshold = threshold {
