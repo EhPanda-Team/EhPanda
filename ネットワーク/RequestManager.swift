@@ -9,19 +9,33 @@ import Alamofire
 import Kanna
 
 class RequestManager {
+    enum LoadingStatus {
+        case loading
+        case failed
+        case loaded
+    }
+    
     static let shared = RequestManager()
+    var status: LoadingStatus = .loading
+    var popularMangas: [Manga]?
     let popularThreshold = 50
     
-    func getPopularManga() -> [Manga]? {
-        guard let popularURL = URL(string: Defaults.URL.host + ("/popular")) else {
-            ePrint("StringからURLへ解析できませんでした")
-            return nil
+    func getPopularManga() {
+        RequestStatusManager.shared.status = "loading"
+        DispatchQueue.main.async { [weak self] in
+            guard let popularURL = URL(string: Defaults.URL.host + ("/popular")) else {
+                ePrint("StringからURLへ解析できませんでした")
+                RequestStatusManager.shared.status = "failed"
+                return
+            }
+            guard let mangaItems = self?.parseHTML(popularURL, self?.popularThreshold) else {
+                ePrint("HTML解析できませんでした")
+                RequestStatusManager.shared.status = "failed"
+                return
+            }
+            RequestStatusManager.shared.status = "loaded"
+            RequestManager.shared.popularMangas = mangaItems
         }
-        guard let mangaItems = parseHTML(popularURL, popularThreshold) else {
-            ePrint("HTML解析できませんでした")
-            return nil
-        }
-        return mangaItems
     }
     
     func parseHTML(_ url: URL, _ threshold: Int? = nil) -> [Manga]? {
@@ -81,4 +95,9 @@ class RequestManager {
         if ratingString.contains("-21px") { rating -= 0.5 }
         return rating
     }
+}
+
+class RequestStatusManager: ObservableObject {
+    static let shared = RequestStatusManager()
+    @Published var status: String = "loading"
 }

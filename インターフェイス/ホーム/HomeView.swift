@@ -8,22 +8,44 @@
 import SwiftUI
 
 struct HomeView: View {
-    let items = RequestManager.shared.getPopularManga()
+    @ObservedObject var manager = RequestStatusManager.shared
+    
     var body: some View {
         NavigationView {
-            ScrollView {
-                LazyVStack {
-                    if let mangaItems = items {
-                        ForEach(mangaItems) { item in
-                            MangaSummaryRow(container: ImageContainer(from: item.coverURL), manga: item)
+            if manager.status == "loaded" {
+                ScrollView {
+                    LazyVStack {
+                        if let mangaItems = RequestManager.shared.popularMangas {
+                            ForEach(mangaItems) { item in
+                                MangaSummaryRow(container: ImageContainer(from: item.coverURL), manga: item)
+                            }
                         }
                     }
+                    .padding()
+                    .navigationBarTitle("ホーム")
                 }
-                .padding()
+            } else if manager.status == "loading" {
+                ProgressView("読み込み中...")
+                    .navigationBarTitle("ホーム")
+            } else if manager.status == "failed" {
+                VStack {
+                    Image(systemName: "wifi.exclamationmark")
+                        .font(.system(size: 50))
+                        .padding(.bottom, 15)
+                    Text("読み込み中に問題が発生しました\nしばらくしてからもう一度お試しください")
+                        .multilineTextAlignment(.center)
+                        .foregroundColor(.gray)
+                        .font(.headline)
+                }
+                .navigationBarTitle("ホーム")
+                .onTapGesture {
+                    RequestManager.shared.getPopularManga()
+                }
             }
-            .navigationBarTitle(Text("ホーム"))
         }
-        
+        .onAppear {
+            RequestManager.shared.getPopularManga()
+        }
     }
 }
 
