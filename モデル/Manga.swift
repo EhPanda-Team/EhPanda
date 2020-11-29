@@ -5,12 +5,35 @@
 //  Created by 荒木辰造 on R 2/11/22.
 //
 
+import Foundation
 import SwiftUI
 
 struct Manga: Identifiable {
-    var id: String {
-        get { coverURL }
+    let id = UUID()
+    
+    let title: String
+    let rating: Float
+    
+    let category: String
+    let uploader: String
+    let publishedTime: String
+    
+    let coverURL: String
+    let detailURL: String
+}
+
+// 計算型プロパティ
+extension Manga {
+    var filledCount: Int {
+        get { Int(rating) }
     }
+    var halfFilledCount: Int {
+        get { Int(rating - 0.5) == filledCount ? 1 : 0 }
+    }
+    var notFilledCount: Int {
+        get { 5 - filledCount - halfFilledCount }
+    }
+    
     var translatedCategory: String {
         get {
             switch category {
@@ -67,13 +90,4 @@ struct Manga: Identifiable {
             }
         }
     }
-    
-    let title: String
-    let rating: Float
-    let category: String
-    let uploader: String
-    let publishedTime: String
-    
-    let coverURL: String
-    let detailURL: String
 }
