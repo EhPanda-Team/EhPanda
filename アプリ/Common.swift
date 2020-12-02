@@ -24,6 +24,22 @@ public func ePrint(_ string: String?) {
     print(string ?? "エラーの内容が解析できませんでした")
 }
 
+public func executeMainAsyncally(_ closure: @escaping (()->())) {
+    if Thread.isMainThread {
+        closure()
+    } else {
+        DispatchQueue.main.async {
+            closure()
+        }
+    }
+}
+
+public func executeAsyncally(_ closure: @escaping (()->())) {
+    DispatchQueue.global().async {
+        closure()
+    }
+}
+
 final class ImageContainer: ObservableObject {
     @Published var image = Image("Placeholder")
 

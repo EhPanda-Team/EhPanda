@@ -5,38 +5,39 @@
 //  Created by 荒木辰造 on R 2/11/22.
 //
 
-import Alamofire
 import Kanna
 
-class RequestManager {
+class RequestManager: ObservableObject {
     enum LoadingStatus {
         case loading
         case failed
         case loaded
     }
     
+    @Published var status: LoadingStatus = .loading
     static let shared = RequestManager()
-    var status: LoadingStatus = .loading
     var popularMangas: [Manga]?
     let popularThreshold = 50
     
     func getPopularManga() {
-        RequestStatusManager.shared.status = "loading"
-        DispatchQueue.main.async { [weak self] in
+        executeAsyncally { [weak self] in
+            executeMainAsyncally { RequestManager.shared.status = .loading }
             guard let popularURL = URL(string: Defaults.URL.host + ("/popular")) else {
                 ePrint("StringからURLへ解析できませんでした")
-                RequestStatusManager.shared.status = "failed"
+                executeMainAsyncally { RequestManager.shared.status = .failed }
                 return
             }
             guard let mangaItems = self?.parseHTML(popularURL, self?.popularThreshold) else {
                 ePrint("HTML解析できませんでした")
-                RequestStatusManager.shared.status = "failed"
+                executeMainAsyncally { RequestManager.shared.status = .failed }
                 return
             }
-            RequestStatusManager.shared.status = "loaded"
+            executeMainAsyncally { RequestManager.shared.status = .loaded }
             RequestManager.shared.popularMangas = mangaItems
         }
     }
+    
+    
     
     func parseHTML(_ url: URL, _ threshold: Int? = nil) -> [Manga]? {
         var mangaItems = [Manga]()
@@ -95,9 +96,4 @@ class RequestManager {
         if ratingString.contains("-21px") { rating -= 0.5 }
         return rating
     }
-}
-
-class RequestStatusManager: ObservableObject {
-    static let shared = RequestStatusManager()
-    @Published var status: String = "loading"
 }

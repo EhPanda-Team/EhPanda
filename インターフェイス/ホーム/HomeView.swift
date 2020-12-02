@@ -8,11 +8,11 @@
 import SwiftUI
 
 struct HomeView: View {
-    @ObservedObject var manager = RequestStatusManager.shared
+    @ObservedObject var manager = RequestManager.shared
     
     var body: some View {
         NavigationView {
-            if manager.status == "loaded" {
+            if manager.status == .loaded {
                 ScrollView {
                     LazyVStack {
                         if let mangaItems = RequestManager.shared.popularMangas {
@@ -24,10 +24,10 @@ struct HomeView: View {
                     .padding()
                     .navigationBarTitle("ホーム")
                 }
-            } else if manager.status == "loading" {
+            } else if manager.status == .loading {
                 ProgressView("読み込み中...")
                     .navigationBarTitle("ホーム")
-            } else if manager.status == "failed" {
+            } else if manager.status == .failed {
                 VStack {
                     Image(systemName: "wifi.exclamationmark")
                         .font(.system(size: 50))
