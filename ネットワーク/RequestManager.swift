@@ -52,16 +52,18 @@ class RequestManager: ObservableObject {
         guard let doc = document else { return nil }
         for link in doc.xpath("//tr") {
             
-            guard let gl2cNode = link.at_xpath("//td [@class='gl2c']") else { continue }
-            guard let title = link.at_xpath("//div [@class='glink']")?.text else { continue }
-            guard let rating = parseRatingString(gl2cNode.at_xpath("//div [@class='ir']")?.toHTML) else { continue }
-            guard let category = link.at_xpath("//td [@class='gl1c glcat'] //div")?.text else { continue }
-            guard let uploader = link.at_xpath("//td [@class='gl4c glhide']")?.at_xpath("//a")?.text else { continue }
-            guard let publishedTime = gl2cNode.at_xpath("//div [@onclick]")?.text else { continue }
-            guard let coverURL = parseCoverURL(gl2cNode.at_xpath("//div [@class='glthumb']")?.at_css("img")) else { continue }
-            guard let detailURL = link.at_xpath("//td [@class='gl3c glname'] //a")?["href"] else { continue }
+            guard let gl2cNode = link.at_xpath("//td [@class='gl2c']"),
+                  let title = link.at_xpath("//div [@class='glink']")?.text,
+                  let rating = parseRatingString(gl2cNode.at_xpath("//div [@class='ir']")?.toHTML),
+                  let category = link.at_xpath("//td [@class='gl1c glcat'] //div")?.text,
+                  let uploader = link.at_xpath("//td [@class='gl4c glhide']")?.at_xpath("//a")?.text,
+                  let publishedTime = gl2cNode.at_xpath("//div [@onclick]")?.text,
+                  let coverURL = parseCoverURL(gl2cNode.at_xpath("//div [@class='glthumb']")?.at_css("img")),
+                  let detailURL = link.at_xpath("//td [@class='gl3c glname'] //a")?["href"]
+            else { continue }
             
-            mangaItems.append(Manga(title: title, rating: rating, category: category, uploader: uploader, publishedTime: publishedTime, coverURL: coverURL, detailURL: detailURL))
+            guard let enumCategory = Category(rawValue: category) else { continue }
+            mangaItems.append(Manga(title: title, rating: rating, category: enumCategory, uploader: uploader, publishedTime: publishedTime, coverURL: coverURL, detailURL: detailURL))
         }
         
         if let threshold = threshold {
