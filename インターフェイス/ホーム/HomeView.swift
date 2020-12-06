@@ -11,7 +11,7 @@ struct HomeView: View {
     var body: some View {
         NavigationView { LoadingView(type: .popular) { ScrollView { LazyVStack {
             if let mangaItems = RequestManager.shared.popularListItems {
-                ForEach(mangaItems) { item in NavigationLink(destination: DetailView(manga: item)) {
+                ForEach(mangaItems) { item in NavigationLink(destination: DetailView(backgroundColor: .clear, manga: item)) {
                     MangaSummaryRow(container: ImageContainer(from: item.coverURL, type: .cover, 110), manga: item)
                 }}
             }}.padding()}

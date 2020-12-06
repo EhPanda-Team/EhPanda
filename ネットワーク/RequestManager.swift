@@ -6,6 +6,7 @@
 //
 
 import Kanna
+import SwiftUI
 
 enum LoadingStatus {
     case loading

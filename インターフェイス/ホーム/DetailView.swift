@@ -6,28 +6,37 @@
 //
 
 import SwiftUI
+import AlamofireImage
 
 struct DetailView: View {
+    @State var backgroundColor: Color
+    @Environment(\.presentationMode) var presentationMode
     let manga: Manga
+    
     var body: some View {
-        ScrollView(showsIndicators: false) { VStack { LoadingView(type: .detail) { Group {
-            if let mangaDetail = RequestManager.shared.mangaDetail {
-                HeaderView(container: ImageContainer(from: manga.coverURL, type: .cover, 150),
-                           manga: manga,
-                           mangaDetail: mangaDetail)
-                Divider()
-                DescScrollView(manga: manga, detail: mangaDetail)
-                Divider()
-                PreviewView(manga: manga)
-                Divider()
+        ZStack {
+            backgroundColor
+                .ignoresSafeArea()
+            ScrollView(showsIndicators: false) { VStack { LoadingView(type: .detail) { Group {
+                if let mangaDetail = RequestManager.shared.mangaDetail {
+                    HeaderView(container: ImageContainer(from: manga.coverURL, type: .cover, 150),
+                               manga: manga,
+                               mangaDetail: mangaDetail)
+                    Divider()
+                    DescScrollView(manga: manga, detail: mangaDetail)
+                    Divider()
+                    PreviewView(manga: manga)
+                    Divider()
+                }}
+                } retryAction: {
+                    RequestManager.shared.getMangaDetail(url: manga.detailURL)
+                }
+                .padding(.top, 10)
             }}
-            } retryAction: {
-                RequestManager.shared.getMangaDetail(url: manga.detailURL)
-            }
-            .padding(.top, 10)
-        }}
-        .padding(.horizontal)
+            .padding(.horizontal)
+        }
         .onAppear {
+            setBackgroundColor()
             RequestManager.shared.getMangaDetail(url: manga.detailURL)
             RequestManager.shared.getMangaPreview(url: manga.detailURL)
         }
@@ -35,6 +44,23 @@ struct DetailView: View {
             RequestManager.shared.mangaDetail = nil
             RequestManager.shared.mangaPreviewItems = nil
         }
+    }
+    
+    func goBack() {
+        self.presentationMode.wrappedValue.dismiss()
+    }
+    
+    func setBackgroundColor() {
+        guard let url = URL(string: manga.coverURL) else { return }
+        
+        let downloader = ImageDownloader()
+        downloader.download(URLRequest(url: url), completion: { (resp) in
+            if case .success(let image) = resp.result {
+                guard let uiColor = image.averageColor else { return }
+                
+                backgroundColor = Color(uiColor)
+            }
+        })
     }
 }
 
@@ -117,7 +143,7 @@ private struct DescScrollView: View {
             DescScrollItem(title: "ページ", value: detail.pageCount, numeral: "頁")
             Divider()
             DescScrollItem(title: "サイズ", value: detail.sizeCount, numeral: "MB")
-        }.foregroundColor(.secondary)}
+        }.foregroundColor(.primary)}
     }
 }
 
