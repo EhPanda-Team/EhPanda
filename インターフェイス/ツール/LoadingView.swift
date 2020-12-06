@@ -7,18 +7,40 @@
 
 import SwiftUI
 
+enum LoadingStatusType {
+    case popular
+    case detail
+}
+
 struct LoadingView<Content> : View where Content : View {
-    @ObservedObject var manager = RequestManager.shared
+    @ObservedObject var manager = LoadingStatusManager.shared
     @Environment(\.colorScheme) var colorScheme
     let contentView: () -> Content
     let retryAction: () -> ()
     
+    let statusType: LoadingStatusType
+    var status: LoadingStatus {
+        switch statusType {
+        case .popular:
+            return manager.popularStatus
+        case .detail:
+            return manager.detailStatus
+        }
+    }
+    
+    init(type: LoadingStatusType ,content: @escaping () -> Content, retryAction: @escaping () -> ()) {
+        self.statusType = type
+        self.contentView = content
+        self.retryAction = retryAction
+    }
+    
     var body: some View {
-        if manager.status == .loaded {
+        if status == .loaded {
             contentView()
-        } else if manager.status == .loading {
+        } else if status == .loading {
             ProgressView("読み込み中...")
-        } else if manager.status == .failed {
+        } else
+        if status == .failed {
             VStack {
                 Image(systemName: "wifi.exclamationmark")
                     .font(.system(size: 50))
@@ -32,11 +54,8 @@ struct LoadingView<Content> : View where Content : View {
                     retryAction()
                 }
                 .foregroundColor(colorScheme == .light ? .init(UIColor.darkGray) : .init(UIColor.white))
-                .padding(.init(top: 6, leading: 10, bottom: 6, trailing: 10))
-                .background(
-                    RoundedRectangle(cornerRadius: 5)
-                        .foregroundColor(Color(.systemGray5))
-                )
+                .capsulePadding()
+                .withTapEffect(backgroundColor: Color(.systemGray5))
             }
         }
     }

@@ -43,14 +43,14 @@ public func executeAsyncally(_ closure: @escaping (()->())) {
 final class ImageContainer: ObservableObject {
     @Published var image = Image("Placeholder")
 
-    init(from resource: String) {
+    init(from resource: String, _ targetHeight: CGFloat) {
         guard let url = URL(string: resource) else { return }
         
         let downloader = ImageDownloader()
         downloader.download(URLRequest(url: url), completion: { [weak self] (resp) in
             if case .success(let image) = resp.result {
                 DispatchQueue.main.async {
-                    self?.image = ImageScaler.getScaledImage(uiImage: image)
+                    self?.image = ImageScaler.getScaledImage(uiImage: image, targetHeight: targetHeight)
                 }
             }
         })
@@ -58,11 +58,11 @@ final class ImageContainer: ObservableObject {
 }
 
 class ImageScaler {
-    static func getScaledImage(uiImage: UIImage) -> SwiftUI.Image {
+    static func getScaledImage(uiImage: UIImage, targetHeight: CGFloat) -> SwiftUI.Image {
         let width = uiImage.size.width
         let height = uiImage.size.height
         let targetRatio: CGFloat = 70 / 110
-        let targetSize = CGSize(width: 70, height: 110)
+        let targetSize = CGSize(width: targetHeight * targetRatio, height: targetHeight)
         
         if (width / height) - targetRatio < 0.2 {
             return Image(uiImage: uiImage.af.imageAspectScaled(toFill: targetSize))

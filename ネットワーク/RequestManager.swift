@@ -7,39 +7,55 @@
 
 import Kanna
 
-class RequestManager: ObservableObject {
-    enum LoadingStatus {
-        case loading
-        case failed
-        case loaded
-    }
-    
-    @Published var status: LoadingStatus = .loading
+enum LoadingStatus {
+    case loading
+    case failed
+    case loaded
+}
+
+class RequestManager {
     static let shared = RequestManager()
-    var popularMangas: [Manga]?
+    var popularListItems: [Manga]?
+    var mangaDetail: MangaDetail?
     let popularThreshold = 50
     
-    func getPopularManga() {
+    func getPopularList() {
         executeAsyncally { [weak self] in
-            executeMainAsyncally { RequestManager.shared.status = .loading }
+            executeMainAsyncally { LoadingStatusManager.shared.popularStatus = .loading }
             guard let popularURL = URL(string: Defaults.URL.host + ("/popular")) else {
                 ePrint("StringからURLへ解析できませんでした")
-                executeMainAsyncally { RequestManager.shared.status = .failed }
+                executeMainAsyncally { LoadingStatusManager.shared.popularStatus = .failed }
                 return
             }
-            guard let mangaItems = self?.parseHTML(popularURL, self?.popularThreshold) else {
+            guard let mangaItems = self?.parseHTML_Popular(popularURL, self?.popularThreshold) else {
                 ePrint("HTML解析できませんでした")
-                executeMainAsyncally { RequestManager.shared.status = .failed }
+                executeMainAsyncally { LoadingStatusManager.shared.popularStatus = .failed }
                 return
             }
-            executeMainAsyncally { RequestManager.shared.status = .loaded }
-            RequestManager.shared.popularMangas = mangaItems
+            executeMainAsyncally { LoadingStatusManager.shared.popularStatus = .loaded }
+            RequestManager.shared.popularListItems = mangaItems
         }
     }
     
+    func getMangaDetail(url: String) {
+        executeAsyncally { [weak self] in
+            executeMainAsyncally { LoadingStatusManager.shared.detailStatus = .loading }
+            guard let detailURL = URL(string: url) else {
+                ePrint("StringからURLへ解析できませんでした")
+                executeMainAsyncally { LoadingStatusManager.shared.detailStatus = .failed }
+                return
+            }
+            guard let mangaDetail = self?.parseHTML_Detail(detailURL) else {
+                ePrint("HTML解析できませんでした")
+                executeMainAsyncally { LoadingStatusManager.shared.detailStatus = .failed }
+                return
+            }
+            executeMainAsyncally { LoadingStatusManager.shared.detailStatus = .loaded }
+            RequestManager.shared.mangaDetail = mangaDetail
+        }
+    }
     
-    
-    func parseHTML(_ url: URL, _ threshold: Int? = nil) -> [Manga]? {
+    func parseHTML_Popular(_ url: URL, _ threshold: Int? = nil) -> [Manga]? {
         var mangaItems = [Manga]()
         
         var document: HTMLDocument?
@@ -63,7 +79,13 @@ class RequestManager: ObservableObject {
             else { continue }
             
             guard let enumCategory = Category(rawValue: category) else { continue }
-            mangaItems.append(Manga(title: title, rating: rating, category: enumCategory, uploader: uploader, publishedTime: publishedTime, coverURL: coverURL, detailURL: detailURL))
+            mangaItems.append(Manga(title: title,
+                                    rating: rating,
+                                    category: enumCategory,
+                                    uploader: uploader,
+                                    publishedTime: publishedTime,
+                                    coverURL: coverURL,
+                                    detailURL: detailURL))
         }
         
         if let threshold = threshold {
@@ -73,6 +95,59 @@ class RequestManager: ObservableObject {
         }
         
         return mangaItems
+    }
+    
+    func parseHTML_Detail(_ url: URL) -> MangaDetail? {
+        var mangaDetail: MangaDetail?
+        
+        var document: HTMLDocument?
+        do {
+            document = try Kanna.HTML(url: url, encoding: .utf8)
+        } catch {
+            ePrint(error)
+        }
+        
+        guard let doc = document else { return nil }
+        for link in doc.xpath("//div [@class='gm']") {
+            
+            guard let jpnTitle = link.at_xpath("//h1 [@id='gj']")?.text,
+                  let gddNode = link.at_xpath("//div [@id='gdd']"),
+                  let gdrNode = link.at_xpath("//div [@id='gdr']"),
+                  let ratingCount = gdrNode.at_xpath("//span [@id='rating_count']")?.text
+            else { return nil }
+            
+            var tmpLanguage: String?
+            var tmpLikeCount: String?
+            var tmpPageCount: String?
+            var tmpSizeCount: String?
+            for gddLink in gddNode.xpath("//tr") {
+                guard let gdt1 = gddLink.at_xpath("//td [@class='gdt1']")?.text,
+                      let gdt2 = gddLink.at_xpath("//td [@class='gdt2']")?.text
+                else { continue }
+                
+                if gdt1.contains("Language") { tmpLanguage = gdt2.replacingOccurrences(of: "  TR", with: "").trimmingCharacters(in: .whitespaces) }
+                if gdt1.contains("File Size") { tmpSizeCount = gdt2.replacingOccurrences(of: " MB", with: "") }
+                if gdt1.contains("Length") { tmpPageCount = gdt2.replacingOccurrences(of: " pages", with: "") }
+                if gdt1.contains("Favorited") { tmpLikeCount = gdt2.replacingOccurrences(of: " times", with: "") }
+            }
+            
+            guard let likeCount = tmpLikeCount,
+                  let pageCount = tmpPageCount,
+                  let sizeCount = tmpSizeCount,
+                  let tmpLanguage2 = tmpLanguage,
+                  let language = Language(rawValue: tmpLanguage2)
+            else { return nil }
+            
+            mangaDetail = MangaDetail(jpnTitle: jpnTitle,
+                                      language: language,
+                                      likeCount: likeCount,
+                                      pageCount: pageCount,
+                                      sizeCount: sizeCount,
+                                      ratingCount: ratingCount)
+            break
+        }
+        
+        return mangaDetail
     }
     
     func parseCoverURL(_ node: XMLElement?) -> String? {
@@ -98,4 +173,11 @@ class RequestManager: ObservableObject {
         if ratingString.contains("-21px") { rating -= 0.5 }
         return rating
     }
+}
+
+class LoadingStatusManager: ObservableObject {
+    static let shared = LoadingStatusManager()
+    
+    @Published var popularStatus: LoadingStatus = .loading
+    @Published var detailStatus: LoadingStatus = .loading
 }
