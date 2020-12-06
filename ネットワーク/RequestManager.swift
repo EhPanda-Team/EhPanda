@@ -21,6 +21,7 @@ class RequestManager {
     
     func getPopularList() {
         executeAsyncally { [weak self] in
+            self?.setIgnoreOffensiveInfo()
             executeMainAsyncally { LoadingStatusManager.shared.popularStatus = .loading }
             guard let popularURL = URL(string: Defaults.URL.host + ("/popular")) else {
                 ePrint("StringからURLへ解析できませんでした")
@@ -172,6 +173,32 @@ class RequestManager {
         guard var rating = tmpRating else { return nil }
         if ratingString.contains("-21px") { rating -= 0.5 }
         return rating
+    }
+    
+    func setIgnoreOffensiveInfo() {
+        guard let url = URL(string: "https://e-hentai.org/") else { return }
+        if isCookieSet(name: "nw", url: url) { return }
+        setCookie(url: url, key: "nw", value: "1")
+    }
+    
+    func setCookie(url: URL, key: String, value: String) {
+        let cookieStr = key + "=" + value + ";Secure"
+        let cookieHeaderField = ["Set-Cookie": cookieStr]
+        let cookies = HTTPCookie.cookies(withResponseHeaderFields: cookieHeaderField, for: url)
+
+        HTTPCookieStorage.shared.setCookies(cookies, for: url, mainDocumentURL: url)
+    }
+    
+    func isCookieSet(name: String, url: URL) -> Bool {
+        if let cookies = HTTPCookieStorage.shared.cookies(for: url) {
+            for cookie in cookies {
+                if (cookie.name == name) {
+                    return true
+                }
+            }
+        }
+
+        return false
     }
 }
 
