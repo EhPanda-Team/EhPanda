@@ -10,11 +10,16 @@ import SwiftUI
 struct DetailView: View {
     let manga: Manga
     var body: some View {
-        
-        ScrollView { VStack { LoadingView(type: .detail) { Group {
+        ScrollView(showsIndicators: false) { VStack { LoadingView(type: .detail) { Group {
             if let mangaDetail = RequestManager.shared.mangaDetail {
-                HeaderView(container: ImageContainer(from: manga.coverURL, 150), manga: manga, mangaDetail: mangaDetail)
+                HeaderView(container: ImageContainer(from: manga.coverURL, type: .cover, 150),
+                           manga: manga,
+                           mangaDetail: mangaDetail)
+                Divider()
                 DescScrollView(manga: manga, detail: mangaDetail)
+                Divider()
+                PreviewView(manga: manga)
+                Divider()
             }}
             } retryAction: {
                 RequestManager.shared.getMangaDetail(url: manga.detailURL)
@@ -24,13 +29,16 @@ struct DetailView: View {
         .padding(.horizontal)
         .onAppear {
             RequestManager.shared.getMangaDetail(url: manga.detailURL)
+            RequestManager.shared.getMangaPreview(url: manga.detailURL)
         }
         .onDisappear {
             RequestManager.shared.mangaDetail = nil
+            RequestManager.shared.mangaPreviewItems = nil
         }
     }
 }
 
+// MARK: ヘッダー
 private struct HeaderView: View {
     @ObservedObject var container: ImageContainer
     let manga: Manga
@@ -63,6 +71,7 @@ private struct HeaderView: View {
                         .lineLimit(1)
                         .font(.subheadline)
                         .foregroundColor(.secondary)
+                    Spacer()
                     HStack {
                         Text(manga.translatedCategory)
                             .fontWeight(.bold)
@@ -87,13 +96,12 @@ private struct HeaderView: View {
                 .padding(.leading, 10)
                 .padding(.trailing, 10)
             }
-            .background(Color(.systemGray6).opacity(0.5))
-            .cornerRadius(8)
         }
         
     }
 }
 
+// MARK: 基本情報
 private struct DescScrollView: View {
     let manga: Manga
     let detail: MangaDetail
@@ -146,5 +154,44 @@ private struct DescScrollRatingItem: View {
                 .font(.title3)
             RatingView(rating: rating, .secondary)
         }.frame(width: 100)
+    }
+}
+
+// MARK: プレビュー
+private struct PreviewView: View {
+    let manga: Manga
+    
+    var body: some View {
+        VStack {
+            HStack {
+                Text("プレビュー")
+                    .fontWeight(.bold)
+                    .foregroundColor(.primary)
+                    .font(.title3)
+                Spacer()
+            }
+            
+            LoadingView(type: .preview) { ScrollView(.horizontal, showsIndicators: false) { HStack {
+                if let previewItems = RequestManager.shared.mangaPreviewItems {
+                    ForEach(previewItems) { item in
+                        PreviewImageView(container: ImageContainer(from: item.url, type: .preview, 300))
+                    }
+                }
+            }}
+            } retryAction: {
+                RequestManager.shared.getMangaPreview(url: manga.detailURL)
+            }
+        }
+    }
+}
+
+private struct PreviewImageView: View {
+    @ObservedObject var container: ImageContainer
+    
+    var body: some View {
+        container.image
+            .resizable()
+            .frame(width: 320, height: 450)
+            .cornerRadius(15)
     }
 }

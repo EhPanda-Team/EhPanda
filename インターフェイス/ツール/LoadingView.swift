@@ -10,6 +10,7 @@ import SwiftUI
 enum LoadingStatusType {
     case popular
     case detail
+    case preview
 }
 
 struct LoadingView<Content> : View where Content : View {
@@ -25,6 +26,8 @@ struct LoadingView<Content> : View where Content : View {
             return manager.popularStatus
         case .detail:
             return manager.detailStatus
+        case .preview:
+            return manager.previewStatus
         }
     }
     
@@ -39,6 +42,7 @@ struct LoadingView<Content> : View where Content : View {
             contentView()
         } else if status == .loading {
             ProgressView("読み込み中...")
+                .padding(30)
         } else
         if status == .failed {
             VStack {
@@ -57,6 +61,7 @@ struct LoadingView<Content> : View where Content : View {
                 .capsulePadding()
                 .withTapEffect(backgroundColor: Color(.systemGray5))
             }
+            .padding(30)
         }
     }
 }

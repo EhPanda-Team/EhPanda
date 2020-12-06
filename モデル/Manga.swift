@@ -32,6 +32,12 @@ struct MangaDetail {
     let ratingCount: String
 }
 
+struct MangaPreview: Identifiable {
+    let id = UUID()
+    
+    let url: String
+}
+
 // MARK: 列挙型
 enum Category: String {
     case Doujinshi = "Doujinshi"

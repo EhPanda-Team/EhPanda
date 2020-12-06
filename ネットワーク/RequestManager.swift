@@ -17,6 +17,7 @@ class RequestManager {
     static let shared = RequestManager()
     var popularListItems: [Manga]?
     var mangaDetail: MangaDetail?
+    var mangaPreviewItems: [MangaPreview]?
     let popularThreshold = 50
     
     func getPopularList() {
@@ -56,6 +57,25 @@ class RequestManager {
         }
     }
     
+    func getMangaPreview(url: String) {
+        executeAsyncally { [weak self] in
+            executeMainAsyncally { LoadingStatusManager.shared.previewStatus = .loading }
+            guard let detailURL = URL(string: url) else {
+                ePrint("StringからURLへ解析できませんでした")
+                executeMainAsyncally { LoadingStatusManager.shared.previewStatus = .failed }
+                return
+            }
+            guard let mangaPreview = self?.parseHTML_Preview(detailURL) else {
+                ePrint("HTML解析できませんでした")
+                executeMainAsyncally { LoadingStatusManager.shared.previewStatus = .failed }
+                return
+            }
+            executeMainAsyncally { LoadingStatusManager.shared.previewStatus = .loaded }
+            RequestManager.shared.mangaPreviewItems = mangaPreview
+        }
+    }
+    
+    // MARK: ホーム
     func parseHTML_Popular(_ url: URL, _ threshold: Int? = nil) -> [Manga]? {
         var mangaItems = [Manga]()
         
@@ -98,6 +118,7 @@ class RequestManager {
         return mangaItems
     }
     
+    // MARK: 詳細情報
     func parseHTML_Detail(_ url: URL) -> MangaDetail? {
         var mangaDetail: MangaDetail?
         
@@ -151,6 +172,52 @@ class RequestManager {
         return mangaDetail
     }
     
+    // MARK: プレビュー
+    func parseHTML_Preview(_ url: URL) -> [MangaPreview]? {
+        var mangaPreviewItems = [MangaPreview]()
+        
+        var document: HTMLDocument?
+        do {
+            document = try Kanna.HTML(url: url, encoding: .utf8)
+        } catch {
+            ePrint(error)
+        }
+        
+        var imageDetailURLs = [URL]()
+        guard let doc = document else { return nil }
+        guard let gdtNode = doc.at_xpath("//div [@id='gdt']") else { return nil }
+        for link in gdtNode.xpath("//div [@class='gdtm']") {
+            if imageDetailURLs.count >= 10 { break }
+            guard let imageDetailStr = link.at_xpath("//a")?["href"],
+                  let imageDetailURL = URL(string: imageDetailStr)
+            else { continue }
+            
+            imageDetailURLs.append(imageDetailURL)
+        }
+        
+        for url in imageDetailURLs {
+            var document: HTMLDocument?
+            do {
+                document = try Kanna.HTML(url: url, encoding: .utf8)
+            } catch {
+                ePrint(error)
+            }
+            
+            guard let doc = document,
+                  let i3Node = doc.at_xpath("//div [@id='i3']"),
+                  let imageURL = i3Node.at_css("img")?["src"]
+            else { return nil }
+            
+            mangaPreviewItems.append(MangaPreview(url: imageURL))
+        }
+        
+        
+        return mangaPreviewItems
+    }
+}
+
+// MARK: サブメソッド
+extension RequestManager {
     func parseCoverURL(_ node: XMLElement?) -> String? {
         guard let node = node else { return nil }
         
@@ -207,4 +274,5 @@ class LoadingStatusManager: ObservableObject {
     
     @Published var popularStatus: LoadingStatus = .loading
     @Published var detailStatus: LoadingStatus = .loading
+    @Published var previewStatus: LoadingStatus = .loading
 }
