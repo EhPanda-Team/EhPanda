@@ -47,87 +47,45 @@ enum Category: String {
 }
 
 enum Language: String {
-    case Afrikaans = "Afrikaans"
-    case Albanian = "Albanian"
-    case Arabic = "Arabic"
+    case Afrikaans = "Afrikaans"; case Albanian = "Albanian"; case Arabic = "Arabic"
     
-    case Bengali = "Bengali"
-    case Bosnian = "Bosnian"
-    case Bulgarian = "Bulgarian"
-    case Burmese = "Burmese"
+    case Bengali = "Bengali"; case Bosnian = "Bosnian"; case Bulgarian = "Bulgarian"; case Burmese = "Burmese"
     
-    case Catalan = "Catalan"
-    case Cebuano = "Cebuano"
-    case Chinese = "Chinese"
-    case Croatian = "Croatian"
-    case Czech = "Czech"
+    case Catalan = "Catalan"; case Cebuano = "Cebuano"; case Chinese = "Chinese"; case Croatian = "Croatian"; case Czech = "Czech"
     
-    case Danish = "Danish"
-    case Dutch = "Dutch"
+    case Danish = "Danish"; case Dutch = "Dutch"
     
-    case English = "English"
-    case Esperanto = "Esperanto"
-    case Estonian = "Estonian"
+    case English = "English"; case Esperanto = "Esperanto"; case Estonian = "Estonian"
     
-    case Finnish = "Finnish"
-    case French = "French"
+    case Finnish = "Finnish"; case French = "French"
     
-    case Georgian = "Georgian"
-    case German = "German"
-    case Greek = "Greek"
+    case Georgian = "Georgian"; case German = "German"; case Greek = "Greek"
     
-    case Hebrew = "Hebrew"
-    case Hindi = "Hindi"
-    case Hmong = "Hmong"
-    case Hungarian = "Hungarian"
+    case Hebrew = "Hebrew"; case Hindi = "Hindi"; case Hmong = "Hmong"; case Hungarian = "Hungarian"
     
-    case Indonesian = "Indonesian"
-    case Italian = "Italian"
+    case Indonesian = "Indonesian"; case Italian = "Italian"
     
     case Japanese = "Japanese"
     
-    case Kazakh = "Kazakh"
-    case Khmer = "Khmer"
-    case Korean = "Korean"
-    case Kurdish = "Kurdish"
+    case Kazakh = "Kazakh"; case Khmer = "Khmer"; case Korean = "Korean"; case Kurdish = "Kurdish"
     
-    case Lao = "Lao"
-    case Latin = "Latin"
+    case Lao = "Lao"; case Latin = "Latin"
     
     case Mongolian = "Mongolian"
     
-    case Ndebele = "Ndebele"
-    case Nepali = "Nepali"
-    case Norwegian = "Norwegian"
+    case Ndebele = "Ndebele"; case Nepali = "Nepali"; case Norwegian = "Norwegian"
     
     case Oromo = "Oromo"
     
-    case Pashto = "Pashto"
-    case Persian = "Persian"
-    case Polish = "Polish"
-    case Portuguese = "Portuguese"
-    case Punjabi = "Punjabi"
+    case Pashto = "Pashto"; case Persian = "Persian"; case Polish = "Polish"; case Portuguese = "Portuguese"; case Punjabi = "Punjabi"
     
-    case Romanian = "Romanian"
-    case Russian = "Russian"
+    case Romanian = "Romanian"; case Russian = "Russian"
     
-    case Sango = "Sango"
-    case Serbian = "Serbian"
-    case Shona = "Shona"
-    case Slovak = "Slovak"
-    case Slovenian = "Slovenian"
-    case Somali = "Somali"
-    case Spanish = "Spanish"
-    case Swahili = "Swahili"
-    case Swedish = "Swedish"
+    case Sango = "Sango"; case Serbian = "Serbian"; case Shona = "Shona"; case Slovak = "Slovak"; case Slovenian = "Slovenian"; case Somali = "Somali"; case Spanish = "Spanish"; case Swahili = "Swahili"; case Swedish = "Swedish"
     
-    case Tagalog = "Tagalog"
-    case Thai = "Thai"
-    case Tigrinya = "Tigrinya"
-    case Turkish = "Turkish"
+    case Tagalog = "Tagalog"; case Thai = "Thai"; case Tigrinya = "Tigrinya"; case Turkish = "Turkish"
     
-    case Ukrainian = "Ukrainian"
-    case Urdu = "Urdu"
+    case Ukrainian = "Ukrainian"; case Urdu = "Urdu"
     
     case Vietnamese = "Vietnamese"
     
@@ -194,309 +152,97 @@ extension Manga {
 extension MangaDetail {
     var languageAbbr: String {
         switch language {
-        case .Afrikaans:
-            return "AF"
-        case .Albanian:
-            return "SQ"
-        case .Arabic:
-            return "AR"
+        case .Afrikaans: return "AF"; case .Albanian: return "SQ"; case .Arabic: return "AR"
             
-        case .Bengali:
-            return "BN"
-        case .Bosnian:
-            return "BS"
-        case .Bulgarian:
-            return "BG"
-        case .Burmese:
-            return "MY"
+        case .Bengali: return "BN"; case .Bosnian: return "BS"; case .Bulgarian: return "BG"; case .Burmese: return "MY"
             
-        case .Catalan:
-            return "CA"
-        case .Cebuano:
-            return "CEB"
-        case .Chinese:
-            return "ZH"
-        case .Croatian:
-            return "HR"
-        case .Czech:
-            return "CS"
+        case .Catalan: return "CA"; case .Cebuano: return "CEB"; case .Chinese: return "ZH"; case .Croatian: return "HR"; case .Czech: return "CS"
             
-        case .Danish:
-            return "DA"
-        case .Dutch:
-            return "NL"
+        case .Danish: return "DA"; case .Dutch: return "NL"
             
-        case .English:
-            return "EN"
-        case .Esperanto:
-            return "EO"
-        case .Estonian:
-            return "ET"
+        case .English: return "EN"; case .Esperanto: return "EO"; case .Estonian: return "ET"
             
-        case .Finnish:
-            return "FI"
-        case .French:
-            return "FR"
+        case .Finnish: return "FI"; case .French: return "FR"
             
-        case .Georgian:
-            return "KA"
-        case .German:
-            return "DE"
-        case .Greek:
-            return "EL"
+        case .Georgian: return "KA"; case .German: return "DE"; case .Greek: return "EL"
             
-        case .Hebrew:
-            return "HE"
-        case .Hindi:
-            return "HI"
-        case .Hmong:
-            return "HMN"
-        case .Hungarian:
-            return "HU"
+        case .Hebrew: return "HE"; case .Hindi: return "HI"; case .Hmong: return "HMN"; case .Hungarian: return "HU"
             
-        case .Indonesian:
-            return "ID"
-        case .Italian:
-            return "IT"
+        case .Indonesian: return "ID"; case .Italian: return "IT"
             
-        case .Japanese:
-            return "JA"
+        case .Japanese: return "JA"
             
-        case .Kazakh:
-            return "KK"
-        case .Khmer:
-            return "KM"
-        case .Korean:
-            return "KO"
-        case .Kurdish:
-            return "KU"
+        case .Kazakh: return "KK"; case .Khmer: return "KM"; case .Korean: return "KO"; case .Kurdish: return "KU"
             
-        case .Lao:
-            return "LO"
-        case .Latin:
-            return "LA"
+        case .Lao: return "LO"; case .Latin: return "LA"
             
-        case .Mongolian:
-            return "MN"
+        case .Mongolian: return "MN"
             
-        case .Ndebele:
-            return "ND"
-        case .Nepali:
-            return "NE"
-        case .Norwegian:
-            return "NO"
+        case .Ndebele: return "ND"; case .Nepali: return "NE"; case .Norwegian: return "NO"
             
-        case .Oromo:
-            return "OM"
+        case .Oromo: return "OM"
             
-        case .Pashto:
-            return "PS"
-        case .Persian:
-            return "FA"
-        case .Polish:
-            return "PL"
-        case .Portuguese:
-            return "PT"
-        case .Punjabi:
-            return "PA"
+        case .Pashto: return "PS"; case .Persian: return "FA"; case .Polish: return "PL"; case .Portuguese: return "PT"; case .Punjabi: return "PA"
             
-        case .Romanian:
-            return "RO"
-        case .Russian:
-            return "RU"
+        case .Romanian: return "RO"; case .Russian: return "RU"
             
-        case .Sango:
-            return "SG"
-        case .Serbian:
-            return "SR"
-        case .Shona:
-            return "SN"
-        case .Slovak:
-            return "SK"
-        case .Slovenian:
-            return "SL"
-        case .Somali:
-            return "SO"
-        case .Spanish:
-            return "ES"
-        case .Swahili:
-            return "SW"
-        case .Swedish:
-            return "SV"
+        case .Sango: return "SG"; case .Serbian: return "SR"; case .Shona: return "SN"; case .Slovak: return "SK"; case .Slovenian: return "SL"; case .Somali: return "SO"; case .Spanish: return "ES"; case .Swahili: return "SW"; case .Swedish: return "SV"
             
-        case .Tagalog:
-            return "TL"
-        case .Thai:
-            return "TH"
-        case .Tigrinya:
-            return "TI"
-        case .Turkish:
-            return "TR"
+        case .Tagalog: return "TL"; case .Thai: return "TH"; case .Tigrinya: return "TI"; case .Turkish: return "TR"
             
-        case .Ukrainian:
-            return "UK"
-        case .Urdu:
-            return "UR"
+        case .Ukrainian: return "UK"; case .Urdu: return "UR"
             
-        case .Vietnamese:
-            return "VI"
+        case .Vietnamese: return "VI"
             
-        case .Zulu:
-            return "ZU"
+        case .Zulu: return "ZU"
         }
     }
     
     var translatedLanguage: String {
         switch language {
-        case .Afrikaans:
-            return "アフリカーンス語"
-        case .Albanian:
-            return "アルバニア語"
-        case .Arabic:
-            return "アラビア語"
+        case .Afrikaans: return "アフリカーンス語"; case .Albanian: return "アルバニア語"; case .Arabic: return "アラビア語"
             
-        case .Bengali:
-            return "ベンガル語"
-        case .Bosnian:
-            return "ボスニア語"
-        case .Bulgarian:
-            return "ブルガリア語"
-        case .Burmese:
-            return "ビルマ語"
+        case .Bengali: return "ベンガル語"; case .Bosnian: return "ボスニア語"; case .Bulgarian: return "ブルガリア語"; case .Burmese: return "ビルマ語"
             
-        case .Catalan:
-            return "カタルーニャ語"
-        case .Cebuano:
-            return "セブアノ語"
-        case .Chinese:
-            return "中国語"
-        case .Croatian:
-            return "クロアチア語"
-        case .Czech:
-            return "チェコ語"
+        case .Catalan: return "カタルーニャ語"; case .Cebuano: return "セブアノ語"; case .Chinese: return "中国語"; case .Croatian: return "クロアチア語"; case .Czech: return "チェコ語"
             
-        case .Danish:
-            return "デンマーク語"
-        case .Dutch:
-            return "オランダ語"
+        case .Danish: return "デンマーク語"; case .Dutch: return "オランダ語"
             
-        case .English:
-            return "英語"
-        case .Esperanto:
-            return "国際語"
-        case .Estonian:
-            return "エストニア語"
+        case .English: return "英語"; case .Esperanto: return "国際語"; case .Estonian: return "エストニア語"
             
-        case .Finnish:
-            return "フィンランド語"
-        case .French:
-            return "フランス語"
+        case .Finnish: return "フィンランド語"; case .French: return "フランス語"
             
-        case .Georgian:
-            return "グルジア語"
-        case .German:
-            return "ドイツ語"
-        case .Greek:
-            return "ギリシア語"
+        case .Georgian: return "グルジア語"; case .German: return "ドイツ語"; case .Greek: return "ギリシア語"
             
-        case .Hebrew:
-            return "ヘブライ語"
-        case .Hindi:
-            return "ヒンディー語"
-        case .Hmong:
-            return "ミャオ語"
-        case .Hungarian:
-            return "ハンガリー語"
+        case .Hebrew: return "ヘブライ語"; case .Hindi: return "ヒンディー語"; case .Hmong: return "ミャオ語"; case .Hungarian: return "ハンガリー語"
             
-        case .Indonesian:
-            return "インドネシア語"
-        case .Italian:
-            return "イタリア語"
+        case .Indonesian: return "インドネシア語"; case .Italian: return "イタリア語"
             
-        case .Japanese:
-            return "日本語"
+        case .Japanese: return "日本語"
             
-        case .Kazakh:
-            return "カザフ語"
-        case .Khmer:
-            return "クメール語"
-        case .Korean:
-            return "韓国語"
-        case .Kurdish:
-            return "クルド語"
+        case .Kazakh: return "カザフ語"; case .Khmer: return "クメール語"; case .Korean: return "韓国語"; case .Kurdish: return "クルド語"
             
-        case .Lao:
-            return "ラーオ語"
-        case .Latin:
-            return "ラテン語"
+        case .Lao: return "ラーオ語"; case .Latin: return "ラテン語"
             
-        case .Mongolian:
-            return "モンゴル語"
+        case .Mongolian: return "モンゴル語"
             
-        case .Ndebele:
-            return "ンデベレ"
-        case .Nepali:
-            return "ネパール語"
-        case .Norwegian:
-            return "ノルウェー語"
+        case .Ndebele: return "ンデベレ"; case .Nepali: return "ネパール語"; case .Norwegian: return "ノルウェー語"
             
-        case .Oromo:
-            return "オロモ語"
+        case .Oromo: return "オロモ語"
             
-        case .Pashto:
-            return "パシュトー語"
-        case .Persian:
-            return "ペルシア語"
-        case .Polish:
-            return "ポーランド語"
-        case .Portuguese:
-            return "ポルトガル語"
-        case .Punjabi:
-            return "パンジャーブ語"
+        case .Pashto: return "パシュトー語"; case .Persian: return "ペルシア語"; case .Polish: return "ポーランド語"; case .Portuguese: return "ポルトガル語"; case .Punjabi: return "パンジャーブ語"
             
-        case .Romanian:
-            return "ルーマニア語"
-        case .Russian:
-            return "ロシア語"
+        case .Romanian: return "ルーマニア語"; case .Russian: return "ロシア語"
             
-        case .Sango:
-            return "サンゴ語"
-        case .Serbian:
-            return "セルビア語"
-        case .Shona:
-            return "ショナ語"
-        case .Slovak:
-            return "スロバキア語"
-        case .Slovenian:
-            return "スロベニア語"
-        case .Somali:
-            return "ソマリ語"
-        case .Spanish:
-            return "スペイン語"
-        case .Swahili:
-            return "スワヒリ語"
-        case .Swedish:
-            return "スウェーデン語"
+        case .Sango: return "サンゴ語"; case .Serbian: return "セルビア語"; case .Shona: return "ショナ語"; case .Slovak: return "スロバキア語"; case .Slovenian: return "スロベニア語"; case .Somali: return "ソマリ語"; case .Spanish: return "スペイン語"; case .Swahili: return "スワヒリ語"; case .Swedish: return "スウェーデン語"
             
-        case .Tagalog:
-            return "タガログ語"
-        case .Thai:
-            return "タイ語"
-        case .Tigrinya:
-            return "ティグリニャ語"
-        case .Turkish:
-            return "トルコ語"
+        case .Tagalog: return "タガログ語"; case .Thai: return "タイ語"; case .Tigrinya: return "ティグリニャ語"; case .Turkish: return "トルコ語"
             
-        case .Ukrainian:
-            return "ウクライナ語"
-        case .Urdu:
-            return "ウルドゥー語"
+        case .Ukrainian: return "ウクライナ語"; case .Urdu: return "ウルドゥー語"
             
-        case .Vietnamese:
-            return "ベトナム語"
+        case .Vietnamese: return "ベトナム語"
             
-        case .Zulu:
-            return "ズールー語"
+        case .Zulu: return "ズールー語"
         }
     }
 }
