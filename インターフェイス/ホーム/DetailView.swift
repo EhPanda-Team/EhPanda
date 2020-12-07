@@ -9,30 +9,35 @@ import SwiftUI
 import AlamofireImage
 
 struct DetailView: View {
+    @Environment(\.colorScheme) var colorScheme
     @State var backgroundColor: Color
-    @Environment(\.presentationMode) var presentationMode
+    
     let manga: Manga
     
     var body: some View {
         ZStack {
             backgroundColor
                 .ignoresSafeArea()
-            ScrollView(showsIndicators: false) { VStack { LoadingView(type: .detail) { Group {
+            VStack { LoadingView(type: .detail) { Group {
                 if let mangaDetail = RequestManager.shared.mangaDetail {
                     HeaderView(container: ImageContainer(from: manga.coverURL, type: .cover, 150),
                                manga: manga,
                                mangaDetail: mangaDetail)
+                        .frame(height: 150)
                     Divider()
                     DescScrollView(manga: manga, detail: mangaDetail)
+                        .frame(height: 60)
                     Divider()
                     PreviewView(manga: manga)
-                    Divider()
+                        .frame(maxHeight: .infinity)
                 }}
                 } retryAction: {
                     RequestManager.shared.getMangaDetail(url: manga.detailURL)
                 }
                 .padding(.top, 10)
-            }}
+            }
+            .padding(.top, -40)
+            .padding(.bottom, 10)
             .padding(.horizontal)
         }
         .onAppear {
@@ -46,10 +51,6 @@ struct DetailView: View {
         }
     }
     
-    func goBack() {
-        self.presentationMode.wrappedValue.dismiss()
-    }
-    
     func setBackgroundColor() {
         guard let url = URL(string: manga.coverURL) else { return }
         
@@ -58,7 +59,11 @@ struct DetailView: View {
             if case .success(let image) = resp.result {
                 guard let uiColor = image.averageColor else { return }
                 
-                backgroundColor = Color(uiColor)
+                if let darkerColor = uiColor.darker(), colorScheme == .dark {
+                    backgroundColor = Color(darkerColor)
+                } else {
+                    backgroundColor = Color(uiColor)
+                }
             }
         })
     }
@@ -134,7 +139,7 @@ private struct DescScrollView: View {
     
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) { HStack(spacing: 0) {
-            DescScrollItem(title: "いいね", value: detail.likeCount, numeral: "回")
+            DescScrollItem(title: "気に入り", value: detail.likeCount, numeral: "人")
             Divider()
             DescScrollRatingItem(title: detail.ratingCount + "件の評価", rating: manga.rating)
             Divider()
@@ -217,7 +222,7 @@ private struct PreviewImageView: View {
     var body: some View {
         container.image
             .resizable()
-            .frame(width: 320, height: 450)
+            .aspectRatio(32/45, contentMode: .fit)
             .cornerRadius(15)
     }
 }

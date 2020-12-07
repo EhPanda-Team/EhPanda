@@ -16,6 +16,7 @@ enum LoadingStatusType {
 struct LoadingView<Content> : View where Content : View {
     @ObservedObject var manager = LoadingStatusManager.shared
     @Environment(\.colorScheme) var colorScheme
+    
     let contentView: () -> Content
     let retryAction: () -> ()
     
