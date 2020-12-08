@@ -10,14 +10,14 @@ import AlamofireImage
 
 struct DetailView: View {
     @Environment(\.colorScheme) var colorScheme
-    @State var backgroundColor: Color
-    
+    @State var backgroundColor: Color = .clear
     let manga: Manga
     
     var body: some View {
         ZStack {
             backgroundColor
                 .ignoresSafeArea()
+                .animation(.linear(duration: 1.5))
             VStack { LoadingView(type: .detail) { Group {
                 if let mangaDetail = RequestManager.shared.mangaDetail {
                     HeaderView(container: ImageContainer(from: manga.coverURL, type: .cover, 150),
@@ -42,12 +42,14 @@ struct DetailView: View {
         }
         .onAppear {
             setBackgroundColor()
+            RequestManager.shared.stopPreviewLoadFlag = false
             RequestManager.shared.getMangaDetail(url: manga.detailURL)
             RequestManager.shared.getMangaPreview(url: manga.detailURL)
         }
         .onDisappear {
             RequestManager.shared.mangaDetail = nil
             RequestManager.shared.mangaPreviewItems = nil
+            RequestManager.shared.stopPreviewLoadFlag = true
         }
     }
     

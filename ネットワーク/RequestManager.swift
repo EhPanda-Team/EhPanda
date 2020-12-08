@@ -18,8 +18,11 @@ class RequestManager {
     static let shared = RequestManager()
     var popularListItems: [Manga]?
     var mangaDetail: MangaDetail?
-    var mangaPreviewItems: [MangaPreview]?
+    var mangaPreviewItems: [MangaContent]?
+    var mangaContentItems: [MangaContent]?
     let popularThreshold = 50
+    
+    var stopPreviewLoadFlag = false
     
     func getPopularList() {
         executeAsyncally { [weak self] in
@@ -66,7 +69,7 @@ class RequestManager {
                 executeMainAsyncally { LoadingStatusManager.shared.previewStatus = .failed }
                 return
             }
-            guard let mangaPreview = self?.parseHTML_Preview(detailURL) else {
+            guard let mangaPreview = self?.parseHTML_Images(detailURL, limit: 10) else {
                 ePrint("HTML解析できませんでした")
                 executeMainAsyncally { LoadingStatusManager.shared.previewStatus = .failed }
                 return
@@ -173,9 +176,9 @@ class RequestManager {
         return mangaDetail
     }
     
-    // MARK: プレビュー
-    func parseHTML_Preview(_ url: URL) -> [MangaPreview]? {
-        var mangaPreviewItems = [MangaPreview]()
+    // MARK: コンテント
+    func parseHTML_Images(_ url: URL, limit: Int = 0) -> [MangaContent]? {
+        var mangaItems = [MangaContent]()
         
         var document: HTMLDocument?
         do {
@@ -188,7 +191,9 @@ class RequestManager {
         guard let doc = document else { return nil }
         guard let gdtNode = doc.at_xpath("//div [@id='gdt']") else { return nil }
         for link in gdtNode.xpath("//div [@class='gdtm']") {
-            if imageDetailURLs.count >= 10 { break }
+            if stopPreviewLoadFlag { return nil }
+            
+            if imageDetailURLs.count >= limit && limit != 0 { break }
             guard let imageDetailStr = link.at_xpath("//a")?["href"],
                   let imageDetailURL = URL(string: imageDetailStr)
             else { continue }
@@ -197,6 +202,8 @@ class RequestManager {
         }
         
         for url in imageDetailURLs {
+            if stopPreviewLoadFlag { return nil }
+            
             var document: HTMLDocument?
             do {
                 document = try Kanna.HTML(url: url, encoding: .utf8)
@@ -209,11 +216,11 @@ class RequestManager {
                   let imageURL = i3Node.at_css("img")?["src"]
             else { return nil }
             
-            mangaPreviewItems.append(MangaPreview(url: imageURL))
+            mangaItems.append(MangaContent(url: imageURL))
         }
         
         
-        return mangaPreviewItems
+        return mangaItems
     }
 }
 

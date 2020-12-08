@@ -32,7 +32,7 @@ struct MangaDetail {
     let ratingCount: String
 }
 
-struct MangaPreview: Identifiable {
+struct MangaContent: Identifiable {
     let id = UUID()
     
     let url: String

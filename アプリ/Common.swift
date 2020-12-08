@@ -41,6 +41,7 @@ public func executeAsyncally(_ closure: @escaping (()->())) {
 }
 
 enum ImageScaleType {
+    case none
     case cover
     case preview
 }
@@ -49,7 +50,7 @@ final class ImageContainer: ObservableObject {
     @Published var image: SwiftUI.Image
     
     init(from resource: String, type: ImageScaleType, _ targetHeight: CGFloat) {
-        if let uiImage = UIImage(named: "Placeholder") {
+        if let uiImage = UIImage(named: "Placeholder"), type != .none {
             image = ImageScaler.getScaledImage(uiImage: uiImage, targetHeight: targetHeight, type: type)
         } else {
             image = Image("Placeholder")
@@ -61,6 +62,10 @@ final class ImageContainer: ObservableObject {
         downloader.download(URLRequest(url: url), completion: { [weak self] (resp) in
             if case .success(let image) = resp.result {
                 DispatchQueue.main.async {
+                    if type == .none {
+                        self?.image = Image(uiImage: image)
+                        return
+                    }
                     self?.image = ImageScaler.getScaledImage(uiImage: image, targetHeight: targetHeight, type: type)
                 }
             }
@@ -80,6 +85,8 @@ class ImageScaler {
         }
         var targetRatio: CGFloat {
             switch type {
+            case .none:
+                return 0
             case .cover:
                 return targetRatio_Cover
             case .preview:
