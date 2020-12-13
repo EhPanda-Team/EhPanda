@@ -18,7 +18,7 @@ struct DetailView: View {
     let manga: Manga
     
     var body: some View { Group {
-        if let detailItem = store.detailItem, !store.previewItems.isEmpty {
+        if let detailItem = store.detailItem {
             ZStack {
                 backgroundColor
                     .ignoresSafeArea()
@@ -32,7 +32,9 @@ struct DetailView: View {
                     DescScrollView(manga: manga, detail: detailItem)
                         .frame(height: 60)
                         .padding(.vertical, 30)
-                    PreviewView(previewItems: store.previewItems)
+                    let pageCount = Int(detailItem.pageCount) ?? 0
+                    let previewCount = pageCount > 10 ? 10 : pageCount
+                    PreviewView(previewItems: store.previewItems, previewCount: previewCount)
                         .frame(maxHeight: .infinity)
                 }.shadow(radius: 10)}
                 .padding(.top, -40)
@@ -240,6 +242,7 @@ private struct DescScrollRatingItem: View {
 // MARK: プレビュー
 private struct PreviewView: View {
     let previewItems: [MangaContent]
+    let previewCount: Int
     
     var body: some View {
         VStack {
@@ -257,7 +260,9 @@ private struct PreviewView: View {
                         ImageView(container: ImageContainer(from: item.url, type: .preview, 300))
                     }
                 } else {
-                    LoadingView()
+                    ForEach(0..<previewCount) { _ in
+                        ImageView(container: ImageContainer(from: "", type: .preview, 300))
+                    }
                 }
             }}
         }
