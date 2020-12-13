@@ -36,14 +36,14 @@ struct RatingView: View {
             } else if rating == 2.5 {
                 ForEach(0..<2) { _ in FilledStar(color: color) }
                 ForEach(0..<1) { _ in HalfFilledStar(color: color) }
-                ForEach(0..<3) { _ in NotFilledStar(color: color) }
+                ForEach(0..<2) { _ in NotFilledStar(color: color) }
             } else if rating == 3.0 {
                 ForEach(0..<3) { _ in FilledStar(color: color) }
                 ForEach(0..<2) { _ in NotFilledStar(color: color) }
             } else if rating == 3.5 {
                 ForEach(0..<3) { _ in FilledStar(color: color) }
                 ForEach(0..<1) { _ in HalfFilledStar(color: color) }
-                ForEach(0..<2) { _ in NotFilledStar(color: color) }
+                ForEach(0..<1) { _ in NotFilledStar(color: color) }
             } else if rating == 4.0 {
                 ForEach(0..<4) { _ in FilledStar(color: color) }
                 ForEach(0..<1) { _ in NotFilledStar(color: color) }

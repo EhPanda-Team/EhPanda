@@ -29,6 +29,7 @@ struct MangaDetail {
     let likeCount: String
     let pageCount: String
     let sizeCount: String
+    let sizeType: String
     let ratingCount: String
 }
 

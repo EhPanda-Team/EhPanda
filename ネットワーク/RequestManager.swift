@@ -131,13 +131,21 @@ class RequestManager {
             var tmpLikeCount: String?
             var tmpPageCount: String?
             var tmpSizeCount: String?
+            var tmpSizeType: String?
             for gddLink in gddNode.xpath("//tr") {
                 guard let gdt1 = gddLink.at_xpath("//td [@class='gdt1']")?.text,
                       let gdt2 = gddLink.at_xpath("//td [@class='gdt2']")?.text
                 else { continue }
                 
                 if gdt1.contains("Language") { tmpLanguage = gdt2.replacingOccurrences(of: "  TR", with: "").trimmingCharacters(in: .whitespaces) }
-                if gdt1.contains("File Size") { tmpSizeCount = gdt2.replacingOccurrences(of: " MB", with: "") }
+                if gdt1.contains("File Size") {
+                    if gdt2.contains("KB") { tmpSizeType = "KB" }
+                    if gdt2.contains("MB") { tmpSizeType = "MB" }
+                    if gdt2.contains("GB") { tmpSizeType = "GB" }
+                    tmpSizeCount = gdt2.replacingOccurrences(of: " KB", with: "")
+                                       .replacingOccurrences(of: " MB", with: "")
+                                       .replacingOccurrences(of: " GB", with: "")
+                }
                 if gdt1.contains("Length") { tmpPageCount = gdt2.replacingOccurrences(of: " pages", with: "") }
                 if gdt1.contains("Favorited") { tmpLikeCount = gdt2.replacingOccurrences(of: " times", with: "") }
             }
@@ -145,6 +153,7 @@ class RequestManager {
             guard let likeCount = tmpLikeCount,
                   let pageCount = tmpPageCount,
                   let sizeCount = tmpSizeCount,
+                  let sizeType = tmpSizeType,
                   let tmpLanguage2 = tmpLanguage,
                   let language = Language(rawValue: tmpLanguage2)
             else { return nil }
@@ -154,6 +163,7 @@ class RequestManager {
                                       likeCount: likeCount,
                                       pageCount: pageCount,
                                       sizeCount: sizeCount,
+                                      sizeType: sizeType,
                                       ratingCount: ratingCount)
             break
         }

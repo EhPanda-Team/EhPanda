@@ -39,3 +39,14 @@ extension View {
         self.modifier(ButtonTapEffect(backgroundColor: backgroundColor))
     }
 }
+
+struct CapsuleButtonStyle: ButtonStyle {
+    func makeBody(configuration: Self.Configuration) -> some View {
+        configuration.label
+            .capsulePadding()
+            .background(
+                RoundedRectangle(cornerRadius: 30)
+                    .foregroundColor(configuration.isPressed ? Color.blue.opacity(0.5) : Color.blue)
+            )
+    }
+}
