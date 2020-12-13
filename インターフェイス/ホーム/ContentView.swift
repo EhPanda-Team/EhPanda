@@ -12,6 +12,7 @@ struct ContentView: View {
     @Binding var isContentViewPresented: Bool
     
     let detailURL: String
+    let pages: Int
     
     var body: some View { Group {
         if !store.contentItems.isEmpty {
@@ -28,7 +29,7 @@ struct ContentView: View {
         .navigationBarHidden(true)
         .onAppear {
             isContentViewPresented = true
-            store.fetchContentItems(url: detailURL)
+            store.fetchContentItems(url: detailURL, pages: pages)
         }
         .onDisappear {
             store.contentItems.removeAll()

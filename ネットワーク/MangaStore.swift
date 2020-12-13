@@ -46,9 +46,9 @@ class DetailItemsStore: ObservableObject {
 class ContentItemsStore: ObservableObject {
     @Published var contentItems = [MangaContent]()
     
-    func fetchContentItems(url: String) {
+    func fetchContentItems(url: String, pages: Int) {
         executeAsyncally {
-            let items = RequestManager.shared.requestContentItems(url: url)
+            let items = RequestManager.shared.requestContentItems(url: url, pages: pages)
             executeMainAsyncally { [weak self] in
                 self?.contentItems = items
             }

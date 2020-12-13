@@ -119,16 +119,13 @@ private struct HeaderView: View {
     @Binding var isContentViewPresented: Bool
     
     let manga: Manga
-    var mangaDetail: MangaDetail?
+    var mangaDetail: MangaDetail
     
     var title: String {
-        guard let jpnTitle = mangaDetail?.jpnTitle else {
-            return manga.title
-        }
-        if jpnTitle.isEmpty {
+        if mangaDetail.jpnTitle.isEmpty {
             return manga.title
         } else {
-            return jpnTitle
+            return mangaDetail.jpnTitle
         }
     }
     
@@ -161,7 +158,9 @@ private struct HeaderView: View {
                                     .foregroundColor(Color(manga.color))
                             )
                         Spacer()
-                        let contentView = ContentView(isContentViewPresented: $isContentViewPresented, detailURL: manga.detailURL)
+                        let contentView = ContentView(isContentViewPresented: $isContentViewPresented,
+                                                      detailURL: manga.detailURL,
+                                                      pages: Int(mangaDetail.pageCount) ?? 0)
                         Button(action: {}) { NavigationLink(destination: contentView) {
                             Text("読む")
                                 .fontWeight(.bold)

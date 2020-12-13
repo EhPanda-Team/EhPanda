@@ -41,23 +41,15 @@ class RequestManager {
     }
     
     func requestPreviewItems(url: String) -> [MangaContent] {
-        guard let detailURL = URL(string: url) else {
-            ePrint("StringからURLへ解析できませんでした")
-            return []
-        }
-        guard let previewItems = parseHTML_Images(detailURL, limit: 10) else {
+        guard let previewItems = parseHTML_Images(url, limit: 10) else {
             ePrint("HTML解析できませんでした")
             return []
         }
         return previewItems
     }
     
-    func requestContentItems(url: String) -> [MangaContent] {
-        guard let detailURL = URL(string: url) else {
-            ePrint("StringからURLへ解析できませんでした")
-            return []
-        }
-        guard let contentItems = parseHTML_Images(detailURL) else {
+    func requestContentItems(url: String, pages: Int) -> [MangaContent] {
+        guard let contentItems = parseHTML_Images(url, pages: pages) else {
             ePrint("HTML解析できませんでした")
             return []
         }
@@ -172,38 +164,53 @@ class RequestManager {
     }
     
     // MARK: コンテント
-    func parseHTML_Images(_ url: URL, limit: Int = 0) -> [MangaContent]? {
+    func parseHTML_Images(_ url: String, limit: Int = 0, pages: Int = 1) -> [MangaContent]? {
         var mangaItems = [MangaContent]()
+        var imageDetailURLs = [MangaURL]()
         
-        var document: HTMLDocument?
-        do {
-            document = try Kanna.HTML(url: url, encoding: .utf8)
-        } catch {
-            ePrint(error)
+        let pagesStartTime = CACurrentMediaTime()
+        let pagesCount = Int(ceil(Double(pages)/40))
+        let pagesQueue = OperationQueue()
+        for index in 0..<pagesCount {
+            guard let url = URL(string: url.appending("?p=\(index)")) else { return nil }
+            
+            pagesQueue.addOperation { [weak self] in
+                var document: HTMLDocument?
+                do {
+                    document = try Kanna.HTML(url: url, encoding: .utf8)
+                } catch {
+                    ePrint(error)
+                }
+                
+                guard let doc = document else { return }
+                guard let gdtNode = doc.at_xpath("//div [@id='gdt']") else { return }
+                for (i, link) in gdtNode.xpath("//div [@class='gdtm']").enumerated() {
+                    if self?.stopPreviewLoadFlag == true { return }
+                    
+                    if imageDetailURLs.count >= limit && limit != 0 { break }
+                    guard let imageDetailStr = link.at_xpath("//a")?["href"],
+                          let imageDetailURL = URL(string: imageDetailStr)
+                    else { continue }
+                    
+                    imageDetailURLs.append(MangaURL(tag: index * 40 + i, url: imageDetailURL))
+                }
+            }
+        }
+        pagesQueue.waitUntilAllOperationsAreFinished()
+        print("debugMark all pages operation finished!  cost \(CACurrentMediaTime() - pagesStartTime)s")
+        imageDetailURLs.sort { (a, b) -> Bool in
+            a.tag < b.tag
         }
         
-        var imageDetailURLs = [URL]()
-        guard let doc = document else { return nil }
-        guard let gdtNode = doc.at_xpath("//div [@id='gdt']") else { return nil }
-        for link in gdtNode.xpath("//div [@class='gdtm']") {
-            if stopPreviewLoadFlag { return nil }
-            
-            if imageDetailURLs.count >= limit && limit != 0 { break }
-            guard let imageDetailStr = link.at_xpath("//a")?["href"],
-                  let imageDetailURL = URL(string: imageDetailStr)
-            else { continue }
-            
-            imageDetailURLs.append(imageDetailURL)
-        }
-        
+        let urlsStartTime = CACurrentMediaTime()
         let queue = OperationQueue()
-        for (index, url) in imageDetailURLs.enumerated() {
+        for (index, mangaURL) in imageDetailURLs.enumerated() {
             if stopPreviewLoadFlag { return nil }
             
             queue.addOperation {
                 var document: HTMLDocument?
                 do {
-                    document = try Kanna.HTML(url: url, encoding: .utf8)
+                    document = try Kanna.HTML(url: mangaURL.url, encoding: .utf8)
                 } catch {
                     ePrint(error)
                 }
@@ -217,6 +224,7 @@ class RequestManager {
             }
         }
         queue.waitUntilAllOperationsAreFinished()
+        print("debugMark all urls operation finished!  cost \(CACurrentMediaTime() - urlsStartTime)s")
         mangaItems.sort { (a, b) -> Bool in
             a.tag < b.tag
         }
