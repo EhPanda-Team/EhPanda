@@ -36,6 +36,7 @@ struct MangaDetail {
 struct MangaContent: Identifiable {
     let id = UUID()
     
+    let tag: Int
     let url: String
 }
 

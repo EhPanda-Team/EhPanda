@@ -196,24 +196,30 @@ class RequestManager {
             imageDetailURLs.append(imageDetailURL)
         }
         
-        for url in imageDetailURLs {
+        let queue = OperationQueue()
+        for (index, url) in imageDetailURLs.enumerated() {
             if stopPreviewLoadFlag { return nil }
             
-            var document: HTMLDocument?
-            do {
-                document = try Kanna.HTML(url: url, encoding: .utf8)
-            } catch {
-                ePrint(error)
+            queue.addOperation {
+                var document: HTMLDocument?
+                do {
+                    document = try Kanna.HTML(url: url, encoding: .utf8)
+                } catch {
+                    ePrint(error)
+                }
+                
+                guard let doc = document,
+                      let i3Node = doc.at_xpath("//div [@id='i3']"),
+                      let imageURL = i3Node.at_css("img")?["src"]
+                else { return }
+                
+                mangaItems.append(MangaContent(tag: index, url: imageURL))
             }
-            
-            guard let doc = document,
-                  let i3Node = doc.at_xpath("//div [@id='i3']"),
-                  let imageURL = i3Node.at_css("img")?["src"]
-            else { return nil }
-            
-            mangaItems.append(MangaContent(url: imageURL))
         }
-        
+        queue.waitUntilAllOperationsAreFinished()
+        mangaItems.sort { (a, b) -> Bool in
+            a.tag < b.tag
+        }
         
         return mangaItems
     }

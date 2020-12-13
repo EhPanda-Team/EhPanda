@@ -39,10 +39,10 @@ struct DetailView: View {
                 .padding(.bottom, 10)
                 .padding(.horizontal)
             }
+            .transition(AnyTransition.opacity.animation(.linear(duration: 0.5)))
             .onAppear {
                 shouldBackButtonHidden = false
             }
-            .transition(AnyTransition.opacity.animation(.linear(duration: 0.5)))
         } else {
             LoadingView()
         }}
