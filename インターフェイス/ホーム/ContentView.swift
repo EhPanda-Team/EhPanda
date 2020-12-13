@@ -21,6 +21,7 @@ struct ContentView: View {
                 }
             }}
             .ignoresSafeArea()
+            .transition(AnyTransition.opacity.animation(.linear(duration: 0.5)))
         } else {
             LoadingView()
         }}

@@ -12,37 +12,46 @@ struct DetailView: View {
     @ObservedObject var store = DetailItemsStore()
     @Environment(\.colorScheme) var colorScheme
     @State var isContentViewPresented = false
+    @State var shouldBackButtonHidden = true
     @State var backgroundColor: Color = .clear
     
     let manga: Manga
     
     var body: some View { Group {
-        if let detailItem = store.detailItem, !store.previewItems.isEmpty { ZStack {
-            backgroundColor
-                .ignoresSafeArea()
-            
-            VStack {
-                HeaderView(container: ImageContainer(from: manga.coverURL, type: .cover, 150),
-                           isContentViewPresented: $isContentViewPresented,
-                           manga: manga,
-                           mangaDetail: detailItem)
-                    .frame(height: 150)
-                DescScrollView(manga: manga, detail: detailItem)
-                    .frame(height: 60)
-                    .padding(.vertical, 30)
-                    .shadow(radius: 10)
-                PreviewView(previewItems: store.previewItems)
-                    .frame(maxHeight: .infinity)
+        if let detailItem = store.detailItem, !store.previewItems.isEmpty {
+            ZStack {
+                backgroundColor
+                    .ignoresSafeArea()
+                
+                VStack { Group {
+                    HeaderView(container: ImageContainer(from: manga.coverURL, type: .cover, 150),
+                               isContentViewPresented: $isContentViewPresented,
+                               manga: manga,
+                               mangaDetail: detailItem)
+                        .frame(height: 150)
+                    DescScrollView(manga: manga, detail: detailItem)
+                        .frame(height: 60)
+                        .padding(.vertical, 30)
+                    PreviewView(previewItems: store.previewItems)
+                        .frame(maxHeight: .infinity)
+                }.shadow(radius: 10)}
+                .padding(.top, -40)
+                .padding(.bottom, 10)
+                .padding(.horizontal)
             }
-            .padding(.top, -40)
-            .padding(.bottom, 10)
-            .padding(.horizontal)}
-            .animation(.linear(duration: 1.5))
+            .onAppear {
+                shouldBackButtonHidden = false
+            }
+            .transition(AnyTransition.opacity.animation(.linear(duration: 0.5)))
         } else {
             LoadingView()
         }}
         .navigationBarBackButtonHidden(true)
-        .navigationBarItems(leading: BackButton())
+        .navigationBarItems(leading: Group {
+            if !shouldBackButtonHidden {
+                BackButton()
+            }
+        })
         .onAppear {
             fetchItems()
             fetchBackgroundColor()
@@ -97,6 +106,7 @@ private struct BackButton: View {
                 .foregroundColor(isPressed ? color.opacity(0.5) : color)
                 .font(.system(.title))
         }
+        .shadow(radius: 10)
         .onLongPressGesture(pressing: { (_) in
             isPressed.toggle()
         }, perform: {})
@@ -134,7 +144,6 @@ private struct HeaderView: View {
                         .lineLimit(3)
                         .font(.title3)
                         .foregroundColor(.white)
-                        .shadow(radius: 10)
                     Text(manga.uploader)
                         .lineLimit(1)
                         .font(.subheadline)
@@ -178,9 +187,9 @@ private struct DescScrollView: View {
         HStack {
             DescScrollItem(title: "気に入り", value: detail.likeCount, numeral: "人")
             Spacer()
-            DescScrollRatingItem(title: detail.ratingCount + "件の評価", rating: manga.rating)
-            Spacer()
             DescScrollItem(title: "言語", value: detail.languageAbbr, numeral: detail.translatedLanguage)
+            Spacer()
+            DescScrollRatingItem(title: detail.ratingCount + "件の評価", rating: manga.rating)
             Spacer()
             DescScrollItem(title: "ページ", value: detail.pageCount, numeral: "頁")
             Spacer()
@@ -207,7 +216,7 @@ private struct DescScrollItem: View {
             Text(numeral)
                 .font(.caption)
         }
-        .frame(width: 60)
+        .frame(minWidth: 50, maxWidth: 60)
     }
 }
 
@@ -225,7 +234,7 @@ private struct DescScrollRatingItem: View {
                 .font(.title3)
             RatingView(rating: rating, .white)
         }
-        .frame(width: 100)
+        .frame(minWidth: 60, maxWidth: 100)
     }
 }
 
@@ -240,7 +249,6 @@ private struct PreviewView: View {
                     .fontWeight(.bold)
                     .foregroundColor(.white)
                     .font(.title3)
-                    .shadow(radius: 10)
                 Spacer()
             }
             

@@ -11,7 +11,7 @@ struct HomeView: View {
     @ObservedObject var store = PopularItemsStore()
     
     var body: some View {
-        NavigationView { Group {
+        NavigationView { ZStack {
             if !store.popularItems.isEmpty {
                 ScrollView { LazyVStack {
                     ForEach(store.popularItems) { item in NavigationLink(destination: DetailView(manga: item)) {
@@ -20,6 +20,7 @@ struct HomeView: View {
                     }
                 }}
                 .padding()}
+                .transition(AnyTransition.opacity.animation(.linear(duration: 0.5)))
             } else {
                 LoadingView()
             }}
