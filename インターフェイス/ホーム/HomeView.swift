@@ -8,21 +8,25 @@
 import SwiftUI
 
 struct HomeView: View {
+    @ObservedObject var store = PopularItemsStore()
+    
     var body: some View {
-        NavigationView { LoadingView(type: .popular) { ScrollView { LazyVStack {
-            if let mangaItems = RequestManager.shared.popularListItems {
-                ForEach(mangaItems) { item in NavigationLink(destination: DetailView(manga: item)) {
-                    MangaSummaryRow(container: ImageContainer(from: item.coverURL, type: .cover, 110), manga: item)
+        NavigationView { Group {
+            if !store.popularItems.isEmpty {
+                ScrollView { LazyVStack {
+                    ForEach(store.popularItems) { item in NavigationLink(destination: DetailView(manga: item)) {
+                        let imageContainer = ImageContainer(from: item.coverURL, type: .cover, 110)
+                        MangaSummaryRow(container: imageContainer, manga: item)
+                    }
                 }}
-            }}.padding()}
-            } retryAction: {
-                RequestManager.shared.getPopularList()
-            }
-            .navigationBarTitle("ホーム")
+                .padding()}
+            } else {
+                LoadingView()
+            }}
+            .navigationBarTitle("人気")
         }
         .onAppear {
-            if RequestManager.shared.popularListItems != nil { return }
-            RequestManager.shared.getPopularList()
+            store.fetchPopularItems()
         }
     }
 }

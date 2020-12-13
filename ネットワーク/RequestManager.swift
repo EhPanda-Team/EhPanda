@@ -8,78 +8,63 @@
 import Kanna
 import SwiftUI
 
-enum LoadingStatus {
-    case loading
-    case failed
-    case loaded
-}
-
 class RequestManager {
     static let shared = RequestManager()
-    var popularListItems: [Manga]?
-    var mangaDetail: MangaDetail?
-    var mangaPreviewItems: [MangaContent]?
-    var mangaContentItems: [MangaContent]?
     let popularThreshold = 50
     
     var stopPreviewLoadFlag = false
     
-    func getPopularList() {
-        executeAsyncally { [weak self] in
-            self?.setIgnoreOffensiveInfo()
-            executeMainAsyncally { LoadingStatusManager.shared.popularStatus = .loading }
-            guard let popularURL = URL(string: Defaults.URL.host + ("/popular")) else {
-                ePrint("StringからURLへ解析できませんでした")
-                executeMainAsyncally { LoadingStatusManager.shared.popularStatus = .failed }
-                return
-            }
-            guard let mangaItems = self?.parseHTML_Popular(popularURL, self?.popularThreshold) else {
-                ePrint("HTML解析できませんでした")
-                executeMainAsyncally { LoadingStatusManager.shared.popularStatus = .failed }
-                return
-            }
-            executeMainAsyncally { LoadingStatusManager.shared.popularStatus = .loaded }
-            RequestManager.shared.popularListItems = mangaItems
+    func requestPopularItems() -> [Manga] {
+        setIgnoreOffensiveInfo()
+        
+        guard let popularURL = URL(string: Defaults.URL.host + ("/popular")) else {
+            ePrint("StringからURLへ解析できませんでした")
+            return []
         }
+        guard let popularItems = parseHTML_Popular(popularURL, popularThreshold) else {
+            ePrint("HTML解析できませんでした")
+            return []
+        }
+        return popularItems
     }
     
-    func getMangaDetail(url: String) {
-        executeAsyncally { [weak self] in
-            executeMainAsyncally { LoadingStatusManager.shared.detailStatus = .loading }
-            guard let detailURL = URL(string: url) else {
-                ePrint("StringからURLへ解析できませんでした")
-                executeMainAsyncally { LoadingStatusManager.shared.detailStatus = .failed }
-                return
-            }
-            guard let mangaDetail = self?.parseHTML_Detail(detailURL) else {
-                ePrint("HTML解析できませんでした")
-                executeMainAsyncally { LoadingStatusManager.shared.detailStatus = .failed }
-                return
-            }
-            executeMainAsyncally { LoadingStatusManager.shared.detailStatus = .loaded }
-            RequestManager.shared.mangaDetail = mangaDetail
+    func requestDetailItem(url: String) -> MangaDetail? {
+        guard let detailURL = URL(string: url) else {
+            ePrint("StringからURLへ解析できませんでした")
+            return nil
         }
+        guard let detailItem = parseHTML_Detail(detailURL) else {
+            ePrint("HTML解析できませんでした")
+            return nil
+        }
+        return detailItem
     }
     
-    func getMangaPreview(url: String) {
-        executeAsyncally { [weak self] in
-            executeMainAsyncally { LoadingStatusManager.shared.previewStatus = .loading }
-            guard let detailURL = URL(string: url) else {
-                ePrint("StringからURLへ解析できませんでした")
-                executeMainAsyncally { LoadingStatusManager.shared.previewStatus = .failed }
-                return
-            }
-            guard let mangaPreview = self?.parseHTML_Images(detailURL, limit: 10) else {
-                ePrint("HTML解析できませんでした")
-                executeMainAsyncally { LoadingStatusManager.shared.previewStatus = .failed }
-                return
-            }
-            executeMainAsyncally { LoadingStatusManager.shared.previewStatus = .loaded }
-            RequestManager.shared.mangaPreviewItems = mangaPreview
+    func requestPreviewItems(url: String) -> [MangaContent] {
+        guard let detailURL = URL(string: url) else {
+            ePrint("StringからURLへ解析できませんでした")
+            return []
         }
+        guard let previewItems = parseHTML_Images(detailURL, limit: 10) else {
+            ePrint("HTML解析できませんでした")
+            return []
+        }
+        return previewItems
     }
     
-    // MARK: ホーム
+    func requestContentItems(url: String) -> [MangaContent] {
+        guard let detailURL = URL(string: url) else {
+            ePrint("StringからURLへ解析できませんでした")
+            return []
+        }
+        guard let contentItems = parseHTML_Images(detailURL) else {
+            ePrint("HTML解析できませんでした")
+            return []
+        }
+        return contentItems
+    }
+    
+    // MARK: 人気
     func parseHTML_Popular(_ url: URL, _ threshold: Int? = nil) -> [Manga]? {
         var mangaItems = [Manga]()
         
@@ -275,12 +260,4 @@ extension RequestManager {
 
         return false
     }
-}
-
-class LoadingStatusManager: ObservableObject {
-    static let shared = LoadingStatusManager()
-    
-    @Published var popularStatus: LoadingStatus = .loading
-    @Published var detailStatus: LoadingStatus = .loading
-    @Published var previewStatus: LoadingStatus = .loading
 }

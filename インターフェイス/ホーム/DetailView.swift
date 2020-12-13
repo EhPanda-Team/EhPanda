@@ -9,71 +9,59 @@ import SwiftUI
 import AlamofireImage
 
 struct DetailView: View {
+    @ObservedObject var store = DetailItemsStore()
     @Environment(\.colorScheme) var colorScheme
-    @State var backgroundColor: Color = .clear
+    @State var isContentViewPresented = false
+    
     let manga: Manga
     
     var body: some View {
-        ZStack {
-            backgroundColor
-                .ignoresSafeArea()
-                .animation(.linear(duration: 1.5))
-            VStack { LoadingView(type: .detail) { Group {
-                if let mangaDetail = RequestManager.shared.mangaDetail {
-                    HeaderView(container: ImageContainer(from: manga.coverURL, type: .cover, 150),
-                               manga: manga,
-                               mangaDetail: mangaDetail)
-                        .frame(height: 150)
-                    Divider()
-                    DescScrollView(manga: manga, detail: mangaDetail)
-                        .frame(height: 60)
-                    Divider()
-                    PreviewView(manga: manga)
-                        .frame(maxHeight: .infinity)
-                }}
-                } retryAction: {
-                    RequestManager.shared.getMangaDetail(url: manga.detailURL)
-                }
-                .padding(.top, 10)
+        VStack { Group {
+            if let detailItem = store.detailItem, !store.previewItems.isEmpty {
+                HeaderView(container: ImageContainer(from: manga.coverURL, type: .cover, 150),
+                           isContentViewPresented: $isContentViewPresented,
+                           manga: manga,
+                           mangaDetail: detailItem)
+                    .frame(height: 150)
+                DescScrollView(manga: manga, detail: detailItem)
+                    .frame(height: 60)
+                    .padding(.vertical, 30)
+                PreviewView(previewItems: store.previewItems)
+                    .frame(maxHeight: .infinity)
+            } else {
+                LoadingView()
             }
-            .padding(.top, -40)
-            .padding(.bottom, 10)
-            .padding(.horizontal)
-        }
+        }}
+        .padding(.top, -40)
+        .padding(.bottom, 10)
+        .padding(.horizontal)
         .onAppear {
-            setBackgroundColor()
-            RequestManager.shared.stopPreviewLoadFlag = false
-            RequestManager.shared.getMangaDetail(url: manga.detailURL)
-            RequestManager.shared.getMangaPreview(url: manga.detailURL)
+            fetchItems()
+            isContentViewPresented = false
         }
         .onDisappear {
-            RequestManager.shared.mangaDetail = nil
-            RequestManager.shared.mangaPreviewItems = nil
-            RequestManager.shared.stopPreviewLoadFlag = true
+            if isContentViewPresented { return }
+            
+            store.detailItem = nil
+            store.previewItems.removeAll()
         }
     }
     
-    func setBackgroundColor() {
-        guard let url = URL(string: manga.coverURL) else { return }
-        
-        let downloader = ImageDownloader()
-        downloader.download(URLRequest(url: url), completion: { (resp) in
-            if case .success(let image) = resp.result {
-                guard let uiColor = image.averageColor else { return }
-                
-                if let darkerColor = uiColor.darker(), colorScheme == .dark {
-                    backgroundColor = Color(darkerColor)
-                } else {
-                    backgroundColor = Color(uiColor)
-                }
-            }
-        })
+    func fetchItems() {
+        if store.detailItem == nil {
+            store.fetchDetailItem(url: manga.detailURL)
+        }
+        if store.previewItems.isEmpty {
+            store.fetchPreviewItems(url: manga.detailURL)
+        }
     }
 }
 
 // MARK: ヘッダー
 private struct HeaderView: View {
     @ObservedObject var container: ImageContainer
+    @Binding var isContentViewPresented: Bool
+    
     let manga: Manga
     var mangaDetail: MangaDetail?
     
@@ -117,7 +105,8 @@ private struct HeaderView: View {
                                     .foregroundColor(Color(manga.color))
                             )
                         Spacer()
-                        Button(action: {}) { NavigationLink(destination: EmptyView()) {
+                        let contentView = ContentView(isContentViewPresented: $isContentViewPresented, detailURL: manga.detailURL)
+                        Button(action: {}) { NavigationLink(destination: contentView) {
                             Text("読む")
                                 .fontWeight(.bold)
                                 .foregroundColor(.white)
@@ -140,17 +129,22 @@ private struct DescScrollView: View {
     let detail: MangaDetail
     
     var body: some View {
-        ScrollView(.horizontal, showsIndicators: false) { HStack(spacing: 0) {
-            DescScrollItem(title: "気に入り", value: detail.likeCount, numeral: "人")
+        ScrollView(.horizontal, showsIndicators: false) {
             Divider()
-            DescScrollRatingItem(title: detail.ratingCount + "件の評価", rating: manga.rating)
+            HStack(spacing: 0) {
+                DescScrollItem(title: "気に入り", value: detail.likeCount, numeral: "人")
+                Divider()
+                DescScrollRatingItem(title: detail.ratingCount + "件の評価", rating: manga.rating)
+                Divider()
+                DescScrollItem(title: "言語", value: detail.languageAbbr, numeral: detail.translatedLanguage)
+                Divider()
+                DescScrollItem(title: "ページ", value: detail.pageCount, numeral: "頁")
+                Divider()
+                DescScrollItem(title: "サイズ", value: detail.sizeCount, numeral: "MB")
+            }
+            .foregroundColor(.primary)
             Divider()
-            DescScrollItem(title: "言語", value: detail.languageAbbr, numeral: detail.translatedLanguage)
-            Divider()
-            DescScrollItem(title: "ページ", value: detail.pageCount, numeral: "頁")
-            Divider()
-            DescScrollItem(title: "サイズ", value: detail.sizeCount, numeral: "MB")
-        }.foregroundColor(.primary)}
+        }
     }
 }
 
@@ -192,7 +186,7 @@ private struct DescScrollRatingItem: View {
 
 // MARK: プレビュー
 private struct PreviewView: View {
-    let manga: Manga
+    let previewItems: [MangaContent]
     
     var body: some View {
         VStack {
@@ -204,21 +198,20 @@ private struct PreviewView: View {
                 Spacer()
             }
             
-            LoadingView(type: .preview) { ScrollView(.horizontal, showsIndicators: false) { HStack {
-                if let previewItems = RequestManager.shared.mangaPreviewItems {
+            ScrollView(.horizontal, showsIndicators: false) { HStack {
+                if !previewItems.isEmpty {
                     ForEach(previewItems) { item in
-                        PreviewImageView(container: ImageContainer(from: item.url, type: .preview, 300))
+                        ImageView(container: ImageContainer(from: item.url, type: .preview, 300))
                     }
+                } else {
+                    LoadingView()
                 }
             }}
-            } retryAction: {
-                RequestManager.shared.getMangaPreview(url: manga.detailURL)
-            }
         }
     }
 }
 
-private struct PreviewImageView: View {
+private struct ImageView: View {
     @ObservedObject var container: ImageContainer
     
     var body: some View {

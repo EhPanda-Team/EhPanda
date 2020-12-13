@@ -75,22 +75,22 @@ final class ImageContainer: ObservableObject {
 
 class ImageScaler {
     static func getScaledImage(uiImage: UIImage, targetHeight: CGFloat, type: ImageScaleType) -> SwiftUI.Image {
-        let width = uiImage.size.width
-        let height = uiImage.size.height
-        let targetRatio_Cover: CGFloat = 14 / 22
-        let targetRatio_Preview: CGFloat = 32 / 45
+        var originalRatio: CGFloat {
+            uiImage.size.width / uiImage.size.height
+        }
         
         var targetSize: CGSize {
             CGSize(width: targetHeight * targetRatio, height: targetHeight)
         }
+        
         var targetRatio: CGFloat {
             switch type {
             case .none:
                 return 0
             case .cover:
-                return targetRatio_Cover
+                return 14/22
             case .preview:
-                return targetRatio_Preview
+                return 32/45
             }
         }
         
@@ -98,7 +98,7 @@ class ImageScaler {
             return Image(uiImage: uiImage.af.imageAspectScaled(toFill: targetSize))
         }
         
-        if (width / height) - targetRatio < 0.2 {
+        if originalRatio - targetRatio < 0.2 {
             return Image(uiImage: uiImage.af.imageAspectScaled(toFill: targetSize))
         } else {
             return Image(uiImage: uiImage.af.imageAspectScaled(toFit: targetSize))
@@ -106,16 +106,16 @@ class ImageScaler {
     }
 }
 
-//extension UINavigationController: UIGestureRecognizerDelegate {
-//    override open func viewDidLoad() {
-//        super.viewDidLoad()
-//        interactivePopGestureRecognizer?.delegate = self
-//    }
-//
-//    public func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
-//        return viewControllers.count > 1
-//    }
-//}
+extension UINavigationController: UIGestureRecognizerDelegate {
+    override open func viewDidLoad() {
+        super.viewDidLoad()
+        interactivePopGestureRecognizer?.delegate = self
+    }
+
+    public func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+        return viewControllers.count > 1
+    }
+}
 
 extension UIImage {
     var averageColor: UIColor? {
