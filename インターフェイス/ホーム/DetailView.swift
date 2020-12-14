@@ -64,6 +64,7 @@ struct DetailView: View {
             
             store.detailItem = nil
             store.previewItems.removeAll()
+            store.removeTmpPreviewItems()
         }
     }
     

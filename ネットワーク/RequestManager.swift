@@ -10,18 +10,13 @@ import SwiftUI
 
 class RequestManager {
     static let shared = RequestManager()
-    let popularThreshold = 50
-    
-    var stopPreviewLoadFlag = false
+    var tmpPreviewItems = [MangaContent]()
     
     func requestPopularItems() -> [Manga] {
         setIgnoreOffensiveInfo()
         
-        guard let popularURL = URL(string: Defaults.URL.host + ("/popular")) else {
-            ePrint("StringからURLへ解析できませんでした")
-            return []
-        }
-        guard let popularItems = parseHTML_Popular(popularURL, popularThreshold) else {
+        guard let popularURL = URL(string: Defaults.URL.host + ("/popular")),
+              let popularItems = parseHTML_Popular(popularURL) else {
             ePrint("HTML解析できませんでした")
             return []
         }
@@ -29,11 +24,8 @@ class RequestManager {
     }
     
     func requestDetailItem(url: String) -> MangaDetail? {
-        guard let detailURL = URL(string: url) else {
-            ePrint("StringからURLへ解析できませんでした")
-            return nil
-        }
-        guard let detailItem = parseHTML_Detail(detailURL) else {
+        guard let detailURL = URL(string: url),
+              let detailItem = parseHTML_Detail(detailURL) else {
             ePrint("HTML解析できませんでした")
             return nil
         }
@@ -41,15 +33,17 @@ class RequestManager {
     }
     
     func requestPreviewItems(url: String) -> [MangaContent] {
-        guard let previewItems = parseHTML_Images(url, limit: 10) else {
+        guard let detailURL = URL(string: url),
+              let previewItems = parseHTML_PreviewImages(detailURL) else {
             ePrint("HTML解析できませんでした")
             return []
         }
+        tmpPreviewItems = previewItems
         return previewItems
     }
     
-    func requestContentItems(url: String, pages: Int) -> [MangaContent] {
-        guard let contentItems = parseHTML_Images(url, pages: pages) else {
+    func requestContentItems(url: String, pageIndex: Int) -> [MangaContent] {
+        guard let contentItems = parseHTML_ContentImages(url, pageIndex: pageIndex) else {
             ePrint("HTML解析できませんでした")
             return []
         }
@@ -57,7 +51,7 @@ class RequestManager {
     }
     
     // MARK: 人気
-    func parseHTML_Popular(_ url: URL, _ threshold: Int? = nil) -> [Manga]? {
+    func parseHTML_Popular(_ url: URL) -> [Manga]? {
         var mangaItems = [Manga]()
         
         var document: HTMLDocument?
@@ -90,10 +84,8 @@ class RequestManager {
                                     detailURL: detailURL))
         }
         
-        if let threshold = threshold {
-            if mangaItems.count < threshold {
-                ePrint("⚠️パース結果数値が閾値より小さい")
-            }
+        if mangaItems.count < 50 {
+            ePrint("⚠️パース結果数値が閾値より小さい")
         }
         
         return mangaItems
@@ -163,50 +155,34 @@ class RequestManager {
         return mangaDetail
     }
     
-    // MARK: コンテント
-    func parseHTML_Images(_ url: String, limit: Int = 0, pages: Int = 1) -> [MangaContent]? {
+    // MARK: プレビュー
+    func parseHTML_PreviewImages(_ url: URL) -> [MangaContent]? {
         var mangaItems = [MangaContent]()
         var imageDetailURLs = [MangaURL]()
         
-        let pagesStartTime = CACurrentMediaTime()
-        let pagesCount = Int(ceil(Double(pages)/40))
-        let pagesQueue = OperationQueue()
-        for index in 0..<pagesCount {
-            guard let url = URL(string: url.appending("?p=\(index)")) else { return nil }
-            
-            pagesQueue.addOperation { [weak self] in
-                var document: HTMLDocument?
-                do {
-                    document = try Kanna.HTML(url: url, encoding: .utf8)
-                } catch {
-                    ePrint(error)
-                }
-                
-                guard let doc = document else { return }
-                guard let gdtNode = doc.at_xpath("//div [@id='gdt']") else { return }
-                for (i, link) in gdtNode.xpath("//div [@class='gdtm']").enumerated() {
-                    if self?.stopPreviewLoadFlag == true { return }
-                    
-                    if imageDetailURLs.count >= limit && limit != 0 { break }
-                    guard let imageDetailStr = link.at_xpath("//a")?["href"],
-                          let imageDetailURL = URL(string: imageDetailStr)
-                    else { continue }
-                    
-                    imageDetailURLs.append(MangaURL(tag: index * 40 + i, url: imageDetailURL))
-                }
-            }
+        var document: HTMLDocument?
+        do {
+            document = try Kanna.HTML(url: url, encoding: .utf8)
+        } catch {
+            ePrint(error)
         }
-        pagesQueue.waitUntilAllOperationsAreFinished()
-        print("debugMark all pages operation finished!  cost \(CACurrentMediaTime() - pagesStartTime)s")
-        imageDetailURLs.sort { (a, b) -> Bool in
-            a.tag < b.tag
+        
+        guard let doc = document,
+              let gdtNode = doc.at_xpath("//div [@id='gdt']")
+        else { return nil }
+        
+        for (i, link) in gdtNode.xpath("//div [@class='gdtm']").enumerated() {
+            if imageDetailURLs.count >= 10 { break }
+            guard let imageDetailStr = link.at_xpath("//a")?["href"],
+                  let imageDetailURL = URL(string: imageDetailStr)
+            else { continue }
+            
+            imageDetailURLs.append(MangaURL(tag: i, url: imageDetailURL))
         }
         
         let urlsStartTime = CACurrentMediaTime()
         let queue = OperationQueue()
         for (index, mangaURL) in imageDetailURLs.enumerated() {
-            if stopPreviewLoadFlag { return nil }
-            
             queue.addOperation {
                 var document: HTMLDocument?
                 do {
@@ -224,7 +200,67 @@ class RequestManager {
             }
         }
         queue.waitUntilAllOperationsAreFinished()
-        print("debugMark all urls operation finished!  cost \(CACurrentMediaTime() - urlsStartTime)s")
+        print("debugMark プレビュー読み込み完了! (\(CACurrentMediaTime() - urlsStartTime)秒)")
+        mangaItems.sort { (a, b) -> Bool in
+            a.tag < b.tag
+        }
+        
+        return mangaItems
+    }
+    
+    // MARK: コンテント
+    func parseHTML_ContentImages(_ url: String, pageIndex: Int) -> [MangaContent]? {
+        var mangaItems = [MangaContent]()
+        var imageDetailURLs = [MangaURL]()
+        
+        let ehPageCount = Int(floor(Double(pageIndex)/4))
+        guard let url = URL(string: url.appending("?p=\(ehPageCount)")) else { return nil }
+            
+        var document: HTMLDocument?
+        do {
+            document = try Kanna.HTML(url: url, encoding: .utf8)
+        } catch {
+            ePrint(error)
+        }
+        
+        guard let doc = document,
+              let gdtNode = doc.at_xpath("//div [@id='gdt']")
+        else { return nil }
+        
+        var skipCount = 0
+        for (i, link) in gdtNode.xpath("//div [@class='gdtm']").enumerated() {
+            
+            skipCount += 1
+            if imageDetailURLs.count >= 10 || skipCount < (pageIndex % 4) * 10 { continue }
+            
+            guard let imageDetailStr = link.at_xpath("//a")?["href"],
+                  let imageDetailURL = URL(string: imageDetailStr)
+            else { continue }
+            
+            imageDetailURLs.append(MangaURL(tag: pageIndex * 10 + i, url: imageDetailURL))
+        }
+        
+        let urlsStartTime = CACurrentMediaTime()
+        let queue = OperationQueue()
+        for (index, mangaURL) in imageDetailURLs.enumerated() {
+            queue.addOperation {
+                var document: HTMLDocument?
+                do {
+                    document = try Kanna.HTML(url: mangaURL.url, encoding: .utf8)
+                } catch {
+                    ePrint(error)
+                }
+                
+                guard let doc = document,
+                      let i3Node = doc.at_xpath("//div [@id='i3']"),
+                      let imageURL = i3Node.at_css("img")?["src"]
+                else { return }
+                
+                mangaItems.append(MangaContent(tag: pageIndex * 10 + index, url: imageURL))
+            }
+        }
+        queue.waitUntilAllOperationsAreFinished()
+        print("debugMark コンテント読み込み完了! (\(CACurrentMediaTime() - urlsStartTime)秒)")
         mangaItems.sort { (a, b) -> Bool in
             a.tag < b.tag
         }

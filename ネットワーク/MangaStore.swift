@@ -6,6 +6,7 @@
 //
 
 import Combine
+import Foundation
 
 class PopularItemsStore: ObservableObject {
     @Published var popularItems = [Manga]()
@@ -37,9 +38,13 @@ class DetailItemsStore: ObservableObject {
         executeAsyncally {
             let items = RequestManager.shared.requestPreviewItems(url: url)
             executeMainAsyncally { [weak self] in
-                self?.previewItems = items
+                self?.previewItems.append(contentsOf: items)
             }
         }
+    }
+    
+    func removeTmpPreviewItems() {
+        RequestManager.shared.tmpPreviewItems.removeAll()
     }
 }
 
@@ -47,10 +52,17 @@ class ContentItemsStore: ObservableObject {
     @Published var contentItems = [MangaContent]()
     
     func fetchContentItems(url: String, pages: Int) {
-        executeAsyncally {
-            let items = RequestManager.shared.requestContentItems(url: url, pages: pages)
-            executeMainAsyncally { [weak self] in
-                self?.contentItems = items
+        let pageCount = Int(ceil(Double(pages)/10))
+        for index in 0..<pageCount {
+            executeAsyncally {
+                let items = RequestManager.shared.requestContentItems(url: url, pageIndex: index)
+                
+                executeMainAsyncally { [weak self] in
+                    self?.contentItems.append(contentsOf: items)
+                    self?.contentItems.sort(by: { (a, b) -> Bool in
+                        a.tag < b.tag
+                    })
+                }
             }
         }
     }

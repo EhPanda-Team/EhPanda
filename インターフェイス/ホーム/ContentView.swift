@@ -29,7 +29,10 @@ struct ContentView: View {
         .navigationBarHidden(true)
         .onAppear {
             isContentViewPresented = true
-            store.fetchContentItems(url: detailURL, pages: pages)
+            
+            if store.contentItems.isEmpty {
+                store.fetchContentItems(url: detailURL, pages: pages)
+            }
         }
         .onDisappear {
             store.contentItems.removeAll()
