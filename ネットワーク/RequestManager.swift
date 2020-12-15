@@ -231,7 +231,7 @@ class RequestManager {
         for (i, link) in gdtNode.xpath("//div [@class='gdtm']").enumerated() {
             
             skipCount += 1
-            if imageDetailURLs.count >= 10 || skipCount < (pageIndex % 4) * 10 { continue }
+            if imageDetailURLs.count >= 10 || skipCount <= (pageIndex % 4) * 10 { continue }
             
             guard let imageDetailStr = link.at_xpath("//a")?["href"],
                   let imageDetailURL = URL(string: imageDetailStr)
