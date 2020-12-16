@@ -10,7 +10,6 @@ import SwiftUI
 
 class RequestManager {
     static let shared = RequestManager()
-    var tmpPreviewItems = [MangaContent]()
     
     func requestPopularItems() -> [Manga] {
         setIgnoreOffensiveInfo()
@@ -38,7 +37,6 @@ class RequestManager {
             ePrint("HTML解析できませんでした")
             return []
         }
-        tmpPreviewItems = previewItems
         return previewItems
     }
     
@@ -210,6 +208,7 @@ class RequestManager {
     
     // MARK: コンテント
     func parseHTML_ContentImages(_ url: String, pageIndex: Int) -> [MangaContent]? {
+//        ePrint("\(pageIndex)")
         var mangaItems = [MangaContent]()
         var imageDetailURLs = [MangaURL]()
         
@@ -231,7 +230,9 @@ class RequestManager {
         for (i, link) in gdtNode.xpath("//div [@class='gdtm']").enumerated() {
             
             skipCount += 1
+//            ePrint("!skip! skipCount: \(skipCount)  skipAmount: \((pageIndex % 4) * 10)")
             if imageDetailURLs.count >= 10 || skipCount <= (pageIndex % 4) * 10 { continue }
+//            ePrint("!passed! skipCount: \(skipCount)  skipAmount: \((pageIndex % 4) * 10)")
             
             guard let imageDetailStr = link.at_xpath("//a")?["href"],
                   let imageDetailURL = URL(string: imageDetailStr)

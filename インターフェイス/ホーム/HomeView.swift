@@ -26,6 +26,7 @@ struct HomeView: View {
             }}
             .navigationBarTitle("人気")
         }
+        .navigationViewStyle(StackNavigationViewStyle())
         .onAppear {
             store.fetchPopularItems()
         }

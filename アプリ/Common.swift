@@ -13,15 +13,15 @@ class Common {
 }
 
 public func ePrint(_ error: Error) {
-    print(error.localizedDescription)
+    print("debugMark " + error.localizedDescription)
 }
 
 public func ePrint(_ string: String) {
-    print(string)
+    print("debugMark " + string)
 }
 
 public func ePrint(_ string: String?) {
-    print(string ?? "エラーの内容が解析できませんでした")
+    print("debugMark " + (string ?? "エラーの内容が解析できませんでした"))
 }
 
 public func executeMainAsyncally(_ closure: @escaping (()->())) {
@@ -36,6 +36,12 @@ public func executeMainAsyncally(_ closure: @escaping (()->())) {
 
 public func executeAsyncally(_ closure: @escaping (()->())) {
     DispatchQueue.global().async {
+        closure()
+    }
+}
+
+public func executeSyncally(_ closure: @escaping (()->())) {
+    DispatchQueue.global().sync {
         closure()
     }
 }

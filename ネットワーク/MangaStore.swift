@@ -35,16 +35,13 @@ class DetailItemsStore: ObservableObject {
     }
     
     func fetchPreviewItems(url: String) {
-        executeAsyncally {
+        let queue = DispatchQueue(label: "com.queue.previewFetch")
+        queue.async {
             let items = RequestManager.shared.requestPreviewItems(url: url)
             executeMainAsyncally { [weak self] in
                 self?.previewItems.append(contentsOf: items)
             }
         }
-    }
-    
-    func removeTmpPreviewItems() {
-        RequestManager.shared.tmpPreviewItems.removeAll()
     }
 }
 
@@ -52,16 +49,14 @@ class ContentItemsStore: ObservableObject {
     @Published var contentItems = [MangaContent]()
     
     func fetchContentItems(url: String, pages: Int) {
+        let queue = DispatchQueue(label: "com.queue.previewFetch")
         let pageCount = Int(ceil(Double(pages)/10))
         for index in 0..<pageCount {
-            executeAsyncally {
+            queue.async {
                 let items = RequestManager.shared.requestContentItems(url: url, pageIndex: index)
                 
                 executeMainAsyncally { [weak self] in
                     self?.contentItems.append(contentsOf: items)
-                    self?.contentItems.sort(by: { (a, b) -> Bool in
-                        a.tag < b.tag
-                    })
                 }
             }
         }

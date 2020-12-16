@@ -9,7 +9,6 @@ import SwiftUI
 
 struct ContentView: View {
     @ObservedObject var store = ContentItemsStore()
-    @Binding var isContentViewPresented: Bool
     
     let detailURL: String
     let pages: Int
@@ -27,15 +26,8 @@ struct ContentView: View {
             LoadingView()
         }}
         .navigationBarHidden(true)
-        .onAppear {
-            isContentViewPresented = true
-            
-            if store.contentItems.isEmpty {
-                store.fetchContentItems(url: detailURL, pages: pages)
-            }
-        }
-        .onDisappear {
-            store.contentItems.removeAll()
+        .onAppear {          
+            store.fetchContentItems(url: detailURL, pages: pages)
         }
     }
 }

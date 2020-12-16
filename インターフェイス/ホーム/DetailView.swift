@@ -11,7 +11,6 @@ import AlamofireImage
 struct DetailView: View {
     @ObservedObject var store = DetailItemsStore()
     @Environment(\.colorScheme) var colorScheme
-    @State var isContentViewPresented = false
     @State var shouldBackButtonHidden = true
     @State var backgroundColor: Color = .clear
     
@@ -25,7 +24,6 @@ struct DetailView: View {
                 
                 VStack { Group {
                     HeaderView(container: ImageContainer(from: manga.coverURL, type: .cover, 150),
-                               isContentViewPresented: $isContentViewPresented,
                                manga: manga,
                                mangaDetail: detailItem)
                         .frame(height: 150)
@@ -57,14 +55,6 @@ struct DetailView: View {
         .onAppear {
             fetchItems()
             fetchBackgroundColor()
-            isContentViewPresented = false
-        }
-        .onDisappear {
-            if isContentViewPresented { return }
-            
-            store.detailItem = nil
-            store.previewItems.removeAll()
-            store.removeTmpPreviewItems()
         }
     }
     
@@ -99,6 +89,7 @@ struct DetailView: View {
 private struct BackButton: View {
     @Environment(\.presentationMode) var presentationMode
     @State var isPressed = false
+    
     let color: Color = Color.white.opacity(0.8)
     
     var body: some View {
@@ -119,7 +110,6 @@ private struct BackButton: View {
 // MARK: ヘッダー
 private struct HeaderView: View {
     @ObservedObject var container: ImageContainer
-    @Binding var isContentViewPresented: Bool
     
     let manga: Manga
     var mangaDetail: MangaDetail
@@ -161,8 +151,7 @@ private struct HeaderView: View {
                                     .foregroundColor(Color(manga.color))
                             )
                         Spacer()
-                        let contentView = ContentView(isContentViewPresented: $isContentViewPresented,
-                                                      detailURL: manga.detailURL,
+                        let contentView = ContentView(detailURL: manga.detailURL,
                                                       pages: Int(mangaDetail.pageCount) ?? 0)
                         Button(action: {}) { NavigationLink(destination: contentView) {
                             Text("読む")
