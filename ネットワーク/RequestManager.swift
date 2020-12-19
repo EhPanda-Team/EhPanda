@@ -15,11 +15,23 @@ class RequestManager {
         setIgnoreOffensiveInfo()
         
         guard let popularURL = URL(string: Defaults.URL.host + ("/popular")),
-              let popularItems = parseHTML_Popular(popularURL) else {
+              let popularItems = parseHTML_List(popularURL) else {
             ePrint("HTML解析できませんでした")
             return []
         }
         return popularItems
+    }
+    
+    func requestSearchItems(keyword: String) -> [Manga] {
+        let keyword = keyword.replacingOccurrences(of: " ", with: "+")
+        guard let searchURL = URL(string: Defaults.URL.host +
+                                    Defaults.URL.search +
+                                    keyword),
+              let searchItems = parseHTML_List(searchURL) else {
+            ePrint("HTML解析できませんでした")
+            return []
+        }
+        return searchItems
     }
     
     func requestDetailItem(url: String) -> MangaDetail? {
@@ -49,7 +61,7 @@ class RequestManager {
     }
     
     // MARK: 人気
-    func parseHTML_Popular(_ url: URL) -> [Manga]? {
+    func parseHTML_List(_ url: URL) -> [Manga]? {
         var mangaItems = [Manga]()
         
         var document: HTMLDocument?

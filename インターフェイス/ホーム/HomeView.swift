@@ -9,13 +9,25 @@ import SwiftUI
 
 struct HomeView: View {
     @EnvironmentObject var settings: Settings
-    @StateObject var store = PopularItemsStore()
+    @StateObject var store = HomeItemsStore()
+    @State var keyword = ""
+    
+    init() {
+        UIScrollView.appearance().keyboardDismissMode = .onDrag
+    }
     
     var body: some View {
         NavigationView { Group {
-            if !store.popularItems.isEmpty {
+            if !store.homeItems.isEmpty {
                 ScrollView { LazyVStack {
-                    ForEach(store.popularItems) { item in NavigationLink(destination: DetailView(manga: item)) {
+                    SearchBar(keyword: $keyword) {
+                        if keyword.isEmpty {
+                            store.fetchPopularItems()
+                            return
+                        }
+                        store.fetchSearchItems(keyword: keyword)
+                    }
+                    ForEach(store.homeItems) { item in NavigationLink(destination: DetailView(manga: item)) {
                         let imageContainer = ImageContainer(from: item.coverURL, type: .cover, 110)
                         MangaSummaryRow(container: imageContainer, manga: item)
                     }
@@ -25,15 +37,50 @@ struct HomeView: View {
             } else {
                 LoadingView()
             }}
-            .navigationBarTitle("人気")
+            .navigationBarTitle("ホーム")
         }
         .navigationBarHidden(settings.navBarHidden)
         .navigationViewStyle(StackNavigationViewStyle())
         .onAppear {
             settings.navBarHidden = false
             
-            store.fetchPopularItems()
+            if store.homeItems.isEmpty {
+                store.fetchPopularItems()
+            }
         }
+    }
+}
+
+private struct SearchBar: View {
+    @Binding var keyword: String
+    var commitAction: () -> ()
+    
+    var body: some View {
+        HStack {
+            Image(systemName: "magnifyingglass")
+                .foregroundColor(.gray)
+            ZStack {
+                TextField("検索ワードを入力してください", text: $keyword, onCommit: commitAction)
+                    .disableAutocorrection(true)
+                    .autocapitalization(.none)
+                if !keyword.isEmpty {
+                    HStack {
+                        Spacer()
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundColor(.gray)
+                            .onTapGesture {
+                                keyword = ""
+                                commitAction()
+                            }
+                    }
+                }
+            }
+        }
+        .padding(10)
+        .padding(.horizontal, 10)
+        .background(Color(.systemGray6))
+        .cornerRadius(8)
+        .padding(.bottom, 10)
     }
 }
 
