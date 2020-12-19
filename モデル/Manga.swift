@@ -60,6 +60,8 @@ enum Category: String {
 }
 
 enum Language: String {
+    case Other = "Other"
+    
     case Afrikaans = "Afrikaans"; case Albanian = "Albanian"; case Arabic = "Arabic"
     
     case Bengali = "Bengali"; case Bosnian = "Bosnian"; case Bulgarian = "Bulgarian"; case Burmese = "Burmese"
@@ -165,6 +167,8 @@ extension Manga {
 extension MangaDetail {
     var languageAbbr: String {
         switch language {
+        case .Other: return "N/A"
+        
         case .Afrikaans: return "AF"; case .Albanian: return "SQ"; case .Arabic: return "AR"
             
         case .Bengali: return "BN"; case .Bosnian: return "BS"; case .Bulgarian: return "BG"; case .Burmese: return "MY"
@@ -213,6 +217,8 @@ extension MangaDetail {
     
     var translatedLanguage: String {
         switch language {
+        case .Other: return "その他"
+            
         case .Afrikaans: return "アフリカーンス語"; case .Albanian: return "アルバニア語"; case .Arabic: return "アラビア語"
             
         case .Bengali: return "ベンガル語"; case .Bosnian: return "ボスニア語"; case .Bulgarian: return "ブルガリア語"; case .Burmese: return "ビルマ語"

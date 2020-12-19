@@ -79,10 +79,19 @@ class RequestManager {
                   let rating = parseRatingString(gl2cNode.at_xpath("//div [@class='ir']")?.toHTML),
                   let category = link.at_xpath("//td [@class='gl1c glcat'] //div")?.text,
                   let uploader = link.at_xpath("//td [@class='gl4c glhide']")?.at_xpath("//a")?.text,
-                  let publishedTime = gl2cNode.at_xpath("//div [@onclick]")?.text,
+                  var publishedTime = gl2cNode.at_xpath("//div [@onclick]")?.text,
                   let coverURL = parseCoverURL(gl2cNode.at_xpath("//div [@class='glthumb']")?.at_css("img")),
                   let detailURL = link.at_xpath("//td [@class='gl3c glname'] //a")?["href"]
             else { continue }
+            
+            if !publishedTime.contains(":") {
+                guard let content = gl2cNode.text,
+                      let range = content.range(of: "pages")
+                else { continue }
+                
+                let fixedTime = String(content.suffix(from: range.upperBound))
+                publishedTime = fixedTime
+            }
             
             guard let enumCategory = Category(rawValue: category) else { continue }
             mangaItems.append(Manga(title: title,
