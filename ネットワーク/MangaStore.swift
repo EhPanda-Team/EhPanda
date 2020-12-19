@@ -23,7 +23,6 @@ class PopularItemsStore: ObservableObject {
 
 class DetailItemsStore: ObservableObject {
     @Published var detailItem: MangaDetail?
-    @Published var previewItems = [MangaContent]()
     
     func fetchDetailItem(url: String) {
         executeAsyncally {
@@ -33,23 +32,35 @@ class DetailItemsStore: ObservableObject {
             }
         }
     }
-    
-    func fetchPreviewItems(url: String) {
-        let queue = DispatchQueue(label: "com.queue.previewFetch")
-        queue.async {
-            let items = RequestManager.shared.requestPreviewItems(url: url)
-            executeMainAsyncally { [weak self] in
-                self?.previewItems.append(contentsOf: items)
-            }
-        }
-    }
 }
 
 class ContentItemsStore: ObservableObject {
     @Published var contentItems = [MangaContent]()
+    var owner: String
+    
+    init(owner: String) {
+        self.owner = owner
+        ePrint("ContentItemsStore(\(owner)) inited!!")
+    }
+    
+    deinit {
+        ePrint("ContentItemsStore(\(owner)) deinited!!")
+    }
+    
+    func fetchPreviewItems(url: String) {
+        let queue = DispatchQueue(label: "com.queue.previewFetch")
+        
+        queue.async {
+            let items = RequestManager.shared.requestPreviewItems(url: url)
+            
+            executeMainAsyncally { [weak self] in
+                self?.contentItems.append(contentsOf: items)
+            }
+        }
+    }
     
     func fetchContentItems(url: String, pages: Int) {
-        let queue = DispatchQueue(label: "com.queue.previewFetch")
+        let queue = DispatchQueue(label: "com.queue.contentFetch")
         let pageCount = Int(ceil(Double(pages)/10))
         for index in 0..<pageCount {
             queue.async {

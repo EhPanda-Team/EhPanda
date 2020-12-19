@@ -8,10 +8,11 @@
 import SwiftUI
 
 struct HomeView: View {
-    @ObservedObject var store = PopularItemsStore()
+    @EnvironmentObject var settings: Settings
+    @StateObject var store = PopularItemsStore()
     
     var body: some View {
-        NavigationView { ZStack {
+        NavigationView { Group {
             if !store.popularItems.isEmpty {
                 ScrollView { LazyVStack {
                     ForEach(store.popularItems) { item in NavigationLink(destination: DetailView(manga: item)) {
@@ -26,15 +27,18 @@ struct HomeView: View {
             }}
             .navigationBarTitle("人気")
         }
+        .navigationBarHidden(settings.navBarHidden)
         .navigationViewStyle(StackNavigationViewStyle())
         .onAppear {
+            settings.navBarHidden = false
+            
             store.fetchPopularItems()
         }
     }
 }
 
 private struct MangaSummaryRow: View {
-    @ObservedObject var container: ImageContainer
+    @StateObject var container: ImageContainer
     let manga: Manga
     
     var body: some View {

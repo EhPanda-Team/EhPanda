@@ -9,10 +9,13 @@ import SwiftUI
 import AlamofireImage
 
 struct DetailView: View {
-    @ObservedObject var store = DetailItemsStore()
+    @EnvironmentObject var settings: Settings
+    @StateObject var store = DetailItemsStore()
+    @StateObject var contentStore = ContentItemsStore(owner: "DetailView")
+    
     @Environment(\.colorScheme) var colorScheme
-    @State var shouldBackButtonHidden = true
     @State var backgroundColor: Color = .clear
+    @State var shouldBackButtonHidden = true
     
     let manga: Manga
     
@@ -26,14 +29,11 @@ struct DetailView: View {
                     HeaderView(container: ImageContainer(from: manga.coverURL, type: .cover, 150),
                                manga: manga,
                                mangaDetail: detailItem)
-                        .frame(height: 150)
+                        .fixedSize(horizontal: false, vertical: true)
                     DescScrollView(manga: manga, detail: detailItem)
-                        .frame(height: 60)
+                        .fixedSize(horizontal: false, vertical: true)
                         .padding(.vertical, 30)
-                    let pageCount = Int(detailItem.pageCount) ?? 0
-                    let previewCount = pageCount > 10 ? 10 : pageCount
-                    PreviewView(previewItems: store.previewItems, previewCount: previewCount)
-                        .frame(maxHeight: .infinity)
+                    PreviewView(previewItems: contentStore.contentItems)
                 }.shadow(radius: 10)}
                 .padding(.top, -40)
                 .padding(.bottom, 10)
@@ -46,6 +46,7 @@ struct DetailView: View {
         } else {
             LoadingView()
         }}
+        .navigationBarHidden(settings.navBarHidden)
         .navigationBarBackButtonHidden(true)
         .navigationBarItems(leading: Group {
             if !shouldBackButtonHidden {
@@ -53,6 +54,8 @@ struct DetailView: View {
             }
         })
         .onAppear {
+            settings.navBarHidden = false
+            
             fetchItems()
             fetchBackgroundColor()
         }
@@ -62,8 +65,8 @@ struct DetailView: View {
         if store.detailItem == nil {
             store.fetchDetailItem(url: manga.detailURL)
         }
-        if store.previewItems.isEmpty {
-            store.fetchPreviewItems(url: manga.detailURL)
+        if contentStore.contentItems.isEmpty {
+            contentStore.fetchPreviewItems(url: manga.detailURL)
         }
     }
     
@@ -109,10 +112,17 @@ private struct BackButton: View {
 
 // MARK: ヘッダー
 private struct HeaderView: View {
-    @ObservedObject var container: ImageContainer
+    @StateObject var container: ImageContainer
     
     let manga: Manga
     var mangaDetail: MangaDetail
+    
+    var contentView: ContentView {
+        ePrint("ContentView inited!")
+        let pageCount = mangaDetail.pageCount
+        let pages = Int(pageCount) ?? 0
+        return ContentView(detailURL: manga.detailURL, pages: pages)
+    }
     
     var title: String {
         if mangaDetail.jpnTitle.isEmpty {
@@ -151,10 +161,8 @@ private struct HeaderView: View {
                                     .foregroundColor(Color(manga.color))
                             )
                         Spacer()
-                        let contentView = ContentView(detailURL: manga.detailURL,
-                                                      pages: Int(mangaDetail.pageCount) ?? 0)
                         Button(action: {}) { NavigationLink(destination: contentView) {
-                            Text("読む")
+                             Text("読む")
                                 .fontWeight(.bold)
                                 .foregroundColor(.white)
                         }}
@@ -232,7 +240,6 @@ private struct DescScrollRatingItem: View {
 // MARK: プレビュー
 private struct PreviewView: View {
     let previewItems: [MangaContent]
-    let previewCount: Int
     
     var body: some View {
         VStack {
@@ -250,7 +257,7 @@ private struct PreviewView: View {
                         ImageView(container: ImageContainer(from: item.url, type: .preview, 300))
                     }
                 } else {
-                    ForEach(0..<previewCount) { _ in
+                    ForEach(0..<10) { _ in
                         ImageView(container: ImageContainer(from: "", type: .preview, 300))
                     }
                 }
@@ -260,7 +267,7 @@ private struct PreviewView: View {
 }
 
 private struct ImageView: View {
-    @ObservedObject var container: ImageContainer
+    @StateObject var container: ImageContainer
     
     var body: some View {
         container.image

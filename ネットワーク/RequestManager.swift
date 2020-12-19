@@ -198,7 +198,7 @@ class RequestManager {
             }
         }
         queue.waitUntilAllOperationsAreFinished()
-        print("debugMark プレビュー読み込み完了! (\(CACurrentMediaTime() - urlsStartTime)秒)")
+        ePrint("プレビュー読み込み完了! (\(CACurrentMediaTime() - urlsStartTime)秒)")
         mangaItems.sort { (a, b) -> Bool in
             a.tag < b.tag
         }
@@ -261,7 +261,7 @@ class RequestManager {
             }
         }
         queue.waitUntilAllOperationsAreFinished()
-        print("debugMark コンテント読み込み完了! (\(CACurrentMediaTime() - urlsStartTime)秒)")
+        ePrint("コンテント読み込み完了! (\(CACurrentMediaTime() - urlsStartTime)秒)")
         mangaItems.sort { (a, b) -> Bool in
             a.tag < b.tag
         }

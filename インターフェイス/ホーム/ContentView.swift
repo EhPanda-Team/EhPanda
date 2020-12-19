@@ -8,7 +8,8 @@
 import SwiftUI
 
 struct ContentView: View {
-    @ObservedObject var store = ContentItemsStore()
+    @EnvironmentObject var settings: Settings
+    @StateObject var store = ContentItemsStore(owner: "ContentView")
     
     let detailURL: String
     let pages: Int
@@ -25,15 +26,18 @@ struct ContentView: View {
         } else {
             LoadingView()
         }}
-        .navigationBarHidden(true)
-        .onAppear {          
+        .navigationBarBackButtonHidden(true)
+        .navigationBarHidden(settings.navBarHidden)
+        .onAppear {
+            settings.navBarHidden = true
+            
             store.fetchContentItems(url: detailURL, pages: pages)
         }
     }
 }
 
 private struct ImageView: View {
-    @ObservedObject var container: ImageContainer
+    @StateObject var container: ImageContainer
     
     var body: some View {
         container.image
