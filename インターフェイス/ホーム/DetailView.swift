@@ -95,9 +95,8 @@ struct DetailView: View {
 private struct BackButton: View {
     @State var isPressed = false
     
-    var backAction: () -> ()
-    
     let color: Color = Color.white.opacity(0.8)
+    var backAction: () -> ()
     
     var body: some View {
         Button(action: {

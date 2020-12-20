@@ -11,18 +11,18 @@ import Foundation
 class HomeItemsStore: ObservableObject {
     @Published var homeItems = [Manga]()
     
-    func fetchPopularItems() {
+    func fetchSearchItems(keyword: String) {
         executeAsyncally {
-            let items = RequestManager.shared.requestPopularItems()
+            let items = RequestManager.shared.requestSearchItems(keyword: keyword)
             executeMainAsyncally { [weak self] in
                 self?.homeItems = items
             }
         }
     }
     
-    func fetchSearchItems(keyword: String) {
+    func fetchPopularItems() {
         executeAsyncally {
-            let items = RequestManager.shared.requestSearchItems(keyword: keyword)
+            let items = RequestManager.shared.requestPopularItems()
             executeMainAsyncally { [weak self] in
                 self?.homeItems = items
             }

@@ -7,9 +7,18 @@
 
 import SwiftUI
 
+enum HomepageType: String {
+    case search = "検索"
+    case popular = "人気"
+    case favorite = "お気に入り"
+    case downloaded = "ダウンロード済み"
+}
+
 struct HomeView: View {
     @EnvironmentObject var settings: Settings
     @StateObject var store = HomeItemsStore()
+    
+    @State var currentPageType: HomepageType = .popular
     @State var keyword = ""
     
     init() {
@@ -21,47 +30,73 @@ struct HomeView: View {
             ScrollView { LazyVStack {
                 SearchBar(keyword: $keyword) {
                     if keyword.isEmpty {
+                        currentPageType = .popular
                         store.fetchPopularItems()
                         return
                     }
+                    currentPageType = .search
                     store.fetchSearchItems(keyword: keyword)
-                }
+                } filterAction: {}
+                
                 if !store.homeItems.isEmpty {
                     ForEach(store.homeItems) { item in NavigationLink(destination: DetailView(manga: item)) {
                         let imageContainer = ImageContainer(from: item.coverURL, type: .cover, 110)
                         MangaSummaryRow(container: imageContainer, manga: item)
                     }}
                     .transition(AnyTransition.opacity.animation(.linear(duration: 0.5)))
-                    
+
                 } else {
                     LoadingView()
-                }}
+                }
+            }
                 .padding()
             }
-            .navigationBarTitle("ホーム")
-            .navigationBarItems(trailing:
-                NavigationLink(destination: EmptyView(), label: {
-                    Image(systemName: "person.crop.circle")
-                        .foregroundColor(.primary)
-                        .imageScale(.large)
-                })
+            .navigationBarTitle(currentPageType.rawValue)
+            .navigationBarItems(leading: CategoryPicker(currentPageType: $currentPageType),
+                trailing:
+                    NavigationLink(destination: EmptyView(), label: {
+                        Image(systemName: "person.crop.circle")
+                            .foregroundColor(.primary)
+                            .imageScale(.large)
+                    })
             )
-        }
-        .navigationBarHidden(settings.navBarHidden)
-        .navigationViewStyle(StackNavigationViewStyle())
-        .onAppear {
-            settings.navBarHidden = false
-            
-            if store.homeItems.isEmpty {
-                store.fetchPopularItems()
+            .navigationBarHidden(settings.navBarHidden)
+            .navigationViewStyle(StackNavigationViewStyle())
+            .onAppear {
+                settings.navBarHidden = false
+                
+                if store.homeItems.isEmpty {
+                    store.fetchPopularItems()
+                }
             }
         }
     }
 }
 
+// MARK: カテゴリー選択
+private struct CategoryPicker: View {
+    @Binding var currentPageType: HomepageType
+    
+    var body: some View {
+        Picker(selection: $currentPageType,
+           label: Text("≡")
+                    .foregroundColor(.primary)
+                    .font(.largeTitle),
+           content: {
+                let homepageTypes: [HomepageType] = [.popular, .favorite, .downloaded]
+                ForEach(homepageTypes, id: \.self) {
+                    Text($0.rawValue)
+                }
+        })
+        .pickerStyle(MenuPickerStyle())
+    }
+}
+
+// MARK: 検索バー
 private struct SearchBar: View {
     @Binding var keyword: String
     var commitAction: () -> ()
+    var filterAction: () -> ()
     
     var body: some View {
         HStack {
@@ -71,9 +106,9 @@ private struct SearchBar: View {
                 TextField("検索ワードを入力してください", text: $keyword, onCommit: commitAction)
                     .disableAutocorrection(true)
                     .autocapitalization(.none)
-                if !keyword.isEmpty {
-                    HStack {
-                        Spacer()
+                HStack {
+                    Spacer()
+                    if !keyword.isEmpty {
                         Image(systemName: "xmark.circle.fill")
                             .foregroundColor(.gray)
                             .onTapGesture {
@@ -81,7 +116,11 @@ private struct SearchBar: View {
                                 commitAction()
                             }
                     }
+                    Image(systemName: "slider.horizontal.3")
+                        .foregroundColor(.gray)
+                        .onTapGesture {}
                 }
+                
             }
         }
         .padding(10)
@@ -92,6 +131,7 @@ private struct SearchBar: View {
     }
 }
 
+// MARK: 概要列
 private struct MangaSummaryRow: View {
     @StateObject var container: ImageContainer
     let manga: Manga
