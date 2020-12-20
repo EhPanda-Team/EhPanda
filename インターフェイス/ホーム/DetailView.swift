@@ -13,6 +13,7 @@ struct DetailView: View {
     @StateObject var store = DetailItemsStore()
     @StateObject var contentStore = ContentItemsStore(owner: "DetailView")
     
+    @Environment(\.presentationMode) var presentationMode
     @Environment(\.colorScheme) var colorScheme
     @State var backgroundColor: Color = .clear
     @State var shouldBackButtonHidden = true
@@ -50,7 +51,9 @@ struct DetailView: View {
         .navigationBarBackButtonHidden(true)
         .navigationBarItems(leading: Group {
             if !shouldBackButtonHidden {
-                BackButton()
+                BackButton {
+                    presentationMode.wrappedValue.dismiss()
+                }
             }
         })
         .onAppear {
@@ -90,14 +93,15 @@ struct DetailView: View {
 
 // MARK: バックボタン
 private struct BackButton: View {
-    @Environment(\.presentationMode) var presentationMode
     @State var isPressed = false
+    
+    var backAction: () -> ()
     
     let color: Color = Color.white.opacity(0.8)
     
     var body: some View {
         Button(action: {
-            presentationMode.wrappedValue.dismiss()
+            backAction()
         }) {
             Image(systemName: "chevron.backward.circle")
                 .foregroundColor(isPressed ? color.opacity(0.5) : color)
@@ -133,47 +137,44 @@ private struct HeaderView: View {
     }
     
     var body: some View {
-        VStack {
-            HStack {
-                container.image
-                    .resizable()
-                    .frame(width: 70/110 * 150, height: 150)
-                VStack(alignment: .leading) {
-                    Text(title)
+        HStack {
+            container.image
+                .resizable()
+                .frame(width: 70/110 * 150, height: 150)
+            VStack(alignment: .leading) {
+                Text(title)
+                    .fontWeight(.bold)
+                    .lineLimit(3)
+                    .font(.title3)
+                    .foregroundColor(.white)
+                Text(manga.uploader)
+                    .lineLimit(1)
+                    .font(.subheadline)
+                    .foregroundColor(Color.white.opacity(0.6))
+                Spacer()
+                HStack {
+                    Text(manga.translatedCategory)
                         .fontWeight(.bold)
-                        .lineLimit(3)
-                        .font(.title3)
-                        .foregroundColor(.white)
-                    Text(manga.uploader)
                         .lineLimit(1)
-                        .font(.subheadline)
-                        .foregroundColor(Color.white.opacity(0.6))
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .padding(.init(top: 2, leading: 4, bottom: 2, trailing: 4))
+                        .background(
+                            RoundedRectangle(cornerRadius: 3)
+                                .foregroundColor(Color(manga.color))
+                        )
                     Spacer()
-                    HStack {
-                        Text(manga.translatedCategory)
+                    Button(action: {}) { NavigationLink(destination: contentView) {
+                         Text("読む")
                             .fontWeight(.bold)
-                            .lineLimit(1)
-                            .font(.headline)
                             .foregroundColor(.white)
-                            .padding(.init(top: 2, leading: 4, bottom: 2, trailing: 4))
-                            .background(
-                                RoundedRectangle(cornerRadius: 3)
-                                    .foregroundColor(Color(manga.color))
-                            )
-                        Spacer()
-                        Button(action: {}) { NavigationLink(destination: contentView) {
-                             Text("読む")
-                                .fontWeight(.bold)
-                                .foregroundColor(.white)
-                        }}
-                        .buttonStyle(CapsuleButtonStyle())
-                    }
+                    }}
+                    .buttonStyle(CapsuleButtonStyle())
                 }
-                .padding(.leading, 10)
-                .padding(.trailing, 10)
             }
+            .padding(.leading, 10)
+            .padding(.trailing, 10)
         }
-        
     }
 }
 

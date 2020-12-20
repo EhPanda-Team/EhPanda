@@ -17,27 +17,35 @@ struct HomeView: View {
     }
     
     var body: some View {
-        NavigationView { Group {
-            if !store.homeItems.isEmpty {
-                ScrollView { LazyVStack {
-                    SearchBar(keyword: $keyword) {
-                        if keyword.isEmpty {
-                            store.fetchPopularItems()
-                            return
-                        }
-                        store.fetchSearchItems(keyword: keyword)
+        NavigationView {
+            ScrollView { LazyVStack {
+                SearchBar(keyword: $keyword) {
+                    if keyword.isEmpty {
+                        store.fetchPopularItems()
+                        return
                     }
+                    store.fetchSearchItems(keyword: keyword)
+                }
+                if !store.homeItems.isEmpty {
                     ForEach(store.homeItems) { item in NavigationLink(destination: DetailView(manga: item)) {
                         let imageContainer = ImageContainer(from: item.coverURL, type: .cover, 110)
                         MangaSummaryRow(container: imageContainer, manga: item)
-                    }
+                    }}
+                    .transition(AnyTransition.opacity.animation(.linear(duration: 0.5)))
+                    
+                } else {
+                    LoadingView()
                 }}
-                .padding()}
-                .transition(AnyTransition.opacity.animation(.linear(duration: 0.5)))
-            } else {
-                LoadingView()
-            }}
+                .padding()
+            }
             .navigationBarTitle("ホーム")
+            .navigationBarItems(trailing:
+                NavigationLink(destination: EmptyView(), label: {
+                    Image(systemName: "person.crop.circle")
+                        .foregroundColor(.primary)
+                        .imageScale(.large)
+                })
+            )
         }
         .navigationBarHidden(settings.navBarHidden)
         .navigationViewStyle(StackNavigationViewStyle())
