@@ -35,7 +35,7 @@ struct DetailView: View {
                         .fixedSize(horizontal: false, vertical: true)
                         .padding(.vertical, 30)
                     PreviewView(previewItems: contentStore.contentItems)
-                }.shadow(radius: 10)}
+                }.shadow(color: colorScheme == .light ? .gray : .black, radius: 10)}
                 .padding(.top, -40)
                 .padding(.bottom, 10)
                 .padding(.horizontal)
@@ -81,10 +81,10 @@ struct DetailView: View {
             if case .success(let image) = resp.result {
                 guard let uiColor = image.averageColor else { return }
                 
-                if let darkerColor = uiColor.darker(), colorScheme == .dark {
+                if let lighterColor = uiColor.lighter(), colorScheme == .light {
+                    backgroundColor = Color(lighterColor)
+                } else if let darkerColor = uiColor.darker(), colorScheme == .dark {
                     backgroundColor = Color(darkerColor)
-                } else {
-                    backgroundColor = Color(uiColor)
                 }
             }
         })
@@ -93,9 +93,10 @@ struct DetailView: View {
 
 // MARK: バックボタン
 private struct BackButton: View {
+    @Environment(\.colorScheme) var colorScheme
     @State var isPressed = false
     
-    let color: Color = Color.white.opacity(0.8)
+    let color: Color = Color.primary.opacity(0.8)
     var backAction: () -> ()
     
     var body: some View {
@@ -106,7 +107,6 @@ private struct BackButton: View {
                 .foregroundColor(isPressed ? color.opacity(0.5) : color)
                 .font(.system(.title))
         }
-        .shadow(radius: 10)
         .onLongPressGesture(pressing: { (_) in
             isPressed.toggle()
         }, perform: {})
@@ -115,6 +115,7 @@ private struct BackButton: View {
 
 // MARK: ヘッダー
 private struct HeaderView: View {
+    @Environment(\.colorScheme) var colorScheme
     @StateObject var container: ImageContainer
     
     let manga: Manga
@@ -145,11 +146,10 @@ private struct HeaderView: View {
                     .fontWeight(.bold)
                     .lineLimit(3)
                     .font(.title3)
-                    .foregroundColor(.white)
                 Text(manga.uploader)
                     .lineLimit(1)
                     .font(.subheadline)
-                    .foregroundColor(Color.white.opacity(0.6))
+                    .foregroundColor(Color.primary.opacity(0.6))
                 Spacer()
                 HStack {
                     Text(manga.translatedCategory)
@@ -165,8 +165,8 @@ private struct HeaderView: View {
                     Spacer()
                     Button(action: {}) { NavigationLink(destination: contentView) {
                          Text("読む")
-                            .fontWeight(.bold)
                             .foregroundColor(.white)
+                            .fontWeight(.bold)
                     }}
                     .buttonStyle(CapsuleButtonStyle())
                 }
@@ -179,6 +179,8 @@ private struct HeaderView: View {
 
 // MARK: 基本情報
 private struct DescScrollView: View {
+    @Environment(\.colorScheme) var colorScheme
+    
     let manga: Manga
     let detail: MangaDetail
     
@@ -194,7 +196,6 @@ private struct DescScrollView: View {
             Spacer()
             DescScrollItem(title: "サイズ", value: detail.sizeCount, numeral: detail.sizeType)
         }
-        .foregroundColor(.white)
         .padding(.horizontal)
     }
 }
@@ -220,6 +221,8 @@ private struct DescScrollItem: View {
 }
 
 private struct DescScrollRatingItem: View {
+    @Environment(\.colorScheme) var colorScheme
+    
     let title: String
     let rating: Float
     
@@ -231,7 +234,7 @@ private struct DescScrollRatingItem: View {
             Text(String(format: "%.1f", rating))
                 .fontWeight(.medium)
                 .font(.title3)
-            RatingView(rating: rating, .white)
+            RatingView(rating: rating, .primary)
         }
         .frame(minWidth: 60, maxWidth: 100)
     }
@@ -239,6 +242,8 @@ private struct DescScrollRatingItem: View {
 
 // MARK: プレビュー
 private struct PreviewView: View {
+    @Environment(\.colorScheme) var colorScheme
+    
     let previewItems: [MangaContent]
     
     var body: some View {
@@ -246,7 +251,6 @@ private struct PreviewView: View {
             HStack {
                 Text("プレビュー")
                     .fontWeight(.bold)
-                    .foregroundColor(.white)
                     .font(.title3)
                 Spacer()
             }
