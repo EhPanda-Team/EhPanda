@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SDWebImageSwiftUI
 
 enum HomepageType: String {
     case search = "検索"
@@ -19,6 +20,7 @@ struct HomeView: View {
     @StateObject var store = HomeItemsStore()
     
     @State var currentPageType: HomepageType = .popular
+    @State var isProfilePresented = false
     @State var keyword = ""
     
     init() {
@@ -42,8 +44,7 @@ struct HomeView: View {
                     if !store.homeItems.isEmpty {
                         ForEach(store.homeItems) { item in
                             NavigationLink(destination: DetailView(manga: item)) {
-                                let imageContainer = ImageContainer(from: item.coverURL, type: .cover, 110)
-                                MangaSummaryRow(container: imageContainer, manga: item)
+                                MangaSummaryRow(manga: item)
                             }
                         }
                         .transition(AnyTransition.opacity.animation(.default))
@@ -54,13 +55,21 @@ struct HomeView: View {
                 .padding()
             }
             .navigationBarTitle(currentPageType.rawValue)
-            .navigationBarItems(leading: CategoryPicker(currentPageType: $currentPageType),
+            .navigationBarItems(
+                leading:
+                    CategoryPicker(currentPageType: $currentPageType)
+                    .padding(.bottom, 10),
                 trailing:
-                    NavigationLink(destination: EmptyView(), label: {
-                        Image(systemName: "person.crop.circle")
-                            .foregroundColor(.primary)
-                            .imageScale(.large)
+                    Image(systemName: "person.crop.circle")
+                    .foregroundColor(.primary)
+                    .imageScale(.large)
+                    .sheet(isPresented: $isProfilePresented, content: {
+                        EmptyView()
                     })
+                    .onTapGesture {
+                        isProfilePresented.toggle()
+                    }
+                
             )
             .navigationViewStyle(StackNavigationViewStyle())
             .onAppear {
@@ -78,7 +87,7 @@ private struct CategoryPicker: View {
     
     var body: some View {
         Picker(selection: $currentPageType,
-           label: Text("≡")
+           label: Text("☰")
                     .foregroundColor(.primary)
                     .font(.largeTitle),
            content: {
@@ -132,13 +141,25 @@ private struct SearchBar: View {
 
 // MARK: 概要列
 private struct MangaSummaryRow: View {
-    @StateObject var container: ImageContainer
+    @Environment(\.colorScheme) var colorScheme
+    var color: Color {
+        colorScheme == .light ? .white : .black
+    }
+    var rectangle: some View {
+        Rectangle()
+            .fill(color)
+            .frame(width: 70, height: 110)
+    }
+    
     let manga: Manga
     
     var body: some View {
         HStack {
-            container.image
+            WebImage(url: URL(string: manga.coverURL))
                 .resizable()
+                .placeholder { rectangle }
+                .indicator(.activity)
+                .scaledToFit()
                 .frame(width: 70, height: 110)
             VStack(alignment: .leading) {
                 Text(manga.title)

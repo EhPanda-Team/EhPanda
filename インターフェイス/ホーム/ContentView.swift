@@ -6,10 +6,20 @@
 //
 
 import SwiftUI
+import SDWebImageSwiftUI
 
 struct ContentView: View {
     @EnvironmentObject var settings: Settings
     @StateObject var store = ContentItemsStore(owner: "ContentView")
+    @Environment(\.colorScheme) var colorScheme
+    
+    var color: Color {
+        colorScheme == .light ? .white : .black
+    }
+    var rectangle: some View {
+        Rectangle()
+            .fill(color)
+    }
     
     let detailURL: String
     let pages: Int
@@ -20,7 +30,11 @@ struct ContentView: View {
                 ScrollView {
                     LazyVStack(spacing: 0) {
                         ForEach(store.contentItems) { item in
-                            ImageView(container: ImageContainer(from: item.url, type: .none, 0))
+                            WebImage(url: URL(string: item.url))
+                                .resizable()
+                                .placeholder{ rectangle }
+                                .indicator(.progress)
+                                .scaledToFit()
                         }
                     }
                 }
@@ -37,17 +51,5 @@ struct ContentView: View {
             
             store.fetchContentItems(url: detailURL, pages: pages)
         }
-    }
-}
-
-private struct ImageView: View {
-    @EnvironmentObject var settings: Settings
-    @StateObject var container: ImageContainer
-    
-    var body: some View {
-        container.image
-            .resizable()
-            .animation(.default)
-            .aspectRatio(contentMode: .fit)
     }
 }

@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import AlamofireImage
+import SDWebImageSwiftUI
 
 struct DetailView: View {
     @EnvironmentObject var settings: Settings
@@ -28,12 +28,10 @@ struct DetailView: View {
                         .ignoresSafeArea()
                     VStack {
                         Group {
-                            HeaderView(container: ImageContainer(from: manga.coverURL, type: .cover, 150),
-                                       manga: manga,
-                                       mangaDetail: detailItem)
-                                .fixedSize(horizontal: false, vertical: true)
+                            HeaderView(manga: manga, mangaDetail: detailItem)
+                                .frame(height: 150)
                             DescScrollView(manga: manga, detail: detailItem)
-                                .fixedSize(horizontal: false, vertical: true)
+                                .frame(height: 60)
                                 .padding(.vertical, 30)
                             PreviewView(previewItems: contentStore.contentItems)
                         }
@@ -82,25 +80,23 @@ struct DetailView: View {
     
     func fetchBackgroundColor() {
         guard let url = URL(string: manga.coverURL) else { return }
-                
-        let downloader = ImageDownloader()
-        downloader.download(URLRequest(url: url), completion: { (resp) in
-            if case .success(let image) = resp.result {
-                guard let uiColor = image.averageColor else { return }
-                
-                if let lighterColor = uiColor.lighter(), colorScheme == .light {
-                    backgroundColor = Color(lighterColor)
-                } else if let darkerColor = uiColor.darker(), colorScheme == .dark {
-                    backgroundColor = Color(darkerColor)
-                }
+        
+        let manager = ImageManager(url: url)
+        manager.setOnSuccess { (image) in
+            guard let uiColor = image.imageWithoutBaseline().averageColor else { return }
+            
+            if let lighterColor = uiColor.lighter(), colorScheme == .light {
+                backgroundColor = Color(lighterColor)
+            } else if let darkerColor = uiColor.darker(), colorScheme == .dark {
+                backgroundColor = Color(darkerColor)
             }
-        })
+        }
+        manager.load()
     }
 }
 
 // MARK: バックボタン
 private struct BackButton: View {
-    @Environment(\.colorScheme) var colorScheme
     @State var isPressed = false
     
     let color: Color = Color.primary.opacity(0.8)
@@ -123,7 +119,14 @@ private struct BackButton: View {
 // MARK: ヘッダー
 private struct HeaderView: View {
     @Environment(\.colorScheme) var colorScheme
-    @StateObject var container: ImageContainer
+    var color: Color {
+        colorScheme == .light ? .white : .black
+    }
+    var rectangle: some View {
+        Rectangle()
+            .fill(color)
+            .frame(width: 70/110 * 150, height: 150)
+    }
     
     let manga: Manga
     var mangaDetail: MangaDetail
@@ -145,8 +148,11 @@ private struct HeaderView: View {
     
     var body: some View {
         HStack {
-            container.image
+            WebImage(url: URL(string: manga.coverURL))
                 .resizable()
+                .placeholder{ rectangle }
+                .indicator(.activity)
+                .scaledToFit()
                 .frame(width: 70/110 * 150, height: 150)
             VStack(alignment: .leading) {
                 Text(title)
@@ -188,8 +194,6 @@ private struct HeaderView: View {
 
 // MARK: 基本情報
 private struct DescScrollView: View {
-    @Environment(\.colorScheme) var colorScheme
-    
     let manga: Manga
     let detail: MangaDetail
     
@@ -230,8 +234,6 @@ private struct DescScrollItem: View {
 }
 
 private struct DescScrollRatingItem: View {
-    @Environment(\.colorScheme) var colorScheme
-    
     let title: String
     let rating: Float
     
@@ -252,6 +254,15 @@ private struct DescScrollRatingItem: View {
 // MARK: プレビュー
 private struct PreviewView: View {
     @Environment(\.colorScheme) var colorScheme
+    var color: Color {
+        colorScheme == .light ? .white : .black
+    }
+    var rectangle: some View {
+        Rectangle()
+            .fill(color)
+            .aspectRatio(32/45, contentMode: .fit)
+            .cornerRadius(15)
+    }
     
     let previewItems: [MangaContent]
     
@@ -267,26 +278,21 @@ private struct PreviewView: View {
                 HStack {
                     if !previewItems.isEmpty {
                         ForEach(previewItems) { item in
-                            ImageView(container: ImageContainer(from: item.url, type: .preview, 300))
+                            WebImage(url: URL(string: item.url))
+                                .resizable()
+                                .placeholder{ rectangle }
+                                .indicator(.progress)
+                                .scaledToFill()
+                                .frame(maxWidth: 275)
+                                .cornerRadius(15)
                         }
                     } else {
                         ForEach(0..<10) { _ in
-                            ImageView(container: ImageContainer(from: "", type: .preview, 300))
+                            rectangle
                         }
                     }
                 }
             }
         }
-    }
-}
-
-private struct ImageView: View {
-    @StateObject var container: ImageContainer
-    
-    var body: some View {
-        container.image
-            .resizable()
-            .aspectRatio(32/45, contentMode: .fit)
-            .cornerRadius(15)
     }
 }

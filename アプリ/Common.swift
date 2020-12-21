@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import AlamofireImage
 
 class Common {
     
@@ -58,74 +57,74 @@ enum ImageStatusType {
     case failure
 }
 
-final class ImageContainer: ObservableObject {
-    @Published var status: ImageStatusType = .notDetermined
-    @Published var image: SwiftUI.Image
-    
-    init(from resource: String, type: ImageScaleType, _ targetHeight: CGFloat) {
-        if let uiImage = UIImage(named: "Placeholder"), type != .none {
-            image = ImageScaler.getScaledImage(uiImage: uiImage, targetHeight: targetHeight, type: type)
-        } else {
-            image = Image("Placeholder")
-        }
+//final class ImageContainer: ObservableObject {
+//    @Published var status: ImageStatusType = .notDetermined
+//    @Published var image: SwiftUI.Image
+//
+//    init(from resource: String, type: ImageScaleType, _ targetHeight: CGFloat) {
+//        if let uiImage = UIImage(named: "Placeholder"), type != .none {
+//            image = ImageScaler.getScaledImage(uiImage: uiImage, targetHeight: targetHeight, type: type)
+//        } else {
+//            image = Image("Placeholder")
+//        }
         
-        guard let url = URL(string: resource) else { return }
-        
-        let downloader = ImageDownloader()
-        downloader.download(URLRequest(url: url), completion: { [weak self] (resp) in
-            switch resp.result {
-                case .success(let image):
-                    self?.status = .success
-                    
-                    DispatchQueue.main.async {
-                        if type == .none {
-                            self?.image = Image(uiImage: image)
-                            return
-                        }
-                        self?.image = ImageScaler.getScaledImage(uiImage: image, targetHeight: targetHeight, type: type)
-                    }
-                case .failure(let error):
-                    self?.status = .failure
-                    
-                    ePrint(error)
-            }
-            
-        })
-    }
-}
+//        guard let url = URL(string: resource) else { return }
+//
+//        let downloader = ImageDownloader()
+//        downloader.download(URLRequest(url: url), completion: { [weak self] (resp) in
+//            switch resp.result {
+//                case .success(let image):
+//                    self?.status = .success
+//
+//                    DispatchQueue.main.async {
+//                        if type == .none {
+//                            self?.image = Image(uiImage: image)
+//                            return
+//                        }
+//                        self?.image = ImageScaler.getScaledImage(uiImage: image, targetHeight: targetHeight, type: type)
+//                    }
+//                case .failure(let error):
+//                    self?.status = .failure
+//
+//                    ePrint(error)
+//            }
+//
+//        })
+//    }
+//}
 
-class ImageScaler {
-    static func getScaledImage(uiImage: UIImage, targetHeight: CGFloat, type: ImageScaleType) -> SwiftUI.Image {
-        var originalRatio: CGFloat {
-            uiImage.size.width / uiImage.size.height
-        }
-        
-        var targetSize: CGSize {
-            CGSize(width: targetHeight * targetRatio, height: targetHeight)
-        }
-        
-        var targetRatio: CGFloat {
-            switch type {
-            case .none:
-                return 0
-            case .cover:
-                return 14/22
-            case .preview:
-                return 32/45
-            }
-        }
-        
-        if type == .preview {
-            return Image(uiImage: uiImage.af.imageAspectScaled(toFill: targetSize))
-        }
-        
-        if originalRatio - targetRatio < 0.2 {
-            return Image(uiImage: uiImage.af.imageAspectScaled(toFill: targetSize))
-        } else {
-            return Image(uiImage: uiImage.af.imageAspectScaled(toFit: targetSize))
-        }
-    }
-}
+//class ImageScaler {
+//    static func getScaledImage(uiImage: UIImage, targetHeight: CGFloat, type: ImageScaleType) -> SwiftUI.Image {
+//        var originalRatio: CGFloat {
+//            uiImage.size.width / uiImage.size.height
+//        }
+//        
+//        var targetSize: CGSize {
+//            CGSize(width: targetHeight * targetRatio, height: targetHeight)
+//        }
+//        
+//        var targetRatio: CGFloat {
+//            switch type {
+//            case .none:
+//                return 0
+//            case .cover:
+//                return 14/22
+//            case .preview:
+//                return 32/45
+//            }
+//        }
+//        
+//        if type == .preview {
+//            return Image(uiImage: uiImage.af.imageAspectScaled(toFill: targetSize))
+//        }
+//
+//        if originalRatio - targetRatio < 0.2 {
+//            return Image(uiImage: uiImage.af.imageAspectScaled(toFill: targetSize))
+//        } else {
+//            return Image(uiImage: uiImage.af.imageAspectScaled(toFit: targetSize))
+//        }
+//    }
+//}
 
 extension UINavigationController: UIGestureRecognizerDelegate {
     override open func viewDidLoad() {
