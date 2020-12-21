@@ -20,42 +20,49 @@ struct DetailView: View {
     
     let manga: Manga
     
-    var body: some View { Group {
-        if let detailItem = store.detailItem {
-            ZStack {
-                backgroundColor
-                    .ignoresSafeArea()
-                
-                VStack { Group {
-                    HeaderView(container: ImageContainer(from: manga.coverURL, type: .cover, 150),
-                               manga: manga,
-                               mangaDetail: detailItem)
-                        .fixedSize(horizontal: false, vertical: true)
-                    DescScrollView(manga: manga, detail: detailItem)
-                        .fixedSize(horizontal: false, vertical: true)
-                        .padding(.vertical, 30)
-                    PreviewView(previewItems: contentStore.contentItems)
-                }.shadow(color: colorScheme == .light ? .gray : .black, radius: 10)}
-                .padding(.top, -40)
-                .padding(.bottom, 10)
-                .padding(.horizontal)
+    var body: some View {
+        Group {
+            if let detailItem = store.detailItem {
+                ZStack {
+                    backgroundColor
+                        .ignoresSafeArea()
+                    VStack {
+                        Group {
+                            HeaderView(container: ImageContainer(from: manga.coverURL, type: .cover, 150),
+                                       manga: manga,
+                                       mangaDetail: detailItem)
+                                .fixedSize(horizontal: false, vertical: true)
+                            DescScrollView(manga: manga, detail: detailItem)
+                                .fixedSize(horizontal: false, vertical: true)
+                                .padding(.vertical, 30)
+                            PreviewView(previewItems: contentStore.contentItems)
+                        }
+                        .shadow(color: colorScheme == .light ? .gray : .black, radius: 10)
+                    }
+                    .padding(.top, -40)
+                    .padding(.bottom, 10)
+                    .padding(.horizontal)
+                }
+                .transition(AnyTransition.opacity.animation(.default))
+                .onAppear {
+                    shouldBackButtonHidden = false
+                }
+            } else {
+                LoadingView()
             }
-            .transition(AnyTransition.opacity.animation(.linear(duration: 0.5)))
-            .onAppear {
-                shouldBackButtonHidden = false
-            }
-        } else {
-            LoadingView()
-        }}
+        }
         .navigationBarHidden(settings.navBarHidden)
         .navigationBarBackButtonHidden(true)
-        .navigationBarItems(leading: Group {
-            if !shouldBackButtonHidden {
-                BackButton {
-                    presentationMode.wrappedValue.dismiss()
+        .navigationBarItems(
+            leading:
+                Group {
+                    if !shouldBackButtonHidden {
+                        BackButton {
+                            presentationMode.wrappedValue.dismiss()
+                        }
+                    }
                 }
-            }
-        })
+        )
         .onAppear {
             settings.navBarHidden = false
             
@@ -163,11 +170,13 @@ private struct HeaderView: View {
                                 .foregroundColor(Color(manga.color))
                         )
                     Spacer()
-                    Button(action: {}) { NavigationLink(destination: contentView) {
-                         Text("読む")
-                            .foregroundColor(.white)
-                            .fontWeight(.bold)
-                    }}
+                    Button(action: {}) {
+                        NavigationLink(destination: contentView) {
+                             Text("読む")
+                                .foregroundColor(.white)
+                                .fontWeight(.bold)
+                        }
+                    }
                     .buttonStyle(CapsuleButtonStyle())
                 }
             }
@@ -254,18 +263,19 @@ private struct PreviewView: View {
                     .font(.title3)
                 Spacer()
             }
-            
-            ScrollView(.horizontal, showsIndicators: false) { HStack {
-                if !previewItems.isEmpty {
-                    ForEach(previewItems) { item in
-                        ImageView(container: ImageContainer(from: item.url, type: .preview, 300))
-                    }
-                } else {
-                    ForEach(0..<10) { _ in
-                        ImageView(container: ImageContainer(from: "", type: .preview, 300))
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack {
+                    if !previewItems.isEmpty {
+                        ForEach(previewItems) { item in
+                            ImageView(container: ImageContainer(from: item.url, type: .preview, 300))
+                        }
+                    } else {
+                        ForEach(0..<10) { _ in
+                            ImageView(container: ImageContainer(from: "", type: .preview, 300))
+                        }
                     }
                 }
-            }}
+            }
         }
     }
 }

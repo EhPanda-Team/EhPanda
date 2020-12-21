@@ -52,7 +52,14 @@ enum ImageScaleType {
     case preview
 }
 
+enum ImageStatusType {
+    case notDetermined
+    case success
+    case failure
+}
+
 final class ImageContainer: ObservableObject {
+    @Published var status: ImageStatusType = .notDetermined
     @Published var image: SwiftUI.Image
     
     init(from resource: String, type: ImageScaleType, _ targetHeight: CGFloat) {
@@ -66,15 +73,23 @@ final class ImageContainer: ObservableObject {
         
         let downloader = ImageDownloader()
         downloader.download(URLRequest(url: url), completion: { [weak self] (resp) in
-            if case .success(let image) = resp.result {
-                DispatchQueue.main.async {
-                    if type == .none {
-                        self?.image = Image(uiImage: image)
-                        return
+            switch resp.result {
+                case .success(let image):
+                    self?.status = .success
+                    
+                    DispatchQueue.main.async {
+                        if type == .none {
+                            self?.image = Image(uiImage: image)
+                            return
+                        }
+                        self?.image = ImageScaler.getScaledImage(uiImage: image, targetHeight: targetHeight, type: type)
                     }
-                    self?.image = ImageScaler.getScaledImage(uiImage: image, targetHeight: targetHeight, type: type)
-                }
+                case .failure(let error):
+                    self?.status = .failure
+                    
+                    ePrint(error)
             }
+            
         })
     }
 }

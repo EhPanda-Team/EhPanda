@@ -14,18 +14,22 @@ struct ContentView: View {
     let detailURL: String
     let pages: Int
     
-    var body: some View { Group {
-        if !store.contentItems.isEmpty {
-            ScrollView { LazyVStack(spacing: 0) {
-                ForEach(store.contentItems) { item in
-                    ImageView(container: ImageContainer(from: item.url, type: .none, 0))
+    var body: some View {
+        Group {
+            if !store.contentItems.isEmpty {
+                ScrollView {
+                    LazyVStack(spacing: 0) {
+                        ForEach(store.contentItems) { item in
+                            ImageView(container: ImageContainer(from: item.url, type: .none, 0))
+                        }
+                    }
                 }
-            }}
-            .ignoresSafeArea()
-            .transition(AnyTransition.opacity.animation(.linear(duration: 0.5)))
-        } else {
-            LoadingView()
-        }}
+                .ignoresSafeArea()
+                .transition(AnyTransition.opacity.animation(.default))
+            } else {
+                LoadingView()
+            }
+        }
         .navigationBarBackButtonHidden(true)
         .navigationBarHidden(settings.navBarHidden)
         .onAppear {
@@ -37,11 +41,13 @@ struct ContentView: View {
 }
 
 private struct ImageView: View {
+    @EnvironmentObject var settings: Settings
     @StateObject var container: ImageContainer
     
     var body: some View {
         container.image
             .resizable()
+            .animation(.default)
             .aspectRatio(contentMode: .fit)
     }
 }

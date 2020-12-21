@@ -27,28 +27,30 @@ struct HomeView: View {
     
     var body: some View {
         NavigationView {
-            ScrollView { LazyVStack {
-                SearchBar(keyword: $keyword) {
-                    if keyword.isEmpty {
-                        currentPageType = .popular
-                        store.fetchPopularItems()
-                        return
+            ScrollView {
+                LazyVStack {
+                    SearchBar(keyword: $keyword) {
+                        if keyword.isEmpty {
+                            currentPageType = .popular
+                            store.fetchPopularItems()
+                            return
+                        }
+                        currentPageType = .search
+                        store.fetchSearchItems(keyword: keyword)
+                    } filterAction: {}
+                    
+                    if !store.homeItems.isEmpty {
+                        ForEach(store.homeItems) { item in
+                            NavigationLink(destination: DetailView(manga: item)) {
+                                let imageContainer = ImageContainer(from: item.coverURL, type: .cover, 110)
+                                MangaSummaryRow(container: imageContainer, manga: item)
+                            }
+                        }
+                        .transition(AnyTransition.opacity.animation(.default))
+                    } else {
+                        LoadingView()
                     }
-                    currentPageType = .search
-                    store.fetchSearchItems(keyword: keyword)
-                } filterAction: {}
-                
-                if !store.homeItems.isEmpty {
-                    ForEach(store.homeItems) { item in NavigationLink(destination: DetailView(manga: item)) {
-                        let imageContainer = ImageContainer(from: item.coverURL, type: .cover, 110)
-                        MangaSummaryRow(container: imageContainer, manga: item)
-                    }}
-                    .transition(AnyTransition.opacity.animation(.linear(duration: 0.5)))
-
-                } else {
-                    LoadingView()
                 }
-            }
                 .padding()
             }
             .navigationBarTitle(currentPageType.rawValue)
@@ -60,11 +62,8 @@ struct HomeView: View {
                             .imageScale(.large)
                     })
             )
-            .navigationBarHidden(settings.navBarHidden)
             .navigationViewStyle(StackNavigationViewStyle())
             .onAppear {
-                settings.navBarHidden = false
-                
                 if store.homeItems.isEmpty {
                     store.fetchPopularItems()
                 }
