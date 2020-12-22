@@ -141,13 +141,9 @@ private struct SearchBar: View {
 
 // MARK: 概要列
 private struct MangaSummaryRow: View {
-    @Environment(\.colorScheme) var colorScheme
-    var color: Color {
-        colorScheme == .light ? .white : .black
-    }
     var rectangle: some View {
         Rectangle()
-            .fill(color)
+            .fill(Color(.systemGray5))
             .frame(width: 70, height: 110)
     }
     

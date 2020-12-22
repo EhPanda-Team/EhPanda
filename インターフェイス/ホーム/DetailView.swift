@@ -253,14 +253,10 @@ private struct DescScrollRatingItem: View {
 
 // MARK: プレビュー
 private struct PreviewView: View {
-    @Environment(\.colorScheme) var colorScheme
-    var color: Color {
-        colorScheme == .light ? .white : .black
-    }
     var rectangle: some View {
         Rectangle()
-            .fill(color)
-            .aspectRatio(32/45, contentMode: .fit)
+            .fill(Color(.systemGray5))
+            .frame(width: 275)
             .cornerRadius(15)
     }
     
@@ -283,7 +279,7 @@ private struct PreviewView: View {
                                 .placeholder{ rectangle }
                                 .indicator(.progress)
                                 .scaledToFill()
-                                .frame(maxWidth: 275)
+                                .frame(width: 275)
                                 .cornerRadius(15)
                         }
                     } else {

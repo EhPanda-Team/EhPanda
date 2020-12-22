@@ -11,14 +11,10 @@ import SDWebImageSwiftUI
 struct ContentView: View {
     @EnvironmentObject var settings: Settings
     @StateObject var store = ContentItemsStore(owner: "ContentView")
-    @Environment(\.colorScheme) var colorScheme
     
-    var color: Color {
-        colorScheme == .light ? .white : .black
-    }
     var rectangle: some View {
         Rectangle()
-            .fill(color)
+            .fill(Color(.systemGray5))
     }
     
     let detailURL: String
