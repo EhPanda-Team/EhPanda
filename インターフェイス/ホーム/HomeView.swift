@@ -30,7 +30,7 @@ struct HomeView: View {
     var body: some View {
         NavigationView {
             ScrollView {
-                LazyVStack {
+                VStack {
                     SearchBar(keyword: $keyword) {
                         if keyword.isEmpty {
                             currentPageType = .popular
@@ -144,7 +144,7 @@ private struct MangaSummaryRow: View {
     var rectangle: some View {
         Rectangle()
             .fill(Color(.systemGray5))
-            .frame(width: 70, height: 110)
+            .frame(width: 80, height: 110)
     }
     
     let manga: Manga
@@ -156,7 +156,7 @@ private struct MangaSummaryRow: View {
                 .placeholder { rectangle }
                 .indicator(.activity)
                 .scaledToFit()
-                .frame(width: 70, height: 110)
+                .frame(width: 80, height: 110)
             VStack(alignment: .leading) {
                 Text(manga.title)
                     .lineLimit(1)

@@ -125,7 +125,7 @@ private struct HeaderView: View {
     var rectangle: some View {
         Rectangle()
             .fill(color)
-            .frame(width: 70/110 * 150, height: 150)
+            .frame(width: 8/11 * 150, height: 150)
     }
     
     let manga: Manga
@@ -153,7 +153,7 @@ private struct HeaderView: View {
                 .placeholder{ rectangle }
                 .indicator(.activity)
                 .scaledToFit()
-                .frame(width: 70/110 * 150, height: 150)
+                .frame(width: 8/11 * 150, height: 150)
             VStack(alignment: .leading) {
                 Text(title)
                     .fontWeight(.bold)
@@ -198,7 +198,7 @@ private struct DescScrollView: View {
     let detail: MangaDetail
     
     var body: some View {
-        HStack {
+        HStack(alignment: .center) {
             DescScrollItem(title: "気に入り", value: detail.likeCount, numeral: "人")
             Spacer()
             DescScrollItem(title: "言語", value: detail.languageAbbr, numeral: detail.translatedLanguage)
@@ -229,7 +229,8 @@ private struct DescScrollItem: View {
             Text(numeral)
                 .font(.caption)
         }
-        .frame(minWidth: 50, maxWidth: 60)
+        .scaledToFill()
+        .frame(idealWidth: 50)
     }
 }
 
@@ -247,17 +248,23 @@ private struct DescScrollRatingItem: View {
                 .font(.title3)
             RatingView(rating: rating, .primary)
         }
-        .frame(minWidth: 60, maxWidth: 100)
+        .scaledToFill()
+        .frame(idealWidth: 60)
     }
 }
 
 // MARK: プレビュー
 private struct PreviewView: View {
-    var rectangle: some View {
-        Rectangle()
-            .fill(Color(.systemGray5))
-            .frame(width: 275)
-            .cornerRadius(15)
+    struct Placeholder: View {
+        let width: CGFloat
+        let height: CGFloat
+        
+        var body: some View {
+            Rectangle()
+                .fill(Color(.systemGray5))
+                .frame(width: width, height: height)
+                .cornerRadius(15)
+        }
     }
     
     let previewItems: [MangaContent]
@@ -270,21 +277,28 @@ private struct PreviewView: View {
                     .font(.title3)
                 Spacer()
             }
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack {
-                    if !previewItems.isEmpty {
-                        ForEach(previewItems) { item in
-                            WebImage(url: URL(string: item.url))
-                                .resizable()
-                                .placeholder{ rectangle }
-                                .indicator(.progress)
-                                .scaledToFill()
-                                .frame(width: 275)
-                                .cornerRadius(15)
-                        }
-                    } else {
-                        ForEach(0..<10) { _ in
-                            rectangle
+            GeometryReader { reader in
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack {
+                        if !previewItems.isEmpty {
+                            ForEach(previewItems) { item in
+                                WebImage(url: URL(string: item.url))
+                                    .resizable()
+                                    .placeholder {
+                                        Placeholder(width: reader.size.height * 32/45,
+                                                    height: reader.size.height)
+                                    }
+                                    .indicator(.progress)
+                                    .scaledToFill()
+                                    .frame(width: reader.size.height * 32/45,
+                                           height: reader.size.height)
+                                    .cornerRadius(15)
+                            }
+                        } else {
+                            ForEach(0..<10) { _ in
+                                Placeholder(width: reader.size.height * 32/45,
+                                            height: reader.size.height)
+                            }
                         }
                     }
                 }

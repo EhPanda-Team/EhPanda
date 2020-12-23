@@ -24,11 +24,12 @@ struct ContentView: View {
         Group {
             if !store.contentItems.isEmpty {
                 ScrollView {
-                    LazyVStack(spacing: 0) {
+                    VStack(spacing: 0) {
                         ForEach(store.contentItems) { item in
-                            WebImage(url: URL(string: item.url))
+                            WebImage(url: URL(string: item.url),
+                                     options: [SDWebImageOptions.retryFailed])
                                 .resizable()
-                                .placeholder{ rectangle }
+                                .placeholder { rectangle }
                                 .indicator(.progress)
                                 .scaledToFit()
                         }
