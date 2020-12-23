@@ -109,8 +109,8 @@
 		ABC3C7712593699A00E0C11B /* ホーム */ = {
 			isa = PBXGroup;
 			children = (
-				ABC3C7722593699A00E0C11B /* DetailView.swift */,
 				ABC3C7732593699A00E0C11B /* HomeView.swift */,
+				ABC3C7722593699A00E0C11B /* DetailView.swift */,
 				ABC3C7742593699A00E0C11B /* ContentView.swift */,
 			);
 			path = "ホーム";

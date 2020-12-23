@@ -13,12 +13,14 @@ struct DetailView: View {
     @StateObject var store = DetailItemsStore()
     @StateObject var contentStore = ContentItemsStore(owner: "DetailView")
     
-    @Environment(\.presentationMode) var presentationMode
     @Environment(\.colorScheme) var colorScheme
     @State var backgroundColor: Color = .clear
-    @State var shouldBackButtonHidden = true
     
     let manga: Manga
+    var color: Color {
+        colorScheme == .light ? .gray : .black
+    }
+    
     
     var body: some View {
         Group {
@@ -35,32 +37,17 @@ struct DetailView: View {
                                 .padding(.vertical, 30)
                             PreviewView(previewItems: contentStore.contentItems)
                         }
-                        .shadow(color: colorScheme == .light ? .gray : .black, radius: 10)
                     }
                     .padding(.top, -40)
                     .padding(.bottom, 10)
                     .padding(.horizontal)
                 }
                 .transition(AnyTransition.opacity.animation(.default))
-                .onAppear {
-                    shouldBackButtonHidden = false
-                }
             } else {
                 LoadingView()
             }
         }
         .navigationBarHidden(settings.navBarHidden)
-        .navigationBarBackButtonHidden(true)
-        .navigationBarItems(
-            leading:
-                Group {
-                    if !shouldBackButtonHidden {
-                        BackButton {
-                            presentationMode.wrappedValue.dismiss()
-                        }
-                    }
-                }
-        )
         .onAppear {
             settings.navBarHidden = false
             
