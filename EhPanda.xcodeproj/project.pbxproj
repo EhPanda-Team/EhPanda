@@ -12,7 +12,6 @@
 		ABC3C7872593699B00E0C11B /* EhPandaApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC3C76B2593699A00E0C11B /* EhPandaApp.swift */; };
 		ABC3C7882593699B00E0C11B /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC3C76C2593699A00E0C11B /* Settings.swift */; };
 		ABC3C7892593699B00E0C11B /* Defaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC3C76D2593699A00E0C11B /* Defaults.swift */; };
-		ABC3C78B2593699B00E0C11B /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = ABC3C76F2593699A00E0C11B /* README.md */; };
 		ABC3C78C2593699B00E0C11B /* DetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC3C7722593699A00E0C11B /* DetailView.swift */; };
 		ABC3C78D2593699B00E0C11B /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC3C7732593699A00E0C11B /* HomeView.swift */; };
 		ABC3C78E2593699B00E0C11B /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC3C7742593699A00E0C11B /* ContentView.swift */; };
@@ -21,7 +20,6 @@
 		ABC3C7912593699B00E0C11B /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC3C7782593699A00E0C11B /* LoadingView.swift */; };
 		ABC3C7932593699B00E0C11B /* RequestManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC3C77C2593699A00E0C11B /* RequestManager.swift */; };
 		ABC3C7942593699B00E0C11B /* MangaStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC3C77D2593699A00E0C11B /* MangaStore.swift */; };
-		ABC3C7952593699B00E0C11B /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = ABC3C77E2593699A00E0C11B /* LICENSE */; };
 		ABC3C7962593699B00E0C11B /* Manga.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC3C7802593699A00E0C11B /* Manga.swift */; };
 		ABC3C79D259369FE00E0C11B /* Kanna in Frameworks */ = {isa = PBXBuildFile; productRef = ABC3C79C259369FE00E0C11B /* Kanna */; };
 		ABC3C7A125936A2F00E0C11B /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = ABC3C7A025936A2F00E0C11B /* SDWebImageSwiftUI */; };
@@ -35,7 +33,6 @@
 		ABC3C76C2593699A00E0C11B /* Settings.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Settings.swift; sourceTree = "<group>"; };
 		ABC3C76D2593699A00E0C11B /* Defaults.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Defaults.swift; sourceTree = "<group>"; };
 		ABC3C76E2593699A00E0C11B /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		ABC3C76F2593699A00E0C11B /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		ABC3C7722593699A00E0C11B /* DetailView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DetailView.swift; sourceTree = "<group>"; };
 		ABC3C7732593699A00E0C11B /* HomeView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		ABC3C7742593699A00E0C11B /* ContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -44,7 +41,6 @@
 		ABC3C7782593699A00E0C11B /* LoadingView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoadingView.swift; sourceTree = "<group>"; };
 		ABC3C77C2593699A00E0C11B /* RequestManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RequestManager.swift; sourceTree = "<group>"; };
 		ABC3C77D2593699A00E0C11B /* MangaStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MangaStore.swift; sourceTree = "<group>"; };
-		ABC3C77E2593699A00E0C11B /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		ABC3C7802593699A00E0C11B /* Manga.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Manga.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -80,8 +76,6 @@
 		ABC3C7562593696C00E0C11B /* EhPanda */ = {
 			isa = PBXGroup;
 			children = (
-				ABC3C77E2593699A00E0C11B /* LICENSE */,
-				ABC3C76F2593699A00E0C11B /* README.md */,
 				ABC3C77F2593699A00E0C11B /* モデル */,
 				ABC3C7682593699A00E0C11B /* アプリ */,
 				ABC3C7702593699A00E0C11B /* インターフェイス */,
@@ -214,9 +208,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				ABC3C7952593699B00E0C11B /* LICENSE in Resources */,
 				ABC3C7852593699B00E0C11B /* Assets.xcassets in Resources */,
-				ABC3C78B2593699B00E0C11B /* README.md in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
