@@ -1,14 +1,17 @@
-[日本語](https://github.com/arakitatsuzou/EhPanda/blob/main/README.md)・[English](https://github.com/arakitatsuzou/EhPanda/blob/main/README.en.md)・[简体中文](https://github.com/arakitatsuzou/EhPanda/blob/main/README.chs.md)
+[日本語](/README.md)・[English](/README.en.md)・[简体中文](/README.chs.md)
 
 # EhPanda
 一个面向iOS的E-Hentai非官方App。 (未完成)
 
-# App图标
+## App图标
 是我照着[这个链接](https://www.deviantart.com/epiphany/art/reminds-me-of-you-15994061)的图来画的，如认为本App侵害著作权而你有需要删除它的诉求请往[这里](kendellcarol@gmail.com)发送。
 
-# 内容及其著作权
+## 内容及其著作权
 不懂，你需要自担风险。
 
-# 安装步骤
+## 安装步骤
 1. 在[Releases](https://github.com/arakitatsuzou/EhPanda/releases)取得ipa文件
 2. 使用Cydia Impactor、AppSigner、AltDeploy这类软件将ipa安装到你的设备
+
+## 截图
+<img src="https://user-images.githubusercontent.com/31207151/103070051-aad31480-45fb-11eb-9305-75591cd718b3.PNG" width="320"><img src="https://user-images.githubusercontent.com/31207151/103070061-b4f51300-45fb-11eb-92f3-d50e4ab4bb39.PNG" width="320">
