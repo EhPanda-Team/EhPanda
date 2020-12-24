@@ -1,4 +1,4 @@
-[日本語](https://github.com/arakitatsuzou/EhPanda/blob/main/README.md)・[English](https://github.com/arakitatsuzou/EhPanda/edit/main/README.en.md)・[简体中文](https://github.com/arakitatsuzou/EhPanda/edit/main/README.chs.md)
+[日本語](https://github.com/arakitatsuzou/EhPanda/blob/main/README.md)・[English](https://github.com/arakitatsuzou/EhPanda/blob/main/README.en.md)・[简体中文](https://github.com/arakitatsuzou/EhPanda/blob/main/README.chs.md)
 
 # EhPanda
 iOS向けの非公式E-Hentaiアプリである。(未完成)
