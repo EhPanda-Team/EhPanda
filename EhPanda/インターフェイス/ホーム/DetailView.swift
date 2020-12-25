@@ -14,13 +14,11 @@ struct DetailView: View {
     @StateObject var contentStore = ContentItemsStore(owner: "DetailView")
     
     @Environment(\.colorScheme) var colorScheme
-    @State var backgroundColor: Color = .clear
+    @State var backgroundColor: Color?
+    @State var lighterColor: Color?
+    @State var darkerColor: Color?
     
     let manga: Manga
-    var color: Color {
-        colorScheme == .light ? .gray : .black
-    }
-    
     
     var body: some View {
         Group {
@@ -48,6 +46,9 @@ struct DetailView: View {
             }
         }
         .navigationBarHidden(settings.navBarHidden)
+        .onChange(of: colorScheme) { _ in
+            changeBackgroundColor(reverse: true)
+        }
         .onAppear {
             settings.navBarHidden = false
             
@@ -70,48 +71,32 @@ struct DetailView: View {
         
         let manager = ImageManager(url: url)
         manager.setOnSuccess { (image) in
-            guard let uiColor = image.imageWithoutBaseline().averageColor else { return }
+            guard let uiColor = image.imageWithoutBaseline().averageColor,
+                  let lighterUIColor = uiColor.lighter(),
+                  let darkerUIColor = uiColor.darker()
+            else { return }
             
-            if let lighterColor = uiColor.lighter(), colorScheme == .light {
-                backgroundColor = Color(lighterColor)
-            } else if let darkerColor = uiColor.darker(), colorScheme == .dark {
-                backgroundColor = Color(darkerColor)
-            }
+            lighterColor = Color(lighterUIColor)
+            darkerColor = Color(darkerUIColor)
+            changeBackgroundColor(reverse: false)
         }
         manager.load()
     }
-}
-
-// MARK: バックボタン
-private struct BackButton: View {
-    @State var isPressed = false
     
-    let color: Color = Color.primary.opacity(0.8)
-    var backAction: () -> ()
-    
-    var body: some View {
-        Button(action: {
-            backAction()
-        }) {
-            Image(systemName: "chevron.backward.circle")
-                .foregroundColor(isPressed ? color.opacity(0.5) : color)
-                .font(.system(.title))
+    func changeBackgroundColor(reverse: Bool) {
+        if colorScheme == .light {
+            backgroundColor = reverse ? darkerColor : lighterColor
+        } else {
+            backgroundColor = reverse ? lighterColor : darkerColor
         }
-        .onLongPressGesture(pressing: { (_) in
-            isPressed.toggle()
-        }, perform: {})
     }
 }
 
 // MARK: ヘッダー
 private struct HeaderView: View {
-    @Environment(\.colorScheme) var colorScheme
-    var color: Color {
-        colorScheme == .light ? .white : .black
-    }
     var rectangle: some View {
         Rectangle()
-            .fill(color)
+            .fill(Color(.systemGray5))
             .frame(width: 8/11 * 150, height: 150)
     }
     
