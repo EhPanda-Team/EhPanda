@@ -46,6 +46,12 @@ public func executeSyncally(_ closure: @escaping (()->())) {
     }
 }
 
+extension String {
+    func lString() -> String {
+        NSLocalizedString(self, comment: "")
+    }
+}
+
 extension UINavigationController: UIGestureRecognizerDelegate {
     override open func viewDidLoad() {
         super.viewDidLoad()

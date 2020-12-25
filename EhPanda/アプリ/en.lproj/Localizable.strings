@@ -1,0 +1,87 @@
+/* 
+  Localizable.strings
+  EhPanda
+
+  Created by 荒木辰造 on R 2/12/25.
+  
+*/
+
+// MARK: LoadingView
+"読み込み中..." = "Loading...";
+
+// MARK: HomeView
+"検索" = "Search";
+"人気" = "Popular";
+"お気に入り" = "Favorite";
+"ダウンロード済み" = "Downloaded";
+
+
+// MARK: DetailView
+"読む" = "READ";
+"気に入り" = "FAVORED";
+"人" = "Times";
+"言語" = "LANGUAGE";
+"件の評価" = " RATINGS";
+"ページ" = "PAGE COUNT";
+"頁" = "Pages";
+"サイズ" = "SIZE";
+"プレビュー" = "Preview";
+
+// MARK: Category
+"同人誌" = "Doujinshi";
+"漫画" = "Manga";
+"イラスト" = "Artist CG";
+"ゲームCG" = "Game CG";
+"西洋" = "Western";
+"健全" = "Non-H";
+"画像集" = "Image Set";
+"コスプレ" = "Cosplay";
+"アジア" = "Asian Porn";
+"その他" = "Misc";
+
+// MARK: Language
+"その他" = "Other";
+
+"アフリカーンス語" = "Afrikaans"; "アルバニア語" = "Albanian"; "アラビア語" = "Arabic";
+
+"ベンガル語" = "Bengali"; "ボスニア語" = "Bosnian"; "ブルガリア語" = "Bulgarian"; "ビルマ語" = "Burmese";
+
+"カタルーニャ語" = "Catalan"; "セブアノ語" = "Cebuano"; "中国語" = "Chinese"; "クロアチア語" = "Croatian"; "チェコ語" = "Czech";
+
+"デンマーク語" = "Danish"; "オランダ語" = "Dutch";
+
+"英語" = "English"; "国際語" = "Esperanto"; "エストニア語" = "Estonian";
+
+"フィンランド語" = "Finnish"; "フランス語" = "French";
+
+"グルジア語" = "Georgian"; "ドイツ語" = "German"; "ギリシア語" = "Greek";
+
+"ヘブライ語" = "Hebrew"; "ヒンディー語" = "Hindi"; "ミャオ語" = "Hmong"; "ハンガリー語" = "Hungarian";
+
+"インドネシア語" = "Indonesian"; "イタリア語" = "Italian";
+
+"日本語" = "Japanese";
+
+"カザフ語" = "Kazakh"; "クメール語" = "Khmer"; "韓国語" = "Korean"; "クルド語" = "Kurdish";
+
+"ラーオ語" = "Lao"; "ラテン語" = "Latin";
+
+"モンゴル語" = "Mongolian";
+
+"ンデベレ語" = "Ndebele"; "ネパール語" = "Nepali"; "ノルウェー語" = "Norwegian";
+
+"オロモ語" = "Oromo";
+
+"パシュトー語" = "Pashto"; "ペルシア語" = "Persian"; "ポーランド語" = "Polish"; "ポルトガル語" = "Portuguese"; "パンジャーブ語" = "Punjabi";
+
+"ルーマニア語" = "Romanian"; "ロシア語" = "Russian";
+
+"サンゴ語" = "Sango"; "セルビア語" = "Serbian"; "ショナ語" = "Shona"; "スロバキア語" = "Slovak"; "スロベニア語" = "Slovenian"; "ソマリ語" = "Somali"; "スペイン語" = "Spanish"; "スワヒリ語" = "Swahili"; "スウェーデン語" = "Swedish";
+
+"タガログ語" = "Tagalog"; "タイ語" = "Thai"; "ティグリニャ語" = "Tigrinya"; "トルコ語" = "Turkish";
+
+"ウクライナ語" = "Ukrainian"; "ウルドゥー語" = "Urdu";
+
+"ベトナム語" = "Vietnamese";
+
+"ズールー語" = "Zulu";

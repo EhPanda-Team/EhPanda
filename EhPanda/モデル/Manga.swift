@@ -5,7 +5,6 @@
 //  Created by 荒木辰造 on R 2/11/22.
 //
 
-import Foundation
 import SwiftUI
 
 // MARK: 構造体

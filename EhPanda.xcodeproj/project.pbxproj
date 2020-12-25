@@ -23,6 +23,7 @@
 		ABC3C7962593699B00E0C11B /* Manga.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC3C7802593699A00E0C11B /* Manga.swift */; };
 		ABC3C79D259369FE00E0C11B /* Kanna in Frameworks */ = {isa = PBXBuildFile; productRef = ABC3C79C259369FE00E0C11B /* Kanna */; };
 		ABC3C7A125936A2F00E0C11B /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = ABC3C7A025936A2F00E0C11B /* SDWebImageSwiftUI */; };
+		ABEE0AFA2595C6F800C997AE /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = ABEE0AFC2595C6F800C997AE /* Localizable.strings */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -42,6 +43,8 @@
 		ABC3C77C2593699A00E0C11B /* RequestManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RequestManager.swift; sourceTree = "<group>"; };
 		ABC3C77D2593699A00E0C11B /* MangaStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MangaStore.swift; sourceTree = "<group>"; };
 		ABC3C7802593699A00E0C11B /* Manga.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Manga.swift; sourceTree = "<group>"; };
+		ABEE0AFB2595C6F800C997AE /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		ABEE0AFE2595C73D00C997AE /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -92,6 +95,7 @@
 				ABC3C76C2593699A00E0C11B /* Settings.swift */,
 				ABC3C76D2593699A00E0C11B /* Defaults.swift */,
 				ABC3C76E2593699A00E0C11B /* Info.plist */,
+				ABEE0AFC2595C6F800C997AE /* Localizable.strings */,
 				ABC3C7692593699A00E0C11B /* Assets.xcassets */,
 			);
 			path = "アプリ";
@@ -183,11 +187,13 @@
 			};
 			buildConfigurationList = ABC3C74F2593696C00E0C11B /* Build configuration list for PBXProject "EhPanda" */;
 			compatibilityVersion = "Xcode 9.3";
-			developmentRegion = en;
+			developmentRegion = ja;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
 				Base,
+				ja,
+				"zh-Hans",
 			);
 			mainGroup = ABC3C74B2593696C00E0C11B;
 			packageReferences = (
@@ -209,6 +215,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				ABC3C7852593699B00E0C11B /* Assets.xcassets in Resources */,
+				ABEE0AFA2595C6F800C997AE /* Localizable.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -236,6 +243,18 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		ABEE0AFC2595C6F800C997AE /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				ABEE0AFB2595C6F800C997AE /* en */,
+				ABEE0AFE2595C73D00C997AE /* zh-Hans */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		ABC3C7612593696E00E0C11B /* Debug */ = {

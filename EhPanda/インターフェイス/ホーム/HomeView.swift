@@ -54,7 +54,7 @@ struct HomeView: View {
                 }
                 .padding()
             }
-            .navigationBarTitle(currentPageType.rawValue)
+            .navigationBarTitle(currentPageType.rawValue.lString())
             .navigationBarItems(
                 leading:
                     CategoryPicker(currentPageType: $currentPageType)
@@ -93,7 +93,7 @@ private struct CategoryPicker: View {
            content: {
                 let homepageTypes: [HomepageType] = [.popular, .favorite, .downloaded]
                 ForEach(homepageTypes, id: \.self) {
-                    Text($0.rawValue)
+                    Text($0.rawValue.lString())
                 }
         })
         .pickerStyle(MenuPickerStyle())
@@ -111,7 +111,7 @@ private struct SearchBar: View {
             Image(systemName: "magnifyingglass")
                 .foregroundColor(.gray)
             ZStack {
-                TextField("検索ワードを入力してください", text: $keyword, onCommit: commitAction)
+                TextField("検索", text: $keyword, onCommit: commitAction)
                     .disableAutocorrection(true)
                     .autocapitalization(.none)
                 HStack {
@@ -170,7 +170,7 @@ private struct MangaSummaryRow: View {
                     RatingView(rating: manga.rating)
                 }
                 HStack(alignment: .bottom) {
-                    Text(manga.translatedCategory)
+                    Text(manga.translatedCategory.lString())
                         .fontWeight(.bold)
                         .lineLimit(1)
                         .font(.footnote)
