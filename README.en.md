@@ -1,7 +1,10 @@
-[日本語](/README.md)・[English](/README.en.md)・[简体中文](/README.chs.md)
-
-# EhPanda
-An unofficial E-Hentai App for iOS. (Not completed)
+<h1 align="center">EhPanda</h1>
+<h4 align="center">An unofficial E-Hentai App for iOS. (Not completed)</h4>
+<p align="center">
+  <a href="/README.md">日本語</a>・
+  <a href="/README.en.md">English</a>・
+  <a href="/README.chs.md">简体中文</a>
+</p>
 
 ## App Icon
 It's based on a pic from [here](https://www.deviantart.com/epiphany/art/reminds-me-of-you-15994061), send a delete request [here](kendellcarol@gmail.com) if you think there is any infringement upon the copyright.
