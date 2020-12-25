@@ -11,7 +11,7 @@ import SDWebImageSwiftUI
 enum HomepageType: String {
     case search = "検索"
     case popular = "人気"
-    case favorite = "お気に入り"
+    case favorites = "お気に入り"
     case downloaded = "ダウンロード済み"
 }
 
@@ -91,7 +91,7 @@ private struct CategoryPicker: View {
                     .foregroundColor(.primary)
                     .font(.largeTitle),
            content: {
-                let homepageTypes: [HomepageType] = [.popular, .favorite, .downloaded]
+                let homepageTypes: [HomepageType] = [.popular, .favorites, .downloaded]
                 ForEach(homepageTypes, id: \.self) {
                     Text($0.rawValue.lString())
                 }
