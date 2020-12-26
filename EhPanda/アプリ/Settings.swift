@@ -8,9 +8,5 @@
 import Combine
 
 class Settings: ObservableObject {
-    @Published var navBarHidden = false {
-        didSet {
-            ePrint("navBarHidden: \(navBarHidden)")
-        }
-    }
+    @Published var navBarHidden = false
 }

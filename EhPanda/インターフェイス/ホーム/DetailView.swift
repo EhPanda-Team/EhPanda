@@ -13,47 +13,32 @@ struct DetailView: View {
     @StateObject var store = DetailItemsStore()
     @StateObject var contentStore = ContentItemsStore(owner: "DetailView")
     
-    @Environment(\.colorScheme) var colorScheme
-    @State var backgroundColor: Color?
-    @State var lighterColor: Color?
-    @State var darkerColor: Color?
-    
     let manga: Manga
     
     var body: some View {
         Group {
             if let detailItem = store.detailItem {
-                ZStack {
-                    backgroundColor
-                        .ignoresSafeArea()
-                    VStack {
-                        Group {
-                            HeaderView(manga: manga, mangaDetail: detailItem)
-                                .frame(height: 150)
-                            DescScrollView(manga: manga, detail: detailItem)
-                                .frame(height: 60)
-                                .padding(.vertical, 30)
-                            PreviewView(previewItems: contentStore.contentItems)
-                        }
-                    }
-                    .padding(.top, -40)
-                    .padding(.bottom, 10)
-                    .padding(.horizontal)
+                VStack {
+                    HeaderView(manga: manga, mangaDetail: detailItem)
+                        .frame(height: 150)
+                    DescScrollView(manga: manga, detail: detailItem)
+                        .frame(height: 60)
+                        .padding(.vertical, 30)
+                    PreviewView(previewItems: contentStore.contentItems)
                 }
+                .padding(.top, -40)
+                .padding(.bottom, 10)
+                .padding(.horizontal)
                 .transition(AnyTransition.opacity.animation(.default))
             } else {
                 LoadingView()
             }
         }
         .navigationBarHidden(settings.navBarHidden)
-        .onChange(of: colorScheme) { _ in
-            changeBackgroundColor(reverse: true)
-        }
         .onAppear {
             settings.navBarHidden = false
             
             fetchItems()
-            fetchBackgroundColor()
         }
     }
     
@@ -63,31 +48,6 @@ struct DetailView: View {
         }
         if contentStore.contentItems.isEmpty {
             contentStore.fetchPreviewItems(url: manga.detailURL)
-        }
-    }
-    
-    func fetchBackgroundColor() {
-        guard let url = URL(string: manga.coverURL) else { return }
-        
-        let manager = ImageManager(url: url)
-        manager.setOnSuccess { (image) in
-            guard let uiColor = image.imageWithoutBaseline().averageColor,
-                  let lighterUIColor = uiColor.lighter(),
-                  let darkerUIColor = uiColor.darker()
-            else { return }
-            
-            lighterColor = Color(lighterUIColor)
-            darkerColor = Color(darkerUIColor)
-            changeBackgroundColor(reverse: false)
-        }
-        manager.load()
-    }
-    
-    func changeBackgroundColor(reverse: Bool) {
-        if colorScheme == .light {
-            backgroundColor = reverse ? darkerColor : lighterColor
-        } else {
-            backgroundColor = reverse ? lighterColor : darkerColor
         }
     }
 }
@@ -134,7 +94,7 @@ private struct HeaderView: View {
                 Text(manga.uploader)
                     .lineLimit(1)
                     .font(.subheadline)
-                    .foregroundColor(Color.primary.opacity(0.6))
+                    .foregroundColor(.secondary)
                 Spacer()
                 HStack {
                     Text(manga.translatedCategory.lString())
@@ -210,7 +170,6 @@ private struct DescScrollItem: View {
             Text(numeral)
                 .font(.caption)
         }
-        .scaledToFill()
         .frame(idealWidth: 50)
     }
 }
@@ -229,7 +188,6 @@ private struct DescScrollRatingItem: View {
                 .font(.title3)
             RatingView(rating: rating, .primary)
         }
-        .scaledToFill()
         .frame(idealWidth: 60)
     }
 }
