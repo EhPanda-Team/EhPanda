@@ -10,7 +10,6 @@
 		ABC3C7852593699B00E0C11B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = ABC3C7692593699A00E0C11B /* Assets.xcassets */; };
 		ABC3C7862593699B00E0C11B /* Common.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC3C76A2593699A00E0C11B /* Common.swift */; };
 		ABC3C7872593699B00E0C11B /* EhPandaApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC3C76B2593699A00E0C11B /* EhPandaApp.swift */; };
-		ABC3C7882593699B00E0C11B /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC3C76C2593699A00E0C11B /* Settings.swift */; };
 		ABC3C7892593699B00E0C11B /* Defaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC3C76D2593699A00E0C11B /* Defaults.swift */; };
 		ABC3C78C2593699B00E0C11B /* DetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC3C7722593699A00E0C11B /* DetailView.swift */; };
 		ABC3C78D2593699B00E0C11B /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC3C7732593699A00E0C11B /* HomeView.swift */; };
@@ -23,6 +22,14 @@
 		ABC3C7962593699B00E0C11B /* Manga.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC3C7802593699A00E0C11B /* Manga.swift */; };
 		ABC3C79D259369FE00E0C11B /* Kanna in Frameworks */ = {isa = PBXBuildFile; productRef = ABC3C79C259369FE00E0C11B /* Kanna */; };
 		ABC3C7A125936A2F00E0C11B /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = ABC3C7A025936A2F00E0C11B /* SDWebImageSwiftUI */; };
+		ABCD2EF82597602D008E5A20 /* Store.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD2EF72597602D008E5A20 /* Store.swift */; };
+		ABCD2EFC2597607C008E5A20 /* AppAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD2EFB2597607C008E5A20 /* AppAction.swift */; };
+		ABCD2F00259760BE008E5A20 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD2EFF259760BE008E5A20 /* AppState.swift */; };
+		ABCD2F03259760CB008E5A20 /* AppCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD2F02259760CB008E5A20 /* AppCommand.swift */; };
+		ABCD2F07259760D4008E5A20 /* AppError.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD2F06259760D4008E5A20 /* AppError.swift */; };
+		ABCD2F0A259763FC008E5A20 /* PopularItemsRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD2F09259763FC008E5A20 /* PopularItemsRequest.swift */; };
+		ABCD2F0E25976B95008E5A20 /* Parser.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD2F0D25976B95008E5A20 /* Parser.swift */; };
+		ABCD2F1225978DF4008E5A20 /* SearchItemsRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD2F1125978DF4008E5A20 /* SearchItemsRequest.swift */; };
 		ABEE0AFA2595C6F800C997AE /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = ABEE0AFC2595C6F800C997AE /* Localizable.strings */; };
 /* End PBXBuildFile section */
 
@@ -31,7 +38,6 @@
 		ABC3C7692593699A00E0C11B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		ABC3C76A2593699A00E0C11B /* Common.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Common.swift; sourceTree = "<group>"; };
 		ABC3C76B2593699A00E0C11B /* EhPandaApp.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EhPandaApp.swift; sourceTree = "<group>"; };
-		ABC3C76C2593699A00E0C11B /* Settings.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Settings.swift; sourceTree = "<group>"; };
 		ABC3C76D2593699A00E0C11B /* Defaults.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Defaults.swift; sourceTree = "<group>"; };
 		ABC3C76E2593699A00E0C11B /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		ABC3C7722593699A00E0C11B /* DetailView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DetailView.swift; sourceTree = "<group>"; };
@@ -43,6 +49,14 @@
 		ABC3C77C2593699A00E0C11B /* RequestManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RequestManager.swift; sourceTree = "<group>"; };
 		ABC3C77D2593699A00E0C11B /* MangaStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MangaStore.swift; sourceTree = "<group>"; };
 		ABC3C7802593699A00E0C11B /* Manga.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Manga.swift; sourceTree = "<group>"; };
+		ABCD2EF72597602D008E5A20 /* Store.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Store.swift; sourceTree = "<group>"; };
+		ABCD2EFB2597607C008E5A20 /* AppAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppAction.swift; sourceTree = "<group>"; };
+		ABCD2EFF259760BE008E5A20 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
+		ABCD2F02259760CB008E5A20 /* AppCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCommand.swift; sourceTree = "<group>"; };
+		ABCD2F06259760D4008E5A20 /* AppError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppError.swift; sourceTree = "<group>"; };
+		ABCD2F09259763FC008E5A20 /* PopularItemsRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopularItemsRequest.swift; sourceTree = "<group>"; };
+		ABCD2F0D25976B95008E5A20 /* Parser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Parser.swift; sourceTree = "<group>"; };
+		ABCD2F1125978DF4008E5A20 /* SearchItemsRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchItemsRequest.swift; sourceTree = "<group>"; };
 		ABEE0AFB2595C6F800C997AE /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		ABEE0AFE2595C73D00C997AE /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -79,10 +93,11 @@
 		ABC3C7562593696C00E0C11B /* EhPanda */ = {
 			isa = PBXGroup;
 			children = (
+				ABCD2EF625976006008E5A20 /* データフロー */,
+				ABC3C77B2593699A00E0C11B /* ネットワーク */,
 				ABC3C77F2593699A00E0C11B /* モデル */,
 				ABC3C7682593699A00E0C11B /* アプリ */,
-				ABC3C7702593699A00E0C11B /* インターフェイス */,
-				ABC3C77B2593699A00E0C11B /* ネットワーク */,
+				ABC3C7702593699A00E0C11B /* ビュー */,
 			);
 			path = EhPanda;
 			sourceTree = "<group>";
@@ -92,7 +107,6 @@
 			children = (
 				ABC3C76B2593699A00E0C11B /* EhPandaApp.swift */,
 				ABC3C76A2593699A00E0C11B /* Common.swift */,
-				ABC3C76C2593699A00E0C11B /* Settings.swift */,
 				ABC3C76D2593699A00E0C11B /* Defaults.swift */,
 				ABC3C76E2593699A00E0C11B /* Info.plist */,
 				ABEE0AFC2595C6F800C997AE /* Localizable.strings */,
@@ -101,23 +115,16 @@
 			path = "アプリ";
 			sourceTree = "<group>";
 		};
-		ABC3C7702593699A00E0C11B /* インターフェイス */ = {
-			isa = PBXGroup;
-			children = (
-				ABC3C7712593699A00E0C11B /* ホーム */,
-				ABC3C7752593699A00E0C11B /* ツール */,
-			);
-			path = "インターフェイス";
-			sourceTree = "<group>";
-		};
-		ABC3C7712593699A00E0C11B /* ホーム */ = {
+		ABC3C7702593699A00E0C11B /* ビュー */ = {
 			isa = PBXGroup;
 			children = (
 				ABC3C7732593699A00E0C11B /* HomeView.swift */,
 				ABC3C7722593699A00E0C11B /* DetailView.swift */,
 				ABC3C7742593699A00E0C11B /* ContentView.swift */,
+				ABC3C7752593699A00E0C11B /* ツール */,
 			);
-			path = "ホーム";
+			name = "ビュー";
+			path = "ビュー";
 			sourceTree = "<group>";
 		};
 		ABC3C7752593699A00E0C11B /* ツール */ = {
@@ -133,8 +140,11 @@
 		ABC3C77B2593699A00E0C11B /* ネットワーク */ = {
 			isa = PBXGroup;
 			children = (
+				ABCD2F0D25976B95008E5A20 /* Parser.swift */,
 				ABC3C77C2593699A00E0C11B /* RequestManager.swift */,
 				ABC3C77D2593699A00E0C11B /* MangaStore.swift */,
+				ABCD2F09259763FC008E5A20 /* PopularItemsRequest.swift */,
+				ABCD2F1125978DF4008E5A20 /* SearchItemsRequest.swift */,
 			);
 			path = "ネットワーク";
 			sourceTree = "<group>";
@@ -145,6 +155,19 @@
 				ABC3C7802593699A00E0C11B /* Manga.swift */,
 			);
 			path = "モデル";
+			sourceTree = "<group>";
+		};
+		ABCD2EF625976006008E5A20 /* データフロー */ = {
+			isa = PBXGroup;
+			children = (
+				ABCD2EF72597602D008E5A20 /* Store.swift */,
+				ABCD2EFF259760BE008E5A20 /* AppState.swift */,
+				ABCD2EFB2597607C008E5A20 /* AppAction.swift */,
+				ABCD2F02259760CB008E5A20 /* AppCommand.swift */,
+				ABCD2F06259760D4008E5A20 /* AppError.swift */,
+			);
+			name = "データフロー";
+			path = "データフロー";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -227,17 +250,24 @@
 			buildActionMask = 2147483647;
 			files = (
 				ABC3C7942593699B00E0C11B /* MangaStore.swift in Sources */,
-				ABC3C7882593699B00E0C11B /* Settings.swift in Sources */,
+				ABCD2F0A259763FC008E5A20 /* PopularItemsRequest.swift in Sources */,
+				ABCD2F07259760D4008E5A20 /* AppError.swift in Sources */,
 				ABC3C7892593699B00E0C11B /* Defaults.swift in Sources */,
 				ABC3C78E2593699B00E0C11B /* ContentView.swift in Sources */,
 				ABC3C7912593699B00E0C11B /* LoadingView.swift in Sources */,
 				ABC3C7902593699B00E0C11B /* RatingView.swift in Sources */,
+				ABCD2F1225978DF4008E5A20 /* SearchItemsRequest.swift in Sources */,
+				ABCD2F03259760CB008E5A20 /* AppCommand.swift in Sources */,
 				ABC3C78F2593699B00E0C11B /* ViewModifiers.swift in Sources */,
+				ABCD2EF82597602D008E5A20 /* Store.swift in Sources */,
 				ABC3C7862593699B00E0C11B /* Common.swift in Sources */,
+				ABCD2F0E25976B95008E5A20 /* Parser.swift in Sources */,
 				ABC3C7932593699B00E0C11B /* RequestManager.swift in Sources */,
 				ABC3C78D2593699B00E0C11B /* HomeView.swift in Sources */,
+				ABCD2F00259760BE008E5A20 /* AppState.swift in Sources */,
 				ABC3C78C2593699B00E0C11B /* DetailView.swift in Sources */,
 				ABC3C7962593699B00E0C11B /* Manga.swift in Sources */,
+				ABCD2EFC2597607C008E5A20 /* AppAction.swift in Sources */,
 				ABC3C7872593699B00E0C11B /* EhPandaApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

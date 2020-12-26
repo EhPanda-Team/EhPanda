@@ -8,21 +8,16 @@
 import SwiftUI
 import SDWebImageSwiftUI
 
-enum HomepageType: String {
-    case search = "検索"
-    case popular = "人気"
-    case favorites = "お気に入り"
-    case downloaded = "ダウンロード済み"
-}
-
 struct HomeView: View {
-    @EnvironmentObject var settings: Settings
-    @StateObject var store = HomeItemsStore()
+    @EnvironmentObject var store: Store
     
-    @State var currentPageType: HomepageType = .popular
-    @State var isProfilePresented = false
-    @State var keyword = ""
-    
+    var homeList: AppState.HomeList {
+        store.appState.homeList
+    }
+    var homeListBinding: Binding<AppState.HomeList> {
+        $store.appState.homeList
+    }
+        
     init() {
         UIScrollView.appearance().keyboardDismissMode = .onDrag
     }
@@ -31,67 +26,113 @@ struct HomeView: View {
         NavigationView {
             ScrollView {
                 VStack {
-                    SearchBar(keyword: $keyword) {
-                        if keyword.isEmpty {
-                            currentPageType = .popular
-                            store.fetchPopularItems()
-                            return
-                        }
-                        currentPageType = .search
-                        store.fetchSearchItems(keyword: keyword)
+                    SearchBar(keyword: homeListBinding.keyword) {
+                        store.dispatch(.toggleHomeListType(type: .search))
+                        store.dispatch(.fetchSearchItems(keyword: homeList.keyword))
                     } filterAction: {}
                     
-                    if !store.homeItems.isEmpty {
-                        ForEach(store.homeItems) { item in
-                            NavigationLink(destination: DetailView(manga: item)) {
-                                MangaSummaryRow(manga: item)
-                            }
-                        }
-                        .transition(AnyTransition.opacity.animation(.default))
-                    } else {
-                        LoadingView()
+                    if homeList.type == .search {
+                        GenericList(
+                            items: homeList.searchItems,
+                            loadingFlag: homeList.searchLoading,
+                            notFoundFlag: homeList.searchNotFound,
+                            loadFailedFlag: homeList.searchLoadFailed)
+                    } else if homeList.type == .popular {
+                        GenericList(
+                            items: homeList.popularItems,
+                            loadingFlag: homeList.popularLoading,
+                            loadFailedFlag: homeList.popularLoadFailed)
                     }
                 }
                 .padding()
+                .onAppear {
+                    if homeList.popularItems != nil { return }
+                    store.dispatch(.fetchPopularItems)
+                }
             }
-            .navigationBarTitle(currentPageType.rawValue.lString())
+            .navigationBarTitle(homeList.type.rawValue.lString())
             .navigationBarItems(
                 leading:
-                    CategoryPicker(currentPageType: $currentPageType)
+                    CategoryPicker(type: homeListBinding.type)
                     .padding(.bottom, 10),
                 trailing:
                     Image(systemName: "person.crop.circle")
                     .foregroundColor(.primary)
                     .imageScale(.large)
-                    .sheet(isPresented: $isProfilePresented, content: {
+                    .sheet(isPresented: homeListBinding.isSettingPresented, content: {
                         EmptyView()
                     })
                     .onTapGesture {
-                        isProfilePresented.toggle()
+                        store.dispatch(.toggleSettingPresented)
                     }
                 
             )
             .navigationViewStyle(StackNavigationViewStyle())
-            .onAppear {
-                if store.homeItems.isEmpty {
-                    store.fetchPopularItems()
-                }
-            }
         }
     }
 }
 
-// MARK: カテゴリー選択
-private struct CategoryPicker: View {
-    @Binding var currentPageType: HomepageType
+// MARK: 汎用リスト
+private struct GenericList: View {
+    var items: [Manga]?
+    var loadingFlag: Bool
+    var notFoundFlag: Bool
+    var loadFailedFlag: Bool
+    
+    init(
+        items: [Manga]?,
+        loadingFlag: Bool,
+        notFoundFlag: Bool = false,
+        loadFailedFlag: Bool,
+        fetchClosure: (()->())? = nil)
+    {
+        self.items = items
+        self.loadingFlag = loadingFlag
+        self.notFoundFlag = notFoundFlag
+        self.loadFailedFlag = loadFailedFlag
+        self.fetchClosure = fetchClosure
+    }
+    
+    var fetchClosure: (()->())?
     
     var body: some View {
-        Picker(selection: $currentPageType,
+        Group {
+            if loadingFlag {
+                LoadingView()
+            } else if loadFailedFlag {
+                Text("ネットワーク障害")
+            } else if notFoundFlag {
+                Text("アイテムが見つかりませんでした")
+            } else {
+                ForEach(items ?? []) { item in
+                    NavigationLink(destination: DetailView(manga: item)) {
+                        MangaSummaryRow(manga: item)
+                    }
+                }
+                .transition(AnyTransition.opacity.animation(.default))
+            }
+        }
+        .onAppear {
+            guard let fetchClosure = fetchClosure,
+                  items == nil else { return }
+            
+            fetchClosure()
+        }
+    }
+}
+
+
+// MARK: カテゴリー選択
+private struct CategoryPicker: View {
+    @Binding var type: HomeListType
+    
+    var body: some View {
+        Picker(selection: $type,
            label: Text("☰")
                     .foregroundColor(.primary)
                     .font(.largeTitle),
            content: {
-                let homepageTypes: [HomepageType] = [.popular, .favorites, .downloaded]
+                let homepageTypes: [HomeListType] = [.popular, .favorites, .downloaded]
                 ForEach(homepageTypes, id: \.self) {
                     Text($0.rawValue.lString())
                 }
@@ -121,7 +162,6 @@ private struct SearchBar: View {
                             .foregroundColor(.gray)
                             .onTapGesture {
                                 keyword = ""
-                                commitAction()
                             }
                     }
                     Image(systemName: "slider.horizontal.3")

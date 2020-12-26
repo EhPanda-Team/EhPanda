@@ -9,7 +9,7 @@ import SwiftUI
 import SDWebImageSwiftUI
 
 struct ContentView: View {
-    @EnvironmentObject var settings: Settings
+    @EnvironmentObject var aStore: Store
     @StateObject var store = ContentItemsStore(owner: "ContentView")
     
     var rectangle: some View {
@@ -42,9 +42,9 @@ struct ContentView: View {
             }
         }
         .navigationBarBackButtonHidden(true)
-        .navigationBarHidden(settings.navBarHidden)
+        .navigationBarHidden(aStore.appState.environment.navBarHidden)
         .onAppear {
-            settings.navBarHidden = true
+            aStore.dispatch(.toggleNavBarHidden(isHidden: true))
             
             store.fetchContentItems(url: detailURL, pages: pages)
         }

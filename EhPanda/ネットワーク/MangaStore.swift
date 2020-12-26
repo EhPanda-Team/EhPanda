@@ -8,28 +8,6 @@
 import Combine
 import Foundation
 
-class HomeItemsStore: ObservableObject {
-    @Published var homeItems = [Manga]()
-    
-    func fetchSearchItems(keyword: String) {
-        executeAsyncally {
-            let items = RequestManager.shared.requestSearchItems(keyword: keyword)
-            executeMainAsyncally { [weak self] in
-                self?.homeItems = items
-            }
-        }
-    }
-    
-    func fetchPopularItems() {
-        executeAsyncally {
-            let items = RequestManager.shared.requestPopularItems()
-            executeMainAsyncally { [weak self] in
-                self?.homeItems = items
-            }
-        }
-    }
-}
-
 class DetailItemsStore: ObservableObject {
     @Published var detailItem: MangaDetail?
     

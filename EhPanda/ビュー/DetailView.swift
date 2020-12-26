@@ -9,7 +9,7 @@ import SwiftUI
 import SDWebImageSwiftUI
 
 struct DetailView: View {
-    @EnvironmentObject var settings: Settings
+    @EnvironmentObject var aStore: Store
     @StateObject var store = DetailItemsStore()
     @StateObject var contentStore = ContentItemsStore(owner: "DetailView")
     
@@ -34,9 +34,9 @@ struct DetailView: View {
                 LoadingView()
             }
         }
-        .navigationBarHidden(settings.navBarHidden)
+        .navigationBarHidden(aStore.appState.environment.navBarHidden)
         .onAppear {
-            settings.navBarHidden = false
+            aStore.dispatch(.toggleNavBarHidden(isHidden: false))
             
             fetchItems()
         }

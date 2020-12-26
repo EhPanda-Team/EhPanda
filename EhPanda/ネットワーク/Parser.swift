@@ -1,40 +1,50 @@
 //
-//  RequestManager.swift
+//  Parser.swift
 //  EhPanda
 //
-//  Created by 荒木辰造 on R 2/11/22.
+//  Created by 荒木辰造 on R 2/12/26.
 //
 
 import Kanna
 import SwiftUI
 
-class RequestManager {
-    static let shared = RequestManager()
-    
-    func requestDetailItem(url: String) -> MangaDetail? {
-        guard let detailURL = URL(string: url),
-              let detailItem = parseHTML_Detail(detailURL) else {
-            ePrint("HTML解析できませんでした")
-            return nil
+class Parser {
+    // MARK: 人気
+    func parsePopularListItems(_ doc: HTMLDocument) -> [Manga] {
+        var mangaItems = [Manga]()
+        
+        for link in doc.xpath("//tr") {
+            
+            guard let gl2cNode = link.at_xpath("//td [@class='gl2c']"),
+                  let title = link.at_xpath("//div [@class='glink']")?.text,
+                  let rating = parseRatingString(gl2cNode.at_xpath("//div [@class='ir']")?.toHTML),
+                  let category = link.at_xpath("//td [@class='gl1c glcat'] //div")?.text,
+                  let uploader = link.at_xpath("//td [@class='gl4c glhide']")?.at_xpath("//a")?.text,
+                  var publishedTime = gl2cNode.at_xpath("//div [@onclick]")?.text,
+                  let coverURL = parseCoverURL(gl2cNode.at_xpath("//div [@class='glthumb']")?.at_css("img")),
+                  let detailURL = link.at_xpath("//td [@class='gl3c glname'] //a")?["href"]
+            else { continue }
+            
+            if !publishedTime.contains(":") {
+                guard let content = gl2cNode.text,
+                      let range = content.range(of: "pages")
+                else { continue }
+                
+                let fixedTime = String(content.suffix(from: range.upperBound))
+                publishedTime = fixedTime
+            }
+            
+            guard let enumCategory = Category(rawValue: category) else { continue }
+            mangaItems.append(Manga(title: title,
+                                    rating: rating,
+                                    category: enumCategory,
+                                    uploader: uploader,
+                                    publishedTime: publishedTime,
+                                    coverURL: coverURL,
+                                    detailURL: detailURL))
         }
-        return detailItem
-    }
-    
-    func requestPreviewItems(url: String) -> [MangaContent] {
-        guard let detailURL = URL(string: url),
-              let previewItems = parseHTML_PreviewImages(detailURL) else {
-            ePrint("HTML解析できませんでした")
-            return []
-        }
-        return previewItems
-    }
-    
-    func requestContentItems(url: String, pageIndex: Int) -> [MangaContent] {
-        guard let contentItems = parseHTML_ContentImages(url, pageIndex: pageIndex) else {
-            ePrint("HTML解析できませんでした")
-            return []
-        }
-        return contentItems
+        
+        return mangaItems
     }
     
     // MARK: 詳細情報
@@ -219,7 +229,7 @@ class RequestManager {
 }
 
 // MARK: サブメソッド
-extension RequestManager {
+extension Parser {
     func parseCoverURL(_ node: XMLElement?) -> String? {
         guard let node = node else { return nil }
         
