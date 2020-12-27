@@ -25,10 +25,13 @@ struct WebView: UIViewControllerRepresentable {
             
             if url.contains("CODE=01") {
                 webView.configuration.websiteDataStore.httpCookieStore.getAllCookies { [weak self] cookies in
+                    cleanCookies()
                     cookies.forEach {
                         HTTPCookieStorage.shared.setCookie($0)
                     }
-                    self?.parent.dismiss()
+                    if !cookies.isEmpty {
+                        self?.parent.dismiss()
+                    }
                 }
             }
         }

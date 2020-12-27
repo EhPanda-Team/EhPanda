@@ -9,7 +9,7 @@ enum AppAction {
     case toggleNavBarHidden(isHidden: Bool)
     
     case toggleWebViewPresented
-    case toggleLogoutAlertPresented
+    case toggleCleanCookiesAlertPresented
     
     case toggleSettingPresented
     case toggleHomeListType(type: HomeListType)

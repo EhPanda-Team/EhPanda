@@ -75,35 +75,30 @@ struct HomeView: View {
 
 // MARK: 汎用リスト
 private struct GenericList: View {
+    @EnvironmentObject var store: Store
+    
     var items: [Manga]?
     var loadingFlag: Bool
     var notFoundFlag: Bool
     var loadFailedFlag: Bool
-    
-    init(
-        items: [Manga]?,
-        loadingFlag: Bool,
-        notFoundFlag: Bool = false,
-        loadFailedFlag: Bool,
-        fetchClosure: (()->())? = nil)
-    {
-        self.items = items
-        self.loadingFlag = loadingFlag
-        self.notFoundFlag = notFoundFlag
-        self.loadFailedFlag = loadFailedFlag
-        self.fetchClosure = fetchClosure
-    }
-    
-    var fetchClosure: (()->())?
+    var fetchAction: (()->())?
     
     var body: some View {
         Group {
-            if loadingFlag {
+            if !didLogin() {
+                NotLoginView(loginAction: {
+                    store.dispatch(.toggleSettingPresented)
+                })
+                .padding(.top, 30)
+            } else if loadingFlag {
                 LoadingView()
+                    .padding(.top, 30)
             } else if loadFailedFlag {
-                Text("ネットワーク障害")
+                NetworkErrorView(retryAction: nil)
+                    .padding(.top, 30)
             } else if notFoundFlag {
-                Text("アイテムが見つかりませんでした")
+                NotFoundView(retryAction: fetchAction)
+                    .padding(.top, 30)
             } else {
                 ForEach(items ?? []) { item in
                     NavigationLink(destination: DetailView(id: item.id)) {
@@ -114,10 +109,11 @@ private struct GenericList: View {
             }
         }
         .onAppear {
-            guard let fetchClosure = fetchClosure,
-                  items == nil else { return }
+            guard items == nil else { return }
             
-            fetchClosure()
+            if let action = fetchAction {
+                action()
+            }
         }
     }
 }

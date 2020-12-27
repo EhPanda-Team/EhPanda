@@ -29,8 +29,8 @@ class Store: ObservableObject {
             appState.environment.navBarHidden = isHidden
         case .toggleWebViewPresented:
             appState.settings.isWebViewPresented.toggle()
-        case .toggleLogoutAlertPresented:
-            appState.settings.isLogoutAlertPresented.toggle()
+        case .toggleCleanCookiesAlertPresented:
+            appState.settings.isCleanCookiesAlertPresented.toggle()
             
         case .toggleSettingPresented:
             appState.homeList.isSettingPresented.toggle()
@@ -38,6 +38,7 @@ class Store: ObservableObject {
             appState.homeList.type = type
             
         case .fetchSearchItems(let keyword):
+            if !didLogin() { break }
             appState.homeList.searchNotFound = false
             appState.homeList.searchLoadFailed = false
             
@@ -61,6 +62,7 @@ class Store: ObservableObject {
             }
             
         case .fetchPopularItems:
+            if !didLogin() { break }
             appState.homeList.popularNotFound = false
             appState.homeList.popularLoadFailed = false
             
@@ -84,6 +86,7 @@ class Store: ObservableObject {
             }
             
         case .fetchMangaDetail(id: let id):
+            if !didLogin() { break }
             appState.detailInfo.mangaDetailLoadFailed = false
             
             if appState.detailInfo.mangaDetailLoading { break }

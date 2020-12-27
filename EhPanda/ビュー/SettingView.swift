@@ -23,20 +23,6 @@ struct SettingView: View {
                 if didLogin() {
                     Text("ログイン済み")
                         .foregroundColor(.gray)
-                    Button {
-                        store.dispatch(.toggleLogoutAlertPresented)
-                    } label: {
-                        Text("ログアウトする")
-                            .foregroundColor(.red)
-                    }
-                    .alert(isPresented: settingsBinding.isLogoutAlertPresented) { () -> Alert in
-                        Alert(title: Text("本当にログアウトしますか？"), primaryButton: .destructive(Text("ログアウト"), action: {
-                            guard let cookies = HTTPCookieStorage.shared.cookies else { return }
-                            for cookie in cookies {
-                                HTTPCookieStorage.shared.deleteCookie(cookie)
-                            }
-                        }), secondaryButton: .cancel())
-                    }
                 } else {
                     Button(action: {
                         store.dispatch(.toggleWebViewPresented)
@@ -46,6 +32,16 @@ struct SettingView: View {
                     .sheet(isPresented: settingsBinding.isWebViewPresented, content: {
                         WebView()
                     })
+                }
+                
+                Button {
+                    store.dispatch(.toggleCleanCookiesAlertPresented)
+                } label: {
+                    Text("クッキー削除")
+                        .foregroundColor(.red)
+                }
+                .alert(isPresented: settingsBinding.isCleanCookiesAlertPresented) { () -> Alert in
+                    Alert(title: Text("本当に削除しますか？"), primaryButton: .destructive(Text("削除"), action: cleanCookies), secondaryButton: .cancel())
                 }
             }
         }

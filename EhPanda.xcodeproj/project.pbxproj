@@ -11,6 +11,7 @@
 		AB40CFDF25983EDF00D1DC9A /* FileHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB40CFDE25983EDF00D1DC9A /* FileHelper.swift */; };
 		AB994DC02598B17500E9A367 /* SettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB994DBF2598B17500E9A367 /* SettingView.swift */; };
 		AB994DC32598B3E000E9A367 /* WebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB994DC22598B3E000E9A367 /* WebView.swift */; };
+		AB994DCB2598D96200E9A367 /* AlertView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB994DCA2598D96200E9A367 /* AlertView.swift */; };
 		ABC3C7852593699B00E0C11B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = ABC3C7692593699A00E0C11B /* Assets.xcassets */; };
 		ABC3C7862593699B00E0C11B /* Common.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC3C76A2593699A00E0C11B /* Common.swift */; };
 		ABC3C7872593699B00E0C11B /* EhPandaApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC3C76B2593699A00E0C11B /* EhPandaApp.swift */; };
@@ -20,7 +21,6 @@
 		ABC3C78E2593699B00E0C11B /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC3C7742593699A00E0C11B /* ContentView.swift */; };
 		ABC3C78F2593699B00E0C11B /* ViewModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC3C7762593699A00E0C11B /* ViewModifiers.swift */; };
 		ABC3C7902593699B00E0C11B /* RatingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC3C7772593699A00E0C11B /* RatingView.swift */; };
-		ABC3C7912593699B00E0C11B /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC3C7782593699A00E0C11B /* LoadingView.swift */; };
 		ABC3C7932593699B00E0C11B /* RequestManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC3C77C2593699A00E0C11B /* RequestManager.swift */; };
 		ABC3C7942593699B00E0C11B /* MangaStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC3C77D2593699A00E0C11B /* MangaStore.swift */; };
 		ABC3C7962593699B00E0C11B /* Manga.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC3C7802593699A00E0C11B /* Manga.swift */; };
@@ -42,6 +42,7 @@
 		AB994DBB25986F7A00E9A367 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
 		AB994DBF2598B17500E9A367 /* SettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingView.swift; sourceTree = "<group>"; };
 		AB994DC22598B3E000E9A367 /* WebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebView.swift; sourceTree = "<group>"; };
+		AB994DCA2598D96200E9A367 /* AlertView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertView.swift; sourceTree = "<group>"; };
 		ABC3C7542593696C00E0C11B /* EhPanda.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EhPanda.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		ABC3C7692593699A00E0C11B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		ABC3C76A2593699A00E0C11B /* Common.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Common.swift; sourceTree = "<group>"; };
@@ -53,7 +54,6 @@
 		ABC3C7742593699A00E0C11B /* ContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		ABC3C7762593699A00E0C11B /* ViewModifiers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewModifiers.swift; sourceTree = "<group>"; };
 		ABC3C7772593699A00E0C11B /* RatingView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RatingView.swift; sourceTree = "<group>"; };
-		ABC3C7782593699A00E0C11B /* LoadingView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoadingView.swift; sourceTree = "<group>"; };
 		ABC3C77C2593699A00E0C11B /* RequestManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RequestManager.swift; sourceTree = "<group>"; };
 		ABC3C77D2593699A00E0C11B /* MangaStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MangaStore.swift; sourceTree = "<group>"; };
 		ABC3C7802593699A00E0C11B /* Manga.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Manga.swift; sourceTree = "<group>"; };
@@ -139,7 +139,6 @@
 				ABC3C7722593699A00E0C11B /* DetailView.swift */,
 				ABC3C7742593699A00E0C11B /* ContentView.swift */,
 				AB994DBF2598B17500E9A367 /* SettingView.swift */,
-				AB994DC22598B3E000E9A367 /* WebView.swift */,
 				ABC3C7752593699A00E0C11B /* ツール */,
 			);
 			name = "ビュー";
@@ -150,8 +149,9 @@
 			isa = PBXGroup;
 			children = (
 				ABC3C7762593699A00E0C11B /* ViewModifiers.swift */,
+				AB994DC22598B3E000E9A367 /* WebView.swift */,
 				ABC3C7772593699A00E0C11B /* RatingView.swift */,
-				ABC3C7782593699A00E0C11B /* LoadingView.swift */,
+				AB994DCA2598D96200E9A367 /* AlertView.swift */,
 			);
 			path = "ツール";
 			sourceTree = "<group>";
@@ -275,7 +275,6 @@
 				ABC3C7892593699B00E0C11B /* Defaults.swift in Sources */,
 				AB40CFDF25983EDF00D1DC9A /* FileHelper.swift in Sources */,
 				ABC3C78E2593699B00E0C11B /* ContentView.swift in Sources */,
-				ABC3C7912593699B00E0C11B /* LoadingView.swift in Sources */,
 				ABC3C7902593699B00E0C11B /* RatingView.swift in Sources */,
 				ABCD2F03259760CB008E5A20 /* AppCommand.swift in Sources */,
 				ABC3C78F2593699B00E0C11B /* ViewModifiers.swift in Sources */,
@@ -283,6 +282,7 @@
 				ABC3C7862593699B00E0C11B /* Common.swift in Sources */,
 				ABCD2F0E25976B95008E5A20 /* Parser.swift in Sources */,
 				ABC3C7932593699B00E0C11B /* RequestManager.swift in Sources */,
+				AB994DCB2598D96200E9A367 /* AlertView.swift in Sources */,
 				ABC3C78D2593699B00E0C11B /* HomeView.swift in Sources */,
 				ABCD2F00259760BE008E5A20 /* AppState.swift in Sources */,
 				ABC3C78C2593699B00E0C11B /* DetailView.swift in Sources */,

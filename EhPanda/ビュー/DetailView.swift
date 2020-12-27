@@ -43,7 +43,9 @@ struct DetailView: View {
             } else if detailInfo.mangaDetailLoading {
                 LoadingView()
             } else if detailInfo.mangaDetailLoadFailed {
-                Text("ネットワーク障害")
+                NetworkErrorView {
+                    store.dispatch(.fetchMangaDetail(id: id))
+                }
             }
         }
         .navigationBarHidden(store.appState.environment.navBarHidden)

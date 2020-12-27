@@ -22,7 +22,7 @@ extension AppState {
     
     struct Settings {
         var isWebViewPresented = false
-        var isLogoutAlertPresented = false
+        var isCleanCookiesAlertPresented = false
     }
 }
 

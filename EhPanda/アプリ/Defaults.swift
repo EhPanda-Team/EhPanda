@@ -7,6 +7,7 @@
 
 class Defaults {
     class URL {
+        static let loginVerify = "https://e-hentai.org/"
         static let login = "https://forums.e-hentai.org/index.php?act=Login"
         static let host = "https://exhentai.org/"
         static let search = "?f_search="

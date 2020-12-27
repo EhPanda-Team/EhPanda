@@ -25,11 +25,37 @@ public func ePrint(_ string: String?) {
 }
 
 public func didLogin() -> Bool {
-    guard let url = URL(string: Defaults.URL.host),
+    guard let url = URL(string: Defaults.URL.loginVerify),
           let cookies = HTTPCookieStorage.shared.cookies(for: url),
           !cookies.isEmpty else { return false }
     
+    var passValue: String?
+    var passExpires: Date?
+    cookies.forEach { cookie in
+        if cookie.name == "ipb_pass_hash" {
+            passValue = cookie.value
+            passExpires = cookie.expiresDate
+        }
+    }
+    
+    guard let value = passValue,
+          let expires = passExpires,
+          !value.isEmpty,
+          expires > Date()
+    else {
+        cleanCookies()
+        return false
+    }
+    
     return true
+}
+
+public func cleanCookies() {
+    if let historyCookies = HTTPCookieStorage.shared.cookies {
+        historyCookies.forEach {
+            HTTPCookieStorage.shared.deleteCookie($0)
+        }
+    }
 }
 
 public func executeMainAsyncally(_ closure: @escaping (()->())) {

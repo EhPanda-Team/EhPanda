@@ -6,8 +6,13 @@
   
 */
 
-// MARK: LoadingView
+// MARK: AlertView
 "読み込み中..." = "Loading...";
+"ご利用にはログインが必要です" = "You need to login to use this app.";
+"ログイン" = "LOGIN";
+"お探しの情報が見つかりませんでした" = "Your search didn't match any docs.";
+"やり直す" = "RETRY";
+"ネットワーク障害が発生しました\nしばらくしてからもう一度お試しください" = "A Network error occurred.\nPlease try again later.";
 
 // MARK: HomeView
 "検索" = "Search";
@@ -26,6 +31,14 @@
 "頁" = "Pages";
 "サイズ" = "SIZE";
 "プレビュー" = "Preview";
+
+// MARK: SettingView
+"アカウント" = "ACCOUNT";
+"ログイン済み" = "Logged In";
+"ExHentaiでログインする" = "Login with ExHentai";
+"クッキー削除" = "Delete Cookies";
+"本当に削除しますか？" = "Are you sure to delete Cookies?";
+"削除" = "Delete";
 
 // MARK: Category
 "同人誌" = "Doujinshi";
