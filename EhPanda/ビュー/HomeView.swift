@@ -41,6 +41,7 @@ struct HomeView: View {
                         GenericList(
                             items: homeList.popularItems,
                             loadingFlag: homeList.popularLoading,
+                            notFoundFlag: homeList.popularNotFound,
                             loadFailedFlag: homeList.popularLoadFailed)
                     }
                 }
@@ -105,7 +106,7 @@ private struct GenericList: View {
                 Text("アイテムが見つかりませんでした")
             } else {
                 ForEach(items ?? []) { item in
-                    NavigationLink(destination: DetailView(manga: item)) {
+                    NavigationLink(destination: DetailView(id: item.id)) {
                         MangaSummaryRow(manga: item)
                     }
                 }

@@ -8,21 +8,21 @@
 import SwiftUI
 
 // MARK: 構造体
-struct Manga: Identifiable {
-    let id = UUID()
+struct Manga: Identifiable, Encodable, Decodable {
+    var detail: MangaDetail?
+    var previews: [MangaContent]?
     
+    let id: String
     let title: String
     let rating: Float
-    
     let category: Category
     let uploader: String
     let publishedTime: String
-    
     let coverURL: String
     let detailURL: String
 }
 
-struct MangaDetail {
+struct MangaDetail: Encodable, Decodable {
     let jpnTitle: String
     let language: Language
     let likeCount: String
@@ -32,8 +32,8 @@ struct MangaDetail {
     let ratingCount: String
 }
 
-struct MangaContent: Identifiable {
-    let id = UUID()
+struct MangaContent: Identifiable, Encodable, Decodable {
+    var id = UUID()
     
     let tag: Int
     let url: String
@@ -45,7 +45,7 @@ struct MangaURL {
 }
 
 // MARK: 列挙型
-enum Category: String {
+enum Category: String, Encodable, Decodable {
     case Doujinshi = "Doujinshi"
     case Manga = "Manga"
     case Artist_CG = "Artist CG"
@@ -58,8 +58,8 @@ enum Category: String {
     case Misc = "Misc"
 }
 
-enum Language: String {
-    case Other = "Other"
+enum Language: String, Encodable, Decodable {
+    case Other = "N/A"
     
     case Afrikaans = "Afrikaans"; case Albanian = "Albanian"; case Arabic = "Arabic"
     

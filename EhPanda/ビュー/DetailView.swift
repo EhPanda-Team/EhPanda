@@ -9,45 +9,58 @@ import SwiftUI
 import SDWebImageSwiftUI
 
 struct DetailView: View {
-    @EnvironmentObject var aStore: Store
-    @StateObject var store = DetailItemsStore()
-    @StateObject var contentStore = ContentItemsStore(owner: "DetailView")
+    @EnvironmentObject var store: Store
     
-    let manga: Manga
+    let id: String
+    var cachedList: AppState.CachedList {
+        store.appState.cachedList
+    }
+    var detailInfo: AppState.DetailInfo {
+        store.appState.detailInfo
+    }
+    var manga: Manga {
+        (cachedList.items?[id])!
+    }
+    var mangaDetail: MangaDetail? {
+        cachedList.items?[id]?.detail
+    }
+    var mangaPreviews: [MangaContent]? {
+        cachedList.items?[id]?.previews
+    }
     
     var body: some View {
         Group {
-            if let detailItem = store.detailItem {
+            if let detail = mangaDetail {
                 VStack {
-                    HeaderView(manga: manga, mangaDetail: detailItem)
+                    HeaderView(manga: manga, detail: detail)
                         .frame(height: 150)
-                    DescScrollView(manga: manga, detail: detailItem)
+                    DescScrollView(manga: manga, detail: detail)
                         .frame(height: 60)
                         .padding(.vertical, 30)
-                    PreviewView(previewItems: contentStore.contentItems)
+                    PreviewView(previews: mangaPreviews ?? [])
                 }
                 .padding(.top, -40)
                 .padding(.bottom, 10)
                 .padding(.horizontal)
                 .transition(AnyTransition.opacity.animation(.default))
-            } else {
+            } else if detailInfo.mangaDetailLoading {
                 LoadingView()
+            } else if detailInfo.mangaDetailNotFound {
+                Text("アイテムが見つかりませんでした")
+            } else if detailInfo.mangaDetailLoadFailed {
+                Text("ネットワーク障害")
             }
         }
-        .navigationBarHidden(aStore.appState.environment.navBarHidden)
+        .navigationBarHidden(store.appState.environment.navBarHidden)
         .onAppear {
-            aStore.dispatch(.toggleNavBarHidden(isHidden: false))
+            store.dispatch(.toggleNavBarHidden(isHidden: false))
             
-            fetchItems()
-        }
-    }
-    
-    func fetchItems() {
-        if store.detailItem == nil {
-            store.fetchDetailItem(url: manga.detailURL)
-        }
-        if contentStore.contentItems.isEmpty {
-            contentStore.fetchPreviewItems(url: manga.detailURL)
+            if mangaDetail == nil {
+                store.dispatch(.fetchMangaDetail(id: id))
+            }
+            if mangaPreviews == nil {
+                store.dispatch(.fetchMangaPreviews(id: id))
+            }
         }
     }
 }
@@ -61,20 +74,20 @@ private struct HeaderView: View {
     }
     
     let manga: Manga
-    var mangaDetail: MangaDetail
+    let detail: MangaDetail
     
     var contentView: ContentView {
         ePrint("ContentView inited!")
-        let pageCount = mangaDetail.pageCount
+        let pageCount = detail.pageCount
         let pages = Int(pageCount) ?? 0
         return ContentView(detailURL: manga.detailURL, pages: pages)
     }
     
     var title: String {
-        if mangaDetail.jpnTitle.isEmpty {
+        if detail.jpnTitle.isEmpty {
             return manga.title
         } else {
-            return mangaDetail.jpnTitle
+            return detail.jpnTitle
         }
     }
     
@@ -206,7 +219,7 @@ private struct PreviewView: View {
         }
     }
     
-    let previewItems: [MangaContent]
+    let previews: [MangaContent]
     
     var body: some View {
         VStack {
@@ -219,8 +232,8 @@ private struct PreviewView: View {
             GeometryReader { reader in
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack {
-                        if !previewItems.isEmpty {
-                            ForEach(previewItems) { item in
+                        if !previews.isEmpty {
+                            ForEach(previews) { item in
                                 WebImage(url: URL(string: item.url))
                                     .resizable()
                                     .placeholder {

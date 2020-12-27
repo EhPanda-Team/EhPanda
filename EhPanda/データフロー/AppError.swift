@@ -11,6 +11,7 @@ enum AppError: Error, Identifiable {
     var id: String { localizedDescription }
 
     case networkingFailed
+    case fileError
 }
 
 extension AppError: LocalizedError {
@@ -18,6 +19,8 @@ extension AppError: LocalizedError {
         switch self {
         case .networkingFailed:
             return "ネットワークエラー"
+        case .fileError:
+            return "ファイル操作エラー"
         }
     }
 }

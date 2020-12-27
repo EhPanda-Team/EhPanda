@@ -48,6 +48,7 @@ class Store: ObservableObject {
                     appState.homeList.searchNotFound = true
                 } else {
                     appState.homeList.searchItems = mangas
+                    appState.cachedList.cache(items: mangas)
                 }
             case .failure(let error):
                 ePrint(error)
@@ -55,6 +56,7 @@ class Store: ObservableObject {
             }
             
         case .fetchPopularItems:
+            appState.homeList.popularNotFound = false
             appState.homeList.popularLoadFailed = false
             
             if appState.homeList.popularLoading { break }
@@ -65,10 +67,54 @@ class Store: ObservableObject {
             
             switch result {
             case .success(let mangas):
-                appState.homeList.popularItems = mangas
+                if mangas.isEmpty {
+                    appState.homeList.searchNotFound = true
+                } else {
+                    appState.homeList.popularItems = mangas
+                    appState.cachedList.cache(items: mangas)
+                }
             case .failure(let error):
                 ePrint(error)
                 appState.homeList.popularLoadFailed = true
+            }
+            
+        case .fetchMangaDetail(id: let id):
+            appState.detailInfo.mangaDetailNotFound = false
+            appState.detailInfo.mangaDetailLoadFailed = false
+            
+            if appState.detailInfo.mangaDetailLoading { break }
+            appState.detailInfo.mangaDetailLoading = true
+            
+            let detailURL = appState.cachedList.items?[id]?.detailURL ?? ""
+            appCommand = FetchMangaDetailCommand(id: id, detailURL: detailURL)
+        case .fetchMangaDetailDone(result: let result):
+            appState.detailInfo.mangaDetailLoading = false
+            
+            switch result {
+            case .success(let detail):
+                appState.cachedList.insertDetail(detail: detail)
+            case .failure(let error):
+                ePrint(error)
+                appState.detailInfo.mangaDetailLoadFailed = true
+            }
+        case .fetchMangaPreviews(id: let id):
+            appState.detailInfo.mangaPreviewsNotFound = false
+            appState.detailInfo.mangaPreviewsLoadFailed = false
+            
+            if appState.detailInfo.mangaPreviewsLoading { break }
+            appState.detailInfo.mangaPreviewsLoading = true
+            
+            let detailURL = appState.cachedList.items?[id]?.detailURL ?? ""
+            appCommand = FetchMangaPreviewsCommand(id: id, detailURL: detailURL)
+        case .fetchMangaPreviewsDone(result: let result):
+            appState.detailInfo.mangaPreviewsLoading = false
+            
+            switch result {
+            case .success(let previews):
+                appState.cachedList.insertPreviews(previews: previews)
+            case .failure(let error):
+                ePrint(error)
+                appState.detailInfo.mangaPreviewsLoadFailed = true
             }
         }
         

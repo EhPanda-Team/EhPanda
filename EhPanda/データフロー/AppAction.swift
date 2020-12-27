@@ -16,4 +16,9 @@ enum AppAction {
     
     case fetchPopularItems
     case fetchPopularItemsDone(result: Result<[Manga], AppError>)
+    
+    case fetchMangaDetail(id: String)
+    case fetchMangaDetailDone(result: Result<(MangaDetail, String), AppError>)
+    case fetchMangaPreviews(id: String)
+    case fetchMangaPreviewsDone(result: Result<([MangaContent], String), AppError>)
 }

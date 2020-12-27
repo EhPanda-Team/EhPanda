@@ -16,6 +16,7 @@ class Parser {
         for link in doc.xpath("//tr") {
             
             guard let gl2cNode = link.at_xpath("//td [@class='gl2c']"),
+                  let id = gl2cNode.at_xpath("//div [@class='glcut']")?["id"]?.replacingOccurrences(of: "ic", with: ""),
                   let title = link.at_xpath("//div [@class='glink']")?.text,
                   let rating = parseRatingString(gl2cNode.at_xpath("//div [@class='ir']")?.toHTML),
                   let category = link.at_xpath("//td [@class='gl1c glcat'] //div")?.text,
@@ -35,7 +36,8 @@ class Parser {
             }
             
             guard let enumCategory = Category(rawValue: category) else { continue }
-            mangaItems.append(Manga(title: title,
+            mangaItems.append(Manga(id: id,
+                                    title: title,
                                     rating: rating,
                                     category: enumCategory,
                                     uploader: uploader,
@@ -48,17 +50,9 @@ class Parser {
     }
     
     // MARK: 詳細情報
-    func parseHTML_Detail(_ url: URL) -> MangaDetail? {
+    func parseMangaDetail(_ doc: HTMLDocument) -> MangaDetail? {
         var mangaDetail: MangaDetail?
         
-        var document: HTMLDocument?
-        do {
-            document = try Kanna.HTML(url: url, encoding: .utf8)
-        } catch {
-            ePrint(error)
-        }
-        
-        guard let doc = document else { return nil }
         for link in doc.xpath("//div [@class='gm']") {
             
             guard let jpnTitle = link.at_xpath("//h1 [@id='gj']")?.text,
@@ -112,20 +106,11 @@ class Parser {
     }
     
     // MARK: プレビュー
-    func parseHTML_PreviewImages(_ url: URL) -> [MangaContent]? {
+    func parseMangaPreviews(_ doc: HTMLDocument) -> [MangaContent]? {
         var mangaItems = [MangaContent]()
         var imageDetailURLs = [MangaURL]()
         
-        var document: HTMLDocument?
-        do {
-            document = try Kanna.HTML(url: url, encoding: .utf8)
-        } catch {
-            ePrint(error)
-        }
-        
-        guard let doc = document,
-              let gdtNode = doc.at_xpath("//div [@id='gdt']")
-        else { return nil }
+        guard let gdtNode = doc.at_xpath("//div [@id='gdt']") else { return nil }
         
         for (i, link) in gdtNode.xpath("//div [@class='gdtm']").enumerated() {
             if imageDetailURLs.count >= 10 { break }

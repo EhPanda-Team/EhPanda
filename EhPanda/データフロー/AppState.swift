@@ -9,6 +9,8 @@
 struct AppState {
     var environment = Environment()
     var homeList = HomeList()
+    var detailInfo = DetailInfo()
+    var cachedList = CachedList()
 }
 
 extension AppState {
@@ -30,15 +32,54 @@ extension AppState {
         
         var popularItems: [Manga]?
         var popularLoading = false
+        var popularNotFound = false
         var popularLoadFailed = false
         
         var favoritesItems: [Manga]?
         var favoritesLoading = false
         var favoritesNotFound = false
         var favoritesLoadFailed = false
+    }
+}
+
+extension AppState {
+    struct DetailInfo {
+        var mangaDetailLoading = false
+        var mangaDetailNotFound = false
+        var mangaDetailLoadFailed = false
         
-        func displayItems() -> [Manga] {
-            return []
+        var mangaPreviewsLoading = false
+        var mangaPreviewsNotFound = false
+        var mangaPreviewsLoadFailed = false
+    }
+}
+
+extension AppState {
+    struct CachedList {
+        @FileStorage(directory: .cachesDirectory, fileName: "cachedList.json")
+        var items: [String : Manga]?
+        
+        mutating func cache(items: [Manga]) {
+            let previousCount = self.items?.count ?? 0
+            if self.items == nil {
+                self.items = Dictionary(uniqueKeysWithValues: items.map { ($0.id, $0) })
+                return
+            }
+            
+            for item in items {
+                if self.items?[item.id] == nil {
+                    self.items?[item.id] = item
+                }
+            }
+            let currentCount = self.items?.count ?? 0
+            print("CachedList updated: \(previousCount) to \(currentCount)")
+        }
+        
+        mutating func insertDetail(detail: (MangaDetail, String)) {
+            self.items?[detail.1]?.detail = detail.0
+        }
+        mutating func insertPreviews(previews: ([MangaContent], String)) {
+            self.items?[previews.1]?.previews = previews.0
         }
     }
 }
