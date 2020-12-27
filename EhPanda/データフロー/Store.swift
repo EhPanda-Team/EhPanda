@@ -27,6 +27,11 @@ class Store: ObservableObject {
         switch action {
         case .toggleNavBarHidden(let isHidden):
             appState.environment.navBarHidden = isHidden
+        case .toggleWebViewPresented:
+            appState.settings.isWebViewPresented.toggle()
+        case .toggleLogoutAlertPresented:
+            appState.settings.isLogoutAlertPresented.toggle()
+            
         case .toggleSettingPresented:
             appState.homeList.isSettingPresented.toggle()
         case .toggleHomeListType(let type):
@@ -79,13 +84,13 @@ class Store: ObservableObject {
             }
             
         case .fetchMangaDetail(id: let id):
-            appState.detailInfo.mangaDetailNotFound = false
             appState.detailInfo.mangaDetailLoadFailed = false
             
             if appState.detailInfo.mangaDetailLoading { break }
             appState.detailInfo.mangaDetailLoading = true
             
-            let detailURL = appState.cachedList.items?[id]?.detailURL ?? ""
+            var detailURL = appState.cachedList.items?[id]?.detailURL ?? ""
+            detailURL = detailURL + Defaults.URL.detailLarge
             appCommand = FetchMangaDetailCommand(id: id, detailURL: detailURL)
         case .fetchMangaDetailDone(result: let result):
             appState.detailInfo.mangaDetailLoading = false
@@ -97,25 +102,23 @@ class Store: ObservableObject {
                 ePrint(error)
                 appState.detailInfo.mangaDetailLoadFailed = true
             }
-        case .fetchMangaPreviews(id: let id):
-            appState.detailInfo.mangaPreviewsNotFound = false
-            appState.detailInfo.mangaPreviewsLoadFailed = false
             
-            if appState.detailInfo.mangaPreviewsLoading { break }
-            appState.detailInfo.mangaPreviewsLoading = true
-            
-            let detailURL = appState.cachedList.items?[id]?.detailURL ?? ""
-            appCommand = FetchMangaPreviewsCommand(id: id, detailURL: detailURL)
-        case .fetchMangaPreviewsDone(result: let result):
-            appState.detailInfo.mangaPreviewsLoading = false
-            
-            switch result {
-            case .success(let previews):
-                appState.cachedList.insertPreviews(previews: previews)
-            case .failure(let error):
-                ePrint(error)
-                appState.detailInfo.mangaPreviewsLoadFailed = true
-            }
+//        case .fetchMangaContents(id: let id):
+//            if appState.contentsInfo.mangaContentsLoading { break }
+//            appState.contentsInfo.mangaContentsLoading = true
+//            
+//            let detailURL = appState.cachedList.items?[id]?.detailURL ?? ""
+//            appCommand = FetchMangaPreviewsCommand(id: id, detailURL: detailURL)
+//        case .fetchMangaContentsDone(result: let result):
+//            appState.contentsInfo.mangaContentsLoading = false
+//            
+//            switch result {
+//            case .success(let previews):
+//                appState.cachedList.insertPreviews(previews: previews)
+//            case .failure(let error):
+//                ePrint(error)
+//                appState.contentsInfo.mangaContentsLoadFailed = true
+//            }
         }
         
         return (appState, appCommand)

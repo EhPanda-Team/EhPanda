@@ -8,6 +8,9 @@
 enum AppAction {
     case toggleNavBarHidden(isHidden: Bool)
     
+    case toggleWebViewPresented
+    case toggleLogoutAlertPresented
+    
     case toggleSettingPresented
     case toggleHomeListType(type: HomeListType)
     
@@ -19,6 +22,7 @@ enum AppAction {
     
     case fetchMangaDetail(id: String)
     case fetchMangaDetailDone(result: Result<(MangaDetail, String), AppError>)
-    case fetchMangaPreviews(id: String)
-    case fetchMangaPreviewsDone(result: Result<([MangaContent], String), AppError>)
+    
+//    case fetchMangaContents(id: String)
+//    case fetchMangaContentsDone(result: Result<([MangaContent], String), AppError>)
 }

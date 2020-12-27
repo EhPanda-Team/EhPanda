@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		AB40CFDC25983EC200D1DC9A /* FileStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB40CFDB25983EC200D1DC9A /* FileStorage.swift */; };
 		AB40CFDF25983EDF00D1DC9A /* FileHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB40CFDE25983EDF00D1DC9A /* FileHelper.swift */; };
+		AB994DC02598B17500E9A367 /* SettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB994DBF2598B17500E9A367 /* SettingView.swift */; };
+		AB994DC32598B3E000E9A367 /* WebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB994DC22598B3E000E9A367 /* WebView.swift */; };
 		ABC3C7852593699B00E0C11B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = ABC3C7692593699A00E0C11B /* Assets.xcassets */; };
 		ABC3C7862593699B00E0C11B /* Common.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC3C76A2593699A00E0C11B /* Common.swift */; };
 		ABC3C7872593699B00E0C11B /* EhPandaApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC3C76B2593699A00E0C11B /* EhPandaApp.swift */; };
@@ -38,6 +40,8 @@
 		AB40CFDB25983EC200D1DC9A /* FileStorage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FileStorage.swift; sourceTree = "<group>"; };
 		AB40CFDE25983EDF00D1DC9A /* FileHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FileHelper.swift; sourceTree = "<group>"; };
 		AB994DBB25986F7A00E9A367 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
+		AB994DBF2598B17500E9A367 /* SettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingView.swift; sourceTree = "<group>"; };
+		AB994DC22598B3E000E9A367 /* WebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebView.swift; sourceTree = "<group>"; };
 		ABC3C7542593696C00E0C11B /* EhPanda.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EhPanda.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		ABC3C7692593699A00E0C11B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		ABC3C76A2593699A00E0C11B /* Common.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Common.swift; sourceTree = "<group>"; };
@@ -134,6 +138,8 @@
 				ABC3C7732593699A00E0C11B /* HomeView.swift */,
 				ABC3C7722593699A00E0C11B /* DetailView.swift */,
 				ABC3C7742593699A00E0C11B /* ContentView.swift */,
+				AB994DBF2598B17500E9A367 /* SettingView.swift */,
+				AB994DC22598B3E000E9A367 /* WebView.swift */,
 				ABC3C7752593699A00E0C11B /* ツール */,
 			);
 			name = "ビュー";
@@ -262,6 +268,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				ABC3C7942593699B00E0C11B /* MangaStore.swift in Sources */,
+				AB994DC32598B3E000E9A367 /* WebView.swift in Sources */,
 				AB40CFDC25983EC200D1DC9A /* FileStorage.swift in Sources */,
 				ABCD2F0A259763FC008E5A20 /* Request.swift in Sources */,
 				ABCD2F07259760D4008E5A20 /* AppError.swift in Sources */,
@@ -282,6 +289,7 @@
 				ABC3C7962593699B00E0C11B /* Manga.swift in Sources */,
 				ABCD2EFC2597607C008E5A20 /* AppAction.swift in Sources */,
 				ABC3C7872593699B00E0C11B /* EhPandaApp.swift in Sources */,
+				AB994DC02598B17500E9A367 /* SettingView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

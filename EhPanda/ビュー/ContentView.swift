@@ -27,7 +27,7 @@ struct ContentView: View {
                     VStack(spacing: 0) {
                         ForEach(store.contentItems) { item in
                             WebImage(url: URL(string: item.url),
-                                     options: [SDWebImageOptions.retryFailed])
+                                     options: [.retryFailed, .handleCookies])
                                 .resizable()
                                 .placeholder { rectangle }
                                 .indicator(.progress)

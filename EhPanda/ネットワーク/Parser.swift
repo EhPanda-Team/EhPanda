@@ -52,12 +52,14 @@ class Parser {
     // MARK: 詳細情報
     func parseMangaDetail(_ doc: HTMLDocument) -> MangaDetail? {
         var mangaDetail: MangaDetail?
+        var imageURLs = [MangaPreview]()
         
         for link in doc.xpath("//div [@class='gm']") {
             
             guard let jpnTitle = link.at_xpath("//h1 [@id='gj']")?.text,
                   let gddNode = link.at_xpath("//div [@id='gdd']"),
                   let gdrNode = link.at_xpath("//div [@id='gdr']"),
+                  let gdtNode = doc.at_xpath("//div [@id='gdt']"),
                   let ratingCount = gdrNode.at_xpath("//span [@id='rating_count']")?.text
             else { return nil }
             
@@ -84,6 +86,12 @@ class Parser {
                 if gdt1.contains("Favorited") { tmpLikeCount = gdt2.replacingOccurrences(of: " times", with: "") }
             }
             
+            for gdtLink in gdtNode.xpath("//img") {
+                if imageURLs.count >= 10 { break }
+                guard let imageURL = gdtLink["src"] else { continue }
+                imageURLs.append(MangaPreview(url: imageURL))
+            }
+            
             guard let likeCount = tmpLikeCount,
                   let pageCount = tmpPageCount,
                   let sizeCount = tmpSizeCount,
@@ -92,7 +100,8 @@ class Parser {
                   let language = Language(rawValue: tmpLanguage2)
             else { return nil }
             
-            mangaDetail = MangaDetail(jpnTitle: jpnTitle,
+            mangaDetail = MangaDetail(previews: imageURLs,
+                                      jpnTitle: jpnTitle,
                                       language: language,
                                       likeCount: likeCount,
                                       pageCount: pageCount,
@@ -103,50 +112,6 @@ class Parser {
         }
         
         return mangaDetail
-    }
-    
-    // MARK: プレビュー
-    func parseMangaPreviews(_ doc: HTMLDocument) -> [MangaContent]? {
-        var mangaItems = [MangaContent]()
-        var imageDetailURLs = [MangaURL]()
-        
-        guard let gdtNode = doc.at_xpath("//div [@id='gdt']") else { return nil }
-        
-        for (i, link) in gdtNode.xpath("//div [@class='gdtm']").enumerated() {
-            if imageDetailURLs.count >= 10 { break }
-            guard let imageDetailStr = link.at_xpath("//a")?["href"],
-                  let imageDetailURL = URL(string: imageDetailStr)
-            else { continue }
-            
-            imageDetailURLs.append(MangaURL(tag: i, url: imageDetailURL))
-        }
-        
-        let urlsStartTime = CACurrentMediaTime()
-        let queue = OperationQueue()
-        for (index, mangaURL) in imageDetailURLs.enumerated() {
-            queue.addOperation {
-                var document: HTMLDocument?
-                do {
-                    document = try Kanna.HTML(url: mangaURL.url, encoding: .utf8)
-                } catch {
-                    ePrint(error)
-                }
-                
-                guard let doc = document,
-                      let i3Node = doc.at_xpath("//div [@id='i3']"),
-                      let imageURL = i3Node.at_css("img")?["src"]
-                else { return }
-                
-                mangaItems.append(MangaContent(tag: index, url: imageURL))
-            }
-        }
-        queue.waitUntilAllOperationsAreFinished()
-        ePrint("プレビュー読み込み完了! (\(CACurrentMediaTime() - urlsStartTime)秒)")
-        mangaItems.sort { (a, b) -> Bool in
-            a.tag < b.tag
-        }
-        
-        return mangaItems
     }
     
     // MARK: コンテント

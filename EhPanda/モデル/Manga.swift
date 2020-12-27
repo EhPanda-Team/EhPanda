@@ -10,7 +10,7 @@ import SwiftUI
 // MARK: 構造体
 struct Manga: Identifiable, Encodable, Decodable {
     var detail: MangaDetail?
-    var previews: [MangaContent]?
+    var contents: [MangaContent]?
     
     let id: String
     let title: String
@@ -23,6 +23,7 @@ struct Manga: Identifiable, Encodable, Decodable {
 }
 
 struct MangaDetail: Encodable, Decodable {
+    let previews: [MangaPreview]
     let jpnTitle: String
     let language: Language
     let likeCount: String
@@ -30,6 +31,12 @@ struct MangaDetail: Encodable, Decodable {
     let sizeCount: String
     let sizeType: String
     let ratingCount: String
+}
+
+struct MangaPreview: Identifiable, Encodable, Decodable {
+    var id = UUID()
+    
+    let url: String
 }
 
 struct MangaContent: Identifiable, Encodable, Decodable {

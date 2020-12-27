@@ -75,31 +75,6 @@ struct FetchMangaDetailCommand: AppCommand {
     }
 }
 
-struct FetchMangaPreviewsCommand: AppCommand {
-    let id: String
-    let detailURL: String
-    
-    func execute(in store: Store) {
-        let token = SubscriptionToken()
-        MangaPreviewsRequest(detailURL: detailURL)
-            .publisher
-            .receive(on: DispatchQueue.main)
-            .sink { complete in
-                if case .failure(let error) = complete {
-                    store.dispatch(.fetchMangaPreviewsDone(result: .failure(error)))
-                }
-                token.unseal()
-            } receiveValue: { previews in
-                if let previews = previews {
-                    store.dispatch(.fetchMangaPreviewsDone(result: .success((previews, id))))
-                } else {
-                    store.dispatch(.fetchMangaPreviewsDone(result: .failure(.networkingFailed)))
-                }
-            }
-            .seal(in: token)
-    }
-}
-
 class SubscriptionToken {
     var cancellable: AnyCancellable?
     func unseal() { cancellable = nil }

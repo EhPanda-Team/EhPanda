@@ -24,6 +24,14 @@ public func ePrint(_ string: String?) {
     print("debugMark " + (string ?? "エラーの内容が解析できませんでした"))
 }
 
+public func didLogin() -> Bool {
+    guard let url = URL(string: Defaults.URL.host),
+          let cookies = HTTPCookieStorage.shared.cookies(for: url),
+          !cookies.isEmpty else { return false }
+    
+    return true
+}
+
 public func executeMainAsyncally(_ closure: @escaping (()->())) {
     if Thread.isMainThread {
         closure()

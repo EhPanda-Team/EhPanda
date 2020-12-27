@@ -24,9 +24,6 @@ struct DetailView: View {
     var mangaDetail: MangaDetail? {
         cachedList.items?[id]?.detail
     }
-    var mangaPreviews: [MangaContent]? {
-        cachedList.items?[id]?.previews
-    }
     
     var body: some View {
         Group {
@@ -37,7 +34,7 @@ struct DetailView: View {
                     DescScrollView(manga: manga, detail: detail)
                         .frame(height: 60)
                         .padding(.vertical, 30)
-                    PreviewView(previews: mangaPreviews ?? [])
+                    PreviewView(previews: detail.previews)
                 }
                 .padding(.top, -40)
                 .padding(.bottom, 10)
@@ -45,8 +42,6 @@ struct DetailView: View {
                 .transition(AnyTransition.opacity.animation(.default))
             } else if detailInfo.mangaDetailLoading {
                 LoadingView()
-            } else if detailInfo.mangaDetailNotFound {
-                Text("アイテムが見つかりませんでした")
             } else if detailInfo.mangaDetailLoadFailed {
                 Text("ネットワーク障害")
             }
@@ -57,9 +52,6 @@ struct DetailView: View {
             
             if mangaDetail == nil {
                 store.dispatch(.fetchMangaDetail(id: id))
-            }
-            if mangaPreviews == nil {
-                store.dispatch(.fetchMangaPreviews(id: id))
             }
         }
     }
@@ -93,7 +85,7 @@ private struct HeaderView: View {
     
     var body: some View {
         HStack {
-            WebImage(url: URL(string: manga.coverURL))
+            WebImage(url: URL(string: manga.coverURL), options: .handleCookies)
                 .resizable()
                 .placeholder{ rectangle }
                 .indicator(.activity)
@@ -219,7 +211,7 @@ private struct PreviewView: View {
         }
     }
     
-    let previews: [MangaContent]
+    let previews: [MangaPreview]
     
     var body: some View {
         VStack {
@@ -234,7 +226,7 @@ private struct PreviewView: View {
                     HStack {
                         if !previews.isEmpty {
                             ForEach(previews) { item in
-                                WebImage(url: URL(string: item.url))
+                                WebImage(url: URL(string: item.url), options: .handleCookies)
                                     .resizable()
                                     .placeholder {
                                         Placeholder(width: reader.size.height * 32/45,

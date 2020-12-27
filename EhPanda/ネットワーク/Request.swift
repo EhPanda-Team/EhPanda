@@ -54,17 +54,3 @@ struct MangaDetailRequest {
             .eraseToAnyPublisher()
     }
 }
-
-struct MangaPreviewsRequest {
-    let detailURL: String
-    let parser = Parser()
-    
-    var publisher: AnyPublisher<[MangaContent]?, AppError> {
-        URLSession.shared
-            .dataTaskPublisher(for: URL(string: detailURL)!)
-            .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-            .map { parser.parseMangaPreviews($0) }
-            .mapError { _ in AppError.networkingFailed }
-            .eraseToAnyPublisher()
-    }
-}

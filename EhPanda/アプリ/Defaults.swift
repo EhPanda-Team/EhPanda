@@ -7,7 +7,9 @@
 
 class Defaults {
     class URL {
-        static let host = "https://e-hentai.org/"
+        static let login = "https://forums.e-hentai.org/index.php?act=Login"
+        static let host = "https://exhentai.org/"
         static let search = "?f_search="
+        static let detailLarge = "?inline_set=ts_l"
     }
 }

@@ -61,7 +61,7 @@ struct HomeView: View {
                     .foregroundColor(.primary)
                     .imageScale(.large)
                     .sheet(isPresented: homeListBinding.isSettingPresented, content: {
-                        EmptyView()
+                        SettingView()
                     })
                     .onTapGesture {
                         store.dispatch(.toggleSettingPresented)
@@ -192,7 +192,7 @@ private struct MangaSummaryRow: View {
     
     var body: some View {
         HStack {
-            WebImage(url: URL(string: manga.coverURL))
+            WebImage(url: URL(string: manga.coverURL), options: .handleCookies)
                 .resizable()
                 .placeholder { rectangle }
                 .indicator(.activity)

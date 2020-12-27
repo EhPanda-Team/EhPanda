@@ -8,19 +8,6 @@
 import Combine
 import Foundation
 
-class DetailItemsStore: ObservableObject {
-    @Published var detailItem: MangaDetail?
-    
-    func fetchDetailItem(url: String) {
-        executeAsyncally {
-            let item = RequestManager.shared.requestDetailItem(url: url)
-            executeMainAsyncally { [weak self] in
-                self?.detailItem = item
-            }
-        }
-    }
-}
-
 class ContentItemsStore: ObservableObject {
     @Published var contentItems = [MangaContent]()
     var owner: String
@@ -32,18 +19,6 @@ class ContentItemsStore: ObservableObject {
     
     deinit {
         ePrint("ContentItemsStore(\(owner)) deinited!!")
-    }
-    
-    func fetchPreviewItems(url: String) {
-        let queue = DispatchQueue(label: "com.queue.previewFetch")
-        
-        queue.async {
-            let items = RequestManager.shared.requestPreviewItems(url: url)
-            
-            executeMainAsyncally { [weak self] in
-                self?.contentItems.append(contentsOf: items)
-            }
-        }
     }
     
     func fetchContentItems(url: String, pages: Int) {

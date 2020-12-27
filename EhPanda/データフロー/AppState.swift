@@ -8,14 +8,21 @@
 
 struct AppState {
     var environment = Environment()
+    var settings = Settings()
     var homeList = HomeList()
     var detailInfo = DetailInfo()
+    var contentsInfo = ContentsInfo()
     var cachedList = CachedList()
 }
 
 extension AppState {
     struct Environment {
         var navBarHidden = false
+    }
+    
+    struct Settings {
+        var isWebViewPresented = false
+        var isLogoutAlertPresented = false
     }
 }
 
@@ -40,17 +47,15 @@ extension AppState {
         var favoritesNotFound = false
         var favoritesLoadFailed = false
     }
-}
-
-extension AppState {
+    
     struct DetailInfo {
         var mangaDetailLoading = false
-        var mangaDetailNotFound = false
         var mangaDetailLoadFailed = false
-        
-        var mangaPreviewsLoading = false
-        var mangaPreviewsNotFound = false
-        var mangaPreviewsLoadFailed = false
+    }
+    
+    struct ContentsInfo {
+        var mangaContentsLoading = false
+        var mangaContentsLoadFailed = false
     }
 }
 
@@ -77,9 +82,6 @@ extension AppState {
         
         mutating func insertDetail(detail: (MangaDetail, String)) {
             self.items?[detail.1]?.detail = detail.0
-        }
-        mutating func insertPreviews(previews: ([MangaContent], String)) {
-            self.items?[previews.1]?.previews = previews.0
         }
     }
 }
