@@ -98,10 +98,12 @@ private struct HeaderView: View {
                     .fontWeight(.bold)
                     .lineLimit(3)
                     .font(.title3)
-                Text(manga.uploader)
-                    .lineLimit(1)
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
+                if let uploader = manga.uploader {
+                    Text(uploader)
+                        .lineLimit(1)
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
                 Spacer()
                 HStack {
                     Text(manga.translatedCategory.lString())

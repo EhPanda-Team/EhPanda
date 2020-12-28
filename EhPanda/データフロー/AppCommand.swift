@@ -12,6 +12,26 @@ protocol AppCommand {
     func execute(in store: Store)
 }
 
+struct FetchSearchItemsCommand: AppCommand {
+    let keyword: String
+    
+    func execute(in store: Store) {
+        let token = SubscriptionToken()
+        SearchItemsRequest(keyword: keyword)
+            .publisher
+            .receive(on: DispatchQueue.main)
+            .sink { complete in
+                if case .failure(let error) = complete {
+                    store.dispatch(.fetchSearchItemsDone(result: .failure(error)))
+                }
+                token.unseal()
+            } receiveValue: { mangas in
+                store.dispatch(.fetchSearchItemsDone(result: .success(mangas)))
+            }
+            .seal(in: token)
+    }
+}
+
 struct FetchPopularItemsCommand: AppCommand {
     func execute(in store: Store) {
         let token = SubscriptionToken()
@@ -30,21 +50,19 @@ struct FetchPopularItemsCommand: AppCommand {
     }
 }
 
-struct FetchSearchItemsCommand: AppCommand {
-    let keyword: String
-    
+struct FetchFavoritesItemsCommand: AppCommand {
     func execute(in store: Store) {
         let token = SubscriptionToken()
-        SearchItemsRequest(keyword: keyword)
+        FavoritesItemsRequest()
             .publisher
             .receive(on: DispatchQueue.main)
             .sink { complete in
-                if case .failure(let error) = complete {
-                    store.dispatch(.fetchSearchItemsDone(result: .failure(error)))
+                if case .failure(let error)  = complete {
+                    store.dispatch(.fetchFavoritesItemsDone(result: .failure(error)))
                 }
                 token.unseal()
             } receiveValue: { mangas in
-                store.dispatch(.fetchSearchItemsDone(result: .success(mangas)))
+                store.dispatch(.fetchFavoritesItemsDone(result: .success(mangas)))
             }
             .seal(in: token)
     }

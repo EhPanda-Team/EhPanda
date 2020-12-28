@@ -27,7 +27,9 @@ struct HomeView: View {
             ScrollView {
                 VStack {
                     SearchBar(keyword: homeListBinding.keyword) {
-                        store.dispatch(.toggleHomeListType(type: .search))
+                        if homeList.type != .search {
+                            store.dispatch(.toggleHomeListType(type: .search))
+                        }
                         store.dispatch(.fetchSearchItems(keyword: homeList.keyword))
                     } filterAction: {}
                     
@@ -43,9 +45,28 @@ struct HomeView: View {
                             loadingFlag: homeList.popularLoading,
                             notFoundFlag: homeList.popularNotFound,
                             loadFailedFlag: homeList.popularLoadFailed)
+                    } else if homeList.type == .favorites {
+                        GenericList(
+                            items: homeList.favoritesItems,
+                            loadingFlag: homeList.favoritesLoading,
+                            notFoundFlag: homeList.favoritesNotFound,
+                            loadFailedFlag: homeList.favoritesLoadFailed)
                     }
                 }
                 .padding()
+                .onChange(of: homeList.type, perform: { type in
+                    switch type {
+                    case .popular:
+                        if homeList.popularItems != nil { return }
+                        store.dispatch(.fetchPopularItems)
+                    case .favorites:
+                        store.dispatch(.fetchFavoritesItems)
+                    case .downloaded:
+                        print(type)
+                    case .search:
+                        print(type)
+                    }
+                })
                 .onAppear {
                     if homeList.popularItems != nil { return }
                     store.dispatch(.fetchPopularItems)
@@ -197,13 +218,15 @@ private struct MangaSummaryRow: View {
                 .frame(width: 80, height: 110)
             VStack(alignment: .leading) {
                 Text(manga.title)
-                    .lineLimit(1)
+                    .lineLimit(manga.uploader == nil ? 2 : 1)
                     .font(.headline)
                     .foregroundColor(.primary)
-                Text(manga.uploader)
-                    .lineLimit(1)
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
+                if let uploader = manga.uploader {
+                    Text(uploader)
+                        .lineLimit(1)
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
                 HStack {
                     RatingView(rating: manga.rating)
                 }

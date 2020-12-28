@@ -16,7 +16,7 @@ struct Manga: Identifiable, Encodable, Decodable {
     let title: String
     let rating: Float
     let category: Category
-    let uploader: String
+    let uploader: String?
     let publishedTime: String
     let coverURL: String
     let detailURL: String

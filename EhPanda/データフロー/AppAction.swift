@@ -20,6 +20,9 @@ enum AppAction {
     case fetchPopularItems
     case fetchPopularItemsDone(result: Result<[Manga], AppError>)
     
+    case fetchFavoritesItems
+    case fetchFavoritesItemsDone(result: Result<[Manga], AppError>)
+    
     case fetchMangaDetail(id: String)
     case fetchMangaDetailDone(result: Result<(MangaDetail, String), AppError>)
     

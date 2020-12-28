@@ -15,12 +15,12 @@ class Parser {
         
         for link in doc.xpath("//tr") {
             
+            let uploader = link.at_xpath("//td [@class='gl4c glhide']")?.at_xpath("//a")?.text
             guard let gl2cNode = link.at_xpath("//td [@class='gl2c']"),
                   let id = gl2cNode.at_xpath("//div [@class='glcut']")?["id"]?.replacingOccurrences(of: "ic", with: ""),
                   let title = link.at_xpath("//div [@class='glink']")?.text,
                   let rating = parseRatingString(gl2cNode.at_xpath("//div [@class='ir']")?.toHTML),
                   let category = link.at_xpath("//td [@class='gl1c glcat'] //div")?.text,
-                  let uploader = link.at_xpath("//td [@class='gl4c glhide']")?.at_xpath("//a")?.text,
                   var publishedTime = gl2cNode.at_xpath("//div [@onclick]")?.text,
                   let coverURL = parseCoverURL(gl2cNode.at_xpath("//div [@class='glthumb']")?.at_css("img")),
                   let detailURL = link.at_xpath("//td [@class='gl3c glname'] //a")?["href"]

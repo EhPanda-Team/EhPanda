@@ -9,6 +9,25 @@ import Kanna
 import Combine
 import Foundation
 
+struct SearchItemsRequest {
+    let keyword: String
+    let parser = Parser()
+    
+    var publisher: AnyPublisher<[Manga], AppError> {
+        let word = keyword.replacingOccurrences(of: " ", with: "+")
+        return URLSession.shared
+            .dataTaskPublisher(
+                for: URL(string: Defaults.URL.host
+                            + Defaults.URL.search
+                            + word)!
+            )
+            .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
+            .map { parser.parsePopularListItems($0) }
+            .mapError { _ in AppError.networkingFailed }
+            .eraseToAnyPublisher()
+    }
+}
+
 struct PopularItemsRequest {
     let parser = Parser()
     
@@ -22,18 +41,14 @@ struct PopularItemsRequest {
     }
 }
 
-struct SearchItemsRequest {
-    let keyword: String
+struct FavoritesItemsRequest {
     let parser = Parser()
     
     var publisher: AnyPublisher<[Manga], AppError> {
-        let word = keyword.replacingOccurrences(of: " ", with: "+")
-        return URLSession.shared
+        URLSession.shared
             .dataTaskPublisher(
                 for: URL(string: Defaults.URL.host
-                            + Defaults.URL.search
-                            + word)!
-            )
+                            + Defaults.URL.favorites)!)
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .map { parser.parsePopularListItems($0) }
             .mapError { _ in AppError.networkingFailed }

@@ -25,7 +25,7 @@ public func ePrint(_ string: String?) {
 }
 
 public func didLogin() -> Bool {
-    guard let url = URL(string: Defaults.URL.loginVerify),
+    guard let url = URL(string: Defaults.URL.cookiesVerify),
           let cookies = HTTPCookieStorage.shared.cookies(for: url),
           !cookies.isEmpty else { return false }
     

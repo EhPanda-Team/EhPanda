@@ -85,6 +85,30 @@ class Store: ObservableObject {
                 appState.homeList.popularLoadFailed = true
             }
             
+        case .fetchFavoritesItems:
+            if !didLogin() { break }
+            appState.homeList.favoritesNotFound = false
+            appState.homeList.favoritesLoadFailed = false
+            
+            if appState.homeList.favoritesLoading { break }
+            appState.homeList.favoritesLoading = true
+            appCommand = FetchFavoritesItemsCommand()
+        case .fetchFavoritesItemsDone(result: let result):
+            appState.homeList.favoritesLoading = false
+            
+            switch result {
+            case .success(let mangas):
+                if mangas.isEmpty {
+                    appState.homeList.favoritesNotFound = true
+                } else {
+                    appState.homeList.favoritesItems = mangas
+                    appState.cachedList.cache(items: mangas)
+                }
+            case .failure(let error):
+                ePrint(error)
+                appState.homeList.favoritesLoadFailed = true
+            }
+            
         case .fetchMangaDetail(id: let id):
             if !didLogin() { break }
             appState.detailInfo.mangaDetailLoadFailed = false
