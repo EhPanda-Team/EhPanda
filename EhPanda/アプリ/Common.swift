@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Combine
 import SDWebImageSwiftUI
 
 class Common {
@@ -50,15 +51,6 @@ public func didLogin() -> Bool {
     return true
 }
 
-public func getStringFrom(dic: [String : String]) -> String {
-    var array = [String]()
-    dic.keys.forEach { key in
-        let value = dic[key]!
-        array.append(key + "=" + value)
-    }
-    return array.joined(separator: "&")
-}
-
 public func cleanCookies() {
     if let historyCookies = HTTPCookieStorage.shared.cookies {
         historyCookies.forEach {
@@ -95,6 +87,17 @@ extension String {
     }
 }
 
+extension Dictionary where Key == String, Value == String {
+    func jsonString() -> String {
+        var array = [String]()
+        keys.forEach { key in
+            let value = self[key]!
+            array.append(key + "=" + value)
+        }
+        return array.joined(separator: "&")
+    }
+}
+
 extension UINavigationController: UIGestureRecognizerDelegate {
     override open func viewDidLoad() {
         super.viewDidLoad()
@@ -103,5 +106,16 @@ extension UINavigationController: UIGestureRecognizerDelegate {
 
     public func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
         return viewControllers.count > 1
+    }
+}
+
+extension Array where Element: Publisher {
+    var zipAll: AnyPublisher<[Element.Output], Element.Failure> {
+        let initial = Just([Element.Output]())
+            .setFailureType(to: Element.Failure.self)
+            .eraseToAnyPublisher()
+        return reduce(initial) { result, publisher in
+            result.zip(publisher) { $0 + [$1] }.eraseToAnyPublisher()
+        }
     }
 }

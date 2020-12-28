@@ -93,6 +93,32 @@ struct FetchMangaDetailCommand: AppCommand {
     }
 }
 
+//struct FetchMangaContentsCommand: AppCommand {
+//    let id: String
+//    let pages: Int
+//    let detailURL: String
+//    
+//    func execute(in store: Store) {
+//        let token = SubscriptionToken()
+//        MangaContentsRequest(pages: pages, detailURL: detailURL)
+//            .publisher
+//            .receive(on: DispatchQueue.main)
+//            .sink { complete in
+//                if case .failure(let error) = complete {
+//                    store.dispatch(.fetchMangaContentsDone(result: .failure(error)))
+//                }
+//                token.unseal()
+//            } receiveValue: { contents in
+//                if let contents = contents {
+//                    store.dispatch(.fetchMangaContentsDone(result: .success((contents, id))))
+//                } else {
+//                    store.dispatch(.fetchMangaContentsDone(result: .failure(.networkingFailed)))
+//                }
+//            }
+//            .seal(in: token)
+//    }
+//}
+
 struct AddFavoriteCommand: AppCommand {
     let id: String
     let token: String

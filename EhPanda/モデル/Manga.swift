@@ -48,11 +48,6 @@ struct MangaContent: Identifiable, Encodable, Decodable {
     let url: String
 }
 
-struct MangaURL {
-    let tag: Int
-    let url: URL
-}
-
 // MARK: 列挙型
 enum Category: String, Encodable, Decodable {
     case Doujinshi = "Doujinshi"

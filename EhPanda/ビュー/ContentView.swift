@@ -9,23 +9,30 @@ import SwiftUI
 import SDWebImageSwiftUI
 
 struct ContentView: View {
-    @EnvironmentObject var aStore: Store
-    @StateObject var store = ContentItemsStore(owner: "ContentView")
+    @EnvironmentObject var store: Store
+    
+    let id: String
+    var environment: AppState.Environment {
+        store.appState.environment
+    }
+    var contentsInfo: AppState.ContentsInfo {
+        store.appState.contentsInfo
+    }
+    var mangaContents: [MangaContent]? {
+        store.appState.cachedList.items?[id]?.contents
+    }
     
     var rectangle: some View {
         Rectangle()
             .fill(Color(.systemGray5))
     }
     
-    let detailURL: String
-    let pages: Int
-    
     var body: some View {
         Group {
-            if !store.contentItems.isEmpty {
+            if let contents = mangaContents {
                 ScrollView {
                     VStack(spacing: 0) {
-                        ForEach(store.contentItems) { item in
+                        ForEach(contents) { item in
                             WebImage(url: URL(string: item.url),
                                      options: [.retryFailed, .handleCookies])
                                 .resizable()
@@ -37,16 +44,18 @@ struct ContentView: View {
                 }
                 .ignoresSafeArea()
                 .transition(AnyTransition.opacity.animation(.default))
-            } else {
+            } else if contentsInfo.mangaContentsLoading {
                 LoadingView()
+            } else if contentsInfo.mangaContentsLoadFailed {
+                NetworkErrorView {
+//                    store.dispatch(.fetchMangaContents(id: id))
+                }
             }
         }
         .navigationBarBackButtonHidden(true)
-        .navigationBarHidden(aStore.appState.environment.navBarHidden)
+        .navigationBarHidden(environment.navBarHidden)
         .onAppear {
-            aStore.dispatch(.toggleNavBarHidden(isHidden: true))
-            
-            store.fetchContentItems(url: detailURL, pages: pages)
+//            store.dispatch(.fetchMangaContents(id: id))
         }
     }
 }

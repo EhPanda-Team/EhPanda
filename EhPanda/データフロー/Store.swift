@@ -130,26 +130,34 @@ class Store: ObservableObject {
                 appState.detailInfo.mangaDetailLoadFailed = true
             }
             
-//        case .fetchMangaContents(id: let id):
+//        case .fetchMangaContents(let id):
+//            appState.contentsInfo.mangaContentsLoadFailed = false
+//            
 //            if appState.contentsInfo.mangaContentsLoading { break }
 //            appState.contentsInfo.mangaContentsLoading = true
 //            
 //            let detailURL = appState.cachedList.items?[id]?.detailURL ?? ""
-//            appCommand = FetchMangaPreviewsCommand(id: id, detailURL: detailURL)
+//            let pages = Int(appState.cachedList.items?[id]?.detail?.pageCount ?? "") ?? 0
+//            appCommand = FetchMangaContentsCommand(id: id, pages: pages, detailURL: detailURL)
 //        case .fetchMangaContentsDone(result: let result):
 //            appState.contentsInfo.mangaContentsLoading = false
 //            
 //            switch result {
-//            case .success(let previews):
-//                appState.cachedList.insertPreviews(previews: previews)
+//            case .success(let contents):
+//                if contents.0.isEmpty {
+//                    appState.contentsInfo.mangaContentsLoadFailed = true
+//                } else {
+//                    appState.cachedList.insertContents(contents: contents)
+//                }
 //            case .failure(let error):
 //                ePrint(error)
 //                appState.contentsInfo.mangaContentsLoadFailed = true
 //            }
-        case .addFavorite(id: let id):
+        
+        case .addFavorite(let id):
             let token = appState.cachedList.items?[id]?.token ?? ""
             appCommand = AddFavoriteCommand(id: id, token: token)
-        case .deleteFavorite(id: let id):
+        case .deleteFavorite(let id):
             appCommand = DeleteFavoriteCommand(id: id)
         }
         

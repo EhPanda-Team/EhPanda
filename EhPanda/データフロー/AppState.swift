@@ -87,6 +87,16 @@ extension AppState {
         mutating func insertDetail(detail: (MangaDetail, String)) {
             self.items?[detail.1]?.detail = detail.0
         }
+        mutating func insertContents(contents: ([MangaContent], String)) {
+            var historyContents = self.items?[contents.1]?.contents
+            if historyContents == nil {
+                self.items?[contents.1]?.contents = contents.0
+            } else {
+                historyContents?.append(contentsOf: contents.0)
+                historyContents?.sort { $0.tag < $1.tag }
+                self.items?[contents.1]?.contents = historyContents
+            }
+        }
     }
 }
 

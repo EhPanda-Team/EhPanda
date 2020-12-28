@@ -70,6 +70,35 @@ struct MangaDetailRequest {
     }
 }
 
+//struct MangaContentsRequest {
+//    let pages: Int
+//    let detailURL: String
+//    let parser = Parser()
+//    
+//    var publisher: AnyPublisher<[MangaContent]?, AppError> {
+//        preContents(url: detailURL, index: 0)
+//            .flatMap { preContentDoc(pre: $0) }
+//    }
+//    
+//    func preContents(url: String, index: Int) -> AnyPublisher<[(Int, URL)], AppError> {
+//        URLSession.shared
+//            .dataTaskPublisher(for: URL(string: url)!)
+//            .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
+//            .map { parser.parseImagePreContents($0, pageStartIndex: index) }
+//            .mapError { _ in .networkingFailed }
+//            .eraseToAnyPublisher()
+//    }
+//    
+//    func preContentDoc(pre: [(Int, URL)]) -> AnyPublisher<[MangaContent]?, AppError> {
+//        URLSession.shared
+//            .dataTaskPublisher(for: pre.1)
+//            .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
+//            .map { parser.parseMangaContent(doc: $0, tag: pre.0) }
+//            .mapError { _ in .networkingFailed }
+//            .eraseToAnyPublisher()
+//    }
+//}
+
 struct AddFavoriteRequest {
     let id: String
     let token: String
@@ -85,7 +114,7 @@ struct AddFavoriteRequest {
         var request = URLRequest(url: URL(string: url)!)
         
         request.httpMethod = "POST"
-        request.httpBody = getStringFrom(dic: parameters).data(using: .utf8)
+        request.httpBody = parameters.jsonString().data(using: .utf8)
         
         return session.dataTaskPublisher(for: request)
             .map { $0 }
@@ -107,7 +136,7 @@ struct DeleteFavoriteRequest {
         var request = URLRequest(url: URL(string: url)!)
         
         request.httpMethod = "POST"
-        request.httpBody = getStringFrom(dic: parameters).data(using: .utf8)
+        request.httpBody = parameters.jsonString().data(using: .utf8)
         
         return session.dataTaskPublisher(for: request)
             .map { $0 }
@@ -115,4 +144,3 @@ struct DeleteFavoriteRequest {
             .eraseToAnyPublisher()
     }
 }
-

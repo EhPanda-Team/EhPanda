@@ -12,6 +12,9 @@ struct DetailView: View {
     @EnvironmentObject var store: Store
     
     let id: String
+    var environment: AppState.Environment {
+        store.appState.environment
+    }
     var cachedList: AppState.CachedList {
         store.appState.cachedList
     }
@@ -48,7 +51,7 @@ struct DetailView: View {
                 }
             }
         }
-        .navigationBarHidden(store.appState.environment.navBarHidden)
+        .navigationBarHidden(environment.navBarHidden)
         .onAppear {
             store.dispatch(.toggleNavBarHidden(isHidden: false))
             
@@ -62,6 +65,10 @@ struct DetailView: View {
 // MARK: ヘッダー
 private struct HeaderView: View {
     @EnvironmentObject var store: Store
+    
+    let manga: Manga
+    let detail: MangaDetail
+    
     var isFavored: Bool {
         store.appState.homeList.isFavored(id: manga.id)
     }
@@ -70,16 +77,6 @@ private struct HeaderView: View {
         Rectangle()
             .fill(Color(.systemGray5))
             .frame(width: 8/11 * 150, height: 150)
-    }
-    
-    let manga: Manga
-    let detail: MangaDetail
-    
-    var contentView: ContentView {
-        ePrint("ContentView inited!")
-        let pageCount = detail.pageCount
-        let pages = Int(pageCount) ?? 0
-        return ContentView(detailURL: manga.detailURL, pages: pages)
     }
     
     var title: String {
@@ -133,7 +130,7 @@ private struct HeaderView: View {
                             }
                         }
                     Button(action: {}) {
-                        NavigationLink(destination: contentView) {
+                        NavigationLink(destination: ContentView(id: manga.id)) {
                              Text("読む")
                                 .foregroundColor(.white)
                                 .fontWeight(.bold)
