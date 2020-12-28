@@ -28,4 +28,7 @@ enum AppAction {
     
 //    case fetchMangaContents(id: String)
 //    case fetchMangaContentsDone(result: Result<([MangaContent], String), AppError>)
+    
+    case addFavorite(id: String)
+    case deleteFavorite(id: String)
 }

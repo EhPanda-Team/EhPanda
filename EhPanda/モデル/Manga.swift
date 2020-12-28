@@ -13,6 +13,8 @@ struct Manga: Identifiable, Encodable, Decodable {
     var contents: [MangaContent]?
     
     let id: String
+    let token: String
+    
     let title: String
     let rating: Float
     let category: Category

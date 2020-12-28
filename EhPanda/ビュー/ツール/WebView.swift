@@ -9,7 +9,6 @@ import SwiftUI
 import WebKit
 
 struct WebView: UIViewControllerRepresentable {
-    @EnvironmentObject var store: Store
 
     class Coodinator: NSObject, WKNavigationDelegate, WKUIDelegate {
         var parent : WebView
@@ -24,13 +23,9 @@ struct WebView: UIViewControllerRepresentable {
             guard let url = webView.url?.absoluteString else { return }
             
             if url.contains("CODE=01") {
-                webView.configuration.websiteDataStore.httpCookieStore.getAllCookies { [weak self] cookies in
-                    cleanCookies()
+                webView.configuration.websiteDataStore.httpCookieStore.getAllCookies { cookies in
                     cookies.forEach {
                         HTTPCookieStorage.shared.setCookie($0)
-                    }
-                    if !cookies.isEmpty {
-                        self?.parent.dismiss()
                     }
                 }
             }
@@ -43,10 +38,6 @@ struct WebView: UIViewControllerRepresentable {
         func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
             print(error)
         }
-    }
-    
-    func dismiss() {
-        store.dispatch(.toggleWebViewPresented)
     }
 
     func makeCoordinator() -> WebView.Coodinator {

@@ -93,6 +93,47 @@ struct FetchMangaDetailCommand: AppCommand {
     }
 }
 
+struct AddFavoriteCommand: AppCommand {
+    let id: String
+    let token: String
+    
+    func execute(in store: Store) {
+        let sToken = SubscriptionToken()
+        AddFavoriteRequest(id: id, token: token)
+            .publisher
+            .receive(on: DispatchQueue.main)
+            .sink { complete in
+                if case .finished = complete {
+                    store.dispatch(.fetchFavoritesItems)
+                }
+                sToken.unseal()
+            } receiveValue: { value in
+                print(value)
+            }
+            .seal(in: sToken)
+    }
+}
+
+struct DeleteFavoriteCommand: AppCommand {
+    let id: String
+    
+    func execute(in store: Store) {
+        let sToken = SubscriptionToken()
+        DeleteFavoriteRequest(id: id)
+            .publisher
+            .receive(on: DispatchQueue.main)
+            .sink { complete in
+                if case .finished = complete {
+                    store.dispatch(.fetchFavoritesItems)
+                }
+                sToken.unseal()
+            } receiveValue: { value in
+                print(value)
+            }
+            .seal(in: sToken)
+    }
+}
+
 class SubscriptionToken {
     var cancellable: AnyCancellable?
     func unseal() { cancellable = nil }

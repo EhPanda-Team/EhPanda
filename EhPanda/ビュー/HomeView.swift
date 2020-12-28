@@ -47,7 +47,7 @@ struct HomeView: View {
                             loadFailedFlag: homeList.popularLoadFailed)
                     } else if homeList.type == .favorites {
                         GenericList(
-                            items: homeList.favoritesItems,
+                            items: homeList.favoritesItems?.map { $0.value },
                             loadingFlag: homeList.favoritesLoading,
                             notFoundFlag: homeList.favoritesNotFound,
                             loadFailedFlag: homeList.favoritesLoadFailed)
@@ -68,8 +68,12 @@ struct HomeView: View {
                     }
                 })
                 .onAppear {
-                    if homeList.popularItems != nil { return }
-                    store.dispatch(.fetchPopularItems)
+                    if homeList.popularItems == nil {
+                        store.dispatch(.fetchPopularItems)
+                    }
+                    if homeList.favoritesItems == nil {
+                        store.dispatch(.fetchFavoritesItems)
+                    }
                 }
             }
             .navigationBarTitle(homeList.type.rawValue.lString())

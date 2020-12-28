@@ -61,6 +61,11 @@ struct DetailView: View {
 
 // MARK: ヘッダー
 private struct HeaderView: View {
+    @EnvironmentObject var store: Store
+    var isFavored: Bool {
+        store.appState.homeList.isFavored(id: manga.id)
+    }
+    
     var rectangle: some View {
         Rectangle()
             .fill(Color(.systemGray5))
@@ -117,6 +122,16 @@ private struct HeaderView: View {
                                 .foregroundColor(Color(manga.color))
                         )
                     Spacer()
+                    Image(systemName: isFavored ? "heart.fill" : "heart")
+                        .imageScale(.large)
+                        .foregroundColor(.blue)
+                        .onTapGesture {
+                            if isFavored {
+                                store.dispatch(.deleteFavorite(id: manga.id))
+                            } else {
+                                store.dispatch(.addFavorite(id: manga.id))
+                            }
+                        }
                     Button(action: {}) {
                         NavigationLink(destination: contentView) {
                              Text("読む")

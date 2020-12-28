@@ -31,7 +31,6 @@ struct SettingView: View {
                     })
                     .sheet(isPresented: settingsBinding.isWebViewPresented, content: {
                         WebView()
-                            .environmentObject(store)
                     })
                 }
                 

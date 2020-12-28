@@ -50,6 +50,15 @@ public func didLogin() -> Bool {
     return true
 }
 
+public func getStringFrom(dic: [String : String]) -> String {
+    var array = [String]()
+    dic.keys.forEach { key in
+        let value = dic[key]!
+        array.append(key + "=" + value)
+    }
+    return array.joined(separator: "&")
+}
+
 public func cleanCookies() {
     if let historyCookies = HTTPCookieStorage.shared.cookies {
         historyCookies.forEach {

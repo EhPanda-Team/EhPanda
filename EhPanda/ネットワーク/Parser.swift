@@ -17,7 +17,6 @@ class Parser {
             
             let uploader = link.at_xpath("//td [@class='gl4c glhide']")?.at_xpath("//a")?.text
             guard let gl2cNode = link.at_xpath("//td [@class='gl2c']"),
-                  let id = gl2cNode.at_xpath("//div [@class='glcut']")?["id"]?.replacingOccurrences(of: "ic", with: ""),
                   let title = link.at_xpath("//div [@class='glink']")?.text,
                   let rating = parseRatingString(gl2cNode.at_xpath("//div [@class='ir']")?.toHTML),
                   let category = link.at_xpath("//td [@class='gl1c glcat'] //div")?.text,
@@ -35,8 +34,14 @@ class Parser {
                 publishedTime = fixedTime
             }
             
+            guard let url = URL(string: detailURL),
+                  !url.pathComponents[2].isEmpty,
+                  !url.pathComponents[3].isEmpty
+            else { continue }
+            
             guard let enumCategory = Category(rawValue: category) else { continue }
-            mangaItems.append(Manga(id: id,
+            mangaItems.append(Manga(id: url.pathComponents[2],
+                                    token: url.pathComponents[3],
                                     title: title,
                                     rating: rating,
                                     category: enumCategory,

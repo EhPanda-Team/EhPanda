@@ -101,7 +101,7 @@ class Store: ObservableObject {
                 if mangas.isEmpty {
                     appState.homeList.favoritesNotFound = true
                 } else {
-                    appState.homeList.favoritesItems = mangas
+                    appState.homeList.favoritesItems = Dictionary(uniqueKeysWithValues: mangas.map { ($0.id, $0)})
                     appState.cachedList.cache(items: mangas)
                 }
             case .failure(let error):
@@ -146,6 +146,11 @@ class Store: ObservableObject {
 //                ePrint(error)
 //                appState.contentsInfo.mangaContentsLoadFailed = true
 //            }
+        case .addFavorite(id: let id):
+            let token = appState.cachedList.items?[id]?.token ?? ""
+            appCommand = AddFavoriteCommand(id: id, token: token)
+        case .deleteFavorite(id: let id):
+            appCommand = DeleteFavoriteCommand(id: id)
         }
         
         return (appState, appCommand)

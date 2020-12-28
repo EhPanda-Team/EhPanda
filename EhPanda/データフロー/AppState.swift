@@ -42,10 +42,14 @@ extension AppState {
         var popularNotFound = false
         var popularLoadFailed = false
         
-        var favoritesItems: [Manga]?
+        var favoritesItems: [String : Manga]?
         var favoritesLoading = false
         var favoritesNotFound = false
         var favoritesLoadFailed = false
+        
+        func isFavored(id: String) -> Bool {
+            favoritesItems?[id] != nil
+        }
     }
     
     struct DetailInfo {

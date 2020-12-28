@@ -14,5 +14,9 @@ class Defaults {
         static let favorites = "favorites.php"
         static let search = "?f_search="
         static let detailLarge = "?inline_set=ts_l"
+        
+        static func addFavorite(id: String, token: String) -> String {
+            "gallerypopups.php?gid=\(id)&t=\(token)&act=addfav"
+        }
     }
 }
