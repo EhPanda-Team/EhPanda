@@ -62,6 +62,7 @@ struct HomeView: View {
                     .imageScale(.large)
                     .sheet(isPresented: homeListBinding.isSettingPresented, content: {
                         SettingView()
+                            .environmentObject(store)
                     })
                     .onTapGesture {
                         store.dispatch(.toggleSettingPresented)

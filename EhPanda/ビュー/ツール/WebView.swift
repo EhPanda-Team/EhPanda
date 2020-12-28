@@ -46,7 +46,7 @@ struct WebView: UIViewControllerRepresentable {
     }
     
     func dismiss() {
-        store.dispatch(.toggleSettingPresented)
+        store.dispatch(.toggleWebViewPresented)
     }
 
     func makeCoordinator() -> WebView.Coodinator {
