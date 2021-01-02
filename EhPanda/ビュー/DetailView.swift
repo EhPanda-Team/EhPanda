@@ -31,18 +31,21 @@ struct DetailView: View {
     var body: some View {
         Group {
             if let detail = mangaDetail {
-                VStack {
-                    HeaderView(manga: manga, detail: detail)
-                        .frame(height: 150)
-                    DescScrollView(manga: manga, detail: detail)
-                        .frame(height: 60)
-                        .padding(.vertical, 30)
-                    PreviewView(previews: detail.previews)
+                ScrollView(showsIndicators: false) {
+                    VStack {
+                        HeaderView(manga: manga, detail: detail)
+                        DescScrollView(manga: manga, detail: detail)
+                            .padding(.vertical, 30)
+                        PreviewView(previews: detail.previews)
+                        if !detail.comments.isEmpty {
+                            CommentView_Lite(comments: detail.comments)
+                                .padding(.vertical, 30)
+                        }
+                    }
+                    .padding(.top, -40)
+                    .padding(.horizontal)
+                    .transition(AnyTransition.opacity.animation(.default))
                 }
-                .padding(.top, -40)
-                .padding(.bottom, 10)
-                .padding(.horizontal)
-                .transition(AnyTransition.opacity.animation(.default))
             } else if detailInfo.mangaDetailLoading {
                 LoadingView()
             } else if detailInfo.mangaDetailLoadFailed {
@@ -215,6 +218,8 @@ private struct DescScrollRatingItem: View {
 
 // MARK: プレビュー
 private struct PreviewView: View {
+    let previews: [MangaPreview]
+    
     struct Placeholder: View {
         let width: CGFloat
         let height: CGFloat
@@ -227,8 +232,6 @@ private struct PreviewView: View {
         }
     }
     
-    let previews: [MangaPreview]
-    
     var body: some View {
         VStack {
             HStack {
@@ -237,32 +240,83 @@ private struct PreviewView: View {
                     .font(.title3)
                 Spacer()
             }
-            GeometryReader { reader in
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack {
-                        if !previews.isEmpty {
-                            ForEach(previews) { item in
-                                WebImage(url: URL(string: item.url), options: .handleCookies)
-                                    .resizable()
-                                    .placeholder {
-                                        Placeholder(width: reader.size.height * 32/45,
-                                                    height: reader.size.height)
-                                    }
-                                    .indicator(.progress)
-                                    .scaledToFill()
-                                    .frame(width: reader.size.height * 32/45,
-                                           height: reader.size.height)
-                                    .cornerRadius(15)
-                            }
-                        } else {
-                            ForEach(0..<10) { _ in
-                                Placeholder(width: reader.size.height * 32/45,
-                                            height: reader.size.height)
-                            }
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack {
+                    if !previews.isEmpty {
+                        ForEach(previews) { item in
+                            WebImage(url: URL(string: item.url), options: .handleCookies)
+                                .resizable()
+                                .placeholder {
+                                    Placeholder(width: 200 * 32/45,
+                                                height: 200)
+                                }
+                                .indicator(.progress)
+                                .scaledToFill()
+                                .frame(width: 200 * 32/45,
+                                       height: 200)
+                                .cornerRadius(15)
+                        }
+                    } else {
+                        ForEach(0..<10) { _ in
+                            Placeholder(width: 200 * 32/45,
+                                        height: 200)
                         }
                     }
                 }
             }
+            
         }
+    }
+}
+
+// MARK: コメント
+private struct CommentView_Lite: View {
+    let comments: [MangaComment]
+    
+    var body: some View {
+        VStack {
+            HStack {
+                Text("コメント")
+                    .fontWeight(.bold)
+                    .font(.title3)
+                Spacer()
+                NavigationLink(destination: CommentView(comments: comments)) {
+                    Text("すべて表示")
+                        .font(.subheadline)
+                }
+            }
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack {
+                    ForEach(comments.prefix(6)) { comment in
+                        CommentCell(comment: comment)
+                    }
+                }
+            }
+        }
+    }
+}
+
+private struct CommentCell: View {
+    let comment: MangaComment
+    
+    var body: some View {
+        VStack(alignment: .leading) {
+            HStack {
+                Text(comment.author)
+                    .fontWeight(.bold)
+                    .font(.subheadline)
+                Spacer()
+                Text(comment.commentTime)
+                    .font(.footnote)
+                    .foregroundColor(.secondary)
+            }
+            Text(comment.content)
+                .padding(.top, 1)
+            Spacer()
+        }
+        .padding()
+        .background(Color(.systemGray6))
+        .frame(width: 300, height: 120)
+        .cornerRadius(15)
     }
 }

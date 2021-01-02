@@ -37,7 +37,7 @@ struct ContentView: View {
         Group {
             if let contents = mangaContents {
                 ScrollView {
-                    VStack(spacing: 0) {
+                    LazyVStack(spacing: 0) {
                         ForEach(contents) { item in
                             WebImage(url: URL(string: item.url),
                                      options: [.retryFailed, .handleCookies])

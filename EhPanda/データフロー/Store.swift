@@ -117,7 +117,7 @@ class Store: ObservableObject {
             appState.detailInfo.mangaDetailLoading = true
             
             var detailURL = appState.cachedList.items?[id]?.detailURL ?? ""
-            detailURL = detailURL + Defaults.URL.detailLarge
+            detailURL = Defaults.URL.mangaDetail(url: detailURL)
             appCommand = FetchMangaDetailCommand(id: id, detailURL: detailURL)
         case .fetchMangaDetailDone(result: let result):
             appState.detailInfo.mangaDetailLoading = false

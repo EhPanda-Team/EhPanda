@@ -25,6 +25,7 @@ struct Manga: Identifiable, Encodable, Decodable {
 }
 
 struct MangaDetail: Encodable, Decodable {
+    var comments: [MangaComment]
     let previews: [MangaPreview]
     let jpnTitle: String
     let language: Language
@@ -33,6 +34,22 @@ struct MangaDetail: Encodable, Decodable {
     let sizeCount: String
     let sizeType: String
     let ratingCount: String
+}
+
+struct MangaComment: Identifiable, Encodable, Decodable {
+    var id = UUID()
+    
+    let author: String
+    let content: String
+    let commentDate: Date
+    var commentTime: String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale.current
+        formatter.timeZone = TimeZone.current
+        formatter.dateFormat = "yyyy-MM-dd HH:mm"
+        
+        return formatter.string(from: commentDate)
+    }
 }
 
 struct MangaPreview: Identifiable, Encodable, Decodable {

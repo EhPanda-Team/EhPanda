@@ -12,9 +12,16 @@ class Defaults {
         static let login = "https://forums.e-hentai.org/index.php?act=Login"
         
         static let favorites = "favorites.php"
-        static let search = "?f_search="
-        static let detailLarge = "?inline_set=ts_l"
+        static let search = "f_search="
+        static let showComments = "hc=1#comments"
+        static let detailLarge = "inline_set=ts_l"
         
+        static func mangaDetail(url: String) -> String {
+            url + "?" + showComments + "&" + detailLarge
+        }
+        static func search(keyword: String) -> String {
+            host + "?" + search + keyword
+        }
         static func addFavorite(id: String, token: String) -> String {
             host + "gallerypopups.php?gid=\(id)&t=\(token)&act=addfav"
         }

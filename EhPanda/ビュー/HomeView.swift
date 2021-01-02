@@ -17,7 +17,7 @@ struct HomeView: View {
     var homeListBinding: Binding<AppState.HomeList> {
         $store.appState.homeList
     }
-        
+    
     init() {
         UIScrollView.appearance().keyboardDismissMode = .onDrag
     }
@@ -25,7 +25,7 @@ struct HomeView: View {
     var body: some View {
         NavigationView {
             ScrollView {
-                VStack {
+                LazyVStack {
                     SearchBar(keyword: homeListBinding.keyword) {
                         if homeList.type != .search {
                             store.dispatch(.toggleHomeListType(type: .search))
@@ -151,16 +151,16 @@ private struct CategoryPicker: View {
     
     var body: some View {
         Picker(selection: $type,
-           label: Text("☰")
-                    .foregroundColor(.primary)
-                    .font(.largeTitle),
-           content: {
+               label: Text("☰")
+                .foregroundColor(.primary)
+                .font(.largeTitle),
+               content: {
                 let homepageTypes: [HomeListType] = [.popular, .favorites, .downloaded]
                 ForEach(homepageTypes, id: \.self) {
                     Text($0.rawValue.lString())
                 }
-        })
-        .pickerStyle(MenuPickerStyle())
+               })
+            .pickerStyle(MenuPickerStyle())
     }
 }
 
@@ -214,7 +214,8 @@ private struct MangaSummaryRow: View {
     
     var body: some View {
         HStack {
-            WebImage(url: URL(string: manga.coverURL), options: .handleCookies)
+            WebImage(url: URL(string: manga.coverURL),
+                     options: [.retryFailed, .handleCookies])
                 .resizable()
                 .placeholder { rectangle }
                 .indicator(.activity)

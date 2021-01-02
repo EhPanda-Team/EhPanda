@@ -105,7 +105,8 @@ class Parser {
                   let language = Language(rawValue: tmpLanguage2)
             else { return nil }
             
-            mangaDetail = MangaDetail(previews: imageURLs,
+            mangaDetail = MangaDetail(comments: [],
+                                      previews: imageURLs,
                                       jpnTitle: jpnTitle,
                                       language: language,
                                       likeCount: likeCount,
@@ -114,6 +115,30 @@ class Parser {
                                       sizeType: sizeType,
                                       ratingCount: ratingCount)
             break
+        }
+        
+        for link in doc.xpath("//div [@id='cdiv']") {
+            for cdivLink in link.xpath("//div [@class='c1']") {
+                guard let c3 = cdivLink.at_xpath("//div [@class='c3']")?.text,
+                      let content = cdivLink.at_xpath("//div [@class='c6']")?.text,
+                      let rangeA = c3.range(of: "Posted on "),
+                      let rangeB = c3.range(of: " by:   ")
+                else { continue }
+                
+                
+                let commentTime = String(c3.suffix(from: rangeA.upperBound).prefix(upTo: rangeB.lowerBound))
+                let author = String(c3.suffix(from: rangeB.upperBound))
+                
+                let formatter = DateFormatter()
+                formatter.dateFormat = "dd MMMM yyyy, HH:mm"
+                formatter.timeZone = TimeZone(secondsFromGMT: 0)
+                formatter.locale = Locale(identifier: "en_US_POSIX")
+                
+                guard let commentDate = formatter.date(from: commentTime) else { continue }
+                mangaDetail?.comments.append(MangaComment(author: author,
+                                                          content: content,
+                                                          commentDate: commentDate))
+            }
         }
         
         return mangaDetail

@@ -31,6 +31,8 @@
 "頁" = "Pages";
 "サイズ" = "SIZE";
 "プレビュー" = "Preview";
+"コメント" = "Comment";
+"すべて表示" = "Show All";
 
 // MARK: SettingView
 "アカウント" = "ACCOUNT";

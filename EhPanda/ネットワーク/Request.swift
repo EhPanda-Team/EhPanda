@@ -17,9 +17,7 @@ struct SearchItemsRequest {
         let word = keyword.replacingOccurrences(of: " ", with: "+")
         return URLSession.shared
             .dataTaskPublisher(
-                for: URL(string: Defaults.URL.host
-                            + Defaults.URL.search
-                            + word)!
+                for: URL(string: Defaults.URL.search(keyword: word))!
             )
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .map { parser.parsePopularListItems($0) }
