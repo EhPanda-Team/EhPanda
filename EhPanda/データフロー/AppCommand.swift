@@ -93,31 +93,40 @@ struct FetchMangaDetailCommand: AppCommand {
     }
 }
 
-//struct FetchMangaContentsCommand: AppCommand {
-//    let id: String
-//    let pages: Int
-//    let detailURL: String
-//    
-//    func execute(in store: Store) {
-//        let token = SubscriptionToken()
-//        MangaContentsRequest(pages: pages, detailURL: detailURL)
-//            .publisher
-//            .receive(on: DispatchQueue.main)
-//            .sink { complete in
-//                if case .failure(let error) = complete {
-//                    store.dispatch(.fetchMangaContentsDone(result: .failure(error)))
-//                }
-//                token.unseal()
-//            } receiveValue: { contents in
-//                if let contents = contents {
-//                    store.dispatch(.fetchMangaContentsDone(result: .success((contents, id))))
-//                } else {
-//                    store.dispatch(.fetchMangaContentsDone(result: .failure(.networkingFailed)))
-//                }
-//            }
-//            .seal(in: token)
-//    }
-//}
+struct FetchMangaContentsCommand: AppCommand {
+    let id: String
+    let pages: Int
+    let detailURL: String
+    
+    func execute(in store: Store) {
+        let token = SubscriptionToken()
+        let ehPageCount = Int(floor(Double(pages)/20))
+        let publishers = (0...ehPageCount)
+            .map {
+                MangaContentsRequest(
+                    detailURL: Defaults.URL.contentPage(
+                        url: detailURL, page: $0),
+                    pageIndex: $0)
+                    .publisher
+            }
+        
+        Publishers.MergeMany(publishers)
+            .receive(on: DispatchQueue.main)
+            .sink { complete in
+                if case .failure(let error) = complete {
+                    store.dispatch(.fetchMangaContentsDone(result: .failure(error)))
+                }
+                token.unseal()
+            } receiveValue: { contents in
+                if !contents.isEmpty {
+                    store.dispatch(.fetchMangaContentsDone(result: .success((contents, id))))
+                } else {
+                    store.dispatch(.fetchMangaContentsDone(result: .failure(.networkingFailed)))
+                }
+            }
+            .seal(in: token)
+    }
+}
 
 struct AddFavoriteCommand: AppCommand {
     let id: String

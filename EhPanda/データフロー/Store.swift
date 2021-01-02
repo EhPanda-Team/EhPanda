@@ -130,29 +130,29 @@ class Store: ObservableObject {
                 appState.detailInfo.mangaDetailLoadFailed = true
             }
             
-//        case .fetchMangaContents(let id):
-//            appState.contentsInfo.mangaContentsLoadFailed = false
-//            
-//            if appState.contentsInfo.mangaContentsLoading { break }
-//            appState.contentsInfo.mangaContentsLoading = true
-//            
-//            let detailURL = appState.cachedList.items?[id]?.detailURL ?? ""
-//            let pages = Int(appState.cachedList.items?[id]?.detail?.pageCount ?? "") ?? 0
-//            appCommand = FetchMangaContentsCommand(id: id, pages: pages, detailURL: detailURL)
-//        case .fetchMangaContentsDone(result: let result):
-//            appState.contentsInfo.mangaContentsLoading = false
-//            
-//            switch result {
-//            case .success(let contents):
-//                if contents.0.isEmpty {
-//                    appState.contentsInfo.mangaContentsLoadFailed = true
-//                } else {
-//                    appState.cachedList.insertContents(contents: contents)
-//                }
-//            case .failure(let error):
-//                ePrint(error)
-//                appState.contentsInfo.mangaContentsLoadFailed = true
-//            }
+        case .fetchMangaContents(let id):
+            appState.contentsInfo.mangaContentsLoadFailed = false
+            
+            if appState.contentsInfo.mangaContentsLoading { break }
+            appState.contentsInfo.mangaContentsLoading = true
+            
+            let detailURL = appState.cachedList.items?[id]?.detailURL ?? ""
+            let pages = Int(appState.cachedList.items?[id]?.detail?.pageCount ?? "") ?? 0
+            appCommand = FetchMangaContentsCommand(id: id, pages: pages, detailURL: detailURL)
+        case .fetchMangaContentsDone(result: let result):
+            appState.contentsInfo.mangaContentsLoading = false
+            
+            switch result {
+            case .success(let contents):
+                if contents.0.isEmpty {
+                    appState.contentsInfo.mangaContentsLoadFailed = true
+                } else {
+                    appState.cachedList.insertContents(contents: contents)
+                }
+            case .failure(let error):
+                ePrint(error)
+                appState.contentsInfo.mangaContentsLoadFailed = true
+            }
         
         case .addFavorite(let id):
             let token = appState.cachedList.items?[id]?.token ?? ""

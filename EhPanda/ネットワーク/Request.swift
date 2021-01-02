@@ -70,41 +70,48 @@ struct MangaDetailRequest {
     }
 }
 
-//struct MangaContentsRequest {
-//    let pages: Int
-//    let detailURL: String
-//    let parser = Parser()
-//    
-//    var publisher: AnyPublisher<[MangaContent]?, AppError> {
-//        preContents(url: detailURL, index: 0)
-//            .flatMap { preContentDoc(pre: $0) }
-//    }
-//    
-//    func preContents(url: String, index: Int) -> AnyPublisher<[(Int, URL)], AppError> {
-//        URLSession.shared
-//            .dataTaskPublisher(for: URL(string: url)!)
-//            .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-//            .map { parser.parseImagePreContents($0, pageStartIndex: index) }
-//            .mapError { _ in .networkingFailed }
-//            .eraseToAnyPublisher()
-//    }
-//    
-//    func preContentDoc(pre: [(Int, URL)]) -> AnyPublisher<[MangaContent]?, AppError> {
-//        URLSession.shared
-//            .dataTaskPublisher(for: pre.1)
-//            .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-//            .map { parser.parseMangaContent(doc: $0, tag: pre.0) }
-//            .mapError { _ in .networkingFailed }
-//            .eraseToAnyPublisher()
-//    }
-//}
+struct MangaContentsRequest {
+    let detailURL: String
+    let pageIndex: Int
+    
+    let parser = Parser()
+    
+    var publisher: AnyPublisher<[MangaContent], AppError> {
+        preContents(url: detailURL)
+            .flatMap(contents)
+            .eraseToAnyPublisher()
+    }
+    
+    func preContents(url: String) -> AnyPublisher<[(Int, URL)], AppError> {
+        URLSession.shared
+            .dataTaskPublisher(for: URL(string: url)!)
+            .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
+            .map { parser.parseImagePreContents($0, pageIndex: pageIndex) }
+            .mapError { _ in .networkingFailed }
+            .eraseToAnyPublisher()
+    }
+    
+    func contents(pre: [(Int, URL)]) -> AnyPublisher<[MangaContent], AppError> {
+        pre
+            .publisher
+            .flatMap { preContent in
+                URLSession.shared
+                    .dataTaskPublisher(for: preContent.1)
+                    .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
+                    .compactMap { parser.parseMangaContent(doc: $0, tag: preContent.0) }
+            }
+            .collect()
+            .mapError { _ in .networkingFailed }
+            .eraseToAnyPublisher()
+    }
+}
 
 struct AddFavoriteRequest {
     let id: String
     let token: String
     
     var publisher: AnyPublisher<Any, AppError> {
-        let url = Defaults.URL.host + Defaults.URL.addFavorite(id: id, token: token)
+        let url = Defaults.URL.addFavorite(id: id, token: token)
         let parameters: [String: String] = ["favcat": "0",
                                             "favnote": "",
                                             "apply": "Add to Favorites",

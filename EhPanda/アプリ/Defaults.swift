@@ -16,7 +16,10 @@ class Defaults {
         static let detailLarge = "?inline_set=ts_l"
         
         static func addFavorite(id: String, token: String) -> String {
-            "gallerypopups.php?gid=\(id)&t=\(token)&act=addfav"
+            host + "gallerypopups.php?gid=\(id)&t=\(token)&act=addfav"
+        }
+        static func contentPage(url: String, page: Int) -> String {
+            url + "?p=\(page)"
         }
     }
 }

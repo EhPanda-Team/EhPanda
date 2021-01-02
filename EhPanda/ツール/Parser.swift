@@ -120,23 +120,18 @@ class Parser {
     }
         
     // MARK: コンテント
-    func parseImagePreContents(_ doc: HTMLDocument, pageStartIndex: Int) -> [(Int, URL)] {
+    func parseImagePreContents(_ doc: HTMLDocument, pageIndex: Int) -> [(Int, URL)] {
         var imageDetailURLs = [(Int, URL)]()
         
         guard let gdtNode = doc.at_xpath("//div [@id='gdt']") else { return [] }
         
-        var skipCount = 0
-        for (i, link) in gdtNode.xpath("//div [@class='gdtm']").enumerated() {
-            
-            skipCount += 1
-            if imageDetailURLs.count >= 10
-                || skipCount <= (pageStartIndex % 4) * 10 { continue }
+        for (i, link) in gdtNode.xpath("//div [@class='gdtl']").enumerated() {
             
             guard let imageDetailStr = link.at_xpath("//a")?["href"],
                   let imageDetailURL = URL(string: imageDetailStr)
             else { continue }
             
-            imageDetailURLs.append((pageStartIndex * 10 + i, url: imageDetailURL))
+            imageDetailURLs.append((i + pageIndex * 20, imageDetailURL))
         }
         
         return imageDetailURLs

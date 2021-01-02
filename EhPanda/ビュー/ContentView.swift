@@ -15,11 +15,17 @@ struct ContentView: View {
     var environment: AppState.Environment {
         store.appState.environment
     }
+    var cachedList: AppState.CachedList {
+        store.appState.cachedList
+    }
     var contentsInfo: AppState.ContentsInfo {
         store.appState.contentsInfo
     }
+    var mangaDetail: MangaDetail? {
+        cachedList.items?[id]?.detail
+    }
     var mangaContents: [MangaContent]? {
-        store.appState.cachedList.items?[id]?.contents
+        cachedList.items?[id]?.contents
     }
     
     var rectangle: some View {
@@ -48,14 +54,18 @@ struct ContentView: View {
                 LoadingView()
             } else if contentsInfo.mangaContentsLoadFailed {
                 NetworkErrorView {
-//                    store.dispatch(.fetchMangaContents(id: id))
+                    store.dispatch(.fetchMangaContents(id: id))
                 }
             }
         }
         .navigationBarBackButtonHidden(true)
         .navigationBarHidden(environment.navBarHidden)
         .onAppear {
-//            store.dispatch(.fetchMangaContents(id: id))
+            store.dispatch(.toggleNavBarHidden(isHidden: true))
+            
+            if mangaContents?.count != Int(mangaDetail?.pageCount ?? "") {
+                store.dispatch(.fetchMangaContents(id: id))
+            }
         }
     }
 }
