@@ -35,7 +35,6 @@ struct DraftCommentView: View {
             VStack {
                 TextEditor(text: $content)
                     .padding()
-                    .lineLimit(0)
                     .autocapitalization(.none)
                     .disableAutocorrection(true)
                     .navigationBarTitle(title.lString(), displayMode: .inline)

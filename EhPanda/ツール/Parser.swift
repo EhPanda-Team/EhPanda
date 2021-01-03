@@ -153,7 +153,9 @@ class Parser {
             for c1Link in link.xpath("//div [@class='c1']") {
                 guard let c3Node = c1Link.at_xpath("//div [@class='c3']")?.text,
                       let c6Node = c1Link.at_xpath("//div [@class='c6']"),
-                      let content = c6Node.text,
+                      let content = c6Node.innerHTML?
+                        .replacingOccurrences(of: "\n", with: "")
+                        .replacingOccurrences(of: "<br>", with: "\n"),
                       let commentID = c6Node["id"]?
                         .replacingOccurrences(of: "comment_", with: ""),
                       let rangeA = c3Node.range(of: "Posted on "),

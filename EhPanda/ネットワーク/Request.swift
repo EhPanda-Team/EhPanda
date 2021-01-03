@@ -169,7 +169,8 @@ struct CommentRequest {
     let detailURL: String
     
     var publisher: AnyPublisher<Any, AppError> {
-        let parameters: [String: String] = ["commenttext_new": content]
+        let fixedContent = content.replacingOccurrences(of: "\n", with: "%0A")
+        let parameters: [String: String] = ["commenttext_new": fixedContent]
         
         let session = URLSession.shared
         var request = URLRequest(url: URL(string: detailURL)!)
@@ -190,8 +191,9 @@ struct EditCommentRequest {
     let detailURL: String
     
     var publisher: AnyPublisher<Any, AppError> {
+        let fixedContent = content.replacingOccurrences(of: "\n", with: "%0A")
         let parameters: [String: String] = ["edit_comment": commentID,
-                                            "commenttext_edit": content]
+                                            "commenttext_edit": fixedContent]
         
         let session = URLSession.shared
         var request = URLRequest(url: URL(string: detailURL)!)

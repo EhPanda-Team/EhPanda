@@ -321,8 +321,8 @@ private struct CommentScrollView: View {
                     DraftCommentView(content: commentContentBinding, title: "コメントを書く", commitAction: {
                         if !commentContent.isEmpty {
                             postComment()
+                            togglePresented()
                         }
-                        togglePresented()
                     }, dismissAction: togglePresented)
                 }
         }

@@ -53,8 +53,8 @@ struct CommentView: View {
                     DraftCommentView(content: commentContentBinding, title: "コメントを書く", commitAction: {
                         if !commentContent.isEmpty {
                             postComment()
+                            togglePresented()
                         }
-                        togglePresented()
                     }, dismissAction: togglePresented)
                 }
         )
@@ -120,8 +120,8 @@ private struct CommentCell: View {
             DraftCommentView(content: $editCommentContent, title: "コメントを編集", commitAction: {
                 if !editCommentContent.isEmpty {
                     edit()
+                    togglePresented()
                 }
-                togglePresented()
             }, dismissAction: togglePresented)
         }
         .contextMenu {
