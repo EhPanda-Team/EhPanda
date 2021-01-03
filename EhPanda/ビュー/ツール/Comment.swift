@@ -38,7 +38,7 @@ struct DraftCommentView: View {
                     .lineLimit(0)
                     .autocapitalization(.none)
                     .disableAutocorrection(true)
-                    .navigationBarTitle(title, displayMode: .inline)
+                    .navigationBarTitle(title.lString(), displayMode: .inline)
                     .navigationBarItems(
                         leading:
                             Button(action: dismissAction) {

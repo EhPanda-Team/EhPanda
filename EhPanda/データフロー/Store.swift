@@ -39,6 +39,11 @@ class Store: ObservableObject {
         case .toggleDraftCommentViewPresented_BarItem:
             appState.detailInfo.isDraftCommentViewPresented_BarItem.toggle()
             
+        case .cleanCommentContent_Button:
+            appState.detailInfo.commentContent_Button = ""
+        case .cleanCommentContent_BarItem:
+            appState.detailInfo.commentContent_BarItem = ""
+            
         case .toggleSettingPresented:
             appState.homeList.isSettingPresented.toggle()
         case .toggleHomeListType(let type):

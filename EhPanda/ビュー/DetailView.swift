@@ -275,7 +275,6 @@ private struct PreviewView: View {
 // MARK: コメント
 private struct CommentScrollView: View {
     @EnvironmentObject var store: Store
-    @State var commentContent = ""
     
     let id: String
     let comments: [MangaComment]
@@ -285,6 +284,15 @@ private struct CommentScrollView: View {
     }
     var detailInfoBinding: Binding<AppState.DetailInfo> {
         $store.appState.detailInfo
+    }
+    var isDraftCommentViewPresentedBinding: Binding<Bool> {
+        detailInfoBinding.isDraftCommentViewPresented_Button
+    }
+    var commentContent: String {
+        detailInfo.commentContent_Button
+    }
+    var commentContentBinding: Binding<String> {
+        detailInfoBinding.commentContent_Button
     }
     
     var body: some View {
@@ -309,8 +317,8 @@ private struct CommentScrollView: View {
                 }
             }
             CommentButton(action: togglePresented)
-                .sheet(isPresented: detailInfoBinding.isDraftCommentViewPresented_Button) {
-                    DraftCommentView(content: $commentContent, title: "コメントを書く", commitAction: {
+                .sheet(isPresented: isDraftCommentViewPresentedBinding) {
+                    DraftCommentView(content: commentContentBinding, title: "コメントを書く", commitAction: {
                         if !commentContent.isEmpty {
                             postComment()
                         }
@@ -322,7 +330,7 @@ private struct CommentScrollView: View {
     
     func postComment() {
         store.dispatch(.comment(id: id, content: commentContent))
-        commentContent = ""
+        store.dispatch(.cleanCommentContent_Button)
     }
     func togglePresented() {
         store.dispatch(.toggleDraftCommentViewPresented_Button)

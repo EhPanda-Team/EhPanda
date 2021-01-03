@@ -15,6 +15,9 @@ enum AppAction {
     case toggleDraftCommentViewPresented_Button
     case toggleDraftCommentViewPresented_BarItem
     
+    case cleanCommentContent_Button
+    case cleanCommentContent_BarItem
+    
     case toggleSettingPresented
     case toggleHomeListType(type: HomeListType)
     

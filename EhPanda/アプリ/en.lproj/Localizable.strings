@@ -37,6 +37,11 @@
 // MARK: CommentView
 "賛成" = "Agree";
 "反対" = "Disagree";
+"編集" = "Edit";
+"コメントを書く" = "Post Comment";
+"コメントを編集" = "Edit Comment";
+"キャンセル" = "Cancel";
+"投稿" = "Post";
 
 // MARK: SettingView
 "アカウント" = "ACCOUNT";

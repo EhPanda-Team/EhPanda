@@ -55,6 +55,8 @@ extension AppState {
     }
     
     struct DetailInfo {
+        var commentContent_Button = ""
+        var commentContent_BarItem = ""
         var isDraftCommentViewPresented_Button = false
         var isDraftCommentViewPresented_BarItem = false
         

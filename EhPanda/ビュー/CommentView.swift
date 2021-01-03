@@ -9,7 +9,6 @@ import SwiftUI
 
 struct CommentView: View {
     @EnvironmentObject var store: Store
-    @State var commentContent = ""
     
     let id: String
     var comments: [MangaComment] {
@@ -21,6 +20,15 @@ struct CommentView: View {
     }
     var detailInfoBinding: Binding<AppState.DetailInfo> {
         $store.appState.detailInfo
+    }
+    var isDraftCommentViewPresentedBinding: Binding<Bool> {
+        detailInfoBinding.isDraftCommentViewPresented_BarItem
+    }
+    var commentContent: String {
+        detailInfo.commentContent_BarItem
+    }
+    var commentContentBinding: Binding<String> {
+        detailInfoBinding.commentContent_BarItem
     }
     
     var body: some View {
@@ -41,8 +49,8 @@ struct CommentView: View {
                     Image(systemName: "square.and.pencil")
                     Text("コメントを書く")
                 })
-                .sheet(isPresented: detailInfoBinding.isDraftCommentViewPresented_BarItem) {
-                    DraftCommentView(content: $commentContent, title: "コメントを書く", commitAction: {
+                .sheet(isPresented: isDraftCommentViewPresentedBinding) {
+                    DraftCommentView(content: commentContentBinding, title: "コメントを書く", commitAction: {
                         if !commentContent.isEmpty {
                             postComment()
                         }
@@ -54,7 +62,7 @@ struct CommentView: View {
     
     func postComment() {
         store.dispatch(.comment(id: id, content: commentContent))
-        commentContent = ""
+        store.dispatch(.cleanCommentContent_BarItem)
     }
     func togglePresented() {
         store.dispatch(.toggleDraftCommentViewPresented_BarItem)
