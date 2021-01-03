@@ -41,13 +41,12 @@ private struct CommentCell: View {
                     .font(.subheadline)
                 Spacer()
                 Group {
-                    if comment.votedUp || comment.votedDown {
-                        if comment.votedUp {
-                            Image(systemName: "hand.thumbsup.fill")
-                        } else {
-                            Image(systemName: "hand.thumbsdown.fill")
-                        }
-                    } else if let score = comment.score {
+                    if comment.votedUp {
+                        Image(systemName: "hand.thumbsup.fill")
+                    } else if comment.votedDown {
+                        Image(systemName: "hand.thumbsdown.fill")
+                    }
+                    if let score = comment.score {
                         Text(score)
                     }
                     Text(comment.commentTime)
