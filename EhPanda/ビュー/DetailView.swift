@@ -37,10 +37,14 @@ struct DetailView: View {
                         DescScrollView(manga: manga, detail: detail)
                             .padding(.vertical, 30)
                         PreviewView(previews: detail.previews)
-                        if !detail.comments.isEmpty {
-                            CommentView_Lite(comments: detail.comments)
-                                .padding(.vertical, 30)
+                        Group {
+                            if !detail.comments.isEmpty {
+                                CommentScrollView(id: id, comments: detail.comments)
+                            } else if detailInfo.mangaCommentsUpdating {
+                                LoadingView()
+                            }
                         }
+                        .padding(.vertical, 30)
                     }
                     .padding(.top, -40)
                     .padding(.horizontal)
@@ -61,6 +65,7 @@ struct DetailView: View {
             if mangaDetail == nil {
                 store.dispatch(.fetchMangaDetail(id: id))
             }
+            store.dispatch(.updateMangaComments(id: id))
         }
     }
 }
@@ -250,7 +255,7 @@ private struct PreviewView: View {
                                     Placeholder(width: 200 * 32/45,
                                                 height: 200)
                                 }
-                                .indicator(.progress)
+                                .indicator(.activity)
                                 .scaledToFill()
                                 .frame(width: 200 * 32/45,
                                        height: 200)
@@ -270,7 +275,10 @@ private struct PreviewView: View {
 }
 
 // MARK: コメント
-private struct CommentView_Lite: View {
+private struct CommentScrollView: View {
+    @EnvironmentObject var store: Store
+    
+    let id: String
     let comments: [MangaComment]
     
     var body: some View {
@@ -280,7 +288,7 @@ private struct CommentView_Lite: View {
                     .fontWeight(.bold)
                     .font(.title3)
                 Spacer()
-                NavigationLink(destination: CommentView(comments: comments)) {
+                NavigationLink(destination: CommentView(id: id)) {
                     Text("すべて表示")
                         .font(.subheadline)
                 }
@@ -288,7 +296,7 @@ private struct CommentView_Lite: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack {
                     ForEach(comments.prefix(6)) { comment in
-                        CommentCell(comment: comment)
+                        CommentScrollCell(comment: comment)
                     }
                 }
             }
@@ -296,7 +304,7 @@ private struct CommentView_Lite: View {
     }
 }
 
-private struct CommentCell: View {
+private struct CommentScrollCell: View {
     let comment: MangaComment
     
     var body: some View {
@@ -306,9 +314,20 @@ private struct CommentCell: View {
                     .fontWeight(.bold)
                     .font(.subheadline)
                 Spacer()
-                Text(comment.commentTime)
-                    .font(.footnote)
-                    .foregroundColor(.secondary)
+                Group {
+                    if comment.votedUp || comment.votedDown {
+                        if comment.votedUp {
+                            Image(systemName: "hand.thumbsup.fill")
+                        } else {
+                            Image(systemName: "hand.thumbsdown.fill")
+                        }
+                    } else if let score = comment.score {
+                        Text(score)
+                    }
+                    Text(comment.commentTime)
+                }
+                .font(.footnote)
+                .foregroundColor(.secondary)
             }
             Text(comment.content)
                 .padding(.top, 1)

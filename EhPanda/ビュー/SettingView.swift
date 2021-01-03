@@ -41,12 +41,17 @@ struct SettingView: View {
                         Alert(
                             title: Text("本当に削除しますか？"),
                             primaryButton:
-                                .destructive(Text("削除"), action: cleanCookies),
+                                .destructive(Text("削除"), action: cleanAuth),
                             secondaryButton: .cancel())
                     }
                 }
             }
             .navigationBarTitle("設定")
         }
+    }
+    
+    func cleanAuth() {
+        cleanCookies()
+        store.dispatch(.updateUser(user: nil))
     }
 }

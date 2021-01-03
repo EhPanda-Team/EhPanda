@@ -11,6 +11,7 @@ class Defaults {
         static let cookiesVerify = "https://e-hentai.org/"
         static let login = "https://forums.e-hentai.org/index.php?act=Login"
         
+        static let api = "api.php"
         static let favorites = "favorites.php"
         static let search = "f_search="
         static let showComments = "hc=1#comments"

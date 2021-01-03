@@ -8,7 +8,7 @@
 import SwiftUI
 
 // MARK: 構造体
-struct Manga: Identifiable, Encodable, Decodable {
+struct Manga: Identifiable, Codable {
     var detail: MangaDetail?
     var contents: [MangaContent]?
     
@@ -24,7 +24,7 @@ struct Manga: Identifiable, Encodable, Decodable {
     let detailURL: String
 }
 
-struct MangaDetail: Encodable, Decodable {
+struct MangaDetail: Codable {
     var comments: [MangaComment]
     let previews: [MangaPreview]
     let jpnTitle: String
@@ -36,11 +36,17 @@ struct MangaDetail: Encodable, Decodable {
     let ratingCount: String
 }
 
-struct MangaComment: Identifiable, Encodable, Decodable {
+struct MangaComment: Identifiable, Codable {
     var id = UUID()
     
+    var votedUp: Bool
+    var votedDown: Bool
+    let isPublisher: Bool
+    
+    let score: String?
     let author: String
     let content: String
+    let commentID: String
     let commentDate: Date
     var commentTime: String {
         let formatter = DateFormatter()
@@ -52,13 +58,13 @@ struct MangaComment: Identifiable, Encodable, Decodable {
     }
 }
 
-struct MangaPreview: Identifiable, Encodable, Decodable {
+struct MangaPreview: Identifiable, Codable {
     var id = UUID()
     
     let url: String
 }
 
-struct MangaContent: Identifiable, Encodable, Decodable {
+struct MangaContent: Identifiable, Codable {
     var id = UUID()
     
     let tag: Int
@@ -66,7 +72,7 @@ struct MangaContent: Identifiable, Encodable, Decodable {
 }
 
 // MARK: 列挙型
-enum Category: String, Encodable, Decodable {
+enum Category: String, Codable {
     case Doujinshi = "Doujinshi"
     case Manga = "Manga"
     case Artist_CG = "Artist CG"
@@ -79,7 +85,7 @@ enum Category: String, Encodable, Decodable {
     case Misc = "Misc"
 }
 
-enum Language: String, Encodable, Decodable {
+enum Language: String, Codable {
     case Other = "N/A"
     
     case Afrikaans = "Afrikaans"; case Albanian = "Albanian"; case Arabic = "Arabic"

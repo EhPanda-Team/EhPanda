@@ -83,11 +83,54 @@ struct FetchMangaDetailCommand: AppCommand {
                 }
                 token.unseal()
             } receiveValue: { detail in
-                if let detail = detail {
-                    store.dispatch(.fetchMangaDetailDone(result: .success((detail, id))))
+                if let mangaDetail = detail.0, let user = detail.1 {
+                    store.dispatch(.updateUser(user: user))
+                    store.dispatch(.fetchMangaDetailDone(result: .success((mangaDetail, id))))
                 } else {
                     store.dispatch(.fetchMangaDetailDone(result: .failure(.networkingFailed)))
                 }
+            }
+            .seal(in: token)
+    }
+}
+
+struct UpdateMangaCommentsCommand: AppCommand {
+    let id: String
+    let detailURL: String
+    
+    func execute(in store: Store) {
+        let token = SubscriptionToken()
+        MangaCommentsRequest(detailURL: detailURL)
+            .publisher
+            .receive(on: DispatchQueue.main)
+            .sink { complete in
+                if case .failure(let error) = complete {
+                    store.dispatch(.updateMangaCommentsDone(result: .failure(error)))
+                }
+                token.unseal()
+            } receiveValue: { comments in
+                store.dispatch(.updateMangaCommentsDone(result: .success((comments, id))))
+            }
+            .seal(in: token)
+    }
+}
+
+struct UpdateMangaCommentsCopyCommand: AppCommand {
+    let id: String
+    let detailURL: String
+    
+    func execute(in store: Store) {
+        let token = SubscriptionToken()
+        MangaCommentsRequest(detailURL: detailURL)
+            .publisher
+            .receive(on: DispatchQueue.main)
+            .sink { complete in
+                if case .failure(let error) = complete {
+                    store.dispatch(.updateMangaCommentsDone(result: .failure(error)))
+                }
+                token.unseal()
+            } receiveValue: { comments in
+                store.dispatch(.updateMangaCommentsDone(result: .success((comments, id))))
             }
             .seal(in: token)
     }
@@ -166,6 +209,34 @@ struct DeleteFavoriteCommand: AppCommand {
                 print(value)
             }
             .seal(in: sToken)
+    }
+}
+
+struct VoteCommentCommand: AppCommand {
+    let apiuid: Int
+    let apikey: String
+    let gid: Int
+    let token: String
+    let commentID: Int
+    let commentVote: Int
+    
+    func execute(in store: Store) {
+        let sToken = SubscriptionToken()
+        VoteCommentRequest(
+            apiuid: apiuid,
+            apikey: apikey,
+            gid: gid,
+            token: token,
+            commentID: commentID,
+            commentVote: commentVote
+        )
+        .publisher
+        .receive(on: DispatchQueue.main)
+        .sink { complete in
+            store.dispatch(.voteCommentDone(id: String(gid)))
+            sToken.unseal()
+        } receiveValue: { _ in }
+        .seal(in: sToken)
     }
 }
 

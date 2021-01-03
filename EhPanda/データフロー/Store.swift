@@ -25,6 +25,9 @@ class Store: ObservableObject {
         var appCommand: AppCommand?
         
         switch action {
+        case .updateUser(let user):
+            appState.settings.user = user
+            
         case .toggleNavBarHidden(let isHidden):
             appState.environment.navBarHidden = isHidden
         case .toggleWebViewPresented:
@@ -130,6 +133,26 @@ class Store: ObservableObject {
                 appState.detailInfo.mangaDetailLoadFailed = true
             }
             
+        case .updateMangaComments(id: let id):
+            appState.detailInfo.mangaCommentsUpdateFailed = false
+            
+            if appState.detailInfo.mangaCommentsUpdating { break }
+            appState.detailInfo.mangaCommentsUpdating = true
+            
+            var detailURL = appState.cachedList.items?[id]?.detailURL ?? ""
+            detailURL = Defaults.URL.mangaDetail(url: detailURL)
+            appCommand = UpdateMangaCommentsCommand(id: id, detailURL: detailURL)
+        case .updateMangaCommentsDone(result: let result):
+            appState.detailInfo.mangaCommentsUpdating = false
+            
+            switch result {
+            case .success(let comments):
+                appState.cachedList.updateComments(comments: comments)
+            case .failure(let error):
+                ePrint(error)
+                appState.detailInfo.mangaCommentsUpdateFailed = true
+            }
+            
         case .fetchMangaContents(let id):
             appState.contentsInfo.mangaContentsLoadFailed = false
             
@@ -159,6 +182,27 @@ class Store: ObservableObject {
             appCommand = AddFavoriteCommand(id: id, token: token)
         case .deleteFavorite(let id):
             appCommand = DeleteFavoriteCommand(id: id)
+            
+        case .voteComment(let id, let commentID, let vote):
+            guard let apiuidString = appState.settings.user?.apiuid,
+                  let apikey = appState.settings.user?.apikey,
+                  let token = appState.cachedList.items?[id]?.token,
+                  let commentID = Int(commentID),
+                  let apiuid = Int(apiuidString),
+                  let id = Int(id)
+            else { break }
+            
+            appCommand = VoteCommentCommand(
+                apiuid: apiuid,
+                apikey: apikey,
+                gid: id,
+                token: token,
+                commentID: commentID,
+                commentVote: vote
+            )
+        case .voteCommentDone(let id):
+            let detailURL = appState.cachedList.items?[id]?.detailURL ?? ""
+            appCommand = UpdateMangaCommentsCommand(id: id, detailURL: detailURL)
         }
         
         return (appState, appCommand)

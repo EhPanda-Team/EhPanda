@@ -58,11 +58,25 @@ struct MangaDetailRequest {
     let detailURL: String
     let parser = Parser()
     
-    var publisher: AnyPublisher<MangaDetail?, AppError> {
+    var publisher: AnyPublisher<(MangaDetail?, User?), AppError> {
         URLSession.shared
             .dataTaskPublisher(for: URL(string: detailURL)!)
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .map { parser.parseMangaDetail($0) }
+            .mapError { _ in .networkingFailed }
+            .eraseToAnyPublisher()
+    }
+}
+
+struct MangaCommentsRequest {
+    let detailURL: String
+    let parser = Parser()
+    
+    var publisher: AnyPublisher<[MangaComment], AppError> {
+        URLSession.shared
+            .dataTaskPublisher(for: URL(string: detailURL)!)
+            .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
+            .map { parser.parseComments($0) }
             .mapError { _ in .networkingFailed }
             .eraseToAnyPublisher()
     }
@@ -142,6 +156,38 @@ struct DeleteFavoriteRequest {
         
         request.httpMethod = "POST"
         request.httpBody = parameters.jsonString().data(using: .utf8)
+        
+        return session.dataTaskPublisher(for: request)
+            .map { $0 }
+            .mapError { _ in .networkingFailed}
+            .eraseToAnyPublisher()
+    }
+}
+
+struct VoteCommentRequest {
+    let apiuid: Int
+    let apikey: String
+    let gid: Int
+    let token: String
+    let commentID: Int
+    let commentVote: Int
+    
+    var publisher: AnyPublisher<Any, AppError> {
+        let url = Defaults.URL.host + Defaults.URL.api
+        let parameters: [String: Any] = ["method": "votecomment",
+                                         "apiuid": apiuid,
+                                         "apikey": apikey,
+                                         "gid": gid,
+                                         "token": token,
+                                         "comment_id": commentID,
+                                         "comment_vote": commentVote]
+        
+        let session = URLSession.shared
+        var request = URLRequest(url: URL(string: url)!)
+        
+        request.httpMethod = "POST"
+        request.httpBody = try? JSONSerialization
+            .data(withJSONObject: parameters, options: [])
         
         return session.dataTaskPublisher(for: request)
             .map { $0 }

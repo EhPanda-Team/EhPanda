@@ -34,6 +34,10 @@
 "コメント" = "Comment";
 "すべて表示" = "Show All";
 
+// MARK: CommentView
+"賛成" = "Agree";
+"反対" = "Disagree";
+
 // MARK: SettingView
 "アカウント" = "ACCOUNT";
 "ログイン済み" = "Logged In";

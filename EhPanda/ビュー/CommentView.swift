@@ -8,13 +8,18 @@
 import SwiftUI
 
 struct CommentView: View {
-    let comments: [MangaComment]
+    @EnvironmentObject var store: Store
+    
+    let id: String
+    var comments: [MangaComment] {
+        store.appState.cachedList.items?[id]?.detail?.comments ?? []
+    }
     
     var body: some View {
         ScrollView(showsIndicators: false) {
             VStack {
                 ForEach(comments) { comment in
-                    CommentCell(comment: comment)
+                    CommentCell(id: id, comment: comment)
                 }
             }
         }
@@ -23,7 +28,10 @@ struct CommentView: View {
 }
 
 private struct CommentCell: View {
-    let comment: MangaComment
+    @EnvironmentObject var store: Store
+    
+    let id: String
+    var comment: MangaComment
     
     var body: some View {
         VStack(alignment: .leading) {
@@ -32,9 +40,20 @@ private struct CommentCell: View {
                     .fontWeight(.bold)
                     .font(.subheadline)
                 Spacer()
-                Text(comment.commentTime)
-                    .font(.footnote)
-                    .foregroundColor(.secondary)
+                Group {
+                    if comment.votedUp || comment.votedDown {
+                        if comment.votedUp {
+                            Image(systemName: "hand.thumbsup.fill")
+                        } else {
+                            Image(systemName: "hand.thumbsdown.fill")
+                        }
+                    } else if let score = comment.score {
+                        Text(score)
+                    }
+                    Text(comment.commentTime)
+                }
+                .font(.footnote)
+                .foregroundColor(.secondary)
             }
             Text(comment.content)
                 .padding(.top, 1)
@@ -42,5 +61,37 @@ private struct CommentCell: View {
         .padding()
         .background(Color(.systemGray6))
         .cornerRadius(15)
+        .contentShape(
+            RoundedRectangle(
+                cornerRadius: 15,
+                style: .continuous)
+        )
+        .contextMenu {
+            if !comment.isPublisher {
+                Button(action: voteUp, label: {
+                    Text("賛成")
+                    if comment.votedUp {
+                        Image(systemName: "hand.thumbsup.fill")
+                    } else {
+                        Image(systemName: "hand.thumbsup")
+                    }
+                })
+                Button(action: voteDown, label: {
+                    Text("反対")
+                    if comment.votedDown {
+                        Image(systemName: "hand.thumbsdown.fill")
+                    } else {
+                        Image(systemName: "hand.thumbsdown")
+                    }
+                })
+            }
+        }
+    }
+    
+    func voteUp() {
+        store.dispatch(.voteComment(id: id, commentID: comment.commentID, vote: 1))
+    }
+    func voteDown() {
+        store.dispatch(.voteComment(id: id, commentID: comment.commentID, vote: -1))
     }
 }

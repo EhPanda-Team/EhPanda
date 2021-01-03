@@ -6,6 +6,8 @@
 //
 
 enum AppAction {
+    case updateUser(user: User?)
+    
     case toggleNavBarHidden(isHidden: Bool)
     
     case toggleWebViewPresented
@@ -26,9 +28,15 @@ enum AppAction {
     case fetchMangaDetail(id: String)
     case fetchMangaDetailDone(result: Result<(MangaDetail, String), AppError>)
     
+    case updateMangaComments(id: String)
+    case updateMangaCommentsDone(result: Result<([MangaComment], String), AppError>)
+    
     case fetchMangaContents(id: String)
     case fetchMangaContentsDone(result: Result<([MangaContent], String), AppError>)
     
     case addFavorite(id: String)
     case deleteFavorite(id: String)
+    
+    case voteComment(id: String, commentID: String, vote: Int)
+    case voteCommentDone(id: String)
 }

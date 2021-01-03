@@ -21,6 +21,8 @@ extension AppState {
     }
     
     struct Settings {
+        @FileStorage(directory: .cachesDirectory, fileName: "user.json")
+        var user: User?
         var isWebViewPresented = false
         var isCleanCookiesAlertPresented = false
     }
@@ -55,6 +57,9 @@ extension AppState {
     struct DetailInfo {
         var mangaDetailLoading = false
         var mangaDetailLoadFailed = false
+        
+        var mangaCommentsUpdating = false
+        var mangaCommentsUpdateFailed = false
     }
     
     struct ContentsInfo {
@@ -86,6 +91,9 @@ extension AppState {
         
         mutating func insertDetail(detail: (MangaDetail, String)) {
             self.items?[detail.1]?.detail = detail.0
+        }
+        mutating func updateComments(comments: ([MangaComment], String)) {
+            self.items?[comments.1]?.detail?.comments = comments.0
         }
         mutating func insertContents(contents: ([MangaContent], String)) {
             var historyContents = self.items?[contents.1]?.contents

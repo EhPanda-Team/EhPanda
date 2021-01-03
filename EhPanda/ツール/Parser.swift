@@ -55,7 +55,7 @@ class Parser {
     }
     
     // MARK: 詳細情報
-    func parseMangaDetail(_ doc: HTMLDocument) -> MangaDetail? {
+    func parseMangaDetail(_ doc: HTMLDocument) -> (MangaDetail?, User?) {
         var mangaDetail: MangaDetail?
         var imageURLs = [MangaPreview]()
         
@@ -66,7 +66,7 @@ class Parser {
                   let gdrNode = link.at_xpath("//div [@id='gdr']"),
                   let gdtNode = doc.at_xpath("//div [@id='gdt']"),
                   let ratingCount = gdrNode.at_xpath("//span [@id='rating_count']")?.text
-            else { return nil }
+            else { return (nil, nil) }
             
             var tmpLanguage: String?
             var tmpLikeCount: String?
@@ -78,7 +78,11 @@ class Parser {
                       let gdt2 = gddLink.at_xpath("//td [@class='gdt2']")?.text
                 else { continue }
                 
-                if gdt1.contains("Language") { tmpLanguage = gdt2.replacingOccurrences(of: "  TR", with: "").trimmingCharacters(in: .whitespaces) }
+                if gdt1.contains("Language") {
+                    tmpLanguage = gdt2
+                        .replacingOccurrences(of: "  TR", with: "")
+                        .trimmingCharacters(in: .whitespaces)
+                }
                 if gdt1.contains("File Size") {
                     if gdt2.contains("KB") { tmpSizeType = "KB" }
                     if gdt2.contains("MB") { tmpSizeType = "MB" }
@@ -87,8 +91,12 @@ class Parser {
                                        .replacingOccurrences(of: " MB", with: "")
                                        .replacingOccurrences(of: " GB", with: "")
                 }
-                if gdt1.contains("Length") { tmpPageCount = gdt2.replacingOccurrences(of: " pages", with: "") }
-                if gdt1.contains("Favorited") { tmpLikeCount = gdt2.replacingOccurrences(of: " times", with: "") }
+                if gdt1.contains("Length") {
+                    tmpPageCount = gdt2.replacingOccurrences(of: " pages", with: "")
+                }
+                if gdt1.contains("Favorited") {
+                    tmpLikeCount = gdt2.replacingOccurrences(of: " times", with: "")
+                }
             }
             
             for gdtLink in gdtNode.xpath("//img") {
@@ -103,9 +111,9 @@ class Parser {
                   let sizeType = tmpSizeType,
                   let tmpLanguage2 = tmpLanguage,
                   let language = Language(rawValue: tmpLanguage2)
-            else { return nil }
+            else { return (nil, nil) }
             
-            mangaDetail = MangaDetail(comments: [],
+            mangaDetail = MangaDetail(comments: parseComments(doc),
                                       previews: imageURLs,
                                       jpnTitle: jpnTitle,
                                       language: language,
@@ -117,31 +125,89 @@ class Parser {
             break
         }
         
+        var user: User?
+        for link in doc.xpath("//script [@type='text/javascript']") {
+            guard let script = link.text,
+                  script.contains("apikey"),
+                  let rangeA = script.range(of: "apiuid = "),
+                  let rangeB = script.range(of: ";\nvar apikey = \""),
+                  let rangeC = script.range(of: "\";\nvar average_rating")
+            else { continue }
+            
+            let apiuid = String(
+                script.suffix(from: rangeA.upperBound).prefix(upTo: rangeB.lowerBound)
+            )
+            let apikey = String(
+                script.suffix(from: rangeB.upperBound).prefix(upTo: rangeC.lowerBound)
+            )
+            user = User(apiuid: apiuid, apikey: apikey)
+        }
+        
+        return (mangaDetail, user)
+    }
+    
+    // MARK: コメント
+    func parseComments(_ doc: HTMLDocument) -> [MangaComment] {
+        var comments = [MangaComment]()
         for link in doc.xpath("//div [@id='cdiv']") {
             for cdivLink in link.xpath("//div [@class='c1']") {
-                guard let c3 = cdivLink.at_xpath("//div [@class='c3']")?.text,
-                      let content = cdivLink.at_xpath("//div [@class='c6']")?.text,
-                      let rangeA = c3.range(of: "Posted on "),
-                      let rangeB = c3.range(of: " by:   ")
+                guard let c3Node = cdivLink.at_xpath("//div [@class='c3']")?.text,
+                      let c6Node = cdivLink.at_xpath("//div [@class='c6']"),
+                      let content = c6Node.text,
+                      let commentID = c6Node["id"]?
+                        .replacingOccurrences(of: "comment_", with: ""),
+                      let rangeA = c3Node.range(of: "Posted on "),
+                      let rangeB = c3Node.range(of: " by:   ")
                 else { continue }
                 
+                var score: String?
+                if let c5Node = cdivLink.at_xpath("//div [@class='c5 nosel']") {
+                    score = c5Node.at_xpath("//span")?.text
+                }
                 
-                let commentTime = String(c3.suffix(from: rangeA.upperBound).prefix(upTo: rangeB.lowerBound))
-                let author = String(c3.suffix(from: rangeB.upperBound))
+                let author = String(c3Node.suffix(from: rangeB.upperBound))
+                let commentTime = String(
+                    c3Node.suffix(from: rangeA.upperBound).prefix(upTo: rangeB.lowerBound)
+                )
+                
+                var votedUp = false
+                var votedDown = false
+                var isPublisher = false
+                if let c4Link = cdivLink.at_xpath("//div [@class='c4 nosel']") {
+                    for aLink in c4Link.xpath("//a") {
+                        guard let a_id = aLink["id"],
+                              let a_style = aLink["style"]
+                        else {
+                            isPublisher = true
+                            continue
+                        }
+                        
+                        if a_id.contains("vote_up") && a_style.contains("blue") {
+                            votedUp = true
+                        }
+                        if a_id.contains("vote_down") && a_style.contains("blue") {
+                            votedDown = true
+                        }
+                    }
+                }
                 
                 let formatter = DateFormatter()
                 formatter.dateFormat = "dd MMMM yyyy, HH:mm"
                 formatter.timeZone = TimeZone(secondsFromGMT: 0)
                 formatter.locale = Locale(identifier: "en_US_POSIX")
-                
                 guard let commentDate = formatter.date(from: commentTime) else { continue }
-                mangaDetail?.comments.append(MangaComment(author: author,
-                                                          content: content,
-                                                          commentDate: commentDate))
+                
+                comments.append(MangaComment(votedUp: votedUp,
+                                             votedDown: votedDown,
+                                             isPublisher: isPublisher,
+                                             score: score,
+                                             author: author,
+                                             content: content,
+                                             commentID: commentID,
+                                             commentDate: commentDate))
             }
         }
-        
-        return mangaDetail
+        return comments
     }
         
     // MARK: コンテント
