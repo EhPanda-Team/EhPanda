@@ -34,19 +34,15 @@ struct DetailView: View {
                 ScrollView(showsIndicators: false) {
                     VStack {
                         HeaderView(manga: manga, detail: detail)
-                        DescScrollView(manga: manga, detail: detail)
-                            .padding(.vertical, 30)
-                        PreviewView(previews: detail.previews)
+                            .padding(.top, -40)
+                            .padding(.bottom, 15)
                         Group {
-                            if !detail.comments.isEmpty {
-                                CommentScrollView(id: id, comments: detail.comments)
-                            } else if detailInfo.mangaCommentsUpdating {
-                                LoadingView()
-                            }
+                            DescScrollView(manga: manga, detail: detail)
+                            PreviewView(previews: detail.previews)
+                            CommentScrollView(id: id, comments: detail.comments)
                         }
-                        .padding(.vertical, 30)
+                        .padding(.vertical, 15)
                     }
-                    .padding(.top, -40)
                     .padding(.horizontal)
                     .transition(AnyTransition.opacity.animation(.default))
                 }
@@ -64,8 +60,9 @@ struct DetailView: View {
             
             if mangaDetail == nil {
                 store.dispatch(.fetchMangaDetail(id: id))
+            } else {
+                store.dispatch(.updateMangaComments(id: id))
             }
-            store.dispatch(.updateMangaComments(id: id))
         }
     }
 }
@@ -142,6 +139,7 @@ private struct HeaderView: View {
                              Text("読む")
                                 .foregroundColor(.white)
                                 .fontWeight(.bold)
+                                .capsulePadding()
                         }
                     }
                     .buttonStyle(CapsuleButtonStyle())
@@ -277,9 +275,17 @@ private struct PreviewView: View {
 // MARK: コメント
 private struct CommentScrollView: View {
     @EnvironmentObject var store: Store
+    @State var commentContent = ""
     
     let id: String
     let comments: [MangaComment]
+    
+    var detailInfo: AppState.DetailInfo {
+        store.appState.detailInfo
+    }
+    var detailInfoBinding: Binding<AppState.DetailInfo> {
+        $store.appState.detailInfo
+    }
     
     var body: some View {
         VStack {
@@ -288,9 +294,11 @@ private struct CommentScrollView: View {
                     .fontWeight(.bold)
                     .font(.title3)
                 Spacer()
-                NavigationLink(destination: CommentView(id: id)) {
-                    Text("すべて表示")
-                        .font(.subheadline)
+                if !comments.isEmpty {
+                    NavigationLink(destination: CommentView(id: id)) {
+                        Text("すべて表示")
+                            .font(.subheadline)
+                    }
                 }
             }
             ScrollView(.horizontal, showsIndicators: false) {
@@ -300,7 +308,24 @@ private struct CommentScrollView: View {
                     }
                 }
             }
+            CommentButton(action: togglePresented)
+                .sheet(isPresented: detailInfoBinding.isDraftCommentViewPresented_Button) {
+                    DraftCommentView(content: $commentContent, title: "コメントを書く", commitAction: {
+                        if !commentContent.isEmpty {
+                            postComment()
+                        }
+                        togglePresented()
+                    }, dismissAction: togglePresented)
+                }
         }
+    }
+    
+    func postComment() {
+        store.dispatch(.comment(id: id, content: commentContent))
+        commentContent = ""
+    }
+    func togglePresented() {
+        store.dispatch(.toggleDraftCommentViewPresented_Button)
     }
 }
 

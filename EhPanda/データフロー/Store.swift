@@ -34,6 +34,10 @@ class Store: ObservableObject {
             appState.settings.isWebViewPresented.toggle()
         case .toggleCleanCookiesAlertPresented:
             appState.settings.isCleanCookiesAlertPresented.toggle()
+        case .toggleDraftCommentViewPresented_Button:
+            appState.detailInfo.isDraftCommentViewPresented_Button.toggle()
+        case .toggleDraftCommentViewPresented_BarItem:
+            appState.detailInfo.isDraftCommentViewPresented_BarItem.toggle()
             
         case .toggleSettingPresented:
             appState.homeList.isSettingPresented.toggle()
@@ -183,6 +187,18 @@ class Store: ObservableObject {
         case .deleteFavorite(let id):
             appCommand = DeleteFavoriteCommand(id: id)
             
+        case .comment(let id, let content):
+            let detailURL = appState.cachedList.items?[id]?.detailURL ?? ""
+            appCommand = CommentCommand(id: id, content: content, detailURL: detailURL)
+        case .editComment(let id, let commentID, let content):
+            let detailURL = appState.cachedList.items?[id]?.detailURL ?? ""
+            
+            appCommand = EditCommentCommand(
+                id: id,
+                commentID: commentID,
+                content: content,
+                detailURL: detailURL
+            )
         case .voteComment(let id, let commentID, let vote):
             guard let apiuidString = appState.settings.user?.apiuid,
                   let apikey = appState.settings.user?.apikey,
@@ -200,9 +216,6 @@ class Store: ObservableObject {
                 commentID: commentID,
                 commentVote: vote
             )
-        case .voteCommentDone(let id):
-            let detailURL = appState.cachedList.items?[id]?.detailURL ?? ""
-            appCommand = UpdateMangaCommentsCommand(id: id, detailURL: detailURL)
         }
         
         return (appState, appCommand)

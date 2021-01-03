@@ -12,6 +12,8 @@ enum AppAction {
     
     case toggleWebViewPresented
     case toggleCleanCookiesAlertPresented
+    case toggleDraftCommentViewPresented_Button
+    case toggleDraftCommentViewPresented_BarItem
     
     case toggleSettingPresented
     case toggleHomeListType(type: HomeListType)
@@ -37,6 +39,7 @@ enum AppAction {
     case addFavorite(id: String)
     case deleteFavorite(id: String)
     
+    case comment(id: String, content: String)
+    case editComment(id: String, commentID: String, content: String)
     case voteComment(id: String, commentID: String, vote: Int)
-    case voteCommentDone(id: String)
 }

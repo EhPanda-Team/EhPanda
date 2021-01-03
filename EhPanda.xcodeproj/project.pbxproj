@@ -34,6 +34,7 @@
 		ABCD2F0E25976B95008E5A20 /* Parser.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD2F0D25976B95008E5A20 /* Parser.swift */; };
 		ABEE0AFA2595C6F800C997AE /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = ABEE0AFC2595C6F800C997AE /* Localizable.strings */; };
 		ABF75F3F25A19CD200544D29 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF75F3E25A19CD200544D29 /* User.swift */; };
+		ABF75F4325A1C11100544D29 /* Comment.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF75F4225A1C11100544D29 /* Comment.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -66,6 +67,7 @@
 		ABEE0AFB2595C6F800C997AE /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		ABEE0AFE2595C73D00C997AE /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		ABF75F3E25A19CD200544D29 /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
+		ABF75F4225A1C11100544D29 /* Comment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Comment.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -154,6 +156,7 @@
 				AB994DC22598B3E000E9A367 /* WebView.swift */,
 				ABC3C7772593699A00E0C11B /* RatingView.swift */,
 				AB994DCA2598D96200E9A367 /* AlertView.swift */,
+				ABF75F4225A1C11100544D29 /* Comment.swift */,
 			);
 			path = "ツール";
 			sourceTree = "<group>";
@@ -288,6 +291,7 @@
 				ABCD2EFC2597607C008E5A20 /* AppAction.swift in Sources */,
 				ABC3C7872593699B00E0C11B /* EhPandaApp.swift in Sources */,
 				AB718B2525A0C0AC00D32962 /* CommentView.swift in Sources */,
+				ABF75F4325A1C11100544D29 /* Comment.swift in Sources */,
 				AB994DC02598B17500E9A367 /* SettingView.swift in Sources */,
 				ABF75F3F25A19CD200544D29 /* User.swift in Sources */,
 			);

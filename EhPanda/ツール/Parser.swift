@@ -150,9 +150,9 @@ class Parser {
     func parseComments(_ doc: HTMLDocument) -> [MangaComment] {
         var comments = [MangaComment]()
         for link in doc.xpath("//div [@id='cdiv']") {
-            for cdivLink in link.xpath("//div [@class='c1']") {
-                guard let c3Node = cdivLink.at_xpath("//div [@class='c3']")?.text,
-                      let c6Node = cdivLink.at_xpath("//div [@class='c6']"),
+            for c1Link in link.xpath("//div [@class='c1']") {
+                guard let c3Node = c1Link.at_xpath("//div [@class='c3']")?.text,
+                      let c6Node = c1Link.at_xpath("//div [@class='c6']"),
                       let content = c6Node.text,
                       let commentID = c6Node["id"]?
                         .replacingOccurrences(of: "comment_", with: ""),
@@ -161,7 +161,7 @@ class Parser {
                 else { continue }
                 
                 var score: String?
-                if let c5Node = cdivLink.at_xpath("//div [@class='c5 nosel']") {
+                if let c5Node = c1Link.at_xpath("//div [@class='c5 nosel']") {
                     score = c5Node.at_xpath("//span")?.text
                 }
                 
@@ -172,16 +172,23 @@ class Parser {
                 
                 var votedUp = false
                 var votedDown = false
-                var isPublisher = false
-                if let c4Link = cdivLink.at_xpath("//div [@class='c4 nosel']") {
+                var votable = false
+                var editable = false
+                if let c4Link = c1Link.at_xpath("//div [@class='c4 nosel']") {
                     for aLink in c4Link.xpath("//a") {
                         guard let a_id = aLink["id"],
                               let a_style = aLink["style"]
                         else {
-                            isPublisher = true
+                            if let a_onclick = aLink["onclick"],
+                               a_onclick.contains("edit_comment") {
+                                editable = true
+                            }
                             continue
                         }
                         
+                        if a_id.contains("vote_up") {
+                            votable = true
+                        }
                         if a_id.contains("vote_up") && a_style.contains("blue") {
                             votedUp = true
                         }
@@ -199,7 +206,8 @@ class Parser {
                 
                 comments.append(MangaComment(votedUp: votedUp,
                                              votedDown: votedDown,
-                                             isPublisher: isPublisher,
+                                             votable: votable,
+                                             editable: editable,
                                              score: score,
                                              author: author,
                                              content: content,

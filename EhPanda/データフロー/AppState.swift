@@ -55,6 +55,9 @@ extension AppState {
     }
     
     struct DetailInfo {
+        var isDraftCommentViewPresented_Button = false
+        var isDraftCommentViewPresented_BarItem = false
+        
         var mangaDetailLoading = false
         var mangaDetailLoadFailed = false
         

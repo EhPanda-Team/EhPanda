@@ -41,7 +41,8 @@ struct MangaComment: Identifiable, Codable {
     
     var votedUp: Bool
     var votedDown: Bool
-    let isPublisher: Bool
+    let votable: Bool
+    let editable: Bool
     
     let score: String?
     let author: String

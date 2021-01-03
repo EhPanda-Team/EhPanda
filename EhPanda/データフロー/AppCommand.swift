@@ -20,8 +20,8 @@ struct FetchSearchItemsCommand: AppCommand {
         SearchItemsRequest(keyword: keyword)
             .publisher
             .receive(on: DispatchQueue.main)
-            .sink { complete in
-                if case .failure(let error) = complete {
+            .sink { completion in
+                if case .failure(let error) = completion {
                     store.dispatch(.fetchSearchItemsDone(result: .failure(error)))
                 }
                 token.unseal()
@@ -38,8 +38,8 @@ struct FetchPopularItemsCommand: AppCommand {
         PopularItemsRequest()
             .publisher
             .receive(on: DispatchQueue.main)
-            .sink { complete in
-                if case .failure(let error)  = complete {
+            .sink { completion in
+                if case .failure(let error)  = completion {
                     store.dispatch(.fetchPopularItemsDone(result: .failure(error)))
                 }
                 token.unseal()
@@ -56,8 +56,8 @@ struct FetchFavoritesItemsCommand: AppCommand {
         FavoritesItemsRequest()
             .publisher
             .receive(on: DispatchQueue.main)
-            .sink { complete in
-                if case .failure(let error)  = complete {
+            .sink { completion in
+                if case .failure(let error)  = completion {
                     store.dispatch(.fetchFavoritesItemsDone(result: .failure(error)))
                 }
                 token.unseal()
@@ -77,8 +77,8 @@ struct FetchMangaDetailCommand: AppCommand {
         MangaDetailRequest(detailURL: detailURL)
             .publisher
             .receive(on: DispatchQueue.main)
-            .sink { complete in
-                if case .failure(let error) = complete {
+            .sink { completion in
+                if case .failure(let error) = completion {
                     store.dispatch(.fetchMangaDetailDone(result: .failure(error)))
                 }
                 token.unseal()
@@ -103,8 +103,8 @@ struct UpdateMangaCommentsCommand: AppCommand {
         MangaCommentsRequest(detailURL: detailURL)
             .publisher
             .receive(on: DispatchQueue.main)
-            .sink { complete in
-                if case .failure(let error) = complete {
+            .sink { completion in
+                if case .failure(let error) = completion {
                     store.dispatch(.updateMangaCommentsDone(result: .failure(error)))
                 }
                 token.unseal()
@@ -124,8 +124,8 @@ struct UpdateMangaCommentsCopyCommand: AppCommand {
         MangaCommentsRequest(detailURL: detailURL)
             .publisher
             .receive(on: DispatchQueue.main)
-            .sink { complete in
-                if case .failure(let error) = complete {
+            .sink { completion in
+                if case .failure(let error) = completion {
                     store.dispatch(.updateMangaCommentsDone(result: .failure(error)))
                 }
                 token.unseal()
@@ -155,8 +155,8 @@ struct FetchMangaContentsCommand: AppCommand {
         
         Publishers.MergeMany(publishers)
             .receive(on: DispatchQueue.main)
-            .sink { complete in
-                if case .failure(let error) = complete {
+            .sink { completion in
+                if case .failure(let error) = completion {
                     store.dispatch(.fetchMangaContentsDone(result: .failure(error)))
                 }
                 token.unseal()
@@ -180,14 +180,12 @@ struct AddFavoriteCommand: AppCommand {
         AddFavoriteRequest(id: id, token: token)
             .publisher
             .receive(on: DispatchQueue.main)
-            .sink { complete in
-                if case .finished = complete {
+            .sink { completion in
+                if case .finished = completion {
                     store.dispatch(.fetchFavoritesItems)
                 }
                 sToken.unseal()
-            } receiveValue: { value in
-                print(value)
-            }
+            } receiveValue: { _ in }
             .seal(in: sToken)
     }
 }
@@ -200,15 +198,58 @@ struct DeleteFavoriteCommand: AppCommand {
         DeleteFavoriteRequest(id: id)
             .publisher
             .receive(on: DispatchQueue.main)
-            .sink { complete in
-                if case .finished = complete {
+            .sink { completion in
+                if case .finished = completion {
                     store.dispatch(.fetchFavoritesItems)
                 }
                 sToken.unseal()
-            } receiveValue: { value in
-                print(value)
-            }
+            } receiveValue: { _ in }
             .seal(in: sToken)
+    }
+}
+
+struct CommentCommand: AppCommand {
+    let id: String
+    let content: String
+    let detailURL: String
+    
+    func execute(in store: Store) {
+        let token = SubscriptionToken()
+        CommentRequest(content: content, detailURL: detailURL)
+            .publisher
+            .receive(on: DispatchQueue.main)
+            .sink { completion in
+                if case .finished = completion {
+                    store.dispatch(.updateMangaComments(id: id))
+                }
+                token.unseal()
+            } receiveValue: { _ in }
+            .seal(in: token)
+    }
+}
+
+struct EditCommentCommand: AppCommand {
+    let id: String
+    let commentID: String
+    let content: String
+    let detailURL: String
+    
+    func execute(in store: Store) {
+        let token = SubscriptionToken()
+        EditCommentRequest(
+            commentID: commentID,
+            content: content,
+            detailURL: detailURL
+        )
+        .publisher
+        .receive(on: DispatchQueue.main)
+        .sink { completion in
+            if case .finished = completion {
+                store.dispatch(.updateMangaComments(id: id))
+            }
+            token.unseal()
+        } receiveValue: { _ in }
+        .seal(in: token)
     }
 }
 
@@ -232,8 +273,10 @@ struct VoteCommentCommand: AppCommand {
         )
         .publisher
         .receive(on: DispatchQueue.main)
-        .sink { complete in
-            store.dispatch(.voteCommentDone(id: String(gid)))
+        .sink { completion in
+            if case .finished = completion {
+                store.dispatch(.updateMangaComments(id: String(gid)))
+            }
             sToken.unseal()
         } receiveValue: { _ in }
         .seal(in: sToken)

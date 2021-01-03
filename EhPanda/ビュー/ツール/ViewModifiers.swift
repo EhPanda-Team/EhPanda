@@ -21,12 +21,19 @@ extension View {
 }
 
 struct CapsuleButtonStyle: ButtonStyle {
+    let color: Color
+    let cornerRadius: CGFloat
+    
+    init(_ color: Color = .blue, _ cornerRadius: CGFloat = 30) {
+        self.color = color
+        self.cornerRadius = cornerRadius
+    }
+    
     func makeBody(configuration: Self.Configuration) -> some View {
         configuration.label
-            .capsulePadding()
             .background(
-                RoundedRectangle(cornerRadius: 30)
-                    .foregroundColor(configuration.isPressed ? Color.blue.opacity(0.5) : Color.blue)
+                RoundedRectangle(cornerRadius: cornerRadius)
+                    .foregroundColor(configuration.isPressed ? color.opacity(0.5) : color)
             )
     }
 }

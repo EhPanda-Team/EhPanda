@@ -164,6 +164,48 @@ struct DeleteFavoriteRequest {
     }
 }
 
+struct CommentRequest {
+    let content: String
+    let detailURL: String
+    
+    var publisher: AnyPublisher<Any, AppError> {
+        let parameters: [String: String] = ["commenttext_new": content]
+        
+        let session = URLSession.shared
+        var request = URLRequest(url: URL(string: detailURL)!)
+        
+        request.httpMethod = "POST"
+        request.httpBody = parameters.jsonString().data(using: .utf8)
+        
+        return session.dataTaskPublisher(for: request)
+            .map { $0 }
+            .mapError { _ in .networkingFailed}
+            .eraseToAnyPublisher()
+    }
+}
+
+struct EditCommentRequest {
+    let commentID: String
+    let content: String
+    let detailURL: String
+    
+    var publisher: AnyPublisher<Any, AppError> {
+        let parameters: [String: String] = ["edit_comment": commentID,
+                                            "commenttext_edit": content]
+        
+        let session = URLSession.shared
+        var request = URLRequest(url: URL(string: detailURL)!)
+        
+        request.httpMethod = "POST"
+        request.httpBody = parameters.jsonString().data(using: .utf8)
+        
+        return session.dataTaskPublisher(for: request)
+            .map { $0 }
+            .mapError { _ in .networkingFailed}
+            .eraseToAnyPublisher()
+    }
+}
+
 struct VoteCommentRequest {
     let apiuid: Int
     let apikey: String
@@ -174,20 +216,21 @@ struct VoteCommentRequest {
     
     var publisher: AnyPublisher<Any, AppError> {
         let url = Defaults.URL.host + Defaults.URL.api
-        let parameters: [String: Any] = ["method": "votecomment",
-                                         "apiuid": apiuid,
-                                         "apikey": apikey,
-                                         "gid": gid,
-                                         "token": token,
-                                         "comment_id": commentID,
-                                         "comment_vote": commentVote]
+        let params: [String: Any] = ["method": "votecomment",
+                                     "apiuid": apiuid,
+                                     "apikey": apikey,
+                                     "gid": gid,
+                                     "token": token,
+                                     "comment_id": commentID,
+                                     "comment_vote": commentVote]
         
         let session = URLSession.shared
         var request = URLRequest(url: URL(string: url)!)
         
         request.httpMethod = "POST"
         request.httpBody = try? JSONSerialization
-            .data(withJSONObject: parameters, options: [])
+            .data(withJSONObject: params, options: [])
+        
         
         return session.dataTaskPublisher(for: request)
             .map { $0 }

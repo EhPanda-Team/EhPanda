@@ -9,29 +9,72 @@ import SwiftUI
 
 struct CommentView: View {
     @EnvironmentObject var store: Store
+    @State var commentContent = ""
     
     let id: String
     var comments: [MangaComment] {
         store.appState.cachedList.items?[id]?.detail?.comments ?? []
     }
     
+    var detailInfo: AppState.DetailInfo {
+        store.appState.detailInfo
+    }
+    var detailInfoBinding: Binding<AppState.DetailInfo> {
+        $store.appState.detailInfo
+    }
+    
     var body: some View {
         ScrollView(showsIndicators: false) {
             VStack {
                 ForEach(comments) { comment in
-                    CommentCell(id: id, comment: comment)
+                    CommentCell(
+                        editCommentContent: comment.content,
+                        id: id, comment: comment
+                    )
                 }
             }
         }
         .padding(.horizontal)
+        .navigationBarItems(
+            trailing:
+                Button(action: togglePresented, label: {
+                    Image(systemName: "square.and.pencil")
+                    Text("コメントを書く")
+                })
+                .sheet(isPresented: detailInfoBinding.isDraftCommentViewPresented_BarItem) {
+                    DraftCommentView(content: $commentContent, title: "コメントを書く", commitAction: {
+                        if !commentContent.isEmpty {
+                            postComment()
+                        }
+                        togglePresented()
+                    }, dismissAction: togglePresented)
+                }
+        )
+    }
+    
+    func postComment() {
+        store.dispatch(.comment(id: id, content: commentContent))
+        commentContent = ""
+    }
+    func togglePresented() {
+        store.dispatch(.toggleDraftCommentViewPresented_BarItem)
     }
 }
 
 private struct CommentCell: View {
     @EnvironmentObject var store: Store
+    @State var editCommentContent: String
+    @State var isPresented = false
     
     let id: String
     var comment: MangaComment
+    
+    var detailInfo: AppState.DetailInfo {
+        store.appState.detailInfo
+    }
+    var detailInfoBinding: Binding<AppState.DetailInfo> {
+        $store.appState.detailInfo
+    }
     
     var body: some View {
         VStack(alignment: .leading) {
@@ -65,24 +108,38 @@ private struct CommentCell: View {
                 cornerRadius: 15,
                 style: .continuous)
         )
+        .sheet(isPresented: $isPresented) {
+            DraftCommentView(content: $editCommentContent, title: "コメントを編集", commitAction: {
+                if !editCommentContent.isEmpty {
+                    edit()
+                }
+                togglePresented()
+            }, dismissAction: togglePresented)
+        }
         .contextMenu {
-            if !comment.isPublisher {
-                Button(action: voteUp, label: {
+            if comment.votable {
+                Button(action: voteUp) {
                     Text("賛成")
                     if comment.votedUp {
                         Image(systemName: "hand.thumbsup.fill")
                     } else {
                         Image(systemName: "hand.thumbsup")
                     }
-                })
-                Button(action: voteDown, label: {
+                }
+                Button(action: voteDown) {
                     Text("反対")
                     if comment.votedDown {
                         Image(systemName: "hand.thumbsdown.fill")
                     } else {
                         Image(systemName: "hand.thumbsdown")
                     }
-                })
+                }
+            }
+            if comment.editable {
+                Button(action: togglePresented) {
+                    Text("編集")
+                    Image(systemName: "square.and.pencil")
+                }
             }
         }
     }
@@ -92,5 +149,11 @@ private struct CommentCell: View {
     }
     func voteDown() {
         store.dispatch(.voteComment(id: id, commentID: comment.commentID, vote: -1))
+    }
+    func edit() {
+        store.dispatch(.editComment(id: id, commentID: comment.commentID, content: editCommentContent))
+    }
+    func togglePresented() {
+        isPresented.toggle()
     }
 }
