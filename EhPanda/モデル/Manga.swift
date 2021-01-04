@@ -25,6 +25,7 @@ struct Manga: Identifiable, Codable {
 }
 
 struct MangaDetail: Codable {
+    var alterImages: [Data]
     var comments: [MangaComment]
     let previews: [MangaPreview]
     let jpnTitle: String

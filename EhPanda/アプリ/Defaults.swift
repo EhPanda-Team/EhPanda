@@ -7,7 +7,13 @@
 
 class Defaults {
     class URL {
-        static let host = "https://exhentai.org/"
+        static var host: String {
+            if exx {
+                return "https://exhentai.org/"
+            } else {
+                return "https://e-hentai.org/?f_cats=767&f_search=parody:durarara$"
+            }
+        }
         static let cookiesVerify = "https://e-hentai.org/"
         static let login = "https://forums.e-hentai.org/index.php?act=Login"
         

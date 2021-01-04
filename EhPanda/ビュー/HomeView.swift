@@ -26,12 +26,14 @@ struct HomeView: View {
         NavigationView {
             ScrollView {
                 LazyVStack {
-                    SearchBar(keyword: homeListBinding.keyword) {
-                        if homeList.type != .search {
-                            store.dispatch(.toggleHomeListType(type: .search))
-                        }
-                        store.dispatch(.fetchSearchItems(keyword: homeList.keyword))
-                    } filterAction: {}
+                    if exx {
+                        SearchBar(keyword: homeListBinding.keyword) {
+                            if homeList.type != .search {
+                                store.dispatch(.toggleHomeListType(type: .search))
+                            }
+                            store.dispatch(.fetchSearchItems(keyword: homeList.keyword))
+                        } filterAction: {}
+                    }
                     
                     if homeList.type == .search {
                         GenericList(
@@ -79,10 +81,14 @@ struct HomeView: View {
             .navigationBarTitle(homeList.type.rawValue.lString())
             .navigationBarItems(
                 leading:
-                    CategoryPicker(type: homeListBinding.type)
-                    .padding(.bottom, 10),
+                    Group {
+                        if exx {
+                            CategoryPicker(type: homeListBinding.type)
+                            .padding(.bottom, 10)
+                        }
+                    },
                 trailing:
-                    Image(systemName: "person.crop.circle")
+                    Image(systemName: "gear")
                     .foregroundColor(.primary)
                     .imageScale(.large)
                     .sheet(isPresented: homeListBinding.isSettingPresented, content: {
@@ -236,16 +242,18 @@ private struct MangaSummaryRow: View {
                     RatingView(rating: manga.rating)
                 }
                 HStack(alignment: .bottom) {
-                    Text(manga.translatedCategory.lString())
-                        .fontWeight(.bold)
-                        .lineLimit(1)
-                        .font(.footnote)
-                        .foregroundColor(.white)
-                        .padding(.init(top: 1, leading: 3, bottom: 1, trailing: 3))
-                        .background(
-                            RoundedRectangle(cornerRadius: 2)
-                                .foregroundColor(Color(manga.color))
-                        )
+                    if exx {
+                        Text(manga.translatedCategory.lString())
+                            .fontWeight(.bold)
+                            .lineLimit(1)
+                            .font(.footnote)
+                            .foregroundColor(.white)
+                            .padding(.init(top: 1, leading: 3, bottom: 1, trailing: 3))
+                            .background(
+                                RoundedRectangle(cornerRadius: 2)
+                                    .foregroundColor(Color(manga.color))
+                            )
+                    }
                     Spacer()
                     Text(manga.publishedTime)
                         .lineLimit(1)

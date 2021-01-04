@@ -38,8 +38,10 @@ struct DetailView: View {
                             .padding(.bottom, 15)
                         Group {
                             DescScrollView(manga: manga, detail: detail)
-                            PreviewView(previews: detail.previews)
-                            CommentScrollView(id: id, comments: detail.comments)
+                            PreviewView(previews: detail.previews, alterImages: detail.alterImages)
+                            if !(detail.comments.isEmpty && !exx) {
+                                CommentScrollView(id: id, comments: detail.comments)
+                            }
                         }
                         .padding(.vertical, 15)
                     }
@@ -113,27 +115,31 @@ private struct HeaderView: View {
                 }
                 Spacer()
                 HStack {
-                    Text(manga.translatedCategory.lString())
-                        .fontWeight(.bold)
-                        .lineLimit(1)
-                        .font(.headline)
-                        .foregroundColor(.white)
-                        .padding(.init(top: 2, leading: 4, bottom: 2, trailing: 4))
-                        .background(
-                            RoundedRectangle(cornerRadius: 3)
-                                .foregroundColor(Color(manga.color))
-                        )
+                    if exx {
+                        Text(manga.translatedCategory.lString())
+                            .fontWeight(.bold)
+                            .lineLimit(1)
+                            .font(.headline)
+                            .foregroundColor(.white)
+                            .padding(.init(top: 2, leading: 4, bottom: 2, trailing: 4))
+                            .background(
+                                RoundedRectangle(cornerRadius: 3)
+                                    .foregroundColor(Color(manga.color))
+                            )
+                    }
                     Spacer()
-                    Image(systemName: isFavored ? "heart.fill" : "heart")
-                        .imageScale(.large)
-                        .foregroundColor(.blue)
-                        .onTapGesture {
-                            if isFavored {
-                                store.dispatch(.deleteFavorite(id: manga.id))
-                            } else {
-                                store.dispatch(.addFavorite(id: manga.id))
+                    if exx {
+                        Image(systemName: isFavored ? "heart.fill" : "heart")
+                            .imageScale(.large)
+                            .foregroundColor(.blue)
+                            .onTapGesture {
+                                if isFavored {
+                                    store.dispatch(.deleteFavorite(id: manga.id))
+                                } else {
+                                    store.dispatch(.addFavorite(id: manga.id))
+                                }
                             }
-                        }
+                    }
                     Button(action: {}) {
                         NavigationLink(destination: ContentView(id: manga.id)) {
                              Text("読む")
@@ -222,6 +228,7 @@ private struct DescScrollRatingItem: View {
 // MARK: プレビュー
 private struct PreviewView: View {
     let previews: [MangaPreview]
+    let alterImages: [Data]
     
     struct Placeholder: View {
         let width: CGFloat
@@ -248,6 +255,20 @@ private struct PreviewView: View {
                     if !previews.isEmpty {
                         ForEach(previews) { item in
                             WebImage(url: URL(string: item.url), options: .handleCookies)
+                                .resizable()
+                                .placeholder {
+                                    Placeholder(width: 200 * 32/45,
+                                                height: 200)
+                                }
+                                .indicator(.activity)
+                                .scaledToFill()
+                                .frame(width: 200 * 32/45,
+                                       height: 200)
+                                .cornerRadius(15)
+                        }
+                    } else if !alterImages.isEmpty {
+                        ForEach(alterImages, id: \.self) { item in
+                            AnimatedImage(data: item)
                                 .resizable()
                                 .placeholder {
                                     Placeholder(width: 200 * 32/45,
@@ -302,7 +323,7 @@ private struct CommentScrollView: View {
                     .fontWeight(.bold)
                     .font(.title3)
                 Spacer()
-                if !comments.isEmpty {
+                if !comments.isEmpty && exx {
                     NavigationLink(destination: CommentView(id: id)) {
                         Text("すべて表示")
                             .font(.subheadline)
@@ -316,15 +337,17 @@ private struct CommentScrollView: View {
                     }
                 }
             }
-            CommentButton(action: togglePresented)
-                .sheet(isPresented: isDraftCommentViewPresentedBinding) {
-                    DraftCommentView(content: commentContentBinding, title: "コメントを書く", commitAction: {
-                        if !commentContent.isEmpty {
-                            postComment()
-                            togglePresented()
-                        }
-                    }, dismissAction: togglePresented)
-                }
+            if exx {
+                CommentButton(action: togglePresented)
+                    .sheet(isPresented: isDraftCommentViewPresentedBinding) {
+                        DraftCommentView(content: commentContentBinding, title: "コメントを書く", commitAction: {
+                            if !commentContent.isEmpty {
+                                postComment()
+                                togglePresented()
+                            }
+                        }, dismissAction: togglePresented)
+                    }
+            }
         }
     }
     

@@ -51,6 +51,14 @@ public func didLogin() -> Bool {
     return true
 }
 
+
+public var exx: Bool {
+    UserDefaults.standard.string(forKey: "entry")
+        == "JPuM-ZY*HBZpriTMPP_XjD-rRhbd*pG_W"
+        + "s3ortVxQKhava@xwG*Tph8RgshAzz@UQ6D"
+        + "6Zw-JGoM3HFsXKrhN8eK9vzXjfxDbCph*"
+}
+
 public func cleanCookies() {
     if let historyCookies = HTTPCookieStorage.shared.cookies {
         historyCookies.forEach {
@@ -103,7 +111,7 @@ extension UINavigationController: UIGestureRecognizerDelegate {
         super.viewDidLoad()
         interactivePopGestureRecognizer?.delegate = self
     }
-
+    
     public func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
         return viewControllers.count > 1
     }

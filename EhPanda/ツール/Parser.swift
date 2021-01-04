@@ -7,6 +7,7 @@
 
 import Kanna
 import SwiftUI
+import SDWebImageSwiftUI
 
 class Parser {
     // MARK: 人気
@@ -88,8 +89,8 @@ class Parser {
                     if gdt2.contains("MB") { tmpSizeType = "MB" }
                     if gdt2.contains("GB") { tmpSizeType = "GB" }
                     tmpSizeCount = gdt2.replacingOccurrences(of: " KB", with: "")
-                                       .replacingOccurrences(of: " MB", with: "")
-                                       .replacingOccurrences(of: " GB", with: "")
+                        .replacingOccurrences(of: " MB", with: "")
+                        .replacingOccurrences(of: " GB", with: "")
                 }
                 if gdt1.contains("Length") {
                     tmpPageCount = gdt2.replacingOccurrences(of: " pages", with: "")
@@ -113,7 +114,8 @@ class Parser {
                   let language = Language(rawValue: tmpLanguage2)
             else { return (nil, nil) }
             
-            mangaDetail = MangaDetail(comments: parseComments(doc),
+            mangaDetail = MangaDetail(alterImages: [],
+                                      comments: parseComments(doc),
                                       previews: imageURLs,
                                       jpnTitle: jpnTitle,
                                       language: language,
@@ -141,6 +143,43 @@ class Parser {
                 script.suffix(from: rangeB.upperBound).prefix(upTo: rangeC.lowerBound)
             )
             user = User(apiuid: apiuid, apikey: apikey)
+        }
+        
+        var alterImages = [Data]()
+        if mangaDetail?.previews.isEmpty == true {
+            for link in doc.xpath("//div [@class='gdtm']") {
+                guard let style = link.at_xpath("//div")?["style"],
+                      let rangeA = style.range(of: "background-image: url(\""),
+                      let rangeB = style.range(of: "\"); background-color")
+                else { continue }
+                
+                let alterImg = String(
+                    style.suffix(from: rangeA.upperBound)
+                        .prefix(upTo: rangeB.lowerBound)
+                )
+                
+                let downloader = SDWebImageDownloader()
+                downloader.downloadImage(with: URL(string: alterImg))
+                { (image, data, error, succeed) in
+                    guard let image = image else { return }
+                    let originW = image.size.width
+                    let originH = image.size.height
+                    
+                    for i in 0..<10 {
+                        let rect = CGRect(
+                            x: originW * CGFloat(i),
+                            y: 0,
+                            width: originW / 10,
+                            height: originH
+                        )
+                        
+                        if let croppedImg = image.sd_croppedImage(with: rect)?.pngData() {
+                            alterImages.append(croppedImg)
+                        }
+                    }
+                }
+            }
+            mangaDetail?.alterImages = alterImages
         }
         
         return (mangaDetail, user)
@@ -219,7 +258,7 @@ class Parser {
         }
         return comments
     }
-        
+    
     // MARK: コンテント
     func parseImagePreContents(_ doc: HTMLDocument, pageIndex: Int) -> [(Int, URL)] {
         var imageDetailURLs = [(Int, URL)]()
