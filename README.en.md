@@ -17,4 +17,4 @@ IDK, use it at your own risk.
 2. Use some software like Cydia Impactor、AppSigner、AltDeploy to install the ipa file on your device
 
 ## Screenshots
-<img src="https://user-images.githubusercontent.com/31207151/103070051-aad31480-45fb-11eb-9305-75591cd718b3.PNG" width="320"><img src="https://user-images.githubusercontent.com/31207151/103070061-b4f51300-45fb-11eb-92f3-d50e4ab4bb39.PNG" width="320">
+<img src="https://user-images.githubusercontent.com/31207151/103514043-cc0eed00-4ea6-11eb-9f17-7e949fa649e4.jpeg" width="320"><img src="https://user-images.githubusercontent.com/31207151/103514047-cdd8b080-4ea6-11eb-932b-94c0242bddfe.jpeg" width="320">
