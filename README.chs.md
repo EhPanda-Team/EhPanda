@@ -17,4 +17,4 @@
 2. 使用Cydia Impactor、AppSigner、AltDeploy这类软件将ipa文件安装到你的设备
 
 ## 截图
-<img src="https://user-images.githubusercontent.com/31207151/103070051-aad31480-45fb-11eb-9305-75591cd718b3.PNG" width="320"><img src="https://user-images.githubusercontent.com/31207151/103070061-b4f51300-45fb-11eb-92f3-d50e4ab4bb39.PNG" width="320">
+<img src="https://user-images.githubusercontent.com/31207151/103514043-cc0eed00-4ea6-11eb-9f17-7e949fa649e4.jpeg" width="320"><img src="https://user-images.githubusercontent.com/31207151/103514047-cdd8b080-4ea6-11eb-932b-94c0242bddfe.jpeg" width="320">
