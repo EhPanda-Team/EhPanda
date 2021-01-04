@@ -13,6 +13,12 @@ struct EhPandaApp: App {
         WindowGroup {
             HomeView()
                 .environmentObject(Store())
+                .onOpenURL(perform: { url in
+                    let entry = url.absoluteString
+                    guard let range = entry.range(of: "//") else { return }
+                    let key = String(entry.suffix(from: range.upperBound))
+                    UserDefaults.standard.set(key, forKey: "entry")
+                })
         }
     }
 }

@@ -53,10 +53,7 @@ public func didLogin() -> Bool {
 
 
 public var exx: Bool {
-    UserDefaults.standard.string(forKey: "entry")
-        == "JPuM-ZY*HBZpriTMPP_XjD-rRhbd*pG_W"
-        + "s3ortVxQKhava@xwG*Tph8RgshAzz@UQ6D"
-        + "6Zw-JGoM3HFsXKrhN8eK9vzXjfxDbCph*"
+    UserDefaults.standard.string(forKey: "entry") == "Rra3MKpjKBJLgraHqt9t"
 }
 
 public func cleanCookies() {

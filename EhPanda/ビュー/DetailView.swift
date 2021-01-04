@@ -203,7 +203,8 @@ private struct DescScrollItem: View {
             Text(numeral)
                 .font(.caption)
         }
-        .frame(idealWidth: 50)
+        .fixedSize()
+        .frame(maxWidth: 50)
     }
 }
 
@@ -221,7 +222,8 @@ private struct DescScrollRatingItem: View {
                 .font(.title3)
             RatingView(rating: rating, .primary)
         }
-        .frame(idealWidth: 60)
+        .fixedSize()
+        .frame(maxWidth: 60)
     }
 }
 
