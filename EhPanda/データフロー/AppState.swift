@@ -5,6 +5,7 @@
 //  Created by 荒木辰造 on R 2/12/26.
 //
 
+import Foundation
 
 struct AppState {
     var environment = Environment()
@@ -63,6 +64,8 @@ extension AppState {
         var mangaDetailLoading = false
         var mangaDetailLoadFailed = false
         
+        var alterImagesLoading = false
+        
         var mangaCommentsUpdating = false
         var mangaCommentsUpdateFailed = false
     }
@@ -96,6 +99,9 @@ extension AppState {
         
         mutating func insertDetail(detail: (MangaDetail, String)) {
             self.items?[detail.1]?.detail = detail.0
+        }
+        mutating func insertAlterImages(images: ([Data], String)) {
+            self.items?[images.1]?.detail?.alterImages = images.0
         }
         mutating func updateComments(comments: ([MangaComment], String)) {
             self.items?[comments.1]?.detail?.comments = comments.0

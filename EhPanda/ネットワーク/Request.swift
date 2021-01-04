@@ -58,11 +58,29 @@ struct MangaDetailRequest {
     let detailURL: String
     let parser = Parser()
     
-    var publisher: AnyPublisher<(MangaDetail?, User?), AppError> {
+    var publisher: AnyPublisher<(MangaDetail?, User?, HTMLDocument?), AppError> {
         URLSession.shared
             .dataTaskPublisher(for: URL(string: detailURL)!)
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .map { parser.parseMangaDetail($0) }
+            .mapError { _ in .networkingFailed }
+            .eraseToAnyPublisher()
+    }
+}
+
+struct AlterImagesRequest {
+    let id: String
+    let doc: HTMLDocument
+    let parser = Parser()
+    
+    var alterImageURL: String {
+        parser.parseAlterImagesURL(doc)
+    }
+    
+    var publisher: AnyPublisher<([Data], String), AppError> {
+        URLSession.shared
+            .dataTaskPublisher(for: URL(string: alterImageURL)!)
+            .map { parser.parseAlterImages($0.data, id: id) }
             .mapError { _ in .networkingFailed }
             .eraseToAnyPublisher()
     }

@@ -56,7 +56,7 @@ class Parser {
     }
     
     // MARK: 詳細情報
-    func parseMangaDetail(_ doc: HTMLDocument) -> (MangaDetail?, User?) {
+    func parseMangaDetail(_ doc: HTMLDocument) -> (MangaDetail?, User?, HTMLDocument?) {
         var mangaDetail: MangaDetail?
         var imageURLs = [MangaPreview]()
         
@@ -67,7 +67,7 @@ class Parser {
                   let gdrNode = link.at_xpath("//div [@id='gdr']"),
                   let gdtNode = doc.at_xpath("//div [@id='gdt']"),
                   let ratingCount = gdrNode.at_xpath("//span [@id='rating_count']")?.text
-            else { return (nil, nil) }
+            else { return (nil, nil, nil) }
             
             var tmpLanguage: String?
             var tmpLikeCount: String?
@@ -96,7 +96,9 @@ class Parser {
                     tmpPageCount = gdt2.replacingOccurrences(of: " pages", with: "")
                 }
                 if gdt1.contains("Favorited") {
-                    tmpLikeCount = gdt2.replacingOccurrences(of: " times", with: "")
+                    tmpLikeCount = gdt2
+                        .replacingOccurrences(of: " times", with: "")
+                        .replacingOccurrences(of: "Once", with: "0")
                 }
             }
             
@@ -105,6 +107,7 @@ class Parser {
                 guard let imageURL = gdtLink["src"] else { continue }
                 imageURLs.append(MangaPreview(url: imageURL))
             }
+            imageURLs = imageURLs.filter { !$0.url.contains("blank.gif") }
             
             guard let likeCount = tmpLikeCount,
                   let pageCount = tmpPageCount,
@@ -112,7 +115,7 @@ class Parser {
                   let sizeType = tmpSizeType,
                   let tmpLanguage2 = tmpLanguage,
                   let language = Language(rawValue: tmpLanguage2)
-            else { return (nil, nil) }
+            else { return (nil, nil, nil) }
             
             mangaDetail = MangaDetail(alterImages: [],
                                       comments: parseComments(doc),
@@ -145,44 +148,7 @@ class Parser {
             user = User(apiuid: apiuid, apikey: apikey)
         }
         
-        var alterImages = [Data]()
-        if mangaDetail?.previews.isEmpty == true {
-            for link in doc.xpath("//div [@class='gdtm']") {
-                guard let style = link.at_xpath("//div")?["style"],
-                      let rangeA = style.range(of: "background-image: url(\""),
-                      let rangeB = style.range(of: "\"); background-color")
-                else { continue }
-                
-                let alterImg = String(
-                    style.suffix(from: rangeA.upperBound)
-                        .prefix(upTo: rangeB.lowerBound)
-                )
-                
-                let downloader = SDWebImageDownloader()
-                downloader.downloadImage(with: URL(string: alterImg))
-                { (image, data, error, succeed) in
-                    guard let image = image else { return }
-                    let originW = image.size.width
-                    let originH = image.size.height
-                    
-                    for i in 0..<10 {
-                        let rect = CGRect(
-                            x: originW * CGFloat(i),
-                            y: 0,
-                            width: originW / 10,
-                            height: originH
-                        )
-                        
-                        if let croppedImg = image.sd_croppedImage(with: rect)?.pngData() {
-                            alterImages.append(croppedImg)
-                        }
-                    }
-                }
-            }
-            mangaDetail?.alterImages = alterImages
-        }
-        
-        return (mangaDetail, user)
+        return (mangaDetail, user, doc)
     }
     
     // MARK: コメント
@@ -263,9 +229,10 @@ class Parser {
     func parseImagePreContents(_ doc: HTMLDocument, pageIndex: Int) -> [(Int, URL)] {
         var imageDetailURLs = [(Int, URL)]()
         
+        let className = exx ? "gdtl" : "gdtm"
         guard let gdtNode = doc.at_xpath("//div [@id='gdt']") else { return [] }
         
-        for (i, link) in gdtNode.xpath("//div [@class='gdtl']").enumerated() {
+        for (i, link) in gdtNode.xpath("//div [@class='\(className)']").enumerated() {
             
             guard let imageDetailStr = link.at_xpath("//a")?["href"],
                   let imageDetailURL = URL(string: imageDetailStr)
@@ -310,5 +277,46 @@ extension Parser {
         guard var rating = tmpRating else { return nil }
         if ratingString.contains("-21px") { rating -= 0.5 }
         return rating
+    }
+    
+    func parseAlterImagesURL(_ doc: HTMLDocument) -> String {
+        var alterURL = ""
+        for link in doc.xpath("//div [@class='gdtm']") {
+            guard let style = link.at_xpath("//div")?["style"],
+                  let rangeA = style.range(of: "https://"),
+                  let rangeB = style.range(of: ".jpg")
+            else { continue }
+            
+            alterURL = String(
+                style.suffix(from: rangeA.lowerBound)
+                    .prefix(upTo: rangeB.upperBound)
+            )
+            break
+        }
+        
+        return alterURL
+    }
+    
+    func parseAlterImages(_ data: Data, id: String) -> ([Data], String) {
+        guard let image = UIImage(data: data) else { return ([], id) }
+        
+        var alterImages = [Data]()
+        let originW = image.size.width
+        let originH = image.size.height
+
+        for i in 0..<20 {
+            let rect = CGRect(
+                x: originW / 20 * CGFloat(i),
+                y: 0,
+                width: originW / 20,
+                height: originH
+            )
+
+            if let croppedImg = image.sd_croppedImage(with: rect)?.pngData() {
+                alterImages.append(croppedImg)
+            }
+        }
+        
+        return (alterImages, id)
     }
 }

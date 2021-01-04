@@ -5,6 +5,9 @@
 //  Created by 荒木辰造 on R 2/12/26.
 //
 
+import Kanna
+import Foundation
+
 enum AppAction {
     case updateUser(user: User?)
     
@@ -32,6 +35,8 @@ enum AppAction {
     
     case fetchMangaDetail(id: String)
     case fetchMangaDetailDone(result: Result<(MangaDetail, String), AppError>)
+    case fetchAlterImages(id: String, doc: HTMLDocument)
+    case fetchAlterImagesDone(result: Result<([Data], String), AppError>)
     
     case updateMangaComments(id: String)
     case updateMangaCommentsDone(result: Result<([MangaComment], String), AppError>)

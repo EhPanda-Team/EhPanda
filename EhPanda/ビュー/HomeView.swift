@@ -88,15 +88,19 @@ struct HomeView: View {
                         }
                     },
                 trailing:
-                    Image(systemName: "gear")
-                    .foregroundColor(.primary)
-                    .imageScale(.large)
-                    .sheet(isPresented: homeListBinding.isSettingPresented, content: {
-                        SettingView()
-                            .environmentObject(store)
-                    })
-                    .onTapGesture {
-                        store.dispatch(.toggleSettingPresented)
+                    Group {
+                        if exx {
+                            Image(systemName: "gear")
+                            .foregroundColor(.primary)
+                            .imageScale(.large)
+                            .sheet(isPresented: homeListBinding.isSettingPresented, content: {
+                                SettingView()
+                                    .environmentObject(store)
+                            })
+                            .onTapGesture {
+                                store.dispatch(.toggleSettingPresented)
+                            }
+                        }
                     }
                 
             )
@@ -117,7 +121,7 @@ private struct GenericList: View {
     
     var body: some View {
         Group {
-            if !didLogin() {
+            if !didLogin() && exx {
                 NotLoginView(loginAction: {
                     store.dispatch(.toggleSettingPresented)
                 })

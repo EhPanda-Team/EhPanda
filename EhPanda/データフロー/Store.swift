@@ -74,7 +74,7 @@ class Store: ObservableObject {
             }
             
         case .fetchPopularItems:
-            if !didLogin() { break }
+            if !didLogin() && exx { break }
             appState.homeList.popularNotFound = false
             appState.homeList.popularLoadFailed = false
             
@@ -122,7 +122,7 @@ class Store: ObservableObject {
             }
             
         case .fetchMangaDetail(id: let id):
-            if !didLogin() { break }
+            if !didLogin() && exx { break }
             appState.detailInfo.mangaDetailLoadFailed = false
             
             if appState.detailInfo.mangaDetailLoading { break }
@@ -140,6 +140,20 @@ class Store: ObservableObject {
             case .failure(let error):
                 ePrint(error)
                 appState.detailInfo.mangaDetailLoadFailed = true
+            }
+        case .fetchAlterImages(let id, let doc):
+            if appState.detailInfo.alterImagesLoading { break }
+            appState.detailInfo.alterImagesLoading = true
+            
+            appCommand = FetchAlterImagesCommand(id: id, doc: doc)
+        case .fetchAlterImagesDone(result: let result):
+            appState.detailInfo.alterImagesLoading = false
+            
+            switch result {
+            case .success(let images):
+                appState.cachedList.insertAlterImages(images: images)
+            default:
+                print("")
             }
             
         case .updateMangaComments(id: let id):

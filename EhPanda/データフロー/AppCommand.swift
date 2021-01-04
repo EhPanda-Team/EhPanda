@@ -5,6 +5,7 @@
 //  Created by 荒木辰造 on R 2/12/26.
 //
 
+import Kanna
 import Combine
 import Foundation
 
@@ -89,6 +90,31 @@ struct FetchMangaDetailCommand: AppCommand {
                 } else {
                     store.dispatch(.fetchMangaDetailDone(result: .failure(.networkingFailed)))
                 }
+                if let doc = detail.2,
+                   detail.0?.previews.isEmpty == true {
+                    store.dispatch(.fetchAlterImages(id: id, doc: doc))
+                }
+            }
+            .seal(in: token)
+    }
+}
+
+struct FetchAlterImagesCommand: AppCommand {
+    let id: String
+    let doc: HTMLDocument
+    
+    func execute(in store: Store) {
+        let token = SubscriptionToken()
+        AlterImagesRequest(id: id, doc: doc)
+            .publisher
+            .receive(on: DispatchQueue.main)
+            .sink { completion in
+                if case .failure(let error) = completion {
+                    store.dispatch(.fetchAlterImagesDone(result: .failure(error)))
+                }
+                token.unseal()
+            } receiveValue: { images in
+                store.dispatch(.fetchAlterImagesDone(result: .success(images)))
             }
             .seal(in: token)
     }
