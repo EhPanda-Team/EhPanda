@@ -1,9 +1,23 @@
 <h1 align="center">EhPanda</h1>
+
 <h4 align="center">一个面向iOS的E-Hentai非官方App。 (未完成)</h4>
+
+<p align="center">
+<img src="https://user-images.githubusercontent.com/31207151/103606626-dcc86d00-4f51-11eb-9321-26953e669440.png" width="400"></img>
+</p>
+
 <p align="center">
   <a href="/README.md">日本語</a>・
   <a href="/README.en.md">English</a>・
   <a href="/README.chs.md">简体中文</a>
+</p>
+
+<p align="center">
+  <a href="https://t.me/ehpanda" class="svg">
+    <object data="https://img.shields.io/badge/chat-Telegram-blue.svg" type="image/svg+xml">
+      <img src="https://img.shields.io/badge/chat-Telegram-blue.svg" />
+    </object>
+  </a>
 </p>
 
 ## App图标
