@@ -77,3 +77,36 @@ struct GenericRetryView: View {
         }
     }
 }
+
+struct SecondaryView: View {
+    @State var showTips = false
+    
+    var body: some View {
+        ZStack {
+            if showTips {
+                HStack {
+                    VStack {
+                        Text("スワイプ")
+                        Image(systemName: "arrow.right")
+                            .font(.system(size: 80))
+                        Text("スワイプ")
+                    }
+                    Spacer()
+                }
+            }
+            VStack {
+                Image(systemName: "arrow.left.circle.fill")
+                    .font(.system(size: 100))
+                    .padding(.bottom, 30)
+                Text("読みたいものを選択してください")
+                    .fontWeight(.bold)
+                    .font(.title)
+            }
+        }
+        .onTapGesture {
+            withAnimation {
+                showTips.toggle()
+            }
+        }
+    }
+}

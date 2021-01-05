@@ -163,27 +163,28 @@ private struct DescScrollView: View {
     let detail: MangaDetail
     
     var body: some View {
-        HStack(alignment: .center) {
-            DescScrollItem(title: "気に入り".lString(),
-                           value: detail.likeCount,
-                           numeral: "人".lString())
-            Spacer()
-            DescScrollItem(title: "言語".lString(),
-                           value: detail.languageAbbr,
-                           numeral: detail.translatedLanguage.lString())
-            Spacer()
-            DescScrollRatingItem(title: detail.ratingCount + "件の評価".lString(),
-                                 rating: manga.rating)
-            Spacer()
-            DescScrollItem(title: "ページ".lString(),
-                           value: detail.pageCount,
-                           numeral: "頁".lString())
-            Spacer()
-            DescScrollItem(title: "サイズ".lString(),
-                           value: detail.sizeCount,
-                           numeral: detail.sizeType)
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(alignment: .center) {
+                DescScrollItem(title: "気に入り".lString(),
+                               value: detail.likeCount,
+                               numeral: "人".lString())
+                Divider()
+                DescScrollItem(title: "言語".lString(),
+                               value: detail.languageAbbr,
+                               numeral: detail.translatedLanguage.lString())
+                Divider()
+                DescScrollRatingItem(title: detail.ratingCount + "件の評価".lString(),
+                                     rating: manga.rating)
+                Divider()
+                DescScrollItem(title: "ページ".lString(),
+                               value: detail.pageCount,
+                               numeral: "頁".lString())
+                Divider()
+                DescScrollItem(title: "サイズ".lString(),
+                               value: detail.sizeCount,
+                               numeral: detail.sizeType)
+            }
         }
-        .padding(.horizontal)
     }
 }
 
@@ -203,8 +204,7 @@ private struct DescScrollItem: View {
             Text(numeral)
                 .font(.caption)
         }
-        .fixedSize()
-        .frame(maxWidth: 50)
+        .frame(minWidth: 80)
     }
 }
 
@@ -222,8 +222,7 @@ private struct DescScrollRatingItem: View {
                 .font(.title3)
             RatingView(rating: rating, .primary)
         }
-        .fixedSize()
-        .frame(maxWidth: 60)
+        .frame(minWidth: 80)
     }
 }
 

@@ -51,7 +51,6 @@ public func didLogin() -> Bool {
     return true
 }
 
-
 public var exx: Bool {
     UserDefaults.standard.string(forKey: "entry") == "Rra3MKpjKBJLgraHqt9t"
 }
