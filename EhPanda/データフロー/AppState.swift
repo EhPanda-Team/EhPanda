@@ -19,22 +19,37 @@ struct AppState {
 extension AppState {
     struct Environment {
         var navBarHidden = false
+        var isWebViewPresented = false
+        var isSettingPresented = false
+        var isCleanCookiesAlertPresented = false
     }
     
     struct Settings {
         @FileStorage(directory: .cachesDirectory, fileName: "user.json")
         var user: User?
-        var isWebViewPresented = false
-        var isCleanCookiesAlertPresented = false
+        var galleryType: GalleryType {
+            get {
+                let rawValue = UserDefaults
+                    .standard
+                    .string(forKey: "GalleryType")
+                    ?? "E-Hentai"
+                return GalleryType(rawValue: rawValue)!
+            }
+            
+            set {
+                UserDefaults
+                    .standard
+                    .set(newValue.rawValue,
+                         forKey: "GalleryType")
+            }
+        }
     }
 }
 
 extension AppState {
     struct HomeList {
         var keyword = ""
-        var isSettingPresented = false
         var type: HomeListType = .popular
-        
         var searchItems: [Manga]?
         var searchLoading = false
         var searchNotFound = false
@@ -124,4 +139,9 @@ enum HomeListType: String {
     case popular = "人気"
     case favorites = "お気に入り"
     case downloaded = "ダウンロード済み"
+}
+
+public enum GalleryType: String, Codable {
+    case eh = "E-Hentai"
+    case ex = "ExHentai"
 }

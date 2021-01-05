@@ -9,7 +9,11 @@ class Defaults {
     class URL {
         static var host: String {
             if exx {
-                return "https://exhentai.org/"
+                if galleryType == .eh {
+                    return "https://e-hentai.org/"
+                } else {
+                    return "https://exhentai.org/"
+                }
             } else {
                 return "https://e-hentai.org/?f_cats=767&f_search=parody:durarara$"
             }

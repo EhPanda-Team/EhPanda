@@ -17,6 +17,9 @@ struct HomeView: View {
     var homeListBinding: Binding<AppState.HomeList> {
         $store.appState.homeList
     }
+    var environmentBinding: Binding<AppState.Environment> {
+        $store.appState.environment
+    }
     
     init() {
         UIScrollView.appearance().keyboardDismissMode = .onDrag
@@ -93,7 +96,7 @@ struct HomeView: View {
                             Image(systemName: "gear")
                             .foregroundColor(.primary)
                             .imageScale(.large)
-                            .sheet(isPresented: homeListBinding.isSettingPresented, content: {
+                            .sheet(isPresented: environmentBinding.isSettingPresented, content: {
                                 SettingView()
                                     .environmentObject(store)
                             })

@@ -45,8 +45,9 @@
 
 // MARK: SettingView
 "アカウント" = "ACCOUNT";
+"ギャラリー" = "Gallery";
 "ログイン済み" = "Logged In";
-"ExHentaiでログインする" = "Login with ExHentai";
+"E-Hentaiでログインする" = "Login with E-Hentai";
 "クッキー削除" = "Delete Cookies";
 "本当に削除しますか？" = "Are you sure to delete Cookies?";
 "削除" = "Delete";

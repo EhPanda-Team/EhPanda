@@ -31,9 +31,9 @@ class Store: ObservableObject {
         case .toggleNavBarHidden(let isHidden):
             appState.environment.navBarHidden = isHidden
         case .toggleWebViewPresented:
-            appState.settings.isWebViewPresented.toggle()
+            appState.environment.isWebViewPresented.toggle()
         case .toggleCleanCookiesAlertPresented:
-            appState.settings.isCleanCookiesAlertPresented.toggle()
+            appState.environment.isCleanCookiesAlertPresented.toggle()
         case .toggleDraftCommentViewPresented_Button:
             appState.detailInfo.isDraftCommentViewPresented_Button.toggle()
         case .toggleDraftCommentViewPresented_BarItem:
@@ -45,7 +45,7 @@ class Store: ObservableObject {
             appState.detailInfo.commentContent_BarItem = ""
             
         case .toggleSettingPresented:
-            appState.homeList.isSettingPresented.toggle()
+            appState.environment.isSettingPresented.toggle()
         case .toggleHomeListType(let type):
             appState.homeList.type = type
             

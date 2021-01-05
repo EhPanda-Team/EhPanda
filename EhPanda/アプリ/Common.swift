@@ -56,6 +56,14 @@ public var exx: Bool {
     UserDefaults.standard.string(forKey: "entry") == "Rra3MKpjKBJLgraHqt9t"
 }
 
+public var galleryType: GalleryType {
+    let rawValue = UserDefaults
+        .standard
+        .string(forKey: "GalleryType")
+        ?? "E-Hentai"
+    return GalleryType(rawValue: rawValue)!
+}
+
 public func cleanCookies() {
     if let historyCookies = HTTPCookieStorage.shared.cookies {
         historyCookies.forEach {

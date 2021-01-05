@@ -10,24 +10,32 @@ import SwiftUI
 struct SettingView: View {
     @EnvironmentObject var store: Store
     
-    var settings: AppState.Settings {
-        store.appState.settings
-    }
     var settingsBinding: Binding<AppState.Settings> {
         $store.appState.settings
+    }
+    var environmentBinding: Binding<AppState.Environment> {
+        $store.appState.environment
     }
     
     var body: some View {
         NavigationView {
             Form {
                 Section(header: Text("アカウント")) {
+                    Picker(selection: settingsBinding.galleryType, label: Text("ギャラリー"), content: {
+                         let galleryTypes: [GalleryType] = [.eh, .ex]
+                         ForEach(galleryTypes, id: \.self) {
+                             Text($0.rawValue.lString())
+                         }
+                    })
+                    .pickerStyle(SegmentedPickerStyle())
+                    
                     if didLogin() {
                         Text("ログイン済み")
                             .foregroundColor(.gray)
                     } else {
                         NavigationLink(destination: WebView(),
-                                       isActive: settingsBinding.isWebViewPresented) {
-                            Text("ExHentaiでログインする")
+                                       isActive: environmentBinding.isWebViewPresented) {
+                            Text("E-Hentaiでログインする")
                         }
                     }
                     
@@ -37,7 +45,7 @@ struct SettingView: View {
                         Text("クッキー削除")
                             .foregroundColor(.red)
                     }
-                    .alert(isPresented: settingsBinding.isCleanCookiesAlertPresented) { () -> Alert in
+                    .alert(isPresented: environmentBinding.isCleanCookiesAlertPresented) { () -> Alert in
                         Alert(
                             title: Text("本当に削除しますか？"),
                             primaryButton:
