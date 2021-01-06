@@ -43,27 +43,34 @@ struct HomeView: View {
                             items: homeList.searchItems,
                             loadingFlag: homeList.searchLoading,
                             notFoundFlag: homeList.searchNotFound,
-                            loadFailedFlag: homeList.searchLoadFailed)
+                            loadFailedFlag: homeList.searchLoadFailed) {
+                            store.dispatch(.fetchSearchItems(keyword: homeList.keyword))
+                        }
                     } else if homeList.type == .popular {
                         GenericList(
                             items: homeList.popularItems,
                             loadingFlag: homeList.popularLoading,
                             notFoundFlag: homeList.popularNotFound,
-                            loadFailedFlag: homeList.popularLoadFailed)
+                            loadFailedFlag: homeList.popularLoadFailed) {
+                            store.dispatch(.fetchPopularItems)
+                        }
                     } else if homeList.type == .favorites {
                         GenericList(
                             items: homeList.favoritesItems?.map { $0.value },
                             loadingFlag: homeList.favoritesLoading,
                             notFoundFlag: homeList.favoritesNotFound,
-                            loadFailedFlag: homeList.favoritesLoadFailed)
+                            loadFailedFlag: homeList.favoritesLoadFailed) {
+                            store.dispatch(.fetchFavoritesItems)
+                        }
                     }
                 }
                 .padding()
                 .onChange(of: homeList.type, perform: { type in
                     switch type {
                     case .popular:
-                        if homeList.popularItems != nil { return }
-                        store.dispatch(.fetchPopularItems)
+                        if homeList.popularItems?.isEmpty != false {
+                            store.dispatch(.fetchPopularItems)
+                        }
                     case .favorites:
                         store.dispatch(.fetchFavoritesItems)
                     case .downloaded:
@@ -73,10 +80,10 @@ struct HomeView: View {
                     }
                 })
                 .onAppear {
-                    if homeList.popularItems == nil {
+                    if homeList.popularItems?.isEmpty != false {
                         store.dispatch(.fetchPopularItems)
                     }
-                    if homeList.favoritesItems == nil {
+                    if homeList.favoritesItems?.isEmpty != false {
                         store.dispatch(.fetchFavoritesItems)
                     }
                 }
@@ -132,7 +139,7 @@ private struct GenericList: View {
                 LoadingView()
                     .padding(.top, 30)
             } else if loadFailedFlag {
-                NetworkErrorView(retryAction: nil)
+                NetworkErrorView(retryAction: fetchAction)
                     .padding(.top, 30)
             } else if notFoundFlag {
                 NotFoundView(retryAction: fetchAction)
@@ -144,13 +151,6 @@ private struct GenericList: View {
                     }
                 }
                 .transition(AnyTransition.opacity.animation(.default))
-            }
-        }
-        .onAppear {
-            guard items == nil else { return }
-            
-            if let action = fetchAction {
-                action()
             }
         }
     }

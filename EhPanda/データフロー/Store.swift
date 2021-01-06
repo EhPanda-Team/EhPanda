@@ -87,7 +87,7 @@ class Store: ObservableObject {
             switch result {
             case .success(let mangas):
                 if mangas.isEmpty {
-                    appState.homeList.searchNotFound = true
+                    appState.homeList.popularNotFound = true
                 } else {
                     appState.homeList.popularItems = mangas
                     appState.cachedList.cache(items: mangas)

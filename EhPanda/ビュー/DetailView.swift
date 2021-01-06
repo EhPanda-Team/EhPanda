@@ -255,7 +255,7 @@ private struct PreviewView: View {
                 HStack {
                     if !previews.isEmpty {
                         ForEach(previews) { item in
-                            WebImage(url: URL(string: item.url), options: .handleCookies)
+                            WebImage(url: URL(string: item.url), options: [.retryFailed, .handleCookies])
                                 .resizable()
                                 .placeholder {
                                     Placeholder(width: 200 * 32/45,

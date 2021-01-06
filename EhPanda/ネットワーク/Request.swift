@@ -31,7 +31,7 @@ struct PopularItemsRequest {
     
     var publisher: AnyPublisher<[Manga], AppError> {
         URLSession.shared
-            .dataTaskPublisher(for: URL(string: Defaults.URL.host)!)
+            .dataTaskPublisher(for: URL(string: Defaults.URL.popularList())!)
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .map { parser.parsePopularListItems($0) }
             .mapError { _ in .networkingFailed }
@@ -45,8 +45,7 @@ struct FavoritesItemsRequest {
     var publisher: AnyPublisher<[Manga], AppError> {
         URLSession.shared
             .dataTaskPublisher(
-                for: URL(string: Defaults.URL.host
-                            + Defaults.URL.favorites)!)
+                for: URL(string: Defaults.URL.favoritesList())!)
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .map { parser.parsePopularListItems($0) }
             .mapError { _ in .networkingFailed }

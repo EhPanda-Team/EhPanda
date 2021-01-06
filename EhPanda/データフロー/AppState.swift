@@ -66,7 +66,7 @@ extension AppState {
         var favoritesLoadFailed = false
         
         func isFavored(id: String) -> Bool {
-            favoritesItems?[id] != nil
+            favoritesItems != nil && favoritesItems?[id] != nil
         }
     }
     
