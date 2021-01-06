@@ -12,13 +12,8 @@
   <a href="/README.chs.md">简体中文</a>
 </p>
 
-<p align="center">
-  <a href="https://t.me/ehpanda" class="svg">
-    <object data="https://img.shields.io/badge/chat-Telegram-blue.svg" type="image/svg+xml">
-      <img src="https://img.shields.io/badge/chat-Telegram-blue.svg" />
-    </object>
-  </a>
-</p>
+## Questions、Feedback or Joining TestFlight
+[![Telegram](https://img.shields.io/badge/chat-Telegram-blue.svg)](https://t.me/ehpanda)
 
 ## App Icon
 It's based on a pic from [here](https://www.deviantart.com/epiphany/art/reminds-me-of-you-15994061), send a delete request [here](kendellcarol@gmail.com) if you think there is any infringement upon the copyright.
