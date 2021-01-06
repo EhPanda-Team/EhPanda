@@ -13,7 +13,7 @@
 </p>
 
 ## 質問、フィードバックまたはTestFlight参加
-[![Telegram](https://img.shields.io/badge/chat-Telegram-blue.svg)](https://t.me/ehviewer)
+[![Telegram](https://img.shields.io/badge/chat-Telegram-blue.svg)](https://t.me/ehpanda)
 
 ## アプリアイコン
 [リンク先](https://www.deviantart.com/epiphany/art/reminds-me-of-you-15994061)の画像を模倣して描いたものです、著作権とかわかんないから削除依頼は[こちら](kendellcarol@gmail.com)へお願いします。
