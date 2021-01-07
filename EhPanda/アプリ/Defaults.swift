@@ -15,7 +15,7 @@ class Defaults {
                     return "https://exhentai.org/"
                 }
             } else {
-                return "https://e-hentai.org/?f_cats=767&f_search=parody:durarara$"
+                return "https://e-hentai.org/?inline_set=dm_l&f_cats=767&f_search=parody:durarara$"
             }
         }
         static let cookiesVerify = "https://e-hentai.org/"
@@ -24,7 +24,7 @@ class Defaults {
         static let api = "api.php"
         static let favorites = "favorites.php"
         static let search = "f_search="
-        static let showComments = "hc=1#comments"
+        static let showComments = "hc=1"
         static let listCompact = "inline_set=dm_l"
         static let detailLarge = "inline_set=ts_l"
         static let ignoreOffensive = "nw=always"

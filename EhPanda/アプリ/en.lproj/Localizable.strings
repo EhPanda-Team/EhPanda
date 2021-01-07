@@ -46,6 +46,7 @@
 "投稿" = "Post";
 
 // MARK: SettingView
+"設定" = "Setting";
 "アカウント" = "ACCOUNT";
 "ギャラリー" = "Gallery";
 "ログイン済み" = "Logged In";
