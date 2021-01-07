@@ -50,10 +50,16 @@
 "アカウント" = "ACCOUNT";
 "ギャラリー" = "Gallery";
 "ログイン済み" = "Logged In";
-"E-Hentaiでログインする" = "Login with E-Hentai";
-"クッキー削除" = "Delete Cookies";
-"本当に削除しますか？" = "Are you sure to delete Cookies?";
-"削除" = "Delete";
+"ログイン" = "Login";
+"ログアウト" = "Logout";
+"本当にログアウトしますか？" = "Are you sure to logout?";
+"キャッシュ" = "CACHE";
+"画像キャッシュを削除" = "Erase image cache";
+"本当に削除しますか？" = "Are you sure to erase?";
+"削除" = "Erase";
+"ウェブキャッシュを削除" = "Erase web cache";
+"警告" = "WARNING";
+"デバッグ専用機能です" = "It's for debug only";
 
 // MARK: Category
 "同人誌" = "Doujinshi";

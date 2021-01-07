@@ -141,27 +141,6 @@ struct UpdateMangaCommentsCommand: AppCommand {
     }
 }
 
-struct UpdateMangaCommentsCopyCommand: AppCommand {
-    let id: String
-    let detailURL: String
-    
-    func execute(in store: Store) {
-        let token = SubscriptionToken()
-        MangaCommentsRequest(detailURL: detailURL)
-            .publisher
-            .receive(on: DispatchQueue.main)
-            .sink { completion in
-                if case .failure(let error) = completion {
-                    store.dispatch(.updateMangaCommentsDone(result: .failure(error)))
-                }
-                token.unseal()
-            } receiveValue: { comments in
-                store.dispatch(.updateMangaCommentsDone(result: .success((comments, id))))
-            }
-            .seal(in: token)
-    }
-}
-
 struct FetchMangaContentsCommand: AppCommand {
     let id: String
     let pages: Int

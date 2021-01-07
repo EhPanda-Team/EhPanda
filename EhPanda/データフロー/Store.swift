@@ -27,13 +27,19 @@ class Store: ObservableObject {
         switch action {
         case .updateUser(let user):
             appState.settings.user = user
+        case .eraseCachedList:
+            appState.cachedList.items = nil
             
         case .toggleNavBarHidden(let isHidden):
             appState.environment.navBarHidden = isHidden
         case .toggleWebViewPresented:
             appState.environment.isWebViewPresented.toggle()
-        case .toggleCleanCookiesAlertPresented:
-            appState.environment.isCleanCookiesAlertPresented.toggle()
+        case .toggleLogoutPresented:
+            appState.environment.isLogoutPresented.toggle()
+        case .toggleEraseImageCachesPresented:
+            appState.environment.isEraseImageCachesPresented.toggle()
+        case .toggleEraseCachedListPresented:
+            appState.environment.isEraseCachedListPresented.toggle()
         case .toggleDraftCommentViewPresented_Button:
             appState.detailInfo.isDraftCommentViewPresented_Button.toggle()
         case .toggleDraftCommentViewPresented_BarItem:
@@ -128,8 +134,7 @@ class Store: ObservableObject {
             if appState.detailInfo.mangaDetailLoading { break }
             appState.detailInfo.mangaDetailLoading = true
             
-            var detailURL = appState.cachedList.items?[id]?.detailURL ?? ""
-            detailURL = Defaults.URL.mangaDetail(url: detailURL)
+            let detailURL = appState.cachedList.items?[id]?.detailURL ?? ""
             appCommand = FetchMangaDetailCommand(id: id, detailURL: detailURL)
         case .fetchMangaDetailDone(result: let result):
             appState.detailInfo.mangaDetailLoading = false
@@ -162,8 +167,7 @@ class Store: ObservableObject {
             if appState.detailInfo.mangaCommentsUpdating { break }
             appState.detailInfo.mangaCommentsUpdating = true
             
-            var detailURL = appState.cachedList.items?[id]?.detailURL ?? ""
-            detailURL = Defaults.URL.mangaDetail(url: detailURL)
+            let detailURL = appState.cachedList.items?[id]?.detailURL ?? ""
             appCommand = UpdateMangaCommentsCommand(id: id, detailURL: detailURL)
         case .updateMangaCommentsDone(result: let result):
             appState.detailInfo.mangaCommentsUpdating = false

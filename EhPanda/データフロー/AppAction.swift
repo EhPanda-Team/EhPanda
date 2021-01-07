@@ -10,11 +10,14 @@ import Foundation
 
 enum AppAction {
     case updateUser(user: User?)
+    case eraseCachedList
     
     case toggleNavBarHidden(isHidden: Bool)
     
     case toggleWebViewPresented
-    case toggleCleanCookiesAlertPresented
+    case toggleLogoutPresented
+    case toggleEraseImageCachesPresented
+    case toggleEraseCachedListPresented
     case toggleDraftCommentViewPresented_Button
     case toggleDraftCommentViewPresented_BarItem
     

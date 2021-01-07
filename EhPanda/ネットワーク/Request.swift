@@ -59,7 +59,7 @@ struct MangaDetailRequest {
     
     var publisher: AnyPublisher<(MangaDetail?, User?, HTMLDocument?), AppError> {
         URLSession.shared
-            .dataTaskPublisher(for: URL(string: detailURL)!)
+            .dataTaskPublisher(for: URL(string: Defaults.URL.mangaDetail(url: detailURL))!)
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .map { parser.parseMangaDetail($0) }
             .mapError { _ in .networkingFailed }
@@ -91,7 +91,7 @@ struct MangaCommentsRequest {
     
     var publisher: AnyPublisher<[MangaComment], AppError> {
         URLSession.shared
-            .dataTaskPublisher(for: URL(string: detailURL)!)
+            .dataTaskPublisher(for: URL(string: Defaults.URL.mangaDetail(url: detailURL))!)
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .map { parser.parseComments($0) }
             .mapError { _ in .networkingFailed }

@@ -21,7 +21,9 @@ extension AppState {
         var navBarHidden = false
         var isWebViewPresented = false
         var isSettingPresented = false
-        var isCleanCookiesAlertPresented = false
+        var isLogoutPresented = false
+        var isEraseImageCachesPresented = false
+        var isEraseCachedListPresented = false
     }
     
     struct Settings {

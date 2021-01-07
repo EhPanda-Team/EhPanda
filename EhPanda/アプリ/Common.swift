@@ -63,6 +63,36 @@ public var galleryType: GalleryType {
     return GalleryType(rawValue: rawValue)!
 }
 
+public func readableUnit(bytes: Int64) -> String {
+    let formatter = ByteCountFormatter()
+    formatter.allowedUnits = [.useAll]
+    return formatter.string(fromByteCount: bytes)
+}
+
+public func diskImageCaches() -> String {
+    let bytes = SDImageCache.shared.totalDiskSize()
+    return readableUnit(bytes: Int64(bytes))
+}
+
+public func browsingCaches() -> String {
+    guard let fileURL = FileManager
+            .default
+            .urls(
+                for: .cachesDirectory,
+                in: .userDomainMask
+            )
+            .first?
+            .appendingPathComponent(
+                "cachedList.json"
+            ),
+          let data = try? Data(
+            contentsOf: fileURL
+          )
+    else { return "0 KB" }
+    
+    return readableUnit(bytes: Int64(data.count))
+}
+
 public func cleanCookies() {
     if let historyCookies = HTTPCookieStorage.shared.cookies {
         historyCookies.forEach {

@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SDWebImageSwiftUI
 
 struct SettingView: View {
     @EnvironmentObject var store: Store
@@ -35,31 +36,77 @@ struct SettingView: View {
                     } else {
                         NavigationLink(destination: WebView(),
                                        isActive: environmentBinding.isWebViewPresented) {
-                            Text("E-Hentaiでログインする")
+                            Text("ログイン")
                         }
                     }
                     
-                    Button {
-                        store.dispatch(.toggleCleanCookiesAlertPresented)
-                    } label: {
-                        Text("クッキー削除")
+                    Button(action: toggleLogout) {
+                        Text("ログアウト")
                             .foregroundColor(.red)
                     }
-                    .alert(isPresented: environmentBinding.isCleanCookiesAlertPresented) { () -> Alert in
-                        Alert(
-                            title: Text("本当に削除しますか？"),
-                            primaryButton:
-                                .destructive(Text("削除"), action: cleanAuth),
-                            secondaryButton: .cancel())
+                    .actionSheet(isPresented: environmentBinding.isLogoutPresented, content: {
+                        ActionSheet(title: Text("本当にログアウトしますか？"), buttons: [
+                            .destructive(Text("ログアウト"), action: logout),
+                            .cancel()
+                        ])
+                    })
+                }
+                Section(header: Text("キャッシュ")) {
+                    Button(action: toggleEraseImageCaches) {
+                        HStack {
+                            Text("画像キャッシュを削除")
+                            Spacer()
+                            Text(diskImageCaches())
+                        }
+                        .foregroundColor(.primary)
                     }
+                    .actionSheet(isPresented: environmentBinding.isEraseImageCachesPresented, content: {
+                        ActionSheet(title: Text("本当に削除しますか？"), buttons: [
+                            .destructive(Text("削除"), action: eraseImageCaches),
+                            .cancel()
+                        ])
+                    })
+                    Button(action: toggleEraseCachedList) {
+                        HStack {
+                            Text("ウェブキャッシュを削除")
+                            Spacer()
+                            Text(browsingCaches())
+                        }
+                        .foregroundColor(.primary)
+                    }
+                    .actionSheet(isPresented: environmentBinding.isEraseCachedListPresented, content: {
+                        ActionSheet(title: Text("警告"), message: Text("デバッグ専用機能です"), buttons: [
+                            .destructive(Text("削除"), action: eraseCachedList),
+                            .cancel()
+                        ])
+                    })
                 }
             }
             .navigationBarTitle("設定")
         }
     }
     
-    func cleanAuth() {
+    func toggleLogout() {
+        store.dispatch(.toggleLogoutPresented)
+    }
+    func toggleEraseImageCaches() {
+        store.dispatch(.toggleEraseImageCachesPresented)
+    }
+    func toggleEraseCachedList() {
+        store.dispatch(.toggleEraseCachedListPresented)
+        store.dispatch(.fetchPopularItems)
+        store.dispatch(.fetchFavoritesItems)
+    }
+    
+    func logout() {
         cleanCookies()
         store.dispatch(.updateUser(user: nil))
+    }
+    
+    func eraseImageCaches() {
+        SDImageCache.shared.clearDisk()
+    }
+    func eraseCachedList() {
+        store.dispatch(.eraseCachedList)
     }
 }
