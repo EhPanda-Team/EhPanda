@@ -146,4 +146,13 @@ enum HomeListType: String {
 public enum GalleryType: String, Codable {
     case eh = "E-Hentai"
     case ex = "ExHentai"
+    
+    var abbr: String {
+        switch self {
+        case .eh:
+            return "eh"
+        case .ex:
+            return "ex"
+        }
+    }
 }

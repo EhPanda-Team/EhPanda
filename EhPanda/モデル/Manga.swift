@@ -142,7 +142,11 @@ extension Manga {
     var notFilledCount: Int { 5 - filledCount - halfFilledCount }
     
     var color: Color {
-        Color(translatedCategory)
+        let colorName =
+            galleryType.rawValue
+            + "/" + translatedCategory
+        
+        return Color(colorName)
     }
     
     var translatedCategory: String {
