@@ -51,21 +51,32 @@ struct DetailView: View {
             } else if detailInfo.mangaDetailLoading {
                 LoadingView()
             } else if detailInfo.mangaDetailLoadFailed {
-                NetworkErrorView {
-                    store.dispatch(.fetchMangaDetail(id: id))
-                }
+                NetworkErrorView(retryAction: fetchMangaDetail)
             }
         }
         .navigationBarHidden(environment.navBarHidden)
-        .onAppear {
-            store.dispatch(.toggleNavBarHidden(isHidden: false))
-            
-            if mangaDetail == nil {
-                store.dispatch(.fetchMangaDetail(id: id))
-            } else {
-                store.dispatch(.updateMangaComments(id: id))
-            }
+        .onAppear(perform: onAppear)
+    }
+    
+    func onAppear() {
+        toggleNavBarHidden()
+        
+        if mangaDetail == nil {
+            fetchMangaDetail()
+        } else {
+            updateMangaComments()
         }
+    }
+    
+    func fetchMangaDetail() {
+        store.dispatch(.fetchMangaDetail(id: id))
+    }
+    func updateMangaComments() {
+        store.dispatch(.updateMangaComments(id: id))
+    }
+    
+    func toggleNavBarHidden() {
+        store.dispatch(.toggleNavBarHidden(isHidden: false))
     }
 }
 
@@ -132,17 +143,11 @@ private struct HeaderView: View {
                         Image(systemName: isFavored ? "heart.fill" : "heart")
                             .imageScale(.large)
                             .foregroundColor(.blue)
-                            .onTapGesture {
-                                if isFavored {
-                                    store.dispatch(.deleteFavorite(id: manga.id))
-                                } else {
-                                    store.dispatch(.addFavorite(id: manga.id))
-                                }
-                            }
+                            .onTapGesture(perform: onFavoriteTap)
                     }
                     Button(action: {}) {
                         NavigationLink(destination: ContentView(id: manga.id)) {
-                             Text("読む")
+                            Text("読む")
                                 .foregroundColor(.white)
                                 .fontWeight(.bold)
                                 .capsulePadding()
@@ -154,6 +159,21 @@ private struct HeaderView: View {
             .padding(.leading, 10)
             .padding(.trailing, 10)
         }
+    }
+    
+    func onFavoriteTap() {
+        if isFavored {
+            deleteFavorite()
+        } else {
+            addFavorite()
+        }
+    }
+    
+    func addFavorite() {
+        store.dispatch(.addFavorite(id: manga.id))
+    }
+    func deleteFavorite() {
+        store.dispatch(.deleteFavorite(id: manga.id))
     }
 }
 
@@ -192,7 +212,7 @@ private struct DescScrollItem: View {
     let title: String
     let value: String
     let numeral: String
-        
+    
     var body: some View {
         VStack(spacing: 3) {
             Text(title)
@@ -255,17 +275,19 @@ private struct PreviewView: View {
                 HStack {
                     if !previews.isEmpty {
                         ForEach(previews) { item in
-                            WebImage(url: URL(string: item.url), options: [.retryFailed, .handleCookies])
-                                .resizable()
-                                .placeholder {
-                                    Placeholder(width: 200 * 32/45,
-                                                height: 200)
-                                }
-                                .indicator(.activity)
-                                .scaledToFill()
-                                .frame(width: 200 * 32/45,
-                                       height: 200)
-                                .cornerRadius(15)
+                            WebImage(url: URL(string: item.url),
+                                     options: [.retryFailed, .handleCookies]
+                            )
+                            .resizable()
+                            .placeholder {
+                                Placeholder(width: 200 * 32/45,
+                                            height: 200)
+                            }
+                            .indicator(.activity)
+                            .scaledToFill()
+                            .frame(width: 200 * 32/45,
+                                   height: 200)
+                            .cornerRadius(15)
                         }
                     } else if !alterImages.isEmpty {
                         ForEach(alterImages, id: \.self) { item in
@@ -339,24 +361,35 @@ private struct CommentScrollView: View {
                 }
             }
             if exx {
-                CommentButton(action: togglePresented)
+                CommentButton(action: toggleDraftCommentViewPresented)
                     .sheet(isPresented: isDraftCommentViewPresentedBinding) {
-                        DraftCommentView(content: commentContentBinding, title: "コメントを書く", commitAction: {
-                            if !commentContent.isEmpty {
-                                postComment()
-                                togglePresented()
-                            }
-                        }, dismissAction: togglePresented)
+                        DraftCommentView(
+                            content: commentContentBinding,
+                            title: "コメントを書く",
+                            postAction: draftCommentViewPost,
+                            cancelAction: draftCommentViewCancel
+                        )
                     }
             }
         }
+    }
+    
+    func draftCommentViewPost() {
+        if !commentContent.isEmpty {
+            postComment()
+            toggleDraftCommentViewPresented()
+        }
+    }
+    func draftCommentViewCancel() {
+        toggleDraftCommentViewPresented()
     }
     
     func postComment() {
         store.dispatch(.comment(id: id, content: commentContent))
         store.dispatch(.cleanCommentContent_Button)
     }
-    func togglePresented() {
+    
+    func toggleDraftCommentViewPresented() {
         store.dispatch(.toggleDraftCommentViewPresented_Button)
     }
 }

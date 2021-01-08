@@ -7,12 +7,15 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		AB2C029325A7F2E100F8F740 /* BlurView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB2C029125A7F2E100F8F740 /* BlurView.swift */; };
+		AB2C029425A7F2E100F8F740 /* OverlaySheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB2C029225A7F2E100F8F740 /* OverlaySheet.swift */; };
 		AB40CFDC25983EC200D1DC9A /* FileStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB40CFDB25983EC200D1DC9A /* FileStorage.swift */; };
 		AB40CFDF25983EDF00D1DC9A /* FileHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB40CFDE25983EDF00D1DC9A /* FileHelper.swift */; };
 		AB718B2525A0C0AC00D32962 /* CommentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB718B2425A0C0AC00D32962 /* CommentView.swift */; };
 		AB994DC02598B17500E9A367 /* SettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB994DBF2598B17500E9A367 /* SettingView.swift */; };
 		AB994DC32598B3E000E9A367 /* WebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB994DC22598B3E000E9A367 /* WebView.swift */; };
 		AB994DCB2598D96200E9A367 /* AlertView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB994DCA2598D96200E9A367 /* AlertView.swift */; };
+		ABA732D925A8018A00B3D9AB /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABA732D825A8018A00B3D9AB /* Extensions.swift */; };
 		ABC3C7852593699B00E0C11B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = ABC3C7692593699A00E0C11B /* Assets.xcassets */; };
 		ABC3C7862593699B00E0C11B /* Common.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC3C76A2593699A00E0C11B /* Common.swift */; };
 		ABC3C7872593699B00E0C11B /* EhPandaApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC3C76B2593699A00E0C11B /* EhPandaApp.swift */; };
@@ -38,6 +41,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		AB2C029125A7F2E100F8F740 /* BlurView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BlurView.swift; sourceTree = "<group>"; };
+		AB2C029225A7F2E100F8F740 /* OverlaySheet.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OverlaySheet.swift; sourceTree = "<group>"; };
 		AB40CFDB25983EC200D1DC9A /* FileStorage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FileStorage.swift; sourceTree = "<group>"; };
 		AB40CFDE25983EDF00D1DC9A /* FileHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FileHelper.swift; sourceTree = "<group>"; };
 		AB718B2425A0C0AC00D32962 /* CommentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentView.swift; sourceTree = "<group>"; };
@@ -45,6 +50,7 @@
 		AB994DBF2598B17500E9A367 /* SettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingView.swift; sourceTree = "<group>"; };
 		AB994DC22598B3E000E9A367 /* WebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebView.swift; sourceTree = "<group>"; };
 		AB994DCA2598D96200E9A367 /* AlertView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertView.swift; sourceTree = "<group>"; };
+		ABA732D825A8018A00B3D9AB /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		ABC3C7542593696C00E0C11B /* EhPanda.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EhPanda.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		ABC3C7692593699A00E0C11B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		ABC3C76A2593699A00E0C11B /* Common.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Common.swift; sourceTree = "<group>"; };
@@ -130,9 +136,10 @@
 				ABC3C76B2593699A00E0C11B /* EhPandaApp.swift */,
 				ABC3C76A2593699A00E0C11B /* Common.swift */,
 				ABC3C76D2593699A00E0C11B /* Defaults.swift */,
-				ABC3C76E2593699A00E0C11B /* Info.plist */,
+				ABA732D825A8018A00B3D9AB /* Extensions.swift */,
 				ABEE0AFC2595C6F800C997AE /* Localizable.strings */,
 				ABC3C7692593699A00E0C11B /* Assets.xcassets */,
+				ABC3C76E2593699A00E0C11B /* Info.plist */,
 			);
 			path = "アプリ";
 			sourceTree = "<group>";
@@ -141,10 +148,10 @@
 			isa = PBXGroup;
 			children = (
 				ABC3C7732593699A00E0C11B /* HomeView.swift */,
+				AB994DBF2598B17500E9A367 /* SettingView.swift */,
 				ABC3C7722593699A00E0C11B /* DetailView.swift */,
 				AB718B2425A0C0AC00D32962 /* CommentView.swift */,
 				ABC3C7742593699A00E0C11B /* ContentView.swift */,
-				AB994DBF2598B17500E9A367 /* SettingView.swift */,
 				ABC3C7752593699A00E0C11B /* ツール */,
 			);
 			name = "ビュー";
@@ -159,6 +166,8 @@
 				ABC3C7772593699A00E0C11B /* RatingView.swift */,
 				AB994DCA2598D96200E9A367 /* AlertView.swift */,
 				ABF75F4225A1C11100544D29 /* Comment.swift */,
+				AB2C029125A7F2E100F8F740 /* BlurView.swift */,
+				AB2C029225A7F2E100F8F740 /* OverlaySheet.swift */,
 			);
 			path = "ツール";
 			sourceTree = "<group>";
@@ -273,6 +282,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				AB994DC32598B3E000E9A367 /* WebView.swift in Sources */,
+				ABA732D925A8018A00B3D9AB /* Extensions.swift in Sources */,
 				AB40CFDC25983EC200D1DC9A /* FileStorage.swift in Sources */,
 				ABCD2F0A259763FC008E5A20 /* Request.swift in Sources */,
 				ABCD2F07259760D4008E5A20 /* AppError.swift in Sources */,
@@ -284,6 +294,8 @@
 				ABC3C78F2593699B00E0C11B /* ViewModifiers.swift in Sources */,
 				ABCD2EF82597602D008E5A20 /* Store.swift in Sources */,
 				ABC3C7862593699B00E0C11B /* Common.swift in Sources */,
+				AB2C029425A7F2E100F8F740 /* OverlaySheet.swift in Sources */,
+				AB2C029325A7F2E100F8F740 /* BlurView.swift in Sources */,
 				ABCD2F0E25976B95008E5A20 /* Parser.swift in Sources */,
 				AB994DCB2598D96200E9A367 /* AlertView.swift in Sources */,
 				ABC3C78D2593699B00E0C11B /* HomeView.swift in Sources */,
@@ -438,7 +450,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = EhPanda/EhPanda.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = 9SKQ7QTZ74;
 				ENABLE_PREVIEWS = YES;
@@ -463,7 +475,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = EhPanda/EhPanda.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = 9SKQ7QTZ74;
 				ENABLE_PREVIEWS = YES;

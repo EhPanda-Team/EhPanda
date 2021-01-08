@@ -40,11 +40,12 @@ struct ContentView: View {
                     LazyVStack(spacing: 0) {
                         ForEach(contents) { item in
                             WebImage(url: URL(string: item.url),
-                                     options: [.retryFailed, .handleCookies])
-                                .resizable()
-                                .placeholder { rectangle }
-                                .indicator(.progress)
-                                .scaledToFit()
+                                     options: [.retryFailed, .handleCookies]
+                            )
+                            .resizable()
+                            .placeholder { rectangle }
+                            .indicator(.progress)
+                            .scaledToFit()
                         }
                     }
                 }
@@ -53,19 +54,27 @@ struct ContentView: View {
             } else if contentsInfo.mangaContentsLoading {
                 LoadingView()
             } else if contentsInfo.mangaContentsLoadFailed {
-                NetworkErrorView {
-                    store.dispatch(.fetchMangaContents(id: id))
-                }
+                NetworkErrorView(retryAction: fetchMangaContents)
             }
         }
         .navigationBarBackButtonHidden(true)
         .navigationBarHidden(environment.navBarHidden)
-        .onAppear {
-            store.dispatch(.toggleNavBarHidden(isHidden: true))
-            
-            if mangaContents?.count != Int(mangaDetail?.pageCount ?? "") {
-                store.dispatch(.fetchMangaContents(id: id))
-            }
+        .onAppear(perform: onAppear)
+    }
+    
+    func onAppear() {
+        toggleNavBarHidden()
+        
+        if mangaContents?.count != Int(mangaDetail?.pageCount ?? "") {
+            fetchMangaContents()
         }
+    }
+    
+    func fetchMangaContents() {
+        store.dispatch(.fetchMangaContents(id: id))
+    }
+    
+    func toggleNavBarHidden() {
+        store.dispatch(.toggleNavBarHidden(isHidden: true))
     }
 }

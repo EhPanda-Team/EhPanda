@@ -20,7 +20,7 @@ struct SearchItemsRequest {
                 for: URL(string: Defaults.URL.search(keyword: word))!
             )
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-            .map { parser.parsePopularListItems($0) }
+            .map(parser.parseListItems)
             .mapError { _ in .networkingFailed }
             .eraseToAnyPublisher()
     }
@@ -33,7 +33,7 @@ struct PopularItemsRequest {
         URLSession.shared
             .dataTaskPublisher(for: URL(string: Defaults.URL.popularList())!)
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-            .map { parser.parsePopularListItems($0) }
+            .map(parser.parseListItems)
             .mapError { _ in .networkingFailed }
             .eraseToAnyPublisher()
     }
@@ -47,7 +47,7 @@ struct FavoritesItemsRequest {
             .dataTaskPublisher(
                 for: URL(string: Defaults.URL.favoritesList())!)
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-            .map { parser.parsePopularListItems($0) }
+            .map(parser.parseListItems)
             .mapError { _ in .networkingFailed }
             .eraseToAnyPublisher()
     }
@@ -61,7 +61,7 @@ struct MangaDetailRequest {
         URLSession.shared
             .dataTaskPublisher(for: URL(string: Defaults.URL.mangaDetail(url: detailURL))!)
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-            .map { parser.parseMangaDetail($0) }
+            .map(parser.parseMangaDetail)
             .mapError { _ in .networkingFailed }
             .eraseToAnyPublisher()
     }
@@ -93,7 +93,7 @@ struct MangaCommentsRequest {
         URLSession.shared
             .dataTaskPublisher(for: URL(string: Defaults.URL.mangaDetail(url: detailURL))!)
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-            .map { parser.parseComments($0) }
+            .map(parser.parseComments)
             .mapError { _ in .networkingFailed }
             .eraseToAnyPublisher()
     }

@@ -119,7 +119,9 @@ class Store: ObservableObject {
                 if mangas.isEmpty {
                     appState.homeList.favoritesNotFound = true
                 } else {
-                    appState.homeList.favoritesItems = Dictionary(uniqueKeysWithValues: mangas.map { ($0.id, $0)})
+                    appState.homeList.favoritesItems = Dictionary(
+                        uniqueKeysWithValues: mangas.map { ($0.id, $0)}
+                    )
                     appState.cachedList.cache(items: mangas)
                 }
             case .failure(let error):

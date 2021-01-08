@@ -22,20 +22,24 @@ struct SettingView: View {
         NavigationView {
             Form {
                 Section(header: Text("アカウント")) {
-                    Picker(selection: settingsBinding.galleryType, label: Text("ギャラリー"), content: {
-                         let galleryTypes: [GalleryType] = [.eh, .ex]
-                         ForEach(galleryTypes, id: \.self) {
-                             Text($0.rawValue.lString())
-                         }
-                    })
-                    .pickerStyle(SegmentedPickerStyle())
-                    
+                    Picker(
+                        selection: settingsBinding.galleryType,
+                        label: Text("ギャラリー"),
+                        content: {
+                            let galleryTypes: [GalleryType] = [.eh, .ex]
+                            ForEach(galleryTypes, id: \.self) {
+                                Text($0.rawValue.lString())
+                            }
+                        })
+                        .pickerStyle(SegmentedPickerStyle())
                     if didLogin() {
                         Text("ログイン済み")
                             .foregroundColor(.gray)
                     } else {
-                        NavigationLink(destination: WebView(),
-                                       isActive: environmentBinding.isWebViewPresented) {
+                        NavigationLink(
+                            destination: WebView(),
+                            isActive: environmentBinding.isWebViewPresented)
+                        {
                             Text("ログイン")
                         }
                     }
@@ -44,12 +48,14 @@ struct SettingView: View {
                         Text("ログアウト")
                             .foregroundColor(.red)
                     }
-                    .actionSheet(isPresented: environmentBinding.isLogoutPresented, content: {
-                        ActionSheet(title: Text("本当にログアウトしますか？"), buttons: [
-                            .destructive(Text("ログアウト"), action: logout),
-                            .cancel()
-                        ])
-                    })
+                    .actionSheet(
+                        isPresented: environmentBinding.isLogoutPresented,
+                        content: {
+                            ActionSheet(title: Text("本当にログアウトしますか？"), buttons: [
+                                .destructive(Text("ログアウト"), action: logout),
+                                .cancel()
+                            ])
+                        })
                 }
                 Section(header: Text("キャッシュ")) {
                     Button(action: toggleEraseImageCaches) {
@@ -60,12 +66,14 @@ struct SettingView: View {
                         }
                         .foregroundColor(.primary)
                     }
-                    .actionSheet(isPresented: environmentBinding.isEraseImageCachesPresented, content: {
-                        ActionSheet(title: Text("本当に削除しますか？"), buttons: [
-                            .destructive(Text("削除"), action: eraseImageCaches),
-                            .cancel()
-                        ])
-                    })
+                    .actionSheet(
+                        isPresented: environmentBinding.isEraseImageCachesPresented,
+                        content: {
+                            ActionSheet(title: Text("本当に削除しますか？"), buttons: [
+                                .destructive(Text("削除"), action: eraseImageCaches),
+                                .cancel()
+                            ])
+                        })
                     Button(action: toggleEraseCachedList) {
                         HStack {
                             Text("ウェブキャッシュを削除")
@@ -74,11 +82,16 @@ struct SettingView: View {
                         }
                         .foregroundColor(.primary)
                     }
-                    .actionSheet(isPresented: environmentBinding.isEraseCachedListPresented, content: {
-                        ActionSheet(title: Text("警告"), message: Text("デバッグ専用機能です"), buttons: [
-                            .destructive(Text("削除"), action: eraseCachedList),
-                            .cancel()
-                        ])
+                    .actionSheet(
+                        isPresented: environmentBinding.isEraseCachedListPresented,
+                        content: {
+                            ActionSheet(
+                                title: Text("警告"),
+                                message: Text("デバッグ専用機能です"),
+                                buttons: [
+                                    .destructive(Text("削除"), action: eraseCachedList),
+                                    .cancel()
+                            ])
                     })
                 }
             }

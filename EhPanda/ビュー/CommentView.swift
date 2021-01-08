@@ -45,26 +45,38 @@ struct CommentView: View {
         .padding(.horizontal)
         .navigationBarItems(
             trailing:
-                Button(action: togglePresented, label: {
+                Button(action: toggleDraftCommentViewPresented, label: {
                     Image(systemName: "square.and.pencil")
                     Text("コメントを書く")
                 })
                 .sheet(isPresented: isDraftCommentViewPresentedBinding) {
-                    DraftCommentView(content: commentContentBinding, title: "コメントを書く", commitAction: {
-                        if !commentContent.isEmpty {
-                            postComment()
-                            togglePresented()
-                        }
-                    }, dismissAction: togglePresented)
+                    DraftCommentView(
+                        content: commentContentBinding,
+                        title: "コメントを書く",
+                        postAction: draftCommentViewPost,
+                        cancelAction: draftCommentViewCancel
+                    )
                 }
         )
+    }
+    
+    
+    func draftCommentViewPost() {
+        if !commentContent.isEmpty {
+            postComment()
+            toggleDraftCommentViewPresented()
+        }
+    }
+    func draftCommentViewCancel() {
+        toggleDraftCommentViewPresented()
     }
     
     func postComment() {
         store.dispatch(.comment(id: id, content: commentContent))
         store.dispatch(.cleanCommentContent_BarItem)
     }
-    func togglePresented() {
+    
+    func toggleDraftCommentViewPresented() {
         store.dispatch(.toggleDraftCommentViewPresented_BarItem)
     }
 }
@@ -117,12 +129,12 @@ private struct CommentCell: View {
                 style: .continuous)
         )
         .sheet(isPresented: $isPresented) {
-            DraftCommentView(content: $editCommentContent, title: "コメントを編集", commitAction: {
-                if !editCommentContent.isEmpty {
-                    edit()
-                    togglePresented()
-                }
-            }, dismissAction: togglePresented)
+            DraftCommentView(
+                content: $editCommentContent,
+                title: "コメントを編集",
+                postAction: draftCommentViewPost,
+                cancelAction: draftCommentViewCancel
+            )
         }
         .contextMenu {
             if comment.votable {
@@ -152,13 +164,23 @@ private struct CommentCell: View {
         }
     }
     
+    func draftCommentViewPost() {
+        if !editCommentContent.isEmpty {
+            editComment()
+            togglePresented()
+        }
+    }
+    func draftCommentViewCancel() {
+        togglePresented()
+    }
+    
     func voteUp() {
         store.dispatch(.voteComment(id: id, commentID: comment.commentID, vote: 1))
     }
     func voteDown() {
         store.dispatch(.voteComment(id: id, commentID: comment.commentID, vote: -1))
     }
-    func edit() {
+    func editComment() {
         store.dispatch(.editComment(id: id, commentID: comment.commentID, content: editCommentContent))
     }
     func togglePresented() {

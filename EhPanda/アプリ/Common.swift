@@ -26,7 +26,7 @@ public func ePrint(_ string: String?) {
 }
 
 public func didLogin() -> Bool {
-    guard let url = URL(string: Defaults.URL.cookiesVerify),
+    guard let url = URL(string: Defaults.URL.ehentai),
           let cookies = HTTPCookieStorage.shared.cookies(for: url),
           !cookies.isEmpty else { return false }
     
@@ -120,44 +120,5 @@ public func executeAsyncally(_ closure: @escaping (()->())) {
 public func executeSyncally(_ closure: @escaping (()->())) {
     DispatchQueue.global().sync {
         closure()
-    }
-}
-
-extension String {
-    func lString() -> String {
-        NSLocalizedString(self, comment: "")
-    }
-}
-
-extension Dictionary where Key == String, Value == String {
-    func jsonString() -> String {
-        var array = [String]()
-        keys.forEach { key in
-            let value = self[key]!
-            array.append(key + "=" + value)
-        }
-        return array.joined(separator: "&")
-    }
-}
-
-extension UINavigationController: UIGestureRecognizerDelegate {
-    override open func viewDidLoad() {
-        super.viewDidLoad()
-        interactivePopGestureRecognizer?.delegate = self
-    }
-    
-    public func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
-        return viewControllers.count > 1
-    }
-}
-
-extension Array where Element: Publisher {
-    var zipAll: AnyPublisher<[Element.Output], Element.Failure> {
-        let initial = Just([Element.Output]())
-            .setFailureType(to: Element.Failure.self)
-            .eraseToAnyPublisher()
-        return reduce(initial) { result, publisher in
-            result.zip(publisher) { $0 + [$1] }.eraseToAnyPublisher()
-        }
     }
 }

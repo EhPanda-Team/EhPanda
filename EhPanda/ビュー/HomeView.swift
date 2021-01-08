@@ -30,63 +30,40 @@ struct HomeView: View {
             ScrollView {
                 LazyVStack {
                     if exx {
-                        SearchBar(keyword: homeListBinding.keyword) {
-                            if homeList.type != .search {
-                                store.dispatch(.toggleHomeListType(type: .search))
-                            }
-                            store.dispatch(.fetchSearchItems(keyword: homeList.keyword))
-                        } filterAction: {}
+                        SearchBar(keyword: homeListBinding.keyword,
+                                  commitAction: searchBarCommit,
+                                  filterAction: searchBarFilter
+                        )
                     }
-                    
                     if homeList.type == .search {
                         GenericList(
                             items: homeList.searchItems,
                             loadingFlag: homeList.searchLoading,
                             notFoundFlag: homeList.searchNotFound,
-                            loadFailedFlag: homeList.searchLoadFailed) {
-                            store.dispatch(.fetchSearchItems(keyword: homeList.keyword))
-                        }
+                            loadFailedFlag: homeList.searchLoadFailed,
+                            fetchAction: fetchSearchItems)
                     } else if homeList.type == .popular {
                         GenericList(
                             items: homeList.popularItems,
                             loadingFlag: homeList.popularLoading,
                             notFoundFlag: homeList.popularNotFound,
-                            loadFailedFlag: homeList.popularLoadFailed) {
-                            store.dispatch(.fetchPopularItems)
-                        }
+                            loadFailedFlag: homeList.popularLoadFailed,
+                            fetchAction: fetchPopularItems)
                     } else if homeList.type == .favorites {
                         GenericList(
                             items: homeList.favoritesItems?.map { $0.value },
                             loadingFlag: homeList.favoritesLoading,
                             notFoundFlag: homeList.favoritesNotFound,
-                            loadFailedFlag: homeList.favoritesLoadFailed) {
-                            store.dispatch(.fetchFavoritesItems)
-                        }
+                            loadFailedFlag: homeList.favoritesLoadFailed,
+                            fetchAction: fetchFavoritesItems)
                     }
                 }
                 .padding()
-                .onChange(of: homeList.type, perform: { type in
-                    switch type {
-                    case .popular:
-                        if homeList.popularItems?.isEmpty != false {
-                            store.dispatch(.fetchPopularItems)
-                        }
-                    case .favorites:
-                        store.dispatch(.fetchFavoritesItems)
-                    case .downloaded:
-                        print(type)
-                    case .search:
-                        print(type)
-                    }
-                })
-                .onAppear {
-                    if homeList.popularItems?.isEmpty != false {
-                        store.dispatch(.fetchPopularItems)
-                    }
-                    if homeList.favoritesItems?.isEmpty != false {
-                        store.dispatch(.fetchFavoritesItems)
-                    }
-                }
+                .onChange(
+                    of: homeList.type,
+                    perform: onHomeListTypeChange
+                )
+                .onAppear(perform: onAppear)
             }
             .navigationBarTitle(homeList.type.rawValue.lString())
             .navigationBarItems(
@@ -94,27 +71,74 @@ struct HomeView: View {
                     Group {
                         if exx {
                             CategoryPicker(type: homeListBinding.type)
-                            .padding(.bottom, 10)
+                                .padding(.bottom, 10)
                         }
                     },
                 trailing:
                     Group {
                         if exx {
                             Image(systemName: "gear")
-                            .foregroundColor(.primary)
-                            .imageScale(.large)
-                            .sheet(isPresented: environmentBinding.isSettingPresented, content: {
-                                SettingView()
-                                    .environmentObject(store)
-                            })
-                            .onTapGesture {
-                                store.dispatch(.toggleSettingPresented)
-                            }
+                                .foregroundColor(.primary)
+                                .imageScale(.large)
+                                .sheet(
+                                    isPresented: environmentBinding.isSettingPresented,
+                                    content: {
+                                        SettingView()
+                                            .environmentObject(store)
+                                    })
+                                .onTapGesture(perform: toggleSetting)
                         }
                     }
             )
             SecondaryView()
         }
+    }
+    
+    func onAppear() {
+        if homeList.popularItems?.isEmpty != false {
+            fetchPopularItems()
+        }
+        if homeList.favoritesItems?.isEmpty != false {
+            fetchFavoritesItems()
+        }
+    }
+    func onHomeListTypeChange(_ type: HomeListType) {
+        switch type {
+        case .popular:
+            if homeList.popularItems?.isEmpty != false {
+                fetchPopularItems()
+            }
+        case .favorites:
+            fetchFavoritesItems()
+        case .downloaded:
+            print(type)
+        case .search:
+            print(type)
+        }
+    }
+    
+    func searchBarCommit() {
+        if homeList.type != .search {
+            store.dispatch(.toggleHomeListType(type: .search))
+        }
+        fetchSearchItems()
+    }
+    func searchBarFilter() {
+        
+    }
+    
+    func fetchSearchItems() {
+        store.dispatch(.fetchSearchItems(keyword: homeList.keyword))
+    }
+    func fetchPopularItems() {
+        store.dispatch(.fetchPopularItems)
+    }
+    func fetchFavoritesItems() {
+        store.dispatch(.fetchFavoritesItems)
+    }
+    
+    func toggleSetting() {
+        store.dispatch(.toggleSettingPresented)
     }
 }
 
@@ -131,10 +155,8 @@ private struct GenericList: View {
     var body: some View {
         Group {
             if !didLogin() && exx {
-                NotLoginView(loginAction: {
-                    store.dispatch(.toggleSettingPresented)
-                })
-                .padding(.top, 30)
+                NotLoginView(loginAction: toggleSetting)
+                    .padding(.top, 30)
             } else if loadingFlag {
                 LoadingView()
                     .padding(.top, 30)
@@ -154,6 +176,10 @@ private struct GenericList: View {
             }
         }
     }
+    
+    func toggleSetting() {
+        store.dispatch(.toggleSettingPresented)
+    }
 }
 
 
@@ -167,7 +193,8 @@ private struct CategoryPicker: View {
                 .foregroundColor(.primary)
                 .font(.largeTitle),
                content: {
-                let homepageTypes: [HomeListType] = [.popular, .favorites, .downloaded]
+                let homepageTypes: [HomeListType]
+                    = [.popular, .favorites, .downloaded]
                 ForEach(homepageTypes, id: \.self) {
                     Text($0.rawValue.lString())
                 }

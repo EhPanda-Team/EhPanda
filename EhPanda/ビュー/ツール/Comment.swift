@@ -27,8 +27,8 @@ struct CommentButton: View {
 struct DraftCommentView: View {
     @Binding var content: String
     let title: String
-    let commitAction: () -> ()
-    let dismissAction: () -> ()
+    let postAction: () -> ()
+    let cancelAction: () -> ()
     
     var body: some View {
         NavigationView {
@@ -40,12 +40,12 @@ struct DraftCommentView: View {
                     .navigationBarTitle(title.lString(), displayMode: .inline)
                     .navigationBarItems(
                         leading:
-                            Button(action: dismissAction) {
+                            Button(action: cancelAction) {
                                 Text("キャンセル")
                                     .fontWeight(.regular)
                             },
                         trailing:
-                            Button(action: commitAction) {
+                            Button(action: postAction) {
                                 Text("投稿")
                                     .foregroundColor(content.isEmpty ? .gray : .blue)
                             }

@@ -10,8 +10,8 @@ import SwiftUI
 import SDWebImageSwiftUI
 
 class Parser {
-    // MARK: 人気
-    func parsePopularListItems(_ doc: HTMLDocument) -> [Manga] {
+    // MARK: リスト
+    func parseListItems(_ doc: HTMLDocument) -> [Manga] {
         var mangaItems = [Manga]()
         
         for link in doc.xpath("//tr") {
