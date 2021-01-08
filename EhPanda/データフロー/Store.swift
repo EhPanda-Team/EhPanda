@@ -29,6 +29,8 @@ class Store: ObservableObject {
             appState.settings.user = user
         case .eraseCachedList:
             appState.cachedList.items = nil
+        case .initiateFilter:
+            appState.settings.filter = Filter()
             
         case .toggleNavBarHidden(let isHidden):
             appState.environment.navBarHidden = isHidden
@@ -40,6 +42,8 @@ class Store: ObservableObject {
             appState.environment.isEraseImageCachesPresented.toggle()
         case .toggleEraseCachedListPresented:
             appState.environment.isEraseCachedListPresented.toggle()
+        case .toggleFilterViewPresented:
+            appState.environment.isFilterViewPresented.toggle()
         case .toggleDraftCommentViewPresented_Button:
             appState.detailInfo.isDraftCommentViewPresented_Button.toggle()
         case .toggleDraftCommentViewPresented_BarItem:
@@ -62,7 +66,9 @@ class Store: ObservableObject {
             
             if appState.homeList.searchLoading { break }
             appState.homeList.searchLoading = true
-            appCommand = FetchSearchItemsCommand(keyword: keyword)
+            
+            let filter = appState.settings.filter ?? Filter()
+            appCommand = FetchSearchItemsCommand(keyword: keyword, filter: filter)
         case .fetchSearchItemsDone(let result):
             appState.homeList.searchLoading = false
             

@@ -11,13 +11,17 @@ import Foundation
 
 struct SearchItemsRequest {
     let keyword: String
+    let filter: Filter
     let parser = Parser()
     
     var publisher: AnyPublisher<[Manga], AppError> {
         let word = keyword.replacingOccurrences(of: " ", with: "+")
         return URLSession.shared
             .dataTaskPublisher(
-                for: URL(string: Defaults.URL.search(keyword: word))!
+                for: URL(string: Defaults.URL.search(
+                            keyword: word,
+                            filter: filter
+                ))!
             )
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .map(parser.parseListItems)

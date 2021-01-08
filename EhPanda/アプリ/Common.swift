@@ -55,6 +55,10 @@ public var exx: Bool {
     UserDefaults.standard.string(forKey: "entry") == "Rra3MKpjKBJLgraHqt9t"
 }
 
+public var isPad: Bool {
+    UIDevice.current.userInterfaceIdiom == .pad
+}
+
 public var galleryType: GalleryType {
     let rawValue = UserDefaults
         .standard
@@ -71,7 +75,12 @@ public func readableUnit(bytes: Int64) -> String {
 
 public func diskImageCaches() -> String {
     let bytes = SDImageCache.shared.totalDiskSize()
-    return readableUnit(bytes: Int64(bytes))
+    
+    if bytes == 0 {
+        return "0 KB"
+    } else {
+        return readableUnit(bytes: Int64(bytes))
+    }
 }
 
 public func browsingCaches() -> String {

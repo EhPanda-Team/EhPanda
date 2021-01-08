@@ -19,16 +19,19 @@ struct AppState {
 extension AppState {
     struct Environment {
         var navBarHidden = false
-        var isWebViewPresented = false
         var isSettingPresented = false
+        var isWebViewPresented = false
         var isLogoutPresented = false
         var isEraseImageCachesPresented = false
         var isEraseCachedListPresented = false
+        var isFilterViewPresented = false
     }
     
     struct Settings {
         @FileStorage(directory: .cachesDirectory, fileName: "user.json")
         var user: User?
+        @FileStorage(directory: .cachesDirectory, fileName: "filter.json")
+        var filter: Filter?
         var galleryType: GalleryType {
             get {
                 let rawValue = UserDefaults

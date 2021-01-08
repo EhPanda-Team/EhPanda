@@ -61,6 +61,27 @@
 "警告" = "WARNING";
 "デバッグ専用機能です" = "It's for debug only";
 
+// MARK: FilterView
+"フィルター" = "Filters";
+"基本" = "BASIC";
+"高度な設定" = "Advanced Settings";
+"高度" = "ADVANCED";
+"ギャラリー名を検索" = "Search Gallery Name";
+"ギャラリータグを検索" = "Search Gallery Tags";
+"ギャラリー説明を検索" = "Search Gallery Description";
+"トレントファイル名を検索" = "Search Torrent Filenames";
+"トレントを含むもののみを表示" = "Only Show Galleries With Torrents";
+"低希望タグを検索" = "Search Low-Power Tags";
+"低評価タグを検索" = "Search Downvoted Tags";
+"削除済みのギャラリーを表示" = "Show Expunged Galleries";
+"評価の下限を指定" = "Set Minimum Rating";
+"ページ数範囲を指定" = "Set Pages Range";
+"範囲" = "Range";
+"既定フィルター" = "DEFAULT FILTER";
+"言語フィルターを無効化" = "Disable Language Filter";
+"アップローダフィルターを無効化" = "Disable Uploader Filter";
+"タグフィルターを無効化" = "Disable Tags Filter";
+
 // MARK: Category
 "同人誌" = "Doujinshi";
 "漫画" = "Manga";

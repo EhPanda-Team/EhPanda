@@ -89,6 +89,13 @@ struct HomeView: View {
                             commitAction: searchBarCommit,
                             filterAction: searchBarFilter
                         )
+                        .sheet(
+                            isPresented: environmentBinding.isFilterViewPresented,
+                            content: {
+                                FilterView()
+                                    .environmentObject(store)
+                            }
+                        )
                     }
                     conditionalList
                 }
@@ -141,7 +148,7 @@ struct HomeView: View {
         fetchSearchItems()
     }
     func searchBarFilter() {
-        
+        store.dispatch(.toggleFilterViewPresented)
     }
     
     func fetchSearchItems() {
@@ -239,13 +246,11 @@ private struct SearchBar: View {
                     if !keyword.isEmpty {
                         Image(systemName: "xmark.circle.fill")
                             .foregroundColor(.gray)
-                            .onTapGesture {
-                                keyword = ""
-                            }
+                            .onTapGesture(perform: onClearButtonTap)
                     }
                     Image(systemName: "slider.horizontal.3")
                         .foregroundColor(.gray)
-                        .onTapGesture {}
+                        .onTapGesture(perform: filterAction)
                 }
                 
             }
@@ -255,6 +260,10 @@ private struct SearchBar: View {
         .background(Color(.systemGray6))
         .cornerRadius(8)
         .padding(.bottom, 10)
+    }
+    
+    func onClearButtonTap() {
+        keyword = ""
     }
 }
 
@@ -293,7 +302,7 @@ private struct MangaSummaryRow: View {
                 }
                 HStack(alignment: .bottom) {
                     if exx {
-                        Text(manga.translatedCategory.lString())
+                        Text(manga.jpnCategories.lString())
                             .fontWeight(.bold)
                             .lineLimit(1)
                             .font(.footnote)

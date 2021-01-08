@@ -15,10 +15,11 @@ protocol AppCommand {
 
 struct FetchSearchItemsCommand: AppCommand {
     let keyword: String
+    let filter: Filter
     
     func execute(in store: Store) {
         let token = SubscriptionToken()
-        SearchItemsRequest(keyword: keyword)
+        SearchItemsRequest(keyword: keyword, filter:  filter)
             .publisher
             .receive(on: DispatchQueue.main)
             .sink { completion in

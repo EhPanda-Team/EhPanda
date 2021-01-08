@@ -11,11 +11,14 @@ import Foundation
 enum AppAction {
     case updateUser(user: User?)
     case eraseCachedList
+    case initiateFilter
     
     case toggleNavBarHidden(isHidden: Bool)
     
+    case toggleSettingPresented
     case toggleWebViewPresented
     case toggleLogoutPresented
+    case toggleFilterViewPresented
     case toggleEraseImageCachesPresented
     case toggleEraseCachedListPresented
     case toggleDraftCommentViewPresented_Button
@@ -24,7 +27,6 @@ enum AppAction {
     case cleanCommentContent_Button
     case cleanCommentContent_BarItem
     
-    case toggleSettingPresented
     case toggleHomeListType(type: HomeListType)
     
     case fetchSearchItems(keyword: String)

@@ -127,7 +127,7 @@ private struct HeaderView: View {
                 Spacer()
                 HStack {
                     if exx {
-                        Text(manga.translatedCategory.lString())
+                        Text(manga.jpnCategories.lString())
                             .fontWeight(.bold)
                             .lineLimit(1)
                             .font(.headline)

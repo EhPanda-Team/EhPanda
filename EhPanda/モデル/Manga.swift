@@ -74,7 +74,9 @@ struct MangaContent: Identifiable, Codable {
 }
 
 // MARK: 列挙型
-enum Category: String, Codable {
+enum Category: String, Codable, CaseIterable, Identifiable {
+    var id: String { rawValue }
+    
     case Doujinshi = "Doujinshi"
     case Manga = "Manga"
     case Artist_CG = "Artist CG"
@@ -142,15 +144,43 @@ extension Manga {
     var notFilledCount: Int { 5 - filledCount - halfFilledCount }
     
     var color: Color {
-        let colorName =
-            galleryType.rawValue
-            + "/" + translatedCategory
-        
-        return Color(colorName)
+        category.color
     }
-    
-    var translatedCategory: String {
-        switch category {
+    var jpnCategories: String {
+        category.jpn
+    }
+}
+
+extension Category {
+    var color: Color {
+        Color(galleryType.rawValue + "/" + jpn)
+    }
+    var value: Int {
+        switch self {
+        case .Doujinshi:
+            return 2
+        case .Manga:
+            return 4
+        case .Artist_CG:
+            return 8
+        case .Game_CG:
+            return 16
+        case .Western:
+            return 512
+        case .Non_H:
+            return 256
+        case .Image_Set:
+            return 32
+        case .Cosplay:
+            return 64
+        case .Asian_Porn:
+            return 128
+        case .Misc:
+            return 1
+        }
+    }
+    var jpn: String {
+        switch self {
         case .Doujinshi:
             return "同人誌"
         case .Manga:
