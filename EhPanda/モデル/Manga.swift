@@ -141,29 +141,8 @@ extension Manga {
     var halfFilledCount: Int { Int(rating - 0.5) == filledCount ? 1 : 0 }
     var notFilledCount: Int { 5 - filledCount - halfFilledCount }
     
-    var color: UIColor {
-        switch category {
-        case .Doujinshi:
-            return .systemRed
-        case .Manga:
-            return .systemOrange
-        case .Artist_CG:
-            return .systemYellow
-        case .Game_CG:
-            return .systemGreen
-        case .Western:
-            return .green
-        case .Non_H:
-            return .systemBlue
-        case .Image_Set:
-            return .systemIndigo
-        case .Cosplay:
-            return .systemPurple
-        case .Asian_Porn:
-            return .purple
-        case .Misc:
-            return .systemPink
-        }
+    var color: Color {
+        Color(translatedCategory)
     }
     
     var translatedCategory: String {

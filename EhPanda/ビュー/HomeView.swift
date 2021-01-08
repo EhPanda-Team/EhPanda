@@ -21,6 +21,60 @@ struct HomeView: View {
         $store.appState.environment
     }
     
+    var categoryPicker: some View {
+        Group {
+            if exx {
+                CategoryPicker(type: homeListBinding.type)
+                    .padding(.bottom, 10)
+            }
+        }
+    }
+    var settingEntry: some View {
+        Group {
+            if exx {
+                Image(systemName: "gear")
+                    .foregroundColor(.primary)
+                    .imageScale(.large)
+                    .sheet(
+                        isPresented: environmentBinding.isSettingPresented,
+                        content: {
+                            SettingView()
+                                .environmentObject(store)
+                        })
+                    .onTapGesture(perform: toggleSetting)
+            }
+        }
+    }
+    var conditionalList: some View {
+        Group {
+            if homeList.type == .search {
+                GenericList(
+                    items: homeList.searchItems,
+                    loadingFlag: homeList.searchLoading,
+                    notFoundFlag: homeList.searchNotFound,
+                    loadFailedFlag: homeList.searchLoadFailed,
+                    fetchAction: fetchSearchItems
+                )
+            } else if homeList.type == .popular {
+                GenericList(
+                    items: homeList.popularItems,
+                    loadingFlag: homeList.popularLoading,
+                    notFoundFlag: homeList.popularNotFound,
+                    loadFailedFlag: homeList.popularLoadFailed,
+                    fetchAction: fetchPopularItems
+                )
+            } else if homeList.type == .favorites {
+                GenericList(
+                    items: homeList.favoritesItems?.map { $0.value },
+                    loadingFlag: homeList.favoritesLoading,
+                    notFoundFlag: homeList.favoritesNotFound,
+                    loadFailedFlag: homeList.favoritesLoadFailed,
+                    fetchAction: fetchFavoritesItems
+                )
+            }
+        }
+    }
+    
     init() {
         UIScrollView.appearance().keyboardDismissMode = .onDrag
     }
@@ -30,66 +84,29 @@ struct HomeView: View {
             ScrollView {
                 LazyVStack {
                     if exx {
-                        SearchBar(keyword: homeListBinding.keyword,
-                                  commitAction: searchBarCommit,
-                                  filterAction: searchBarFilter
+                        SearchBar(
+                            keyword: homeListBinding.keyword,
+                            commitAction: searchBarCommit,
+                            filterAction: searchBarFilter
                         )
                     }
-                    if homeList.type == .search {
-                        GenericList(
-                            items: homeList.searchItems,
-                            loadingFlag: homeList.searchLoading,
-                            notFoundFlag: homeList.searchNotFound,
-                            loadFailedFlag: homeList.searchLoadFailed,
-                            fetchAction: fetchSearchItems)
-                    } else if homeList.type == .popular {
-                        GenericList(
-                            items: homeList.popularItems,
-                            loadingFlag: homeList.popularLoading,
-                            notFoundFlag: homeList.popularNotFound,
-                            loadFailedFlag: homeList.popularLoadFailed,
-                            fetchAction: fetchPopularItems)
-                    } else if homeList.type == .favorites {
-                        GenericList(
-                            items: homeList.favoritesItems?.map { $0.value },
-                            loadingFlag: homeList.favoritesLoading,
-                            notFoundFlag: homeList.favoritesNotFound,
-                            loadFailedFlag: homeList.favoritesLoadFailed,
-                            fetchAction: fetchFavoritesItems)
-                    }
+                    conditionalList
                 }
                 .padding()
-                .onChange(
-                    of: homeList.type,
-                    perform: onHomeListTypeChange
-                )
-                .onAppear(perform: onAppear)
             }
-            .navigationBarTitle(homeList.type.rawValue.lString())
-            .navigationBarItems(
-                leading:
-                    Group {
-                        if exx {
-                            CategoryPicker(type: homeListBinding.type)
-                                .padding(.bottom, 10)
-                        }
-                    },
-                trailing:
-                    Group {
-                        if exx {
-                            Image(systemName: "gear")
-                                .foregroundColor(.primary)
-                                .imageScale(.large)
-                                .sheet(
-                                    isPresented: environmentBinding.isSettingPresented,
-                                    content: {
-                                        SettingView()
-                                            .environmentObject(store)
-                                    })
-                                .onTapGesture(perform: toggleSetting)
-                        }
-                    }
+            .navigationBarTitle(
+                homeList.type.rawValue.lString()
             )
+            .navigationBarItems(
+                leading: categoryPicker,
+                trailing: settingEntry
+            )
+            .onChange(
+                of: homeList.type,
+                perform: onHomeListTypeChange
+            )
+            .onAppear(perform: onAppear)
+            
             SecondaryView()
         }
     }
@@ -284,7 +301,7 @@ private struct MangaSummaryRow: View {
                             .padding(.init(top: 1, leading: 3, bottom: 1, trailing: 3))
                             .background(
                                 RoundedRectangle(cornerRadius: 2)
-                                    .foregroundColor(Color(manga.color))
+                                    .foregroundColor(manga.color)
                             )
                     }
                     Spacer()

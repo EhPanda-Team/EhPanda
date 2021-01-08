@@ -26,6 +26,7 @@ struct CommentButton: View {
 
 struct DraftCommentView: View {
     @Binding var content: String
+    
     let title: String
     let postAction: () -> ()
     let cancelAction: () -> ()

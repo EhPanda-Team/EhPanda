@@ -135,7 +135,7 @@ private struct HeaderView: View {
                             .padding(.init(top: 2, leading: 4, bottom: 2, trailing: 4))
                             .background(
                                 RoundedRectangle(cornerRadius: 3)
-                                    .foregroundColor(Color(manga.color))
+                                    .foregroundColor(manga.color)
                             )
                     }
                     Spacer()
