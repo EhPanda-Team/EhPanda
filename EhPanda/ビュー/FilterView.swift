@@ -20,6 +20,13 @@ struct FilterView: View {
         $store.appState.environment
     }
     
+    var resetFiltersActionSheet: ActionSheet {
+        ActionSheet(title: Text("本当に戻しますか？"), buttons: [
+            .destructive(Text("戻す"), action: resetFilters),
+            .cancel()
+        ])
+    }
+    
     var body: some View {
         NavigationView {
             if let filter = settings.filter,
@@ -31,15 +38,6 @@ struct FilterView: View {
                             Text("既定値に戻す")
                                 .foregroundColor(.red)
                         }
-                        .actionSheet(
-                            isPresented: environmentBinding.isResetFiltersPresented,
-                            content: {
-                                ActionSheet(title: Text("本当に戻しますか？"), buttons: [
-                                    .destructive(Text("戻す"), action: resetFilters),
-                                    .cancel()
-                                ])
-                            }
-                        )
                         Toggle("高度な設定", isOn: filterBinding.advanced)
                     }
                     if filter.advanced {
@@ -73,6 +71,12 @@ struct FilterView: View {
                         }
                     }
                 }
+                .actionSheet(item: environmentBinding.filterViewActionSheetState, content: { item in
+                    switch item {
+                    case .resetFilters:
+                        return resetFiltersActionSheet
+                    }
+                })
                 .navigationBarTitle("フィルター")
             }
         }
@@ -86,7 +90,7 @@ struct FilterView: View {
     }
     
     func onResetButtonTap() {
-        store.dispatch(.toggleResetFiltersPresented)
+        store.dispatch(.toggleFilterViewActionSheetState(state: .resetFilters))
     }
     
     func resetFilters() {
@@ -175,16 +179,19 @@ private struct MinimumRatingSetter: View {
     
     var body: some View {
         HStack {
-            Text("下限")
+            Text("評価の下限")
             Spacer()
-            Picker(selection: $minimum, label: Text("評価の下限"), content: {
+            Picker(selection: $minimum, label: Text(""), content: {
                 Text("2").tag(2)
                 Text("3").tag(3)
                 Text("4").tag(4)
                 Text("5").tag(5)
             })
             .pickerStyle(SegmentedPickerStyle())
-            .frame(width: 125)
+            .frame(width: 150)
+            Text("つ星")
+                .fontWeight(.bold)
+                .font(.caption)
         }
     }
 }
@@ -205,7 +212,7 @@ private struct PagesRangeSetter: View {
     
     var body: some View {
         HStack {
-            Text("範囲")
+            Text("ページ数範囲")
             Spacer()
             TextField("", text: $lowerBound)
                 .multilineTextAlignment(.center)
@@ -222,4 +229,11 @@ private struct PagesRangeSetter: View {
                 .cornerRadius(5)
         }
     }
+}
+
+// MARK: 定義
+enum FilterViewActionSheetState: Identifiable {
+    var id: Int { hashValue }
+    
+    case resetFilters
 }

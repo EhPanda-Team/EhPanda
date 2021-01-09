@@ -18,6 +18,7 @@ struct Manga: Identifiable, Codable {
     let title: String
     let rating: Float
     let category: Category
+    let language: Language?
     let uploader: String?
     let publishedTime: String
     let coverURL: String
@@ -25,6 +26,8 @@ struct Manga: Identifiable, Codable {
 }
 
 struct MangaDetail: Codable {
+    var readingProgress: Int?
+    
     var alterImages: [Data]
     var comments: [MangaComment]
     let previews: [MangaPreview]
@@ -151,6 +154,15 @@ extension Manga {
     }
 }
 
+extension MangaDetail {
+    var languageAbbr: String {
+        language.languageAbbr
+    }
+    var translatedLanguage: String {
+        language.translatedLanguage
+    }
+}
+
 extension Category {
     var color: Color {
         Color(galleryType.rawValue + "/" + jpn)
@@ -205,9 +217,9 @@ extension Category {
     }
 }
 
-extension MangaDetail {
+extension Language {
     var languageAbbr: String {
-        switch language {
+        switch self {
         case .Other: return "N/A"
         
         case .Afrikaans: return "AF"; case .Albanian: return "SQ"; case .Arabic: return "AR"
@@ -257,7 +269,7 @@ extension MangaDetail {
     }
     
     var translatedLanguage: String {
-        switch language {
+        switch self {
         case .Other: return "その他"
             
         case .Afrikaans: return "アフリカーンス語"; case .Albanian: return "アルバニア語"; case .Arabic: return "アラビア語"

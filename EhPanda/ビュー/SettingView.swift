@@ -18,108 +18,129 @@ struct SettingView: View {
         $store.appState.environment
     }
     
-    var body: some View {
-        NavigationView {
-            Form {
-                Section(header: Text("アカウント")) {
-                    Picker(
-                        selection: settingsBinding.galleryType,
-                        label: Text("ギャラリー"),
-                        content: {
-                            let galleryTypes: [GalleryType] = [.eh, .ex]
-                            ForEach(galleryTypes, id: \.self) {
-                                Text($0.rawValue.lString())
-                            }
-                        })
-                        .pickerStyle(SegmentedPickerStyle())
-                    if didLogin() {
-                        Text("ログイン済み")
-                            .foregroundColor(.gray)
-                    } else {
-                        NavigationLink(
-                            destination: WebView(),
-                            isActive: environmentBinding.isWebViewPresented)
-                        {
-                            Text("ログイン")
-                        }
-                    }
-                    
-                    Button(action: toggleLogout) {
-                        Text("ログアウト")
-                            .foregroundColor(.red)
-                    }
-                    .actionSheet(
-                        isPresented: environmentBinding.isLogoutPresented,
-                        content: {
-                            ActionSheet(title: Text("本当にログアウトしますか？"), buttons: [
-                                .destructive(Text("ログアウト"), action: logout),
-                                .cancel()
-                            ])
-                        })
-                }
-                Section(header: Text("キャッシュ")) {
-                    Button(action: toggleEraseImageCaches) {
-                        HStack {
-                            Text("画像キャッシュを削除")
-                            Spacer()
-                            Text(diskImageCaches())
-                        }
-                        .foregroundColor(.primary)
-                    }
-                    .actionSheet(
-                        isPresented: environmentBinding.isEraseImageCachesPresented,
-                        content: {
-                            ActionSheet(title: Text("本当に削除しますか？"), buttons: [
-                                .destructive(Text("削除"), action: eraseImageCaches),
-                                .cancel()
-                            ])
-                        })
-                    Button(action: toggleEraseCachedList) {
-                        HStack {
-                            Text("ウェブキャッシュを削除")
-                            Spacer()
-                            Text(browsingCaches())
-                        }
-                        .foregroundColor(.primary)
-                    }
-                    .actionSheet(
-                        isPresented: environmentBinding.isEraseCachedListPresented,
-                        content: {
-                            ActionSheet(
-                                title: Text("警告"),
-                                message: Text("デバッグ専用機能です"),
-                                buttons: [
-                                    .destructive(Text("削除"), action: eraseCachedList),
-                                    .cancel()
-                            ])
-                    })
-                }
-            }
-            .navigationBarTitle("設定")
-        }
+    var logoutActionSheet: ActionSheet {
+        ActionSheet(title: Text("本当にログアウトしますか？"), buttons: [
+            .destructive(Text("ログアウト"), action: logout),
+            .cancel()
+        ])
+    }
+    var clearImgCachesActionSheet: ActionSheet {
+        ActionSheet(title: Text("本当に削除しますか？"), buttons: [
+            .destructive(Text("削除"), action: eraseImageCaches),
+            .cancel()
+        ])
+    }
+    var clearWebCachesActionSheet: ActionSheet {
+        ActionSheet(
+            title: Text("警告"),
+            message: Text("デバッグ専用機能です"),
+            buttons: [
+                .destructive(Text("削除"), action: eraseCachedList),
+                .cancel()
+            ]
+        )
     }
     
-    func toggleLogout() {
-        store.dispatch(.toggleLogoutPresented)
-    }
-    func toggleEraseImageCaches() {
-        store.dispatch(.toggleEraseImageCachesPresented)
-    }
-    func toggleEraseCachedList() {
-        store.dispatch(.toggleEraseCachedListPresented)
-        store.dispatch(.fetchPopularItems)
-        store.dispatch(.fetchFavoritesItems)
+    var body: some View {
+        NavigationView {
+            if let settingBinding = Binding(settingsBinding.setting) {
+                Form {
+                    Section(header: Text("アカウント")) {
+                        Picker(
+                            selection: settingsBinding.galleryType,
+                            label: Text("ギャラリー"),
+                            content: {
+                                let galleryTypes: [GalleryType] = [.eh, .ex]
+                                ForEach(galleryTypes, id: \.self) {
+                                    Text($0.rawValue.lString())
+                                }
+                            })
+                            .pickerStyle(SegmentedPickerStyle())
+                        if didLogin() {
+                            Text("ログイン済み")
+                                .foregroundColor(.gray)
+                        } else {
+                            NavigationLink(destination: WebView()) {
+                                Text("ログイン")
+                                    .foregroundColor(.blue)
+                            }
+                        }
+                        
+                        Button(action: toggleLogout) {
+                            Text("ログアウト")
+                                .foregroundColor(.red)
+                        }
+                    }
+                    if isPad {
+                        Section(header: Text("外観")) {
+                            Toggle(isOn: settingBinding.hideSideBar) {
+                                Text("サイドバーを表示しない")
+                            }
+                        }
+                    }
+                    Section(header: Text("キャッシュ")) {
+                        Button(action: toggleClearImgCaches) {
+                            HStack {
+                                Text("画像キャッシュを削除")
+                                Spacer()
+                                Text(diskImageCaches())
+                            }
+                            .foregroundColor(.primary)
+                        }
+                        Button(action: toggleClearWebCaches) {
+                            HStack {
+                                Text("ウェブキャッシュを削除")
+                                Spacer()
+                                Text(browsingCaches())
+                            }
+                            .foregroundColor(.primary)
+                        }
+                    }
+                }
+                .actionSheet(item: environmentBinding.settingViewActionSheetState, content: { item in
+                    switch item {
+                    case .logout:
+                        return logoutActionSheet
+                    case .clearImgCaches:
+                        return clearImgCachesActionSheet
+                    case .clearWebCaches:
+                        return clearWebCachesActionSheet
+                    }
+                })
+                .navigationBarTitle("設定")
+            }
+        }
     }
     
     func logout() {
         cleanCookies()
         store.dispatch(.updateUser(user: nil))
     }
-    
     func eraseImageCaches() {
         SDImageCache.shared.clearDisk()
     }
     func eraseCachedList() {
         store.dispatch(.eraseCachedList)
+        store.dispatch(.fetchPopularItems)
+        store.dispatch(.fetchFavoritesItems)
     }
+    
+    func toggleLogout() {
+        store.dispatch(.toggleSettingViewActionSheetState(state: .logout))
+    }
+    func toggleClearImgCaches() {
+        store.dispatch(.toggleSettingViewActionSheetState(state: .clearImgCaches))
+    }
+    func toggleClearWebCaches() {
+        store.dispatch(.toggleSettingViewActionSheetState(state: .clearWebCaches))
+    }
+}
+
+// MARK: 定義
+enum SettingViewActionSheetState: Identifiable {
+    var id: Int { hashValue }
+    
+    case logout
+    case clearImgCaches
+    case clearWebCaches
 }

@@ -15,20 +15,20 @@ struct CommentView: View {
         store.appState.cachedList.items?[id]?.detail?.comments ?? []
     }
     
-    var detailInfo: AppState.DetailInfo {
-        store.appState.detailInfo
+    var environmentBinding: Binding<AppState.Environment> {
+        $store.appState.environment
     }
-    var detailInfoBinding: Binding<AppState.DetailInfo> {
-        $store.appState.detailInfo
+    var commentInfo: AppState.CommentInfo {
+        store.appState.commentInfo
     }
-    var isDraftCommentViewPresentedBinding: Binding<Bool> {
-        detailInfoBinding.isDraftCommentViewPresented_BarItem
+    var commentInfoBinding: Binding<AppState.CommentInfo> {
+        $store.appState.commentInfo
     }
     var commentContent: String {
-        detailInfo.commentContent_BarItem
+        commentInfo.commentContent
     }
     var commentContentBinding: Binding<String> {
-        detailInfoBinding.commentContent_BarItem
+        commentInfoBinding.commentContent
     }
     
     var body: some View {
@@ -45,18 +45,21 @@ struct CommentView: View {
         .padding(.horizontal)
         .navigationBarItems(
             trailing:
-                Button(action: toggleDraftCommentViewPresented, label: {
+                Button(action: toggleDraft, label: {
                     Image(systemName: "square.and.pencil")
                     Text("コメントを書く")
                 })
-                .sheet(isPresented: isDraftCommentViewPresentedBinding) {
-                    DraftCommentView(
-                        content: commentContentBinding,
-                        title: "コメントを書く",
-                        postAction: draftCommentViewPost,
-                        cancelAction: draftCommentViewCancel
-                    )
-                }
+                .sheet(item: environmentBinding.commentViewSheetState, content: { item in
+                    switch item {
+                    case .comment:
+                        DraftCommentView(
+                            content: commentContentBinding,
+                            title: "コメントを書く",
+                            postAction: draftCommentViewPost,
+                            cancelAction: draftCommentViewCancel
+                        )
+                    }
+                })
         )
     }
     
@@ -64,20 +67,23 @@ struct CommentView: View {
     func draftCommentViewPost() {
         if !commentContent.isEmpty {
             postComment()
-            toggleDraftCommentViewPresented()
+            toggleNil()
         }
     }
     func draftCommentViewCancel() {
-        toggleDraftCommentViewPresented()
+        toggleNil()
     }
     
     func postComment() {
         store.dispatch(.comment(id: id, content: commentContent))
-        store.dispatch(.cleanCommentContent_BarItem)
+        store.dispatch(.cleanCommentViewCommentContent)
     }
     
-    func toggleDraftCommentViewPresented() {
-        store.dispatch(.toggleDraftCommentViewPresented_BarItem)
+    func toggleDraft() {
+        store.dispatch(.toggleCommentViewSheetState(state: .comment))
+    }
+    func toggleNil() {
+        store.dispatch(.toggleCommentViewSheetNil)
     }
 }
 
@@ -186,4 +192,11 @@ private struct CommentCell: View {
     func togglePresented() {
         isPresented.toggle()
     }
+}
+
+// MARK: 定義
+enum CommentViewSheetState: Identifiable {
+    var id: Int { hashValue }
+    
+    case comment
 }

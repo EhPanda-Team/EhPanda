@@ -19,7 +19,7 @@ struct NotLoginView: View {
     var body: some View {
         GenericRetryView(symbolName: "person.crop.circle.badge.questionmark",
                          message: "ご利用にはログインが必要です",
-                         buttonText: "ログイン",
+                         buttonText: "ログイン".lString().uppercased(),
                          retryAction: loginAction)
     }
 }

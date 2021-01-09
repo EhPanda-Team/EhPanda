@@ -31,110 +31,109 @@ class Store: ObservableObject {
             appState.cachedList.items = nil
         case .initiateFilter:
             appState.settings.filter = Filter()
+        case .initiateSetting:
+            appState.settings.setting = Setting()
+        case .saveReadingProgress(let id, let tag):
+            appState.cachedList.insertReadingProgress(progress: (tag, id))
             
+        case .toggleHomeListType(let type):
+            appState.environment.homeListType = type
         case .toggleNavBarHidden(let isHidden):
             appState.environment.navBarHidden = isHidden
-        case .toggleWebViewPresented:
-            appState.environment.isWebViewPresented.toggle()
-        case .toggleLogoutPresented:
-            appState.environment.isLogoutPresented.toggle()
-        case .toggleEraseImageCachesPresented:
-            appState.environment.isEraseImageCachesPresented.toggle()
-        case .toggleEraseCachedListPresented:
-            appState.environment.isEraseCachedListPresented.toggle()
-        case .toggleFilterViewPresented:
-            appState.environment.isFilterViewPresented.toggle()
-        case .toggleResetFiltersPresented:
-            appState.environment.isResetFiltersPresented.toggle()
-        case .toggleDraftCommentViewPresented_Button:
-            appState.detailInfo.isDraftCommentViewPresented_Button.toggle()
-        case .toggleDraftCommentViewPresented_BarItem:
-            appState.detailInfo.isDraftCommentViewPresented_BarItem.toggle()
+        case .toggleHomeViewSheetState(let state):
+            appState.environment.homeViewSheetState = state
+        case .toggleSettingViewActionSheetState(let state):
+            appState.environment.settingViewActionSheetState = state
+        case .toggleFilterViewActionSheetState(let state):
+            appState.environment.filterViewActionSheetState = state
+        case .toggleDetailViewSheetState(let state):
+            appState.environment.detailViewSheetState = state
+        case .toggleDetailViewSheetNil:
+            appState.environment.detailViewSheetState = nil
+        case .toggleCommentViewSheetState(let state):
+            appState.environment.commentViewSheetState = state
+        case .toggleCommentViewSheetNil:
+            appState.environment.commentViewSheetState = nil
             
-        case .cleanCommentContent_Button:
-            appState.detailInfo.commentContent_Button = ""
-        case .cleanCommentContent_BarItem:
-            appState.detailInfo.commentContent_BarItem = ""
-            
-        case .toggleSettingPresented:
-            appState.environment.isSettingPresented.toggle()
-        case .toggleHomeListType(let type):
-            appState.homeList.type = type
+        case .cleanDetailViewCommentContent:
+            appState.detailInfo.commentContent = ""
+        case .cleanCommentViewCommentContent:
+            appState.commentInfo.commentContent = ""
             
         case .fetchSearchItems(let keyword):
             if !didLogin() { break }
-            appState.homeList.searchNotFound = false
-            appState.homeList.searchLoadFailed = false
+            appState.homeInfo.searchNotFound = false
+            appState.homeInfo.searchLoadFailed = false
             
-            if appState.homeList.searchLoading { break }
-            appState.homeList.searchLoading = true
+            if appState.homeInfo.searchLoading { break }
+            appState.homeInfo.searchLoading = true
             
             let filter = appState.settings.filter ?? Filter()
             appCommand = FetchSearchItemsCommand(keyword: keyword, filter: filter)
         case .fetchSearchItemsDone(let result):
-            appState.homeList.searchLoading = false
+            appState.homeInfo.searchLoading = false
             
             switch result {
             case .success(let mangas):
                 if mangas.isEmpty {
-                    appState.homeList.searchNotFound = true
+                    appState.homeInfo.searchNotFound = true
                 } else {
-                    appState.homeList.searchItems = mangas
+                    appState.homeInfo.searchItems = mangas
                     appState.cachedList.cache(items: mangas)
                 }
             case .failure(let error):
                 ePrint(error)
-                appState.homeList.searchLoadFailed = true
+                appState.homeInfo.searchLoadFailed = true
             }
             
         case .fetchPopularItems:
             if !didLogin() && exx { break }
-            appState.homeList.popularNotFound = false
-            appState.homeList.popularLoadFailed = false
+            appState.homeInfo.popularNotFound = false
+            appState.homeInfo.popularLoadFailed = false
             
-            if appState.homeList.popularLoading { break }
-            appState.homeList.popularLoading = true
+            if appState.homeInfo.popularLoading { break }
+            appState.homeInfo.popularLoading = true
             appCommand = FetchPopularItemsCommand()
         case .fetchPopularItemsDone(let result):
-            appState.homeList.popularLoading = false
+            appState.homeInfo.popularLoading = false
             
             switch result {
             case .success(let mangas):
                 if mangas.isEmpty {
-                    appState.homeList.popularNotFound = true
+                    appState.homeInfo.popularNotFound = true
                 } else {
-                    appState.homeList.popularItems = mangas
+                    appState.homeInfo.popularItems = mangas
                     appState.cachedList.cache(items: mangas)
                 }
             case .failure(let error):
                 ePrint(error)
-                appState.homeList.popularLoadFailed = true
+                appState.homeInfo.popularLoadFailed = true
             }
             
         case .fetchFavoritesItems:
             if !didLogin() { break }
-            appState.homeList.favoritesNotFound = false
-            appState.homeList.favoritesLoadFailed = false
+            appState.homeInfo.favoritesNotFound = false
+            appState.homeInfo.favoritesLoadFailed = false
             
-            if appState.homeList.favoritesLoading { break }
-            appState.homeList.favoritesLoading = true
+            if appState.homeInfo.favoritesLoading { break }
+            appState.homeInfo.favoritesLoading = true
             appCommand = FetchFavoritesItemsCommand()
         case .fetchFavoritesItemsDone(result: let result):
-            appState.homeList.favoritesLoading = false
+            appState.homeInfo.favoritesLoading = false
             
             switch result {
             case .success(let mangas):
                 if mangas.isEmpty {
-                    appState.homeList.favoritesNotFound = true
+                    appState.homeInfo.favoritesNotFound = true
                 } else {
-                    appState.homeList.favoritesItems = Dictionary(
+                    appState.homeInfo.favoritesItems = Dictionary(
                         uniqueKeysWithValues: mangas.map { ($0.id, $0)}
                     )
                     appState.cachedList.cache(items: mangas)
                 }
             case .failure(let error):
                 ePrint(error)
-                appState.homeList.favoritesLoadFailed = true
+                appState.homeInfo.favoritesLoadFailed = true
             }
             
         case .fetchMangaDetail(id: let id):
@@ -191,27 +190,27 @@ class Store: ObservableObject {
             }
             
         case .fetchMangaContents(let id):
-            appState.contentsInfo.mangaContentsLoadFailed = false
+            appState.contentInfo.mangaContentsLoadFailed = false
             
-            if appState.contentsInfo.mangaContentsLoading { break }
-            appState.contentsInfo.mangaContentsLoading = true
+            if appState.contentInfo.mangaContentsLoading { break }
+            appState.contentInfo.mangaContentsLoading = true
             
             let detailURL = appState.cachedList.items?[id]?.detailURL ?? ""
             let pages = Int(appState.cachedList.items?[id]?.detail?.pageCount ?? "") ?? 0
             appCommand = FetchMangaContentsCommand(id: id, pages: pages, detailURL: detailURL)
         case .fetchMangaContentsDone(result: let result):
-            appState.contentsInfo.mangaContentsLoading = false
+            appState.contentInfo.mangaContentsLoading = false
             
             switch result {
             case .success(let contents):
                 if contents.0.isEmpty {
-                    appState.contentsInfo.mangaContentsLoadFailed = true
+                    appState.contentInfo.mangaContentsLoadFailed = true
                 } else {
                     appState.cachedList.insertContents(contents: contents)
                 }
             case .failure(let error):
                 ePrint(error)
-                appState.contentsInfo.mangaContentsLoadFailed = true
+                appState.contentInfo.mangaContentsLoadFailed = true
             }
         
         case .addFavorite(let id):

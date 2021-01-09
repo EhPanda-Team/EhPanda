@@ -18,8 +18,8 @@ struct ContentView: View {
     var cachedList: AppState.CachedList {
         store.appState.cachedList
     }
-    var contentsInfo: AppState.ContentsInfo {
-        store.appState.contentsInfo
+    var contentInfo: AppState.ContentInfo {
+        store.appState.contentInfo
     }
     var mangaDetail: MangaDetail? {
         cachedList.items?[id]?.detail
@@ -36,24 +36,38 @@ struct ContentView: View {
     var body: some View {
         Group {
             if let contents = mangaContents {
-                ScrollView {
-                    LazyVStack(spacing: 0) {
-                        ForEach(contents) { item in
-                            WebImage(url: URL(string: item.url),
-                                     options: [.retryFailed, .handleCookies]
-                            )
-                            .resizable()
-                            .placeholder { rectangle }
-                            .indicator(.progress)
-                            .scaledToFit()
+                ScrollViewReader { proxy in
+                    ScrollView {
+                        LazyVStack(spacing: 0) {
+                            ForEach(contents) { item in
+                                WebImage(url: URL(string: item.url),
+                                         options: [.retryFailed, .handleCookies]
+                                )
+                                .resizable()
+                                .placeholder { rectangle }
+                                .indicator(.progress)
+                                .scaledToFit()
+                                .onTapGesture(perform: onWebImageTap)
+                                .onLongPressGesture(
+                                    minimumDuration: 0,
+                                    maximumDistance: .infinity,
+                                    pressing: { _ in
+                                        onWebImageLongPressing(tag: item.tag)
+                                    }, perform: {}
+                                )
+
+                            }
+                        }
+                        .onAppear {
+                            onLazyVStackAppear(proxy)
                         }
                     }
+                    .ignoresSafeArea()
+                    .transition(AnyTransition.opacity.animation(.default))
                 }
-                .ignoresSafeArea()
-                .transition(AnyTransition.opacity.animation(.default))
-            } else if contentsInfo.mangaContentsLoading {
+            } else if contentInfo.mangaContentsLoading {
                 LoadingView()
-            } else if contentsInfo.mangaContentsLoadFailed {
+            } else if contentInfo.mangaContentsLoadFailed {
                 NetworkErrorView(retryAction: fetchMangaContents)
             }
         }
@@ -67,6 +81,23 @@ struct ContentView: View {
         
         if mangaContents?.count != Int(mangaDetail?.pageCount ?? "") {
             fetchMangaContents()
+        }
+    }
+    func onWebImageLongPressing(tag: Int) {
+        saveReadingProgress(tag: tag)
+    }
+    func onWebImageTap() {
+        toggleNavBarHidden()
+    }
+    
+    func saveReadingProgress(tag: Int) {
+        store.dispatch(.saveReadingProgress(id: id, tag: tag))
+    }
+    func onLazyVStackAppear(_ proxy: ScrollViewProxy) {
+        if let tag = mangaDetail?.readingProgress,
+           let uuid = cachedList.getUUID(progress: (tag, id))
+        {
+            proxy.scrollTo(uuid)
         }
     }
     

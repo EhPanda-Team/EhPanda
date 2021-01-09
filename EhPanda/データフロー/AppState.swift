@@ -10,22 +10,22 @@ import Foundation
 struct AppState {
     var environment = Environment()
     var settings = Settings()
-    var homeList = HomeList()
+    var homeInfo = HomeInfo()
     var detailInfo = DetailInfo()
-    var contentsInfo = ContentsInfo()
+    var commentInfo = CommentInfo()
+    var contentInfo = ContentInfo()
     var cachedList = CachedList()
 }
 
 extension AppState {
     struct Environment {
         var navBarHidden = false
-        var isSettingPresented = false
-        var isWebViewPresented = false
-        var isLogoutPresented = false
-        var isEraseImageCachesPresented = false
-        var isEraseCachedListPresented = false
-        var isFilterViewPresented = false
-        var isResetFiltersPresented = false
+        var homeListType: HomeListType = .popular
+        var homeViewSheetState: HomeViewSheetState? = nil
+        var settingViewActionSheetState: SettingViewActionSheetState? = nil
+        var filterViewActionSheetState: FilterViewActionSheetState? = nil
+        var detailViewSheetState: DetailViewSheetState? = nil
+        var commentViewSheetState: CommentViewSheetState? = nil
     }
     
     struct Settings {
@@ -33,6 +33,8 @@ extension AppState {
         var user: User?
         @FileStorage(directory: .cachesDirectory, fileName: "filter.json")
         var filter: Filter?
+        @FileStorage(directory: .cachesDirectory, fileName: "setting.json")
+        var setting: Setting?
         var galleryType: GalleryType {
             get {
                 let rawValue = UserDefaults
@@ -53,9 +55,9 @@ extension AppState {
 }
 
 extension AppState {
-    struct HomeList {
-        var keyword = ""
-        var type: HomeListType = .popular
+    struct HomeInfo {
+        var searchKeyword = ""
+        
         var searchItems: [Manga]?
         var searchLoading = false
         var searchNotFound = false
@@ -77,10 +79,7 @@ extension AppState {
     }
     
     struct DetailInfo {
-        var commentContent_Button = ""
-        var commentContent_BarItem = ""
-        var isDraftCommentViewPresented_Button = false
-        var isDraftCommentViewPresented_BarItem = false
+        var commentContent = ""
         
         var mangaDetailLoading = false
         var mangaDetailLoadFailed = false
@@ -91,7 +90,11 @@ extension AppState {
         var mangaCommentsUpdateFailed = false
     }
     
-    struct ContentsInfo {
+    struct CommentInfo {
+        var commentContent = ""
+    }
+    
+    struct ContentInfo {
         var mangaContentsLoading = false
         var mangaContentsLoadFailed = false
     }
@@ -130,21 +133,21 @@ extension AppState {
         mutating func insertContents(contents: ([MangaContent], String)) {
             var historyContents = self.items?[contents.1]?.contents
             if historyContents == nil {
-                self.items?[contents.1]?.contents = contents.0
+                let sortedContents = contents.0.sorted { $0.tag < $1.tag }
+                self.items?[contents.1]?.contents = sortedContents
             } else {
                 historyContents?.append(contentsOf: contents.0)
                 historyContents?.sort { $0.tag < $1.tag }
                 self.items?[contents.1]?.contents = historyContents
             }
         }
+        mutating func insertReadingProgress(progress: (Int, String)) {
+            self.items?[progress.1]?.detail?.readingProgress = progress.0
+        }
+        func getUUID(progress: (Int, String)) -> UUID? {
+            self.items?[progress.1]?.contents?.filter { $0.tag == progress.0 }.first?.id
+        }
     }
-}
-
-enum HomeListType: String {
-    case search = "検索"
-    case popular = "人気"
-    case favorites = "お気に入り"
-    case downloaded = "ダウンロード済み"
 }
 
 public enum GalleryType: String, Codable {

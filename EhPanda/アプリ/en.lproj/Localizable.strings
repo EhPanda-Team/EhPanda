@@ -22,7 +22,6 @@
 "お気に入り" = "Favorites";
 "ダウンロード済み" = "Downloaded";
 
-
 // MARK: DetailView
 "読む" = "READ";
 "気に入り" = "FAVORED";
@@ -53,6 +52,8 @@
 "ログイン" = "Login";
 "ログアウト" = "Logout";
 "本当にログアウトしますか？" = "Are you sure to logout?";
+"外観" = "APPEARANCE";
+"サイドバーを表示しない" = "Hide SideBar";
 "キャッシュ" = "CACHE";
 "画像キャッシュを削除" = "Erase image cache";
 "本当に削除しますか？" = "Are you sure to erase?";
@@ -78,9 +79,10 @@
 "低評価タグを検索" = "Search Downvoted Tags";
 "削除済みのギャラリーを表示" = "Show Expunged Galleries";
 "評価の下限を指定" = "Set Minimum Rating";
-"下限" = "Minimum";
+"評価の下限" = "Minimum Rating";
+"つ星" = "stars";
 "ページ数範囲を指定" = "Set Pages Range";
-"範囲" = "Range";
+"ページ数範囲" = "Pages Range";
 "既定フィルター" = "DEFAULT FILTER";
 "言語フィルターを無効化" = "Disable Language Filter";
 "アップローダフィルターを無効化" = "Disable Uploader Filter";

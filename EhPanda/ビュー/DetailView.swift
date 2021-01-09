@@ -38,7 +38,9 @@ struct DetailView: View {
                             .padding(.bottom, 15)
                         Group {
                             DescScrollView(manga: manga, detail: detail)
+                                .frame(height: 60)
                             PreviewView(previews: detail.previews, alterImages: detail.alterImages)
+                                .frame(height: 240)
                             if !(detail.comments.isEmpty && !exx) {
                                 CommentScrollView(id: id, comments: detail.comments)
                             }
@@ -88,7 +90,7 @@ private struct HeaderView: View {
     let detail: MangaDetail
     
     var isFavored: Bool {
-        store.appState.homeList.isFavored(id: manga.id)
+        store.appState.homeInfo.isFavored(id: manga.id)
     }
     
     var rectangle: some View {
@@ -109,7 +111,7 @@ private struct HeaderView: View {
         HStack {
             WebImage(url: URL(string: manga.coverURL), options: .handleCookies)
                 .resizable()
-                .placeholder{ rectangle }
+                .placeholder { rectangle }
                 .indicator(.activity)
                 .scaledToFit()
                 .frame(width: 8/11 * 150, height: 150)
@@ -272,7 +274,7 @@ private struct PreviewView: View {
                 Spacer()
             }
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack {
+                LazyHStack {
                     if !previews.isEmpty {
                         ForEach(previews) { item in
                             WebImage(url: URL(string: item.url),
@@ -323,20 +325,20 @@ private struct CommentScrollView: View {
     let id: String
     let comments: [MangaComment]
     
+    var environmentBinding: Binding<AppState.Environment> {
+        $store.appState.environment
+    }
     var detailInfo: AppState.DetailInfo {
         store.appState.detailInfo
     }
     var detailInfoBinding: Binding<AppState.DetailInfo> {
         $store.appState.detailInfo
     }
-    var isDraftCommentViewPresentedBinding: Binding<Bool> {
-        detailInfoBinding.isDraftCommentViewPresented_Button
-    }
     var commentContent: String {
-        detailInfo.commentContent_Button
+        detailInfo.commentContent
     }
     var commentContentBinding: Binding<String> {
-        detailInfoBinding.commentContent_Button
+        detailInfoBinding.commentContent
     }
     
     var body: some View {
@@ -361,36 +363,42 @@ private struct CommentScrollView: View {
                 }
             }
             if exx {
-                CommentButton(action: toggleDraftCommentViewPresented)
-                    .sheet(isPresented: isDraftCommentViewPresentedBinding) {
-                        DraftCommentView(
-                            content: commentContentBinding,
-                            title: "コメントを書く",
-                            postAction: draftCommentViewPost,
-                            cancelAction: draftCommentViewCancel
-                        )
-                    }
+                CommentButton(action: toggleDraft)
             }
         }
+        .sheet(item: environmentBinding.detailViewSheetState, content: { item in
+            switch item {
+            case .comment:
+                DraftCommentView(
+                    content: commentContentBinding,
+                    title: "コメントを書く",
+                    postAction: draftCommentViewPost,
+                    cancelAction: draftCommentViewCancel
+                )
+            }
+        })
     }
     
     func draftCommentViewPost() {
         if !commentContent.isEmpty {
             postComment()
-            toggleDraftCommentViewPresented()
+            toggleNil()
         }
     }
     func draftCommentViewCancel() {
-        toggleDraftCommentViewPresented()
+        toggleNil()
     }
     
     func postComment() {
         store.dispatch(.comment(id: id, content: commentContent))
-        store.dispatch(.cleanCommentContent_Button)
+        store.dispatch(.cleanDetailViewCommentContent)
     }
     
-    func toggleDraftCommentViewPresented() {
-        store.dispatch(.toggleDraftCommentViewPresented_Button)
+    func toggleDraft() {
+        store.dispatch(.toggleDetailViewSheetState(state: .comment))
+    }
+    func toggleNil() {
+        store.dispatch(.toggleDetailViewSheetNil)
     }
 }
 
@@ -427,4 +435,11 @@ private struct CommentScrollCell: View {
         .frame(width: 300, height: 120)
         .cornerRadius(15)
     }
+}
+
+// MARK: 定義
+enum DetailViewSheetState: Identifiable {
+    var id: Int { hashValue }
+    
+    case comment
 }

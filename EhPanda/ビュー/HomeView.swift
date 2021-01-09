@@ -11,20 +11,29 @@ import SDWebImageSwiftUI
 struct HomeView: View {
     @EnvironmentObject var store: Store
     
-    var homeList: AppState.HomeList {
-        store.appState.homeList
+    var homeInfo: AppState.HomeInfo {
+        store.appState.homeInfo
     }
-    var homeListBinding: Binding<AppState.HomeList> {
-        $store.appState.homeList
+    var homeInfoBinding: Binding<AppState.HomeInfo> {
+        $store.appState.homeInfo
+    }
+    var environment: AppState.Environment {
+        store.appState.environment
     }
     var environmentBinding: Binding<AppState.Environment> {
         $store.appState.environment
+    }
+    var settings: AppState.Settings {
+        store.appState.settings
+    }
+    var setting: Setting? {
+        settings.setting
     }
     
     var categoryPicker: some View {
         Group {
             if exx {
-                CategoryPicker(type: homeListBinding.type)
+                CategoryPicker(type: environmentBinding.homeListType)
                     .padding(.bottom, 10)
             }
         }
@@ -35,40 +44,34 @@ struct HomeView: View {
                 Image(systemName: "gear")
                     .foregroundColor(.primary)
                     .imageScale(.large)
-                    .sheet(
-                        isPresented: environmentBinding.isSettingPresented,
-                        content: {
-                            SettingView()
-                                .environmentObject(store)
-                        })
                     .onTapGesture(perform: toggleSetting)
             }
         }
     }
     var conditionalList: some View {
         Group {
-            if homeList.type == .search {
+            if environment.homeListType == .search {
                 GenericList(
-                    items: homeList.searchItems,
-                    loadingFlag: homeList.searchLoading,
-                    notFoundFlag: homeList.searchNotFound,
-                    loadFailedFlag: homeList.searchLoadFailed,
+                    items: homeInfo.searchItems,
+                    loadingFlag: homeInfo.searchLoading,
+                    notFoundFlag: homeInfo.searchNotFound,
+                    loadFailedFlag: homeInfo.searchLoadFailed,
                     fetchAction: fetchSearchItems
                 )
-            } else if homeList.type == .popular {
+            } else if environment.homeListType == .popular {
                 GenericList(
-                    items: homeList.popularItems,
-                    loadingFlag: homeList.popularLoading,
-                    notFoundFlag: homeList.popularNotFound,
-                    loadFailedFlag: homeList.popularLoadFailed,
+                    items: homeInfo.popularItems,
+                    loadingFlag: homeInfo.popularLoading,
+                    notFoundFlag: homeInfo.popularNotFound,
+                    loadFailedFlag: homeInfo.popularLoadFailed,
                     fetchAction: fetchPopularItems
                 )
-            } else if homeList.type == .favorites {
+            } else if environment.homeListType == .favorites {
                 GenericList(
-                    items: homeList.favoritesItems?.map { $0.value },
-                    loadingFlag: homeList.favoritesLoading,
-                    notFoundFlag: homeList.favoritesNotFound,
-                    loadFailedFlag: homeList.favoritesLoadFailed,
+                    items: homeInfo.favoritesItems?.map { $0.value },
+                    loadingFlag: homeInfo.favoritesLoading,
+                    notFoundFlag: homeInfo.favoritesNotFound,
+                    loadFailedFlag: homeInfo.favoritesLoadFailed,
                     fetchAction: fetchFavoritesItems
                 )
             }
@@ -79,57 +82,70 @@ struct HomeView: View {
         UIScrollView.appearance().keyboardDismissMode = .onDrag
     }
     
+    // MARK: HomeView本体
     var body: some View {
         NavigationView {
             ScrollView {
                 LazyVStack {
                     if exx {
                         SearchBar(
-                            keyword: homeListBinding.keyword,
+                            keyword: homeInfoBinding.searchKeyword,
                             commitAction: searchBarCommit,
                             filterAction: searchBarFilter
                         )
-                        .sheet(
-                            isPresented: environmentBinding.isFilterViewPresented,
-                            content: {
-                                FilterView()
-                                    .environmentObject(store)
-                            }
-                        )
+                        .padding(.bottom, 10)
                     }
                     conditionalList
                 }
                 .padding()
             }
+            .sheet(item: environmentBinding.homeViewSheetState, content: { item in
+                switch item {
+                case .setting:
+                    SettingView()
+                        .environmentObject(store)
+                case .filter:
+                    FilterView()
+                        .environmentObject(store)
+                }
+            })
             .navigationBarTitle(
-                homeList.type.rawValue.lString()
+                environment.homeListType.rawValue.lString()
             )
             .navigationBarItems(
                 leading: categoryPicker,
                 trailing: settingEntry
             )
             .onChange(
-                of: homeList.type,
+                of: environment.homeListType,
                 perform: onHomeListTypeChange
             )
             .onAppear(perform: onAppear)
             
             SecondaryView()
         }
+        .modify(
+            if: isPad && setting?.hideSideBar == false,
+            then: DefaultNavStyle(),
+            else: StackNavStyle()
+        )
     }
     
     func onAppear() {
-        if homeList.popularItems?.isEmpty != false {
+        if settings.setting == nil {
+            store.dispatch(.initiateSetting)
+        }
+        if homeInfo.popularItems?.isEmpty != false {
             fetchPopularItems()
         }
-        if homeList.favoritesItems?.isEmpty != false {
+        if homeInfo.favoritesItems?.isEmpty != false {
             fetchFavoritesItems()
         }
     }
     func onHomeListTypeChange(_ type: HomeListType) {
         switch type {
         case .popular:
-            if homeList.popularItems?.isEmpty != false {
+            if homeInfo.popularItems?.isEmpty != false {
                 fetchPopularItems()
             }
         case .favorites:
@@ -142,17 +158,17 @@ struct HomeView: View {
     }
     
     func searchBarCommit() {
-        if homeList.type != .search {
+        if environment.homeListType != .search {
             store.dispatch(.toggleHomeListType(type: .search))
         }
         fetchSearchItems()
     }
     func searchBarFilter() {
-        store.dispatch(.toggleFilterViewPresented)
+        toggleFilter()
     }
     
     func fetchSearchItems() {
-        store.dispatch(.fetchSearchItems(keyword: homeList.keyword))
+        store.dispatch(.fetchSearchItems(keyword: homeInfo.searchKeyword))
     }
     func fetchPopularItems() {
         store.dispatch(.fetchPopularItems)
@@ -162,7 +178,10 @@ struct HomeView: View {
     }
     
     func toggleSetting() {
-        store.dispatch(.toggleSettingPresented)
+        store.dispatch(.toggleHomeViewSheetState(state: .setting))
+    }
+    func toggleFilter() {
+        store.dispatch(.toggleHomeViewSheetState(state: .filter))
     }
 }
 
@@ -202,7 +221,7 @@ private struct GenericList: View {
     }
     
     func toggleSetting() {
-        store.dispatch(.toggleSettingPresented)
+        store.dispatch(.toggleHomeViewSheetState(state: .setting))
     }
 }
 
@@ -299,6 +318,13 @@ private struct MangaSummaryRow: View {
                 }
                 HStack {
                     RatingView(rating: manga.rating)
+                    if let language = manga.language {
+                        Spacer()
+                        Text(language.translatedLanguage.lString())
+                            .lineLimit(1)
+                            .font(.footnote)
+                            .foregroundColor(.secondary)
+                    }
                 }
                 HStack(alignment: .bottom) {
                     if exx {
@@ -325,4 +351,19 @@ private struct MangaSummaryRow: View {
         .background(Color(.systemGray6))
         .cornerRadius(3)
     }
+}
+
+// MARK: 定義
+enum HomeListType: String {
+    case search = "検索"
+    case popular = "人気"
+    case favorites = "お気に入り"
+    case downloaded = "ダウンロード済み"
+}
+
+enum HomeViewSheetState: Identifiable {
+    var id: Int { hashValue }
+    
+    case setting
+    case filter
 }
