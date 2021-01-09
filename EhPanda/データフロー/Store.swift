@@ -44,6 +44,8 @@ class Store: ObservableObject {
             appState.environment.isEraseCachedListPresented.toggle()
         case .toggleFilterViewPresented:
             appState.environment.isFilterViewPresented.toggle()
+        case .toggleResetFiltersPresented:
+            appState.environment.isResetFiltersPresented.toggle()
         case .toggleDraftCommentViewPresented_Button:
             appState.detailInfo.isDraftCommentViewPresented_Button.toggle()
         case .toggleDraftCommentViewPresented_BarItem:

@@ -25,6 +25,7 @@ extension AppState {
         var isEraseImageCachesPresented = false
         var isEraseCachedListPresented = false
         var isFilterViewPresented = false
+        var isResetFiltersPresented = false
     }
     
     struct Settings {

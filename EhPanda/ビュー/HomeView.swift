@@ -237,29 +237,29 @@ private struct SearchBar: View {
         HStack {
             Image(systemName: "magnifyingglass")
                 .foregroundColor(.gray)
-            ZStack {
-                TextField("検索", text: $keyword, onCommit: commitAction)
-                    .disableAutocorrection(true)
-                    .autocapitalization(.none)
-                HStack {
-                    Spacer()
+            TextField("検索", text: $keyword, onCommit: commitAction)
+                .disableAutocorrection(true)
+                .autocapitalization(.none)
+            HStack {
+                Group {
                     if !keyword.isEmpty {
-                        Image(systemName: "xmark.circle.fill")
-                            .foregroundColor(.gray)
-                            .onTapGesture(perform: onClearButtonTap)
+                        Button(action: onClearButtonTap) {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundColor(.gray)
+                        }
                     }
-                    Image(systemName: "slider.horizontal.3")
-                        .foregroundColor(.gray)
-                        .onTapGesture(perform: filterAction)
+                    Button(action: filterAction) {
+                        Image(systemName: "slider.horizontal.3")
+                            .foregroundColor(.gray)
+                            .padding(.vertical, 13)
+                            .padding(.trailing, 10)
+                    }
                 }
-                
             }
         }
-        .padding(10)
-        .padding(.horizontal, 10)
+        .padding(.leading, 10)
         .background(Color(.systemGray6))
         .cornerRadius(8)
-        .padding(.bottom, 10)
     }
     
     func onClearButtonTap() {

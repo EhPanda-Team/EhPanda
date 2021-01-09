@@ -19,6 +19,7 @@ enum AppAction {
     case toggleWebViewPresented
     case toggleLogoutPresented
     case toggleFilterViewPresented
+    case toggleResetFiltersPresented
     case toggleEraseImageCachesPresented
     case toggleEraseCachedListPresented
     case toggleDraftCommentViewPresented_Button

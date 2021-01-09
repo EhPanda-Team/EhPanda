@@ -10,7 +10,6 @@ import SDWebImageSwiftUI
 
 struct SettingView: View {
     @EnvironmentObject var store: Store
-    @State var horizontalPadding: CGFloat = 0
     
     var settingsBinding: Binding<AppState.Settings> {
         $store.appState.settings
@@ -96,15 +95,7 @@ struct SettingView: View {
                     })
                 }
             }
-            .padding(.horizontal, horizontalPadding)
             .navigationBarTitle("設定")
-        }
-        .onAppear(perform: onAppear)
-    }
-    
-    func onAppear() {
-        if isPad {
-            horizontalPadding = 20
         }
     }
     

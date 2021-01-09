@@ -64,6 +64,9 @@
 // MARK: FilterView
 "フィルター" = "Filters";
 "基本" = "BASIC";
+"既定値に戻す" = "Reset Filters";
+"本当に戻しますか？" = "Are you sure to reset?";
+"戻す" = "Reset";
 "高度な設定" = "Advanced Settings";
 "高度" = "ADVANCED";
 "ギャラリー名を検索" = "Search Gallery Name";
@@ -75,6 +78,7 @@
 "低評価タグを検索" = "Search Downvoted Tags";
 "削除済みのギャラリーを表示" = "Show Expunged Galleries";
 "評価の下限を指定" = "Set Minimum Rating";
+"下限" = "Minimum";
 "ページ数範囲を指定" = "Set Pages Range";
 "範囲" = "Range";
 "既定フィルター" = "DEFAULT FILTER";

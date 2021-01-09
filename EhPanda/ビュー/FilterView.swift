@@ -9,13 +9,15 @@ import SwiftUI
 
 struct FilterView: View {
     @EnvironmentObject var store: Store
-    @State var horizontalPadding: CGFloat = 0
     
     var settings: AppState.Settings {
         store.appState.settings
     }
     var settingsBinding: Binding<AppState.Settings> {
         $store.appState.settings
+    }
+    var environmentBinding: Binding<AppState.Environment> {
+        $store.appState.environment
     }
     
     var body: some View {
@@ -25,6 +27,19 @@ struct FilterView: View {
                 Form {
                     Section(header: Text("基本")) {
                         CategoryView()
+                        Button(action: onResetButtonTap) {
+                            Text("既定値に戻す")
+                                .foregroundColor(.red)
+                        }
+                        .actionSheet(
+                            isPresented: environmentBinding.isResetFiltersPresented,
+                            content: {
+                                ActionSheet(title: Text("本当に戻しますか？"), buttons: [
+                                    .destructive(Text("戻す"), action: resetFilters),
+                                    .cancel()
+                                ])
+                            }
+                        )
                         Toggle("高度な設定", isOn: filterBinding.advanced)
                     }
                     if filter.advanced {
@@ -41,31 +56,14 @@ struct FilterView: View {
                         Section {
                             Toggle("評価の下限を指定", isOn: filterBinding.minRatingActivated)
                             if filter.minRatingActivated {
-                                Picker(selection: filterBinding.minRating, label: Text("評価の下限"), content: {
-                                    Text("2").tag(2)
-                                    Text("3").tag(3)
-                                    Text("4").tag(4)
-                                    Text("5").tag(5)
-                                })
-                                .pickerStyle(SegmentedPickerStyle())
+                                MinimumRatingSetter(minimum: filterBinding.minRating)
                             }
                             Toggle("ページ数範囲を指定", isOn: filterBinding.pageRangeActivated)
                             if filter.pageRangeActivated {
-                                HStack {
-                                    Text("範囲")
-                                    Spacer()
-                                    TextField("", text: filterBinding.pageLowerBound)
-                                        .multilineTextAlignment(.center)
-                                        .background(Color(.systemGray4))
-                                        .frame(width: 50)
-                                        .cornerRadius(5)
-                                    Text("-")
-                                    TextField("", text: filterBinding.pageUpperBound)
-                                        .multilineTextAlignment(.center)
-                                        .background(Color(.systemGray4))
-                                        .frame(width: 50)
-                                        .cornerRadius(5)
-                                }
+                                PagesRangeSetter(
+                                    lowerBound: filterBinding.pageLowerBound,
+                                    upperBound: filterBinding.pageUpperBound
+                                )
                             }
                         }
                         Section(header: Text("既定フィルター")) {
@@ -75,22 +73,28 @@ struct FilterView: View {
                         }
                     }
                 }
-                .padding(.horizontal, horizontalPadding)
                 .navigationBarTitle("フィルター")
             }
         }
         .onAppear(perform: onAppear)
     }
+    
     func onAppear() {
-        if isPad {
-            horizontalPadding = 20
-        }
         if settings.filter == nil {
             store.dispatch(.initiateFilter)
         }
     }
+    
+    func onResetButtonTap() {
+        store.dispatch(.toggleResetFiltersPresented)
+    }
+    
+    func resetFilters() {
+        store.dispatch(.initiateFilter)
+    }
 }
 
+// MARK: カテゴリー
 private struct CategoryView: View {
     @EnvironmentObject var store: Store
     
@@ -162,5 +166,60 @@ private struct CategoryCell: View {
     
     func onTapGesture() {
         isFiltered.toggle()
+    }
+}
+
+// MARK: 評価下限
+private struct MinimumRatingSetter: View {
+    @Binding var minimum: Int
+    
+    var body: some View {
+        HStack {
+            Text("下限")
+            Spacer()
+            Picker(selection: $minimum, label: Text("評価の下限"), content: {
+                Text("2").tag(2)
+                Text("3").tag(3)
+                Text("4").tag(4)
+                Text("5").tag(5)
+            })
+            .pickerStyle(SegmentedPickerStyle())
+            .frame(width: 125)
+        }
+    }
+}
+
+// MARK: ページ範囲
+private struct PagesRangeSetter: View {
+    @Environment(\.colorScheme) var colorScheme
+    @Binding var lowerBound: String
+    @Binding var upperBound: String
+    
+    var color: Color {
+        if colorScheme == .light {
+            return Color(.systemGray6)
+        } else {
+            return Color(.systemGray3)
+        }
+    }
+    
+    var body: some View {
+        HStack {
+            Text("範囲")
+            Spacer()
+            TextField("", text: $lowerBound)
+                .multilineTextAlignment(.center)
+                .keyboardType(.numberPad)
+                .background(color)
+                .frame(width: 50)
+                .cornerRadius(5)
+            Text("-")
+            TextField("", text: $upperBound)
+                .multilineTextAlignment(.center)
+                .keyboardType(.numberPad)
+                .background(color)
+                .frame(width: 50)
+                .cornerRadius(5)
+        }
     }
 }
