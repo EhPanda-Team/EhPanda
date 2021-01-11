@@ -37,7 +37,7 @@ struct KRefreshScrollView<Content: View>: View {
                     
                     refresh.offset = reader.frame(in: .global).minY
                     
-                    if refresh.offset - refresh.startOffset > 50 && !refresh.started {
+                    if refresh.offset - refresh.startOffset > 140 && !refresh.started {
                         refresh.started = true
                     }
                     
@@ -125,7 +125,8 @@ struct Refresh {
 
 extension Refresh {
     func rotationDegree() -> Double {
-        let degree = offset - startOffset - 30
+        let degree = offset - startOffset - 100
+        print(degree)
         if degree >= 0 && degree <= 40 {
             return Double(degree * 180 / 40)
         } else if degree > 40 {

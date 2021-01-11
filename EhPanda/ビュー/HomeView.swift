@@ -53,7 +53,8 @@ struct HomeView: View {
                     loadingFlag: homeInfo.searchLoading,
                     notFoundFlag: homeInfo.searchNotFound,
                     loadFailedFlag: homeInfo.searchLoadFailed,
-                    fetchAction: fetchSearchItems
+                    fetchAction: fetchSearchItems,
+                    loadMoreAction: fetchMoreSearchItems
                 )
             } else if environment.homeListType == .frontpage {
                 GenericList(
@@ -61,7 +62,8 @@ struct HomeView: View {
                     loadingFlag: homeInfo.frontpageLoading,
                     notFoundFlag: homeInfo.frontpageNotFound,
                     loadFailedFlag: homeInfo.frontpageLoadFailed,
-                    fetchAction: fetchFrontpageItems
+                    fetchAction: fetchFrontpageItems,
+                    loadMoreAction: fetchMoreFrontpageItems
                 )
             } else if environment.homeListType == .popular {
                 GenericList(
@@ -77,14 +79,11 @@ struct HomeView: View {
                     loadingFlag: homeInfo.favoritesLoading,
                     notFoundFlag: homeInfo.favoritesNotFound,
                     loadFailedFlag: homeInfo.favoritesLoadFailed,
-                    fetchAction: fetchFavoritesItems
+                    fetchAction: fetchFavoritesItems,
+                    loadMoreAction: fetchMoreFavoritesItems
                 )
             }
         }
-    }
-    
-    init() {
-        UIScrollView.appearance().keyboardDismissMode = .onDrag
     }
     
     // MARK: HomeView本体
@@ -157,6 +156,17 @@ struct HomeView: View {
     func fetchFavoritesItems() {
         store.dispatch(.fetchFavoritesItems)
     }
+    
+    func fetchMoreSearchItems() {
+        
+    }
+    func fetchMoreFrontpageItems() {
+        
+    }
+    func fetchMoreFavoritesItems() {
+        
+    }
+    
     func fetchFrontpageItemsIfNeeded() {
         if homeInfo.frontpageItems?.isEmpty != false {
             fetchFrontpageItems()
@@ -197,47 +207,70 @@ private struct GenericList: View {
     var notFoundFlag: Bool
     var loadFailedFlag: Bool
     var fetchAction: (()->())?
+    var loadMoreAction: (()->())?
+    
+    init(items: [Manga]?,
+         loadingFlag: Bool,
+         notFoundFlag: Bool,
+         loadFailedFlag: Bool,
+         fetchAction: (()->())? = nil,
+         loadMoreAction: (()->())? = nil)
+    {
+        self.items = items
+        self.loadingFlag = loadingFlag
+        self.notFoundFlag = notFoundFlag
+        self.loadFailedFlag = loadFailedFlag
+        self.fetchAction = fetchAction
+        self.loadMoreAction = loadMoreAction
+        
+        UIScrollView.appearance().keyboardDismissMode = .onDrag
+    }
     
     var body: some View {
-        KRefreshScrollView(
-            progressTint: .gray,
-            arrowTint: .primary,
-            onUpdate: onUpdate
-        ) {
+        VStack {
             if exx {
                 SearchBar(
                     keyword: homeInfoBinding.searchKeyword,
                     commitAction: searchBarCommit,
                     filterAction: searchBarFilter
                 )
-                .padding(.top, 30)
+                .padding(.top, 15)
                 .padding(.horizontal)
                 .padding(.bottom, 10)
             }
-            if !didLogin() && exx {
-                NotLoginView(loginAction: toggleSetting)
-                    .padding(.top, 30)
-            } else if loadingFlag {
-                LoadingView()
-                    .padding(.top, 30)
-            } else if loadFailedFlag {
-                NetworkErrorView(retryAction: fetchAction)
-                    .padding(.top, 30)
-            } else if notFoundFlag {
-                NotFoundView(retryAction: fetchAction)
-                    .padding(.top, 30)
-            } else {
-                ForEach(items ?? []) { item in
-                    NavigationLink(destination: DetailView(id: item.id)) {
-                        MangaSummaryRow(manga: item)
+            KRefreshScrollView(
+                progressTint: .gray,
+                arrowTint: .primary,
+                onUpdate: onUpdate
+            ) {
+                if !didLogin() && exx {
+                    NotLoginView(loginAction: toggleSetting)
+                        .padding(.top, 30)
+                } else if loadingFlag {
+                    LoadingView()
+                        .padding(.top, 30)
+                } else if loadFailedFlag {
+                    NetworkErrorView(retryAction: fetchAction)
+                        .padding(.top, 30)
+                } else if notFoundFlag {
+                    NotFoundView(retryAction: fetchAction)
+                        .padding(.top, 30)
+                } else {
+                    ForEach(items ?? []) { item in
+                        NavigationLink(destination: DetailView(id: item.id)) {
+                            MangaSummaryRow(manga: item)
+                                .onAppear {
+                                    onRowAppear(item)
+                                }
+                        }
                     }
+                    .padding(.horizontal)
+                    .transition(
+                        AnyTransition
+                            .opacity
+                            .animation(.default)
+                    )
                 }
-                .padding(.horizontal)
-                .transition(
-                    AnyTransition
-                        .opacity
-                        .animation(.default)
-                )
             }
         }
     }
@@ -247,8 +280,17 @@ private struct GenericList: View {
             action()
         }
     }
+    func onRowAppear(_ item: Manga) {
+        if let action = loadMoreAction,
+           item == items?.last
+        {
+            action()
+        }
+    }
     
     func searchBarCommit() {
+        hideKeyboard()
+        
         if environment.homeListType != .search {
             store.dispatch(.toggleHomeListType(type: .search))
         }
@@ -269,7 +311,6 @@ private struct GenericList: View {
         store.dispatch(.toggleHomeViewSheetState(state: .filter))
     }
 }
-
 
 // MARK: カテゴリー選択
 private struct CategoryPicker: View {

@@ -19,8 +19,8 @@ struct SearchItemsRequest {
         return URLSession.shared
             .dataTaskPublisher(
                 for: URL(string: Defaults.URL.search(
-                            keyword: word,
-                            filter: filter
+                    keyword: word,
+                    filter: filter
                 ))!
             )
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
@@ -36,6 +36,27 @@ struct FrontpageItemsRequest {
     var publisher: AnyPublisher<[Manga], AppError> {
         URLSession.shared
             .dataTaskPublisher(for: URL(string: Defaults.URL.frontpageList())!)
+            .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
+            .map(parser.parseListItems)
+            .mapError { _ in .networkingFailed }
+            .eraseToAnyPublisher()
+    }
+}
+
+struct MoreFrontpageItemsRequest {
+    let lastID: String
+    let pageNum: String
+    let parser = Parser()
+    
+    var publisher: AnyPublisher<[Manga], AppError> {
+        URLSession.shared
+            .dataTaskPublisher(for: URL(
+                                string: Defaults.URL
+                                    .moreFrontpageList(
+                                        pageNum: pageNum,
+                                        lastID: lastID
+                                    ))!
+            )
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .map(parser.parseListItems)
             .mapError { _ in .networkingFailed }

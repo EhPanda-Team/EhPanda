@@ -110,6 +110,27 @@ class Store: ObservableObject {
                 appState.homeInfo.frontpageLoadFailed = true
             }
             
+        case .fetchMoreFrontpageItems:
+            if !didLogin() && exx { break }
+            
+            if appState.homeInfo.moreFrontpageLoading { break }
+            appState.homeInfo.moreFrontpageLoading = true
+            
+            let lastID = appState.homeInfo.frontpageItems?.last?.id ?? ""
+            let pageNum = "\(appState.homeInfo.frontpageCurrentPageNum + 1)"
+            appCommand = FetchMoreFrontpageItemsCommand(lastID: lastID, pageNum: pageNum)
+        case .fetchMoreFrontpageItemsDone(let result):
+            appState.homeInfo.moreFrontpageLoading = false
+            
+            switch result {
+            case .success(let mangas):
+                appState.homeInfo.insertFrontpageItems(mangas: mangas)
+                appState.homeInfo.frontpageCurrentPageNum += 1
+                appState.cachedList.cache(items: mangas)
+            case .failure(let error):
+                ePrint(error)
+            }
+            
         case .fetchPopularItems:
             if !didLogin() && exx { break }
             appState.homeInfo.popularNotFound = false

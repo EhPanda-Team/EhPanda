@@ -67,6 +67,9 @@ extension AppState {
         var frontpageLoading = false
         var frontpageNotFound = false
         var frontpageLoadFailed = false
+        var frontpageCurrentPageNum = 0
+        var frontpagePageNumMaximum = 0
+        var moreFrontpageLoading = false
         
         var popularItems: [Manga]?
         var popularLoading = false
@@ -80,6 +83,19 @@ extension AppState {
         
         func isFavored(id: String) -> Bool {
             favoritesItems != nil && favoritesItems?[id] != nil
+        }
+        mutating func insertFrontpageItems(mangas: [Manga]) {
+            var historyItems = frontpageItems
+            
+            mangas.forEach { manga in
+                if historyItems?.contains(manga) == false {
+                    historyItems?.append(manga)
+                }
+            }
+            historyItems?.sort {
+                $0.publishedDate > $1.publishedDate
+            }
+            frontpageItems = historyItems
         }
     }
     
@@ -141,7 +157,11 @@ extension AppState {
                 let sortedContents = contents.0.sorted { $0.tag < $1.tag }
                 self.items?[contents.1]?.contents = sortedContents
             } else {
-                historyContents?.append(contentsOf: contents.0)
+                contents.0.forEach { content in
+                    if historyContents?.contains(content) == false {
+                        historyContents?.append(content)
+                    }
+                }
                 historyContents?.sort { $0.tag < $1.tag }
                 self.items?[contents.1]?.contents = historyContents
             }

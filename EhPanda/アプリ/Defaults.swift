@@ -30,6 +30,8 @@ class Defaults {
         static let p = "p="
         static let t = "t="
         static let gid = "gid="
+        static let page = "page="
+        static let from = "from="
         static let f_search = "f_search="
         
         static let nonh = "f_cats=767"
@@ -73,6 +75,9 @@ extension Defaults.URL {
     }
     static func frontpageList() -> String {
         merge([host, listCompact])
+    }
+    static func moreFrontpageList(pageNum: String, lastID: String) -> String {
+        merge([host, page + pageNum, from + lastID])
     }
     static func popularList() -> String {
         merge([host + popular, listCompact])

@@ -8,7 +8,11 @@
 import SwiftUI
 
 // MARK: 構造体
-struct Manga: Identifiable, Codable {
+struct Manga: Identifiable, Codable, Equatable {
+    static func == (lhs: Manga, rhs: Manga) -> Bool {
+        lhs.id == rhs.id
+    }
+    
     var detail: MangaDetail?
     var contents: [MangaContent]?
     
@@ -53,14 +57,6 @@ struct MangaComment: Identifiable, Codable {
     let content: String
     let commentID: String
     let commentDate: Date
-    var commentTime: String {
-        let formatter = DateFormatter()
-        formatter.locale = Locale.current
-        formatter.timeZone = TimeZone.current
-        formatter.dateFormat = "yyyy-MM-dd HH:mm"
-        
-        return formatter.string(from: commentDate)
-    }
 }
 
 struct MangaPreview: Identifiable, Codable {
@@ -69,75 +65,14 @@ struct MangaPreview: Identifiable, Codable {
     let url: String
 }
 
-struct MangaContent: Identifiable, Codable {
+struct MangaContent: Identifiable, Codable, Equatable {
+    static func == (lhs: MangaContent, rhs: MangaContent) -> Bool {
+        lhs.tag == rhs.tag
+    }
     var id = UUID()
     
     let tag: Int
     let url: String
-}
-
-// MARK: 列挙型
-enum Category: String, Codable, CaseIterable, Identifiable {
-    var id: String { rawValue }
-    
-    case Doujinshi = "Doujinshi"
-    case Manga = "Manga"
-    case Artist_CG = "Artist CG"
-    case Game_CG = "Game CG"
-    case Western = "Western"
-    case Non_H = "Non-H"
-    case Image_Set = "Image Set"
-    case Cosplay = "Cosplay"
-    case Asian_Porn = "Asian Porn"
-    case Misc = "Misc"
-}
-
-enum Language: String, Codable {
-    case Other = "N/A"
-    
-    case Afrikaans = "Afrikaans"; case Albanian = "Albanian"; case Arabic = "Arabic"
-    
-    case Bengali = "Bengali"; case Bosnian = "Bosnian"; case Bulgarian = "Bulgarian"; case Burmese = "Burmese"
-    
-    case Catalan = "Catalan"; case Cebuano = "Cebuano"; case Chinese = "Chinese"; case Croatian = "Croatian"; case Czech = "Czech"
-    
-    case Danish = "Danish"; case Dutch = "Dutch"
-    
-    case English = "English"; case Esperanto = "Esperanto"; case Estonian = "Estonian"
-    
-    case Finnish = "Finnish"; case French = "French"
-    
-    case Georgian = "Georgian"; case German = "German"; case Greek = "Greek"
-    
-    case Hebrew = "Hebrew"; case Hindi = "Hindi"; case Hmong = "Hmong"; case Hungarian = "Hungarian"
-    
-    case Indonesian = "Indonesian"; case Italian = "Italian"
-    
-    case Japanese = "Japanese"
-    
-    case Kazakh = "Kazakh"; case Khmer = "Khmer"; case Korean = "Korean"; case Kurdish = "Kurdish"
-    
-    case Lao = "Lao"; case Latin = "Latin"
-    
-    case Mongolian = "Mongolian"
-    
-    case Ndebele = "Ndebele"; case Nepali = "Nepali"; case Norwegian = "Norwegian"
-    
-    case Oromo = "Oromo"
-    
-    case Pashto = "Pashto"; case Persian = "Persian"; case Polish = "Polish"; case Portuguese = "Portuguese"; case Punjabi = "Punjabi"
-    
-    case Romanian = "Romanian"; case Russian = "Russian"
-    
-    case Sango = "Sango"; case Serbian = "Serbian"; case Shona = "Shona"; case Slovak = "Slovak"; case Slovenian = "Slovenian"; case Somali = "Somali"; case Spanish = "Spanish"; case Swahili = "Swahili"; case Swedish = "Swedish"
-    
-    case Tagalog = "Tagalog"; case Thai = "Thai"; case Tigrinya = "Tigrinya"; case Turkish = "Turkish"
-    
-    case Ukrainian = "Ukrainian"; case Urdu = "Urdu"
-    
-    case Vietnamese = "Vietnamese"
-    
-    case Zulu = "Zulu"
 }
 
 // MARK: 計算型プロパティ
@@ -152,6 +87,11 @@ extension Manga {
     var jpnCategories: String {
         category.jpn
     }
+    var publishedDate: Date {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd HH:mm"
+        return formatter.date(from: publishedTime) ?? Date()
+    }
 }
 
 extension MangaDetail {
@@ -160,6 +100,17 @@ extension MangaDetail {
     }
     var translatedLanguage: String {
         language.translatedLanguage
+    }
+}
+
+extension MangaComment {
+    var commentTime: String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale.current
+        formatter.timeZone = TimeZone.current
+        formatter.dateFormat = "yyyy-MM-dd HH:mm"
+        
+        return formatter.string(from: commentDate)
     }
 }
 
@@ -317,4 +268,68 @@ extension Language {
         case .Zulu: return "ズールー語"
         }
     }
+}
+
+// MARK: 列挙型
+enum Category: String, Codable, CaseIterable, Identifiable {
+    var id: String { rawValue }
+    
+    case Doujinshi = "Doujinshi"
+    case Manga = "Manga"
+    case Artist_CG = "Artist CG"
+    case Game_CG = "Game CG"
+    case Western = "Western"
+    case Non_H = "Non-H"
+    case Image_Set = "Image Set"
+    case Cosplay = "Cosplay"
+    case Asian_Porn = "Asian Porn"
+    case Misc = "Misc"
+}
+
+enum Language: String, Codable {
+    case Other = "N/A"
+    
+    case Afrikaans = "Afrikaans"; case Albanian = "Albanian"; case Arabic = "Arabic"
+    
+    case Bengali = "Bengali"; case Bosnian = "Bosnian"; case Bulgarian = "Bulgarian"; case Burmese = "Burmese"
+    
+    case Catalan = "Catalan"; case Cebuano = "Cebuano"; case Chinese = "Chinese"; case Croatian = "Croatian"; case Czech = "Czech"
+    
+    case Danish = "Danish"; case Dutch = "Dutch"
+    
+    case English = "English"; case Esperanto = "Esperanto"; case Estonian = "Estonian"
+    
+    case Finnish = "Finnish"; case French = "French"
+    
+    case Georgian = "Georgian"; case German = "German"; case Greek = "Greek"
+    
+    case Hebrew = "Hebrew"; case Hindi = "Hindi"; case Hmong = "Hmong"; case Hungarian = "Hungarian"
+    
+    case Indonesian = "Indonesian"; case Italian = "Italian"
+    
+    case Japanese = "Japanese"
+    
+    case Kazakh = "Kazakh"; case Khmer = "Khmer"; case Korean = "Korean"; case Kurdish = "Kurdish"
+    
+    case Lao = "Lao"; case Latin = "Latin"
+    
+    case Mongolian = "Mongolian"
+    
+    case Ndebele = "Ndebele"; case Nepali = "Nepali"; case Norwegian = "Norwegian"
+    
+    case Oromo = "Oromo"
+    
+    case Pashto = "Pashto"; case Persian = "Persian"; case Polish = "Polish"; case Portuguese = "Portuguese"; case Punjabi = "Punjabi"
+    
+    case Romanian = "Romanian"; case Russian = "Russian"
+    
+    case Sango = "Sango"; case Serbian = "Serbian"; case Shona = "Shona"; case Slovak = "Slovak"; case Slovenian = "Slovenian"; case Somali = "Somali"; case Spanish = "Spanish"; case Swahili = "Swahili"; case Swedish = "Swedish"
+    
+    case Tagalog = "Tagalog"; case Thai = "Thai"; case Tigrinya = "Tigrinya"; case Turkish = "Turkish"
+    
+    case Ukrainian = "Ukrainian"; case Urdu = "Urdu"
+    
+    case Vietnamese = "Vietnamese"
+    
+    case Zulu = "Zulu"
 }
