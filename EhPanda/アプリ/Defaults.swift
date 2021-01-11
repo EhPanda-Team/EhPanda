@@ -22,6 +22,7 @@ class Defaults {
         
         // 各機能ページ
         static let api = "api.php"
+        static let popular = "popular"
         static let index = "index.php"
         static let favorites = "favorites.php"
         static let gallerypopups = "gallerypopups.php"
@@ -70,8 +71,11 @@ extension Defaults.URL {
         ePrint(merge(params))
         return merge(params)
     }
-    static func popularList() -> String {
+    static func frontpageList() -> String {
         merge([host, listCompact])
+    }
+    static func popularList() -> String {
+        merge([host + popular, listCompact])
     }
     static func favoritesList() -> String {
         merge([host + favorites, listCompact])

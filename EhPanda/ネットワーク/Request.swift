@@ -30,6 +30,19 @@ struct SearchItemsRequest {
     }
 }
 
+struct FrontpageItemsRequest {
+    let parser = Parser()
+    
+    var publisher: AnyPublisher<[Manga], AppError> {
+        URLSession.shared
+            .dataTaskPublisher(for: URL(string: Defaults.URL.frontpageList())!)
+            .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
+            .map(parser.parseListItems)
+            .mapError { _ in .networkingFailed }
+            .eraseToAnyPublisher()
+    }
+}
+
 struct PopularItemsRequest {
     let parser = Parser()
     

@@ -110,7 +110,7 @@ public func cleanCookies() {
     }
 }
 
-public func executeMainAsyncally(_ closure: @escaping (()->())) {
+public func executeMainAsync(_ closure: @escaping (()->())) {
     if Thread.isMainThread {
         closure()
     } else {
@@ -120,13 +120,19 @@ public func executeMainAsyncally(_ closure: @escaping (()->())) {
     }
 }
 
-public func executeAsyncally(_ closure: @escaping (()->())) {
+public func executeMainAsync(_ delay: Double, _ closure: @escaping (()->())) {
+    DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+        closure()
+    }
+}
+
+public func executeAsync(_ closure: @escaping (()->())) {
     DispatchQueue.global().async {
         closure()
     }
 }
 
-public func executeSyncally(_ closure: @escaping (()->())) {
+public func executeSync(_ closure: @escaping (()->())) {
     DispatchQueue.global().sync {
         closure()
     }

@@ -29,6 +29,8 @@ enum AppAction {
     
     case fetchSearchItems(keyword: String)
     case fetchSearchItemsDone(result: Result<[Manga], AppError>)
+    case fetchFrontpageItems
+    case fetchFrontpageItemsDone(result: Result<[Manga], AppError>)
     case fetchPopularItems
     case fetchPopularItemsDone(result: Result<[Manga], AppError>)
     case fetchFavoritesItems

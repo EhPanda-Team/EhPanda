@@ -18,6 +18,7 @@
 
 // MARK: HomeView
 "検索" = "Search";
+"ホーム" = "Frontpage";
 "人気" = "Popular";
 "お気に入り" = "Favorites";
 "ダウンロード済み" = "Downloaded";

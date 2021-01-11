@@ -34,6 +34,24 @@ struct FetchSearchItemsCommand: AppCommand {
     }
 }
 
+struct FetchFrontpageItemsCommand: AppCommand {
+    func execute(in store: Store) {
+        let token = SubscriptionToken()
+        FrontpageItemsRequest()
+            .publisher
+            .receive(on: DispatchQueue.main)
+            .sink { completion in
+                if case .failure(let error)  = completion {
+                    store.dispatch(.fetchFrontpageItemsDone(result: .failure(error)))
+                }
+                token.unseal()
+            } receiveValue: { mangas in
+                store.dispatch(.fetchFrontpageItemsDone(result: .success(mangas)))
+            }
+            .seal(in: token)
+    }
+}
+
 struct FetchPopularItemsCommand: AppCommand {
     func execute(in store: Store) {
         let token = SubscriptionToken()

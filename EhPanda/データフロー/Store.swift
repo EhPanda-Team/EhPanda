@@ -61,7 +61,7 @@ class Store: ObservableObject {
             appState.commentInfo.commentContent = ""
             
         case .fetchSearchItems(let keyword):
-            if !didLogin() { break }
+            if !didLogin() && exx { break }
             appState.homeInfo.searchNotFound = false
             appState.homeInfo.searchLoadFailed = false
             
@@ -84,6 +84,30 @@ class Store: ObservableObject {
             case .failure(let error):
                 ePrint(error)
                 appState.homeInfo.searchLoadFailed = true
+            }
+            
+        case .fetchFrontpageItems:
+            if !didLogin() && exx { break }
+            appState.homeInfo.frontpageNotFound = false
+            appState.homeInfo.frontpageLoadFailed = false
+            
+            if appState.homeInfo.frontpageLoading { break }
+            appState.homeInfo.frontpageLoading = true
+            appCommand = FetchFrontpageItemsCommand()
+        case .fetchFrontpageItemsDone(let result):
+            appState.homeInfo.frontpageLoading = false
+            
+            switch result {
+            case .success(let mangas):
+                if mangas.isEmpty {
+                    appState.homeInfo.frontpageNotFound = true
+                } else {
+                    appState.homeInfo.frontpageItems = mangas
+                    appState.cachedList.cache(items: mangas)
+                }
+            case .failure(let error):
+                ePrint(error)
+                appState.homeInfo.frontpageLoadFailed = true
             }
             
         case .fetchPopularItems:
@@ -111,7 +135,7 @@ class Store: ObservableObject {
             }
             
         case .fetchFavoritesItems:
-            if !didLogin() { break }
+            if !didLogin() && exx { break }
             appState.homeInfo.favoritesNotFound = false
             appState.homeInfo.favoritesLoadFailed = false
             

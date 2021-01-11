@@ -14,9 +14,6 @@ struct HomeView: View {
     var homeInfo: AppState.HomeInfo {
         store.appState.homeInfo
     }
-    var homeInfoBinding: Binding<AppState.HomeInfo> {
-        $store.appState.homeInfo
-    }
     var environment: AppState.Environment {
         store.appState.environment
     }
@@ -58,6 +55,14 @@ struct HomeView: View {
                     loadFailedFlag: homeInfo.searchLoadFailed,
                     fetchAction: fetchSearchItems
                 )
+            } else if environment.homeListType == .frontpage {
+                GenericList(
+                    items: homeInfo.frontpageItems,
+                    loadingFlag: homeInfo.frontpageLoading,
+                    notFoundFlag: homeInfo.frontpageNotFound,
+                    loadFailedFlag: homeInfo.frontpageLoadFailed,
+                    fetchAction: fetchFrontpageItems
+                )
             } else if environment.homeListType == .popular {
                 GenericList(
                     items: homeInfo.popularItems,
@@ -85,42 +90,29 @@ struct HomeView: View {
     // MARK: HomeView本体
     var body: some View {
         NavigationView {
-            ScrollView {
-                LazyVStack {
-                    if exx {
-                        SearchBar(
-                            keyword: homeInfoBinding.searchKeyword,
-                            commitAction: searchBarCommit,
-                            filterAction: searchBarFilter
-                        )
-                        .padding(.bottom, 10)
+            conditionalList
+                .sheet(item: environmentBinding.homeViewSheetState, content: { item in
+                    switch item {
+                    case .setting:
+                        SettingView()
+                            .environmentObject(store)
+                    case .filter:
+                        FilterView()
+                            .environmentObject(store)
                     }
-                    conditionalList
-                }
-                .padding()
-            }
-            .sheet(item: environmentBinding.homeViewSheetState, content: { item in
-                switch item {
-                case .setting:
-                    SettingView()
-                        .environmentObject(store)
-                case .filter:
-                    FilterView()
-                        .environmentObject(store)
-                }
-            })
-            .navigationBarTitle(
-                environment.homeListType.rawValue.lString()
-            )
-            .navigationBarItems(
-                leading: categoryPicker,
-                trailing: settingEntry
-            )
-            .onChange(
-                of: environment.homeListType,
-                perform: onHomeListTypeChange
-            )
-            .onAppear(perform: onAppear)
+                })
+                .navigationBarTitle(
+                    environment.homeListType.rawValue.lString()
+                )
+                .navigationBarItems(
+                    leading: categoryPicker,
+                    trailing: settingEntry
+                )
+                .onChange(
+                    of: environment.homeListType,
+                    perform: onHomeListTypeChange
+                )
+                .onAppear(perform: onAppear)
             
             SecondaryView()
         }
@@ -135,21 +127,17 @@ struct HomeView: View {
         if settings.setting == nil {
             store.dispatch(.initiateSetting)
         }
-        if homeInfo.popularItems?.isEmpty != false {
-            fetchPopularItems()
-        }
-        if homeInfo.favoritesItems?.isEmpty != false {
-            fetchFavoritesItems()
-        }
+        fetchFrontpageItemsIfNeeded()
+        fetchFavoritesItemsIfNeeded()
     }
     func onHomeListTypeChange(_ type: HomeListType) {
         switch type {
+        case .frontpage:
+            fetchFrontpageItemsIfNeeded()
         case .popular:
-            if homeInfo.popularItems?.isEmpty != false {
-                fetchPopularItems()
-            }
+            fetchPopularItemsIfNeeded()
         case .favorites:
-            fetchFavoritesItems()
+            fetchFavoritesItemsIfNeeded()
         case .downloaded:
             print(type)
         case .search:
@@ -157,18 +145,11 @@ struct HomeView: View {
         }
     }
     
-    func searchBarCommit() {
-        if environment.homeListType != .search {
-            store.dispatch(.toggleHomeListType(type: .search))
-        }
-        fetchSearchItems()
-    }
-    func searchBarFilter() {
-        toggleFilter()
-    }
-    
     func fetchSearchItems() {
         store.dispatch(.fetchSearchItems(keyword: homeInfo.searchKeyword))
+    }
+    func fetchFrontpageItems() {
+        store.dispatch(.fetchFrontpageItems)
     }
     func fetchPopularItems() {
         store.dispatch(.fetchPopularItems)
@@ -176,18 +157,40 @@ struct HomeView: View {
     func fetchFavoritesItems() {
         store.dispatch(.fetchFavoritesItems)
     }
+    func fetchFrontpageItemsIfNeeded() {
+        if homeInfo.frontpageItems?.isEmpty != false {
+            fetchFrontpageItems()
+        }
+    }
+    func fetchPopularItemsIfNeeded() {
+        if homeInfo.popularItems?.isEmpty != false {
+            fetchPopularItems()
+        }
+    }
+    func fetchFavoritesItemsIfNeeded() {
+        if homeInfo.favoritesItems?.isEmpty != false {
+            fetchFavoritesItems()
+        }
+    }
     
     func toggleSetting() {
         store.dispatch(.toggleHomeViewSheetState(state: .setting))
-    }
-    func toggleFilter() {
-        store.dispatch(.toggleHomeViewSheetState(state: .filter))
     }
 }
 
 // MARK: 汎用リスト
 private struct GenericList: View {
     @EnvironmentObject var store: Store
+    
+    var homeInfo: AppState.HomeInfo {
+        store.appState.homeInfo
+    }
+    var homeInfoBinding: Binding<AppState.HomeInfo> {
+        $store.appState.homeInfo
+    }
+    var environment: AppState.Environment {
+        store.appState.environment
+    }
     
     var items: [Manga]?
     var loadingFlag: Bool
@@ -196,7 +199,21 @@ private struct GenericList: View {
     var fetchAction: (()->())?
     
     var body: some View {
-        Group {
+        KRefreshScrollView(
+            progressTint: .gray,
+            arrowTint: .primary,
+            onUpdate: onUpdate
+        ) {
+            if exx {
+                SearchBar(
+                    keyword: homeInfoBinding.searchKeyword,
+                    commitAction: searchBarCommit,
+                    filterAction: searchBarFilter
+                )
+                .padding(.top, 30)
+                .padding(.horizontal)
+                .padding(.bottom, 10)
+            }
             if !didLogin() && exx {
                 NotLoginView(loginAction: toggleSetting)
                     .padding(.top, 30)
@@ -215,13 +232,41 @@ private struct GenericList: View {
                         MangaSummaryRow(manga: item)
                     }
                 }
-                .transition(AnyTransition.opacity.animation(.default))
+                .padding(.horizontal)
+                .transition(
+                    AnyTransition
+                        .opacity
+                        .animation(.default)
+                )
             }
         }
     }
     
+    func onUpdate() {
+        if let action = fetchAction {
+            action()
+        }
+    }
+    
+    func searchBarCommit() {
+        if environment.homeListType != .search {
+            store.dispatch(.toggleHomeListType(type: .search))
+        }
+        fetchSearchItems()
+    }
+    func searchBarFilter() {
+        toggleFilter()
+    }
+    
+    func fetchSearchItems() {
+        store.dispatch(.fetchSearchItems(keyword: homeInfo.searchKeyword))
+    }
+    
     func toggleSetting() {
         store.dispatch(.toggleHomeViewSheetState(state: .setting))
+    }
+    func toggleFilter() {
+        store.dispatch(.toggleHomeViewSheetState(state: .filter))
     }
 }
 
@@ -236,9 +281,9 @@ private struct CategoryPicker: View {
                 .foregroundColor(.primary)
                 .font(.largeTitle),
                content: {
-                let homepageTypes: [HomeListType]
-                    = [.popular, .favorites, .downloaded]
-                ForEach(homepageTypes, id: \.self) {
+                let frontpageTypes: [HomeListType]
+                    = [.frontpage, .popular, .favorites, .downloaded]
+                ForEach(frontpageTypes, id: \.self) {
                     Text($0.rawValue.lString())
                 }
                })
@@ -356,6 +401,7 @@ private struct MangaSummaryRow: View {
 // MARK: 定義
 enum HomeListType: String {
     case search = "検索"
+    case frontpage = "ホーム"
     case popular = "人気"
     case favorites = "お気に入り"
     case downloaded = "ダウンロード済み"

@@ -20,7 +20,7 @@ struct AppState {
 extension AppState {
     struct Environment {
         var navBarHidden = false
-        var homeListType: HomeListType = .popular
+        var homeListType: HomeListType = .frontpage
         var homeViewSheetState: HomeViewSheetState? = nil
         var settingViewActionSheetState: SettingViewActionSheetState? = nil
         var filterViewActionSheetState: FilterViewActionSheetState? = nil
@@ -62,6 +62,11 @@ extension AppState {
         var searchLoading = false
         var searchNotFound = false
         var searchLoadFailed = false
+        
+        var frontpageItems: [Manga]?
+        var frontpageLoading = false
+        var frontpageNotFound = false
+        var frontpageLoadFailed = false
         
         var popularItems: [Manga]?
         var popularLoading = false
