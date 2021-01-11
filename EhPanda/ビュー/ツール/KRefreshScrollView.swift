@@ -79,7 +79,7 @@ struct KRefreshScrollView<Content: View>: View {
                     .animation(.easeIn)
                     .opacity(refresh.degree > 0 ? 1 : 0)
                 
-                VStack {
+                LazyVStack {
                     content
                 }
                 .frame(maxWidth: .infinity)
@@ -126,7 +126,6 @@ struct Refresh {
 extension Refresh {
     func rotationDegree() -> Double {
         let degree = offset - startOffset - 100
-        print(degree)
         if degree >= 0 && degree <= 40 {
             return Double(degree * 180 / 40)
         } else if degree > 40 {

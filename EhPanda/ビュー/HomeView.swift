@@ -227,7 +227,11 @@ private struct GenericList: View {
     }
     
     var body: some View {
-        VStack {
+        KRefreshScrollView(
+            progressTint: .gray,
+            arrowTint: .primary,
+            onUpdate: onUpdate
+        ) {
             if exx {
                 SearchBar(
                     keyword: homeInfoBinding.searchKeyword,
@@ -238,39 +242,33 @@ private struct GenericList: View {
                 .padding(.horizontal)
                 .padding(.bottom, 10)
             }
-            KRefreshScrollView(
-                progressTint: .gray,
-                arrowTint: .primary,
-                onUpdate: onUpdate
-            ) {
-                if !didLogin() && exx {
-                    NotLoginView(loginAction: toggleSetting)
-                        .padding(.top, 30)
-                } else if loadingFlag {
-                    LoadingView()
-                        .padding(.top, 30)
-                } else if loadFailedFlag {
-                    NetworkErrorView(retryAction: fetchAction)
-                        .padding(.top, 30)
-                } else if notFoundFlag {
-                    NotFoundView(retryAction: fetchAction)
-                        .padding(.top, 30)
-                } else {
-                    ForEach(items ?? []) { item in
-                        NavigationLink(destination: DetailView(id: item.id)) {
-                            MangaSummaryRow(manga: item)
-                                .onAppear {
-                                    onRowAppear(item)
-                                }
-                        }
+            if !didLogin() && exx {
+                NotLoginView(loginAction: toggleSetting)
+                    .padding(.top, 30)
+            } else if loadingFlag {
+                LoadingView()
+                    .padding(.top, 30)
+            } else if loadFailedFlag {
+                NetworkErrorView(retryAction: fetchAction)
+                    .padding(.top, 30)
+            } else if notFoundFlag {
+                NotFoundView(retryAction: fetchAction)
+                    .padding(.top, 30)
+            } else {
+                ForEach(items ?? []) { item in
+                    NavigationLink(destination: DetailView(id: item.id)) {
+                        MangaSummaryRow(manga: item)
+                            .onAppear {
+                                onRowAppear(item)
+                            }
                     }
-                    .padding(.horizontal)
-                    .transition(
-                        AnyTransition
-                            .opacity
-                            .animation(.default)
-                    )
                 }
+                .padding(.horizontal)
+                .transition(
+                    AnyTransition
+                        .opacity
+                        .animation(.default)
+                )
             }
         }
     }
