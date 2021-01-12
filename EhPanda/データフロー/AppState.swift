@@ -22,6 +22,7 @@ extension AppState {
         var navBarHidden = false
         var homeListType: HomeListType = .frontpage
         var homeViewSheetState: HomeViewSheetState? = nil
+        var settingViewSheetState: SettingViewSheetState? = nil
         var settingViewActionSheetState: SettingViewActionSheetState? = nil
         var filterViewActionSheetState: FilterViewActionSheetState? = nil
         var detailViewSheetState: DetailViewSheetState? = nil

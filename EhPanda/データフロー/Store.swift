@@ -27,7 +27,7 @@ class Store: ObservableObject {
         switch action {
         case .updateUser(let user):
             appState.settings.user = user
-        case .eraseCachedList:
+        case .clearCachedList:
             appState.cachedList.items = nil
         case .initiateFilter:
             appState.settings.filter = Filter()
@@ -42,6 +42,10 @@ class Store: ObservableObject {
             appState.environment.navBarHidden = isHidden
         case .toggleHomeViewSheetState(let state):
             appState.environment.homeViewSheetState = state
+        case .toggleSettingViewSheetState(let state):
+            appState.environment.settingViewSheetState = state
+        case .toggleSettingViewSheetNil:
+            appState.environment.settingViewSheetState = nil
         case .toggleSettingViewActionSheetState(let state):
             appState.environment.settingViewActionSheetState = state
         case .toggleFilterViewActionSheetState(let state):
@@ -61,7 +65,7 @@ class Store: ObservableObject {
             appState.commentInfo.commentContent = ""
             
         case .fetchSearchItems(let keyword):
-            if !didLogin() && exx { break }
+            if !didLogin && exx { break }
             appState.homeInfo.searchNotFound = false
             appState.homeInfo.searchLoadFailed = false
             
@@ -93,7 +97,7 @@ class Store: ObservableObject {
         case .fetchMoreSearchItems(let keyword):
             let currentNum = appState.homeInfo.searchCurrentPageNum
             let maximumNum = appState.homeInfo.searchPageNumMaximum
-            if (!didLogin() && exx) || currentNum + 1 >= maximumNum { break }
+            if (!didLogin && exx) || currentNum + 1 >= maximumNum { break }
             
             if appState.homeInfo.moreSearchLoading { break }
             appState.homeInfo.moreSearchLoading = true
@@ -128,7 +132,7 @@ class Store: ObservableObject {
             }
             
         case .fetchFrontpageItems:
-            if !didLogin() && exx { break }
+            if !didLogin && exx { break }
             appState.homeInfo.frontpageNotFound = false
             appState.homeInfo.frontpageLoadFailed = false
             
@@ -158,7 +162,7 @@ class Store: ObservableObject {
         case .fetchMoreFrontpageItems:
             let currentNum = appState.homeInfo.frontpageCurrentPageNum
             let maximumNum = appState.homeInfo.frontpagePageNumMaximum
-            if (!didLogin() && exx) || currentNum + 1 >= maximumNum { break }
+            if (!didLogin && exx) || currentNum + 1 >= maximumNum { break }
             
             if appState.homeInfo.moreFrontpageLoading { break }
             appState.homeInfo.moreFrontpageLoading = true
@@ -181,7 +185,7 @@ class Store: ObservableObject {
             }
             
         case .fetchPopularItems:
-            if !didLogin() && exx { break }
+            if !didLogin && exx { break }
             appState.homeInfo.popularNotFound = false
             appState.homeInfo.popularLoadFailed = false
             
@@ -205,7 +209,7 @@ class Store: ObservableObject {
             }
             
         case .fetchFavoritesItems:
-            if !didLogin() && exx { break }
+            if !didLogin && exx { break }
             appState.homeInfo.favoritesNotFound = false
             appState.homeInfo.favoritesLoadFailed = false
             
@@ -235,7 +239,7 @@ class Store: ObservableObject {
         case .fetchMoreFavoritesItems:
             let currentNum = appState.homeInfo.favoritesCurrentPageNum
             let maximumNum = appState.homeInfo.favoritesPageNumMaximum
-            if (!didLogin() && exx) || currentNum + 1 >= maximumNum { break }
+            if (!didLogin && exx) || currentNum + 1 >= maximumNum { break }
             
             if appState.homeInfo.moreFavoritesLoading { break }
             appState.homeInfo.moreFavoritesLoading = true
@@ -258,7 +262,7 @@ class Store: ObservableObject {
             }
             
         case .fetchMangaDetail(id: let id):
-            if !didLogin() && exx { break }
+            if !didLogin && exx { break }
             appState.detailInfo.mangaDetailLoadFailed = false
             
             if appState.detailInfo.mangaDetailLoading { break }

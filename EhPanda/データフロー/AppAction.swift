@@ -10,7 +10,7 @@ import Foundation
 
 enum AppAction {
     case updateUser(user: User?)
-    case eraseCachedList
+    case clearCachedList
     case initiateFilter
     case initiateSetting
     case cleanDetailViewCommentContent
@@ -20,6 +20,8 @@ enum AppAction {
     case toggleNavBarHidden(isHidden: Bool)
     case toggleHomeListType(type: HomeListType)
     case toggleHomeViewSheetState(state: HomeViewSheetState)
+    case toggleSettingViewSheetState(state: SettingViewSheetState)
+    case toggleSettingViewSheetNil
     case toggleSettingViewActionSheetState(state: SettingViewActionSheetState)
     case toggleFilterViewActionSheetState(state: FilterViewActionSheetState)
     case toggleDetailViewSheetState(state: DetailViewSheetState)

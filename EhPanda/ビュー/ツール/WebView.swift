@@ -9,6 +9,7 @@ import SwiftUI
 import WebKit
 
 struct WebView: UIViewControllerRepresentable {
+    @EnvironmentObject var store: Store
 
     class Coodinator: NSObject, WKNavigationDelegate, WKUIDelegate {
         var parent : WebView
@@ -39,6 +40,17 @@ struct WebView: UIViewControllerRepresentable {
             print(error)
         }
     }
+    
+    func setupTimer() {
+        Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { (timer) in
+            if didLogin {
+                store.dispatch(.toggleSettingViewSheetNil)
+                store.dispatch(.fetchFrontpageItems)
+                store.dispatch(.fetchFavoritesItems)
+                timer.invalidate()
+            }
+        }
+    }
 
     func makeCoordinator() -> WebView.Coodinator {
         return Coodinator(self)
@@ -47,6 +59,8 @@ struct WebView: UIViewControllerRepresentable {
     func makeUIViewController(context: Context) -> EmbeddedWebviewController {
         let webViewController = EmbeddedWebviewController(coordinator: context.coordinator)
         webViewController.loadUrl(URL(string: Defaults.URL.login)!)
+        
+        setupTimer()
 
         return webViewController
     }

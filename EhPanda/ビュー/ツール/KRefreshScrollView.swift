@@ -88,10 +88,7 @@ struct KRefreshScrollView<Content: View>: View {
             .offset(y: -10)
             .onChange(of: refresh.degree) { (value) in
                 if value == 180 {
-                    UIImpactFeedbackGenerator(
-                        style: .medium
-                    )
-                    .impactOccurred()
+                    hapticFeedback(style: .medium)
                 }
             }
         }

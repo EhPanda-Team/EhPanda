@@ -244,7 +244,7 @@ private struct GenericList: View {
                 .padding(.horizontal)
                 .padding(.bottom, 10)
             }
-            if !didLogin() && exx {
+            if !didLogin && exx {
                 NotLoginView(loginAction: toggleSetting)
                     .padding(.top, 30)
             } else if loadingFlag {

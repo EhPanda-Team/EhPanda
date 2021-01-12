@@ -13,6 +13,7 @@ class Common {
     
 }
 
+
 public func ePrint(_ error: Error) {
     print("debugMark " + error.localizedDescription)
 }
@@ -25,30 +26,89 @@ public func ePrint(_ string: String?) {
     print("debugMark " + (string ?? "エラーの内容が解析できませんでした"))
 }
 
-public func didLogin() -> Bool {
-    guard let url = URL(string: Defaults.URL.ehentai),
-          let cookies = HTTPCookieStorage.shared.cookies(for: url),
-          !cookies.isEmpty else { return false }
+public var didLogin: Bool {
+    verifyCookies(url: URL(string: Defaults.URL.ehentai)!, isEx: false)
+}
+public var exAccess: Bool {
+    verifyCookies(url: URL(string: Defaults.URL.exhentai)!, isEx: true)
+}
+
+public func getCookieValue(url: URL, cookieName: String) -> String? {
+    guard let cookies =
+            HTTPCookieStorage
+            .shared
+            .cookies(for: url),
+          !cookies.isEmpty
+    else { return nil }
     
-    var passValue: String?
-    var passExpires: Date?
+    let date = Date()
+    var value: String?
+    
     cookies.forEach { cookie in
-        if cookie.name == "ipb_pass_hash" {
-            passValue = cookie.value
-            passExpires = cookie.expiresDate
+        guard let expiresDate = cookie.expiresDate
+        else { return }
+        
+        if cookie.name == cookieName
+            && !cookie.value.isEmpty
+        {
+            value = expiresDate > date
+                ? cookie.value : "期限切れ"
         }
     }
     
-    guard let value = passValue,
-          let expires = passExpires,
-          !value.isEmpty,
-          expires > Date()
-    else {
-        cleanCookies()
-        return false
+    return value
+}
+
+func verifyCookies(url: URL, isEx: Bool) -> Bool {
+    guard let cookies =
+            HTTPCookieStorage
+            .shared
+            .cookies(for: url),
+          !cookies.isEmpty
+    else { return false }
+    
+    let date = Date()
+    var igneous: String?
+    var memberID: String?
+    var passHash: String?
+    
+    cookies.forEach { cookie in
+        guard let expiresDate = cookie.expiresDate
+        else { return }
+                
+        if cookie.name == "igneous"
+            && !cookie.value.isEmpty
+            && cookie.value != "mystery"
+            && expiresDate > date
+        {
+            igneous = cookie.value
+        }
+        
+        if cookie.name == "ipb_member_id"
+            && !cookie.value.isEmpty
+            && expiresDate > date
+        {
+            memberID = cookie.value
+        }
+        
+        if cookie.name == "ipb_pass_hash"
+            && !cookie.value.isEmpty
+            && expiresDate > date
+        {
+            passHash = cookie.value
+        }
     }
     
-    return true
+    if isEx {
+        return igneous != nil && memberID != nil && passHash != nil
+    } else {
+        return memberID != nil && passHash != nil
+    }
+}
+
+public func hapticFeedback(style: UIImpactFeedbackGenerator.FeedbackStyle) {
+    UIImpactFeedbackGenerator(style: style)
+        .impactOccurred()
 }
 
 public var exx: Bool {
@@ -102,7 +162,7 @@ public func browsingCaches() -> String {
     return readableUnit(bytes: Int64(data.count))
 }
 
-public func cleanCookies() {
+public func clearCookies() {
     if let historyCookies = HTTPCookieStorage.shared.cookies {
         historyCookies.forEach {
             HTTPCookieStorage.shared.deleteCookie($0)
