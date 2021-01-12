@@ -14,11 +14,11 @@ struct SearchItemsRequest {
     let filter: Filter
     let parser = Parser()
     
-    var publisher: AnyPublisher<[Manga], AppError> {
+    var publisher: AnyPublisher<([Manga], (Int, Int)), AppError> {
         let word = keyword.replacingOccurrences(of: " ", with: "+")
         return URLSession.shared
             .dataTaskPublisher(
-                for: URL(string: Defaults.URL.search(
+                for: URL(string: Defaults.URL.searchList(
                     keyword: word,
                     filter: filter
                 ))!
@@ -30,10 +30,35 @@ struct SearchItemsRequest {
     }
 }
 
+struct MoreSearchItemsRequest {
+    let keyword: String
+    let filter: Filter
+    let lastID: String
+    let pageNum: String
+    let parser = Parser()
+    
+    var publisher: AnyPublisher<([Manga], (Int, Int)), AppError> {
+        URLSession.shared
+            .dataTaskPublisher(for: URL(
+                                string: Defaults.URL
+                                    .moreSearchList(
+                                        keyword: keyword,
+                                        filter: filter,
+                                        pageNum: pageNum,
+                                        lastID: lastID
+                                    ))!
+            )
+            .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
+            .map(parser.parseListItems)
+            .mapError { _ in .networkingFailed }
+            .eraseToAnyPublisher()
+    }
+}
+
 struct FrontpageItemsRequest {
     let parser = Parser()
     
-    var publisher: AnyPublisher<[Manga], AppError> {
+    var publisher: AnyPublisher<([Manga], (Int, Int)), AppError> {
         URLSession.shared
             .dataTaskPublisher(for: URL(string: Defaults.URL.frontpageList())!)
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
@@ -48,7 +73,7 @@ struct MoreFrontpageItemsRequest {
     let pageNum: String
     let parser = Parser()
     
-    var publisher: AnyPublisher<[Manga], AppError> {
+    var publisher: AnyPublisher<([Manga], (Int, Int)), AppError> {
         URLSession.shared
             .dataTaskPublisher(for: URL(
                                 string: Defaults.URL
@@ -67,7 +92,7 @@ struct MoreFrontpageItemsRequest {
 struct PopularItemsRequest {
     let parser = Parser()
     
-    var publisher: AnyPublisher<[Manga], AppError> {
+    var publisher: AnyPublisher<([Manga], (Int, Int)), AppError> {
         URLSession.shared
             .dataTaskPublisher(for: URL(string: Defaults.URL.popularList())!)
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
@@ -80,10 +105,31 @@ struct PopularItemsRequest {
 struct FavoritesItemsRequest {
     let parser = Parser()
     
-    var publisher: AnyPublisher<[Manga], AppError> {
+    var publisher: AnyPublisher<([Manga], (Int, Int)), AppError> {
         URLSession.shared
             .dataTaskPublisher(
                 for: URL(string: Defaults.URL.favoritesList())!)
+            .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
+            .map(parser.parseListItems)
+            .mapError { _ in .networkingFailed }
+            .eraseToAnyPublisher()
+    }
+}
+
+struct MoreFavoritesItemsRequest {
+    let lastID: String
+    let pageNum: String
+    let parser = Parser()
+    
+    var publisher: AnyPublisher<([Manga], (Int, Int)), AppError> {
+        URLSession.shared
+            .dataTaskPublisher(for: URL(
+                                string: Defaults.URL
+                                    .moreFavoritesList(
+                                        pageNum: pageNum,
+                                        lastID: lastID
+                                    ))!
+            )
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .map(parser.parseListItems)
             .mapError { _ in .networkingFailed }

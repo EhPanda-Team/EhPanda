@@ -66,24 +66,45 @@ class Defaults {
 
 // MARK: リクエスト
 extension Defaults.URL {
-    static func search(keyword: String, filter: Filter) -> String {
-        let params: [String]
-            = [host, listCompact, f_search + keyword.URLString()]
-            + applyFilters(filter)
-        ePrint(merge(params))
-        return merge(params)
+    static func searchList(keyword: String, filter: Filter) -> String {
+        merge([
+            host,
+            listCompact,
+            f_search + keyword.URLString()
+        ]
+        + applyFilters(filter)
+        )
+    }
+    static func moreSearchList(
+        keyword: String,
+        filter: Filter,
+        pageNum: String,
+        lastID: String
+    ) -> String {
+        merge([
+                host,
+                listCompact,
+                f_search + keyword.URLString(),
+                page + pageNum,
+                from + lastID
+        ]
+        + applyFilters(filter)
+        )
     }
     static func frontpageList() -> String {
         merge([host, listCompact])
     }
     static func moreFrontpageList(pageNum: String, lastID: String) -> String {
-        merge([host, page + pageNum, from + lastID])
+        merge([host, listCompact, page + pageNum, from + lastID])
     }
     static func popularList() -> String {
         merge([host + popular, listCompact])
     }
     static func favoritesList() -> String {
         merge([host + favorites, listCompact])
+    }
+    static func moreFavoritesList(pageNum: String, lastID: String) -> String {
+        merge([host + favorites, page + pageNum, from + lastID])
     }
     
     static func mangaDetail(url: String) -> String {

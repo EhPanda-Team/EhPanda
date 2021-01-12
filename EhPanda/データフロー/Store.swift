@@ -66,6 +66,7 @@ class Store: ObservableObject {
             appState.homeInfo.searchLoadFailed = false
             
             if appState.homeInfo.searchLoading { break }
+            appState.homeInfo.searchCurrentPageNum = 0
             appState.homeInfo.searchLoading = true
             
             let filter = appState.settings.filter ?? Filter()
@@ -75,15 +76,55 @@ class Store: ObservableObject {
             
             switch result {
             case .success(let mangas):
-                if mangas.isEmpty {
+                if mangas.0.isEmpty {
                     appState.homeInfo.searchNotFound = true
                 } else {
-                    appState.homeInfo.searchItems = mangas
-                    appState.cachedList.cache(items: mangas)
+                    appState.homeInfo.searchItems = mangas.0
+                    appState.cachedList.cache(items: mangas.0)
+                }
+                
+                appState.homeInfo.searchCurrentPageNum = mangas.1.0
+                appState.homeInfo.searchPageNumMaximum = mangas.1.1
+            case .failure(let error):
+                print(error)
+                appState.homeInfo.searchLoadFailed = true
+            }
+            
+        case .fetchMoreSearchItems(let keyword):
+            let currentNum = appState.homeInfo.searchCurrentPageNum
+            let maximumNum = appState.homeInfo.searchPageNumMaximum
+            if (!didLogin() && exx) || currentNum + 1 >= maximumNum { break }
+            
+            if appState.homeInfo.moreSearchLoading { break }
+            appState.homeInfo.moreSearchLoading = true
+            
+            let filter = appState.settings.filter ?? Filter()
+            let lastID = appState.homeInfo.searchItems?.last?.id ?? ""
+            let pageNum = "\(appState.homeInfo.searchCurrentPageNum + 1)"
+            appCommand = FetchMoreSearchItemsCommand(
+                keyword: keyword,
+                filter: filter,
+                lastID: lastID,
+                pageNum: pageNum
+            )
+        case .fetchMoreSearchItemsDone(let result):
+            appState.homeInfo.moreSearchLoading = false
+            
+            switch result {
+            case .success(let mangas):
+                let prev = appState.homeInfo.searchItems?.count ?? 0
+                appState.homeInfo.insertSearchItems(mangas: mangas.0)
+                appState.cachedList.cache(items: mangas.0)
+                
+                appState.homeInfo.searchCurrentPageNum = mangas.1.0
+                appState.homeInfo.searchPageNumMaximum = mangas.1.1
+                
+                let curr = appState.homeInfo.searchItems?.count ?? 0
+                if prev == curr && curr != 0 {
+                    dispatch(.fetchMoreSearchItems(keyword: mangas.2))
                 }
             case .failure(let error):
-                ePrint(error)
-                appState.homeInfo.searchLoadFailed = true
+                print(error)
             }
             
         case .fetchFrontpageItems:
@@ -92,6 +133,7 @@ class Store: ObservableObject {
             appState.homeInfo.frontpageLoadFailed = false
             
             if appState.homeInfo.frontpageLoading { break }
+            appState.homeInfo.frontpageCurrentPageNum = 0
             appState.homeInfo.frontpageLoading = true
             appCommand = FetchFrontpageItemsCommand()
         case .fetchFrontpageItemsDone(let result):
@@ -99,19 +141,24 @@ class Store: ObservableObject {
             
             switch result {
             case .success(let mangas):
-                if mangas.isEmpty {
+                if mangas.0.isEmpty {
                     appState.homeInfo.frontpageNotFound = true
                 } else {
-                    appState.homeInfo.frontpageItems = mangas
-                    appState.cachedList.cache(items: mangas)
+                    appState.homeInfo.frontpageItems = mangas.0
+                    appState.cachedList.cache(items: mangas.0)
                 }
+                
+                appState.homeInfo.frontpageCurrentPageNum = mangas.1.0
+                appState.homeInfo.frontpagePageNumMaximum = mangas.1.1
             case .failure(let error):
-                ePrint(error)
+                print(error)
                 appState.homeInfo.frontpageLoadFailed = true
             }
             
         case .fetchMoreFrontpageItems:
-            if !didLogin() && exx { break }
+            let currentNum = appState.homeInfo.frontpageCurrentPageNum
+            let maximumNum = appState.homeInfo.frontpagePageNumMaximum
+            if (!didLogin() && exx) || currentNum + 1 >= maximumNum { break }
             
             if appState.homeInfo.moreFrontpageLoading { break }
             appState.homeInfo.moreFrontpageLoading = true
@@ -124,11 +171,13 @@ class Store: ObservableObject {
             
             switch result {
             case .success(let mangas):
-                appState.homeInfo.insertFrontpageItems(mangas: mangas)
-                appState.homeInfo.frontpageCurrentPageNum += 1
-                appState.cachedList.cache(items: mangas)
+                appState.homeInfo.insertFrontpageItems(mangas: mangas.0)
+                appState.cachedList.cache(items: mangas.0)
+                
+                appState.homeInfo.frontpageCurrentPageNum = mangas.1.0
+                appState.homeInfo.frontpagePageNumMaximum = mangas.1.1
             case .failure(let error):
-                ePrint(error)
+                print(error)
             }
             
         case .fetchPopularItems:
@@ -144,14 +193,14 @@ class Store: ObservableObject {
             
             switch result {
             case .success(let mangas):
-                if mangas.isEmpty {
+                if mangas.0.isEmpty {
                     appState.homeInfo.popularNotFound = true
                 } else {
-                    appState.homeInfo.popularItems = mangas
-                    appState.cachedList.cache(items: mangas)
+                    appState.homeInfo.popularItems = mangas.0
+                    appState.cachedList.cache(items: mangas.0)
                 }
             case .failure(let error):
-                ePrint(error)
+                print(error)
                 appState.homeInfo.popularLoadFailed = true
             }
             
@@ -161,6 +210,7 @@ class Store: ObservableObject {
             appState.homeInfo.favoritesLoadFailed = false
             
             if appState.homeInfo.favoritesLoading { break }
+            appState.homeInfo.favoritesCurrentPageNum = 0
             appState.homeInfo.favoritesLoading = true
             appCommand = FetchFavoritesItemsCommand()
         case .fetchFavoritesItemsDone(result: let result):
@@ -168,17 +218,43 @@ class Store: ObservableObject {
             
             switch result {
             case .success(let mangas):
-                if mangas.isEmpty {
+                if mangas.0.isEmpty {
                     appState.homeInfo.favoritesNotFound = true
                 } else {
-                    appState.homeInfo.favoritesItems = Dictionary(
-                        uniqueKeysWithValues: mangas.map { ($0.id, $0)}
-                    )
-                    appState.cachedList.cache(items: mangas)
+                    appState.homeInfo.favoritesItems = mangas.0
+                    appState.cachedList.cache(items: mangas.0)
                 }
+                
+                appState.homeInfo.favoritesCurrentPageNum = mangas.1.0
+                appState.homeInfo.favoritesPageNumMaximum = mangas.1.1
             case .failure(let error):
-                ePrint(error)
+                print(error)
                 appState.homeInfo.favoritesLoadFailed = true
+            }
+            
+        case .fetchMoreFavoritesItems:
+            let currentNum = appState.homeInfo.favoritesCurrentPageNum
+            let maximumNum = appState.homeInfo.favoritesPageNumMaximum
+            if (!didLogin() && exx) || currentNum + 1 >= maximumNum { break }
+            
+            if appState.homeInfo.moreFavoritesLoading { break }
+            appState.homeInfo.moreFavoritesLoading = true
+            
+            let lastID = appState.homeInfo.favoritesItems?.last?.id ?? ""
+            let pageNum = "\(appState.homeInfo.favoritesCurrentPageNum + 1)"
+            appCommand = FetchMoreFavoritesItemsCommand(lastID: lastID, pageNum: pageNum)
+        case .fetchMoreFavoritesItemsDone(let result):
+            appState.homeInfo.moreFavoritesLoading = false
+            
+            switch result {
+            case .success(let mangas):
+                appState.homeInfo.insertFavoritesItems(mangas: mangas.0)
+                appState.cachedList.cache(items: mangas.0)
+                
+                appState.homeInfo.favoritesCurrentPageNum = mangas.1.0
+                appState.homeInfo.favoritesPageNumMaximum = mangas.1.1
+            case .failure(let error):
+                print(error)
             }
             
         case .fetchMangaDetail(id: let id):
@@ -197,7 +273,7 @@ class Store: ObservableObject {
             case .success(let detail):
                 appState.cachedList.insertDetail(detail: detail)
             case .failure(let error):
-                ePrint(error)
+                print(error)
                 appState.detailInfo.mangaDetailLoadFailed = true
             }
         case .fetchAlterImages(let id, let doc):
@@ -211,8 +287,8 @@ class Store: ObservableObject {
             switch result {
             case .success(let images):
                 appState.cachedList.insertAlterImages(images: images)
-            default:
-                print("")
+            case .failure(let error):
+                print(error)
             }
             
         case .updateMangaComments(id: let id):
@@ -230,7 +306,7 @@ class Store: ObservableObject {
             case .success(let comments):
                 appState.cachedList.updateComments(comments: comments)
             case .failure(let error):
-                ePrint(error)
+                print(error)
                 appState.detailInfo.mangaCommentsUpdateFailed = true
             }
             
@@ -254,7 +330,7 @@ class Store: ObservableObject {
                     appState.cachedList.insertContents(contents: contents)
                 }
             case .failure(let error):
-                ePrint(error)
+                print(error)
                 appState.contentInfo.mangaContentsLoadFailed = true
             }
         

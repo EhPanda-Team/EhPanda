@@ -82,6 +82,7 @@ struct KRefreshScrollView<Content: View>: View {
                 LazyVStack {
                     content
                 }
+                .padding(.top, 15)
                 .frame(maxWidth: .infinity)
             }
             .offset(y: -10)

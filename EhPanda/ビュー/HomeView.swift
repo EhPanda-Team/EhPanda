@@ -47,7 +47,8 @@ struct HomeView: View {
     }
     var conditionalList: some View {
         Group {
-            if environment.homeListType == .search {
+            switch environment.homeListType {
+            case .search:
                 GenericList(
                     items: homeInfo.searchItems,
                     loadingFlag: homeInfo.searchLoading,
@@ -56,7 +57,7 @@ struct HomeView: View {
                     fetchAction: fetchSearchItems,
                     loadMoreAction: fetchMoreSearchItems
                 )
-            } else if environment.homeListType == .frontpage {
+            case .frontpage:
                 GenericList(
                     items: homeInfo.frontpageItems,
                     loadingFlag: homeInfo.frontpageLoading,
@@ -65,7 +66,7 @@ struct HomeView: View {
                     fetchAction: fetchFrontpageItems,
                     loadMoreAction: fetchMoreFrontpageItems
                 )
-            } else if environment.homeListType == .popular {
+            case .popular:
                 GenericList(
                     items: homeInfo.popularItems,
                     loadingFlag: homeInfo.popularLoading,
@@ -73,15 +74,17 @@ struct HomeView: View {
                     loadFailedFlag: homeInfo.popularLoadFailed,
                     fetchAction: fetchPopularItems
                 )
-            } else if environment.homeListType == .favorites {
+            case .favorites:
                 GenericList(
-                    items: homeInfo.favoritesItems?.map { $0.value },
+                    items: homeInfo.favoritesItems,
                     loadingFlag: homeInfo.favoritesLoading,
                     notFoundFlag: homeInfo.favoritesNotFound,
                     loadFailedFlag: homeInfo.favoritesLoadFailed,
                     fetchAction: fetchFavoritesItems,
                     loadMoreAction: fetchMoreFavoritesItems
                 )
+            case .downloaded:
+                Text("")
             }
         }
     }
@@ -158,13 +161,13 @@ struct HomeView: View {
     }
     
     func fetchMoreSearchItems() {
-        
+        store.dispatch(.fetchMoreSearchItems(keyword: homeInfo.searchKeyword))
     }
     func fetchMoreFrontpageItems() {
-        
+        store.dispatch(.fetchMoreFrontpageItems)
     }
     func fetchMoreFavoritesItems() {
-        
+        store.dispatch(.fetchMoreFavoritesItems)
     }
     
     func fetchFrontpageItemsIfNeeded() {
@@ -238,7 +241,6 @@ private struct GenericList: View {
                     commitAction: searchBarCommit,
                     filterAction: searchBarFilter
                 )
-                .padding(.top, 15)
                 .padding(.horizontal)
                 .padding(.bottom, 10)
             }

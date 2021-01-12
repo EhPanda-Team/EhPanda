@@ -34,6 +34,34 @@ struct FetchSearchItemsCommand: AppCommand {
     }
 }
 
+struct FetchMoreSearchItemsCommand: AppCommand {
+    let keyword: String
+    let filter: Filter
+    let lastID: String
+    let pageNum: String
+    
+    func execute(in store: Store) {
+        let token = SubscriptionToken()
+        MoreSearchItemsRequest(
+            keyword: keyword,
+            filter: filter,
+            lastID: lastID,
+            pageNum: pageNum
+        )
+        .publisher
+        .receive(on: DispatchQueue.main)
+        .sink { completion in
+            if case .failure(let error)  = completion {
+                store.dispatch(.fetchMoreSearchItemsDone(result: .failure(error)))
+            }
+            token.unseal()
+        } receiveValue: { mangas in
+            store.dispatch(.fetchMoreSearchItemsDone(result: .success((mangas.0, mangas.1, keyword))))
+        }
+        .seal(in: token)
+    }
+}
+
 struct FetchFrontpageItemsCommand: AppCommand {
     func execute(in store: Store) {
         let token = SubscriptionToken()
@@ -104,6 +132,27 @@ struct FetchFavoritesItemsCommand: AppCommand {
                 token.unseal()
             } receiveValue: { mangas in
                 store.dispatch(.fetchFavoritesItemsDone(result: .success(mangas)))
+            }
+            .seal(in: token)
+    }
+}
+
+struct FetchMoreFavoritesItemsCommand: AppCommand {
+    let lastID: String
+    let pageNum: String
+    
+    func execute(in store: Store) {
+        let token = SubscriptionToken()
+        MoreFavoritesItemsRequest(lastID: lastID, pageNum: pageNum)
+            .publisher
+            .receive(on: DispatchQueue.main)
+            .sink { completion in
+                if case .failure(let error)  = completion {
+                    store.dispatch(.fetchMoreFavoritesItemsDone(result: .failure(error)))
+                }
+                token.unseal()
+            } receiveValue: { mangas in
+                store.dispatch(.fetchMoreFavoritesItemsDone(result: .success(mangas)))
             }
             .seal(in: token)
     }

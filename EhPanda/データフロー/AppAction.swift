@@ -28,15 +28,19 @@ enum AppAction {
     case toggleCommentViewSheetNil
     
     case fetchSearchItems(keyword: String)
-    case fetchSearchItemsDone(result: Result<[Manga], AppError>)
+    case fetchSearchItemsDone(result: Result<([Manga], (Int, Int)), AppError>)
+    case fetchMoreSearchItems(keyword: String)
+    case fetchMoreSearchItemsDone(result: Result<([Manga], (Int, Int), String), AppError>)
     case fetchFrontpageItems
-    case fetchFrontpageItemsDone(result: Result<[Manga], AppError>)
+    case fetchFrontpageItemsDone(result: Result<([Manga], (Int, Int)), AppError>)
     case fetchMoreFrontpageItems
-    case fetchMoreFrontpageItemsDone(result: Result<[Manga], AppError>)
+    case fetchMoreFrontpageItemsDone(result: Result<([Manga], (Int, Int)), AppError>)
     case fetchPopularItems
-    case fetchPopularItemsDone(result: Result<[Manga], AppError>)
+    case fetchPopularItemsDone(result: Result<([Manga], (Int, Int)), AppError>)
     case fetchFavoritesItems
-    case fetchFavoritesItemsDone(result: Result<[Manga], AppError>)
+    case fetchFavoritesItemsDone(result: Result<([Manga], (Int, Int)), AppError>)
+    case fetchMoreFavoritesItems
+    case fetchMoreFavoritesItemsDone(result: Result<([Manga], (Int, Int)), AppError>)
     case fetchMangaDetail(id: String)
     case fetchMangaDetailDone(result: Result<(MangaDetail, String), AppError>)
     case fetchAlterImages(id: String, doc: HTMLDocument)

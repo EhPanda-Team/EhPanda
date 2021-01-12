@@ -62,13 +62,16 @@ extension AppState {
         var searchLoading = false
         var searchNotFound = false
         var searchLoadFailed = false
+        var searchCurrentPageNum = 0
+        var searchPageNumMaximum = 1
+        var moreSearchLoading = false
         
         var frontpageItems: [Manga]?
         var frontpageLoading = false
         var frontpageNotFound = false
         var frontpageLoadFailed = false
         var frontpageCurrentPageNum = 0
-        var frontpagePageNumMaximum = 0
+        var frontpagePageNumMaximum = 1
         var moreFrontpageLoading = false
         
         var popularItems: [Manga]?
@@ -76,13 +79,35 @@ extension AppState {
         var popularNotFound = false
         var popularLoadFailed = false
         
-        var favoritesItems: [String : Manga]?
+        var favoritesItems: [Manga]?
         var favoritesLoading = false
         var favoritesNotFound = false
         var favoritesLoadFailed = false
+        var favoritesCurrentPageNum = 0
+        var favoritesPageNumMaximum = 1
+        var moreFavoritesLoading = false
         
         func isFavored(id: String) -> Bool {
-            favoritesItems != nil && favoritesItems?[id] != nil
+            if let items = favoritesItems {
+                let filteredItems = items
+                    .filter { $0.id == id }
+                return !filteredItems.isEmpty
+            } else {
+                return false
+            }
+        }
+        mutating func insertSearchItems(mangas: [Manga]) {
+            var historyItems = searchItems
+            
+            mangas.forEach { manga in
+                if historyItems?.contains(manga) == false {
+                    historyItems?.append(manga)
+                }
+            }
+            historyItems?.sort {
+                $0.publishedDate > $1.publishedDate
+            }
+            searchItems = historyItems
         }
         mutating func insertFrontpageItems(mangas: [Manga]) {
             var historyItems = frontpageItems
@@ -96,6 +121,19 @@ extension AppState {
                 $0.publishedDate > $1.publishedDate
             }
             frontpageItems = historyItems
+        }
+        mutating func insertFavoritesItems(mangas: [Manga]) {
+            var historyItems = favoritesItems
+            
+            mangas.forEach { manga in
+                if historyItems?.contains(manga) == false {
+                    historyItems?.append(manga)
+                }
+            }
+            historyItems?.sort {
+                $0.publishedDate > $1.publishedDate
+            }
+            favoritesItems = historyItems
         }
     }
     
@@ -139,7 +177,7 @@ extension AppState {
                 }
             }
             let currentCount = self.items?.count ?? 0
-            print("CachedList updated: \(previousCount) to \(currentCount)")
+            print("キャッシュ済みリスト 更新: \(previousCount) -> \(currentCount)")
         }
         
         mutating func insertDetail(detail: (MangaDetail, String)) {

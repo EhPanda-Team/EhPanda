@@ -18,7 +18,7 @@ struct WebView: UIViewControllerRepresentable {
         }
 
         func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
-            print("load started")
+            print("読み込み開始")
             
             guard let url = webView.url?.absoluteString else { return }
             
@@ -32,7 +32,7 @@ struct WebView: UIViewControllerRepresentable {
         }
 
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-            print("load finished")
+            print("読み込み完了")
         }
 
         func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {

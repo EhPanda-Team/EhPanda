@@ -11,7 +11,7 @@ import SDWebImageSwiftUI
 
 class Parser {
     // MARK: リスト
-    func parseListItems(_ doc: HTMLDocument) -> [Manga] {
+    func parseListItems(_ doc: HTMLDocument) -> ([Manga], (Int, Int)) {
         var mangaItems = [Manga]()
         
         for link in doc.xpath("//tr") {
@@ -65,7 +65,7 @@ class Parser {
                                     detailURL: detailURL))
         }
         
-        return mangaItems
+        return (mangaItems, parsePageNum(doc))
     }
     
     // MARK: 詳細情報
@@ -290,6 +290,26 @@ extension Parser {
         guard var rating = tmpRating else { return nil }
         if ratingString.contains("-21px") { rating -= 0.5 }
         return rating
+    }
+    
+    func parsePageNum(_ doc: HTMLDocument) -> (Int, Int) {
+        var current = 0
+        var maximum = 0
+        
+        guard let link = doc.at_xpath("//table [@class='ptt']") else { return (0, 0) }
+        if let currentStr = link.at_xpath("//td [@class='ptds']")?.text {
+            if let range = currentStr.range(of: "-") {
+                current = (Int(String(currentStr.suffix(from: range.upperBound))) ?? 1) - 1
+            } else {
+                current = (Int(currentStr) ?? 1) - 1
+            }
+        }
+        for ptbLink in link.xpath("//a") {
+            if let num = Int(ptbLink.text ?? "") {
+                maximum = num
+            }
+        }
+        return (current, maximum)
     }
     
     func parseAlterImagesURL(_ doc: HTMLDocument) -> String {
