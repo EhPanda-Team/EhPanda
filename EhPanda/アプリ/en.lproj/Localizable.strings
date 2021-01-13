@@ -7,7 +7,9 @@
 */
 
 // MARK: Common
-"期限切れ" = "Expired";
+"null" = "None";
+"expired" = "Expired";
+"mystery" = "Rejected";
 
 // MARK: AlertView
 "読み込み中..." = "Loading...";
@@ -56,7 +58,7 @@
 "ログイン" = "Login";
 "ログアウト" = "Logout";
 "本当にログアウトしますか？" = "Are you sure to logout?";
-"権限を確認" = "Check Permissions";
+"クッキーを管理" = "Manage Cookies";
 "外観" = "APPEARANCE";
 "サイドバーを表示しない" = "Hide SideBar";
 "キャッシュ" = "CACHE";
@@ -67,9 +69,10 @@
 "警告" = "WARNING";
 "デバッグ専用機能です" = "It's for debug only";
 
-// MARK: PermissionView
-"権限" = "Permission";
-"なし" = "None";
+// MARK: CookiesView
+"編集" = "Edit";
+"完了" = "Finish";
+"クッキー" = "Cookies";
 "クッキーをコピー" = "Copy Cookies";
 
 // MARK: FilterView

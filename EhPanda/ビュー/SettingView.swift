@@ -68,9 +68,9 @@ struct SettingView: View {
                                 .foregroundColor(.red)
                         }
                         NavigationLink(
-                            destination: PermissionView(),
+                            destination: CookiesView(),
                             label: {
-                                Text("権限を確認")
+                                Text("クッキーを管理")
                             }
                         )
                     }

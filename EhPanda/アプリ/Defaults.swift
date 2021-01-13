@@ -6,6 +6,15 @@
 //
 
 class Defaults {
+    class Cookie {
+        static var null = "null"
+        static var expired = "expired"
+        static var mystery = "mystery"
+        
+        static var igneous = "igneous"
+        static var ipb_member_id = "ipb_member_id"
+        static var ipb_pass_hash = "ipb_pass_hash"
+    }
     class URL {
         // いわゆるホストドメイン
         static var host: String {

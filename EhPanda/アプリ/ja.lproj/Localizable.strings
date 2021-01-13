@@ -6,3 +6,7 @@
   
 */
 
+// MARK: Common
+"null" = "なし";
+"expired" = "期限切れ";
+"mystery" = "拒否";
