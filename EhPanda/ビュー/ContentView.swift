@@ -94,10 +94,8 @@ struct ContentView: View {
         store.dispatch(.saveReadingProgress(id: id, tag: tag))
     }
     func onLazyVStackAppear(_ proxy: ScrollViewProxy) {
-        if let tag = mangaDetail?.readingProgress,
-           let uuid = cachedList.getUUID(progress: (tag, id))
-        {
-            proxy.scrollTo(uuid)
+        if let tag = mangaDetail?.readingProgress {
+            proxy.scrollTo(tag)
         }
     }
     

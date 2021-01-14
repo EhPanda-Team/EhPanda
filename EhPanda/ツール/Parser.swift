@@ -36,14 +36,18 @@ class Parser {
                 publishedTime = fixedTime
             }
             
+            var tags = [String]()
             var language: Language?
-            for langLink in gl3cNode.xpath("//div [@class='gt']") {
-                if langLink["title"]?.contains("language") == true {
-                    if let langText = langLink.text?.capitalizingFirstLetter(),
+            for tagLink in gl3cNode.xpath("//div [@class='gt']") {
+                if tagLink["title"]?.contains("language") == true {
+                    if let langText = tagLink.text?.capitalizingFirstLetter(),
                        let lang = Language(rawValue: langText)
                     {
                         language = lang
                     }
+                }
+                if let tagText = tagLink.text {
+                    tags.append(tagText)
                 }
             }
             
@@ -57,6 +61,7 @@ class Parser {
                                     token: url.pathComponents[3],
                                     title: title,
                                     rating: rating,
+                                    tags: tags,
                                     category: enumCategory,
                                     language: language,
                                     uploader: uploader,
@@ -79,6 +84,7 @@ class Parser {
                   let gddNode = link.at_xpath("//div [@id='gdd']"),
                   let gdrNode = link.at_xpath("//div [@id='gdr']"),
                   let gdtNode = doc.at_xpath("//div [@id='gdt']"),
+                  let gd4Node = link.at_xpath("//div [@id='gd4']"),
                   let ratingCount = gdrNode.at_xpath("//span [@id='rating_count']")?.text
             else { return (nil, nil, nil) }
             
@@ -115,6 +121,29 @@ class Parser {
                 }
             }
             
+            var detailTags = [Tag]()
+            for gd4Link in gd4Node.xpath("//tr") {
+                guard let rawCategory = gd4Link
+                        .at_xpath("//td [@class='tc']")?
+                        .text?.replacingOccurrences(of: ":", with: ""),
+                      let category = TagCategory(rawValue: rawCategory)
+                else { continue }
+                
+                var content = [String]()
+                for aLink in gd4Link.xpath("//a") {
+                    guard let aText = aLink.text
+                    else { continue }
+                    
+                    var fixedText: String?
+                    if let range = aText.range(of: "|") {
+                        fixedText = String(aText.prefix(upTo: range.lowerBound))
+                    }
+                    content.append(fixedText ?? aText)
+                }
+                
+                detailTags.append(Tag(category: category, content: content))
+            }
+            
             for gdtLink in gdtNode.xpath("//img") {
                 if imageURLs.count >= 10 { break }
                 guard let imageURL = gdtLink["src"] else { continue }
@@ -130,7 +159,8 @@ class Parser {
                   let language = Language(rawValue: tmpLanguage2)
             else { return (nil, nil, nil) }
             
-            mangaDetail = MangaDetail(alterImages: [],
+            mangaDetail = MangaDetail(detailTags: detailTags,
+                                      alterImages: [],
                                       comments: parseComments(doc),
                                       previews: imageURLs,
                                       jpnTitle: jpnTitle,

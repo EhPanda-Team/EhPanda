@@ -208,9 +208,6 @@ extension AppState {
         mutating func insertReadingProgress(progress: (Int, String)) {
             self.items?[progress.1]?.detail?.readingProgress = progress.0
         }
-        func getUUID(progress: (Int, String)) -> UUID? {
-            self.items?[progress.1]?.contents?.filter { $0.tag == progress.0 }.first?.id
-        }
     }
 }
 

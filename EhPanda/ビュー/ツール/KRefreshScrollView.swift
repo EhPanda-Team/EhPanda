@@ -1,4 +1,10 @@
-// Copied from https://kavsoft.dev/SwiftUI_2.0/Pull_To_Refresh/
+//
+//  KRefreshScrollView.swift
+//  EhPanda
+//
+//  Created by 荒木辰造 on R 3/01/14.
+//  Copied from https://kavsoft.dev/SwiftUI_2.0/Pull_To_Refresh/
+//
 
 import SwiftUI
 

@@ -21,6 +21,7 @@ struct Manga: Identifiable, Codable, Equatable {
     
     let title: String
     let rating: Float
+    let tags: [String]
     let category: Category
     let language: Language?
     let uploader: String?
@@ -32,6 +33,7 @@ struct Manga: Identifiable, Codable, Equatable {
 struct MangaDetail: Codable {
     var readingProgress: Int?
     
+    var detailTags: [Tag]
     var alterImages: [Data]
     var comments: [MangaComment]
     let previews: [MangaPreview]
@@ -42,6 +44,13 @@ struct MangaDetail: Codable {
     let sizeCount: String
     let sizeType: String
     let ratingCount: String
+}
+
+struct Tag: Codable, Identifiable {
+    var id: String { category.rawValue }
+    
+    let category: TagCategory
+    let content: [String]
 }
 
 struct MangaComment: Identifiable, Codable {
@@ -60,7 +69,7 @@ struct MangaComment: Identifiable, Codable {
 }
 
 struct MangaPreview: Identifiable, Codable {
-    var id = UUID()
+    var id: String { url }
     
     let url: String
 }
@@ -69,7 +78,7 @@ struct MangaContent: Identifiable, Codable, Equatable {
     static func == (lhs: MangaContent, rhs: MangaContent) -> Bool {
         lhs.tag == rhs.tag
     }
-    var id = UUID()
+    var id: Int { tag }
     
     let tag: Int
     let url: String
@@ -84,7 +93,7 @@ extension Manga {
     var color: Color {
         category.color
     }
-    var jpnCategories: String {
+    var jpnCategory: String {
         category.jpn
     }
     var publishedDate: Date {
@@ -100,6 +109,12 @@ extension MangaDetail {
     }
     var translatedLanguage: String {
         language.translatedLanguage
+    }
+}
+
+extension Tag {
+    var jpnCategory: String {
+        category.jpn
     }
 }
 
@@ -163,6 +178,31 @@ extension Category {
         case .Asian_Porn:
             return "アジア"
         case .Misc:
+            return "その他"
+        }
+    }
+}
+
+extension TagCategory {
+    var jpn: String {
+        switch self {
+        case .reclass:
+            return "再分類"
+        case .language:
+            return "言語"
+        case .parody:
+            return "原作"
+        case .character:
+            return "キャラ"
+        case .group:
+            return "団体"
+        case .artist:
+            return "作者"
+        case .male:
+            return "男性"
+        case .female:
+            return "女性"
+        case .misc:
             return "その他"
         }
     }
@@ -284,6 +324,18 @@ enum Category: String, Codable, CaseIterable, Identifiable {
     case Cosplay = "Cosplay"
     case Asian_Porn = "Asian Porn"
     case Misc = "Misc"
+}
+
+enum TagCategory: String, Codable {
+    case reclass = "reclass"
+    case language = "language"
+    case parody = "parody"
+    case character = "character"
+    case group = "group"
+    case artist = "artist"
+    case male = "male"
+    case female = "female"
+    case misc = "misc"
 }
 
 enum Language: String, Codable {

@@ -32,7 +32,7 @@
 "読む" = "READ";
 "気に入り" = "FAVORED";
 "人" = "Times";
-"言語" = "LANGUAGE";
+"言語" = "Language";
 "件の評価" = " RATINGS";
 "ページ" = "PAGE COUNT";
 "頁" = "Pages";
@@ -111,6 +111,17 @@
 "画像集" = "Image Set";
 "コスプレ" = "Cosplay";
 "アジア" = "Asian Porn";
+"その他" = "Misc";
+
+// MARK: TagCategory
+"再分類" = "Reclass";
+"言語" = "Language";
+"原作" = "Parody";
+"キャラ" = "Character";
+"団体" = "Group";
+"作者" = "Artist";
+"男性" = "Male";
+"女性" = "Female";
 "その他" = "Misc";
 
 // MARK: Language

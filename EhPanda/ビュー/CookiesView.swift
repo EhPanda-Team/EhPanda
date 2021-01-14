@@ -197,6 +197,7 @@ private struct CookieRow<VerifyView: View>: View {
                     onEditingChanged: { _ in },
                     onCommit: {}
                 )
+                
                 .multilineTextAlignment(.trailing)
                 .onChange(of: content, perform: onContentChanged)
             } else {

@@ -39,6 +39,9 @@ struct DetailView: View {
                         Group {
                             DescScrollView(manga: manga, detail: detail)
                                 .frame(height: 60)
+                            if !detail.detailTags.isEmpty {
+                                TagsView(tags: detail.detailTags)
+                            }
                             PreviewView(previews: detail.previews, alterImages: detail.alterImages)
                                 .frame(height: 240)
                             if !(detail.comments.isEmpty && !exx) {
@@ -129,7 +132,7 @@ private struct HeaderView: View {
                 Spacer()
                 HStack {
                     if exx {
-                        Text(manga.jpnCategories.lString())
+                        Text(manga.jpnCategory.lString())
                             .fontWeight(.bold)
                             .lineLimit(1)
                             .font(.headline)
@@ -179,6 +182,45 @@ private struct HeaderView: View {
     }
 }
 
+// MARK: タグ
+private struct TagsView: View {
+    let tags: [Tag]
+    
+    var body: some View {
+        VStack(alignment: .leading) {
+            ForEach(tags) { tag in
+                TagRow(tag: tag)
+            }
+        }
+        .padding(.horizontal)
+    }
+}
+
+private struct TagRow: View {
+    @Environment(\.colorScheme) var colorScheme
+    
+    let tag: Tag
+    var reversePrimary: Color {
+        colorScheme == .light ? .white : .black
+    }
+    
+    var body: some View {
+        HStack(alignment: .top) {
+            Text(tag.jpnCategory.lString())
+                .fontWeight(.bold)
+                .font(.subheadline)
+                .foregroundColor(reversePrimary)
+                .capsulePadding()
+                .background(
+                    Rectangle()
+                        .foregroundColor(Color(.systemGray))
+                )
+                .cornerRadius(5)
+            TagCloudView(tags: tag.content, tagColor: Color(.systemGray5))
+        }
+    }
+}
+
 // MARK: 基本情報
 private struct DescScrollView: View {
     let manga: Manga
@@ -191,7 +233,7 @@ private struct DescScrollView: View {
                                value: detail.likeCount,
                                numeral: "人".lString())
                 Divider()
-                DescScrollItem(title: "言語".lString(),
+                DescScrollItem(title: "言語".lString().uppercased(),
                                value: detail.languageAbbr,
                                numeral: detail.translatedLanguage.lString())
                 Divider()

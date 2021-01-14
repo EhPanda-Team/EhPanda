@@ -414,7 +414,7 @@ private struct MangaSummaryRow: View {
                 }
                 HStack(alignment: .bottom) {
                     if exx {
-                        Text(manga.jpnCategories.lString())
+                        Text(manga.jpnCategory.lString())
                             .fontWeight(.bold)
                             .lineLimit(1)
                             .font(.footnote)

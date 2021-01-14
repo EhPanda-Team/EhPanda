@@ -136,7 +136,6 @@ private struct CategoryView: View {
          TupleCategory(isFiltered: filterBinding.cosplay.isFiltered, category: filter.cosplay.category),
          TupleCategory(isFiltered: filterBinding.asian_porn.isFiltered, category: filter.asian_porn.category),
          TupleCategory(isFiltered: filterBinding.misc.isFiltered, category: filter.misc.category)]
-        
     }
     
     private struct TupleCategory: Identifiable {
