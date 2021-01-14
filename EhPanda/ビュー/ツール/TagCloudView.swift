@@ -10,7 +10,11 @@ import SwiftUI
 
 struct TagCloudView: View {
     let tags: [String]
-    let tagColor: Color
+    let font: Font
+    let textColor: Color
+    let backgroundColor: Color
+    let paddingV: CGFloat
+    let paddingH: CGFloat
 
     @State private var totalHeight
           = CGFloat.zero       // << variant for ScrollView/List
@@ -63,12 +67,13 @@ struct TagCloudView: View {
         Text(text)
             .fontWeight(.bold)
             .lineLimit(1)
-            .font(.subheadline)
-            .foregroundColor(.primary)
-            .capsulePadding()
+            .font(font)
+            .foregroundColor(textColor)
+            .padding(.vertical, paddingV)
+            .padding(.horizontal, paddingH)
             .background(
                 Rectangle()
-                    .foregroundColor(tagColor)
+                    .foregroundColor(backgroundColor)
             )
             .cornerRadius(5)
     }

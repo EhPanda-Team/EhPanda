@@ -374,10 +374,40 @@ private struct SearchBar: View {
 
 // MARK: 概要列
 private struct MangaSummaryRow: View {
+    @EnvironmentObject var store: Store
+    @Environment(\.colorScheme) var colorScheme
+    
+    var setting: Setting? {
+        store.appState.settings.setting
+    }
+    
     var rectangle: some View {
         Rectangle()
             .fill(Color(.systemGray5))
             .frame(width: 80, height: 110)
+    }
+    var tags: [String] {
+        if let setting = setting,
+           setting.showSummaryRowTags
+        {
+            if setting.summaryRowTagsMaximumActivated {
+                return Array(
+                    manga.tags
+                        .prefix(
+                            setting.summaryRowTagsMaximum
+                        )
+                )
+            } else {
+                return manga.tags
+            }
+        } else {
+            return []
+        }
+    }
+    var tagColor: Color {
+        colorScheme == .light
+            ? Color(.systemGray5)
+            : Color(.systemGray4)
     }
     
     let manga: Manga
@@ -393,14 +423,24 @@ private struct MangaSummaryRow: View {
                 .frame(width: 80, height: 110)
             VStack(alignment: .leading) {
                 Text(manga.title)
-                    .lineLimit(manga.uploader == nil ? 2 : 1)
                     .font(.headline)
                     .foregroundColor(.primary)
+                    .lineLimit(manga.uploader == nil ? 2 : 1)
                 if let uploader = manga.uploader {
                     Text(uploader)
                         .lineLimit(1)
                         .font(.subheadline)
                         .foregroundColor(.secondary)
+                }
+                if !tags.isEmpty {
+                    TagCloudView(
+                        tags: tags,
+                        font: .caption2,
+                        textColor: .secondary,
+                        backgroundColor: tagColor,
+                        paddingV: 2,
+                        paddingH: 4
+                    )
                 }
                 HStack {
                     RatingView(rating: manga.rating)

@@ -11,6 +11,9 @@ import SDWebImageSwiftUI
 struct SettingView: View {
     @EnvironmentObject var store: Store
     
+    var settings: AppState.Settings {
+        store.appState.settings
+    }
     var settingsBinding: Binding<AppState.Settings> {
         $store.appState.settings
     }
@@ -43,11 +46,12 @@ struct SettingView: View {
     
     var body: some View {
         NavigationView {
-            if let settingBinding = Binding(settingsBinding.setting) {
+            if let setting = settings.setting,
+               let settingBinding = Binding(settingsBinding.setting) {
                 Form {
                     Section(header: Text("アカウント")) {
                         Picker(
-                            selection: settingsBinding.galleryType,
+                            selection: settingBinding.galleryType,
                             label: Text("ギャラリー"),
                             content: {
                                 let galleryTypes: [GalleryType] = [.eh, .ex]
@@ -74,12 +78,33 @@ struct SettingView: View {
                             }
                         )
                     }
-                    if isPad {
-                        Section(header: Text("外観")) {
+                    Section(header: Text("外観")) {
+                        if isPad {
                             Toggle(isOn: settingBinding.hideSideBar) {
                                 Text("サイドバーを表示しない")
                             }
                         }
+                        Toggle(isOn: settingBinding.showSummaryRowTags) {
+                            Text("リストでタグを表示")
+                        }
+                        if setting.showSummaryRowTags {
+                            Toggle(isOn: settingBinding.summaryRowTagsMaximumActivated) {
+                                Text("リストでのタグ数を制限")
+                            }
+                        }
+                        if setting.summaryRowTagsMaximumActivated {
+                            HStack {
+                                Text("タグ数上限")
+                                Spacer()
+                                TextField("", text: settingBinding.rawSummaryRowTagsMaximum)
+                                    .multilineTextAlignment(.center)
+                                    .keyboardType(.numberPad)
+                                    .background(Color(.systemGray6))
+                                    .frame(width: 50)
+                                    .cornerRadius(5)
+                            }
+                        }
+                        
                     }
                     Section(header: Text("キャッシュ")) {
                         Button(action: toggleClearImgCaches) {

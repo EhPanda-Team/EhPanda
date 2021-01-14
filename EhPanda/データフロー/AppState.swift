@@ -36,22 +36,6 @@ extension AppState {
         var filter: Filter?
         @FileStorage(directory: .cachesDirectory, fileName: "setting.json")
         var setting: Setting?
-        var galleryType: GalleryType {
-            get {
-                let rawValue = UserDefaults
-                    .standard
-                    .string(forKey: "GalleryType")
-                    ?? "E-Hentai"
-                return GalleryType(rawValue: rawValue)!
-            }
-            
-            set {
-                UserDefaults
-                    .standard
-                    .set(newValue.rawValue,
-                         forKey: "GalleryType")
-            }
-        }
     }
 }
 

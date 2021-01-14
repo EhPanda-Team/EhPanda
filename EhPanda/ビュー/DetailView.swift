@@ -216,7 +216,14 @@ private struct TagRow: View {
                         .foregroundColor(Color(.systemGray))
                 )
                 .cornerRadius(5)
-            TagCloudView(tags: tag.content, tagColor: Color(.systemGray5))
+            TagCloudView(
+                tags: tag.content,
+                font: .subheadline,
+                textColor: .primary,
+                backgroundColor: Color(.systemGray5),
+                paddingV: 5,
+                paddingH: 14
+            )
         }
     }
 }
