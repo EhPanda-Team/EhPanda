@@ -121,10 +121,10 @@ extension Defaults.URL {
         merge([url, ignoreOffensive, showComments, detailLarge])
     }
     static func associatedItemsRedir(keyword: AssociatedKeyword) -> String {
-        if let content = keyword.content {
-            return assciatedItems(keyword: (keyword.category, content))
+        if let title = keyword.title {
+            return similarGallery(keyword: title)
         } else {
-            return similarGallery(keyword: keyword.category)
+            return assciatedItems(keyword: (keyword.category ?? "", keyword.content ?? ""))
         }
     }
     static func assciatedItems(keyword: (String, String)) -> String {

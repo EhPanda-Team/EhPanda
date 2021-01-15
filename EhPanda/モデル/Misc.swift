@@ -16,8 +16,9 @@ struct PageNumber {
 }
 
 struct AssociatedKeyword: Equatable {
-    var category: String = ""
+    var category: String?
     var content: String?
+    var title: String?
 }
 
 struct AssociatedItem {

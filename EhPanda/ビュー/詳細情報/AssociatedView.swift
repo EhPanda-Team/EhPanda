@@ -30,9 +30,12 @@ struct AssociatedView: View {
             ? assciatedItems[depth] : AssociatedItem(mangas: [])
     }
     var title: String {
-        keyword.content == nil ? keyword.category
-            : "\(keyword.category)"
-            + ":\(keyword.content ?? "")"
+        if keyword.title != nil {
+            return keyword.title!
+        } else {
+            return "\(keyword.category ?? "")"
+                + ":\(keyword.content ?? "")"
+        }
     }
     
     let depth: Int
@@ -50,6 +53,9 @@ struct AssociatedView: View {
                             )
                         ) {
                             MangaSummaryRow(manga: manga)
+                                .onAppear(perform: {
+                                    onRowAppear(manga)
+                                })
                         }
                     }
                 } else if loadingFlag {
@@ -74,11 +80,20 @@ struct AssociatedView: View {
             fetchAssociatedItems()
         }
     }
+    func onRowAppear(_ item: Manga) {
+        if item == assciatedItem.mangas.last {
+            fetchMoreAssociatedItems()
+        }
+    }
+    
     func retryAction() {
         fetchAssociatedItems()
     }
     
     func fetchAssociatedItems() {
         store.dispatch(.fetchAssociatedItems(depth: depth, keyword: keyword))
+    }
+    func fetchMoreAssociatedItems() {
+        
     }
 }
