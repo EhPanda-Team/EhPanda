@@ -159,14 +159,9 @@
 		ABC3C7702593699A00E0C11B /* ビュー */ = {
 			isa = PBXGroup;
 			children = (
-				ABC3C7732593699A00E0C11B /* HomeView.swift */,
-				AB994DBF2598B17500E9A367 /* SettingView.swift */,
-				ABF5B64725ADF2D700EE5DA8 /* CookiesView.swift */,
-				ABA732E125A8590900B3D9AB /* FilterView.swift */,
-				ABF313A025B1714400D47A2F /* AssociatedView.swift */,
-				ABC3C7722593699A00E0C11B /* DetailView.swift */,
-				AB718B2425A0C0AC00D32962 /* CommentView.swift */,
-				ABC3C7742593699A00E0C11B /* ContentView.swift */,
+				ABF313A725B1B98400D47A2F /* ホーム */,
+				ABF313A825B1B99F00D47A2F /* 詳細情報 */,
+				ABF313A925B1B9B400D47A2F /* コンテンツ */,
 				ABC3C7752593699A00E0C11B /* ツール */,
 			);
 			name = "ビュー";
@@ -218,6 +213,35 @@
 			);
 			name = "データフロー";
 			path = "データフロー";
+			sourceTree = "<group>";
+		};
+		ABF313A725B1B98400D47A2F /* ホーム */ = {
+			isa = PBXGroup;
+			children = (
+				ABC3C7732593699A00E0C11B /* HomeView.swift */,
+				AB994DBF2598B17500E9A367 /* SettingView.swift */,
+				ABF5B64725ADF2D700EE5DA8 /* CookiesView.swift */,
+				ABA732E125A8590900B3D9AB /* FilterView.swift */,
+			);
+			path = "ホーム";
+			sourceTree = "<group>";
+		};
+		ABF313A825B1B99F00D47A2F /* 詳細情報 */ = {
+			isa = PBXGroup;
+			children = (
+				ABC3C7722593699A00E0C11B /* DetailView.swift */,
+				ABF313A025B1714400D47A2F /* AssociatedView.swift */,
+				AB718B2425A0C0AC00D32962 /* CommentView.swift */,
+			);
+			path = "詳細情報";
+			sourceTree = "<group>";
+		};
+		ABF313A925B1B9B400D47A2F /* コンテンツ */ = {
+			isa = PBXGroup;
+			children = (
+				ABC3C7742593699A00E0C11B /* ContentView.swift */,
+			);
+			path = "コンテンツ";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
