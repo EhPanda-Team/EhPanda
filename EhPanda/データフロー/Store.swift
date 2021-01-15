@@ -25,6 +25,8 @@ class Store: ObservableObject {
         var appCommand: AppCommand?
         
         switch action {
+        
+        // MARK: アプリ関数操作
         case .updateUser(let user):
             appState.settings.user = user
         case .clearCachedList:
@@ -36,6 +38,7 @@ class Store: ObservableObject {
         case .saveReadingProgress(let id, let tag):
             appState.cachedList.insertReadingProgress(progress: (tag, id))
             
+        // MARK: アプリ環境
         case .toggleHomeListType(let type):
             appState.environment.homeListType = type
         case .toggleNavBarHidden(let isHidden):
@@ -64,6 +67,7 @@ class Store: ObservableObject {
         case .cleanCommentViewCommentContent:
             appState.commentInfo.commentContent = ""
             
+        // MARK: データ取得
         case .fetchSearchItems(let keyword):
             if !didLogin && exx { break }
             appState.homeInfo.searchNotFound = false
@@ -97,7 +101,7 @@ class Store: ObservableObject {
         case .fetchMoreSearchItems(let keyword):
             let currentNum = appState.homeInfo.searchCurrentPageNum
             let maximumNum = appState.homeInfo.searchPageNumMaximum
-            if (!didLogin && exx) || currentNum + 1 >= maximumNum { break }
+            if currentNum + 1 >= maximumNum { break }
             
             if appState.homeInfo.moreSearchLoading { break }
             appState.homeInfo.moreSearchLoading = true
@@ -162,7 +166,7 @@ class Store: ObservableObject {
         case .fetchMoreFrontpageItems:
             let currentNum = appState.homeInfo.frontpageCurrentPageNum
             let maximumNum = appState.homeInfo.frontpagePageNumMaximum
-            if (!didLogin && exx) || currentNum + 1 >= maximumNum { break }
+            if currentNum + 1 >= maximumNum { break }
             
             if appState.homeInfo.moreFrontpageLoading { break }
             appState.homeInfo.moreFrontpageLoading = true
@@ -239,7 +243,7 @@ class Store: ObservableObject {
         case .fetchMoreFavoritesItems:
             let currentNum = appState.homeInfo.favoritesCurrentPageNum
             let maximumNum = appState.homeInfo.favoritesPageNumMaximum
-            if (!didLogin && exx) || currentNum + 1 >= maximumNum { break }
+            if currentNum + 1 >= maximumNum { break }
             
             if appState.homeInfo.moreFavoritesLoading { break }
             appState.homeInfo.moreFavoritesLoading = true
@@ -262,7 +266,6 @@ class Store: ObservableObject {
             }
             
         case .fetchMangaDetail(id: let id):
-            if !didLogin && exx { break }
             appState.detailInfo.mangaDetailLoadFailed = false
             
             if appState.detailInfo.mangaDetailLoading { break }
@@ -280,6 +283,36 @@ class Store: ObservableObject {
                 print(error)
                 appState.detailInfo.mangaDetailLoadFailed = true
             }
+        case .fetchAssociatedItems(let depth, let keyword):
+            appState.detailInfo.associatedItemsNotFound = false
+            appState.detailInfo.associatedItemsLoadFailed = false
+            
+            if appState.detailInfo.associatedItemsLoading { break }
+            appState.detailInfo.removeAssociatedItems(depth: depth)
+            appState.detailInfo.associatedItemsLoading = true
+            
+            appCommand = FetchAssociatedItemsCommand(depth: depth, keyword: keyword)
+            
+        case .fetchAssociatedItemsDone(let result):
+            appState.detailInfo.associatedItemsLoading = false
+            
+            switch result {
+            case .success(let mangas):
+                if mangas.0.isEmpty {
+                    appState.detailInfo.associatedItemsNotFound = true
+                } else {
+                    appState.detailInfo.insertAssociatedItems(
+                        depth: mangas.1,
+                        keyword: mangas.2,
+                        items: mangas.0
+                    )
+                    appState.cachedList.cache(items: mangas.0)
+                }
+            case .failure(let error):
+                print(error)
+                appState.detailInfo.associatedItemsLoadFailed = true
+            }
+            
         case .fetchAlterImages(let id, let doc):
             if appState.detailInfo.alterImagesLoading { break }
             appState.detailInfo.alterImagesLoading = true
@@ -337,7 +370,8 @@ class Store: ObservableObject {
                 print(error)
                 appState.contentInfo.mangaContentsLoadFailed = true
             }
-        
+            
+        // MARK: アカウント活動
         case .addFavorite(let id):
             let token = appState.cachedList.items?[id]?.token ?? ""
             appCommand = AddFavoriteCommand(id: id, token: token)

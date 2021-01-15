@@ -38,6 +38,7 @@
 		ABDAD2A825AC28BF00BA4DB8 /* KRefreshScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABDAD2A725AC28BF00BA4DB8 /* KRefreshScrollView.swift */; };
 		ABEA1FE625A9B40B002966B9 /* Setting.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABEA1FE525A9B40B002966B9 /* Setting.swift */; };
 		ABEE0AFA2595C6F800C997AE /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = ABEE0AFC2595C6F800C997AE /* Localizable.strings */; };
+		ABF313A125B1714400D47A2F /* AssociatedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF313A025B1714400D47A2F /* AssociatedView.swift */; };
 		ABF3D55925B023C70094AD82 /* TagCloudView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF3D55825B023C70094AD82 /* TagCloudView.swift */; };
 		ABF5B64825ADF2D700EE5DA8 /* CookiesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF5B64725ADF2D700EE5DA8 /* CookiesView.swift */; };
 		ABF75F3F25A19CD200544D29 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF75F3E25A19CD200544D29 /* User.swift */; };
@@ -78,6 +79,7 @@
 		ABEA1FE525A9B40B002966B9 /* Setting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Setting.swift; sourceTree = "<group>"; };
 		ABEE0AFB2595C6F800C997AE /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		ABEE0AFE2595C73D00C997AE /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
+		ABF313A025B1714400D47A2F /* AssociatedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssociatedView.swift; sourceTree = "<group>"; };
 		ABF3D55825B023C70094AD82 /* TagCloudView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagCloudView.swift; sourceTree = "<group>"; };
 		ABF53F4725A306D200AB5918 /* EhPanda.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = EhPanda.entitlements; sourceTree = "<group>"; };
 		ABF5B64725ADF2D700EE5DA8 /* CookiesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CookiesView.swift; sourceTree = "<group>"; };
@@ -159,6 +161,7 @@
 				AB994DBF2598B17500E9A367 /* SettingView.swift */,
 				ABF5B64725ADF2D700EE5DA8 /* CookiesView.swift */,
 				ABA732E125A8590900B3D9AB /* FilterView.swift */,
+				ABF313A025B1714400D47A2F /* AssociatedView.swift */,
 				ABC3C7722593699A00E0C11B /* DetailView.swift */,
 				AB718B2425A0C0AC00D32962 /* CommentView.swift */,
 				ABC3C7742593699A00E0C11B /* ContentView.swift */,
@@ -303,6 +306,7 @@
 				ABF3D55925B023C70094AD82 /* TagCloudView.swift in Sources */,
 				AB40CFDF25983EDF00D1DC9A /* FileHelper.swift in Sources */,
 				ABC3C78E2593699B00E0C11B /* ContentView.swift in Sources */,
+				ABF313A125B1714400D47A2F /* AssociatedView.swift in Sources */,
 				ABC3C7902593699B00E0C11B /* RatingView.swift in Sources */,
 				ABCD2F03259760CB008E5A20 /* AppCommand.swift in Sources */,
 				ABC3C78F2593699B00E0C11B /* ViewModifiers.swift in Sources */,
@@ -466,7 +470,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = EhPanda/EhPanda.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 13;
+				CURRENT_PROJECT_VERSION = 16;
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = 9SKQ7QTZ74;
 				ENABLE_PREVIEWS = YES;
@@ -491,7 +495,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = EhPanda/EhPanda.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 13;
+				CURRENT_PROJECT_VERSION = 16;
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = 9SKQ7QTZ74;
 				ENABLE_PREVIEWS = YES;

@@ -62,8 +62,8 @@
 "外観" = "APPEARANCE";
 "サイドバーを表示しない" = "Hide sideBar";
 "リストでタグを表示" = "Show tags in list";
-"リストでのタグ数を制限" = "Set maximum tags number";
-"タグ数上限" = "Maximum tags number";
+"リストでのタグ数を制限" = "Set maximum number of tags";
+"タグ数上限" = "Maximum number of tags";
 "キャッシュ" = "CACHE";
 "画像キャッシュを削除" = "Clear image caches";
 "本当に削除しますか？" = "Are you sure to clear?";

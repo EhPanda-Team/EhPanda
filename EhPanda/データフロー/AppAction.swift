@@ -45,6 +45,8 @@ enum AppAction {
     case fetchMoreFavoritesItemsDone(result: Result<([Manga], (Int, Int)), AppError>)
     case fetchMangaDetail(id: String)
     case fetchMangaDetailDone(result: Result<(MangaDetail, String), AppError>)
+    case fetchAssociatedItems(depth: Int, keyword: (String, String?))
+    case fetchAssociatedItemsDone(result: Result<([Manga], Int, (String, String?)), AppError>)
     case fetchAlterImages(id: String, doc: HTMLDocument)
     case fetchAlterImagesDone(result: Result<([Data], String), AppError>)
     case updateMangaComments(id: String)

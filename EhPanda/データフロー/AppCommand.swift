@@ -188,6 +188,27 @@ struct FetchMangaDetailCommand: AppCommand {
     }
 }
 
+struct FetchAssociatedItemsCommand: AppCommand {
+    let depth: Int
+    let keyword: (String, String?)
+    
+    func execute(in store: Store) {
+        let token = SubscriptionToken()
+        AssociatedItemsRequest(keyword: keyword)
+            .publisher
+            .receive(on: DispatchQueue.main)
+            .sink { completion in
+                if case .failure(let error) = completion {
+                    store.dispatch(.fetchAssociatedItemsDone(result: .failure(error)))
+                }
+                token.unseal()
+            } receiveValue: { mangas in
+                store.dispatch(.fetchAssociatedItemsDone(result: .success((mangas.0, depth, keyword))))
+            }
+            .seal(in: token)
+    }
+}
+
 struct FetchAlterImagesCommand: AppCommand {
     let id: String
     let doc: HTMLDocument

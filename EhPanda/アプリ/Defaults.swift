@@ -30,6 +30,7 @@ class Defaults {
         static let login = merge([forum + index, login_act])
         
         // 各機能ページ
+        static let tag = "tag/"
         static let api = "api.php"
         static let popular = "popular"
         static let index = "index.php"
@@ -119,6 +120,20 @@ extension Defaults.URL {
     static func mangaDetail(url: String) -> String {
         merge([url, ignoreOffensive, showComments, detailLarge])
     }
+    static func associatedItemsRedir(keyword: (String, String?)) -> String {
+        if let content = keyword.1 {
+            return assciatedItems(keyword: (keyword.0, content))
+        } else {
+            return similarGallery(keyword: keyword.0)
+        }
+    }
+    static func assciatedItems(keyword: (String, String)) -> String {
+        host + tag + "\(keyword.0):\(keyword.1.URLString())$"
+    }
+    static func similarGallery(keyword: String) -> String {
+        merge([host, listCompact, f_search + keyword.URLString()])
+    }
+    
     static func contentPage(url: String, page: Int) -> String {
         merge([url, p + "\(page)"])
     }

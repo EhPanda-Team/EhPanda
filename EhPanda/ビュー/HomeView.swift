@@ -258,7 +258,7 @@ private struct GenericList: View {
                     .padding(.top, 30)
             } else {
                 ForEach(items ?? []) { item in
-                    NavigationLink(destination: DetailView(id: item.id)) {
+                    NavigationLink(destination: DetailView(id: item.id, depth: 0)) {
                         MangaSummaryRow(manga: item)
                             .onAppear {
                                 onRowAppear(item)
@@ -373,7 +373,7 @@ private struct SearchBar: View {
 }
 
 // MARK: 概要列
-private struct MangaSummaryRow: View {
+struct MangaSummaryRow: View {
     @EnvironmentObject var store: Store
     @Environment(\.colorScheme) var colorScheme
     
@@ -434,12 +434,13 @@ private struct MangaSummaryRow: View {
                 }
                 if !tags.isEmpty {
                     TagCloudView(
-                        tags: tags,
+                        tag: Tag(category: .artist, content: tags),
                         font: .caption2,
                         textColor: .secondary,
                         backgroundColor: tagColor,
                         paddingV: 2,
-                        paddingH: 4
+                        paddingH: 4,
+                        onTapAction: { _ in }
                     )
                 }
                 HStack {

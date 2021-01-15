@@ -85,7 +85,13 @@ struct SettingView: View {
                             }
                         }
                         Toggle(isOn: settingBinding.showSummaryRowTags) {
-                            Text("リストでタグを表示")
+                            HStack {
+                                Text("リストでタグを表示")
+                                if setting.showSummaryRowTags {
+                                    Image(systemName: "exclamationmark.triangle.fill")
+                                        .foregroundColor(.yellow)
+                                }
+                            }
                         }
                         if setting.showSummaryRowTags {
                             Toggle(isOn: settingBinding.summaryRowTagsMaximumActivated) {

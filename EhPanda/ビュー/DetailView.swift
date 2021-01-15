@@ -10,8 +10,11 @@ import SDWebImageSwiftUI
 
 struct DetailView: View {
     @EnvironmentObject var store: Store
+    @State var associatedKeyword: (String, String) = ("","")
+    @State var isActive = false
     
     let id: String
+    let depth: Int
     var environment: AppState.Environment {
         store.appState.environment
     }
@@ -29,34 +32,44 @@ struct DetailView: View {
     }
     
     var body: some View {
-        Group {
-            if let detail = mangaDetail {
-                ScrollView(showsIndicators: false) {
-                    VStack {
-                        HeaderView(manga: manga, detail: detail)
-                            .padding(.top, -40)
-                            .padding(.bottom, 15)
-                        Group {
-                            DescScrollView(manga: manga, detail: detail)
-                                .frame(height: 60)
-                            if !detail.detailTags.isEmpty {
-                                TagsView(tags: detail.detailTags)
+        ZStack {
+            NavigationLink(
+                "",
+                destination: AssociatedView(
+                    depth: depth,
+                    keyword: associatedKeyword
+                ),
+                isActive: $isActive
+            )
+            Group {
+                if let detail = mangaDetail {
+                    ScrollView(showsIndicators: false) {
+                        VStack {
+                            HeaderView(manga: manga, detail: detail)
+                                .padding(.top, -40)
+                                .padding(.bottom, 15)
+                            Group {
+                                DescScrollView(manga: manga, detail: detail)
+                                    .frame(height: 60)
+                                if !detail.detailTags.isEmpty {
+                                    TagsView(tags: detail.detailTags, onTapAction: onTagsViewTap)
+                                }
+                                PreviewView(previews: detail.previews, alterImages: detail.alterImages)
+                                    .frame(height: 240)
+                                if !(detail.comments.isEmpty && !exx) {
+                                    CommentScrollView(id: id, comments: detail.comments)
+                                }
                             }
-                            PreviewView(previews: detail.previews, alterImages: detail.alterImages)
-                                .frame(height: 240)
-                            if !(detail.comments.isEmpty && !exx) {
-                                CommentScrollView(id: id, comments: detail.comments)
-                            }
+                            .padding(.vertical, 15)
                         }
-                        .padding(.vertical, 15)
+                        .padding(.horizontal)
+                        .transition(AnyTransition.opacity.animation(.default))
                     }
-                    .padding(.horizontal)
-                    .transition(AnyTransition.opacity.animation(.default))
+                } else if detailInfo.mangaDetailLoading {
+                    LoadingView()
+                } else if detailInfo.mangaDetailLoadFailed {
+                    NetworkErrorView(retryAction: fetchMangaDetail)
                 }
-            } else if detailInfo.mangaDetailLoading {
-                LoadingView()
-            } else if detailInfo.mangaDetailLoadFailed {
-                NetworkErrorView(retryAction: fetchMangaDetail)
             }
         }
         .navigationBarHidden(environment.navBarHidden)
@@ -71,6 +84,10 @@ struct DetailView: View {
         } else {
             updateMangaComments()
         }
+    }
+    func onTagsViewTap(_ keyword: (String, String)) {
+        associatedKeyword = keyword
+        isActive.toggle()
     }
     
     func fetchMangaDetail() {
@@ -185,11 +202,12 @@ private struct HeaderView: View {
 // MARK: タグ
 private struct TagsView: View {
     let tags: [Tag]
+    let onTapAction: (((String, String))->())
     
     var body: some View {
         VStack(alignment: .leading) {
             ForEach(tags) { tag in
-                TagRow(tag: tag)
+                TagRow(tag: tag, onTapAction: onTapAction)
             }
         }
         .padding(.horizontal)
@@ -200,6 +218,7 @@ private struct TagRow: View {
     @Environment(\.colorScheme) var colorScheme
     
     let tag: Tag
+    let onTapAction: (((String, String))->())
     var reversePrimary: Color {
         colorScheme == .light ? .white : .black
     }
@@ -217,12 +236,13 @@ private struct TagRow: View {
                 )
                 .cornerRadius(5)
             TagCloudView(
-                tags: tag.content,
+                tag: tag,
                 font: .subheadline,
                 textColor: .primary,
                 backgroundColor: Color(.systemGray5),
                 paddingV: 5,
-                paddingH: 14
+                paddingH: 14,
+                onTapAction: onTapAction
             )
         }
     }

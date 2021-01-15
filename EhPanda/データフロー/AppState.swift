@@ -128,10 +128,31 @@ extension AppState {
         var mangaDetailLoading = false
         var mangaDetailLoadFailed = false
         
+        var associatedItems: [((String, String?), [Manga])] = []
+        var associatedItemsLoading = false
+        var associatedItemsNotFound = false
+        var associatedItemsLoadFailed = false
+        
         var alterImagesLoading = false
         
         var mangaCommentsUpdating = false
         var mangaCommentsUpdateFailed = false
+        
+        mutating func removeAssociatedItems(depth: Int) {
+            let historyItems = associatedItems
+
+            if historyItems.count >= depth + 1 {
+                associatedItems[depth].1 = []
+            }
+        }
+        
+        mutating func insertAssociatedItems(depth: Int, keyword: (String, String?), items: [Manga]) {
+            if associatedItems.count >= depth + 1 {
+                associatedItems[depth] = (keyword, items)
+            } else {
+                associatedItems.append((keyword, items))
+            }
+        }
     }
     
     struct CommentInfo {

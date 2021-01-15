@@ -15,11 +15,10 @@ struct SearchItemsRequest {
     let parser = Parser()
     
     var publisher: AnyPublisher<([Manga], (Int, Int)), AppError> {
-        let word = keyword.replacingOccurrences(of: " ", with: "+")
         return URLSession.shared
             .dataTaskPublisher(
                 for: URL(string: Defaults.URL.searchList(
-                    keyword: word,
+                    keyword: keyword,
                     filter: filter
                 ))!
             )
@@ -146,6 +145,20 @@ struct MangaDetailRequest {
             .dataTaskPublisher(for: URL(string: Defaults.URL.mangaDetail(url: detailURL))!)
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .map(parser.parseMangaDetail)
+            .mapError { _ in .networkingFailed }
+            .eraseToAnyPublisher()
+    }
+}
+
+struct AssociatedItemsRequest {
+    let keyword: (String, String?)
+    let parser = Parser()
+    
+    var publisher: AnyPublisher<([Manga], (Int, Int)), AppError> {
+        URLSession.shared
+            .dataTaskPublisher(for: URL(string: Defaults.URL.associatedItemsRedir(keyword: keyword))!)
+            .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
+            .map(parser.parseListItems)
             .mapError { _ in .networkingFailed }
             .eraseToAnyPublisher()
     }

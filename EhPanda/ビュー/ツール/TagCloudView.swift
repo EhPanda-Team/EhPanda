@@ -9,12 +9,13 @@
 import SwiftUI
 
 struct TagCloudView: View {
-    let tags: [String]
+    let tag: Tag
     let font: Font
     let textColor: Color
     let backgroundColor: Color
     let paddingV: CGFloat
     let paddingH: CGFloat
+    let onTapAction: (((String, String))->())
 
     @State private var totalHeight
           = CGFloat.zero       // << variant for ScrollView/List
@@ -35,7 +36,7 @@ struct TagCloudView: View {
         var height = CGFloat.zero
 
         return ZStack(alignment: .topLeading) {
-            ForEach(self.tags, id: \.self) { tag in
+            ForEach(self.tag.content, id: \.self) { tag in
                 self.item(for: tag)
                     .padding([.trailing, .bottom], 4)
                     .alignmentGuide(.leading, computeValue: { d in
@@ -45,7 +46,7 @@ struct TagCloudView: View {
                             height -= d.height
                         }
                         let result = width
-                        if tag == self.tags.last! {
+                        if tag == self.tag.content.last! {
                             width = 0 //last item
                         } else {
                             width -= d.width
@@ -54,7 +55,7 @@ struct TagCloudView: View {
                     })
                     .alignmentGuide(.top, computeValue: {d in
                         let result = height
-                        if tag == self.tags.last! {
+                        if tag == self.tag.content.last! {
                             height = 0 // last item
                         }
                         return result
@@ -76,6 +77,9 @@ struct TagCloudView: View {
                     .foregroundColor(backgroundColor)
             )
             .cornerRadius(5)
+            .onTapGesture(perform: {
+                onTapAction((tag.category.rawValue, text))
+            })
     }
 
     private func viewHeightReader(_ binding: Binding<CGFloat>) -> some View {
