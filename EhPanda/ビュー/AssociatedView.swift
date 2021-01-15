@@ -22,27 +22,27 @@ struct AssociatedView: View {
     var notFoundFlag: Bool {
         detailInfo.associatedItemsNotFound
     }
-    var assciatedItems: [((String, String?), [Manga])] {
+    var assciatedItems: [AssociatedItem] {
         detailInfo.associatedItems
     }
-    var assciatedItem: ((String, String?), [Manga]) {
+    var assciatedItem: AssociatedItem {
         assciatedItems.count >= depth + 1
-            ? assciatedItems[depth] : (("",""), [])
+            ? assciatedItems[depth] : AssociatedItem(mangas: [])
     }
     var title: String {
-        keyword.1 == nil ? keyword.0
-            : "\(keyword.0)"
-            + ":\(keyword.1 ?? "")"
+        keyword.content == nil ? keyword.category
+            : "\(keyword.category)"
+            + ":\(keyword.content ?? "")"
     }
     
     let depth: Int
-    let keyword: (String, String?)
+    let keyword: AssociatedKeyword
     
     var body: some View {
         ScrollView {
             LazyVStack {
-                if !assciatedItem.1.isEmpty {
-                    ForEach(assciatedItem.1) { manga in
+                if !assciatedItem.mangas.isEmpty {
+                    ForEach(assciatedItem.mangas) { manga in
                         NavigationLink(
                             destination: DetailView(
                                 id: manga.id,
@@ -70,7 +70,7 @@ struct AssociatedView: View {
     }
     
     func onAppear() {
-        if assciatedItem.0 != keyword {
+        if assciatedItem.keyword != keyword {
             fetchAssociatedItems()
         }
     }

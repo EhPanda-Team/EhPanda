@@ -128,7 +128,7 @@ extension AppState {
         var mangaDetailLoading = false
         var mangaDetailLoadFailed = false
         
-        var associatedItems: [((String, String?), [Manga])] = []
+        var associatedItems: [AssociatedItem] = []
         var associatedItemsLoading = false
         var associatedItemsNotFound = false
         var associatedItemsLoadFailed = false
@@ -142,15 +142,26 @@ extension AppState {
             let historyItems = associatedItems
 
             if historyItems.count >= depth + 1 {
-                associatedItems[depth].1 = []
+                associatedItems[depth].mangas = []
             }
         }
         
-        mutating func insertAssociatedItems(depth: Int, keyword: (String, String?), items: [Manga]) {
+        mutating func insertAssociatedItems(
+            depth: Int,
+            keyword: AssociatedKeyword,
+            items: [Manga]
+        ) {
             if associatedItems.count >= depth + 1 {
-                associatedItems[depth] = (keyword, items)
+                associatedItems[depth] = AssociatedItem(
+                    keyword: keyword,
+                    mangas: items
+                )
             } else {
-                associatedItems.append((keyword, items))
+                associatedItems
+                    .append(AssociatedItem(
+                        keyword: keyword,
+                        mangas: items
+                ))
             }
         }
     }
@@ -186,32 +197,32 @@ extension AppState {
             print("キャッシュ済みリスト 更新: \(previousCount) -> \(currentCount)")
         }
         
-        mutating func insertDetail(detail: (MangaDetail, String)) {
-            self.items?[detail.1]?.detail = detail.0
+        mutating func insertDetail(id: String, detail: MangaDetail) {
+            self.items?[id]?.detail = detail
         }
-        mutating func insertAlterImages(images: ([Data], String)) {
-            self.items?[images.1]?.detail?.alterImages = images.0
+        mutating func insertAlterImages(id: String, images: [Data]) {
+            self.items?[id]?.detail?.alterImages = images
         }
-        mutating func updateComments(comments: ([MangaComment], String)) {
-            self.items?[comments.1]?.detail?.comments = comments.0
+        mutating func updateComments(id: String, comments: [MangaComment]) {
+            self.items?[id]?.detail?.comments = comments
         }
-        mutating func insertContents(contents: ([MangaContent], String)) {
-            var historyContents = self.items?[contents.1]?.contents
+        mutating func insertContents(id: String, contents: [MangaContent]) {
+            var historyContents = self.items?[id]?.contents
             if historyContents == nil {
-                let sortedContents = contents.0.sorted { $0.tag < $1.tag }
-                self.items?[contents.1]?.contents = sortedContents
+                let sortedContents = contents.sorted { $0.tag < $1.tag }
+                self.items?[id]?.contents = sortedContents
             } else {
-                contents.0.forEach { content in
+                contents.forEach { content in
                     if historyContents?.contains(content) == false {
                         historyContents?.append(content)
                     }
                 }
                 historyContents?.sort { $0.tag < $1.tag }
-                self.items?[contents.1]?.contents = historyContents
+                self.items?[id]?.contents = historyContents
             }
         }
-        mutating func insertReadingProgress(progress: (Int, String)) {
-            self.items?[progress.1]?.detail?.readingProgress = progress.0
+        mutating func insertReadingProgress(id: String, progress: Int) {
+            self.items?[id]?.detail?.readingProgress = progress
         }
     }
 }

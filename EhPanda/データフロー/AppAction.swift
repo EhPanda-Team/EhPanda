@@ -30,29 +30,29 @@ enum AppAction {
     case toggleCommentViewSheetNil
     
     case fetchSearchItems(keyword: String)
-    case fetchSearchItemsDone(result: Result<([Manga], (Int, Int)), AppError>)
+    case fetchSearchItemsDone(result: Result<(PageNumber, [Manga]), AppError>)
     case fetchMoreSearchItems(keyword: String)
-    case fetchMoreSearchItemsDone(result: Result<([Manga], (Int, Int), String), AppError>)
+    case fetchMoreSearchItemsDone(result: Result<(PageNumber, [Manga], Keyword), AppError>)
     case fetchFrontpageItems
-    case fetchFrontpageItemsDone(result: Result<([Manga], (Int, Int)), AppError>)
+    case fetchFrontpageItemsDone(result: Result<(PageNumber, [Manga]), AppError>)
     case fetchMoreFrontpageItems
-    case fetchMoreFrontpageItemsDone(result: Result<([Manga], (Int, Int)), AppError>)
+    case fetchMoreFrontpageItemsDone(result: Result<(PageNumber, [Manga]), AppError>)
     case fetchPopularItems
-    case fetchPopularItemsDone(result: Result<([Manga], (Int, Int)), AppError>)
+    case fetchPopularItemsDone(result: Result<(PageNumber, [Manga]), AppError>)
     case fetchFavoritesItems
-    case fetchFavoritesItemsDone(result: Result<([Manga], (Int, Int)), AppError>)
+    case fetchFavoritesItemsDone(result: Result<(PageNumber, [Manga]), AppError>)
     case fetchMoreFavoritesItems
-    case fetchMoreFavoritesItemsDone(result: Result<([Manga], (Int, Int)), AppError>)
+    case fetchMoreFavoritesItemsDone(result: Result<(PageNumber, [Manga]), AppError>)
     case fetchMangaDetail(id: String)
-    case fetchMangaDetailDone(result: Result<(MangaDetail, String), AppError>)
-    case fetchAssociatedItems(depth: Int, keyword: (String, String?))
-    case fetchAssociatedItemsDone(result: Result<([Manga], Int, (String, String?)), AppError>)
+    case fetchMangaDetailDone(result: Result<(Identity, MangaDetail), AppError>)
+    case fetchAssociatedItems(depth: Int, keyword: AssociatedKeyword)
+    case fetchAssociatedItemsDone(result: Result<(Depth, AssociatedKeyword, [Manga]), AppError>)
     case fetchAlterImages(id: String, doc: HTMLDocument)
-    case fetchAlterImagesDone(result: Result<([Data], String), AppError>)
+    case fetchAlterImagesDone(result: Result<(Identity, [Data]), AppError>)
     case updateMangaComments(id: String)
-    case updateMangaCommentsDone(result: Result<([MangaComment], String), AppError>)
+    case updateMangaCommentsDone(result: Result<(Identity, [MangaComment]), AppError>)
     case fetchMangaContents(id: String)
-    case fetchMangaContentsDone(result: Result<([MangaContent], String), AppError>)
+    case fetchMangaContentsDone(result: Result<(Identity, [MangaContent]), AppError>)
     
     case addFavorite(id: String)
     case deleteFavorite(id: String)

@@ -11,7 +11,7 @@ import SDWebImageSwiftUI
 
 class Parser {
     // MARK: リスト
-    func parseListItems(_ doc: HTMLDocument) -> ([Manga], (Int, Int)) {
+    func parseListItems(_ doc: HTMLDocument) -> (PageNumber, [Manga]) {
         var mangaItems = [Manga]()
         
         for link in doc.xpath("//tr") {
@@ -70,7 +70,7 @@ class Parser {
                                     detailURL: detailURL))
         }
         
-        return (mangaItems, parsePageNum(doc))
+        return (parsePageNum(doc), mangaItems)
     }
     
     // MARK: 詳細情報
@@ -322,11 +322,11 @@ extension Parser {
         return rating
     }
     
-    func parsePageNum(_ doc: HTMLDocument) -> (Int, Int) {
+    func parsePageNum(_ doc: HTMLDocument) -> PageNumber {
         var current = 0
         var maximum = 0
         
-        guard let link = doc.at_xpath("//table [@class='ptt']") else { return (0, 0) }
+        guard let link = doc.at_xpath("//table [@class='ptt']") else { return PageNumber() }
         if let currentStr = link.at_xpath("//td [@class='ptds']")?.text {
             if let range = currentStr.range(of: "-") {
                 current = (Int(String(currentStr.suffix(from: range.upperBound))) ?? 1) - 1
@@ -339,7 +339,7 @@ extension Parser {
                 maximum = num
             }
         }
-        return (current, maximum)
+        return PageNumber(current: current, maximum: maximum)
     }
     
     func parseAlterImagesURL(_ doc: HTMLDocument) -> String {
@@ -360,8 +360,8 @@ extension Parser {
         return alterURL
     }
     
-    func parseAlterImages(_ data: Data, id: String) -> ([Data], String) {
-        guard let image = UIImage(data: data) else { return ([], id) }
+    func parseAlterImages(id: String, _ data: Data) -> (Identity, [Data]) {
+        guard let image = UIImage(data: data) else { return (id, []) }
         
         var alterImages = [Data]()
         let originW = image.size.width
@@ -380,6 +380,6 @@ extension Parser {
             }
         }
         
-        return (alterImages, id)
+        return (id, alterImages)
     }
 }

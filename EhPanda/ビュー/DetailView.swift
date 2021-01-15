@@ -10,7 +10,7 @@ import SDWebImageSwiftUI
 
 struct DetailView: View {
     @EnvironmentObject var store: Store
-    @State var associatedKeyword: (String, String) = ("","")
+    @State var associatedKeyword = AssociatedKeyword()
     @State var isActive = false
     
     let id: String
@@ -85,7 +85,7 @@ struct DetailView: View {
             updateMangaComments()
         }
     }
-    func onTagsViewTap(_ keyword: (String, String)) {
+    func onTagsViewTap(_ keyword: AssociatedKeyword) {
         associatedKeyword = keyword
         isActive.toggle()
     }
@@ -202,7 +202,7 @@ private struct HeaderView: View {
 // MARK: タグ
 private struct TagsView: View {
     let tags: [Tag]
-    let onTapAction: (((String, String))->())
+    let onTapAction: ((AssociatedKeyword)->())
     
     var body: some View {
         VStack(alignment: .leading) {
@@ -218,7 +218,7 @@ private struct TagRow: View {
     @Environment(\.colorScheme) var colorScheme
     
     let tag: Tag
-    let onTapAction: (((String, String))->())
+    let onTapAction: ((AssociatedKeyword)->())
     var reversePrimary: Color {
         colorScheme == .light ? .white : .black
     }

@@ -175,7 +175,7 @@ struct FetchMangaDetailCommand: AppCommand {
             } receiveValue: { detail in
                 if let mangaDetail = detail.0, let user = detail.1 {
                     store.dispatch(.updateUser(user: user))
-                    store.dispatch(.fetchMangaDetailDone(result: .success((mangaDetail, id))))
+                    store.dispatch(.fetchMangaDetailDone(result: .success((id, mangaDetail))))
                 } else {
                     store.dispatch(.fetchMangaDetailDone(result: .failure(.networkingFailed)))
                 }
@@ -190,7 +190,7 @@ struct FetchMangaDetailCommand: AppCommand {
 
 struct FetchAssociatedItemsCommand: AppCommand {
     let depth: Int
-    let keyword: (String, String?)
+    let keyword: AssociatedKeyword
     
     func execute(in store: Store) {
         let token = SubscriptionToken()
@@ -203,7 +203,7 @@ struct FetchAssociatedItemsCommand: AppCommand {
                 }
                 token.unseal()
             } receiveValue: { mangas in
-                store.dispatch(.fetchAssociatedItemsDone(result: .success((mangas.0, depth, keyword))))
+                store.dispatch(.fetchAssociatedItemsDone(result: .success((depth, keyword, mangas.1))))
             }
             .seal(in: token)
     }
@@ -245,7 +245,7 @@ struct UpdateMangaCommentsCommand: AppCommand {
                 }
                 token.unseal()
             } receiveValue: { comments in
-                store.dispatch(.updateMangaCommentsDone(result: .success((comments, id))))
+                store.dispatch(.updateMangaCommentsDone(result: .success((id, comments))))
             }
             .seal(in: token)
     }
@@ -277,7 +277,7 @@ struct FetchMangaContentsCommand: AppCommand {
                 token.unseal()
             } receiveValue: { contents in
                 if !contents.isEmpty {
-                    store.dispatch(.fetchMangaContentsDone(result: .success((contents, id))))
+                    store.dispatch(.fetchMangaContentsDone(result: .success((id, contents))))
                 } else {
                     store.dispatch(.fetchMangaContentsDone(result: .failure(.networkingFailed)))
                 }

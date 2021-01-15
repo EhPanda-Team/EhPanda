@@ -36,7 +36,7 @@ class Store: ObservableObject {
         case .initiateSetting:
             appState.settings.setting = Setting()
         case .saveReadingProgress(let id, let tag):
-            appState.cachedList.insertReadingProgress(progress: (tag, id))
+            appState.cachedList.insertReadingProgress(id: id, progress: tag)
             
         // MARK: アプリ環境
         case .toggleHomeListType(let type):
@@ -84,15 +84,15 @@ class Store: ObservableObject {
             
             switch result {
             case .success(let mangas):
-                if mangas.0.isEmpty {
+                appState.homeInfo.searchCurrentPageNum = mangas.0.current
+                appState.homeInfo.searchPageNumMaximum = mangas.0.maximum
+                
+                if mangas.1.isEmpty {
                     appState.homeInfo.searchNotFound = true
                 } else {
-                    appState.homeInfo.searchItems = mangas.0
-                    appState.cachedList.cache(items: mangas.0)
+                    appState.homeInfo.searchItems = mangas.1
+                    appState.cachedList.cache(items: mangas.1)
                 }
-                
-                appState.homeInfo.searchCurrentPageNum = mangas.1.0
-                appState.homeInfo.searchPageNumMaximum = mangas.1.1
             case .failure(let error):
                 print(error)
                 appState.homeInfo.searchLoadFailed = true
@@ -120,12 +120,12 @@ class Store: ObservableObject {
             
             switch result {
             case .success(let mangas):
-                let prev = appState.homeInfo.searchItems?.count ?? 0
-                appState.homeInfo.insertSearchItems(mangas: mangas.0)
-                appState.cachedList.cache(items: mangas.0)
+                appState.homeInfo.searchCurrentPageNum = mangas.0.current
+                appState.homeInfo.searchPageNumMaximum = mangas.0.maximum
                 
-                appState.homeInfo.searchCurrentPageNum = mangas.1.0
-                appState.homeInfo.searchPageNumMaximum = mangas.1.1
+                let prev = appState.homeInfo.searchItems?.count ?? 0
+                appState.homeInfo.insertSearchItems(mangas: mangas.1)
+                appState.cachedList.cache(items: mangas.1)
                 
                 let curr = appState.homeInfo.searchItems?.count ?? 0
                 if prev == curr && curr != 0 {
@@ -149,15 +149,15 @@ class Store: ObservableObject {
             
             switch result {
             case .success(let mangas):
-                if mangas.0.isEmpty {
+                appState.homeInfo.frontpageCurrentPageNum = mangas.0.current
+                appState.homeInfo.frontpagePageNumMaximum = mangas.0.maximum
+                
+                if mangas.1.isEmpty {
                     appState.homeInfo.frontpageNotFound = true
                 } else {
-                    appState.homeInfo.frontpageItems = mangas.0
-                    appState.cachedList.cache(items: mangas.0)
+                    appState.homeInfo.frontpageItems = mangas.1
+                    appState.cachedList.cache(items: mangas.1)
                 }
-                
-                appState.homeInfo.frontpageCurrentPageNum = mangas.1.0
-                appState.homeInfo.frontpagePageNumMaximum = mangas.1.1
             case .failure(let error):
                 print(error)
                 appState.homeInfo.frontpageLoadFailed = true
@@ -179,11 +179,11 @@ class Store: ObservableObject {
             
             switch result {
             case .success(let mangas):
-                appState.homeInfo.insertFrontpageItems(mangas: mangas.0)
-                appState.cachedList.cache(items: mangas.0)
+                appState.homeInfo.frontpageCurrentPageNum = mangas.0.current
+                appState.homeInfo.frontpagePageNumMaximum = mangas.0.maximum
                 
-                appState.homeInfo.frontpageCurrentPageNum = mangas.1.0
-                appState.homeInfo.frontpagePageNumMaximum = mangas.1.1
+                appState.homeInfo.insertFrontpageItems(mangas: mangas.1)
+                appState.cachedList.cache(items: mangas.1)
             case .failure(let error):
                 print(error)
             }
@@ -201,11 +201,11 @@ class Store: ObservableObject {
             
             switch result {
             case .success(let mangas):
-                if mangas.0.isEmpty {
+                if mangas.1.isEmpty {
                     appState.homeInfo.popularNotFound = true
                 } else {
-                    appState.homeInfo.popularItems = mangas.0
-                    appState.cachedList.cache(items: mangas.0)
+                    appState.homeInfo.popularItems = mangas.1
+                    appState.cachedList.cache(items: mangas.1)
                 }
             case .failure(let error):
                 print(error)
@@ -226,15 +226,15 @@ class Store: ObservableObject {
             
             switch result {
             case .success(let mangas):
-                if mangas.0.isEmpty {
+                appState.homeInfo.favoritesCurrentPageNum = mangas.0.current
+                appState.homeInfo.favoritesPageNumMaximum = mangas.0.maximum
+                
+                if mangas.1.isEmpty {
                     appState.homeInfo.favoritesNotFound = true
                 } else {
-                    appState.homeInfo.favoritesItems = mangas.0
-                    appState.cachedList.cache(items: mangas.0)
+                    appState.homeInfo.favoritesItems = mangas.1
+                    appState.cachedList.cache(items: mangas.1)
                 }
-                
-                appState.homeInfo.favoritesCurrentPageNum = mangas.1.0
-                appState.homeInfo.favoritesPageNumMaximum = mangas.1.1
             case .failure(let error):
                 print(error)
                 appState.homeInfo.favoritesLoadFailed = true
@@ -256,11 +256,11 @@ class Store: ObservableObject {
             
             switch result {
             case .success(let mangas):
-                appState.homeInfo.insertFavoritesItems(mangas: mangas.0)
-                appState.cachedList.cache(items: mangas.0)
+                appState.homeInfo.favoritesCurrentPageNum = mangas.0.current
+                appState.homeInfo.favoritesPageNumMaximum = mangas.0.maximum
                 
-                appState.homeInfo.favoritesCurrentPageNum = mangas.1.0
-                appState.homeInfo.favoritesPageNumMaximum = mangas.1.1
+                appState.homeInfo.insertFavoritesItems(mangas: mangas.1)
+                appState.cachedList.cache(items: mangas.1)
             case .failure(let error):
                 print(error)
             }
@@ -278,7 +278,7 @@ class Store: ObservableObject {
             
             switch result {
             case .success(let detail):
-                appState.cachedList.insertDetail(detail: detail)
+                appState.cachedList.insertDetail(id: detail.0, detail: detail.1)
             case .failure(let error):
                 print(error)
                 appState.detailInfo.mangaDetailLoadFailed = true
@@ -298,15 +298,15 @@ class Store: ObservableObject {
             
             switch result {
             case .success(let mangas):
-                if mangas.0.isEmpty {
+                if mangas.2.isEmpty {
                     appState.detailInfo.associatedItemsNotFound = true
                 } else {
                     appState.detailInfo.insertAssociatedItems(
-                        depth: mangas.1,
-                        keyword: mangas.2,
-                        items: mangas.0
+                        depth: mangas.0,
+                        keyword: mangas.1,
+                        items: mangas.2
                     )
-                    appState.cachedList.cache(items: mangas.0)
+                    appState.cachedList.cache(items: mangas.2)
                 }
             case .failure(let error):
                 print(error)
@@ -323,7 +323,7 @@ class Store: ObservableObject {
             
             switch result {
             case .success(let images):
-                appState.cachedList.insertAlterImages(images: images)
+                appState.cachedList.insertAlterImages(id: images.0, images: images.1)
             case .failure(let error):
                 print(error)
             }
@@ -341,7 +341,7 @@ class Store: ObservableObject {
             
             switch result {
             case .success(let comments):
-                appState.cachedList.updateComments(comments: comments)
+                appState.cachedList.updateComments(id: comments.0, comments: comments.1)
             case .failure(let error):
                 print(error)
                 appState.detailInfo.mangaCommentsUpdateFailed = true
@@ -364,7 +364,7 @@ class Store: ObservableObject {
                 if contents.0.isEmpty {
                     appState.contentInfo.mangaContentsLoadFailed = true
                 } else {
-                    appState.cachedList.insertContents(contents: contents)
+                    appState.cachedList.insertContents(id: contents.0, contents: contents.1)
                 }
             case .failure(let error):
                 print(error)

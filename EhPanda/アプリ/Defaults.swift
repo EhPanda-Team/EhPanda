@@ -120,11 +120,11 @@ extension Defaults.URL {
     static func mangaDetail(url: String) -> String {
         merge([url, ignoreOffensive, showComments, detailLarge])
     }
-    static func associatedItemsRedir(keyword: (String, String?)) -> String {
-        if let content = keyword.1 {
-            return assciatedItems(keyword: (keyword.0, content))
+    static func associatedItemsRedir(keyword: AssociatedKeyword) -> String {
+        if let content = keyword.content {
+            return assciatedItems(keyword: (keyword.category, content))
         } else {
-            return similarGallery(keyword: keyword.0)
+            return similarGallery(keyword: keyword.category)
         }
     }
     static func assciatedItems(keyword: (String, String)) -> String {

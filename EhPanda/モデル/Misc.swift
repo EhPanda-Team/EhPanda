@@ -1,0 +1,27 @@
+//
+//  Misc.swift
+//  EhPanda
+//
+//  Created by 荒木辰造 on R 3/01/15.
+//
+
+typealias Depth = Int
+typealias Percentage = Int
+typealias Keyword = String
+typealias Identity = String
+
+struct PageNumber {
+    var current = 0
+    var maximum = 0
+}
+
+struct AssociatedKeyword: Equatable {
+    var category: String = ""
+    var content: String?
+}
+
+struct AssociatedItem {
+    var keyword = AssociatedKeyword()
+    var mangas: [Manga]
+}
+
