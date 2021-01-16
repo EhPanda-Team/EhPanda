@@ -94,6 +94,6 @@ struct AssociatedView: View {
         store.dispatch(.fetchAssociatedItems(depth: depth, keyword: keyword))
     }
     func fetchMoreAssociatedItems() {
-        
+        store.dispatch(.fetchMoreAssociatedItems(depth: depth, keyword: keyword))
     }
 }

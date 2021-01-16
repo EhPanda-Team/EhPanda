@@ -164,6 +164,29 @@ struct AssociatedItemsRequest {
     }
 }
 
+struct MoreAssociatedItemsRequest {
+    let keyword: AssociatedKeyword
+    let lastID: String
+    let pageNum: String
+    let parser = Parser()
+    
+    var publisher: AnyPublisher<(PageNumber, [Manga]), AppError> {
+        URLSession.shared
+            .dataTaskPublisher(for: URL(
+                                string: Defaults.URL
+                                    .moreAssociatedItemsRedir(
+                                        keyword: keyword,
+                                        lastID: lastID,
+                                        pageNum: pageNum
+                                    ))!
+            )
+            .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
+            .map(parser.parseListItems)
+            .mapError { _ in .networkingFailed }
+            .eraseToAnyPublisher()
+    }
+}
+
 struct AlterImagesRequest {
     let id: String
     let doc: HTMLDocument

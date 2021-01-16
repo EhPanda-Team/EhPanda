@@ -56,7 +56,7 @@ struct FetchMoreSearchItemsCommand: AppCommand {
             }
             token.unseal()
         } receiveValue: { mangas in
-            store.dispatch(.fetchMoreSearchItemsDone(result: .success((mangas.0, mangas.1, keyword))))
+            store.dispatch(.fetchMoreSearchItemsDone(result: .success((keyword, mangas.0, mangas.1))))
         }
         .seal(in: token)
     }
@@ -203,7 +203,30 @@ struct FetchAssociatedItemsCommand: AppCommand {
                 }
                 token.unseal()
             } receiveValue: { mangas in
-                store.dispatch(.fetchAssociatedItemsDone(result: .success((depth, keyword, mangas.1))))
+                store.dispatch(.fetchAssociatedItemsDone(result: .success((depth, keyword, mangas.0, mangas.1))))
+            }
+            .seal(in: token)
+    }
+}
+
+struct FetchMoreAssociatedItemsCommand: AppCommand {
+    let depth: Int
+    let keyword: AssociatedKeyword
+    let lastID: String
+    let pageNum: String
+    
+    func execute(in store: Store) {
+        let token = SubscriptionToken()
+        MoreAssociatedItemsRequest(keyword: keyword, lastID: lastID, pageNum: pageNum)
+            .publisher
+            .receive(on: DispatchQueue.main)
+            .sink { completion in
+                if case .failure(let error) = completion {
+                    store.dispatch(.fetchMoreAssociatedItemsDone(result: .failure(error)))
+                }
+                token.unseal()
+            } receiveValue: { mangas in
+                store.dispatch(.fetchMoreAssociatedItemsDone(result: .success((depth, keyword, mangas.0, mangas.1))))
             }
             .seal(in: token)
     }

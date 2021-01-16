@@ -23,6 +23,7 @@ struct AssociatedKeyword: Equatable {
 
 struct AssociatedItem {
     var keyword = AssociatedKeyword()
+    var pageNum = PageNumber()
     var mangas: [Manga]
 }
 

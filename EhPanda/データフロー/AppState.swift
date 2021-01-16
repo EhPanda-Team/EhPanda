@@ -132,6 +132,7 @@ extension AppState {
         var associatedItemsLoading = false
         var associatedItemsNotFound = false
         var associatedItemsLoadFailed = false
+        var moreAssociatedItemsLoading = false
         
         var alterImagesLoading = false
         
@@ -146,22 +147,40 @@ extension AppState {
             }
         }
         
-        mutating func insertAssociatedItems(
+        mutating func replaceAssociatedItems(
             depth: Int,
             keyword: AssociatedKeyword,
+            pageNum: PageNumber,
             items: [Manga]
         ) {
             if associatedItems.count >= depth + 1 {
                 associatedItems[depth] = AssociatedItem(
                     keyword: keyword,
+                    pageNum: pageNum,
                     mangas: items
                 )
             } else {
                 associatedItems
                     .append(AssociatedItem(
                         keyword: keyword,
+                        pageNum: pageNum,
                         mangas: items
                 ))
+            }
+        }
+        
+        mutating func insertAssociatedItems(
+            depth: Int,
+            keyword: AssociatedKeyword,
+            pageNum: PageNumber,
+            items: [Manga]
+        ) {
+            if associatedItems.count >= depth + 1 {
+                associatedItems[depth].keyword = keyword
+                associatedItems[depth].pageNum = pageNum
+                associatedItems[depth].mangas.append(contentsOf: items)
+            } else {
+                print("関連リスト更新: 元の序列が見つかりませんでした")
             }
         }
     }

@@ -51,7 +51,7 @@ struct DetailView: View {
                             Group {
                                 DescScrollView(manga: manga, detail: detail)
                                     .frame(height: 60)
-                                if !detail.detailTags.isEmpty {
+                                if !detail.detailTags.isEmpty && exx {
                                     TagsView(tags: detail.detailTags, onTapAction: onTagsViewTap)
                                 }
                                 PreviewView(previews: detail.previews, alterImages: detail.alterImages)

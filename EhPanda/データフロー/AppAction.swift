@@ -32,7 +32,7 @@ enum AppAction {
     case fetchSearchItems(keyword: String)
     case fetchSearchItemsDone(result: Result<(PageNumber, [Manga]), AppError>)
     case fetchMoreSearchItems(keyword: String)
-    case fetchMoreSearchItemsDone(result: Result<(PageNumber, [Manga], Keyword), AppError>)
+    case fetchMoreSearchItemsDone(result: Result<(Keyword, PageNumber, [Manga]), AppError>)
     case fetchFrontpageItems
     case fetchFrontpageItemsDone(result: Result<(PageNumber, [Manga]), AppError>)
     case fetchMoreFrontpageItems
@@ -46,7 +46,9 @@ enum AppAction {
     case fetchMangaDetail(id: String)
     case fetchMangaDetailDone(result: Result<(Identity, MangaDetail), AppError>)
     case fetchAssociatedItems(depth: Int, keyword: AssociatedKeyword)
-    case fetchAssociatedItemsDone(result: Result<(Depth, AssociatedKeyword, [Manga]), AppError>)
+    case fetchAssociatedItemsDone(result: Result<(Depth, AssociatedKeyword, PageNumber, [Manga]), AppError>)
+    case fetchMoreAssociatedItems(depth: Int, keyword: AssociatedKeyword)
+    case fetchMoreAssociatedItemsDone(result: Result<(Depth, AssociatedKeyword, PageNumber, [Manga]), AppError>)
     case fetchAlterImages(id: String, doc: HTMLDocument)
     case fetchAlterImagesDone(result: Result<(Identity, [Data]), AppError>)
     case updateMangaComments(id: String)

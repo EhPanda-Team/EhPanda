@@ -128,10 +128,29 @@ extension Defaults.URL {
         }
     }
     static func assciatedItems(keyword: (String, String)) -> String {
-        host + tag + "\(keyword.0):\(keyword.1.URLString())$"
+        merge(keyword: keyword, pageNum: nil, lastID: nil)
     }
     static func similarGallery(keyword: String) -> String {
         merge([host, listCompact, f_search + keyword.URLString()])
+    }
+    static func moreAssociatedItemsRedir(keyword: AssociatedKeyword, lastID: String, pageNum: String) -> String {
+        if let title = keyword.title {
+            return moreSimilarGallery(keyword: title, pageNum: pageNum, lastID: lastID)
+        } else {
+            return moreAssociatedItems(keyword: (keyword.category ?? "", keyword.content ?? ""), pageNum: pageNum, lastID: lastID)
+        }
+    }
+    static func moreAssociatedItems(keyword: (String, String), pageNum: String, lastID: String) -> String {
+        merge(keyword: keyword, pageNum: pageNum, lastID: lastID)
+    }
+    static func moreSimilarGallery(keyword: String, pageNum: String, lastID: String) -> String {
+        merge([
+                host,
+                listCompact,
+                f_search + keyword.URLString(),
+                page + pageNum,
+                from + lastID
+        ])
     }
     
     static func contentPage(url: String, page: Int) -> String {
@@ -209,7 +228,21 @@ extension Defaults.URL {
         
         var joinedArray = [String]()
         joinedArray.append(firstTwo.joined(separator: "?"))
-        joinedArray.append(remainder.joined(separator: "&"))
-        return joinedArray.joined(separator: "&")
+        
+        if remainder.count > 0 {
+            joinedArray.append(remainder.joined(separator: "&"))
+        }
+        
+        if joinedArray.count > 1 {
+            return joinedArray.joined(separator: "&")
+        } else {
+            return joinedArray.joined()
+        }
+    }
+    static func merge(keyword: (String, String), pageNum: String?, lastID: String?) -> String {
+        guard let pageNum = pageNum, let lastID = lastID else {
+            return host + tag + "\(keyword.0):\(keyword.1.URLString())"
+        }
+        return merge([host + tag + "\(keyword.0):\(keyword.1.URLString())/\(pageNum)", from + lastID])
     }
 }

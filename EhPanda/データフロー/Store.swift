@@ -120,16 +120,16 @@ class Store: ObservableObject {
             
             switch result {
             case .success(let mangas):
-                appState.homeInfo.searchCurrentPageNum = mangas.0.current
-                appState.homeInfo.searchPageNumMaximum = mangas.0.maximum
+                appState.homeInfo.searchCurrentPageNum = mangas.1.current
+                appState.homeInfo.searchPageNumMaximum = mangas.1.maximum
                 
                 let prev = appState.homeInfo.searchItems?.count ?? 0
-                appState.homeInfo.insertSearchItems(mangas: mangas.1)
-                appState.cachedList.cache(items: mangas.1)
+                appState.homeInfo.insertSearchItems(mangas: mangas.2)
+                appState.cachedList.cache(items: mangas.2)
                 
                 let curr = appState.homeInfo.searchItems?.count ?? 0
                 if prev == curr && curr != 0 {
-                    dispatch(.fetchMoreSearchItems(keyword: mangas.2))
+                    dispatch(.fetchMoreSearchItems(keyword: mangas.0))
                 }
             case .failure(let error):
                 print(error)
@@ -283,6 +283,7 @@ class Store: ObservableObject {
                 print(error)
                 appState.detailInfo.mangaDetailLoadFailed = true
             }
+            
         case .fetchAssociatedItems(let depth, let keyword):
             appState.detailInfo.associatedItemsNotFound = false
             appState.detailInfo.associatedItemsLoadFailed = false
@@ -292,26 +293,60 @@ class Store: ObservableObject {
             appState.detailInfo.associatedItemsLoading = true
             
             appCommand = FetchAssociatedItemsCommand(depth: depth, keyword: keyword)
-            
         case .fetchAssociatedItemsDone(let result):
             appState.detailInfo.associatedItemsLoading = false
             
             switch result {
             case .success(let mangas):
-                if mangas.2.isEmpty {
+                if mangas.3.isEmpty {
                     appState.detailInfo.associatedItemsNotFound = true
                 } else {
-                    appState.detailInfo.insertAssociatedItems(
+                    appState.detailInfo.replaceAssociatedItems(
                         depth: mangas.0,
                         keyword: mangas.1,
-                        items: mangas.2
+                        pageNum: mangas.2,
+                        items: mangas.3
                     )
-                    appState.cachedList.cache(items: mangas.2)
+                    appState.cachedList.cache(items: mangas.3)
                 }
             case .failure(let error):
                 print(error)
                 appState.detailInfo.associatedItemsLoadFailed = true
             }
+            
+        case .fetchMoreAssociatedItems(let depth, let keyword):
+            guard appState.detailInfo.associatedItems.count >= depth + 1 else { break }
+            let currentNum = appState.detailInfo.associatedItems[depth].pageNum.current
+            let maximumNum = appState.detailInfo.associatedItems[depth].pageNum.maximum
+            if currentNum + 1 >= maximumNum { break }
+            
+            if appState.detailInfo.moreAssociatedItemsLoading { break }
+            appState.detailInfo.moreAssociatedItemsLoading = true
+            
+            let lastID = appState.detailInfo.associatedItems[depth].mangas.last?.id ?? ""
+            let pageNum = "\(currentNum + 1)"
+            appCommand = FetchMoreAssociatedItemsCommand(
+                depth: depth,
+                keyword: keyword,
+                lastID: lastID,
+                pageNum: pageNum
+            )
+        case .fetchMoreAssociatedItemsDone(let result):
+            appState.detailInfo.moreAssociatedItemsLoading = false
+            
+            switch result {
+            case .success(let mangas):
+                appState.detailInfo.insertAssociatedItems(
+                    depth: mangas.0,
+                    keyword: mangas.1,
+                    pageNum: mangas.2,
+                    items: mangas.3
+                )
+                appState.cachedList.cache(items: mangas.3)
+            case .failure(let error):
+                print(error)
+            }
+            
             
         case .fetchAlterImages(let id, let doc):
             if appState.detailInfo.alterImagesLoading { break }
