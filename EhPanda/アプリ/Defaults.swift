@@ -5,7 +5,22 @@
 //  Created by 荒木辰造 on R 2/11/22.
 //
 
+import UIKit
+import Foundation
+
 class Defaults {
+    class ImageSize {
+        static var rowScale: CGFloat = 8/11
+        static var headerScale: CGFloat = 8/11
+        static var previewScale: CGFloat = 32/45
+        
+        static var rowW: CGFloat = rowH * rowScale
+        static var rowH: CGFloat = 110
+        static var headerW: CGFloat = headerH * headerScale
+        static var headerH: CGFloat = 150
+        static var previewW: CGFloat = previewH * previewScale
+        static var previewH: CGFloat = 200
+    }
     class Cookie {
         static var null = "null"
         static var expired = "expired"

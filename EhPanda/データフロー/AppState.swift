@@ -89,9 +89,6 @@ extension AppState {
                     historyItems?.append(manga)
                 }
             }
-            historyItems?.sort {
-                $0.publishedDate > $1.publishedDate
-            }
             searchItems = historyItems
         }
         mutating func insertFrontpageItems(mangas: [Manga]) {
@@ -102,9 +99,6 @@ extension AppState {
                     historyItems?.append(manga)
                 }
             }
-            historyItems?.sort {
-                $0.publishedDate > $1.publishedDate
-            }
             frontpageItems = historyItems
         }
         mutating func insertFavoritesItems(mangas: [Manga]) {
@@ -114,9 +108,6 @@ extension AppState {
                 if historyItems?.contains(manga) == false {
                     historyItems?.append(manga)
                 }
-            }
-            historyItems?.sort {
-                $0.publishedDate > $1.publishedDate
             }
             favoritesItems = historyItems
         }

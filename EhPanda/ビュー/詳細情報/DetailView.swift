@@ -112,13 +112,12 @@ private struct HeaderView: View {
     var isFavored: Bool {
         store.appState.homeInfo.isFavored(id: manga.id)
     }
-    
-    var rectangle: some View {
-        Rectangle()
-            .fill(Color(.systemGray5))
-            .frame(width: 8/11 * 150, height: 150)
+    var width: CGFloat {
+        Defaults.ImageSize.headerW
     }
-    
+    var height: CGFloat {
+        Defaults.ImageSize.headerH
+    }
     var title: String {
         if detail.jpnTitle.isEmpty {
             return manga.title
@@ -131,10 +130,14 @@ private struct HeaderView: View {
         HStack {
             WebImage(url: URL(string: manga.coverURL), options: .handleCookies)
                 .resizable()
-                .placeholder { rectangle }
+                .placeholder {
+                    Rectangle()
+                        .fill(Color(.systemGray5))
+                        .frame(width: width, height: height)
+                }
                 .indicator(.activity)
                 .scaledToFit()
-                .frame(width: 8/11 * 150, height: 150)
+                .frame(width: width, height: height)
             VStack(alignment: .leading) {
                 Text(title)
                     .fontWeight(.bold)
@@ -322,16 +325,17 @@ private struct PreviewView: View {
     let previews: [MangaPreview]
     let alterImages: [Data]
     
-    struct Placeholder: View {
-        let width: CGFloat
-        let height: CGFloat
-        
-        var body: some View {
-            Rectangle()
-                .fill(Color(.systemGray5))
-                .frame(width: width, height: height)
-                .cornerRadius(15)
-        }
+    var width: CGFloat {
+        Defaults.ImageSize.previewW
+    }
+    var height: CGFloat {
+        Defaults.ImageSize.previewH
+    }
+    var rectangle: some View {
+        Rectangle()
+            .fill(Color(.systemGray5))
+            .frame(width: width, height: height)
+            .cornerRadius(15)
     }
     
     var body: some View {
@@ -350,35 +354,24 @@ private struct PreviewView: View {
                                      options: [.retryFailed, .handleCookies]
                             )
                             .resizable()
-                            .placeholder {
-                                Placeholder(width: 200 * 32/45,
-                                            height: 200)
-                            }
+                            .placeholder { rectangle }
                             .indicator(.activity)
                             .scaledToFill()
-                            .frame(width: 200 * 32/45,
-                                   height: 200)
+                            .frame(width: width, height: height)
                             .cornerRadius(15)
                         }
                     } else if !alterImages.isEmpty {
                         ForEach(alterImages, id: \.self) { item in
                             AnimatedImage(data: item)
                                 .resizable()
-                                .placeholder {
-                                    Placeholder(width: 200 * 32/45,
-                                                height: 200)
-                                }
+                                .placeholder { rectangle }
                                 .indicator(.activity)
                                 .scaledToFill()
-                                .frame(width: 200 * 32/45,
-                                       height: 200)
+                                .frame(width: width, height: height)
                                 .cornerRadius(15)
                         }
                     } else {
-                        ForEach(0..<10) { _ in
-                            Placeholder(width: 200 * 32/45,
-                                        height: 200)
-                        }
+                        ForEach(0..<10) { _ in rectangle }
                     }
                 }
             }

@@ -374,7 +374,7 @@ extension Parser {
                 width: originW / 20,
                 height: originH
             )
-
+            
             if let croppedImg = image.sd_croppedImage(with: rect)?.pngData() {
                 alterImages.append(croppedImg)
             }

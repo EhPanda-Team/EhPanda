@@ -213,6 +213,7 @@ private struct CookieRow<VerifyView: View>: View {
     }
 }
 
+// MARK: 定義
 public struct CookieValue {
     let rawValue: String
     let lString: String
