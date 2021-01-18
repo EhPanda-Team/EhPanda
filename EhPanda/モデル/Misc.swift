@@ -26,4 +26,3 @@ struct AssociatedItem {
     var pageNum = PageNumber()
     var mangas: [Manga]
 }
-

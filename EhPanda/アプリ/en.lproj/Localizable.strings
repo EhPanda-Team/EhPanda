@@ -61,6 +61,8 @@
 "クッキーを管理" = "Manage cookies";
 "外観" = "APPEARANCE";
 "サイドバーを表示しない" = "Hide sideBar";
+"画像の間に仕切りを挿む" = "Insert separators between images";
+"仕切りの厚さ" = "Separator height";
 "リストでタグを表示" = "Show tags in list";
 "リストでのタグ数を制限" = "Set maximum number of tags";
 "タグ数上限" = "Maximum number of tags";

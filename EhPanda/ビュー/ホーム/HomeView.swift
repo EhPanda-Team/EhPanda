@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import SDWebImageSwiftUI
 
 struct HomeView: View {
     @EnvironmentObject var store: Store
@@ -126,11 +125,11 @@ struct HomeView: View {
     }
     
     func onAppear() {
-        if settings.setting == nil {
-            store.dispatch(.initiateSetting)
-        }
-        fetchFrontpageItemsIfNeeded()
-        fetchFavoritesItemsIfNeeded()
+//        if setting == nil {
+//            store.dispatch(.initiateSetting)
+//        }
+//        fetchFrontpageItemsIfNeeded()
+//        fetchFavoritesItemsIfNeeded()
     }
     func onHomeListTypeChange(_ type: HomeListType) {
         switch type {

@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import SDWebImageSwiftUI
+import Kingfisher
 
 struct MangaSummaryRow: View {
     @EnvironmentObject var store: Store
@@ -23,21 +23,15 @@ struct MangaSummaryRow: View {
     }
     
     var tags: [String] {
-        if let setting = setting,
-           setting.showSummaryRowTags
-        {
-            if setting.summaryRowTagsMaximumActivated {
-                return Array(
-                    manga.tags
-                        .prefix(
-                            setting.summaryRowTagsMaximum
-                        )
-                )
-            } else {
-                return manga.tags
-            }
+        if setting?.summaryRowTagsMaximumActivated == true {
+            return Array(
+                manga.tags
+                    .prefix(
+                        setting?.summaryRowTagsMaximum ?? .max
+                    )
+            )
         } else {
-            return []
+            return manga.tags
         }
     }
     var tagColor: Color {
@@ -45,20 +39,31 @@ struct MangaSummaryRow: View {
             ? Color(.systemGray5)
             : Color(.systemGray4)
     }
+    var modifier: KFImageModifier {
+        KFImageModifier(
+            targetScale:
+                Defaults
+                .ImageSize
+                .rowScale
+        )
+    }
+    func placeholder() -> some View {
+        Placeholder(
+            style: .activity,
+            width: width,
+            height: height
+        )
+    }
     
     let manga: Manga
     
     var body: some View {
         HStack {
-            WebImage(url: URL(string: manga.coverURL),
-                     options: [.retryFailed, .handleCookies])
+            KFImage(URL(string: manga.coverURL), options: [])
+                .placeholder(placeholder)
+                .imageModifier(modifier)
+                .cancelOnDisappear(true)
                 .resizable()
-                .placeholder {
-                    Rectangle()
-                        .fill(Color(.systemGray5))
-                        .frame(width: width, height: height)
-                }
-                .indicator(.activity)
                 .scaledToFit()
                 .frame(width: width, height: height)
             VStack(alignment: .leading) {
@@ -72,7 +77,10 @@ struct MangaSummaryRow: View {
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                 }
-                if !tags.isEmpty {
+                if let setting = setting,
+                   setting.showSummaryRowTags,
+                   !tags.isEmpty
+                {
                     TagCloudView(
                         tag: Tag(category: .artist, content: tags),
                         font: .caption2,

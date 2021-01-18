@@ -5,6 +5,7 @@
 //  Created by 荒木辰造 on R 3/01/09.
 //
 
+import UIKit
 import Foundation
 
 struct Setting: Codable {
@@ -26,4 +27,7 @@ struct Setting: Codable {
     var summaryRowTagsMaximum: Int {
         Int(rawSummaryRowTagsMaximum) ?? .max
     }
+    var showContentDividers = false
+    var contentDividerHeight: CGFloat = 0
+    var contentRetryLimit: Int = 30
 }

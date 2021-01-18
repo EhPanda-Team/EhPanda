@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import SDWebImageSwiftUI
+import Kingfisher
 
 struct DetailView: View {
     @EnvironmentObject var store: Store
@@ -125,17 +125,29 @@ private struct HeaderView: View {
             return detail.jpnTitle
         }
     }
+    var modifier: KFImageModifier {
+        KFImageModifier(
+            targetScale:
+                Defaults
+                .ImageSize
+                .rowScale
+        )
+    }
+    func placeholder() -> some View {
+        Placeholder(
+            style: .activity,
+            width: width,
+            height: height
+        )
+    }
     
     var body: some View {
         HStack {
-            WebImage(url: URL(string: manga.coverURL), options: .handleCookies)
+            KFImage(URL(string: manga.coverURL), options: [])
+                .placeholder(placeholder)
+                .imageModifier(modifier)
+                .cancelOnDisappear(true)
                 .resizable()
-                .placeholder {
-                    Rectangle()
-                        .fill(Color(.systemGray5))
-                        .frame(width: width, height: height)
-                }
-                .indicator(.activity)
                 .scaledToFit()
                 .frame(width: width, height: height)
             VStack(alignment: .leading) {
@@ -331,11 +343,20 @@ private struct PreviewView: View {
     var height: CGFloat {
         Defaults.ImageSize.previewH
     }
-    var rectangle: some View {
-        Rectangle()
-            .fill(Color(.systemGray5))
-            .frame(width: width, height: height)
-            .cornerRadius(15)
+    var modifier: KFImageModifier {
+        KFImageModifier(
+            targetScale:
+                Defaults
+                .ImageSize
+                .rowScale
+        )
+    }
+    func placeholder() -> some View {
+        Placeholder(
+            style: .activity,
+            width: width,
+            height: height
+        )
     }
     
     var body: some View {
@@ -350,32 +371,32 @@ private struct PreviewView: View {
                 LazyHStack {
                     if !previews.isEmpty {
                         ForEach(previews) { item in
-                            WebImage(url: URL(string: item.url),
-                                     options: [.retryFailed, .handleCookies]
-                            )
-                            .resizable()
-                            .placeholder { rectangle }
-                            .indicator(.activity)
-                            .scaledToFill()
-                            .frame(width: width, height: height)
-                            .cornerRadius(15)
-                        }
-                    } else if !alterImages.isEmpty {
-                        ForEach(alterImages, id: \.self) { item in
-                            AnimatedImage(data: item)
+                            KFImage(URL(string: item.url), options: [])
+                                .placeholder(placeholder)
+                                .imageModifier(modifier)
+                                .cancelOnDisappear(true)
                                 .resizable()
-                                .placeholder { rectangle }
-                                .indicator(.activity)
-                                .scaledToFill()
+                                .scaledToFit()
                                 .frame(width: width, height: height)
                                 .cornerRadius(15)
                         }
+                    } else if !alterImages.isEmpty {
+                        ForEach(alterImages, id: \.self) { item in
+                            if let uiImage = UIImage(data: item) {
+                                Image(uiImage: uiImage)
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: width, height: height)
+                                    .cornerRadius(15)
+                            } else {
+                                placeholder()
+                            }
+                        }
                     } else {
-                        ForEach(0..<10) { _ in rectangle }
+                        ForEach(0..<10) { _ in placeholder() }
                     }
                 }
             }
-            
         }
     }
 }

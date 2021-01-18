@@ -11,6 +11,7 @@
 		AB40CFDC25983EC200D1DC9A /* FileStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB40CFDB25983EC200D1DC9A /* FileStorage.swift */; };
 		AB40CFDF25983EDF00D1DC9A /* FileHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB40CFDE25983EDF00D1DC9A /* FileHelper.swift */; };
 		AB718B2525A0C0AC00D32962 /* CommentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB718B2425A0C0AC00D32962 /* CommentView.swift */; };
+		AB89AF4925B3CE8800A0E1BA /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = AB89AF4825B3CE8800A0E1BA /* Kingfisher */; };
 		AB994DC02598B17500E9A367 /* SettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB994DBF2598B17500E9A367 /* SettingView.swift */; };
 		AB994DC32598B3E000E9A367 /* WebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB994DC22598B3E000E9A367 /* WebView.swift */; };
 		AB994DCB2598D96200E9A367 /* AlertView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB994DCA2598D96200E9A367 /* AlertView.swift */; };
@@ -28,7 +29,6 @@
 		ABC3C7902593699B00E0C11B /* RatingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC3C7772593699A00E0C11B /* RatingView.swift */; };
 		ABC3C7962593699B00E0C11B /* Manga.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC3C7802593699A00E0C11B /* Manga.swift */; };
 		ABC3C79D259369FE00E0C11B /* Kanna in Frameworks */ = {isa = PBXBuildFile; productRef = ABC3C79C259369FE00E0C11B /* Kanna */; };
-		ABC3C7A125936A2F00E0C11B /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = ABC3C7A025936A2F00E0C11B /* SDWebImageSwiftUI */; };
 		ABCD2EF82597602D008E5A20 /* Store.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD2EF72597602D008E5A20 /* Store.swift */; };
 		ABCD2EFC2597607C008E5A20 /* AppAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD2EFB2597607C008E5A20 /* AppAction.swift */; };
 		ABCD2F00259760BE008E5A20 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD2EFF259760BE008E5A20 /* AppState.swift */; };
@@ -42,6 +42,7 @@
 		ABF313A125B1714400D47A2F /* AssociatedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF313A025B1714400D47A2F /* AssociatedView.swift */; };
 		ABF313A525B1AB6600D47A2F /* Misc.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF313A425B1AB6600D47A2F /* Misc.swift */; };
 		ABF3D55925B023C70094AD82 /* TagCloudView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF3D55825B023C70094AD82 /* TagCloudView.swift */; };
+		ABF48D1625B2EB1800D1C667 /* Placeholder.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF48D1525B2EB1800D1C667 /* Placeholder.swift */; };
 		ABF5B64825ADF2D700EE5DA8 /* CookiesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF5B64725ADF2D700EE5DA8 /* CookiesView.swift */; };
 		ABF75F3F25A19CD200544D29 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF75F3E25A19CD200544D29 /* User.swift */; };
 		ABF75F4325A1C11100544D29 /* Comment.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF75F4225A1C11100544D29 /* Comment.swift */; };
@@ -85,6 +86,7 @@
 		ABF313A025B1714400D47A2F /* AssociatedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssociatedView.swift; sourceTree = "<group>"; };
 		ABF313A425B1AB6600D47A2F /* Misc.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Misc.swift; sourceTree = "<group>"; };
 		ABF3D55825B023C70094AD82 /* TagCloudView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagCloudView.swift; sourceTree = "<group>"; };
+		ABF48D1525B2EB1800D1C667 /* Placeholder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Placeholder.swift; sourceTree = "<group>"; };
 		ABF53F4725A306D200AB5918 /* EhPanda.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = EhPanda.entitlements; sourceTree = "<group>"; };
 		ABF5B64725ADF2D700EE5DA8 /* CookiesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CookiesView.swift; sourceTree = "<group>"; };
 		ABF75F3E25A19CD200544D29 /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
@@ -96,7 +98,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				ABC3C7A125936A2F00E0C11B /* SDWebImageSwiftUI in Frameworks */,
+				AB89AF4925B3CE8800A0E1BA /* Kingfisher in Frameworks */,
 				ABC3C79D259369FE00E0C11B /* Kanna in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -151,6 +153,7 @@
 				ABC3C76A2593699A00E0C11B /* Common.swift */,
 				ABC3C76D2593699A00E0C11B /* Defaults.swift */,
 				ABA732D825A8018A00B3D9AB /* Extensions.swift */,
+				ABC3C7762593699A00E0C11B /* ViewModifiers.swift */,
 				ABEE0AFC2595C6F800C997AE /* Localizable.strings */,
 				ABC3C7692593699A00E0C11B /* Assets.xcassets */,
 				ABC3C76E2593699A00E0C11B /* Info.plist */,
@@ -176,11 +179,11 @@
 				AB15535B25B290F000D0293B /* MangaSummaryRow.swift */,
 				ABDAD2A725AC28BF00BA4DB8 /* KRefreshScrollView.swift */,
 				ABF3D55825B023C70094AD82 /* TagCloudView.swift */,
-				ABC3C7762593699A00E0C11B /* ViewModifiers.swift */,
 				AB994DC22598B3E000E9A367 /* WebView.swift */,
 				ABC3C7772593699A00E0C11B /* RatingView.swift */,
 				AB994DCA2598D96200E9A367 /* AlertView.swift */,
 				ABF75F4225A1C11100544D29 /* Comment.swift */,
+				ABF48D1525B2EB1800D1C667 /* Placeholder.swift */,
 			);
 			path = "ツール";
 			sourceTree = "<group>";
@@ -265,7 +268,7 @@
 			name = EhPanda;
 			packageProductDependencies = (
 				ABC3C79C259369FE00E0C11B /* Kanna */,
-				ABC3C7A025936A2F00E0C11B /* SDWebImageSwiftUI */,
+				AB89AF4825B3CE8800A0E1BA /* Kingfisher */,
 			);
 			productName = EhPanda;
 			productReference = ABC3C7542593696C00E0C11B /* EhPanda.app */;
@@ -298,7 +301,7 @@
 			mainGroup = ABC3C74B2593696C00E0C11B;
 			packageReferences = (
 				ABC3C79B259369FE00E0C11B /* XCRemoteSwiftPackageReference "Kanna" */,
-				ABC3C79F25936A2F00E0C11B /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */,
+				AB89AF4725B3CE8800A0E1BA /* XCRemoteSwiftPackageReference "Kingfisher" */,
 			);
 			productRefGroup = ABC3C7552593696C00E0C11B /* Products */;
 			projectDirPath = "";
@@ -332,6 +335,7 @@
 				ABCD2F0A259763FC008E5A20 /* Request.swift in Sources */,
 				ABA732E225A8590900B3D9AB /* FilterView.swift in Sources */,
 				ABCD2F07259760D4008E5A20 /* AppError.swift in Sources */,
+				ABF48D1625B2EB1800D1C667 /* Placeholder.swift in Sources */,
 				ABC3C7892593699B00E0C11B /* Defaults.swift in Sources */,
 				ABF3D55925B023C70094AD82 /* TagCloudView.swift in Sources */,
 				AB40CFDF25983EDF00D1DC9A /* FileHelper.swift in Sources */,
@@ -569,6 +573,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		AB89AF4725B3CE8800A0E1BA /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/onevcat/Kingfisher.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 6.0.1;
+			};
+		};
 		ABC3C79B259369FE00E0C11B /* XCRemoteSwiftPackageReference "Kanna" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/tid-kijyun/Kanna.git";
@@ -577,26 +589,18 @@
 				minimumVersion = 5.2.4;
 			};
 		};
-		ABC3C79F25936A2F00E0C11B /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/SDWebImage/SDWebImageSwiftUI.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.5.0;
-			};
-		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		AB89AF4825B3CE8800A0E1BA /* Kingfisher */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AB89AF4725B3CE8800A0E1BA /* XCRemoteSwiftPackageReference "Kingfisher" */;
+			productName = Kingfisher;
+		};
 		ABC3C79C259369FE00E0C11B /* Kanna */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = ABC3C79B259369FE00E0C11B /* XCRemoteSwiftPackageReference "Kanna" */;
 			productName = Kanna;
-		};
-		ABC3C7A025936A2F00E0C11B /* SDWebImageSwiftUI */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = ABC3C79F25936A2F00E0C11B /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */;
-			productName = SDWebImageSwiftUI;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

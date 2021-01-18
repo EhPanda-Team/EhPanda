@@ -7,7 +7,7 @@
 
 import Kanna
 import SwiftUI
-import SDWebImageSwiftUI
+import Kingfisher
 
 class Parser {
     // MARK: リスト
@@ -368,14 +368,10 @@ extension Parser {
         let originH = image.size.height
 
         for i in 0..<20 {
-            let rect = CGRect(
-                x: originW / 20 * CGFloat(i),
-                y: 0,
-                width: originW / 20,
-                height: originH
-            )
+            let size = CGSize(width: originW / 20, height: originH)
+            let anchor = CGPoint(x: originW / 20 * CGFloat(i), y: 0)
             
-            if let croppedImg = image.sd_croppedImage(with: rect)?.pngData() {
+            if let croppedImg = image.kf.crop(to: size, anchorOn: anchor).pngData() {
                 alterImages.append(croppedImg)
             }
         }

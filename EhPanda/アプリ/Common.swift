@@ -7,7 +7,7 @@
 
 import SwiftUI
 import Combine
-import SDWebImageSwiftUI
+import Kingfisher
 
 class Common {
     
@@ -59,16 +59,6 @@ public func readableUnit(bytes: Int64) -> String {
     let formatter = ByteCountFormatter()
     formatter.allowedUnits = [.useAll]
     return formatter.string(fromByteCount: bytes)
-}
-
-public func diskImageCaches() -> String {
-    let bytes = SDImageCache.shared.totalDiskSize()
-    
-    if bytes == 0 {
-        return "0 KB"
-    } else {
-        return readableUnit(bytes: Int64(bytes))
-    }
 }
 
 public func browsingCaches() -> String {
@@ -279,5 +269,32 @@ func verifyCookies(url: URL, isEx: Bool) -> Bool {
         return igneous != nil && memberID != nil && passHash != nil
     } else {
         return memberID != nil && passHash != nil
+    }
+}
+
+// MARK: 画像処理
+struct KFImageModifier: ImageModifier {
+    let targetScale: CGFloat
+    
+    func modify(_ image: KFCrossPlatformImage) -> KFCrossPlatformImage {
+        let originW = image.size.width
+        let originH = image.size.height
+        let scale = originW / originH
+        
+        let targetW = originW * targetScale
+        
+        if abs(targetScale - scale) <= 0.2 {
+            return image
+                .kf
+                .resize(
+                    to: CGSize(
+                        width: targetW,
+                        height: originH
+                    ),
+                    for: .aspectFill
+                )
+        } else {
+            return image
+        }
     }
 }
