@@ -1,5 +1,5 @@
 //
-//  CookiesView.swift
+//  AccountSettingView.swift
 //  EhPanda
 //
 //  Created by 荒木辰造 on R 3/01/12.
@@ -7,8 +7,13 @@
 
 import SwiftUI
 
-struct CookiesView: View {
+struct AccountSettingView: View {
+    @EnvironmentObject var store: Store
     @State var inEditMode = false
+    
+    var settingBinding: Binding<Setting>? {
+        Binding($store.appState.settings.setting)
+    }
     
     var ehURL: URL {
         URL(string: Defaults.URL.ehentai)!
@@ -49,9 +54,44 @@ struct CookiesView: View {
         Image(systemName: "xmark.circle")
             .foregroundColor(.red)
     }
+    func verifyView(_ value: CookieValue) -> some View {
+        Group {
+            if !value.lString.isEmpty {
+                notVerifiedView
+            } else {
+                verifiedView
+            }
+        }
+    }
     
+    // MARK: AccountSettingView本体
     var body: some View {
         Form {
+            if let settingBinding = settingBinding {
+                Section {
+                    Picker(
+                        selection: settingBinding.galleryType,
+                        label: Text("ギャラリー"),
+                        content: {
+                            let galleryTypes: [GalleryType] = [.eh, .ex]
+                            ForEach(galleryTypes, id: \.self) {
+                                Text($0.rawValue.lString())
+                            }
+                        })
+                        .pickerStyle(SegmentedPickerStyle())
+                    if didLogin {
+                        Text("ログイン済み")
+                            .foregroundColor(.gray)
+                    } else {
+                        Button("ログイン", action: onLoginTap)
+                    }
+
+                    Button(action: onLogoutTap) {
+                        Text("ログアウト")
+                            .foregroundColor(.red)
+                    }
+                }
+            }
             Section(header: Text("E-Hentai")) {
                 CookieRow(
                     inEditMode: $inEditMode,
@@ -94,25 +134,21 @@ struct CookiesView: View {
                 Button("クッキーをコピー", action: copyExCookies)
             }
         }
-        .navigationBarTitle("クッキー")
+        .navigationBarTitle("アカウント")
         .navigationBarItems(trailing:
             Button(inEditMode ? "完了" : "編集", action: onEditButtonTap)
         )
         
     }
     
-    func verifyView(_ value: CookieValue) -> some View {
-        Group {
-            if !value.lString.isEmpty {
-                notVerifiedView
-            } else {
-                verifiedView
-            }
-        }
-    }
-    
     func onEditButtonTap() {
         inEditMode.toggle()
+    }
+    func onLoginTap() {
+        toggleWebView()
+    }
+    func onLogoutTap() {
+        toggleLogout()
     }
     
     func onEhMemberIDEditingChanged(_ value: String) {
@@ -138,7 +174,6 @@ struct CookiesView: View {
             setCookie(url: url, key: key, value: value)
         }
     }
-    
     func copyEhCookies() {
         let cookies = "\(memberIDKey): \(ehMemberID.rawValue)"
             + "\n\(passHashKey): \(ehPassHash.rawValue)"
@@ -155,8 +190,16 @@ struct CookiesView: View {
         UIPasteboard.general.string = value
         hapticFeedback(style: .medium)
     }
+    
+    func toggleWebView() {
+        store.dispatch(.toggleSettingViewSheetState(state: .webview))
+    }
+    func toggleLogout() {
+        store.dispatch(.toggleSettingViewActionSheetState(state: .logout))
+    }
 }
 
+// MARK: CookieRow
 private struct CookieRow<VerifyView: View>: View {
     var inEditModeBinding: Binding<Bool>
     var inEditMode: Bool {

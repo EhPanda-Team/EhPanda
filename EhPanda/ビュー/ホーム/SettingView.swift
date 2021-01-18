@@ -10,20 +10,7 @@ import Kingfisher
 
 struct SettingView: View {
     @EnvironmentObject var store: Store
-    @State var diskCachesSize = "0 KB"
     
-    var settings: AppState.Settings {
-        store.appState.settings
-    }
-    var settingsBinding: Binding<AppState.Settings> {
-        $store.appState.settings
-    }
-    var setting: Setting? {
-        settings.setting
-    }
-    var settingBinding: Binding<Setting>? {
-        Binding(settingsBinding.setting)
-    }
     var environmentBinding: Binding<AppState.Environment> {
         $store.appState.environment
     }
@@ -51,153 +38,64 @@ struct SettingView: View {
         )
     }
     
+    // MARK: SettingView本体
     var body: some View {
         NavigationView {
-//            if let setting = setting,
-//               let settingBinding = settingBinding {
-//                Form {
-//                    Section(header: Text("アカウント")) {
-//                        Picker(
-//                            selection: settingBinding.galleryType,
-//                            label: Text("ギャラリー"),
-//                            content: {
-//                                let galleryTypes: [GalleryType] = [.eh, .ex]
-//                                ForEach(galleryTypes, id: \.self) {
-//                                    Text($0.rawValue.lString())
-//                                }
-//                            })
-//                            .pickerStyle(SegmentedPickerStyle())
-//                        if didLogin {
-//                            Text("ログイン済み")
-//                                .foregroundColor(.gray)
-//                        } else {
-//                            Button("ログイン", action: onLoginTap)
-//                        }
-//
-//                        Button(action: toggleLogout) {
-//                            Text("ログアウト")
-//                                .foregroundColor(.red)
-//                        }
-//                        NavigationLink(
-//                            destination: CookiesView(),
-//                            label: {
-//                                Text("クッキーを管理")
-//                            }
-//                        )
-//                    }
-//                    Section(header: Text("外観")) {
-//                        if isPad {
-//                            Toggle(isOn: settingBinding.hideSideBar) {
-//                                Text("サイドバーを表示しない")
-//                            }
-//                        }
-//                        Toggle(isOn: settingBinding.showContentDividers, label: {
-//                            Text("画像の間に仕切りを挿む")
-//                        })
-//                        if setting.showContentDividers {
-//                            HStack {
-//                                Text("仕切りの厚さ")
-//                                Picker(selection: settingBinding.contentDividerHeight, label: Text("Picker"), content: {
-//                                    Text("5").tag(CGFloat(5))
-//                                    Text("10").tag(CGFloat(10))
-//                                    Text("15").tag(CGFloat(15))
-//                                    Text("20").tag(CGFloat(20))
-//                                })
-//                                .pickerStyle(SegmentedPickerStyle())
-//                                .padding(.leading, 10)
-//                            }
-//                        }
-//
-//                        Toggle(isOn: settingBinding.showSummaryRowTags) {
-//                            HStack {
-//                                Text("リストでタグを表示")
-//                                if setting.showSummaryRowTags {
-//                                    Image(systemName: "exclamationmark.triangle.fill")
-//                                        .foregroundColor(.yellow)
-//                                }
-//                            }
-//                        }
-//                        if setting.showSummaryRowTags {
-//                            Toggle(isOn: settingBinding.summaryRowTagsMaximumActivated) {
-//                                Text("リストでのタグ数を制限")
-//                            }
-//                        }
-//                        if setting.summaryRowTagsMaximumActivated {
-//                            HStack {
-//                                Text("タグ数上限")
-//                                Spacer()
-//                                TextField("", text: settingBinding.rawSummaryRowTagsMaximum)
-//                                    .multilineTextAlignment(.center)
-//                                    .keyboardType(.numberPad)
-//                                    .background(Color(.systemGray6))
-//                                    .frame(width: 50)
-//                                    .cornerRadius(5)
-//                            }
-//                        }
-//                    }
-//                    Section(header: Text("キャッシュ")) {
-//                        Button(action: toggleClearImgCaches) {
-//                            HStack {
-//                                Text("画像キャッシュを削除")
-//                                Spacer()
-//                                Text(diskCachesSize)
-//                            }
-//                            .foregroundColor(.primary)
-//                        }
-//                        Button(action: toggleClearWebCaches) {
-//                            HStack {
-//                                Text("ウェブキャッシュを削除")
-//                                Spacer()
-//                                Text(browsingCaches())
-//                            }
-//                            .foregroundColor(.primary)
-//                        }
-//                    }
-//                }
-//                .onAppear(perform: onAppear)
-//                .sheet(item: environmentBinding.settingViewSheetState, content: { item in
-//                    switch item {
-//                    case .webview:
-//                        WebView()
-//                            .environmentObject(store)
-//                    }
-//                })
-//                .actionSheet(item: environmentBinding.settingViewActionSheetState, content: { item in
-//                    switch item {
-//                    case .logout:
-//                        return logoutActionSheet
-//                    case .clearImgCaches:
-//                        return clearImgCachesActionSheet
-//                    case .clearWebCaches:
-//                        return clearWebCachesActionSheet
-//                    }
-//                })
-//                .navigationBarTitle("設定")
-//            }
-            
-            
             ScrollView {
-                VStack(alignment: .leading) {
-                    Group {
-                        SettingRow(symbolName: "person.fill", text: "アカウント")
-                        SettingRow(symbolName: "switch.2", text: "一般")
-                        SettingRow(symbolName: "circle.righthalf.fill", text: "外観")
-                        SettingRow(symbolName: "newspaper.fill", text: "閲覧")
-                        SettingRow(symbolName: "p.circle.fill", text: "EhPandaについて")
-                    }
-                    .padding(.vertical, 5)
+                VStack(spacing: 0) {
+                    SettingRow(
+                        symbolName: "person.fill",
+                        text: "アカウント",
+                        destination: AccountSettingView()
+                    )
+                    SettingRow(
+                        symbolName: "switch.2",
+                        text: "一般",
+                        destination: GeneralSettingView()
+                    )
+                    SettingRow(
+                        symbolName: "circle.righthalf.fill",
+                        text: "外観",
+                        destination: AppearanceSettingView()
+                    )
+                    SettingRow(
+                        symbolName: "newspaper.fill",
+                        text: "閲覧",
+                        destination: ReadingSettingView()
+                    )
+                    SettingRow(
+                        symbolName: "p.circle.fill",
+                        text: "EhPandaについて",
+                        destination: EhPandaView()
+                    )
                 }
-                .padding(40)
+                .padding(.vertical, 40)
+                .padding(.horizontal)
             }
             .navigationBarTitle("設定")
+            .onAppear(perform: onAppear)
+            .sheet(item: environmentBinding.settingViewSheetState, content: { item in
+                switch item {
+                case .webview:
+                    WebView()
+                        .environmentObject(store)
+                }
+            })
+            .actionSheet(item: environmentBinding.settingViewActionSheetState, content: { item in
+                switch item {
+                case .logout:
+                    return logoutActionSheet
+                case .clearImgCaches:
+                    return clearImgCachesActionSheet
+                case .clearWebCaches:
+                    return clearWebCachesActionSheet
+                }
+            })
         }
     }
     
     func onAppear() {
         calculateDiskCachesSize()
-    }
-    func onLoginTap() {
-        toggleWebView()
     }
     
     func logout() {
@@ -211,7 +109,11 @@ struct SettingView: View {
         KingfisherManager.shared.cache.calculateDiskStorageSize { result in
             switch result {
             case .success(let size):
-                diskCachesSize = readableUnit(bytes: Int64(size))
+                store.dispatch(
+                    .updateDiskImageCacheSize(
+                        size: readableUnit(bytes: Int64(size))
+                    )
+                )
             case .failure(let error):
                 print(error)
             }
@@ -226,65 +128,60 @@ struct SettingView: View {
         store.dispatch(.fetchPopularItems)
         store.dispatch(.fetchFavoritesItems)
     }
-    
-    func toggleWebView() {
-        store.dispatch(.toggleSettingViewSheetState(state: .webview))
-    }
-    func toggleLogout() {
-        store.dispatch(.toggleSettingViewActionSheetState(state: .logout))
-    }
-    func toggleClearImgCaches() {
-        store.dispatch(.toggleSettingViewActionSheetState(state: .clearImgCaches))
-    }
-    func toggleClearWebCaches() {
-        store.dispatch(.toggleSettingViewActionSheetState(state: .clearWebCaches))
-    }
 }
 
-private struct SettingRow: View {
+// MARK: SettingRow
+private struct SettingRow<Destination : View>: View {
+    @Environment(\.colorScheme) var colorScheme
+    @State var isPressing = false
+    @State var isActive = false
+    
     let symbolName: String
     let text: String
+    let destination: Destination
     
-    var body: some View {
-        SFLabel(
-            symbolName: symbolName,
-            symbolFont: .largeTitle,
-            symbolForeground: Color(.darkGray),
-            symbolWidth: 40,
-            text: text,
-            textFontWeight: .medium,
-            textFont: .title3,
-            textForeground: Color(.darkGray),
-            spacing: 20
-        )
+    var color: Color {
+        colorScheme == .light
+            ? Color(.darkGray)
+            : Color(.lightGray)
     }
-}
-
-private struct SFLabel: View {
-    let symbolName: String
-    var symbolFont: Font?
-    var symbolForeground: Color?
-    var symbolWidth: CGFloat?
-    
-    let text: String
-    var textFontWeight: Font.Weight?
-    var textFont: Font?
-    var textForeground: Color?
-    
-    let spacing: CGFloat
+    var backgroundColor: Color {
+        isPressing ? color.opacity(0.1) : .clear
+    }
     
     var body: some View {
-        HStack {
-            Image(systemName: symbolName)
-                .font(symbolFont)
-                .foregroundColor(symbolForeground)
-                .padding(.trailing, spacing)
-                .frame(width: symbolWidth)
-            Text(text)
-                .fontWeight(textFontWeight)
-                .font(textFont)
-                .foregroundColor(textForeground)
-            Spacer()
+        ZStack {
+            NavigationLink(
+                "",
+                destination: destination,
+                isActive: $isActive
+            )
+            HStack {
+                Image(systemName: symbolName)
+                    .font(.largeTitle)
+                    .foregroundColor(color)
+                    .padding(.trailing, 20)
+                    .frame(width: 40)
+                Text(text)
+                    .fontWeight(.medium)
+                    .font(.title3)
+                    .foregroundColor(color)
+                Spacer()
+            }
+            .contentShape(Rectangle())
+            .padding(.vertical, 10)
+            .padding(.horizontal, 20)
+            .background(backgroundColor)
+            .cornerRadius(10)
+            .onTapGesture {
+                isActive.toggle()
+            }
+            .onLongPressGesture(
+                minimumDuration: .infinity,
+                maximumDistance: 50,
+                pressing: { isPressing = $0 },
+                perform: {}
+            )
         }
     }
 }

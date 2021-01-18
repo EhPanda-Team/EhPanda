@@ -125,9 +125,9 @@ struct HomeView: View {
     }
     
     func onAppear() {
-//        if setting == nil {
-//            store.dispatch(.initiateSetting)
-//        }
+        if setting == nil {
+            store.dispatch(.initiateSetting)
+        }
 //        fetchFrontpageItemsIfNeeded()
 //        fetchFavoritesItemsIfNeeded()
     }

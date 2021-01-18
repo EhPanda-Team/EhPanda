@@ -37,6 +37,8 @@ class Store: ObservableObject {
             appState.settings.setting = Setting()
         case .saveReadingProgress(let id, let tag):
             appState.cachedList.insertReadingProgress(id: id, progress: tag)
+        case .updateDiskImageCacheSize(let size):
+            appState.settings.setting?.diskImageCacheSize = size
             
         // MARK: アプリ環境
         case .toggleHomeListType(let type):

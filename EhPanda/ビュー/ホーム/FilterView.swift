@@ -27,6 +27,7 @@ struct FilterView: View {
         ])
     }
     
+    // MARK: FilterView本体
     var body: some View {
         NavigationView {
             if let filter = settings.filter,
@@ -102,11 +103,11 @@ struct FilterView: View {
 private struct CategoryView: View {
     @EnvironmentObject var store: Store
     
-    var settings: AppState.Settings {
-        store.appState.settings
+    var filter: Filter? {
+        store.appState.settings.filter
     }
-    var settingsBinding: Binding<AppState.Settings> {
-        $store.appState.settings
+    var filterBinding: Binding<Filter>? {
+        Binding($store.appState.settings.filter)
     }
     
     let gridItems = [
@@ -114,11 +115,14 @@ private struct CategoryView: View {
     ]
     
     var body: some View {
-        if let filter = settings.filter,
-           let filterBinding = Binding(settingsBinding.filter) {
+        if let filter = filter,
+           let filterBinding = filterBinding {
             LazyVGrid(columns: gridItems) {
                 ForEach(tuples(filter, filterBinding)) { tuple in
-                    CategoryCell(isFiltered: tuple.isFiltered, category: tuple.category)
+                    CategoryCell(
+                        isFiltered: tuple.isFiltered,
+                        category: tuple.category
+                    )
                 }
             }
             .padding(.vertical)

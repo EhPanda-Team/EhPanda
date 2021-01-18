@@ -31,6 +31,7 @@ struct CommentView: View {
         commentInfoBinding.commentContent
     }
     
+    // MARK: CommentView本体
     var body: some View {
         ScrollView(showsIndicators: false) {
             VStack {
@@ -87,6 +88,7 @@ struct CommentView: View {
     }
 }
 
+// MARK: CommentCell
 private struct CommentCell: View {
     @EnvironmentObject var store: Store
     @State var editCommentContent: String

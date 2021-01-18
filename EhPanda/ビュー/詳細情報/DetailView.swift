@@ -15,6 +15,7 @@ struct DetailView: View {
     
     let id: String
     let depth: Int
+    
     var environment: AppState.Environment {
         store.appState.environment
     }
@@ -31,6 +32,7 @@ struct DetailView: View {
         cachedList.items?[id]?.detail
     }
     
+    // MARK: DetailView本体
     var body: some View {
         ZStack {
             NavigationLink(

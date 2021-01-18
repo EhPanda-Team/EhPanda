@@ -16,6 +16,7 @@ enum AppAction {
     case cleanDetailViewCommentContent
     case cleanCommentViewCommentContent
     case saveReadingProgress(id: String, tag: Int)
+    case updateDiskImageCacheSize(size: String)
     
     case toggleNavBarHidden(isHidden: Bool)
     case toggleHomeListType(type: HomeListType)

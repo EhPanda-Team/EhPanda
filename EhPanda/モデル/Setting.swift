@@ -20,6 +20,7 @@ struct Setting: Codable {
                 )
         }
     }
+    var diskImageCacheSize = "0 KB"
     var hideSideBar = false
     var showSummaryRowTags = false
     var summaryRowTagsMaximumActivated = false
