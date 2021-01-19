@@ -79,6 +79,7 @@ struct DetailView: View {
     }
     
     func onAppear() {
+        toggleTabBarHidden()
         toggleNavBarHidden()
         
         if mangaDetail == nil {
@@ -99,6 +100,9 @@ struct DetailView: View {
         store.dispatch(.updateMangaComments(id: id))
     }
     
+    func toggleTabBarHidden() {
+//        store.dispatch(.toggleTabBarHidden(isHidden: true))
+    }
     func toggleNavBarHidden() {
         store.dispatch(.toggleNavBarHidden(isHidden: false))
     }

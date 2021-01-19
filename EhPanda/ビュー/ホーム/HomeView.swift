@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Introspect
 
 struct HomeView: View {
     @EnvironmentObject var store: Store
@@ -29,7 +30,7 @@ struct HomeView: View {
     
     var categoryPicker: some View {
         Group {
-            if exx {
+            if exx && setting?.showTabBar == false {
                 CategoryPicker(type: environmentBinding.homeListType)
                     .padding(.bottom, 10)
             }
@@ -37,11 +38,12 @@ struct HomeView: View {
     }
     var settingEntry: some View {
         Group {
-            if exx {
-                Image(systemName: "gear")
-                    .foregroundColor(.primary)
-                    .imageScale(.large)
-                    .onTapGesture(perform: toggleSetting)
+            if exx && setting?.showTabBar == false {
+                Button(action: toggleSetting, label: {
+                    Image(systemName: "gear")
+                        .foregroundColor(.primary)
+                        .imageScale(.large)
+                })
             }
         }
     }
@@ -118,7 +120,9 @@ struct HomeView: View {
                 )
                 .onAppear(perform: onAppear)
             
-            SecondaryView()
+            if setting?.showTabBar == false {
+                SecondaryView()
+            }
         }
         .modify(
             if: isPad && setting?.hideSideBar == false,

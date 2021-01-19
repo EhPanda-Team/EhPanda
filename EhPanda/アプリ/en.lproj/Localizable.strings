@@ -73,6 +73,7 @@
 "自動" = "Automatic";
 "ライト" = "Light";
 "ダーク" = "Dark";
+"タブバーを表示" = "Show tabbar";
 "サイドバーを表示しない" = "Hide sideBar";
 "カテゴリーを訳す" = "Translate category";
 "リストでタグを表示" = "Show tags in list";

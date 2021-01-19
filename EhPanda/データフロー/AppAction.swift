@@ -18,6 +18,7 @@ enum AppAction {
     case saveReadingProgress(id: String, tag: Int)
     case updateDiskImageCacheSize(size: String)
     
+    case toggleTabBarHidden(isHidden: Bool)
     case toggleNavBarHidden(isHidden: Bool)
     case toggleHomeListType(type: HomeListType)
     case toggleHomeViewSheetState(state: HomeViewSheetState)

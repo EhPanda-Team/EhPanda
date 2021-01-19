@@ -43,6 +43,8 @@ class Store: ObservableObject {
         // MARK: アプリ環境
         case .toggleHomeListType(let type):
             appState.environment.homeListType = type
+        case .toggleTabBarHidden(let isHidden):
+            appState.environment.tabBarHidden = isHidden
         case .toggleNavBarHidden(let isHidden):
             appState.environment.navBarHidden = isHidden
         case .toggleHomeViewSheetState(let state):

@@ -35,6 +35,7 @@ struct Setting: Codable {
         }
     }
     var preferredColorScheme: PreferredColorScheme = .automatic
+    var showTabBar = false
     var hideSideBar = false
     var translateCategory = true
     var showSummaryRowTags = false
