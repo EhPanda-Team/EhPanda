@@ -14,10 +14,28 @@ struct GeneralSettingView: View {
     var setting: Setting? {
         store.appState.settings.setting
     }
+    var language: String {
+        if let code = Locale.current.languageCode,
+           let lang = Locale.current.localizedString(
+            forLanguageCode: code
+           )
+        {
+            return lang
+        } else {
+            return "(null)"
+        }
+    }
     
     var body: some View {
         if let setting = setting {
             Form {
+                Section(header: Text("環境")) {
+                    HStack {
+                        Text("言語")
+                        Spacer()
+                        Button(language, action: toSettingLanguage)
+                    }
+                }
                 Section(header: Text("キャッシュ")) {
                     Button(action: toggleClearImgCaches) {
                         HStack {
@@ -41,6 +59,11 @@ struct GeneralSettingView: View {
         }
     }
     
+    func toSettingLanguage() {
+        if let settingURL = URL(string: UIApplication.openSettingsURLString) {
+            UIApplication.shared.open(settingURL, options: [:])
+        }
+    }
     func toggleClearImgCaches() {
         store.dispatch(.toggleSettingViewActionSheetState(state: .clearImgCaches))
     }

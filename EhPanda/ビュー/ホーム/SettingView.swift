@@ -162,7 +162,7 @@ private struct SettingRow<Destination : View>: View {
                     .foregroundColor(color)
                     .padding(.trailing, 20)
                     .frame(width: 40)
-                Text(text)
+                Text(text.lString())
                     .fontWeight(.medium)
                     .font(.title3)
                     .foregroundColor(color)

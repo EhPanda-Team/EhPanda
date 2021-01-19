@@ -22,6 +22,13 @@ struct MangaSummaryRow: View {
         Defaults.ImageSize.rowH
     }
     
+    var category: String {
+        if setting?.translateCategory == true {
+            return manga.jpnCategory.lString()
+        } else {
+            return manga.category.rawValue.uppercased()
+        }
+    }
     var tags: [String] {
         if setting?.summaryRowTagsMaximumActivated == true {
             return Array(
@@ -77,8 +84,7 @@ struct MangaSummaryRow: View {
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                 }
-                if let setting = setting,
-                   setting.showSummaryRowTags,
+                if setting?.showSummaryRowTags == true,
                    !tags.isEmpty
                 {
                     TagCloudView(
@@ -103,7 +109,7 @@ struct MangaSummaryRow: View {
                 }
                 HStack(alignment: .bottom) {
                     if exx {
-                        Text(manga.jpnCategory.lString())
+                        Text(category)
                             .fontWeight(.bold)
                             .lineLimit(1)
                             .font(.footnote)

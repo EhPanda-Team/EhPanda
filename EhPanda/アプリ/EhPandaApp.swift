@@ -10,6 +10,15 @@ import Kingfisher
 
 @main
 struct EhPandaApp: App {
+    @StateObject var store = Store()
+    
+    var preferredColorScheme: ColorScheme? {
+        store.appState
+            .settings.setting?
+            .colorScheme ?? .none
+        
+    }
+    
     init() {
         configureKF()
     }
@@ -17,8 +26,9 @@ struct EhPandaApp: App {
     var body: some Scene {
         WindowGroup {
             HomeView()
-                .environmentObject(Store())
+                .environmentObject(store)
                 .onOpenURL(perform: onOpenURL)
+                .preferredColorScheme(preferredColorScheme)
         }
     }
     

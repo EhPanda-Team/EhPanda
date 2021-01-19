@@ -22,6 +22,23 @@ struct ReadingSettingView: View {
            let settingBinding = settingBinding
         {
             Form {
+                Section {
+                    HStack {
+                        Text("再試行上限数")
+                        Picker(
+                            selection: settingBinding.contentRetryLimit,
+                            label: Text("Picker"),
+                            content: {
+                                Text("5").tag(5)
+                                Text("10").tag(10)
+                                Text("15").tag(15)
+                                Text("20").tag(20)
+                            }
+                        )
+                        .pickerStyle(SegmentedPickerStyle())
+                        .padding(.leading, 10)
+                    }
+                }
                 Section(header: Text("外観")) {
                     Toggle(isOn: settingBinding.showContentDividers, label: {
                         Text("画像の間に仕切りを挿む")

@@ -111,6 +111,10 @@ private struct HeaderView: View {
     let manga: Manga
     let detail: MangaDetail
     
+    var setting: Setting? {
+        store.appState.settings.setting
+    }
+    
     var isFavored: Bool {
         store.appState.homeInfo.isFavored(id: manga.id)
     }
@@ -125,6 +129,13 @@ private struct HeaderView: View {
             return manga.title
         } else {
             return detail.jpnTitle
+        }
+    }
+    var category: String {
+        if setting?.translateCategory == true {
+            return manga.jpnCategory.lString()
+        } else {
+            return manga.category.rawValue.uppercased()
         }
     }
     var modifier: KFImageModifier {
@@ -166,7 +177,7 @@ private struct HeaderView: View {
                 Spacer()
                 HStack {
                     if exx {
-                        Text(manga.jpnCategory.lString())
+                        Text(category)
                             .fontWeight(.bold)
                             .lineLimit(1)
                             .font(.headline)

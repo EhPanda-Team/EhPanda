@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SwiftUI
 import Foundation
 
 struct Setting: Codable {
@@ -20,15 +21,53 @@ struct Setting: Codable {
                 )
         }
     }
+    
     var diskImageCacheSize = "0 KB"
+    
+    var colorScheme: ColorScheme? {
+        switch preferredColorScheme {
+        case .light:
+            return .light
+        case .dark:
+            return .dark
+        default:
+            return nil
+        }
+    }
+    var preferredColorScheme: PreferredColorScheme = .automatic
     var hideSideBar = false
+    var translateCategory = true
     var showSummaryRowTags = false
     var summaryRowTagsMaximumActivated = false
     var rawSummaryRowTagsMaximum = ""
     var summaryRowTagsMaximum: Int {
         Int(rawSummaryRowTagsMaximum) ?? .max
     }
+    
+    var contentRetryLimit = 10
     var showContentDividers = false
     var contentDividerHeight: CGFloat = 0
-    var contentRetryLimit: Int = 30
+}
+
+
+public enum GalleryType: String, Codable {
+    case eh = "E-Hentai"
+    case ex = "ExHentai"
+    
+    var abbr: String {
+        switch self {
+        case .eh:
+            return "eh"
+        case .ex:
+            return "ex"
+        }
+    }
+}
+
+public enum PreferredColorScheme: String, Codable, CaseIterable, Identifiable {
+    public var id: Int { hashValue }
+    
+    case automatic = "自動"
+    case light = "ライト"
+    case dark = "ダーク"
 }

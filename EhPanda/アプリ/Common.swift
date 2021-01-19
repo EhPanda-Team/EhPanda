@@ -33,6 +33,17 @@ public var exAccess: Bool {
     verifyCookies(url: URL(string: Defaults.URL.exhentai)!, isEx: true)
 }
 
+public var appVersion: String {
+    Bundle.main.object(
+        forInfoDictionaryKey: "CFBundleShortVersionString"
+    ) as? String ?? "(null)"
+}
+public var appBuild: String {
+    Bundle.main.object(
+        forInfoDictionaryKey: "CFBundleVersion"
+    ) as? String ?? "(null)"
+}
+
 public func hapticFeedback(style: UIImpactFeedbackGenerator.FeedbackStyle) {
     UIImpactFeedbackGenerator(style: style)
         .impactOccurred()

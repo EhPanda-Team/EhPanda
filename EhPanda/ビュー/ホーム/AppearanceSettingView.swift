@@ -23,11 +23,28 @@ struct AppearanceSettingView: View {
         {
             Form {
                 Section(header: Text("全般")) {
+                    HStack {
+                        Text("テーマ")
+                        Spacer()
+                        Picker(
+                            selection: settingBinding.preferredColorScheme,
+                            label: Text(setting.preferredColorScheme.rawValue.lString()),
+                            content: {
+                                ForEach(PreferredColorScheme.allCases) { colorScheme in
+                                    Text(colorScheme.rawValue.lString()).tag(colorScheme)
+                                }
+                            }
+                        )
+                    }
+                    .pickerStyle(MenuPickerStyle())
                     if isPad {
                         Toggle(isOn: settingBinding.hideSideBar) {
                             Text("サイドバーを表示しない")
                         }
                     }
+                    Toggle(isOn: settingBinding.translateCategory, label: {
+                        Text("カテゴリーを訳す")
+                    })
                 }
                 Section(header: Text("ホーム")) {
                     Toggle(isOn: settingBinding.showSummaryRowTags) {

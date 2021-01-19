@@ -9,6 +9,7 @@ import SwiftUI
 
 struct HomeView: View {
     @EnvironmentObject var store: Store
+    @Environment(\.colorScheme) var colorScheme
     
     var homeInfo: AppState.HomeInfo {
         store.appState.homeInfo
@@ -97,9 +98,11 @@ struct HomeView: View {
                     case .setting:
                         SettingView()
                             .environmentObject(store)
+                            .preferredColorScheme(colorScheme)
                     case .filter:
                         FilterView()
                             .environmentObject(store)
+                            .preferredColorScheme(colorScheme)
                     }
                 })
                 .navigationBarTitle(
@@ -128,8 +131,8 @@ struct HomeView: View {
         if setting == nil {
             store.dispatch(.initiateSetting)
         }
-//        fetchFrontpageItemsIfNeeded()
-//        fetchFavoritesItemsIfNeeded()
+        fetchFrontpageItemsIfNeeded()
+        fetchFavoritesItemsIfNeeded()
     }
     func onHomeListTypeChange(_ type: HomeListType) {
         switch type {

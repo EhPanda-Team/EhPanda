@@ -52,20 +52,14 @@
 
 // MARK: SettingView
 "設定" = "Setting";
-"アカウント" = "ACCOUNT";
+"アカウント" = "Account";
 "ギャラリー" = "Gallery";
 "ログイン済み" = "Logged in";
 "ログイン" = "Login";
 "ログアウト" = "Logout";
 "本当にログアウトしますか？" = "Are you sure to logout?";
-"クッキーを管理" = "Manage cookies";
-"外観" = "APPEARANCE";
-"サイドバーを表示しない" = "Hide sideBar";
-"画像の間に仕切りを挿む" = "Insert separators between images";
-"仕切りの厚さ" = "Separator height";
-"リストでタグを表示" = "Show tags in list";
-"リストでのタグ数を制限" = "Set maximum number of tags";
-"タグ数上限" = "Maximum number of tags";
+"一般" = "General";
+"環境" = "Environment";
 "キャッシュ" = "CACHE";
 "画像キャッシュを削除" = "Clear image caches";
 "本当に削除しますか？" = "Are you sure to clear?";
@@ -73,6 +67,24 @@
 "ウェブキャッシュを削除" = "Clear web caches";
 "警告" = "WARNING";
 "デバッグ専用機能です" = "It's for debug only";
+"外観" = "Apperance";
+"全般" = "Global";
+"テーマ" = "Theme";
+"自動" = "Automatic";
+"ライト" = "Light";
+"ダーク" = "Dark";
+"サイドバーを表示しない" = "Hide sideBar";
+"カテゴリーを訳す" = "Translate category";
+"リストでタグを表示" = "Show tags in list";
+"リストでのタグ数を制限" = "Set maximum number of tags";
+"タグ数上限" = "Maximum number of tags";
+"閲覧" = "Reading";
+"再試行上限数" = "Retry limit";
+"画像の間に仕切りを挿む" = "Insert separators between images";
+"仕切りの厚さ" = "Separator height";
+"EhPandaについて" = "About EhPanda";
+"バージョン" = "Version";
+"謝辞" = "Acknowledgement";
 
 // MARK: CookiesView
 "編集" = "Edit";
