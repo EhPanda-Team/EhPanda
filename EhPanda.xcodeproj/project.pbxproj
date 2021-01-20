@@ -22,7 +22,6 @@
 		ABA732D925A8018A00B3D9AB /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABA732D825A8018A00B3D9AB /* Extensions.swift */; };
 		ABA732DF25A852D800B3D9AB /* Filter.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABA732DE25A852D800B3D9AB /* Filter.swift */; };
 		ABA732E225A8590900B3D9AB /* FilterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABA732E125A8590900B3D9AB /* FilterView.swift */; };
-		ABC35AD725B6B215009A1BC7 /* Introspect in Frameworks */ = {isa = PBXBuildFile; productRef = ABC35AD625B6B215009A1BC7 /* Introspect */; };
 		ABC3C7852593699B00E0C11B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = ABC3C7692593699A00E0C11B /* Assets.xcassets */; };
 		ABC3C7862593699B00E0C11B /* Common.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC3C76A2593699A00E0C11B /* Common.swift */; };
 		ABC3C7872593699B00E0C11B /* EhPandaApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC3C76B2593699A00E0C11B /* EhPandaApp.swift */; };
@@ -108,7 +107,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				AB89AF4925B3CE8800A0E1BA /* Kingfisher in Frameworks */,
-				ABC35AD725B6B215009A1BC7 /* Introspect in Frameworks */,
 				ABC3C79D259369FE00E0C11B /* Kanna in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -283,7 +281,6 @@
 			packageProductDependencies = (
 				ABC3C79C259369FE00E0C11B /* Kanna */,
 				AB89AF4825B3CE8800A0E1BA /* Kingfisher */,
-				ABC35AD625B6B215009A1BC7 /* Introspect */,
 			);
 			productName = EhPanda;
 			productReference = ABC3C7542593696C00E0C11B /* EhPanda.app */;
@@ -317,7 +314,6 @@
 			packageReferences = (
 				ABC3C79B259369FE00E0C11B /* XCRemoteSwiftPackageReference "Kanna" */,
 				AB89AF4725B3CE8800A0E1BA /* XCRemoteSwiftPackageReference "Kingfisher" */,
-				ABC35AD525B6B215009A1BC7 /* XCRemoteSwiftPackageReference "SwiftUI-Introspect" */,
 			);
 			productRefGroup = ABC3C7552593696C00E0C11B /* Products */;
 			projectDirPath = "";
@@ -601,14 +597,6 @@
 				minimumVersion = 6.0.1;
 			};
 		};
-		ABC35AD525B6B215009A1BC7 /* XCRemoteSwiftPackageReference "SwiftUI-Introspect" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/siteline/SwiftUI-Introspect.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.1.2;
-			};
-		};
 		ABC3C79B259369FE00E0C11B /* XCRemoteSwiftPackageReference "Kanna" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/tid-kijyun/Kanna.git";
@@ -624,11 +612,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = AB89AF4725B3CE8800A0E1BA /* XCRemoteSwiftPackageReference "Kingfisher" */;
 			productName = Kingfisher;
-		};
-		ABC35AD625B6B215009A1BC7 /* Introspect */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = ABC35AD525B6B215009A1BC7 /* XCRemoteSwiftPackageReference "SwiftUI-Introspect" */;
-			productName = Introspect;
 		};
 		ABC3C79C259369FE00E0C11B /* Kanna */ = {
 			isa = XCSwiftPackageProductDependency;

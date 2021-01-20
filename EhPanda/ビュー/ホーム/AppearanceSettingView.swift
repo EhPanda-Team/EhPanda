@@ -37,9 +37,6 @@ struct AppearanceSettingView: View {
                         )
                     }
                     .pickerStyle(MenuPickerStyle())
-                    Toggle(isOn: settingBinding.showTabBar, label: {
-                        Text("タブバーを表示")
-                    })
                     if isPad {
                         Toggle(isOn: settingBinding.hideSideBar) {
                             Text("サイドバーを表示しない")

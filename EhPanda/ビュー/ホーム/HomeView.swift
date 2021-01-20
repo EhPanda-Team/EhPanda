@@ -30,7 +30,7 @@ struct HomeView: View {
     
     var categoryPicker: some View {
         Group {
-            if exx && setting?.showTabBar == false {
+            if exx {
                 CategoryPicker(type: environmentBinding.homeListType)
                     .padding(.bottom, 10)
             }
@@ -38,7 +38,7 @@ struct HomeView: View {
     }
     var settingEntry: some View {
         Group {
-            if exx && setting?.showTabBar == false {
+            if exx {
                 Button(action: toggleSetting, label: {
                     Image(systemName: "gear")
                         .foregroundColor(.primary)
@@ -120,9 +120,7 @@ struct HomeView: View {
                 )
                 .onAppear(perform: onAppear)
             
-            if setting?.showTabBar == false {
-                SecondaryView()
-            }
+            SecondaryView()
         }
         .modify(
             if: isPad && setting?.hideSideBar == false,

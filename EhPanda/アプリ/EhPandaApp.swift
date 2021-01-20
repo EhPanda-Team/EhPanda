@@ -12,26 +12,10 @@ import Kingfisher
 struct EhPandaApp: App {
     @StateObject var store = Store()
     
-    var setting: Setting? {
-        store.appState.settings.setting
-    }
     var preferredColorScheme: ColorScheme? {
         store.appState
             .settings.setting?
             .colorScheme ?? .none
-    }
-    
-    var frontpageItem: some View {
-        Label(
-            title: { Text("ホーム") },
-            icon: { Image(systemName: "house.fill") }
-        )
-    }
-    var settingItem: some View {
-        Label(
-            title: { Text("設定") },
-            icon: { Image(systemName: "gearshape.fill") }
-        )
     }
     
     init() {
@@ -40,28 +24,10 @@ struct EhPandaApp: App {
     
     var body: some Scene {
         WindowGroup {
-            if setting?.showTabBar == true {
-                NavigationView {
-                    TabView {
-                        Group {
-                            HomeView()
-                                .tabItem { frontpageItem }
-                            SettingView()
-                                .tabItem { settingItem }
-                        }
-                        .navigationBarHidden(true)
-                        .navigationBarBackButtonHidden(true)
-                    }
-                }
+            HomeView()
                 .environmentObject(store)
                 .onOpenURL(perform: onOpenURL)
                 .preferredColorScheme(preferredColorScheme)
-            } else {
-                HomeView()
-                    .environmentObject(store)
-                    .onOpenURL(perform: onOpenURL)
-                    .preferredColorScheme(preferredColorScheme)
-            }
         }
     }
     
