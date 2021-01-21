@@ -19,7 +19,6 @@ struct AppState {
 
 extension AppState {
     struct Environment {
-        var tabBarHidden = false
         var navBarHidden = false
         var homeListType: HomeListType = .frontpage
         var homeViewSheetState: HomeViewSheetState? = nil

@@ -65,6 +65,17 @@ public var galleryType: GalleryType {
     return GalleryType(rawValue: rawValue)!
 }
 
+public var vcsCount: Int {
+    guard let navigationVC = UIApplication
+            .shared.windows.first?
+            .rootViewController?
+            .children.first
+            as? UINavigationController
+    else { return -1 }
+    
+    return navigationVC.viewControllers.count
+}
+
 // MARK: 容量管理
 public func readableUnit(bytes: Int64) -> String {
     let formatter = ByteCountFormatter()

@@ -60,7 +60,7 @@ struct HomeView: View {
                 )
             case .frontpage:
                 GenericList(
-                    items: homeInfo.frontpageItems,
+                    items: store.appState.cachedList.items?.compactMap { $0.value },
                     loadingFlag: homeInfo.frontpageLoading,
                     notFoundFlag: homeInfo.frontpageNotFound,
                     loadFailedFlag: homeInfo.frontpageLoadFailed,
@@ -119,21 +119,16 @@ struct HomeView: View {
                 )
                 .onAppear(perform: onAppear)
             
-            SecondaryView()
         }
-        .modify(
-            if: isPad && setting?.hideSideBar == false,
-            then: DefaultNavStyle(),
-            else: StackNavStyle()
-        )
+        .navigationViewStyle(StackNavigationViewStyle())
     }
     
     func onAppear() {
         if setting == nil {
             store.dispatch(.initiateSetting)
         }
-        fetchFrontpageItemsIfNeeded()
-        fetchFavoritesItemsIfNeeded()
+//        fetchFrontpageItemsIfNeeded()
+//        fetchFavoritesItemsIfNeeded()
     }
     func onHomeListTypeChange(_ type: HomeListType) {
         switch type {
@@ -376,12 +371,29 @@ private struct SearchBar: View {
 }
 
 // MARK: 定義
-enum HomeListType: String {
+enum HomeListType: String, Identifiable, CaseIterable {
+    var id: Int { hashValue }
+    
     case search = "検索"
     case frontpage = "ホーム"
     case popular = "人気"
     case favorites = "お気に入り"
     case downloaded = "ダウンロード済み"
+    
+    var symbolName: String {
+        switch self {
+        case .search:
+            return "magnifyingglass.circle"
+        case .frontpage:
+            return "house"
+        case .popular:
+            return "flame"
+        case .favorites:
+            return "heart.circle"
+        case .downloaded:
+            return "arrow.down.circle"
+        }
+    }
 }
 
 enum HomeViewSheetState: Identifiable {

@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Kingfisher
+import Introspect
 
 @main
 struct EhPandaApp: App {
@@ -24,7 +25,7 @@ struct EhPandaApp: App {
     
     var body: some Scene {
         WindowGroup {
-            HomeView()
+            Home()
                 .environmentObject(store)
                 .onOpenURL(perform: onOpenURL)
                 .preferredColorScheme(preferredColorScheme)
