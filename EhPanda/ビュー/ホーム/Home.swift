@@ -119,8 +119,15 @@ private struct SlideMenu : View {
     var reversedPrimary: Color {
         colorScheme == .light ? .white : .black
     }
-    var menuItems: [HomeListType]
+    var exxMenuItems: [HomeListType]
         = [.frontpage, .popular, .watched, .favorites, .downloaded]
+    var menuItems: [HomeListType] {
+        if exx {
+            return exxMenuItems
+        } else {
+            return Array(exxMenuItems.prefix(2))
+        }
+    }
     var edges = UIApplication.shared.windows.first?.safeAreaInsets
     
     var body: some View {
@@ -204,13 +211,15 @@ private struct AvatarView: View {
         HStack {
             VStack(alignment: .leading) {
                 Group {
-                    if let avatarURL = avatarURL {
+                    if let avatarURL = avatarURL,
+                       !avatarURL.isEmpty
+                    {
                         KFImage(URL(string: avatarURL), options: [])
                             .placeholder(placeholder)
                             .cancelOnDisappear(true)
                             .resizable()
-                    } else {
-                        Image("")
+                    } else if let uiImage = Bundle.main.icon {
+                        Image(uiImage: uiImage)
                             .resizable()
                     }
                 }

@@ -212,7 +212,7 @@ struct AlterImagesRequest {
         parser.parseAlterImagesURL(doc)
     }
     
-    var publisher: AnyPublisher<(Identity, [Data]), AppError> {
+    var publisher: AnyPublisher<(Identity, [MangaAlterData]), AppError> {
         URLSession.shared
             .dataTaskPublisher(for: URL(string: alterImageURL)!)
             .map { parser.parseAlterImages(id: id, $0.data) }

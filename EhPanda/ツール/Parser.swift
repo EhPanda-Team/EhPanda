@@ -370,10 +370,10 @@ extension Parser {
         return alterURL
     }
     
-    func parseAlterImages(id: String, _ data: Data) -> (Identity, [Data]) {
+    func parseAlterImages(id: String, _ data: Data) -> (Identity, [MangaAlterData]) {
         guard let image = UIImage(data: data) else { return (id, []) }
         
-        var alterImages = [Data]()
+        var alterImages = [MangaAlterData]()
         let originW = image.size.width
         let originH = image.size.height
 
@@ -382,7 +382,7 @@ extension Parser {
             let anchor = CGPoint(x: originW / 20 * CGFloat(i), y: 0)
             
             if let croppedImg = image.kf.crop(to: size, anchorOn: anchor).pngData() {
-                alterImages.append(croppedImg)
+                alterImages.append(MangaAlterData(data: croppedImg))
             }
         }
         

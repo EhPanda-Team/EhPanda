@@ -213,7 +213,7 @@ extension AppState {
         mutating func insertDetail(id: String, detail: MangaDetail) {
             self.items?[id]?.detail = detail
         }
-        mutating func insertAlterImages(id: String, images: [Data]) {
+        mutating func insertAlterImages(id: String, images: [MangaAlterData]) {
             self.items?[id]?.detail?.alterImages = images
         }
         mutating func updateComments(id: String, comments: [MangaComment]) {

@@ -37,9 +37,11 @@ struct AppearanceSettingView: View {
                         )
                     }
                     .pickerStyle(MenuPickerStyle())
-                    Toggle(isOn: settingBinding.translateCategory, label: {
-                        Text("カテゴリーを訳す")
-                    })
+                    if exx {
+                        Toggle(isOn: settingBinding.translateCategory, label: {
+                            Text("カテゴリーを訳す")
+                        })
+                    }
                 }
                 Section(header: Text("ホーム")) {
                     Toggle(isOn: settingBinding.showSummaryRowTags) {

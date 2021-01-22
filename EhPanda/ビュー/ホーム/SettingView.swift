@@ -43,11 +43,13 @@ struct SettingView: View {
         NavigationView {
             ScrollView {
                 VStack(spacing: 0) {
-                    SettingRow(
-                        symbolName: "person.fill",
-                        text: "アカウント",
-                        destination: AccountSettingView()
-                    )
+                    if exx {
+                        SettingRow(
+                            symbolName: "person.fill",
+                            text: "アカウント",
+                            destination: AccountSettingView()
+                        )
+                    }
                     SettingRow(
                         symbolName: "switch.2",
                         text: "一般",

@@ -350,7 +350,7 @@ private struct DescScrollRatingItem: View {
 // MARK: プレビュー
 private struct PreviewView: View {
     let previews: [MangaPreview]
-    let alterImages: [Data]
+    let alterImages: [MangaAlterData]
     
     var width: CGFloat {
         Defaults.ImageSize.previewW
@@ -372,6 +372,7 @@ private struct PreviewView: View {
             width: width,
             height: height
         )
+        .cornerRadius(15)
     }
     
     var body: some View {
@@ -396,8 +397,8 @@ private struct PreviewView: View {
                                 .cornerRadius(15)
                         }
                     } else if !alterImages.isEmpty {
-                        ForEach(alterImages, id: \.self) { item in
-                            if let uiImage = UIImage(data: item) {
+                        ForEach(alterImages) { item in
+                            if let uiImage = UIImage(data: item.data) {
                                 Image(uiImage: uiImage)
                                     .resizable()
                                     .scaledToFill()

@@ -19,6 +19,10 @@ struct User: Codable {
         ).rawValue
     }
     var avatarURL: String {
-        Defaults.URL.userAvatar(uid: apiuid)
+        if !apiuid.isEmpty {
+            return Defaults.URL.userAvatar(uid: apiuid)
+        } else {
+            return ""
+        }
     }
 }

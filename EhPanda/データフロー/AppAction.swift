@@ -55,7 +55,7 @@ enum AppAction {
     case fetchMoreAssociatedItems(depth: Int, keyword: AssociatedKeyword)
     case fetchMoreAssociatedItemsDone(result: Result<(Depth, AssociatedKeyword, PageNumber, [Manga]), AppError>)
     case fetchAlterImages(id: String, doc: HTMLDocument)
-    case fetchAlterImagesDone(result: Result<(Identity, [Data]), AppError>)
+    case fetchAlterImagesDone(result: Result<(Identity, [MangaAlterData]), AppError>)
     case updateMangaComments(id: String)
     case updateMangaCommentsDone(result: Result<(Identity, [MangaComment]), AppError>)
     case fetchMangaContents(id: String)

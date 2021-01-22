@@ -125,13 +125,21 @@ extension Defaults.URL {
         )
     }
     static func frontpageList() -> String {
-        merge([host, listCompact])
+        if exx {
+            return merge([host, listCompact])
+        } else {
+            return merge([ehentai, listCompact, nonh, f_search + "parody:durarara$"])
+        }
     }
     static func moreFrontpageList(pageNum: String, lastID: String) -> String {
         merge([host, listCompact, page + pageNum, from + lastID])
     }
     static func popularList() -> String {
-        merge([host + popular, listCompact])
+        if exx {
+            return merge([host + popular, listCompact])
+        } else {
+            return merge([ehentai, listCompact, nonh, f_search + "parody:gintama$"])
+        }
     }
     static func favoritesList() -> String {
         merge([host + favorites, listCompact])

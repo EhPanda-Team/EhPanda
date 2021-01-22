@@ -189,6 +189,7 @@ class Store: ObservableObject {
             }
             
         case .fetchMoreFrontpageItems:
+            if !didLogin || exx { break }
             let currentNum = appState.homeInfo.frontpageCurrentPageNum
             let maximumNum = appState.homeInfo.frontpagePageNumMaximum
             if currentNum + 1 >= maximumNum { break }
@@ -238,7 +239,7 @@ class Store: ObservableObject {
             }
             
         case .fetchFavoritesItems:
-            if !didLogin && exx { break }
+            if !didLogin || exx { break }
             appState.homeInfo.favoritesNotFound = false
             appState.homeInfo.favoritesLoadFailed = false
             

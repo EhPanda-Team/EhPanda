@@ -34,7 +34,7 @@ struct MangaDetail: Codable {
     var readingProgress: Int?
     
     var detailTags: [Tag]
-    var alterImages: [Data]
+    var alterImages: [MangaAlterData]
     var comments: [MangaComment]
     let previews: [MangaPreview]
     let jpnTitle: String
@@ -72,6 +72,12 @@ struct MangaPreview: Identifiable, Codable {
     var id: String { url }
     
     let url: String
+}
+
+struct MangaAlterData: Identifiable, Codable {
+    var id = UUID()
+    
+    let data: Data
 }
 
 struct MangaContent: Identifiable, Codable, Equatable {
