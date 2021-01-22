@@ -465,7 +465,7 @@ private struct CommentScrollView: View {
                 CommentButton(action: toggleDraft)
             }
         }
-        .sheet(item: environmentBinding.detailViewSheetState, content: { item in
+        .sheet(item: environmentBinding.detailViewSheetState) { item in
             switch item {
             case .comment:
                 DraftCommentView(
@@ -475,7 +475,7 @@ private struct CommentScrollView: View {
                     cancelAction: draftCommentViewCancel
                 )
             }
-        })
+        }
     }
     
     func draftCommentViewPost() {

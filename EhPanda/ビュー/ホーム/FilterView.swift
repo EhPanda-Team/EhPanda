@@ -72,12 +72,12 @@ struct FilterView: View {
                         }
                     }
                 }
-                .actionSheet(item: environmentBinding.filterViewActionSheetState, content: { item in
+                .actionSheet(item: environmentBinding.filterViewActionSheetState) { item in
                     switch item {
                     case .resetFilters:
                         return resetFiltersActionSheet
                     }
-                })
+                }
                 .navigationBarTitle("フィルター")
             }
         }

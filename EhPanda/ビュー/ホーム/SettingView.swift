@@ -76,14 +76,14 @@ struct SettingView: View {
             }
             .navigationBarTitle("設定")
             .onAppear(perform: onAppear)
-            .sheet(item: environmentBinding.settingViewSheetState, content: { item in
+            .sheet(item: environmentBinding.settingViewSheetState) { item in
                 switch item {
                 case .webview:
                     WebView()
                         .environmentObject(store)
                 }
-            })
-            .actionSheet(item: environmentBinding.settingViewActionSheetState, content: { item in
+            }
+            .actionSheet(item: environmentBinding.settingViewActionSheetState) { item in
                 switch item {
                 case .logout:
                     return logoutActionSheet
@@ -92,7 +92,7 @@ struct SettingView: View {
                 case .clearWebCaches:
                     return clearWebCachesActionSheet
                 }
-            })
+            }
         }
     }
     

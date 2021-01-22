@@ -53,7 +53,7 @@ public func notificFeedback(style: UINotificationFeedbackGenerator.FeedbackType)
 }
 
 public var exx: Bool {
-    UserDefaults.standard.string(forKey: "entry") == "Rra3MKpjKBJLgraHqt9t"
+    UserDefaults.standard.string(forKey: "entry") == "eHMAnGN4whvHsmfceGGZ"
 }
 
 public var isPad: Bool {

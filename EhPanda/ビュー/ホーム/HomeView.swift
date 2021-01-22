@@ -84,7 +84,7 @@ struct HomeView: View {
     var body: some View {
         NavigationView {
             conditionalList
-                .sheet(item: environmentBinding.homeViewSheetState, content: { item in
+                .sheet(item: environmentBinding.homeViewSheetState) { item in
                     switch item {
                     case .setting:
                         SettingView()
@@ -95,7 +95,7 @@ struct HomeView: View {
                             .environmentObject(store)
                             .preferredColorScheme(colorScheme)
                     }
-                })
+                }
                 .navigationBarTitle(
                     environment.homeListType.rawValue.lString()
                 )
@@ -309,26 +309,6 @@ private struct GenericList: View {
     }
     func toggleFilter() {
         store.dispatch(.toggleHomeViewSheetState(state: .filter))
-    }
-}
-
-// MARK: カテゴリー選択
-private struct CategoryPicker: View {
-    @Binding var type: HomeListType
-    
-    var body: some View {
-        Picker(selection: $type,
-               label: Text("☰")
-                .foregroundColor(.primary)
-                .font(.largeTitle),
-               content: {
-                let frontpageTypes: [HomeListType]
-                    = [.frontpage, .popular, .favorites, .downloaded]
-                ForEach(frontpageTypes, id: \.self) {
-                    Text($0.rawValue.lString())
-                }
-               })
-            .pickerStyle(MenuPickerStyle())
     }
 }
 

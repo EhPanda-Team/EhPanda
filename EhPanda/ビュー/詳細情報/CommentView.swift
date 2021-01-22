@@ -50,7 +50,7 @@ struct CommentView: View {
                     Image(systemName: "square.and.pencil")
                     Text("コメントを書く")
                 })
-                .sheet(item: environmentBinding.commentViewSheetState, content: { item in
+                .sheet(item: environmentBinding.commentViewSheetState) { item in
                     switch item {
                     case .comment:
                         DraftCommentView(
@@ -60,7 +60,7 @@ struct CommentView: View {
                             cancelAction: draftCommentViewCancel
                         )
                     }
-                })
+                }
         )
     }
     
