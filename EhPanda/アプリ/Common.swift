@@ -60,11 +60,23 @@ public var isPad: Bool {
     UIDevice.current.userInterfaceIdiom == .pad
 }
 
+public var isLandscape: Bool {
+    [.landscapeLeft, .landscapeRight].contains(UIApplication.shared.windows.first?.windowScene?.interfaceOrientation)
+}
+
 public var screenW: CGFloat {
-    UIScreen.main.bounds.size.width
+    min(absoluteScreenW, absoluteScreenH)
 }
 
 public var screenH: CGFloat {
+    max(absoluteScreenW, absoluteScreenH)
+}
+
+public var absoluteScreenW: CGFloat {
+    UIScreen.main.bounds.size.width
+}
+
+public var absoluteScreenH: CGFloat {
     UIScreen.main.bounds.size.width
 }
 

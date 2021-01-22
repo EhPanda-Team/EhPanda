@@ -10,7 +10,14 @@ import Foundation
 
 class Defaults {
     class FrameSize {
-        static var slideMenuWidth: CGFloat = screenW - 90
+        static var slideMenuWidth: CGFloat {
+            if isPad {
+                return max(screenW - (isLandscape ? 800 : 500), 300) 
+            } else {
+                return screenW - 90
+            }
+            
+        }
     }
     class ImageSize {
         static var rowScale: CGFloat = 8/11

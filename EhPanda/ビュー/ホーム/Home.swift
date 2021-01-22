@@ -11,6 +11,7 @@ import Kingfisher
 
 struct Home : View {
     @EnvironmentObject var store: Store
+    @Environment(\.colorScheme) var colorScheme
     @State var direction: Direction = .none
     @State var offset = -Defaults.FrameSize.slideMenuWidth
     
@@ -20,13 +21,15 @@ struct Home : View {
         case toRight
     }
     
-    let width = Defaults.FrameSize.slideMenuWidth
-    
+    var width: CGFloat {
+        Defaults.FrameSize.slideMenuWidth
+    }
     var hasPermission: Bool {
         vcsCount == 1
     }
     var opacity: Double {
-        Double((width + offset) / width) * 0.5
+        let scale = colorScheme == .light ? 0.2 : 0.5
+        return Double((width + offset) / width) * scale
     }
     
     var body: some View {
