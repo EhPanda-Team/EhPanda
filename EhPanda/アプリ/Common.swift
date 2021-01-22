@@ -176,14 +176,17 @@ public func setCookie(url: URL, key: String, value: String) {
         timeIntervalSinceNow:
             TimeInterval(60 * 60 * 24 * 365)
     )
-    let cookie = HTTPCookie(
-        properties: [
-            .name: key,
-            .value: value,
-            .originURL: url,
-            .expires: expiredDate
-        ])
-    HTTPCookieStorage.shared.setCookie(cookie ?? HTTPCookie())
+    let properties: [HTTPCookiePropertyKey : Any] =
+    [
+        .path: "/",
+        .name : key,
+        .value: value,
+        .originURL: url,
+        .expires: expiredDate
+    ]
+    if let cookie = HTTPCookie(properties: properties) {
+        HTTPCookieStorage.shared.setCookie(cookie)
+    }
 }
 
 public func removeCookie(url: URL, key: String) {
