@@ -19,6 +19,7 @@ struct AppState {
 
 extension AppState {
     struct Environment {
+        var slideMenuOffset = -Defaults.FrameSize.slideMenuWidth
         var navBarHidden = false
         var homeListType: HomeListType = .frontpage
         var homeViewSheetState: HomeViewSheetState? = nil
@@ -30,6 +31,8 @@ extension AppState {
     }
     
     struct Settings {
+        var userInfoLoading = false
+        
         @FileStorage(directory: .cachesDirectory, fileName: "user.json")
         var user: User?
         @FileStorage(directory: .cachesDirectory, fileName: "filter.json")

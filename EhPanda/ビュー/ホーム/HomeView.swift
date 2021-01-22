@@ -27,25 +27,6 @@ struct HomeView: View {
         settings.setting
     }
     
-    var categoryPicker: some View {
-        Group {
-            if exx {
-                CategoryPicker(type: environmentBinding.homeListType)
-                    .padding(.bottom, 10)
-            }
-        }
-    }
-    var settingEntry: some View {
-        Group {
-            if exx {
-                Button(action: toggleSetting, label: {
-                    Image(systemName: "gear")
-                        .foregroundColor(.primary)
-                        .imageScale(.large)
-                })
-            }
-        }
-    }
     var conditionalList: some View {
         Group {
             switch environment.homeListType {
@@ -75,6 +56,8 @@ struct HomeView: View {
                     loadFailedFlag: homeInfo.popularLoadFailed,
                     fetchAction: fetchPopularItems
                 )
+            case .watched:
+                Text("")
             case .favorites:
                 GenericList(
                     items: homeInfo.favoritesItems,
@@ -109,10 +92,6 @@ struct HomeView: View {
                 .navigationBarTitle(
                     environment.homeListType.rawValue.lString()
                 )
-                .navigationBarItems(
-                    leading: categoryPicker,
-                    trailing: settingEntry
-                )
                 .onChange(
                     of: environment.homeListType,
                     perform: onHomeListTypeChange
@@ -124,11 +103,15 @@ struct HomeView: View {
     }
     
     func onAppear() {
+        if settings.user == nil {
+            store.dispatch(.initiateUser)
+        }
         if setting == nil {
             store.dispatch(.initiateSetting)
         }
-//        fetchFrontpageItemsIfNeeded()
-//        fetchFavoritesItemsIfNeeded()
+        fetchUserInfo()
+        fetchFrontpageItemsIfNeeded()
+        fetchFavoritesItemsIfNeeded()
     }
     func onHomeListTypeChange(_ type: HomeListType) {
         switch type {
@@ -136,6 +119,8 @@ struct HomeView: View {
             fetchFrontpageItemsIfNeeded()
         case .popular:
             fetchPopularItemsIfNeeded()
+        case .watched:
+            print(type)
         case .favorites:
             fetchFavoritesItemsIfNeeded()
         case .downloaded:
@@ -145,6 +130,11 @@ struct HomeView: View {
         }
     }
     
+    func fetchUserInfo() {
+        if let uid = settings.user?.apiuid {
+            store.dispatch(.fetchDisplayName(uid: uid))
+        }
+    }
     func fetchSearchItems() {
         store.dispatch(.fetchSearchItems(keyword: homeInfo.searchKeyword))
     }
@@ -182,10 +172,6 @@ struct HomeView: View {
         if homeInfo.favoritesItems?.isEmpty != false {
             fetchFavoritesItems()
         }
-    }
-    
-    func toggleSetting() {
-        store.dispatch(.toggleHomeViewSheetState(state: .setting))
     }
 }
 
@@ -377,6 +363,7 @@ enum HomeListType: String, Identifiable, CaseIterable {
     case search = "検索"
     case frontpage = "ホーム"
     case popular = "人気"
+    case watched = "フォロー"
     case favorites = "お気に入り"
     case downloaded = "ダウンロード済み"
     
@@ -388,6 +375,8 @@ enum HomeListType: String, Identifiable, CaseIterable {
             return "house"
         case .popular:
             return "flame"
+        case .watched:
+            return "eye.circle"
         case .favorites:
             return "heart.circle"
         case .downloaded:

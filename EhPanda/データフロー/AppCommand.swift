@@ -13,6 +13,30 @@ protocol AppCommand {
     func execute(in store: Store)
 }
 
+struct FetchDisplayNameCommand: AppCommand {
+    let uid: String
+    
+    func execute(in store: Store) {
+        let token = SubscriptionToken()
+        DisplayNameRequest(uid: uid)
+            .publisher
+            .receive(on: DispatchQueue.main)
+            .sink { completion in
+                if case .failure(let error) = completion {
+                    store.dispatch(.fetchDisplayNameDone(result: .failure(error)))
+                }
+                token.unseal()
+            } receiveValue: { displayName in
+                if let name = displayName {
+                    store.dispatch(.fetchDisplayNameDone(result: .success(name)))
+                } else {
+                    store.dispatch(.fetchDisplayNameDone(result: .failure(.networkingFailed)))
+                }
+            }
+            .seal(in: token)
+    }
+}
+
 struct FetchSearchItemsCommand: AppCommand {
     let keyword: String
     let filter: Filter
@@ -173,9 +197,8 @@ struct FetchMangaDetailCommand: AppCommand {
                 }
                 token.unseal()
             } receiveValue: { detail in
-                if let mangaDetail = detail.0, let user = detail.1 {
-                    store.dispatch(.updateUser(user: user))
-                    store.dispatch(.fetchMangaDetailDone(result: .success((id, mangaDetail))))
+                if let mangaDetail = detail.0, let apikey = detail.1 {
+                    store.dispatch(.fetchMangaDetailDone(result: .success((id, mangaDetail, apikey))))
                 } else {
                     store.dispatch(.fetchMangaDetailDone(result: .failure(.networkingFailed)))
                 }

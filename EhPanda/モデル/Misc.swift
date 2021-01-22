@@ -9,6 +9,7 @@ typealias Depth = Int
 typealias Percentage = Int
 typealias Keyword = String
 typealias Identity = String
+typealias APIKey = String
 
 struct PageNumber {
     var current = 0

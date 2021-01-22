@@ -102,7 +102,7 @@ struct SettingView: View {
         clearCookies()
         clearImageCaches()
         store.dispatch(.clearCachedList)
-        store.dispatch(.updateUser(user: nil))
+        store.dispatch(.replaceUser(user: nil))
     }
     
     func calculateDiskCachesSize() {

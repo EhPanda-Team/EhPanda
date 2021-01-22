@@ -5,6 +5,7 @@
 //  Created by 荒木辰造 on R 2/12/26.
 //
 
+import SwiftUI
 import Combine
 
 class Store: ObservableObject {
@@ -27,10 +28,12 @@ class Store: ObservableObject {
         switch action {
         
         // MARK: アプリ関数操作
-        case .updateUser(let user):
+        case .replaceUser(let user):
             appState.settings.user = user
         case .clearCachedList:
             appState.cachedList.items = nil
+        case .initiateUser:
+            appState.settings.user = User()
         case .initiateFilter:
             appState.settings.filter = Filter()
         case .initiateSetting:
@@ -70,6 +73,22 @@ class Store: ObservableObject {
             appState.commentInfo.commentContent = ""
             
         // MARK: データ取得
+        case .fetchDisplayName(let uid):
+            if !didLogin && exx { break }
+            if appState.settings.userInfoLoading { break }
+            appState.settings.userInfoLoading = true
+        
+            appCommand = FetchDisplayNameCommand(uid: uid)
+        case .fetchDisplayNameDone(let result):
+            appState.settings.userInfoLoading = false
+            
+            switch result {
+            case .success(let displayName):
+                appState.settings.user?.displayName = displayName
+            case .failure(let error):
+                print(error)
+            }
+            
         case .fetchSearchItems(let keyword):
             if !didLogin && exx { break }
             appState.homeInfo.searchNotFound = false
@@ -280,6 +299,7 @@ class Store: ObservableObject {
             
             switch result {
             case .success(let detail):
+                appState.settings.user?.apikey = detail.2
                 appState.cachedList.insertDetail(id: detail.0, detail: detail.1)
             case .failure(let error):
                 print(error)

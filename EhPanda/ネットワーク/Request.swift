@@ -9,6 +9,22 @@ import Kanna
 import Combine
 import Foundation
 
+struct DisplayNameRequest {
+    let uid: String
+    let parser = Parser()
+    
+    var publisher: AnyPublisher<String?, AppError> {
+        return URLSession.shared
+            .dataTaskPublisher(
+                for: URL(string: Defaults.URL.userDisplayName(uid: uid))!
+            )
+            .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
+            .map(parser.parseDisplayName)
+            .mapError { _ in .networkingFailed }
+            .eraseToAnyPublisher()
+    }
+}
+
 struct SearchItemsRequest {
     let keyword: String
     let filter: Filter
@@ -140,7 +156,7 @@ struct MangaDetailRequest {
     let detailURL: String
     let parser = Parser()
     
-    var publisher: AnyPublisher<(MangaDetail?, User?, HTMLDocument?), AppError> {
+    var publisher: AnyPublisher<(MangaDetail?, APIKey?, HTMLDocument?), AppError> {
         URLSession.shared
             .dataTaskPublisher(for: URL(string: Defaults.URL.mangaDetail(url: detailURL))!)
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }

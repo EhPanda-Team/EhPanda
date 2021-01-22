@@ -9,13 +9,19 @@ import UIKit
 import Foundation
 
 class Defaults {
+    class FrameSize {
+        static var slideMenuWidth: CGFloat = screenW - 90
+    }
     class ImageSize {
         static var rowScale: CGFloat = 8/11
+        static var avatarScale: CGFloat = 1/1
         static var headerScale: CGFloat = 8/11
         static var previewScale: CGFloat = 32/45
         
         static var rowW: CGFloat = rowH * rowScale
         static var rowH: CGFloat = 110
+        static var avatarW: CGFloat = 100
+        static var avatarH: CGFloat = 100
         static var headerW: CGFloat = headerH * headerScale
         static var headerH: CGFloat = 150
         static var previewW: CGFloat = previewH * previewScale
@@ -46,6 +52,7 @@ class Defaults {
         
         // 各機能ページ
         static let tag = "tag/"
+        static let uploads = "uploads/"
         static let api = "api.php"
         static let popular = "popular"
         static let index = "index.php"
@@ -57,6 +64,7 @@ class Defaults {
         static let gid = "gid="
         static let page = "page="
         static let from = "from="
+        static let showuser = "showuser="
         static let f_search = "f_search="
         
         static let nonh = "f_cats=767"
@@ -174,6 +182,16 @@ extension Defaults.URL {
     
     static func addFavorite(id: String, token: String) -> String {
         merge([host + gallerypopups, gid + id, t + token, addfav_act])
+    }
+    
+    static func userID() -> String {
+        forum + index
+    }
+    static func userDisplayName(uid: String) -> String {
+        merge([forum + index, showuser + uid])
+    }
+    static func userAvatar(uid: String) -> String {
+        forum + uploads + "av-\(uid).jpg"
     }
 }
 

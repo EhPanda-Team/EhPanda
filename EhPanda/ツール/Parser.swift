@@ -74,7 +74,7 @@ class Parser {
     }
     
     // MARK: 詳細情報
-    func parseMangaDetail(_ doc: HTMLDocument) -> (MangaDetail?, User?, HTMLDocument?) {
+    func parseMangaDetail(_ doc: HTMLDocument) -> (MangaDetail?, APIKey?, HTMLDocument?) {
         var mangaDetail: MangaDetail?
         var imageURLs = [MangaPreview]()
         
@@ -173,25 +173,21 @@ class Parser {
             break
         }
         
-        var user: User?
+        var apikey: APIKey?
         for link in doc.xpath("//script [@type='text/javascript']") {
             guard let script = link.text,
                   script.contains("apikey"),
-                  let rangeA = script.range(of: "apiuid = "),
-                  let rangeB = script.range(of: ";\nvar apikey = \""),
-                  let rangeC = script.range(of: "\";\nvar average_rating")
+                  let rangeA = script.range(of: ";\nvar apikey = \""),
+                  let rangeB = script.range(of: "\";\nvar average_rating")
             else { continue }
             
-            let apiuid = String(
+            let key = String(
                 script.suffix(from: rangeA.upperBound).prefix(upTo: rangeB.lowerBound)
             )
-            let apikey = String(
-                script.suffix(from: rangeB.upperBound).prefix(upTo: rangeC.lowerBound)
-            )
-            user = User(apiuid: apiuid, apikey: apikey)
+            apikey = key
         }
         
-        return (mangaDetail, user, doc)
+        return (mangaDetail, apikey, doc)
     }
     
     // MARK: コメント
@@ -293,6 +289,20 @@ class Parser {
         else { return nil }
         
         return MangaContent(tag: tag, url: imageURL)
+    }
+    
+    // MARK: ユーザー
+    func parseDisplayName(doc: HTMLDocument) -> String? {
+        var displayName: String?
+        
+        for ipbLink in doc.xpath("//table [@class='ipbtable']") {
+            guard let profileName = ipbLink.at_xpath("//div [@id='profilename']")?.text
+            else { continue }
+            
+            displayName = profileName
+        }
+        
+        return displayName
     }
 }
 

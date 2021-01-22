@@ -7,12 +7,12 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 struct Home : View {
     @EnvironmentObject var store: Store
-    @State var width = UIScreen.main.bounds.width - 90
-    @State var x = -UIScreen.main.bounds.width + 90
     @State var direction: Direction = .none
+    @State var offset = -Defaults.FrameSize.slideMenuWidth
     
     enum Direction {
         case none
@@ -20,24 +20,26 @@ struct Home : View {
         case toRight
     }
     
+    let width = Defaults.FrameSize.slideMenuWidth
+    
     var hasPermission: Bool {
         vcsCount == 1
     }
     var opacity: Double {
-        Double((width + x) / width) * 0.5
+        Double((width + offset) / width) * 0.5
     }
     
     var body: some View {
         ZStack(alignment: Alignment(horizontal: .leading, vertical: .center)) {
             HomeView()
-                .offset(x: x + width)
-            SlideMenu()
-                .offset(x: x)
+                .offset(x: offset + width)
+            SlideMenu(offset: $offset)
+                .offset(x: offset)
                 .background(
                     Color.black.opacity(opacity)
                         .edgesIgnoringSafeArea(.vertical)
                         .onTapGesture {
-                            withAnimation { x = -width }
+                            performTransition(-width)
                         }
                 )
         }
@@ -51,12 +53,12 @@ struct Home : View {
                                 let isToLeft = value.translation.width < 0
                                 direction = isToLeft ? .toLeft : .toRight
                             case .toLeft:
-                                if x > -width {
-                                    x = min(value.translation.width, 0)
+                                if offset > -width {
+                                    offset = min(value.translation.width, 0)
                                 }
                             case .toRight:
-                                if x < 0 {
-                                    x = max(-width + value.translation.width, -width)
+                                if offset < 0 {
+                                    offset = max(-width + value.translation.width, -width)
                                 }
                             }
                         }
@@ -66,11 +68,11 @@ struct Home : View {
                     if hasPermission {
                         withAnimation {
                             let perdictedWidth = value.predictedEndTranslation.width
-                            if perdictedWidth > width / 2 || -x < width / 2 {
-                                x = 0
+                            if perdictedWidth > width / 2 || -offset < width / 2 {
+                                performTransition(0)
                             }
-                            if perdictedWidth < -width / 2 || -x > width / 2 {
-                                x = -width
+                            if perdictedWidth < -width / 2 || -offset > width / 2 {
+                                performTransition(-width)
                             }
                             direction = .none
                         }
@@ -79,79 +81,199 @@ struct Home : View {
             
         )
     }
-}
-
-// MARK: SlideMenu
-private struct SlideMenu : View {
-    @Environment(\.colorScheme) var colorScheme
     
-    var menuItems: [HomeListType] = [.frontpage, .popular,.favorites, .downloaded]
-    
-    var reversedPrimary: Color {
-        Color(.systemGray6)
-//        colorScheme == .light ? .white : .black
-    }
-    
-    var edges = UIApplication.shared.windows.first?.safeAreaInsets
-    @State var show = true
-    
-    var body: some View {
-        
-        HStack(spacing: 0) {
-            VStack(spacing: 20) {
-                Spacer()
-                ForEach(menuItems) { item in
-                    MenuRow(
-                        symbolName: item.symbolName,
-                        text: item.rawValue.lString(),
-                        action: {}
-                    )
-                }
-                Divider()
-                MenuRow(
-                    symbolName: "gear",
-                    text: "設定",
-                    action: {}
-                )
-                Spacer()
-            }
-            .padding(.horizontal,20)
-            .padding(.top,edges!.top == 0 ? 15 : edges?.top)
-            .padding(.bottom,edges!.bottom == 0 ? 15 : edges?.bottom)
-            .frame(width: UIScreen.main.bounds.width - 90)
-            .background(reversedPrimary)
-            .edgesIgnoringSafeArea(.vertical)
-            
-            Spacer(minLength: 0)
+    func performTransition(_ offset: CGFloat) {
+        withAnimation(Animation.default) {
+            self.offset = offset
         }
     }
 }
 
+// MARK: SlideMenu
+private struct SlideMenu : View {
+    @EnvironmentObject var store: Store
+    @Environment(\.colorScheme) var colorScheme
+    @Binding var offset: CGFloat
+    
+    var homeListType: HomeListType {
+        store.appState.environment.homeListType
+    }
+    var user: User? {
+        store.appState.settings.user
+    }
+    var width: CGFloat {
+        Defaults.FrameSize.slideMenuWidth
+    }
+    var avatarW: CGFloat {
+        Defaults.ImageSize.avatarW
+    }
+    var avatarH: CGFloat {
+        Defaults.ImageSize.avatarH
+    }
+    var reversedPrimary: Color {
+        colorScheme == .light ? .white : .black
+    }
+    var menuItems: [HomeListType]
+        = [.frontpage, .popular, .watched, .favorites, .downloaded]
+    var edges = UIApplication.shared.windows.first?.safeAreaInsets
+    
+    var body: some View {
+        HStack(spacing: 0) {
+            VStack(spacing: 0) {
+                AvatarView(
+                    avatarURL: user?.avatarURL,
+                    displayName: user?.displayName,
+                    width: avatarW,
+                    height: avatarH
+                )
+                .padding(.top, 40)
+                .padding(.bottom, 20)
+                Divider()
+                    .padding(.vertical)
+                ForEach(menuItems) { item in
+                    MenuRow(
+                        isSelected: item == homeListType,
+                        symbolName: item.symbolName,
+                        text: item.rawValue,
+                        action: { onMenuRowTap(item) }
+                    )
+                }
+                Divider()
+                    .padding(.vertical)
+                MenuRow(
+                    isSelected: false,
+                    symbolName: "gear",
+                    text: "設定",
+                    action: onSettingMenuRowTap
+                )
+                Spacer()
+            }
+            .padding(.horizontal, 20)
+            .padding(.top,edges!.top == 0 ? 15 : edges?.top)
+            .padding(.bottom,edges!.bottom == 0 ? 15 : edges?.bottom)
+            .frame(width: Defaults.FrameSize.slideMenuWidth)
+            .background(reversedPrimary)
+            .edgesIgnoringSafeArea(.vertical)
+            
+            Spacer()
+        }
+    }
+    
+    func onMenuRowTap(_ item: HomeListType) {
+        store.dispatch(.toggleHomeListType(type: item))
+        performTransition(-width)
+    }
+    func onSettingMenuRowTap() {
+        store.dispatch(.toggleHomeViewSheetState(state: .setting))
+    }
+    
+    func performTransition(_ offset: CGFloat) {
+        withAnimation {
+            self.offset = offset
+        }
+    }
+}
+
+// MARK: AvatarView
+private struct AvatarView: View {
+    let avatarURL: String?
+    let displayName: String?
+    
+    let width: CGFloat
+    let height: CGFloat
+    
+    func placeholder() -> some View {
+        Placeholder(
+            style: .activity,
+            width: width,
+            height: height
+        )
+    }
+    
+    var body: some View {
+        HStack {
+            VStack(alignment: .leading) {
+                Group {
+                    if let avatarURL = avatarURL {
+                        KFImage(URL(string: avatarURL), options: [])
+                            .placeholder(placeholder)
+                            .cancelOnDisappear(true)
+                            .resizable()
+                    } else {
+                        Image("")
+                            .resizable()
+                    }
+                }
+                .scaledToFit()
+                .frame(width: width, height: height)
+                .clipShape(Circle())
+                Text(displayName ?? "Sad Panda")
+                    .fontWeight(.bold)
+                    .font(.largeTitle)
+                    .lineLimit(1)
+            }
+            Spacer()
+        }
+    }
+}
+
+// MARK: MenuRow
 private struct MenuRow: View {
     @Environment(\.colorScheme) var colorScheme
+    @State var isPressing = false
+    let isSelected: Bool
     
     let symbolName: String
     let text: String
     let action: (()->())
     
-    var color: Color {
-        colorScheme == .light
-            ? Color(.darkGray)
-            : Color(.lightGray)
+    var symbolFont: Font {
+        isSelected ? .largeTitle : .title
+    }
+    var textFont: Font {
+        isSelected ? .title3 : .headline
+    }
+    var textColor: Color {
+        isSelected
+            ? .primary
+            : (colorScheme == .light
+                ? Color(.darkGray)
+                : Color(.lightGray))
+    }
+    var backgroundColor: Color {
+        let color = Color(.systemGray6)
+        
+        return isSelected
+            ? color
+            : (isPressing
+                ? color.opacity(0.6)
+                : .clear)
     }
     
     var body: some View {
         HStack {
             Image(systemName: symbolName)
-                .font(.title2)
+                .font(symbolFont)
                 .frame(width: 35)
-                .foregroundColor(color)
-                .padding(.trailing, 10)
-            Text(text)
-                .fontWeight(.regular)
-                .foregroundColor(.primary)
-                .font(.title2)
+                .foregroundColor(textColor)
+                .padding(.trailing, 20)
+            Text(text.lString())
+                .fontWeight(.medium)
+                .foregroundColor(textColor)
+                .font(textFont)
             Spacer()
         }
+        .contentShape(Rectangle())
+        .padding(.vertical, 10)
+        .padding(.horizontal, 20)
+        .background(backgroundColor)
+        .cornerRadius(10)
+        .onTapGesture(perform: action)
+        .onLongPressGesture(
+            minimumDuration: .infinity,
+            maximumDistance: 50,
+            pressing: { isPressing = $0 },
+            perform: {}
+        )
     }
 }

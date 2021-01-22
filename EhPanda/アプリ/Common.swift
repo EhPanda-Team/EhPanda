@@ -57,6 +57,14 @@ public var isPad: Bool {
     UIDevice.current.userInterfaceIdiom == .pad
 }
 
+public var screenW: CGFloat {
+    UIScreen.main.bounds.size.width
+}
+
+public var screenH: CGFloat {
+    UIScreen.main.bounds.size.width
+}
+
 public var galleryType: GalleryType {
     let rawValue = UserDefaults
         .standard

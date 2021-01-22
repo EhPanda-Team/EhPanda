@@ -5,12 +5,14 @@
 //  Created by 荒木辰造 on R 2/12/26.
 //
 
+import UIKit
 import Kanna
 import Foundation
 
 enum AppAction {
-    case updateUser(user: User?)
+    case replaceUser(user: User?)
     case clearCachedList
+    case initiateUser
     case initiateFilter
     case initiateSetting
     case cleanDetailViewCommentContent
@@ -30,6 +32,8 @@ enum AppAction {
     case toggleCommentViewSheetState(state: CommentViewSheetState)
     case toggleCommentViewSheetNil
     
+    case fetchDisplayName(uid: String)
+    case fetchDisplayNameDone(result: Result<String?, AppError>)
     case fetchSearchItems(keyword: String)
     case fetchSearchItemsDone(result: Result<(PageNumber, [Manga]), AppError>)
     case fetchMoreSearchItems(keyword: String)
@@ -45,7 +49,7 @@ enum AppAction {
     case fetchMoreFavoritesItems
     case fetchMoreFavoritesItemsDone(result: Result<(PageNumber, [Manga]), AppError>)
     case fetchMangaDetail(id: String)
-    case fetchMangaDetailDone(result: Result<(Identity, MangaDetail), AppError>)
+    case fetchMangaDetailDone(result: Result<(Identity, MangaDetail, APIKey), AppError>)
     case fetchAssociatedItems(depth: Int, keyword: AssociatedKeyword)
     case fetchAssociatedItemsDone(result: Result<(Depth, AssociatedKeyword, PageNumber, [Manga]), AppError>)
     case fetchMoreAssociatedItems(depth: Int, keyword: AssociatedKeyword)
