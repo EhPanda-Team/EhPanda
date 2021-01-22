@@ -37,11 +37,6 @@ struct AppearanceSettingView: View {
                         )
                     }
                     .pickerStyle(MenuPickerStyle())
-                    if isPad {
-                        Toggle(isOn: settingBinding.hideSideBar) {
-                            Text("サイドバーを表示しない")
-                        }
-                    }
                     Toggle(isOn: settingBinding.translateCategory, label: {
                         Text("カテゴリーを訳す")
                     })

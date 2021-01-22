@@ -49,8 +49,10 @@ class Store: ObservableObject {
         case .toggleNavBarHidden(let isHidden):
             appState.environment.navBarHidden = isHidden
         case .toggleHomeViewSheetState(let state):
+            impactFeedback(style: .light)
             appState.environment.homeViewSheetState = state
         case .toggleSettingViewSheetState(let state):
+            impactFeedback(style: .light)
             appState.environment.settingViewSheetState = state
         case .toggleSettingViewSheetNil:
             appState.environment.settingViewSheetState = nil
@@ -59,10 +61,12 @@ class Store: ObservableObject {
         case .toggleFilterViewActionSheetState(let state):
             appState.environment.filterViewActionSheetState = state
         case .toggleDetailViewSheetState(let state):
+            impactFeedback(style: .light)
             appState.environment.detailViewSheetState = state
         case .toggleDetailViewSheetNil:
             appState.environment.detailViewSheetState = nil
         case .toggleCommentViewSheetState(let state):
+            impactFeedback(style: .light)
             appState.environment.commentViewSheetState = state
         case .toggleCommentViewSheetNil:
             appState.environment.commentViewSheetState = nil

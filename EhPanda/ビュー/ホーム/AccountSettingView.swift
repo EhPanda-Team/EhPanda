@@ -188,7 +188,7 @@ struct AccountSettingView: View {
     
     func saveToPasteboard(_ value: String) {
         UIPasteboard.general.string = value
-        hapticFeedback(style: .medium)
+        notificFeedback(style: .success)
     }
     
     func toggleWebView() {

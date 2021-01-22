@@ -60,7 +60,7 @@
 "ログアウト" = "Logout";
 "本当にログアウトしますか？" = "Are you sure to logout?";
 "一般" = "General";
-"環境" = "Environment";
+"選択後スライドメニューを閉じる" = "Close slide menu after selection";
 "キャッシュ" = "CACHE";
 "画像キャッシュを削除" = "Clear image caches";
 "本当に削除しますか？" = "Are you sure to clear?";

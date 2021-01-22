@@ -14,6 +14,9 @@ struct GeneralSettingView: View {
     var setting: Setting? {
         store.appState.settings.setting
     }
+    var settingBinding: Binding<Setting>? {
+        Binding($store.appState.settings.setting)
+    }
     var language: String {
         if let code = Locale.current.languageCode,
            let lang = Locale.current.localizedString(
@@ -27,14 +30,19 @@ struct GeneralSettingView: View {
     }
     
     var body: some View {
-        if let setting = setting {
+        if let setting = setting,
+           let settingBinding = settingBinding
+        {
             Form {
-                Section(header: Text("環境")) {
+                Section {
                     HStack {
                         Text("言語")
                         Spacer()
                         Button(language, action: toSettingLanguage)
                     }
+                    Toggle(isOn: settingBinding.closeSlideMenuAfterSelection, label: {
+                        Text("選択後スライドメニューを閉じる")
+                    })
                 }
                 Section(header: Text("キャッシュ")) {
                     Button(action: toggleClearImgCaches) {

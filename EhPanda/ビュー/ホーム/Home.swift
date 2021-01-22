@@ -95,11 +95,17 @@ private struct SlideMenu : View {
     @Environment(\.colorScheme) var colorScheme
     @Binding var offset: CGFloat
     
-    var homeListType: HomeListType {
-        store.appState.environment.homeListType
+    var settings: AppState.Settings {
+        store.appState.settings
     }
     var user: User? {
-        store.appState.settings.user
+        settings.user
+    }
+    var setting: Setting? {
+        settings.setting
+    }
+    var homeListType: HomeListType {
+        store.appState.environment.homeListType
     }
     var width: CGFloat {
         Defaults.FrameSize.slideMenuWidth
@@ -161,7 +167,11 @@ private struct SlideMenu : View {
     
     func onMenuRowTap(_ item: HomeListType) {
         store.dispatch(.toggleHomeListType(type: item))
-        performTransition(-width)
+        impactFeedback(style: .soft)
+        
+        if setting?.closeSlideMenuAfterSelection == true {
+            performTransition(-width)
+        }
     }
     func onSettingMenuRowTap() {
         store.dispatch(.toggleHomeViewSheetState(state: .setting))
@@ -227,12 +237,6 @@ private struct MenuRow: View {
     let text: String
     let action: (()->())
     
-    var symbolFont: Font {
-        isSelected ? .largeTitle : .title
-    }
-    var textFont: Font {
-        isSelected ? .title3 : .headline
-    }
     var textColor: Color {
         isSelected
             ? .primary
@@ -253,14 +257,14 @@ private struct MenuRow: View {
     var body: some View {
         HStack {
             Image(systemName: symbolName)
-                .font(symbolFont)
+                .font(.title)
                 .frame(width: 35)
                 .foregroundColor(textColor)
                 .padding(.trailing, 20)
             Text(text.lString())
                 .fontWeight(.medium)
                 .foregroundColor(textColor)
-                .font(textFont)
+                .font(.headline)
             Spacer()
         }
         .contentShape(Rectangle())

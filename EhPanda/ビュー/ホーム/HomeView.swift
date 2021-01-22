@@ -41,7 +41,7 @@ struct HomeView: View {
                 )
             case .frontpage:
                 GenericList(
-                    items: store.appState.cachedList.items?.compactMap { $0.value },
+                    items: homeInfo.frontpageItems,
                     loadingFlag: homeInfo.frontpageLoading,
                     notFoundFlag: homeInfo.frontpageNotFound,
                     loadFailedFlag: homeInfo.frontpageLoadFailed,
@@ -77,6 +77,11 @@ struct HomeView: View {
     var body: some View {
         NavigationView {
             conditionalList
+                .transition(
+                    AnyTransition
+                        .opacity
+                        .animation(.default)
+                )
                 .sheet(item: environmentBinding.homeViewSheetState, content: { item in
                     switch item {
                     case .setting:

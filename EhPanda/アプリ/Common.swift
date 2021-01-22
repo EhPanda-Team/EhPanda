@@ -44,9 +44,12 @@ public var appBuild: String {
     ) as? String ?? "(null)"
 }
 
-public func hapticFeedback(style: UIImpactFeedbackGenerator.FeedbackStyle) {
+public func impactFeedback(style: UIImpactFeedbackGenerator.FeedbackStyle) {
     UIImpactFeedbackGenerator(style: style)
         .impactOccurred()
+}
+public func notificFeedback(style: UINotificationFeedbackGenerator.FeedbackType) {
+    UINotificationFeedbackGenerator().notificationOccurred(style)
 }
 
 public var exx: Bool {
