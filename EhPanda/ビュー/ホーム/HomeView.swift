@@ -77,11 +77,6 @@ struct HomeView: View {
     var body: some View {
         NavigationView {
             conditionalList
-                .transition(
-                    AnyTransition
-                        .opacity
-                        .animation(.default)
-                )
                 .sheet(item: environmentBinding.homeViewSheetState, content: { item in
                     switch item {
                     case .setting:
@@ -278,8 +273,6 @@ private struct GenericList: View {
     }
     
     func searchBarCommit() {
-        hideKeyboard()
-        
         if environment.homeListType != .search {
             store.dispatch(.toggleHomeListType(type: .search))
         }
