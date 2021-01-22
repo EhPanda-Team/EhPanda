@@ -52,6 +52,7 @@ class Defaults {
         
         // 各機能ページ
         static let tag = "tag/"
+        static let watched = "watched"
         static let uploads = "uploads/"
         static let api = "api.php"
         static let popular = "popular"
@@ -140,6 +141,9 @@ extension Defaults.URL {
         } else {
             return merge([ehentai, listCompact, nonh, f_search + "parody:gintama$"])
         }
+    }
+    static func watchedList() -> String {
+        merge([host + watched, listCompact])
     }
     static func favoritesList() -> String {
         merge([host + favorites, listCompact])

@@ -67,6 +67,14 @@ extension AppState {
         var popularNotFound = false
         var popularLoadFailed = false
         
+        var watchedItems: [Manga]?
+        var watchedLoading = false
+        var watchedNotFound = false
+        var watchedLoadFailed = false
+        var watchedCurrentPageNum = 0
+        var watchedPageNumMaximum = 1
+//        var moreWatchedLoading = false
+        
         var favoritesItems: [Manga]?
         var favoritesLoading = false
         var favoritesNotFound = false

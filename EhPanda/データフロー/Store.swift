@@ -189,7 +189,7 @@ class Store: ObservableObject {
             }
             
         case .fetchMoreFrontpageItems:
-            if !didLogin || exx { break }
+            if !didLogin || !exx { break }
             let currentNum = appState.homeInfo.frontpageCurrentPageNum
             let maximumNum = appState.homeInfo.frontpagePageNumMaximum
             if currentNum + 1 >= maximumNum { break }
@@ -238,8 +238,36 @@ class Store: ObservableObject {
                 appState.homeInfo.popularLoadFailed = true
             }
             
+        case .fetchWatchedItems:
+            if !didLogin || !exx { break }
+            appState.homeInfo.watchedNotFound = false
+            appState.homeInfo.watchedLoadFailed = false
+            
+            if appState.homeInfo.watchedLoading { break }
+            appState.homeInfo.watchedCurrentPageNum = 0
+            appState.homeInfo.watchedLoading = true
+            appCommand = FetchWatchedItemsCommand()
+        case .fetchWatchedItemsDone(result: let result):
+            appState.homeInfo.watchedLoading = false
+            
+            switch result {
+            case .success(let mangas):
+                appState.homeInfo.watchedCurrentPageNum = mangas.0.current
+                appState.homeInfo.watchedPageNumMaximum = mangas.0.maximum
+                
+                if mangas.1.isEmpty {
+                    appState.homeInfo.watchedNotFound = true
+                } else {
+                    appState.homeInfo.watchedItems = mangas.1
+                    appState.cachedList.cache(items: mangas.1)
+                }
+            case .failure(let error):
+                print(error)
+                appState.homeInfo.watchedLoadFailed = true
+            }
+            
         case .fetchFavoritesItems:
-            if !didLogin || exx { break }
+            if !didLogin || !exx { break }
             appState.homeInfo.favoritesNotFound = false
             appState.homeInfo.favoritesLoadFailed = false
             

@@ -57,7 +57,13 @@ struct HomeView: View {
                     fetchAction: fetchPopularItems
                 )
             case .watched:
-                Text("")
+                GenericList(
+                    items: homeInfo.watchedItems,
+                    loadingFlag: homeInfo.watchedLoading,
+                    notFoundFlag: homeInfo.watchedNotFound,
+                    loadFailedFlag: homeInfo.watchedLoadFailed,
+                    fetchAction: fetchWatchedItems
+                )
             case .favorites:
                 GenericList(
                     items: homeInfo.favoritesItems,
@@ -120,7 +126,7 @@ struct HomeView: View {
         case .popular:
             fetchPopularItemsIfNeeded()
         case .watched:
-            print(type)
+            fetchWatchedItemsIfNeeded()
         case .favorites:
             fetchFavoritesItemsIfNeeded()
         case .downloaded:
@@ -144,6 +150,9 @@ struct HomeView: View {
     func fetchPopularItems() {
         store.dispatch(.fetchPopularItems)
     }
+    func fetchWatchedItems() {
+        store.dispatch(.fetchWatchedItems)
+    }
     func fetchFavoritesItems() {
         store.dispatch(.fetchFavoritesItems)
     }
@@ -166,6 +175,11 @@ struct HomeView: View {
     func fetchPopularItemsIfNeeded() {
         if homeInfo.popularItems?.isEmpty != false {
             fetchPopularItems()
+        }
+    }
+    func fetchWatchedItemsIfNeeded() {
+        if homeInfo.watchedItems?.isEmpty != false {
+            fetchWatchedItems()
         }
     }
     func fetchFavoritesItemsIfNeeded() {

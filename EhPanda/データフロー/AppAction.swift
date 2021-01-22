@@ -44,6 +44,8 @@ enum AppAction {
     case fetchMoreFrontpageItemsDone(result: Result<(PageNumber, [Manga]), AppError>)
     case fetchPopularItems
     case fetchPopularItemsDone(result: Result<(PageNumber, [Manga]), AppError>)
+    case fetchWatchedItems
+    case fetchWatchedItemsDone(result: Result<(PageNumber, [Manga]), AppError>)
     case fetchFavoritesItems
     case fetchFavoritesItemsDone(result: Result<(PageNumber, [Manga]), AppError>)
     case fetchMoreFavoritesItems
