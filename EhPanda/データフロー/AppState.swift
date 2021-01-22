@@ -73,7 +73,7 @@ extension AppState {
         var watchedLoadFailed = false
         var watchedCurrentPageNum = 0
         var watchedPageNumMaximum = 1
-//        var moreWatchedLoading = false
+        var moreWatchedLoading = false
         
         var favoritesItems: [Manga]?
         var favoritesLoading = false
@@ -111,6 +111,16 @@ extension AppState {
                 }
             }
             frontpageItems = historyItems
+        }
+        mutating func insertWatchedItems(mangas: [Manga]) {
+            var historyItems = watchedItems
+            
+            mangas.forEach { manga in
+                if historyItems?.contains(manga) == false {
+                    historyItems?.append(manga)
+                }
+            }
+            watchedItems = historyItems
         }
         mutating func insertFavoritesItems(mangas: [Manga]) {
             var historyItems = favoritesItems

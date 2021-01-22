@@ -161,6 +161,27 @@ struct FetchWatchedItemsCommand: AppCommand {
     }
 }
 
+struct FetchMoreWatchedItemsCommand: AppCommand {
+    let lastID: String
+    let pageNum: String
+    
+    func execute(in store: Store) {
+        let token = SubscriptionToken()
+        MoreWatchedItemsRequest(lastID: lastID, pageNum: pageNum)
+            .publisher
+            .receive(on: DispatchQueue.main)
+            .sink { completion in
+                if case .failure(let error)  = completion {
+                    store.dispatch(.fetchMoreWatchedItemsDone(result: .failure(error)))
+                }
+                token.unseal()
+            } receiveValue: { mangas in
+                store.dispatch(.fetchMoreWatchedItemsDone(result: .success(mangas)))
+            }
+            .seal(in: token)
+    }
+}
+
 struct FetchFavoritesItemsCommand: AppCommand {
     func execute(in store: Store) {
         let token = SubscriptionToken()

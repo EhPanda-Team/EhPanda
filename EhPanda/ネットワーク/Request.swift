@@ -131,6 +131,27 @@ struct WatchedItemsRequest {
     }
 }
 
+struct MoreWatchedItemsRequest {
+    let lastID: String
+    let pageNum: String
+    let parser = Parser()
+    
+    var publisher: AnyPublisher<(PageNumber, [Manga]), AppError> {
+        URLSession.shared
+            .dataTaskPublisher(for: URL(
+                                string: Defaults.URL
+                                    .moreWatchedList(
+                                        pageNum: pageNum,
+                                        lastID: lastID
+                                    ))!
+            )
+            .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
+            .map(parser.parseListItems)
+            .mapError { _ in .networkingFailed }
+            .eraseToAnyPublisher()
+    }
+}
+
 struct FavoritesItemsRequest {
     let parser = Parser()
     

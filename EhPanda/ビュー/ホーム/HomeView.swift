@@ -62,7 +62,8 @@ struct HomeView: View {
                     loadingFlag: homeInfo.watchedLoading,
                     notFoundFlag: homeInfo.watchedNotFound,
                     loadFailedFlag: homeInfo.watchedLoadFailed,
-                    fetchAction: fetchWatchedItems
+                    fetchAction: fetchWatchedItems,
+                    loadMoreAction: fetchMoreWatchedItems
                 )
             case .favorites:
                 GenericList(
@@ -162,6 +163,9 @@ struct HomeView: View {
     }
     func fetchMoreFrontpageItems() {
         store.dispatch(.fetchMoreFrontpageItems)
+    }
+    func fetchMoreWatchedItems() {
+        store.dispatch(.fetchMoreWatchedItems)
     }
     func fetchMoreFavoritesItems() {
         store.dispatch(.fetchMoreFavoritesItems)

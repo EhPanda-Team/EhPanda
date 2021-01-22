@@ -145,6 +145,9 @@ extension Defaults.URL {
     static func watchedList() -> String {
         merge([host + watched, listCompact])
     }
+    static func moreWatchedList(pageNum: String, lastID: String) -> String {
+        merge([host + watched, page + pageNum, from + lastID])
+    }
     static func favoritesList() -> String {
         merge([host + favorites, listCompact])
     }

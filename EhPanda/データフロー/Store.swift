@@ -266,6 +266,31 @@ class Store: ObservableObject {
                 appState.homeInfo.watchedLoadFailed = true
             }
             
+        case .fetchMoreWatchedItems:
+            let currentNum = appState.homeInfo.watchedCurrentPageNum
+            let maximumNum = appState.homeInfo.watchedPageNumMaximum
+            if currentNum + 1 >= maximumNum { break }
+            
+            if appState.homeInfo.moreWatchedLoading { break }
+            appState.homeInfo.moreWatchedLoading = true
+            
+            let lastID = appState.homeInfo.watchedItems?.last?.id ?? ""
+            let pageNum = "\(appState.homeInfo.watchedCurrentPageNum + 1)"
+            appCommand = FetchMoreWatchedItemsCommand(lastID: lastID, pageNum: pageNum)
+        case .fetchMoreWatchedItemsDone(let result):
+            appState.homeInfo.moreWatchedLoading = false
+            
+            switch result {
+            case .success(let mangas):
+                appState.homeInfo.watchedCurrentPageNum = mangas.0.current
+                appState.homeInfo.watchedPageNumMaximum = mangas.0.maximum
+                
+                appState.homeInfo.insertWatchedItems(mangas: mangas.1)
+                appState.cachedList.cache(items: mangas.1)
+            case .failure(let error):
+                print(error)
+            }
+            
         case .fetchFavoritesItems:
             if !didLogin || !exx { break }
             appState.homeInfo.favoritesNotFound = false
