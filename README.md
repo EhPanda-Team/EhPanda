@@ -3,7 +3,7 @@
 <h4 align="center">iOS向けの非公式E-Hentaiアプリである。(未完成)</h4>
 
 <p align="center">
-<img src="https://user-images.githubusercontent.com/31207151/103606626-dcc86d00-4f51-11eb-9321-26953e669440.png" width="400"></img>
+<img src="https://user-images.githubusercontent.com/31207151/105608979-33062e80-5de1-11eb-8f66-0ccb8682df91.png" width="400" style="border-radius:12%"></img>
 </p>
 
 <p align="center">
@@ -16,7 +16,7 @@
 [![Telegram](https://img.shields.io/badge/chat-Telegram-blue.svg)](https://t.me/ehpanda)
 
 ## アプリアイコン
-[リンク先](https://www.deviantart.com/epiphany/art/reminds-me-of-you-15994061)の画像を模倣して描いたものです、著作権とかわかんないから削除依頼は[こちら](kendellcarol@gmail.com)へお願いします。
+© 2021 荒木辰造 All rights reserved
 
 ## コンテンツとその著作権
 わからん、自己責任でお願いします。
