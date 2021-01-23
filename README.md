@@ -3,7 +3,7 @@
 <h4 align="center">iOS向けの非公式E-Hentaiアプリである。(未完成)</h4>
 
 <p align="center">
-<img src="https://user-images.githubusercontent.com/31207151/105608979-33062e80-5de1-11eb-8f66-0ccb8682df91.png" width="400" style="border-radius:12%"></img>
+<img src="https://user-images.githubusercontent.com/31207151/105609247-faffeb00-5de2-11eb-8b16-4639b8f0f13f.png" width="400"></img>
 </p>
 
 <p align="center">
