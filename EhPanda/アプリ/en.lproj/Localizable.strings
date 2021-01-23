@@ -71,6 +71,10 @@
 "外観" = "Apperance";
 "全般" = "Global";
 "テーマ" = "Theme";
+"アプリアイコン" = "App Icon";
+"普通" = "Normal";
+"既定" = "Default";
+"怪奇" = "Weird";
 "自動" = "Automatic";
 "ライト" = "Light";
 "ダーク" = "Dark";

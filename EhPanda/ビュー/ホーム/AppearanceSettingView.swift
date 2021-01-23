@@ -9,6 +9,7 @@ import SwiftUI
 
 struct AppearanceSettingView: View {
     @EnvironmentObject var store: Store
+    @State var isNavigationLinkActive = false
     
     var setting: Setting? {
         store.appState.settings.setting
@@ -21,6 +22,10 @@ struct AppearanceSettingView: View {
         if let setting = setting,
            let settingBinding = settingBinding
         {
+            NavigationLink(
+                destination: SelectAppIconView(),
+                isActive: $isNavigationLinkActive,
+                label: {})
             Form {
                 Section(header: Text("全般")) {
                     HStack {
@@ -37,6 +42,17 @@ struct AppearanceSettingView: View {
                         )
                     }
                     .pickerStyle(MenuPickerStyle())
+                    HStack {
+                        Button(
+                            "アプリアイコン",
+                            action: onAppIconButtonTap
+                        )
+                        .foregroundColor(.primary)
+                        Spacer()
+                        Image(systemName: "chevron.right")
+                            .foregroundColor(.gray)
+                            .imageScale(.small)
+                    }
                     if exx {
                         Toggle(isOn: settingBinding.translateCategory, label: {
                             Text("カテゴリーを訳す")
@@ -73,6 +89,121 @@ struct AppearanceSettingView: View {
                 }
             }
             .navigationBarTitle("外観")
+        }
+    }
+    
+    func onAppIconButtonTap() {
+        isNavigationLinkActive.toggle()
+    }
+}
+
+// MARK: SelectAppIconView
+private struct SelectAppIconView: View {
+    @EnvironmentObject var store: Store
+    
+    let selections = IconType.allCases
+    var selection: IconType {
+        store.appState
+            .settings.setting?
+            .appIconType ?? appIconType
+    }
+    
+    
+    var body: some View {
+        Form {
+            Section {
+                ForEach(selections) { sel in
+                    AppIconRow(
+                        iconName: sel.iconName,
+                        iconDesc: sel.description,
+                        isSelected: sel == selection
+                    )
+                    .contentShape(Rectangle())
+                    .onTapGesture(perform: {
+                        onAppIconRowTap(sel)
+                    })
+                }
+            }
+        }
+        .onAppear(perform: setSelection)
+    }
+    
+    func onAppIconRowTap(_ sel: IconType) {
+        UIApplication.shared.setAlternateIconName(sel.fileName) { error in
+            if let error = error {
+                notificFeedback(style: .error)
+                print(error)
+            }
+            setSelection()
+        }
+    }
+    
+    func setSelection() {
+        store.dispatch(.updateAppIconType(iconType: appIconType))
+    }
+}
+
+// MARK: AppIconRow
+private struct AppIconRow: View {
+    let iconName: String
+    let iconDesc: String
+    let isSelected: Bool
+    
+    var body: some View {
+        HStack {
+            Image(iconName)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 60, height: 60)
+                .cornerRadius(12)
+                .padding(.vertical, 10)
+                .padding(.trailing, 20)
+            Text(iconDesc.lString())
+            Spacer()
+            if isSelected {
+                Image(systemName: "checkmark.circle.fill")
+                    .imageScale(.large)
+            }
+        }
+    }
+}
+
+// MARK: 定義
+public enum IconType: String, Codable, Identifiable, CaseIterable {
+    public var id: Int { hashValue }
+    
+    case Normal = "Normal"
+    case Default = "Default"
+    case Weird = "Weird"
+}
+
+extension IconType {
+    var iconName: String {
+        switch self {
+        case .Normal:
+            return "AppIcon_Normal"
+        case .Default:
+            return "AppIcon_Default"
+        case .Weird:
+            return "AppIcon_Weird"
+        }
+    }
+    var fileName: String? {
+        switch self {
+        case .Default:
+            return nil
+        default:
+            return rawValue
+        }
+    }
+    var description: String {
+        switch self {
+        case .Normal:
+            return "普通"
+        case .Default:
+            return "既定"
+        case .Weird:
+            return "怪奇"
         }
     }
 }

@@ -6,6 +6,48 @@
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleIcons</key>
+	<dict>
+		<key>CFBundleAlternateIcons</key>
+		<dict>
+			<key>Normal</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>Normal</string>
+				</array>
+			</dict>
+			<key>Weird</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>Weird</string>
+				</array>
+			</dict>
+		</dict>
+	</dict>
+	<key>CFBundleIcons~ipad</key>
+	<dict>
+		<key>CFBundleAlternateIcons</key>
+		<dict>
+			<key>Normal</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>Normal-ipad</string>
+					<string>Normal-ipad-pro</string>
+				</array>
+			</dict>
+			<key>Weird</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>Weird-ipad</string>
+					<string>Weird-ipad-pro</string>
+				</array>
+			</dict>
+		</dict>
+	</dict>
 	<key>CFBundleIdentifier</key>
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
@@ -31,6 +73,8 @@
 	</array>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>UIApplicationSceneManifest</key>
@@ -40,8 +84,6 @@
 	</dict>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
-	<key>ITSAppUsesNonExemptEncryption</key>
-	<false/>
 	<key>UILaunchScreen</key>
 	<dict/>
 	<key>UIRequiredDeviceCapabilities</key>

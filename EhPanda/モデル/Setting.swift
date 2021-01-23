@@ -35,6 +35,7 @@ struct Setting: Codable {
         }
     }
     var preferredColorScheme: PreferredColorScheme = .automatic
+    var appIconType: IconType = .Default
     var closeSlideMenuAfterSelection = true
     var translateCategory = true
     var showSummaryRowTags = false

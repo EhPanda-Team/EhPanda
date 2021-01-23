@@ -196,6 +196,14 @@ private struct SlideMenu : View {
 
 // MARK: AvatarView
 private struct AvatarView: View {
+    @EnvironmentObject var store: Store
+    
+    var iconType: IconType {
+        store.appState
+            .settings.setting?
+            .appIconType ?? appIconType
+    }
+    
     let avatarURL: String?
     let displayName: String?
     
@@ -221,8 +229,8 @@ private struct AvatarView: View {
                             .placeholder(placeholder)
                             .cancelOnDisappear(true)
                             .resizable()
-                    } else if let uiImage = Bundle.main.icon {
-                        Image(uiImage: uiImage)
+                    } else {
+                        Image(iconType.iconName)
                             .resizable()
                     }
                 }

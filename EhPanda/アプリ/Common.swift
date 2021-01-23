@@ -99,6 +99,19 @@ public var vcsCount: Int {
     return navigationVC.viewControllers.count
 }
 
+public var appIconType: IconType {
+    if let alterName = UIApplication
+        .shared.alternateIconName,
+       let selection = IconType.allCases.filter(
+        { alterName.contains($0.fileName ?? "") }
+       ).first
+       {
+        return selection
+    } else {
+        return .Default
+    }
+}
+
 // MARK: 容量管理
 public func readableUnit(bytes: Int64) -> String {
     let formatter = ByteCountFormatter()
