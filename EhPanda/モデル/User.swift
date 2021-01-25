@@ -9,6 +9,7 @@ import Foundation
 
 struct User: Codable {
     var displayName: String?
+    var avatarURL: String?
     var apikey: String?
     
     var apiuid: String {
@@ -17,12 +18,5 @@ struct User: Codable {
                 string: Defaults.URL.ehentai)!,
             key: Defaults.Cookie.ipb_member_id
         ).rawValue
-    }
-    var avatarURL: String {
-        if !apiuid.isEmpty {
-            return Defaults.URL.userAvatar(uid: apiuid)
-        } else {
-            return ""
-        }
     }
 }

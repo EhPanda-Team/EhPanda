@@ -70,8 +70,7 @@ struct ContentView: View {
                                             onWebImageLongPressing(tag: item.tag)
                                         }, perform: {}
                                     )
-                                if setting.showContentDividers
-                                {
+                                if setting.showContentDividers {
                                     Rectangle()
                                         .fill(Color(.darkGray))
                                         .frame(height: setting.contentDividerHeight)

@@ -79,18 +79,23 @@ class Store: ObservableObject {
             appState.commentInfo.commentContent = ""
             
         // MARK: データ取得
-        case .fetchDisplayName(let uid):
+        case .fetchUserInfo(let uid):
             if !didLogin && exx { break }
             if appState.settings.userInfoLoading { break }
             appState.settings.userInfoLoading = true
         
-            appCommand = FetchDisplayNameCommand(uid: uid)
-        case .fetchDisplayNameDone(let result):
+            appCommand = FetchUserInfoCommand(uid: uid)
+        case .fetchUserInfoDone(let result):
             appState.settings.userInfoLoading = false
             
             switch result {
-            case .success(let displayName):
-                appState.settings.user?.displayName = displayName
+            case .success(let user):
+                if let displayName = user?.displayName,
+                   let avatarURL = user?.avatarURL
+                {
+                    appState.settings.user?.displayName = displayName
+                    appState.settings.user?.avatarURL = avatarURL
+                }
             case .failure(let error):
                 print(error)
             }

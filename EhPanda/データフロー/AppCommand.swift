@@ -13,25 +13,21 @@ protocol AppCommand {
     func execute(in store: Store)
 }
 
-struct FetchDisplayNameCommand: AppCommand {
+struct FetchUserInfoCommand: AppCommand {
     let uid: String
     
     func execute(in store: Store) {
         let token = SubscriptionToken()
-        DisplayNameRequest(uid: uid)
+        UserInfoRequest(uid: uid)
             .publisher
             .receive(on: DispatchQueue.main)
             .sink { completion in
                 if case .failure(let error) = completion {
-                    store.dispatch(.fetchDisplayNameDone(result: .failure(error)))
+                    store.dispatch(.fetchUserInfoDone(result: .failure(error)))
                 }
                 token.unseal()
-            } receiveValue: { displayName in
-                if let name = displayName {
-                    store.dispatch(.fetchDisplayNameDone(result: .success(name)))
-                } else {
-                    store.dispatch(.fetchDisplayNameDone(result: .failure(.networkingFailed)))
-                }
+            } receiveValue: { user in
+                store.dispatch(.fetchUserInfoDone(result: .success(user)))
             }
             .seal(in: token)
     }

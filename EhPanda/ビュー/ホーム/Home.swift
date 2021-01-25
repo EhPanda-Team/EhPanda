@@ -222,9 +222,7 @@ private struct AvatarView: View {
         HStack {
             VStack(alignment: .leading) {
                 Group {
-                    if let avatarURL = avatarURL,
-                       !avatarURL.isEmpty
-                    {
+                    if let avatarURL = avatarURL {
                         KFImage(URL(string: avatarURL), options: [])
                             .placeholder(placeholder)
                             .cancelOnDisappear(true)

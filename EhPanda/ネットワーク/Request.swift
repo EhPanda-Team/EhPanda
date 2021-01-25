@@ -9,17 +9,17 @@ import Kanna
 import Combine
 import Foundation
 
-struct DisplayNameRequest {
+struct UserInfoRequest {
     let uid: String
     let parser = Parser()
     
-    var publisher: AnyPublisher<String?, AppError> {
+    var publisher: AnyPublisher<User?, AppError> {
         return URLSession.shared
             .dataTaskPublisher(
-                for: URL(string: Defaults.URL.userDisplayName(uid: uid))!
+                for: URL(string: Defaults.URL.userInfo(uid: uid))!
             )
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-            .map(parser.parseDisplayName)
+            .map(parser.parseUserInfo)
             .mapError { _ in .networkingFailed }
             .eraseToAnyPublisher()
     }

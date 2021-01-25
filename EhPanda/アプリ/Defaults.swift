@@ -209,11 +209,8 @@ extension Defaults.URL {
     static func userID() -> String {
         forum + index
     }
-    static func userDisplayName(uid: String) -> String {
+    static func userInfo(uid: String) -> String {
         merge([forum + index, showuser + uid])
-    }
-    static func userAvatar(uid: String) -> String {
-        forum + uploads + "av-\(uid).jpg"
     }
 }
 

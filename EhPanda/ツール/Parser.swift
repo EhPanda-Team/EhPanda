@@ -292,17 +292,26 @@ class Parser {
     }
     
     // MARK: ユーザー
-    func parseDisplayName(doc: HTMLDocument) -> String? {
+    func parseUserInfo(doc: HTMLDocument) -> User? {
         var displayName: String?
+        var avatarURL: String?
         
         for ipbLink in doc.xpath("//table [@class='ipbtable']") {
             guard let profileName = ipbLink.at_xpath("//div [@id='profilename']")?.text
             else { continue }
             
             displayName = profileName
+            
+            for imgLink in ipbLink.xpath("//img") {
+                guard let imgURL = imgLink["src"],
+                      imgURL.contains("forums.e-hentai.org/uploads")
+                else { continue }
+                
+                avatarURL = imgURL
+            }
         }
         
-        return displayName
+        return User(displayName: displayName, avatarURL: avatarURL)
     }
 }
 

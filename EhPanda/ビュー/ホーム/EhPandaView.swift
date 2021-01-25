@@ -65,10 +65,12 @@ struct EhPandaView: View {
         }
         .padding(.horizontal)
         Form {
-            Section {
-                ForEach(contacts) { contact in
-                    if let url = URL(string: contact.url) {
-                        LinkRow(url: url, text: contact.text)
+            if exx {
+                Section {
+                    ForEach(contacts) { contact in
+                        if let url = URL(string: contact.url) {
+                            LinkRow(url: url, text: contact.text)
+                        }
                     }
                 }
             }

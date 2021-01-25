@@ -139,7 +139,7 @@ struct HomeView: View {
     
     func fetchUserInfo() {
         if let uid = settings.user?.apiuid {
-            store.dispatch(.fetchDisplayName(uid: uid))
+            store.dispatch(.fetchUserInfo(uid: uid))
         }
     }
     func fetchSearchItems() {

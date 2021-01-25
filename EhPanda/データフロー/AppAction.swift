@@ -33,8 +33,8 @@ enum AppAction {
     case toggleCommentViewSheetState(state: CommentViewSheetState)
     case toggleCommentViewSheetNil
     
-    case fetchDisplayName(uid: String)
-    case fetchDisplayNameDone(result: Result<String?, AppError>)
+    case fetchUserInfo(uid: String)
+    case fetchUserInfoDone(result: Result<User?, AppError>)
     case fetchSearchItems(keyword: String)
     case fetchSearchItemsDone(result: Result<(PageNumber, [Manga]), AppError>)
     case fetchMoreSearchItems(keyword: String)
