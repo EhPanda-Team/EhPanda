@@ -86,6 +86,7 @@ struct DetailView: View {
         } else {
             updateMangaComments()
         }
+        updateHistoryItems()
     }
     func onTagsViewTap(_ keyword: AssociatedKeyword) {
         associatedKeyword = keyword
@@ -97,6 +98,9 @@ struct DetailView: View {
     }
     func updateMangaComments() {
         store.dispatch(.updateMangaComments(id: id))
+    }
+    func updateHistoryItems() {
+        store.dispatch(.updateHistoryItems(id: id))
     }
     
     func toggleNavBarHidden() {

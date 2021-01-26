@@ -122,8 +122,8 @@ private struct SlideMenu : View {
     var reversedPrimary: Color {
         colorScheme == .light ? .white : .black
     }
-    var exxMenuItems: [HomeListType]
-        = [.frontpage, .popular, .watched, .favorites, .downloaded]
+    var exxMenuItems = HomeListType
+        .allCases.filter({ $0 != .search })
     var menuItems: [HomeListType] {
         if exx {
             return exxMenuItems

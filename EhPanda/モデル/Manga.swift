@@ -28,6 +28,7 @@ struct Manga: Identifiable, Codable, Equatable {
     let publishedTime: String
     let coverURL: String
     let detailURL: String
+    var lastOpenTime: Date?
 }
 
 struct MangaDetail: Codable {

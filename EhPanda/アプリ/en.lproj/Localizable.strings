@@ -27,7 +27,8 @@
 "人気" = "Popular";
 "フォロー" = "Watched";
 "お気に入り" = "Favorites";
-"ダウンロード済み" = "Downloaded";
+"ダウンロード" = "Downloaded";
+"閲覧履歴" = "History";
 
 // MARK: DetailView
 "読む" = "READ";

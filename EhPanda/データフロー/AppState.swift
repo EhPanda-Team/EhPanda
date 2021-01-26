@@ -83,6 +83,9 @@ extension AppState {
         var favoritesPageNumMaximum = 1
         var moreFavoritesLoading = false
         
+        @FileStorage(directory: .cachesDirectory, fileName: "historyList.json")
+        var historyItems: [String : Manga]?
+        
         func isFavored(id: String) -> Bool {
             if let items = favoritesItems {
                 let filteredItems = items
@@ -93,44 +96,47 @@ extension AppState {
             }
         }
         mutating func insertSearchItems(mangas: [Manga]) {
-            var historyItems = searchItems
-            
             mangas.forEach { manga in
-                if historyItems?.contains(manga) == false {
-                    historyItems?.append(manga)
+                if searchItems?.contains(manga) == false {
+                    searchItems?.append(manga)
                 }
             }
-            searchItems = historyItems
         }
         mutating func insertFrontpageItems(mangas: [Manga]) {
-            var historyItems = frontpageItems
-            
             mangas.forEach { manga in
-                if historyItems?.contains(manga) == false {
-                    historyItems?.append(manga)
+                if frontpageItems?.contains(manga) == false {
+                    frontpageItems?.append(manga)
                 }
             }
-            frontpageItems = historyItems
         }
         mutating func insertWatchedItems(mangas: [Manga]) {
-            var historyItems = watchedItems
-            
             mangas.forEach { manga in
-                if historyItems?.contains(manga) == false {
-                    historyItems?.append(manga)
+                if watchedItems?.contains(manga) == false {
+                    watchedItems?.append(manga)
                 }
             }
-            watchedItems = historyItems
         }
         mutating func insertFavoritesItems(mangas: [Manga]) {
-            var historyItems = favoritesItems
-            
             mangas.forEach { manga in
-                if historyItems?.contains(manga) == false {
-                    historyItems?.append(manga)
+                if favoritesItems?.contains(manga) == false {
+                    favoritesItems?.append(manga)
                 }
             }
-            favoritesItems = historyItems
+        }
+        mutating func insertHistoryItem(manga: Manga?) {
+            guard var manga = manga else { return }
+            if historyItems != nil {
+                if historyItems?.keys.contains(manga.id) == true {
+                    historyItems?[manga.id]?.lastOpenTime = Date()
+                } else {
+                    manga.lastOpenTime = Date()
+                    historyItems?[manga.id] = manga
+                }
+            } else {
+                historyItems = Dictionary(
+                    uniqueKeysWithValues: [(manga.id, manga)]
+                )
+            }
         }
     }
     
@@ -152,9 +158,7 @@ extension AppState {
         var mangaCommentsUpdateFailed = false
         
         mutating func removeAssociatedItems(depth: Int) {
-            let historyItems = associatedItems
-
-            if historyItems.count >= depth + 1 {
+            if associatedItems.count >= depth + 1 {
                 associatedItems[depth].mangas = []
             }
         }
@@ -212,48 +216,45 @@ extension AppState {
         @FileStorage(directory: .cachesDirectory, fileName: "cachedList.json")
         var items: [String : Manga]?
         
-        mutating func cache(items: [Manga]) {
-            let previousCount = self.items?.count ?? 0
-            if self.items == nil {
-                self.items = Dictionary(uniqueKeysWithValues: items.map { ($0.id, $0) })
+        mutating func cache(mangas: [Manga]) {
+            let previousCount = items?.count ?? 0
+            if items == nil {
+                items = Dictionary(uniqueKeysWithValues: mangas.map { ($0.id, $0) })
                 return
             }
             
-            for item in items {
-                if self.items?[item.id] == nil {
-                    self.items?[item.id] = item
+            for manga in mangas {
+                if items?[manga.id] == nil {
+                    items?[manga.id] = manga
                 }
             }
-            let currentCount = self.items?.count ?? 0
+            let currentCount = items?.count ?? 0
             print("キャッシュ済みリスト 更新: \(previousCount) -> \(currentCount)")
         }
         
         mutating func insertDetail(id: String, detail: MangaDetail) {
-            self.items?[id]?.detail = detail
+            items?[id]?.detail = detail
         }
         mutating func insertAlterImages(id: String, images: [MangaAlterData]) {
-            self.items?[id]?.detail?.alterImages = images
+            items?[id]?.detail?.alterImages = images
         }
         mutating func updateComments(id: String, comments: [MangaComment]) {
-            self.items?[id]?.detail?.comments = comments
+            items?[id]?.detail?.comments = comments
         }
         mutating func insertContents(id: String, contents: [MangaContent]) {
-            var historyContents = self.items?[id]?.contents
-            if historyContents == nil {
-                let sortedContents = contents.sorted { $0.tag < $1.tag }
-                self.items?[id]?.contents = sortedContents
+            if items?[id]?.contents == nil {
+                items?[id]?.contents = contents.sorted { $0.tag < $1.tag }
             } else {
                 contents.forEach { content in
-                    if historyContents?.contains(content) == false {
-                        historyContents?.append(content)
+                    if items?[id]?.contents?.contains(content) == false {
+                        items?[id]?.contents?.append(content)
                     }
                 }
-                historyContents?.sort { $0.tag < $1.tag }
-                self.items?[id]?.contents = historyContents
+                items?[id]?.contents?.sort { $0.tag < $1.tag }
             }
         }
         mutating func insertReadingProgress(id: String, progress: Int) {
-            self.items?[id]?.detail?.readingProgress = progress
+            items?[id]?.detail?.readingProgress = progress
         }
     }
 }

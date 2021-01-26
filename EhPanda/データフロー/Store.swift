@@ -44,6 +44,9 @@ class Store: ObservableObject {
             appState.settings.setting?.diskImageCacheSize = size
         case .updateAppIconType(let iconType):
             appState.settings.setting?.appIconType = iconType
+        case .updateHistoryItems(let id):
+            let item = appState.cachedList.items?[id]
+            appState.homeInfo.insertHistoryItem(manga: item)
             
         // MARK: アプリ環境
         case .toggleHomeListType(let type):
@@ -123,7 +126,7 @@ class Store: ObservableObject {
                     appState.homeInfo.searchNotFound = true
                 } else {
                     appState.homeInfo.searchItems = mangas.1
-                    appState.cachedList.cache(items: mangas.1)
+                    appState.cachedList.cache(mangas: mangas.1)
                 }
             case .failure(let error):
                 print(error)
@@ -157,7 +160,7 @@ class Store: ObservableObject {
                 
                 let prev = appState.homeInfo.searchItems?.count ?? 0
                 appState.homeInfo.insertSearchItems(mangas: mangas.2)
-                appState.cachedList.cache(items: mangas.2)
+                appState.cachedList.cache(mangas: mangas.2)
                 
                 let curr = appState.homeInfo.searchItems?.count ?? 0
                 if prev == curr && curr != 0 {
@@ -188,7 +191,7 @@ class Store: ObservableObject {
                     appState.homeInfo.frontpageNotFound = true
                 } else {
                     appState.homeInfo.frontpageItems = mangas.1
-                    appState.cachedList.cache(items: mangas.1)
+                    appState.cachedList.cache(mangas: mangas.1)
                 }
             case .failure(let error):
                 print(error)
@@ -216,7 +219,7 @@ class Store: ObservableObject {
                 appState.homeInfo.frontpagePageNumMaximum = mangas.0.maximum
                 
                 appState.homeInfo.insertFrontpageItems(mangas: mangas.1)
-                appState.cachedList.cache(items: mangas.1)
+                appState.cachedList.cache(mangas: mangas.1)
             case .failure(let error):
                 print(error)
             }
@@ -238,7 +241,7 @@ class Store: ObservableObject {
                     appState.homeInfo.popularNotFound = true
                 } else {
                     appState.homeInfo.popularItems = mangas.1
-                    appState.cachedList.cache(items: mangas.1)
+                    appState.cachedList.cache(mangas: mangas.1)
                 }
             case .failure(let error):
                 print(error)
@@ -266,7 +269,7 @@ class Store: ObservableObject {
                     appState.homeInfo.watchedNotFound = true
                 } else {
                     appState.homeInfo.watchedItems = mangas.1
-                    appState.cachedList.cache(items: mangas.1)
+                    appState.cachedList.cache(mangas: mangas.1)
                 }
             case .failure(let error):
                 print(error)
@@ -293,7 +296,7 @@ class Store: ObservableObject {
                 appState.homeInfo.watchedPageNumMaximum = mangas.0.maximum
                 
                 appState.homeInfo.insertWatchedItems(mangas: mangas.1)
-                appState.cachedList.cache(items: mangas.1)
+                appState.cachedList.cache(mangas: mangas.1)
             case .failure(let error):
                 print(error)
             }
@@ -319,7 +322,7 @@ class Store: ObservableObject {
                     appState.homeInfo.favoritesNotFound = true
                 } else {
                     appState.homeInfo.favoritesItems = mangas.1
-                    appState.cachedList.cache(items: mangas.1)
+                    appState.cachedList.cache(mangas: mangas.1)
                 }
             case .failure(let error):
                 print(error)
@@ -346,7 +349,7 @@ class Store: ObservableObject {
                 appState.homeInfo.favoritesPageNumMaximum = mangas.0.maximum
                 
                 appState.homeInfo.insertFavoritesItems(mangas: mangas.1)
-                appState.cachedList.cache(items: mangas.1)
+                appState.cachedList.cache(mangas: mangas.1)
             case .failure(let error):
                 print(error)
             }
@@ -394,7 +397,7 @@ class Store: ObservableObject {
                         pageNum: mangas.2,
                         items: mangas.3
                     )
-                    appState.cachedList.cache(items: mangas.3)
+                    appState.cachedList.cache(mangas: mangas.3)
                 }
             case .failure(let error):
                 print(error)
@@ -429,7 +432,7 @@ class Store: ObservableObject {
                     pageNum: mangas.2,
                     items: mangas.3
                 )
-                appState.cachedList.cache(items: mangas.3)
+                appState.cachedList.cache(mangas: mangas.3)
             case .failure(let error):
                 print(error)
             }

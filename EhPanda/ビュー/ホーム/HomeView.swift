@@ -26,6 +26,16 @@ struct HomeView: View {
     var setting: Setting? {
         settings.setting
     }
+    var historyItems: [Manga] {
+        var items = homeInfo.historyItems?
+            .compactMap({ $0.value })
+            .filter({ $0.lastOpenTime != nil })
+        items?.sort {
+            $0.lastOpenTime ?? Date()
+                > $1.lastOpenTime ?? Date()
+        }
+        return items ?? []
+    }
     
     var conditionalList: some View {
         Group {
@@ -76,6 +86,13 @@ struct HomeView: View {
                 )
             case .downloaded:
                 Text("")
+            case .history:
+                GenericList(
+                    items: historyItems,
+                    loadingFlag: false,
+                    notFoundFlag: false,
+                    loadFailedFlag: false
+                )
             }
         }
     }
@@ -133,6 +150,8 @@ struct HomeView: View {
         case .downloaded:
             print(type)
         case .search:
+            print(type)
+        case .history:
             print(type)
         }
     }
@@ -361,7 +380,8 @@ enum HomeListType: String, Identifiable, CaseIterable {
     case popular = "人気"
     case watched = "フォロー"
     case favorites = "お気に入り"
-    case downloaded = "ダウンロード済み"
+    case downloaded = "ダウンロード"
+    case history = "閲覧履歴"
     
     var symbolName: String {
         switch self {
@@ -377,6 +397,8 @@ enum HomeListType: String, Identifiable, CaseIterable {
             return "heart.circle"
         case .downloaded:
             return "arrow.down.circle"
+        case .history:
+            return "clock.arrow.circlepath"
         }
     }
 }
