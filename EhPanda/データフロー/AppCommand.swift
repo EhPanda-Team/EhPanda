@@ -401,7 +401,10 @@ struct AddFavoriteCommand: AppCommand {
         AddFavoriteRequest(id: id, token: token)
             .publisher
             .receive(on: DispatchQueue.main)
-            .sink { _ in
+            .sink { completion in
+                if case .finished = completion {
+                    store.dispatch(.updateMangaDetail(id: id))
+                }
                 sToken.unseal()
             } receiveValue: { _ in }
             .seal(in: sToken)
@@ -416,7 +419,10 @@ struct DeleteFavoriteCommand: AppCommand {
         DeleteFavoriteRequest(id: id)
             .publisher
             .receive(on: DispatchQueue.main)
-            .sink { _ in
+            .sink { completion in
+                if case .finished = completion {
+                    store.dispatch(.updateMangaDetail(id: id))
+                }
                 sToken.unseal()
             } receiveValue: { _ in }
             .seal(in: sToken)
@@ -463,7 +469,7 @@ struct CommentCommand: AppCommand {
             .receive(on: DispatchQueue.main)
             .sink { completion in
                 if case .finished = completion {
-                    store.dispatch(.updateMangaComments(id: id))
+                    store.dispatch(.updateMangaDetail(id: id))
                 }
                 token.unseal()
             } receiveValue: { _ in }
@@ -488,7 +494,7 @@ struct EditCommentCommand: AppCommand {
         .receive(on: DispatchQueue.main)
         .sink { completion in
             if case .finished = completion {
-                store.dispatch(.updateMangaComments(id: id))
+                store.dispatch(.updateMangaDetail(id: id))
             }
             token.unseal()
         } receiveValue: { _ in }
@@ -518,7 +524,7 @@ struct VoteCommentCommand: AppCommand {
         .receive(on: DispatchQueue.main)
         .sink { completion in
             if case .finished = completion {
-                store.dispatch(.updateMangaComments(id: String(gid)))
+                store.dispatch(.updateMangaDetail(id: String(gid)))
             }
             sToken.unseal()
         } receiveValue: { _ in }

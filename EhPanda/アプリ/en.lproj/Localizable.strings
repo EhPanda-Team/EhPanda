@@ -29,6 +29,9 @@
 "閲覧履歴" = "History";
 
 // MARK: DetailView
+"アーカイブ" = "Archive";
+"トレント" = "Torrents";
+"共有" = "Share";
 "読む" = "READ";
 "気に入り" = "FAVORED";
 "人" = "Times";

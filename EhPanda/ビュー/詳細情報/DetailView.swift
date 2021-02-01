@@ -35,24 +35,15 @@ struct DetailView: View {
         Group {
             if exx {
                 Menu(content: {
-                    Button(action: {}, label: {
-                        Text("Button")
-                    })
-                    Button(action: {}, label: {
-                        Text("Button")
-                    })
-                    Button(action: {}, label: {
-                        Text("Button")
-                    })
-                    Button(action: {}, label: {
-                        Text("Button")
-                    })
-                    Button(action: {}, label: {
-                        Text("Button")
-                    })
-                    Button(action: {}, label: {
-                        Text("Button")
-                    })
+                    Button(action: onArchiveButtonTap) {
+                        Label("アーカイブ", systemImage: "doc.zipper")
+                    }
+                    Button(action: onTorrentsButtonTap) {
+                        Label("トレント", systemImage: "leaf")
+                    }
+                    Button(action: onShareButtonTap) {
+                        Label("共有", systemImage: "square.and.arrow.up")
+                    }
                 }, label: {
                     Image(systemName: "ellipsis.circle")
                         .imageScale(.large)
@@ -133,6 +124,26 @@ struct DetailView: View {
             updateMangaDetail()
         }
         updateHistoryItems()
+    }
+    func onArchiveButtonTap() {
+        
+    }
+    func onTorrentsButtonTap() {
+        
+    }
+    func onShareButtonTap() {
+        guard let data = URL(string: manga.detailURL) else { return }
+        let av = UIActivityViewController(
+            activityItems: [data],
+            applicationActivities: nil
+        )
+        UIApplication.shared.windows
+            .first?.rootViewController?
+            .present(
+                av,
+                animated: true,
+                completion: nil
+            )
     }
     func onUserRatingChanged(_ value: Int) {
         sendRating(value)
@@ -281,7 +292,6 @@ private struct HeaderView: View {
         } else {
             addFavorite()
         }
-        updateMangaDetail()
     }
     
     func addFavorite() {
