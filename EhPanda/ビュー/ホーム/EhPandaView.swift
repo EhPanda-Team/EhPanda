@@ -49,8 +49,12 @@ struct EhPandaView: View {
     }
     
     var version: String {
-        "バージョン".lString()
-            + " \(appVersion)(\(appBuild))"
+        [
+            "バージョン".lString(),
+            appVersion,
+            "(\(appBuild))"
+        ]
+        .joined(separator: " ")
     }
     
     var body: some View {

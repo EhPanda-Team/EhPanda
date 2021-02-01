@@ -32,26 +32,22 @@ struct DetailView: View {
         cachedList.items?[id]?.detail
     }
     var menu: some View {
-        Group {
+        Menu(content: {
             if exx {
-                Menu(content: {
-                    Button(action: onArchiveButtonTap) {
-                        Label("アーカイブ", systemImage: "doc.zipper")
-                    }
-                    Button(action: onTorrentsButtonTap) {
-                        Label("トレント", systemImage: "leaf")
-                    }
-                    Button(action: onShareButtonTap) {
-                        Label("共有", systemImage: "square.and.arrow.up")
-                    }
-                }, label: {
-                    Image(systemName: "ellipsis.circle")
-                        .imageScale(.large)
-                })
-            } else {
-                EmptyView()
+                Button(action: onArchiveButtonTap) {
+                    Label("アーカイブ", systemImage: "doc.zipper")
+                }
+                Button(action: onTorrentsButtonTap) {
+                    Label("トレント", systemImage: "leaf")
+                }
             }
-        }
+            Button(action: onShareButtonTap) {
+                Label("共有", systemImage: "square.and.arrow.up")
+            }
+        }, label: {
+            Image(systemName: "ellipsis.circle")
+                .imageScale(.large)
+        })
     }
     
     // MARK: DetailView本体
