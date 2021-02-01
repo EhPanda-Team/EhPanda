@@ -19,7 +19,6 @@ struct AppState {
 
 extension AppState {
     struct Environment {
-        var slideMenuOffset = -Defaults.FrameSize.slideMenuWidth
         var navBarHidden = false
         var homeListType: HomeListType = .frontpage
         var homeViewSheetState: HomeViewSheetState? = nil
@@ -154,8 +153,8 @@ extension AppState {
         
         var alterImagesLoading = false
         
+        var mangaDetailUpdating = false
         var mangaCommentsUpdating = false
-        var mangaCommentsUpdateFailed = false
         
         mutating func removeAssociatedItems(depth: Int) {
             if associatedItems.count >= depth + 1 {
@@ -226,6 +225,11 @@ extension AppState {
             for manga in mangas {
                 if items?[manga.id] == nil {
                     items?[manga.id] = manga
+                } else {
+                    items?[manga.id]?.title = manga.title
+                    items?[manga.id]?.rating = manga.rating
+                    items?[manga.id]?.tags = manga.tags
+                    items?[manga.id]?.language = manga.language
                 }
             }
             let currentCount = items?.count ?? 0
@@ -234,6 +238,18 @@ extension AppState {
         
         mutating func insertDetail(id: String, detail: MangaDetail) {
             items?[id]?.detail = detail
+        }
+        mutating func updateDetail(id: String, detail: MangaDetail) {
+            items?[id]?.detail?.detailTags = detail.detailTags
+            items?[id]?.detail?.comments = detail.comments
+            items?[id]?.detail?.jpnTitle = detail.jpnTitle
+            items?[id]?.detail?.likeCount = detail.likeCount
+            items?[id]?.detail?.pageCount = detail.pageCount
+            items?[id]?.detail?.sizeCount = detail.sizeCount
+            items?[id]?.detail?.sizeType = detail.sizeType
+            items?[id]?.detail?.rating = detail.rating
+            items?[id]?.detail?.userRating = detail.userRating
+            items?[id]?.detail?.ratingCount = detail.ratingCount
         }
         mutating func insertAlterImages(id: String, images: [MangaAlterData]) {
             items?[id]?.detail?.alterImages = images

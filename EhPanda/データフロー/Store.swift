@@ -437,7 +437,6 @@ class Store: ObservableObject {
                 print(error)
             }
             
-            
         case .fetchAlterImages(let id, let doc):
             if appState.detailInfo.alterImagesLoading { break }
             appState.detailInfo.alterImagesLoading = true
@@ -453,9 +452,23 @@ class Store: ObservableObject {
                 print(error)
             }
             
-        case .updateMangaComments(id: let id):
-            appState.detailInfo.mangaCommentsUpdateFailed = false
+        case .updateMangaDetail(id: let id):
+            if appState.detailInfo.mangaDetailUpdating { break }
+            appState.detailInfo.mangaDetailUpdating = true
             
+            let detailURL = appState.cachedList.items?[id]?.detailURL ?? ""
+            appCommand = UpdateMangaDetailCommand(id: id, detailURL: detailURL)
+        case .updateMangaDetailDone(result: let result):
+            appState.detailInfo.mangaDetailUpdating = false
+            
+            switch result {
+            case .success(let detail):
+                appState.cachedList.updateDetail(id: detail.0, detail: detail.1)
+            case .failure(let error):
+                print(error)
+            }
+            
+        case .updateMangaComments(id: let id):
             if appState.detailInfo.mangaCommentsUpdating { break }
             appState.detailInfo.mangaCommentsUpdating = true
             
@@ -469,7 +482,6 @@ class Store: ObservableObject {
                 appState.cachedList.updateComments(id: comments.0, comments: comments.1)
             case .failure(let error):
                 print(error)
-                appState.detailInfo.mangaCommentsUpdateFailed = true
             }
             
         case .fetchMangaContents(let id):
@@ -502,6 +514,22 @@ class Store: ObservableObject {
             appCommand = AddFavoriteCommand(id: id, token: token)
         case .deleteFavorite(let id):
             appCommand = DeleteFavoriteCommand(id: id)
+            
+        case .rate(let id, let rating):
+            guard let apiuidString = appState.settings.user?.apiuid,
+                  let apikey = appState.settings.user?.apikey,
+                  let token = appState.cachedList.items?[id]?.token,
+                  let apiuid = Int(apiuidString),
+                  let id = Int(id)
+            else { break }
+            
+            appCommand = RateCommand(
+                apiuid: apiuid,
+                apikey: apikey,
+                gid: id,
+                token: token,
+                rating: rating
+            )
             
         case .comment(let id, let content):
             let detailURL = appState.cachedList.items?[id]?.detailURL ?? ""

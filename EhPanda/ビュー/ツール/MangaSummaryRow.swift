@@ -99,6 +99,8 @@ struct MangaSummaryRow: View {
                 }
                 HStack {
                     RatingView(rating: manga.rating)
+                        .font(.system(size: 12))
+                        .foregroundColor(.yellow)
                     if let language = manga.language {
                         Spacer()
                         Text(language.translatedLanguage.lString())

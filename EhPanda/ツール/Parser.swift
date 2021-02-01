@@ -20,7 +20,8 @@ class Parser {
             guard let gl2cNode = link.at_xpath("//td [@class='gl2c']"),
                   let gl3cNode = link.at_xpath("//td [@class='gl3c glname']"),
                   let title = link.at_xpath("//div [@class='glink']")?.text,
-                  let rating = parseRatingString(gl2cNode.at_xpath("//div [@class='ir']")?.toHTML),
+                  let rating = parseRatingString(gl2cNode.at_xpath("//div [@class='ir']")?.toHTML)
+                    ?? parseRatingString(gl2cNode.at_xpath("//div [@class='ir irg']")?.toHTML),
                   let category = link.at_xpath("//td [@class='gl1c glcat'] //div")?.text,
                   var publishedTime = gl2cNode.at_xpath("//div [@onclick]")?.text,
                   let coverURL = parseCoverURL(gl2cNode.at_xpath("//div [@class='glthumb']")?.at_css("img")),
@@ -85,6 +86,9 @@ class Parser {
                   let gdrNode = link.at_xpath("//div [@id='gdr']"),
                   let gdtNode = doc.at_xpath("//div [@id='gdt']"),
                   let gd4Node = link.at_xpath("//div [@id='gd4']"),
+                  let tmpRating = gdrNode.at_xpath("//td [@id='rating_label']")?.text?
+                    .replacingOccurrences(of: "Average: ", with: "")
+                    .replacingOccurrences(of: "Not Yet Rated", with: "0"),
                   let ratingCount = gdrNode.at_xpath("//span [@id='rating_count']")?.text
             else { return (nil, nil, nil) }
             
@@ -117,6 +121,7 @@ class Parser {
                 if gdt1.contains("Favorited") {
                     tmpLikeCount = gdt2
                         .replacingOccurrences(of: " times", with: "")
+                        .replacingOccurrences(of: "Never", with: "0")
                         .replacingOccurrences(of: "Once", with: "0")
                 }
             }
@@ -156,20 +161,28 @@ class Parser {
                   let sizeCount = tmpSizeCount,
                   let sizeType = tmpSizeType,
                   let tmpLanguage2 = tmpLanguage,
-                  let language = Language(rawValue: tmpLanguage2)
+                  let language = Language(rawValue: tmpLanguage2),
+                  let rating = Float(tmpRating)
             else { return (nil, nil, nil) }
             
-            mangaDetail = MangaDetail(detailTags: detailTags,
-                                      alterImages: [],
-                                      comments: parseComments(doc),
-                                      previews: imageURLs,
-                                      jpnTitle: jpnTitle,
-                                      language: language,
-                                      likeCount: likeCount,
-                                      pageCount: pageCount,
-                                      sizeCount: sizeCount,
-                                      sizeType: sizeType,
-                                      ratingCount: ratingCount)
+            let userRating = parseRatingString(
+                gdrNode.at_xpath("//div [@class='ir irg']")?.toHTML
+            )
+            mangaDetail = MangaDetail(
+                detailTags: detailTags,
+                alterImages: [],
+                comments: parseComments(doc),
+                previews: imageURLs,
+                jpnTitle: jpnTitle,
+                language: language,
+                likeCount: likeCount,
+                pageCount: pageCount,
+                sizeCount: sizeCount,
+                sizeType: sizeType,
+                rating: rating,
+                userRating: userRating,
+                ratingCount: ratingCount
+            )
             break
         }
         

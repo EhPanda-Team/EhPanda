@@ -11,7 +11,7 @@ import Kingfisher
 struct DetailView: View {
     @EnvironmentObject var store: Store
     @State var associatedKeyword = AssociatedKeyword()
-    @State var isActive = false
+    @State var isAssociatedLinkActive = false
     
     let id: String
     let depth: Int
@@ -41,7 +41,7 @@ struct DetailView: View {
                     depth: depth,
                     keyword: associatedKeyword
                 ),
-                isActive: $isActive
+                isActive: $isAssociatedLinkActive
             )
             Group {
                 if let detail = mangaDetail {
@@ -51,17 +51,29 @@ struct DetailView: View {
                                 .padding(.top, -40)
                                 .padding(.bottom, 15)
                             Group {
-                                DescScrollView(manga: manga, detail: detail)
-                                ActionRow(
-                                    ratingAction: onRatingTap,
-                                    galleryAction: onSimilarGalleryTap
-                                )
-                                if !detail.detailTags.isEmpty && exx {
-                                    TagsView(tags: detail.detailTags, onTapAction: onTagsViewTap)
+                                DescScrollView(detail: detail)
+                                if exx {
+                                    ActionRow(
+                                        detail: detail,
+                                        ratingAction: onUserRatingChanged,
+                                        galleryAction: onSimilarGalleryTap
+                                    )
                                 }
-                                PreviewView(previews: detail.previews, alterImages: detail.alterImages)
+                                if !detail.detailTags.isEmpty && exx {
+                                    TagsView(
+                                        tags: detail.detailTags,
+                                        onTapAction: onTagsViewTap
+                                    )
+                                }
+                                PreviewView(
+                                    previews: detail.previews,
+                                    alterImages: detail.alterImages
+                                )
                                 if !(detail.comments.isEmpty && !exx) {
-                                    CommentScrollView(id: id, comments: detail.comments)
+                                    CommentScrollView(
+                                        id: id,
+                                        comments: detail.comments
+                                    )
                                 }
                             }
                             .padding(.vertical, 10)
@@ -86,32 +98,35 @@ struct DetailView: View {
         if mangaDetail == nil {
             fetchMangaDetail()
         } else {
-            updateMangaComments()
+            updateMangaDetail()
         }
         updateHistoryItems()
     }
-    func onRatingTap() {
-        
+    func onUserRatingChanged(_ value: Int) {
+        sendRating(value)
     }
     func onSimilarGalleryTap() {
         associatedKeyword = AssociatedKeyword(
             title: manga.title.trimmedTitle()
         )
-        isActive.toggle()
+        isAssociatedLinkActive.toggle()
     }
     func onTagsViewTap(_ keyword: AssociatedKeyword) {
         associatedKeyword = keyword
-        isActive.toggle()
+        isAssociatedLinkActive.toggle()
     }
     
     func fetchMangaDetail() {
         store.dispatch(.fetchMangaDetail(id: id))
     }
-    func updateMangaComments() {
-        store.dispatch(.updateMangaComments(id: id))
+    func updateMangaDetail() {
+        store.dispatch(.updateMangaDetail(id: id))
     }
     func updateHistoryItems() {
         store.dispatch(.updateHistoryItems(id: id))
+    }
+    func sendRating(_ value: Int) {
+        store.dispatch(.rate(id: id, rating: value))
     }
     
     func toggleNavBarHidden() {
@@ -246,7 +261,6 @@ private struct HeaderView: View {
 
 // MARK: 基本情報
 private struct DescScrollView: View {
-    let manga: Manga
     let detail: MangaDetail
     
     var body: some View {
@@ -261,7 +275,7 @@ private struct DescScrollView: View {
                                numeral: detail.translatedLanguage.lString())
                 Divider()
                 DescScrollRatingItem(title: detail.ratingCount + "件の評価".lString(),
-                                     rating: manga.rating)
+                                     rating: detail.rating)
                 Divider()
                 DescScrollItem(title: "ページ".lString(),
                                value: detail.pageCount,
@@ -305,10 +319,12 @@ private struct DescScrollRatingItem: View {
             Text(title)
                 .font(.caption)
                 .lineLimit(1)
-            Text(String(format: "%.1f", rating))
+            Text(String(format: "%.2f", rating))
                 .fontWeight(.medium)
                 .font(.title3)
-            RatingView(rating: rating, .primary)
+            RatingView(rating: rating)
+                .font(.system(size: 12))
+                .foregroundColor(.primary)
         }
         .frame(minWidth: 80)
     }
@@ -316,28 +332,77 @@ private struct DescScrollRatingItem: View {
 
 // MARK: サブアクション
 private struct ActionRow: View {
-    let ratingAction: () -> ()
+    @State var showUserRating = false
+    @State var userRating: Int = 0
+    
+    let detail: MangaDetail
+    let ratingAction: (Int) -> ()
     let galleryAction: () -> ()
     
     var body: some View {
-        HStack {
-            Group {
-                Button(action: ratingAction) {
-                    Image(systemName: "star.circle.fill")
-                    Text("評価する")
-                        .fontWeight(.bold)
+        VStack {
+            HStack {
+                Group {
+                    Button(action: onRateButtonTap) {
+                        Spacer()
+                        Image(systemName: "square.and.pencil")
+                        Text("評価する")
+                            .fontWeight(.bold)
+                        Spacer()
+                    }
+                    Button(action: galleryAction) {
+                        Spacer()
+                        Image(systemName: "photo.on.rectangle.angled")
+                        Text("類似ギャラリー")
+                            .fontWeight(.bold)
+                        Spacer()
+                    }
                 }
-                Spacer()
-                Button(action: galleryAction) {
-                    Image(systemName: "photo.on.rectangle.angled")
-                    Text("類似ギャラリー")
-                        .fontWeight(.bold)
-                }
+                .font(.callout)
+                .foregroundColor(.primary)
             }
-            .font(.callout)
-            .foregroundColor(.primary)
+            if showUserRating {
+                HStack {
+                    RatingView(rating: Float(userRating) / 2)
+                        .font(.system(size: 24))
+                        .foregroundColor(.yellow)
+                        .gesture(
+                            DragGesture(minimumDistance: 0)
+                                .onChanged(onRatingChanged)
+                                .onEnded(onRatingEnded)
+                        )
+                }
+                .padding(.top, 10)
+            }
         }
         .padding(.horizontal)
+        .onAppear(perform: onAppear)
+    }
+    
+    func onAppear() {
+        if let rating = detail.userRating {
+            userRating = Int(rating.fixedRating() * 2)
+        }
+    }
+    func onRateButtonTap() {
+        withAnimation {
+            showUserRating.toggle()
+        }
+    }
+    func onRatingChanged(_ value: DragGesture.Value) {
+        updateRating(value)
+    }
+    func onRatingEnded(_ value: DragGesture.Value) {
+        updateRating(value)
+        ratingAction(userRating)
+        impactFeedback(style: .soft)
+        withAnimation(Animation.default.delay(1)) {
+            showUserRating.toggle()
+        }
+    }
+    func updateRating(_ value: DragGesture.Value) {
+        let rating = Int(value.location.x / 31 * 2) + 1
+        userRating = min(max(rating, 1), 10)
     }
 }
 

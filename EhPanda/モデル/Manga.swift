@@ -19,11 +19,11 @@ struct Manga: Identifiable, Codable, Equatable {
     let id: String
     let token: String
     
-    let title: String
-    let rating: Float
-    let tags: [String]
+    var title: String
+    var rating: Float
+    var tags: [String]
     let category: Category
-    let language: Language?
+    var language: Language?
     let uploader: String?
     let publishedTime: String
     let coverURL: String
@@ -38,13 +38,15 @@ struct MangaDetail: Codable {
     var alterImages: [MangaAlterData]
     var comments: [MangaComment]
     let previews: [MangaPreview]
-    let jpnTitle: String
+    var jpnTitle: String
     let language: Language
-    let likeCount: String
-    let pageCount: String
-    let sizeCount: String
-    let sizeType: String
-    let ratingCount: String
+    var likeCount: String
+    var pageCount: String
+    var sizeCount: String
+    var sizeType: String
+    var rating: Float
+    var userRating: Float?
+    var ratingCount: String
 }
 
 struct Tag: Codable, Identifiable {

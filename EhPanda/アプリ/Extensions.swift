@@ -10,12 +10,6 @@ import SwiftUI
 import Combine
 import Foundation
 
-extension String {
-    func lString() -> String {
-        NSLocalizedString(self, comment: "")
-    }
-}
-
 extension Dictionary where Key == String, Value == String {
     func jsonString() -> String {
         var array = [String]()
@@ -49,15 +43,33 @@ extension Array where Element: Publisher {
     }
 }
 
+extension Float {
+    func fixedRating() -> Float {
+        let lowerbound = Int(self)
+        let upperbound = lowerbound + 1
+        let decimal: Float = self - Float(lowerbound)
+        
+        if decimal < 0.25 {
+            return Float(lowerbound)
+        } else if decimal >= 0.25 && decimal < 0.75 {
+            return Float(lowerbound) + 0.5
+        } else {
+            return Float(upperbound)
+        }
+    }
+}
+
 extension String {
+    func lString() -> String {
+        NSLocalizedString(self, comment: "")
+    }
+    
     func URLString() -> String {
         self.addingPercentEncoding(
             withAllowedCharacters: .urlQueryAllowed
         ) ?? ""
     }
-}
-
-extension String {
+    
     func capitalizingFirstLetter() -> String {
         return prefix(1).capitalized + dropFirst()
     }

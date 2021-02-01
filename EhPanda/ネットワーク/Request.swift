@@ -325,7 +325,7 @@ struct AddFavoriteRequest {
         
         return session.dataTaskPublisher(for: request)
             .map { $0 }
-            .mapError { _ in .networkingFailed}
+            .mapError { _ in .networkingFailed }
             .eraseToAnyPublisher()
     }
 }
@@ -347,7 +347,38 @@ struct DeleteFavoriteRequest {
         
         return session.dataTaskPublisher(for: request)
             .map { $0 }
-            .mapError { _ in .networkingFailed}
+            .mapError { _ in .networkingFailed }
+            .eraseToAnyPublisher()
+    }
+}
+
+struct RateRequest {
+    let apiuid: Int
+    let apikey: String
+    let gid: Int
+    let token: String
+    let rating: Int
+    
+    var publisher: AnyPublisher<Any, AppError> {
+        let url = Defaults.URL.host + Defaults.URL.api
+        let params: [String: Any] = ["method": "rategallery",
+                                     "apiuid": apiuid,
+                                     "apikey": apikey,
+                                     "gid": gid,
+                                     "token": token,
+                                     "rating": rating]
+        
+        let session = URLSession.shared
+        var request = URLRequest(url: URL(string: url)!)
+        
+        request.httpMethod = "POST"
+        request.httpBody = try? JSONSerialization
+            .data(withJSONObject: params, options: [])
+        
+        
+        return session.dataTaskPublisher(for: request)
+            .map { $0 }
+            .mapError { _ in .networkingFailed }
             .eraseToAnyPublisher()
     }
 }
@@ -368,7 +399,7 @@ struct CommentRequest {
         
         return session.dataTaskPublisher(for: request)
             .map { $0 }
-            .mapError { _ in .networkingFailed}
+            .mapError { _ in .networkingFailed }
             .eraseToAnyPublisher()
     }
 }
@@ -391,7 +422,7 @@ struct EditCommentRequest {
         
         return session.dataTaskPublisher(for: request)
             .map { $0 }
-            .mapError { _ in .networkingFailed}
+            .mapError { _ in .networkingFailed }
             .eraseToAnyPublisher()
     }
 }
@@ -424,7 +455,7 @@ struct VoteCommentRequest {
         
         return session.dataTaskPublisher(for: request)
             .map { $0 }
-            .mapError { _ in .networkingFailed}
+            .mapError { _ in .networkingFailed }
             .eraseToAnyPublisher()
     }
 }

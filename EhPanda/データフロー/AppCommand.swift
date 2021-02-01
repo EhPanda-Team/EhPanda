@@ -311,6 +311,31 @@ struct FetchAlterImagesCommand: AppCommand {
     }
 }
 
+struct UpdateMangaDetailCommand: AppCommand {
+    let id: String
+    let detailURL: String
+    
+    func execute(in store: Store) {
+        let token = SubscriptionToken()
+        MangaDetailRequest(detailURL: detailURL)
+            .publisher
+            .receive(on: DispatchQueue.main)
+            .sink { completion in
+                if case .failure(let error) = completion {
+                    store.dispatch(.updateMangaDetailDone(result: .failure(error)))
+                }
+                token.unseal()
+            } receiveValue: { detail in
+                if let mangaDetail = detail.0 {
+                    store.dispatch(.updateMangaDetailDone(result: .success((id, mangaDetail))))
+                } else {
+                    store.dispatch(.updateMangaDetailDone(result: .failure(.networkingFailed)))
+                }
+            }
+            .seal(in: token)
+    }
+}
+
 struct UpdateMangaCommentsCommand: AppCommand {
     let id: String
     let detailURL: String
@@ -401,6 +426,34 @@ struct DeleteFavoriteCommand: AppCommand {
                 sToken.unseal()
             } receiveValue: { _ in }
             .seal(in: sToken)
+    }
+}
+
+struct RateCommand: AppCommand {
+    let apiuid: Int
+    let apikey: String
+    let gid: Int
+    let token: String
+    let rating: Int
+    
+    func execute(in store: Store) {
+        let sToken = SubscriptionToken()
+        RateRequest(
+            apiuid: apiuid,
+            apikey: apikey,
+            gid: gid,
+            token: token,
+            rating: rating
+        )
+        .publisher
+        .receive(on: DispatchQueue.main)
+        .sink { completion in
+            if case .finished = completion {
+                store.dispatch(.updateMangaDetail(id: String(gid)))
+            }
+            sToken.unseal()
+        } receiveValue: { _ in }
+        .seal(in: sToken)
     }
 }
 
