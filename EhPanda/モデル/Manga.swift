@@ -34,6 +34,7 @@ struct Manga: Identifiable, Codable, Equatable {
 struct MangaDetail: Codable {
     var readingProgress: Int?
     
+    var isFavored: Bool
     var detailTags: [Tag]
     var alterImages: [MangaAlterData]
     var comments: [MangaComment]

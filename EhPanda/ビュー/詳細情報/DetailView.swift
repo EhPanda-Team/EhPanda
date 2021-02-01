@@ -31,6 +31,37 @@ struct DetailView: View {
     var mangaDetail: MangaDetail? {
         cachedList.items?[id]?.detail
     }
+    var menu: some View {
+        Group {
+            if exx {
+                Menu(content: {
+                    Button(action: {}, label: {
+                        Text("Button")
+                    })
+                    Button(action: {}, label: {
+                        Text("Button")
+                    })
+                    Button(action: {}, label: {
+                        Text("Button")
+                    })
+                    Button(action: {}, label: {
+                        Text("Button")
+                    })
+                    Button(action: {}, label: {
+                        Text("Button")
+                    })
+                    Button(action: {}, label: {
+                        Text("Button")
+                    })
+                }, label: {
+                    Image(systemName: "ellipsis.circle")
+                        .imageScale(.large)
+                })
+            } else {
+                EmptyView()
+            }
+        }
+    }
     
     // MARK: DetailView本体
     var body: some View {
@@ -89,6 +120,7 @@ struct DetailView: View {
             }
         }
         .navigationBarHidden(environment.navBarHidden)
+        .navigationBarItems(trailing: menu)
         .onAppear(perform: onAppear)
     }
     
@@ -148,7 +180,7 @@ private struct HeaderView: View {
     }
     
     var isFavored: Bool {
-        store.appState.homeInfo.isFavored(id: manga.id)
+        detail.isFavored
     }
     var width: CGFloat {
         Defaults.ImageSize.headerW
@@ -249,6 +281,7 @@ private struct HeaderView: View {
         } else {
             addFavorite()
         }
+        updateMangaDetail()
     }
     
     func addFavorite() {
@@ -256,6 +289,9 @@ private struct HeaderView: View {
     }
     func deleteFavorite() {
         store.dispatch(.deleteFavorite(id: manga.id))
+    }
+    func updateMangaDetail() {
+        store.dispatch(.updateMangaDetail(id: manga.id))
     }
 }
 

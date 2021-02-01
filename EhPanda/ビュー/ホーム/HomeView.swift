@@ -85,7 +85,7 @@ struct HomeView: View {
                     loadMoreAction: fetchMoreFavoritesItems
                 )
             case .downloaded:
-                Text("")
+                EmptyView()
             case .history:
                 GenericList(
                     items: historyItems,
@@ -135,7 +135,6 @@ struct HomeView: View {
         }
         fetchUserInfo()
         fetchFrontpageItemsIfNeeded()
-        fetchFavoritesItemsIfNeeded()
     }
     func onHomeListTypeChange(_ type: HomeListType) {
         switch type {

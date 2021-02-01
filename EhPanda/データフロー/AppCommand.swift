@@ -401,10 +401,7 @@ struct AddFavoriteCommand: AppCommand {
         AddFavoriteRequest(id: id, token: token)
             .publisher
             .receive(on: DispatchQueue.main)
-            .sink { completion in
-                if case .finished = completion {
-                    store.dispatch(.fetchFavoritesItems)
-                }
+            .sink { _ in
                 sToken.unseal()
             } receiveValue: { _ in }
             .seal(in: sToken)
@@ -419,10 +416,7 @@ struct DeleteFavoriteCommand: AppCommand {
         DeleteFavoriteRequest(id: id)
             .publisher
             .receive(on: DispatchQueue.main)
-            .sink { completion in
-                if case .finished = completion {
-                    store.dispatch(.fetchFavoritesItems)
-                }
+            .sink { _ in
                 sToken.unseal()
             } receiveValue: { _ in }
             .seal(in: sToken)

@@ -127,8 +127,7 @@ struct SettingView: View {
     }
     func clearCachedList() {
         store.dispatch(.clearCachedList)
-        store.dispatch(.fetchPopularItems)
-        store.dispatch(.fetchFavoritesItems)
+        store.dispatch(.fetchFrontpageItems)
     }
 }
 

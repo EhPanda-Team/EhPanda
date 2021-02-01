@@ -84,6 +84,7 @@ class Parser {
             guard let jpnTitle = link.at_xpath("//h1 [@id='gj']")?.text,
                   let gddNode = link.at_xpath("//div [@id='gdd']"),
                   let gdrNode = link.at_xpath("//div [@id='gdr']"),
+                  let gdfNode = link.at_xpath("//div [@id='gdf']"),
                   let gdtNode = doc.at_xpath("//div [@id='gdt']"),
                   let gd4Node = link.at_xpath("//div [@id='gd4']"),
                   let tmpRating = gdrNode.at_xpath("//td [@id='rating_label']")?.text?
@@ -165,10 +166,13 @@ class Parser {
                   let rating = Float(tmpRating)
             else { return (nil, nil, nil) }
             
+            let isFavored = gdfNode.at_xpath("//a [@id='favoritelink']")?.text?
+                .contains("Add to Favorites") == false
             let userRating = parseRatingString(
                 gdrNode.at_xpath("//div [@class='ir irg']")?.toHTML
             )
             mangaDetail = MangaDetail(
+                isFavored: isFavored,
                 detailTags: detailTags,
                 alterImages: [],
                 comments: parseComments(doc),

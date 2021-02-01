@@ -85,15 +85,6 @@ extension AppState {
         @FileStorage(directory: .cachesDirectory, fileName: "historyList.json")
         var historyItems: [String : Manga]?
         
-        func isFavored(id: String) -> Bool {
-            if let items = favoritesItems {
-                let filteredItems = items
-                    .filter { $0.id == id }
-                return !filteredItems.isEmpty
-            } else {
-                return false
-            }
-        }
         mutating func insertSearchItems(mangas: [Manga]) {
             mangas.forEach { manga in
                 if searchItems?.contains(manga) == false {
@@ -240,6 +231,7 @@ extension AppState {
             items?[id]?.detail = detail
         }
         mutating func updateDetail(id: String, detail: MangaDetail) {
+            items?[id]?.detail?.isFavored = detail.isFavored
             items?[id]?.detail?.detailTags = detail.detailTags
             items?[id]?.detail?.comments = detail.comments
             items?[id]?.detail?.jpnTitle = detail.jpnTitle
