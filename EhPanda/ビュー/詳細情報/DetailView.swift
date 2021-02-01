@@ -52,17 +52,19 @@ struct DetailView: View {
                                 .padding(.bottom, 15)
                             Group {
                                 DescScrollView(manga: manga, detail: detail)
-                                    .frame(height: 60)
+                                ActionRow(
+                                    ratingAction: onRatingTap,
+                                    galleryAction: onSimilarGalleryTap
+                                )
                                 if !detail.detailTags.isEmpty && exx {
                                     TagsView(tags: detail.detailTags, onTapAction: onTagsViewTap)
                                 }
                                 PreviewView(previews: detail.previews, alterImages: detail.alterImages)
-                                    .frame(height: 240)
                                 if !(detail.comments.isEmpty && !exx) {
                                     CommentScrollView(id: id, comments: detail.comments)
                                 }
                             }
-                            .padding(.vertical, 15)
+                            .padding(.vertical, 10)
                         }
                         .padding(.horizontal)
                         .transition(AnyTransition.opacity.animation(.default))
@@ -87,6 +89,15 @@ struct DetailView: View {
             updateMangaComments()
         }
         updateHistoryItems()
+    }
+    func onRatingTap() {
+        
+    }
+    func onSimilarGalleryTap() {
+        associatedKeyword = AssociatedKeyword(
+            title: manga.title.trimmedTitle()
+        )
+        isActive.toggle()
     }
     func onTagsViewTap(_ keyword: AssociatedKeyword) {
         associatedKeyword = keyword
@@ -233,6 +244,103 @@ private struct HeaderView: View {
     }
 }
 
+// MARK: 基本情報
+private struct DescScrollView: View {
+    let manga: Manga
+    let detail: MangaDetail
+    
+    var body: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(alignment: .center) {
+                DescScrollItem(title: "気に入り".lString(),
+                               value: detail.likeCount,
+                               numeral: "人".lString())
+                Divider()
+                DescScrollItem(title: "言語".lString().uppercased(),
+                               value: detail.languageAbbr,
+                               numeral: detail.translatedLanguage.lString())
+                Divider()
+                DescScrollRatingItem(title: detail.ratingCount + "件の評価".lString(),
+                                     rating: manga.rating)
+                Divider()
+                DescScrollItem(title: "ページ".lString(),
+                               value: detail.pageCount,
+                               numeral: "頁".lString())
+                Divider()
+                DescScrollItem(title: "サイズ".lString(),
+                               value: detail.sizeCount,
+                               numeral: detail.sizeType)
+            }
+        }
+        .frame(height: 60)
+    }
+}
+
+private struct DescScrollItem: View {
+    let title: String
+    let value: String
+    let numeral: String
+    
+    var body: some View {
+        VStack(spacing: 3) {
+            Text(title)
+                .font(.caption)
+            Text(value)
+                .fontWeight(.medium)
+                .font(.title3)
+                .lineLimit(1)
+            Text(numeral)
+                .font(.caption)
+        }
+        .frame(minWidth: 80)
+    }
+}
+
+private struct DescScrollRatingItem: View {
+    let title: String
+    let rating: Float
+    
+    var body: some View {
+        VStack(spacing: 3) {
+            Text(title)
+                .font(.caption)
+                .lineLimit(1)
+            Text(String(format: "%.1f", rating))
+                .fontWeight(.medium)
+                .font(.title3)
+            RatingView(rating: rating, .primary)
+        }
+        .frame(minWidth: 80)
+    }
+}
+
+// MARK: サブアクション
+private struct ActionRow: View {
+    let ratingAction: () -> ()
+    let galleryAction: () -> ()
+    
+    var body: some View {
+        HStack {
+            Group {
+                Button(action: ratingAction) {
+                    Image(systemName: "star.circle.fill")
+                    Text("評価する")
+                        .fontWeight(.bold)
+                }
+                Spacer()
+                Button(action: galleryAction) {
+                    Image(systemName: "photo.on.rectangle.angled")
+                    Text("類似ギャラリー")
+                        .fontWeight(.bold)
+                }
+            }
+            .font(.callout)
+            .foregroundColor(.primary)
+        }
+        .padding(.horizontal)
+    }
+}
+
 // MARK: タグ
 private struct TagsView: View {
     let tags: [Tag]
@@ -279,75 +387,6 @@ private struct TagRow: View {
                 onTapAction: onTapAction
             )
         }
-    }
-}
-
-// MARK: 基本情報
-private struct DescScrollView: View {
-    let manga: Manga
-    let detail: MangaDetail
-    
-    var body: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(alignment: .center) {
-                DescScrollItem(title: "気に入り".lString(),
-                               value: detail.likeCount,
-                               numeral: "人".lString())
-                Divider()
-                DescScrollItem(title: "言語".lString().uppercased(),
-                               value: detail.languageAbbr,
-                               numeral: detail.translatedLanguage.lString())
-                Divider()
-                DescScrollRatingItem(title: detail.ratingCount + "件の評価".lString(),
-                                     rating: manga.rating)
-                Divider()
-                DescScrollItem(title: "ページ".lString(),
-                               value: detail.pageCount,
-                               numeral: "頁".lString())
-                Divider()
-                DescScrollItem(title: "サイズ".lString(),
-                               value: detail.sizeCount,
-                               numeral: detail.sizeType)
-            }
-        }
-    }
-}
-
-private struct DescScrollItem: View {
-    let title: String
-    let value: String
-    let numeral: String
-    
-    var body: some View {
-        VStack(spacing: 3) {
-            Text(title)
-                .font(.caption)
-            Text(value)
-                .fontWeight(.medium)
-                .font(.title3)
-                .lineLimit(1)
-            Text(numeral)
-                .font(.caption)
-        }
-        .frame(minWidth: 80)
-    }
-}
-
-private struct DescScrollRatingItem: View {
-    let title: String
-    let rating: Float
-    
-    var body: some View {
-        VStack(spacing: 3) {
-            Text(title)
-                .font(.caption)
-                .lineLimit(1)
-            Text(String(format: "%.1f", rating))
-                .fontWeight(.medium)
-                .font(.title3)
-            RatingView(rating: rating, .primary)
-        }
-        .frame(minWidth: 80)
     }
 }
 
@@ -418,6 +457,7 @@ private struct PreviewView: View {
                 }
             }
         }
+        .frame(height: 240)
     }
 }
 

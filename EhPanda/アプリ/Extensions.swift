@@ -65,6 +65,46 @@ extension String {
     mutating func capitalizeFirstLetter() {
         self = self.capitalizingFirstLetter()
     }
+    
+    func trimmedTitle() -> String {
+        var title = self
+        
+        if let range = title.range(of: "|") {
+            title = String(title.prefix(upTo: range.lowerBound))
+        }
+        
+        title = title.replacingOccurrences(from: "(", to: ")", with: "")
+        title = title.replacingOccurrences(from: "[", to: "]", with: "")
+        title = title.replacingOccurrences(from: "{", to: "}", with: "")
+        title = title.replacingOccurrences(from: "【", to: "】", with: "")
+        title = title.replacingOccurrences(from: "「", to: "」", with: "")
+        title = title.trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        return title
+    }
+    
+    func replacingOccurrences(
+        from subString1: String,
+        to subString2: String,
+        with replacement: String
+    ) -> String {
+        var result = self
+        
+        while let rangeA = result.range(of: subString1),
+           let rangeB = result.range(of: subString2)
+        {
+            let unwanted =  String(
+                result.suffix(from: rangeA.lowerBound)
+                    .prefix(upTo: rangeB.upperBound)
+            )
+            result = result.replacingOccurrences(
+                of: unwanted,
+                with: replacement
+            )
+        }
+        
+        return result
+    }
 }
 
 extension View {

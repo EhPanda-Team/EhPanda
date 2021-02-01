@@ -46,7 +46,6 @@ struct WebView: UIViewControllerRepresentable {
             if didLogin {
                 store.dispatch(.toggleSettingViewSheetNil)
                 store.dispatch(.fetchFrontpageItems)
-                store.dispatch(.fetchFavoritesItems)
                 timer.invalidate()
             }
         }

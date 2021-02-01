@@ -18,8 +18,6 @@
 "お探しの情報が見つかりませんでした" = "Your search didn't match any docs.";
 "やり直す" = "RETRY";
 "ネットワーク障害が発生しました\nしばらくしてからもう一度お試しください" = "A Network error occurred.\nPlease try again later.";
-"スワイプ" = "SWIPE";
-"読みたいものを選択してください" = "Please select at least one to show detail";
 
 // MARK: HomeView
 "検索" = "Search";
