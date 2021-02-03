@@ -10,6 +10,7 @@ import Kingfisher
 
 struct DetailView: View {
     @EnvironmentObject var store: Store
+    @Environment(\.colorScheme) var colorScheme
     @State var associatedKeyword = AssociatedKeyword()
     @State var isAssociatedLinkActive = false
     
@@ -19,11 +20,17 @@ struct DetailView: View {
     var environment: AppState.Environment {
         store.appState.environment
     }
+    var environmentBinding: Binding<AppState.Environment> {
+        $store.appState.environment
+    }
     var cachedList: AppState.CachedList {
         store.appState.cachedList
     }
     var detailInfo: AppState.DetailInfo {
         store.appState.detailInfo
+    }
+    var detailInfoBinding: Binding<AppState.DetailInfo> {
+        $store.appState.detailInfo
     }
     var manga: Manga {
         (cachedList.items?[id])!
@@ -31,14 +38,29 @@ struct DetailView: View {
     var mangaDetail: MangaDetail? {
         cachedList.items?[id]?.detail
     }
+    var mangaTorrents: [Torrent] {
+        mangaDetail?.torrents ?? []
+    }
+    var commentContent: String {
+        detailInfo.commentContent
+    }
+    var commentContentBinding: Binding<String> {
+        detailInfoBinding.commentContent
+    }
     var menu: some View {
         Menu(content: {
             if exx {
                 Button(action: onArchiveButtonTap) {
                     Label("アーカイブ", systemImage: "doc.zipper")
                 }
-                Button(action: onTorrentsButtonTap) {
-                    Label("トレント", systemImage: "leaf")
+                if !mangaTorrents.isEmpty {
+                    Button(action: onTorrentsButtonTap) {
+                        Label(
+                            "トレント".lString()
+                                + " (\(mangaTorrents.count))",
+                            systemImage: "leaf"
+                        )
+                    }
                 }
             }
             Button(action: onShareButtonTap) {
@@ -106,9 +128,25 @@ struct DetailView: View {
                 }
             }
         }
-        .navigationBarHidden(environment.navBarHidden)
-        .navigationBarItems(trailing: menu)
         .onAppear(perform: onAppear)
+        .navigationBarItems(trailing: menu)
+        .navigationBarHidden(environment.navBarHidden)
+        .sheet(item: environmentBinding.detailViewSheetState) { item in
+            switch item {
+            case .comment:
+                DraftCommentView(
+                    content: commentContentBinding,
+                    title: "コメントを書く",
+                    postAction: draftCommentViewPost,
+                    cancelAction: draftCommentViewCancel
+                )
+                .preferredColorScheme(colorScheme)
+            case .torrents:
+                TorrentsView(torrents: mangaTorrents)
+                    .environmentObject(store)
+                    .preferredColorScheme(colorScheme)
+            }
+        }
     }
     
     func onAppear() {
@@ -118,6 +156,7 @@ struct DetailView: View {
             fetchMangaDetail()
         } else {
             updateMangaDetail()
+            fetchMangaTorrents()
         }
         updateHistoryItems()
     }
@@ -125,7 +164,7 @@ struct DetailView: View {
         
     }
     func onTorrentsButtonTap() {
-        
+        toggleSheetState(.torrents)
     }
     func onShareButtonTap() {
         guard let data = URL(string: manga.detailURL) else { return }
@@ -140,6 +179,7 @@ struct DetailView: View {
                 animated: true,
                 completion: nil
             )
+        impactFeedback(style: .light)
     }
     func onUserRatingChanged(_ value: Int) {
         sendRating(value)
@@ -155,14 +195,34 @@ struct DetailView: View {
         isAssociatedLinkActive.toggle()
     }
     
+    func draftCommentViewPost() {
+        if !commentContent.isEmpty {
+            postComment()
+            toggleSheetNil()
+        }
+    }
+    func draftCommentViewCancel() {
+        toggleSheetNil()
+    }
+    
+    func postComment() {
+        store.dispatch(.comment(id: id, content: commentContent))
+        store.dispatch(.cleanDetailViewCommentContent)
+    }
+    
     func fetchMangaDetail() {
         store.dispatch(.fetchMangaDetail(id: id))
     }
     func updateMangaDetail() {
         store.dispatch(.updateMangaDetail(id: id))
     }
+    func fetchMangaTorrents() {
+        store.dispatch(.fetchMangaTorrents(id: id))
+    }
     func updateHistoryItems() {
-        store.dispatch(.updateHistoryItems(id: id))
+        if environment.homeListType != .history {
+            store.dispatch(.updateHistoryItems(id: id))
+        }
     }
     func sendRating(_ value: Int) {
         store.dispatch(.rate(id: id, rating: value))
@@ -172,6 +232,12 @@ struct DetailView: View {
         if environment.navBarHidden {
             store.dispatch(.toggleNavBarHidden(isHidden: false))
         }
+    }
+    func toggleSheetState(_ state: DetailViewSheetState) {
+        store.dispatch(.toggleDetailViewSheetState(state: state))
+    }
+    func toggleSheetNil() {
+        store.dispatch(.toggleDetailViewSheetNil)
     }
 }
 
@@ -575,22 +641,6 @@ private struct CommentScrollView: View {
     let id: String
     let comments: [MangaComment]
     
-    var environmentBinding: Binding<AppState.Environment> {
-        $store.appState.environment
-    }
-    var detailInfo: AppState.DetailInfo {
-        store.appState.detailInfo
-    }
-    var detailInfoBinding: Binding<AppState.DetailInfo> {
-        $store.appState.detailInfo
-    }
-    var commentContent: String {
-        detailInfo.commentContent
-    }
-    var commentContentBinding: Binding<String> {
-        detailInfoBinding.commentContent
-    }
-    
     var body: some View {
         VStack {
             HStack {
@@ -616,39 +666,10 @@ private struct CommentScrollView: View {
                 CommentButton(action: toggleDraft)
             }
         }
-        .sheet(item: environmentBinding.detailViewSheetState) { item in
-            switch item {
-            case .comment:
-                DraftCommentView(
-                    content: commentContentBinding,
-                    title: "コメントを書く",
-                    postAction: draftCommentViewPost,
-                    cancelAction: draftCommentViewCancel
-                )
-            }
-        }
-    }
-    
-    func draftCommentViewPost() {
-        if !commentContent.isEmpty {
-            postComment()
-            toggleNil()
-        }
-    }
-    func draftCommentViewCancel() {
-        toggleNil()
-    }
-    
-    func postComment() {
-        store.dispatch(.comment(id: id, content: commentContent))
-        store.dispatch(.cleanDetailViewCommentContent)
     }
     
     func toggleDraft() {
         store.dispatch(.toggleDetailViewSheetState(state: .comment))
-    }
-    func toggleNil() {
-        store.dispatch(.toggleDetailViewSheetNil)
     }
 }
 
@@ -692,4 +713,5 @@ enum DetailViewSheetState: Identifiable {
     var id: Int { hashValue }
     
     case comment
+    case torrents
 }

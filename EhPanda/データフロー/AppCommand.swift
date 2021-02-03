@@ -234,6 +234,7 @@ struct FetchMangaDetailCommand: AppCommand {
             } receiveValue: { detail in
                 if let mangaDetail = detail.0, let apikey = detail.1 {
                     store.dispatch(.fetchMangaDetailDone(result: .success((id, mangaDetail, apikey))))
+                    store.dispatch(.fetchMangaTorrents(id: id))
                 } else {
                     store.dispatch(.fetchMangaDetailDone(result: .failure(.networkingFailed)))
                 }
@@ -243,6 +244,27 @@ struct FetchMangaDetailCommand: AppCommand {
                 }
             }
             .seal(in: token)
+    }
+}
+
+struct FetchMangaTorrentsCommand: AppCommand {
+    let id: String
+    let token: String
+    
+    func execute(in store: Store) {
+        let sToken = SubscriptionToken()
+        MangaTorrentsRequest(id: id, token: token)
+            .publisher
+            .receive(on: DispatchQueue.main)
+            .sink { completion in
+                if case .failure(let error) = completion {
+                    store.dispatch(.fetchMangaTorrentsDone(result: .failure(error)))
+                }
+                sToken.unseal()
+            } receiveValue: { torrents in
+                store.dispatch(.fetchMangaTorrentsDone(result: .success((id, torrents))))
+            }
+            .seal(in: sToken)
     }
 }
 

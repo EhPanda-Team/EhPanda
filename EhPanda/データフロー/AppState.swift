@@ -136,6 +136,10 @@ extension AppState {
         var mangaDetailLoading = false
         var mangaDetailLoadFailed = false
         
+        var mangaTorrentsLoading = false
+        var mangaTorrentsNotFound = false
+        var mangaTorrentsLoadFailed = false
+        
         var associatedItems: [AssociatedItem] = []
         var associatedItemsLoading = false
         var associatedItemsNotFound = false
@@ -229,6 +233,9 @@ extension AppState {
         
         mutating func insertDetail(id: String, detail: MangaDetail) {
             items?[id]?.detail = detail
+        }
+        mutating func insertTorrents(id: String, torrents: [Torrent]) {
+            items?[id]?.detail?.torrents = torrents
         }
         mutating func updateDetail(id: String, detail: MangaDetail) {
             items?[id]?.detail?.isFavored = detail.isFavored

@@ -112,7 +112,8 @@ class Parser {
                     if gdt2.contains("KB") { tmpSizeType = "KB" }
                     if gdt2.contains("MB") { tmpSizeType = "MB" }
                     if gdt2.contains("GB") { tmpSizeType = "GB" }
-                    tmpSizeCount = gdt2.replacingOccurrences(of: " KB", with: "")
+                    tmpSizeCount = gdt2
+                        .replacingOccurrences(of: " KB", with: "")
                         .replacingOccurrences(of: " MB", with: "")
                         .replacingOccurrences(of: " GB", with: "")
                 }
@@ -175,6 +176,7 @@ class Parser {
                 isFavored: isFavored,
                 detailTags: detailTags,
                 alterImages: [],
+                torrents: [],
                 comments: parseComments(doc),
                 previews: imageURLs,
                 jpnTitle: jpnTitle,
@@ -329,6 +331,85 @@ class Parser {
         }
         
         return User(displayName: displayName, avatarURL: avatarURL)
+    }
+    
+    // MARK: トレント
+    func parseTorrents(doc: HTMLDocument) -> [Torrent] {
+        var torrents = [Torrent]()
+        
+        for link in doc.xpath("//form") {
+            var tmpPostedTime: String?
+            var tmpFileSize: String?
+            var tmpSeedCount: Int?
+            var tmpPeerCount: Int?
+            var tmpDownloadCount: Int?
+            var tmpUploader: String?
+            var tmpFileName: String?
+            var tmpMagnet: String?
+            
+            for trLink in link.xpath("//tr") {
+                for tdLink in trLink.xpath("//td") {
+                    if let tdText = tdLink.text {
+                        if tdText.contains("Posted: ") {
+                            tmpPostedTime = tdText.replacingOccurrences(of: "Posted: ", with: "")
+                        }
+                        if tdText.contains("Size: ") {
+                            tmpFileSize = tdText.replacingOccurrences(of: "Size: ", with: "")
+                        }
+                        if tdText.contains("Seeds: ") {
+                            tmpSeedCount = Int(tdText.replacingOccurrences(of: "Seeds: ", with: ""))
+                        }
+                        if tdText.contains("Peers: ") {
+                            tmpPeerCount = Int(tdText.replacingOccurrences(of: "Peers: ", with: ""))
+                        }
+                        if tdText.contains("Downloads: ") {
+                            tmpDownloadCount = Int(tdText.replacingOccurrences(of: "Downloads: ", with: ""))
+                        }
+                        if tdText.contains("Uploader: ") {
+                            tmpUploader = tdText.replacingOccurrences(of: "Uploader: ", with: "")
+                        }
+                    }
+                    if let aLink = tdLink.at_xpath("//a"),
+                       let aHref = aLink["href"],
+                       let aText = aLink.text,
+                       let aURL = URL(string: aHref),
+                       let range = aURL.lastPathComponent.range(of: ".torrent")
+                    {
+                        let hash = String(
+                            aURL.lastPathComponent.prefix(
+                                upTo: range.lowerBound
+                            )
+                        )
+                        tmpMagnet = Defaults.URL.magnet(hash: hash)
+                        tmpFileName = aText
+                    }
+                }
+            }
+            guard let postedTime = tmpPostedTime,
+                  let fileSize = tmpFileSize,
+                  let seedCount = tmpSeedCount,
+                  let peerCount = tmpPeerCount,
+                  let downloadCount = tmpDownloadCount,
+                  let uploader = tmpUploader,
+                  let fileName = tmpFileName,
+                  let magnet = tmpMagnet
+            else { continue }
+            
+            torrents.append(
+                Torrent(
+                    postedTime: postedTime,
+                    fileSize: fileSize,
+                    seedCount: seedCount,
+                    peerCount: peerCount,
+                    downloadCount: downloadCount,
+                    uploader: uploader,
+                    fileName: fileName,
+                    magnet: magnet
+                )
+            )
+        }
+        
+        return torrents
     }
 }
 

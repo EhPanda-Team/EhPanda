@@ -37,6 +37,7 @@ struct MangaDetail: Codable {
     var isFavored: Bool
     var detailTags: [Tag]
     var alterImages: [MangaAlterData]
+    var torrents: [Torrent]
     var comments: [MangaComment]
     let previews: [MangaPreview]
     var jpnTitle: String
@@ -51,7 +52,7 @@ struct MangaDetail: Codable {
 }
 
 struct Tag: Codable, Identifiable {
-    var id: String { category.rawValue }
+    var id = UUID()
     
     let category: TagCategory
     let content: [String]
@@ -73,7 +74,7 @@ struct MangaComment: Identifiable, Codable {
 }
 
 struct MangaPreview: Identifiable, Codable {
-    var id: String { url }
+    var id = UUID()
     
     let url: String
 }
@@ -92,6 +93,19 @@ struct MangaContent: Identifiable, Codable, Equatable {
     
     let tag: Int
     let url: String
+}
+
+struct Torrent: Identifiable, Codable {
+    var id = UUID()
+    
+    let postedTime: String
+    let fileSize: String
+    let seedCount: Int
+    let peerCount: Int
+    let downloadCount: Int
+    let uploader: String
+    let fileName: String
+    let magnet: String
 }
 
 // MARK: 計算型プロパティ

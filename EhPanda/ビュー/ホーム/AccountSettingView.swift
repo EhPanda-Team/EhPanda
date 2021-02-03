@@ -186,11 +186,6 @@ struct AccountSettingView: View {
         saveToPasteboard(cookies)
     }
     
-    func saveToPasteboard(_ value: String) {
-        UIPasteboard.general.string = value
-        notificFeedback(style: .success)
-    }
-    
     func toggleWebView() {
         store.dispatch(.toggleSettingViewSheetState(state: .webview))
     }

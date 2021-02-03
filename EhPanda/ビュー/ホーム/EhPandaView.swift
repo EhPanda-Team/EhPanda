@@ -40,10 +40,6 @@ struct EhPandaView: View {
             Info(
                 url: "https://github.com/onevcat/Kingfisher",
                 text: "Kingfisher"
-            ),
-            Info(
-                url: "https://github.com/siteline/SwiftUI-Introspect",
-                text: "SwiftUI-Introspect"
             )
         ]
     }

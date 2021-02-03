@@ -374,6 +374,30 @@ class Store: ObservableObject {
                 appState.detailInfo.mangaDetailLoadFailed = true
             }
             
+        case .fetchMangaTorrents(id: let id):
+            appState.detailInfo.mangaTorrentsLoadFailed = false
+            appState.detailInfo.mangaTorrentsNotFound = false
+            
+            if appState.detailInfo.mangaTorrentsLoading { break }
+            appState.detailInfo.mangaTorrentsLoading = true
+            
+            let token = appState.cachedList.items?[id]?.token ?? ""
+            appCommand = FetchMangaTorrentsCommand(id: id, token: token)
+        case .fetchMangaTorrentsDone(result: let result):
+            appState.detailInfo.mangaTorrentsLoading = false
+            
+            switch result {
+            case .success(let torrents):
+                if !torrents.1.isEmpty {
+                    appState.cachedList.insertTorrents(id: torrents.0, torrents: torrents.1)
+                } else {
+                    appState.detailInfo.mangaTorrentsNotFound = true
+                }
+            case .failure(let error):
+                print(error)
+                appState.detailInfo.mangaTorrentsLoadFailed = true
+            }
+            
         case .fetchAssociatedItems(let depth, let keyword):
             appState.detailInfo.associatedItemsNotFound = false
             appState.detailInfo.associatedItemsLoadFailed = false

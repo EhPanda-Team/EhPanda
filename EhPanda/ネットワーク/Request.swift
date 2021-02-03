@@ -256,6 +256,21 @@ struct AlterImagesRequest {
     }
 }
 
+struct MangaTorrentsRequest {
+    let id: String
+    let token: String
+    let parser = Parser()
+    
+    var publisher: AnyPublisher<[Torrent], AppError> {
+        URLSession.shared
+            .dataTaskPublisher(for: URL(string: Defaults.URL.mangaTorrents(id: id, token: token))!)
+            .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
+            .map(parser.parseTorrents)
+            .mapError { _ in .networkingFailed }
+            .eraseToAnyPublisher()
+    }
+}
+
 struct MangaCommentsRequest {
     let detailURL: String
     let parser = Parser()

@@ -56,6 +56,7 @@ class Defaults {
         static let exhentai = "https://exhentai.org/"
         static let forum = "https://forums.e-hentai.org/"
         static let login = merge([forum + index, login_act])
+        static let magnet = "magnet:?xt=urn:btih:"
         
         // 各機能ページ
         static let tag = "tag/"
@@ -66,6 +67,7 @@ class Defaults {
         static let index = "index.php"
         static let favorites = "favorites.php"
         static let gallerypopups = "gallerypopups.php"
+        static let gallerytorrents = "gallerytorrents.php"
         
         static let p = "p="
         static let t = "t="
@@ -165,6 +167,9 @@ extension Defaults.URL {
     static func mangaDetail(url: String) -> String {
         merge([url, ignoreOffensive, showComments, detailLarge])
     }
+    static func mangaTorrents(id: String, token: String) -> String {
+        merge([host + gallerytorrents, gid + id, t + token])
+    }
     static func associatedItemsRedir(keyword: AssociatedKeyword) -> String {
         if let title = keyword.title {
             return similarGallery(keyword: title)
@@ -211,6 +216,10 @@ extension Defaults.URL {
     }
     static func userInfo(uid: String) -> String {
         merge([forum + index, showuser + uid])
+    }
+    
+    static func magnet(hash: String) -> String {
+        magnet + hash
     }
 }
 

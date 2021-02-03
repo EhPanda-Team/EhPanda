@@ -26,6 +26,11 @@ public func ePrint(_ string: String?) {
     print("debugMark " + (string ?? "エラーの内容が解析できませんでした"))
 }
 
+public func saveToPasteboard(_ value: String) {
+    UIPasteboard.general.string = value
+    notificFeedback(style: .success)
+}
+
 public var didLogin: Bool {
     verifyCookies(url: URL(string: Defaults.URL.ehentai)!, isEx: false)
 }

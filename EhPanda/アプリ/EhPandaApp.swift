@@ -6,11 +6,12 @@
 //
 
 import SwiftUI
+import MetricKit
 import Kingfisher
-import Introspect
 
 @main
 struct EhPandaApp: App {
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @StateObject var store = Store()
     
     var preferredColorScheme: ColorScheme? {
@@ -43,5 +44,27 @@ struct EhPandaApp: App {
         let config = KingfisherManager.shared.downloader.sessionConfiguration
         config.httpCookieStorage = HTTPCookieStorage.shared
         KingfisherManager.shared.downloader.sessionConfiguration = config
+    }
+}
+
+class AppDelegate: UIResponder, UIApplicationDelegate {
+    func application(
+        _ application: UIApplication,
+        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil
+    ) -> Bool {
+        MXMetricManager.shared.add(self)
+        return true
+    }
+    
+    func applicationWillTerminate(_ application: UIApplication) {
+        MXMetricManager.shared.remove(self)
+    }
+}
+
+extension AppDelegate: MXMetricManagerSubscriber {
+    func didReceive(_ payloads: [MXMetricPayload]) {
+        payloads.forEach { payload in
+            print(payload)
+        }
     }
 }

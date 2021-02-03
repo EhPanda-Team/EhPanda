@@ -56,6 +56,8 @@ enum AppAction {
     case fetchMoreFavoritesItemsDone(result: Result<(PageNumber, [Manga]), AppError>)
     case fetchMangaDetail(id: String)
     case fetchMangaDetailDone(result: Result<(Identity, MangaDetail, APIKey), AppError>)
+    case fetchMangaTorrents(id: String)
+    case fetchMangaTorrentsDone(result: Result<(Identity, [Torrent]), AppError>)
     case fetchAssociatedItems(depth: Int, keyword: AssociatedKeyword)
     case fetchAssociatedItemsDone(result: Result<(Depth, AssociatedKeyword, PageNumber, [Manga]), AppError>)
     case fetchMoreAssociatedItems(depth: Int, keyword: AssociatedKeyword)

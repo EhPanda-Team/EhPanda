@@ -9,7 +9,7 @@
 /* Begin PBXBuildFile section */
 		AB15535C25B290F000D0293B /* MangaSummaryRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB15535B25B290F000D0293B /* MangaSummaryRow.swift */; };
 		AB1CBE5825B81ACC00CD6A5B /* Home.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB1CBE5725B81ACC00CD6A5B /* Home.swift */; };
-		AB1CBE5C25B81D8900CD6A5B /* Introspect in Frameworks */ = {isa = PBXBuildFile; productRef = AB1CBE5B25B81D8900CD6A5B /* Introspect */; };
+		AB252D1425C95C58001AED6A /* TorrentsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB252D1325C95C58001AED6A /* TorrentsView.swift */; };
 		AB40CFDC25983EC200D1DC9A /* FileStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB40CFDB25983EC200D1DC9A /* FileStorage.swift */; };
 		AB40CFDF25983EDF00D1DC9A /* FileHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB40CFDE25983EDF00D1DC9A /* FileHelper.swift */; };
 		AB47FD9F25BC81A40007765D /* Normal@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = AB47FD9925BC81A40007765D /* Normal@3x.png */; };
@@ -67,6 +67,7 @@
 /* Begin PBXFileReference section */
 		AB15535B25B290F000D0293B /* MangaSummaryRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MangaSummaryRow.swift; sourceTree = "<group>"; };
 		AB1CBE5725B81ACC00CD6A5B /* Home.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Home.swift; sourceTree = "<group>"; };
+		AB252D1325C95C58001AED6A /* TorrentsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TorrentsView.swift; sourceTree = "<group>"; };
 		AB40CFDB25983EC200D1DC9A /* FileStorage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FileStorage.swift; sourceTree = "<group>"; };
 		AB40CFDE25983EDF00D1DC9A /* FileHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FileHelper.swift; sourceTree = "<group>"; };
 		AB47FD9925BC81A40007765D /* Normal@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Normal@3x.png"; sourceTree = "<group>"; };
@@ -130,7 +131,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				AB89AF4925B3CE8800A0E1BA /* Kingfisher in Frameworks */,
-				AB1CBE5C25B81D8900CD6A5B /* Introspect in Frameworks */,
 				ABC3C79D259369FE00E0C11B /* Kanna in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -291,6 +291,7 @@
 			isa = PBXGroup;
 			children = (
 				ABC3C7722593699A00E0C11B /* DetailView.swift */,
+				AB252D1325C95C58001AED6A /* TorrentsView.swift */,
 				ABF313A025B1714400D47A2F /* AssociatedView.swift */,
 				AB718B2425A0C0AC00D32962 /* CommentView.swift */,
 			);
@@ -324,7 +325,6 @@
 			packageProductDependencies = (
 				ABC3C79C259369FE00E0C11B /* Kanna */,
 				AB89AF4825B3CE8800A0E1BA /* Kingfisher */,
-				AB1CBE5B25B81D8900CD6A5B /* Introspect */,
 			);
 			productName = EhPanda;
 			productReference = ABC3C7542593696C00E0C11B /* EhPanda.app */;
@@ -358,7 +358,6 @@
 			packageReferences = (
 				ABC3C79B259369FE00E0C11B /* XCRemoteSwiftPackageReference "Kanna" */,
 				AB89AF4725B3CE8800A0E1BA /* XCRemoteSwiftPackageReference "Kingfisher" */,
-				AB1CBE5A25B81D8900CD6A5B /* XCRemoteSwiftPackageReference "SwiftUI-Introspect" */,
 			);
 			productRefGroup = ABC3C7552593696C00E0C11B /* Products */;
 			projectDirPath = "";
@@ -402,6 +401,7 @@
 				AB40CFDC25983EC200D1DC9A /* FileStorage.swift in Sources */,
 				AB975F6025B5697700741E1A /* AppearanceSettingView.swift in Sources */,
 				ABCD2F0A259763FC008E5A20 /* Request.swift in Sources */,
+				AB252D1425C95C58001AED6A /* TorrentsView.swift in Sources */,
 				ABA732E225A8590900B3D9AB /* FilterView.swift in Sources */,
 				ABCD2F07259760D4008E5A20 /* AppError.swift in Sources */,
 				ABF48D1625B2EB1800D1C667 /* Placeholder.swift in Sources */,
@@ -580,7 +580,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = EhPanda/EhPanda.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 24;
+				CURRENT_PROJECT_VERSION = 25;
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = 9SKQ7QTZ74;
 				ENABLE_PREVIEWS = YES;
@@ -605,7 +605,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = EhPanda/EhPanda.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 24;
+				CURRENT_PROJECT_VERSION = 25;
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = 9SKQ7QTZ74;
 				ENABLE_PREVIEWS = YES;
@@ -647,14 +647,6 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		AB1CBE5A25B81D8900CD6A5B /* XCRemoteSwiftPackageReference "SwiftUI-Introspect" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/siteline/SwiftUI-Introspect.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.1.2;
-			};
-		};
 		AB89AF4725B3CE8800A0E1BA /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/onevcat/Kingfisher.git";
@@ -674,11 +666,6 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		AB1CBE5B25B81D8900CD6A5B /* Introspect */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = AB1CBE5A25B81D8900CD6A5B /* XCRemoteSwiftPackageReference "SwiftUI-Introspect" */;
-			productName = Introspect;
-		};
 		AB89AF4825B3CE8800A0E1BA /* Kingfisher */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = AB89AF4725B3CE8800A0E1BA /* XCRemoteSwiftPackageReference "Kingfisher" */;

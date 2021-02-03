@@ -9,6 +9,7 @@ import SwiftUI
 
 struct CommentView: View {
     @EnvironmentObject var store: Store
+    @Environment(\.colorScheme) var colorScheme
     
     let id: String
     var comments: [MangaComment] {
@@ -59,6 +60,7 @@ struct CommentView: View {
                             postAction: draftCommentViewPost,
                             cancelAction: draftCommentViewCancel
                         )
+                        .preferredColorScheme(colorScheme)
                     }
                 }
         )
@@ -91,6 +93,7 @@ struct CommentView: View {
 // MARK: CommentCell
 private struct CommentCell: View {
     @EnvironmentObject var store: Store
+    @Environment(\.colorScheme) var colorScheme
     @State var editCommentContent: String
     @State var isPresented = false
     
@@ -143,6 +146,7 @@ private struct CommentCell: View {
                 postAction: draftCommentViewPost,
                 cancelAction: draftCommentViewCancel
             )
+            .preferredColorScheme(colorScheme)
         }
         .contextMenu {
             if comment.votable {
