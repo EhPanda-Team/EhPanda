@@ -14,10 +14,14 @@ struct EhPandaApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @StateObject var store = Store()
     
+    var setting: Setting? {
+        store.appState.settings.setting
+    }
     var preferredColorScheme: ColorScheme? {
-        store.appState
-            .settings.setting?
-            .colorScheme ?? .none
+        setting?.colorScheme ?? .none
+    }
+    var accentColor: Color? {
+        setting?.accentColor
     }
     
     init() {
@@ -28,6 +32,7 @@ struct EhPandaApp: App {
         WindowGroup {
             Home()
                 .environmentObject(store)
+                .accentColor(accentColor)
                 .onOpenURL(perform: onOpenURL)
                 .preferredColorScheme(preferredColorScheme)
         }

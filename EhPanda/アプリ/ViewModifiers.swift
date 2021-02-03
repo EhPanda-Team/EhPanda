@@ -24,7 +24,7 @@ struct CapsuleButtonStyle: ButtonStyle {
     let color: Color
     let cornerRadius: CGFloat
     
-    init(_ color: Color = .blue, _ cornerRadius: CGFloat = 30) {
+    init(_ color: Color = .accentColor, _ cornerRadius: CGFloat = 30) {
         self.color = color
         self.cornerRadius = cornerRadius
     }

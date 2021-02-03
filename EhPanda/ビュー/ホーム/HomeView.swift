@@ -26,6 +26,9 @@ struct HomeView: View {
     var setting: Setting? {
         settings.setting
     }
+    var accentColor: Color? {
+        setting?.accentColor
+    }
     var historyItems: [Manga] {
         var items = homeInfo.historyItems?
             .compactMap({ $0.value })
@@ -106,10 +109,12 @@ struct HomeView: View {
                     case .setting:
                         SettingView()
                             .environmentObject(store)
+                            .accentColor(accentColor)
                             .preferredColorScheme(colorScheme)
                     case .filter:
                         FilterView()
                             .environmentObject(store)
+                            .accentColor(accentColor)
                             .preferredColorScheme(colorScheme)
                     }
                 }

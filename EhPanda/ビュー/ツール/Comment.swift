@@ -48,7 +48,7 @@ struct DraftCommentView: View {
                         trailing:
                             Button(action: postAction) {
                                 Text("投稿")
-                                    .foregroundColor(content.isEmpty ? .gray : .blue)
+                                    .foregroundColor(content.isEmpty ? .gray : .accentColor)
                             }
                     )
                 Spacer()

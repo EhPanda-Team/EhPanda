@@ -32,6 +32,12 @@ struct DetailView: View {
     var detailInfoBinding: Binding<AppState.DetailInfo> {
         $store.appState.detailInfo
     }
+    var commentContent: String {
+        detailInfo.commentContent
+    }
+    var commentContentBinding: Binding<String> {
+        detailInfoBinding.commentContent
+    }
     var manga: Manga {
         (cachedList.items?[id])!
     }
@@ -41,35 +47,48 @@ struct DetailView: View {
     var mangaTorrents: [Torrent] {
         mangaDetail?.torrents ?? []
     }
-    var commentContent: String {
-        detailInfo.commentContent
+    var accentColor: Color? {
+        store.appState.settings.setting?.accentColor
     }
-    var commentContentBinding: Binding<String> {
-        detailInfoBinding.commentContent
+    var barItemColor: Color {
+        if detailInfo.mangaDetailLoading
+            || detailInfo.mangaDetailUpdating
+        {
+            return .gray
+        } else {
+            return .accentColor
+        }
     }
     var menu: some View {
-        Menu(content: {
-            if exx {
-                Button(action: onArchiveButtonTap) {
-                    Label("アーカイブ", systemImage: "doc.zipper")
-                }
-                if !mangaTorrents.isEmpty {
-                    Button(action: onTorrentsButtonTap) {
-                        Label(
-                            "トレント".lString()
-                                + " (\(mangaTorrents.count))",
-                            systemImage: "leaf"
-                        )
+        Group {
+            if !detailInfo.mangaDetailLoading {
+                Menu(content: {
+                    if !detailInfo.mangaDetailUpdating {
+                        if exx {
+                            Button(action: onArchiveButtonTap) {
+                                Label("アーカイブ", systemImage: "doc.zipper")
+                            }
+                            if !mangaTorrents.isEmpty {
+                                Button(action: onTorrentsButtonTap) {
+                                    Label(
+                                        "トレント".lString()
+                                            + " (\(mangaTorrents.count))",
+                                        systemImage: "leaf"
+                                    )
+                                }
+                            }
+                        }
+                        Button(action: onShareButtonTap) {
+                            Label("共有", systemImage: "square.and.arrow.up")
+                        }
                     }
-                }
+                }, label: {
+                    Image(systemName: "ellipsis.circle")
+                        .foregroundColor(barItemColor)
+                        .imageScale(.large)
+                })
             }
-            Button(action: onShareButtonTap) {
-                Label("共有", systemImage: "square.and.arrow.up")
-            }
-        }, label: {
-            Image(systemName: "ellipsis.circle")
-                .imageScale(.large)
-        })
+        }
     }
     
     // MARK: DetailView本体
@@ -119,8 +138,8 @@ struct DetailView: View {
                             .padding(.vertical, 10)
                         }
                         .padding(.horizontal)
-                        .transition(AnyTransition.opacity.animation(.default))
                     }
+                    .transition(AnyTransition.opacity.animation(.default))
                 } else if detailInfo.mangaDetailLoading {
                     LoadingView()
                 } else if detailInfo.mangaDetailLoadFailed {
@@ -140,10 +159,12 @@ struct DetailView: View {
                     postAction: draftCommentViewPost,
                     cancelAction: draftCommentViewCancel
                 )
+                .accentColor(accentColor)
                 .preferredColorScheme(colorScheme)
             case .torrents:
                 TorrentsView(torrents: mangaTorrents)
                     .environmentObject(store)
+                    .accentColor(accentColor)
                     .preferredColorScheme(colorScheme)
             }
         }
@@ -329,7 +350,7 @@ private struct HeaderView: View {
                     if exx {
                         Image(systemName: isFavored ? "heart.fill" : "heart")
                             .imageScale(.large)
-                            .foregroundColor(.blue)
+                            .foregroundColor(.accentColor)
                             .onTapGesture(perform: onFavoriteTap)
                     }
                     Button(action: {}) {

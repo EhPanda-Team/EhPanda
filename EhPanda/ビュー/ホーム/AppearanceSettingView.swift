@@ -42,6 +42,7 @@ struct AppearanceSettingView: View {
                         )
                     }
                     .pickerStyle(MenuPickerStyle())
+                    ColorPicker("テーマの色", selection: settingBinding.accentColor)
                     HStack {
                         Button(
                             "アプリアイコン",

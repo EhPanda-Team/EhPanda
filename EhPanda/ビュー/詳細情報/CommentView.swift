@@ -15,6 +15,9 @@ struct CommentView: View {
     var comments: [MangaComment] {
         store.appState.cachedList.items?[id]?.detail?.comments ?? []
     }
+    var accentColor: Color? {
+        store.appState.settings.setting?.accentColor
+    }
     
     var environmentBinding: Binding<AppState.Environment> {
         $store.appState.environment
@@ -60,6 +63,7 @@ struct CommentView: View {
                             postAction: draftCommentViewPost,
                             cancelAction: draftCommentViewCancel
                         )
+                        .accentColor(accentColor)
                         .preferredColorScheme(colorScheme)
                     }
                 }
@@ -99,6 +103,9 @@ private struct CommentCell: View {
     
     let id: String
     var comment: MangaComment
+    var accentColor: Color? {
+        store.appState.settings.setting?.accentColor
+    }
     
     var detailInfo: AppState.DetailInfo {
         store.appState.detailInfo
@@ -146,6 +153,7 @@ private struct CommentCell: View {
                 postAction: draftCommentViewPost,
                 cancelAction: draftCommentViewCancel
             )
+            .accentColor(accentColor)
             .preferredColorScheme(colorScheme)
         }
         .contextMenu {

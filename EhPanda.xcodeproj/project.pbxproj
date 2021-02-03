@@ -10,6 +10,8 @@
 		AB15535C25B290F000D0293B /* MangaSummaryRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB15535B25B290F000D0293B /* MangaSummaryRow.swift */; };
 		AB1CBE5825B81ACC00CD6A5B /* Home.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB1CBE5725B81ACC00CD6A5B /* Home.swift */; };
 		AB252D1425C95C58001AED6A /* TorrentsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB252D1325C95C58001AED6A /* TorrentsView.swift */; };
+		AB38A0CB25CA993D00764D64 /* ColorCodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB38A0CA25CA993D00764D64 /* ColorCodable.swift */; };
+		AB38A0D225CAA53A00764D64 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = AB38A0D125CAA53A00764D64 /* Kingfisher */; };
 		AB40CFDC25983EC200D1DC9A /* FileStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB40CFDB25983EC200D1DC9A /* FileStorage.swift */; };
 		AB40CFDF25983EDF00D1DC9A /* FileHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB40CFDE25983EDF00D1DC9A /* FileHelper.swift */; };
 		AB47FD9F25BC81A40007765D /* Normal@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = AB47FD9925BC81A40007765D /* Normal@3x.png */; };
@@ -23,7 +25,6 @@
 		AB47FDB525BC859E0007765D /* Weird-ipad-pro@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = AB47FDB225BC859E0007765D /* Weird-ipad-pro@2x.png */; };
 		AB47FDB625BC859E0007765D /* Weird-ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = AB47FDB325BC859E0007765D /* Weird-ipad.png */; };
 		AB718B2525A0C0AC00D32962 /* CommentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB718B2425A0C0AC00D32962 /* CommentView.swift */; };
-		AB89AF4925B3CE8800A0E1BA /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = AB89AF4825B3CE8800A0E1BA /* Kingfisher */; };
 		AB975F6025B5697700741E1A /* AppearanceSettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB975F5F25B5697700741E1A /* AppearanceSettingView.swift */; };
 		AB975F6325B56B1D00741E1A /* ReadingSettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB975F6225B56B1D00741E1A /* ReadingSettingView.swift */; };
 		AB975F6625B56D5700741E1A /* GeneralSettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB975F6525B56D5700741E1A /* GeneralSettingView.swift */; };
@@ -68,6 +69,7 @@
 		AB15535B25B290F000D0293B /* MangaSummaryRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MangaSummaryRow.swift; sourceTree = "<group>"; };
 		AB1CBE5725B81ACC00CD6A5B /* Home.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Home.swift; sourceTree = "<group>"; };
 		AB252D1325C95C58001AED6A /* TorrentsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TorrentsView.swift; sourceTree = "<group>"; };
+		AB38A0CA25CA993D00764D64 /* ColorCodable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ColorCodable.swift; sourceTree = "<group>"; };
 		AB40CFDB25983EC200D1DC9A /* FileStorage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FileStorage.swift; sourceTree = "<group>"; };
 		AB40CFDE25983EDF00D1DC9A /* FileHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FileHelper.swift; sourceTree = "<group>"; };
 		AB47FD9925BC81A40007765D /* Normal@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Normal@3x.png"; sourceTree = "<group>"; };
@@ -130,7 +132,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AB89AF4925B3CE8800A0E1BA /* Kingfisher in Frameworks */,
+				AB38A0D225CAA53A00764D64 /* Kingfisher in Frameworks */,
 				ABC3C79D259369FE00E0C11B /* Kanna in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -203,6 +205,7 @@
 				ABC3C76D2593699A00E0C11B /* Defaults.swift */,
 				ABA732D825A8018A00B3D9AB /* Extensions.swift */,
 				ABC3C7762593699A00E0C11B /* ViewModifiers.swift */,
+				AB38A0CA25CA993D00764D64 /* ColorCodable.swift */,
 				ABEE0AFC2595C6F800C997AE /* Localizable.strings */,
 				ABC3C7692593699A00E0C11B /* Assets.xcassets */,
 				AB47FDA625BC823F0007765D /* 予備アイコン */,
@@ -324,7 +327,7 @@
 			name = EhPanda;
 			packageProductDependencies = (
 				ABC3C79C259369FE00E0C11B /* Kanna */,
-				AB89AF4825B3CE8800A0E1BA /* Kingfisher */,
+				AB38A0D125CAA53A00764D64 /* Kingfisher */,
 			);
 			productName = EhPanda;
 			productReference = ABC3C7542593696C00E0C11B /* EhPanda.app */;
@@ -357,7 +360,7 @@
 			mainGroup = ABC3C74B2593696C00E0C11B;
 			packageReferences = (
 				ABC3C79B259369FE00E0C11B /* XCRemoteSwiftPackageReference "Kanna" */,
-				AB89AF4725B3CE8800A0E1BA /* XCRemoteSwiftPackageReference "Kingfisher" */,
+				AB38A0D025CAA53A00764D64 /* XCRemoteSwiftPackageReference "Kingfisher" */,
 			);
 			productRefGroup = ABC3C7552593696C00E0C11B /* Products */;
 			projectDirPath = "";
@@ -419,6 +422,7 @@
 				ABCD2F0E25976B95008E5A20 /* Parser.swift in Sources */,
 				ABF5B64825ADF2D700EE5DA8 /* AccountSettingView.swift in Sources */,
 				AB1CBE5825B81ACC00CD6A5B /* Home.swift in Sources */,
+				AB38A0CB25CA993D00764D64 /* ColorCodable.swift in Sources */,
 				AB994DCB2598D96200E9A367 /* AlertView.swift in Sources */,
 				ABC3C78D2593699B00E0C11B /* HomeView.swift in Sources */,
 				ABDAD2A825AC28BF00BA4DB8 /* KRefreshScrollView.swift in Sources */,
@@ -647,12 +651,12 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		AB89AF4725B3CE8800A0E1BA /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
+		AB38A0D025CAA53A00764D64 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/onevcat/Kingfisher.git";
 			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 6.0.1;
+				kind = exactVersion;
+				version = 6.0.1;
 			};
 		};
 		ABC3C79B259369FE00E0C11B /* XCRemoteSwiftPackageReference "Kanna" */ = {
@@ -666,9 +670,9 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		AB89AF4825B3CE8800A0E1BA /* Kingfisher */ = {
+		AB38A0D125CAA53A00764D64 /* Kingfisher */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = AB89AF4725B3CE8800A0E1BA /* XCRemoteSwiftPackageReference "Kingfisher" */;
+			package = AB38A0D025CAA53A00764D64 /* XCRemoteSwiftPackageReference "Kingfisher" */;
 			productName = Kingfisher;
 		};
 		ABC3C79C259369FE00E0C11B /* Kanna */ = {
