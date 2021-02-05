@@ -66,7 +66,7 @@ struct MangaSummaryRow: View {
     
     var body: some View {
         HStack {
-            KFImage(URL(string: manga.coverURL), options: [])
+            KFImage(URL(string: manga.coverURL))
                 .placeholder(placeholder)
                 .imageModifier(modifier)
                 .cancelOnDisappear(true)

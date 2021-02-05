@@ -223,7 +223,7 @@ private struct AvatarView: View {
             VStack(alignment: .leading) {
                 Group {
                     if let avatarURL = avatarURL {
-                        KFImage(URL(string: avatarURL), options: [])
+                        KFImage(URL(string: avatarURL))
                             .placeholder(placeholder)
                             .cancelOnDisappear(true)
                             .resizable()

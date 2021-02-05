@@ -314,7 +314,7 @@ private struct HeaderView: View {
     
     var body: some View {
         HStack {
-            KFImage(URL(string: manga.coverURL), options: [])
+            KFImage(URL(string: manga.coverURL))
                 .placeholder(placeholder)
                 .imageModifier(modifier)
                 .cancelOnDisappear(true)
@@ -624,7 +624,7 @@ private struct PreviewView: View {
                 LazyHStack {
                     if !previews.isEmpty {
                         ForEach(previews) { item in
-                            KFImage(URL(string: item.url), options: [])
+                            KFImage(URL(string: item.url))
                                 .placeholder(placeholder)
                                 .imageModifier(modifier)
                                 .cancelOnDisappear(true)

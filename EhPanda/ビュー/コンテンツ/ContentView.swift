@@ -6,10 +6,12 @@
 //
 
 import SwiftUI
+import Combine
 import Kingfisher
 
 struct ContentView: View {
     @EnvironmentObject var store: Store
+    @State var readingProgress: Int = -1
     @State var percentages: [Int : Float] = [:]
     
     let id: String
@@ -48,7 +50,7 @@ struct ContentView: View {
                     ScrollView {
                         LazyVStack(spacing: 0) {
                             ForEach(contents) { item in
-                                KFImage(URL(string: item.url), options: [])
+                                KFImage(URL(string: item.url))
                                     .placeholder {
                                         placeholder(item.tag)
                                     }
@@ -95,6 +97,21 @@ struct ContentView: View {
         .navigationBarBackButtonHidden(true)
         .navigationBarHidden(environment.navBarHidden)
         .onAppear(perform: onAppear)
+        .onDisappear(perform: onDisappear)
+        .onReceive(
+            NotificationCenter.default.publisher(
+                for: UIApplication.willResignActiveNotification
+            )
+        ) { _ in
+            onResignActive()
+        }
+        .onReceive(
+            NotificationCenter.default.publisher(
+                for: UIApplication.willTerminateNotification
+            )
+        ) { _ in
+            onResignActive()
+        }
     }
     
     func onAppear() {
@@ -103,6 +120,12 @@ struct ContentView: View {
         if mangaContents?.count != Int(mangaDetail?.pageCount ?? "") {
             fetchMangaContents()
         }
+    }
+    func onDisappear() {
+        saveReadingProgress()
+    }
+    func onResignActive() {
+        saveReadingProgress()
     }
     func onLazyVStackAppear(_ proxy: ScrollViewProxy) {
         if let tag = mangaDetail?.readingProgress {
@@ -116,11 +139,13 @@ struct ContentView: View {
         toggleNavBarHidden()
     }
     func onWebImageLongPressing(tag: Int) {
-        saveReadingProgress(tag: tag)
+        readingProgress = tag
     }
     
-    func saveReadingProgress(tag: Int) {
-        store.dispatch(.saveReadingProgress(id: id, tag: tag))
+    func saveReadingProgress() {
+        if readingProgress != -1 {
+            store.dispatch(.saveReadingProgress(id: id, tag: readingProgress))
+        }
     }
     
     func fetchMangaContents() {
@@ -128,6 +153,8 @@ struct ContentView: View {
     }
     
     func toggleNavBarHidden() {
-        store.dispatch(.toggleNavBarHidden(isHidden: true))
+        if !environment.navBarHidden {
+            store.dispatch(.toggleNavBarHidden(isHidden: true))
+        }
     }
 }
