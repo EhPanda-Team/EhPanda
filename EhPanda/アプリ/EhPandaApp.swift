@@ -33,11 +33,15 @@ struct EhPandaApp: App {
             Home()
                 .environmentObject(store)
                 .accentColor(accentColor)
+                .onAppear(perform: onAppear)
                 .onOpenURL(perform: onOpenURL)
                 .preferredColorScheme(preferredColorScheme)
         }
     }
     
+    func onAppear() {
+        sendMetrics()
+    }
     func onOpenURL(_ url: URL) {
         let entry = url.absoluteString
         guard let range = entry.range(of: "//") else { return }
@@ -50,12 +54,19 @@ struct EhPandaApp: App {
         config.httpCookieStorage = HTTPCookieStorage.shared
         KingfisherManager.shared.downloader.sessionConfiguration = config
     }
+    
+    func sendMetrics() {
+        if let metricsData = currentMetricsData {
+            store.dispatch(.sendMetrics(metrics: metricsData))
+        }
+    }
 }
 
 class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(
         _ application: UIApplication,
-        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil
+        didFinishLaunchingWithOptions launchOptions:
+            [UIApplication.LaunchOptionsKey : Any]? = nil
     ) -> Bool {
         MXMetricManager.shared.add(self)
         return true
@@ -68,8 +79,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 extension AppDelegate: MXMetricManagerSubscriber {
     func didReceive(_ payloads: [MXMetricPayload]) {
+        var data = Data()
         payloads.forEach { payload in
-            print(payload)
+            data.append(payload.jsonRepresentation())
+        }
+        
+        if !data.isEmpty {
+            saveMetricsData(data)
         }
     }
 }

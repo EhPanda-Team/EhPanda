@@ -9,6 +9,35 @@ import Kanna
 import Combine
 import Foundation
 
+struct SendMetricsRequest {
+    let ehUsername: String
+    let metrics: Any
+    
+    var publisher: AnyPublisher<Any?, AppError> {
+        let url = Defaults.URL.sendMetrics()
+        let params: [String: Any] = [
+            "name": ehUsername,
+            "data": metrics
+        ]
+        
+        let session = URLSession.shared
+        var request = URLRequest(url: URL(string: url)!)
+        
+        request.httpMethod = "POST"
+        request.setValue(
+            "application/json",
+            forHTTPHeaderField: "Content-Type"
+        )
+        request.httpBody = try? JSONSerialization
+            .data(withJSONObject: params, options: [])
+        
+        return session.dataTaskPublisher(for: request)
+            .map { $0 }
+            .mapError { _ in .networkingFailed }
+            .eraseToAnyPublisher()
+    }
+}
+
 struct UserInfoRequest {
     let uid: String
     let parser = Parser()
@@ -327,10 +356,12 @@ struct AddFavoriteRequest {
     
     var publisher: AnyPublisher<Any, AppError> {
         let url = Defaults.URL.addFavorite(id: id, token: token)
-        let parameters: [String: String] = ["favcat": "0",
-                                            "favnote": "",
-                                            "apply": "Add to Favorites",
-                                            "update": "1"]
+        let parameters: [String: String] = [
+            "favcat": "0",
+            "favnote": "",
+            "apply": "Add to Favorites",
+            "update": "1"
+        ]
         
         let session = URLSession.shared
         var request = URLRequest(url: URL(string: url)!)
@@ -349,10 +380,12 @@ struct DeleteFavoriteRequest {
     let id: String
     
     var publisher: AnyPublisher<Any, AppError> {
-        let url = Defaults.URL.host + Defaults.URL.favorites
-        let parameters: [String: String] = ["ddact": "delete",
-                                            "modifygids[]": id,
-                                            "apply": "Apply"]
+        let url = Defaults.URL.ehFavorites()
+        let parameters: [String: String] = [
+            "ddact": "delete",
+            "modifygids[]": id,
+            "apply": "Apply"
+        ]
         
         let session = URLSession.shared
         var request = URLRequest(url: URL(string: url)!)
@@ -375,13 +408,15 @@ struct RateRequest {
     let rating: Int
     
     var publisher: AnyPublisher<Any, AppError> {
-        let url = Defaults.URL.host + Defaults.URL.api
-        let params: [String: Any] = ["method": "rategallery",
-                                     "apiuid": apiuid,
-                                     "apikey": apikey,
-                                     "gid": gid,
-                                     "token": token,
-                                     "rating": rating]
+        let url = Defaults.URL.ehAPI()
+        let params: [String: Any] = [
+            "method": "rategallery",
+            "apiuid": apiuid,
+            "apikey": apikey,
+            "gid": gid,
+            "token": token,
+            "rating": rating
+        ]
         
         let session = URLSession.shared
         var request = URLRequest(url: URL(string: url)!)
@@ -426,8 +461,10 @@ struct EditCommentRequest {
     
     var publisher: AnyPublisher<Any, AppError> {
         let fixedContent = content.replacingOccurrences(of: "\n", with: "%0A")
-        let parameters: [String: String] = ["edit_comment": commentID,
-                                            "commenttext_edit": fixedContent]
+        let parameters: [String: String] = [
+            "edit_comment": commentID,
+            "commenttext_edit": fixedContent
+        ]
         
         let session = URLSession.shared
         var request = URLRequest(url: URL(string: detailURL)!)
@@ -451,14 +488,16 @@ struct VoteCommentRequest {
     let commentVote: Int
     
     var publisher: AnyPublisher<Any, AppError> {
-        let url = Defaults.URL.host + Defaults.URL.api
-        let params: [String: Any] = ["method": "votecomment",
-                                     "apiuid": apiuid,
-                                     "apikey": apikey,
-                                     "gid": gid,
-                                     "token": token,
-                                     "comment_id": commentID,
-                                     "comment_vote": commentVote]
+        let url = Defaults.URL.ehAPI()
+        let params: [String: Any] = [
+            "method": "votecomment",
+            "apiuid": apiuid,
+            "apikey": apikey,
+            "gid": gid,
+            "token": token,
+            "comment_id": commentID,
+            "comment_vote": commentVote
+        ]
         
         let session = URLSession.shared
         var request = URLRequest(url: URL(string: url)!)

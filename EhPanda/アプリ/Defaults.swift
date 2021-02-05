@@ -52,6 +52,7 @@ class Defaults {
                 return merge([ehentai, listCompact, nonh, f_search + "parody:durarara$"])
             }
         }
+        static let ehpanda = "https://ehpanda.app/"
         static let ehentai = "https://e-hentai.org/"
         static let exhentai = "https://exhentai.org/"
         static let forum = "https://forums.e-hentai.org/"
@@ -59,11 +60,11 @@ class Defaults {
         static let magnet = "magnet:?xt=urn:btih:"
         
         // 各機能ページ
+        static let metrics = "metrics"
         static let tag = "tag/"
-        static let watched = "watched"
-        static let uploads = "uploads/"
-        static let api = "api.php"
         static let popular = "popular"
+        static let watched = "watched"
+        static let api = "api.php"
         static let index = "index.php"
         static let favorites = "favorites.php"
         static let gallerypopups = "gallerypopups.php"
@@ -109,6 +110,12 @@ class Defaults {
 
 // MARK: リクエスト
 extension Defaults.URL {
+    // 自設サーバー
+    static func sendMetrics() -> String {
+        ehpanda + metrics
+    }
+    
+    // フェッチ
     static func searchList(keyword: String, filter: Filter) -> String {
         merge([
             host,
@@ -163,7 +170,6 @@ extension Defaults.URL {
     static func moreFavoritesList(pageNum: String, lastID: String) -> String {
         merge([host + favorites, page + pageNum, from + lastID])
     }
-    
     static func mangaDetail(url: String) -> String {
         merge([url, ignoreOffensive, showComments, detailLarge])
     }
@@ -203,14 +209,10 @@ extension Defaults.URL {
         ])
     }
     
-    static func contentPage(url: String, page: Int) -> String {
-        merge([url, p + "\(page)"])
-    }
-    
+    // アカウントに関わる操作
     static func addFavorite(id: String, token: String) -> String {
         merge([host + gallerypopups, gid + id, t + token, addfav_act])
     }
-    
     static func userID() -> String {
         forum + index
     }
@@ -218,8 +220,18 @@ extension Defaults.URL {
         merge([forum + index, showuser + uid])
     }
     
+    // 雑
+    static func contentPage(url: String, page: Int) -> String {
+        merge([url, p + "\(page)"])
+    }
     static func magnet(hash: String) -> String {
         magnet + hash
+    }
+    static func ehAPI() -> String {
+        host + api
+    }
+    static func ehFavorites() -> String {
+        host + favorites
     }
 }
 

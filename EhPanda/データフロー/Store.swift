@@ -26,6 +26,9 @@ class Store: ObservableObject {
         var appCommand: AppCommand?
         
         switch action {
+        case .sendMetrics(let metrics):
+            let username = appState.settings.user?.displayName ?? "(null)"
+            appCommand = SendMetricsCommand(ehUsername: username, metrics: metrics)
         
         // MARK: アプリ関数操作
         case .replaceUser(let user):

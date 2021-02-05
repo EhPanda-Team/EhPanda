@@ -13,6 +13,29 @@ protocol AppCommand {
     func execute(in store: Store)
 }
 
+struct SendMetricsCommand: AppCommand {
+    let ehUsername: String
+    let metrics: Any
+    
+    func execute(in store: Store) {
+        let token = SubscriptionToken()
+        SendMetricsRequest(ehUsername: ehUsername, metrics: metrics)
+            .publisher
+            .receive(on: DispatchQueue.main)
+            .sink { completion in
+                if case .finished = completion {
+                    deleteMetricsData()
+                }
+                token.unseal()
+            } receiveValue: {
+                if let value = $0 {
+                    print(value)
+                }
+            }
+            .seal(in: token)
+    }
+}
+
 struct FetchUserInfoCommand: AppCommand {
     let uid: String
     

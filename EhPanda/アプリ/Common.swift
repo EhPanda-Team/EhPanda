@@ -13,22 +13,8 @@ class Common {
     
 }
 
-
-public func ePrint(_ error: Error) {
-    print("debugMark " + error.localizedDescription)
-}
-
-public func ePrint(_ string: String) {
-    print("debugMark " + string)
-}
-
-public func ePrint(_ string: String?) {
-    print("debugMark " + (string ?? "エラーの内容が解析できませんでした"))
-}
-
-public func saveToPasteboard(_ value: String) {
-    UIPasteboard.general.string = value
-    notificFeedback(style: .success)
+public var currentMetricsData: Any? {
+    UserDefaults.standard.object(forKey: "MetricsData")
 }
 
 public var didLogin: Bool {
@@ -47,14 +33,6 @@ public var appBuild: String {
     Bundle.main.object(
         forInfoDictionaryKey: "CFBundleVersion"
     ) as? String ?? "(null)"
-}
-
-public func impactFeedback(style: UIImpactFeedbackGenerator.FeedbackStyle) {
-    UIImpactFeedbackGenerator(style: style)
-        .impactOccurred()
-}
-public func notificFeedback(style: UINotificationFeedbackGenerator.FeedbackType) {
-    UINotificationFeedbackGenerator().notificationOccurred(style)
 }
 
 public var exx: Bool {
@@ -115,6 +93,30 @@ public var appIconType: IconType {
     } else {
         return .Default
     }
+}
+
+// MARK: あらゆるツール
+public func saveToPasteboard(_ value: String) {
+    UIPasteboard.general.string = value
+    notificFeedback(style: .success)
+}
+
+public func saveMetricsData(_ data: Data) {
+    if let data = try? JSONSerialization.jsonObject(with: data, options: []) {
+        UserDefaults.standard.set(data, forKey: "MetricsData")
+    }
+}
+
+public func deleteMetricsData() {
+    UserDefaults.standard.set(nil, forKey: "MetricsData")
+}
+
+public func impactFeedback(style: UIImpactFeedbackGenerator.FeedbackStyle) {
+    UIImpactFeedbackGenerator(style: style)
+        .impactOccurred()
+}
+public func notificFeedback(style: UINotificationFeedbackGenerator.FeedbackType) {
+    UINotificationFeedbackGenerator().notificationOccurred(style)
 }
 
 // MARK: 容量管理

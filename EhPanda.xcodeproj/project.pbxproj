@@ -11,7 +11,6 @@
 		AB1CBE5825B81ACC00CD6A5B /* Home.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB1CBE5725B81ACC00CD6A5B /* Home.swift */; };
 		AB252D1425C95C58001AED6A /* TorrentsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB252D1325C95C58001AED6A /* TorrentsView.swift */; };
 		AB38A0CB25CA993D00764D64 /* ColorCodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB38A0CA25CA993D00764D64 /* ColorCodable.swift */; };
-		AB38A0D225CAA53A00764D64 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = AB38A0D125CAA53A00764D64 /* Kingfisher */; };
 		AB40CFDC25983EC200D1DC9A /* FileStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB40CFDB25983EC200D1DC9A /* FileStorage.swift */; };
 		AB40CFDF25983EDF00D1DC9A /* FileHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB40CFDE25983EDF00D1DC9A /* FileHelper.swift */; };
 		AB47FD9F25BC81A40007765D /* Normal@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = AB47FD9925BC81A40007765D /* Normal@3x.png */; };
@@ -25,6 +24,7 @@
 		AB47FDB525BC859E0007765D /* Weird-ipad-pro@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = AB47FDB225BC859E0007765D /* Weird-ipad-pro@2x.png */; };
 		AB47FDB625BC859E0007765D /* Weird-ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = AB47FDB325BC859E0007765D /* Weird-ipad.png */; };
 		AB718B2525A0C0AC00D32962 /* CommentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB718B2425A0C0AC00D32962 /* CommentView.swift */; };
+		AB84F47525CAF56D00DAF1EC /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = AB84F47425CAF56D00DAF1EC /* Kingfisher */; };
 		AB975F6025B5697700741E1A /* AppearanceSettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB975F5F25B5697700741E1A /* AppearanceSettingView.swift */; };
 		AB975F6325B56B1D00741E1A /* ReadingSettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB975F6225B56B1D00741E1A /* ReadingSettingView.swift */; };
 		AB975F6625B56D5700741E1A /* GeneralSettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB975F6525B56D5700741E1A /* GeneralSettingView.swift */; };
@@ -132,7 +132,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AB38A0D225CAA53A00764D64 /* Kingfisher in Frameworks */,
+				AB84F47525CAF56D00DAF1EC /* Kingfisher in Frameworks */,
 				ABC3C79D259369FE00E0C11B /* Kanna in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -327,7 +327,7 @@
 			name = EhPanda;
 			packageProductDependencies = (
 				ABC3C79C259369FE00E0C11B /* Kanna */,
-				AB38A0D125CAA53A00764D64 /* Kingfisher */,
+				AB84F47425CAF56D00DAF1EC /* Kingfisher */,
 			);
 			productName = EhPanda;
 			productReference = ABC3C7542593696C00E0C11B /* EhPanda.app */;
@@ -360,7 +360,7 @@
 			mainGroup = ABC3C74B2593696C00E0C11B;
 			packageReferences = (
 				ABC3C79B259369FE00E0C11B /* XCRemoteSwiftPackageReference "Kanna" */,
-				AB38A0D025CAA53A00764D64 /* XCRemoteSwiftPackageReference "Kingfisher" */,
+				AB84F47325CAF56D00DAF1EC /* XCRemoteSwiftPackageReference "Kingfisher" */,
 			);
 			productRefGroup = ABC3C7552593696C00E0C11B /* Products */;
 			projectDirPath = "";
@@ -584,7 +584,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = EhPanda/EhPanda.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 25;
+				CURRENT_PROJECT_VERSION = 26;
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = 9SKQ7QTZ74;
 				ENABLE_PREVIEWS = YES;
@@ -609,7 +609,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = EhPanda/EhPanda.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 25;
+				CURRENT_PROJECT_VERSION = 26;
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = 9SKQ7QTZ74;
 				ENABLE_PREVIEWS = YES;
@@ -651,7 +651,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		AB38A0D025CAA53A00764D64 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
+		AB84F47325CAF56D00DAF1EC /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/onevcat/Kingfisher.git";
 			requirement = {
@@ -670,9 +670,9 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		AB38A0D125CAA53A00764D64 /* Kingfisher */ = {
+		AB84F47425CAF56D00DAF1EC /* Kingfisher */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = AB38A0D025CAA53A00764D64 /* XCRemoteSwiftPackageReference "Kingfisher" */;
+			package = AB84F47325CAF56D00DAF1EC /* XCRemoteSwiftPackageReference "Kingfisher" */;
 			productName = Kingfisher;
 		};
 		ABC3C79C259369FE00E0C11B /* Kanna */ = {
