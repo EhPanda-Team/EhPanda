@@ -35,12 +35,16 @@ struct MangaDetail: Codable {
     var readingProgress: Int?
     
     var isFavored: Bool
-    var detailTags: [Tag]
+    var archiveURL: String?
+    var archive: MangaArchive?
+    var detailTags: [MangaTag]
     var alterImages: [MangaAlterData]
-    var torrents: [Torrent]
+    var torrents: [MangaTorrent]
     var comments: [MangaComment]
     let previews: [MangaPreview]
-    var jpnTitle: String
+    
+    var title: String
+    var jpnTitle: String?
     let language: Language
     var likeCount: String
     var pageCount: String
@@ -49,9 +53,24 @@ struct MangaDetail: Codable {
     var rating: Float
     var userRating: Float?
     var ratingCount: String
+    var torrentCount: Int
 }
 
-struct Tag: Codable, Identifiable {
+struct MangaArchive: Codable {
+    struct HathArchive: Codable, Identifiable {
+        var id = UUID()
+        
+        let resolution: ArchiveRes
+        let fileSize: String
+        let gpPrice: String
+    }
+    
+    var currentGP: String?
+    var currentCredits: String?
+    let hathArchives: [HathArchive]
+}
+
+struct MangaTag: Codable, Identifiable {
     var id = UUID()
     
     let category: TagCategory
@@ -95,7 +114,7 @@ struct MangaContent: Identifiable, Codable, Equatable {
     let url: String
 }
 
-struct Torrent: Identifiable, Codable {
+struct MangaTorrent: Identifiable, Codable {
     var id = UUID()
     
     let postedTime: String
@@ -136,7 +155,7 @@ extension MangaDetail {
     }
 }
 
-extension Tag {
+extension MangaTag {
     var jpnCategory: String {
         category.jpn
     }
@@ -360,6 +379,15 @@ enum TagCategory: String, Codable {
     case male = "male"
     case female = "female"
     case misc = "misc"
+}
+
+enum ArchiveRes: String, Codable, CaseIterable {
+    case x780 = "780x"
+    case x980 = "980x"
+    case x1280 = "1280x"
+    case x1600 = "1600x"
+    case x2400 = "2400x"
+    case original = "Original"
 }
 
 enum Language: String, Codable {

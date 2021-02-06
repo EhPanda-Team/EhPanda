@@ -9,7 +9,7 @@
 import SwiftUI
 
 struct TagCloudView: View {
-    let tag: Tag
+    let tag: MangaTag
     let font: Font
     let textColor: Color
     let backgroundColor: Color

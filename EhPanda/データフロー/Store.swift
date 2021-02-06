@@ -377,9 +377,44 @@ class Store: ObservableObject {
                 appState.detailInfo.mangaDetailLoadFailed = true
             }
             
+        case .fetchMangaArchive(id: let id):
+            appState.detailInfo.mangaArchiveLoadFailed = false
+            
+            if appState.detailInfo.mangaArchiveLoading { break }
+            appState.detailInfo.mangaArchiveLoading = true
+            
+            let archiveURL = appState.cachedList.items?[id]?.detail?.archiveURL ?? ""
+            appCommand = FetchMangaArchiveCommand(id: id, archiveURL: archiveURL)
+        case .fetchMangaArchiveDone(result: let result):
+            appState.detailInfo.mangaArchiveLoading = false
+            
+            switch result {
+            case .success(let archive):
+                appState.cachedList.insertArchive(id: archive.0, archive: archive.1)
+            case .failure(let error):
+                print(error)
+                appState.detailInfo.mangaArchiveLoadFailed = true
+            }
+            
+        case .fetchMangaArchiveFunds(id: let id):
+            if appState.detailInfo.mangaArchiveFundsLoading { break }
+            appState.detailInfo.mangaArchiveFundsLoading = true
+            
+            let archiveURL = (appState.cachedList.items?[id]?.detail?.archiveURL ?? "")
+                .replacingOccurrences(of: Defaults.URL.exhentai, with: Defaults.URL.ehentai)
+            appCommand = FetchMangaArchiveFundsCommand(id: id, archiveURL: archiveURL)
+        case .fetchMangaArchiveFundsDone(result: let result):
+            appState.detailInfo.mangaArchiveFundsLoading = false
+            
+            switch result {
+            case .success(let funds):
+                appState.cachedList.insertArchiveFunds(id: funds.0, funds: funds.1)
+            case .failure(let error):
+                print(error)
+            }
+            
         case .fetchMangaTorrents(id: let id):
             appState.detailInfo.mangaTorrentsLoadFailed = false
-            appState.detailInfo.mangaTorrentsNotFound = false
             
             if appState.detailInfo.mangaTorrentsLoading { break }
             appState.detailInfo.mangaTorrentsLoading = true
@@ -394,7 +429,7 @@ class Store: ObservableObject {
                 if !torrents.1.isEmpty {
                     appState.cachedList.insertTorrents(id: torrents.0, torrents: torrents.1)
                 } else {
-                    appState.detailInfo.mangaTorrentsNotFound = true
+                    appState.detailInfo.mangaTorrentsLoadFailed = true
                 }
             case .failure(let error):
                 print(error)

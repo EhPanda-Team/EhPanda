@@ -10,6 +10,8 @@ typealias Percentage = Int
 typealias Keyword = String
 typealias Identity = String
 typealias APIKey = String
+typealias CurrentGP = String
+typealias CurrentCredits = String
 
 struct PageNumber {
     var current = 0

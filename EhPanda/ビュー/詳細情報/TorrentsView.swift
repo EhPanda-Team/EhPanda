@@ -8,36 +8,66 @@
 import SwiftUI
 
 struct TorrentsView: View {
+    @EnvironmentObject var store: Store
     @Environment(\.colorScheme) var colorScheme
     
-    let torrents: [Torrent]
+    var id: String
     var color: Color {
         colorScheme == .light
             ? Color(.systemGray6)
             : Color(.systemGray5)
     }
     
+    var cachedList: AppState.CachedList {
+        store.appState.cachedList
+    }
+    var detailInfo: AppState.DetailInfo {
+        store.appState.detailInfo
+    }
+    var mangaDetail: MangaDetail? {
+        cachedList.items?[id]?.detail
+    }
+    var torrents: [MangaTorrent] {
+        mangaDetail?.torrents ?? []
+    }
+    
     var body: some View {
         NavigationView {
-            ScrollView {
-                LazyVStack {
-                    ForEach(torrents) { torrent in
-                        TorrentRow(torrent: torrent)
-                            .background(color)
-                            .cornerRadius(10)
-                            .padding(.horizontal)
-                            .padding(.vertical, 5)
+            Group {
+                if !torrents.isEmpty {
+                    ScrollView {
+                        LazyVStack {
+                            ForEach(torrents) { torrent in
+                                TorrentRow(torrent: torrent)
+                                    .background(color)
+                                    .cornerRadius(10)
+                                    .padding(.horizontal)
+                                    .padding(.vertical, 5)
+                            }
+                        }
+                        .padding(.top)
                     }
+                } else if detailInfo.mangaTorrentsLoading {
+                    LoadingView()
+                } else {
+                    NetworkErrorView(retryAction: fetchMangaTorrents)
                 }
-                .padding(.top)
             }
             .navigationBarTitle("トレント")
         }
+        .onAppear(perform: onAppear)
+    }
+    
+    func onAppear() {
+        fetchMangaTorrents()
+    }
+    func fetchMangaTorrents() {
+        store.dispatch(.fetchMangaTorrents(id: id))
     }
 }
 
 private struct TorrentRow: View {
-    let torrent: Torrent
+    let torrent: MangaTorrent
     
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {

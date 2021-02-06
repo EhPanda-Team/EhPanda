@@ -285,16 +285,44 @@ struct AlterImagesRequest {
     }
 }
 
+struct MangaArchiveRequest {
+    let archiveURL: String
+    let parser = Parser()
+    
+    var publisher: AnyPublisher<MangaArchive?, AppError> {
+        URLSession.shared
+            .dataTaskPublisher(for: URL(string: archiveURL)!)
+            .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
+            .map(parser.parseMangaArchive)
+            .mapError { _ in .networkingFailed }
+            .eraseToAnyPublisher()
+    }
+}
+
+struct MangaArchiveFundsRequest {
+    let archiveURL: String
+    let parser = Parser()
+    
+    var publisher: AnyPublisher<(CurrentGP, CurrentCredits)?, AppError> {
+        URLSession.shared
+            .dataTaskPublisher(for: URL(string: archiveURL)!)
+            .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
+            .map(parser.parseCurrentFunds)
+            .mapError { _ in .networkingFailed }
+            .eraseToAnyPublisher()
+    }
+}
+
 struct MangaTorrentsRequest {
     let id: String
     let token: String
     let parser = Parser()
     
-    var publisher: AnyPublisher<[Torrent], AppError> {
+    var publisher: AnyPublisher<[MangaTorrent], AppError> {
         URLSession.shared
             .dataTaskPublisher(for: URL(string: Defaults.URL.mangaTorrents(id: id, token: token))!)
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-            .map(parser.parseTorrents)
+            .map(parser.parseMangaTorrents)
             .mapError { _ in .networkingFailed }
             .eraseToAnyPublisher()
     }

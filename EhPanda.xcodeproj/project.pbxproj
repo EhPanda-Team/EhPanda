@@ -11,6 +11,7 @@
 		AB1CBE5825B81ACC00CD6A5B /* Home.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB1CBE5725B81ACC00CD6A5B /* Home.swift */; };
 		AB252D1425C95C58001AED6A /* TorrentsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB252D1325C95C58001AED6A /* TorrentsView.swift */; };
 		AB38A0CB25CA993D00764D64 /* ColorCodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB38A0CA25CA993D00764D64 /* ColorCodable.swift */; };
+		AB3DAC0425CE3FCB0056D1C0 /* ArchiveView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB3DAC0325CE3FCB0056D1C0 /* ArchiveView.swift */; };
 		AB40CFDC25983EC200D1DC9A /* FileStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB40CFDB25983EC200D1DC9A /* FileStorage.swift */; };
 		AB40CFDF25983EDF00D1DC9A /* FileHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB40CFDE25983EDF00D1DC9A /* FileHelper.swift */; };
 		AB47FD9F25BC81A40007765D /* Normal@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = AB47FD9925BC81A40007765D /* Normal@3x.png */; };
@@ -70,6 +71,7 @@
 		AB1CBE5725B81ACC00CD6A5B /* Home.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Home.swift; sourceTree = "<group>"; };
 		AB252D1325C95C58001AED6A /* TorrentsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TorrentsView.swift; sourceTree = "<group>"; };
 		AB38A0CA25CA993D00764D64 /* ColorCodable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ColorCodable.swift; sourceTree = "<group>"; };
+		AB3DAC0325CE3FCB0056D1C0 /* ArchiveView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchiveView.swift; sourceTree = "<group>"; };
 		AB40CFDB25983EC200D1DC9A /* FileStorage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FileStorage.swift; sourceTree = "<group>"; };
 		AB40CFDE25983EDF00D1DC9A /* FileHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FileHelper.swift; sourceTree = "<group>"; };
 		AB47FD9925BC81A40007765D /* Normal@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Normal@3x.png"; sourceTree = "<group>"; };
@@ -140,6 +142,20 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		AB3DAC0725CE7BDF0056D1C0 /* 設定 */ = {
+			isa = PBXGroup;
+			children = (
+				AB994DBF2598B17500E9A367 /* SettingView.swift */,
+				ABF5B64725ADF2D700EE5DA8 /* AccountSettingView.swift */,
+				AB975F6525B56D5700741E1A /* GeneralSettingView.swift */,
+				AB975F5F25B5697700741E1A /* AppearanceSettingView.swift */,
+				AB975F6225B56B1D00741E1A /* ReadingSettingView.swift */,
+				AB975F6825B5737200741E1A /* EhPandaView.swift */,
+				AB994DC22598B3E000E9A367 /* WebView.swift */,
+			);
+			path = "設定";
+			sourceTree = "<group>";
+		};
 		AB40CFE52598423E00D1DC9A /* ツール */ = {
 			isa = PBXGroup;
 			children = (
@@ -220,6 +236,7 @@
 				ABF313A725B1B98400D47A2F /* ホーム */,
 				ABF313A825B1B99F00D47A2F /* 詳細情報 */,
 				ABF313A925B1B9B400D47A2F /* コンテンツ */,
+				AB3DAC0725CE7BDF0056D1C0 /* 設定 */,
 				ABC3C7752593699A00E0C11B /* ツール */,
 			);
 			name = "ビュー";
@@ -232,7 +249,6 @@
 				AB15535B25B290F000D0293B /* MangaSummaryRow.swift */,
 				ABDAD2A725AC28BF00BA4DB8 /* KRefreshScrollView.swift */,
 				ABF3D55825B023C70094AD82 /* TagCloudView.swift */,
-				AB994DC22598B3E000E9A367 /* WebView.swift */,
 				ABC3C7772593699A00E0C11B /* RatingView.swift */,
 				AB994DCA2598D96200E9A367 /* AlertView.swift */,
 				ABF75F4225A1C11100544D29 /* Comment.swift */,
@@ -279,12 +295,6 @@
 			children = (
 				AB1CBE5725B81ACC00CD6A5B /* Home.swift */,
 				ABC3C7732593699A00E0C11B /* HomeView.swift */,
-				AB994DBF2598B17500E9A367 /* SettingView.swift */,
-				ABF5B64725ADF2D700EE5DA8 /* AccountSettingView.swift */,
-				AB975F6525B56D5700741E1A /* GeneralSettingView.swift */,
-				AB975F5F25B5697700741E1A /* AppearanceSettingView.swift */,
-				AB975F6225B56B1D00741E1A /* ReadingSettingView.swift */,
-				AB975F6825B5737200741E1A /* EhPandaView.swift */,
 				ABA732E125A8590900B3D9AB /* FilterView.swift */,
 			);
 			path = "ホーム";
@@ -294,6 +304,7 @@
 			isa = PBXGroup;
 			children = (
 				ABC3C7722593699A00E0C11B /* DetailView.swift */,
+				AB3DAC0325CE3FCB0056D1C0 /* ArchiveView.swift */,
 				AB252D1325C95C58001AED6A /* TorrentsView.swift */,
 				ABF313A025B1714400D47A2F /* AssociatedView.swift */,
 				AB718B2425A0C0AC00D32962 /* CommentView.swift */,
@@ -439,6 +450,7 @@
 				AB975F6625B56D5700741E1A /* GeneralSettingView.swift in Sources */,
 				ABA732DF25A852D800B3D9AB /* Filter.swift in Sources */,
 				AB994DC02598B17500E9A367 /* SettingView.swift in Sources */,
+				AB3DAC0425CE3FCB0056D1C0 /* ArchiveView.swift in Sources */,
 				ABF75F3F25A19CD200544D29 /* User.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

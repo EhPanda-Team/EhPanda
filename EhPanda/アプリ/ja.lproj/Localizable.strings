@@ -10,3 +10,8 @@
 "null" = "なし";
 "expired" = "期限切れ";
 "mystery" = "拒否";
+
+// MARK: ArchiveView
+"Original" = "オリジナル";
+"N/A" = "無効";
+"Free" = "無料";

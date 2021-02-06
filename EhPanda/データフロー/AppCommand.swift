@@ -257,7 +257,6 @@ struct FetchMangaDetailCommand: AppCommand {
             } receiveValue: { detail in
                 if let mangaDetail = detail.0, let apikey = detail.1 {
                     store.dispatch(.fetchMangaDetailDone(result: .success((id, mangaDetail, apikey))))
-                    store.dispatch(.fetchMangaTorrents(id: id))
                 } else {
                     store.dispatch(.fetchMangaDetailDone(result: .failure(.networkingFailed)))
                 }
@@ -267,6 +266,56 @@ struct FetchMangaDetailCommand: AppCommand {
                 }
             }
             .seal(in: token)
+    }
+}
+
+struct FetchMangaArchiveCommand: AppCommand {
+    let id: String
+    let archiveURL: String
+    
+    func execute(in store: Store) {
+        let sToken = SubscriptionToken()
+        MangaArchiveRequest(archiveURL: archiveURL)
+            .publisher
+            .receive(on: DispatchQueue.main)
+            .sink { completion in
+                if case .failure(let error) = completion {
+                    store.dispatch(.fetchMangaArchiveDone(result: .failure(error)))
+                }
+                sToken.unseal()
+            } receiveValue: { archive in
+                if let archive = archive {
+                    store.dispatch(.fetchMangaArchiveDone(result: .success((id, archive))))
+                } else {
+                    store.dispatch(.fetchMangaArchiveDone(result: .failure(.networkingFailed)))
+                }
+            }
+            .seal(in: sToken)
+    }
+}
+
+struct FetchMangaArchiveFundsCommand: AppCommand {
+    let id: String
+    let archiveURL: String
+    
+    func execute(in store: Store) {
+        let sToken = SubscriptionToken()
+        MangaArchiveFundsRequest(archiveURL: archiveURL)
+            .publisher
+            .receive(on: DispatchQueue.main)
+            .sink { completion in
+                if case .failure(let error) = completion {
+                    store.dispatch(.fetchMangaArchiveFundsDone(result: .failure(error)))
+                }
+                sToken.unseal()
+            } receiveValue: { archive in
+                if let archive = archive {
+                    store.dispatch(.fetchMangaArchiveFundsDone(result: .success((id, archive))))
+                } else {
+                    store.dispatch(.fetchMangaArchiveFundsDone(result: .failure(.networkingFailed)))
+                }
+            }
+            .seal(in: sToken)
     }
 }
 

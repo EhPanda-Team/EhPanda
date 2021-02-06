@@ -136,8 +136,11 @@ extension AppState {
         var mangaDetailLoading = false
         var mangaDetailLoadFailed = false
         
+        var mangaArchiveLoading = false
+        var mangaArchiveLoadFailed = false
+        var mangaArchiveFundsLoading = false
+        
         var mangaTorrentsLoading = false
-        var mangaTorrentsNotFound = false
         var mangaTorrentsLoadFailed = false
         
         var associatedItems: [AssociatedItem] = []
@@ -234,11 +237,19 @@ extension AppState {
         mutating func insertDetail(id: String, detail: MangaDetail) {
             items?[id]?.detail = detail
         }
-        mutating func insertTorrents(id: String, torrents: [Torrent]) {
+        mutating func insertArchive(id: String, archive: MangaArchive) {
+            items?[id]?.detail?.archive = archive
+        }
+        mutating func insertArchiveFunds(id: String, funds: (CurrentGP, CurrentCredits)) {
+            items?[id]?.detail?.archive?.currentGP = funds.0
+            items?[id]?.detail?.archive?.currentCredits = funds.1
+        }
+        mutating func insertTorrents(id: String, torrents: [MangaTorrent]) {
             items?[id]?.detail?.torrents = torrents
         }
         mutating func updateDetail(id: String, detail: MangaDetail) {
             items?[id]?.detail?.isFavored = detail.isFavored
+            items?[id]?.detail?.archiveURL = detail.archiveURL
             items?[id]?.detail?.detailTags = detail.detailTags
             items?[id]?.detail?.comments = detail.comments
             items?[id]?.detail?.jpnTitle = detail.jpnTitle
@@ -249,6 +260,7 @@ extension AppState {
             items?[id]?.detail?.rating = detail.rating
             items?[id]?.detail?.userRating = detail.userRating
             items?[id]?.detail?.ratingCount = detail.ratingCount
+            items?[id]?.detail?.torrentCount = detail.torrentCount
         }
         mutating func insertAlterImages(id: String, images: [MangaAlterData]) {
             items?[id]?.detail?.alterImages = images

@@ -81,12 +81,13 @@ class Parser {
         
         for link in doc.xpath("//div [@class='gm']") {
             
-            guard let jpnTitle = link.at_xpath("//h1 [@id='gj']")?.text,
+            guard let enTitle = link.at_xpath("//h1 [@id='gn']")?.text,
                   let gddNode = link.at_xpath("//div [@id='gdd']"),
                   let gdrNode = link.at_xpath("//div [@id='gdr']"),
                   let gdfNode = link.at_xpath("//div [@id='gdf']"),
                   let gdtNode = doc.at_xpath("//div [@id='gdt']"),
                   let gd4Node = link.at_xpath("//div [@id='gd4']"),
+                  let gd5Node = link.at_xpath("//div [@id='gd5']"),
                   let tmpRating = gdrNode.at_xpath("//td [@id='rating_label']")?.text?
                     .replacingOccurrences(of: "Average: ", with: "")
                     .replacingOccurrences(of: "Not Yet Rated", with: "0"),
@@ -128,7 +129,7 @@ class Parser {
                 }
             }
             
-            var detailTags = [Tag]()
+            var detailTags = [MangaTag]()
             for gd4Link in gd4Node.xpath("//tr") {
                 guard let rawCategory = gd4Link
                         .at_xpath("//td [@class='tc']")?
@@ -148,7 +149,39 @@ class Parser {
                     content.append(fixedText ?? aText)
                 }
                 
-                detailTags.append(Tag(category: category, content: content))
+                detailTags.append(MangaTag(category: category, content: content))
+            }
+            
+            var tmpTorrentCount: Int?
+            for g2Link in gd5Node.xpath("//p [@class='g2']") {
+                if let aText = g2Link.at_xpath("//a")?.text,
+                   let rangeA = aText.range(of: "Torrent Download ("),
+                   let rangeB = aText.range(of: ")")
+                {
+                    tmpTorrentCount = Int(
+                        String(
+                            aText
+                                .suffix(from: rangeA.upperBound)
+                                .prefix(upTo: rangeB.lowerBound)
+                        )
+                    )
+                }
+            }
+            
+            var archiveURL: String?
+            for g2gspLink in gd5Node.xpath("//p [@class='g2 gsp']") {
+                if let aLink = g2gspLink.at_xpath("//a"),
+                   aLink.text?.contains("Archive Download") == true,
+                   let onClick = aLink["onclick"],
+                   let rangeA = onClick.range(of: "popUp('"),
+                   let rangeB = onClick.range(of: "',")
+                {
+                    archiveURL = String(
+                        onClick
+                            .suffix(from: rangeA.upperBound)
+                            .prefix(upTo: rangeB.lowerBound)
+                    )
+                }
             }
             
             for gdtLink in gdtNode.xpath("//img") {
@@ -164,7 +197,8 @@ class Parser {
                   let sizeType = tmpSizeType,
                   let tmpLanguage2 = tmpLanguage,
                   let language = Language(rawValue: tmpLanguage2),
-                  let rating = Float(tmpRating)
+                  let rating = Float(tmpRating),
+                  let torrentCount = tmpTorrentCount
             else { return (nil, nil, nil) }
             
             let isFavored = gdfNode.at_xpath("//a [@id='favoritelink']")?.text?
@@ -172,13 +206,20 @@ class Parser {
             let userRating = parseRatingString(
                 gdrNode.at_xpath("//div [@class='ir irg']")?.toHTML
             )
+            var jpnTitle = link.at_xpath("//h1 [@id='gj']")?.text
+            if jpnTitle?.isEmpty != false {
+                jpnTitle = nil
+            }
+            
             mangaDetail = MangaDetail(
                 isFavored: isFavored,
+                archiveURL: archiveURL,
                 detailTags: detailTags,
                 alterImages: [],
                 torrents: [],
                 comments: parseComments(doc),
                 previews: imageURLs,
+                title: enTitle,
                 jpnTitle: jpnTitle,
                 language: language,
                 likeCount: likeCount,
@@ -187,7 +228,8 @@ class Parser {
                 sizeType: sizeType,
                 rating: rating,
                 userRating: userRating,
-                ratingCount: ratingCount
+                ratingCount: ratingCount,
+                torrentCount: torrentCount
             )
             break
         }
@@ -205,7 +247,6 @@ class Parser {
             )
             apikey = key
         }
-        
         return (mangaDetail, apikey, doc)
     }
     
@@ -333,9 +374,66 @@ class Parser {
         return User(displayName: displayName, avatarURL: avatarURL)
     }
     
+    // MARK: アーカイブ
+    func parseMangaArchive(doc: HTMLDocument) -> MangaArchive? {
+        var hathArchives = [MangaArchive.HathArchive]()
+        
+        guard let tableNode = doc.at_xpath("//table") else { return nil }
+        for tdLink in tableNode.xpath("//td") {
+            var tmpResolution: ArchiveRes?
+            var tmpFileSize: String?
+            var tmpGPPrice: String?
+            
+            for pLink in tdLink.xpath("//p") {
+                if let pText = pLink.text {
+                    if let res = ArchiveRes(rawValue: pText) {
+                        tmpResolution = res
+                    }
+                    if pText.contains("N/A") {
+                        tmpFileSize = "N/A"
+                        tmpGPPrice = "N/A"
+                        
+                        if tmpResolution != nil {
+                            break
+                        }
+                    } else {
+                        if pText.contains("KB")
+                            || pText.contains("MB")
+                            || pText.contains("GB")
+                        {
+                            tmpFileSize = pText
+                        } else {
+                            tmpGPPrice = pText
+                        }
+                    }
+                }
+            }
+            
+            guard let resolution = tmpResolution,
+                  let fileSize = tmpFileSize,
+                  let gpPrice = tmpGPPrice
+            else { continue }
+            
+            hathArchives.append(
+                MangaArchive.HathArchive(
+                    resolution: resolution,
+                    fileSize: fileSize,
+                    gpPrice: gpPrice
+                )
+            )
+        }
+        
+        let funds = parseCurrentFunds(doc)
+        return MangaArchive(
+            currentGP: funds?.0,
+            currentCredits: funds?.1,
+            hathArchives: hathArchives
+        )
+    }
+    
     // MARK: トレント
-    func parseTorrents(doc: HTMLDocument) -> [Torrent] {
-        var torrents = [Torrent]()
+    func parseMangaTorrents(doc: HTMLDocument) -> [MangaTorrent] {
+        var torrents = [MangaTorrent]()
         
         for link in doc.xpath("//form") {
             var tmpPostedTime: String?
@@ -396,7 +494,7 @@ class Parser {
             else { continue }
             
             torrents.append(
-                Torrent(
+                MangaTorrent(
                     postedTime: postedTime,
                     fileSize: fileSize,
                     seedCount: seedCount,
@@ -494,5 +592,41 @@ extension Parser {
         }
         
         return (id, alterImages)
+    }
+    
+    func parseCurrentFunds(_ doc: HTMLDocument) -> (String, String)? {
+        var currentGP: String?
+        var currentCredits: String?
+        
+        for pLink in doc.xpath("//p") {
+            if let pText = pLink.text,
+               let rangeA = pText.range(of: "GP"),
+               let rangeB = pText.range(of: "[?]"),
+               let rangeC = pText.range(of: "Credits")
+            {
+                currentGP = String(
+                    pText
+                        .prefix(upTo: rangeA.lowerBound)
+                )
+                .trimmingCharacters(in: .whitespaces)
+                .replacingOccurrences(of: ",", with: "")
+                
+                currentCredits = String(
+                    pText
+                        .suffix(from: rangeB.upperBound)
+                        .prefix(upTo: rangeC.lowerBound)
+                )
+                .trimmingCharacters(in: .whitespaces)
+                .replacingOccurrences(of: ",", with: "")
+            }
+        }
+        
+        if let gp = currentGP,
+           let credits = currentCredits
+        {
+            return (gp, credits)
+        } else {
+            return nil
+        }
     }
 }

@@ -44,8 +44,11 @@ struct DetailView: View {
     var mangaDetail: MangaDetail? {
         cachedList.items?[id]?.detail
     }
-    var mangaTorrents: [Torrent] {
-        mangaDetail?.torrents ?? []
+    var torrentCount: Int? {
+        mangaDetail?.torrentCount
+    }
+    var archiveURL: String? {
+        mangaDetail?.archiveURL
     }
     var accentColor: Color? {
         store.appState.settings.setting?.accentColor
@@ -68,11 +71,10 @@ struct DetailView: View {
                             Button(action: onArchiveButtonTap) {
                                 Label("アーカイブ", systemImage: "doc.zipper")
                             }
-                            if !mangaTorrents.isEmpty {
+                            if let count = torrentCount, count > 0 {
                                 Button(action: onTorrentsButtonTap) {
                                     Label(
-                                        "トレント".lString()
-                                            + " (\(mangaTorrents.count))",
+                                        "トレント".lString() + " (\(count))",
                                         systemImage: "leaf"
                                     )
                                 }
@@ -114,9 +116,10 @@ struct DetailView: View {
                                 if exx {
                                     ActionRow(
                                         detail: detail,
-                                        ratingAction: onUserRatingChanged,
-                                        galleryAction: onSimilarGalleryTap
-                                    )
+                                        ratingAction: onUserRatingChanged
+                                    ) {
+                                        onSimilarGalleryTap(detail.title)
+                                    }
                                 }
                                 if !detail.detailTags.isEmpty && exx {
                                     TagsView(
@@ -152,6 +155,16 @@ struct DetailView: View {
         .navigationBarHidden(environment.navBarHidden)
         .sheet(item: environmentBinding.detailViewSheetState) { item in
             switch item {
+            case .archive:
+                ArchiveView(id: id)
+                    .environmentObject(store)
+                    .accentColor(accentColor)
+                    .preferredColorScheme(colorScheme)
+            case .torrents:
+                TorrentsView(id: id)
+                    .environmentObject(store)
+                    .accentColor(accentColor)
+                    .preferredColorScheme(colorScheme)
             case .comment:
                 DraftCommentView(
                     content: commentContentBinding,
@@ -161,11 +174,6 @@ struct DetailView: View {
                 )
                 .accentColor(accentColor)
                 .preferredColorScheme(colorScheme)
-            case .torrents:
-                TorrentsView(torrents: mangaTorrents)
-                    .environmentObject(store)
-                    .accentColor(accentColor)
-                    .preferredColorScheme(colorScheme)
             }
         }
     }
@@ -177,12 +185,11 @@ struct DetailView: View {
             fetchMangaDetail()
         } else {
             updateMangaDetail()
-            fetchMangaTorrents()
         }
         updateHistoryItems()
     }
     func onArchiveButtonTap() {
-        
+        toggleSheetState(.archive)
     }
     func onTorrentsButtonTap() {
         toggleSheetState(.torrents)
@@ -193,6 +200,14 @@ struct DetailView: View {
             activityItems: [data],
             applicationActivities: nil
         )
+        if isPad {
+            av.popoverPresentationController?.sourceView =
+                UIApplication.shared.windows.first
+            av.popoverPresentationController?.sourceRect = CGRect(
+                x: screenW, y: 0,
+                width: 200, height: 200
+            )
+        }
         UIApplication.shared.windows
             .first?.rootViewController?
             .present(
@@ -205,9 +220,9 @@ struct DetailView: View {
     func onUserRatingChanged(_ value: Int) {
         sendRating(value)
     }
-    func onSimilarGalleryTap() {
+    func onSimilarGalleryTap(_ title: String) {
         associatedKeyword = AssociatedKeyword(
-            title: manga.title.trimmedTitle()
+            title: title.trimmedTitle()
         )
         isAssociatedLinkActive.toggle()
     }
@@ -283,10 +298,10 @@ private struct HeaderView: View {
         Defaults.ImageSize.headerH
     }
     var title: String {
-        if detail.jpnTitle.isEmpty {
-            return manga.title
+        if let jpnTitle = detail.jpnTitle {
+            return jpnTitle
         } else {
-            return detail.jpnTitle
+            return detail.title
         }
     }
     var category: String {
@@ -358,10 +373,12 @@ private struct HeaderView: View {
                             Text("読む")
                                 .foregroundColor(.white)
                                 .fontWeight(.bold)
-                                .capsulePadding()
+                                .padding(.vertical, 5)
+                                .padding(.horizontal, 14)
+                                .background(Color.accentColor)
+                                .cornerRadius(30)
                         }
                     }
-                    .buttonStyle(CapsuleButtonStyle())
                 }
             }
             .padding(.leading, 10)
@@ -537,7 +554,7 @@ private struct ActionRow: View {
 
 // MARK: タグ
 private struct TagsView: View {
-    let tags: [Tag]
+    let tags: [MangaTag]
     let onTapAction: ((AssociatedKeyword)->())
     
     var body: some View {
@@ -553,7 +570,7 @@ private struct TagsView: View {
 private struct TagRow: View {
     @Environment(\.colorScheme) var colorScheme
     
-    let tag: Tag
+    let tag: MangaTag
     let onTapAction: ((AssociatedKeyword)->())
     var reversePrimary: Color {
         colorScheme == .light ? .white : .black
@@ -565,7 +582,8 @@ private struct TagRow: View {
                 .fontWeight(.bold)
                 .font(.subheadline)
                 .foregroundColor(reversePrimary)
-                .capsulePadding()
+                .padding(.vertical, 5)
+                .padding(.horizontal, 14)
                 .background(
                     Rectangle()
                         .foregroundColor(Color(.systemGray))
@@ -733,6 +751,7 @@ private struct CommentScrollCell: View {
 enum DetailViewSheetState: Identifiable {
     var id: Int { hashValue }
     
-    case comment
+    case archive
     case torrents
+    case comment
 }

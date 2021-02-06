@@ -46,6 +46,9 @@
 "コメント" = "Comment";
 "すべて表示" = "Show All";
 
+// MARK: ArchiveView
+"Hathサーバーにダウンロード" = "Download To Hath Server";
+
 // MARK: CommentView
 "賛成" = "Agree";
 "反対" = "Disagree";

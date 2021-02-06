@@ -12,15 +12,17 @@ struct CommentButton: View {
     
     var body: some View {
         Button(action: action) {
-            Spacer()
-            Image(systemName: "square.and.pencil")
-            Text("コメントを書く")
-                .fontWeight(.bold)
-            Spacer()
+            HStack {
+                Spacer()
+                Image(systemName: "square.and.pencil")
+                Text("コメントを書く")
+                    .fontWeight(.bold)
+                Spacer()
+            }
+            .padding()
+            .background(Color(.systemGray6))
+            .cornerRadius(15)
         }
-        .padding()
-        .background(Color(.systemGray6))
-        .cornerRadius(15)
     }
 }
 

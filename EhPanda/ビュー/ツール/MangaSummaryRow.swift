@@ -88,7 +88,7 @@ struct MangaSummaryRow: View {
                    !tags.isEmpty
                 {
                     TagCloudView(
-                        tag: Tag(category: .artist, content: tags),
+                        tag: MangaTag(category: .artist, content: tags),
                         font: .caption2,
                         textColor: .secondary,
                         backgroundColor: tagColor,

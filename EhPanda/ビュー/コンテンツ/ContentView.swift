@@ -94,10 +94,6 @@ struct ContentView: View {
                 NetworkErrorView(retryAction: fetchMangaContents)
             }
         }
-        .navigationBarBackButtonHidden(true)
-        .navigationBarHidden(environment.navBarHidden)
-        .onAppear(perform: onAppear)
-        .onDisappear(perform: onDisappear)
         .onReceive(
             NotificationCenter.default.publisher(
                 for: UIApplication.willResignActiveNotification
@@ -112,6 +108,10 @@ struct ContentView: View {
         ) { _ in
             onResignActive()
         }
+        .onAppear(perform: onAppear)
+        .onDisappear(perform: onDisappear)
+        .navigationBarBackButtonHidden(true)
+        .navigationBarHidden(environment.navBarHidden)
     }
     
     func onAppear() {
