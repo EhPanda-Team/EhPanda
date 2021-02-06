@@ -296,11 +296,11 @@ struct FetchMangaArchiveCommand: AppCommand {
 
 struct FetchMangaArchiveFundsCommand: AppCommand {
     let id: String
-    let archiveURL: String
+    let detailURL: String
     
     func execute(in store: Store) {
         let sToken = SubscriptionToken()
-        MangaArchiveFundsRequest(archiveURL: archiveURL)
+        MangaArchiveFundsRequest(detailURL: detailURL)
             .publisher
             .receive(on: DispatchQueue.main)
             .sink { completion in
@@ -308,9 +308,9 @@ struct FetchMangaArchiveFundsCommand: AppCommand {
                     store.dispatch(.fetchMangaArchiveFundsDone(result: .failure(error)))
                 }
                 sToken.unseal()
-            } receiveValue: { archive in
-                if let archive = archive {
-                    store.dispatch(.fetchMangaArchiveFundsDone(result: .success((id, archive))))
+            } receiveValue: { funds in
+                if let funds = funds {
+                    store.dispatch(.fetchMangaArchiveFundsDone(result: .success((id, funds))))
                 } else {
                     store.dispatch(.fetchMangaArchiveFundsDone(result: .failure(.networkingFailed)))
                 }

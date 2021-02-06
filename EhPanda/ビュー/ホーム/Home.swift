@@ -146,13 +146,15 @@ private struct SlideMenu : View {
                 .padding(.bottom, 20)
                 Divider()
                     .padding(.vertical)
-                ForEach(menuItems) { item in
-                    MenuRow(
-                        isSelected: item == homeListType,
-                        symbolName: item.symbolName,
-                        text: item.rawValue,
-                        action: { onMenuRowTap(item) }
-                    )
+                ScrollView(showsIndicators: false) {
+                    ForEach(menuItems) { item in
+                        MenuRow(
+                            isSelected: item == homeListType,
+                            symbolName: item.symbolName,
+                            text: item.rawValue,
+                            action: { onMenuRowTap(item) }
+                        )
+                    }
                 }
                 Divider()
                     .padding(.vertical)
@@ -162,7 +164,6 @@ private struct SlideMenu : View {
                     text: "設定",
                     action: onSettingMenuRowTap
                 )
-                Spacer()
             }
             .padding(.horizontal, 20)
             .padding(.top,edges!.top == 0 ? 15 : edges?.top)

@@ -43,7 +43,7 @@ struct UserInfoRequest {
     let parser = Parser()
     
     var publisher: AnyPublisher<User?, AppError> {
-        return URLSession.shared
+        URLSession.shared
             .dataTaskPublisher(
                 for: URL(string: Defaults.URL.userInfo(uid: uid))!
             )
@@ -60,7 +60,7 @@ struct SearchItemsRequest {
     let parser = Parser()
     
     var publisher: AnyPublisher<(PageNumber, [Manga]), AppError> {
-        return URLSession.shared
+        URLSession.shared
             .dataTaskPublisher(
                 for: URL(string: Defaults.URL.searchList(
                     keyword: keyword,
@@ -300,12 +300,29 @@ struct MangaArchiveRequest {
 }
 
 struct MangaArchiveFundsRequest {
-    let archiveURL: String
+    let detailURL: String
     let parser = Parser()
     
     var publisher: AnyPublisher<(CurrentGP, CurrentCredits)?, AppError> {
+        archiveURL(url: detailURL)
+            .flatMap(funds)
+            .eraseToAnyPublisher()
+    }
+    
+    func archiveURL(url: String) -> AnyPublisher<String, AppError> {
         URLSession.shared
-            .dataTaskPublisher(for: URL(string: archiveURL)!)
+            .dataTaskPublisher(for: URL(string: detailURL)!)
+            .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
+            .compactMap {
+                parser.parseMangaDetail($0).0?.archiveURL
+            }
+            .mapError { _ in .networkingFailed }
+            .eraseToAnyPublisher()
+    }
+    
+    func funds(url: String) -> AnyPublisher<(CurrentGP, CurrentCredits)?, AppError> {
+        URLSession.shared
+            .dataTaskPublisher(for: URL(string: url)!)
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .map(parser.parseCurrentFunds)
             .mapError { _ in .networkingFailed }

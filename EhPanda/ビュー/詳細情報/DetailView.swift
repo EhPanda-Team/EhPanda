@@ -141,6 +141,7 @@ struct DetailView: View {
                             .padding(.vertical, 10)
                         }
                         .padding(.horizontal)
+                        .padding(.bottom, 20)
                     }
                     .transition(AnyTransition.opacity.animation(.default))
                 } else if detailInfo.mangaDetailLoading {

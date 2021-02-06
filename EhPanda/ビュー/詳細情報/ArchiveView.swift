@@ -43,15 +43,6 @@ struct ArchiveView: View {
             Group {
                 if !hathArchives.isEmpty {
                     VStack {
-//                        if let gp = currentGP,
-//                           let credits = currentCredits
-//                        {
-//                            HStack {
-//                                Text(gp)
-//                                Text(credits)
-//
-//                            }
-//                        }
                         LazyVGrid(columns: gridItems, spacing: 10) {
                             ForEach(hathArchives) { hathArchive in
                                 ArchiveGrid(
@@ -64,8 +55,14 @@ struct ArchiveView: View {
                                 })
                             }
                         }
-                        .padding(.top, 30)
+                        .padding(.top, 40)
+                        
                         Spacer()
+                        
+                        if let gp = currentGP,
+                           let credits = currentCredits {
+                            BalanceView(gp: gp, credits: credits)
+                        }
                         DownloadButton(
                             isDisabled: selection == nil,
                             action: onDownloadButtonTap
@@ -145,10 +142,10 @@ private struct ArchiveGrid: View {
                 .fontWeight(.bold)
                 .font(.title3)
             VStack {
-                Text(archive.gpPrice.lString())
+                Text(archive.fileSize.lString())
                     .fontWeight(.medium)
                     .font(.caption)
-                Text(archive.fileSize.lString())
+                Text(archive.gpPrice.lString())
                     .foregroundColor(fileSizeColor)
                     .font(.caption2)
             }
@@ -161,6 +158,27 @@ private struct ArchiveGrid: View {
             RoundedRectangle(cornerRadius: 10)
                 .stroke(borderColor, lineWidth: 1)
         )
+    }
+}
+
+// MARK: BalanceView
+private struct BalanceView: View {
+    let gp: String
+    let credits: String
+    
+    var body: some View {
+        HStack(spacing: 15) {
+            HStack(spacing: 3) {
+                Image(systemName: "g.circle.fill")
+                Text(gp)
+            }
+            HStack(spacing: 3) {
+                Image(systemName: "c.circle.fill")
+                Text(credits)
+            }
+        }
+        .font(.headline)
+        .padding()
     }
 }
 
@@ -190,8 +208,19 @@ private struct DownloadButton: View {
         }
     }
     var paddingInsets: EdgeInsets {
-        isPad ? .init(top: 30, leading: 0, bottom: 0, trailing: 0)
-            : .init(top: 30, leading: 10, bottom: 0, trailing: 10)
+        isPad
+            ? .init(
+                top: 0,
+                leading: 0,
+                bottom: 30,
+                trailing: 0
+            )
+            : .init(
+                top: 0,
+                leading: 10,
+                bottom: 30,
+                trailing: 10
+            )
     }
     
     var body: some View {

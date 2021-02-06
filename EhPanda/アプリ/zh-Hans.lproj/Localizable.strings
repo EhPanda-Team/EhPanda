@@ -47,10 +47,11 @@
 "すべて表示" = "显示全部";
 
 // MARK: ArchiveView
-"Hathサーバーにダウンロード" = "下载到Hath服务器";
-"Original" = "原始尺寸";
 "N/A" = "无效";
 "Free" = "免费";
+"Original" = "原始尺寸";
+"残高" = "余额";
+"Hathサーバーにダウンロード" = "下载到Hath服务器";
 
 // MARK: CommentView
 "賛成" = "赞成";

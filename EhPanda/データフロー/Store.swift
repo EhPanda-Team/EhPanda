@@ -400,9 +400,9 @@ class Store: ObservableObject {
             if appState.detailInfo.mangaArchiveFundsLoading { break }
             appState.detailInfo.mangaArchiveFundsLoading = true
             
-            let archiveURL = (appState.cachedList.items?[id]?.detail?.archiveURL ?? "")
+            let detailURL = (appState.cachedList.items?[id]?.detailURL ?? "")
                 .replacingOccurrences(of: Defaults.URL.exhentai, with: Defaults.URL.ehentai)
-            appCommand = FetchMangaArchiveFundsCommand(id: id, archiveURL: archiveURL)
+            appCommand = FetchMangaArchiveFundsCommand(id: id, detailURL: detailURL)
         case .fetchMangaArchiveFundsDone(result: let result):
             appState.detailInfo.mangaArchiveFundsLoading = false
             
