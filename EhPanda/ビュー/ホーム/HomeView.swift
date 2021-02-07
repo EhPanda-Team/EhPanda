@@ -138,7 +138,9 @@ struct HomeView: View {
         if setting == nil {
             store.dispatch(.initiateSetting)
         }
-        fetchUserInfo()
+        if settings.user?.displayName?.isEmpty != false {
+            fetchUserInfo()
+        }
         fetchFrontpageItemsIfNeeded()
     }
     func onHomeListTypeChange(_ type: HomeListType) {

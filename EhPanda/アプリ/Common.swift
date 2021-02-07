@@ -13,6 +13,29 @@ class Common {
     
 }
 
+public var isSameAccount: Bool {
+    if let eh = URL(string: Defaults.URL.ehentai),
+       let ex = URL(string: Defaults.URL.exhentai)
+    {
+        let ehUID = getCookieValue(
+            url: eh,
+            key: Defaults.Cookie.ipb_member_id
+        ).rawValue
+        let exUid = getCookieValue(
+            url: ex,
+            key: Defaults.Cookie.ipb_member_id
+        ).rawValue
+        
+        if !ehUID.isEmpty && !exUid.isEmpty {
+            return ehUID == exUid
+        } else {
+            return true
+        }
+    } else {
+        return true
+    }
+}
+
 public var currentMetricsData: Any? {
     UserDefaults.standard.object(forKey: "MetricsData")
 }
@@ -98,7 +121,6 @@ public var appIconType: IconType {
 // MARK: あらゆるツール
 public func saveToPasteboard(_ value: String) {
     UIPasteboard.general.string = value
-    notificFeedback(style: .success)
 }
 
 public func impactFeedback(style: UIImpactFeedbackGenerator.FeedbackStyle) {

@@ -6,6 +6,14 @@
   
 */
 
+// MARK: Response
+"You must have a H@H client assigned to your account to use this feature." = "You need a Hath client to use this feature.";
+"Your H@H client appears to be offline. Turn it on, then try again." = "Your Hath client appears to be offline.";
+
+// MARK: HUD
+"成功" = "Success";
+"クリップボードにコピーしました" = "Copied to clipboard";
+
 // MARK: Common
 "null" = "None";
 "expired" = "Expired";
@@ -47,7 +55,7 @@
 "すべて表示" = "Show All";
 
 // MARK: ArchiveView
-"Hathサーバーにダウンロード" = "Download To Hath Server";
+"Hathクライアントにダウンロード" = "Download To Hath Client";
 
 // MARK: CommentView
 "賛成" = "Agree";

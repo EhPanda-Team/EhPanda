@@ -9,35 +9,6 @@ import Kanna
 import Combine
 import Foundation
 
-struct SendMetricsRequest {
-    let ehUsername: String
-    let metrics: Any
-    
-    var publisher: AnyPublisher<Any?, AppError> {
-        let url = Defaults.URL.sendMetrics()
-        let params: [String: Any] = [
-            "name": ehUsername,
-            "data": metrics
-        ]
-        
-        let session = URLSession.shared
-        var request = URLRequest(url: URL(string: url)!)
-        
-        request.httpMethod = "POST"
-        request.setValue(
-            "application/json",
-            forHTTPHeaderField: "Content-Type"
-        )
-        request.httpBody = try? JSONSerialization
-            .data(withJSONObject: params, options: [])
-        
-        return session.dataTaskPublisher(for: request)
-            .map { $0 }
-            .mapError { _ in .networkingFailed }
-            .eraseToAnyPublisher()
-    }
-}
-
 struct UserInfoRequest {
     let uid: String
     let parser = Parser()
@@ -289,7 +260,7 @@ struct MangaArchiveRequest {
     let archiveURL: String
     let parser = Parser()
     
-    var publisher: AnyPublisher<MangaArchive?, AppError> {
+    var publisher: AnyPublisher<(MangaArchive?, CurrentGP?, CurrentCredits?), AppError> {
         URLSession.shared
             .dataTaskPublisher(for: URL(string: archiveURL)!)
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
@@ -395,6 +366,36 @@ struct MangaContentsRequest {
     }
 }
 
+// MARK: POST
+struct SendMetricsRequest {
+    let ehUsername: String
+    let metrics: Any
+    
+    var publisher: AnyPublisher<Any?, AppError> {
+        let url = Defaults.URL.sendMetrics()
+        let params: [String: Any] = [
+            "name": ehUsername,
+            "data": metrics
+        ]
+        
+        let session = URLSession.shared
+        var request = URLRequest(url: URL(string: url)!)
+        
+        request.httpMethod = "POST"
+        request.setValue(
+            "application/json",
+            forHTTPHeaderField: "Content-Type"
+        )
+        request.httpBody = try? JSONSerialization
+            .data(withJSONObject: params, options: [])
+        
+        return session.dataTaskPublisher(for: request)
+            .map { $0 }
+            .mapError { _ in .networkingFailed }
+            .eraseToAnyPublisher()
+    }
+}
+
 struct AddFavoriteRequest {
     let id: String
     let token: String
@@ -440,6 +441,30 @@ struct DeleteFavoriteRequest {
         
         return session.dataTaskPublisher(for: request)
             .map { $0 }
+            .mapError { _ in .networkingFailed }
+            .eraseToAnyPublisher()
+    }
+}
+
+struct SendDownloadCommandRequest {
+    let archiveURL: String
+    let resolution: String
+    let parser = Parser()
+    
+    var publisher: AnyPublisher<Resp?, AppError> {
+        let parameters: [String: String] = [
+            "hathdl_xres": resolution
+        ]
+        
+        let session = URLSession.shared
+        var request = URLRequest(url: URL(string: archiveURL)!)
+        
+        request.httpMethod = "POST"
+        request.httpBody = parameters.jsonString().data(using: .utf8)
+        
+        return session.dataTaskPublisher(for: request)
+            .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
+            .map(parser.parseDownloadCommandResponse)
             .mapError { _ in .networkingFailed }
             .eraseToAnyPublisher()
     }

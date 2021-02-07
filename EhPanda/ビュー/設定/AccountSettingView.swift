@@ -6,10 +6,14 @@
 //
 
 import SwiftUI
+import TTProgressHUD
 
 struct AccountSettingView: View {
     @EnvironmentObject var store: Store
     @State var inEditMode = false
+    
+    @State var hudVisible = false
+    @State var hudConfig = TTProgressHUDConfig()
     
     var settingBinding: Binding<Setting>? {
         Binding($store.appState.settings.setting)
@@ -66,73 +70,76 @@ struct AccountSettingView: View {
     
     // MARK: AccountSettingView本体
     var body: some View {
-        Form {
-            if let settingBinding = settingBinding {
-                Section {
-                    Picker(
-                        selection: settingBinding.galleryType,
-                        label: Text("ギャラリー"),
-                        content: {
-                            let galleryTypes: [GalleryType] = [.eh, .ex]
-                            ForEach(galleryTypes, id: \.self) {
-                                Text($0.rawValue.lString())
-                            }
-                        })
-                        .pickerStyle(SegmentedPickerStyle())
-                    if didLogin {
-                        Text("ログイン済み")
-                            .foregroundColor(.gray)
-                    } else {
-                        Button("ログイン", action: onLoginTap)
-                    }
+        ZStack {
+            Form {
+                if let settingBinding = settingBinding {
+                    Section {
+                        Picker(
+                            selection: settingBinding.galleryType,
+                            label: Text("ギャラリー"),
+                            content: {
+                                let galleryTypes: [GalleryType] = [.eh, .ex]
+                                ForEach(galleryTypes, id: \.self) {
+                                    Text($0.rawValue.lString())
+                                }
+                            })
+                            .pickerStyle(SegmentedPickerStyle())
+                        if didLogin {
+                            Text("ログイン済み")
+                                .foregroundColor(.gray)
+                        } else {
+                            Button("ログイン", action: onLoginTap)
+                        }
 
-                    Button(action: onLogoutTap) {
-                        Text("ログアウト")
-                            .foregroundColor(.red)
+                        Button(action: onLogoutTap) {
+                            Text("ログアウト")
+                                .foregroundColor(.red)
+                        }
                     }
                 }
+                Section(header: Text("E-Hentai")) {
+                    CookieRow(
+                        inEditMode: $inEditMode,
+                        key: memberIDKey,
+                        value: ehMemberID,
+                        verifyView: verifyView(ehMemberID),
+                        editChangedAction: onEhMemberIDEditingChanged
+                    )
+                    CookieRow(
+                        inEditMode: $inEditMode,
+                        key: passHashKey,
+                        value: ehPassHash,
+                        verifyView: verifyView(ehPassHash),
+                        editChangedAction: onEhPassHashEditingChanged
+                    )
+                    Button("クッキーをコピー", action: copyEhCookies)
+                }
+                Section(header: Text("ExHentai")) {
+                    CookieRow(
+                        inEditMode: $inEditMode,
+                        key: igneousKey,
+                        value: igneous,
+                        verifyView: verifyView(igneous),
+                        editChangedAction: onIgneousEditingChanged
+                    )
+                    CookieRow(
+                        inEditMode: $inEditMode,
+                        key: memberIDKey,
+                        value: exMemberID,
+                        verifyView: verifyView(exMemberID),
+                        editChangedAction: onExMemberIDEditingChanged
+                    )
+                    CookieRow(
+                        inEditMode: $inEditMode,
+                        key: passHashKey,
+                        value: exPassHash,
+                        verifyView: verifyView(exPassHash),
+                        editChangedAction: onExPassHashEditingChanged
+                    )
+                    Button("クッキーをコピー", action: copyExCookies)
+                }
             }
-            Section(header: Text("E-Hentai")) {
-                CookieRow(
-                    inEditMode: $inEditMode,
-                    key: memberIDKey,
-                    value: ehMemberID,
-                    verifyView: verifyView(ehMemberID),
-                    editChangedAction: onEhMemberIDEditingChanged
-                )
-                CookieRow(
-                    inEditMode: $inEditMode,
-                    key: passHashKey,
-                    value: ehPassHash,
-                    verifyView: verifyView(ehPassHash),
-                    editChangedAction: onEhPassHashEditingChanged
-                )
-                Button("クッキーをコピー", action: copyEhCookies)
-            }
-            Section(header: Text("ExHentai")) {
-                CookieRow(
-                    inEditMode: $inEditMode,
-                    key: igneousKey,
-                    value: igneous,
-                    verifyView: verifyView(igneous),
-                    editChangedAction: onIgneousEditingChanged
-                )
-                CookieRow(
-                    inEditMode: $inEditMode,
-                    key: memberIDKey,
-                    value: exMemberID,
-                    verifyView: verifyView(exMemberID),
-                    editChangedAction: onExMemberIDEditingChanged
-                )
-                CookieRow(
-                    inEditMode: $inEditMode,
-                    key: passHashKey,
-                    value: exPassHash,
-                    verifyView: verifyView(exPassHash),
-                    editChangedAction: onExPassHashEditingChanged
-                )
-                Button("クッキーをコピー", action: copyExCookies)
-            }
+            TTProgressHUD($hudVisible, config: hudConfig)
         }
         .navigationBarTitle("アカウント")
         .navigationBarItems(trailing:
@@ -178,12 +185,25 @@ struct AccountSettingView: View {
         let cookies = "\(memberIDKey): \(ehMemberID.rawValue)"
             + "\n\(passHashKey): \(ehPassHash.rawValue)"
         saveToPasteboard(cookies)
+        showCopiedHUD()
     }
     func copyExCookies() {
         let cookies = "\(igneousKey): \(igneous.rawValue)"
             + "\n\(memberIDKey): \(exMemberID.rawValue)"
             + "\n\(passHashKey): \(exPassHash.rawValue)"
         saveToPasteboard(cookies)
+        showCopiedHUD()
+    }
+    
+    func showCopiedHUD() {
+        hudConfig = TTProgressHUDConfig(
+            type: .Success,
+            title: "成功".lString(),
+            caption: "クリップボードにコピーしました".lString(),
+            shouldAutoHide: true,
+            autoHideInterval: 2
+        )
+        hudVisible.toggle()
     }
     
     func toggleWebView() {

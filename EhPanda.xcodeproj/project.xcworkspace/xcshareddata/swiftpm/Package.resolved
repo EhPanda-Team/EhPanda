@@ -14,8 +14,26 @@
         "package": "Kingfisher",
         "repositoryURL": "https://github.com/onevcat/Kingfisher.git",
         "state": {
-          "branch": "fix/unnecessary-dispatch",
-          "revision": "3f7452340bc243e1dd85c92006a8ad776d20cd67",
+          "branch": null,
+          "revision": "daebf8ddf974164d1b9a050c8231e263f3106b09",
+          "version": "6.1.0"
+        }
+      },
+      {
+        "package": "SwiftUIVisualEffects",
+        "repositoryURL": "https://github.com/lucasbrown/swiftui-visual-effects.git",
+        "state": {
+          "branch": "master",
+          "revision": "b26f8cebd55ff60ed8953768aa818dfb005b5838",
+          "version": null
+        }
+      },
+      {
+        "package": "TTProgressHUD",
+        "repositoryURL": "https://github.com/honkmaster/TTProgressHUD.git",
+        "state": {
+          "branch": "master",
+          "revision": "d86f54997e4722c83e5c3e8e133cfbaae122772d",
           "version": null
         }
       }

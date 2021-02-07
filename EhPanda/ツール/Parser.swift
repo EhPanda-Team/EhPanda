@@ -375,10 +375,10 @@ class Parser {
     }
     
     // MARK: アーカイブ
-    func parseMangaArchive(doc: HTMLDocument) -> MangaArchive? {
+    func parseMangaArchive(doc: HTMLDocument) -> (MangaArchive?, CurrentGP?, CurrentCredits?) {
         var hathArchives = [MangaArchive.HathArchive]()
         
-        guard let tableNode = doc.at_xpath("//table") else { return nil }
+        guard let tableNode = doc.at_xpath("//table") else { return (nil, nil, nil) }
         for tdLink in tableNode.xpath("//td") {
             var tmpResolution: ArchiveRes?
             var tmpFileSize: String?
@@ -424,11 +424,7 @@ class Parser {
         }
         
         let funds = parseCurrentFunds(doc)
-        return MangaArchive(
-            currentGP: funds?.0,
-            currentCredits: funds?.1,
-            hathArchives: hathArchives
-        )
+        return (MangaArchive(hathArchives: hathArchives), funds?.0, funds?.1)
     }
     
     // MARK: トレント
@@ -625,6 +621,24 @@ extension Parser {
            let credits = currentCredits
         {
             return (gp, credits)
+        } else {
+            return nil
+        }
+    }
+    
+    func parseDownloadCommandResponse(_ doc: HTMLDocument) -> Resp? {
+        guard let dbNode = doc.at_xpath("//div [@id='db']")
+        else { return nil }
+        
+        var response = [String]()
+        for pLink in dbNode.xpath("//p") {
+            if let pText = pLink.text {
+                response.append(pText)
+            }
+        }
+        
+        if !response.isEmpty {
+            return response.joined(separator: " ")
         } else {
             return nil
         }

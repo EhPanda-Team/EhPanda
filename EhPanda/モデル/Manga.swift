@@ -65,8 +65,6 @@ struct MangaArchive: Codable {
         let gpPrice: String
     }
     
-    var currentGP: String?
-    var currentCredits: String?
     let hathArchives: [HathArchive]
 }
 
@@ -388,6 +386,17 @@ enum ArchiveRes: String, Codable, CaseIterable {
     case x1600 = "1600x"
     case x2400 = "2400x"
     case original = "Original"
+}
+
+extension ArchiveRes {
+    var param: String {
+        switch self {
+        case .original:
+            return "org"
+        default:
+            return rawValue
+        }
+    }
 }
 
 enum Language: String, Codable {

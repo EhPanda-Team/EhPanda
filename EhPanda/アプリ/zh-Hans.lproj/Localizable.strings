@@ -6,6 +6,14 @@
   
 */
 
+// MARK: Response
+"You must have a H@H client assigned to your account to use this feature." = "你需要一台Hath客户端才能使用这个功能";
+"Your H@H client appears to be offline. Turn it on, then try again." = "你的Hath客户端似乎处于离线状态";
+
+// MARK: HUD
+"成功" = "成功";
+"クリップボードにコピーしました" = "已复制到剪切板";
+
 // MARK: Common
 "null" = "无内容";
 "expired" = "已过期";
@@ -51,7 +59,7 @@
 "Free" = "免费";
 "Original" = "原始尺寸";
 "残高" = "余额";
-"Hathサーバーにダウンロード" = "下载到Hath服务器";
+"Hathクライアントにダウンロード" = "下载到Hath客户端";
 
 // MARK: CommentView
 "賛成" = "赞成";

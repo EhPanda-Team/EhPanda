@@ -50,6 +50,10 @@ class Store: ObservableObject {
         case .updateHistoryItems(let id):
             let item = appState.cachedList.items?[id]
             appState.homeInfo.insertHistoryItem(manga: item)
+        case .resetDownloadCommandResponse:
+            appState.detailInfo.downloadCommandResponse = nil
+            appState.detailInfo.downloadCommandSending = false
+            appState.detailInfo.downloadCommandFailed = false
             
         // MARK: アプリ環境
         case .toggleHomeListType(let type):
@@ -96,11 +100,8 @@ class Store: ObservableObject {
             
             switch result {
             case .success(let user):
-                if let displayName = user?.displayName {
-                    appState.settings.user?.displayName = displayName
-                }
-                if let avatarURL = user?.avatarURL {
-                    appState.settings.user?.avatarURL = avatarURL
+                if let user = user {
+                    appState.settings.updateUser(user)
                 }
             case .failure(let error):
                 print(error)
@@ -391,6 +392,17 @@ class Store: ObservableObject {
             switch result {
             case .success(let archive):
                 appState.cachedList.insertArchive(id: archive.0, archive: archive.1)
+                
+                if let currentGP = archive.2,
+                   let currentCredits = archive.3
+                {
+                    appState.settings.updateUser(
+                        User(
+                            currentGP: currentGP,
+                            currentCredits: currentCredits
+                        )
+                    )
+                }
             case .failure(let error):
                 print(error)
                 appState.detailInfo.mangaArchiveLoadFailed = true
@@ -408,7 +420,12 @@ class Store: ObservableObject {
             
             switch result {
             case .success(let funds):
-                appState.cachedList.insertArchiveFunds(id: funds.0, funds: funds.1)
+                appState.settings.updateUser(
+                    User(
+                        currentGP: funds.0,
+                        currentCredits: funds.1
+                    )
+                )
             case .failure(let error):
                 print(error)
             }
@@ -576,6 +593,30 @@ class Store: ObservableObject {
             appCommand = AddFavoriteCommand(id: id, token: token)
         case .deleteFavorite(let id):
             appCommand = DeleteFavoriteCommand(id: id)
+            
+        case .sendDownloadCommand(let id, let resolution):
+            appState.detailInfo.downloadCommandFailed = false
+            
+            if appState.detailInfo.downloadCommandSending { break }
+            appState.detailInfo.downloadCommandSending = true
+            
+            let archiveURL = appState.cachedList.items?[id]?.detail?.archiveURL ?? ""
+            appCommand = SendDownloadCommand(archiveURL: archiveURL, resolution: resolution)
+        case .sendDownloadCommandDone(let result):
+            appState.detailInfo.downloadCommandSending = false
+            
+            switch result {
+            case .success(let resp):
+                if resp == Defaults.Response.hathClientNotFound ||
+                    resp == Defaults.Response.hathClientNotOnline
+                {
+                    appState.detailInfo.downloadCommandFailed = true
+                }
+                appState.detailInfo.downloadCommandResponse = resp
+            case .failure(let error):
+                appState.detailInfo.downloadCommandFailed = true
+                print(error)
+            }
             
         case .rate(let id, let rating):
             guard let apiuidString = appState.settings.user?.apiuid,

@@ -23,6 +23,7 @@ enum AppAction {
     case updateDiskImageCacheSize(size: String)
     case updateAppIconType(iconType: IconType)
     case updateHistoryItems(id: String)
+    case resetDownloadCommandResponse
     
     case toggleNavBarHidden(isHidden: Bool)
     case toggleHomeListType(type: HomeListType)
@@ -59,9 +60,9 @@ enum AppAction {
     case fetchMangaDetail(id: String)
     case fetchMangaDetailDone(result: Result<(Identity, MangaDetail, APIKey), AppError>)
     case fetchMangaArchive(id: String)
-    case fetchMangaArchiveDone(result: Result<(Identity, MangaArchive), AppError>)
+    case fetchMangaArchiveDone(result: Result<(Identity, MangaArchive, CurrentGP?, CurrentCredits?), AppError>)
     case fetchMangaArchiveFunds(id: String)
-    case fetchMangaArchiveFundsDone(result: Result<(Identity, (CurrentGP, CurrentCredits)), AppError>)
+    case fetchMangaArchiveFundsDone(result: Result<((CurrentGP, CurrentCredits)), AppError>)
     case fetchMangaTorrents(id: String)
     case fetchMangaTorrentsDone(result: Result<(Identity, [MangaTorrent]), AppError>)
     case fetchAssociatedItems(depth: Int, keyword: AssociatedKeyword)
@@ -79,6 +80,8 @@ enum AppAction {
     
     case addFavorite(id: String)
     case deleteFavorite(id: String)
+    case sendDownloadCommand(id: String, resolution: String)
+    case sendDownloadCommandDone(result: Result<Resp?, AppError>)
     case rate(id: String, rating: Int)
     case comment(id: String, content: String)
     case editComment(id: String, commentID: String, content: String)

@@ -6,6 +6,10 @@
   
 */
 
+// MARK: Response
+"You must have a H@H client assigned to your account to use this feature." = "この機能を使うにはHathクライアントが必要です";
+"Your H@H client appears to be offline. Turn it on, then try again." = "Hathクライアントは現在オフラインのようです";
+
 // MARK: Common
 "null" = "なし";
 "expired" = "期限切れ";

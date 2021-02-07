@@ -55,6 +55,7 @@
 		ABCD2F0A259763FC008E5A20 /* Request.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD2F09259763FC008E5A20 /* Request.swift */; };
 		ABCD2F0E25976B95008E5A20 /* Parser.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD2F0D25976B95008E5A20 /* Parser.swift */; };
 		ABDAD2A825AC28BF00BA4DB8 /* KRefreshScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABDAD2A725AC28BF00BA4DB8 /* KRefreshScrollView.swift */; };
+		ABDD1F6525CFCBC1008099B2 /* TTProgressHUD in Frameworks */ = {isa = PBXBuildFile; productRef = ABDD1F6425CFCBC1008099B2 /* TTProgressHUD */; };
 		ABEA1FE625A9B40B002966B9 /* Setting.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABEA1FE525A9B40B002966B9 /* Setting.swift */; };
 		ABEE0AFA2595C6F800C997AE /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = ABEE0AFC2595C6F800C997AE /* Localizable.strings */; };
 		ABF313A125B1714400D47A2F /* AssociatedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF313A025B1714400D47A2F /* AssociatedView.swift */; };
@@ -134,6 +135,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				ABDD1F6525CFCBC1008099B2 /* TTProgressHUD in Frameworks */,
 				AB84F47525CAF56D00DAF1EC /* Kingfisher in Frameworks */,
 				ABC3C79D259369FE00E0C11B /* Kanna in Frameworks */,
 			);
@@ -339,6 +341,7 @@
 			packageProductDependencies = (
 				ABC3C79C259369FE00E0C11B /* Kanna */,
 				AB84F47425CAF56D00DAF1EC /* Kingfisher */,
+				ABDD1F6425CFCBC1008099B2 /* TTProgressHUD */,
 			);
 			productName = EhPanda;
 			productReference = ABC3C7542593696C00E0C11B /* EhPanda.app */;
@@ -372,6 +375,7 @@
 			packageReferences = (
 				ABC3C79B259369FE00E0C11B /* XCRemoteSwiftPackageReference "Kanna" */,
 				AB84F47325CAF56D00DAF1EC /* XCRemoteSwiftPackageReference "Kingfisher" */,
+				ABDD1F6325CFCBC1008099B2 /* XCRemoteSwiftPackageReference "TTProgressHUD" */,
 			);
 			productRefGroup = ABC3C7552593696C00E0C11B /* Products */;
 			projectDirPath = "";
@@ -667,8 +671,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/onevcat/Kingfisher.git";
 			requirement = {
-				branch = "fix/unnecessary-dispatch";
-				kind = branch;
+				kind = upToNextMajorVersion;
+				minimumVersion = 6.1.0;
 			};
 		};
 		ABC3C79B259369FE00E0C11B /* XCRemoteSwiftPackageReference "Kanna" */ = {
@@ -677,6 +681,14 @@
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 5.2.4;
+			};
+		};
+		ABDD1F6325CFCBC1008099B2 /* XCRemoteSwiftPackageReference "TTProgressHUD" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/honkmaster/TTProgressHUD.git";
+			requirement = {
+				branch = master;
+				kind = branch;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
@@ -691,6 +703,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = ABC3C79B259369FE00E0C11B /* XCRemoteSwiftPackageReference "Kanna" */;
 			productName = Kanna;
+		};
+		ABDD1F6425CFCBC1008099B2 /* TTProgressHUD */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = ABDD1F6325CFCBC1008099B2 /* XCRemoteSwiftPackageReference "TTProgressHUD" */;
+			productName = TTProgressHUD;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

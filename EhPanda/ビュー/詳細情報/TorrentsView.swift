@@ -6,10 +6,14 @@
 //
 
 import SwiftUI
+import TTProgressHUD
 
 struct TorrentsView: View {
     @EnvironmentObject var store: Store
     @Environment(\.colorScheme) var colorScheme
+    
+    @State var hudVisible = false
+    @State var hudConfig = TTProgressHUDConfig()
     
     var id: String
     var color: Color {
@@ -35,17 +39,23 @@ struct TorrentsView: View {
         NavigationView {
             Group {
                 if !torrents.isEmpty {
-                    ScrollView {
-                        LazyVStack {
-                            ForEach(torrents) { torrent in
-                                TorrentRow(torrent: torrent)
+                    ZStack {
+                        ScrollView {
+                            LazyVStack {
+                                ForEach(torrents) { torrent in
+                                    TorrentRow(
+                                        torrent: torrent,
+                                        action: onTorrentRowTap
+                                    )
                                     .background(color)
                                     .cornerRadius(10)
                                     .padding(.horizontal)
                                     .padding(.vertical, 5)
+                                }
                             }
+                            .padding(.top)
                         }
-                        .padding(.top)
+                        TTProgressHUD($hudVisible, config: hudConfig)
                     }
                 } else if detailInfo.mangaTorrentsLoading {
                     LoadingView()
@@ -61,6 +71,22 @@ struct TorrentsView: View {
     func onAppear() {
         fetchMangaTorrents()
     }
+    func onTorrentRowTap(_ magnet: String) {
+        saveToPasteboard(magnet)
+        showCopiedHUD()
+    }
+    
+    func showCopiedHUD() {
+        hudConfig = TTProgressHUDConfig(
+            type: .Success,
+            title: "成功".lString(),
+            caption: "クリップボードにコピーしました".lString(),
+            shouldAutoHide: true,
+            autoHideInterval: 2
+        )
+        hudVisible.toggle()
+    }
+    
     func fetchMangaTorrents() {
         store.dispatch(.fetchMangaTorrents(id: id))
     }
@@ -68,6 +94,7 @@ struct TorrentsView: View {
 
 private struct TorrentRow: View {
     let torrent: MangaTorrent
+    let action: (String) -> ()
     
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -109,7 +136,7 @@ private struct TorrentRow: View {
     }
     
     func onFileNameTap() {
-        saveToPasteboard(torrent.magnet)
+        action(torrent.magnet)
     }
 }
 

@@ -43,8 +43,13 @@ class Defaults {
         static var ipb_member_id = "ipb_member_id"
         static var ipb_pass_hash = "ipb_pass_hash"
     }
+    class Response {
+        static var hathClientNotFound = "You must have a H@H client assigned to your account to use this feature."
+        static var hathClientNotOnline = "Your H@H client appears to be offline. Turn it on, then try again."
+        
+    }
     class URL {
-        // いわゆるホストドメイン
+        // あらゆるホストドメイン
         static var host: String {
             if exx {
                 return galleryType == .eh ? ehentai : exhentai

@@ -13,29 +13,6 @@ protocol AppCommand {
     func execute(in store: Store)
 }
 
-struct SendMetricsCommand: AppCommand {
-    let ehUsername: String
-    let metrics: Any
-    
-    func execute(in store: Store) {
-        let token = SubscriptionToken()
-        SendMetricsRequest(ehUsername: ehUsername, metrics: metrics)
-            .publisher
-            .receive(on: DispatchQueue.main)
-            .sink { completion in
-                if case .finished = completion {
-                    clearMetricsData()
-                }
-                token.unseal()
-            } receiveValue: {
-                if let value = $0 {
-                    print(value)
-                }
-            }
-            .seal(in: token)
-    }
-}
-
 struct FetchUserInfoCommand: AppCommand {
     let uid: String
     
@@ -284,8 +261,13 @@ struct FetchMangaArchiveCommand: AppCommand {
                 }
                 sToken.unseal()
             } receiveValue: { archive in
-                if let archive = archive {
-                    store.dispatch(.fetchMangaArchiveDone(result: .success((id, archive))))
+                if let arc = archive.0 {
+                    store.dispatch(.fetchMangaArchiveDone(result: .success((id, arc, archive.1, archive.2))))
+                    if archive.1 == nil
+                        || archive.2 == nil
+                    {
+                        store.dispatch(.fetchMangaArchiveFunds(id: id))
+                    }
                 } else {
                     store.dispatch(.fetchMangaArchiveDone(result: .failure(.networkingFailed)))
                 }
@@ -310,7 +292,7 @@ struct FetchMangaArchiveFundsCommand: AppCommand {
                 sToken.unseal()
             } receiveValue: { funds in
                 if let funds = funds {
-                    store.dispatch(.fetchMangaArchiveFundsDone(result: .success((id, funds))))
+                    store.dispatch(.fetchMangaArchiveFundsDone(result: .success(funds)))
                 } else {
                     store.dispatch(.fetchMangaArchiveFundsDone(result: .failure(.networkingFailed)))
                 }
@@ -486,6 +468,29 @@ struct FetchMangaContentsCommand: AppCommand {
     }
 }
 
+struct SendMetricsCommand: AppCommand {
+    let ehUsername: String
+    let metrics: Any
+    
+    func execute(in store: Store) {
+        let token = SubscriptionToken()
+        SendMetricsRequest(ehUsername: ehUsername, metrics: metrics)
+            .publisher
+            .receive(on: DispatchQueue.main)
+            .sink { completion in
+                if case .finished = completion {
+                    clearMetricsData()
+                }
+                token.unseal()
+            } receiveValue: {
+                if let value = $0 {
+                    print(value)
+                }
+            }
+            .seal(in: token)
+    }
+}
+
 struct AddFavoriteCommand: AppCommand {
     let id: String
     let token: String
@@ -520,6 +525,30 @@ struct DeleteFavoriteCommand: AppCommand {
                 sToken.unseal()
             } receiveValue: { _ in }
             .seal(in: sToken)
+    }
+}
+
+struct SendDownloadCommand: AppCommand {
+    let archiveURL: String
+    let resolution: String
+    
+    func execute(in store: Store) {
+        let token = SubscriptionToken()
+        SendDownloadCommandRequest(
+            archiveURL: archiveURL,
+            resolution: resolution
+        )
+        .publisher
+        .receive(on: DispatchQueue.main)
+        .sink { completion in
+            if case .failure(let error) = completion {
+                store.dispatch(.sendDownloadCommandDone(result: .failure(error)))
+            }
+            token.unseal()
+        } receiveValue: { resp in
+            store.dispatch(.sendDownloadCommandDone(result: .success(resp)))
+        }
+        .seal(in: token)
     }
 }
 

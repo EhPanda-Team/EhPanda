@@ -6,10 +6,18 @@
 //
 
 import SwiftUI
+import TTProgressHUD
 
 struct ArchiveView: View {
     @EnvironmentObject var store: Store
     @State var selection: ArchiveRes? = nil
+    
+    @State var hudVisible = false
+    @State var hudConfig = TTProgressHUDConfig()
+    var loadingHUDConfig = TTProgressHUDConfig(
+        type: .Loading,
+        title: "サーバーと通信中"
+    )
     
     let id: String
     var cachedList: AppState.CachedList {
@@ -18,6 +26,12 @@ struct ArchiveView: View {
     var detailInfo: AppState.DetailInfo {
         store.appState.detailInfo
     }
+    var detailInfoBinding: Binding<AppState.DetailInfo> {
+        $store.appState.detailInfo
+    }
+    var user: User? {
+        store.appState.settings.user
+    }
     var mangaDetail: MangaDetail? {
         cachedList.items?[id]?.detail
     }
@@ -25,10 +39,10 @@ struct ArchiveView: View {
         mangaDetail?.archive
     }
     var currentGP: String? {
-        archive?.currentGP
+        user?.currentGP
     }
     var currentCredits: String? {
-        archive?.currentCredits
+        user?.currentCredits
     }
     var hathArchives: [MangaArchive.HathArchive] {
         archive?.hathArchives ?? []
@@ -42,33 +56,42 @@ struct ArchiveView: View {
         NavigationView {
             Group {
                 if !hathArchives.isEmpty {
-                    VStack {
-                        LazyVGrid(columns: gridItems, spacing: 10) {
-                            ForEach(hathArchives) { hathArchive in
-                                ArchiveGrid(
-                                    selected: selection
-                                        == hathArchive.resolution,
-                                    archive: hathArchive
-                                )
-                                .onTapGesture(perform: {
-                                    onArchiveGridTap(hathArchive)
-                                })
+                    ZStack {
+                        VStack {
+                            LazyVGrid(columns: gridItems, spacing: 10) {
+                                ForEach(hathArchives) { hathArchive in
+                                    ArchiveGrid(
+                                        selected: selection
+                                            == hathArchive.resolution,
+                                        archive: hathArchive
+                                    )
+                                    .onTapGesture(perform: {
+                                        onArchiveGridTap(hathArchive)
+                                    })
+                                }
                             }
+                            .padding(.top, 40)
+                            
+                            Spacer()
+                            
+                            if isSameAccount,
+                               let gp = currentGP,
+                               let credits = currentCredits
+                            {
+                                BalanceView(gp: gp, credits: credits)
+                            }
+                            DownloadButton(
+                                isDisabled: selection == nil,
+                                action: onDownloadButtonTap
+                            )
                         }
-                        .padding(.top, 40)
-                        
-                        Spacer()
-                        
-                        if let gp = currentGP,
-                           let credits = currentCredits {
-                            BalanceView(gp: gp, credits: credits)
-                        }
-                        DownloadButton(
-                            isDisabled: selection == nil,
-                            action: onDownloadButtonTap
+                        .padding(.horizontal)
+                        TTProgressHUD(
+                            detailInfoBinding.downloadCommandSending,
+                            config: loadingHUDConfig
                         )
+                        TTProgressHUD($hudVisible, config: hudConfig)
                     }
-                    .padding(.horizontal)
                 } else if detailInfo.mangaArchiveLoading {
                     LoadingView()
                 } else {
@@ -77,6 +100,14 @@ struct ArchiveView: View {
             }
             .navigationBarTitle("アーカイブ")
             .onAppear(perform: onAppear)
+            .onChange(
+                of: detailInfo.downloadCommandSending,
+                perform: onRespChange
+            )
+            .onChange(
+                of: hudVisible,
+                perform: onHUDVisibilityChange
+            )
         }
     }
     
@@ -91,13 +122,92 @@ struct ArchiveView: View {
         }
     }
     func onDownloadButtonTap() {
-        
+        if let res = selection?.param {
+            store.dispatch(.sendDownloadCommand(id: id, resolution: res))
+        }
+    }
+    func onRespChange<E: Equatable>(_ value: E) {
+        if let sending = value as? Bool,
+           sending == false
+        {
+            if var response = detailInfo.downloadCommandResponse {
+                response = processResponse(response)
+                hudConfig = TTProgressHUDConfig(
+                    type: .Success,
+                    title: "成功".lString(),
+                    caption: response.lString(),
+                    shouldAutoHide: true,
+                    autoHideInterval: 2
+                )
+            }
+            if detailInfo.downloadCommandFailed {
+                if let response = detailInfo.downloadCommandResponse {
+                    hudConfig = TTProgressHUDConfig(
+                        type: .Error,
+                        title: "失敗".lString(),
+                        caption: response.lString(),
+                        shouldAutoHide: true,
+                        autoHideInterval: 2
+                    )
+                } else {
+                    hudConfig = TTProgressHUDConfig(
+                        type: .Error,
+                        title: "失敗".lString(),
+                        shouldAutoHide: true,
+                        autoHideInterval: 2
+                    )
+                }
+            }
+            hudVisible.toggle()
+        }
+    }
+    func onHUDVisibilityChange<E: Equatable>(_ value: E) {
+        if let isVisible = value as? Bool,
+           isVisible == false
+        {
+            store.dispatch(.resetDownloadCommandResponse)
+        }
+    }
+    
+    func processResponse(_ resp: String) -> String {
+        if let rangeA = resp.range(of: "A "),
+           let rangeB = resp.range(of: "resolution"),
+           let rangeC = resp.range(of: "client"),
+           let rangeD = resp.range(of: "Downloads")
+        {
+            let res = String(
+                resp
+                    .suffix(from: rangeA.upperBound)
+                    .prefix(upTo: rangeB.lowerBound)
+            )
+            .capitalizingFirstLetter()
+            .trimmingCharacters(
+                in: .whitespacesAndNewlines
+            )
+            
+            if ArchiveRes(rawValue: res) != nil {
+                let clientName = String(
+                    resp
+                        .suffix(from: rangeC.upperBound)
+                        .prefix(upTo: rangeD.lowerBound)
+                )
+                .trimmingCharacters(
+                    in: .whitespacesAndNewlines
+                )
+                
+                return res.lString() + " -> " + clientName
+            } else {
+                return resp
+            }
+        } else {
+            return resp
+        }
     }
     
     func fetchMangaArchive() {
         store.dispatch(.fetchMangaArchive(id: id))
-        if archive?.currentGP == nil
-            || archive?.currentCredits == nil
+        if currentGP == nil
+            || currentCredits == nil
         {
             store.dispatch(.fetchMangaArchiveFunds(id: id))
         }
@@ -191,7 +301,7 @@ private struct DownloadButton: View {
     
     var textColor: Color {
         if isDisabled {
-            return .gray
+            return Color.white.opacity(0.5)
         } else {
             return isPressed
                 ? Color.white.opacity(0.5)
@@ -226,7 +336,7 @@ private struct DownloadButton: View {
     var body: some View {
         HStack {
             Spacer()
-            Text("Hathサーバーにダウンロード")
+            Text("Hathクライアントにダウンロード")
                 .fontWeight(.bold)
                 .font(.headline)
                 .foregroundColor(textColor)

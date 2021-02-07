@@ -12,6 +12,9 @@ struct User: Codable {
     var avatarURL: String?
     var apikey: String?
     
+    var currentGP: String?
+    var currentCredits: String?
+    
     var apiuid: String {
         getCookieValue(
             url: URL(

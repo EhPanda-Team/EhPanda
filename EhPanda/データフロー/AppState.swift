@@ -18,6 +18,7 @@ struct AppState {
 }
 
 extension AppState {
+    // MARK: Environment
     struct Environment {
         var navBarHidden = false
         var homeListType: HomeListType = .frontpage
@@ -29,6 +30,7 @@ extension AppState {
         var commentViewSheetState: CommentViewSheetState? = nil
     }
     
+    // MARK: Settings
     struct Settings {
         var userInfoLoading = false
         
@@ -38,10 +40,26 @@ extension AppState {
         var filter: Filter?
         @FileStorage(directory: .cachesDirectory, fileName: "setting.json")
         var setting: Setting?
+        
+        mutating func updateUser(_ user: User) {
+            if let displayName = user.displayName {
+                self.user?.displayName = displayName
+            }
+            if let avatarURL = user.avatarURL {
+                self.user?.avatarURL = avatarURL
+            }
+            if let currentGP = user.currentGP,
+               let currentCredits = user.currentCredits
+            {
+                self.user?.currentGP = currentGP
+                self.user?.currentCredits = currentCredits
+            }
+        }
     }
 }
 
 extension AppState {
+    // MARK: HomeInfo
     struct HomeInfo {
         var searchKeyword = ""
         
@@ -130,6 +148,7 @@ extension AppState {
         }
     }
     
+    // MARK: DetailInfo
     struct DetailInfo {
         var commentContent = ""
         
@@ -139,6 +158,10 @@ extension AppState {
         var mangaArchiveLoading = false
         var mangaArchiveLoadFailed = false
         var mangaArchiveFundsLoading = false
+        
+        var downloadCommandResponse: String? = nil
+        var downloadCommandSending = false
+        var downloadCommandFailed = false
         
         var mangaTorrentsLoading = false
         var mangaTorrentsLoadFailed = false
@@ -209,6 +232,7 @@ extension AppState {
 }
 
 extension AppState {
+    // MARK: CachedList
     struct CachedList {
         @FileStorage(directory: .cachesDirectory, fileName: "cachedList.json")
         var items: [String : Manga]?
@@ -239,10 +263,6 @@ extension AppState {
         }
         mutating func insertArchive(id: String, archive: MangaArchive) {
             items?[id]?.detail?.archive = archive
-        }
-        mutating func insertArchiveFunds(id: String, funds: (CurrentGP, CurrentCredits)) {
-            items?[id]?.detail?.archive?.currentGP = funds.0
-            items?[id]?.detail?.archive?.currentCredits = funds.1
         }
         mutating func insertTorrents(id: String, torrents: [MangaTorrent]) {
             items?[id]?.detail?.torrents = torrents
