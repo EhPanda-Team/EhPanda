@@ -13,7 +13,9 @@ struct TorrentsView: View {
     @Environment(\.colorScheme) var colorScheme
     
     @State var hudVisible = false
-    @State var hudConfig = TTProgressHUDConfig()
+    @State var hudConfig = TTProgressHUDConfig(
+        hapticsEnabled: false
+    )
     
     var id: String
     var color: Color {
@@ -82,7 +84,8 @@ struct TorrentsView: View {
             title: "成功".lString(),
             caption: "クリップボードにコピーしました".lString(),
             shouldAutoHide: true,
-            autoHideInterval: 2
+            autoHideInterval: 2,
+            hapticsEnabled: false
         )
         hudVisible.toggle()
     }

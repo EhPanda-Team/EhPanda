@@ -12,6 +12,7 @@
 
 // MARK: HUD
 "成功" = "Success";
+"エラー" = "Error";
 "クリップボードにコピーしました" = "Copied to clipboard";
 
 // MARK: Common

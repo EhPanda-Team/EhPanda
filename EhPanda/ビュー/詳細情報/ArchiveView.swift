@@ -13,10 +13,13 @@ struct ArchiveView: View {
     @State var selection: ArchiveRes? = nil
     
     @State var hudVisible = false
-    @State var hudConfig = TTProgressHUDConfig()
+    @State var hudConfig = TTProgressHUDConfig(
+        hapticsEnabled: false
+    )
     var loadingHUDConfig = TTProgressHUDConfig(
         type: .Loading,
-        title: "サーバーと通信中"
+        title: "サーバーと通信中",
+        hapticsEnabled: false
     )
     
     let id: String
@@ -130,34 +133,45 @@ struct ArchiveView: View {
         if let sending = value as? Bool,
            sending == false
         {
-            if var response = detailInfo.downloadCommandResponse {
-                response = processResponse(response)
-                hudConfig = TTProgressHUDConfig(
-                    type: .Success,
-                    title: "成功".lString(),
-                    caption: response.lString(),
-                    shouldAutoHide: true,
-                    autoHideInterval: 2
-                )
-            }
-            if detailInfo.downloadCommandFailed {
+            var type: TTProgressHUDType = .Warning
+            var title: String?
+            var caption: String?
+            
+            if !detailInfo.downloadCommandFailed,
+               let response = detailInfo.downloadCommandResponse
+            {
+                type = .Success
+                title = "成功".lString()
+                caption = processResponse(response).lString()
+            } else if detailInfo.downloadCommandFailed {
                 if let response = detailInfo.downloadCommandResponse {
-                    hudConfig = TTProgressHUDConfig(
-                        type: .Error,
-                        title: "失敗".lString(),
-                        caption: response.lString(),
-                        shouldAutoHide: true,
-                        autoHideInterval: 2
-                    )
+                    type = .Error
+                    title = "エラー".lString()
+                    caption = response.lString()
                 } else {
-                    hudConfig = TTProgressHUDConfig(
-                        type: .Error,
-                        title: "失敗".lString(),
-                        shouldAutoHide: true,
-                        autoHideInterval: 2
-                    )
+                    type = .Error
+                    title = "エラー".lString()
+                    caption = nil
                 }
             }
+            
+            switch type {
+            case .Success:
+                notificFeedback(style: .success)
+            case .Error:
+                notificFeedback(style: .error)
+            default:
+                print(type)
+            }
+            
+            hudConfig = TTProgressHUDConfig(
+                type: type,
+                title: title,
+                caption: caption,
+                shouldAutoHide: true,
+                autoHideInterval: 2,
+                hapticsEnabled: false
+            )
             hudVisible.toggle()
         }
     }

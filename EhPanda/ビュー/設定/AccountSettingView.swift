@@ -13,7 +13,9 @@ struct AccountSettingView: View {
     @State var inEditMode = false
     
     @State var hudVisible = false
-    @State var hudConfig = TTProgressHUDConfig()
+    @State var hudConfig = TTProgressHUDConfig(
+        hapticsEnabled: false
+    )
     
     var settingBinding: Binding<Setting>? {
         Binding($store.appState.settings.setting)
@@ -201,7 +203,8 @@ struct AccountSettingView: View {
             title: "成功".lString(),
             caption: "クリップボードにコピーしました".lString(),
             shouldAutoHide: true,
-            autoHideInterval: 2
+            autoHideInterval: 2,
+            hapticsEnabled: false
         )
         hudVisible.toggle()
     }
