@@ -12,13 +12,7 @@ import Foundation
 struct Setting: Codable {
     var galleryType = GalleryType.eh {
         didSet {
-            UserDefaults
-                .standard
-                .setValue(
-                    galleryType
-                        .rawValue,
-                    forKey: "GalleryType"
-                )
+            setGalleryType(galleryType)
         }
     }
     

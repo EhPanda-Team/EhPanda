@@ -101,16 +101,6 @@ public func saveToPasteboard(_ value: String) {
     notificFeedback(style: .success)
 }
 
-public func saveMetricsData(_ data: Data) {
-    if let data = try? JSONSerialization.jsonObject(with: data, options: []) {
-        UserDefaults.standard.set(data, forKey: "MetricsData")
-    }
-}
-
-public func deleteMetricsData() {
-    UserDefaults.standard.set(nil, forKey: "MetricsData")
-}
-
 public func impactFeedback(style: UIImpactFeedbackGenerator.FeedbackStyle) {
     UIImpactFeedbackGenerator(style: style)
         .impactOccurred()
@@ -118,6 +108,30 @@ public func impactFeedback(style: UIImpactFeedbackGenerator.FeedbackStyle) {
 public func notificFeedback(style: UINotificationFeedbackGenerator.FeedbackType) {
     UINotificationFeedbackGenerator().notificationOccurred(style)
 }
+
+// MARK: UserDefaults
+public func setEntry(_ token: String?) {
+    UserDefaults.standard.set(token, forKey: "entry")
+}
+
+public func saveMetricsData(_ data: Data) {
+    if let data = try? JSONSerialization.jsonObject(with: data, options: []) {
+        UserDefaults.standard.set(data, forKey: "MetricsData")
+    }
+}
+
+public func clearMetricsData() {
+    UserDefaults.standard.set(nil, forKey: "MetricsData")
+}
+
+public func setGalleryType(_ type: GalleryType) {
+    UserDefaults.standard.set(type.rawValue, forKey: "GalleryType")
+}
+
+public func clearGalleryType() {
+    UserDefaults.standard.set(nil, forKey: "GalleryType")
+}
+
 
 // MARK: 容量管理
 public func readableUnit(bytes: Int64) -> String {

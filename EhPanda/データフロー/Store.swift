@@ -96,10 +96,10 @@ class Store: ObservableObject {
             
             switch result {
             case .success(let user):
-                if let displayName = user?.displayName,
-                   let avatarURL = user?.avatarURL
-                {
+                if let displayName = user?.displayName {
                     appState.settings.user?.displayName = displayName
+                }
+                if let avatarURL = user?.avatarURL {
                     appState.settings.user?.avatarURL = avatarURL
                 }
             case .failure(let error):

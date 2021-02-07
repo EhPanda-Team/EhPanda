@@ -24,7 +24,7 @@ struct SendMetricsCommand: AppCommand {
             .receive(on: DispatchQueue.main)
             .sink { completion in
                 if case .finished = completion {
-                    deleteMetricsData()
+                    clearMetricsData()
                 }
                 token.unseal()
             } receiveValue: {

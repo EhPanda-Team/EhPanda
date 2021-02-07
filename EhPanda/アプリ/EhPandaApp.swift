@@ -43,10 +43,7 @@ struct EhPandaApp: App {
         sendMetrics()
     }
     func onOpenURL(_ url: URL) {
-        let entry = url.absoluteString
-        guard let range = entry.range(of: "//") else { return }
-        let key = String(entry.suffix(from: range.upperBound))
-        UserDefaults.standard.set(key, forKey: "entry")
+        setEntry(url.host)
     }
     
     func configureKF() {
