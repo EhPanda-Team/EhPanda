@@ -1,6 +1,6 @@
 <h1 align="center">EhPanda</h1>
 
-<h4 align="center">一个面向iOS的E-Hentai非官方App。 (未完成)</h4>
+<h4 align="center">一个面向iOS的E-Hentai非官方App。</h4>
 
 <p align="center">
 <img src="https://user-images.githubusercontent.com/31207151/105609404-0acbff00-5de4-11eb-9e88-f3c6e0ba9d44.png" width="400"></img>
