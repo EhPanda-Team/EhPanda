@@ -120,6 +120,16 @@ extension String {
 }
 
 extension View {
+    func withArrow() -> some View {
+        HStack {
+            self
+            Spacer()
+            Image(systemName: "chevron.right")
+                .foregroundColor(.gray)
+                .imageScale(.small)
+        }
+    }
+    
     func hideKeyboard() {
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }

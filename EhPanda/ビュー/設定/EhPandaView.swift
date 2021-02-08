@@ -103,15 +103,10 @@ private struct LinkRow: View {
     
     var body: some View {
         Link(destination: url, label: {
-            HStack {
-                Text(text)
-                    .fontWeight(.medium)
-                    .foregroundColor(.primary)
-                Spacer()
-                Image(systemName: "chevron.right")
-                    .foregroundColor(.gray)
-                    .imageScale(.small)
-            }
+            Text(text)
+                .fontWeight(.medium)
+                .foregroundColor(.primary)
+                .withArrow()
         })
     }
 }

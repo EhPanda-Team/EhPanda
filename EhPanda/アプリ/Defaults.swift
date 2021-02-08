@@ -69,8 +69,10 @@ class Defaults {
         static let tag = "tag/"
         static let popular = "popular"
         static let watched = "watched"
+        static let mytags = "mytags"
         static let api = "api.php"
         static let index = "index.php"
+        static let uconfig = "uconfig.php"
         static let favorites = "favorites.php"
         static let gallerypopups = "gallerypopups.php"
         static let gallerytorrents = "gallerytorrents.php"
@@ -237,6 +239,12 @@ extension Defaults.URL {
     }
     static func ehFavorites() -> String {
         host + favorites
+    }
+    static func ehConfig() -> String {
+        host + uconfig
+    }
+    static func ehMyTags() -> String {
+        host + mytags
     }
 }
 

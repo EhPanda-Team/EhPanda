@@ -86,16 +86,21 @@ struct AccountSettingView: View {
                                 }
                             })
                             .pickerStyle(SegmentedPickerStyle())
-                        if didLogin {
-                            Text("ログイン済み")
-                                .foregroundColor(.gray)
-                        } else {
+                        if !didLogin {
                             Button("ログイン", action: onLoginTap)
-                        }
-
-                        Button(action: onLogoutTap) {
-                            Text("ログアウト")
+                                .withArrow()
+                        } else {
+                            Button("ログアウト", action: onLogoutTap)
                                 .foregroundColor(.red)
+                        }
+                        if didLogin {
+                            Group {
+                                Button("アカウント設定", action: onConfigTap)
+                                    .withArrow()
+                                Button("タグの購読を管理", action: onMyTagsTap)
+                                    .withArrow()
+                            }
+                            .foregroundColor(.primary)
                         }
                     }
                 }
@@ -154,7 +159,13 @@ struct AccountSettingView: View {
         inEditMode.toggle()
     }
     func onLoginTap() {
-        toggleWebView()
+        toggleWebViewLogin()
+    }
+    func onConfigTap() {
+        toggleWebViewConfig()
+    }
+    func onMyTagsTap() {
+        toggleWebViewMyTags()
     }
     func onLogoutTap() {
         toggleLogout()
@@ -209,8 +220,14 @@ struct AccountSettingView: View {
         hudVisible.toggle()
     }
     
-    func toggleWebView() {
-        store.dispatch(.toggleSettingViewSheetState(state: .webview))
+    func toggleWebViewLogin() {
+        store.dispatch(.toggleSettingViewSheetState(state: .webviewLogin))
+    }
+    func toggleWebViewConfig() {
+        store.dispatch(.toggleSettingViewSheetState(state: .webviewConfig))
+    }
+    func toggleWebViewMyTags() {
+        store.dispatch(.toggleSettingViewSheetState(state: .webviewMyTags))
     }
     func toggleLogout() {
         store.dispatch(.toggleSettingViewActionSheetState(state: .logout))

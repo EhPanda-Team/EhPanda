@@ -72,9 +72,10 @@
 "設定" = "Setting";
 "アカウント" = "Account";
 "ギャラリー" = "Gallery";
-"ログイン済み" = "Logged in";
 "ログイン" = "Login";
 "ログアウト" = "Logout";
+"アカウント設定" = "Account configuration";
+"タグの購読を管理" = "Manage tags subscription";
 "本当にログアウトしますか？" = "Are you sure to logout?";
 "一般" = "General";
 "選択後スライドメニューを閉じる" = "Close slide menu after selection";

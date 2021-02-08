@@ -10,6 +10,11 @@ import WebKit
 
 struct WebView: UIViewControllerRepresentable {
     @EnvironmentObject var store: Store
+    let webviewType: WebViewType
+    
+    init(type: WebViewType) {
+        webviewType = type
+    }
     
     class Coodinator: NSObject, WKNavigationDelegate, WKUIDelegate {
         var parent : WebView
@@ -25,19 +30,21 @@ struct WebView: UIViewControllerRepresentable {
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
             print("読み込み完了")
             
-            guard let url = webView.url?.absoluteString else { return }
-            
-            if url.contains("CODE=01") {
-                webView.configuration.websiteDataStore.httpCookieStore.getAllCookies { cookies in
-                    cookies.forEach {
-                        HTTPCookieStorage.shared.setCookie($0)
-                    }
-                }
+            if parent.webviewType == .ehLogin {
+                guard let url = webView.url?.absoluteString else { return }
                 
-                Timer.scheduledTimer(withTimeInterval: 3, repeats: false) { [weak self] timer in
-                    if didLogin {
-                        self?.parent.store.dispatch(.toggleSettingViewSheetNil)
-                        self?.parent.store.dispatch(.fetchFrontpageItems)
+                if url.contains("CODE=01") {
+                    webView.configuration.websiteDataStore.httpCookieStore.getAllCookies { cookies in
+                        cookies.forEach {
+                            HTTPCookieStorage.shared.setCookie($0)
+                        }
+                    }
+                    
+                    Timer.scheduledTimer(withTimeInterval: 3, repeats: false) { [weak self] timer in
+                        if didLogin {
+                            self?.parent.store.dispatch(.toggleSettingViewSheetNil)
+                            self?.parent.store.dispatch(.fetchFrontpageItems)
+                        }
                     }
                 }
             }
@@ -54,7 +61,7 @@ struct WebView: UIViewControllerRepresentable {
 
     func makeUIViewController(context: Context) -> EmbeddedWebviewController {
         let webViewController = EmbeddedWebviewController(coordinator: context.coordinator)
-        webViewController.loadUrl(URL(string: Defaults.URL.login)!)
+        webViewController.loadUrl(URL(string: webviewType.url)!)
 
         return webViewController
     }
@@ -94,5 +101,24 @@ class EmbeddedWebviewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+    }
+}
+
+enum WebViewType {
+    case ehLogin
+    case ehConfig
+    case ehMyTags
+}
+
+extension WebViewType {
+    var url: String {
+        switch self {
+        case .ehLogin:
+            return Defaults.URL.login
+        case .ehConfig:
+            return Defaults.URL.ehConfig()
+        case .ehMyTags:
+            return Defaults.URL.ehMyTags()
+        }
     }
 }

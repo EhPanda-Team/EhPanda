@@ -78,9 +78,13 @@ struct SettingView: View {
             .onAppear(perform: onAppear)
             .sheet(item: environmentBinding.settingViewSheetState) { item in
                 switch item {
-                case .webview:
-                    WebView()
+                case .webviewLogin:
+                    WebView(type: .ehLogin)
                         .environmentObject(store)
+                case .webviewConfig:
+                    WebView(type: .ehConfig)
+                case .webviewMyTags:
+                    WebView(type: .ehMyTags)
                 }
             }
             .actionSheet(item: environmentBinding.settingViewActionSheetState) { item in
@@ -199,5 +203,7 @@ enum SettingViewActionSheetState: Identifiable {
 enum SettingViewSheetState: Identifiable {
     var id: Int { hashValue }
     
-    case webview
+    case webviewLogin
+    case webviewConfig
+    case webviewMyTags
 }

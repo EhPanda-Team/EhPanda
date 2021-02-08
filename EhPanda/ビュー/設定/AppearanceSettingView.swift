@@ -43,17 +43,9 @@ struct AppearanceSettingView: View {
                     }
                     .pickerStyle(MenuPickerStyle())
                     ColorPicker("テーマの色", selection: settingBinding.accentColor)
-                    HStack {
-                        Button(
-                            "アプリアイコン",
-                            action: onAppIconButtonTap
-                        )
+                    Button("アプリアイコン", action: onAppIconButtonTap)
                         .foregroundColor(.primary)
-                        Spacer()
-                        Image(systemName: "chevron.right")
-                            .foregroundColor(.gray)
-                            .imageScale(.small)
-                    }
+                        .withArrow()
                     if exx {
                         Toggle(isOn: settingBinding.translateCategory, label: {
                             Text("カテゴリーを訳す")
