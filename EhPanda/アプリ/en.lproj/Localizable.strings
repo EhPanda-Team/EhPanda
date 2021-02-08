@@ -13,6 +13,7 @@
 // MARK: HUD
 "成功" = "Success";
 "エラー" = "Error";
+"サーバーと通信中..." = "Communicating...";
 "クリップボードにコピーしました" = "Copied to clipboard";
 
 // MARK: Common

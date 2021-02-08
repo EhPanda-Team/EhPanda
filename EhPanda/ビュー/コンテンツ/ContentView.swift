@@ -41,6 +41,7 @@ struct ContentView: View {
         )
     }
     
+    // MARK: ContentView本体
     var body: some View {
         Group {
             if let contents = mangaContents,
@@ -50,28 +51,12 @@ struct ContentView: View {
                     ScrollView {
                         LazyVStack(spacing: 0) {
                             ForEach(contents) { item in
-                                KFImage(URL(string: item.url))
-                                    .placeholder {
-                                        placeholder(item.tag)
-                                    }
-//                                    .onProgress {
-//                                        onWebImageProgress(tag: item.tag, $0, $1)
-//                                    }
-                                    .retry(
-                                        maxCount: setting.contentRetryLimit,
-                                        interval: .seconds(0.5)
-                                    )
-                                    .cancelOnDisappear(true)
-                                    .resizable()
-                                    .scaledToFit()
-                                    .onTapGesture(perform: onWebImageTap)
-                                    .onLongPressGesture(
-                                        minimumDuration: 0,
-                                        maximumDistance: .infinity,
-                                        pressing: { _ in
-                                            onWebImageLongPressing(tag: item.tag)
-                                        }, perform: {}
-                                    )
+                                KFContainer(
+                                    content: item,
+                                    retryLimit: setting.contentRetryLimit,
+                                    onTapAction: onWebImageTap,
+                                    onLongPressAction: onWebImageLongPress
+                                )
                                 if setting.showContentDividers {
                                     Rectangle()
                                         .fill(Color(.darkGray))
@@ -132,13 +117,10 @@ struct ContentView: View {
             proxy.scrollTo(tag)
         }
     }
-    func onWebImageProgress(tag: Int, _ received: Int64, _ total: Int64) {
-        percentages[tag] = Float(received) / Float(total)
-    }
     func onWebImageTap() {
         toggleNavBarHidden()
     }
-    func onWebImageLongPressing(tag: Int) {
+    func onWebImageLongPress(tag: Int) {
         readingProgress = tag
     }
     
@@ -156,5 +138,52 @@ struct ContentView: View {
         if !environment.navBarHidden {
             store.dispatch(.toggleNavBarHidden(isHidden: true))
         }
+    }
+}
+
+// MARK: KFContainer
+private struct KFContainer: View {
+    @State var percentage: Float = 0
+    
+    var content: MangaContent
+    var retryLimit: Int
+    var onTapAction: () -> ()
+    var onLongPressAction: (Int) -> ()
+    
+    var body: some View {
+        KFImage(URL(string: content.url))
+            .placeholder {
+                Placeholder(
+                    style: .progress,
+                    pageNumber: content.tag,
+                    percentage: percentage
+                )
+            }
+            .retry(
+                maxCount: retryLimit,
+                interval: .seconds(0.5)
+            )
+            .onProgress(onWebImageProgress)
+            .cancelOnDisappear(true)
+            .resizable()
+            .scaledToFit()
+            .onTapGesture(perform: onTap)
+            .onLongPressGesture(
+                minimumDuration: 0,
+                maximumDistance: .infinity,
+                pressing: { _ in
+                    onLongPressing(tag: content.tag)
+                }, perform: {}
+            )
+    }
+    
+    func onWebImageProgress(_ received: Int64, _ total: Int64) {
+        percentage = Float(received) / Float(total)
+    }
+    func onTap() {
+        onTapAction()
+    }
+    func onLongPressing(tag: Int) {
+        onLongPressAction(tag)
     }
 }

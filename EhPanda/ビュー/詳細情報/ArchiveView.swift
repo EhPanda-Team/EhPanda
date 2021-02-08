@@ -18,7 +18,7 @@ struct ArchiveView: View {
     )
     var loadingHUDConfig = TTProgressHUDConfig(
         type: .Loading,
-        title: "サーバーと通信中",
+        title: "サーバーと通信中...".lString(),
         hapticsEnabled: false
     )
     
