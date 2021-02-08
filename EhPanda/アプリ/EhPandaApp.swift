@@ -47,9 +47,13 @@ struct EhPandaApp: App {
     }
     
     func configureKF() {
+        // クッキーをKingfisherに
         let config = KingfisherManager.shared.downloader.sessionConfiguration
         config.httpCookieStorage = HTTPCookieStorage.shared
         KingfisherManager.shared.downloader.sessionConfiguration = config
+        
+        // ディスクキャッシュサイズ上限
+        KingfisherManager.shared.cache.diskStorage.config.sizeLimit = 200 * 1024 * 1024
     }
     
     func sendMetrics() {
