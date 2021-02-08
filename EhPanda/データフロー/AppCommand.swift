@@ -529,6 +529,7 @@ struct DeleteFavoriteCommand: AppCommand {
 }
 
 struct SendDownloadCommand: AppCommand {
+    let id: String
     let archiveURL: String
     let resolution: String
     
@@ -547,6 +548,7 @@ struct SendDownloadCommand: AppCommand {
             token.unseal()
         } receiveValue: { resp in
             store.dispatch(.sendDownloadCommandDone(result: .success(resp)))
+            store.dispatch(.fetchMangaArchiveFunds(id: id))
         }
         .seal(in: token)
     }

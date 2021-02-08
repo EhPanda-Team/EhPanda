@@ -601,7 +601,7 @@ class Store: ObservableObject {
             appState.detailInfo.downloadCommandSending = true
             
             let archiveURL = appState.cachedList.items?[id]?.detail?.archiveURL ?? ""
-            appCommand = SendDownloadCommand(archiveURL: archiveURL, resolution: resolution)
+            appCommand = SendDownloadCommand(id: id, archiveURL: archiveURL, resolution: resolution)
         case .sendDownloadCommandDone(let result):
             appState.detailInfo.downloadCommandSending = false
             

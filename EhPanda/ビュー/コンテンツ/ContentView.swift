@@ -54,9 +54,9 @@ struct ContentView: View {
                                     .placeholder {
                                         placeholder(item.tag)
                                     }
-                                    .onProgress {
-                                        onWebImageProgress(tag: item.tag, $0, $1)
-                                    }
+//                                    .onProgress {
+//                                        onWebImageProgress(tag: item.tag, $0, $1)
+//                                    }
                                     .retry(
                                         maxCount: setting.contentRetryLimit,
                                         interval: .seconds(0.5)

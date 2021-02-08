@@ -10,7 +10,7 @@ import WebKit
 
 struct WebView: UIViewControllerRepresentable {
     @EnvironmentObject var store: Store
-
+    
     class Coodinator: NSObject, WKNavigationDelegate, WKUIDelegate {
         var parent : WebView
 
@@ -20,6 +20,10 @@ struct WebView: UIViewControllerRepresentable {
 
         func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
             print("読み込み開始")
+        }
+
+        func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+            print("読み込み完了")
             
             guard let url = webView.url?.absoluteString else { return }
             
@@ -29,37 +33,28 @@ struct WebView: UIViewControllerRepresentable {
                         HTTPCookieStorage.shared.setCookie($0)
                     }
                 }
+                
+                Timer.scheduledTimer(withTimeInterval: 3, repeats: false) { [weak self] timer in
+                    if didLogin {
+                        self?.parent.store.dispatch(.toggleSettingViewSheetNil)
+                        self?.parent.store.dispatch(.fetchFrontpageItems)
+                    }
+                }
             }
-        }
-
-        func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-            print("読み込み完了")
         }
 
         func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
             print(error)
         }
     }
-    
-    func setupTimer() {
-        Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { (timer) in
-            if didLogin {
-                store.dispatch(.toggleSettingViewSheetNil)
-                store.dispatch(.fetchFrontpageItems)
-                timer.invalidate()
-            }
-        }
-    }
 
     func makeCoordinator() -> WebView.Coodinator {
-        return Coodinator(self)
+        Coodinator(self)
     }
 
     func makeUIViewController(context: Context) -> EmbeddedWebviewController {
         let webViewController = EmbeddedWebviewController(coordinator: context.coordinator)
         webViewController.loadUrl(URL(string: Defaults.URL.login)!)
-        
-        setupTimer()
 
         return webViewController
     }

@@ -127,6 +127,7 @@ struct ArchiveView: View {
     func onDownloadButtonTap() {
         if let res = selection?.param {
             store.dispatch(.sendDownloadCommand(id: id, resolution: res))
+            impactFeedback(style: .soft)
         }
     }
     func onRespChange<E: Equatable>(_ value: E) {
