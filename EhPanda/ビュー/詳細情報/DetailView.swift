@@ -371,7 +371,7 @@ private struct HeaderView: View {
                     }
                     Button(action: {}) {
                         NavigationLink(destination: ContentView(id: manga.id)) {
-                            Text("読む")
+                            Text("読む".lString().uppercased())
                                 .foregroundColor(.white)
                                 .fontWeight(.bold)
                                 .padding(.vertical, 5)
@@ -413,22 +413,22 @@ private struct DescScrollView: View {
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(alignment: .center) {
-                DescScrollItem(title: "気に入り".lString(),
+                DescScrollItem(title: "気に入り",
                                value: detail.likeCount,
-                               numeral: "人".lString())
+                               numeral: "人")
                 Divider()
-                DescScrollItem(title: "言語".lString().uppercased(),
+                DescScrollItem(title: "言語",
                                value: detail.languageAbbr,
-                               numeral: detail.translatedLanguage.lString())
+                               numeral: detail.translatedLanguage)
                 Divider()
                 DescScrollRatingItem(title: detail.ratingCount + "件の評価".lString(),
                                      rating: detail.rating)
                 Divider()
-                DescScrollItem(title: "ページ".lString(),
+                DescScrollItem(title: "ページ",
                                value: detail.pageCount,
-                               numeral: "頁".lString())
+                               numeral: "頁")
                 Divider()
-                DescScrollItem(title: "サイズ".lString(),
+                DescScrollItem(title: "サイズ",
                                value: detail.sizeCount,
                                numeral: detail.sizeType)
             }
@@ -444,13 +444,13 @@ private struct DescScrollItem: View {
     
     var body: some View {
         VStack(spacing: 3) {
-            Text(title)
+            Text(title.lString().uppercased())
                 .font(.caption)
             Text(value)
                 .fontWeight(.medium)
                 .font(.title3)
                 .lineLimit(1)
-            Text(numeral)
+            Text(numeral.lString())
                 .font(.caption)
         }
         .frame(minWidth: 80)
@@ -463,7 +463,7 @@ private struct DescScrollRatingItem: View {
     
     var body: some View {
         VStack(spacing: 3) {
-            Text(title)
+            Text(title.lString().uppercased())
                 .font(.caption)
                 .lineLimit(1)
             Text(String(format: "%.2f", rating))

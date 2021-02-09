@@ -12,8 +12,14 @@ import Kingfisher
 struct Home : View {
     @EnvironmentObject var store: Store
     @Environment(\.colorScheme) var colorScheme
+    
+    // スライドメニュー
     @State var direction: Direction = .none
     @State var offset = -Defaults.FrameSize.slideMenuWidth
+    
+    // プライバシーロック
+    @State var isAppUnlocked = true
+    @State var blurRadius: CGFloat = 0
     
     enum Direction {
         case none
@@ -33,18 +39,26 @@ struct Home : View {
     }
     
     var body: some View {
-        ZStack(alignment: Alignment(horizontal: .leading, vertical: .center)) {
-            HomeView()
-                .offset(x: offset + width)
-            SlideMenu(offset: $offset)
-                .offset(x: offset)
-                .background(
-                    Color.black.opacity(opacity)
-                        .edgesIgnoringSafeArea(.vertical)
-                        .onTapGesture {
-                            performTransition(-width)
-                        }
-                )
+        ZStack {
+            ZStack {
+                HomeView()
+                    .offset(x: offset + width)
+                SlideMenu(offset: $offset)
+                    .offset(x: offset)
+                    .background(
+                        Color.black.opacity(opacity)
+                            .edgesIgnoringSafeArea(.vertical)
+                            .onTapGesture {
+                                performTransition(-width)
+                            }
+                    )
+            }
+            .blur(radius: blurRadius)
+            .allowsHitTesting(isAppUnlocked)
+            LockView(
+                isAppUnlocked: $isAppUnlocked,
+                blurRadius: $blurRadius
+            )
         }
         .gesture (
             DragGesture(minimumDistance: 20)

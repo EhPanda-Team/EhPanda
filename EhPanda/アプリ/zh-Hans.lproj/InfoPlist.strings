@@ -1,0 +1,10 @@
+/* 
+  InfoPlist.strings
+  EhPanda
+
+  Created by 荒木辰造 on R 3/02/09.
+  
+*/
+
+"NSFaceIDUsageDescription" = "需要此权限以在解锁App时提供Face ID选项";
+

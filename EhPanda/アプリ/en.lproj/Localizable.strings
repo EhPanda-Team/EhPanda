@@ -16,6 +16,9 @@
 "サーバーと通信中..." = "Communicating...";
 "クリップボードにコピーしました" = "Copied to clipboard";
 
+// MARK: LockView
+"自動ロック期限が切れたため、アプリがロックされています" = "The App has been locked due to the auto-lock expiration.";
+
 // MARK: Common
 "null" = "None";
 "expired" = "Expired";
@@ -24,32 +27,23 @@
 // MARK: AlertView
 "読み込み中..." = "Loading...";
 "ご利用にはログインが必要です" = "You need to login to use this app.";
-"ログイン" = "LOGIN";
+"ログイン" = "Login";
 "お探しの情報が見つかりませんでした" = "Your search didn't match any docs.";
-"やり直す" = "RETRY";
+"やり直す" = "Retry";
 "ネットワーク障害が発生しました\nしばらくしてからもう一度お試しください" = "A Network error occurred.\nPlease try again later.";
-
-// MARK: HomeView
-"検索" = "Search";
-"ホーム" = "Frontpage";
-"人気" = "Popular";
-"フォロー" = "Watched";
-"お気に入り" = "Favorites";
-"ダウンロード" = "Downloaded";
-"閲覧履歴" = "History";
 
 // MARK: DetailView
 "アーカイブ" = "Archive";
 "トレント" = "Torrents";
 "共有" = "Share";
-"読む" = "READ";
-"気に入り" = "FAVORED";
+"読む" = "Read";
+"気に入り" = "Favored";
 "人" = "Times";
 "言語" = "Language";
-"件の評価" = " RATINGS";
-"ページ" = "PAGE COUNT";
+"件の評価" = " Ratings";
+"ページ" = "Page Count";
 "頁" = "Pages";
-"サイズ" = "SIZE";
+"サイズ" = "Size";
 "評価する" = "Give a Rating";
 "類似ギャラリー" = "Similar Gallery";
 "プレビュー" = "Preview";
@@ -79,24 +73,21 @@
 "本当にログアウトしますか？" = "Are you sure to logout?";
 "一般" = "General";
 "選択後スライドメニューを閉じる" = "Close slide menu after selection";
-"キャッシュ" = "CACHE";
+"セキュリティ" = "Security";
+"自動ロック" = "Auto-Lock";
+"アプリスイッチャーで内容をぼかす" = "App switcher blur";
+"キャッシュ" = "Cache";
 "画像キャッシュを削除" = "Clear image caches";
 "本当に削除しますか？" = "Are you sure to clear?";
 "削除" = "Clear";
 "ウェブキャッシュを削除" = "Clear web caches";
-"警告" = "WARNING";
+"警告" = "Warning";
 "デバッグ専用機能です" = "It's for debug only";
 "外観" = "Apperance";
 "全般" = "Global";
 "テーマ" = "Theme";
 "テーマの色" = "Tint Color";
 "アプリアイコン" = "App Icon";
-"普通" = "Normal";
-"既定" = "Default";
-"怪奇" = "Weird";
-"自動" = "Automatic";
-"ライト" = "Light";
-"ダーク" = "Dark";
 "タブバーを表示" = "Show tabbar";
 "サイドバーを表示しない" = "Hide sideBar";
 "カテゴリーを訳す" = "Translate category";
@@ -119,12 +110,12 @@
 
 // MARK: FilterView
 "フィルター" = "Filters";
-"基本" = "BASIC";
+"基本" = "Basic";
 "既定値に戻す" = "Reset filters";
 "本当に戻しますか？" = "Are you sure to reset?";
 "戻す" = "Reset";
 "高度な設定" = "Advanced settings";
-"高度" = "ADVANCED";
+"高度" = "Advanced";
 "ギャラリー名を検索" = "Search gallery name";
 "ギャラリータグを検索" = "Search gallery tags";
 "ギャラリー説明を検索" = "Search gallery description";
@@ -138,10 +129,19 @@
 "つ星" = "stars";
 "ページ数範囲を指定" = "Set pages range";
 "ページ数範囲" = "Pages range";
-"既定フィルター" = "DEFAULT FILTER";
+"既定フィルター" = "Default Filter";
 "言語フィルターを無効化" = "Disable language filter";
 "アップローダフィルターを無効化" = "Disable uploader filter";
 "タグフィルターを無効化" = "Disable tags filter";
+
+// MARK: HomeListType
+"検索" = "Search";
+"ホーム" = "Frontpage";
+"人気" = "Popular";
+"フォロー" = "Watched";
+"お気に入り" = "Favorites";
+"ダウンロード" = "Downloaded";
+"閲覧履歴" = "History";
 
 // MARK: Category
 "同人誌" = "Doujinshi";
@@ -165,6 +165,25 @@
 "男性" = "Male";
 "女性" = "Female";
 "その他" = "Misc";
+
+// MARK: IconType
+"普通" = "Normal";
+"既定" = "Default";
+"怪奇" = "Weird";
+
+// MARK: PreferredColorScheme
+"自動" = "Automatic";
+"ライト" = "Light";
+"ダーク" = "Dark";
+
+// MARK: AutoLockPolicy
+"なし" = "Never";
+"すぐに" = "Instantly";
+"15秒" = "15 seconds";
+"1分" = "1 minute";
+"5分" = "5 minutes";
+"10分" = "10 minutes";
+"30分" = "30 minutes";
 
 // MARK: Language
 "その他" = "Other";

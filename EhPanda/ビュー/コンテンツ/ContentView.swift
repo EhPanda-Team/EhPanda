@@ -100,7 +100,7 @@ struct ContentView: View {
     }
     
     func onAppear() {
-        toggleNavBarHidden()
+        toggleNavBarHiddenIfNeeded()
         
         if mangaContents?.count != Int(mangaDetail?.pageCount ?? "") {
             fetchMangaContents()
@@ -118,10 +118,11 @@ struct ContentView: View {
         }
     }
     func onWebImageTap() {
-        toggleNavBarHidden()
+        
     }
     func onWebImageLongPress(tag: Int) {
         readingProgress = tag
+        toggleNavBarHiddenIfNeeded()
     }
     
     func saveReadingProgress() {
@@ -134,7 +135,7 @@ struct ContentView: View {
         store.dispatch(.fetchMangaContents(id: id))
     }
     
-    func toggleNavBarHidden() {
+    func toggleNavBarHiddenIfNeeded() {
         if !environment.navBarHidden {
             store.dispatch(.toggleNavBarHidden(isHidden: true))
         }

@@ -29,7 +29,7 @@ struct SettingView: View {
     }
     var clearWebCachesActionSheet: ActionSheet {
         ActionSheet(
-            title: Text("警告"),
+            title: Text("警告".lString().uppercased()),
             message: Text("デバッグ専用機能です"),
             buttons: [
                 .destructive(Text("削除"), action: clearCachedList),

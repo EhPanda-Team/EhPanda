@@ -19,7 +19,7 @@ struct NotLoginView: View {
     var body: some View {
         GenericRetryView(symbolName: "person.crop.circle.badge.questionmark",
                          message: "ご利用にはログインが必要です",
-                         buttonText: "ログイン".lString().uppercased(),
+                         buttonText: "ログイン",
                          retryAction: loginAction)
     }
 }
@@ -64,7 +64,7 @@ struct GenericRetryView: View {
                 .font(.headline)
                 .padding(.bottom, 5)
             if let action = retryAction {
-                Button(buttonText.lString()) {
+                Button(buttonText.lString().uppercased()) {
                     action()
                 }
                 .foregroundColor(colorScheme == .light ? .init(UIColor.darkGray) : .init(UIColor.white))

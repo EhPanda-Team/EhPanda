@@ -25,8 +25,8 @@ enum AppAction {
     case updateHistoryItems(id: String)
     case resetDownloadCommandResponse
     
-    case toggleNavBarHidden(isHidden: Bool)
     case toggleHomeListType(type: HomeListType)
+    case toggleNavBarHidden(isHidden: Bool)
     case toggleHomeViewSheetState(state: HomeViewSheetState)
     case toggleSettingViewSheetState(state: SettingViewSheetState)
     case toggleSettingViewSheetNil

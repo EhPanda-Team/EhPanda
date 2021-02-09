@@ -7,9 +7,11 @@
 
 import SwiftUI
 import Kingfisher
+import LocalAuthentication
 
 struct GeneralSettingView: View {
     @EnvironmentObject var store: Store
+    @State var passcodeNotSet = false
     
     var setting: Setting? {
         store.appState.settings.setting
@@ -44,6 +46,30 @@ struct GeneralSettingView: View {
                         Text("選択後スライドメニューを閉じる")
                     })
                 }
+                Section(header: Text("セキュリティ")) {
+                    HStack {
+                        Text("自動ロック")
+                        Spacer()
+                        if passcodeNotSet,
+                           setting.autoLockPolicy != .never
+                        {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .foregroundColor(.yellow)
+                        }
+                        Picker(
+                            selection: settingBinding.autoLockPolicy,
+                            label: Text(setting.autoLockPolicy.rawValue.lString())
+                        ) {
+                            ForEach(AutoLockPolicy.allCases) { policy in
+                                Text(policy.rawValue.lString()).tag(policy)
+                            }
+                        }
+                        .pickerStyle(MenuPickerStyle())
+                    }
+                    Toggle(isOn: settingBinding.allowsResignActiveBlur, label: {
+                        Text("アプリスイッチャーで内容をぼかす")
+                    })
+                }
                 Section(header: Text("キャッシュ")) {
                     Button(action: toggleClearImgCaches) {
                         HStack {
@@ -64,6 +90,23 @@ struct GeneralSettingView: View {
                 }
             }
             .navigationBarTitle("一般")
+            .onAppear(perform: onAppear)
+        }
+    }
+    
+    func onAppear() {
+        checkPasscodeExistence()
+    }
+    
+    func checkPasscodeExistence() {
+        let context = LAContext()
+        var error: NSError?
+
+        if !context.canEvaluatePolicy(
+            .deviceOwnerAuthentication,
+            error: &error
+        ) {
+            passcodeNotSet = true
         }
     }
     
@@ -72,6 +115,7 @@ struct GeneralSettingView: View {
             UIApplication.shared.open(settingURL, options: [:])
         }
     }
+    
     func toggleClearImgCaches() {
         store.dispatch(.toggleSettingViewActionSheetState(state: .clearImgCaches))
     }
