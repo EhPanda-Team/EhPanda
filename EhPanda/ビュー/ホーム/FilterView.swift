@@ -182,19 +182,19 @@ private struct MinimumRatingSetter: View {
     
     var body: some View {
         HStack {
+            let star = "つ星".lString()
             Text("評価の下限")
             Spacer()
-            Picker(selection: $minimum, label: EmptyView()) {
-                Text("2").tag(2)
-                Text("3").tag(3)
-                Text("4").tag(4)
-                Text("5").tag(5)
+            Picker(
+                selection: $minimum,
+                label: Text("\(minimum)" + star)
+            ) {
+                Text("2" + star).tag(2)
+                Text("3" + star).tag(3)
+                Text("4" + star).tag(4)
+                Text("5" + star).tag(5)
             }
-            .pickerStyle(SegmentedPickerStyle())
-            .frame(width: 150)
-            Text("つ星")
-                .fontWeight(.bold)
-                .font(.caption)
+            .pickerStyle(MenuPickerStyle())
         }
     }
 }

@@ -34,7 +34,7 @@ struct MangaSummaryRow: View {
             return Array(
                 manga.tags
                     .prefix(
-                        setting?.summaryRowTagsMaximum ?? .max
+                        setting?.summaryRowTagsMaximum ?? 5
                     )
             )
         } else {

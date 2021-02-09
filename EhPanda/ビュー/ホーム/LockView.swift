@@ -97,7 +97,7 @@ struct LockView: View {
     }
     
     func setBlur(on: Bool) {
-        withAnimation {
+        withAnimation(.linear(duration: 0.1)) {
             blurRadius = on ? 10 : 0
         }
     }

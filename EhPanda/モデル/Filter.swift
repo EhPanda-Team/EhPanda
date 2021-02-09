@@ -44,7 +44,7 @@ struct Filter: Codable {
     var expungedGalleries = false
     
     var minRatingActivated = false
-    var minRating: Int = -1
+    var minRating: Int = 2
     
     var pageRangeActivated = false
     var pageLowerBound: String = ""

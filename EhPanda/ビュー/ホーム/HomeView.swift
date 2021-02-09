@@ -384,7 +384,7 @@ enum HomeListType: String, Identifiable, CaseIterable {
     case search = "検索"
     case frontpage = "ホーム"
     case popular = "人気"
-    case watched = "フォロー"
+    case watched = "タグの購読"
     case favorites = "お気に入り"
     case downloaded = "ダウンロード"
     case history = "閲覧履歴"
@@ -398,7 +398,7 @@ enum HomeListType: String, Identifiable, CaseIterable {
         case .popular:
             return "flame"
         case .watched:
-            return "eye.circle"
+            return "tag.circle"
         case .favorites:
             return "heart.circle"
         case .downloaded:

@@ -40,10 +40,7 @@ struct Setting: Codable {
     var translateCategory = true
     var showSummaryRowTags = false
     var summaryRowTagsMaximumActivated = false
-    var rawSummaryRowTagsMaximum = ""
-    var summaryRowTagsMaximum: Int {
-        Int(rawSummaryRowTagsMaximum) ?? .max
-    }
+    var summaryRowTagsMaximum: Int = 5
     
     // 閲覧
     var contentRetryLimit = 10

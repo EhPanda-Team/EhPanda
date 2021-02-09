@@ -24,19 +24,20 @@ struct ReadingSettingView: View {
             Form {
                 Section {
                     HStack {
+                        let time = "回".lString()
                         Text("再試行上限数")
+                        Spacer()
                         Picker(
                             selection: settingBinding.contentRetryLimit,
-                            label: Text("Picker"),
+                            label: Text("\(setting.contentRetryLimit)" + time),
                             content: {
-                                Text("5").tag(5)
-                                Text("10").tag(10)
-                                Text("15").tag(15)
-                                Text("20").tag(20)
+                                Text("5" + time).tag(5)
+                                Text("10" + time).tag(10)
+                                Text("15" + time).tag(15)
+                                Text("20" + time).tag(20)
                             }
                         )
-                        .pickerStyle(SegmentedPickerStyle())
-                        .padding(.leading, 10)
+                        .pickerStyle(MenuPickerStyle())
                     }
                 }
                 Section(header: Text("外観")) {
@@ -46,18 +47,18 @@ struct ReadingSettingView: View {
                     if setting.showContentDividers {
                         HStack {
                             Text("仕切りの厚さ")
+                            Spacer()
                             Picker(
                                 selection: settingBinding.contentDividerHeight,
-                                label: Text("Picker"),
+                                label: Text("\(Int(setting.contentDividerHeight))pt"),
                                 content: {
-                                    Text("5").tag(CGFloat(5))
-                                    Text("10").tag(CGFloat(10))
-                                    Text("15").tag(CGFloat(15))
-                                    Text("20").tag(CGFloat(20))
+                                    Text("5pt").tag(CGFloat(5))
+                                    Text("10pt").tag(CGFloat(10))
+                                    Text("15pt").tag(CGFloat(15))
+                                    Text("20pt").tag(CGFloat(20))
                                 }
                             )
-                            .pickerStyle(SegmentedPickerStyle())
-                            .padding(.leading, 10)
+                            .pickerStyle(MenuPickerStyle())
                         }
                     }
                 }

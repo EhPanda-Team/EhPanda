@@ -75,7 +75,7 @@
 "選択後スライドメニューを閉じる" = "Close slide menu after selection";
 "セキュリティ" = "Security";
 "自動ロック" = "Auto-Lock";
-"アプリスイッチャーで内容をぼかす" = "App switcher blur";
+"アプリスイッチャーでのぼかし" = "App switcher blur";
 "キャッシュ" = "Cache";
 "画像キャッシュを削除" = "Clear image caches";
 "本当に削除しますか？" = "Are you sure to clear?";
@@ -96,6 +96,7 @@
 "タグ数上限" = "Maximum number of tags";
 "閲覧" = "Reading";
 "再試行上限数" = "Retry limit";
+"回" = " times";
 "画像の間に仕切りを挿む" = "Insert separators between images";
 "仕切りの厚さ" = "Separator height";
 "EhPandaについて" = "About EhPanda";
@@ -138,7 +139,7 @@
 "検索" = "Search";
 "ホーム" = "Frontpage";
 "人気" = "Popular";
-"フォロー" = "Watched";
+"タグの購読" = "Watched";
 "お気に入り" = "Favorites";
 "ダウンロード" = "Downloaded";
 "閲覧履歴" = "History";

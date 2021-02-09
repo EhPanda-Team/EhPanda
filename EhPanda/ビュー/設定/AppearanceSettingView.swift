@@ -71,12 +71,16 @@ struct AppearanceSettingView: View {
                         HStack {
                             Text("タグ数上限")
                             Spacer()
-                            TextField("", text: settingBinding.rawSummaryRowTagsMaximum)
-                                .multilineTextAlignment(.center)
-                                .keyboardType(.numberPad)
-                                .background(Color(.systemGray6))
-                                .frame(width: 50)
-                                .cornerRadius(5)
+                            Picker(selection: settingBinding.summaryRowTagsMaximum,
+                                   label: Text("\(setting.summaryRowTagsMaximum)")
+                            ) {
+                                Text("5").tag(5)
+                                Text("10").tag(10)
+                                Text("15").tag(15)
+                                Text("20").tag(20)
+                                Text("20").tag(20)
+                            }
+                            .pickerStyle(MenuPickerStyle())
                         }
                     }
                 }
