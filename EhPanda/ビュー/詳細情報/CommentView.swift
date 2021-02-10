@@ -190,7 +190,7 @@ private struct CommentCell: View {
     }
     
     func onLinkTap(_ link: URL) {
-        
+        UIApplication.shared.open(link, options: [:], completionHandler: nil)
     }
     func draftCommentViewPost() {
         if !editCommentContent.isEmpty {

@@ -75,7 +75,7 @@
 "選択後スライドメニューを閉じる" = "Close slide menu after selection";
 "セキュリティ" = "Security";
 "自動ロック" = "Auto-Lock";
-"アプリスイッチャーでのぼかし" = "App switcher blur";
+"アプリスイッチャーぼかし" = "App switcher blur";
 "キャッシュ" = "Cache";
 "画像キャッシュを削除" = "Clear image caches";
 "本当に削除しますか？" = "Are you sure to clear?";

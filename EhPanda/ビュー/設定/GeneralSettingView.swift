@@ -67,7 +67,7 @@ struct GeneralSettingView: View {
                         .pickerStyle(MenuPickerStyle())
                     }
                     Toggle(isOn: settingBinding.allowsResignActiveBlur, label: {
-                        Text("アプリスイッチャーでのぼかし")
+                        Text("アプリスイッチャーぼかし")
                     })
                 }
                 Section(header: Text("キャッシュ")) {
