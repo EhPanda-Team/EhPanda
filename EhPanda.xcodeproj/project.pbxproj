@@ -49,6 +49,9 @@
 		ABC3C7902593699B00E0C11B /* RatingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC3C7772593699A00E0C11B /* RatingView.swift */; };
 		ABC3C7962593699B00E0C11B /* Manga.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC3C7802593699A00E0C11B /* Manga.swift */; };
 		ABC3C79D259369FE00E0C11B /* Kanna in Frameworks */ = {isa = PBXBuildFile; productRef = ABC3C79C259369FE00E0C11B /* Kanna */; };
+		ABC5233F25D385BA000F38B0 /* SwiftUIVisualEffects in Frameworks */ = {isa = PBXBuildFile; productRef = ABC5233E25D385BA000F38B0 /* SwiftUIVisualEffects */; };
+		ABC5234D25D38D10000F38B0 /* TTProgressHUD in Frameworks */ = {isa = PBXBuildFile; productRef = ABC5234C25D38D10000F38B0 /* TTProgressHUD */; };
+		ABC5235025D3FCB3000F38B0 /* LinkedText.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC5234F25D3FCB3000F38B0 /* LinkedText.swift */; };
 		ABCD2EF82597602D008E5A20 /* Store.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD2EF72597602D008E5A20 /* Store.swift */; };
 		ABCD2EFC2597607C008E5A20 /* AppAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD2EFB2597607C008E5A20 /* AppAction.swift */; };
 		ABCD2F00259760BE008E5A20 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD2EFF259760BE008E5A20 /* AppState.swift */; };
@@ -57,7 +60,6 @@
 		ABCD2F0A259763FC008E5A20 /* Request.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD2F09259763FC008E5A20 /* Request.swift */; };
 		ABCD2F0E25976B95008E5A20 /* Parser.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD2F0D25976B95008E5A20 /* Parser.swift */; };
 		ABDAD2A825AC28BF00BA4DB8 /* KRefreshScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABDAD2A725AC28BF00BA4DB8 /* KRefreshScrollView.swift */; };
-		ABDD1F6525CFCBC1008099B2 /* TTProgressHUD in Frameworks */ = {isa = PBXBuildFile; productRef = ABDD1F6425CFCBC1008099B2 /* TTProgressHUD */; };
 		ABEA1FE625A9B40B002966B9 /* Setting.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABEA1FE525A9B40B002966B9 /* Setting.swift */; };
 		ABEE0AFA2595C6F800C997AE /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = ABEE0AFC2595C6F800C997AE /* Localizable.strings */; };
 		ABF313A125B1714400D47A2F /* AssociatedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF313A025B1714400D47A2F /* AssociatedView.swift */; };
@@ -115,6 +117,7 @@
 		ABC3C7762593699A00E0C11B /* ViewModifiers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewModifiers.swift; sourceTree = "<group>"; };
 		ABC3C7772593699A00E0C11B /* RatingView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RatingView.swift; sourceTree = "<group>"; };
 		ABC3C7802593699A00E0C11B /* Manga.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Manga.swift; sourceTree = "<group>"; };
+		ABC5234F25D3FCB3000F38B0 /* LinkedText.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LinkedText.swift; sourceTree = "<group>"; };
 		ABCD2EF72597602D008E5A20 /* Store.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Store.swift; sourceTree = "<group>"; };
 		ABCD2EFB2597607C008E5A20 /* AppAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppAction.swift; sourceTree = "<group>"; };
 		ABCD2EFF259760BE008E5A20 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
@@ -141,9 +144,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				ABDD1F6525CFCBC1008099B2 /* TTProgressHUD in Frameworks */,
 				AB84F47525CAF56D00DAF1EC /* Kingfisher in Frameworks */,
 				ABC3C79D259369FE00E0C11B /* Kanna in Frameworks */,
+				ABC5233F25D385BA000F38B0 /* SwiftUIVisualEffects in Frameworks */,
+				ABC5234D25D38D10000F38B0 /* TTProgressHUD in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -257,6 +261,7 @@
 			children = (
 				AB15535B25B290F000D0293B /* MangaSummaryRow.swift */,
 				ABDAD2A725AC28BF00BA4DB8 /* KRefreshScrollView.swift */,
+				ABC5234F25D3FCB3000F38B0 /* LinkedText.swift */,
 				ABF3D55825B023C70094AD82 /* TagCloudView.swift */,
 				ABC3C7772593699A00E0C11B /* RatingView.swift */,
 				AB994DCA2598D96200E9A367 /* AlertView.swift */,
@@ -349,7 +354,8 @@
 			packageProductDependencies = (
 				ABC3C79C259369FE00E0C11B /* Kanna */,
 				AB84F47425CAF56D00DAF1EC /* Kingfisher */,
-				ABDD1F6425CFCBC1008099B2 /* TTProgressHUD */,
+				ABC5233E25D385BA000F38B0 /* SwiftUIVisualEffects */,
+				ABC5234C25D38D10000F38B0 /* TTProgressHUD */,
 			);
 			productName = EhPanda;
 			productReference = ABC3C7542593696C00E0C11B /* EhPanda.app */;
@@ -383,7 +389,8 @@
 			packageReferences = (
 				ABC3C79B259369FE00E0C11B /* XCRemoteSwiftPackageReference "Kanna" */,
 				AB84F47325CAF56D00DAF1EC /* XCRemoteSwiftPackageReference "Kingfisher" */,
-				ABDD1F6325CFCBC1008099B2 /* XCRemoteSwiftPackageReference "TTProgressHUD" */,
+				ABC5233D25D385BA000F38B0 /* XCRemoteSwiftPackageReference "swiftui-visual-effects" */,
+				ABC5234B25D38D0F000F38B0 /* XCRemoteSwiftPackageReference "TTProgressHUD" */,
 			);
 			productRefGroup = ABC3C7552593696C00E0C11B /* Products */;
 			projectDirPath = "";
@@ -464,6 +471,7 @@
 				AB975F6625B56D5700741E1A /* GeneralSettingView.swift in Sources */,
 				ABA732DF25A852D800B3D9AB /* Filter.swift in Sources */,
 				AB994DC02598B17500E9A367 /* SettingView.swift in Sources */,
+				ABC5235025D3FCB3000F38B0 /* LinkedText.swift in Sources */,
 				AB3DAC0425CE3FCB0056D1C0 /* ArchiveView.swift in Sources */,
 				ABF75F3F25A19CD200544D29 /* User.swift in Sources */,
 			);
@@ -703,9 +711,17 @@
 				minimumVersion = 5.2.4;
 			};
 		};
-		ABDD1F6325CFCBC1008099B2 /* XCRemoteSwiftPackageReference "TTProgressHUD" */ = {
+		ABC5233D25D385BA000F38B0 /* XCRemoteSwiftPackageReference "swiftui-visual-effects" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/honkmaster/TTProgressHUD.git";
+			repositoryURL = "https://github.com/lucasbrown/swiftui-visual-effects.git";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
+		ABC5234B25D38D0F000F38B0 /* XCRemoteSwiftPackageReference "TTProgressHUD" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/arakitatsuzou/TTProgressHUD.git";
 			requirement = {
 				branch = master;
 				kind = branch;
@@ -724,9 +740,14 @@
 			package = ABC3C79B259369FE00E0C11B /* XCRemoteSwiftPackageReference "Kanna" */;
 			productName = Kanna;
 		};
-		ABDD1F6425CFCBC1008099B2 /* TTProgressHUD */ = {
+		ABC5233E25D385BA000F38B0 /* SwiftUIVisualEffects */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = ABDD1F6325CFCBC1008099B2 /* XCRemoteSwiftPackageReference "TTProgressHUD" */;
+			package = ABC5233D25D385BA000F38B0 /* XCRemoteSwiftPackageReference "swiftui-visual-effects" */;
+			productName = SwiftUIVisualEffects;
+		};
+		ABC5234C25D38D10000F38B0 /* TTProgressHUD */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = ABC5234B25D38D0F000F38B0 /* XCRemoteSwiftPackageReference "TTProgressHUD" */;
 			productName = TTProgressHUD;
 		};
 /* End XCSwiftPackageProductDependency section */

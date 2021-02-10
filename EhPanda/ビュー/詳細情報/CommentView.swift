@@ -140,7 +140,7 @@ private struct CommentCell: View {
                 .font(.footnote)
                 .foregroundColor(.secondary)
             }
-            Text(comment.content)
+            LinkedText(comment.content, onLinkTap)
                 .padding(.top, 1)
         }
         .padding()
@@ -189,6 +189,9 @@ private struct CommentCell: View {
         }
     }
     
+    func onLinkTap(_ link: URL) {
+        
+    }
     func draftCommentViewPost() {
         if !editCommentContent.isEmpty {
             editComment()

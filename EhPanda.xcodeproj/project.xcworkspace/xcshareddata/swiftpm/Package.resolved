@@ -30,10 +30,10 @@
       },
       {
         "package": "TTProgressHUD",
-        "repositoryURL": "https://github.com/honkmaster/TTProgressHUD.git",
+        "repositoryURL": "https://github.com/arakitatsuzou/TTProgressHUD.git",
         "state": {
           "branch": "master",
-          "revision": "d86f54997e4722c83e5c3e8e133cfbaae122772d",
+          "revision": "566c8185340b017f3cd5f9a4670cd09c56f86338",
           "version": null
         }
       }

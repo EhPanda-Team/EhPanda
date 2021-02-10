@@ -21,7 +21,9 @@ class Parser {
                   let gl3cNode = link.at_xpath("//td [@class='gl3c glname']"),
                   let title = link.at_xpath("//div [@class='glink']")?.text,
                   let rating = parseRatingString(gl2cNode.at_xpath("//div [@class='ir']")?.toHTML)
-                    ?? parseRatingString(gl2cNode.at_xpath("//div [@class='ir irg']")?.toHTML),
+                    ?? parseRatingString(gl2cNode.at_xpath("//div [@class='ir irr']")?.toHTML)
+                    ?? parseRatingString(gl2cNode.at_xpath("//div [@class='ir irg']")?.toHTML)
+                    ?? parseRatingString(gl2cNode.at_xpath("//div [@class='ir irb']")?.toHTML),
                   let category = link.at_xpath("//td [@class='gl1c glcat'] //div")?.text,
                   var publishedTime = gl2cNode.at_xpath("//div [@onclick]")?.text,
                   let coverURL = parseCoverURL(gl2cNode.at_xpath("//div [@class='glthumb']")?.at_css("img")),
@@ -57,18 +59,24 @@ class Parser {
                   !url.pathComponents[3].isEmpty
             else { continue }
             
-            guard let enumCategory = Category(rawValue: category) else { continue }
-            mangaItems.append(Manga(id: url.pathComponents[2],
-                                    token: url.pathComponents[3],
-                                    title: title,
-                                    rating: rating,
-                                    tags: tags,
-                                    category: enumCategory,
-                                    language: language,
-                                    uploader: uploader,
-                                    publishedTime: publishedTime,
-                                    coverURL: coverURL,
-                                    detailURL: detailURL))
+            guard let enumCategory = Category(rawValue: category)
+            else { continue }
+            
+            mangaItems.append(
+                Manga(
+                    id: url.pathComponents[2],
+                    token: url.pathComponents[3],
+                    title: title,
+                    rating: rating,
+                    tags: tags,
+                    category: enumCategory,
+                    language: language,
+                    uploader: uploader,
+                    publishedTime: publishedTime,
+                    coverURL: coverURL,
+                    detailURL: detailURL
+                )
+            )
         }
         
         return (parsePageNum(doc), mangaItems)
@@ -259,7 +267,13 @@ class Parser {
                       let c6Node = c1Link.at_xpath("//div [@class='c6']"),
                       let content = c6Node.innerHTML?
                         .replacingOccurrences(of: "\n", with: "")
-                        .replacingOccurrences(of: "<br>", with: "\n"),
+                        .replacingOccurrences(of: "</a>", with: "")
+                        .replacingOccurrences(of: "<br>", with: "\n")
+                        .replacingOccurrences(
+                            of: "<a href=.*?>",
+                            with: "",
+                            options: .regularExpression
+                        ),
                       let commentID = c6Node["id"]?
                         .replacingOccurrences(of: "comment_", with: ""),
                       let rangeA = c3Node.range(of: "Posted on "),
@@ -310,15 +324,19 @@ class Parser {
                 formatter.locale = Locale(identifier: "en_US_POSIX")
                 guard let commentDate = formatter.date(from: commentTime) else { continue }
                 
-                comments.append(MangaComment(votedUp: votedUp,
-                                             votedDown: votedDown,
-                                             votable: votable,
-                                             editable: editable,
-                                             score: score,
-                                             author: author,
-                                             content: content,
-                                             commentID: commentID,
-                                             commentDate: commentDate))
+                comments.append(
+                    MangaComment(
+                        votedUp: votedUp,
+                        votedDown: votedDown,
+                        votable: votable,
+                        editable: editable,
+                        score: score,
+                        author: author,
+                        content: content,
+                        commentID: commentID,
+                        commentDate: commentDate
+                    )
+                )
             }
         }
         return comments

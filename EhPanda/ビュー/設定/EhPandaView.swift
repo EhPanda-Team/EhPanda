@@ -44,6 +44,10 @@ struct EhPandaView: View {
             Info(
                 url: "https://github.com/honkmaster/TTProgressHUD",
                 text: "TTProgressHUD"
+            ),
+            Info(
+                url: "https://github.com/lucasbrown/swiftui-visual-effects",
+                text: "SwiftUI Visual Effects"
             )
         ]
     }
