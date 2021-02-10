@@ -161,11 +161,15 @@ struct DetailView: View {
                     .environmentObject(store)
                     .accentColor(accentColor)
                     .preferredColorScheme(colorScheme)
+                    .blur(radius: environment.blurRadius)
+                    .allowsHitTesting(environment.isAppUnlocked)
             case .torrents:
                 TorrentsView(id: id)
                     .environmentObject(store)
                     .accentColor(accentColor)
                     .preferredColorScheme(colorScheme)
+                    .blur(radius: environment.blurRadius)
+                    .allowsHitTesting(environment.isAppUnlocked)
             case .comment:
                 DraftCommentView(
                     content: commentContentBinding,
@@ -175,6 +179,8 @@ struct DetailView: View {
                 )
                 .accentColor(accentColor)
                 .preferredColorScheme(colorScheme)
+                .blur(radius: environment.blurRadius)
+                .allowsHitTesting(environment.isAppUnlocked)
             }
         }
     }

@@ -56,6 +56,12 @@ class Store: ObservableObject {
             appState.detailInfo.downloadCommandFailed = false
             
         // MARK: アプリ環境
+        case .toggleAppUnlocked(let isUnlocked):
+            appState.environment.isAppUnlocked = isUnlocked
+        case .toggleBlurEffect(let on):
+            withAnimation(.linear(duration: 0.1)) {
+                appState.environment.blurRadius = on ? 10 : 0
+            }
         case .toggleHomeListType(let type):
             appState.environment.homeListType = type
         case .toggleNavBarHidden(let isHidden):

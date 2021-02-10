@@ -8,6 +8,7 @@
 import SwiftUI
 import Combine
 import Kingfisher
+import LocalAuthentication
 
 class Common {
     
@@ -130,6 +131,33 @@ public func impactFeedback(style: UIImpactFeedbackGenerator.FeedbackStyle) {
 }
 public func notificFeedback(style: UINotificationFeedbackGenerator.FeedbackType) {
     UINotificationFeedbackGenerator().notificationOccurred(style)
+}
+
+public func localAuth(
+    reason: String,
+    successAction: (()->())? = nil,
+    failureAction: (()->())? = nil,
+    passcodeNotFoundAction: (()->())? = nil
+) {
+    let context = LAContext()
+    var error: NSError?
+
+    if context.canEvaluatePolicy(.deviceOwnerAuthentication, error: &error) {
+        context.evaluatePolicy(
+            .deviceOwnerAuthentication,
+            localizedReason: reason.lString()
+        ) { success, authenticationError in
+            DispatchQueue.main.async {
+                if success, let action = successAction {
+                    action()
+                } else if let action = failureAction {
+                    action()
+                }
+            }
+        }
+    } else if let action = passcodeNotFoundAction {
+        action()
+    }
 }
 
 // MARK: UserDefaults

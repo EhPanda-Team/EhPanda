@@ -5,6 +5,7 @@
 //  Created by 荒木辰造 on R 2/12/26.
 //
 
+import SwiftUI
 import Foundation
 
 struct AppState {
@@ -20,6 +21,8 @@ struct AppState {
 extension AppState {
     // MARK: Environment
     struct Environment {
+        var isAppUnlocked = true
+        var blurRadius: CGFloat = 0
         var navBarHidden = false
         var homeListType: HomeListType = .frontpage
         var homeViewSheetState: HomeViewSheetState? = nil

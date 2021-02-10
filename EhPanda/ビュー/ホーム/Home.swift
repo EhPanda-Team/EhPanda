@@ -18,8 +18,11 @@ struct Home : View {
     @State var offset = -Defaults.FrameSize.slideMenuWidth
     
     // プライバシーロック
-    @State var isAppUnlocked = true
     @State var blurRadius: CGFloat = 0
+    
+    var isAppUnlocked: Bool {
+        store.appState.environment.isAppUnlocked
+    }
     
     enum Direction {
         case none
@@ -55,10 +58,7 @@ struct Home : View {
             }
             .blur(radius: blurRadius)
             .allowsHitTesting(isAppUnlocked)
-            LockView(
-                isAppUnlocked: $isAppUnlocked,
-                blurRadius: $blurRadius
-            )
+            AuthView(blurRadius: $blurRadius)
         }
         .gesture (
             DragGesture(minimumDistance: 20)

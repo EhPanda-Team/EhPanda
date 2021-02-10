@@ -111,11 +111,15 @@ struct HomeView: View {
                             .environmentObject(store)
                             .accentColor(accentColor)
                             .preferredColorScheme(colorScheme)
+                            .blur(radius: environment.blurRadius)
+                            .allowsHitTesting(environment.isAppUnlocked)
                     case .filter:
                         FilterView()
                             .environmentObject(store)
                             .accentColor(accentColor)
                             .preferredColorScheme(colorScheme)
+                            .blur(radius: environment.blurRadius)
+                            .allowsHitTesting(environment.isAppUnlocked)
                     }
                 }
                 .navigationBarTitle(

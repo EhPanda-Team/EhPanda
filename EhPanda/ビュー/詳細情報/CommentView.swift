@@ -19,6 +19,9 @@ struct CommentView: View {
         store.appState.settings.setting?.accentColor
     }
     
+    var environment: AppState.Environment {
+        store.appState.environment
+    }
     var environmentBinding: Binding<AppState.Environment> {
         $store.appState.environment
     }
@@ -65,6 +68,8 @@ struct CommentView: View {
                         )
                         .accentColor(accentColor)
                         .preferredColorScheme(colorScheme)
+                        .blur(radius: environment.blurRadius)
+                        .allowsHitTesting(environment.isAppUnlocked)
                     }
                 }
         )
