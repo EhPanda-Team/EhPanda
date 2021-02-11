@@ -34,6 +34,20 @@ struct ContentView: View {
     var mangaContents: [MangaContent]? {
         cachedList.items?[id]?.contents
     }
+    var geometryReader: some View {
+        GeometryReader { proxy -> AnyView in
+            let frame = proxy.frame(in: .global)
+            if frame.minX == 0 && frame.minY != geometryY {
+                DispatchQueue.main.async {
+                    toggleNavBarHiddenIfNeeded()
+                }
+            }
+            DispatchQueue.main.async {
+                geometryY = frame.minY
+            }
+            return AnyView(Color.black.frame(width: 0, height: 0))
+        }
+    }
     
     // MARK: ContentView本体
     var body: some View {
@@ -43,18 +57,7 @@ struct ContentView: View {
             {
                 ScrollViewReader { proxy in
                     ScrollView {
-                        GeometryReader { proxy -> AnyView in
-                            let frame = proxy.frame(in: .global)
-                            if frame.minX == 0 && frame.minY != geometryY {
-                                DispatchQueue.main.async {
-                                    toggleNavBarHiddenIfNeeded()
-                                }
-                            }
-                            DispatchQueue.main.async {
-                                geometryY = frame.minY
-                            }
-                            return AnyView(Color.black.frame(width: 0, height: 0))
-                        }
+                        geometryReader
                         LazyVStack(spacing: 0) {
                             ForEach(contents) { item in
                                 SDContainer(
