@@ -20,6 +20,24 @@
         }
       },
       {
+        "package": "SDWebImage",
+        "repositoryURL": "https://github.com/SDWebImage/SDWebImage.git",
+        "state": {
+          "branch": null,
+          "revision": "a6b6e44eadf0d39250c10a7cc0e3b91d0bdb0e94",
+          "version": "5.10.4"
+        }
+      },
+      {
+        "package": "SDWebImageSwiftUI",
+        "repositoryURL": "https://github.com/SDWebImage/SDWebImageSwiftUI.git",
+        "state": {
+          "branch": "master",
+          "revision": "0c23726533af59d9b42f757ba7c90a395ad39c55",
+          "version": null
+        }
+      },
+      {
         "package": "SwiftUIVisualEffects",
         "repositoryURL": "https://github.com/lucasbrown/swiftui-visual-effects.git",
         "state": {

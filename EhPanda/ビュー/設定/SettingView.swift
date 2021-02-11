@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Kingfisher
+import SDWebImageSwiftUI
 
 struct SettingView: View {
     @EnvironmentObject var store: Store
@@ -124,6 +125,7 @@ struct SettingView: View {
         KingfisherManager.shared.cache.calculateDiskStorageSize { result in
             switch result {
             case .success(let size):
+                let size = size + SDImageCache.shared.totalDiskSize()
                 store.dispatch(
                     .updateDiskImageCacheSize(
                         size: readableUnit(bytes: Int64(size))
@@ -135,6 +137,7 @@ struct SettingView: View {
         }
     }
     func clearImageCaches() {
+        SDImageCache.shared.clear(with: .disk, completion: nil)
         KingfisherManager.shared.cache.clearDiskCache()
         calculateDiskCachesSize()
     }

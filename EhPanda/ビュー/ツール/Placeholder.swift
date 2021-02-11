@@ -18,12 +18,31 @@ struct Placeholder: View {
     var body: some View {
         switch style {
         case .activity:
-            ZStack {
-                Rectangle()
-                    .fill(Color(.systemGray5))
-                ProgressView()
+            if let width = width, let height = height {
+                ZStack {
+                    Rectangle()
+                        .fill(Color(.systemGray5))
+                    ProgressView()
+                }
+                .frame(width: width, height: height)
+            } else {
+                GeometryReader { proxy in
+                    ZStack {
+                        Rectangle()
+                            .fill(Color(.systemGray5))
+                        
+                        VStack {
+                            Text("\(pageNumber)")
+                                .fontWeight(.bold)
+                                .font(.largeTitle)
+                                .foregroundColor(.gray)
+                                .padding(.bottom, 15)
+                            ProgressView()
+                                .frame(width: proxy.size.width * 0.5)
+                        }
+                    }
+                }
             }
-            .frame(width: width, height: height)
         case .progress:
             GeometryReader { proxy in
                 ZStack {

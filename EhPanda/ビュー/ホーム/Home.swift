@@ -95,7 +95,6 @@ struct Home : View {
                         }
                     }
                 }
-            
         )
     }
     

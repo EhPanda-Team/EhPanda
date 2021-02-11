@@ -46,6 +46,10 @@ struct EhPandaView: View {
                 text: "TTProgressHUD"
             ),
             Info(
+                url: "https://github.com/SDWebImage/SDWebImageSwiftUI",
+                text: "SDWebImageSwiftUI"
+            ),
+            Info(
                 url: "https://github.com/lucasbrown/swiftui-visual-effects",
                 text: "SwiftUI Visual Effects"
             )

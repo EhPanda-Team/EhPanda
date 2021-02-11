@@ -8,6 +8,7 @@
 import SwiftUI
 import Combine
 import Kingfisher
+import SDWebImageSwiftUI
 
 struct ContentView: View {
     @EnvironmentObject var store: Store
@@ -51,7 +52,7 @@ struct ContentView: View {
                     ScrollView {
                         LazyVStack(spacing: 0) {
                             ForEach(contents) { item in
-                                KFContainer(
+                                SDContainer(
                                     content: item,
                                     retryLimit: setting.contentRetryLimit,
                                     onTapAction: onWebImageTap,
@@ -118,11 +119,10 @@ struct ContentView: View {
         }
     }
     func onWebImageTap() {
-        
+        toggleNavBarHiddenIfNeeded()
     }
     func onWebImageLongPress(tag: Int) {
         readingProgress = tag
-        toggleNavBarHiddenIfNeeded()
     }
     
     func saveReadingProgress() {
@@ -142,8 +142,8 @@ struct ContentView: View {
     }
 }
 
-// MARK: KFContainer
-private struct KFContainer: View {
+// MARK: SDContainer
+private struct SDContainer: View {
     @State var percentage: Float = 0
     
     var content: MangaContent
@@ -152,7 +152,7 @@ private struct KFContainer: View {
     var onLongPressAction: (Int) -> ()
     
     var body: some View {
-        KFImage(URL(string: content.url))
+        WebImage(url: URL(string: content.url))
             .placeholder {
                 Placeholder(
                     style: .progress,
@@ -160,11 +160,11 @@ private struct KFContainer: View {
                     percentage: percentage
                 )
             }
-            .retry(
-                maxCount: retryLimit,
-                interval: .seconds(0.5)
-            )
-            .onProgress(onWebImageProgress)
+//            .retry(
+//                maxCount: retryLimit,
+//                interval: .seconds(0.5)
+//            )
+            .onProgress(perform: onWebImageProgress)
             .cancelOnDisappear(true)
             .resizable()
             .scaledToFit()
@@ -178,8 +178,8 @@ private struct KFContainer: View {
             )
     }
     
-    func onWebImageProgress(_ received: Int64, _ total: Int64) {
-        percentage = Float(received) / Float(total)
+    func onWebImageProgress(_ received: Int, _ total: Int) {
+        percentage = min(Float(received) / Float(total), 0.5)
     }
     func onTap() {
         onTapAction()

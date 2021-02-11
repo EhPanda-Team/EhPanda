@@ -60,6 +60,7 @@
 		ABCD2F0A259763FC008E5A20 /* Request.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD2F09259763FC008E5A20 /* Request.swift */; };
 		ABCD2F0E25976B95008E5A20 /* Parser.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD2F0D25976B95008E5A20 /* Parser.swift */; };
 		ABDAD2A825AC28BF00BA4DB8 /* KRefreshScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABDAD2A725AC28BF00BA4DB8 /* KRefreshScrollView.swift */; };
+		ABE0FA2F25D4CAEC00E52F18 /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = ABE0FA2E25D4CAEC00E52F18 /* SDWebImageSwiftUI */; };
 		ABEA1FE625A9B40B002966B9 /* Setting.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABEA1FE525A9B40B002966B9 /* Setting.swift */; };
 		ABEE0AFA2595C6F800C997AE /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = ABEE0AFC2595C6F800C997AE /* Localizable.strings */; };
 		ABF313A125B1714400D47A2F /* AssociatedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF313A025B1714400D47A2F /* AssociatedView.swift */; };
@@ -144,6 +145,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				ABE0FA2F25D4CAEC00E52F18 /* SDWebImageSwiftUI in Frameworks */,
 				AB84F47525CAF56D00DAF1EC /* Kingfisher in Frameworks */,
 				ABC3C79D259369FE00E0C11B /* Kanna in Frameworks */,
 				ABC5233F25D385BA000F38B0 /* SwiftUIVisualEffects in Frameworks */,
@@ -356,6 +358,7 @@
 				AB84F47425CAF56D00DAF1EC /* Kingfisher */,
 				ABC5233E25D385BA000F38B0 /* SwiftUIVisualEffects */,
 				ABC5234C25D38D10000F38B0 /* TTProgressHUD */,
+				ABE0FA2E25D4CAEC00E52F18 /* SDWebImageSwiftUI */,
 			);
 			productName = EhPanda;
 			productReference = ABC3C7542593696C00E0C11B /* EhPanda.app */;
@@ -391,6 +394,7 @@
 				AB84F47325CAF56D00DAF1EC /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				ABC5233D25D385BA000F38B0 /* XCRemoteSwiftPackageReference "swiftui-visual-effects" */,
 				ABC5234B25D38D0F000F38B0 /* XCRemoteSwiftPackageReference "TTProgressHUD" */,
+				ABE0FA2D25D4CAEC00E52F18 /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */,
 			);
 			productRefGroup = ABC3C7552593696C00E0C11B /* Products */;
 			projectDirPath = "";
@@ -727,6 +731,14 @@
 				kind = branch;
 			};
 		};
+		ABE0FA2D25D4CAEC00E52F18 /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SDWebImage/SDWebImageSwiftUI.git";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -749,6 +761,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = ABC5234B25D38D0F000F38B0 /* XCRemoteSwiftPackageReference "TTProgressHUD" */;
 			productName = TTProgressHUD;
+		};
+		ABE0FA2E25D4CAEC00E52F18 /* SDWebImageSwiftUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = ABE0FA2D25D4CAEC00E52F18 /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */;
+			productName = SDWebImageSwiftUI;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
