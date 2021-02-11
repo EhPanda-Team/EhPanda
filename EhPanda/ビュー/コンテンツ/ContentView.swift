@@ -13,7 +13,7 @@ import SDWebImageSwiftUI
 struct ContentView: View {
     @EnvironmentObject var store: Store
     @State var readingProgress: Int = -1
-    @State var percentages: [Int : Float] = [:]
+    @State var geometryY: CGFloat = 0
     
     let id: String
     var environment: AppState.Environment {
@@ -34,13 +34,6 @@ struct ContentView: View {
     var mangaContents: [MangaContent]? {
         cachedList.items?[id]?.contents
     }
-    func placeholder(_ pageNum: Int) -> some View {
-        Placeholder(
-            style: .progress,
-            pageNumber: pageNum,
-            percentage: percentages[pageNum]
-        )
-    }
     
     // MARK: ContentView本体
     var body: some View {
@@ -50,6 +43,18 @@ struct ContentView: View {
             {
                 ScrollViewReader { proxy in
                     ScrollView {
+                        GeometryReader { proxy -> AnyView in
+                            let frame = proxy.frame(in: .global)
+                            if frame.minX == 0 && frame.minY != geometryY {
+                                DispatchQueue.main.async {
+                                    toggleNavBarHiddenIfNeeded()
+                                }
+                            }
+                            DispatchQueue.main.async {
+                                geometryY = frame.minY
+                            }
+                            return AnyView(Color.black.frame(width: 0, height: 0))
+                        }
                         LazyVStack(spacing: 0) {
                             ForEach(contents) { item in
                                 SDContainer(
@@ -75,7 +80,6 @@ struct ContentView: View {
                 }
             } else if contentInfo.mangaContentsLoading {
                 LoadingView()
-                
             } else if contentInfo.mangaContentsLoadFailed {
                 NetworkErrorView(retryAction: fetchMangaContents)
             }
