@@ -37,7 +37,6 @@ struct MangaDetail: Codable {
     var isFavored: Bool
     var archiveURL: String?
     var archive: MangaArchive?
-    var detailTags: [MangaTag]
     var alterImages: [MangaAlterData]
     var torrents: [MangaTorrent]
     var comments: [MangaComment]
@@ -45,14 +44,19 @@ struct MangaDetail: Codable {
     
     var title: String
     var jpnTitle: String?
+    var rating: Float
+    var userRating: Float?
+    var ratingCount: String
+    var detailTags: [MangaTag]
+    let category: Category
     let language: Language
+    let uploader: String
+    let publishedTime: String
+    let coverURL: String
     var likeCount: String
     var pageCount: String
     var sizeCount: String
     var sizeType: String
-    var rating: Float
-    var userRating: Float?
-    var ratingCount: String
     var torrentCount: Int
 }
 

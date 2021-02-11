@@ -6,12 +6,22 @@
 //
 
 import SwiftUI
+import TTProgressHUD
 
 struct CommentView: View {
     @EnvironmentObject var store: Store
     @Environment(\.colorScheme) var colorScheme
     
+    @State var commentJumpID: String?
+    @State var isNavActive = false
+    
+    @State var hudVisible = false
+    @State var hudConfig = TTProgressHUDConfig(
+        hapticsEnabled: false
+    )
+    
     let id: String
+    let depth: Int
     var comments: [MangaComment] {
         store.appState.cachedList.items?[id]?.detail?.comments ?? []
     }
@@ -19,6 +29,15 @@ struct CommentView: View {
         store.appState.settings.setting?.accentColor
     }
     
+    var cachedList: AppState.CachedList {
+        store.appState.cachedList
+    }
+    var detailInfo: AppState.DetailInfo {
+        store.appState.detailInfo
+    }
+    var detailInfoBinding: Binding<AppState.DetailInfo> {
+        $store.appState.detailInfo
+    }
     var environment: AppState.Environment {
         store.appState.environment
     }
@@ -40,15 +59,28 @@ struct CommentView: View {
     
     // MARK: CommentView本体
     var body: some View {
-        ScrollView(showsIndicators: false) {
-            VStack {
-                ForEach(comments) { comment in
-                    CommentCell(
-                        editCommentContent: comment.content,
-                        id: id, comment: comment
-                    )
+        ZStack {
+            NavigationLink(
+                "",
+                destination: DetailView(
+                    id: commentJumpID ?? id,
+                    depth: depth + 1
+                ),
+                isActive: $isNavActive
+            )
+            ScrollView(showsIndicators: false) {
+                VStack {
+                    ForEach(comments) { comment in
+                        CommentCell(
+                            editCommentContent: comment.content,
+                            id: id,
+                            comment: comment,
+                            linkAction: onLinkTap
+                        )
+                    }
                 }
             }
+            TTProgressHUD($hudVisible, config: hudConfig)
         }
         .padding(.horizontal)
         .navigationBarItems(
@@ -63,8 +95,8 @@ struct CommentView: View {
                         DraftCommentView(
                             content: commentContentBinding,
                             title: "コメントを書く",
-                            postAction: draftCommentViewPost,
-                            cancelAction: draftCommentViewCancel
+                            postAction: onDraftCommentViewPost,
+                            cancelAction: onDraftCommentViewCancel
                         )
                         .accentColor(accentColor)
                         .preferredColorScheme(colorScheme)
@@ -73,29 +105,90 @@ struct CommentView: View {
                     }
                 }
         )
+        .onAppear(perform: onAppear)
+        .onChange(
+            of: detailInfo.mangaItemReverseID,
+            perform: onJumpIDChange
+        )
+        .onChange(
+            of: detailInfo.mangaItemReverseLoading,
+            perform: onFetchFinished
+        )
+        
     }
     
-    
-    func draftCommentViewPost() {
-        if !commentContent.isEmpty {
-            postComment()
-            toggleNil()
+    func onAppear() {
+        replaceCommentJumpIDNil()
+    }
+    func onFetchFinished<E: Equatable>(_ value: E) {
+        if let loading = value as? Bool,
+           loading == false
+        {
+            dismissHUD()
+            onJumpIDChange(detailInfo.mangaItemReverseID)
         }
     }
-    func draftCommentViewCancel() {
-        toggleNil()
+    func onLinkTap(_ link: URL) {
+        if isValidDetailURL(url: link) && exx {
+            if cachedList.hasCached(url: link) {
+                replaceMangaCommentJumpID(fromID: id, toID: link.pathComponents[2])
+            } else {
+                fetchMangaWithDetailURL(link.absoluteString)
+                showHUD()
+            }
+        } else {
+            UIApplication.shared.open(link, options: [:], completionHandler: nil)
+        }
+    }
+    func onJumpIDChange(_ value: String?) {
+        if value != nil {
+            commentJumpID = value
+            isNavActive = true
+        }
+    }
+    func onDraftCommentViewPost() {
+        if !commentContent.isEmpty {
+            postComment()
+            toggleCommentViewSheetNil()
+        }
+    }
+    func onDraftCommentViewCancel() {
+        toggleCommentViewSheetNil()
+    }
+    
+    func showHUD() {
+        hudConfig = TTProgressHUDConfig(
+            type: .Loading,
+            title: "読み込み中...".lString()
+        )
+        hudVisible = true
+    }
+    func dismissHUD() {
+        hudVisible = false
+        hudConfig = TTProgressHUDConfig(
+            hapticsEnabled: false
+        )
     }
     
     func postComment() {
         store.dispatch(.comment(id: id, content: commentContent))
         store.dispatch(.cleanCommentViewCommentContent)
     }
+    func fetchMangaWithDetailURL(_ detailURL: String) {
+        store.dispatch(.fetchMangaItemReverse(id: id, detailURL: detailURL))
+    }
+    func replaceMangaCommentJumpID(fromID: String, toID: String) {
+        store.dispatch(.replaceMangaCommentJumpID(id: toID))
+    }
     
     func toggleDraft() {
         store.dispatch(.toggleCommentViewSheetState(state: .comment))
     }
-    func toggleNil() {
+    func toggleCommentViewSheetNil() {
         store.dispatch(.toggleCommentViewSheetNil)
+    }
+    func replaceCommentJumpIDNil() {
+        store.dispatch(.replaceMangaCommentJumpID(id: nil))
     }
 }
 
@@ -108,6 +201,7 @@ private struct CommentCell: View {
     
     let id: String
     var comment: MangaComment
+    let linkAction: (URL) -> ()
     var accentColor: Color? {
         store.appState.settings.setting?.accentColor
     }
@@ -140,7 +234,7 @@ private struct CommentCell: View {
                 .font(.footnote)
                 .foregroundColor(.secondary)
             }
-            LinkedText(comment.content, onLinkTap)
+            LinkedText(comment.content, linkAction)
                 .padding(.top, 1)
         }
         .padding()
@@ -189,9 +283,6 @@ private struct CommentCell: View {
         }
     }
     
-    func onLinkTap(_ link: URL) {
-        UIApplication.shared.open(link, options: [:], completionHandler: nil)
-    }
     func draftCommentViewPost() {
         if !editCommentContent.isEmpty {
             editComment()

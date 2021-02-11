@@ -172,7 +172,6 @@ private struct SDContainer: View {
 //                interval: .seconds(0.5)
 //            )
             .onProgress(perform: onWebImageProgress)
-            .cancelOnDisappear(true)
             .resizable()
             .scaledToFit()
             .onTapGesture(perform: onTap)

@@ -24,6 +24,7 @@ enum AppAction {
     case updateAppIconType(iconType: IconType)
     case updateHistoryItems(id: String)
     case resetDownloadCommandResponse
+    case replaceMangaCommentJumpID(id: String?)
     
     case toggleAppUnlocked(isUnlocked: Bool)
     case toggleBlurEffect(on: Bool)
@@ -41,6 +42,8 @@ enum AppAction {
     
     case fetchUserInfo(uid: String)
     case fetchUserInfoDone(result: Result<User?, AppError>)
+    case fetchMangaItemReverse(id: String, detailURL: String)
+    case fetchMangaItemReverseDone(result: Result<(Identity, Manga), AppError>)
     case fetchSearchItems(keyword: String)
     case fetchSearchItemsDone(result: Result<(PageNumber, [Manga]), AppError>)
     case fetchMoreSearchItems(keyword: String)

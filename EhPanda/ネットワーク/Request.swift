@@ -25,6 +25,40 @@ struct UserInfoRequest {
     }
 }
 
+struct MangaItemReverseRequest {
+    let detailURL: String
+    let parser = Parser()
+    
+    var publisher: AnyPublisher<Manga?, AppError> {
+        URLSession.shared
+            .dataTaskPublisher(for: URL(string: detailURL)!)
+            .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
+            .compactMap {
+                if let mangaDetail = parser.parseMangaDetail($0).0 {
+                    return Manga(
+                        detail: mangaDetail,
+                        id: URL(string: detailURL)!.pathComponents[2],
+                        token: URL(string: detailURL)!.pathComponents[3],
+                        title: mangaDetail.title,
+                        rating: mangaDetail.rating,
+                        tags: [],
+                        category: mangaDetail.category,
+                        language: mangaDetail.language,
+                        uploader: mangaDetail.uploader,
+                        publishedTime: mangaDetail.publishedTime,
+                        coverURL: mangaDetail.coverURL,
+                        detailURL: detailURL
+                    )
+                } else {
+                    return nil
+                }
+            }
+            .mapError { _ in .networkingFailed }
+            .eraseToAnyPublisher()
+    }
+    
+}
+
 struct SearchItemsRequest {
     let keyword: String
     let filter: Filter
@@ -244,7 +278,7 @@ struct AlterImagesRequest {
     let parser = Parser()
     
     var alterImageURL: String {
-        parser.parseAlterImagesURL(doc)
+        parser.parseAlterImagesURL(doc) ?? ""
     }
     
     var publisher: AnyPublisher<(Identity, [MangaAlterData]), AppError> {

@@ -33,6 +33,31 @@ struct FetchUserInfoCommand: AppCommand {
     }
 }
 
+struct FetchMangaItemReverseCommand: AppCommand {
+    let id: String
+    let detailURL: String
+    
+    func execute(in store: Store) {
+        let token = SubscriptionToken()
+        MangaItemReverseRequest(detailURL: detailURL)
+            .publisher
+            .receive(on: DispatchQueue.main)
+            .sink { completion in
+                if case .failure(let error) = completion {
+                    store.dispatch(.fetchMangaItemReverseDone(result: .failure(error)))
+                }
+                token.unseal()
+            } receiveValue: { manga in
+                if let manga = manga {
+                    store.dispatch(.fetchMangaItemReverseDone(result: .success((id, manga))))
+                } else {
+                    store.dispatch(.fetchMangaItemReverseDone(result: .failure(.networkingFailed)))
+                }
+            }
+            .seal(in: token)
+    }
+}
+
 struct FetchSearchItemsCommand: AppCommand {
     let keyword: String
     let filter: Filter

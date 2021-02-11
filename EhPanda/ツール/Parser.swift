@@ -90,18 +90,32 @@ class Parser {
         for link in doc.xpath("//div [@class='gm']") {
             
             guard let enTitle = link.at_xpath("//h1 [@id='gn']")?.text,
-                  let gddNode = link.at_xpath("//div [@id='gdd']"),
-                  let gdrNode = link.at_xpath("//div [@id='gdr']"),
-                  let gdfNode = link.at_xpath("//div [@id='gdf']"),
+                  let gd3Node = link.at_xpath("//div [@id='gd3']"),
+                  let gddNode = gd3Node.at_xpath("//div [@id='gdd']"),
+                  let gdrNode = gd3Node.at_xpath("//div [@id='gdr']"),
+                  let gdfNode = gd3Node.at_xpath("//div [@id='gdf']"),
                   let gdtNode = doc.at_xpath("//div [@id='gdt']"),
                   let gd4Node = link.at_xpath("//div [@id='gd4']"),
                   let gd5Node = link.at_xpath("//div [@id='gd5']"),
+                  let rawCoverURL = link.at_xpath("//div [@id='gd1']")?.innerHTML,
+                  let coverRangeA = rawCoverURL.range(of: "url("),
+                  let coverRangeB = rawCoverURL.range(of: ")"),
+                  let tmpCategory = gd3Node.at_xpath("//div [@id='gdc']")?.text,
+                  let category = Category(rawValue: tmpCategory),
+                  let uploader = gd3Node.at_xpath("//div [@id='gdn']")?.text,
                   let tmpRating = gdrNode.at_xpath("//td [@id='rating_label']")?.text?
                     .replacingOccurrences(of: "Average: ", with: "")
                     .replacingOccurrences(of: "Not Yet Rated", with: "0"),
                   let ratingCount = gdrNode.at_xpath("//span [@id='rating_count']")?.text
             else { return (nil, nil, nil) }
             
+            let coverURL = String(
+                rawCoverURL
+                    .suffix(from: coverRangeA.upperBound)
+                    .prefix(upTo: coverRangeB.lowerBound)
+            )
+            
+            var tmpPublishedTime: String?
             var tmpLanguage: String?
             var tmpLikeCount: String?
             var tmpPageCount: String?
@@ -112,6 +126,9 @@ class Parser {
                       let gdt2 = gddLink.at_xpath("//td [@class='gdt2']")?.text
                 else { continue }
                 
+                if gdt1.contains("Posted") {
+                    tmpPublishedTime = gdt2
+                }
                 if gdt1.contains("Language") {
                     tmpLanguage = gdt2
                         .replacingOccurrences(of: "  TR", with: "")
@@ -160,6 +177,12 @@ class Parser {
                 detailTags.append(MangaTag(category: category, content: content))
             }
             
+            var archiveURL: String?
+            for g2gspLink in gd5Node.xpath("//p [@class='g2 gsp']") {
+                archiveURL = parseArchiveURL(g2gspLink)
+                if archiveURL != nil { break }
+            }
+            
             var tmpTorrentCount: Int?
             for g2Link in gd5Node.xpath("//p [@class='g2']") {
                 if let aText = g2Link.at_xpath("//a")?.text,
@@ -174,21 +197,8 @@ class Parser {
                         )
                     )
                 }
-            }
-            
-            var archiveURL: String?
-            for g2gspLink in gd5Node.xpath("//p [@class='g2 gsp']") {
-                if let aLink = g2gspLink.at_xpath("//a"),
-                   aLink.text?.contains("Archive Download") == true,
-                   let onClick = aLink["onclick"],
-                   let rangeA = onClick.range(of: "popUp('"),
-                   let rangeB = onClick.range(of: "',")
-                {
-                    archiveURL = String(
-                        onClick
-                            .suffix(from: rangeA.upperBound)
-                            .prefix(upTo: rangeB.lowerBound)
-                    )
+                if archiveURL == nil {
+                    archiveURL = parseArchiveURL(g2Link)
                 }
             }
             
@@ -199,7 +209,8 @@ class Parser {
             }
             imageURLs = imageURLs.filter { !$0.url.contains("blank.gif") }
             
-            guard let likeCount = tmpLikeCount,
+            guard let publishedTime = tmpPublishedTime,
+                  let likeCount = tmpLikeCount,
                   let pageCount = tmpPageCount,
                   let sizeCount = tmpSizeCount,
                   let sizeType = tmpSizeType,
@@ -212,31 +223,36 @@ class Parser {
             let isFavored = gdfNode.at_xpath("//a [@id='favoritelink']")?.text?
                 .contains("Add to Favorites") == false
             let userRating = parseRatingString(
-                gdrNode.at_xpath("//div [@class='ir irg']")?.toHTML
+                gdrNode.at_xpath("//div [@class='ir irr']")?.toHTML
+                ?? gdrNode.at_xpath("//div [@class='ir irg']")?.toHTML
+                ?? gdrNode.at_xpath("//div [@class='ir irb']")?.toHTML
             )
             var jpnTitle = link.at_xpath("//h1 [@id='gj']")?.text
             if jpnTitle?.isEmpty != false {
                 jpnTitle = nil
             }
-            
             mangaDetail = MangaDetail(
                 isFavored: isFavored,
                 archiveURL: archiveURL,
-                detailTags: detailTags,
                 alterImages: [],
                 torrents: [],
                 comments: parseComments(doc),
                 previews: imageURLs,
                 title: enTitle,
                 jpnTitle: jpnTitle,
+                rating: rating,
+                userRating: userRating,
+                ratingCount: ratingCount,
+                detailTags: detailTags,
+                category: category,
                 language: language,
+                uploader: uploader,
+                publishedTime: publishedTime,
+                coverURL: coverURL,
                 likeCount: likeCount,
                 pageCount: pageCount,
                 sizeCount: sizeCount,
                 sizeType: sizeType,
-                rating: rating,
-                userRating: userRating,
-                ratingCount: ratingCount,
                 torrentCount: torrentCount
             )
             break
@@ -571,8 +587,8 @@ extension Parser {
         return PageNumber(current: current, maximum: maximum)
     }
     
-    func parseAlterImagesURL(_ doc: HTMLDocument) -> String {
-        var alterURL = ""
+    func parseAlterImagesURL(_ doc: HTMLDocument) -> String? {
+        var alterURL: String?
         for link in doc.xpath("//div [@class='gdtm']") {
             guard let style = link.at_xpath("//div")?["style"],
                   let rangeA = style.range(of: "https://"),
@@ -660,5 +676,22 @@ extension Parser {
         } else {
             return nil
         }
+    }
+    
+    func parseArchiveURL(_ element: XMLElement) -> String? {
+        var archiveURL: String?
+        if let aLink = element.at_xpath("//a"),
+           aLink.text?.contains("Archive Download") == true,
+           let onClick = aLink["onclick"],
+           let rangeA = onClick.range(of: "popUp('"),
+           let rangeB = onClick.range(of: "',")
+        {
+            archiveURL = String(
+                onClick
+                    .suffix(from: rangeA.upperBound)
+                    .prefix(upTo: rangeB.lowerBound)
+            )
+        }
+        return archiveURL
     }
 }

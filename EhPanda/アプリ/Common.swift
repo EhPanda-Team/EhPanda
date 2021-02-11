@@ -160,6 +160,16 @@ public func localAuth(
     }
 }
 
+public func isValidDetailURL(url: URL) -> Bool {
+    (url.absoluteString.contains(Defaults.URL.ehentai)
+        || url.absoluteString.contains(Defaults.URL.exhentai))
+        && url.pathComponents.count >= 4
+        && url.pathComponents[1] == "g"
+        && !url.pathComponents[2].isEmpty
+        && !url.pathComponents[3].isEmpty
+    
+}
+
 // MARK: UserDefaults
 public func setEntry(_ token: String?) {
     UserDefaults.standard.set(token, forKey: "entry")

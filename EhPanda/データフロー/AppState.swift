@@ -155,6 +155,10 @@ extension AppState {
     struct DetailInfo {
         var commentContent = ""
         
+        var mangaItemReverseID: String?
+        var mangaItemReverseLoading = false
+        var mangaItemReverseLoadFailed = false
+        
         var mangaDetailLoading = false
         var mangaDetailLoadFailed = false
         
@@ -240,6 +244,19 @@ extension AppState {
         @FileStorage(directory: .cachesDirectory, fileName: "cachedList.json")
         var items: [String : Manga]?
         
+        func hasCached(url: URL) -> Bool {
+            let detailURL = url.absoluteString
+            var hasCached = false
+            
+            if let mangas = items?.values {
+                hasCached = mangas
+                    .filter {
+                        $0.detailURL == detailURL
+                    }
+                    .count > 0
+            }
+            return hasCached
+        }
         mutating func cache(mangas: [Manga]) {
             let previousCount = items?.count ?? 0
             if items == nil {

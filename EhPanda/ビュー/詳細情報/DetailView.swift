@@ -68,8 +68,10 @@ struct DetailView: View {
                 Menu(content: {
                     if !detailInfo.mangaDetailUpdating {
                         if exx {
-                            Button(action: onArchiveButtonTap) {
-                                Label("アーカイブ", systemImage: "doc.zipper")
+                            if mangaDetail?.archiveURL != nil {
+                                Button(action: onArchiveButtonTap) {
+                                    Label("アーカイブ", systemImage: "doc.zipper")
+                                }
                             }
                             if let count = torrentCount, count > 0 {
                                 Button(action: onTorrentsButtonTap) {
@@ -134,6 +136,7 @@ struct DetailView: View {
                                 if !(detail.comments.isEmpty && !exx) {
                                     CommentScrollView(
                                         id: id,
+                                        depth: depth,
                                         comments: detail.comments
                                     )
                                 }
@@ -685,6 +688,7 @@ private struct CommentScrollView: View {
     @EnvironmentObject var store: Store
     
     let id: String
+    let depth: Int
     let comments: [MangaComment]
     
     var body: some View {
@@ -695,7 +699,7 @@ private struct CommentScrollView: View {
                     .font(.title3)
                 Spacer()
                 if !comments.isEmpty && exx {
-                    NavigationLink(destination: CommentView(id: id)) {
+                    NavigationLink(destination: CommentView(id: id, depth: depth)) {
                         Text("すべて表示")
                             .font(.subheadline)
                     }

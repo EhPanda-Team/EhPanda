@@ -54,6 +54,8 @@ class Store: ObservableObject {
             appState.detailInfo.downloadCommandResponse = nil
             appState.detailInfo.downloadCommandSending = false
             appState.detailInfo.downloadCommandFailed = false
+        case .replaceMangaCommentJumpID(let id):
+            appState.detailInfo.mangaItemReverseID = id
             
         // MARK: アプリ環境
         case .toggleAppUnlocked(let isUnlocked):
@@ -110,6 +112,26 @@ class Store: ObservableObject {
                     appState.settings.updateUser(user)
                 }
             case .failure(let error):
+                print(error)
+            }
+            
+        case .fetchMangaItemReverse(let id, let detailURL):
+            if !didLogin || !exx { break }
+            appState.detailInfo.mangaItemReverseLoadFailed = false
+            
+            if appState.detailInfo.mangaItemReverseLoading { break }
+            appState.detailInfo.mangaItemReverseLoading = true
+            
+            appCommand = FetchMangaItemReverseCommand(id: id, detailURL: detailURL)
+        case .fetchMangaItemReverseDone(let result):
+            appState.detailInfo.mangaItemReverseLoading = false
+            
+            switch result {
+            case .success(let manga):
+                appState.cachedList.cache(mangas: [manga.1])
+                appState.detailInfo.mangaItemReverseID = manga.1.id
+            case .failure(let error):
+                appState.detailInfo.mangaItemReverseLoadFailed = true
                 print(error)
             }
             
