@@ -89,9 +89,21 @@ struct MangaComment: Identifiable, Codable {
     
     let score: String?
     let author: String
-    let content: String
+    let contents: [CommentContent]
     let commentID: String
     let commentDate: Date
+}
+
+struct CommentContent: Identifiable, Codable {
+    var id = UUID()
+    
+    let type: CommentContentType
+    var text: String?
+    var link: String?
+    var imgURL: String?
+    
+    var secondLink: String?
+    var secondImgURL: String?
 }
 
 struct MangaPreview: Identifiable, Codable {
@@ -401,6 +413,18 @@ extension ArchiveRes {
             return rawValue
         }
     }
+}
+
+enum CommentContentType: Int, Codable {
+    case singleImg
+    case doubleImg
+    case linkedImg
+    case doubleLinkedImg
+    
+    case plainText
+    case linkedText
+    
+    case singleLink
 }
 
 enum Language: String, Codable {

@@ -725,6 +725,16 @@ private struct CommentScrollView: View {
 
 private struct CommentScrollCell: View {
     let comment: MangaComment
+    var content: String {
+        comment.contents
+            .filter {
+                $0.type == .plainText
+            }
+            .compactMap {
+                $0.text
+            }
+            .joined()
+    }
     
     var body: some View {
         VStack(alignment: .leading) {
@@ -747,7 +757,7 @@ private struct CommentScrollCell: View {
                 .font(.footnote)
                 .foregroundColor(.secondary)
             }
-            Text(comment.content)
+            Text(content)
                 .padding(.top, 1)
             Spacer()
         }

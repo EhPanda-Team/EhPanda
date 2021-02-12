@@ -281,15 +281,6 @@ class Parser {
             for c1Link in link.xpath("//div [@class='c1']") {
                 guard let c3Node = c1Link.at_xpath("//div [@class='c3']")?.text,
                       let c6Node = c1Link.at_xpath("//div [@class='c6']"),
-                      let content = c6Node.innerHTML?
-                        .replacingOccurrences(of: "\n", with: "")
-                        .replacingOccurrences(of: "</a>", with: "")
-                        .replacingOccurrences(of: "<br>", with: "\n")
-                        .replacingOccurrences(
-                            of: "<a href=.*?>",
-                            with: "",
-                            options: .regularExpression
-                        ),
                       let commentID = c6Node["id"]?
                         .replacingOccurrences(of: "comment_", with: ""),
                       let rangeA = c3Node.range(of: "Posted on "),
@@ -348,7 +339,7 @@ class Parser {
                         editable: editable,
                         score: score,
                         author: author,
-                        content: content,
+                        contents: parseCommentContent(c6Node),
                         commentID: commentID,
                         commentDate: commentDate
                     )
@@ -693,5 +684,192 @@ extension Parser {
             )
         }
         return archiveURL
+    }
+    
+    func parseCommentContent(_ element: XMLElement) -> [CommentContent] {
+        var contents = [CommentContent]()
+        
+        guard var rawContent = element.innerHTML?
+                .replacingOccurrences(of: "<br>", with: "\n")
+                .replacingOccurrences(of: "</span>", with: "")
+                .replacingOccurrences(
+                    of: "<div.*?>.*?</div>",
+                    with: "",
+                    options: .regularExpression
+                )
+                .replacingOccurrences(
+                    of: "<span.*?>",
+                    with: "",
+                    options: .regularExpression
+                )
+        else { return [] }
+        
+        while (element.xpath("//a").count
+                + element.xpath("//img").count) > 0
+        {
+            var tmpLink: XMLElement?
+            
+            let links = [element.at_xpath("//a"), element.at_xpath("//img")]
+                .compactMap({ $0 })
+            links.forEach { newLink in
+                if tmpLink == nil {
+                    tmpLink = newLink
+                } else {
+                    if let tmpHTML = tmpLink?.toHTML,
+                       let newHTML = newLink.toHTML,
+                       let tmpBound = rawContent.range(of: tmpHTML)?.lowerBound,
+                       let newBound = rawContent.range(of: newHTML)?.lowerBound,
+                       newBound < tmpBound
+                    {
+                        tmpLink = newLink
+                    }
+                }
+            }
+            
+            guard let link = tmpLink,
+                  let html = link.toHTML,
+                  let range = rawContent.range(of: html)
+            else { continue }
+            
+            let text = String(
+                rawContent.prefix(
+                    upTo: range.lowerBound
+                )
+            )
+            if !text
+                .trimmingCharacters(
+                    in: .whitespacesAndNewlines
+                )
+                .isEmpty
+            {
+                contents.append(
+                    CommentContent(
+                        type: .plainText,
+                        text: text
+                            .trimmingCharacters(
+                                in: .whitespacesAndNewlines
+                            )
+                    )
+                )
+            }
+            
+            if let href = link["href"] {
+                if let imgSrc = link.at_xpath("//img")?["src"] {
+                    if let content = contents.last,
+                       content.type == .linkedImg
+                    {
+                        contents = contents.dropLast()
+                        contents.append(
+                            CommentContent(
+                                type: .doubleLinkedImg,
+                                link: content.link,
+                                imgURL: content.imgURL,
+                                secondLink: href,
+                                secondImgURL: imgSrc
+                            )
+                        )
+                    } else {
+                        contents.append(
+                            CommentContent(
+                                type: .linkedImg,
+                                link: href,
+                                imgURL: imgSrc
+                            )
+                        )
+                    }
+                } else if let text = link.text {
+                    if !text
+                        .trimmingCharacters(
+                            in: .whitespacesAndNewlines
+                        )
+                        .isEmpty
+                    {
+                        contents.append(
+                            CommentContent(
+                                type: .linkedText,
+                                text: text
+                                    .trimmingCharacters(
+                                        in: .whitespacesAndNewlines
+                                    ),
+                                link: href
+                            )
+                        )
+                    }
+                } else {
+                    contents.append(
+                        CommentContent(
+                            type: .singleLink,
+                            link: href
+                        )
+                    )
+                }
+            } else if let src = link["src"] {
+                if let content = contents.last,
+                   content.type == .singleImg
+                {
+                    contents = contents.dropLast()
+                    contents.append(
+                        CommentContent(
+                            type: .doubleImg,
+                            imgURL: content.imgURL,
+                            secondImgURL: src
+                        )
+                    )
+                } else {
+                    contents.append(
+                        CommentContent(
+                            type: .singleImg,
+                            imgURL: src
+                        )
+                    )
+                }
+                
+            }
+            
+            rawContent.removeSubrange(..<range.upperBound)
+            element.removeChild(link)
+            
+            if (element.xpath("//a").count
+                    + element.xpath("//img").count) <= 0
+            {
+                if !rawContent
+                    .trimmingCharacters(
+                        in: .whitespacesAndNewlines
+                    )
+                    .isEmpty
+                {
+                    contents.append(
+                        CommentContent(
+                            type: .plainText,
+                            text: rawContent
+                                .trimmingCharacters(
+                                    in: .whitespacesAndNewlines
+                                )
+                        )
+                    )
+                }
+            }
+        }
+        
+        if !rawContent.isEmpty && contents.isEmpty {
+            if !rawContent
+                .trimmingCharacters(
+                    in: .whitespacesAndNewlines
+                )
+                .isEmpty
+            {
+                contents.append(
+                    CommentContent(
+                        type: .plainText,
+                        text: rawContent
+                            .trimmingCharacters(
+                                in: .whitespacesAndNewlines
+                            )
+                    )
+                )
+            }
+        }
+        
+        return contents
     }
 }

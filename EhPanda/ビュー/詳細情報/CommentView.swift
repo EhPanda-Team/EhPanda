@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Kingfisher
 import TTProgressHUD
 
 struct CommentView: View {
@@ -68,21 +69,23 @@ struct CommentView: View {
                 ),
                 isActive: $isNavActive
             )
-            ScrollView(showsIndicators: false) {
+            ScrollView {
                 VStack {
                     ForEach(comments) { comment in
                         CommentCell(
-                            editCommentContent: comment.content,
+                            editCommentContent: trimContents(
+                                comment.contents
+                            ),
                             id: id,
                             comment: comment,
                             linkAction: onLinkTap
                         )
                     }
                 }
+                .padding(.horizontal)
             }
             TTProgressHUD($hudVisible, config: hudConfig)
         }
-        .padding(.horizontal)
         .navigationBarItems(
             trailing:
                 Button(action: toggleDraft, label: {
@@ -131,7 +134,7 @@ struct CommentView: View {
     func onLinkTap(_ link: URL) {
         if isValidDetailURL(url: link) && exx {
             if cachedList.hasCached(url: link) {
-                replaceMangaCommentJumpID(fromID: id, toID: link.pathComponents[2])
+                replaceMangaCommentJumpID(id: link.pathComponents[2])
             } else {
                 fetchMangaWithDetailURL(link.absoluteString)
                 showHUD()
@@ -170,6 +173,22 @@ struct CommentView: View {
         )
     }
     
+    func trimContents(_ contents: [CommentContent]) -> String {
+        contents
+            .filter {
+                [.plainText, .linkedText, .singleLink]
+                    .contains($0.type)
+            }
+            .compactMap {
+                if $0.type == .singleLink {
+                    return $0.link
+                } else {
+                    return $0.text
+                }
+            }
+            .joined()
+    }
+    
     func postComment() {
         store.dispatch(.comment(id: id, content: commentContent))
         store.dispatch(.cleanCommentViewCommentContent)
@@ -177,8 +196,8 @@ struct CommentView: View {
     func fetchMangaWithDetailURL(_ detailURL: String) {
         store.dispatch(.fetchMangaItemReverse(id: id, detailURL: detailURL))
     }
-    func replaceMangaCommentJumpID(fromID: String, toID: String) {
-        store.dispatch(.replaceMangaCommentJumpID(id: toID))
+    func replaceMangaCommentJumpID(id: String) {
+        store.dispatch(.replaceMangaCommentJumpID(id: id))
     }
     
     func toggleDraft() {
@@ -234,8 +253,87 @@ private struct CommentCell: View {
                 .font(.footnote)
                 .foregroundColor(.secondary)
             }
-            LinkedText(comment.content, linkAction)
-                .padding(.top, 1)
+            // ⚠️
+            ForEach(comment.contents) { content in
+                switch content.type {
+                case .plainText:
+                    if let text = content.text {
+                        LinkedText(text, linkAction)
+                    }
+                case .linkedText:
+                    if let text = content.text,
+                       let link = content.link
+                    {
+                        Text(text)
+                            .foregroundColor(.accentColor)
+                            .onTapGesture {
+                                linkAction(URL(string: link)!)
+                            }
+                    }
+                case .singleLink:
+                    if let link = content.link {
+                        LinkedText(link, linkAction)
+                    }
+                case .singleImg:
+                    if let imgURL = content.imgURL {
+                        KFImage(URL(string: imgURL))
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: screenW / 2)
+                    }
+                case .doubleImg:
+                    if let imgURL = content.imgURL,
+                       let secondImgURL = content.secondImgURL
+                    {
+                        HStack(spacing: 0) {
+                            KFImage(URL(string: imgURL))
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: screenW / 4)
+                            KFImage(URL(string: secondImgURL))
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: screenW / 4)
+                        }
+                    }
+                case .linkedImg:
+                    if let imgURL = content.imgURL,
+                       let link = content.link
+                    {
+                        KFImage(URL(string: imgURL))
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: screenW / 2)
+                            .onTapGesture {
+                                linkAction(URL(string: link)!)
+                            }
+                    }
+                case .doubleLinkedImg:
+                    if let imgURL = content.imgURL,
+                       let link = content.link,
+                       let secondImgURL = content.secondImgURL,
+                       let secondLink = content.secondLink
+                    {
+                        HStack(spacing: 0) {
+                            KFImage(URL(string: imgURL))
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: screenW / 4)
+                                .onTapGesture {
+                                    linkAction(URL(string: link)!)
+                                }
+                            KFImage(URL(string: secondImgURL))
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: screenW / 4)
+                                .onTapGesture {
+                                    linkAction(URL(string: secondLink)!)
+                                }
+                        }
+                    }
+                }
+            }
+            .padding(.top, 1)
         }
         .padding()
         .background(Color(.systemGray6))
@@ -243,7 +341,8 @@ private struct CommentCell: View {
         .contentShape(
             RoundedRectangle(
                 cornerRadius: 15,
-                style: .continuous)
+                style: .continuous
+            )
         )
         .sheet(isPresented: $isPresented) {
             DraftCommentView(
@@ -256,6 +355,16 @@ private struct CommentCell: View {
             .preferredColorScheme(colorScheme)
         }
         .contextMenu {
+            Button(action: {
+                print(comment.contents)
+            }) {
+                Text("debug")
+                if comment.votedDown {
+                    Image(systemName: "hand.thumbsdown.fill")
+                } else {
+                    Image(systemName: "hand.thumbsdown")
+                }
+            }
             if comment.votable {
                 Button(action: voteUp) {
                     Text("賛成")
