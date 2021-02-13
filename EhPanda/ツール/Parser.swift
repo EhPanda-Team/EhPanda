@@ -532,8 +532,8 @@ class Parser {
     }
 }
 
-// MARK: サブメソッド
 extension Parser {
+    // MARK: カバー
     func parseCoverURL(_ node: XMLElement?) -> String? {
         guard let node = node else { return nil }
         
@@ -542,6 +542,7 @@ extension Parser {
         return coverURL
     }
     
+    // MARK: 評価
     func parseRatingString(_ ratingString: String?) -> Float? {
         guard let ratingString = ratingString else { return nil }
         
@@ -558,6 +559,7 @@ extension Parser {
         return rating
     }
     
+    // MARK: ページナンバー
     func parsePageNum(_ doc: HTMLDocument) -> PageNumber {
         var current = 0
         var maximum = 0
@@ -578,6 +580,7 @@ extension Parser {
         return PageNumber(current: current, maximum: maximum)
     }
     
+    // MARK: 代替プレビュー
     func parseAlterImagesURL(_ doc: HTMLDocument) -> String? {
         var alterURL: String?
         for link in doc.xpath("//div [@class='gdtm']") {
@@ -615,6 +618,7 @@ extension Parser {
         return (id, alterImages)
     }
     
+    // MARK: 残高
     func parseCurrentFunds(_ doc: HTMLDocument) -> (String, String)? {
         var currentGP: String?
         var currentCredits: String?
@@ -651,6 +655,7 @@ extension Parser {
         }
     }
     
+    // MARK: ダウンロードコマンドの返事
     func parseDownloadCommandResponse(_ doc: HTMLDocument) -> Resp? {
         guard let dbNode = doc.at_xpath("//div [@id='db']")
         else { return nil }
@@ -669,6 +674,7 @@ extension Parser {
         }
     }
     
+    // MARK: アーカイブリンク
     func parseArchiveURL(_ element: XMLElement) -> String? {
         var archiveURL: String?
         if let aLink = element.at_xpath("//a"),
@@ -686,6 +692,7 @@ extension Parser {
         return archiveURL
     }
     
+    // MARK: コメント内容
     func parseCommentContent(_ element: XMLElement) -> [CommentContent] {
         var contents = [CommentContent]()
         
@@ -709,8 +716,12 @@ extension Parser {
         {
             var tmpLink: XMLElement?
             
-            let links = [element.at_xpath("//a"), element.at_xpath("//img")]
-                .compactMap({ $0 })
+            let links = [
+                element.at_xpath("//a"),
+                element.at_xpath("//img")
+            ]
+            .compactMap({ $0 })
+            
             links.forEach { newLink in
                 if tmpLink == nil {
                     tmpLink = newLink

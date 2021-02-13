@@ -728,7 +728,8 @@ private struct CommentScrollCell: View {
     var content: String {
         comment.contents
             .filter {
-                $0.type == .plainText
+                [.plainText, .linkedText]
+                    .contains($0.type)
             }
             .compactMap {
                 $0.text

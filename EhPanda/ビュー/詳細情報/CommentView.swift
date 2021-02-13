@@ -253,7 +253,6 @@ private struct CommentCell: View {
                 .font(.footnote)
                 .foregroundColor(.secondary)
             }
-            // ⚠️
             ForEach(comment.contents) { content in
                 switch content.type {
                 case .plainText:
@@ -274,63 +273,13 @@ private struct CommentCell: View {
                     if let link = content.link {
                         LinkedText(link, linkAction)
                     }
-                case .singleImg:
-                    if let imgURL = content.imgURL {
-                        KFImage(URL(string: imgURL))
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: screenW / 2)
-                    }
-                case .doubleImg:
-                    if let imgURL = content.imgURL,
-                       let secondImgURL = content.secondImgURL
-                    {
-                        HStack(spacing: 0) {
-                            KFImage(URL(string: imgURL))
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: screenW / 4)
-                            KFImage(URL(string: secondImgURL))
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: screenW / 4)
-                        }
-                    }
-                case .linkedImg:
-                    if let imgURL = content.imgURL,
-                       let link = content.link
-                    {
-                        KFImage(URL(string: imgURL))
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: screenW / 2)
-                            .onTapGesture {
-                                linkAction(URL(string: link)!)
-                            }
-                    }
-                case .doubleLinkedImg:
-                    if let imgURL = content.imgURL,
-                       let link = content.link,
-                       let secondImgURL = content.secondImgURL,
-                       let secondLink = content.secondLink
-                    {
-                        HStack(spacing: 0) {
-                            KFImage(URL(string: imgURL))
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: screenW / 4)
-                                .onTapGesture {
-                                    linkAction(URL(string: link)!)
-                                }
-                            KFImage(URL(string: secondImgURL))
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: screenW / 4)
-                                .onTapGesture {
-                                    linkAction(URL(string: secondLink)!)
-                                }
-                        }
-                    }
+                default:
+                    generateWebImages(
+                        imgURL: content.imgURL,
+                        secondImgURL: content.secondImgURL,
+                        link: content.link,
+                        secondLink: content.secondLink
+                    )
                 }
             }
             .padding(.top, 1)
@@ -355,16 +304,6 @@ private struct CommentCell: View {
             .preferredColorScheme(colorScheme)
         }
         .contextMenu {
-            Button(action: {
-                print(comment.contents)
-            }) {
-                Text("debug")
-                if comment.votedDown {
-                    Image(systemName: "hand.thumbsdown.fill")
-                } else {
-                    Image(systemName: "hand.thumbsdown")
-                }
-            }
             if comment.votable {
                 Button(action: voteUp) {
                     Text("賛成")
@@ -387,6 +326,67 @@ private struct CommentCell: View {
                 Button(action: togglePresented) {
                     Text("編集")
                     Image(systemName: "square.and.pencil")
+                }
+            }
+        }
+    }
+    
+    func generateWebImages(
+        imgURL: String?,
+        secondImgURL: String?,
+        link: String?,
+        secondLink: String?
+    ) -> some View {
+        Group {
+            // ダブル
+            if let imgURL = imgURL,
+               let secondImgURL = secondImgURL
+            {
+                HStack(spacing: 0) {
+                    if let link = link,
+                       let secondLink = secondLink
+                    {
+                        KFImage(URL(string: imgURL))
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: screenW / 4)
+                            .onTapGesture {
+                                linkAction(URL(string: link)!)
+                            }
+                        KFImage(URL(string: secondImgURL))
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: screenW / 4)
+                            .onTapGesture {
+                                linkAction(URL(string: secondLink)!)
+                            }
+                    } else {
+                        KFImage(URL(string: imgURL))
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: screenW / 4)
+                        KFImage(URL(string: secondImgURL))
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: screenW / 4)
+                    }
+                }
+            }
+            // シングル
+            else if let imgURL = imgURL {
+                if let link = link {
+                    KFImage(URL(string: imgURL))
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: screenW / 2)
+                        .onTapGesture {
+                            linkAction(URL(string: link)!)
+                        }
+                } else {
+                    KFImage(URL(string: imgURL))
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: screenW / 2)
                 }
             }
         }

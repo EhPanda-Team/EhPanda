@@ -35,6 +35,8 @@ class Store: ObservableObject {
             appState.settings.user = user
         case .clearCachedList:
             appState.cachedList.items = nil
+        case .clearHistoryItems:
+            appState.homeInfo.historyItems = nil
         case .initiateUser:
             appState.settings.user = User()
         case .initiateFilter:

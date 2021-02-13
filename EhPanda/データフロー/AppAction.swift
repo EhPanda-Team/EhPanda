@@ -14,6 +14,7 @@ enum AppAction {
     
     case replaceUser(user: User?)
     case clearCachedList
+    case clearHistoryItems
     case initiateUser
     case initiateFilter
     case initiateSetting

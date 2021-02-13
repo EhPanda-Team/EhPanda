@@ -118,6 +118,7 @@ struct SettingView: View {
         clearCookies()
         clearImageCaches()
         store.dispatch(.clearCachedList)
+        store.dispatch(.clearHistoryItems)
         store.dispatch(.replaceUser(user: nil))
     }
     
