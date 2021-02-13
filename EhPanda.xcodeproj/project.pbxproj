@@ -25,6 +25,9 @@
 		AB47FDB525BC859E0007765D /* Weird-ipad-pro@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = AB47FDB225BC859E0007765D /* Weird-ipad-pro@2x.png */; };
 		AB47FDB625BC859E0007765D /* Weird-ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = AB47FDB325BC859E0007765D /* Weird-ipad.png */; };
 		AB718B2525A0C0AC00D32962 /* CommentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB718B2425A0C0AC00D32962 /* CommentView.swift */; };
+		AB7B34C525D7CF7C00B7FA4D /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = AB7B34C425D7CF7C00B7FA4D /* GoogleService-Info.plist */; };
+		AB7B34C925D7D19F00B7FA4D /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = AB7B34C825D7D19F00B7FA4D /* FirebaseAnalytics */; };
+		AB7B34CB25D7D19F00B7FA4D /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = AB7B34CA25D7D19F00B7FA4D /* FirebaseCrashlytics */; };
 		AB7E6B3025D24FE00035CC68 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = AB7E6B3225D24FE00035CC68 /* InfoPlist.strings */; };
 		AB7E6B3825D2508A0035CC68 /* AuthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB7E6B3725D2508A0035CC68 /* AuthView.swift */; };
 		AB84F47525CAF56D00DAF1EC /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = AB84F47425CAF56D00DAF1EC /* Kingfisher */; };
@@ -49,7 +52,6 @@
 		ABC3C7902593699B00E0C11B /* RatingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC3C7772593699A00E0C11B /* RatingView.swift */; };
 		ABC3C7962593699B00E0C11B /* Manga.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC3C7802593699A00E0C11B /* Manga.swift */; };
 		ABC3C79D259369FE00E0C11B /* Kanna in Frameworks */ = {isa = PBXBuildFile; productRef = ABC3C79C259369FE00E0C11B /* Kanna */; };
-		ABC5233F25D385BA000F38B0 /* SwiftUIVisualEffects in Frameworks */ = {isa = PBXBuildFile; productRef = ABC5233E25D385BA000F38B0 /* SwiftUIVisualEffects */; };
 		ABC5234D25D38D10000F38B0 /* TTProgressHUD in Frameworks */ = {isa = PBXBuildFile; productRef = ABC5234C25D38D10000F38B0 /* TTProgressHUD */; };
 		ABC5235025D3FCB3000F38B0 /* LinkedText.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC5234F25D3FCB3000F38B0 /* LinkedText.swift */; };
 		ABCD2EF82597602D008E5A20 /* Store.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD2EF72597602D008E5A20 /* Store.swift */; };
@@ -91,6 +93,7 @@
 		AB47FDB225BC859E0007765D /* Weird-ipad-pro@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Weird-ipad-pro@2x.png"; sourceTree = "<group>"; };
 		AB47FDB325BC859E0007765D /* Weird-ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Weird-ipad.png"; sourceTree = "<group>"; };
 		AB718B2425A0C0AC00D32962 /* CommentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentView.swift; sourceTree = "<group>"; };
+		AB7B34C425D7CF7C00B7FA4D /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		AB7E6B3125D24FE00035CC68 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		AB7E6B3425D24FE40035CC68 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
 		AB7E6B3525D24FE50035CC68 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -147,8 +150,9 @@
 			files = (
 				ABE0FA2F25D4CAEC00E52F18 /* SDWebImageSwiftUI in Frameworks */,
 				AB84F47525CAF56D00DAF1EC /* Kingfisher in Frameworks */,
+				AB7B34C925D7D19F00B7FA4D /* FirebaseAnalytics in Frameworks */,
+				AB7B34CB25D7D19F00B7FA4D /* FirebaseCrashlytics in Frameworks */,
 				ABC3C79D259369FE00E0C11B /* Kanna in Frameworks */,
-				ABC5233F25D385BA000F38B0 /* SwiftUIVisualEffects in Frameworks */,
 				ABC5234D25D38D10000F38B0 /* TTProgressHUD in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -176,6 +180,7 @@
 				ABCD2F0D25976B95008E5A20 /* Parser.swift */,
 				AB40CFDB25983EC200D1DC9A /* FileStorage.swift */,
 				AB40CFDE25983EDF00D1DC9A /* FileHelper.swift */,
+				AB38A0CA25CA993D00764D64 /* ColorCodable.swift */,
 			);
 			path = "ツール";
 			sourceTree = "<group>";
@@ -216,13 +221,12 @@
 		ABC3C7562593696C00E0C11B /* EhPanda */ = {
 			isa = PBXGroup;
 			children = (
-				ABF53F4725A306D200AB5918 /* EhPanda.entitlements */,
-				AB40CFE52598423E00D1DC9A /* ツール */,
+				ABC3C7682593699A00E0C11B /* アプリ */,
 				ABCD2EF625976006008E5A20 /* データフロー */,
 				ABC3C77B2593699A00E0C11B /* ネットワーク */,
 				ABC3C77F2593699A00E0C11B /* モデル */,
-				ABC3C7682593699A00E0C11B /* アプリ */,
 				ABC3C7702593699A00E0C11B /* ビュー */,
+				ABF53F4725A306D200AB5918 /* EhPanda.entitlements */,
 			);
 			path = EhPanda;
 			sourceTree = "<group>";
@@ -235,11 +239,12 @@
 				ABC3C76D2593699A00E0C11B /* Defaults.swift */,
 				ABA732D825A8018A00B3D9AB /* Extensions.swift */,
 				ABC3C7762593699A00E0C11B /* ViewModifiers.swift */,
-				AB38A0CA25CA993D00764D64 /* ColorCodable.swift */,
+				AB40CFE52598423E00D1DC9A /* ツール */,
 				ABEE0AFC2595C6F800C997AE /* Localizable.strings */,
 				ABC3C7692593699A00E0C11B /* Assets.xcassets */,
 				AB47FDA625BC823F0007765D /* 予備アイコン */,
 				ABC3C76E2593699A00E0C11B /* Info.plist */,
+				AB7B34C425D7CF7C00B7FA4D /* GoogleService-Info.plist */,
 				AB7E6B3225D24FE00035CC68 /* InfoPlist.strings */,
 			);
 			path = "アプリ";
@@ -356,9 +361,10 @@
 			packageProductDependencies = (
 				ABC3C79C259369FE00E0C11B /* Kanna */,
 				AB84F47425CAF56D00DAF1EC /* Kingfisher */,
-				ABC5233E25D385BA000F38B0 /* SwiftUIVisualEffects */,
 				ABC5234C25D38D10000F38B0 /* TTProgressHUD */,
 				ABE0FA2E25D4CAEC00E52F18 /* SDWebImageSwiftUI */,
+				AB7B34C825D7D19F00B7FA4D /* FirebaseAnalytics */,
+				AB7B34CA25D7D19F00B7FA4D /* FirebaseCrashlytics */,
 			);
 			productName = EhPanda;
 			productReference = ABC3C7542593696C00E0C11B /* EhPanda.app */;
@@ -392,9 +398,9 @@
 			packageReferences = (
 				ABC3C79B259369FE00E0C11B /* XCRemoteSwiftPackageReference "Kanna" */,
 				AB84F47325CAF56D00DAF1EC /* XCRemoteSwiftPackageReference "Kingfisher" */,
-				ABC5233D25D385BA000F38B0 /* XCRemoteSwiftPackageReference "swiftui-visual-effects" */,
 				ABC5234B25D38D0F000F38B0 /* XCRemoteSwiftPackageReference "TTProgressHUD" */,
 				ABE0FA2D25D4CAEC00E52F18 /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */,
+				AB7B34C725D7D19F00B7FA4D /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
 			productRefGroup = ABC3C7552593696C00E0C11B /* Products */;
 			projectDirPath = "";
@@ -423,6 +429,7 @@
 				AB47FDAE25BC85060007765D /* Normal-ipad-pro@2x.png in Resources */,
 				AB47FDA125BC81A40007765D /* Weird@3x.png in Resources */,
 				AB47FDAD25BC85060007765D /* Normal-ipad@2x.png in Resources */,
+				AB7B34C525D7CF7C00B7FA4D /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -563,6 +570,7 @@
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = "-ObjC";
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -618,6 +626,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
+				OTHER_LDFLAGS = "-ObjC";
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
@@ -699,6 +708,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		AB7B34C725D7D19F00B7FA4D /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 7.6.0;
+			};
+		};
 		AB84F47325CAF56D00DAF1EC /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/onevcat/Kingfisher.git";
@@ -713,14 +730,6 @@
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 5.2.4;
-			};
-		};
-		ABC5233D25D385BA000F38B0 /* XCRemoteSwiftPackageReference "swiftui-visual-effects" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/lucasbrown/swiftui-visual-effects.git";
-			requirement = {
-				branch = master;
-				kind = branch;
 			};
 		};
 		ABC5234B25D38D0F000F38B0 /* XCRemoteSwiftPackageReference "TTProgressHUD" */ = {
@@ -742,6 +751,16 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		AB7B34C825D7D19F00B7FA4D /* FirebaseAnalytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AB7B34C725D7D19F00B7FA4D /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalytics;
+		};
+		AB7B34CA25D7D19F00B7FA4D /* FirebaseCrashlytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AB7B34C725D7D19F00B7FA4D /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCrashlytics;
+		};
 		AB84F47425CAF56D00DAF1EC /* Kingfisher */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = AB84F47325CAF56D00DAF1EC /* XCRemoteSwiftPackageReference "Kingfisher" */;
@@ -751,11 +770,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = ABC3C79B259369FE00E0C11B /* XCRemoteSwiftPackageReference "Kanna" */;
 			productName = Kanna;
-		};
-		ABC5233E25D385BA000F38B0 /* SwiftUIVisualEffects */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = ABC5233D25D385BA000F38B0 /* XCRemoteSwiftPackageReference "swiftui-visual-effects" */;
-			productName = SwiftUIVisualEffects;
 		};
 		ABC5234C25D38D10000F38B0 /* TTProgressHUD */ = {
 			isa = XCSwiftPackageProductDependency;

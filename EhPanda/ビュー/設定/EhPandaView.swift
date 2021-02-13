@@ -38,6 +38,10 @@ struct EhPandaView: View {
                 text: "Kanna"
             ),
             Info(
+                url: "https://github.com/firebase/firebase-ios-sdk",
+                text: "Firebase"
+            ),
+            Info(
                 url: "https://github.com/onevcat/Kingfisher",
                 text: "Kingfisher"
             ),
@@ -48,10 +52,6 @@ struct EhPandaView: View {
             Info(
                 url: "https://github.com/SDWebImage/SDWebImageSwiftUI",
                 text: "SDWebImageSwiftUI"
-            ),
-            Info(
-                url: "https://github.com/lucasbrown/swiftui-visual-effects",
-                text: "SwiftUI Visual Effects"
             )
         ]
     }

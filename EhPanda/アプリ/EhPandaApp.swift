@@ -6,26 +6,26 @@
 //
 
 import SwiftUI
-import MetricKit
+import Firebase
 import Kingfisher
 
 @main
 struct EhPandaApp: App {
-    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @StateObject var store = Store()
     
     var setting: Setting? {
         store.appState.settings.setting
     }
-    var preferredColorScheme: ColorScheme? {
-        setting?.colorScheme ?? .none
-    }
     var accentColor: Color? {
         setting?.accentColor
+    }
+    var preferredColorScheme: ColorScheme? {
+        setting?.colorScheme ?? .none
     }
     
     init() {
         configureKF()
+        FirebaseApp.configure()
     }
     
     var body: some Scene {
@@ -33,15 +33,11 @@ struct EhPandaApp: App {
             Home()
                 .environmentObject(store)
                 .accentColor(accentColor)
-                .onAppear(perform: onAppear)
                 .onOpenURL(perform: onOpenURL)
                 .preferredColorScheme(preferredColorScheme)
         }
     }
     
-    func onAppear() {
-        sendMetrics()
-    }
     func onOpenURL(_ url: URL) {
         setEntry(url.host)
     }
@@ -54,39 +50,5 @@ struct EhPandaApp: App {
         
         // ディスクキャッシュサイズ上限
         KingfisherManager.shared.cache.diskStorage.config.sizeLimit = 200 * 1024 * 1024
-    }
-    
-    func sendMetrics() {
-        if let metricsData = currentMetricsData {
-            store.dispatch(.sendMetrics(metrics: metricsData))
-        }
-    }
-}
-
-class AppDelegate: UIResponder, UIApplicationDelegate {
-    func application(
-        _ application: UIApplication,
-        didFinishLaunchingWithOptions launchOptions:
-            [UIApplication.LaunchOptionsKey : Any]? = nil
-    ) -> Bool {
-        MXMetricManager.shared.add(self)
-        return true
-    }
-    
-    func applicationWillTerminate(_ application: UIApplication) {
-        MXMetricManager.shared.remove(self)
-    }
-}
-
-extension AppDelegate: MXMetricManagerSubscriber {
-    func didReceive(_ payloads: [MXMetricPayload]) {
-        var data = Data()
-        payloads.forEach { payload in
-            data.append(payload.jsonRepresentation())
-        }
-        
-        if !data.isEmpty {
-            saveMetricsData(data)
-        }
     }
 }
