@@ -49,7 +49,7 @@ struct WebView: UIViewControllerRepresentable {
                             if store?.appState.settings.user == nil {
                                 store?.dispatch(.initiateUser)
                             }
-                            if let uid = store?.appState.settings.user?.apiuid {
+                            if let uid = store?.appState.settings.user?.apiuid, !uid.isEmpty {
                                 store?.dispatch(.fetchUserInfo(uid: uid))
                             }
                         }

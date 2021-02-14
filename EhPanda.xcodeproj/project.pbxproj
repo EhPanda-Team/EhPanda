@@ -25,12 +25,12 @@
 		AB47FDB525BC859E0007765D /* Weird-ipad-pro@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = AB47FDB225BC859E0007765D /* Weird-ipad-pro@2x.png */; };
 		AB47FDB625BC859E0007765D /* Weird-ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = AB47FDB325BC859E0007765D /* Weird-ipad.png */; };
 		AB718B2525A0C0AC00D32962 /* CommentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB718B2425A0C0AC00D32962 /* CommentView.swift */; };
-		AB7B34C525D7CF7C00B7FA4D /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = AB7B34C425D7CF7C00B7FA4D /* GoogleService-Info.plist */; };
 		AB7B34C925D7D19F00B7FA4D /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = AB7B34C825D7D19F00B7FA4D /* FirebaseAnalytics */; };
 		AB7B34CB25D7D19F00B7FA4D /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = AB7B34CA25D7D19F00B7FA4D /* FirebaseCrashlytics */; };
 		AB7E6B3025D24FE00035CC68 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = AB7E6B3225D24FE00035CC68 /* InfoPlist.strings */; };
 		AB7E6B3825D2508A0035CC68 /* AuthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB7E6B3725D2508A0035CC68 /* AuthView.swift */; };
 		AB84F47525CAF56D00DAF1EC /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = AB84F47425CAF56D00DAF1EC /* Kingfisher */; };
+		AB8D5C8F25D7EB80000B9FC6 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = AB8D5C8E25D7EB80000B9FC6 /* GoogleService-Info.plist */; };
 		AB975F6025B5697700741E1A /* AppearanceSettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB975F5F25B5697700741E1A /* AppearanceSettingView.swift */; };
 		AB975F6325B56B1D00741E1A /* ReadingSettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB975F6225B56B1D00741E1A /* ReadingSettingView.swift */; };
 		AB975F6625B56D5700741E1A /* GeneralSettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB975F6525B56D5700741E1A /* GeneralSettingView.swift */; };
@@ -93,11 +93,11 @@
 		AB47FDB225BC859E0007765D /* Weird-ipad-pro@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Weird-ipad-pro@2x.png"; sourceTree = "<group>"; };
 		AB47FDB325BC859E0007765D /* Weird-ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Weird-ipad.png"; sourceTree = "<group>"; };
 		AB718B2425A0C0AC00D32962 /* CommentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentView.swift; sourceTree = "<group>"; };
-		AB7B34C425D7CF7C00B7FA4D /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		AB7E6B3125D24FE00035CC68 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		AB7E6B3425D24FE40035CC68 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
 		AB7E6B3525D24FE50035CC68 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		AB7E6B3725D2508A0035CC68 /* AuthView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AuthView.swift; sourceTree = "<group>"; };
+		AB8D5C8E25D7EB80000B9FC6 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		AB975F5F25B5697700741E1A /* AppearanceSettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppearanceSettingView.swift; sourceTree = "<group>"; };
 		AB975F6225B56B1D00741E1A /* ReadingSettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingSettingView.swift; sourceTree = "<group>"; };
 		AB975F6525B56D5700741E1A /* GeneralSettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneralSettingView.swift; sourceTree = "<group>"; };
@@ -244,8 +244,8 @@
 				ABC3C7692593699A00E0C11B /* Assets.xcassets */,
 				AB47FDA625BC823F0007765D /* 予備アイコン */,
 				ABC3C76E2593699A00E0C11B /* Info.plist */,
-				AB7B34C425D7CF7C00B7FA4D /* GoogleService-Info.plist */,
 				AB7E6B3225D24FE00035CC68 /* InfoPlist.strings */,
+				AB8D5C8E25D7EB80000B9FC6 /* GoogleService-Info.plist */,
 			);
 			path = "アプリ";
 			sourceTree = "<group>";
@@ -429,7 +429,7 @@
 				AB47FDAE25BC85060007765D /* Normal-ipad-pro@2x.png in Resources */,
 				AB47FDA125BC81A40007765D /* Weird@3x.png in Resources */,
 				AB47FDAD25BC85060007765D /* Normal-ipad@2x.png in Resources */,
-				AB7B34C525D7CF7C00B7FA4D /* GoogleService-Info.plist in Resources */,
+				AB8D5C8F25D7EB80000B9FC6 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -549,7 +549,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -641,7 +641,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = EhPanda/EhPanda.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 33;
+				CURRENT_PROJECT_VERSION = 34;
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = 9SKQ7QTZ74;
 				ENABLE_PREVIEWS = YES;
@@ -666,7 +666,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = EhPanda/EhPanda.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 33;
+				CURRENT_PROJECT_VERSION = 34;
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = 9SKQ7QTZ74;
 				ENABLE_PREVIEWS = YES;

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
    LastUpgradeVersion = "1240"
-   version = "1.3">
+   version = "1.7">
    <BuildAction
       parallelizeBuildables = "YES"
       buildImplicitDependencies = "YES">
@@ -50,6 +50,12 @@
             ReferencedContainer = "container:EhPanda.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
+      <CommandLineArguments>
+         <CommandLineArgument
+            argument = "-FIRAnalyticsDebugEnabled"
+            isEnabled = "YES">
+         </CommandLineArgument>
+      </CommandLineArguments>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"
@@ -74,5 +80,23 @@
    <ArchiveAction
       buildConfiguration = "Release"
       revealArchiveInOrganizer = "YES">
+      <PostActions>
+         <ExecutionAction
+            ActionType = "Xcode.IDEStandardExecutionActionsCore.ExecutionActionType.ShellScriptAction">
+            <ActionContent
+               title = "Run Script"
+               scriptText = "# https://github.com/firebase/firebase-ios-sdk/issues/6472&#10;LOGFILE=&quot;${ARCHIVE_PATH}/static-frameworks.log&quot;&#10;echo &quot;Removing static frameworks from ${WRAPPER_NAME} archive&quot; &gt; $LOGFILE&#10;find &quot;${ARCHIVE_PRODUCTS_PATH}/Applications/${WRAPPER_NAME}&quot; -name &apos;*.framework&apos; -print0 | while IFS= read -r -d &apos;&apos; fm; do&#10;    name=$(basename &quot;${fm}&quot; .framework)&#10;    target=&quot;${fm}/${name}&quot;&#10;    echo &quot;Checking: ${fm}&quot; &gt;&gt; $LOGFILE&#10;    if file &quot;${target}&quot; | grep -q &quot;current ar archive&quot;; then&#10;        rm -rf &quot;${fm}&quot;&#10;        echo &quot;Removed static framework: ${fm}&quot; &gt;&gt; $LOGFILE&#10;    fi&#10;done&#10;">
+               <EnvironmentBuildable>
+                  <BuildableReference
+                     BuildableIdentifier = "primary"
+                     BlueprintIdentifier = "ABC3C7532593696C00E0C11B"
+                     BuildableName = "EhPanda.app"
+                     BlueprintName = "EhPanda"
+                     ReferencedContainer = "container:EhPanda.xcodeproj">
+                  </BuildableReference>
+               </EnvironmentBuildable>
+            </ActionContent>
+         </ExecutionAction>
+      </PostActions>
    </ArchiveAction>
 </Scheme>

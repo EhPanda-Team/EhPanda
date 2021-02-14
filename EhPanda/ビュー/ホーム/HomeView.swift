@@ -104,24 +104,6 @@ struct HomeView: View {
     var body: some View {
         NavigationView {
             conditionalList
-                .sheet(item: environmentBinding.homeViewSheetState) { item in
-                    switch item {
-                    case .setting:
-                        SettingView()
-                            .environmentObject(store)
-                            .accentColor(accentColor)
-                            .preferredColorScheme(colorScheme)
-                            .blur(radius: environment.blurRadius)
-                            .allowsHitTesting(environment.isAppUnlocked)
-                    case .filter:
-                        FilterView()
-                            .environmentObject(store)
-                            .accentColor(accentColor)
-                            .preferredColorScheme(colorScheme)
-                            .blur(radius: environment.blurRadius)
-                            .allowsHitTesting(environment.isAppUnlocked)
-                    }
-                }
                 .navigationBarTitle(
                     environment.homeListType.rawValue.lString()
                 )
@@ -133,6 +115,24 @@ struct HomeView: View {
             
         }
         .navigationViewStyle(StackNavigationViewStyle())
+        .sheet(item: environmentBinding.homeViewSheetState) { item in
+            switch item {
+            case .setting:
+                SettingView()
+                    .environmentObject(store)
+                    .accentColor(accentColor)
+                    .preferredColorScheme(colorScheme)
+                    .blur(radius: environment.blurRadius)
+                    .allowsHitTesting(environment.isAppUnlocked)
+            case .filter:
+                FilterView()
+                    .environmentObject(store)
+                    .accentColor(accentColor)
+                    .preferredColorScheme(colorScheme)
+                    .blur(radius: environment.blurRadius)
+                    .allowsHitTesting(environment.isAppUnlocked)
+            }
+        }
     }
     
     func onAppear() {
@@ -167,7 +167,7 @@ struct HomeView: View {
     }
     
     func fetchUserInfo() {
-        if let uid = settings.user?.apiuid {
+        if let uid = settings.user?.apiuid, !uid.isEmpty {
             store.dispatch(.fetchUserInfo(uid: uid))
         }
     }

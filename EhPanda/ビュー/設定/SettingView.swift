@@ -58,6 +58,7 @@ struct SettingView: View {
                         symbolName: "switch.2",
                         text: "一般",
                         destination: GeneralSettingView()
+                            .onAppear(perform: onGeneralSettingAppear)
                     )
                     SettingRow(
                         symbolName: "circle.righthalf.fill",
@@ -79,7 +80,6 @@ struct SettingView: View {
                 .padding(.horizontal)
             }
             .navigationBarTitle("設定")
-            .onAppear(perform: onAppear)
             .sheet(item: environmentBinding.settingViewSheetState) { item in
                 switch item {
                 case .webviewLogin:
@@ -110,7 +110,7 @@ struct SettingView: View {
         }
     }
     
-    func onAppear() {
+    func onGeneralSettingAppear() {
         calculateDiskCachesSize()
     }
     
