@@ -26,7 +26,7 @@ class Parser {
                     ?? parseRatingString(gl2cNode.at_xpath("//div [@class='ir irb']")?.toHTML),
                   let category = link.at_xpath("//td [@class='gl1c glcat'] //div")?.text,
                   var publishedTime = gl2cNode.at_xpath("//div [@onclick]")?.text,
-                  let coverURL = parseCoverURL(gl2cNode.at_xpath("//div [@class='glthumb']")?.at_css("img")),
+                  let coverURL = try? parseCoverURL(gl2cNode.at_xpath("//div [@class='glthumb']")?.at_css("img")),
                   let detailURL = link.at_xpath("//td [@class='gl3c glname'] //a")?["href"]
             else { continue }
             
@@ -83,7 +83,7 @@ class Parser {
     }
     
     // MARK: 詳細情報
-    func parseMangaDetail(_ doc: HTMLDocument) -> (MangaDetail?, APIKey?, HTMLDocument?) {
+    func parseMangaDetail(_ doc: HTMLDocument) throws -> (MangaDetail, APIKey, HTMLDocument) {
         var mangaDetail: MangaDetail?
         var imageURLs = [MangaPreview]()
         
@@ -107,7 +107,7 @@ class Parser {
                     .replacingOccurrences(of: "Average: ", with: "")
                     .replacingOccurrences(of: "Not Yet Rated", with: "0"),
                   let ratingCount = gdrNode.at_xpath("//span [@id='rating_count']")?.text
-            else { return (nil, nil, nil) }
+            else { throw AppError.parseFailed }
             
             let coverURL = String(
                 rawCoverURL
@@ -179,7 +179,7 @@ class Parser {
             
             var archiveURL: String?
             for g2gspLink in gd5Node.xpath("//p [@class='g2 gsp']") {
-                archiveURL = parseArchiveURL(g2gspLink)
+                archiveURL = try? parseArchiveURL(g2gspLink)
                 if archiveURL != nil { break }
             }
             
@@ -198,7 +198,7 @@ class Parser {
                     )
                 }
                 if archiveURL == nil {
-                    archiveURL = parseArchiveURL(g2Link)
+                    archiveURL = try? parseArchiveURL(g2Link)
                 }
             }
             
@@ -218,7 +218,7 @@ class Parser {
                   let language = Language(rawValue: tmpLanguage2),
                   let rating = Float(tmpRating),
                   let torrentCount = tmpTorrentCount
-            else { return (nil, nil, nil) }
+            else { throw AppError.parseFailed }
             
             let isFavored = gdfNode.at_xpath("//a [@id='favoritelink']")?.text?
                 .contains("Add to Favorites") == false
@@ -271,7 +271,14 @@ class Parser {
             )
             apikey = key
         }
-        return (mangaDetail, apikey, doc)
+        
+        if let detail = mangaDetail,
+           let key = apikey
+        {
+            return (detail, key, doc)
+        } else {
+            throw AppError.parseFailed
+        }
     }
     
     // MARK: コメント
@@ -400,10 +407,10 @@ class Parser {
     }
     
     // MARK: アーカイブ
-    func parseMangaArchive(doc: HTMLDocument) -> (MangaArchive?, CurrentGP?, CurrentCredits?) {
+    func parseMangaArchive(doc: HTMLDocument) throws -> (MangaArchive, CurrentGP?, CurrentCredits?) {
         var hathArchives = [MangaArchive.HathArchive]()
         
-        guard let tableNode = doc.at_xpath("//table") else { return (nil, nil, nil) }
+        guard let tableNode = doc.at_xpath("//table") else { throw AppError.parseFailed }
         for tdLink in tableNode.xpath("//td") {
             var tmpResolution: ArchiveRes?
             var tmpFileSize: String?
@@ -534,12 +541,17 @@ class Parser {
 
 extension Parser {
     // MARK: カバー
-    func parseCoverURL(_ node: XMLElement?) -> String? {
-        guard let node = node else { return nil }
+    func parseCoverURL(_ node: XMLElement?) throws -> String {
+        guard let node = node
+        else { throw AppError.parseFailed }
         
         var coverURL = node["data-src"]
         if coverURL == nil { coverURL = node["src"] }
-        return coverURL
+        
+        guard let url = coverURL
+        else { throw AppError.parseFailed }
+        
+        return url
     }
     
     // MARK: 評価
@@ -581,7 +593,7 @@ extension Parser {
     }
     
     // MARK: 代替プレビュー
-    func parseAlterImagesURL(_ doc: HTMLDocument) -> String? {
+    func parseAlterImagesURL(_ doc: HTMLDocument) throws -> String {
         var alterURL: String?
         for link in doc.xpath("//div [@class='gdtm']") {
             guard let style = link.at_xpath("//div")?["style"],
@@ -596,7 +608,10 @@ extension Parser {
             break
         }
         
-        return alterURL
+        guard let url = alterURL
+        else { throw AppError.parseFailed }
+        
+        return url
     }
     
     func parseAlterImages(id: String, _ data: Data) -> (Identity, [MangaAlterData]) {
@@ -656,9 +671,9 @@ extension Parser {
     }
     
     // MARK: ダウンロードコマンドの返事
-    func parseDownloadCommandResponse(_ doc: HTMLDocument) -> Resp? {
+    func parseDownloadCommandResponse(_ doc: HTMLDocument) throws -> Resp {
         guard let dbNode = doc.at_xpath("//div [@id='db']")
-        else { return nil }
+        else { throw AppError.parseFailed }
         
         var response = [String]()
         for pLink in dbNode.xpath("//p") {
@@ -670,12 +685,12 @@ extension Parser {
         if !response.isEmpty {
             return response.joined(separator: " ")
         } else {
-            return nil
+            throw AppError.parseFailed
         }
     }
     
     // MARK: アーカイブリンク
-    func parseArchiveURL(_ element: XMLElement) -> String? {
+    func parseArchiveURL(_ element: XMLElement) throws -> String {
         var archiveURL: String?
         if let aLink = element.at_xpath("//a"),
            aLink.text?.contains("Archive Download") == true,
@@ -689,7 +704,12 @@ extension Parser {
                     .prefix(upTo: rangeB.lowerBound)
             )
         }
-        return archiveURL
+        
+        if let url = archiveURL {
+            return url
+        } else {
+            throw AppError.parseFailed
+        }
     }
     
     // MARK: コメント内容

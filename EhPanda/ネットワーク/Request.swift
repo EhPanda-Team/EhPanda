@@ -9,6 +9,17 @@ import Kanna
 import Combine
 import Foundation
 
+func mapAppError(_ error: Error) -> AppError {
+    switch error {
+    case is ParseError:
+        return .parseFailed
+    case is URLError:
+        return .networkingFailed
+    default:
+        return error as? AppError ?? .unknown
+    }
+}
+
 struct UserInfoRequest {
     let uid: String
     let parser = Parser()
@@ -20,7 +31,7 @@ struct UserInfoRequest {
             )
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .map(parser.parseUserInfo)
-            .mapError { _ in .networkingFailed }
+            .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
 }
@@ -34,7 +45,7 @@ struct MangaItemReverseRequest {
             .dataTaskPublisher(for: URL(string: detailURL)!)
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .compactMap {
-                if let mangaDetail = parser.parseMangaDetail($0).0 {
+                if let mangaDetail = try? parser.parseMangaDetail($0).0 {
                     return Manga(
                         detail: mangaDetail,
                         id: URL(string: detailURL)!.pathComponents[2],
@@ -53,7 +64,7 @@ struct MangaItemReverseRequest {
                     return nil
                 }
             }
-            .mapError { _ in .networkingFailed }
+            .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
     
@@ -74,7 +85,7 @@ struct SearchItemsRequest {
             )
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .map(parser.parseListItems)
-            .mapError { _ in .networkingFailed }
+            .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
 }
@@ -99,7 +110,7 @@ struct MoreSearchItemsRequest {
             )
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .map(parser.parseListItems)
-            .mapError { _ in .networkingFailed }
+            .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
 }
@@ -112,7 +123,7 @@ struct FrontpageItemsRequest {
             .dataTaskPublisher(for: URL(string: Defaults.URL.frontpageList())!)
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .map(parser.parseListItems)
-            .mapError { _ in .networkingFailed }
+            .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
 }
@@ -133,7 +144,7 @@ struct MoreFrontpageItemsRequest {
             )
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .map(parser.parseListItems)
-            .mapError { _ in .networkingFailed }
+            .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
 }
@@ -146,7 +157,7 @@ struct PopularItemsRequest {
             .dataTaskPublisher(for: URL(string: Defaults.URL.popularList())!)
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .map(parser.parseListItems)
-            .mapError { _ in .networkingFailed }
+            .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
 }
@@ -160,7 +171,7 @@ struct WatchedItemsRequest {
                 for: URL(string: Defaults.URL.watchedList())!)
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .map(parser.parseListItems)
-            .mapError { _ in .networkingFailed }
+            .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
 }
@@ -181,7 +192,7 @@ struct MoreWatchedItemsRequest {
             )
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .map(parser.parseListItems)
-            .mapError { _ in .networkingFailed }
+            .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
 }
@@ -195,7 +206,7 @@ struct FavoritesItemsRequest {
                 for: URL(string: Defaults.URL.favoritesList())!)
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .map(parser.parseListItems)
-            .mapError { _ in .networkingFailed }
+            .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
 }
@@ -216,7 +227,7 @@ struct MoreFavoritesItemsRequest {
             )
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .map(parser.parseListItems)
-            .mapError { _ in .networkingFailed }
+            .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
 }
@@ -229,8 +240,8 @@ struct MangaDetailRequest {
         URLSession.shared
             .dataTaskPublisher(for: URL(string: Defaults.URL.mangaDetail(url: detailURL))!)
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-            .map(parser.parseMangaDetail)
-            .mapError { _ in .networkingFailed }
+            .tryMap(parser.parseMangaDetail)
+            .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
 }
@@ -244,7 +255,7 @@ struct AssociatedItemsRequest {
             .dataTaskPublisher(for: URL(string: Defaults.URL.associatedItemsRedir(keyword: keyword))!)
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .map(parser.parseListItems)
-            .mapError { _ in .networkingFailed }
+            .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
 }
@@ -267,7 +278,7 @@ struct MoreAssociatedItemsRequest {
             )
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .map(parser.parseListItems)
-            .mapError { _ in .networkingFailed }
+            .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
 }
@@ -278,14 +289,20 @@ struct AlterImagesRequest {
     let parser = Parser()
     
     var alterImageURL: String {
-        parser.parseAlterImagesURL(doc) ?? ""
+        if let url = try? parser
+            .parseAlterImagesURL(doc)
+        {
+            return url
+        } else {
+            return ""
+        }
     }
     
     var publisher: AnyPublisher<(Identity, [MangaAlterData]), AppError> {
         URLSession.shared
             .dataTaskPublisher(for: URL(string: alterImageURL)!)
             .map { parser.parseAlterImages(id: id, $0.data) }
-            .mapError { _ in .networkingFailed }
+            .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
 }
@@ -298,8 +315,8 @@ struct MangaArchiveRequest {
         URLSession.shared
             .dataTaskPublisher(for: URL(string: archiveURL)!)
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-            .map(parser.parseMangaArchive)
-            .mapError { _ in .networkingFailed }
+            .tryMap(parser.parseMangaArchive)
+            .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
 }
@@ -319,9 +336,16 @@ struct MangaArchiveFundsRequest {
             .dataTaskPublisher(for: URL(string: detailURL)!)
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .compactMap {
-                parser.parseMangaDetail($0).0?.archiveURL
+                if let url = try? parser
+                    .parseMangaDetail($0)
+                    .0.archiveURL
+                {
+                    return url
+                } else {
+                    return nil
+                }
             }
-            .mapError { _ in .networkingFailed }
+            .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
     
@@ -330,7 +354,7 @@ struct MangaArchiveFundsRequest {
             .dataTaskPublisher(for: URL(string: url)!)
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .map(parser.parseCurrentFunds)
-            .mapError { _ in .networkingFailed }
+            .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
 }
@@ -345,7 +369,7 @@ struct MangaTorrentsRequest {
             .dataTaskPublisher(for: URL(string: Defaults.URL.mangaTorrents(id: id, token: token))!)
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .map(parser.parseMangaTorrents)
-            .mapError { _ in .networkingFailed }
+            .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
 }
@@ -359,7 +383,7 @@ struct MangaCommentsRequest {
             .dataTaskPublisher(for: URL(string: Defaults.URL.mangaDetail(url: detailURL))!)
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .map(parser.parseComments)
-            .mapError { _ in .networkingFailed }
+            .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
 }
@@ -381,7 +405,7 @@ struct MangaContentsRequest {
             .dataTaskPublisher(for: URL(string: url)!)
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .map { parser.parseImagePreContents($0, pageIndex: pageIndex) }
-            .mapError { _ in .networkingFailed }
+            .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
     
@@ -395,7 +419,7 @@ struct MangaContentsRequest {
                     .compactMap { parser.parseMangaContent(doc: $0, tag: preContent.0) }
             }
             .collect()
-            .mapError { _ in .networkingFailed }
+            .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
 }
@@ -422,7 +446,7 @@ struct AddFavoriteRequest {
         
         return session.dataTaskPublisher(for: request)
             .map { $0 }
-            .mapError { _ in .networkingFailed }
+            .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
 }
@@ -446,7 +470,7 @@ struct DeleteFavoriteRequest {
         
         return session.dataTaskPublisher(for: request)
             .map { $0 }
-            .mapError { _ in .networkingFailed }
+            .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
 }
@@ -469,8 +493,8 @@ struct SendDownloadCommandRequest {
         
         return session.dataTaskPublisher(for: request)
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-            .map(parser.parseDownloadCommandResponse)
-            .mapError { _ in .networkingFailed }
+            .tryMap(parser.parseDownloadCommandResponse)
+            .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
 }
@@ -503,7 +527,7 @@ struct RateRequest {
         
         return session.dataTaskPublisher(for: request)
             .map { $0 }
-            .mapError { _ in .networkingFailed }
+            .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
 }
@@ -524,7 +548,7 @@ struct CommentRequest {
         
         return session.dataTaskPublisher(for: request)
             .map { $0 }
-            .mapError { _ in .networkingFailed }
+            .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
 }
@@ -549,7 +573,7 @@ struct EditCommentRequest {
         
         return session.dataTaskPublisher(for: request)
             .map { $0 }
-            .mapError { _ in .networkingFailed }
+            .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
 }
@@ -584,7 +608,7 @@ struct VoteCommentRequest {
         
         return session.dataTaskPublisher(for: request)
             .map { $0 }
-            .mapError { _ in .networkingFailed }
+            .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
 }
