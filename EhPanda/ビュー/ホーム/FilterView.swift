@@ -112,7 +112,13 @@ private struct CategoryView: View {
     }
     
     let gridItems = [
-        GridItem(.adaptive(minimum: 80, maximum: 100))
+        GridItem(
+            .adaptive(
+                minimum: isPad
+                    ? 100 : 80,
+                maximum: 100
+            )
+        )
     ]
     
     var body: some View {
@@ -220,6 +226,8 @@ private struct PagesRangeSetter: View {
             Spacer()
             TextField("", text: $lowerBound)
                 .multilineTextAlignment(.center)
+                .disableAutocorrection(true)
+                .autocapitalization(.none)
                 .keyboardType(.numberPad)
                 .background(color)
                 .frame(width: 50)
@@ -227,6 +235,8 @@ private struct PagesRangeSetter: View {
             Text("-")
             TextField("", text: $upperBound)
                 .multilineTextAlignment(.center)
+                .disableAutocorrection(true)
+                .autocapitalization(.none)
                 .keyboardType(.numberPad)
                 .background(color)
                 .frame(width: 50)

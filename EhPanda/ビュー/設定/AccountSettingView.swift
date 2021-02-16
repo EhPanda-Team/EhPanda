@@ -27,6 +27,9 @@ struct AccountSettingView: View {
     var exURL: URL {
         URL(string: Defaults.URL.exhentai)!
     }
+    var yayKey: String {
+        Defaults.Cookie.yay
+    }
     var igneousKey: String {
         Defaults.Cookie.igneous
     }
@@ -35,6 +38,9 @@ struct AccountSettingView: View {
     }
     var passHashKey: String {
         Defaults.Cookie.ipb_pass_hash
+    }
+    var yay: CookieValue {
+        getCookieValue(url: exURL, key: yayKey)
     }
     var igneous: CookieValue {
         getCookieValue(url: exURL, key: igneousKey)
@@ -60,10 +66,17 @@ struct AccountSettingView: View {
         Image(systemName: "xmark.circle")
             .foregroundColor(.red)
     }
-    func verifyView(_ value: CookieValue) -> some View {
+    func verifyView(
+        _ value: CookieValue,
+        _ isYay: Bool = false
+    ) -> some View {
         Group {
             if !value.lString.isEmpty {
-                notVerifiedView
+                if isYay && value.rawValue.isEmpty {
+                    verifiedView
+                } else {
+                    notVerifiedView
+                }
             } else {
                 verifiedView
             }
@@ -124,6 +137,13 @@ struct AccountSettingView: View {
                 Section(header: Text("ExHentai")) {
                     CookieRow(
                         inEditMode: $inEditMode,
+                        key: yayKey,
+                        value: yay,
+                        verifyView: verifyView(yay, true),
+                        editChangedAction: onYayEditingChanged
+                    )
+                    CookieRow(
+                        inEditMode: $inEditMode,
                         key: igneousKey,
                         value: igneous,
                         verifyView: verifyView(igneous),
@@ -180,6 +200,9 @@ struct AccountSettingView: View {
     }
     func onEhPassHashEditingChanged(_ value: String) {
         setCookieValue(url: ehURL, key: passHashKey, value: value)
+    }
+    func onYayEditingChanged(_ value: String) {
+        setCookieValue(url: exURL, key: yayKey, value: value)
     }
     func onIgneousEditingChanged(_ value: String) {
         setCookieValue(url: exURL, key: igneousKey, value: value)
@@ -279,6 +302,8 @@ private struct CookieRow<VerifyView: View>: View {
                     onEditingChanged: { _ in },
                     onCommit: {}
                 )
+                .autocapitalization(.none)
+                .disableAutocorrection(true)
                 .multilineTextAlignment(.trailing)
                 .onChange(of: content, perform: onContentChanged)
             } else {

@@ -425,32 +425,65 @@ private struct HeaderView: View {
 
 // MARK: 基本情報
 private struct DescScrollView: View {
+    @State var itemWidth = max(absoluteScreenW / 5, 80)
+    
     let detail: MangaDetail
     
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(alignment: .center) {
-                DescScrollItem(title: "気に入り",
-                               value: detail.likeCount,
-                               numeral: "人")
+                DescScrollItem(
+                    title: "気に入り",
+                    value: detail.likeCount,
+                    numeral: "人"
+                )
+                .frame(width: itemWidth)
                 Divider()
-                DescScrollItem(title: "言語",
-                               value: detail.languageAbbr,
-                               numeral: detail.translatedLanguage)
+                DescScrollItem(
+                    title: "言語",
+                    value: detail.languageAbbr,
+                    numeral: detail.translatedLanguage
+                )
+                .frame(width: itemWidth)
                 Divider()
-                DescScrollRatingItem(title: detail.ratingCount + "件の評価".lString(),
-                                     rating: detail.rating)
+                DescScrollRatingItem(
+                    title: detail.ratingCount
+                        + "件の評価".lString(),
+                    rating: detail.rating
+                )
+                .frame(width: itemWidth)
                 Divider()
-                DescScrollItem(title: "ページ",
-                               value: detail.pageCount,
-                               numeral: "頁")
+                DescScrollItem(
+                    title: "ページ",
+                    value: detail.pageCount,
+                    numeral: "頁"
+                )
+                .frame(width: itemWidth)
                 Divider()
-                DescScrollItem(title: "サイズ",
-                               value: detail.sizeCount,
-                               numeral: detail.sizeType)
+                DescScrollItem(
+                    title: "サイズ",
+                    value: detail.sizeCount,
+                    numeral: detail.sizeType
+                )
+                .frame(width: itemWidth)
             }
         }
         .frame(height: 60)
+        .onReceive(
+            NotificationCenter.default.publisher(
+                for: UIDevice.orientationDidChangeNotification
+            )
+        ) { _ in
+            onOrientationChange()
+        }
+    }
+    
+    func onOrientationChange() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+            withAnimation {
+                itemWidth = max(absoluteScreenW / 5, 80)
+            }
+        }
     }
 }
 
@@ -470,7 +503,7 @@ private struct DescScrollItem: View {
             Text(numeral.lString())
                 .font(.caption)
         }
-        .frame(minWidth: 80)
+        .frame(minWidth: max(absoluteScreenW / 5, 80))
     }
 }
 
@@ -490,7 +523,7 @@ private struct DescScrollRatingItem: View {
                 .font(.system(size: 12))
                 .foregroundColor(.primary)
         }
-        .frame(minWidth: 80)
+        .frame(minWidth: max(absoluteScreenW / 5, 80))
     }
 }
 

@@ -23,6 +23,7 @@
 "null" = "None";
 "expired" = "Expired";
 "mystery" = "Rejected";
+"louder" = "Rejected";
 
 // MARK: AlertView
 "読み込み中..." = "Loading...";

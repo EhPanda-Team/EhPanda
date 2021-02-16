@@ -12,11 +12,10 @@ class Defaults {
     class FrameSize {
         static var slideMenuWidth: CGFloat {
             if isPad {
-                return max(screenW - (isLandscape ? 800 : 500), 300) 
+                return max(screenW - 500, 300) 
             } else {
                 return screenW - 90
             }
-            
         }
     }
     class ImageSize {
@@ -39,6 +38,8 @@ class Defaults {
         static var expired = "expired"
         static var mystery = "mystery"
         
+        static var yay = "yay"
+        static var louder = "louder"
         static var igneous = "igneous"
         static var ipb_member_id = "ipb_member_id"
         static var ipb_pass_hash = "ipb_pass_hash"

@@ -14,6 +14,7 @@
 "null" = "なし";
 "expired" = "期限切れ";
 "mystery" = "拒否";
+"louder" = "拒否";
 
 // MARK: ArchiveView
 "N/A" = "無効";

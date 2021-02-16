@@ -81,7 +81,7 @@ public var absoluteScreenW: CGFloat {
 }
 
 public var absoluteScreenH: CGFloat {
-    UIScreen.main.bounds.size.width
+    UIScreen.main.bounds.size.height
 }
 
 public var galleryType: GalleryType {
@@ -361,6 +361,11 @@ public func getCookieValue(url: URL, key: String) -> CookieValue {
                     value = CookieValue(
                         rawValue: cookie.value,
                         lString: Defaults.Cookie.mystery.lString()
+                    )
+                } else if cookie.value == Defaults.Cookie.louder {
+                    value = CookieValue(
+                        rawValue: cookie.value,
+                        lString: Defaults.Cookie.louder.lString()
                     )
                 } else {
                     value = CookieValue(

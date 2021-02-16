@@ -16,6 +16,7 @@ struct Home : View {
     // スライドメニュー
     @State var direction: Direction = .none
     @State var offset = -Defaults.FrameSize.slideMenuWidth
+    let width = Defaults.FrameSize.slideMenuWidth
     
     // プライバシーロック
     @State var blurRadius: CGFloat = 0
@@ -30,9 +31,6 @@ struct Home : View {
         case toRight
     }
     
-    var width: CGFloat {
-        Defaults.FrameSize.slideMenuWidth
-    }
     var hasPermission: Bool {
         vcsCount == 1
     }

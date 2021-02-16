@@ -23,6 +23,7 @@
 "null" = "无内容";
 "expired" = "已过期";
 "mystery" = "被拒绝";
+"louder" = "被拒绝";
 
 // MARK: AlertView
 "読み込み中..." = "加载中...";
