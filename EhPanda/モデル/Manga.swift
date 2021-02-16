@@ -8,15 +8,15 @@
 import SwiftUI
 
 // MARK: 構造体
-struct Manga: Identifiable, Codable, Equatable {
-    static func == (lhs: Manga, rhs: Manga) -> Bool {
+public struct Manga: Identifiable, Codable, Equatable {
+    public static func == (lhs: Manga, rhs: Manga) -> Bool {
         lhs.id == rhs.id
     }
     
     var detail: MangaDetail?
     var contents: [MangaContent]?
     
-    let id: String
+    public let id: String
     let token: String
     
     var title: String

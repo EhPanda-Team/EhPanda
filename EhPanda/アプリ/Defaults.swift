@@ -57,7 +57,6 @@ class Defaults {
                 return merge([ehentai, listCompact, nonh, f_search + "parody:durarara$"])
             }
         }
-        static let ehpanda = "https://ehpanda.app/"
         static let ehentai = "https://e-hentai.org/"
         static let exhentai = "https://exhentai.org/"
         static let forum = "https://forums.e-hentai.org/"
@@ -65,7 +64,6 @@ class Defaults {
         static let magnet = "magnet:?xt=urn:btih:"
         
         // 各機能ページ
-        static let metrics = "metrics"
         static let tag = "tag/"
         static let popular = "popular"
         static let watched = "watched"
@@ -116,12 +114,7 @@ class Defaults {
 }
 
 // MARK: リクエスト
-extension Defaults.URL {
-    // 自設サーバー
-    static func sendMetrics() -> String {
-        ehpanda + metrics
-    }
-    
+extension Defaults.URL {    
     // フェッチ
     static func searchList(keyword: String, filter: Filter) -> String {
         merge([

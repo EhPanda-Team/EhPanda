@@ -105,6 +105,7 @@ struct CommentView: View {
                         .preferredColorScheme(colorScheme)
                         .blur(radius: environment.blurRadius)
                         .allowsHitTesting(environment.isAppUnlocked)
+                        .onAppear(perform: onDraftCommentViewAppear)
                     }
                 }
         )
@@ -121,7 +122,14 @@ struct CommentView: View {
     }
     
     func onAppear() {
+        logScreen("CommentView")
         replaceCommentJumpIDNil()
+    }
+    func onDraftCommentViewAppear() {
+        logScreen(
+            "DraftCommentView_onPost",
+            "CommentView"
+        )
     }
     func onFetchFinished<E: Equatable>(_ value: E) {
         if let loading = value as? Bool,
@@ -297,8 +305,8 @@ private struct CommentCell: View {
             DraftCommentView(
                 content: $editCommentContent,
                 title: "コメントを編集",
-                postAction: draftCommentViewPost,
-                cancelAction: draftCommentViewCancel
+                postAction: onDraftCommentViewPost,
+                cancelAction: onDraftCommentViewCancel
             )
             .accentColor(accentColor)
             .preferredColorScheme(colorScheme)
@@ -392,13 +400,19 @@ private struct CommentCell: View {
         }
     }
     
-    func draftCommentViewPost() {
+    func onDraftCommentViewAppear() {
+        logScreen(
+            "DraftCommentView_onEdit",
+            "CommentView"
+        )
+    }
+    func onDraftCommentViewPost() {
         if !editCommentContent.isEmpty {
             editComment()
             togglePresented()
         }
     }
-    func draftCommentViewCancel() {
+    func onDraftCommentViewCancel() {
         togglePresented()
     }
     

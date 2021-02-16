@@ -10,8 +10,6 @@ import Kanna
 import Foundation
 
 enum AppAction {
-    case sendMetrics(metrics: Any)
-    
     case replaceUser(user: User?)
     case clearCachedList
     case clearHistoryItems

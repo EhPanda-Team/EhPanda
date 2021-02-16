@@ -60,6 +60,7 @@ struct Home : View {
             .allowsHitTesting(isAppUnlocked)
             AuthView(blurRadius: $blurRadius)
         }
+        .onAppear(perform: onAppear)
         .gesture (
             DragGesture(minimumDistance: 20)
                 .onChanged { value in
@@ -96,6 +97,10 @@ struct Home : View {
                     }
                 }
         )
+    }
+    
+    func onAppear() {
+        logScreen("Home")
     }
     
     func performTransition(_ offset: CGFloat) {

@@ -493,29 +493,6 @@ struct FetchMangaContentsCommand: AppCommand {
     }
 }
 
-struct SendMetricsCommand: AppCommand {
-    let ehUsername: String
-    let metrics: Any
-    
-    func execute(in store: Store) {
-        let token = SubscriptionToken()
-        SendMetricsRequest(ehUsername: ehUsername, metrics: metrics)
-            .publisher
-            .receive(on: DispatchQueue.main)
-            .sink { completion in
-                if case .finished = completion {
-                    clearMetricsData()
-                }
-                token.unseal()
-            } receiveValue: {
-                if let value = $0 {
-                    print(value)
-                }
-            }
-            .seal(in: token)
-    }
-}
-
 struct AddFavoriteCommand: AppCommand {
     let id: String
     let token: String

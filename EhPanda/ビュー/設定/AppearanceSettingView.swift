@@ -85,10 +85,14 @@ struct AppearanceSettingView: View {
                     }
                 }
             }
+            .onAppear(perform: onAppear)
             .navigationBarTitle("外観")
         }
     }
     
+    func onAppear() {
+        logScreen("AppearanceSettingView")
+    }
     func onAppIconButtonTap() {
         isNavigationLinkActive.toggle()
     }

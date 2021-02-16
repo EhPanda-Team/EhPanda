@@ -109,6 +109,8 @@ class EmbeddedWebviewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        logScreen("WebView")
     }
 }
 

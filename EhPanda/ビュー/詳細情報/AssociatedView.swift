@@ -57,6 +57,12 @@ struct AssociatedView: View {
                                     onRowAppear(manga)
                                 })
                         }
+                        .simultaneousGesture(
+                            TapGesture()
+                                .onEnded {
+                                    onLinkTap(manga)
+                                }
+                        )
                     }
                 } else if loadingFlag {
                     LoadingView()
@@ -76,6 +82,7 @@ struct AssociatedView: View {
     }
     
     func onAppear() {
+        logScreen("AssociatedView")
         if assciatedItem.keyword != keyword {
             fetchAssociatedItems()
         }
@@ -84,6 +91,9 @@ struct AssociatedView: View {
         if item == assciatedItem.mangas.last {
             fetchMoreAssociatedItems()
         }
+    }
+    func onLinkTap(_ item: Manga) {
+        logSelectItem(item)
     }
     
     func retryAction() {

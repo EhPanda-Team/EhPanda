@@ -111,9 +111,10 @@ struct HomeView: View {
                     of: environment.homeListType,
                     perform: onHomeListTypeChange
                 )
-                .onAppear(perform: onAppear)
+                .onAppear(perform: onListAppear)
             
         }
+        .onAppear(perform: onAppear)
         .navigationViewStyle(StackNavigationViewStyle())
         .sheet(item: environmentBinding.homeViewSheetState) { item in
             switch item {
@@ -136,6 +137,9 @@ struct HomeView: View {
     }
     
     func onAppear() {
+        logScreen("HomeView")
+    }
+    func onListAppear() {
         if settings.user == nil {
             store.dispatch(.initiateUser)
         }
@@ -295,6 +299,12 @@ private struct GenericList: View {
                                 onRowAppear(item)
                             }
                     }
+                    .simultaneousGesture(
+                        TapGesture()
+                            .onEnded {
+                                onLinkTap(item)
+                            }
+                    )
                 }
                 .padding(.horizontal)
                 .transition(
@@ -306,6 +316,9 @@ private struct GenericList: View {
         }
     }
     
+    func onLinkTap(_ item: Manga) {
+        logSelectItem(item)
+    }
     func onUpdate() {
         if let action = fetchAction {
             action()

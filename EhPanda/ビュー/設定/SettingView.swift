@@ -79,6 +79,9 @@ struct SettingView: View {
                 .padding(.vertical, 40)
                 .padding(.horizontal)
             }
+            .onAppear(perform: {
+                print("SettingView onAppear")
+            })
             .navigationBarTitle("設定")
             .sheet(item: environmentBinding.settingViewSheetState) { item in
                 switch item {
@@ -110,6 +113,9 @@ struct SettingView: View {
         }
     }
     
+    func onAppear() {
+        logScreen("SettingView")
+    }
     func onGeneralSettingAppear() {
         calculateDiskCachesSize()
     }

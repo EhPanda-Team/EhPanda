@@ -25,11 +25,7 @@ extension AppState {
         var blurRadius: CGFloat = 0
         var navBarHidden = false
         var homeListType: HomeListType = .frontpage
-        var homeViewSheetState: HomeViewSheetState? = nil {
-            didSet {
-                print("didSet to \(homeViewSheetState)")
-            }
-        }
+        var homeViewSheetState: HomeViewSheetState? = nil
         var settingViewSheetState: SettingViewSheetState? = nil
         var settingViewActionSheetState: SettingViewActionSheetState? = nil
         var filterViewActionSheetState: FilterViewActionSheetState? = nil

@@ -94,7 +94,12 @@ struct EhPandaView: View {
                 }
             }
         }
+        .onAppear(perform: onAppear)
         .navigationBarTitle("EhPanda")
+    }
+    
+    func onAppear() {
+        logScreen("EhPandaView")
     }
 }
 

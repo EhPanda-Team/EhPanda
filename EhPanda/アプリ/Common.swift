@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Combine
+import Firebase
 import Kingfisher
 import LocalAuthentication
 
@@ -35,10 +36,6 @@ public var isSameAccount: Bool {
     } else {
         return true
     }
-}
-
-public var currentMetricsData: Any? {
-    UserDefaults.standard.object(forKey: "MetricsData")
 }
 
 public var didLogin: Bool {
@@ -167,22 +164,37 @@ public func isValidDetailURL(url: URL) -> Bool {
         && url.pathComponents[1] == "g"
         && !url.pathComponents[2].isEmpty
         && !url.pathComponents[3].isEmpty
-    
+}
+
+// MARK: Analytics
+public func logScreen(_ name: String, _ className: String? = nil) {
+    Analytics.logEvent(
+        AnalyticsEventScreenView,
+        parameters: [
+            AnalyticsParameterScreenName : name,
+            AnalyticsParameterScreenClass : className ?? name
+        ]
+    )
+}
+
+public func log(_ msg: String) {
+    Crashlytics.crashlytics().log(msg)
+}
+
+public func logSelectItem(_ item: Manga) {
+    Analytics.logEvent(
+        AnalyticsEventSelectItem,
+        parameters: [
+            AnalyticsParameterItemID : item.id,
+            AnalyticsParameterItemName : item.title,
+            AnalyticsParameterItemLocationID : item.detailURL
+        ]
+    )
 }
 
 // MARK: UserDefaults
 public func setEntry(_ token: String?) {
     UserDefaults.standard.set(token, forKey: "entry")
-}
-
-public func saveMetricsData(_ data: Data) {
-    if let data = try? JSONSerialization.jsonObject(with: data, options: []) {
-        UserDefaults.standard.set(data, forKey: "MetricsData")
-    }
-}
-
-public func clearMetricsData() {
-    UserDefaults.standard.set(nil, forKey: "MetricsData")
 }
 
 public func setGalleryType(_ type: GalleryType) {

@@ -401,35 +401,6 @@ struct MangaContentsRequest {
 }
 
 // MARK: POST
-struct SendMetricsRequest {
-    let ehUsername: String
-    let metrics: Any
-    
-    var publisher: AnyPublisher<Any?, AppError> {
-        let url = Defaults.URL.sendMetrics()
-        let params: [String: Any] = [
-            "name": ehUsername,
-            "data": metrics
-        ]
-        
-        let session = URLSession.shared
-        var request = URLRequest(url: URL(string: url)!)
-        
-        request.httpMethod = "POST"
-        request.setValue(
-            "application/json",
-            forHTTPHeaderField: "Content-Type"
-        )
-        request.httpBody = try? JSONSerialization
-            .data(withJSONObject: params, options: [])
-        
-        return session.dataTaskPublisher(for: request)
-            .map { $0 }
-            .mapError { _ in .networkingFailed }
-            .eraseToAnyPublisher()
-    }
-}
-
 struct AddFavoriteRequest {
     let id: String
     let token: String

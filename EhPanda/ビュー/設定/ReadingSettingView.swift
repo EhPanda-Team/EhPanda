@@ -63,7 +63,12 @@ struct ReadingSettingView: View {
                     }
                 }
             }
+            .onAppear(perform: onAppear)
             .navigationBarTitle("閲覧")
         }
+    }
+    
+    func onAppear() {
+        logScreen("ReadingSettingView")
     }
 }

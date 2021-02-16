@@ -184,11 +184,13 @@ struct DetailView: View {
                 .preferredColorScheme(colorScheme)
                 .blur(radius: environment.blurRadius)
                 .allowsHitTesting(environment.isAppUnlocked)
+                .onAppear(perform: onDraftCommentViewAppear)
             }
         }
     }
     
     func onAppear() {
+        logScreen("DetailView")
         toggleNavBarHidden()
         
         if mangaDetail == nil {
@@ -197,6 +199,12 @@ struct DetailView: View {
             updateMangaDetail()
         }
         updateHistoryItems()
+    }
+    func onDraftCommentViewAppear() {
+        logScreen(
+            "DraftCommentView_onPost",
+            "DetailView"
+        )
     }
     func onArchiveButtonTap() {
         toggleSheetState(.archive)
@@ -527,6 +535,7 @@ private struct ActionRow: View {
                                 .onChanged(onRatingChanged)
                                 .onEnded(onRatingEnded)
                         )
+                        .onAppear(perform: onRatingViewAppear)
                 }
                 .padding(.top, 10)
             }
@@ -539,6 +548,9 @@ private struct ActionRow: View {
         if let rating = detail.userRating {
             userRating = Int(rating.fixedRating() * 2)
         }
+    }
+    func onRatingViewAppear() {
+        logScreen("UserRatingView", "DetailView")
     }
     func onRateButtonTap() {
         withAnimation {

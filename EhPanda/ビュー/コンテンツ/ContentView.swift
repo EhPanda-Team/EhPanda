@@ -108,6 +108,7 @@ struct ContentView: View {
     }
     
     func onAppear() {
+        logScreen("ContentView")
         toggleNavBarHiddenIfNeeded()
         
         if mangaContents?.count != Int(mangaDetail?.pageCount ?? "") {

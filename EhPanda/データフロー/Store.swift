@@ -13,11 +13,13 @@ class Store: ObservableObject {
     
     func dispatch(_ action: AppAction) {
         print("[ACTION]: \(action)")
+        log("[ACTION]: \(action)")
         let result = reduce(state: appState, action: action)
         appState = result.0
         
         guard let command = result.1 else { return }
         print("[COMMAND]: \(command)")
+        log("[COMMAND]: \(command)")
         command.execute(in: self)
     }
     
@@ -26,10 +28,6 @@ class Store: ObservableObject {
         var appCommand: AppCommand?
         
         switch action {
-        case .sendMetrics(let metrics):
-            let username = appState.settings.user?.displayName ?? "(null)"
-            appCommand = SendMetricsCommand(ehUsername: username, metrics: metrics)
-        
         // MARK: アプリ関数操作
         case .replaceUser(let user):
             appState.settings.user = user

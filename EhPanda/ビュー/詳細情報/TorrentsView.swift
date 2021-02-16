@@ -71,6 +71,7 @@ struct TorrentsView: View {
     }
     
     func onAppear() {
+        logScreen("TorrentsView")
         fetchMangaTorrents()
     }
     func onTorrentRowTap(_ magnet: String) {
