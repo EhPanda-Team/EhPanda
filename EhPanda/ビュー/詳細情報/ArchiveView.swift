@@ -334,7 +334,7 @@ private struct DownloadButton: View {
         }
     }
     var paddingInsets: EdgeInsets {
-        isPad
+        isPadWidth
             ? .init(
                 top: 0,
                 leading: 0,

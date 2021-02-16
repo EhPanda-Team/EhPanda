@@ -64,8 +64,32 @@ public var isPad: Bool {
     UIDevice.current.userInterfaceIdiom == .pad
 }
 
+public var isPadWidth: Bool {
+    windowW ?? screenW > 700
+}
+
 public var isLandscape: Bool {
     [.landscapeLeft, .landscapeRight].contains(UIApplication.shared.windows.first?.windowScene?.interfaceOrientation)
+}
+
+public var windowW: CGFloat? {
+    if let w = absoluteWindowW,
+       let h = absoluteWindowH
+    {
+        return min(w, h)
+    } else {
+        return nil
+    }
+}
+
+public var windowH: CGFloat? {
+    if let w = absoluteWindowW,
+       let h = absoluteWindowH
+    {
+        return max(w, h)
+    } else {
+        return nil
+    }
 }
 
 public var screenW: CGFloat {
@@ -74,6 +98,14 @@ public var screenW: CGFloat {
 
 public var screenH: CGFloat {
     max(absoluteScreenW, absoluteScreenH)
+}
+
+public var absoluteWindowW: CGFloat? {
+    UIApplication.shared.windows.first?.frame.size.width
+}
+
+public var absoluteWindowH: CGFloat? {
+    UIApplication.shared.windows.first?.frame.size.height
 }
 
 public var absoluteScreenW: CGFloat {

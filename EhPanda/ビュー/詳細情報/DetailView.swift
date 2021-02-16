@@ -111,7 +111,7 @@ struct DetailView: View {
                     ScrollView(showsIndicators: false) {
                         VStack {
                             HeaderView(manga: manga, detail: detail)
-                                .padding(.top, -40)
+                                .padding(.top, isLandscape ? 40 : -40)
                                 .padding(.bottom, 15)
                             Group {
                                 DescScrollView(detail: detail)
@@ -373,7 +373,8 @@ private struct HeaderView: View {
                             .lineLimit(1)
                             .font(.headline)
                             .foregroundColor(.white)
-                            .padding(.init(top: 2, leading: 4, bottom: 2, trailing: 4))
+                            .padding(.vertical, 2)
+                            .padding(.horizontal, 4)
                             .background(
                                 RoundedRectangle(cornerRadius: 3)
                                     .foregroundColor(manga.color)
@@ -425,7 +426,7 @@ private struct HeaderView: View {
 
 // MARK: 基本情報
 private struct DescScrollView: View {
-    @State var itemWidth = max(absoluteScreenW / 5, 80)
+    @State var itemWidth = max((absoluteWindowW ?? absoluteScreenW) / 5, 80)
     
     let detail: MangaDetail
     
@@ -474,14 +475,21 @@ private struct DescScrollView: View {
                 for: UIDevice.orientationDidChangeNotification
             )
         ) { _ in
-            onOrientationChange()
+            onWidthChange()
+        }
+        .onReceive(
+            NotificationCenter.default.publisher(
+                for: UIApplication.didBecomeActiveNotification
+            )
+        ) { _ in
+            onWidthChange()
         }
     }
     
-    func onOrientationChange() {
+    func onWidthChange() {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
             withAnimation {
-                itemWidth = max(absoluteScreenW / 5, 80)
+                itemWidth = max((absoluteWindowW ?? absoluteScreenW) / 5, 80)
             }
         }
     }
@@ -503,7 +511,6 @@ private struct DescScrollItem: View {
             Text(numeral.lString())
                 .font(.caption)
         }
-        .frame(minWidth: max(absoluteScreenW / 5, 80))
     }
 }
 
@@ -523,7 +530,6 @@ private struct DescScrollRatingItem: View {
                 .font(.system(size: 12))
                 .foregroundColor(.primary)
         }
-        .frame(minWidth: max(absoluteScreenW / 5, 80))
     }
 }
 

@@ -16,11 +16,11 @@ struct Home : View {
     // スライドメニュー
     @State var direction: Direction = .none
     @State var offset = -Defaults.FrameSize.slideMenuWidth
-    let width = Defaults.FrameSize.slideMenuWidth
+    @State var width = Defaults.FrameSize.slideMenuWidth
     
     // プライバシーロック
     @State var blurRadius: CGFloat = 0
-    
+        
     var isAppUnlocked: Bool {
         store.appState.environment.isAppUnlocked
     }
@@ -95,10 +95,35 @@ struct Home : View {
                     }
                 }
         )
+        .onReceive(
+            NotificationCenter.default.publisher(
+                for: UIApplication.didBecomeActiveNotification
+            )
+        ) { _ in
+            onWidthChange()
+        }
+        .onReceive(
+            NotificationCenter.default.publisher(
+                for: UIDevice.orientationDidChangeNotification
+            )
+        ) { _ in
+            onWidthChange()
+        }
     }
     
     func onAppear() {
         logScreen("Home")
+    }
+    
+    func onWidthChange() {
+        if isPad {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                withAnimation {
+                    offset = -Defaults.FrameSize.slideMenuWidth
+                    width = Defaults.FrameSize.slideMenuWidth
+                }
+            }
+        }
     }
     
     func performTransition(_ offset: CGFloat) {

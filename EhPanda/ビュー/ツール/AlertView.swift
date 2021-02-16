@@ -68,7 +68,8 @@ struct GenericRetryView: View {
                     action()
                 }
                 .foregroundColor(colorScheme == .light ? .init(UIColor.darkGray) : .init(UIColor.white))
-                .padding(.init(top: 6, leading: 10, bottom: 6, trailing: 10))
+                .padding(.vertical, 6)
+                .padding(.horizontal, 10)
                 .background(
                     RoundedRectangle(cornerRadius: 5)
                         .foregroundColor(Color(.systemGray5))

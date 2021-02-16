@@ -11,10 +11,10 @@ import Foundation
 class Defaults {
     class FrameSize {
         static var slideMenuWidth: CGFloat {
-            if isPad {
-                return max(screenW - 500, 300) 
+            if isPadWidth {
+                return max((windowW ?? screenW) - 500, 300)
             } else {
-                return screenW - 90
+                return max((windowW ?? screenW) - 90, 250)
             }
         }
     }

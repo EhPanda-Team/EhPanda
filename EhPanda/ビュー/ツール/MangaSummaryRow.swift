@@ -116,7 +116,8 @@ struct MangaSummaryRow: View {
                             .lineLimit(1)
                             .font(.footnote)
                             .foregroundColor(.white)
-                            .padding(.init(top: 1, leading: 3, bottom: 1, trailing: 3))
+                            .padding(.vertical, 1)
+                            .padding(.horizontal, 3)
                             .background(
                                 RoundedRectangle(cornerRadius: 2)
                                     .foregroundColor(manga.color)

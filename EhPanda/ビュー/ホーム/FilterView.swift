@@ -114,7 +114,7 @@ private struct CategoryView: View {
     let gridItems = [
         GridItem(
             .adaptive(
-                minimum: isPad
+                minimum: isPadWidth
                     ? 100 : 80,
                 maximum: 100
             )
