@@ -36,11 +36,31 @@ struct AssociatedView: View {
             ? assciatedItems[depth] : AssociatedItem(mangas: [])
     }
     var title: String {
-        if keyword.title != nil {
-            return keyword.title!
+        if let title = keyword.title {
+            return title
         } else {
-            return "\(keyword.category ?? "")"
-                + ":\(keyword.content ?? "")"
+            var cat: String?
+            var content: String?
+            
+            if let tagCategory = TagCategory(
+                rawValue: keyword.category ?? ""
+            ) {
+                cat = tagCategory.jpn.lString()
+            }
+            if let language = Language(
+                rawValue: keyword.content?
+                    .capitalizingFirstLetter() ?? ""
+            ) {
+                content = language.translatedLanguage.lString()
+            }
+            if cat == nil {
+                cat = keyword.category
+            }
+            if content == nil {
+                content = keyword.content
+            }
+            
+            return "\(cat ?? ""): \"\(content ?? "")\""
         }
     }
     

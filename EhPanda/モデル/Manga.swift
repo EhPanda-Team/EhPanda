@@ -12,6 +12,11 @@ public struct Manga: Identifiable, Codable, Equatable {
     public static func == (lhs: Manga, rhs: Manga) -> Bool {
         lhs.id == rhs.id
     }
+    static let empty = Manga(
+        id: "", token: "", title: "", rating: 0,
+        tags: [], category: .Non_H, uploader: nil,
+        publishedTime: "", coverURL: "", detailURL: ""
+    )
     
     var detail: MangaDetail?
     var contents: [MangaContent]?

@@ -119,9 +119,8 @@ public var absoluteScreenH: CGFloat {
 public var galleryType: GalleryType {
     let rawValue = UserDefaults
         .standard
-        .string(forKey: "GalleryType")
-        ?? "E-Hentai"
-    return GalleryType(rawValue: rawValue)!
+        .string(forKey: "GalleryType") ?? ""
+    return GalleryType(rawValue: rawValue) ?? .eh
 }
 
 public var vcsCount: Int {

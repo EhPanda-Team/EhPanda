@@ -17,8 +17,7 @@ struct User: Codable {
     
     var apiuid: String {
         getCookieValue(
-            url: URL(
-                string: Defaults.URL.ehentai)!,
+            url: URL(string: Defaults.URL.ehentai)!,
             key: Defaults.Cookie.ipb_member_id
         ).rawValue
     }

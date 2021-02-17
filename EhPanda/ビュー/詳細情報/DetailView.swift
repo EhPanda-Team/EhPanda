@@ -39,7 +39,7 @@ struct DetailView: View {
         detailInfoBinding.commentContent
     }
     var manga: Manga {
-        (cachedList.items?[id])!
+        cachedList.items?[id] ?? Manga.empty
     }
     var mangaDetail: MangaDetail? {
         cachedList.items?[id]?.detail

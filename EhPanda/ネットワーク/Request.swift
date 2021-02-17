@@ -251,12 +251,18 @@ struct AssociatedItemsRequest {
     let parser = Parser()
     
     var publisher: AnyPublisher<(PageNumber, [Manga]), AppError> {
-        URLSession.shared
-            .dataTaskPublisher(for: URL(string: Defaults.URL.associatedItemsRedir(keyword: keyword))!)
-            .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-            .map(parser.parseListItems)
-            .mapError(mapAppError)
-            .eraseToAnyPublisher()
+        URLSession.shared.dataTaskPublisher(
+            for: URL(
+                string: Defaults.URL
+                    .associatedItemsRedir(
+                        keyword: keyword
+                    )
+            )!
+        )
+        .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
+        .map(parser.parseListItems)
+        .mapError(mapAppError)
+        .eraseToAnyPublisher()
     }
 }
 
