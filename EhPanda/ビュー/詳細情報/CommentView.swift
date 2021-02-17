@@ -141,7 +141,9 @@ struct CommentView: View {
     }
     func onLinkTap(_ link: URL) {
         if isValidDetailURL(url: link) && exx {
-            if cachedList.hasCached(url: link) {
+            if cachedList.hasCached(url: link)
+                && link.pathComponents.count >= 3
+            {
                 replaceMangaCommentJumpID(id: link.pathComponents[2])
             } else {
                 fetchMangaWithDetailURL(link.absoluteString)

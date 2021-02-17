@@ -55,6 +55,7 @@ class Parser {
             }
             
             guard let url = URL(string: detailURL),
+                  url.pathComponents.count >= 4,
                   !url.pathComponents[2].isEmpty,
                   !url.pathComponents[3].isEmpty
             else { continue }

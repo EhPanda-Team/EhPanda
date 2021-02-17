@@ -40,6 +40,21 @@ struct MangaItemReverseRequest {
     let detailURL: String
     let parser = Parser()
     
+    var id: String {
+        if detailURL.safeURL().pathComponents.count >= 4 {
+            return detailURL.safeURL().pathComponents[2]
+        } else {
+            return ""
+        }
+    }
+    var token: String {
+        if detailURL.safeURL().pathComponents.count >= 4 {
+            return detailURL.safeURL().pathComponents[3]
+        } else {
+            return ""
+        }
+    }
+    
     var publisher: AnyPublisher<Manga?, AppError> {
         URLSession.shared
             .dataTaskPublisher(for: detailURL.safeURL())
@@ -48,9 +63,8 @@ struct MangaItemReverseRequest {
                 if let mangaDetail = try? parser.parseMangaDetail($0).0 {
                     return Manga(
                         detail: mangaDetail,
-                        // ⚠️
-                        id: detailURL.safeURL().pathComponents[2],
-                        token: detailURL.safeURL().pathComponents[3],
+                        id: id,
+                        token: token,
                         title: mangaDetail.title,
                         rating: mangaDetail.rating,
                         tags: [],
