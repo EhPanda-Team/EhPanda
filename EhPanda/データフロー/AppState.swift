@@ -73,6 +73,7 @@ extension AppState {
         var searchCurrentPageNum = 0
         var searchPageNumMaximum = 1
         var moreSearchLoading = false
+        var moreSearchLoadFailed = false
         
         var frontpageItems: [Manga]?
         var frontpageLoading = false
@@ -81,6 +82,7 @@ extension AppState {
         var frontpageCurrentPageNum = 0
         var frontpagePageNumMaximum = 1
         var moreFrontpageLoading = false
+        var moreFrontpageLoadFailed = false
         
         var popularItems: [Manga]?
         var popularLoading = false
@@ -94,6 +96,7 @@ extension AppState {
         var watchedCurrentPageNum = 0
         var watchedPageNumMaximum = 1
         var moreWatchedLoading = false
+        var moreWatchedLoadFailed = false
         
         var favoritesItems: [Manga]?
         var favoritesLoading = false
@@ -102,6 +105,7 @@ extension AppState {
         var favoritesCurrentPageNum = 0
         var favoritesPageNumMaximum = 1
         var moreFavoritesLoading = false
+        var moreFavoritesLoadFailed = false
         
         @FileStorage(directory: .cachesDirectory, fileName: "historyList.json")
         var historyItems: [String : Manga]?
@@ -178,6 +182,7 @@ extension AppState {
         var associatedItemsNotFound = false
         var associatedItemsLoadFailed = false
         var moreAssociatedItemsLoading = false
+        var moreAssociatedItemsLoadFailed = false
         
         var alterImagesLoading = false
         

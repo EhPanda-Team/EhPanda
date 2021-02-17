@@ -22,6 +22,12 @@ struct AssociatedView: View {
     var notFoundFlag: Bool {
         detailInfo.associatedItemsNotFound
     }
+    var moreLoadingFlag: Bool {
+        detailInfo.moreAssociatedItemsLoading
+    }
+    var moreLoadFailedFlag: Bool {
+        detailInfo.moreAssociatedItemsLoadFailed
+    }
     var assciatedItems: [AssociatedItem] {
         detailInfo.associatedItems
     }
@@ -63,6 +69,16 @@ struct AssociatedView: View {
                                     onLinkTap(manga)
                                 }
                         )
+                    }
+                    if moreLoadingFlag {
+                        LoadingView(isCompact: true)
+                            .padding()
+                    } else if moreLoadFailedFlag {
+                        NetworkErrorView(
+                            isCompact: true,
+                            retryAction: fetchMoreAssociatedItems
+                        )
+                        .padding()
                     }
                 } else if loadingFlag {
                     LoadingView()

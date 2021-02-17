@@ -111,7 +111,7 @@ struct DetailView: View {
                     ScrollView(showsIndicators: false) {
                         VStack {
                             HeaderView(manga: manga, detail: detail)
-                                .padding(.top, isLandscape ? 40 : -40)
+                                .padding(.top, -40)
                                 .padding(.bottom, 15)
                             Group {
                                 DescScrollView(detail: detail)

@@ -166,6 +166,8 @@ class Store: ObservableObject {
             }
             
         case .fetchMoreSearchItems(let keyword):
+            appState.homeInfo.moreSearchLoadFailed = false
+            
             let currentNum = appState.homeInfo.searchCurrentPageNum
             let maximumNum = appState.homeInfo.searchPageNumMaximum
             if currentNum + 1 >= maximumNum { break }
@@ -199,6 +201,7 @@ class Store: ObservableObject {
                     dispatch(.fetchMoreSearchItems(keyword: mangas.0))
                 }
             case .failure(let error):
+                appState.homeInfo.moreSearchLoadFailed = true
                 print(error)
             }
             
@@ -226,11 +229,13 @@ class Store: ObservableObject {
                     appState.cachedList.cache(mangas: mangas.1)
                 }
             case .failure(let error):
-                print(error)
                 appState.homeInfo.frontpageLoadFailed = true
+                print(error)
             }
             
         case .fetchMoreFrontpageItems:
+            appState.homeInfo.moreFrontpageLoadFailed = false
+            
             if !didLogin || !exx { break }
             let currentNum = appState.homeInfo.frontpageCurrentPageNum
             let maximumNum = appState.homeInfo.frontpagePageNumMaximum
@@ -253,6 +258,7 @@ class Store: ObservableObject {
                 appState.homeInfo.insertFrontpageItems(mangas: mangas.1)
                 appState.cachedList.cache(mangas: mangas.1)
             case .failure(let error):
+                appState.homeInfo.moreFrontpageLoadFailed = true
                 print(error)
             }
             
@@ -309,6 +315,8 @@ class Store: ObservableObject {
             }
             
         case .fetchMoreWatchedItems:
+            appState.homeInfo.moreWatchedLoadFailed = false
+            
             let currentNum = appState.homeInfo.watchedCurrentPageNum
             let maximumNum = appState.homeInfo.watchedPageNumMaximum
             if currentNum + 1 >= maximumNum { break }
@@ -330,6 +338,7 @@ class Store: ObservableObject {
                 appState.homeInfo.insertWatchedItems(mangas: mangas.1)
                 appState.cachedList.cache(mangas: mangas.1)
             case .failure(let error):
+                appState.homeInfo.moreWatchedLoadFailed = true
                 print(error)
             }
             
@@ -362,6 +371,8 @@ class Store: ObservableObject {
             }
             
         case .fetchMoreFavoritesItems:
+            appState.homeInfo.moreFavoritesLoadFailed = false
+            
             let currentNum = appState.homeInfo.favoritesCurrentPageNum
             let maximumNum = appState.homeInfo.favoritesPageNumMaximum
             if currentNum + 1 >= maximumNum { break }
@@ -383,6 +394,7 @@ class Store: ObservableObject {
                 appState.homeInfo.insertFavoritesItems(mangas: mangas.1)
                 appState.cachedList.cache(mangas: mangas.1)
             case .failure(let error):
+                appState.homeInfo.moreFavoritesLoading = true
                 print(error)
             }
             
@@ -512,6 +524,8 @@ class Store: ObservableObject {
             }
             
         case .fetchMoreAssociatedItems(let depth, let keyword):
+            appState.detailInfo.moreAssociatedItemsLoadFailed = false
+            
             guard appState.detailInfo.associatedItems.count >= depth + 1 else { break }
             let currentNum = appState.detailInfo.associatedItems[depth].pageNum.current
             let maximumNum = appState.detailInfo.associatedItems[depth].pageNum.maximum
@@ -541,6 +555,7 @@ class Store: ObservableObject {
                 )
                 appState.cachedList.cache(mangas: mangas.3)
             case .failure(let error):
+                appState.detailInfo.moreAssociatedItemsLoadFailed = true
                 print(error)
             }
             

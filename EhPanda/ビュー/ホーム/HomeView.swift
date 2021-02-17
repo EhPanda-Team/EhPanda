@@ -49,6 +49,8 @@ struct HomeView: View {
                     loadingFlag: homeInfo.searchLoading,
                     notFoundFlag: homeInfo.searchNotFound,
                     loadFailedFlag: homeInfo.searchLoadFailed,
+                    moreLoadingFlag: homeInfo.moreSearchLoading,
+                    moreLoadFailedFlag: homeInfo.moreSearchLoadFailed,
                     fetchAction: fetchSearchItems,
                     loadMoreAction: fetchMoreSearchItems
                 )
@@ -58,6 +60,8 @@ struct HomeView: View {
                     loadingFlag: homeInfo.frontpageLoading,
                     notFoundFlag: homeInfo.frontpageNotFound,
                     loadFailedFlag: homeInfo.frontpageLoadFailed,
+                    moreLoadingFlag: homeInfo.moreFrontpageLoading,
+                    moreLoadFailedFlag: homeInfo.moreFrontpageLoadFailed,
                     fetchAction: fetchFrontpageItems,
                     loadMoreAction: fetchMoreFrontpageItems
                 )
@@ -67,6 +71,8 @@ struct HomeView: View {
                     loadingFlag: homeInfo.popularLoading,
                     notFoundFlag: homeInfo.popularNotFound,
                     loadFailedFlag: homeInfo.popularLoadFailed,
+                    moreLoadingFlag: false,
+                    moreLoadFailedFlag: false,
                     fetchAction: fetchPopularItems
                 )
             case .watched:
@@ -75,6 +81,8 @@ struct HomeView: View {
                     loadingFlag: homeInfo.watchedLoading,
                     notFoundFlag: homeInfo.watchedNotFound,
                     loadFailedFlag: homeInfo.watchedLoadFailed,
+                    moreLoadingFlag: homeInfo.moreWatchedLoading,
+                    moreLoadFailedFlag: homeInfo.moreWatchedLoadFailed,
                     fetchAction: fetchWatchedItems,
                     loadMoreAction: fetchMoreWatchedItems
                 )
@@ -84,6 +92,8 @@ struct HomeView: View {
                     loadingFlag: homeInfo.favoritesLoading,
                     notFoundFlag: homeInfo.favoritesNotFound,
                     loadFailedFlag: homeInfo.favoritesLoadFailed,
+                    moreLoadingFlag: homeInfo.moreFavoritesLoading,
+                    moreLoadFailedFlag: homeInfo.moreFavoritesLoadFailed,
                     fetchAction: fetchFavoritesItems,
                     loadMoreAction: fetchMoreFavoritesItems
                 )
@@ -94,7 +104,9 @@ struct HomeView: View {
                     items: historyItems,
                     loadingFlag: false,
                     notFoundFlag: false,
-                    loadFailedFlag: false
+                    loadFailedFlag: false,
+                    moreLoadingFlag: false,
+                    moreLoadFailedFlag: false
                 )
             }
         }
@@ -240,24 +252,31 @@ private struct GenericList: View {
         store.appState.environment
     }
     
-    var items: [Manga]?
-    var loadingFlag: Bool
-    var notFoundFlag: Bool
-    var loadFailedFlag: Bool
-    var fetchAction: (()->())?
-    var loadMoreAction: (()->())?
+    let items: [Manga]?
+    let loadingFlag: Bool
+    let notFoundFlag: Bool
+    let loadFailedFlag: Bool
+    let moreLoadingFlag: Bool
+    let moreLoadFailedFlag: Bool
+    let fetchAction: (()->())?
+    let loadMoreAction: (()->())?
     
-    init(items: [Manga]?,
-         loadingFlag: Bool,
-         notFoundFlag: Bool,
-         loadFailedFlag: Bool,
-         fetchAction: (()->())? = nil,
-         loadMoreAction: (()->())? = nil)
-    {
+    init(
+        items: [Manga]?,
+        loadingFlag: Bool,
+        notFoundFlag: Bool,
+        loadFailedFlag: Bool,
+        moreLoadingFlag: Bool,
+        moreLoadFailedFlag: Bool,
+        fetchAction: (()->())? = nil,
+        loadMoreAction: (()->())? = nil
+    ) {
         self.items = items
         self.loadingFlag = loadingFlag
         self.notFoundFlag = notFoundFlag
         self.loadFailedFlag = loadFailedFlag
+        self.moreLoadingFlag = moreLoadingFlag
+        self.moreLoadFailedFlag = moreLoadFailedFlag
         self.fetchAction = fetchAction
         self.loadMoreAction = loadMoreAction
         
@@ -312,6 +331,16 @@ private struct GenericList: View {
                         .opacity
                         .animation(.default)
                 )
+                if moreLoadingFlag {
+                    LoadingView(isCompact: true)
+                        .padding()
+                } else if moreLoadFailedFlag {
+                    NetworkErrorView(
+                        isCompact: true,
+                        retryAction: loadMoreAction
+                    )
+                    .padding()
+                }
             }
         }
     }
