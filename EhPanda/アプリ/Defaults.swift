@@ -55,7 +55,7 @@ class Defaults {
             if exx {
                 return galleryType == .eh ? ehentai : exhentai
             } else {
-                return merge([ehentai, listCompact, nonh, f_search + "parody:durarara$"])
+                return ex
             }
         }
         static let ehentai = "https://e-hentai.org/"
@@ -63,6 +63,7 @@ class Defaults {
         static let forum = "https://forums.e-hentai.org/"
         static let login = merge([forum + index, login_act])
         static let magnet = "magnet:?xt=urn:btih:"
+        static let ex = merge([ehentai, listCompact, nonh, f_search + "parody:durarara$"])
         
         // 各機能ページ
         static let tag = "tag/"

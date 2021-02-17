@@ -274,7 +274,7 @@ private struct CommentCell: View {
                         Text(text)
                             .foregroundColor(.accentColor)
                             .onTapGesture {
-                                linkAction(URL(string: link)!)
+                                linkAction(link.safeURL())
                             }
                     }
                 case .singleLink:
@@ -359,14 +359,14 @@ private struct CommentCell: View {
                             .scaledToFit()
                             .frame(width: screenW / 4)
                             .onTapGesture {
-                                linkAction(URL(string: link)!)
+                                linkAction(link.safeURL())
                             }
                         KFImage(URL(string: secondImgURL))
                             .resizable()
                             .scaledToFit()
                             .frame(width: screenW / 4)
                             .onTapGesture {
-                                linkAction(URL(string: secondLink)!)
+                                linkAction(secondLink.safeURL())
                             }
                     } else {
                         KFImage(URL(string: imgURL))
@@ -388,7 +388,7 @@ private struct CommentCell: View {
                         .scaledToFit()
                         .frame(width: screenW / 2)
                         .onTapGesture {
-                            linkAction(URL(string: link)!)
+                            linkAction(link.safeURL())
                         }
                 } else {
                     KFImage(URL(string: imgURL))

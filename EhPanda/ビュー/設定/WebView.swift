@@ -69,7 +69,7 @@ struct WebView: UIViewControllerRepresentable {
 
     func makeUIViewController(context: Context) -> EmbeddedWebviewController {
         let webViewController = EmbeddedWebviewController(coordinator: context.coordinator)
-        webViewController.loadUrl(URL(string: webviewType.url)!)
+        webViewController.loadUrl(webviewType.url.safeURL())
 
         return webViewController
     }

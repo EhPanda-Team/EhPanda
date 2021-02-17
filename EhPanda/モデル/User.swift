@@ -16,9 +16,11 @@ struct User: Codable {
     var currentCredits: String?
     
     var apiuid: String {
+        // ⚠️
         getCookieValue(
-            url: URL(string: Defaults.URL.ehentai)!,
+            url: Defaults.URL.ehentai.safeURL(),
             key: Defaults.Cookie.ipb_member_id
-        ).rawValue
+        )
+        .rawValue
     }
 }

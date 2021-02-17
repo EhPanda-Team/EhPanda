@@ -22,10 +22,10 @@ struct AccountSettingView: View {
     }
     
     var ehURL: URL {
-        URL(string: Defaults.URL.ehentai)!
+        Defaults.URL.ehentai.safeURL()
     }
     var exURL: URL {
-        URL(string: Defaults.URL.exhentai)!
+        Defaults.URL.exhentai.safeURL()
     }
     var yayKey: String {
         Defaults.Cookie.yay

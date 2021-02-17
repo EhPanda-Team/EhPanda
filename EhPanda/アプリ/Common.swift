@@ -39,10 +39,10 @@ public var isSameAccount: Bool {
 }
 
 public var didLogin: Bool {
-    verifyCookies(url: URL(string: Defaults.URL.ehentai)!, isEx: false)
+    verifyCookies(url: Defaults.URL.ehentai.safeURL(), isEx: false)
 }
 public var exAccess: Bool {
-    verifyCookies(url: URL(string: Defaults.URL.exhentai)!, isEx: true)
+    verifyCookies(url: Defaults.URL.exhentai.safeURL(), isEx: true)
 }
 
 public var appVersion: String {
