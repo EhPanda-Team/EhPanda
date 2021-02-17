@@ -69,7 +69,11 @@ public var isPadWidth: Bool {
 }
 
 public var isLandscape: Bool {
-    [.landscapeLeft, .landscapeRight].contains(UIApplication.shared.windows.first?.windowScene?.interfaceOrientation)
+    [.landscapeLeft, .landscapeRight]
+        .contains(
+            UIApplication.shared.windows.first?
+                .windowScene?.interfaceOrientation
+        )
 }
 
 public var windowW: CGFloat? {
