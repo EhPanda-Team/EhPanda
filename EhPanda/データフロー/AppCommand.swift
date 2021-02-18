@@ -257,14 +257,9 @@ struct FetchMangaDetailCommand: AppCommand {
                 }
                 token.unseal()
             } receiveValue: { detail in
-                if let mangaDetail = detail.0, let apikey = detail.1 {
-                    store.dispatch(.fetchMangaDetailDone(result: .success((id, mangaDetail, apikey))))
-                } else {
-                    store.dispatch(.fetchMangaDetailDone(result: .failure(.networkingFailed)))
-                }
-                if let doc = detail.2,
-                   detail.0?.previews.isEmpty == true {
-                    store.dispatch(.fetchAlterImages(id: id, doc: doc))
+                store.dispatch(.fetchMangaDetailDone(result: .success((id, detail.0, detail.1))))
+                if detail.0.previews.isEmpty == true {
+                    store.dispatch(.fetchAlterImages(id: id, doc: detail.2))
                 }
             }
             .seal(in: token)
@@ -431,11 +426,7 @@ struct UpdateMangaDetailCommand: AppCommand {
                 }
                 token.unseal()
             } receiveValue: { detail in
-                if let mangaDetail = detail.0 {
-                    store.dispatch(.updateMangaDetailDone(result: .success((id, mangaDetail))))
-                } else {
-                    store.dispatch(.updateMangaDetailDone(result: .failure(.networkingFailed)))
-                }
+                store.dispatch(.updateMangaDetailDone(result: .success((id, detail.0))))
             }
             .seal(in: token)
     }

@@ -92,6 +92,7 @@ class Defaults {
         static let ignoreOffensive = "nw=always"
         static let listCompact = "inline_set=dm_l"
         static let detailLarge = "inline_set=ts_l"
+        static let rowsLimit = "inline_set=tr_4"
         
         // フィルター
         static let f_cats = "f_cats="
@@ -133,14 +134,15 @@ extension Defaults.URL {
         pageNum: String,
         lastID: String
     ) -> String {
-        merge([
+        merge(
+            [
                 host,
                 listCompact,
                 f_search + keyword.URLString(),
                 page + pageNum,
                 from + lastID
-        ]
-        + applyFilters(filter)
+            ]
+            + applyFilters(filter)
         )
     }
     static func frontpageList() -> String {
@@ -209,6 +211,9 @@ extension Defaults.URL {
                 page + pageNum,
                 from + lastID
         ])
+    }
+    static func mangaContents(detailURL: String) -> String {
+        merge([detailURL, detailLarge, rowsLimit])
     }
     
     // アカウントに関わる操作

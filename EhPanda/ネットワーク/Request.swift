@@ -254,7 +254,7 @@ struct MangaDetailRequest {
     let detailURL: String
     let parser = Parser()
     
-    var publisher: AnyPublisher<(MangaDetail?, APIKey?, HTMLDocument?), AppError> {
+    var publisher: AnyPublisher<(MangaDetail, APIKey, HTMLDocument), AppError> {
         URLSession.shared
             .dataTaskPublisher(
                 for: Defaults.URL
@@ -439,9 +439,14 @@ struct MangaContentsRequest {
     let parser = Parser()
     
     var publisher: AnyPublisher<(PageNumber, [MangaContent]), AppError> {
-        preContents(url: detailURL)
-            .flatMap(contents)
-            .eraseToAnyPublisher()
+        preContents(
+            url: Defaults.URL
+                .mangaContents(
+                    detailURL: detailURL
+                )
+        )
+        .flatMap(contents)
+        .eraseToAnyPublisher()
     }
     
     func preContents(url: String) -> AnyPublisher<(PageNumber, [(Int, URL)]), AppError> {
