@@ -38,6 +38,8 @@ public struct Manga: Identifiable, Codable, Equatable {
 
 struct MangaDetail: Codable {
     var readingProgress: Int?
+    var currentPageNum = 0
+    var pageNumMaximum = 1
     
     var isFavored: Bool
     var archiveURL: String?

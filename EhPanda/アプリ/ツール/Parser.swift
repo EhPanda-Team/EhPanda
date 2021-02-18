@@ -358,11 +358,12 @@ class Parser {
     }
     
     // MARK: コンテント
-    func parseImagePreContents(_ doc: HTMLDocument, pageIndex: Int) -> [(Int, URL)] {
+    func parseImagePreContents(_ doc: HTMLDocument, pageCount: Int) throws -> (PageNumber, [(Int, URL)]) {
         var imageDetailURLs = [(Int, URL)]()
         
         let className = exx ? "gdtl" : "gdtm"
-        guard let gdtNode = doc.at_xpath("//div [@id='gdt']") else { return [] }
+        guard let gdtNode = doc.at_xpath("//div [@id='gdt']")
+        else { throw AppError.parseFailed }
         
         for (i, link) in gdtNode.xpath("//div [@class='\(className)']").enumerated() {
             
@@ -370,22 +371,22 @@ class Parser {
                   let imageDetailURL = URL(string: imageDetailStr)
             else { continue }
             
-            imageDetailURLs.append((i + pageIndex * 20, imageDetailURL))
+            imageDetailURLs.append((i + pageCount, imageDetailURL))
         }
         
-        return imageDetailURLs
+        return (parsePageNum(doc), imageDetailURLs)
     }
     
-    func parseMangaContent(doc: HTMLDocument, tag: Int) -> MangaContent? {
+    func parseMangaContent(doc: HTMLDocument, tag: Int) throws -> MangaContent {
         guard let i3Node = doc.at_xpath("//div [@id='i3']"),
               let imageURL = i3Node.at_css("img")?["src"]
-        else { return nil }
+        else { throw AppError.parseFailed }
         
         return MangaContent(tag: tag, url: imageURL)
     }
     
     // MARK: ユーザー
-    func parseUserInfo(doc: HTMLDocument) -> User? {
+    func parseUserInfo(doc: HTMLDocument) throws -> User {
         var displayName: String?
         var avatarURL: String?
         
@@ -403,8 +404,11 @@ class Parser {
                 avatarURL = imgURL
             }
         }
-        
-        return User(displayName: displayName, avatarURL: avatarURL)
+        if displayName != nil {
+            return User(displayName: displayName, avatarURL: avatarURL)
+        } else {
+            throw AppError.parseFailed
+        }
     }
     
     // MARK: アーカイブ

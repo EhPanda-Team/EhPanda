@@ -34,6 +34,12 @@ struct ContentView: View {
     var mangaContents: [MangaContent]? {
         cachedList.items?[id]?.contents
     }
+    var moreLoadingFlag: Bool {
+        contentInfo.moreMangaContentsLoading
+    }
+    var moreLoadFailedFlag: Bool {
+        contentInfo.moreMangaContentsLoadFailed
+    }
     var geometryReader: some View {
         GeometryReader { proxy -> AnyView in
             let frame = proxy.frame(in: .global)
@@ -66,6 +72,9 @@ struct ContentView: View {
                                     onTapAction: onWebImageTap,
                                     onLongPressAction: onWebImageLongPress
                                 )
+                                .onAppear {
+                                    onWebImageAppear(item)
+                                }
                                 if setting.showContentDividers {
                                     Rectangle()
                                         .fill(Color(.darkGray))
@@ -73,6 +82,18 @@ struct ContentView: View {
                                         .edgesIgnoringSafeArea(.horizontal)
                                 }
                             }
+                            Group {
+                                if moreLoadingFlag {
+                                    LoadingView(isCompact: true)
+                                } else if moreLoadFailedFlag {
+                                    NetworkErrorView(
+                                        isCompact: true,
+                                        retryAction: fetchMoreMangaContents
+                                    )
+                                }
+                            }
+                            .padding()
+                            .padding(.bottom, 24)
                         }
                         .onAppear {
                             onLazyVStackAppear(proxy)
@@ -125,6 +146,11 @@ struct ContentView: View {
             proxy.scrollTo(tag)
         }
     }
+    func onWebImageAppear(_ item: MangaContent) {
+        if item == mangaContents?.last {
+            fetchMoreMangaContents()
+        }
+    }
     func onWebImageTap() {
         toggleNavBarHiddenIfNeeded()
     }
@@ -140,6 +166,9 @@ struct ContentView: View {
     
     func fetchMangaContents() {
         store.dispatch(.fetchMangaContents(id: id))
+    }
+    func fetchMoreMangaContents() {
+        store.dispatch(.fetchMoreMangaContents(id: id))
     }
     
     func toggleNavBarHiddenIfNeeded() {
@@ -181,7 +210,7 @@ private struct SDContainer: View {
                 pressing: { _ in
                     onLongPressing(tag: content.tag)
                 }, perform: {}
-            )
+        )
     }
     
     func onWebImageProgress(_ received: Int, _ total: Int) {

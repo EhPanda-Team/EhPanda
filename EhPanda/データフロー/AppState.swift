@@ -240,6 +240,8 @@ extension AppState {
     struct ContentInfo {
         var mangaContentsLoading = false
         var mangaContentsLoadFailed = false
+        var moreMangaContentsLoading = false
+        var moreMangaContentsLoadFailed = false
     }
 }
 
@@ -313,7 +315,10 @@ extension AppState {
         mutating func updateComments(id: String, comments: [MangaComment]) {
             items?[id]?.detail?.comments = comments
         }
-        mutating func insertContents(id: String, contents: [MangaContent]) {
+        mutating func insertContents(id: String, pageNum: PageNumber, contents: [MangaContent]) {
+            items?[id]?.detail?.currentPageNum = pageNum.current
+            items?[id]?.detail?.pageNumMaximum = pageNum.maximum
+            
             if items?[id]?.contents == nil {
                 items?[id]?.contents = contents.sorted { $0.tag < $1.tag }
             } else {

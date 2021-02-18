@@ -40,7 +40,7 @@ enum AppAction {
     case toggleCommentViewSheetNil
     
     case fetchUserInfo(uid: String)
-    case fetchUserInfoDone(result: Result<User?, AppError>)
+    case fetchUserInfoDone(result: Result<User, AppError>)
     case fetchMangaItemReverse(id: String, detailURL: String)
     case fetchMangaItemReverseDone(result: Result<(Identity, Manga), AppError>)
     case fetchSearchItems(keyword: String)
@@ -80,7 +80,9 @@ enum AppAction {
     case updateMangaDetail(id: String)
     case updateMangaDetailDone(result: Result<(Identity, MangaDetail), AppError>)
     case fetchMangaContents(id: String)
-    case fetchMangaContentsDone(result: Result<(Identity, [MangaContent]), AppError>)
+    case fetchMangaContentsDone(result: Result<(Identity, PageNumber, [MangaContent]), AppError>)
+    case fetchMoreMangaContents(id: String)
+    case fetchMoreMangaContentsDone(result: Result<(Identity, PageNumber, [MangaContent]), AppError>)
     
     case addFavorite(id: String)
     case deleteFavorite(id: String)

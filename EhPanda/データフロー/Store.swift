@@ -106,9 +106,7 @@ class Store: ObservableObject {
             
             switch result {
             case .success(let user):
-                if let user = user {
-                    appState.settings.updateUser(user)
-                }
+                appState.settings.updateUser(user)
             case .failure(let error):
                 print(error)
             }
@@ -175,7 +173,7 @@ class Store: ObservableObject {
             
             let filter = appState.settings.filter ?? Filter()
             let lastID = appState.homeInfo.searchItems?.last?.id ?? ""
-            let pageNum = "\(appState.homeInfo.searchCurrentPageNum + 1)"
+            let pageNum = appState.homeInfo.searchCurrentPageNum + 1
             appCommand = FetchMoreSearchItemsCommand(
                 keyword: keyword,
                 filter: filter,
@@ -243,7 +241,7 @@ class Store: ObservableObject {
             appState.homeInfo.moreFrontpageLoading = true
             
             let lastID = appState.homeInfo.frontpageItems?.last?.id ?? ""
-            let pageNum = "\(appState.homeInfo.frontpageCurrentPageNum + 1)"
+            let pageNum = appState.homeInfo.frontpageCurrentPageNum + 1
             appCommand = FetchMoreFrontpageItemsCommand(lastID: lastID, pageNum: pageNum)
         case .fetchMoreFrontpageItemsDone(let result):
             appState.homeInfo.moreFrontpageLoading = false
@@ -323,7 +321,7 @@ class Store: ObservableObject {
             appState.homeInfo.moreWatchedLoading = true
             
             let lastID = appState.homeInfo.watchedItems?.last?.id ?? ""
-            let pageNum = "\(appState.homeInfo.watchedCurrentPageNum + 1)"
+            let pageNum = appState.homeInfo.watchedCurrentPageNum + 1
             appCommand = FetchMoreWatchedItemsCommand(lastID: lastID, pageNum: pageNum)
         case .fetchMoreWatchedItemsDone(let result):
             appState.homeInfo.moreWatchedLoading = false
@@ -379,7 +377,7 @@ class Store: ObservableObject {
             appState.homeInfo.moreFavoritesLoading = true
             
             let lastID = appState.homeInfo.favoritesItems?.last?.id ?? ""
-            let pageNum = "\(appState.homeInfo.favoritesCurrentPageNum + 1)"
+            let pageNum = appState.homeInfo.favoritesCurrentPageNum + 1
             appCommand = FetchMoreFavoritesItemsCommand(lastID: lastID, pageNum: pageNum)
         case .fetchMoreFavoritesItemsDone(let result):
             appState.homeInfo.moreFavoritesLoading = false
@@ -481,11 +479,7 @@ class Store: ObservableObject {
             
             switch result {
             case .success(let torrents):
-                if !torrents.1.isEmpty {
-                    appState.cachedList.insertTorrents(id: torrents.0, torrents: torrents.1)
-                } else {
-                    appState.detailInfo.mangaTorrentsLoadFailed = true
-                }
+                appState.cachedList.insertTorrents(id: torrents.0, torrents: torrents.1)
             case .failure(let error):
                 print(error)
                 appState.detailInfo.mangaTorrentsLoadFailed = true
@@ -533,7 +527,7 @@ class Store: ObservableObject {
             appState.detailInfo.moreAssociatedItemsLoading = true
             
             let lastID = appState.detailInfo.associatedItems[depth].mangas.last?.id ?? ""
-            let pageNum = "\(currentNum + 1)"
+            let pageNum = currentNum + 1
             appCommand = FetchMoreAssociatedItemsCommand(
                 depth: depth,
                 keyword: keyword,
@@ -610,22 +604,61 @@ class Store: ObservableObject {
             if appState.contentInfo.mangaContentsLoading { break }
             appState.contentInfo.mangaContentsLoading = true
             
+            appState.cachedList.items?[id]?.detail?.currentPageNum = 0
+            
             let detailURL = appState.cachedList.items?[id]?.detailURL ?? ""
-            let pages = Int(appState.cachedList.items?[id]?.detail?.pageCount ?? "") ?? 0
-            appCommand = FetchMangaContentsCommand(id: id, pages: pages, detailURL: detailURL)
+            appCommand = FetchMangaContentsCommand(id: id, detailURL: detailURL)
         case .fetchMangaContentsDone(result: let result):
             appState.contentInfo.mangaContentsLoading = false
             
             switch result {
             case .success(let contents):
-                if contents.0.isEmpty {
-                    appState.contentInfo.mangaContentsLoadFailed = true
-                } else {
-                    appState.cachedList.insertContents(id: contents.0, contents: contents.1)
-                }
+                appState.cachedList.insertContents(
+                    id: contents.0,
+                    pageNum: contents.1,
+                    contents: contents.2
+                )
             case .failure(let error):
-                print(error)
                 appState.contentInfo.mangaContentsLoadFailed = true
+                print(error)
+            }
+            
+        case .fetchMoreMangaContents(let id):
+            appState.contentInfo.moreMangaContentsLoadFailed = false
+            
+            guard let manga = appState.cachedList.items?[id],
+                  let detail = manga.detail
+            else { break }
+            
+            let currentNum = detail.currentPageNum
+            let maximumNum = detail.pageNumMaximum
+            if currentNum + 1 >= maximumNum { break }
+            
+            if appState.contentInfo.moreMangaContentsLoading { break }
+            appState.contentInfo.moreMangaContentsLoading = true
+            
+            let detailURL = manga.detailURL
+            let pageNum = currentNum + 1
+            let pageCount = manga.contents?.count ?? 0
+            appCommand = FetchMoreMangaContentsCommand(
+                id: id,
+                detailURL: detailURL,
+                pageNum: pageNum,
+                pageCount: pageCount
+            )
+        case .fetchMoreMangaContentsDone(result: let result):
+            appState.contentInfo.moreMangaContentsLoading = false
+            
+            switch result {
+            case .success(let contents):
+                appState.cachedList.insertContents(
+                    id: contents.0,
+                    pageNum: contents.1,
+                    contents: contents.2
+                )
+            case .failure(let error):
+                appState.contentInfo.moreMangaContentsLoadFailed = true
+                print(error)
             }
             
         // MARK: アカウント活動

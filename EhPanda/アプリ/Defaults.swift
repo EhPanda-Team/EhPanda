@@ -223,8 +223,8 @@ extension Defaults.URL {
     }
     
     // 雑
-    static func contentPage(url: String, page: Int) -> String {
-        merge([url, p + "\(page)"])
+    static func contentPage(url: String, pageNum: Int) -> String {
+        merge([url, p + "\(pageNum)"])
     }
     static func magnet(hash: String) -> String {
         magnet + hash

@@ -83,7 +83,7 @@ struct FetchMoreSearchItemsCommand: AppCommand {
     let keyword: String
     let filter: Filter
     let lastID: String
-    let pageNum: String
+    let pageNum: Int
     
     func execute(in store: Store) {
         let token = SubscriptionToken()
@@ -127,7 +127,7 @@ struct FetchFrontpageItemsCommand: AppCommand {
 
 struct FetchMoreFrontpageItemsCommand: AppCommand {
     let lastID: String
-    let pageNum: String
+    let pageNum: Int
     
     func execute(in store: Store) {
         let token = SubscriptionToken()
@@ -184,7 +184,7 @@ struct FetchWatchedItemsCommand: AppCommand {
 
 struct FetchMoreWatchedItemsCommand: AppCommand {
     let lastID: String
-    let pageNum: String
+    let pageNum: Int
     
     func execute(in store: Store) {
         let token = SubscriptionToken()
@@ -223,7 +223,7 @@ struct FetchFavoritesItemsCommand: AppCommand {
 
 struct FetchMoreFavoritesItemsCommand: AppCommand {
     let lastID: String
-    let pageNum: String
+    let pageNum: Int
     
     func execute(in store: Store) {
         let token = SubscriptionToken()
@@ -341,7 +341,11 @@ struct FetchMangaTorrentsCommand: AppCommand {
                 }
                 sToken.unseal()
             } receiveValue: { torrents in
-                store.dispatch(.fetchMangaTorrentsDone(result: .success((id, torrents))))
+                if !torrents.isEmpty {
+                    store.dispatch(.fetchMangaTorrentsDone(result: .success((id, torrents))))
+                } else {
+                    store.dispatch(.fetchMangaTorrentsDone(result: .failure(.networkingFailed)))
+                }
             }
             .seal(in: sToken)
     }
@@ -372,7 +376,7 @@ struct FetchMoreAssociatedItemsCommand: AppCommand {
     let depth: Int
     let keyword: AssociatedKeyword
     let lastID: String
-    let pageNum: String
+    let pageNum: Int
     
     func execute(in store: Store) {
         let token = SubscriptionToken()
@@ -460,22 +464,20 @@ struct UpdateMangaCommentsCommand: AppCommand {
 
 struct FetchMangaContentsCommand: AppCommand {
     let id: String
-    let pages: Int
     let detailURL: String
     
     func execute(in store: Store) {
         let token = SubscriptionToken()
-        let ehPageCount = Int(floor(Double(pages)/20))
-        let publishers = (0...ehPageCount)
-            .map {
-                MangaContentsRequest(
-                    detailURL: Defaults.URL.contentPage(
-                        url: detailURL, page: $0),
-                    pageIndex: $0)
-                    .publisher
-            }
-        
-        Publishers.MergeMany(publishers)
+            MangaContentsRequest(
+                detailURL: Defaults.URL
+                    .contentPage(
+                        url: detailURL,
+                        pageNum: 0
+                    ),
+                pageNum: 0,
+                pageCount: 0
+            )
+            .publisher
             .receive(on: DispatchQueue.main)
             .sink { completion in
                 if case .failure(let error) = completion {
@@ -483,10 +485,45 @@ struct FetchMangaContentsCommand: AppCommand {
                 }
                 token.unseal()
             } receiveValue: { contents in
-                if !contents.isEmpty {
-                    store.dispatch(.fetchMangaContentsDone(result: .success((id, contents))))
+                if !contents.1.isEmpty {
+                    store.dispatch(.fetchMangaContentsDone(result: .success((id, contents.0, contents.1))))
                 } else {
                     store.dispatch(.fetchMangaContentsDone(result: .failure(.networkingFailed)))
+                }
+            }
+            .seal(in: token)
+    }
+}
+
+struct FetchMoreMangaContentsCommand: AppCommand {
+    let id: String
+    let detailURL: String
+    let pageNum: Int
+    let pageCount: Int
+    
+    func execute(in store: Store) {
+        let token = SubscriptionToken()
+            MangaContentsRequest(
+                detailURL: Defaults.URL
+                    .contentPage(
+                        url: detailURL,
+                        pageNum: pageNum
+                    ),
+                pageNum: pageNum,
+                pageCount: pageCount
+            )
+            .publisher
+            .receive(on: DispatchQueue.main)
+            .sink { completion in
+                if case .failure(let error) = completion {
+                    store.dispatch(.fetchMoreMangaContentsDone(result: .failure(error)))
+                }
+                token.unseal()
+            } receiveValue: { contents in
+                if !contents.1.isEmpty {
+                    store.dispatch(.fetchMoreMangaContentsDone(result: .success((id, contents.0, contents.1))))
+                } else {
+                    store.dispatch(.fetchMoreMangaContentsDone(result: .failure(.networkingFailed)))
                 }
             }
             .seal(in: token)
