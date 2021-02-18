@@ -28,6 +28,7 @@ enum AppAction {
     case toggleAppUnlocked(isUnlocked: Bool)
     case toggleBlurEffect(on: Bool)
     case toggleHomeListType(type: HomeListType)
+    case toggleFavoriteIndex(index: Int)
     case toggleNavBarHidden(isHidden: Bool)
     case toggleHomeViewSheetState(state: HomeViewSheetState)
     case toggleSettingViewSheetState(state: SettingViewSheetState)
@@ -41,6 +42,8 @@ enum AppAction {
     
     case fetchUserInfo(uid: String)
     case fetchUserInfoDone(result: Result<User, AppError>)
+    case fetchFavoriteNames
+    case fetchFavoriteNamesDone(result: Result<[Int : String], AppError>)
     case fetchMangaItemReverse(id: String, detailURL: String)
     case fetchMangaItemReverseDone(result: Result<(Identity, Manga), AppError>)
     case fetchSearchItems(keyword: String)
@@ -57,10 +60,10 @@ enum AppAction {
     case fetchWatchedItemsDone(result: Result<(PageNumber, [Manga]), AppError>)
     case fetchMoreWatchedItems
     case fetchMoreWatchedItemsDone(result: Result<(PageNumber, [Manga]), AppError>)
-    case fetchFavoritesItems
-    case fetchFavoritesItemsDone(result: Result<(PageNumber, [Manga]), AppError>)
-    case fetchMoreFavoritesItems
-    case fetchMoreFavoritesItemsDone(result: Result<(PageNumber, [Manga]), AppError>)
+    case fetchFavoritesItems(index: Int)
+    case fetchFavoritesItemsDone(carriedValue: FavoritesIndex, result: Result<(PageNumber, [Manga]), AppError>)
+    case fetchMoreFavoritesItems(index: Int)
+    case fetchMoreFavoritesItemsDone(carriedValue: FavoritesIndex, result: Result<(PageNumber, [Manga]), AppError>)
     case fetchMangaDetail(id: String)
     case fetchMangaDetailDone(result: Result<(Identity, MangaDetail, APIKey), AppError>)
     case fetchMangaArchive(id: String)

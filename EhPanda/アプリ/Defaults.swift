@@ -82,6 +82,7 @@ class Defaults {
         static let gid = "gid="
         static let page = "page="
         static let from = "from="
+        static let favcat = "favcat="
         static let showuser = "showuser="
         static let f_search = "f_search="
         
@@ -168,11 +169,19 @@ extension Defaults.URL {
     static func moreWatchedList(pageNum: String, lastID: String) -> String {
         merge([host + watched, page + pageNum, from + lastID])
     }
-    static func favoritesList() -> String {
-        merge([host + favorites, listCompact])
+    static func favoritesList(favIndex: Int) -> String {
+        if favIndex == -1 {
+            return merge([host + favorites, listCompact])
+        } else {
+            return merge([host + favorites, favcat + "\(favIndex)", listCompact])
+        }
     }
-    static func moreFavoritesList(pageNum: String, lastID: String) -> String {
-        merge([host + favorites, page + pageNum, from + lastID])
+    static func moreFavoritesList(favIndex: Int, pageNum: String, lastID: String) -> String {
+        if favIndex == -1 {
+            return merge([host + favorites, page + pageNum, from + lastID])
+        } else {
+            return merge([host + favorites, favcat + "\(favIndex)", page + pageNum, from + lastID])
+        }
     }
     static func mangaDetail(url: String) -> String {
         merge([url, ignoreOffensive, showComments, detailLarge])

@@ -464,14 +464,7 @@ private struct DescScrollView: View {
         .frame(height: 60)
         .onReceive(
             NotificationCenter.default.publisher(
-                for: UIDevice.orientationDidChangeNotification
-            )
-        ) { _ in
-            onWidthChange()
-        }
-        .onReceive(
-            NotificationCenter.default.publisher(
-                for: UIApplication.didBecomeActiveNotification
+                for: NSNotification.Name("AppWidthDidChange")
             )
         ) { _ in
             onWidthChange()
@@ -480,8 +473,10 @@ private struct DescScrollView: View {
     
     func onWidthChange() {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-            withAnimation {
-                itemWidth = max((absoluteWindowW ?? absoluteScreenW) / 5, 80)
+            if itemWidth != max((absoluteWindowW ?? absoluteScreenW) / 5, 80) {
+                withAnimation {
+                    itemWidth = max((absoluteWindowW ?? absoluteScreenW) / 5, 80)
+                }
             }
         }
     }

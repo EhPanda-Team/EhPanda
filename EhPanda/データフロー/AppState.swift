@@ -25,6 +25,12 @@ extension AppState {
         var blurRadius: CGFloat = 0
         var navBarHidden = false
         var homeListType: HomeListType = .frontpage
+//        var favoritesType: FavoritesType {
+//            FavoritesType.getTypeFrom(
+//                index: favoritesIndex
+//            )
+//        }
+        var favoritesIndex = -1
         var homeViewSheetState: HomeViewSheetState? = nil
         var settingViewSheetState: SettingViewSheetState? = nil
         var settingViewActionSheetState: SettingViewActionSheetState? = nil
@@ -36,6 +42,7 @@ extension AppState {
     // MARK: Settings
     struct Settings {
         var userInfoLoading = false
+        var favoriteNamesLoading = false
         
         @FileStorage(directory: .cachesDirectory, fileName: "user.json")
         var user: User?
@@ -98,17 +105,33 @@ extension AppState {
         var moreWatchedLoading = false
         var moreWatchedLoadFailed = false
         
-        var favoritesItems: [Manga]?
-        var favoritesLoading = false
-        var favoritesNotFound = false
-        var favoritesLoadFailed = false
-        var favoritesCurrentPageNum = 0
-        var favoritesPageNumMaximum = 1
-        var moreFavoritesLoading = false
-        var moreFavoritesLoadFailed = false
+        var favoritesItems = [Int : [Manga]]()
+        var favoritesLoading = generateBoolDic()
+        var favoritesNotFound = generateBoolDic()
+        var favoritesLoadFailed = generateBoolDic()
+        var favoritesCurrentPageNum = generateIntDic()
+        var favoritesPageNumMaximum = generateIntDic(1)
+        var moreFavoritesLoading = generateBoolDic()
+        var moreFavoritesLoadFailed = generateBoolDic()
         
         @FileStorage(directory: .cachesDirectory, fileName: "historyList.json")
         var historyItems: [String : Manga]?
+        
+        static func generateBoolDic(_ defaultValue: Bool = false) -> [Int : Bool] {
+            var tmp = [Int : Bool]()
+            (-1..<10).forEach { index in
+                tmp[index] = defaultValue
+            }
+            return tmp
+        }
+        
+        static func generateIntDic(_ defaultValue: Int = 0) -> [Int : Int] {
+            var tmp = [Int : Int]()
+            (-1..<10).forEach { index in
+                tmp[index] = defaultValue
+            }
+            return tmp
+        }
         
         mutating func insertSearchItems(mangas: [Manga]) {
             mangas.forEach { manga in
@@ -131,10 +154,10 @@ extension AppState {
                 }
             }
         }
-        mutating func insertFavoritesItems(mangas: [Manga]) {
+        mutating func insertFavoritesItems(favIndex: Int, mangas: [Manga]) {
             mangas.forEach { manga in
-                if favoritesItems?.contains(manga) == false {
-                    favoritesItems?.append(manga)
+                if favoritesItems[favIndex]?.contains(manga) == false {
+                    favoritesItems[favIndex]?.append(manga)
                 }
             }
         }

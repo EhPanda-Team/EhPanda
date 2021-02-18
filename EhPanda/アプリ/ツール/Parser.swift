@@ -908,4 +908,27 @@ extension Parser {
         
         return contents
     }
+    
+    // MARK: お気に入り名
+    func parseFavoriteNames(_ doc: HTMLDocument) throws -> [Int : String] {
+        var favoriteNames = [Int : String]()
+        
+        for link in doc.xpath("//div [@id='favsel']") {
+            for inputLink in link.xpath("//input") {
+                guard let name = inputLink["name"],
+                      let value = inputLink["value"],
+                      let type = FavoritesType(rawValue: name)
+                else { continue }
+                
+                favoriteNames[type.index] = value
+            }
+        }
+        
+        if !favoriteNames.isEmpty {
+            favoriteNames[-1] = "all_appendedByDev"
+            return favoriteNames
+        } else {
+            throw AppError.parseFailed
+        }
+    }
 }

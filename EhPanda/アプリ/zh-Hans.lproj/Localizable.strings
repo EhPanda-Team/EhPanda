@@ -25,6 +25,10 @@
 "mystery" = "被拒绝";
 "louder" = "被拒绝";
 
+// MARK: User
+"お気に入り名" = "收藏夹";
+"all_appendedByDev" = "全部";
+
 // MARK: AlertView
 "読み込み中..." = "加载中...";
 "ご利用にはログインが必要です" = "请登陆以使用这个App";

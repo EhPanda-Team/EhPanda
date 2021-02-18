@@ -64,6 +64,8 @@ class Store: ObservableObject {
             }
         case .toggleHomeListType(let type):
             appState.environment.homeListType = type
+        case .toggleFavoriteIndex(let index):
+            appState.environment.favoritesIndex = index
         case .toggleNavBarHidden(let isHidden):
             appState.environment.navBarHidden = isHidden
         case .toggleHomeViewSheetState(let state):
@@ -107,6 +109,21 @@ class Store: ObservableObject {
             switch result {
             case .success(let user):
                 appState.settings.updateUser(user)
+            case .failure(let error):
+                print(error)
+            }
+            
+        case .fetchFavoriteNames:
+            if appState.settings.favoriteNamesLoading { break }
+            appState.settings.favoriteNamesLoading = true
+            
+            appCommand = FetchFavoriteNamesCommand()
+        case .fetchFavoriteNamesDone(let result):
+            appState.settings.favoriteNamesLoading = false
+            
+            switch result {
+            case .success(let names):
+                appState.settings.user?.favoriteNames = names
             case .failure(let error):
                 print(error)
             }
@@ -338,59 +355,63 @@ class Store: ObservableObject {
                 print(error)
             }
             
-        case .fetchFavoritesItems:
+        case .fetchFavoritesItems(let favIndex):
             if !didLogin || !exx { break }
-            appState.homeInfo.favoritesNotFound = false
-            appState.homeInfo.favoritesLoadFailed = false
+            appState.homeInfo.favoritesNotFound[favIndex] = false
+            appState.homeInfo.favoritesLoadFailed[favIndex] = false
             
-            if appState.homeInfo.favoritesLoading { break }
-            appState.homeInfo.favoritesCurrentPageNum = 0
-            appState.homeInfo.favoritesLoading = true
-            appCommand = FetchFavoritesItemsCommand()
-        case .fetchFavoritesItemsDone(result: let result):
-            appState.homeInfo.favoritesLoading = false
+            if appState.homeInfo.favoritesLoading[favIndex] != false { break }
+            appState.homeInfo.favoritesCurrentPageNum[favIndex] = 0
+            appState.homeInfo.favoritesLoading[favIndex] = true
+            appCommand = FetchFavoritesItemsCommand(favIndex: favIndex)
+        case .fetchFavoritesItemsDone(let carriedValue, let result):
+            appState.homeInfo.favoritesLoading[carriedValue] = false
             
             switch result {
             case .success(let mangas):
-                appState.homeInfo.favoritesCurrentPageNum = mangas.0.current
-                appState.homeInfo.favoritesPageNumMaximum = mangas.0.maximum
+                appState.homeInfo.favoritesCurrentPageNum[carriedValue] = mangas.0.current
+                appState.homeInfo.favoritesPageNumMaximum[carriedValue] = mangas.0.maximum
                 
                 if mangas.1.isEmpty {
-                    appState.homeInfo.favoritesNotFound = true
+                    appState.homeInfo.favoritesNotFound[carriedValue] = true
                 } else {
-                    appState.homeInfo.favoritesItems = mangas.1
+                    appState.homeInfo.favoritesItems[carriedValue] = mangas.1
                     appState.cachedList.cache(mangas: mangas.1)
                 }
             case .failure(let error):
+                appState.homeInfo.favoritesLoadFailed[carriedValue] = true
                 print(error)
-                appState.homeInfo.favoritesLoadFailed = true
             }
             
-        case .fetchMoreFavoritesItems:
-            appState.homeInfo.moreFavoritesLoadFailed = false
+        case .fetchMoreFavoritesItems(let favIndex):
+            appState.homeInfo.moreFavoritesLoadFailed[favIndex] = false
             
-            let currentNum = appState.homeInfo.favoritesCurrentPageNum
-            let maximumNum = appState.homeInfo.favoritesPageNumMaximum
-            if currentNum + 1 >= maximumNum { break }
+            let currentNum = appState.homeInfo.favoritesCurrentPageNum[favIndex]
+            let maximumNum = appState.homeInfo.favoritesPageNumMaximum[favIndex]
+            if (currentNum ?? 0) + 1 >= maximumNum ?? 1 { break }
             
-            if appState.homeInfo.moreFavoritesLoading { break }
-            appState.homeInfo.moreFavoritesLoading = true
+            if appState.homeInfo.moreFavoritesLoading[favIndex] != false { break }
+            appState.homeInfo.moreFavoritesLoading[favIndex] = true
             
-            let lastID = appState.homeInfo.favoritesItems?.last?.id ?? ""
-            let pageNum = appState.homeInfo.favoritesCurrentPageNum + 1
-            appCommand = FetchMoreFavoritesItemsCommand(lastID: lastID, pageNum: pageNum)
-        case .fetchMoreFavoritesItemsDone(let result):
-            appState.homeInfo.moreFavoritesLoading = false
+            let lastID = appState.homeInfo.favoritesItems[favIndex]?.last?.id ?? ""
+            let pageNum = (appState.homeInfo.favoritesCurrentPageNum[favIndex] ?? 0) + 1
+            appCommand = FetchMoreFavoritesItemsCommand(
+                favIndex: favIndex,
+                lastID: lastID,
+                pageNum: pageNum
+            )
+        case .fetchMoreFavoritesItemsDone(let carriedValue, let result):
+            appState.homeInfo.moreFavoritesLoading[carriedValue] = false
             
             switch result {
             case .success(let mangas):
-                appState.homeInfo.favoritesCurrentPageNum = mangas.0.current
-                appState.homeInfo.favoritesPageNumMaximum = mangas.0.maximum
+                appState.homeInfo.favoritesCurrentPageNum[carriedValue] = mangas.0.current
+                appState.homeInfo.favoritesPageNumMaximum[carriedValue] = mangas.0.maximum
                 
-                appState.homeInfo.insertFavoritesItems(mangas: mangas.1)
+                appState.homeInfo.insertFavoritesItems(favIndex: carriedValue, mangas: mangas.1)
                 appState.cachedList.cache(mangas: mangas.1)
             case .failure(let error):
-                appState.homeInfo.moreFavoritesLoading = true
+                appState.homeInfo.moreFavoritesLoading[carriedValue] = true
                 print(error)
             }
             

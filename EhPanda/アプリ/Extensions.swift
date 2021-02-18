@@ -60,6 +60,10 @@ extension Float {
 }
 
 extension String {
+    var hasLString: Bool {
+        self.lString() != self
+    }
+    
     func lString() -> String {
         NSLocalizedString(self, comment: "")
     }

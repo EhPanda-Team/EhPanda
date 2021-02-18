@@ -36,6 +36,21 @@ struct UserInfoRequest {
     }
 }
 
+struct FavoriteNamesRequest {
+    let parser = Parser()
+    
+    var publisher: AnyPublisher<[Int : String], AppError> {
+        URLSession.shared
+            .dataTaskPublisher(
+                for: Defaults.URL.ehConfig().safeURL()
+            )
+            .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
+            .tryMap(parser.parseFavoriteNames)
+            .mapError(mapAppError)
+            .eraseToAnyPublisher()
+    }
+}
+
 struct MangaItemReverseRequest {
     let detailURL: String
     let parser = Parser()
@@ -216,11 +231,18 @@ struct MoreWatchedItemsRequest {
 }
 
 struct FavoritesItemsRequest {
+    let favIndex: Int
     let parser = Parser()
     
     var publisher: AnyPublisher<(PageNumber, [Manga]), AppError> {
         URLSession.shared
-            .dataTaskPublisher(for: Defaults.URL.favoritesList().safeURL())
+            .dataTaskPublisher(
+                for: Defaults.URL
+                    .favoritesList(
+                        favIndex: favIndex
+                    )
+                    .safeURL()
+            )
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .map(parser.parseListItems)
             .mapError(mapAppError)
@@ -229,6 +251,7 @@ struct FavoritesItemsRequest {
 }
 
 struct MoreFavoritesItemsRequest {
+    let favIndex: Int
     let lastID: String
     let pageNum: Int
     let parser = Parser()
@@ -238,6 +261,7 @@ struct MoreFavoritesItemsRequest {
             .dataTaskPublisher(
                 for: Defaults.URL
                     .moreFavoritesList(
+                        favIndex: favIndex,
                         pageNum: "\(pageNum)",
                         lastID: lastID
                     )

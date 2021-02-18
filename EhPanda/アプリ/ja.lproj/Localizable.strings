@@ -16,6 +16,10 @@
 "mystery" = "拒否";
 "louder" = "拒否";
 
+// MARK: User
+"お気に入り名" = "お気に入り";
+"all_appendedByDev" = "すべて";
+
 // MARK: ArchiveView
 "N/A" = "無効";
 "Free" = "無料";

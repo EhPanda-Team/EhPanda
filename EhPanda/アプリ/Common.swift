@@ -75,6 +75,14 @@ public var isLandscape: Bool {
         )
 }
 
+public var isPortrait: Bool {
+    [.portrait, .portraitUpsideDown]
+        .contains(
+            UIApplication.shared.windows.first?
+                .windowScene?.interfaceOrientation
+        )
+}
+
 public var windowW: CGFloat? {
     if let w = absoluteWindowW,
        let h = absoluteWindowH

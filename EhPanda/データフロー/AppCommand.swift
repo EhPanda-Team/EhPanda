@@ -33,6 +33,24 @@ struct FetchUserInfoCommand: AppCommand {
     }
 }
 
+struct FetchFavoriteNamesCommand: AppCommand {
+    func execute(in store: Store) {
+        let token = SubscriptionToken()
+        FavoriteNamesRequest()
+            .publisher
+            .receive(on: DispatchQueue.main)
+            .sink { completion in
+                if case .failure(let error) = completion {
+                    store.dispatch(.fetchFavoriteNamesDone(result: .failure(error)))
+                }
+                token.unseal()
+            } receiveValue: { names in
+                store.dispatch(.fetchFavoriteNamesDone(result: .success(names)))
+            }
+            .seal(in: token)
+    }
+}
+
 struct FetchMangaItemReverseCommand: AppCommand {
     let id: String
     let detailURL: String
@@ -204,39 +222,42 @@ struct FetchMoreWatchedItemsCommand: AppCommand {
 }
 
 struct FetchFavoritesItemsCommand: AppCommand {
+    let favIndex: Int
+    
     func execute(in store: Store) {
         let token = SubscriptionToken()
-        FavoritesItemsRequest()
+        FavoritesItemsRequest(favIndex: favIndex)
             .publisher
             .receive(on: DispatchQueue.main)
             .sink { completion in
                 if case .failure(let error)  = completion {
-                    store.dispatch(.fetchFavoritesItemsDone(result: .failure(error)))
+                    store.dispatch(.fetchFavoritesItemsDone(carriedValue: favIndex, result: .failure(error)))
                 }
                 token.unseal()
             } receiveValue: { mangas in
-                store.dispatch(.fetchFavoritesItemsDone(result: .success(mangas)))
+                store.dispatch(.fetchFavoritesItemsDone(carriedValue: favIndex, result: .success((mangas))))
             }
             .seal(in: token)
     }
 }
 
 struct FetchMoreFavoritesItemsCommand: AppCommand {
+    let favIndex: Int
     let lastID: String
     let pageNum: Int
     
     func execute(in store: Store) {
         let token = SubscriptionToken()
-        MoreFavoritesItemsRequest(lastID: lastID, pageNum: pageNum)
+        MoreFavoritesItemsRequest(favIndex: favIndex, lastID: lastID, pageNum: pageNum)
             .publisher
             .receive(on: DispatchQueue.main)
             .sink { completion in
                 if case .failure(let error)  = completion {
-                    store.dispatch(.fetchMoreFavoritesItemsDone(result: .failure(error)))
+                    store.dispatch(.fetchMoreFavoritesItemsDone(carriedValue: favIndex, result: .failure(error)))
                 }
                 token.unseal()
             } receiveValue: { mangas in
-                store.dispatch(.fetchMoreFavoritesItemsDone(result: .success(mangas)))
+                store.dispatch(.fetchMoreFavoritesItemsDone(carriedValue: favIndex, result: .success((mangas))))
             }
             .seal(in: token)
     }

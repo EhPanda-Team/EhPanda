@@ -5,6 +5,7 @@
 //  Created by 荒木辰造 on R 3/01/15.
 //
 
+typealias FavoritesIndex = Int
 typealias Depth = Int
 typealias Percentage = Int
 typealias Keyword = String

@@ -39,6 +39,16 @@ struct HomeView: View {
         }
         return items ?? []
     }
+    var navigationBarTitle: String {
+        if let user = settings.user,
+           environment.favoritesIndex != -1,
+           environment.homeListType == .favorites
+        {
+            return user.getFavNameFrom(environment.favoritesIndex)
+        } else {
+            return environment.homeListType.rawValue.lString()
+        }
+    }
     
     var conditionalList: some View {
         Group {
@@ -88,17 +98,29 @@ struct HomeView: View {
                 )
             case .favorites:
                 GenericList(
-                    items: homeInfo.favoritesItems,
-                    loadingFlag: homeInfo.favoritesLoading,
-                    notFoundFlag: homeInfo.favoritesNotFound,
-                    loadFailedFlag: homeInfo.favoritesLoadFailed,
-                    moreLoadingFlag: homeInfo.moreFavoritesLoading,
-                    moreLoadFailedFlag: homeInfo.moreFavoritesLoadFailed,
+                    items: homeInfo.favoritesItems[
+                        environment.favoritesIndex
+                    ],
+                    loadingFlag: homeInfo.favoritesLoading[
+                        environment.favoritesIndex
+                    ] ?? false,
+                    notFoundFlag: homeInfo.favoritesNotFound[
+                        environment.favoritesIndex
+                    ] ?? false,
+                    loadFailedFlag: homeInfo.favoritesLoadFailed[
+                        environment.favoritesIndex
+                    ] ?? false,
+                    moreLoadingFlag: homeInfo.moreFavoritesLoading[
+                        environment.favoritesIndex
+                    ] ?? false,
+                    moreLoadFailedFlag: homeInfo.moreFavoritesLoadFailed[
+                        environment.favoritesIndex
+                    ] ?? false,
                     fetchAction: fetchFavoritesItems,
                     loadMoreAction: fetchMoreFavoritesItems
                 )
             case .downloaded:
-                EmptyView()
+                NotFoundView(retryAction: nil)
             case .history:
                 GenericList(
                     items: historyItems,
@@ -116,14 +138,16 @@ struct HomeView: View {
     var body: some View {
         NavigationView {
             conditionalList
-                .navigationBarTitle(
-                    environment.homeListType.rawValue.lString()
-                )
                 .onChange(
                     of: environment.homeListType,
                     perform: onHomeListTypeChange
                 )
+                .onChange(
+                    of: environment.favoritesIndex,
+                    perform: onFavoritesIndexChange
+                )
                 .onAppear(perform: onListAppear)
+                .navigationBarTitle(navigationBarTitle)
             
         }
         .navigationViewStyle(StackNavigationViewStyle())
@@ -157,6 +181,7 @@ struct HomeView: View {
         if settings.user?.displayName?.isEmpty != false {
             fetchUserInfo()
         }
+        fetchFavoriteNames()
         fetchFrontpageItemsIfNeeded()
     }
     func onHomeListTypeChange(_ type: HomeListType) {
@@ -177,11 +202,17 @@ struct HomeView: View {
             print(type)
         }
     }
+    func onFavoritesIndexChange(_ : Int) {
+        fetchFavoritesItemsIfNeeded()
+    }
     
     func fetchUserInfo() {
         if let uid = settings.user?.apiuid, !uid.isEmpty {
             store.dispatch(.fetchUserInfo(uid: uid))
         }
+    }
+    func fetchFavoriteNames() {
+        store.dispatch(.fetchFavoriteNames)
     }
     func fetchSearchItems() {
         store.dispatch(.fetchSearchItems(keyword: homeInfo.searchKeyword))
@@ -196,7 +227,7 @@ struct HomeView: View {
         store.dispatch(.fetchWatchedItems)
     }
     func fetchFavoritesItems() {
-        store.dispatch(.fetchFavoritesItems)
+        store.dispatch(.fetchFavoritesItems(index: environment.favoritesIndex))
     }
     
     func fetchMoreSearchItems() {
@@ -209,7 +240,7 @@ struct HomeView: View {
         store.dispatch(.fetchMoreWatchedItems)
     }
     func fetchMoreFavoritesItems() {
-        store.dispatch(.fetchMoreFavoritesItems)
+        store.dispatch(.fetchMoreFavoritesItems(index: environment.favoritesIndex))
     }
     
     func fetchFrontpageItemsIfNeeded() {
@@ -228,7 +259,7 @@ struct HomeView: View {
         }
     }
     func fetchFavoritesItemsIfNeeded() {
-        if homeInfo.favoritesItems?.isEmpty != false {
+        if homeInfo.favoritesItems[environment.favoritesIndex]?.isEmpty != false {
             fetchFavoritesItems()
         }
     }

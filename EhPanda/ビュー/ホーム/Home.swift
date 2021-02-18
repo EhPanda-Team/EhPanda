@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import Kingfisher
 
 struct Home : View {
     @EnvironmentObject var store: Store
@@ -106,17 +105,27 @@ struct Home : View {
                 for: UIDevice.orientationDidChangeNotification
             )
         ) { _ in
-            onWidthChange()
+            if isPortrait || isLandscape {
+                onWidthChange()
+            }
         }
     }
     
     func onWidthChange() {
         if isPad {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                withAnimation {
-                    offset = -Defaults.FrameSize.slideMenuWidth
-                    width = Defaults.FrameSize.slideMenuWidth
+                if width != Defaults.FrameSize.slideMenuWidth {
+                    withAnimation {
+                        offset = -Defaults.FrameSize.slideMenuWidth
+                        width = Defaults.FrameSize.slideMenuWidth
+                    }
                 }
+                NotificationCenter.default.post(
+                    name: NSNotification.Name(
+                        rawValue: "AppWidthDidChange"
+                    ),
+                    object: nil
+                )
             }
         }
     }
@@ -125,214 +134,5 @@ struct Home : View {
         withAnimation(Animation.default) {
             self.offset = offset
         }
-    }
-}
-
-// MARK: SlideMenu
-private struct SlideMenu : View {
-    @EnvironmentObject var store: Store
-    @Environment(\.colorScheme) var colorScheme
-    @Binding var offset: CGFloat
-    
-    var settings: AppState.Settings {
-        store.appState.settings
-    }
-    var user: User? {
-        settings.user
-    }
-    var setting: Setting? {
-        settings.setting
-    }
-    var homeListType: HomeListType {
-        store.appState.environment.homeListType
-    }
-    var width: CGFloat {
-        Defaults.FrameSize.slideMenuWidth
-    }
-    var avatarW: CGFloat {
-        Defaults.ImageSize.avatarW
-    }
-    var avatarH: CGFloat {
-        Defaults.ImageSize.avatarH
-    }
-    var reversedPrimary: Color {
-        colorScheme == .light ? .white : .black
-    }
-    var exxMenuItems = HomeListType
-        .allCases.filter({ $0 != .search })
-    var menuItems: [HomeListType] {
-        if exx {
-            return exxMenuItems
-        } else {
-            return Array(exxMenuItems.prefix(2))
-        }
-    }
-    var edges = UIApplication.shared.windows.first?.safeAreaInsets
-    
-    var body: some View {
-        HStack(spacing: 0) {
-            VStack(spacing: 0) {
-                AvatarView(
-                    avatarURL: user?.avatarURL,
-                    displayName: user?.displayName,
-                    width: avatarW,
-                    height: avatarH
-                )
-                .padding(.top, 40)
-                .padding(.bottom, 20)
-                Divider()
-                    .padding(.vertical)
-                ScrollView(showsIndicators: false) {
-                    ForEach(menuItems) { item in
-                        MenuRow(
-                            isSelected: item == homeListType,
-                            symbolName: item.symbolName,
-                            text: item.rawValue,
-                            action: { onMenuRowTap(item) }
-                        )
-                    }
-                }
-                Divider()
-                    .padding(.vertical)
-                MenuRow(
-                    isSelected: false,
-                    symbolName: "gear",
-                    text: "設定",
-                    action: onSettingMenuRowTap
-                )
-            }
-            .padding(.horizontal, 20)
-            .padding(.top, edges?.top == 0 ? 15 : edges?.top)
-            .padding(.bottom, edges?.bottom == 0 ? 15 : edges?.bottom)
-            .frame(width: Defaults.FrameSize.slideMenuWidth)
-            .background(reversedPrimary)
-            .edgesIgnoringSafeArea(.vertical)
-            
-            Spacer()
-        }
-    }
-    
-    func onMenuRowTap(_ item: HomeListType) {
-        store.dispatch(.toggleHomeListType(type: item))
-        impactFeedback(style: .soft)
-        
-        if setting?.closeSlideMenuAfterSelection == true {
-            performTransition(-width)
-        }
-    }
-    func onSettingMenuRowTap() {
-        store.dispatch(.toggleHomeViewSheetState(state: .setting))
-    }
-    
-    func performTransition(_ offset: CGFloat) {
-        withAnimation {
-            self.offset = offset
-        }
-    }
-}
-
-// MARK: AvatarView
-private struct AvatarView: View {
-    @EnvironmentObject var store: Store
-    
-    var iconType: IconType {
-        store.appState
-            .settings.setting?
-            .appIconType ?? appIconType
-    }
-    
-    let avatarURL: String?
-    let displayName: String?
-    
-    let width: CGFloat
-    let height: CGFloat
-    
-    func placeholder() -> some View {
-        Placeholder(
-            style: .activity,
-            width: width,
-            height: height
-        )
-    }
-    
-    var body: some View {
-        HStack {
-            VStack(alignment: .leading) {
-                Group {
-                    if let avatarURL = avatarURL {
-                        KFImage(URL(string: avatarURL))
-                            .placeholder(placeholder)
-                            .cancelOnDisappear(true)
-                            .resizable()
-                    } else {
-                        Image(iconType.iconName)
-                            .resizable()
-                    }
-                }
-                .scaledToFit()
-                .frame(width: width, height: height)
-                .clipShape(Circle())
-                Text(displayName ?? "Sad Panda")
-                    .fontWeight(.bold)
-                    .font(.largeTitle)
-                    .lineLimit(1)
-            }
-            Spacer()
-        }
-    }
-}
-
-// MARK: MenuRow
-private struct MenuRow: View {
-    @Environment(\.colorScheme) var colorScheme
-    @State var isPressing = false
-    let isSelected: Bool
-    
-    let symbolName: String
-    let text: String
-    let action: (()->())
-    
-    var textColor: Color {
-        isSelected
-            ? .primary
-            : (colorScheme == .light
-                ? Color(.darkGray)
-                : Color(.lightGray))
-    }
-    var backgroundColor: Color {
-        let color = Color(.systemGray6)
-        
-        return isSelected
-            ? color
-            : (isPressing
-                ? color.opacity(0.6)
-                : .clear)
-    }
-    
-    var body: some View {
-        HStack {
-            Image(systemName: symbolName)
-                .font(.title)
-                .frame(width: 35)
-                .foregroundColor(textColor)
-                .padding(.trailing, 20)
-            Text(text.lString())
-                .fontWeight(.medium)
-                .foregroundColor(textColor)
-                .font(.headline)
-            Spacer()
-        }
-        .contentShape(Rectangle())
-        .padding(.vertical, 10)
-        .padding(.horizontal, 20)
-        .background(backgroundColor)
-        .cornerRadius(10)
-        .onTapGesture(perform: action)
-        .onLongPressGesture(
-            minimumDuration: .infinity,
-            maximumDistance: 50,
-            pressing: { isPressing = $0 },
-            perform: {}
-        )
     }
 }
