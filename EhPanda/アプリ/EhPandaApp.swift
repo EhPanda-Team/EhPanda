@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import Firebase
 import Kingfisher
 
 @main
@@ -25,7 +24,6 @@ struct EhPandaApp: App {
     
     init() {
         configureKF()
-        FirebaseApp.configure()
     }
     
     var body: some Scene {

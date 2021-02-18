@@ -115,7 +115,6 @@ struct ArchiveView: View {
     }
     
     func onAppear() {
-        logScreen("ArchiveView")
         fetchMangaArchive()
     }
     func onArchiveGridTap(_ item: MangaArchive.HathArchive) {

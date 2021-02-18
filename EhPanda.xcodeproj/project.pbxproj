@@ -25,12 +25,9 @@
 		AB47FDB525BC859E0007765D /* Weird-ipad-pro@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = AB47FDB225BC859E0007765D /* Weird-ipad-pro@2x.png */; };
 		AB47FDB625BC859E0007765D /* Weird-ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = AB47FDB325BC859E0007765D /* Weird-ipad.png */; };
 		AB718B2525A0C0AC00D32962 /* CommentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB718B2425A0C0AC00D32962 /* CommentView.swift */; };
-		AB7B34C925D7D19F00B7FA4D /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = AB7B34C825D7D19F00B7FA4D /* FirebaseAnalytics */; };
-		AB7B34CB25D7D19F00B7FA4D /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = AB7B34CA25D7D19F00B7FA4D /* FirebaseCrashlytics */; };
 		AB7E6B3025D24FE00035CC68 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = AB7E6B3225D24FE00035CC68 /* InfoPlist.strings */; };
 		AB7E6B3825D2508A0035CC68 /* AuthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB7E6B3725D2508A0035CC68 /* AuthView.swift */; };
 		AB84F47525CAF56D00DAF1EC /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = AB84F47425CAF56D00DAF1EC /* Kingfisher */; };
-		AB8D5C8F25D7EB80000B9FC6 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = AB8D5C8E25D7EB80000B9FC6 /* GoogleService-Info.plist */; };
 		AB975F6025B5697700741E1A /* AppearanceSettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB975F5F25B5697700741E1A /* AppearanceSettingView.swift */; };
 		AB975F6325B56B1D00741E1A /* ReadingSettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB975F6225B56B1D00741E1A /* ReadingSettingView.swift */; };
 		AB975F6625B56D5700741E1A /* GeneralSettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB975F6525B56D5700741E1A /* GeneralSettingView.swift */; };
@@ -97,7 +94,6 @@
 		AB7E6B3425D24FE40035CC68 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
 		AB7E6B3525D24FE50035CC68 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		AB7E6B3725D2508A0035CC68 /* AuthView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AuthView.swift; sourceTree = "<group>"; };
-		AB8D5C8E25D7EB80000B9FC6 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		AB975F5F25B5697700741E1A /* AppearanceSettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppearanceSettingView.swift; sourceTree = "<group>"; };
 		AB975F6225B56B1D00741E1A /* ReadingSettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingSettingView.swift; sourceTree = "<group>"; };
 		AB975F6525B56D5700741E1A /* GeneralSettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneralSettingView.swift; sourceTree = "<group>"; };
@@ -150,8 +146,6 @@
 			files = (
 				ABE0FA2F25D4CAEC00E52F18 /* SDWebImageSwiftUI in Frameworks */,
 				AB84F47525CAF56D00DAF1EC /* Kingfisher in Frameworks */,
-				AB7B34C925D7D19F00B7FA4D /* FirebaseAnalytics in Frameworks */,
-				AB7B34CB25D7D19F00B7FA4D /* FirebaseCrashlytics in Frameworks */,
 				ABC3C79D259369FE00E0C11B /* Kanna in Frameworks */,
 				ABC5234D25D38D10000F38B0 /* TTProgressHUD in Frameworks */,
 			);
@@ -245,7 +239,6 @@
 				AB47FDA625BC823F0007765D /* 予備アイコン */,
 				ABC3C76E2593699A00E0C11B /* Info.plist */,
 				AB7E6B3225D24FE00035CC68 /* InfoPlist.strings */,
-				AB8D5C8E25D7EB80000B9FC6 /* GoogleService-Info.plist */,
 			);
 			path = "アプリ";
 			sourceTree = "<group>";
@@ -352,7 +345,6 @@
 				ABC3C7502593696C00E0C11B /* Sources */,
 				ABC3C7512593696C00E0C11B /* Frameworks */,
 				ABC3C7522593696C00E0C11B /* Resources */,
-				ABEA711C25DA11A3009886C7 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -364,8 +356,6 @@
 				AB84F47425CAF56D00DAF1EC /* Kingfisher */,
 				ABC5234C25D38D10000F38B0 /* TTProgressHUD */,
 				ABE0FA2E25D4CAEC00E52F18 /* SDWebImageSwiftUI */,
-				AB7B34C825D7D19F00B7FA4D /* FirebaseAnalytics */,
-				AB7B34CA25D7D19F00B7FA4D /* FirebaseCrashlytics */,
 			);
 			productName = EhPanda;
 			productReference = ABC3C7542593696C00E0C11B /* EhPanda.app */;
@@ -401,7 +391,6 @@
 				AB84F47325CAF56D00DAF1EC /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				ABC5234B25D38D0F000F38B0 /* XCRemoteSwiftPackageReference "TTProgressHUD" */,
 				ABE0FA2D25D4CAEC00E52F18 /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */,
-				AB7B34C725D7D19F00B7FA4D /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
 			productRefGroup = ABC3C7552593696C00E0C11B /* Products */;
 			projectDirPath = "";
@@ -430,33 +419,10 @@
 				AB47FDAE25BC85060007765D /* Normal-ipad-pro@2x.png in Resources */,
 				AB47FDA125BC81A40007765D /* Weird@3x.png in Resources */,
 				AB47FDAD25BC85060007765D /* Normal-ipad@2x.png in Resources */,
-				AB8D5C8F25D7EB80000B9FC6 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
-
-/* Begin PBXShellScriptBuildPhase section */
-		ABEA711C25DA11A3009886C7 /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${TARGET_NAME}",
-				"$(SRCROOT)/$(BUILT_PRODUCTS_DIR)/$(INFOPLIST_PATH)",
-			);
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${BUILD_DIR%Build/*}SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/run\"\n";
-		};
-/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		ABC3C7502593696C00E0C11B /* Sources */ = {
@@ -664,7 +630,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = EhPanda/EhPanda.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 37;
+				CURRENT_PROJECT_VERSION = 38;
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = 9SKQ7QTZ74;
 				ENABLE_PREVIEWS = YES;
@@ -675,6 +641,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0.1;
+				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = zeng.EhPanda;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
@@ -689,7 +656,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = EhPanda/EhPanda.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 37;
+				CURRENT_PROJECT_VERSION = 38;
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = 9SKQ7QTZ74;
 				ENABLE_PREVIEWS = YES;
@@ -700,6 +667,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0.1;
+				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = zeng.EhPanda;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
@@ -731,14 +699,6 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		AB7B34C725D7D19F00B7FA4D /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 7.6.0;
-			};
-		};
 		AB84F47325CAF56D00DAF1EC /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/onevcat/Kingfisher.git";
@@ -774,16 +734,6 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		AB7B34C825D7D19F00B7FA4D /* FirebaseAnalytics */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = AB7B34C725D7D19F00B7FA4D /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseAnalytics;
-		};
-		AB7B34CA25D7D19F00B7FA4D /* FirebaseCrashlytics */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = AB7B34C725D7D19F00B7FA4D /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseCrashlytics;
-		};
 		AB84F47425CAF56D00DAF1EC /* Kingfisher */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = AB84F47325CAF56D00DAF1EC /* XCRemoteSwiftPackageReference "Kingfisher" */;

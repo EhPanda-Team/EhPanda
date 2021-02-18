@@ -105,7 +105,6 @@ struct CommentView: View {
                         .preferredColorScheme(colorScheme)
                         .blur(radius: environment.blurRadius)
                         .allowsHitTesting(environment.isAppUnlocked)
-                        .onAppear(perform: onDraftCommentViewAppear)
                     }
                 }
         )
@@ -122,14 +121,7 @@ struct CommentView: View {
     }
     
     func onAppear() {
-        logScreen("CommentView")
         replaceCommentJumpIDNil()
-    }
-    func onDraftCommentViewAppear() {
-        logScreen(
-            "DraftCommentView_onPost",
-            "CommentView"
-        )
     }
     func onFetchFinished<E: Equatable>(_ value: E) {
         if let loading = value as? Bool,
@@ -402,12 +394,6 @@ private struct CommentCell: View {
         }
     }
     
-    func onDraftCommentViewAppear() {
-        logScreen(
-            "DraftCommentView_onEdit",
-            "CommentView"
-        )
-    }
     func onDraftCommentViewPost() {
         if !editCommentContent.isEmpty {
             editComment()

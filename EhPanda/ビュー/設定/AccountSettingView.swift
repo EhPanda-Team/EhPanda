@@ -168,7 +168,6 @@ struct AccountSettingView: View {
             }
             TTProgressHUD($hudVisible, config: hudConfig)
         }
-        .onAppear(perform: onAppear)
         .navigationBarTitle("アカウント")
         .navigationBarItems(trailing:
             Button(inEditMode ? "完了" : "編集", action: onEditButtonTap)
@@ -176,9 +175,6 @@ struct AccountSettingView: View {
         
     }
     
-    func onAppear() {
-        logScreen("AccountSettingView")
-    }
     func onEditButtonTap() {
         inEditMode.toggle()
     }

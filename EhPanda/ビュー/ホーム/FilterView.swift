@@ -85,7 +85,6 @@ struct FilterView: View {
     }
     
     func onAppear() {
-        logScreen("FilterView")
         if settings.filter == nil {
             store.dispatch(.initiateFilter)
         }

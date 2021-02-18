@@ -95,7 +95,6 @@ struct GeneralSettingView: View {
     }
     
     func onAppear() {
-        logScreen("GeneralSettingView")
         checkPasscodeExistence()
     }
     

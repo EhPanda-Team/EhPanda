@@ -106,12 +106,6 @@ class EmbeddedWebviewController: UIViewController {
         self.webview.uiDelegate = self.delegate
         view = webview
     }
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        
-        logScreen("WebView")
-    }
 }
 
 enum WebViewType {

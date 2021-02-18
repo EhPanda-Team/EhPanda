@@ -13,13 +13,11 @@ class Store: ObservableObject {
     
     func dispatch(_ action: AppAction) {
         print("[ACTION]: \(action)")
-        log("[ACTION]: \(action)")
         let result = reduce(state: appState, action: action)
         appState = result.0
         
         guard let command = result.1 else { return }
         print("[COMMAND]: \(command)")
-        log("[COMMAND]: \(command)")
         command.execute(in: self)
     }
     

@@ -58,7 +58,6 @@ struct Home : View {
             .allowsHitTesting(isAppUnlocked)
             AuthView(blurRadius: $blurRadius)
         }
-        .onAppear(perform: onAppear)
         .gesture (
             DragGesture(minimumDistance: 20)
                 .onChanged { value in
@@ -109,10 +108,6 @@ struct Home : View {
         ) { _ in
             onWidthChange()
         }
-    }
-    
-    func onAppear() {
-        logScreen("Home")
     }
     
     func onWidthChange() {

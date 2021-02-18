@@ -7,7 +7,6 @@
 
 import SwiftUI
 import Combine
-import Firebase
 import Kingfisher
 import LocalAuthentication
 
@@ -199,32 +198,6 @@ public func isValidDetailURL(url: URL) -> Bool {
         && url.pathComponents[1] == "g"
         && !url.pathComponents[2].isEmpty
         && !url.pathComponents[3].isEmpty
-}
-
-// MARK: Analytics
-public func logScreen(_ name: String, _ className: String? = nil) {
-    Analytics.logEvent(
-        AnalyticsEventScreenView,
-        parameters: [
-            AnalyticsParameterScreenName : name,
-            AnalyticsParameterScreenClass : className ?? name
-        ]
-    )
-}
-
-public func log(_ msg: String) {
-    Crashlytics.crashlytics().log(msg)
-}
-
-public func logSelectItem(_ item: Manga) {
-    Analytics.logEvent(
-        AnalyticsEventSelectItem,
-        parameters: [
-            AnalyticsParameterItemID : item.id,
-            AnalyticsParameterItemName : item.title,
-            AnalyticsParameterItemLocationID : item.detailURL
-        ]
-    )
 }
 
 // MARK: UserDefaults

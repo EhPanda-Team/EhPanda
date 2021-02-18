@@ -38,10 +38,6 @@ struct EhPandaView: View {
                 text: "Kanna"
             ),
             Info(
-                url: "https://github.com/firebase/firebase-ios-sdk",
-                text: "Firebase"
-            ),
-            Info(
                 url: "https://github.com/onevcat/Kingfisher",
                 text: "Kingfisher"
             ),
@@ -94,12 +90,7 @@ struct EhPandaView: View {
                 }
             }
         }
-        .onAppear(perform: onAppear)
         .navigationBarTitle("EhPanda")
-    }
-    
-    func onAppear() {
-        logScreen("EhPandaView")
     }
 }
 
