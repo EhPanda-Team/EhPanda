@@ -504,11 +504,12 @@ struct MangaContentsRequest {
 struct AddFavoriteRequest {
     let id: String
     let token: String
+    let favIndex: Int
     
     var publisher: AnyPublisher<Any, AppError> {
         let url = Defaults.URL.addFavorite(id: id, token: token)
         let parameters: [String: String] = [
-            "favcat": "0",
+            "favcat": "\(favIndex)",
             "favnote": "",
             "apply": "Add to Favorites",
             "update": "1"

@@ -87,7 +87,7 @@ enum AppAction {
     case fetchMoreMangaContents(id: String)
     case fetchMoreMangaContentsDone(result: Result<(Identity, PageNumber, [MangaContent]), AppError>)
     
-    case addFavorite(id: String)
+    case addFavorite(id: String, favIndex: Int)
     case deleteFavorite(id: String)
     case sendDownloadCommand(id: String, resolution: String)
     case sendDownloadCommandDone(result: Result<Resp?, AppError>)

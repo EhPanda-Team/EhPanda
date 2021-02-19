@@ -294,8 +294,14 @@ private struct HeaderView: View {
     let manga: Manga
     let detail: MangaDetail
     
+    var settings: AppState.Settings {
+        store.appState.settings
+    }
     var setting: Setting? {
-        store.appState.settings.setting
+        settings.setting
+    }
+    var user: User? {
+        settings.user
     }
     
     var isFavored: Bool {
@@ -374,10 +380,30 @@ private struct HeaderView: View {
                     }
                     Spacer()
                     if exx {
-                        Image(systemName: isFavored ? "heart.fill" : "heart")
-                            .imageScale(.large)
-                            .foregroundColor(.accentColor)
-                            .onTapGesture(perform: onFavoriteTap)
+                        if isFavored {
+                            Button(action: onFavoriteDelete) {
+                                Image(systemName: "heart.fill")
+                                    .imageScale(.large)
+                                    .foregroundColor(.accentColor)
+                            }
+                        } else {
+                            if let user = user,
+                               let names = user.favoriteNames
+                            {
+                                Menu {
+                                    ForEach(0..<names.count - 1) { index in
+                                        Button(user.getFavNameFrom(index)) {
+                                            onFavoriteAdd(index)
+                                        }
+                                    }
+                                } label: {
+                                    Image(systemName: "heart")
+                                        .imageScale(.large)
+                                        .foregroundColor(.accentColor)
+                                }
+                            }
+
+                        }
                     }
                     Button(action: {}) {
                         NavigationLink(destination: ContentView(id: manga.id)) {
@@ -397,16 +423,15 @@ private struct HeaderView: View {
         }
     }
     
-    func onFavoriteTap() {
-        if isFavored {
-            deleteFavorite()
-        } else {
-            addFavorite()
-        }
+    func onFavoriteAdd(_ index: Int) {
+        addFavorite(index)
+    }
+    func onFavoriteDelete() {
+        deleteFavorite()
     }
     
-    func addFavorite() {
-        store.dispatch(.addFavorite(id: manga.id))
+    func addFavorite(_ index: Int) {
+        store.dispatch(.addFavorite(id: manga.id, favIndex: index))
     }
     func deleteFavorite() {
         store.dispatch(.deleteFavorite(id: manga.id))

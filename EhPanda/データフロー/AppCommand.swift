@@ -545,10 +545,11 @@ struct FetchMoreMangaContentsCommand: AppCommand {
 struct AddFavoriteCommand: AppCommand {
     let id: String
     let token: String
+    let favIndex: Int
     
     func execute(in store: Store) {
         let sToken = SubscriptionToken()
-        AddFavoriteRequest(id: id, token: token)
+        AddFavoriteRequest(id: id, token: token, favIndex: favIndex)
             .publisher
             .receive(on: DispatchQueue.main)
             .sink { completion in

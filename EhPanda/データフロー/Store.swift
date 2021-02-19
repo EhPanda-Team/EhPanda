@@ -683,9 +683,9 @@ class Store: ObservableObject {
             }
             
         // MARK: アカウント活動
-        case .addFavorite(let id):
+        case .addFavorite(let id, let favIndex):
             let token = appState.cachedList.items?[id]?.token ?? ""
-            appCommand = AddFavoriteCommand(id: id, token: token)
+            appCommand = AddFavoriteCommand(id: id, token: token, favIndex: favIndex)
         case .deleteFavorite(let id):
             appCommand = DeleteFavoriteCommand(id: id)
             
