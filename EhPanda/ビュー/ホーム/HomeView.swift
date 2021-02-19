@@ -134,6 +134,34 @@ struct HomeView: View {
         }
     }
     
+    var navigationBarItem: some View {
+        Group {
+            if let user = settings.user,
+               let names = user.favoriteNames,
+               environment.homeListType == .favorites
+            {
+                Menu {
+                    ForEach(-1..<names.count - 1) { index in
+                        Button(action: {
+                            onFavMenuSelect(index)
+                        }, label: {
+                            HStack {
+                                Text(user.getFavNameFrom(index))
+                                if index == environment.favoritesIndex {
+                                    Image(systemName: "checkmark")
+                                }
+                            }
+                        })
+                    }
+                } label: {
+                    Image(systemName: "square.2.stack.3d.top.fill")
+                        .foregroundColor(.primary)
+                }
+
+            }
+        }
+    }
+    
     // MARK: HomeView本体
     var body: some View {
         NavigationView {
@@ -148,6 +176,9 @@ struct HomeView: View {
                 )
                 .onAppear(perform: onListAppear)
                 .navigationBarTitle(navigationBarTitle)
+                .navigationBarItems(trailing:
+                    navigationBarItem
+                )
             
         }
         .navigationViewStyle(StackNavigationViewStyle())
@@ -204,6 +235,9 @@ struct HomeView: View {
     }
     func onFavoritesIndexChange(_ : Int) {
         fetchFavoritesItemsIfNeeded()
+    }
+    func onFavMenuSelect(_ index: Int) {
+        store.dispatch(.toggleFavoriteIndex(index: index))
     }
     
     func fetchUserInfo() {

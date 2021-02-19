@@ -13,9 +13,6 @@ struct SlideMenu : View {
     @Environment(\.colorScheme) var colorScheme
     @Binding var offset: CGFloat
     
-    @State var isFavoritesPickerHidden = true
-    @State var emptyBoolBinding = true
-    
     var edges = UIApplication.shared.windows
         .first?.safeAreaInsets
     
@@ -79,30 +76,17 @@ struct SlideMenu : View {
                 ScrollView(showsIndicators: false) {
                     ForEach(menuItems) { item in
                         MenuRow(
-                            isPickerHidden: getIsPickerHidden(item),
                             isSelected: item == homeListType,
-                            showArrow: getShowArrow(item),
                             symbolName: item.symbolName,
                             text: item.rawValue,
                             action: { onMenuRowTap(item) }
                         )
-                        if let user = user,
-                           item == .favorites,
-                           !isFavoritesPickerHidden
-                        {
-                            CategoryPicker(
-                                selectedIndex: favoritesIndexBinding,
-                                user: user
-                            )
-                        }
                     }
                 }
                 Divider()
                     .padding(.vertical)
                 MenuRow(
-                    isPickerHidden: $emptyBoolBinding,
                     isSelected: false,
-                    showArrow: false,
                     symbolName: "gear",
                     text: "設定",
                     action: onSettingMenuRowTap
@@ -127,11 +111,8 @@ struct SlideMenu : View {
         if homeListType != item {
             store.dispatch(.toggleHomeListType(type: item))
             impactFeedback(style: .soft)
-            hidePickers()
             
-            if item == .favorites {
-                toggleIsFavoritesPickerHidden(isHidden: false)
-            } else if setting?.closeSlideMenuAfterSelection == true {
+            if setting?.closeSlideMenuAfterSelection == true {
                 performTransition(-width)
             }
         }
@@ -142,27 +123,6 @@ struct SlideMenu : View {
     func onFavoritesIndexChange(_ : Int) {
         if setting?.closeSlideMenuAfterSelection == true {
             performTransition(-width)
-        }
-    }
-    
-    func getIsPickerHidden(_ item: HomeListType) -> Binding<Bool> {
-        if item == .favorites {
-            return $isFavoritesPickerHidden
-        } else {
-            return $emptyBoolBinding
-        }
-    }
-    func getShowArrow(_ item: HomeListType) -> Bool {
-        item == .favorites
-    }
-    
-    func hidePickers() {
-        toggleIsFavoritesPickerHidden(isHidden: true)
-    }
-    
-    func toggleIsFavoritesPickerHidden(isHidden: Bool) {
-        withAnimation {
-            isFavoritesPickerHidden = isHidden
         }
     }
     
@@ -227,11 +187,8 @@ private struct AvatarView: View {
 // MARK: MenuRow
 private struct MenuRow: View {
     @Environment(\.colorScheme) var colorScheme
-    @Binding var isPickerHidden: Bool
-    @State var arrowDegree: Double = 0
     @State var isPressing = false
     let isSelected: Bool
-    let showArrow: Bool
     
     let symbolName: String
     let text: String
@@ -267,13 +224,6 @@ private struct MenuRow: View {
                     .foregroundColor(textColor)
                     .font(.headline)
                 Spacer()
-                if isSelected && showArrow {
-                    Image(systemName: "chevron.down")
-                        .font(Font.callout.weight(.bold))
-                        .foregroundColor(textColor.opacity(0.5))
-                        .rotationEffect(.init(degrees: arrowDegree))
-                        .onTapGesture(perform: onToggleSubRowsButtonTap)
-                }
             }
             .contentShape(Rectangle())
             .padding(.vertical, 10)
@@ -288,68 +238,5 @@ private struct MenuRow: View {
                 perform: {}
             )
         }
-        .onChange(
-            of: isPickerHidden,
-            perform: onIsPickerHiddenChange
-        )
-    }
-    
-    func onToggleSubRowsButtonTap() {
-        withAnimation {
-            isPickerHidden.toggle()
-        }
-    }
-    func onIsPickerHiddenChange<E: Equatable>(_ value: E) {
-        if let value = value as? Bool {
-            withAnimation {
-                arrowDegree = value ? 0 : 180
-            }
-        }
-    }
-}
-
-// MARK: CategoryPicker
-private struct CategoryPicker: View {
-    @State var width = Defaults.FrameSize.slideMenuWidth - 50
-    @State var scale = calculateScale()
-    @Binding var selectedIndex: Int
-    let user: User
-    
-    var body: some View {
-        Picker(selection: $selectedIndex, label: Text("Picker"), content: {
-            ForEach(FavoritesType.allCases, id: \.self) { type in
-                Text(user.getFavNameFrom(type.index)).tag(type.index)
-            }
-        })
-        .pickerStyle(WheelPickerStyle())
-        .scaleEffect(scale)
-        .frame(
-            width: width,
-            height: 150
-        )
-        .clipped()
-        .onReceive(
-            NotificationCenter.default.publisher(
-                for: NSNotification.Name("AppWidthDidChange")
-            )
-        ) { _ in
-            onWidthChange()
-        }
-    }
-    
-    func onWidthChange() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-            if width != Defaults.FrameSize.slideMenuWidth - 50 {
-                withAnimation {
-                    width = Defaults.FrameSize.slideMenuWidth - 50
-                    scale = CategoryPicker.calculateScale()
-                }
-            }
-        }
-    }
-    
-    static func calculateScale() -> CGFloat {
-        let percentage = min((Defaults.FrameSize.slideMenuWidth - 250) / 50, 1)
-        return max(percentage * 0.8, 0.65)
     }
 }
