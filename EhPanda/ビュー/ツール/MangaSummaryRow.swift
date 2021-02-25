@@ -69,7 +69,6 @@ struct MangaSummaryRow: View {
             KFImage(URL(string: manga.coverURL))
                 .placeholder(placeholder)
                 .imageModifier(modifier)
-                .cancelOnDisappear(true)
                 .resizable()
                 .scaledToFit()
                 .frame(width: width, height: height)

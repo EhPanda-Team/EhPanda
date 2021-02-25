@@ -22,24 +22,24 @@ struct ReadingSettingView: View {
            let settingBinding = settingBinding
         {
             Form {
-//                Section {
-//                    HStack {
-//                        let time = "回".lString()
-//                        Text("再試行上限数")
-//                        Spacer()
-//                        Picker(
-//                            selection: settingBinding.contentRetryLimit,
-//                            label: Text("\(setting.contentRetryLimit)" + time),
-//                            content: {
-//                                Text("5" + time).tag(5)
-//                                Text("10" + time).tag(10)
-//                                Text("15" + time).tag(15)
-//                                Text("20" + time).tag(20)
-//                            }
-//                        )
-//                        .pickerStyle(MenuPickerStyle())
-//                    }
-//                }
+                Section {
+                    HStack {
+                        let time = "回".lString()
+                        Text("再試行上限数")
+                        Spacer()
+                        Picker(
+                            selection: settingBinding.contentRetryLimit,
+                            label: Text("\(setting.contentRetryLimit)" + time),
+                            content: {
+                                Text("5" + time).tag(5)
+                                Text("10" + time).tag(10)
+                                Text("15" + time).tag(15)
+                                Text("20" + time).tag(20)
+                            }
+                        )
+                        .pickerStyle(MenuPickerStyle())
+                    }
+                }
                 Section(header: Text("外観")) {
                     Toggle(isOn: settingBinding.showContentDividers, label: {
                         Text("画像の間に仕切りを挿む")

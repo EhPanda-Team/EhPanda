@@ -14,9 +14,9 @@
         "package": "Kingfisher",
         "repositoryURL": "https://github.com/onevcat/Kingfisher.git",
         "state": {
-          "branch": "master",
-          "revision": "1fb10db1e75e0b227510d6f0c5498d2a986d8310",
-          "version": null
+          "branch": null,
+          "revision": "81dd1ce8401137637663046c7314e7c885bcc56d",
+          "version": "6.1.1"
         }
       },
       {
@@ -32,9 +32,9 @@
         "package": "SDWebImageSwiftUI",
         "repositoryURL": "https://github.com/SDWebImage/SDWebImageSwiftUI.git",
         "state": {
-          "branch": "master",
-          "revision": "0c23726533af59d9b42f757ba7c90a395ad39c55",
-          "version": null
+          "branch": null,
+          "revision": "6fcaa47f450f8696b19d6f037dcb582ff4deb544",
+          "version": "2.0.0"
         }
       },
       {

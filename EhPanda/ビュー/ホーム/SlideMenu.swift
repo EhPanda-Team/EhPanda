@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Kingfisher
+import SDWebImageSwiftUI
 
 struct SlideMenu : View {
     @EnvironmentObject var store: Store
@@ -162,10 +163,15 @@ private struct AvatarView: View {
             VStack(alignment: .leading) {
                 Group {
                     if let avatarURL = avatarURL {
-                        KFImage(URL(string: avatarURL))
-                            .placeholder(placeholder)
-                            .cancelOnDisappear(true)
-                            .resizable()
+                        if !avatarURL.contains(".gif") {
+                            KFImage(URL(string: avatarURL))
+                                .placeholder(placeholder)
+                                .resizable()
+                        } else {
+                            WebImage(url: URL(string: avatarURL))
+                                .placeholder(content: placeholder)
+                                .resizable()
+                        }
                     } else {
                         Image(iconType.iconName)
                             .resizable()

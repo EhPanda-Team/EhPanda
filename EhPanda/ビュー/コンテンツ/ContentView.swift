@@ -66,7 +66,7 @@ struct ContentView: View {
                         geometryReader
                         LazyVStack(spacing: 0) {
                             ForEach(contents) { item in
-                                SDContainer(
+                                ImageContainer(
                                     content: item,
                                     retryLimit: setting.contentRetryLimit,
                                     onTapAction: onWebImageTap,
@@ -178,8 +178,8 @@ struct ContentView: View {
     }
 }
 
-// MARK: SDContainer
-private struct SDContainer: View {
+// MARK: ImageContainer
+private struct ImageContainer: View {
     @State var percentage: Float = 0
     
     var content: MangaContent
@@ -187,34 +187,45 @@ private struct SDContainer: View {
     var onTapAction: () -> ()
     var onLongPressAction: (Int) -> ()
     
+    
     var body: some View {
-        WebImage(url: URL(string: content.url))
-            .placeholder {
-                Placeholder(
-                    style: .progress,
-                    pageNumber: content.tag,
-                    percentage: percentage
-                )
+        Group {
+            if !content.url.contains(".gif") {
+                KFImage(URL(string: content.url))
+                    .placeholder {
+                        Placeholder(
+                            style: .progress,
+                            pageNumber: content.tag,
+                            percentage: percentage
+                        )
+                    }
+                    .retry(
+                        maxCount: retryLimit,
+                        interval: .seconds(0.5)
+                    )
+                    .onProgress(onWebImageProgress)
+                    .resizable()
+            } else {
+                WebImage(url: URL(string: content.url), options: [.fromLoaderOnly])
+                
             }
-//            .retry(
-//                maxCount: retryLimit,
-//                interval: .seconds(0.5)
-//            )
-            .onProgress(perform: onWebImageProgress)
-            .resizable()
-            .scaledToFit()
-            .onTapGesture(perform: onTap)
-            .onLongPressGesture(
-                minimumDuration: 0,
-                maximumDistance: .infinity,
-                pressing: { _ in
-                    onLongPressing(tag: content.tag)
-                }, perform: {}
+        }
+        .scaledToFit()
+        .onTapGesture(perform: onTap)
+        .onLongPressGesture(
+            minimumDuration: 0,
+            maximumDistance: .infinity,
+            pressing: { _ in
+                onLongPressing(tag: content.tag)
+            }, perform: {}
         )
     }
     
-    func onWebImageProgress(_ received: Int, _ total: Int) {
-        percentage = min(Float(received) / Float(total), 0.5)
+    func onWebImageProgress<
+        Integer : SignedInteger & FixedWidthInteger
+    > (_ received: Integer, _ total: Integer)
+    {
+        percentage = Float(received) / Float(total)
     }
     func onTap() {
         onTapAction()
