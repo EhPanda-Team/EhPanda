@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Kingfisher
+import SDWebImageSwiftUI
 
 @main
 struct EhPandaApp: App {
@@ -23,7 +24,8 @@ struct EhPandaApp: App {
     }
     
     init() {
-        configureKF()
+        configureWebImage()
+        clearImageCachesIfNeeded()
     }
     
     var body: some Scene {
@@ -40,13 +42,23 @@ struct EhPandaApp: App {
         setEntry(url.host)
     }
     
-    func configureKF() {
-        // クッキーをKingfisherに
+    func configureWebImage() {
         let config = KingfisherManager.shared.downloader.sessionConfiguration
         config.httpCookieStorage = HTTPCookieStorage.shared
         KingfisherManager.shared.downloader.sessionConfiguration = config
+    }
+    func clearImageCachesIfNeeded() {
+        let threshold = 200 * 1024 * 1024
         
-        // ディスクキャッシュサイズ上限
-        KingfisherManager.shared.cache.diskStorage.config.sizeLimit = 200 * 1024 * 1024
+        if SDImageCache.shared.totalDiskSize() > threshold {
+            SDImageCache.shared.clearDisk()
+        }
+        KingfisherManager.shared.cache.calculateDiskStorageSize { result in
+            if case .success(let size) = result {
+                if size > threshold {
+                    KingfisherManager.shared.cache.clearDiskCache()
+                }
+            }
+        }
     }
 }

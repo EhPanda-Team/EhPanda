@@ -144,6 +144,7 @@ struct SettingView: View {
     }
     func clearCachedList() {
         store.dispatch(.clearCachedList)
+        store.dispatch(.clearHistoryItems)
         store.dispatch(.fetchFrontpageItems)
     }
 }

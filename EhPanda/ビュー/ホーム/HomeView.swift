@@ -125,7 +125,7 @@ struct HomeView: View {
                 GenericList(
                     items: historyItems,
                     loadingFlag: false,
-                    notFoundFlag: false,
+                    notFoundFlag: historyItems.isEmpty,
                     loadFailedFlag: false,
                     moreLoadingFlag: false,
                     moreLoadFailedFlag: false
@@ -414,6 +414,8 @@ private struct GenericList: View {
     }
     
     func searchBarCommit() {
+        hideKeyboard()
+        
         if environment.homeListType != .search {
             store.dispatch(.toggleHomeListType(type: .search))
         }

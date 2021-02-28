@@ -13,7 +13,14 @@ import SDWebImageSwiftUI
 struct ContentView: View {
     @EnvironmentObject var store: Store
     @State var readingProgress: Int = -1
-    @State var geometryY: CGFloat = 0
+    
+    let timer = Timer
+        .publish(
+            every: 1,
+            on: .main,
+            in: .common
+        )
+        .autoconnect()
     
     let id: String
     var environment: AppState.Environment {
@@ -40,30 +47,16 @@ struct ContentView: View {
     var moreLoadFailedFlag: Bool {
         contentInfo.moreMangaContentsLoadFailed
     }
-    var geometryReader: some View {
-        GeometryReader { proxy -> AnyView in
-            let frame = proxy.frame(in: .global)
-            if frame.minX == 0 && frame.minY != geometryY {
-                DispatchQueue.main.async {
-                    toggleNavBarHiddenIfNeeded()
-                }
-            }
-            DispatchQueue.main.async {
-                geometryY = frame.minY
-            }
-            return AnyView(Color.black.frame(width: 0, height: 0))
-        }
-    }
-    
+        
     // MARK: ContentView本体
     var body: some View {
         Group {
             if let contents = mangaContents,
-               let setting = setting
+               let setting = setting,
+               !contents.isEmpty
             {
                 ScrollViewReader { proxy in
                     ScrollView {
-                        geometryReader
                         LazyVStack(spacing: 0) {
                             ForEach(contents) { item in
                                 ImageContainer(
@@ -104,7 +97,7 @@ struct ContentView: View {
                 }
             } else if contentInfo.mangaContentsLoading {
                 LoadingView()
-            } else if contentInfo.mangaContentsLoadFailed {
+            } else {
                 NetworkErrorView(retryAction: fetchMangaContents)
             }
         }
@@ -122,6 +115,9 @@ struct ContentView: View {
         ) { _ in
             onResignActive()
         }
+        .onReceive(timer) { _ in
+            onTimerFire()
+        }
         .onAppear(perform: onAppear)
         .onDisappear(perform: onDisappear)
         .navigationBarBackButtonHidden(true)
@@ -130,16 +126,16 @@ struct ContentView: View {
     
     func onAppear() {
         toggleNavBarHiddenIfNeeded()
-        
-        if mangaContents?.count != Int(mangaDetail?.pageCount ?? "") {
-            fetchMangaContents()
-        }
+        fetchMangaContentsIfNeeded()
     }
     func onDisappear() {
         saveReadingProgress()
     }
     func onResignActive() {
         saveReadingProgress()
+    }
+    func onTimerFire() {
+        toggleNavBarHiddenIfNeeded()
     }
     func onLazyVStackAppear(_ proxy: ScrollViewProxy) {
         if let tag = mangaDetail?.readingProgress {
@@ -152,7 +148,7 @@ struct ContentView: View {
         }
     }
     func onWebImageTap() {
-        toggleNavBarHiddenIfNeeded()
+        
     }
     func onWebImageLongPress(tag: Int) {
         readingProgress = tag
@@ -160,7 +156,12 @@ struct ContentView: View {
     
     func saveReadingProgress() {
         if readingProgress != -1 {
-            store.dispatch(.saveReadingProgress(id: id, tag: readingProgress))
+            store.dispatch(
+                .saveReadingProgress(
+                    id: id,
+                    tag: readingProgress
+                )
+            )
         }
     }
     
@@ -171,6 +172,15 @@ struct ContentView: View {
         store.dispatch(.fetchMoreMangaContents(id: id))
     }
     
+    func fetchMangaContentsIfNeeded() {
+        if let contents = mangaContents, !contents.isEmpty {
+            if contents.count != Int(mangaDetail?.pageCount ?? "") {
+                fetchMangaContents()
+            }
+        } else {
+            fetchMangaContents()
+        }
+    }
     func toggleNavBarHiddenIfNeeded() {
         if !environment.navBarHidden {
             store.dispatch(.toggleNavBarHidden(isHidden: true))
@@ -187,38 +197,30 @@ private struct ImageContainer: View {
     var onTapAction: () -> ()
     var onLongPressAction: (Int) -> ()
     
-    
     var body: some View {
-        Group {
-            if !content.url.contains(".gif") {
-                KFImage(URL(string: content.url))
-                    .placeholder {
-                        Placeholder(
-                            style: .progress,
-                            pageNumber: content.tag,
-                            percentage: percentage
-                        )
-                    }
-                    .retry(
-                        maxCount: retryLimit,
-                        interval: .seconds(0.5)
-                    )
-                    .onProgress(onWebImageProgress)
-                    .resizable()
-            } else {
-                WebImage(url: URL(string: content.url), options: [.fromLoaderOnly])
-                
+        KFImage(URL(string: content.url))
+            .placeholder {
+                Placeholder(
+                    style: .progress,
+                    pageNumber: content.tag,
+                    percentage: percentage
+                )
             }
-        }
-        .scaledToFit()
-        .onTapGesture(perform: onTap)
-        .onLongPressGesture(
-            minimumDuration: 0,
-            maximumDistance: .infinity,
-            pressing: { _ in
-                onLongPressing(tag: content.tag)
-            }, perform: {}
-        )
+            .retry(
+                maxCount: retryLimit,
+                interval: .seconds(0.5)
+            )
+            .onProgress(onWebImageProgress)
+            .resizable()
+            .scaledToFit()
+            .onTapGesture(perform: onTap)
+            .onLongPressGesture(
+                minimumDuration: 0,
+                maximumDistance: .infinity,
+                pressing: { _ in
+                    onLongPressing(tag: content.tag)
+                }, perform: {}
+            )
     }
     
     func onWebImageProgress<
