@@ -58,7 +58,7 @@ struct Home : View {
             AuthView(blurRadius: $blurRadius)
         }
         .gesture (
-            DragGesture(minimumDistance: 20)
+            DragGesture()
                 .onChanged { value in
                     if hasPermission {
                         withAnimation {
@@ -71,7 +71,7 @@ struct Home : View {
                                     offset = min(value.translation.width, 0)
                                 }
                             case .toRight:
-                                if offset < 0 {
+                                if offset < 0, value.startLocation.x < 20 {
                                     offset = max(-width + value.translation.width, -width)
                                 }
                             }
@@ -83,7 +83,9 @@ struct Home : View {
                         withAnimation {
                             let perdictedWidth = value.predictedEndTranslation.width
                             if perdictedWidth > width / 2 || -offset < width / 2 {
-                                performTransition(0)
+                                if value.startLocation.x < 20 {
+                                    performTransition(0)
+                                }
                             }
                             if perdictedWidth < -width / 2 || -offset > width / 2 {
                                 performTransition(-width)
