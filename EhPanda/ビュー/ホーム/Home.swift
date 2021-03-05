@@ -20,8 +20,14 @@ struct Home : View {
     // プライバシーロック
     @State var blurRadius: CGFloat = 0
         
+    var environment: AppState.Environment {
+        store.appState.environment
+    }
     var isAppUnlocked: Bool {
-        store.appState.environment.isAppUnlocked
+        environment.isAppUnlocked
+    }
+    var isSlideMenuClosed: Bool {
+        environment.isSlideMenuClosed
     }
     
     enum Direction {
@@ -75,6 +81,7 @@ struct Home : View {
                                     offset = max(-width + value.translation.width, -width)
                                 }
                             }
+                            updateSlideMenuState(isClosed: offset == -width)
                         }
                     }
                 }
@@ -107,6 +114,13 @@ struct Home : View {
                 onWidthChange()
             }
         }
+        .onReceive(
+            NotificationCenter.default.publisher(
+                for: NSNotification.Name("SlideMenuShouldClose")
+            )
+        ) { _ in
+            onReceiveSlideMenuShouldCloseNotification()
+        }
     }
     
     func onWidthChange() {
@@ -118,19 +132,24 @@ struct Home : View {
                         width = Defaults.FrameSize.slideMenuWidth
                     }
                 }
-                NotificationCenter.default.post(
-                    name: NSNotification.Name(
-                        rawValue: "AppWidthDidChange"
-                    ),
-                    object: nil
-                )
+                postAppWidthDidChangeNotification()
             }
         }
+    }
+    func onReceiveSlideMenuShouldCloseNotification() {
+        performTransition(-width)
     }
     
     func performTransition(_ offset: CGFloat) {
         withAnimation(Animation.default) {
             self.offset = offset
+        }
+        updateSlideMenuState(isClosed: offset == -width)
+    }
+    
+    func updateSlideMenuState(isClosed: Bool) {
+        if isSlideMenuClosed != isClosed {
+            store.dispatch(.updateIsSlideMenuClosed(isClosed: isClosed))
         }
     }
 }

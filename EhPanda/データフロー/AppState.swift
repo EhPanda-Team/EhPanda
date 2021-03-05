@@ -23,6 +23,7 @@ extension AppState {
     struct Environment {
         var isAppUnlocked = true
         var blurRadius: CGFloat = 0
+        var isSlideMenuClosed = true
         var navBarHidden = false
         var homeListType: HomeListType = .frontpage
         var favoritesIndex = -1

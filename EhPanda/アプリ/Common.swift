@@ -168,8 +168,19 @@ public func saveToPasteboard(_ value: String) {
     notificFeedback(style: .success)
 }
 
-public func getPasteboardContent() -> String? {
-    UIPasteboard.general.string
+public func getPasteboardLink() -> URL? {
+    let currentChangeCount = UIPasteboard.general.changeCount
+    if getPasteboardChangeCount() != currentChangeCount {
+        setPasteboardChangeCount(currentChangeCount)
+        
+        if UIPasteboard.general.hasURLs {
+            return UIPasteboard.general.url
+        } else {
+            return nil
+        }
+    } else {
+        return nil
+    }
 }
 
 public func impactFeedback(style: UIImpactFeedbackGenerator.FeedbackStyle) {
@@ -227,6 +238,28 @@ public func setGalleryType(_ type: GalleryType) {
 
 public func clearGalleryType() {
     UserDefaults.standard.set(nil, forKey: "GalleryType")
+}
+
+public func getPasteboardChangeCount() -> Int? {
+    UserDefaults.standard.integer(forKey: "PasteboardChangeCount")
+}
+
+public func setPasteboardChangeCount(_ value: Int) {
+    UserDefaults.standard.set(value, forKey: "PasteboardChangeCount")
+}
+
+public func postSlideMenuShouldCloseNotification() {
+    NotificationCenter.default.post(
+        name: NSNotification.Name("SlideMenuShouldClose"),
+        object: nil
+    )
+}
+
+public func postAppWidthDidChangeNotification () {
+    NotificationCenter.default.post(
+        name: NSNotification.Name("AppWidthDidChange"),
+        object: nil
+    )
 }
 
 

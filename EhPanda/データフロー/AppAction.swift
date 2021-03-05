@@ -24,6 +24,7 @@ enum AppAction {
     case updateHistoryItems(id: String)
     case resetDownloadCommandResponse
     case replaceMangaCommentJumpID(id: String?)
+    case updateIsSlideMenuClosed(isClosed: Bool)
     
     case toggleAppUnlocked(isUnlocked: Bool)
     case toggleBlurEffect(on: Bool)
@@ -31,6 +32,7 @@ enum AppAction {
     case toggleFavoriteIndex(index: Int)
     case toggleNavBarHidden(isHidden: Bool)
     case toggleHomeViewSheetState(state: HomeViewSheetState)
+    case toggleHomeViewSheetNil
     case toggleSettingViewSheetState(state: SettingViewSheetState)
     case toggleSettingViewSheetNil
     case toggleSettingViewActionSheetState(state: SettingViewActionSheetState)

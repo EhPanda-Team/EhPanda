@@ -120,7 +120,7 @@ struct CommentView: View {
     }
     
     func onAppear() {
-        replaceCommentJumpIDNil()
+        replaceMangaCommentJumpID(id: nil)
     }
     func onFetchFinish(_ value: Bool) {
         if !value {
@@ -144,6 +144,8 @@ struct CommentView: View {
         if value != nil {
             commentJumpID = value
             isNavActive = true
+            
+            replaceMangaCommentJumpID(id: nil)
         }
     }
     func onDraftCommentViewPost() {
@@ -193,7 +195,7 @@ struct CommentView: View {
     func fetchMangaWithDetailURL(_ detailURL: String) {
         store.dispatch(.fetchMangaItemReverse(detailURL: detailURL))
     }
-    func replaceMangaCommentJumpID(id: String) {
+    func replaceMangaCommentJumpID(id: String?) {
         store.dispatch(.replaceMangaCommentJumpID(id: id))
     }
     
@@ -202,9 +204,6 @@ struct CommentView: View {
     }
     func toggleCommentViewSheetNil() {
         store.dispatch(.toggleCommentViewSheetNil)
-    }
-    func replaceCommentJumpIDNil() {
-        store.dispatch(.replaceMangaCommentJumpID(id: nil))
     }
 }
 

@@ -62,8 +62,8 @@ struct HomeView: View {
         }
     }
     var hasJumpPermission: Bool {
-        vcsCount == 1 && exx &&
-            setting?.detectGalleryFromPasteboard == true
+        vcsCount == 1 && exx
+            && setting?.detectGalleryFromPasteboard == true
     }
     
     var conditionalList: some View {
@@ -291,6 +291,8 @@ struct HomeView: View {
         if value != nil, hasJumpPermission {
             clipboardJumpID = value
             isJumpNavActive = true
+            
+            replaceMangaCommentJumpID(id: nil)
         }
     }
     func onFetchFinish(_ value: Bool) {
@@ -314,8 +316,7 @@ struct HomeView: View {
     }
     func detectPasteboard() {
         if hasJumpPermission {
-            if let content = getPasteboardContent(),
-               let link = URL(string: content),
+            if let link = getPasteboardLink(),
                isValidDetailURL(url: link)
             {
                 let id = link.pathComponents[2]
@@ -326,7 +327,16 @@ struct HomeView: View {
                     showHUD()
                 }
                 clearPasteboard()
+                clearObstruction()
             }
+        }
+    }
+    func clearObstruction() {
+        if environment.homeViewSheetState != nil {
+            store.dispatch(.toggleHomeViewSheetNil)
+        }
+        if environment.isSlideMenuClosed != true {
+            postSlideMenuShouldCloseNotification()
         }
     }
     
@@ -370,7 +380,7 @@ struct HomeView: View {
     func fetchMangaWithDetailURL(_ detailURL: String) {
         store.dispatch(.fetchMangaItemReverse(detailURL: detailURL))
     }
-    func replaceMangaCommentJumpID(id: String) {
+    func replaceMangaCommentJumpID(id: String?) {
         store.dispatch(.replaceMangaCommentJumpID(id: id))
     }
     

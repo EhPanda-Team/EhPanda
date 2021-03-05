@@ -54,6 +54,8 @@ class Store: ObservableObject {
             appState.detailInfo.downloadCommandFailed = false
         case .replaceMangaCommentJumpID(let id):
             appState.environment.mangaItemReverseID = id
+        case .updateIsSlideMenuClosed(let isClosed):
+            appState.environment.isSlideMenuClosed = isClosed
             
         // MARK: アプリ環境
         case .toggleAppUnlocked(let isUnlocked):
@@ -71,6 +73,8 @@ class Store: ObservableObject {
         case .toggleHomeViewSheetState(let state):
             impactFeedback(style: .light)
             appState.environment.homeViewSheetState = state
+        case .toggleHomeViewSheetNil:
+            appState.environment.homeViewSheetState = nil
         case .toggleSettingViewSheetState(let state):
             impactFeedback(style: .light)
             appState.environment.settingViewSheetState = state
