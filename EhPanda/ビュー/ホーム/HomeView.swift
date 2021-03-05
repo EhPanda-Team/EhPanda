@@ -316,7 +316,7 @@ struct HomeView: View {
     }
     func detectPasteboard() {
         if hasJumpPermission {
-            if let link = getPasteboardLink(),
+            if let link = getPasteboardLinkIfAllowed(),
                isValidDetailURL(url: link)
             {
                 let id = link.pathComponents[2]
@@ -328,6 +328,19 @@ struct HomeView: View {
                 }
                 clearPasteboard()
                 clearObstruction()
+            }
+        }
+    }
+    func getPasteboardLinkIfAllowed() -> URL? {
+        if setting?.allowsDetectionWhenNoChange == true {
+            return getPasteboardLink()
+        } else {
+            let currentChangeCount = UIPasteboard.general.changeCount
+            if getPasteboardChangeCount() != currentChangeCount {
+                setPasteboardChangeCount(currentChangeCount)
+                return getPasteboardLink()
+            } else {
+                return nil
             }
         }
     }

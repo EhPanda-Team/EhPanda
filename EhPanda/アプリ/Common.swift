@@ -169,15 +169,8 @@ public func saveToPasteboard(_ value: String) {
 }
 
 public func getPasteboardLink() -> URL? {
-    let currentChangeCount = UIPasteboard.general.changeCount
-    if getPasteboardChangeCount() != currentChangeCount {
-        setPasteboardChangeCount(currentChangeCount)
-        
-        if UIPasteboard.general.hasURLs {
-            return UIPasteboard.general.url
-        } else {
-            return nil
-        }
+    if UIPasteboard.general.hasURLs {
+        return UIPasteboard.general.url
     } else {
         return nil
     }

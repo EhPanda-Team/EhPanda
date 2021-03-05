@@ -78,6 +78,7 @@
 "本当にログアウトしますか？" = "Are you sure to logout?";
 "一般" = "General";
 "クリップボードからリンクを探知" = "Detect link from the clipboard";
+"変化なしの場合でも探知を有効化" = "Allows detection even when no change";
 "選択後スライドメニューを閉じる" = "Close slide menu after selection";
 "セキュリティ" = "Security";
 "自動ロック" = "Auto-Lock";

@@ -19,6 +19,7 @@ struct Setting: Codable {
     
     // 一般
     var detectGalleryFromPasteboard = false
+    var allowsDetectionWhenNoChange = false
     var closeSlideMenuAfterSelection = true
     var diskImageCacheSize = "0 KB"
     var allowsResignActiveBlur = true
