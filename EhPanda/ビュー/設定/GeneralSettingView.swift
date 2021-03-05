@@ -42,16 +42,18 @@ struct GeneralSettingView: View {
                         Spacer()
                         Button(language, action: toSettingLanguage)
                     }
-                    Toggle(isOn: settingBinding.detectGalleryFromPasteboard) {
-                        Text("クリップボードからリンクを探知")
-                    }
-                    if setting.detectGalleryFromPasteboard {
-                        Toggle(isOn: settingBinding.allowsDetectionWhenNoChange) {
-                            Text("変化なしの場合でも探知を有効化")
-                        }
-                    }
                     Toggle(isOn: settingBinding.closeSlideMenuAfterSelection) {
                         Text("選択後スライドメニューを閉じる")
+                    }
+                    if exx {
+                        Toggle(isOn: settingBinding.detectGalleryFromPasteboard) {
+                            Text("クリップボードからリンクを探知")
+                        }
+                        if setting.detectGalleryFromPasteboard {
+                            Toggle(isOn: settingBinding.allowsDetectionWhenNoChange) {
+                                Text("変化なしの場合でも探知を有効化")
+                            }
+                        }
                     }
                 }
                 Section(header: Text("セキュリティ")) {
