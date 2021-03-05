@@ -61,7 +61,7 @@ struct Home : View {
             DragGesture()
                 .onChanged { value in
                     if hasPermission {
-                        withAnimation {
+                        withAnimation(Animation.linear(duration: 0.2)) {
                             switch direction {
                             case .none:
                                 let isToLeft = value.translation.width < 0
@@ -80,18 +80,14 @@ struct Home : View {
                 }
                 .onEnded { value in
                     if hasPermission {
-                        withAnimation {
-                            let perdictedWidth = value.predictedEndTranslation.width
-                            if perdictedWidth > width / 2 || -offset < width / 2 {
-                                if value.startLocation.x < 20 {
-                                    performTransition(0)
-                                }
-                            }
-                            if perdictedWidth < -width / 2 || -offset > width / 2 {
-                                performTransition(-width)
-                            }
-                            direction = .none
+                        let perdictedWidth = value.predictedEndTranslation.width
+                        if perdictedWidth > width / 2 || -offset < width / 2 {
+                            performTransition(0)
                         }
+                        if perdictedWidth < -width / 2 || -offset > width / 2 {
+                            performTransition(-width)
+                        }
+                        direction = .none
                     }
                 }
         )

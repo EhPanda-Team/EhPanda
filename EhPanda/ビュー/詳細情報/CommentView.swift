@@ -117,7 +117,6 @@ struct CommentView: View {
             of: detailInfo.mangaItemReverseLoading,
             perform: onFetchFinished
         )
-        
     }
     
     func onAppear() {

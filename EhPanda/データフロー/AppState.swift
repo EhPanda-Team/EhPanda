@@ -25,11 +25,6 @@ extension AppState {
         var blurRadius: CGFloat = 0
         var navBarHidden = false
         var homeListType: HomeListType = .frontpage
-//        var favoritesType: FavoritesType {
-//            FavoritesType.getTypeFrom(
-//                index: favoritesIndex
-//            )
-//        }
         var favoritesIndex = -1
         var homeViewSheetState: HomeViewSheetState? = nil
         var settingViewSheetState: SettingViewSheetState? = nil
