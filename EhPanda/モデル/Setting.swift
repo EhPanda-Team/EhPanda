@@ -18,6 +18,8 @@ struct Setting: Codable {
     }
     
     // 一般
+    var detectGalleryFromPasteboard = false
+    var closeSlideMenuAfterSelection = true
     var diskImageCacheSize = "0 KB"
     var allowsResignActiveBlur = true
     var autoLockPolicy: AutoLockPolicy = .never
@@ -36,7 +38,6 @@ struct Setting: Codable {
     var preferredColorScheme: PreferredColorScheme = .automatic
     var accentColor: Color = .blue
     var appIconType: IconType = .Default
-    var closeSlideMenuAfterSelection = true
     var translateCategory = true
     var showSummaryRowTags = false
     var summaryRowTagsMaximumActivated = false

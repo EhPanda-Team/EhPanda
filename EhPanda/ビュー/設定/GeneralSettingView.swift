@@ -42,9 +42,12 @@ struct GeneralSettingView: View {
                         Spacer()
                         Button(language, action: toSettingLanguage)
                     }
-                    Toggle(isOn: settingBinding.closeSlideMenuAfterSelection, label: {
+                    Toggle(isOn: settingBinding.detectGalleryFromPasteboard) {
+                        Text("クリップボードからリンクを探知")
+                    }
+                    Toggle(isOn: settingBinding.closeSlideMenuAfterSelection) {
                         Text("選択後スライドメニューを閉じる")
-                    })
+                    }
                 }
                 Section(header: Text("セキュリティ")) {
                     HStack {

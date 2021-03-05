@@ -77,6 +77,7 @@
 "タグの購読を管理" = "Manage tags subscription";
 "本当にログアウトしますか？" = "Are you sure to logout?";
 "一般" = "General";
+"クリップボードからリンクを探知" = "Detect link from the clipboard";
 "選択後スライドメニューを閉じる" = "Close slide menu after selection";
 "セキュリティ" = "Security";
 "自動ロック" = "Auto-Lock";

@@ -58,7 +58,7 @@ struct Home : View {
             AuthView(blurRadius: $blurRadius)
         }
         .gesture (
-            DragGesture()
+            DragGesture(minimumDistance: 20)
                 .onChanged { value in
                     if hasPermission {
                         withAnimation(Animation.linear(duration: 0.2)) {

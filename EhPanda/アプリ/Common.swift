@@ -159,9 +159,17 @@ public var appIconType: IconType {
 }
 
 // MARK: あらゆるツール
+public func clearPasteboard() {
+    UIPasteboard.general.string = ""
+}
+
 public func saveToPasteboard(_ value: String) {
     UIPasteboard.general.string = value
     notificFeedback(style: .success)
+}
+
+public func getPasteboardContent() -> String? {
+    UIPasteboard.general.string
 }
 
 public func impactFeedback(style: UIImpactFeedbackGenerator.FeedbackStyle) {

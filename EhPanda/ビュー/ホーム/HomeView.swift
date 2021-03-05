@@ -6,11 +6,23 @@
 //
 
 import SwiftUI
+import TTProgressHUD
 
 struct HomeView: View {
     @EnvironmentObject var store: Store
     @Environment(\.colorScheme) var colorScheme
     
+    @State var clipboardJumpID: String?
+    @State var isJumpNavActive = false
+    
+    @State var hudVisible = false
+    @State var hudConfig = TTProgressHUDConfig(
+        hapticsEnabled: false
+    )
+    
+    var cachedList: AppState.CachedList {
+        store.appState.cachedList
+    }
     var homeInfo: AppState.HomeInfo {
         store.appState.homeInfo
     }
@@ -48,6 +60,10 @@ struct HomeView: View {
         } else {
             return environment.homeListType.rawValue.lString()
         }
+    }
+    var hasJumpPermission: Bool {
+        vcsCount == 1 && exx &&
+            setting?.detectGalleryFromPasteboard == true
     }
     
     var conditionalList: some View {
@@ -165,21 +181,31 @@ struct HomeView: View {
     // MARK: HomeView本体
     var body: some View {
         NavigationView {
-            conditionalList
-                .onChange(
-                    of: environment.homeListType,
-                    perform: onHomeListTypeChange
+            ZStack {
+                NavigationLink(
+                    "",
+                    destination: DetailView(
+                        id: clipboardJumpID ?? "",
+                        depth: 1
+                    ),
+                    isActive: $isJumpNavActive
                 )
-                .onChange(
-                    of: environment.favoritesIndex,
-                    perform: onFavoritesIndexChange
-                )
-                .onAppear(perform: onListAppear)
-                .navigationBarTitle(navigationBarTitle)
-                .navigationBarItems(trailing:
-                    navigationBarItem
-                )
-            
+                conditionalList
+                    .onChange(
+                        of: environment.homeListType,
+                        perform: onHomeListTypeChange
+                    )
+                    .onChange(
+                        of: environment.favoritesIndex,
+                        perform: onFavoritesIndexChange
+                    )
+                    .onAppear(perform: onListAppear)
+                    .navigationBarTitle(navigationBarTitle)
+                    .navigationBarItems(trailing:
+                        navigationBarItem
+                    )
+                TTProgressHUD($hudVisible, config: hudConfig)
+            }
         }
         .navigationViewStyle(StackNavigationViewStyle())
         .sheet(item: environmentBinding.homeViewSheetState) { item in
@@ -200,8 +226,27 @@ struct HomeView: View {
                     .allowsHitTesting(environment.isAppUnlocked)
             }
         }
+        .onAppear(perform: onAppear)
+        .onReceive(
+            NotificationCenter.default.publisher(
+                for: UIApplication.didBecomeActiveNotification
+            )
+        ) { _ in
+            onBecomeActive()
+        }
+        .onChange(
+            of: environment.mangaItemReverseID,
+            perform: onJumpIDChange
+        )
+        .onChange(
+            of: environment.mangaItemReverseLoading,
+            perform: onFetchFinish
+        )
     }
     
+    func onAppear() {
+        detectPasteboard()
+    }
     func onListAppear() {
         if settings.user == nil {
             store.dispatch(.initiateUser)
@@ -214,6 +259,9 @@ struct HomeView: View {
         }
         fetchFavoriteNames()
         fetchFrontpageItemsIfNeeded()
+    }
+    func onBecomeActive() {
+        detectPasteboard()
     }
     func onHomeListTypeChange(_ type: HomeListType) {
         switch type {
@@ -238,6 +286,48 @@ struct HomeView: View {
     }
     func onFavMenuSelect(_ index: Int) {
         store.dispatch(.toggleFavoriteIndex(index: index))
+    }
+    func onJumpIDChange(_ value: String?) {
+        if value != nil, hasJumpPermission {
+            clipboardJumpID = value
+            isJumpNavActive = true
+        }
+    }
+    func onFetchFinish(_ value: Bool) {
+        if !value, hasJumpPermission {
+            dismissHUD()
+        }
+    }
+    
+    func showHUD() {
+        hudConfig = TTProgressHUDConfig(
+            type: .Loading,
+            title: "読み込み中...".lString()
+        )
+        hudVisible = true
+    }
+    func dismissHUD() {
+        hudVisible = false
+        hudConfig = TTProgressHUDConfig(
+            hapticsEnabled: false
+        )
+    }
+    func detectPasteboard() {
+        if hasJumpPermission {
+            if let content = getPasteboardContent(),
+               let link = URL(string: content),
+               isValidDetailURL(url: link)
+            {
+                let id = link.pathComponents[2]
+                if cachedList.hasCached(id: id) {
+                    replaceMangaCommentJumpID(id: id)
+                } else {
+                    fetchMangaWithDetailURL(link.absoluteString)
+                    showHUD()
+                }
+                clearPasteboard()
+            }
+        }
     }
     
     func fetchUserInfo() {
@@ -275,6 +365,13 @@ struct HomeView: View {
     }
     func fetchMoreFavoritesItems() {
         store.dispatch(.fetchMoreFavoritesItems(index: environment.favoritesIndex))
+    }
+    
+    func fetchMangaWithDetailURL(_ detailURL: String) {
+        store.dispatch(.fetchMangaItemReverse(detailURL: detailURL))
+    }
+    func replaceMangaCommentJumpID(id: String) {
+        store.dispatch(.replaceMangaCommentJumpID(id: id))
     }
     
     func fetchFrontpageItemsIfNeeded() {

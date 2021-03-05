@@ -52,7 +52,6 @@ struct FetchFavoriteNamesCommand: AppCommand {
 }
 
 struct FetchMangaItemReverseCommand: AppCommand {
-    let id: String
     let detailURL: String
     
     func execute(in store: Store) {
@@ -67,7 +66,7 @@ struct FetchMangaItemReverseCommand: AppCommand {
                 token.unseal()
             } receiveValue: { manga in
                 if let manga = manga {
-                    store.dispatch(.fetchMangaItemReverseDone(result: .success((id, manga))))
+                    store.dispatch(.fetchMangaItemReverseDone(result: .success(manga)))
                 } else {
                     store.dispatch(.fetchMangaItemReverseDone(result: .failure(.networkingFailed)))
                 }

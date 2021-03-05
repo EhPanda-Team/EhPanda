@@ -53,7 +53,7 @@ class Store: ObservableObject {
             appState.detailInfo.downloadCommandSending = false
             appState.detailInfo.downloadCommandFailed = false
         case .replaceMangaCommentJumpID(let id):
-            appState.detailInfo.mangaItemReverseID = id
+            appState.environment.mangaItemReverseID = id
             
         // MARK: アプリ環境
         case .toggleAppUnlocked(let isUnlocked):
@@ -128,23 +128,23 @@ class Store: ObservableObject {
                 print(error)
             }
             
-        case .fetchMangaItemReverse(let id, let detailURL):
+        case .fetchMangaItemReverse(let detailURL):
             if !didLogin || !exx { break }
-            appState.detailInfo.mangaItemReverseLoadFailed = false
+            appState.environment.mangaItemReverseLoadFailed = false
             
-            if appState.detailInfo.mangaItemReverseLoading { break }
-            appState.detailInfo.mangaItemReverseLoading = true
+            if appState.environment.mangaItemReverseLoading { break }
+            appState.environment.mangaItemReverseLoading = true
             
-            appCommand = FetchMangaItemReverseCommand(id: id, detailURL: detailURL)
+            appCommand = FetchMangaItemReverseCommand(detailURL: detailURL)
         case .fetchMangaItemReverseDone(let result):
-            appState.detailInfo.mangaItemReverseLoading = false
+            appState.environment.mangaItemReverseLoading = false
             
             switch result {
             case .success(let manga):
-                appState.cachedList.cache(mangas: [manga.1])
-                appState.detailInfo.mangaItemReverseID = manga.1.id
+                appState.cachedList.cache(mangas: [manga])
+                appState.environment.mangaItemReverseID = manga.id
             case .failure(let error):
-                appState.detailInfo.mangaItemReverseLoadFailed = true
+                appState.environment.mangaItemReverseLoadFailed = true
                 print(error)
             }
             

@@ -110,32 +110,28 @@ struct CommentView: View {
         )
         .onAppear(perform: onAppear)
         .onChange(
-            of: detailInfo.mangaItemReverseID,
+            of: environment.mangaItemReverseID,
             perform: onJumpIDChange
         )
         .onChange(
-            of: detailInfo.mangaItemReverseLoading,
-            perform: onFetchFinished
+            of: environment.mangaItemReverseLoading,
+            perform: onFetchFinish
         )
     }
     
     func onAppear() {
         replaceCommentJumpIDNil()
     }
-    func onFetchFinished<E: Equatable>(_ value: E) {
-        if let loading = value as? Bool,
-           loading == false
-        {
+    func onFetchFinish(_ value: Bool) {
+        if !value {
             dismissHUD()
-            onJumpIDChange(detailInfo.mangaItemReverseID)
         }
     }
     func onLinkTap(_ link: URL) {
         if isValidDetailURL(url: link) && exx {
-            if cachedList.hasCached(url: link)
-                && link.pathComponents.count >= 3
-            {
-                replaceMangaCommentJumpID(id: link.pathComponents[2])
+            let id = link.pathComponents[2]
+            if cachedList.hasCached(id: id) {
+                replaceMangaCommentJumpID(id: id)
             } else {
                 fetchMangaWithDetailURL(link.absoluteString)
                 showHUD()
@@ -195,7 +191,7 @@ struct CommentView: View {
         store.dispatch(.cleanCommentViewCommentContent)
     }
     func fetchMangaWithDetailURL(_ detailURL: String) {
-        store.dispatch(.fetchMangaItemReverse(id: id, detailURL: detailURL))
+        store.dispatch(.fetchMangaItemReverse(detailURL: detailURL))
     }
     func replaceMangaCommentJumpID(id: String) {
         store.dispatch(.replaceMangaCommentJumpID(id: id))
