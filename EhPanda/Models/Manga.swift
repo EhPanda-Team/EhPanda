@@ -157,9 +157,6 @@ extension Manga {
     var color: Color {
         category.color
     }
-    var jpnCategory: String {
-        category.jpn
-    }
     var publishedDate: Date {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd HH:mm"
@@ -170,15 +167,6 @@ extension Manga {
 extension MangaDetail {
     var languageAbbr: String {
         language.languageAbbr
-    }
-    var translatedLanguage: String {
-        language.translatedLanguage
-    }
-}
-
-extension MangaTag {
-    var jpnCategory: String {
-        category.jpn
     }
 }
 
@@ -195,7 +183,7 @@ extension MangaComment {
 
 extension Category {
     var color: Color {
-        Color(galleryType.rawValue + "/" + jpn)
+        Color(galleryType.rawValue + "/" + rawValue)
     }
     var value: Int {
         switch self {
@@ -219,55 +207,6 @@ extension Category {
             return 128
         case .Misc:
             return 1
-        }
-    }
-    var jpn: String {
-        switch self {
-        case .Doujinshi:
-            return "同人誌"
-        case .Manga:
-            return "漫画"
-        case .Artist_CG:
-            return "イラスト"
-        case .Game_CG:
-            return "ゲームCG"
-        case .Western:
-            return "西洋"
-        case .Non_H:
-            return "健全"
-        case .Image_Set:
-            return "画像集"
-        case .Cosplay:
-            return "コスプレ"
-        case .Asian_Porn:
-            return "アジア"
-        case .Misc:
-            return "その他"
-        }
-    }
-}
-
-extension TagCategory {
-    var jpn: String {
-        switch self {
-        case .reclass:
-            return "再分類"
-        case .language:
-            return "言語"
-        case .parody:
-            return "原作"
-        case .character:
-            return "キャラ"
-        case .group:
-            return "団体"
-        case .artist:
-            return "作者"
-        case .male:
-            return "男性"
-        case .female:
-            return "女性"
-        case .misc:
-            return "その他"
         }
     }
 }
@@ -322,56 +261,6 @@ extension Language {
         case .Zulu: return "ZU"
         }
     }
-    
-    var translatedLanguage: String {
-        switch self {
-        case .Other: return "その他"
-            
-        case .Afrikaans: return "アフリカーンス語"; case .Albanian: return "アルバニア語"; case .Arabic: return "アラビア語"
-            
-        case .Bengali: return "ベンガル語"; case .Bosnian: return "ボスニア語"; case .Bulgarian: return "ブルガリア語"; case .Burmese: return "ビルマ語"
-            
-        case .Catalan: return "カタルーニャ語"; case .Cebuano: return "セブアノ語"; case .Chinese: return "中国語"; case .Croatian: return "クロアチア語"; case .Czech: return "チェコ語"
-            
-        case .Danish: return "デンマーク語"; case .Dutch: return "オランダ語"
-            
-        case .English: return "英語"; case .Esperanto: return "国際語"; case .Estonian: return "エストニア語"
-            
-        case .Finnish: return "フィンランド語"; case .French: return "フランス語"
-            
-        case .Georgian: return "グルジア語"; case .German: return "ドイツ語"; case .Greek: return "ギリシア語"
-            
-        case .Hebrew: return "ヘブライ語"; case .Hindi: return "ヒンディー語"; case .Hmong: return "ミャオ語"; case .Hungarian: return "ハンガリー語"
-            
-        case .Indonesian: return "インドネシア語"; case .Italian: return "イタリア語"
-            
-        case .Japanese: return "日本語"
-            
-        case .Kazakh: return "カザフ語"; case .Khmer: return "クメール語"; case .Korean: return "韓国語"; case .Kurdish: return "クルド語"
-            
-        case .Lao: return "ラーオ語"; case .Latin: return "ラテン語"
-            
-        case .Mongolian: return "モンゴル語"
-            
-        case .Ndebele: return "ンデベレ"; case .Nepali: return "ネパール語"; case .Norwegian: return "ノルウェー語"
-            
-        case .Oromo: return "オロモ語"
-            
-        case .Pashto: return "パシュトー語"; case .Persian: return "ペルシア語"; case .Polish: return "ポーランド語"; case .Portuguese: return "ポルトガル語"; case .Punjabi: return "パンジャーブ語"
-            
-        case .Romanian: return "ルーマニア語"; case .Russian: return "ロシア語"
-            
-        case .Sango: return "サンゴ語"; case .Serbian: return "セルビア語"; case .Shona: return "ショナ語"; case .Slovak: return "スロバキア語"; case .Slovenian: return "スロベニア語"; case .Somali: return "ソマリ語"; case .Spanish: return "スペイン語"; case .Swahili: return "スワヒリ語"; case .Swedish: return "スウェーデン語"
-            
-        case .Tagalog: return "タガログ語"; case .Thai: return "タイ語"; case .Tigrinya: return "ティグリニャ語"; case .Turkish: return "トルコ語"
-            
-        case .Ukrainian: return "ウクライナ語"; case .Urdu: return "ウルドゥー語"
-            
-        case .Vietnamese: return "ベトナム語"
-            
-        case .Zulu: return "ズールー語"
-        }
-    }
 }
 
 // MARK: Enums
@@ -391,15 +280,15 @@ enum Category: String, Codable, CaseIterable, Identifiable {
 }
 
 enum TagCategory: String, Codable {
-    case reclass = "reclass"
-    case language = "language"
-    case parody = "parody"
-    case character = "character"
-    case group = "group"
-    case artist = "artist"
-    case male = "male"
-    case female = "female"
-    case misc = "misc"
+    case reclass = "Reclass"
+    case language = "Language"
+    case parody = "Parody"
+    case character = "Character"
+    case group = "Group"
+    case artist = "Artist"
+    case male = "Male"
+    case female = "Female"
+    case misc = "Misc"
 }
 
 enum ArchiveRes: String, Codable, CaseIterable {

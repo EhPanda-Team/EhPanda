@@ -45,13 +45,13 @@ struct AssociatedView: View {
             if let tagCategory = TagCategory(
                 rawValue: keyword.category ?? ""
             ) {
-                cat = tagCategory.jpn.lString()
+                cat = tagCategory.rawValue.lString()
             }
             if let language = Language(
                 rawValue: keyword.content?
                     .capitalizingFirstLetter() ?? ""
             ) {
-                content = language.translatedLanguage.lString()
+                content = language.rawValue.lString()
             }
             if cat == nil {
                 cat = keyword.category

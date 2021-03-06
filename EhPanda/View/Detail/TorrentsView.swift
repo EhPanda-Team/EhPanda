@@ -65,7 +65,7 @@ struct TorrentsView: View {
                     NetworkErrorView(retryAction: fetchMangaTorrents)
                 }
             }
-            .navigationBarTitle("トレント")
+            .navigationBarTitle("Torrents")
         }
         .onAppear(perform: onAppear)
     }
@@ -81,8 +81,8 @@ struct TorrentsView: View {
     func showCopiedHUD() {
         hudConfig = TTProgressHUDConfig(
             type: .Success,
-            title: "成功".lString(),
-            caption: "クリップボードにコピーしました".lString(),
+            title: "Success".lString(),
+            caption: "Copied to clipboard".lString(),
             shouldAutoHide: true,
             autoHideInterval: 2,
             hapticsEnabled: false

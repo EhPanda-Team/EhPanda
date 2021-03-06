@@ -70,20 +70,20 @@ struct DetailView: View {
                         if exx {
                             if mangaDetail?.archiveURL != nil {
                                 Button(action: onArchiveButtonTap) {
-                                    Label("アーカイブ", systemImage: "doc.zipper")
+                                    Label("Archive", systemImage: "doc.zipper")
                                 }
                             }
                             if let count = torrentCount, count > 0 {
                                 Button(action: onTorrentsButtonTap) {
                                     Label(
-                                        "トレント".lString() + " (\(count))",
+                                        "Torrents".lString() + " (\(count))",
                                         systemImage: "leaf"
                                     )
                                 }
                             }
                         }
                         Button(action: onShareButtonTap) {
-                            Label("共有", systemImage: "square.and.arrow.up")
+                            Label("Share", systemImage: "square.and.arrow.up")
                         }
                     }
                 }, label: {
@@ -176,7 +176,7 @@ struct DetailView: View {
             case .comment:
                 DraftCommentView(
                     content: commentContentBinding,
-                    title: "コメントを書く",
+                    title: "Post Comment",
                     postAction: draftCommentViewPost,
                     cancelAction: draftCommentViewCancel
                 )
@@ -322,7 +322,7 @@ private struct HeaderView: View {
     }
     var category: String {
         if setting?.translateCategory == true {
-            return manga.jpnCategory.lString()
+            return manga.category.rawValue.lString()
         } else {
             return manga.category.rawValue.uppercased()
         }
@@ -406,7 +406,7 @@ private struct HeaderView: View {
                     }
                     Button(action: {}) {
                         NavigationLink(destination: ContentView(id: manga.id)) {
-                            Text("読む".lString().uppercased())
+                            Text("Read".lString().uppercased())
                                 .foregroundColor(.white)
                                 .fontWeight(.bold)
                                 .padding(.vertical, 5)
@@ -450,35 +450,35 @@ private struct DescScrollView: View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(alignment: .center) {
                 DescScrollItem(
-                    title: "気に入り",
+                    title: "Favored",
                     value: detail.likeCount,
-                    numeral: "人"
+                    numeral: "Times"
                 )
                 .frame(width: itemWidth)
                 Divider()
                 DescScrollItem(
-                    title: "言語",
+                    title: "Language",
                     value: detail.languageAbbr,
-                    numeral: detail.translatedLanguage
+                    numeral: detail.language.rawValue
                 )
                 .frame(width: itemWidth)
                 Divider()
                 DescScrollRatingItem(
                     title: detail.ratingCount
-                        + "件の評価".lString(),
+                        + " Ratings".lString(),
                     rating: detail.rating
                 )
                 .frame(width: itemWidth)
                 Divider()
                 DescScrollItem(
-                    title: "ページ",
+                    title: "Page Count",
                     value: detail.pageCount,
-                    numeral: "頁"
+                    numeral: "Pages"
                 )
                 .frame(width: itemWidth)
                 Divider()
                 DescScrollItem(
-                    title: "サイズ",
+                    title: "Size",
                     value: detail.sizeCount,
                     numeral: detail.sizeType
                 )
@@ -560,14 +560,14 @@ private struct ActionRow: View {
                     Button(action: onRateButtonTap) {
                         Spacer()
                         Image(systemName: "square.and.pencil")
-                        Text("評価する")
+                        Text("Give a Rating")
                             .fontWeight(.bold)
                         Spacer()
                     }
                     Button(action: galleryAction) {
                         Spacer()
                         Image(systemName: "photo.on.rectangle.angled")
-                        Text("類似ギャラリー")
+                        Text("Similar Gallery")
                             .fontWeight(.bold)
                         Spacer()
                     }
@@ -646,7 +646,7 @@ private struct TagRow: View {
     
     var body: some View {
         HStack(alignment: .top) {
-            Text(tag.jpnCategory.lString())
+            Text(tag.category.rawValue.lString())
                 .fontWeight(.bold)
                 .font(.subheadline)
                 .foregroundColor(reversePrimary)
@@ -701,7 +701,7 @@ private struct PreviewView: View {
     var body: some View {
         VStack {
             HStack {
-                Text("プレビュー")
+                Text("Preview")
                     .fontWeight(.bold)
                     .font(.title3)
                 Spacer()
@@ -751,13 +751,13 @@ private struct CommentScrollView: View {
     var body: some View {
         VStack {
             HStack {
-                Text("コメント")
+                Text("Comment")
                     .fontWeight(.bold)
                     .font(.title3)
                 Spacer()
                 if !comments.isEmpty && exx {
                     NavigationLink(destination: CommentView(id: id, depth: depth)) {
-                        Text("すべて表示")
+                        Text("Show All")
                             .font(.subheadline)
                     }
                 }

@@ -19,7 +19,7 @@ struct LoadingView: View {
         case true:
             ProgressView()
         case false:
-            ProgressView("読み込み中...")
+            ProgressView("Loading...")
         }
     }
 }
@@ -30,8 +30,8 @@ struct NotLoginView: View {
     var body: some View {
         GenericRetryView(
             symbolName: "person.crop.circle.badge.questionmark",
-            message: "ご利用にはログインが必要です",
-            buttonText: "ログイン",
+            message: "You need to login to use this app.",
+            buttonText: "Login",
             retryAction: loginAction
         )
     }
@@ -43,8 +43,8 @@ struct NotFoundView: View {
     var body: some View {
         GenericRetryView(
             symbolName: "questionmark.circle.fill",
-            message: "お探しの情報が見つかりませんでした",
-            buttonText: "やり直す",
+            message: "Your search didn't match any docs.",
+            buttonText: "Retry",
             retryAction: retryAction
         )
     }
@@ -72,8 +72,8 @@ struct NetworkErrorView: View {
         case false:
             GenericRetryView(
                 symbolName: "wifi.exclamationmark",
-                message: "ネットワーク障害が発生しました\nしばらくしてからもう一度お試しください",
-                buttonText: "やり直す",
+                message: "A Network error occurred.\nPlease try again later.",
+                buttonText: "Retry",
                 retryAction: onRetryButtonTap
             )
         }

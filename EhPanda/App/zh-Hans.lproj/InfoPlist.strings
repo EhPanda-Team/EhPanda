@@ -7,4 +7,3 @@
 */
 
 "NSFaceIDUsageDescription" = "需要此权限以在解锁App时提供Face ID选项";
-

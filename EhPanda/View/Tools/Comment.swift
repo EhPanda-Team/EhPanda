@@ -15,7 +15,7 @@ struct CommentButton: View {
             HStack {
                 Spacer()
                 Image(systemName: "square.and.pencil")
-                Text("コメントを書く")
+                Text("Post Comment")
                     .fontWeight(.bold)
                 Spacer()
             }
@@ -44,12 +44,12 @@ struct DraftCommentView: View {
                     .navigationBarItems(
                         leading:
                             Button(action: cancelAction) {
-                                Text("キャンセル")
+                                Text("Cancel")
                                     .fontWeight(.regular)
                             },
                         trailing:
                             Button(action: postAction) {
-                                Text("投稿")
+                                Text("Post")
                                     .foregroundColor(content.isEmpty ? .gray : .accentColor)
                             }
                     )

@@ -18,7 +18,7 @@ struct ArchiveView: View {
     )
     var loadingHUDConfig = TTProgressHUDConfig(
         type: .Loading,
-        title: "サーバーと通信中...".lString(),
+        title: "Communicating...".lString(),
         hapticsEnabled: false
     )
     
@@ -101,7 +101,7 @@ struct ArchiveView: View {
                     NetworkErrorView(retryAction: fetchMangaArchive)
                 }
             }
-            .navigationBarTitle("アーカイブ")
+            .navigationBarTitle("Archive")
             .onAppear(perform: onAppear)
             .onChange(
                 of: detailInfo.downloadCommandSending,
@@ -142,16 +142,16 @@ struct ArchiveView: View {
                let response = detailInfo.downloadCommandResponse
             {
                 type = .Success
-                title = "成功".lString()
+                title = "Success".lString()
                 caption = processResponse(response).lString()
             } else if detailInfo.downloadCommandFailed {
                 if let response = detailInfo.downloadCommandResponse {
                     type = .Error
-                    title = "エラー".lString()
+                    title = "Error".lString()
                     caption = response.lString()
                 } else {
                     type = .Error
-                    title = "エラー".lString()
+                    title = "Error".lString()
                     caption = nil
                 }
             }
@@ -351,7 +351,7 @@ private struct DownloadButton: View {
     var body: some View {
         HStack {
             Spacer()
-            Text("Hathクライアントにダウンロード")
+            Text("Download To Hath Client")
                 .fontWeight(.bold)
                 .font(.headline)
                 .foregroundColor(textColor)

@@ -27,9 +27,9 @@ struct AppearanceSettingView: View {
                 isActive: $isNavigationLinkActive,
                 label: {})
             Form {
-                Section(header: Text("全般")) {
+                Section(header: Text("Global")) {
                     HStack {
-                        Text("テーマ")
+                        Text("Theme")
                         Spacer()
                         Picker(
                             selection: settingBinding.preferredColorScheme,
@@ -42,20 +42,20 @@ struct AppearanceSettingView: View {
                         )
                     }
                     .pickerStyle(MenuPickerStyle())
-                    ColorPicker("テーマの色", selection: settingBinding.accentColor)
-                    Button("アプリアイコン", action: onAppIconButtonTap)
+                    ColorPicker("Tint Color", selection: settingBinding.accentColor)
+                    Button("App Icon", action: onAppIconButtonTap)
                         .foregroundColor(.primary)
                         .withArrow()
                     if exx {
                         Toggle(isOn: settingBinding.translateCategory, label: {
-                            Text("カテゴリーを訳す")
+                            Text("Translate category")
                         })
                     }
                 }
-                Section(header: Text("ホーム")) {
+                Section(header: Text("List")) {
                     Toggle(isOn: settingBinding.showSummaryRowTags) {
                         HStack {
-                            Text("リストでタグを表示")
+                            Text("Show tags in list")
                             if setting.showSummaryRowTags {
                                 Image(systemName: "exclamationmark.triangle.fill")
                                     .foregroundColor(.yellow)
@@ -64,12 +64,12 @@ struct AppearanceSettingView: View {
                     }
                     if setting.showSummaryRowTags {
                         Toggle(isOn: settingBinding.summaryRowTagsMaximumActivated) {
-                            Text("リストでのタグ数を制限")
+                            Text("Set maximum number of tags")
                         }
                     }
                     if setting.summaryRowTagsMaximumActivated {
                         HStack {
-                            Text("タグ数上限")
+                            Text("Maximum number of tags")
                             Spacer()
                             Picker(selection: settingBinding.summaryRowTagsMaximum,
                                    label: Text("\(setting.summaryRowTagsMaximum)")
@@ -85,7 +85,7 @@ struct AppearanceSettingView: View {
                     }
                 }
             }
-            .navigationBarTitle("外観")
+            .navigationBarTitle("Apperance")
         }
     }
     
@@ -112,7 +112,7 @@ private struct SelectAppIconView: View {
                 ForEach(selections) { sel in
                     AppIconRow(
                         iconName: sel.iconName,
-                        iconDesc: sel.description,
+                        iconDesc: sel.rawValue,
                         isSelected: sel == selection
                     )
                     .contentShape(Rectangle())
@@ -191,16 +191,6 @@ extension IconType {
             return nil
         default:
             return rawValue
-        }
-    }
-    var description: String {
-        switch self {
-        case .Normal:
-            return "普通"
-        case .Default:
-            return "既定"
-        case .Weird:
-            return "怪奇"
         }
     }
 }

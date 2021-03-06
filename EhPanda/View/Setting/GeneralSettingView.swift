@@ -38,27 +38,27 @@ struct GeneralSettingView: View {
             Form {
                 Section {
                     HStack {
-                        Text("言語")
+                        Text("Language")
                         Spacer()
                         Button(language, action: toSettingLanguage)
                     }
                     Toggle(isOn: settingBinding.closeSlideMenuAfterSelection) {
-                        Text("選択後スライドメニューを閉じる")
+                        Text("Close slide menu after selection")
                     }
                     if exx {
                         Toggle(isOn: settingBinding.detectGalleryFromPasteboard) {
-                            Text("クリップボードからリンクを探知")
+                            Text("Detect link from the clipboard")
                         }
                         if setting.detectGalleryFromPasteboard {
                             Toggle(isOn: settingBinding.allowsDetectionWhenNoChange) {
-                                Text("変化なしの場合でも探知を有効化")
+                                Text("Allows detection even when no change")
                             }
                         }
                     }
                 }
-                Section(header: Text("セキュリティ")) {
+                Section(header: Text("Security")) {
                     HStack {
-                        Text("自動ロック")
+                        Text("Auto-Lock")
                         Spacer()
                         if passcodeNotSet,
                            setting.autoLockPolicy != .never
@@ -77,13 +77,13 @@ struct GeneralSettingView: View {
                         .pickerStyle(MenuPickerStyle())
                     }
                     Toggle(isOn: settingBinding.allowsResignActiveBlur, label: {
-                        Text("アプリスイッチャーぼかし")
+                        Text("App switcher blur")
                     })
                 }
-                Section(header: Text("キャッシュ")) {
+                Section(header: Text("Cache")) {
                     Button(action: toggleClearImgCaches) {
                         HStack {
-                            Text("画像キャッシュを削除")
+                            Text("Clear image caches")
                             Spacer()
                             Text(setting.diskImageCacheSize)
                         }
@@ -91,7 +91,7 @@ struct GeneralSettingView: View {
                     }
                     Button(action: toggleClearWebCaches) {
                         HStack {
-                            Text("ウェブキャッシュを削除")
+                            Text("Clear web caches")
                             Spacer()
                             Text(browsingCaches())
                         }
@@ -99,7 +99,7 @@ struct GeneralSettingView: View {
                     }
                 }
             }
-            .navigationBarTitle("一般")
+            .navigationBarTitle("General")
             .onAppear(perform: onAppear)
         }
     }

@@ -10,6 +10,15 @@
 "You must have a H@H client assigned to your account to use this feature." = "この機能を使うにはHathクライアントが必要です";
 "Your H@H client appears to be offline. Turn it on, then try again." = "Hathクライアントは現在オフラインのようです";
 
+// MARK: HUD
+"Success" = "成功";
+"Error" = "エラー";
+"Communicating..." = "サーバーと通信中...";
+"Copied to clipboard" = "クリップボードにコピーしました";
+
+// MARK: LockView
+"The App has been locked due to the auto-lock expiration." = "自動ロック期限が切れたため、アプリがロックされています";
+
 // MARK: Common
 "null" = "なし";
 "expired" = "期限切れ";
@@ -17,10 +26,219 @@
 "louder" = "拒否";
 
 // MARK: User
-"お気に入り名" = "お気に入り";
+"favoriteNameByDev" = "お気に入り";
 "all_appendedByDev" = "すべて";
+
+// MARK: AlertView
+"Loading..." = "読み込み中...";
+"You need to login to use this app." = "ご利用にはログインが必要です";
+"Login" = "ログイン";
+"Your search didn't match any docs." = "お探しの情報が見つかりませんでした";
+"Retry" = "やり直す";
+"A Network error occurred.\nPlease try again later." = "ネットワーク障害が発生しました\nしばらくしてからもう一度お試しください";
+
+// MARK: DetailView
+"Archive" = "アーカイブ";
+"Torrents" = "トレント";
+"Share" = "共有";
+"Read" = "読む";
+"Favored" = "気に入り";
+"Times" = "人";
+"Language" = "言語";
+" Ratings" = "件の評価";
+"Page Count" = "ページ";
+"Pages" = "頁";
+"Size" = "サイズ";
+"Give a Rating" = "評価する";
+"Similar Gallery" = "類似ギャラリー";
+"Preview" = "プレビュー";
+"Comment" = "コメント";
+"Show All" = "すべて表示";
 
 // MARK: ArchiveView
 "N/A" = "無効";
 "Free" = "無料";
 "Original" = "オリジナル";
+"Download To Hath Client" = "Hathクライアントにダウンロード";
+
+// MARK: CommentView
+"Agree" = "賛成";
+"Disagree" = "反対";
+"Edit" = "編集";
+"Post Comment" = "コメントを書く";
+"Edit Comment" = "コメントを編集";
+"Cancel" = "キャンセル";
+"Post" = "投稿";
+
+// MARK: SettingView
+"Setting" = "設定";
+"Account" = "アカウント";
+"Gallery" = "ギャラリー";
+"Login" = "ログイン";
+"Logout" = "ログアウト";
+"Account configuration" = "アカウント設定";
+"Manage tags subscription" = "タグの購読を管理";
+"Are you sure to logout?" = "本当にログアウトしますか？";
+"Are you sure to clear?" = "本当に削除しますか？";
+"Clear" = "削除";
+"Warning" = "警告";
+"It's for debug only" = "デバッグ専用機能です";
+
+"General" = "一般";
+"Close slide menu after selection" = "選択後スライドメニューを閉じる";
+"Detect link from the clipboard" = "クリップボードからリンクを探知";
+"Allows detection even when no change" = "変化なしの場合でも探知を有効化";
+"Security" = "セキュリティ";
+"Auto-Lock" = "自動ロック";
+"App switcher blur" = "アプリスイッチャーぼかし";
+"Cache" = "キャッシュ";
+"Clear image caches" = "画像キャッシュを削除";
+"Clear web caches" = "ウェブキャッシュを削除";
+"Edit" = "編集";
+"Finish" = "完了";
+"Copy cookies" = "クッキーをコピー";
+
+"Apperance" = "外観";
+"Global" = "全般";
+"Theme" = "テーマ";
+"Tint Color" = "テーマの色";
+"App Icon" = "アプリアイコン";
+"Translate category" = "カテゴリーを訳す";
+"List" = "リスト";
+"Show tags in list" = "リストでタグを表示";
+"Set maximum number of tags" = "リストでのタグ数を制限";
+"Maximum number of tags" = "タグ数上限";
+
+"Reading" = "閲覧";
+"Retry limit" = "再試行上限数";
+" times" = "回";
+"Insert separators between images" = "画像の間に仕切りを挿む";
+"Separator height" = "仕切りの厚さ";
+
+"About EhPanda" = "EhPandaについて";
+"Version" = "バージョン";
+"Acknowledgement" = "謝辞";
+
+// MARK: FilterView
+"Filters" = "フィルター";
+"Basic" = "基本";
+"Reset filters" = "既定値に戻す";
+"Are you sure to reset?" = "本当に戻しますか？";
+"Reset" = "戻す";
+"Advanced settings" = "高度な設定";
+"Advanced" = "高度";
+"Search gallery name" = "ギャラリー名を検索";
+"Search gallery tags" = "ギャラリータグを検索";
+"Search gallery description" = "ギャラリー説明を検索";
+"Search torrent filenames" = "トレントファイル名を検索";
+"Only show galleries with torrents" = "トレントを含むもののみを表示";
+"Search Low-Power tags" = "低希望タグを検索";
+"Search downvoted tags" = "低評価タグを検索";
+"Show expunged galleries" = "削除済みのギャラリーを表示";
+"Set minimum rating" = "評価の下限を指定";
+"Minimum rating" = "評価の下限";
+"stars" = "つ星";
+"Set pages range" = "ページ数範囲を指定";
+"Pages range" = "ページ数範囲";
+"Default Filter" = "既定フィルター";
+"Disable language filter" = "言語フィルターを無効化";
+"Disable uploader filter" = "アップローダフィルターを無効化";
+"Disable tags filter" = "タグフィルターを無効化";
+
+// MARK: HomeListType
+"Search" = "検索";
+"Frontpage" = "ホーム";
+"Popular" = "人気";
+"Watched" = "タグの購読";
+"Favorites" = "お気に入り";
+"Downloaded" = "ダウンロード";
+"History" = "閲覧履歴";
+
+// MARK: Category
+"Doujinshi" = "同人誌";
+"Manga" = "漫画";
+"Artist CG" = "イラスト";
+"Game CG" = "ゲームCG";
+"Western" = "西洋";
+"Non-H" = "健全";
+"Image Set" = "画像集";
+"Cosplay" = "コスプレ";
+"Asian Porn" = "アジア";
+"Misc" = "その他";
+
+// MARK: TagCategory
+"Reclass" = "再分類";
+"Language" = "言語";
+"Parody" = "原作";
+"Character" = "キャラ";
+"Group" = "団体";
+"Artist" = "作者";
+"Male" = "男性";
+"Female" = "女性";
+"Misc" = "その他";
+
+// MARK: IconType
+"Normal" = "普通";
+"Default" = "既定";
+"Weird" = "怪奇";
+
+// MARK: PreferredColorScheme
+"Automatic" = "自動";
+"Light" = "ライト";
+"Dark" = "ライト";
+
+// MARK: AutoLockPolicy
+"Never" = "なし";
+"Instantly" = "すぐに";
+"15 seconds" = "15秒";
+"1 minute" = "1分";
+"5 minutes" = "5分";
+"10 minutes" = "10分";
+"30 minutes" = "30分";
+
+// MARK: Language
+"Other" = "その他";
+
+"Afrikaans" = "アフリカーンス語"; "Albanian" = "アルバニア語"; "Arabic" = "アラビア語";
+
+"Bengali" = "ベンガル語"; "Bosnian" = "ボスニア語"; "Bulgarian" = "ブルガリア語"; "Burmese" = "ビルマ語";
+
+"Catalan" = "カタルーニャ語"; "Cebuano" = "セブアノ語"; "Chinese" = "中国語"; "Croatian" = "クロアチア語"; "Czech" = "チェコ語";
+
+"Danish" = "デンマーク語"; "Dutch" = "オランダ語";
+
+"English" = "英語"; "Esperanto" = "国際語"; "Estonian" = "エストニア語";
+
+"Finnish" = "フィンランド語"; "French" = "フランス語";
+
+"Georgian" = "グルジア語"; "German" = "ドイツ語"; "Greek" = "ギリシア語";
+
+"Hebrew" = "ヘブライ語"; "Hindi" = "ヒンディー語"; "Hmong" = "ミャオ語"; "Hungarian" = "ハンガリー語";
+
+"Indonesian" = "インドネシア語"; "Indonesian" = "イタリア語";
+
+"Japanese" = "日本語";
+
+"Kazakh" = "カザフ語"; "Khmer" = "クメール語"; "Korean" = "韓国語"; "Kurdish" = "クルド語";
+
+"Lao" = "ラーオ語"; "Latin" = "ラテン語";
+
+"Mongolian" = "モンゴル語";
+
+"Ndebele" = "ンデベレ語"; "Nepali" = "ネパール語"; "Norwegian" = "ノルウェー語";
+
+"Oromo" = "オロモ語";
+
+"Pashto" = "パシュトー語"; "Persian" = "ペルシア語"; "Polish" = "ポーランド語"; "Portuguese" = "ポルトガル語"; "Punjabi" = "パンジャーブ語";
+
+"Romanian" = "ルーマニア語"; "Russian" = "ロシア語";
+
+"Sango" = "サンゴ語"; "Serbian" = "セルビア語"; "Shona" = "ショナ語"; "Slovak" = "スロバキア語"; "Slovenian" = "スロベニア語"; "Somali" = "ソマリ語"; "Spanish" = "スペイン語"; "Swahili" = "スワヒリ語"; "Swedish" = "スウェーデン語";
+
+"Tagalog" = "タガログ語"; "Thai" = "タイ語"; "Tigrinya" = "ティグリニャ語"; "Turkish" = "トルコ語";
+
+"Ukrainian" = "ウクライナ語"; "Urdu" = "ウルドゥー語";
+
+"Vietnamese" = "ベトナム語";
+
+"Zulu" = "ズールー語";

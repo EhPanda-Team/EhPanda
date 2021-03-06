@@ -24,12 +24,10 @@ struct WebView: UIViewControllerRepresentable {
         }
 
         func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
-            print("読み込み開始")
+
         }
 
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-            print("読み込み完了")
-            
             if parent.webviewType == .ehLogin {
                 guard let url = webView.url?.absoluteString else { return }
                 

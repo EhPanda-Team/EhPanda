@@ -89,7 +89,7 @@ struct SlideMenu : View {
                 MenuRow(
                     isSelected: false,
                     symbolName: "gear",
-                    text: "設定",
+                    text: "Setting",
                     action: onSettingMenuRowTap
                 )
             }

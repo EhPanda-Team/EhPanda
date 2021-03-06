@@ -90,14 +90,14 @@ struct CommentView: View {
             trailing:
                 Button(action: toggleDraft, label: {
                     Image(systemName: "square.and.pencil")
-                    Text("コメントを書く")
+                    Text("Post Comment")
                 })
                 .sheet(item: environmentBinding.commentViewSheetState) { item in
                     switch item {
                     case .comment:
                         DraftCommentView(
                             content: commentContentBinding,
-                            title: "コメントを書く",
+                            title: "Post Comment",
                             postAction: onDraftCommentViewPost,
                             cancelAction: onDraftCommentViewCancel
                         )
@@ -161,7 +161,7 @@ struct CommentView: View {
     func showHUD() {
         hudConfig = TTProgressHUDConfig(
             type: .Loading,
-            title: "読み込み中...".lString()
+            title: "Loading...".lString()
         )
         hudVisible = true
     }
@@ -292,7 +292,7 @@ private struct CommentCell: View {
         .sheet(isPresented: $isPresented) {
             DraftCommentView(
                 content: $editCommentContent,
-                title: "コメントを編集",
+                title: "Edit Comment",
                 postAction: onDraftCommentViewPost,
                 cancelAction: onDraftCommentViewCancel
             )
@@ -302,7 +302,7 @@ private struct CommentCell: View {
         .contextMenu {
             if comment.votable {
                 Button(action: voteUp) {
-                    Text("賛成")
+                    Text("Agree")
                     if comment.votedUp {
                         Image(systemName: "hand.thumbsup.fill")
                     } else {
@@ -310,7 +310,7 @@ private struct CommentCell: View {
                     }
                 }
                 Button(action: voteDown) {
-                    Text("反対")
+                    Text("Disagree")
                     if comment.votedDown {
                         Image(systemName: "hand.thumbsdown.fill")
                     } else {
@@ -320,7 +320,7 @@ private struct CommentCell: View {
             }
             if comment.editable {
                 Button(action: togglePresented) {
-                    Text("編集")
+                    Text("Edit")
                     Image(systemName: "square.and.pencil")
                 }
             }
@@ -334,7 +334,7 @@ private struct CommentCell: View {
         secondLink: String?
     ) -> some View {
         Group {
-            // ダブル
+            // Double
             if let imgURL = imgURL,
                let secondImgURL = secondImgURL
             {
@@ -368,7 +368,7 @@ private struct CommentCell: View {
                     }
                 }
             }
-            // シングル
+            // Single
             else if let imgURL = imgURL {
                 if let link = link {
                     KFImage(URL(string: imgURL))

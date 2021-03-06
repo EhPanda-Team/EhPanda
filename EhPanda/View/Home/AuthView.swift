@@ -109,7 +109,7 @@ struct AuthView: View {
     
     func authenticate() {
         localAuth(
-            reason: "自動ロック期限が切れたため、アプリがロックされています",
+            reason: "The App has been locked due to the auto-lock expiration.",
             successAction: {
                 setUnlocked(true)
                 setBlur(on: false)

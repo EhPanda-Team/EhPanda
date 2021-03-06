@@ -86,19 +86,19 @@ public enum AutoLockPolicy: String, Codable, CaseIterable, Identifiable {
         }
     }
     
-    case never = "なし"
-    case instantly = "すぐに"
-    case s15 = "15秒"
-    case m1 = "1分"
-    case m5 = "5分"
-    case m10 = "10分"
-    case m30 = "30分"
+    case never = "Never"
+    case instantly = "Instantly"
+    case s15 = "15 seconds"
+    case m1 = "1 minute"
+    case m5 = "5 minutes"
+    case m10 = "10 minutes"
+    case m30 = "30 minutes"
 }
 
 public enum PreferredColorScheme: String, Codable, CaseIterable, Identifiable {
     public var id: Int { hashValue }
     
-    case automatic = "自動"
-    case light = "ライト"
-    case dark = "ダーク"
+    case automatic = "Automatic"
+    case light = "Light"
+    case dark = "Dark"
 }

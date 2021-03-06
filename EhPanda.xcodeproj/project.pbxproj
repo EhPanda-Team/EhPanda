@@ -254,11 +254,11 @@
 		ABF45AB325F3312F00ECB568 /* DataFlow */ = {
 			isa = PBXGroup;
 			children = (
+				ABF45AB825F3312F00ECB568 /* Store.swift */,
 				ABF45AB425F3312F00ECB568 /* AppState.swift */,
+				ABF45AB725F3312F00ECB568 /* AppAction.swift */,
 				ABF45AB525F3312F00ECB568 /* AppCommand.swift */,
 				ABF45AB625F3312F00ECB568 /* AppError.swift */,
-				ABF45AB725F3312F00ECB568 /* AppAction.swift */,
-				ABF45AB825F3312F00ECB568 /* Store.swift */,
 			);
 			path = DataFlow;
 			sourceTree = "<group>";
@@ -278,11 +278,11 @@
 		ABF45AC025F3313D00ECB568 /* Home */ = {
 			isa = PBXGroup;
 			children = (
-				ABF45AC125F3313D00ECB568 /* FilterView.swift */,
-				ABF45AC225F3313D00ECB568 /* HomeView.swift */,
 				ABF45AC325F3313D00ECB568 /* Home.swift */,
-				ABF45AC425F3313D00ECB568 /* AuthView.swift */,
 				ABF45AC525F3313D00ECB568 /* SlideMenu.swift */,
+				ABF45AC225F3313D00ECB568 /* HomeView.swift */,
+				ABF45AC125F3313D00ECB568 /* FilterView.swift */,
+				ABF45AC425F3313D00ECB568 /* AuthView.swift */,
 			);
 			path = Home;
 			sourceTree = "<group>";
@@ -290,14 +290,14 @@
 		ABF45AC625F3313D00ECB568 /* Tools */ = {
 			isa = PBXGroup;
 			children = (
-				ABF45AC725F3313D00ECB568 /* TagCloudView.swift */,
-				ABF45AC825F3313D00ECB568 /* Comment.swift */,
-				ABF45AC925F3313D00ECB568 /* KRefreshScrollView.swift */,
-				ABF45ACA25F3313D00ECB568 /* RatingView.swift */,
-				ABF45ACB25F3313D00ECB568 /* LinkedText.swift */,
-				ABF45ACC25F3313D00ECB568 /* AlertView.swift */,
-				ABF45ACD25F3313D00ECB568 /* Placeholder.swift */,
 				ABF45ACE25F3313D00ECB568 /* MangaSummaryRow.swift */,
+				ABF45ACC25F3313D00ECB568 /* AlertView.swift */,
+				ABF45AC825F3313D00ECB568 /* Comment.swift */,
+				ABF45ACD25F3313D00ECB568 /* Placeholder.swift */,
+				ABF45AC925F3313D00ECB568 /* KRefreshScrollView.swift */,
+				ABF45AC725F3313D00ECB568 /* TagCloudView.swift */,
+				ABF45ACB25F3313D00ECB568 /* LinkedText.swift */,
+				ABF45ACA25F3313D00ECB568 /* RatingView.swift */,
 			);
 			path = Tools;
 			sourceTree = "<group>";
@@ -325,13 +325,13 @@
 		ABF45AD725F3313D00ECB568 /* Setting */ = {
 			isa = PBXGroup;
 			children = (
-				ABF45AD825F3313D00ECB568 /* GeneralSettingView.swift */,
-				ABF45AD925F3313D00ECB568 /* AccountSettingView.swift */,
-				ABF45ADA25F3313D00ECB568 /* WebView.swift */,
-				ABF45ADB25F3313D00ECB568 /* ReadingSettingView.swift */,
-				ABF45ADC25F3313D00ECB568 /* AppearanceSettingView.swift */,
 				ABF45ADD25F3313D00ECB568 /* SettingView.swift */,
+				ABF45AD925F3313D00ECB568 /* AccountSettingView.swift */,
+				ABF45AD825F3313D00ECB568 /* GeneralSettingView.swift */,
+				ABF45ADC25F3313D00ECB568 /* AppearanceSettingView.swift */,
+				ABF45ADB25F3313D00ECB568 /* ReadingSettingView.swift */,
 				ABF45ADE25F3313D00ECB568 /* EhPandaView.swift */,
+				ABF45ADA25F3313D00ECB568 /* WebView.swift */,
 			);
 			path = Setting;
 			sourceTree = "<group>";

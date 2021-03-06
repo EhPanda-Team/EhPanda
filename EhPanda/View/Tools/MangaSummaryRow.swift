@@ -24,7 +24,7 @@ struct MangaSummaryRow: View {
     
     var category: String {
         if setting?.translateCategory == true {
-            return manga.jpnCategory.lString()
+            return manga.category.rawValue.lString()
         } else {
             return manga.category.rawValue.uppercased()
         }
@@ -102,7 +102,7 @@ struct MangaSummaryRow: View {
                         .foregroundColor(.yellow)
                     if let language = manga.language {
                         Spacer()
-                        Text(language.translatedLanguage.lString())
+                        Text(language.rawValue.lString())
                             .lineLimit(1)
                             .font(.footnote)
                             .foregroundColor(.secondary)

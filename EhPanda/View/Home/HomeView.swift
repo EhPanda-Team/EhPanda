@@ -304,7 +304,7 @@ struct HomeView: View {
     func showHUD() {
         hudConfig = TTProgressHUDConfig(
             type: .Loading,
-            title: "読み込み中...".lString()
+            title: "Loading...".lString()
         )
         hudVisible = true
     }
@@ -567,7 +567,7 @@ private struct SearchBar: View {
         HStack {
             Image(systemName: "magnifyingglass")
                 .foregroundColor(.gray)
-            TextField("検索", text: $keyword, onCommit: commitAction)
+            TextField("Search", text: $keyword, onCommit: commitAction)
                 .disableAutocorrection(true)
                 .autocapitalization(.none)
             HStack {
@@ -601,13 +601,13 @@ private struct SearchBar: View {
 enum HomeListType: String, Identifiable, CaseIterable {
     var id: Int { hashValue }
     
-    case search = "検索"
-    case frontpage = "ホーム"
-    case popular = "人気"
-    case watched = "タグの購読"
-    case favorites = "お気に入り"
-    case downloaded = "ダウンロード"
-    case history = "閲覧履歴"
+    case search = "Search"
+    case frontpage = "Frontpage"
+    case popular = "Popular"
+    case watched = "Watched"
+    case favorites = "Favorites"
+    case downloaded = "Downloaded"
+    case history = "History"
     
     var symbolName: String {
         switch self {

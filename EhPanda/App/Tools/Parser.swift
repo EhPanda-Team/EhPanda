@@ -160,7 +160,7 @@ class Parser {
                 guard let rawCategory = gd4Link
                         .at_xpath("//td [@class='tc']")?
                         .text?.replacingOccurrences(of: ":", with: ""),
-                      let category = TagCategory(rawValue: rawCategory)
+                      let category = TagCategory(rawValue: rawCategory.capitalizingFirstLetter())
                 else { continue }
                 
                 var content = [String]()

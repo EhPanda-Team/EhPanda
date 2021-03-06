@@ -247,7 +247,7 @@ extension AppState {
                 associatedItems[depth].pageNum = pageNum
                 associatedItems[depth].mangas.append(contentsOf: items)
             } else {
-                print("関連リスト更新: 元の序列が見つかりませんでした")
+                print("AssociatedItemsUpdating: Not found")
             }
         }
     }

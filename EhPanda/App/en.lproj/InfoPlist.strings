@@ -5,5 +5,3 @@
   Created by 荒木辰造 on R 3/02/09.
   
 */
-
-"NSFaceIDUsageDescription" = "We need this permission to provide Face ID option while unlocking the App.";

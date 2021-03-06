@@ -78,7 +78,7 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSFaceIDUsageDescription</key>
-	<string>アプリアンロック認証時にFace IDオプションを提供するにはこの権限が必要です</string>
+	<string>We need this permission to provide Face ID option while unlocking the App.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

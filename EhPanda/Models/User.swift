@@ -32,7 +32,7 @@ struct User: Codable {
             .dropLast()
             .replacingOccurrences(
                 of: "Favorites ",
-                with: "お気に入り名"
+                with: "favoriteNameByDev"
             )
         
         if replacedName.hasLString {

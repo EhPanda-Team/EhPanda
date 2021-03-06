@@ -91,7 +91,7 @@ struct AccountSettingView: View {
                     Section {
                         Picker(
                             selection: settingBinding.galleryType,
-                            label: Text("ギャラリー"),
+                            label: Text("Gallery"),
                             content: {
                                 let galleryTypes: [GalleryType] = [.eh, .ex]
                                 ForEach(galleryTypes, id: \.self) {
@@ -100,17 +100,17 @@ struct AccountSettingView: View {
                             })
                             .pickerStyle(SegmentedPickerStyle())
                         if !didLogin {
-                            Button("ログイン", action: onLoginTap)
+                            Button("Login", action: onLoginTap)
                                 .withArrow()
                         } else {
-                            Button("ログアウト", action: onLogoutTap)
+                            Button("Logout", action: onLogoutTap)
                                 .foregroundColor(.red)
                         }
                         if didLogin {
                             Group {
-                                Button("アカウント設定", action: onConfigTap)
+                                Button("Account configuration", action: onConfigTap)
                                     .withArrow()
-                                Button("タグの購読を管理", action: onMyTagsTap)
+                                Button("Manage tags subscription", action: onMyTagsTap)
                                     .withArrow()
                             }
                             .foregroundColor(.primary)
@@ -132,7 +132,7 @@ struct AccountSettingView: View {
                         verifyView: verifyView(ehPassHash),
                         editChangedAction: onEhPassHashEditingChanged
                     )
-                    Button("クッキーをコピー", action: copyEhCookies)
+                    Button("Copy cookies", action: copyEhCookies)
                 }
                 Section(header: Text("ExHentai")) {
                     CookieRow(
@@ -163,14 +163,14 @@ struct AccountSettingView: View {
                         verifyView: verifyView(exPassHash),
                         editChangedAction: onExPassHashEditingChanged
                     )
-                    Button("クッキーをコピー", action: copyExCookies)
+                    Button("Copy cookies", action: copyExCookies)
                 }
             }
             TTProgressHUD($hudVisible, config: hudConfig)
         }
-        .navigationBarTitle("アカウント")
+        .navigationBarTitle("Account")
         .navigationBarItems(trailing:
-            Button(inEditMode ? "完了" : "編集", action: onEditButtonTap)
+            Button(inEditMode ? "Finish" : "Edit", action: onEditButtonTap)
         )
         
     }
@@ -234,8 +234,8 @@ struct AccountSettingView: View {
     func showCopiedHUD() {
         hudConfig = TTProgressHUDConfig(
             type: .Success,
-            title: "成功".lString(),
-            caption: "クリップボードにコピーしました".lString(),
+            title: "Success".lString(),
+            caption: "Copied to clipboard".lString(),
             shouldAutoHide: true,
             autoHideInterval: 2,
             hapticsEnabled: false

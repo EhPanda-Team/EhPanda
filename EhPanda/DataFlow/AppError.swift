@@ -20,13 +20,13 @@ extension AppError: LocalizedError {
     var localizedDescription: String {
         switch self {
         case .networkingFailed:
-            return "ネットワークエラー"
+            return "Network Error"
         case .parseFailed:
-            return "解析エラー"
+            return "Parse Error"
         case .fileError:
-            return "ファイル操作エラー"
+            return "File Error"
         case .unknown:
-            return "未知エラー"
+            return "Unknown Error"
         }
     }
 }

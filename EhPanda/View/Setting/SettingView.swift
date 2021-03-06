@@ -20,23 +20,23 @@ struct SettingView: View {
     }
     
     var logoutActionSheet: ActionSheet {
-        ActionSheet(title: Text("本当にログアウトしますか？"), buttons: [
-            .destructive(Text("ログアウト"), action: logout),
+        ActionSheet(title: Text("Are you sure to logout?"), buttons: [
+            .destructive(Text("Logout"), action: logout),
             .cancel()
         ])
     }
     var clearImgCachesActionSheet: ActionSheet {
-        ActionSheet(title: Text("本当に削除しますか？"), buttons: [
-            .destructive(Text("削除"), action: clearImageCaches),
+        ActionSheet(title: Text("Are you sure to clear?"), buttons: [
+            .destructive(Text("Clear"), action: clearImageCaches),
             .cancel()
         ])
     }
     var clearWebCachesActionSheet: ActionSheet {
         ActionSheet(
-            title: Text("警告".lString().uppercased()),
-            message: Text("デバッグ専用機能です"),
+            title: Text("Warning".lString().uppercased()),
+            message: Text("It's for debug only"),
             buttons: [
-                .destructive(Text("削除"), action: clearCachedList),
+                .destructive(Text("Clear"), action: clearCachedList),
                 .cancel()
             ]
         )
@@ -50,36 +50,36 @@ struct SettingView: View {
                     if exx {
                         SettingRow(
                             symbolName: "person.fill",
-                            text: "アカウント",
+                            text: "Account",
                             destination: AccountSettingView()
                         )
                     }
                     SettingRow(
                         symbolName: "switch.2",
-                        text: "一般",
+                        text: "General",
                         destination: GeneralSettingView()
                             .onAppear(perform: onGeneralSettingAppear)
                     )
                     SettingRow(
                         symbolName: "circle.righthalf.fill",
-                        text: "外観",
+                        text: "Apperance",
                         destination: AppearanceSettingView()
                     )
                     SettingRow(
                         symbolName: "newspaper.fill",
-                        text: "閲覧",
+                        text: "Reading",
                         destination: ReadingSettingView()
                     )
                     SettingRow(
                         symbolName: "p.circle.fill",
-                        text: "EhPandaについて",
+                        text: "About EhPanda",
                         destination: EhPandaView()
                     )
                 }
                 .padding(.vertical, 40)
                 .padding(.horizontal)
             }
-            .navigationBarTitle("設定")
+            .navigationBarTitle("Setting")
             .sheet(item: environmentBinding.settingViewSheetState) { item in
                 switch item {
                 case .webviewLogin:

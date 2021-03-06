@@ -21,8 +21,8 @@ struct FilterView: View {
     }
     
     var resetFiltersActionSheet: ActionSheet {
-        ActionSheet(title: Text("本当に戻しますか？"), buttons: [
-            .destructive(Text("戻す"), action: resetFilters),
+        ActionSheet(title: Text("Are you sure to reset?"), buttons: [
+            .destructive(Text("Reset"), action: resetFilters),
             .cancel()
         ])
     }
@@ -33,31 +33,31 @@ struct FilterView: View {
             if let filter = settings.filter,
                let filterBinding = Binding(settingsBinding.filter) {
                 Form {
-                    Section(header: Text("基本")) {
+                    Section(header: Text("Basic")) {
                         CategoryView()
                         Button(action: onResetButtonTap) {
-                            Text("既定値に戻す")
+                            Text("Reset filters")
                                 .foregroundColor(.red)
                         }
-                        Toggle("高度な設定", isOn: filterBinding.advanced)
+                        Toggle("Advanced settings", isOn: filterBinding.advanced)
                     }
                     if filter.advanced {
-                        Section(header: Text("高度")) {
-                            Toggle("ギャラリー名を検索", isOn: filterBinding.galleryName)
-                            Toggle("ギャラリータグを検索", isOn: filterBinding.galleryTags)
-                            Toggle("ギャラリー説明を検索", isOn: filterBinding.galleryDesc)
-                            Toggle("トレントファイル名を検索", isOn: filterBinding.torrentFilenames)
-                            Toggle("トレントを含むもののみを表示", isOn: filterBinding.onlyWithTorrents)
-                            Toggle("低希望タグを検索", isOn: filterBinding.lowPowerTags)
-                            Toggle("低評価タグを検索", isOn: filterBinding.downvotedTags)
-                            Toggle("削除済みのギャラリーを表示", isOn: filterBinding.expungedGalleries)
+                        Section(header: Text("Advanced")) {
+                            Toggle("Search gallery name", isOn: filterBinding.galleryName)
+                            Toggle("Search gallery tags", isOn: filterBinding.galleryTags)
+                            Toggle("Search gallery description", isOn: filterBinding.galleryDesc)
+                            Toggle("Search torrent filenames", isOn: filterBinding.torrentFilenames)
+                            Toggle("Only show galleries with torrents", isOn: filterBinding.onlyWithTorrents)
+                            Toggle("Search Low-Power tags", isOn: filterBinding.lowPowerTags)
+                            Toggle("Search downvoted tags", isOn: filterBinding.downvotedTags)
+                            Toggle("Show expunged galleries", isOn: filterBinding.expungedGalleries)
                         }
                         Section {
-                            Toggle("評価の下限を指定", isOn: filterBinding.minRatingActivated)
+                            Toggle("Set minimum rating", isOn: filterBinding.minRatingActivated)
                             if filter.minRatingActivated {
                                 MinimumRatingSetter(minimum: filterBinding.minRating)
                             }
-                            Toggle("ページ数範囲を指定", isOn: filterBinding.pageRangeActivated)
+                            Toggle("Set pages range", isOn: filterBinding.pageRangeActivated)
                             if filter.pageRangeActivated {
                                 PagesRangeSetter(
                                     lowerBound: filterBinding.pageLowerBound,
@@ -65,10 +65,10 @@ struct FilterView: View {
                                 )
                             }
                         }
-                        Section(header: Text("既定フィルター")) {
-                            Toggle("言語フィルターを無効化", isOn: filterBinding.disableLanguage)
-                            Toggle("アップローダフィルターを無効化", isOn: filterBinding.disableUploader)
-                            Toggle("タグフィルターを無効化", isOn: filterBinding.disableTags)
+                        Section(header: Text("Default Filter")) {
+                            Toggle("Disable language filter", isOn: filterBinding.disableLanguage)
+                            Toggle("Disable uploader filter", isOn: filterBinding.disableUploader)
+                            Toggle("Disable tags filter", isOn: filterBinding.disableTags)
                         }
                     }
                 }
@@ -78,7 +78,7 @@ struct FilterView: View {
                         return resetFiltersActionSheet
                     }
                 }
-                .navigationBarTitle("フィルター")
+                .navigationBarTitle("Filters")
             }
         }
         .onAppear(perform: onAppear)
@@ -169,7 +169,7 @@ private struct CategoryCell: View {
                         ? category.color.opacity(0.3)
                         : category.color
                 )
-            Text(category.jpn.lString())
+            Text(category.rawValue.lString())
                 .fontWeight(.bold)
                 .foregroundColor(.white)
                 .padding(.vertical, 5)
@@ -189,8 +189,8 @@ private struct MinimumRatingSetter: View {
     
     var body: some View {
         HStack {
-            let star = "つ星".lString()
-            Text("評価の下限")
+            let star = "stars".lString()
+            Text("Minimum rating")
             Spacer()
             Picker(
                 selection: $minimum,
@@ -222,7 +222,7 @@ private struct PagesRangeSetter: View {
     
     var body: some View {
         HStack {
-            Text("ページ数範囲")
+            Text("Pages range")
             Spacer()
             TextField("", text: $lowerBound)
                 .multilineTextAlignment(.center)

@@ -24,8 +24,8 @@ struct ReadingSettingView: View {
             Form {
                 Section {
                     HStack {
-                        let time = "回".lString()
-                        Text("再試行上限数")
+                        let time = " times".lString()
+                        Text("Retry limit")
                         Spacer()
                         Picker(
                             selection: settingBinding.contentRetryLimit,
@@ -40,13 +40,13 @@ struct ReadingSettingView: View {
                         .pickerStyle(MenuPickerStyle())
                     }
                 }
-                Section(header: Text("外観")) {
+                Section(header: Text("Apperance")) {
                     Toggle(isOn: settingBinding.showContentDividers, label: {
-                        Text("画像の間に仕切りを挿む")
+                        Text("Insert separators between images")
                     })
                     if setting.showContentDividers {
                         HStack {
-                            Text("仕切りの厚さ")
+                            Text("Separator height")
                             Spacer()
                             Picker(
                                 selection: settingBinding.contentDividerHeight,
@@ -63,7 +63,7 @@ struct ReadingSettingView: View {
                     }
                 }
             }
-            .navigationBarTitle("閲覧")
+            .navigationBarTitle("Reading")
         }
     }
 }

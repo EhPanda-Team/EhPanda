@@ -13,7 +13,7 @@ struct EhPandaView: View {
     private var contacts: [Info] {
         [
             Info(
-                url: "https://github.com/arakitatsuzou/EhPanda",
+                url: "https://github.com/tatsuz0u/EhPanda",
                 text: "GitHub"
             ),
             Info(
@@ -54,7 +54,7 @@ struct EhPandaView: View {
     
     var version: String {
         [
-            "バージョン".lString(),
+            "Version".lString(),
             appVersion,
             "(\(appBuild))"
         ]
@@ -82,7 +82,7 @@ struct EhPandaView: View {
                     }
                 }
             }
-            Section(header: Text("謝辞")) {
+            Section(header: Text("Acknowledgement")) {
                 ForEach(acknowledgements) { acknowledgement in
                     if let url = URL(string: acknowledgement.url) {
                         LinkRow(url: url, text: acknowledgement.text)
