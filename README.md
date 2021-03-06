@@ -28,4 +28,4 @@ IDK, use it at your own risk.
 2. Use some software like [AltStore](https://altstore.io) to install the ipa file on your device
 
 ## Screenshots
-<img src="https://user-images.githubusercontent.com/31207151/110205765-f08e4200-7eb4-11eb-9a40-d636828212ce.JPG" width="320"><img src="https://user-images.githubusercontent.com/31207151/110205776-f7b55000-7eb4-11eb-8286-8f37c32cb22c.JPG" width="320"><img src="https://user-images.githubusercontent.com/31207151/110205778-fbe16d80-7eb4-11eb-9301-c9c99cf39030.JPG" width="320"><img src="https://user-images.githubusercontent.com/31207151/110205780-fedc5e00-7eb4-11eb-84db-b41d2ee4be8e.JPG" width="320">
+<img src="https://user-images.githubusercontent.com/31207151/110208728-dad44900-7ec3-11eb-982a-cc2f527551e0.jpg" width="320"><img src="https://user-images.githubusercontent.com/31207151/110208732-e32c8400-7ec3-11eb-9470-7cc4d70aa318.jpg" width="320"><img src="https://user-images.githubusercontent.com/31207151/110208733-e3c51a80-7ec3-11eb-81c9-f81f4bc80225.jpg" width="320"><img src="https://user-images.githubusercontent.com/31207151/110208735-e45db100-7ec3-11eb-91bd-0eae18aef41d.jpg" width="320">
