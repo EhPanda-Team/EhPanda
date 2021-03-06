@@ -7,8 +7,8 @@
 </p>
 
 <p align="center">
-  <a href="/README.md">日本語</a>・
-  <a href="/README.en.md">English</a>・
+  <a href="/README.md">English</a>・
+  <a href="/README.jpn.md">日本語</a>・
   <a href="/README.chs.md">简体中文</a>
 </p>
 
@@ -23,7 +23,7 @@
 
 ## 安装步骤
 1. 在[Releases](https://github.com/arakitatsuzou/EhPanda/releases)取得ipa文件
-2. 使用Cydia Impactor、AppSigner、AltDeploy这类软件将ipa文件安装到你的设备
+2. 使用[AltStore](https://altstore.io)这类软件将ipa文件安装到你的设备
 
 ## 截图
 <img src="https://user-images.githubusercontent.com/31207151/103514043-cc0eed00-4ea6-11eb-9f17-7e949fa649e4.jpeg" width="320"><img src="https://user-images.githubusercontent.com/31207151/103514047-cdd8b080-4ea6-11eb-932b-94c0242bddfe.jpeg" width="320">
