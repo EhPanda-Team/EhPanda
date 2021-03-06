@@ -165,7 +165,7 @@ private struct AppIconRow: View {
     }
 }
 
-// MARK: 定義
+// MARK: Definition
 public enum IconType: String, Codable, Identifiable, CaseIterable {
     public var id: Int { hashValue }
     

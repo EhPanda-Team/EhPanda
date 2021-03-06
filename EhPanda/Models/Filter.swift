@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct Filter: Codable {
-    // ブール値が真の場合、検索結果に出すことを意味する
     var doujinshi = AssociatedCategory(category: .Doujinshi, isFiltered: false)
     var manga = AssociatedCategory(category: .Manga, isFiltered: false)
     var artist_CG = AssociatedCategory(category: .Artist_CG, isFiltered: false)
@@ -20,7 +19,6 @@ struct Filter: Codable {
     var asian_porn = AssociatedCategory(category: .Asian_Porn, isFiltered: false)
     var misc = AssociatedCategory(category: .Misc, isFiltered: false)
     
-    // オフにすると、下にあるすべての関数が無視される
     var advanced = false
     var galleryName = true
     var galleryTags = true

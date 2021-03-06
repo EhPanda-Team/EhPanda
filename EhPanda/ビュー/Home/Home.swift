@@ -12,12 +12,12 @@ struct Home : View {
     @EnvironmentObject var store: Store
     @Environment(\.colorScheme) var colorScheme
     
-    // スライドメニュー
+    // SlideMenu
     @State var direction: Direction = .none
     @State var offset = -Defaults.FrameSize.slideMenuWidth
     @State var width = Defaults.FrameSize.slideMenuWidth
     
-    // プライバシーロック
+    // AppLock
     @State var blurRadius: CGFloat = 0
         
     var environment: AppState.Environment {

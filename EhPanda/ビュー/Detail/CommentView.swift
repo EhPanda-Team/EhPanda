@@ -58,7 +58,7 @@ struct CommentView: View {
         commentInfoBinding.commentContent
     }
     
-    // MARK: CommentView本体
+    // MARK: CommentView
     var body: some View {
         ZStack {
             NavigationLink(
@@ -412,7 +412,7 @@ private struct CommentCell: View {
     }
 }
 
-// MARK: 定義
+// MARK: Definition
 enum CommentViewSheetState: Identifiable {
     var id: Int { hashValue }
     

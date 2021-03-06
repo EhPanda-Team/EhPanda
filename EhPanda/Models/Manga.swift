@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-// MARK: 構造体
+// MARK: Structs
 public struct Manga: Identifiable, Codable, Equatable {
     public static func == (lhs: Manga, rhs: Manga) -> Bool {
         lhs.id == rhs.id
@@ -148,7 +148,7 @@ struct MangaTorrent: Identifiable, Codable {
     let magnet: String
 }
 
-// MARK: 計算型プロパティ
+// MARK: Computed Properties
 extension Manga {
     var filledCount: Int { Int(rating) }
     var halfFilledCount: Int { Int(rating - 0.5) == filledCount ? 1 : 0 }
@@ -374,7 +374,7 @@ extension Language {
     }
 }
 
-// MARK: 列挙型
+// MARK: Enums
 enum Category: String, Codable, CaseIterable, Identifiable {
     var id: String { rawValue }
     

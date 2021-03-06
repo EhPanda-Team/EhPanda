@@ -95,7 +95,7 @@ struct DetailView: View {
         }
     }
     
-    // MARK: DetailView本体
+    // MARK: DetailView
     var body: some View {
         ZStack {
             NavigationLink(
@@ -287,7 +287,7 @@ struct DetailView: View {
     }
 }
 
-// MARK: ヘッダー
+// MARK: HeaderView
 private struct HeaderView: View {
     @EnvironmentObject var store: Store
     
@@ -440,7 +440,7 @@ private struct HeaderView: View {
     }
 }
 
-// MARK: 基本情報
+// MARK: DescScrollView
 private struct DescScrollView: View {
     @State var itemWidth = max((absoluteWindowW ?? absoluteScreenW) / 5, 80)
     
@@ -544,7 +544,7 @@ private struct DescScrollRatingItem: View {
     }
 }
 
-// MARK: サブアクション
+// MARK: ActionRow
 private struct ActionRow: View {
     @State var showUserRating = false
     @State var userRating: Int = 0
@@ -620,7 +620,7 @@ private struct ActionRow: View {
     }
 }
 
-// MARK: タグ
+// MARK: TagsView
 private struct TagsView: View {
     let tags: [MangaTag]
     let onTapAction: ((AssociatedKeyword)->())
@@ -670,7 +670,7 @@ private struct TagRow: View {
     }
 }
 
-// MARK: プレビュー
+// MARK: PreviewView
 private struct PreviewView: View {
     let previews: [MangaPreview]
     let alterImages: [MangaAlterData]
@@ -740,7 +740,7 @@ private struct PreviewView: View {
     }
 }
 
-// MARK: コメント
+// MARK: CommentScrollView
 private struct CommentScrollView: View {
     @EnvironmentObject var store: Store
     
@@ -826,7 +826,7 @@ private struct CommentScrollCell: View {
     }
 }
 
-// MARK: 定義
+// MARK: Definition
 enum DetailViewSheetState: Identifiable {
     var id: Int { hashValue }
     

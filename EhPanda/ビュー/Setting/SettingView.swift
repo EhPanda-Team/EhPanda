@@ -42,7 +42,7 @@ struct SettingView: View {
         )
     }
     
-    // MARK: SettingView本体
+    // MARK: SettingView
     var body: some View {
         NavigationView {
             ScrollView {
@@ -205,7 +205,7 @@ private struct SettingRow<Destination : View>: View {
     }
 }
 
-// MARK: 定義
+// MARK: Definition
 enum SettingViewActionSheetState: Identifiable {
     var id: Int { hashValue }
     

@@ -158,7 +158,7 @@ public var appIconType: IconType {
     }
 }
 
-// MARK: あらゆるツール
+// MARK: Tools
 public func clearPasteboard() {
     UIPasteboard.general.string = ""
 }
@@ -256,7 +256,7 @@ public func postAppWidthDidChangeNotification () {
 }
 
 
-// MARK: 容量管理
+// MARK: Storage Management
 public func readableUnit(bytes: Int64) -> String {
     let formatter = ByteCountFormatter()
     formatter.allowedUnits = [.useAll]
@@ -290,7 +290,7 @@ public func clearCookies() {
     }
 }
 
-// MARK: スレッド
+// MARK: Thread
 public func executeMainAsync(_ closure: @escaping (()->())) {
     if Thread.isMainThread {
         closure()
@@ -319,7 +319,7 @@ public func executeSync(_ closure: @escaping (()->())) {
     }
 }
 
-// MARK: クッキー
+// MARK: Cookies
 public func initiateCookieFrom(_ cookie: HTTPCookie, value: String) -> HTTPCookie {
     var properties = cookie.properties
     properties?[.value] = value
@@ -482,7 +482,7 @@ func verifyCookies(url: URL, isEx: Bool) -> Bool {
     }
 }
 
-// MARK: 画像処理
+// MARK: Image Modifier
 struct KFImageModifier: ImageModifier {
     let targetScale: CGFloat
     

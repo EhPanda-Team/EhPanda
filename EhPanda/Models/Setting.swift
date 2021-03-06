@@ -10,14 +10,14 @@ import SwiftUI
 import Foundation
 
 struct Setting: Codable {
-    // アカウント
+    // Account
     var galleryType = GalleryType.eh {
         didSet {
             setGalleryType(galleryType)
         }
     }
     
-    // 一般
+    // General
     var detectGalleryFromPasteboard = false
     var allowsDetectionWhenNoChange = false
     var closeSlideMenuAfterSelection = true
@@ -25,7 +25,7 @@ struct Setting: Codable {
     var allowsResignActiveBlur = true
     var autoLockPolicy: AutoLockPolicy = .never
     
-    // 外観
+    // Appearance
     var colorScheme: ColorScheme? {
         switch preferredColorScheme {
         case .light:
@@ -44,7 +44,7 @@ struct Setting: Codable {
     var summaryRowTagsMaximumActivated = false
     var summaryRowTagsMaximum: Int = 5
     
-    // 閲覧
+    // Reading
     var contentRetryLimit = 10
     var showContentDividers = false
     var contentDividerHeight: CGFloat = 0

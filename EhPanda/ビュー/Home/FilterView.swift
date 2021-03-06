@@ -27,7 +27,7 @@ struct FilterView: View {
         ])
     }
     
-    // MARK: FilterView本体
+    // MARK: FilterView
     var body: some View {
         NavigationView {
             if let filter = settings.filter,
@@ -99,7 +99,7 @@ struct FilterView: View {
     }
 }
 
-// MARK: カテゴリー
+// MARK: CategoryView
 private struct CategoryView: View {
     @EnvironmentObject var store: Store
     
@@ -156,6 +156,7 @@ private struct CategoryView: View {
     }
 }
 
+// MARK: CategoryCell
 private struct CategoryCell: View {
     @Binding var isFiltered: Bool
     let category: Category
@@ -182,7 +183,7 @@ private struct CategoryCell: View {
     }
 }
 
-// MARK: 評価下限
+// MARK: MinimumRatingSetter
 private struct MinimumRatingSetter: View {
     @Binding var minimum: Int
     
@@ -205,7 +206,7 @@ private struct MinimumRatingSetter: View {
     }
 }
 
-// MARK: ページ範囲
+// MARK: PagesRangeSetter
 private struct PagesRangeSetter: View {
     @Environment(\.colorScheme) var colorScheme
     @Binding var lowerBound: String
@@ -244,7 +245,7 @@ private struct PagesRangeSetter: View {
     }
 }
 
-// MARK: 定義
+// MARK: Definition
 enum FilterViewActionSheetState: Identifiable {
     var id: Int { hashValue }
     

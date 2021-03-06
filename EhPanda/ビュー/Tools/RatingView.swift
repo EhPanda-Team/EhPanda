@@ -58,7 +58,6 @@ struct RatingView: View {
     }
 }
 
-// 構造体
 extension RatingView {
     struct FilledStar: View {
         var body: some View {

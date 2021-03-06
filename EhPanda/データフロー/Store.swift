@@ -26,7 +26,7 @@ class Store: ObservableObject {
         var appCommand: AppCommand?
         
         switch action {
-        // MARK: アプリ関数操作
+        // MARK: App Ops
         case .replaceUser(let user):
             appState.settings.user = user
         case .clearCachedList:
@@ -57,7 +57,7 @@ class Store: ObservableObject {
         case .updateIsSlideMenuClosed(let isClosed):
             appState.environment.isSlideMenuClosed = isClosed
             
-        // MARK: アプリ環境
+        // MARK: App Env
         case .toggleAppUnlocked(let isUnlocked):
             appState.environment.isAppUnlocked = isUnlocked
         case .toggleBlurEffect(let on):
@@ -100,7 +100,7 @@ class Store: ObservableObject {
         case .cleanCommentViewCommentContent:
             appState.commentInfo.commentContent = ""
             
-        // MARK: データ取得
+        // MARK: Fetch Data
         case .fetchUserInfo(let uid):
             if !didLogin && exx { break }
             if appState.settings.userInfoLoading { break }
@@ -686,7 +686,7 @@ class Store: ObservableObject {
                 print(error)
             }
             
-        // MARK: アカウント活動
+        // MARK: Account Ops
         case .addFavorite(let id, let favIndex):
             let token = appState.cachedList.items?[id]?.token ?? ""
             appCommand = AddFavoriteCommand(id: id, token: token, favIndex: favIndex)

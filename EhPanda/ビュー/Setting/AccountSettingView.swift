@@ -83,7 +83,7 @@ struct AccountSettingView: View {
         }
     }
     
-    // MARK: AccountSettingView本体
+    // MARK: AccountSettingView
     var body: some View {
         ZStack {
             Form {
@@ -315,7 +315,7 @@ private struct CookieRow<VerifyView: View>: View {
     }
 }
 
-// MARK: 定義
+// MARK: Definition
 public struct CookieValue {
     let rawValue: String
     let lString: String

@@ -48,7 +48,7 @@ struct ContentView: View {
         contentInfo.moreMangaContentsLoadFailed
     }
         
-    // MARK: ContentView本体
+    // MARK: ContentView
     var body: some View {
         Group {
             if let contents = mangaContents,

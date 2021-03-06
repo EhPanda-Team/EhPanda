@@ -54,7 +54,7 @@ struct ArchiveView: View {
         GridItem(.adaptive(minimum: 150, maximum: 200))
     ]
     
-    // MARK: ArchiveView本体
+    // MARK: ArchiveView
     var body: some View {
         NavigationView {
             Group {

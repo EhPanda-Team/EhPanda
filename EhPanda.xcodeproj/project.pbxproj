@@ -156,7 +156,7 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		AB3DAC0725CE7BDF0056D1C0 /* 設定 */ = {
+		AB3DAC0725CE7BDF0056D1C0 /* Setting */ = {
 			isa = PBXGroup;
 			children = (
 				AB994DBF2598B17500E9A367 /* SettingView.swift */,
@@ -167,10 +167,10 @@
 				AB975F6825B5737200741E1A /* EhPandaView.swift */,
 				AB994DC22598B3E000E9A367 /* WebView.swift */,
 			);
-			path = "設定";
+			path = Setting;
 			sourceTree = "<group>";
 		};
-		AB40CFE52598423E00D1DC9A /* ツール */ = {
+		AB40CFE52598423E00D1DC9A /* Tools */ = {
 			isa = PBXGroup;
 			children = (
 				ABCD2F0D25976B95008E5A20 /* Parser.swift */,
@@ -178,10 +178,10 @@
 				AB40CFDE25983EDF00D1DC9A /* FileHelper.swift */,
 				AB38A0CA25CA993D00764D64 /* ColorCodable.swift */,
 			);
-			path = "ツール";
+			path = Tools;
 			sourceTree = "<group>";
 		};
-		AB47FDA625BC823F0007765D /* 予備アイコン */ = {
+		AB47FDA625BC823F0007765D /* AltIcons */ = {
 			isa = PBXGroup;
 			children = (
 				AB47FD9A25BC81A40007765D /* Normal@2x.png */,
@@ -195,7 +195,7 @@
 				AB47FDB125BC859E0007765D /* Weird-ipad@2x.png */,
 				AB47FDB225BC859E0007765D /* Weird-ipad-pro@2x.png */,
 			);
-			path = "予備アイコン";
+			path = AltIcons;
 			sourceTree = "<group>";
 		};
 		ABC3C74B2593696C00E0C11B = {
@@ -217,17 +217,17 @@
 		ABC3C7562593696C00E0C11B /* EhPanda */ = {
 			isa = PBXGroup;
 			children = (
-				ABC3C7682593699A00E0C11B /* アプリ */,
-				ABCD2EF625976006008E5A20 /* データフロー */,
-				ABC3C77B2593699A00E0C11B /* ネットワーク */,
-				ABC3C77F2593699A00E0C11B /* モデル */,
-				ABC3C7702593699A00E0C11B /* ビュー */,
+				ABC3C7682593699A00E0C11B /* App */,
+				ABCD2EF625976006008E5A20 /* DataFlow */,
+				ABC3C77B2593699A00E0C11B /* Network */,
+				ABC3C77F2593699A00E0C11B /* Models */,
+				ABC3C7702593699A00E0C11B /* View */,
 				ABF53F4725A306D200AB5918 /* EhPanda.entitlements */,
 			);
 			path = EhPanda;
 			sourceTree = "<group>";
 		};
-		ABC3C7682593699A00E0C11B /* アプリ */ = {
+		ABC3C7682593699A00E0C11B /* App */ = {
 			isa = PBXGroup;
 			children = (
 				ABC3C76B2593699A00E0C11B /* EhPandaApp.swift */,
@@ -235,30 +235,30 @@
 				ABC3C76D2593699A00E0C11B /* Defaults.swift */,
 				ABA732D825A8018A00B3D9AB /* Extensions.swift */,
 				ABC3C7762593699A00E0C11B /* ViewModifiers.swift */,
-				AB40CFE52598423E00D1DC9A /* ツール */,
+				AB40CFE52598423E00D1DC9A /* Tools */,
 				ABEE0AFC2595C6F800C997AE /* Localizable.strings */,
 				ABC3C7692593699A00E0C11B /* Assets.xcassets */,
-				AB47FDA625BC823F0007765D /* 予備アイコン */,
+				AB47FDA625BC823F0007765D /* AltIcons */,
 				ABC3C76E2593699A00E0C11B /* Info.plist */,
 				AB7E6B3225D24FE00035CC68 /* InfoPlist.strings */,
 			);
-			path = "アプリ";
+			path = App;
 			sourceTree = "<group>";
 		};
-		ABC3C7702593699A00E0C11B /* ビュー */ = {
+		ABC3C7702593699A00E0C11B /* View */ = {
 			isa = PBXGroup;
 			children = (
-				ABF313A725B1B98400D47A2F /* ホーム */,
-				ABF313A825B1B99F00D47A2F /* 詳細情報 */,
-				ABF313A925B1B9B400D47A2F /* コンテンツ */,
-				AB3DAC0725CE7BDF0056D1C0 /* 設定 */,
-				ABC3C7752593699A00E0C11B /* ツール */,
+				ABF313A725B1B98400D47A2F /* Home */,
+				ABF313A825B1B99F00D47A2F /* Detail */,
+				ABF313A925B1B9B400D47A2F /* Content */,
+				AB3DAC0725CE7BDF0056D1C0 /* Setting */,
+				ABC3C7752593699A00E0C11B /* Tools */,
 			);
-			name = "ビュー";
+			name = View;
 			path = "ビュー";
 			sourceTree = "<group>";
 		};
-		ABC3C7752593699A00E0C11B /* ツール */ = {
+		ABC3C7752593699A00E0C11B /* Tools */ = {
 			isa = PBXGroup;
 			children = (
 				AB15535B25B290F000D0293B /* MangaSummaryRow.swift */,
@@ -270,18 +270,18 @@
 				ABF75F4225A1C11100544D29 /* Comment.swift */,
 				ABF48D1525B2EB1800D1C667 /* Placeholder.swift */,
 			);
-			path = "ツール";
+			path = Tools;
 			sourceTree = "<group>";
 		};
-		ABC3C77B2593699A00E0C11B /* ネットワーク */ = {
+		ABC3C77B2593699A00E0C11B /* Network */ = {
 			isa = PBXGroup;
 			children = (
 				ABCD2F09259763FC008E5A20 /* Request.swift */,
 			);
-			path = "ネットワーク";
+			path = Network;
 			sourceTree = "<group>";
 		};
-		ABC3C77F2593699A00E0C11B /* モデル */ = {
+		ABC3C77F2593699A00E0C11B /* Models */ = {
 			isa = PBXGroup;
 			children = (
 				ABF75F3E25A19CD200544D29 /* User.swift */,
@@ -290,10 +290,10 @@
 				ABEA1FE525A9B40B002966B9 /* Setting.swift */,
 				ABF313A425B1AB6600D47A2F /* Misc.swift */,
 			);
-			path = "モデル";
+			path = Models;
 			sourceTree = "<group>";
 		};
-		ABCD2EF625976006008E5A20 /* データフロー */ = {
+		ABCD2EF625976006008E5A20 /* DataFlow */ = {
 			isa = PBXGroup;
 			children = (
 				ABCD2EF72597602D008E5A20 /* Store.swift */,
@@ -302,11 +302,11 @@
 				ABCD2F02259760CB008E5A20 /* AppCommand.swift */,
 				ABCD2F06259760D4008E5A20 /* AppError.swift */,
 			);
-			name = "データフロー";
+			name = DataFlow;
 			path = "データフロー";
 			sourceTree = "<group>";
 		};
-		ABF313A725B1B98400D47A2F /* ホーム */ = {
+		ABF313A725B1B98400D47A2F /* Home */ = {
 			isa = PBXGroup;
 			children = (
 				AB1CBE5725B81ACC00CD6A5B /* Home.swift */,
@@ -315,10 +315,10 @@
 				ABA732E125A8590900B3D9AB /* FilterView.swift */,
 				AB7E6B3725D2508A0035CC68 /* AuthView.swift */,
 			);
-			path = "ホーム";
+			path = Home;
 			sourceTree = "<group>";
 		};
-		ABF313A825B1B99F00D47A2F /* 詳細情報 */ = {
+		ABF313A825B1B99F00D47A2F /* Detail */ = {
 			isa = PBXGroup;
 			children = (
 				ABC3C7722593699A00E0C11B /* DetailView.swift */,
@@ -327,15 +327,15 @@
 				ABF313A025B1714400D47A2F /* AssociatedView.swift */,
 				AB718B2425A0C0AC00D32962 /* CommentView.swift */,
 			);
-			path = "詳細情報";
+			path = Detail;
 			sourceTree = "<group>";
 		};
-		ABF313A925B1B9B400D47A2F /* コンテンツ */ = {
+		ABF313A925B1B9B400D47A2F /* Content */ = {
 			isa = PBXGroup;
 			children = (
 				ABC3C7742593699A00E0C11B /* ContentView.swift */,
 			);
-			path = "コンテンツ";
+			path = Content;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

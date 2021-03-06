@@ -178,7 +178,7 @@ struct HomeView: View {
         }
     }
     
-    // MARK: HomeView本体
+    // MARK: HomeView
     var body: some View {
         NavigationView {
             ZStack {
@@ -419,7 +419,7 @@ struct HomeView: View {
     }
 }
 
-// MARK: 汎用リスト
+// MARK: GenericList
 private struct GenericList: View {
     @EnvironmentObject var store: Store
     
@@ -557,7 +557,7 @@ private struct GenericList: View {
     }
 }
 
-// MARK: 検索バー
+// MARK: SearchBar
 private struct SearchBar: View {
     @Binding var keyword: String
     var commitAction: () -> ()
@@ -597,7 +597,7 @@ private struct SearchBar: View {
     }
 }
 
-// MARK: 定義
+// MARK: Definition
 enum HomeListType: String, Identifiable, CaseIterable {
     var id: Int { hashValue }
     

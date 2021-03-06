@@ -60,7 +60,7 @@ struct SlideMenu : View {
         }
     }
     
-    // MARK: SlideMenu本体
+    // MARK: SlideMenu
     var body: some View {
         HStack(spacing: 0) {
             VStack(spacing: 0) {

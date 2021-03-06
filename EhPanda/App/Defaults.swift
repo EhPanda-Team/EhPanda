@@ -50,7 +50,7 @@ class Defaults {
         
     }
     class URL {
-        // あらゆるホストドメイン
+        // Domains
         static var host: String {
             if exx {
                 return galleryType == .eh ? ehentai : exhentai
@@ -65,7 +65,7 @@ class Defaults {
         static let magnet = "magnet:?xt=urn:btih:"
         static let ex = merge([ehentai, listCompact, nonh, f_search + "parody:durarara$"])
         
-        // 各機能ページ
+        // Functional Pages
         static let tag = "tag/"
         static let popular = "popular"
         static let watched = "watched"
@@ -95,7 +95,7 @@ class Defaults {
         static let detailLarge = "inline_set=ts_l"
         static let rowsLimit = "inline_set=tr_4"
         
-        // フィルター
+        // Filter
         static let f_cats = "f_cats="
         static let advSearch = "advsearch=1"
         static let f_sname_on = "f_sname=on"
@@ -117,9 +117,9 @@ class Defaults {
     }
 }
 
-// MARK: リクエスト
+// MARK: Request
 extension Defaults.URL {    
-    // フェッチ
+    // Fetch
     static func searchList(keyword: String, filter: Filter) -> String {
         merge([
             host,
@@ -225,7 +225,7 @@ extension Defaults.URL {
         merge([detailURL, detailLarge, rowsLimit])
     }
     
-    // アカウントに関わる操作
+    // Account Associated Operations
     static func addFavorite(id: String, token: String) -> String {
         merge([host + gallerypopups, gid + id, t + token, addfav_act])
     }
@@ -236,7 +236,7 @@ extension Defaults.URL {
         merge([forum + index, showuser + uid])
     }
     
-    // 雑
+    // Misc
     static func contentPage(url: String, pageNum: Int) -> String {
         merge([url, p + "\(pageNum)"])
     }
@@ -257,7 +257,7 @@ extension Defaults.URL {
     }
 }
 
-// MARK: フィルター
+// MARK: Filter
 extension Defaults.URL {
     static func applyFilters(_ filter: Filter) -> [String] {
         var filters = [String]()
@@ -315,7 +315,7 @@ extension Defaults.URL {
     }
 }
 
-// MARK: ツール
+// MARK: Tools
 extension Defaults.URL {
     static func merge(_ urls: [String]) -> String {
         let firstTwo = urls.prefix(2)

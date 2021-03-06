@@ -10,7 +10,7 @@ import SwiftUI
 import Kingfisher
 
 class Parser {
-    // MARK: リスト
+    // MARK: List
     func parseListItems(_ doc: HTMLDocument) -> (PageNumber, [Manga]) {
         var mangaItems = [Manga]()
         
@@ -83,7 +83,7 @@ class Parser {
         return (parsePageNum(doc), mangaItems)
     }
     
-    // MARK: 詳細情報
+    // MARK: Detail
     func parseMangaDetail(_ doc: HTMLDocument) throws -> (MangaDetail, APIKey, HTMLDocument) {
         var mangaDetail: MangaDetail?
         var imageURLs = [MangaPreview]()
@@ -282,7 +282,7 @@ class Parser {
         }
     }
     
-    // MARK: コメント
+    // MARK: Comment
     func parseComments(_ doc: HTMLDocument) -> [MangaComment] {
         var comments = [MangaComment]()
         for link in doc.xpath("//div [@id='cdiv']") {
@@ -357,7 +357,7 @@ class Parser {
         return comments
     }
     
-    // MARK: コンテント
+    // MARK: Content
     func parseImagePreContents(_ doc: HTMLDocument, pageCount: Int) throws -> (PageNumber, [(Int, URL)]) {
         var imageDetailURLs = [(Int, URL)]()
         
@@ -385,7 +385,7 @@ class Parser {
         return MangaContent(tag: tag, url: imageURL)
     }
     
-    // MARK: ユーザー
+    // MARK: User
     func parseUserInfo(doc: HTMLDocument) throws -> User {
         var displayName: String?
         var avatarURL: String?
@@ -411,7 +411,7 @@ class Parser {
         }
     }
     
-    // MARK: アーカイブ
+    // MARK: Archive
     func parseMangaArchive(doc: HTMLDocument) throws -> (MangaArchive, CurrentGP?, CurrentCredits?) {
         var hathArchives = [MangaArchive.HathArchive]()
         
@@ -464,7 +464,7 @@ class Parser {
         return (MangaArchive(hathArchives: hathArchives), funds?.0, funds?.1)
     }
     
-    // MARK: トレント
+    // MARK: Torrent
     func parseMangaTorrents(doc: HTMLDocument) -> [MangaTorrent] {
         var torrents = [MangaTorrent]()
         
@@ -545,7 +545,7 @@ class Parser {
 }
 
 extension Parser {
-    // MARK: カバー
+    // MARK: Cover
     func parseCoverURL(_ node: XMLElement?) throws -> String {
         guard let node = node
         else { throw AppError.parseFailed }
@@ -559,7 +559,7 @@ extension Parser {
         return url
     }
     
-    // MARK: 評価
+    // MARK: Rating
     func parseRatingString(_ ratingString: String?) -> Float? {
         guard let ratingString = ratingString else { return nil }
         
@@ -576,7 +576,7 @@ extension Parser {
         return rating
     }
     
-    // MARK: ページナンバー
+    // MARK: Page Number
     func parsePageNum(_ doc: HTMLDocument) -> PageNumber {
         var current = 0
         var maximum = 0
@@ -597,7 +597,7 @@ extension Parser {
         return PageNumber(current: current, maximum: maximum)
     }
     
-    // MARK: 代替プレビュー
+    // MARK: AltPreview
     func parseAlterImagesURL(_ doc: HTMLDocument) throws -> String {
         var alterURL: String?
         for link in doc.xpath("//div [@class='gdtm']") {
@@ -638,7 +638,7 @@ extension Parser {
         return (id, alterImages)
     }
     
-    // MARK: 残高
+    // MARK: Balance
     func parseCurrentFunds(_ doc: HTMLDocument) -> (String, String)? {
         var currentGP: String?
         var currentCredits: String?
@@ -675,7 +675,7 @@ extension Parser {
         }
     }
     
-    // MARK: ダウンロードコマンドの返事
+    // MARK: DownloadCmdResp
     func parseDownloadCommandResponse(_ doc: HTMLDocument) throws -> Resp {
         guard let dbNode = doc.at_xpath("//div [@id='db']")
         else { throw AppError.parseFailed }
@@ -694,7 +694,7 @@ extension Parser {
         }
     }
     
-    // MARK: アーカイブリンク
+    // MARK: ArchiveURL
     func parseArchiveURL(_ element: XMLElement) throws -> String {
         var archiveURL: String?
         if let aLink = element.at_xpath("//a"),
@@ -717,7 +717,7 @@ extension Parser {
         }
     }
     
-    // MARK: コメント内容
+    // MARK: CommentContent
     func parseCommentContent(_ element: XMLElement) -> [CommentContent] {
         var contents = [CommentContent]()
         
@@ -909,7 +909,7 @@ extension Parser {
         return contents
     }
     
-    // MARK: お気に入り名
+    // MARK: FavoriteNames
     func parseFavoriteNames(_ doc: HTMLDocument) throws -> [Int : String] {
         var favoriteNames = [Int : String]()
         
