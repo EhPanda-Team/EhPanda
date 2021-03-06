@@ -23,7 +23,7 @@
 
 ## インストール手順
 1. [Releases](https://github.com/arakitatsuzou/EhPanda/releases)からipaファイルを取得
-2. Cydia Impactor、AppSigner、AltDeployとかでipaファイルをデバイスにインストール
+2. AltStoreとかでipaファイルをデバイスにインストール
 
 ## スクリーンショット
 <img src="https://user-images.githubusercontent.com/31207151/103514043-cc0eed00-4ea6-11eb-9f17-7e949fa649e4.jpeg" width="320"><img src="https://user-images.githubusercontent.com/31207151/103514047-cdd8b080-4ea6-11eb-932b-94c0242bddfe.jpeg" width="320">
