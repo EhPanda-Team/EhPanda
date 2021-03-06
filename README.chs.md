@@ -26,4 +26,4 @@
 2. 使用[AltStore](https://altstore.io)这类软件将ipa文件安装到你的设备
 
 ## 截图
-<img src="https://user-images.githubusercontent.com/31207151/103514043-cc0eed00-4ea6-11eb-9f17-7e949fa649e4.jpeg" width="320"><img src="https://user-images.githubusercontent.com/31207151/103514047-cdd8b080-4ea6-11eb-932b-94c0242bddfe.jpeg" width="320">
+<img src="https://user-images.githubusercontent.com/31207151/110205765-f08e4200-7eb4-11eb-9a40-d636828212ce.JPG" width="320"><img src="https://user-images.githubusercontent.com/31207151/110205776-f7b55000-7eb4-11eb-8286-8f37c32cb22c.JPG" width="320"><img src="https://user-images.githubusercontent.com/31207151/110205778-fbe16d80-7eb4-11eb-9301-c9c99cf39030.JPG" width="320"><img src="https://user-images.githubusercontent.com/31207151/110205780-fedc5e00-7eb4-11eb-84db-b41d2ee4be8e.JPG" width="320">
