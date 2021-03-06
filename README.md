@@ -7,8 +7,8 @@
 </p>
 
 <p align="center">
-  <a href="/README.md">日本語</a>・
   <a href="/README.en.md">English</a>・
+  <a href="/README.jpn.md">日本語</a>・
   <a href="/README.chs.md">简体中文</a>
 </p>
 
