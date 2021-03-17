@@ -12,7 +12,7 @@
   <a href="/README.chs.md">简体中文</a>
 </p>
 
-## 提问、反馈或加入TestFlight
+## 提问、反馈
 [![Telegram](https://img.shields.io/badge/chat-Telegram-blue.svg)](https://t.me/ehpanda)
 
 ## App图标
