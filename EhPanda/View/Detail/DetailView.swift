@@ -53,15 +53,6 @@ struct DetailView: View {
     var accentColor: Color? {
         store.appState.settings.setting?.accentColor
     }
-    var barItemColor: Color {
-        if detailInfo.mangaDetailLoading
-            || detailInfo.mangaDetailUpdating
-        {
-            return .gray
-        } else {
-            return .accentColor
-        }
-    }
     var menu: some View {
         Group {
             if !detailInfo.mangaDetailLoading {
@@ -88,9 +79,12 @@ struct DetailView: View {
                     }
                 }, label: {
                     Image(systemName: "ellipsis.circle")
-                        .foregroundColor(barItemColor)
                         .imageScale(.large)
                 })
+                .disabled(
+                    detailInfo.mangaDetailLoading
+                        || detailInfo.mangaDetailUpdating
+                )
             }
         }
     }
@@ -348,6 +342,7 @@ private struct HeaderView: View {
             KFImage(URL(string: manga.coverURL))
                 .placeholder(placeholder)
                 .imageModifier(modifier)
+                .loadImmediately()
                 .resizable()
                 .scaledToFit()
                 .frame(width: width, height: height)
@@ -713,6 +708,7 @@ private struct PreviewView: View {
                             KFImage(URL(string: item.url))
                                 .placeholder(placeholder)
                                 .imageModifier(modifier)
+                                .loadImmediately()
                                 .resizable()
                                 .scaledToFit()
                                 .frame(width: width, height: height)

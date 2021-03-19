@@ -93,6 +93,12 @@ struct GenericRetryView: View {
     let buttonText: String
     let retryAction: (()->())?
     
+    var buttonColor: Color {
+        colorScheme == .light
+            ? Color(UIColor.darkGray)
+            : Color(UIColor.white)
+    }
+    
     var body: some View {
         VStack {
             Image(systemName: symbolName)
@@ -107,7 +113,7 @@ struct GenericRetryView: View {
                 Button(buttonText.lString().uppercased()) {
                     action()
                 }
-                .foregroundColor(colorScheme == .light ? .init(UIColor.darkGray) : .init(UIColor.white))
+                .foregroundColor(buttonColor)
                 .padding(.vertical, 6)
                 .padding(.horizontal, 10)
                 .background(

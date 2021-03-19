@@ -303,7 +303,7 @@ struct HomeView: View {
     
     func showHUD() {
         hudConfig = TTProgressHUDConfig(
-            type: .Loading,
+            type: .loading,
             title: "Loading...".lString()
         )
         hudVisible = true

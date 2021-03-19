@@ -40,7 +40,10 @@ struct DraftCommentView: View {
                     .padding()
                     .autocapitalization(.none)
                     .disableAutocorrection(true)
-                    .navigationBarTitle(title.lString(), displayMode: .inline)
+                    .navigationBarTitle(
+                        title.lString(),
+                        displayMode: .inline
+                    )
                     .navigationBarItems(
                         leading:
                             Button(action: cancelAction) {
@@ -50,8 +53,8 @@ struct DraftCommentView: View {
                         trailing:
                             Button(action: postAction) {
                                 Text("Post")
-                                    .foregroundColor(content.isEmpty ? .gray : .accentColor)
                             }
+                            .disabled(content.isEmpty)
                     )
                 Spacer()
             }

@@ -15,8 +15,8 @@
         "repositoryURL": "https://github.com/onevcat/Kingfisher.git",
         "state": {
           "branch": null,
-          "revision": "81dd1ce8401137637663046c7314e7c885bcc56d",
-          "version": "6.1.1"
+          "revision": "bbc4bc4def7eb05a7ba8e1219f80ee9be327334e",
+          "version": "6.2.1"
         }
       },
       {
@@ -33,17 +33,17 @@
         "repositoryURL": "https://github.com/SDWebImage/SDWebImageSwiftUI.git",
         "state": {
           "branch": null,
-          "revision": "6fcaa47f450f8696b19d6f037dcb582ff4deb544",
-          "version": "2.0.0"
+          "revision": "cd8625b7cf11a97698e180d28bb7d5d357196678",
+          "version": "2.0.2"
         }
       },
       {
         "package": "SwiftUIVisualEffects",
         "repositoryURL": "https://github.com/lucasbrown/swiftui-visual-effects.git",
         "state": {
-          "branch": "master",
+          "branch": null,
           "revision": "b26f8cebd55ff60ed8953768aa818dfb005b5838",
-          "version": null
+          "version": "1.0.3"
         }
       },
       {
@@ -51,7 +51,7 @@
         "repositoryURL": "https://github.com/arakitatsuzou/TTProgressHUD.git",
         "state": {
           "branch": "master",
-          "revision": "566c8185340b017f3cd5f9a4670cd09c56f86338",
+          "revision": "6b661dc495cece2955c8986fb8d35da07b0e49b4",
           "version": null
         }
       }

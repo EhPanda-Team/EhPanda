@@ -211,6 +211,7 @@ private struct ImageContainer: View {
                 interval: .seconds(0.5)
             )
             .onProgress(onWebImageProgress)
+            .loadImmediately()
             .resizable()
             .scaledToFit()
             .onTapGesture(perform: onTap)
@@ -223,10 +224,9 @@ private struct ImageContainer: View {
             )
     }
     
-    func onWebImageProgress<
-        Integer : SignedInteger & FixedWidthInteger
-    > (_ received: Integer, _ total: Integer)
-    {
+    func onWebImageProgress<I: BinaryInteger>(
+        _ received: I, _ total: I
+    ) {
         percentage = Float(received) / Float(total)
     }
     func onTap() {

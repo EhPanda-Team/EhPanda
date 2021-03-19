@@ -129,7 +129,7 @@ struct SettingView: View {
                 let size = size + SDImageCache.shared.totalDiskSize()
                 store.dispatch(
                     .updateDiskImageCacheSize(
-                        size: readableUnit(bytes: Int64(size))
+                        size: readableUnit(bytes: size)
                     )
                 )
             case .failure(let error):

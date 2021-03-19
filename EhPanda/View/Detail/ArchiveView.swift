@@ -17,7 +17,7 @@ struct ArchiveView: View {
         hapticsEnabled: false
     )
     var loadingHUDConfig = TTProgressHUDConfig(
-        type: .Loading,
+        type: .loading,
         title: "Communicating...".lString(),
         hapticsEnabled: false
     )
@@ -134,32 +134,32 @@ struct ArchiveView: View {
         if let sending = value as? Bool,
            sending == false
         {
-            var type: TTProgressHUDType = .Warning
+            var type: TTProgressHUDType = .warning
             var title: String?
             var caption: String?
             
             if !detailInfo.downloadCommandFailed,
                let response = detailInfo.downloadCommandResponse
             {
-                type = .Success
+                type = .success
                 title = "Success".lString()
                 caption = processResponse(response).lString()
             } else if detailInfo.downloadCommandFailed {
                 if let response = detailInfo.downloadCommandResponse {
-                    type = .Error
+                    type = .error
                     title = "Error".lString()
                     caption = response.lString()
                 } else {
-                    type = .Error
+                    type = .error
                     title = "Error".lString()
                     caption = nil
                 }
             }
             
             switch type {
-            case .Success:
+            case .success:
                 notificFeedback(style: .success)
-            case .Error:
+            case .error:
                 notificFeedback(style: .error)
             default:
                 print(type)

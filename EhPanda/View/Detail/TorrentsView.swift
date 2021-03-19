@@ -80,7 +80,7 @@ struct TorrentsView: View {
     
     func showCopiedHUD() {
         hudConfig = TTProgressHUDConfig(
-            type: .Success,
+            type: .success,
             title: "Success".lString(),
             caption: "Copied to clipboard".lString(),
             shouldAutoHide: true,

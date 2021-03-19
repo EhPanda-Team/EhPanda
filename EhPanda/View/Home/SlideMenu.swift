@@ -166,6 +166,7 @@ private struct AvatarView: View {
                         if !avatarURL.contains(".gif") {
                             KFImage(URL(string: avatarURL))
                                 .placeholder(placeholder)
+                                .loadImmediately()
                                 .resizable()
                         } else {
                             WebImage(url: URL(string: avatarURL))

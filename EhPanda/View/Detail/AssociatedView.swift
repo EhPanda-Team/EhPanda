@@ -84,6 +84,11 @@ struct AssociatedView: View {
                                 })
                         }
                     }
+                    .transition(
+                        AnyTransition
+                            .opacity
+                            .animation(.default)
+                    )
                     if moreLoadingFlag {
                         LoadingView(isCompact: true)
                             .padding()
@@ -97,11 +102,11 @@ struct AssociatedView: View {
                 } else if loadingFlag {
                     LoadingView()
                         .padding(.top, 30)
-                } else if loadFailedFlag {
-                    NetworkErrorView(retryAction: retryAction)
-                        .padding(.top, 30)
                 } else if notFoundFlag {
                     NotFoundView(retryAction: retryAction)
+                        .padding(.top, 30)
+                } else {
+                    NetworkErrorView(retryAction: retryAction)
                         .padding(.top, 30)
                 }
             }

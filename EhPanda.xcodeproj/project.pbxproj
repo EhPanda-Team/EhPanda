@@ -31,9 +31,9 @@
 		ABC3C78F2593699B00E0C11B /* ViewModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC3C7762593699A00E0C11B /* ViewModifiers.swift */; };
 		ABC3C7962593699B00E0C11B /* Manga.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC3C7802593699A00E0C11B /* Manga.swift */; };
 		ABC3C79D259369FE00E0C11B /* Kanna in Frameworks */ = {isa = PBXBuildFile; productRef = ABC3C79C259369FE00E0C11B /* Kanna */; };
-		ABC5234D25D38D10000F38B0 /* TTProgressHUD in Frameworks */ = {isa = PBXBuildFile; productRef = ABC5234C25D38D10000F38B0 /* TTProgressHUD */; };
 		ABCD2F0A259763FC008E5A20 /* Request.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD2F09259763FC008E5A20 /* Request.swift */; };
 		ABCD2F0E25976B95008E5A20 /* Parser.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD2F0D25976B95008E5A20 /* Parser.swift */; };
+		ABCE3FD325FDECB800299A6F /* TTProgressHUD in Frameworks */ = {isa = PBXBuildFile; productRef = ABCE3FD225FDECB800299A6F /* TTProgressHUD */; };
 		ABE0FA2F25D4CAEC00E52F18 /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = ABE0FA2E25D4CAEC00E52F18 /* SDWebImageSwiftUI */; };
 		ABEA1FE625A9B40B002966B9 /* Setting.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABEA1FE525A9B40B002966B9 /* Setting.swift */; };
 		ABEE0AFA2595C6F800C997AE /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = ABEE0AFC2595C6F800C997AE /* Localizable.strings */; };
@@ -149,7 +149,7 @@
 				ABE0FA2F25D4CAEC00E52F18 /* SDWebImageSwiftUI in Frameworks */,
 				AB84F47525CAF56D00DAF1EC /* Kingfisher in Frameworks */,
 				ABC3C79D259369FE00E0C11B /* Kanna in Frameworks */,
-				ABC5234D25D38D10000F38B0 /* TTProgressHUD in Frameworks */,
+				ABCE3FD325FDECB800299A6F /* TTProgressHUD in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -267,10 +267,10 @@
 			isa = PBXGroup;
 			children = (
 				ABF45AC025F3313D00ECB568 /* Home */,
-				ABF45AC625F3313D00ECB568 /* Tools */,
-				ABF45ACF25F3313D00ECB568 /* Content */,
 				ABF45AD125F3313D00ECB568 /* Detail */,
+				ABF45ACF25F3313D00ECB568 /* Content */,
 				ABF45AD725F3313D00ECB568 /* Setting */,
+				ABF45AC625F3313D00ECB568 /* Tools */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -355,8 +355,8 @@
 			packageProductDependencies = (
 				ABC3C79C259369FE00E0C11B /* Kanna */,
 				AB84F47425CAF56D00DAF1EC /* Kingfisher */,
-				ABC5234C25D38D10000F38B0 /* TTProgressHUD */,
 				ABE0FA2E25D4CAEC00E52F18 /* SDWebImageSwiftUI */,
+				ABCE3FD225FDECB800299A6F /* TTProgressHUD */,
 			);
 			productName = EhPanda;
 			productReference = ABC3C7542593696C00E0C11B /* EhPanda.app */;
@@ -390,8 +390,8 @@
 			packageReferences = (
 				ABC3C79B259369FE00E0C11B /* XCRemoteSwiftPackageReference "Kanna" */,
 				AB84F47325CAF56D00DAF1EC /* XCRemoteSwiftPackageReference "Kingfisher" */,
-				ABC5234B25D38D0F000F38B0 /* XCRemoteSwiftPackageReference "TTProgressHUD" */,
 				ABE0FA2D25D4CAEC00E52F18 /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */,
+				ABCE3FD125FDECB800299A6F /* XCRemoteSwiftPackageReference "TTProgressHUD" */,
 			);
 			productRefGroup = ABC3C7552593696C00E0C11B /* Products */;
 			projectDirPath = "";
@@ -706,7 +706,7 @@
 			repositoryURL = "https://github.com/onevcat/Kingfisher.git";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 6.1.1;
+				minimumVersion = 6.2.1;
 			};
 		};
 		ABC3C79B259369FE00E0C11B /* XCRemoteSwiftPackageReference "Kanna" */ = {
@@ -717,7 +717,7 @@
 				minimumVersion = 5.2.4;
 			};
 		};
-		ABC5234B25D38D0F000F38B0 /* XCRemoteSwiftPackageReference "TTProgressHUD" */ = {
+		ABCE3FD125FDECB800299A6F /* XCRemoteSwiftPackageReference "TTProgressHUD" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/arakitatsuzou/TTProgressHUD.git";
 			requirement = {
@@ -730,7 +730,7 @@
 			repositoryURL = "https://github.com/SDWebImage/SDWebImageSwiftUI.git";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 2.0.0;
+				minimumVersion = 2.0.2;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
@@ -746,9 +746,9 @@
 			package = ABC3C79B259369FE00E0C11B /* XCRemoteSwiftPackageReference "Kanna" */;
 			productName = Kanna;
 		};
-		ABC5234C25D38D10000F38B0 /* TTProgressHUD */ = {
+		ABCE3FD225FDECB800299A6F /* TTProgressHUD */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = ABC5234B25D38D0F000F38B0 /* XCRemoteSwiftPackageReference "TTProgressHUD" */;
+			package = ABCE3FD125FDECB800299A6F /* XCRemoteSwiftPackageReference "TTProgressHUD" */;
 			productName = TTProgressHUD;
 		};
 		ABE0FA2E25D4CAEC00E52F18 /* SDWebImageSwiftUI */ = {

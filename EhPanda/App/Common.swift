@@ -220,6 +220,13 @@ public func isValidDetailURL(url: URL) -> Bool {
         && !url.pathComponents[3].isEmpty
 }
 
+public func hideKeyboard() {
+    UIApplication.shared.sendAction(
+        #selector(UIResponder.resignFirstResponder),
+        to: nil, from: nil, for: nil
+    )
+}
+
 // MARK: UserDefaults
 public func setEntry(_ token: String?) {
     UserDefaults.standard.set(token, forKey: "entry")
@@ -257,10 +264,10 @@ public func postAppWidthDidChangeNotification () {
 
 
 // MARK: Storage Management
-public func readableUnit(bytes: Int64) -> String {
+public func readableUnit<I: BinaryInteger>(bytes: I) -> String {
     let formatter = ByteCountFormatter()
     formatter.allowedUnits = [.useAll]
-    return formatter.string(fromByteCount: bytes)
+    return formatter.string(fromByteCount: Int64(bytes))
 }
 
 public func browsingCaches() -> String {
@@ -279,7 +286,7 @@ public func browsingCaches() -> String {
           )
     else { return "0 KB" }
     
-    return readableUnit(bytes: Int64(data.count))
+    return readableUnit(bytes: data.count)
 }
 
 public func clearCookies() {
@@ -301,7 +308,7 @@ public func executeMainAsync(_ closure: @escaping (()->())) {
     }
 }
 
-public func executeMainAsync(_ delay: Double, _ closure: @escaping (()->())) {
+public func executeMainAsync(_ delay: DispatchTimeInterval, _ closure: @escaping (()->())) {
     DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
         closure()
     }

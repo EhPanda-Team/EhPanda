@@ -75,11 +75,7 @@ extension String {
     }
     
     func capitalizingFirstLetter() -> String {
-        return prefix(1).capitalized + dropFirst()
-    }
-
-    mutating func capitalizeFirstLetter() {
-        self = self.capitalizingFirstLetter()
+        prefix(1).capitalized + dropFirst()
     }
     
     func trimmedTitle() -> String {
@@ -160,13 +156,6 @@ extension View {
                 .foregroundColor(.gray)
                 .imageScale(.small)
         }
-    }
-    
-    func hideKeyboard() {
-        UIApplication.shared.sendAction(
-            #selector(UIResponder.resignFirstResponder),
-            to: nil, from: nil, for: nil
-        )
     }
 }
 
