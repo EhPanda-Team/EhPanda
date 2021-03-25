@@ -149,6 +149,7 @@ struct DetailView: View {
             }
         }
         .onAppear(perform: onAppear)
+        .onDisappear(perform: onDisappear)
         .navigationBarItems(trailing: menu)
         .navigationBarHidden(environment.navBarHidden)
         .sheet(item: environmentBinding.detailViewSheetState) { item in
@@ -191,6 +192,9 @@ struct DetailView: View {
             updateMangaDetail()
         }
         updateHistoryItems()
+    }
+    func onDisappear() {
+        postDetailViewOnDisappearNotification()
     }
     func onArchiveButtonTap() {
         toggleSheetState(.archive)

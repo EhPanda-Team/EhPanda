@@ -56,7 +56,7 @@ public var appBuild: String {
 }
 
 public var exx: Bool {
-    UserDefaults.standard.string(forKey: "entry") == "eHMAnGN4whvHsmfceGGZ"
+    UserDefaults.standard.string(forKey: "entry") == "eLo8cLfAzfcub2sufyGd"
 }
 
 public var isPad: Bool {
@@ -255,9 +255,16 @@ public func postSlideMenuShouldCloseNotification() {
     )
 }
 
-public func postAppWidthDidChangeNotification () {
+public func postAppWidthDidChangeNotification() {
     NotificationCenter.default.post(
         name: NSNotification.Name("AppWidthDidChange"),
+        object: nil
+    )
+}
+
+public func postDetailViewOnDisappearNotification() {
+    NotificationCenter.default.post(
+        name: NSNotification.Name("DetailViewOnDisappear"),
         object: nil
     )
 }

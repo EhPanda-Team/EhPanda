@@ -14,14 +14,6 @@ struct ContentView: View {
     @EnvironmentObject var store: Store
     @State var readingProgress: Int = -1
     
-    let timer = Timer
-        .publish(
-            every: 1,
-            on: .main,
-            in: .common
-        )
-        .autoconnect()
-    
     let id: String
     var environment: AppState.Environment {
         store.appState.environment
@@ -103,6 +95,13 @@ struct ContentView: View {
         }
         .onReceive(
             NotificationCenter.default.publisher(
+                for: Notification.Name("DetailViewOnDisappear")
+            )
+        ) { _ in
+            onReceiveDetailViewOnDisappearNotification()
+        }
+        .onReceive(
+            NotificationCenter.default.publisher(
                 for: UIApplication.willResignActiveNotification
             )
         ) { _ in
@@ -114,9 +113,6 @@ struct ContentView: View {
             )
         ) { _ in
             onResignActive()
-        }
-        .onReceive(timer) { _ in
-            onTimerFire()
         }
         .onAppear(perform: onAppear)
         .onDisappear(perform: onDisappear)
@@ -134,7 +130,7 @@ struct ContentView: View {
     func onResignActive() {
         saveReadingProgress()
     }
-    func onTimerFire() {
+    func onReceiveDetailViewOnDisappearNotification() {
         toggleNavBarHiddenIfNeeded()
     }
     func onLazyVStackAppear(_ proxy: ScrollViewProxy) {
