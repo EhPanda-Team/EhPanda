@@ -26,4 +26,5 @@
 2. [AltStore](https://altstore.io)とかでipaファイルをデバイスにインストール
 
 ## スクリーンショット
-<img src="https://user-images.githubusercontent.com/31207151/110208875-91382e00-7ec4-11eb-89f9-e35b41e1ee5f.jpg" width="320"><img src="https://user-images.githubusercontent.com/31207151/110208877-94331e80-7ec4-11eb-8c72-877a243af68c.jpg" width="320"><img src="https://user-images.githubusercontent.com/31207151/110208878-94cbb500-7ec4-11eb-98b9-7c77ed7b2912.jpg" width="320"><img src="https://user-images.githubusercontent.com/31207151/110208879-95644b80-7ec4-11eb-982e-e84bcbf0bbed.jpg" width="320">
+<img src="https://user-images.githubusercontent.com/31207151/113311091-82199400-933b-11eb-930b-815e9c21fbaf.png" width="350"><img src="https://user-images.githubusercontent.com/31207151/113311096-83e35780-933b-11eb-9d45-3a8cc4021599.png" width="350">
+<img src="https://user-images.githubusercontent.com/31207151/113311097-847bee00-933b-11eb-9a0a-5fcefd8e70ea.png" width="350"><img src="https://user-images.githubusercontent.com/31207151/113311099-85148480-933b-11eb-9623-a0d88005f9de.png" width="350">
