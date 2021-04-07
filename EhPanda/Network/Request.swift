@@ -515,13 +515,12 @@ struct AddFavoriteRequest {
             "update": "1"
         ]
         
-        let session = URLSession.shared
         var request = URLRequest(url: url.safeURL())
         
         request.httpMethod = "POST"
         request.httpBody = parameters.jsonString().data(using: .utf8)
         
-        return session.dataTaskPublisher(for: request)
+        return URLSession.shared.dataTaskPublisher(for: request)
             .map { $0 }
             .mapError(mapAppError)
             .eraseToAnyPublisher()
@@ -539,13 +538,12 @@ struct DeleteFavoriteRequest {
             "apply": "Apply"
         ]
         
-        let session = URLSession.shared
         var request = URLRequest(url: url.safeURL())
         
         request.httpMethod = "POST"
         request.httpBody = parameters.jsonString().data(using: .utf8)
         
-        return session.dataTaskPublisher(for: request)
+        return URLSession.shared.dataTaskPublisher(for: request)
             .map { $0 }
             .mapError(mapAppError)
             .eraseToAnyPublisher()
@@ -562,13 +560,12 @@ struct SendDownloadCommandRequest {
             "hathdl_xres": resolution
         ]
         
-        let session = URLSession.shared
         var request = URLRequest(url: archiveURL.safeURL())
         
         request.httpMethod = "POST"
         request.httpBody = parameters.jsonString().data(using: .utf8)
         
-        return session.dataTaskPublisher(for: request)
+        return URLSession.shared.dataTaskPublisher(for: request)
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .tryMap(parser.parseDownloadCommandResponse)
             .mapError(mapAppError)
@@ -594,7 +591,6 @@ struct RateRequest {
             "rating": rating
         ]
         
-        let session = URLSession.shared
         var request = URLRequest(url: url.safeURL())
         
         request.httpMethod = "POST"
@@ -602,7 +598,7 @@ struct RateRequest {
             .data(withJSONObject: params, options: [])
         
         
-        return session.dataTaskPublisher(for: request)
+        return URLSession.shared.dataTaskPublisher(for: request)
             .map { $0 }
             .mapError(mapAppError)
             .eraseToAnyPublisher()
@@ -617,13 +613,12 @@ struct CommentRequest {
         let fixedContent = content.replacingOccurrences(of: "\n", with: "%0A")
         let parameters: [String: String] = ["commenttext_new": fixedContent]
         
-        let session = URLSession.shared
         var request = URLRequest(url: detailURL.safeURL())
         
         request.httpMethod = "POST"
         request.httpBody = parameters.jsonString().data(using: .utf8)
         
-        return session.dataTaskPublisher(for: request)
+        return URLSession.shared.dataTaskPublisher(for: request)
             .map { $0 }
             .mapError(mapAppError)
             .eraseToAnyPublisher()
@@ -642,13 +637,12 @@ struct EditCommentRequest {
             "commenttext_edit": fixedContent
         ]
         
-        let session = URLSession.shared
         var request = URLRequest(url: detailURL.safeURL())
         
         request.httpMethod = "POST"
         request.httpBody = parameters.jsonString().data(using: .utf8)
         
-        return session.dataTaskPublisher(for: request)
+        return URLSession.shared.dataTaskPublisher(for: request)
             .map { $0 }
             .mapError(mapAppError)
             .eraseToAnyPublisher()
@@ -675,7 +669,6 @@ struct VoteCommentRequest {
             "comment_vote": commentVote
         ]
         
-        let session = URLSession.shared
         var request = URLRequest(url: url.safeURL())
         
         request.httpMethod = "POST"
@@ -683,7 +676,7 @@ struct VoteCommentRequest {
             .data(withJSONObject: params, options: [])
         
         
-        return session.dataTaskPublisher(for: request)
+        return URLSession.shared.dataTaskPublisher(for: request)
             .map { $0 }
             .mapError(mapAppError)
             .eraseToAnyPublisher()

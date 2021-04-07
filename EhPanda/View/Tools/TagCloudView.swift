@@ -27,41 +27,40 @@ struct TagCloudView: View {
                 self.generateContent(in: geometry)
             }
         }
-        .frame(height: totalHeight)// << variant for ScrollView/List
+        .frame(height: totalHeight) // << variant for ScrollView/List
 //        .frame(maxHeight: totalHeight) // << variant for VStack
     }
 
     private func generateContent(in g: GeometryProxy) -> some View {
-        var width = CGFloat.zero
-        var height = CGFloat.zero
-
-        return ZStack(alignment: .topLeading) {
-            ForEach(self.tag.content, id: \.self) { tag in
-                self.item(for: tag)
+        ZStack(alignment: .topLeading) {
+            var width = CGFloat.zero
+            var height = CGFloat.zero
+            ForEach(tag.content, id: \.self) { tag in
+                item(for: tag)
                     .padding([.trailing, .bottom], 4)
                     .alignmentGuide(.leading, computeValue: { d in
-                        if (abs(width - d.width) > g.size.width)
-                        {
+                        if (abs(width - d.width) > g.size.width) {
                             width = 0
                             height -= d.height
                         }
                         let result = width
-                        if tag == self.tag.content.last! {
-                            width = 0 //last item
+                        if tag == self.tag.content.last {
+                            width = 0 // last item
                         } else {
                             width -= d.width
                         }
                         return result
                     })
-                    .alignmentGuide(.top, computeValue: {d in
+                    .alignmentGuide(.top, computeValue: { d in
                         let result = height
-                        if tag == self.tag.content.last! {
+                        if tag == self.tag.content.last {
                             height = 0 // last item
                         }
                         return result
                     })
             }
-        }.background(viewHeightReader($totalHeight))
+        }
+        .background(viewHeightReader($totalHeight))
     }
 
     private func item(for text: String) -> some View {
@@ -88,7 +87,7 @@ struct TagCloudView: View {
     }
 
     private func viewHeightReader(_ binding: Binding<CGFloat>) -> some View {
-        return GeometryReader { geometry -> Color in
+        GeometryReader { geometry -> Color in
             let rect = geometry.frame(in: .local)
             DispatchQueue.main.async {
                 binding.wrappedValue = rect.size.height

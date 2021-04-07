@@ -151,7 +151,7 @@ class Parser {
                     tmpLikeCount = gdt2
                         .replacingOccurrences(of: " times", with: "")
                         .replacingOccurrences(of: "Never", with: "0")
-                        .replacingOccurrences(of: "Once", with: "0")
+                        .replacingOccurrences(of: "Once", with: "1")
                 }
             }
             
