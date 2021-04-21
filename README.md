@@ -26,5 +26,4 @@ IDK, use it at your own risk.
 2. Use some software like [AltStore](https://altstore.io) to install the ipa file on your device
 
 ## Screenshots
-<img src="https://user-images.githubusercontent.com/31207151/113310398-c8babe80-933a-11eb-910a-fe24ae897346.png" width="350"><img src="https://user-images.githubusercontent.com/31207151/113310409-c9ebeb80-933a-11eb-8da9-4d99618f5e7a.png" width="350">
-<img src="https://user-images.githubusercontent.com/31207151/113310844-3e268f00-933b-11eb-8fb3-3fbacd7097f8.png" width="350"><img src="https://user-images.githubusercontent.com/31207151/113310468-d8d29e00-933a-11eb-9e67-e77d444e2023.png" width="350">
+https://ehpanda.app
