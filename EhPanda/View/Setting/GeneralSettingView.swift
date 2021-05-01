@@ -45,7 +45,7 @@ struct GeneralSettingView: View {
                     Toggle(isOn: settingBinding.closeSlideMenuAfterSelection) {
                         Text("Close slide menu after selection")
                     }
-                    if exx {
+                    if isTokenMatched {
                         Toggle(isOn: settingBinding.detectGalleryFromPasteboard) {
                             Text("Detect link from the clipboard")
                         }

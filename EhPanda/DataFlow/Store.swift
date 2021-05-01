@@ -102,7 +102,7 @@ class Store: ObservableObject {
 
         // MARK: Fetch Data
         case .fetchUserInfo(let uid):
-            if !didLogin && exx { break }
+            if !didLogin && isTokenMatched { break }
             if appState.settings.userInfoLoading { break }
             appState.settings.userInfoLoading = true
 
@@ -133,7 +133,7 @@ class Store: ObservableObject {
             }
 
         case .fetchMangaItemReverse(let detailURL):
-            if !didLogin || !exx { break }
+            if !didLogin || !isTokenMatched { break }
             appState.environment.mangaItemReverseLoadFailed = false
 
             if appState.environment.mangaItemReverseLoading { break }
@@ -153,7 +153,7 @@ class Store: ObservableObject {
             }
 
         case .fetchSearchItems(let keyword):
-            if !didLogin && exx { break }
+            if !didLogin && isTokenMatched { break }
             appState.homeInfo.searchNotFound = false
             appState.homeInfo.searchLoadFailed = false
 
@@ -223,7 +223,7 @@ class Store: ObservableObject {
             }
 
         case .fetchFrontpageItems:
-            if !didLogin && exx { break }
+            if !didLogin && isTokenMatched { break }
             appState.homeInfo.frontpageNotFound = false
             appState.homeInfo.frontpageLoadFailed = false
 
@@ -253,7 +253,7 @@ class Store: ObservableObject {
         case .fetchMoreFrontpageItems:
             appState.homeInfo.moreFrontpageLoadFailed = false
 
-            if !didLogin || !exx { break }
+            if !didLogin || !isTokenMatched { break }
             let currentNum = appState.homeInfo.frontpageCurrentPageNum
             let maximumNum = appState.homeInfo.frontpagePageNumMaximum
             if currentNum + 1 >= maximumNum { break }
@@ -280,7 +280,7 @@ class Store: ObservableObject {
             }
 
         case .fetchPopularItems:
-            if !didLogin && exx { break }
+            if !didLogin && isTokenMatched { break }
             appState.homeInfo.popularNotFound = false
             appState.homeInfo.popularLoadFailed = false
 
@@ -304,7 +304,7 @@ class Store: ObservableObject {
             }
 
         case .fetchWatchedItems:
-            if !didLogin || !exx { break }
+            if !didLogin || !isTokenMatched { break }
             appState.homeInfo.watchedNotFound = false
             appState.homeInfo.watchedLoadFailed = false
 
@@ -360,7 +360,7 @@ class Store: ObservableObject {
             }
 
         case .fetchFavoritesItems(let favIndex):
-            if !didLogin || !exx { break }
+            if !didLogin || !isTokenMatched { break }
             appState.homeInfo.favoritesNotFound[favIndex] = false
             appState.homeInfo.favoritesLoadFailed[favIndex] = false
 

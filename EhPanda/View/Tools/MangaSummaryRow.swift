@@ -110,7 +110,7 @@ struct MangaSummaryRow: View {
                     }
                 }
                 HStack(alignment: .bottom) {
-                    if exx {
+                    if isTokenMatched {
                         Text(category)
                             .fontWeight(.bold)
                             .lineLimit(1)

@@ -58,7 +58,7 @@ struct DetailView: View {
             if !detailInfo.mangaDetailLoading {
                 Menu(content: {
                     if !detailInfo.mangaDetailUpdating {
-                        if exx {
+                        if isTokenMatched {
                             if mangaDetail?.archiveURL != nil {
                                 Button(action: onArchiveButtonTap) {
                                     Label("Archive", systemImage: "doc.zipper")
@@ -109,7 +109,7 @@ struct DetailView: View {
                                 .padding(.bottom, 15)
                             Group {
                                 DescScrollView(detail: detail)
-                                if exx {
+                                if isTokenMatched {
                                     ActionRow(
                                         detail: detail,
                                         ratingAction: onUserRatingChanged
@@ -117,7 +117,7 @@ struct DetailView: View {
                                         onSimilarGalleryTap(detail.title)
                                     }
                                 }
-                                if !detail.detailTags.isEmpty && exx {
+                                if !detail.detailTags.isEmpty && isTokenMatched {
                                     TagsView(
                                         tags: detail.detailTags,
                                         onTapAction: onTagsViewTap
@@ -127,7 +127,7 @@ struct DetailView: View {
                                     previews: detail.previews,
                                     alterImages: detail.alterImages
                                 )
-                                if !(detail.comments.isEmpty && !exx) {
+                                if !(detail.comments.isEmpty && !isTokenMatched) {
                                     CommentScrollView(
                                         gid: gid,
                                         depth: depth,
@@ -363,7 +363,7 @@ private struct HeaderView: View {
                 }
                 Spacer()
                 HStack {
-                    if exx {
+                    if isTokenMatched {
                         Text(category)
                             .fontWeight(.bold)
                             .lineLimit(1)
@@ -377,7 +377,7 @@ private struct HeaderView: View {
                             )
                     }
                     Spacer()
-                    if exx {
+                    if isTokenMatched {
                         if isFavored {
                             Button(action: onFavoriteDelete) {
                                 Image(systemName: "heart.fill")
@@ -755,7 +755,7 @@ private struct CommentScrollView: View {
                     .fontWeight(.bold)
                     .font(.title3)
                 Spacer()
-                if !comments.isEmpty && exx {
+                if !comments.isEmpty && isTokenMatched {
                     NavigationLink(destination: CommentView(gid: gid, depth: depth)) {
                         Text("Show All")
                             .font(.subheadline)
@@ -769,7 +769,7 @@ private struct CommentScrollView: View {
                     }
                 }
             }
-            if exx {
+            if isTokenMatched {
                 CommentButton(action: toggleDraft)
             }
         }

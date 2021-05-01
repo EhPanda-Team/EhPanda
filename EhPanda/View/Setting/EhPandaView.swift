@@ -13,6 +13,10 @@ struct EhPandaView: View {
     private var contacts: [Info] {
         [
             Info(
+                url: "https://ehpanda.app",
+                text: "Website".localized()
+            ),
+            Info(
                 url: "https://github.com/tatsuz0u/EhPanda",
                 text: "GitHub"
             ),
@@ -73,8 +77,8 @@ struct EhPandaView: View {
         }
         .padding(.horizontal)
         Form {
-            if exx {
-                Section {
+            if isTokenMatched {
+                Section(header: Text("Contacts")) {
                     ForEach(contacts) { contact in
                         if let url = URL(string: contact.url) {
                             LinkRow(url: url, text: contact.text)

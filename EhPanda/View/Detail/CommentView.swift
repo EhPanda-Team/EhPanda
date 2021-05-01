@@ -128,7 +128,7 @@ struct CommentView: View {
         }
     }
     func onLinkTap(_ link: URL) {
-        if isValidDetailURL(url: link) && exx {
+        if isValidDetailURL(url: link) && isTokenMatched {
             let gid = link.pathComponents[2]
             if cachedList.hasCached(gid: gid) {
                 replaceMangaCommentJumpID(gid: gid)

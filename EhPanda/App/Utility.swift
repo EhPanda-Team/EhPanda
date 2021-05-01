@@ -11,7 +11,7 @@ import Kingfisher
 import LocalAuthentication
 
 // MARK: Account
-public var isSameAccount: Bool {
+var isSameAccount: Bool {
     if let ehentai = URL(string: Defaults.URL.ehentai),
        let exhentai = URL(string: Defaults.URL.exhentai)
     {
@@ -34,35 +34,31 @@ public var isSameAccount: Bool {
     }
 }
 
-public var didLogin: Bool {
+var didLogin: Bool {
     verifyCookies(url: Defaults.URL.ehentai.safeURL(), isEx: false)
         || verifyCookies(url: Defaults.URL.exhentai.safeURL(), isEx: true)
 }
 
 // MARK: App
-public var appVersion: String {
+var appVersion: String {
     Bundle.main.object(
         forInfoDictionaryKey: "CFBundleShortVersionString"
     ) as? String ?? "(null)"
 }
-public var appBuild: String {
+var appBuild: String {
     Bundle.main.object(
         forInfoDictionaryKey: "CFBundleVersion"
     ) as? String ?? "(null)"
 }
 
-public var exx: Bool {
-    UserDefaults.standard.string(forKey: "entry") == "eLo8cLfAzfcub2sufyGd"
-}
-
-public var galleryType: GalleryType {
+var galleryType: GalleryType {
     let rawValue = UserDefaults
         .standard
         .string(forKey: "GalleryType") ?? ""
     return GalleryType(rawValue: rawValue) ?? .ehentai
 }
 
-public var vcsCount: Int {
+var vcsCount: Int {
     guard let navigationVC = UIApplication
             .shared.windows.first?
             .rootViewController?
@@ -73,7 +69,7 @@ public var vcsCount: Int {
     return navigationVC.viewControllers.count
 }
 
-public var appIconType: IconType {
+var appIconType: IconType {
     if let alterName = UIApplication
         .shared.alternateIconName,
        let selection = IconType.allCases.filter(
@@ -86,7 +82,7 @@ public var appIconType: IconType {
     }
 }
 
-public func localAuth(
+func localAuth(
     reason: String,
     successAction: (() -> Void)? = nil,
     failureAction: (() -> Void)? = nil,
@@ -114,15 +110,15 @@ public func localAuth(
 }
 
 // MARK: Device
-public var isPad: Bool {
+var isPad: Bool {
     UIDevice.current.userInterfaceIdiom == .pad
 }
 
-public var isPadWidth: Bool {
+var isPadWidth: Bool {
     windowW ?? screenW > 700
 }
 
-public var isLandscape: Bool {
+var isLandscape: Bool {
     [.landscapeLeft, .landscapeRight]
         .contains(
             UIApplication.shared.windows.first?
@@ -130,7 +126,7 @@ public var isLandscape: Bool {
         )
 }
 
-public var isPortrait: Bool {
+var isPortrait: Bool {
     [.portrait, .portraitUpsideDown]
         .contains(
             UIApplication.shared.windows.first?
@@ -138,7 +134,7 @@ public var isPortrait: Bool {
         )
 }
 
-public var windowW: CGFloat? {
+var windowW: CGFloat? {
     if let width = absoluteWindowW,
        let height = absoluteWindowH
     {
@@ -148,7 +144,7 @@ public var windowW: CGFloat? {
     }
 }
 
-public var windowH: CGFloat? {
+var windowH: CGFloat? {
     if let width = absoluteWindowW,
        let height = absoluteWindowH
     {
@@ -158,49 +154,49 @@ public var windowH: CGFloat? {
     }
 }
 
-public var screenW: CGFloat {
+var screenW: CGFloat {
     min(absoluteScreenW, absoluteScreenH)
 }
 
-public var screenH: CGFloat {
+var screenH: CGFloat {
     max(absoluteScreenW, absoluteScreenH)
 }
 
-public var absoluteWindowW: CGFloat? {
+var absoluteWindowW: CGFloat? {
     UIApplication.shared.windows.first?.frame.size.width
 }
 
-public var absoluteWindowH: CGFloat? {
+var absoluteWindowH: CGFloat? {
     UIApplication.shared.windows.first?.frame.size.height
 }
 
-public var absoluteScreenW: CGFloat {
+var absoluteScreenW: CGFloat {
     UIScreen.main.bounds.size.width
 }
 
-public var absoluteScreenH: CGFloat {
+var absoluteScreenH: CGFloat {
     UIScreen.main.bounds.size.height
 }
 
-public func impactFeedback(style: UIImpactFeedbackGenerator.FeedbackStyle) {
+func impactFeedback(style: UIImpactFeedbackGenerator.FeedbackStyle) {
     UIImpactFeedbackGenerator(style: style)
         .impactOccurred()
 }
-public func notificFeedback(style: UINotificationFeedbackGenerator.FeedbackType) {
+func notificFeedback(style: UINotificationFeedbackGenerator.FeedbackType) {
     UINotificationFeedbackGenerator().notificationOccurred(style)
 }
 
 // MARK: Tools
-public func clearPasteboard() {
+func clearPasteboard() {
     UIPasteboard.general.string = ""
 }
 
-public func saveToPasteboard(_ value: String) {
+func saveToPasteboard(_ value: String) {
     UIPasteboard.general.string = value
     notificFeedback(style: .success)
 }
 
-public func getPasteboardLink() -> URL? {
+func getPasteboardLink() -> URL? {
     if UIPasteboard.general.hasURLs {
         return UIPasteboard.general.url
     } else {
@@ -208,7 +204,7 @@ public func getPasteboardLink() -> URL? {
     }
 }
 
-public func isValidDetailURL(url: URL) -> Bool {
+func isValidDetailURL(url: URL) -> Bool {
     (url.absoluteString.contains(Defaults.URL.ehentai)
         || url.absoluteString.contains(Defaults.URL.exhentai))
         && url.pathComponents.count >= 4
@@ -217,49 +213,63 @@ public func isValidDetailURL(url: URL) -> Bool {
         && !url.pathComponents[3].isEmpty
 }
 
-public func hideKeyboard() {
+func hideKeyboard() {
     UIApplication.shared.sendAction(
         #selector(UIResponder.resignFirstResponder),
         to: nil, from: nil, for: nil
     )
 }
 
+func copyHTMLIfNeeded(_ html: String?) {
+    if isDebugModeOn, let value = html {
+        saveToPasteboard(value)
+    }
+}
+
 // MARK: UserDefaults
-public func setEntry(_ token: String?) {
-    UserDefaults.standard.set(token, forKey: "entry")
-}
+let isDebugModeOn = UserDefaults.standard.bool(forKey: "debugModeOn")
 
-public func setGalleryType(_ type: GalleryType) {
-    UserDefaults.standard.set(type.rawValue, forKey: "GalleryType")
-}
+let isTokenMatched = UserDefaults.standard.string(forKey: "token") == "r9vG3pcs2mT9MoWj2ZJR"
 
-public func clearGalleryType() {
-    UserDefaults.standard.set(nil, forKey: "GalleryType")
-}
-
-public func getPasteboardChangeCount() -> Int? {
+var pasteboardChangeCount: Int? {
     UserDefaults.standard.integer(forKey: "PasteboardChangeCount")
 }
 
-public func setPasteboardChangeCount(_ value: Int) {
+func setToken(with token: String?) {
+    UserDefaults.standard.set(token, forKey: "token")
+}
+
+func setDebugMode(with debugModeOn: Bool) {
+    UserDefaults.standard.set(debugModeOn, forKey: "debugModeOn")
+}
+
+func setGalleryType(with type: GalleryType) {
+    UserDefaults.standard.set(type.rawValue, forKey: "GalleryType")
+}
+
+func clearGalleryType() {
+    UserDefaults.standard.set(nil, forKey: "GalleryType")
+}
+
+func setPasteboardChangeCount(with value: Int) {
     UserDefaults.standard.set(value, forKey: "PasteboardChangeCount")
 }
 
-public func postSlideMenuShouldCloseNotification() {
+func postSlideMenuShouldCloseNotification() {
     NotificationCenter.default.post(
         name: NSNotification.Name("SlideMenuShouldClose"),
         object: nil
     )
 }
 
-public func postAppWidthDidChangeNotification() {
+func postAppWidthDidChangeNotification() {
     NotificationCenter.default.post(
         name: NSNotification.Name("AppWidthDidChange"),
         object: nil
     )
 }
 
-public func postDetailViewOnDisappearNotification() {
+func postDetailViewOnDisappearNotification() {
     NotificationCenter.default.post(
         name: NSNotification.Name("DetailViewOnDisappear"),
         object: nil
@@ -267,13 +277,13 @@ public func postDetailViewOnDisappearNotification() {
 }
 
 // MARK: Storage Management
-public func readableUnit<I: BinaryInteger>(bytes: I) -> String {
+func readableUnit<I: BinaryInteger>(bytes: I) -> String {
     let formatter = ByteCountFormatter()
     formatter.allowedUnits = [.useAll]
     return formatter.string(fromByteCount: Int64(bytes))
 }
 
-public func browsingCaches() -> String {
+func browsingCaches() -> String {
     guard let fileURL = FileManager
             .default
             .urls(
@@ -293,13 +303,13 @@ public func browsingCaches() -> String {
 }
 
 // MARK: Cookies
-public func initiateCookieFrom(_ cookie: HTTPCookie, value: String) -> HTTPCookie {
+func initiateCookieFrom(_ cookie: HTTPCookie, value: String) -> HTTPCookie {
     var properties = cookie.properties
     properties?[.value] = value
     return HTTPCookie(properties: properties ?? [:]) ?? HTTPCookie()
 }
 
-public func checkExistence(url: URL, key: String) -> Bool {
+func checkExistence(url: URL, key: String) -> Bool {
     if let cookies = HTTPCookieStorage.shared.cookies(for: url) {
         var existence: HTTPCookie?
         cookies.forEach { cookie in
@@ -313,7 +323,7 @@ public func checkExistence(url: URL, key: String) -> Bool {
     }
 }
 
-public func setCookie(url: URL, key: String, value: String) {
+func setCookie(url: URL, key: String, value: String) {
     let expiredDate = Date(
         timeIntervalSinceNow:
             TimeInterval(60 * 60 * 24 * 365)
@@ -331,7 +341,7 @@ public func setCookie(url: URL, key: String, value: String) {
     }
 }
 
-public func removeCookie(url: URL, key: String) {
+func removeCookie(url: URL, key: String) {
     if let cookies = HTTPCookieStorage.shared.cookies(for: url) {
         cookies.forEach { cookie in
             if cookie.name == key {
@@ -341,7 +351,7 @@ public func removeCookie(url: URL, key: String) {
     }
 }
 
-public func clearCookies() {
+func clearCookies() {
     if let historyCookies = HTTPCookieStorage.shared.cookies {
         historyCookies.forEach {
             HTTPCookieStorage.shared.deleteCookie($0)
@@ -349,7 +359,7 @@ public func clearCookies() {
     }
 }
 
-public func editCookie(url: URL, key: String, value: String) {
+func editCookie(url: URL, key: String, value: String) {
     var newCookie: HTTPCookie?
     if let cookies = HTTPCookieStorage.shared.cookies(for: url) {
         cookies.forEach { cookie in
@@ -365,7 +375,7 @@ public func editCookie(url: URL, key: String, value: String) {
     HTTPCookieStorage.shared.setCookie(cookie)
 }
 
-public func getCookieValue(url: URL, key: String) -> CookieValue {
+func getCookieValue(url: URL, key: String) -> CookieValue {
     var value = CookieValue(
         rawValue: "",
         localizedString: Defaults.Cookie.null.localized()

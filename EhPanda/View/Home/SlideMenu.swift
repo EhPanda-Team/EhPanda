@@ -50,13 +50,13 @@ struct SlideMenu: View {
     var reversedPrimary: Color {
         colorScheme == .light ? .white : .black
     }
-    var exxMenuItems = HomeListType
+    var tokenMatchedMenuItems = HomeListType
         .allCases.filter({ $0 != .search })
     var menuItems: [HomeListType] {
-        if exx {
-            return exxMenuItems
+        if isTokenMatched {
+            return tokenMatchedMenuItems
         } else {
-            return Array(exxMenuItems.prefix(2))
+            return Array(tokenMatchedMenuItems.prefix(2))
         }
     }
 

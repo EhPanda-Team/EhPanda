@@ -47,7 +47,7 @@ struct SettingView: View {
         NavigationView {
             ScrollView {
                 VStack(spacing: 0) {
-                    if exx {
+                    if isTokenMatched {
                         SettingRow(
                             symbolName: "person.fill",
                             text: "Account",

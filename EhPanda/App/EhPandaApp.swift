@@ -39,7 +39,14 @@ struct EhPandaApp: App {
     }
 
     func onOpenURL(_ url: URL) {
-        setEntry(url.host)
+        switch url.host {
+        case "token":
+            setToken(with: url.pathComponents.last)
+        case "debugMode":
+            setDebugMode(with: url.pathComponents.last == "on")
+        default:
+            break
+        }
     }
 
     func configureWebImage() {

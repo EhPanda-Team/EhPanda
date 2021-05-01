@@ -62,7 +62,7 @@ struct HomeView: View {
         }
     }
     var hasJumpPermission: Bool {
-        vcsCount == 1 && exx
+        vcsCount == 1 && isTokenMatched
             && setting?.detectGalleryFromPasteboard == true
     }
 
@@ -336,8 +336,8 @@ struct HomeView: View {
             return getPasteboardLink()
         } else {
             let currentChangeCount = UIPasteboard.general.changeCount
-            if getPasteboardChangeCount() != currentChangeCount {
-                setPasteboardChangeCount(currentChangeCount)
+            if pasteboardChangeCount != currentChangeCount {
+                setPasteboardChangeCount(with: currentChangeCount)
                 return getPasteboardLink()
             } else {
                 return nil
@@ -470,7 +470,7 @@ private struct GenericList: View {
             arrowTint: .primary,
             onUpdate: onUpdate
         ) {
-            if exx {
+            if isTokenMatched {
                 SearchBar(
                     keyword: homeInfoBinding.searchKeyword,
                     commitAction: searchBarCommit,
@@ -479,7 +479,7 @@ private struct GenericList: View {
                 .padding(.horizontal)
                 .padding(.bottom, 10)
             }
-            if !didLogin && exx {
+            if !didLogin && isTokenMatched {
                 NotLoginView(loginAction: toggleSetting)
                     .padding(.top, 30)
             } else if loadingFlag {

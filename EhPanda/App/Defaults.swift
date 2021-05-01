@@ -50,7 +50,7 @@ class Defaults {
     class URL {
         // Domains
         static var host: String {
-            if exx {
+            if isTokenMatched {
                 return galleryType == .ehentai ? ehentai : exhentai
             } else {
                 return durarara
@@ -145,7 +145,7 @@ extension Defaults.URL {
         )
     }
     static func frontpageList() -> String {
-        if exx {
+        if isTokenMatched {
             return merge([host, listCompact])
         } else {
             return durarara
@@ -155,7 +155,7 @@ extension Defaults.URL {
         merge([host, listCompact, page + pageNum, from + lastID])
     }
     static func popularList() -> String {
-        if exx {
+        if isTokenMatched {
             return merge([host + popular, listCompact])
         } else {
             return merge([ehentai, listCompact, nonh, fSearch + "parody:gintama$"])

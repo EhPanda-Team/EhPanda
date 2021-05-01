@@ -13,7 +13,7 @@ struct Setting: Codable {
     // Account
     var galleryType = GalleryType.ehentai {
         didSet {
-            setGalleryType(galleryType)
+            setGalleryType(with: galleryType)
         }
     }
 

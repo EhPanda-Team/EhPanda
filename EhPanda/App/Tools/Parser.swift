@@ -358,9 +358,10 @@ class Parser {
 
     // MARK: Content
     func parseImagePreContents(_ doc: HTMLDocument, pageCount: Int) throws -> (PageNumber, [(Int, URL)]) {
+        copyHTMLIfNeeded(doc.toHTML)
         var imageDetailURLs = [(Int, URL)]()
 
-        let className = exx ? "gdtl" : "gdtm"
+        let className = isTokenMatched ? "gdtl" : "gdtm"
         guard let gdtNode = doc.at_xpath("//div [@id='gdt']")
         else { throw AppError.parseFailed }
 
@@ -377,6 +378,7 @@ class Parser {
     }
 
     func parseMangaContent(doc: HTMLDocument, tag: Int) throws -> MangaContent {
+        copyHTMLIfNeeded(doc.toHTML)
         guard let i3Node = doc.at_xpath("//div [@id='i3']"),
               let imageURL = i3Node.at_css("img")?["src"]
         else { throw AppError.parseFailed }
@@ -412,6 +414,7 @@ class Parser {
 
     // MARK: Archive
     func parseMangaArchive(doc: HTMLDocument) throws -> (MangaArchive, CurrentGP?, CurrentCredits?) {
+        copyHTMLIfNeeded(doc.toHTML)
         var hathArchives = [MangaArchive.HathArchive]()
 
         guard let tableNode = doc.at_xpath("//table") else { throw AppError.parseFailed }
