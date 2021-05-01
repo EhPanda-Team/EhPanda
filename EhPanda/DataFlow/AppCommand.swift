@@ -592,12 +592,12 @@ struct SendDownloadCommand: AppCommand {
         .publisher
         .receive(on: DispatchQueue.main)
         .sink { completion in
-            if case .failure(let error) = completion {
-                store.dispatch(.sendDownloadCommandDone(result: .failure(error)))
+            if case .failure = completion {
+                store.dispatch(.sendDownloadCommandDone(result: nil))
             }
             token.unseal()
         } receiveValue: { resp in
-            store.dispatch(.sendDownloadCommandDone(result: .success(resp)))
+            store.dispatch(.sendDownloadCommandDone(result: resp))
             store.dispatch(.fetchMangaArchiveFunds(gid: gid))
         }
         .seal(in: token)

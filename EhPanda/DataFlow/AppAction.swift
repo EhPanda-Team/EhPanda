@@ -92,7 +92,7 @@ enum AppAction {
     case addFavorite(gid: String, favIndex: Int)
     case deleteFavorite(gid: String)
     case sendDownloadCommand(gid: String, resolution: String)
-    case sendDownloadCommandDone(result: Result<Resp?, AppError>)
+    case sendDownloadCommandDone(result: Resp?)
     case rate(gid: String, rating: Int)
     case comment(gid: String, content: String)
     case editComment(gid: String, commentID: String, content: String)

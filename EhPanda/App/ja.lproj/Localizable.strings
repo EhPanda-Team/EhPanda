@@ -7,8 +7,9 @@
 */
 
 // MARK: Response
-"You must have a H@H client assigned to your account to use this feature." = "この機能を使うにはHathクライアントが必要です";
-"Your H@H client appears to be offline. Turn it on, then try again." = "Hathクライアントは現在オフラインのようです";
+"You must have a H@H client assigned to your account to use this feature." = "この機能を使うには、アカウントに関連付けられているHathクライアントが必要です";
+"Your H@H client appears to be offline. Turn it on, then try again." = "Hathクライアントは現在オフラインのようです、起動してからもう一度お試しください";
+"The requested gallery cannot be downloaded with the selected resolution." = "選択された解像度はこのギャラリーのダウンロードにはご利用いただけません";
 
 // MARK: HUD
 "Success" = "成功";

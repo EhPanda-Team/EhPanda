@@ -7,8 +7,9 @@
 */
 
 // MARK: Response
-"You must have a H@H client assigned to your account to use this feature." = "你需要一台Hath客户端才能使用这个功能";
-"Your H@H client appears to be offline. Turn it on, then try again." = "你的Hath客户端似乎处于离线状态";
+"You must have a H@H client assigned to your account to use this feature." = "你需要一个关联到账户的Hath客户端才能使用这个功能";
+"Your H@H client appears to be offline. Turn it on, then try again." = "你的Hath客户端似乎处于离线状态，请启动它后再试";
+"The requested gallery cannot be downloaded with the selected resolution." = "该画廊不能以选中的分辨率下载";
 
 // MARK: HUD
 "Success" = "成功";

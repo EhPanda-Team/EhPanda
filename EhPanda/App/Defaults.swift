@@ -45,6 +45,7 @@ class Defaults {
     class Response {
         static var hathClientNotFound = "You must have a H@H client assigned to your account to use this feature."
         static var hathClientNotOnline = "Your H@H client appears to be offline. Turn it on, then try again."
+        static var invalidResolution = "The requested gallery cannot be downloaded with the selected resolution."
     }
     class URL {
         // Domains

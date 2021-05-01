@@ -703,18 +703,15 @@ class Store: ObservableObject {
             appCommand = SendDownloadCommand(gid: gid, archiveURL: archiveURL, resolution: resolution)
         case .sendDownloadCommandDone(let result):
             appState.detailInfo.downloadCommandSending = false
+            appState.detailInfo.downloadCommandResponse = result
 
             switch result {
-            case .success(let resp):
-                if resp == Defaults.Response.hathClientNotFound ||
-                    resp == Defaults.Response.hathClientNotOnline
-                {
-                    appState.detailInfo.downloadCommandFailed = true
-                }
-                appState.detailInfo.downloadCommandResponse = resp
-            case .failure(let error):
+            case Defaults.Response.hathClientNotFound,
+                 Defaults.Response.hathClientNotOnline,
+                 Defaults.Response.invalidResolution:
                 appState.detailInfo.downloadCommandFailed = true
-                print(error)
+            default:
+                break
             }
 
         case .rate(let gid, let rating):

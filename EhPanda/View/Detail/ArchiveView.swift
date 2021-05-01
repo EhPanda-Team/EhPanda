@@ -134,27 +134,10 @@ struct ArchiveView: View {
         if let sending = value as? Bool,
            sending == false
         {
-            var type: TTProgressHUDType = .warning
-            var title: String?
-            var caption: String?
-
-            if !detailInfo.downloadCommandFailed,
-               let response = detailInfo.downloadCommandResponse
-            {
-                type = .success
-                title = "Success".localized()
-                caption = processResponse(response).localized()
-            } else if detailInfo.downloadCommandFailed {
-                if let response = detailInfo.downloadCommandResponse {
-                    type = .error
-                    title = "Error".localized()
-                    caption = response.localized()
-                } else {
-                    type = .error
-                    title = "Error".localized()
-                    caption = nil
-                }
-            }
+            let isSuccess = !detailInfo.downloadCommandFailed
+            let type: TTProgressHUDType = isSuccess ? .success : .error
+            let title = (isSuccess ? "Success" : "Error").localized()
+            let caption = detailInfo.downloadCommandResponse?.localized()
 
             switch type {
             case .success:
@@ -181,41 +164,6 @@ struct ArchiveView: View {
            isVisible == false
         {
             store.dispatch(.resetDownloadCommandResponse)
-        }
-    }
-
-    func processResponse(_ resp: String) -> String {
-        if let rangeA = resp.range(of: "A "),
-           let rangeB = resp.range(of: "resolution"),
-           let rangeC = resp.range(of: "client"),
-           let rangeD = resp.range(of: "Downloads")
-        {
-            let res = String(
-                resp
-                    .suffix(from: rangeA.upperBound)
-                    .prefix(upTo: rangeB.lowerBound)
-            )
-            .capitalizingFirstLetter()
-            .trimmingCharacters(
-                in: .whitespacesAndNewlines
-            )
-
-            if ArchiveRes(rawValue: res) != nil {
-                let clientName = String(
-                    resp
-                        .suffix(from: rangeC.upperBound)
-                        .prefix(upTo: rangeD.lowerBound)
-                )
-                .trimmingCharacters(
-                    in: .whitespacesAndNewlines
-                )
-
-                return res.localized() + " -> " + clientName
-            } else {
-                return resp
-            }
-        } else {
-            return resp
         }
     }
 

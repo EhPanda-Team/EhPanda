@@ -309,7 +309,7 @@ extension ArchiveRes {
         case .original:
             return "org"
         default:
-            return rawValue
+            return String(rawValue.dropLast())
         }
     }
 }

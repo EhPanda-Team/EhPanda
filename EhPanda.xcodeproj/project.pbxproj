@@ -33,8 +33,8 @@
 		ABC3C79D259369FE00E0C11B /* Kanna in Frameworks */ = {isa = PBXBuildFile; productRef = ABC3C79C259369FE00E0C11B /* Kanna */; };
 		ABCD2F0A259763FC008E5A20 /* Request.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD2F09259763FC008E5A20 /* Request.swift */; };
 		ABCD2F0E25976B95008E5A20 /* Parser.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD2F0D25976B95008E5A20 /* Parser.swift */; };
-		ABCE3FD325FDECB800299A6F /* TTProgressHUD in Frameworks */ = {isa = PBXBuildFile; productRef = ABCE3FD225FDECB800299A6F /* TTProgressHUD */; };
 		ABD5FDD4263D05110021A4C6 /* .swiftlint.yml in Resources */ = {isa = PBXBuildFile; fileRef = ABD5FDD3263D05110021A4C6 /* .swiftlint.yml */; };
+		ABD5FDD7263D86AA0021A4C6 /* TTProgressHUD in Frameworks */ = {isa = PBXBuildFile; productRef = ABD5FDD6263D86AA0021A4C6 /* TTProgressHUD */; };
 		ABE0FA2F25D4CAEC00E52F18 /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = ABE0FA2E25D4CAEC00E52F18 /* SDWebImageSwiftUI */; };
 		ABEA1FE625A9B40B002966B9 /* Setting.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABEA1FE525A9B40B002966B9 /* Setting.swift */; };
 		ABEE0AFA2595C6F800C997AE /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = ABEE0AFC2595C6F800C997AE /* Localizable.strings */; };
@@ -151,7 +151,7 @@
 				ABE0FA2F25D4CAEC00E52F18 /* SDWebImageSwiftUI in Frameworks */,
 				AB84F47525CAF56D00DAF1EC /* Kingfisher in Frameworks */,
 				ABC3C79D259369FE00E0C11B /* Kanna in Frameworks */,
-				ABCE3FD325FDECB800299A6F /* TTProgressHUD in Frameworks */,
+				ABD5FDD7263D86AA0021A4C6 /* TTProgressHUD in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -360,7 +360,7 @@
 				ABC3C79C259369FE00E0C11B /* Kanna */,
 				AB84F47425CAF56D00DAF1EC /* Kingfisher */,
 				ABE0FA2E25D4CAEC00E52F18 /* SDWebImageSwiftUI */,
-				ABCE3FD225FDECB800299A6F /* TTProgressHUD */,
+				ABD5FDD6263D86AA0021A4C6 /* TTProgressHUD */,
 			);
 			productName = EhPanda;
 			productReference = ABC3C7542593696C00E0C11B /* EhPanda.app */;
@@ -395,7 +395,7 @@
 				ABC3C79B259369FE00E0C11B /* XCRemoteSwiftPackageReference "Kanna" */,
 				AB84F47325CAF56D00DAF1EC /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				ABE0FA2D25D4CAEC00E52F18 /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */,
-				ABCE3FD125FDECB800299A6F /* XCRemoteSwiftPackageReference "TTProgressHUD" */,
+				ABD5FDD5263D86AA0021A4C6 /* XCRemoteSwiftPackageReference "TTProgressHUD" */,
 			);
 			productRefGroup = ABC3C7552593696C00E0C11B /* Products */;
 			projectDirPath = "";
@@ -742,9 +742,9 @@
 				minimumVersion = 5.2.4;
 			};
 		};
-		ABCE3FD125FDECB800299A6F /* XCRemoteSwiftPackageReference "TTProgressHUD" */ = {
+		ABD5FDD5263D86AA0021A4C6 /* XCRemoteSwiftPackageReference "TTProgressHUD" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/arakitatsuzou/TTProgressHUD.git";
+			repositoryURL = "https://github.com/tatsuz0u/TTProgressHUD";
 			requirement = {
 				branch = master;
 				kind = branch;
@@ -771,9 +771,9 @@
 			package = ABC3C79B259369FE00E0C11B /* XCRemoteSwiftPackageReference "Kanna" */;
 			productName = Kanna;
 		};
-		ABCE3FD225FDECB800299A6F /* TTProgressHUD */ = {
+		ABD5FDD6263D86AA0021A4C6 /* TTProgressHUD */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = ABCE3FD125FDECB800299A6F /* XCRemoteSwiftPackageReference "TTProgressHUD" */;
+			package = ABD5FDD5263D86AA0021A4C6 /* XCRemoteSwiftPackageReference "TTProgressHUD" */;
 			productName = TTProgressHUD;
 		};
 		ABE0FA2E25D4CAEC00E52F18 /* SDWebImageSwiftUI */ = {

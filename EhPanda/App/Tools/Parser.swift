@@ -686,11 +686,39 @@ extension Parser {
             }
         }
 
-        if !response.isEmpty {
-            return response.joined(separator: " ")
-        } else {
-            throw AppError.parseFailed
+        var respString = response.joined(separator: " ")
+
+        if let rangeA =
+            respString.range(of: "A ") ?? respString.range(of: "An "),
+           let rangeB = respString.range(of: "resolution"),
+           let rangeC = respString.range(of: "client"),
+           let rangeD = respString.range(of: "Downloads")
+        {
+            let resp = String(
+                respString
+                    .suffix(from: rangeA.upperBound)
+                    .prefix(upTo: rangeB.lowerBound)
+            )
+            .capitalizingFirstLetter()
+            .trimmingCharacters(
+                in: .whitespacesAndNewlines
+            )
+
+            if ArchiveRes(rawValue: resp) != nil {
+                let clientName = String(
+                    respString
+                        .suffix(from: rangeC.upperBound)
+                        .prefix(upTo: rangeD.lowerBound)
+                )
+                .trimmingCharacters(
+                    in: .whitespacesAndNewlines
+                )
+
+                respString = resp.localized() + " -> " + clientName
+            }
         }
+
+        return respString
     }
 
     // MARK: ArchiveURL
