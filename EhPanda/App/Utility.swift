@@ -10,6 +10,7 @@ import Combine
 import Kingfisher
 import LocalAuthentication
 
+// MARK: Account
 public var isSameAccount: Bool {
     if let ehentai = URL(string: Defaults.URL.ehentai),
        let exhentai = URL(string: Defaults.URL.exhentai)
@@ -38,6 +39,7 @@ public var didLogin: Bool {
         || verifyCookies(url: Defaults.URL.exhentai.safeURL(), isEx: true)
 }
 
+// MARK: App
 public var appVersion: String {
     Bundle.main.object(
         forInfoDictionaryKey: "CFBundleShortVersionString"
@@ -53,6 +55,65 @@ public var exx: Bool {
     UserDefaults.standard.string(forKey: "entry") == "eLo8cLfAzfcub2sufyGd"
 }
 
+public var galleryType: GalleryType {
+    let rawValue = UserDefaults
+        .standard
+        .string(forKey: "GalleryType") ?? ""
+    return GalleryType(rawValue: rawValue) ?? .ehentai
+}
+
+public var vcsCount: Int {
+    guard let navigationVC = UIApplication
+            .shared.windows.first?
+            .rootViewController?
+            .children.first
+            as? UINavigationController
+    else { return -1 }
+
+    return navigationVC.viewControllers.count
+}
+
+public var appIconType: IconType {
+    if let alterName = UIApplication
+        .shared.alternateIconName,
+       let selection = IconType.allCases.filter(
+        { alterName.contains($0.fileName ?? "") }
+       ).first
+       {
+        return selection
+    } else {
+        return .default
+    }
+}
+
+public func localAuth(
+    reason: String,
+    successAction: (() -> Void)? = nil,
+    failureAction: (() -> Void)? = nil,
+    passcodeNotFoundAction: (() -> Void)? = nil
+) {
+    let context = LAContext()
+    var error: NSError?
+
+    if context.canEvaluatePolicy(.deviceOwnerAuthentication, error: &error) {
+        context.evaluatePolicy(
+            .deviceOwnerAuthentication,
+            localizedReason: reason.localized()
+        ) { success, _ in
+            DispatchQueue.main.async {
+                if success, let action = successAction {
+                    action()
+                } else if let action = failureAction {
+                    action()
+                }
+            }
+        }
+    } else if let action = passcodeNotFoundAction {
+        action()
+    }
+}
+
+// MARK: Device
 public var isPad: Bool {
     UIDevice.current.userInterfaceIdiom == .pad
 }
@@ -121,35 +182,12 @@ public var absoluteScreenH: CGFloat {
     UIScreen.main.bounds.size.height
 }
 
-public var galleryType: GalleryType {
-    let rawValue = UserDefaults
-        .standard
-        .string(forKey: "GalleryType") ?? ""
-    return GalleryType(rawValue: rawValue) ?? .ehentai
+public func impactFeedback(style: UIImpactFeedbackGenerator.FeedbackStyle) {
+    UIImpactFeedbackGenerator(style: style)
+        .impactOccurred()
 }
-
-public var vcsCount: Int {
-    guard let navigationVC = UIApplication
-            .shared.windows.first?
-            .rootViewController?
-            .children.first
-            as? UINavigationController
-    else { return -1 }
-
-    return navigationVC.viewControllers.count
-}
-
-public var appIconType: IconType {
-    if let alterName = UIApplication
-        .shared.alternateIconName,
-       let selection = IconType.allCases.filter(
-        { alterName.contains($0.fileName ?? "") }
-       ).first
-       {
-        return selection
-    } else {
-        return .default
-    }
+public func notificFeedback(style: UINotificationFeedbackGenerator.FeedbackType) {
+    UINotificationFeedbackGenerator().notificationOccurred(style)
 }
 
 // MARK: Tools
@@ -167,41 +205,6 @@ public func getPasteboardLink() -> URL? {
         return UIPasteboard.general.url
     } else {
         return nil
-    }
-}
-
-public func impactFeedback(style: UIImpactFeedbackGenerator.FeedbackStyle) {
-    UIImpactFeedbackGenerator(style: style)
-        .impactOccurred()
-}
-public func notificFeedback(style: UINotificationFeedbackGenerator.FeedbackType) {
-    UINotificationFeedbackGenerator().notificationOccurred(style)
-}
-
-public func localAuth(
-    reason: String,
-    successAction: (() -> Void)? = nil,
-    failureAction: (() -> Void)? = nil,
-    passcodeNotFoundAction: (() -> Void)? = nil
-) {
-    let context = LAContext()
-    var error: NSError?
-
-    if context.canEvaluatePolicy(.deviceOwnerAuthentication, error: &error) {
-        context.evaluatePolicy(
-            .deviceOwnerAuthentication,
-            localizedReason: reason.localized()
-        ) { success, _ in
-            DispatchQueue.main.async {
-                if success, let action = successAction {
-                    action()
-                } else if let action = failureAction {
-                    action()
-                }
-            }
-        }
-    } else if let action = passcodeNotFoundAction {
-        action()
     }
 }
 
@@ -289,43 +292,6 @@ public func browsingCaches() -> String {
     return readableUnit(bytes: data.count)
 }
 
-public func clearCookies() {
-    if let historyCookies = HTTPCookieStorage.shared.cookies {
-        historyCookies.forEach {
-            HTTPCookieStorage.shared.deleteCookie($0)
-        }
-    }
-}
-
-// MARK: Thread
-public func executeMainAsync(_ closure: @escaping () -> Void) {
-    if Thread.isMainThread {
-        closure()
-    } else {
-        DispatchQueue.main.async {
-            closure()
-        }
-    }
-}
-
-public func executeMainAsync(_ delay: DispatchTimeInterval, _ closure: @escaping () -> Void) {
-    DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-        closure()
-    }
-}
-
-public func executeAsync(_ closure: @escaping () -> Void) {
-    DispatchQueue.global().async {
-        closure()
-    }
-}
-
-public func executeSync(_ closure: @escaping () -> Void) {
-    DispatchQueue.global().sync {
-        closure()
-    }
-}
-
 // MARK: Cookies
 public func initiateCookieFrom(_ cookie: HTTPCookie, value: String) -> HTTPCookie {
     var properties = cookie.properties
@@ -371,6 +337,14 @@ public func removeCookie(url: URL, key: String) {
             if cookie.name == key {
                 HTTPCookieStorage.shared.deleteCookie(cookie)
             }
+        }
+    }
+}
+
+public func clearCookies() {
+    if let historyCookies = HTTPCookieStorage.shared.cookies {
+        historyCookies.forEach {
+            HTTPCookieStorage.shared.deleteCookie($0)
         }
     }
 }

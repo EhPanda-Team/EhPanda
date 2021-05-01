@@ -101,7 +101,7 @@ struct KRefreshScrollView<Content: View>: View {
     }
 
     func fireUpdate() {
-        executeMainAsync {
+        DispatchQueue.main.async {
             withAnimation(Animation.linear) {
                 if refresh.startOffset == refresh.offset {
                     onUpdate()
