@@ -16,14 +16,16 @@
 [![Telegram](https://img.shields.io/badge/chat-Telegram-blue.svg)](https://t.me/ehpanda)
 
 ## App Icon
-© 2021 荒木辰造 All rights reserved
+© 2021 荒木辰造. All rights reserved.
 
 ## Content & Copyright
 IDK, use it at your own risk.
 
 ## Installation
-1. Get the ipa file from [Releases](https://github.com/arakitatsuzou/EhPanda/releases)
-2. Use some software like [AltStore](https://altstore.io) to install the ipa file on your device
+1. Get the ipa file from [Releases](https://github.com/arakitatsuzou/EhPanda/releases).
+2. Use some software like [AltStore](https://altstore.io) to install the ipa file on your device.
+
+PS: This app requires iOS/iPadOS 14.0 or later.
 
 ## Screenshots
 https://ehpanda.app
