@@ -11,14 +11,14 @@ import SDWebImageSwiftUI
 
 struct SettingView: View {
     @EnvironmentObject var store: Store
-    
+
     var environment: AppState.Environment {
         store.appState.environment
     }
     var environmentBinding: Binding<AppState.Environment> {
         $store.appState.environment
     }
-    
+
     var logoutActionSheet: ActionSheet {
         ActionSheet(title: Text("Are you sure to logout?"), buttons: [
             .destructive(Text("Logout"), action: logout),
@@ -41,7 +41,7 @@ struct SettingView: View {
             ]
         )
     }
-    
+
     // MARK: SettingView
     var body: some View {
         NavigationView {
@@ -109,11 +109,11 @@ struct SettingView: View {
             }
         }
     }
-    
+
     func onGeneralSettingAppear() {
         calculateDiskCachesSize()
     }
-    
+
     func logout() {
         clearCookies()
         clearImageCaches()
@@ -121,7 +121,7 @@ struct SettingView: View {
         store.dispatch(.clearHistoryItems)
         store.dispatch(.replaceUser(user: nil))
     }
-    
+
     func calculateDiskCachesSize() {
         KingfisherManager.shared.cache.calculateDiskStorageSize { result in
             switch result {
@@ -150,15 +150,15 @@ struct SettingView: View {
 }
 
 // MARK: SettingRow
-private struct SettingRow<Destination : View>: View {
+private struct SettingRow<Destination: View>: View {
     @Environment(\.colorScheme) var colorScheme
     @State var isPressing = false
     @State var isActive = false
-    
+
     let symbolName: String
     let text: String
     let destination: Destination
-    
+
     var color: Color {
         colorScheme == .light
             ? Color(.darkGray)
@@ -167,7 +167,7 @@ private struct SettingRow<Destination : View>: View {
     var backgroundColor: Color {
         isPressing ? color.opacity(0.1) : .clear
     }
-    
+
     var body: some View {
         ZStack {
             NavigationLink(
@@ -208,7 +208,7 @@ private struct SettingRow<Destination : View>: View {
 // MARK: Definition
 enum SettingViewActionSheetState: Identifiable {
     var id: Int { hashValue }
-    
+
     case logout
     case clearImgCaches
     case clearWebCaches
@@ -216,7 +216,7 @@ enum SettingViewActionSheetState: Identifiable {
 
 enum SettingViewSheetState: Identifiable {
     var id: Int { hashValue }
-    
+
     case webviewLogin
     case webviewConfig
     case webviewMyTags

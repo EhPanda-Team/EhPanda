@@ -11,30 +11,30 @@ struct User: Codable {
     var displayName: String?
     var avatarURL: String?
     var apikey: String?
-    
+
     var currentGP: String?
     var currentCredits: String?
-    
+
     var apiuid: String {
         getCookieValue(
             url: Defaults.URL.host.safeURL(),
-            key: Defaults.Cookie.ipb_member_id
+            key: Defaults.Cookie.ipbMemberId
         )
         .rawValue
     }
-    
-    var favoriteNames: [Int : String]?
-    
+
+    var favoriteNames: [Int: String]?
+
     func getFavNameFrom(_ index: Int) -> String {
         let name = favoriteNames?[index] ?? ""
-        
+
         let replacedName = name
             .dropLast()
             .replacingOccurrences(
                 of: "Favorites ",
                 with: "favoriteNameByDev"
             )
-        
+
         if replacedName.hasLString {
             return replacedName.lString() + " \(index)"
         } else {
@@ -51,7 +51,7 @@ enum FavoritesType: String, Codable, CaseIterable {
             }
             .first ?? .all
     }
-    
+
     var index: Int {
         Int(self.rawValue
             .replacingOccurrences(
@@ -60,7 +60,7 @@ enum FavoritesType: String, Codable, CaseIterable {
             )
         ) ?? -1
     }
-    
+
     case all = "all"
     case favorite0 = "favorite_0"
     case favorite1 = "favorite_1"

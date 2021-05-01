@@ -11,13 +11,13 @@ import WebKit
 struct WebView: UIViewControllerRepresentable {
     @EnvironmentObject var store: Store
     let webviewType: WebViewType
-    
+
     init(type: WebViewType) {
         webviewType = type
     }
-    
+
     class Coodinator: NSObject, WKNavigationDelegate, WKUIDelegate {
-        var parent : WebView
+        var parent: WebView
 
         init(_ parent: WebView) {
             self.parent = parent
@@ -30,20 +30,20 @@ struct WebView: UIViewControllerRepresentable {
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
             if parent.webviewType == .ehLogin {
                 guard let url = webView.url?.absoluteString else { return }
-                
+
                 if url.contains("CODE=01") {
                     webView.configuration.websiteDataStore.httpCookieStore.getAllCookies { cookies in
                         cookies.forEach {
                             HTTPCookieStorage.shared.setCookie($0)
                         }
                     }
-                    
-                    Timer.scheduledTimer(withTimeInterval: 3, repeats: false) { [weak self] timer in
+
+                    Timer.scheduledTimer(withTimeInterval: 3, repeats: false) { [weak self] _ in
                         if didLogin {
                             let store = self?.parent.store
                             store?.dispatch(.toggleSettingViewSheetNil)
                             store?.dispatch(.fetchFrontpageItems)
-                            
+
                             if store?.appState.settings.user == nil {
                                 store?.dispatch(.initiateUser)
                             }
@@ -72,16 +72,17 @@ struct WebView: UIViewControllerRepresentable {
         return webViewController
     }
 
-    func updateUIViewController(_ uiViewController: EmbeddedWebviewController, context: UIViewControllerRepresentableContext<WebView>) {
-
-    }
+    func updateUIViewController(
+        _ uiViewController: EmbeddedWebviewController,
+        context: UIViewControllerRepresentableContext<WebView>
+    ) {}
 }
 
 class EmbeddedWebviewController: UIViewController {
 
     var webview: WKWebView
 
-    public var delegate: WebView.Coordinator? = nil
+    public weak var delegate: WebView.Coordinator?
 
     init(coordinator: WebView.Coordinator) {
         self.delegate = coordinator

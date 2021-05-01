@@ -1,5 +1,5 @@
 //
-//  Common.swift
+//  Utility.swift
 //  EhPanda
 //
 //  Created by 荒木辰造 on R 2/11/22.
@@ -10,25 +10,21 @@ import Combine
 import Kingfisher
 import LocalAuthentication
 
-class Common {
-    
-}
-
 public var isSameAccount: Bool {
-    if let eh = URL(string: Defaults.URL.ehentai),
-       let ex = URL(string: Defaults.URL.exhentai)
+    if let ehentai = URL(string: Defaults.URL.ehentai),
+       let exhentai = URL(string: Defaults.URL.exhentai)
     {
         let ehUID = getCookieValue(
-            url: eh,
-            key: Defaults.Cookie.ipb_member_id
+            url: ehentai,
+            key: Defaults.Cookie.ipbMemberId
         ).rawValue
-        let exUid = getCookieValue(
-            url: ex,
-            key: Defaults.Cookie.ipb_member_id
+        let exUID = getCookieValue(
+            url: exhentai,
+            key: Defaults.Cookie.ipbMemberId
         ).rawValue
-        
-        if !ehUID.isEmpty && !exUid.isEmpty {
-            return ehUID == exUid
+
+        if !ehUID.isEmpty && !exUID.isEmpty {
+            return ehUID == exUID
         } else {
             return true
         }
@@ -82,20 +78,20 @@ public var isPortrait: Bool {
 }
 
 public var windowW: CGFloat? {
-    if let w = absoluteWindowW,
-       let h = absoluteWindowH
+    if let width = absoluteWindowW,
+       let height = absoluteWindowH
     {
-        return min(w, h)
+        return min(width, height)
     } else {
         return nil
     }
 }
 
 public var windowH: CGFloat? {
-    if let w = absoluteWindowW,
-       let h = absoluteWindowH
+    if let width = absoluteWindowW,
+       let height = absoluteWindowH
     {
-        return max(w, h)
+        return max(width, height)
     } else {
         return nil
     }
@@ -129,7 +125,7 @@ public var galleryType: GalleryType {
     let rawValue = UserDefaults
         .standard
         .string(forKey: "GalleryType") ?? ""
-    return GalleryType(rawValue: rawValue) ?? .eh
+    return GalleryType(rawValue: rawValue) ?? .ehentai
 }
 
 public var vcsCount: Int {
@@ -139,7 +135,7 @@ public var vcsCount: Int {
             .children.first
             as? UINavigationController
     else { return -1 }
-    
+
     return navigationVC.viewControllers.count
 }
 
@@ -152,7 +148,7 @@ public var appIconType: IconType {
        {
         return selection
     } else {
-        return .Default
+        return .default
     }
 }
 
@@ -184,9 +180,9 @@ public func notificFeedback(style: UINotificationFeedbackGenerator.FeedbackType)
 
 public func localAuth(
     reason: String,
-    successAction: (()->())? = nil,
-    failureAction: (()->())? = nil,
-    passcodeNotFoundAction: (()->())? = nil
+    successAction: (() -> Void)? = nil,
+    failureAction: (() -> Void)? = nil,
+    passcodeNotFoundAction: (() -> Void)? = nil
 ) {
     let context = LAContext()
     var error: NSError?
@@ -195,7 +191,7 @@ public func localAuth(
         context.evaluatePolicy(
             .deviceOwnerAuthentication,
             localizedReason: reason.lString()
-        ) { success, authenticationError in
+        ) { success, _ in
             DispatchQueue.main.async {
                 if success, let action = successAction {
                     action()
@@ -267,7 +263,6 @@ public func postDetailViewOnDisappearNotification() {
     )
 }
 
-
 // MARK: Storage Management
 public func readableUnit<I: BinaryInteger>(bytes: I) -> String {
     let formatter = ByteCountFormatter()
@@ -290,7 +285,7 @@ public func browsingCaches() -> String {
             contentsOf: fileURL
           )
     else { return "0 KB" }
-    
+
     return readableUnit(bytes: data.count)
 }
 
@@ -303,7 +298,7 @@ public func clearCookies() {
 }
 
 // MARK: Thread
-public func executeMainAsync(_ closure: @escaping (()->())) {
+public func executeMainAsync(_ closure: @escaping () -> Void) {
     if Thread.isMainThread {
         closure()
     } else {
@@ -313,19 +308,19 @@ public func executeMainAsync(_ closure: @escaping (()->())) {
     }
 }
 
-public func executeMainAsync(_ delay: DispatchTimeInterval, _ closure: @escaping (()->())) {
+public func executeMainAsync(_ delay: DispatchTimeInterval, _ closure: @escaping () -> Void) {
     DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
         closure()
     }
 }
 
-public func executeAsync(_ closure: @escaping (()->())) {
+public func executeAsync(_ closure: @escaping () -> Void) {
     DispatchQueue.global().async {
         closure()
     }
 }
 
-public func executeSync(_ closure: @escaping (()->())) {
+public func executeSync(_ closure: @escaping () -> Void) {
     DispatchQueue.global().sync {
         closure()
     }
@@ -357,10 +352,10 @@ public func setCookie(url: URL, key: String, value: String) {
         timeIntervalSinceNow:
             TimeInterval(60 * 60 * 24 * 365)
     )
-    let properties: [HTTPCookiePropertyKey : Any] =
+    let properties: [HTTPCookiePropertyKey: Any] =
     [
         .path: "/",
-        .name : key,
+        .name: key,
         .value: value,
         .originURL: url,
         .expires: expiredDate
@@ -391,7 +386,7 @@ public func editCookie(url: URL, key: String, value: String) {
             }
         }
     }
-    
+
     guard let cookie = newCookie else { return }
     HTTPCookieStorage.shared.setCookie(cookie)
 }
@@ -401,20 +396,20 @@ public func getCookieValue(url: URL, key: String) -> CookieValue {
         rawValue: "",
         lString: Defaults.Cookie.null.lString()
     )
-    
+
     guard let cookies =
             HTTPCookieStorage
             .shared
             .cookies(for: url),
           !cookies.isEmpty
     else { return value }
-    
+
     let date = Date()
-    
+
     cookies.forEach { cookie in
         guard let expiresDate = cookie.expiresDate
         else { return }
-        
+
         if cookie.name == key
             && !cookie.value.isEmpty
         {
@@ -443,7 +438,7 @@ public func getCookieValue(url: URL, key: String) -> CookieValue {
             }
         }
     }
-    
+
     return value
 }
 
@@ -454,16 +449,16 @@ func verifyCookies(url: URL, isEx: Bool) -> Bool {
             .cookies(for: url),
           !cookies.isEmpty
     else { return false }
-    
+
     let date = Date()
     var igneous: String?
     var memberID: String?
     var passHash: String?
-    
+
     cookies.forEach { cookie in
         guard let expiresDate = cookie.expiresDate
         else { return }
-                
+
         if cookie.name == Defaults.Cookie.igneous
             && !cookie.value.isEmpty
             && cookie.value != Defaults.Cookie.mystery
@@ -471,22 +466,22 @@ func verifyCookies(url: URL, isEx: Bool) -> Bool {
         {
             igneous = cookie.value
         }
-        
-        if cookie.name == Defaults.Cookie.ipb_member_id
+
+        if cookie.name == Defaults.Cookie.ipbMemberId
             && !cookie.value.isEmpty
             && expiresDate > date
         {
             memberID = cookie.value
         }
-        
-        if cookie.name == Defaults.Cookie.ipb_pass_hash
+
+        if cookie.name == Defaults.Cookie.ipbPassHash
             && !cookie.value.isEmpty
             && expiresDate > date
         {
             passHash = cookie.value
         }
     }
-    
+
     if isEx {
         return igneous != nil && memberID != nil && passHash != nil
     } else {
@@ -497,14 +492,14 @@ func verifyCookies(url: URL, isEx: Bool) -> Bool {
 // MARK: Image Modifier
 struct KFImageModifier: ImageModifier {
     let targetScale: CGFloat
-    
+
     func modify(_ image: KFCrossPlatformImage) -> KFCrossPlatformImage {
         let originW = image.size.width
         let originH = image.size.height
         let scale = originW / originH
-        
+
         let targetW = originW * targetScale
-        
+
         if abs(targetScale - scale) <= 0.2 {
             return image
                 .kf

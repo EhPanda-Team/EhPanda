@@ -11,15 +11,15 @@ import TTProgressHUD
 struct HomeView: View {
     @EnvironmentObject var store: Store
     @Environment(\.colorScheme) var colorScheme
-    
+
     @State var clipboardJumpID: String?
     @State var isJumpNavActive = false
-    
+
     @State var hudVisible = false
     @State var hudConfig = TTProgressHUDConfig(
         hapticsEnabled: false
     )
-    
+
     var cachedList: AppState.CachedList {
         store.appState.cachedList
     }
@@ -65,7 +65,7 @@ struct HomeView: View {
         vcsCount == 1 && exx
             && setting?.detectGalleryFromPasteboard == true
     }
-    
+
     var conditionalList: some View {
         Group {
             switch environment.homeListType {
@@ -149,7 +149,7 @@ struct HomeView: View {
             }
         }
     }
-    
+
     var navigationBarItem: some View {
         Group {
             if let user = settings.user,
@@ -177,7 +177,7 @@ struct HomeView: View {
             }
         }
     }
-    
+
     // MARK: HomeView
     var body: some View {
         NavigationView {
@@ -185,7 +185,7 @@ struct HomeView: View {
                 NavigationLink(
                     "",
                     destination: DetailView(
-                        id: clipboardJumpID ?? "",
+                        gid: clipboardJumpID ?? "",
                         depth: 1
                     ),
                     isActive: $isJumpNavActive
@@ -243,7 +243,7 @@ struct HomeView: View {
             perform: onFetchFinish
         )
     }
-    
+
     func onAppear() {
         detectPasteboard()
     }
@@ -291,8 +291,8 @@ struct HomeView: View {
         if value != nil, hasJumpPermission {
             clipboardJumpID = value
             isJumpNavActive = true
-            
-            replaceMangaCommentJumpID(id: nil)
+
+            replaceMangaCommentJumpID(gid: nil)
         }
     }
     func onFetchFinish(_ value: Bool) {
@@ -300,7 +300,7 @@ struct HomeView: View {
             dismissHUD()
         }
     }
-    
+
     func showHUD() {
         hudConfig = TTProgressHUDConfig(
             type: .loading,
@@ -319,9 +319,9 @@ struct HomeView: View {
             if let link = getPasteboardLinkIfAllowed(),
                isValidDetailURL(url: link)
             {
-                let id = link.pathComponents[2]
-                if cachedList.hasCached(id: id) {
-                    replaceMangaCommentJumpID(id: id)
+                let gid = link.pathComponents[2]
+                if cachedList.hasCached(gid: gid) {
+                    replaceMangaCommentJumpID(gid: gid)
                 } else {
                     fetchMangaWithDetailURL(link.absoluteString)
                     showHUD()
@@ -352,7 +352,7 @@ struct HomeView: View {
             postSlideMenuShouldCloseNotification()
         }
     }
-    
+
     func fetchUserInfo() {
         if let uid = settings.user?.apiuid, !uid.isEmpty {
             store.dispatch(.fetchUserInfo(uid: uid))
@@ -376,7 +376,7 @@ struct HomeView: View {
     func fetchFavoritesItems() {
         store.dispatch(.fetchFavoritesItems(index: environment.favoritesIndex))
     }
-    
+
     func fetchMoreSearchItems() {
         store.dispatch(.fetchMoreSearchItems(keyword: homeInfo.searchKeyword))
     }
@@ -389,14 +389,14 @@ struct HomeView: View {
     func fetchMoreFavoritesItems() {
         store.dispatch(.fetchMoreFavoritesItems(index: environment.favoritesIndex))
     }
-    
+
     func fetchMangaWithDetailURL(_ detailURL: String) {
         store.dispatch(.fetchMangaItemReverse(detailURL: detailURL))
     }
-    func replaceMangaCommentJumpID(id: String?) {
-        store.dispatch(.replaceMangaCommentJumpID(id: id))
+    func replaceMangaCommentJumpID(gid: String?) {
+        store.dispatch(.replaceMangaCommentJumpID(gid: gid))
     }
-    
+
     func fetchFrontpageItemsIfNeeded() {
         if homeInfo.frontpageItems?.isEmpty != false {
             fetchFrontpageItems()
@@ -422,7 +422,7 @@ struct HomeView: View {
 // MARK: GenericList
 private struct GenericList: View {
     @EnvironmentObject var store: Store
-    
+
     var homeInfo: AppState.HomeInfo {
         store.appState.homeInfo
     }
@@ -432,16 +432,16 @@ private struct GenericList: View {
     var environment: AppState.Environment {
         store.appState.environment
     }
-    
+
     let items: [Manga]?
     let loadingFlag: Bool
     let notFoundFlag: Bool
     let loadFailedFlag: Bool
     let moreLoadingFlag: Bool
     let moreLoadFailedFlag: Bool
-    let fetchAction: (()->())?
-    let loadMoreAction: (()->())?
-    
+    let fetchAction: (() -> Void)?
+    let loadMoreAction: (() -> Void)?
+
     init(
         items: [Manga]?,
         loadingFlag: Bool,
@@ -449,8 +449,8 @@ private struct GenericList: View {
         loadFailedFlag: Bool,
         moreLoadingFlag: Bool,
         moreLoadFailedFlag: Bool,
-        fetchAction: (()->())? = nil,
-        loadMoreAction: (()->())? = nil
+        fetchAction: (() -> Void)? = nil,
+        loadMoreAction: (() -> Void)? = nil
     ) {
         self.items = items
         self.loadingFlag = loadingFlag
@@ -460,10 +460,10 @@ private struct GenericList: View {
         self.moreLoadFailedFlag = moreLoadFailedFlag
         self.fetchAction = fetchAction
         self.loadMoreAction = loadMoreAction
-        
+
         UIScrollView.appearance().keyboardDismissMode = .onDrag
     }
-    
+
     var body: some View {
         KRefreshScrollView(
             progressTint: .gray,
@@ -493,7 +493,7 @@ private struct GenericList: View {
                     .padding(.top, 30)
             } else {
                 ForEach(items ?? []) { item in
-                    NavigationLink(destination: DetailView(id: item.id, depth: 0)) {
+                    NavigationLink(destination: DetailView(gid: item.id, depth: 0)) {
                         MangaSummaryRow(manga: item)
                             .onAppear {
                                 onRowAppear(item)
@@ -519,7 +519,7 @@ private struct GenericList: View {
             }
         }
     }
-    
+
     func onUpdate() {
         if let action = fetchAction {
             action()
@@ -532,10 +532,10 @@ private struct GenericList: View {
             action()
         }
     }
-    
+
     func searchBarCommit() {
         hideKeyboard()
-        
+
         if environment.homeListType != .search {
             store.dispatch(.toggleHomeListType(type: .search))
         }
@@ -544,11 +544,11 @@ private struct GenericList: View {
     func searchBarFilter() {
         toggleFilter()
     }
-    
+
     func fetchSearchItems() {
         store.dispatch(.fetchSearchItems(keyword: homeInfo.searchKeyword))
     }
-    
+
     func toggleSetting() {
         store.dispatch(.toggleHomeViewSheetState(state: .setting))
     }
@@ -560,9 +560,9 @@ private struct GenericList: View {
 // MARK: SearchBar
 private struct SearchBar: View {
     @Binding var keyword: String
-    var commitAction: () -> ()
-    var filterAction: () -> ()
-    
+    var commitAction: () -> Void
+    var filterAction: () -> Void
+
     var body: some View {
         HStack {
             Image(systemName: "magnifyingglass")
@@ -591,7 +591,7 @@ private struct SearchBar: View {
         .background(Color(.systemGray6))
         .cornerRadius(8)
     }
-    
+
     func onClearButtonTap() {
         keyword = ""
     }
@@ -600,7 +600,7 @@ private struct SearchBar: View {
 // MARK: Definition
 enum HomeListType: String, Identifiable, CaseIterable {
     var id: Int { hashValue }
-    
+
     case search = "Search"
     case frontpage = "Frontpage"
     case popular = "Popular"
@@ -608,7 +608,7 @@ enum HomeListType: String, Identifiable, CaseIterable {
     case favorites = "Favorites"
     case downloaded = "Downloaded"
     case history = "History"
-    
+
     var symbolName: String {
         switch self {
         case .search:
@@ -631,7 +631,7 @@ enum HomeListType: String, Identifiable, CaseIterable {
 
 enum HomeViewSheetState: Identifiable {
     var id: Int { hashValue }
-    
+
     case setting
     case filter
 }

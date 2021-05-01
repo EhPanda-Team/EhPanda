@@ -13,10 +13,10 @@ struct DetailView: View {
     @Environment(\.colorScheme) var colorScheme
     @State var associatedKeyword = AssociatedKeyword()
     @State var isAssociatedLinkActive = false
-    
-    let id: String
+
+    let gid: String
     let depth: Int
-    
+
     var environment: AppState.Environment {
         store.appState.environment
     }
@@ -39,10 +39,10 @@ struct DetailView: View {
         detailInfoBinding.commentContent
     }
     var manga: Manga {
-        cachedList.items?[id] ?? Manga.empty
+        cachedList.items?[gid] ?? Manga.empty
     }
     var mangaDetail: MangaDetail? {
-        cachedList.items?[id]?.detail
+        cachedList.items?[gid]?.detail
     }
     var torrentCount: Int? {
         mangaDetail?.torrentCount
@@ -88,7 +88,7 @@ struct DetailView: View {
             }
         }
     }
-    
+
     // MARK: DetailView
     var body: some View {
         ZStack {
@@ -129,7 +129,7 @@ struct DetailView: View {
                                 )
                                 if !(detail.comments.isEmpty && !exx) {
                                     CommentScrollView(
-                                        id: id,
+                                        gid: gid,
                                         depth: depth,
                                         comments: detail.comments
                                     )
@@ -155,14 +155,14 @@ struct DetailView: View {
         .sheet(item: environmentBinding.detailViewSheetState) { item in
             switch item {
             case .archive:
-                ArchiveView(id: id)
+                ArchiveView(gid: gid)
                     .environmentObject(store)
                     .accentColor(accentColor)
                     .preferredColorScheme(colorScheme)
                     .blur(radius: environment.blurRadius)
                     .allowsHitTesting(environment.isAppUnlocked)
             case .torrents:
-                TorrentsView(id: id)
+                TorrentsView(gid: gid)
                     .environmentObject(store)
                     .accentColor(accentColor)
                     .preferredColorScheme(colorScheme)
@@ -182,10 +182,10 @@ struct DetailView: View {
             }
         }
     }
-    
+
     func onAppear() {
         toggleNavBarHidden()
-        
+
         if mangaDetail == nil {
             fetchMangaDetail()
         } else {
@@ -204,14 +204,14 @@ struct DetailView: View {
     }
     func onShareButtonTap() {
         guard let data = URL(string: manga.detailURL) else { return }
-        let av = UIActivityViewController(
+        let activityVC = UIActivityViewController(
             activityItems: [data],
             applicationActivities: nil
         )
         if isPad {
-            av.popoverPresentationController?.sourceView =
+            activityVC.popoverPresentationController?.sourceView =
                 UIApplication.shared.windows.first
-            av.popoverPresentationController?.sourceRect = CGRect(
+            activityVC.popoverPresentationController?.sourceRect = CGRect(
                 x: screenW, y: 0,
                 width: 200, height: 200
             )
@@ -219,7 +219,7 @@ struct DetailView: View {
         UIApplication.shared.windows
             .first?.rootViewController?
             .present(
-                av,
+                activityVC,
                 animated: true,
                 completion: nil
             )
@@ -238,7 +238,7 @@ struct DetailView: View {
         associatedKeyword = keyword
         isAssociatedLinkActive.toggle()
     }
-    
+
     func draftCommentViewPost() {
         if !commentContent.isEmpty {
             postComment()
@@ -248,30 +248,30 @@ struct DetailView: View {
     func draftCommentViewCancel() {
         toggleSheetNil()
     }
-    
+
     func postComment() {
-        store.dispatch(.comment(id: id, content: commentContent))
+        store.dispatch(.comment(gid: gid, content: commentContent))
         store.dispatch(.cleanDetailViewCommentContent)
     }
-    
+
     func fetchMangaDetail() {
-        store.dispatch(.fetchMangaDetail(id: id))
+        store.dispatch(.fetchMangaDetail(gid: gid))
     }
     func updateMangaDetail() {
-        store.dispatch(.updateMangaDetail(id: id))
+        store.dispatch(.updateMangaDetail(gid: gid))
     }
     func fetchMangaTorrents() {
-        store.dispatch(.fetchMangaTorrents(id: id))
+        store.dispatch(.fetchMangaTorrents(gid: gid))
     }
     func updateHistoryItems() {
         if environment.homeListType != .history {
-            store.dispatch(.updateHistoryItems(id: id))
+            store.dispatch(.updateHistoryItems(gid: gid))
         }
     }
     func sendRating(_ value: Int) {
-        store.dispatch(.rate(id: id, rating: value))
+        store.dispatch(.rate(gid: gid, rating: value))
     }
-    
+
     func toggleNavBarHidden() {
         if environment.navBarHidden {
             store.dispatch(.toggleNavBarHidden(isHidden: false))
@@ -288,10 +288,10 @@ struct DetailView: View {
 // MARK: HeaderView
 private struct HeaderView: View {
     @EnvironmentObject var store: Store
-    
+
     let manga: Manga
     let detail: MangaDetail
-    
+
     var settings: AppState.Settings {
         store.appState.settings
     }
@@ -301,7 +301,7 @@ private struct HeaderView: View {
     var user: User? {
         settings.user
     }
-    
+
     var isFavored: Bool {
         detail.isFavored
     }
@@ -340,7 +340,7 @@ private struct HeaderView: View {
             height: height
         )
     }
-    
+
     var body: some View {
         HStack {
             KFImage(URL(string: manga.coverURL))
@@ -403,8 +403,8 @@ private struct HeaderView: View {
 
                         }
                     }
-                    Button(action: {}) {
-                        NavigationLink(destination: ContentView(id: manga.id)) {
+                    Button(action: {}, label: {
+                        NavigationLink(destination: ContentView(gid: manga.gid)) {
                             Text("Read".lString().uppercased())
                                 .foregroundColor(.white)
                                 .fontWeight(.bold)
@@ -413,38 +413,38 @@ private struct HeaderView: View {
                                 .background(Color.accentColor)
                                 .cornerRadius(30)
                         }
-                    }
+                    })
                 }
             }
             .padding(.leading, 10)
             .padding(.trailing, 10)
         }
     }
-    
+
     func onFavoriteAdd(_ index: Int) {
         addFavorite(index)
     }
     func onFavoriteDelete() {
         deleteFavorite()
     }
-    
+
     func addFavorite(_ index: Int) {
-        store.dispatch(.addFavorite(id: manga.id, favIndex: index))
+        store.dispatch(.addFavorite(gid: manga.gid, favIndex: index))
     }
     func deleteFavorite() {
-        store.dispatch(.deleteFavorite(id: manga.id))
+        store.dispatch(.deleteFavorite(gid: manga.gid))
     }
     func updateMangaDetail() {
-        store.dispatch(.updateMangaDetail(id: manga.id))
+        store.dispatch(.updateMangaDetail(gid: manga.gid))
     }
 }
 
 // MARK: DescScrollView
 private struct DescScrollView: View {
     @State var itemWidth = max((absoluteWindowW ?? absoluteScreenW) / 5, 80)
-    
+
     let detail: MangaDetail
-    
+
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(alignment: .center) {
@@ -493,7 +493,7 @@ private struct DescScrollView: View {
             onWidthChange()
         }
     }
-    
+
     func onWidthChange() {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
             if itemWidth != max((absoluteWindowW ?? absoluteScreenW) / 5, 80) {
@@ -509,7 +509,7 @@ private struct DescScrollItem: View {
     let title: String
     let value: String
     let numeral: String
-    
+
     var body: some View {
         VStack(spacing: 3) {
             Text(title.lString().uppercased())
@@ -527,7 +527,7 @@ private struct DescScrollItem: View {
 private struct DescScrollRatingItem: View {
     let title: String
     let rating: Float
-    
+
     var body: some View {
         VStack(spacing: 3) {
             Text(title.lString().uppercased())
@@ -547,11 +547,11 @@ private struct DescScrollRatingItem: View {
 private struct ActionRow: View {
     @State var showUserRating = false
     @State var userRating: Int = 0
-    
+
     let detail: MangaDetail
-    let ratingAction: (Int) -> ()
-    let galleryAction: () -> ()
-    
+    let ratingAction: (Int) -> Void
+    let galleryAction: () -> Void
+
     var body: some View {
         VStack {
             HStack {
@@ -591,7 +591,7 @@ private struct ActionRow: View {
         .padding(.horizontal)
         .onAppear(perform: onAppear)
     }
-    
+
     func onAppear() {
         if let rating = detail.userRating {
             userRating = Int(rating.fixedRating() * 2)
@@ -622,8 +622,8 @@ private struct ActionRow: View {
 // MARK: TagsView
 private struct TagsView: View {
     let tags: [MangaTag]
-    let onTapAction: ((AssociatedKeyword)->())
-    
+    let onTapAction: (AssociatedKeyword) -> Void
+
     var body: some View {
         VStack(alignment: .leading) {
             ForEach(tags) { tag in
@@ -636,13 +636,13 @@ private struct TagsView: View {
 
 private struct TagRow: View {
     @Environment(\.colorScheme) var colorScheme
-    
+
     let tag: MangaTag
-    let onTapAction: ((AssociatedKeyword)->())
+    let onTapAction: (AssociatedKeyword) -> Void
     var reversePrimary: Color {
         colorScheme == .light ? .white : .black
     }
-    
+
     var body: some View {
         HStack(alignment: .top) {
             Text(tag.category.rawValue.lString())
@@ -673,7 +673,7 @@ private struct TagRow: View {
 private struct PreviewView: View {
     let previews: [MangaPreview]
     let alterImages: [MangaAlterData]
-    
+
     var width: CGFloat {
         Defaults.ImageSize.previewW
     }
@@ -696,7 +696,7 @@ private struct PreviewView: View {
         )
         .cornerRadius(15)
     }
-    
+
     var body: some View {
         VStack {
             HStack {
@@ -743,11 +743,11 @@ private struct PreviewView: View {
 // MARK: CommentScrollView
 private struct CommentScrollView: View {
     @EnvironmentObject var store: Store
-    
-    let id: String
+
+    let gid: String
     let depth: Int
     let comments: [MangaComment]
-    
+
     var body: some View {
         VStack {
             HStack {
@@ -756,7 +756,7 @@ private struct CommentScrollView: View {
                     .font(.title3)
                 Spacer()
                 if !comments.isEmpty && exx {
-                    NavigationLink(destination: CommentView(id: id, depth: depth)) {
+                    NavigationLink(destination: CommentView(gid: gid, depth: depth)) {
                         Text("Show All")
                             .font(.subheadline)
                     }
@@ -774,7 +774,7 @@ private struct CommentScrollView: View {
             }
         }
     }
-    
+
     func toggleDraft() {
         store.dispatch(.toggleDetailViewSheetState(state: .comment))
     }
@@ -793,7 +793,7 @@ private struct CommentScrollCell: View {
             }
             .joined()
     }
-    
+
     var body: some View {
         VStack(alignment: .leading) {
             HStack {
@@ -829,7 +829,7 @@ private struct CommentScrollCell: View {
 // MARK: Definition
 enum DetailViewSheetState: Identifiable {
     var id: Int { hashValue }
-    
+
     case archive
     case torrents
     case comment

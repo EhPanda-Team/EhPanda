@@ -12,7 +12,7 @@ import LocalAuthentication
 struct GeneralSettingView: View {
     @EnvironmentObject var store: Store
     @State var passcodeNotSet = false
-    
+
     var setting: Setting? {
         store.appState.settings.setting
     }
@@ -30,7 +30,7 @@ struct GeneralSettingView: View {
             return "(null)"
         }
     }
-    
+
     var body: some View {
         if let setting = setting,
            let settingBinding = settingBinding
@@ -103,11 +103,11 @@ struct GeneralSettingView: View {
             .onAppear(perform: onAppear)
         }
     }
-    
+
     func onAppear() {
         checkPasscodeExistence()
     }
-    
+
     func checkPasscodeExistence() {
         let context = LAContext()
         var error: NSError?
@@ -119,13 +119,13 @@ struct GeneralSettingView: View {
             passcodeNotSet = true
         }
     }
-    
+
     func toSettingLanguage() {
         if let settingURL = URL(string: UIApplication.openSettingsURLString) {
             UIApplication.shared.open(settingURL, options: [:])
         }
     }
-    
+
     func toggleClearImgCaches() {
         store.dispatch(.toggleSettingViewActionSheetState(state: .clearImgCaches))
     }

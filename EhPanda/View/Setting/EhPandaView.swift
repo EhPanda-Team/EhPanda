@@ -9,7 +9,7 @@ import SwiftUI
 
 struct EhPandaView: View {
     @EnvironmentObject var store: Store
-    
+
     private var contacts: [Info] {
         [
             Info(
@@ -22,7 +22,7 @@ struct EhPandaView: View {
             )
         ]
     }
-    
+
     private var acknowledgements: [Info] {
         [
             Info(
@@ -51,7 +51,7 @@ struct EhPandaView: View {
             )
         ]
     }
-    
+
     var version: String {
         [
             "Version".lString(),
@@ -60,7 +60,7 @@ struct EhPandaView: View {
         ]
         .joined(separator: " ")
     }
-    
+
     var body: some View {
         HStack {
             VStack(alignment: .leading) {
@@ -96,7 +96,7 @@ struct EhPandaView: View {
 
 private struct Info: Identifiable {
     var id = UUID()
-    
+
     let url: String
     let text: String
 }
@@ -104,7 +104,7 @@ private struct Info: Identifiable {
 private struct LinkRow: View {
     let url: URL
     let text: String
-    
+
     var body: some View {
         Link(destination: url, label: {
             Text(text)
@@ -114,7 +114,6 @@ private struct LinkRow: View {
         })
     }
 }
-
 
 private extension Text {
     func captionTextStyle() -> some View {

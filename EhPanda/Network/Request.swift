@@ -23,7 +23,7 @@ func mapAppError(_ error: Error) -> AppError {
 struct UserInfoRequest {
     let uid: String
     let parser = Parser()
-    
+
     var publisher: AnyPublisher<User, AppError> {
         URLSession.shared
             .dataTaskPublisher(
@@ -38,8 +38,8 @@ struct UserInfoRequest {
 
 struct FavoriteNamesRequest {
     let parser = Parser()
-    
-    var publisher: AnyPublisher<[Int : String], AppError> {
+
+    var publisher: AnyPublisher<[Int: String], AppError> {
         URLSession.shared
             .dataTaskPublisher(
                 for: Defaults.URL.ehConfig().safeURL()
@@ -54,8 +54,8 @@ struct FavoriteNamesRequest {
 struct MangaItemReverseRequest {
     let detailURL: String
     let parser = Parser()
-    
-    var id: String {
+
+    var gid: String {
         if detailURL.safeURL().pathComponents.count >= 4 {
             return detailURL.safeURL().pathComponents[2]
         } else {
@@ -69,7 +69,7 @@ struct MangaItemReverseRequest {
             return ""
         }
     }
-    
+
     var publisher: AnyPublisher<Manga?, AppError> {
         URLSession.shared
             .dataTaskPublisher(for: detailURL.safeURL())
@@ -78,7 +78,7 @@ struct MangaItemReverseRequest {
                 if let mangaDetail = try? parser.parseMangaDetail($0).0 {
                     return Manga(
                         detail: mangaDetail,
-                        id: id,
+                        gid: gid,
                         token: token,
                         title: mangaDetail.title,
                         rating: mangaDetail.rating,
@@ -97,14 +97,14 @@ struct MangaItemReverseRequest {
             .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
-    
+
 }
 
 struct SearchItemsRequest {
     let keyword: String
     let filter: Filter
     let parser = Parser()
-    
+
     var publisher: AnyPublisher<(PageNumber, [Manga]), AppError> {
         URLSession.shared
             .dataTaskPublisher(
@@ -127,7 +127,7 @@ struct MoreSearchItemsRequest {
     let lastID: String
     let pageNum: Int
     let parser = Parser()
-    
+
     var publisher: AnyPublisher<(PageNumber, [Manga]), AppError> {
         URLSession.shared
             .dataTaskPublisher(
@@ -149,7 +149,7 @@ struct MoreSearchItemsRequest {
 
 struct FrontpageItemsRequest {
     let parser = Parser()
-    
+
     var publisher: AnyPublisher<(PageNumber, [Manga]), AppError> {
         URLSession.shared
             .dataTaskPublisher(for: Defaults.URL.frontpageList().safeURL())
@@ -164,7 +164,7 @@ struct MoreFrontpageItemsRequest {
     let lastID: String
     let pageNum: Int
     let parser = Parser()
-    
+
     var publisher: AnyPublisher<(PageNumber, [Manga]), AppError> {
         URLSession.shared
             .dataTaskPublisher(
@@ -184,7 +184,7 @@ struct MoreFrontpageItemsRequest {
 
 struct PopularItemsRequest {
     let parser = Parser()
-    
+
     var publisher: AnyPublisher<(PageNumber, [Manga]), AppError> {
         URLSession.shared
             .dataTaskPublisher(for: Defaults.URL.popularList().safeURL())
@@ -197,7 +197,7 @@ struct PopularItemsRequest {
 
 struct WatchedItemsRequest {
     let parser = Parser()
-    
+
     var publisher: AnyPublisher<(PageNumber, [Manga]), AppError> {
         URLSession.shared
             .dataTaskPublisher(for: Defaults.URL.watchedList().safeURL())
@@ -212,7 +212,7 @@ struct MoreWatchedItemsRequest {
     let lastID: String
     let pageNum: Int
     let parser = Parser()
-    
+
     var publisher: AnyPublisher<(PageNumber, [Manga]), AppError> {
         URLSession.shared
             .dataTaskPublisher(
@@ -233,7 +233,7 @@ struct MoreWatchedItemsRequest {
 struct FavoritesItemsRequest {
     let favIndex: Int
     let parser = Parser()
-    
+
     var publisher: AnyPublisher<(PageNumber, [Manga]), AppError> {
         URLSession.shared
             .dataTaskPublisher(
@@ -255,7 +255,7 @@ struct MoreFavoritesItemsRequest {
     let lastID: String
     let pageNum: Int
     let parser = Parser()
-    
+
     var publisher: AnyPublisher<(PageNumber, [Manga]), AppError> {
         URLSession.shared
             .dataTaskPublisher(
@@ -277,7 +277,7 @@ struct MoreFavoritesItemsRequest {
 struct MangaDetailRequest {
     let detailURL: String
     let parser = Parser()
-    
+
     var publisher: AnyPublisher<(MangaDetail, APIKey, HTMLDocument), AppError> {
         URLSession.shared
             .dataTaskPublisher(
@@ -297,7 +297,7 @@ struct MangaDetailRequest {
 struct AssociatedItemsRequest {
     let keyword: AssociatedKeyword
     let parser = Parser()
-    
+
     var publisher: AnyPublisher<(PageNumber, [Manga]), AppError> {
         URLSession.shared.dataTaskPublisher(
             for: Defaults.URL
@@ -318,7 +318,7 @@ struct MoreAssociatedItemsRequest {
     let lastID: String
     let pageNum: Int
     let parser = Parser()
-    
+
     var publisher: AnyPublisher<(PageNumber, [Manga]), AppError> {
         URLSession.shared
             .dataTaskPublisher(
@@ -338,10 +338,10 @@ struct MoreAssociatedItemsRequest {
 }
 
 struct AlterImagesRequest {
-    let id: String
+    let gid: String
     let doc: HTMLDocument
     let parser = Parser()
-    
+
     var alterImageURL: String {
         if let url = try? parser
             .parseAlterImagesURL(doc)
@@ -351,11 +351,11 @@ struct AlterImagesRequest {
             return ""
         }
     }
-    
+
     var publisher: AnyPublisher<(Identity, [MangaAlterData]), AppError> {
         URLSession.shared
             .dataTaskPublisher(for: alterImageURL.safeURL())
-            .map { parser.parseAlterImages(id: id, $0.data) }
+            .map { parser.parseAlterImages(carryId: gid, $0.data) }
             .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
@@ -364,7 +364,7 @@ struct AlterImagesRequest {
 struct MangaArchiveRequest {
     let archiveURL: String
     let parser = Parser()
-    
+
     var publisher: AnyPublisher<(MangaArchive?, CurrentGP?, CurrentCredits?), AppError> {
         URLSession.shared
             .dataTaskPublisher(for: archiveURL.safeURL())
@@ -378,13 +378,13 @@ struct MangaArchiveRequest {
 struct MangaArchiveFundsRequest {
     let detailURL: String
     let parser = Parser()
-    
+
     var publisher: AnyPublisher<(CurrentGP, CurrentCredits)?, AppError> {
         archiveURL(url: detailURL)
             .flatMap(funds)
             .eraseToAnyPublisher()
     }
-    
+
     func archiveURL(url: String) -> AnyPublisher<String, AppError> {
         URLSession.shared
             .dataTaskPublisher(for: detailURL.safeURL())
@@ -402,7 +402,7 @@ struct MangaArchiveFundsRequest {
             .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
-    
+
     func funds(url: String) -> AnyPublisher<(CurrentGP, CurrentCredits)?, AppError> {
         URLSession.shared
             .dataTaskPublisher(for: url.safeURL())
@@ -414,16 +414,16 @@ struct MangaArchiveFundsRequest {
 }
 
 struct MangaTorrentsRequest {
-    let id: String
+    let gid: String
     let token: String
     let parser = Parser()
-    
+
     var publisher: AnyPublisher<[MangaTorrent], AppError> {
         URLSession.shared
             .dataTaskPublisher(
                 for: Defaults.URL
                     .mangaTorrents(
-                        id: id,
+                        gid: gid,
                         token: token
                     )
                     .safeURL()
@@ -438,7 +438,7 @@ struct MangaTorrentsRequest {
 struct MangaCommentsRequest {
     let detailURL: String
     let parser = Parser()
-    
+
     var publisher: AnyPublisher<[MangaComment], AppError> {
         URLSession.shared
             .dataTaskPublisher(
@@ -459,9 +459,9 @@ struct MangaContentsRequest {
     let detailURL: String
     let pageNum: Int
     let pageCount: Int
-    
+
     let parser = Parser()
-    
+
     var publisher: AnyPublisher<(PageNumber, [MangaContent]), AppError> {
         preContents(
             url: Defaults.URL
@@ -472,7 +472,7 @@ struct MangaContentsRequest {
         .flatMap(contents)
         .eraseToAnyPublisher()
     }
-    
+
     func preContents(url: String) -> AnyPublisher<(PageNumber, [(Int, URL)]), AppError> {
         URLSession.shared
             .dataTaskPublisher(for: url.safeURL())
@@ -481,7 +481,7 @@ struct MangaContentsRequest {
             .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
-    
+
     func contents(pageNum: PageNumber, preContents: [(Int, URL)])
     -> AnyPublisher<(PageNumber, [MangaContent]), AppError>
     {
@@ -502,24 +502,24 @@ struct MangaContentsRequest {
 
 // MARK: POST
 struct AddFavoriteRequest {
-    let id: String
+    let gid: String
     let token: String
     let favIndex: Int
-    
+
     var publisher: AnyPublisher<Any, AppError> {
-        let url = Defaults.URL.addFavorite(id: id, token: token)
+        let url = Defaults.URL.addFavorite(gid: gid, token: token)
         let parameters: [String: String] = [
             "favcat": "\(favIndex)",
             "favnote": "",
             "apply": "Add to Favorites",
             "update": "1"
         ]
-        
+
         var request = URLRequest(url: url.safeURL())
-        
+
         request.httpMethod = "POST"
         request.httpBody = parameters.jsonString().data(using: .utf8)
-        
+
         return URLSession.shared.dataTaskPublisher(for: request)
             .map { $0 }
             .mapError(mapAppError)
@@ -528,21 +528,21 @@ struct AddFavoriteRequest {
 }
 
 struct DeleteFavoriteRequest {
-    let id: String
-    
+    let gid: String
+
     var publisher: AnyPublisher<Any, AppError> {
         let url = Defaults.URL.ehFavorites()
         let parameters: [String: String] = [
             "ddact": "delete",
-            "modifygids[]": id,
+            "modifygids[]": gid,
             "apply": "Apply"
         ]
-        
+
         var request = URLRequest(url: url.safeURL())
-        
+
         request.httpMethod = "POST"
         request.httpBody = parameters.jsonString().data(using: .utf8)
-        
+
         return URLSession.shared.dataTaskPublisher(for: request)
             .map { $0 }
             .mapError(mapAppError)
@@ -554,17 +554,17 @@ struct SendDownloadCommandRequest {
     let archiveURL: String
     let resolution: String
     let parser = Parser()
-    
+
     var publisher: AnyPublisher<Resp?, AppError> {
         let parameters: [String: String] = [
             "hathdl_xres": resolution
         ]
-        
+
         var request = URLRequest(url: archiveURL.safeURL())
-        
+
         request.httpMethod = "POST"
         request.httpBody = parameters.jsonString().data(using: .utf8)
-        
+
         return URLSession.shared.dataTaskPublisher(for: request)
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .tryMap(parser.parseDownloadCommandResponse)
@@ -579,7 +579,7 @@ struct RateRequest {
     let gid: Int
     let token: String
     let rating: Int
-    
+
     var publisher: AnyPublisher<Any, AppError> {
         let url = Defaults.URL.ehAPI()
         let params: [String: Any] = [
@@ -590,14 +590,13 @@ struct RateRequest {
             "token": token,
             "rating": rating
         ]
-        
+
         var request = URLRequest(url: url.safeURL())
-        
+
         request.httpMethod = "POST"
         request.httpBody = try? JSONSerialization
             .data(withJSONObject: params, options: [])
-        
-        
+
         return URLSession.shared.dataTaskPublisher(for: request)
             .map { $0 }
             .mapError(mapAppError)
@@ -608,16 +607,16 @@ struct RateRequest {
 struct CommentRequest {
     let content: String
     let detailURL: String
-    
+
     var publisher: AnyPublisher<Any, AppError> {
         let fixedContent = content.replacingOccurrences(of: "\n", with: "%0A")
         let parameters: [String: String] = ["commenttext_new": fixedContent]
-        
+
         var request = URLRequest(url: detailURL.safeURL())
-        
+
         request.httpMethod = "POST"
         request.httpBody = parameters.jsonString().data(using: .utf8)
-        
+
         return URLSession.shared.dataTaskPublisher(for: request)
             .map { $0 }
             .mapError(mapAppError)
@@ -629,19 +628,19 @@ struct EditCommentRequest {
     let commentID: String
     let content: String
     let detailURL: String
-    
+
     var publisher: AnyPublisher<Any, AppError> {
         let fixedContent = content.replacingOccurrences(of: "\n", with: "%0A")
         let parameters: [String: String] = [
             "edit_comment": commentID,
             "commenttext_edit": fixedContent
         ]
-        
+
         var request = URLRequest(url: detailURL.safeURL())
-        
+
         request.httpMethod = "POST"
         request.httpBody = parameters.jsonString().data(using: .utf8)
-        
+
         return URLSession.shared.dataTaskPublisher(for: request)
             .map { $0 }
             .mapError(mapAppError)
@@ -656,7 +655,7 @@ struct VoteCommentRequest {
     let token: String
     let commentID: Int
     let commentVote: Int
-    
+
     var publisher: AnyPublisher<Any, AppError> {
         let url = Defaults.URL.ehAPI()
         let params: [String: Any] = [
@@ -668,14 +667,13 @@ struct VoteCommentRequest {
             "comment_id": commentID,
             "comment_vote": commentVote
         ]
-        
+
         var request = URLRequest(url: url.safeURL())
-        
+
         request.httpMethod = "POST"
         request.httpBody = try? JSONSerialization
             .data(withJSONObject: params, options: [])
-        
-        
+
         return URLSession.shared.dataTaskPublisher(for: request)
             .map { $0 }
             .mapError(mapAppError)

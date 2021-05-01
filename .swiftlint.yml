@@ -1,0 +1,11 @@
+disabled_rules:
+ - large_tuple
+ - file_length
+ - opening_brace
+ - type_body_length
+ - function_body_length
+ - cyclomatic_complexity
+
+identifier_name:
+ excluded:
+  - id

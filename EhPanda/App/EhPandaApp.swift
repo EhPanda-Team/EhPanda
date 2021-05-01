@@ -12,7 +12,7 @@ import SDWebImageSwiftUI
 @main
 struct EhPandaApp: App {
     @StateObject var store = Store()
-    
+
     var setting: Setting? {
         store.appState.settings.setting
     }
@@ -22,12 +22,12 @@ struct EhPandaApp: App {
     var preferredColorScheme: ColorScheme? {
         setting?.colorScheme ?? .none
     }
-    
+
     init() {
         configureWebImage()
         clearImageCachesIfNeeded()
     }
-    
+
     var body: some Scene {
         WindowGroup {
             Home()
@@ -37,11 +37,11 @@ struct EhPandaApp: App {
                 .preferredColorScheme(preferredColorScheme)
         }
     }
-    
+
     func onOpenURL(_ url: URL) {
         setEntry(url.host)
     }
-    
+
     func configureWebImage() {
         let config = KingfisherManager.shared.downloader.sessionConfiguration
         config.httpCookieStorage = HTTPCookieStorage.shared
@@ -49,7 +49,7 @@ struct EhPandaApp: App {
     }
     func clearImageCachesIfNeeded() {
         let threshold = 200 * 1024 * 1024
-        
+
         if SDImageCache.shared.totalDiskSize() > threshold {
             SDImageCache.shared.clearDisk()
         }

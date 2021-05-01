@@ -11,12 +11,12 @@ import Foundation
 
 struct Setting: Codable {
     // Account
-    var galleryType = GalleryType.eh {
+    var galleryType = GalleryType.ehentai {
         didSet {
             setGalleryType(galleryType)
         }
     }
-    
+
     // General
     var detectGalleryFromPasteboard = false
     var allowsDetectionWhenNoChange = false
@@ -24,7 +24,7 @@ struct Setting: Codable {
     var diskImageCacheSize = "0 KB"
     var allowsResignActiveBlur = true
     var autoLockPolicy: AutoLockPolicy = .never
-    
+
     // Appearance
     var colorScheme: ColorScheme? {
         switch preferredColorScheme {
@@ -38,28 +38,27 @@ struct Setting: Codable {
     }
     var preferredColorScheme: PreferredColorScheme = .automatic
     var accentColor: Color = .blue
-    var appIconType: IconType = .Default
+    var appIconType: IconType = .default
     var translateCategory = true
     var showSummaryRowTags = false
     var summaryRowTagsMaximumActivated = false
     var summaryRowTagsMaximum: Int = 5
-    
+
     // Reading
     var contentRetryLimit = 10
     var showContentDividers = false
     var contentDividerHeight: CGFloat = 0
 }
 
-
 public enum GalleryType: String, Codable {
-    case eh = "E-Hentai"
-    case ex = "ExHentai"
-    
+    case ehentai = "E-Hentai"
+    case exhentai = "ExHentai"
+
     var abbr: String {
         switch self {
-        case .eh:
+        case .ehentai:
             return "eh"
-        case .ex:
+        case .exhentai:
             return "ex"
         }
     }
@@ -73,31 +72,31 @@ public enum AutoLockPolicy: String, Codable, CaseIterable, Identifiable {
             return -1
         case .instantly:
             return 0
-        case .s15:
+        case .sec15:
             return 15
-        case .m1:
+        case .min1:
             return 60
-        case .m5:
+        case .min5:
             return 300
-        case .m10:
+        case .min10:
             return 600
-        case .m30:
+        case .min30:
             return 1800
         }
     }
-    
+
     case never = "Never"
     case instantly = "Instantly"
-    case s15 = "15 seconds"
-    case m1 = "1 minute"
-    case m5 = "5 minutes"
-    case m10 = "10 minutes"
-    case m30 = "30 minutes"
+    case sec15 = "15 seconds"
+    case min1 = "1 minute"
+    case min5 = "5 minutes"
+    case min10 = "10 minutes"
+    case min30 = "30 minutes"
 }
 
 public enum PreferredColorScheme: String, Codable, CaseIterable, Identifiable {
     public var id: Int { hashValue }
-    
+
     case automatic = "Automatic"
     case light = "Light"
     case dark = "Dark"

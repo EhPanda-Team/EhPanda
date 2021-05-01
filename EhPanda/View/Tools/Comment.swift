@@ -8,8 +8,8 @@
 import SwiftUI
 
 struct CommentButton: View {
-    let action: () -> ()
-    
+    let action: () -> Void
+
     var body: some View {
         Button(action: action) {
             HStack {
@@ -28,11 +28,11 @@ struct CommentButton: View {
 
 struct DraftCommentView: View {
     @Binding var content: String
-    
+
     let title: String
-    let postAction: () -> ()
-    let cancelAction: () -> ()
-    
+    let postAction: () -> Void
+    let cancelAction: () -> Void
+
     var body: some View {
         NavigationView {
             VStack {

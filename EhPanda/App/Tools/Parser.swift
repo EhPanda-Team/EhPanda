@@ -13,9 +13,9 @@ class Parser {
     // MARK: List
     func parseListItems(_ doc: HTMLDocument) -> (PageNumber, [Manga]) {
         var mangaItems = [Manga]()
-        
+
         for link in doc.xpath("//tr") {
-            
+
             let uploader = link.at_xpath("//td [@class='gl4c glhide']")?.at_xpath("//a")?.text
             guard let gl2cNode = link.at_xpath("//td [@class='gl2c']"),
                   let gl3cNode = link.at_xpath("//td [@class='gl3c glname']"),
@@ -29,16 +29,16 @@ class Parser {
                   let coverURL = try? parseCoverURL(gl2cNode.at_xpath("//div [@class='glthumb']")?.at_css("img")),
                   let detailURL = link.at_xpath("//td [@class='gl3c glname'] //a")?["href"]
             else { continue }
-            
+
             if !publishedTime.contains(":") {
                 guard let content = gl2cNode.text,
                       let range = content.range(of: "pages")
                 else { continue }
-                
+
                 let fixedTime = String(content.suffix(from: range.upperBound))
                 publishedTime = fixedTime
             }
-            
+
             var tags = [String]()
             var language: Language?
             for tagLink in gl3cNode.xpath("//div [@class='gt']") {
@@ -53,19 +53,19 @@ class Parser {
                     tags.append(tagText)
                 }
             }
-            
+
             guard let url = URL(string: detailURL),
                   url.pathComponents.count >= 4,
                   !url.pathComponents[2].isEmpty,
                   !url.pathComponents[3].isEmpty
             else { continue }
-            
+
             guard let enumCategory = Category(rawValue: category)
             else { continue }
-            
+
             mangaItems.append(
                 Manga(
-                    id: url.pathComponents[2],
+                    gid: url.pathComponents[2],
                     token: url.pathComponents[3],
                     title: title,
                     rating: rating,
@@ -79,18 +79,18 @@ class Parser {
                 )
             )
         }
-        
+
         return (parsePageNum(doc), mangaItems)
     }
-    
+
     // MARK: Detail
     func parseMangaDetail(_ doc: HTMLDocument) throws -> (MangaDetail, APIKey, HTMLDocument) {
         var mangaDetail: MangaDetail?
         var imageURLs = [MangaPreview]()
-        
+
         for link in doc.xpath("//div [@class='gm']") {
-            
-            guard let enTitle = link.at_xpath("//h1 [@id='gn']")?.text,
+
+            guard let engTitle = link.at_xpath("//h1 [@id='gn']")?.text,
                   let gd3Node = link.at_xpath("//div [@id='gd3']"),
                   let gddNode = gd3Node.at_xpath("//div [@id='gdd']"),
                   let gdrNode = gd3Node.at_xpath("//div [@id='gdr']"),
@@ -109,13 +109,13 @@ class Parser {
                     .replacingOccurrences(of: "Not Yet Rated", with: "0"),
                   let ratingCount = gdrNode.at_xpath("//span [@id='rating_count']")?.text
             else { throw AppError.parseFailed }
-            
+
             let coverURL = String(
                 rawCoverURL
                     .suffix(from: coverRangeA.upperBound)
                     .prefix(upTo: coverRangeB.lowerBound)
             )
-            
+
             var tmpPublishedTime: String?
             var tmpLanguage: String?
             var tmpLikeCount: String?
@@ -126,7 +126,7 @@ class Parser {
                 guard let gdt1 = gddLink.at_xpath("//td [@class='gdt1']")?.text,
                       let gdt2 = gddLink.at_xpath("//td [@class='gdt2']")?.text
                 else { continue }
-                
+
                 if gdt1.contains("Posted") {
                     tmpPublishedTime = gdt2
                 }
@@ -154,7 +154,7 @@ class Parser {
                         .replacingOccurrences(of: "Once", with: "1")
                 }
             }
-            
+
             var detailTags = [MangaTag]()
             for gd4Link in gd4Node.xpath("//tr") {
                 guard let rawCategory = gd4Link
@@ -162,28 +162,28 @@ class Parser {
                         .text?.replacingOccurrences(of: ":", with: ""),
                       let category = TagCategory(rawValue: rawCategory.capitalizingFirstLetter())
                 else { continue }
-                
+
                 var content = [String]()
                 for aLink in gd4Link.xpath("//a") {
                     guard let aText = aLink.text
                     else { continue }
-                    
+
                     var fixedText: String?
                     if let range = aText.range(of: "|") {
                         fixedText = String(aText.prefix(upTo: range.lowerBound))
                     }
                     content.append(fixedText ?? aText)
                 }
-                
+
                 detailTags.append(MangaTag(category: category, content: content))
             }
-            
+
             var archiveURL: String?
             for g2gspLink in gd5Node.xpath("//p [@class='g2 gsp']") {
                 archiveURL = try? parseArchiveURL(g2gspLink)
                 if archiveURL != nil { break }
             }
-            
+
             var tmpTorrentCount: Int?
             for g2Link in gd5Node.xpath("//p [@class='g2']") {
                 if let aText = g2Link.at_xpath("//a")?.text,
@@ -202,25 +202,24 @@ class Parser {
                     archiveURL = try? parseArchiveURL(g2Link)
                 }
             }
-            
+
             for gdtLink in gdtNode.xpath("//img") {
                 if imageURLs.count >= 10 { break }
                 guard let imageURL = gdtLink["src"] else { continue }
                 imageURLs.append(MangaPreview(url: imageURL))
             }
             imageURLs = imageURLs.filter { !$0.url.contains("blank.gif") }
-            
+
             guard let publishedTime = tmpPublishedTime,
                   let likeCount = tmpLikeCount,
                   let pageCount = tmpPageCount,
                   let sizeCount = tmpSizeCount,
                   let sizeType = tmpSizeType,
-                  let tmpLanguage2 = tmpLanguage,
-                  let language = Language(rawValue: tmpLanguage2),
+                  let language = Language(rawValue: tmpLanguage ?? ""),
                   let rating = Float(tmpRating),
                   let torrentCount = tmpTorrentCount
             else { throw AppError.parseFailed }
-            
+
             let isFavored = gdfNode.at_xpath("//a [@id='favoritelink']")?.text?
                 .contains("Add to Favorites") == false
             let userRating = parseRatingString(
@@ -239,7 +238,7 @@ class Parser {
                 torrents: [],
                 comments: parseComments(doc),
                 previews: imageURLs,
-                title: enTitle,
+                title: engTitle,
                 jpnTitle: jpnTitle,
                 rating: rating,
                 userRating: userRating,
@@ -258,7 +257,7 @@ class Parser {
             )
             break
         }
-        
+
         var apikey: APIKey?
         for link in doc.xpath("//script [@type='text/javascript']") {
             guard let script = link.text,
@@ -266,13 +265,13 @@ class Parser {
                   let rangeA = script.range(of: ";\nvar apikey = \""),
                   let rangeB = script.range(of: "\";\nvar average_rating")
             else { continue }
-            
+
             let key = String(
                 script.suffix(from: rangeA.upperBound).prefix(upTo: rangeB.lowerBound)
             )
             apikey = key
         }
-        
+
         if let detail = mangaDetail,
            let key = apikey
         {
@@ -281,7 +280,7 @@ class Parser {
             throw AppError.parseFailed
         }
     }
-    
+
     // MARK: Comment
     func parseComments(_ doc: HTMLDocument) -> [MangaComment] {
         var comments = [MangaComment]()
@@ -294,51 +293,51 @@ class Parser {
                       let rangeA = c3Node.range(of: "Posted on "),
                       let rangeB = c3Node.range(of: " by:   ")
                 else { continue }
-                
+
                 var score: String?
                 if let c5Node = c1Link.at_xpath("//div [@class='c5 nosel']") {
                     score = c5Node.at_xpath("//span")?.text
                 }
-                
+
                 let author = String(c3Node.suffix(from: rangeB.upperBound))
                 let commentTime = String(
                     c3Node.suffix(from: rangeA.upperBound).prefix(upTo: rangeB.lowerBound)
                 )
-                
+
                 var votedUp = false
                 var votedDown = false
                 var votable = false
                 var editable = false
                 if let c4Link = c1Link.at_xpath("//div [@class='c4 nosel']") {
                     for aLink in c4Link.xpath("//a") {
-                        guard let a_id = aLink["id"],
-                              let a_style = aLink["style"]
+                        guard let aId = aLink["id"],
+                              let aStyle = aLink["style"]
                         else {
-                            if let a_onclick = aLink["onclick"],
-                               a_onclick.contains("edit_comment") {
+                            if let aOnclick = aLink["onclick"],
+                               aOnclick.contains("edit_comment") {
                                 editable = true
                             }
                             continue
                         }
-                        
-                        if a_id.contains("vote_up") {
+
+                        if aId.contains("vote_up") {
                             votable = true
                         }
-                        if a_id.contains("vote_up") && a_style.contains("blue") {
+                        if aId.contains("vote_up") && aStyle.contains("blue") {
                             votedUp = true
                         }
-                        if a_id.contains("vote_down") && a_style.contains("blue") {
+                        if aId.contains("vote_down") && aStyle.contains("blue") {
                             votedDown = true
                         }
                     }
                 }
-                
+
                 let formatter = DateFormatter()
                 formatter.dateFormat = "dd MMMM yyyy, HH:mm"
                 formatter.timeZone = TimeZone(secondsFromGMT: 0)
                 formatter.locale = Locale(identifier: "en_US_POSIX")
                 guard let commentDate = formatter.date(from: commentTime) else { continue }
-                
+
                 comments.append(
                     MangaComment(
                         votedUp: votedUp,
@@ -356,51 +355,51 @@ class Parser {
         }
         return comments
     }
-    
+
     // MARK: Content
     func parseImagePreContents(_ doc: HTMLDocument, pageCount: Int) throws -> (PageNumber, [(Int, URL)]) {
         var imageDetailURLs = [(Int, URL)]()
-        
+
         let className = exx ? "gdtl" : "gdtm"
         guard let gdtNode = doc.at_xpath("//div [@id='gdt']")
         else { throw AppError.parseFailed }
-        
-        for (i, link) in gdtNode.xpath("//div [@class='\(className)']").enumerated() {
-            
-            guard let imageDetailStr = link.at_xpath("//a")?["href"],
+
+        for (index, element) in gdtNode.xpath("//div [@class='\(className)']").enumerated() {
+
+            guard let imageDetailStr = element.at_xpath("//a")?["href"],
                   let imageDetailURL = URL(string: imageDetailStr)
             else { continue }
-            
-            imageDetailURLs.append((i + pageCount, imageDetailURL))
+
+            imageDetailURLs.append((index + pageCount, imageDetailURL))
         }
-        
+
         return (parsePageNum(doc), imageDetailURLs)
     }
-    
+
     func parseMangaContent(doc: HTMLDocument, tag: Int) throws -> MangaContent {
         guard let i3Node = doc.at_xpath("//div [@id='i3']"),
               let imageURL = i3Node.at_css("img")?["src"]
         else { throw AppError.parseFailed }
-        
+
         return MangaContent(tag: tag, url: imageURL)
     }
-    
+
     // MARK: User
     func parseUserInfo(doc: HTMLDocument) throws -> User {
         var displayName: String?
         var avatarURL: String?
-        
+
         for ipbLink in doc.xpath("//table [@class='ipbtable']") {
             guard let profileName = ipbLink.at_xpath("//div [@id='profilename']")?.text
             else { continue }
-            
+
             displayName = profileName
-            
+
             for imgLink in ipbLink.xpath("//img") {
                 guard let imgURL = imgLink["src"],
                       imgURL.contains("forums.e-hentai.org/uploads")
                 else { continue }
-                
+
                 avatarURL = imgURL
             }
         }
@@ -410,17 +409,17 @@ class Parser {
             throw AppError.parseFailed
         }
     }
-    
+
     // MARK: Archive
     func parseMangaArchive(doc: HTMLDocument) throws -> (MangaArchive, CurrentGP?, CurrentCredits?) {
         var hathArchives = [MangaArchive.HathArchive]()
-        
+
         guard let tableNode = doc.at_xpath("//table") else { throw AppError.parseFailed }
         for tdLink in tableNode.xpath("//td") {
             var tmpResolution: ArchiveRes?
             var tmpFileSize: String?
             var tmpGPPrice: String?
-            
+
             for pLink in tdLink.xpath("//p") {
                 if let pText = pLink.text {
                     if let res = ArchiveRes(rawValue: pText) {
@@ -429,7 +428,7 @@ class Parser {
                     if pText.contains("N/A") {
                         tmpFileSize = "N/A"
                         tmpGPPrice = "N/A"
-                        
+
                         if tmpResolution != nil {
                             break
                         }
@@ -445,12 +444,12 @@ class Parser {
                     }
                 }
             }
-            
+
             guard let resolution = tmpResolution,
                   let fileSize = tmpFileSize,
                   let gpPrice = tmpGPPrice
             else { continue }
-            
+
             hathArchives.append(
                 MangaArchive.HathArchive(
                     resolution: resolution,
@@ -459,15 +458,15 @@ class Parser {
                 )
             )
         }
-        
+
         let funds = parseCurrentFunds(doc)
         return (MangaArchive(hathArchives: hathArchives), funds?.0, funds?.1)
     }
-    
+
     // MARK: Torrent
     func parseMangaTorrents(doc: HTMLDocument) -> [MangaTorrent] {
         var torrents = [MangaTorrent]()
-        
+
         for link in doc.xpath("//form") {
             var tmpPostedTime: String?
             var tmpFileSize: String?
@@ -477,7 +476,7 @@ class Parser {
             var tmpUploader: String?
             var tmpFileName: String?
             var tmpMagnet: String?
-            
+
             for trLink in link.xpath("//tr") {
                 for tdLink in trLink.xpath("//td") {
                     if let tdText = tdLink.text {
@@ -525,7 +524,7 @@ class Parser {
                   let fileName = tmpFileName,
                   let magnet = tmpMagnet
             else { continue }
-            
+
             torrents.append(
                 MangaTorrent(
                     postedTime: postedTime,
@@ -539,7 +538,7 @@ class Parser {
                 )
             )
         }
-        
+
         return torrents
     }
 }
@@ -549,20 +548,20 @@ extension Parser {
     func parseCoverURL(_ node: XMLElement?) throws -> String {
         guard let node = node
         else { throw AppError.parseFailed }
-        
+
         var coverURL = node["data-src"]
         if coverURL == nil { coverURL = node["src"] }
-        
+
         guard let url = coverURL
         else { throw AppError.parseFailed }
-        
+
         return url
     }
-    
+
     // MARK: Rating
     func parseRatingString(_ ratingString: String?) -> Float? {
         guard let ratingString = ratingString else { return nil }
-        
+
         var tmpRating: Float?
         if ratingString.contains("0px") { tmpRating = 5.0 }
         if ratingString.contains("-16px") { tmpRating = 4.0 }
@@ -570,17 +569,17 @@ extension Parser {
         if ratingString.contains("-48px") { tmpRating = 2.0 }
         if ratingString.contains("-64px") { tmpRating = 1.0 }
         if ratingString.contains("-80px") { tmpRating = 0.0 }
-        
+
         guard var rating = tmpRating else { return nil }
         if ratingString.contains("-21px") { rating -= 0.5 }
         return rating
     }
-    
+
     // MARK: Page Number
     func parsePageNum(_ doc: HTMLDocument) -> PageNumber {
         var current = 0
         var maximum = 0
-        
+
         guard let link = doc.at_xpath("//table [@class='ptt']") else { return PageNumber() }
         if let currentStr = link.at_xpath("//td [@class='ptds']")?.text {
             if let range = currentStr.range(of: "-") {
@@ -596,7 +595,7 @@ extension Parser {
         }
         return PageNumber(current: current, maximum: maximum)
     }
-    
+
     // MARK: AltPreview
     func parseAlterImagesURL(_ doc: HTMLDocument) throws -> String {
         var alterURL: String?
@@ -605,59 +604,59 @@ extension Parser {
                   let rangeA = style.range(of: "https://"),
                   let rangeB = style.range(of: ".jpg")
             else { continue }
-            
+
             alterURL = String(
                 style.suffix(from: rangeA.lowerBound)
                     .prefix(upTo: rangeB.upperBound)
             )
             break
         }
-        
+
         guard let url = alterURL
         else { throw AppError.parseFailed }
-        
+
         return url
     }
-    
-    func parseAlterImages(id: String, _ data: Data) -> (Identity, [MangaAlterData]) {
-        guard let image = UIImage(data: data) else { return (id, []) }
-        
+
+    func parseAlterImages(carryId: String, _ data: Data) -> (Identity, [MangaAlterData]) {
+        guard let image = UIImage(data: data) else { return (carryId, []) }
+
         var alterImages = [MangaAlterData]()
         let originW = image.size.width
         let originH = image.size.height
 
-        for i in 0..<20 {
+        for index in 0..<20 {
             let size = CGSize(width: originW / 20, height: originH)
-            let anchor = CGPoint(x: originW / 20 * CGFloat(i), y: 0)
-            
+            let anchor = CGPoint(x: originW / 20 * CGFloat(index), y: 0)
+
             if let croppedImg = image.kf.crop(to: size, anchorOn: anchor).pngData() {
                 alterImages.append(MangaAlterData(data: croppedImg))
             }
         }
-        
-        return (id, alterImages)
+
+        return (carryId, alterImages)
     }
-    
+
     // MARK: Balance
     func parseCurrentFunds(_ doc: HTMLDocument) -> (String, String)? {
-        var currentGP: String?
-        var currentCredits: String?
-        
-        for pLink in doc.xpath("//p") {
-            if let pText = pLink.text,
-               let rangeA = pText.range(of: "GP"),
-               let rangeB = pText.range(of: "[?]"),
-               let rangeC = pText.range(of: "Credits")
+        var tmpGP: String?
+        var tmpCredits: String?
+
+        for element in doc.xpath("//p") {
+            if let text = element.text,
+               let rangeA = text.range(of: "GP"),
+               let rangeB = text.range(of: "[?]"),
+               let rangeC = text.range(of: "Credits")
             {
-                currentGP = String(
-                    pText
+                tmpGP = String(
+                    text
                         .prefix(upTo: rangeA.lowerBound)
                 )
                 .trimmingCharacters(in: .whitespaces)
                 .replacingOccurrences(of: ",", with: "")
-                
-                currentCredits = String(
-                    pText
+
+                tmpCredits = String(
+                    text
                         .suffix(from: rangeB.upperBound)
                         .prefix(upTo: rangeC.lowerBound)
                 )
@@ -665,35 +664,35 @@ extension Parser {
                 .replacingOccurrences(of: ",", with: "")
             }
         }
-        
-        if let gp = currentGP,
-           let credits = currentCredits
+
+        if let galleryPoints = tmpGP,
+           let credits = tmpCredits
         {
-            return (gp, credits)
+            return (galleryPoints, credits)
         } else {
             return nil
         }
     }
-    
+
     // MARK: DownloadCmdResp
     func parseDownloadCommandResponse(_ doc: HTMLDocument) throws -> Resp {
         guard let dbNode = doc.at_xpath("//div [@id='db']")
         else { throw AppError.parseFailed }
-        
+
         var response = [String]()
         for pLink in dbNode.xpath("//p") {
             if let pText = pLink.text {
                 response.append(pText)
             }
         }
-        
+
         if !response.isEmpty {
             return response.joined(separator: " ")
         } else {
             throw AppError.parseFailed
         }
     }
-    
+
     // MARK: ArchiveURL
     func parseArchiveURL(_ element: XMLElement) throws -> String {
         var archiveURL: String?
@@ -709,18 +708,18 @@ extension Parser {
                     .prefix(upTo: rangeB.lowerBound)
             )
         }
-        
+
         if let url = archiveURL {
             return url
         } else {
             throw AppError.parseFailed
         }
     }
-    
+
     // MARK: CommentContent
     func parseCommentContent(_ element: XMLElement) -> [CommentContent] {
         var contents = [CommentContent]()
-        
+
         guard var rawContent = element.innerHTML?
                 .replacingOccurrences(of: "<br>", with: "\n")
                 .replacingOccurrences(of: "</span>", with: "")
@@ -735,18 +734,18 @@ extension Parser {
                     options: .regularExpression
                 )
         else { return [] }
-        
+
         while (element.xpath("//a").count
                 + element.xpath("//img").count) > 0
         {
             var tmpLink: XMLElement?
-            
+
             let links = [
                 element.at_xpath("//a"),
                 element.at_xpath("//img")
             ]
             .compactMap({ $0 })
-            
+
             links.forEach { newLink in
                 if tmpLink == nil {
                     tmpLink = newLink
@@ -761,12 +760,12 @@ extension Parser {
                     }
                 }
             }
-            
+
             guard let link = tmpLink,
                   let html = link.toHTML,
                   let range = rawContent.range(of: html)
             else { continue }
-            
+
             let text = String(
                 rawContent.prefix(
                     upTo: range.lowerBound
@@ -788,7 +787,7 @@ extension Parser {
                     )
                 )
             }
-            
+
             if let href = link["href"] {
                 if let imgSrc = link.at_xpath("//img")?["src"] {
                     if let content = contents.last,
@@ -859,12 +858,12 @@ extension Parser {
                         )
                     )
                 }
-                
+
             }
-            
+
             rawContent.removeSubrange(..<range.upperBound)
             element.removeChild(link)
-            
+
             if (element.xpath("//a").count
                     + element.xpath("//img").count) <= 0
             {
@@ -886,7 +885,7 @@ extension Parser {
                 }
             }
         }
-        
+
         if !rawContent.isEmpty && contents.isEmpty {
             if !rawContent
                 .trimmingCharacters(
@@ -905,25 +904,25 @@ extension Parser {
                 )
             }
         }
-        
+
         return contents
     }
-    
+
     // MARK: FavoriteNames
-    func parseFavoriteNames(_ doc: HTMLDocument) throws -> [Int : String] {
-        var favoriteNames = [Int : String]()
-        
+    func parseFavoriteNames(_ doc: HTMLDocument) throws -> [Int: String] {
+        var favoriteNames = [Int: String]()
+
         for link in doc.xpath("//div [@id='favsel']") {
             for inputLink in link.xpath("//input") {
                 guard let name = inputLink["name"],
                       let value = inputLink["value"],
                       let type = FavoritesType(rawValue: name)
                 else { continue }
-                
+
                 favoriteNames[type.index] = value
             }
         }
-        
+
         if !favoriteNames.isEmpty {
             favoriteNames[-1] = "all_appendedByDev"
             return favoriteNames

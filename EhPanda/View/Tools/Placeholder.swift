@@ -11,10 +11,10 @@ struct Placeholder: View {
     let style: PlaceholderStyle
     var width: CGFloat?
     var height: CGFloat?
-    
+
     var pageNumber: Int = 0
     var percentage: Float?
-    
+
     var body: some View {
         switch style {
         case .activity:
@@ -30,7 +30,6 @@ struct Placeholder: View {
                     ZStack {
                         Rectangle()
                             .fill(Color(.systemGray5))
-                        
                         VStack {
                             Text("\(pageNumber)")
                                 .fontWeight(.bold)
@@ -48,7 +47,6 @@ struct Placeholder: View {
                 ZStack {
                     Rectangle()
                         .fill(Color(.systemGray5))
-                    
                     VStack {
                         Text("\(pageNumber)")
                             .fontWeight(.bold)

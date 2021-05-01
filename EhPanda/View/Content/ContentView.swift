@@ -13,8 +13,8 @@ import SDWebImageSwiftUI
 struct ContentView: View {
     @EnvironmentObject var store: Store
     @State var readingProgress: Int = -1
-    
-    let id: String
+
+    let gid: String
     var environment: AppState.Environment {
         store.appState.environment
     }
@@ -28,10 +28,10 @@ struct ContentView: View {
         store.appState.contentInfo
     }
     var mangaDetail: MangaDetail? {
-        cachedList.items?[id]?.detail
+        cachedList.items?[gid]?.detail
     }
     var mangaContents: [MangaContent]? {
-        cachedList.items?[id]?.contents
+        cachedList.items?[gid]?.contents
     }
     var moreLoadingFlag: Bool {
         contentInfo.moreMangaContentsLoading
@@ -39,7 +39,7 @@ struct ContentView: View {
     var moreLoadFailedFlag: Bool {
         contentInfo.moreMangaContentsLoadFailed
     }
-        
+
     // MARK: ContentView
     var body: some View {
         Group {
@@ -119,7 +119,7 @@ struct ContentView: View {
         .navigationBarBackButtonHidden(true)
         .navigationBarHidden(environment.navBarHidden)
     }
-    
+
     func onAppear() {
         toggleNavBarHiddenIfNeeded()
         fetchMangaContentsIfNeeded()
@@ -143,31 +143,29 @@ struct ContentView: View {
             fetchMoreMangaContents()
         }
     }
-    func onWebImageTap() {
-        
-    }
+    func onWebImageTap() {}
     func onWebImageLongPress(tag: Int) {
         readingProgress = tag
     }
-    
+
     func saveReadingProgress() {
         if readingProgress != -1 {
             store.dispatch(
                 .saveReadingProgress(
-                    id: id,
+                    gid: gid,
                     tag: readingProgress
                 )
             )
         }
     }
-    
+
     func fetchMangaContents() {
-        store.dispatch(.fetchMangaContents(id: id))
+        store.dispatch(.fetchMangaContents(gid: gid))
     }
     func fetchMoreMangaContents() {
-        store.dispatch(.fetchMoreMangaContents(id: id))
+        store.dispatch(.fetchMoreMangaContents(gid: gid))
     }
-    
+
     func fetchMangaContentsIfNeeded() {
         if let contents = mangaContents, !contents.isEmpty {
             if contents.count != Int(mangaDetail?.pageCount ?? "") {
@@ -187,12 +185,12 @@ struct ContentView: View {
 // MARK: ImageContainer
 private struct ImageContainer: View {
     @State var percentage: Float = 0
-    
+
     var content: MangaContent
     var retryLimit: Int
-    var onTapAction: () -> ()
-    var onLongPressAction: (Int) -> ()
-    
+    var onTapAction: () -> Void
+    var onLongPressAction: (Int) -> Void
+
     var body: some View {
         KFImage(URL(string: content.url))
             .placeholder {
@@ -219,7 +217,7 @@ private struct ImageContainer: View {
                 }, perform: {}
             )
     }
-    
+
     func onWebImageProgress<I: BinaryInteger>(
         _ received: I, _ total: I
     ) {

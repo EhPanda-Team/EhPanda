@@ -8,17 +8,17 @@
 import SwiftUI
 
 struct Filter: Codable {
-    var doujinshi = AssociatedCategory(category: .Doujinshi, isFiltered: false)
-    var manga = AssociatedCategory(category: .Manga, isFiltered: false)
-    var artist_CG = AssociatedCategory(category: .Artist_CG, isFiltered: false)
-    var game_CG = AssociatedCategory(category: .Game_CG, isFiltered: false)
-    var western = AssociatedCategory(category: .Western, isFiltered: false)
-    var non_h = AssociatedCategory(category: .Non_H, isFiltered: false)
-    var image_set = AssociatedCategory(category: .Image_Set, isFiltered: false)
-    var cosplay = AssociatedCategory(category: .Cosplay, isFiltered: false)
-    var asian_porn = AssociatedCategory(category: .Asian_Porn, isFiltered: false)
-    var misc = AssociatedCategory(category: .Misc, isFiltered: false)
-    
+    var doujinshi = AssociatedCategory(category: .doujinshi, isFiltered: false)
+    var manga = AssociatedCategory(category: .manga, isFiltered: false)
+    var artistCG = AssociatedCategory(category: .artistCG, isFiltered: false)
+    var gameCG = AssociatedCategory(category: .gameCG, isFiltered: false)
+    var western = AssociatedCategory(category: .western, isFiltered: false)
+    var nonH = AssociatedCategory(category: .nonH, isFiltered: false)
+    var imageSet = AssociatedCategory(category: .imageSet, isFiltered: false)
+    var cosplay = AssociatedCategory(category: .cosplay, isFiltered: false)
+    var asianPorn = AssociatedCategory(category: .asianPorn, isFiltered: false)
+    var misc = AssociatedCategory(category: .misc, isFiltered: false)
+
     var advanced = false
     var galleryName = true
     var galleryTags = true
@@ -40,14 +40,14 @@ struct Filter: Codable {
         }
     }
     var expungedGalleries = false
-    
+
     var minRatingActivated = false
     var minRating: Int = 2
-    
+
     var pageRangeActivated = false
     var pageLowerBound: String = ""
     var pageUpperBound: String = ""
-    
+
     var disableLanguage = false
     var disableUploader = false
     var disableTags = false

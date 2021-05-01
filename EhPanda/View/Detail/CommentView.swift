@@ -12,24 +12,24 @@ import TTProgressHUD
 struct CommentView: View {
     @EnvironmentObject var store: Store
     @Environment(\.colorScheme) var colorScheme
-    
+
     @State var commentJumpID: String?
     @State var isNavActive = false
-    
+
     @State var hudVisible = false
     @State var hudConfig = TTProgressHUDConfig(
         hapticsEnabled: false
     )
-    
-    let id: String
+
+    let gid: String
     let depth: Int
     var comments: [MangaComment] {
-        store.appState.cachedList.items?[id]?.detail?.comments ?? []
+        store.appState.cachedList.items?[gid]?.detail?.comments ?? []
     }
     var accentColor: Color? {
         store.appState.settings.setting?.accentColor
     }
-    
+
     var cachedList: AppState.CachedList {
         store.appState.cachedList
     }
@@ -57,14 +57,14 @@ struct CommentView: View {
     var commentContentBinding: Binding<String> {
         commentInfoBinding.commentContent
     }
-    
+
     // MARK: CommentView
     var body: some View {
         ZStack {
             NavigationLink(
                 "",
                 destination: DetailView(
-                    id: commentJumpID ?? id,
+                    gid: commentJumpID ?? gid,
                     depth: depth + 1
                 ),
                 isActive: $isNavActive
@@ -76,7 +76,7 @@ struct CommentView: View {
                             editCommentContent: trimContents(
                                 comment.contents
                             ),
-                            id: id,
+                            gid: gid,
                             comment: comment,
                             linkAction: onLinkTap
                         )
@@ -118,9 +118,9 @@ struct CommentView: View {
             perform: onFetchFinish
         )
     }
-    
+
     func onAppear() {
-        replaceMangaCommentJumpID(id: nil)
+        replaceMangaCommentJumpID(gid: nil)
     }
     func onFetchFinish(_ value: Bool) {
         if !value {
@@ -129,9 +129,9 @@ struct CommentView: View {
     }
     func onLinkTap(_ link: URL) {
         if isValidDetailURL(url: link) && exx {
-            let id = link.pathComponents[2]
-            if cachedList.hasCached(id: id) {
-                replaceMangaCommentJumpID(id: id)
+            let gid = link.pathComponents[2]
+            if cachedList.hasCached(gid: gid) {
+                replaceMangaCommentJumpID(gid: gid)
             } else {
                 fetchMangaWithDetailURL(link.absoluteString)
                 showHUD()
@@ -144,8 +144,8 @@ struct CommentView: View {
         if value != nil {
             commentJumpID = value
             isNavActive = true
-            
-            replaceMangaCommentJumpID(id: nil)
+
+            replaceMangaCommentJumpID(gid: nil)
         }
     }
     func onDraftCommentViewPost() {
@@ -157,7 +157,7 @@ struct CommentView: View {
     func onDraftCommentViewCancel() {
         toggleCommentViewSheetNil()
     }
-    
+
     func showHUD() {
         hudConfig = TTProgressHUDConfig(
             type: .loading,
@@ -171,7 +171,7 @@ struct CommentView: View {
             hapticsEnabled: false
         )
     }
-    
+
     func trimContents(_ contents: [CommentContent]) -> String {
         contents
             .filter {
@@ -187,18 +187,18 @@ struct CommentView: View {
             }
             .joined()
     }
-    
+
     func postComment() {
-        store.dispatch(.comment(id: id, content: commentContent))
+        store.dispatch(.comment(gid: gid, content: commentContent))
         store.dispatch(.cleanCommentViewCommentContent)
     }
     func fetchMangaWithDetailURL(_ detailURL: String) {
         store.dispatch(.fetchMangaItemReverse(detailURL: detailURL))
     }
-    func replaceMangaCommentJumpID(id: String?) {
-        store.dispatch(.replaceMangaCommentJumpID(id: id))
+    func replaceMangaCommentJumpID(gid: String?) {
+        store.dispatch(.replaceMangaCommentJumpID(gid: gid))
     }
-    
+
     func toggleDraft() {
         store.dispatch(.toggleCommentViewSheetState(state: .comment))
     }
@@ -213,21 +213,21 @@ private struct CommentCell: View {
     @Environment(\.colorScheme) var colorScheme
     @State var editCommentContent: String
     @State var isPresented = false
-    
-    let id: String
+
+    let gid: String
     var comment: MangaComment
-    let linkAction: (URL) -> ()
+    let linkAction: (URL) -> Void
     var accentColor: Color? {
         store.appState.settings.setting?.accentColor
     }
-    
+
     var detailInfo: AppState.DetailInfo {
         store.appState.detailInfo
     }
     var detailInfoBinding: Binding<AppState.DetailInfo> {
         $store.appState.detailInfo
     }
-    
+
     var body: some View {
         VStack(alignment: .leading) {
             HStack {
@@ -326,7 +326,7 @@ private struct CommentCell: View {
             }
         }
     }
-    
+
     func generateWebImages(
         imgURL: String?,
         secondImgURL: String?,
@@ -393,7 +393,7 @@ private struct CommentCell: View {
             }
         }
     }
-    
+
     func onDraftCommentViewPost() {
         if !editCommentContent.isEmpty {
             editComment()
@@ -403,15 +403,15 @@ private struct CommentCell: View {
     func onDraftCommentViewCancel() {
         togglePresented()
     }
-    
+
     func voteUp() {
-        store.dispatch(.voteComment(id: id, commentID: comment.commentID, vote: 1))
+        store.dispatch(.voteComment(gid: gid, commentID: comment.commentID, vote: 1))
     }
     func voteDown() {
-        store.dispatch(.voteComment(id: id, commentID: comment.commentID, vote: -1))
+        store.dispatch(.voteComment(gid: gid, commentID: comment.commentID, vote: -1))
     }
     func editComment() {
-        store.dispatch(.editComment(id: id, commentID: comment.commentID, content: editCommentContent))
+        store.dispatch(.editComment(gid: gid, commentID: comment.commentID, content: editCommentContent))
     }
     func togglePresented() {
         isPresented.toggle()
@@ -421,6 +421,6 @@ private struct CommentCell: View {
 // MARK: Definition
 enum CommentViewSheetState: Identifiable {
     var id: Int { hashValue }
-    
+
     case comment
 }

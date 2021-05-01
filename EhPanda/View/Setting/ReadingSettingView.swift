@@ -9,14 +9,14 @@ import SwiftUI
 
 struct ReadingSettingView: View {
     @EnvironmentObject var store: Store
-    
+
     var setting: Setting? {
         store.appState.settings.setting
     }
     var settingBinding: Binding<Setting>? {
         Binding($store.appState.settings.setting)
     }
-    
+
     var body: some View {
         if let setting = setting,
            let settingBinding = settingBinding

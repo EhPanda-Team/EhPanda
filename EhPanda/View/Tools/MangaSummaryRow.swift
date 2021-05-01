@@ -11,7 +11,7 @@ import Kingfisher
 struct MangaSummaryRow: View {
     @EnvironmentObject var store: Store
     @Environment(\.colorScheme) var colorScheme
-    
+
     var setting: Setting? {
         store.appState.settings.setting
     }
@@ -21,7 +21,7 @@ struct MangaSummaryRow: View {
     var height: CGFloat {
         Defaults.ImageSize.rowH
     }
-    
+
     var category: String {
         if setting?.translateCategory == true {
             return manga.category.rawValue.lString()
@@ -61,9 +61,9 @@ struct MangaSummaryRow: View {
             height: height
         )
     }
-    
+
     let manga: Manga
-    
+
     var body: some View {
         HStack {
             KFImage(URL(string: manga.coverURL))

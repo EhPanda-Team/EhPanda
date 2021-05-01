@@ -10,8 +10,8 @@ import TTProgressHUD
 
 struct ArchiveView: View {
     @EnvironmentObject var store: Store
-    @State var selection: ArchiveRes? = nil
-    
+    @State var selection: ArchiveRes?
+
     @State var hudVisible = false
     @State var hudConfig = TTProgressHUDConfig(
         hapticsEnabled: false
@@ -21,8 +21,8 @@ struct ArchiveView: View {
         title: "Communicating...".lString(),
         hapticsEnabled: false
     )
-    
-    let id: String
+
+    let gid: String
     var cachedList: AppState.CachedList {
         store.appState.cachedList
     }
@@ -36,7 +36,7 @@ struct ArchiveView: View {
         store.appState.settings.user
     }
     var mangaDetail: MangaDetail? {
-        cachedList.items?[id]?.detail
+        cachedList.items?[gid]?.detail
     }
     var archive: MangaArchive? {
         mangaDetail?.archive
@@ -53,7 +53,7 @@ struct ArchiveView: View {
     let gridItems = [
         GridItem(.adaptive(minimum: 150, maximum: 200))
     ]
-    
+
     // MARK: ArchiveView
     var body: some View {
         NavigationView {
@@ -64,7 +64,7 @@ struct ArchiveView: View {
                             LazyVGrid(columns: gridItems, spacing: 10) {
                                 ForEach(hathArchives) { hathArchive in
                                     ArchiveGrid(
-                                        selected: selection
+                                        isSelected: selection
                                             == hathArchive.resolution,
                                         archive: hathArchive
                                     )
@@ -74,14 +74,14 @@ struct ArchiveView: View {
                                 }
                             }
                             .padding(.top, 40)
-                            
+
                             Spacer()
-                            
+
                             if isSameAccount,
-                               let gp = currentGP,
+                               let galleryPoints = currentGP,
                                let credits = currentCredits
                             {
-                                BalanceView(gp: gp, credits: credits)
+                                BalanceView(galleryPoints: galleryPoints, credits: credits)
                             }
                             DownloadButton(
                                 isDisabled: selection == nil,
@@ -113,7 +113,7 @@ struct ArchiveView: View {
             )
         }
     }
-    
+
     func onAppear() {
         fetchMangaArchive()
     }
@@ -126,7 +126,7 @@ struct ArchiveView: View {
     }
     func onDownloadButtonTap() {
         if let res = selection?.param {
-            store.dispatch(.sendDownloadCommand(id: id, resolution: res))
+            store.dispatch(.sendDownloadCommand(gid: gid, resolution: res))
             impactFeedback(style: .soft)
         }
     }
@@ -137,7 +137,7 @@ struct ArchiveView: View {
             var type: TTProgressHUDType = .warning
             var title: String?
             var caption: String?
-            
+
             if !detailInfo.downloadCommandFailed,
                let response = detailInfo.downloadCommandResponse
             {
@@ -155,7 +155,7 @@ struct ArchiveView: View {
                     caption = nil
                 }
             }
-            
+
             switch type {
             case .success:
                 notificFeedback(style: .success)
@@ -164,7 +164,7 @@ struct ArchiveView: View {
             default:
                 print(type)
             }
-            
+
             hudConfig = TTProgressHUDConfig(
                 type: type,
                 title: title,
@@ -183,7 +183,7 @@ struct ArchiveView: View {
             store.dispatch(.resetDownloadCommandResponse)
         }
     }
-    
+
     func processResponse(_ resp: String) -> String {
         if let rangeA = resp.range(of: "A "),
            let rangeB = resp.range(of: "resolution"),
@@ -199,7 +199,7 @@ struct ArchiveView: View {
             .trimmingCharacters(
                 in: .whitespacesAndNewlines
             )
-            
+
             if ArchiveRes(rawValue: res) != nil {
                 let clientName = String(
                     resp
@@ -209,7 +209,7 @@ struct ArchiveView: View {
                 .trimmingCharacters(
                     in: .whitespacesAndNewlines
                 )
-                
+
                 return res.lString() + " -> " + clientName
             } else {
                 return resp
@@ -218,22 +218,22 @@ struct ArchiveView: View {
             return resp
         }
     }
-    
+
     func fetchMangaArchive() {
-        store.dispatch(.fetchMangaArchive(id: id))
+        store.dispatch(.fetchMangaArchive(gid: gid))
         if currentGP == nil
             || currentCredits == nil
         {
-            store.dispatch(.fetchMangaArchiveFunds(id: id))
+            store.dispatch(.fetchMangaArchiveFunds(gid: gid))
         }
     }
 }
 
 // MARK: ArchiveGrid
 private struct ArchiveGrid: View {
-    var selected: Bool
+    var isSelected: Bool
     let archive: MangaArchive.HathArchive
-    
+
     var disabled: Bool {
         archive.fileSize == "N/A"
             || archive.gpPrice == "N/A"
@@ -252,7 +252,7 @@ private struct ArchiveGrid: View {
         if disabled {
             return disabledColor
         } else {
-            return selected
+            return isSelected
                 ? .accentColor
                 : .gray
         }
@@ -260,7 +260,7 @@ private struct ArchiveGrid: View {
     var environmentColor: Color? {
         disabled ? disabledColor : nil
     }
-    
+
     var body: some View {
         VStack(spacing: 10) {
             Text(archive.resolution.rawValue.lString())
@@ -288,14 +288,14 @@ private struct ArchiveGrid: View {
 
 // MARK: BalanceView
 private struct BalanceView: View {
-    let gp: String
+    let galleryPoints: String
     let credits: String
-    
+
     var body: some View {
         HStack(spacing: 15) {
             HStack(spacing: 3) {
                 Image(systemName: "g.circle.fill")
-                Text(gp)
+                Text(galleryPoints)
             }
             HStack(spacing: 3) {
                 Image(systemName: "c.circle.fill")
@@ -310,10 +310,10 @@ private struct BalanceView: View {
 // MARK: DownloadButton
 private struct DownloadButton: View {
     @State var isPressed = false
-    
+
     var isDisabled: Bool
-    var action: () -> ()
-    
+    var action: () -> Void
+
     var textColor: Color {
         if isDisabled {
             return Color.white.opacity(0.5)
@@ -347,7 +347,7 @@ private struct DownloadButton: View {
                 trailing: 10
             )
     }
-    
+
     var body: some View {
         HStack {
             Spacer()
@@ -369,7 +369,7 @@ private struct DownloadButton: View {
             perform: {}
         )
     }
-    
+
     func onTap() {
         if !isDisabled {
             action()

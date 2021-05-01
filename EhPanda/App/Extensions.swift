@@ -26,7 +26,7 @@ extension UINavigationController: UIGestureRecognizerDelegate {
         super.viewDidLoad()
         interactivePopGestureRecognizer?.delegate = self
     }
-    
+
     public func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
         return viewControllers.count > 1
     }
@@ -48,7 +48,7 @@ extension Float {
         let lowerbound = Int(self)
         let upperbound = lowerbound + 1
         let decimal: Float = self - Float(lowerbound)
-        
+
         if decimal < 0.25 {
             return Float(lowerbound)
         } else if decimal >= 0.25 && decimal < 0.75 {
@@ -63,45 +63,45 @@ extension String {
     var hasLString: Bool {
         self.lString() != self
     }
-    
+
     func lString() -> String {
         NSLocalizedString(self, comment: "")
     }
-    
+
     func URLString() -> String {
         self.addingPercentEncoding(
             withAllowedCharacters: .urlQueryAllowed
         ) ?? ""
     }
-    
+
     func capitalizingFirstLetter() -> String {
         prefix(1).capitalized + dropFirst()
     }
-    
+
     func trimmedTitle() -> String {
         var title = self
-        
+
         if let range = title.range(of: "|") {
             title = String(title.prefix(upTo: range.lowerBound))
         }
-        
+
         title = title.replacingOccurrences(from: "(", to: ")", with: "")
         title = title.replacingOccurrences(from: "[", to: "]", with: "")
         title = title.replacingOccurrences(from: "{", to: "}", with: "")
         title = title.replacingOccurrences(from: "【", to: "】", with: "")
         title = title.replacingOccurrences(from: "「", to: "」", with: "")
         title = title.trimmingCharacters(in: .whitespacesAndNewlines)
-        
+
         return title
     }
-    
+
     func replacingOccurrences(
         from subString1: String,
         to subString2: String,
         with replacement: String
     ) -> String {
         var result = self
-        
+
         while let rangeA = result.range(of: subString1),
            let rangeB = result.range(of: subString2)
         {
@@ -114,16 +114,16 @@ extension String {
                 with: replacement
             )
         }
-        
+
         return result
     }
-    
+
     func safeURL() -> URL {
         isValidURL
             ? URL(string: self)!
-            : URL(string: Defaults.URL.ex)!
+            : URL(string: Defaults.URL.durarara)!
     }
-    
+
     var isValidURL: Bool {
         if let detector = try? NSDataDetector(
             types: NSTextCheckingResult

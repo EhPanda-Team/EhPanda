@@ -10,14 +10,14 @@ import SwiftUI
 struct AppearanceSettingView: View {
     @EnvironmentObject var store: Store
     @State var isNavigationLinkActive = false
-    
+
     var setting: Setting? {
         store.appState.settings.setting
     }
     var settingBinding: Binding<Setting>? {
         Binding($store.appState.settings.setting)
     }
-    
+
     var body: some View {
         if let setting = setting,
            let settingBinding = settingBinding
@@ -88,7 +88,7 @@ struct AppearanceSettingView: View {
             .navigationBarTitle("Apperance")
         }
     }
-    
+
     func onAppIconButtonTap() {
         isNavigationLinkActive.toggle()
     }
@@ -97,15 +97,14 @@ struct AppearanceSettingView: View {
 // MARK: SelectAppIconView
 private struct SelectAppIconView: View {
     @EnvironmentObject var store: Store
-    
+
     let selections = IconType.allCases
     var selection: IconType {
         store.appState
             .settings.setting?
             .appIconType ?? appIconType
     }
-    
-    
+
     var body: some View {
         Form {
             Section {
@@ -124,7 +123,7 @@ private struct SelectAppIconView: View {
         }
         .onAppear(perform: setSelection)
     }
-    
+
     func onAppIconRowTap(_ sel: IconType) {
         UIApplication.shared.setAlternateIconName(sel.fileName) { error in
             if let error = error {
@@ -134,7 +133,7 @@ private struct SelectAppIconView: View {
             setSelection()
         }
     }
-    
+
     func setSelection() {
         store.dispatch(.updateAppIconType(iconType: appIconType))
     }
@@ -145,7 +144,7 @@ private struct AppIconRow: View {
     let iconName: String
     let iconDesc: String
     let isSelected: Bool
-    
+
     var body: some View {
         HStack {
             Image(iconName)
@@ -168,26 +167,26 @@ private struct AppIconRow: View {
 // MARK: Definition
 public enum IconType: String, Codable, Identifiable, CaseIterable {
     public var id: Int { hashValue }
-    
-    case Normal = "Normal"
-    case Default = "Default"
-    case Weird = "Weird"
+
+    case normal = "Normal"
+    case `default` = "Default"
+    case weird = "Weird"
 }
 
 extension IconType {
     var iconName: String {
         switch self {
-        case .Normal:
+        case .normal:
             return "AppIcon_Normal"
-        case .Default:
+        case .default:
             return "AppIcon_Default"
-        case .Weird:
+        case .weird:
             return "AppIcon_Weird"
         }
     }
     var fileName: String? {
         switch self {
-        case .Default:
+        case .default:
             return nil
         default:
             return rawValue

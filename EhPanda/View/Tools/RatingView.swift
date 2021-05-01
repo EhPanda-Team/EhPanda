@@ -12,11 +12,11 @@ struct RatingView: View {
     var rating: Float {
         rawRating.fixedRating()
     }
-    
+
     init(rating: Float) {
         self.rawRating = rating
     }
-    
+
     var body: some View {
         HStack(spacing: 0) {
             if rating == 0.0 {
@@ -62,7 +62,6 @@ extension RatingView {
     struct FilledStar: View {
         var body: some View {
             Image(systemName: "star.fill")
-            
         }
     }
     struct HalfFilledStar: View {

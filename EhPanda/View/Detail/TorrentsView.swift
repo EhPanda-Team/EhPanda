@@ -11,19 +11,19 @@ import TTProgressHUD
 struct TorrentsView: View {
     @EnvironmentObject var store: Store
     @Environment(\.colorScheme) var colorScheme
-    
+
     @State var hudVisible = false
     @State var hudConfig = TTProgressHUDConfig(
         hapticsEnabled: false
     )
-    
-    var id: String
+
+    var gid: String
     var color: Color {
         colorScheme == .light
             ? Color(.systemGray6)
             : Color(.systemGray5)
     }
-    
+
     var cachedList: AppState.CachedList {
         store.appState.cachedList
     }
@@ -31,12 +31,12 @@ struct TorrentsView: View {
         store.appState.detailInfo
     }
     var mangaDetail: MangaDetail? {
-        cachedList.items?[id]?.detail
+        cachedList.items?[gid]?.detail
     }
     var torrents: [MangaTorrent] {
         mangaDetail?.torrents ?? []
     }
-    
+
     var body: some View {
         NavigationView {
             Group {
@@ -69,7 +69,7 @@ struct TorrentsView: View {
         }
         .onAppear(perform: onAppear)
     }
-    
+
     func onAppear() {
         fetchMangaTorrents()
     }
@@ -77,7 +77,7 @@ struct TorrentsView: View {
         saveToPasteboard(magnet)
         showCopiedHUD()
     }
-    
+
     func showCopiedHUD() {
         hudConfig = TTProgressHUDConfig(
             type: .success,
@@ -89,16 +89,16 @@ struct TorrentsView: View {
         )
         hudVisible.toggle()
     }
-    
+
     func fetchMangaTorrents() {
-        store.dispatch(.fetchMangaTorrents(id: id))
+        store.dispatch(.fetchMangaTorrents(gid: gid))
     }
 }
 
 private struct TorrentRow: View {
     let torrent: MangaTorrent
-    let action: (String) -> ()
-    
+    let action: (String) -> Void
+
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(spacing: 10) {
@@ -137,7 +137,7 @@ private struct TorrentRow: View {
         }
         .padding()
     }
-    
+
     func onFileNameTap() {
         action(torrent.magnet)
     }
@@ -146,7 +146,7 @@ private struct TorrentRow: View {
 private struct SeedLabel: View {
     let symbolName: String
     let text: String
-    
+
     var body: some View {
         HStack(spacing: 3) {
             Image(systemName: symbolName)

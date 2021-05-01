@@ -18,16 +18,16 @@ enum AppAction {
     case initiateSetting
     case cleanDetailViewCommentContent
     case cleanCommentViewCommentContent
-    case saveReadingProgress(id: String, tag: Int)
+    case saveReadingProgress(gid: String, tag: Int)
     case updateDiskImageCacheSize(size: String)
     case updateAppIconType(iconType: IconType)
-    case updateHistoryItems(id: String)
+    case updateHistoryItems(gid: String)
     case resetDownloadCommandResponse
-    case replaceMangaCommentJumpID(id: String?)
+    case replaceMangaCommentJumpID(gid: String?)
     case updateIsSlideMenuClosed(isClosed: Bool)
-    
+
     case toggleAppUnlocked(isUnlocked: Bool)
-    case toggleBlurEffect(on: Bool)
+    case toggleBlurEffect(effectOn: Bool)
     case toggleHomeListType(type: HomeListType)
     case toggleFavoriteIndex(index: Int)
     case toggleNavBarHidden(isHidden: Bool)
@@ -41,11 +41,11 @@ enum AppAction {
     case toggleDetailViewSheetNil
     case toggleCommentViewSheetState(state: CommentViewSheetState)
     case toggleCommentViewSheetNil
-    
+
     case fetchUserInfo(uid: String)
     case fetchUserInfoDone(result: Result<User, AppError>)
     case fetchFavoriteNames
-    case fetchFavoriteNamesDone(result: Result<[Int : String], AppError>)
+    case fetchFavoriteNamesDone(result: Result<[Int: String], AppError>)
     case fetchMangaItemReverse(detailURL: String)
     case fetchMangaItemReverseDone(result: Result<Manga, AppError>)
     case fetchSearchItems(keyword: String)
@@ -66,35 +66,35 @@ enum AppAction {
     case fetchFavoritesItemsDone(carriedValue: FavoritesIndex, result: Result<(PageNumber, [Manga]), AppError>)
     case fetchMoreFavoritesItems(index: Int)
     case fetchMoreFavoritesItemsDone(carriedValue: FavoritesIndex, result: Result<(PageNumber, [Manga]), AppError>)
-    case fetchMangaDetail(id: String)
+    case fetchMangaDetail(gid: String)
     case fetchMangaDetailDone(result: Result<(Identity, MangaDetail, APIKey), AppError>)
-    case fetchMangaArchive(id: String)
+    case fetchMangaArchive(gid: String)
     case fetchMangaArchiveDone(result: Result<(Identity, MangaArchive, CurrentGP?, CurrentCredits?), AppError>)
-    case fetchMangaArchiveFunds(id: String)
+    case fetchMangaArchiveFunds(gid: String)
     case fetchMangaArchiveFundsDone(result: Result<((CurrentGP, CurrentCredits)), AppError>)
-    case fetchMangaTorrents(id: String)
+    case fetchMangaTorrents(gid: String)
     case fetchMangaTorrentsDone(result: Result<(Identity, [MangaTorrent]), AppError>)
     case fetchAssociatedItems(depth: Int, keyword: AssociatedKeyword)
     case fetchAssociatedItemsDone(result: Result<(Depth, AssociatedKeyword, PageNumber, [Manga]), AppError>)
     case fetchMoreAssociatedItems(depth: Int, keyword: AssociatedKeyword)
     case fetchMoreAssociatedItemsDone(result: Result<(Depth, AssociatedKeyword, PageNumber, [Manga]), AppError>)
-    case fetchAlterImages(id: String, doc: HTMLDocument)
+    case fetchAlterImages(gid: String, doc: HTMLDocument)
     case fetchAlterImagesDone(result: Result<(Identity, [MangaAlterData]), AppError>)
-    case updateMangaComments(id: String)
+    case updateMangaComments(gid: String)
     case updateMangaCommentsDone(result: Result<(Identity, [MangaComment]), AppError>)
-    case updateMangaDetail(id: String)
+    case updateMangaDetail(gid: String)
     case updateMangaDetailDone(result: Result<(Identity, MangaDetail), AppError>)
-    case fetchMangaContents(id: String)
+    case fetchMangaContents(gid: String)
     case fetchMangaContentsDone(result: Result<(Identity, PageNumber, [MangaContent]), AppError>)
-    case fetchMoreMangaContents(id: String)
+    case fetchMoreMangaContents(gid: String)
     case fetchMoreMangaContentsDone(result: Result<(Identity, PageNumber, [MangaContent]), AppError>)
-    
-    case addFavorite(id: String, favIndex: Int)
-    case deleteFavorite(id: String)
-    case sendDownloadCommand(id: String, resolution: String)
+
+    case addFavorite(gid: String, favIndex: Int)
+    case deleteFavorite(gid: String)
+    case sendDownloadCommand(gid: String, resolution: String)
     case sendDownloadCommandDone(result: Result<Resp?, AppError>)
-    case rate(id: String, rating: Int)
-    case comment(id: String, content: String)
-    case editComment(id: String, commentID: String, content: String)
-    case voteComment(id: String, commentID: String, vote: Int)
+    case rate(gid: String, rating: Int)
+    case comment(gid: String, content: String)
+    case editComment(gid: String, commentID: String, content: String)
+    case voteComment(gid: String, commentID: String, vote: Int)
 }

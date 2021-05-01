@@ -15,7 +15,7 @@ struct TagCloudView: View {
     let backgroundColor: Color
     let paddingV: CGFloat
     let paddingH: CGFloat
-    let onTapAction: ((AssociatedKeyword)->())
+    let onTapAction: (AssociatedKeyword) -> Void
 
     @State private var totalHeight
           = CGFloat.zero       // << variant for ScrollView/List
@@ -31,27 +31,27 @@ struct TagCloudView: View {
 //        .frame(maxHeight: totalHeight) // << variant for VStack
     }
 
-    private func generateContent(in g: GeometryProxy) -> some View {
+    private func generateContent(in proxy: GeometryProxy) -> some View {
         ZStack(alignment: .topLeading) {
             var width = CGFloat.zero
             var height = CGFloat.zero
             ForEach(tag.content, id: \.self) { tag in
                 item(for: tag)
                     .padding([.trailing, .bottom], 4)
-                    .alignmentGuide(.leading, computeValue: { d in
-                        if (abs(width - d.width) > g.size.width) {
+                    .alignmentGuide(.leading, computeValue: { dimensions in
+                        if abs(width - dimensions.width) > proxy.size.width {
                             width = 0
-                            height -= d.height
+                            height -= dimensions.height
                         }
                         let result = width
                         if tag == self.tag.content.last {
                             width = 0 // last item
                         } else {
-                            width -= d.width
+                            width -= dimensions.width
                         }
                         return result
                     })
-                    .alignmentGuide(.top, computeValue: { d in
+                    .alignmentGuide(.top, computeValue: { _ in
                         let result = height
                         if tag == self.tag.content.last {
                             height = 0 // last item

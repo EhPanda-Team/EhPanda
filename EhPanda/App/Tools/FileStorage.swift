@@ -24,6 +24,8 @@ struct FileStorage<T: Codable> {
     }
 
     var wrappedValue: T? {
+        get { value }
+
         set {
             value = newValue
             let directory = self.directory
@@ -36,7 +38,5 @@ struct FileStorage<T: Codable> {
                 }
             }
         }
-        
-        get { value }
     }
 }

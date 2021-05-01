@@ -15,7 +15,7 @@ protocol AppCommand {
 
 struct FetchUserInfoCommand: AppCommand {
     let uid: String
-    
+
     func execute(in store: Store) {
         let token = SubscriptionToken()
         UserInfoRequest(uid: uid)
@@ -53,7 +53,7 @@ struct FetchFavoriteNamesCommand: AppCommand {
 
 struct FetchMangaItemReverseCommand: AppCommand {
     let detailURL: String
-    
+
     func execute(in store: Store) {
         let token = SubscriptionToken()
         MangaItemReverseRequest(detailURL: detailURL)
@@ -78,10 +78,10 @@ struct FetchMangaItemReverseCommand: AppCommand {
 struct FetchSearchItemsCommand: AppCommand {
     let keyword: String
     let filter: Filter
-    
+
     func execute(in store: Store) {
         let token = SubscriptionToken()
-        SearchItemsRequest(keyword: keyword, filter:  filter)
+        SearchItemsRequest(keyword: keyword, filter: filter)
             .publisher
             .receive(on: DispatchQueue.main)
             .sink { completion in
@@ -101,7 +101,7 @@ struct FetchMoreSearchItemsCommand: AppCommand {
     let filter: Filter
     let lastID: String
     let pageNum: Int
-    
+
     func execute(in store: Store) {
         let token = SubscriptionToken()
         MoreSearchItemsRequest(
@@ -145,7 +145,7 @@ struct FetchFrontpageItemsCommand: AppCommand {
 struct FetchMoreFrontpageItemsCommand: AppCommand {
     let lastID: String
     let pageNum: Int
-    
+
     func execute(in store: Store) {
         let token = SubscriptionToken()
         MoreFrontpageItemsRequest(lastID: lastID, pageNum: pageNum)
@@ -202,7 +202,7 @@ struct FetchWatchedItemsCommand: AppCommand {
 struct FetchMoreWatchedItemsCommand: AppCommand {
     let lastID: String
     let pageNum: Int
-    
+
     func execute(in store: Store) {
         let token = SubscriptionToken()
         MoreWatchedItemsRequest(lastID: lastID, pageNum: pageNum)
@@ -222,7 +222,7 @@ struct FetchMoreWatchedItemsCommand: AppCommand {
 
 struct FetchFavoritesItemsCommand: AppCommand {
     let favIndex: Int
-    
+
     func execute(in store: Store) {
         let token = SubscriptionToken()
         FavoritesItemsRequest(favIndex: favIndex)
@@ -244,7 +244,7 @@ struct FetchMoreFavoritesItemsCommand: AppCommand {
     let favIndex: Int
     let lastID: String
     let pageNum: Int
-    
+
     func execute(in store: Store) {
         let token = SubscriptionToken()
         MoreFavoritesItemsRequest(favIndex: favIndex, lastID: lastID, pageNum: pageNum)
@@ -263,9 +263,9 @@ struct FetchMoreFavoritesItemsCommand: AppCommand {
 }
 
 struct FetchMangaDetailCommand: AppCommand {
-    let id: String
+    let gid: String
     let detailURL: String
-    
+
     func execute(in store: Store) {
         let token = SubscriptionToken()
         MangaDetailRequest(detailURL: detailURL)
@@ -277,9 +277,9 @@ struct FetchMangaDetailCommand: AppCommand {
                 }
                 token.unseal()
             } receiveValue: { detail in
-                store.dispatch(.fetchMangaDetailDone(result: .success((id, detail.0, detail.1))))
+                store.dispatch(.fetchMangaDetailDone(result: .success((gid, detail.0, detail.1))))
                 if detail.0.previews.isEmpty == true {
-                    store.dispatch(.fetchAlterImages(id: id, doc: detail.2))
+                    store.dispatch(.fetchAlterImages(gid: gid, doc: detail.2))
                 }
             }
             .seal(in: token)
@@ -287,9 +287,9 @@ struct FetchMangaDetailCommand: AppCommand {
 }
 
 struct FetchMangaArchiveCommand: AppCommand {
-    let id: String
+    let gid: String
     let archiveURL: String
-    
+
     func execute(in store: Store) {
         let sToken = SubscriptionToken()
         MangaArchiveRequest(archiveURL: archiveURL)
@@ -302,11 +302,11 @@ struct FetchMangaArchiveCommand: AppCommand {
                 sToken.unseal()
             } receiveValue: { archive in
                 if let arc = archive.0 {
-                    store.dispatch(.fetchMangaArchiveDone(result: .success((id, arc, archive.1, archive.2))))
+                    store.dispatch(.fetchMangaArchiveDone(result: .success((gid, arc, archive.1, archive.2))))
                     if archive.1 == nil
                         || archive.2 == nil
                     {
-                        store.dispatch(.fetchMangaArchiveFunds(id: id))
+                        store.dispatch(.fetchMangaArchiveFunds(gid: gid))
                     }
                 } else {
                     store.dispatch(.fetchMangaArchiveDone(result: .failure(.networkingFailed)))
@@ -317,9 +317,8 @@ struct FetchMangaArchiveCommand: AppCommand {
 }
 
 struct FetchMangaArchiveFundsCommand: AppCommand {
-    let id: String
     let detailURL: String
-    
+
     func execute(in store: Store) {
         let sToken = SubscriptionToken()
         MangaArchiveFundsRequest(detailURL: detailURL)
@@ -342,12 +341,12 @@ struct FetchMangaArchiveFundsCommand: AppCommand {
 }
 
 struct FetchMangaTorrentsCommand: AppCommand {
-    let id: String
+    let gid: String
     let token: String
-    
+
     func execute(in store: Store) {
         let sToken = SubscriptionToken()
-        MangaTorrentsRequest(id: id, token: token)
+        MangaTorrentsRequest(gid: gid, token: token)
             .publisher
             .receive(on: DispatchQueue.main)
             .sink { completion in
@@ -357,7 +356,7 @@ struct FetchMangaTorrentsCommand: AppCommand {
                 sToken.unseal()
             } receiveValue: { torrents in
                 if !torrents.isEmpty {
-                    store.dispatch(.fetchMangaTorrentsDone(result: .success((id, torrents))))
+                    store.dispatch(.fetchMangaTorrentsDone(result: .success((gid, torrents))))
                 } else {
                     store.dispatch(.fetchMangaTorrentsDone(result: .failure(.networkingFailed)))
                 }
@@ -369,7 +368,7 @@ struct FetchMangaTorrentsCommand: AppCommand {
 struct FetchAssociatedItemsCommand: AppCommand {
     let depth: Int
     let keyword: AssociatedKeyword
-    
+
     func execute(in store: Store) {
         let token = SubscriptionToken()
         AssociatedItemsRequest(keyword: keyword)
@@ -392,7 +391,7 @@ struct FetchMoreAssociatedItemsCommand: AppCommand {
     let keyword: AssociatedKeyword
     let lastID: String
     let pageNum: Int
-    
+
     func execute(in store: Store) {
         let token = SubscriptionToken()
         MoreAssociatedItemsRequest(keyword: keyword, lastID: lastID, pageNum: pageNum)
@@ -411,12 +410,12 @@ struct FetchMoreAssociatedItemsCommand: AppCommand {
 }
 
 struct FetchAlterImagesCommand: AppCommand {
-    let id: String
+    let gid: String
     let doc: HTMLDocument
-    
+
     func execute(in store: Store) {
         let token = SubscriptionToken()
-        AlterImagesRequest(id: id, doc: doc)
+        AlterImagesRequest(gid: gid, doc: doc)
             .publisher
             .receive(on: DispatchQueue.main)
             .sink { completion in
@@ -432,9 +431,9 @@ struct FetchAlterImagesCommand: AppCommand {
 }
 
 struct UpdateMangaDetailCommand: AppCommand {
-    let id: String
+    let gid: String
     let detailURL: String
-    
+
     func execute(in store: Store) {
         let token = SubscriptionToken()
         MangaDetailRequest(detailURL: detailURL)
@@ -446,16 +445,16 @@ struct UpdateMangaDetailCommand: AppCommand {
                 }
                 token.unseal()
             } receiveValue: { detail in
-                store.dispatch(.updateMangaDetailDone(result: .success((id, detail.0))))
+                store.dispatch(.updateMangaDetailDone(result: .success((gid, detail.0))))
             }
             .seal(in: token)
     }
 }
 
 struct UpdateMangaCommentsCommand: AppCommand {
-    let id: String
+    let gid: String
     let detailURL: String
-    
+
     func execute(in store: Store) {
         let token = SubscriptionToken()
         MangaCommentsRequest(detailURL: detailURL)
@@ -467,16 +466,16 @@ struct UpdateMangaCommentsCommand: AppCommand {
                 }
                 token.unseal()
             } receiveValue: { comments in
-                store.dispatch(.updateMangaCommentsDone(result: .success((id, comments))))
+                store.dispatch(.updateMangaCommentsDone(result: .success((gid, comments))))
             }
             .seal(in: token)
     }
 }
 
 struct FetchMangaContentsCommand: AppCommand {
-    let id: String
+    let gid: String
     let detailURL: String
-    
+
     func execute(in store: Store) {
         let token = SubscriptionToken()
             MangaContentsRequest(
@@ -497,7 +496,7 @@ struct FetchMangaContentsCommand: AppCommand {
                 token.unseal()
             } receiveValue: { contents in
                 if !contents.1.isEmpty {
-                    store.dispatch(.fetchMangaContentsDone(result: .success((id, contents.0, contents.1))))
+                    store.dispatch(.fetchMangaContentsDone(result: .success((gid, contents.0, contents.1))))
                 } else {
                     store.dispatch(.fetchMangaContentsDone(result: .failure(.networkingFailed)))
                 }
@@ -507,11 +506,11 @@ struct FetchMangaContentsCommand: AppCommand {
 }
 
 struct FetchMoreMangaContentsCommand: AppCommand {
-    let id: String
+    let gid: String
     let detailURL: String
     let pageNum: Int
     let pageCount: Int
-    
+
     func execute(in store: Store) {
         let token = SubscriptionToken()
             MangaContentsRequest(
@@ -532,7 +531,7 @@ struct FetchMoreMangaContentsCommand: AppCommand {
                 token.unseal()
             } receiveValue: { contents in
                 if !contents.1.isEmpty {
-                    store.dispatch(.fetchMoreMangaContentsDone(result: .success((id, contents.0, contents.1))))
+                    store.dispatch(.fetchMoreMangaContentsDone(result: .success((gid, contents.0, contents.1))))
                 } else {
                     store.dispatch(.fetchMoreMangaContentsDone(result: .failure(.networkingFailed)))
                 }
@@ -542,18 +541,18 @@ struct FetchMoreMangaContentsCommand: AppCommand {
 }
 
 struct AddFavoriteCommand: AppCommand {
-    let id: String
+    let gid: String
     let token: String
     let favIndex: Int
-    
+
     func execute(in store: Store) {
         let sToken = SubscriptionToken()
-        AddFavoriteRequest(id: id, token: token, favIndex: favIndex)
+        AddFavoriteRequest(gid: gid, token: token, favIndex: favIndex)
             .publisher
             .receive(on: DispatchQueue.main)
             .sink { completion in
                 if case .finished = completion {
-                    store.dispatch(.updateMangaDetail(id: id))
+                    store.dispatch(.updateMangaDetail(gid: gid))
                 }
                 sToken.unseal()
             } receiveValue: { _ in }
@@ -562,16 +561,16 @@ struct AddFavoriteCommand: AppCommand {
 }
 
 struct DeleteFavoriteCommand: AppCommand {
-    let id: String
-    
+    let gid: String
+
     func execute(in store: Store) {
         let sToken = SubscriptionToken()
-        DeleteFavoriteRequest(id: id)
+        DeleteFavoriteRequest(gid: gid)
             .publisher
             .receive(on: DispatchQueue.main)
             .sink { completion in
                 if case .finished = completion {
-                    store.dispatch(.updateMangaDetail(id: id))
+                    store.dispatch(.updateMangaDetail(gid: gid))
                 }
                 sToken.unseal()
             } receiveValue: { _ in }
@@ -580,10 +579,10 @@ struct DeleteFavoriteCommand: AppCommand {
 }
 
 struct SendDownloadCommand: AppCommand {
-    let id: String
+    let gid: String
     let archiveURL: String
     let resolution: String
-    
+
     func execute(in store: Store) {
         let token = SubscriptionToken()
         SendDownloadCommandRequest(
@@ -599,7 +598,7 @@ struct SendDownloadCommand: AppCommand {
             token.unseal()
         } receiveValue: { resp in
             store.dispatch(.sendDownloadCommandDone(result: .success(resp)))
-            store.dispatch(.fetchMangaArchiveFunds(id: id))
+            store.dispatch(.fetchMangaArchiveFunds(gid: gid))
         }
         .seal(in: token)
     }
@@ -611,7 +610,7 @@ struct RateCommand: AppCommand {
     let gid: Int
     let token: String
     let rating: Int
-    
+
     func execute(in store: Store) {
         let sToken = SubscriptionToken()
         RateRequest(
@@ -625,7 +624,7 @@ struct RateCommand: AppCommand {
         .receive(on: DispatchQueue.main)
         .sink { completion in
             if case .finished = completion {
-                store.dispatch(.updateMangaDetail(id: String(gid)))
+                store.dispatch(.updateMangaDetail(gid: String(gid)))
             }
             sToken.unseal()
         } receiveValue: { _ in }
@@ -634,10 +633,10 @@ struct RateCommand: AppCommand {
 }
 
 struct CommentCommand: AppCommand {
-    let id: String
+    let gid: String
     let content: String
     let detailURL: String
-    
+
     func execute(in store: Store) {
         let token = SubscriptionToken()
         CommentRequest(content: content, detailURL: detailURL)
@@ -645,7 +644,7 @@ struct CommentCommand: AppCommand {
             .receive(on: DispatchQueue.main)
             .sink { completion in
                 if case .finished = completion {
-                    store.dispatch(.updateMangaDetail(id: id))
+                    store.dispatch(.updateMangaDetail(gid: gid))
                 }
                 token.unseal()
             } receiveValue: { _ in }
@@ -654,11 +653,11 @@ struct CommentCommand: AppCommand {
 }
 
 struct EditCommentCommand: AppCommand {
-    let id: String
+    let gid: String
     let commentID: String
     let content: String
     let detailURL: String
-    
+
     func execute(in store: Store) {
         let token = SubscriptionToken()
         EditCommentRequest(
@@ -670,7 +669,7 @@ struct EditCommentCommand: AppCommand {
         .receive(on: DispatchQueue.main)
         .sink { completion in
             if case .finished = completion {
-                store.dispatch(.updateMangaDetail(id: id))
+                store.dispatch(.updateMangaDetail(gid: gid))
             }
             token.unseal()
         } receiveValue: { _ in }
@@ -685,7 +684,7 @@ struct VoteCommentCommand: AppCommand {
     let token: String
     let commentID: Int
     let commentVote: Int
-    
+
     func execute(in store: Store) {
         let sToken = SubscriptionToken()
         VoteCommentRequest(
@@ -700,7 +699,7 @@ struct VoteCommentCommand: AppCommand {
         .receive(on: DispatchQueue.main)
         .sink { completion in
             if case .finished = completion {
-                store.dispatch(.updateMangaDetail(id: String(gid)))
+                store.dispatch(.updateMangaDetail(gid: String(gid)))
             }
             sToken.unseal()
         } receiveValue: { _ in }

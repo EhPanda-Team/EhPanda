@@ -41,7 +41,7 @@ struct AssociatedView: View {
         } else {
             var cat: String?
             var content: String?
-            
+
             if let tagCategory = TagCategory(
                 rawValue: keyword.category ?? ""
             ) {
@@ -59,14 +59,14 @@ struct AssociatedView: View {
             if content == nil {
                 content = keyword.content
             }
-            
+
             return "\(cat ?? ""): \"\(content ?? "")\""
         }
     }
-    
+
     let depth: Int
     let keyword: AssociatedKeyword
-    
+
     var body: some View {
         ScrollView {
             LazyVStack {
@@ -74,7 +74,7 @@ struct AssociatedView: View {
                     ForEach(assciatedItem.mangas) { manga in
                         NavigationLink(
                             destination: DetailView(
-                                id: manga.id,
+                                gid: manga.gid,
                                 depth: depth + 1
                             )
                         ) {
@@ -115,7 +115,7 @@ struct AssociatedView: View {
         .onAppear(perform: onAppear)
         .navigationBarTitle(title)
     }
-    
+
     func onAppear() {
         if assciatedItem.keyword != keyword {
             fetchAssociatedItems()
@@ -126,11 +126,11 @@ struct AssociatedView: View {
             fetchMoreAssociatedItems()
         }
     }
-    
+
     func retryAction() {
         fetchAssociatedItems()
     }
-    
+
     func fetchAssociatedItems() {
         store.dispatch(.fetchAssociatedItems(depth: depth, keyword: keyword))
     }

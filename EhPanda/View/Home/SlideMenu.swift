@@ -9,14 +9,14 @@ import SwiftUI
 import Kingfisher
 import SDWebImageSwiftUI
 
-struct SlideMenu : View {
+struct SlideMenu: View {
     @EnvironmentObject var store: Store
     @Environment(\.colorScheme) var colorScheme
     @Binding var offset: CGFloat
-    
+
     var edges = UIApplication.shared.windows
         .first?.safeAreaInsets
-    
+
     var settings: AppState.Settings {
         store.appState.settings
     }
@@ -59,7 +59,7 @@ struct SlideMenu : View {
             return Array(exxMenuItems.prefix(2))
         }
     }
-    
+
     // MARK: SlideMenu
     var body: some View {
         HStack(spacing: 0) {
@@ -99,7 +99,7 @@ struct SlideMenu : View {
             .frame(width: Defaults.FrameSize.slideMenuWidth)
             .background(reversedPrimary)
             .edgesIgnoringSafeArea(.vertical)
-            
+
             Spacer()
         }
         .onChange(
@@ -107,12 +107,12 @@ struct SlideMenu : View {
             perform: onFavoritesIndexChange
         )
     }
-    
+
     func onMenuRowTap(_ item: HomeListType) {
         if homeListType != item {
             store.dispatch(.toggleHomeListType(type: item))
             impactFeedback(style: .soft)
-            
+
             if setting?.closeSlideMenuAfterSelection == true {
                 performTransition(-width)
             }
@@ -126,7 +126,7 @@ struct SlideMenu : View {
             performTransition(-width)
         }
     }
-    
+
     func performTransition(_ offset: CGFloat) {
         withAnimation {
             self.offset = offset
@@ -137,19 +137,19 @@ struct SlideMenu : View {
 // MARK: AvatarView
 private struct AvatarView: View {
     @EnvironmentObject var store: Store
-    
+
     var iconType: IconType {
         store.appState
             .settings.setting?
             .appIconType ?? appIconType
     }
-    
+
     let avatarURL: String?
     let displayName: String?
-    
+
     let width: CGFloat
     let height: CGFloat
-    
+
     func placeholder() -> some View {
         Placeholder(
             style: .activity,
@@ -157,7 +157,7 @@ private struct AvatarView: View {
             height: height
         )
     }
-    
+
     var body: some View {
         HStack {
             VStack(alignment: .leading) {
@@ -196,11 +196,11 @@ private struct MenuRow: View {
     @Environment(\.colorScheme) var colorScheme
     @State var isPressing = false
     let isSelected: Bool
-    
+
     let symbolName: String
     let text: String
-    let action: (()->())
-    
+    let action: () -> Void
+
     var textColor: Color {
         isSelected
             ? .primary
@@ -210,14 +210,14 @@ private struct MenuRow: View {
     }
     var backgroundColor: Color {
         let color = Color(.systemGray6)
-        
+
         return isSelected
             ? color
             : (isPressing
                 ? color.opacity(0.6)
                 : .clear)
     }
-    
+
     var body: some View {
         VStack {
             HStack {

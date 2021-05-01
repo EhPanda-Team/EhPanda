@@ -8,18 +8,18 @@
 
 import SwiftUI
 
-struct Home : View {
+struct Home: View {
     @EnvironmentObject var store: Store
     @Environment(\.colorScheme) var colorScheme
-    
+
     // SlideMenu
     @State var direction: Direction = .none
     @State var offset = -Defaults.FrameSize.slideMenuWidth
     @State var width = Defaults.FrameSize.slideMenuWidth
-    
+
     // AppLock
     @State var blurRadius: CGFloat = 0
-        
+
     var environment: AppState.Environment {
         store.appState.environment
     }
@@ -29,13 +29,13 @@ struct Home : View {
     var isSlideMenuClosed: Bool {
         environment.isSlideMenuClosed
     }
-    
+
     enum Direction {
         case none
         case toLeft
         case toRight
     }
-    
+
     var hasPermission: Bool {
         vcsCount == 1
     }
@@ -43,7 +43,7 @@ struct Home : View {
         let scale = colorScheme == .light ? 0.2 : 0.5
         return Double((width + offset) / width) * scale
     }
-    
+
     var body: some View {
         ZStack {
             ZStack {
@@ -63,7 +63,7 @@ struct Home : View {
             .allowsHitTesting(isAppUnlocked)
             AuthView(blurRadius: $blurRadius)
         }
-        .gesture (
+        .gesture(
             DragGesture(minimumDistance: 20)
                 .onChanged { value in
                     if hasPermission {
@@ -122,7 +122,7 @@ struct Home : View {
             onReceiveSlideMenuShouldCloseNotification()
         }
     }
-    
+
     func onWidthChange() {
         if isPad {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
@@ -139,14 +139,14 @@ struct Home : View {
     func onReceiveSlideMenuShouldCloseNotification() {
         performTransition(-width)
     }
-    
+
     func performTransition(_ offset: CGFloat) {
         withAnimation(Animation.default) {
             self.offset = offset
         }
         updateSlideMenuState(isClosed: offset == -width)
     }
-    
+
     func updateSlideMenuState(isClosed: Bool) {
         if isSlideMenuClosed != isClosed {
             store.dispatch(.updateIsSlideMenuClosed(isClosed: isClosed))

@@ -9,12 +9,13 @@
 import Foundation
 
 enum FileHelper {
-
     static func loadBundledJSON<T: Decodable>(file: String) -> T {
         guard let url = Bundle.main.url(forResource: file, withExtension: "json") else {
             fatalError("Resource not found: \(file)")
         }
+        // swiftlint:disable force_try
         return try! loadJSON(from: url)
+        // swiftlint:enable force_try
     }
 
     static func loadJSON<T: Decodable>(from url: URL) throws -> T {

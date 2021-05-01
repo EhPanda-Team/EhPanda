@@ -11,11 +11,11 @@ struct AuthView: View {
     @EnvironmentObject var store: Store
     @State var enterBackgroundDate: Date?
     @Binding var blurRadius: CGFloat
-    
+
     var isAppUnlocked: Bool {
         store.appState.environment.isAppUnlocked
     }
-    
+
     var setting: Setting? {
         store.appState.settings.setting
     }
@@ -25,7 +25,7 @@ struct AuthView: View {
     var autoLockThreshold: Double {
         Double(setting?.autoLockPolicy.value ?? -1)
     }
-    
+
     var body: some View {
         LockView(unlockAction: authenticate)
             .onReceive(
@@ -57,19 +57,19 @@ struct AuthView: View {
                 onWillEnterForeground()
             }
     }
-    
+
     func onLockTap() {
         impactFeedback(style: .soft)
         authenticate()
     }
     func onResignActive() {
         if allowsResignActiveBlur {
-            setBlur(on: true)
+            setBlur(effectOn: true)
         }
     }
     func onDidBecomeActive() {
         if isAppUnlocked {
-            setBlur(on: false)
+            setBlur(effectOn: false)
         }
     }
     func onDidEnterBackground() {
@@ -85,34 +85,34 @@ struct AuthView: View {
             }
         }
     }
-    
-    func setBlur(on: Bool) {
+
+    func setBlur(effectOn: Bool) {
         withAnimation(.linear(duration: 0.1)) {
-            blurRadius = on ? 10 : 0
+            blurRadius = effectOn ? 10 : 0
         }
-        store.dispatch(.toggleBlurEffect(on: on))
+        store.dispatch(.toggleBlurEffect(effectOn: effectOn))
     }
-    
+
     func setUnlocked(_ isUnlocked: Bool) {
         store.dispatch(.toggleAppUnlocked(isUnlocked: isUnlocked))
     }
-    
+
     func lockIfExpired() {
         if let resignDate = enterBackgroundDate,
            Date().timeIntervalSince(resignDate) > autoLockThreshold
         {
             setUnlocked(false)
-            setBlur(on: true)
+            setBlur(effectOn: true)
         }
         enterBackgroundDate = nil
     }
-    
+
     func authenticate() {
         localAuth(
             reason: "The App has been locked due to the auto-lock expiration.",
             successAction: {
                 setUnlocked(true)
-                setBlur(on: false)
+                setBlur(effectOn: false)
             }
         )
     }
@@ -120,13 +120,13 @@ struct AuthView: View {
 
 struct LockView: View {
     @EnvironmentObject var store: Store
-    
-    let unlockAction: () -> ()
-    
+
+    let unlockAction: () -> Void
+
     var isAppUnlocked: Bool {
         store.appState.environment.isAppUnlocked
     }
-    
+
     var body: some View {
         Group {
             if !isAppUnlocked {

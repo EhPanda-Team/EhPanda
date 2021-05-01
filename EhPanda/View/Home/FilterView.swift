@@ -9,7 +9,7 @@ import SwiftUI
 
 struct FilterView: View {
     @EnvironmentObject var store: Store
-    
+
     var settings: AppState.Settings {
         store.appState.settings
     }
@@ -19,14 +19,14 @@ struct FilterView: View {
     var environmentBinding: Binding<AppState.Environment> {
         $store.appState.environment
     }
-    
+
     var resetFiltersActionSheet: ActionSheet {
         ActionSheet(title: Text("Are you sure to reset?"), buttons: [
             .destructive(Text("Reset"), action: resetFilters),
             .cancel()
         ])
     }
-    
+
     // MARK: FilterView
     var body: some View {
         NavigationView {
@@ -83,17 +83,17 @@ struct FilterView: View {
         }
         .onAppear(perform: onAppear)
     }
-    
+
     func onAppear() {
         if settings.filter == nil {
             store.dispatch(.initiateFilter)
         }
     }
-    
+
     func onResetButtonTap() {
         store.dispatch(.toggleFilterViewActionSheetState(state: .resetFilters))
     }
-    
+
     func resetFilters() {
         store.dispatch(.initiateFilter)
     }
@@ -102,14 +102,14 @@ struct FilterView: View {
 // MARK: CategoryView
 private struct CategoryView: View {
     @EnvironmentObject var store: Store
-    
+
     var filter: Filter? {
         store.appState.settings.filter
     }
     var filterBinding: Binding<Filter>? {
         Binding($store.appState.settings.filter)
     }
-    
+
     let gridItems = [
         GridItem(
             .adaptive(
@@ -119,7 +119,7 @@ private struct CategoryView: View {
             )
         )
     ]
-    
+
     var body: some View {
         if let filter = filter,
            let filterBinding = filterBinding {
@@ -134,23 +134,23 @@ private struct CategoryView: View {
             .padding(.vertical)
         }
     }
-    
+
     private func tuples(_ filter: Filter, _ filterBinding: Binding<Filter>) -> [TupleCategory] {
         [TupleCategory(isFiltered: filterBinding.doujinshi.isFiltered, category: filter.doujinshi.category),
          TupleCategory(isFiltered: filterBinding.manga.isFiltered, category: filter.manga.category),
-         TupleCategory(isFiltered: filterBinding.artist_CG.isFiltered, category: filter.artist_CG.category),
-         TupleCategory(isFiltered: filterBinding.game_CG.isFiltered, category: filter.game_CG.category),
+         TupleCategory(isFiltered: filterBinding.artistCG.isFiltered, category: filter.artistCG.category),
+         TupleCategory(isFiltered: filterBinding.gameCG.isFiltered, category: filter.gameCG.category),
          TupleCategory(isFiltered: filterBinding.western.isFiltered, category: filter.western.category),
-         TupleCategory(isFiltered: filterBinding.non_h.isFiltered, category: filter.non_h.category),
-         TupleCategory(isFiltered: filterBinding.image_set.isFiltered, category: filter.image_set.category),
+         TupleCategory(isFiltered: filterBinding.nonH.isFiltered, category: filter.nonH.category),
+         TupleCategory(isFiltered: filterBinding.imageSet.isFiltered, category: filter.imageSet.category),
          TupleCategory(isFiltered: filterBinding.cosplay.isFiltered, category: filter.cosplay.category),
-         TupleCategory(isFiltered: filterBinding.asian_porn.isFiltered, category: filter.asian_porn.category),
+         TupleCategory(isFiltered: filterBinding.asianPorn.isFiltered, category: filter.asianPorn.category),
          TupleCategory(isFiltered: filterBinding.misc.isFiltered, category: filter.misc.category)]
     }
-    
+
     private struct TupleCategory: Identifiable {
         var id = UUID()
-        
+
         let isFiltered: Binding<Bool>
         let category: Category
     }
@@ -160,7 +160,7 @@ private struct CategoryView: View {
 private struct CategoryCell: View {
     @Binding var isFiltered: Bool
     let category: Category
-    
+
     var body: some View {
         ZStack {
             Rectangle()
@@ -177,7 +177,7 @@ private struct CategoryCell: View {
         .onTapGesture(perform: onTapGesture)
         .cornerRadius(5)
     }
-    
+
     func onTapGesture() {
         isFiltered.toggle()
     }
@@ -186,7 +186,7 @@ private struct CategoryCell: View {
 // MARK: MinimumRatingSetter
 private struct MinimumRatingSetter: View {
     @Binding var minimum: Int
-    
+
     var body: some View {
         HStack {
             let star = "stars".lString()
@@ -211,7 +211,7 @@ private struct PagesRangeSetter: View {
     @Environment(\.colorScheme) var colorScheme
     @Binding var lowerBound: String
     @Binding var upperBound: String
-    
+
     var color: Color {
         if colorScheme == .light {
             return Color(.systemGray6)
@@ -219,7 +219,7 @@ private struct PagesRangeSetter: View {
             return Color(.systemGray3)
         }
     }
-    
+
     var body: some View {
         HStack {
             Text("Pages range")
@@ -248,6 +248,6 @@ private struct PagesRangeSetter: View {
 // MARK: Definition
 enum FilterViewActionSheetState: Identifiable {
     var id: Int { hashValue }
-    
+
     case resetFilters
 }

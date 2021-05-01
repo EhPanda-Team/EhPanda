@@ -11,16 +11,16 @@ import TTProgressHUD
 struct AccountSettingView: View {
     @EnvironmentObject var store: Store
     @State var inEditMode = false
-    
+
     @State var hudVisible = false
     @State var hudConfig = TTProgressHUDConfig(
         hapticsEnabled: false
     )
-    
+
     var settingBinding: Binding<Setting>? {
         Binding($store.appState.settings.setting)
     }
-    
+
     var ehURL: URL {
         Defaults.URL.ehentai.safeURL()
     }
@@ -34,10 +34,10 @@ struct AccountSettingView: View {
         Defaults.Cookie.igneous
     }
     var memberIDKey: String {
-        Defaults.Cookie.ipb_member_id
+        Defaults.Cookie.ipbMemberId
     }
     var passHashKey: String {
-        Defaults.Cookie.ipb_pass_hash
+        Defaults.Cookie.ipbPassHash
     }
     var yay: CookieValue {
         getCookieValue(url: exURL, key: yayKey)
@@ -57,7 +57,7 @@ struct AccountSettingView: View {
     var exPassHash: CookieValue {
         getCookieValue(url: exURL, key: passHashKey)
     }
-    
+
     var verifiedView: some View {
         Image(systemName: "checkmark.circle")
             .foregroundColor(.green)
@@ -82,7 +82,7 @@ struct AccountSettingView: View {
             }
         }
     }
-    
+
     // MARK: AccountSettingView
     var body: some View {
         ZStack {
@@ -93,7 +93,7 @@ struct AccountSettingView: View {
                             selection: settingBinding.galleryType,
                             label: Text("Gallery"),
                             content: {
-                                let galleryTypes: [GalleryType] = [.eh, .ex]
+                                let galleryTypes: [GalleryType] = [.ehentai, .exhentai]
                                 ForEach(galleryTypes, id: \.self) {
                                     Text($0.rawValue.lString())
                                 }
@@ -172,9 +172,8 @@ struct AccountSettingView: View {
         .navigationBarItems(trailing:
             Button(inEditMode ? "Finish" : "Edit", action: onEditButtonTap)
         )
-        
     }
-    
+
     func onEditButtonTap() {
         inEditMode.toggle()
     }
@@ -190,7 +189,7 @@ struct AccountSettingView: View {
     func onLogoutTap() {
         toggleLogout()
     }
-    
+
     func onEhMemberIDEditingChanged(_ value: String) {
         setCookieValue(url: ehURL, key: memberIDKey, value: value)
     }
@@ -209,7 +208,7 @@ struct AccountSettingView: View {
     func onExPassHashEditingChanged(_ value: String) {
         setCookieValue(url: exURL, key: passHashKey, value: value)
     }
-    
+
     func setCookieValue(url: URL, key: String, value: String) {
         if checkExistence(url: url, key: key) {
             editCookie(url: url, key: key, value: value)
@@ -230,7 +229,7 @@ struct AccountSettingView: View {
         saveToPasteboard(cookies)
         showCopiedHUD()
     }
-    
+
     func showCopiedHUD() {
         hudConfig = TTProgressHUDConfig(
             type: .success,
@@ -242,7 +241,7 @@ struct AccountSettingView: View {
         )
         hudVisible.toggle()
     }
-    
+
     func toggleWebViewLogin() {
         store.dispatch(.toggleSettingViewSheetState(state: .webviewLogin))
     }
@@ -264,29 +263,29 @@ private struct CookieRow<VerifyView: View>: View {
         inEditModeBinding.wrappedValue
     }
     @State var content: String
-    
+
     let key: String
     let value: String
     let verifyView: VerifyView
-    let editChangedAction: ((String)->())
-    
+    let editChangedAction: (String) -> Void
+
     init(
         inEditMode: Binding<Bool>,
         key: String,
         value: CookieValue,
         verifyView: VerifyView,
-        editChangedAction: @escaping ((String)->())
+        editChangedAction: @escaping (String) -> Void
     ) {
         self.inEditModeBinding = inEditMode
         _content = State(initialValue: value.rawValue)
-        
+
         self.key = key
         self.value = value.lString.isEmpty
             ? value.rawValue : value.lString
         self.verifyView = verifyView
         self.editChangedAction = editChangedAction
     }
-    
+
     var body: some View {
         HStack {
             Text(key)
@@ -309,7 +308,7 @@ private struct CookieRow<VerifyView: View>: View {
             verifyView
         }
     }
-    
+
     func onContentChanged(_ value: String) {
         editChangedAction(value)
     }

@@ -9,11 +9,11 @@ import SwiftUI
 
 struct LoadingView: View {
     let isCompact: Bool
-    
+
     init(isCompact: Bool = false) {
         self.isCompact = isCompact
     }
-    
+
     var body: some View {
         switch isCompact {
         case true:
@@ -25,8 +25,8 @@ struct LoadingView: View {
 }
 
 struct NotLoginView: View {
-    let loginAction: (()->())?
-    
+    let loginAction: (() -> Void)?
+
     var body: some View {
         GenericRetryView(
             symbolName: "person.crop.circle.badge.questionmark",
@@ -38,8 +38,8 @@ struct NotLoginView: View {
 }
 
 struct NotFoundView: View {
-    let retryAction: (()->())?
-    
+    let retryAction: (() -> Void)?
+
     var body: some View {
         GenericRetryView(
             symbolName: "questionmark.circle.fill",
@@ -52,16 +52,16 @@ struct NotFoundView: View {
 
 struct NetworkErrorView: View {
     let isCompact: Bool
-    let retryAction: (()->())?
-    
+    let retryAction: (() -> Void)?
+
     init(
         isCompact: Bool = false,
-        retryAction: (()->())?
+        retryAction: (() -> Void)?
     ) {
         self.isCompact = isCompact
         self.retryAction = retryAction
     }
-    
+
     var body: some View {
         switch isCompact {
         case true:
@@ -78,7 +78,7 @@ struct NetworkErrorView: View {
             )
         }
     }
-    
+
     func onRetryButtonTap() {
         if let action = retryAction {
             action()
@@ -91,14 +91,14 @@ struct GenericRetryView: View {
     let symbolName: String
     let message: String
     let buttonText: String
-    let retryAction: (()->())?
-    
+    let retryAction: (() -> Void)?
+
     var buttonColor: Color {
         colorScheme == .light
             ? Color(UIColor.darkGray)
             : Color(UIColor.white)
     }
-    
+
     var body: some View {
         VStack {
             Image(systemName: symbolName)

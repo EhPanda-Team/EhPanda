@@ -10,16 +10,16 @@ import SwiftUI
 
 struct KRefreshScrollView<Content: View>: View {
     @State var refresh = Refresh(started: false, released: false)
-    
+
     var content: Content
-    var onUpdate : ()->()
+    var onUpdate : () -> Void
     var progressTint: Color
     var arrowTint: Color
-    
+
     init(
         progressTint: Color,
         arrowTint: Color,
-        onUpdate: @escaping ()->(),
+        onUpdate: @escaping () -> Void,
         @ViewBuilder content: () -> Content
     ) {
         self.content = content()
@@ -27,28 +27,28 @@ struct KRefreshScrollView<Content: View>: View {
         self.progressTint = progressTint
         self.arrowTint = arrowTint
     }
-    
+
     var body: some View{
         ScrollView(.vertical, showsIndicators: true) {
-            
+
             // geometry reader for calculating postion....
-            
+
             GeometryReader { reader -> AnyView in
-                
+
                 DispatchQueue.main.async {
-                    
+
                     if refresh.startOffset == 0 {
                         refresh.startOffset = reader.frame(in: .global).minY
                     }
-                    
+
                     refresh.offset = reader.frame(in: .global).minY
-                    
+
                     if refresh.offset - refresh.startOffset > 140 && !refresh.started {
                         refresh.started = true
                     }
-                    
+
                     // checking if refresh is started and drag is released....
-                    
+
                     if refresh.startOffset == refresh.offset
                         && refresh.started
                         && !refresh.released
@@ -56,9 +56,9 @@ struct KRefreshScrollView<Content: View>: View {
                         withAnimation(Animation.linear) { refresh.released = true }
                         fireUpdate()
                     }
-                    
+
                     // checking if invalid becomes valid....
-                    
+
                     if refresh.startOffset == refresh.offset
                         && refresh.started
                         && refresh.released
@@ -68,15 +68,15 @@ struct KRefreshScrollView<Content: View>: View {
                         fireUpdate()
                     }
                 }
-                
+
                 return AnyView(Color.black.frame(width: 0, height: 0))
             }
             .frame(width: 0, height: 0)
-            
+
             ZStack(alignment: Alignment(horizontal: .center, vertical: .top)) {
-                
+
                 // Arrow And Indicator....
-                
+
                 Image(systemName: "arrow.down")
                     .font(.system(size: 16, weight: .heavy))
                     .foregroundColor(arrowTint)
@@ -84,7 +84,7 @@ struct KRefreshScrollView<Content: View>: View {
                     .offset(y: -110)
                     .animation(.easeIn)
                     .opacity(refresh.degree > 0 ? 1 : 0)
-                
+
                 LazyVStack {
                     content
                 }
@@ -99,7 +99,7 @@ struct KRefreshScrollView<Content: View>: View {
             }
         }
     }
-    
+
     func fireUpdate() {
         executeMainAsync {
             withAnimation(Animation.linear) {
@@ -107,8 +107,7 @@ struct KRefreshScrollView<Content: View>: View {
                     onUpdate()
                     refresh.released = false
                     refresh.started = false
-                }
-                else {
+                } else {
                     refresh.invalid = true
                 }
             }
@@ -117,14 +116,14 @@ struct KRefreshScrollView<Content: View>: View {
 }
 
 struct Refresh {
-    var startOffset : CGFloat = 0
-    var offset : CGFloat = 0
+    var startOffset: CGFloat = 0
+    var offset: CGFloat = 0
     var degree: Double {
         rotationDegree()
     }
-    var started : Bool
+    var started: Bool
     var released: Bool
-    var invalid : Bool = false
+    var invalid: Bool = false
 }
 
 extension Refresh {
