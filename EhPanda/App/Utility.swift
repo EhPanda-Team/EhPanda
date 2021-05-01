@@ -190,7 +190,7 @@ public func localAuth(
     if context.canEvaluatePolicy(.deviceOwnerAuthentication, error: &error) {
         context.evaluatePolicy(
             .deviceOwnerAuthentication,
-            localizedReason: reason.lString()
+            localizedReason: reason.localized()
         ) { success, _ in
             DispatchQueue.main.async {
                 if success, let action = successAction {
@@ -394,7 +394,7 @@ public func editCookie(url: URL, key: String, value: String) {
 public func getCookieValue(url: URL, key: String) -> CookieValue {
     var value = CookieValue(
         rawValue: "",
-        lString: Defaults.Cookie.null.lString()
+        localizedString: Defaults.Cookie.null.localized()
     )
 
     guard let cookies =
@@ -417,23 +417,18 @@ public func getCookieValue(url: URL, key: String) -> CookieValue {
                 if cookie.value == Defaults.Cookie.mystery {
                     value = CookieValue(
                         rawValue: cookie.value,
-                        lString: Defaults.Cookie.mystery.lString()
-                    )
-                } else if cookie.value == Defaults.Cookie.louder {
-                    value = CookieValue(
-                        rawValue: cookie.value,
-                        lString: Defaults.Cookie.louder.lString()
+                        localizedString: Defaults.Cookie.mystery.localized()
                     )
                 } else {
                     value = CookieValue(
                         rawValue: cookie.value,
-                        lString: ""
+                        localizedString: ""
                     )
                 }
             } else {
                 value = CookieValue(
                     rawValue: "",
-                    lString: Defaults.Cookie.expired.lString()
+                    localizedString: Defaults.Cookie.expired.localized()
                 )
             }
         }

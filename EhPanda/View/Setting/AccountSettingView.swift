@@ -27,9 +27,6 @@ struct AccountSettingView: View {
     var exURL: URL {
         Defaults.URL.exhentai.safeURL()
     }
-    var yayKey: String {
-        Defaults.Cookie.yay
-    }
     var igneousKey: String {
         Defaults.Cookie.igneous
     }
@@ -38,9 +35,6 @@ struct AccountSettingView: View {
     }
     var passHashKey: String {
         Defaults.Cookie.ipbPassHash
-    }
-    var yay: CookieValue {
-        getCookieValue(url: exURL, key: yayKey)
     }
     var igneous: CookieValue {
         getCookieValue(url: exURL, key: igneousKey)
@@ -66,13 +60,10 @@ struct AccountSettingView: View {
         Image(systemName: "xmark.circle")
             .foregroundColor(.red)
     }
-    func verifyView(
-        _ value: CookieValue,
-        _ isYay: Bool = false
-    ) -> some View {
+    func verifyView(_ value: CookieValue) -> some View {
         Group {
-            if !value.lString.isEmpty {
-                if isYay && value.rawValue.isEmpty {
+            if !value.localizedString.isEmpty {
+                if value.rawValue.isEmpty {
                     verifiedView
                 } else {
                     notVerifiedView
@@ -95,7 +86,7 @@ struct AccountSettingView: View {
                             content: {
                                 let galleryTypes: [GalleryType] = [.ehentai, .exhentai]
                                 ForEach(galleryTypes, id: \.self) {
-                                    Text($0.rawValue.lString())
+                                    Text($0.rawValue.localized())
                                 }
                             })
                             .pickerStyle(SegmentedPickerStyle())
@@ -135,13 +126,6 @@ struct AccountSettingView: View {
                     Button("Copy cookies", action: copyEhCookies)
                 }
                 Section(header: Text("ExHentai")) {
-                    CookieRow(
-                        inEditMode: $inEditMode,
-                        key: yayKey,
-                        value: yay,
-                        verifyView: verifyView(yay, true),
-                        editChangedAction: onYayEditingChanged
-                    )
                     CookieRow(
                         inEditMode: $inEditMode,
                         key: igneousKey,
@@ -196,9 +180,6 @@ struct AccountSettingView: View {
     func onEhPassHashEditingChanged(_ value: String) {
         setCookieValue(url: ehURL, key: passHashKey, value: value)
     }
-    func onYayEditingChanged(_ value: String) {
-        setCookieValue(url: exURL, key: yayKey, value: value)
-    }
     func onIgneousEditingChanged(_ value: String) {
         setCookieValue(url: exURL, key: igneousKey, value: value)
     }
@@ -233,8 +214,8 @@ struct AccountSettingView: View {
     func showCopiedHUD() {
         hudConfig = TTProgressHUDConfig(
             type: .success,
-            title: "Success".lString(),
-            caption: "Copied to clipboard".lString(),
+            title: "Success".localized(),
+            caption: "Copied to clipboard".localized(),
             shouldAutoHide: true,
             autoHideInterval: 2,
             hapticsEnabled: false
@@ -280,8 +261,8 @@ private struct CookieRow<VerifyView: View>: View {
         _content = State(initialValue: value.rawValue)
 
         self.key = key
-        self.value = value.lString.isEmpty
-            ? value.rawValue : value.lString
+        self.value = value.localizedString.isEmpty
+            ? value.rawValue : value.localizedString
         self.verifyView = verifyView
         self.editChangedAction = editChangedAction
     }
@@ -317,5 +298,5 @@ private struct CookieRow<VerifyView: View>: View {
 // MARK: Definition
 public struct CookieValue {
     let rawValue: String
-    let lString: String
+    let localizedString: String
 }

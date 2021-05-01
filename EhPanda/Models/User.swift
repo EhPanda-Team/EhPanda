@@ -35,10 +35,10 @@ struct User: Codable {
                 with: "favoriteNameByDev"
             )
 
-        if replacedName.hasLString {
-            return replacedName.lString() + " \(index)"
+        if replacedName.hasLocalizedString {
+            return replacedName.localized() + " \(index)"
         } else {
-            return name.lString()
+            return name.localized()
         }
     }
 }

@@ -68,10 +68,10 @@ struct GeneralSettingView: View {
                         }
                         Picker(
                             selection: settingBinding.autoLockPolicy,
-                            label: Text(setting.autoLockPolicy.rawValue.lString())
+                            label: Text(setting.autoLockPolicy.rawValue.localized())
                         ) {
                             ForEach(AutoLockPolicy.allCases) { policy in
-                                Text(policy.rawValue.lString()).tag(policy)
+                                Text(policy.rawValue.localized()).tag(policy)
                             }
                         }
                         .pickerStyle(MenuPickerStyle())

@@ -161,7 +161,7 @@ struct CommentView: View {
     func showHUD() {
         hudConfig = TTProgressHUDConfig(
             type: .loading,
-            title: "Loading...".lString()
+            title: "Loading...".localized()
         )
         hudVisible = true
     }

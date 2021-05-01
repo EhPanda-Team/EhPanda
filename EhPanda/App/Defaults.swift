@@ -38,8 +38,6 @@ class Defaults {
         static var expired = "expired"
         static var mystery = "mystery"
 
-        static var yay = "yay"
-        static var louder = "louder"
         static var igneous = "igneous"
         static var ipbMemberId = "ipb_member_id"
         static var ipbPassHash = "ipb_pass_hash"

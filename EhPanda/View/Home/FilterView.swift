@@ -169,7 +169,7 @@ private struct CategoryCell: View {
                         ? category.color.opacity(0.3)
                         : category.color
                 )
-            Text(category.rawValue.lString())
+            Text(category.rawValue.localized())
                 .fontWeight(.bold)
                 .foregroundColor(.white)
                 .padding(.vertical, 5)
@@ -189,7 +189,7 @@ private struct MinimumRatingSetter: View {
 
     var body: some View {
         HStack {
-            let star = "stars".lString()
+            let star = "stars".localized()
             Text("Minimum rating")
             Spacer()
             Picker(

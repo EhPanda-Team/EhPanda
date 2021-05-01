@@ -24,7 +24,7 @@ struct ReadingSettingView: View {
             Form {
                 Section {
                     HStack {
-                        let time = " times".lString()
+                        let time = " times".localized()
                         Text("Retry limit")
                         Spacer()
                         Picker(

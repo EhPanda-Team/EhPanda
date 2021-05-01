@@ -14,7 +14,6 @@
 "null" = "None";
 "expired" = "Expired";
 "mystery" = "Rejected";
-"louder" = "Rejected";
 
 // MARK: User
 "favoriteNameByDev" = "Favorite";

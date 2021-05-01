@@ -60,11 +60,11 @@ extension Float {
 }
 
 extension String {
-    var hasLString: Bool {
-        self.lString() != self
+    var hasLocalizedString: Bool {
+        self.localized() != self
     }
 
-    func lString() -> String {
+    func localized() -> String {
         NSLocalizedString(self, comment: "")
     }
 
@@ -85,14 +85,13 @@ extension String {
             title = String(title.prefix(upTo: range.lowerBound))
         }
 
-        title = title.replacingOccurrences(from: "(", to: ")", with: "")
-        title = title.replacingOccurrences(from: "[", to: "]", with: "")
-        title = title.replacingOccurrences(from: "{", to: "}", with: "")
-        title = title.replacingOccurrences(from: "【", to: "】", with: "")
-        title = title.replacingOccurrences(from: "「", to: "」", with: "")
-        title = title.trimmingCharacters(in: .whitespacesAndNewlines)
-
         return title
+            .replacingOccurrences(from: "(", to: ")", with: "")
+            .replacingOccurrences(from: "[", to: "]", with: "")
+            .replacingOccurrences(from: "{", to: "}", with: "")
+            .replacingOccurrences(from: "【", to: "】", with: "")
+            .replacingOccurrences(from: "「", to: "」", with: "")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     func replacingOccurrences(

@@ -54,7 +54,7 @@ struct EhPandaView: View {
 
     var version: String {
         [
-            "Version".lString(),
+            "Version".localized(),
             appVersion,
             "(\(appBuild))"
         ]

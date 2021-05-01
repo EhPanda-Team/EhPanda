@@ -67,7 +67,7 @@ struct DetailView: View {
                             if let count = torrentCount, count > 0 {
                                 Button(action: onTorrentsButtonTap) {
                                     Label(
-                                        "Torrents".lString() + " (\(count))",
+                                        "Torrents".localized() + " (\(count))",
                                         systemImage: "leaf"
                                     )
                                 }
@@ -320,7 +320,7 @@ private struct HeaderView: View {
     }
     var category: String {
         if setting?.translateCategory == true {
-            return manga.category.rawValue.lString()
+            return manga.category.rawValue.localized()
         } else {
             return manga.category.rawValue.uppercased()
         }
@@ -405,7 +405,7 @@ private struct HeaderView: View {
                     }
                     Button(action: {}, label: {
                         NavigationLink(destination: ContentView(gid: manga.gid)) {
-                            Text("Read".lString().uppercased())
+                            Text("Read".localized().uppercased())
                                 .foregroundColor(.white)
                                 .fontWeight(.bold)
                                 .padding(.vertical, 5)
@@ -464,7 +464,7 @@ private struct DescScrollView: View {
                 Divider()
                 DescScrollRatingItem(
                     title: detail.ratingCount
-                        + " Ratings".lString(),
+                        + " Ratings".localized(),
                     rating: detail.rating
                 )
                 .frame(width: itemWidth)
@@ -512,13 +512,13 @@ private struct DescScrollItem: View {
 
     var body: some View {
         VStack(spacing: 3) {
-            Text(title.lString().uppercased())
+            Text(title.localized().uppercased())
                 .font(.caption)
             Text(value)
                 .fontWeight(.medium)
                 .font(.title3)
                 .lineLimit(1)
-            Text(numeral.lString())
+            Text(numeral.localized())
                 .font(.caption)
         }
     }
@@ -530,7 +530,7 @@ private struct DescScrollRatingItem: View {
 
     var body: some View {
         VStack(spacing: 3) {
-            Text(title.lString().uppercased())
+            Text(title.localized().uppercased())
                 .font(.caption)
                 .lineLimit(1)
             Text(String(format: "%.2f", rating))
@@ -645,7 +645,7 @@ private struct TagRow: View {
 
     var body: some View {
         HStack(alignment: .top) {
-            Text(tag.category.rawValue.lString())
+            Text(tag.category.rawValue.localized())
                 .fontWeight(.bold)
                 .font(.subheadline)
                 .foregroundColor(reversePrimary)

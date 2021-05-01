@@ -33,10 +33,10 @@ struct AppearanceSettingView: View {
                         Spacer()
                         Picker(
                             selection: settingBinding.preferredColorScheme,
-                            label: Text(setting.preferredColorScheme.rawValue.lString()),
+                            label: Text(setting.preferredColorScheme.rawValue.localized()),
                             content: {
                                 ForEach(PreferredColorScheme.allCases) { colorScheme in
-                                    Text(colorScheme.rawValue.lString()).tag(colorScheme)
+                                    Text(colorScheme.rawValue.localized()).tag(colorScheme)
                                 }
                             }
                         )
@@ -154,7 +154,7 @@ private struct AppIconRow: View {
                 .cornerRadius(12)
                 .padding(.vertical, 10)
                 .padding(.trailing, 20)
-            Text(iconDesc.lString())
+            Text(iconDesc.localized())
             Spacer()
             if isSelected {
                 Image(systemName: "checkmark.circle.fill")

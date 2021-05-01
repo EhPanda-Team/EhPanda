@@ -58,7 +58,7 @@ struct HomeView: View {
         {
             return user.getFavNameFrom(environment.favoritesIndex)
         } else {
-            return environment.homeListType.rawValue.lString()
+            return environment.homeListType.rawValue.localized()
         }
     }
     var hasJumpPermission: Bool {
@@ -304,7 +304,7 @@ struct HomeView: View {
     func showHUD() {
         hudConfig = TTProgressHUDConfig(
             type: .loading,
-            title: "Loading...".lString()
+            title: "Loading...".localized()
         )
         hudVisible = true
     }

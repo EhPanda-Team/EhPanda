@@ -226,7 +226,7 @@ private struct MenuRow: View {
                     .frame(width: 35)
                     .foregroundColor(textColor)
                     .padding(.trailing, 20)
-                Text(text.lString())
+                Text(text.localized())
                     .fontWeight(.medium)
                     .foregroundColor(textColor)
                     .font(.headline)

@@ -18,7 +18,7 @@ struct ArchiveView: View {
     )
     var loadingHUDConfig = TTProgressHUDConfig(
         type: .loading,
-        title: "Communicating...".lString(),
+        title: "Communicating...".localized(),
         hapticsEnabled: false
     )
 
@@ -142,16 +142,16 @@ struct ArchiveView: View {
                let response = detailInfo.downloadCommandResponse
             {
                 type = .success
-                title = "Success".lString()
-                caption = processResponse(response).lString()
+                title = "Success".localized()
+                caption = processResponse(response).localized()
             } else if detailInfo.downloadCommandFailed {
                 if let response = detailInfo.downloadCommandResponse {
                     type = .error
-                    title = "Error".lString()
-                    caption = response.lString()
+                    title = "Error".localized()
+                    caption = response.localized()
                 } else {
                     type = .error
-                    title = "Error".lString()
+                    title = "Error".localized()
                     caption = nil
                 }
             }
@@ -210,7 +210,7 @@ struct ArchiveView: View {
                     in: .whitespacesAndNewlines
                 )
 
-                return res.lString() + " -> " + clientName
+                return res.localized() + " -> " + clientName
             } else {
                 return resp
             }
@@ -263,14 +263,14 @@ private struct ArchiveGrid: View {
 
     var body: some View {
         VStack(spacing: 10) {
-            Text(archive.resolution.rawValue.lString())
+            Text(archive.resolution.rawValue.localized())
                 .fontWeight(.bold)
                 .font(.title3)
             VStack {
-                Text(archive.fileSize.lString())
+                Text(archive.fileSize.localized())
                     .fontWeight(.medium)
                     .font(.caption)
-                Text(archive.gpPrice.lString())
+                Text(archive.gpPrice.localized())
                     .foregroundColor(fileSizeColor)
                     .font(.caption2)
             }

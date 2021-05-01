@@ -33,7 +33,7 @@ struct SettingView: View {
     }
     var clearWebCachesActionSheet: ActionSheet {
         ActionSheet(
-            title: Text("Warning".lString().uppercased()),
+            title: Text("Warning".localized().uppercased()),
             message: Text("It's for debug only"),
             buttons: [
                 .destructive(Text("Clear"), action: clearCachedList),
@@ -181,7 +181,7 @@ private struct SettingRow<Destination: View>: View {
                     .foregroundColor(color)
                     .padding(.trailing, 20)
                     .frame(width: 45)
-                Text(text.lString())
+                Text(text.localized())
                     .fontWeight(.medium)
                     .font(.title3)
                     .foregroundColor(color)

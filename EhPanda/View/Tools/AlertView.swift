@@ -104,13 +104,13 @@ struct GenericRetryView: View {
             Image(systemName: symbolName)
                 .font(.system(size: 50))
                 .padding(.bottom, 15)
-            Text(message.lString())
+            Text(message.localized())
                 .multilineTextAlignment(.center)
                 .foregroundColor(.gray)
                 .font(.headline)
                 .padding(.bottom, 5)
             if let action = retryAction {
-                Button(buttonText.lString().uppercased()) {
+                Button(buttonText.localized().uppercased()) {
                     action()
                 }
                 .foregroundColor(buttonColor)
