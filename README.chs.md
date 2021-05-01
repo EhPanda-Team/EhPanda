@@ -16,14 +16,16 @@
 [![Telegram](https://img.shields.io/badge/chat-Telegram-blue.svg)](https://t.me/ehpanda)
 
 ## App图标
-© 2021 荒木辰造 All rights reserved
+© 2021 荒木辰造. All rights reserved.
 
 ## 内容及其著作权
 不懂，你需要自担风险。
 
 ## 安装步骤
-1. 在[Releases](https://github.com/arakitatsuzou/EhPanda/releases)取得ipa文件
-2. 使用[AltStore](https://altstore.io)这类软件将ipa文件安装到你的设备
+1. 在[Releases](https://github.com/arakitatsuzou/EhPanda/releases)取得ipa文件。
+2. 使用[AltStore](https://altstore.io)这类软件将ipa文件安装到你的设备。
+
+此外，在安装前请确保你的设备系统为iOS/iPadOS 14.0以上。
 
 ## 截图
 https://ehpanda.app
