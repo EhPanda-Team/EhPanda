@@ -26,7 +26,7 @@ struct MangaSummaryRow: View {
         if setting?.translateCategory == true {
             return manga.category.rawValue.localized()
         } else {
-            return manga.category.rawValue.uppercased()
+            return manga.category.rawValue
         }
     }
     var tags: [String] {

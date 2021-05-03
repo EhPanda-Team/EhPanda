@@ -46,7 +46,7 @@ struct AppearanceSettingView: View {
                     Button("App Icon", action: onAppIconButtonTap)
                         .foregroundColor(.primary)
                         .withArrow()
-                    if isTokenMatched {
+                    if isTokenMatched, Locale.current.languageCode != "en" {
                         Toggle(isOn: settingBinding.translateCategory, label: {
                             Text("Translate category")
                         })

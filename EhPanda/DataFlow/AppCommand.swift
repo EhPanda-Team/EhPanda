@@ -415,7 +415,7 @@ struct FetchAlterImagesCommand: AppCommand {
 
     func execute(in store: Store) {
         let token = SubscriptionToken()
-        AlterImagesRequest(gid: gid, doc: doc)
+        AlterImagesRequest(doc: doc)
             .publisher
             .receive(on: DispatchQueue.main)
             .sink { completion in
@@ -424,7 +424,7 @@ struct FetchAlterImagesCommand: AppCommand {
                 }
                 token.unseal()
             } receiveValue: { images in
-                store.dispatch(.fetchAlterImagesDone(result: .success(images)))
+                store.dispatch(.fetchAlterImagesDone(result: .success((gid, images))))
             }
             .seal(in: token)
     }

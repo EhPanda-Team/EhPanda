@@ -338,7 +338,6 @@ struct MoreAssociatedItemsRequest {
 }
 
 struct AlterImagesRequest {
-    let gid: String
     let doc: HTMLDocument
     let parser = Parser()
 
@@ -352,10 +351,10 @@ struct AlterImagesRequest {
         }
     }
 
-    var publisher: AnyPublisher<(Identity, [MangaAlterData]), AppError> {
+    var publisher: AnyPublisher<[MangaAlterData], AppError> {
         URLSession.shared
             .dataTaskPublisher(for: alterImageURL.safeURL())
-            .map { parser.parseAlterImages(carryId: gid, $0.data) }
+            .map { parser.parseAlterImages($0.data) }
             .mapError(mapAppError)
             .eraseToAnyPublisher()
     }

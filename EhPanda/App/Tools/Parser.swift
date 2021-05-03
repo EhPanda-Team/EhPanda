@@ -621,8 +621,8 @@ extension Parser {
         return url
     }
 
-    func parseAlterImages(carryId: String, _ data: Data) -> (Identity, [MangaAlterData]) {
-        guard let image = UIImage(data: data) else { return (carryId, []) }
+    func parseAlterImages(_ data: Data) -> [MangaAlterData] {
+        guard let image = UIImage(data: data) else { return [] }
 
         var alterImages = [MangaAlterData]()
         let originW = image.size.width
@@ -637,7 +637,7 @@ extension Parser {
             }
         }
 
-        return (carryId, alterImages)
+        return alterImages
     }
 
     // MARK: Balance
