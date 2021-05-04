@@ -9,9 +9,9 @@ import Kanna
 import SwiftUI
 import Kingfisher
 
-class Parser {
+struct Parser {
     // MARK: List
-    func parseListItems(_ doc: HTMLDocument) -> (PageNumber, [Manga]) {
+    static func parseListItems(_ doc: HTMLDocument) -> (PageNumber, [Manga]) {
         var mangaItems = [Manga]()
 
         for link in doc.xpath("//tr") {
@@ -84,7 +84,7 @@ class Parser {
     }
 
     // MARK: Detail
-    func parseMangaDetail(_ doc: HTMLDocument) throws -> (MangaDetail, APIKey, HTMLDocument) {
+    static func parseMangaDetail(_ doc: HTMLDocument) throws -> (MangaDetail, APIKey, HTMLDocument) {
         var mangaDetail: MangaDetail?
         var imageURLs = [MangaPreview]()
 
@@ -282,7 +282,7 @@ class Parser {
     }
 
     // MARK: Comment
-    func parseComments(_ doc: HTMLDocument) -> [MangaComment] {
+    static func parseComments(_ doc: HTMLDocument) -> [MangaComment] {
         var comments = [MangaComment]()
         for link in doc.xpath("//div [@id='cdiv']") {
             for c1Link in link.xpath("//div [@class='c1']") {
@@ -357,7 +357,7 @@ class Parser {
     }
 
     // MARK: Content
-    func parseImagePreContents(_ doc: HTMLDocument, pageCount: Int) throws -> (PageNumber, [(Int, URL)]) {
+    static func parseImagePreContents(_ doc: HTMLDocument, pageCount: Int) throws -> (PageNumber, [(Int, URL)]) {
         copyHTMLIfNeeded(doc.toHTML)
         var imageDetailURLs = [(Int, URL)]()
 
@@ -377,7 +377,7 @@ class Parser {
         return (parsePageNum(doc), imageDetailURLs)
     }
 
-    func parseMangaContent(doc: HTMLDocument, tag: Int) throws -> MangaContent {
+    static func parseMangaContent(doc: HTMLDocument, tag: Int) throws -> MangaContent {
         copyHTMLIfNeeded(doc.toHTML)
         guard let i3Node = doc.at_xpath("//div [@id='i3']"),
               let imageURL = i3Node.at_css("img")?["src"]
@@ -387,7 +387,7 @@ class Parser {
     }
 
     // MARK: User
-    func parseUserInfo(doc: HTMLDocument) throws -> User {
+    static func parseUserInfo(doc: HTMLDocument) throws -> User {
         var displayName: String?
         var avatarURL: String?
 
@@ -413,7 +413,7 @@ class Parser {
     }
 
     // MARK: Archive
-    func parseMangaArchive(doc: HTMLDocument) throws -> (MangaArchive, CurrentGP?, CurrentCredits?) {
+    static func parseMangaArchive(doc: HTMLDocument) throws -> (MangaArchive, CurrentGP?, CurrentCredits?) {
         copyHTMLIfNeeded(doc.toHTML)
         var hathArchives = [MangaArchive.HathArchive]()
 
@@ -467,7 +467,7 @@ class Parser {
     }
 
     // MARK: Torrent
-    func parseMangaTorrents(doc: HTMLDocument) -> [MangaTorrent] {
+    static func parseMangaTorrents(doc: HTMLDocument) -> [MangaTorrent] {
         var torrents = [MangaTorrent]()
 
         for link in doc.xpath("//form") {
@@ -548,7 +548,7 @@ class Parser {
 
 extension Parser {
     // MARK: Cover
-    func parseCoverURL(_ node: XMLElement?) throws -> String {
+    static func parseCoverURL(_ node: XMLElement?) throws -> String {
         guard let node = node
         else { throw AppError.parseFailed }
 
@@ -562,7 +562,7 @@ extension Parser {
     }
 
     // MARK: Rating
-    func parseRatingString(_ ratingString: String?) -> Float? {
+    static func parseRatingString(_ ratingString: String?) -> Float? {
         guard let ratingString = ratingString else { return nil }
 
         var tmpRating: Float?
@@ -579,7 +579,7 @@ extension Parser {
     }
 
     // MARK: Page Number
-    func parsePageNum(_ doc: HTMLDocument) -> PageNumber {
+    static func parsePageNum(_ doc: HTMLDocument) -> PageNumber {
         var current = 0
         var maximum = 0
 
@@ -600,7 +600,7 @@ extension Parser {
     }
 
     // MARK: AltPreview
-    func parseAlterImagesURL(_ doc: HTMLDocument) throws -> String {
+    static func parseAlterImagesURL(_ doc: HTMLDocument) throws -> String {
         var alterURL: String?
         for link in doc.xpath("//div [@class='gdtm']") {
             guard let style = link.at_xpath("//div")?["style"],
@@ -621,7 +621,7 @@ extension Parser {
         return url
     }
 
-    func parseAlterImages(_ data: Data) -> [MangaAlterData] {
+    static func parseAlterImages(_ data: Data) -> [MangaAlterData] {
         guard let image = UIImage(data: data) else { return [] }
 
         var alterImages = [MangaAlterData]()
@@ -641,7 +641,7 @@ extension Parser {
     }
 
     // MARK: Balance
-    func parseCurrentFunds(_ doc: HTMLDocument) -> (String, String)? {
+    static func parseCurrentFunds(_ doc: HTMLDocument) -> (String, String)? {
         var tmpGP: String?
         var tmpCredits: String?
 
@@ -678,7 +678,7 @@ extension Parser {
     }
 
     // MARK: DownloadCmdResp
-    func parseDownloadCommandResponse(_ doc: HTMLDocument) throws -> Resp {
+    static func parseDownloadCommandResponse(_ doc: HTMLDocument) throws -> Resp {
         guard let dbNode = doc.at_xpath("//div [@id='db']")
         else { throw AppError.parseFailed }
 
@@ -725,7 +725,7 @@ extension Parser {
     }
 
     // MARK: ArchiveURL
-    func parseArchiveURL(_ element: XMLElement) throws -> String {
+    static func parseArchiveURL(_ element: XMLElement) throws -> String {
         var archiveURL: String?
         if let aLink = element.at_xpath("//a"),
            aLink.text?.contains("Archive Download") == true,
@@ -748,7 +748,7 @@ extension Parser {
     }
 
     // MARK: CommentContent
-    func parseCommentContent(_ element: XMLElement) -> [CommentContent] {
+    static func parseCommentContent(_ element: XMLElement) -> [CommentContent] {
         var contents = [CommentContent]()
 
         guard var rawContent = element.innerHTML?
@@ -940,7 +940,7 @@ extension Parser {
     }
 
     // MARK: FavoriteNames
-    func parseFavoriteNames(_ doc: HTMLDocument) throws -> [Int: String] {
+    static func parseFavoriteNames(_ doc: HTMLDocument) throws -> [Int: String] {
         var favoriteNames = [Int: String]()
 
         for link in doc.xpath("//div [@id='favsel']") {

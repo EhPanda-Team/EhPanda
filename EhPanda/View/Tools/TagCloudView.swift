@@ -9,17 +9,35 @@
 import SwiftUI
 
 struct TagCloudView: View {
-    let tag: MangaTag
-    let font: Font
-    let textColor: Color
-    let backgroundColor: Color
-    let paddingV: CGFloat
-    let paddingH: CGFloat
-    let onTapAction: (AssociatedKeyword) -> Void
+    private let tag: MangaTag
+    private let font: Font
+    private let textColor: Color
+    private let backgroundColor: Color
+    private let paddingV: CGFloat
+    private let paddingH: CGFloat
+    private let onTapAction: (AssociatedKeyword) -> Void
 
     @State private var totalHeight
           = CGFloat.zero       // << variant for ScrollView/List
 //        = CGFloat.infinity   // << variant for VStack
+
+    init(
+        tag: MangaTag,
+        font: Font,
+        textColor: Color,
+        backgroundColor: Color,
+        paddingV: CGFloat,
+        paddingH: CGFloat,
+        onTapAction: @escaping (AssociatedKeyword) -> Void
+    ) {
+        self.tag = tag
+        self.font = font
+        self.textColor = textColor
+        self.backgroundColor = backgroundColor
+        self.paddingV = paddingV
+        self.paddingH = paddingH
+        self.onTapAction = onTapAction
+    }
 
     var body: some View {
         VStack {
@@ -30,8 +48,10 @@ struct TagCloudView: View {
         .frame(height: totalHeight) // << variant for ScrollView/List
 //        .frame(maxHeight: totalHeight) // << variant for VStack
     }
+}
 
-    private func generateContent(in proxy: GeometryProxy) -> some View {
+private extension TagCloudView {
+    func generateContent(in proxy: GeometryProxy) -> some View {
         ZStack(alignment: .topLeading) {
             var width = CGFloat.zero
             var height = CGFloat.zero
@@ -63,7 +83,7 @@ struct TagCloudView: View {
         .background(viewHeightReader($totalHeight))
     }
 
-    private func item(for text: String) -> some View {
+    func item(for text: String) -> some View {
         Text(text)
             .fontWeight(.bold)
             .lineLimit(1)
@@ -86,7 +106,7 @@ struct TagCloudView: View {
             })
     }
 
-    private func viewHeightReader(_ binding: Binding<CGFloat>) -> some View {
+    func viewHeightReader(_ binding: Binding<CGFloat>) -> some View {
         GeometryReader { geometry -> Color in
             let rect = geometry.frame(in: .local)
             DispatchQueue.main.async {

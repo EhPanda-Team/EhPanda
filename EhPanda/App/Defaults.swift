@@ -8,8 +8,8 @@
 import UIKit
 import Foundation
 
-class Defaults {
-    class FrameSize {
+struct Defaults {
+    struct FrameSize {
         static var slideMenuWidth: CGFloat {
             if isPadWidth {
                 return max((windowW ?? screenW) - 500, 300)
@@ -18,7 +18,7 @@ class Defaults {
             }
         }
     }
-    class ImageSize {
+    struct ImageSize {
         static var rowScale: CGFloat = 8/11
         static var avatarScale: CGFloat = 1/1
         static var headerScale: CGFloat = 8/11
@@ -33,7 +33,7 @@ class Defaults {
         static var previewW: CGFloat = previewH * previewScale
         static var previewH: CGFloat = 200
     }
-    class Cookie {
+    struct Cookie {
         static var null = "null"
         static var expired = "expired"
         static var mystery = "mystery"
@@ -42,12 +42,12 @@ class Defaults {
         static var ipbMemberId = "ipb_member_id"
         static var ipbPassHash = "ipb_pass_hash"
     }
-    class Response {
+    struct Response {
         static var hathClientNotFound = "You must have a H@H client assigned to your account to use this feature."
         static var hathClientNotOnline = "Your H@H client appears to be offline. Turn it on, then try again."
         static var invalidResolution = "The requested gallery cannot be downloaded with the selected resolution."
     }
-    class URL {
+    struct URL {
         // Domains
         static var host: String {
             if isTokenMatched {
@@ -259,7 +259,7 @@ extension Defaults.URL {
 }
 
 // MARK: Filter
-extension Defaults.URL {
+private extension Defaults.URL {
     static func applyFilters(_ filter: Filter) -> [String] {
         var filters = [String]()
 
@@ -317,7 +317,7 @@ extension Defaults.URL {
 }
 
 // MARK: Tools
-extension Defaults.URL {
+private extension Defaults.URL {
     static func merge(_ urls: [String]) -> String {
         let firstTwo = urls.prefix(2)
         let remainder = urls.suffix(from: 2)

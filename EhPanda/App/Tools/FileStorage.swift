@@ -10,12 +10,12 @@ import Foundation
 
 @propertyWrapper
 struct FileStorage<T: Codable> {
-    var value: T?
+    private var value: T?
 
-    let directory: FileManager.SearchPathDirectory
-    let fileName: String
+    private let directory: FileManager.SearchPathDirectory
+    private let fileName: String
 
-    let queue = DispatchQueue(label: (UUID().uuidString))
+    private let queue = DispatchQueue(label: (UUID().uuidString))
 
     init(directory: FileManager.SearchPathDirectory, fileName: String) {
         value = try? FileHelper.loadJSON(from: directory, fileName: fileName)

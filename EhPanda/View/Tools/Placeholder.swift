@@ -8,12 +8,26 @@
 import SwiftUI
 
 struct Placeholder: View {
-    let style: PlaceholderStyle
-    var width: CGFloat?
-    var height: CGFloat?
+    private let style: PlaceholderStyle
+    private var width: CGFloat?
+    private var height: CGFloat?
 
-    var pageNumber: Int = 0
-    var percentage: Float?
+    private var pageNumber: Int = 0
+    private var percentage: Float?
+
+    init(
+        style: PlaceholderStyle,
+        width: CGFloat? = nil,
+        height: CGFloat? = nil,
+        pageNumber: Int = 0,
+        percentage: Float? = nil
+    ) {
+        self.style = style
+        self.width = width
+        self.height = height
+        self.pageNumber = pageNumber
+        self.percentage = percentage
+    }
 
     var body: some View {
         switch style {

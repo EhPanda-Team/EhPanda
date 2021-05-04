@@ -7,23 +7,13 @@
 
 import SwiftUI
 
-struct AuthView: View {
+struct AuthView: View, StoreAccessor {
     @EnvironmentObject var store: Store
-    @State var enterBackgroundDate: Date?
-    @Binding var blurRadius: CGFloat
+    @State private var enterBackgroundDate: Date?
+    @Binding private var blurRadius: CGFloat
 
-    var isAppUnlocked: Bool {
-        store.appState.environment.isAppUnlocked
-    }
-
-    var setting: Setting? {
-        store.appState.settings.setting
-    }
-    var allowsResignActiveBlur: Bool {
-        setting?.allowsResignActiveBlur ?? true
-    }
-    var autoLockThreshold: Double {
-        Double(setting?.autoLockPolicy.value ?? -1)
+    init(blurRadius: Binding<CGFloat>) {
+        _blurRadius = blurRadius
     }
 
     var body: some View {
@@ -57,13 +47,19 @@ struct AuthView: View {
                 onWillEnterForeground()
             }
     }
+}
+
+private extension AuthView {
+    var autoLockThreshold: Double {
+        Double(autoLockPolicy?.value ?? -1)
+    }
 
     func onLockTap() {
         impactFeedback(style: .soft)
         authenticate()
     }
     func onResignActive() {
-        if allowsResignActiveBlur {
+        if allowsResignActiveBlur ?? true {
             setBlur(effectOn: true)
         }
     }
@@ -118,13 +114,13 @@ struct AuthView: View {
     }
 }
 
-struct LockView: View {
+private struct LockView: View, StoreAccessor {
     @EnvironmentObject var store: Store
 
-    let unlockAction: () -> Void
+    private let unlockAction: () -> Void
 
-    var isAppUnlocked: Bool {
-        store.appState.environment.isAppUnlocked
+    init(unlockAction: @escaping () -> Void) {
+        self.unlockAction = unlockAction
     }
 
     var body: some View {

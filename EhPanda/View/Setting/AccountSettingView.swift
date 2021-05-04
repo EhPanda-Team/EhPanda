@@ -9,70 +9,13 @@ import SwiftUI
 import TTProgressHUD
 
 struct AccountSettingView: View {
-    @EnvironmentObject var store: Store
-    @State var inEditMode = false
+    @EnvironmentObject private var store: Store
+    @State private var inEditMode = false
 
-    @State var hudVisible = false
-    @State var hudConfig = TTProgressHUDConfig(
+    @State private var hudVisible = false
+    @State private var hudConfig = TTProgressHUDConfig(
         hapticsEnabled: false
     )
-
-    var settingBinding: Binding<Setting>? {
-        Binding($store.appState.settings.setting)
-    }
-
-    var ehURL: URL {
-        Defaults.URL.ehentai.safeURL()
-    }
-    var exURL: URL {
-        Defaults.URL.exhentai.safeURL()
-    }
-    var igneousKey: String {
-        Defaults.Cookie.igneous
-    }
-    var memberIDKey: String {
-        Defaults.Cookie.ipbMemberId
-    }
-    var passHashKey: String {
-        Defaults.Cookie.ipbPassHash
-    }
-    var igneous: CookieValue {
-        getCookieValue(url: exURL, key: igneousKey)
-    }
-    var ehMemberID: CookieValue {
-        getCookieValue(url: ehURL, key: memberIDKey)
-    }
-    var exMemberID: CookieValue {
-        getCookieValue(url: exURL, key: memberIDKey)
-    }
-    var ehPassHash: CookieValue {
-        getCookieValue(url: ehURL, key: passHashKey)
-    }
-    var exPassHash: CookieValue {
-        getCookieValue(url: exURL, key: passHashKey)
-    }
-
-    var verifiedView: some View {
-        Image(systemName: "checkmark.circle")
-            .foregroundColor(.green)
-    }
-    var notVerifiedView: some View {
-        Image(systemName: "xmark.circle")
-            .foregroundColor(.red)
-    }
-    func verifyView(_ value: CookieValue) -> some View {
-        Group {
-            if !value.localizedString.isEmpty {
-                if value.rawValue.isEmpty {
-                    verifiedView
-                } else {
-                    notVerifiedView
-                }
-            } else {
-                verifiedView
-            }
-        }
-    }
 
     // MARK: AccountSettingView
     var body: some View {
@@ -157,6 +100,65 @@ struct AccountSettingView: View {
             Button(inEditMode ? "Finish" : "Edit", action: onEditButtonTap)
         )
     }
+}
+
+private extension AccountSettingView {
+    var settingBinding: Binding<Setting>? {
+        Binding($store.appState.settings.setting)
+    }
+
+    var ehURL: URL {
+        Defaults.URL.ehentai.safeURL()
+    }
+    var exURL: URL {
+        Defaults.URL.exhentai.safeURL()
+    }
+    var igneousKey: String {
+        Defaults.Cookie.igneous
+    }
+    var memberIDKey: String {
+        Defaults.Cookie.ipbMemberId
+    }
+    var passHashKey: String {
+        Defaults.Cookie.ipbPassHash
+    }
+    var igneous: CookieValue {
+        getCookieValue(url: exURL, key: igneousKey)
+    }
+    var ehMemberID: CookieValue {
+        getCookieValue(url: ehURL, key: memberIDKey)
+    }
+    var exMemberID: CookieValue {
+        getCookieValue(url: exURL, key: memberIDKey)
+    }
+    var ehPassHash: CookieValue {
+        getCookieValue(url: ehURL, key: passHashKey)
+    }
+    var exPassHash: CookieValue {
+        getCookieValue(url: exURL, key: passHashKey)
+    }
+
+    var verifiedView: some View {
+        Image(systemName: "checkmark.circle")
+            .foregroundColor(.green)
+    }
+    var notVerifiedView: some View {
+        Image(systemName: "xmark.circle")
+            .foregroundColor(.red)
+    }
+    func verifyView(_ value: CookieValue) -> some View {
+        Group {
+            if !value.localizedString.isEmpty {
+                if value.rawValue.isEmpty {
+                    verifiedView
+                } else {
+                    notVerifiedView
+                }
+            } else {
+                verifiedView
+            }
+        }
+    }
 
     func onEditButtonTap() {
         inEditMode.toggle()
@@ -239,16 +241,16 @@ struct AccountSettingView: View {
 
 // MARK: CookieRow
 private struct CookieRow<VerifyView: View>: View {
-    var inEditModeBinding: Binding<Bool>
-    var inEditMode: Bool {
+    private var inEditModeBinding: Binding<Bool>
+    private var inEditMode: Bool {
         inEditModeBinding.wrappedValue
     }
-    @State var content: String
+    @State private var content: String
 
-    let key: String
-    let value: String
-    let verifyView: VerifyView
-    let editChangedAction: (String) -> Void
+    private let key: String
+    private let value: String
+    private let verifyView: VerifyView
+    private let editChangedAction: (String) -> Void
 
     init(
         inEditMode: Binding<Bool>,
@@ -290,13 +292,13 @@ private struct CookieRow<VerifyView: View>: View {
         }
     }
 
-    func onContentChanged(_ value: String) {
+    private func onContentChanged(_ value: String) {
         editChangedAction(value)
     }
 }
 
 // MARK: Definition
-public struct CookieValue {
+struct CookieValue {
     let rawValue: String
     let localizedString: String
 }

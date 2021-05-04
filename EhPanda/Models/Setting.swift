@@ -50,7 +50,7 @@ struct Setting: Codable {
     var contentDividerHeight: CGFloat = 0
 }
 
-public enum GalleryType: String, Codable {
+enum GalleryType: String, Codable {
     case ehentai = "E-Hentai"
     case exhentai = "ExHentai"
 
@@ -64,8 +64,8 @@ public enum GalleryType: String, Codable {
     }
 }
 
-public enum AutoLockPolicy: String, Codable, CaseIterable, Identifiable {
-    public var id: Int { hashValue }
+enum AutoLockPolicy: String, Codable, CaseIterable, Identifiable {
+    var id: Int { hashValue }
     var value: Int {
         switch self {
         case .never:
@@ -94,8 +94,8 @@ public enum AutoLockPolicy: String, Codable, CaseIterable, Identifiable {
     case min30 = "30 minutes"
 }
 
-public enum PreferredColorScheme: String, Codable, CaseIterable, Identifiable {
-    public var id: Int { hashValue }
+enum PreferredColorScheme: String, Codable, CaseIterable, Identifiable {
+    var id: Int { hashValue }
 
     case automatic = "Automatic"
     case light = "Light"

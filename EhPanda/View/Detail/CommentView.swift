@@ -9,53 +9,24 @@ import SwiftUI
 import Kingfisher
 import TTProgressHUD
 
-struct CommentView: View {
+struct CommentView: View, StoreAccessor {
     @EnvironmentObject var store: Store
-    @Environment(\.colorScheme) var colorScheme
+    @Environment(\.colorScheme) private var colorScheme
 
-    @State var commentJumpID: String?
-    @State var isNavActive = false
+    @State private var commentJumpID: String?
+    @State private var isNavActive = false
 
-    @State var hudVisible = false
-    @State var hudConfig = TTProgressHUDConfig(
+    @State private var hudVisible = false
+    @State private var hudConfig = TTProgressHUDConfig(
         hapticsEnabled: false
     )
 
-    let gid: String
-    let depth: Int
-    var comments: [MangaComment] {
-        store.appState.cachedList.items?[gid]?.detail?.comments ?? []
-    }
-    var accentColor: Color? {
-        store.appState.settings.setting?.accentColor
-    }
+    private let gid: String
+    private let depth: Int
 
-    var cachedList: AppState.CachedList {
-        store.appState.cachedList
-    }
-    var detailInfo: AppState.DetailInfo {
-        store.appState.detailInfo
-    }
-    var detailInfoBinding: Binding<AppState.DetailInfo> {
-        $store.appState.detailInfo
-    }
-    var environment: AppState.Environment {
-        store.appState.environment
-    }
-    var environmentBinding: Binding<AppState.Environment> {
-        $store.appState.environment
-    }
-    var commentInfo: AppState.CommentInfo {
-        store.appState.commentInfo
-    }
-    var commentInfoBinding: Binding<AppState.CommentInfo> {
-        $store.appState.commentInfo
-    }
-    var commentContent: String {
-        commentInfo.commentContent
-    }
-    var commentContentBinding: Binding<String> {
-        commentInfoBinding.commentContent
+    init(gid: String, depth: Int) {
+        self.gid = gid
+        self.depth = depth
     }
 
     // MARK: CommentView
@@ -117,6 +88,28 @@ struct CommentView: View {
             of: environment.mangaItemReverseLoading,
             perform: onFetchFinish
         )
+    }
+}
+
+private extension CommentView {
+    var comments: [MangaComment] {
+        store.appState.cachedList.items?[gid]?.detail?.comments ?? []
+    }
+
+    var detailInfoBinding: Binding<AppState.DetailInfo> {
+        $store.appState.detailInfo
+    }
+    var environmentBinding: Binding<AppState.Environment> {
+        $store.appState.environment
+    }
+    var commentInfoBinding: Binding<AppState.CommentInfo> {
+        $store.appState.commentInfo
+    }
+    var commentContent: String {
+        commentInfo.commentContent
+    }
+    var commentContentBinding: Binding<String> {
+        commentInfoBinding.commentContent
     }
 
     func onAppear() {
@@ -208,24 +201,28 @@ struct CommentView: View {
 }
 
 // MARK: CommentCell
-private struct CommentCell: View {
+private struct CommentCell: View, StoreAccessor {
     @EnvironmentObject var store: Store
-    @Environment(\.colorScheme) var colorScheme
-    @State var editCommentContent: String
-    @State var isPresented = false
+    @Environment(\.colorScheme) private var colorScheme
+    @State private var editCommentContent: String
+    @State private var isPresented = false
 
-    let gid: String
-    var comment: MangaComment
-    let linkAction: (URL) -> Void
-    var accentColor: Color? {
-        store.appState.settings.setting?.accentColor
-    }
+    private let gid: String
+    private var comment: MangaComment
+    private let linkAction: (URL) -> Void
 
-    var detailInfo: AppState.DetailInfo {
-        store.appState.detailInfo
-    }
-    var detailInfoBinding: Binding<AppState.DetailInfo> {
-        $store.appState.detailInfo
+    init(
+        editCommentContent: String,
+        gid: String,
+        comment: MangaComment,
+        linkAction: @escaping (URL) -> Void
+    ) {
+        _editCommentContent = State(
+            initialValue: editCommentContent
+        )
+        self.gid = gid
+        self.comment = comment
+        self.linkAction = linkAction
     }
 
     var body: some View {
@@ -326,6 +323,12 @@ private struct CommentCell: View {
             }
         }
     }
+}
+
+private extension CommentCell {
+    var detailInfoBinding: Binding<AppState.DetailInfo> {
+        $store.appState.detailInfo
+    }
 
     func generateWebImages(
         imgURL: String?,
@@ -416,6 +419,7 @@ private struct CommentCell: View {
     func togglePresented() {
         isPresented.toggle()
     }
+
 }
 
 // MARK: Definition

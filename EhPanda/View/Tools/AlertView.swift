@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct LoadingView: View {
-    let isCompact: Bool
+    private let isCompact: Bool
 
     init(isCompact: Bool = false) {
         self.isCompact = isCompact
@@ -25,7 +25,11 @@ struct LoadingView: View {
 }
 
 struct NotLoginView: View {
-    let loginAction: (() -> Void)?
+    private let loginAction: (() -> Void)?
+
+    init(loginAction: (() -> Void)?) {
+        self.loginAction = loginAction
+    }
 
     var body: some View {
         GenericRetryView(
@@ -38,7 +42,11 @@ struct NotLoginView: View {
 }
 
 struct NotFoundView: View {
-    let retryAction: (() -> Void)?
+    private let retryAction: (() -> Void)?
+
+    init(retryAction: (() -> Void)?) {
+        self.retryAction = retryAction
+    }
 
     var body: some View {
         GenericRetryView(
@@ -51,8 +59,8 @@ struct NotFoundView: View {
 }
 
 struct NetworkErrorView: View {
-    let isCompact: Bool
-    let retryAction: (() -> Void)?
+    private let isCompact: Bool
+    private let retryAction: (() -> Void)?
 
     init(
         isCompact: Bool = false,
@@ -79,7 +87,7 @@ struct NetworkErrorView: View {
         }
     }
 
-    func onRetryButtonTap() {
+    private func onRetryButtonTap() {
         if let action = retryAction {
             action()
         }
@@ -87,16 +95,28 @@ struct NetworkErrorView: View {
 }
 
 struct GenericRetryView: View {
-    @Environment(\.colorScheme) var colorScheme
-    let symbolName: String
-    let message: String
-    let buttonText: String
-    let retryAction: (() -> Void)?
+    @Environment(\.colorScheme) private var colorScheme
+    private let symbolName: String
+    private let message: String
+    private let buttonText: String
+    private let retryAction: (() -> Void)?
 
-    var buttonColor: Color {
+    private var buttonColor: Color {
         colorScheme == .light
             ? Color(UIColor.darkGray)
             : Color(UIColor.white)
+    }
+
+    init(
+        symbolName: String,
+        message: String,
+        buttonText: String,
+        retryAction: (() -> Void)?
+    ) {
+        self.symbolName = symbolName
+        self.message = message
+        self.buttonText = buttonText
+        self.retryAction = retryAction
     }
 
     var body: some View {

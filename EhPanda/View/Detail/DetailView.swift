@@ -8,85 +8,18 @@
 import SwiftUI
 import Kingfisher
 
-struct DetailView: View {
+struct DetailView: View, StoreAccessor {
     @EnvironmentObject var store: Store
-    @Environment(\.colorScheme) var colorScheme
-    @State var associatedKeyword = AssociatedKeyword()
-    @State var isAssociatedLinkActive = false
+    @Environment(\.colorScheme) private var colorScheme
+    @State private var associatedKeyword = AssociatedKeyword()
+    @State private var isAssociatedLinkActive = false
 
-    let gid: String
-    let depth: Int
+    private let gid: String
+    private let depth: Int
 
-    var environment: AppState.Environment {
-        store.appState.environment
-    }
-    var environmentBinding: Binding<AppState.Environment> {
-        $store.appState.environment
-    }
-    var cachedList: AppState.CachedList {
-        store.appState.cachedList
-    }
-    var detailInfo: AppState.DetailInfo {
-        store.appState.detailInfo
-    }
-    var detailInfoBinding: Binding<AppState.DetailInfo> {
-        $store.appState.detailInfo
-    }
-    var commentContent: String {
-        detailInfo.commentContent
-    }
-    var commentContentBinding: Binding<String> {
-        detailInfoBinding.commentContent
-    }
-    var manga: Manga {
-        cachedList.items?[gid] ?? Manga.empty
-    }
-    var mangaDetail: MangaDetail? {
-        cachedList.items?[gid]?.detail
-    }
-    var torrentCount: Int? {
-        mangaDetail?.torrentCount
-    }
-    var archiveURL: String? {
-        mangaDetail?.archiveURL
-    }
-    var accentColor: Color? {
-        store.appState.settings.setting?.accentColor
-    }
-    var menu: some View {
-        Group {
-            if !detailInfo.mangaDetailLoading {
-                Menu(content: {
-                    if !detailInfo.mangaDetailUpdating {
-                        if isTokenMatched {
-                            if mangaDetail?.archiveURL != nil {
-                                Button(action: onArchiveButtonTap) {
-                                    Label("Archive", systemImage: "doc.zipper")
-                                }
-                            }
-                            if let count = torrentCount, count > 0 {
-                                Button(action: onTorrentsButtonTap) {
-                                    Label(
-                                        "Torrents".localized() + " (\(count))",
-                                        systemImage: "leaf"
-                                    )
-                                }
-                            }
-                        }
-                        Button(action: onShareButtonTap) {
-                            Label("Share", systemImage: "square.and.arrow.up")
-                        }
-                    }
-                }, label: {
-                    Image(systemName: "ellipsis.circle")
-                        .imageScale(.large)
-                })
-                .disabled(
-                    detailInfo.mangaDetailLoading
-                        || detailInfo.mangaDetailUpdating
-                )
-            }
-        }
+    init(gid: String, depth: Int) {
+        self.gid = gid
+        self.depth = depth
     }
 
     // MARK: DetailView
@@ -179,6 +112,68 @@ struct DetailView: View {
                 .preferredColorScheme(colorScheme)
                 .blur(radius: environment.blurRadius)
                 .allowsHitTesting(environment.isAppUnlocked)
+            }
+        }
+    }
+}
+
+private extension DetailView {
+    var environmentBinding: Binding<AppState.Environment> {
+        $store.appState.environment
+    }
+    var detailInfoBinding: Binding<AppState.DetailInfo> {
+        $store.appState.detailInfo
+    }
+    var commentContent: String {
+        detailInfo.commentContent
+    }
+    var commentContentBinding: Binding<String> {
+        detailInfoBinding.commentContent
+    }
+    var manga: Manga {
+        cachedList.items?[gid] ?? Manga.empty
+    }
+    var mangaDetail: MangaDetail? {
+        cachedList.items?[gid]?.detail
+    }
+    var torrentCount: Int? {
+        mangaDetail?.torrentCount
+    }
+    var archiveURL: String? {
+        mangaDetail?.archiveURL
+    }
+    var menu: some View {
+        Group {
+            if !detailInfo.mangaDetailLoading {
+                Menu(content: {
+                    if !detailInfo.mangaDetailUpdating {
+                        if isTokenMatched {
+                            if mangaDetail?.archiveURL != nil {
+                                Button(action: onArchiveButtonTap) {
+                                    Label("Archive", systemImage: "doc.zipper")
+                                }
+                            }
+                            if let count = torrentCount, count > 0 {
+                                Button(action: onTorrentsButtonTap) {
+                                    Label(
+                                        "Torrents".localized() + " (\(count))",
+                                        systemImage: "leaf"
+                                    )
+                                }
+                            }
+                        }
+                        Button(action: onShareButtonTap) {
+                            Label("Share", systemImage: "square.and.arrow.up")
+                        }
+                    }
+                }, label: {
+                    Image(systemName: "ellipsis.circle")
+                        .imageScale(.large)
+                })
+                .disabled(
+                    detailInfo.mangaDetailLoading
+                        || detailInfo.mangaDetailUpdating
+                )
             }
         }
     }
@@ -286,59 +281,15 @@ struct DetailView: View {
 }
 
 // MARK: HeaderView
-private struct HeaderView: View {
+private struct HeaderView: View, StoreAccessor {
     @EnvironmentObject var store: Store
 
-    let manga: Manga
-    let detail: MangaDetail
+    private let manga: Manga
+    private let detail: MangaDetail
 
-    var settings: AppState.Settings {
-        store.appState.settings
-    }
-    var setting: Setting? {
-        settings.setting
-    }
-    var user: User? {
-        settings.user
-    }
-
-    var isFavored: Bool {
-        detail.isFavored
-    }
-    var width: CGFloat {
-        Defaults.ImageSize.headerW
-    }
-    var height: CGFloat {
-        Defaults.ImageSize.headerH
-    }
-    var title: String {
-        if let jpnTitle = detail.jpnTitle {
-            return jpnTitle
-        } else {
-            return detail.title
-        }
-    }
-    var category: String {
-        if setting?.translateCategory == true {
-            return manga.category.rawValue.localized()
-        } else {
-            return manga.category.rawValue
-        }
-    }
-    var modifier: KFImageModifier {
-        KFImageModifier(
-            targetScale:
-                Defaults
-                .ImageSize
-                .rowScale
-        )
-    }
-    func placeholder() -> some View {
-        Placeholder(
-            style: .activity,
-            width: width,
-            height: height
-        )
+    init(manga: Manga, detail: MangaDetail) {
+        self.manga = manga
+        self.detail = detail
     }
 
     var body: some View {
@@ -420,6 +371,47 @@ private struct HeaderView: View {
             .padding(.trailing, 10)
         }
     }
+}
+
+private extension HeaderView {
+    var isFavored: Bool {
+        detail.isFavored
+    }
+    var width: CGFloat {
+        Defaults.ImageSize.headerW
+    }
+    var height: CGFloat {
+        Defaults.ImageSize.headerH
+    }
+    var title: String {
+        if let jpnTitle = detail.jpnTitle {
+            return jpnTitle
+        } else {
+            return detail.title
+        }
+    }
+    var category: String {
+        if setting?.translateCategory == true {
+            return manga.category.rawValue.localized()
+        } else {
+            return manga.category.rawValue
+        }
+    }
+    var modifier: KFImageModifier {
+        KFImageModifier(
+            targetScale:
+                Defaults
+                .ImageSize
+                .rowScale
+        )
+    }
+    func placeholder() -> some View {
+        Placeholder(
+            style: .activity,
+            width: width,
+            height: height
+        )
+    }
 
     func onFavoriteAdd(_ index: Int) {
         addFavorite(index)
@@ -441,9 +433,13 @@ private struct HeaderView: View {
 
 // MARK: DescScrollView
 private struct DescScrollView: View {
-    @State var itemWidth = max((absoluteWindowW ?? absoluteScreenW) / 5, 80)
+    @State private var itemWidth = max((absoluteWindowW ?? absoluteScreenW) / 5, 80)
 
-    let detail: MangaDetail
+    private let detail: MangaDetail
+
+    init(detail: MangaDetail) {
+        self.detail = detail
+    }
 
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
@@ -494,7 +490,7 @@ private struct DescScrollView: View {
         }
     }
 
-    func onWidthChange() {
+    private func onWidthChange() {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
             if itemWidth != max((absoluteWindowW ?? absoluteScreenW) / 5, 80) {
                 withAnimation {
@@ -506,9 +502,15 @@ private struct DescScrollView: View {
 }
 
 private struct DescScrollItem: View {
-    let title: String
-    let value: String
-    let numeral: String
+    private let title: String
+    private let value: String
+    private let numeral: String
+
+    init(title: String, value: String, numeral: String) {
+        self.title = title
+        self.value = value
+        self.numeral = numeral
+    }
 
     var body: some View {
         VStack(spacing: 3) {
@@ -525,8 +527,13 @@ private struct DescScrollItem: View {
 }
 
 private struct DescScrollRatingItem: View {
-    let title: String
-    let rating: Float
+    private let title: String
+    private let rating: Float
+
+    init(title: String, rating: Float) {
+        self.title = title
+        self.rating = rating
+    }
 
     var body: some View {
         VStack(spacing: 3) {
@@ -545,12 +552,22 @@ private struct DescScrollRatingItem: View {
 
 // MARK: ActionRow
 private struct ActionRow: View {
-    @State var showUserRating = false
-    @State var userRating: Int = 0
+    @State private var showUserRating = false
+    @State private var userRating: Int = 0
 
-    let detail: MangaDetail
-    let ratingAction: (Int) -> Void
-    let galleryAction: () -> Void
+    private let detail: MangaDetail
+    private let ratingAction: (Int) -> Void
+    private let galleryAction: () -> Void
+
+    init(
+        detail: MangaDetail,
+        ratingAction: @escaping (Int) -> Void,
+        galleryAction: @escaping () -> Void
+    ) {
+        self.detail = detail
+        self.ratingAction = ratingAction
+        self.galleryAction = galleryAction
+    }
 
     var body: some View {
         VStack {
@@ -591,7 +608,9 @@ private struct ActionRow: View {
         .padding(.horizontal)
         .onAppear(perform: onAppear)
     }
+}
 
+private extension ActionRow {
     func onAppear() {
         if let rating = detail.userRating {
             userRating = Int(rating.fixedRating() * 2)
@@ -621,8 +640,16 @@ private struct ActionRow: View {
 
 // MARK: TagsView
 private struct TagsView: View {
-    let tags: [MangaTag]
-    let onTapAction: (AssociatedKeyword) -> Void
+    private let tags: [MangaTag]
+    private let onTapAction: (AssociatedKeyword) -> Void
+
+    init(
+        tags: [MangaTag],
+        onTapAction: @escaping (AssociatedKeyword) -> Void
+    ) {
+        self.tags = tags
+        self.onTapAction = onTapAction
+    }
 
     var body: some View {
         VStack(alignment: .leading) {
@@ -635,12 +662,20 @@ private struct TagsView: View {
 }
 
 private struct TagRow: View {
-    @Environment(\.colorScheme) var colorScheme
+    @Environment(\.colorScheme) private var colorScheme
 
-    let tag: MangaTag
-    let onTapAction: (AssociatedKeyword) -> Void
-    var reversePrimary: Color {
+    private let tag: MangaTag
+    private let onTapAction: (AssociatedKeyword) -> Void
+    private var reversePrimary: Color {
         colorScheme == .light ? .white : .black
+    }
+
+    init(
+        tag: MangaTag,
+        onTapAction: @escaping (AssociatedKeyword) -> Void
+    ) {
+        self.tag = tag
+        self.onTapAction = onTapAction
     }
 
     var body: some View {
@@ -671,16 +706,16 @@ private struct TagRow: View {
 
 // MARK: PreviewView
 private struct PreviewView: View {
-    let previews: [MangaPreview]
-    let alterImages: [MangaAlterData]
+    private let previews: [MangaPreview]
+    private let alterImages: [MangaAlterData]
 
-    var width: CGFloat {
+    private var width: CGFloat {
         Defaults.ImageSize.previewW
     }
-    var height: CGFloat {
+    private var height: CGFloat {
         Defaults.ImageSize.previewH
     }
-    var modifier: KFImageModifier {
+    private var modifier: KFImageModifier {
         KFImageModifier(
             targetScale:
                 Defaults
@@ -688,13 +723,21 @@ private struct PreviewView: View {
                 .rowScale
         )
     }
-    func placeholder() -> some View {
+    private func placeholder() -> some View {
         Placeholder(
             style: .activity,
             width: width,
             height: height
         )
         .cornerRadius(15)
+    }
+
+    init(
+        previews: [MangaPreview],
+        alterImages: [MangaAlterData]
+    ) {
+        self.previews = previews
+        self.alterImages = alterImages
     }
 
     var body: some View {
@@ -742,11 +785,21 @@ private struct PreviewView: View {
 
 // MARK: CommentScrollView
 private struct CommentScrollView: View {
-    @EnvironmentObject var store: Store
+    @EnvironmentObject private var store: Store
 
-    let gid: String
-    let depth: Int
-    let comments: [MangaComment]
+    private let gid: String
+    private let depth: Int
+    private let comments: [MangaComment]
+
+    init(
+        gid: String,
+        depth: Int,
+        comments: [MangaComment]
+    ) {
+        self.gid = gid
+        self.depth = depth
+        self.comments = comments
+    }
 
     var body: some View {
         VStack {
@@ -775,14 +828,14 @@ private struct CommentScrollView: View {
         }
     }
 
-    func toggleDraft() {
+    private func toggleDraft() {
         store.dispatch(.toggleDetailViewSheetState(state: .comment))
     }
 }
 
 private struct CommentScrollCell: View {
-    let comment: MangaComment
-    var content: String {
+    private let comment: MangaComment
+    private var content: String {
         comment.contents
             .filter {
                 [.plainText, .linkedText]
@@ -792,6 +845,10 @@ private struct CommentScrollCell: View {
                 $0.text
             }
             .joined()
+    }
+
+    init(comment: MangaComment) {
+        self.comment = comment
     }
 
     var body: some View {

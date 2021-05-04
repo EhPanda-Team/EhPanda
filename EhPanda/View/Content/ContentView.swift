@@ -10,34 +10,14 @@ import Combine
 import Kingfisher
 import SDWebImageSwiftUI
 
-struct ContentView: View {
+struct ContentView: View, StoreAccessor {
     @EnvironmentObject var store: Store
-    @State var readingProgress: Int = -1
+    @State private var readingProgress: Int = -1
 
-    let gid: String
-    var environment: AppState.Environment {
-        store.appState.environment
-    }
-    var setting: Setting? {
-        store.appState.settings.setting
-    }
-    var cachedList: AppState.CachedList {
-        store.appState.cachedList
-    }
-    var contentInfo: AppState.ContentInfo {
-        store.appState.contentInfo
-    }
-    var mangaDetail: MangaDetail? {
-        cachedList.items?[gid]?.detail
-    }
-    var mangaContents: [MangaContent]? {
-        cachedList.items?[gid]?.contents
-    }
-    var moreLoadingFlag: Bool {
-        contentInfo.moreMangaContentsLoading
-    }
-    var moreLoadFailedFlag: Bool {
-        contentInfo.moreMangaContentsLoadFailed
+    private let gid: String
+
+    init(gid: String) {
+        self.gid = gid
     }
 
     // MARK: ContentView
@@ -119,6 +99,21 @@ struct ContentView: View {
         .navigationBarBackButtonHidden(true)
         .navigationBarHidden(environment.navBarHidden)
     }
+}
+
+private extension ContentView {
+    var mangaDetail: MangaDetail? {
+        cachedList.items?[gid]?.detail
+    }
+    var mangaContents: [MangaContent]? {
+        cachedList.items?[gid]?.contents
+    }
+    var moreLoadingFlag: Bool {
+        contentInfo.moreMangaContentsLoading
+    }
+    var moreLoadFailedFlag: Bool {
+        contentInfo.moreMangaContentsLoadFailed
+    }
 
     func onAppear() {
         toggleNavBarHiddenIfNeeded()
@@ -184,12 +179,24 @@ struct ContentView: View {
 
 // MARK: ImageContainer
 private struct ImageContainer: View {
-    @State var percentage: Float = 0
+    @State private var percentage: Float = 0
 
-    var content: MangaContent
-    var retryLimit: Int
-    var onTapAction: () -> Void
-    var onLongPressAction: (Int) -> Void
+    private var content: MangaContent
+    private var retryLimit: Int
+    private var onTapAction: () -> Void
+    private var onLongPressAction: (Int) -> Void
+
+    init(
+        content: MangaContent,
+        retryLimit: Int,
+        onTapAction: @escaping () -> Void,
+        onLongPressAction: @escaping (Int) -> Void
+    ) {
+        self.content = content
+        self.retryLimit = retryLimit
+        self.onTapAction = onTapAction
+        self.onLongPressAction = onLongPressAction
+    }
 
     var body: some View {
         KFImage(URL(string: content.url))
@@ -218,15 +225,15 @@ private struct ImageContainer: View {
             )
     }
 
-    func onWebImageProgress<I: BinaryInteger>(
+    private func onWebImageProgress<I: BinaryInteger>(
         _ received: I, _ total: I
     ) {
         percentage = Float(received) / Float(total)
     }
-    func onTap() {
+    private func onTap() {
         onTapAction()
     }
-    func onLongPressing(tag: Int) {
+    private func onLongPressing(tag: Int) {
         onLongPressAction(tag)
     }
 }

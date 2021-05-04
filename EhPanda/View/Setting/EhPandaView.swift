@@ -7,12 +7,8 @@
 
 import SwiftUI
 
-struct EhPandaView: View {
+struct EhPandaView: View, StoreAccessor {
     @EnvironmentObject var store: Store
-
-    var environment: AppState.Environment {
-        store.appState.environment
-    }
 
     private var contacts: [Info] {
         [
@@ -60,7 +56,7 @@ struct EhPandaView: View {
         ]
     }
 
-    var version: String {
+    private var version: String {
         [
             "Version".localized(),
             appVersion,

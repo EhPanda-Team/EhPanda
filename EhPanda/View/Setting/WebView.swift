@@ -9,15 +9,15 @@ import SwiftUI
 import WebKit
 
 struct WebView: UIViewControllerRepresentable {
-    @EnvironmentObject var store: Store
-    let webviewType: WebViewType
+    @EnvironmentObject private var store: Store
+    private let webviewType: WebViewType
 
     init(type: WebViewType) {
         webviewType = type
     }
 
-    class Coodinator: NSObject, WKNavigationDelegate, WKUIDelegate {
-        var parent: WebView
+    final class Coodinator: NSObject, WKNavigationDelegate, WKUIDelegate {
+        private var parent: WebView
 
         init(_ parent: WebView) {
             self.parent = parent
@@ -78,11 +78,10 @@ struct WebView: UIViewControllerRepresentable {
     ) {}
 }
 
-class EmbeddedWebviewController: UIViewController {
+final class EmbeddedWebviewController: UIViewController {
+    private var webview: WKWebView
 
-    var webview: WKWebView
-
-    public weak var delegate: WebView.Coordinator?
+    private weak var delegate: WebView.Coordinator?
 
     init(coordinator: WebView.Coordinator) {
         self.delegate = coordinator
@@ -95,7 +94,7 @@ class EmbeddedWebviewController: UIViewController {
         super.init(coder: coder)
     }
 
-    public func loadUrl(_ url: URL) {
+    func loadUrl(_ url: URL) {
         let req = URLRequest(url: url)
         webview.load(req)
     }

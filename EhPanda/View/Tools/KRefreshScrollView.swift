@@ -9,12 +9,14 @@
 import SwiftUI
 
 struct KRefreshScrollView<Content: View>: View {
-    @State var refresh = Refresh(started: false, released: false)
+    @State private var refresh = Refresh(
+        started: false, released: false
+    )
 
-    var content: Content
-    var onUpdate : () -> Void
-    var progressTint: Color
-    var arrowTint: Color
+    private var content: Content
+    private var onUpdate : () -> Void
+    private var progressTint: Color
+    private var arrowTint: Color
 
     init(
         progressTint: Color,
@@ -100,7 +102,7 @@ struct KRefreshScrollView<Content: View>: View {
         }
     }
 
-    func fireUpdate() {
+    private func fireUpdate() {
         DispatchQueue.main.async {
             withAnimation(Animation.linear) {
                 if refresh.startOffset == refresh.offset {
@@ -115,7 +117,7 @@ struct KRefreshScrollView<Content: View>: View {
     }
 }
 
-struct Refresh {
+private struct Refresh {
     var startOffset: CGFloat = 0
     var offset: CGFloat = 0
     var degree: Double {
@@ -126,7 +128,7 @@ struct Refresh {
     var invalid: Bool = false
 }
 
-extension Refresh {
+private extension Refresh {
     func rotationDegree() -> Double {
         let degree = offset - startOffset - 100
         if degree >= 0 && degree <= 40 {

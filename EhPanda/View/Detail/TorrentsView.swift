@@ -8,33 +8,19 @@
 import SwiftUI
 import TTProgressHUD
 
-struct TorrentsView: View {
+struct TorrentsView: View, StoreAccessor {
     @EnvironmentObject var store: Store
-    @Environment(\.colorScheme) var colorScheme
+    @Environment(\.colorScheme) private var colorScheme
 
-    @State var hudVisible = false
-    @State var hudConfig = TTProgressHUDConfig(
+    @State private var hudVisible = false
+    @State private var hudConfig = TTProgressHUDConfig(
         hapticsEnabled: false
     )
 
-    var gid: String
-    var color: Color {
-        colorScheme == .light
-            ? Color(.systemGray6)
-            : Color(.systemGray5)
-    }
+    private var gid: String
 
-    var cachedList: AppState.CachedList {
-        store.appState.cachedList
-    }
-    var detailInfo: AppState.DetailInfo {
-        store.appState.detailInfo
-    }
-    var mangaDetail: MangaDetail? {
-        cachedList.items?[gid]?.detail
-    }
-    var torrents: [MangaTorrent] {
-        mangaDetail?.torrents ?? []
+    init(gid: String) {
+        self.gid = gid
     }
 
     var body: some View {
@@ -69,6 +55,21 @@ struct TorrentsView: View {
         }
         .onAppear(perform: onAppear)
     }
+}
+
+private extension TorrentsView {
+    var color: Color {
+        colorScheme == .light
+            ? Color(.systemGray6)
+            : Color(.systemGray5)
+    }
+
+    var mangaDetail: MangaDetail? {
+        cachedList.items?[gid]?.detail
+    }
+    var torrents: [MangaTorrent] {
+        mangaDetail?.torrents ?? []
+    }
 
     func onAppear() {
         fetchMangaTorrents()
@@ -96,8 +97,16 @@ struct TorrentsView: View {
 }
 
 private struct TorrentRow: View {
-    let torrent: MangaTorrent
-    let action: (String) -> Void
+    private let torrent: MangaTorrent
+    private let action: (String) -> Void
+
+    init(
+        torrent: MangaTorrent,
+        action: @escaping (String) -> Void
+    ) {
+        self.torrent = torrent
+        self.action = action
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -138,14 +147,19 @@ private struct TorrentRow: View {
         .padding()
     }
 
-    func onFileNameTap() {
+    private func onFileNameTap() {
         action(torrent.magnet)
     }
 }
 
 private struct SeedLabel: View {
-    let symbolName: String
-    let text: String
+    private let symbolName: String
+    private let text: String
+
+    init(symbolName: String, text: String) {
+        self.symbolName = symbolName
+        self.text = text
+    }
 
     var body: some View {
         HStack(spacing: 3) {

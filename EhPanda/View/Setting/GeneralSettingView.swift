@@ -9,30 +9,9 @@ import SwiftUI
 import Kingfisher
 import LocalAuthentication
 
-struct GeneralSettingView: View {
+struct GeneralSettingView: View, StoreAccessor {
     @EnvironmentObject var store: Store
-    @State var passcodeNotSet = false
-
-    var environment: AppState.Environment {
-        store.appState.environment
-    }
-    var setting: Setting? {
-        store.appState.settings.setting
-    }
-    var settingBinding: Binding<Setting>? {
-        Binding($store.appState.settings.setting)
-    }
-    var language: String {
-        if let code = Locale.current.languageCode,
-           let lang = Locale.current.localizedString(
-            forLanguageCode: code
-           )
-        {
-            return lang
-        } else {
-            return "(null)"
-        }
-    }
+    @State private var passcodeNotSet = false
 
     var body: some View {
         if let setting = setting,
@@ -104,6 +83,23 @@ struct GeneralSettingView: View {
             }
             .navigationBarTitle("General")
             .onAppear(perform: onAppear)
+        }
+    }
+}
+
+private extension GeneralSettingView {
+    var settingBinding: Binding<Setting>? {
+        Binding($store.appState.settings.setting)
+    }
+    var language: String {
+        if let code = Locale.current.languageCode,
+           let lang = Locale.current.localizedString(
+            forLanguageCode: code
+           )
+        {
+            return lang
+        } else {
+            return "(null)"
         }
     }
 

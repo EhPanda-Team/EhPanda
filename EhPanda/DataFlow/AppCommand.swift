@@ -707,7 +707,7 @@ struct VoteCommentCommand: AppCommand {
     }
 }
 
-class SubscriptionToken {
+final class SubscriptionToken {
     var cancellable: AnyCancellable?
     func unseal() { cancellable = nil }
 }

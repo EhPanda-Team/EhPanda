@@ -7,65 +7,16 @@
 
 import SwiftUI
 
-struct AssociatedView: View {
+struct AssociatedView: View, StoreAccessor {
     @EnvironmentObject var store: Store
 
-    var detailInfo: AppState.DetailInfo {
-        store.appState.detailInfo
-    }
-    var loadingFlag: Bool {
-        detailInfo.associatedItemsLoading
-    }
-    var loadFailedFlag: Bool {
-        detailInfo.associatedItemsLoadFailed
-    }
-    var notFoundFlag: Bool {
-        detailInfo.associatedItemsNotFound
-    }
-    var moreLoadingFlag: Bool {
-        detailInfo.moreAssociatedItemsLoading
-    }
-    var moreLoadFailedFlag: Bool {
-        detailInfo.moreAssociatedItemsLoadFailed
-    }
-    var assciatedItems: [AssociatedItem] {
-        detailInfo.associatedItems
-    }
-    var assciatedItem: AssociatedItem {
-        assciatedItems.count >= depth + 1
-            ? assciatedItems[depth] : AssociatedItem(mangas: [])
-    }
-    var title: String {
-        if let title = keyword.title {
-            return title
-        } else {
-            var cat: String?
-            var content: String?
+    private let depth: Int
+    private let keyword: AssociatedKeyword
 
-            if let tagCategory = TagCategory(
-                rawValue: keyword.category ?? ""
-            ) {
-                cat = tagCategory.rawValue.localized()
-            }
-            if let language = Language(
-                rawValue: keyword.content?
-                    .capitalizingFirstLetter() ?? ""
-            ) {
-                content = language.rawValue.localized()
-            }
-            if cat == nil {
-                cat = keyword.category
-            }
-            if content == nil {
-                content = keyword.content
-            }
-
-            return "\(cat ?? ""): \"\(content ?? "")\""
-        }
+    init(depth: Int, keyword: AssociatedKeyword) {
+        self.depth = depth
+        self.keyword = keyword
     }
-
-    let depth: Int
-    let keyword: AssociatedKeyword
 
     var body: some View {
         ScrollView {
@@ -114,6 +65,56 @@ struct AssociatedView: View {
         }
         .onAppear(perform: onAppear)
         .navigationBarTitle(title)
+    }
+}
+
+private extension AssociatedView {
+    var loadingFlag: Bool {
+        detailInfo.associatedItemsLoading
+    }
+    var loadFailedFlag: Bool {
+        detailInfo.associatedItemsLoadFailed
+    }
+    var notFoundFlag: Bool {
+        detailInfo.associatedItemsNotFound
+    }
+    var moreLoadingFlag: Bool {
+        detailInfo.moreAssociatedItemsLoading
+    }
+    var moreLoadFailedFlag: Bool {
+        detailInfo.moreAssociatedItemsLoadFailed
+    }
+    var assciatedItem: AssociatedItem {
+        assciatedItems.count >= depth + 1
+            ? assciatedItems[depth] : AssociatedItem(mangas: [])
+    }
+    var title: String {
+        if let title = keyword.title {
+            return title
+        } else {
+            var cat: String?
+            var content: String?
+
+            if let tagCategory = TagCategory(
+                rawValue: keyword.category ?? ""
+            ) {
+                cat = tagCategory.rawValue.localized()
+            }
+            if let language = Language(
+                rawValue: keyword.content?
+                    .capitalizingFirstLetter() ?? ""
+            ) {
+                content = language.rawValue.localized()
+            }
+            if cat == nil {
+                cat = keyword.category
+            }
+            if content == nil {
+                content = keyword.content
+            }
+
+            return "\(cat ?? ""): \"\(content ?? "")\""
+        }
     }
 
     func onAppear() {

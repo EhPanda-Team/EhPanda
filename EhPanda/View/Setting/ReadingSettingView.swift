@@ -7,13 +7,10 @@
 
 import SwiftUI
 
-struct ReadingSettingView: View {
+struct ReadingSettingView: View, StoreAccessor {
     @EnvironmentObject var store: Store
 
-    var setting: Setting? {
-        store.appState.settings.setting
-    }
-    var settingBinding: Binding<Setting>? {
+    private var settingBinding: Binding<Setting>? {
         Binding($store.appState.settings.setting)
     }
 

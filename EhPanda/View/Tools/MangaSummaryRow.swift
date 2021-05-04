@@ -8,59 +8,9 @@
 import SwiftUI
 import Kingfisher
 
-struct MangaSummaryRow: View {
+struct MangaSummaryRow: View, StoreAccessor {
     @EnvironmentObject var store: Store
-    @Environment(\.colorScheme) var colorScheme
-
-    var setting: Setting? {
-        store.appState.settings.setting
-    }
-    var width: CGFloat {
-        Defaults.ImageSize.rowW
-    }
-    var height: CGFloat {
-        Defaults.ImageSize.rowH
-    }
-
-    var category: String {
-        if setting?.translateCategory == true {
-            return manga.category.rawValue.localized()
-        } else {
-            return manga.category.rawValue
-        }
-    }
-    var tags: [String] {
-        if setting?.summaryRowTagsMaximumActivated == true {
-            return Array(
-                manga.tags
-                    .prefix(
-                        setting?.summaryRowTagsMaximum ?? 5
-                    )
-            )
-        } else {
-            return manga.tags
-        }
-    }
-    var tagColor: Color {
-        colorScheme == .light
-            ? Color(.systemGray5)
-            : Color(.systemGray4)
-    }
-    var modifier: KFImageModifier {
-        KFImageModifier(
-            targetScale:
-                Defaults
-                .ImageSize
-                .rowScale
-        )
-    }
-    func placeholder() -> some View {
-        Placeholder(
-            style: .activity,
-            width: width,
-            height: height
-        )
-    }
+    @Environment(\.colorScheme) private var colorScheme
 
     let manga: Manga
 
@@ -133,4 +83,54 @@ struct MangaSummaryRow: View {
         .background(Color(.systemGray6))
         .cornerRadius(3)
     }
+}
+
+private extension MangaSummaryRow {
+    var width: CGFloat {
+        Defaults.ImageSize.rowW
+    }
+    var height: CGFloat {
+        Defaults.ImageSize.rowH
+    }
+
+    var category: String {
+        if setting?.translateCategory == true {
+            return manga.category.rawValue.localized()
+        } else {
+            return manga.category.rawValue
+        }
+    }
+    var tags: [String] {
+        if setting?.summaryRowTagsMaximumActivated == true {
+            return Array(
+                manga.tags
+                    .prefix(
+                        setting?.summaryRowTagsMaximum ?? 5
+                    )
+            )
+        } else {
+            return manga.tags
+        }
+    }
+    var tagColor: Color {
+        colorScheme == .light
+            ? Color(.systemGray5)
+            : Color(.systemGray4)
+    }
+    var modifier: KFImageModifier {
+        KFImageModifier(
+            targetScale:
+                Defaults
+                .ImageSize
+                .rowScale
+        )
+    }
+    func placeholder() -> some View {
+        Placeholder(
+            style: .activity,
+            width: width,
+            height: height
+        )
+    }
+
 }

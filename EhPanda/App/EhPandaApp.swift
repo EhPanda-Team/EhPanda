@@ -11,17 +11,7 @@ import SDWebImageSwiftUI
 
 @main
 struct EhPandaApp: App {
-    @StateObject var store = Store()
-
-    var setting: Setting? {
-        store.appState.settings.setting
-    }
-    var accentColor: Color? {
-        setting?.accentColor
-    }
-    var preferredColorScheme: ColorScheme? {
-        setting?.colorScheme ?? .none
-    }
+    @StateObject private var store = Store()
 
     init() {
         configureWebImage()
@@ -36,6 +26,18 @@ struct EhPandaApp: App {
                 .onOpenURL(perform: onOpenURL)
                 .preferredColorScheme(preferredColorScheme)
         }
+    }
+}
+
+private extension EhPandaApp {
+    var setting: Setting? {
+        store.appState.settings.setting
+    }
+    var accentColor: Color? {
+        setting?.accentColor
+    }
+    var preferredColorScheme: ColorScheme? {
+        setting?.colorScheme ?? .none
     }
 
     func onOpenURL(_ url: URL) {

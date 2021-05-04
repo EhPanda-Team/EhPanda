@@ -8,51 +8,28 @@
 import SwiftUI
 import TTProgressHUD
 
-struct ArchiveView: View {
+struct ArchiveView: View, StoreAccessor {
     @EnvironmentObject var store: Store
-    @State var selection: ArchiveRes?
+    @State private var selection: ArchiveRes?
 
-    @State var hudVisible = false
-    @State var hudConfig = TTProgressHUDConfig(
+    @State private var hudVisible = false
+    @State private var hudConfig = TTProgressHUDConfig(
         hapticsEnabled: false
     )
-    var loadingHUDConfig = TTProgressHUDConfig(
+    private var loadingHUDConfig = TTProgressHUDConfig(
         type: .loading,
         title: "Communicating...".localized(),
         hapticsEnabled: false
     )
-
-    let gid: String
-    var cachedList: AppState.CachedList {
-        store.appState.cachedList
-    }
-    var detailInfo: AppState.DetailInfo {
-        store.appState.detailInfo
-    }
-    var detailInfoBinding: Binding<AppState.DetailInfo> {
-        $store.appState.detailInfo
-    }
-    var user: User? {
-        store.appState.settings.user
-    }
-    var mangaDetail: MangaDetail? {
-        cachedList.items?[gid]?.detail
-    }
-    var archive: MangaArchive? {
-        mangaDetail?.archive
-    }
-    var currentGP: String? {
-        user?.currentGP
-    }
-    var currentCredits: String? {
-        user?.currentCredits
-    }
-    var hathArchives: [MangaArchive.HathArchive] {
-        archive?.hathArchives ?? []
-    }
-    let gridItems = [
+    private let gridItems = [
         GridItem(.adaptive(minimum: 150, maximum: 200))
     ]
+
+    private let gid: String
+
+    init(gid: String) {
+        self.gid = gid
+    }
 
     // MARK: ArchiveView
     var body: some View {
@@ -112,6 +89,21 @@ struct ArchiveView: View {
                 perform: onHUDVisibilityChange
             )
         }
+    }
+}
+
+private extension ArchiveView {
+    var detailInfoBinding: Binding<AppState.DetailInfo> {
+        $store.appState.detailInfo
+    }
+    var mangaDetail: MangaDetail? {
+        cachedList.items?[gid]?.detail
+    }
+    var archive: MangaArchive? {
+        mangaDetail?.archive
+    }
+    var hathArchives: [MangaArchive.HathArchive] {
+        archive?.hathArchives ?? []
     }
 
     func onAppear() {
@@ -179,24 +171,24 @@ struct ArchiveView: View {
 
 // MARK: ArchiveGrid
 private struct ArchiveGrid: View {
-    var isSelected: Bool
-    let archive: MangaArchive.HathArchive
+    private var isSelected: Bool
+    private let archive: MangaArchive.HathArchive
 
-    var disabled: Bool {
+    private var disabled: Bool {
         archive.fileSize == "N/A"
             || archive.gpPrice == "N/A"
     }
-    var disabledColor: Color {
+    private var disabledColor: Color {
         Color.gray.opacity(0.5)
     }
-    var fileSizeColor: Color {
+    private var fileSizeColor: Color {
         if disabled {
             return disabledColor
         } else {
             return .gray
         }
     }
-    var borderColor: Color {
+    private var borderColor: Color {
         if disabled {
             return disabledColor
         } else {
@@ -205,8 +197,13 @@ private struct ArchiveGrid: View {
                 : .gray
         }
     }
-    var environmentColor: Color? {
+    private var environmentColor: Color? {
         disabled ? disabledColor : nil
+    }
+
+    init(isSelected: Bool, archive: MangaArchive.HathArchive) {
+        self.isSelected = isSelected
+        self.archive = archive
     }
 
     var body: some View {
@@ -236,8 +233,13 @@ private struct ArchiveGrid: View {
 
 // MARK: BalanceView
 private struct BalanceView: View {
-    let galleryPoints: String
-    let credits: String
+    private let galleryPoints: String
+    private let credits: String
+
+    init(galleryPoints: String, credits: String) {
+        self.galleryPoints = galleryPoints
+        self.credits = credits
+    }
 
     var body: some View {
         HStack(spacing: 15) {
@@ -257,11 +259,43 @@ private struct BalanceView: View {
 
 // MARK: DownloadButton
 private struct DownloadButton: View {
-    @State var isPressed = false
+    @State private var isPressed = false
 
-    var isDisabled: Bool
-    var action: () -> Void
+    private var isDisabled: Bool
+    private var action: () -> Void
 
+    init(
+        isDisabled: Bool,
+        action: @escaping () -> Void
+    ) {
+        self.isDisabled = isDisabled
+        self.action = action
+    }
+
+    var body: some View {
+        HStack {
+            Spacer()
+            Text("Download To Hath Client")
+                .fontWeight(.bold)
+                .font(.headline)
+                .foregroundColor(textColor)
+            Spacer()
+        }
+        .frame(height: 50)
+        .background(backgroundColor)
+        .cornerRadius(30)
+        .padding(paddingInsets)
+        .onTapGesture(perform: onTap)
+        .onLongPressGesture(
+            minimumDuration: 0,
+            maximumDistance: 50,
+            pressing: onLongPressing,
+            perform: {}
+        )
+    }
+}
+
+private extension DownloadButton {
     var textColor: Color {
         if isDisabled {
             return Color.white.opacity(0.5)
@@ -294,28 +328,6 @@ private struct DownloadButton: View {
                 bottom: 30,
                 trailing: 10
             )
-    }
-
-    var body: some View {
-        HStack {
-            Spacer()
-            Text("Download To Hath Client")
-                .fontWeight(.bold)
-                .font(.headline)
-                .foregroundColor(textColor)
-            Spacer()
-        }
-        .frame(height: 50)
-        .background(backgroundColor)
-        .cornerRadius(30)
-        .padding(paddingInsets)
-        .onTapGesture(perform: onTap)
-        .onLongPressGesture(
-            minimumDuration: 0,
-            maximumDistance: 50,
-            pressing: onLongPressing,
-            perform: {}
-        )
     }
 
     func onTap() {

@@ -9,55 +9,18 @@ import SwiftUI
 import Kingfisher
 import SDWebImageSwiftUI
 
-struct SlideMenu: View {
+struct SlideMenu: View, StoreAccessor {
     @EnvironmentObject var store: Store
-    @Environment(\.colorScheme) var colorScheme
-    @Binding var offset: CGFloat
+    @Environment(\.colorScheme) private var colorScheme
+    @Binding private var offset: CGFloat
 
-    var edges = UIApplication.shared.windows
+    private var tokenMatchedMenuItems = HomeListType
+        .allCases.filter({ $0 != .search })
+    private var edges = UIApplication.shared.windows
         .first?.safeAreaInsets
 
-    var settings: AppState.Settings {
-        store.appState.settings
-    }
-    var environment: AppState.Environment {
-        store.appState.environment
-    }
-    var environmentBinding: Binding<AppState.Environment> {
-        $store.appState.environment
-    }
-    var user: User? {
-        settings.user
-    }
-    var setting: Setting? {
-        settings.setting
-    }
-    var homeListType: HomeListType {
-        environment.homeListType
-    }
-    var favoritesIndexBinding: Binding<Int> {
-        environmentBinding.favoritesIndex
-    }
-    var width: CGFloat {
-        Defaults.FrameSize.slideMenuWidth
-    }
-    var avatarW: CGFloat {
-        Defaults.ImageSize.avatarW
-    }
-    var avatarH: CGFloat {
-        Defaults.ImageSize.avatarH
-    }
-    var reversedPrimary: Color {
-        colorScheme == .light ? .white : .black
-    }
-    var tokenMatchedMenuItems = HomeListType
-        .allCases.filter({ $0 != .search })
-    var menuItems: [HomeListType] {
-        if isTokenMatched {
-            return tokenMatchedMenuItems
-        } else {
-            return Array(tokenMatchedMenuItems.prefix(2))
-        }
+    init(offset: Binding<CGFloat>) {
+        _offset = offset
     }
 
     // MARK: SlideMenu
@@ -107,6 +70,34 @@ struct SlideMenu: View {
             perform: onFavoritesIndexChange
         )
     }
+}
+
+private extension SlideMenu {
+    var environmentBinding: Binding<AppState.Environment> {
+        $store.appState.environment
+    }
+    var favoritesIndexBinding: Binding<Int> {
+        environmentBinding.favoritesIndex
+    }
+    var width: CGFloat {
+        Defaults.FrameSize.slideMenuWidth
+    }
+    var avatarW: CGFloat {
+        Defaults.ImageSize.avatarW
+    }
+    var avatarH: CGFloat {
+        Defaults.ImageSize.avatarH
+    }
+    var reversedPrimary: Color {
+        colorScheme == .light ? .white : .black
+    }
+    var menuItems: [HomeListType] {
+        if isTokenMatched {
+            return tokenMatchedMenuItems
+        } else {
+            return Array(tokenMatchedMenuItems.prefix(2))
+        }
+    }
 
     func onMenuRowTap(_ item: HomeListType) {
         if homeListType != item {
@@ -136,26 +127,38 @@ struct SlideMenu: View {
 
 // MARK: AvatarView
 private struct AvatarView: View {
-    @EnvironmentObject var store: Store
+    @EnvironmentObject private var store: Store
 
-    var iconType: IconType {
+    private var iconType: IconType {
         store.appState
             .settings.setting?
             .appIconType ?? appIconType
     }
 
-    let avatarURL: String?
-    let displayName: String?
+    private let avatarURL: String?
+    private let displayName: String?
 
-    let width: CGFloat
-    let height: CGFloat
+    private let width: CGFloat
+    private let height: CGFloat
 
-    func placeholder() -> some View {
+    private func placeholder() -> some View {
         Placeholder(
             style: .activity,
             width: width,
             height: height
         )
+    }
+
+    init(
+        avatarURL: String?,
+        displayName: String?,
+        width: CGFloat,
+        height: CGFloat
+    ) {
+        self.avatarURL = avatarURL
+        self.displayName = displayName
+        self.width = width
+        self.height = height
     }
 
     var body: some View {
@@ -193,22 +196,22 @@ private struct AvatarView: View {
 
 // MARK: MenuRow
 private struct MenuRow: View {
-    @Environment(\.colorScheme) var colorScheme
-    @State var isPressing = false
-    let isSelected: Bool
+    @Environment(\.colorScheme) private var colorScheme
+    @State private var isPressing = false
+    private let isSelected: Bool
 
-    let symbolName: String
-    let text: String
-    let action: () -> Void
+    private let symbolName: String
+    private let text: String
+    private let action: () -> Void
 
-    var textColor: Color {
+    private var textColor: Color {
         isSelected
             ? .primary
             : (colorScheme == .light
                 ? Color(.darkGray)
                 : Color(.lightGray))
     }
-    var backgroundColor: Color {
+    private var backgroundColor: Color {
         let color = Color(.systemGray6)
 
         return isSelected
@@ -216,6 +219,18 @@ private struct MenuRow: View {
             : (isPressing
                 ? color.opacity(0.6)
                 : .clear)
+    }
+
+    init(
+        isSelected: Bool,
+        symbolName: String,
+        text: String,
+        action: @escaping () -> Void
+    ) {
+        self.isSelected = isSelected
+        self.symbolName = symbolName
+        self.text = text
+        self.action = action
     }
 
     var body: some View {

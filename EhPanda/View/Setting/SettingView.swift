@@ -9,38 +9,8 @@ import SwiftUI
 import Kingfisher
 import SDWebImageSwiftUI
 
-struct SettingView: View {
+struct SettingView: View, StoreAccessor {
     @EnvironmentObject var store: Store
-
-    var environment: AppState.Environment {
-        store.appState.environment
-    }
-    var environmentBinding: Binding<AppState.Environment> {
-        $store.appState.environment
-    }
-
-    var logoutActionSheet: ActionSheet {
-        ActionSheet(title: Text("Are you sure to logout?"), buttons: [
-            .destructive(Text("Logout"), action: logout),
-            .cancel()
-        ])
-    }
-    var clearImgCachesActionSheet: ActionSheet {
-        ActionSheet(title: Text("Are you sure to clear?"), buttons: [
-            .destructive(Text("Clear"), action: clearImageCaches),
-            .cancel()
-        ])
-    }
-    var clearWebCachesActionSheet: ActionSheet {
-        ActionSheet(
-            title: Text("Warning".localized().uppercased()),
-            message: Text("It's for debug only"),
-            buttons: [
-                .destructive(Text("Clear"), action: clearCachedList),
-                .cancel()
-            ]
-        )
-    }
 
     // MARK: SettingView
     var body: some View {
@@ -109,6 +79,35 @@ struct SettingView: View {
             }
         }
     }
+}
+
+private extension SettingView {
+    var environmentBinding: Binding<AppState.Environment> {
+        $store.appState.environment
+    }
+
+    var logoutActionSheet: ActionSheet {
+        ActionSheet(title: Text("Are you sure to logout?"), buttons: [
+            .destructive(Text("Logout"), action: logout),
+            .cancel()
+        ])
+    }
+    var clearImgCachesActionSheet: ActionSheet {
+        ActionSheet(title: Text("Are you sure to clear?"), buttons: [
+            .destructive(Text("Clear"), action: clearImageCaches),
+            .cancel()
+        ])
+    }
+    var clearWebCachesActionSheet: ActionSheet {
+        ActionSheet(
+            title: Text("Warning".localized().uppercased()),
+            message: Text("It's for debug only"),
+            buttons: [
+                .destructive(Text("Clear"), action: clearCachedList),
+                .cancel()
+            ]
+        )
+    }
 
     func onGeneralSettingAppear() {
         calculateDiskCachesSize()
@@ -151,21 +150,31 @@ struct SettingView: View {
 
 // MARK: SettingRow
 private struct SettingRow<Destination: View>: View {
-    @Environment(\.colorScheme) var colorScheme
-    @State var isPressing = false
-    @State var isActive = false
+    @Environment(\.colorScheme) private var colorScheme
+    @State private var isPressing = false
+    @State private var isActive = false
 
-    let symbolName: String
-    let text: String
-    let destination: Destination
+    private let symbolName: String
+    private let text: String
+    private let destination: Destination
 
-    var color: Color {
+    private var color: Color {
         colorScheme == .light
             ? Color(.darkGray)
             : Color(.lightGray)
     }
-    var backgroundColor: Color {
+    private var backgroundColor: Color {
         isPressing ? color.opacity(0.1) : .clear
+    }
+
+    init(
+        symbolName: String,
+        text: String,
+        destination: Destination
+    ) {
+        self.symbolName = symbolName
+        self.text = text
+        self.destination = destination
     }
 
     var body: some View {
@@ -222,7 +231,7 @@ enum SettingViewSheetState: Identifiable {
     case webviewMyTags
 }
 
-private  struct SettingView_Previews: PreviewProvider {
+private struct SettingView_Previews: PreviewProvider {
     static var previews: some View {
         let store = Store()
         store.appState.settings.setting = Setting()

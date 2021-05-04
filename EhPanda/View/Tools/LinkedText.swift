@@ -10,14 +10,14 @@ import SwiftUI
 
 private let linkDetector = try? NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue)
 
-struct LinkColoredText: View {
-    enum Component {
+private struct LinkColoredText: View {
+    private enum Component {
         case text(String)
         case link(String, URL)
     }
 
-    let text: String
-    let components: [Component]
+    private let text: String
+    private let components: [Component]
 
     init(text: String, links: [NSTextCheckingResult]) {
         self.text = text
@@ -60,9 +60,9 @@ struct LinkColoredText: View {
 }
 
 struct LinkedText: View {
-    let text: String
-    let action: (URL) -> Void
-    let links: [NSTextCheckingResult]
+    private let text: String
+    private let action: (URL) -> Void
+    private let links: [NSTextCheckingResult]
 
     init (_ text: String, _ action: @escaping (URL) -> Void) {
         self.text = text
@@ -82,9 +82,19 @@ struct LinkedText: View {
 }
 
 private struct LinkTapOverlay: UIViewRepresentable {
-    let text: String
-    let action: (URL) -> Void
-    let links: [NSTextCheckingResult]
+    private let text: String
+    private let action: (URL) -> Void
+    private let links: [NSTextCheckingResult]
+
+    init(
+        text: String,
+        action: @escaping (URL) -> Void,
+        links: [NSTextCheckingResult]
+    ) {
+        self.text = text
+        self.action = action
+        self.links = links
+    }
 
     func makeUIView(context: Context) -> LinkTapOverlayView {
         let view = LinkTapOverlayView()
@@ -113,7 +123,7 @@ private struct LinkTapOverlay: UIViewRepresentable {
         Coordinator(self)
     }
 
-    class Coordinator: NSObject, UIGestureRecognizerDelegate {
+    final class Coordinator: NSObject, UIGestureRecognizerDelegate {
         let overlay: LinkTapOverlay
 
         let layoutManager = NSLayoutManager()
@@ -164,7 +174,7 @@ private struct LinkTapOverlay: UIViewRepresentable {
     }
 }
 
-private class LinkTapOverlayView: UIView {
+private final class LinkTapOverlayView: UIView {
     var textContainer: NSTextContainer!
 
     override func layoutSubviews() {

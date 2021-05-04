@@ -8,7 +8,7 @@
 import SwiftUI
 import Combine
 
-class Store: ObservableObject {
+final class Store: ObservableObject {
     @Published var appState = AppState()
 
     func dispatch(_ action: AppAction) {

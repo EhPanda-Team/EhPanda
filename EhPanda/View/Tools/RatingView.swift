@@ -8,10 +8,7 @@
 import SwiftUI
 
 struct RatingView: View {
-    let rawRating: Float
-    var rating: Float {
-        rawRating.fixedRating()
-    }
+    private let rawRating: Float
 
     init(rating: Float) {
         self.rawRating = rating
@@ -58,7 +55,11 @@ struct RatingView: View {
     }
 }
 
-extension RatingView {
+private extension RatingView {
+    private var rating: Float {
+        rawRating.fixedRating()
+    }
+
     struct FilledStar: View {
         var body: some View {
             Image(systemName: "star.fill")

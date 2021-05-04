@@ -8,7 +8,11 @@
 import SwiftUI
 
 struct CommentButton: View {
-    let action: () -> Void
+    private let action: () -> Void
+
+    init(action: @escaping () -> Void) {
+        self.action = action
+    }
 
     var body: some View {
         Button(action: action) {
@@ -27,11 +31,23 @@ struct CommentButton: View {
 }
 
 struct DraftCommentView: View {
-    @Binding var content: String
+    @Binding private var content: String
 
-    let title: String
-    let postAction: () -> Void
-    let cancelAction: () -> Void
+    private let title: String
+    private let postAction: () -> Void
+    private let cancelAction: () -> Void
+
+    init(
+        content: Binding<String>,
+        title: String,
+        postAction: @escaping () -> Void,
+        cancelAction: @escaping () -> Void
+    ) {
+        _content = content
+        self.title = title
+        self.postAction = postAction
+        self.cancelAction = cancelAction
+    }
 
     var body: some View {
         NavigationView {

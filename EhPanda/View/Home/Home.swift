@@ -8,41 +8,17 @@
 
 import SwiftUI
 
-struct Home: View {
+struct Home: View, StoreAccessor {
     @EnvironmentObject var store: Store
-    @Environment(\.colorScheme) var colorScheme
+    @Environment(\.colorScheme) private var colorScheme
 
     // SlideMenu
-    @State var direction: Direction = .none
-    @State var offset = -Defaults.FrameSize.slideMenuWidth
-    @State var width = Defaults.FrameSize.slideMenuWidth
+    @State private var direction: Direction = .none
+    @State private var offset = -Defaults.FrameSize.slideMenuWidth
+    @State private var width = Defaults.FrameSize.slideMenuWidth
 
     // AppLock
-    @State var blurRadius: CGFloat = 0
-
-    var environment: AppState.Environment {
-        store.appState.environment
-    }
-    var isAppUnlocked: Bool {
-        environment.isAppUnlocked
-    }
-    var isSlideMenuClosed: Bool {
-        environment.isSlideMenuClosed
-    }
-
-    enum Direction {
-        case none
-        case toLeft
-        case toRight
-    }
-
-    var hasPermission: Bool {
-        vcsCount == 1
-    }
-    var opacity: Double {
-        let scale = colorScheme == .light ? 0.2 : 0.5
-        return Double((width + offset) / width) * scale
-    }
+    @State private var blurRadius: CGFloat = 0
 
     var body: some View {
         ZStack {
@@ -122,7 +98,22 @@ struct Home: View {
             onReceiveSlideMenuShouldCloseNotification()
         }
     }
+}
 
+private extension Home {
+    enum Direction {
+        case none
+        case toLeft
+        case toRight
+    }
+
+    var hasPermission: Bool {
+        vcsCount == 1
+    }
+    var opacity: Double {
+        let scale = colorScheme == .light ? 0.2 : 0.5
+        return Double((width + offset) / width) * scale
+    }
     func onWidthChange() {
         if isPad {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {

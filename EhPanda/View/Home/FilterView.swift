@@ -7,25 +7,8 @@
 
 import SwiftUI
 
-struct FilterView: View {
+struct FilterView: View, StoreAccessor {
     @EnvironmentObject var store: Store
-
-    var settings: AppState.Settings {
-        store.appState.settings
-    }
-    var settingsBinding: Binding<AppState.Settings> {
-        $store.appState.settings
-    }
-    var environmentBinding: Binding<AppState.Environment> {
-        $store.appState.environment
-    }
-
-    var resetFiltersActionSheet: ActionSheet {
-        ActionSheet(title: Text("Are you sure to reset?"), buttons: [
-            .destructive(Text("Reset"), action: resetFilters),
-            .cancel()
-        ])
-    }
 
     // MARK: FilterView
     var body: some View {
@@ -83,6 +66,22 @@ struct FilterView: View {
         }
         .onAppear(perform: onAppear)
     }
+}
+
+private extension FilterView {
+    var settingsBinding: Binding<AppState.Settings> {
+        $store.appState.settings
+    }
+    var environmentBinding: Binding<AppState.Environment> {
+        $store.appState.environment
+    }
+
+    var resetFiltersActionSheet: ActionSheet {
+        ActionSheet(title: Text("Are you sure to reset?"), buttons: [
+            .destructive(Text("Reset"), action: resetFilters),
+            .cancel()
+        ])
+    }
 
     func onAppear() {
         if settings.filter == nil {
@@ -100,17 +99,10 @@ struct FilterView: View {
 }
 
 // MARK: CategoryView
-private struct CategoryView: View {
+private struct CategoryView: View, StoreAccessor {
     @EnvironmentObject var store: Store
 
-    var filter: Filter? {
-        store.appState.settings.filter
-    }
-    var filterBinding: Binding<Filter>? {
-        Binding($store.appState.settings.filter)
-    }
-
-    let gridItems = [
+    private let gridItems = [
         GridItem(
             .adaptive(
                 minimum: isPadWidth
@@ -134,8 +126,14 @@ private struct CategoryView: View {
             .padding(.vertical)
         }
     }
+}
 
-    private func tuples(_ filter: Filter, _ filterBinding: Binding<Filter>) -> [TupleCategory] {
+private extension CategoryView {
+    var filterBinding: Binding<Filter>? {
+        Binding($store.appState.settings.filter)
+    }
+
+    func tuples(_ filter: Filter, _ filterBinding: Binding<Filter>) -> [TupleCategory] {
         [TupleCategory(isFiltered: filterBinding.doujinshi.isFiltered, category: filter.doujinshi.category),
          TupleCategory(isFiltered: filterBinding.manga.isFiltered, category: filter.manga.category),
          TupleCategory(isFiltered: filterBinding.artistCG.isFiltered, category: filter.artistCG.category),
@@ -148,7 +146,7 @@ private struct CategoryView: View {
          TupleCategory(isFiltered: filterBinding.misc.isFiltered, category: filter.misc.category)]
     }
 
-    private struct TupleCategory: Identifiable {
+    struct TupleCategory: Identifiable {
         var id = UUID()
 
         let isFiltered: Binding<Bool>
@@ -158,8 +156,13 @@ private struct CategoryView: View {
 
 // MARK: CategoryCell
 private struct CategoryCell: View {
-    @Binding var isFiltered: Bool
-    let category: Category
+    @Binding private var isFiltered: Bool
+    private let category: Category
+
+    init(isFiltered: Binding<Bool>, category: Category) {
+        _isFiltered = isFiltered
+        self.category = category
+    }
 
     var body: some View {
         ZStack {
@@ -178,14 +181,18 @@ private struct CategoryCell: View {
         .cornerRadius(5)
     }
 
-    func onTapGesture() {
+    private func onTapGesture() {
         isFiltered.toggle()
     }
 }
 
 // MARK: MinimumRatingSetter
 private struct MinimumRatingSetter: View {
-    @Binding var minimum: Int
+    @Binding private var minimum: Int
+
+    init(minimum: Binding<Int>) {
+        _minimum = minimum
+    }
 
     var body: some View {
         HStack {
@@ -208,16 +215,24 @@ private struct MinimumRatingSetter: View {
 
 // MARK: PagesRangeSetter
 private struct PagesRangeSetter: View {
-    @Environment(\.colorScheme) var colorScheme
-    @Binding var lowerBound: String
-    @Binding var upperBound: String
+    @Environment(\.colorScheme) private var colorScheme
+    @Binding private var lowerBound: String
+    @Binding private var upperBound: String
 
-    var color: Color {
+    private var color: Color {
         if colorScheme == .light {
             return Color(.systemGray6)
         } else {
             return Color(.systemGray3)
         }
+    }
+
+    init(
+        lowerBound: Binding<String>,
+        upperBound: Binding<String>
+    ) {
+        _lowerBound = lowerBound
+        _upperBound = upperBound
     }
 
     var body: some View {
