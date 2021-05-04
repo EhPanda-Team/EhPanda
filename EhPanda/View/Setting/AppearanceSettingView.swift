@@ -11,6 +11,9 @@ struct AppearanceSettingView: View {
     @EnvironmentObject var store: Store
     @State var isNavigationLinkActive = false
 
+    var environment: AppState.Environment {
+        store.appState.environment
+    }
     var setting: Setting? {
         store.appState.settings.setting
     }
@@ -46,7 +49,7 @@ struct AppearanceSettingView: View {
                     Button("App Icon", action: onAppIconButtonTap)
                         .foregroundColor(.primary)
                         .withArrow()
-                    if isTokenMatched, Locale.current.languageCode != "en" {
+                    if isTokenMatched || environment.isPreview, Locale.current.languageCode != "en" {
                         Toggle(isOn: settingBinding.translateCategory, label: {
                             Text("Translate category")
                         })

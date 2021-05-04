@@ -13,9 +13,17 @@ struct Manga: Identifiable, Codable, Equatable {
         lhs.id == rhs.id
     }
     static let empty = Manga(
-        gid: "", token: "", title: "", rating: 0,
-        tags: [], category: .nonH, uploader: nil,
-        publishedTime: "", coverURL: "", detailURL: ""
+        detail: MangaDetail.empty,
+        gid: "",
+        token: "",
+        title: "",
+        rating: 0,
+        tags: [],
+        category: .nonH,
+        uploader: nil,
+        publishedTime: "",
+        coverURL: "",
+        detailURL: ""
     )
 
     var detail: MangaDetail?
@@ -38,6 +46,28 @@ struct Manga: Identifiable, Codable, Equatable {
 }
 
 struct MangaDetail: Codable {
+    static let empty = MangaDetail(
+        isFavored: false,
+        alterImages: [],
+        torrents: [],
+        comments: [],
+        previews: [],
+        title: "",
+        rating: 0.0,
+        ratingCount: "",
+        detailTags: [],
+        category: .nonH,
+        language: .English,
+        uploader: "",
+        publishedTime: "",
+        coverURL: "",
+        likeCount: "",
+        pageCount: "",
+        sizeCount: "",
+        sizeType: "",
+        torrentCount: 0
+    )
+
     var readingProgress: Int?
     var currentPageNum = 0
     var pageNumMaximum = 1

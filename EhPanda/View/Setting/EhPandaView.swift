@@ -10,6 +10,10 @@ import SwiftUI
 struct EhPandaView: View {
     @EnvironmentObject var store: Store
 
+    var environment: AppState.Environment {
+        store.appState.environment
+    }
+
     private var contacts: [Info] {
         [
             Info(
@@ -77,7 +81,7 @@ struct EhPandaView: View {
         }
         .padding(.horizontal)
         Form {
-            if isTokenMatched {
+            if isTokenMatched || environment.isPreview {
                 Section(header: Text("Contacts")) {
                     ForEach(contacts) { contact in
                         if let url = URL(string: contact.url) {

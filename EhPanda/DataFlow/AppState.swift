@@ -21,6 +21,7 @@ struct AppState {
 extension AppState {
     // MARK: Environment
     struct Environment {
+        var isPreview = false
         var isAppUnlocked = true
         var blurRadius: CGFloat = 0
         var isSlideMenuClosed = true

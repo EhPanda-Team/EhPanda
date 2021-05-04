@@ -13,6 +13,9 @@ struct GeneralSettingView: View {
     @EnvironmentObject var store: Store
     @State var passcodeNotSet = false
 
+    var environment: AppState.Environment {
+        store.appState.environment
+    }
     var setting: Setting? {
         store.appState.settings.setting
     }
@@ -45,7 +48,7 @@ struct GeneralSettingView: View {
                     Toggle(isOn: settingBinding.closeSlideMenuAfterSelection) {
                         Text("Close slide menu after selection")
                     }
-                    if isTokenMatched {
+                    if isTokenMatched || environment.isPreview {
                         Toggle(isOn: settingBinding.detectGalleryFromPasteboard) {
                             Text("Detect link from the clipboard")
                         }

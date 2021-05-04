@@ -47,7 +47,7 @@ struct SettingView: View {
         NavigationView {
             ScrollView {
                 VStack(spacing: 0) {
-                    if isTokenMatched {
+                    if isTokenMatched || environment.isPreview {
                         SettingRow(
                             symbolName: "person.fill",
                             text: "Account",
@@ -220,4 +220,15 @@ enum SettingViewSheetState: Identifiable {
     case webviewLogin
     case webviewConfig
     case webviewMyTags
+}
+
+private  struct SettingView_Previews: PreviewProvider {
+    static var previews: some View {
+        let store = Store()
+        store.appState.settings.setting = Setting()
+        store.appState.environment.isPreview = true
+
+        return SettingView()
+            .environmentObject(store)
+    }
 }

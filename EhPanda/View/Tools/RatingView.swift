@@ -75,3 +75,22 @@ extension RatingView {
         }
     }
 }
+
+private struct RatingView_Previews: PreviewProvider {
+    static let values: [Float] = {
+        var tmpArray: [Float] = []
+        for value in stride(from: 0.0, through: 5.0, by: 0.5) {
+            tmpArray.append(Float(value))
+        }
+        return tmpArray
+    }()
+
+    static var previews: some View {
+        VStack(spacing: 10) {
+            ForEach(values, id: \.self) {
+                RatingView(rating: $0)
+                    .foregroundColor(.yellow)
+            }
+        }
+    }
+}
