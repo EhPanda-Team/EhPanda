@@ -209,13 +209,13 @@ class Store: ObservableObject {
                 appState.homeInfo.searchCurrentPageNum = mangas.1.current
                 appState.homeInfo.searchPageNumMaximum = mangas.1.maximum
 
-                let prev = appState.homeInfo.searchItems?.count ?? 0
                 appState.homeInfo.insertSearchItems(mangas: mangas.2)
                 appState.cachedList.cache(mangas: mangas.2)
 
-                let curr = appState.homeInfo.searchItems?.count ?? 0
-                if prev == curr && curr != 0 {
-                    dispatch(.fetchMoreSearchItems(keyword: mangas.0))
+                if mangas.1.current < mangas.1.maximum && mangas.2.isEmpty {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
+                        self?.dispatch(.fetchMoreSearchItems(keyword: mangas.0))
+                    }
                 }
             case .failure(let error):
                 appState.homeInfo.moreSearchLoadFailed = true
@@ -274,6 +274,12 @@ class Store: ObservableObject {
 
                 appState.homeInfo.insertFrontpageItems(mangas: mangas.1)
                 appState.cachedList.cache(mangas: mangas.1)
+
+                if mangas.0.current < mangas.0.maximum && mangas.1.isEmpty {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
+                        self?.dispatch(.fetchMoreFrontpageItems)
+                    }
+                }
             case .failure(let error):
                 appState.homeInfo.moreFrontpageLoadFailed = true
                 print(error)
@@ -354,6 +360,12 @@ class Store: ObservableObject {
 
                 appState.homeInfo.insertWatchedItems(mangas: mangas.1)
                 appState.cachedList.cache(mangas: mangas.1)
+
+                if mangas.0.current < mangas.0.maximum && mangas.1.isEmpty {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
+                        self?.dispatch(.fetchMoreWatchedItems)
+                    }
+                }
             case .failure(let error):
                 appState.homeInfo.moreWatchedLoadFailed = true
                 print(error)
@@ -414,6 +426,12 @@ class Store: ObservableObject {
 
                 appState.homeInfo.insertFavoritesItems(favIndex: carriedValue, mangas: mangas.1)
                 appState.cachedList.cache(mangas: mangas.1)
+
+                if mangas.0.current < mangas.0.maximum && mangas.1.isEmpty {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
+                        self?.dispatch(.fetchMoreFavoritesItems(index: carriedValue))
+                    }
+                }
             case .failure(let error):
                 appState.homeInfo.moreFavoritesLoading[carriedValue] = true
                 print(error)
@@ -571,6 +589,12 @@ class Store: ObservableObject {
                     items: mangas.3
                 )
                 appState.cachedList.cache(mangas: mangas.3)
+
+                if mangas.2.current < mangas.2.maximum && mangas.3.isEmpty {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
+                        self?.dispatch(.fetchMoreAssociatedItems(depth: mangas.0, keyword: mangas.1))
+                    }
+                }
             case .failure(let error):
                 appState.detailInfo.moreAssociatedItemsLoadFailed = true
                 print(error)
