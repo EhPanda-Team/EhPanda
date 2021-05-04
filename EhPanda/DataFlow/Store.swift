@@ -12,6 +12,8 @@ class Store: ObservableObject {
     @Published var appState = AppState()
 
     func dispatch(_ action: AppAction) {
+        if appState.environment.isPreview { return }
+
         print("[ACTION]: \(action)")
         let result = reduce(state: appState, action: action)
         appState = result.0
@@ -727,16 +729,18 @@ class Store: ObservableObject {
             appCommand = SendDownloadCommand(gid: gid, archiveURL: archiveURL, resolution: resolution)
         case .sendDownloadCommandDone(let result):
             appState.detailInfo.downloadCommandSending = false
-            appState.detailInfo.downloadCommandResponse = result
 
             switch result {
             case Defaults.Response.hathClientNotFound,
                  Defaults.Response.hathClientNotOnline,
-                 Defaults.Response.invalidResolution:
+                 Defaults.Response.invalidResolution,
+                 .none:
                 appState.detailInfo.downloadCommandFailed = true
             default:
                 break
             }
+
+            appState.detailInfo.downloadCommandResponse = result
 
         case .rate(let gid, let rating):
             guard let apiuidString = appState.settings.user?.apiuid,
