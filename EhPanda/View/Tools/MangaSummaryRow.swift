@@ -75,15 +75,13 @@ struct MangaSummaryRow: View {
                 .frame(width: width, height: height)
             VStack(alignment: .leading) {
                 Text(manga.title)
+                    .lineLimit(1)
                     .font(.headline)
                     .foregroundColor(.primary)
-                    .lineLimit(manga.uploader == nil ? 2 : 1)
-                if let uploader = manga.uploader {
-                    Text(uploader)
-                        .lineLimit(1)
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                }
+                Text(manga.uploader ?? "")
+                    .lineLimit(1)
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
                 if setting?.showSummaryRowTags == true,
                    !tags.isEmpty
                 {
