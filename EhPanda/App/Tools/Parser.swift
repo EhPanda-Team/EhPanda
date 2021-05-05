@@ -11,37 +11,43 @@ import Kingfisher
 
 struct Parser {
     // MARK: List
-    static func parseListItems(_ doc: HTMLDocument) -> (PageNumber, [Manga]) {
-        var mangaItems = [Manga]()
+    static func parseListItems(_ doc: HTMLDocument) -> [Manga] {
+        func parseCoverURL(_ node: XMLElement?) throws -> String {
+            guard let node = node?.at_xpath("//div [@class='glthumb']")?.at_css("img")
+            else { throw AppError.parseFailed }
 
-        for link in doc.xpath("//tr") {
+            var coverURL = node["data-src"]
+            if coverURL == nil { coverURL = node["src"] }
 
-            let uploader = link.at_xpath("//td [@class='gl4c glhide']")?.at_xpath("//a")?.text
-            guard let gl2cNode = link.at_xpath("//td [@class='gl2c']"),
-                  let gl3cNode = link.at_xpath("//td [@class='gl3c glname']"),
-                  let title = link.at_xpath("//div [@class='glink']")?.text,
-                  let rating = parseRatingString(gl2cNode.at_xpath("//div [@class='ir']")?.toHTML)
-                    ?? parseRatingString(gl2cNode.at_xpath("//div [@class='ir irr']")?.toHTML)
-                    ?? parseRatingString(gl2cNode.at_xpath("//div [@class='ir irg']")?.toHTML)
-                    ?? parseRatingString(gl2cNode.at_xpath("//div [@class='ir irb']")?.toHTML),
-                  let category = link.at_xpath("//td [@class='gl1c glcat'] //div")?.text,
-                  var publishedTime = gl2cNode.at_xpath("//div [@onclick]")?.text,
-                  let coverURL = try? parseCoverURL(gl2cNode.at_xpath("//div [@class='glthumb']")?.at_css("img")),
-                  let detailURL = link.at_xpath("//td [@class='gl3c glname'] //a")?["href"]
-            else { continue }
+            guard let url = coverURL
+            else { throw AppError.parseFailed }
 
-            if !publishedTime.contains(":") {
-                guard let content = gl2cNode.text,
+            return url
+        }
+
+        func parsePublishedTime(_ node: XMLElement?) throws -> String {
+            guard var text = node?.at_xpath("//div [@onclick]")?.text
+            else { throw AppError.parseFailed }
+
+            if !text.contains(":") {
+                guard let content = node?.text,
                       let range = content.range(of: "pages")
-                else { continue }
+                else { throw AppError.parseFailed }
 
                 let fixedTime = String(content.suffix(from: range.upperBound))
-                publishedTime = fixedTime
+                text = fixedTime
             }
+
+            return text
+        }
+
+        func parseTagsAndLang(_ node: XMLElement?) throws -> ([String], Language?) {
+            guard let object = node?.xpath("//div [@class='gt']")
+            else { throw AppError.parseFailed }
 
             var tags = [String]()
             var language: Language?
-            for tagLink in gl3cNode.xpath("//div [@class='gt']") {
+            for tagLink in object {
                 if tagLink["title"]?.contains("language") == true {
                     if let langText = tagLink.text?.capitalizingFirstLetter(),
                        let lang = Language(rawValue: langText)
@@ -53,14 +59,23 @@ struct Parser {
                     tags.append(tagText)
                 }
             }
+            return (tags, language)
+        }
 
-            guard let url = URL(string: detailURL),
-                  url.pathComponents.count >= 4,
-                  !url.pathComponents[2].isEmpty,
-                  !url.pathComponents[3].isEmpty
-            else { continue }
-
-            guard let enumCategory = Category(rawValue: category)
+        var mangaItems = [Manga]()
+        for link in doc.xpath("//tr") {
+            let uploader = link.at_xpath("//td [@class='gl4c glhide']")?.at_xpath("//a")?.text
+            guard let gl2cNode = link.at_xpath("//td [@class='gl2c']"),
+                  let gl3cNode = link.at_xpath("//td [@class='gl3c glname']"),
+                  let rating = try? parseRating(gl2cNode),
+                  let coverURL = try? parseCoverURL(gl2cNode),
+                  let tagsAndLang = try? parseTagsAndLang(gl3cNode),
+                  let publishedTime = try? parsePublishedTime(gl2cNode),
+                  let publishedDate = try? parsePublishedDate(publishedTime),
+                  let title = link.at_xpath("//div [@class='glink']")?.text,
+                  let detailURL = link.at_xpath("//td [@class='gl3c glname'] //a")?["href"],
+                  let category = Category(rawValue: link.at_xpath("//td [@class='gl1c glcat'] //div")?.text ?? ""),
+                  let url = URL(string: detailURL), url.pathComponents.count >= 4
             else { continue }
 
             mangaItems.append(
@@ -69,102 +84,63 @@ struct Parser {
                     token: url.pathComponents[3],
                     title: title,
                     rating: rating,
-                    tags: tags,
-                    category: enumCategory,
-                    language: language,
+                    tags: tagsAndLang.0,
+                    category: category,
+                    language: tagsAndLang.1,
                     uploader: uploader,
                     publishedTime: publishedTime,
+                    publishedDate: publishedDate,
                     coverURL: coverURL,
                     detailURL: detailURL
                 )
             )
         }
 
-        return (parsePageNum(doc), mangaItems)
+        return mangaItems
     }
 
     // MARK: Detail
-    static func parseMangaDetail(_ doc: HTMLDocument) throws -> (MangaDetail, APIKey, HTMLDocument) {
-        var mangaDetail: MangaDetail?
-        var imageURLs = [MangaPreview]()
-
-        for link in doc.xpath("//div [@class='gm']") {
-
-            guard let engTitle = link.at_xpath("//h1 [@id='gn']")?.text,
-                  let gd3Node = link.at_xpath("//div [@id='gd3']"),
-                  let gddNode = gd3Node.at_xpath("//div [@id='gdd']"),
-                  let gdrNode = gd3Node.at_xpath("//div [@id='gdr']"),
-                  let gdfNode = gd3Node.at_xpath("//div [@id='gdf']"),
-                  let gdtNode = doc.at_xpath("//div [@id='gdt']"),
-                  let gd4Node = link.at_xpath("//div [@id='gd4']"),
-                  let gd5Node = link.at_xpath("//div [@id='gd5']"),
-                  let rawCoverURL = link.at_xpath("//div [@id='gd1']")?.innerHTML,
-                  let coverRangeA = rawCoverURL.range(of: "url("),
-                  let coverRangeB = rawCoverURL.range(of: ")"),
-                  let tmpCategory = gd3Node.at_xpath("//div [@id='gdc']")?.text,
-                  let category = Category(rawValue: tmpCategory),
-                  let uploader = gd3Node.at_xpath("//div [@id='gdn']")?.text,
-                  let tmpRating = gdrNode.at_xpath("//td [@id='rating_label']")?.text?
-                    .replacingOccurrences(of: "Average: ", with: "")
-                    .replacingOccurrences(of: "Not Yet Rated", with: "0"),
-                  let ratingCount = gdrNode.at_xpath("//span [@id='rating_count']")?.text
+    static func parseMangaDetail(_ doc: HTMLDocument) throws -> MangaDetail {
+        func parseCoverURL(_ node: XMLElement?) throws -> String {
+            guard let coverHTML = node?.at_xpath("//div [@id='gd1']")?.innerHTML,
+            let rangeA = coverHTML.range(of: "url("),
+            let rangeB = coverHTML.range(of: ")")
             else { throw AppError.parseFailed }
 
-            let coverURL = String(
-                rawCoverURL
-                    .suffix(from: coverRangeA.upperBound)
-                    .prefix(upTo: coverRangeB.lowerBound)
+            return String(
+                coverHTML
+                    .suffix(from: rangeA.upperBound)
+                    .prefix(upTo: rangeB.lowerBound)
             )
+        }
 
-            var tmpPublishedTime: String?
-            var tmpLanguage: String?
-            var tmpLikeCount: String?
-            var tmpPageCount: String?
-            var tmpSizeCount: String?
-            var tmpSizeType: String?
-            for gddLink in gddNode.xpath("//tr") {
-                guard let gdt1 = gddLink.at_xpath("//td [@class='gdt1']")?.text,
-                      let gdt2 = gddLink.at_xpath("//td [@class='gdt2']")?.text
-                else { continue }
+        func parseRating(_ node: XMLElement?) throws -> Float {
+            guard let ratingString = node?
+              .at_xpath("//td [@id='rating_label']")?.text?
+              .replacingOccurrences(of: "Average: ", with: "")
+              .replacingOccurrences(of: "Not Yet Rated", with: "0"),
+                  let rating = Float(ratingString)
+            else { throw AppError.parseFailed }
 
-                if gdt1.contains("Posted") {
-                    tmpPublishedTime = gdt2
-                }
-                if gdt1.contains("Language") {
-                    tmpLanguage = gdt2
-                        .replacingOccurrences(of: "  TR", with: "")
-                        .trimmingCharacters(in: .whitespaces)
-                }
-                if gdt1.contains("File Size") {
-                    if gdt2.contains("KB") { tmpSizeType = "KB" }
-                    if gdt2.contains("MB") { tmpSizeType = "MB" }
-                    if gdt2.contains("GB") { tmpSizeType = "GB" }
-                    tmpSizeCount = gdt2
-                        .replacingOccurrences(of: " KB", with: "")
-                        .replacingOccurrences(of: " MB", with: "")
-                        .replacingOccurrences(of: " GB", with: "")
-                }
-                if gdt1.contains("Length") {
-                    tmpPageCount = gdt2.replacingOccurrences(of: " pages", with: "")
-                }
-                if gdt1.contains("Favorited") {
-                    tmpLikeCount = gdt2
-                        .replacingOccurrences(of: " times", with: "")
-                        .replacingOccurrences(of: "Never", with: "0")
-                        .replacingOccurrences(of: "Once", with: "1")
-                }
-            }
+            return rating
+        }
 
-            var detailTags = [MangaTag]()
-            for gd4Link in gd4Node.xpath("//tr") {
-                guard let rawCategory = gd4Link
+        func parseTags(_ node: XMLElement?) throws -> [MangaTag] {
+            guard let object = node?.xpath("//tr")
+            else { throw AppError.parseFailed }
+
+            var tags = [MangaTag]()
+            for link in object {
+                guard let categoryString = link
                         .at_xpath("//td [@class='tc']")?
                         .text?.replacingOccurrences(of: ":", with: ""),
-                      let category = TagCategory(rawValue: rawCategory.capitalizingFirstLetter())
+                      let category = TagCategory(
+                        rawValue: categoryString.capitalizingFirstLetter()
+                      )
                 else { continue }
 
                 var content = [String]()
-                for aLink in gd4Link.xpath("//a") {
+                for aLink in link.xpath("//a") {
                     guard let aText = aLink.text
                     else { continue }
 
@@ -175,17 +151,26 @@ struct Parser {
                     content.append(fixedText ?? aText)
                 }
 
-                detailTags.append(MangaTag(category: category, content: content))
+                tags.append(MangaTag(category: category, content: content))
             }
 
+            return tags
+        }
+
+        func parseArcAndTor(_ node: XMLElement?) throws -> (String?, Int) {
+            guard let node = node else { throw AppError.parseFailed }
+
             var archiveURL: String?
-            for g2gspLink in gd5Node.xpath("//p [@class='g2 gsp']") {
-                archiveURL = try? parseArchiveURL(g2gspLink)
-                if archiveURL != nil { break }
+            for g2gspLink in node.xpath("//p [@class='g2 gsp']") {
+                if archiveURL == nil {
+                    archiveURL = try? parseArchiveURL(g2gspLink)
+                } else {
+                    break
+                }
             }
 
             var tmpTorrentCount: Int?
-            for g2Link in gd5Node.xpath("//p [@class='g2']") {
+            for g2Link in node.xpath("//p [@class='g2']") {
                 if let aText = g2Link.at_xpath("//a")?.text,
                    let rangeA = aText.range(of: "Torrent Download ("),
                    let rangeB = aText.range(of: ")")
@@ -203,41 +188,113 @@ struct Parser {
                 }
             }
 
-            for gdtLink in gdtNode.xpath("//img") {
-                if imageURLs.count >= 10 { break }
-                guard let imageURL = gdtLink["src"] else { continue }
-                imageURLs.append(MangaPreview(url: imageURL))
-            }
-            imageURLs = imageURLs.filter { !$0.url.contains("blank.gif") }
-
-            guard let publishedTime = tmpPublishedTime,
-                  let likeCount = tmpLikeCount,
-                  let pageCount = tmpPageCount,
-                  let sizeCount = tmpSizeCount,
-                  let sizeType = tmpSizeType,
-                  let language = Language(rawValue: tmpLanguage ?? ""),
-                  let rating = Float(tmpRating),
-                  let torrentCount = tmpTorrentCount
+            guard let torrentCount = tmpTorrentCount
             else { throw AppError.parseFailed }
 
-            let isFavored = gdfNode.at_xpath("//a [@id='favoritelink']")?.text?
-                .contains("Add to Favorites") == false
-            let userRating = parseRatingString(
-                gdrNode.at_xpath("//div [@class='ir irr']")?.toHTML
-                ?? gdrNode.at_xpath("//div [@class='ir irg']")?.toHTML
-                ?? gdrNode.at_xpath("//div [@class='ir irb']")?.toHTML
-            )
-            var jpnTitle = link.at_xpath("//h1 [@id='gj']")?.text
-            if jpnTitle?.isEmpty != false {
-                jpnTitle = nil
+            return (archiveURL, torrentCount)
+        }
+
+        func parsePreviews(_ node: XMLElement?) throws -> [MangaPreview] {
+            guard let object = node?.xpath("//img")
+            else { throw AppError.parseFailed }
+
+            var previews = [MangaPreview]()
+            for link in object {
+                if previews.count >= 10 { break }
+                guard let url = link["src"] else { continue }
+
+                previews.append(MangaPreview(url: url))
             }
-            mangaDetail = MangaDetail(
+
+            return previews.filter { !$0.url.contains("blank.gif") }
+        }
+
+        func parseInfoPanel(_ node: XMLElement?) throws -> [String] {
+            guard let object = node?.xpath("//tr")
+            else { throw AppError.parseFailed }
+
+            var infoPanel = Array(
+                repeating: "",
+                count: 6
+            )
+            for gddLink in object {
+                guard let gdt1Text = gddLink.at_xpath("//td [@class='gdt1']")?.text,
+                      let gdt2Text = gddLink.at_xpath("//td [@class='gdt2']")?.text
+                else { continue }
+
+                if gdt1Text.contains("Posted") {
+                    infoPanel[0] = gdt2Text
+                }
+                if gdt1Text.contains("Language") {
+                    infoPanel[1] = gdt2Text
+                        .replacingOccurrences(of: "  TR", with: "")
+                        .trimmingCharacters(in: .whitespaces)
+                }
+                if gdt1Text.contains("File Size") {
+                    infoPanel[2] = gdt2Text
+                        .replacingOccurrences(of: " KB", with: "")
+                        .replacingOccurrences(of: " MB", with: "")
+                        .replacingOccurrences(of: " GB", with: "")
+
+                    if gdt2Text.contains("KB") { infoPanel[3] = "KB" }
+                    if gdt2Text.contains("MB") { infoPanel[3] = "MB" }
+                    if gdt2Text.contains("GB") { infoPanel[3] = "GB" }
+                }
+                if gdt1Text.contains("Length") {
+                    infoPanel[4] = gdt2Text.replacingOccurrences(of: " pages", with: "")
+                }
+                if gdt1Text.contains("Favorited") {
+                    infoPanel[5] = gdt2Text
+                        .replacingOccurrences(of: " times", with: "")
+                        .replacingOccurrences(of: "Never", with: "0")
+                        .replacingOccurrences(of: "Once", with: "1")
+                }
+            }
+
+            guard infoPanel.filter({ !$0.isEmpty }).count == 6
+            else { throw AppError.parseFailed }
+
+            return infoPanel
+        }
+
+        var tmpMangaDetail: MangaDetail?
+        for link in doc.xpath("//div [@class='gm']") {
+            guard let gdtNode = doc.at_xpath("//div [@id='gdt']"),
+                  let gd3Node = link.at_xpath("//div [@id='gd3']"),
+                  let gd4Node = link.at_xpath("//div [@id='gd4']"),
+                  let gd5Node = link.at_xpath("//div [@id='gd5']"),
+                  let gddNode = gd3Node.at_xpath("//div [@id='gdd']"),
+                  let gdrNode = gd3Node.at_xpath("//div [@id='gdr']"),
+                  let gdfNode = gd3Node.at_xpath("//div [@id='gdf']"),
+                  let rating = try? parseRating(gdrNode),
+                  let coverURL = try? parseCoverURL(link),
+                  let detailTags = try? parseTags(gd4Node),
+                  let previews = try? parsePreviews(gdtNode),
+                  let arcAndTor = try? parseArcAndTor(gd5Node),
+                  let infoPanel = try? parseInfoPanel(gddNode),
+                  let publishedDate = try? parsePublishedDate(infoPanel[0]),
+                  let language = Language(rawValue: infoPanel[1]),
+                  let engTitle = link.at_xpath("//h1 [@id='gn']")?.text,
+                  let uploader = gd3Node.at_xpath("//div [@id='gdn']")?.text,
+                  let ratingCount = gdrNode.at_xpath("//span [@id='rating_count']")?.text,
+                  let category = Category(rawValue: gd3Node.at_xpath("//div [@id='gdc']")?.text ?? "")
+            else { throw AppError.parseFailed }
+
+            let isFavored = gdfNode
+                .at_xpath("//a [@id='favoritelink']")?
+                .text?.contains("Add to Favorites") == false
+            let userRating = try? parseRating(gdrNode)
+            let gjText = link.at_xpath("//h1 [@id='gj']")?.text
+            let jpnTitle = gjText?.isEmpty != false ? nil : gjText
+
+            tmpMangaDetail = MangaDetail(
                 isFavored: isFavored,
-                archiveURL: archiveURL,
+                archiveURL: arcAndTor.0,
+                alterImagesURL: try? parseAlterImagesURL(doc),
                 alterImages: [],
                 torrents: [],
                 comments: parseComments(doc),
-                previews: imageURLs,
+                previews: previews,
                 title: engTitle,
                 jpnTitle: jpnTitle,
                 rating: rating,
@@ -247,38 +304,22 @@ struct Parser {
                 category: category,
                 language: language,
                 uploader: uploader,
-                publishedTime: publishedTime,
+                publishedTime: infoPanel[0],
+                publishedDate: publishedDate,
                 coverURL: coverURL,
-                likeCount: likeCount,
-                pageCount: pageCount,
-                sizeCount: sizeCount,
-                sizeType: sizeType,
-                torrentCount: torrentCount
+                likeCount: infoPanel[5],
+                pageCount: infoPanel[4],
+                sizeCount: infoPanel[2],
+                sizeType: infoPanel[3],
+                torrentCount: arcAndTor.1
             )
             break
         }
 
-        var apikey: APIKey?
-        for link in doc.xpath("//script [@type='text/javascript']") {
-            guard let script = link.text,
-                  script.contains("apikey"),
-                  let rangeA = script.range(of: ";\nvar apikey = \""),
-                  let rangeB = script.range(of: "\";\nvar average_rating")
-            else { continue }
+        guard let mangaDetail = tmpMangaDetail
+        else { throw AppError.parseFailed }
 
-            let key = String(
-                script.suffix(from: rangeA.upperBound).prefix(upTo: rangeB.lowerBound)
-            )
-            apikey = key
-        }
-
-        if let detail = mangaDetail,
-           let key = apikey
-        {
-            return (detail, key, doc)
-        } else {
-            throw AppError.parseFailed
-        }
+        return mangaDetail
     }
 
     // MARK: Comment
@@ -298,10 +339,13 @@ struct Parser {
                 if let c5Node = c1Link.at_xpath("//div [@class='c5 nosel']") {
                     score = c5Node.at_xpath("//span")?.text
                 }
-
-                let author = String(c3Node.suffix(from: rangeB.upperBound))
+                let author = String(
+                    c3Node.suffix(from: rangeB.upperBound)
+                )
                 let commentTime = String(
-                    c3Node.suffix(from: rangeA.upperBound).prefix(upTo: rangeB.lowerBound)
+                    c3Node
+                        .suffix(from: rangeA.upperBound)
+                        .prefix(upTo: rangeB.lowerBound)
                 )
 
                 var votedUp = false
@@ -348,6 +392,7 @@ struct Parser {
                         author: author,
                         contents: parseCommentContent(c6Node),
                         commentID: commentID,
+                        commentTime: commentTime,
                         commentDate: commentDate
                     )
                 )
@@ -357,7 +402,7 @@ struct Parser {
     }
 
     // MARK: Content
-    static func parseImagePreContents(_ doc: HTMLDocument, pageCount: Int) throws -> (PageNumber, [(Int, URL)]) {
+    static func parseImagePreContents(_ doc: HTMLDocument, pageCount: Int) throws -> [(Int, URL)] {
         copyHTMLIfNeeded(doc.toHTML)
         var imageDetailURLs = [(Int, URL)]()
 
@@ -374,7 +419,7 @@ struct Parser {
             imageDetailURLs.append((index + pageCount, imageDetailURL))
         }
 
-        return (parsePageNum(doc), imageDetailURLs)
+        return imageDetailURLs
     }
 
     static func parseMangaContent(doc: HTMLDocument, tag: Int) throws -> MangaContent {
@@ -413,17 +458,19 @@ struct Parser {
     }
 
     // MARK: Archive
-    static func parseMangaArchive(doc: HTMLDocument) throws -> (MangaArchive, CurrentGP?, CurrentCredits?) {
+    static func parseMangaArchive(_ doc: HTMLDocument) throws -> MangaArchive {
         copyHTMLIfNeeded(doc.toHTML)
-        var hathArchives = [MangaArchive.HathArchive]()
 
-        guard let tableNode = doc.at_xpath("//table") else { throw AppError.parseFailed }
-        for tdLink in tableNode.xpath("//td") {
+        guard let node = doc.at_xpath("//table")
+        else { throw AppError.parseFailed }
+
+        var hathArchives = [MangaArchive.HathArchive]()
+        for link in node.xpath("//td") {
             var tmpResolution: ArchiveRes?
             var tmpFileSize: String?
             var tmpGPPrice: String?
 
-            for pLink in tdLink.xpath("//p") {
+            for pLink in link.xpath("//p") {
                 if let pText = pLink.text {
                     if let res = ArchiveRes(rawValue: pText) {
                         tmpResolution = res
@@ -462,8 +509,7 @@ struct Parser {
             )
         }
 
-        let funds = parseCurrentFunds(doc)
-        return (MangaArchive(hathArchives: hathArchives), funds?.0, funds?.1)
+        return MangaArchive(hathArchives: hathArchives)
     }
 
     // MARK: Torrent
@@ -547,23 +593,50 @@ struct Parser {
 }
 
 extension Parser {
-    // MARK: Cover
-    static func parseCoverURL(_ node: XMLElement?) throws -> String {
-        guard let node = node
+    // MARK: APIKey
+    static func parseAPIKey(_ doc: HTMLDocument) throws -> APIKey {
+        var tmpKey: APIKey?
+
+        for link in doc.xpath("//script [@type='text/javascript']") {
+            guard let script = link.text, script.contains("apikey"),
+                  let rangeA = script.range(of: ";\nvar apikey = \""),
+                  let rangeB = script.range(of: "\";\nvar average_rating")
+            else { continue }
+
+            tmpKey = String(
+                script
+                    .suffix(from: rangeA.upperBound)
+                    .prefix(upTo: rangeB.lowerBound)
+            )
+        }
+
+        guard let apikey = tmpKey
         else { throw AppError.parseFailed }
 
-        var coverURL = node["data-src"]
-        if coverURL == nil { coverURL = node["src"] }
+        return apikey
+    }
+    // MARK: PublishedDate
+    static func parsePublishedDate(_ timeString: String) throws -> Date {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd HH:mm"
 
-        guard let url = coverURL
+        guard let date = formatter.date(from: timeString)
         else { throw AppError.parseFailed }
 
-        return url
+        return date
     }
 
     // MARK: Rating
-    static func parseRatingString(_ ratingString: String?) -> Float? {
-        guard let ratingString = ratingString else { return nil }
+    static func parseRating(_ node: XMLElement?) throws -> Float {
+        var tmpRatingString: String?
+        ["ir", "ir irr", "ir irg", "ir irb"].forEach { string in
+            if tmpRatingString != nil { return }
+            let xpath = "//div [@class='" + string + "']"
+            tmpRatingString = node?.at_xpath(xpath)?.toHTML
+        }
+
+        guard let ratingString = tmpRatingString
+        else { throw AppError.parseFailed }
 
         var tmpRating: Float?
         if ratingString.contains("0px") { tmpRating = 5.0 }
@@ -573,7 +646,9 @@ extension Parser {
         if ratingString.contains("-64px") { tmpRating = 1.0 }
         if ratingString.contains("-80px") { tmpRating = 0.0 }
 
-        guard var rating = tmpRating else { return nil }
+        guard var rating = tmpRating
+        else { throw AppError.parseFailed }
+
         if ratingString.contains("-21px") { rating -= 0.5 }
         return rating
     }
@@ -641,7 +716,7 @@ extension Parser {
     }
 
     // MARK: Balance
-    static func parseCurrentFunds(_ doc: HTMLDocument) -> (String, String)? {
+    static func parseCurrentFunds(_ doc: HTMLDocument) throws -> (String, String)? {
         var tmpGP: String?
         var tmpCredits: String?
 
@@ -668,13 +743,10 @@ extension Parser {
             }
         }
 
-        if let galleryPoints = tmpGP,
-           let credits = tmpCredits
-        {
-            return (galleryPoints, credits)
-        } else {
-            return nil
-        }
+        guard let galleryPoints = tmpGP, let credits = tmpCredits
+        else { throw AppError.parseFailed }
+
+        return (galleryPoints, credits)
     }
 
     // MARK: DownloadCmdResp
@@ -742,6 +814,29 @@ extension Parser {
 
         if let url = archiveURL {
             return url
+        } else {
+            throw AppError.parseFailed
+        }
+    }
+
+    // MARK: FavoriteNames
+    static func parseFavoriteNames(_ doc: HTMLDocument) throws -> [Int: String] {
+        var favoriteNames = [Int: String]()
+
+        for link in doc.xpath("//div [@id='favsel']") {
+            for inputLink in link.xpath("//input") {
+                guard let name = inputLink["name"],
+                      let value = inputLink["value"],
+                      let type = FavoritesType(rawValue: name)
+                else { continue }
+
+                favoriteNames[type.index] = value
+            }
+        }
+
+        if !favoriteNames.isEmpty {
+            favoriteNames[-1] = "all_appendedByDev"
+            return favoriteNames
         } else {
             throw AppError.parseFailed
         }
@@ -937,28 +1032,5 @@ extension Parser {
         }
 
         return contents
-    }
-
-    // MARK: FavoriteNames
-    static func parseFavoriteNames(_ doc: HTMLDocument) throws -> [Int: String] {
-        var favoriteNames = [Int: String]()
-
-        for link in doc.xpath("//div [@id='favsel']") {
-            for inputLink in link.xpath("//input") {
-                guard let name = inputLink["name"],
-                      let value = inputLink["value"],
-                      let type = FavoritesType(rawValue: name)
-                else { continue }
-
-                favoriteNames[type.index] = value
-            }
-        }
-
-        if !favoriteNames.isEmpty {
-            favoriteNames[-1] = "all_appendedByDev"
-            return favoriteNames
-        } else {
-            throw AppError.parseFailed
-        }
     }
 }

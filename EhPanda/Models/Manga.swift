@@ -22,6 +22,7 @@ struct Manga: Identifiable, Codable, Equatable {
         category: .nonH,
         uploader: nil,
         publishedTime: "",
+        publishedDate: Date(),
         coverURL: "",
         detailURL: ""
     )
@@ -40,6 +41,7 @@ struct Manga: Identifiable, Codable, Equatable {
     var language: Language?
     let uploader: String?
     let publishedTime: String
+    let publishedDate: Date
     let coverURL: String
     let detailURL: String
     var lastOpenTime: Date?
@@ -48,6 +50,7 @@ struct Manga: Identifiable, Codable, Equatable {
 struct MangaDetail: Codable {
     static let empty = MangaDetail(
         isFavored: false,
+        alterImagesURL: nil,
         alterImages: [],
         torrents: [],
         comments: [],
@@ -60,6 +63,7 @@ struct MangaDetail: Codable {
         language: .English,
         uploader: "",
         publishedTime: "",
+        publishedDate: Date(),
         coverURL: "",
         likeCount: "",
         pageCount: "",
@@ -75,6 +79,7 @@ struct MangaDetail: Codable {
     var isFavored: Bool
     var archiveURL: String?
     var archive: MangaArchive?
+    let alterImagesURL: String?
     var alterImages: [MangaAlterData]
     var torrents: [MangaTorrent]
     var comments: [MangaComment]
@@ -90,6 +95,7 @@ struct MangaDetail: Codable {
     let language: Language
     let uploader: String
     let publishedTime: String
+    let publishedDate: Date
     let coverURL: String
     var likeCount: String
     var pageCount: String
@@ -129,6 +135,7 @@ struct MangaComment: Identifiable, Codable {
     let author: String
     let contents: [CommentContent]
     let commentID: String
+    let commentTime: String
     let commentDate: Date
 }
 
@@ -188,27 +195,11 @@ extension Manga {
     var color: Color {
         category.color
     }
-    var publishedDate: Date {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd HH:mm"
-        return formatter.date(from: publishedTime) ?? Date()
-    }
 }
 
 extension MangaDetail {
     var languageAbbr: String {
         language.languageAbbr
-    }
-}
-
-extension MangaComment {
-    var commentTime: String {
-        let formatter = DateFormatter()
-        formatter.locale = Locale.current
-        formatter.timeZone = TimeZone.current
-        formatter.dateFormat = "yyyy-MM-dd HH:mm"
-
-        return formatter.string(from: commentDate)
     }
 }
 

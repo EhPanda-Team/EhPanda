@@ -493,8 +493,7 @@ final class Store: ObservableObject {
             if appState.detailInfo.mangaArchiveFundsLoading { break }
             appState.detailInfo.mangaArchiveFundsLoading = true
 
-            let detailURL = (appState.cachedList.items?[gid]?.detailURL ?? "")
-                .replacingOccurrences(of: Defaults.URL.exhentai, with: Defaults.URL.ehentai)
+            let detailURL = appState.cachedList.items?[gid]?.detailURL ?? ""
             appCommand = FetchMangaArchiveFundsCommand(detailURL: detailURL)
         case .fetchMangaArchiveFundsDone(let result):
             appState.detailInfo.mangaArchiveFundsLoading = false
@@ -602,11 +601,13 @@ final class Store: ObservableObject {
                 print(error)
             }
 
-        case .fetchAlterImages(let gid, let doc):
+        case .fetchAlterImages(let gid):
             if appState.detailInfo.alterImagesLoading { break }
             appState.detailInfo.alterImagesLoading = true
 
-            appCommand = FetchAlterImagesCommand(gid: gid, doc: doc)
+            let alterImagesURL = appState.cachedList.items?[gid]?.detail?.alterImagesURL ?? ""
+            appCommand = FetchAlterImagesCommand(gid: gid, alterImagesURL: alterImagesURL)
+
         case .fetchAlterImagesDone(let result):
             appState.detailInfo.alterImagesLoading = false
 

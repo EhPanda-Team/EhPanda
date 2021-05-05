@@ -279,7 +279,7 @@ struct FetchMangaDetailCommand: AppCommand {
             } receiveValue: { detail in
                 store.dispatch(.fetchMangaDetailDone(result: .success((gid, detail.0, detail.1))))
                 if detail.0.previews.isEmpty == true {
-                    store.dispatch(.fetchAlterImages(gid: gid, doc: detail.2))
+                    store.dispatch(.fetchAlterImages(gid: gid))
                 }
             }
             .seal(in: token)
@@ -411,11 +411,11 @@ struct FetchMoreAssociatedItemsCommand: AppCommand {
 
 struct FetchAlterImagesCommand: AppCommand {
     let gid: String
-    let doc: HTMLDocument
+    let alterImagesURL: String
 
     func execute(in store: Store) {
         let token = SubscriptionToken()
-        AlterImagesRequest(doc: doc)
+        AlterImagesRequest(alterImagesURL: alterImagesURL)
             .publisher
             .receive(on: DispatchQueue.main)
             .sink { completion in

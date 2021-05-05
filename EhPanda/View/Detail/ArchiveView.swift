@@ -79,7 +79,6 @@ struct ArchiveView: View, StoreAccessor {
                 }
             }
             .navigationBarTitle("Archive")
-            .onAppear(perform: onAppear)
             .onChange(
                 of: detailInfo.downloadCommandSending,
                 perform: onRespChange
@@ -89,6 +88,7 @@ struct ArchiveView: View, StoreAccessor {
                 perform: onHUDVisibilityChange
             )
         }
+        .onAppear(perform: onAppear)
     }
 }
 
