@@ -24,7 +24,7 @@ struct FilterView: View, StoreAccessor {
                         }
                         Toggle("Advanced settings", isOn: filterBinding.advanced)
                     }
-                    if filter.advanced {
+                    Group {
                         Section(header: Text("Advanced")) {
                             Toggle("Search gallery name", isOn: filterBinding.galleryName)
                             Toggle("Search gallery tags", isOn: filterBinding.galleryTags)
@@ -54,6 +54,7 @@ struct FilterView: View, StoreAccessor {
                             Toggle("Disable tags filter", isOn: filterBinding.disableTags)
                         }
                     }
+                    .disabled(!filter.advanced)
                 }
                 .actionSheet(item: environmentBinding.filterViewActionSheetState) { item in
                     switch item {
