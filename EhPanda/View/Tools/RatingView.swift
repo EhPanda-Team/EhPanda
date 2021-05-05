@@ -77,7 +77,7 @@ private extension RatingView {
     }
 }
 
-private struct RatingView_Previews: PreviewProvider {
+struct RatingView_Previews: PreviewProvider {
     static let values: [Float] = {
         var tmpArray: [Float] = []
         for value in stride(from: 0.0, through: 5.0, by: 0.5) {

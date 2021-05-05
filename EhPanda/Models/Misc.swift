@@ -5,6 +5,8 @@
 //  Created by 荒木辰造 on R 3/01/15.
 //
 
+import Foundation
+
 typealias FavoritesIndex = Int
 typealias Depth = Int
 typealias Percentage = Int
@@ -30,4 +32,23 @@ struct AssociatedItem {
     var keyword = AssociatedKeyword()
     var pageNum = PageNumber()
     var mangas: [Manga]
+}
+
+struct Greeting: Codable {
+    var gainedEXP: Int?
+    var gainedCredits: Int?
+    var gainedGP: Int?
+    var gainedHath: Int?
+    var updateTime: Date?
+
+    var gainedNothing: Bool {
+        [
+            gainedEXP,
+            gainedCredits,
+            gainedGP,
+            gainedHath
+        ]
+        .compactMap({ $0 })
+        .isEmpty
+    }
 }

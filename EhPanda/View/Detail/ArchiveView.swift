@@ -54,8 +54,7 @@ struct ArchiveView: View, StoreAccessor {
 
                             Spacer()
 
-                            if isSameAccount,
-                               let galleryPoints = currentGP,
+                            if let galleryPoints = currentGP,
                                let credits = currentCredits
                             {
                                 BalanceView(galleryPoints: galleryPoints, credits: credits)
@@ -161,9 +160,7 @@ private extension ArchiveView {
 
     func fetchMangaArchive() {
         store.dispatch(.fetchMangaArchive(gid: gid))
-        if currentGP == nil
-            || currentCredits == nil
-        {
+        if currentGP == nil || currentCredits == nil, isSameAccount {
             store.dispatch(.fetchMangaArchiveFunds(gid: gid))
         }
     }
@@ -179,7 +176,7 @@ private struct ArchiveGrid: View {
             || archive.gpPrice == "N/A"
     }
     private var disabledColor: Color {
-        Color.gray.opacity(0.5)
+        .gray.opacity(0.5)
     }
     private var fileSizeColor: Color {
         if disabled {
@@ -298,19 +295,19 @@ private struct DownloadButton: View {
 private extension DownloadButton {
     var textColor: Color {
         if isDisabled {
-            return Color.white.opacity(0.5)
+            return .white.opacity(0.5)
         } else {
             return isPressed
-                ? Color.white.opacity(0.5)
+                ? .white.opacity(0.5)
                 : .white
         }
     }
     var backgroundColor: Color {
         if isDisabled {
-            return Color.accentColor.opacity(0.5)
+            return .accentColor.opacity(0.5)
         } else {
             return isPressed
-                ? Color.accentColor.opacity(0.5)
+                ? .accentColor.opacity(0.5)
                 : .accentColor
         }
     }
@@ -340,7 +337,7 @@ private extension DownloadButton {
     }
 }
 
-private struct ArchiveView_Previews: PreviewProvider {
+struct ArchiveView_Previews: PreviewProvider {
     static var previews: some View {
         let store = Store()
         var user = User.empty

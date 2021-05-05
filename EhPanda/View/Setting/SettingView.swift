@@ -231,7 +231,7 @@ enum SettingViewSheetState: Identifiable {
     case webviewMyTags
 }
 
-private struct SettingView_Previews: PreviewProvider {
+struct SettingView_Previews: PreviewProvider {
     static var previews: some View {
         let store = Store()
         store.appState.settings.setting = Setting()

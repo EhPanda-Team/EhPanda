@@ -593,6 +593,85 @@ struct Parser {
 }
 
 extension Parser {
+    // MARK: Greeting
+    static func parseGreeting(_ doc: HTMLDocument) throws -> Greeting {
+        func trimString(_ string: String) -> String {
+            string
+                .replacingOccurrences(of: ",", with: "")
+                .replacingOccurrences(of: "!", with: "")
+                .replacingOccurrences(of: "and", with: "")
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+
+        func trimInt(_ value: String) -> Int? {
+            Int(
+                value
+                    .replacingOccurrences(of: ",", with: "")
+                    .replacingOccurrences(of: " ", with: "")
+            )
+        }
+
+        guard let node = doc.at_xpath("//div [@id='eventpane']")
+        else { throw AppError.parseFailed }
+
+        var greeting = Greeting()
+        for link in node.xpath("//p") {
+            guard var text = link.text,
+                  text.contains("You gain") == true
+            else { continue }
+
+            var gainedValues = [String]()
+            for strongLink in link.xpath("//strong") {
+                if let strongText = strongLink.text {
+                    gainedValues.append(strongText)
+                }
+            }
+
+            var gainedTypes = [String]()
+            for value in gainedValues {
+                guard let range = text.range(of: value) else { break }
+                let removeText = String(text.prefix(upTo: range.upperBound))
+
+                if value != gainedValues.first {
+                    gainedTypes.append(trimString(removeText))
+                }
+
+                text = text.replacingOccurrences(of: removeText, with: "")
+
+                if value == gainedValues.last {
+                    gainedTypes.append(trimString(text))
+                }
+            }
+
+            let gainedIntValues = gainedValues.compactMap { trimInt($0) }
+            guard gainedIntValues.count == gainedTypes.count
+            else { throw AppError.parseFailed }
+
+            for (index, type) in gainedTypes.enumerated() {
+                let value = gainedIntValues[index]
+                switch type {
+                case "EXP":
+                    greeting.gainedEXP = value
+                case "Credits":
+                    greeting.gainedCredits = value
+                case "GP":
+                    greeting.gainedGP = value
+                case "Hath":
+                    greeting.gainedHath = value
+                default:
+                    break
+                }
+            }
+            break
+        }
+
+        guard !greeting.gainedNothing
+        else { throw AppError.parseFailed }
+
+        greeting.updateTime = Date()
+        return greeting
+    }
+
     // MARK: APIKey
     static func parseAPIKey(_ doc: HTMLDocument) throws -> APIKey {
         var tmpKey: APIKey?
