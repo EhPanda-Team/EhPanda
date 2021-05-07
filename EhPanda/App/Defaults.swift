@@ -69,6 +69,7 @@ struct Defaults {
         static let watched = "watched"
         static let mytags = "mytags"
         static let api = "api.php"
+        static let news = "news.php"
         static let index = "index.php"
         static let uconfig = "uconfig.php"
         static let favorites = "favorites.php"
@@ -235,6 +236,9 @@ extension Defaults.URL {
     }
     static func userInfo(uid: String) -> String {
         merge([forum + index, showuser + uid])
+    }
+    static func greeting() -> String {
+        ehentai + news
     }
 
     // Misc

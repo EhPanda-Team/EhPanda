@@ -665,9 +665,6 @@ extension Parser {
             break
         }
 
-        guard !greeting.gainedNothing
-        else { throw AppError.parseFailed }
-
         greeting.updateTime = Date()
         return greeting
     }

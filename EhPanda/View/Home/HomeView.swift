@@ -14,6 +14,7 @@ struct HomeView: View, StoreAccessor {
 
     @State private var clipboardJumpID: String?
     @State private var isJumpNavActive = false
+    @State private var greeting: Greeting?
 
     @State private var hudVisible = false
     @State private var hudConfig = TTProgressHUDConfig(
@@ -41,6 +42,10 @@ struct HomeView: View, StoreAccessor {
                         of: environment.favoritesIndex,
                         perform: onFavoritesIndexChange
                     )
+                    .onChange(
+                        of: homeInfo.greeting,
+                        perform: onReceiveGreeting
+                    )
                     .onAppear(perform: onListAppear)
                     .navigationBarTitle(navigationBarTitle)
                     .navigationBarItems(trailing:
@@ -50,6 +55,7 @@ struct HomeView: View, StoreAccessor {
             }
         }
         .navigationViewStyle(StackNavigationViewStyle())
+        .fullScreenCover(item: $greeting, content: NewDawnView.init)
         .sheet(item: environmentBinding.homeViewSheetState) { item in
             switch item {
             case .setting:
@@ -230,6 +236,8 @@ private extension HomeView {
 
     func onAppear() {
         detectPasteboard()
+        greeting = Greeting()
+//        fetchGreetingIfNeeded()
     }
     func onListAppear() {
         if settings.user == nil {
@@ -263,6 +271,13 @@ private extension HomeView {
             print(type)
         case .history:
             print(type)
+        }
+    }
+    func onReceiveGreeting(_ greeting: Greeting?) {
+        if let greeting = greeting,
+           !greeting.gainedNothing
+        {
+            self.greeting = greeting
         }
     }
     func onFavoritesIndexChange(_ : Int) {
@@ -337,6 +352,9 @@ private extension HomeView {
         }
     }
 
+    func fetchGreeting() {
+        store.dispatch(.fetchGreeting)
+    }
     func fetchUserInfo() {
         if let uid = settings.user?.apiuid, !uid.isEmpty {
             store.dispatch(.fetchUserInfo(uid: uid))
@@ -381,6 +399,36 @@ private extension HomeView {
         store.dispatch(.replaceMangaCommentJumpID(gid: gid))
     }
 
+    func fetchGreetingIfNeeded() {
+        func verifyDate(with updateTime: Date?) -> Bool {
+            guard let updateTime = updateTime else { return false }
+
+            let currentTime = Date()
+            let formatter = DateFormatter()
+            formatter.dateFormat = "dd MMMM yyyy"
+            formatter.locale = Locale.current
+            formatter.timeZone = TimeZone(secondsFromGMT: 0)
+
+            let currentTimeString = formatter.string(from: currentTime)
+            if let currDay = formatter.date(from: currentTimeString) {
+                let prevDay = currDay.addingTimeInterval(-60 * 60 * 24)
+
+                return currentTime > currDay
+                    && updateTime < currDay
+                    && updateTime > prevDay
+            }
+
+            return false
+        }
+
+        if let greeting = homeInfo.greeting {
+            if verifyDate(with: greeting.updateTime) {
+                fetchGreeting()
+            }
+        } else {
+            fetchGreeting()
+        }
+    }
     func fetchFrontpageItemsIfNeeded() {
         if homeInfo.frontpageItems?.isEmpty != false {
             fetchFrontpageItems()

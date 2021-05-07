@@ -42,6 +42,8 @@ enum AppAction {
     case toggleCommentViewSheetState(state: CommentViewSheetState)
     case toggleCommentViewSheetNil
 
+    case fetchGreeting
+    case fetchGreetingDone(result: Result<Greeting, AppError>)
     case fetchUserInfo(uid: String)
     case fetchUserInfoDone(result: Result<User, AppError>)
     case fetchFavoriteNames

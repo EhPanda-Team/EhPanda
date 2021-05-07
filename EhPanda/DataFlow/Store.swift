@@ -103,6 +103,22 @@ final class Store: ObservableObject {
             appState.commentInfo.commentContent = ""
 
         // MARK: Fetch Data
+        case .fetchGreeting:
+            if !didLogin && isTokenMatched { break }
+            if appState.homeInfo.greetingLoading { break }
+            appState.homeInfo.greetingLoading = true
+
+            appCommand = FetchGreetingCommand()
+        case .fetchGreetingDone(let result):
+            appState.homeInfo.greetingLoading = false
+
+            switch result {
+            case .success(let greeting):
+                appState.homeInfo.insertGreeting(greeting: greeting)
+            case .failure(let error):
+                print(error)
+            }
+
         case .fetchUserInfo(let uid):
             if !didLogin && isTokenMatched { break }
             if appState.settings.userInfoLoading { break }

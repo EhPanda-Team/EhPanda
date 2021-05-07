@@ -73,6 +73,8 @@ extension AppState {
     // MARK: HomeInfo
     struct HomeInfo {
         var searchKeyword = ""
+        var greeting: Greeting?
+        var greetingLoading = false
 
         var searchItems: [Manga]?
         var searchLoading = false
@@ -132,6 +134,20 @@ extension AppState {
                 tmp[index] = defaultValue
             }
             return tmp
+        }
+
+        mutating func insertGreeting(greeting: Greeting) {
+            guard let currDate = self.greeting?.updateTime
+            else { return }
+
+            if let prevGreeting = self.greeting,
+               let prevDate = prevGreeting.updateTime,
+               prevDate < currDate
+            {
+                self.greeting = greeting
+            } else if self.greeting == nil {
+                self.greeting = greeting
+            }
         }
 
         mutating func insertSearchItems(mangas: [Manga]) {

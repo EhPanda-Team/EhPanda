@@ -20,6 +20,19 @@ private func mapAppError(_ error: Error) -> AppError {
     }
 }
 
+struct GreetingRequest {
+    var publisher: AnyPublisher<Greeting, AppError> {
+        URLSession.shared
+            .dataTaskPublisher(
+                for: Defaults.URL.greeting().safeURL()
+            )
+            .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
+            .tryMap(Parser.parseGreeting)
+            .mapError(mapAppError)
+            .eraseToAnyPublisher()
+    }
+}
+
 struct UserInfoRequest {
     let uid: String
 

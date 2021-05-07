@@ -34,7 +34,9 @@ struct AssociatedItem {
     var mangas: [Manga]
 }
 
-struct Greeting: Codable {
+struct Greeting: Identifiable, Codable, Equatable {
+    var id = UUID()
+
     var gainedEXP: Int?
     var gainedCredits: Int?
     var gainedGP: Int?

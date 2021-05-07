@@ -13,6 +13,24 @@ protocol AppCommand {
     func execute(in store: Store)
 }
 
+struct FetchGreetingCommand: AppCommand {
+    func execute(in store: Store) {
+        let token = SubscriptionToken()
+        GreetingRequest()
+            .publisher
+            .receive(on: DispatchQueue.main)
+            .sink { completion in
+                if case .failure(let error) = completion {
+                    store.dispatch(.fetchGreetingDone(result: .failure(error)))
+                }
+                token.unseal()
+            } receiveValue: { greeting in
+                store.dispatch(.fetchGreetingDone(result: .success(greeting)))
+            }
+            .seal(in: token)
+    }
+}
+
 struct FetchUserInfoCommand: AppCommand {
     let uid: String
 

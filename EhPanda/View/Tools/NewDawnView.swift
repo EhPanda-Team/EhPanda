@@ -8,8 +8,8 @@
 import SwiftUI
 
 struct NewDawnView: View {
-    @Environment(\.colorScheme) private var colorScheme
     @State private var rotationAngle: Double = 0
+    @State private var greeting: Greeting?
     @State private var timer = Timer
         .publish(
             every: 1/10,
@@ -18,10 +18,11 @@ struct NewDawnView: View {
         )
         .autoconnect()
 
-    private var reversePrimary: Color {
-        colorScheme == .light ? .white : .black
-    }
     private let offset = screenW * 0.2
+
+    init(greeting: Greeting) {
+        self.greeting = greeting
+    }
 
     var body: some View {
         ZStack {
@@ -43,29 +44,23 @@ struct NewDawnView: View {
                 Spacer()
             }
             .ignoresSafeArea()
-            VStack(spacing: 10) {
-                HStack {
-                    Text("It is the dawn of a new day!")
-                        .fontWeight(.bold)
-                        .font(.largeTitle)
-                        .foregroundColor(reversePrimary)
-                    Spacer()
+            VStack(spacing: 50) {
+                VStack(spacing: 10) {
+                    TextView(
+                        text: "It is the dawn of a new day!",
+                        font: .largeTitle
+                    )
+                    TextView(
+                        text: "Reflecting on your journey so far, you find that you are a little wiser.",
+                        font: .title2
+                    )
                 }
-                HStack {
-                    Text("Reflecting on your journey so far, you find that you are a little wiser.")
-                        .fontWeight(.bold)
-                        .font(.title2)
-                        .foregroundColor(reversePrimary)
-                    Spacer()
-                }
-                .padding(.bottom, 50)
-                HStack {
-                    Text("You gain 30 EXP, 10,393 Credits, 10,000 GP and 11 Hath!")
-                        .fontWeight(.bold)
-                        .font(.title3)
-                        .foregroundColor(reversePrimary)
-                    Spacer()
-                }
+                TextView(
+                    text: "You gain 30 EXP, 10,393 Credits, 10,000 GP and 11 Hath!",
+                    font: .title3,
+                    fontWeight: .bold,
+                    lineLimit: 3
+                )
             }
             .padding()
         }
@@ -77,6 +72,41 @@ private extension NewDawnView {
     func onReceiveTimer(_: Date) {
         withAnimation {
             rotationAngle += 1
+        }
+    }
+}
+
+private struct TextView: View {
+    @Environment(\.colorScheme) private var colorScheme
+    private let text: String
+    private let font: Font
+    private let fontWeight: Font.Weight
+    private let lineLimit: Int?
+
+    private var reversePrimary: Color {
+        colorScheme == .light ? .white : .black
+    }
+
+    init(
+        text: String,
+        font: Font,
+        fontWeight: Font.Weight = .bold,
+        lineLimit: Int? = nil
+    ) {
+        self.text = text
+        self.font = font
+        self.fontWeight = fontWeight
+        self.lineLimit = lineLimit
+    }
+
+    var body: some View {
+        HStack {
+            Text(text)
+                .fontWeight(fontWeight)
+                .font(font)
+                .lineLimit(lineLimit)
+                .foregroundColor(reversePrimary)
+            Spacer()
         }
     }
 }
@@ -131,6 +161,6 @@ private struct SunBeamView: View {
 
 struct NewDawnView_Previews: PreviewProvider {
     static var previews: some View {
-        NewDawnView()
+        NewDawnView(greeting: Greeting())
     }
 }
