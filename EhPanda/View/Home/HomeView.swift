@@ -236,7 +236,7 @@ private extension HomeView {
 
     func onAppear() {
         detectPasteboard()
-        greeting = Greeting()
+//        greeting = Greeting()
 //        fetchGreetingIfNeeded()
     }
     func onListAppear() {
