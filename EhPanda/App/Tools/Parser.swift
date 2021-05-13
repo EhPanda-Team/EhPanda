@@ -595,12 +595,18 @@ struct Parser {
 extension Parser {
     // MARK: Greeting
     static func parseGreeting(_ doc: HTMLDocument) throws -> Greeting {
-        func trimString(_ string: String) -> String {
-            string
-                .replacingOccurrences(of: ",", with: "")
-                .replacingOccurrences(of: "!", with: "")
-                .replacingOccurrences(of: "and", with: "")
-                .trimmingCharacters(in: .whitespacesAndNewlines)
+        func trimString(_ string: String) -> String? {
+            if string.contains("EXP") {
+                return "EXP"
+            } else if string.contains("Credits") {
+                return "Credits"
+            } else if string.contains("GP") {
+                return "GP"
+            } else if string.contains("Hath") {
+                return "Hath"
+            } else {
+                return nil
+            }
         }
 
         func trimInt(_ value: String) -> Int? {
@@ -633,13 +639,17 @@ extension Parser {
                 let removeText = String(text.prefix(upTo: range.upperBound))
 
                 if value != gainedValues.first {
-                    gainedTypes.append(trimString(removeText))
+                    if let text = trimString(removeText) {
+                        gainedTypes.append(text)
+                    }
                 }
 
                 text = text.replacingOccurrences(of: removeText, with: "")
 
                 if value == gainedValues.last {
-                    gainedTypes.append(trimString(text))
+                    if let text = trimString(text) {
+                        gainedTypes.append(text)
+                    }
                 }
             }
 

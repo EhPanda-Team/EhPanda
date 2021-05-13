@@ -105,16 +105,16 @@ final class Store: ObservableObject {
         // MARK: Fetch Data
         case .fetchGreeting:
             if !didLogin && isTokenMatched { break }
-            if appState.homeInfo.greetingLoading { break }
-            appState.homeInfo.greetingLoading = true
+            if appState.settings.greetingLoading { break }
+            appState.settings.greetingLoading = true
 
             appCommand = FetchGreetingCommand()
         case .fetchGreetingDone(let result):
-            appState.homeInfo.greetingLoading = false
+            appState.settings.greetingLoading = false
 
             switch result {
             case .success(let greeting):
-                appState.homeInfo.insertGreeting(greeting: greeting)
+                appState.settings.insertGreeting(greeting: greeting)
             case .failure(let error):
                 print(error)
             }

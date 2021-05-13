@@ -24,6 +24,8 @@ struct User: Codable {
     var currentGP: String?
     var currentCredits: String?
 
+    var greeting: Greeting?
+
     var apiuid: String {
         getCookieValue(
             url: Defaults.URL.host.safeURL(),

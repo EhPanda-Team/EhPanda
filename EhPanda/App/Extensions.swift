@@ -169,3 +169,16 @@ extension Bundle {
         return nil
     }
 }
+
+extension Int {
+    var withComma: String? {
+        let decimalFormatter = NumberFormatter()
+        decimalFormatter.numberStyle = .decimal
+        decimalFormatter.locale = Locale.current
+
+        let string = decimalFormatter.string(
+            from: self as NSNumber
+        )
+        return string
+    }
+}

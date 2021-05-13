@@ -14,3 +14,9 @@
 // MARK: User
 "favoriteNameByDev" = "Favorite";
 "all_appendedByDev" = "All";
+
+// MARK: NewDawnView
+"GAINCONTENT_START" = "You gain ";
+"GAINCONTENT_SEPARATOR" = ", ";
+"GAINCONTENT_AND" = " and ";
+"GAINCONTENT_END" = "!";

@@ -46,6 +46,10 @@ struct AccountSettingView: View {
                                     .withArrow()
                                 Button("Manage tags subscription", action: onMyTagsTap)
                                     .withArrow()
+                                Toggle(
+                                    "Show new dawn greeting",
+                                    isOn: settingBinding.showNewDawnGreeting
+                                )
                             }
                             .foregroundColor(.primary)
                         }

@@ -43,7 +43,7 @@ struct HomeView: View, StoreAccessor {
                         perform: onFavoritesIndexChange
                     )
                     .onChange(
-                        of: homeInfo.greeting,
+                        of: user?.greeting,
                         perform: onReceiveGreeting
                     )
                     .onAppear(perform: onListAppear)
@@ -55,7 +55,6 @@ struct HomeView: View, StoreAccessor {
             }
         }
         .navigationViewStyle(StackNavigationViewStyle())
-        .fullScreenCover(item: $greeting, content: NewDawnView.init)
         .sheet(item: environmentBinding.homeViewSheetState) { item in
             switch item {
             case .setting:
@@ -69,6 +68,11 @@ struct HomeView: View, StoreAccessor {
                 FilterView()
                     .environmentObject(store)
                     .accentColor(accentColor)
+                    .preferredColorScheme(colorScheme)
+                    .blur(radius: environment.blurRadius)
+                    .allowsHitTesting(environment.isAppUnlocked)
+            case .newDawn:
+                NewDawnView(greeting: greeting)
                     .preferredColorScheme(colorScheme)
                     .blur(radius: environment.blurRadius)
                     .allowsHitTesting(environment.isAppUnlocked)
@@ -236,8 +240,7 @@ private extension HomeView {
 
     func onAppear() {
         detectPasteboard()
-//        greeting = Greeting()
-//        fetchGreetingIfNeeded()
+        fetchGreetingIfNeeded()
     }
     func onListAppear() {
         if settings.user == nil {
@@ -253,7 +256,10 @@ private extension HomeView {
         fetchFrontpageItemsIfNeeded()
     }
     func onBecomeActive() {
-        detectPasteboard()
+        if vcsCount == 1 {
+            detectPasteboard()
+            fetchGreetingIfNeeded()
+        }
     }
     func onHomeListTypeChange(_ type: HomeListType) {
         switch type {
@@ -278,6 +284,7 @@ private extension HomeView {
            !greeting.gainedNothing
         {
             self.greeting = greeting
+            toggleNewDawn()
         }
     }
     func onFavoritesIndexChange(_ : Int) {
@@ -421,12 +428,14 @@ private extension HomeView {
             return false
         }
 
-        if let greeting = homeInfo.greeting {
-            if verifyDate(with: greeting.updateTime) {
+        if setting?.showNewDawnGreeting == true {
+            if let greeting = user?.greeting {
+                if verifyDate(with: greeting.updateTime) {
+                    fetchGreeting()
+                }
+            } else {
                 fetchGreeting()
             }
-        } else {
-            fetchGreeting()
         }
     }
     func fetchFrontpageItemsIfNeeded() {
@@ -448,6 +457,10 @@ private extension HomeView {
         if homeInfo.favoritesItems[environment.favoritesIndex]?.isEmpty != false {
             fetchFavoritesItems()
         }
+    }
+
+    func toggleNewDawn() {
+        store.dispatch(.toggleHomeViewSheetState(state: .newDawn))
     }
 }
 
@@ -672,4 +685,5 @@ enum HomeViewSheetState: Identifiable {
 
     case setting
     case filter
+    case newDawn
 }

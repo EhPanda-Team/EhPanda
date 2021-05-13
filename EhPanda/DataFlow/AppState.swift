@@ -44,6 +44,7 @@ extension AppState {
     struct Settings {
         var userInfoLoading = false
         var favoriteNamesLoading = false
+        var greetingLoading = false
 
         @FileStorage(directory: .cachesDirectory, fileName: "user.json")
         var user: User?
@@ -66,6 +67,20 @@ extension AppState {
                 self.user?.currentCredits = currentCredits
             }
         }
+
+        mutating func insertGreeting(greeting: Greeting) {
+            guard let currDate = greeting.updateTime
+            else { return }
+
+            if let prevGreeting = user?.greeting,
+               let prevDate = prevGreeting.updateTime,
+               prevDate < currDate
+            {
+                user?.greeting = greeting
+            } else if user?.greeting == nil {
+                user?.greeting = greeting
+            }
+        }
     }
 }
 
@@ -73,8 +88,6 @@ extension AppState {
     // MARK: HomeInfo
     struct HomeInfo {
         var searchKeyword = ""
-        var greeting: Greeting?
-        var greetingLoading = false
 
         var searchItems: [Manga]?
         var searchLoading = false
@@ -134,20 +147,6 @@ extension AppState {
                 tmp[index] = defaultValue
             }
             return tmp
-        }
-
-        mutating func insertGreeting(greeting: Greeting) {
-            guard let currDate = self.greeting?.updateTime
-            else { return }
-
-            if let prevGreeting = self.greeting,
-               let prevDate = prevGreeting.updateTime,
-               prevDate < currDate
-            {
-                self.greeting = greeting
-            } else if self.greeting == nil {
-                self.greeting = greeting
-            }
         }
 
         mutating func insertSearchItems(mangas: [Manga]) {

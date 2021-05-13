@@ -7,7 +7,10 @@
 
 import SwiftUI
 
+private let sunWidth = screenW * (isPad ? 0.5 : 0.6)
+
 struct NewDawnView: View {
+    @Environment(\.colorScheme) private var colorScheme
     @State private var rotationAngle: Double = 0
     @State private var greeting: Greeting?
     @State private var timer = Timer
@@ -20,15 +23,16 @@ struct NewDawnView: View {
 
     private let offset = screenW * 0.2
 
-    init(greeting: Greeting) {
-        self.greeting = greeting
+    init(greeting: Greeting?) {
+        _greeting = State(initialValue: greeting)
     }
 
+    // MARK: NewDawnView
     var body: some View {
         ZStack {
             LinearGradient(
                 gradient: Gradient(
-                    colors: [Color(.systemTeal), Color(.systemIndigo)]
+                    colors: gradientColors
                 ),
                 startPoint: .top,
                 endPoint: .bottom
@@ -37,9 +41,14 @@ struct NewDawnView: View {
             VStack {
                 HStack {
                     Spacer()
-                    SunView()
-                        .rotationEffect(Angle(degrees: rotationAngle))
-                        .offset(x: offset, y: -offset)
+                    ZStack {
+                        SunView()
+                        if colorScheme == .light {
+                            SunBeamView()
+                                .rotationEffect(Angle(degrees: rotationAngle))
+                        }
+                    }
+                    .offset(x: offset, y: -offset)
                 }
                 Spacer()
             }
@@ -51,16 +60,19 @@ struct NewDawnView: View {
                         font: .largeTitle
                     )
                     TextView(
-                        text: "Reflecting on your journey so far, you find that you are a little wiser.",
+                        text: "Reflecting on your journey so far, "
+                            + "you find that you are a little wiser.",
                         font: .title2
                     )
                 }
-                TextView(
-                    text: "You gain 30 EXP, 10,393 Credits, 10,000 GP and 11 Hath!",
-                    font: .title3,
-                    fontWeight: .bold,
-                    lineLimit: 3
-                )
+                if let content = greeting?.gainContent {
+                    TextView(
+                        text: content,
+                        font: .title3,
+                        fontWeight: .bold,
+                        lineLimit: 3
+                    )
+                }
             }
             .padding()
         }
@@ -69,6 +81,17 @@ struct NewDawnView: View {
 }
 
 private extension NewDawnView {
+    var gradientColors: [Color] {
+        let teal = Color(.systemTeal)
+        let indigo = Color(.systemIndigo)
+
+        if colorScheme == .light {
+            return [teal, indigo]
+        } else {
+            return [Color(.systemGray5), Color(.systemGray2)]
+        }
+    }
+
     func onReceiveTimer(_: Date) {
         withAnimation {
             rotationAngle += 1
@@ -76,6 +99,7 @@ private extension NewDawnView {
     }
 }
 
+// MARK: TextView
 private struct TextView: View {
     @Environment(\.colorScheme) private var colorScheme
     private let text: String
@@ -101,19 +125,33 @@ private struct TextView: View {
 
     var body: some View {
         HStack {
-            Text(text)
+            Text(text.localized())
                 .fontWeight(fontWeight)
                 .font(font)
                 .lineLimit(lineLimit)
-                .foregroundColor(reversePrimary)
+                .foregroundColor(.white)
             Spacer()
         }
     }
 }
 
+// MARK: SunView
 private struct SunView: View {
-    private let width = screenW * 0.75
-    private var offset: CGFloat { width / 2 + 70 }
+    private let width = sunWidth
+
+    var body: some View {
+        ZStack {
+            Circle()
+                .foregroundColor(.yellow)
+                .frame(width: width, height: width)
+        }
+    }
+}
+
+// MARK: SunBeamView
+private struct SunBeamView: View {
+    private let width = sunWidth
+    private var offset: CGFloat { width / 1.2 }
     private var evenOffset: CGFloat { offset / sqrt(2) }
     private var sizes: [CGSize] {
         [
@@ -132,35 +170,43 @@ private struct SunView: View {
     ]
 
     var body: some View {
-        ZStack {
-            Circle()
-                .foregroundColor(.yellow)
-                .frame(width: width, height: width)
-            ForEach(0..<8, id: \.self) { index in
-                SunBeamView()
-                    .rotationEffect(Angle(degrees: degrees[index]))
-                    .offset(sizes[index])
-            }
+        ForEach(0..<8, id: \.self) { index in
+            SunBeamItem()
+                .rotationEffect(Angle(degrees: degrees[index]))
+                .offset(sizes[index])
         }
     }
 }
 
-private struct SunBeamView: View {
-    private let width = screenW * 0.05
+// MARK: SunBeamItem
+private struct SunBeamItem: View {
+    private let width = sunWidth / 10
     private var height: CGFloat {
         width * 5
+    }
+    private var cornerRadius: CGFloat {
+        width / 3
     }
 
     var body: some View {
         Rectangle()
             .foregroundColor(.yellow)
             .frame(width: width, height: height)
-            .cornerRadius(5)
+            .cornerRadius(cornerRadius)
     }
 }
 
 struct NewDawnView_Previews: PreviewProvider {
     static var previews: some View {
-        NewDawnView(greeting: Greeting())
+        var greeting = Greeting()
+        greeting.gainedEXP = 10
+        greeting.gainedCredits = 10000
+        greeting.gainedGP = 10000
+        greeting.gainedHath = 10
+
+        return Text("")
+            .sheet(isPresented: .constant(true), content: {
+                NewDawnView(greeting: greeting)
+            })
     }
 }

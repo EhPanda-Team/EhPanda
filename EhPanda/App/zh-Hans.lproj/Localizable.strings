@@ -147,6 +147,15 @@
 "Disable uploader filter" = "禁用上传者筛选";
 "Disable tags filter" = "禁用标签筛选";
 
+// MARK: NewDawnView
+"Show new dawn greeting" = "显示黎明问候";
+"It is the dawn of a new day!" = "又是新一天的黎明！";
+"Reflecting on your journey so far, you find that you are a little wiser." = "回顾至今的历程，发觉自己更睿智了一些。";
+"GAINCONTENT_START" = "你获得了";
+"GAINCONTENT_SEPARATOR" = "、";
+"GAINCONTENT_AND" = "和";
+"GAINCONTENT_END" = "！";
+
 // MARK: HomeListType
 "Search" = "搜索";
 "Frontpage" = "主页";

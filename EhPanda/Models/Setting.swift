@@ -16,6 +16,7 @@ struct Setting: Codable {
             setGalleryType(with: galleryType)
         }
     }
+    var showNewDawnGreeting = false
 
     // General
     var detectGalleryFromPasteboard = false

@@ -147,6 +147,15 @@
 "Disable uploader filter" = "アップローダフィルターを無効化";
 "Disable tags filter" = "タグフィルターを無効化";
 
+// MARK: NewDawnView
+"Show new dawn greeting" = "夜明けの挨拶を表示";
+"It is the dawn of a new day!" = "新しい一日の夜明けです！";
+"Reflecting on your journey so far, you find that you are a little wiser." = "今までの歩みを振り返り、少し賢くなった気がする。";
+"GAINCONTENT_START" = "";
+"GAINCONTENT_SEPARATOR" = "、";
+"GAINCONTENT_AND" = "と";
+"GAINCONTENT_END" = "を手に入れた！";
+
 // MARK: HomeListType
 "Search" = "検索";
 "Frontpage" = "ホーム";
