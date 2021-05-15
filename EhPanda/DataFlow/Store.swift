@@ -745,7 +745,7 @@ final class Store: ObservableObject {
 
             let currentNum = detail.currentPageNum
             let maximumNum = detail.pageNumMaximum
-            if currentNum + 1 > maximumNum { break }
+            if currentNum + 1 >= maximumNum { break }
 
             if appState.contentInfo.moreMangaContentsLoading { break }
             appState.contentInfo.moreMangaContentsLoading = true
