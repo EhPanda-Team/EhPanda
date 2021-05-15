@@ -51,7 +51,7 @@ enum AppAction {
     case fetchMangaItemReverse(detailURL: String)
     case fetchMangaItemReverseDone(result: Result<Manga, AppError>)
     case fetchSearchItems(keyword: String)
-    case fetchSearchItemsDone(result: Result<(PageNumber, [Manga]), AppError>)
+    case fetchSearchItemsDone(result: Result<(Keyword, PageNumber, [Manga]), AppError>)
     case fetchMoreSearchItems(keyword: String)
     case fetchMoreSearchItemsDone(result: Result<(Keyword, PageNumber, [Manga]), AppError>)
     case fetchFrontpageItems

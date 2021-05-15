@@ -108,7 +108,13 @@ struct FetchSearchItemsCommand: AppCommand {
                 }
                 token.unseal()
             } receiveValue: { mangas in
-                store.dispatch(.fetchSearchItemsDone(result: .success(mangas)))
+                store.dispatch(
+                    .fetchSearchItemsDone(
+                        result: .success(
+                            (keyword, mangas.0, mangas.1)
+                        )
+                    )
+                )
             }
             .seal(in: token)
     }

@@ -744,16 +744,17 @@ extension Parser {
         var current = 0
         var maximum = 0
 
-        guard let link = doc.at_xpath("//table [@class='ptt']") else { return PageNumber() }
-        if let currentStr = link.at_xpath("//td [@class='ptds']")?.text {
-            if let range = currentStr.range(of: "-") {
-                current = (Int(String(currentStr.suffix(from: range.upperBound))) ?? 1) - 1
-            } else {
-                current = (Int(currentStr) ?? 1) - 1
-            }
+        guard let link = doc.at_xpath("//table [@class='ptt']"),
+              let currentStr = link.at_xpath("//td [@class='ptds']")?.text
+        else { return PageNumber() }
+
+        if let range = currentStr.range(of: "-") {
+            current = (Int(String(currentStr.suffix(from: range.upperBound))) ?? 1) - 1
+        } else {
+            current = (Int(currentStr) ?? 1) - 1
         }
-        for ptbLink in link.xpath("//a") {
-            if let num = Int(ptbLink.text ?? "") {
+        for aLink in link.xpath("//a") {
+            if let num = Int(aLink.text ?? "") {
                 maximum = num
             }
         }
