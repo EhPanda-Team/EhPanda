@@ -418,11 +418,7 @@ private extension HomeView {
 
             let currentTimeString = formatter.string(from: currentTime)
             if let currDay = formatter.date(from: currentTimeString) {
-                let prevDay = currDay.addingTimeInterval(-60 * 60 * 24)
-
-                return currentTime > currDay
-                    && updateTime < currDay
-                    && updateTime > prevDay
+                return currentTime > currDay && updateTime < currDay
             }
 
             return false

@@ -116,6 +116,9 @@ final class Store: ObservableObject {
             case .success(let greeting):
                 appState.settings.insertGreeting(greeting: greeting)
             case .failure(let error):
+                if error == .parseFailed {
+                    appState.settings.insertGreeting(greeting: Greeting())
+                }
                 print(error)
             }
 

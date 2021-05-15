@@ -69,8 +69,7 @@ struct NewDawnView: View {
                     TextView(
                         text: content,
                         font: .title3,
-                        fontWeight: .bold,
-                        lineLimit: 3
+                        fontWeight: .bold
                     )
                 }
             }
@@ -105,7 +104,6 @@ private struct TextView: View {
     private let text: String
     private let font: Font
     private let fontWeight: Font.Weight
-    private let lineLimit: Int?
 
     private var reversePrimary: Color {
         colorScheme == .light ? .white : .black
@@ -114,13 +112,11 @@ private struct TextView: View {
     init(
         text: String,
         font: Font,
-        fontWeight: Font.Weight = .bold,
-        lineLimit: Int? = nil
+        fontWeight: Font.Weight = .bold
     ) {
         self.text = text
         self.font = font
         self.fontWeight = fontWeight
-        self.lineLimit = lineLimit
     }
 
     var body: some View {
@@ -128,8 +124,12 @@ private struct TextView: View {
             Text(text.localized())
                 .fontWeight(fontWeight)
                 .font(font)
-                .lineLimit(lineLimit)
+                .lineLimit(nil)
                 .foregroundColor(.white)
+                .fixedSize(
+                    horizontal: false,
+                    vertical: true
+                )
             Spacer()
         }
     }
