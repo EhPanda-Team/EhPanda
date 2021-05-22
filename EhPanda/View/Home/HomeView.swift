@@ -122,7 +122,7 @@ private extension HomeView {
         }
     }
     var hasJumpPermission: Bool {
-        vcsCount == 1 && isTokenMatched
+        viewControllersCount == 1 && isTokenMatched
             && setting?.detectGalleryFromPasteboard == true
     }
 
@@ -256,7 +256,7 @@ private extension HomeView {
         fetchFrontpageItemsIfNeeded()
     }
     func onBecomeActive() {
-        if vcsCount == 1 {
+        if viewControllersCount == 1 {
             detectPasteboard()
             fetchGreetingIfNeeded()
         }
@@ -405,6 +405,12 @@ private extension HomeView {
     func replaceMangaCommentJumpID(gid: String?) {
         store.dispatch(.replaceMangaCommentJumpID(gid: gid))
     }
+    func toggleNewDawn() {
+        store.dispatch(.toggleHomeViewSheetState(state: .newDawn))
+    }
+    func updateViewControllersCount() {
+        store.dispatch(.updateViewControllersCount)
+    }
 
     func fetchGreetingIfNeeded() {
         func verifyDate(with updateTime: Date?) -> Bool {
@@ -453,10 +459,6 @@ private extension HomeView {
         if homeInfo.favoritesItems[environment.favoritesIndex]?.isEmpty != false {
             fetchFavoritesItems()
         }
-    }
-
-    func toggleNewDawn() {
-        store.dispatch(.toggleHomeViewSheetState(state: .newDawn))
     }
 }
 

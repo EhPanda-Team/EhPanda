@@ -187,8 +187,10 @@ private extension DetailView {
             updateMangaDetail()
         }
         updateHistoryItems()
+        updateViewControllersCount()
     }
     func onDisappear() {
+        updateViewControllersCount()
         postDetailViewOnDisappearNotification()
     }
     func onArchiveButtonTap() {
@@ -262,6 +264,9 @@ private extension DetailView {
         if environment.homeListType != .history {
             store.dispatch(.updateHistoryItems(gid: gid))
         }
+    }
+    func updateViewControllersCount() {
+        store.dispatch(.updateViewControllersCount)
     }
     func sendRating(_ value: Int) {
         store.dispatch(.rate(gid: gid, rating: value))

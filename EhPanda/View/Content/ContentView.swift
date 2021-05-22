@@ -14,6 +14,10 @@ struct ContentView: View, StoreAccessor {
     @EnvironmentObject var store: Store
     @State private var readingProgress: Int = -1
 
+    @State private var scale: CGFloat = 1
+    @State private var offset: CGSize = .zero
+    @State private var newOffset: CGSize = .zero
+
     private let gid: String
 
     init(gid: String) {
@@ -22,7 +26,23 @@ struct ContentView: View, StoreAccessor {
 
     // MARK: ContentView
     var body: some View {
-        Group {
+        let tapGesture = TapGesture(
+            count: 2
+        )
+        .onEnded(onTapGestureEnded)
+
+        let magnificationGesture = MagnificationGesture()
+        .onChanged(onMagnificationGestureChanged)
+        .onEnded(onMagnificationGestureEnded)
+
+        let dragGesture = DragGesture(
+            minimumDistance: 0.0,
+            coordinateSpace: .local
+        )
+        .onChanged(onDragGestureChanged)
+        .onEnded(onDragGestureEnded)
+
+        return Group {
             if let contents = mangaContents,
                let setting = setting,
                !contents.isEmpty
@@ -65,7 +85,18 @@ struct ContentView: View, StoreAccessor {
                         }
                     }
                     .ignoresSafeArea()
-                    .transition(AnyTransition.opacity.animation(.default))
+                    .transition(
+                        AnyTransition
+                            .opacity
+                            .animation(
+                                .default
+                            )
+                    )
+                    .scaleEffect(scale)
+                    .offset(offset)
+                    .gesture(tapGesture)
+                    .gesture(dragGesture)
+                    .gesture(magnificationGesture)
                 }
             } else if contentInfo.mangaContentsLoading {
                 LoadingView()
@@ -175,6 +206,53 @@ private extension ContentView {
             store.dispatch(.toggleNavBarHidden(isHidden: true))
         }
     }
+
+    // MARK: Gestures
+    func onTapGestureEnded(_ value: TapGesture.Value) {
+        setOffset(.zero)
+        setScale(scale == 1 ? 2 : 1)
+    }
+    func onDragGestureChanged(_ value: DragGesture.Value) {
+//        pointTapped = value.startLocation
+
+        if scale > 1 {
+            let newX = value.translation.width + newOffset.width
+            let screenW = UIScreen.main.bounds.width
+            let marginW = screenW * (scale - 1) / 2
+
+            let newOffsetW = min(max(newX, -marginW), marginW)
+            setOffset(CGSize(width: newOffsetW, height: offset.height))
+        }
+    }
+    func onDragGestureEnded(_ value: DragGesture.Value) {
+        onDragGestureChanged(value)
+
+        if scale > 1 {
+            newOffset.width = offset.width
+        }
+    }
+    func onMagnificationGestureChanged(_ value: MagnificationGesture.Value) {
+        withAnimation {
+            setOffset(.zero)
+            setScale(max(value.magnitude, 1))
+        }
+    }
+    func onMagnificationGestureEnded(_ value: MagnificationGesture.Value) {
+        onMagnificationGestureChanged(value)
+    }
+
+    func setOffset(_ newOffset: CGSize) {
+        let animation = Animation
+            .linear(duration: 0.1)
+        withAnimation(animation) {
+            offset = newOffset
+        }
+    }
+    func setScale(_ newScale: CGFloat) {
+        withAnimation {
+            scale = newScale
+        }
+    }
 }
 
 // MARK: ImageContainer
@@ -215,14 +293,14 @@ private struct ImageContainer: View {
             .loadImmediately()
             .resizable()
             .scaledToFit()
-            .onTapGesture(perform: onTap)
-            .onLongPressGesture(
-                minimumDuration: 0,
-                maximumDistance: .infinity,
-                pressing: { _ in
-                    onLongPressing(tag: content.tag)
-                }, perform: {}
-            )
+//            .onTapGesture(perform: onTap)
+//            .onLongPressGesture(
+//                minimumDuration: 2,
+//                maximumDistance: .infinity,
+//                pressing: { _ in
+//                    onLongPressing(tag: content.tag)
+//                }, perform: {}
+//            )
     }
 
     private func onWebImageProgress<I: BinaryInteger>(

@@ -58,17 +58,6 @@ var galleryType: GalleryType {
     return GalleryType(rawValue: rawValue) ?? .ehentai
 }
 
-var vcsCount: Int {
-    guard let navigationVC = UIApplication
-            .shared.windows.first?
-            .rootViewController?
-            .children.first
-            as? UINavigationController
-    else { return -1 }
-
-    return navigationVC.viewControllers.count
-}
-
 var appIconType: IconType {
     if let alterName = UIApplication
         .shared.alternateIconName,

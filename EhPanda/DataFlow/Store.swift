@@ -50,6 +50,19 @@ final class Store: ObservableObject {
         case .updateHistoryItems(let gid):
             let item = appState.cachedList.items?[gid]
             appState.homeInfo.insertHistoryItem(manga: item)
+        case .updateViewControllersCount:
+            var viewControllersCount = -1
+            if let navigationVC = UIApplication
+                    .shared.windows.first?
+                    .rootViewController?
+                    .children.first
+                    as? UINavigationController
+            {
+                viewControllersCount =
+                    navigationVC.viewControllers.count
+            }
+
+            appState.environment.viewControllersCount = viewControllersCount
         case .resetDownloadCommandResponse:
             appState.detailInfo.downloadCommandResponse = nil
             appState.detailInfo.downloadCommandSending = false

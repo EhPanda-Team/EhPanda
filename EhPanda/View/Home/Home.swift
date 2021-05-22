@@ -42,37 +42,34 @@ struct Home: View, StoreAccessor {
         .gesture(
             DragGesture(minimumDistance: 20)
                 .onChanged { value in
-                    if hasPermission {
-                        withAnimation(Animation.linear(duration: 0.2)) {
-                            switch direction {
-                            case .none:
-                                let isToLeft = value.translation.width < 0
-                                direction = isToLeft ? .toLeft : .toRight
-                            case .toLeft:
-                                if offset > -width {
-                                    offset = min(value.translation.width, 0)
-                                }
-                            case .toRight:
-                                if offset < 0, value.startLocation.x < 20 {
-                                    offset = max(-width + value.translation.width, -width)
-                                }
+                    withAnimation(Animation.linear(duration: 0.2)) {
+                        switch direction {
+                        case .none:
+                            let isToLeft = value.translation.width < 0
+                            direction = isToLeft ? .toLeft : .toRight
+                        case .toLeft:
+                            if offset > -width {
+                                offset = min(value.translation.width, 0)
                             }
-                            updateSlideMenuState(isClosed: offset == -width)
+                        case .toRight:
+                            if offset < 0, value.startLocation.x < 20 {
+                                offset = max(-width + value.translation.width, -width)
+                            }
                         }
+                        updateSlideMenuState(isClosed: offset == -width)
                     }
                 }
                 .onEnded { value in
-                    if hasPermission {
-                        let perdictedWidth = value.predictedEndTranslation.width
-                        if perdictedWidth > width / 2 || -offset < width / 2 {
-                            performTransition(0)
-                        }
-                        if perdictedWidth < -width / 2 || -offset > width / 2 {
-                            performTransition(-width)
-                        }
-                        direction = .none
+                    let perdictedWidth = value.predictedEndTranslation.width
+                    if perdictedWidth > width / 2 || -offset < width / 2 {
+                        performTransition(0)
                     }
-                }
+                    if perdictedWidth < -width / 2 || -offset > width / 2 {
+                        performTransition(-width)
+                    }
+                    direction = .none
+                },
+            including: gestureMask
         )
         .onReceive(
             NotificationCenter.default.publisher(
@@ -107,9 +104,10 @@ private extension Home {
         case toRight
     }
 
-    var hasPermission: Bool {
-        vcsCount == 1
+    var gestureMask: GestureMask {
+        viewControllersCount == 1 ? .all : .none
     }
+
     var opacity: Double {
         let scale = colorScheme == .light ? 0.2 : 0.5
         return Double((width + offset) / width) * scale

@@ -51,6 +51,9 @@ extension StoreAccessor {
     var homeListType: HomeListType {
         environment.homeListType
     }
+    var viewControllersCount: Int {
+        environment.viewControllersCount
+    }
 }
 
 // MARK: Settings

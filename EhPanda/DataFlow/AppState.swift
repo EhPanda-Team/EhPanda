@@ -24,6 +24,7 @@ extension AppState {
         var isPreview = false
         var isAppUnlocked = true
         var blurRadius: CGFloat = 0
+        var viewControllersCount = 1
         var isSlideMenuClosed = true
         var navBarHidden = false
         var homeListType: HomeListType = .frontpage
