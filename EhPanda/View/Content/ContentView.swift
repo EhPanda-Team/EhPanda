@@ -13,11 +13,6 @@ import SDWebImageSwiftUI
 struct ContentView: View, StoreAccessor {
     @EnvironmentObject var store: Store
 
-    @State private var geoTimer = Timer.publish(
-        every: 0.5, on: .current, in: .common
-    )
-    .autoconnect()
-
     @State private var position: CGFloat = 0
     @State private var aspectBox = [Int: CGFloat]()
 
@@ -58,11 +53,10 @@ struct ContentView: View, StoreAccessor {
                     ScrollView {
                         GeometryReader { geoProxy in
                             Text("I'm invisible~")
-                                .onReceive(geoTimer) { _ in
-                                    updateGeoProxyMinY(
-                                        geoProxy.frame(in: .global).minY
-                                    )
-                                }
+                                .onChange(
+                                    of: geoProxy.frame(in: .global).minY,
+                                    perform: updateGeoProxyMinY
+                                )
                         }
                         .frame(width: 0, height: 0)
                         LazyVStack(spacing: 0) {
@@ -73,10 +67,7 @@ struct ContentView: View, StoreAccessor {
                                         retryLimit: setting.contentRetryLimit,
                                         onSuccessAction: onWebImageSuccess
                                     )
-                                    .frame(
-                                        width: screenW,
-                                        height: calImageHeight(item.tag)
-                                    )
+                                    .frame(height: calImageHeight(item.tag))
                                     .onAppear {
                                         onWebImageAppear(item)
                                     }
