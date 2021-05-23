@@ -41,6 +41,8 @@ final class Store: ObservableObject {
             appState.settings.filter = Filter()
         case .initiateSetting:
             appState.settings.setting = Setting()
+        case .saveAspectBox(let gid, let box):
+            appState.cachedList.insertAspectBox(gid: gid, box: box)
         case .saveReadingProgress(let gid, let tag):
             appState.cachedList.insertReadingProgress(gid: gid, progress: tag)
         case .updateDiskImageCacheSize(let size):

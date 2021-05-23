@@ -23,6 +23,7 @@ struct Defaults {
         static var avatarScale: CGFloat = 1/1
         static var headerScale: CGFloat = 8/11
         static var previewScale: CGFloat = 32/45
+        static var contentHScale: CGFloat = 7/10
 
         static var rowW: CGFloat = rowH * rowScale
         static var rowH: CGFloat = 110

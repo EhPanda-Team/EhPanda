@@ -75,6 +75,7 @@ struct MangaDetail: Codable {
     var readingProgress: Int?
     var currentPageNum = 0
     var pageNumMaximum = 1
+    var aspectBox = [Int: CGFloat]()
 
     var isFavored: Bool
     var archiveURL: String?

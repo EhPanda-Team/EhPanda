@@ -12,9 +12,17 @@ import SDWebImageSwiftUI
 
 struct ContentView: View, StoreAccessor {
     @EnvironmentObject var store: Store
-    @State private var readingProgress: Int = -1
+
+    @State private var geoTimer = Timer.publish(
+        every: 0.5, on: .current, in: .common
+    )
+    .autoconnect()
+
+    @State private var position: CGFloat = 0
+    @State private var aspectBox = [Int: CGFloat]()
 
     @State private var scale: CGFloat = 1
+    @State private var baseScale: CGFloat = 1
     @State private var offset: CGSize = .zero
     @State private var newOffset: CGSize = .zero
 
@@ -26,16 +34,15 @@ struct ContentView: View, StoreAccessor {
 
     // MARK: ContentView
     var body: some View {
-        let tapGesture = TapGesture(
+        let doubleTap = TapGesture(
             count: 2
         )
-        .onEnded(onTapGestureEnded)
+        .onEnded(onDoubleTap)
+        let magnify = MagnificationGesture()
+            .onChanged(onMagnificationGestureChanged)
+            .onEnded(onMagnificationGestureEnded)
 
-        let magnificationGesture = MagnificationGesture()
-        .onChanged(onMagnificationGestureChanged)
-        .onEnded(onMagnificationGestureEnded)
-
-        let dragGesture = DragGesture(
+        let drag = DragGesture(
             minimumDistance: 0.0,
             coordinateSpace: .local
         )
@@ -47,18 +54,32 @@ struct ContentView: View, StoreAccessor {
                let setting = setting,
                !contents.isEmpty
             {
-                ScrollViewReader { proxy in
+                ScrollViewReader { scrollProxy in
                     ScrollView {
+                        GeometryReader { geoProxy in
+                            Text("I'm invisible~")
+                                .onReceive(geoTimer) { _ in
+                                    updateGeoProxyMinY(
+                                        geoProxy.frame(in: .global).minY
+                                    )
+                                }
+                        }
+                        .frame(width: 0, height: 0)
                         LazyVStack(spacing: 0) {
                             ForEach(contents) { item in
-                                ImageContainer(
-                                    content: item,
-                                    retryLimit: setting.contentRetryLimit,
-                                    onTapAction: onWebImageTap,
-                                    onLongPressAction: onWebImageLongPress
-                                )
-                                .onAppear {
-                                    onWebImageAppear(item)
+                                ZStack {
+                                    ImageContainer(
+                                        content: item,
+                                        retryLimit: setting.contentRetryLimit,
+                                        onSuccessAction: onWebImageSuccess
+                                    )
+                                    .frame(
+                                        width: screenW,
+                                        height: calImageHeight(item.tag)
+                                    )
+                                    .onAppear {
+                                        onWebImageAppear(item)
+                                    }
                                 }
                                 if setting.showContentDividers {
                                     Rectangle()
@@ -81,7 +102,7 @@ struct ContentView: View, StoreAccessor {
                             .padding(.bottom, 24)
                         }
                         .onAppear {
-                            onLazyVStackAppear(proxy)
+                            onLazyVStackAppear(scrollProxy)
                         }
                     }
                     .ignoresSafeArea()
@@ -94,9 +115,9 @@ struct ContentView: View, StoreAccessor {
                     )
                     .scaleEffect(scale)
                     .offset(offset)
-                    .gesture(tapGesture)
-                    .gesture(dragGesture)
-                    .gesture(magnificationGesture)
+                    .gesture(doubleTap)
+                    .gesture(drag)
+                    .gesture(magnify)
                 }
             } else if contentInfo.mangaContentsLoading {
                 LoadingView()
@@ -132,6 +153,7 @@ struct ContentView: View, StoreAccessor {
     }
 }
 
+// MARK: Private Extension
 private extension ContentView {
     var mangaDetail: MangaDetail? {
         cachedList.items?[gid]?.detail
@@ -145,15 +167,21 @@ private extension ContentView {
     var moreLoadFailedFlag: Bool {
         contentInfo.moreMangaContentsLoadFailed
     }
+    var contentHScale: CGFloat {
+        Defaults.ImageSize.contentHScale
+    }
 
     func onAppear() {
+        restoreAspectBox()
         toggleNavBarHiddenIfNeeded()
         fetchMangaContentsIfNeeded()
     }
     func onDisappear() {
+        saveAspectBox()
         saveReadingProgress()
     }
     func onResignActive() {
+        saveAspectBox()
         saveReadingProgress()
     }
     func onReceiveDetailViewOnDisappearNotification() {
@@ -169,20 +197,8 @@ private extension ContentView {
             fetchMoreMangaContents()
         }
     }
-    func onWebImageTap() {}
-    func onWebImageLongPress(tag: Int) {
-        readingProgress = tag
-    }
-
-    func saveReadingProgress() {
-        if readingProgress != -1 {
-            store.dispatch(
-                .saveReadingProgress(
-                    gid: gid,
-                    tag: readingProgress
-                )
-            )
-        }
+    func onWebImageSuccess(_ tag: Int, _ aspect: CGFloat) {
+        aspectBox[tag] = aspect
     }
 
     func fetchMangaContents() {
@@ -207,14 +223,72 @@ private extension ContentView {
         }
     }
 
+    // MARK: ReadingProgress
+    func calImageHeight(_ tag: Int) -> CGFloat {
+        if let aspect = aspectBox[tag] {
+            return screenW * aspect
+        } else {
+            return screenH * contentHScale
+        }
+    }
+    func calReadingProgress() -> Int {
+        guard let contentsCount = mangaContents?.count
+        else { return -1 }
+
+        var heightArray = Array(
+            repeating: screenH * contentHScale,
+            count: contentsCount
+        )
+        aspectBox.forEach { (key: Int, value: CGFloat) in
+            heightArray[key] = value * screenW
+        }
+
+        var remainingPosition = position + screenH / 2
+        for (index, value) in heightArray.enumerated() {
+            remainingPosition -= value
+            if remainingPosition < 0 {
+                return index
+            }
+        }
+        return -1
+    }
+    func updateGeoProxyMinY(_ value: CGFloat) {
+        position = abs(value)
+    }
+
+    func saveReadingProgress() {
+        let progress = calReadingProgress()
+        if progress != -1 {
+            store.dispatch(
+                .saveReadingProgress(
+                    gid: gid,
+                    tag: progress
+                )
+            )
+        }
+    }
+    func restoreAspectBox() {
+        if let aspectBox = mangaDetail?.aspectBox {
+            self.aspectBox = aspectBox
+        }
+    }
+    func saveAspectBox() {
+        if !aspectBox.isEmpty {
+            store.dispatch(
+                .saveAspectBox(
+                    gid: gid,
+                    box: aspectBox
+                )
+            )
+        }
+    }
+
     // MARK: Gestures
-    func onTapGestureEnded(_ value: TapGesture.Value) {
+    func onDoubleTap(_ value: TapGesture.Value) {
         setOffset(.zero)
         setScale(scale == 1 ? 2 : 1)
     }
     func onDragGestureChanged(_ value: DragGesture.Value) {
-//        pointTapped = value.startLocation
-
         if scale > 1 {
             let newX = value.translation.width + newOffset.width
             let screenW = UIScreen.main.bounds.width
@@ -232,25 +306,43 @@ private extension ContentView {
         }
     }
     func onMagnificationGestureChanged(_ value: MagnificationGesture.Value) {
-        withAnimation {
-            setOffset(.zero)
-            setScale(max(value.magnitude, 1))
+        if value == 1 {
+            baseScale = scale
         }
+        fixOffset()
+        setScale(max(value * baseScale, 1))
     }
     func onMagnificationGestureEnded(_ value: MagnificationGesture.Value) {
         onMagnificationGestureChanged(value)
+        baseScale = scale
     }
 
     func setOffset(_ newOffset: CGSize) {
         let animation = Animation
             .linear(duration: 0.1)
-        withAnimation(animation) {
-            offset = newOffset
+        if offset != newOffset {
+            withAnimation(animation) {
+                offset = newOffset
+            }
+        }
+    }
+    func fixOffset() {
+        let screenW = UIScreen.main.bounds.width
+        let marginW = screenW * (scale - 1) / 2
+
+        withAnimation {
+            if offset.width > marginW {
+                offset.width = marginW
+            } else if offset.width < -marginW {
+                offset.width = -marginW
+            }
         }
     }
     func setScale(_ newScale: CGFloat) {
-        withAnimation {
-            scale = newScale
+        if scale != newScale {
+            withAnimation {
+                scale = newScale
+            }
         }
     }
 }
@@ -261,19 +353,20 @@ private struct ImageContainer: View {
 
     private var content: MangaContent
     private var retryLimit: Int
-    private var onTapAction: () -> Void
-    private var onLongPressAction: (Int) -> Void
+    private var onSuccessAction: ((Int, CGFloat)) -> Void
+
+    private var contentHScale: CGFloat {
+        Defaults.ImageSize.contentHScale
+    }
 
     init(
         content: MangaContent,
         retryLimit: Int,
-        onTapAction: @escaping () -> Void,
-        onLongPressAction: @escaping (Int) -> Void
+        onSuccessAction: @escaping ((Int, CGFloat)) -> Void
     ) {
         self.content = content
         self.retryLimit = retryLimit
-        self.onTapAction = onTapAction
-        self.onLongPressAction = onLongPressAction
+        self.onSuccessAction = onSuccessAction
     }
 
     var body: some View {
@@ -284,23 +377,21 @@ private struct ImageContainer: View {
                     pageNumber: content.tag,
                     percentage: percentage
                 )
+                .frame(
+                    width: screenW,
+                    height: screenH * contentHScale
+                )
             }
             .retry(
                 maxCount: retryLimit,
                 interval: .seconds(0.5)
             )
             .onProgress(onWebImageProgress)
+            .onSuccess(onWebImageSuccess)
             .loadImmediately()
             .resizable()
             .scaledToFit()
-//            .onTapGesture(perform: onTap)
-//            .onLongPressGesture(
-//                minimumDuration: 2,
-//                maximumDistance: .infinity,
-//                pressing: { _ in
-//                    onLongPressing(tag: content.tag)
-//                }, perform: {}
-//            )
+
     }
 
     private func onWebImageProgress<I: BinaryInteger>(
@@ -308,10 +399,9 @@ private struct ImageContainer: View {
     ) {
         percentage = Float(received) / Float(total)
     }
-    private func onTap() {
-        onTapAction()
-    }
-    private func onLongPressing(tag: Int) {
-        onLongPressAction(tag)
+    private func onWebImageSuccess(_ result: RetrieveImageResult) {
+        let size = result.image.size
+        let aspect = size.height / size.width
+        onSuccessAction((content.tag, aspect))
     }
 }

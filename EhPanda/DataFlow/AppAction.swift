@@ -18,6 +18,7 @@ enum AppAction {
     case initiateSetting
     case cleanDetailViewCommentContent
     case cleanCommentViewCommentContent
+    case saveAspectBox(gid: String, box: [Int: CGFloat])
     case saveReadingProgress(gid: String, tag: Int)
     case updateDiskImageCacheSize(size: String)
     case updateAppIconType(iconType: IconType)
