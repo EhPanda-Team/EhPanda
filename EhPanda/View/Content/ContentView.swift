@@ -67,7 +67,10 @@ struct ContentView: View, StoreAccessor {
                                         retryLimit: setting.contentRetryLimit,
                                         onSuccessAction: onWebImageSuccess
                                     )
-                                    .frame(height: calImageHeight(item.tag))
+                                    .frame(
+                                        width: absoluteScreenW,
+                                        height: calImageHeight(item.tag)
+                                    )
                                     .onAppear {
                                         onWebImageAppear(item)
                                     }
@@ -121,7 +124,7 @@ struct ContentView: View, StoreAccessor {
                 for: Notification.Name("DetailViewOnDisappear")
             )
         ) { _ in
-            onReceiveDetailViewOnDisappearNotification()
+            onDetailViewDisappear()
         }
         .onReceive(
             NotificationCenter.default.publisher(
@@ -136,6 +139,13 @@ struct ContentView: View, StoreAccessor {
             )
         ) { _ in
             onResignActive()
+        }
+        .onReceive(
+            NotificationCenter.default.publisher(
+                for: NSNotification.Name("AppWidthDidChange")
+            )
+        ) { _ in
+            onWidthChange()
         }
         .onAppear(perform: onAppear)
         .onDisappear(perform: onDisappear)
@@ -175,8 +185,15 @@ private extension ContentView {
         saveAspectBox()
         saveReadingProgress()
     }
-    func onReceiveDetailViewOnDisappearNotification() {
+    func onDetailViewDisappear() {
         toggleNavBarHiddenIfNeeded()
+    }
+    func onWidthChange() {
+        DispatchQueue.main.async {
+            setOffset(.zero)
+            setScale(1.1)
+            setScale(1)
+        }
     }
     func onLazyVStackAppear(_ proxy: ScrollViewProxy) {
         if let tag = mangaDetail?.readingProgress {
@@ -217,7 +234,7 @@ private extension ContentView {
     // MARK: ReadingProgress
     func calImageHeight(_ tag: Int) -> CGFloat {
         if let aspect = aspectBox[tag] {
-            return screenW * aspect
+            return absoluteScreenW * aspect
         } else {
             return screenH * contentHScale
         }
@@ -369,7 +386,7 @@ private struct ImageContainer: View {
                     percentage: percentage
                 )
                 .frame(
-                    width: screenW,
+                    width: absoluteScreenW,
                     height: screenH * contentHScale
                 )
             }
