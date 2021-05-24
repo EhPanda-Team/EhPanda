@@ -55,7 +55,13 @@ struct Setting: Codable {
             }
         }
     }
-    var doubleTapScaleFactor: CGFloat = 2
+    var doubleTapScaleFactor: CGFloat = 2 {
+        didSet {
+            if maximumScaleFactor < doubleTapScaleFactor {
+                maximumScaleFactor = doubleTapScaleFactor
+            }
+        }
+    }
 }
 
 enum GalleryType: String, Codable {
