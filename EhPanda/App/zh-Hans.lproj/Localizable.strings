@@ -112,8 +112,9 @@
 "Reading" = "阅读";
 "Retry limit" = "重试次数上限";
 " times" = "次";
-"Insert separators between images" = "在图片之间显示分隔线";
 "Separator height" = "分隔线厚度";
+"Maximum scale factor" = "最大缩放系数";
+"Double tap scale factor" = "双击缩放系数";
 
 "About EhPanda" = "关于EhPanda";
 "Version" = "版本";

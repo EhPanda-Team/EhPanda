@@ -47,8 +47,15 @@ struct Setting: Codable {
 
     // Reading
     var contentRetryLimit = 10
-    var showContentDividers = false
     var contentDividerHeight: CGFloat = 0
+    var maximumScaleFactor: CGFloat = 3 {
+        didSet {
+            if doubleTapScaleFactor > maximumScaleFactor {
+                doubleTapScaleFactor = maximumScaleFactor
+            }
+        }
+    }
+    var doubleTapScaleFactor: CGFloat = 2
 }
 
 enum GalleryType: String, Codable {

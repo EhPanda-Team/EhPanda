@@ -33,16 +33,15 @@ struct ContentView: View, StoreAccessor {
             count: 2
         )
         .onEnded(onDoubleTap)
-        let magnify = MagnificationGesture()
-            .onChanged(onMagnificationGestureChanged)
-            .onEnded(onMagnificationGestureEnded)
-
         let drag = DragGesture(
             minimumDistance: 0.0,
             coordinateSpace: .local
         )
         .onChanged(onDragGestureChanged)
         .onEnded(onDragGestureEnded)
+        let magnify = MagnificationGesture()
+        .onChanged(onMagnificationGestureChanged)
+        .onEnded(onMagnificationGestureEnded)
 
         return Group {
             if let contents = mangaContents,
@@ -75,7 +74,7 @@ struct ContentView: View, StoreAccessor {
                                         onWebImageAppear(item)
                                     }
                                 }
-                                if setting.showContentDividers {
+                                if setting.contentDividerHeight > 0 {
                                     Rectangle()
                                         .fill(Color(.darkGray))
                                         .frame(height: setting.contentDividerHeight)
@@ -156,6 +155,7 @@ struct ContentView: View, StoreAccessor {
 
 // MARK: Private Extension
 private extension ContentView {
+    // MARK: Properties
     var mangaDetail: MangaDetail? {
         cachedList.items?[gid]?.detail
     }
@@ -172,6 +172,7 @@ private extension ContentView {
         Defaults.ImageSize.contentHScale
     }
 
+    // MARK: Life Cycle
     func onAppear() {
         restoreAspectBox()
         toggleNavBarHiddenIfNeeded()
@@ -209,6 +210,7 @@ private extension ContentView {
         aspectBox[tag] = aspect
     }
 
+    // MARK: Dispatch
     func fetchMangaContents() {
         store.dispatch(.fetchMangaContents(gid: gid))
     }
@@ -294,7 +296,7 @@ private extension ContentView {
     // MARK: Gestures
     func onDoubleTap(_ value: TapGesture.Value) {
         setOffset(.zero)
-        setScale(scale == 1 ? 2 : 1)
+        setScale(scale == 1 ? setting?.doubleTapScaleFactor ?? 2 : 1)
     }
     func onDragGestureChanged(_ value: DragGesture.Value) {
         if scale > 1 {
@@ -318,10 +320,13 @@ private extension ContentView {
             baseScale = scale
         }
         fixOffset()
-        setScale(max(value * baseScale, 1))
+        setScale(value * baseScale)
     }
     func onMagnificationGestureEnded(_ value: MagnificationGesture.Value) {
         onMagnificationGestureChanged(value)
+        if value * baseScale - 1 < 0.01 {
+            setScale(1)
+        }
         baseScale = scale
     }
 
@@ -347,10 +352,13 @@ private extension ContentView {
         }
     }
     func setScale(_ newScale: CGFloat) {
-        if scale != newScale {
-            withAnimation {
-                scale = newScale
-            }
+        let max = setting?.maximumScaleFactor ?? 3
+        guard scale != newScale && newScale >= 1 && newScale <= max
+        else { return }
+
+        withAnimation {
+            scale = newScale
+            print("debugMark: \(newScale)")
         }
     }
 }

@@ -182,3 +182,13 @@ extension Int {
         return string
     }
 }
+
+extension CGFloat {
+    func roundedString() -> String {
+        roundedString(with: 1)
+    }
+
+    func roundedString(with places: Int) -> String {
+        String(format: "%.\(places)f", self)
+    }
+}

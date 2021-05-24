@@ -112,8 +112,9 @@
 "Reading" = "閲覧";
 "Retry limit" = "再試行上限数";
 " times" = "回";
-"Insert separators between images" = "画像の間に仕切りを挿む";
 "Separator height" = "仕切りの厚さ";
+"Maximum scale factor" = "最大スケール係数";
+"Double tap scale factor" = "ダブルタップスケール係数";
 
 "About EhPanda" = "EhPandaについて";
 "Version" = "バージョン";
