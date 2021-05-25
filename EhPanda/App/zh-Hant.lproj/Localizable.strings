@@ -1,0 +1,256 @@
+/* 
+  Localizable.strings
+  EhPanda
+
+  Created by 荒木辰造 on R 2/12/25.
+  
+*/
+
+// MARK: Response
+"You must have a H@H client assigned to your account to use this feature." = "你需要一個關聯到帳號的Hath客戶端才能使用這個功能";
+"Your H@H client appears to be offline. Turn it on, then try again." = "你的Hath客戶端為離線狀態，請啓動後再試";
+"The requested gallery cannot be downloaded with the selected resolution." = "該畫廊不能以選定的解析度下載";
+
+// MARK: HUD
+"Success" = "成功";
+"Error" = "錯誤";
+"Communicating..." = "與伺服器通訊中...";
+"Copied to clipboard" = "已複製到剪貼簿";
+
+// MARK: LockView
+"The App has been locked due to the auto-lock expiration." = "因超過自動鎖定期限，App已被鎖定";
+
+// MARK: Common
+"null" = "無內容";
+"expired" = "已過期";
+"mystery" = "被拒絕";
+
+// MARK: User
+"favoriteNameByDev" = "收藏夾";
+"all_appendedByDev" = "全部";
+
+// MARK: AlertView
+"Loading..." = "載入中...";
+"You need to login to use this app." = "你需要登入才能使用這個App";
+"Login" = "登入";
+"Your search didn't match any docs." = "未能找到你需要的資訊";
+"Retry" = "重試";
+"A Network error occurred.\nPlease try again later." = "網絡發生故障\n請稍後再試";
+
+// MARK: DetailView
+"Archive" = "封存";
+"Torrents" = "種子";
+"Share" = "分享";
+"Read" = "閱讀";
+"Favored" = "收藏";
+"Times" = "次";
+"Language" = "語言";
+" Ratings" = "個評分";
+"Page Count" = "頁數";
+"Pages" = "頁";
+"Size" = "文件大小";
+"Give a Rating" = "給予評分";
+"Similar Gallery" = "相似畫廊";
+"Preview" = "預覽";
+"Comment" = "評論";
+"Show All" = "顯示全部";
+
+// MARK: ArchiveView
+"N/A" = "不適用";
+"Free" = "免費";
+"Original" = "原始尺寸";
+"Download To Hath Client" = "下載到Hath客戶端";
+
+// MARK: CommentView
+"Agree" = "贊成";
+"Disagree" = "反對";
+"Edit" = "編輯";
+"Post Comment" = "發表評論";
+"Edit Comment" = "編輯評論";
+"Cancel" = "取消";
+"Post" = "發表";
+
+// MARK: SettingView
+"Setting" = "設定";
+"Account" = "帳號";
+"Gallery" = "畫廊";
+"Login" = "登入";
+"Logout" = "登出";
+"Account configuration" = "帳號設定";
+"Manage tags subscription" = "管理訂閱標籤";
+"Are you sure to logout?" = "確定要登出嗎？";
+"Are you sure to clear?" = "確定要清空嗎？";
+"Clear" = "清空";
+"Warning" = "警告";
+"It's for debug only" = "僅用於偵錯的功能";
+
+"General" = "一般";
+"Close slide menu after selection" = "選擇後關閉選單";
+"Detect link from the clipboard" = "偵測剪貼簿中的連結";
+"Allows detection even when no change" = "沒有變化時仍然偵測";
+"Security" = "安全";
+"Auto-Lock" = "自動鎖定";
+"App switcher blur" = "模糊多工處理中的預覽";
+"Cache" = "快取";
+"Clear image caches" = "清空圖片快取";
+"Clear web caches" = "清空網頁快取";
+"Edit" = "編輯";
+"Finish" = "完成";
+"Copy cookies" = "複製Cookies";
+
+"Apperance" = "外觀";
+"Global" = "全局";
+"Theme" = "主題";
+"Tint Color" = "主題色";
+"App Icon" = "應用圖標";
+"Translate category" = "翻譯分類";
+"List" = "列表";
+"Show tags in list" = "在列表中顯示標籤";
+"Set maximum number of tags" = "設定標籤數量上限";
+"Maximum number of tags" = "標籤數量上限";
+
+"Reading" = "閱讀";
+"Retry limit" = "重試次數上限";
+" times" = "次";
+"Separator height" = "分隔線高度";
+"Maximum scale factor" = "縮放上限";
+"Double tap scale factor" = "雙擊縮放值";
+
+"About EhPanda" = "關於EhPanda";
+"Version" = "版本";
+"Contacts" = "聯絡";
+"Website" = "網站";
+"Acknowledgement" = "致謝";
+
+// MARK: FilterView
+"Filters" = "篩選";
+"Basic" = "基本";
+"Reset filters" = "重置所有選項";
+"Are you sure to reset?" = "確定要重置嗎？";
+"Reset" = "重置";
+"Advanced settings" = "進階選項";
+"Advanced" = "進階";
+"Search gallery name" = "搜尋畫廊名稱";
+"Search gallery tags" = "搜尋畫廊標籤";
+"Search gallery description" = "搜尋畫廊描述";
+"Search torrent filenames" = "搜尋種子檔案名";
+"Only show galleries with torrents" = "只顯示有種子的畫廊";
+"Search Low-Power tags" = "搜尋低期望標籤";
+"Search downvoted tags" = "搜尋低評價標籤";
+"Show expunged galleries" = "顯示被刪除的畫廊";
+"Set minimum rating" = "設定評分下限";
+"Minimum rating" = "評分下限";
+"stars" = "星";
+"Set pages range" = "設定頁數範圍";
+"Pages range" = "頁數範圍";
+"Default Filter" = "預設篩選";
+"Disable language filter" = "禁用語言篩選";
+"Disable uploader filter" = "禁用上傳者篩選";
+"Disable tags filter" = "禁用標籤篩選";
+
+// MARK: NewDawnView
+"Show new dawn greeting" = "顯示黎明問候";
+"It is the dawn of a new day!" = "現在是嶄新的一天！";
+"Reflecting on your journey so far, you find that you are a little wiser." = "回顧到目前為止的旅程，您發現自己睿智了一點。";
+"GAINCONTENT_START" = "你獲得了";
+"GAINCONTENT_SEPARATOR" = "、";
+"GAINCONTENT_AND" = "和";
+"GAINCONTENT_END" = "！";
+
+// MARK: HomeListType
+"Search" = "搜尋";
+"Frontpage" = "主頁";
+"Popular" = "熱門";
+"Watched" = "標籤";
+"Favorites" = "收藏";
+"Downloaded" = "下載";
+"History" = "歷史";
+
+// MARK: Category
+"Doujinshi" = "同人誌";
+"Manga" = "漫畫";
+"Artist CG" = "插畫";
+"Game CG" = "遊戲CG";
+"Western" = "西方";
+"Non-H" = "健康";
+"Image Set" = "圖片集";
+"Cosplay" = "角色扮演";
+"Asian Porn" = "亞洲";
+"Misc" = "其它";
+
+// MARK: TagCategory
+"Reclass" = "重新分類";
+"Language" = "語言";
+"Parody" = "原作";
+"Character" = "角色";
+"Group" = "團體";
+"Artist" = "作者";
+"Male" = "男性";
+"Female" = "女性";
+"Misc" = "其它";
+
+// MARK: IconType
+"Normal" = "普通";
+"Default" = "預設";
+"Weird" = "詭異";
+
+// MARK: PreferredColorScheme
+"Automatic" = "自動";
+"Light" = "淺色";
+"Dark" = "深色";
+
+// MARK: AutoLockPolicy
+"Never" = "不錯定";
+"Instantly" = "立即";
+"15 seconds" = "15秒";
+"1 minute" = "1分鐘";
+"5 minutes" = "5分鐘";
+"10 minutes" = "10分鐘";
+"30 minutes" = "30分鐘";
+
+// MARK: Language
+"Other" = "其它";
+
+"Afrikaans" = "南非語"; "Albanian" = "阿爾巴尼亞語"; "Arabic" = "阿拉伯語";
+
+"Bengali" = "孟加拉語"; "Bosnian" = "波士尼亞語"; "Bulgarian" = "保加利亞語"; "Burmese" = "緬甸語";
+
+"Catalan" = "加泰羅尼亞語"; "Cebuano" = "宿霧語"; "Chinese" = "漢語"; "Croatian" = "克羅地亞語"; "Czech" = "捷克語";
+
+"Danish" = "丹麥語"; "Dutch" = "荷蘭語";
+
+"English" = "英語"; "Esperanto" = "國際語"; "Estonian" = "愛沙尼亞語";
+
+"Finnish" = "芬蘭語"; "French" = "法語";
+
+"Georgian" = "格魯吉亞語"; "German" = "德語"; "Greek" = "希臘語";
+
+"Hebrew" = "希伯來語"; "Hindi" = "印地語"; "Hmong" = "苗語"; "Hungarian" = "匈牙利語";
+
+"Indonesian" = "印尼語"; "Indonesian" = "意大利語";
+
+"Japanese" = "日語";
+
+"Kazakh" = "哈薩克語"; "Khmer" = "高棉語"; "Korean" = "韓語"; "Kurdish" = "庫爾德語";
+
+"Lao" = "老撾語"; "Latin" = "拉丁語";
+
+"Mongolian" = "蒙古語";
+
+"Ndebele" = "恩德貝萊語"; "Nepali" = "尼泊爾語"; "Norwegian" = "挪威語";
+
+"Oromo" = "奧羅莫語";
+
+"Pashto" = "普什圖語"; "Persian" = "波斯語"; "Polish" = "波蘭語"; "Portuguese" = "葡萄牙語"; "Punjabi" = "旁遮普語";
+
+"Romanian" = "羅馬尼亞語"; "Russian" = "俄語";
+
+"Sango" = "桑戈語"; "Serbian" = "塞爾維亞語"; "Shona" = "紹納語"; "Slovak" = "斯洛伐克語"; "Slovenian" = "斯洛文尼亞語"; "Somali" = "索馬里語"; "Spanish" = "西班牙語"; "Swahili" = "斯瓦希里語"; "Swedish" = "瑞典語";
+
+"Tagalog" = "他加洛語"; "Thai" = "泰語"; "Tigrinya" = "提格利尼亞語"; "Turkish" = "土耳其語";
+
+"Ukrainian" = "烏克蘭語"; "Urdu" = "烏爾都語";
+
+"Vietnamese" = "越南語";
+
+"Zulu" = "祖魯語";

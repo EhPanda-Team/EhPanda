@@ -9,7 +9,8 @@
 <p align="center">
   <a href="/README.en.md">English</a>・
   <a href="/README.jpn.md">日本語</a>・
-  <a href="/README.chs.md">简体中文</a>
+  <a href="/README.chs.md">简体中文</a>・
+  <a href="/README.cht.md">繁體中文</a>
 </p>
 
 ## Questions、Feedback
