@@ -9,8 +9,8 @@
 <p align="center">
   <a href="/README.en.md">English</a>・
   <a href="/README.jpn.md">日本語</a>・
-  <a href="/README.chs.md">简体中文</a>・
-  <a href="/README.cht.md">繁體中文</a>
+  <a href="/README.cht.md">繁體中文</a>・
+  <a href="/README.chs.md">简体中文</a>
 </p>
 
 ## Questions、Feedback
@@ -20,7 +20,9 @@
 © 2021 荒木辰造. All rights reserved.
 
 ## Content & Copyright
-IDK, use it at your own risk.
+The content in this application is derived from E-Hentai, which is user-generated content.
+
+**Users of this application should access the E-Hentai content at their own risk.**
 
 ## Installation
 1. Get the ipa file from [Releases](https://github.com/arakitatsuzou/EhPanda/releases).
