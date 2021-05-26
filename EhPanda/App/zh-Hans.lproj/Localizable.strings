@@ -31,8 +31,8 @@
 
 // MARK: AlertView
 "Loading..." = "加载中...";
-"You need to login to use this app." = "请登陆以使用这个App";
-"Login" = "登陆";
+"You need to login to use this app." = "请登录以使用这个App";
+"Login" = "登录";
 "Your search didn't match any docs." = "未能找到你需要的信息";
 "Retry" = "重试";
 "A Network error occurred.\nPlease try again later." = "网络发生故障\n请稍后再试";
@@ -74,11 +74,11 @@
 "Setting" = "设置";
 "Account" = "账户";
 "Gallery" = "画廊";
-"Login" = "登陆";
-"Logout" = "退出登陆";
+"Login" = "登录";
+"Logout" = "退出登录";
 "Account configuration" = "账户设置";
 "Manage tags subscription" = "管理标签订阅";
-"Are you sure to logout?" = "确定要退出登陆吗？";
+"Are you sure to logout?" = "确定要退出登录吗？";
 "Are you sure to clear?" = "确定要清空吗？";
 "Clear" = "清空";
 "Warning" = "警告";
@@ -98,7 +98,7 @@
 "Finish" = "完成";
 "Copy cookies" = "复制Cookies";
 
-"Apperance" = "外观";
+"Appearance" = "外观";
 "Global" = "全局";
 "Theme" = "主题";
 "Tint Color" = "主题色";

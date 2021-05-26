@@ -37,7 +37,7 @@ struct ReadingSettingView: View, StoreAccessor {
                         .pickerStyle(MenuPickerStyle())
                     }
                 }
-                Section(header: Text("Apperance")) {
+                Section(header: Text("Appearance")) {
                     HStack {
                         Text("Separator height")
                         Spacer()

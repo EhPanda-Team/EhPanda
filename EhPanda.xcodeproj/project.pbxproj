@@ -108,6 +108,8 @@
 		ABCD2F09259763FC008E5A20 /* Request.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Request.swift; sourceTree = "<group>"; };
 		ABCD2F0D25976B95008E5A20 /* Parser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Parser.swift; sourceTree = "<group>"; };
 		ABD5FDD3263D05110021A4C6 /* .swiftlint.yml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.yaml; path = .swiftlint.yml; sourceTree = SOURCE_ROOT; };
+		ABE9376C265DCD9400EA8B30 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/Localizable.strings"; sourceTree = "<group>"; };
+		ABE9376D265DCD9400EA8B30 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
 		ABEA1FE525A9B40B002966B9 /* Setting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Setting.swift; sourceTree = "<group>"; };
 		ABEE0AFB2595C6F800C997AE /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		ABEE0AFE2595C73D00C997AE /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
@@ -395,6 +397,7 @@
 				Base,
 				ja,
 				"zh-Hans",
+				"zh-Hant",
 			);
 			mainGroup = ABC3C74B2593696C00E0C11B;
 			packageReferences = (
@@ -521,6 +524,7 @@
 				AB7E6B3125D24FE00035CC68 /* ja */,
 				AB7E6B3425D24FE40035CC68 /* zh-Hans */,
 				AB7E6B3525D24FE50035CC68 /* en */,
+				ABE9376D265DCD9400EA8B30 /* zh-Hant */,
 			);
 			name = InfoPlist.strings;
 			sourceTree = "<group>";
@@ -531,6 +535,7 @@
 				ABEE0AFB2595C6F800C997AE /* en */,
 				ABEE0AFE2595C73D00C997AE /* zh-Hans */,
 				AB994DBB25986F7A00E9A367 /* ja */,
+				ABE9376C265DCD9400EA8B30 /* zh-Hant */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";
@@ -665,7 +670,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = EhPanda/EhPanda.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 49;
+				CURRENT_PROJECT_VERSION = 50;
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = 9SKQ7QTZ74;
 				ENABLE_PREVIEWS = YES;
@@ -692,7 +697,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = EhPanda/EhPanda.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 49;
+				CURRENT_PROJECT_VERSION = 50;
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = 9SKQ7QTZ74;
 				ENABLE_PREVIEWS = YES;

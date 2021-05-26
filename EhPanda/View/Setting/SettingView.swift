@@ -32,7 +32,7 @@ struct SettingView: View, StoreAccessor {
                     )
                     SettingRow(
                         symbolName: "circle.righthalf.fill",
-                        text: "Apperance",
+                        text: "Appearance",
                         destination: AppearanceSettingView()
                     )
                     SettingRow(

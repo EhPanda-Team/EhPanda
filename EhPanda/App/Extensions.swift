@@ -74,6 +74,12 @@ extension String {
         ) ?? ""
     }
 
+    var withComma: String? {
+        guard let intSelf = Int(self) else { return nil }
+
+        return getStringWithComma(intSelf)
+    }
+
     func capitalizingFirstLetter() -> String {
         prefix(1).capitalized + dropFirst()
     }
@@ -172,14 +178,7 @@ extension Bundle {
 
 extension Int {
     var withComma: String? {
-        let decimalFormatter = NumberFormatter()
-        decimalFormatter.numberStyle = .decimal
-        decimalFormatter.locale = Locale.current
-
-        let string = decimalFormatter.string(
-            from: self as NSNumber
-        )
-        return string
+        getStringWithComma(self)
     }
 }
 

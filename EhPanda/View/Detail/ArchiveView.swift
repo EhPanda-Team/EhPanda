@@ -54,8 +54,8 @@ struct ArchiveView: View, StoreAccessor {
 
                             Spacer()
 
-                            if let galleryPoints = currentGP,
-                               let credits = currentCredits
+                            if let galleryPoints = currentGP?.withComma,
+                               let credits = currentCredits?.withComma
                             {
                                 BalanceView(galleryPoints: galleryPoints, credits: credits)
                             }
@@ -243,10 +243,12 @@ private struct BalanceView: View {
             HStack(spacing: 3) {
                 Image(systemName: "g.circle.fill")
                 Text(galleryPoints)
+                    .lineLimit(1)
             }
             HStack(spacing: 3) {
                 Image(systemName: "c.circle.fill")
                 Text(credits)
+                    .lineLimit(1)
             }
         }
         .font(.headline)

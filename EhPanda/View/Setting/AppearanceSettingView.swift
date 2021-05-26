@@ -82,7 +82,7 @@ struct AppearanceSettingView: View, StoreAccessor {
                     }
                 }
             }
-            .navigationBarTitle("Apperance")
+            .navigationBarTitle("Appearance")
         }
     }
 

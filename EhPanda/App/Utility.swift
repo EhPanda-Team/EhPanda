@@ -215,6 +215,17 @@ func copyHTMLIfNeeded(_ html: String?) {
     }
 }
 
+func getStringWithComma(_ value: Int) -> String? {
+    let decimalFormatter = NumberFormatter()
+    decimalFormatter.numberStyle = .decimal
+    decimalFormatter.locale = Locale.current
+
+    let string = decimalFormatter.string(
+        from: value as NSNumber
+    )
+    return string
+}
+
 // MARK: UserDefaults
 let isDebugModeOn = UserDefaults.standard.bool(forKey: "debugModeOn")
 
