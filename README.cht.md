@@ -17,7 +17,7 @@
 
 [![Telegram](https://img.shields.io/badge/chat-Telegram-blue.svg)](https://t.me/ehpanda)
 
-## App圖示
+## 應用程式圖示
 © 2021 荒木辰造. All rights reserved.
 
 ## 內容及其著作權
