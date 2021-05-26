@@ -85,7 +85,7 @@
 "It's for debug only" = "僅用於偵錯的功能";
 
 "General" = "一般";
-"Close slide menu after selection" = "選擇後關閉選單";
+"Close slide menu after selection" = "選擇後關閉側邊選單";
 "Detect link from the clipboard" = "偵測剪貼簿中的連結";
 "Allows detection even when no change" = "沒有變化時仍然偵測";
 "Security" = "安全";
@@ -200,7 +200,7 @@
 "Dark" = "深色";
 
 // MARK: AutoLockPolicy
-"Never" = "不錯定";
+"Never" = "不鎖定";
 "Instantly" = "立即";
 "15 seconds" = "15秒";
 "1 minute" = "1分鐘";
