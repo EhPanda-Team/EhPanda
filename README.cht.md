@@ -1,6 +1,6 @@
 <h1 align="center">EhPanda</h1>
 
-<h4 align="center">iOS非官方E-Hentai應用程式</h4>
+<h4 align="center">iOS的非官方E-Hentai應用程式</h4>
 
 <p align="center">
 <img src="https://user-images.githubusercontent.com/31207151/105609404-0acbff00-5de4-11eb-9e88-f3c6e0ba9d44.png" width="400"></img>
@@ -9,8 +9,8 @@
 <p align="center">
   <a href="/README.md">English</a>・
   <a href="/README.jpn.md">日本語</a>・
-  <a href="/README.chs.md">简体中文</a>・
-  <a href="/README.cht.md">繁體中文</a>
+  <a href="/README.cht.md">繁體中文</a>・
+  <a href="/README.chs.md">简体中文</a>
 </p>
 
 ## 提問、意見回饋
@@ -21,9 +21,9 @@
 © 2021 荒木辰造. All rights reserved.
 
 ## 內容及其著作權
-本應用程式內的內容均由E-Hentai提供，而E-Hentai的內容均為用戶生成內容。
+本應用程式內的內容均來自E-Hentai，而E-Hentai的內容均為用戶生成內容。
 
-用戶需要自行承擔存取E-Hentai內容的責任。
+**本應用程式的用戶需要自行承擔存取E-Hentai內容的責任。**
 
 ## 安裝步驟
 1. 在[Releases](https://github.com/arakitatsuzou/EhPanda/releases)取得ipa文件。
