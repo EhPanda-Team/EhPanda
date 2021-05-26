@@ -9,8 +9,8 @@
 <p align="center">
   <a href="/README.md">English</a>・
   <a href="/README.jpn.md">日本語</a>・
-  <a href="/README.chs.md">简体中文</a>・
-  <a href="/README.cht.md">繁體中文</a>
+  <a href="/README.cht.md">繁體中文</a>・
+  <a href="/README.chs.md">简体中文</a>
 </p>
 
 ## 提问、反馈
@@ -20,7 +20,9 @@
 © 2021 荒木辰造. All rights reserved.
 
 ## 内容及其著作权
-不懂，你需要自担风险。
+本应用程序中的内容均来自E-Hentai，而E-Hentai的内容均为用户生成内容。
+
+**本应用程序的用户需要自行承担访问E-Hentai内容的责任。**
 
 ## 安装步骤
 1. 在[Releases](https://github.com/arakitatsuzou/EhPanda/releases)取得ipa文件。
