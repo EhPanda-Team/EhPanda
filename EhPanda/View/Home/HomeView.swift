@@ -244,10 +244,10 @@ private extension HomeView {
     }
     func onListAppear() {
         if settings.user == nil {
-            store.dispatch(.initiateUser)
+            store.dispatch(.initializeUser)
         }
         if setting == nil {
-            store.dispatch(.initiateSetting)
+            store.dispatch(.initializeSetting)
         }
         if settings.user?.displayName?.isEmpty != false {
             fetchUserInfo()

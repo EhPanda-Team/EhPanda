@@ -13,9 +13,9 @@ enum AppAction {
     case replaceUser(user: User?)
     case clearCachedList
     case clearHistoryItems
-    case initiateUser
-    case initiateFilter
-    case initiateSetting
+    case initializeUser
+    case initializeFilter
+    case initializeSetting
     case cleanDetailViewCommentContent
     case cleanCommentViewCommentContent
     case saveAspectBox(gid: String, box: [Int: CGFloat])

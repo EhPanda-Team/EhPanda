@@ -303,7 +303,7 @@ func browsingCaches() -> String {
 }
 
 // MARK: Cookies
-func initiateCookieFrom(_ cookie: HTTPCookie, value: String) -> HTTPCookie {
+func initializeCookieFrom(_ cookie: HTTPCookie, value: String) -> HTTPCookie {
     var properties = cookie.properties
     properties?[.value] = value
     return HTTPCookie(properties: properties ?? [:]) ?? HTTPCookie()
@@ -365,7 +365,7 @@ func editCookie(url: URL, key: String, value: String) {
         cookies.forEach { cookie in
             if cookie.name == key
             {
-                newCookie = initiateCookieFrom(cookie, value: value)
+                newCookie = initializeCookieFrom(cookie, value: value)
                 removeCookie(url: url, key: key)
             }
         }

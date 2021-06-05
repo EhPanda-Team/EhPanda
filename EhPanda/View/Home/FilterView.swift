@@ -86,7 +86,7 @@ private extension FilterView {
 
     func onAppear() {
         if settings.filter == nil {
-            store.dispatch(.initiateFilter)
+            store.dispatch(.initializeFilter)
         }
     }
 
@@ -95,7 +95,7 @@ private extension FilterView {
     }
 
     func resetFilters() {
-        store.dispatch(.initiateFilter)
+        store.dispatch(.initializeFilter)
     }
 }
 

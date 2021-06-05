@@ -35,11 +35,11 @@ final class Store: ObservableObject {
             appState.cachedList.items = nil
         case .clearHistoryItems:
             appState.homeInfo.historyItems = nil
-        case .initiateUser:
+        case .initializeUser:
             appState.settings.user = User()
-        case .initiateFilter:
+        case .initializeFilter:
             appState.settings.filter = Filter()
-        case .initiateSetting:
+        case .initializeSetting:
             appState.settings.setting = Setting()
         case .saveAspectBox(let gid, let box):
             appState.cachedList.insertAspectBox(gid: gid, box: box)
