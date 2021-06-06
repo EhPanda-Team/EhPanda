@@ -477,7 +477,7 @@ struct KFImageModifier: ImageModifier {
         let originH = image.size.height
         let scale = originW / originH
 
-        let targetW = originW * targetScale
+        let targetW = originH * targetScale
 
         if abs(targetScale - scale) <= 0.2 {
             return image

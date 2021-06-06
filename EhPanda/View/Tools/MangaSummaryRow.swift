@@ -18,7 +18,6 @@ struct MangaSummaryRow: View, StoreAccessor {
         HStack {
             KFImage(URL(string: manga.coverURL))
                 .placeholder(placeholder)
-                .imageModifier(modifier)
                 .loadImmediately()
                 .resizable()
                 .scaledToFit()
@@ -116,14 +115,6 @@ private extension MangaSummaryRow {
         colorScheme == .light
             ? Color(.systemGray5)
             : Color(.systemGray4)
-    }
-    var modifier: KFImageModifier {
-        KFImageModifier(
-            targetScale:
-                Defaults
-                .ImageSize
-                .rowScale
-        )
     }
     func placeholder() -> some View {
         Placeholder(

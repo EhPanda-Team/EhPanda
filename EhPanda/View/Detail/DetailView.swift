@@ -301,7 +301,6 @@ private struct HeaderView: View, StoreAccessor {
         HStack {
             KFImage(URL(string: manga.coverURL))
                 .placeholder(placeholder)
-                .imageModifier(modifier)
                 .loadImmediately()
                 .resizable()
                 .scaledToFit()
@@ -401,14 +400,6 @@ private extension HeaderView {
         } else {
             return manga.category.rawValue
         }
-    }
-    var modifier: KFImageModifier {
-        KFImageModifier(
-            targetScale:
-                Defaults
-                .ImageSize
-                .rowScale
-        )
     }
     func placeholder() -> some View {
         Placeholder(
@@ -720,14 +711,6 @@ private struct PreviewView: View {
     private var height: CGFloat {
         Defaults.ImageSize.previewH
     }
-    private var modifier: KFImageModifier {
-        KFImageModifier(
-            targetScale:
-                Defaults
-                .ImageSize
-                .rowScale
-        )
-    }
     private func placeholder() -> some View {
         Placeholder(
             style: .activity,
@@ -759,7 +742,6 @@ private struct PreviewView: View {
                         ForEach(previews) { item in
                             KFImage(URL(string: item.url))
                                 .placeholder(placeholder)
-                                .imageModifier(modifier)
                                 .loadImmediately()
                                 .resizable()
                                 .scaledToFit()

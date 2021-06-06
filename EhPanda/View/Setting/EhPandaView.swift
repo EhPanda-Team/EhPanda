@@ -34,6 +34,10 @@ struct EhPandaView: View, StoreAccessor {
                 text: "taylorlannister"
             ),
             Info(
+                url: "https://github.com/caxerx",
+                text: "caxerx"
+            ),
+            Info(
                 url: "https://github.com/honjow",
                 text: "honjow"
             ),
