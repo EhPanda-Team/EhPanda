@@ -48,10 +48,10 @@
       },
       {
         "package": "TTProgressHUD",
-        "repositoryURL": "https://github.com/tatsuz0u/TTProgressHUD",
+        "repositoryURL": "https://github.com/tatsuz0u/TTProgressHUD.git",
         "state": {
           "branch": "master",
-          "revision": "c45070fbaad3817357e336a85ea15c47588e2b8c",
+          "revision": "edd2e6b571876a46ac2eda550bb1f366bb8006ca",
           "version": null
         }
       }
