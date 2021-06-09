@@ -264,9 +264,13 @@ private struct CommentCell: View, StoreAccessor {
                     }
                 case .singleLink:
                     if let link = content.link {
-                        LinkedText(link, linkAction)
+                        Text(link)
+                            .foregroundColor(.accentColor)
+                            .onTapGesture {
+                                linkAction(link.safeURL())
+                            }
                     }
-                default:
+                case .singleImg, .doubleImg, .linkedImg, .doubleLinkedImg:
                     generateWebImages(
                         imgURL: content.imgURL,
                         secondImgURL: content.secondImgURL,

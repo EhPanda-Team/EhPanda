@@ -38,20 +38,11 @@
         }
       },
       {
-        "package": "SwiftUIVisualEffects",
-        "repositoryURL": "https://github.com/lucasbrown/swiftui-visual-effects.git",
-        "state": {
-          "branch": null,
-          "revision": "b26f8cebd55ff60ed8953768aa818dfb005b5838",
-          "version": "1.0.3"
-        }
-      },
-      {
         "package": "TTProgressHUD",
         "repositoryURL": "https://github.com/tatsuz0u/TTProgressHUD.git",
         "state": {
           "branch": "master",
-          "revision": "edd2e6b571876a46ac2eda550bb1f366bb8006ca",
+          "revision": "1f1dc1e5058d1421bb2b02dbe887da67fee807e7",
           "version": null
         }
       }

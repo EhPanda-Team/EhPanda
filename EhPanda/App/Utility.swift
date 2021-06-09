@@ -107,6 +107,18 @@ var isPadWidth: Bool {
     windowW ?? screenW > 700
 }
 
+var viewControllersCount: Int {
+    if let navigationVC = keyWindow?
+        .rootViewController?
+        .children.first
+        as? UINavigationController
+    {
+        return navigationVC
+            .viewControllers.count
+    }
+    return -1
+}
+
 var keyWindow: UIWindow? {
     UIApplication.shared.connectedScenes
         .filter({ $0.activationState == .foregroundActive })
@@ -209,6 +221,7 @@ func isValidDetailURL(url: URL) -> Bool {
         && !url.pathComponents[3].isEmpty
 }
 
+@available(*, deprecated, message: "Use @FocusState instead.")
 func hideKeyboard() {
     UIApplication.shared.sendAction(
         #selector(UIResponder.resignFirstResponder),

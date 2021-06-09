@@ -465,6 +465,7 @@ private extension HomeView {
 // MARK: GenericList
 private struct GenericList: View, StoreAccessor {
     @EnvironmentObject var store: Store
+    @FocusState var isTextFieldFocused: Bool
 
     private let items: [Manga]?
     private let loadingFlag: Bool
@@ -506,6 +507,7 @@ private struct GenericList: View, StoreAccessor {
             if isTokenMatched {
                 SearchBar(
                     keyword: homeInfoBinding.searchKeyword,
+                    isTextFieldFocused: _isTextFieldFocused,
                     commitAction: searchBarCommit,
                     filterAction: searchBarFilter
                 )
@@ -573,7 +575,7 @@ private extension GenericList {
     }
 
     func searchBarCommit() {
-        hideKeyboard()
+        isTextFieldFocused = false
 
         if environment.homeListType != .search {
             store.dispatch(.toggleHomeListType(type: .search))
@@ -599,15 +601,19 @@ private extension GenericList {
 // MARK: SearchBar
 private struct SearchBar: View {
     @Binding private var keyword: String
+    @FocusState private var isTextFieldFocused: Bool
     private var commitAction: () -> Void
     private var filterAction: () -> Void
 
     init(
         keyword: Binding<String>,
+        isTextFieldFocused: FocusState<Bool>,
         commitAction: @escaping () -> Void,
         filterAction: @escaping () -> Void
     ) {
         _keyword = keyword
+        _isTextFieldFocused = isTextFieldFocused
+
         self.commitAction = commitAction
         self.filterAction = filterAction
     }
@@ -621,6 +627,7 @@ private struct SearchBar: View {
                 text: $keyword,
                 onCommit: commitAction
             )
+            .focused($isTextFieldFocused)
             .disableAutocorrection(true)
             .autocapitalization(.none)
             .submitLabel(.search)
