@@ -84,7 +84,7 @@ struct KRefreshScrollView<Content: View>: View {
                     .foregroundColor(arrowTint)
                     .rotationEffect(.init(degrees: refresh.degree))
                     .offset(y: -110)
-                    .animation(.easeIn)
+                    .animation(.easeIn, value: 0.2)
                     .opacity(refresh.degree > 0 ? 1 : 0)
 
                 LazyVStack {

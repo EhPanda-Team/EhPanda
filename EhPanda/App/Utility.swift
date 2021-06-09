@@ -107,19 +107,26 @@ var isPadWidth: Bool {
     windowW ?? screenW > 700
 }
 
+var keyWindow: UIWindow? {
+    UIApplication.shared.connectedScenes
+        .filter({ $0.activationState == .foregroundActive })
+        .compactMap({ $0 as? UIWindowScene }).last?
+        .windows.filter({ $0.isKeyWindow }).last
+}
+
 var isLandscape: Bool {
     [.landscapeLeft, .landscapeRight]
         .contains(
-            UIApplication.shared.windows.first?
-                .windowScene?.interfaceOrientation
+            keyWindow?.windowScene?
+                .interfaceOrientation
         )
 }
 
 var isPortrait: Bool {
     [.portrait, .portraitUpsideDown]
         .contains(
-            UIApplication.shared.windows.first?
-                .windowScene?.interfaceOrientation
+            keyWindow?.windowScene?
+                .interfaceOrientation
         )
 }
 
@@ -152,11 +159,11 @@ var screenH: CGFloat {
 }
 
 var absoluteWindowW: CGFloat? {
-    UIApplication.shared.windows.first?.frame.size.width
+    keyWindow?.frame.size.width
 }
 
 var absoluteWindowH: CGFloat? {
-    UIApplication.shared.windows.first?.frame.size.height
+    keyWindow?.frame.size.height
 }
 
 var absoluteScreenW: CGFloat {

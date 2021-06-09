@@ -616,9 +616,14 @@ private struct SearchBar: View {
         HStack {
             Image(systemName: "magnifyingglass")
                 .foregroundColor(.gray)
-            TextField("Search", text: $keyword, onCommit: commitAction)
-                .disableAutocorrection(true)
-                .autocapitalization(.none)
+            TextField(
+                "Search".localized(),
+                text: $keyword,
+                onCommit: commitAction
+            )
+            .disableAutocorrection(true)
+            .autocapitalization(.none)
+            .submitLabel(.search)
             HStack {
                 Group {
                     if !keyword.isEmpty {

@@ -54,8 +54,7 @@ final class Store: ObservableObject {
             appState.homeInfo.insertHistoryItem(manga: item)
         case .updateViewControllersCount:
             var viewControllersCount = -1
-            if let navigationVC = UIApplication
-                    .shared.windows.first?
+            if let navigationVC = keyWindow?
                     .rootViewController?
                     .children.first
                     as? UINavigationController

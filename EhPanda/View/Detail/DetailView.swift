@@ -206,15 +206,13 @@ private extension DetailView {
             applicationActivities: nil
         )
         if isPad {
-            activityVC.popoverPresentationController?.sourceView =
-                UIApplication.shared.windows.first
+            activityVC.popoverPresentationController?.sourceView = keyWindow
             activityVC.popoverPresentationController?.sourceRect = CGRect(
                 x: screenW, y: 0,
                 width: 200, height: 200
             )
         }
-        UIApplication.shared.windows
-            .first?.rootViewController?
+        keyWindow?.rootViewController?
             .present(
                 activityVC,
                 animated: true,

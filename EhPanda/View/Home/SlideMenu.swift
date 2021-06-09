@@ -16,8 +16,7 @@ struct SlideMenu: View, StoreAccessor {
 
     private var tokenMatchedMenuItems = HomeListType
         .allCases.filter({ $0 != .search })
-    private var edges = UIApplication.shared.windows
-        .first?.safeAreaInsets
+    private var edges = keyWindow?.safeAreaInsets
 
     init(offset: Binding<CGFloat>) {
         _offset = offset
