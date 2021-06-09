@@ -353,7 +353,6 @@ private struct HeaderView: View, StoreAccessor {
                                         .foregroundColor(.accentColor)
                                 }
                             }
-
                         }
                     }
                     Button(action: {}, label: {
@@ -369,8 +368,8 @@ private struct HeaderView: View, StoreAccessor {
                     })
                 }
             }
-            .padding(.leading, 10)
-            .padding(.trailing, 10)
+            .padding(.horizontal, 10)
+            .frame(height: height)
         }
     }
 }
