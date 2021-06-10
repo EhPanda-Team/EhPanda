@@ -12,11 +12,11 @@
       },
       {
         "package": "Kingfisher",
-        "repositoryURL": "https://github.com/onevcat/Kingfisher.git",
+        "repositoryURL": "https://github.com/tatsuz0u/Kingfisher.git",
         "state": {
-          "branch": null,
-          "revision": "44450a8f564d7c0165f736ba2250649ff8d3e556",
-          "version": "6.3.0"
+          "branch": "Remove-Accelerate",
+          "revision": "a057f36f4e4af94a6fe3b3a1e6c70ada5f704050",
+          "version": null
         }
       },
       {
