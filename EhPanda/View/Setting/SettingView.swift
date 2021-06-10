@@ -51,21 +51,18 @@ struct SettingView: View, StoreAccessor {
             }
             .navigationBarTitle("Setting")
             .sheet(item: environmentBinding.settingViewSheetState) { item in
-                switch item {
-                case .webviewLogin:
-                    WebView(type: .ehLogin)
-                        .environmentObject(store)
-                        .blur(radius: environment.blurRadius)
-                        .allowsHitTesting(environment.isAppUnlocked)
-                case .webviewConfig:
-                    WebView(type: .ehConfig)
-                        .blur(radius: environment.blurRadius)
-                        .allowsHitTesting(environment.isAppUnlocked)
-                case .webviewMyTags:
-                    WebView(type: .ehMyTags)
-                        .blur(radius: environment.blurRadius)
-                        .allowsHitTesting(environment.isAppUnlocked)
+                Group {
+                    switch item {
+                    case .webviewLogin:
+                        WebView(type: .ehLogin)
+                    case .webviewConfig:
+                        WebView(type: .ehConfig)
+                    case .webviewMyTags:
+                        WebView(type: .ehMyTags)
+                    }
                 }
+                .blur(radius: environment.blurRadius)
+                .allowsHitTesting(environment.isAppUnlocked)
             }
             .actionSheet(item: environmentBinding.settingViewActionSheetState) { item in
                 switch item {

@@ -197,7 +197,7 @@
 // MARK: PreferredColorScheme
 "Automatic" = "自動";
 "Light" = "ライト";
-"Dark" = "ライト";
+"Dark" = "ダーク";
 
 // MARK: AutoLockPolicy
 "Never" = "なし";

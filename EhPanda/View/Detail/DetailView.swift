@@ -33,52 +33,50 @@ struct DetailView: View, StoreAccessor {
                 ),
                 isActive: $isAssociatedLinkActive
             )
-            Group {
-                if let detail = mangaDetail {
-                    ScrollView(showsIndicators: false) {
-                        VStack {
-                            HeaderView(manga: manga, detail: detail)
-                                .padding(.top, -40)
-                                .padding(.bottom, 15)
-                            Group {
-                                DescScrollView(detail: detail)
-                                if isTokenMatched {
-                                    ActionRow(
-                                        detail: detail,
-                                        ratingAction: onUserRatingChanged
-                                    ) {
-                                        onSimilarGalleryTap(detail.title)
-                                    }
-                                }
-                                if !detail.detailTags.isEmpty && isTokenMatched {
-                                    TagsView(
-                                        tags: detail.detailTags,
-                                        onTapAction: onTagsViewTap
-                                    )
-                                }
-                                PreviewView(
-                                    previews: detail.previews,
-                                    alterImages: detail.alterImages
-                                )
-                                if !(detail.comments.isEmpty && !isTokenMatched) {
-                                    CommentScrollView(
-                                        gid: gid,
-                                        depth: depth,
-                                        comments: detail.comments
-                                    )
+            if let detail = mangaDetail {
+                ScrollView(showsIndicators: false) {
+                    VStack {
+                        HeaderView(manga: manga, detail: detail)
+                            .padding(.top, -40)
+                            .padding(.bottom, 15)
+                        Group {
+                            DescScrollView(detail: detail)
+                            if isTokenMatched {
+                                ActionRow(
+                                    detail: detail,
+                                    ratingAction: onUserRatingChanged
+                                ) {
+                                    onSimilarGalleryTap(detail.title)
                                 }
                             }
-                            .padding(.vertical, 10)
+                            if !detail.detailTags.isEmpty && isTokenMatched {
+                                TagsView(
+                                    tags: detail.detailTags,
+                                    onTapAction: onTagsViewTap
+                                )
+                            }
+                            PreviewView(
+                                previews: detail.previews,
+                                alterImages: detail.alterImages
+                            )
+                            if !(detail.comments.isEmpty && !isTokenMatched) {
+                                CommentScrollView(
+                                    gid: gid,
+                                    depth: depth,
+                                    comments: detail.comments
+                                )
+                            }
                         }
-                        .padding(.horizontal)
-                        .padding(.bottom, 20)
+                        .padding(.vertical, 10)
                     }
-                    .transition(AnyTransition.opacity.animation(.default))
-                } else if detailInfo.mangaDetailLoading {
-                    LoadingView()
-                } else if detailInfo.mangaDetailLoadFailed {
-                    NetworkErrorView(retryAction: fetchMangaDetail)
+                    .padding(.horizontal)
+                    .padding(.bottom, 20)
                 }
+                .transition(AnyTransition.opacity.animation(.default))
+            } else if detailInfo.mangaDetailLoading {
+                LoadingView()
+            } else if detailInfo.mangaDetailLoadFailed {
+                NetworkErrorView(retryAction: fetchMangaDetail)
             }
         }
         .onAppear(perform: onAppear)
@@ -86,33 +84,24 @@ struct DetailView: View, StoreAccessor {
         .navigationBarItems(trailing: menu)
         .navigationBarHidden(environment.navBarHidden)
         .sheet(item: environmentBinding.detailViewSheetState) { item in
-            switch item {
-            case .archive:
-                ArchiveView(gid: gid)
-                    .environmentObject(store)
-                    .accentColor(accentColor)
-                    .preferredColorScheme(colorScheme)
-                    .blur(radius: environment.blurRadius)
-                    .allowsHitTesting(environment.isAppUnlocked)
-            case .torrents:
-                TorrentsView(gid: gid)
-                    .environmentObject(store)
-                    .accentColor(accentColor)
-                    .preferredColorScheme(colorScheme)
-                    .blur(radius: environment.blurRadius)
-                    .allowsHitTesting(environment.isAppUnlocked)
-            case .comment:
-                DraftCommentView(
-                    content: commentContentBinding,
-                    title: "Post Comment",
-                    postAction: draftCommentViewPost,
-                    cancelAction: draftCommentViewCancel
-                )
-                .accentColor(accentColor)
-                .preferredColorScheme(colorScheme)
-                .blur(radius: environment.blurRadius)
-                .allowsHitTesting(environment.isAppUnlocked)
+            Group {
+                switch item {
+                case .archive:
+                    ArchiveView(gid: gid)
+                case .torrents:
+                    TorrentsView(gid: gid)
+                case .comment:
+                    DraftCommentView(
+                        content: commentContentBinding,
+                        title: "Post Comment",
+                        postAction: draftCommentViewPost,
+                        cancelAction: draftCommentViewCancel
+                    )
+                }
             }
+            .accentColor(accentColor)
+            .blur(radius: environment.blurRadius)
+            .allowsHitTesting(environment.isAppUnlocked)
         }
     }
 }
@@ -144,7 +133,7 @@ private extension DetailView {
     }
     var menu: some View {
         Group {
-            if !detailInfo.mangaDetailLoading {
+            if mangaDetail != nil {
                 Menu(content: {
                     if !detailInfo.mangaDetailUpdating {
                         if isTokenMatched {
@@ -335,7 +324,7 @@ private struct HeaderView: View, StoreAccessor {
                             Button(action: onFavoriteDelete) {
                                 Image(systemName: "heart.fill")
                                     .imageScale(.large)
-                                    .foregroundColor(.accentColor)
+                                    .foregroundStyle(.tint)
                             }
                         } else {
                             if let user = user,
@@ -350,7 +339,7 @@ private struct HeaderView: View, StoreAccessor {
                                 } label: {
                                     Image(systemName: "heart")
                                         .imageScale(.large)
-                                        .foregroundColor(.accentColor)
+                                        .foregroundStyle(.tint)
                                 }
                             }
                         }
@@ -358,14 +347,13 @@ private struct HeaderView: View, StoreAccessor {
                     Button(action: {}, label: {
                         NavigationLink(destination: ContentView(gid: manga.gid)) {
                             Text("Read".localized().uppercased())
-                                .foregroundColor(.white)
                                 .fontWeight(.bold)
-                                .padding(.vertical, 5)
-                                .padding(.horizontal, 14)
-                                .background(Color.accentColor)
-                                .cornerRadius(30)
+                                .padding(.vertical, -2)
+                                .padding(.horizontal, 2)
                         }
                     })
+                    .buttonStyle(.bordered)
+                    .controlProminence(.increased)
                 }
             }
             .padding(.horizontal, 10)
@@ -472,6 +460,7 @@ private struct DescScrollView: View {
                 )
                 .frame(width: itemWidth)
             }
+            .drawingGroup()
         }
         .frame(height: 60)
         .onReceive(
@@ -793,7 +782,11 @@ private struct CommentScrollView: View {
                     .font(.title3)
                 Spacer()
                 if !comments.isEmpty && isTokenMatched {
-                    NavigationLink(destination: CommentView(gid: gid, depth: depth)) {
+                    NavigationLink(
+                        destination: CommentView(
+                            gid: gid, depth: depth
+                        )
+                    ) {
                         Text("Show All")
                             .font(.subheadline)
                     }
@@ -805,6 +798,7 @@ private struct CommentScrollView: View {
                         CommentScrollCell(comment: comment)
                     }
                 }
+                .drawingGroup()
             }
             if isTokenMatched {
                 CommentButton(action: toggleDraft)

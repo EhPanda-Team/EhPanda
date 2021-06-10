@@ -56,27 +56,19 @@ struct HomeView: View, StoreAccessor {
         }
         .navigationViewStyle(StackNavigationViewStyle())
         .sheet(item: environmentBinding.homeViewSheetState) { item in
-            switch item {
-            case .setting:
-                SettingView()
-                    .environmentObject(store)
-                    .accentColor(accentColor)
-                    .preferredColorScheme(colorScheme)
-                    .blur(radius: environment.blurRadius)
-                    .allowsHitTesting(environment.isAppUnlocked)
-            case .filter:
-                FilterView()
-                    .environmentObject(store)
-                    .accentColor(accentColor)
-                    .preferredColorScheme(colorScheme)
-                    .blur(radius: environment.blurRadius)
-                    .allowsHitTesting(environment.isAppUnlocked)
-            case .newDawn:
-                NewDawnView(greeting: greeting)
-                    .preferredColorScheme(colorScheme)
-                    .blur(radius: environment.blurRadius)
-                    .allowsHitTesting(environment.isAppUnlocked)
+            Group {
+                switch item {
+                case .setting:
+                    SettingView()
+                case .filter:
+                    FilterView()
+                case .newDawn:
+                    NewDawnView(greeting: greeting)
+                }
             }
+            .accentColor(accentColor)
+            .blur(radius: environment.blurRadius)
+            .allowsHitTesting(environment.isAppUnlocked)
         }
         .onAppear(perform: onAppear)
         .onReceive(

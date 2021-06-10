@@ -73,7 +73,6 @@ struct CommentView: View, StoreAccessor {
                             cancelAction: onDraftCommentViewCancel
                         )
                         .accentColor(accentColor)
-                        .preferredColorScheme(colorScheme)
                         .blur(radius: environment.blurRadius)
                         .allowsHitTesting(environment.isAppUnlocked)
                     }
@@ -257,7 +256,7 @@ private struct CommentCell: View, StoreAccessor {
                        let link = content.link
                     {
                         Text(text)
-                            .foregroundColor(.accentColor)
+                            .foregroundStyle(.tint)
                             .onTapGesture {
                                 linkAction(link.safeURL())
                             }
@@ -265,7 +264,7 @@ private struct CommentCell: View, StoreAccessor {
                 case .singleLink:
                     if let link = content.link {
                         Text(link)
-                            .foregroundColor(.accentColor)
+                            .foregroundStyle(.tint)
                             .onTapGesture {
                                 linkAction(link.safeURL())
                             }
@@ -298,7 +297,6 @@ private struct CommentCell: View, StoreAccessor {
                 cancelAction: onDraftCommentViewCancel
             )
             .accentColor(accentColor)
-            .preferredColorScheme(colorScheme)
         }
         .contextMenu {
             if comment.votable {

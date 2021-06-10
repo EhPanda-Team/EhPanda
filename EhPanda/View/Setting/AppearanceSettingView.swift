@@ -165,7 +165,7 @@ private struct AppIconRow: View {
             Spacer()
             if isSelected {
                 Image(systemName: "checkmark.circle.fill")
-                    .foregroundColor(.accentColor)
+                    .foregroundStyle(.tint)
                     .imageScale(.large)
             }
         }

@@ -13,15 +13,22 @@ struct NewDawnView: View {
     @Environment(\.colorScheme) private var colorScheme
     @State private var rotationAngle: Double = 0
     @State private var greeting: Greeting?
-    @State private var timer = Timer
-        .publish(
-            every: 1/10,
-            on: .main,
-            in: .common
-        )
-        .autoconnect()
 
     private let offset = screenW * 0.2
+
+    private var gradientColors: [Color] {
+        let teal = Color(.systemTeal)
+        let indigo = Color(.systemIndigo)
+
+        if colorScheme == .light {
+            return [teal, indigo]
+        } else {
+            return [
+                Color(.systemGray5),
+                Color(.systemGray2)
+            ]
+        }
+    }
 
     init(greeting: Greeting?) {
         _greeting = State(initialValue: greeting)
@@ -29,71 +36,59 @@ struct NewDawnView: View {
 
     // MARK: NewDawnView
     var body: some View {
-        ZStack {
-            LinearGradient(
-                gradient: Gradient(
-                    colors: gradientColors
-                ),
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .ignoresSafeArea()
-            VStack {
-                HStack {
-                    Spacer()
-                    ZStack {
-                        SunView()
-                        if colorScheme == .light {
-                            SunBeamView()
-                                .rotationEffect(Angle(degrees: rotationAngle))
+        TimelineView(.animation) { timeline in
+            let now = timeline.date.timeIntervalSince1970
+            let angle = Angle.degrees(now * 50)
+
+            ZStack {
+                LinearGradient(
+                    gradient: Gradient(
+                        colors: gradientColors
+                    ),
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .drawingGroup()
+                .ignoresSafeArea()
+                VStack {
+                    HStack {
+                        Spacer()
+                        ZStack {
+                            SunView()
+                            if colorScheme == .light {
+                                SunBeamView()
+                                    .rotationEffect(angle)
+                            }
                         }
+                        .offset(x: offset, y: -offset)
                     }
-                    .offset(x: offset, y: -offset)
+                    Spacer()
                 }
-                Spacer()
+                .drawingGroup()
+                .ignoresSafeArea()
+                VStack(spacing: 50) {
+                    VStack(spacing: 10) {
+                        TextView(
+                            text: "It is the dawn of a new day!",
+                            font: .largeTitle
+                        )
+                        TextView(
+                            text: "Reflecting on your journey so far, "
+                                + "you find that you are a little wiser.",
+                            font: .title2
+                        )
+                    }
+                    if let content = greeting?.gainContent {
+                        TextView(
+                            text: content,
+                            font: .title3,
+                            fontWeight: .bold
+                        )
+                    }
+                }
+                .padding()
+                .drawingGroup()
             }
-            .ignoresSafeArea()
-            VStack(spacing: 50) {
-                VStack(spacing: 10) {
-                    TextView(
-                        text: "It is the dawn of a new day!",
-                        font: .largeTitle
-                    )
-                    TextView(
-                        text: "Reflecting on your journey so far, "
-                            + "you find that you are a little wiser.",
-                        font: .title2
-                    )
-                }
-                if let content = greeting?.gainContent {
-                    TextView(
-                        text: content,
-                        font: .title3,
-                        fontWeight: .bold
-                    )
-                }
-            }
-            .padding()
-        }
-        .onReceive(timer, perform: onReceiveTimer)
-    }
-}
-
-private extension NewDawnView {
-    var gradientColors: [Color] {
-        let teal = Color(.systemTeal)
-        let indigo = Color(.systemIndigo)
-
-        if colorScheme == .light {
-            return [teal, indigo]
-        } else {
-            return [Color(.systemGray5), Color(.systemGray2)]
-        }
-    }
-
-    func onReceiveTimer(_: Date) {
-        withAnimation {
-            rotationAngle += 1
         }
     }
 }

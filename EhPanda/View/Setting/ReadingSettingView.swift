@@ -97,7 +97,7 @@ private struct ScaleFactorRow: View {
                 Text(labelContent.localized())
                 Spacer()
                 Text(scaleFactor.roundedString() + "x")
-                    .foregroundColor(.accentColor)
+                    .foregroundStyle(.tint)
             }
             Slider(
                 value: $scaleFactor,

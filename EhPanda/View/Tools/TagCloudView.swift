@@ -28,7 +28,8 @@ struct TagCloudView: View {
         backgroundColor: Color,
         paddingV: CGFloat,
         paddingH: CGFloat,
-        onTapAction: @escaping (AssociatedKeyword) -> Void
+        onTapAction: @escaping
+            (AssociatedKeyword) -> Void = { _ in }
     ) {
         self.tag = tag
         self.font = font
@@ -42,7 +43,7 @@ struct TagCloudView: View {
     var body: some View {
         VStack {
             GeometryReader { geometry in
-                self.generateContent(in: geometry)
+                generateContent(in: geometry)
             }
         }
         .frame(height: totalHeight) // << variant for ScrollView/List

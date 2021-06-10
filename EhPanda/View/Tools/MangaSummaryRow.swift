@@ -35,13 +35,15 @@ struct MangaSummaryRow: View, StoreAccessor {
                    !tags.isEmpty
                 {
                     TagCloudView(
-                        tag: MangaTag(category: .artist, content: tags),
+                        tag: MangaTag(
+                            category: .artist,
+                            content: tags
+                        ),
                         font: .caption2,
                         textColor: .secondary,
                         backgroundColor: tagColor,
                         paddingV: 2,
-                        paddingH: 4,
-                        onTapAction: { _ in }
+                        paddingH: 4
                     )
                 }
                 HStack {
@@ -77,7 +79,9 @@ struct MangaSummaryRow: View, StoreAccessor {
                         .foregroundColor(.secondary)
                 }
                 .padding(.top, 1)
-            }.padding(10)
+            }
+            .padding(10)
+            .drawingGroup()
         }
         .background(Color(.systemGray6))
         .cornerRadius(3)
