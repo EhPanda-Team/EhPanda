@@ -118,7 +118,7 @@ struct MangaDetail: Codable {
 
 struct MangaArchive: Codable {
     struct HathArchive: Codable, Identifiable {
-        var id = UUID()
+        var id: String { resolution.rawValue }
 
         let resolution: ArchiveRes
         let fileSize: String
@@ -129,14 +129,14 @@ struct MangaArchive: Codable {
 }
 
 struct MangaTag: Codable, Identifiable {
-    var id = UUID()
+    var id: String { category.rawValue }
 
     let category: TagCategory
     let content: [String]
 }
 
 struct MangaComment: Identifiable, Codable {
-    var id = UUID()
+    var id: String { author + formattedDateString }
 
     var votedUp: Bool
     var votedDown: Bool
@@ -151,7 +151,14 @@ struct MangaComment: Identifiable, Codable {
 }
 
 struct CommentContent: Identifiable, Codable {
-    var id = UUID()
+    var id: String {
+        [
+            "\(type.rawValue)",
+            text, link, imgURL,
+            secondLink, secondImgURL
+        ]
+        .compactMap({$0}).joined()
+    }
 
     let type: CommentContentType
     var text: String?
@@ -163,13 +170,13 @@ struct CommentContent: Identifiable, Codable {
 }
 
 struct MangaPreview: Identifiable, Codable {
-    var id = UUID()
+    var id = UUID().uuidString
 
     let url: String
 }
 
 struct MangaAlterData: Identifiable, Codable {
-    var id = UUID()
+    var id: Data { data }
 
     let data: Data
 }
@@ -185,7 +192,7 @@ struct MangaContent: Identifiable, Codable, Equatable {
 }
 
 struct MangaTorrent: Identifiable, Codable {
-    var id = UUID()
+    var id: String { uploader + formattedDateString }
 
     let postedDate: Date
     let fileSize: String

@@ -81,18 +81,17 @@ struct ContentView: View, StoreAccessor {
                                         .edgesIgnoringSafeArea(.horizontal)
                                 }
                             }
-                            Group {
-                                if moreLoadingFlag {
-                                    LoadingView(isCompact: true)
-                                } else if moreLoadFailedFlag {
-                                    NetworkErrorView(
-                                        isCompact: true,
-                                        retryAction: fetchMoreMangaContents
-                                    )
-                                }
+                            HStack(alignment: .center) {
+                                Spacer()
+                                ProgressView()
+                                    .opacity(moreLoadingFlag ? 1 : 0)
+                                NetworkErrorCompactView(
+                                    retryAction: fetchMoreMangaContents
+                                )
+                                    .opacity(moreLoadFailedFlag ? 1 : 0)
+                                Spacer()
                             }
-                            .padding()
-                            .padding(.bottom, 24)
+                            .frame(height: 30)
                         }
                         .onAppear {
                             onLazyVStackAppear(scrollProxy)

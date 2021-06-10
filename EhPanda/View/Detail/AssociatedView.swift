@@ -40,16 +40,17 @@ struct AssociatedView: View, StoreAccessor {
                             .opacity
                             .animation(.default)
                     )
-                    if moreLoadingFlag {
-                        LoadingView(isCompact: true)
-                            .padding()
-                    } else if moreLoadFailedFlag {
-                        NetworkErrorView(
-                            isCompact: true,
+                    HStack(alignment: .center) {
+                        Spacer()
+                        ProgressView()
+                        .opacity(moreLoadingFlag ? 1 : 0)
+                        NetworkErrorCompactView(
                             retryAction: fetchMoreAssociatedItems
                         )
-                        .padding()
+                        .opacity(moreLoadFailedFlag ? 1 : 0)
+                        Spacer()
                     }
+                    .frame(height: 30)
                 } else if loadingFlag {
                     LoadingView()
                         .padding(.top, 30)

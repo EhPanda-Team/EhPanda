@@ -8,19 +8,8 @@
 import SwiftUI
 
 struct LoadingView: View {
-    private let isCompact: Bool
-
-    init(isCompact: Bool = false) {
-        self.isCompact = isCompact
-    }
-
     var body: some View {
-        switch isCompact {
-        case true:
-            ProgressView()
-        case false:
-            ProgressView("Loading...")
-        }
+        ProgressView("Loading...")
     }
 }
 
@@ -58,33 +47,41 @@ struct NotFoundView: View {
     }
 }
 
-struct NetworkErrorView: View {
-    private let isCompact: Bool
+struct NetworkErrorCompactView: View {
     private let retryAction: (() -> Void)?
 
-    init(
-        isCompact: Bool = false,
-        retryAction: (() -> Void)?
-    ) {
-        self.isCompact = isCompact
+    init(retryAction: (() -> Void)?) {
         self.retryAction = retryAction
     }
 
     var body: some View {
-        switch isCompact {
-        case true:
-            Button(action: onRetryButtonTap) {
-                Image(systemName: "exclamationmark.arrow.triangle.2.circlepath")
-                    .imageScale(.large)
-            }
-        case false:
-            GenericRetryView(
-                symbolName: "wifi.exclamationmark",
-                message: "A Network error occurred.\nPlease try again later.",
-                buttonText: "Retry",
-                retryAction: onRetryButtonTap
-            )
+        Button(action: onRetryButtonTap) {
+            Image(systemName: "exclamationmark.arrow.triangle.2.circlepath")
+                .imageScale(.large)
         }
+    }
+
+    private func onRetryButtonTap() {
+        if let action = retryAction {
+            action()
+        }
+    }
+}
+
+struct NetworkErrorView: View {
+    private let retryAction: (() -> Void)?
+
+    init(retryAction: (() -> Void)?) {
+        self.retryAction = retryAction
+    }
+
+    var body: some View {
+        GenericRetryView(
+            symbolName: "wifi.exclamationmark",
+            message: "A Network error occurred.\nPlease try again later.",
+            buttonText: "Retry",
+            retryAction: onRetryButtonTap
+        )
     }
 
     private func onRetryButtonTap() {
