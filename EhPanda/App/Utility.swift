@@ -195,6 +195,9 @@ func notificFeedback(style: UINotificationFeedbackGenerator.FeedbackType) {
 }
 
 // MARK: Tools
+var animatedTransition: AnyTransition {
+    AnyTransition.opacity.animation(.default)
+}
 func clearPasteboard() {
     UIPasteboard.general.string = ""
 }

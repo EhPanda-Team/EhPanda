@@ -19,27 +19,26 @@ struct AssociatedView: View, StoreAccessor {
     }
 
     var body: some View {
-        ScrollView {
-            LazyVStack {
-                if !assciatedItem.mangas.isEmpty {
+        Group {
+            if !assciatedItem.mangas.isEmpty {
+                List {
                     ForEach(assciatedItem.mangas) { manga in
-                        NavigationLink(
-                            destination: DetailView(
-                                gid: manga.gid,
-                                depth: depth + 1
-                            )
-                        ) {
+                        ZStack {
+                            NavigationLink(
+                                destination: DetailView(
+                                    gid: manga.gid,
+                                    depth: depth + 1
+                                )
+                            ) {}
                             MangaSummaryRow(manga: manga)
-                                .onAppear(perform: {
-                                    onRowAppear(manga)
-                                })
                         }
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
+                        .onAppear(perform: {
+                            onRowAppear(manga)
+                        })
                     }
-                    .transition(
-                        AnyTransition
-                            .opacity
-                            .animation(.default)
-                    )
+                    .transition(animatedTransition)
                     HStack(alignment: .center) {
                         Spacer()
                         ProgressView()
@@ -50,19 +49,20 @@ struct AssociatedView: View, StoreAccessor {
                         .opacity(moreLoadFailedFlag ? 1 : 0)
                         Spacer()
                     }
+                    .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
                     .frame(height: 30)
-                } else if loadingFlag {
-                    LoadingView()
-                        .padding(.top, 30)
-                } else if notFoundFlag {
-                    NotFoundView(retryAction: retryAction)
-                        .padding(.top, 30)
-                } else {
-                    NetworkErrorView(retryAction: retryAction)
-                        .padding(.top, 30)
                 }
+                .refreshable(action: fetchAssociatedItems)
+                .transition(animatedTransition)
+                .listStyle(.plain)
+            } else if loadingFlag {
+                LoadingView()
+            } else if notFoundFlag {
+                NotFoundView(retryAction: retryAction)
+            } else {
+                NetworkErrorView(retryAction: retryAction)
             }
-            .padding()
         }
         .onAppear(perform: onAppear)
         .navigationBarTitle(title)
@@ -119,9 +119,7 @@ private extension AssociatedView {
     }
 
     func onAppear() {
-        if assciatedItem.keyword != keyword {
-            fetchAssociatedItems()
-        }
+        fetchAssociatedItemsIfNeeded()
     }
     func onRowAppear(_ item: Manga) {
         if item == assciatedItem.mangas.last {
@@ -138,5 +136,11 @@ private extension AssociatedView {
     }
     func fetchMoreAssociatedItems() {
         store.dispatch(.fetchMoreAssociatedItems(depth: depth, keyword: keyword))
+    }
+
+    func fetchAssociatedItemsIfNeeded() {
+        if assciatedItem.keyword != keyword {
+            fetchAssociatedItems()
+        }
     }
 }

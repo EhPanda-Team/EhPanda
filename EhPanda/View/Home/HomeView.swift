@@ -486,53 +486,46 @@ private struct GenericList: View, StoreAccessor {
         self.moreLoadFailedFlag = moreLoadFailedFlag
         self.fetchAction = fetchAction
         self.loadMoreAction = loadMoreAction
-
-        UIScrollView.appearance().keyboardDismissMode = .onDrag
     }
 
     var body: some View {
-        KRefreshScrollView(
-            progressTint: .gray,
-            arrowTint: .primary,
-            onUpdate: onUpdate
-        ) {
-            if isTokenMatched {
-                SearchBar(
-                    keyword: homeInfoBinding.searchKeyword,
-                    isTextFieldFocused: _isTextFieldFocused,
-                    commitAction: searchBarCommit,
-                    filterAction: searchBarFilter
-                )
-                .padding(.horizontal)
-                .padding(.bottom, 10)
-            }
-            if !didLogin && isTokenMatched {
-                NotLoginView(loginAction: toggleSetting)
-                    .padding(.top, 30)
-            } else if loadingFlag {
-                LoadingView()
-                    .padding(.top, 30)
-            } else if loadFailedFlag {
-                NetworkErrorView(retryAction: fetchAction)
-                    .padding(.top, 30)
-            } else if notFoundFlag {
-                NotFoundView(retryAction: fetchAction)
-                    .padding(.top, 30)
-            } else {
+        if !didLogin && isTokenMatched {
+            NotLoginView(loginAction: toggleSetting)
+        } else if loadingFlag {
+            LoadingView()
+        } else if loadFailedFlag {
+            NetworkErrorView(retryAction: fetchAction)
+        } else if notFoundFlag {
+            NotFoundView(retryAction: fetchAction)
+        } else {
+            List {
+                if isTokenMatched {
+                    SearchBar(
+                        keyword: homeInfoBinding.searchKeyword,
+                        isTextFieldFocused: _isTextFieldFocused,
+                        commitAction: searchBarCommit,
+                        filterAction: searchBarFilter
+                    )
+                    .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
+                    .padding(.bottom, 10)
+                }
                 ForEach(items ?? []) { item in
-                    NavigationLink(destination: DetailView(gid: item.id, depth: 0)) {
+                    ZStack {
+                        NavigationLink(
+                            destination: DetailView(
+                                gid: item.id, depth: 0
+                            )
+                        ) {}
                         MangaSummaryRow(manga: item)
-                            .onAppear {
-                                onRowAppear(item)
-                            }
+                    }
+                    .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
+                    .onAppear {
+                        onRowAppear(item)
                     }
                 }
-                .padding(.horizontal)
-                .transition(
-                    AnyTransition
-                        .opacity
-                        .animation(.default)
-                )
+                .transition(animatedTransition)
                 HStack(alignment: .center) {
                     Spacer()
                     ProgressView()
@@ -543,8 +536,13 @@ private struct GenericList: View, StoreAccessor {
                     .opacity(moreLoadFailedFlag ? 1 : 0)
                     Spacer()
                 }
+                .listRowBackground(Color.clear)
+                .listRowSeparator(.hidden)
                 .frame(height: 30)
             }
+            .transition(animatedTransition)
+            .refreshable(action: onUpdate)
+            .listStyle(.plain)
         }
     }
 }

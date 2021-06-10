@@ -16,6 +16,10 @@ struct EhPandaApp: App {
     init() {
         configureWebImage()
         clearImageCachesIfNeeded()
+        UIScrollView.appearance()
+            .keyboardDismissMode = .onDrag
+        UITableViewCell.appearance()
+            .selectedBackgroundView = UIView()
     }
 
     var body: some Scene {

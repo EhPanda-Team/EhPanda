@@ -72,7 +72,7 @@ struct DetailView: View, StoreAccessor {
                     .padding(.horizontal)
                     .padding(.bottom, 20)
                 }
-                .transition(AnyTransition.opacity.animation(.default))
+                .transition(animatedTransition)
             } else if detailInfo.mangaDetailLoading {
                 LoadingView()
             } else if detailInfo.mangaDetailLoadFailed {

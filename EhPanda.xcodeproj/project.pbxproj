@@ -53,7 +53,6 @@
 		ABF45AE325F3313D00ECB568 /* SlideMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF45AC525F3313D00ECB568 /* SlideMenu.swift */; };
 		ABF45AE425F3313D00ECB568 /* TagCloudView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF45AC725F3313D00ECB568 /* TagCloudView.swift */; };
 		ABF45AE525F3313D00ECB568 /* Comment.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF45AC825F3313D00ECB568 /* Comment.swift */; };
-		ABF45AE625F3313D00ECB568 /* KRefreshScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF45AC925F3313D00ECB568 /* KRefreshScrollView.swift */; };
 		ABF45AE725F3313D00ECB568 /* RatingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF45ACA25F3313D00ECB568 /* RatingView.swift */; };
 		ABF45AE825F3313D00ECB568 /* LinkedText.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF45ACB25F3313D00ECB568 /* LinkedText.swift */; };
 		ABF45AE925F3313D00ECB568 /* AlertView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF45ACC25F3313D00ECB568 /* AlertView.swift */; };
@@ -126,7 +125,6 @@
 		ABF45AC525F3313D00ECB568 /* SlideMenu.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SlideMenu.swift; sourceTree = "<group>"; };
 		ABF45AC725F3313D00ECB568 /* TagCloudView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TagCloudView.swift; sourceTree = "<group>"; };
 		ABF45AC825F3313D00ECB568 /* Comment.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Comment.swift; sourceTree = "<group>"; };
-		ABF45AC925F3313D00ECB568 /* KRefreshScrollView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KRefreshScrollView.swift; sourceTree = "<group>"; };
 		ABF45ACA25F3313D00ECB568 /* RatingView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RatingView.swift; sourceTree = "<group>"; };
 		ABF45ACB25F3313D00ECB568 /* LinkedText.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LinkedText.swift; sourceTree = "<group>"; };
 		ABF45ACC25F3313D00ECB568 /* AlertView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlertView.swift; sourceTree = "<group>"; };
@@ -305,7 +303,6 @@
 				ABC1FAB72642C37D00A9F352 /* NewDawnView.swift */,
 				ABF45AC825F3313D00ECB568 /* Comment.swift */,
 				ABF45ACD25F3313D00ECB568 /* Placeholder.swift */,
-				ABF45AC925F3313D00ECB568 /* KRefreshScrollView.swift */,
 				ABF45AC725F3313D00ECB568 /* TagCloudView.swift */,
 				ABF45ACB25F3313D00ECB568 /* LinkedText.swift */,
 				ABF45ACA25F3313D00ECB568 /* RatingView.swift */,
@@ -504,7 +501,6 @@
 				ABEA1FE625A9B40B002966B9 /* Setting.swift in Sources */,
 				ABC3C7962593699B00E0C11B /* Manga.swift in Sources */,
 				ABC3C7872593699B00E0C11B /* EhPandaApp.swift in Sources */,
-				ABF45AE625F3313D00ECB568 /* KRefreshScrollView.swift in Sources */,
 				ABF313A525B1AB6600D47A2F /* Misc.swift in Sources */,
 				ABA732DF25A852D800B3D9AB /* Filter.swift in Sources */,
 				ABC1FAB82642C37D00A9F352 /* NewDawnView.swift in Sources */,

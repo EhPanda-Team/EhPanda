@@ -97,14 +97,8 @@ struct ContentView: View, StoreAccessor {
                             onLazyVStackAppear(scrollProxy)
                         }
                     }
+                    .transition(animatedTransition)
                     .ignoresSafeArea()
-                    .transition(
-                        AnyTransition
-                            .opacity
-                            .animation(
-                                .default
-                            )
-                    )
                     .scaleEffect(scale)
                     .offset(offset)
                     .gesture(doubleTap)
