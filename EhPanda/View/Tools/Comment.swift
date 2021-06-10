@@ -32,6 +32,7 @@ struct CommentButton: View {
 
 struct DraftCommentView: View {
     @Binding private var content: String
+    @FocusState private var isTextEditorFocused: Bool
 
     private let title: String
     private let postAction: () -> Void
@@ -53,7 +54,7 @@ struct DraftCommentView: View {
         NavigationView {
             VStack {
                 TextEditor(text: $content)
-                    .padding()
+                    .focused($isTextEditorFocused)
                     .autocapitalization(.none)
                     .disableAutocorrection(true)
                     .navigationBarTitle(
@@ -72,8 +73,16 @@ struct DraftCommentView: View {
                             }
                             .disabled(content.isEmpty)
                     )
+                    .onAppear(perform: onTextEditorAppear)
+                    .padding()
                 Spacer()
             }
+        }
+    }
+
+    private func onTextEditorAppear() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+            isTextEditorFocused = true
         }
     }
 }

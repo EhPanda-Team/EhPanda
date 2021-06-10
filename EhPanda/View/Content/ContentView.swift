@@ -83,15 +83,17 @@ struct ContentView: View, StoreAccessor {
                             }
                             HStack(alignment: .center) {
                                 Spacer()
-                                ProgressView()
-                                    .opacity(moreLoadingFlag ? 1 : 0)
-                                NetworkErrorCompactView(
-                                    retryAction: fetchMoreMangaContents
-                                )
-                                    .opacity(moreLoadFailedFlag ? 1 : 0)
+                                if moreLoadingFlag {
+                                    ProgressView()
+                                } else if moreLoadFailedFlag {
+                                    NetworkErrorCompactView(
+                                        retryAction: fetchMoreMangaContents
+                                    )
+                                }
                                 Spacer()
                             }
-                            .frame(height: 30)
+                            .frame(height: 50)
+                            .padding(.bottom, 20)
                         }
                         .onAppear {
                             onLazyVStackAppear(scrollProxy)

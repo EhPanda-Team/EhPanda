@@ -528,12 +528,13 @@ private struct GenericList: View, StoreAccessor {
                 .transition(animatedTransition)
                 HStack(alignment: .center) {
                     Spacer()
-                    ProgressView()
-                    .opacity(moreLoadingFlag ? 1 : 0)
-                    NetworkErrorCompactView(
-                        retryAction: loadMoreAction
-                    )
-                    .opacity(moreLoadFailedFlag ? 1 : 0)
+                    if moreLoadingFlag {
+                        ProgressView()
+                    } else if moreLoadFailedFlag {
+                        NetworkErrorCompactView(
+                            retryAction: loadMoreAction
+                        )
+                    }
                     Spacer()
                 }
                 .listRowBackground(Color.clear)

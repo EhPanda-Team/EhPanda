@@ -41,12 +41,13 @@ struct AssociatedView: View, StoreAccessor {
                     .transition(animatedTransition)
                     HStack(alignment: .center) {
                         Spacer()
-                        ProgressView()
-                        .opacity(moreLoadingFlag ? 1 : 0)
-                        NetworkErrorCompactView(
-                            retryAction: fetchMoreAssociatedItems
-                        )
-                        .opacity(moreLoadFailedFlag ? 1 : 0)
+                        if moreLoadingFlag {
+                            ProgressView()
+                        } else if moreLoadFailedFlag {
+                            NetworkErrorCompactView(
+                                retryAction: fetchMoreAssociatedItems
+                            )
+                        }
                         Spacer()
                     }
                     .listRowBackground(Color.clear)
