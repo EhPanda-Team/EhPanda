@@ -137,7 +137,7 @@ private struct TorrentRow: View {
             HStack {
                 Spacer()
                 Text(torrent.uploader)
-                Text(torrent.postedTime)
+                Text(torrent.formattedDateString)
             }
             .lineLimit(1)
             .font(.callout)

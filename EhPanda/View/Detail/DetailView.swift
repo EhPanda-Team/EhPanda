@@ -845,7 +845,7 @@ private struct CommentScrollCell: View {
                     if let score = comment.score {
                         Text(score)
                     }
-                    Text(comment.commentTime)
+                    Text(comment.formattedDateString)
                 }
                 .font(.footnote)
                 .foregroundColor(.secondary)

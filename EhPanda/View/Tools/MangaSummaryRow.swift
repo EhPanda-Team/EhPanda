@@ -73,7 +73,7 @@ struct MangaSummaryRow: View, StoreAccessor {
                             )
                     }
                     Spacer()
-                    Text(manga.publishedTime)
+                    Text(manga.formattedDateString)
                         .lineLimit(1)
                         .font(.footnote)
                         .foregroundColor(.secondary)

@@ -7,6 +7,21 @@
 
 import SwiftUI
 
+// MARK: Protocols
+protocol DateFormattable {
+    var originalDate: Date { get }
+}
+extension DateFormattable {
+    var formattedDateString: String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .short
+        formatter.timeStyle = .short
+        formatter.locale = Locale.current
+        formatter.calendar = Calendar.current
+        return formatter.string(from: originalDate)
+    }
+}
+
 // MARK: Structs
 struct Manga: Identifiable, Codable, Equatable {
     static func == (lhs: Manga, rhs: Manga) -> Bool {
@@ -21,7 +36,6 @@ struct Manga: Identifiable, Codable, Equatable {
         tags: [],
         category: .nonH,
         uploader: nil,
-        publishedTime: "",
         publishedDate: Date(),
         coverURL: "",
         detailURL: ""
@@ -40,7 +54,6 @@ struct Manga: Identifiable, Codable, Equatable {
     let category: Category
     var language: Language?
     let uploader: String?
-    let publishedTime: String
     let publishedDate: Date
     let coverURL: String
     let detailURL: String
@@ -62,7 +75,6 @@ struct MangaDetail: Codable {
         category: .nonH,
         language: .English,
         uploader: "",
-        publishedTime: "",
         publishedDate: Date(),
         coverURL: "",
         likeCount: "",
@@ -95,7 +107,6 @@ struct MangaDetail: Codable {
     let category: Category
     let language: Language
     let uploader: String
-    let publishedTime: String
     let publishedDate: Date
     let coverURL: String
     var likeCount: String
@@ -136,7 +147,6 @@ struct MangaComment: Identifiable, Codable {
     let author: String
     let contents: [CommentContent]
     let commentID: String
-    let commentTime: String
     let commentDate: Date
 }
 
@@ -177,7 +187,7 @@ struct MangaContent: Identifiable, Codable, Equatable {
 struct MangaTorrent: Identifiable, Codable {
     var id = UUID()
 
-    let postedTime: String
+    let postedDate: Date
     let fileSize: String
     let seedCount: Int
     let peerCount: Int
@@ -188,7 +198,7 @@ struct MangaTorrent: Identifiable, Codable {
 }
 
 // MARK: Computed Properties
-extension Manga {
+extension Manga: DateFormattable {
     var filledCount: Int { Int(rating) }
     var halfFilledCount: Int { Int(rating - 0.5) == filledCount ? 1 : 0 }
     var notFilledCount: Int { 5 - filledCount - halfFilledCount }
@@ -196,11 +206,29 @@ extension Manga {
     var color: Color {
         category.color
     }
+    var originalDate: Date {
+        publishedDate
+    }
 }
 
-extension MangaDetail {
+extension MangaDetail: DateFormattable {
     var languageAbbr: String {
         language.languageAbbr
+    }
+    var originalDate: Date {
+        publishedDate
+    }
+}
+
+extension MangaComment: DateFormattable {
+    var originalDate: Date {
+        commentDate
+    }
+}
+
+extension MangaTorrent: DateFormattable {
+    var originalDate: Date {
+        postedDate
     }
 }
 

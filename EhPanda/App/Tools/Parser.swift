@@ -71,9 +71,9 @@ struct Parser {
                   let coverURL = try? parseCoverURL(gl2cNode),
                   let tagsAndLang = try? parseTagsAndLang(gl3cNode),
                   let publishedTime = try? parsePublishedTime(gl2cNode),
-                  let publishedDate = try? parsePublishedDate(publishedTime),
                   let title = link.at_xpath("//div [@class='glink']")?.text,
                   let detailURL = link.at_xpath("//td [@class='gl3c glname'] //a")?["href"],
+                  let publishedDate = try? parseDate(with: publishedTime, and: Defaults.DateFormat.publish),
                   let category = Category(rawValue: link.at_xpath("//td [@class='gl1c glcat'] //div")?.text ?? ""),
                   let url = URL(string: detailURL), url.pathComponents.count >= 4
             else { continue }
@@ -88,7 +88,6 @@ struct Parser {
                     category: category,
                     language: tagsAndLang.1,
                     uploader: uploader,
-                    publishedTime: publishedTime,
                     publishedDate: publishedDate,
                     coverURL: coverURL,
                     detailURL: detailURL
@@ -272,12 +271,12 @@ struct Parser {
                   let previews = try? parsePreviews(gdtNode),
                   let arcAndTor = try? parseArcAndTor(gd5Node),
                   let infoPanel = try? parseInfoPanel(gddNode),
-                  let publishedDate = try? parsePublishedDate(infoPanel[0]),
                   let language = Language(rawValue: infoPanel[1]),
                   let engTitle = link.at_xpath("//h1 [@id='gn']")?.text,
                   let uploader = gd3Node.at_xpath("//div [@id='gdn']")?.text,
                   let ratingCount = gdrNode.at_xpath("//span [@id='rating_count']")?.text,
-                  let category = Category(rawValue: gd3Node.at_xpath("//div [@id='gdc']")?.text ?? "")
+                  let category = Category(rawValue: gd3Node.at_xpath("//div [@id='gdc']")?.text ?? ""),
+                  let publishedDate = try? parseDate(with: infoPanel[0], and: Defaults.DateFormat.publish)
             else { throw AppError.parseFailed }
 
             let isFavored = gdfNode
@@ -304,7 +303,6 @@ struct Parser {
                 category: category,
                 language: language,
                 uploader: uploader,
-                publishedTime: infoPanel[0],
                 publishedDate: publishedDate,
                 coverURL: coverURL,
                 likeCount: infoPanel[5],
@@ -377,7 +375,7 @@ struct Parser {
                 }
 
                 let formatter = DateFormatter()
-                formatter.dateFormat = "dd MMMM yyyy, HH:mm"
+                formatter.dateFormat = Defaults.DateFormat.comment
                 formatter.timeZone = TimeZone(secondsFromGMT: 0)
                 formatter.locale = Locale(identifier: "en_US_POSIX")
                 guard let commentDate = formatter.date(from: commentTime) else { continue }
@@ -392,7 +390,6 @@ struct Parser {
                         author: author,
                         contents: parseCommentContent(c6Node),
                         commentID: commentID,
-                        commentTime: commentTime,
                         commentDate: commentDate
                     )
                 )
@@ -564,7 +561,12 @@ struct Parser {
                     }
                 }
             }
+
             guard let postedTime = tmpPostedTime,
+                  let postedDate = try? parseDate(
+                    with: postedTime,
+                    and: Defaults.DateFormat.torrent
+                  ),
                   let fileSize = tmpFileSize,
                   let seedCount = tmpSeedCount,
                   let peerCount = tmpPeerCount,
@@ -576,7 +578,7 @@ struct Parser {
 
             torrents.append(
                 MangaTorrent(
-                    postedTime: postedTime,
+                    postedDate: postedDate,
                     fileSize: fileSize,
                     seedCount: seedCount,
                     peerCount: peerCount,
@@ -701,12 +703,14 @@ extension Parser {
 
         return apikey
     }
-    // MARK: PublishedDate
-    static func parsePublishedDate(_ timeString: String) throws -> Date {
+    // MARK: Date
+    static func parseDate(with time: String, and format: String) throws -> Date {
         let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd HH:mm"
+        formatter.dateFormat = format
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+        formatter.locale = Locale(identifier: "en_US_POSIX")
 
-        guard let date = formatter.date(from: timeString)
+        guard let date = formatter.date(from: time)
         else { throw AppError.parseFailed }
 
         return date

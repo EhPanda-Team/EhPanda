@@ -43,6 +43,11 @@ struct Defaults {
         static var ipbMemberId = "ipb_member_id"
         static var ipbPassHash = "ipb_pass_hash"
     }
+    struct DateFormat {
+        static var publish = "yyyy-MM-dd HH:mm"
+        static var torrent = "yyyy-MM-dd HH:mm"
+        static var comment = "dd MMMM yyyy, HH:mm"
+    }
     struct Response {
         static var hathClientNotFound = "You must have a H@H client assigned to your account to use this feature."
         static var hathClientNotOnline = "Your H@H client appears to be offline. Turn it on, then try again."

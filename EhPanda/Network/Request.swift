@@ -89,7 +89,6 @@ struct MangaItemReverseRequest {
                 category: detail.category,
                 language: detail.language,
                 uploader: detail.uploader,
-                publishedTime: detail.publishedTime,
                 publishedDate: detail.publishedDate,
                 coverURL: detail.coverURL,
                 detailURL: detailURL
