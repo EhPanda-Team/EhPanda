@@ -41,15 +41,13 @@ struct DetailView: View, StoreAccessor {
                             .padding(.bottom, 15)
                         Group {
                             DescScrollView(detail: detail)
-                            if isTokenMatched {
-                                ActionRow(
-                                    detail: detail,
-                                    ratingAction: onUserRatingChanged
-                                ) {
-                                    onSimilarGalleryTap(detail.title)
-                                }
+                            ActionRow(
+                                detail: detail,
+                                ratingAction: onUserRatingChanged
+                            ) {
+                                onSimilarGalleryTap(detail.title)
                             }
-                            if !detail.detailTags.isEmpty && isTokenMatched {
+                            if !detail.detailTags.isEmpty {
                                 TagsView(
                                     tags: detail.detailTags,
                                     onTapAction: onTagsViewTap
@@ -59,7 +57,7 @@ struct DetailView: View, StoreAccessor {
                                 previews: detail.previews,
                                 alterImages: detail.alterImages
                             )
-                            if !(detail.comments.isEmpty && !isTokenMatched) {
+                            if !detail.comments.isEmpty {
                                 CommentScrollView(
                                     gid: gid,
                                     depth: depth,
@@ -136,19 +134,17 @@ private extension DetailView {
             if mangaDetail != nil {
                 Menu(content: {
                     if !detailInfo.mangaDetailUpdating {
-                        if isTokenMatched {
-                            if mangaDetail?.archiveURL != nil {
-                                Button(action: onArchiveButtonTap) {
-                                    Label("Archive", systemImage: "doc.zipper")
-                                }
+                        if mangaDetail?.archiveURL != nil {
+                            Button(action: onArchiveButtonTap) {
+                                Label("Archive", systemImage: "doc.zipper")
                             }
-                            if let count = torrentCount, count > 0 {
-                                Button(action: onTorrentsButtonTap) {
-                                    Label(
-                                        "Torrents".localized() + " (\(count))",
-                                        systemImage: "leaf"
-                                    )
-                                }
+                        }
+                        if let count = torrentCount, count > 0 {
+                            Button(action: onTorrentsButtonTap) {
+                                Label(
+                                    "Torrents".localized() + " (\(count))",
+                                    systemImage: "leaf"
+                                )
                             }
                         }
                         Button(action: onShareButtonTap) {
@@ -235,7 +231,7 @@ private extension DetailView {
 
     func postComment() {
         store.dispatch(.comment(gid: gid, content: commentContent))
-        store.dispatch(.cleanDetailViewCommentContent)
+        store.dispatch(.clearDetailViewCommentContent)
     }
 
     func fetchMangaDetail() {
@@ -305,42 +301,38 @@ private struct HeaderView: View, StoreAccessor {
                 }
                 Spacer()
                 HStack {
-                    if isTokenMatched {
-                        Text(category)
-                            .fontWeight(.bold)
-                            .lineLimit(1)
-                            .font(.headline)
-                            .foregroundColor(.white)
-                            .padding(.vertical, 2)
-                            .padding(.horizontal, 4)
-                            .background(
-                                RoundedRectangle(cornerRadius: 3)
-                                    .foregroundColor(manga.color)
-                            )
-                    }
+                    Text(category)
+                        .fontWeight(.bold)
+                        .lineLimit(1)
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .padding(.vertical, 2)
+                        .padding(.horizontal, 4)
+                        .background(
+                            RoundedRectangle(cornerRadius: 3)
+                                .foregroundColor(manga.color)
+                        )
                     Spacer()
-                    if isTokenMatched {
-                        if isFavored {
-                            Button(action: onFavoriteDelete) {
-                                Image(systemName: "heart.fill")
+                    if isFavored {
+                        Button(action: onFavoriteDelete) {
+                            Image(systemName: "heart.fill")
+                                .imageScale(.large)
+                                .foregroundStyle(.tint)
+                        }
+                    } else {
+                        if let user = user,
+                           let names = user.favoriteNames
+                        {
+                            Menu {
+                                ForEach(0..<names.count - 1) { index in
+                                    Button(user.getFavNameFrom(index)) {
+                                        onFavoriteAdd(index)
+                                    }
+                                }
+                            } label: {
+                                Image(systemName: "heart")
                                     .imageScale(.large)
                                     .foregroundStyle(.tint)
-                            }
-                        } else {
-                            if let user = user,
-                               let names = user.favoriteNames
-                            {
-                                Menu {
-                                    ForEach(0..<names.count - 1) { index in
-                                        Button(user.getFavNameFrom(index)) {
-                                            onFavoriteAdd(index)
-                                        }
-                                    }
-                                } label: {
-                                    Image(systemName: "heart")
-                                        .imageScale(.large)
-                                        .foregroundStyle(.tint)
-                                }
                             }
                         }
                     }
@@ -781,7 +773,7 @@ private struct CommentScrollView: View {
                     .fontWeight(.bold)
                     .font(.title3)
                 Spacer()
-                if !comments.isEmpty && isTokenMatched {
+                if !comments.isEmpty {
                     NavigationLink(
                         destination: CommentView(
                             gid: gid, depth: depth
@@ -800,9 +792,7 @@ private struct CommentScrollView: View {
                 }
                 .drawingGroup()
             }
-            if isTokenMatched {
-                CommentButton(action: toggleDraft)
-            }
+            CommentButton(action: toggleDraft)
         }
     }
 

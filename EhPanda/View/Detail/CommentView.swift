@@ -120,7 +120,7 @@ private extension CommentView {
         }
     }
     func onLinkTap(_ link: URL) {
-        if isValidDetailURL(url: link) && isTokenMatched {
+        if isValidDetailURL(url: link) {
             let gid = link.pathComponents[2]
             if cachedList.hasCached(gid: gid) {
                 replaceMangaCommentJumpID(gid: gid)
@@ -182,7 +182,7 @@ private extension CommentView {
 
     func postComment() {
         store.dispatch(.comment(gid: gid, content: commentContent))
-        store.dispatch(.cleanCommentViewCommentContent)
+        store.dispatch(.clearCommentViewCommentContent)
     }
     func fetchMangaWithDetailURL(_ detailURL: String) {
         store.dispatch(.fetchMangaItemReverse(detailURL: detailURL))

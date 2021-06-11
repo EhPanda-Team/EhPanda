@@ -13,23 +13,6 @@ struct LoadingView: View {
     }
 }
 
-struct NotLoginView: View {
-    private let loginAction: (() -> Void)?
-
-    init(loginAction: (() -> Void)?) {
-        self.loginAction = loginAction
-    }
-
-    var body: some View {
-        GenericRetryView(
-            symbolName: "person.crop.circle.badge.questionmark",
-            message: "You need to login to use this app.",
-            buttonText: "Login",
-            retryAction: loginAction
-        )
-    }
-}
-
 struct NotFoundView: View {
     private let retryAction: (() -> Void)?
 

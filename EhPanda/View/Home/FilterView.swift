@@ -12,60 +12,57 @@ struct FilterView: View, StoreAccessor {
 
     // MARK: FilterView
     var body: some View {
-        NavigationView {
-            if let filter = settings.filter,
-               let filterBinding = Binding(settingsBinding.filter) {
-                Form {
-                    Section(header: Text("Basic")) {
-                        CategoryView()
-                        Button(action: onResetButtonTap) {
-                            Text("Reset filters")
-                                .foregroundColor(.red)
-                        }
-                        Toggle("Advanced settings", isOn: filterBinding.advanced)
+        if let filter = settings.filter,
+           let filterBinding = Binding(settingsBinding.filter) {
+            Form {
+                Section(header: Text("Basic")) {
+                    CategoryView()
+                    Button(action: onResetButtonTap) {
+                        Text("Reset filters")
+                            .foregroundColor(.red)
                     }
-                    Group {
-                        Section(header: Text("Advanced")) {
-                            Toggle("Search gallery name", isOn: filterBinding.galleryName)
-                            Toggle("Search gallery tags", isOn: filterBinding.galleryTags)
-                            Toggle("Search gallery description", isOn: filterBinding.galleryDesc)
-                            Toggle("Search torrent filenames", isOn: filterBinding.torrentFilenames)
-                            Toggle("Only show galleries with torrents", isOn: filterBinding.onlyWithTorrents)
-                            Toggle("Search Low-Power tags", isOn: filterBinding.lowPowerTags)
-                            Toggle("Search downvoted tags", isOn: filterBinding.downvotedTags)
-                            Toggle("Show expunged galleries", isOn: filterBinding.expungedGalleries)
-                        }
-                        Section {
-                            Toggle("Set minimum rating", isOn: filterBinding.minRatingActivated)
-                            if filter.minRatingActivated {
-                                MinimumRatingSetter(minimum: filterBinding.minRating)
-                            }
-                            Toggle("Set pages range", isOn: filterBinding.pageRangeActivated)
-                            if filter.pageRangeActivated {
-                                PagesRangeSetter(
-                                    lowerBound: filterBinding.pageLowerBound,
-                                    upperBound: filterBinding.pageUpperBound
-                                )
-                            }
-                        }
-                        Section(header: Text("Default Filter")) {
-                            Toggle("Disable language filter", isOn: filterBinding.disableLanguage)
-                            Toggle("Disable uploader filter", isOn: filterBinding.disableUploader)
-                            Toggle("Disable tags filter", isOn: filterBinding.disableTags)
-                        }
-                    }
-                    .disabled(!filter.advanced)
+                    Toggle("Advanced settings", isOn: filterBinding.advanced)
                 }
-                .actionSheet(item: environmentBinding.filterViewActionSheetState) { item in
-                    switch item {
-                    case .resetFilters:
-                        return resetFiltersActionSheet
+                Group {
+                    Section(header: Text("Advanced")) {
+                        Toggle("Search gallery name", isOn: filterBinding.galleryName)
+                        Toggle("Search gallery tags", isOn: filterBinding.galleryTags)
+                        Toggle("Search gallery description", isOn: filterBinding.galleryDesc)
+                        Toggle("Search torrent filenames", isOn: filterBinding.torrentFilenames)
+                        Toggle("Only show galleries with torrents", isOn: filterBinding.onlyWithTorrents)
+                        Toggle("Search Low-Power tags", isOn: filterBinding.lowPowerTags)
+                        Toggle("Search downvoted tags", isOn: filterBinding.downvotedTags)
+                        Toggle("Show expunged galleries", isOn: filterBinding.expungedGalleries)
+                    }
+                    Section {
+                        Toggle("Set minimum rating", isOn: filterBinding.minRatingActivated)
+                        if filter.minRatingActivated {
+                            MinimumRatingSetter(minimum: filterBinding.minRating)
+                        }
+                        Toggle("Set pages range", isOn: filterBinding.pageRangeActivated)
+                        if filter.pageRangeActivated {
+                            PagesRangeSetter(
+                                lowerBound: filterBinding.pageLowerBound,
+                                upperBound: filterBinding.pageUpperBound
+                            )
+                        }
+                    }
+                    Section(header: Text("Default Filter")) {
+                        Toggle("Disable language filter", isOn: filterBinding.disableLanguage)
+                        Toggle("Disable uploader filter", isOn: filterBinding.disableUploader)
+                        Toggle("Disable tags filter", isOn: filterBinding.disableTags)
                     }
                 }
-                .navigationBarTitle("Filters")
+                .disabled(!filter.advanced)
             }
+            .actionSheet(item: environmentBinding.filterViewActionSheetState) { item in
+                switch item {
+                case .resetFilters:
+                    return resetFiltersActionSheet
+                }
+            }
+            .navigationBarTitle("Filters")
         }
-        .onAppear(perform: onAppear)
     }
 }
 
@@ -82,12 +79,6 @@ private extension FilterView {
             .destructive(Text("Reset"), action: resetFilters),
             .cancel()
         ])
-    }
-
-    func onAppear() {
-        if settings.filter == nil {
-            store.dispatch(.initializeFilter)
-        }
     }
 
     func onResetButtonTap() {
@@ -241,19 +232,19 @@ private struct PagesRangeSetter: View {
             Text("Pages range")
             Spacer()
             TextField("", text: $lowerBound)
+                .keyboardType(.numbersAndPunctuation)
                 .multilineTextAlignment(.center)
                 .disableAutocorrection(true)
                 .autocapitalization(.none)
-                .keyboardType(.numberPad)
                 .background(color)
                 .frame(width: 50)
                 .cornerRadius(5)
             Text("-")
             TextField("", text: $upperBound)
+                .keyboardType(.numbersAndPunctuation)
                 .multilineTextAlignment(.center)
                 .disableAutocorrection(true)
                 .autocapitalization(.none)
-                .keyboardType(.numberPad)
                 .background(color)
                 .frame(width: 50)
                 .cornerRadius(5)

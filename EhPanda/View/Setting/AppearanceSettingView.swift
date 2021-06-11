@@ -22,7 +22,8 @@ struct AppearanceSettingView: View, StoreAccessor {
             NavigationLink(
                 destination: SelectAppIconView(),
                 isActive: $isNavigationLinkActive,
-                label: {})
+                label: {}
+            )
             Form {
                 Section(header: Text("Global")) {
                     HStack {
@@ -43,7 +44,7 @@ struct AppearanceSettingView: View, StoreAccessor {
                     Button("App Icon", action: onAppIconButtonTap)
                         .foregroundColor(.primary)
                         .withArrow()
-                    if isTokenMatched || environment.isPreview, Locale.current.languageCode != "en" {
+                    if Locale.current.languageCode != "en" {
                         Toggle(isOn: settingBinding.translateCategory, label: {
                             Text("Translate category")
                         })

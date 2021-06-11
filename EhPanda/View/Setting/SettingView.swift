@@ -17,13 +17,11 @@ struct SettingView: View, StoreAccessor {
         NavigationView {
             ScrollView {
                 VStack(spacing: 0) {
-                    if isTokenMatched || environment.isPreview {
-                        SettingRow(
-                            symbolName: "person.fill",
-                            text: "Account",
-                            destination: AccountSettingView()
-                        )
-                    }
+                    SettingRow(
+                        symbolName: "person.fill",
+                        text: "Account",
+                        destination: AccountSettingView()
+                    )
                     SettingRow(
                         symbolName: "switch.2",
                         text: "General",

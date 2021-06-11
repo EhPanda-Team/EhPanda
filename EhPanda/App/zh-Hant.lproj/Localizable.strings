@@ -31,7 +31,6 @@
 
 // MARK: AlertView
 "Loading..." = "載入中...";
-"You need to login to use this app." = "你需要登入才能使用這個App";
 "Login" = "登入";
 "Your search didn't match any docs." = "未能找到你需要的資訊";
 "Retry" = "重試";

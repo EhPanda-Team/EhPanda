@@ -133,6 +133,8 @@ extension AppState {
 
         @FileStorage(directory: .cachesDirectory, fileName: "historyList.json")
         var historyItems: [String: Manga]?
+        @FileStorage(directory: .cachesDirectory, fileName: "historyKeywords.json")
+        var historyKeywords: [String]?
 
         static func generateBoolDic(_ defaultValue: Bool = false) -> [Int: Bool] {
             var tmp = [Int: Bool]()
@@ -192,6 +194,32 @@ extension AppState {
                     uniqueKeysWithValues: [(manga.gid, manga)]
                 )
             }
+        }
+        mutating func insertHistoryKeyword(text: String) {
+            guard !text.isEmpty else { return }
+            guard var historyKeywords = historyKeywords else {
+                historyKeywords = [text]
+                return
+            }
+
+            if let index = historyKeywords.firstIndex(of: text) {
+                if historyKeywords.last != text {
+                    historyKeywords.remove(at: index)
+                    historyKeywords.append(text)
+                }
+            } else {
+                historyKeywords.append(text)
+
+                let overflow = historyKeywords.count - 10
+
+                if overflow > 0 {
+                    historyKeywords = Array(
+                        historyKeywords.dropFirst(overflow)
+                    )
+                }
+            }
+
+            self.historyKeywords = historyKeywords
         }
     }
 

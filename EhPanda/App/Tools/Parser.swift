@@ -399,16 +399,14 @@ struct Parser {
     }
 
     // MARK: Content
-    static func parseImagePreContents(_ doc: HTMLDocument, pageCount: Int) throws -> [(Int, URL)] {
+    static func parseImagePreContents(_ doc: HTMLDocument, previewMode: String, pageCount: Int) throws -> [(Int, URL)] {
         copyHTMLIfNeeded(doc.toHTML)
         var imageDetailURLs = [(Int, URL)]()
 
-        let className = isTokenMatched ? "gdtl" : "gdtm"
         guard let gdtNode = doc.at_xpath("//div [@id='gdt']")
         else { throw AppError.parseFailed }
 
-        for (index, element) in gdtNode.xpath("//div [@class='\(className)']").enumerated() {
-
+        for (index, element) in gdtNode.xpath("//div [@class='\(previewMode)']").enumerated() {
             guard let imageDetailStr = element.at_xpath("//a")?["href"],
                   let imageDetailURL = URL(string: imageDetailStr)
             else { continue }
@@ -426,6 +424,22 @@ struct Parser {
         else { throw AppError.parseFailed }
 
         return MangaContent(tag: tag, url: imageURL)
+    }
+
+    static func parsePreviewMode(_ doc: HTMLDocument) throws -> String {
+        guard let gdoNode = doc.at_xpath("//div [@id='gdo']"),
+              let gdo4Node = gdoNode.at_xpath("//div [@id='gdo4']")
+        else { return "gdtm" }
+
+        for link in gdo4Node.xpath("//div") {
+            if link.text == "Large",
+               ["tha nosel", "ths nosel"]
+                .contains(link["class"])
+            {
+                return "gdtl"
+            }
+        }
+        return "gdtm"
     }
 
     // MARK: User

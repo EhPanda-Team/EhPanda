@@ -31,7 +31,6 @@
 
 // MARK: AlertView
 "Loading..." = "読み込み中...";
-"You need to login to use this app." = "ご利用にはログインが必要です";
 "Login" = "ログイン";
 "Your search didn't match any docs." = "お探しの情報が見つかりませんでした";
 "Retry" = "やり直す";

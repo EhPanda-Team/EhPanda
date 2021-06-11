@@ -19,6 +19,9 @@ struct GeneralSettingView: View, StoreAccessor {
         {
             Form {
                 Section {
+                    NavigationLink(destination: FilterView()) {
+                        Text("Filters")
+                    }
                     HStack {
                         Text("Language")
                         Spacer()
@@ -27,14 +30,12 @@ struct GeneralSettingView: View, StoreAccessor {
                     Toggle(isOn: settingBinding.closeSlideMenuAfterSelection) {
                         Text("Close slide menu after selection")
                     }
-                    if isTokenMatched || environment.isPreview {
-                        Toggle(isOn: settingBinding.detectGalleryFromPasteboard) {
-                            Text("Detect link from the clipboard")
-                        }
-                        if setting.detectGalleryFromPasteboard {
-                            Toggle(isOn: settingBinding.allowsDetectionWhenNoChange) {
-                                Text("Allows detection even when no change")
-                            }
+                    Toggle(isOn: settingBinding.detectGalleryFromPasteboard) {
+                        Text("Detect link from the clipboard")
+                    }
+                    if setting.detectGalleryFromPasteboard {
+                        Toggle(isOn: settingBinding.allowsDetectionWhenNoChange) {
+                            Text("Allows detection even when no change")
                         }
                     }
                 }

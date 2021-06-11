@@ -16,8 +16,6 @@ struct EhPandaApp: App {
     init() {
         configureWebImage()
         clearImageCachesIfNeeded()
-        UIScrollView.appearance()
-            .keyboardDismissMode = .onDrag
         UITableViewCell.appearance()
             .selectedBackgroundView = UIView()
     }
@@ -46,8 +44,6 @@ private extension EhPandaApp {
 
     func onOpenURL(_ url: URL) {
         switch url.host {
-        case "token":
-            setToken(with: url.pathComponents.last)
         case "debugMode":
             setDebugMode(with: url.pathComponents.last == "on")
         default:

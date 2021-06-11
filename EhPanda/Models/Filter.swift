@@ -45,8 +45,8 @@ struct Filter: Codable {
     var minRating: Int = 2
 
     var pageRangeActivated = false
-    var pageLowerBound: String = ""
-    var pageUpperBound: String = ""
+    @NumString var pageLowerBound: String = ""
+    @NumString var pageUpperBound: String = ""
 
     var disableLanguage = false
     var disableUploader = false
@@ -58,5 +58,24 @@ struct AssociatedCategory: Codable {
     var isFiltered: Bool
     var color: Color {
         category.color
+    }
+}
+
+@propertyWrapper
+struct NumString: Codable {
+    private var value = ""
+    var wrappedValue: String {
+        get { value }
+        set {
+            if let num = Int(newValue) {
+                value = String(num)
+            } else if newValue.isEmpty {
+                value = newValue
+            }
+        }
+    }
+
+    init(wrappedValue: String) {
+        self.wrappedValue = wrappedValue
     }
 }

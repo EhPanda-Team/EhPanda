@@ -14,8 +14,6 @@ struct SlideMenu: View, StoreAccessor {
     @Environment(\.colorScheme) private var colorScheme
     @Binding private var offset: CGFloat
 
-    private var tokenMatchedMenuItems = HomeListType
-        .allCases.filter({ $0 != .search })
     private var edges = keyWindow?.safeAreaInsets
 
     init(offset: Binding<CGFloat>) {
@@ -91,11 +89,7 @@ private extension SlideMenu {
         colorScheme == .light ? .white : .black
     }
     var menuItems: [HomeListType] {
-        if isTokenMatched {
-            return tokenMatchedMenuItems
-        } else {
-            return Array(tokenMatchedMenuItems.prefix(2))
-        }
+        HomeListType.allCases.filter({ $0 != .search })
     }
 
     func onMenuRowTap(_ item: HomeListType) {

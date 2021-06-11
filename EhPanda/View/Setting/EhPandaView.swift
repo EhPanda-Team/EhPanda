@@ -81,12 +81,10 @@ struct EhPandaView: View, StoreAccessor {
         }
         .padding(.horizontal)
         Form {
-            if isTokenMatched || environment.isPreview {
-                Section(header: Text("Contacts")) {
-                    ForEach(contacts) { contact in
-                        if let url = URL(string: contact.url) {
-                            LinkRow(url: url, text: contact.text)
-                        }
+            Section(header: Text("Contacts")) {
+                ForEach(contacts) { contact in
+                    if let url = URL(string: contact.url) {
+                        LinkRow(url: url, text: contact.text)
                     }
                 }
             }

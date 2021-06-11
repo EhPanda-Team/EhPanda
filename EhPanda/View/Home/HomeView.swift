@@ -12,6 +12,7 @@ struct HomeView: View, StoreAccessor {
     @EnvironmentObject var store: Store
     @Environment(\.colorScheme) private var colorScheme
 
+    @State private var archivedKeyword: String?
     @State private var clipboardJumpID: String?
     @State private var isJumpNavActive = false
     @State private var greeting: Greeting?
@@ -46,6 +47,10 @@ struct HomeView: View, StoreAccessor {
                         of: user?.greeting,
                         perform: onReceiveGreeting
                     )
+                    .onChange(
+                        of: homeInfo.searchKeyword,
+                        perform: onSearchKeywordChange
+                    )
                     .onAppear(perform: onListAppear)
                     .navigationBarTitle(navigationBarTitle)
                     .navigationBarItems(trailing:
@@ -53,6 +58,15 @@ struct HomeView: View, StoreAccessor {
                     )
                 TTProgressHUD($hudVisible, config: hudConfig)
             }
+            .searchable(
+                "Search",
+                text: homeInfoBinding.searchKeyword,
+                placement: .navigationBarDrawer(
+                    displayMode: .always
+                ),
+                suggestions: { suggestionsView }
+            )
+            .onSubmit(of: .search, onSearchSubmit)
         }
         .navigationViewStyle(StackNavigationViewStyle())
         .sheet(item: environmentBinding.homeViewSheetState) { item in
@@ -89,9 +103,20 @@ struct HomeView: View, StoreAccessor {
     }
 }
 
+// MARK: Private Properties
 private extension HomeView {
     var environmentBinding: Binding<AppState.Environment> {
         $store.appState.environment
+    }
+    var homeInfoBinding: Binding<AppState.HomeInfo> {
+        $store.appState.homeInfo
+    }
+
+    var suggestions: [String] {
+        homeInfo.historyKeywords?.reversed().filter({ word in
+            homeInfo.searchKeyword.isEmpty ? true
+            : word.contains(homeInfo.searchKeyword)
+        }) ?? []
     }
     var historyItems: [Manga] {
         var items = homeInfo.historyItems?
@@ -114,10 +139,23 @@ private extension HomeView {
         }
     }
     var hasJumpPermission: Bool {
-        viewControllersCount == 1 && isTokenMatched
+        viewControllersCount == 1
             && setting?.detectGalleryFromPasteboard == true
     }
 
+    var suggestionsView: some View {
+        ForEach(suggestions, id: \.self) { word in
+            HStack {
+                Text(word)
+                    .foregroundStyle(.tint)
+                Spacer()
+            }
+            .contentShape(Rectangle())
+            .onTapGesture {
+                onSuggestionTap(word)
+            }
+        }
+    }
     var conditionalList: some View {
         Group {
             switch environment.homeListType {
@@ -129,7 +167,7 @@ private extension HomeView {
                     loadFailedFlag: homeInfo.searchLoadFailed,
                     moreLoadingFlag: homeInfo.moreSearchLoading,
                     moreLoadFailedFlag: homeInfo.moreSearchLoadFailed,
-                    fetchAction: fetchSearchItems,
+                    fetchAction: onSearchRefresh,
                     loadMoreAction: fetchMoreSearchItems
                 )
             case .frontpage:
@@ -229,7 +267,10 @@ private extension HomeView {
             }
         }
     }
+}
 
+// MARK: Private Methods
+extension HomeView {
     func onAppear() {
         detectPasteboard()
         fetchGreetingIfNeeded()
@@ -240,6 +281,9 @@ private extension HomeView {
         }
         if setting == nil {
             store.dispatch(.initializeSetting)
+        }
+        if settings.filter == nil {
+            store.dispatch(.initializeFilter)
         }
         if settings.user?.displayName?.isEmpty != false {
             fetchUserInfo()
@@ -279,6 +323,11 @@ private extension HomeView {
             toggleNewDawn()
         }
     }
+    func onSearchKeywordChange(_ keyword: String) {
+        if let archivedKeyword = archivedKeyword, keyword.isEmpty {
+            store.dispatch(.updateHistoryKeywords(text: archivedKeyword))
+        }
+    }
     func onFavoritesIndexChange(_ : Int) {
         fetchFavoritesItemsIfNeeded()
     }
@@ -297,6 +346,21 @@ private extension HomeView {
         if !value, hasJumpPermission {
             dismissHUD()
         }
+    }
+    func onSearchSubmit() {
+        if environment.homeListType != .search {
+            store.dispatch(.toggleHomeListType(type: .search))
+        }
+        fetchSearchItems()
+        archivedKeyword = homeInfo.searchKeyword
+    }
+    func onSearchRefresh() {
+        if let keyword = archivedKeyword {
+            store.dispatch(.fetchSearchItems(keyword: keyword))
+        }
+    }
+    func onSuggestionTap(_ word: String) {
+        store.dispatch(.updateSearchKeyword(text: word))
     }
 
     func showHUD() {
@@ -400,6 +464,9 @@ private extension HomeView {
     func toggleNewDawn() {
         store.dispatch(.toggleHomeViewSheetState(state: .newDawn))
     }
+    func toggleSetting() {
+        store.dispatch(.toggleHomeViewSheetState(state: .setting))
+    }
     func updateViewControllersCount() {
         store.dispatch(.updateViewControllersCount)
     }
@@ -455,10 +522,7 @@ private extension HomeView {
 }
 
 // MARK: GenericList
-private struct GenericList: View, StoreAccessor {
-    @EnvironmentObject var store: Store
-    @FocusState var isTextFieldFocused: Bool
-
+private struct GenericList: View {
     private let items: [Manga]?
     private let loadingFlag: Bool
     private let notFoundFlag: Bool
@@ -489,9 +553,7 @@ private struct GenericList: View, StoreAccessor {
     }
 
     var body: some View {
-        if !didLogin && isTokenMatched {
-            NotLoginView(loginAction: toggleSetting)
-        } else if loadingFlag {
+        if loadingFlag {
             LoadingView()
         } else if loadFailedFlag {
             NetworkErrorView(retryAction: fetchAction)
@@ -499,17 +561,6 @@ private struct GenericList: View, StoreAccessor {
             NotFoundView(retryAction: fetchAction)
         } else {
             List {
-                if isTokenMatched {
-                    SearchBar(
-                        keyword: homeInfoBinding.searchKeyword,
-                        isTextFieldFocused: _isTextFieldFocused,
-                        commitAction: searchBarCommit,
-                        filterAction: searchBarFilter
-                    )
-                    .listRowBackground(Color.clear)
-                    .listRowSeparator(.hidden)
-                    .padding(.bottom, 10)
-                }
                 ForEach(items ?? []) { item in
                     ZStack {
                         NavigationLink(
@@ -546,107 +597,18 @@ private struct GenericList: View, StoreAccessor {
             .listStyle(.plain)
         }
     }
-}
 
-private extension GenericList {
-    var homeInfoBinding: Binding<AppState.HomeInfo> {
-        $store.appState.homeInfo
-    }
-
-    func onUpdate() {
+    private func onUpdate() {
         if let action = fetchAction {
             action()
         }
     }
-    func onRowAppear(_ item: Manga) {
+    private func onRowAppear(_ item: Manga) {
         if let action = loadMoreAction,
            item == items?.last
         {
             action()
         }
-    }
-
-    func searchBarCommit() {
-        isTextFieldFocused = false
-
-        if environment.homeListType != .search {
-            store.dispatch(.toggleHomeListType(type: .search))
-        }
-        fetchSearchItems()
-    }
-    func searchBarFilter() {
-        toggleFilter()
-    }
-
-    func fetchSearchItems() {
-        store.dispatch(.fetchSearchItems(keyword: homeInfo.searchKeyword))
-    }
-
-    func toggleSetting() {
-        store.dispatch(.toggleHomeViewSheetState(state: .setting))
-    }
-    func toggleFilter() {
-        store.dispatch(.toggleHomeViewSheetState(state: .filter))
-    }
-}
-
-// MARK: SearchBar
-private struct SearchBar: View {
-    @Binding private var keyword: String
-    @FocusState private var isTextFieldFocused: Bool
-    private var commitAction: () -> Void
-    private var filterAction: () -> Void
-
-    init(
-        keyword: Binding<String>,
-        isTextFieldFocused: FocusState<Bool>,
-        commitAction: @escaping () -> Void,
-        filterAction: @escaping () -> Void
-    ) {
-        _keyword = keyword
-        _isTextFieldFocused = isTextFieldFocused
-
-        self.commitAction = commitAction
-        self.filterAction = filterAction
-    }
-
-    var body: some View {
-        HStack {
-            Image(systemName: "magnifyingglass")
-                .foregroundColor(.gray)
-            TextField(
-                "Search".localized(),
-                text: $keyword,
-                onCommit: commitAction
-            )
-            .focused($isTextFieldFocused)
-            .disableAutocorrection(true)
-            .autocapitalization(.none)
-            .submitLabel(.search)
-            HStack {
-                Group {
-                    if !keyword.isEmpty {
-                        Button(action: onClearButtonTap) {
-                            Image(systemName: "xmark.circle.fill")
-                                .foregroundColor(.gray)
-                        }
-                    }
-                    Button(action: filterAction) {
-                        Image(systemName: "slider.horizontal.3")
-                            .foregroundColor(.gray)
-                            .padding(.vertical, 13)
-                            .padding(.trailing, 10)
-                    }
-                }
-            }
-        }
-        .padding(.leading, 10)
-        .background(Color(.systemGray6))
-        .cornerRadius(8)
-    }
-
-    private func onClearButtonTap() {
-        keyword = ""
     }
 }
 

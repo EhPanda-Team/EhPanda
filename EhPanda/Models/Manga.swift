@@ -176,7 +176,7 @@ struct MangaPreview: Identifiable, Codable {
 }
 
 struct MangaAlterData: Identifiable, Codable {
-    var id: Data { data }
+    var id = UUID().uuidString
 
     let data: Data
 }

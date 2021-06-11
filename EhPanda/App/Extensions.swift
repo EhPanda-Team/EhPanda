@@ -126,7 +126,7 @@ extension String {
     func safeURL() -> URL {
         isValidURL
             ? URL(string: self)!
-            : URL(string: Defaults.URL.durarara)!
+            : URL(string: Defaults.URL.ehentai)!
     }
 
     var isValidURL: Bool {

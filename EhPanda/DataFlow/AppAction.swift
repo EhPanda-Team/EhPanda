@@ -16,13 +16,16 @@ enum AppAction {
     case initializeUser
     case initializeFilter
     case initializeSetting
-    case cleanDetailViewCommentContent
-    case cleanCommentViewCommentContent
+    case clearDetailViewCommentContent
+    case clearCommentViewCommentContent
     case saveAspectBox(gid: String, box: [Int: CGFloat])
     case saveReadingProgress(gid: String, tag: Int)
     case updateDiskImageCacheSize(size: String)
     case updateAppIconType(iconType: IconType)
     case updateHistoryItems(gid: String)
+    case updateHistoryKeywords(text: String)
+    case clearHistoryKeywords
+    case updateSearchKeyword(text: String)
     case updateViewControllersCount
     case resetDownloadCommandResponse
     case replaceMangaCommentJumpID(gid: String?)

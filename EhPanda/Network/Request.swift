@@ -465,7 +465,12 @@ struct MangaContentsRequest {
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .tryMap { try (
                 Parser.parsePageNum($0),
-                Parser.parseImagePreContents($0, pageCount: pageCount)
+                Parser.parseImagePreContents(
+                    $0,
+                    previewMode:
+                        Parser.parsePreviewMode($0),
+                    pageCount: pageCount
+                )
             ) }
             .mapError(mapAppError)
             .eraseToAnyPublisher()
