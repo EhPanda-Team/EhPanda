@@ -30,21 +30,42 @@ struct NotFoundView: View {
     }
 }
 
-struct NetworkErrorCompactView: View {
-    private let retryAction: (() -> Void)?
+struct LoadMoreFooter: View {
+    private var moreLoadingFlag: Bool
+    private var moreLoadFailedFlag: Bool
+    private var retryAction: (() -> Void)?
+    private var symbolName =
+    "exclamationmark.arrow.triangle.2.circlepath"
 
-    init(retryAction: (() -> Void)?) {
+    init(
+        moreLoadingFlag: Bool,
+        moreLoadFailedFlag: Bool,
+        retryAction: (() -> Void)?
+    ) {
+        self.moreLoadingFlag = moreLoadingFlag
+        self.moreLoadFailedFlag = moreLoadFailedFlag
         self.retryAction = retryAction
     }
 
     var body: some View {
-        Button(action: onRetryButtonTap) {
-            Image(systemName: "exclamationmark.arrow.triangle.2.circlepath")
-                .imageScale(.large)
+        HStack(alignment: .center) {
+            Spacer()
+            ZStack {
+                ProgressView()
+                    .opacity(moreLoadingFlag ? 1 : 0)
+                Button(action: onButtonTap) {
+                    Image(systemName: symbolName)
+                        .foregroundStyle(.red)
+                        .imageScale(.large)
+                }
+                .opacity(moreLoadFailedFlag ? 1 : 0)
+            }
+            Spacer()
         }
+        .frame(height: 50)
     }
 
-    private func onRetryButtonTap() {
+    private func onButtonTap() {
         if let action = retryAction {
             action()
         }

@@ -176,7 +176,7 @@ extension Defaults.URL {
         }
     }
     static func mangaDetail(url: String) -> String {
-        merge([url, ignoreOffensive, showComments, detailLarge])
+        merge([url, ignoreOffensive, showComments, previewLarge])
     }
     static func mangaTorrents(gid: String, token: String) -> String {
         merge([host + gallerytorrents, Defaults.URL.gid + gid, Defaults.URL.token + token])

@@ -34,25 +34,18 @@ struct AssociatedView: View, StoreAccessor {
                         }
                         .listRowBackground(Color.clear)
                         .listRowSeparator(.hidden)
-                        .onAppear(perform: {
+                        .onAppear {
                             onRowAppear(manga)
-                        })
+                        }
                     }
                     .transition(animatedTransition)
-                    HStack(alignment: .center) {
-                        Spacer()
-                        if moreLoadingFlag {
-                            ProgressView()
-                        } else if moreLoadFailedFlag {
-                            NetworkErrorCompactView(
-                                retryAction: fetchMoreAssociatedItems
-                            )
-                        }
-                        Spacer()
-                    }
+                    LoadMoreFooter(
+                        moreLoadingFlag: moreLoadingFlag,
+                        moreLoadFailedFlag: moreLoadingFlag,
+                        retryAction: fetchMoreAssociatedItems
+                    )
                     .listRowBackground(Color.clear)
                     .listRowSeparator(.hidden)
-                    .frame(height: 30)
                 }
                 .refreshable(action: fetchAssociatedItems)
                 .transition(animatedTransition)

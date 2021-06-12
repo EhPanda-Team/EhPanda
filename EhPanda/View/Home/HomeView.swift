@@ -577,20 +577,13 @@ private struct GenericList: View {
                     }
                 }
                 .transition(animatedTransition)
-                HStack(alignment: .center) {
-                    Spacer()
-                    if moreLoadingFlag {
-                        ProgressView()
-                    } else if moreLoadFailedFlag {
-                        NetworkErrorCompactView(
-                            retryAction: loadMoreAction
-                        )
-                    }
-                    Spacer()
-                }
+                LoadMoreFooter(
+                    moreLoadingFlag: moreLoadingFlag,
+                    moreLoadFailedFlag: moreLoadFailedFlag,
+                    retryAction: loadMoreAction
+                )
                 .listRowBackground(Color.clear)
                 .listRowSeparator(.hidden)
-                .frame(height: 30)
             }
             .transition(animatedTransition)
             .refreshable(action: onUpdate)

@@ -64,21 +64,21 @@ struct AppearanceSettingView: View, StoreAccessor {
                         Toggle(isOn: settingBinding.summaryRowTagsMaximumActivated) {
                             Text("Set maximum number of tags")
                         }
-                    }
-                    if setting.summaryRowTagsMaximumActivated {
-                        HStack {
-                            Text("Maximum number of tags")
-                            Spacer()
-                            Picker(selection: settingBinding.summaryRowTagsMaximum,
-                                   label: Text("\(setting.summaryRowTagsMaximum)")
-                            ) {
-                                Text("5").tag(5)
-                                Text("10").tag(10)
-                                Text("15").tag(15)
-                                Text("20").tag(20)
-                                Text("20").tag(20)
+                        if setting.summaryRowTagsMaximumActivated {
+                            HStack {
+                                Text("Maximum number of tags")
+                                Spacer()
+                                Picker(selection: settingBinding.summaryRowTagsMaximum,
+                                       label: Text("\(setting.summaryRowTagsMaximum)")
+                                ) {
+                                    Text("5").tag(5)
+                                    Text("10").tag(10)
+                                    Text("15").tag(15)
+                                    Text("20").tag(20)
+                                    Text("20").tag(20)
+                                }
+                                .pickerStyle(MenuPickerStyle())
                             }
-                            .pickerStyle(MenuPickerStyle())
                         }
                     }
                 }

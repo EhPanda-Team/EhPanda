@@ -81,18 +81,11 @@ struct ContentView: View, StoreAccessor {
                                         .edgesIgnoringSafeArea(.horizontal)
                                 }
                             }
-                            HStack(alignment: .center) {
-                                Spacer()
-                                if moreLoadingFlag {
-                                    ProgressView()
-                                } else if moreLoadFailedFlag {
-                                    NetworkErrorCompactView(
-                                        retryAction: fetchMoreMangaContents
-                                    )
-                                }
-                                Spacer()
-                            }
-                            .frame(height: 50)
+                            LoadMoreFooter(
+                                moreLoadingFlag: moreLoadingFlag,
+                                moreLoadFailedFlag: moreLoadFailedFlag,
+                                retryAction: fetchMoreMangaContents
+                            )
                             .padding(.bottom, 20)
                         }
                         .onAppear {
