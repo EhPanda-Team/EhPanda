@@ -191,3 +191,24 @@ extension CGFloat {
         String(format: "%.\(places)f", self)
     }
 }
+
+extension UIImage {
+    func cropping(to rect: CGRect) -> UIImage? {
+        let scaledRect = CGRect(
+            x: rect.origin.x * scale,
+            y: rect.origin.y * scale,
+            width: rect.size.width * scale,
+            height: rect.size.height * scale
+        )
+
+        guard let cgImage = cgImage?
+                .cropping(to: scaledRect)
+        else { return nil }
+
+        return UIImage(
+            cgImage: cgImage,
+            scale: scale,
+            orientation: imageOrientation
+        )
+    }
+}

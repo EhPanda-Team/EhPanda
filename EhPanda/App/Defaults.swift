@@ -86,13 +86,13 @@ struct Defaults {
         static let showuser = "showuser="
         static let fSearch = "f_search="
 
-        static let nonh = "f_cats=767"
         static let showComments = "hc=1"
         static let loginAct = "act=Login"
         static let addfavAct = "act=addfav"
         static let ignoreOffensive = "nw=always"
         static let listCompact = "inline_set=dm_l"
-        static let detailLarge = "inline_set=ts_l"
+        static let previewNormal = "inline_set=ts_m"
+        static let previewLarge = "inline_set=ts_l"
         static let rowsLimit = "inline_set=tr_4"
 
         // Filter
@@ -217,7 +217,7 @@ extension Defaults.URL {
         ])
     }
     static func mangaContents(detailURL: String) -> String {
-        merge([detailURL, detailLarge, rowsLimit])
+        merge([detailURL, previewLarge, rowsLimit])
     }
 
     // Account Associated Operations

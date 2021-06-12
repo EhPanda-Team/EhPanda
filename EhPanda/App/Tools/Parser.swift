@@ -807,13 +807,16 @@ extension Parser {
         var alterImages = [MangaAlterData]()
         let originW = image.size.width
         let originH = image.size.height
+        let count = Int(originW / 100)
 
-        for index in 0..<20 {
-            let size = CGSize(width: originW / 20, height: originH)
-            let anchor = CGPoint(x: originW / 20 * CGFloat(index), y: 0)
+        for index in 0..<count {
+            let rect = CGRect(
+                x: originW / Double(count) * Double(index),
+                y: 0.0, width: 100.0, height: originH
+            )
 
-            if let croppedImg = image.kf.crop(to: size, anchorOn: anchor).pngData() {
-                alterImages.append(MangaAlterData(data: croppedImg))
+            if let imgData = image.cropping(to: rect)?.pngData() {
+                alterImages.append(MangaAlterData(data: imgData))
             }
         }
 
