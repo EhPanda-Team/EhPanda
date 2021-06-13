@@ -18,7 +18,7 @@
 2. 使用[AltStore](https://altstore.io)这类软件将ipa文件安装到你的设备。
 
 ## 系统要求
-请确保你的设备系统为iOS / iPadOS 14.0以上。
+请确保你的设备系统为 iOS / iPadOS 14.0 以上。
 
 iOS / iPadOS 14: [v1.02](https://github.com/tatsuz0u/EhPanda/releases/tag/v1.0.2_b50)
 
