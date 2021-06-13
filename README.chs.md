@@ -13,22 +13,27 @@
   <a href="/README.chs.md">简体中文</a>
 </p>
 
-## 提问、反馈
-[![Telegram](https://img.shields.io/badge/chat-Telegram-blue.svg)](https://t.me/ehpanda)
+## 安装步骤
+1. 在[Releases](https://github.com/arakitatsuzou/EhPanda/releases)取得ipa文件。
+2. 使用[AltStore](https://altstore.io)这类软件将ipa文件安装到你的设备。
 
-## 应用程序图标
-© 2021 荒木辰造. All rights reserved.
+## 系统要求
+请确保你的设备系统为iOS / iPadOS 14.0以上。
+
+iOS / iPadOS 14: [v1.02](https://github.com/tatsuz0u/EhPanda/releases/tag/v1.0.2_b50)
+
+iOS / iPadOS 15: [v1.03](https://github.com/tatsuz0u/EhPanda/releases/latest)
 
 ## 内容及其著作权
 本应用程序中的内容均来自E-Hentai，而E-Hentai的内容均为用户生成内容。
 
 **本应用程序的用户需要自行承担访问E-Hentai内容的责任。**
 
-## 安装步骤
-1. 在[Releases](https://github.com/arakitatsuzou/EhPanda/releases)取得ipa文件。
-2. 使用[AltStore](https://altstore.io)这类软件将ipa文件安装到你的设备。
-
-此外，在安装前请确保你的设备系统为iOS/iPadOS 14.0以上。
+## 提问、反馈
+[![Telegram](https://img.shields.io/badge/chat-Telegram-blue.svg)](https://t.me/ehpanda)
 
 ## 截图
 https://ehpanda.app
+
+## 应用程序图标
+© 2021 荒木辰造. All rights reserved.
