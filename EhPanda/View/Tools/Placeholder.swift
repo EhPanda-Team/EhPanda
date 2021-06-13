@@ -62,7 +62,7 @@ struct Placeholder: View {
                     Rectangle()
                         .fill(Color(.systemGray5))
                     VStack {
-                        Text("\(pageNumber)")
+                        Text(pageNumber.withoutComma)
                             .fontWeight(.bold)
                             .font(.largeTitle)
                             .foregroundColor(.gray)

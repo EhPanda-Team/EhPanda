@@ -133,7 +133,7 @@ private extension HomeView {
            environment.favoritesIndex != -1,
            environment.homeListType == .favorites
         {
-            return user.getFavNameFrom(environment.favoritesIndex)
+            return user.getFavNameFrom(index: environment.favoritesIndex)
         } else {
             return environment.homeListType.rawValue.localized()
         }
@@ -252,7 +252,7 @@ private extension HomeView {
                             onFavMenuSelect(index)
                         }, label: {
                             HStack {
-                                Text(user.getFavNameFrom(index))
+                                Text(user.getFavNameFrom(index: index))
                                 if index == environment.favoritesIndex {
                                     Image(systemName: "checkmark")
                                 }

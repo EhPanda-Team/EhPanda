@@ -16,8 +16,12 @@ struct AuthView: View, StoreAccessor {
         _blurRadius = blurRadius
     }
 
+    // MARK: AuthView
     var body: some View {
-        LockView(unlockAction: authenticate)
+        Image(systemName: "lock.fill")
+            .font(.system(size: 80))
+            .opacity(isAppUnlocked ? 0 : 1)
+            .onTapGesture(perform: authenticate)
             .onReceive(
                 NotificationCenter.default.publisher(
                     for: UIApplication.willResignActiveNotification
@@ -50,8 +54,8 @@ struct AuthView: View, StoreAccessor {
 }
 
 private extension AuthView {
-    var autoLockThreshold: Double {
-        Double(autoLockPolicy?.value ?? -1)
+    var autoLockThreshold: Int {
+        autoLockPolicy?.value ?? -1
     }
 
     func onLockTap() {
@@ -95,7 +99,8 @@ private extension AuthView {
 
     func lockIfExpired() {
         if let resignDate = enterBackgroundDate,
-           Date().timeIntervalSince(resignDate) > autoLockThreshold
+           Date().timeIntervalSince(resignDate)
+            > Double(autoLockThreshold)
         {
             setUnlocked(false)
             setBlur(effectOn: true)
@@ -111,31 +116,5 @@ private extension AuthView {
                 setBlur(effectOn: false)
             }
         )
-    }
-}
-
-private struct LockView: View, StoreAccessor {
-    @EnvironmentObject var store: Store
-
-    private let unlockAction: () -> Void
-
-    init(unlockAction: @escaping () -> Void) {
-        self.unlockAction = unlockAction
-    }
-
-    var body: some View {
-        Group {
-            if !isAppUnlocked {
-                VStack {
-                    HStack {
-                        Spacer()
-                        Image(systemName: "lock.fill")
-                            .font(.system(size: 80))
-                            .onTapGesture(perform: unlockAction)
-                        Spacer()
-                    }
-                }
-            }
-        }
     }
 }

@@ -61,9 +61,6 @@
 "Download To Hath Client" = "下載到Hath客戶端";
 
 // MARK: CommentView
-"Agree" = "贊成";
-"Disagree" = "反對";
-"Edit" = "編輯";
 "Post Comment" = "發表評論";
 "Edit Comment" = "編輯評論";
 "Cancel" = "取消";

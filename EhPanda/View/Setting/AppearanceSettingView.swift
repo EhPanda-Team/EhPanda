@@ -14,13 +14,21 @@ struct AppearanceSettingView: View, StoreAccessor {
     private var settingBinding: Binding<Setting>? {
         Binding($store.appState.settings.setting)
     }
+    private var selectedIcon: IconType {
+        store.appState
+            .settings.setting?
+            .appIconType ?? appIconType
+    }
 
     var body: some View {
         if let setting = setting,
            let settingBinding = settingBinding
         {
             NavigationLink(
-                destination: SelectAppIconView(),
+                destination: SelectAppIconView(
+                    selectedIcon: selectedIcon,
+                    selectAction: selectIcon
+                ),
                 isActive: $isNavigationLinkActive,
                 label: {}
             )
@@ -39,7 +47,7 @@ struct AppearanceSettingView: View, StoreAccessor {
                             }
                         )
                     }
-                    .pickerStyle(MenuPickerStyle())
+                    .pickerStyle(.menu)
                     ColorPicker("Tint Color", selection: settingBinding.accentColor)
                     Button("App Icon", action: onAppIconButtonTap)
                         .foregroundColor(.primary)
@@ -71,11 +79,12 @@ struct AppearanceSettingView: View, StoreAccessor {
                                 Picker(selection: settingBinding.summaryRowTagsMaximum,
                                        label: Text("\(setting.summaryRowTagsMaximum)")
                                 ) {
-                                    Text("5").tag(5)
-                                    Text("10").tag(10)
-                                    Text("15").tag(15)
-                                    Text("20").tag(20)
-                                    Text("20").tag(20)
+                                    let nums = Array(stride(
+                                        from: 5, through: 20, by: 5
+                                    ))
+                                    ForEach(nums, id: \.self) { num in
+                                        Text("\(num)").tag(num)
+                                    }
                                 }
                                 .pickerStyle(MenuPickerStyle())
                             }
@@ -90,27 +99,32 @@ struct AppearanceSettingView: View, StoreAccessor {
     private func onAppIconButtonTap() {
         isNavigationLinkActive.toggle()
     }
+    private func selectIcon() {
+        store.dispatch(.updateAppIconType(iconType: appIconType))
+    }
 }
 
 // MARK: SelectAppIconView
 private struct SelectAppIconView: View {
-    @EnvironmentObject private var store: Store
+    private let selectedIcon: IconType
+    private let selectAction: () -> Void
 
-    private let selections = IconType.allCases
-    private var selection: IconType {
-        store.appState
-            .settings.setting?
-            .appIconType ?? appIconType
+    init(
+        selectedIcon: IconType,
+        selectAction: @escaping () -> Void
+    ) {
+        self.selectedIcon = selectedIcon
+        self.selectAction = selectAction
     }
 
     var body: some View {
         Form {
             Section {
-                ForEach(selections) { sel in
+                ForEach(IconType.allCases) { sel in
                     AppIconRow(
                         iconName: sel.iconName,
                         iconDesc: sel.rawValue,
-                        isSelected: sel == selection
+                        isSelected: sel == selectedIcon
                     )
                     .contentShape(Rectangle())
                     .onTapGesture(perform: {
@@ -119,7 +133,7 @@ private struct SelectAppIconView: View {
                 }
             }
         }
-        .onAppear(perform: setSelection)
+        .onAppear(perform: selectAction)
     }
 
     private func onAppIconRowTap(_ sel: IconType) {
@@ -128,12 +142,8 @@ private struct SelectAppIconView: View {
                 notificFeedback(style: .error)
                 print(error)
             }
-            setSelection()
+            selectAction()
         }
-    }
-
-    private func setSelection() {
-        store.dispatch(.updateAppIconType(iconType: appIconType))
     }
 }
 

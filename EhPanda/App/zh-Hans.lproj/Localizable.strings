@@ -61,9 +61,6 @@
 "Download To Hath Client" = "下载到Hath客户端";
 
 // MARK: CommentView
-"Agree" = "赞成";
-"Disagree" = "反对";
-"Edit" = "编辑";
 "Post Comment" = "发布评论";
 "Edit Comment" = "编辑评论";
 "Cancel" = "取消";

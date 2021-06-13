@@ -65,7 +65,7 @@ extension String {
     }
 
     func localized() -> String {
-        NSLocalizedString(self, comment: "")
+        String(localized: StringLocalizationKey(self))
     }
 
     func URLString() -> String {
@@ -75,9 +75,7 @@ extension String {
     }
 
     var withComma: String? {
-        guard let intSelf = Int(self) else { return nil }
-
-        return getStringWithComma(intSelf)
+        Int(self)?.formatted(.number)
     }
 
     func capitalizingFirstLetter() -> String {
@@ -178,7 +176,10 @@ extension Bundle {
 
 extension Int {
     var withComma: String? {
-        getStringWithComma(self)
+        formatted(.number)
+    }
+    var withoutComma: String {
+        String(self).replacingOccurrences(of: ",", with: "")
     }
 }
 

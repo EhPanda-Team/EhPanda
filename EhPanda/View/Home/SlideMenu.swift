@@ -25,6 +25,7 @@ struct SlideMenu: View, StoreAccessor {
         HStack(spacing: 0) {
             VStack(spacing: 0) {
                 AvatarView(
+                    iconName: iconType.iconName,
                     avatarURL: user?.avatarURL,
                     displayName: user?.displayName,
                     width: avatarW,
@@ -91,6 +92,11 @@ private extension SlideMenu {
     var menuItems: [HomeListType] {
         HomeListType.allCases.filter({ $0 != .search })
     }
+    var iconType: IconType {
+        store.appState
+            .settings.setting?
+            .appIconType ?? appIconType
+    }
 
     func onMenuRowTap(_ item: HomeListType) {
         if homeListType != item {
@@ -120,14 +126,7 @@ private extension SlideMenu {
 
 // MARK: AvatarView
 private struct AvatarView: View {
-    @EnvironmentObject private var store: Store
-
-    private var iconType: IconType {
-        store.appState
-            .settings.setting?
-            .appIconType ?? appIconType
-    }
-
+    private let iconName: String
     private let avatarURL: String?
     private let displayName: String?
 
@@ -143,11 +142,13 @@ private struct AvatarView: View {
     }
 
     init(
+        iconName: String,
         avatarURL: String?,
         displayName: String?,
         width: CGFloat,
         height: CGFloat
     ) {
+        self.iconName = iconName
         self.avatarURL = avatarURL
         self.displayName = displayName
         self.width = width
@@ -170,7 +171,7 @@ private struct AvatarView: View {
                                 .resizable()
                         }
                     } else {
-                        Image(iconType.iconName)
+                        Image(iconName)
                             .resizable()
                     }
                 }

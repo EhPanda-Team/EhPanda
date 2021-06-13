@@ -35,38 +35,42 @@ struct DetailView: View, StoreAccessor {
             )
             if let detail = mangaDetail {
                 ScrollView(showsIndicators: false) {
-                    VStack {
-                        HeaderView(manga: manga, detail: detail)
-                            .padding(.top, -40)
-                            .padding(.bottom, 15)
-                        Group {
-                            DescScrollView(detail: detail)
-                            ActionRow(
-                                detail: detail,
-                                ratingAction: onUserRatingChanged
-                            ) {
-                                onSimilarGalleryTap(detail.title)
-                            }
-                            if !detail.detailTags.isEmpty {
-                                TagsView(
-                                    tags: detail.detailTags,
-                                    onTapAction: onTagsViewTap
-                                )
-                            }
-                            PreviewView(
-                                previews: detail.previews,
-                                alterImages: detail.alterImages
-                            )
-                            CommentScrollView(
-                                gid: gid,
-                                depth: depth,
-                                comments: detail.comments
+                    VStack(spacing: 30) {
+                        HeaderView(
+                            manga: manga, detail: detail,
+                            translateCategory: setting?
+                                .translateCategory != false,
+                            favoriteNames: user?.favoriteNames,
+                            addFavAction: addFavorite,
+                            deleteFavAction: deleteFavorite
+                        )
+                        DescScrollView(detail: detail)
+                        ActionRow(
+                            detail: detail,
+                            ratingAction: onUserRatingChanged
+                        ) {
+                            onSimilarGalleryTap(detail.title)
+                        }
+                        if !detail.detailTags.isEmpty {
+                            TagsView(
+                                tags: detail.detailTags,
+                                onTapAction: onTagsViewTap
                             )
                         }
-                        .padding(.vertical, 10)
+                        PreviewView(
+                            previews: detail.previews,
+                            alterImages: detail.alterImages
+                        )
+                        CommentScrollView(
+                            gid: gid,
+                            depth: depth,
+                            comments: detail.comments,
+                            toggleCommentAction: onCommentButtonTap
+                        )
                     }
                     .padding(.horizontal)
                     .padding(.bottom, 20)
+                    .padding(.top, -40)
                 }
                 .transition(animatedTransition)
             } else if detailInfo.mangaDetailLoading {
@@ -102,6 +106,7 @@ struct DetailView: View, StoreAccessor {
     }
 }
 
+// MARK: Private Properties
 private extension DetailView {
     var environmentBinding: Binding<AppState.Environment> {
         $store.appState.environment
@@ -160,7 +165,10 @@ private extension DetailView {
             }
         }
     }
+}
 
+// MARK: Private Methods
+private extension DetailView {
     func onAppear() {
         toggleNavBarHidden()
 
@@ -181,6 +189,9 @@ private extension DetailView {
     }
     func onTorrentsButtonTap() {
         toggleSheetState(.torrents)
+    }
+    func onCommentButtonTap() {
+        toggleSheetState(.comment)
     }
     func onShareButtonTap() {
         guard let data = URL(string: manga.detailURL) else { return }
@@ -215,6 +226,12 @@ private extension DetailView {
     func onTagsViewTap(_ keyword: AssociatedKeyword) {
         associatedKeyword = keyword
         isAssociatedLinkActive.toggle()
+    }
+    func addFavorite(_ index: Int) {
+        store.dispatch(.addFavorite(gid: manga.gid, favIndex: index))
+    }
+    func deleteFavorite() {
+        store.dispatch(.deleteFavorite(gid: manga.gid))
     }
 
     func draftCommentViewPost() {
@@ -267,15 +284,28 @@ private extension DetailView {
 }
 
 // MARK: HeaderView
-private struct HeaderView: View, StoreAccessor {
-    @EnvironmentObject var store: Store
-
+private struct HeaderView: View {
     private let manga: Manga
     private let detail: MangaDetail
+    private let translateCategory: Bool
+    private let favoriteNames: [Int: String]?
+    private let addFavAction: (Int) -> Void
+    private let deleteFavAction: () -> Void
 
-    init(manga: Manga, detail: MangaDetail) {
+    init(
+        manga: Manga,
+        detail: MangaDetail,
+        translateCategory: Bool,
+        favoriteNames: [Int: String]?,
+        addFavAction: @escaping (Int) -> Void,
+        deleteFavAction: @escaping () -> Void
+    ) {
         self.manga = manga
         self.detail = detail
+        self.translateCategory = translateCategory
+        self.favoriteNames = favoriteNames
+        self.addFavAction = addFavAction
+        self.deleteFavAction = deleteFavAction
     }
 
     var body: some View {
@@ -312,26 +342,27 @@ private struct HeaderView: View, StoreAccessor {
                         )
                     Spacer()
                     if isFavored {
-                        Button(action: onFavoriteDelete) {
+                        Button(action: deleteFavAction) {
                             Image(systemName: "heart.fill")
                                 .imageScale(.large)
                                 .foregroundStyle(.tint)
                         }
                     } else {
-                        if let user = user,
-                           let names = user.favoriteNames
-                        {
-                            Menu {
-                                ForEach(0..<names.count - 1) { index in
-                                    Button(user.getFavNameFrom(index)) {
-                                        onFavoriteAdd(index)
-                                    }
+                        Menu {
+                            ForEach(0..<(favoriteNames?.count ?? 10) - 1) { index in
+                                Button(
+                                    User.getFavNameFrom(
+                                        index: index,
+                                        names: favoriteNames
+                                    )
+                                ) {
+                                    addFavAction(index)
                                 }
-                            } label: {
-                                Image(systemName: "heart")
-                                    .imageScale(.large)
-                                    .foregroundStyle(.tint)
                             }
+                        } label: {
+                            Image(systemName: "heart")
+                                .imageScale(.large)
+                                .foregroundStyle(.tint)
                         }
                     }
                     Button(action: {}, label: {
@@ -370,7 +401,7 @@ private extension HeaderView {
         }
     }
     var category: String {
-        if setting?.translateCategory == true {
+        if translateCategory {
             return manga.category.rawValue.localized()
         } else {
             return manga.category.rawValue
@@ -383,28 +414,13 @@ private extension HeaderView {
             height: height
         )
     }
-
-    func onFavoriteAdd(_ index: Int) {
-        addFavorite(index)
-    }
-    func onFavoriteDelete() {
-        deleteFavorite()
-    }
-
-    func addFavorite(_ index: Int) {
-        store.dispatch(.addFavorite(gid: manga.gid, favIndex: index))
-    }
-    func deleteFavorite() {
-        store.dispatch(.deleteFavorite(gid: manga.gid))
-    }
-    func updateMangaDetail() {
-        store.dispatch(.updateMangaDetail(gid: manga.gid))
-    }
 }
 
 // MARK: DescScrollView
 private struct DescScrollView: View {
-    @State private var itemWidth = max((absoluteWindowW ?? absoluteScreenW) / 5, 80)
+    @State private var itemWidth = max((
+        absoluteWindowW ?? absoluteScreenW
+    ) / 5, 80)
 
     private let detail: MangaDetail
 
@@ -748,20 +764,21 @@ private struct PreviewView: View {
 
 // MARK: CommentScrollView
 private struct CommentScrollView: View {
-    @EnvironmentObject private var store: Store
-
     private let gid: String
     private let depth: Int
     private let comments: [MangaComment]
+    private let toggleCommentAction: () -> Void
 
     init(
         gid: String,
         depth: Int,
-        comments: [MangaComment]
+        comments: [MangaComment],
+        toggleCommentAction: @escaping () -> Void
     ) {
         self.gid = gid
         self.depth = depth
         self.comments = comments
+        self.toggleCommentAction = toggleCommentAction
     }
 
     var body: some View {
@@ -790,12 +807,8 @@ private struct CommentScrollView: View {
                 }
                 .drawingGroup()
             }
-            CommentButton(action: toggleDraft)
+            CommentButton(action: toggleCommentAction)
         }
-    }
-
-    private func toggleDraft() {
-        store.dispatch(.toggleDetailViewSheetState(state: .comment))
     }
 }
 

@@ -61,9 +61,6 @@
 "Download To Hath Client" = "Hathクライアントにダウンロード";
 
 // MARK: CommentView
-"Agree" = "賛成";
-"Disagree" = "反対";
-"Edit" = "編集";
 "Post Comment" = "コメントを書く";
 "Edit Comment" = "コメントを編集";
 "Cancel" = "キャンセル";
