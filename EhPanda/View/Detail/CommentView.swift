@@ -11,8 +11,9 @@ import TTProgressHUD
 
 struct CommentView: View, StoreAccessor {
     @EnvironmentObject var store: Store
-    @Environment(\.colorScheme) private var colorScheme
 
+    @State private var editCommentContent = ""
+    @State private var editCommentID = ""
     @State private var commentJumpID: String?
     @State private var isNavActive = false
 
@@ -40,42 +41,72 @@ struct CommentView: View, StoreAccessor {
                 ),
                 isActive: $isNavActive
             )
-            ScrollView {
-                VStack {
-                    ForEach(comments) { comment in
-                        CommentCell(
-                            editCommentContent: trimContents(
-                                comment.contents
-                            ),
-                            gid: gid,
-                            comment: comment,
-                            linkAction: onLinkTap
-                        )
+            List {
+                ForEach(comments) { comment in
+                    CommentCell(
+                        gid: gid,
+                        comment: comment,
+                        linkAction: onLinkTap
+                    )
+                    .swipeActions(edge: .leading) {
+                        if comment.votable {
+                            Button {
+                                voteDown(comment)
+                            } label: {
+                                Image(systemName: "hand.thumbsdown")
+                            }
+                            .tint(.red)
+                        }
+                    }
+                    .swipeActions(edge: .trailing) {
+                        if comment.votable {
+                            Button {
+                                voteUp(comment)
+                            } label: {
+                                Image(systemName: "hand.thumbsup")
+                            }
+                            .tint(.green)
+                        }
+                        if comment.editable {
+                            Button {
+                                editComment(comment)
+                            } label: {
+                                Image(systemName: "square.and.pencil")
+                            }
+                        }
                     }
                 }
-                .padding(.horizontal)
             }
             TTProgressHUD($hudVisible, config: hudConfig)
         }
         .navigationBarItems(
             trailing:
-                Button(action: toggleDraft, label: {
+                Button(action: toggleNewComment, label: {
                     Image(systemName: "square.and.pencil")
                     Text("Post Comment")
                 })
                 .sheet(item: environmentBinding.commentViewSheetState) { item in
-                    switch item {
-                    case .comment:
-                        DraftCommentView(
-                            content: commentContentBinding,
-                            title: "Post Comment",
-                            postAction: onDraftCommentViewPost,
-                            cancelAction: onDraftCommentViewCancel
-                        )
-                        .accentColor(accentColor)
-                        .blur(radius: environment.blurRadius)
-                        .allowsHitTesting(environment.isAppUnlocked)
+                    Group {
+                        switch item {
+                        case .newComment:
+                            DraftCommentView(
+                                content: commentContentBinding,
+                                title: "Post Comment",
+                                postAction: postNewComment,
+                                cancelAction: toggleCommentViewSheetNil
+                            )
+                        case .editComment:
+                            DraftCommentView(
+                                content: $editCommentContent,
+                                title: "Edit Comment",
+                                postAction: postEditComment,
+                                cancelAction: toggleCommentViewSheetNil
+                            )
+                        }
                     }
+                    .accentColor(accentColor)
+                    .blur(radius: environment.blurRadius)
+                    .allowsHitTesting(environment.isAppUnlocked)
                 }
         )
         .onAppear(perform: onAppear)
@@ -90,14 +121,12 @@ struct CommentView: View, StoreAccessor {
     }
 }
 
+// MARK: Private Extension
 private extension CommentView {
     var comments: [MangaComment] {
         store.appState.cachedList.items?[gid]?.detail?.comments ?? []
     }
 
-    var detailInfoBinding: Binding<AppState.DetailInfo> {
-        $store.appState.detailInfo
-    }
     var environmentBinding: Binding<AppState.Environment> {
         $store.appState.environment
     }
@@ -140,15 +169,6 @@ private extension CommentView {
             replaceMangaCommentJumpID(gid: nil)
         }
     }
-    func onDraftCommentViewPost() {
-        if !commentContent.isEmpty {
-            postComment()
-            toggleCommentViewSheetNil()
-        }
-    }
-    func onDraftCommentViewCancel() {
-        toggleCommentViewSheetNil()
-    }
 
     func showHUD() {
         hudConfig = TTProgressHUDConfig(
@@ -180,9 +200,43 @@ private extension CommentView {
             .joined()
     }
 
-    func postComment() {
+    func voteUp(_ comment: MangaComment) {
+        store.dispatch(
+            .voteComment(
+                gid: gid, commentID: comment.commentID,
+                vote: 1
+            )
+        )
+    }
+    func voteDown(_ comment: MangaComment) {
+        store.dispatch(
+            .voteComment(
+                gid: gid, commentID: comment.commentID,
+                vote: -1
+            )
+        )
+    }
+    func editComment(_ comment: MangaComment) {
+        editCommentID = comment.commentID
+        editCommentContent = trimContents(comment.contents)
+        store.dispatch(.toggleCommentViewSheetState(state: .editComment))
+    }
+    func postNewComment() {
         store.dispatch(.comment(gid: gid, content: commentContent))
         store.dispatch(.clearCommentViewCommentContent)
+        toggleCommentViewSheetNil()
+    }
+    func postEditComment() {
+        store.dispatch(
+            .editComment(
+                gid: gid,
+                commentID: editCommentID,
+                content: editCommentContent
+            )
+        )
+        editCommentID = ""
+        editCommentContent = ""
+        toggleCommentViewSheetNil()
     }
     func fetchMangaWithDetailURL(_ detailURL: String) {
         store.dispatch(.fetchMangaItemReverse(detailURL: detailURL))
@@ -191,8 +245,8 @@ private extension CommentView {
         store.dispatch(.replaceMangaCommentJumpID(gid: gid))
     }
 
-    func toggleDraft() {
-        store.dispatch(.toggleCommentViewSheetState(state: .comment))
+    func toggleNewComment() {
+        store.dispatch(.toggleCommentViewSheetState(state: .newComment))
     }
     func toggleCommentViewSheetNil() {
         store.dispatch(.toggleCommentViewSheetNil)
@@ -200,25 +254,16 @@ private extension CommentView {
 }
 
 // MARK: CommentCell
-private struct CommentCell: View, StoreAccessor {
-    @EnvironmentObject var store: Store
-    @Environment(\.colorScheme) private var colorScheme
-    @State private var editCommentContent: String
-    @State private var isPresented = false
-
+private struct CommentCell: View {
     private let gid: String
     private var comment: MangaComment
     private let linkAction: (URL) -> Void
 
     init(
-        editCommentContent: String,
         gid: String,
         comment: MangaComment,
         linkAction: @escaping (URL) -> Void
     ) {
-        _editCommentContent = State(
-            initialValue: editCommentContent
-        )
         self.gid = gid
         self.comment = comment
         self.linkAction = linkAction
@@ -283,56 +328,9 @@ private struct CommentCell: View, StoreAccessor {
         .padding()
         .background(Color(.systemGray6))
         .cornerRadius(15)
-        .contentShape(
-            RoundedRectangle(
-                cornerRadius: 15,
-                style: .continuous
-            )
-        )
-        .sheet(isPresented: $isPresented) {
-            DraftCommentView(
-                content: $editCommentContent,
-                title: "Edit Comment",
-                postAction: onDraftCommentViewPost,
-                cancelAction: onDraftCommentViewCancel
-            )
-            .accentColor(accentColor)
-        }
-        .contextMenu {
-            if comment.votable {
-                Button(action: voteUp) {
-                    Text("Agree")
-                    if comment.votedUp {
-                        Image(systemName: "hand.thumbsup.fill")
-                    } else {
-                        Image(systemName: "hand.thumbsup")
-                    }
-                }
-                Button(action: voteDown) {
-                    Text("Disagree")
-                    if comment.votedDown {
-                        Image(systemName: "hand.thumbsdown.fill")
-                    } else {
-                        Image(systemName: "hand.thumbsdown")
-                    }
-                }
-            }
-            if comment.editable {
-                Button(action: togglePresented) {
-                    Text("Edit")
-                    Image(systemName: "square.and.pencil")
-                }
-            }
-        }
-    }
-}
-
-private extension CommentCell {
-    var detailInfoBinding: Binding<AppState.DetailInfo> {
-        $store.appState.detailInfo
     }
 
-    func generateWebImages(
+    private func generateWebImages(
         imgURL: String?,
         secondImgURL: String?,
         link: String?,
@@ -398,35 +396,12 @@ private extension CommentCell {
             }
         }
     }
-
-    func onDraftCommentViewPost() {
-        if !editCommentContent.isEmpty {
-            editComment()
-            togglePresented()
-        }
-    }
-    func onDraftCommentViewCancel() {
-        togglePresented()
-    }
-
-    func voteUp() {
-        store.dispatch(.voteComment(gid: gid, commentID: comment.commentID, vote: 1))
-    }
-    func voteDown() {
-        store.dispatch(.voteComment(gid: gid, commentID: comment.commentID, vote: -1))
-    }
-    func editComment() {
-        store.dispatch(.editComment(gid: gid, commentID: comment.commentID, content: editCommentContent))
-    }
-    func togglePresented() {
-        isPresented.toggle()
-    }
-
 }
 
 // MARK: Definition
 enum CommentViewSheetState: Identifiable {
     var id: Int { hashValue }
 
-    case comment
+    case newComment
+    case editComment
 }

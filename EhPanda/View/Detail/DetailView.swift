@@ -57,13 +57,11 @@ struct DetailView: View, StoreAccessor {
                                 previews: detail.previews,
                                 alterImages: detail.alterImages
                             )
-                            if !detail.comments.isEmpty {
-                                CommentScrollView(
-                                    gid: gid,
-                                    depth: depth,
-                                    comments: detail.comments
-                                )
-                            }
+                            CommentScrollView(
+                                gid: gid,
+                                depth: depth,
+                                comments: detail.comments
+                            )
                         }
                         .padding(.vertical, 10)
                     }
