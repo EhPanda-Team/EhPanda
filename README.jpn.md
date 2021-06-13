@@ -13,22 +13,27 @@
   <a href="/README.chs.md">简体中文</a>
 </p>
 
-## 質問、フィードバック
-[![Telegram](https://img.shields.io/badge/chat-Telegram-blue.svg)](https://t.me/ehpanda)
+## インストール手順
+1. [Releases](https://github.com/arakitatsuzou/EhPanda/releases)からipaファイルを取得。
+2. [AltStore](https://altstore.io)とかでipaファイルをデバイスにインストール。
 
-## アプリアイコン
-© 2021 荒木辰造. All rights reserved.
+## 必要システム構成
+デバイスのシステムが iOS・iPadOS 14.0 以上であることが必要です。
+
+iOS・iPadOS 14: [v1.02](https://github.com/tatsuz0u/EhPanda/releases/tag/v1.0.2_b50)
+
+iOS・iPadOS 15: [v1.03](https://github.com/tatsuz0u/EhPanda/releases/latest)
 
 ## コンテンツとその著作権
 本アプリの内容はすべてE-Hentai由来のものです、E-Hentaiの内容もまたすべてユーザー生成コンテンツです。
 
 **E-Hentaiの内容へのアクセス行為により生じるいかなる問題について、本アプリのユーザー自身の責任でこれを解決するものとします 。**
 
-## インストール手順
-1. [Releases](https://github.com/arakitatsuzou/EhPanda/releases)からipaファイルを取得。
-2. [AltStore](https://altstore.io)とかでipaファイルをデバイスにインストール。
-
-このアプリを使うには、デバイスのシステムがiOS・iPadOS 14.0以上であることが必要です。
+## 質問、フィードバック
+[![Telegram](https://img.shields.io/badge/chat-Telegram-blue.svg)](https://t.me/ehpanda)
 
 ## スクリーンショット
 https://ehpanda.app
+
+## アプリアイコン
+© 2021 荒木辰造. All rights reserved.
