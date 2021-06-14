@@ -25,7 +25,7 @@ extension DateFormattable {
 // MARK: Structs
 struct Manga: Identifiable, Codable, Equatable {
     static func == (lhs: Manga, rhs: Manga) -> Bool {
-        lhs.id == rhs.id
+        lhs.gid == rhs.gid
     }
     static let empty = Manga(
         detail: MangaDetail.empty,

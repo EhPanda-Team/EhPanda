@@ -27,8 +27,8 @@ extension AppState {
         var viewControllersCount = 1
         var isSlideMenuClosed = true
         var navBarHidden = false
-        var homeListType: HomeListType = .frontpage
         var favoritesIndex = -1
+        var homeListType: HomeListType = .frontpage
         var homeViewSheetState: HomeViewSheetState?
         var settingViewSheetState: SettingViewSheetState?
         var settingViewActionSheetState: SettingViewActionSheetState?
@@ -336,7 +336,7 @@ extension AppState {
                 }
             }
             let currentCount = items?.count ?? 0
-            print("キャッシュ済みリスト 更新: \(previousCount) -> \(currentCount)")
+            print("CachedList updated: \(previousCount) -> \(currentCount)")
         }
 
         mutating func insertDetail(gid: String, detail: MangaDetail) {

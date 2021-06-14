@@ -521,7 +521,7 @@ private struct GenericList: View {
                     ZStack {
                         NavigationLink(
                             destination: DetailView(
-                                gid: item.id, depth: 0
+                                gid: item.gid, depth: 0
                             )
                         ) {}
                         MangaSummaryRow(

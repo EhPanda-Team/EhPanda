@@ -48,8 +48,7 @@ struct MangaSummaryRow: View {
                         font: .caption2,
                         textColor: .secondary,
                         backgroundColor: tagColor,
-                        paddingV: 2,
-                        paddingH: 4
+                        paddingV: 2, paddingH: 4
                     )
                 }
                 HStack {

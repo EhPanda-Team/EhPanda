@@ -16,7 +16,7 @@ struct FilterView: View, StoreAccessor {
            let filterBinding = Binding(settingsBinding.filter) {
             Form {
                 Section(header: Text("Basic")) {
-                    CategoryView()
+                    CategoryView(filter: filter, filterBinding: filterBinding)
                     Button(action: onResetButtonTap) {
                         Text("Reset filters")
                             .foregroundStyle(.red)
@@ -36,16 +36,14 @@ struct FilterView: View, StoreAccessor {
                     }
                     Section {
                         Toggle("Set minimum rating", isOn: filterBinding.minRatingActivated)
-                        if filter.minRatingActivated {
-                            MinimumRatingSetter(minimum: filterBinding.minRating)
-                        }
+                        MinimumRatingSetter(minimum: filterBinding.minRating)
+                            .disabled(!filter.minRatingActivated)
                         Toggle("Set pages range", isOn: filterBinding.pageRangeActivated)
-                        if filter.pageRangeActivated {
-                            PagesRangeSetter(
-                                lowerBound: filterBinding.pageLowerBound,
-                                upperBound: filterBinding.pageUpperBound
-                            )
-                        }
+                        PagesRangeSetter(
+                            lowerBound: filterBinding.pageLowerBound,
+                            upperBound: filterBinding.pageUpperBound
+                        )
+                        .disabled(!filter.pageRangeActivated)
                     }
                     Section(header: Text("Default Filter")) {
                         Toggle("Disable language filter", isOn: filterBinding.disableLanguage)
@@ -58,7 +56,10 @@ struct FilterView: View, StoreAccessor {
             .actionSheet(item: environmentBinding.filterViewActionSheetState) { item in
                 switch item {
                 case .resetFilters:
-                    return resetFiltersActionSheet
+                    return ActionSheet(title: Text("Are you sure to reset?"), buttons: [
+                        .destructive(Text("Reset"), action: resetFilters),
+                        .cancel()
+                    ])
                 }
             }
             .navigationBarTitle("Filters")
@@ -74,25 +75,18 @@ private extension FilterView {
         $store.appState.environment
     }
 
-    var resetFiltersActionSheet: ActionSheet {
-        ActionSheet(title: Text("Are you sure to reset?"), buttons: [
-            .destructive(Text("Reset"), action: resetFilters),
-            .cancel()
-        ])
-    }
-
     func onResetButtonTap() {
         store.dispatch(.toggleFilterViewActionSheetState(state: .resetFilters))
     }
-
     func resetFilters() {
         store.dispatch(.initializeFilter)
     }
 }
 
 // MARK: CategoryView
-private struct CategoryView: View, StoreAccessor {
-    @EnvironmentObject var store: Store
+private struct CategoryView: View {
+    private let filter: Filter
+    private let filterBinding: Binding<Filter>
 
     private let gridItems = [
         GridItem(
@@ -103,29 +97,7 @@ private struct CategoryView: View, StoreAccessor {
             )
         )
     ]
-
-    var body: some View {
-        if let filter = filter,
-           let filterBinding = filterBinding {
-            LazyVGrid(columns: gridItems) {
-                ForEach(tuples(filter: filter, filterBinding: filterBinding)) { tuple in
-                    CategoryCell(
-                        isFiltered: tuple.isFiltered,
-                        category: tuple.category
-                    )
-                }
-            }
-            .padding(.vertical)
-        }
-    }
-}
-
-private extension CategoryView {
-    var filterBinding: Binding<Filter>? {
-        Binding($store.appState.settings.filter)
-    }
-
-    func tuples(filter: Filter, filterBinding: Binding<Filter>) -> [TupleCategory] {
+    private var tuples: [TupleCategory] {
         [TupleCategory(isFiltered: filterBinding.doujinshi.isFiltered, category: filter.doujinshi.category),
          TupleCategory(isFiltered: filterBinding.manga.isFiltered, category: filter.manga.category),
          TupleCategory(isFiltered: filterBinding.artistCG.isFiltered, category: filter.artistCG.category),
@@ -138,11 +110,21 @@ private extension CategoryView {
          TupleCategory(isFiltered: filterBinding.misc.isFiltered, category: filter.misc.category)]
     }
 
-    struct TupleCategory: Identifiable {
-        var id = UUID()
+    init(filter: Filter, filterBinding: Binding<Filter>) {
+        self.filter = filter
+        self.filterBinding = filterBinding
+    }
 
-        let isFiltered: Binding<Bool>
-        let category: Category
+    var body: some View {
+        LazyVGrid(columns: gridItems) {
+            ForEach(tuples) { tuple in
+                CategoryCell(
+                    isFiltered: tuple.isFiltered,
+                    category: tuple.category
+                )
+            }
+        }
+        .padding(.vertical)
     }
 }
 
@@ -257,4 +239,11 @@ enum FilterViewActionSheetState: Identifiable {
     var id: Int { hashValue }
 
     case resetFilters
+}
+
+private struct TupleCategory: Identifiable {
+    var id: String { category.rawValue }
+
+    let isFiltered: Binding<Bool>
+    let category: Category
 }

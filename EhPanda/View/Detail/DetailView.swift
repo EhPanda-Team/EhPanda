@@ -654,8 +654,7 @@ private struct TagRow: View {
                 font: .subheadline,
                 textColor: .primary,
                 backgroundColor: Color(.systemGray5),
-                paddingV: 5,
-                paddingH: 14,
+                paddingV: 5, paddingH: 14,
                 onTapAction: onTapAction
             )
         }
