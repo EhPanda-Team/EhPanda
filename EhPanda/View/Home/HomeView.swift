@@ -120,7 +120,7 @@ private extension HomeView {
     }
 
     var hasJumpPermission: Bool {
-        detectGalleryFromPasteboard == true
+        detectGalleryFromPasteboard
             && viewControllersCount == 1
     }
     var suggestions: [String] {
@@ -178,6 +178,7 @@ private extension HomeView {
             case .search:
                 GenericList(
                     items: homeInfo.searchItems,
+                    setting: setting ?? Setting(),
                     loadingFlag: homeInfo.searchLoading,
                     notFoundFlag: homeInfo.searchNotFound,
                     loadFailedFlag: homeInfo.searchLoadFailed,
@@ -189,6 +190,7 @@ private extension HomeView {
             case .frontpage:
                 GenericList(
                     items: homeInfo.frontpageItems,
+                    setting: setting ?? Setting(),
                     loadingFlag: homeInfo.frontpageLoading,
                     notFoundFlag: homeInfo.frontpageNotFound,
                     loadFailedFlag: homeInfo.frontpageLoadFailed,
@@ -200,6 +202,7 @@ private extension HomeView {
             case .popular:
                 GenericList(
                     items: homeInfo.popularItems,
+                    setting: setting ?? Setting(),
                     loadingFlag: homeInfo.popularLoading,
                     notFoundFlag: homeInfo.popularNotFound,
                     loadFailedFlag: homeInfo.popularLoadFailed,
@@ -210,6 +213,7 @@ private extension HomeView {
             case .watched:
                 GenericList(
                     items: homeInfo.watchedItems,
+                    setting: setting ?? Setting(),
                     loadingFlag: homeInfo.watchedLoading,
                     notFoundFlag: homeInfo.watchedNotFound,
                     loadFailedFlag: homeInfo.watchedLoadFailed,
@@ -223,6 +227,7 @@ private extension HomeView {
                     items: homeInfo.favoritesItems[
                         environment.favoritesIndex
                     ],
+                    setting: setting ?? Setting(),
                     loadingFlag: homeInfo.favoritesLoading[
                         environment.favoritesIndex
                     ] ?? false,
@@ -246,6 +251,7 @@ private extension HomeView {
             case .history:
                 GenericList(
                     items: historyItems,
+                    setting: setting ?? Setting(),
                     loadingFlag: false,
                     notFoundFlag: historyItems.isEmpty,
                     loadFailedFlag: false,
@@ -471,6 +477,7 @@ private extension HomeView {
 // MARK: GenericList
 private struct GenericList: View {
     private let items: [Manga]?
+    private let setting: Setting
     private let loadingFlag: Bool
     private let notFoundFlag: Bool
     private let loadFailedFlag: Bool
@@ -481,6 +488,7 @@ private struct GenericList: View {
 
     init(
         items: [Manga]?,
+        setting: Setting,
         loadingFlag: Bool,
         notFoundFlag: Bool,
         loadFailedFlag: Bool,
@@ -490,6 +498,7 @@ private struct GenericList: View {
         loadMoreAction: (() -> Void)? = nil
     ) {
         self.items = items
+        self.setting = setting
         self.loadingFlag = loadingFlag
         self.notFoundFlag = notFoundFlag
         self.loadFailedFlag = loadFailedFlag
@@ -515,26 +524,26 @@ private struct GenericList: View {
                                 gid: item.id, depth: 0
                             )
                         ) {}
-                        MangaSummaryRow(manga: item)
+                        MangaSummaryRow(
+                            manga: item,
+                            setting: setting
+                        )
                     }
-                    .listRowBackground(Color.clear)
-                    .listRowSeparator(.hidden)
                     .onAppear {
                         onRowAppear(item: item)
                     }
                 }
                 .transition(animatedTransition)
-                LoadMoreFooter(
-                    moreLoadingFlag: moreLoadingFlag,
-                    moreLoadFailedFlag: moreLoadFailedFlag,
-                    retryAction: loadMoreAction
-                )
-                .listRowBackground(Color.clear)
-                .listRowSeparator(.hidden)
+                if moreLoadingFlag || moreLoadFailedFlag {
+                    LoadMoreFooter(
+                        moreLoadingFlag: moreLoadingFlag,
+                        moreLoadFailedFlag: moreLoadFailedFlag,
+                        retryAction: loadMoreAction
+                    )
+                }
             }
             .transition(animatedTransition)
             .refreshable(action: onUpdate)
-            .listStyle(.plain)
         }
     }
 

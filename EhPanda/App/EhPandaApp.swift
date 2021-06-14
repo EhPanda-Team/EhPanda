@@ -16,8 +16,6 @@ struct EhPandaApp: App {
     init() {
         configureWebImage()
         clearImageCachesIfNeeded()
-        UITableViewCell.appearance()
-            .selectedBackgroundView = UIView()
     }
 
     var body: some Scene {

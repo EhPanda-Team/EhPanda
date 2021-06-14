@@ -55,7 +55,7 @@ struct AuthView: View, StoreAccessor {
 
 private extension AuthView {
     var autoLockThreshold: Int {
-        autoLockPolicy?.value ?? -1
+        autoLockPolicy.value
     }
 
     func onLockTap() {
@@ -63,7 +63,7 @@ private extension AuthView {
         authenticate()
     }
     func onResignActive() {
-        if allowsResignActiveBlur ?? true {
+        if allowsResignActiveBlur {
             setBlur(effectOn: true)
         }
     }

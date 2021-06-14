@@ -8,14 +8,22 @@
 import SwiftUI
 import Kingfisher
 
-struct MangaSummaryRow: View, StoreAccessor {
-    @EnvironmentObject var store: Store
+struct MangaSummaryRow: View {
     @Environment(\.colorScheme) private var colorScheme
 
-    let manga: Manga
+    private let manga: Manga
+    private let setting: Setting
+
+    init(
+        manga: Manga,
+        setting: Setting
+    ) {
+        self.manga = manga
+        self.setting = setting
+    }
 
     var body: some View {
-        HStack {
+        HStack(spacing: 10) {
             KFImage(URL(string: manga.coverURL))
                 .placeholder(placeholder)
                 .loadImmediately()
@@ -31,9 +39,7 @@ struct MangaSummaryRow: View, StoreAccessor {
                     .lineLimit(1)
                     .font(.subheadline)
                     .foregroundColor(.secondary)
-                if setting?.showSummaryRowTags == true,
-                   !tags.isEmpty
-                {
+                if setting.showSummaryRowTags, !tags.isEmpty {
                     TagCloudView(
                         tag: MangaTag(
                             category: .artist,
@@ -76,11 +82,11 @@ struct MangaSummaryRow: View, StoreAccessor {
                 }
                 .padding(.top, 1)
             }
-            .padding(10)
             .drawingGroup()
         }
-        .background(Color(.systemGray6))
-        .cornerRadius(3)
+        .padding(.vertical, setting.showSummaryRowTags ? 5 : 0)
+        .padding(.leading, -10)
+        .padding(.trailing, -5)
     }
 }
 
@@ -93,19 +99,16 @@ private extension MangaSummaryRow {
     }
 
     var category: String {
-        if setting?.translateCategory == true {
+        if setting.translateCategory {
             return manga.category.rawValue.localized()
         } else {
             return manga.category.rawValue
         }
     }
     var tags: [String] {
-        if setting?.summaryRowTagsMaximumActivated == true {
+        if setting.summaryRowTagsMaximumActivated {
             return Array(
-                manga.tags
-                    .prefix(
-                        setting?.summaryRowTagsMaximum ?? 5
-                    )
+                manga.tags.prefix(setting.summaryRowTagsMaximum)
             )
         } else {
             return manga.tags

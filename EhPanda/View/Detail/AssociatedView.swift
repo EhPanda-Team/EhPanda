@@ -30,26 +30,26 @@ struct AssociatedView: View, StoreAccessor {
                                     depth: depth + 1
                                 )
                             ) {}
-                            MangaSummaryRow(manga: manga)
+                            MangaSummaryRow(
+                                manga: manga,
+                                setting: setting ?? Setting()
+                            )
                         }
-                        .listRowBackground(Color.clear)
-                        .listRowSeparator(.hidden)
                         .onAppear {
                             onRowAppear(item: manga)
                         }
                     }
                     .transition(animatedTransition)
-                    LoadMoreFooter(
-                        moreLoadingFlag: detailInfo.moreAssociatedItemsLoading,
-                        moreLoadFailedFlag: detailInfo.moreAssociatedItemsLoadFailed,
-                        retryAction: fetchMoreAssociatedItems
-                    )
-                    .listRowBackground(Color.clear)
-                    .listRowSeparator(.hidden)
+                    if moreLoadingFlag || moreLoadFailedFlag {
+                        LoadMoreFooter(
+                            moreLoadingFlag: moreLoadingFlag,
+                            moreLoadFailedFlag: moreLoadFailedFlag,
+                            retryAction: fetchMoreAssociatedItems
+                        )
+                    }
                 }
                 .refreshable(action: fetchAssociatedItems)
                 .transition(animatedTransition)
-                .listStyle(.plain)
             } else if detailInfo.associatedItemsLoading {
                 LoadingView()
             } else if detailInfo.associatedItemsNotFound {
@@ -64,6 +64,12 @@ struct AssociatedView: View, StoreAccessor {
 }
 
 private extension AssociatedView {
+    var moreLoadingFlag: Bool {
+        detailInfo.moreAssociatedItemsLoading
+    }
+    var moreLoadFailedFlag: Bool {
+        detailInfo.moreAssociatedItemsLoadFailed
+    }
     var assciatedItem: AssociatedItem {
         assciatedItems.count >= depth + 1
             ? assciatedItems[depth] : AssociatedItem(mangas: [])

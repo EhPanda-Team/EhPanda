@@ -76,17 +76,17 @@ extension StoreAccessor {
     var filter: Filter? {
         settings.filter
     }
-    var accentColor: Color? {
-        setting?.accentColor
+    var accentColor: Color {
+        setting?.accentColor ?? .blue
     }
-    var allowsResignActiveBlur: Bool? {
-        setting?.allowsResignActiveBlur
+    var allowsResignActiveBlur: Bool {
+        setting?.allowsResignActiveBlur ?? true
     }
-    var autoLockPolicy: AutoLockPolicy? {
-        setting?.autoLockPolicy
+    var autoLockPolicy: AutoLockPolicy {
+        setting?.autoLockPolicy ?? .never
     }
-    var detectGalleryFromPasteboard: Bool? {
-        setting?.detectGalleryFromPasteboard
+    var detectGalleryFromPasteboard: Bool {
+        setting?.detectGalleryFromPasteboard ?? false
     }
 }
 
