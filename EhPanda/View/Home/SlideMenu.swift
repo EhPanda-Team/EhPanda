@@ -40,7 +40,7 @@ struct SlideMenu: View, StoreAccessor {
                             isSelected: item == homeListType,
                             symbolName: item.symbolName,
                             text: item.rawValue,
-                            action: { onMenuRowTap(item) }
+                            action: { onMenuRowTap(item: item) }
                         )
                     }
                 }
@@ -78,13 +78,13 @@ private extension SlideMenu {
             .appIconType ?? appIconType
     }
 
-    func onMenuRowTap(_ item: HomeListType) {
+    func onMenuRowTap(item: HomeListType) {
         if homeListType != item {
             store.dispatch(.toggleHomeListType(type: item))
             impactFeedback(style: .soft)
 
             if setting?.closeSlideMenuAfterSelection == true {
-                performTransition(-width)
+                performTransition(offset: -width)
             }
         }
     }
@@ -93,11 +93,11 @@ private extension SlideMenu {
     }
     func onFavoritesIndexChange(_ : Int) {
         if setting?.closeSlideMenuAfterSelection == true {
-            performTransition(-width)
+            performTransition(offset: -width)
         }
     }
 
-    func performTransition(_ offset: CGFloat) {
+    func performTransition(offset: CGFloat) {
         withAnimation {
             self.offset = offset
         }
@@ -114,11 +114,7 @@ private struct AvatarView: View {
     private let height: CGFloat
 
     private func placeholder() -> some View {
-        Placeholder(
-            style: .activity,
-            width: width,
-            height: height
-        )
+        Placeholder(style: .activity(width: width, height: height))
     }
 
     init(

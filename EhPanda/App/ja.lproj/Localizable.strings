@@ -78,7 +78,7 @@
 "Are you sure to clear?" = "本当に削除しますか？";
 "Clear" = "削除";
 "Warning" = "警告";
-"It's for debug only" = "デバッグ専用機能です";
+"It's for debug only." = "デバッグ専用機能です";
 
 "General" = "一般";
 "Close slide menu after selection" = "選択後スライドメニューを閉じる";

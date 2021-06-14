@@ -48,24 +48,21 @@ struct NewDawnView: View {
                     startPoint: .top,
                     endPoint: .bottom
                 )
-                .drawingGroup()
-                .ignoresSafeArea()
                 VStack {
                     HStack {
                         Spacer()
                         ZStack {
                             SunView()
-                            if colorScheme == .light {
-                                SunBeamView()
-                                    .rotationEffect(angle)
-                            }
+                            SunBeamView()
+                                .rotationEffect(
+                                    colorScheme == .light
+                                    ? angle : Angle(degrees: 0)
+                                )
                         }
                         .offset(x: offset, y: -offset)
                     }
                     Spacer()
                 }
-                .drawingGroup()
-                .ignoresSafeArea()
                 VStack(spacing: 50) {
                     VStack(spacing: 10) {
                         TextView(
@@ -78,17 +75,16 @@ struct NewDawnView: View {
                             font: .title2
                         )
                     }
-                    if let content = greeting?.gainContent {
-                        TextView(
-                            text: content,
-                            font: .title3,
-                            fontWeight: .bold
-                        )
-                    }
+                    TextView(
+                        text: greeting?.gainContent ?? "",
+                        font: .title3,
+                        fontWeight: .bold
+                    )
                 }
                 .padding()
-                .drawingGroup()
             }
+            .drawingGroup()
+            .ignoresSafeArea()
         }
     }
 }

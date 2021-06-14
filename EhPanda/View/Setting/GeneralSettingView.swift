@@ -19,36 +19,32 @@ struct GeneralSettingView: View, StoreAccessor {
         {
             Form {
                 Section {
-                    NavigationLink(destination: FilterView()) {
-                        Text("Filters")
-                    }
+                    NavigationLink("Filters", destination: FilterView())
                     HStack {
                         Text("Language")
                         Spacer()
                         Button(language, action: toSettingLanguage)
                     }
-                    Toggle(isOn: settingBinding.closeSlideMenuAfterSelection) {
-                        Text("Close slide menu after selection")
-                    }
-                    Toggle(isOn: settingBinding.detectGalleryFromPasteboard) {
-                        Text("Detect link from the clipboard")
-                    }
-                    if setting.detectGalleryFromPasteboard {
-                        Toggle(isOn: settingBinding.allowsDetectionWhenNoChange) {
-                            Text("Allows detection even when no change")
-                        }
-                    }
+                    Toggle(
+                        "Close slide menu after selection",
+                        isOn: settingBinding.closeSlideMenuAfterSelection
+                    )
+                    Toggle(
+                        "Detect link from the clipboard",
+                        isOn: settingBinding.detectGalleryFromPasteboard
+                    )
+                    Toggle(
+                        "Allows detection even when no change",
+                        isOn: settingBinding.allowsDetectionWhenNoChange
+                    )
+                    .disabled(!setting.detectGalleryFromPasteboard)
                 }
                 Section(header: Text("Security")) {
                     HStack {
                         Text("Auto-Lock")
                         Spacer()
-                        if passcodeNotSet,
-                           setting.autoLockPolicy != .never
-                        {
-                            Image(systemName: "exclamationmark.triangle.fill")
-                                .foregroundColor(.yellow)
-                        }
+                        Image(systemName: "exclamationmark.triangle.fill").foregroundStyle(.yellow)
+                            .opacity((passcodeNotSet && setting.autoLockPolicy != .never) ? 1 : 0)
                         Picker(
                             selection: settingBinding.autoLockPolicy,
                             label: Text(setting.autoLockPolicy.rawValue.localized())
@@ -59,9 +55,10 @@ struct GeneralSettingView: View, StoreAccessor {
                         }
                         .pickerStyle(.menu)
                     }
-                    Toggle(isOn: settingBinding.allowsResignActiveBlur, label: {
-                        Text("App switcher blur")
-                    })
+                    Toggle(
+                        "App switcher blur",
+                        isOn: settingBinding.allowsResignActiveBlur
+                    )
                 }
                 Section(header: Text("Cache")) {
                     Button(action: toggleClearImgCaches) {
@@ -83,7 +80,7 @@ struct GeneralSettingView: View, StoreAccessor {
                 }
             }
             .navigationBarTitle("General")
-            .onAppear(perform: onAppear)
+            .task(checkPasscodeExistence)
         }
     }
 }
@@ -102,10 +99,6 @@ private extension GeneralSettingView {
         } else {
             return "(null)"
         }
-    }
-
-    func onAppear() {
-        checkPasscodeExistence()
     }
 
     func checkPasscodeExistence() {

@@ -35,16 +35,12 @@ enum AppAction {
     case toggleHomeListType(type: HomeListType)
     case toggleFavoriteIndex(index: Int)
     case toggleNavBarHidden(isHidden: Bool)
-    case toggleHomeViewSheetState(state: HomeViewSheetState)
-    case toggleHomeViewSheetNil
-    case toggleSettingViewSheetState(state: SettingViewSheetState)
-    case toggleSettingViewSheetNil
+    case toggleHomeViewSheetState(state: HomeViewSheetState?)
+    case toggleSettingViewSheetState(state: SettingViewSheetState?)
     case toggleSettingViewActionSheetState(state: SettingViewActionSheetState)
     case toggleFilterViewActionSheetState(state: FilterViewActionSheetState)
-    case toggleDetailViewSheetState(state: DetailViewSheetState)
-    case toggleDetailViewSheetNil
-    case toggleCommentViewSheetState(state: CommentViewSheetState)
-    case toggleCommentViewSheetNil
+    case toggleDetailViewSheetState(state: DetailViewSheetState?)
+    case toggleCommentViewSheetState(state: CommentViewSheetState?)
 
     case fetchGreeting
     case fetchGreetingDone(result: Result<Greeting, AppError>)

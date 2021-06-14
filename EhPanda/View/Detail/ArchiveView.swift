@@ -43,7 +43,7 @@ struct ArchiveView: View, StoreAccessor {
                                         archive: hathArchive
                                     )
                                     .onTapGesture(perform: {
-                                        onArchiveGridTap(hathArchive)
+                                        onArchiveGridTap(item: hathArchive)
                                     })
                                 }
                             }
@@ -54,7 +54,13 @@ struct ArchiveView: View, StoreAccessor {
                             if let galleryPoints = currentGP?.withComma,
                                let credits = currentCredits?.withComma
                             {
-                                BalanceView(galleryPoints: galleryPoints, credits: credits)
+                                HStack(spacing: 20) {
+                                    Label(galleryPoints, systemImage: "g.circle.fill")
+                                    Label(credits, systemImage: "c.circle.fill")
+                                }
+                                .font(.headline)
+                                .lineLimit(1)
+                                .padding()
                             }
                             DownloadButton(
                                 isDisabled: selection == nil,
@@ -84,10 +90,11 @@ struct ArchiveView: View, StoreAccessor {
                 perform: onHUDVisibilityChange
             )
         }
-        .onAppear(perform: onAppear)
+        .task(fetchMangaArchive)
     }
 }
 
+// MARK: Private Extension
 private extension ArchiveView {
     var detailInfoBinding: Binding<AppState.DetailInfo> {
         $store.appState.detailInfo
@@ -102,10 +109,7 @@ private extension ArchiveView {
         archive?.hathArchives ?? []
     }
 
-    func onAppear() {
-        fetchMangaArchive()
-    }
-    func onArchiveGridTap(_ item: MangaArchive.HathArchive) {
+    func onArchiveGridTap(item: MangaArchive.HathArchive) {
         if item.fileSize != "N/A"
             && item.gpPrice != "N/A"
         {
@@ -118,10 +122,8 @@ private extension ArchiveView {
             impactFeedback(style: .soft)
         }
     }
-    func onRespChange<E: Equatable>(_ value: E) {
-        if let sending = value as? Bool,
-           sending == false
-        {
+    func onRespChange<E: Equatable>(value: E) {
+        if let sending = value as? Bool, sending == false {
             let isSuccess = !detailInfo.downloadCommandFailed
             let type: TTProgressHUDType = isSuccess ? .success : .error
             let title = (isSuccess ? "Success" : "Error").localized()
@@ -146,18 +148,18 @@ private extension ArchiveView {
             hudVisible.toggle()
         }
     }
-    func onHUDVisibilityChange<E: Equatable>(_ value: E) {
-        if let isVisible = value as? Bool,
-           isVisible == false
-        {
+    func onHUDVisibilityChange<E: Equatable>(value: E) {
+        if let isVisible = value as? Bool, isVisible == false {
             store.dispatch(.resetDownloadCommandResponse)
         }
     }
 
     func fetchMangaArchive() {
-        store.dispatch(.fetchMangaArchive(gid: gid))
-        if currentGP == nil || currentCredits == nil, isSameAccount {
-            store.dispatch(.fetchMangaArchiveFunds(gid: gid))
+        DispatchQueue.main.async {
+            store.dispatch(.fetchMangaArchive(gid: gid))
+            if currentGP == nil || currentCredits == nil, isSameAccount {
+                store.dispatch(.fetchMangaArchiveFunds(gid: gid))
+            }
         }
     }
 }
@@ -221,34 +223,6 @@ private struct ArchiveGrid: View {
             RoundedRectangle(cornerRadius: 10)
                 .stroke(borderColor, lineWidth: 1)
         )
-    }
-}
-
-// MARK: BalanceView
-private struct BalanceView: View {
-    private let galleryPoints: String
-    private let credits: String
-
-    init(galleryPoints: String, credits: String) {
-        self.galleryPoints = galleryPoints
-        self.credits = credits
-    }
-
-    var body: some View {
-        HStack(spacing: 15) {
-            HStack(spacing: 3) {
-                Image(systemName: "g.circle.fill")
-                Text(galleryPoints)
-                    .lineLimit(1)
-            }
-            HStack(spacing: 3) {
-                Image(systemName: "c.circle.fill")
-                Text(credits)
-                    .lineLimit(1)
-            }
-        }
-        .font(.headline)
-        .padding()
     }
 }
 
@@ -330,7 +304,7 @@ private extension DownloadButton {
             action()
         }
     }
-    func onLongPressing(_ isPressed: Bool) {
+    func onLongPressing(isPressed: Bool) {
         self.isPressed = isPressed
     }
 }

@@ -50,13 +50,11 @@ struct MangaSummaryRow: View, StoreAccessor {
                     RatingView(rating: manga.rating)
                         .font(.system(size: 12))
                         .foregroundColor(.yellow)
-                    if let language = manga.language {
-                        Spacer()
-                        Text(language.rawValue.localized())
-                            .lineLimit(1)
-                            .font(.footnote)
-                            .foregroundColor(.secondary)
-                    }
+                    Spacer()
+                    Text(manga.language?.rawValue.localized() ?? "")
+                        .lineLimit(1)
+                        .font(.footnote)
+                        .foregroundColor(.secondary)
                 }
                 HStack(alignment: .bottom) {
                     Text(category)
@@ -119,11 +117,6 @@ private extension MangaSummaryRow {
             : Color(.systemGray4)
     }
     func placeholder() -> some View {
-        Placeholder(
-            style: .activity,
-            width: width,
-            height: height
-        )
+        Placeholder(style: .activity(width: width, height: height))
     }
-
 }

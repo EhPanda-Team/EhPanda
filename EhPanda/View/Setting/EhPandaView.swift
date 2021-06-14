@@ -83,16 +83,18 @@ struct EhPandaView: View, StoreAccessor {
         Form {
             Section(header: Text("Contacts")) {
                 ForEach(contacts) { contact in
-                    if let url = URL(string: contact.url) {
-                        LinkRow(url: url, text: contact.text)
-                    }
+                    LinkRow(
+                        url: contact.url.safeURL(),
+                        text: contact.text
+                    )
                 }
             }
             Section(header: Text("Acknowledgement")) {
                 ForEach(acknowledgements) { acknowledgement in
-                    if let url = URL(string: acknowledgement.url) {
-                        LinkRow(url: url, text: acknowledgement.text)
-                    }
+                    LinkRow(
+                        url: acknowledgement.url.safeURL(),
+                        text: acknowledgement.text
+                    )
                 }
             }
         }
@@ -101,7 +103,7 @@ struct EhPandaView: View, StoreAccessor {
 }
 
 private struct Info: Identifiable {
-    var id = UUID()
+    var id: String { url }
 
     let url: String
     let text: String

@@ -15,7 +15,7 @@ struct CommentView: View, StoreAccessor {
     @State private var editCommentContent = ""
     @State private var editCommentID = ""
     @State private var commentJumpID: String?
-    @State private var isNavActive = false
+    @State private var isNavLinkActive = false
 
     @State private var hudVisible = false
     @State private var hudConfig = TTProgressHUDConfig()
@@ -37,7 +37,7 @@ struct CommentView: View, StoreAccessor {
                     gid: commentJumpID ?? gid,
                     depth: depth + 1
                 ),
-                isActive: $isNavActive
+                isActive: $isNavLinkActive
             )
             List {
                 ForEach(comments) { comment in
@@ -49,7 +49,7 @@ struct CommentView: View, StoreAccessor {
                     .swipeActions(edge: .leading) {
                         if comment.votable {
                             Button {
-                                voteDown(comment)
+                                voteDown(comment: comment)
                             } label: {
                                 Image(systemName: "hand.thumbsdown")
                             }
@@ -59,7 +59,7 @@ struct CommentView: View, StoreAccessor {
                     .swipeActions(edge: .trailing) {
                         if comment.votable {
                             Button {
-                                voteUp(comment)
+                                voteUp(comment: comment)
                             } label: {
                                 Image(systemName: "hand.thumbsup")
                             }
@@ -67,7 +67,7 @@ struct CommentView: View, StoreAccessor {
                         }
                         if comment.editable {
                             Button {
-                                editComment(comment)
+                                edit(comment: comment)
                             } label: {
                                 Image(systemName: "square.and.pencil")
                             }
@@ -77,36 +77,35 @@ struct CommentView: View, StoreAccessor {
             }
             TTProgressHUD($hudVisible, config: hudConfig)
         }
-        .navigationBarItems(
-            trailing:
-                Button(action: toggleNewComment, label: {
-                    Image(systemName: "square.and.pencil")
-                    Text("Post Comment")
-                })
-                .sheet(item: environmentBinding.commentViewSheetState) { item in
-                    Group {
-                        switch item {
-                        case .newComment:
-                            DraftCommentView(
-                                content: commentContentBinding,
-                                title: "Post Comment",
-                                postAction: postNewComment,
-                                cancelAction: toggleCommentViewSheetNil
-                            )
-                        case .editComment:
-                            DraftCommentView(
-                                content: $editCommentContent,
-                                title: "Edit Comment",
-                                postAction: postEditComment,
-                                cancelAction: toggleCommentViewSheetNil
-                            )
-                        }
-                    }
-                    .accentColor(accentColor)
-                    .blur(radius: environment.blurRadius)
-                    .allowsHitTesting(environment.isAppUnlocked)
-                }
+        .navigationBarItems(trailing:
+            Button(action: toggleNewComment, label: {
+                Image(systemName: "square.and.pencil")
+                Text("Post Comment")
+            })
         )
+        .sheet(item: environmentBinding.commentViewSheetState) { item in
+            Group {
+                switch item {
+                case .newComment:
+                    DraftCommentView(
+                        content: commentContentBinding,
+                        title: "Post Comment",
+                        postAction: postNewComment,
+                        cancelAction: toggleCommentViewSheetNil
+                    )
+                case .editComment:
+                    DraftCommentView(
+                        content: $editCommentContent,
+                        title: "Edit Comment",
+                        postAction: postEditComment,
+                        cancelAction: toggleCommentViewSheetNil
+                    )
+                }
+            }
+            .accentColor(accentColor)
+            .blur(radius: environment.blurRadius)
+            .allowsHitTesting(environment.isAppUnlocked)
+        }
         .onAppear(perform: onAppear)
         .onChange(
             of: environment.mangaItemReverseID,
@@ -114,7 +113,7 @@ struct CommentView: View, StoreAccessor {
         )
         .onChange(
             of: environment.mangaItemReverseLoading,
-            perform: onFetchFinish
+            perform: onJumpDetailFetchFinish
         )
     }
 }
@@ -141,28 +140,32 @@ private extension CommentView {
     func onAppear() {
         replaceMangaCommentJumpID(gid: nil)
     }
-    func onFetchFinish(_ value: Bool) {
+    func onJumpDetailFetchFinish(value: Bool) {
         if !value {
             dismissHUD()
         }
     }
-    func onLinkTap(_ link: URL) {
+    func onLinkTap(link: URL) {
         if isValidDetailURL(url: link) {
             let gid = link.pathComponents[2]
             if cachedList.hasCached(gid: gid) {
                 replaceMangaCommentJumpID(gid: gid)
             } else {
-                fetchMangaWithDetailURL(link.absoluteString)
+                store.dispatch(
+                    .fetchMangaItemReverse(
+                        detailURL: link.absoluteString
+                    )
+                )
                 showHUD()
             }
         } else {
             UIApplication.shared.open(link, options: [:], completionHandler: nil)
         }
     }
-    func onJumpIDChange(_ value: String?) {
+    func onJumpIDChange(value: String?) {
         if value != nil {
             commentJumpID = value
-            isNavActive = true
+            isNavLinkActive = true
 
             replaceMangaCommentJumpID(gid: nil)
         }
@@ -180,7 +183,7 @@ private extension CommentView {
         hudConfig = TTProgressHUDConfig()
     }
 
-    func trimContents(_ contents: [CommentContent]) -> String {
+    func trim(contents: [CommentContent]) -> String {
         contents
             .filter {
                 [.plainText, .linkedText, .singleLink]
@@ -196,7 +199,7 @@ private extension CommentView {
             .joined()
     }
 
-    func voteUp(_ comment: MangaComment) {
+    func voteUp(comment: MangaComment) {
         store.dispatch(
             .voteComment(
                 gid: gid, commentID: comment.commentID,
@@ -204,7 +207,7 @@ private extension CommentView {
             )
         )
     }
-    func voteDown(_ comment: MangaComment) {
+    func voteDown(comment: MangaComment) {
         store.dispatch(
             .voteComment(
                 gid: gid, commentID: comment.commentID,
@@ -212,9 +215,9 @@ private extension CommentView {
             )
         )
     }
-    func editComment(_ comment: MangaComment) {
+    func edit(comment: MangaComment) {
         editCommentID = comment.commentID
-        editCommentContent = trimContents(comment.contents)
+        editCommentContent = trim(contents: comment.contents)
         store.dispatch(.toggleCommentViewSheetState(state: .editComment))
     }
     func postNewComment() {
@@ -234,9 +237,6 @@ private extension CommentView {
         editCommentContent = ""
         toggleCommentViewSheetNil()
     }
-    func fetchMangaWithDetailURL(_ detailURL: String) {
-        store.dispatch(.fetchMangaItemReverse(detailURL: detailURL))
-    }
     func replaceMangaCommentJumpID(gid: String?) {
         store.dispatch(.replaceMangaCommentJumpID(gid: gid))
     }
@@ -245,7 +245,7 @@ private extension CommentView {
         store.dispatch(.toggleCommentViewSheetState(state: .newComment))
     }
     func toggleCommentViewSheetNil() {
-        store.dispatch(.toggleCommentViewSheetNil)
+        store.dispatch(.toggleCommentViewSheetState(state: nil))
     }
 }
 
@@ -273,14 +273,13 @@ private struct CommentCell: View {
                     .font(.subheadline)
                 Spacer()
                 Group {
-                    if comment.votedUp {
+                    ZStack {
                         Image(systemName: "hand.thumbsup.fill")
-                    } else if comment.votedDown {
+                            .opacity(comment.votedUp ? 1 : 0)
                         Image(systemName: "hand.thumbsdown.fill")
+                            .opacity(comment.votedDown ? 1 : 0)
                     }
-                    if let score = comment.score {
-                        Text(score)
-                    }
+                    Text(comment.score ?? "")
                     Text(comment.formattedDateString)
                 }
                 .font(.footnote)
@@ -322,8 +321,6 @@ private struct CommentCell: View {
             .padding(.top, 1)
         }
         .padding()
-        .background(Color(.systemGray6))
-        .cornerRadius(15)
     }
 
     private func generateWebImages(

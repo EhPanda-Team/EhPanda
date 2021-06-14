@@ -41,7 +41,7 @@ struct WebView: UIViewControllerRepresentable {
                     Timer.scheduledTimer(withTimeInterval: 3, repeats: false) { [weak self] _ in
                         if didLogin {
                             let store = self?.parent.store
-                            store?.dispatch(.toggleSettingViewSheetNil)
+                            store?.dispatch(.toggleSettingViewSheetState(state: nil))
                             store?.dispatch(.fetchFrontpageItems)
                             store?.dispatch(.fetchUserInfo)
                         }

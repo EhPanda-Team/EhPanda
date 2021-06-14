@@ -58,7 +58,7 @@ struct ContentView: View, StoreAccessor {
                                 )
                         }
                         .frame(width: 0, height: 0)
-                        LazyVStack(spacing: 0) {
+                        LazyVStack(spacing: setting.contentDividerHeight) {
                             ForEach(contents) { item in
                                 ZStack {
                                     ImageContainer(
@@ -68,17 +68,11 @@ struct ContentView: View, StoreAccessor {
                                     )
                                     .frame(
                                         width: absoluteScreenW,
-                                        height: calImageHeight(item.tag)
+                                        height: calImageHeight(tag: item.tag)
                                     )
                                     .onAppear {
-                                        onWebImageAppear(item)
+                                        onWebImageAppear(item: item)
                                     }
-                                }
-                                if setting.contentDividerHeight > 0 {
-                                    Rectangle()
-                                        .fill(Color(.darkGray))
-                                        .frame(height: setting.contentDividerHeight)
-                                        .edgesIgnoringSafeArea(.horizontal)
                                 }
                             }
                             LoadMoreFooter(
@@ -88,8 +82,8 @@ struct ContentView: View, StoreAccessor {
                             )
                             .padding(.bottom, 20)
                         }
-                        .onAppear {
-                            onLazyVStackAppear(scrollProxy)
+                        .task {
+                            onLazyVStackAppear(proxy: scrollProxy)
                         }
                     }
                     .transition(animatedTransition)
@@ -111,21 +105,21 @@ struct ContentView: View, StoreAccessor {
                 for: Notification.Name("DetailViewOnDisappear")
             )
         ) { _ in
-            onDetailViewDisappear()
+            toggleNavBarHiddenIfNeeded()
         }
         .onReceive(
             NotificationCenter.default.publisher(
                 for: UIApplication.willResignActiveNotification
             )
         ) { _ in
-            onResignActive()
+            onEndTasks()
         }
         .onReceive(
             NotificationCenter.default.publisher(
                 for: UIApplication.willTerminateNotification
             )
         ) { _ in
-            onResignActive()
+            onEndTasks()
         }
         .onReceive(
             NotificationCenter.default.publisher(
@@ -134,8 +128,9 @@ struct ContentView: View, StoreAccessor {
         ) { _ in
             onWidthChange()
         }
-        .onAppear(perform: onAppear)
-        .onDisappear(perform: onDisappear)
+        .task(onStartTasks)
+        .onAppear(perform: toggleNavBarHiddenIfNeeded)
+        .onDisappear(perform: onEndTasks)
         .navigationBarBackButtonHidden(true)
         .navigationBarHidden(environment.navBarHidden)
     }
@@ -161,46 +156,40 @@ private extension ContentView {
     }
 
     // MARK: Life Cycle
-    func onAppear() {
+    func onStartTasks() {
         restoreAspectBox()
-        toggleNavBarHiddenIfNeeded()
         fetchMangaContentsIfNeeded()
     }
-    func onDisappear() {
+    func onEndTasks() {
         saveAspectBox()
         saveReadingProgress()
-    }
-    func onResignActive() {
-        saveAspectBox()
-        saveReadingProgress()
-    }
-    func onDetailViewDisappear() {
-        toggleNavBarHiddenIfNeeded()
     }
     func onWidthChange() {
         DispatchQueue.main.async {
-            setOffset(.zero)
-            setScale(1.1)
-            setScale(1)
+            set(newOffset: .zero)
+            set(newScale: 1.1)
+            set(newScale: 1)
         }
     }
-    func onLazyVStackAppear(_ proxy: ScrollViewProxy) {
+    func onLazyVStackAppear(proxy: ScrollViewProxy) {
         if let tag = mangaDetail?.readingProgress {
             proxy.scrollTo(tag)
         }
     }
-    func onWebImageAppear(_ item: MangaContent) {
+    func onWebImageAppear(item: MangaContent) {
         if item == mangaContents?.last {
             fetchMoreMangaContents()
         }
     }
-    func onWebImageSuccess(_ tag: Int, _ aspect: CGFloat) {
+    func onWebImageSuccess(tag: Int, aspect: CGFloat) {
         aspectBox[tag] = aspect
     }
 
     // MARK: Dispatch
     func fetchMangaContents() {
-        store.dispatch(.fetchMangaContents(gid: gid))
+        DispatchQueue.main.async {
+            store.dispatch(.fetchMangaContents(gid: gid))
+        }
     }
     func fetchMoreMangaContents() {
         store.dispatch(.fetchMoreMangaContents(gid: gid))
@@ -222,7 +211,7 @@ private extension ContentView {
     }
 
     // MARK: ReadingProgress
-    func calImageHeight(_ tag: Int) -> CGFloat {
+    func calImageHeight(tag: Int) -> CGFloat {
         if let aspect = aspectBox[tag] {
             return absoluteScreenW * aspect
         } else {
@@ -250,7 +239,7 @@ private extension ContentView {
         }
         return -1
     }
-    func updateGeoProxyMinY(_ value: CGFloat) {
+    func updateGeoProxyMinY(value: CGFloat) {
         position = abs(value)
     }
 
@@ -282,43 +271,43 @@ private extension ContentView {
     }
 
     // MARK: Gestures
-    func onDoubleTap(_ value: TapGesture.Value) {
-        setOffset(.zero)
-        setScale(scale == 1 ? setting?.doubleTapScaleFactor ?? 2 : 1)
+    func onDoubleTap(value: TapGesture.Value) {
+        set(newOffset: .zero)
+        set(newScale: scale == 1 ? setting?.doubleTapScaleFactor ?? 2 : 1)
     }
-    func onDragGestureChanged(_ value: DragGesture.Value) {
+    func onDragGestureChanged(value: DragGesture.Value) {
         if scale > 1 {
             let newX = value.translation.width + newOffset.width
             let screenW = UIScreen.main.bounds.width
             let marginW = screenW * (scale - 1) / 2
 
             let newOffsetW = min(max(newX, -marginW), marginW)
-            setOffset(CGSize(width: newOffsetW, height: offset.height))
+            set(newOffset: CGSize(width: newOffsetW, height: offset.height))
         }
     }
-    func onDragGestureEnded(_ value: DragGesture.Value) {
-        onDragGestureChanged(value)
+    func onDragGestureEnded(value: DragGesture.Value) {
+        onDragGestureChanged(value: value)
 
         if scale > 1 {
             newOffset.width = offset.width
         }
     }
-    func onMagnificationGestureChanged(_ value: MagnificationGesture.Value) {
+    func onMagnificationGestureChanged(value: MagnificationGesture.Value) {
         if value == 1 {
             baseScale = scale
         }
         fixOffset()
-        setScale(value * baseScale)
+        set(newScale: value * baseScale)
     }
-    func onMagnificationGestureEnded(_ value: MagnificationGesture.Value) {
-        onMagnificationGestureChanged(value)
+    func onMagnificationGestureEnded(value: MagnificationGesture.Value) {
+        onMagnificationGestureChanged(value: value)
         if value * baseScale - 1 < 0.01 {
-            setScale(1)
+            set(newScale: 1)
         }
         baseScale = scale
     }
 
-    func setOffset(_ newOffset: CGSize) {
+    func set(newOffset: CGSize) {
         let animation = Animation
             .linear(duration: 0.1)
         if offset != newOffset {
@@ -339,7 +328,7 @@ private extension ContentView {
             }
         }
     }
-    func setScale(_ newScale: CGFloat) {
+    func set(newScale: CGFloat) {
         let max = setting?.maximumScaleFactor ?? 3
         guard scale != newScale && newScale >= 1 && newScale <= max
         else { return }
@@ -377,9 +366,10 @@ private struct ImageContainer: View {
         KFImage(URL(string: content.url))
             .placeholder {
                 Placeholder(
-                    style: .progress,
-                    pageNumber: content.tag,
-                    percentage: percentage
+                    style: .progress(
+                        pageNumber: content.tag,
+                        percentage: percentage
+                    )
                 )
                 .frame(
                     width: absoluteScreenW,
@@ -398,12 +388,10 @@ private struct ImageContainer: View {
 
     }
 
-    private func onWebImageProgress<I: BinaryInteger>(
-        _ received: I, _ total: I
-    ) {
+    private func onWebImageProgress<I: BinaryInteger>(received: I, total: I) {
         percentage = Float(received) / Float(total)
     }
-    private func onWebImageSuccess(_ result: RetrieveImageResult) {
+    private func onWebImageSuccess(result: RetrieveImageResult) {
         let size = result.image.size
         let aspect = size.height / size.width
         onSuccessAction((content.tag, aspect))

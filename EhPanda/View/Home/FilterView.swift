@@ -108,7 +108,7 @@ private struct CategoryView: View, StoreAccessor {
         if let filter = filter,
            let filterBinding = filterBinding {
             LazyVGrid(columns: gridItems) {
-                ForEach(tuples(filter, filterBinding)) { tuple in
+                ForEach(tuples(filter: filter, filterBinding: filterBinding)) { tuple in
                     CategoryCell(
                         isFiltered: tuple.isFiltered,
                         category: tuple.category
@@ -125,7 +125,7 @@ private extension CategoryView {
         Binding($store.appState.settings.filter)
     }
 
-    func tuples(_ filter: Filter, _ filterBinding: Binding<Filter>) -> [TupleCategory] {
+    func tuples(filter: Filter, filterBinding: Binding<Filter>) -> [TupleCategory] {
         [TupleCategory(isFiltered: filterBinding.doujinshi.isFiltered, category: filter.doujinshi.category),
          TupleCategory(isFiltered: filterBinding.manga.isFiltered, category: filter.manga.category),
          TupleCategory(isFiltered: filterBinding.artistCG.isFiltered, category: filter.artistCG.category),

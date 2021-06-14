@@ -101,7 +101,7 @@ struct HomeView: View, StoreAccessor {
         )
         .onChange(
             of: user?.greeting,
-            perform: onReceiveGreeting
+            perform: onReceive
         )
         .onChange(
             of: homeInfo.searchKeyword,
@@ -269,7 +269,7 @@ private extension HomeView {
             fetchGreetingIfNeeded()
         }
     }
-    func onHomeListTypeChange(_ type: HomeListType) {
+    func onHomeListTypeChange(type: HomeListType) {
         switch type {
         case .frontpage:
             fetchFrontpageItemsIfNeeded()
@@ -283,7 +283,7 @@ private extension HomeView {
             break
         }
     }
-    func onReceiveGreeting(_ greeting: Greeting?) {
+    func onReceive(greeting: Greeting?) {
         if let greeting = greeting,
            !greeting.gainedNothing
         {
@@ -382,7 +382,7 @@ private extension HomeView {
     }
     func clearObstruction() {
         if environment.homeViewSheetState != nil {
-            store.dispatch(.toggleHomeViewSheetNil)
+            store.dispatch(.toggleHomeViewSheetState(state: nil))
         }
         if environment.isSlideMenuClosed != true {
             postSlideMenuShouldCloseNotification()

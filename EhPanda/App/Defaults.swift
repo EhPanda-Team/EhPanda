@@ -61,7 +61,7 @@ struct Defaults {
         static let ehentai = "https://e-hentai.org/"
         static let exhentai = "https://exhentai.org/"
         static let forum = "https://forums.e-hentai.org/"
-        static let login = merge([forum + index, loginAct])
+        static let login = merge(urls: [forum + index, loginAct])
         static let magnet = "magnet:?xt=urn:btih:"
 
         // Functional Pages
@@ -121,12 +121,12 @@ struct Defaults {
 extension Defaults.URL {
     // Fetch
     static func searchList(keyword: String, filter: Filter) -> String {
-        merge([
+        merge(urls: [
             host,
             listCompact,
             fSearch + keyword.URLString()
         ]
-        + applyFilters(filter)
+        + applyFilters(filter: filter)
         )
     }
     static func moreSearchList(
@@ -136,50 +136,50 @@ extension Defaults.URL {
         lastID: String
     ) -> String {
         merge(
-            [
+            urls: [
                 host,
                 listCompact,
                 fSearch + keyword.URLString(),
                 page + pageNum,
                 from + lastID
             ]
-            + applyFilters(filter)
+            + applyFilters(filter: filter)
         )
     }
     static func frontpageList() -> String {
-        merge([host, listCompact])
+        merge(urls: [host, listCompact])
     }
     static func moreFrontpageList(pageNum: String, lastID: String) -> String {
-        merge([host, listCompact, page + pageNum, from + lastID])
+        merge(urls: [host, listCompact, page + pageNum, from + lastID])
     }
     static func popularList() -> String {
-        merge([host + popular, listCompact])
+        merge(urls: [host + popular, listCompact])
     }
     static func watchedList() -> String {
-        merge([host + watched, listCompact])
+        merge(urls: [host + watched, listCompact])
     }
     static func moreWatchedList(pageNum: String, lastID: String) -> String {
-        merge([host + watched, page + pageNum, from + lastID])
+        merge(urls: [host + watched, page + pageNum, from + lastID])
     }
     static func favoritesList(favIndex: Int) -> String {
         if favIndex == -1 {
-            return merge([host + favorites, listCompact])
+            return merge(urls: [host + favorites, listCompact])
         } else {
-            return merge([host + favorites, favcat + "\(favIndex)", listCompact])
+            return merge(urls: [host + favorites, favcat + "\(favIndex)", listCompact])
         }
     }
     static func moreFavoritesList(favIndex: Int, pageNum: String, lastID: String) -> String {
         if favIndex == -1 {
-            return merge([host + favorites, page + pageNum, from + lastID])
+            return merge(urls: [host + favorites, page + pageNum, from + lastID])
         } else {
-            return merge([host + favorites, favcat + "\(favIndex)", page + pageNum, from + lastID])
+            return merge(urls: [host + favorites, favcat + "\(favIndex)", page + pageNum, from + lastID])
         }
     }
     static func mangaDetail(url: String) -> String {
-        merge([url, ignoreOffensive, showComments, previewLarge])
+        merge(urls: [url, ignoreOffensive, showComments, previewLarge])
     }
     static func mangaTorrents(gid: String, token: String) -> String {
-        merge([host + gallerytorrents, Defaults.URL.gid + gid, Defaults.URL.token + token])
+        merge(urls: [host + gallerytorrents, Defaults.URL.gid + gid, Defaults.URL.token + token])
     }
     static func associatedItemsRedir(keyword: AssociatedKeyword) -> String {
         if let title = keyword.title {
@@ -192,7 +192,7 @@ extension Defaults.URL {
         merge(keyword: keyword, pageNum: nil, lastID: nil)
     }
     static func similarGallery(keyword: String) -> String {
-        merge([host, listCompact, fSearch + keyword.URLString()])
+        merge(urls: [host, listCompact, fSearch + keyword.URLString()])
     }
     static func moreAssociatedItemsRedir(keyword: AssociatedKeyword, lastID: String, pageNum: String) -> String {
         if let title = keyword.title {
@@ -208,7 +208,7 @@ extension Defaults.URL {
         merge(keyword: keyword, pageNum: pageNum, lastID: lastID)
     }
     static func moreSimilarGallery(keyword: String, pageNum: String, lastID: String) -> String {
-        merge([
+        merge(urls: [
                 host,
                 listCompact,
                 fSearch + keyword.URLString(),
@@ -217,18 +217,18 @@ extension Defaults.URL {
         ])
     }
     static func mangaContents(detailURL: String) -> String {
-        merge([detailURL, previewLarge, rowsLimit])
+        merge(urls: [detailURL, previewLarge, rowsLimit])
     }
 
     // Account Associated Operations
     static func addFavorite(gid: String, token: String) -> String {
-        merge([host + gallerypopups, Defaults.URL.gid + gid, Defaults.URL.token + token, addfavAct])
+        merge(urls: [host + gallerypopups, Defaults.URL.gid + gid, Defaults.URL.token + token, addfavAct])
     }
     static func userID() -> String {
         forum + index
     }
     static func userInfo(uid: String) -> String {
-        merge([forum + index, showuser + uid])
+        merge(urls: [forum + index, showuser + uid])
     }
     static func greeting() -> String {
         ehentai + news
@@ -236,7 +236,7 @@ extension Defaults.URL {
 
     // Misc
     static func contentPage(url: String, pageNum: Int) -> String {
-        merge([url, contentPage + "\(pageNum)"])
+        merge(urls: [url, contentPage + "\(pageNum)"])
     }
     static func magnet(hash: String) -> String {
         magnet + hash
@@ -257,7 +257,7 @@ extension Defaults.URL {
 
 // MARK: Filter
 private extension Defaults.URL {
-    static func applyFilters(_ filter: Filter) -> [String] {
+    static func applyFilters(filter: Filter) -> [String] {
         var filters = [String]()
 
         var category = 0
@@ -315,7 +315,7 @@ private extension Defaults.URL {
 
 // MARK: Tools
 private extension Defaults.URL {
-    static func merge(_ urls: [String]) -> String {
+    static func merge(urls: [String]) -> String {
         let firstTwo = urls.prefix(2)
         let remainder = urls.suffix(from: 2)
 
@@ -336,6 +336,6 @@ private extension Defaults.URL {
         guard let pageNum = pageNum, let lastID = lastID else {
             return host + tag + "\(keyword.0):\(keyword.1.URLString())"
         }
-        return merge([host + tag + "\(keyword.0):\(keyword.1.URLString())/\(pageNum)", from + lastID])
+        return merge(urls: [host + tag + "\(keyword.0):\(keyword.1.URLString())/\(pageNum)", from + lastID])
     }
 }

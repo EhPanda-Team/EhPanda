@@ -26,20 +26,11 @@ struct TorrentsView: View, StoreAccessor {
             Group {
                 if !torrents.isEmpty {
                     ZStack {
-                        ScrollView {
-                            LazyVStack {
-                                ForEach(torrents) { torrent in
-                                    TorrentRow(
-                                        torrent: torrent,
-                                        action: onTorrentRowTap
-                                    )
-                                    .background(color)
-                                    .cornerRadius(10)
-                                    .padding(.horizontal)
-                                    .padding(.vertical, 5)
-                                }
-                            }
-                            .padding(.top)
+                        List(torrents) { torrent in
+                            TorrentRow(
+                                torrent: torrent,
+                                action: onTorrentRowTap
+                            )
                         }
                         TTProgressHUD($hudVisible, config: hudConfig)
                     }
@@ -51,17 +42,11 @@ struct TorrentsView: View, StoreAccessor {
             }
             .navigationBarTitle("Torrents")
         }
-        .onAppear(perform: onAppear)
+        .task(fetchMangaTorrents)
     }
 }
 
 private extension TorrentsView {
-    var color: Color {
-        colorScheme == .light
-            ? Color(.systemGray6)
-            : Color(.systemGray5)
-    }
-
     var mangaDetail: MangaDetail? {
         cachedList.items?[gid]?.detail
     }
@@ -69,11 +54,8 @@ private extension TorrentsView {
         mangaDetail?.torrents ?? []
     }
 
-    func onAppear() {
-        fetchMangaTorrents()
-    }
-    func onTorrentRowTap(_ magnet: String) {
-        saveToPasteboard(magnet)
+    func onTorrentRowTap(magnet: String) {
+        saveToPasteboard(value: magnet)
         showCopiedHUD()
     }
 
@@ -89,10 +71,13 @@ private extension TorrentsView {
     }
 
     func fetchMangaTorrents() {
-        store.dispatch(.fetchMangaTorrents(gid: gid))
+        DispatchQueue.main.async {
+            store.dispatch(.fetchMangaTorrents(gid: gid))
+        }
     }
 }
 
+// MARK: TorrentRow
 private struct TorrentRow: View {
     private let torrent: MangaTorrent
     private let action: (String) -> Void
@@ -108,23 +93,23 @@ private struct TorrentRow: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(spacing: 10) {
-                SeedLabel(
-                    symbolName: "arrow.up.circle",
-                    text: "\(torrent.seedCount)"
-                )
-                SeedLabel(
-                    symbolName: "arrow.down.circle",
-                    text: "\(torrent.peerCount)"
-                )
-                SeedLabel(
-                    symbolName: "checkmark.circle",
-                    text: "\(torrent.downloadCount)"
-                )
+                HStack(spacing: 3) {
+                    Image(systemName: "arrow.up.circle")
+                    Text("\(torrent.seedCount)")
+                }
+                HStack(spacing: 3) {
+                    Image(systemName: "arrow.down.circle")
+                    Text("\(torrent.peerCount)")
+                }
+                HStack(spacing: 3) {
+                    Image(systemName: "checkmark.circle")
+                    Text("\(torrent.downloadCount)")
+                }
                 Spacer()
-                SeedLabel(
-                    symbolName: "doc.circle",
-                    text: torrent.fileSize
-                )
+                HStack(spacing: 3) {
+                    Image(systemName: "doc.circle")
+                    Text(torrent.fileSize)
+                }
             }
             .lineLimit(1)
             Button(action: onFileNameTap) {
@@ -138,30 +123,13 @@ private struct TorrentRow: View {
             }
             .lineLimit(1)
             .font(.callout)
-            .foregroundColor(.gray)
             .padding(.top, 10)
+            .foregroundColor(.secondary)
         }
         .padding()
     }
 
     private func onFileNameTap() {
         action(torrent.magnet)
-    }
-}
-
-private struct SeedLabel: View {
-    private let symbolName: String
-    private let text: String
-
-    init(symbolName: String, text: String) {
-        self.symbolName = symbolName
-        self.text = text
-    }
-
-    var body: some View {
-        HStack(spacing: 3) {
-            Image(systemName: symbolName)
-            Text(text)
-        }
     }
 }

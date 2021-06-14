@@ -11,8 +11,9 @@ import Kingfisher
 struct DetailView: View, StoreAccessor {
     @EnvironmentObject var store: Store
     @Environment(\.colorScheme) private var colorScheme
+
     @State private var associatedKeyword = AssociatedKeyword()
-    @State private var isAssociatedLinkActive = false
+    @State private var isNavLinkActive = false
 
     private let gid: String
     private let depth: Int
@@ -31,7 +32,7 @@ struct DetailView: View, StoreAccessor {
                     depth: depth,
                     keyword: associatedKeyword
                 ),
-                isActive: $isAssociatedLinkActive
+                isActive: $isNavLinkActive
             )
             if let detail = mangaDetail {
                 ScrollView(showsIndicators: false) {
@@ -49,7 +50,7 @@ struct DetailView: View, StoreAccessor {
                             detail: detail,
                             ratingAction: onUserRatingChanged
                         ) {
-                            onSimilarGalleryTap(detail.title)
+                            onSimilarGalleryTap(title: detail.title)
                         }
                         if !detail.detailTags.isEmpty {
                             TagsView(
@@ -79,6 +80,7 @@ struct DetailView: View, StoreAccessor {
                 NetworkErrorView(retryAction: fetchMangaDetail)
             }
         }
+        .task(updateHistoryItems)
         .onAppear(perform: onAppear)
         .onDisappear(perform: onDisappear)
         .navigationBarItems(trailing: menu)
@@ -94,8 +96,8 @@ struct DetailView: View, StoreAccessor {
                     DraftCommentView(
                         content: commentContentBinding,
                         title: "Post Comment",
-                        postAction: draftCommentViewPost,
-                        cancelAction: draftCommentViewCancel
+                        postAction: onCommentPost,
+                        cancelAction: toggleSheetStateNil
                     )
                 }
             }
@@ -126,58 +128,51 @@ private extension DetailView {
     var mangaDetail: MangaDetail? {
         cachedList.items?[gid]?.detail
     }
-    var torrentCount: Int? {
-        mangaDetail?.torrentCount
-    }
-    var archiveURL: String? {
-        mangaDetail?.archiveURL
-    }
+
+    // MARK: menu
     var menu: some View {
-        Group {
-            if mangaDetail != nil {
-                Menu(content: {
-                    if !detailInfo.mangaDetailUpdating {
-                        if mangaDetail?.archiveURL != nil {
-                            Button(action: onArchiveButtonTap) {
-                                Label("Archive", systemImage: "doc.zipper")
-                            }
-                        }
-                        if let count = torrentCount, count > 0 {
-                            Button(action: onTorrentsButtonTap) {
-                                Label(
-                                    "Torrents".localized() + " (\(count))",
-                                    systemImage: "leaf"
-                                )
-                            }
-                        }
-                        Button(action: onShareButtonTap) {
-                            Label("Share", systemImage: "square.and.arrow.up")
-                        }
-                    }
-                }, label: {
-                    Image(systemName: "ellipsis.circle")
-                        .imageScale(.large)
-                })
-                .disabled(
-                    detailInfo.mangaDetailLoading
-                        || detailInfo.mangaDetailUpdating
+        Menu(content: {
+            Button(action: onArchiveButtonTap) {
+                Label("Archive", systemImage: "doc.zipper")
+            }
+            .disabled(mangaDetail?.archiveURL == nil)
+            Button(action: onTorrentsButtonTap) {
+                Label(
+                    "Torrents".localized() + (
+                        mangaDetail?.torrentCount ?? 0 > 0
+                        ? " (\(mangaDetail?.torrentCount ?? 0))" : ""
+                    ),
+                    systemImage: "leaf"
                 )
             }
-        }
+            .disabled((mangaDetail?.torrentCount ?? 0 > 0) != true)
+            Button(action: onShareButtonTap) {
+                Label("Share", systemImage: "square.and.arrow.up")
+            }
+        }, label: {
+            Image(systemName: "ellipsis.circle")
+                .imageScale(.large)
+        })
+        .disabled(
+            mangaDetail == nil
+                || detailInfo.mangaDetailLoading
+                || detailInfo.mangaDetailUpdating
+        )
     }
 }
 
 // MARK: Private Methods
 private extension DetailView {
     func onAppear() {
-        toggleNavBarHidden()
+        if environment.navBarHidden {
+            store.dispatch(.toggleNavBarHidden(isHidden: false))
+        }
 
         if mangaDetail == nil {
             fetchMangaDetail()
         } else {
             updateMangaDetail()
         }
-        updateHistoryItems()
         updateViewControllersCount()
     }
     func onDisappear() {
@@ -185,13 +180,13 @@ private extension DetailView {
         postDetailViewOnDisappearNotification()
     }
     func onArchiveButtonTap() {
-        toggleSheetState(.archive)
+        toggleSheet(state: .archive)
     }
     func onTorrentsButtonTap() {
-        toggleSheetState(.torrents)
+        toggleSheet(state: .torrents)
     }
     func onCommentButtonTap() {
-        toggleSheetState(.comment)
+        toggleSheet(state: .comment)
     }
     func onShareButtonTap() {
         guard let data = URL(string: manga.detailURL) else { return }
@@ -214,41 +209,40 @@ private extension DetailView {
             )
         impactFeedback(style: .light)
     }
-    func onUserRatingChanged(_ value: Int) {
-        sendRating(value)
+    func onUserRatingChanged(value: Int) {
+        store.dispatch(.rate(gid: gid, rating: value))
     }
-    func onSimilarGalleryTap(_ title: String) {
+    func onSimilarGalleryTap(title: String) {
         associatedKeyword = AssociatedKeyword(
             title: title.trimmedTitle()
         )
-        isAssociatedLinkActive.toggle()
+        isNavLinkActive.toggle()
     }
-    func onTagsViewTap(_ keyword: AssociatedKeyword) {
+    func onTagsViewTap(keyword: AssociatedKeyword) {
         associatedKeyword = keyword
-        isAssociatedLinkActive.toggle()
+        isNavLinkActive.toggle()
     }
-    func addFavorite(_ index: Int) {
+    func onCommentPost() {
+        store.dispatch(.comment(gid: gid, content: commentContent))
+        store.dispatch(.clearDetailViewCommentContent)
+        toggleSheetStateNil()
+    }
+    func toggleSheet(state: DetailViewSheetState?) {
+        store.dispatch(.toggleDetailViewSheetState(state: state))
+    }
+    func toggleSheetStateNil() {
+        toggleSheet(state: nil)
+    }
+
+    func addFavorite(index: Int) {
         store.dispatch(.addFavorite(gid: manga.gid, favIndex: index))
     }
     func deleteFavorite() {
         store.dispatch(.deleteFavorite(gid: manga.gid))
     }
-
-    func draftCommentViewPost() {
-        if !commentContent.isEmpty {
-            postComment()
-            toggleSheetNil()
-        }
+    func updateViewControllersCount() {
+        store.dispatch(.updateViewControllersCount)
     }
-    func draftCommentViewCancel() {
-        toggleSheetNil()
-    }
-
-    func postComment() {
-        store.dispatch(.comment(gid: gid, content: commentContent))
-        store.dispatch(.clearDetailViewCommentContent)
-    }
-
     func fetchMangaDetail() {
         store.dispatch(.fetchMangaDetail(gid: gid))
     }
@@ -259,27 +253,11 @@ private extension DetailView {
         store.dispatch(.fetchMangaTorrents(gid: gid))
     }
     func updateHistoryItems() {
-        if environment.homeListType != .history {
-            store.dispatch(.updateHistoryItems(gid: gid))
+        DispatchQueue.main.async {
+            if environment.homeListType != .history {
+                store.dispatch(.updateHistoryItems(gid: gid))
+            }
         }
-    }
-    func updateViewControllersCount() {
-        store.dispatch(.updateViewControllersCount)
-    }
-    func sendRating(_ value: Int) {
-        store.dispatch(.rate(gid: gid, rating: value))
-    }
-
-    func toggleNavBarHidden() {
-        if environment.navBarHidden {
-            store.dispatch(.toggleNavBarHidden(isHidden: false))
-        }
-    }
-    func toggleSheetState(_ state: DetailViewSheetState) {
-        store.dispatch(.toggleDetailViewSheetState(state: state))
-    }
-    func toggleSheetNil() {
-        store.dispatch(.toggleDetailViewSheetNil)
     }
 }
 
@@ -321,12 +299,10 @@ private struct HeaderView: View {
                     .fontWeight(.bold)
                     .lineLimit(3)
                     .font(.title3)
-                if let uploader = manga.uploader {
-                    Text(uploader)
-                        .lineLimit(1)
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                }
+                Text(manga.uploader ?? "")
+                    .lineLimit(1)
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
                 Spacer()
                 HStack {
                     Text(category)
@@ -341,13 +317,13 @@ private struct HeaderView: View {
                                 .foregroundColor(manga.color)
                         )
                     Spacer()
-                    if isFavored {
+                    ZStack {
                         Button(action: deleteFavAction) {
                             Image(systemName: "heart.fill")
                                 .imageScale(.large)
                                 .foregroundStyle(.tint)
                         }
-                    } else {
+                        .opacity(detail.isFavored ? 1 : 0)
                         Menu {
                             ForEach(0..<(favoriteNames?.count ?? 10) - 1) { index in
                                 Button(
@@ -364,6 +340,7 @@ private struct HeaderView: View {
                                 .imageScale(.large)
                                 .foregroundStyle(.tint)
                         }
+                        .opacity(detail.isFavored ? 0 : 1)
                     }
                     Button(action: {}, label: {
                         NavigationLink(destination: ContentView(gid: manga.gid)) {
@@ -384,9 +361,6 @@ private struct HeaderView: View {
 }
 
 private extension HeaderView {
-    var isFavored: Bool {
-        detail.isFavored
-    }
     var width: CGFloat {
         Defaults.ImageSize.headerW
     }
@@ -408,11 +382,7 @@ private extension HeaderView {
         }
     }
     func placeholder() -> some View {
-        Placeholder(
-            style: .activity,
-            width: width,
-            height: height
-        )
+        Placeholder(style: .activity(width: width, height: height))
     }
 }
 
@@ -594,12 +564,12 @@ private struct ActionRow: View {
             }
         }
         .padding(.horizontal)
-        .onAppear(perform: onAppear)
+        .task(onStartTasks)
     }
 }
 
 private extension ActionRow {
-    func onAppear() {
+    func onStartTasks() {
         if let rating = detail.userRating {
             userRating = Int(rating.fixedRating() * 2)
         }
@@ -609,18 +579,18 @@ private extension ActionRow {
             showUserRating.toggle()
         }
     }
-    func onRatingChanged(_ value: DragGesture.Value) {
-        updateRating(value)
+    func onRatingChanged(value: DragGesture.Value) {
+        updateRating(value: value)
     }
-    func onRatingEnded(_ value: DragGesture.Value) {
-        updateRating(value)
+    func onRatingEnded(value: DragGesture.Value) {
+        updateRating(value: value)
         ratingAction(userRating)
         impactFeedback(style: .soft)
         withAnimation(Animation.default.delay(1)) {
             showUserRating.toggle()
         }
     }
-    func updateRating(_ value: DragGesture.Value) {
+    func updateRating(value: DragGesture.Value) {
         let rating = Int(value.location.x / 31 * 2) + 1
         userRating = min(max(rating, 1), 10)
     }
@@ -704,12 +674,8 @@ private struct PreviewView: View {
         Defaults.ImageSize.previewH
     }
     private func placeholder() -> some View {
-        Placeholder(
-            style: .activity,
-            width: width,
-            height: height
-        )
-        .cornerRadius(15)
+        Placeholder(style: .activity(width: width, height: height))
+            .cornerRadius(15)
     }
 
     init(
@@ -788,16 +754,15 @@ private struct CommentScrollView: View {
                     .fontWeight(.bold)
                     .font(.title3)
                 Spacer()
-                if !comments.isEmpty {
-                    NavigationLink(
-                        destination: CommentView(
-                            gid: gid, depth: depth
-                        )
-                    ) {
-                        Text("Show All")
-                            .font(.subheadline)
-                    }
+                NavigationLink(
+                    destination: CommentView(
+                        gid: gid, depth: depth
+                    )
+                ) {
+                    Text("Show All")
+                        .font(.subheadline)
                 }
+                .opacity(comments.isEmpty ? 0 : 1)
             }
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack {
@@ -838,14 +803,13 @@ private struct CommentScrollCell: View {
                     .font(.subheadline)
                 Spacer()
                 Group {
-                    if comment.votedUp {
+                    ZStack {
                         Image(systemName: "hand.thumbsup.fill")
-                    } else if comment.votedDown {
+                            .opacity(comment.votedUp ? 1 : 0)
                         Image(systemName: "hand.thumbsdown.fill")
+                            .opacity(comment.votedDown ? 1 : 0)
                     }
-                    if let score = comment.score {
-                        Text(score)
-                    }
+                    Text(comment.score ?? "")
                     Text(comment.formattedDateString)
                 }
                 .font(.footnote)

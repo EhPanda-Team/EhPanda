@@ -15,6 +15,12 @@ struct AccountSettingView: View {
     @State private var hudVisible = false
     @State private var hudConfig = TTProgressHUDConfig()
 
+    private let ehURL = Defaults.URL.ehentai.safeURL()
+    private let exURL = Defaults.URL.exhentai.safeURL()
+    private let igneousKey = Defaults.Cookie.igneous
+    private let memberIDKey = Defaults.Cookie.ipbMemberId
+    private let passHashKey = Defaults.Cookie.ipbPassHash
+
     // MARK: AccountSettingView
     var body: some View {
         ZStack {
@@ -32,18 +38,14 @@ struct AccountSettingView: View {
                             })
                             .pickerStyle(.segmented)
                         if !didLogin {
-                            Button("Login", action: onLoginTap)
-                                .withArrow()
+                            Button("Login", action: toggleWebViewLogin).withArrow()
                         } else {
-                            Button("Logout", action: onLogoutTap)
-                                .foregroundColor(.red)
+                            Button("Logout", action: toggleLogout).foregroundStyle(.red)
                         }
                         if didLogin {
                             Group {
-                                Button("Account configuration", action: onConfigTap)
-                                    .withArrow()
-                                Button("Manage tags subscription", action: onMyTagsTap)
-                                    .withArrow()
+                                Button("Account configuration", action: toggleWebViewConfig).withArrow()
+                                Button("Manage tags subscription", action: toggleWebViewMyTags).withArrow()
                                 Toggle(
                                     "Show new dawn greeting",
                                     isOn: settingBinding.showNewDawnGreeting
@@ -58,15 +60,13 @@ struct AccountSettingView: View {
                         inEditMode: $inEditMode,
                         key: memberIDKey,
                         value: ehMemberID,
-                        verifyView: verifyView(ehMemberID),
-                        editChangedAction: onEhMemberIDEditingChanged
+                        commitAction: onEhEditingChange
                     )
                     CookieRow(
                         inEditMode: $inEditMode,
                         key: passHashKey,
                         value: ehPassHash,
-                        verifyView: verifyView(ehPassHash),
-                        editChangedAction: onEhPassHashEditingChanged
+                        commitAction: onEhEditingChange
                     )
                     Button("Copy cookies", action: copyEhCookies)
                 }
@@ -75,22 +75,19 @@ struct AccountSettingView: View {
                         inEditMode: $inEditMode,
                         key: igneousKey,
                         value: igneous,
-                        verifyView: verifyView(igneous),
-                        editChangedAction: onIgneousEditingChanged
+                        commitAction: onExEditingChange
                     )
                     CookieRow(
                         inEditMode: $inEditMode,
                         key: memberIDKey,
                         value: exMemberID,
-                        verifyView: verifyView(exMemberID),
-                        editChangedAction: onExMemberIDEditingChanged
+                        commitAction: onExEditingChange
                     )
                     CookieRow(
                         inEditMode: $inEditMode,
                         key: passHashKey,
                         value: exPassHash,
-                        verifyView: verifyView(exPassHash),
-                        editChangedAction: onExPassHashEditingChanged
+                        commitAction: onExEditingChange
                     )
                     Button("Copy cookies", action: copyExCookies)
                 }
@@ -99,7 +96,10 @@ struct AccountSettingView: View {
         }
         .navigationBarTitle("Account")
         .navigationBarItems(trailing:
-            Button(inEditMode ? "Finish" : "Edit", action: onEditButtonTap)
+            Button(
+                inEditMode ? "Finish" : "Edit",
+                action: { inEditMode.toggle() }
+            )
         )
     }
 }
@@ -109,21 +109,7 @@ private extension AccountSettingView {
         Binding($store.appState.settings.setting)
     }
 
-    var ehURL: URL {
-        Defaults.URL.ehentai.safeURL()
-    }
-    var exURL: URL {
-        Defaults.URL.exhentai.safeURL()
-    }
-    var igneousKey: String {
-        Defaults.Cookie.igneous
-    }
-    var memberIDKey: String {
-        Defaults.Cookie.ipbMemberId
-    }
-    var passHashKey: String {
-        Defaults.Cookie.ipbPassHash
-    }
+    // MARK: Cookies Methods
     var igneous: CookieValue {
         getCookieValue(url: exURL, key: igneousKey)
     }
@@ -139,61 +125,12 @@ private extension AccountSettingView {
     var exPassHash: CookieValue {
         getCookieValue(url: exURL, key: passHashKey)
     }
-
-    var verifiedView: some View {
-        Image(systemName: "checkmark.circle")
-            .foregroundColor(.green)
+    func onEhEditingChange(key: String, value: String) {
+        setCookieValue(url: ehURL, key: key, value: value)
     }
-    var notVerifiedView: some View {
-        Image(systemName: "xmark.circle")
-            .foregroundColor(.red)
+    func onExEditingChange(key: String, value: String) {
+        setCookieValue(url: exURL, key: key, value: value)
     }
-    func verifyView(_ value: CookieValue) -> some View {
-        Group {
-            if !value.localizedString.isEmpty {
-                if value.rawValue.isEmpty {
-                    verifiedView
-                } else {
-                    notVerifiedView
-                }
-            } else {
-                verifiedView
-            }
-        }
-    }
-
-    func onEditButtonTap() {
-        inEditMode.toggle()
-    }
-    func onLoginTap() {
-        toggleWebViewLogin()
-    }
-    func onConfigTap() {
-        toggleWebViewConfig()
-    }
-    func onMyTagsTap() {
-        toggleWebViewMyTags()
-    }
-    func onLogoutTap() {
-        toggleLogout()
-    }
-
-    func onEhMemberIDEditingChanged(_ value: String) {
-        setCookieValue(url: ehURL, key: memberIDKey, value: value)
-    }
-    func onEhPassHashEditingChanged(_ value: String) {
-        setCookieValue(url: ehURL, key: passHashKey, value: value)
-    }
-    func onIgneousEditingChanged(_ value: String) {
-        setCookieValue(url: exURL, key: igneousKey, value: value)
-    }
-    func onExMemberIDEditingChanged(_ value: String) {
-        setCookieValue(url: exURL, key: memberIDKey, value: value)
-    }
-    func onExPassHashEditingChanged(_ value: String) {
-        setCookieValue(url: exURL, key: passHashKey, value: value)
-    }
-
     func setCookieValue(url: URL, key: String, value: String) {
         if checkExistence(url: url, key: key) {
             editCookie(url: url, key: key, value: value)
@@ -204,17 +141,16 @@ private extension AccountSettingView {
     func copyEhCookies() {
         let cookies = "\(memberIDKey): \(ehMemberID.rawValue)"
             + "\n\(passHashKey): \(ehPassHash.rawValue)"
-        saveToPasteboard(cookies)
+        saveToPasteboard(value: cookies)
         showCopiedHUD()
     }
     func copyExCookies() {
         let cookies = "\(igneousKey): \(igneous.rawValue)"
             + "\n\(memberIDKey): \(exMemberID.rawValue)"
             + "\n\(passHashKey): \(exPassHash.rawValue)"
-        saveToPasteboard(cookies)
+        saveToPasteboard(value: cookies)
         showCopiedHUD()
     }
-
     func showCopiedHUD() {
         hudConfig = TTProgressHUDConfig(
             type: .success,
@@ -226,6 +162,7 @@ private extension AccountSettingView {
         hudVisible.toggle()
     }
 
+    // MARK: Dispatch Methods
     func toggleWebViewLogin() {
         store.dispatch(.toggleSettingViewSheetState(state: .webviewLogin))
     }
@@ -241,60 +178,68 @@ private extension AccountSettingView {
 }
 
 // MARK: CookieRow
-private struct CookieRow<VerifyView: View>: View {
-    private var inEditModeBinding: Binding<Bool>
-    private var inEditMode: Bool {
-        inEditModeBinding.wrappedValue
-    }
+private struct CookieRow: View {
+    @Binding private var inEditMode: Bool
     @State private var content: String
 
     private let key: String
     private let value: String
-    private let verifyView: VerifyView
-    private let editChangedAction: (String) -> Void
+    private let cookieValue: CookieValue
+    private let commitAction: (String, String) -> Void
+    private var notVerified: Bool {
+        !cookieValue.localizedString.isEmpty
+            && !cookieValue.rawValue.isEmpty
+    }
 
     init(
         inEditMode: Binding<Bool>,
         key: String,
         value: CookieValue,
-        verifyView: VerifyView,
-        editChangedAction: @escaping (String) -> Void
+        commitAction: @escaping (String, String) -> Void
     ) {
-        self.inEditModeBinding = inEditMode
+        _inEditMode = inEditMode
         _content = State(initialValue: value.rawValue)
 
         self.key = key
         self.value = value.localizedString.isEmpty
             ? value.rawValue : value.localizedString
-        self.verifyView = verifyView
-        self.editChangedAction = editChangedAction
+        self.cookieValue = value
+        self.commitAction = commitAction
     }
 
     var body: some View {
         HStack {
             Text(key)
             Spacer()
-            if inEditMode {
+            ZStack {
                 TextField(
-                    value,
-                    text: $content,
-                    onEditingChanged: { _ in },
-                    onCommit: {}
+                    value, text: $content,
+                    onCommit: onTextFieldCommit
                 )
+                .disabled(!inEditMode)
                 .autocapitalization(.none)
                 .disableAutocorrection(true)
                 .multilineTextAlignment(.trailing)
-                .onChange(of: content, perform: onContentChanged)
-            } else {
-                Text(value)
-                    .lineLimit(1)
             }
-            verifyView
+            ZStack {
+                Image(systemName: "checkmark.circle")
+                    .foregroundColor(.green)
+                    .opacity(notVerified ? 0 : 1)
+                Image(systemName: "xmark.circle")
+                    .foregroundColor(.red)
+                    .opacity(notVerified ? 1 : 0)
+            }
         }
+        .onChange(of: inEditMode, perform: onEditModeChange)
     }
 
-    private func onContentChanged(_ value: String) {
-        editChangedAction(value)
+    private func onEditModeChange(value: Bool) {
+        if value == false {
+            onTextFieldCommit()
+        }
+    }
+    private func onTextFieldCommit() {
+        commitAction(key, content)
     }
 }
 

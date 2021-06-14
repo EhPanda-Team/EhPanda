@@ -19,8 +19,7 @@ struct CommentButton: View {
             HStack {
                 Spacer()
                 Image(systemName: "square.and.pencil")
-                Text("Post Comment")
-                    .fontWeight(.bold)
+                Text("Post Comment").fontWeight(.bold)
                 Spacer()
             }
             .padding()
@@ -55,29 +54,29 @@ struct DraftCommentView: View {
             VStack {
                 TextEditor(text: $content)
                     .focused($isTextEditorFocused)
-                    .autocapitalization(.none)
                     .disableAutocorrection(true)
-                    .navigationBarTitle(
-                        title.localized(),
-                        displayMode: .inline
-                    )
-                    .navigationBarItems(
-                        leading:
-                            Button(action: cancelAction) {
-                                Text("Cancel")
-                                    .fontWeight(.regular)
-                            },
-                        trailing:
-                            Button(action: postAction) {
-                                Text("Post")
-                            }
-                            .disabled(content.isEmpty)
-                    )
-                    .onAppear(perform: onTextEditorAppear)
+                    .autocapitalization(.none)
                     .padding()
                 Spacer()
             }
+            .navigationBarTitle(
+                title.localized(),
+                displayMode: .inline
+            )
+            .navigationBarItems(
+                leading:
+                    Button(action: cancelAction) {
+                        Text("Cancel")
+                            .fontWeight(.regular)
+                    },
+                trailing:
+                    Button(action: postAction) {
+                        Text("Post")
+                    }
+                    .disabled(content.isEmpty)
+            )
         }
+        .task(onTextEditorAppear)
     }
 
     private func onTextEditorAppear() {

@@ -95,7 +95,7 @@ private extension AuthView {
         store.dispatch(.toggleBlurEffect(effectOn: effectOn))
     }
 
-    func setUnlocked(_ isUnlocked: Bool) {
+    func set(isUnlocked: Bool) {
         store.dispatch(.toggleAppUnlocked(isUnlocked: isUnlocked))
     }
 
@@ -104,7 +104,7 @@ private extension AuthView {
            Date().timeIntervalSince(resignDate)
             > Double(autoLockThreshold)
         {
-            setUnlocked(false)
+            set(isUnlocked: false)
             setBlur(effectOn: true)
         }
         enterBackgroundDate = nil
@@ -114,7 +114,7 @@ private extension AuthView {
         localAuth(
             reason: "The App has been locked due to the auto-lock expiration.",
             successAction: {
-                setUnlocked(true)
+                set(isUnlocked: true)
                 setBlur(effectOn: false)
             }
         )

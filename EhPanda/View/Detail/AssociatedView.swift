@@ -35,13 +35,13 @@ struct AssociatedView: View, StoreAccessor {
                         .listRowBackground(Color.clear)
                         .listRowSeparator(.hidden)
                         .onAppear {
-                            onRowAppear(manga)
+                            onRowAppear(item: manga)
                         }
                     }
                     .transition(animatedTransition)
                     LoadMoreFooter(
-                        moreLoadingFlag: moreLoadingFlag,
-                        moreLoadFailedFlag: moreLoadingFlag,
+                        moreLoadingFlag: detailInfo.moreAssociatedItemsLoading,
+                        moreLoadFailedFlag: detailInfo.moreAssociatedItemsLoadFailed,
                         retryAction: fetchMoreAssociatedItems
                     )
                     .listRowBackground(Color.clear)
@@ -50,35 +50,20 @@ struct AssociatedView: View, StoreAccessor {
                 .refreshable(action: fetchAssociatedItems)
                 .transition(animatedTransition)
                 .listStyle(.plain)
-            } else if loadingFlag {
+            } else if detailInfo.associatedItemsLoading {
                 LoadingView()
-            } else if notFoundFlag {
-                NotFoundView(retryAction: retryAction)
+            } else if detailInfo.associatedItemsNotFound {
+                NotFoundView(retryAction: fetchAssociatedItems)
             } else {
-                NetworkErrorView(retryAction: retryAction)
+                NetworkErrorView(retryAction: fetchAssociatedItems)
             }
         }
-        .onAppear(perform: onAppear)
+        .task(fetchAssociatedItemsIfNeeded)
         .navigationBarTitle(title)
     }
 }
 
 private extension AssociatedView {
-    var loadingFlag: Bool {
-        detailInfo.associatedItemsLoading
-    }
-    var loadFailedFlag: Bool {
-        detailInfo.associatedItemsLoadFailed
-    }
-    var notFoundFlag: Bool {
-        detailInfo.associatedItemsNotFound
-    }
-    var moreLoadingFlag: Bool {
-        detailInfo.moreAssociatedItemsLoading
-    }
-    var moreLoadFailedFlag: Bool {
-        detailInfo.moreAssociatedItemsLoadFailed
-    }
     var assciatedItem: AssociatedItem {
         assciatedItems.count >= depth + 1
             ? assciatedItems[depth] : AssociatedItem(mangas: [])
@@ -112,17 +97,10 @@ private extension AssociatedView {
         }
     }
 
-    func onAppear() {
-        fetchAssociatedItemsIfNeeded()
-    }
-    func onRowAppear(_ item: Manga) {
+    func onRowAppear(item: Manga) {
         if item == assciatedItem.mangas.last {
             fetchMoreAssociatedItems()
         }
-    }
-
-    func retryAction() {
-        fetchAssociatedItems()
     }
 
     func fetchAssociatedItems() {
@@ -133,8 +111,10 @@ private extension AssociatedView {
     }
 
     func fetchAssociatedItemsIfNeeded() {
-        if assciatedItem.keyword != keyword {
-            fetchAssociatedItems()
+        DispatchQueue.main.async {
+            if assciatedItem.keyword != keyword {
+                fetchAssociatedItems()
+            }
         }
     }
 }

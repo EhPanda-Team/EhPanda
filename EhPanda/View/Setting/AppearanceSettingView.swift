@@ -9,7 +9,7 @@ import SwiftUI
 
 struct AppearanceSettingView: View, StoreAccessor {
     @EnvironmentObject var store: Store
-    @State private var isNavigationLinkActive = false
+    @State private var isNavLinkActive = false
 
     private var settingBinding: Binding<Setting>? {
         Binding($store.appState.settings.setting)
@@ -27,9 +27,9 @@ struct AppearanceSettingView: View, StoreAccessor {
             NavigationLink(
                 destination: SelectAppIconView(
                     selectedIcon: selectedIcon,
-                    selectAction: selectIcon
+                    selectAction: onIconSelect
                 ),
-                isActive: $isNavigationLinkActive,
+                isActive: $isNavLinkActive,
                 label: {}
             )
             Form {
@@ -50,46 +50,42 @@ struct AppearanceSettingView: View, StoreAccessor {
                     .pickerStyle(.menu)
                     ColorPicker("Tint Color", selection: settingBinding.accentColor)
                     Button("App Icon", action: onAppIconButtonTap)
-                        .foregroundColor(.primary)
-                        .withArrow()
-                    if Locale.current.languageCode != "en" {
-                        Toggle(isOn: settingBinding.translateCategory, label: {
-                            Text("Translate category")
-                        })
-                    }
+                        .foregroundColor(.primary).withArrow()
+                    Toggle("Translate category", isOn: settingBinding.translateCategory)
+                        .disabled(Locale.current.languageCode == "en")
                 }
                 Section(header: Text("List")) {
                     Toggle(isOn: settingBinding.showSummaryRowTags) {
                         HStack {
                             Text("Show tags in list")
-                            if setting.showSummaryRowTags {
-                                Image(systemName: "exclamationmark.triangle.fill")
-                                    .foregroundColor(.yellow)
-                            }
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .opacity(setting.showSummaryRowTags ? 1 : 0)
+                                .foregroundColor(.yellow)
                         }
                     }
-                    if setting.showSummaryRowTags {
-                        Toggle(isOn: settingBinding.summaryRowTagsMaximumActivated) {
-                            Text("Set maximum number of tags")
-                        }
-                        if setting.summaryRowTagsMaximumActivated {
-                            HStack {
-                                Text("Maximum number of tags")
-                                Spacer()
-                                Picker(selection: settingBinding.summaryRowTagsMaximum,
-                                       label: Text("\(setting.summaryRowTagsMaximum)")
-                                ) {
-                                    let nums = Array(stride(
-                                        from: 5, through: 20, by: 5
-                                    ))
-                                    ForEach(nums, id: \.self) { num in
-                                        Text("\(num)").tag(num)
-                                    }
-                                }
-                                .pickerStyle(.menu)
+                    Toggle(isOn: settingBinding.summaryRowTagsMaximumActivated) {
+                        Text("Set maximum number of tags")
+                    }
+                    .disabled(!setting.showSummaryRowTags)
+                    HStack {
+                        Text("Maximum number of tags")
+                        Spacer()
+                        Picker(selection: settingBinding.summaryRowTagsMaximum,
+                               label: Text("\(setting.summaryRowTagsMaximum)")
+                        ) {
+                            let nums = Array(stride(
+                                from: 5, through: 20, by: 5
+                            ))
+                            ForEach(nums, id: \.self) { num in
+                                Text("\(num)").tag(num)
                             }
                         }
+                        .pickerStyle(.menu)
                     }
+                    .disabled(
+                        !setting.summaryRowTagsMaximumActivated
+                        || !setting.showSummaryRowTags
+                    )
                 }
             }
             .navigationBarTitle("Appearance")
@@ -97,10 +93,12 @@ struct AppearanceSettingView: View, StoreAccessor {
     }
 
     private func onAppIconButtonTap() {
-        isNavigationLinkActive.toggle()
+        isNavLinkActive.toggle()
     }
-    private func selectIcon() {
-        store.dispatch(.updateAppIconType(iconType: appIconType))
+    private func onIconSelect() {
+        DispatchQueue.main.async {
+            store.dispatch(.updateAppIconType(iconType: appIconType))
+        }
     }
 }
 
@@ -120,24 +118,24 @@ private struct SelectAppIconView: View {
     var body: some View {
         Form {
             Section {
-                ForEach(IconType.allCases) { sel in
+                ForEach(IconType.allCases) { icon in
                     AppIconRow(
-                        iconName: sel.iconName,
-                        iconDesc: sel.rawValue,
-                        isSelected: sel == selectedIcon
+                        iconName: icon.iconName,
+                        iconDesc: icon.rawValue,
+                        isSelected: icon == selectedIcon
                     )
                     .contentShape(Rectangle())
                     .onTapGesture(perform: {
-                        onAppIconRowTap(sel)
+                        onAppIconRowTap(icon: icon)
                     })
                 }
             }
         }
-        .onAppear(perform: selectAction)
+        .task(selectAction)
     }
 
-    private func onAppIconRowTap(_ sel: IconType) {
-        UIApplication.shared.setAlternateIconName(sel.fileName) { error in
+    private func onAppIconRowTap(icon: IconType) {
+        UIApplication.shared.setAlternateIconName(icon.fileName) { error in
             if let error = error {
                 notificFeedback(style: .error)
                 print(error)
@@ -174,11 +172,10 @@ private struct AppIconRow: View {
                 .padding(.trailing, 20)
             Text(iconDesc.localized())
             Spacer()
-            if isSelected {
-                Image(systemName: "checkmark.circle.fill")
-                    .foregroundStyle(.tint)
-                    .imageScale(.large)
-            }
+            Image(systemName: "checkmark.circle.fill")
+                .opacity(isSelected ? 1 : 0)
+                .foregroundStyle(.tint)
+                .imageScale(.large)
         }
     }
 }

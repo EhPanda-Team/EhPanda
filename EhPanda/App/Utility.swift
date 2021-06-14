@@ -202,7 +202,7 @@ func clearPasteboard() {
     UIPasteboard.general.string = ""
 }
 
-func saveToPasteboard(_ value: String) {
+func saveToPasteboard(value: String) {
     UIPasteboard.general.string = value
     notificFeedback(style: .success)
 }
@@ -232,9 +232,9 @@ func hideKeyboard() {
     )
 }
 
-func copyHTMLIfNeeded(_ html: String?) {
+func copyHTMLIfNeeded(html: String?) {
     if isDebugModeOn, let value = html {
-        saveToPasteboard(value)
+        saveToPasteboard(value: value)
     }
 }
 
@@ -309,7 +309,7 @@ func browsingCaches() -> String {
 }
 
 // MARK: Cookies
-func initializeCookieFrom(_ cookie: HTTPCookie, value: String) -> HTTPCookie {
+func initializeCookieFrom(cookie: HTTPCookie, value: String) -> HTTPCookie {
     var properties = cookie.properties
     properties?[.value] = value
     return HTTPCookie(properties: properties ?? [:]) ?? HTTPCookie()
@@ -371,7 +371,7 @@ func editCookie(url: URL, key: String, value: String) {
         cookies.forEach { cookie in
             if cookie.name == key
             {
-                newCookie = initializeCookieFrom(cookie, value: value)
+                newCookie = initializeCookieFrom(cookie: cookie, value: value)
                 removeCookie(url: url, key: key)
             }
         }

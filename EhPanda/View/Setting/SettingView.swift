@@ -26,7 +26,7 @@ struct SettingView: View, StoreAccessor {
                         symbolName: "switch.2",
                         text: "General",
                         destination: GeneralSettingView()
-                            .onAppear(perform: onGeneralSettingAppear)
+                            .task(calculateDiskCachesSize)
                     )
                     SettingRow(
                         symbolName: "circle.righthalf.fill",
@@ -65,11 +65,24 @@ struct SettingView: View, StoreAccessor {
             .actionSheet(item: environmentBinding.settingViewActionSheetState) { item in
                 switch item {
                 case .logout:
-                    return logoutActionSheet
+                    return ActionSheet(title: Text("Are you sure to logout?"), buttons: [
+                        .destructive(Text("Logout"), action: logout),
+                        .cancel()
+                    ])
                 case .clearImgCaches:
-                    return clearImgCachesActionSheet
+                    return ActionSheet(title: Text("Are you sure to clear?"), buttons: [
+                        .destructive(Text("Clear"), action: clearImageCaches),
+                        .cancel()
+                    ])
                 case .clearWebCaches:
-                    return clearWebCachesActionSheet
+                    return ActionSheet(
+                        title: Text("Warning".localized().uppercased()),
+                        message: Text("It's for debug only."),
+                        buttons: [
+                            .destructive(Text("Clear"), action: clearCachedList),
+                            .cancel()
+                        ]
+                    )
                 }
             }
         }
@@ -79,33 +92,6 @@ struct SettingView: View, StoreAccessor {
 private extension SettingView {
     var environmentBinding: Binding<AppState.Environment> {
         $store.appState.environment
-    }
-
-    var logoutActionSheet: ActionSheet {
-        ActionSheet(title: Text("Are you sure to logout?"), buttons: [
-            .destructive(Text("Logout"), action: logout),
-            .cancel()
-        ])
-    }
-    var clearImgCachesActionSheet: ActionSheet {
-        ActionSheet(title: Text("Are you sure to clear?"), buttons: [
-            .destructive(Text("Clear"), action: clearImageCaches),
-            .cancel()
-        ])
-    }
-    var clearWebCachesActionSheet: ActionSheet {
-        ActionSheet(
-            title: Text("Warning".localized().uppercased()),
-            message: Text("It's for debug only"),
-            buttons: [
-                .destructive(Text("Clear"), action: clearCachedList),
-                .cancel()
-            ]
-        )
-    }
-
-    func onGeneralSettingAppear() {
-        calculateDiskCachesSize()
     }
 
     func logout() {

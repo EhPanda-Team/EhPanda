@@ -30,7 +30,7 @@ struct Home: View, StoreAccessor {
                         Color.black.opacity(opacity)
                             .edgesIgnoringSafeArea(.vertical)
                             .onTapGesture {
-                                performTransition(-width)
+                        performTransition(offset: -width)
                             }
                     )
             }
@@ -61,10 +61,10 @@ struct Home: View, StoreAccessor {
                 .onEnded { value in
                     let perdictedWidth = value.predictedEndTranslation.width
                     if perdictedWidth > width / 2 || -offset < width / 2 {
-                        performTransition(0)
+                        performTransition(offset: 0)
                     }
                     if perdictedWidth < -width / 2 || -offset > width / 2 {
-                        performTransition(-width)
+                        performTransition(offset: -width)
                     }
                     direction = .none
                 },
@@ -122,10 +122,10 @@ private extension Home {
         }
     }
     func onSlideMenuShouldCloseNotificationReceive() {
-        performTransition(-width)
+        performTransition(offset: -width)
     }
 
-    func performTransition(_ offset: CGFloat) {
+    func performTransition(offset: CGFloat) {
         withAnimation(Animation.default) {
             self.offset = offset
         }

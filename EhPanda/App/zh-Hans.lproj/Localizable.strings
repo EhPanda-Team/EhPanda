@@ -78,7 +78,7 @@
 "Are you sure to clear?" = "确定要清空吗？";
 "Clear" = "清空";
 "Warning" = "警告";
-"It's for debug only" = "这是仅为问题排查设计的功能";
+"It's for debug only." = "这是仅为问题排查设计的功能";
 
 "General" = "一般";
 "Close slide menu after selection" = "选择后关闭侧边栏";

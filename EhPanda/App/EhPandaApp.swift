@@ -50,7 +50,7 @@ private extension EhPandaApp {
             store.dispatch(.fetchUserInfo)
         }
     }
-    func onOpenURL(_ url: URL) {
+    func onOpenURL(url: URL) {
         switch url.host {
         case "debugMode":
             setDebugMode(with: url.pathComponents.last == "on")

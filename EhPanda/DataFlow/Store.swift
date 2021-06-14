@@ -92,29 +92,21 @@ final class Store: ObservableObject {
         case .toggleNavBarHidden(let isHidden):
             appState.environment.navBarHidden = isHidden
         case .toggleHomeViewSheetState(let state):
-            impactFeedback(style: .light)
+            if state != nil { impactFeedback(style: .light) }
             appState.environment.homeViewSheetState = state
-        case .toggleHomeViewSheetNil:
-            appState.environment.homeViewSheetState = nil
         case .toggleSettingViewSheetState(let state):
-            impactFeedback(style: .light)
+            if state != nil { impactFeedback(style: .light) }
             appState.environment.settingViewSheetState = state
-        case .toggleSettingViewSheetNil:
-            appState.environment.settingViewSheetState = nil
         case .toggleSettingViewActionSheetState(let state):
             appState.environment.settingViewActionSheetState = state
         case .toggleFilterViewActionSheetState(let state):
             appState.environment.filterViewActionSheetState = state
         case .toggleDetailViewSheetState(let state):
-            impactFeedback(style: .light)
+            if state != nil { impactFeedback(style: .light) }
             appState.environment.detailViewSheetState = state
-        case .toggleDetailViewSheetNil:
-            appState.environment.detailViewSheetState = nil
         case .toggleCommentViewSheetState(let state):
-            impactFeedback(style: .light)
+            if state != nil { impactFeedback(style: .light) }
             appState.environment.commentViewSheetState = state
-        case .toggleCommentViewSheetNil:
-            appState.environment.commentViewSheetState = nil
 
         case .clearDetailViewCommentContent:
             appState.detailInfo.commentContent = ""
@@ -132,12 +124,12 @@ final class Store: ObservableObject {
 
             switch result {
             case .success(let greeting):
-                appState.settings.insertGreeting(greeting: greeting)
+                appState.settings.insert(greeting: greeting)
             case .failure(let error):
                 if error == .parseFailed {
                     var greeting = Greeting()
                     greeting.updateTime = Date()
-                    appState.settings.insertGreeting(greeting: greeting)
+                    appState.settings.insert(greeting: greeting)
                 }
                 print(error)
             }
@@ -154,7 +146,7 @@ final class Store: ObservableObject {
 
             switch result {
             case .success(let user):
-                appState.settings.updateUser(user)
+                appState.settings.update(user: user)
             case .failure(let error):
                 print(error)
             }
@@ -542,8 +534,8 @@ final class Store: ObservableObject {
                 if let currentGP = archive.2,
                    let currentCredits = archive.3
                 {
-                    appState.settings.updateUser(
-                        User(
+                    appState.settings.update(
+                        user: User(
                             currentGP: currentGP,
                             currentCredits: currentCredits
                         )
@@ -565,8 +557,8 @@ final class Store: ObservableObject {
 
             switch result {
             case .success(let funds):
-                appState.settings.updateUser(
-                    User(
+                appState.settings.update(
+                    user: User(
                         currentGP: funds.0,
                         currentCredits: funds.1
                     )
@@ -823,6 +815,10 @@ final class Store: ObservableObject {
                   let apiuid = Int(apiuidString),
                   let gid = Int(gid)
             else { break }
+
+            appState.cachedList.updateUserRating(
+                gid: String(gid), rating: Float(rating) / 2.0
+            )
 
             appCommand = RateCommand(
                 apiuid: apiuid,

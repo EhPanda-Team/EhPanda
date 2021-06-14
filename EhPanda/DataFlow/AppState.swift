@@ -54,7 +54,7 @@ extension AppState {
         @FileStorage(directory: .cachesDirectory, fileName: "setting.json")
         var setting: Setting?
 
-        mutating func updateUser(_ user: User) {
+        mutating func update(user: User) {
             if let displayName = user.displayName {
                 self.user?.displayName = displayName
             }
@@ -69,7 +69,7 @@ extension AppState {
             }
         }
 
-        mutating func insertGreeting(greeting: Greeting) {
+        mutating func insert(greeting: Greeting) {
             guard let currDate = greeting.updateTime
             else { return }
 
@@ -127,7 +127,7 @@ extension AppState {
         var favoritesNotFound = generateBoolDic()
         var favoritesLoadFailed = generateBoolDic()
         var favoritesCurrentPageNum = generateIntDic()
-        var favoritesPageNumMaximum = generateIntDic(1)
+        var favoritesPageNumMaximum = generateIntDic(defaultValue: 1)
         var moreFavoritesLoading = generateBoolDic()
         var moreFavoritesLoadFailed = generateBoolDic()
 
@@ -136,7 +136,7 @@ extension AppState {
         @FileStorage(directory: .cachesDirectory, fileName: "historyKeywords.json")
         var historyKeywords: [String]?
 
-        static func generateBoolDic(_ defaultValue: Bool = false) -> [Int: Bool] {
+        static func generateBoolDic(defaultValue: Bool = false) -> [Int: Bool] {
             var tmp = [Int: Bool]()
             (-1..<10).forEach { index in
                 tmp[index] = defaultValue
@@ -144,7 +144,7 @@ extension AppState {
             return tmp
         }
 
-        static func generateIntDic(_ defaultValue: Int = 0) -> [Int: Int] {
+        static func generateIntDic(defaultValue: Int = 0) -> [Int: Int] {
             var tmp = [Int: Int]()
             (-1..<10).forEach { index in
                 tmp[index] = defaultValue
@@ -359,7 +359,6 @@ extension AppState {
             items?[gid]?.detail?.sizeCount = detail.sizeCount
             items?[gid]?.detail?.sizeType = detail.sizeType
             items?[gid]?.detail?.rating = detail.rating
-            items?[gid]?.detail?.userRating = detail.userRating
             items?[gid]?.detail?.ratingCount = detail.ratingCount
             items?[gid]?.detail?.torrentCount = detail.torrentCount
         }
@@ -389,6 +388,9 @@ extension AppState {
         }
         mutating func insertReadingProgress(gid: String, progress: Int) {
             items?[gid]?.detail?.readingProgress = progress
+        }
+        mutating func updateUserRating(gid: String, rating: Float) {
+            items?[gid]?.detail?.userRating = rating
         }
     }
 }
