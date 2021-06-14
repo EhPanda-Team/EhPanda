@@ -50,7 +50,7 @@ struct AppearanceSettingView: View, StoreAccessor {
                     .pickerStyle(.menu)
                     ColorPicker("Tint Color", selection: settingBinding.accentColor)
                     Button("App Icon", action: onAppIconButtonTap)
-                        .foregroundColor(.primary).withArrow()
+                        .foregroundStyle(.primary).withArrow()
                     Toggle("Translate category", isOn: settingBinding.translateCategory)
                         .disabled(Locale.current.languageCode == "en")
                 }
@@ -60,7 +60,7 @@ struct AppearanceSettingView: View, StoreAccessor {
                             Text("Show tags in list")
                             Image(systemName: "exclamationmark.triangle.fill")
                                 .opacity(setting.showSummaryRowTags ? 1 : 0)
-                                .foregroundColor(.yellow)
+                                .foregroundStyle(.yellow)
                         }
                     }
                     Toggle(isOn: settingBinding.summaryRowTagsMaximumActivated) {

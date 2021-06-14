@@ -116,7 +116,7 @@ private struct TextView: View {
                 .fontWeight(fontWeight)
                 .font(font)
                 .lineLimit(nil)
-                .foregroundColor(.white)
+                .foregroundStyle(.white)
                 .fixedSize(
                     horizontal: false,
                     vertical: true
@@ -133,7 +133,7 @@ private struct SunView: View {
     var body: some View {
         ZStack {
             Circle()
-                .foregroundColor(.yellow)
+                .foregroundStyle(.yellow)
                 .frame(width: width, height: width)
         }
     }
@@ -181,7 +181,7 @@ private struct SunBeamItem: View {
 
     var body: some View {
         Rectangle()
-            .foregroundColor(.yellow)
+            .foregroundStyle(.yellow)
             .frame(width: width, height: height)
             .cornerRadius(cornerRadius)
     }

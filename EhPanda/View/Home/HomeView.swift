@@ -166,7 +166,7 @@ private extension HomeView {
         } label: {
             Image(systemName: "square.3.stack.3d.top.fill")
                 .symbolRenderingMode(.hierarchical)
-                .foregroundColor(.primary)
+                .foregroundStyle(.primary)
         }
         .opacity(environment.homeListType == .favorites ? 1 : 0)
     }

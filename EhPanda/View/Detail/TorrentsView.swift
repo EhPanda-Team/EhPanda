@@ -124,7 +124,7 @@ private struct TorrentRow: View {
             .lineLimit(1)
             .font(.callout)
             .padding(.top, 10)
-            .foregroundColor(.secondary)
+            .foregroundStyle(.secondary)
         }
         .padding()
     }

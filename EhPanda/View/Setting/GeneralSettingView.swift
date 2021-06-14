@@ -66,6 +66,7 @@ struct GeneralSettingView: View, StoreAccessor {
                             Text("Clear image caches")
                             Spacer()
                             Text(setting.diskImageCacheSize)
+                                .foregroundStyle(.tint)
                         }
                         .foregroundColor(.primary)
                     }
@@ -74,6 +75,7 @@ struct GeneralSettingView: View, StoreAccessor {
                             Text("Clear web caches")
                             Spacer()
                             Text(browsingCaches())
+                                .foregroundStyle(.tint)
                         }
                         .foregroundColor(.primary)
                     }

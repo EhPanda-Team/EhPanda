@@ -90,7 +90,7 @@ struct RatingView_Previews: PreviewProvider {
         VStack(spacing: 10) {
             ForEach(values, id: \.self) {
                 RatingView(rating: $0)
-                    .foregroundColor(.yellow)
+                    .foregroundStyle(.yellow)
             }
         }
     }

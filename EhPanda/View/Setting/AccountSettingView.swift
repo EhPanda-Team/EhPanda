@@ -10,7 +10,6 @@ import TTProgressHUD
 
 struct AccountSettingView: View {
     @EnvironmentObject private var store: Store
-    @State private var inEditMode = false
 
     @State private var hudVisible = false
     @State private var hudConfig = TTProgressHUDConfig()
@@ -57,13 +56,11 @@ struct AccountSettingView: View {
                 }
                 Section(header: Text("E-Hentai")) {
                     CookieRow(
-                        inEditMode: $inEditMode,
                         key: memberIDKey,
                         value: ehMemberID,
                         commitAction: onEhEditingChange
                     )
                     CookieRow(
-                        inEditMode: $inEditMode,
                         key: passHashKey,
                         value: ehPassHash,
                         commitAction: onEhEditingChange
@@ -72,19 +69,16 @@ struct AccountSettingView: View {
                 }
                 Section(header: Text("ExHentai")) {
                     CookieRow(
-                        inEditMode: $inEditMode,
                         key: igneousKey,
                         value: igneous,
                         commitAction: onExEditingChange
                     )
                     CookieRow(
-                        inEditMode: $inEditMode,
                         key: memberIDKey,
                         value: exMemberID,
                         commitAction: onExEditingChange
                     )
                     CookieRow(
-                        inEditMode: $inEditMode,
                         key: passHashKey,
                         value: exPassHash,
                         commitAction: onExEditingChange
@@ -95,12 +89,6 @@ struct AccountSettingView: View {
             TTProgressHUD($hudVisible, config: hudConfig)
         }
         .navigationBarTitle("Account")
-        .navigationBarItems(trailing:
-            Button(
-                inEditMode ? "Finish" : "Edit",
-                action: { inEditMode.toggle() }
-            )
-        )
     }
 }
 
@@ -179,7 +167,6 @@ private extension AccountSettingView {
 
 // MARK: CookieRow
 private struct CookieRow: View {
-    @Binding private var inEditMode: Bool
     @State private var content: String
 
     private let key: String
@@ -192,12 +179,10 @@ private struct CookieRow: View {
     }
 
     init(
-        inEditMode: Binding<Bool>,
         key: String,
         value: CookieValue,
         commitAction: @escaping (String, String) -> Void
     ) {
-        _inEditMode = inEditMode
         _content = State(initialValue: value.rawValue)
 
         self.key = key
@@ -216,28 +201,22 @@ private struct CookieRow: View {
                     value, text: $content,
                     onCommit: onTextFieldCommit
                 )
-                .disabled(!inEditMode)
+                .submitLabel(.done)
                 .autocapitalization(.none)
                 .disableAutocorrection(true)
                 .multilineTextAlignment(.trailing)
             }
             ZStack {
                 Image(systemName: "checkmark.circle")
-                    .foregroundColor(.green)
+                    .foregroundStyle(.green)
                     .opacity(notVerified ? 0 : 1)
                 Image(systemName: "xmark.circle")
-                    .foregroundColor(.red)
+                    .foregroundStyle(.red)
                     .opacity(notVerified ? 1 : 0)
             }
         }
-        .onChange(of: inEditMode, perform: onEditModeChange)
     }
 
-    private func onEditModeChange(value: Bool) {
-        if value == false {
-            onTextFieldCommit()
-        }
-    }
     private func onTextFieldCommit() {
         commitAction(key, content)
     }

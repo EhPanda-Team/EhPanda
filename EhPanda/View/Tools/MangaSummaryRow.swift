@@ -34,11 +34,11 @@ struct MangaSummaryRow: View {
                 Text(manga.title)
                     .lineLimit(1)
                     .font(.headline)
-                    .foregroundColor(.primary)
+                    .foregroundStyle(.primary)
                 Text(manga.uploader ?? "")
                     .lineLimit(1)
                     .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .foregroundStyle(.secondary)
                 if setting.showSummaryRowTags, !tags.isEmpty {
                     TagCloudView(
                         tag: MangaTag(
@@ -55,30 +55,30 @@ struct MangaSummaryRow: View {
                 HStack {
                     RatingView(rating: manga.rating)
                         .font(.system(size: 12))
-                        .foregroundColor(.yellow)
+                        .foregroundStyle(.yellow)
                     Spacer()
                     Text(manga.language?.rawValue.localized() ?? "")
                         .lineLimit(1)
                         .font(.footnote)
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(.secondary)
                 }
                 HStack(alignment: .bottom) {
                     Text(category)
                         .fontWeight(.bold)
                         .lineLimit(1)
                         .font(.footnote)
-                        .foregroundColor(.white)
+                        .foregroundStyle(.white)
                         .padding(.vertical, 1)
                         .padding(.horizontal, 3)
                         .background(
                             RoundedRectangle(cornerRadius: 2)
-                                .foregroundColor(manga.color)
+                                .foregroundStyle(manga.color)
                         )
                     Spacer()
                     Text(manga.formattedDateString)
                         .lineLimit(1)
                         .font(.footnote)
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(.secondary)
                 }
                 .padding(.top, 1)
             }

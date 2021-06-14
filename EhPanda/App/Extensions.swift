@@ -156,7 +156,7 @@ extension View {
             self
             Spacer()
             Image(systemName: "chevron.right")
-                .foregroundColor(.gray)
+                .foregroundColor(.secondary)
                 .imageScale(.small)
         }
     }

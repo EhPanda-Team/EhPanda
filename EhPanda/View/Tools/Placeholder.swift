@@ -32,7 +32,7 @@ struct Placeholder: View {
                         Text(pageNumber.withoutComma)
                             .fontWeight(.bold)
                             .font(.largeTitle)
-                            .foregroundColor(.gray)
+                            .foregroundStyle(.gray)
                             .padding(.bottom, 15)
                         ProgressView(value: percentage, total: 1)
                             .progressViewStyle(.linear)

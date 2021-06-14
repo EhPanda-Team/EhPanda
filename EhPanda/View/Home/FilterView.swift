@@ -19,7 +19,7 @@ struct FilterView: View, StoreAccessor {
                     CategoryView()
                     Button(action: onResetButtonTap) {
                         Text("Reset filters")
-                            .foregroundColor(.red)
+                            .foregroundStyle(.red)
                     }
                     Toggle("Advanced settings", isOn: filterBinding.advanced)
                 }
@@ -166,7 +166,7 @@ private struct CategoryCell: View {
                 )
             Text(category.rawValue.localized())
                 .fontWeight(.bold)
-                .foregroundColor(.white)
+                .foregroundStyle(.white)
                 .padding(.vertical, 5)
         }
         .onTapGesture(perform: onTapGesture)

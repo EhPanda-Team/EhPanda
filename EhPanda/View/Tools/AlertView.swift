@@ -117,7 +117,7 @@ struct GenericRetryView: View {
                 .padding(.bottom, 15)
             Text(message.localized())
                 .multilineTextAlignment(.center)
-                .foregroundColor(.gray)
+                .foregroundStyle(.gray)
                 .font(.headline)
                 .padding(.bottom, 5)
             Button(action: { retryAction?() }, label: {

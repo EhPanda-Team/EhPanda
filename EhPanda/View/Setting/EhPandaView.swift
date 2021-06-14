@@ -127,7 +127,7 @@ private extension Text {
     func captionTextStyle() -> some View {
         self
             .fontWeight(.bold)
-            .foregroundColor(.gray)
+            .foregroundStyle(.gray)
             .font(.caption2)
     }
 }

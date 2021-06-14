@@ -283,7 +283,7 @@ private struct CommentCell: View {
                     Text(comment.formattedDateString)
                 }
                 .font(.footnote)
-                .foregroundColor(.secondary)
+                .foregroundStyle(.secondary)
             }
             ForEach(comment.contents) { content in
                 switch content.type {

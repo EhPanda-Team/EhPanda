@@ -302,14 +302,14 @@ private struct HeaderView: View {
                 Text(manga.uploader ?? "")
                     .lineLimit(1)
                     .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .foregroundStyle(.secondary)
                 Spacer()
                 HStack {
                     Text(category)
                         .fontWeight(.bold)
                         .lineLimit(1)
                         .font(.headline)
-                        .foregroundColor(.white)
+                        .foregroundStyle(.white)
                         .padding(.vertical, 2)
                         .padding(.horizontal, 4)
                         .background(
@@ -503,7 +503,7 @@ private struct DescScrollRatingItem: View {
                 .font(.title3)
             RatingView(rating: rating)
                 .font(.system(size: 12))
-                .foregroundColor(.primary)
+                .foregroundStyle(.primary)
         }
     }
 }
@@ -547,13 +547,13 @@ private struct ActionRow: View {
                     }
                 }
                 .font(.callout)
-                .foregroundColor(.primary)
+                .foregroundStyle(.primary)
             }
             if showUserRating {
                 HStack {
                     RatingView(rating: Float(userRating) / 2)
                         .font(.system(size: 24))
-                        .foregroundColor(.yellow)
+                        .foregroundStyle(.yellow)
                         .gesture(
                             DragGesture(minimumDistance: 0)
                                 .onChanged(onRatingChanged)
@@ -813,7 +813,7 @@ private struct CommentScrollCell: View {
                     Text(comment.formattedDateString)
                 }
                 .font(.footnote)
-                .foregroundColor(.secondary)
+                .foregroundStyle(.secondary)
             }
             Text(content)
                 .padding(.top, 1)
