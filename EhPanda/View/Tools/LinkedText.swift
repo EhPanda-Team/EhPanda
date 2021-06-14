@@ -64,7 +64,7 @@ struct LinkedText: View {
     private let action: (URL) -> Void
     private let links: [NSTextCheckingResult]
 
-    init (_ text: String, _ action: @escaping (URL) -> Void) {
+    init (text: String, action: @escaping (URL) -> Void) {
         self.text = text
         self.action = action
         let nsText = text as NSString
@@ -120,7 +120,7 @@ private struct LinkTapOverlay: UIViewRepresentable {
     }
 
     func makeCoordinator() -> Coordinator {
-        Coordinator(self)
+        Coordinator(overlay: self)
     }
 
     final class Coordinator: NSObject, UIGestureRecognizerDelegate {
@@ -130,7 +130,7 @@ private struct LinkTapOverlay: UIViewRepresentable {
         let textContainer = NSTextContainer(size: .zero)
         var textStorage: NSTextStorage?
 
-        init(_ overlay: LinkTapOverlay) {
+        init(overlay: LinkTapOverlay) {
             self.overlay = overlay
 
             textContainer.lineFragmentPadding = 0

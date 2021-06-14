@@ -19,12 +19,8 @@ struct WebView: UIViewControllerRepresentable {
     final class Coodinator: NSObject, WKNavigationDelegate, WKUIDelegate {
         private var parent: WebView
 
-        init(_ parent: WebView) {
+        init(parent: WebView) {
             self.parent = parent
-        }
-
-        func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
-
         }
 
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
@@ -56,7 +52,7 @@ struct WebView: UIViewControllerRepresentable {
     }
 
     func makeCoordinator() -> WebView.Coodinator {
-        Coodinator(self)
+        Coodinator(parent: self)
     }
 
     func makeUIViewController(context: Context) -> EmbeddedWebviewController {

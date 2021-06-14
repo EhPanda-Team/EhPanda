@@ -385,7 +385,6 @@ private struct ImageContainer: View {
             .loadImmediately()
             .resizable()
             .scaledToFit()
-
     }
 
     private func onWebImageProgress<I: BinaryInteger>(received: I, total: I) {

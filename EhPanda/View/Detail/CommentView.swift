@@ -289,7 +289,7 @@ private struct CommentCell: View {
                 switch content.type {
                 case .plainText:
                     if let text = content.text {
-                        LinkedText(text, linkAction)
+                        LinkedText(text: text, action: linkAction)
                     }
                 case .linkedText:
                     if let text = content.text,

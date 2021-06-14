@@ -81,7 +81,7 @@ private extension TagCloudView {
                     })
             }
         }
-        .background(viewHeightReader($totalHeight))
+        .background(viewHeightReader(binding: $totalHeight))
     }
 
     func item(for text: String) -> some View {
@@ -107,7 +107,7 @@ private extension TagCloudView {
             })
     }
 
-    func viewHeightReader(_ binding: Binding<CGFloat>) -> some View {
+    func viewHeightReader(binding: Binding<CGFloat>) -> some View {
         GeometryReader { geometry -> Color in
             let rect = geometry.frame(in: .local)
             DispatchQueue.main.async {
