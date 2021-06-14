@@ -12,8 +12,8 @@ import SDWebImageSwiftUI
 struct SlideMenu: View, StoreAccessor {
     @EnvironmentObject var store: Store
     @Environment(\.colorScheme) private var colorScheme
-    @Binding private var offset: CGFloat
 
+    @Binding private var offset: CGFloat
     private var edges = keyWindow?.safeAreaInsets
 
     init(offset: Binding<CGFloat>) {
@@ -28,15 +28,14 @@ struct SlideMenu: View, StoreAccessor {
                     iconName: iconType.iconName,
                     avatarURL: user?.avatarURL,
                     displayName: user?.displayName,
-                    width: avatarW,
-                    height: avatarH
+                    width: Defaults.ImageSize.avatarW,
+                    height: Defaults.ImageSize.avatarH
                 )
                 .padding(.top, 40)
                 .padding(.bottom, 20)
-                Divider()
-                    .padding(.vertical)
+                Divider().padding(.vertical)
                 ScrollView(showsIndicators: false) {
-                    ForEach(menuItems) { item in
+                    ForEach(HomeListType.allCases.filter({ $0 != .search })) { item in
                         MenuRow(
                             isSelected: item == homeListType,
                             symbolName: item.symbolName,
@@ -45,8 +44,7 @@ struct SlideMenu: View, StoreAccessor {
                         )
                     }
                 }
-                Divider()
-                    .padding(.vertical)
+                Divider().padding(.vertical)
                 MenuRow(
                     isSelected: false,
                     symbolName: "gear",
@@ -58,7 +56,7 @@ struct SlideMenu: View, StoreAccessor {
             .padding(.top, edges?.top == 0 ? 15 : edges?.top)
             .padding(.bottom, edges?.bottom == 0 ? 15 : edges?.bottom)
             .frame(width: Defaults.FrameSize.slideMenuWidth)
-            .background(reversedPrimary)
+            .background(colorScheme == .light ? .white : .black)
             .edgesIgnoringSafeArea(.vertical)
 
             Spacer()
@@ -71,26 +69,8 @@ struct SlideMenu: View, StoreAccessor {
 }
 
 private extension SlideMenu {
-    var environmentBinding: Binding<AppState.Environment> {
-        $store.appState.environment
-    }
-    var favoritesIndexBinding: Binding<Int> {
-        environmentBinding.favoritesIndex
-    }
     var width: CGFloat {
         Defaults.FrameSize.slideMenuWidth
-    }
-    var avatarW: CGFloat {
-        Defaults.ImageSize.avatarW
-    }
-    var avatarH: CGFloat {
-        Defaults.ImageSize.avatarH
-    }
-    var reversedPrimary: Color {
-        colorScheme == .light ? .white : .black
-    }
-    var menuItems: [HomeListType] {
-        HomeListType.allCases.filter({ $0 != .search })
     }
     var iconType: IconType {
         store.appState
@@ -192,8 +172,8 @@ private struct AvatarView: View {
 private struct MenuRow: View {
     @Environment(\.colorScheme) private var colorScheme
     @State private var isPressing = false
-    private let isSelected: Bool
 
+    private let isSelected: Bool
     private let symbolName: String
     private let text: String
     private let action: () -> Void

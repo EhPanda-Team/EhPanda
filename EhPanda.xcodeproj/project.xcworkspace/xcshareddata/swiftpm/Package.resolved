@@ -24,8 +24,8 @@
         "repositoryURL": "https://github.com/SDWebImage/SDWebImage.git",
         "state": {
           "branch": null,
-          "revision": "a6b6e44eadf0d39250c10a7cc0e3b91d0bdb0e94",
-          "version": "5.10.4"
+          "revision": "76dd4b49110b8624317fc128e7fa0d8a252018bc",
+          "version": "5.11.1"
         }
       },
       {
@@ -42,7 +42,7 @@
         "repositoryURL": "https://github.com/tatsuz0u/TTProgressHUD.git",
         "state": {
           "branch": "master",
-          "revision": "1f1dc1e5058d1421bb2b02dbe887da67fee807e7",
+          "revision": "1caaa9cb7d53e3224fe61bbf1b02e88eefa5aae9",
           "version": null
         }
       }

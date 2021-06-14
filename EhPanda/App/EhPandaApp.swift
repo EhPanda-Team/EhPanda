@@ -23,6 +23,7 @@ struct EhPandaApp: App {
     var body: some Scene {
         WindowGroup {
             Home()
+                .task(onStartTasks)
                 .environmentObject(store)
                 .accentColor(accentColor)
                 .onOpenURL(perform: onOpenURL)
@@ -42,6 +43,13 @@ private extension EhPandaApp {
         setting?.colorScheme ?? .none
     }
 
+    func onStartTasks() {
+        DispatchQueue.main.async {
+            store.dispatch(.initializeStates)
+            store.dispatch(.fetchFavoriteNames)
+            store.dispatch(.fetchUserInfo)
+        }
+    }
     func onOpenURL(_ url: URL) {
         switch url.host {
         case "debugMode":

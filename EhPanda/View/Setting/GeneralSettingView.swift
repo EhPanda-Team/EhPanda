@@ -57,7 +57,7 @@ struct GeneralSettingView: View, StoreAccessor {
                                 Text(policy.rawValue.localized()).tag(policy)
                             }
                         }
-                        .pickerStyle(MenuPickerStyle())
+                        .pickerStyle(.menu)
                     }
                     Toggle(isOn: settingBinding.allowsResignActiveBlur, label: {
                         Text("App switcher blur")

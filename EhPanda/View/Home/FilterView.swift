@@ -200,7 +200,7 @@ private struct MinimumRatingSetter: View {
                 Text("4" + star).tag(4)
                 Text("5" + star).tag(5)
             }
-            .pickerStyle(MenuPickerStyle())
+            .pickerStyle(.menu)
         }
     }
 }

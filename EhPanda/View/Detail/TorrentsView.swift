@@ -13,9 +13,7 @@ struct TorrentsView: View, StoreAccessor {
     @Environment(\.colorScheme) private var colorScheme
 
     @State private var hudVisible = false
-    @State private var hudConfig = TTProgressHUDConfig(
-        hapticsEnabled: false
-    )
+    @State private var hudConfig = TTProgressHUDConfig()
 
     private var gid: String
 
@@ -85,8 +83,7 @@ private extension TorrentsView {
             title: "Success".localized(),
             caption: "Copied to clipboard".localized(),
             shouldAutoHide: true,
-            autoHideInterval: 2,
-            hapticsEnabled: false
+            autoHideInterval: 2
         )
         hudVisible.toggle()
     }

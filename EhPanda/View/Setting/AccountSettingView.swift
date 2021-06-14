@@ -13,9 +13,7 @@ struct AccountSettingView: View {
     @State private var inEditMode = false
 
     @State private var hudVisible = false
-    @State private var hudConfig = TTProgressHUDConfig(
-        hapticsEnabled: false
-    )
+    @State private var hudConfig = TTProgressHUDConfig()
 
     // MARK: AccountSettingView
     var body: some View {
@@ -32,7 +30,7 @@ struct AccountSettingView: View {
                                     Text($0.rawValue.localized())
                                 }
                             })
-                            .pickerStyle(SegmentedPickerStyle())
+                            .pickerStyle(.segmented)
                         if !didLogin {
                             Button("Login", action: onLoginTap)
                                 .withArrow()
@@ -223,8 +221,7 @@ private extension AccountSettingView {
             title: "Success".localized(),
             caption: "Copied to clipboard".localized(),
             shouldAutoHide: true,
-            autoHideInterval: 2,
-            hapticsEnabled: false
+            autoHideInterval: 2
         )
         hudVisible.toggle()
     }

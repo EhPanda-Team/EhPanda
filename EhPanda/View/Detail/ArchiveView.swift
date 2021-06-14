@@ -13,13 +13,10 @@ struct ArchiveView: View, StoreAccessor {
     @State private var selection: ArchiveRes?
 
     @State private var hudVisible = false
-    @State private var hudConfig = TTProgressHUDConfig(
-        hapticsEnabled: false
-    )
+    @State private var hudConfig = TTProgressHUDConfig()
     private var loadingHUDConfig = TTProgressHUDConfig(
         type: .loading,
-        title: "Communicating...".localized(),
-        hapticsEnabled: false
+        title: "Communicating...".localized()
     )
     private let gridItems = [
         GridItem(.adaptive(minimum: 150, maximum: 200))
@@ -144,8 +141,7 @@ private extension ArchiveView {
                 title: title,
                 caption: caption,
                 shouldAutoHide: true,
-                autoHideInterval: 2,
-                hapticsEnabled: false
+                autoHideInterval: 2
             )
             hudVisible.toggle()
         }

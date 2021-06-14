@@ -86,15 +86,15 @@ func localAuth(
             localizedReason: reason.localized()
         ) { success, _ in
             DispatchQueue.main.async {
-                if success, let action = successAction {
-                    action()
-                } else if let action = failureAction {
-                    action()
+                if success {
+                    successAction?()
+                } else {
+                    failureAction?()
                 }
             }
         }
-    } else if let action = passcodeNotFoundAction {
-        action()
+    } else {
+        passcodeNotFoundAction?()
     }
 }
 

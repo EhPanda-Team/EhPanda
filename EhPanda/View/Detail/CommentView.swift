@@ -18,9 +18,7 @@ struct CommentView: View, StoreAccessor {
     @State private var isNavActive = false
 
     @State private var hudVisible = false
-    @State private var hudConfig = TTProgressHUDConfig(
-        hapticsEnabled: false
-    )
+    @State private var hudConfig = TTProgressHUDConfig()
 
     private let gid: String
     private let depth: Int
@@ -179,9 +177,7 @@ private extension CommentView {
     }
     func dismissHUD() {
         hudVisible = false
-        hudConfig = TTProgressHUDConfig(
-            hapticsEnabled: false
-        )
+        hudConfig = TTProgressHUDConfig()
     }
 
     func trimContents(_ contents: [CommentContent]) -> String {

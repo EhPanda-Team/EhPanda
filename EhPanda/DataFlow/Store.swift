@@ -35,12 +35,21 @@ final class Store: ObservableObject {
             appState.cachedList.items = nil
         case .clearHistoryItems:
             appState.homeInfo.historyItems = nil
-        case .initializeUser:
-            appState.settings.user = User()
+        case .initializeStates:
+            if appState.settings.user == nil {
+                appState.settings.user = User()
+            }
+            if appState.settings.filter == nil {
+                appState.settings.filter = Filter()
+            }
+            if appState.settings.setting == nil {
+                appState.settings.setting = Setting()
+            }
+            // swiftlint:disable unneeded_break_in_switch
+            break
+            // swiftlint:enable unneeded_break_in_switch
         case .initializeFilter:
             appState.settings.filter = Filter()
-        case .initializeSetting:
-            appState.settings.setting = Setting()
         case .saveAspectBox(let gid, let box):
             appState.cachedList.insertAspectBox(gid: gid, box: box)
         case .saveReadingProgress(let gid, let tag):
@@ -133,8 +142,10 @@ final class Store: ObservableObject {
                 print(error)
             }
 
-        case .fetchUserInfo(let uid):
-            if appState.settings.userInfoLoading { break }
+        case .fetchUserInfo:
+            guard let uid = appState.settings.user?.apiuid, !uid.isEmpty,
+                    !appState.settings.userInfoLoading
+            else { break }
             appState.settings.userInfoLoading = true
 
             appCommand = FetchUserInfoCommand(uid: uid)

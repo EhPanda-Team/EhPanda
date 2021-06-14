@@ -66,9 +66,7 @@ struct LoadMoreFooter: View {
     }
 
     private func onButtonTap() {
-        if let action = retryAction {
-            action()
-        }
+        retryAction?()
     }
 }
 
@@ -89,9 +87,7 @@ struct NetworkErrorView: View {
     }
 
     private func onRetryButtonTap() {
-        if let action = retryAction {
-            action()
-        }
+        retryAction?()
     }
 }
 
@@ -101,12 +97,6 @@ struct GenericRetryView: View {
     private let message: String
     private let buttonText: String
     private let retryAction: (() -> Void)?
-
-    private var buttonColor: Color {
-        colorScheme == .light
-            ? Color(UIColor.darkGray)
-            : Color(UIColor.white)
-    }
 
     init(
         symbolName: String,
@@ -130,18 +120,11 @@ struct GenericRetryView: View {
                 .foregroundColor(.gray)
                 .font(.headline)
                 .padding(.bottom, 5)
-            if let action = retryAction {
-                Button(buttonText.localized().uppercased()) {
-                    action()
-                }
-                .foregroundColor(buttonColor)
-                .padding(.vertical, 6)
-                .padding(.horizontal, 10)
-                .background(
-                    RoundedRectangle(cornerRadius: 5)
-                        .foregroundColor(Color(.systemGray5))
-                )
-            }
+            Button(action: { retryAction?() }, label: {
+                Text(buttonText.localized().uppercased())
+                    .foregroundColor(.primary.opacity(0.7))
+            })
+            .buttonStyle(.bordered)
         }
     }
 }

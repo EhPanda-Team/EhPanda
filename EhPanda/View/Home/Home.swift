@@ -12,13 +12,12 @@ struct Home: View, StoreAccessor {
     @EnvironmentObject var store: Store
     @Environment(\.colorScheme) private var colorScheme
 
-    // SlideMenu
-    @State private var direction: Direction = .none
-    @State private var offset = -Defaults.FrameSize.slideMenuWidth
-    @State private var width = Defaults.FrameSize.slideMenuWidth
-
     // AppLock
     @State private var blurRadius: CGFloat = 0
+    // SlideMenu
+    @State private var direction: Direction = .none
+    @State private var width = Defaults.FrameSize.slideMenuWidth
+    @State private var offset = -Defaults.FrameSize.slideMenuWidth
 
     var body: some View {
         ZStack {
@@ -40,7 +39,7 @@ struct Home: View, StoreAccessor {
             AuthView(blurRadius: $blurRadius)
         }
         .gesture(
-            DragGesture(minimumDistance: 20)
+            DragGesture()
                 .onChanged { value in
                     withAnimation(Animation.linear(duration: 0.2)) {
                         switch direction {
@@ -69,7 +68,7 @@ struct Home: View, StoreAccessor {
                     }
                     direction = .none
                 },
-            including: gestureMask
+            including: viewControllersCount == 1 ? .all : .none
         )
         .onReceive(
             NotificationCenter.default.publisher(
@@ -92,7 +91,7 @@ struct Home: View, StoreAccessor {
                 for: NSNotification.Name("SlideMenuShouldClose")
             )
         ) { _ in
-            onReceiveSlideMenuShouldCloseNotification()
+            onSlideMenuShouldCloseNotificationReceive()
         }
     }
 }
@@ -104,14 +103,11 @@ private extension Home {
         case toRight
     }
 
-    var gestureMask: GestureMask {
-        viewControllersCount == 1 ? .all : .none
-    }
-
     var opacity: Double {
         let scale = colorScheme == .light ? 0.2 : 0.5
-        return Double((width + offset) / width) * scale
+        return (width + offset) / width * scale
     }
+
     func onWidthChange() {
         if isPad {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
@@ -125,7 +121,7 @@ private extension Home {
             }
         }
     }
-    func onReceiveSlideMenuShouldCloseNotification() {
+    func onSlideMenuShouldCloseNotificationReceive() {
         performTransition(-width)
     }
 

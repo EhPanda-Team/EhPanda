@@ -14,13 +14,11 @@ struct HomeView: View, StoreAccessor {
 
     @State private var archivedKeyword: String?
     @State private var clipboardJumpID: String?
-    @State private var isJumpNavActive = false
+    @State private var isNavLinkActive = false
     @State private var greeting: Greeting?
 
     @State private var hudVisible = false
-    @State private var hudConfig = TTProgressHUDConfig(
-        hapticsEnabled: false
-    )
+    @State private var hudConfig = TTProgressHUDConfig()
 
     // MARK: HomeView
     var body: some View {
@@ -29,33 +27,11 @@ struct HomeView: View, StoreAccessor {
                 NavigationLink(
                     "",
                     destination: DetailView(
-                        gid: clipboardJumpID ?? "",
-                        depth: 1
+                        gid: clipboardJumpID ?? "", depth: 1
                     ),
-                    isActive: $isJumpNavActive
+                    isActive: $isNavLinkActive
                 )
                 conditionalList
-                    .onChange(
-                        of: environment.homeListType,
-                        perform: onHomeListTypeChange
-                    )
-                    .onChange(
-                        of: environment.favoritesIndex,
-                        perform: onFavoritesIndexChange
-                    )
-                    .onChange(
-                        of: user?.greeting,
-                        perform: onReceiveGreeting
-                    )
-                    .onChange(
-                        of: homeInfo.searchKeyword,
-                        perform: onSearchKeywordChange
-                    )
-                    .onAppear(perform: onListAppear)
-                    .navigationBarTitle(navigationBarTitle)
-                    .navigationBarItems(trailing:
-                        navigationBarItem
-                    )
                 TTProgressHUD($hudVisible, config: hudConfig)
             }
             .searchable(
@@ -64,11 +40,27 @@ struct HomeView: View, StoreAccessor {
                 placement: .navigationBarDrawer(
                     displayMode: .always
                 ),
-                suggestions: { suggestionsView }
+                suggestions: {
+                    ForEach(suggestions, id: \.self) { word in
+                        HStack {
+                            Text(word)
+                                .foregroundStyle(.tint)
+                            Spacer()
+                        }
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            onSuggestionTap(word: word)
+                        }
+                    }
+                }
             )
             .onSubmit(of: .search, onSearchSubmit)
+            .navigationBarTitle(navigationBarTitle)
+            .navigationBarItems(trailing: favoritesMenu)
         }
-        .navigationViewStyle(StackNavigationViewStyle())
+        .navigationViewStyle(.stack)
+        .onAppear(perform: onAppear)
+        .task(fetchFrontpageItemsIfNeeded)
         .sheet(item: environmentBinding.homeViewSheetState) { item in
             Group {
                 switch item {
@@ -84,7 +76,6 @@ struct HomeView: View, StoreAccessor {
             .blur(radius: environment.blurRadius)
             .allowsHitTesting(environment.isAppUnlocked)
         }
-        .onAppear(perform: onAppear)
         .onReceive(
             NotificationCenter.default.publisher(
                 for: UIApplication.didBecomeActiveNotification
@@ -98,7 +89,23 @@ struct HomeView: View, StoreAccessor {
         )
         .onChange(
             of: environment.mangaItemReverseLoading,
-            perform: onFetchFinish
+            perform: onJumpDetailFetchFinish
+        )
+        .onChange(
+            of: environment.homeListType,
+            perform: onHomeListTypeChange
+        )
+        .onChange(
+            of: environment.favoritesIndex,
+            perform: onFavIndexChange
+        )
+        .onChange(
+            of: user?.greeting,
+            perform: onReceiveGreeting
+        )
+        .onChange(
+            of: homeInfo.searchKeyword,
+            perform: onSearchKeywordChange
         )
     }
 }
@@ -112,6 +119,10 @@ private extension HomeView {
         $store.appState.homeInfo
     }
 
+    var hasJumpPermission: Bool {
+        detectGalleryFromPasteboard == true
+            && viewControllersCount == 1
+    }
     var suggestions: [String] {
         homeInfo.historyKeywords?.reversed().filter({ word in
             homeInfo.searchKeyword.isEmpty ? true
@@ -138,24 +149,29 @@ private extension HomeView {
             return environment.homeListType.rawValue.localized()
         }
     }
-    var hasJumpPermission: Bool {
-        viewControllersCount == 1
-            && setting?.detectGalleryFromPasteboard == true
+
+    // MARK: favoritesMenu
+    var favoritesMenu: some View {
+        Menu {
+            ForEach(-1..<(favoriteNames?.count ?? 10) - 1) { index in
+                Button {
+                    onFavMenuSelect(index: index)
+                } label: {
+                    Text(User.getFavNameFrom(index: index, names: favoriteNames))
+                    if index == environment.favoritesIndex {
+                        Image(systemName: "checkmark")
+                    }
+                }
+            }
+        } label: {
+            Image(systemName: "square.3.stack.3d.top.fill")
+                .symbolRenderingMode(.hierarchical)
+                .foregroundColor(.primary)
+        }
+        .opacity(environment.homeListType == .favorites ? 1 : 0)
     }
 
-    var suggestionsView: some View {
-        ForEach(suggestions, id: \.self) { word in
-            HStack {
-                Text(word)
-                    .foregroundStyle(.tint)
-                Spacer()
-            }
-            .contentShape(Rectangle())
-            .onTapGesture {
-                onSuggestionTap(word)
-            }
-        }
-    }
+    // MARK: conditionalList
     var conditionalList: some View {
         Group {
             switch environment.homeListType {
@@ -239,57 +255,13 @@ private extension HomeView {
             }
         }
     }
-
-    var navigationBarItem: some View {
-        Group {
-            if let user = settings.user,
-               let names = user.favoriteNames,
-               environment.homeListType == .favorites
-            {
-                Menu {
-                    ForEach(-1..<names.count - 1) { index in
-                        Button(action: {
-                            onFavMenuSelect(index)
-                        }, label: {
-                            HStack {
-                                Text(user.getFavNameFrom(index: index))
-                                if index == environment.favoritesIndex {
-                                    Image(systemName: "checkmark")
-                                }
-                            }
-                        })
-                    }
-                } label: {
-                    Image(systemName: "square.2.stack.3d.top.fill")
-                        .foregroundColor(.primary)
-                }
-
-            }
-        }
-    }
 }
 
 // MARK: Private Methods
-extension HomeView {
+private extension HomeView {
     func onAppear() {
         detectPasteboard()
         fetchGreetingIfNeeded()
-    }
-    func onListAppear() {
-        if settings.user == nil {
-            store.dispatch(.initializeUser)
-        }
-        if setting == nil {
-            store.dispatch(.initializeSetting)
-        }
-        if settings.filter == nil {
-            store.dispatch(.initializeFilter)
-        }
-        if settings.user?.displayName?.isEmpty != false {
-            fetchUserInfo()
-        }
-        fetchFavoriteNames()
-        fetchFrontpageItemsIfNeeded()
     }
     func onBecomeActive() {
         if viewControllersCount == 1 {
@@ -307,12 +279,8 @@ extension HomeView {
             fetchWatchedItemsIfNeeded()
         case .favorites:
             fetchFavoritesItemsIfNeeded()
-        case .downloaded:
-            print(type)
-        case .search:
-            print(type)
-        case .history:
-            print(type)
+        case .downloaded, .search, .history:
+            break
         }
     }
     func onReceiveGreeting(_ greeting: Greeting?) {
@@ -320,29 +288,29 @@ extension HomeView {
            !greeting.gainedNothing
         {
             self.greeting = greeting
-            toggleNewDawn()
+            store.dispatch(.toggleHomeViewSheetState(state: .newDawn))
         }
     }
-    func onSearchKeywordChange(_ keyword: String) {
+    func onSearchKeywordChange(keyword: String) {
         if let archivedKeyword = archivedKeyword, keyword.isEmpty {
             store.dispatch(.updateHistoryKeywords(text: archivedKeyword))
         }
     }
-    func onFavoritesIndexChange(_ : Int) {
+    func onFavIndexChange(_ : Int) {
         fetchFavoritesItemsIfNeeded()
     }
-    func onFavMenuSelect(_ index: Int) {
+    func onFavMenuSelect(index: Int) {
         store.dispatch(.toggleFavoriteIndex(index: index))
     }
-    func onJumpIDChange(_ value: String?) {
+    func onJumpIDChange(value: String?) {
         if value != nil, hasJumpPermission {
             clipboardJumpID = value
-            isJumpNavActive = true
+            isNavLinkActive = true
 
             replaceMangaCommentJumpID(gid: nil)
         }
     }
-    func onFetchFinish(_ value: Bool) {
+    func onJumpDetailFetchFinish(value: Bool) {
         if !value, hasJumpPermission {
             dismissHUD()
         }
@@ -351,18 +319,19 @@ extension HomeView {
         if environment.homeListType != .search {
             store.dispatch(.toggleHomeListType(type: .search))
         }
-        fetchSearchItems()
         archivedKeyword = homeInfo.searchKeyword
+        store.dispatch(.fetchSearchItems(keyword: homeInfo.searchKeyword))
     }
     func onSearchRefresh() {
         if let keyword = archivedKeyword {
             store.dispatch(.fetchSearchItems(keyword: keyword))
         }
     }
-    func onSuggestionTap(_ word: String) {
+    func onSuggestionTap(word: String) {
         store.dispatch(.updateSearchKeyword(text: word))
     }
 
+    // MARK: Tool Methods
     func showHUD() {
         hudConfig = TTProgressHUDConfig(
             type: .loading,
@@ -372,9 +341,7 @@ extension HomeView {
     }
     func dismissHUD() {
         hudVisible = false
-        hudConfig = TTProgressHUDConfig(
-            hapticsEnabled: false
-        )
+        hudConfig = TTProgressHUDConfig()
     }
     func detectPasteboard() {
         if hasJumpPermission {
@@ -385,13 +352,20 @@ extension HomeView {
                 if cachedList.hasCached(gid: gid) {
                     replaceMangaCommentJumpID(gid: gid)
                 } else {
-                    fetchMangaWithDetailURL(link.absoluteString)
+                    store.dispatch(
+                        .fetchMangaItemReverse(
+                            detailURL: link.absoluteString
+                        )
+                    )
                     showHUD()
                 }
                 clearPasteboard()
                 clearObstruction()
             }
         }
+    }
+    func replaceMangaCommentJumpID(gid: String?) {
+        store.dispatch(.replaceMangaCommentJumpID(gid: gid))
     }
     func getPasteboardLinkIfAllowed() -> URL? {
         if setting?.allowsDetectionWhenNoChange == true {
@@ -415,22 +389,11 @@ extension HomeView {
         }
     }
 
-    func fetchGreeting() {
-        store.dispatch(.fetchGreeting)
-    }
-    func fetchUserInfo() {
-        if let uid = settings.user?.apiuid, !uid.isEmpty {
-            store.dispatch(.fetchUserInfo(uid: uid))
-        }
-    }
-    func fetchFavoriteNames() {
-        store.dispatch(.fetchFavoriteNames)
-    }
-    func fetchSearchItems() {
-        store.dispatch(.fetchSearchItems(keyword: homeInfo.searchKeyword))
-    }
+    // MARK: Fetch Methods
     func fetchFrontpageItems() {
-        store.dispatch(.fetchFrontpageItems)
+        DispatchQueue.main.async {
+            store.dispatch(.fetchFrontpageItems)
+        }
     }
     func fetchPopularItems() {
         store.dispatch(.fetchPopularItems)
@@ -455,22 +418,6 @@ extension HomeView {
         store.dispatch(.fetchMoreFavoritesItems(index: environment.favoritesIndex))
     }
 
-    func fetchMangaWithDetailURL(_ detailURL: String) {
-        store.dispatch(.fetchMangaItemReverse(detailURL: detailURL))
-    }
-    func replaceMangaCommentJumpID(gid: String?) {
-        store.dispatch(.replaceMangaCommentJumpID(gid: gid))
-    }
-    func toggleNewDawn() {
-        store.dispatch(.toggleHomeViewSheetState(state: .newDawn))
-    }
-    func toggleSetting() {
-        store.dispatch(.toggleHomeViewSheetState(state: .setting))
-    }
-    func updateViewControllersCount() {
-        store.dispatch(.updateViewControllersCount)
-    }
-
     func fetchGreetingIfNeeded() {
         func verifyDate(with updateTime: Date?) -> Bool {
             guard let updateTime = updateTime else { return false }
@@ -492,10 +439,10 @@ extension HomeView {
         if setting?.showNewDawnGreeting == true {
             if let greeting = user?.greeting {
                 if verifyDate(with: greeting.updateTime) {
-                    fetchGreeting()
+                    store.dispatch(.fetchGreeting)
                 }
             } else {
-                fetchGreeting()
+                store.dispatch(.fetchGreeting)
             }
         }
     }
@@ -573,7 +520,7 @@ private struct GenericList: View {
                     .listRowBackground(Color.clear)
                     .listRowSeparator(.hidden)
                     .onAppear {
-                        onRowAppear(item)
+                        onRowAppear(item: item)
                     }
                 }
                 .transition(animatedTransition)
@@ -592,15 +539,11 @@ private struct GenericList: View {
     }
 
     private func onUpdate() {
-        if let action = fetchAction {
-            action()
-        }
+        fetchAction?()
     }
-    private func onRowAppear(_ item: Manga) {
-        if let action = loadMoreAction,
-           item == items?.last
-        {
-            action()
+    private func onRowAppear(item: Manga) {
+        if item == items?.last {
+            loadMoreAction?()
         }
     }
 }

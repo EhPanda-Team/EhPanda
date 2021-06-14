@@ -86,7 +86,7 @@ struct AppearanceSettingView: View, StoreAccessor {
                                         Text("\(num)").tag(num)
                                     }
                                 }
-                                .pickerStyle(MenuPickerStyle())
+                                .pickerStyle(.menu)
                             }
                         }
                     }

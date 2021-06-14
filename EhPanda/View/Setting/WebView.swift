@@ -43,13 +43,7 @@ struct WebView: UIViewControllerRepresentable {
                             let store = self?.parent.store
                             store?.dispatch(.toggleSettingViewSheetNil)
                             store?.dispatch(.fetchFrontpageItems)
-
-                            if store?.appState.settings.user == nil {
-                                store?.dispatch(.initializeUser)
-                            }
-                            if let uid = store?.appState.settings.user?.apiuid, !uid.isEmpty {
-                                store?.dispatch(.fetchUserInfo(uid: uid))
-                            }
+                            store?.dispatch(.fetchUserInfo)
                         }
                     }
                 }

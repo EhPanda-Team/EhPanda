@@ -68,7 +68,7 @@ struct Placeholder: View {
                             .foregroundColor(.gray)
                             .padding(.bottom, 15)
                         ProgressView(value: percentage, total: 1)
-                            .progressViewStyle(LinearProgressViewStyle())
+                            .progressViewStyle(.linear)
                             .frame(width: proxy.size.width * 0.5)
                     }
                 }

@@ -83,6 +83,8 @@ private extension AuthView {
             if !isAppUnlocked {
                 authenticate()
             }
+        } else {
+            setBlur(effectOn: false)
         }
     }
 

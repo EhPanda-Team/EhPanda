@@ -13,9 +13,8 @@ enum AppAction {
     case replaceUser(user: User?)
     case clearCachedList
     case clearHistoryItems
-    case initializeUser
+    case initializeStates
     case initializeFilter
-    case initializeSetting
     case clearDetailViewCommentContent
     case clearCommentViewCommentContent
     case saveAspectBox(gid: String, box: [Int: CGFloat])
@@ -49,7 +48,7 @@ enum AppAction {
 
     case fetchGreeting
     case fetchGreetingDone(result: Result<Greeting, AppError>)
-    case fetchUserInfo(uid: String)
+    case fetchUserInfo
     case fetchUserInfoDone(result: Result<User, AppError>)
     case fetchFavoriteNames
     case fetchFavoriteNamesDone(result: Result<[Int: String], AppError>)

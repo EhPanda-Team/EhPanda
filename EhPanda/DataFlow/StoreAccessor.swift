@@ -67,6 +67,9 @@ extension StoreAccessor {
     var currentCredits: String? {
         user?.currentCredits
     }
+    var favoriteNames: [Int: String]? {
+        user?.favoriteNames
+    }
     var setting: Setting? {
         settings.setting
     }
@@ -81,6 +84,9 @@ extension StoreAccessor {
     }
     var autoLockPolicy: AutoLockPolicy? {
         setting?.autoLockPolicy
+    }
+    var detectGalleryFromPasteboard: Bool? {
+        setting?.detectGalleryFromPasteboard
     }
 }
 

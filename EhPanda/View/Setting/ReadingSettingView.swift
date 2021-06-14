@@ -34,7 +34,7 @@ struct ReadingSettingView: View, StoreAccessor {
                                 Text("20" + time).tag(20)
                             }
                         )
-                        .pickerStyle(MenuPickerStyle())
+                            .pickerStyle(.menu)
                     }
                 }
                 Section(header: Text("Appearance")) {
@@ -52,7 +52,7 @@ struct ReadingSettingView: View, StoreAccessor {
                                 Text("20pt").tag(CGFloat(20))
                             }
                         )
-                        .pickerStyle(MenuPickerStyle())
+                            .pickerStyle(.menu)
                     }
                     ScaleFactorRow(
                         scaleFactor: settingBinding.maximumScaleFactor,
