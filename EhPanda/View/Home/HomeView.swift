@@ -56,7 +56,27 @@ struct HomeView: View, StoreAccessor {
             )
             .onSubmit(of: .search, onSearchSubmit)
             .navigationBarTitle(navigationBarTitle)
-            .navigationBarItems(trailing: favoritesMenu)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Menu {
+                        ForEach(-1..<(favoriteNames?.count ?? 10) - 1) { index in
+                            Button {
+                                onFavMenuSelect(index: index)
+                            } label: {
+                                Text(User.getFavNameFrom(index: index, names: favoriteNames))
+                                if index == environment.favoritesIndex {
+                                    Image(systemName: "checkmark")
+                                }
+                            }
+                        }
+                    } label: {
+                        Image(systemName: "square.3.stack.3d.top.fill")
+                            .symbolRenderingMode(.hierarchical)
+                            .foregroundColor(.primary)
+                    }
+                    .opacity(environment.homeListType == .favorites ? 1 : 0)
+                }
+            }
         }
         .navigationViewStyle(.stack)
         .onAppear(perform: onAppear)
@@ -150,115 +170,92 @@ private extension HomeView {
         }
     }
 
-    // MARK: favoritesMenu
-    var favoritesMenu: some View {
-        Menu {
-            ForEach(-1..<(favoriteNames?.count ?? 10) - 1) { index in
-                Button {
-                    onFavMenuSelect(index: index)
-                } label: {
-                    Text(User.getFavNameFrom(index: index, names: favoriteNames))
-                    if index == environment.favoritesIndex {
-                        Image(systemName: "checkmark")
-                    }
-                }
-            }
-        } label: {
-            Image(systemName: "square.3.stack.3d.top.fill")
-                .symbolRenderingMode(.hierarchical)
-                .foregroundStyle(.primary)
-        }
-        .opacity(environment.homeListType == .favorites ? 1 : 0)
-    }
-
     // MARK: conditionalList
-    var conditionalList: some View {
-        Group {
-            switch environment.homeListType {
-            case .search:
-                GenericList(
-                    items: homeInfo.searchItems,
-                    setting: setting ?? Setting(),
-                    loadingFlag: homeInfo.searchLoading,
-                    notFoundFlag: homeInfo.searchNotFound,
-                    loadFailedFlag: homeInfo.searchLoadFailed,
-                    moreLoadingFlag: homeInfo.moreSearchLoading,
-                    moreLoadFailedFlag: homeInfo.moreSearchLoadFailed,
-                    fetchAction: onSearchRefresh,
-                    loadMoreAction: fetchMoreSearchItems
-                )
-            case .frontpage:
-                GenericList(
-                    items: homeInfo.frontpageItems,
-                    setting: setting ?? Setting(),
-                    loadingFlag: homeInfo.frontpageLoading,
-                    notFoundFlag: homeInfo.frontpageNotFound,
-                    loadFailedFlag: homeInfo.frontpageLoadFailed,
-                    moreLoadingFlag: homeInfo.moreFrontpageLoading,
-                    moreLoadFailedFlag: homeInfo.moreFrontpageLoadFailed,
-                    fetchAction: fetchFrontpageItems,
-                    loadMoreAction: fetchMoreFrontpageItems
-                )
-            case .popular:
-                GenericList(
-                    items: homeInfo.popularItems,
-                    setting: setting ?? Setting(),
-                    loadingFlag: homeInfo.popularLoading,
-                    notFoundFlag: homeInfo.popularNotFound,
-                    loadFailedFlag: homeInfo.popularLoadFailed,
-                    moreLoadingFlag: false,
-                    moreLoadFailedFlag: false,
-                    fetchAction: fetchPopularItems
-                )
-            case .watched:
-                GenericList(
-                    items: homeInfo.watchedItems,
-                    setting: setting ?? Setting(),
-                    loadingFlag: homeInfo.watchedLoading,
-                    notFoundFlag: homeInfo.watchedNotFound,
-                    loadFailedFlag: homeInfo.watchedLoadFailed,
-                    moreLoadingFlag: homeInfo.moreWatchedLoading,
-                    moreLoadFailedFlag: homeInfo.moreWatchedLoadFailed,
-                    fetchAction: fetchWatchedItems,
-                    loadMoreAction: fetchMoreWatchedItems
-                )
-            case .favorites:
-                GenericList(
-                    items: homeInfo.favoritesItems[
-                        environment.favoritesIndex
-                    ],
-                    setting: setting ?? Setting(),
-                    loadingFlag: homeInfo.favoritesLoading[
-                        environment.favoritesIndex
-                    ] ?? false,
-                    notFoundFlag: homeInfo.favoritesNotFound[
-                        environment.favoritesIndex
-                    ] ?? false,
-                    loadFailedFlag: homeInfo.favoritesLoadFailed[
-                        environment.favoritesIndex
-                    ] ?? false,
-                    moreLoadingFlag: homeInfo.moreFavoritesLoading[
-                        environment.favoritesIndex
-                    ] ?? false,
-                    moreLoadFailedFlag: homeInfo.moreFavoritesLoadFailed[
-                        environment.favoritesIndex
-                    ] ?? false,
-                    fetchAction: fetchFavoritesItems,
-                    loadMoreAction: fetchMoreFavoritesItems
-                )
-            case .downloaded:
-                NotFoundView(retryAction: nil)
-            case .history:
-                GenericList(
-                    items: historyItems,
-                    setting: setting ?? Setting(),
-                    loadingFlag: false,
-                    notFoundFlag: historyItems.isEmpty,
-                    loadFailedFlag: false,
-                    moreLoadingFlag: false,
-                    moreLoadFailedFlag: false
-                )
-            }
+    @ViewBuilder var conditionalList: some View {
+        switch environment.homeListType {
+        case .search:
+            GenericList(
+                items: homeInfo.searchItems,
+                setting: setting ?? Setting(),
+                loadingFlag: homeInfo.searchLoading,
+                notFoundFlag: homeInfo.searchNotFound,
+                loadFailedFlag: homeInfo.searchLoadFailed,
+                moreLoadingFlag: homeInfo.moreSearchLoading,
+                moreLoadFailedFlag: homeInfo.moreSearchLoadFailed,
+                fetchAction: onSearchRefresh,
+                loadMoreAction: fetchMoreSearchItems
+            )
+        case .frontpage:
+            GenericList(
+                items: homeInfo.frontpageItems,
+                setting: setting ?? Setting(),
+                loadingFlag: homeInfo.frontpageLoading,
+                notFoundFlag: homeInfo.frontpageNotFound,
+                loadFailedFlag: homeInfo.frontpageLoadFailed,
+                moreLoadingFlag: homeInfo.moreFrontpageLoading,
+                moreLoadFailedFlag: homeInfo.moreFrontpageLoadFailed,
+                fetchAction: fetchFrontpageItems,
+                loadMoreAction: fetchMoreFrontpageItems
+            )
+        case .popular:
+            GenericList(
+                items: homeInfo.popularItems,
+                setting: setting ?? Setting(),
+                loadingFlag: homeInfo.popularLoading,
+                notFoundFlag: homeInfo.popularNotFound,
+                loadFailedFlag: homeInfo.popularLoadFailed,
+                moreLoadingFlag: false,
+                moreLoadFailedFlag: false,
+                fetchAction: fetchPopularItems
+            )
+        case .watched:
+            GenericList(
+                items: homeInfo.watchedItems,
+                setting: setting ?? Setting(),
+                loadingFlag: homeInfo.watchedLoading,
+                notFoundFlag: homeInfo.watchedNotFound,
+                loadFailedFlag: homeInfo.watchedLoadFailed,
+                moreLoadingFlag: homeInfo.moreWatchedLoading,
+                moreLoadFailedFlag: homeInfo.moreWatchedLoadFailed,
+                fetchAction: fetchWatchedItems,
+                loadMoreAction: fetchMoreWatchedItems
+            )
+        case .favorites:
+            GenericList(
+                items: homeInfo.favoritesItems[
+                    environment.favoritesIndex
+                ],
+                setting: setting ?? Setting(),
+                loadingFlag: homeInfo.favoritesLoading[
+                    environment.favoritesIndex
+                ] ?? false,
+                notFoundFlag: homeInfo.favoritesNotFound[
+                    environment.favoritesIndex
+                ] ?? false,
+                loadFailedFlag: homeInfo.favoritesLoadFailed[
+                    environment.favoritesIndex
+                ] ?? false,
+                moreLoadingFlag: homeInfo.moreFavoritesLoading[
+                    environment.favoritesIndex
+                ] ?? false,
+                moreLoadFailedFlag: homeInfo.moreFavoritesLoadFailed[
+                    environment.favoritesIndex
+                ] ?? false,
+                fetchAction: fetchFavoritesItems,
+                loadMoreAction: fetchMoreFavoritesItems
+            )
+        case .downloaded:
+            NotFoundView(retryAction: nil)
+        case .history:
+            GenericList(
+                items: historyItems,
+                setting: setting ?? Setting(),
+                loadingFlag: false,
+                notFoundFlag: historyItems.isEmpty,
+                loadFailedFlag: false,
+                moreLoadingFlag: false,
+                moreLoadFailedFlag: false
+            )
         }
     }
 }
@@ -325,7 +322,9 @@ private extension HomeView {
         if environment.homeListType != .search {
             store.dispatch(.toggleHomeListType(type: .search))
         }
-        archivedKeyword = homeInfo.searchKeyword
+        if !homeInfo.searchKeyword.isEmpty {
+            archivedKeyword = homeInfo.searchKeyword
+        }
         store.dispatch(.fetchSearchItems(keyword: homeInfo.searchKeyword))
     }
     func onSearchRefresh() {

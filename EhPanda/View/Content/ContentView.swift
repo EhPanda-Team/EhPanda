@@ -28,7 +28,7 @@ struct ContentView: View, StoreAccessor {
     }
 
     // MARK: ContentView
-    var body: some View {
+    @ViewBuilder var body: some View {
         let doubleTap = TapGesture(
             count: 2
         )
@@ -43,7 +43,7 @@ struct ContentView: View, StoreAccessor {
         .onChanged(onMagnificationGestureChanged)
         .onEnded(onMagnificationGestureEnded)
 
-        return Group {
+        Group {
             if let contents = mangaContents,
                let setting = setting,
                !contents.isEmpty

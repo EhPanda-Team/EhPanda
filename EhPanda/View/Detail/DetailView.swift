@@ -83,7 +83,6 @@ struct DetailView: View, StoreAccessor {
         .task(updateHistoryItems)
         .onAppear(perform: onAppear)
         .onDisappear(perform: onDisappear)
-        .navigationBarItems(trailing: menu)
         .navigationBarHidden(environment.navBarHidden)
         .sheet(item: environmentBinding.detailViewSheetState) { item in
             Group {
@@ -104,6 +103,37 @@ struct DetailView: View, StoreAccessor {
             .accentColor(accentColor)
             .blur(radius: environment.blurRadius)
             .allowsHitTesting(environment.isAppUnlocked)
+        }
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Menu {
+                    Button(action: onArchiveButtonTap) {
+                        Label("Archive", systemImage: "doc.zipper")
+                    }
+                    .disabled(mangaDetail?.archiveURL == nil)
+                    Button(action: onTorrentsButtonTap) {
+                        Label(
+                            "Torrents".localized() + (
+                                mangaDetail?.torrentCount ?? 0 > 0
+                                ? " (\(mangaDetail?.torrentCount ?? 0))" : ""
+                            ),
+                            systemImage: "leaf"
+                        )
+                    }
+                    .disabled((mangaDetail?.torrentCount ?? 0 > 0) != true)
+                    Button(action: onShareButtonTap) {
+                        Label("Share", systemImage: "square.and.arrow.up")
+                    }
+                } label: {
+                    Image(systemName: "ellipsis.circle")
+                        .imageScale(.large)
+                }
+                .disabled(
+                    mangaDetail == nil
+                        || detailInfo.mangaDetailLoading
+                        || detailInfo.mangaDetailUpdating
+                )
+            }
         }
     }
 }
@@ -127,37 +157,6 @@ private extension DetailView {
     }
     var mangaDetail: MangaDetail? {
         cachedList.items?[gid]?.detail
-    }
-
-    // MARK: menu
-    var menu: some View {
-        Menu(content: {
-            Button(action: onArchiveButtonTap) {
-                Label("Archive", systemImage: "doc.zipper")
-            }
-            .disabled(mangaDetail?.archiveURL == nil)
-            Button(action: onTorrentsButtonTap) {
-                Label(
-                    "Torrents".localized() + (
-                        mangaDetail?.torrentCount ?? 0 > 0
-                        ? " (\(mangaDetail?.torrentCount ?? 0))" : ""
-                    ),
-                    systemImage: "leaf"
-                )
-            }
-            .disabled((mangaDetail?.torrentCount ?? 0 > 0) != true)
-            Button(action: onShareButtonTap) {
-                Label("Share", systemImage: "square.and.arrow.up")
-            }
-        }, label: {
-            Image(systemName: "ellipsis.circle")
-                .imageScale(.large)
-        })
-        .disabled(
-            mangaDetail == nil
-                || detailInfo.mangaDetailLoading
-                || detailInfo.mangaDetailUpdating
-        )
     }
 }
 

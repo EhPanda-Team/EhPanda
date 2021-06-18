@@ -77,12 +77,14 @@ struct CommentView: View, StoreAccessor {
             }
             TTProgressHUD($hudVisible, config: hudConfig)
         }
-        .navigationBarItems(trailing:
-            Button(action: toggleNewComment, label: {
-                Image(systemName: "square.and.pencil")
-                Text("Post Comment")
-            })
-        )
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button(action: toggleNewComment, label: {
+                    Image(systemName: "square.and.pencil")
+                    Text("Post Comment")
+                })
+            }
+        }
         .sheet(item: environmentBinding.commentViewSheetState) { item in
             Group {
                 switch item {
@@ -323,69 +325,68 @@ private struct CommentCell: View {
         .padding()
     }
 
+    @ViewBuilder
     private func generateWebImages(
         imgURL: String?,
         secondImgURL: String?,
         link: String?,
         secondLink: String?
     ) -> some View {
-        Group {
-            // Double
-            if let imgURL = imgURL,
-               let secondImgURL = secondImgURL
-            {
-                HStack(spacing: 0) {
-                    if let link = link,
-                       let secondLink = secondLink
-                    {
-                        KFImage(URL(string: imgURL))
-                            .loadImmediately()
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: screenW / 4)
-                            .onTapGesture {
-                                linkAction(link.safeURL())
-                            }
-                        KFImage(URL(string: secondImgURL))
-                            .loadImmediately()
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: screenW / 4)
-                            .onTapGesture {
-                                linkAction(secondLink.safeURL())
-                            }
-                    } else {
-                        KFImage(URL(string: imgURL))
-                            .loadImmediately()
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: screenW / 4)
-                        KFImage(URL(string: secondImgURL))
-                            .loadImmediately()
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: screenW / 4)
-                    }
-                }
-            }
-            // Single
-            else if let imgURL = imgURL {
-                if let link = link {
+        // Double
+        if let imgURL = imgURL,
+           let secondImgURL = secondImgURL
+        {
+            HStack(spacing: 0) {
+                if let link = link,
+                   let secondLink = secondLink
+                {
                     KFImage(URL(string: imgURL))
                         .loadImmediately()
                         .resizable()
                         .scaledToFit()
-                        .frame(width: screenW / 2)
+                        .frame(width: screenW / 4)
                         .onTapGesture {
                             linkAction(link.safeURL())
+                        }
+                    KFImage(URL(string: secondImgURL))
+                        .loadImmediately()
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: screenW / 4)
+                        .onTapGesture {
+                            linkAction(secondLink.safeURL())
                         }
                 } else {
                     KFImage(URL(string: imgURL))
                         .loadImmediately()
                         .resizable()
                         .scaledToFit()
-                        .frame(width: screenW / 2)
+                        .frame(width: screenW / 4)
+                    KFImage(URL(string: secondImgURL))
+                        .loadImmediately()
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: screenW / 4)
                 }
+            }
+        }
+        // Single
+        else if let imgURL = imgURL {
+            if let link = link {
+                KFImage(URL(string: imgURL))
+                    .loadImmediately()
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: screenW / 2)
+                    .onTapGesture {
+                        linkAction(link.safeURL())
+                    }
+            } else {
+                KFImage(URL(string: imgURL))
+                    .loadImmediately()
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: screenW / 2)
             }
         }
     }

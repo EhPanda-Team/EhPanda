@@ -58,12 +58,12 @@ struct AccountSettingView: View {
                     CookieRow(
                         key: memberIDKey,
                         value: ehMemberID,
-                        commitAction: onEhEditingChange
+                        submitAction: onEhEditingChange
                     )
                     CookieRow(
                         key: passHashKey,
                         value: ehPassHash,
-                        commitAction: onEhEditingChange
+                        submitAction: onEhEditingChange
                     )
                     Button("Copy cookies", action: copyEhCookies)
                 }
@@ -71,17 +71,17 @@ struct AccountSettingView: View {
                     CookieRow(
                         key: igneousKey,
                         value: igneous,
-                        commitAction: onExEditingChange
+                        submitAction: onExEditingChange
                     )
                     CookieRow(
                         key: memberIDKey,
                         value: exMemberID,
-                        commitAction: onExEditingChange
+                        submitAction: onExEditingChange
                     )
                     CookieRow(
                         key: passHashKey,
                         value: exPassHash,
-                        commitAction: onExEditingChange
+                        submitAction: onExEditingChange
                     )
                     Button("Copy cookies", action: copyExCookies)
                 }
@@ -172,7 +172,7 @@ private struct CookieRow: View {
     private let key: String
     private let value: String
     private let cookieValue: CookieValue
-    private let commitAction: (String, String) -> Void
+    private let submitAction: (String, String) -> Void
     private var notVerified: Bool {
         !cookieValue.localizedString.isEmpty
             && !cookieValue.rawValue.isEmpty
@@ -181,7 +181,7 @@ private struct CookieRow: View {
     init(
         key: String,
         value: CookieValue,
-        commitAction: @escaping (String, String) -> Void
+        submitAction: @escaping (String, String) -> Void
     ) {
         _content = State(initialValue: value.rawValue)
 
@@ -189,7 +189,7 @@ private struct CookieRow: View {
         self.value = value.localizedString.isEmpty
             ? value.rawValue : value.localizedString
         self.cookieValue = value
-        self.commitAction = commitAction
+        self.submitAction = submitAction
     }
 
     var body: some View {
@@ -197,14 +197,12 @@ private struct CookieRow: View {
             Text(key)
             Spacer()
             ZStack {
-                TextField(
-                    value, text: $content,
-                    onCommit: onTextFieldCommit
-                )
-                .submitLabel(.done)
-                .autocapitalization(.none)
-                .disableAutocorrection(true)
-                .multilineTextAlignment(.trailing)
+                TextField(value, text: $content)
+                    .submitLabel(.done)
+                    .autocapitalization(.none)
+                    .disableAutocorrection(true)
+                    .multilineTextAlignment(.trailing)
+                    .onSubmit(of: .text, onTextSubmit)
             }
             ZStack {
                 Image(systemName: "checkmark.circle")
@@ -217,8 +215,8 @@ private struct CookieRow: View {
         }
     }
 
-    private func onTextFieldCommit() {
-        commitAction(key, content)
+    private func onTextSubmit() {
+        submitAction(key, content)
     }
 }
 

@@ -63,18 +63,15 @@ struct DraftCommentView: View {
                 title.localized(),
                 displayMode: .inline
             )
-            .navigationBarItems(
-                leading:
-                    Button(action: cancelAction) {
-                        Text("Cancel")
-                            .fontWeight(.regular)
-                    },
-                trailing:
-                    Button(action: postAction) {
-                        Text("Post")
-                    }
-                    .disabled(content.isEmpty)
-            )
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel", action: cancelAction)
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Post", action: postAction)
+                        .disabled(content.isEmpty)
+                }
+            }
         }
         .task(onTextEditorAppear)
     }
