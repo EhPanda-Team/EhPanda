@@ -78,9 +78,8 @@ struct HomeView: View, StoreAccessor {
                 }
             }
         }
+        .task(onStartTasks)
         .navigationViewStyle(.stack)
-        .onAppear(perform: onAppear)
-        .task(fetchFrontpageItemsIfNeeded)
         .sheet(item: environmentBinding.homeViewSheetState) { item in
             Group {
                 switch item {
@@ -262,9 +261,10 @@ private extension HomeView {
 
 // MARK: Private Methods
 private extension HomeView {
-    func onAppear() {
+    func onStartTasks() {
         detectPasteboard()
         fetchGreetingIfNeeded()
+        fetchFrontpageItemsIfNeeded()
     }
     func onBecomeActive() {
         if viewControllersCount == 1 {

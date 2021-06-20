@@ -238,6 +238,14 @@ func copyHTMLIfNeeded(html: String?) {
     }
 }
 
+func dispatchMainSync(execute work: () -> Void) {
+    if Thread.isMainThread {
+        work()
+    } else {
+        DispatchQueue.main.sync(execute: work)
+    }
+}
+
 // MARK: UserDefaults
 let isDebugModeOn = UserDefaults.standard.bool(forKey: "debugModeOn")
 

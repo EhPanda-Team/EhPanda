@@ -58,6 +58,7 @@ struct NewDawnView: View {
                                     colorScheme == .light
                                     ? angle : Angle(degrees: 0)
                                 )
+                                .opacity(colorScheme == .light ? 1 : 0)
                         }
                         .offset(x: offset, y: -offset)
                     }
