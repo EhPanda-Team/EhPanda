@@ -13,6 +13,15 @@
   <a href="/README.chs.md">简体中文</a>
 </p>
 
+## 📢 Translations Wanted 📢
+Please submit a pull request if you want to help with translation.
+
+App Strings: `{lang}.lproj`
+
+GitHub Readme: `README.{lang}.md`
+
+https://ehpanda.app: `Website-Translation.md`
+
 ## Installation
 1. Get the ipa file from [Releases](https://github.com/arakitatsuzou/EhPanda/releases).
 2. Use some software like [AltStore](https://altstore.io) to install the ipa file on your device.
