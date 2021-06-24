@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftyBeaver
 import TTProgressHUD
 
 struct ArchiveView: View, StoreAccessor {
@@ -135,7 +136,7 @@ private extension ArchiveView {
             case .error:
                 notificFeedback(style: .error)
             default:
-                print(type)
+                SwiftyBeaver.verbose(type)
             }
 
             hudConfig = TTProgressHUDConfig(

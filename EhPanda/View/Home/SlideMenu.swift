@@ -80,7 +80,7 @@ private extension SlideMenu {
 
     func onMenuRowTap(item: HomeListType) {
         if homeListType != item {
-            store.dispatch(.toggleHomeListType(type: item))
+            store.dispatch(.toggleHomeList(type: item))
             impactFeedback(style: .soft)
 
             if setting?.closeSlideMenuAfterSelection == true {
@@ -89,7 +89,7 @@ private extension SlideMenu {
         }
     }
     func onSettingMenuRowTap() {
-        store.dispatch(.toggleHomeViewSheetState(state: .setting))
+        store.dispatch(.toggleHomeViewSheet(state: .setting))
     }
     func onFavoritesIndexChange(_ : Int) {
         if setting?.closeSlideMenuAfterSelection == true {

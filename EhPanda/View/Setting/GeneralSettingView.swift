@@ -122,9 +122,9 @@ private extension GeneralSettingView {
     }
 
     func toggleClearImgCaches() {
-        store.dispatch(.toggleSettingViewActionSheetState(state: .clearImgCaches))
+        store.dispatch(.toggleSettingViewActionSheet(state: .clearImgCaches))
     }
     func toggleClearWebCaches() {
-        store.dispatch(.toggleSettingViewActionSheetState(state: .clearWebCaches))
+        store.dispatch(.toggleSettingViewActionSheet(state: .clearWebCaches))
     }
 }

@@ -205,7 +205,11 @@ struct MangaTorrent: Identifiable, Codable {
 }
 
 // MARK: Computed Properties
-extension Manga: DateFormattable {
+extension Manga: DateFormattable, CustomStringConvertible {
+    var description: String {
+        "Manga(\(gid))"
+    }
+
     var filledCount: Int { Int(rating) }
     var halfFilledCount: Int { Int(rating - 0.5) == filledCount ? 1 : 0 }
     var notFilledCount: Int { 5 - filledCount - halfFilledCount }
@@ -218,12 +222,22 @@ extension Manga: DateFormattable {
     }
 }
 
-extension MangaDetail: DateFormattable {
+extension MangaDetail: DateFormattable, CustomStringConvertible {
+    var description: String {
+        "MangaDetail(\(jpnTitle ?? title))"
+    }
+
     var languageAbbr: String {
         language.languageAbbr
     }
     var originalDate: Date {
         publishedDate
+    }
+}
+
+extension MangaContent: CustomStringConvertible {
+    var description: String {
+        "MangaContent(\(tag))"
     }
 }
 
@@ -233,7 +247,10 @@ extension MangaComment: DateFormattable {
     }
 }
 
-extension MangaTorrent: DateFormattable {
+extension MangaTorrent: DateFormattable, CustomStringConvertible {
+    var description: String {
+        "MangaTorrent(\(fileName))"
+    }
     var originalDate: Date {
         postedDate
     }

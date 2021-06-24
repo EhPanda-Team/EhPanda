@@ -152,16 +152,16 @@ private extension AccountSettingView {
 
     // MARK: Dispatch Methods
     func toggleWebViewLogin() {
-        store.dispatch(.toggleSettingViewSheetState(state: .webviewLogin))
+        store.dispatch(.toggleSettingViewSheet(state: .webviewLogin))
     }
     func toggleWebViewConfig() {
-        store.dispatch(.toggleSettingViewSheetState(state: .webviewConfig))
+        store.dispatch(.toggleSettingViewSheet(state: .webviewConfig))
     }
     func toggleWebViewMyTags() {
-        store.dispatch(.toggleSettingViewSheetState(state: .webviewMyTags))
+        store.dispatch(.toggleSettingViewSheet(state: .webviewMyTags))
     }
     func toggleLogout() {
-        store.dispatch(.toggleSettingViewActionSheetState(state: .logout))
+        store.dispatch(.toggleSettingViewActionSheet(state: .logout))
     }
 }
 

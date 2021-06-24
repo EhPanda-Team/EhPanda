@@ -8,8 +8,10 @@
 import Kanna
 import Combine
 import Foundation
+import SwiftyBeaver
 
 private func mapAppError(error: Error) -> AppError {
+    SwiftyBeaver.error(error)
     switch error {
     case is ParseError:
         return .parseFailed

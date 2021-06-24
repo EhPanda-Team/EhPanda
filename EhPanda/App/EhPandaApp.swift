@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Kingfisher
+import SwiftyBeaver
 import SDWebImageSwiftUI
 
 @main
@@ -14,6 +15,7 @@ struct EhPandaApp: App {
     @StateObject private var store = Store()
 
     init() {
+        configureLogging()
         configureWebImage()
         clearImageCachesIfNeeded()
     }
@@ -55,6 +57,37 @@ private extension EhPandaApp {
         default:
             break
         }
+    }
+
+    func configureLogging() {
+        var file = FileDestination()
+        var console = ConsoleDestination()
+
+        configure(file: &file)
+        configure(console: &console)
+        SwiftyBeaver.addDestination(file)
+        SwiftyBeaver.addDestination(console)
+    }
+    func configure(file: inout FileDestination) {
+        let dateFormat = "$Dyyyy-MM-dd HH:mm:ss.SSS$d"
+        let messageFormat = "$C$L$c $N.$F:$l - $M"
+        file.format = [dateFormat, messageFormat]
+            .joined(separator: " ")
+        file.logFileAmount = 5
+        file.logFileURL = try? FileManager.default.url(
+            for: .documentDirectory, in: .userDomainMask,
+               appropriateFor: nil, create: true
+        ).appendingPathComponent("EhPanda.log")
+    }
+    func configure(console: inout ConsoleDestination) {
+        #if DEBUG
+        console.asynchronously = false
+        #endif
+        console.levelColor.verbose = "😪"
+        console.levelColor.debug = "🐛"
+        console.levelColor.info = "📖"
+        console.levelColor.warning = "⚠️"
+        console.levelColor.error = "‼️"
     }
 
     func configureWebImage() {

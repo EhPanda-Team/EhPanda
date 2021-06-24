@@ -291,7 +291,7 @@ private extension HomeView {
            !greeting.gainedNothing
         {
             self.greeting = greeting
-            store.dispatch(.toggleHomeViewSheetState(state: .newDawn))
+            store.dispatch(.toggleHomeViewSheet(state: .newDawn))
         }
     }
     func onSearchKeywordChange(keyword: String) {
@@ -303,7 +303,7 @@ private extension HomeView {
         fetchFavoritesItemsIfNeeded()
     }
     func onFavMenuSelect(index: Int) {
-        store.dispatch(.toggleFavoriteIndex(index: index))
+        store.dispatch(.toggleFavorite(index: index))
     }
     func onJumpIDChange(value: String?) {
         if value != nil, hasJumpPermission {
@@ -320,7 +320,7 @@ private extension HomeView {
     }
     func onSearchSubmit() {
         if environment.homeListType != .search {
-            store.dispatch(.toggleHomeListType(type: .search))
+            store.dispatch(.toggleHomeList(type: .search))
         }
         if !homeInfo.searchKeyword.isEmpty {
             archivedKeyword = homeInfo.searchKeyword
@@ -387,7 +387,7 @@ private extension HomeView {
     }
     func clearObstruction() {
         if environment.homeViewSheetState != nil {
-            store.dispatch(.toggleHomeViewSheetState(state: nil))
+            store.dispatch(.toggleHomeViewSheet(state: nil))
         }
         if environment.isSlideMenuClosed != true {
             postSlideMenuShouldCloseNotification()
@@ -523,6 +523,7 @@ private struct GenericList: View {
                                 gid: item.gid, depth: 0
                             )
                         ) {}
+                        .opacity(0)
                         MangaSummaryRow(
                             manga: item,
                             setting: setting
