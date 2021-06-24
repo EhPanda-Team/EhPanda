@@ -62,17 +62,22 @@ private extension EhPandaApp {
     func configureLogging() {
         var file = FileDestination()
         var console = ConsoleDestination()
+        let format = [
+            "$Dyyyy-MM-dd HH:mm:ss.SSS$d",
+            "$C$L$c $N.$F:$l - $M $X"
+        ].joined(separator: " ")
 
+        file.format = format
+        console.format = format
         configure(file: &file)
         configure(console: &console)
+
         SwiftyBeaver.addDestination(file)
+        #if DEBUG
         SwiftyBeaver.addDestination(console)
+        #endif
     }
     func configure(file: inout FileDestination) {
-        let dateFormat = "$Dyyyy-MM-dd HH:mm:ss.SSS$d"
-        let messageFormat = "$C$L$c $N.$F:$l - $M"
-        file.format = [dateFormat, messageFormat]
-            .joined(separator: " ")
         file.logFileAmount = 5
         file.logFileURL = try? FileManager.default.url(
             for: .documentDirectory, in: .userDomainMask,
