@@ -7,9 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		AB19224F26727A2500F48E60 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = AB19224E26727A2500F48E60 /* Kingfisher */; };
 		AB19D619266E5C6700BA752A /* TTProgressHUD in Frameworks */ = {isa = PBXBuildFile; productRef = AB19D618266E5C6700BA752A /* TTProgressHUD */; };
 		AB2B0F3B2684228400777944 /* SwiftyBeaver in Frameworks */ = {isa = PBXBuildFile; productRef = AB2B0F3A2684228400777944 /* SwiftyBeaver */; };
+		AB2F72BF2685A8B00088DECA /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = AB2F72BE2685A8B00088DECA /* Kingfisher */; };
 		AB324F66266EFF4200F34A12 /* Kanna in Frameworks */ = {isa = PBXBuildFile; productRef = AB324F65266EFF4200F34A12 /* Kanna */; };
 		AB38A0CB25CA993D00764D64 /* ColorCodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB38A0CA25CA993D00764D64 /* ColorCodable.swift */; };
 		AB40CFDC25983EC200D1DC9A /* FileStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB40CFDB25983EC200D1DC9A /* FileStorage.swift */; };
@@ -153,11 +153,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AB19224F26727A2500F48E60 /* Kingfisher in Frameworks */,
 				ABE0FA2F25D4CAEC00E52F18 /* SDWebImageSwiftUI in Frameworks */,
 				AB2B0F3B2684228400777944 /* SwiftyBeaver in Frameworks */,
 				AB324F66266EFF4200F34A12 /* Kanna in Frameworks */,
 				AB19D619266E5C6700BA752A /* TTProgressHUD in Frameworks */,
+				AB2F72BF2685A8B00088DECA /* Kingfisher in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -367,8 +367,8 @@
 				ABE0FA2E25D4CAEC00E52F18 /* SDWebImageSwiftUI */,
 				AB19D618266E5C6700BA752A /* TTProgressHUD */,
 				AB324F65266EFF4200F34A12 /* Kanna */,
-				AB19224E26727A2500F48E60 /* Kingfisher */,
 				AB2B0F3A2684228400777944 /* SwiftyBeaver */,
+				AB2F72BE2685A8B00088DECA /* Kingfisher */,
 			);
 			productName = EhPanda;
 			productReference = ABC3C7542593696C00E0C11B /* EhPanda.app */;
@@ -404,8 +404,8 @@
 				ABE0FA2D25D4CAEC00E52F18 /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */,
 				AB19D617266E5C6700BA752A /* XCRemoteSwiftPackageReference "TTProgressHUD" */,
 				AB324F64266EFF4200F34A12 /* XCRemoteSwiftPackageReference "Kanna" */,
-				AB19224D26727A2500F48E60 /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				AB2B0F392684228400777944 /* XCRemoteSwiftPackageReference "SwiftyBeaver" */,
+				AB2F72BD2685A8B00088DECA /* XCRemoteSwiftPackageReference "Kingfisher" */,
 			);
 			productRefGroup = ABC3C7552593696C00E0C11B /* Products */;
 			projectDirPath = "";
@@ -670,7 +670,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = EhPanda/EhPanda.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 53;
+				CURRENT_PROJECT_VERSION = 54;
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = 9SKQ7QTZ74;
 				ENABLE_PREVIEWS = YES;
@@ -697,7 +697,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = EhPanda/EhPanda.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 53;
+				CURRENT_PROJECT_VERSION = 54;
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = 9SKQ7QTZ74;
 				ENABLE_PREVIEWS = YES;
@@ -741,14 +741,6 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		AB19224D26727A2500F48E60 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/tatsuz0u/Kingfisher.git";
-			requirement = {
-				branch = "Remove-Accelerate";
-				kind = branch;
-			};
-		};
 		AB19D617266E5C6700BA752A /* XCRemoteSwiftPackageReference "TTProgressHUD" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/tatsuz0u/TTProgressHUD.git";
@@ -763,6 +755,14 @@
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 1.9.5;
+			};
+		};
+		AB2F72BD2685A8B00088DECA /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/tatsuz0u/Kingfisher";
+			requirement = {
+				branch = "Xcode-13-fix";
+				kind = branch;
 			};
 		};
 		AB324F64266EFF4200F34A12 /* XCRemoteSwiftPackageReference "Kanna" */ = {
@@ -784,11 +784,6 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		AB19224E26727A2500F48E60 /* Kingfisher */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = AB19224D26727A2500F48E60 /* XCRemoteSwiftPackageReference "Kingfisher" */;
-			productName = Kingfisher;
-		};
 		AB19D618266E5C6700BA752A /* TTProgressHUD */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = AB19D617266E5C6700BA752A /* XCRemoteSwiftPackageReference "TTProgressHUD" */;
@@ -798,6 +793,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = AB2B0F392684228400777944 /* XCRemoteSwiftPackageReference "SwiftyBeaver" */;
 			productName = SwiftyBeaver;
+		};
+		AB2F72BE2685A8B00088DECA /* Kingfisher */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AB2F72BD2685A8B00088DECA /* XCRemoteSwiftPackageReference "Kingfisher" */;
+			productName = Kingfisher;
 		};
 		AB324F65266EFF4200F34A12 /* Kanna */ = {
 			isa = XCSwiftPackageProductDependency;

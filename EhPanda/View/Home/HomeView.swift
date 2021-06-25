@@ -35,11 +35,11 @@ struct HomeView: View, StoreAccessor {
                 TTProgressHUD($hudVisible, config: hudConfig)
             }
             .searchable(
-                "Search",
                 text: homeInfoBinding.searchKeyword,
                 placement: .navigationBarDrawer(
                     displayMode: .always
                 ),
+                prompt: "Search",
                 suggestions: {
                     ForEach(suggestions, id: \.self) { word in
                         HStack {

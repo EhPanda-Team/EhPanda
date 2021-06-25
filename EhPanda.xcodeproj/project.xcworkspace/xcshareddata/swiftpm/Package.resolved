@@ -12,10 +12,10 @@
       },
       {
         "package": "Kingfisher",
-        "repositoryURL": "https://github.com/tatsuz0u/Kingfisher.git",
+        "repositoryURL": "https://github.com/tatsuz0u/Kingfisher",
         "state": {
-          "branch": "Remove-Accelerate",
-          "revision": "a057f36f4e4af94a6fe3b3a1e6c70ada5f704050",
+          "branch": "Xcode-13-fix",
+          "revision": "ff901f1bbde87c923fb79bb084bb28a75d63b8dc",
           "version": null
         }
       },

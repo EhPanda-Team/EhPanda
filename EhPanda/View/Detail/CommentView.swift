@@ -81,7 +81,6 @@ struct CommentView: View, StoreAccessor {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button(action: toggleNewComment, label: {
                     Image(systemName: "square.and.pencil")
-                    Text("Post Comment")
                 })
             }
         }
