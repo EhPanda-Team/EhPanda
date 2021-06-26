@@ -5,8 +5,9 @@
 //  Created by 荒木辰造 on R 2/12/27.
 //
 
-import SwiftUI
 import WebKit
+import SwiftUI
+import SwiftyBeaver
 
 struct WebView: UIViewControllerRepresentable {
     @EnvironmentObject private var store: Store
@@ -37,7 +38,7 @@ struct WebView: UIViewControllerRepresentable {
                     Timer.scheduledTimer(withTimeInterval: 3, repeats: false) { [weak self] _ in
                         if didLogin {
                             let store = self?.parent.store
-                            store?.dispatch(.toggleSettingViewSheetState(state: nil))
+                            store?.dispatch(.toggleSettingViewSheet(state: nil))
                             store?.dispatch(.fetchFrontpageItems)
                             store?.dispatch(.fetchUserInfo)
                         }
@@ -47,7 +48,7 @@ struct WebView: UIViewControllerRepresentable {
         }
 
         func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
-            print(error)
+            SwiftyBeaver.error(error)
         }
     }
 

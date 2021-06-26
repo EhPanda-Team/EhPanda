@@ -92,11 +92,11 @@ private extension AuthView {
         withAnimation(.linear(duration: 0.1)) {
             blurRadius = effectOn ? 10 : 0
         }
-        store.dispatch(.toggleBlurEffect(effectOn: effectOn))
+        store.dispatch(.toggleBlur(effectOn: effectOn))
     }
 
     func set(isUnlocked: Bool) {
-        store.dispatch(.toggleAppUnlocked(isUnlocked: isUnlocked))
+        store.dispatch(.toggleApp(unlocked: isUnlocked))
     }
 
     func lockIfExpired() {

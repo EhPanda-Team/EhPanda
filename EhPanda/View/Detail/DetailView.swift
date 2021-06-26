@@ -164,7 +164,7 @@ private extension DetailView {
 private extension DetailView {
     func onAppear() {
         if environment.navBarHidden {
-            store.dispatch(.toggleNavBarHidden(isHidden: false))
+            store.dispatch(.toggleNavBar(hidden: false))
         }
 
         if mangaDetail == nil {
@@ -227,7 +227,7 @@ private extension DetailView {
         toggleSheetStateNil()
     }
     func toggleSheet(state: DetailViewSheetState?) {
-        store.dispatch(.toggleDetailViewSheetState(state: state))
+        store.dispatch(.toggleDetailViewSheet(state: state))
     }
     func toggleSheetStateNil() {
         toggleSheet(state: nil)

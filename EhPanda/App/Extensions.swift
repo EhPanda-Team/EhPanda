@@ -11,7 +11,7 @@ import Combine
 import Foundation
 
 extension Dictionary where Key == String, Value == String {
-    func jsonString() -> String {
+    func dictString() -> String {
         var array = [String]()
         keys.forEach { key in
             let value = self[key]!
@@ -68,8 +68,8 @@ extension String {
         String(localized: StringLocalizationKey(self))
     }
 
-    func URLString() -> String {
-        self.addingPercentEncoding(
+    func urlEncoded() -> String {
+        addingPercentEncoding(
             withAllowedCharacters: .urlQueryAllowed
         ) ?? ""
     }

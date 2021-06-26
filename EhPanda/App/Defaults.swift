@@ -124,7 +124,7 @@ extension Defaults.URL {
         merge(urls: [
             host,
             listCompact,
-            fSearch + keyword.URLString()
+            fSearch + keyword.urlEncoded()
         ]
         + applyFilters(filter: filter)
         )
@@ -139,7 +139,7 @@ extension Defaults.URL {
             urls: [
                 host,
                 listCompact,
-                fSearch + keyword.URLString(),
+                fSearch + keyword.urlEncoded(),
                 page + pageNum,
                 from + lastID
             ]
@@ -192,7 +192,7 @@ extension Defaults.URL {
         merge(keyword: keyword, pageNum: nil, lastID: nil)
     }
     static func similarGallery(keyword: String) -> String {
-        merge(urls: [host, listCompact, fSearch + keyword.URLString()])
+        merge(urls: [host, listCompact, fSearch + keyword.urlEncoded()])
     }
     static func moreAssociatedItemsRedir(keyword: AssociatedKeyword, lastID: String, pageNum: String) -> String {
         if let title = keyword.title {
@@ -211,7 +211,7 @@ extension Defaults.URL {
         merge(urls: [
                 host,
                 listCompact,
-                fSearch + keyword.URLString(),
+                fSearch + keyword.urlEncoded(),
                 page + pageNum,
                 from + lastID
         ])
@@ -334,8 +334,8 @@ private extension Defaults.URL {
     }
     static func merge(keyword: (String, String), pageNum: String?, lastID: String?) -> String {
         guard let pageNum = pageNum, let lastID = lastID else {
-            return host + tag + "\(keyword.0):\(keyword.1.URLString())"
+            return host + tag + "\(keyword.0):\(keyword.1.urlEncoded())"
         }
-        return merge(urls: [host + tag + "\(keyword.0):\(keyword.1.URLString())/\(pageNum)", from + lastID])
+        return merge(urls: [host + tag + "\(keyword.0):\(keyword.1.urlEncoded())/\(pageNum)", from + lastID])
     }
 }

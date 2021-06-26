@@ -81,7 +81,6 @@ struct CommentView: View, StoreAccessor {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button(action: toggleNewComment, label: {
                     Image(systemName: "square.and.pencil")
-                    Text("Post Comment")
                 })
             }
         }
@@ -220,7 +219,7 @@ private extension CommentView {
     func edit(comment: MangaComment) {
         editCommentID = comment.commentID
         editCommentContent = trim(contents: comment.contents)
-        store.dispatch(.toggleCommentViewSheetState(state: .editComment))
+        store.dispatch(.toggleCommentViewSheet(state: .editComment))
     }
     func postNewComment() {
         store.dispatch(.comment(gid: gid, content: commentContent))
@@ -244,10 +243,10 @@ private extension CommentView {
     }
 
     func toggleNewComment() {
-        store.dispatch(.toggleCommentViewSheetState(state: .newComment))
+        store.dispatch(.toggleCommentViewSheet(state: .newComment))
     }
     func toggleCommentViewSheetNil() {
-        store.dispatch(.toggleCommentViewSheetState(state: nil))
+        store.dispatch(.toggleCommentViewSheet(state: nil))
     }
 }
 

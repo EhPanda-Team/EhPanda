@@ -6,16 +6,16 @@
         "repositoryURL": "https://github.com/tid-kijyun/Kanna.git",
         "state": {
           "branch": null,
-          "revision": "c657fb9f5827ef138068215c76ad0bb62bbc92da",
-          "version": "5.2.4"
+          "revision": "211beb276b7563eb9bb09474ce2d5f2176976232",
+          "version": null
         }
       },
       {
         "package": "Kingfisher",
-        "repositoryURL": "https://github.com/tatsuz0u/Kingfisher.git",
+        "repositoryURL": "https://github.com/tatsuz0u/Kingfisher",
         "state": {
-          "branch": "Remove-Accelerate",
-          "revision": "a057f36f4e4af94a6fe3b3a1e6c70ada5f704050",
+          "branch": "Xcode-13-fix",
+          "revision": "ff901f1bbde87c923fb79bb084bb28a75d63b8dc",
           "version": null
         }
       },
@@ -35,6 +35,15 @@
           "branch": null,
           "revision": "cd8625b7cf11a97698e180d28bb7d5d357196678",
           "version": "2.0.2"
+        }
+      },
+      {
+        "package": "SwiftyBeaver",
+        "repositoryURL": "https://github.com/SwiftyBeaver/SwiftyBeaver.git",
+        "state": {
+          "branch": null,
+          "revision": "2c039501d6eeb4d4cd4aec4a8d884ad28862e044",
+          "version": "1.9.5"
         }
       },
       {

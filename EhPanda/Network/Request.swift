@@ -8,8 +8,10 @@
 import Kanna
 import Combine
 import Foundation
+import SwiftyBeaver
 
 private func mapAppError(error: Error) -> AppError {
+    SwiftyBeaver.error(error)
     switch error {
     case is ParseError:
         return .parseFailed
@@ -512,7 +514,7 @@ struct AddFavoriteRequest {
         var request = URLRequest(url: url.safeURL())
 
         request.httpMethod = "POST"
-        request.httpBody = parameters.jsonString().data(using: .utf8)
+        request.httpBody = parameters.dictString().urlEncoded().data(using: .utf8)
 
         return URLSession.shared.dataTaskPublisher(for: request)
             .map { $0 }
@@ -535,7 +537,7 @@ struct DeleteFavoriteRequest {
         var request = URLRequest(url: url.safeURL())
 
         request.httpMethod = "POST"
-        request.httpBody = parameters.jsonString().data(using: .utf8)
+        request.httpBody = parameters.dictString().urlEncoded().data(using: .utf8)
 
         return URLSession.shared.dataTaskPublisher(for: request)
             .map { $0 }
@@ -556,7 +558,7 @@ struct SendDownloadCommandRequest {
         var request = URLRequest(url: archiveURL.safeURL())
 
         request.httpMethod = "POST"
-        request.httpBody = parameters.jsonString().data(using: .utf8)
+        request.httpBody = parameters.dictString().urlEncoded().data(using: .utf8)
 
         return URLSession.shared.dataTaskPublisher(for: request)
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
@@ -608,7 +610,7 @@ struct CommentRequest {
         var request = URLRequest(url: detailURL.safeURL())
 
         request.httpMethod = "POST"
-        request.httpBody = parameters.jsonString().data(using: .utf8)
+        request.httpBody = parameters.dictString().urlEncoded().data(using: .utf8)
 
         return URLSession.shared.dataTaskPublisher(for: request)
             .map { $0 }
@@ -632,7 +634,7 @@ struct EditCommentRequest {
         var request = URLRequest(url: detailURL.safeURL())
 
         request.httpMethod = "POST"
-        request.httpBody = parameters.jsonString().data(using: .utf8)
+        request.httpBody = parameters.dictString().urlEncoded().data(using: .utf8)
 
         return URLSession.shared.dataTaskPublisher(for: request)
             .map { $0 }

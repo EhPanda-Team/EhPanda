@@ -73,6 +73,8 @@ struct ContentView: View, StoreAccessor {
                                     .onAppear {
                                         onWebImageAppear(item: item)
                                     }
+                                    Text("\(item.tag + 1)/\(mangaDetail?.pageCount ?? "")")
+                                        .bold().font(.largeTitle).foregroundColor(.gray)
                                 }
                             }
                             LoadMoreFooter(
@@ -206,7 +208,7 @@ private extension ContentView {
     }
     func toggleNavBarHiddenIfNeeded() {
         if !environment.navBarHidden {
-            store.dispatch(.toggleNavBarHidden(isHidden: true))
+            store.dispatch(.toggleNavBar(hidden: true))
         }
     }
 
@@ -335,7 +337,6 @@ private extension ContentView {
 
         withAnimation {
             scale = newScale
-            print("debugMark: \(newScale)")
         }
     }
 }

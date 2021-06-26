@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Kingfisher
+import SwiftyBeaver
 import SDWebImageSwiftUI
 
 struct SettingView: View, StoreAccessor {
@@ -113,7 +114,7 @@ private extension SettingView {
                     )
                 )
             case .failure(let error):
-                print(error)
+                SwiftyBeaver.error(error)
             }
         }
     }

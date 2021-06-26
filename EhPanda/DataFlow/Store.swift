@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Combine
+import SwiftyBeaver
 
 final class Store: ObservableObject {
     @Published var appState = AppState()
@@ -14,12 +15,22 @@ final class Store: ObservableObject {
     func dispatch(_ action: AppAction) {
         if appState.environment.isPreview { return }
 
-        print("[ACTION]: \(action)")
+        let description = String(describing: action)
+        if description.contains("error") {
+            SwiftyBeaver.error("[ACTION]: " + description)
+        } else {
+            switch action {
+            case .saveAspectBox(let gid, _):
+                SwiftyBeaver.verbose("[ACTION]: saveAspectBox(gid: \(gid))")
+            default:
+                SwiftyBeaver.verbose("[ACTION]: " + description)
+            }
+        }
         let result = reduce(state: appState, action: action)
         appState = result.0
 
         guard let command = result.1 else { return }
-        print("[COMMAND]: \(command)")
+        SwiftyBeaver.verbose("[COMMAND]: \(command)")
         command.execute(in: self)
     }
 
@@ -79,32 +90,32 @@ final class Store: ObservableObject {
             appState.environment.isSlideMenuClosed = isClosed
 
         // MARK: App Env
-        case .toggleAppUnlocked(let isUnlocked):
-            appState.environment.isAppUnlocked = isUnlocked
-        case .toggleBlurEffect(let effectOn):
+        case .toggleApp(let unlocked):
+            appState.environment.isAppUnlocked = unlocked
+        case .toggleBlur(let effectOn):
             withAnimation(.linear(duration: 0.1)) {
                 appState.environment.blurRadius = effectOn ? 10 : 0
             }
-        case .toggleHomeListType(let type):
+        case .toggleHomeList(let type):
             appState.environment.homeListType = type
-        case .toggleFavoriteIndex(let index):
+        case .toggleFavorite(let index):
             appState.environment.favoritesIndex = index
-        case .toggleNavBarHidden(let isHidden):
-            appState.environment.navBarHidden = isHidden
-        case .toggleHomeViewSheetState(let state):
+        case .toggleNavBar(let hidden):
+            appState.environment.navBarHidden = hidden
+        case .toggleHomeViewSheet(let state):
             if state != nil { impactFeedback(style: .light) }
             appState.environment.homeViewSheetState = state
-        case .toggleSettingViewSheetState(let state):
+        case .toggleSettingViewSheet(let state):
             if state != nil { impactFeedback(style: .light) }
             appState.environment.settingViewSheetState = state
-        case .toggleSettingViewActionSheetState(let state):
+        case .toggleSettingViewActionSheet(let state):
             appState.environment.settingViewActionSheetState = state
-        case .toggleFilterViewActionSheetState(let state):
+        case .toggleFilterViewActionSheet(let state):
             appState.environment.filterViewActionSheetState = state
-        case .toggleDetailViewSheetState(let state):
+        case .toggleDetailViewSheet(let state):
             if state != nil { impactFeedback(style: .light) }
             appState.environment.detailViewSheetState = state
-        case .toggleCommentViewSheetState(let state):
+        case .toggleCommentViewSheet(let state):
             if state != nil { impactFeedback(style: .light) }
             appState.environment.commentViewSheetState = state
 
@@ -131,7 +142,6 @@ final class Store: ObservableObject {
                     greeting.updateTime = Date()
                     appState.settings.insert(greeting: greeting)
                 }
-                print(error)
             }
 
         case .fetchUserInfo:
@@ -144,11 +154,8 @@ final class Store: ObservableObject {
         case .fetchUserInfoDone(let result):
             appState.settings.userInfoLoading = false
 
-            switch result {
-            case .success(let user):
+            if case .success(let user) = result {
                 appState.settings.update(user: user)
-            case .failure(let error):
-                print(error)
             }
 
         case .fetchFavoriteNames:
@@ -159,11 +166,8 @@ final class Store: ObservableObject {
         case .fetchFavoriteNamesDone(let result):
             appState.settings.favoriteNamesLoading = false
 
-            switch result {
-            case .success(let names):
+            if case .success(let names) = result {
                 appState.settings.user?.favoriteNames = names
-            case .failure(let error):
-                print(error)
             }
 
         case .fetchMangaItemReverse(let detailURL):
@@ -180,9 +184,8 @@ final class Store: ObservableObject {
             case .success(let manga):
                 appState.cachedList.cache(mangas: [manga])
                 appState.environment.mangaItemReverseID = manga.gid
-            case .failure(let error):
+            case .failure:
                 appState.environment.mangaItemReverseLoadFailed = true
-                print(error)
             }
 
         case .fetchSearchItems(let keyword):
@@ -215,9 +218,8 @@ final class Store: ObservableObject {
                 } else {
                     appState.cachedList.cache(mangas: mangas.2)
                 }
-            case .failure(let error):
+            case .failure:
                 appState.homeInfo.searchLoadFailed = true
-                print(error)
             }
 
         case .fetchMoreSearchItems(let keyword):
@@ -257,9 +259,8 @@ final class Store: ObservableObject {
                 } else if appState.homeInfo.searchItems?.isEmpty == true {
                     appState.homeInfo.searchNotFound = true
                 }
-            case .failure(let error):
+            case .failure:
                 appState.homeInfo.moreSearchLoadFailed = true
-                print(error)
             }
 
         case .fetchFrontpageItems:
@@ -290,9 +291,8 @@ final class Store: ObservableObject {
                 } else {
                     appState.cachedList.cache(mangas: mangas.1)
                 }
-            case .failure(let error):
+            case .failure:
                 appState.homeInfo.frontpageLoadFailed = true
-                print(error)
             }
 
         case .fetchMoreFrontpageItems:
@@ -326,9 +326,8 @@ final class Store: ObservableObject {
                 } else if appState.homeInfo.frontpageItems?.isEmpty == true {
                     appState.homeInfo.frontpageNotFound = true
                 }
-            case .failure(let error):
+            case .failure:
                 appState.homeInfo.moreFrontpageLoadFailed = true
-                print(error)
             }
 
         case .fetchPopularItems:
@@ -349,8 +348,7 @@ final class Store: ObservableObject {
                     appState.homeInfo.popularItems = mangas.1
                     appState.cachedList.cache(mangas: mangas.1)
                 }
-            case .failure(let error):
-                print(error)
+            case .failure:
                 appState.homeInfo.popularLoadFailed = true
             }
 
@@ -382,8 +380,7 @@ final class Store: ObservableObject {
                 } else {
                     appState.cachedList.cache(mangas: mangas.1)
                 }
-            case .failure(let error):
-                print(error)
+            case .failure:
                 appState.homeInfo.watchedLoadFailed = true
             }
 
@@ -418,9 +415,8 @@ final class Store: ObservableObject {
                 } else if appState.homeInfo.watchedItems?.isEmpty == true {
                     appState.homeInfo.watchedNotFound = true
                 }
-            case .failure(let error):
+            case .failure:
                 appState.homeInfo.moreWatchedLoadFailed = true
-                print(error)
             }
 
         case .fetchFavoritesItems(let favIndex):
@@ -451,9 +447,8 @@ final class Store: ObservableObject {
                 } else {
                     appState.cachedList.cache(mangas: mangas.1)
                 }
-            case .failure(let error):
+            case .failure:
                 appState.homeInfo.favoritesLoadFailed[carriedValue] = true
-                print(error)
             }
 
         case .fetchMoreFavoritesItems(let favIndex):
@@ -491,9 +486,8 @@ final class Store: ObservableObject {
                 } else if appState.homeInfo.favoritesItems[carriedValue]?.isEmpty == true {
                     appState.homeInfo.favoritesNotFound[carriedValue] = true
                 }
-            case .failure(let error):
+            case .failure:
                 appState.homeInfo.moreFavoritesLoading[carriedValue] = true
-                print(error)
             }
 
         case .fetchMangaDetail(let gid):
@@ -511,8 +505,7 @@ final class Store: ObservableObject {
             case .success(let detail):
                 appState.settings.user?.apikey = detail.2
                 appState.cachedList.insertDetail(gid: detail.0, detail: detail.1)
-            case .failure(let error):
-                print(error)
+            case .failure:
                 appState.detailInfo.mangaDetailLoadFailed = true
             }
 
@@ -541,8 +534,7 @@ final class Store: ObservableObject {
                         )
                     )
                 }
-            case .failure(let error):
-                print(error)
+            case .failure:
                 appState.detailInfo.mangaArchiveLoadFailed = true
             }
 
@@ -555,16 +547,13 @@ final class Store: ObservableObject {
         case .fetchMangaArchiveFundsDone(let result):
             appState.detailInfo.mangaArchiveFundsLoading = false
 
-            switch result {
-            case .success(let funds):
+            if case .success(let funds) = result {
                 appState.settings.update(
                     user: User(
                         currentGP: funds.0,
                         currentCredits: funds.1
                     )
                 )
-            case .failure(let error):
-                print(error)
             }
 
         case .fetchMangaTorrents(let gid):
@@ -581,8 +570,7 @@ final class Store: ObservableObject {
             switch result {
             case .success(let torrents):
                 appState.cachedList.insertTorrents(gid: torrents.0, torrents: torrents.1)
-            case .failure(let error):
-                print(error)
+            case .failure:
                 appState.detailInfo.mangaTorrentsLoadFailed = true
             }
 
@@ -617,8 +605,7 @@ final class Store: ObservableObject {
                 } else {
                     appState.cachedList.cache(mangas: mangas.3)
                 }
-            case .failure(let error):
-                print(error)
+            case .failure:
                 appState.detailInfo.associatedItemsLoadFailed = true
             }
 
@@ -661,9 +648,8 @@ final class Store: ObservableObject {
                 } else if appState.detailInfo.associatedItems.isEmpty {
                     appState.detailInfo.associatedItemsNotFound = true
                 }
-            case .failure(let error):
+            case .failure:
                 appState.detailInfo.moreAssociatedItemsLoadFailed = true
-                print(error)
             }
 
         case .fetchAlterImages(let gid):
@@ -676,11 +662,8 @@ final class Store: ObservableObject {
         case .fetchAlterImagesDone(let result):
             appState.detailInfo.alterImagesLoading = false
 
-            switch result {
-            case .success(let images):
+            if case .success(let images) = result {
                 appState.cachedList.insertAlterImages(gid: images.0, images: images.1)
-            case .failure(let error):
-                print(error)
             }
 
         case .updateMangaDetail(let gid):
@@ -692,11 +675,8 @@ final class Store: ObservableObject {
         case .updateMangaDetailDone(let result):
             appState.detailInfo.mangaDetailUpdating = false
 
-            switch result {
-            case .success(let detail):
+            if case .success(let detail) = result {
                 appState.cachedList.updateDetail(gid: detail.0, detail: detail.1)
-            case .failure(let error):
-                print(error)
             }
 
         case .updateMangaComments(let gid):
@@ -708,11 +688,8 @@ final class Store: ObservableObject {
         case .updateMangaCommentsDone(result: let result):
             appState.detailInfo.mangaCommentsUpdating = false
 
-            switch result {
-            case .success(let comments):
+            if case .success(let comments) = result {
                 appState.cachedList.updateComments(gid: comments.0, comments: comments.1)
-            case .failure(let error):
-                print(error)
             }
 
         case .fetchMangaContents(let gid):
@@ -735,9 +712,8 @@ final class Store: ObservableObject {
                     pageNum: contents.1,
                     contents: contents.2
                 )
-            case .failure(let error):
+            case .failure:
                 appState.contentInfo.mangaContentsLoadFailed = true
-                print(error)
             }
 
         case .fetchMoreMangaContents(let gid):
@@ -763,6 +739,17 @@ final class Store: ObservableObject {
                 pageNum: pageNum,
                 pageCount: pageCount
             )
+
+            if pageCount >= Int(detail.pageCount) ?? 0 {
+                SwiftyBeaver.error(
+                    "MangaContents overflow",
+                    context: [
+                        "detailURL": manga.detailURL,
+                        "pageLimit": detail.pageCount,
+                        "pageCurrentAmount": pageCount
+                    ]
+                )
+            }
         case .fetchMoreMangaContentsDone(let result):
             appState.contentInfo.moreMangaContentsLoading = false
 
@@ -773,9 +760,8 @@ final class Store: ObservableObject {
                     pageNum: contents.1,
                     contents: contents.2
                 )
-            case .failure(let error):
+            case .failure:
                 appState.contentInfo.moreMangaContentsLoadFailed = true
-                print(error)
             }
 
         // MARK: Account Ops

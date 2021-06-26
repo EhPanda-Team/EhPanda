@@ -50,6 +50,10 @@ struct EhPandaView: View, StoreAccessor {
                 text: "Kingfisher"
             ),
             Info(
+                url: "https://github.com/SwiftyBeaver/SwiftyBeaver",
+                text: "SwiftyBeaver"
+            ),
+            Info(
                 url: "https://github.com/honkmaster/TTProgressHUD",
                 text: "TTProgressHUD"
             ),

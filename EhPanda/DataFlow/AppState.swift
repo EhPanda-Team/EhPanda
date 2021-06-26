@@ -287,12 +287,10 @@ extension AppState {
             pageNum: PageNumber,
             items: [Manga]
         ) {
-            if associatedItems.count >= depth + 1 {
+            if associatedItems.count > depth {
                 associatedItems[depth].keyword = keyword
                 associatedItems[depth].pageNum = pageNum
                 associatedItems[depth].mangas.append(contentsOf: items)
-            } else {
-                print("AssociatedItemsUpdating: Not found")
             }
         }
     }
@@ -319,7 +317,6 @@ extension AppState {
             items?[gid] != nil
         }
         mutating func cache(mangas: [Manga]) {
-            let previousCount = items?.count ?? 0
             if items == nil {
                 items = Dictionary(uniqueKeysWithValues: mangas.map { ($0.id, $0) })
                 return
@@ -335,8 +332,6 @@ extension AppState {
                     items?[manga.gid]?.language = manga.language
                 }
             }
-            let currentCount = items?.count ?? 0
-            print("CachedList updated: \(previousCount) -> \(currentCount)")
         }
 
         mutating func insertDetail(gid: String, detail: MangaDetail) {
