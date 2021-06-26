@@ -952,19 +952,16 @@ extension Parser {
     static func parseCommentContent(node: XMLElement) -> [CommentContent] {
         var contents = [CommentContent]()
 
+        for div in node.xpath("//div") {
+            node.removeChild(div)
+        }
+        for span in node.xpath("span") {
+            node.removeChild(span)
+        }
+
         guard var rawContent = node.innerHTML?
                 .replacingOccurrences(of: "<br>", with: "\n")
                 .replacingOccurrences(of: "</span>", with: "")
-                .replacingOccurrences(
-                    of: "<div.*?>.*?</div>",
-                    with: "",
-                    options: .regularExpression
-                )
-                .replacingOccurrences(
-                    of: "<span.*?>",
-                    with: "",
-                    options: .regularExpression
-                )
         else { return [] }
 
         while (node.xpath("//a").count
@@ -994,7 +991,9 @@ extension Parser {
             }
 
             guard let link = tmpLink,
-                  let html = link.toHTML,
+                  let html = link.toHTML?
+                    .replacingOccurrences(of: "<br>", with: "\n")
+                    .replacingOccurrences(of: "</span>", with: ""),
                   let range = rawContent.range(of: html)
             else { continue }
 

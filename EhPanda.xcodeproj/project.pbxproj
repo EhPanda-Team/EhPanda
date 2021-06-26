@@ -7,10 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		AB018DD2268756D000EB0EA9 /* Kanna in Frameworks */ = {isa = PBXBuildFile; productRef = AB018DD1268756D000EB0EA9 /* Kanna */; };
 		AB19D619266E5C6700BA752A /* TTProgressHUD in Frameworks */ = {isa = PBXBuildFile; productRef = AB19D618266E5C6700BA752A /* TTProgressHUD */; };
 		AB2B0F3B2684228400777944 /* SwiftyBeaver in Frameworks */ = {isa = PBXBuildFile; productRef = AB2B0F3A2684228400777944 /* SwiftyBeaver */; };
 		AB2F72BF2685A8B00088DECA /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = AB2F72BE2685A8B00088DECA /* Kingfisher */; };
-		AB324F66266EFF4200F34A12 /* Kanna in Frameworks */ = {isa = PBXBuildFile; productRef = AB324F65266EFF4200F34A12 /* Kanna */; };
 		AB38A0CB25CA993D00764D64 /* ColorCodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB38A0CA25CA993D00764D64 /* ColorCodable.swift */; };
 		AB40CFDC25983EC200D1DC9A /* FileStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB40CFDB25983EC200D1DC9A /* FileStorage.swift */; };
 		AB40CFDF25983EDF00D1DC9A /* FileHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB40CFDE25983EDF00D1DC9A /* FileHelper.swift */; };
@@ -155,9 +155,9 @@
 			files = (
 				ABE0FA2F25D4CAEC00E52F18 /* SDWebImageSwiftUI in Frameworks */,
 				AB2B0F3B2684228400777944 /* SwiftyBeaver in Frameworks */,
-				AB324F66266EFF4200F34A12 /* Kanna in Frameworks */,
 				AB19D619266E5C6700BA752A /* TTProgressHUD in Frameworks */,
 				AB2F72BF2685A8B00088DECA /* Kingfisher in Frameworks */,
+				AB018DD2268756D000EB0EA9 /* Kanna in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -366,9 +366,9 @@
 			packageProductDependencies = (
 				ABE0FA2E25D4CAEC00E52F18 /* SDWebImageSwiftUI */,
 				AB19D618266E5C6700BA752A /* TTProgressHUD */,
-				AB324F65266EFF4200F34A12 /* Kanna */,
 				AB2B0F3A2684228400777944 /* SwiftyBeaver */,
 				AB2F72BE2685A8B00088DECA /* Kingfisher */,
+				AB018DD1268756D000EB0EA9 /* Kanna */,
 			);
 			productName = EhPanda;
 			productReference = ABC3C7542593696C00E0C11B /* EhPanda.app */;
@@ -403,9 +403,9 @@
 			packageReferences = (
 				ABE0FA2D25D4CAEC00E52F18 /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */,
 				AB19D617266E5C6700BA752A /* XCRemoteSwiftPackageReference "TTProgressHUD" */,
-				AB324F64266EFF4200F34A12 /* XCRemoteSwiftPackageReference "Kanna" */,
 				AB2B0F392684228400777944 /* XCRemoteSwiftPackageReference "SwiftyBeaver" */,
 				AB2F72BD2685A8B00088DECA /* XCRemoteSwiftPackageReference "Kingfisher" */,
+				AB018DD0268756D000EB0EA9 /* XCRemoteSwiftPackageReference "Kanna" */,
 			);
 			productRefGroup = ABC3C7552593696C00E0C11B /* Products */;
 			projectDirPath = "";
@@ -741,6 +741,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		AB018DD0268756D000EB0EA9 /* XCRemoteSwiftPackageReference "Kanna" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/tid-kijyun/Kanna.git";
+			requirement = {
+				kind = revision;
+				revision = 211beb276b7563eb9bb09474ce2d5f2176976232;
+			};
+		};
 		AB19D617266E5C6700BA752A /* XCRemoteSwiftPackageReference "TTProgressHUD" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/tatsuz0u/TTProgressHUD.git";
@@ -765,14 +773,6 @@
 				kind = branch;
 			};
 		};
-		AB324F64266EFF4200F34A12 /* XCRemoteSwiftPackageReference "Kanna" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/tid-kijyun/Kanna.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 5.0.0;
-			};
-		};
 		ABE0FA2D25D4CAEC00E52F18 /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/SDWebImage/SDWebImageSwiftUI.git";
@@ -784,6 +784,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		AB018DD1268756D000EB0EA9 /* Kanna */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AB018DD0268756D000EB0EA9 /* XCRemoteSwiftPackageReference "Kanna" */;
+			productName = Kanna;
+		};
 		AB19D618266E5C6700BA752A /* TTProgressHUD */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = AB19D617266E5C6700BA752A /* XCRemoteSwiftPackageReference "TTProgressHUD" */;
@@ -798,11 +803,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = AB2F72BD2685A8B00088DECA /* XCRemoteSwiftPackageReference "Kingfisher" */;
 			productName = Kingfisher;
-		};
-		AB324F65266EFF4200F34A12 /* Kanna */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = AB324F64266EFF4200F34A12 /* XCRemoteSwiftPackageReference "Kanna" */;
-			productName = Kanna;
 		};
 		ABE0FA2E25D4CAEC00E52F18 /* SDWebImageSwiftUI */ = {
 			isa = XCSwiftPackageProductDependency;
