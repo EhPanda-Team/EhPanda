@@ -19,7 +19,6 @@ struct GeneralSettingView: View, StoreAccessor {
         {
             Form {
                 Section {
-                    NavigationLink("Filters", destination: FilterView())
                     HStack {
                         Text("Language")
                         Spacer()
@@ -79,6 +78,10 @@ struct GeneralSettingView: View, StoreAccessor {
                         }
                         .foregroundColor(.primary)
                     }
+                }
+                Section(header: Text("Advanced")) {
+                    NavigationLink("Logs", destination: LogsView())
+                    NavigationLink("Filters", destination: FilterView())
                 }
             }
             .navigationBarTitle("General")

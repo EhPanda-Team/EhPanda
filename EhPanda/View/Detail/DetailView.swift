@@ -189,24 +189,7 @@ private extension DetailView {
     }
     func onShareButtonTap() {
         guard let data = URL(string: manga.detailURL) else { return }
-        let activityVC = UIActivityViewController(
-            activityItems: [data],
-            applicationActivities: nil
-        )
-        if isPad {
-            activityVC.popoverPresentationController?.sourceView = keyWindow
-            activityVC.popoverPresentationController?.sourceRect = CGRect(
-                x: screenW, y: 0,
-                width: 200, height: 200
-            )
-        }
-        keyWindow?.rootViewController?
-            .present(
-                activityVC,
-                animated: true,
-                completion: nil
-            )
-        impactFeedback(style: .light)
+        presentActivityVC(items: [data])
     }
     func onUserRatingChanged(value: Int) {
         store.dispatch(.rate(gid: gid, rating: value))

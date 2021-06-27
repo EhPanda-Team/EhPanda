@@ -73,8 +73,10 @@ struct ContentView: View, StoreAccessor {
                                     .onAppear {
                                         onWebImageAppear(item: item)
                                     }
+                                    #if DEBUG
                                     Text("\(item.tag + 1)/\(mangaDetail?.pageCount ?? "")")
                                         .bold().font(.largeTitle).foregroundColor(.gray)
+                                    #endif
                                 }
                             }
                             LoadMoreFooter(

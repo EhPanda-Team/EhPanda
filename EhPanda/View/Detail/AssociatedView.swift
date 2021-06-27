@@ -30,6 +30,7 @@ struct AssociatedView: View, StoreAccessor {
                                     depth: depth + 1
                                 )
                             ) {}
+                            .opacity(0)
                             MangaSummaryRow(
                                 manga: manga,
                                 setting: setting ?? Setting()
