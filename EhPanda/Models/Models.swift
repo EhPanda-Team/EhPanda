@@ -1,5 +1,5 @@
 //
-//  Manga.swift
+//  Models.swift
 //  EhPanda
 //
 //  Created by 荒木辰造 on R 2/11/22.
@@ -202,6 +202,16 @@ struct MangaTorrent: Identifiable, Codable {
     let uploader: String
     let fileName: String
     let magnet: String
+}
+
+struct Log: Identifiable, Comparable {
+    static func < (lhs: Log, rhs: Log) -> Bool {
+        lhs.fileName < rhs.fileName
+    }
+
+    var id: String { fileName }
+    let fileName: String
+    let contents: [String]
 }
 
 // MARK: Computed Properties

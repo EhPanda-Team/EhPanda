@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		AB018DD2268756D000EB0EA9 /* Kanna in Frameworks */ = {isa = PBXBuildFile; productRef = AB018DD1268756D000EB0EA9 /* Kanna */; };
 		AB19D619266E5C6700BA752A /* TTProgressHUD in Frameworks */ = {isa = PBXBuildFile; productRef = AB19D618266E5C6700BA752A /* TTProgressHUD */; };
-		AB2B0F3B2684228400777944 /* SwiftyBeaver in Frameworks */ = {isa = PBXBuildFile; productRef = AB2B0F3A2684228400777944 /* SwiftyBeaver */; };
 		AB2F72BF2685A8B00088DECA /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = AB2F72BE2685A8B00088DECA /* Kingfisher */; };
 		AB38A0CB25CA993D00764D64 /* ColorCodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB38A0CA25CA993D00764D64 /* ColorCodable.swift */; };
 		AB40CFDC25983EC200D1DC9A /* FileStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB40CFDB25983EC200D1DC9A /* FileStorage.swift */; };
@@ -24,6 +23,8 @@
 		AB47FDB425BC859E0007765D /* Weird-ipad@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = AB47FDB125BC859E0007765D /* Weird-ipad@2x.png */; };
 		AB47FDB525BC859E0007765D /* Weird-ipad-pro@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = AB47FDB225BC859E0007765D /* Weird-ipad-pro@2x.png */; };
 		AB47FDB625BC859E0007765D /* Weird-ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = AB47FDB325BC859E0007765D /* Weird-ipad.png */; };
+		AB6DE897268822390087C579 /* LogsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB6DE896268822390087C579 /* LogsView.swift */; };
+		AB6DE89A268861790087C579 /* SwiftyBeaver in Frameworks */ = {isa = PBXBuildFile; productRef = AB6DE899268861790087C579 /* SwiftyBeaver */; };
 		AB7E6B3025D24FE00035CC68 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = AB7E6B3225D24FE00035CC68 /* InfoPlist.strings */; };
 		ABA732D925A8018A00B3D9AB /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABA732D825A8018A00B3D9AB /* Extensions.swift */; };
 		ABA732DF25A852D800B3D9AB /* Filter.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABA732DE25A852D800B3D9AB /* Filter.swift */; };
@@ -34,7 +35,7 @@
 		ABC3C7872593699B00E0C11B /* EhPandaApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC3C76B2593699A00E0C11B /* EhPandaApp.swift */; };
 		ABC3C7892593699B00E0C11B /* Defaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC3C76D2593699A00E0C11B /* Defaults.swift */; };
 		ABC3C78F2593699B00E0C11B /* ViewModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC3C7762593699A00E0C11B /* ViewModifiers.swift */; };
-		ABC3C7962593699B00E0C11B /* Manga.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC3C7802593699A00E0C11B /* Manga.swift */; };
+		ABC3C7962593699B00E0C11B /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC3C7802593699A00E0C11B /* Models.swift */; };
 		ABCD2F0A259763FC008E5A20 /* Request.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD2F09259763FC008E5A20 /* Request.swift */; };
 		ABCD2F0E25976B95008E5A20 /* Parser.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD2F0D25976B95008E5A20 /* Parser.swift */; };
 		ABD5FDD4263D05110021A4C6 /* .swiftlint.yml in Resources */ = {isa = PBXBuildFile; fileRef = ABD5FDD3263D05110021A4C6 /* .swiftlint.yml */; };
@@ -89,6 +90,7 @@
 		AB47FDB125BC859E0007765D /* Weird-ipad@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Weird-ipad@2x.png"; sourceTree = "<group>"; };
 		AB47FDB225BC859E0007765D /* Weird-ipad-pro@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Weird-ipad-pro@2x.png"; sourceTree = "<group>"; };
 		AB47FDB325BC859E0007765D /* Weird-ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Weird-ipad.png"; sourceTree = "<group>"; };
+		AB6DE896268822390087C579 /* LogsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogsView.swift; sourceTree = "<group>"; };
 		AB7E6B3125D24FE00035CC68 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		AB7E6B3425D24FE40035CC68 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
 		AB7E6B3525D24FE50035CC68 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -104,7 +106,7 @@
 		ABC3C76D2593699A00E0C11B /* Defaults.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Defaults.swift; sourceTree = "<group>"; };
 		ABC3C76E2593699A00E0C11B /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		ABC3C7762593699A00E0C11B /* ViewModifiers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewModifiers.swift; sourceTree = "<group>"; };
-		ABC3C7802593699A00E0C11B /* Manga.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Manga.swift; sourceTree = "<group>"; };
+		ABC3C7802593699A00E0C11B /* Models.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
 		ABCD2F09259763FC008E5A20 /* Request.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Request.swift; sourceTree = "<group>"; };
 		ABCD2F0D25976B95008E5A20 /* Parser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Parser.swift; sourceTree = "<group>"; };
 		ABD5FDD3263D05110021A4C6 /* .swiftlint.yml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.yaml; path = .swiftlint.yml; sourceTree = SOURCE_ROOT; };
@@ -154,8 +156,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				ABE0FA2F25D4CAEC00E52F18 /* SDWebImageSwiftUI in Frameworks */,
-				AB2B0F3B2684228400777944 /* SwiftyBeaver in Frameworks */,
 				AB19D619266E5C6700BA752A /* TTProgressHUD in Frameworks */,
+				AB6DE89A268861790087C579 /* SwiftyBeaver in Frameworks */,
 				AB2F72BF2685A8B00088DECA /* Kingfisher in Frameworks */,
 				AB018DD2268756D000EB0EA9 /* Kanna in Frameworks */,
 			);
@@ -253,7 +255,7 @@
 			children = (
 				ABF75F3E25A19CD200544D29 /* User.swift */,
 				ABA732DE25A852D800B3D9AB /* Filter.swift */,
-				ABC3C7802593699A00E0C11B /* Manga.swift */,
+				ABC3C7802593699A00E0C11B /* Models.swift */,
 				ABEA1FE525A9B40B002966B9 /* Setting.swift */,
 				ABF313A425B1AB6600D47A2F /* Misc.swift */,
 			);
@@ -342,6 +344,7 @@
 				ABF45ADB25F3313D00ECB568 /* ReadingSettingView.swift */,
 				ABF45ADE25F3313D00ECB568 /* EhPandaView.swift */,
 				ABF45ADA25F3313D00ECB568 /* WebView.swift */,
+				AB6DE896268822390087C579 /* LogsView.swift */,
 			);
 			path = Setting;
 			sourceTree = "<group>";
@@ -366,9 +369,9 @@
 			packageProductDependencies = (
 				ABE0FA2E25D4CAEC00E52F18 /* SDWebImageSwiftUI */,
 				AB19D618266E5C6700BA752A /* TTProgressHUD */,
-				AB2B0F3A2684228400777944 /* SwiftyBeaver */,
 				AB2F72BE2685A8B00088DECA /* Kingfisher */,
 				AB018DD1268756D000EB0EA9 /* Kanna */,
+				AB6DE899268861790087C579 /* SwiftyBeaver */,
 			);
 			productName = EhPanda;
 			productReference = ABC3C7542593696C00E0C11B /* EhPanda.app */;
@@ -403,9 +406,9 @@
 			packageReferences = (
 				ABE0FA2D25D4CAEC00E52F18 /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */,
 				AB19D617266E5C6700BA752A /* XCRemoteSwiftPackageReference "TTProgressHUD" */,
-				AB2B0F392684228400777944 /* XCRemoteSwiftPackageReference "SwiftyBeaver" */,
 				AB2F72BD2685A8B00088DECA /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				AB018DD0268756D000EB0EA9 /* XCRemoteSwiftPackageReference "Kanna" */,
+				AB6DE898268861790087C579 /* XCRemoteSwiftPackageReference "SwiftyBeaver" */,
 			);
 			productRefGroup = ABC3C7552593696C00E0C11B /* Products */;
 			projectDirPath = "";
@@ -490,6 +493,7 @@
 				ABF45AF725F3313D00ECB568 /* SettingView.swift in Sources */,
 				ABF45AEA25F3313D00ECB568 /* Placeholder.swift in Sources */,
 				ABF45AE125F3313D00ECB568 /* Home.swift in Sources */,
+				AB6DE897268822390087C579 /* LogsView.swift in Sources */,
 				ABF45AF025F3313D00ECB568 /* CommentView.swift in Sources */,
 				ABF45AE325F3313D00ECB568 /* SlideMenu.swift in Sources */,
 				ABF45AE225F3313D00ECB568 /* AuthView.swift in Sources */,
@@ -503,7 +507,7 @@
 				ABF45AEE25F3313D00ECB568 /* ArchiveView.swift in Sources */,
 				ABF45AEC25F3313D00ECB568 /* ContentView.swift in Sources */,
 				ABEA1FE625A9B40B002966B9 /* Setting.swift in Sources */,
-				ABC3C7962593699B00E0C11B /* Manga.swift in Sources */,
+				ABC3C7962593699B00E0C11B /* Models.swift in Sources */,
 				ABC3C7872593699B00E0C11B /* EhPandaApp.swift in Sources */,
 				ABF313A525B1AB6600D47A2F /* Misc.swift in Sources */,
 				ABA732DF25A852D800B3D9AB /* Filter.swift in Sources */,
@@ -745,8 +749,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/tid-kijyun/Kanna.git";
 			requirement = {
-				kind = revision;
-				revision = 211beb276b7563eb9bb09474ce2d5f2176976232;
+				branch = master;
+				kind = branch;
 			};
 		};
 		AB19D617266E5C6700BA752A /* XCRemoteSwiftPackageReference "TTProgressHUD" */ = {
@@ -757,19 +761,19 @@
 				kind = branch;
 			};
 		};
-		AB2B0F392684228400777944 /* XCRemoteSwiftPackageReference "SwiftyBeaver" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/SwiftyBeaver/SwiftyBeaver.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.9.5;
-			};
-		};
 		AB2F72BD2685A8B00088DECA /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/tatsuz0u/Kingfisher";
 			requirement = {
 				branch = "Xcode-13-fix";
+				kind = branch;
+			};
+		};
+		AB6DE898268861790087C579 /* XCRemoteSwiftPackageReference "SwiftyBeaver" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/tatsuz0u/SwiftyBeaver";
+			requirement = {
+				branch = "expose-calendar";
 				kind = branch;
 			};
 		};
@@ -794,15 +798,15 @@
 			package = AB19D617266E5C6700BA752A /* XCRemoteSwiftPackageReference "TTProgressHUD" */;
 			productName = TTProgressHUD;
 		};
-		AB2B0F3A2684228400777944 /* SwiftyBeaver */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = AB2B0F392684228400777944 /* XCRemoteSwiftPackageReference "SwiftyBeaver" */;
-			productName = SwiftyBeaver;
-		};
 		AB2F72BE2685A8B00088DECA /* Kingfisher */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = AB2F72BD2685A8B00088DECA /* XCRemoteSwiftPackageReference "Kingfisher" */;
 			productName = Kingfisher;
+		};
+		AB6DE899268861790087C579 /* SwiftyBeaver */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AB6DE898268861790087C579 /* XCRemoteSwiftPackageReference "SwiftyBeaver" */;
+			productName = SwiftyBeaver;
 		};
 		ABE0FA2E25D4CAEC00E52F18 /* SDWebImageSwiftUI */ = {
 			isa = XCSwiftPackageProductDependency;

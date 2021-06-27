@@ -116,6 +116,11 @@
 "Website" = "网站";
 "Acknowledgement" = "致谢";
 
+// MARK: LogsView
+"Logs" = "日志";
+"Latest" = "最新";
+" records" = "条记录";
+
 // MARK: FilterView
 "Filters" = "筛选";
 "Basic" = "基础";

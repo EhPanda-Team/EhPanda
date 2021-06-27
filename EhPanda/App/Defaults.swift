@@ -19,39 +19,43 @@ struct Defaults {
         }
     }
     struct ImageSize {
-        static var rowScale: CGFloat = 8/11
-        static var avatarScale: CGFloat = 1/1
-        static var headerScale: CGFloat = 8/11
-        static var previewScale: CGFloat = 32/45
-        static var contentHScale: CGFloat = 7/10
+        static let rowScale: CGFloat = 8/11
+        static let avatarScale: CGFloat = 1/1
+        static let headerScale: CGFloat = 8/11
+        static let previewScale: CGFloat = 32/45
+        static let contentHScale: CGFloat = 7/10
 
-        static var rowW: CGFloat = rowH * rowScale
-        static var rowH: CGFloat = 110
-        static var avatarW: CGFloat = 100
-        static var avatarH: CGFloat = 100
-        static var headerW: CGFloat = headerH * headerScale
-        static var headerH: CGFloat = 150
-        static var previewW: CGFloat = previewH * previewScale
-        static var previewH: CGFloat = 200
+        static let rowW: CGFloat = rowH * rowScale
+        static let rowH: CGFloat = 110
+        static let avatarW: CGFloat = 100
+        static let avatarH: CGFloat = 100
+        static let headerW: CGFloat = headerH * headerScale
+        static let headerH: CGFloat = 150
+        static let previewW: CGFloat = previewH * previewScale
+        static let previewH: CGFloat = 200
     }
     struct Cookie {
-        static var null = "null"
-        static var expired = "expired"
-        static var mystery = "mystery"
+        static let null = "null"
+        static let expired = "expired"
+        static let mystery = "mystery"
 
-        static var igneous = "igneous"
-        static var ipbMemberId = "ipb_member_id"
-        static var ipbPassHash = "ipb_pass_hash"
+        static let igneous = "igneous"
+        static let ipbMemberId = "ipb_member_id"
+        static let ipbPassHash = "ipb_pass_hash"
     }
     struct DateFormat {
-        static var publish = "yyyy-MM-dd HH:mm"
-        static var torrent = "yyyy-MM-dd HH:mm"
-        static var comment = "dd MMMM yyyy, HH:mm"
+        static let publish = "yyyy-MM-dd HH:mm"
+        static let torrent = "yyyy-MM-dd HH:mm"
+        static let comment = "dd MMMM yyyy, HH:mm"
+    }
+    struct FilePath {
+        static let logs = "logs"
+        static let ehpandaLog = "EhPanda.log"
     }
     struct Response {
-        static var hathClientNotFound = "You must have a H@H client assigned to your account to use this feature."
-        static var hathClientNotOnline = "Your H@H client appears to be offline. Turn it on, then try again."
-        static var invalidResolution = "The requested gallery cannot be downloaded with the selected resolution."
+        static let hathClientNotFound = "You must have a H@H client assigned to your account to use this feature."
+        static let hathClientNotOnline = "Your H@H client appears to be offline. Turn it on, then try again."
+        static let invalidResolution = "The requested gallery cannot be downloaded with the selected resolution."
     }
     struct URL {
         // Domains

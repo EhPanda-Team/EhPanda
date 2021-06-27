@@ -116,6 +116,11 @@
 "Website" = "ウェブサイト";
 "Acknowledgement" = "謝辞";
 
+// MARK: LogsView
+"Logs" = "ログ";
+"Latest" = "最新";
+" records" = "件レコード";
+
 // MARK: FilterView
 "Filters" = "フィルター";
 "Basic" = "基本";

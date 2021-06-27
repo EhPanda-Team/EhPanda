@@ -5,7 +5,7 @@
         "package": "Kanna",
         "repositoryURL": "https://github.com/tid-kijyun/Kanna.git",
         "state": {
-          "branch": null,
+          "branch": "master",
           "revision": "211beb276b7563eb9bb09474ce2d5f2176976232",
           "version": null
         }
@@ -39,11 +39,11 @@
       },
       {
         "package": "SwiftyBeaver",
-        "repositoryURL": "https://github.com/SwiftyBeaver/SwiftyBeaver.git",
+        "repositoryURL": "https://github.com/tatsuz0u/SwiftyBeaver",
         "state": {
-          "branch": null,
-          "revision": "2c039501d6eeb4d4cd4aec4a8d884ad28862e044",
-          "version": "1.9.5"
+          "branch": "expose-calendar",
+          "revision": "e5d55d02b571aa9b8a833db519ca9d794380c7fc",
+          "version": null
         }
       },
       {

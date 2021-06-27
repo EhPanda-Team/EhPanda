@@ -78,13 +78,15 @@ private extension EhPandaApp {
         #endif
     }
     func configure(file: inout FileDestination) {
-        file.logFileAmount = 5
-        file.logFileURL = try? FileManager.default.url(
-            for: .documentDirectory, in: .userDomainMask,
-               appropriateFor: nil, create: true
-        ).appendingPathComponent("EhPanda.log")
+        file.calendar = Calendar(identifier: .gregorian)
+        file.logFileAmount = 10
+        file.logFileURL = logsDirectoryURL?
+            .appendingPathComponent(
+                Defaults.FilePath.ehpandaLog
+            )
     }
     func configure(console: inout ConsoleDestination) {
+        console.calendar = Calendar(identifier: .gregorian)
         #if DEBUG
         console.asynchronously = false
         #endif

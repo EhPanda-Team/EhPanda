@@ -198,6 +198,13 @@ func notificFeedback(style: UINotificationFeedbackGenerator.FeedbackType) {
 var animatedTransition: AnyTransition {
     AnyTransition.opacity.animation(.default)
 }
+var logsDirectoryURL: URL? {
+    try? FileManager.default.url(
+        for: .documentDirectory, in: .userDomainMask,
+           appropriateFor: nil, create: true
+    )
+    .appendingPathComponent(Defaults.FilePath.logs)
+}
 func clearPasteboard() {
     UIPasteboard.general.string = ""
 }
@@ -244,6 +251,28 @@ func dispatchMainSync(execute work: () -> Void) {
     } else {
         DispatchQueue.main.sync(execute: work)
     }
+}
+
+func presentActivityVC(items: [Any]) {
+    let activityVC = UIActivityViewController(
+        activityItems: items,
+        applicationActivities: nil
+    )
+    if isPad {
+        activityVC.popoverPresentationController?.sourceView = keyWindow
+        activityVC.popoverPresentationController?.sourceRect = CGRect(
+            x: screenW, y: 0,
+            width: 200, height: 200
+        )
+    }
+    activityVC.modalPresentationStyle = .overFullScreen
+    keyWindow?.rootViewController?
+        .present(
+            activityVC,
+            animated: true,
+            completion: nil
+        )
+    impactFeedback(style: .light)
 }
 
 // MARK: UserDefaults
