@@ -23,6 +23,13 @@ GitHub Readme: `README.{lang}.md`
 https://ehpanda.app: `Website-Translation.md`
 
 ## Installation
+
+#### With AltStore Installed
+[Install](altstore://install?url=https://github.com/tatsuz0u/EhPanda/releases/latest/download/EhPanda.ipa)
+
+[Add 3rd-party source(Testing, not available)](altstore://source?url=https://github.com/tatsuz0u/EhPanda/blob/main/Website-Translation.md)
+
+#### Manually
 1. Get the ipa file from [Releases](https://github.com/arakitatsuzou/EhPanda/releases).
 2. Use some software like [AltStore](https://altstore.io) to install the ipa file on your device.
 
