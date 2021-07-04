@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="19141.11" systemVersion="21A5248p" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithCloudKit="YES" userDefinedModelVersionIdentifier="">
+    <entity name="MangaDetailMO" representedClassName="MangaDetailMO" syncable="YES">
+        <attribute name="archiveURL" optional="YES" attributeType="String"/>
+        <attribute name="category" attributeType="String" defaultValueString=""/>
+        <attribute name="coverURL" attributeType="String" defaultValueString=""/>
+        <attribute name="gid" attributeType="String" defaultValueString=""/>
+        <attribute name="isFavored" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="jpnTitle" optional="YES" attributeType="String"/>
+        <attribute name="language" attributeType="String" defaultValueString=""/>
+        <attribute name="likeCount" attributeType="String" defaultValueString=""/>
+        <attribute name="pageCount" attributeType="String" defaultValueString=""/>
+        <attribute name="publishedDate" attributeType="Date" defaultDateTimeInterval="646585800" usesScalarValueType="NO"/>
+        <attribute name="rating" attributeType="Float" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="ratingCount" attributeType="String" defaultValueString=""/>
+        <attribute name="sizeCount" attributeType="String" defaultValueString=""/>
+        <attribute name="sizeType" attributeType="String" defaultValueString=""/>
+        <attribute name="title" attributeType="String" defaultValueString=""/>
+        <attribute name="torrentCount" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="uploader" attributeType="String" defaultValueString=""/>
+        <attribute name="userRating" optional="YES" attributeType="Float" defaultValueString="0.0" usesScalarValueType="YES"/>
+    </entity>
+    <entity name="MangaMO" representedClassName="MangaMO" syncable="YES">
+        <attribute name="category" attributeType="String" defaultValueString=""/>
+        <attribute name="coverURL" attributeType="String" defaultValueString=""/>
+        <attribute name="detailURL" attributeType="String" defaultValueString=""/>
+        <attribute name="gid" attributeType="String" defaultValueString=""/>
+        <attribute name="language" optional="YES" attributeType="String"/>
+        <attribute name="publishedDate" attributeType="Date" defaultDateTimeInterval="646585860" usesScalarValueType="NO"/>
+        <attribute name="rating" attributeType="Float" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="title" attributeType="String" defaultValueString=""/>
+        <attribute name="token" attributeType="String" defaultValueString=""/>
+        <attribute name="uploader" optional="YES" attributeType="String"/>
+    </entity>
+    <entity name="MangaStateMO" representedClassName="MangaStateMO" syncable="YES" codeGenerationType="class"/>
+    <elements>
+        <element name="MangaDetailMO" positionX="-54" positionY="9" width="128" height="299"/>
+        <element name="MangaMO" positionX="-63" positionY="-18" width="128" height="179"/>
+        <element name="MangaStateMO" positionX="-36" positionY="18" width="128" height="14"/>
+    </elements>
+</model>

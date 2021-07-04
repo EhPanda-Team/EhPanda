@@ -310,82 +310,81 @@ extension AppState {
 extension AppState {
     // MARK: CachedList
     struct CachedList {
-        @FileStorage(directory: .cachesDirectory, fileName: "cachedList.json")
-        var items: [String: Manga]?
-
         func hasCached(gid: String) -> Bool {
-            items?[gid] != nil
+            PersistenceController.checkExistence(entityName: "MangaMO", gid: gid)
         }
         mutating func cache(mangas: [Manga]) {
-            if items == nil {
-                items = Dictionary(uniqueKeysWithValues: mangas.map { ($0.id, $0) })
-                return
-            }
-
-            for manga in mangas {
-                if items?[manga.gid] == nil {
-                    items?[manga.gid] = manga
-                } else {
-                    items?[manga.gid]?.title = manga.title
-                    items?[manga.gid]?.rating = manga.rating
-                    items?[manga.gid]?.tags = manga.tags
-                    items?[manga.gid]?.language = manga.language
-                }
-            }
+            PersistenceController.add(items: mangas)
+//            if items == nil {
+//                items = Dictionary(uniqueKeysWithValues: mangas.map { ($0.id, $0) })
+//                return
+//            }
+//
+//            for manga in mangas {
+//                if items?[manga.gid] == nil {
+//                    items?[manga.gid] = manga
+//                } else {
+//                    items?[manga.gid]?.title = manga.title
+//                    items?[manga.gid]?.rating = manga.rating
+//                    items?[manga.gid]?.tags = manga.tags
+//                    items?[manga.gid]?.language = manga.language
+//                }
+//            }
         }
 
         mutating func insertDetail(gid: String, detail: MangaDetail) {
-            items?[gid]?.detail = detail
+            PersistenceController.update(gid: gid, detail: detail)
+//            items?[gid]?.detail = detail
         }
         mutating func insertArchive(gid: String, archive: MangaArchive) {
-            items?[gid]?.detail?.archive = archive
+//            items?[gid]?.detail?.archive = archive
         }
         mutating func insertTorrents(gid: String, torrents: [MangaTorrent]) {
-            items?[gid]?.detail?.torrents = torrents
+//            items?[gid]?.detail?.torrents = torrents
         }
         mutating func updateDetail(gid: String, detail: MangaDetail) {
-            items?[gid]?.detail?.isFavored = detail.isFavored
-            items?[gid]?.detail?.archiveURL = detail.archiveURL
-            items?[gid]?.detail?.detailTags = detail.detailTags
-            items?[gid]?.detail?.comments = detail.comments
-            items?[gid]?.detail?.jpnTitle = detail.jpnTitle
-            items?[gid]?.detail?.likeCount = detail.likeCount
-            items?[gid]?.detail?.pageCount = detail.pageCount
-            items?[gid]?.detail?.sizeCount = detail.sizeCount
-            items?[gid]?.detail?.sizeType = detail.sizeType
-            items?[gid]?.detail?.rating = detail.rating
-            items?[gid]?.detail?.ratingCount = detail.ratingCount
-            items?[gid]?.detail?.torrentCount = detail.torrentCount
+//            items?[gid]?.detail?.isFavored = detail.isFavored
+//            items?[gid]?.detail?.archiveURL = detail.archiveURL
+//            items?[gid]?.detail?.detailTags = detail.detailTags
+//            items?[gid]?.detail?.comments = detail.comments
+//            items?[gid]?.detail?.jpnTitle = detail.jpnTitle
+//            items?[gid]?.detail?.likeCount = detail.likeCount
+//            items?[gid]?.detail?.pageCount = detail.pageCount
+//            items?[gid]?.detail?.sizeCount = detail.sizeCount
+//            items?[gid]?.detail?.sizeType = detail.sizeType
+//            items?[gid]?.detail?.rating = detail.rating
+//            items?[gid]?.detail?.ratingCount = detail.ratingCount
+//            items?[gid]?.detail?.torrentCount = detail.torrentCount
         }
         mutating func insertAlterImages(gid: String, images: [MangaAlterData]) {
-            items?[gid]?.detail?.alterImages = images
+//            items?[gid]?.detail?.alterImages = images
         }
         mutating func updateComments(gid: String, comments: [MangaComment]) {
-            items?[gid]?.detail?.comments = comments
+//            items?[gid]?.detail?.comments = comments
         }
         mutating func insertContents(gid: String, pageNum: PageNumber, contents: [MangaContent]) {
-            items?[gid]?.detail?.currentPageNum = pageNum.current
-            items?[gid]?.detail?.pageNumMaximum = pageNum.maximum
-
-            if items?[gid]?.contents == nil {
-                items?[gid]?.contents = contents.sorted { $0.tag < $1.tag }
-            } else {
-                contents.forEach { content in
-                    if items?[gid]?.contents?.contains(content) == false {
-                        items?[gid]?.contents?.append(content)
-                    }
-                }
-                items?[gid]?.contents?.sort { $0.tag < $1.tag }
-            }
+//            items?[gid]?.detail?.currentPageNum = pageNum.current
+//            items?[gid]?.detail?.pageNumMaximum = pageNum.maximum
+//
+//            if items?[gid]?.contents == nil {
+//                items?[gid]?.contents = contents.sorted { $0.tag < $1.tag }
+//            } else {
+//                contents.forEach { content in
+//                    if items?[gid]?.contents?.contains(content) == false {
+//                        items?[gid]?.contents?.append(content)
+//                    }
+//                }
+//                items?[gid]?.contents?.sort { $0.tag < $1.tag }
+//            }
         }
         mutating func insertAspectBox(gid: String, box: [Int: CGFloat]) {
-            items?[gid]?.detail?.aspectBox = box
+//            items?[gid]?.detail?.aspectBox = box
         }
         mutating func insertReadingProgress(gid: String, progress: Int) {
-            items?[gid]?.detail?.readingProgress = progress
+//            items?[gid]?.detail?.readingProgress = progress
         }
         mutating func updateUserRating(gid: String, rating: Float) {
-            items?[gid]?.detail?.userRating = rating
+//            items?[gid]?.detail?.userRating = rating
         }
     }
 }
