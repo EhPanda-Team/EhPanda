@@ -99,7 +99,7 @@ struct Parser {
     }
 
     // MARK: Detail
-    static func parseMangaDetail(doc: HTMLDocument) throws -> MangaDetail {
+    static func parseMangaDetail(doc: HTMLDocument, gid: String) throws -> MangaDetail {
         func parseCoverURL(node: XMLElement?) throws -> String {
             guard let coverHTML = node?.at_xpath("//div [@id='gd1']")?.innerHTML,
             let rangeA = coverHTML.range(of: "url("),
@@ -293,6 +293,7 @@ struct Parser {
                 torrents: [],
                 comments: parseComments(doc: doc),
                 previews: previews,
+                gid: gid,
                 title: engTitle,
                 jpnTitle: jpnTitle,
                 rating: rating,

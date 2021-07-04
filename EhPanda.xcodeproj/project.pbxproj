@@ -25,7 +25,6 @@
 		AB47FDB525BC859E0007765D /* Weird-ipad-pro@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = AB47FDB225BC859E0007765D /* Weird-ipad-pro@2x.png */; };
 		AB47FDB625BC859E0007765D /* Weird-ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = AB47FDB325BC859E0007765D /* Weird-ipad.png */; };
 		AB4FD2C1268AB83300A95968 /* MangaDetailMO+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB4FD2C0268AB83300A95968 /* MangaDetailMO+CoreDataProperties.swift */; };
-		AB4FD2C5268B097F00A95968 /* MOProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB4FD2C4268B097F00A95968 /* MOProtocol.swift */; };
 		AB6DE897268822390087C579 /* LogsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB6DE896268822390087C579 /* LogsView.swift */; };
 		AB6DE89A268861790087C579 /* SwiftyBeaver in Frameworks */ = {isa = PBXBuildFile; productRef = AB6DE899268861790087C579 /* SwiftyBeaver */; };
 		AB7E6B3025D24FE00035CC68 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = AB7E6B3225D24FE00035CC68 /* InfoPlist.strings */; };
@@ -99,7 +98,6 @@
 		AB47FDB225BC859E0007765D /* Weird-ipad-pro@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Weird-ipad-pro@2x.png"; sourceTree = "<group>"; };
 		AB47FDB325BC859E0007765D /* Weird-ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Weird-ipad.png"; sourceTree = "<group>"; };
 		AB4FD2C0268AB83300A95968 /* MangaDetailMO+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MangaDetailMO+CoreDataProperties.swift"; sourceTree = "<group>"; };
-		AB4FD2C4268B097F00A95968 /* MOProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MOProtocol.swift; sourceTree = "<group>"; };
 		AB6DE896268822390087C579 /* LogsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogsView.swift; sourceTree = "<group>"; };
 		AB7E6B3125D24FE00035CC68 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		AB7E6B3425D24FE40035CC68 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
@@ -213,7 +211,6 @@
 			children = (
 				ABC681F126898D46007BBD69 /* Model.xcdatamodeld */,
 				ABCA93BD26918DE100A98BC6 /* Persistence.swift */,
-				AB4FD2C4268B097F00A95968 /* MOProtocol.swift */,
 				ABCA93BF2691925900A98BC6 /* MangaMO+CoreDataClass.swift */,
 				AB2CED63268AB6AE003130F7 /* MangaMO+CoreDataProperties.swift */,
 				ABCA93C12691929D00A98BC6 /* MangaDetailMO+CoreDataClass.swift */,
@@ -514,7 +511,6 @@
 				ABC3C7892593699B00E0C11B /* Defaults.swift in Sources */,
 				ABF45AF125F3313D00ECB568 /* AssociatedView.swift in Sources */,
 				ABF45ADF25F3313D00ECB568 /* FilterView.swift in Sources */,
-				AB4FD2C5268B097F00A95968 /* MOProtocol.swift in Sources */,
 				AB40CFDF25983EDF00D1DC9A /* FileHelper.swift in Sources */,
 				ABC3C78F2593699B00E0C11B /* ViewModifiers.swift in Sources */,
 				ABF45AF825F3313D00ECB568 /* EhPandaView.swift in Sources */,

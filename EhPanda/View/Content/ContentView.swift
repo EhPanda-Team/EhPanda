@@ -144,10 +144,14 @@ struct ContentView: View, StoreAccessor {
 private extension ContentView {
     // MARK: Properties
     var mangaDetail: MangaDetail? {
-        cachedList.items?[gid]?.detail
+        nil
+        // debugMark
+//        cachedList.items?[gid]?.detail
     }
     var mangaContents: [MangaContent]? {
-        cachedList.items?[gid]?.contents
+        []
+        // debugMark
+//        cachedList.items?[gid]?.contents
     }
     var moreLoadingFlag: Bool {
         contentInfo.moreMangaContentsLoading

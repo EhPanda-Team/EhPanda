@@ -101,7 +101,9 @@ private extension ArchiveView {
         $store.appState.detailInfo
     }
     var mangaDetail: MangaDetail? {
-        cachedList.items?[gid]?.detail
+        nil
+        // debugMark
+//        cachedList.items?[gid]?.detail
     }
     var archive: MangaArchive? {
         mangaDetail?.archive
@@ -331,7 +333,8 @@ struct ArchiveView_Previews: PreviewProvider {
         manga.detail?.archive = archive
         store.appState.settings.user = user
         store.appState.environment.isPreview = true
-        store.appState.cachedList.items?["mangaForTest"] = manga
+        // debugMark
+//        store.appState.cachedList.items?["mangaForTest"] = manga
 
         return ArchiveView(gid: "mangaForTest")
             .environmentObject(store)

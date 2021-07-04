@@ -68,7 +68,7 @@ enum AppAction {
     case fetchFavoritesItemsDone(carriedValue: FavoritesIndex, result: Result<(PageNumber, [Manga]), AppError>)
     case fetchMoreFavoritesItems(index: Int)
     case fetchMoreFavoritesItemsDone(carriedValue: FavoritesIndex, result: Result<(PageNumber, [Manga]), AppError>)
-    case fetchMangaDetail(gid: String)
+    case fetchMangaDetail(gid: String, detailURL: String)
     case fetchMangaDetailDone(result: Result<(Identity, MangaDetail, APIKey), AppError>)
     case fetchMangaArchive(gid: String)
     case fetchMangaArchiveDone(result: Result<(Identity, MangaArchive, CurrentGP?, CurrentCredits?), AppError>)

@@ -43,7 +43,9 @@ final class Store: ObservableObject {
         case .replaceUser(let user):
             appState.settings.user = user
         case .clearCachedList:
-            appState.cachedList.items = nil
+            break
+            // debugMark
+//            appState.cachedList.items = nil
         case .clearHistoryItems:
             appState.homeInfo.historyItems = nil
         case .initializeStates:
@@ -70,8 +72,10 @@ final class Store: ObservableObject {
         case .updateAppIconType(let iconType):
             appState.settings.setting?.appIconType = iconType
         case .updateHistoryItems(let gid):
-            let item = appState.cachedList.items?[gid]
-            appState.homeInfo.insertHistoryItem(manga: item)
+            // debugMark
+            break
+//            let item = appState.cachedList.items?[gid]
+//            appState.homeInfo.insertHistoryItem(manga: item)
         case .updateHistoryKeywords(let text):
             appState.homeInfo.insertHistoryKeyword(text: text)
         case .clearHistoryKeywords:
@@ -490,13 +494,12 @@ final class Store: ObservableObject {
                 appState.homeInfo.moreFavoritesLoading[carriedValue] = true
             }
 
-        case .fetchMangaDetail(let gid):
+        case .fetchMangaDetail(let gid, let detailURL):
             appState.detailInfo.mangaDetailLoadFailed = false
 
             if appState.detailInfo.mangaDetailLoading { break }
             appState.detailInfo.mangaDetailLoading = true
 
-            let detailURL = appState.cachedList.items?[gid]?.detailURL ?? ""
             appCommand = FetchMangaDetailCommand(gid: gid, detailURL: detailURL)
         case .fetchMangaDetailDone(let result):
             appState.detailInfo.mangaDetailLoading = false
@@ -514,9 +517,9 @@ final class Store: ObservableObject {
 
             if appState.detailInfo.mangaArchiveLoading { break }
             appState.detailInfo.mangaArchiveLoading = true
-
-            let archiveURL = appState.cachedList.items?[gid]?.detail?.archiveURL ?? ""
-            appCommand = FetchMangaArchiveCommand(gid: gid, archiveURL: archiveURL)
+            // debugMark
+//            let archiveURL = appState.cachedList.items?[gid]?.detail?.archiveURL ?? ""
+//            appCommand = FetchMangaArchiveCommand(gid: gid, archiveURL: archiveURL)
         case .fetchMangaArchiveDone(let result):
             appState.detailInfo.mangaArchiveLoading = false
 
@@ -541,9 +544,9 @@ final class Store: ObservableObject {
         case .fetchMangaArchiveFunds(let gid):
             if appState.detailInfo.mangaArchiveFundsLoading { break }
             appState.detailInfo.mangaArchiveFundsLoading = true
-
-            let detailURL = appState.cachedList.items?[gid]?.detailURL ?? ""
-            appCommand = FetchMangaArchiveFundsCommand(detailURL: detailURL)
+            // debugMark
+//            let detailURL = appState.cachedList.items?[gid]?.detailURL ?? ""
+//            appCommand = FetchMangaArchiveFundsCommand(detailURL: detailURL)
         case .fetchMangaArchiveFundsDone(let result):
             appState.detailInfo.mangaArchiveFundsLoading = false
 
@@ -561,9 +564,9 @@ final class Store: ObservableObject {
 
             if appState.detailInfo.mangaTorrentsLoading { break }
             appState.detailInfo.mangaTorrentsLoading = true
-
-            let token = appState.cachedList.items?[gid]?.token ?? ""
-            appCommand = FetchMangaTorrentsCommand(gid: gid, token: token)
+            // debugMark
+//            let token = appState.cachedList.items?[gid]?.token ?? ""
+//            appCommand = FetchMangaTorrentsCommand(gid: gid, token: token)
         case .fetchMangaTorrentsDone(let result):
             appState.detailInfo.mangaTorrentsLoading = false
 
@@ -655,9 +658,9 @@ final class Store: ObservableObject {
         case .fetchAlterImages(let gid):
             if appState.detailInfo.alterImagesLoading { break }
             appState.detailInfo.alterImagesLoading = true
-
-            let alterImagesURL = appState.cachedList.items?[gid]?.detail?.alterImagesURL ?? ""
-            appCommand = FetchAlterImagesCommand(gid: gid, alterImagesURL: alterImagesURL)
+            // debugMark
+//            let alterImagesURL = appState.cachedList.items?[gid]?.detail?.alterImagesURL ?? ""
+//            appCommand = FetchAlterImagesCommand(gid: gid, alterImagesURL: alterImagesURL)
 
         case .fetchAlterImagesDone(let result):
             appState.detailInfo.alterImagesLoading = false
@@ -669,9 +672,9 @@ final class Store: ObservableObject {
         case .updateMangaDetail(let gid):
             if appState.detailInfo.mangaDetailUpdating { break }
             appState.detailInfo.mangaDetailUpdating = true
-
-            let detailURL = appState.cachedList.items?[gid]?.detailURL ?? ""
-            appCommand = UpdateMangaDetailCommand(gid: gid, detailURL: detailURL)
+            // debugMark
+//            let detailURL = appState.cachedList.items?[gid]?.detailURL ?? ""
+//            appCommand = UpdateMangaDetailCommand(gid: gid, detailURL: detailURL)
         case .updateMangaDetailDone(let result):
             appState.detailInfo.mangaDetailUpdating = false
 
@@ -682,9 +685,9 @@ final class Store: ObservableObject {
         case .updateMangaComments(let gid):
             if appState.detailInfo.mangaCommentsUpdating { break }
             appState.detailInfo.mangaCommentsUpdating = true
-
-            let detailURL = appState.cachedList.items?[gid]?.detailURL ?? ""
-            appCommand = UpdateMangaCommentsCommand(gid: gid, detailURL: detailURL)
+            // debugMark
+//            let detailURL = appState.cachedList.items?[gid]?.detailURL ?? ""
+//            appCommand = UpdateMangaCommentsCommand(gid: gid, detailURL: detailURL)
         case .updateMangaCommentsDone(result: let result):
             appState.detailInfo.mangaCommentsUpdating = false
 
@@ -697,11 +700,11 @@ final class Store: ObservableObject {
 
             if appState.contentInfo.mangaContentsLoading { break }
             appState.contentInfo.mangaContentsLoading = true
-
-            appState.cachedList.items?[gid]?.detail?.currentPageNum = 0
-
-            let detailURL = appState.cachedList.items?[gid]?.detailURL ?? ""
-            appCommand = FetchMangaContentsCommand(gid: gid, detailURL: detailURL)
+            // debugMark
+//            appState.cachedList.items?[gid]?.detail?.currentPageNum = 0
+//
+//            let detailURL = appState.cachedList.items?[gid]?.detailURL ?? ""
+//            appCommand = FetchMangaContentsCommand(gid: gid, detailURL: detailURL)
         case .fetchMangaContentsDone(let result):
             appState.contentInfo.mangaContentsLoading = false
 
@@ -718,38 +721,38 @@ final class Store: ObservableObject {
 
         case .fetchMoreMangaContents(let gid):
             appState.contentInfo.moreMangaContentsLoadFailed = false
-
-            guard let manga = appState.cachedList.items?[gid],
-                  let detail = manga.detail
-            else { break }
-
-            let currentNum = detail.currentPageNum
-            let maximumNum = detail.pageNumMaximum
-            if currentNum + 1 >= maximumNum { break }
-
-            if appState.contentInfo.moreMangaContentsLoading { break }
-            appState.contentInfo.moreMangaContentsLoading = true
-
-            let detailURL = manga.detailURL
-            let pageNum = currentNum + 1
-            let pageCount = manga.contents?.count ?? 0
-            appCommand = FetchMoreMangaContentsCommand(
-                gid: gid,
-                detailURL: detailURL,
-                pageNum: pageNum,
-                pageCount: pageCount
-            )
-
-            if pageCount >= Int(detail.pageCount) ?? 0 {
-                SwiftyBeaver.error(
-                    "MangaContents overflow",
-                    context: [
-                        "detailURL": manga.detailURL,
-                        "pageLimit": detail.pageCount,
-                        "pageCurrentAmount": pageCount
-                    ]
-                )
-            }
+            // debugMark
+//            guard let manga = appState.cachedList.items?[gid],
+//                  let detail = manga.detail
+//            else { break }
+//
+//            let currentNum = detail.currentPageNum
+//            let maximumNum = detail.pageNumMaximum
+//            if currentNum + 1 >= maximumNum { break }
+//
+//            if appState.contentInfo.moreMangaContentsLoading { break }
+//            appState.contentInfo.moreMangaContentsLoading = true
+//
+//            let detailURL = manga.detailURL
+//            let pageNum = currentNum + 1
+//            let pageCount = manga.contents?.count ?? 0
+//            appCommand = FetchMoreMangaContentsCommand(
+//                gid: gid,
+//                detailURL: detailURL,
+//                pageNum: pageNum,
+//                pageCount: pageCount
+//            )
+//
+//            if pageCount >= Int(detail.pageCount) ?? 0 {
+//                SwiftyBeaver.error(
+//                    "MangaContents overflow",
+//                    context: [
+//                        "detailURL": manga.detailURL,
+//                        "pageLimit": detail.pageCount,
+//                        "pageCurrentAmount": pageCount
+//                    ]
+//                )
+//            }
         case .fetchMoreMangaContentsDone(let result):
             appState.contentInfo.moreMangaContentsLoading = false
 
@@ -766,8 +769,9 @@ final class Store: ObservableObject {
 
         // MARK: Account Ops
         case .addFavorite(let gid, let favIndex):
-            let token = appState.cachedList.items?[gid]?.token ?? ""
-            appCommand = AddFavoriteCommand(gid: gid, token: token, favIndex: favIndex)
+            break// debugMark
+//            let token = appState.cachedList.items?[gid]?.token ?? ""
+//            appCommand = AddFavoriteCommand(gid: gid, token: token, favIndex: favIndex)
         case .deleteFavorite(let gid):
             appCommand = DeleteFavoriteCommand(gid: gid)
 
@@ -776,9 +780,9 @@ final class Store: ObservableObject {
 
             if appState.detailInfo.downloadCommandSending { break }
             appState.detailInfo.downloadCommandSending = true
-
-            let archiveURL = appState.cachedList.items?[gid]?.detail?.archiveURL ?? ""
-            appCommand = SendDownloadCommand(gid: gid, archiveURL: archiveURL, resolution: resolution)
+            // debugMark
+//            let archiveURL = appState.cachedList.items?[gid]?.detail?.archiveURL ?? ""
+//            appCommand = SendDownloadCommand(gid: gid, archiveURL: archiveURL, resolution: resolution)
         case .sendDownloadCommandDone(let result):
             appState.detailInfo.downloadCommandSending = false
 
@@ -795,54 +799,58 @@ final class Store: ObservableObject {
             appState.detailInfo.downloadCommandResponse = result
 
         case .rate(let gid, let rating):
-            guard let apiuidString = appState.settings.user?.apiuid,
-                  let apikey = appState.settings.user?.apikey,
-                  let token = appState.cachedList.items?[gid]?.token,
-                  let apiuid = Int(apiuidString),
-                  let gid = Int(gid)
-            else { break }
-
-            appState.cachedList.updateUserRating(
-                gid: String(gid), rating: Float(rating) / 2.0
-            )
-
-            appCommand = RateCommand(
-                apiuid: apiuid,
-                apikey: apikey,
-                gid: gid,
-                token: token,
-                rating: rating
-            )
+            break // debugMark
+//            guard let apiuidString = appState.settings.user?.apiuid,
+//                  let apikey = appState.settings.user?.apikey,
+//                  let token = appState.cachedList.items?[gid]?.token,
+//                  let apiuid = Int(apiuidString),
+//                  let gid = Int(gid)
+//            else { break }
+//
+//            appState.cachedList.updateUserRating(
+//                gid: String(gid), rating: Float(rating) / 2.0
+//            )
+//
+//            appCommand = RateCommand(
+//                apiuid: apiuid,
+//                apikey: apikey,
+//                gid: gid,
+//                token: token,
+//                rating: rating
+//            )
 
         case .comment(let gid, let content):
-            let detailURL = appState.cachedList.items?[gid]?.detailURL ?? ""
-            appCommand = CommentCommand(gid: gid, content: content, detailURL: detailURL)
+            break // debugMark
+//            let detailURL = appState.cachedList.items?[gid]?.detailURL ?? ""
+//            appCommand = CommentCommand(gid: gid, content: content, detailURL: detailURL)
         case .editComment(let gid, let commentID, let content):
-            let detailURL = appState.cachedList.items?[gid]?.detailURL ?? ""
-
-            appCommand = EditCommentCommand(
-                gid: gid,
-                commentID: commentID,
-                content: content,
-                detailURL: detailURL
-            )
+            break // debugMark
+//            let detailURL = appState.cachedList.items?[gid]?.detailURL ?? ""
+//
+//            appCommand = EditCommentCommand(
+//                gid: gid,
+//                commentID: commentID,
+//                content: content,
+//                detailURL: detailURL
+//            )
         case .voteComment(let gid, let commentID, let vote):
-            guard let apiuidString = appState.settings.user?.apiuid,
-                  let apikey = appState.settings.user?.apikey,
-                  let token = appState.cachedList.items?[gid]?.token,
-                  let commentID = Int(commentID),
-                  let apiuid = Int(apiuidString),
-                  let gid = Int(gid)
-            else { break }
-
-            appCommand = VoteCommentCommand(
-                apiuid: apiuid,
-                apikey: apikey,
-                gid: gid,
-                token: token,
-                commentID: commentID,
-                commentVote: vote
-            )
+            break // debugMark
+//            guard let apiuidString = appState.settings.user?.apiuid,
+//                  let apikey = appState.settings.user?.apikey,
+//                  let token = appState.cachedList.items?[gid]?.token,
+//                  let commentID = Int(commentID),
+//                  let apiuid = Int(apiuidString),
+//                  let gid = Int(gid)
+//            else { break }
+//
+//            appCommand = VoteCommentCommand(
+//                apiuid: apiuid,
+//                apikey: apikey,
+//                gid: gid,
+//                token: token,
+//                commentID: commentID,
+//                commentVote: vote
+//            )
         }
 
         return (appState, appCommand)

@@ -14,7 +14,7 @@ extension MangaDetailMO: ManagedObjectProtocol {
         MangaDetail(
             isFavored: isFavored, alterImagesURL: nil,
             alterImages: [], torrents: [], comments: [],
-            previews: [], title: title, rating: rating,
+            previews: [], gid: gid, title: title, rating: rating,
             ratingCount: ratingCount, detailTags: [],
             category: Category(rawValue: category)!,
             language: Language(rawValue: language)!,
@@ -26,11 +26,13 @@ extension MangaDetailMO: ManagedObjectProtocol {
     }
 }
 extension MangaDetail: ManagedObjectConvertible {
+    @discardableResult
     func toManagedObject(in context: NSManagedObjectContext) -> MangaDetailMO {
         let mangaDetailMO = MangaDetailMO(context: context)
 //        let mangaDetailMO = MangaDetailMO.getOrCreateSingle(
 //            with: "gid", from: context
 //        )
+        mangaDetailMO.gid = gid
         mangaDetailMO.archiveURL = archiveURL
         mangaDetailMO.category = category.rawValue
         mangaDetailMO.coverURL = coverURL

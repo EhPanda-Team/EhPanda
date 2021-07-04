@@ -90,7 +90,7 @@ struct DetailView: View, StoreAccessor {
                 case .archive:
                     ArchiveView(gid: gid)
                 case .torrents:
-                    TorrentsView(gid: gid)
+                    TorrentsView(gid: gid, token: manga.token)
                 case .comment:
                     DraftCommentView(
                         content: commentContentBinding,
@@ -153,10 +153,16 @@ private extension DetailView {
         detailInfoBinding.commentContent
     }
     var manga: Manga {
-        cachedList.items?[gid] ?? Manga.empty
+        let mangaMO: MangaMO? = PersistenceController.fetch(
+            entityName: "MangaMO", gid: gid
+        )
+        return mangaMO?.toEntity() ?? Manga.empty
     }
     var mangaDetail: MangaDetail? {
-        cachedList.items?[gid]?.detail
+        let mangaDetailMO: MangaDetailMO? = PersistenceController.fetch(
+            entityName: "MangaDetailMO", gid: gid
+        )
+        return mangaDetailMO?.toEntity()
     }
 }
 
@@ -226,7 +232,7 @@ private extension DetailView {
         store.dispatch(.updateViewControllersCount)
     }
     func fetchMangaDetail() {
-        store.dispatch(.fetchMangaDetail(gid: gid))
+        store.dispatch(.fetchMangaDetail(gid: gid, detailURL: manga.detailURL))
     }
     func updateMangaDetail() {
         store.dispatch(.updateMangaDetail(gid: gid))

@@ -14,7 +14,9 @@ struct PersistenceController {
     let container: NSPersistentCloudKitContainer = {
         let container = NSPersistentCloudKitContainer(name: "Model")
         container.loadPersistentStores {
-            SwiftyBeaver.error($1 as Any)
+            if let error = $1 {
+                SwiftyBeaver.error(error as Any)
+            }
         }
         return container
     }()
@@ -55,7 +57,7 @@ struct PersistenceController {
 //                storedMangaMO.tags = item.tags
                 storedMangaMO.language = item.language?.rawValue
             } else {
-                _ = item.toManagedObject(in: shared.container.viewContext)
+                item.toManagedObject(in: shared.container.viewContext)
             }
         }
         saveContext()
@@ -77,7 +79,22 @@ struct PersistenceController {
             storedMangaDetailMO.rating = detail.rating
             storedMangaDetailMO.ratingCount = detail.ratingCount
             storedMangaDetailMO.torrentCount = Int64(detail.torrentCount)
+        } else {
+            detail.toManagedObject(in: shared.container.viewContext)
         }
         saveContext()
     }
+}
+
+// MARK: Protocol Definition
+protocol ManagedObjectProtocol {
+    associatedtype Entity
+    func toEntity() -> Entity
+}
+
+protocol ManagedObjectConvertible {
+    associatedtype ManagedObject: NSManagedObject, ManagedObjectProtocol
+
+    @discardableResult
+    func toManagedObject(in context: NSManagedObjectContext) -> ManagedObject
 }

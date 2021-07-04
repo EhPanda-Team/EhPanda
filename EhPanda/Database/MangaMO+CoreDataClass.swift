@@ -23,11 +23,13 @@ extension MangaMO: ManagedObjectProtocol {
     }
 }
 extension Manga: ManagedObjectConvertible {
+    @discardableResult
     func toManagedObject(in context: NSManagedObjectContext) -> MangaMO {
         let mangaMO = MangaMO(context: context)
 //        let mangaMO = MangaMO.getOrCreateSingle(
 //            with: gid, from: context
 //        )
+        mangaMO.gid = gid
         mangaMO.category = category.rawValue
         mangaMO.coverURL = coverURL
         mangaMO.detailURL = detailURL

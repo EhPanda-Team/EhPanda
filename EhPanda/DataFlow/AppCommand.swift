@@ -292,7 +292,7 @@ struct FetchMangaDetailCommand: AppCommand {
 
     func execute(in store: Store) {
         let token = SubscriptionToken()
-        MangaDetailRequest(detailURL: detailURL)
+        MangaDetailRequest(gid: gid, detailURL: detailURL)
             .publisher
             .receive(on: DispatchQueue.main)
             .sink { completion in
@@ -341,11 +341,12 @@ struct FetchMangaArchiveCommand: AppCommand {
 }
 
 struct FetchMangaArchiveFundsCommand: AppCommand {
+    let gid: String
     let detailURL: String
 
     func execute(in store: Store) {
         let sToken = SubscriptionToken()
-        MangaArchiveFundsRequest(detailURL: detailURL)
+        MangaArchiveFundsRequest(gid: gid, detailURL: detailURL)
             .publisher
             .receive(on: DispatchQueue.main)
             .sink { completion in
@@ -460,7 +461,7 @@ struct UpdateMangaDetailCommand: AppCommand {
 
     func execute(in store: Store) {
         let token = SubscriptionToken()
-        MangaDetailRequest(detailURL: detailURL)
+        MangaDetailRequest(gid: gid, detailURL: detailURL)
             .publisher
             .receive(on: DispatchQueue.main)
             .sink { completion in

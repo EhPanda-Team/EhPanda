@@ -68,6 +68,7 @@ struct MangaDetail: Codable {
         torrents: [],
         comments: [],
         previews: [],
+        gid: "",
         title: "",
         rating: 0.0,
         ratingCount: "",
@@ -98,6 +99,7 @@ struct MangaDetail: Codable {
     var comments: [MangaComment]
     let previews: [MangaPreview]
 
+    let gid: String
     var title: String
     var jpnTitle: String?
     var rating: Float

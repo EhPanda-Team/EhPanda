@@ -15,10 +15,15 @@ struct TorrentsView: View, StoreAccessor {
     @State private var hudVisible = false
     @State private var hudConfig = TTProgressHUDConfig()
 
-    private var gid: String
+    @State private var loadingFlag = false
+    @State private var torrents = [MangaTorrent]()
 
-    init(gid: String) {
+    private let gid: String
+    private let token: String
+
+    init(gid: String, token: String) {
         self.gid = gid
+        self.token = token
     }
 
     var body: some View {
@@ -34,7 +39,7 @@ struct TorrentsView: View, StoreAccessor {
                         }
                         TTProgressHUD($hudVisible, config: hudConfig)
                     }
-                } else if detailInfo.mangaTorrentsLoading {
+                } else if loadingFlag {
                     LoadingView()
                 } else {
                     NetworkErrorView(retryAction: fetchMangaTorrents)
@@ -47,13 +52,6 @@ struct TorrentsView: View, StoreAccessor {
 }
 
 private extension TorrentsView {
-    var mangaDetail: MangaDetail? {
-        cachedList.items?[gid]?.detail
-    }
-    var torrents: [MangaTorrent] {
-        mangaDetail?.torrents ?? []
-    }
-
     func onTorrentRowTap(magnet: String) {
         saveToPasteboard(value: magnet)
         showCopiedHUD()
@@ -71,9 +69,21 @@ private extension TorrentsView {
     }
 
     func fetchMangaTorrents() {
-        DispatchQueue.main.async {
-            store.dispatch(.fetchMangaTorrents(gid: gid))
-        }
+        if loadingFlag { return }
+        loadingFlag = true
+
+        let sToken = SubscriptionToken()
+        MangaTorrentsRequest(gid: gid, token: token)
+            .publisher
+            .receive(on: DispatchQueue.main)
+            .sink { _ in
+                loadingFlag = false
+                sToken.unseal()
+            } receiveValue: {
+                torrents = $0
+                loadingFlag = false
+            }
+            .seal(in: sToken)
     }
 }
 

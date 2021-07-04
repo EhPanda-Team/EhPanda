@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="19141.11" systemVersion="21A5248p" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithCloudKit="YES" userDefinedModelVersionIdentifier="">
-    <entity name="MangaDetailMO" representedClassName="MangaDetailMO" syncable="YES">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="19141.11" systemVersion="21A5268h" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithCloudKit="YES" userDefinedModelVersionIdentifier="">
+    <entity name="MangaDetailMO" representedClassName=".MangaDetailMO" syncable="YES">
         <attribute name="archiveURL" optional="YES" attributeType="String"/>
         <attribute name="category" attributeType="String" defaultValueString=""/>
         <attribute name="coverURL" attributeType="String" defaultValueString=""/>
@@ -20,7 +20,7 @@
         <attribute name="uploader" attributeType="String" defaultValueString=""/>
         <attribute name="userRating" optional="YES" attributeType="Float" defaultValueString="0.0" usesScalarValueType="YES"/>
     </entity>
-    <entity name="MangaMO" representedClassName="MangaMO" syncable="YES">
+    <entity name="MangaMO" representedClassName=".MangaMO" syncable="YES">
         <attribute name="category" attributeType="String" defaultValueString=""/>
         <attribute name="coverURL" attributeType="String" defaultValueString=""/>
         <attribute name="detailURL" attributeType="String" defaultValueString=""/>
@@ -32,10 +32,10 @@
         <attribute name="token" attributeType="String" defaultValueString=""/>
         <attribute name="uploader" optional="YES" attributeType="String"/>
     </entity>
-    <entity name="MangaStateMO" representedClassName="MangaStateMO" syncable="YES" codeGenerationType="class"/>
+    <entity name="MangaStateMO" representedClassName=".MangaStateMO" syncable="YES" codeGenerationType="class"/>
     <elements>
         <element name="MangaDetailMO" positionX="-54" positionY="9" width="128" height="299"/>
         <element name="MangaMO" positionX="-63" positionY="-18" width="128" height="179"/>
-        <element name="MangaStateMO" positionX="-36" positionY="18" width="128" height="14"/>
+        <element name="MangaStateMO" positionX="-36" positionY="18" width="128" height="29"/>
     </elements>
 </model>

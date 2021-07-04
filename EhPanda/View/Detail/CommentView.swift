@@ -122,7 +122,9 @@ struct CommentView: View, StoreAccessor {
 // MARK: Private Extension
 private extension CommentView {
     var comments: [MangaComment] {
-        store.appState.cachedList.items?[gid]?.detail?.comments ?? []
+        []
+        // debugMark
+//        store.appState.cachedList.items?[gid]?.detail?.comments ?? []
     }
 
     var environmentBinding: Binding<AppState.Environment> {
