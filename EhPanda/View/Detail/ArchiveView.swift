@@ -22,8 +22,7 @@ struct ArchiveView: View, StoreAccessor, PersistenceAccessor {
     @State private var hudVisible = false
     @State private var hudConfig = TTProgressHUDConfig()
     private var loadingHUDConfig = TTProgressHUDConfig(
-        type: .loading,
-        title: "Communicating...".localized()
+        type: .loading, title: "Communicating...".localized()
     )
     private let gridItems = [
         GridItem(.adaptive(minimum: 150, maximum: 200))

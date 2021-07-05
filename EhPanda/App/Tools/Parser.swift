@@ -857,7 +857,7 @@ extension Parser {
     }
 
     // MARK: DownloadCmdResp
-    static func parseDownloadCommandResponse(doc: HTMLDocument) throws -> Resp {
+    static func parseDownloadCommandResponse(doc: HTMLDocument) throws -> String {
         guard let dbNode = doc.at_xpath("//div [@id='db']")
         else { throw AppError.parseFailed }
 

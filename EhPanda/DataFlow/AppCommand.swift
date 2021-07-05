@@ -301,7 +301,7 @@ struct FetchMangaDetailCommand: AppCommand {
                 }
                 token.unseal()
             } receiveValue: { detail in
-                store.dispatch(.fetchMangaDetailDone(result: .success((gid, detail.0, detail.1))))
+                store.dispatch(.fetchMangaDetailDone(result: .success((detail.0, detail.1))))
                 if detail.0.previews.isEmpty == true {
                     store.dispatch(.fetchAlterImages(gid: gid))
                 }
@@ -415,7 +415,7 @@ struct UpdateMangaDetailCommand: AppCommand {
                 }
                 token.unseal()
             } receiveValue: { detail in
-                store.dispatch(.updateMangaDetailDone(result: .success((gid, detail.0))))
+                store.dispatch(.updateMangaDetailDone(result: .success(detail.0)))
             }
             .seal(in: token)
     }

@@ -552,7 +552,7 @@ struct SendDownloadCommandRequest {
     let archiveURL: String
     let resolution: String
 
-    var publisher: AnyPublisher<Resp?, AppError> {
+    var publisher: AnyPublisher<String?, AppError> {
         let parameters: [String: String] = [
             "hathdl_xres": resolution
         ]

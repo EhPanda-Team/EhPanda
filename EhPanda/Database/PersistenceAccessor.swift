@@ -11,15 +11,9 @@ protocol PersistenceAccessor {
 
 extension PersistenceAccessor {
     var manga: Manga {
-        let mangaMO: MangaMO? = PersistenceController.fetch(
-            entityName: "MangaMO", gid: gid
-        )
-        return mangaMO?.toEntity() ?? Manga.empty
+        PersistenceController.fetchMangaNonNil(gid: gid)
     }
     var mangaDetail: MangaDetail? {
-        let mangaDetailMO: MangaDetailMO? = PersistenceController.fetch(
-            entityName: "MangaDetailMO", gid: gid
-        )
-        return mangaDetailMO?.toEntity()
+        PersistenceController.fetchMangaDetail(gid: gid)
     }
 }

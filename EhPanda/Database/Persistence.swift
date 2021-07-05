@@ -47,25 +47,25 @@ struct PersistenceController {
         return try? shared.container.viewContext.fetch(request).first
     }
 
-    static func add(items: [Manga]) {
-        for item in items {
+    static func add(mangas: [Manga]) {
+        for manga in mangas {
             if let storedMangaMO: MangaMO =
-                fetch(entityName: "MangaMO", gid: item.gid)
+                fetch(entityName: "MangaMO", gid: manga.gid)
             {
-                storedMangaMO.title = item.title
-                storedMangaMO.rating = item.rating
-//                storedMangaMO.tags = item.tags
-                storedMangaMO.language = item.language?.rawValue
+                storedMangaMO.title = manga.title
+                storedMangaMO.rating = manga.rating
+//                storedMangaMO.tags = manga.tags
+                storedMangaMO.language = manga.language?.rawValue
             } else {
-                item.toManagedObject(in: shared.container.viewContext)
+                manga.toManagedObject(in: shared.container.viewContext)
             }
         }
         saveContext()
     }
 
-    static func update(gid: String, detail: MangaDetail) {
+    static func add(detail: MangaDetail) {
         if let storedMangaDetailMO: MangaDetailMO =
-            fetch(entityName: "MangaDetailMO", gid: gid)
+            fetch(entityName: "MangaDetailMO", gid: detail.gid)
         {
             storedMangaDetailMO.isFavored = detail.isFavored
             storedMangaDetailMO.archiveURL = detail.archiveURL
@@ -83,6 +83,24 @@ struct PersistenceController {
             detail.toManagedObject(in: shared.container.viewContext)
         }
         saveContext()
+    }
+}
+
+extension PersistenceController {
+    static func fetchManga(gid: String) -> Manga? {
+        let mangaMO: MangaMO? = PersistenceController.fetch(
+            entityName: "MangaMO", gid: gid
+        )
+        return mangaMO?.toEntity()
+    }
+    static func fetchMangaNonNil(gid: String) -> Manga {
+        fetchManga(gid: gid) ?? Manga.empty
+    }
+    static func fetchMangaDetail(gid: String) -> MangaDetail? {
+        let mangaDetailMO: MangaDetailMO? = PersistenceController.fetch(
+            entityName: "MangaDetailMO", gid: gid
+        )
+        return mangaDetailMO?.toEntity()
     }
 }
 

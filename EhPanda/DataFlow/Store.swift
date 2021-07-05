@@ -502,8 +502,8 @@ final class Store: ObservableObject {
 
             switch result {
             case .success(let detail):
-                appState.settings.user?.apikey = detail.2
-                appState.cachedList.insertDetail(gid: detail.0, detail: detail.1)
+                appState.settings.user?.apikey = detail.1
+                appState.cachedList.cache(detail: detail.0)
             case .failure:
                 appState.detailInfo.mangaDetailLoadFailed = true
             }
@@ -511,9 +511,8 @@ final class Store: ObservableObject {
         case .fetchMangaArchiveFunds(let gid):
             if appState.detailInfo.mangaArchiveFundsLoading { break }
             appState.detailInfo.mangaArchiveFundsLoading = true
-            // debugMark
-//            let detailURL = appState.cachedList.items?[gid]?.detailURL ?? ""
-//            appCommand = FetchMangaArchiveFundsCommand(detailURL: detailURL)
+            let detailURL = PersistenceController.fetchManga(gid: gid)?.detailURL ?? ""
+            appCommand = FetchMangaArchiveFundsCommand(gid: gid, detailURL: detailURL)
         case .fetchMangaArchiveFundsDone(let result):
             appState.detailInfo.mangaArchiveFundsLoading = false
 
@@ -608,7 +607,7 @@ final class Store: ObservableObject {
             if appState.detailInfo.alterImagesLoading { break }
             appState.detailInfo.alterImagesLoading = true
             // debugMark
-//            let alterImagesURL = appState.cachedList.items?[gid]?.detail?.alterImagesURL ?? ""
+//            let alterImagesURL = PersistenceController.fetchManga(gid: gid)?.detail?.alterImagesURL ?? ""
 //            appCommand = FetchAlterImagesCommand(gid: gid, alterImagesURL: alterImagesURL)
 
         case .fetchAlterImagesDone(let result):
@@ -621,21 +620,21 @@ final class Store: ObservableObject {
         case .updateMangaDetail(let gid):
             if appState.detailInfo.mangaDetailUpdating { break }
             appState.detailInfo.mangaDetailUpdating = true
-            // debugMark
-//            let detailURL = appState.cachedList.items?[gid]?.detailURL ?? ""
-//            appCommand = UpdateMangaDetailCommand(gid: gid, detailURL: detailURL)
+
+            let detailURL = PersistenceController.fetchManga(gid: gid)?.detailURL ?? ""
+            appCommand = UpdateMangaDetailCommand(gid: gid, detailURL: detailURL)
         case .updateMangaDetailDone(let result):
             appState.detailInfo.mangaDetailUpdating = false
 
             if case .success(let detail) = result {
-                appState.cachedList.updateDetail(gid: detail.0, detail: detail.1)
+                appState.cachedList.cache(detail: detail)
             }
 
         case .updateMangaComments(let gid):
             if appState.detailInfo.mangaCommentsUpdating { break }
             appState.detailInfo.mangaCommentsUpdating = true
             // debugMark
-//            let detailURL = appState.cachedList.items?[gid]?.detailURL ?? ""
+//            let detailURL = PersistenceController.fetchManga(gid: gid)?.detailURL ?? ""
 //            appCommand = UpdateMangaCommentsCommand(gid: gid, detailURL: detailURL)
         case .updateMangaCommentsDone(result: let result):
             appState.detailInfo.mangaCommentsUpdating = false
@@ -650,9 +649,9 @@ final class Store: ObservableObject {
             if appState.contentInfo.mangaContentsLoading { break }
             appState.contentInfo.mangaContentsLoading = true
             // debugMark
-//            appState.cachedList.items?[gid]?.detail?.currentPageNum = 0
+//            PersistenceController.fetchManga(gid: gid)?.detail?.currentPageNum = 0
 //
-//            let detailURL = appState.cachedList.items?[gid]?.detailURL ?? ""
+//            let detailURL = PersistenceController.fetchManga(gid: gid)?.detailURL ?? ""
 //            appCommand = FetchMangaContentsCommand(gid: gid, detailURL: detailURL)
         case .fetchMangaContentsDone(let result):
             appState.contentInfo.mangaContentsLoading = false
@@ -718,65 +717,60 @@ final class Store: ObservableObject {
 
         // MARK: Account Ops
         case .addFavorite(let gid, let favIndex):
-            break// debugMark
-//            let token = appState.cachedList.items?[gid]?.token ?? ""
-//            appCommand = AddFavoriteCommand(gid: gid, token: token, favIndex: favIndex)
+            let token = PersistenceController.fetchManga(gid: gid)?.token ?? ""
+            appCommand = AddFavoriteCommand(gid: gid, token: token, favIndex: favIndex)
         case .deleteFavorite(let gid):
             appCommand = DeleteFavoriteCommand(gid: gid)
 
         case .rate(let gid, let rating):
-            break // debugMark
-//            guard let apiuidString = appState.settings.user?.apiuid,
-//                  let apikey = appState.settings.user?.apikey,
-//                  let token = appState.cachedList.items?[gid]?.token,
-//                  let apiuid = Int(apiuidString),
-//                  let gid = Int(gid)
-//            else { break }
-//
-//            appState.cachedList.updateUserRating(
-//                gid: String(gid), rating: Float(rating) / 2.0
-//            )
-//
-//            appCommand = RateCommand(
-//                apiuid: apiuid,
-//                apikey: apikey,
-//                gid: gid,
-//                token: token,
-//                rating: rating
-//            )
+            guard let apiuidString = appState.settings.user?.apiuid,
+                  let apikey = appState.settings.user?.apikey,
+                  let token = PersistenceController.fetchManga(gid: gid)?.token,
+                  let apiuid = Int(apiuidString),
+                  let gid = Int(gid)
+            else { break }
+
+            appState.cachedList.updateUserRating(
+                gid: String(gid), rating: Float(rating) / 2.0
+            )
+
+            appCommand = RateCommand(
+                apiuid: apiuid,
+                apikey: apikey,
+                gid: gid,
+                token: token,
+                rating: rating
+            )
 
         case .comment(let gid, let content):
-            break // debugMark
-//            let detailURL = appState.cachedList.items?[gid]?.detailURL ?? ""
-//            appCommand = CommentCommand(gid: gid, content: content, detailURL: detailURL)
+            let detailURL = PersistenceController.fetchManga(gid: gid)?.detailURL ?? ""
+            appCommand = CommentCommand(gid: gid, content: content, detailURL: detailURL)
         case .editComment(let gid, let commentID, let content):
-            break // debugMark
-//            let detailURL = appState.cachedList.items?[gid]?.detailURL ?? ""
-//
-//            appCommand = EditCommentCommand(
-//                gid: gid,
-//                commentID: commentID,
-//                content: content,
-//                detailURL: detailURL
-//            )
+            let detailURL = PersistenceController.fetchManga(gid: gid)?.detailURL ?? ""
+
+            appCommand = EditCommentCommand(
+                gid: gid,
+                commentID: commentID,
+                content: content,
+                detailURL: detailURL
+            )
         case .voteComment(let gid, let commentID, let vote):
-            break // debugMark
-//            guard let apiuidString = appState.settings.user?.apiuid,
-//                  let apikey = appState.settings.user?.apikey,
-//                  let token = appState.cachedList.items?[gid]?.token,
-//                  let commentID = Int(commentID),
-//                  let apiuid = Int(apiuidString),
-//                  let gid = Int(gid)
-//            else { break }
-//
-//            appCommand = VoteCommentCommand(
-//                apiuid: apiuid,
-//                apikey: apikey,
-//                gid: gid,
-//                token: token,
-//                commentID: commentID,
-//                commentVote: vote
-//            )
+            guard let apiuidString = appState.settings.user?.apiuid,
+                  let apikey = appState.settings.user?.apikey,
+                  let token = PersistenceController.fetchManga(gid: gid)?.token,
+                  let commentID = Int(commentID),
+                  let apiuid = Int(apiuidString),
+                  let gid = Int(gid)
+            else { break }
+
+            appCommand = VoteCommentCommand(
+                apiuid: apiuid,
+                apikey: apikey,
+                gid: gid,
+                token: token,
+                commentID: commentID,
+                commentVote: vote
+            )
         }
 
         return (appState, appCommand)

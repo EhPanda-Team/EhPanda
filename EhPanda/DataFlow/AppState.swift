@@ -305,25 +305,10 @@ extension AppState {
             PersistenceController.checkExistence(entityName: "MangaMO", gid: gid)
         }
         mutating func cache(mangas: [Manga]) {
-            PersistenceController.add(items: mangas)
+            PersistenceController.add(mangas: mangas)
         }
-
-        mutating func insertDetail(gid: String, detail: MangaDetail) {
-            PersistenceController.update(gid: gid, detail: detail)
-        }
-        mutating func updateDetail(gid: String, detail: MangaDetail) {
-//            items?[gid]?.detail?.isFavored = detail.isFavored
-//            items?[gid]?.detail?.archiveURL = detail.archiveURL
-//            items?[gid]?.detail?.detailTags = detail.detailTags
-//            items?[gid]?.detail?.comments = detail.comments
-//            items?[gid]?.detail?.jpnTitle = detail.jpnTitle
-//            items?[gid]?.detail?.likeCount = detail.likeCount
-//            items?[gid]?.detail?.pageCount = detail.pageCount
-//            items?[gid]?.detail?.sizeCount = detail.sizeCount
-//            items?[gid]?.detail?.sizeType = detail.sizeType
-//            items?[gid]?.detail?.rating = detail.rating
-//            items?[gid]?.detail?.ratingCount = detail.ratingCount
-//            items?[gid]?.detail?.torrentCount = detail.torrentCount
+        mutating func cache(detail: MangaDetail) {
+            PersistenceController.add(detail: detail)
         }
         mutating func insertAlterImages(gid: String, images: [MangaAlterData]) {
 //            items?[gid]?.detail?.alterImages = images

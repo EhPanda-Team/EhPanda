@@ -15,7 +15,6 @@ typealias Identity = String
 typealias APIKey = String
 typealias CurrentGP = String
 typealias CurrentCredits = String
-typealias Resp = String
 
 struct PageNumber {
     var current = 0
