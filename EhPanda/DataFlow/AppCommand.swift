@@ -310,36 +310,6 @@ struct FetchMangaDetailCommand: AppCommand {
     }
 }
 
-struct FetchMangaArchiveCommand: AppCommand {
-    let gid: String
-    let archiveURL: String
-
-    func execute(in store: Store) {
-        let sToken = SubscriptionToken()
-        MangaArchiveRequest(archiveURL: archiveURL)
-            .publisher
-            .receive(on: DispatchQueue.main)
-            .sink { completion in
-                if case .failure(let error) = completion {
-                    store.dispatch(.fetchMangaArchiveDone(result: .failure(error)))
-                }
-                sToken.unseal()
-            } receiveValue: { archive in
-                if let arc = archive.0 {
-                    store.dispatch(.fetchMangaArchiveDone(result: .success((gid, arc, archive.1, archive.2))))
-                    if archive.1 == nil
-                        || archive.2 == nil
-                    {
-                        store.dispatch(.fetchMangaArchiveFunds(gid: gid))
-                    }
-                } else {
-                    store.dispatch(.fetchMangaArchiveDone(result: .failure(.networkingFailed)))
-                }
-            }
-            .seal(in: sToken)
-    }
-}
-
 struct FetchMangaArchiveFundsCommand: AppCommand {
     let gid: String
     let detailURL: String
@@ -359,31 +329,6 @@ struct FetchMangaArchiveFundsCommand: AppCommand {
                     store.dispatch(.fetchMangaArchiveFundsDone(result: .success(funds)))
                 } else {
                     store.dispatch(.fetchMangaArchiveFundsDone(result: .failure(.networkingFailed)))
-                }
-            }
-            .seal(in: sToken)
-    }
-}
-
-struct FetchMangaTorrentsCommand: AppCommand {
-    let gid: String
-    let token: String
-
-    func execute(in store: Store) {
-        let sToken = SubscriptionToken()
-        MangaTorrentsRequest(gid: gid, token: token)
-            .publisher
-            .receive(on: DispatchQueue.main)
-            .sink { completion in
-                if case .failure(let error) = completion {
-                    store.dispatch(.fetchMangaTorrentsDone(result: .failure(error)))
-                }
-                sToken.unseal()
-            } receiveValue: { torrents in
-                if !torrents.isEmpty {
-                    store.dispatch(.fetchMangaTorrentsDone(result: .success((gid, torrents))))
-                } else {
-                    store.dispatch(.fetchMangaTorrentsDone(result: .failure(.networkingFailed)))
                 }
             }
             .seal(in: sToken)
@@ -600,32 +545,6 @@ struct DeleteFavoriteCommand: AppCommand {
                 sToken.unseal()
             } receiveValue: { _ in }
             .seal(in: sToken)
-    }
-}
-
-struct SendDownloadCommand: AppCommand {
-    let gid: String
-    let archiveURL: String
-    let resolution: String
-
-    func execute(in store: Store) {
-        let token = SubscriptionToken()
-        SendDownloadCommandRequest(
-            archiveURL: archiveURL,
-            resolution: resolution
-        )
-        .publisher
-        .receive(on: DispatchQueue.main)
-        .sink { completion in
-            if case .failure = completion {
-                store.dispatch(.sendDownloadCommandDone(result: nil))
-            }
-            token.unseal()
-        } receiveValue: { resp in
-            store.dispatch(.sendDownloadCommandDone(result: resp))
-            store.dispatch(.fetchMangaArchiveFunds(gid: gid))
-        }
-        .seal(in: token)
     }
 }
 

@@ -12,10 +12,10 @@ public class MangaDetailMO: NSManagedObject {}
 extension MangaDetailMO: ManagedObjectProtocol {
     func toEntity() -> MangaDetail {
         MangaDetail(
-            isFavored: isFavored, alterImagesURL: nil,
-            alterImages: [], torrents: [], comments: [],
-            previews: [], gid: gid, title: title, rating: rating,
-            ratingCount: ratingCount, detailTags: [],
+            isFavored: isFavored, archiveURL: archiveURL,
+            alterImagesURL: nil, alterImages: [], torrents: [],
+            comments: [], previews: [], gid: gid, title: title,
+            rating: rating, ratingCount: ratingCount, detailTags: [],
             category: Category(rawValue: category)!,
             language: Language(rawValue: language)!,
             uploader: uploader, publishedDate: publishedDate,

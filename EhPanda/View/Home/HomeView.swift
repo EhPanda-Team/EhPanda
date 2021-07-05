@@ -441,13 +441,15 @@ private extension HomeView {
             return false
         }
 
-        if setting?.showNewDawnGreeting == true {
-            if let greeting = user?.greeting {
-                if verifyDate(with: greeting.updateTime) {
+        dispatchMainAsync {
+            if setting?.showNewDawnGreeting == true {
+                if let greeting = user?.greeting {
+                    if verifyDate(with: greeting.updateTime) {
+                        store.dispatch(.fetchGreeting)
+                    }
+                } else {
                     store.dispatch(.fetchGreeting)
                 }
-            } else {
-                store.dispatch(.fetchGreeting)
             }
         }
     }

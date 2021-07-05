@@ -42,6 +42,7 @@
 		ABCA93BE26918DE100A98BC6 /* Persistence.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCA93BD26918DE100A98BC6 /* Persistence.swift */; };
 		ABCA93C02691925900A98BC6 /* MangaMO+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCA93BF2691925900A98BC6 /* MangaMO+CoreDataClass.swift */; };
 		ABCA93C22691929D00A98BC6 /* MangaDetailMO+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCA93C12691929D00A98BC6 /* MangaDetailMO+CoreDataClass.swift */; };
+		ABCA93C42692A0BF00A98BC6 /* PersistenceAccessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCA93C32692A0BF00A98BC6 /* PersistenceAccessor.swift */; };
 		ABCD2F0A259763FC008E5A20 /* Request.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD2F09259763FC008E5A20 /* Request.swift */; };
 		ABCD2F0E25976B95008E5A20 /* Parser.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD2F0D25976B95008E5A20 /* Parser.swift */; };
 		ABD5FDD4263D05110021A4C6 /* .swiftlint.yml in Resources */ = {isa = PBXBuildFile; fileRef = ABD5FDD3263D05110021A4C6 /* .swiftlint.yml */; };
@@ -119,6 +120,7 @@
 		ABCA93BD26918DE100A98BC6 /* Persistence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Persistence.swift; sourceTree = "<group>"; };
 		ABCA93BF2691925900A98BC6 /* MangaMO+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MangaMO+CoreDataClass.swift"; sourceTree = "<group>"; };
 		ABCA93C12691929D00A98BC6 /* MangaDetailMO+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MangaDetailMO+CoreDataClass.swift"; sourceTree = "<group>"; };
+		ABCA93C32692A0BF00A98BC6 /* PersistenceAccessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceAccessor.swift; sourceTree = "<group>"; };
 		ABCD2F09259763FC008E5A20 /* Request.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Request.swift; sourceTree = "<group>"; };
 		ABCD2F0D25976B95008E5A20 /* Parser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Parser.swift; sourceTree = "<group>"; };
 		ABD5FDD3263D05110021A4C6 /* .swiftlint.yml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.yaml; path = .swiftlint.yml; sourceTree = SOURCE_ROOT; };
@@ -211,6 +213,7 @@
 			children = (
 				ABC681F126898D46007BBD69 /* Model.xcdatamodeld */,
 				ABCA93BD26918DE100A98BC6 /* Persistence.swift */,
+				ABCA93C32692A0BF00A98BC6 /* PersistenceAccessor.swift */,
 				ABCA93BF2691925900A98BC6 /* MangaMO+CoreDataClass.swift */,
 				AB2CED63268AB6AE003130F7 /* MangaMO+CoreDataProperties.swift */,
 				ABCA93C12691929D00A98BC6 /* MangaDetailMO+CoreDataClass.swift */,
@@ -514,6 +517,7 @@
 				AB40CFDF25983EDF00D1DC9A /* FileHelper.swift in Sources */,
 				ABC3C78F2593699B00E0C11B /* ViewModifiers.swift in Sources */,
 				ABF45AF825F3313D00ECB568 /* EhPandaView.swift in Sources */,
+				ABCA93C42692A0BF00A98BC6 /* PersistenceAccessor.swift in Sources */,
 				ABC3C7862593699B00E0C11B /* Utility.swift in Sources */,
 				ABF45AE725F3313D00ECB568 /* RatingView.swift in Sources */,
 				AB2CED64268AB6AE003130F7 /* MangaMO+CoreDataProperties.swift in Sources */,

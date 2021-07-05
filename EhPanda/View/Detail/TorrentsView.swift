@@ -68,6 +68,7 @@ private extension TorrentsView {
         hudVisible.toggle()
     }
 
+    // MARK: Networking
     func fetchMangaTorrents() {
         if loadingFlag { return }
         loadingFlag = true
@@ -81,7 +82,6 @@ private extension TorrentsView {
                 sToken.unseal()
             } receiveValue: {
                 torrents = $0
-                loadingFlag = false
             }
             .seal(in: sToken)
     }

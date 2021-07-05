@@ -26,7 +26,6 @@ enum AppAction {
     case clearHistoryKeywords
     case updateSearchKeyword(text: String)
     case updateViewControllersCount
-    case resetDownloadCommandResponse
     case replaceMangaCommentJumpID(gid: String?)
     case updateIsSlideMenuClosed(isClosed: Bool)
 
@@ -70,12 +69,8 @@ enum AppAction {
     case fetchMoreFavoritesItemsDone(carriedValue: FavoritesIndex, result: Result<(PageNumber, [Manga]), AppError>)
     case fetchMangaDetail(gid: String, detailURL: String)
     case fetchMangaDetailDone(result: Result<(Identity, MangaDetail, APIKey), AppError>)
-    case fetchMangaArchive(gid: String)
-    case fetchMangaArchiveDone(result: Result<(Identity, MangaArchive, CurrentGP?, CurrentCredits?), AppError>)
     case fetchMangaArchiveFunds(gid: String)
     case fetchMangaArchiveFundsDone(result: Result<((CurrentGP, CurrentCredits)), AppError>)
-    case fetchMangaTorrents(gid: String)
-    case fetchMangaTorrentsDone(result: Result<(Identity, [MangaTorrent]), AppError>)
     case fetchAssociatedItems(depth: Int, keyword: AssociatedKeyword)
     case fetchAssociatedItemsDone(result: Result<(Depth, AssociatedKeyword, PageNumber, [Manga]), AppError>)
     case fetchMoreAssociatedItems(depth: Int, keyword: AssociatedKeyword)
@@ -93,8 +88,6 @@ enum AppAction {
 
     case addFavorite(gid: String, favIndex: Int)
     case deleteFavorite(gid: String)
-    case sendDownloadCommand(gid: String, resolution: String)
-    case sendDownloadCommandDone(result: Resp?)
     case rate(gid: String, rating: Int)
     case comment(gid: String, content: String)
     case editComment(gid: String, commentID: String, content: String)

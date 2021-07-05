@@ -84,10 +84,6 @@ final class Store: ObservableObject {
             appState.homeInfo.searchKeyword = text
         case .updateViewControllersCount:
             appState.environment.viewControllersCount = viewControllersCount
-        case .resetDownloadCommandResponse:
-            appState.detailInfo.downloadCommandResponse = nil
-            appState.detailInfo.downloadCommandSending = false
-            appState.detailInfo.downloadCommandFailed = false
         case .replaceMangaCommentJumpID(let gid):
             appState.environment.mangaItemReverseID = gid
         case .updateIsSlideMenuClosed(let isClosed):
@@ -512,35 +508,6 @@ final class Store: ObservableObject {
                 appState.detailInfo.mangaDetailLoadFailed = true
             }
 
-        case .fetchMangaArchive(let gid):
-            appState.detailInfo.mangaArchiveLoadFailed = false
-
-            if appState.detailInfo.mangaArchiveLoading { break }
-            appState.detailInfo.mangaArchiveLoading = true
-            // debugMark
-//            let archiveURL = appState.cachedList.items?[gid]?.detail?.archiveURL ?? ""
-//            appCommand = FetchMangaArchiveCommand(gid: gid, archiveURL: archiveURL)
-        case .fetchMangaArchiveDone(let result):
-            appState.detailInfo.mangaArchiveLoading = false
-
-            switch result {
-            case .success(let archive):
-                appState.cachedList.insertArchive(gid: archive.0, archive: archive.1)
-
-                if let currentGP = archive.2,
-                   let currentCredits = archive.3
-                {
-                    appState.settings.update(
-                        user: User(
-                            currentGP: currentGP,
-                            currentCredits: currentCredits
-                        )
-                    )
-                }
-            case .failure:
-                appState.detailInfo.mangaArchiveLoadFailed = true
-            }
-
         case .fetchMangaArchiveFunds(let gid):
             if appState.detailInfo.mangaArchiveFundsLoading { break }
             appState.detailInfo.mangaArchiveFundsLoading = true
@@ -557,24 +524,6 @@ final class Store: ObservableObject {
                         currentCredits: funds.1
                     )
                 )
-            }
-
-        case .fetchMangaTorrents(let gid):
-            appState.detailInfo.mangaTorrentsLoadFailed = false
-
-            if appState.detailInfo.mangaTorrentsLoading { break }
-            appState.detailInfo.mangaTorrentsLoading = true
-            // debugMark
-//            let token = appState.cachedList.items?[gid]?.token ?? ""
-//            appCommand = FetchMangaTorrentsCommand(gid: gid, token: token)
-        case .fetchMangaTorrentsDone(let result):
-            appState.detailInfo.mangaTorrentsLoading = false
-
-            switch result {
-            case .success(let torrents):
-                appState.cachedList.insertTorrents(gid: torrents.0, torrents: torrents.1)
-            case .failure:
-                appState.detailInfo.mangaTorrentsLoadFailed = true
             }
 
         case .fetchAssociatedItems(let depth, let keyword):
@@ -774,29 +723,6 @@ final class Store: ObservableObject {
 //            appCommand = AddFavoriteCommand(gid: gid, token: token, favIndex: favIndex)
         case .deleteFavorite(let gid):
             appCommand = DeleteFavoriteCommand(gid: gid)
-
-        case .sendDownloadCommand(let gid, let resolution):
-            appState.detailInfo.downloadCommandFailed = false
-
-            if appState.detailInfo.downloadCommandSending { break }
-            appState.detailInfo.downloadCommandSending = true
-            // debugMark
-//            let archiveURL = appState.cachedList.items?[gid]?.detail?.archiveURL ?? ""
-//            appCommand = SendDownloadCommand(gid: gid, archiveURL: archiveURL, resolution: resolution)
-        case .sendDownloadCommandDone(let result):
-            appState.detailInfo.downloadCommandSending = false
-
-            switch result {
-            case Defaults.Response.hathClientNotFound,
-                 Defaults.Response.hathClientNotOnline,
-                 Defaults.Response.invalidResolution,
-                 .none:
-                appState.detailInfo.downloadCommandFailed = true
-            default:
-                break
-            }
-
-            appState.detailInfo.downloadCommandResponse = result
 
         case .rate(let gid, let rating):
             break // debugMark

@@ -8,14 +8,14 @@
 import SwiftUI
 import Kingfisher
 
-struct DetailView: View, StoreAccessor {
+struct DetailView: View, StoreAccessor, PersistenceAccessor {
     @EnvironmentObject var store: Store
     @Environment(\.colorScheme) private var colorScheme
 
     @State private var associatedKeyword = AssociatedKeyword()
     @State private var isNavLinkActive = false
 
-    private let gid: String
+    let gid: String
     private let depth: Int
 
     init(gid: String, depth: Int) {
@@ -152,18 +152,6 @@ private extension DetailView {
     var commentContentBinding: Binding<String> {
         detailInfoBinding.commentContent
     }
-    var manga: Manga {
-        let mangaMO: MangaMO? = PersistenceController.fetch(
-            entityName: "MangaMO", gid: gid
-        )
-        return mangaMO?.toEntity() ?? Manga.empty
-    }
-    var mangaDetail: MangaDetail? {
-        let mangaDetailMO: MangaDetailMO? = PersistenceController.fetch(
-            entityName: "MangaDetailMO", gid: gid
-        )
-        return mangaDetailMO?.toEntity()
-    }
 }
 
 // MARK: Private Methods
@@ -236,9 +224,6 @@ private extension DetailView {
     }
     func updateMangaDetail() {
         store.dispatch(.updateMangaDetail(gid: gid))
-    }
-    func fetchMangaTorrents() {
-        store.dispatch(.fetchMangaTorrents(gid: gid))
     }
     func updateHistoryItems() {
         DispatchQueue.main.async {

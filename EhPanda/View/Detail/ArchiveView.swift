@@ -9,9 +9,15 @@ import SwiftUI
 import SwiftyBeaver
 import TTProgressHUD
 
-struct ArchiveView: View, StoreAccessor {
+struct ArchiveView: View, StoreAccessor, PersistenceAccessor {
     @EnvironmentObject var store: Store
     @State private var selection: ArchiveRes?
+
+    @State private var archive: MangaArchive?
+    @State private var response: String?
+    @State private var loadingFlag = false
+    @State private var sendingFlag = false
+    @State private var sendFailedFlag = false
 
     @State private var hudVisible = false
     @State private var hudConfig = TTProgressHUDConfig()
@@ -23,7 +29,7 @@ struct ArchiveView: View, StoreAccessor {
         GridItem(.adaptive(minimum: 150, maximum: 200))
     ]
 
-    private let gid: String
+    let gid: String
 
     init(gid: String) {
         self.gid = gid
@@ -70,26 +76,18 @@ struct ArchiveView: View, StoreAccessor {
                         }
                         .padding(.horizontal)
                         TTProgressHUD(
-                            detailInfoBinding.downloadCommandSending,
+                            $sendingFlag,
                             config: loadingHUDConfig
                         )
                         TTProgressHUD($hudVisible, config: hudConfig)
                     }
-                } else if detailInfo.mangaArchiveLoading {
+                } else if loadingFlag {
                     LoadingView()
                 } else {
                     NetworkErrorView(retryAction: fetchMangaArchive)
                 }
             }
             .navigationBarTitle("Archive")
-            .onChange(
-                of: detailInfo.downloadCommandSending,
-                perform: onRespChange
-            )
-            .onChange(
-                of: hudVisible,
-                perform: onHUDVisibilityChange
-            )
         }
         .task(fetchMangaArchive)
     }
@@ -99,14 +97,6 @@ struct ArchiveView: View, StoreAccessor {
 private extension ArchiveView {
     var detailInfoBinding: Binding<AppState.DetailInfo> {
         $store.appState.detailInfo
-    }
-    var mangaDetail: MangaDetail? {
-        nil
-        // debugMark
-//        cachedList.items?[gid]?.detail
-    }
-    var archive: MangaArchive? {
-        mangaDetail?.archive
     }
     var hathArchives: [MangaArchive.HathArchive] {
         archive?.hathArchives ?? []
@@ -120,50 +110,93 @@ private extension ArchiveView {
         }
     }
     func onDownloadButtonTap() {
-        if let res = selection?.param {
-            store.dispatch(.sendDownloadCommand(gid: gid, resolution: res))
-            impactFeedback(style: .soft)
-        }
+        fetchDownloadResponse()
+        impactFeedback(style: .soft)
     }
-    func onRespChange<E: Equatable>(value: E) {
-        if let sending = value as? Bool, sending == false {
-            let isSuccess = !detailInfo.downloadCommandFailed
-            let type: TTProgressHUDType = isSuccess ? .success : .error
-            let title = (isSuccess ? "Success" : "Error").localized()
-            let caption = detailInfo.downloadCommandResponse?.localized()
+    func performHUD() {
+        let isSuccess = !sendFailedFlag
+        let type: TTProgressHUDType = isSuccess ? .success : .error
+        let title = (isSuccess ? "Success" : "Error").localized()
+        let caption = response?.localized()
 
-            switch type {
-            case .success:
-                notificFeedback(style: .success)
-            case .error:
-                notificFeedback(style: .error)
-            default:
-                SwiftyBeaver.verbose(type)
-            }
+        switch type {
+        case .success:
+            notificFeedback(style: .success)
+        case .error:
+            notificFeedback(style: .error)
+        default:
+            break
+        }
 
-            hudConfig = TTProgressHUDConfig(
-                type: type,
-                title: title,
-                caption: caption,
-                shouldAutoHide: true,
-                autoHideInterval: 2
-            )
-            hudVisible.toggle()
-        }
-    }
-    func onHUDVisibilityChange<E: Equatable>(value: E) {
-        if let isVisible = value as? Bool, isVisible == false {
-            store.dispatch(.resetDownloadCommandResponse)
-        }
+        hudConfig = TTProgressHUDConfig(
+            type: type,
+            title: title,
+            caption: caption,
+            shouldAutoHide: true,
+            autoHideInterval: 2
+        )
+        hudVisible = true
     }
 
+    // MARK: Networking
     func fetchMangaArchive() {
-        DispatchQueue.main.async {
-            store.dispatch(.fetchMangaArchive(gid: gid))
-            if currentGP == nil || currentCredits == nil, isSameAccount {
-                store.dispatch(.fetchMangaArchiveFunds(gid: gid))
+        guard let archiveURL = mangaDetail?.archiveURL, !loadingFlag
+        else { return }
+        loadingFlag = true
+
+        let token = SubscriptionToken()
+        MangaArchiveRequest(archiveURL: archiveURL)
+            .publisher
+            .receive(on: DispatchQueue.main)
+            .sink { _ in
+                loadingFlag = false
+                token.unseal()
+            } receiveValue: { arc in
+                archive = arc.0
+                if let galleryPoints = arc.1, let credits = arc.2 {
+                    store.dispatch(.fetchMangaArchiveFundsDone(
+                        result: .success((galleryPoints, credits)))
+                    )
+                } else if isSameAccount {
+                    store.dispatch(.fetchMangaArchiveFunds(gid: gid))
+                }
             }
+            .seal(in: token)
+    }
+    func fetchDownloadResponse() {
+        sendFailedFlag = false
+        guard let archiveURL = mangaDetail?.archiveURL,
+              let resolution = selection, !sendingFlag
+        else { return }
+        sendingFlag = true
+
+        let token = SubscriptionToken()
+        SendDownloadCommandRequest(
+            archiveURL: archiveURL,
+            resolution: resolution.param
+        )
+        .publisher
+        .receive(on: DispatchQueue.main)
+        .sink { completion in
+            if case .failure = completion {
+                sendFailedFlag = true
+            }
+            sendingFlag = false
+            performHUD()
+            token.unseal()
+        } receiveValue: { resp in
+            switch resp {
+            case Defaults.Response.hathClientNotFound,
+                 Defaults.Response.hathClientNotOnline,
+                 Defaults.Response.invalidResolution, .none:
+                sendFailedFlag = true
+            default:
+                break
+            }
+            response = resp
+            store.dispatch(.fetchMangaArchiveFunds(gid: gid))
         }
+        .seal(in: token)
     }
 }
 

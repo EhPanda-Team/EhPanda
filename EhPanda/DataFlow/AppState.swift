@@ -230,16 +230,7 @@ extension AppState {
         var mangaDetailLoading = false
         var mangaDetailLoadFailed = false
 
-        var mangaArchiveLoading = false
-        var mangaArchiveLoadFailed = false
         var mangaArchiveFundsLoading = false
-
-        var downloadCommandResponse: String?
-        var downloadCommandSending = false
-        var downloadCommandFailed = false
-
-        var mangaTorrentsLoading = false
-        var mangaTorrentsLoadFailed = false
 
         var associatedItems: [AssociatedItem] = []
         var associatedItemsLoading = false
@@ -315,32 +306,10 @@ extension AppState {
         }
         mutating func cache(mangas: [Manga]) {
             PersistenceController.add(items: mangas)
-//            if items == nil {
-//                items = Dictionary(uniqueKeysWithValues: mangas.map { ($0.id, $0) })
-//                return
-//            }
-//
-//            for manga in mangas {
-//                if items?[manga.gid] == nil {
-//                    items?[manga.gid] = manga
-//                } else {
-//                    items?[manga.gid]?.title = manga.title
-//                    items?[manga.gid]?.rating = manga.rating
-//                    items?[manga.gid]?.tags = manga.tags
-//                    items?[manga.gid]?.language = manga.language
-//                }
-//            }
         }
 
         mutating func insertDetail(gid: String, detail: MangaDetail) {
             PersistenceController.update(gid: gid, detail: detail)
-//            items?[gid]?.detail = detail
-        }
-        mutating func insertArchive(gid: String, archive: MangaArchive) {
-//            items?[gid]?.detail?.archive = archive
-        }
-        mutating func insertTorrents(gid: String, torrents: [MangaTorrent]) {
-//            items?[gid]?.detail?.torrents = torrents
         }
         mutating func updateDetail(gid: String, detail: MangaDetail) {
 //            items?[gid]?.detail?.isFavored = detail.isFavored
