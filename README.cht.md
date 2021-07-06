@@ -31,7 +31,7 @@ iOS / iPadOS 15: [v1.03](https://github.com/tatsuz0u/EhPanda/releases/latest)
 **本應用程式的用戶需要自行承擔存取E-Hentai內容的責任。**
 
 ## 提問、意見回饋
-[![Telegram](https://img.shields.io/badge/chat-Telegram-blue.svg)](https://t.me/ehpanda)
+[![Telegram](https://img.shields.io/badge/chat-Telegram-blue.svg)](https://t.me/ehpandaCN)
 
 ## 螢幕截圖
 https://ehpanda.app
