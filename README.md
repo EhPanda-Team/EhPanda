@@ -39,7 +39,7 @@ The content in this application is derived from E-Hentai, which is user-generate
 **Users of this application should access the E-Hentai content at their own risk.**
 
 ## Questions & Feedback
-[![Telegram](https://img.shields.io/badge/chat-Telegram-blue.svg)](https://t.me/ehpanda)
+[![Telegram](https://img.shields.io/badge/chat-Telegram-blue.svg)](https://t.me/ehpandaEN)
 
 ## Screenshots
 https://ehpanda.app
