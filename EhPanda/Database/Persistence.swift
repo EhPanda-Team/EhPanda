@@ -40,11 +40,44 @@ struct PersistenceController {
         return (try? shared.container.viewContext.count(for: request)) ?? 0 > 0
     }
 
-    static func fetch<E: NSFetchRequestResult>(entityName: String, gid: String) -> E? {
-        let request = NSFetchRequest<E>(entityName: entityName)
+    static func materializedObject(
+        in context: NSManagedObjectContext,
+        matching predicate: NSPredicate
+    ) -> NSManagedObject? {
+        for object in context.registeredObjects
+        where !object.isFault {
+            guard predicate.evaluate(with: object)
+            else { continue }
+            return object
+        }
+        return nil
+    }
+
+    static func fetch<E: NSFetchRequestResult>(
+        entityName: String, gid: String
+    ) -> E? {
+        fetch(
+            entityName: entityName,
+            predicate: NSPredicate(
+                format: "gid == %@", gid
+            )
+        )
+    }
+
+    static func fetch<E: NSFetchRequestResult>(
+        entityName: String, predicate: NSPredicate
+    ) -> E? {
+        let context = shared.container.viewContext
+        if let object = materializedObject(
+            in: context, matching: predicate
+        ) as? E { return object }
+
+        let request = NSFetchRequest<E>(
+            entityName: entityName
+        )
         request.fetchLimit = 1
-        request.predicate = NSPredicate(format: "gid == %@", gid)
-        return try? shared.container.viewContext.fetch(request).first
+        request.predicate = predicate
+        return try? context.fetch(request).first
     }
 
     static func add(mangas: [Manga]) {
@@ -54,7 +87,6 @@ struct PersistenceController {
             {
                 storedMangaMO.title = manga.title
                 storedMangaMO.rating = manga.rating
-//                storedMangaMO.tags = manga.tags
                 storedMangaMO.language = manga.language?.rawValue
             } else {
                 manga.toManagedObject(in: shared.container.viewContext)
@@ -69,8 +101,8 @@ struct PersistenceController {
         {
             storedMangaDetailMO.isFavored = detail.isFavored
             storedMangaDetailMO.archiveURL = detail.archiveURL
-//            storedMangaDetailMO.detailTags = detail.detailTags
-//            storedMangaDetailMO.comments = detail.comments
+            storedMangaDetailMO.tags = detail.detailTags.toNSData()
+            storedMangaDetailMO.comments = detail.comments.toNSData()
             storedMangaDetailMO.jpnTitle = detail.jpnTitle
             storedMangaDetailMO.likeCount = detail.likeCount
             storedMangaDetailMO.pageCount = detail.pageCount

@@ -43,6 +43,18 @@ extension Array where Element: Publisher {
     }
 }
 
+extension Array where Element: Codable {
+    func toNSData() -> NSData? {
+        try? JSONEncoder().encode(self) as NSData
+    }
+}
+
+extension NSData {
+    func toArray<E: Codable>() -> [E]? {
+        try? JSONDecoder().decode([E].self, from: self as Data)
+    }
+}
+
 extension Float {
     func fixedRating() -> Float {
         let lowerbound = Int(self)

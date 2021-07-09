@@ -15,6 +15,9 @@ struct DetailView: View, StoreAccessor, PersistenceAccessor {
     @State private var associatedKeyword = AssociatedKeyword()
     @State private var isNavLinkActive = false
 
+    @State private var comments = [MangaComment]()
+    private var loadingFlag = false
+
     let gid: String
     private let depth: Int
 
@@ -161,11 +164,7 @@ private extension DetailView {
             store.dispatch(.toggleNavBar(hidden: false))
         }
 
-        if mangaDetail == nil {
-            fetchMangaDetail()
-        } else {
-            updateMangaDetail()
-        }
+        fetchMangaDetail()
         updateViewControllersCount()
     }
     func onDisappear() {
@@ -220,10 +219,7 @@ private extension DetailView {
         store.dispatch(.updateViewControllersCount)
     }
     func fetchMangaDetail() {
-        store.dispatch(.fetchMangaDetail(gid: gid, detailURL: manga.detailURL))
-    }
-    func updateMangaDetail() {
-        store.dispatch(.updateMangaDetail(gid: gid))
+        store.dispatch(.fetchMangaDetail(gid: gid))
     }
     func updateHistoryItems() {
         DispatchQueue.main.async {
@@ -728,7 +724,8 @@ private struct CommentScrollView: View {
                 Spacer()
                 NavigationLink(
                     destination: CommentView(
-                        gid: gid, depth: depth
+                        gid: gid, depth: depth,
+                        comments: comments
                     )
                 ) {
                     Text("Show All")

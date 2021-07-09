@@ -400,48 +400,6 @@ struct FetchAlterImagesCommand: AppCommand {
     }
 }
 
-struct UpdateMangaDetailCommand: AppCommand {
-    let gid: String
-    let detailURL: String
-
-    func execute(in store: Store) {
-        let token = SubscriptionToken()
-        MangaDetailRequest(gid: gid, detailURL: detailURL)
-            .publisher
-            .receive(on: DispatchQueue.main)
-            .sink { completion in
-                if case .failure(let error) = completion {
-                    store.dispatch(.updateMangaDetailDone(result: .failure(error)))
-                }
-                token.unseal()
-            } receiveValue: { detail in
-                store.dispatch(.updateMangaDetailDone(result: .success(detail.0)))
-            }
-            .seal(in: token)
-    }
-}
-
-struct UpdateMangaCommentsCommand: AppCommand {
-    let gid: String
-    let detailURL: String
-
-    func execute(in store: Store) {
-        let token = SubscriptionToken()
-        MangaCommentsRequest(detailURL: detailURL)
-            .publisher
-            .receive(on: DispatchQueue.main)
-            .sink { completion in
-                if case .failure(let error) = completion {
-                    store.dispatch(.updateMangaCommentsDone(result: .failure(error)))
-                }
-                token.unseal()
-            } receiveValue: { comments in
-                store.dispatch(.updateMangaCommentsDone(result: .success((gid, comments))))
-            }
-            .seal(in: token)
-    }
-}
-
 struct FetchMangaContentsCommand: AppCommand {
     let gid: String
     let detailURL: String
@@ -522,7 +480,7 @@ struct AddFavoriteCommand: AppCommand {
             .receive(on: DispatchQueue.main)
             .sink { completion in
                 if case .finished = completion {
-                    store.dispatch(.updateMangaDetail(gid: gid))
+                    store.dispatch(.fetchMangaDetail(gid: gid))
                 }
                 sToken.unseal()
             } receiveValue: { _ in }
@@ -540,7 +498,7 @@ struct DeleteFavoriteCommand: AppCommand {
             .receive(on: DispatchQueue.main)
             .sink { completion in
                 if case .finished = completion {
-                    store.dispatch(.updateMangaDetail(gid: gid))
+                    store.dispatch(.fetchMangaDetail(gid: gid))
                 }
                 sToken.unseal()
             } receiveValue: { _ in }
@@ -568,7 +526,7 @@ struct RateCommand: AppCommand {
         .receive(on: DispatchQueue.main)
         .sink { completion in
             if case .finished = completion {
-                store.dispatch(.updateMangaDetail(gid: String(gid)))
+                store.dispatch(.fetchMangaDetail(gid: String(gid)))
             }
             sToken.unseal()
         } receiveValue: { _ in }
@@ -588,7 +546,7 @@ struct CommentCommand: AppCommand {
             .receive(on: DispatchQueue.main)
             .sink { completion in
                 if case .finished = completion {
-                    store.dispatch(.updateMangaDetail(gid: gid))
+                    store.dispatch(.fetchMangaDetail(gid: gid))
                 }
                 token.unseal()
             } receiveValue: { _ in }
@@ -613,7 +571,7 @@ struct EditCommentCommand: AppCommand {
         .receive(on: DispatchQueue.main)
         .sink { completion in
             if case .finished = completion {
-                store.dispatch(.updateMangaDetail(gid: gid))
+                store.dispatch(.fetchMangaDetail(gid: gid))
             }
             token.unseal()
         } receiveValue: { _ in }
@@ -643,7 +601,7 @@ struct VoteCommentCommand: AppCommand {
         .receive(on: DispatchQueue.main)
         .sink { completion in
             if case .finished = completion {
-                store.dispatch(.updateMangaDetail(gid: String(gid)))
+                store.dispatch(.fetchMangaDetail(gid: String(gid)))
             }
             sToken.unseal()
         } receiveValue: { _ in }

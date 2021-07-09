@@ -313,9 +313,6 @@ extension AppState {
         mutating func insertAlterImages(gid: String, images: [MangaAlterData]) {
 //            items?[gid]?.detail?.alterImages = images
         }
-        mutating func updateComments(gid: String, comments: [MangaComment]) {
-//            items?[gid]?.detail?.comments = comments
-        }
         mutating func insertContents(gid: String, pageNum: PageNumber, contents: [MangaContent]) {
 //            items?[gid]?.detail?.currentPageNum = pageNum.current
 //            items?[gid]?.detail?.pageNumMaximum = pageNum.maximum

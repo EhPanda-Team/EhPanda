@@ -22,10 +22,12 @@ struct CommentView: View, StoreAccessor {
 
     private let gid: String
     private let depth: Int
+    private let comments: [MangaComment]
 
-    init(gid: String, depth: Int) {
+    init(gid: String, depth: Int, comments: [MangaComment]) {
         self.gid = gid
         self.depth = depth
+        self.comments = comments
     }
 
     // MARK: CommentView
@@ -121,12 +123,6 @@ struct CommentView: View, StoreAccessor {
 
 // MARK: Private Extension
 private extension CommentView {
-    var comments: [MangaComment] {
-        []
-        // debugMark
-//        store.appState.cachedList.items?[gid]?.detail?.comments ?? []
-    }
-
     var environmentBinding: Binding<AppState.Environment> {
         $store.appState.environment
     }

@@ -365,10 +365,10 @@ struct ArchiveView_Previews: PreviewProvider {
         manga.detail?.archive = archive
         store.appState.settings.user = user
         store.appState.environment.isPreview = true
-        // debugMark
-//        store.appState.cachedList.items?["mangaForTest"] = manga
 
-        return ArchiveView(gid: "mangaForTest")
+        store.appState.cachedList.cache(mangas: [manga])
+
+        return ArchiveView(gid: "")
             .environmentObject(store)
     }
 }

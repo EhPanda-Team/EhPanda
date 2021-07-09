@@ -490,19 +490,22 @@ final class Store: ObservableObject {
                 appState.homeInfo.moreFavoritesLoading[carriedValue] = true
             }
 
-        case .fetchMangaDetail(let gid, let detailURL):
+        case .fetchMangaDetail(let gid):
             appState.detailInfo.mangaDetailLoadFailed = false
 
             if appState.detailInfo.mangaDetailLoading { break }
             appState.detailInfo.mangaDetailLoading = true
 
+            let detailURL = PersistenceController.fetchManga(gid: gid)?.detailURL ?? ""
             appCommand = FetchMangaDetailCommand(gid: gid, detailURL: detailURL)
         case .fetchMangaDetailDone(let result):
             appState.detailInfo.mangaDetailLoading = false
 
             switch result {
             case .success(let detail):
-                appState.settings.user?.apikey = detail.1
+                if let apikey = detail.1 {
+                    appState.settings.user?.apikey = apikey
+                }
                 appState.cachedList.cache(detail: detail.0)
             case .failure:
                 appState.detailInfo.mangaDetailLoadFailed = true
@@ -615,32 +618,6 @@ final class Store: ObservableObject {
 
             if case .success(let images) = result {
                 appState.cachedList.insertAlterImages(gid: images.0, images: images.1)
-            }
-
-        case .updateMangaDetail(let gid):
-            if appState.detailInfo.mangaDetailUpdating { break }
-            appState.detailInfo.mangaDetailUpdating = true
-
-            let detailURL = PersistenceController.fetchManga(gid: gid)?.detailURL ?? ""
-            appCommand = UpdateMangaDetailCommand(gid: gid, detailURL: detailURL)
-        case .updateMangaDetailDone(let result):
-            appState.detailInfo.mangaDetailUpdating = false
-
-            if case .success(let detail) = result {
-                appState.cachedList.cache(detail: detail)
-            }
-
-        case .updateMangaComments(let gid):
-            if appState.detailInfo.mangaCommentsUpdating { break }
-            appState.detailInfo.mangaCommentsUpdating = true
-            // debugMark
-//            let detailURL = PersistenceController.fetchManga(gid: gid)?.detailURL ?? ""
-//            appCommand = UpdateMangaCommentsCommand(gid: gid, detailURL: detailURL)
-        case .updateMangaCommentsDone(result: let result):
-            appState.detailInfo.mangaCommentsUpdating = false
-
-            if case .success(let comments) = result {
-                appState.cachedList.updateComments(gid: comments.0, comments: comments.1)
             }
 
         case .fetchMangaContents(let gid):
