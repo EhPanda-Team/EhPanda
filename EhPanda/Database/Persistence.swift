@@ -34,41 +34,35 @@ struct PersistenceController {
     }
 
     static func checkExistence<MO: NSManagedObject>(
-        entityType: MO.Type,
-        predicate: NSPredicate
+        entityType: MO.Type, predicate: NSPredicate
     ) -> Bool {
-        let request = NSFetchRequest<MO>(
-            entityName: String(describing: entityType)
-        )
-        request.fetchLimit = 1
-        request.predicate = predicate
-
-        let context = shared.container.viewContext
-        let resultCount = (try? context.count(for: request)) ?? 0
-        return resultCount > 0
+        fetch(entityType: entityType, predicate: predicate) != nil
     }
 
-    static func materializedObject(
+    static func materializedObjects(
         in context: NSManagedObjectContext,
         matching predicate: NSPredicate
-    ) -> NSManagedObject? {
+    ) -> [NSManagedObject] {
+        var objects = [NSManagedObject]()
         for object in context.registeredObjects
         where !object.isFault {
             guard predicate.evaluate(with: object)
             else { continue }
-            return object
+            objects.append(object)
         }
-        return nil
+        return objects
     }
 
     static func fetch<MO: NSManagedObject>(
-        entityType: MO.Type, predicate: NSPredicate
+        entityType: MO.Type, predicate: NSPredicate,
+        findBeforeFetch: Bool = true
     ) -> MO? {
         let context = shared.container.viewContext
-        if let object = materializedObject(
-            in: context, matching: predicate
-        ) as? MO { return object }
-
+        if findBeforeFetch {
+            if let object = materializedObjects(
+                in: context, matching: predicate
+            ).first as? MO { return object }
+        }
         let request = NSFetchRequest<MO>(
             entityName: String(describing: entityType)
         )
@@ -77,16 +71,45 @@ struct PersistenceController {
         return try? context.fetch(request).first
     }
 
-    /// Create one if fetch result is empty, and update it.
+    static func fetch<MO: NSManagedObject>(
+        entityType: MO.Type,
+        predicate: NSPredicate,
+        sortDescriptors: [NSSortDescriptor]? = nil,
+        findBeforeFetch: Bool = true
+    ) -> [MO] {
+        let context = shared.container.viewContext
+        if findBeforeFetch {
+            if let objects = materializedObjects(
+                in: context, matching: predicate
+            ) as? [MO] { return objects }
+        }
+        let request = NSFetchRequest<MO>(
+            entityName: String(describing: entityType)
+        )
+        request.predicate = predicate
+        request.sortDescriptors = sortDescriptors
+        return (try? context.fetch(request)) ?? []
+    }
+
     static func update<MO: GalleryIdentifiable>(
         entityType: MO.Type, gid: String,
+        createIfNil: Bool = false,
         commitChanges: ((MO) -> Void)
     ) {
-        let storedMO: MO = fetchOrCreate(
-            entityType: entityType, gid: gid
-        )
-        commitChanges(storedMO)
-        saveContext()
+        let storedMO: MO?
+        if createIfNil {
+            storedMO = fetchOrCreate(
+                entityType: entityType, gid: gid
+            )
+        } else {
+            storedMO = fetch(
+                entityType: entityType, gid: gid
+            )
+        }
+        if let storedMO = storedMO {
+            commitChanges(storedMO)
+            saveContext()
+        }
     }
 }
 

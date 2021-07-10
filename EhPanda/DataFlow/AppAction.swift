@@ -11,7 +11,6 @@ import Foundation
 
 enum AppAction {
     case replaceUser(user: User?)
-    case clearHistoryItems
     case initializeStates
     case initializeFilter
     case clearDetailViewCommentContent
@@ -20,7 +19,6 @@ enum AppAction {
     case saveReadingProgress(gid: String, tag: Int)
     case updateDiskImageCacheSize(size: String)
     case updateAppIconType(iconType: IconType)
-    case updateHistoryItems(gid: String)
     case updateHistoryKeywords(text: String)
     case clearHistoryKeywords
     case updateSearchKeyword(text: String)

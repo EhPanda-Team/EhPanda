@@ -44,15 +44,29 @@ extension PersistenceController {
             entityType: MangaStateMO.self, gid: gid
         ).toEntity()
     }
+    static func fetchMangaHistory() -> [Manga] {
+        let predicate = NSPredicate(format: "lastOpenDate != nil")
+        let sortDescriptor = NSSortDescriptor(
+            keyPath: \MangaMO.lastOpenDate, ascending: false
+        )
+        return PersistenceController.fetch(
+            entityType: MangaMO.self,
+            predicate: predicate,
+            sortDescriptors: [sortDescriptor],
+            findBeforeFetch: false
+        ).map({ $0.toEntity() })
+    }
 
     static func fetch<MO: NSManagedObject>(
-        entityType: MO.Type, gid: String
+        entityType: MO.Type, gid: String,
+        findBeforeFetch: Bool = true
     ) -> MO? {
         fetch(
             entityType: entityType,
             predicate: NSPredicate(
                 format: "gid == %@", gid
-            )
+            ),
+            findBeforeFetch: findBeforeFetch
         )
     }
     static func fetchOrCreate<MO: GalleryIdentifiable>(
@@ -103,17 +117,24 @@ extension PersistenceController {
         saveContext()
     }
 
-    static func update(gid: String, mangaStateMO: ((MangaStateMO) -> Void)) {
-        update(entityType: MangaStateMO.self, gid: gid, commitChanges: mangaStateMO)
-    }
-
-    static func hasCached(gid: String) -> Bool {
+    static func mangaCached(gid: String) -> Bool {
         PersistenceController.checkExistence(
             entityType: MangaMO.self,
             predicate: NSPredicate(
                 format: "gid == %@", gid
             )
         )
+    }
+
+    static func updateLastOpenDate(gid: String) {
+        update(entityType: MangaMO.self, gid: gid) { mangaMO in
+            mangaMO.lastOpenDate = Date()
+        }
+    }
+
+    // MARK: MangaState
+    static func update(gid: String, mangaStateMO: ((MangaStateMO) -> Void)) {
+        update(entityType: MangaStateMO.self, gid: gid, createIfNil: true, commitChanges: mangaStateMO)
     }
     static func update(fetchedState: MangaState) {
         PersistenceController.update(gid: fetchedState.gid) { mangaStateMO in

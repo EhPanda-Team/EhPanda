@@ -89,7 +89,6 @@ private extension SettingView {
     func logout() {
         clearCookies()
         clearImageCaches()
-        store.dispatch(.clearHistoryItems)
         store.dispatch(.replaceUser(user: nil))
     }
 

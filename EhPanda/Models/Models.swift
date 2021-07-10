@@ -28,7 +28,6 @@ struct Manga: Identifiable, Codable, Equatable {
         lhs.gid == rhs.gid
     }
     static let empty = Manga(
-        detail: MangaDetail.empty,
         gid: "",
         token: "",
         title: "",
@@ -40,9 +39,6 @@ struct Manga: Identifiable, Codable, Equatable {
         coverURL: "",
         detailURL: ""
     )
-
-    var detail: MangaDetail?
-    var contents: [MangaContent]?
 
     var id: String { gid }
     let gid: String
@@ -57,7 +53,7 @@ struct Manga: Identifiable, Codable, Equatable {
     let publishedDate: Date
     let coverURL: String
     let detailURL: String
-    var lastOpenTime: Date?
+    var lastOpenDate: Date?
 }
 
 struct MangaDetail: Codable {
@@ -247,7 +243,7 @@ extension Manga: DateFormattable, CustomStringConvertible {
 
 extension MangaDetail: DateFormattable, CustomStringConvertible {
     var description: String {
-        "MangaDetail(\(jpnTitle ?? title))"
+        "MangaDetail(gid: \(gid), \(jpnTitle ?? title))"
     }
 
     var languageAbbr: String {
@@ -255,6 +251,13 @@ extension MangaDetail: DateFormattable, CustomStringConvertible {
     }
     var originalDate: Date {
         publishedDate
+    }
+}
+
+extension MangaState: CustomStringConvertible {
+    var description: String {
+        "MangaState(gid: \(gid), tags: \(tags.count),"
+        + "previews: \(previews.count), comments: \(comments.count))"
     }
 }
 

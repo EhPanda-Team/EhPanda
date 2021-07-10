@@ -219,10 +219,8 @@ private extension DetailView {
         store.dispatch(.fetchMangaDetail(gid: gid))
     }
     func updateHistoryItems() {
-        DispatchQueue.main.async {
-            if environment.homeListType != .history {
-                store.dispatch(.updateHistoryItems(gid: gid))
-            }
+        if environment.homeListType != .history {
+            PersistenceController.updateLastOpenDate(gid: gid)
         }
     }
 }

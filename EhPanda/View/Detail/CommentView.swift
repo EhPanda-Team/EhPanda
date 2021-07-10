@@ -147,7 +147,7 @@ private extension CommentView {
     func onLinkTap(link: URL) {
         if isValidDetailURL(url: link) {
             let gid = link.pathComponents[2]
-            if PersistenceController.hasCached(gid: gid) {
+            if PersistenceController.mangaCached(gid: gid) {
                 replaceMangaCommentJumpID(gid: gid)
             } else {
                 store.dispatch(

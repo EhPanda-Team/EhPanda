@@ -82,7 +82,6 @@ struct MangaItemReverseRequest {
     func getManga(from detail: MangaDetail?) -> Manga? {
         if let detail = detail {
             return Manga(
-                detail: detail,
                 gid: gid,
                 token: token,
                 title: detail.title,

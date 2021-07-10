@@ -7,11 +7,12 @@
 
 import CoreData
 
-extension MangaMO: Identifiable {
+extension MangaMO: Identifiable, GalleryIdentifiable {
     @nonobjc public class func fetchRequest() -> NSFetchRequest<MangaMO> {
         NSFetchRequest<MangaMO>(entityName: "MangaMO")
     }
 
+    @NSManaged public var lastOpenDate: Date?
     @NSManaged public var category: String
     @NSManaged public var coverURL: String
     @NSManaged public var detailURL: String

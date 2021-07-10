@@ -25,6 +25,7 @@
         <attribute name="detailURL" attributeType="String" defaultValueString=""/>
         <attribute name="gid" attributeType="String" defaultValueString=""/>
         <attribute name="language" optional="YES" attributeType="String"/>
+        <attribute name="lastOpenDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="publishedDate" attributeType="Date" defaultDateTimeInterval="646585860" usesScalarValueType="NO"/>
         <attribute name="rating" attributeType="Float" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="title" attributeType="String" defaultValueString=""/>
@@ -45,7 +46,7 @@
     </entity>
     <elements>
         <element name="MangaDetailMO" positionX="-54" positionY="9" width="128" height="284"/>
-        <element name="MangaMO" positionX="-63" positionY="-18" width="128" height="179"/>
+        <element name="MangaMO" positionX="-63" positionY="-18" width="128" height="194"/>
         <element name="MangaStateMO" positionX="-36" positionY="18" width="128" height="179"/>
     </elements>
 </model>

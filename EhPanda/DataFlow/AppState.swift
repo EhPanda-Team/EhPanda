@@ -122,20 +122,18 @@ extension AppState {
         var moreWatchedLoadFailed = false
 
         var favoritesItems = [Int: [Manga]]()
-        var favoritesLoading = generateBoolDic()
-        var favoritesNotFound = generateBoolDic()
-        var favoritesLoadFailed = generateBoolDic()
-        var favoritesCurrentPageNum = generateIntDic()
-        var favoritesPageNumMaximum = generateIntDic(defaultValue: 1)
-        var moreFavoritesLoading = generateBoolDic()
-        var moreFavoritesLoadFailed = generateBoolDic()
+        var favoritesLoading = generateBoolDict()
+        var favoritesNotFound = generateBoolDict()
+        var favoritesLoadFailed = generateBoolDict()
+        var favoritesCurrentPageNum = generateIntDict()
+        var favoritesPageNumMaximum = generateIntDict(defaultValue: 1)
+        var moreFavoritesLoading = generateBoolDict()
+        var moreFavoritesLoadFailed = generateBoolDict()
 
-        @FileStorage(directory: .cachesDirectory, fileName: "historyList.json")
-        var historyItems: [String: Manga]?
         @FileStorage(directory: .cachesDirectory, fileName: "historyKeywords.json")
         var historyKeywords: [String]?
 
-        static func generateBoolDic(defaultValue: Bool = false) -> [Int: Bool] {
+        static func generateBoolDict(defaultValue: Bool = false) -> [Int: Bool] {
             var tmp = [Int: Bool]()
             (-1..<10).forEach { index in
                 tmp[index] = defaultValue
@@ -143,7 +141,7 @@ extension AppState {
             return tmp
         }
 
-        static func generateIntDic(defaultValue: Int = 0) -> [Int: Int] {
+        static func generateIntDict(defaultValue: Int = 0) -> [Int: Int] {
             var tmp = [Int: Int]()
             (-1..<10).forEach { index in
                 tmp[index] = defaultValue
@@ -177,21 +175,6 @@ extension AppState {
                 if favoritesItems[favIndex]?.contains(manga) == false {
                     favoritesItems[favIndex]?.append(manga)
                 }
-            }
-        }
-        mutating func insertHistoryItem(manga: Manga?) {
-            guard var manga = manga else { return }
-            if historyItems != nil {
-                if historyItems?.keys.contains(manga.gid) == true {
-                    historyItems?[manga.gid]?.lastOpenTime = Date()
-                } else {
-                    manga.lastOpenTime = Date()
-                    historyItems?[manga.gid] = manga
-                }
-            } else {
-                historyItems = Dictionary(
-                    uniqueKeysWithValues: [(manga.gid, manga)]
-                )
             }
         }
         mutating func insertHistoryKeyword(text: String) {

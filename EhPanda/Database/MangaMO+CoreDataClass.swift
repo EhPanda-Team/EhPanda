@@ -12,13 +12,13 @@ public class MangaMO: NSManagedObject {}
 extension MangaMO: ManagedObjectProtocol {
     func toEntity() -> Manga {
         Manga(
-            detail: nil, contents: [], gid: gid, token: token,
+            gid: gid, token: token,
             title: title, rating: rating, tags: [],
             category: Category(rawValue: category)!,
             language: Language(rawValue: language ?? ""),
             uploader: uploader, publishedDate: publishedDate,
             coverURL: coverURL, detailURL: detailURL,
-            lastOpenTime: nil
+            lastOpenDate: lastOpenDate
         )
     }
 }
@@ -28,6 +28,7 @@ extension Manga: ManagedObjectConvertible {
         let mangaMO = MangaMO(context: context)
 
         mangaMO.gid = gid
+        mangaMO.lastOpenDate = lastOpenDate
         mangaMO.category = category.rawValue
         mangaMO.coverURL = coverURL
         mangaMO.detailURL = detailURL

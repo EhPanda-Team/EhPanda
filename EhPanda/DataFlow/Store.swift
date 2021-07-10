@@ -42,8 +42,6 @@ final class Store: ObservableObject {
         // MARK: App Ops
         case .replaceUser(let user):
             appState.settings.user = user
-        case .clearHistoryItems:
-            appState.homeInfo.historyItems = nil
         case .initializeStates:
             if appState.settings.user == nil {
                 appState.settings.user = User()
@@ -67,11 +65,6 @@ final class Store: ObservableObject {
             appState.settings.setting?.diskImageCacheSize = size
         case .updateAppIconType(let iconType):
             appState.settings.setting?.appIconType = iconType
-        case .updateHistoryItems(let gid):
-            // debugMark
-            break
-//            let item = appState.cachedList.items?[gid]
-//            appState.homeInfo.insertHistoryItem(manga: item)
         case .updateHistoryKeywords(let text):
             appState.homeInfo.insertHistoryKeyword(text: text)
         case .clearHistoryKeywords:

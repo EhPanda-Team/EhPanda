@@ -131,6 +131,9 @@ struct HomeView: View, StoreAccessor {
 
 // MARK: Private Properties
 private extension HomeView {
+    var mangaHistory: [Manga] {
+        PersistenceController.fetchMangaHistory()
+    }
     var environmentBinding: Binding<AppState.Environment> {
         $store.appState.environment
     }
@@ -147,16 +150,6 @@ private extension HomeView {
             homeInfo.searchKeyword.isEmpty ? true
             : word.contains(homeInfo.searchKeyword)
         }) ?? []
-    }
-    var historyItems: [Manga] {
-        var items = homeInfo.historyItems?
-            .compactMap({ $0.value })
-            .filter({ $0.lastOpenTime != nil })
-        items?.sort {
-            $0.lastOpenTime ?? Date()
-                > $1.lastOpenTime ?? Date()
-        }
-        return items ?? []
     }
     var navigationBarTitle: String {
         if let user = settings.user,
@@ -247,10 +240,10 @@ private extension HomeView {
             NotFoundView(retryAction: nil)
         case .history:
             GenericList(
-                items: historyItems,
+                items: mangaHistory,
                 setting: setting ?? Setting(),
                 loadingFlag: false,
-                notFoundFlag: historyItems.isEmpty,
+                notFoundFlag: mangaHistory.isEmpty,
                 loadFailedFlag: false,
                 moreLoadingFlag: false,
                 moreLoadFailedFlag: false
@@ -354,7 +347,7 @@ private extension HomeView {
                isValidDetailURL(url: link)
             {
                 let gid = link.pathComponents[2]
-                if PersistenceController.hasCached(gid: gid) {
+                if PersistenceController.mangaCached(gid: gid) {
                     replaceMangaCommentJumpID(gid: gid)
                 } else {
                     store.dispatch(
