@@ -99,7 +99,7 @@ struct Parser {
     }
 
     // MARK: Detail
-    static func parseMangaDetail(doc: HTMLDocument) throws -> MangaDetail {
+    static func parseMangaDetail(doc: HTMLDocument, gid: String) throws -> (MangaDetail, MangaState) {
         func parseCoverURL(node: XMLElement?) throws -> String {
             guard let coverHTML = node?.at_xpath("//div [@id='gd1']")?.innerHTML,
             let rangeA = coverHTML.range(of: "url("),
@@ -257,6 +257,7 @@ struct Parser {
         }
 
         var tmpMangaDetail: MangaDetail?
+        var tmpMangaState: MangaState?
         for link in doc.xpath("//div [@class='gm']") {
             guard let gdtNode = doc.at_xpath("//div [@id='gdt']"),
                   let gd3Node = link.at_xpath("//div [@id='gd3']"),
@@ -267,7 +268,7 @@ struct Parser {
                   let gdfNode = gd3Node.at_xpath("//div [@id='gdf']"),
                   let rating = try? parseRating(node: gdrNode),
                   let coverURL = try? parseCoverURL(node: link),
-                  let detailTags = try? parseTags(node: gd4Node),
+                  let tags = try? parseTags(node: gd4Node),
                   let previews = try? parsePreviews(node: gdtNode),
                   let arcAndTor = try? parseArcAndTor(node: gd5Node),
                   let infoPanel = try? parseInfoPanel(node: gddNode),
@@ -290,14 +291,11 @@ struct Parser {
                 archiveURL: arcAndTor.0,
                 alterImagesURL: try? parseAlterImagesURL(doc: doc),
                 alterImages: [],
-                torrents: [],
-                comments: parseComments(doc: doc),
-                previews: previews,
+                gid: gid,
                 title: engTitle,
                 jpnTitle: jpnTitle,
                 rating: rating,
                 ratingCount: ratingCount,
-                detailTags: detailTags,
                 category: category,
                 language: language,
                 uploader: uploader,
@@ -309,13 +307,19 @@ struct Parser {
                 sizeType: infoPanel[3],
                 torrentCount: arcAndTor.1
             )
+            tmpMangaState = MangaState(
+                gid: gid, tags: tags,
+                previews: previews,
+                comments: parseComments(doc: doc)
+            )
             break
         }
 
-        guard let mangaDetail = tmpMangaDetail
+        guard let mangaDetail = tmpMangaDetail,
+              let mangaState = tmpMangaState
         else { throw AppError.parseFailed }
 
-        return mangaDetail
+        return (mangaDetail, mangaState)
     }
 
     // MARK: Comment
@@ -856,7 +860,7 @@ extension Parser {
     }
 
     // MARK: DownloadCmdResp
-    static func parseDownloadCommandResponse(doc: HTMLDocument) throws -> Resp {
+    static func parseDownloadCommandResponse(doc: HTMLDocument) throws -> String {
         guard let dbNode = doc.at_xpath("//div [@id='db']")
         else { throw AppError.parseFailed }
 

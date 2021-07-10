@@ -1,0 +1,48 @@
+//
+//  AppEnvStorage.swift
+//  EhPanda
+//
+//  Created by 荒木辰造 on R 3/07/10.
+//
+
+import SwiftyBeaver
+
+@propertyWrapper
+struct AppEnvStorage<T: Encodable> {
+    private var key: String
+
+    private var appEnv: AppEnv {
+        PersistenceController.fetchAppEnvNonNil()
+    }
+
+    var wrappedValue: T {
+        get {
+            let mirror = Mirror(reflecting: appEnv)
+            for child in mirror.children where child.label == key {
+                if let value = child.value as? T {
+                    return value
+                }
+            }
+            SwiftyBeaver.error(
+                "Failed in force downcasting to generic type..."
+                + "Shutting down now..."
+            )
+            fatalError()
+        }
+        set {
+            PersistenceController.update { appEnvMO in
+                appEnvMO.setValue(newValue.toData(), forKeyPath: key)
+            }
+        }
+    }
+
+    init(type: T.Type, key: String? = nil) {
+        if let key = key {
+            self.key = key
+        } else {
+            self.key = String(
+                describing: type
+            ).lowercased()
+        }
+    }
+}

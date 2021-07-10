@@ -15,7 +15,6 @@ struct AppState {
     var detailInfo = DetailInfo()
     var commentInfo = CommentInfo()
     var contentInfo = ContentInfo()
-    var cachedList = CachedList()
 }
 
 extension AppState {
@@ -47,25 +46,31 @@ extension AppState {
         var favoriteNamesLoading = false
         var greetingLoading = false
 
-        @FileStorage(directory: .cachesDirectory, fileName: "user.json")
-        var user: User?
-        @FileStorage(directory: .cachesDirectory, fileName: "filter.json")
-        var filter: Filter?
-        @FileStorage(directory: .cachesDirectory, fileName: "setting.json")
-        var setting: Setting?
+        var appEnv: AppEnv {
+            PersistenceController.fetchAppEnvNonNil()
+        }
+
+        @AppEnvStorage(type: User.self)
+        var user: User
+
+        @AppEnvStorage(type: Filter.self)
+        var filter: Filter
+
+        @AppEnvStorage(type: Setting.self)
+        var setting: Setting
 
         mutating func update(user: User) {
             if let displayName = user.displayName {
-                self.user?.displayName = displayName
+                self.user.displayName = displayName
             }
             if let avatarURL = user.avatarURL {
-                self.user?.avatarURL = avatarURL
+                self.user.avatarURL = avatarURL
             }
             if let currentGP = user.currentGP,
                let currentCredits = user.currentCredits
             {
-                self.user?.currentGP = currentGP
-                self.user?.currentCredits = currentCredits
+                self.user.currentGP = currentGP
+                self.user.currentCredits = currentCredits
             }
         }
 
@@ -73,13 +78,13 @@ extension AppState {
             guard let currDate = greeting.updateTime
             else { return }
 
-            if let prevGreeting = user?.greeting,
+            if let prevGreeting = user.greeting,
                let prevDate = prevGreeting.updateTime,
                prevDate < currDate
             {
-                user?.greeting = greeting
-            } else if user?.greeting == nil {
-                user?.greeting = greeting
+                user.greeting = greeting
+            } else if user.greeting == nil {
+                user.greeting = greeting
             }
         }
     }
@@ -123,20 +128,18 @@ extension AppState {
         var moreWatchedLoadFailed = false
 
         var favoritesItems = [Int: [Manga]]()
-        var favoritesLoading = generateBoolDic()
-        var favoritesNotFound = generateBoolDic()
-        var favoritesLoadFailed = generateBoolDic()
-        var favoritesCurrentPageNum = generateIntDic()
-        var favoritesPageNumMaximum = generateIntDic(defaultValue: 1)
-        var moreFavoritesLoading = generateBoolDic()
-        var moreFavoritesLoadFailed = generateBoolDic()
+        var favoritesLoading = generateBoolDict()
+        var favoritesNotFound = generateBoolDict()
+        var favoritesLoadFailed = generateBoolDict()
+        var favoritesCurrentPageNum = generateIntDict()
+        var favoritesPageNumMaximum = generateIntDict(defaultValue: 1)
+        var moreFavoritesLoading = generateBoolDict()
+        var moreFavoritesLoadFailed = generateBoolDict()
 
-        @FileStorage(directory: .cachesDirectory, fileName: "historyList.json")
-        var historyItems: [String: Manga]?
-        @FileStorage(directory: .cachesDirectory, fileName: "historyKeywords.json")
-        var historyKeywords: [String]?
+        @AppEnvStorage(type: [String].self, key: "historyKeywords")
+        var historyKeywords: [String]
 
-        static func generateBoolDic(defaultValue: Bool = false) -> [Int: Bool] {
+        static func generateBoolDict(defaultValue: Bool = false) -> [Int: Bool] {
             var tmp = [Int: Bool]()
             (-1..<10).forEach { index in
                 tmp[index] = defaultValue
@@ -144,7 +147,7 @@ extension AppState {
             return tmp
         }
 
-        static func generateIntDic(defaultValue: Int = 0) -> [Int: Int] {
+        static func generateIntDict(defaultValue: Int = 0) -> [Int: Int] {
             var tmp = [Int: Int]()
             (-1..<10).forEach { index in
                 tmp[index] = defaultValue
@@ -180,27 +183,8 @@ extension AppState {
                 }
             }
         }
-        mutating func insertHistoryItem(manga: Manga?) {
-            guard var manga = manga else { return }
-            if historyItems != nil {
-                if historyItems?.keys.contains(manga.gid) == true {
-                    historyItems?[manga.gid]?.lastOpenTime = Date()
-                } else {
-                    manga.lastOpenTime = Date()
-                    historyItems?[manga.gid] = manga
-                }
-            } else {
-                historyItems = Dictionary(
-                    uniqueKeysWithValues: [(manga.gid, manga)]
-                )
-            }
-        }
         mutating func insertHistoryKeyword(text: String) {
             guard !text.isEmpty else { return }
-            guard var historyKeywords = historyKeywords else {
-                historyKeywords = [text]
-                return
-            }
 
             if let index = historyKeywords.firstIndex(of: text) {
                 if historyKeywords.last != text {
@@ -230,16 +214,7 @@ extension AppState {
         var mangaDetailLoading = false
         var mangaDetailLoadFailed = false
 
-        var mangaArchiveLoading = false
-        var mangaArchiveLoadFailed = false
         var mangaArchiveFundsLoading = false
-
-        var downloadCommandResponse: String?
-        var downloadCommandSending = false
-        var downloadCommandFailed = false
-
-        var mangaTorrentsLoading = false
-        var mangaTorrentsLoadFailed = false
 
         var associatedItems: [AssociatedItem] = []
         var associatedItemsLoading = false
@@ -304,88 +279,5 @@ extension AppState {
         var mangaContentsLoadFailed = false
         var moreMangaContentsLoading = false
         var moreMangaContentsLoadFailed = false
-    }
-}
-
-extension AppState {
-    // MARK: CachedList
-    struct CachedList {
-        @FileStorage(directory: .cachesDirectory, fileName: "cachedList.json")
-        var items: [String: Manga]?
-
-        func hasCached(gid: String) -> Bool {
-            items?[gid] != nil
-        }
-        mutating func cache(mangas: [Manga]) {
-            if items == nil {
-                items = Dictionary(uniqueKeysWithValues: mangas.map { ($0.id, $0) })
-                return
-            }
-
-            for manga in mangas {
-                if items?[manga.gid] == nil {
-                    items?[manga.gid] = manga
-                } else {
-                    items?[manga.gid]?.title = manga.title
-                    items?[manga.gid]?.rating = manga.rating
-                    items?[manga.gid]?.tags = manga.tags
-                    items?[manga.gid]?.language = manga.language
-                }
-            }
-        }
-
-        mutating func insertDetail(gid: String, detail: MangaDetail) {
-            items?[gid]?.detail = detail
-        }
-        mutating func insertArchive(gid: String, archive: MangaArchive) {
-            items?[gid]?.detail?.archive = archive
-        }
-        mutating func insertTorrents(gid: String, torrents: [MangaTorrent]) {
-            items?[gid]?.detail?.torrents = torrents
-        }
-        mutating func updateDetail(gid: String, detail: MangaDetail) {
-            items?[gid]?.detail?.isFavored = detail.isFavored
-            items?[gid]?.detail?.archiveURL = detail.archiveURL
-            items?[gid]?.detail?.detailTags = detail.detailTags
-            items?[gid]?.detail?.comments = detail.comments
-            items?[gid]?.detail?.jpnTitle = detail.jpnTitle
-            items?[gid]?.detail?.likeCount = detail.likeCount
-            items?[gid]?.detail?.pageCount = detail.pageCount
-            items?[gid]?.detail?.sizeCount = detail.sizeCount
-            items?[gid]?.detail?.sizeType = detail.sizeType
-            items?[gid]?.detail?.rating = detail.rating
-            items?[gid]?.detail?.ratingCount = detail.ratingCount
-            items?[gid]?.detail?.torrentCount = detail.torrentCount
-        }
-        mutating func insertAlterImages(gid: String, images: [MangaAlterData]) {
-            items?[gid]?.detail?.alterImages = images
-        }
-        mutating func updateComments(gid: String, comments: [MangaComment]) {
-            items?[gid]?.detail?.comments = comments
-        }
-        mutating func insertContents(gid: String, pageNum: PageNumber, contents: [MangaContent]) {
-            items?[gid]?.detail?.currentPageNum = pageNum.current
-            items?[gid]?.detail?.pageNumMaximum = pageNum.maximum
-
-            if items?[gid]?.contents == nil {
-                items?[gid]?.contents = contents.sorted { $0.tag < $1.tag }
-            } else {
-                contents.forEach { content in
-                    if items?[gid]?.contents?.contains(content) == false {
-                        items?[gid]?.contents?.append(content)
-                    }
-                }
-                items?[gid]?.contents?.sort { $0.tag < $1.tag }
-            }
-        }
-        mutating func insertAspectBox(gid: String, box: [Int: CGFloat]) {
-            items?[gid]?.detail?.aspectBox = box
-        }
-        mutating func insertReadingProgress(gid: String, progress: Int) {
-            items?[gid]?.detail?.readingProgress = progress
-        }
-        mutating func updateUserRating(gid: String, rating: Float) {
-            items?[gid]?.detail?.userRating = rating
-        }
     }
 }

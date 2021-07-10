@@ -12,85 +12,79 @@ struct AppearanceSettingView: View, StoreAccessor {
     @EnvironmentObject var store: Store
     @State private var isNavLinkActive = false
 
-    private var settingBinding: Binding<Setting>? {
-        Binding($store.appState.settings.setting)
+    private var settingBinding: Binding<Setting> {
+        $store.appState.settings.setting
     }
     private var selectedIcon: IconType {
-        store.appState
-            .settings.setting?
-            .appIconType ?? appIconType
+        store.appState.settings.setting.appIconType
     }
 
     var body: some View {
-        if let setting = setting,
-           let settingBinding = settingBinding
-        {
-            NavigationLink(
-                destination: SelectAppIconView(
-                    selectedIcon: selectedIcon,
-                    selectAction: onIconSelect
-                ),
-                isActive: $isNavLinkActive,
-                label: {}
-            )
-            Form {
-                Section(header: Text("Global")) {
-                    HStack {
-                        Text("Theme")
-                        Spacer()
-                        Picker(
-                            selection: settingBinding.preferredColorScheme,
-                            label: Text(setting.preferredColorScheme.rawValue.localized()),
-                            content: {
-                                ForEach(PreferredColorScheme.allCases) { colorScheme in
-                                    Text(colorScheme.rawValue.localized()).tag(colorScheme)
-                                }
-                            }
-                        )
-                    }
-                    .pickerStyle(.menu)
-                    ColorPicker("Tint Color", selection: settingBinding.accentColor)
-                    Button("App Icon", action: onAppIconButtonTap)
-                        .foregroundStyle(.primary).withArrow()
-                    Toggle("Translate category", isOn: settingBinding.translateCategory)
-                        .disabled(Locale.current.languageCode == "en")
-                }
-                Section(header: Text("List")) {
-                    Toggle(isOn: settingBinding.showSummaryRowTags) {
-                        HStack {
-                            Text("Show tags in list")
-                            Image(systemName: "exclamationmark.triangle.fill")
-                                .opacity(setting.showSummaryRowTags ? 1 : 0)
-                                .foregroundStyle(.yellow)
-                        }
-                    }
-                    Toggle(isOn: settingBinding.summaryRowTagsMaximumActivated) {
-                        Text("Set maximum number of tags")
-                    }
-                    .disabled(!setting.showSummaryRowTags)
-                    HStack {
-                        Text("Maximum number of tags")
-                        Spacer()
-                        Picker(selection: settingBinding.summaryRowTagsMaximum,
-                               label: Text("\(setting.summaryRowTagsMaximum)")
-                        ) {
-                            let nums = Array(stride(
-                                from: 5, through: 20, by: 5
-                            ))
-                            ForEach(nums, id: \.self) { num in
-                                Text("\(num)").tag(num)
+        NavigationLink(
+            destination: SelectAppIconView(
+                selectedIcon: selectedIcon,
+                selectAction: onIconSelect
+            ),
+            isActive: $isNavLinkActive,
+            label: {}
+        )
+        Form {
+            Section(header: Text("Global")) {
+                HStack {
+                    Text("Theme")
+                    Spacer()
+                    Picker(
+                        selection: settingBinding.preferredColorScheme,
+                        label: Text(setting.preferredColorScheme.rawValue.localized()),
+                        content: {
+                            ForEach(PreferredColorScheme.allCases) { colorScheme in
+                                Text(colorScheme.rawValue.localized()).tag(colorScheme)
                             }
                         }
-                        .pickerStyle(.menu)
-                    }
-                    .disabled(
-                        !setting.summaryRowTagsMaximumActivated
-                        || !setting.showSummaryRowTags
                     )
                 }
+                .pickerStyle(.menu)
+                ColorPicker("Tint Color", selection: settingBinding.accentColor)
+                Button("App Icon", action: onAppIconButtonTap)
+                    .foregroundStyle(.primary).withArrow()
+                Toggle("Translate category", isOn: settingBinding.translateCategory)
+                    .disabled(Locale.current.languageCode == "en")
             }
-            .navigationBarTitle("Appearance")
+            Section(header: Text("List")) {
+                Toggle(isOn: settingBinding.showSummaryRowTags) {
+                    HStack {
+                        Text("Show tags in list")
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .opacity(setting.showSummaryRowTags ? 1 : 0)
+                            .foregroundStyle(.yellow)
+                    }
+                }
+                Toggle(isOn: settingBinding.summaryRowTagsMaximumActivated) {
+                    Text("Set maximum number of tags")
+                }
+                .disabled(!setting.showSummaryRowTags)
+                HStack {
+                    Text("Maximum number of tags")
+                    Spacer()
+                    Picker(selection: settingBinding.summaryRowTagsMaximum,
+                           label: Text("\(setting.summaryRowTagsMaximum)")
+                    ) {
+                        let nums = Array(stride(
+                            from: 5, through: 20, by: 5
+                        ))
+                        ForEach(nums, id: \.self) { num in
+                            Text("\(num)").tag(num)
+                        }
+                    }
+                    .pickerStyle(.menu)
+                }
+                .disabled(
+                    !setting.summaryRowTagsMaximumActivated
+                    || !setting.showSummaryRowTags
+                )
+            }
         }
+        .navigationBarTitle("Appearance")
     }
 
     private func onAppIconButtonTap() {

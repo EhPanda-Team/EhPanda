@@ -33,7 +33,7 @@ struct AssociatedView: View, StoreAccessor {
                             .opacity(0)
                             MangaSummaryRow(
                                 manga: manga,
-                                setting: setting ?? Setting()
+                                setting: setting
                             )
                         }
                         .onAppear {

@@ -10,10 +10,7 @@ import Kanna
 import Foundation
 
 enum AppAction {
-    case replaceUser(user: User?)
-    case clearCachedList
-    case clearHistoryItems
-    case initializeStates
+    case replaceUser(user: User)
     case initializeFilter
     case clearDetailViewCommentContent
     case clearCommentViewCommentContent
@@ -21,12 +18,10 @@ enum AppAction {
     case saveReadingProgress(gid: String, tag: Int)
     case updateDiskImageCacheSize(size: String)
     case updateAppIconType(iconType: IconType)
-    case updateHistoryItems(gid: String)
     case updateHistoryKeywords(text: String)
     case clearHistoryKeywords
     case updateSearchKeyword(text: String)
     case updateViewControllersCount
-    case resetDownloadCommandResponse
     case replaceMangaCommentJumpID(gid: String?)
     case updateIsSlideMenuClosed(isClosed: Bool)
 
@@ -69,23 +64,15 @@ enum AppAction {
     case fetchMoreFavoritesItems(index: Int)
     case fetchMoreFavoritesItemsDone(carriedValue: FavoritesIndex, result: Result<(PageNumber, [Manga]), AppError>)
     case fetchMangaDetail(gid: String)
-    case fetchMangaDetailDone(result: Result<(Identity, MangaDetail, APIKey), AppError>)
-    case fetchMangaArchive(gid: String)
-    case fetchMangaArchiveDone(result: Result<(Identity, MangaArchive, CurrentGP?, CurrentCredits?), AppError>)
+    case fetchMangaDetailDone(result: Result<(MangaDetail, MangaState, APIKey?), AppError>)
     case fetchMangaArchiveFunds(gid: String)
     case fetchMangaArchiveFundsDone(result: Result<((CurrentGP, CurrentCredits)), AppError>)
-    case fetchMangaTorrents(gid: String)
-    case fetchMangaTorrentsDone(result: Result<(Identity, [MangaTorrent]), AppError>)
     case fetchAssociatedItems(depth: Int, keyword: AssociatedKeyword)
     case fetchAssociatedItemsDone(result: Result<(Depth, AssociatedKeyword, PageNumber, [Manga]), AppError>)
     case fetchMoreAssociatedItems(depth: Int, keyword: AssociatedKeyword)
     case fetchMoreAssociatedItemsDone(result: Result<(Depth, AssociatedKeyword, PageNumber, [Manga]), AppError>)
     case fetchAlterImages(gid: String)
     case fetchAlterImagesDone(result: Result<(Identity, [MangaAlterData]), AppError>)
-    case updateMangaComments(gid: String)
-    case updateMangaCommentsDone(result: Result<(Identity, [MangaComment]), AppError>)
-    case updateMangaDetail(gid: String)
-    case updateMangaDetailDone(result: Result<(Identity, MangaDetail), AppError>)
     case fetchMangaContents(gid: String)
     case fetchMangaContentsDone(result: Result<(Identity, PageNumber, [MangaContent]), AppError>)
     case fetchMoreMangaContents(gid: String)
@@ -93,8 +80,6 @@ enum AppAction {
 
     case addFavorite(gid: String, favIndex: Int)
     case deleteFavorite(gid: String)
-    case sendDownloadCommand(gid: String, resolution: String)
-    case sendDownloadCommandDone(result: Resp?)
     case rate(gid: String, rating: Int)
     case comment(gid: String, content: String)
     case editComment(gid: String, commentID: String, content: String)

@@ -35,9 +35,6 @@ extension StoreAccessor {
     var contentInfo: AppState.ContentInfo {
         appState.contentInfo
     }
-    var cachedList: AppState.CachedList {
-        appState.cachedList
-    }
 }
 
 // MARK: Environment
@@ -58,35 +55,35 @@ extension StoreAccessor {
 
 // MARK: Settings
 extension StoreAccessor {
-    var user: User? {
+    var user: User {
         settings.user
     }
     var currentGP: String? {
-        user?.currentGP
+        user.currentGP
     }
     var currentCredits: String? {
-        user?.currentCredits
+        user.currentCredits
     }
     var favoriteNames: [Int: String]? {
-        user?.favoriteNames
+        user.favoriteNames
     }
-    var setting: Setting? {
+    var setting: Setting {
         settings.setting
     }
-    var filter: Filter? {
+    var filter: Filter {
         settings.filter
     }
     var accentColor: Color {
-        setting?.accentColor ?? .blue
+        setting.accentColor
     }
     var allowsResignActiveBlur: Bool {
-        setting?.allowsResignActiveBlur ?? true
+        setting.allowsResignActiveBlur
     }
     var autoLockPolicy: AutoLockPolicy {
-        setting?.autoLockPolicy ?? .never
+        setting.autoLockPolicy
     }
     var detectGalleryFromPasteboard: Bool {
-        setting?.detectGalleryFromPasteboard ?? false
+        setting.detectGalleryFromPasteboard
     }
 }
 

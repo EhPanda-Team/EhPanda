@@ -77,8 +77,6 @@
 "Are you sure to logout?" = "本当にログアウトしますか？";
 "Are you sure to clear?" = "本当に削除しますか？";
 "Clear" = "削除";
-"Warning" = "警告";
-"It's for debug only." = "デバッグ専用機能です";
 
 "General" = "一般";
 "Close slide menu after selection" = "選択後スライドメニューを閉じる";
@@ -89,7 +87,6 @@
 "App switcher blur" = "アプリスイッチャーぼかし";
 "Cache" = "キャッシュ";
 "Clear image caches" = "画像キャッシュを削除";
-"Clear web caches" = "ウェブキャッシュを削除";
 "Copy cookies" = "クッキーをコピー";
 
 "Appearance" = "外観";

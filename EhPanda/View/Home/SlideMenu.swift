@@ -26,8 +26,8 @@ struct SlideMenu: View, StoreAccessor {
             VStack(spacing: 0) {
                 AvatarView(
                     iconName: iconType.iconName,
-                    avatarURL: user?.avatarURL,
-                    displayName: user?.displayName,
+                    avatarURL: user.avatarURL,
+                    displayName: user.displayName,
                     width: Defaults.ImageSize.avatarW,
                     height: Defaults.ImageSize.avatarH
                 )
@@ -73,9 +73,7 @@ private extension SlideMenu {
         Defaults.FrameSize.slideMenuWidth
     }
     var iconType: IconType {
-        store.appState
-            .settings.setting?
-            .appIconType ?? appIconType
+        store.appState.settings.setting.appIconType
     }
 
     func onMenuRowTap(item: HomeListType) {
@@ -83,7 +81,7 @@ private extension SlideMenu {
             store.dispatch(.toggleHomeList(type: item))
             impactFeedback(style: .soft)
 
-            if setting?.closeSlideMenuAfterSelection == true {
+            if setting.closeSlideMenuAfterSelection {
                 performTransition(offset: -width)
             }
         }
@@ -92,7 +90,7 @@ private extension SlideMenu {
         store.dispatch(.toggleHomeViewSheet(state: .setting))
     }
     func onFavoritesIndexChange(_ : Int) {
-        if setting?.closeSlideMenuAfterSelection == true {
+        if setting.closeSlideMenuAfterSelection {
             performTransition(offset: -width)
         }
     }

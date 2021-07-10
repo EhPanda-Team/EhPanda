@@ -8,14 +8,14 @@
 import SwiftUI
 import Kingfisher
 
-struct DetailView: View, StoreAccessor {
+struct DetailView: View, StoreAccessor, PersistenceAccessor {
     @EnvironmentObject var store: Store
     @Environment(\.colorScheme) private var colorScheme
 
     @State private var associatedKeyword = AssociatedKeyword()
     @State private var isNavLinkActive = false
 
-    private let gid: String
+    let gid: String
     private let depth: Int
 
     init(gid: String, depth: Int) {
@@ -39,9 +39,9 @@ struct DetailView: View, StoreAccessor {
                     VStack(spacing: 30) {
                         HeaderView(
                             manga: manga, detail: detail,
-                            translateCategory: setting?
-                                .translateCategory != false,
-                            favoriteNames: user?.favoriteNames,
+                            translateCategory: setting
+                                .translateCategory,
+                            favoriteNames: user.favoriteNames,
                             addFavAction: addFavorite,
                             deleteFavAction: deleteFavorite
                         )
@@ -52,20 +52,20 @@ struct DetailView: View, StoreAccessor {
                         ) {
                             onSimilarGalleryTap(title: detail.title)
                         }
-                        if !detail.detailTags.isEmpty {
+                        if !mangaState.tags.isEmpty {
                             TagsView(
-                                tags: detail.detailTags,
+                                tags: mangaState.tags,
                                 onTapAction: onTagsViewTap
                             )
                         }
                         PreviewView(
-                            previews: detail.previews,
+                            previews: mangaState.previews,
                             alterImages: detail.alterImages
                         )
                         CommentScrollView(
                             gid: gid,
                             depth: depth,
-                            comments: detail.comments,
+                            comments: mangaState.comments,
                             toggleCommentAction: onCommentButtonTap
                         )
                     }
@@ -90,7 +90,7 @@ struct DetailView: View, StoreAccessor {
                 case .archive:
                     ArchiveView(gid: gid)
                 case .torrents:
-                    TorrentsView(gid: gid)
+                    TorrentsView(gid: gid, token: manga.token)
                 case .comment:
                     DraftCommentView(
                         content: commentContentBinding,
@@ -152,12 +152,6 @@ private extension DetailView {
     var commentContentBinding: Binding<String> {
         detailInfoBinding.commentContent
     }
-    var manga: Manga {
-        cachedList.items?[gid] ?? Manga.empty
-    }
-    var mangaDetail: MangaDetail? {
-        cachedList.items?[gid]?.detail
-    }
 }
 
 // MARK: Private Methods
@@ -167,11 +161,7 @@ private extension DetailView {
             store.dispatch(.toggleNavBar(hidden: false))
         }
 
-        if mangaDetail == nil {
-            fetchMangaDetail()
-        } else {
-            updateMangaDetail()
-        }
+        fetchMangaDetail()
         updateViewControllersCount()
     }
     func onDisappear() {
@@ -228,17 +218,9 @@ private extension DetailView {
     func fetchMangaDetail() {
         store.dispatch(.fetchMangaDetail(gid: gid))
     }
-    func updateMangaDetail() {
-        store.dispatch(.updateMangaDetail(gid: gid))
-    }
-    func fetchMangaTorrents() {
-        store.dispatch(.fetchMangaTorrents(gid: gid))
-    }
     func updateHistoryItems() {
-        DispatchQueue.main.async {
-            if environment.homeListType != .history {
-                store.dispatch(.updateHistoryItems(gid: gid))
-            }
+        if environment.homeListType != .history {
+            PersistenceController.updateLastOpenDate(gid: gid)
         }
     }
 }
@@ -552,9 +534,9 @@ private struct ActionRow: View {
 
 private extension ActionRow {
     func onStartTasks() {
-        if let rating = detail.userRating {
-            userRating = Int(rating.fixedRating() * 2)
-        }
+//        if let rating = detail.userRating {
+//            userRating = Int(rating.fixedRating() * 2)
+//        }
     }
     func onRateButtonTap() {
         withAnimation {
@@ -737,7 +719,8 @@ private struct CommentScrollView: View {
                 Spacer()
                 NavigationLink(
                     destination: CommentView(
-                        gid: gid, depth: depth
+                        gid: gid, depth: depth,
+                        comments: comments
                     )
                 ) {
                     Text("Show All")

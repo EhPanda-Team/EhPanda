@@ -33,19 +33,18 @@ struct EhPandaApp: App {
 }
 
 private extension EhPandaApp {
-    var setting: Setting? {
+    var setting: Setting {
         store.appState.settings.setting
     }
-    var accentColor: Color? {
-        setting?.accentColor
+    var accentColor: Color {
+        setting.accentColor
     }
     var preferredColorScheme: ColorScheme? {
-        setting?.colorScheme ?? .none
+        setting.colorScheme
     }
 
     func onStartTasks() {
         DispatchQueue.main.async {
-            store.dispatch(.initializeStates)
             store.dispatch(.fetchFavoriteNames)
             store.dispatch(.fetchUserInfo)
         }

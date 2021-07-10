@@ -22,10 +22,12 @@ struct CommentView: View, StoreAccessor {
 
     private let gid: String
     private let depth: Int
+    private let comments: [MangaComment]
 
-    init(gid: String, depth: Int) {
+    init(gid: String, depth: Int, comments: [MangaComment]) {
         self.gid = gid
         self.depth = depth
+        self.comments = comments
     }
 
     // MARK: CommentView
@@ -121,10 +123,6 @@ struct CommentView: View, StoreAccessor {
 
 // MARK: Private Extension
 private extension CommentView {
-    var comments: [MangaComment] {
-        store.appState.cachedList.items?[gid]?.detail?.comments ?? []
-    }
-
     var environmentBinding: Binding<AppState.Environment> {
         $store.appState.environment
     }
@@ -149,7 +147,7 @@ private extension CommentView {
     func onLinkTap(link: URL) {
         if isValidDetailURL(url: link) {
             let gid = link.pathComponents[2]
-            if cachedList.hasCached(gid: gid) {
+            if PersistenceController.mangaCached(gid: gid) {
                 replaceMangaCommentJumpID(gid: gid)
             } else {
                 store.dispatch(

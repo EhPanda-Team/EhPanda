@@ -43,6 +43,18 @@ extension Array where Element: Publisher {
     }
 }
 
+extension Encodable {
+    func toData() -> Data? {
+        try? JSONEncoder().encode(self)
+    }
+}
+
+extension Data {
+    func toObject<O: Decodable>() -> O? {
+        try? JSONDecoder().decode(O.self, from: self)
+    }
+}
+
 extension Float {
     func fixedRating() -> Float {
         let lowerbound = Int(self)

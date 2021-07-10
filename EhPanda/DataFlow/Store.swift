@@ -42,48 +42,24 @@ final class Store: ObservableObject {
         // MARK: App Ops
         case .replaceUser(let user):
             appState.settings.user = user
-        case .clearCachedList:
-            appState.cachedList.items = nil
-        case .clearHistoryItems:
-            appState.homeInfo.historyItems = nil
-        case .initializeStates:
-            if appState.settings.user == nil {
-                appState.settings.user = User()
-            }
-            if appState.settings.filter == nil {
-                appState.settings.filter = Filter()
-            }
-            if appState.settings.setting == nil {
-                appState.settings.setting = Setting()
-            }
-            // swiftlint:disable unneeded_break_in_switch
-            break
-            // swiftlint:enable unneeded_break_in_switch
         case .initializeFilter:
             appState.settings.filter = Filter()
         case .saveAspectBox(let gid, let box):
-            appState.cachedList.insertAspectBox(gid: gid, box: box)
+            PersistenceController.update(gid: gid, aspectBox: box)
         case .saveReadingProgress(let gid, let tag):
-            appState.cachedList.insertReadingProgress(gid: gid, progress: tag)
+            PersistenceController.update(gid: gid, readingProgress: tag)
         case .updateDiskImageCacheSize(let size):
-            appState.settings.setting?.diskImageCacheSize = size
+            appState.settings.setting.diskImageCacheSize = size
         case .updateAppIconType(let iconType):
-            appState.settings.setting?.appIconType = iconType
-        case .updateHistoryItems(let gid):
-            let item = appState.cachedList.items?[gid]
-            appState.homeInfo.insertHistoryItem(manga: item)
+            appState.settings.setting.appIconType = iconType
         case .updateHistoryKeywords(let text):
             appState.homeInfo.insertHistoryKeyword(text: text)
         case .clearHistoryKeywords:
-            appState.homeInfo.historyKeywords = nil
+            appState.homeInfo.historyKeywords = []
         case .updateSearchKeyword(let text):
             appState.homeInfo.searchKeyword = text
         case .updateViewControllersCount:
             appState.environment.viewControllersCount = viewControllersCount
-        case .resetDownloadCommandResponse:
-            appState.detailInfo.downloadCommandResponse = nil
-            appState.detailInfo.downloadCommandSending = false
-            appState.detailInfo.downloadCommandFailed = false
         case .replaceMangaCommentJumpID(let gid):
             appState.environment.mangaItemReverseID = gid
         case .updateIsSlideMenuClosed(let isClosed):
@@ -145,8 +121,8 @@ final class Store: ObservableObject {
             }
 
         case .fetchUserInfo:
-            guard let uid = appState.settings.user?.apiuid, !uid.isEmpty,
-                    !appState.settings.userInfoLoading
+            let uid = appState.settings.user.apiuid
+            guard !uid.isEmpty, !appState.settings.userInfoLoading
             else { break }
             appState.settings.userInfoLoading = true
 
@@ -167,7 +143,7 @@ final class Store: ObservableObject {
             appState.settings.favoriteNamesLoading = false
 
             if case .success(let names) = result {
-                appState.settings.user?.favoriteNames = names
+                appState.settings.user.favoriteNames = names
             }
 
         case .fetchMangaItemReverse(let detailURL):
@@ -182,7 +158,7 @@ final class Store: ObservableObject {
 
             switch result {
             case .success(let manga):
-                appState.cachedList.cache(mangas: [manga])
+                PersistenceController.add(mangas: [manga])
                 appState.environment.mangaItemReverseID = manga.gid
             case .failure:
                 appState.environment.mangaItemReverseLoadFailed = true
@@ -196,7 +172,7 @@ final class Store: ObservableObject {
             appState.homeInfo.searchCurrentPageNum = 0
             appState.homeInfo.searchLoading = true
 
-            let filter = appState.settings.filter ?? Filter()
+            let filter = appState.settings.filter
             appCommand = FetchSearchItemsCommand(keyword: keyword, filter: filter)
         case .fetchSearchItemsDone(let result):
             appState.homeInfo.searchLoading = false
@@ -216,7 +192,7 @@ final class Store: ObservableObject {
                         appState.homeInfo.searchNotFound = true
                     }
                 } else {
-                    appState.cachedList.cache(mangas: mangas.2)
+                    PersistenceController.add(mangas: mangas.2)
                 }
             case .failure:
                 appState.homeInfo.searchLoadFailed = true
@@ -232,7 +208,7 @@ final class Store: ObservableObject {
             if appState.homeInfo.moreSearchLoading { break }
             appState.homeInfo.moreSearchLoading = true
 
-            let filter = appState.settings.filter ?? Filter()
+            let filter = appState.settings.filter
             let lastID = appState.homeInfo.searchItems?.last?.id ?? ""
             let pageNum = appState.homeInfo.searchCurrentPageNum + 1
             appCommand = FetchMoreSearchItemsCommand(
@@ -250,7 +226,7 @@ final class Store: ObservableObject {
                 appState.homeInfo.searchPageNumMaximum = mangas.1.maximum
 
                 appState.homeInfo.insertSearchItems(mangas: mangas.2)
-                appState.cachedList.cache(mangas: mangas.2)
+                PersistenceController.add(mangas: mangas.2)
 
                 if mangas.1.current < mangas.1.maximum && mangas.2.isEmpty {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
@@ -289,7 +265,7 @@ final class Store: ObservableObject {
                         appState.homeInfo.frontpageNotFound = true
                     }
                 } else {
-                    appState.cachedList.cache(mangas: mangas.1)
+                    PersistenceController.add(mangas: mangas.1)
                 }
             case .failure:
                 appState.homeInfo.frontpageLoadFailed = true
@@ -317,7 +293,7 @@ final class Store: ObservableObject {
                 appState.homeInfo.frontpagePageNumMaximum = mangas.0.maximum
 
                 appState.homeInfo.insertFrontpageItems(mangas: mangas.1)
-                appState.cachedList.cache(mangas: mangas.1)
+                PersistenceController.add(mangas: mangas.1)
 
                 if mangas.0.current < mangas.0.maximum && mangas.1.isEmpty {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
@@ -346,7 +322,7 @@ final class Store: ObservableObject {
                     appState.homeInfo.popularNotFound = true
                 } else {
                     appState.homeInfo.popularItems = mangas.1
-                    appState.cachedList.cache(mangas: mangas.1)
+                    PersistenceController.add(mangas: mangas.1)
                 }
             case .failure:
                 appState.homeInfo.popularLoadFailed = true
@@ -378,7 +354,7 @@ final class Store: ObservableObject {
                         appState.homeInfo.watchedNotFound = true
                     }
                 } else {
-                    appState.cachedList.cache(mangas: mangas.1)
+                    PersistenceController.add(mangas: mangas.1)
                 }
             case .failure:
                 appState.homeInfo.watchedLoadFailed = true
@@ -406,7 +382,7 @@ final class Store: ObservableObject {
                 appState.homeInfo.watchedPageNumMaximum = mangas.0.maximum
 
                 appState.homeInfo.insertWatchedItems(mangas: mangas.1)
-                appState.cachedList.cache(mangas: mangas.1)
+                PersistenceController.add(mangas: mangas.1)
 
                 if mangas.0.current < mangas.0.maximum && mangas.1.isEmpty {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
@@ -445,7 +421,7 @@ final class Store: ObservableObject {
                         appState.homeInfo.favoritesNotFound[carriedValue] = true
                     }
                 } else {
-                    appState.cachedList.cache(mangas: mangas.1)
+                    PersistenceController.add(mangas: mangas.1)
                 }
             case .failure:
                 appState.homeInfo.favoritesLoadFailed[carriedValue] = true
@@ -477,7 +453,7 @@ final class Store: ObservableObject {
                 appState.homeInfo.favoritesPageNumMaximum[carriedValue] = mangas.0.maximum
 
                 appState.homeInfo.insertFavoritesItems(favIndex: carriedValue, mangas: mangas.1)
-                appState.cachedList.cache(mangas: mangas.1)
+                PersistenceController.add(mangas: mangas.1)
 
                 if mangas.0.current < mangas.0.maximum && mangas.1.isEmpty {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
@@ -496,54 +472,27 @@ final class Store: ObservableObject {
             if appState.detailInfo.mangaDetailLoading { break }
             appState.detailInfo.mangaDetailLoading = true
 
-            let detailURL = appState.cachedList.items?[gid]?.detailURL ?? ""
+            let detailURL = PersistenceController.fetchManga(gid: gid)?.detailURL ?? ""
             appCommand = FetchMangaDetailCommand(gid: gid, detailURL: detailURL)
         case .fetchMangaDetailDone(let result):
             appState.detailInfo.mangaDetailLoading = false
 
             switch result {
             case .success(let detail):
-                appState.settings.user?.apikey = detail.2
-                appState.cachedList.insertDetail(gid: detail.0, detail: detail.1)
+                if let apikey = detail.2 {
+                    appState.settings.user.apikey = apikey
+                }
+                PersistenceController.add(detail: detail.0)
+                PersistenceController.update(fetchedState: detail.1)
             case .failure:
                 appState.detailInfo.mangaDetailLoadFailed = true
-            }
-
-        case .fetchMangaArchive(let gid):
-            appState.detailInfo.mangaArchiveLoadFailed = false
-
-            if appState.detailInfo.mangaArchiveLoading { break }
-            appState.detailInfo.mangaArchiveLoading = true
-
-            let archiveURL = appState.cachedList.items?[gid]?.detail?.archiveURL ?? ""
-            appCommand = FetchMangaArchiveCommand(gid: gid, archiveURL: archiveURL)
-        case .fetchMangaArchiveDone(let result):
-            appState.detailInfo.mangaArchiveLoading = false
-
-            switch result {
-            case .success(let archive):
-                appState.cachedList.insertArchive(gid: archive.0, archive: archive.1)
-
-                if let currentGP = archive.2,
-                   let currentCredits = archive.3
-                {
-                    appState.settings.update(
-                        user: User(
-                            currentGP: currentGP,
-                            currentCredits: currentCredits
-                        )
-                    )
-                }
-            case .failure:
-                appState.detailInfo.mangaArchiveLoadFailed = true
             }
 
         case .fetchMangaArchiveFunds(let gid):
             if appState.detailInfo.mangaArchiveFundsLoading { break }
             appState.detailInfo.mangaArchiveFundsLoading = true
-
-            let detailURL = appState.cachedList.items?[gid]?.detailURL ?? ""
-            appCommand = FetchMangaArchiveFundsCommand(detailURL: detailURL)
+            let detailURL = PersistenceController.fetchManga(gid: gid)?.detailURL ?? ""
+            appCommand = FetchMangaArchiveFundsCommand(gid: gid, detailURL: detailURL)
         case .fetchMangaArchiveFundsDone(let result):
             appState.detailInfo.mangaArchiveFundsLoading = false
 
@@ -554,24 +503,6 @@ final class Store: ObservableObject {
                         currentCredits: funds.1
                     )
                 )
-            }
-
-        case .fetchMangaTorrents(let gid):
-            appState.detailInfo.mangaTorrentsLoadFailed = false
-
-            if appState.detailInfo.mangaTorrentsLoading { break }
-            appState.detailInfo.mangaTorrentsLoading = true
-
-            let token = appState.cachedList.items?[gid]?.token ?? ""
-            appCommand = FetchMangaTorrentsCommand(gid: gid, token: token)
-        case .fetchMangaTorrentsDone(let result):
-            appState.detailInfo.mangaTorrentsLoading = false
-
-            switch result {
-            case .success(let torrents):
-                appState.cachedList.insertTorrents(gid: torrents.0, torrents: torrents.1)
-            case .failure:
-                appState.detailInfo.mangaTorrentsLoadFailed = true
             }
 
         case .fetchAssociatedItems(let depth, let keyword):
@@ -603,7 +534,7 @@ final class Store: ObservableObject {
                         appState.detailInfo.associatedItemsNotFound = true
                     }
                 } else {
-                    appState.cachedList.cache(mangas: mangas.3)
+                    PersistenceController.add(mangas: mangas.3)
                 }
             case .failure:
                 appState.detailInfo.associatedItemsLoadFailed = true
@@ -639,7 +570,7 @@ final class Store: ObservableObject {
                     pageNum: mangas.2,
                     items: mangas.3
                 )
-                appState.cachedList.cache(mangas: mangas.3)
+                PersistenceController.add(mangas: mangas.3)
 
                 if mangas.2.current < mangas.2.maximum && mangas.3.isEmpty {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
@@ -655,42 +586,16 @@ final class Store: ObservableObject {
         case .fetchAlterImages(let gid):
             if appState.detailInfo.alterImagesLoading { break }
             appState.detailInfo.alterImagesLoading = true
-
-            let alterImagesURL = appState.cachedList.items?[gid]?.detail?.alterImagesURL ?? ""
-            appCommand = FetchAlterImagesCommand(gid: gid, alterImagesURL: alterImagesURL)
+            // debugMark
+//            let alterImagesURL = PersistenceController.fetchManga(gid: gid)?.detail?.alterImagesURL ?? ""
+//            appCommand = FetchAlterImagesCommand(gid: gid, alterImagesURL: alterImagesURL)
 
         case .fetchAlterImagesDone(let result):
             appState.detailInfo.alterImagesLoading = false
 
-            if case .success(let images) = result {
-                appState.cachedList.insertAlterImages(gid: images.0, images: images.1)
-            }
-
-        case .updateMangaDetail(let gid):
-            if appState.detailInfo.mangaDetailUpdating { break }
-            appState.detailInfo.mangaDetailUpdating = true
-
-            let detailURL = appState.cachedList.items?[gid]?.detailURL ?? ""
-            appCommand = UpdateMangaDetailCommand(gid: gid, detailURL: detailURL)
-        case .updateMangaDetailDone(let result):
-            appState.detailInfo.mangaDetailUpdating = false
-
-            if case .success(let detail) = result {
-                appState.cachedList.updateDetail(gid: detail.0, detail: detail.1)
-            }
-
-        case .updateMangaComments(let gid):
-            if appState.detailInfo.mangaCommentsUpdating { break }
-            appState.detailInfo.mangaCommentsUpdating = true
-
-            let detailURL = appState.cachedList.items?[gid]?.detailURL ?? ""
-            appCommand = UpdateMangaCommentsCommand(gid: gid, detailURL: detailURL)
-        case .updateMangaCommentsDone(result: let result):
-            appState.detailInfo.mangaCommentsUpdating = false
-
-            if case .success(let comments) = result {
-                appState.cachedList.updateComments(gid: comments.0, comments: comments.1)
-            }
+//            if case .success(let images) = result {
+//                appState.cachedList.insertAlterImages(gid: images.0, images: images.1)
+//            }
 
         case .fetchMangaContents(let gid):
             appState.contentInfo.mangaContentsLoadFailed = false
@@ -698,16 +603,14 @@ final class Store: ObservableObject {
             if appState.contentInfo.mangaContentsLoading { break }
             appState.contentInfo.mangaContentsLoading = true
 
-            appState.cachedList.items?[gid]?.detail?.currentPageNum = 0
-
-            let detailURL = appState.cachedList.items?[gid]?.detailURL ?? ""
+            let detailURL = PersistenceController.fetchManga(gid: gid)?.detailURL ?? ""
             appCommand = FetchMangaContentsCommand(gid: gid, detailURL: detailURL)
         case .fetchMangaContentsDone(let result):
             appState.contentInfo.mangaContentsLoading = false
 
             switch result {
             case .success(let contents):
-                appState.cachedList.insertContents(
+                PersistenceController.update(
                     gid: contents.0,
                     pageNum: contents.1,
                     contents: contents.2
@@ -719,12 +622,13 @@ final class Store: ObservableObject {
         case .fetchMoreMangaContents(let gid):
             appState.contentInfo.moreMangaContentsLoadFailed = false
 
-            guard let manga = appState.cachedList.items?[gid],
-                  let detail = manga.detail
+            guard let manga = PersistenceController.fetchManga(gid: gid),
+                  let detail = PersistenceController.fetchMangaDetail(gid: gid)
             else { break }
+            let state = PersistenceController.fetchMangaStateNonNil(gid: gid)
 
-            let currentNum = detail.currentPageNum
-            let maximumNum = detail.pageNumMaximum
+            let currentNum = state.currentPageNum
+            let maximumNum = state.pageNumMaximum
             if currentNum + 1 >= maximumNum { break }
 
             if appState.contentInfo.moreMangaContentsLoading { break }
@@ -732,7 +636,7 @@ final class Store: ObservableObject {
 
             let detailURL = manga.detailURL
             let pageNum = currentNum + 1
-            let pageCount = manga.contents?.count ?? 0
+            let pageCount = state.contents.count
             appCommand = FetchMoreMangaContentsCommand(
                 gid: gid,
                 detailURL: detailURL,
@@ -755,7 +659,7 @@ final class Store: ObservableObject {
 
             switch result {
             case .success(let contents):
-                appState.cachedList.insertContents(
+                PersistenceController.update(
                     gid: contents.0,
                     pageNum: contents.1,
                     contents: contents.2
@@ -766,44 +670,22 @@ final class Store: ObservableObject {
 
         // MARK: Account Ops
         case .addFavorite(let gid, let favIndex):
-            let token = appState.cachedList.items?[gid]?.token ?? ""
+            let token = PersistenceController.fetchManga(gid: gid)?.token ?? ""
             appCommand = AddFavoriteCommand(gid: gid, token: token, favIndex: favIndex)
         case .deleteFavorite(let gid):
             appCommand = DeleteFavoriteCommand(gid: gid)
 
-        case .sendDownloadCommand(let gid, let resolution):
-            appState.detailInfo.downloadCommandFailed = false
-
-            if appState.detailInfo.downloadCommandSending { break }
-            appState.detailInfo.downloadCommandSending = true
-
-            let archiveURL = appState.cachedList.items?[gid]?.detail?.archiveURL ?? ""
-            appCommand = SendDownloadCommand(gid: gid, archiveURL: archiveURL, resolution: resolution)
-        case .sendDownloadCommandDone(let result):
-            appState.detailInfo.downloadCommandSending = false
-
-            switch result {
-            case Defaults.Response.hathClientNotFound,
-                 Defaults.Response.hathClientNotOnline,
-                 Defaults.Response.invalidResolution,
-                 .none:
-                appState.detailInfo.downloadCommandFailed = true
-            default:
-                break
-            }
-
-            appState.detailInfo.downloadCommandResponse = result
-
         case .rate(let gid, let rating):
-            guard let apiuidString = appState.settings.user?.apiuid,
-                  let apikey = appState.settings.user?.apikey,
-                  let token = appState.cachedList.items?[gid]?.token,
+            let apiuidString = appState.settings.user.apiuid
+            guard !apiuidString.isEmpty,
+                  let apikey = appState.settings.user.apikey,
+                  let token = PersistenceController.fetchManga(gid: gid)?.token,
                   let apiuid = Int(apiuidString),
                   let gid = Int(gid)
             else { break }
 
-            appState.cachedList.updateUserRating(
-                gid: String(gid), rating: Float(rating) / 2.0
+            PersistenceController.update(
+                gid: String(gid), userRating: Float(rating) / 2.0
             )
 
             appCommand = RateCommand(
@@ -815,10 +697,10 @@ final class Store: ObservableObject {
             )
 
         case .comment(let gid, let content):
-            let detailURL = appState.cachedList.items?[gid]?.detailURL ?? ""
+            let detailURL = PersistenceController.fetchManga(gid: gid)?.detailURL ?? ""
             appCommand = CommentCommand(gid: gid, content: content, detailURL: detailURL)
         case .editComment(let gid, let commentID, let content):
-            let detailURL = appState.cachedList.items?[gid]?.detailURL ?? ""
+            let detailURL = PersistenceController.fetchManga(gid: gid)?.detailURL ?? ""
 
             appCommand = EditCommentCommand(
                 gid: gid,
@@ -827,9 +709,10 @@ final class Store: ObservableObject {
                 detailURL: detailURL
             )
         case .voteComment(let gid, let commentID, let vote):
-            guard let apiuidString = appState.settings.user?.apiuid,
-                  let apikey = appState.settings.user?.apikey,
-                  let token = appState.cachedList.items?[gid]?.token,
+            let apiuidString = appState.settings.user.apiuid
+            guard !apiuidString.isEmpty,
+                  let apikey = appState.settings.user.apikey,
+                  let token = PersistenceController.fetchManga(gid: gid)?.token,
                   let commentID = Int(commentID),
                   let apiuid = Int(apiuidString),
                   let gid = Int(gid)
