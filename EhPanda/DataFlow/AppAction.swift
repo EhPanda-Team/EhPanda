@@ -11,7 +11,6 @@ import Foundation
 
 enum AppAction {
     case replaceUser(user: User?)
-    case clearCachedList
     case clearHistoryItems
     case initializeStates
     case initializeFilter
@@ -68,7 +67,7 @@ enum AppAction {
     case fetchMoreFavoritesItems(index: Int)
     case fetchMoreFavoritesItemsDone(carriedValue: FavoritesIndex, result: Result<(PageNumber, [Manga]), AppError>)
     case fetchMangaDetail(gid: String)
-    case fetchMangaDetailDone(result: Result<(MangaDetail, APIKey?), AppError>)
+    case fetchMangaDetailDone(result: Result<(MangaDetail, MangaState, APIKey?), AppError>)
     case fetchMangaArchiveFunds(gid: String)
     case fetchMangaArchiveFundsDone(result: Result<((CurrentGP, CurrentCredits)), AppError>)
     case fetchAssociatedItems(depth: Int, keyword: AssociatedKeyword)

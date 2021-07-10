@@ -77,8 +77,6 @@
 "Are you sure to logout?" = "确定要退出登录吗？";
 "Are you sure to clear?" = "确定要清空吗？";
 "Clear" = "清空";
-"Warning" = "警告";
-"It's for debug only." = "这是仅为问题排查设计的功能";
 
 "General" = "一般";
 "Close slide menu after selection" = "选择后关闭侧边栏";
@@ -89,7 +87,6 @@
 "App switcher blur" = "在应用切换器中模糊处理";
 "Cache" = "缓存";
 "Clear image caches" = "清空图片缓存";
-"Clear web caches" = "清空网络缓存";
 "Copy cookies" = "复制Cookies";
 
 "Appearance" = "外观";

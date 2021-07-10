@@ -15,7 +15,6 @@ struct AppState {
     var detailInfo = DetailInfo()
     var commentInfo = CommentInfo()
     var contentInfo = ContentInfo()
-    var cachedList = CachedList()
 }
 
 extension AppState {
@@ -295,47 +294,5 @@ extension AppState {
         var mangaContentsLoadFailed = false
         var moreMangaContentsLoading = false
         var moreMangaContentsLoadFailed = false
-    }
-}
-
-extension AppState {
-    // MARK: CachedList
-    struct CachedList {
-        func hasCached(gid: String) -> Bool {
-            PersistenceController.checkExistence(entityName: "MangaMO", gid: gid)
-        }
-        mutating func cache(mangas: [Manga]) {
-            PersistenceController.add(mangas: mangas)
-        }
-        mutating func cache(detail: MangaDetail) {
-            PersistenceController.add(detail: detail)
-        }
-        mutating func insertAlterImages(gid: String, images: [MangaAlterData]) {
-//            items?[gid]?.detail?.alterImages = images
-        }
-        mutating func insertContents(gid: String, pageNum: PageNumber, contents: [MangaContent]) {
-//            items?[gid]?.detail?.currentPageNum = pageNum.current
-//            items?[gid]?.detail?.pageNumMaximum = pageNum.maximum
-//
-//            if items?[gid]?.contents == nil {
-//                items?[gid]?.contents = contents.sorted { $0.tag < $1.tag }
-//            } else {
-//                contents.forEach { content in
-//                    if items?[gid]?.contents?.contains(content) == false {
-//                        items?[gid]?.contents?.append(content)
-//                    }
-//                }
-//                items?[gid]?.contents?.sort { $0.tag < $1.tag }
-//            }
-        }
-        mutating func insertAspectBox(gid: String, box: [Int: CGFloat]) {
-//            items?[gid]?.detail?.aspectBox = box
-        }
-        mutating func insertReadingProgress(gid: String, progress: Int) {
-//            items?[gid]?.detail?.readingProgress = progress
-        }
-        mutating func updateUserRating(gid: String, rating: Float) {
-//            items?[gid]?.detail?.userRating = rating
-        }
     }
 }

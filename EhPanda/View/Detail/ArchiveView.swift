@@ -348,25 +348,24 @@ struct ArchiveView_Previews: PreviewProvider {
     static var previews: some View {
         let store = Store()
         var user = User.empty
-        var manga = Manga.empty
-        let hathArchives = ArchiveRes.allCases.map {
-            MangaArchive.HathArchive(
-                resolution: $0,
-                fileSize: "114 MB",
-                gpPrice: "514 GP"
-            )
-        }
-        let archive = MangaArchive(
-            hathArchives: hathArchives
-        )
+//        var manga = Manga.empty
+//        let hathArchives = ArchiveRes.allCases.map {
+//            MangaArchive.HathArchive(
+//                resolution: $0,
+//                fileSize: "114 MB",
+//                gpPrice: "514 GP"
+//            )
+//        }
+//        let archive = MangaArchive(
+//            hathArchives: hathArchives
+//        )
 
         user.currentGP = "114"
         user.currentCredits = "514"
-        manga.detail?.archive = archive
         store.appState.settings.user = user
         store.appState.environment.isPreview = true
 
-        store.appState.cachedList.cache(mangas: [manga])
+//        store.appState.cachedList.cache(mangas: [manga])
 
         return ArchiveView(gid: "")
             .environmentObject(store)

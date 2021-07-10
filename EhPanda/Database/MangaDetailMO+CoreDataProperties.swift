@@ -9,12 +9,11 @@ import CoreData
 
 extension MangaDetailMO: Identifiable {
     @nonobjc public class func fetchRequest() -> NSFetchRequest<MangaDetailMO> {
-        return NSFetchRequest<MangaDetailMO>(entityName: "MangaDetailMO")
+        NSFetchRequest<MangaDetailMO>(entityName: "MangaDetailMO")
     }
 
     @NSManaged public var archiveURL: String?
     @NSManaged public var category: String
-    @NSManaged public var comments: NSData?
     @NSManaged public var coverURL: String
     @NSManaged public var gid: String
     @NSManaged public var isFavored: Bool
@@ -22,14 +21,12 @@ extension MangaDetailMO: Identifiable {
     @NSManaged public var language: String
     @NSManaged public var likeCount: String
     @NSManaged public var pageCount: String
-    @NSManaged public var previews: NSData?
     @NSManaged public var publishedDate: Date
     @NSManaged public var rating: Float
     @NSManaged public var ratingCount: String
     @NSManaged public var sizeCount: String
     @NSManaged public var sizeType: String
-    @NSManaged public var tags: NSData?
     @NSManaged public var title: String
-    @NSManaged public var torrentCount: Int64
+    @NSManaged public var torrentCount: Int16
     @NSManaged public var uploader: String
 }

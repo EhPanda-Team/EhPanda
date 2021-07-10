@@ -42,10 +42,6 @@ final class Store: ObservableObject {
         // MARK: App Ops
         case .replaceUser(let user):
             appState.settings.user = user
-        case .clearCachedList:
-            break
-            // debugMark
-//            appState.cachedList.items = nil
         case .clearHistoryItems:
             appState.homeInfo.historyItems = nil
         case .initializeStates:
@@ -64,9 +60,9 @@ final class Store: ObservableObject {
         case .initializeFilter:
             appState.settings.filter = Filter()
         case .saveAspectBox(let gid, let box):
-            appState.cachedList.insertAspectBox(gid: gid, box: box)
+            PersistenceController.update(gid: gid, aspectBox: box)
         case .saveReadingProgress(let gid, let tag):
-            appState.cachedList.insertReadingProgress(gid: gid, progress: tag)
+            PersistenceController.update(gid: gid, readingProgress: tag)
         case .updateDiskImageCacheSize(let size):
             appState.settings.setting?.diskImageCacheSize = size
         case .updateAppIconType(let iconType):
@@ -182,7 +178,7 @@ final class Store: ObservableObject {
 
             switch result {
             case .success(let manga):
-                appState.cachedList.cache(mangas: [manga])
+                PersistenceController.add(mangas: [manga])
                 appState.environment.mangaItemReverseID = manga.gid
             case .failure:
                 appState.environment.mangaItemReverseLoadFailed = true
@@ -216,7 +212,7 @@ final class Store: ObservableObject {
                         appState.homeInfo.searchNotFound = true
                     }
                 } else {
-                    appState.cachedList.cache(mangas: mangas.2)
+                    PersistenceController.add(mangas: mangas.2)
                 }
             case .failure:
                 appState.homeInfo.searchLoadFailed = true
@@ -250,7 +246,7 @@ final class Store: ObservableObject {
                 appState.homeInfo.searchPageNumMaximum = mangas.1.maximum
 
                 appState.homeInfo.insertSearchItems(mangas: mangas.2)
-                appState.cachedList.cache(mangas: mangas.2)
+                PersistenceController.add(mangas: mangas.2)
 
                 if mangas.1.current < mangas.1.maximum && mangas.2.isEmpty {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
@@ -289,7 +285,7 @@ final class Store: ObservableObject {
                         appState.homeInfo.frontpageNotFound = true
                     }
                 } else {
-                    appState.cachedList.cache(mangas: mangas.1)
+                    PersistenceController.add(mangas: mangas.1)
                 }
             case .failure:
                 appState.homeInfo.frontpageLoadFailed = true
@@ -317,7 +313,7 @@ final class Store: ObservableObject {
                 appState.homeInfo.frontpagePageNumMaximum = mangas.0.maximum
 
                 appState.homeInfo.insertFrontpageItems(mangas: mangas.1)
-                appState.cachedList.cache(mangas: mangas.1)
+                PersistenceController.add(mangas: mangas.1)
 
                 if mangas.0.current < mangas.0.maximum && mangas.1.isEmpty {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
@@ -346,7 +342,7 @@ final class Store: ObservableObject {
                     appState.homeInfo.popularNotFound = true
                 } else {
                     appState.homeInfo.popularItems = mangas.1
-                    appState.cachedList.cache(mangas: mangas.1)
+                    PersistenceController.add(mangas: mangas.1)
                 }
             case .failure:
                 appState.homeInfo.popularLoadFailed = true
@@ -378,7 +374,7 @@ final class Store: ObservableObject {
                         appState.homeInfo.watchedNotFound = true
                     }
                 } else {
-                    appState.cachedList.cache(mangas: mangas.1)
+                    PersistenceController.add(mangas: mangas.1)
                 }
             case .failure:
                 appState.homeInfo.watchedLoadFailed = true
@@ -406,7 +402,7 @@ final class Store: ObservableObject {
                 appState.homeInfo.watchedPageNumMaximum = mangas.0.maximum
 
                 appState.homeInfo.insertWatchedItems(mangas: mangas.1)
-                appState.cachedList.cache(mangas: mangas.1)
+                PersistenceController.add(mangas: mangas.1)
 
                 if mangas.0.current < mangas.0.maximum && mangas.1.isEmpty {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
@@ -445,7 +441,7 @@ final class Store: ObservableObject {
                         appState.homeInfo.favoritesNotFound[carriedValue] = true
                     }
                 } else {
-                    appState.cachedList.cache(mangas: mangas.1)
+                    PersistenceController.add(mangas: mangas.1)
                 }
             case .failure:
                 appState.homeInfo.favoritesLoadFailed[carriedValue] = true
@@ -477,7 +473,7 @@ final class Store: ObservableObject {
                 appState.homeInfo.favoritesPageNumMaximum[carriedValue] = mangas.0.maximum
 
                 appState.homeInfo.insertFavoritesItems(favIndex: carriedValue, mangas: mangas.1)
-                appState.cachedList.cache(mangas: mangas.1)
+                PersistenceController.add(mangas: mangas.1)
 
                 if mangas.0.current < mangas.0.maximum && mangas.1.isEmpty {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
@@ -503,10 +499,11 @@ final class Store: ObservableObject {
 
             switch result {
             case .success(let detail):
-                if let apikey = detail.1 {
+                if let apikey = detail.2 {
                     appState.settings.user?.apikey = apikey
                 }
-                appState.cachedList.cache(detail: detail.0)
+                PersistenceController.add(detail: detail.0)
+                PersistenceController.update(fetchedState: detail.1)
             case .failure:
                 appState.detailInfo.mangaDetailLoadFailed = true
             }
@@ -557,7 +554,7 @@ final class Store: ObservableObject {
                         appState.detailInfo.associatedItemsNotFound = true
                     }
                 } else {
-                    appState.cachedList.cache(mangas: mangas.3)
+                    PersistenceController.add(mangas: mangas.3)
                 }
             case .failure:
                 appState.detailInfo.associatedItemsLoadFailed = true
@@ -593,7 +590,7 @@ final class Store: ObservableObject {
                     pageNum: mangas.2,
                     items: mangas.3
                 )
-                appState.cachedList.cache(mangas: mangas.3)
+                PersistenceController.add(mangas: mangas.3)
 
                 if mangas.2.current < mangas.2.maximum && mangas.3.isEmpty {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
@@ -616,26 +613,24 @@ final class Store: ObservableObject {
         case .fetchAlterImagesDone(let result):
             appState.detailInfo.alterImagesLoading = false
 
-            if case .success(let images) = result {
-                appState.cachedList.insertAlterImages(gid: images.0, images: images.1)
-            }
+//            if case .success(let images) = result {
+//                appState.cachedList.insertAlterImages(gid: images.0, images: images.1)
+//            }
 
         case .fetchMangaContents(let gid):
             appState.contentInfo.mangaContentsLoadFailed = false
 
             if appState.contentInfo.mangaContentsLoading { break }
             appState.contentInfo.mangaContentsLoading = true
-            // debugMark
-//            PersistenceController.fetchManga(gid: gid)?.detail?.currentPageNum = 0
-//
-//            let detailURL = PersistenceController.fetchManga(gid: gid)?.detailURL ?? ""
-//            appCommand = FetchMangaContentsCommand(gid: gid, detailURL: detailURL)
+
+            let detailURL = PersistenceController.fetchManga(gid: gid)?.detailURL ?? ""
+            appCommand = FetchMangaContentsCommand(gid: gid, detailURL: detailURL)
         case .fetchMangaContentsDone(let result):
             appState.contentInfo.mangaContentsLoading = false
 
             switch result {
             case .success(let contents):
-                appState.cachedList.insertContents(
+                PersistenceController.update(
                     gid: contents.0,
                     pageNum: contents.1,
                     contents: contents.2
@@ -646,44 +641,45 @@ final class Store: ObservableObject {
 
         case .fetchMoreMangaContents(let gid):
             appState.contentInfo.moreMangaContentsLoadFailed = false
-            // debugMark
-//            guard let manga = appState.cachedList.items?[gid],
-//                  let detail = manga.detail
-//            else { break }
-//
-//            let currentNum = detail.currentPageNum
-//            let maximumNum = detail.pageNumMaximum
-//            if currentNum + 1 >= maximumNum { break }
-//
-//            if appState.contentInfo.moreMangaContentsLoading { break }
-//            appState.contentInfo.moreMangaContentsLoading = true
-//
-//            let detailURL = manga.detailURL
-//            let pageNum = currentNum + 1
-//            let pageCount = manga.contents?.count ?? 0
-//            appCommand = FetchMoreMangaContentsCommand(
-//                gid: gid,
-//                detailURL: detailURL,
-//                pageNum: pageNum,
-//                pageCount: pageCount
-//            )
-//
-//            if pageCount >= Int(detail.pageCount) ?? 0 {
-//                SwiftyBeaver.error(
-//                    "MangaContents overflow",
-//                    context: [
-//                        "detailURL": manga.detailURL,
-//                        "pageLimit": detail.pageCount,
-//                        "pageCurrentAmount": pageCount
-//                    ]
-//                )
-//            }
+
+            guard let manga = PersistenceController.fetchManga(gid: gid),
+                  let detail = PersistenceController.fetchMangaDetail(gid: gid)
+            else { break }
+            let state = PersistenceController.fetchMangaStateNonNil(gid: gid)
+
+            let currentNum = state.currentPageNum
+            let maximumNum = state.pageNumMaximum
+            if currentNum + 1 >= maximumNum { break }
+
+            if appState.contentInfo.moreMangaContentsLoading { break }
+            appState.contentInfo.moreMangaContentsLoading = true
+
+            let detailURL = manga.detailURL
+            let pageNum = currentNum + 1
+            let pageCount = state.contents.count
+            appCommand = FetchMoreMangaContentsCommand(
+                gid: gid,
+                detailURL: detailURL,
+                pageNum: pageNum,
+                pageCount: pageCount
+            )
+
+            if pageCount >= Int(detail.pageCount) ?? 0 {
+                SwiftyBeaver.error(
+                    "MangaContents overflow",
+                    context: [
+                        "detailURL": manga.detailURL,
+                        "pageLimit": detail.pageCount,
+                        "pageCurrentAmount": pageCount
+                    ]
+                )
+            }
         case .fetchMoreMangaContentsDone(let result):
             appState.contentInfo.moreMangaContentsLoading = false
 
             switch result {
             case .success(let contents):
-                appState.cachedList.insertContents(
+                PersistenceController.update(
                     gid: contents.0,
                     pageNum: contents.1,
                     contents: contents.2
@@ -707,8 +703,8 @@ final class Store: ObservableObject {
                   let gid = Int(gid)
             else { break }
 
-            appState.cachedList.updateUserRating(
-                gid: String(gid), rating: Float(rating) / 2.0
+            PersistenceController.update(
+                gid: String(gid), userRating: Float(rating) / 2.0
             )
 
             appCommand = RateCommand(

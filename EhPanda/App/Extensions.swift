@@ -43,15 +43,18 @@ extension Array where Element: Publisher {
     }
 }
 
-extension Array where Element: Codable {
-    func toNSData() -> NSData? {
-        try? JSONEncoder().encode(self) as NSData
+extension Encodable {
+    func toData() -> Data? {
+        try? JSONEncoder().encode(self)
     }
 }
 
-extension NSData {
+extension Data {
     func toArray<E: Codable>() -> [E]? {
-        try? JSONDecoder().decode([E].self, from: self as Data)
+        try? JSONDecoder().decode([E].self, from: self)
+    }
+    func toAspectBox() -> [Int: CGFloat]? {
+        try? JSONDecoder().decode([Int: CGFloat].self, from: self)
     }
 }
 

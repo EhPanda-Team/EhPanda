@@ -10,7 +10,7 @@ import Combine
 import Kingfisher
 import SDWebImageSwiftUI
 
-struct ContentView: View, StoreAccessor {
+struct ContentView: View, StoreAccessor, PersistenceAccessor {
     @EnvironmentObject var store: Store
 
     @State private var position: CGFloat = 0
@@ -21,7 +21,7 @@ struct ContentView: View, StoreAccessor {
     @State private var offset: CGSize = .zero
     @State private var newOffset: CGSize = .zero
 
-    private let gid: String
+    let gid: String
 
     init(gid: String) {
         self.gid = gid
@@ -73,10 +73,6 @@ struct ContentView: View, StoreAccessor {
                                     .onAppear {
                                         onWebImageAppear(item: item)
                                     }
-                                    #if DEBUG
-                                    Text("\(item.tag + 1)/\(mangaDetail?.pageCount ?? "")")
-                                        .bold().font(.largeTitle).foregroundColor(.gray)
-                                    #endif
                                 }
                             }
                             LoadMoreFooter(
@@ -143,15 +139,8 @@ struct ContentView: View, StoreAccessor {
 // MARK: Private Extension
 private extension ContentView {
     // MARK: Properties
-    var mangaDetail: MangaDetail? {
-        nil
-        // debugMark
-//        cachedList.items?[gid]?.detail
-    }
-    var mangaContents: [MangaContent]? {
-        []
-        // debugMark
-//        cachedList.items?[gid]?.contents
+    var mangaContents: [MangaContent] {
+        mangaState.contents
     }
     var moreLoadingFlag: Bool {
         contentInfo.moreMangaContentsLoading
@@ -180,12 +169,13 @@ private extension ContentView {
         }
     }
     func onLazyVStackAppear(proxy: ScrollViewProxy) {
-        if let tag = mangaDetail?.readingProgress {
-            proxy.scrollTo(tag)
+        let progress = mangaState.readingProgress
+        if progress > 0 {
+            proxy.scrollTo(progress)
         }
     }
     func onWebImageAppear(item: MangaContent) {
-        if item == mangaContents?.last {
+        if item == mangaContents.last {
             fetchMoreMangaContents()
         }
     }
@@ -204,11 +194,7 @@ private extension ContentView {
     }
 
     func fetchMangaContentsIfNeeded() {
-        if let contents = mangaContents, !contents.isEmpty {
-            if contents.count != Int(mangaDetail?.pageCount ?? "") {
-                fetchMangaContents()
-            }
-        } else {
+        if mangaContents.isEmpty {
             fetchMangaContents()
         }
     }
@@ -227,12 +213,9 @@ private extension ContentView {
         }
     }
     func calReadingProgress() -> Int {
-        guard let contentsCount = mangaContents?.count
-        else { return -1 }
-
         var heightArray = Array(
             repeating: screenH * contentHScale,
-            count: contentsCount
+            count: mangaContents.count
         )
         aspectBox.forEach { (key: Int, value: CGFloat) in
             heightArray[key] = value * screenW
@@ -263,8 +246,9 @@ private extension ContentView {
         }
     }
     func restoreAspectBox() {
-        if let aspectBox = mangaDetail?.aspectBox {
-            self.aspectBox = aspectBox
+        let box = mangaState.aspectBox
+        if !box.isEmpty {
+            aspectBox = box
         }
     }
     func saveAspectBox() {

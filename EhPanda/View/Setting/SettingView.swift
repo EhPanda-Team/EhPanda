@@ -75,15 +75,6 @@ struct SettingView: View, StoreAccessor {
                         .destructive(Text("Clear"), action: clearImageCaches),
                         .cancel()
                     ])
-                case .clearWebCaches:
-                    return ActionSheet(
-                        title: Text("Warning".localized().uppercased()),
-                        message: Text("It's for debug only."),
-                        buttons: [
-                            .destructive(Text("Clear"), action: clearCachedList),
-                            .cancel()
-                        ]
-                    )
                 }
             }
         }
@@ -98,7 +89,6 @@ private extension SettingView {
     func logout() {
         clearCookies()
         clearImageCaches()
-        store.dispatch(.clearCachedList)
         store.dispatch(.clearHistoryItems)
         store.dispatch(.replaceUser(user: nil))
     }
@@ -122,11 +112,6 @@ private extension SettingView {
         SDImageCache.shared.clear(with: .disk, completion: nil)
         KingfisherManager.shared.cache.clearDiskCache()
         calculateDiskCachesSize()
-    }
-    func clearCachedList() {
-        store.dispatch(.clearCachedList)
-        store.dispatch(.clearHistoryItems)
-        store.dispatch(.fetchFrontpageItems)
     }
 }
 
@@ -202,7 +187,6 @@ enum SettingViewActionSheetState: Identifiable {
 
     case logout
     case clearImgCaches
-    case clearWebCaches
 }
 
 enum SettingViewSheetState: Identifiable {

@@ -69,15 +69,6 @@ struct GeneralSettingView: View, StoreAccessor {
                         }
                         .foregroundColor(.primary)
                     }
-                    Button(action: toggleClearWebCaches) {
-                        HStack {
-                            Text("Clear web caches")
-                            Spacer()
-                            Text(browsingCaches())
-                                .foregroundStyle(.tint)
-                        }
-                        .foregroundColor(.primary)
-                    }
                 }
                 Section(header: Text("Advanced")) {
                     NavigationLink("Logs", destination: LogsView())
@@ -126,8 +117,5 @@ private extension GeneralSettingView {
 
     func toggleClearImgCaches() {
         store.dispatch(.toggleSettingViewActionSheet(state: .clearImgCaches))
-    }
-    func toggleClearWebCaches() {
-        store.dispatch(.toggleSettingViewActionSheet(state: .clearWebCaches))
     }
 }

@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		AB018DD2268756D000EB0EA9 /* Kanna in Frameworks */ = {isa = PBXBuildFile; productRef = AB018DD1268756D000EB0EA9 /* Kanna */; };
+		AB10117E26986B7D00C2C1A9 /* MangaStateMO+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB10117D26986B7D00C2C1A9 /* MangaStateMO+CoreDataProperties.swift */; };
+		AB10118026986C1100C2C1A9 /* MangaStateMO+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB10117F26986C1100C2C1A9 /* MangaStateMO+CoreDataClass.swift */; };
 		AB19D619266E5C6700BA752A /* TTProgressHUD in Frameworks */ = {isa = PBXBuildFile; productRef = AB19D618266E5C6700BA752A /* TTProgressHUD */; };
 		AB2CED64268AB6AE003130F7 /* MangaMO+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB2CED63268AB6AE003130F7 /* MangaMO+CoreDataProperties.swift */; };
 		AB2F72BF2685A8B00088DECA /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = AB2F72BE2685A8B00088DECA /* Kingfisher */; };
@@ -84,6 +86,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		AB10117D26986B7D00C2C1A9 /* MangaStateMO+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MangaStateMO+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		AB10117F26986C1100C2C1A9 /* MangaStateMO+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MangaStateMO+CoreDataClass.swift"; sourceTree = "<group>"; };
 		AB2CED63268AB6AE003130F7 /* MangaMO+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MangaMO+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		AB38A0CA25CA993D00764D64 /* ColorCodable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ColorCodable.swift; sourceTree = "<group>"; };
 		AB40CFDB25983EC200D1DC9A /* FileStorage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FileStorage.swift; sourceTree = "<group>"; };
@@ -218,6 +222,8 @@
 				AB2CED63268AB6AE003130F7 /* MangaMO+CoreDataProperties.swift */,
 				ABCA93C12691929D00A98BC6 /* MangaDetailMO+CoreDataClass.swift */,
 				AB4FD2C0268AB83300A95968 /* MangaDetailMO+CoreDataProperties.swift */,
+				AB10117F26986C1100C2C1A9 /* MangaStateMO+CoreDataClass.swift */,
+				AB10117D26986B7D00C2C1A9 /* MangaStateMO+CoreDataProperties.swift */,
 			);
 			path = Database;
 			sourceTree = "<group>";
@@ -505,6 +511,7 @@
 				ABCD2F0A259763FC008E5A20 /* Request.swift in Sources */,
 				ABF45AE925F3313D00ECB568 /* AlertView.swift in Sources */,
 				ABF45ABB25F3312F00ECB568 /* AppError.swift in Sources */,
+				AB10118026986C1100C2C1A9 /* MangaStateMO+CoreDataClass.swift in Sources */,
 				ABF45AE025F3313D00ECB568 /* HomeView.swift in Sources */,
 				ABCA93BE26918DE100A98BC6 /* Persistence.swift in Sources */,
 				ABF45AEF25F3313D00ECB568 /* TorrentsView.swift in Sources */,
@@ -549,6 +556,7 @@
 				ABA732DF25A852D800B3D9AB /* Filter.swift in Sources */,
 				ABC1FAB82642C37D00A9F352 /* NewDawnView.swift in Sources */,
 				ABF45AE825F3313D00ECB568 /* LinkedText.swift in Sources */,
+				AB10117E26986B7D00C2C1A9 /* MangaStateMO+CoreDataProperties.swift in Sources */,
 				ABF45AE525F3313D00ECB568 /* Comment.swift in Sources */,
 				ABC1FAB6264152C800A9F352 /* StoreAccessor.swift in Sources */,
 				ABF75F3F25A19CD200544D29 /* User.swift in Sources */,

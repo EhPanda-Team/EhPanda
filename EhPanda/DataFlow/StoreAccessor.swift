@@ -35,9 +35,6 @@ extension StoreAccessor {
     var contentInfo: AppState.ContentInfo {
         appState.contentInfo
     }
-    var cachedList: AppState.CachedList {
-        appState.cachedList
-    }
 }
 
 // MARK: Environment

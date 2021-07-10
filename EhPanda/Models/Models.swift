@@ -65,14 +65,10 @@ struct MangaDetail: Codable {
         isFavored: false,
         alterImagesURL: nil,
         alterImages: [],
-        torrents: [],
-        comments: [],
-        previews: [],
         gid: "",
         title: "",
         rating: 0.0,
         ratingCount: "",
-        detailTags: [],
         category: .nonH,
         language: .English,
         uploader: "",
@@ -85,27 +81,16 @@ struct MangaDetail: Codable {
         torrentCount: 0
     )
 
-    var readingProgress: Int?
-    var currentPageNum = 0
-    var pageNumMaximum = 1
-    var aspectBox = [Int: CGFloat]()
-
     var isFavored: Bool
     var archiveURL: String?
-    var archive: MangaArchive?
     let alterImagesURL: String?
     var alterImages: [MangaAlterData]
-    var torrents: [MangaTorrent]
-    var comments: [MangaComment]
-    let previews: [MangaPreview]
 
     let gid: String
     var title: String
     var jpnTitle: String?
     var rating: Float
-    var userRating: Float?
     var ratingCount: String
-    var detailTags: [MangaTag]
     let category: Category
     let language: Language
     let uploader: String
@@ -116,6 +101,32 @@ struct MangaDetail: Codable {
     var sizeCount: String
     var sizeType: String
     var torrentCount: Int
+}
+
+struct MangaState: Codable {
+    static let empty = MangaState(
+        gid: "",
+        tags: [],
+        userRating: 0,
+        currentPageNum: 0,
+        pageNumMaximum: 1,
+        readingProgress: 0,
+        previews: [],
+        comments: [],
+        contents: [],
+        aspectBox: [:]
+    )
+
+    let gid: String
+    var tags = [MangaTag]()
+    var userRating: Float = 0
+    var currentPageNum = 0
+    var pageNumMaximum = 1
+    var readingProgress = 0
+    var previews = [MangaPreview]()
+    var comments = [MangaComment]()
+    var contents = [MangaContent]()
+    var aspectBox = [Int: CGFloat]()
 }
 
 struct MangaArchive: Codable {

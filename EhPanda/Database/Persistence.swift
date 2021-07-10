@@ -33,11 +33,19 @@ struct PersistenceController {
         }
     }
 
-    static func checkExistence(entityName: String, gid: String) -> Bool {
-        let request = NSFetchRequest<NSManagedObject>(entityName: entityName)
+    static func checkExistence<MO: NSManagedObject>(
+        entityType: MO.Type,
+        predicate: NSPredicate
+    ) -> Bool {
+        let request = NSFetchRequest<MO>(
+            entityName: String(describing: entityType)
+        )
         request.fetchLimit = 1
-        request.predicate = NSPredicate(format: "gid == %@", gid)
-        return (try? shared.container.viewContext.count(for: request)) ?? 0 > 0
+        request.predicate = predicate
+
+        let context = shared.container.viewContext
+        let resultCount = (try? context.count(for: request)) ?? 0
+        return resultCount > 0
     }
 
     static func materializedObject(
@@ -53,86 +61,32 @@ struct PersistenceController {
         return nil
     }
 
-    static func fetch<E: NSFetchRequestResult>(
-        entityName: String, gid: String
-    ) -> E? {
-        fetch(
-            entityName: entityName,
-            predicate: NSPredicate(
-                format: "gid == %@", gid
-            )
-        )
-    }
-
-    static func fetch<E: NSFetchRequestResult>(
-        entityName: String, predicate: NSPredicate
-    ) -> E? {
+    static func fetch<MO: NSManagedObject>(
+        entityType: MO.Type, predicate: NSPredicate
+    ) -> MO? {
         let context = shared.container.viewContext
         if let object = materializedObject(
             in: context, matching: predicate
-        ) as? E { return object }
+        ) as? MO { return object }
 
-        let request = NSFetchRequest<E>(
-            entityName: entityName
+        let request = NSFetchRequest<MO>(
+            entityName: String(describing: entityType)
         )
         request.fetchLimit = 1
         request.predicate = predicate
         return try? context.fetch(request).first
     }
 
-    static func add(mangas: [Manga]) {
-        for manga in mangas {
-            if let storedMangaMO: MangaMO =
-                fetch(entityName: "MangaMO", gid: manga.gid)
-            {
-                storedMangaMO.title = manga.title
-                storedMangaMO.rating = manga.rating
-                storedMangaMO.language = manga.language?.rawValue
-            } else {
-                manga.toManagedObject(in: shared.container.viewContext)
-            }
-        }
-        saveContext()
-    }
-
-    static func add(detail: MangaDetail) {
-        if let storedMangaDetailMO: MangaDetailMO =
-            fetch(entityName: "MangaDetailMO", gid: detail.gid)
-        {
-            storedMangaDetailMO.isFavored = detail.isFavored
-            storedMangaDetailMO.archiveURL = detail.archiveURL
-            storedMangaDetailMO.tags = detail.detailTags.toNSData()
-            storedMangaDetailMO.comments = detail.comments.toNSData()
-            storedMangaDetailMO.jpnTitle = detail.jpnTitle
-            storedMangaDetailMO.likeCount = detail.likeCount
-            storedMangaDetailMO.pageCount = detail.pageCount
-            storedMangaDetailMO.sizeCount = detail.sizeCount
-            storedMangaDetailMO.sizeType = detail.sizeType
-            storedMangaDetailMO.rating = detail.rating
-            storedMangaDetailMO.ratingCount = detail.ratingCount
-            storedMangaDetailMO.torrentCount = Int64(detail.torrentCount)
-        } else {
-            detail.toManagedObject(in: shared.container.viewContext)
-        }
-        saveContext()
-    }
-}
-
-extension PersistenceController {
-    static func fetchManga(gid: String) -> Manga? {
-        let mangaMO: MangaMO? = PersistenceController.fetch(
-            entityName: "MangaMO", gid: gid
+    /// Create one if fetch result is empty, and update it.
+    static func update<MO: GalleryIdentifiable>(
+        entityType: MO.Type, gid: String,
+        commitChanges: ((MO) -> Void)
+    ) {
+        let storedMO: MO = fetchOrCreate(
+            entityType: entityType, gid: gid
         )
-        return mangaMO?.toEntity()
-    }
-    static func fetchMangaNonNil(gid: String) -> Manga {
-        fetchManga(gid: gid) ?? Manga.empty
-    }
-    static func fetchMangaDetail(gid: String) -> MangaDetail? {
-        let mangaDetailMO: MangaDetailMO? = PersistenceController.fetch(
-            entityName: "MangaDetailMO", gid: gid
-        )
-        return mangaDetailMO?.toEntity()
+        commitChanges(storedMO)
+        saveContext()
     }
 }
 
@@ -147,4 +101,8 @@ protocol ManagedObjectConvertible {
 
     @discardableResult
     func toManagedObject(in context: NSManagedObjectContext) -> ManagedObject
+}
+
+protocol GalleryIdentifiable: NSManagedObject {
+    var gid: String { get set }
 }

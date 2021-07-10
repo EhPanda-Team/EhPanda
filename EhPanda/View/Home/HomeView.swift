@@ -354,7 +354,7 @@ private extension HomeView {
                isValidDetailURL(url: link)
             {
                 let gid = link.pathComponents[2]
-                if cachedList.hasCached(gid: gid) {
+                if PersistenceController.hasCached(gid: gid) {
                     replaceMangaCommentJumpID(gid: gid)
                 } else {
                     store.dispatch(

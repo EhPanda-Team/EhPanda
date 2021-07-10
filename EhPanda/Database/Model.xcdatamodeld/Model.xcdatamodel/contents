@@ -3,7 +3,6 @@
     <entity name="MangaDetailMO" representedClassName=".MangaDetailMO" syncable="YES">
         <attribute name="archiveURL" optional="YES" attributeType="String"/>
         <attribute name="category" attributeType="String" defaultValueString=""/>
-        <attribute name="comments" optional="YES" attributeType="Binary"/>
         <attribute name="coverURL" attributeType="String" defaultValueString=""/>
         <attribute name="gid" attributeType="String" defaultValueString=""/>
         <attribute name="isFavored" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
@@ -11,15 +10,13 @@
         <attribute name="language" attributeType="String" defaultValueString=""/>
         <attribute name="likeCount" attributeType="String" defaultValueString=""/>
         <attribute name="pageCount" attributeType="String" defaultValueString=""/>
-        <attribute name="previews" optional="YES" attributeType="Binary"/>
         <attribute name="publishedDate" attributeType="Date" defaultDateTimeInterval="646585800" usesScalarValueType="NO"/>
         <attribute name="rating" attributeType="Float" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="ratingCount" attributeType="String" defaultValueString=""/>
         <attribute name="sizeCount" attributeType="String" defaultValueString=""/>
         <attribute name="sizeType" attributeType="String" defaultValueString=""/>
-        <attribute name="tags" optional="YES" attributeType="Binary"/>
         <attribute name="title" attributeType="String" defaultValueString=""/>
-        <attribute name="torrentCount" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="torrentCount" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="uploader" attributeType="String" defaultValueString=""/>
     </entity>
     <entity name="MangaMO" representedClassName=".MangaMO" syncable="YES">
@@ -34,12 +31,21 @@
         <attribute name="token" attributeType="String" defaultValueString=""/>
         <attribute name="uploader" optional="YES" attributeType="String"/>
     </entity>
-    <entity name="MangaStateMO" representedClassName=".MangaStateMO" syncable="YES" codeGenerationType="class">
+    <entity name="MangaStateMO" representedClassName=".MangaStateMO" syncable="YES">
+        <attribute name="aspectBox" optional="YES" attributeType="Binary"/>
+        <attribute name="comments" optional="YES" attributeType="Binary"/>
         <attribute name="contents" optional="YES" attributeType="Binary"/>
+        <attribute name="currentPageNum" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="gid" attributeType="String" defaultValueString=""/>
+        <attribute name="pageNumMaximum" attributeType="Integer 16" defaultValueString="1" usesScalarValueType="YES"/>
+        <attribute name="previews" optional="YES" attributeType="Binary"/>
+        <attribute name="readingProgress" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="tags" optional="YES" attributeType="Binary"/>
+        <attribute name="userRating" optional="YES" attributeType="Float" defaultValueString="0.0" usesScalarValueType="YES"/>
     </entity>
     <elements>
-        <element name="MangaDetailMO" positionX="-54" positionY="9" width="128" height="329"/>
+        <element name="MangaDetailMO" positionX="-54" positionY="9" width="128" height="284"/>
         <element name="MangaMO" positionX="-63" positionY="-18" width="128" height="179"/>
-        <element name="MangaStateMO" positionX="-36" positionY="18" width="128" height="44"/>
+        <element name="MangaStateMO" positionX="-36" positionY="18" width="128" height="179"/>
     </elements>
 </model>

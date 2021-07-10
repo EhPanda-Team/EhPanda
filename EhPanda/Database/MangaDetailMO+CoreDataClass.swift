@@ -13,11 +13,8 @@ extension MangaDetailMO: ManagedObjectProtocol {
     func toEntity() -> MangaDetail {
         MangaDetail(
             isFavored: isFavored, archiveURL: archiveURL,
-            alterImagesURL: nil, alterImages: [], torrents: [],
-            comments: (comments?.toArray() ?? []) as [MangaComment],
-            previews: (previews?.toArray() ?? []) as [MangaPreview],
+            alterImagesURL: nil, alterImages: [],
             gid: gid, title: title, rating: rating, ratingCount: ratingCount,
-            detailTags: (tags?.toArray() ?? []) as [MangaTag],
             category: Category(rawValue: category)!,
             language: Language(rawValue: language)!,
             uploader: uploader, publishedDate: publishedDate,
@@ -35,22 +32,19 @@ extension MangaDetail: ManagedObjectConvertible {
         mangaDetailMO.gid = gid
         mangaDetailMO.archiveURL = archiveURL
         mangaDetailMO.category = category.rawValue
-        mangaDetailMO.comments = comments.toNSData()
         mangaDetailMO.coverURL = coverURL
         mangaDetailMO.isFavored = isFavored
         mangaDetailMO.jpnTitle = jpnTitle
         mangaDetailMO.language = language.rawValue
         mangaDetailMO.likeCount = likeCount
         mangaDetailMO.pageCount = pageCount
-        mangaDetailMO.previews = previews.toNSData()
         mangaDetailMO.publishedDate = publishedDate
         mangaDetailMO.rating = rating
         mangaDetailMO.ratingCount = ratingCount
         mangaDetailMO.sizeCount = sizeCount
         mangaDetailMO.sizeType = sizeType
-        mangaDetailMO.tags = detailTags.toNSData()
         mangaDetailMO.title = title
-        mangaDetailMO.torrentCount = Int64(torrentCount)
+        mangaDetailMO.torrentCount = Int16(torrentCount)
         mangaDetailMO.uploader = uploader
 
         return mangaDetailMO

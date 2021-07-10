@@ -9,7 +9,7 @@ import CoreData
 
 extension MangaMO: Identifiable {
     @nonobjc public class func fetchRequest() -> NSFetchRequest<MangaMO> {
-        return NSFetchRequest<MangaMO>(entityName: "MangaMO")
+        NSFetchRequest<MangaMO>(entityName: "MangaMO")
     }
 
     @NSManaged public var category: String

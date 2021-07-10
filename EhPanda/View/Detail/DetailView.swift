@@ -15,9 +15,6 @@ struct DetailView: View, StoreAccessor, PersistenceAccessor {
     @State private var associatedKeyword = AssociatedKeyword()
     @State private var isNavLinkActive = false
 
-    @State private var comments = [MangaComment]()
-    private var loadingFlag = false
-
     let gid: String
     private let depth: Int
 
@@ -55,20 +52,20 @@ struct DetailView: View, StoreAccessor, PersistenceAccessor {
                         ) {
                             onSimilarGalleryTap(title: detail.title)
                         }
-                        if !detail.detailTags.isEmpty {
+                        if !mangaState.tags.isEmpty {
                             TagsView(
-                                tags: detail.detailTags,
+                                tags: mangaState.tags,
                                 onTapAction: onTagsViewTap
                             )
                         }
                         PreviewView(
-                            previews: detail.previews,
+                            previews: mangaState.previews,
                             alterImages: detail.alterImages
                         )
                         CommentScrollView(
                             gid: gid,
                             depth: depth,
-                            comments: detail.comments,
+                            comments: mangaState.comments,
                             toggleCommentAction: onCommentButtonTap
                         )
                     }
@@ -539,9 +536,9 @@ private struct ActionRow: View {
 
 private extension ActionRow {
     func onStartTasks() {
-        if let rating = detail.userRating {
-            userRating = Int(rating.fixedRating() * 2)
-        }
+//        if let rating = detail.userRating {
+//            userRating = Int(rating.fixedRating() * 2)
+//        }
     }
     func onRateButtonTap() {
         withAnimation {

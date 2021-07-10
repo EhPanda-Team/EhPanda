@@ -104,7 +104,7 @@ struct MangaItemReverseRequest {
         URLSession.shared
             .dataTaskPublisher(for: detailURL.safeURL())
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-            .compactMap { getManga(from: try? Parser.parseMangaDetail(doc: $0, gid: gid)) }
+            .compactMap { getManga(from: try? Parser.parseMangaDetail(doc: $0, gid: gid).0) }
             .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
@@ -277,7 +277,7 @@ struct MangaDetailRequest {
     let gid: String
     let detailURL: String
 
-    var publisher: AnyPublisher<(MangaDetail, APIKey), AppError> {
+    var publisher: AnyPublisher<(MangaDetail, MangaState, APIKey), AppError> {
         URLSession.shared
             .dataTaskPublisher(
                 for: Defaults.URL
@@ -287,7 +287,10 @@ struct MangaDetailRequest {
                     .safeURL()
             )
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-            .tryMap { try (Parser.parseMangaDetail(doc: $0, gid: gid), Parser.parseAPIKey(doc: $0))}
+            .tryMap {
+                let detail = try Parser.parseMangaDetail(doc: $0, gid: gid)
+                return (detail.0, detail.1, try Parser.parseAPIKey(doc: $0))
+            }
             .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
@@ -390,7 +393,7 @@ struct MangaArchiveFundsRequest {
             .dataTaskPublisher(for: url.safeURL())
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .compactMap { try? Parser
-            .parseMangaDetail(doc: $0, gid: gid)
+            .parseMangaDetail(doc: $0, gid: gid).0
                 .archiveURL
             }
             .mapError(mapAppError)
