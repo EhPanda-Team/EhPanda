@@ -89,7 +89,7 @@ private extension SettingView {
     func logout() {
         clearCookies()
         clearImageCaches()
-        store.dispatch(.replaceUser(user: nil))
+        store.dispatch(.replaceUser(user: User()))
     }
 
     func calculateDiskCachesSize() {

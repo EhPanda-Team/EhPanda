@@ -41,13 +41,7 @@ final class Store: ObservableObject {
         switch action {
         // MARK: App Ops
         case .replaceUser(let user):
-            if let user = user {
-                appState.settings.user = user
-            }
-        case .initializeStates:
-            // swiftlint:disable unneeded_break_in_switch
-            break
-            // swiftlint:enable unneeded_break_in_switch
+            appState.settings.user = user
         case .initializeFilter:
             appState.settings.filter = Filter()
         case .saveAspectBox(let gid, let box):

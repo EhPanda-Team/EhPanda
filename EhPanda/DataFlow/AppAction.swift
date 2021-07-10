@@ -10,8 +10,7 @@ import Kanna
 import Foundation
 
 enum AppAction {
-    case replaceUser(user: User?)
-    case initializeStates
+    case replaceUser(user: User)
     case initializeFilter
     case clearDetailViewCommentContent
     case clearCommentViewCommentContent

@@ -82,7 +82,6 @@ extension PersistenceController {
             )
         )
         newMO.gid = gid
-        saveContext()
         return newMO
     }
 

@@ -8,7 +8,7 @@
 import SwiftyBeaver
 
 @propertyWrapper
-struct AppEnvStorage<T: Codable> {
+struct AppEnvStorage<T: Encodable> {
     private var key: String
 
     private var appEnv: AppEnv {
