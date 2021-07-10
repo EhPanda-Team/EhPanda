@@ -41,17 +41,10 @@ final class Store: ObservableObject {
         switch action {
         // MARK: App Ops
         case .replaceUser(let user):
-            appState.settings.user = user
+            if let user = user {
+                appState.settings.user = user
+            }
         case .initializeStates:
-            if appState.settings.user == nil {
-                appState.settings.user = User()
-            }
-            if appState.settings.filter == nil {
-                appState.settings.filter = Filter()
-            }
-            if appState.settings.setting == nil {
-                appState.settings.setting = Setting()
-            }
             // swiftlint:disable unneeded_break_in_switch
             break
             // swiftlint:enable unneeded_break_in_switch
@@ -62,13 +55,13 @@ final class Store: ObservableObject {
         case .saveReadingProgress(let gid, let tag):
             PersistenceController.update(gid: gid, readingProgress: tag)
         case .updateDiskImageCacheSize(let size):
-            appState.settings.setting?.diskImageCacheSize = size
+            appState.settings.setting.diskImageCacheSize = size
         case .updateAppIconType(let iconType):
-            appState.settings.setting?.appIconType = iconType
+            appState.settings.setting.appIconType = iconType
         case .updateHistoryKeywords(let text):
             appState.homeInfo.insertHistoryKeyword(text: text)
         case .clearHistoryKeywords:
-            appState.homeInfo.historyKeywords = nil
+            appState.homeInfo.historyKeywords = []
         case .updateSearchKeyword(let text):
             appState.homeInfo.searchKeyword = text
         case .updateViewControllersCount:
@@ -134,8 +127,8 @@ final class Store: ObservableObject {
             }
 
         case .fetchUserInfo:
-            guard let uid = appState.settings.user?.apiuid, !uid.isEmpty,
-                    !appState.settings.userInfoLoading
+            let uid = appState.settings.user.apiuid
+            guard !uid.isEmpty, !appState.settings.userInfoLoading
             else { break }
             appState.settings.userInfoLoading = true
 
@@ -156,7 +149,7 @@ final class Store: ObservableObject {
             appState.settings.favoriteNamesLoading = false
 
             if case .success(let names) = result {
-                appState.settings.user?.favoriteNames = names
+                appState.settings.user.favoriteNames = names
             }
 
         case .fetchMangaItemReverse(let detailURL):
@@ -185,7 +178,7 @@ final class Store: ObservableObject {
             appState.homeInfo.searchCurrentPageNum = 0
             appState.homeInfo.searchLoading = true
 
-            let filter = appState.settings.filter ?? Filter()
+            let filter = appState.settings.filter
             appCommand = FetchSearchItemsCommand(keyword: keyword, filter: filter)
         case .fetchSearchItemsDone(let result):
             appState.homeInfo.searchLoading = false
@@ -221,7 +214,7 @@ final class Store: ObservableObject {
             if appState.homeInfo.moreSearchLoading { break }
             appState.homeInfo.moreSearchLoading = true
 
-            let filter = appState.settings.filter ?? Filter()
+            let filter = appState.settings.filter
             let lastID = appState.homeInfo.searchItems?.last?.id ?? ""
             let pageNum = appState.homeInfo.searchCurrentPageNum + 1
             appCommand = FetchMoreSearchItemsCommand(
@@ -493,7 +486,7 @@ final class Store: ObservableObject {
             switch result {
             case .success(let detail):
                 if let apikey = detail.2 {
-                    appState.settings.user?.apikey = apikey
+                    appState.settings.user.apikey = apikey
                 }
                 PersistenceController.add(detail: detail.0)
                 PersistenceController.update(fetchedState: detail.1)
@@ -689,8 +682,9 @@ final class Store: ObservableObject {
             appCommand = DeleteFavoriteCommand(gid: gid)
 
         case .rate(let gid, let rating):
-            guard let apiuidString = appState.settings.user?.apiuid,
-                  let apikey = appState.settings.user?.apikey,
+            let apiuidString = appState.settings.user.apiuid
+            guard !apiuidString.isEmpty,
+                  let apikey = appState.settings.user.apikey,
                   let token = PersistenceController.fetchManga(gid: gid)?.token,
                   let apiuid = Int(apiuidString),
                   let gid = Int(gid)
@@ -721,8 +715,9 @@ final class Store: ObservableObject {
                 detailURL: detailURL
             )
         case .voteComment(let gid, let commentID, let vote):
-            guard let apiuidString = appState.settings.user?.apiuid,
-                  let apikey = appState.settings.user?.apikey,
+            let apiuidString = appState.settings.user.apiuid
+            guard !apiuidString.isEmpty,
+                  let apikey = appState.settings.user.apikey,
                   let token = PersistenceController.fetchManga(gid: gid)?.token,
                   let commentID = Int(commentID),
                   let apiuid = Int(apiuidString),

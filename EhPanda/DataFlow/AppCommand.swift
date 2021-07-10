@@ -302,9 +302,6 @@ struct FetchMangaDetailCommand: AppCommand {
                 token.unseal()
             } receiveValue: { detail in
                 store.dispatch(.fetchMangaDetailDone(result: .success((detail.0, detail.1, detail.2))))
-//                if detail.0.previews.isEmpty == true {
-//                    store.dispatch(.fetchAlterImages(gid: gid))
-//                }
             }
             .seal(in: token)
     }

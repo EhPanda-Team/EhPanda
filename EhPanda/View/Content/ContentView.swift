@@ -265,7 +265,7 @@ private extension ContentView {
     // MARK: Gestures
     func onDoubleTap(value: TapGesture.Value) {
         set(newOffset: .zero)
-        set(newScale: scale == 1 ? setting?.doubleTapScaleFactor ?? 2 : 1)
+        set(newScale: scale == 1 ? setting.doubleTapScaleFactor : 1)
     }
     func onDragGestureChanged(value: DragGesture.Value) {
         if scale > 1 {
@@ -321,7 +321,7 @@ private extension ContentView {
         }
     }
     func set(newScale: CGFloat) {
-        let max = setting?.maximumScaleFactor ?? 3
+        let max = setting.maximumScaleFactor
         guard scale != newScale && newScale >= 1 && newScale <= max
         else { return }
 

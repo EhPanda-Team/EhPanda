@@ -44,6 +44,9 @@ extension PersistenceController {
             entityType: MangaStateMO.self, gid: gid
         ).toEntity()
     }
+    static func fetchAppEnvNonNil() -> AppEnv {
+        PersistenceController.fetchOrCreate(entityType: AppEnvMO.self).toEntity()
+    }
     static func fetchMangaHistory() -> [Manga] {
         let predicate = NSPredicate(format: "lastOpenDate != nil")
         let sortDescriptor = NSSortDescriptor(
@@ -52,8 +55,8 @@ extension PersistenceController {
         return PersistenceController.fetch(
             entityType: MangaMO.self,
             predicate: predicate,
-            sortDescriptors: [sortDescriptor],
-            findBeforeFetch: false
+            findBeforeFetch: false,
+            sortDescriptors: [sortDescriptor]
         ).map({ $0.toEntity() })
     }
 
@@ -72,14 +75,15 @@ extension PersistenceController {
     static func fetchOrCreate<MO: GalleryIdentifiable>(
         entityType: MO.Type, gid: String
     ) -> MO {
-        if let storedMO = fetch(entityType: entityType, gid: gid) {
-            return storedMO
-        } else {
-            let newMO = MO(context: shared.container.viewContext)
-            newMO.gid = gid
-            saveContext()
-            return newMO
-        }
+        let newMO = fetchOrCreate(
+            entityType: entityType,
+            predicate: NSPredicate(
+                format: "gid == %@", gid
+            )
+        )
+        newMO.gid = gid
+        saveContext()
+        return newMO
     }
 
     static func add(mangas: [Manga]) {
@@ -131,6 +135,9 @@ extension PersistenceController {
             mangaMO.lastOpenDate = Date()
         }
     }
+    static func update(appEnvMO: ((AppEnvMO) -> Void)) {
+        update(entityType: AppEnvMO.self, createIfNil: true, commitChanges: appEnvMO)
+    }
 
     // MARK: MangaState
     static func update(gid: String, mangaStateMO: ((MangaStateMO) -> Void)) {
@@ -165,7 +172,7 @@ extension PersistenceController {
 
             let newContents = contents.sorted(by: { $0.tag < $1.tag })
             var storedContents = mangaStateMO.contents?
-                .toArray() ?? [MangaContent]()
+                .toObject() ?? [MangaContent]()
 
             if storedContents.isEmpty {
                 mangaStateMO.contents = newContents.toData()

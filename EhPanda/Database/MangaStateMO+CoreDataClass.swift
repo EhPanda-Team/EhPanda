@@ -5,6 +5,7 @@
 //  Created by 荒木辰造 on R 3/07/09.
 //
 
+import SwiftUI
 import CoreData
 
 public class MangaStateMO: NSManagedObject {}
@@ -12,13 +13,13 @@ public class MangaStateMO: NSManagedObject {}
 extension MangaStateMO: ManagedObjectProtocol {
     func toEntity() -> MangaState {
         MangaState(
-            gid: gid, tags: tags?.toArray() ?? [MangaTag](),
+            gid: gid, tags: tags?.toObject() ?? [MangaTag](),
             userRating: userRating, currentPageNum: Int(currentPageNum),
             pageNumMaximum: Int(pageNumMaximum), readingProgress: Int(readingProgress),
-            previews: previews?.toArray() ?? [MangaPreview](),
-            comments: comments?.toArray() ?? [MangaComment](),
-            contents: contents?.toArray() ?? [MangaContent](),
-            aspectBox: aspectBox?.toAspectBox() ?? [:]
+            previews: previews?.toObject() ?? [MangaPreview](),
+            comments: comments?.toObject() ?? [MangaComment](),
+            contents: contents?.toObject() ?? [MangaContent](),
+            aspectBox: aspectBox?.toObject() ?? [Int: CGFloat]()
         )
     }
 }

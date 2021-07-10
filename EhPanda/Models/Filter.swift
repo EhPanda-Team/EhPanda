@@ -27,14 +27,14 @@ struct Filter: Codable {
     var onlyWithTorrents = false
     var lowPowerTags = false {
         didSet {
-            if lowPowerTags == true {
+            if lowPowerTags {
                 downvotedTags = false
             }
         }
     }
     var downvotedTags = false {
         didSet {
-            if downvotedTags == true {
+            if downvotedTags {
                 lowPowerTags = false
             }
         }

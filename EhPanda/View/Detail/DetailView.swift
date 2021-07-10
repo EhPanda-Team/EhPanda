@@ -39,9 +39,9 @@ struct DetailView: View, StoreAccessor, PersistenceAccessor {
                     VStack(spacing: 30) {
                         HeaderView(
                             manga: manga, detail: detail,
-                            translateCategory: setting?
-                                .translateCategory != false,
-                            favoriteNames: user?.favoriteNames,
+                            translateCategory: setting
+                                .translateCategory,
+                            favoriteNames: user.favoriteNames,
                             addFavAction: addFavorite,
                             deleteFavAction: deleteFavorite
                         )

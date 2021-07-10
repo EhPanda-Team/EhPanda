@@ -10,66 +10,62 @@ import SwiftUI
 struct ReadingSettingView: View, StoreAccessor {
     @EnvironmentObject var store: Store
 
-    private var settingBinding: Binding<Setting>? {
-        Binding($store.appState.settings.setting)
+    private var settingBinding: Binding<Setting> {
+        $store.appState.settings.setting
     }
 
     var body: some View {
-        if let setting = setting,
-           let settingBinding = settingBinding
-        {
-            Form {
-                Section {
-                    HStack {
-                        let time = " times".localized()
-                        Text("Retry limit")
-                        Spacer()
-                        Picker(
-                            selection: settingBinding.contentRetryLimit,
-                            label: Text("\(setting.contentRetryLimit)" + time),
-                            content: {
-                                Text("5" + time).tag(5)
-                                Text("10" + time).tag(10)
-                                Text("15" + time).tag(15)
-                                Text("20" + time).tag(20)
-                            }
-                        )
-                        .pickerStyle(.menu)
-                    }
-                }
-                Section(header: Text("Appearance")) {
-                    HStack {
-                        Text("Separator height")
-                        Spacer()
-                        Picker(
-                            selection: settingBinding.contentDividerHeight,
-                            label: Text("\(Int(setting.contentDividerHeight))pt"),
-                            content: {
-                                Text("0pt").tag(CGFloat(0))
-                                Text("5pt").tag(CGFloat(5))
-                                Text("10pt").tag(CGFloat(10))
-                                Text("15pt").tag(CGFloat(15))
-                                Text("20pt").tag(CGFloat(20))
-                            }
-                        )
-                        .pickerStyle(.menu)
-                    }
-                    ScaleFactorRow(
-                        scaleFactor: settingBinding.maximumScaleFactor,
-                        labelContent: "Maximum scale factor",
-                        minFactor: 1.5,
-                        maxFactor: 10
+        Form {
+            Section {
+                HStack {
+                    let time = " times".localized()
+                    Text("Retry limit")
+                    Spacer()
+                    Picker(
+                        selection: settingBinding.contentRetryLimit,
+                        label: Text("\(setting.contentRetryLimit)" + time),
+                        content: {
+                            Text("5" + time).tag(5)
+                            Text("10" + time).tag(10)
+                            Text("15" + time).tag(15)
+                            Text("20" + time).tag(20)
+                        }
                     )
-                    ScaleFactorRow(
-                        scaleFactor: settingBinding.doubleTapScaleFactor,
-                        labelContent: "Double tap scale factor",
-                        minFactor: 1.5,
-                        maxFactor: 5
-                    )
+                    .pickerStyle(.menu)
                 }
             }
-            .navigationBarTitle("Reading")
+            Section(header: Text("Appearance")) {
+                HStack {
+                    Text("Separator height")
+                    Spacer()
+                    Picker(
+                        selection: settingBinding.contentDividerHeight,
+                        label: Text("\(Int(setting.contentDividerHeight))pt"),
+                        content: {
+                            Text("0pt").tag(CGFloat(0))
+                            Text("5pt").tag(CGFloat(5))
+                            Text("10pt").tag(CGFloat(10))
+                            Text("15pt").tag(CGFloat(15))
+                            Text("20pt").tag(CGFloat(20))
+                        }
+                    )
+                    .pickerStyle(.menu)
+                }
+                ScaleFactorRow(
+                    scaleFactor: settingBinding.maximumScaleFactor,
+                    labelContent: "Maximum scale factor",
+                    minFactor: 1.5,
+                    maxFactor: 10
+                )
+                ScaleFactorRow(
+                    scaleFactor: settingBinding.doubleTapScaleFactor,
+                    labelContent: "Double tap scale factor",
+                    minFactor: 1.5,
+                    maxFactor: 5
+                )
+            }
         }
+        .navigationBarTitle("Reading")
     }
 }
 

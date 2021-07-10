@@ -119,7 +119,7 @@ struct HomeView: View, StoreAccessor {
             perform: onFavIndexChange
         )
         .onChange(
-            of: user?.greeting,
+            of: user.greeting,
             perform: onReceive
         )
         .onChange(
@@ -146,17 +146,16 @@ private extension HomeView {
             && viewControllersCount == 1
     }
     var suggestions: [String] {
-        homeInfo.historyKeywords?.reversed().filter({ word in
+        homeInfo.historyKeywords.reversed().filter({ word in
             homeInfo.searchKeyword.isEmpty ? true
             : word.contains(homeInfo.searchKeyword)
-        }) ?? []
+        })
     }
     var navigationBarTitle: String {
-        if let user = settings.user,
-           environment.favoritesIndex != -1,
+        if environment.favoritesIndex != -1,
            environment.homeListType == .favorites
         {
-            return user.getFavNameFrom(index: environment.favoritesIndex)
+            return settings.user.getFavNameFrom(index: environment.favoritesIndex)
         } else {
             return environment.homeListType.rawValue.localized()
         }
@@ -168,7 +167,7 @@ private extension HomeView {
         case .search:
             GenericList(
                 items: homeInfo.searchItems,
-                setting: setting ?? Setting(),
+                setting: setting,
                 loadingFlag: homeInfo.searchLoading,
                 notFoundFlag: homeInfo.searchNotFound,
                 loadFailedFlag: homeInfo.searchLoadFailed,
@@ -180,7 +179,7 @@ private extension HomeView {
         case .frontpage:
             GenericList(
                 items: homeInfo.frontpageItems,
-                setting: setting ?? Setting(),
+                setting: setting,
                 loadingFlag: homeInfo.frontpageLoading,
                 notFoundFlag: homeInfo.frontpageNotFound,
                 loadFailedFlag: homeInfo.frontpageLoadFailed,
@@ -192,7 +191,7 @@ private extension HomeView {
         case .popular:
             GenericList(
                 items: homeInfo.popularItems,
-                setting: setting ?? Setting(),
+                setting: setting,
                 loadingFlag: homeInfo.popularLoading,
                 notFoundFlag: homeInfo.popularNotFound,
                 loadFailedFlag: homeInfo.popularLoadFailed,
@@ -203,7 +202,7 @@ private extension HomeView {
         case .watched:
             GenericList(
                 items: homeInfo.watchedItems,
-                setting: setting ?? Setting(),
+                setting: setting,
                 loadingFlag: homeInfo.watchedLoading,
                 notFoundFlag: homeInfo.watchedNotFound,
                 loadFailedFlag: homeInfo.watchedLoadFailed,
@@ -217,7 +216,7 @@ private extension HomeView {
                 items: homeInfo.favoritesItems[
                     environment.favoritesIndex
                 ],
-                setting: setting ?? Setting(),
+                setting: setting,
                 loadingFlag: homeInfo.favoritesLoading[
                     environment.favoritesIndex
                 ] ?? false,
@@ -241,7 +240,7 @@ private extension HomeView {
         case .history:
             GenericList(
                 items: mangaHistory,
-                setting: setting ?? Setting(),
+                setting: setting,
                 loadingFlag: false,
                 notFoundFlag: mangaHistory.isEmpty,
                 loadFailedFlag: false,
@@ -366,7 +365,7 @@ private extension HomeView {
         store.dispatch(.replaceMangaCommentJumpID(gid: gid))
     }
     func getPasteboardLinkIfAllowed() -> URL? {
-        if setting?.allowsDetectionWhenNoChange == true {
+        if setting.allowsDetectionWhenNoChange {
             return getPasteboardLink()
         } else {
             let currentChangeCount = UIPasteboard.general.changeCount
@@ -382,7 +381,7 @@ private extension HomeView {
         if environment.homeViewSheetState != nil {
             store.dispatch(.toggleHomeViewSheet(state: nil))
         }
-        if environment.isSlideMenuClosed != true {
+        if environment.isSlideMenuClosed {
             postSlideMenuShouldCloseNotification()
         }
     }
@@ -435,8 +434,8 @@ private extension HomeView {
         }
 
         dispatchMainAsync {
-            if setting?.showNewDawnGreeting == true {
-                if let greeting = user?.greeting {
+            if setting.showNewDawnGreeting {
+                if let greeting = user.greeting {
                     if verifyDate(with: greeting.updateTime) {
                         store.dispatch(.fetchGreeting)
                     }

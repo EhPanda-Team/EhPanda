@@ -46,25 +46,31 @@ extension AppState {
         var favoriteNamesLoading = false
         var greetingLoading = false
 
-        @FileStorage(directory: .cachesDirectory, fileName: "user.json")
-        var user: User?
-        @FileStorage(directory: .cachesDirectory, fileName: "filter.json")
-        var filter: Filter?
-        @FileStorage(directory: .cachesDirectory, fileName: "setting.json")
-        var setting: Setting?
+        var appEnv: AppEnv {
+            PersistenceController.fetchAppEnvNonNil()
+        }
+
+        @AppEnvStorage(type: User.self)
+        var user: User
+
+        @AppEnvStorage(type: Filter.self)
+        var filter: Filter
+
+        @AppEnvStorage(type: Setting.self)
+        var setting: Setting
 
         mutating func update(user: User) {
             if let displayName = user.displayName {
-                self.user?.displayName = displayName
+                self.user.displayName = displayName
             }
             if let avatarURL = user.avatarURL {
-                self.user?.avatarURL = avatarURL
+                self.user.avatarURL = avatarURL
             }
             if let currentGP = user.currentGP,
                let currentCredits = user.currentCredits
             {
-                self.user?.currentGP = currentGP
-                self.user?.currentCredits = currentCredits
+                self.user.currentGP = currentGP
+                self.user.currentCredits = currentCredits
             }
         }
 
@@ -72,13 +78,13 @@ extension AppState {
             guard let currDate = greeting.updateTime
             else { return }
 
-            if let prevGreeting = user?.greeting,
+            if let prevGreeting = user.greeting,
                let prevDate = prevGreeting.updateTime,
                prevDate < currDate
             {
-                user?.greeting = greeting
-            } else if user?.greeting == nil {
-                user?.greeting = greeting
+                user.greeting = greeting
+            } else if user.greeting == nil {
+                user.greeting = greeting
             }
         }
     }
@@ -130,8 +136,8 @@ extension AppState {
         var moreFavoritesLoading = generateBoolDict()
         var moreFavoritesLoadFailed = generateBoolDict()
 
-        @FileStorage(directory: .cachesDirectory, fileName: "historyKeywords.json")
-        var historyKeywords: [String]?
+        @AppEnvStorage(type: [String].self, key: "historyKeywords")
+        var historyKeywords: [String]
 
         static func generateBoolDict(defaultValue: Bool = false) -> [Int: Bool] {
             var tmp = [Int: Bool]()
@@ -179,10 +185,6 @@ extension AppState {
         }
         mutating func insertHistoryKeyword(text: String) {
             guard !text.isEmpty else { return }
-            guard var historyKeywords = historyKeywords else {
-                historyKeywords = [text]
-                return
-            }
 
             if let index = historyKeywords.firstIndex(of: text) {
                 if historyKeywords.last != text {

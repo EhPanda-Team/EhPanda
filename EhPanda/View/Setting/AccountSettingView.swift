@@ -93,8 +93,8 @@ struct AccountSettingView: View {
 }
 
 private extension AccountSettingView {
-    var settingBinding: Binding<Setting>? {
-        Binding($store.appState.settings.setting)
+    var settingBinding: Binding<Setting> {
+        $store.appState.settings.setting
     }
 
     // MARK: Cookies Methods

@@ -256,7 +256,7 @@ extension MangaDetail: DateFormattable, CustomStringConvertible {
 
 extension MangaState: CustomStringConvertible {
     var description: String {
-        "MangaState(gid: \(gid), tags: \(tags.count),"
+        "MangaState(gid: \(gid), tags: \(tags.count), "
         + "previews: \(previews.count), comments: \(comments.count))"
     }
 }

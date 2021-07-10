@@ -50,11 +50,8 @@ extension Encodable {
 }
 
 extension Data {
-    func toArray<E: Codable>() -> [E]? {
-        try? JSONDecoder().decode([E].self, from: self)
-    }
-    func toAspectBox() -> [Int: CGFloat]? {
-        try? JSONDecoder().decode([Int: CGFloat].self, from: self)
+    func toObject<O: Decodable>() -> O? {
+        try? JSONDecoder().decode(O.self, from: self)
     }
 }
 
