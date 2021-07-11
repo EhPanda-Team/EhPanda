@@ -9,6 +9,7 @@ import UIKit
 import SwiftUI
 import Combine
 import Foundation
+import SwiftyBeaver
 
 extension Dictionary where Key == String, Value == String {
     func dictString() -> String {
@@ -223,5 +224,24 @@ extension UIImage {
             scale: scale,
             orientation: imageOrientation
         )
+    }
+}
+
+extension Optional {
+    var forceUnwrapped: Wrapped {
+        if let value = self {
+            return value
+        }
+        SwiftyBeaver.error(
+            "Failed in force unwrapping..."
+            + "Shutting down now..."
+        )
+        fatalError()
+    }
+}
+
+extension CGSize {
+    static func * (left: CGSize, right: CGFloat) -> CGSize {
+        CGSize(width: left.width * right, height: left.height * right)
     }
 }

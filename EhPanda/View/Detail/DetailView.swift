@@ -352,9 +352,7 @@ private extension HeaderView {
 
 // MARK: DescScrollView
 private struct DescScrollView: View {
-    @State private var itemWidth = max((
-        absoluteWindowW ?? absoluteScreenW
-    ) / 5, 80)
+    @State private var itemWidth = max(absWindowW / 5, 80)
 
     private let detail: MangaDetail
 
@@ -414,9 +412,9 @@ private struct DescScrollView: View {
 
     private func onWidthChange() {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-            if itemWidth != max((absoluteWindowW ?? absoluteScreenW) / 5, 80) {
+            if itemWidth != max(absWindowW / 5, 80) {
                 withAnimation {
-                    itemWidth = max((absoluteWindowW ?? absoluteScreenW) / 5, 80)
+                    itemWidth = max(absWindowW / 5, 80)
                 }
             }
         }

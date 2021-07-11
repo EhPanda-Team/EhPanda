@@ -23,12 +23,14 @@ struct PersistenceController {
 
     static func saveContext() {
         let context = shared.container.viewContext
-        if context.hasChanges {
-            do {
-                try context.save()
-            } catch {
-                SwiftyBeaver.error(error)
-                fatalError("Unresolved error \(error)")
+        dispatchMainSync {
+            if context.hasChanges {
+                do {
+                    try context.save()
+                } catch {
+                    SwiftyBeaver.error(error)
+                    fatalError("Unresolved error \(error)")
+                }
             }
         }
     }
@@ -57,12 +59,14 @@ struct PersistenceController {
 
     static func fetch<MO: NSManagedObject>(
         entityType: MO.Type, predicate: NSPredicate? = nil,
-        findBeforeFetch: Bool = true
+        findBeforeFetch: Bool = true, commitChanges: ((MO?) -> Void)? = nil
     ) -> MO? {
-        fetch(
+        let managedObject = fetch(
             entityType: entityType, fetchLimit: 1,
             predicate: predicate, findBeforeFetch: findBeforeFetch
         ).first
+        commitChanges?(managedObject)
+        return managedObject
     }
 
     static func fetch<MO: NSManagedObject>(
@@ -72,27 +76,36 @@ struct PersistenceController {
         findBeforeFetch: Bool = true,
         sortDescriptors: [NSSortDescriptor]? = nil
     ) -> [MO] {
+        var results = [MO]()
         let context = shared.container.viewContext
-        if findBeforeFetch, let predicate = predicate {
-            if let objects = materializedObjects(
-                in: context, matching: predicate
-            ) as? [MO], !objects.isEmpty { return objects }
+        dispatchMainSync {
+            if findBeforeFetch, let predicate = predicate {
+                if let objects = materializedObjects(
+                    in: context, matching: predicate
+                ) as? [MO], !objects.isEmpty {
+                    results = objects
+                    return
+                }
+            }
+            let request = NSFetchRequest<MO>(
+                entityName: String(describing: entityType)
+            )
+            request.predicate = predicate
+            request.fetchLimit = fetchLimit
+            request.sortDescriptors = sortDescriptors
+            results = (try? context.fetch(request)) ?? []
         }
-        let request = NSFetchRequest<MO>(
-            entityName: String(describing: entityType)
-        )
-        request.predicate = predicate
-        request.fetchLimit = fetchLimit
-        request.sortDescriptors = sortDescriptors
-        return (try? context.fetch(request)) ?? []
+        return results
     }
 
     static func fetchOrCreate<MO: NSManagedObject>(
-        entityType: MO.Type, predicate: NSPredicate? = nil
+        entityType: MO.Type, predicate: NSPredicate? = nil,
+        commitChanges: ((MO?) -> Void)? = nil
     ) -> MO {
         if let storedMO = fetch(
             entityType: entityType,
-            predicate: predicate
+            predicate: predicate,
+            commitChanges: commitChanges
         ) {
             return storedMO
         } else {
@@ -101,6 +114,7 @@ struct PersistenceController {
                     .container
                     .viewContext
             )
+            commitChanges?(newMO)
             saveContext()
             return newMO
         }
@@ -133,21 +147,23 @@ struct PersistenceController {
     static func update<MO: GalleryIdentifiable>(
         entityType: MO.Type, gid: String,
         createIfNil: Bool = false,
-        commitChanges: ((MO) -> Void)
+        commitChanges: @escaping ((MO) -> Void)
     ) {
-        let storedMO: MO?
-        if createIfNil {
-            storedMO = fetchOrCreate(
-                entityType: entityType, gid: gid
-            )
-        } else {
-            storedMO = fetch(
-                entityType: entityType, gid: gid
-            )
-        }
-        if let storedMO = storedMO {
-            commitChanges(storedMO)
-            saveContext()
+        dispatchMainSync {
+            let storedMO: MO?
+            if createIfNil {
+                storedMO = fetchOrCreate(
+                    entityType: entityType, gid: gid
+                )
+            } else {
+                storedMO = fetch(
+                    entityType: entityType, gid: gid
+                )
+            }
+            if let storedMO = storedMO {
+                commitChanges(storedMO)
+                saveContext()
+            }
         }
     }
 }

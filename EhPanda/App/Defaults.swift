@@ -12,9 +12,9 @@ struct Defaults {
     struct FrameSize {
         static var slideMenuWidth: CGFloat {
             if isPadWidth {
-                return max((windowW ?? screenW) - 500, 300)
+                return max(windowW - 500, 300)
             } else {
-                return max((windowW ?? screenW) - 90, 250)
+                return max(windowW - 90, 250)
             }
         }
     }
