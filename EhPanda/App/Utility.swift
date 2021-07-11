@@ -104,7 +104,7 @@ var isPad: Bool {
 }
 
 var isPadWidth: Bool {
-    windowW ?? screenW > 700
+    windowW > 500
 }
 
 var viewControllersCount: Int {
@@ -142,47 +142,35 @@ var isPortrait: Bool {
         )
 }
 
-var windowW: CGFloat? {
-    if let width = absoluteWindowW,
-       let height = absoluteWindowH
-    {
-        return min(width, height)
-    } else {
-        return nil
-    }
+var windowW: CGFloat {
+    min(absWindowW, absWindowH)
 }
 
-var windowH: CGFloat? {
-    if let width = absoluteWindowW,
-       let height = absoluteWindowH
-    {
-        return max(width, height)
-    } else {
-        return nil
-    }
+var windowH: CGFloat {
+    max(absWindowW, absWindowH)
 }
 
 var screenW: CGFloat {
-    min(absoluteScreenW, absoluteScreenH)
+    min(absScreenW, absScreenH)
 }
 
 var screenH: CGFloat {
-    max(absoluteScreenW, absoluteScreenH)
+    max(absScreenW, absScreenH)
 }
 
-var absoluteWindowW: CGFloat? {
-    keyWindow?.frame.size.width
+var absWindowW: CGFloat {
+    keyWindow?.frame.size.width ?? absScreenW
 }
 
-var absoluteWindowH: CGFloat? {
-    keyWindow?.frame.size.height
+var absWindowH: CGFloat {
+    keyWindow?.frame.size.height ?? absScreenH
 }
 
-var absoluteScreenW: CGFloat {
+var absScreenW: CGFloat {
     UIScreen.main.bounds.size.width
 }
 
-var absoluteScreenH: CGFloat {
+var absScreenH: CGFloat {
     UIScreen.main.bounds.size.height
 }
 

@@ -30,9 +30,10 @@ struct Home: View, StoreAccessor {
                         Color.black.opacity(opacity)
                             .edgesIgnoringSafeArea(.vertical)
                             .onTapGesture {
-                        performTransition(offset: -width)
+                                performTransition(offset: -width)
                             }
                     )
+                    .opacity(viewControllersCount > 1 ? 0 : 1)
             }
             .blur(radius: blurRadius)
             .allowsHitTesting(isAppUnlocked)

@@ -67,7 +67,7 @@ struct ContentView: View, StoreAccessor, PersistenceAccessor {
                                         onSuccessAction: onWebImageSuccess
                                     )
                                     .frame(
-                                        width: absoluteScreenW,
+                                        width: absWindowW,
                                         height: calImageHeight(tag: item.tag)
                                     )
                                     .onAppear {
@@ -207,21 +207,21 @@ private extension ContentView {
     // MARK: ReadingProgress
     func calImageHeight(tag: Int) -> CGFloat {
         if let aspect = aspectBox[tag] {
-            return absoluteScreenW * aspect
+            return absWindowW * aspect
         } else {
-            return screenH * contentHScale
+            return windowH * contentHScale
         }
     }
     func calReadingProgress() -> Int {
         var heightArray = Array(
-            repeating: screenH * contentHScale,
+            repeating: windowH * contentHScale,
             count: mangaContents.count
         )
         aspectBox.forEach { (key: Int, value: CGFloat) in
-            heightArray[key] = value * screenW
+            heightArray[key] = value * windowW
         }
 
-        var remainingPosition = position + screenH / 2
+        var remainingPosition = position + windowH / 2
         for (index, value) in heightArray.enumerated() {
             remainingPosition -= value
             if remainingPosition < 0 {
@@ -270,8 +270,7 @@ private extension ContentView {
     func onDragGestureChanged(value: DragGesture.Value) {
         if scale > 1 {
             let newX = value.translation.width + newOffset.width
-            let screenW = UIScreen.main.bounds.width
-            let marginW = screenW * (scale - 1) / 2
+            let marginW = windowW * (scale - 1) / 2
 
             let newOffsetW = min(max(newX, -marginW), marginW)
             set(newOffset: CGSize(width: newOffsetW, height: offset.height))
@@ -309,8 +308,7 @@ private extension ContentView {
         }
     }
     func fixOffset() {
-        let screenW = UIScreen.main.bounds.width
-        let marginW = screenW * (scale - 1) / 2
+        let marginW = windowW * (scale - 1) / 2
 
         withAnimation {
             if offset.width > marginW {
@@ -363,8 +361,8 @@ private struct ImageContainer: View {
                     )
                 )
                 .frame(
-                    width: absoluteScreenW,
-                    height: screenH * contentHScale
+                    width: absWindowW,
+                    height: windowH * contentHScale
                 )
             }
             .retry(
