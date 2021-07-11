@@ -27,32 +27,42 @@ extension PersistenceAccessor {
 // MARK: Accessor Method
 extension PersistenceController {
     static func fetchManga(gid: String) -> Manga? {
-        PersistenceController.fetch(
-            entityType: MangaMO.self, gid: gid
-        )?.toEntity()
+        var entity: Manga?
+        dispatchMainSync {
+            entity = fetch(entityType: MangaMO.self, gid: gid)?.toEntity()
+        }
+        return entity.forceUnwrapped
     }
     static func fetchMangaNonNil(gid: String) -> Manga {
         fetchManga(gid: gid) ?? Manga.empty
     }
     static func fetchMangaDetail(gid: String) -> MangaDetail? {
-        PersistenceController.fetch(
-            entityType: MangaDetailMO.self, gid: gid
-        )?.toEntity()
+        var entity: MangaDetail?
+        dispatchMainSync {
+            entity = fetch(entityType: MangaDetailMO.self, gid: gid)?.toEntity()
+        }
+        return entity
     }
     static func fetchMangaStateNonNil(gid: String) -> MangaState {
-        PersistenceController.fetchOrCreate(
-            entityType: MangaStateMO.self, gid: gid
-        ).toEntity()
+        var entity: MangaState?
+        dispatchMainSync {
+            entity = fetchOrCreate(entityType: MangaStateMO.self, gid: gid).toEntity()
+        }
+        return entity.forceUnwrapped
     }
     static func fetchAppEnvNonNil() -> AppEnv {
-        PersistenceController.fetchOrCreate(entityType: AppEnvMO.self).toEntity()
+        var entity: AppEnv?
+        dispatchMainSync {
+            entity = fetchOrCreate(entityType: AppEnvMO.self).toEntity()
+        }
+        return entity.forceUnwrapped
     }
     static func fetchMangaHistory() -> [Manga] {
         let predicate = NSPredicate(format: "lastOpenDate != nil")
         let sortDescriptor = NSSortDescriptor(
             keyPath: \MangaMO.lastOpenDate, ascending: false
         )
-        return PersistenceController.fetch(
+        return fetch(
             entityType: MangaMO.self,
             predicate: predicate,
             findBeforeFetch: false,
@@ -62,38 +72,42 @@ extension PersistenceController {
 
     static func fetch<MO: NSManagedObject>(
         entityType: MO.Type, gid: String,
-        findBeforeFetch: Bool = true
+        findBeforeFetch: Bool = true,
+        commitChanges: ((MO?) -> Void)? = nil
     ) -> MO? {
         fetch(
             entityType: entityType,
             predicate: NSPredicate(
                 format: "gid == %@", gid
             ),
-            findBeforeFetch: findBeforeFetch
+            findBeforeFetch: findBeforeFetch,
+            commitChanges: commitChanges
         )
     }
     static func fetchOrCreate<MO: GalleryIdentifiable>(
         entityType: MO.Type, gid: String
     ) -> MO {
-        let newMO = fetchOrCreate(
+        fetchOrCreate(
             entityType: entityType,
             predicate: NSPredicate(
                 format: "gid == %@", gid
             )
-        )
-        newMO.gid = gid
-        return newMO
+        ) { managedObject in
+            managedObject?.gid = gid
+        }
     }
 
     static func add(mangas: [Manga]) {
         for manga in mangas {
-            if let storedMangaMO: MangaMO =
-                fetch(entityType: MangaMO.self, gid: manga.gid)
-            {
-                storedMangaMO.title = manga.title
-                storedMangaMO.rating = manga.rating
-                storedMangaMO.language = manga.language?.rawValue
-            } else {
+            let storedMO = fetch(
+                entityType: MangaMO.self,
+                gid: manga.gid
+            ) { managedObject in
+                managedObject?.title = manga.title
+                managedObject?.rating = manga.rating
+                managedObject?.language = manga.language?.rawValue
+            }
+            if storedMO == nil {
                 manga.toManagedObject(in: shared.container.viewContext)
             }
         }
@@ -101,20 +115,22 @@ extension PersistenceController {
     }
 
     static func add(detail: MangaDetail) {
-        if let storedMangaDetailMO: MangaDetailMO =
-            fetch(entityType: MangaDetailMO.self, gid: detail.gid)
-        {
-            storedMangaDetailMO.isFavored = detail.isFavored
-            storedMangaDetailMO.archiveURL = detail.archiveURL
-            storedMangaDetailMO.jpnTitle = detail.jpnTitle
-            storedMangaDetailMO.likeCount = detail.likeCount
-            storedMangaDetailMO.pageCount = detail.pageCount
-            storedMangaDetailMO.sizeCount = detail.sizeCount
-            storedMangaDetailMO.sizeType = detail.sizeType
-            storedMangaDetailMO.rating = detail.rating
-            storedMangaDetailMO.ratingCount = detail.ratingCount
-            storedMangaDetailMO.torrentCount = Int16(detail.torrentCount)
-        } else {
+        let storedMO = fetch(
+            entityType: MangaDetailMO.self,
+            gid: detail.gid
+        ) { managedObject in
+            managedObject?.isFavored = detail.isFavored
+            managedObject?.archiveURL = detail.archiveURL
+            managedObject?.jpnTitle = detail.jpnTitle
+            managedObject?.likeCount = detail.likeCount
+            managedObject?.pageCount = detail.pageCount
+            managedObject?.sizeCount = detail.sizeCount
+            managedObject?.sizeType = detail.sizeType
+            managedObject?.rating = detail.rating
+            managedObject?.ratingCount = detail.ratingCount
+            managedObject?.torrentCount = Int16(detail.torrentCount)
+        }
+        if storedMO == nil {
             detail.toManagedObject(in: shared.container.viewContext)
         }
         saveContext()
@@ -139,33 +155,33 @@ extension PersistenceController {
     }
 
     // MARK: MangaState
-    static func update(gid: String, mangaStateMO: ((MangaStateMO) -> Void)) {
+    static func update(gid: String, mangaStateMO: @escaping ((MangaStateMO) -> Void)) {
         update(entityType: MangaStateMO.self, gid: gid, createIfNil: true, commitChanges: mangaStateMO)
     }
     static func update(fetchedState: MangaState) {
-        PersistenceController.update(gid: fetchedState.gid) { mangaStateMO in
+        update(gid: fetchedState.gid) { mangaStateMO in
             mangaStateMO.tags = fetchedState.tags.toData()
             mangaStateMO.previews = fetchedState.previews.toData()
             mangaStateMO.comments = fetchedState.comments.toData()
         }
     }
     static func update(gid: String, aspectBox: [Int: CGFloat]) {
-        PersistenceController.update(gid: gid) { mangaStateMO in
+        update(gid: gid) { mangaStateMO in
             mangaStateMO.aspectBox = aspectBox.toData()
         }
     }
     static func update(gid: String, readingProgress: Int) {
-        PersistenceController.update(gid: gid) { mangaStateMO in
+        update(gid: gid) { mangaStateMO in
             mangaStateMO.readingProgress = Int16(readingProgress)
         }
     }
     static func update(gid: String, userRating: Float) {
-        PersistenceController.update(gid: gid) { mangaStateMO in
+        update(gid: gid) { mangaStateMO in
             mangaStateMO.userRating = userRating
         }
     }
     static func update(gid: String, pageNum: PageNumber, contents: [MangaContent]) {
-        PersistenceController.update(gid: gid) { mangaStateMO in
+        update(gid: gid) { mangaStateMO in
             mangaStateMO.currentPageNum = Int16(pageNum.current)
             mangaStateMO.pageNumMaximum = Int16(pageNum.maximum)
 
