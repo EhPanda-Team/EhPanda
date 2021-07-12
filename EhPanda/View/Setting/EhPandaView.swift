@@ -23,6 +23,13 @@ struct EhPandaView: View, StoreAccessor {
             Info(
                 url: "https://t.me/ehpanda",
                 text: "Telegram"
+            ),
+            Info(
+                url: "altstore://source?url="
+                    + "https://github.com/tatsuz0u"
+                    + "/EhPanda-PromotionResources"
+                    + "/raw/main/altStore.json",
+                text: "AltStore Source".localized()
             )
         ]
     }

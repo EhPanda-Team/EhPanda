@@ -111,6 +111,7 @@
 "Version" = "版本";
 "Contacts" = "联系";
 "Website" = "网站";
+"AltStore Source" = "AltStore源";
 "Acknowledgement" = "致谢";
 
 // MARK: LogsView

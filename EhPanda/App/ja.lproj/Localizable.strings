@@ -111,6 +111,7 @@
 "Version" = "バージョン";
 "Contacts" = "連絡";
 "Website" = "ウェブサイト";
+"AltStore Source" = "AltStoreソース";
 "Acknowledgement" = "謝辞";
 
 // MARK: LogsView
