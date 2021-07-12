@@ -77,27 +77,29 @@
 "Are you sure to logout?" = "本当にログアウトしますか？";
 "Are you sure to clear?" = "本当に削除しますか？";
 "Clear" = "削除";
+"Copy cookies" = "クッキーをコピー";
 
 "General" = "一般";
-"Close slide menu after selection" = "選択後スライドメニューを閉じる";
-"Detect link from the clipboard" = "クリップボードからリンクを探知";
-"Allows detection even when no change" = "変化なしの場合でも探知を有効化";
+"Closes slide menu after selection" = "選択後スライドメニューを閉じる";
+"Navigation" = "ナビゲーション";
+"Redirects links to the selected host" = "リンクを選択されたホストへリダイレクト";
+"Detects links from the clipboard" = "クリップボードからリンクを探知";
+"Allows detection even when no changes" = "変化なしの場合でも探知を有効化";
 "Security" = "セキュリティ";
 "Auto-Lock" = "自動ロック";
 "App switcher blur" = "アプリスイッチャーぼかし";
 "Cache" = "キャッシュ";
 "Clear image caches" = "画像キャッシュを削除";
-"Copy cookies" = "クッキーをコピー";
 
 "Appearance" = "外観";
 "Global" = "全般";
 "Theme" = "テーマ";
 "Tint Color" = "テーマの色";
 "App Icon" = "アプリアイコン";
-"Translate category" = "カテゴリーを訳す";
+"Translates category" = "カテゴリーを訳す";
 "List" = "リスト";
-"Show tags in list" = "リストでタグを表示";
-"Set maximum number of tags" = "リストでのタグ数を制限";
+"Shows tags in list" = "リストでタグを表示";
+"Sets maximum number of tags" = "リストでのタグ数を制限";
 "Maximum number of tags" = "タグ数上限";
 
 "Reading" = "閲覧";
@@ -111,6 +113,7 @@
 "Version" = "バージョン";
 "Contacts" = "連絡";
 "Website" = "ウェブサイト";
+"AltStore Source" = "AltStoreソース";
 "Acknowledgement" = "謝辞";
 
 // MARK: LogsView

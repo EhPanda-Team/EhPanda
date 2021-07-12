@@ -21,19 +21,27 @@ struct GeneralSettingView: View, StoreAccessor {
                     Spacer()
                     Button(language, action: toSettingLanguage)
                 }
+                NavigationLink("Logs", destination: LogsView())
+                NavigationLink("Filters", destination: FilterView())
                 Toggle(
-                    "Close slide menu after selection",
-                    isOn: settingBinding.closeSlideMenuAfterSelection
+                    "Closes slide menu after selection",
+                    isOn: settingBinding.closesSlideMenuAfterSelection
+                )
+            }
+            Section(header: Text("Navigation")) {
+                Toggle(
+                    "Redirects links to the selected host",
+                    isOn: settingBinding.redirectsLinksToSelectedHost
                 )
                 Toggle(
-                    "Detect link from the clipboard",
-                    isOn: settingBinding.detectGalleryFromPasteboard
+                    "Detects links from the clipboard",
+                    isOn: settingBinding.detectsLinksFromPasteboard
                 )
                 Toggle(
-                    "Allows detection even when no change",
-                    isOn: settingBinding.allowsDetectionWhenNoChange
+                    "Allows detection even when no changes",
+                    isOn: settingBinding.allowsDetectionWhenNoChanges
                 )
-                .disabled(!setting.detectGalleryFromPasteboard)
+                .disabled(!setting.detectsLinksFromPasteboard)
             }
             Section(header: Text("Security")) {
                 HStack {
@@ -66,10 +74,6 @@ struct GeneralSettingView: View, StoreAccessor {
                     }
                     .foregroundColor(.primary)
                 }
-            }
-            Section(header: Text("Advanced")) {
-                NavigationLink("Logs", destination: LogsView())
-                NavigationLink("Filters", destination: FilterView())
             }
         }
         .navigationBarTitle("General")

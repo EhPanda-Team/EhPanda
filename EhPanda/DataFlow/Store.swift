@@ -146,12 +146,22 @@ final class Store: ObservableObject {
                 appState.settings.user.favoriteNames = names
             }
 
-        case .fetchMangaItemReverse(let detailURL):
+        case .fetchMangaItemReverse(var detailURL):
             appState.environment.mangaItemReverseLoadFailed = false
 
             if appState.environment.mangaItemReverseLoading { break }
             appState.environment.mangaItemReverseLoading = true
 
+            if appState.settings.setting.redirectsLinksToSelectedHost {
+                detailURL = detailURL.replacingOccurrences(
+                    of: Defaults.URL.ehentai,
+                    with: Defaults.URL.host
+                )
+                .replacingOccurrences(
+                    of: Defaults.URL.exhentai,
+                    with: Defaults.URL.host
+                )
+            }
             appCommand = FetchMangaItemReverseCommand(detailURL: detailURL)
         case .fetchMangaItemReverseDone(let result):
             appState.environment.mangaItemReverseLoading = false

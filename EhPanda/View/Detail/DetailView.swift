@@ -39,8 +39,8 @@ struct DetailView: View, StoreAccessor, PersistenceAccessor {
                     VStack(spacing: 30) {
                         HeaderView(
                             manga: manga, detail: detail,
-                            translateCategory: setting
-                                .translateCategory,
+                            translatesCategory: setting
+                                .translatesCategory,
                             favoriteNames: user.favoriteNames,
                             addFavAction: addFavorite,
                             deleteFavAction: deleteFavorite
@@ -229,7 +229,7 @@ private extension DetailView {
 private struct HeaderView: View {
     private let manga: Manga
     private let detail: MangaDetail
-    private let translateCategory: Bool
+    private let translatesCategory: Bool
     private let favoriteNames: [Int: String]?
     private let addFavAction: (Int) -> Void
     private let deleteFavAction: () -> Void
@@ -237,14 +237,14 @@ private struct HeaderView: View {
     init(
         manga: Manga,
         detail: MangaDetail,
-        translateCategory: Bool,
+        translatesCategory: Bool,
         favoriteNames: [Int: String]?,
         addFavAction: @escaping (Int) -> Void,
         deleteFavAction: @escaping () -> Void
     ) {
         self.manga = manga
         self.detail = detail
-        self.translateCategory = translateCategory
+        self.translatesCategory = translatesCategory
         self.favoriteNames = favoriteNames
         self.addFavAction = addFavAction
         self.deleteFavAction = deleteFavAction
@@ -339,7 +339,7 @@ private extension HeaderView {
         }
     }
     var category: String {
-        if translateCategory {
+        if translatesCategory {
             return manga.category.rawValue.localized()
         } else {
             return manga.category.rawValue

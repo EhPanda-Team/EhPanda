@@ -82,8 +82,8 @@ extension StoreAccessor {
     var autoLockPolicy: AutoLockPolicy {
         setting.autoLockPolicy
     }
-    var detectGalleryFromPasteboard: Bool {
-        setting.detectGalleryFromPasteboard
+    var detectsLinksFromPasteboard: Bool {
+        setting.detectsLinksFromPasteboard
     }
 }
 

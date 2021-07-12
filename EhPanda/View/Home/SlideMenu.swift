@@ -81,7 +81,7 @@ private extension SlideMenu {
             store.dispatch(.toggleHomeList(type: item))
             impactFeedback(style: .soft)
 
-            if setting.closeSlideMenuAfterSelection {
+            if setting.closesSlideMenuAfterSelection {
                 performTransition(offset: -width)
             }
         }
@@ -90,7 +90,7 @@ private extension SlideMenu {
         store.dispatch(.toggleHomeViewSheet(state: .setting))
     }
     func onFavoritesIndexChange(_ : Int) {
-        if setting.closeSlideMenuAfterSelection {
+        if setting.closesSlideMenuAfterSelection {
             performTransition(offset: -width)
         }
     }
