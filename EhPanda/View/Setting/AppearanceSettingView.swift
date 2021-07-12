@@ -47,22 +47,22 @@ struct AppearanceSettingView: View, StoreAccessor {
                 ColorPicker("Tint Color", selection: settingBinding.accentColor)
                 Button("App Icon", action: onAppIconButtonTap)
                     .foregroundStyle(.primary).withArrow()
-                Toggle("Translate category", isOn: settingBinding.translateCategory)
+                Toggle("Translates category", isOn: settingBinding.translatesCategory)
                     .disabled(Locale.current.languageCode == "en")
             }
             Section(header: Text("List")) {
-                Toggle(isOn: settingBinding.showSummaryRowTags) {
+                Toggle(isOn: settingBinding.showsSummaryRowTags) {
                     HStack {
-                        Text("Show tags in list")
+                        Text("Shows tags in list")
                         Image(systemName: "exclamationmark.triangle.fill")
-                            .opacity(setting.showSummaryRowTags ? 1 : 0)
+                            .opacity(setting.showsSummaryRowTags ? 1 : 0)
                             .foregroundStyle(.yellow)
                     }
                 }
                 Toggle(isOn: settingBinding.summaryRowTagsMaximumActivated) {
-                    Text("Set maximum number of tags")
+                    Text("Sets maximum number of tags")
                 }
-                .disabled(!setting.showSummaryRowTags)
+                .disabled(!setting.showsSummaryRowTags)
                 HStack {
                     Text("Maximum number of tags")
                     Spacer()
@@ -80,7 +80,7 @@ struct AppearanceSettingView: View, StoreAccessor {
                 }
                 .disabled(
                     !setting.summaryRowTagsMaximumActivated
-                    || !setting.showSummaryRowTags
+                    || !setting.showsSummaryRowTags
                 )
             }
         }

@@ -142,7 +142,7 @@ private extension HomeView {
     }
 
     var hasJumpPermission: Bool {
-        detectGalleryFromPasteboard
+        detectsLinksFromPasteboard
             && viewControllersCount == 1
     }
     var suggestions: [String] {
@@ -365,7 +365,7 @@ private extension HomeView {
         store.dispatch(.replaceMangaCommentJumpID(gid: gid))
     }
     func getPasteboardLinkIfAllowed() -> URL? {
-        if setting.allowsDetectionWhenNoChange {
+        if setting.allowsDetectionWhenNoChanges {
             return getPasteboardLink()
         } else {
             let currentChangeCount = UIPasteboard.general.changeCount

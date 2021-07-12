@@ -5,10 +5,8 @@
 //  Created by 荒木辰造 on R 3/01/08.
 //
 
-import UIKit
 import SwiftUI
 import Combine
-import Foundation
 import SwiftyBeaver
 
 extension Dictionary where Key == String, Value == String {
@@ -135,9 +133,12 @@ extension String {
     }
 
     func safeURL() -> URL {
-        isValidURL
-            ? URL(string: self)!
-            : URL(string: Defaults.URL.ehentai)!
+        if isValidURL {
+            return URL(string: self).forceUnwrapped
+        } else {
+            SwiftyBeaver.error("Invalid URL, redirect to default host...")
+            return URL(string: Defaults.URL.ehentai).forceUnwrapped
+        }
     }
 
     var isValidURL: Bool {
@@ -234,7 +235,10 @@ extension Optional {
         }
         SwiftyBeaver.error(
             "Failed in force unwrapping..."
-            + "Shutting down now..."
+            + "Shutting down now...",
+            context: [
+                "type": Wrapped.self
+            ]
         )
         fatalError()
     }

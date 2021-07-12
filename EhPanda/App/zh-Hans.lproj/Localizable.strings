@@ -77,27 +77,29 @@
 "Are you sure to logout?" = "确定要退出登录吗？";
 "Are you sure to clear?" = "确定要清空吗？";
 "Clear" = "清空";
+"Copy cookies" = "复制Cookies";
 
 "General" = "一般";
-"Close slide menu after selection" = "选择后关闭侧边栏";
-"Detect link from the clipboard" = "从剪切板检测链接";
-"Allows detection even when no change" = "无变化时依旧检测";
+"Closes slide menu after selection" = "选择后关闭侧边栏";
+"Navigation" = "导航";
+"Redirects links to the selected host" = "重定向链接到选定的站点";
+"Detects links from the clipboard" = "从剪切板检测链接";
+"Allows detection even when no changes" = "无变化时依旧检测";
 "Security" = "安全";
 "Auto-Lock" = "自动锁定";
 "App switcher blur" = "在应用切换器中模糊处理";
 "Cache" = "缓存";
 "Clear image caches" = "清空图片缓存";
-"Copy cookies" = "复制Cookies";
 
 "Appearance" = "外观";
 "Global" = "全局";
 "Theme" = "主题";
 "Tint Color" = "主题色";
 "App Icon" = "应用图标";
-"Translate category" = "显示分类的翻译版本";
+"Translates category" = "显示分类的翻译版本";
 "List" = "列表";
-"Show tags in list" = "在列表中显示标签";
-"Set maximum number of tags" = "设置标签数量上限";
+"Shows tags in list" = "在列表中显示标签";
+"Sets maximum number of tags" = "设置标签数量上限";
 "Maximum number of tags" = "标签数量上限";
 
 "Reading" = "阅读";

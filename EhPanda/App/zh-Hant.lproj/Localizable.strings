@@ -77,27 +77,29 @@
 "Are you sure to logout?" = "確定要登出嗎？";
 "Are you sure to clear?" = "確定要清空嗎？";
 "Clear" = "清空";
+"Copy cookies" = "複製Cookies";
 
 "General" = "一般";
-"Close slide menu after selection" = "選擇後關閉側邊選單";
-"Detect link from the clipboard" = "偵測剪貼簿中的連結";
-"Allows detection even when no change" = "沒有變化時仍然偵測";
+"Closes slide menu after selection" = "選擇後關閉側邊選單";
+"Navigation" = "導航";
+"Redirects links to the selected host" = "重定向連結到選定的站點";
+"Detects links from the clipboard" = "偵測剪貼簿中的連結";
+"Allows detection even when no changes" = "沒有變化時仍然偵測";
 "Security" = "安全";
 "Auto-Lock" = "自動鎖定";
 "App switcher blur" = "模糊多工處理中的預覽";
 "Cache" = "快取";
 "Clear image caches" = "清空圖片快取";
-"Copy cookies" = "複製Cookies";
 
 "Appearance" = "外觀";
 "Global" = "全局";
 "Theme" = "主題";
 "Tint Color" = "主題色";
 "App Icon" = "應用圖標";
-"Translate category" = "翻譯分類";
+"Translates category" = "翻譯分類";
 "List" = "列表";
-"Show tags in list" = "在列表中顯示標籤";
-"Set maximum number of tags" = "設定標籤數量上限";
+"Shows tags in list" = "在列表中顯示標籤";
+"Sets maximum number of tags" = "設定標籤數量上限";
 "Maximum number of tags" = "標籤數量上限";
 
 "Reading" = "閱讀";

@@ -39,7 +39,7 @@ struct MangaSummaryRow: View {
                     .lineLimit(1)
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
-                if setting.showSummaryRowTags, !tags.isEmpty {
+                if setting.showsSummaryRowTags, !tags.isEmpty {
                     TagCloudView(
                         tag: MangaTag(
                             category: .artist,
@@ -83,7 +83,7 @@ struct MangaSummaryRow: View {
             }
             .drawingGroup()
         }
-        .padding(.vertical, setting.showSummaryRowTags ? 5 : 0)
+        .padding(.vertical, setting.showsSummaryRowTags ? 5 : 0)
         .padding(.leading, -10)
         .padding(.trailing, -5)
     }
@@ -98,7 +98,7 @@ private extension MangaSummaryRow {
     }
 
     var category: String {
-        if setting.translateCategory {
+        if setting.translatesCategory {
             return manga.category.rawValue.localized()
         } else {
             return manga.category.rawValue
