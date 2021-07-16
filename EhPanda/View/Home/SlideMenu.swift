@@ -135,7 +135,6 @@ private struct AvatarView: View {
                     if let avatarURL = avatarURL {
                         KFImage(URL(string: avatarURL))
                             .placeholder(placeholder)
-                            .loadImmediately()
                             .resizable()
                     } else {
                         Image(iconName)
