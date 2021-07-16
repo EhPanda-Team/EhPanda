@@ -18,7 +18,7 @@ class DFURLProtocol: URLProtocol {
             print("")
             return false
         }
-        if ["http", "https"].contains(request.url?.scheme) {
+        if !["http", "https"].contains(request.url?.scheme) {
             print("")
             return false
         }

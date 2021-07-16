@@ -63,10 +63,6 @@ struct EhPandaView: View, StoreAccessor {
             Info(
                 url: "https://github.com/honkmaster/TTProgressHUD",
                 text: "TTProgressHUD"
-            ),
-            Info(
-                url: "https://github.com/SDWebImage/SDWebImageSwiftUI",
-                text: "SDWebImageSwiftUI"
             )
         ]
     }

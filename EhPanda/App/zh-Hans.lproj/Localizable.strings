@@ -109,6 +109,9 @@
 "Maximum scale factor" = "最大缩放系数";
 "Double tap scale factor" = "双击缩放系数";
 
+"Laboratory" = "实验室";
+"Bypass SNI Filtering" = "域前置绕过SNI阻断";
+
 "About EhPanda" = "关于EhPanda";
 "Version" = "版本";
 "Contacts" = "联系";
