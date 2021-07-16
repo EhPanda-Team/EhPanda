@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftyBeaver
 
 // MARK: Global
 private func forceDowncast<T>(object: Any) -> T {
@@ -22,6 +23,19 @@ extension URL {
         return URL(string: absoluteString.replacingOccurrences(
             of: originalHost, with: newHost
         ))
+    }
+}
+
+// MARK: URLRequest
+extension URLRequest {
+    var urlContainsImageURL: Bool {
+        var containsTarget = false
+        ["jpg", "jpeg", "png", "gif", "bmp"].forEach { type in
+            if url?.absoluteString.contains(type) == true {
+                containsTarget = true
+            }
+        }
+        return containsTarget
     }
 }
 
@@ -129,10 +143,10 @@ extension URLRequest {
             if readSize > 0 {
                 body.append(buffer, count: readSize)
             } else if readSize == 0 {
-                print("HTTPBodyStream read EOF.")
+                SwiftyBeaver.verbose("HTTPBodyStream read EOF.")
             } else {
                 if let error = stream.streamError as Error? {
-                    print("HTTPBodyStream read Error: \(error).")
+                    SwiftyBeaver.error("HTTPBodyStream read Error: \(error).")
                 }
             }
         }
