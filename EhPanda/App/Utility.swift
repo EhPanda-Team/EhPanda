@@ -51,11 +51,11 @@ var appBuild: String {
     ) as? String ?? "(null)"
 }
 
-var galleryType: GalleryType {
+var galleryHost: GalleryHost {
     let rawValue = UserDefaults
         .standard
-        .string(forKey: "GalleryType") ?? ""
-    return GalleryType(rawValue: rawValue) ?? .ehentai
+        .string(forKey: "GalleryHost") ?? ""
+    return GalleryHost(rawValue: rawValue) ?? .ehentai
 }
 
 var appIconType: IconType {
@@ -282,8 +282,8 @@ func setDebugMode(with debugModeOn: Bool) {
     UserDefaults.standard.set(debugModeOn, forKey: "debugModeOn")
 }
 
-func setGalleryType(with type: GalleryType) {
-    UserDefaults.standard.set(type.rawValue, forKey: "GalleryType")
+func setGalleryHost(with host: GalleryHost) {
+    UserDefaults.standard.set(host.rawValue, forKey: "GalleryHost")
 }
 
 func clearGalleryType() {

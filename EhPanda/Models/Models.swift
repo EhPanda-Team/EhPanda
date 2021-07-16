@@ -284,7 +284,7 @@ extension MangaTorrent: DateFormattable, CustomStringConvertible {
 
 extension Category {
     var color: Color {
-        Color(galleryType.rawValue + "/" + rawValue)
+        Color(galleryHost.rawValue + "/" + rawValue)
     }
     var value: Int {
         switch self {

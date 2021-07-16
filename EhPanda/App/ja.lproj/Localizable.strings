@@ -109,6 +109,9 @@
 "Maximum scale factor" = "最大スケール係数";
 "Double tap scale factor" = "ダブルタップスケール係数";
 
+"Laboratory" = "ラボ";
+"Bypass SNI Filtering" = "SNIフィルタリングを回避";
+
 "About EhPanda" = "EhPandaについて";
 "Version" = "バージョン";
 "Contacts" = "連絡";

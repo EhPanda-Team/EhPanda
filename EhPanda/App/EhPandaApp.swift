@@ -8,17 +8,10 @@
 import SwiftUI
 import Kingfisher
 import SwiftyBeaver
-import SDWebImageSwiftUI
 
 @main
 struct EhPandaApp: App {
     @StateObject private var store = Store()
-
-    init() {
-        configureLogging()
-        configureWebImage()
-        clearImageCachesIfNeeded()
-    }
 
     var body: some Scene {
         WindowGroup {
@@ -44,9 +37,15 @@ private extension EhPandaApp {
     }
 
     func onStartTasks() {
+        syncGalleryHost()
+        configureLogging()
+        configureWebImage()
+        configureDomainFronting()
+        clearImageCachesIfNeeded()
+
         DispatchQueue.main.async {
-            store.dispatch(.fetchFavoriteNames)
             store.dispatch(.fetchUserInfo)
+            store.dispatch(.fetchFavoriteNames)
         }
     }
     func onOpenURL(url: URL) {
@@ -58,6 +57,9 @@ private extension EhPandaApp {
         }
     }
 
+    func syncGalleryHost() {
+        setGalleryHost(with: setting.galleryHost)
+    }
     func configureLogging() {
         var file = FileDestination()
         var console = ConsoleDestination()
@@ -97,16 +99,21 @@ private extension EhPandaApp {
     }
 
     func configureWebImage() {
-        let config = KingfisherManager.shared.downloader.sessionConfiguration
+        let config = KingfisherManager.shared
+            .downloader.sessionConfiguration
+        if setting.bypassSNIFiltering {
+            config.protocolClasses = [DFURLProtocol.self]
+        }
         config.httpCookieStorage = HTTPCookieStorage.shared
         KingfisherManager.shared.downloader.sessionConfiguration = config
+    }
+    func configureDomainFronting() {
+        DFManager.shared.dfState = setting.bypassSNIFiltering
+            ? .activated : .notActivated
     }
     func clearImageCachesIfNeeded() {
         let threshold = 200 * 1024 * 1024
 
-        if SDImageCache.shared.totalDiskSize() > threshold {
-            SDImageCache.shared.clearDisk()
-        }
         KingfisherManager.shared.cache.calculateDiskStorageSize { result in
             if case .success(let size) = result {
                 if size > threshold {

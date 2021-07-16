@@ -8,7 +8,6 @@
 import SwiftUI
 import Combine
 import Kingfisher
-import SDWebImageSwiftUI
 
 struct ContentView: View, StoreAccessor, PersistenceAccessor {
     @EnvironmentObject var store: Store

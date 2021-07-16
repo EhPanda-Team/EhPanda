@@ -60,7 +60,7 @@ struct Defaults {
     struct URL {
         // Domains
         static var host: String {
-            galleryType == .ehentai ? ehentai : exhentai
+            galleryHost == .exhentai ? exhentai : ehentai
         }
         static let ehentai = "https://e-hentai.org/"
         static let exhentai = "https://exhentai.org/"

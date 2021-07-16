@@ -27,10 +27,10 @@ struct AccountSettingView: View {
                 if let settingBinding = settingBinding {
                     Section {
                         Picker(
-                            selection: settingBinding.galleryType,
+                            selection: settingBinding.galleryHost,
                             label: Text("Gallery"),
                             content: {
-                                let galleryTypes: [GalleryType] = [.ehentai, .exhentai]
+                                let galleryTypes: [GalleryHost] = [.ehentai, .exhentai]
                                 ForEach(galleryTypes, id: \.self) {
                                     Text($0.rawValue.localized())
                                 }
