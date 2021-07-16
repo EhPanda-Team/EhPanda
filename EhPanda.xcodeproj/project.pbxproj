@@ -13,6 +13,12 @@
 		AB19D619266E5C6700BA752A /* TTProgressHUD in Frameworks */ = {isa = PBXBuildFile; productRef = AB19D618266E5C6700BA752A /* TTProgressHUD */; };
 		AB2CED64268AB6AE003130F7 /* MangaMO+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB2CED63268AB6AE003130F7 /* MangaMO+CoreDataProperties.swift */; };
 		AB2F72BF2685A8B00088DECA /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = AB2F72BE2685A8B00088DECA /* Kingfisher */; };
+		AB358311269D7B63009466A5 /* DFURLProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB358310269D7B63009466A5 /* DFURLProtocol.swift */; };
+		AB358313269D7E89009466A5 /* DFRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB358312269D7E89009466A5 /* DFRequest.swift */; };
+		AB358315269D821D009466A5 /* DFExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB358314269D821D009466A5 /* DFExtensions.swift */; };
+		AB358317269D826B009466A5 /* DFStreamHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB358316269D826B009466A5 /* DFStreamHandler.swift */; };
+		AB358319269D9996009466A5 /* DomainResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB358318269D9996009466A5 /* DomainResolver.swift */; };
+		AB35831B269DADE7009466A5 /* DFManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB35831A269DADE7009466A5 /* DFManager.swift */; };
 		AB38A0CB25CA993D00764D64 /* ColorCodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB38A0CA25CA993D00764D64 /* ColorCodable.swift */; };
 		AB47FD9F25BC81A40007765D /* Normal@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = AB47FD9925BC81A40007765D /* Normal@3x.png */; };
 		AB47FDA025BC81A40007765D /* Normal@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = AB47FD9A25BC81A40007765D /* Normal@2x.png */; };
@@ -90,6 +96,12 @@
 		AB10117D26986B7D00C2C1A9 /* MangaStateMO+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MangaStateMO+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		AB10117F26986C1100C2C1A9 /* MangaStateMO+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MangaStateMO+CoreDataClass.swift"; sourceTree = "<group>"; };
 		AB2CED63268AB6AE003130F7 /* MangaMO+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MangaMO+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		AB358310269D7B63009466A5 /* DFURLProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DFURLProtocol.swift; sourceTree = "<group>"; };
+		AB358312269D7E89009466A5 /* DFRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DFRequest.swift; sourceTree = "<group>"; };
+		AB358314269D821D009466A5 /* DFExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DFExtensions.swift; sourceTree = "<group>"; };
+		AB358316269D826B009466A5 /* DFStreamHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DFStreamHandler.swift; sourceTree = "<group>"; };
+		AB358318269D9996009466A5 /* DomainResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DomainResolver.swift; sourceTree = "<group>"; };
+		AB35831A269DADE7009466A5 /* DFManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DFManager.swift; sourceTree = "<group>"; };
 		AB38A0CA25CA993D00764D64 /* ColorCodable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ColorCodable.swift; sourceTree = "<group>"; };
 		AB47FD9925BC81A40007765D /* Normal@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Normal@3x.png"; sourceTree = "<group>"; };
 		AB47FD9A25BC81A40007765D /* Normal@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Normal@2x.png"; sourceTree = "<group>"; };
@@ -284,6 +296,12 @@
 			isa = PBXGroup;
 			children = (
 				ABCD2F09259763FC008E5A20 /* Request.swift */,
+				AB358318269D9996009466A5 /* DomainResolver.swift */,
+				AB35831A269DADE7009466A5 /* DFManager.swift */,
+				AB358312269D7E89009466A5 /* DFRequest.swift */,
+				AB358316269D826B009466A5 /* DFStreamHandler.swift */,
+				AB358314269D821D009466A5 /* DFExtensions.swift */,
+				AB358310269D7B63009466A5 /* DFURLProtocol.swift */,
 			);
 			path = Network;
 			sourceTree = "<group>";
@@ -516,6 +534,7 @@
 				AB10118026986C1100C2C1A9 /* MangaStateMO+CoreDataClass.swift in Sources */,
 				AB63EADB2699AC8200090535 /* AppEnvMO+CoreDataProperties.swift in Sources */,
 				ABF45AE025F3313D00ECB568 /* HomeView.swift in Sources */,
+				AB358319269D9996009466A5 /* DomainResolver.swift in Sources */,
 				AB63EADD2699AC9100090535 /* AppEnvMO+CoreDataClass.swift in Sources */,
 				ABCA93BE26918DE100A98BC6 /* Persistence.swift in Sources */,
 				ABF45AEF25F3313D00ECB568 /* TorrentsView.swift in Sources */,
@@ -524,6 +543,7 @@
 				ABF45AEB25F3313D00ECB568 /* MangaSummaryRow.swift in Sources */,
 				ABC3C7892593699B00E0C11B /* Defaults.swift in Sources */,
 				ABF45AF125F3313D00ECB568 /* AssociatedView.swift in Sources */,
+				AB358317269D826B009466A5 /* DFStreamHandler.swift in Sources */,
 				ABF45ADF25F3313D00ECB568 /* FilterView.swift in Sources */,
 				ABE2AE752699F238001D47AA /* AppEnvStorage.swift in Sources */,
 				ABC3C78F2593699B00E0C11B /* ViewModifiers.swift in Sources */,
@@ -547,14 +567,17 @@
 				AB38A0CB25CA993D00764D64 /* ColorCodable.swift in Sources */,
 				ABF45AF425F3313D00ECB568 /* WebView.swift in Sources */,
 				ABF45AF225F3313D00ECB568 /* GeneralSettingView.swift in Sources */,
+				AB358311269D7B63009466A5 /* DFURLProtocol.swift in Sources */,
 				ABF45ABA25F3312F00ECB568 /* AppCommand.swift in Sources */,
 				ABF45AE425F3313D00ECB568 /* TagCloudView.swift in Sources */,
 				ABCA93C22691929D00A98BC6 /* MangaDetailMO+CoreDataClass.swift in Sources */,
+				AB35831B269DADE7009466A5 /* DFManager.swift in Sources */,
 				ABF45AEE25F3313D00ECB568 /* ArchiveView.swift in Sources */,
 				ABF45AEC25F3313D00ECB568 /* ContentView.swift in Sources */,
 				ABEA1FE625A9B40B002966B9 /* Setting.swift in Sources */,
 				ABCA93C02691925900A98BC6 /* MangaMO+CoreDataClass.swift in Sources */,
 				ABC3C7962593699B00E0C11B /* Models.swift in Sources */,
+				AB358315269D821D009466A5 /* DFExtensions.swift in Sources */,
 				ABC3C7872593699B00E0C11B /* EhPandaApp.swift in Sources */,
 				ABF313A525B1AB6600D47A2F /* Misc.swift in Sources */,
 				ABA732DF25A852D800B3D9AB /* Filter.swift in Sources */,
@@ -562,6 +585,7 @@
 				ABF45AE825F3313D00ECB568 /* LinkedText.swift in Sources */,
 				AB10117E26986B7D00C2C1A9 /* MangaStateMO+CoreDataProperties.swift in Sources */,
 				ABF45AE525F3313D00ECB568 /* Comment.swift in Sources */,
+				AB358313269D7E89009466A5 /* DFRequest.swift in Sources */,
 				ABC1FAB6264152C800A9F352 /* StoreAccessor.swift in Sources */,
 				ABF75F3F25A19CD200544D29 /* User.swift in Sources */,
 			);

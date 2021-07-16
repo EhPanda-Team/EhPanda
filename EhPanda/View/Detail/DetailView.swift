@@ -310,6 +310,7 @@ private struct HeaderView: View {
                         NavigationLink(destination: ContentView(gid: manga.gid)) {
                             Text("Read".localized().uppercased())
                                 .fontWeight(.bold)
+                                .foregroundColor(.white)
                                 .padding(.vertical, -2)
                                 .padding(.horizontal, 2)
                         }

@@ -17,6 +17,7 @@ struct EhPandaApp: App {
     init() {
         configureLogging()
         configureWebImage()
+        configureDomainFronting()
         clearImageCachesIfNeeded()
     }
 
@@ -45,6 +46,7 @@ private extension EhPandaApp {
 
     func onStartTasks() {
         DispatchQueue.main.async {
+            syncGalleryHost()
             store.dispatch(.fetchFavoriteNames)
             store.dispatch(.fetchUserInfo)
         }
@@ -58,6 +60,9 @@ private extension EhPandaApp {
         }
     }
 
+    func syncGalleryHost() {
+        setGalleryHost(with: setting.galleryHost)
+    }
     func configureLogging() {
         var file = FileDestination()
         var console = ConsoleDestination()
@@ -98,8 +103,12 @@ private extension EhPandaApp {
 
     func configureWebImage() {
         let config = KingfisherManager.shared.downloader.sessionConfiguration
+        config.protocolClasses = [DFURLProtocol.self]
         config.httpCookieStorage = HTTPCookieStorage.shared
         KingfisherManager.shared.downloader.sessionConfiguration = config
+    }
+    func configureDomainFronting() {
+        DFManager.shared.dfState = .activated
     }
     func clearImageCachesIfNeeded() {
         let threshold = 200 * 1024 * 1024
