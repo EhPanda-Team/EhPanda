@@ -12,7 +12,12 @@
 		AB10118026986C1100C2C1A9 /* MangaStateMO+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB10117F26986C1100C2C1A9 /* MangaStateMO+CoreDataClass.swift */; };
 		AB19D619266E5C6700BA752A /* TTProgressHUD in Frameworks */ = {isa = PBXBuildFile; productRef = AB19D618266E5C6700BA752A /* TTProgressHUD */; };
 		AB2CED64268AB6AE003130F7 /* MangaMO+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB2CED63268AB6AE003130F7 /* MangaMO+CoreDataProperties.swift */; };
-		AB2F72BF2685A8B00088DECA /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = AB2F72BE2685A8B00088DECA /* Kingfisher */; };
+		AB358311269D7B63009466A5 /* DFURLProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB358310269D7B63009466A5 /* DFURLProtocol.swift */; };
+		AB358313269D7E89009466A5 /* DFRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB358312269D7E89009466A5 /* DFRequest.swift */; };
+		AB358315269D821D009466A5 /* DFExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB358314269D821D009466A5 /* DFExtensions.swift */; };
+		AB358317269D826B009466A5 /* DFStreamHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB358316269D826B009466A5 /* DFStreamHandler.swift */; };
+		AB358319269D9996009466A5 /* DomainResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB358318269D9996009466A5 /* DomainResolver.swift */; };
+		AB35831B269DADE7009466A5 /* DFManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB35831A269DADE7009466A5 /* DFManager.swift */; };
 		AB38A0CB25CA993D00764D64 /* ColorCodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB38A0CA25CA993D00764D64 /* ColorCodable.swift */; };
 		AB47FD9F25BC81A40007765D /* Normal@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = AB47FD9925BC81A40007765D /* Normal@3x.png */; };
 		AB47FDA025BC81A40007765D /* Normal@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = AB47FD9A25BC81A40007765D /* Normal@2x.png */; };
@@ -28,7 +33,6 @@
 		AB63EADB2699AC8200090535 /* AppEnvMO+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB63EADA2699AC8200090535 /* AppEnvMO+CoreDataProperties.swift */; };
 		AB63EADD2699AC9100090535 /* AppEnvMO+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB63EADC2699AC9100090535 /* AppEnvMO+CoreDataClass.swift */; };
 		AB6DE897268822390087C579 /* LogsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB6DE896268822390087C579 /* LogsView.swift */; };
-		AB6DE89A268861790087C579 /* SwiftyBeaver in Frameworks */ = {isa = PBXBuildFile; productRef = AB6DE899268861790087C579 /* SwiftyBeaver */; };
 		AB7E6B3025D24FE00035CC68 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = AB7E6B3225D24FE00035CC68 /* InfoPlist.strings */; };
 		ABA732D925A8018A00B3D9AB /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABA732D825A8018A00B3D9AB /* Extensions.swift */; };
 		ABA732DF25A852D800B3D9AB /* Filter.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABA732DE25A852D800B3D9AB /* Filter.swift */; };
@@ -48,7 +52,9 @@
 		ABCD2F0A259763FC008E5A20 /* Request.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD2F09259763FC008E5A20 /* Request.swift */; };
 		ABCD2F0E25976B95008E5A20 /* Parser.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD2F0D25976B95008E5A20 /* Parser.swift */; };
 		ABD5FDD4263D05110021A4C6 /* .swiftlint.yml in Resources */ = {isa = PBXBuildFile; fileRef = ABD5FDD3263D05110021A4C6 /* .swiftlint.yml */; };
-		ABE0FA2F25D4CAEC00E52F18 /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = ABE0FA2E25D4CAEC00E52F18 /* SDWebImageSwiftUI */; };
+		ABE1867826A1733000689FDC /* LaboratorySettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABE1867726A1733000689FDC /* LaboratorySettingView.swift */; };
+		ABE1867926A18D4E00689FDC /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = AB370E7B26A03B0300A1402D /* Kingfisher */; };
+		ABE1867F26A18DD000689FDC /* SwiftyBeaver in Frameworks */ = {isa = PBXBuildFile; productRef = ABE1867E26A18DD000689FDC /* SwiftyBeaver */; };
 		ABE2AE752699F238001D47AA /* AppEnvStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABE2AE742699F238001D47AA /* AppEnvStorage.swift */; };
 		ABEA1FE625A9B40B002966B9 /* Setting.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABEA1FE525A9B40B002966B9 /* Setting.swift */; };
 		ABEE0AFA2595C6F800C997AE /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = ABEE0AFC2595C6F800C997AE /* Localizable.strings */; };
@@ -90,6 +96,12 @@
 		AB10117D26986B7D00C2C1A9 /* MangaStateMO+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MangaStateMO+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		AB10117F26986C1100C2C1A9 /* MangaStateMO+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MangaStateMO+CoreDataClass.swift"; sourceTree = "<group>"; };
 		AB2CED63268AB6AE003130F7 /* MangaMO+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MangaMO+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		AB358310269D7B63009466A5 /* DFURLProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DFURLProtocol.swift; sourceTree = "<group>"; };
+		AB358312269D7E89009466A5 /* DFRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DFRequest.swift; sourceTree = "<group>"; };
+		AB358314269D821D009466A5 /* DFExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DFExtensions.swift; sourceTree = "<group>"; };
+		AB358316269D826B009466A5 /* DFStreamHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DFStreamHandler.swift; sourceTree = "<group>"; };
+		AB358318269D9996009466A5 /* DomainResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DomainResolver.swift; sourceTree = "<group>"; };
+		AB35831A269DADE7009466A5 /* DFManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DFManager.swift; sourceTree = "<group>"; };
 		AB38A0CA25CA993D00764D64 /* ColorCodable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ColorCodable.swift; sourceTree = "<group>"; };
 		AB47FD9925BC81A40007765D /* Normal@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Normal@3x.png"; sourceTree = "<group>"; };
 		AB47FD9A25BC81A40007765D /* Normal@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Normal@2x.png"; sourceTree = "<group>"; };
@@ -129,6 +141,7 @@
 		ABCD2F09259763FC008E5A20 /* Request.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Request.swift; sourceTree = "<group>"; };
 		ABCD2F0D25976B95008E5A20 /* Parser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Parser.swift; sourceTree = "<group>"; };
 		ABD5FDD3263D05110021A4C6 /* .swiftlint.yml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.yaml; path = .swiftlint.yml; sourceTree = SOURCE_ROOT; };
+		ABE1867726A1733000689FDC /* LaboratorySettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaboratorySettingView.swift; sourceTree = "<group>"; };
 		ABE2AE742699F238001D47AA /* AppEnvStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppEnvStorage.swift; sourceTree = "<group>"; };
 		ABE9376C265DCD9400EA8B30 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		ABE9376D265DCD9400EA8B30 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
@@ -175,11 +188,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				ABE0FA2F25D4CAEC00E52F18 /* SDWebImageSwiftUI in Frameworks */,
+				ABE1867926A18D4E00689FDC /* Kingfisher in Frameworks */,
 				AB19D619266E5C6700BA752A /* TTProgressHUD in Frameworks */,
-				AB6DE89A268861790087C579 /* SwiftyBeaver in Frameworks */,
-				AB2F72BF2685A8B00088DECA /* Kingfisher in Frameworks */,
 				AB018DD2268756D000EB0EA9 /* Kanna in Frameworks */,
+				ABE1867F26A18DD000689FDC /* SwiftyBeaver in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -284,6 +296,12 @@
 			isa = PBXGroup;
 			children = (
 				ABCD2F09259763FC008E5A20 /* Request.swift */,
+				AB358318269D9996009466A5 /* DomainResolver.swift */,
+				AB35831A269DADE7009466A5 /* DFManager.swift */,
+				AB358312269D7E89009466A5 /* DFRequest.swift */,
+				AB358316269D826B009466A5 /* DFStreamHandler.swift */,
+				AB358314269D821D009466A5 /* DFExtensions.swift */,
+				AB358310269D7B63009466A5 /* DFURLProtocol.swift */,
 			);
 			path = Network;
 			sourceTree = "<group>";
@@ -380,6 +398,7 @@
 				ABF45AD825F3313D00ECB568 /* GeneralSettingView.swift */,
 				ABF45ADC25F3313D00ECB568 /* AppearanceSettingView.swift */,
 				ABF45ADB25F3313D00ECB568 /* ReadingSettingView.swift */,
+				ABE1867726A1733000689FDC /* LaboratorySettingView.swift */,
 				ABF45ADE25F3313D00ECB568 /* EhPandaView.swift */,
 				ABF45ADA25F3313D00ECB568 /* WebView.swift */,
 				AB6DE896268822390087C579 /* LogsView.swift */,
@@ -405,11 +424,10 @@
 			);
 			name = EhPanda;
 			packageProductDependencies = (
-				ABE0FA2E25D4CAEC00E52F18 /* SDWebImageSwiftUI */,
 				AB19D618266E5C6700BA752A /* TTProgressHUD */,
-				AB2F72BE2685A8B00088DECA /* Kingfisher */,
 				AB018DD1268756D000EB0EA9 /* Kanna */,
-				AB6DE899268861790087C579 /* SwiftyBeaver */,
+				AB370E7B26A03B0300A1402D /* Kingfisher */,
+				ABE1867E26A18DD000689FDC /* SwiftyBeaver */,
 			);
 			productName = EhPanda;
 			productReference = ABC3C7542593696C00E0C11B /* EhPanda.app */;
@@ -442,11 +460,10 @@
 			);
 			mainGroup = ABC3C74B2593696C00E0C11B;
 			packageReferences = (
-				ABE0FA2D25D4CAEC00E52F18 /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */,
 				AB19D617266E5C6700BA752A /* XCRemoteSwiftPackageReference "TTProgressHUD" */,
-				AB2F72BD2685A8B00088DECA /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				AB018DD0268756D000EB0EA9 /* XCRemoteSwiftPackageReference "Kanna" */,
-				AB6DE898268861790087C579 /* XCRemoteSwiftPackageReference "SwiftyBeaver" */,
+				AB370E7A26A03B0300A1402D /* XCRemoteSwiftPackageReference "Kingfisher" */,
+				ABE1867D26A18DD000689FDC /* XCRemoteSwiftPackageReference "SwiftyBeaver" */,
 			);
 			productRefGroup = ABC3C7552593696C00E0C11B /* Products */;
 			projectDirPath = "";
@@ -516,14 +533,17 @@
 				AB10118026986C1100C2C1A9 /* MangaStateMO+CoreDataClass.swift in Sources */,
 				AB63EADB2699AC8200090535 /* AppEnvMO+CoreDataProperties.swift in Sources */,
 				ABF45AE025F3313D00ECB568 /* HomeView.swift in Sources */,
+				AB358319269D9996009466A5 /* DomainResolver.swift in Sources */,
 				AB63EADD2699AC9100090535 /* AppEnvMO+CoreDataClass.swift in Sources */,
 				ABCA93BE26918DE100A98BC6 /* Persistence.swift in Sources */,
 				ABF45AEF25F3313D00ECB568 /* TorrentsView.swift in Sources */,
 				ABF45AB925F3312F00ECB568 /* AppState.swift in Sources */,
 				ABF45AF625F3313D00ECB568 /* AppearanceSettingView.swift in Sources */,
+				ABE1867826A1733000689FDC /* LaboratorySettingView.swift in Sources */,
 				ABF45AEB25F3313D00ECB568 /* MangaSummaryRow.swift in Sources */,
 				ABC3C7892593699B00E0C11B /* Defaults.swift in Sources */,
 				ABF45AF125F3313D00ECB568 /* AssociatedView.swift in Sources */,
+				AB358317269D826B009466A5 /* DFStreamHandler.swift in Sources */,
 				ABF45ADF25F3313D00ECB568 /* FilterView.swift in Sources */,
 				ABE2AE752699F238001D47AA /* AppEnvStorage.swift in Sources */,
 				ABC3C78F2593699B00E0C11B /* ViewModifiers.swift in Sources */,
@@ -547,14 +567,17 @@
 				AB38A0CB25CA993D00764D64 /* ColorCodable.swift in Sources */,
 				ABF45AF425F3313D00ECB568 /* WebView.swift in Sources */,
 				ABF45AF225F3313D00ECB568 /* GeneralSettingView.swift in Sources */,
+				AB358311269D7B63009466A5 /* DFURLProtocol.swift in Sources */,
 				ABF45ABA25F3312F00ECB568 /* AppCommand.swift in Sources */,
 				ABF45AE425F3313D00ECB568 /* TagCloudView.swift in Sources */,
 				ABCA93C22691929D00A98BC6 /* MangaDetailMO+CoreDataClass.swift in Sources */,
+				AB35831B269DADE7009466A5 /* DFManager.swift in Sources */,
 				ABF45AEE25F3313D00ECB568 /* ArchiveView.swift in Sources */,
 				ABF45AEC25F3313D00ECB568 /* ContentView.swift in Sources */,
 				ABEA1FE625A9B40B002966B9 /* Setting.swift in Sources */,
 				ABCA93C02691925900A98BC6 /* MangaMO+CoreDataClass.swift in Sources */,
 				ABC3C7962593699B00E0C11B /* Models.swift in Sources */,
+				AB358315269D821D009466A5 /* DFExtensions.swift in Sources */,
 				ABC3C7872593699B00E0C11B /* EhPandaApp.swift in Sources */,
 				ABF313A525B1AB6600D47A2F /* Misc.swift in Sources */,
 				ABA732DF25A852D800B3D9AB /* Filter.swift in Sources */,
@@ -562,6 +585,7 @@
 				ABF45AE825F3313D00ECB568 /* LinkedText.swift in Sources */,
 				AB10117E26986B7D00C2C1A9 /* MangaStateMO+CoreDataProperties.swift in Sources */,
 				ABF45AE525F3313D00ECB568 /* Comment.swift in Sources */,
+				AB358313269D7E89009466A5 /* DFRequest.swift in Sources */,
 				ABC1FAB6264152C800A9F352 /* StoreAccessor.swift in Sources */,
 				ABF75F3F25A19CD200544D29 /* User.swift in Sources */,
 			);
@@ -722,7 +746,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = EhPanda/EhPanda.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 58;
+				CURRENT_PROJECT_VERSION = 59;
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = 9SKQ7QTZ74;
 				ENABLE_PREVIEWS = YES;
@@ -749,7 +773,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = EhPanda/EhPanda.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 58;
+				CURRENT_PROJECT_VERSION = 59;
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = 9SKQ7QTZ74;
 				ENABLE_PREVIEWS = YES;
@@ -809,28 +833,20 @@
 				kind = branch;
 			};
 		};
-		AB2F72BD2685A8B00088DECA /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
+		AB370E7A26A03B0300A1402D /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/tatsuz0u/Kingfisher";
+			repositoryURL = "https://github.com/onevcat/Kingfisher.git";
 			requirement = {
-				branch = "Xcode-13-fix";
+				branch = "fix/xcode-13";
 				kind = branch;
 			};
 		};
-		AB6DE898268861790087C579 /* XCRemoteSwiftPackageReference "SwiftyBeaver" */ = {
+		ABE1867D26A18DD000689FDC /* XCRemoteSwiftPackageReference "SwiftyBeaver" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/tatsuz0u/SwiftyBeaver";
+			repositoryURL = "https://github.com/SwiftyBeaver/SwiftyBeaver.git";
 			requirement = {
-				branch = "expose-calendar";
+				branch = master;
 				kind = branch;
-			};
-		};
-		ABE0FA2D25D4CAEC00E52F18 /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/SDWebImage/SDWebImageSwiftUI.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 2.0.2;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
@@ -846,20 +862,15 @@
 			package = AB19D617266E5C6700BA752A /* XCRemoteSwiftPackageReference "TTProgressHUD" */;
 			productName = TTProgressHUD;
 		};
-		AB2F72BE2685A8B00088DECA /* Kingfisher */ = {
+		AB370E7B26A03B0300A1402D /* Kingfisher */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = AB2F72BD2685A8B00088DECA /* XCRemoteSwiftPackageReference "Kingfisher" */;
+			package = AB370E7A26A03B0300A1402D /* XCRemoteSwiftPackageReference "Kingfisher" */;
 			productName = Kingfisher;
 		};
-		AB6DE899268861790087C579 /* SwiftyBeaver */ = {
+		ABE1867E26A18DD000689FDC /* SwiftyBeaver */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = AB6DE898268861790087C579 /* XCRemoteSwiftPackageReference "SwiftyBeaver" */;
+			package = ABE1867D26A18DD000689FDC /* XCRemoteSwiftPackageReference "SwiftyBeaver" */;
 			productName = SwiftyBeaver;
-		};
-		ABE0FA2E25D4CAEC00E52F18 /* SDWebImageSwiftUI */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = ABE0FA2D25D4CAEC00E52F18 /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */;
-			productName = SDWebImageSwiftUI;
 		};
 /* End XCSwiftPackageProductDependency section */
 

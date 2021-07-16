@@ -254,7 +254,6 @@ private struct HeaderView: View {
         HStack {
             KFImage(URL(string: manga.coverURL))
                 .placeholder(placeholder)
-                .loadImmediately()
                 .resizable()
                 .scaledToFit()
                 .frame(width: width, height: height)
@@ -310,6 +309,7 @@ private struct HeaderView: View {
                         NavigationLink(destination: ContentView(gid: manga.gid)) {
                             Text("Read".localized().uppercased())
                                 .fontWeight(.bold)
+                                .foregroundColor(.white)
                                 .padding(.vertical, -2)
                                 .padding(.horizontal, 2)
                         }
@@ -661,7 +661,6 @@ private struct PreviewView: View {
                         ForEach(previews) { item in
                             KFImage(URL(string: item.url))
                                 .placeholder(placeholder)
-                                .loadImmediately()
                                 .resizable()
                                 .scaledToFit()
                                 .frame(width: width, height: height)

@@ -8,7 +8,6 @@
 import SwiftUI
 import Kingfisher
 import SwiftyBeaver
-import SDWebImageSwiftUI
 
 struct SettingView: View, StoreAccessor {
     @EnvironmentObject var store: Store
@@ -38,6 +37,11 @@ struct SettingView: View, StoreAccessor {
                         symbolName: "newspaper.fill",
                         text: "Reading",
                         destination: ReadingSettingView()
+                    )
+                    SettingRow(
+                        symbolName: "testtube.2",
+                        text: "Laboratory",
+                        destination: LaboratorySettingView()
                     )
                     SettingRow(
                         symbolName: "p.circle.fill",
@@ -96,7 +100,6 @@ private extension SettingView {
         KingfisherManager.shared.cache.calculateDiskStorageSize { result in
             switch result {
             case .success(let size):
-                let size = size + SDImageCache.shared.totalDiskSize()
                 store.dispatch(
                     .updateDiskImageCacheSize(
                         size: readableUnit(bytes: size)
@@ -108,7 +111,6 @@ private extension SettingView {
         }
     }
     func clearImageCaches() {
-        SDImageCache.shared.clear(with: .disk, completion: nil)
         KingfisherManager.shared.cache.clearDiskCache()
         calculateDiskCachesSize()
     }

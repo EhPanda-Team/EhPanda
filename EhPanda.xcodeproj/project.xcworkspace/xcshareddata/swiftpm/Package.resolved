@@ -12,37 +12,19 @@
       },
       {
         "package": "Kingfisher",
-        "repositoryURL": "https://github.com/tatsuz0u/Kingfisher",
+        "repositoryURL": "https://github.com/onevcat/Kingfisher.git",
         "state": {
-          "branch": "Xcode-13-fix",
-          "revision": "ff901f1bbde87c923fb79bb084bb28a75d63b8dc",
+          "branch": "fix/xcode-13",
+          "revision": "f012224344f09421588a28e9f6259968e3574f8b",
           "version": null
         }
       },
       {
-        "package": "SDWebImage",
-        "repositoryURL": "https://github.com/SDWebImage/SDWebImage.git",
-        "state": {
-          "branch": null,
-          "revision": "76dd4b49110b8624317fc128e7fa0d8a252018bc",
-          "version": "5.11.1"
-        }
-      },
-      {
-        "package": "SDWebImageSwiftUI",
-        "repositoryURL": "https://github.com/SDWebImage/SDWebImageSwiftUI.git",
-        "state": {
-          "branch": null,
-          "revision": "cd8625b7cf11a97698e180d28bb7d5d357196678",
-          "version": "2.0.2"
-        }
-      },
-      {
         "package": "SwiftyBeaver",
-        "repositoryURL": "https://github.com/tatsuz0u/SwiftyBeaver",
+        "repositoryURL": "https://github.com/SwiftyBeaver/SwiftyBeaver.git",
         "state": {
-          "branch": "expose-calendar",
-          "revision": "e5d55d02b571aa9b8a833db519ca9d794380c7fc",
+          "branch": "master",
+          "revision": "607fc8d64388652135f4dcf6a1a340e3a0641088",
           "version": null
         }
       },

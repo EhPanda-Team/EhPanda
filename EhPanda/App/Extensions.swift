@@ -249,3 +249,12 @@ extension CGSize {
         CGSize(width: left.width * right, height: left.height * right)
     }
 }
+
+extension URLRequest {
+    mutating func setURLEncodedContentType() {
+        setValue(
+            "application/x-www-form-urlencoded",
+            forHTTPHeaderField: "Content-Type"
+        )
+    }
+}

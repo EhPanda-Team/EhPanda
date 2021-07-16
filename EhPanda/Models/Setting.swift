@@ -11,9 +11,9 @@ import Foundation
 
 struct Setting: Codable {
     // Account
-    var galleryType = GalleryType.ehentai {
+    var galleryHost = GalleryHost.ehentai {
         didSet {
-            setGalleryType(with: galleryType)
+            setGalleryHost(with: galleryHost)
         }
     }
     var showNewDawnGreeting = false
@@ -63,9 +63,12 @@ struct Setting: Codable {
             }
         }
     }
+
+    // Laboratory
+    var bypassSNIFiltering = false
 }
 
-enum GalleryType: String, Codable {
+enum GalleryHost: String, Codable {
     case ehentai = "E-Hentai"
     case exhentai = "ExHentai"
 
