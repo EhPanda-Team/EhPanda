@@ -15,7 +15,7 @@
 </p>
 
 ## 다운로드
-1. [Releases](https://github.com/arakitatsuzou/EhPanda/releases)에서 ipa파일 획득。
+1. [Releases](https://github.com/arakitatsuzou/EhPanda/releases)에서 ipa파일 획득.
 2. [AltStore](https://altstore.io)을 사용해서 ipa 파일을 기계에 설치할 수 있습니다.
 
 ## 시스템 요구
