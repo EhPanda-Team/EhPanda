@@ -1,0 +1,258 @@
+/*
+  Localizable.strings
+  EhPanda
+
+  Created by Hokyee Jau on R 3/07/11.
+
+*/
+
+// MARK: Response
+"You must have a H@H client assigned to your account to use this feature." = "H@H 클라이언트가 아이디와　관련된　후　이용해　주시기　바랍니다.";
+"Your H@H client appears to be offline. Turn it on, then try again." = "H@H 클라이언트 접속 안됩니다. 다시 시도하십시오.";
+"The requested gallery cannot be downloaded with the selected resolution." = "이　콘텐츠가　선택한　해상도로　다운로드할　수　없습니다.";
+
+// MARK: HUD
+"Success" = "성공";
+"Error" = "실패";
+"Communicating..." = "접속 중...";
+"Copied to clipboard" = "복사했습니다";
+
+// MARK: LockView
+"The App has been locked due to the auto-lock expiration." = "시간　초과로　인해서　APP 자발적으로　잠금됐습니다.";
+
+// MARK: Common
+"null" = "null";
+"expired" = "재한 넘었습니다";
+"mystery" = "접속 안 됩니다";
+
+// MARK: User
+"favoriteNameByDev" = "즐겨찾기";
+"all_appendedByDev" = "모두";
+
+// MARK: AlertView
+"Loading..." = "로딩...";
+"Login" = "로그인";
+"Your search didn't match any docs." = "검색 결과가　없습니다.";
+"Retry" = "재시도";
+"A Network error occurred.\nPlease try again later." = "인터넷 접속 불가.\n잠시후　다시　시도해　보십시오.";
+
+// MARK: DetailView
+"Archive" = "아카이브";
+"Torrents" = "토렌트";
+"Share" = "공유";
+"Read" = "열람";
+"Favored" = "관심";
+"Times" = "번";
+"Language" = "언어";
+" Ratings" = "명의　평가";
+"Page Count" = "페이지 수";
+"Pages" = "페이지";
+"Size" = "파일　크기";
+"Give a Rating" = "점수 평가";
+"Similar Gallery" = "추천";
+"Preview" = "미리보기";
+"Comment" = "평가";
+"Show All" = "모두　보기";
+
+// MARK: ArchiveView
+"N/A" = "무효";
+"Free" = "무료";
+"Original" = "자동";
+"Download To Hath Client" = "Hath 클라이언트로 저장";
+
+// MARK: CommentView
+"Post Comment" = "평가　남기";
+"Edit Comment" = "평가　수정";
+"Cancel" = "취소";
+"Post" = "등록";
+
+// MARK: SettingView
+"Setting" = "설정";
+"Account" = "계정";
+"Gallery" = "갤러리";
+"Login" = "로그인";
+"Logout" = "로그아웃";
+"Account configuration" = "계정 설정";
+"Manage tags subscription" = "해시태크 관리";
+"Are you sure to logout?" = "로그아웃을　하시겠습니까?";
+"Are you sure to clear?" = "삭제를 하시겠니까?";
+"Clear" = "삭제";
+"Copy cookies" = "쿠키 복사";
+
+"General" = "일반";
+"Closes slide menu after selection" = "선택한 후 슬라이드 숨기기";
+"Navigation" = "내비게이션";
+"Redirects links to the selected host" = "선택한 서버로 이동하겠습니다";
+"Detects links from the clipboard" = "클립보드에서 링크 붙어놓기";
+"Allows detection even when no changes" = "링크를 못 찾을 때 다시 시도";
+"Security" = "개인 정보 보호";
+"Auto-Lock" = "자동 로크";
+"App switcher blur" = "앱 넘어갈 때 자동 흐리기";
+"Cache" = "캐시";
+"Clear image caches" = "이미지 캐시 지우기";
+
+"Appearance" = "외관";
+"Global" = "전체";
+"Theme" = "모양새";
+"Tint Color" = "악센트 색상";
+"App Icon" = "앱 아이콘";
+"Translates category" = "카테고리 언어";
+"List" = "리스트";
+"Shows tags in list" = "리스트에서 해시태크를 제시하기";
+"Sets maximum number of tags" = "해시태크 수량 설정";
+"Maximum number of tags" = "해시태크 수량";
+
+"Reading" = "열람";
+"Retry limit" = "시도 횟수";
+" times" = "번";
+"Separator height" = "선 두께";
+"Maximum scale factor" = "확대 비율";
+"Double tap scale factor" = "더블 클릭 확대 비율";
+
+"Laboratory" = "실현실";
+"Bypass SNI Filtering" = "SNI차단 우회";
+
+"About EhPanda" = "EhPanda 정보";
+"Version" = "버전";
+"Contacts" = "연락처";
+"Website" = "웹사이트";
+"AltStore Source" = "AltStore 소스";
+"Acknowledgement" = "감사";
+
+// MARK: LogsView
+"Logs" = "일지";
+"Latest" = "최신";
+" records" = " 기록수";
+
+// MARK: FilterView
+"Filters" = "옵션";
+"Basic" = "베이직";
+"Reset filters" = "모두 옵션 초기화";
+"Are you sure to reset?" = "초기화하시겠습니까?";
+"Reset" = "초기화";
+"Advanced settings" = "고급 옵션";
+"Advanced" = "고급";
+"Search gallery name" = "갤러리 이릅을 찾아보기";
+"Search gallery tags" = "갤러리 해시태그를 찾아보기";
+"Search gallery description" = "갤러리 설명을 찾아보기";
+"Search torrent filenames" = "토렌트 이름을 찾아보기";
+"Only show galleries with torrents" = "토렌트 있는 갤러리만 보이기";
+"Search Low-Power tags" = "인기가 없는 해시태크를 찾아보기";
+"Search downvoted tags" = "낮은 평가의 해시태크를 찾아보기";
+"Show expunged galleries" = "삭제된 갤러리를 제시하기";
+"Set minimum rating" = "별점 범위를 설정하기";
+"Minimum rating" = "별점 범위";
+"stars" = "별";
+"Set pages range" = "페이지 범위 설정";
+"Pages range" = "페이지 범위";
+"Default Filter" = "자동 옵션";
+"Disable language filter" = "언어 옵션 금지";
+"Disable uploader filter" = "퍼머 옵션 금지";
+"Disable tags filter" = "해시태크 옵션 금지";
+
+// MARK: NewDawnView
+"Show new dawn greeting" = "아침 인사 구독하기";
+"It is the dawn of a new day!" = "새로운 하루가 시작했습니다!";
+"Reflecting on your journey so far, you find that you are a little wiser." = "나의 과거를 뒤돌아보면서 내가 조금 더 똑똑해졌네요.";
+"GAINCONTENT_START" = "";
+"GAINCONTENT_SEPARATOR" = ",";
+"GAINCONTENT_AND" = "과";
+"GAINCONTENT_END" = "확득했습니다!";
+
+// MARK: HomeListType
+"Search" = "검색";
+"Frontpage" = "홈페이지";
+"Popular" = "핫이슈";
+"Watched" = "해시태크";
+"Favorites" = "관심";
+"Downloaded" = "저장";
+"History" = "역사";
+
+// MARK: Category
+"Doujinshi" = "동인지";
+"Manga" = "만화";
+"Artist CG" = "일러스트";
+"Game CG" = "게임CG";
+"Western" = "서양";
+"Non-H" = "건강";
+"Image Set" = "포토북";
+"Cosplay" = "코스프레";
+"Asian Porn" = "아시아";
+"Misc" = "기타";
+
+// MARK: TagCategory
+"Reclass" = "재분류";
+"Language" = "언어";
+"Parody" = "원작";
+"Character" = "캐릭터";
+"Group" = "단체";
+"Artist" = "작가";
+"Male" = "남성";
+"Female" = "여성";
+"Misc" = "기타";
+
+// MARK: IconType
+"Normal" = "보통";
+"Default" = "자동";
+"Weird" = "기이";
+
+// MARK: PreferredColorScheme
+"Automatic" = "자동";
+"Light" = "연한 색";
+"Dark" = "진한 색";
+
+// MARK: AutoLockPolicy
+"Never" = "안 함";
+"Instantly" = "즉시";
+"15 seconds" = "15초";
+"1 minute" = "1분";
+"5 minutes" = "5분";
+"10 minutes" = "10분";
+"30 minutes" = "30분";
+
+// MARK: Language
+"Other" = "기타";
+
+"Afrikaans" = "아프리칸스어"; "Albanian" = "알바니아어"; "Arabic" = "아랍어";
+
+"Bengali" = "벵갈어"; "Bosnian" = "보스니아어"; "Bulgarian" = "불가리아어"; "Burmese" = "버마어";
+
+"Catalan" = "카탈루냐어"; "Cebuano" = "세부어"; "Chinese" = "중국어"; "Croatian" = "크로아티아어"; "Czech" = "체코어로";
+
+"Danish" = "덴마크어"; "Dutch" = "네덜란드어로";
+
+"English" = "영어"; "Esperanto" = "국제어"; "Estonian" = "에스토니아어";
+
+"Finnish" = "핀란드어"; "French" = "프랑스어";
+
+"Georgian" = "그루지야어"; "German" = "독일어"; "Greek" = "그리스어";
+
+"Hebrew" = "히브리어"; "Hindi" = "힌디어"; "Hmong" = "묘어"; "Hungarian" = "헝가리어";
+
+"Indonesian" = "인도네시아어"; "Italian" = "이탈리아어";
+
+"Japanese" = "일분어";
+
+"Kazakh" = "카자흐어"; "Khmer" = "크메르원"; "Korean" = "한국어"; "Kurdish" = "쿠르드어";
+
+"Lao" = "라오스어"; "Latin" = "라틴어";
+
+"Mongolian" = "몽골어";
+
+"Ndebele" = "은데벨리어"; "Nepali" = "네팔어"; "Norwegian" = "노르웨이어로";
+
+"Oromo" = "오로모어";
+
+"Pashto" = "파슈토어"; "Persian" = "페르시아어"; "Polish" = "폴란드어"; "Portuguese" = "포르투갈어로"; "Punjabi" = "펀자브어";
+
+"Romanian" = "루마니아어"; "Russian" = "러시아어";
+
+"Sango" = "쌍고어"; "Serbian" = "세르비아어"; "Shona" = "쇼나어"; "Slovak" = "슬로바키아어"; "Slovenian" = "슬로베니아어"; "Somali" = "소말리아어"; "Spanish" = "스페인어"; "Swahili" = "스와히리어로"; "Swedish" = "스웨덴어";
+
+"Tagalog" = "타갈로어"; "Thai" = "타이어"; "Tigrinya" = "티글리니아어"; "Turkish" = "터키어로";
+
+"Ukrainian" = "우크라이나어"; "Urdu" = "우르두어";
+
+"Vietnamese" = "베트남어";
+
+"Zulu" = "줄루어";
