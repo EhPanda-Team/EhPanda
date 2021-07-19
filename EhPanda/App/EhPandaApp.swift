@@ -111,17 +111,15 @@ private extension EhPandaApp {
     }
 
     func configureWebImage() {
-        let config = KingfisherManager.shared
-            .downloader.sessionConfiguration
-        if setting.bypassSNIFiltering {
-            config.protocolClasses = [DFURLProtocol.self]
-        }
+        let config = KingfisherManager.shared.downloader.sessionConfiguration
         config.httpCookieStorage = HTTPCookieStorage.shared
         KingfisherManager.shared.downloader.sessionConfiguration = config
     }
     func configureDomainFronting() {
-        DFManager.shared.dfState = setting.bypassSNIFiltering
-            ? .activated : .notActivated
+        if setting.bypassSNIFiltering {
+            URLProtocol.registerClass(DFURLProtocol.self)
+            URLProtocol.registerWebview(scheme: "https")
+        }
     }
     func configureIgnoreOffensive() {
         setCookie(url: Defaults.URL.ehentai.safeURL(), key: "nw", value: "1")

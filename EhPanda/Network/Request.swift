@@ -25,7 +25,7 @@ private func mapAppError(error: Error) -> AppError {
 // MARK: Routine
 struct GreetingRequest {
     var publisher: AnyPublisher<Greeting, AppError> {
-        DFManager.session
+        URLSession.shared
             .dataTaskPublisher(
                 for: Defaults.URL.greeting().safeURL()
             )
@@ -40,7 +40,7 @@ struct UserInfoRequest {
     let uid: String
 
     var publisher: AnyPublisher<User, AppError> {
-        DFManager.session
+        URLSession.shared
             .dataTaskPublisher(
                 for: Defaults.URL.userInfo(uid: uid).safeURL()
             )
@@ -53,7 +53,7 @@ struct UserInfoRequest {
 
 struct FavoriteNamesRequest {
     var publisher: AnyPublisher<[Int: String], AppError> {
-        DFManager.session
+        URLSession.shared
             .dataTaskPublisher(
                 for: Defaults.URL.ehConfig().safeURL()
             )
@@ -70,7 +70,7 @@ struct SearchItemsRequest {
     let filter: Filter
 
     var publisher: AnyPublisher<(PageNumber, [Manga]), AppError> {
-        DFManager.session
+        URLSession.shared
             .dataTaskPublisher(
                 for: Defaults.URL.searchList(
                     keyword: keyword,
@@ -92,7 +92,7 @@ struct MoreSearchItemsRequest {
     let pageNum: Int
 
     var publisher: AnyPublisher<(PageNumber, [Manga]), AppError> {
-        DFManager.session
+        URLSession.shared
             .dataTaskPublisher(
                 for: Defaults.URL
                     .moreSearchList(
@@ -112,7 +112,7 @@ struct MoreSearchItemsRequest {
 
 struct FrontpageItemsRequest {
     var publisher: AnyPublisher<(PageNumber, [Manga]), AppError> {
-        DFManager.session
+        URLSession.shared
             .dataTaskPublisher(for: Defaults.URL.frontpageList().safeURL())
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .map { (Parser.parsePageNum(doc: $0), Parser.parseListItems(doc: $0)) }
@@ -126,7 +126,7 @@ struct MoreFrontpageItemsRequest {
     let pageNum: Int
 
     var publisher: AnyPublisher<(PageNumber, [Manga]), AppError> {
-        DFManager.session
+        URLSession.shared
             .dataTaskPublisher(
                 for: Defaults.URL
                     .moreFrontpageList(
@@ -144,7 +144,7 @@ struct MoreFrontpageItemsRequest {
 
 struct PopularItemsRequest {
     var publisher: AnyPublisher<(PageNumber, [Manga]), AppError> {
-        DFManager.session
+        URLSession.shared
             .dataTaskPublisher(for: Defaults.URL.popularList().safeURL())
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .map { (Parser.parsePageNum(doc: $0), Parser.parseListItems(doc: $0)) }
@@ -155,7 +155,7 @@ struct PopularItemsRequest {
 
 struct WatchedItemsRequest {
     var publisher: AnyPublisher<(PageNumber, [Manga]), AppError> {
-        DFManager.session
+        URLSession.shared
             .dataTaskPublisher(for: Defaults.URL.watchedList().safeURL())
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .map { (Parser.parsePageNum(doc: $0), Parser.parseListItems(doc: $0)) }
@@ -169,7 +169,7 @@ struct MoreWatchedItemsRequest {
     let pageNum: Int
 
     var publisher: AnyPublisher<(PageNumber, [Manga]), AppError> {
-        DFManager.session
+        URLSession.shared
             .dataTaskPublisher(
                 for: Defaults.URL
                     .moreWatchedList(
@@ -189,7 +189,7 @@ struct FavoritesItemsRequest {
     let favIndex: Int
 
     var publisher: AnyPublisher<(PageNumber, [Manga]), AppError> {
-        DFManager.session
+        URLSession.shared
             .dataTaskPublisher(
                 for: Defaults.URL
                     .favoritesList(
@@ -210,7 +210,7 @@ struct MoreFavoritesItemsRequest {
     let pageNum: Int
 
     var publisher: AnyPublisher<(PageNumber, [Manga]), AppError> {
-        DFManager.session
+        URLSession.shared
             .dataTaskPublisher(
                 for: Defaults.URL
                     .moreFavoritesList(
@@ -231,7 +231,7 @@ struct AssociatedItemsRequest {
     let keyword: AssociatedKeyword
 
     var publisher: AnyPublisher<(PageNumber, [Manga]), AppError> {
-        DFManager.session.dataTaskPublisher(
+        URLSession.shared.dataTaskPublisher(
             for: Defaults.URL
                 .associatedItemsRedir(
                     keyword: keyword
@@ -251,7 +251,7 @@ struct MoreAssociatedItemsRequest {
     let pageNum: Int
 
     var publisher: AnyPublisher<(PageNumber, [Manga]), AppError> {
-        DFManager.session
+        URLSession.shared
             .dataTaskPublisher(
                 for: Defaults.URL
                     .moreAssociatedItemsRedir(
@@ -273,7 +273,7 @@ struct AlterImagesRequest {
     let alterImagesURL: String
 
     var publisher: AnyPublisher<[MangaAlterData], AppError> {
-        DFManager.session
+        URLSession.shared
             .dataTaskPublisher(for: alterImagesURL.safeURL())
             .map { Parser.parseAlterImages(data: $0.data) }
             .mapError(mapAppError)
@@ -286,7 +286,7 @@ struct MangaDetailRequest {
     let detailURL: String
 
     var publisher: AnyPublisher<(MangaDetail, MangaState, APIKey), AppError> {
-        DFManager.session
+        URLSession.shared
             .dataTaskPublisher(
                 for: Defaults.URL
                     .mangaDetail(
@@ -341,7 +341,7 @@ struct MangaItemReverseRequest {
     }
 
     var publisher: AnyPublisher<Manga?, AppError> {
-        DFManager.session
+        URLSession.shared
             .dataTaskPublisher(for: detailURL.safeURL())
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .compactMap { getManga(from: try? Parser.parseMangaDetail(doc: $0, gid: gid).0) }
@@ -355,7 +355,7 @@ struct MangaArchiveRequest {
     let archiveURL: String
 
     var publisher: AnyPublisher<(MangaArchive?, CurrentGP?, CurrentCredits?), AppError> {
-        DFManager.session
+        URLSession.shared
             .dataTaskPublisher(for: archiveURL.safeURL())
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .map {
@@ -391,7 +391,7 @@ struct MangaArchiveFundsRequest {
     }
 
     func archiveURL(url: String) -> AnyPublisher<String, AppError> {
-        DFManager.session
+        URLSession.shared
             .dataTaskPublisher(for: url.safeURL())
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .compactMap { try? Parser
@@ -403,7 +403,7 @@ struct MangaArchiveFundsRequest {
     }
 
     func funds(url: String) -> AnyPublisher<(CurrentGP, CurrentCredits)?, AppError> {
-        DFManager.session
+        URLSession.shared
             .dataTaskPublisher(for: url.safeURL())
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .tryMap(Parser.parseCurrentFunds)
@@ -417,7 +417,7 @@ struct MangaTorrentsRequest {
     let token: String
 
     var publisher: AnyPublisher<[MangaTorrent], AppError> {
-        DFManager.session
+        URLSession.shared
             .dataTaskPublisher(
                 for: Defaults.URL
                     .mangaTorrents(
@@ -437,7 +437,7 @@ struct MangaCommentsRequest {
     let detailURL: String
 
     var publisher: AnyPublisher<[MangaComment], AppError> {
-        DFManager.session
+        URLSession.shared
             .dataTaskPublisher(
                 for: Defaults.URL
                     .mangaDetail(
@@ -469,7 +469,7 @@ struct MangaContentsRequest {
     }
 
     func preContents(url: String) -> AnyPublisher<(PageNumber, [(Int, URL)]), AppError> {
-        DFManager.session
+        URLSession.shared
             .dataTaskPublisher(for: url.safeURL())
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .tryMap { try (
@@ -491,7 +491,7 @@ struct MangaContentsRequest {
         preContents
             .publisher
             .flatMap { preContent in
-                DFManager.session
+                URLSession.shared
                     .dataTaskPublisher(for: preContent.1)
                     .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
                     .tryMap { try Parser.parseMangaContent(doc: $0, tag: preContent.0) }
@@ -506,7 +506,7 @@ struct MangaContentsRequest {
 // MARK: Account Ops
 struct VerifyProfileRequest {
     var publisher: AnyPublisher<(Int?, Bool), AppError> {
-        DFManager.session
+        URLSession.shared
             .dataTaskPublisher(
                 for: Defaults.URL.ehConfig().safeURL()
             )
@@ -532,7 +532,7 @@ struct CreateProfileRequest {
             .urlEncoded().data(using: .utf8)
         request.setURLEncodedContentType()
 
-        return DFManager.session.dataTaskPublisher(for: request)
+        return URLSession.shared.dataTaskPublisher(for: request)
             .map { $0 }
             .mapError(mapAppError)
             .eraseToAnyPublisher()
@@ -560,7 +560,7 @@ struct AddFavoriteRequest {
             .urlEncoded().data(using: .utf8)
         request.setURLEncodedContentType()
 
-        return DFManager.session.dataTaskPublisher(for: request)
+        return URLSession.shared.dataTaskPublisher(for: request)
             .map { $0 }
             .mapError(mapAppError)
             .eraseToAnyPublisher()
@@ -585,7 +585,7 @@ struct DeleteFavoriteRequest {
             .urlEncoded().data(using: .utf8)
         request.setURLEncodedContentType()
 
-        return DFManager.session.dataTaskPublisher(for: request)
+        return URLSession.shared.dataTaskPublisher(for: request)
             .map { $0 }
             .mapError(mapAppError)
             .eraseToAnyPublisher()
@@ -608,7 +608,7 @@ struct SendDownloadCommandRequest {
             .urlEncoded().data(using: .utf8)
         request.setURLEncodedContentType()
 
-        return DFManager.session.dataTaskPublisher(for: request)
+        return URLSession.shared.dataTaskPublisher(for: request)
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .tryMap(Parser.parseDownloadCommandResponse)
             .mapError(mapAppError)
@@ -640,7 +640,7 @@ struct RateRequest {
         request.httpBody = try? JSONSerialization
             .data(withJSONObject: params, options: [])
 
-        return DFManager.session.dataTaskPublisher(for: request)
+        return URLSession.shared.dataTaskPublisher(for: request)
             .map { $0 }
             .mapError(mapAppError)
             .eraseToAnyPublisher()
@@ -662,7 +662,7 @@ struct CommentRequest {
             .urlEncoded().data(using: .utf8)
         request.setURLEncodedContentType()
 
-        return DFManager.session.dataTaskPublisher(for: request)
+        return URLSession.shared.dataTaskPublisher(for: request)
             .map { $0 }
             .mapError(mapAppError)
             .eraseToAnyPublisher()
@@ -688,7 +688,7 @@ struct EditCommentRequest {
             .urlEncoded().data(using: .utf8)
         request.setURLEncodedContentType()
 
-        return DFManager.session.dataTaskPublisher(for: request)
+        return URLSession.shared.dataTaskPublisher(for: request)
             .map { $0 }
             .mapError(mapAppError)
             .eraseToAnyPublisher()
@@ -721,7 +721,7 @@ struct VoteCommentRequest {
         request.httpBody = try? JSONSerialization
             .data(withJSONObject: params, options: [])
 
-        return DFManager.session.dataTaskPublisher(for: request)
+        return URLSession.shared.dataTaskPublisher(for: request)
             .map { $0 }
             .mapError(mapAppError)
             .eraseToAnyPublisher()

@@ -305,6 +305,13 @@ func postDetailViewOnDisappearNotification() {
     )
 }
 
+func postBypassSNIFilteringDidChangeNotification() {
+    NotificationCenter.default.post(
+        name: NSNotification.Name("BypassSNIFilteringDidChange"),
+        object: nil
+    )
+}
+
 // MARK: Storage Management
 func readableUnit<I: BinaryInteger>(bytes: I) -> String {
     let formatter = ByteCountFormatter()
