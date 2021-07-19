@@ -37,13 +37,15 @@ private extension EhPandaApp {
     }
 
     func onStartTasks() {
-        syncGalleryHost()
-        configureLogging()
-        configureWebImage()
-        configureDomainFronting()
-        clearImageCachesIfNeeded()
-
-        DispatchQueue.main.async {
+        dispatchMainSync {
+            syncGalleryHost()
+            configureLogging()
+            configureWebImage()
+            configureDomainFronting()
+            configureIgnoreOffensive()
+        }
+        dispatchMainAsync {
+            clearImageCachesIfNeeded()
             store.dispatch(.fetchUserInfo)
             store.dispatch(.fetchFavoriteNames)
         }
@@ -110,6 +112,10 @@ private extension EhPandaApp {
     func configureDomainFronting() {
         DFManager.shared.dfState = setting.bypassSNIFiltering
             ? .activated : .notActivated
+    }
+    func configureIgnoreOffensive() {
+        setCookie(url: Defaults.URL.ehentai.safeURL(), key: "nw", value: "1")
+        setCookie(url: Defaults.URL.exhentai.safeURL(), key: "nw", value: "1")
     }
     func clearImageCachesIfNeeded() {
         let threshold = 200 * 1024 * 1024

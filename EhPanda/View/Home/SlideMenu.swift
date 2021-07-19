@@ -131,19 +131,15 @@ private struct AvatarView: View {
     var body: some View {
         HStack {
             VStack(alignment: .leading) {
-                Group {
-                    if let avatarURL = avatarURL {
-                        KFImage(URL(string: avatarURL))
-                            .placeholder(placeholder)
-                            .resizable()
-                    } else {
+                KFImage(URL(string: avatarURL ?? ""))
+                    .placeholder {
                         Image(iconName)
                             .resizable()
                     }
-                }
-                .scaledToFit()
-                .frame(width: width, height: height)
-                .clipShape(Circle())
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: width, height: height)
+                    .clipShape(Circle())
                 Text(displayName ?? "Sad Panda")
                     .fontWeight(.bold)
                     .font(.largeTitle)
