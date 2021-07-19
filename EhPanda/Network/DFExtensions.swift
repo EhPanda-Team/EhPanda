@@ -48,6 +48,35 @@ extension URLSessionConfiguration {
     }
 }
 
+// MARK: URLProtocol
+extension URLProtocol {
+    static func contextControllerClass() -> AnyClass {
+        NSClassFromString("WKBrowsingContextController").forceUnwrapped
+    }
+    static func registerSchemeSelector() -> Selector {
+        NSSelectorFromString("registerSchemeForCustomProtocol:")
+    }
+    static func unregisterSchemeSelector() -> Selector {
+        NSSelectorFromString("unregisterSchemeForCustomProtocol:")
+    }
+    static func registerWebview(scheme: String){
+        let controllerClass: AnyClass = contextControllerClass()
+        let selector = registerSchemeSelector()
+        if controllerClass.responds(to: selector) {
+            _ = (controllerClass as AnyObject)
+                .perform(selector, with: scheme)
+        }
+    }
+    static func unregisterWebview(scheme: String){
+        let controllerClass: AnyClass = contextControllerClass()
+        let selector = unregisterSchemeSelector()
+        if controllerClass.responds(to: selector) {
+            _ = (controllerClass as AnyObject)
+                .perform(selector, with: scheme)
+        }
+    }
+}
+
 // MARK: CFHTTPMessage
 extension CFHTTPMessage {
     var isCompleted: Bool {
@@ -136,7 +165,7 @@ extension URLRequest {
 
         var body = Data()
         var readSize = 0
-        while readSize > 0 {
+        repeat {
             if stream.hasBytesAvailable == false { break }
 
             readSize = stream.read(buffer, maxLength: bufferSize)
@@ -149,7 +178,7 @@ extension URLRequest {
                     SwiftyBeaver.error("HTTPBodyStream read Error: \(error).")
                 }
             }
-        }
+        } while readSize > 0
 
         return body
     }

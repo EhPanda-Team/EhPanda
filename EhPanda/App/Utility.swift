@@ -227,12 +227,6 @@ func hideKeyboard() {
     )
 }
 
-func copyHTMLIfNeeded(html: String?) {
-    if isDebugModeOn, let value = html {
-        saveToPasteboard(value: value)
-    }
-}
-
 func dispatchMainSync(execute work: () -> Void) {
     if Thread.isMainThread {
         work()
@@ -278,10 +272,6 @@ var pasteboardChangeCount: Int? {
     UserDefaults.standard.integer(forKey: "PasteboardChangeCount")
 }
 
-func setDebugMode(with debugModeOn: Bool) {
-    UserDefaults.standard.set(debugModeOn, forKey: "debugModeOn")
-}
-
 func setGalleryHost(with host: GalleryHost) {
     UserDefaults.standard.set(host.rawValue, forKey: "GalleryHost")
 }
@@ -311,6 +301,13 @@ func postAppWidthDidChangeNotification() {
 func postDetailViewOnDisappearNotification() {
     NotificationCenter.default.post(
         name: NSNotification.Name("DetailViewOnDisappear"),
+        object: nil
+    )
+}
+
+func postBypassSNIFilteringDidChangeNotification() {
+    NotificationCenter.default.post(
+        name: NSNotification.Name("BypassSNIFilteringDidChange"),
         object: nil
     )
 }

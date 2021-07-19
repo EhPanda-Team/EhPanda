@@ -19,7 +19,6 @@ struct EhPandaApp: App {
                 .task(onStartTasks)
                 .environmentObject(store)
                 .accentColor(accentColor)
-                .onOpenURL(perform: onOpenURL)
                 .preferredColorScheme(preferredColorScheme)
         }
     }
@@ -37,29 +36,42 @@ private extension EhPandaApp {
     }
 
     func onStartTasks() {
-        syncGalleryHost()
-        configureLogging()
-        configureWebImage()
-        configureDomainFronting()
-        clearImageCachesIfNeeded()
-
-        DispatchQueue.main.async {
-            store.dispatch(.fetchUserInfo)
-            store.dispatch(.fetchFavoriteNames)
+        dispatchMainSync {
+            syncGalleryHost()
+            configureLogging()
+            configureWebImage()
+            configureDomainFronting()
+            configureIgnoreOffensive()
         }
-    }
-    func onOpenURL(url: URL) {
-        switch url.host {
-        case "debugMode":
-            setDebugMode(with: url.pathComponents.last == "on")
-        default:
-            break
+        dispatchMainAsync {
+            fetchAccountInfoIfNeeded()
+            clearImageCachesIfNeeded()
         }
     }
 
     func syncGalleryHost() {
         setGalleryHost(with: setting.galleryHost)
     }
+    func fetchAccountInfoIfNeeded() {
+        guard didLogin else { return }
+
+        store.dispatch(.verifyProfile)
+        store.dispatch(.fetchUserInfo)
+        store.dispatch(.fetchFavoriteNames)
+    }
+    func clearImageCachesIfNeeded() {
+        let threshold = 200 * 1024 * 1024
+
+        KingfisherManager.shared.cache.calculateDiskStorageSize { result in
+            if case .success(let size) = result, size > threshold {
+                KingfisherManager.shared.cache.clearDiskCache()
+            }
+        }
+    }
+}
+
+// MARK: Configuration
+private extension EhPandaApp {
     func configureLogging() {
         var file = FileDestination()
         var console = ConsoleDestination()
@@ -99,27 +111,18 @@ private extension EhPandaApp {
     }
 
     func configureWebImage() {
-        let config = KingfisherManager.shared
-            .downloader.sessionConfiguration
-        if setting.bypassSNIFiltering {
-            config.protocolClasses = [DFURLProtocol.self]
-        }
+        let config = KingfisherManager.shared.downloader.sessionConfiguration
         config.httpCookieStorage = HTTPCookieStorage.shared
         KingfisherManager.shared.downloader.sessionConfiguration = config
     }
     func configureDomainFronting() {
-        DFManager.shared.dfState = setting.bypassSNIFiltering
-            ? .activated : .notActivated
-    }
-    func clearImageCachesIfNeeded() {
-        let threshold = 200 * 1024 * 1024
-
-        KingfisherManager.shared.cache.calculateDiskStorageSize { result in
-            if case .success(let size) = result {
-                if size > threshold {
-                    KingfisherManager.shared.cache.clearDiskCache()
-                }
-            }
+        if setting.bypassSNIFiltering {
+            URLProtocol.registerClass(DFURLProtocol.self)
+            URLProtocol.registerWebview(scheme: "https")
         }
+    }
+    func configureIgnoreOffensive() {
+        setCookie(url: Defaults.URL.ehentai.safeURL(), key: "nw", value: "1")
+        setCookie(url: Defaults.URL.exhentai.safeURL(), key: "nw", value: "1")
     }
 }

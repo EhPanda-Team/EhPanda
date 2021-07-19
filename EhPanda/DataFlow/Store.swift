@@ -679,6 +679,36 @@ final class Store: ObservableObject {
             }
 
         // MARK: Account Ops
+        case .createProfile:
+            appCommand = CreateProfileCommand()
+        case .verifyProfile:
+            appCommand = VerifyProfileCommand()
+        case .verifyProfileDone(let result):
+            switch result {
+            case .success((let profileValue, let profileNotFound)):
+                if let profileValue = profileValue {
+                    let profileValueString = String(profileValue)
+                    let hostURL = Defaults.URL.host.safeURL()
+                    let selectedProfileKey = "sp"
+
+                    let cookieValue = getCookieValue(
+                        url: hostURL, key: selectedProfileKey
+                    )
+                    if cookieValue.rawValue != profileValueString {
+                        setCookie(
+                            url: hostURL,
+                            key: selectedProfileKey,
+                            value: profileValueString
+                        )
+                    }
+                } else if profileNotFound {
+                    dispatch(.createProfile)
+                } else {
+                    SwiftyBeaver.error("Found profile but failed in parsing value.")
+                }
+            case .failure(let error):
+                SwiftyBeaver.error(error)
+            }
         case .addFavorite(let gid, let favIndex):
             let token = PersistenceController.fetchManga(gid: gid)?.token ?? ""
             appCommand = AddFavoriteCommand(gid: gid, token: token, favIndex: favIndex)

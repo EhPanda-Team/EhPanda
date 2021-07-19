@@ -78,6 +78,9 @@ enum AppAction {
     case fetchMoreMangaContents(gid: String)
     case fetchMoreMangaContentsDone(result: Result<(Identity, PageNumber, [MangaContent]), AppError>)
 
+    case createProfile
+    case verifyProfile
+    case verifyProfileDone(result: Result<(Int?, Bool), AppError>)
     case addFavorite(gid: String, favIndex: Int)
     case deleteFavorite(gid: String)
     case rate(gid: String, rating: Int)

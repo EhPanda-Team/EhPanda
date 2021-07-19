@@ -17,7 +17,6 @@
 		AB358315269D821D009466A5 /* DFExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB358314269D821D009466A5 /* DFExtensions.swift */; };
 		AB358317269D826B009466A5 /* DFStreamHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB358316269D826B009466A5 /* DFStreamHandler.swift */; };
 		AB358319269D9996009466A5 /* DomainResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB358318269D9996009466A5 /* DomainResolver.swift */; };
-		AB35831B269DADE7009466A5 /* DFManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB35831A269DADE7009466A5 /* DFManager.swift */; };
 		AB38A0CB25CA993D00764D64 /* ColorCodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB38A0CA25CA993D00764D64 /* ColorCodable.swift */; };
 		AB47FD9F25BC81A40007765D /* Normal@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = AB47FD9925BC81A40007765D /* Normal@3x.png */; };
 		AB47FDA025BC81A40007765D /* Normal@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = AB47FD9A25BC81A40007765D /* Normal@2x.png */; };
@@ -101,7 +100,6 @@
 		AB358314269D821D009466A5 /* DFExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DFExtensions.swift; sourceTree = "<group>"; };
 		AB358316269D826B009466A5 /* DFStreamHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DFStreamHandler.swift; sourceTree = "<group>"; };
 		AB358318269D9996009466A5 /* DomainResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DomainResolver.swift; sourceTree = "<group>"; };
-		AB35831A269DADE7009466A5 /* DFManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DFManager.swift; sourceTree = "<group>"; };
 		AB38A0CA25CA993D00764D64 /* ColorCodable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ColorCodable.swift; sourceTree = "<group>"; };
 		AB47FD9925BC81A40007765D /* Normal@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Normal@3x.png"; sourceTree = "<group>"; };
 		AB47FD9A25BC81A40007765D /* Normal@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Normal@2x.png"; sourceTree = "<group>"; };
@@ -299,7 +297,6 @@
 			children = (
 				ABCD2F09259763FC008E5A20 /* Request.swift */,
 				AB358318269D9996009466A5 /* DomainResolver.swift */,
-				AB35831A269DADE7009466A5 /* DFManager.swift */,
 				AB358312269D7E89009466A5 /* DFRequest.swift */,
 				AB358316269D826B009466A5 /* DFStreamHandler.swift */,
 				AB358314269D821D009466A5 /* DFExtensions.swift */,
@@ -574,7 +571,6 @@
 				ABF45ABA25F3312F00ECB568 /* AppCommand.swift in Sources */,
 				ABF45AE425F3313D00ECB568 /* TagCloudView.swift in Sources */,
 				ABCA93C22691929D00A98BC6 /* MangaDetailMO+CoreDataClass.swift in Sources */,
-				AB35831B269DADE7009466A5 /* DFManager.swift in Sources */,
 				ABF45AEE25F3313D00ECB568 /* ArchiveView.swift in Sources */,
 				ABF45AEC25F3313D00ECB568 /* ContentView.swift in Sources */,
 				ABEA1FE625A9B40B002966B9 /* Setting.swift in Sources */,
@@ -751,7 +747,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = EhPanda/EhPanda.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 60;
+				CURRENT_PROJECT_VERSION = 61;
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = 9SKQ7QTZ74;
 				ENABLE_PREVIEWS = YES;
@@ -778,7 +774,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = EhPanda/EhPanda.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 60;
+				CURRENT_PROJECT_VERSION = 61;
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = 9SKQ7QTZ74;
 				ENABLE_PREVIEWS = YES;
