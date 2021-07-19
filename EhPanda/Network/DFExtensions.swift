@@ -136,7 +136,7 @@ extension URLRequest {
 
         var body = Data()
         var readSize = 0
-        while readSize > 0 {
+        repeat {
             if stream.hasBytesAvailable == false { break }
 
             readSize = stream.read(buffer, maxLength: bufferSize)
@@ -149,7 +149,7 @@ extension URLRequest {
                     SwiftyBeaver.error("HTTPBodyStream read Error: \(error).")
                 }
             }
-        }
+        } while readSize > 0
 
         return body
     }
