@@ -149,7 +149,7 @@ extension Defaults.URL {
         )
     }
     static func frontpageList() -> String {
-        merge(urls: [host, listCompact])
+        host
     }
     static func moreFrontpageList(pageNum: String, lastID: String) -> String {
         merge(urls: [host, page + pageNum, from + lastID])

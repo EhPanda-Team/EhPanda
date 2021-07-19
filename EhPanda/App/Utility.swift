@@ -227,12 +227,6 @@ func hideKeyboard() {
     )
 }
 
-func copyHTMLIfNeeded(html: String?) {
-    if isDebugModeOn, let value = html {
-        saveToPasteboard(value: value)
-    }
-}
-
 func dispatchMainSync(execute work: () -> Void) {
     if Thread.isMainThread {
         work()
@@ -276,10 +270,6 @@ let isDebugModeOn = UserDefaults.standard.bool(forKey: "debugModeOn")
 
 var pasteboardChangeCount: Int? {
     UserDefaults.standard.integer(forKey: "PasteboardChangeCount")
-}
-
-func setDebugMode(with debugModeOn: Bool) {
-    UserDefaults.standard.set(debugModeOn, forKey: "debugModeOn")
 }
 
 func setGalleryHost(with host: GalleryHost) {

@@ -402,7 +402,6 @@ struct Parser {
 
     // MARK: Content
     static func parseImagePreContents(doc: HTMLDocument, previewMode: String, pageCount: Int) throws -> [(Int, URL)] {
-        copyHTMLIfNeeded(html: doc.toHTML)
         var imageDetailURLs = [(Int, URL)]()
 
         guard let gdtNode = doc.at_xpath("//div [@id='gdt']")
@@ -420,7 +419,6 @@ struct Parser {
     }
 
     static func parseMangaContent(doc: HTMLDocument, tag: Int) throws -> MangaContent {
-        copyHTMLIfNeeded(html: doc.toHTML)
         guard let i3Node = doc.at_xpath("//div [@id='i3']"),
               let imageURL = i3Node.at_css("img")?["src"]
         else { throw AppError.parseFailed }
@@ -433,13 +431,8 @@ struct Parser {
               let gdo4Node = gdoNode.at_xpath("//div [@id='gdo4']")
         else { return "gdtm" }
 
-        for link in gdo4Node.xpath("//div") {
-            if link.text == "Large",
-               ["tha nosel", "ths nosel"]
-                .contains(link["class"])
-            {
-                return "gdtl"
-            }
+        for link in gdo4Node.xpath("//div") where link.text == "Large" {
+            return link["class"] == "ths nosel" ? "gdtl" : "gdtm"
         }
         return "gdtm"
     }
@@ -472,8 +465,6 @@ struct Parser {
 
     // MARK: Archive
     static func parseMangaArchive(doc: HTMLDocument) throws -> MangaArchive {
-        copyHTMLIfNeeded(html: doc.toHTML)
-
         guard let node = doc.at_xpath("//table")
         else { throw AppError.parseFailed }
 
@@ -950,6 +941,28 @@ extension Parser {
         } else {
             throw AppError.parseFailed
         }
+    }
+
+    // MARK: Profile
+    static func parseProfile(doc: HTMLDocument) throws -> (Int?, Bool) {
+        var profileNotFound = true
+        var profileValue: Int?
+
+        let selector = doc.at_xpath(
+            "//select [@name='profile_set']"
+        )
+        let options = selector?.xpath("//option")
+
+        guard let options = options,
+                options.count >= 1
+        else { throw AppError.parseFailed }
+
+        for link in options where link.text == "EhPanda" {
+            profileNotFound = false
+            profileValue = Int(link["value"] ?? "")
+        }
+
+        return (profileValue, profileNotFound)
     }
 
     // MARK: CommentContent

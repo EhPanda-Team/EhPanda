@@ -22,6 +22,7 @@ private func mapAppError(error: Error) -> AppError {
     }
 }
 
+// MARK: Routine
 struct GreetingRequest {
     var publisher: AnyPublisher<Greeting, AppError> {
         DFManager.session
@@ -63,53 +64,7 @@ struct FavoriteNamesRequest {
     }
 }
 
-struct MangaItemReverseRequest {
-    let detailURL: String
-    var gid: String {
-        if detailURL.safeURL().pathComponents.count >= 4 {
-            return detailURL.safeURL().pathComponents[2]
-        } else {
-            return ""
-        }
-    }
-    var token: String {
-        if detailURL.safeURL().pathComponents.count >= 4 {
-            return detailURL.safeURL().pathComponents[3]
-        } else {
-            return ""
-        }
-    }
-    func getManga(from detail: MangaDetail?) -> Manga? {
-        if let detail = detail {
-            return Manga(
-                gid: gid,
-                token: token,
-                title: detail.title,
-                rating: detail.rating,
-                tags: [],
-                category: detail.category,
-                language: detail.language,
-                uploader: detail.uploader,
-                publishedDate: detail.publishedDate,
-                coverURL: detail.coverURL,
-                detailURL: detailURL
-            )
-        } else {
-            return nil
-        }
-    }
-
-    var publisher: AnyPublisher<Manga?, AppError> {
-        DFManager.session
-            .dataTaskPublisher(for: detailURL.safeURL())
-            .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-            .compactMap { getManga(from: try? Parser.parseMangaDetail(doc: $0, gid: gid).0) }
-            .mapError(mapAppError)
-            .eraseToAnyPublisher()
-    }
-
-}
-
+// MARK: Fetch ListItems
 struct SearchItemsRequest {
     let keyword: String
     let filter: Filter
@@ -272,29 +227,6 @@ struct MoreFavoritesItemsRequest {
     }
 }
 
-struct MangaDetailRequest {
-    let gid: String
-    let detailURL: String
-
-    var publisher: AnyPublisher<(MangaDetail, MangaState, APIKey), AppError> {
-        DFManager.session
-            .dataTaskPublisher(
-                for: Defaults.URL
-                    .mangaDetail(
-                        url: detailURL
-                    )
-                    .safeURL()
-            )
-            .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-            .tryMap {
-                let detail = try Parser.parseMangaDetail(doc: $0, gid: gid)
-                return (detail.0, detail.1, try Parser.parseAPIKey(doc: $0))
-            }
-            .mapError(mapAppError)
-            .eraseToAnyPublisher()
-    }
-}
-
 struct AssociatedItemsRequest {
     let keyword: AssociatedKeyword
 
@@ -336,6 +268,7 @@ struct MoreAssociatedItemsRequest {
     }
 }
 
+// MARK: Fetch Others
 struct AlterImagesRequest {
     let alterImagesURL: String
 
@@ -346,6 +279,76 @@ struct AlterImagesRequest {
             .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
+}
+
+struct MangaDetailRequest {
+    let gid: String
+    let detailURL: String
+
+    var publisher: AnyPublisher<(MangaDetail, MangaState, APIKey), AppError> {
+        DFManager.session
+            .dataTaskPublisher(
+                for: Defaults.URL
+                    .mangaDetail(
+                        url: detailURL
+                    )
+                    .safeURL()
+            )
+            .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
+            .tryMap {
+                let detail = try Parser.parseMangaDetail(doc: $0, gid: gid)
+                return (detail.0, detail.1, try Parser.parseAPIKey(doc: $0))
+            }
+            .mapError(mapAppError)
+            .eraseToAnyPublisher()
+    }
+}
+
+struct MangaItemReverseRequest {
+    let detailURL: String
+    var gid: String {
+        if detailURL.safeURL().pathComponents.count >= 4 {
+            return detailURL.safeURL().pathComponents[2]
+        } else {
+            return ""
+        }
+    }
+    var token: String {
+        if detailURL.safeURL().pathComponents.count >= 4 {
+            return detailURL.safeURL().pathComponents[3]
+        } else {
+            return ""
+        }
+    }
+    func getManga(from detail: MangaDetail?) -> Manga? {
+        if let detail = detail {
+            return Manga(
+                gid: gid,
+                token: token,
+                title: detail.title,
+                rating: detail.rating,
+                tags: [],
+                category: detail.category,
+                language: detail.language,
+                uploader: detail.uploader,
+                publishedDate: detail.publishedDate,
+                coverURL: detail.coverURL,
+                detailURL: detailURL
+            )
+        } else {
+            return nil
+        }
+    }
+
+    var publisher: AnyPublisher<Manga?, AppError> {
+        DFManager.session
+            .dataTaskPublisher(for: detailURL.safeURL())
+            .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
+            .compactMap { getManga(from: try? Parser.parseMangaDetail(doc: $0, gid: gid).0) }
+            .mapError(mapAppError)
+            .eraseToAnyPublisher()
+    }
+
 }
 
 struct MangaArchiveRequest {
@@ -500,7 +503,42 @@ struct MangaContentsRequest {
     }
 }
 
-// MARK: POST
+// MARK: Account Ops
+struct VerifyProfileRequest {
+    var publisher: AnyPublisher<(Int?, Bool), AppError> {
+        DFManager.session
+            .dataTaskPublisher(
+                for: Defaults.URL.ehConfig().safeURL()
+            )
+            .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
+            .tryMap(Parser.parseProfile)
+            .mapError(mapAppError)
+            .eraseToAnyPublisher()
+    }
+}
+
+struct CreateProfileRequest {
+    var publisher: AnyPublisher<Any, AppError> {
+        let url = Defaults.URL.ehConfig()
+        let params: [String: String] = [
+            "profile_action": "create",
+            "profile_name": "EhPanda"
+        ]
+
+        var request = URLRequest(url: url.safeURL())
+
+        request.httpMethod = "POST"
+        request.httpBody = params.dictString()
+            .urlEncoded().data(using: .utf8)
+        request.setURLEncodedContentType()
+
+        return DFManager.session.dataTaskPublisher(for: request)
+            .map { $0 }
+            .mapError(mapAppError)
+            .eraseToAnyPublisher()
+    }
+}
+
 struct AddFavoriteRequest {
     let gid: String
     let token: String
@@ -508,7 +546,7 @@ struct AddFavoriteRequest {
 
     var publisher: AnyPublisher<Any, AppError> {
         let url = Defaults.URL.addFavorite(gid: gid, token: token)
-        let parameters: [String: String] = [
+        let params: [String: String] = [
             "favcat": "\(favIndex)",
             "favnote": "",
             "apply": "Add to Favorites",
@@ -518,7 +556,7 @@ struct AddFavoriteRequest {
         var request = URLRequest(url: url.safeURL())
 
         request.httpMethod = "POST"
-        request.httpBody = parameters.dictString()
+        request.httpBody = params.dictString()
             .urlEncoded().data(using: .utf8)
         request.setURLEncodedContentType()
 
@@ -534,7 +572,7 @@ struct DeleteFavoriteRequest {
 
     var publisher: AnyPublisher<Any, AppError> {
         let url = Defaults.URL.ehFavorites()
-        let parameters: [String: String] = [
+        let params: [String: String] = [
             "ddact": "delete",
             "modifygids[]": gid,
             "apply": "Apply"
@@ -543,7 +581,7 @@ struct DeleteFavoriteRequest {
         var request = URLRequest(url: url.safeURL())
 
         request.httpMethod = "POST"
-        request.httpBody = parameters.dictString()
+        request.httpBody = params.dictString()
             .urlEncoded().data(using: .utf8)
         request.setURLEncodedContentType()
 
@@ -559,14 +597,14 @@ struct SendDownloadCommandRequest {
     let resolution: String
 
     var publisher: AnyPublisher<String?, AppError> {
-        let parameters: [String: String] = [
+        let params: [String: String] = [
             "hathdl_xres": resolution
         ]
 
         var request = URLRequest(url: archiveURL.safeURL())
 
         request.httpMethod = "POST"
-        request.httpBody = parameters.dictString()
+        request.httpBody = params.dictString()
             .urlEncoded().data(using: .utf8)
         request.setURLEncodedContentType()
 
@@ -615,12 +653,12 @@ struct CommentRequest {
 
     var publisher: AnyPublisher<Any, AppError> {
         let fixedContent = content.replacingOccurrences(of: "\n", with: "%0A")
-        let parameters: [String: String] = ["commenttext_new": fixedContent]
+        let params: [String: String] = ["commenttext_new": fixedContent]
 
         var request = URLRequest(url: detailURL.safeURL())
 
         request.httpMethod = "POST"
-        request.httpBody = parameters.dictString()
+        request.httpBody = params.dictString()
             .urlEncoded().data(using: .utf8)
         request.setURLEncodedContentType()
 
@@ -638,7 +676,7 @@ struct EditCommentRequest {
 
     var publisher: AnyPublisher<Any, AppError> {
         let fixedContent = content.replacingOccurrences(of: "\n", with: "%0A")
-        let parameters: [String: String] = [
+        let params: [String: String] = [
             "edit_comment": commentID,
             "commenttext_edit": fixedContent
         ]
@@ -646,7 +684,7 @@ struct EditCommentRequest {
         var request = URLRequest(url: detailURL.safeURL())
 
         request.httpMethod = "POST"
-        request.httpBody = parameters.dictString()
+        request.httpBody = params.dictString()
             .urlEncoded().data(using: .utf8)
         request.setURLEncodedContentType()
 

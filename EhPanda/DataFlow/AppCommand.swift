@@ -465,6 +465,37 @@ struct FetchMoreMangaContentsCommand: AppCommand {
     }
 }
 
+struct VerifyProfileCommand: AppCommand {
+    func execute(in store: Store) {
+        let token = SubscriptionToken()
+        VerifyProfileRequest()
+            .publisher
+            .receive(on: DispatchQueue.main)
+            .sink { completion in
+                if case .failure(let error) = completion {
+                    store.dispatch(.verifyProfileDone(result: .failure(error)))
+                }
+                token.unseal()
+            } receiveValue: {
+                store.dispatch(.verifyProfileDone(result: .success($0)))
+            }
+            .seal(in: token)
+    }
+}
+
+struct CreateProfileCommand: AppCommand {
+    func execute(in store: Store) {
+        let token = SubscriptionToken()
+        CreateProfileRequest()
+            .publisher
+            .receive(on: DispatchQueue.main)
+            .sink { _ in
+                token.unseal()
+            } receiveValue: { _ in }
+            .seal(in: token)
+    }
+}
+
 struct AddFavoriteCommand: AppCommand {
     let gid: String
     let token: String

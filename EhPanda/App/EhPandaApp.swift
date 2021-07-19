@@ -19,7 +19,6 @@ struct EhPandaApp: App {
                 .task(onStartTasks)
                 .environmentObject(store)
                 .accentColor(accentColor)
-                .onOpenURL(perform: onOpenURL)
                 .preferredColorScheme(preferredColorScheme)
         }
     }
@@ -45,23 +44,34 @@ private extension EhPandaApp {
             configureIgnoreOffensive()
         }
         dispatchMainAsync {
+            fetchAccountInfoIfNeeded()
             clearImageCachesIfNeeded()
-            store.dispatch(.fetchUserInfo)
-            store.dispatch(.fetchFavoriteNames)
-        }
-    }
-    func onOpenURL(url: URL) {
-        switch url.host {
-        case "debugMode":
-            setDebugMode(with: url.pathComponents.last == "on")
-        default:
-            break
         }
     }
 
     func syncGalleryHost() {
         setGalleryHost(with: setting.galleryHost)
     }
+    func fetchAccountInfoIfNeeded() {
+        guard didLogin else { return }
+
+        store.dispatch(.verifyProfile)
+        store.dispatch(.fetchUserInfo)
+        store.dispatch(.fetchFavoriteNames)
+    }
+    func clearImageCachesIfNeeded() {
+        let threshold = 200 * 1024 * 1024
+
+        KingfisherManager.shared.cache.calculateDiskStorageSize { result in
+            if case .success(let size) = result, size > threshold {
+                KingfisherManager.shared.cache.clearDiskCache()
+            }
+        }
+    }
+}
+
+// MARK: Configuration
+private extension EhPandaApp {
     func configureLogging() {
         var file = FileDestination()
         var console = ConsoleDestination()
@@ -116,16 +126,5 @@ private extension EhPandaApp {
     func configureIgnoreOffensive() {
         setCookie(url: Defaults.URL.ehentai.safeURL(), key: "nw", value: "1")
         setCookie(url: Defaults.URL.exhentai.safeURL(), key: "nw", value: "1")
-    }
-    func clearImageCachesIfNeeded() {
-        let threshold = 200 * 1024 * 1024
-
-        KingfisherManager.shared.cache.calculateDiskStorageSize { result in
-            if case .success(let size) = result {
-                if size > threshold {
-                    KingfisherManager.shared.cache.clearDiskCache()
-                }
-            }
-        }
     }
 }

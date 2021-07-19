@@ -41,6 +41,7 @@ struct WebView: UIViewControllerRepresentable {
                             store?.dispatch(.toggleSettingViewSheet(state: nil))
                             store?.dispatch(.fetchFrontpageItems)
                             store?.dispatch(.fetchUserInfo)
+                            store?.dispatch(.verifyProfile)
                         }
                     }
                 }
