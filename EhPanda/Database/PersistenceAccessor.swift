@@ -122,13 +122,13 @@ extension PersistenceController {
             managedObject?.isFavored = detail.isFavored
             managedObject?.archiveURL = detail.archiveURL
             managedObject?.jpnTitle = detail.jpnTitle
-            managedObject?.likeCount = detail.likeCount
-            managedObject?.pageCount = detail.pageCount
-            managedObject?.sizeCount = detail.sizeCount
+            managedObject?.likeCount = Int64(detail.likeCount)
+            managedObject?.pageCount = Int64(detail.pageCount)
+            managedObject?.sizeCount = Int64(detail.sizeCount)
             managedObject?.sizeType = detail.sizeType
             managedObject?.rating = detail.rating
-            managedObject?.ratingCount = detail.ratingCount
-            managedObject?.torrentCount = Int16(detail.torrentCount)
+            managedObject?.ratingCount = Int64(detail.ratingCount)
+            managedObject?.torrentCount = Int64(detail.torrentCount)
         }
         if storedMO == nil {
             detail.toManagedObject(in: shared.container.viewContext)

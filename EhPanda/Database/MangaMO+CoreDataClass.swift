@@ -14,7 +14,7 @@ extension MangaMO: ManagedObjectProtocol {
         Manga(
             gid: gid, token: token,
             title: title, rating: rating, tags: [],
-            category: Category(rawValue: category)!,
+            category: Category(rawValue: category).forceUnwrapped,
             language: Language(rawValue: language ?? ""),
             uploader: uploader, publishedDate: publishedDate,
             coverURL: coverURL, detailURL: detailURL,

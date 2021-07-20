@@ -654,7 +654,7 @@ final class Store: ObservableObject {
                 pageCount: pageCount
             )
 
-            if pageCount >= Int(detail.pageCount) ?? 0 {
+            if pageCount >= detail.pageCount {
                 SwiftyBeaver.error(
                     "MangaContents overflow",
                     context: [

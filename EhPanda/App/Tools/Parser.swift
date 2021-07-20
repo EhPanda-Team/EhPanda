@@ -193,19 +193,21 @@ struct Parser {
             return (archiveURL, torrentCount)
         }
 
-        func parsePreviews(node: XMLElement?) throws -> [MangaPreview] {
+        func parsePreviews(node: XMLElement?) throws -> [Int: String] {
             guard let object = node?.xpath("//img")
             else { throw AppError.parseFailed }
 
-            var previews = [MangaPreview]()
-            for link in object {
+            var previews = [Int: String]()
+            for (index, link) in object.enumerated() {
                 if previews.count >= 10 { break }
-                guard let url = link["src"] else { continue }
+                guard let url = link["src"],
+                      !url.contains("blank.gif")
+                else { continue }
 
-                previews.append(MangaPreview(url: url))
+                previews[index] = url
             }
 
-            return previews.filter { !$0.url.contains("blank.gif") }
+            return previews
         }
 
         func parseInfoPanel(node: XMLElement?) throws -> [String] {
@@ -272,10 +274,13 @@ struct Parser {
                   let previews = try? parsePreviews(node: gdtNode),
                   let arcAndTor = try? parseArcAndTor(node: gd5Node),
                   let infoPanel = try? parseInfoPanel(node: gddNode),
+                  let sizeCount = Int(infoPanel[2]),
+                  let pageCount = Int(infoPanel[4]),
+                  let likeCount = Int(infoPanel[5]),
                   let language = Language(rawValue: infoPanel[1]),
                   let engTitle = link.at_xpath("//h1 [@id='gn']")?.text,
                   let uploader = gd3Node.at_xpath("//div [@id='gdn']")?.text,
-                  let ratingCount = gdrNode.at_xpath("//span [@id='rating_count']")?.text,
+                  let ratingCount = Int(gdrNode.at_xpath("//span [@id='rating_count']")?.text ?? ""),
                   let category = Category(rawValue: gd3Node.at_xpath("//div [@id='gdc']")?.text ?? ""),
                   let publishedDate = try? parseDate(time: infoPanel[0], format: Defaults.DateFormat.publish)
             else { throw AppError.parseFailed }
@@ -287,13 +292,10 @@ struct Parser {
             let jpnTitle = gjText?.isEmpty != false ? nil : gjText
 
             tmpMangaDetail = MangaDetail(
-                isFavored: isFavored,
-                archiveURL: arcAndTor.0,
-                alterImagesURL: try? parseAlterImagesURL(doc: doc),
-                alterImages: [],
                 gid: gid,
                 title: engTitle,
                 jpnTitle: jpnTitle,
+                isFavored: isFavored,
                 rating: rating,
                 ratingCount: ratingCount,
                 category: category,
@@ -301,9 +303,10 @@ struct Parser {
                 uploader: uploader,
                 publishedDate: publishedDate,
                 coverURL: coverURL,
-                likeCount: infoPanel[5],
-                pageCount: infoPanel[4],
-                sizeCount: infoPanel[2],
+                archiveURL: arcAndTor.0,
+                likeCount: likeCount,
+                pageCount: pageCount,
+                sizeCount: sizeCount,
                 sizeType: infoPanel[3],
                 torrentCount: arcAndTor.1
             )

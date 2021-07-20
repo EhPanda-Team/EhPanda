@@ -60,7 +60,7 @@ struct DetailView: View, StoreAccessor, PersistenceAccessor {
                         }
                         PreviewView(
                             previews: mangaState.previews,
-                            alterImages: detail.alterImages
+                            pageCount: detail.pageCount
                         )
                         CommentScrollView(
                             gid: gid,
@@ -379,7 +379,7 @@ private struct DescScrollView: View {
                 .frame(width: itemWidth)
                 Divider()
                 DescScrollRatingItem(
-                    title: detail.ratingCount
+                    title: String(detail.ratingCount)
                         + " Ratings".localized(),
                     rating: detail.rating
                 )
@@ -430,6 +430,12 @@ private struct DescScrollItem: View {
     init(title: String, value: String, numeral: String) {
         self.title = title
         self.value = value
+        self.numeral = numeral
+    }
+
+    init(title: String, value: Int, numeral: String) {
+        self.title = title
+        self.value = String(value)
         self.numeral = numeral
     }
 
@@ -626,8 +632,8 @@ private struct TagRow: View {
 
 // MARK: PreviewView
 private struct PreviewView: View {
-    private let previews: [MangaPreview]
-    private let alterImages: [MangaAlterData]
+    private let previews: [Int: String]
+    private let pageCount: Int
 
     private var width: CGFloat {
         Defaults.ImageSize.previewW
@@ -641,11 +647,11 @@ private struct PreviewView: View {
     }
 
     init(
-        previews: [MangaPreview],
-        alterImages: [MangaAlterData]
+        previews: [Int: String],
+        pageCount: Int
     ) {
         self.previews = previews
-        self.alterImages = alterImages
+        self.pageCount = pageCount
     }
 
     var body: some View {
@@ -658,30 +664,14 @@ private struct PreviewView: View {
             }
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHStack {
-                    if !previews.isEmpty {
-                        ForEach(previews) { item in
-                            KFImage(URL(string: item.url))
-                                .placeholder(placeholder)
-                                .loadImmediately()
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: width, height: height)
-                                .cornerRadius(15)
-                        }
-                    } else if !alterImages.isEmpty {
-                        ForEach(alterImages) { item in
-                            if let uiImage = UIImage(data: item.data) {
-                                Image(uiImage: uiImage)
-                                    .resizable()
-                                    .scaledToFill()
-                                    .frame(width: width, height: height)
-                                    .cornerRadius(15)
-                            } else {
-                                placeholder()
-                            }
-                        }
-                    } else {
-                        ForEach(0..<10) { _ in placeholder() }
+                    ForEach(0..<pageCount) { index in
+                        KFImage(URL(string: previews[index] ?? ""))
+                            .placeholder(placeholder)
+                            .loadImmediately()
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: width, height: height)
+                            .cornerRadius(15)
                     }
                 }
             }

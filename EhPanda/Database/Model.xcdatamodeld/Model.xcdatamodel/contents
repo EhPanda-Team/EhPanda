@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="19141.11" systemVersion="21A5268h" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithCloudKit="YES" userDefinedModelVersionIdentifier="">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="19178.1" systemVersion="20F71" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithCloudKit="YES" userDefinedModelVersionIdentifier="">
     <entity name="AppEnvMO" representedClassName=".AppEnvMO" syncable="YES">
         <attribute name="filter" optional="YES" attributeType="Binary"/>
         <attribute name="historyKeywords" optional="YES" attributeType="Binary" customClassName=".[String]"/>
@@ -14,15 +14,15 @@
         <attribute name="isFavored" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="jpnTitle" optional="YES" attributeType="String"/>
         <attribute name="language" attributeType="String" defaultValueString=""/>
-        <attribute name="likeCount" attributeType="String" defaultValueString=""/>
-        <attribute name="pageCount" attributeType="String" defaultValueString=""/>
+        <attribute name="likeCount" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="pageCount" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="publishedDate" attributeType="Date" defaultDateTimeInterval="646585800" usesScalarValueType="NO"/>
         <attribute name="rating" attributeType="Float" defaultValueString="0.0" usesScalarValueType="YES"/>
-        <attribute name="ratingCount" attributeType="String" defaultValueString=""/>
-        <attribute name="sizeCount" attributeType="String" defaultValueString=""/>
+        <attribute name="ratingCount" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="sizeCount" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="sizeType" attributeType="String" defaultValueString=""/>
         <attribute name="title" attributeType="String" defaultValueString=""/>
-        <attribute name="torrentCount" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="torrentCount" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="uploader" attributeType="String" defaultValueString=""/>
     </entity>
     <entity name="MangaMO" representedClassName=".MangaMO" syncable="YES">
@@ -42,11 +42,13 @@
         <attribute name="aspectBox" optional="YES" attributeType="Binary"/>
         <attribute name="comments" optional="YES" attributeType="Binary"/>
         <attribute name="contents" optional="YES" attributeType="Binary"/>
-        <attribute name="currentPageNum" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="currentPageNum" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="gid" attributeType="String" defaultValueString=""/>
-        <attribute name="pageNumMaximum" attributeType="Integer 16" defaultValueString="1" usesScalarValueType="YES"/>
+        <attribute name="pageNumMaximum" attributeType="Integer 64" defaultValueString="1" usesScalarValueType="YES"/>
         <attribute name="previews" optional="YES" attributeType="Binary"/>
-        <attribute name="readingProgress" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="previewsLoadFailed" optional="YES" attributeType="Binary"/>
+        <attribute name="previewsLoading" optional="YES" attributeType="Binary"/>
+        <attribute name="readingProgress" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="tags" optional="YES" attributeType="Binary"/>
         <attribute name="userRating" optional="YES" attributeType="Float" defaultValueString="0.0" usesScalarValueType="YES"/>
     </entity>
@@ -54,6 +56,6 @@
         <element name="AppEnvMO" positionX="-45" positionY="126" width="128" height="89"/>
         <element name="MangaDetailMO" positionX="-54" positionY="9" width="128" height="284"/>
         <element name="MangaMO" positionX="-63" positionY="-18" width="128" height="194"/>
-        <element name="MangaStateMO" positionX="-36" positionY="18" width="128" height="179"/>
+        <element name="MangaStateMO" positionX="-36" positionY="18" width="128" height="209"/>
     </elements>
 </model>
