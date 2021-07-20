@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		AB018DD2268756D000EB0EA9 /* Kanna in Frameworks */ = {isa = PBXBuildFile; productRef = AB018DD1268756D000EB0EA9 /* Kanna */; };
+		AB0F68AF26A6D92F00AC3A54 /* DeprecatedAPI in Frameworks */ = {isa = PBXBuildFile; productRef = AB0F68AE26A6D92F00AC3A54 /* DeprecatedAPI */; };
 		AB10117E26986B7D00C2C1A9 /* MangaStateMO+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB10117D26986B7D00C2C1A9 /* MangaStateMO+CoreDataProperties.swift */; };
 		AB10118026986C1100C2C1A9 /* MangaStateMO+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB10117F26986C1100C2C1A9 /* MangaStateMO+CoreDataClass.swift */; };
 		AB19D619266E5C6700BA752A /* TTProgressHUD in Frameworks */ = {isa = PBXBuildFile; productRef = AB19D618266E5C6700BA752A /* TTProgressHUD */; };
@@ -190,6 +191,7 @@
 			files = (
 				AB9A7E3A26A6AF2500779319 /* Kingfisher in Frameworks */,
 				AB19D619266E5C6700BA752A /* TTProgressHUD in Frameworks */,
+				AB0F68AF26A6D92F00AC3A54 /* DeprecatedAPI in Frameworks */,
 				AB018DD2268756D000EB0EA9 /* Kanna in Frameworks */,
 				ABE1867F26A18DD000689FDC /* SwiftyBeaver in Frameworks */,
 			);
@@ -427,6 +429,7 @@
 				AB018DD1268756D000EB0EA9 /* Kanna */,
 				ABE1867E26A18DD000689FDC /* SwiftyBeaver */,
 				AB9A7E3926A6AF2500779319 /* Kingfisher */,
+				AB0F68AE26A6D92F00AC3A54 /* DeprecatedAPI */,
 			);
 			productName = EhPanda;
 			productReference = ABC3C7542593696C00E0C11B /* EhPanda.app */;
@@ -464,6 +467,7 @@
 				AB018DD0268756D000EB0EA9 /* XCRemoteSwiftPackageReference "Kanna" */,
 				ABE1867D26A18DD000689FDC /* XCRemoteSwiftPackageReference "SwiftyBeaver" */,
 				AB9A7E3826A6AF2500779319 /* XCRemoteSwiftPackageReference "Kingfisher" */,
+				AB0F68AD26A6D92F00AC3A54 /* XCRemoteSwiftPackageReference "DeprecatedAPI" */,
 			);
 			productRefGroup = ABC3C7552593696C00E0C11B /* Products */;
 			projectDirPath = "";
@@ -826,6 +830,14 @@
 				kind = branch;
 			};
 		};
+		AB0F68AD26A6D92F00AC3A54 /* XCRemoteSwiftPackageReference "DeprecatedAPI" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/tatsuz0u/DeprecatedAPI.git";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
 		AB19D617266E5C6700BA752A /* XCRemoteSwiftPackageReference "TTProgressHUD" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/tatsuz0u/TTProgressHUD.git";
@@ -857,6 +869,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = AB018DD0268756D000EB0EA9 /* XCRemoteSwiftPackageReference "Kanna" */;
 			productName = Kanna;
+		};
+		AB0F68AE26A6D92F00AC3A54 /* DeprecatedAPI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AB0F68AD26A6D92F00AC3A54 /* XCRemoteSwiftPackageReference "DeprecatedAPI" */;
+			productName = DeprecatedAPI;
 		};
 		AB19D618266E5C6700BA752A /* TTProgressHUD */ = {
 			isa = XCSwiftPackageProductDependency;

@@ -2,6 +2,15 @@
   "object": {
     "pins": [
       {
+        "package": "DeprecatedAPI",
+        "repositoryURL": "https://github.com/tatsuz0u/DeprecatedAPI.git",
+        "state": {
+          "branch": "main",
+          "revision": "021e29675457a9b4b7859a46afbb5d0e37574e84",
+          "version": null
+        }
+      },
+      {
         "package": "Kanna",
         "repositoryURL": "https://github.com/tid-kijyun/Kanna.git",
         "state": {

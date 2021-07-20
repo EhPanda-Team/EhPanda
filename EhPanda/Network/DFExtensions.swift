@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftyBeaver
+import DeprecatedAPI
 
 // MARK: Global
 private func forceDowncast<T>(object: Any) -> T {
@@ -225,7 +226,7 @@ extension InputStream {
             CFHTTPMessageSetBody(message, body)
         }
 
-        guard let stream = CFReadStreamCreateForHTTPRequest(
+        guard let stream = DeprecatedAPI.getCFReadStream(
             kCFAllocatorDefault, message
         )
         .autorelease()
