@@ -340,14 +340,14 @@ private struct CommentCell: View {
                     KFImage(URL(string: imgURL))
                         .resizable()
                         .scaledToFit()
-                        .frame(width: screenW / 4)
+                        .frame(width: windowW / 4)
                         .onTapGesture {
                             linkAction(link.safeURL())
                         }
                     KFImage(URL(string: secondImgURL))
                         .resizable()
                         .scaledToFit()
-                        .frame(width: screenW / 4)
+                        .frame(width: windowW / 4)
                         .onTapGesture {
                             linkAction(secondLink.safeURL())
                         }
@@ -355,11 +355,11 @@ private struct CommentCell: View {
                     KFImage(URL(string: imgURL))
                         .resizable()
                         .scaledToFit()
-                        .frame(width: screenW / 4)
+                        .frame(width: windowW / 4)
                     KFImage(URL(string: secondImgURL))
                         .resizable()
                         .scaledToFit()
-                        .frame(width: screenW / 4)
+                        .frame(width: windowW / 4)
                 }
             }
         }
@@ -369,7 +369,7 @@ private struct CommentCell: View {
                 KFImage(URL(string: imgURL))
                     .resizable()
                     .scaledToFit()
-                    .frame(width: screenW / 2)
+                    .frame(width: windowW / 2)
                     .onTapGesture {
                         linkAction(link.safeURL())
                     }
@@ -377,7 +377,7 @@ private struct CommentCell: View {
                 KFImage(URL(string: imgURL))
                     .resizable()
                     .scaledToFit()
-                    .frame(width: screenW / 2)
+                    .frame(width: windowW / 2)
             }
         }
     }
