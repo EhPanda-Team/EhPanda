@@ -48,35 +48,6 @@ extension URLSessionConfiguration {
     }
 }
 
-// MARK: URLProtocol
-extension URLProtocol {
-    static func contextControllerClass() -> AnyClass {
-        NSClassFromString("WKBrowsingContextController").forceUnwrapped
-    }
-    static func registerSchemeSelector() -> Selector {
-        NSSelectorFromString("registerSchemeForCustomProtocol:")
-    }
-    static func unregisterSchemeSelector() -> Selector {
-        NSSelectorFromString("unregisterSchemeForCustomProtocol:")
-    }
-    static func registerWebview(scheme: String){
-        let controllerClass: AnyClass = contextControllerClass()
-        let selector = registerSchemeSelector()
-        if controllerClass.responds(to: selector) {
-            _ = (controllerClass as AnyObject)
-                .perform(selector, with: scheme)
-        }
-    }
-    static func unregisterWebview(scheme: String){
-        let controllerClass: AnyClass = contextControllerClass()
-        let selector = unregisterSchemeSelector()
-        if controllerClass.responds(to: selector) {
-            _ = (controllerClass as AnyObject)
-                .perform(selector, with: scheme)
-        }
-    }
-}
-
 // MARK: CFHTTPMessage
 extension CFHTTPMessage {
     var isCompleted: Bool {

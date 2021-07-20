@@ -10,11 +10,15 @@ import SwiftUI
 import SwiftyBeaver
 
 struct WebView: UIViewControllerRepresentable {
-    @EnvironmentObject private var store: Store
-    private let webviewType: WebViewType
+    static let loginURLString
+        = "https://forums.e-hentai.org/"
+        + "index.php?act=Login"
 
-    init(type: WebViewType) {
-        webviewType = type
+    @EnvironmentObject private var store: Store
+    private let url: URL
+
+    init(url: URL) {
+        self.url = url
     }
 
     final class Coodinator: NSObject, WKNavigationDelegate, WKUIDelegate {
@@ -25,26 +29,21 @@ struct WebView: UIViewControllerRepresentable {
         }
 
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-            if parent.webviewType == .ehLogin {
-                guard let url = webView.url?.absoluteString else { return }
+            guard parent.url.absoluteString == WebView.loginURLString,
+                  webView.url?.absoluteString.contains("CODE=01") == true
+            else { return }
 
-                if url.contains("CODE=01") {
-                    webView.configuration.websiteDataStore.httpCookieStore.getAllCookies { cookies in
-                        cookies.forEach {
-                            HTTPCookieStorage.shared.setCookie($0)
-                        }
-                    }
+            webView.configuration.websiteDataStore.httpCookieStore.getAllCookies { cookies in
+                cookies.forEach { HTTPCookieStorage.shared.setCookie($0) }
+            }
 
-                    Timer.scheduledTimer(withTimeInterval: 3, repeats: false) { [weak self] _ in
-                        if didLogin {
-                            let store = self?.parent.store
-                            store?.dispatch(.toggleSettingViewSheet(state: nil))
-                            store?.dispatch(.fetchFrontpageItems)
-                            store?.dispatch(.fetchUserInfo)
-                            store?.dispatch(.verifyProfile)
-                        }
-                    }
-                }
+            Timer.scheduledTimer(withTimeInterval: 3, repeats: false) { [weak self] _ in
+                guard didLogin else { return }
+                let store = self?.parent.store
+                store?.dispatch(.toggleSettingViewSheet(state: nil))
+                store?.dispatch(.fetchFrontpageItems)
+                store?.dispatch(.fetchUserInfo)
+                store?.dispatch(.verifyProfile)
             }
         }
 
@@ -59,7 +58,7 @@ struct WebView: UIViewControllerRepresentable {
 
     func makeUIViewController(context: Context) -> EmbeddedWebviewController {
         let webViewController = EmbeddedWebviewController(coordinator: context.coordinator)
-        webViewController.loadUrl(webviewType.url.safeURL())
+        webViewController.loadUrl(url)
 
         return webViewController
     }
@@ -76,43 +75,24 @@ final class EmbeddedWebviewController: UIViewController {
     private weak var delegate: WebView.Coordinator?
 
     init(coordinator: WebView.Coordinator) {
-        self.delegate = coordinator
-        self.webview = WKWebView()
+        delegate = coordinator
+        webview = WKWebView()
         super.init(nibName: nil, bundle: nil)
     }
 
     required init?(coder: NSCoder) {
-        self.webview = WKWebView()
+        webview = WKWebView()
         super.init(coder: coder)
     }
 
     func loadUrl(_ url: URL) {
-        let req = URLRequest(url: url)
-        webview.load(req)
+        let request = URLRequest(url: url)
+        webview.load(request)
     }
 
     override func loadView() {
-        self.webview.navigationDelegate = self.delegate
-        self.webview.uiDelegate = self.delegate
+        webview.navigationDelegate = delegate
+        webview.uiDelegate = delegate
         view = webview
-    }
-}
-
-enum WebViewType {
-    case ehLogin
-    case ehConfig
-    case ehMyTags
-}
-
-extension WebViewType {
-    var url: String {
-        switch self {
-        case .ehLogin:
-            return Defaults.URL.login
-        case .ehConfig:
-            return Defaults.URL.ehConfig()
-        case .ehMyTags:
-            return Defaults.URL.ehMyTags()
-        }
     }
 }

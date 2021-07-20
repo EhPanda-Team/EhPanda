@@ -266,18 +266,12 @@ func presentActivityVC(items: [Any]) {
 }
 
 // MARK: UserDefaults
-let isDebugModeOn = UserDefaults.standard.bool(forKey: "debugModeOn")
-
 var pasteboardChangeCount: Int? {
     UserDefaults.standard.integer(forKey: "PasteboardChangeCount")
 }
 
 func setGalleryHost(with host: GalleryHost) {
     UserDefaults.standard.set(host.rawValue, forKey: "GalleryHost")
-}
-
-func clearGalleryType() {
-    UserDefaults.standard.set(nil, forKey: "GalleryType")
 }
 
 func setPasteboardChangeCount(with value: Int) {

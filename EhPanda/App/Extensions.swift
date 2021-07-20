@@ -85,11 +85,6 @@ extension String {
         ) ?? ""
     }
 
-    func urlDecoded() -> String {
-        (removingPercentEncoding ?? "")
-            .replacingOccurrences(of: "%3F", with: "?")
-    }
-
     var withComma: String? {
         Int(self)?.formatted(.number)
     }

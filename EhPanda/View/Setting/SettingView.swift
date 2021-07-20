@@ -57,11 +57,11 @@ struct SettingView: View, StoreAccessor {
                 Group {
                     switch item {
                     case .webviewLogin:
-                        WebView(type: .ehLogin)
+                        WebView(url: Defaults.URL.login.safeURL())
                     case .webviewConfig:
-                        WebView(type: .ehConfig)
+                        WebView(url: Defaults.URL.ehConfig().safeURL())
                     case .webviewMyTags:
-                        WebView(type: .ehMyTags)
+                        WebView(url: Defaults.URL.ehMyTags().safeURL())
                     }
                 }
                 .blur(radius: environment.blurRadius)

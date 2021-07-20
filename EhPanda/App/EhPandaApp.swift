@@ -118,7 +118,6 @@ private extension EhPandaApp {
     func configureDomainFronting() {
         if setting.bypassSNIFiltering {
             URLProtocol.registerClass(DFURLProtocol.self)
-            URLProtocol.registerWebview(scheme: "https")
         }
     }
     func configureIgnoreOffensive() {
