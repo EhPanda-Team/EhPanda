@@ -24,7 +24,7 @@ extension MangaDetailMO: Identifiable {
     @NSManaged public var publishedDate: Date
     @NSManaged public var rating: Float
     @NSManaged public var ratingCount: Int64
-    @NSManaged public var sizeCount: Int64
+    @NSManaged public var sizeCount: Float
     @NSManaged public var sizeType: String
     @NSManaged public var title: String
     @NSManaged public var torrentCount: Int64

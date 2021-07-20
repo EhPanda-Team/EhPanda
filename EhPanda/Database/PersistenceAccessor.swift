@@ -124,7 +124,7 @@ extension PersistenceController {
             managedObject?.jpnTitle = detail.jpnTitle
             managedObject?.likeCount = Int64(detail.likeCount)
             managedObject?.pageCount = Int64(detail.pageCount)
-            managedObject?.sizeCount = Int64(detail.sizeCount)
+            managedObject?.sizeCount = detail.sizeCount
             managedObject?.sizeType = detail.sizeType
             managedObject?.rating = detail.rating
             managedObject?.ratingCount = Int64(detail.ratingCount)
@@ -172,7 +172,7 @@ extension PersistenceController {
     }
     static func update(gid: String, readingProgress: Int) {
         update(gid: gid) { mangaStateMO in
-            mangaStateMO.readingProgress = Int16(readingProgress)
+            mangaStateMO.readingProgress = Int64(readingProgress)
         }
     }
     static func update(gid: String, userRating: Float) {
@@ -182,8 +182,8 @@ extension PersistenceController {
     }
     static func update(gid: String, pageNum: PageNumber, contents: [MangaContent]) {
         update(gid: gid) { mangaStateMO in
-            mangaStateMO.currentPageNum = Int16(pageNum.current)
-            mangaStateMO.pageNumMaximum = Int16(pageNum.maximum)
+            mangaStateMO.currentPageNum = Int64(pageNum.current)
+            mangaStateMO.pageNumMaximum = Int64(pageNum.maximum)
 
             let newContents = contents.sorted(by: { $0.tag < $1.tag })
             var storedContents = mangaStateMO.contents?

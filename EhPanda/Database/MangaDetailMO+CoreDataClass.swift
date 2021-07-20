@@ -19,7 +19,7 @@ extension MangaDetailMO: ManagedObjectProtocol {
             uploader: uploader, publishedDate: publishedDate,
             coverURL: coverURL, archiveURL: archiveURL,
             likeCount: Int(likeCount), pageCount: Int(pageCount),
-            sizeCount: Int(sizeCount), sizeType: sizeType,
+            sizeCount: sizeCount, sizeType: sizeType,
             torrentCount: Int(torrentCount)
         )
     }
@@ -41,7 +41,7 @@ extension MangaDetail: ManagedObjectConvertible {
         mangaDetailMO.publishedDate = publishedDate
         mangaDetailMO.rating = rating
         mangaDetailMO.ratingCount = Int64(ratingCount)
-        mangaDetailMO.sizeCount = Int64(sizeCount)
+        mangaDetailMO.sizeCount = sizeCount
         mangaDetailMO.sizeType = sizeType
         mangaDetailMO.title = title
         mangaDetailMO.torrentCount = Int64(torrentCount)

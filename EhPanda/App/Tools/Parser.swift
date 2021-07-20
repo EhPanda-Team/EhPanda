@@ -273,7 +273,7 @@ struct Parser {
                   let previews = try? parsePreviews(node: gdtNode),
                   let arcAndTor = try? parseArcAndTor(node: gd5Node),
                   let infoPanel = try? parseInfoPanel(node: gddNode),
-                  let sizeCount = Int(infoPanel[2]),
+                  let sizeCount = Float(infoPanel[2]),
                   let pageCount = Int(infoPanel[4]),
                   let likeCount = Int(infoPanel[5]),
                   let language = Language(rawValue: infoPanel[1]),

@@ -89,7 +89,7 @@ struct MangaDetail: Codable {
     var archiveURL: String?
     var likeCount: Int
     var pageCount: Int
-    var sizeCount: Int
+    var sizeCount: Float
     var sizeType: String
     var torrentCount: Int
 }

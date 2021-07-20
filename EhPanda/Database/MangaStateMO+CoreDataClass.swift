@@ -32,9 +32,9 @@ extension MangaState: ManagedObjectConvertible {
         mangaMO.gid = gid
         mangaMO.tags = tags.toData()
         mangaMO.userRating = userRating
-        mangaMO.currentPageNum = Int16(currentPageNum)
-        mangaMO.pageNumMaximum = Int16(pageNumMaximum)
-        mangaMO.readingProgress = Int16(readingProgress)
+        mangaMO.currentPageNum = Int64(currentPageNum)
+        mangaMO.pageNumMaximum = Int64(pageNumMaximum)
+        mangaMO.readingProgress = Int64(readingProgress)
         mangaMO.previews = previews.toData()
         mangaMO.comments = comments.toData()
         mangaMO.contents = contents.toData()
