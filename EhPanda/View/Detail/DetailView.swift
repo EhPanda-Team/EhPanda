@@ -254,6 +254,7 @@ private struct HeaderView: View {
         HStack {
             KFImage(URL(string: manga.coverURL))
                 .placeholder(placeholder)
+                .loadImmediately()
                 .resizable()
                 .scaledToFit()
                 .frame(width: width, height: height)
@@ -661,6 +662,7 @@ private struct PreviewView: View {
                         ForEach(previews) { item in
                             KFImage(URL(string: item.url))
                                 .placeholder(placeholder)
+                                .loadImmediately()
                                 .resizable()
                                 .scaledToFit()
                                 .frame(width: width, height: height)

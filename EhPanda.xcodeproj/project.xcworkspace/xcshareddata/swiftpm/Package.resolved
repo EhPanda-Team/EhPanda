@@ -12,10 +12,10 @@
       },
       {
         "package": "Kingfisher",
-        "repositoryURL": "https://github.com/onevcat/Kingfisher.git",
+        "repositoryURL": "https://github.com/tatsuz0u/Kingfisher.git",
         "state": {
-          "branch": "fix/xcode-13",
-          "revision": "f012224344f09421588a28e9f6259968e3574f8b",
+          "branch": "stableFix/xcode-13",
+          "revision": "b9a00c22057778c12ec36a928e041f4786ec2532",
           "version": null
         }
       },
