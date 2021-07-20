@@ -19,8 +19,6 @@ extension MangaStateMO: GalleryIdentifiable {
     @NSManaged public var gid: String
     @NSManaged public var pageNumMaximum: Int16
     @NSManaged public var previews: Data?
-    @NSManaged public var previewsLoading: Data?
-    @NSManaged public var previewsLoadFailed: Data?
     @NSManaged public var readingProgress: Int16
     @NSManaged public var tags: Data?
     @NSManaged public var userRating: Float

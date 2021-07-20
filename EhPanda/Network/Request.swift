@@ -268,19 +268,6 @@ struct MoreAssociatedItemsRequest {
     }
 }
 
-// MARK: Fetch Others
-struct AlterImagesRequest {
-    let alterImagesURL: String
-
-    var publisher: AnyPublisher<[MangaAlterData], AppError> {
-        URLSession.shared
-            .dataTaskPublisher(for: alterImagesURL.safeURL())
-            .map { Parser.parseAlterImages(data: $0.data) }
-            .mapError(mapAppError)
-            .eraseToAnyPublisher()
-    }
-}
-
 struct MangaDetailRequest {
     let gid: String
     let detailURL: String

@@ -6,8 +6,7 @@
 //
 
 import Kanna
-import SwiftUI
-import Kingfisher
+import Foundation
 
 struct Parser {
     // MARK: List
@@ -773,50 +772,6 @@ extension Parser {
             }
         }
         return PageNumber(current: current, maximum: maximum)
-    }
-
-    // MARK: AltPreview
-    static func parseAlterImagesURL(doc: HTMLDocument) throws -> String {
-        var alterURL: String?
-        for link in doc.xpath("//div [@class='gdtm']") {
-            guard let style = link.at_xpath("//div")?["style"],
-                  let rangeA = style.range(of: "https://"),
-                  let rangeB = style.range(of: ".jpg")
-            else { continue }
-
-            alterURL = String(
-                style.suffix(from: rangeA.lowerBound)
-                    .prefix(upTo: rangeB.upperBound)
-            )
-            break
-        }
-
-        guard let url = alterURL
-        else { throw AppError.parseFailed }
-
-        return url
-    }
-
-    static func parseAlterImages(data: Data) -> [MangaAlterData] {
-        guard let image = UIImage(data: data) else { return [] }
-
-        var alterImages = [MangaAlterData]()
-        let originW = image.size.width
-        let originH = image.size.height
-        let count = Int(originW / 100)
-
-        for index in 0..<count {
-            let rect = CGRect(
-                x: originW / Double(count) * Double(index),
-                y: 0.0, width: 100.0, height: originH
-            )
-
-            if let imgData = image.cropping(to: rect)?.pngData() {
-                alterImages.append(MangaAlterData(data: imgData))
-            }
-        }
-
-        return alterImages
     }
 
     // MARK: Balance

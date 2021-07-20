@@ -105,7 +105,6 @@ struct MangaState: Codable {
     var readingProgress = 0
     var previews = [Int: String]()
     var previewsLoading = [Int: Bool]()
-    var previewsLoadFailed = [Int: Bool]()
     var comments = [MangaComment]()
     var contents = [MangaContent]()
     var aspectBox = [Int: CGFloat]()
@@ -168,12 +167,6 @@ struct MangaPreview: Identifiable, Codable {
     var id = UUID().uuidString
 
     let url: String
-}
-
-struct MangaAlterData: Identifiable, Codable {
-    var id = UUID().uuidString
-
-    let data: Data
 }
 
 struct MangaContent: Identifiable, Codable, Equatable {

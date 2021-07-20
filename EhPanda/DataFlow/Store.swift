@@ -593,20 +593,6 @@ final class Store: ObservableObject {
                 appState.detailInfo.moreAssociatedItemsLoadFailed = true
             }
 
-        case .fetchAlterImages(let gid):
-            if appState.detailInfo.alterImagesLoading { break }
-            appState.detailInfo.alterImagesLoading = true
-            // debugMark
-//            let alterImagesURL = PersistenceController.fetchManga(gid: gid)?.detail?.alterImagesURL ?? ""
-//            appCommand = FetchAlterImagesCommand(gid: gid, alterImagesURL: alterImagesURL)
-
-        case .fetchAlterImagesDone(let result):
-            appState.detailInfo.alterImagesLoading = false
-
-//            if case .success(let images) = result {
-//                appState.cachedList.insertAlterImages(gid: images.0, images: images.1)
-//            }
-
         case .fetchMangaContents(let gid):
             appState.contentInfo.mangaContentsLoadFailed = false
 

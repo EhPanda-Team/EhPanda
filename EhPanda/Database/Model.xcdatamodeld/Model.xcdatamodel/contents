@@ -46,8 +46,6 @@
         <attribute name="gid" attributeType="String" defaultValueString=""/>
         <attribute name="pageNumMaximum" attributeType="Integer 64" defaultValueString="1" usesScalarValueType="YES"/>
         <attribute name="previews" optional="YES" attributeType="Binary"/>
-        <attribute name="previewsLoadFailed" optional="YES" attributeType="Binary"/>
-        <attribute name="previewsLoading" optional="YES" attributeType="Binary"/>
         <attribute name="readingProgress" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="tags" optional="YES" attributeType="Binary"/>
         <attribute name="userRating" optional="YES" attributeType="Float" defaultValueString="0.0" usesScalarValueType="YES"/>
@@ -56,6 +54,6 @@
         <element name="AppEnvMO" positionX="-45" positionY="126" width="128" height="89"/>
         <element name="MangaDetailMO" positionX="-54" positionY="9" width="128" height="284"/>
         <element name="MangaMO" positionX="-63" positionY="-18" width="128" height="194"/>
-        <element name="MangaStateMO" positionX="-36" positionY="18" width="128" height="209"/>
+        <element name="MangaStateMO" positionX="-36" positionY="18" width="128" height="179"/>
     </elements>
 </model>

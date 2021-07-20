@@ -376,27 +376,6 @@ struct FetchMoreAssociatedItemsCommand: AppCommand {
     }
 }
 
-struct FetchAlterImagesCommand: AppCommand {
-    let gid: String
-    let alterImagesURL: String
-
-    func execute(in store: Store) {
-        let token = SubscriptionToken()
-        AlterImagesRequest(alterImagesURL: alterImagesURL)
-            .publisher
-            .receive(on: DispatchQueue.main)
-            .sink { completion in
-                if case .failure(let error) = completion {
-                    store.dispatch(.fetchAlterImagesDone(result: .failure(error)))
-                }
-                token.unseal()
-            } receiveValue: { images in
-                store.dispatch(.fetchAlterImagesDone(result: .success((gid, images))))
-            }
-            .seal(in: token)
-    }
-}
-
 struct FetchMangaContentsCommand: AppCommand {
     let gid: String
     let detailURL: String
