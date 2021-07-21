@@ -183,7 +183,7 @@ func notificFeedback(style: UINotificationFeedbackGenerator.FeedbackType) {
 }
 
 // MARK: Tools
-var animatedTransition: AnyTransition {
+var opacityTransition: AnyTransition {
     AnyTransition.opacity.animation(.default)
 }
 var logsDirectoryURL: URL? {

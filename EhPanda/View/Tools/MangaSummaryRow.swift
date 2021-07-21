@@ -119,5 +119,6 @@ private extension MangaSummaryRow {
     }
     func placeholder() -> some View {
         Placeholder(style: .activity(width: width, height: height))
+            .cornerRadius(5)
     }
 }

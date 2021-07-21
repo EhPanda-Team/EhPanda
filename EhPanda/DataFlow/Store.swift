@@ -598,15 +598,15 @@ final class Store: ObservableObject {
 
         case .fetchMangaPreviews(let gid, let index):
             let pageNumber = index / appState.detailInfo.previewConfig.batchSize
-            if appState.detailInfo.previewsLoading[gid]?[index] == true { break }
-            appState.detailInfo.previewsLoading[gid]?[index] = true
+            if appState.detailInfo.previewsLoading[gid]?[pageNumber] == true { break }
+            appState.detailInfo.previewsLoading[gid]?[pageNumber] = true
 
             let detailURL = PersistenceController.fetchManga(gid: gid)?.detailURL ?? ""
             let url = Defaults.URL.detailPage(url: detailURL, pageNum: pageNumber)
-            appCommand = FetchMangaPreviewsCommand(gid: gid, url: url, index: index)
+            appCommand = FetchMangaPreviewsCommand(gid: gid, url: url, pageNumber: pageNumber)
 
-        case .fetchMangaPreviewsDone(let gid, let index, let result):
-            appState.detailInfo.previewsLoading[gid]?[index] = false
+        case .fetchMangaPreviewsDone(let gid, let pageNumber, let result):
+            appState.detailInfo.previewsLoading[gid]?[pageNumber] = false
 
             switch result {
             case .success(let previews):

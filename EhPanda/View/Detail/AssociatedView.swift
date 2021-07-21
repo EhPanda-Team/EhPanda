@@ -40,7 +40,7 @@ struct AssociatedView: View, StoreAccessor {
                             onRowAppear(item: manga)
                         }
                     }
-                    .transition(animatedTransition)
+                    .transition(opacityTransition)
                     if moreLoadingFlag || moreLoadFailedFlag {
                         LoadMoreFooter(
                             moreLoadingFlag: moreLoadingFlag,
@@ -50,7 +50,7 @@ struct AssociatedView: View, StoreAccessor {
                     }
                 }
                 .refreshable(action: fetchAssociatedItems)
-                .transition(animatedTransition)
+                .transition(opacityTransition)
             } else if detailInfo.associatedItemsLoading {
                 LoadingView()
             } else if detailInfo.associatedItemsNotFound {

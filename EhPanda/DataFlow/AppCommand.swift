@@ -379,7 +379,7 @@ struct FetchMoreAssociatedItemsCommand: AppCommand {
 struct FetchMangaPreviewsCommand: AppCommand {
     let gid: String
     let url: String
-    let index: Int
+    let pageNumber: Int
 
     func execute(in store: Store) {
         let token = SubscriptionToken()
@@ -389,13 +389,13 @@ struct FetchMangaPreviewsCommand: AppCommand {
             .sink { completion in
                 if case .failure(let error) = completion {
                     store.dispatch(.fetchMangaPreviewsDone(
-                        gid: gid, index: index, result: .failure(error)
+                        gid: gid, pageNumber: pageNumber, result: .failure(error)
                     ))
                 }
                 token.unseal()
             } receiveValue: { previews in
                 store.dispatch(.fetchMangaPreviewsDone(
-                    gid: gid, index: index, result: .success(previews)
+                    gid: gid, pageNumber: pageNumber, result: .success(previews)
                 ))
             }
             .seal(in: token)
