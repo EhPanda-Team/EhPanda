@@ -499,26 +499,16 @@ func verifyCookies(url: URL, isEx: Bool) -> Bool {
 }
 
 // MARK: Image Modifier
-struct KFImageModifier: ImageModifier {
-    let targetScale: CGFloat
+struct CornersModifier: ImageModifier {
+    let radius: CGFloat?
+
+    init(radius: CGFloat? = nil) {
+        self.radius = radius
+    }
 
     func modify(_ image: KFCrossPlatformImage) -> KFCrossPlatformImage {
-        let originW = image.size.width
-        let originH = image.size.height
-        let scale = originW / originH
-
-        let targetW = originH * targetScale
-
-        if abs(targetScale - scale) <= 0.2 {
-            return image
-                .kf
-                .resize(
-                    to: CGSize(
-                        width: targetW,
-                        height: originH
-                    ),
-                    for: .aspectFill
-                )
+        if let radius = radius {
+            return image.withRoundedCorners(radius: radius) ?? image
         } else {
             return image
         }

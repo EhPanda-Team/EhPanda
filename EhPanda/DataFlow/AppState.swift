@@ -213,8 +213,11 @@ extension AppState {
 
         var mangaDetailLoading = false
         var mangaDetailLoadFailed = false
-
+        var mangaDetailUpdating = false
+        var mangaCommentsUpdating = false
         var mangaArchiveFundsLoading = false
+        var previewsLoading = [String: [Int: Bool]]()
+        var previewConfig = PreviewConfig.large(rows: 4)
 
         var associatedItems: [AssociatedItem] = []
         var associatedItemsLoading = false
@@ -222,11 +225,6 @@ extension AppState {
         var associatedItemsLoadFailed = false
         var moreAssociatedItemsLoading = false
         var moreAssociatedItemsLoadFailed = false
-
-        var alterImagesLoading = false
-
-        var mangaDetailUpdating = false
-        var mangaCommentsUpdating = false
 
         mutating func removeAssociatedItems(depth: Int) {
             if associatedItems.count >= depth + 1 {

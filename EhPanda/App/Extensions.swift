@@ -117,7 +117,7 @@ extension String {
         var result = self
 
         while let rangeA = result.range(of: subString1),
-           let rangeB = result.range(of: subString2)
+              let rangeB = result.range(of: subString2)
         {
             let unwanted =  String(
                 result.suffix(from: rangeA.lowerBound)
@@ -154,7 +154,7 @@ extension String {
                 )
             ) {
                 return match.range.length
-                    == self.utf16.count
+                == self.utf16.count
             } else {
                 return false
             }
@@ -179,9 +179,9 @@ extension View {
 extension Bundle {
     var icon: UIImage? {
         if let icons = infoDictionary?["CFBundleIcons"] as? [String: Any],
-            let primaryIcon = icons["CFBundlePrimaryIcon"] as? [String: Any],
-            let iconFiles = primaryIcon["CFBundleIconFiles"] as? [String],
-            let lastIcon = iconFiles.last {
+           let primaryIcon = icons["CFBundlePrimaryIcon"] as? [String: Any],
+           let iconFiles = primaryIcon["CFBundleIconFiles"] as? [String],
+           let lastIcon = iconFiles.last {
             return UIImage(named: lastIcon)
         }
         return nil
@@ -256,5 +256,33 @@ extension URLRequest {
             "application/x-www-form-urlencoded",
             forHTTPHeaderField: "Content-Type"
         )
+    }
+}
+
+extension UIImage {
+    func withRoundedCorners(radius: CGFloat) -> UIImage? {
+        let maxRadius = min(size.width, size.height) / 2
+
+        let cornerRadius: CGFloat
+        if radius > 0 && radius <= maxRadius {
+            cornerRadius = radius
+        } else {
+            cornerRadius = maxRadius
+        }
+
+        UIGraphicsBeginImageContextWithOptions(size, false, scale)
+
+        let rect = CGRect(
+            origin: .zero, size: size
+        )
+        UIBezierPath(
+            roundedRect: rect,
+            cornerRadius: cornerRadius
+        ).addClip()
+        draw(in: rect)
+
+        let image = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        return image
     }
 }

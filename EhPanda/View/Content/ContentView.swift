@@ -352,6 +352,7 @@ private struct ImageContainer: View {
 
     var body: some View {
         KFImage(URL(string: content.url))
+            .defaultModifier(withRoundedCorners: false)
             .placeholder {
                 Placeholder(
                     style: .progress(
@@ -370,8 +371,6 @@ private struct ImageContainer: View {
             )
             .onProgress(onWebImageProgress)
             .onSuccess(onWebImageSuccess)
-            .loadImmediately()
-            .resizable()
             .scaledToFit()
     }
 

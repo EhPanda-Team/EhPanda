@@ -492,6 +492,9 @@ final class Store: ObservableObject {
                 if let apikey = detail.2 {
                     appState.settings.user.apikey = apikey
                 }
+                if let previewConfig = detail.1.previewConfig {
+                    appState.detailInfo.previewConfig = previewConfig
+                }
                 PersistenceController.add(detail: detail.0)
                 PersistenceController.update(fetchedState: detail.1)
             case .failure:
@@ -591,6 +594,25 @@ final class Store: ObservableObject {
                 }
             case .failure:
                 appState.detailInfo.moreAssociatedItemsLoadFailed = true
+            }
+
+        case .fetchMangaPreviews(let gid, let index):
+            let pageNumber = index / appState.detailInfo.previewConfig.batchSize
+            if appState.detailInfo.previewsLoading[gid]?[index] == true { break }
+            appState.detailInfo.previewsLoading[gid]?[index] = true
+
+            let detailURL = PersistenceController.fetchManga(gid: gid)?.detailURL ?? ""
+            let url = Defaults.URL.detailPage(url: detailURL, pageNum: pageNumber)
+            appCommand = FetchMangaPreviewsCommand(gid: gid, url: url, index: index)
+
+        case .fetchMangaPreviewsDone(let gid, let index, let result):
+            appState.detailInfo.previewsLoading[gid]?[index] = false
+
+            switch result {
+            case .success(let previews):
+                PersistenceController.update(fetchedState: MangaState(gid: gid, previews: previews))
+            case .failure(let error):
+                SwiftyBeaver.error(error)
             }
 
         case .fetchMangaContents(let gid):

@@ -31,8 +31,9 @@ struct Defaults {
         static let avatarH: CGFloat = 100
         static let headerW: CGFloat = headerH * headerScale
         static let headerH: CGFloat = 150
-        static let previewW: CGFloat = previewH * previewScale
-        static let previewH: CGFloat = 200
+        static let previewMinW: CGFloat = 100
+        static let previewMaxW: CGFloat = 120
+//        static let previewH: CGFloat = previewW / previewScale
     }
     struct Cookie {
         static let null = "null"
@@ -178,7 +179,7 @@ extension Defaults.URL {
         }
     }
     static func mangaDetail(url: String) -> String {
-        merge(urls: [url, showComments])
+        merge(urls: [url, showComments, previewLarge])
     }
     static func mangaTorrents(gid: String, token: String) -> String {
         merge(urls: [host + gallerytorrents, Defaults.URL.gid + gid, Defaults.URL.token + token])
@@ -236,7 +237,7 @@ extension Defaults.URL {
     }
 
     // Misc
-    static func contentPage(url: String, pageNum: Int) -> String {
+    static func detailPage(url: String, pageNum: Int) -> String {
         merge(urls: [url, contentPage + "\(pageNum)"])
     }
     static func magnet(hash: String) -> String {

@@ -26,8 +26,7 @@ struct MangaSummaryRow: View {
         HStack(spacing: 10) {
             KFImage(URL(string: manga.coverURL))
                 .placeholder(placeholder)
-                .loadImmediately()
-                .resizable()
+                .defaultModifier()
                 .scaledToFit()
                 .frame(width: width, height: height)
             VStack(alignment: .leading) {

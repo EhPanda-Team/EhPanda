@@ -420,20 +420,16 @@ struct MangaTorrentsRequest {
     }
 }
 
-struct MangaCommentsRequest {
-    let detailURL: String
+struct MangaPreviewsRequest {
+    let url: String
 
-    var publisher: AnyPublisher<[MangaComment], AppError> {
+    var publisher: AnyPublisher<[Int: String], AppError> {
         URLSession.shared
             .dataTaskPublisher(
-                for: Defaults.URL
-                    .mangaDetail(
-                        url: detailURL
-                    )
-                    .safeURL()
+                for: url.safeURL()
             )
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-            .map(Parser.parseComments)
+            .tryMap(Parser.parsePreviews)
             .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
@@ -462,10 +458,7 @@ struct MangaContentsRequest {
             .tryMap { try (
                 Parser.parsePageNum(doc: $0),
                 Parser.parseImagePreContents(
-                    doc: $0,
-                    previewMode:
-                        Parser.parsePreviewMode(doc: $0),
-                    pageCount: pageCount
+                    doc: $0, pageCount: pageCount
                 )
             ) }
             .mapError(mapAppError)

@@ -99,6 +99,27 @@ struct Parser {
 
     // MARK: Detail
     static func parseMangaDetail(doc: HTMLDocument, gid: String) throws -> (MangaDetail, MangaState) {
+        func parsePreviewConfig(doc: HTMLDocument) throws -> PreviewConfig {
+            guard let previewMode = try? parsePreviewMode(doc: doc),
+                  let gdoNode = doc.at_xpath("//div [@id='gdo']"),
+                  let rows = gdoNode.at_xpath("//div [@id='gdo2']")?.xpath("//div")
+            else { throw AppError.parseFailed }
+
+            for rowLink in rows where rowLink.className == "ths nosel" {
+                guard let rowsCount = Int(
+                    rowLink.text?.replacingOccurrences(
+                        of: " rows", with: "") ?? ""
+                ) else { throw AppError.parseFailed }
+
+                if previewMode == "gdtl" {
+                    return .large(rows: rowsCount)
+                } else {
+                    return .normal(rows: rowsCount)
+                }
+            }
+            throw AppError.parseFailed
+        }
+
         func parseCoverURL(node: XMLElement?) throws -> String {
             guard let coverHTML = node?.at_xpath("//div [@id='gd1']")?.innerHTML,
             let rangeA = coverHTML.range(of: "url("),
@@ -192,23 +213,6 @@ struct Parser {
             return (archiveURL, torrentCount)
         }
 
-        func parsePreviews(node: XMLElement?) throws -> [Int: String] {
-            guard let object = node?.xpath("//img")
-            else { throw AppError.parseFailed }
-
-            var previews = [Int: String]()
-            for (index, link) in object.enumerated() {
-                if previews.count >= 10 { break }
-                guard let url = link["src"],
-                      !url.contains("blank.gif")
-                else { continue }
-
-                previews[index] = url
-            }
-
-            return previews
-        }
-
         func parseInfoPanel(node: XMLElement?) throws -> [String] {
             guard let object = node?.xpath("//tr")
             else { throw AppError.parseFailed }
@@ -260,8 +264,7 @@ struct Parser {
         var tmpMangaDetail: MangaDetail?
         var tmpMangaState: MangaState?
         for link in doc.xpath("//div [@class='gm']") {
-            guard let gdtNode = doc.at_xpath("//div [@id='gdt']"),
-                  let gd3Node = link.at_xpath("//div [@id='gd3']"),
+            guard let gd3Node = link.at_xpath("//div [@id='gd3']"),
                   let gd4Node = link.at_xpath("//div [@id='gd4']"),
                   let gd5Node = link.at_xpath("//div [@id='gd5']"),
                   let gddNode = gd3Node.at_xpath("//div [@id='gdd']"),
@@ -270,7 +273,7 @@ struct Parser {
                   let rating = try? parseRating(node: gdrNode),
                   let coverURL = try? parseCoverURL(node: link),
                   let tags = try? parseTags(node: gd4Node),
-                  let previews = try? parsePreviews(node: gdtNode),
+                  let previews = try? parsePreviews(doc: doc),
                   let arcAndTor = try? parseArcAndTor(node: gd5Node),
                   let infoPanel = try? parseInfoPanel(node: gddNode),
                   let sizeCount = Float(infoPanel[2]),
@@ -312,6 +315,7 @@ struct Parser {
             tmpMangaState = MangaState(
                 gid: gid, tags: tags,
                 previews: previews,
+                previewConfig: try? parsePreviewConfig(doc: doc),
                 comments: parseComments(doc: doc)
             )
             break
@@ -322,6 +326,34 @@ struct Parser {
         else { throw AppError.parseFailed }
 
         return (mangaDetail, mangaState)
+    }
+
+    // MARK: Preview
+    static func parsePreviews(doc: HTMLDocument) throws -> [Int: String] {
+        func parseNormalPreviews(node: XMLElement) -> [Int: String] {
+            [:]
+        }
+        func parseLargePreviews(node: XMLElement) -> [Int: String] {
+            var previews = [Int: String]()
+
+            for link in node.xpath("//img") {
+                guard let index = Int(link["alt"] ?? ""),
+                      let url = link["src"], !url.contains("blank.gif")
+                else { continue }
+
+                previews[index] = url
+            }
+
+            return previews
+        }
+
+        guard let gdtNode = doc.at_xpath("//div [@id='gdt']"),
+              let previewMode = try? parsePreviewMode(doc: doc)
+        else { throw AppError.parseFailed }
+
+        return previewMode == "gdtl"
+            ? parseLargePreviews(node: gdtNode)
+            : parseNormalPreviews(node: gdtNode)
     }
 
     // MARK: Comment
@@ -403,10 +435,11 @@ struct Parser {
     }
 
     // MARK: Content
-    static func parseImagePreContents(doc: HTMLDocument, previewMode: String, pageCount: Int) throws -> [(Int, URL)] {
+    static func parseImagePreContents(doc: HTMLDocument, pageCount: Int) throws -> [(Int, URL)] {
         var imageDetailURLs = [(Int, URL)]()
 
-        guard let gdtNode = doc.at_xpath("//div [@id='gdt']")
+        guard let gdtNode = doc.at_xpath("//div [@id='gdt']"),
+              let previewMode = try? parsePreviewMode(doc: doc)
         else { throw AppError.parseFailed }
 
         for (index, element) in gdtNode.xpath("//div [@class='\(previewMode)']").enumerated() {

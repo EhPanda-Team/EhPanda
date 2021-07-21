@@ -60,7 +60,8 @@ struct DetailView: View, StoreAccessor, PersistenceAccessor {
                         }
                         PreviewView(
                             previews: mangaState.previews,
-                            pageCount: detail.pageCount
+                            pageCount: detail.pageCount,
+                            fetchAction: fetchMangaPreviews
                         )
                         CommentScrollView(
                             gid: gid,
@@ -218,6 +219,9 @@ private extension DetailView {
     func fetchMangaDetail() {
         store.dispatch(.fetchMangaDetail(gid: gid))
     }
+    func fetchMangaPreviews(index: Int) {
+        store.dispatch(.fetchMangaPreviews(gid: gid, index: index))
+    }
     func updateHistoryItems() {
         if environment.homeListType != .history {
             PersistenceController.updateLastOpenDate(gid: gid)
@@ -254,8 +258,7 @@ private struct HeaderView: View {
         HStack {
             KFImage(URL(string: manga.coverURL))
                 .placeholder(placeholder)
-                .loadImmediately()
-                .resizable()
+                .defaultModifier()
                 .scaledToFit()
                 .frame(width: width, height: height)
             VStack(alignment: .leading) {
@@ -634,24 +637,31 @@ private struct TagRow: View {
 private struct PreviewView: View {
     private let previews: [Int: String]
     private let pageCount: Int
+    private let fetchAction: (Int) -> Void
 
-    private var width: CGFloat {
-        Defaults.ImageSize.previewW
+    private var gridItems: [GridItem] {
+        [GridItem(
+            .adaptive(
+                minimum: Defaults.ImageSize.previewMinW,
+                maximum: Defaults.ImageSize.previewMaxW
+            ),
+            spacing: 10
+        )]
     }
-    private var height: CGFloat {
-        Defaults.ImageSize.previewH
-    }
+
     private func placeholder() -> some View {
-        Placeholder(style: .activity(width: width, height: height))
-            .cornerRadius(15)
+        Placeholder(style: .plainActivity)
+            .cornerRadius(5)
     }
 
     init(
         previews: [Int: String],
-        pageCount: Int
+        pageCount: Int,
+        fetchAction: @escaping (Int) -> Void
     ) {
         self.previews = previews
         self.pageCount = pageCount
+        self.fetchAction = fetchAction
     }
 
     var body: some View {
@@ -662,21 +672,32 @@ private struct PreviewView: View {
                     .font(.title3)
                 Spacer()
             }
-            ScrollView(.horizontal, showsIndicators: false) {
-                LazyHStack {
-                    ForEach(0..<pageCount) { index in
-                        KFImage(URL(string: previews[index] ?? ""))
-                            .placeholder(placeholder)
-                            .loadImmediately()
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: width, height: height)
-                            .cornerRadius(15)
+            ScrollView {
+                LazyVGrid(columns: gridItems) {
+                    ForEach(1..<pageCount + 1) { index in
+                        VStack {
+                            KFImage(URL(string: previews[index] ?? ""))
+                                .placeholder(placeholder)
+                                .defaultModifier()
+                                .scaledToFit()
+                            Text("\(index)")
+                                .font(.caption2)
+                                .foregroundColor(.secondary)
+                        }
+                        .onAppear {
+                            if previews[index] == nil {
+                                fetchAction(index)
+                            }
+                        }
                     }
                 }
             }
         }
-        .frame(height: 240)
+        .frame(
+            minHeight: 200,
+            maxHeight: windowH
+            * (isPadWidth ? 0.6 : 0.8)
+        )
     }
 }
 

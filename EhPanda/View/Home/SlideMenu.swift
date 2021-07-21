@@ -136,8 +136,7 @@ private struct AvatarView: View {
                         Image(iconName)
                             .resizable()
                     }
-                    .loadImmediately()
-                    .resizable()
+                    .defaultModifier()
                     .scaledToFit()
                     .frame(width: width, height: height)
                     .clipShape(Circle())

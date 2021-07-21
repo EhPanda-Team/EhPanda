@@ -376,6 +376,32 @@ struct FetchMoreAssociatedItemsCommand: AppCommand {
     }
 }
 
+struct FetchMangaPreviewsCommand: AppCommand {
+    let gid: String
+    let url: String
+    let index: Int
+
+    func execute(in store: Store) {
+        let token = SubscriptionToken()
+        MangaPreviewsRequest(url: url)
+            .publisher
+            .receive(on: DispatchQueue.main)
+            .sink { completion in
+                if case .failure(let error) = completion {
+                    store.dispatch(.fetchMangaPreviewsDone(
+                        gid: gid, index: index, result: .failure(error)
+                    ))
+                }
+                token.unseal()
+            } receiveValue: { previews in
+                store.dispatch(.fetchMangaPreviewsDone(
+                    gid: gid, index: index, result: .success(previews)
+                ))
+            }
+            .seal(in: token)
+    }
+}
+
 struct FetchMangaContentsCommand: AppCommand {
     let gid: String
     let detailURL: String
@@ -384,7 +410,7 @@ struct FetchMangaContentsCommand: AppCommand {
         let token = SubscriptionToken()
             MangaContentsRequest(
                 detailURL: Defaults.URL
-                    .contentPage(
+                    .detailPage(
                         url: detailURL,
                         pageNum: 0
                     ),
@@ -419,7 +445,7 @@ struct FetchMoreMangaContentsCommand: AppCommand {
         let token = SubscriptionToken()
             MangaContentsRequest(
                 detailURL: Defaults.URL
-                    .contentPage(
+                    .detailPage(
                         url: detailURL,
                         pageNum: pageNum
                     ),

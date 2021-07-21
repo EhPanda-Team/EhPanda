@@ -338,16 +338,14 @@ private struct CommentCell: View {
                    let secondLink = secondLink
                 {
                     KFImage(URL(string: imgURL))
-                        .loadImmediately()
-                        .resizable()
+                        .defaultModifier()
                         .scaledToFit()
                         .frame(width: windowW / 4)
                         .onTapGesture {
                             linkAction(link.safeURL())
                         }
                     KFImage(URL(string: secondImgURL))
-                        .loadImmediately()
-                        .resizable()
+                        .defaultModifier()
                         .scaledToFit()
                         .frame(width: windowW / 4)
                         .onTapGesture {
@@ -355,13 +353,11 @@ private struct CommentCell: View {
                         }
                 } else {
                     KFImage(URL(string: imgURL))
-                        .loadImmediately()
-                        .resizable()
+                        .defaultModifier()
                         .scaledToFit()
                         .frame(width: windowW / 4)
                     KFImage(URL(string: secondImgURL))
-                        .loadImmediately()
-                        .resizable()
+                        .defaultModifier()
                         .scaledToFit()
                         .frame(width: windowW / 4)
                 }
@@ -371,8 +367,7 @@ private struct CommentCell: View {
         else if let imgURL = imgURL {
             if let link = link {
                 KFImage(URL(string: imgURL))
-                    .loadImmediately()
-                    .resizable()
+                    .defaultModifier()
                     .scaledToFit()
                     .frame(width: windowW / 2)
                     .onTapGesture {
@@ -380,8 +375,7 @@ private struct CommentCell: View {
                     }
             } else {
                 KFImage(URL(string: imgURL))
-                    .loadImmediately()
-                    .resizable()
+                    .defaultModifier()
                     .scaledToFit()
                     .frame(width: windowW / 2)
             }

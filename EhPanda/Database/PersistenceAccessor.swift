@@ -160,9 +160,21 @@ extension PersistenceController {
     }
     static func update(fetchedState: MangaState) {
         update(gid: fetchedState.gid) { mangaStateMO in
-            mangaStateMO.tags = fetchedState.tags.toData()
-            mangaStateMO.previews = fetchedState.previews.toData()
-            mangaStateMO.comments = fetchedState.comments.toData()
+            if !fetchedState.tags.isEmpty {
+                mangaStateMO.tags = fetchedState.tags.toData()
+            }
+            if !fetchedState.comments.isEmpty {
+                mangaStateMO.comments = fetchedState.comments.toData()
+            }
+            if !fetchedState.previews.isEmpty {
+                if let storedPreviews = mangaStateMO.previews?.toObject() as [Int: String]? {
+                    mangaStateMO.previews = storedPreviews.merging(
+                        fetchedState.previews, uniquingKeysWith: { stored, _ in stored }
+                    ).toData()
+                } else {
+                    mangaStateMO.previews = fetchedState.previews.toData()
+                }
+            }
         }
     }
     static func update(gid: String, aspectBox: [Int: CGFloat]) {

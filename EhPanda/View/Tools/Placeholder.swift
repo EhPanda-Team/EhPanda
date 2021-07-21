@@ -16,18 +16,21 @@ struct Placeholder: View {
 
     var body: some View {
         switch style {
+        case .plainActivity:
+            ZStack {
+                Color(.systemGray5)
+                ProgressView()
+            }
         case .activity(let width, let height):
             ZStack {
-                Rectangle()
-                    .fill(Color(.systemGray5))
+                Color(.systemGray5)
                 ProgressView()
             }
             .frame(width: width, height: height)
         case .progress(let pageNumber, let percentage):
             GeometryReader { proxy in
                 ZStack {
-                    Rectangle()
-                        .fill(Color(.systemGray5))
+                    Color(.systemGray5)
                     VStack {
                         Text(pageNumber.withoutComma)
                             .fontWeight(.bold)
@@ -45,6 +48,7 @@ struct Placeholder: View {
 }
 
 enum PlaceholderStyle {
+    case plainActivity
     case activity(width: Double, height: Double)
     case progress(pageNumber: Int, percentage: Float)
 }

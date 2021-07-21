@@ -104,7 +104,7 @@ struct MangaState: Codable {
     var pageNumMaximum = 1
     var readingProgress = 0
     var previews = [Int: String]()
-    var previewsLoading = [Int: Bool]()
+    var previewConfig: PreviewConfig?
     var comments = [MangaComment]()
     var contents = [MangaContent]()
     var aspectBox = [Int: CGFloat]()
@@ -403,6 +403,22 @@ enum CommentContentType: Int, Codable {
     case linkedText
 
     case singleLink
+}
+
+enum PreviewConfig: Codable {
+    case normal(rows: Int)
+    case large(rows: Int)
+}
+
+extension PreviewConfig {
+    var batchSize: Int {
+        switch self {
+        case .normal(let rows):
+            return 10 * rows
+        case .large(let rows):
+            return 5 * rows
+        }
+    }
 }
 
 enum Language: String, Codable {
