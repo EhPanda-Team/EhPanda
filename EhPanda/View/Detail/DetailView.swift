@@ -47,7 +47,7 @@ struct DetailView: View, StoreAccessor, PersistenceAccessor {
                         )
                         DescScrollView(detail: detail)
                         ActionRow(
-                            detail: detail,
+                            state: mangaState,
                             ratingAction: onUserRatingChanged
                         ) {
                             onSimilarGalleryTap(title: detail.title)
@@ -74,7 +74,7 @@ struct DetailView: View, StoreAccessor, PersistenceAccessor {
                     .padding(.bottom, 20)
                     .padding(.top, -40)
                 }
-                .transition(animatedTransition)
+                .transition(opacityTransition)
             } else if detailInfo.mangaDetailLoading {
                 LoadingView()
             } else if detailInfo.mangaDetailLoadFailed {
@@ -351,6 +351,7 @@ private extension HeaderView {
     }
     func placeholder() -> some View {
         Placeholder(style: .activity(width: width, height: height))
+            .cornerRadius(5)
     }
 }
 
@@ -485,16 +486,16 @@ private struct ActionRow: View {
     @State private var showUserRating = false
     @State private var userRating: Int = 0
 
-    private let detail: MangaDetail
+    private let state: MangaState
     private let ratingAction: (Int) -> Void
     private let galleryAction: () -> Void
 
     init(
-        detail: MangaDetail,
+        state: MangaState,
         ratingAction: @escaping (Int) -> Void,
         galleryAction: @escaping () -> Void
     ) {
-        self.detail = detail
+        self.state = state
         self.ratingAction = ratingAction
         self.galleryAction = galleryAction
     }
@@ -542,9 +543,7 @@ private struct ActionRow: View {
 
 private extension ActionRow {
     func onStartTasks() {
-//        if let rating = detail.userRating {
-//            userRating = Int(rating.fixedRating() * 2)
-//        }
+        userRating = Int(state.userRating.fixedRating() * 2)
     }
     func onRateButtonTap() {
         withAnimation {
