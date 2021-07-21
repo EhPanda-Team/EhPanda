@@ -342,7 +342,9 @@ private struct ImageContainer: View {
 
     var body: some View {
         KFImage(URL(string: content.url))
-            .defaultModifier(withRoundedCorners: false)
+            .defaultModifier(
+                withRoundedCorners: false
+            )
             .placeholder {
                 Placeholder(
                     style: .progress(

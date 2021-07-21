@@ -27,6 +27,7 @@ struct MangaSummaryRow: View {
             KFImage(URL(string: manga.coverURL))
                 .placeholder(placeholder)
                 .defaultModifier()
+                .cornerRadius(5)
                 .scaledToFit()
                 .frame(width: width, height: height)
             VStack(alignment: .leading) {
@@ -118,7 +119,12 @@ private extension MangaSummaryRow {
             : Color(.systemGray4)
     }
     func placeholder() -> some View {
-        Placeholder(style: .activity(width: width, height: height))
+        Placeholder(style: .activity)
+            .aspectRatio(
+                Defaults.ImageSize
+                    .rowScale,
+                contentMode: .fill
+            )
             .cornerRadius(5)
     }
 }

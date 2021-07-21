@@ -30,7 +30,11 @@ extension View {
 extension KFImage {
     func defaultModifier(withRoundedCorners: Bool = true) -> KFImage {
         self
-            .setProcessor(RoundCornerImageProcessor(cornerRadius: 5))
+            .setProcessor(
+                RoundCornerImageProcessor(
+                    cornerRadius: withRoundedCorners ? 5 : 0
+                )
+            )
             .fade(duration: 0.25)
             .loadImmediately()
             .resizable()

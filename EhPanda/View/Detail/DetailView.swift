@@ -259,6 +259,7 @@ private struct HeaderView: View {
             KFImage(URL(string: manga.coverURL))
                 .placeholder(placeholder)
                 .defaultModifier()
+                .cornerRadius(5)
                 .scaledToFit()
                 .frame(width: width, height: height)
             VStack(alignment: .leading) {
@@ -350,7 +351,12 @@ private extension HeaderView {
         }
     }
     func placeholder() -> some View {
-        Placeholder(style: .activity(width: width, height: height))
+        Placeholder(style: .activity)
+            .aspectRatio(
+                Defaults.ImageSize
+                    .headerScale,
+                contentMode: .fill
+            )
             .cornerRadius(5)
     }
 }
@@ -649,7 +655,12 @@ private struct PreviewView: View {
     }
 
     private func placeholder() -> some View {
-        Placeholder(style: .plainActivity)
+        Placeholder(style: .activity)
+            .aspectRatio(
+                Defaults.ImageSize
+                    .previewScale,
+                contentMode: .fill
+            )
             .cornerRadius(5)
     }
 
@@ -671,20 +682,23 @@ private struct PreviewView: View {
                     .font(.title3)
                 Spacer()
             }
-            ScrollView {
+            ScrollView(showsIndicators: false) {
                 LazyVGrid(columns: gridItems) {
                     ForEach(1..<pageCount + 1) { index in
                         VStack {
                             KFImage(URL(string: previews[index] ?? ""))
                                 .placeholder(placeholder)
                                 .defaultModifier()
+                                .cornerRadius(5)
                                 .scaledToFit()
                             Text("\(index)")
                                 .font(.caption2)
                                 .foregroundColor(.secondary)
                         }
                         .onAppear {
-                            if previews[index] == nil {
+                            if previews[index] == nil
+                                && (index - 1) % 20 == 0
+                            {
                                 fetchAction(index)
                             }
                         }
@@ -694,8 +708,7 @@ private struct PreviewView: View {
         }
         .frame(
             minHeight: 200,
-            maxHeight: windowH
-            * (isPadWidth ? 0.6 : 0.8)
+            maxHeight: windowH * 0.75
         )
     }
 }

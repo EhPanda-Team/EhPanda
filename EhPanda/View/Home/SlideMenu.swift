@@ -110,10 +110,6 @@ private struct AvatarView: View {
     private let width: CGFloat
     private let height: CGFloat
 
-    private func placeholder() -> some View {
-        Placeholder(style: .activity(width: width, height: height))
-    }
-
     init(
         iconName: String,
         avatarURL: String?,
@@ -136,7 +132,9 @@ private struct AvatarView: View {
                         Image(iconName)
                             .resizable()
                     }
-                    .defaultModifier()
+                    .defaultModifier(
+                        withRoundedCorners: false
+                    )
                     .scaledToFit()
                     .frame(width: width, height: height)
                     .clipShape(Circle())
