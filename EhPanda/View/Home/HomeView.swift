@@ -381,7 +381,7 @@ private extension HomeView {
         if environment.homeViewSheetState != nil {
             store.dispatch(.toggleHomeViewSheet(state: nil))
         }
-        if environment.isSlideMenuClosed {
+        if !environment.isSlideMenuClosed {
             postSlideMenuShouldCloseNotification()
         }
     }
