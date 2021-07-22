@@ -19,14 +19,14 @@ extension MangaDetailMO: Identifiable {
     @NSManaged public var isFavored: Bool
     @NSManaged public var jpnTitle: String?
     @NSManaged public var language: String
-    @NSManaged public var likeCount: String
-    @NSManaged public var pageCount: String
+    @NSManaged public var likeCount: Int64
+    @NSManaged public var pageCount: Int64
     @NSManaged public var publishedDate: Date
     @NSManaged public var rating: Float
-    @NSManaged public var ratingCount: String
-    @NSManaged public var sizeCount: String
+    @NSManaged public var ratingCount: Int64
+    @NSManaged public var sizeCount: Float
     @NSManaged public var sizeType: String
     @NSManaged public var title: String
-    @NSManaged public var torrentCount: Int16
+    @NSManaged public var torrentCount: Int64
     @NSManaged public var uploader: String
 }

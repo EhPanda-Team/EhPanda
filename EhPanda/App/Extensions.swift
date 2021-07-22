@@ -85,11 +85,6 @@ extension String {
         ) ?? ""
     }
 
-    func urlDecoded() -> String {
-        (removingPercentEncoding ?? "")
-            .replacingOccurrences(of: "%3F", with: "?")
-    }
-
     var withComma: String? {
         Int(self)?.formatted(.number)
     }
@@ -102,7 +97,7 @@ extension String {
         var title = self
 
         if let range = title.range(of: "|") {
-            title = String(title.prefix(upTo: range.lowerBound))
+            title = String(title[..<range.lowerBound])
         }
 
         return title
@@ -122,16 +117,10 @@ extension String {
         var result = self
 
         while let rangeA = result.range(of: subString1),
-           let rangeB = result.range(of: subString2)
+              let rangeB = result.range(of: subString2)
         {
-            let unwanted =  String(
-                result.suffix(from: rangeA.lowerBound)
-                    .prefix(upTo: rangeB.upperBound)
-            )
-            result = result.replacingOccurrences(
-                of: unwanted,
-                with: replacement
-            )
+            let unwanted = result[rangeA.lowerBound..<rangeB.upperBound]
+            result = result.replacingOccurrences(of: unwanted, with: replacement)
         }
 
         return result
@@ -159,7 +148,7 @@ extension String {
                 )
             ) {
                 return match.range.length
-                    == self.utf16.count
+                == self.utf16.count
             } else {
                 return false
             }
@@ -184,9 +173,9 @@ extension View {
 extension Bundle {
     var icon: UIImage? {
         if let icons = infoDictionary?["CFBundleIcons"] as? [String: Any],
-            let primaryIcon = icons["CFBundlePrimaryIcon"] as? [String: Any],
-            let iconFiles = primaryIcon["CFBundleIconFiles"] as? [String],
-            let lastIcon = iconFiles.last {
+           let primaryIcon = icons["CFBundlePrimaryIcon"] as? [String: Any],
+           let iconFiles = primaryIcon["CFBundleIconFiles"] as? [String],
+           let lastIcon = iconFiles.last {
             return UIImage(named: lastIcon)
         }
         return nil
@@ -231,6 +220,12 @@ extension UIImage {
             orientation: imageOrientation
         )
     }
+
+    func cropping(size: CGSize, offset: CGFloat) -> UIImage? {
+        let origin = CGPoint(x: offset, y: 0)
+        let rect = CGRect(origin: origin, size: size)
+        return cropping(to: rect)
+    }
 }
 
 extension Optional {
@@ -261,5 +256,33 @@ extension URLRequest {
             "application/x-www-form-urlencoded",
             forHTTPHeaderField: "Content-Type"
         )
+    }
+}
+
+extension UIImage {
+    func withRoundedCorners(radius: CGFloat) -> UIImage? {
+        let maxRadius = min(size.width, size.height) / 2
+
+        let cornerRadius: CGFloat
+        if radius > 0 && radius <= maxRadius {
+            cornerRadius = radius
+        } else {
+            cornerRadius = maxRadius
+        }
+
+        UIGraphicsBeginImageContextWithOptions(size, false, scale)
+
+        let rect = CGRect(
+            origin: .zero, size: size
+        )
+        UIBezierPath(
+            roundedRect: rect,
+            cornerRadius: cornerRadius
+        ).addClip()
+        draw(in: rect)
+
+        let image = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        return image
     }
 }

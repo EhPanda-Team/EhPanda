@@ -47,7 +47,7 @@ struct DetailView: View, StoreAccessor, PersistenceAccessor {
                         )
                         DescScrollView(detail: detail)
                         ActionRow(
-                            detail: detail,
+                            state: mangaState,
                             ratingAction: onUserRatingChanged
                         ) {
                             onSimilarGalleryTap(title: detail.title)
@@ -60,7 +60,8 @@ struct DetailView: View, StoreAccessor, PersistenceAccessor {
                         }
                         PreviewView(
                             previews: mangaState.previews,
-                            alterImages: detail.alterImages
+                            pageCount: detail.pageCount,
+                            fetchAction: fetchMangaPreviews
                         )
                         CommentScrollView(
                             gid: gid,
@@ -73,7 +74,7 @@ struct DetailView: View, StoreAccessor, PersistenceAccessor {
                     .padding(.bottom, 20)
                     .padding(.top, -40)
                 }
-                .transition(animatedTransition)
+                .transition(opacityTransition)
             } else if detailInfo.mangaDetailLoading {
                 LoadingView()
             } else if detailInfo.mangaDetailLoadFailed {
@@ -218,6 +219,9 @@ private extension DetailView {
     func fetchMangaDetail() {
         store.dispatch(.fetchMangaDetail(gid: gid))
     }
+    func fetchMangaPreviews(index: Int) {
+        store.dispatch(.fetchMangaPreviews(gid: gid, index: index))
+    }
     func updateHistoryItems() {
         if environment.homeListType != .history {
             PersistenceController.updateLastOpenDate(gid: gid)
@@ -253,8 +257,13 @@ private struct HeaderView: View {
     var body: some View {
         HStack {
             KFImage(URL(string: manga.coverURL))
-                .placeholder(placeholder)
-                .resizable()
+                .placeholder {
+                    Placeholder(style: .activity(
+                        ratio: Defaults.ImageSize
+                            .headerScale
+                    ))
+                }
+                .defaultModifier()
                 .scaledToFit()
                 .frame(width: width, height: height)
             VStack(alignment: .leading) {
@@ -345,9 +354,6 @@ private extension HeaderView {
             return manga.category.rawValue
         }
     }
-    func placeholder() -> some View {
-        Placeholder(style: .activity(width: width, height: height))
-    }
 }
 
 // MARK: DescScrollView
@@ -378,7 +384,7 @@ private struct DescScrollView: View {
                 .frame(width: itemWidth)
                 Divider()
                 DescScrollRatingItem(
-                    title: detail.ratingCount
+                    title: String(detail.ratingCount)
                         + " Ratings".localized(),
                     rating: detail.rating
                 )
@@ -393,7 +399,7 @@ private struct DescScrollView: View {
                 Divider()
                 DescScrollItem(
                     title: "Size",
-                    value: detail.sizeCount,
+                    value: String(detail.sizeCount),
                     numeral: detail.sizeType
                 )
                 .frame(width: itemWidth)
@@ -429,6 +435,12 @@ private struct DescScrollItem: View {
     init(title: String, value: String, numeral: String) {
         self.title = title
         self.value = value
+        self.numeral = numeral
+    }
+
+    init(title: String, value: Int, numeral: String) {
+        self.title = title
+        self.value = String(value)
         self.numeral = numeral
     }
 
@@ -475,16 +487,16 @@ private struct ActionRow: View {
     @State private var showUserRating = false
     @State private var userRating: Int = 0
 
-    private let detail: MangaDetail
+    private let state: MangaState
     private let ratingAction: (Int) -> Void
     private let galleryAction: () -> Void
 
     init(
-        detail: MangaDetail,
+        state: MangaState,
         ratingAction: @escaping (Int) -> Void,
         galleryAction: @escaping () -> Void
     ) {
-        self.detail = detail
+        self.state = state
         self.ratingAction = ratingAction
         self.galleryAction = galleryAction
     }
@@ -532,9 +544,7 @@ private struct ActionRow: View {
 
 private extension ActionRow {
     func onStartTasks() {
-//        if let rating = detail.userRating {
-//            userRating = Int(rating.fixedRating() * 2)
-//        }
+        userRating = Int(state.userRating.fixedRating() * 2)
     }
     func onRateButtonTap() {
         withAnimation {
@@ -625,26 +635,25 @@ private struct TagRow: View {
 
 // MARK: PreviewView
 private struct PreviewView: View {
-    private let previews: [MangaPreview]
-    private let alterImages: [MangaAlterData]
-
-    private var width: CGFloat {
-        Defaults.ImageSize.previewW
-    }
-    private var height: CGFloat {
-        Defaults.ImageSize.previewH
-    }
-    private func placeholder() -> some View {
-        Placeholder(style: .activity(width: width, height: height))
-            .cornerRadius(15)
-    }
+    private let previews: [Int: String]
+    private let pageCount: Int
+    private let fetchAction: (Int) -> Void
 
     init(
-        previews: [MangaPreview],
-        alterImages: [MangaAlterData]
+        previews: [Int: String],
+        pageCount: Int,
+        fetchAction: @escaping (Int) -> Void
     ) {
         self.previews = previews
-        self.alterImages = alterImages
+        self.pageCount = pageCount
+        self.fetchAction = fetchAction
+    }
+
+    private var width: CGFloat {
+        Defaults.ImageSize.previewAvgW
+    }
+    private var height: CGFloat {
+        width / Defaults.ImageSize.previewScale
     }
 
     var body: some View {
@@ -654,38 +663,128 @@ private struct PreviewView: View {
                     .fontWeight(.bold)
                     .font(.title3)
                 Spacer()
+                NavigationLink(
+                    destination: MorePreviewView(
+                        previews: previews,
+                        pageCount: pageCount,
+                        fetchAction: fetchAction
+                    )
+                ) {
+                    Text("Show All")
+                        .font(.subheadline)
+                }
+                .opacity(pageCount > 20 ? 1 : 0)
             }
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHStack {
-                    if !previews.isEmpty {
-                        ForEach(previews) { item in
-                            KFImage(URL(string: item.url))
-                                .placeholder(placeholder)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: width, height: height)
-                                .cornerRadius(15)
-                        }
-                    } else if !alterImages.isEmpty {
-                        ForEach(alterImages) { item in
-                            if let uiImage = UIImage(data: item.data) {
-                                Image(uiImage: uiImage)
-                                    .resizable()
-                                    .scaledToFill()
-                                    .frame(width: width, height: height)
-                                    .cornerRadius(15)
-                            } else {
-                                placeholder()
+                    ForEach(1..<min(pageCount, 20)) { index in
+                        let (url, modifier) = getPreviewConfigs(
+                            previews: previews, index: index
+                        )
+                        KFImage(URL(string: url))
+                            .placeholder {
+                                Placeholder(style: .activity(
+                                    ratio: Defaults.ImageSize
+                                        .previewScale
+                                ))
                             }
-                        }
-                    } else {
-                        ForEach(0..<10) { _ in placeholder() }
+                            .imageModifier(modifier)
+                            .fade(duration: 0.25)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(
+                                width: width,
+                                height: height
+                            )
                     }
                 }
             }
         }
-        .frame(height: 240)
     }
+}
+
+// MARK: MorePreviewView
+private struct MorePreviewView: View {
+    private let previews: [Int: String]
+    private let pageCount: Int
+    private let fetchAction: (Int) -> Void
+
+    init(
+        previews: [Int: String],
+        pageCount: Int,
+        fetchAction: @escaping (Int) -> Void
+    ) {
+        self.previews = previews
+        self.pageCount = pageCount
+        self.fetchAction = fetchAction
+    }
+
+    private var gridItems: [GridItem] {
+        [GridItem(
+            .adaptive(
+                minimum: Defaults.ImageSize.previewMinW,
+                maximum: Defaults.ImageSize.previewMaxW
+            ),
+            spacing: 10
+        )]
+    }
+
+    var body: some View {
+        ScrollView {
+            LazyVGrid(columns: gridItems) {
+                ForEach(1..<pageCount + 1) { index in
+                    VStack {
+                        let (url, modifier) = getPreviewConfigs(
+                            previews: previews, index: index
+                        )
+                        KFImage(URL(string: url))
+                            .placeholder {
+                                Placeholder(style: .activity(
+                                    ratio: Defaults.ImageSize
+                                        .previewScale
+                                ))
+                            }
+                            .imageModifier(modifier)
+                            .fade(duration: 0.25)
+                            .resizable()
+                            .scaledToFit()
+                        Text("\(index)")
+                            .font(isPadWidth ? .callout : .caption)
+                            .foregroundColor(.secondary)
+                    }
+                    .onAppear {
+                        onImageAppear(index: index)
+                    }
+                }
+            }
+            .padding(.horizontal)
+            .padding(.bottom)
+        }
+    }
+
+    private func onImageAppear(index: Int) {
+        if previews[index] == nil && (index - 1) % 20 == 0 {
+            fetchAction(index)
+        }
+    }
+}
+
+private func getPreviewConfigs(
+    previews: [Int: String], index: Int
+) -> (String, ImageModifier) {
+    let originalURL = previews[index] ?? ""
+    let configs = Parser.parsePreviewConfigs(
+        string: originalURL
+    )
+    let containsConfigs = configs != nil
+
+    let plainURL = configs?.0 ?? ""
+    let loadURL = containsConfigs
+        ? plainURL : originalURL
+    let modifier = RoundedOffsetModifier(
+        size: configs?.1, offset: configs?.2
+    )
+    return (loadURL, modifier)
 }
 
 // MARK: CommentScrollView

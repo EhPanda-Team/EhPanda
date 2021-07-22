@@ -16,26 +16,25 @@ struct Placeholder: View {
 
     var body: some View {
         switch style {
-        case .activity(let width, let height):
+        case .activity(let ratio, let cornerRadius):
             ZStack {
-                Rectangle()
-                    .fill(Color(.systemGray5))
+                Color(.systemGray5)
                 ProgressView()
             }
-            .frame(width: width, height: height)
-        case .progress(let pageNumber, let percentage):
+            .aspectRatio(ratio, contentMode: .fill)
+            .cornerRadius(cornerRadius)
+        case .progress(let pageNumber, let progress):
             GeometryReader { proxy in
                 ZStack {
-                    Rectangle()
-                        .fill(Color(.systemGray5))
+                    Color(.systemGray5)
                     VStack {
                         Text(pageNumber.withoutComma)
                             .fontWeight(.bold)
                             .font(.largeTitle)
                             .foregroundStyle(.gray)
                             .padding(.bottom, 15)
-                        ProgressView(value: percentage, total: 1)
-                            .progressViewStyle(.linear)
+                        ProgressView(progress)
+                            .progressViewStyle(.plainLinear)
                             .frame(width: proxy.size.width * 0.5)
                     }
                 }
@@ -45,6 +44,6 @@ struct Placeholder: View {
 }
 
 enum PlaceholderStyle {
-    case activity(width: Double, height: Double)
-    case progress(pageNumber: Int, percentage: Float)
+    case activity(ratio: CGFloat, cornerRadius: CGFloat = 5)
+    case progress(pageNumber: Int, progress: Progress)
 }

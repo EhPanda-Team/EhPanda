@@ -6,8 +6,8 @@
 //
 
 import Kanna
-import SwiftUI
-import Kingfisher
+import UIKit
+import Foundation
 
 struct Parser {
     // MARK: List
@@ -34,8 +34,7 @@ struct Parser {
                       let range = content.range(of: "pages")
                 else { throw AppError.parseFailed }
 
-                let fixedTime = String(content.suffix(from: range.upperBound))
-                text = fixedTime
+                text = String(content[range.upperBound...])
             }
 
             return text
@@ -100,17 +99,34 @@ struct Parser {
 
     // MARK: Detail
     static func parseMangaDetail(doc: HTMLDocument, gid: String) throws -> (MangaDetail, MangaState) {
+        func parsePreviewConfig(doc: HTMLDocument) throws -> PreviewConfig {
+            guard let previewMode = try? parsePreviewMode(doc: doc),
+                  let gdoNode = doc.at_xpath("//div [@id='gdo']"),
+                  let rows = gdoNode.at_xpath("//div [@id='gdo2']")?.xpath("//div")
+            else { throw AppError.parseFailed }
+
+            for rowLink in rows where rowLink.className == "ths nosel" {
+                guard let rowsCount = Int(
+                    rowLink.text?.replacingOccurrences(
+                        of: " rows", with: "") ?? ""
+                ) else { throw AppError.parseFailed }
+
+                if previewMode == "gdtl" {
+                    return .large(rows: rowsCount)
+                } else {
+                    return .normal(rows: rowsCount)
+                }
+            }
+            throw AppError.parseFailed
+        }
+
         func parseCoverURL(node: XMLElement?) throws -> String {
             guard let coverHTML = node?.at_xpath("//div [@id='gd1']")?.innerHTML,
             let rangeA = coverHTML.range(of: "url("),
             let rangeB = coverHTML.range(of: ")")
             else { throw AppError.parseFailed }
 
-            return String(
-                coverHTML
-                    .suffix(from: rangeA.upperBound)
-                    .prefix(upTo: rangeB.lowerBound)
-            )
+            return String(coverHTML[rangeA.upperBound..<rangeB.lowerBound])
         }
 
         func parseRating(node: XMLElement?) throws -> Float {
@@ -145,7 +161,7 @@ struct Parser {
 
                     var fixedText: String?
                     if let range = aText.range(of: "|") {
-                        fixedText = String(aText.prefix(upTo: range.lowerBound))
+                        fixedText = String(aText[..<range.lowerBound])
                     }
                     content.append(fixedText ?? aText)
                 }
@@ -174,13 +190,7 @@ struct Parser {
                    let rangeA = aText.range(of: "Torrent Download ("),
                    let rangeB = aText.range(of: ")")
                 {
-                    tmpTorrentCount = Int(
-                        String(
-                            aText
-                                .suffix(from: rangeA.upperBound)
-                                .prefix(upTo: rangeB.lowerBound)
-                        )
-                    )
+                    tmpTorrentCount = Int(aText[rangeA.upperBound..<rangeB.lowerBound])
                 }
                 if archiveURL == nil {
                     archiveURL = try? parseArchiveURL(node: g2Link)
@@ -191,21 +201,6 @@ struct Parser {
             else { throw AppError.parseFailed }
 
             return (archiveURL, torrentCount)
-        }
-
-        func parsePreviews(node: XMLElement?) throws -> [MangaPreview] {
-            guard let object = node?.xpath("//img")
-            else { throw AppError.parseFailed }
-
-            var previews = [MangaPreview]()
-            for link in object {
-                if previews.count >= 10 { break }
-                guard let url = link["src"] else { continue }
-
-                previews.append(MangaPreview(url: url))
-            }
-
-            return previews.filter { !$0.url.contains("blank.gif") }
         }
 
         func parseInfoPanel(node: XMLElement?) throws -> [String] {
@@ -259,8 +254,7 @@ struct Parser {
         var tmpMangaDetail: MangaDetail?
         var tmpMangaState: MangaState?
         for link in doc.xpath("//div [@class='gm']") {
-            guard let gdtNode = doc.at_xpath("//div [@id='gdt']"),
-                  let gd3Node = link.at_xpath("//div [@id='gd3']"),
+            guard let gd3Node = link.at_xpath("//div [@id='gd3']"),
                   let gd4Node = link.at_xpath("//div [@id='gd4']"),
                   let gd5Node = link.at_xpath("//div [@id='gd5']"),
                   let gddNode = gd3Node.at_xpath("//div [@id='gdd']"),
@@ -269,13 +263,16 @@ struct Parser {
                   let rating = try? parseRating(node: gdrNode),
                   let coverURL = try? parseCoverURL(node: link),
                   let tags = try? parseTags(node: gd4Node),
-                  let previews = try? parsePreviews(node: gdtNode),
+                  let previews = try? parsePreviews(doc: doc),
                   let arcAndTor = try? parseArcAndTor(node: gd5Node),
                   let infoPanel = try? parseInfoPanel(node: gddNode),
+                  let sizeCount = Float(infoPanel[2]),
+                  let pageCount = Int(infoPanel[4]),
+                  let likeCount = Int(infoPanel[5]),
                   let language = Language(rawValue: infoPanel[1]),
                   let engTitle = link.at_xpath("//h1 [@id='gn']")?.text,
                   let uploader = gd3Node.at_xpath("//div [@id='gdn']")?.text,
-                  let ratingCount = gdrNode.at_xpath("//span [@id='rating_count']")?.text,
+                  let ratingCount = Int(gdrNode.at_xpath("//span [@id='rating_count']")?.text ?? ""),
                   let category = Category(rawValue: gd3Node.at_xpath("//div [@id='gdc']")?.text ?? ""),
                   let publishedDate = try? parseDate(time: infoPanel[0], format: Defaults.DateFormat.publish)
             else { throw AppError.parseFailed }
@@ -287,13 +284,10 @@ struct Parser {
             let jpnTitle = gjText?.isEmpty != false ? nil : gjText
 
             tmpMangaDetail = MangaDetail(
-                isFavored: isFavored,
-                archiveURL: arcAndTor.0,
-                alterImagesURL: try? parseAlterImagesURL(doc: doc),
-                alterImages: [],
                 gid: gid,
                 title: engTitle,
                 jpnTitle: jpnTitle,
+                isFavored: isFavored,
                 rating: rating,
                 ratingCount: ratingCount,
                 category: category,
@@ -301,15 +295,17 @@ struct Parser {
                 uploader: uploader,
                 publishedDate: publishedDate,
                 coverURL: coverURL,
-                likeCount: infoPanel[5],
-                pageCount: infoPanel[4],
-                sizeCount: infoPanel[2],
+                archiveURL: arcAndTor.0,
+                likeCount: likeCount,
+                pageCount: pageCount,
+                sizeCount: sizeCount,
                 sizeType: infoPanel[3],
                 torrentCount: arcAndTor.1
             )
             tmpMangaState = MangaState(
                 gid: gid, tags: tags,
                 previews: previews,
+                previewConfig: try? parsePreviewConfig(doc: doc),
                 comments: parseComments(doc: doc)
             )
             break
@@ -320,6 +316,62 @@ struct Parser {
         else { throw AppError.parseFailed }
 
         return (mangaDetail, mangaState)
+    }
+
+    // MARK: Preview
+    static func parsePreviews(doc: HTMLDocument) throws -> [Int: String] {
+        func parseNormalPreviews(node: XMLElement) -> [Int: String] {
+            var previews = [Int: String]()
+
+            for link in node.xpath("//div") where link.className == nil {
+                guard let imgLink = link.at_xpath("//img"),
+                      let index = Int(imgLink["alt"] ?? ""),
+                      let linkStyle = link["style"],
+                      let rangeA = linkStyle.range(of: "width:"),
+                      let rangeB = linkStyle.range(of: "px; height:"),
+                      let rangeC = linkStyle.range(of: "px; background"),
+                      let rangeD = linkStyle.range(of: "url("),
+                      let rangeE = linkStyle.range(of: ") -")
+                else { continue }
+
+                let remainingText = linkStyle[rangeE.upperBound...]
+                guard let rangeF = remainingText.range(of: "px ")
+                else { continue }
+
+                let width = linkStyle[rangeA.upperBound..<rangeB.lowerBound]
+                let height = linkStyle[rangeB.upperBound..<rangeC.lowerBound]
+                let plainURL = linkStyle[rangeD.upperBound..<rangeE.lowerBound]
+                let offset = remainingText[rangeE.upperBound..<rangeF.lowerBound]
+
+                previews[index] = Defaults.URL.normalPreview(
+                    plainURL: plainURL, width: width,
+                    height: height, offset: offset
+                )
+            }
+
+            return previews
+        }
+        func parseLargePreviews(node: XMLElement) -> [Int: String] {
+            var previews = [Int: String]()
+
+            for link in node.xpath("//img") {
+                guard let index = Int(link["alt"] ?? ""),
+                      let url = link["src"], !url.contains("blank.gif")
+                else { continue }
+
+                previews[index] = url
+            }
+
+            return previews
+        }
+
+        guard let gdtNode = doc.at_xpath("//div [@id='gdt']"),
+              let previewMode = try? parsePreviewMode(doc: doc)
+        else { throw AppError.parseFailed }
+
+        return previewMode == "gdtl"
+            ? parseLargePreviews(node: gdtNode)
+            : parseNormalPreviews(node: gdtNode)
     }
 
     // MARK: Comment
@@ -339,14 +391,8 @@ struct Parser {
                 if let c5Node = c1Link.at_xpath("//div [@class='c5 nosel']") {
                     score = c5Node.at_xpath("//span")?.text
                 }
-                let author = String(
-                    c3Node.suffix(from: rangeB.upperBound)
-                )
-                let commentTime = String(
-                    c3Node
-                        .suffix(from: rangeA.upperBound)
-                        .prefix(upTo: rangeB.lowerBound)
-                )
+                let author = String(c3Node[..<rangeB.upperBound])
+                let commentTime = String(c3Node[rangeA.upperBound..<rangeB.lowerBound])
 
                 var votedUp = false
                 var votedDown = false
@@ -401,10 +447,11 @@ struct Parser {
     }
 
     // MARK: Content
-    static func parseImagePreContents(doc: HTMLDocument, previewMode: String, pageCount: Int) throws -> [(Int, URL)] {
+    static func parseImagePreContents(doc: HTMLDocument, pageCount: Int) throws -> [(Int, URL)] {
         var imageDetailURLs = [(Int, URL)]()
 
-        guard let gdtNode = doc.at_xpath("//div [@id='gdt']")
+        guard let gdtNode = doc.at_xpath("//div [@id='gdt']"),
+              let previewMode = try? parsePreviewMode(doc: doc)
         else { throw AppError.parseFailed }
 
         for (index, element) in gdtNode.xpath("//div [@class='\(previewMode)']").enumerated() {
@@ -558,11 +605,7 @@ struct Parser {
                        let aURL = URL(string: aHref),
                        let range = aURL.lastPathComponent.range(of: ".torrent")
                     {
-                        let hash = String(
-                            aURL.lastPathComponent.prefix(
-                                upTo: range.lowerBound
-                            )
-                        )
+                        let hash = String(aURL.lastPathComponent[..<range.lowerBound])
                         tmpMagnet = Defaults.URL.magnet(hash: hash)
                         tmpFileName = aText
                     }
@@ -645,7 +688,7 @@ extension Parser {
             var gainedTypes = [String]()
             for value in gainedValues {
                 guard let range = text.range(of: value) else { break }
-                let removeText = String(text.prefix(upTo: range.upperBound))
+                let removeText = String(text[..<range.upperBound])
 
                 if value != gainedValues.first {
                     if let text = trim(string: removeText) {
@@ -698,11 +741,7 @@ extension Parser {
                   let rangeB = script.range(of: "\";\nvar average_rating")
             else { continue }
 
-            tmpKey = String(
-                script
-                    .suffix(from: rangeA.upperBound)
-                    .prefix(upTo: rangeB.lowerBound)
-            )
+            tmpKey = String(script[rangeA.upperBound..<rangeB.lowerBound])
         }
 
         guard let apikey = tmpKey
@@ -760,7 +799,7 @@ extension Parser {
         else { return PageNumber() }
 
         if let range = currentStr.range(of: "-") {
-            current = (Int(String(currentStr.suffix(from: range.upperBound))) ?? 1) - 1
+            current = (Int(currentStr[range.upperBound...]) ?? 1) - 1
         } else {
             current = (Int(currentStr) ?? 1) - 1
         }
@@ -770,50 +809,6 @@ extension Parser {
             }
         }
         return PageNumber(current: current, maximum: maximum)
-    }
-
-    // MARK: AltPreview
-    static func parseAlterImagesURL(doc: HTMLDocument) throws -> String {
-        var alterURL: String?
-        for link in doc.xpath("//div [@class='gdtm']") {
-            guard let style = link.at_xpath("//div")?["style"],
-                  let rangeA = style.range(of: "https://"),
-                  let rangeB = style.range(of: ".jpg")
-            else { continue }
-
-            alterURL = String(
-                style.suffix(from: rangeA.lowerBound)
-                    .prefix(upTo: rangeB.upperBound)
-            )
-            break
-        }
-
-        guard let url = alterURL
-        else { throw AppError.parseFailed }
-
-        return url
-    }
-
-    static func parseAlterImages(data: Data) -> [MangaAlterData] {
-        guard let image = UIImage(data: data) else { return [] }
-
-        var alterImages = [MangaAlterData]()
-        let originW = image.size.width
-        let originH = image.size.height
-        let count = Int(originW / 100)
-
-        for index in 0..<count {
-            let rect = CGRect(
-                x: originW / Double(count) * Double(index),
-                y: 0.0, width: 100.0, height: originH
-            )
-
-            if let imgData = image.cropping(to: rect)?.pngData() {
-                alterImages.append(MangaAlterData(data: imgData))
-            }
-        }
-
-        return alterImages
     }
 
     // MARK: Balance
@@ -827,20 +822,12 @@ extension Parser {
                let rangeB = text.range(of: "[?]"),
                let rangeC = text.range(of: "Credits")
             {
-                tmpGP = String(
-                    text
-                        .prefix(upTo: rangeA.lowerBound)
-                )
-                .trimmingCharacters(in: .whitespaces)
-                .replacingOccurrences(of: ",", with: "")
-
-                tmpCredits = String(
-                    text
-                        .suffix(from: rangeB.upperBound)
-                        .prefix(upTo: rangeC.lowerBound)
-                )
-                .trimmingCharacters(in: .whitespaces)
-                .replacingOccurrences(of: ",", with: "")
+                tmpGP = String(text[..<rangeA.lowerBound])
+                    .trimmingCharacters(in: .whitespaces)
+                    .replacingOccurrences(of: ",", with: "")
+                tmpCredits = String(text[rangeB.upperBound..<rangeC.lowerBound])
+                    .trimmingCharacters(in: .whitespaces)
+                    .replacingOccurrences(of: ",", with: "")
             }
         }
 
@@ -870,25 +857,13 @@ extension Parser {
            let rangeC = respString.range(of: "client"),
            let rangeD = respString.range(of: "Downloads")
         {
-            let resp = String(
-                respString
-                    .suffix(from: rangeA.upperBound)
-                    .prefix(upTo: rangeB.lowerBound)
-            )
-            .capitalizingFirstLetter()
-            .trimmingCharacters(
-                in: .whitespacesAndNewlines
-            )
+            let resp = String(respString[rangeA.upperBound..<rangeB.lowerBound])
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+                .capitalizingFirstLetter()
 
             if ArchiveRes(rawValue: resp) != nil {
-                let clientName = String(
-                    respString
-                        .suffix(from: rangeC.upperBound)
-                        .prefix(upTo: rangeD.lowerBound)
-                )
-                .trimmingCharacters(
-                    in: .whitespacesAndNewlines
-                )
+                let clientName = String(respString[rangeC.upperBound..<rangeD.lowerBound])
+                    .trimmingCharacters(in: .whitespacesAndNewlines)
 
                 respString = resp.localized() + " -> " + clientName
             }
@@ -906,11 +881,7 @@ extension Parser {
            let rangeA = onClick.range(of: "popUp('"),
            let rangeB = onClick.range(of: "',")
         {
-            archiveURL = String(
-                onClick
-                    .suffix(from: rangeA.upperBound)
-                    .prefix(upTo: rangeB.lowerBound)
-            )
+            archiveURL = String(onClick[rangeA.upperBound..<rangeB.lowerBound])
         }
 
         if let url = archiveURL {
@@ -1014,17 +985,10 @@ extension Parser {
                   let range = rawContent.range(of: html)
             else { continue }
 
-            let text = String(
-                rawContent.prefix(
-                    upTo: range.lowerBound
-                )
-            )
-            if !text
-                .trimmingCharacters(
-                    in: .whitespacesAndNewlines
-                )
-                .isEmpty
-            {
+            let text = String(rawContent[..<range.lowerBound])
+            if !text.trimmingCharacters(
+                in: .whitespacesAndNewlines
+            ).isEmpty {
                 contents.append(
                     CommentContent(
                         type: .plainText,
@@ -1154,5 +1118,21 @@ extension Parser {
         }
 
         return contents
+    }
+
+    static func parsePreviewConfigs(string: String) -> (String, CGSize, CGFloat)? {
+        guard let rangeA = string.range(of: Defaults.PreviewIdentifier.width),
+              let rangeB = string.range(of: Defaults.PreviewIdentifier.height),
+              let rangeC = string.range(of: Defaults.PreviewIdentifier.offset)
+        else { return nil }
+
+        let plainURL = String(string[..<rangeA.lowerBound])
+        guard let width = Int(string[rangeA.upperBound..<rangeB.lowerBound]),
+              let height = Int(string[rangeB.upperBound..<rangeC.lowerBound]),
+              let offset = Int(string[rangeC.upperBound...])
+        else { return nil }
+
+        let size = CGSize(width: width, height: height)
+        return (plainURL, size, CGFloat(offset))
     }
 }

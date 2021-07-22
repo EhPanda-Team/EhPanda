@@ -8,8 +8,8 @@
 import SwiftUI
 import TTProgressHUD
 
-struct AccountSettingView: View {
-    @EnvironmentObject private var store: Store
+struct AccountSettingView: View, StoreAccessor {
+    @EnvironmentObject var store: Store
 
     @State private var hudVisible = false
     @State private var hudConfig = TTProgressHUDConfig()
@@ -24,34 +24,35 @@ struct AccountSettingView: View {
     var body: some View {
         ZStack {
             Form {
-                if let settingBinding = settingBinding {
-                    Section {
-                        Picker(
-                            selection: settingBinding.galleryHost,
-                            label: Text("Gallery"),
-                            content: {
-                                let galleryTypes: [GalleryHost] = [.ehentai, .exhentai]
-                                ForEach(galleryTypes, id: \.self) {
-                                    Text($0.rawValue.localized())
-                                }
-                            })
-                            .pickerStyle(.segmented)
-                        if !didLogin {
-                            Button("Login", action: toggleWebViewLogin).withArrow()
-                        } else {
-                            Button("Logout", action: toggleLogout).foregroundStyle(.red)
-                        }
-                        if didLogin {
-                            Group {
-                                Button("Account configuration", action: toggleWebViewConfig).withArrow()
-                                Button("Manage tags subscription", action: toggleWebViewMyTags).withArrow()
-                                Toggle(
-                                    "Show new dawn greeting",
-                                    isOn: settingBinding.showNewDawnGreeting
-                                )
+                Section {
+                    Picker(
+                        selection: settingBinding.galleryHost,
+                        label: Text("Gallery"),
+                        content: {
+                            let galleryTypes: [GalleryHost] = [.ehentai, .exhentai]
+                            ForEach(galleryTypes, id: \.self) {
+                                Text($0.rawValue.localized())
                             }
-                            .foregroundColor(.primary)
+                        })
+                        .pickerStyle(.segmented)
+                    if !didLogin {
+                        Button("Login", action: toggleWebViewLogin).withArrow()
+                            .disabled(setting.bypassSNIFiltering)
+                    } else {
+                        Button("Logout", action: toggleLogout).foregroundStyle(.red)
+                    }
+                    if didLogin {
+                        Group {
+                            Button("Account configuration", action: toggleWebViewConfig).withArrow()
+                                .disabled(setting.bypassSNIFiltering)
+                            Button("Manage tags subscription", action: toggleWebViewMyTags).withArrow()
+                                .disabled(setting.bypassSNIFiltering)
+                            Toggle(
+                                "Show new dawn greeting",
+                                isOn: settingBinding.showNewDawnGreeting
+                            )
                         }
+                        .foregroundColor(.primary)
                     }
                 }
                 Section(header: Text("E-Hentai")) {

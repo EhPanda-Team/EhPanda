@@ -338,28 +338,28 @@ private struct CommentCell: View {
                    let secondLink = secondLink
                 {
                     KFImage(URL(string: imgURL))
-                        .resizable()
+                        .defaultModifier()
                         .scaledToFit()
-                        .frame(width: screenW / 4)
+                        .frame(width: windowW / 4)
                         .onTapGesture {
                             linkAction(link.safeURL())
                         }
                     KFImage(URL(string: secondImgURL))
-                        .resizable()
+                        .defaultModifier()
                         .scaledToFit()
-                        .frame(width: screenW / 4)
+                        .frame(width: windowW / 4)
                         .onTapGesture {
                             linkAction(secondLink.safeURL())
                         }
                 } else {
                     KFImage(URL(string: imgURL))
-                        .resizable()
+                        .defaultModifier()
                         .scaledToFit()
-                        .frame(width: screenW / 4)
+                        .frame(width: windowW / 4)
                     KFImage(URL(string: secondImgURL))
-                        .resizable()
+                        .defaultModifier()
                         .scaledToFit()
-                        .frame(width: screenW / 4)
+                        .frame(width: windowW / 4)
                 }
             }
         }
@@ -367,17 +367,17 @@ private struct CommentCell: View {
         else if let imgURL = imgURL {
             if let link = link {
                 KFImage(URL(string: imgURL))
-                    .resizable()
+                    .defaultModifier()
                     .scaledToFit()
-                    .frame(width: screenW / 2)
+                    .frame(width: windowW / 2)
                     .onTapGesture {
                         linkAction(link.safeURL())
                     }
             } else {
                 KFImage(URL(string: imgURL))
-                    .resizable()
+                    .defaultModifier()
                     .scaledToFit()
-                    .frame(width: screenW / 2)
+                    .frame(width: windowW / 2)
             }
         }
     }

@@ -58,60 +58,44 @@ struct Manga: Identifiable, Codable, Equatable {
 
 struct MangaDetail: Codable {
     static let empty = MangaDetail(
-        isFavored: false,
-        alterImagesURL: nil,
-        alterImages: [],
         gid: "",
         title: "",
+        isFavored: false,
         rating: 0.0,
-        ratingCount: "",
+        ratingCount: 0,
         category: .nonH,
         language: .English,
         uploader: "",
-        publishedDate: Date(),
+        publishedDate: .now,
         coverURL: "",
-        likeCount: "",
-        pageCount: "",
-        sizeCount: "",
+        likeCount: 0,
+        pageCount: 0,
+        sizeCount: 0,
         sizeType: "",
         torrentCount: 0
     )
 
-    var isFavored: Bool
-    var archiveURL: String?
-    let alterImagesURL: String?
-    var alterImages: [MangaAlterData]
-
     let gid: String
     var title: String
     var jpnTitle: String?
+    var isFavored: Bool
     var rating: Float
-    var ratingCount: String
+    var ratingCount: Int
     let category: Category
     let language: Language
     let uploader: String
     let publishedDate: Date
     let coverURL: String
-    var likeCount: String
-    var pageCount: String
-    var sizeCount: String
+    var archiveURL: String?
+    var likeCount: Int
+    var pageCount: Int
+    var sizeCount: Float
     var sizeType: String
     var torrentCount: Int
 }
 
 struct MangaState: Codable {
-    static let empty = MangaState(
-        gid: "",
-        tags: [],
-        userRating: 0,
-        currentPageNum: 0,
-        pageNumMaximum: 1,
-        readingProgress: 0,
-        previews: [],
-        comments: [],
-        contents: [],
-        aspectBox: [:]
-    )
+    static let empty = MangaState(gid: "")
 
     let gid: String
     var tags = [MangaTag]()
@@ -119,7 +103,8 @@ struct MangaState: Codable {
     var currentPageNum = 0
     var pageNumMaximum = 1
     var readingProgress = 0
-    var previews = [MangaPreview]()
+    var previews = [Int: String]()
+    var previewConfig: PreviewConfig?
     var comments = [MangaComment]()
     var contents = [MangaContent]()
     var aspectBox = [Int: CGFloat]()
@@ -182,12 +167,6 @@ struct MangaPreview: Identifiable, Codable {
     var id = UUID().uuidString
 
     let url: String
-}
-
-struct MangaAlterData: Identifiable, Codable {
-    var id = UUID().uuidString
-
-    let data: Data
 }
 
 struct MangaContent: Identifiable, Codable, Equatable {
@@ -424,6 +403,22 @@ enum CommentContentType: Int, Codable {
     case linkedText
 
     case singleLink
+}
+
+enum PreviewConfig: Codable {
+    case normal(rows: Int)
+    case large(rows: Int)
+}
+
+extension PreviewConfig {
+    var batchSize: Int {
+        switch self {
+        case .normal(let rows):
+            return 10 * rows
+        case .large(let rows):
+            return 5 * rows
+        }
+    }
 }
 
 enum Language: String, Codable {

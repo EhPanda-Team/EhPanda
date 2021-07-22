@@ -122,13 +122,13 @@ extension PersistenceController {
             managedObject?.isFavored = detail.isFavored
             managedObject?.archiveURL = detail.archiveURL
             managedObject?.jpnTitle = detail.jpnTitle
-            managedObject?.likeCount = detail.likeCount
-            managedObject?.pageCount = detail.pageCount
+            managedObject?.likeCount = Int64(detail.likeCount)
+            managedObject?.pageCount = Int64(detail.pageCount)
             managedObject?.sizeCount = detail.sizeCount
             managedObject?.sizeType = detail.sizeType
             managedObject?.rating = detail.rating
-            managedObject?.ratingCount = detail.ratingCount
-            managedObject?.torrentCount = Int16(detail.torrentCount)
+            managedObject?.ratingCount = Int64(detail.ratingCount)
+            managedObject?.torrentCount = Int64(detail.torrentCount)
         }
         if storedMO == nil {
             detail.toManagedObject(in: shared.container.viewContext)
@@ -160,9 +160,21 @@ extension PersistenceController {
     }
     static func update(fetchedState: MangaState) {
         update(gid: fetchedState.gid) { mangaStateMO in
-            mangaStateMO.tags = fetchedState.tags.toData()
-            mangaStateMO.previews = fetchedState.previews.toData()
-            mangaStateMO.comments = fetchedState.comments.toData()
+            if !fetchedState.tags.isEmpty {
+                mangaStateMO.tags = fetchedState.tags.toData()
+            }
+            if !fetchedState.comments.isEmpty {
+                mangaStateMO.comments = fetchedState.comments.toData()
+            }
+            if !fetchedState.previews.isEmpty {
+                if let storedPreviews = mangaStateMO.previews?.toObject() as [Int: String]? {
+                    mangaStateMO.previews = storedPreviews.merging(
+                        fetchedState.previews, uniquingKeysWith: { stored, _ in stored }
+                    ).toData()
+                } else {
+                    mangaStateMO.previews = fetchedState.previews.toData()
+                }
+            }
         }
     }
     static func update(gid: String, aspectBox: [Int: CGFloat]) {
@@ -172,7 +184,7 @@ extension PersistenceController {
     }
     static func update(gid: String, readingProgress: Int) {
         update(gid: gid) { mangaStateMO in
-            mangaStateMO.readingProgress = Int16(readingProgress)
+            mangaStateMO.readingProgress = Int64(readingProgress)
         }
     }
     static func update(gid: String, userRating: Float) {
@@ -182,8 +194,8 @@ extension PersistenceController {
     }
     static func update(gid: String, pageNum: PageNumber, contents: [MangaContent]) {
         update(gid: gid) { mangaStateMO in
-            mangaStateMO.currentPageNum = Int16(pageNum.current)
-            mangaStateMO.pageNumMaximum = Int16(pageNum.maximum)
+            mangaStateMO.currentPageNum = Int64(pageNum.current)
+            mangaStateMO.pageNumMaximum = Int64(pageNum.maximum)
 
             let newContents = contents.sorted(by: { $0.tag < $1.tag })
             var storedContents = mangaStateMO.contents?

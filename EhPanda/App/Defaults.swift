@@ -31,8 +31,9 @@ struct Defaults {
         static let avatarH: CGFloat = 100
         static let headerW: CGFloat = headerH * headerScale
         static let headerH: CGFloat = 150
-        static let previewW: CGFloat = previewH * previewScale
-        static let previewH: CGFloat = 200
+        static let previewMinW: CGFloat = isPadWidth ? 180 : 100
+        static let previewMaxW: CGFloat = isPadWidth ? 220 : 120
+        static let previewAvgW: CGFloat = (previewMinW + previewMaxW) / 2
     }
     struct Cookie {
         static let null = "null"
@@ -51,6 +52,11 @@ struct Defaults {
     struct FilePath {
         static let logs = "logs"
         static let ehpandaLog = "EhPanda.log"
+    }
+    struct PreviewIdentifier {
+        static let width = "?ehpandaWidth="
+        static let height = "&ehpandaHeight="
+        static let offset = "&ehpandaOffset="
     }
     struct Response {
         static let hathClientNotFound = "You must have a H@H client assigned to your account to use this feature."
@@ -236,7 +242,7 @@ extension Defaults.URL {
     }
 
     // Misc
-    static func contentPage(url: String, pageNum: Int) -> String {
+    static func detailPage(url: String, pageNum: Int) -> String {
         merge(urls: [url, contentPage + "\(pageNum)"])
     }
     static func magnet(hash: String) -> String {
@@ -253,6 +259,15 @@ extension Defaults.URL {
     }
     static func ehMyTags() -> String {
         host + mytags
+    }
+    static func normalPreview(
+        plainURL: Substring, width: Substring,
+        height: Substring, offset: Substring
+    ) -> String {
+        plainURL
+            + Defaults.PreviewIdentifier.width + width
+            + Defaults.PreviewIdentifier.height + height
+            + Defaults.PreviewIdentifier.offset + offset
     }
 }
 

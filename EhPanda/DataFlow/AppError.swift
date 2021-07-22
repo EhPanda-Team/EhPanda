@@ -12,7 +12,6 @@ enum AppError: Error, Identifiable {
 
     case networkingFailed
     case parseFailed
-    case fileError
     case unknown
 }
 
@@ -23,8 +22,6 @@ extension AppError: LocalizedError {
             return "Network Error"
         case .parseFailed:
             return "Parse Error"
-        case .fileError:
-            return "File Error"
         case .unknown:
             return "Unknown Error"
         }

@@ -12,15 +12,15 @@ public class MangaDetailMO: NSManagedObject {}
 extension MangaDetailMO: ManagedObjectProtocol {
     func toEntity() -> MangaDetail {
         MangaDetail(
-            isFavored: isFavored, archiveURL: archiveURL,
-            alterImagesURL: nil, alterImages: [],
-            gid: gid, title: title, rating: rating, ratingCount: ratingCount,
-            category: Category(rawValue: category)!,
-            language: Language(rawValue: language)!,
+            gid: gid, title: title, isFavored: isFavored,
+            rating: rating, ratingCount: Int(ratingCount),
+            category: Category(rawValue: category).forceUnwrapped,
+            language: Language(rawValue: language).forceUnwrapped,
             uploader: uploader, publishedDate: publishedDate,
-            coverURL: coverURL, likeCount: likeCount,
-            pageCount: pageCount, sizeCount: sizeCount,
-            sizeType: sizeType, torrentCount: Int(torrentCount)
+            coverURL: coverURL, archiveURL: archiveURL,
+            likeCount: Int(likeCount), pageCount: Int(pageCount),
+            sizeCount: sizeCount, sizeType: sizeType,
+            torrentCount: Int(torrentCount)
         )
     }
 }
@@ -36,15 +36,15 @@ extension MangaDetail: ManagedObjectConvertible {
         mangaDetailMO.isFavored = isFavored
         mangaDetailMO.jpnTitle = jpnTitle
         mangaDetailMO.language = language.rawValue
-        mangaDetailMO.likeCount = likeCount
-        mangaDetailMO.pageCount = pageCount
+        mangaDetailMO.likeCount = Int64(likeCount)
+        mangaDetailMO.pageCount = Int64(pageCount)
         mangaDetailMO.publishedDate = publishedDate
         mangaDetailMO.rating = rating
-        mangaDetailMO.ratingCount = ratingCount
+        mangaDetailMO.ratingCount = Int64(ratingCount)
         mangaDetailMO.sizeCount = sizeCount
         mangaDetailMO.sizeType = sizeType
         mangaDetailMO.title = title
-        mangaDetailMO.torrentCount = Int16(torrentCount)
+        mangaDetailMO.torrentCount = Int64(torrentCount)
         mangaDetailMO.uploader = uploader
 
         return mangaDetailMO

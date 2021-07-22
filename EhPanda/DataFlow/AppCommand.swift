@@ -376,22 +376,27 @@ struct FetchMoreAssociatedItemsCommand: AppCommand {
     }
 }
 
-struct FetchAlterImagesCommand: AppCommand {
+struct FetchMangaPreviewsCommand: AppCommand {
     let gid: String
-    let alterImagesURL: String
+    let url: String
+    let pageNumber: Int
 
     func execute(in store: Store) {
         let token = SubscriptionToken()
-        AlterImagesRequest(alterImagesURL: alterImagesURL)
+        MangaPreviewsRequest(url: url)
             .publisher
             .receive(on: DispatchQueue.main)
             .sink { completion in
                 if case .failure(let error) = completion {
-                    store.dispatch(.fetchAlterImagesDone(result: .failure(error)))
+                    store.dispatch(.fetchMangaPreviewsDone(
+                        gid: gid, pageNumber: pageNumber, result: .failure(error)
+                    ))
                 }
                 token.unseal()
-            } receiveValue: { images in
-                store.dispatch(.fetchAlterImagesDone(result: .success((gid, images))))
+            } receiveValue: { previews in
+                store.dispatch(.fetchMangaPreviewsDone(
+                    gid: gid, pageNumber: pageNumber, result: .success(previews)
+                ))
             }
             .seal(in: token)
     }
@@ -405,7 +410,7 @@ struct FetchMangaContentsCommand: AppCommand {
         let token = SubscriptionToken()
             MangaContentsRequest(
                 detailURL: Defaults.URL
-                    .contentPage(
+                    .detailPage(
                         url: detailURL,
                         pageNum: 0
                     ),
@@ -440,7 +445,7 @@ struct FetchMoreMangaContentsCommand: AppCommand {
         let token = SubscriptionToken()
             MangaContentsRequest(
                 detailURL: Defaults.URL
-                    .contentPage(
+                    .detailPage(
                         url: detailURL,
                         pageNum: pageNum
                     ),

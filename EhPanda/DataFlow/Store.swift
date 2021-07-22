@@ -492,6 +492,9 @@ final class Store: ObservableObject {
                 if let apikey = detail.2 {
                     appState.settings.user.apikey = apikey
                 }
+                if let previewConfig = detail.1.previewConfig {
+                    appState.detailInfo.previewConfig = previewConfig
+                }
                 PersistenceController.add(detail: detail.0)
                 PersistenceController.update(fetchedState: detail.1)
             case .failure:
@@ -593,19 +596,24 @@ final class Store: ObservableObject {
                 appState.detailInfo.moreAssociatedItemsLoadFailed = true
             }
 
-        case .fetchAlterImages(let gid):
-            if appState.detailInfo.alterImagesLoading { break }
-            appState.detailInfo.alterImagesLoading = true
-            // debugMark
-//            let alterImagesURL = PersistenceController.fetchManga(gid: gid)?.detail?.alterImagesURL ?? ""
-//            appCommand = FetchAlterImagesCommand(gid: gid, alterImagesURL: alterImagesURL)
+        case .fetchMangaPreviews(let gid, let index):
+            let pageNumber = index / appState.detailInfo.previewConfig.batchSize
+            if appState.detailInfo.previewsLoading[gid]?[pageNumber] == true { break }
+            appState.detailInfo.previewsLoading[gid]?[pageNumber] = true
 
-        case .fetchAlterImagesDone(let result):
-            appState.detailInfo.alterImagesLoading = false
+            let detailURL = PersistenceController.fetchManga(gid: gid)?.detailURL ?? ""
+            let url = Defaults.URL.detailPage(url: detailURL, pageNum: pageNumber)
+            appCommand = FetchMangaPreviewsCommand(gid: gid, url: url, pageNumber: pageNumber)
 
-//            if case .success(let images) = result {
-//                appState.cachedList.insertAlterImages(gid: images.0, images: images.1)
-//            }
+        case .fetchMangaPreviewsDone(let gid, let pageNumber, let result):
+            appState.detailInfo.previewsLoading[gid]?[pageNumber] = false
+
+            switch result {
+            case .success(let previews):
+                PersistenceController.update(fetchedState: MangaState(gid: gid, previews: previews))
+            case .failure(let error):
+                SwiftyBeaver.error(error)
+            }
 
         case .fetchMangaContents(let gid):
             appState.contentInfo.mangaContentsLoadFailed = false
@@ -654,7 +662,7 @@ final class Store: ObservableObject {
                 pageCount: pageCount
             )
 
-            if pageCount >= Int(detail.pageCount) ?? 0 {
+            if pageCount >= detail.pageCount {
                 SwiftyBeaver.error(
                     "MangaContents overflow",
                     context: [

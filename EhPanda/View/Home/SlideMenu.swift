@@ -110,10 +110,6 @@ private struct AvatarView: View {
     private let width: CGFloat
     private let height: CGFloat
 
-    private func placeholder() -> some View {
-        Placeholder(style: .activity(width: width, height: height))
-    }
-
     init(
         iconName: String,
         avatarURL: String?,
@@ -128,18 +124,29 @@ private struct AvatarView: View {
         self.height = height
     }
 
+    private func getPlaceholder() -> some View {
+        Image(iconName).resizable()
+    }
+
     var body: some View {
         HStack {
             VStack(alignment: .leading) {
-                KFImage(URL(string: avatarURL ?? ""))
-                    .placeholder {
-                        Image(iconName)
-                            .resizable()
+                Group {
+                    if avatarURL?.contains(".gif") != true {
+                        KFImage(URL(string: avatarURL ?? ""))
+                            .placeholder(getPlaceholder)
+                            .defaultModifier(
+                                withRoundedCorners: false
+                            )
+                    } else {
+                        KFAnimatedImage(URL(string: avatarURL ?? ""))
+                            .placeholder(getPlaceholder)
+                            .fade(duration: 0.25)
                     }
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: width, height: height)
-                    .clipShape(Circle())
+                }
+                .scaledToFill()
+                .frame(width: width, height: height)
+                .clipShape(Circle())
                 Text(displayName ?? "Sad Panda")
                     .fontWeight(.bold)
                     .font(.largeTitle)

@@ -2,6 +2,15 @@
   "object": {
     "pins": [
       {
+        "package": "DeprecatedAPI",
+        "repositoryURL": "https://github.com/tatsuz0u/DeprecatedAPI.git",
+        "state": {
+          "branch": "main",
+          "revision": "021e29675457a9b4b7859a46afbb5d0e37574e84",
+          "version": null
+        }
+      },
+      {
         "package": "Kanna",
         "repositoryURL": "https://github.com/tid-kijyun/Kanna.git",
         "state": {
@@ -12,10 +21,10 @@
       },
       {
         "package": "Kingfisher",
-        "repositoryURL": "https://github.com/onevcat/Kingfisher.git",
+        "repositoryURL": "https://github.com/tatsuz0u/Kingfisher.git",
         "state": {
-          "branch": "fix/xcode-13",
-          "revision": "f012224344f09421588a28e9f6259968e3574f8b",
+          "branch": "masterFix/xcode-13",
+          "revision": "f82ec14c2843f980596554e23d1b61003d2219d5",
           "version": null
         }
       },

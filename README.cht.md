@@ -22,9 +22,9 @@
 ## 系統需求
 須使用 iOS / iPadOS 14.0 或以上版本。
 
-iOS / iPadOS 14: [v1.02](https://github.com/tatsuz0u/EhPanda/releases/tag/v1.0.2_b50)
+iOS / iPadOS 14: [v1.0.2](https://github.com/tatsuz0u/EhPanda/releases/tag/v1.0.2_b50)
 
-iOS / iPadOS 15: [v1.03](https://github.com/tatsuz0u/EhPanda/releases/latest)
+iOS / iPadOS 15: [v1.0.3](https://github.com/tatsuz0u/EhPanda/releases/latest)
 
 ## 內容及其著作權
 本應用程式內的內容均來自E-Hentai，而E-Hentai的內容均為用戶生成內容。

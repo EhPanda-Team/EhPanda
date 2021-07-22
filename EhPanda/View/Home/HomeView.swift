@@ -381,7 +381,7 @@ private extension HomeView {
         if environment.homeViewSheetState != nil {
             store.dispatch(.toggleHomeViewSheet(state: nil))
         }
-        if environment.isSlideMenuClosed {
+        if !environment.isSlideMenuClosed {
             postSlideMenuShouldCloseNotification()
         }
     }
@@ -527,7 +527,7 @@ private struct GenericList: View {
                         onRowAppear(item: item)
                     }
                 }
-                .transition(animatedTransition)
+                .transition(opacityTransition)
                 if moreLoadingFlag || moreLoadFailedFlag {
                     LoadMoreFooter(
                         moreLoadingFlag: moreLoadingFlag,
@@ -536,7 +536,7 @@ private struct GenericList: View {
                     )
                 }
             }
-            .transition(animatedTransition)
+            .transition(opacityTransition)
             .refreshable(action: onUpdate)
         }
     }

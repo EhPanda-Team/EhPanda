@@ -135,10 +135,8 @@ private extension Home {
     func toggleDomainFronting() {
         if setting.bypassSNIFiltering {
             URLProtocol.registerClass(DFURLProtocol.self)
-            URLProtocol.registerWebview(scheme: "https")
         } else {
             URLProtocol.unregisterClass(DFURLProtocol.self)
-            URLProtocol.unregisterWebview(scheme: "https")
         }
     }
 

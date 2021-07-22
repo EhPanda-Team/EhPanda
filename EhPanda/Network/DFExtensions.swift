@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftyBeaver
+import DeprecatedAPI
 
 // MARK: Global
 private func forceDowncast<T>(object: Any) -> T {
@@ -45,35 +46,6 @@ extension URLSessionConfiguration {
         let config = URLSessionConfiguration.default
         config.protocolClasses = [DFURLProtocol.self]
         return config
-    }
-}
-
-// MARK: URLProtocol
-extension URLProtocol {
-    static func contextControllerClass() -> AnyClass {
-        NSClassFromString("WKBrowsingContextController").forceUnwrapped
-    }
-    static func registerSchemeSelector() -> Selector {
-        NSSelectorFromString("registerSchemeForCustomProtocol:")
-    }
-    static func unregisterSchemeSelector() -> Selector {
-        NSSelectorFromString("unregisterSchemeForCustomProtocol:")
-    }
-    static func registerWebview(scheme: String){
-        let controllerClass: AnyClass = contextControllerClass()
-        let selector = registerSchemeSelector()
-        if controllerClass.responds(to: selector) {
-            _ = (controllerClass as AnyObject)
-                .perform(selector, with: scheme)
-        }
-    }
-    static func unregisterWebview(scheme: String){
-        let controllerClass: AnyClass = contextControllerClass()
-        let selector = unregisterSchemeSelector()
-        if controllerClass.responds(to: selector) {
-            _ = (controllerClass as AnyObject)
-                .perform(selector, with: scheme)
-        }
     }
 }
 
@@ -254,7 +226,7 @@ extension InputStream {
             CFHTTPMessageSetBody(message, body)
         }
 
-        guard let stream = CFReadStreamCreateForHTTPRequest(
+        guard let stream = DeprecatedAPI.getCFReadStream(
             kCFAllocatorDefault, message
         )
         .autorelease()

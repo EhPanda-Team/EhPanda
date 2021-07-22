@@ -12,7 +12,7 @@ import Kingfisher
 struct ContentView: View, StoreAccessor, PersistenceAccessor {
     @EnvironmentObject var store: Store
 
-    @State private var position: CGFloat = 0
+    @State private var position: CGRect = .zero
     @State private var aspectBox = [Int: CGFloat]()
 
     @State private var scale: CGFloat = 1
@@ -49,14 +49,7 @@ struct ContentView: View, StoreAccessor, PersistenceAccessor {
             {
                 ScrollViewReader { scrollProxy in
                     ScrollView {
-                        GeometryReader { geoProxy in
-                            Text("I'm invisible~")
-                                .onChange(
-                                    of: geoProxy.frame(in: .global).minY,
-                                    perform: updateGeoProxyMinY
-                                )
-                        }
-                        .frame(width: 0, height: 0)
+                        MeasureTool(bindingFrame: $position)
                         LazyVStack(spacing: setting.contentDividerHeight) {
                             ForEach(contents) { item in
                                 ZStack {
@@ -85,7 +78,7 @@ struct ContentView: View, StoreAccessor, PersistenceAccessor {
                             onLazyVStackAppear(proxy: scrollProxy)
                         }
                     }
-                    .transition(animatedTransition)
+                    .transition(opacityTransition)
                     .ignoresSafeArea()
                     .scaleEffect(scale)
                     .offset(offset)
@@ -220,7 +213,7 @@ private extension ContentView {
             heightArray[key] = value * windowW
         }
 
-        var remainingPosition = position + windowH / 2
+        var remainingPosition = abs(position.minY) + windowH / 2
         for (index, value) in heightArray.enumerated() {
             remainingPosition -= value
             if remainingPosition < 0 {
@@ -228,9 +221,6 @@ private extension ContentView {
             }
         }
         return -1
-    }
-    func updateGeoProxyMinY(value: CGFloat) {
-        position = abs(value)
     }
 
     func saveReadingProgress() {
@@ -330,15 +320,9 @@ private extension ContentView {
 
 // MARK: ImageContainer
 private struct ImageContainer: View {
-    @State private var percentage: Float = 0
-
     private var content: MangaContent
     private var retryLimit: Int
     private var onSuccessAction: ((Int, CGFloat)) -> Void
-
-    private var contentHScale: CGFloat {
-        Defaults.ImageSize.contentHScale
-    }
 
     init(
         content: MangaContent,
@@ -350,33 +334,47 @@ private struct ImageContainer: View {
         self.onSuccessAction = onSuccessAction
     }
 
-    var body: some View {
-        KFImage(URL(string: content.url))
-            .placeholder {
-                Placeholder(
-                    style: .progress(
-                        pageNumber: content.tag,
-                        percentage: percentage
-                    )
-                )
-                .frame(
-                    width: absWindowW,
-                    height: windowH * contentHScale
-                )
-            }
-            .retry(
-                maxCount: retryLimit,
-                interval: .seconds(0.5)
+    private func getPlaceholder(_ progress: Progress) -> some View {
+        Placeholder(
+            style: .progress(
+                pageNumber: content.tag,
+                progress: progress
             )
-            .onProgress(onWebImageProgress)
-            .onSuccess(onWebImageSuccess)
-            .resizable()
-            .scaledToFit()
+        )
+        .frame(
+            width: absWindowW,
+            height: windowH * Defaults
+                .ImageSize.contentHScale
+        )
     }
 
-    private func onWebImageProgress<I: BinaryInteger>(received: I, total: I) {
-        percentage = Float(received) / Float(total)
+    var body: some View {
+        Group {
+            if !content.url.contains(".gif") {
+                KFImage(URL(string: content.url))
+                    .defaultModifier(
+                        withRoundedCorners: false
+                    )
+                    .retry(
+                        maxCount: retryLimit,
+                        interval: .seconds(0.5)
+                    )
+                    .placeholder(getPlaceholder)
+                    .onSuccess(onWebImageSuccess)
+            } else {
+                KFAnimatedImage(URL(string: content.url))
+                    .retry(
+                        maxCount: retryLimit,
+                        interval: .seconds(0.5)
+                    )
+                    .onSuccess(onWebImageSuccess)
+                    .placeholder(getPlaceholder)
+                    .fade(duration: 0.25)
+            }
+        }
+        .scaledToFit()
     }
+
     private func onWebImageSuccess(result: RetrieveImageResult) {
         let size = result.image.size
         let aspect = size.height / size.width
