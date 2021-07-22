@@ -31,9 +31,9 @@ struct Defaults {
         static let avatarH: CGFloat = 100
         static let headerW: CGFloat = headerH * headerScale
         static let headerH: CGFloat = 150
-        static let previewMinW: CGFloat = 100
-        static let previewMaxW: CGFloat = 120
-//        static let previewH: CGFloat = previewW / previewScale
+        static let previewMinW: CGFloat = isPadWidth ? 180 : 100
+        static let previewMaxW: CGFloat = isPadWidth ? 220 : 120
+        static let previewAvgW: CGFloat = (previewMinW + previewMaxW) / 2
     }
     struct Cookie {
         static let null = "null"
@@ -268,24 +268,6 @@ extension Defaults.URL {
             + Defaults.PreviewIdentifier.width + width
             + Defaults.PreviewIdentifier.height + height
             + Defaults.PreviewIdentifier.offset + offset
-    }
-}
-
-extension String {
-    var normalPreviewConfigs: (String, CGSize, CGFloat)? {
-        guard let rangeA = range(of: Defaults.PreviewIdentifier.width),
-              let rangeB = range(of: Defaults.PreviewIdentifier.height),
-              let rangeC = range(of: Defaults.PreviewIdentifier.offset)
-        else { return nil }
-
-        let plainURL = String(self[..<rangeA.lowerBound])
-        guard let width = Int(self[rangeA.upperBound..<rangeB.lowerBound]),
-              let height = Int(self[rangeB.upperBound..<rangeC.lowerBound]),
-              let offset = Int(self[rangeC.upperBound...])
-        else { return nil }
-
-        let size = CGSize(width: width, height: height)
-        return (plainURL, size, CGFloat(offset))
     }
 }
 

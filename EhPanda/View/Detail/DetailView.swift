@@ -639,15 +639,75 @@ private struct PreviewView: View {
     private let pageCount: Int
     private let fetchAction: (Int) -> Void
 
-    private var gridItems: [GridItem] {
-        [GridItem(
-            .adaptive(
-                minimum: Defaults.ImageSize.previewMinW,
-                maximum: Defaults.ImageSize.previewMaxW
-            ),
-            spacing: 10
-        )]
+    init(
+        previews: [Int: String],
+        pageCount: Int,
+        fetchAction: @escaping (Int) -> Void
+    ) {
+        self.previews = previews
+        self.pageCount = pageCount
+        self.fetchAction = fetchAction
     }
+
+    private var width: CGFloat {
+        Defaults.ImageSize.previewAvgW
+    }
+    private var height: CGFloat {
+        width / Defaults.ImageSize.previewScale
+    }
+
+    var body: some View {
+        VStack {
+            HStack {
+                Text("Preview")
+                    .fontWeight(.bold)
+                    .font(.title3)
+                Spacer()
+                NavigationLink(
+                    destination: MorePreviewView(
+                        previews: previews,
+                        pageCount: pageCount,
+                        fetchAction: fetchAction
+                    )
+                ) {
+                    Text("Show All")
+                        .font(.subheadline)
+                }
+                .opacity(pageCount > 20 ? 1 : 0)
+            }
+            ScrollView(.horizontal, showsIndicators: false) {
+                LazyHStack {
+                    ForEach(1..<min(pageCount, 20)) { index in
+                        let (url, modifier) = getPreviewConfigs(
+                            previews: previews, index: index
+                        )
+                        KFImage(URL(string: url))
+                            .placeholder {
+                                Placeholder(style: .activity(
+                                    ratio: Defaults.ImageSize
+                                        .previewScale
+                                ))
+                            }
+                            .imageModifier(modifier)
+                            .fade(duration: 0.25)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(
+                                width: width,
+                                height: height
+                            )
+                    }
+                }
+            }
+        }
+    }
+}
+
+// MARK: MorePreviewView
+private struct MorePreviewView: View {
+    private let previews: [Int: String]
+    private let pageCount: Int
+    private let fetchAction: (Int) -> Void
 
     init(
         previews: [Int: String],
@@ -659,64 +719,72 @@ private struct PreviewView: View {
         self.fetchAction = fetchAction
     }
 
+    private var gridItems: [GridItem] {
+        [GridItem(
+            .adaptive(
+                minimum: Defaults.ImageSize.previewMinW,
+                maximum: Defaults.ImageSize.previewMaxW
+            ),
+            spacing: 10
+        )]
+    }
+
     var body: some View {
-        VStack {
-            HStack {
-                Text("Preview")
-                    .fontWeight(.bold)
-                    .font(.title3)
-                Spacer()
-            }
-            ScrollView(showsIndicators: false) {
-                LazyVGrid(columns: gridItems) {
-                    ForEach(1..<pageCount + 1) { index in
-                        VStack {
-                            let (url, modifier) = getConfigs(index: index)
-                            KFImage(URL(string: url))
-                                .placeholder {
-                                    Placeholder(style: .activity(
-                                        ratio: Defaults.ImageSize
-                                            .previewScale
-                                    ))
-                                }
-                                .imageModifier(modifier)
-                                .fade(duration: 0.25)
-                                .resizable()
-                                .scaledToFit()
-                            Text("\(index)")
-                                .font(.caption2)
-                                .foregroundColor(.secondary)
-                        }
-                        .onAppear {
-                            if previews[index] == nil
-                                && (index - 1) % 20 == 0
-                            {
-                                fetchAction(index)
+        ScrollView {
+            LazyVGrid(columns: gridItems) {
+                ForEach(1..<pageCount + 1) { index in
+                    VStack {
+                        let (url, modifier) = getPreviewConfigs(
+                            previews: previews, index: index
+                        )
+                        KFImage(URL(string: url))
+                            .placeholder {
+                                Placeholder(style: .activity(
+                                    ratio: Defaults.ImageSize
+                                        .previewScale
+                                ))
                             }
-                        }
+                            .imageModifier(modifier)
+                            .fade(duration: 0.25)
+                            .resizable()
+                            .scaledToFit()
+                        Text("\(index)")
+                            .font(isPadWidth ? .callout : .caption)
+                            .foregroundColor(.secondary)
+                    }
+                    .onAppear {
+                        onImageAppear(index: index)
                     }
                 }
             }
+            .padding(.horizontal)
+            .padding(.bottom)
         }
-        .frame(
-            minHeight: 200,
-            maxHeight: windowH * 0.75
-        )
     }
 
-    private func getConfigs(index: Int) -> (String, ImageModifier) {
-        let originalURL = previews[index] ?? ""
-        let configs = originalURL.normalPreviewConfigs
-        let containsConfigs = configs != nil
-
-        let plainURL = configs?.0 ?? ""
-        let loadURL = containsConfigs
-            ? plainURL : originalURL
-        let modifier = RoundedOffsetModifier(
-            size: configs?.1, offset: configs?.2
-        )
-        return (loadURL, modifier)
+    private func onImageAppear(index: Int) {
+        if previews[index] == nil && (index - 1) % 20 == 0 {
+            fetchAction(index)
+        }
     }
+}
+
+private func getPreviewConfigs(
+    previews: [Int: String], index: Int
+) -> (String, ImageModifier) {
+    let originalURL = previews[index] ?? ""
+    let configs = Parser.parsePreviewConfigs(
+        string: originalURL
+    )
+    let containsConfigs = configs != nil
+
+    let plainURL = configs?.0 ?? ""
+    let loadURL = containsConfigs
+        ? plainURL : originalURL
+    let modifier = RoundedOffsetModifier(
+        size: configs?.1, offset: configs?.2
+    )
+    return (loadURL, modifier)
 }
 
 // MARK: CommentScrollView

@@ -6,6 +6,7 @@
 //
 
 import Kanna
+import UIKit
 import Foundation
 
 struct Parser {
@@ -1117,5 +1118,21 @@ extension Parser {
         }
 
         return contents
+    }
+
+    static func parsePreviewConfigs(string: String) -> (String, CGSize, CGFloat)? {
+        guard let rangeA = string.range(of: Defaults.PreviewIdentifier.width),
+              let rangeB = string.range(of: Defaults.PreviewIdentifier.height),
+              let rangeC = string.range(of: Defaults.PreviewIdentifier.offset)
+        else { return nil }
+
+        let plainURL = String(string[..<rangeA.lowerBound])
+        guard let width = Int(string[rangeA.upperBound..<rangeB.lowerBound]),
+              let height = Int(string[rangeB.upperBound..<rangeC.lowerBound]),
+              let offset = Int(string[rangeC.upperBound...])
+        else { return nil }
+
+        let size = CGSize(width: width, height: height)
+        return (plainURL, size, CGFloat(offset))
     }
 }

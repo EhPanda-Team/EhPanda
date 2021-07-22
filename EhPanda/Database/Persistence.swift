@@ -13,6 +13,13 @@ struct PersistenceController {
 
     let container: NSPersistentCloudKitContainer = {
         let container = NSPersistentCloudKitContainer(name: "Model")
+
+        // Lightweight Migration
+        let description = NSPersistentStoreDescription()
+        description.shouldMigrateStoreAutomatically = true
+        description.shouldInferMappingModelAutomatically = true
+        container.persistentStoreDescriptions = [description]
+
         container.loadPersistentStores {
             if let error = $1 {
                 SwiftyBeaver.error(error as Any)
