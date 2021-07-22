@@ -16,11 +16,13 @@ struct Placeholder: View {
 
     var body: some View {
         switch style {
-        case .activity:
+        case .activity(let ratio, let cornerRadius):
             ZStack {
                 Color(.systemGray5)
                 ProgressView()
             }
+            .aspectRatio(ratio, contentMode: .fill)
+            .cornerRadius(cornerRadius)
         case .progress(let pageNumber, let percentage):
             GeometryReader { proxy in
                 ZStack {
@@ -42,6 +44,6 @@ struct Placeholder: View {
 }
 
 enum PlaceholderStyle {
-    case activity
+    case activity(ratio: CGFloat, cornerRadius: CGFloat = 5)
     case progress(pageNumber: Int, percentage: Float)
 }

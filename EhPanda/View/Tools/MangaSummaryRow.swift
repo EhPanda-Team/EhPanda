@@ -25,7 +25,12 @@ struct MangaSummaryRow: View {
     var body: some View {
         HStack(spacing: 10) {
             KFImage(URL(string: manga.coverURL))
-                .placeholder(placeholder)
+                .placeholder {
+                    Placeholder(style: .activity(
+                        ratio: Defaults.ImageSize
+                            .rowScale
+                    ))
+                }
                 .defaultModifier()
                 .cornerRadius(5)
                 .scaledToFit()
@@ -117,14 +122,5 @@ private extension MangaSummaryRow {
         colorScheme == .light
             ? Color(.systemGray5)
             : Color(.systemGray4)
-    }
-    func placeholder() -> some View {
-        Placeholder(style: .activity)
-            .aspectRatio(
-                Defaults.ImageSize
-                    .rowScale,
-                contentMode: .fill
-            )
-            .cornerRadius(5)
     }
 }

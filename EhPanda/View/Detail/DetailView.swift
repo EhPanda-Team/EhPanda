@@ -257,7 +257,12 @@ private struct HeaderView: View {
     var body: some View {
         HStack {
             KFImage(URL(string: manga.coverURL))
-                .placeholder(placeholder)
+                .placeholder {
+                    Placeholder(style: .activity(
+                        ratio: Defaults.ImageSize
+                            .headerScale
+                    ))
+                }
                 .defaultModifier()
                 .cornerRadius(5)
                 .scaledToFit()
@@ -349,15 +354,6 @@ private extension HeaderView {
         } else {
             return manga.category.rawValue
         }
-    }
-    func placeholder() -> some View {
-        Placeholder(style: .activity)
-            .aspectRatio(
-                Defaults.ImageSize
-                    .headerScale,
-                contentMode: .fill
-            )
-            .cornerRadius(5)
     }
 }
 
@@ -654,16 +650,6 @@ private struct PreviewView: View {
         )]
     }
 
-    private func placeholder() -> some View {
-        Placeholder(style: .activity)
-            .aspectRatio(
-                Defaults.ImageSize
-                    .previewScale,
-                contentMode: .fill
-            )
-            .cornerRadius(5)
-    }
-
     init(
         previews: [Int: String],
         pageCount: Int,
@@ -687,7 +673,12 @@ private struct PreviewView: View {
                     ForEach(1..<pageCount + 1) { index in
                         VStack {
                             KFImage(URL(string: previews[index] ?? ""))
-                                .placeholder(placeholder)
+                                .placeholder {
+                                    Placeholder(style: .activity(
+                                        ratio: Defaults.ImageSize
+                                            .previewScale
+                                    ))
+                                }
                                 .defaultModifier()
                                 .cornerRadius(5)
                                 .scaledToFit()
