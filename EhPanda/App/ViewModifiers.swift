@@ -31,7 +31,7 @@ extension KFImage {
     func defaultModifier(withRoundedCorners: Bool = true) -> KFImage {
         self
             .imageModifier(CornersModifier(
-                radius: withRoundedCorners ? 5 : 0
+                radius: withRoundedCorners ? 5 : nil
             ))
             .fade(duration: 0.25)
             .resizable()

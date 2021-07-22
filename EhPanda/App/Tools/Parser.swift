@@ -331,7 +331,35 @@ struct Parser {
     // MARK: Preview
     static func parsePreviews(doc: HTMLDocument) throws -> [Int: String] {
         func parseNormalPreviews(node: XMLElement) -> [Int: String] {
-            [:]
+            var previews = [Int: String]()
+
+            for link in node.xpath("//div") where link.className == nil {
+                guard let imgLink = link.at_xpath("//img"),
+                      let index = Int(imgLink["alt"] ?? ""),
+                      let linkStyle = link["style"],
+                      let rangeA = linkStyle.range(of: "width:"),
+                      let rangeB = linkStyle.range(of: "px; height:"),
+                      let rangeC = linkStyle.range(of: "px; background"),
+                      let rangeD = linkStyle.range(of: "url("),
+                      let rangeE = linkStyle.range(of: ") -")
+                else { continue }
+
+                let remainingText = linkStyle[rangeE.upperBound...]
+                guard let rangeF = remainingText.range(of: "px ")
+                else { continue }
+
+                let width = linkStyle[rangeA.upperBound..<rangeB.lowerBound]
+                let height = linkStyle[rangeB.upperBound..<rangeC.lowerBound]
+                let basicURL = linkStyle[rangeD.upperBound..<rangeE.lowerBound]
+                let offset = remainingText[rangeE.upperBound..<rangeF.lowerBound]
+
+                previews[index] = basicURL
+                    + Defaults.PreviewIdentifier.width + width
+                    + Defaults.PreviewIdentifier.height + height
+                    + Defaults.PreviewIdentifier.offset + offset
+            }
+
+            return previews
         }
         func parseLargePreviews(node: XMLElement) -> [Int: String] {
             var previews = [Int: String]()

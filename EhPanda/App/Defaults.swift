@@ -53,6 +53,11 @@ struct Defaults {
         static let logs = "logs"
         static let ehpandaLog = "EhPanda.log"
     }
+    struct PreviewIdentifier {
+        static let width = "?ehpandaWidth="
+        static let height = "&ehpandaHeight="
+        static let offset = "&ehpandaOffset="
+    }
     struct Response {
         static let hathClientNotFound = "You must have a H@H client assigned to your account to use this feature."
         static let hathClientNotOnline = "Your H@H client appears to be offline. Turn it on, then try again."
@@ -179,7 +184,7 @@ extension Defaults.URL {
         }
     }
     static func mangaDetail(url: String) -> String {
-        merge(urls: [url, showComments, previewLarge])
+        merge(urls: [url, showComments])
     }
     static func mangaTorrents(gid: String, token: String) -> String {
         merge(urls: [host + gallerytorrents, Defaults.URL.gid + gid, Defaults.URL.token + token])
