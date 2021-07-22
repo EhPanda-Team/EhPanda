@@ -33,8 +33,7 @@ struct Parser {
                       let range = content.range(of: "pages")
                 else { throw AppError.parseFailed }
 
-                let fixedTime = String(content.suffix(from: range.upperBound))
-                text = fixedTime
+                text = String(content[range.upperBound...])
             }
 
             return text
@@ -126,11 +125,7 @@ struct Parser {
             let rangeB = coverHTML.range(of: ")")
             else { throw AppError.parseFailed }
 
-            return String(
-                coverHTML
-                    .suffix(from: rangeA.upperBound)
-                    .prefix(upTo: rangeB.lowerBound)
-            )
+            return String(coverHTML[rangeA.upperBound..<rangeB.lowerBound])
         }
 
         func parseRating(node: XMLElement?) throws -> Float {
@@ -165,7 +160,7 @@ struct Parser {
 
                     var fixedText: String?
                     if let range = aText.range(of: "|") {
-                        fixedText = String(aText.prefix(upTo: range.lowerBound))
+                        fixedText = String(aText[...range.lowerBound])
                     }
                     content.append(fixedText ?? aText)
                 }
@@ -194,13 +189,7 @@ struct Parser {
                    let rangeA = aText.range(of: "Torrent Download ("),
                    let rangeB = aText.range(of: ")")
                 {
-                    tmpTorrentCount = Int(
-                        String(
-                            aText
-                                .suffix(from: rangeA.upperBound)
-                                .prefix(upTo: rangeB.lowerBound)
-                        )
-                    )
+                    tmpTorrentCount = Int(aText[rangeA.upperBound..<rangeB.lowerBound])
                 }
                 if archiveURL == nil {
                     archiveURL = try? parseArchiveURL(node: g2Link)
@@ -401,14 +390,8 @@ struct Parser {
                 if let c5Node = c1Link.at_xpath("//div [@class='c5 nosel']") {
                     score = c5Node.at_xpath("//span")?.text
                 }
-                let author = String(
-                    c3Node.suffix(from: rangeB.upperBound)
-                )
-                let commentTime = String(
-                    c3Node
-                        .suffix(from: rangeA.upperBound)
-                        .prefix(upTo: rangeB.lowerBound)
-                )
+                let author = String(c3Node[...rangeB.upperBound])
+                let commentTime = String(c3Node[rangeA.upperBound..<rangeB.lowerBound])
 
                 var votedUp = false
                 var votedDown = false
@@ -621,11 +604,7 @@ struct Parser {
                        let aURL = URL(string: aHref),
                        let range = aURL.lastPathComponent.range(of: ".torrent")
                     {
-                        let hash = String(
-                            aURL.lastPathComponent.prefix(
-                                upTo: range.lowerBound
-                            )
-                        )
+                        let hash = String(aURL.lastPathComponent[...range.lowerBound])
                         tmpMagnet = Defaults.URL.magnet(hash: hash)
                         tmpFileName = aText
                     }
@@ -708,7 +687,7 @@ extension Parser {
             var gainedTypes = [String]()
             for value in gainedValues {
                 guard let range = text.range(of: value) else { break }
-                let removeText = String(text.prefix(upTo: range.upperBound))
+                let removeText = String(text[...range.upperBound])
 
                 if value != gainedValues.first {
                     if let text = trim(string: removeText) {
@@ -761,11 +740,7 @@ extension Parser {
                   let rangeB = script.range(of: "\";\nvar average_rating")
             else { continue }
 
-            tmpKey = String(
-                script
-                    .suffix(from: rangeA.upperBound)
-                    .prefix(upTo: rangeB.lowerBound)
-            )
+            tmpKey = String(script[rangeA.upperBound..<rangeB.lowerBound])
         }
 
         guard let apikey = tmpKey
@@ -823,7 +798,7 @@ extension Parser {
         else { return PageNumber() }
 
         if let range = currentStr.range(of: "-") {
-            current = (Int(String(currentStr.suffix(from: range.upperBound))) ?? 1) - 1
+            current = (Int(currentStr[range.upperBound...]) ?? 1) - 1
         } else {
             current = (Int(currentStr) ?? 1) - 1
         }
@@ -846,20 +821,12 @@ extension Parser {
                let rangeB = text.range(of: "[?]"),
                let rangeC = text.range(of: "Credits")
             {
-                tmpGP = String(
-                    text
-                        .prefix(upTo: rangeA.lowerBound)
-                )
-                .trimmingCharacters(in: .whitespaces)
-                .replacingOccurrences(of: ",", with: "")
-
-                tmpCredits = String(
-                    text
-                        .suffix(from: rangeB.upperBound)
-                        .prefix(upTo: rangeC.lowerBound)
-                )
-                .trimmingCharacters(in: .whitespaces)
-                .replacingOccurrences(of: ",", with: "")
+                tmpGP = String(text[...rangeA.lowerBound])
+                    .trimmingCharacters(in: .whitespaces)
+                    .replacingOccurrences(of: ",", with: "")
+                tmpCredits = String(text[rangeB.upperBound..<rangeC.lowerBound])
+                    .trimmingCharacters(in: .whitespaces)
+                    .replacingOccurrences(of: ",", with: "")
             }
         }
 
@@ -889,25 +856,13 @@ extension Parser {
            let rangeC = respString.range(of: "client"),
            let rangeD = respString.range(of: "Downloads")
         {
-            let resp = String(
-                respString
-                    .suffix(from: rangeA.upperBound)
-                    .prefix(upTo: rangeB.lowerBound)
-            )
-            .capitalizingFirstLetter()
-            .trimmingCharacters(
-                in: .whitespacesAndNewlines
-            )
+            let resp = String(respString[rangeA.upperBound..<rangeB.lowerBound])
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+                .capitalizingFirstLetter()
 
             if ArchiveRes(rawValue: resp) != nil {
-                let clientName = String(
-                    respString
-                        .suffix(from: rangeC.upperBound)
-                        .prefix(upTo: rangeD.lowerBound)
-                )
-                .trimmingCharacters(
-                    in: .whitespacesAndNewlines
-                )
+                let clientName = String(respString[rangeC.upperBound..<rangeD.lowerBound])
+                    .trimmingCharacters(in: .whitespacesAndNewlines)
 
                 respString = resp.localized() + " -> " + clientName
             }
@@ -925,11 +880,7 @@ extension Parser {
            let rangeA = onClick.range(of: "popUp('"),
            let rangeB = onClick.range(of: "',")
         {
-            archiveURL = String(
-                onClick
-                    .suffix(from: rangeA.upperBound)
-                    .prefix(upTo: rangeB.lowerBound)
-            )
+            archiveURL = String(onClick[rangeA.upperBound..<rangeB.lowerBound])
         }
 
         if let url = archiveURL {
@@ -1033,17 +984,10 @@ extension Parser {
                   let range = rawContent.range(of: html)
             else { continue }
 
-            let text = String(
-                rawContent.prefix(
-                    upTo: range.lowerBound
-                )
-            )
-            if !text
-                .trimmingCharacters(
-                    in: .whitespacesAndNewlines
-                )
-                .isEmpty
-            {
+            let text = String(rawContent[...range.lowerBound])
+            if !text.trimmingCharacters(
+                in: .whitespacesAndNewlines
+            ).isEmpty {
                 contents.append(
                     CommentContent(
                         type: .plainText,

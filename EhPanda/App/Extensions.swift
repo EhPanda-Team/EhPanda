@@ -97,7 +97,7 @@ extension String {
         var title = self
 
         if let range = title.range(of: "|") {
-            title = String(title.prefix(upTo: range.lowerBound))
+            title = String(title[...range.lowerBound])
         }
 
         return title
@@ -119,14 +119,8 @@ extension String {
         while let rangeA = result.range(of: subString1),
               let rangeB = result.range(of: subString2)
         {
-            let unwanted =  String(
-                result.suffix(from: rangeA.lowerBound)
-                    .prefix(upTo: rangeB.upperBound)
-            )
-            result = result.replacingOccurrences(
-                of: unwanted,
-                with: replacement
-            )
+            let unwanted = result[rangeA.lowerBound..<rangeB.upperBound]
+            result = result.replacingOccurrences(of: unwanted, with: replacement)
         }
 
         return result
