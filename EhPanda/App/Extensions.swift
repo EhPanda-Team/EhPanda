@@ -220,6 +220,12 @@ extension UIImage {
             orientation: imageOrientation
         )
     }
+
+    func cropping(size: CGSize, offset: CGFloat) -> UIImage? {
+        let origin = CGPoint(x: offset, y: 0)
+        let rect = CGRect(origin: origin, size: size)
+        return cropping(to: rect)
+    }
 }
 
 extension Optional {

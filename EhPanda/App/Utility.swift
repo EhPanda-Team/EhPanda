@@ -497,20 +497,3 @@ func verifyCookies(url: URL, isEx: Bool) -> Bool {
         return memberID != nil && passHash != nil
     }
 }
-
-// MARK: Image Modifier
-struct CornersModifier: ImageModifier {
-    let radius: CGFloat?
-
-    init(radius: CGFloat? = nil) {
-        self.radius = radius
-    }
-
-    func modify(_ image: KFCrossPlatformImage) -> KFCrossPlatformImage {
-        if let radius = radius {
-            return image.withRoundedCorners(radius: radius) ?? image
-        } else {
-            return image
-        }
-    }
-}

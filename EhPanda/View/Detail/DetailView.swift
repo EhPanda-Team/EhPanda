@@ -680,7 +680,8 @@ private struct PreviewView: View {
                                     ))
                                 }
                                 .imageModifier(modifier)
-                                .defaultModifier()
+                                .fade(duration: 0.25)
+                                .resizable()
                                 .scaledToFit()
                             Text("\(index)")
                                 .font(.caption2)
@@ -711,7 +712,7 @@ private struct PreviewView: View {
         let plainURL = configs?.0 ?? ""
         let loadURL = containsConfigs
             ? plainURL : originalURL
-        let modifier = OffsetModifier(
+        let modifier = RoundedOffsetModifier(
             size: configs?.1, offset: configs?.2
         )
         return (loadURL, modifier)

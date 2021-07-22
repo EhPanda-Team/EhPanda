@@ -38,6 +38,23 @@ extension ProgressViewStyle where Self == PlainLinearProgressViewStyle {
     }
 }
 
+// MARK: Image Modifier
+struct CornersModifier: ImageModifier {
+    let radius: CGFloat?
+
+    init(radius: CGFloat? = nil) {
+        self.radius = radius
+    }
+
+    func modify(_ image: KFCrossPlatformImage) -> KFCrossPlatformImage {
+        if let radius = radius {
+            return image.withRoundedCorners(radius: radius) ?? image
+        } else {
+            return image
+        }
+    }
+}
+
 struct OffsetModifier: ImageModifier {
     private let size: CGSize?
     private let offset: CGFloat?
@@ -55,9 +72,35 @@ struct OffsetModifier: ImageModifier {
                 let offset = offset
         else { return image }
 
-        let origin = CGPoint(x: offset, y: 0)
-        let rect = CGRect(origin: origin, size: size)
-        return image.cropping(to: rect) ?? image
+        return image.cropping(
+            size: size, offset: offset
+        ) ?? image
+    }
+}
+
+struct RoundedOffsetModifier: ImageModifier {
+    private let size: CGSize?
+    private let offset: CGFloat?
+
+    init(size: CGSize?, offset: CGFloat?) {
+        self.size = size
+        self.offset = offset
+    }
+
+    func modify(
+        _ image: KFCrossPlatformImage
+    ) -> KFCrossPlatformImage
+    {
+        guard let size = size,
+                let offset = offset,
+              let croppedImg = image.cropping(
+                size: size, offset: offset
+              ),
+              let roundedCroppedImg = croppedImg
+                .withRoundedCorners(radius: 5)
+        else { return image }
+
+        return roundedCroppedImg
     }
 }
 
