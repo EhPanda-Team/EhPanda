@@ -23,7 +23,7 @@ struct Placeholder: View {
             }
             .aspectRatio(ratio, contentMode: .fill)
             .cornerRadius(cornerRadius)
-        case .progress(let pageNumber, let percentage):
+        case .progress(let pageNumber, let progress):
             GeometryReader { proxy in
                 ZStack {
                     Color(.systemGray5)
@@ -33,8 +33,8 @@ struct Placeholder: View {
                             .font(.largeTitle)
                             .foregroundStyle(.gray)
                             .padding(.bottom, 15)
-                        ProgressView(value: percentage, total: 1)
-                            .progressViewStyle(.linear)
+                        ProgressView(progress)
+                            .progressViewStyle(.plainLinear)
                             .frame(width: proxy.size.width * 0.5)
                     }
                 }
@@ -45,5 +45,5 @@ struct Placeholder: View {
 
 enum PlaceholderStyle {
     case activity(ratio: CGFloat, cornerRadius: CGFloat = 5)
-    case progress(pageNumber: Int, percentage: Float)
+    case progress(pageNumber: Int, progress: Progress)
 }

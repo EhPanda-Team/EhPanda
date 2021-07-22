@@ -30,13 +30,21 @@ extension View {
 extension KFImage {
     func defaultModifier(withRoundedCorners: Bool = true) -> KFImage {
         self
-            .setProcessor(
-                RoundCornerImageProcessor(
-                    cornerRadius: withRoundedCorners ? 5 : 0
-                )
-            )
+            .imageModifier(CornersModifier(
+                radius: withRoundedCorners ? 5 : 0
+            ))
             .fade(duration: 0.25)
-            .loadImmediately()
             .resizable()
+    }
+}
+
+struct PlainLinearProgressViewStyle: ProgressViewStyle {
+    func makeBody(configuration: ProgressViewStyleConfiguration) -> some View {
+        ProgressView(value: CGFloat(configuration.fractionCompleted ?? 0), total: 1)
+    }
+}
+extension ProgressViewStyle where Self == PlainLinearProgressViewStyle {
+    static var plainLinear: PlainLinearProgressViewStyle {
+        PlainLinearProgressViewStyle()
     }
 }

@@ -854,7 +854,7 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/tatsuz0u/Kingfisher.git";
 			requirement = {
-				branch = "stableFix/xcode-13";
+				branch = "masterFix/xcode-13";
 				kind = branch;
 			};
 		};

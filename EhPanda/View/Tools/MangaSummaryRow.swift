@@ -32,7 +32,6 @@ struct MangaSummaryRow: View {
                     ))
                 }
                 .defaultModifier()
-                .cornerRadius(5)
                 .scaledToFit()
                 .frame(width: width, height: height)
             VStack(alignment: .leading) {

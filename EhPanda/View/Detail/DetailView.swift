@@ -264,7 +264,6 @@ private struct HeaderView: View {
                     ))
                 }
                 .defaultModifier()
-                .cornerRadius(5)
                 .scaledToFit()
                 .frame(width: width, height: height)
             VStack(alignment: .leading) {
@@ -680,7 +679,6 @@ private struct PreviewView: View {
                                     ))
                                 }
                                 .defaultModifier()
-                                .cornerRadius(5)
                                 .scaledToFit()
                             Text("\(index)")
                                 .font(.caption2)

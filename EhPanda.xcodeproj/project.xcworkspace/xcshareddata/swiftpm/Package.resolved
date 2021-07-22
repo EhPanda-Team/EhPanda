@@ -23,8 +23,8 @@
         "package": "Kingfisher",
         "repositoryURL": "https://github.com/tatsuz0u/Kingfisher.git",
         "state": {
-          "branch": "stableFix/xcode-13",
-          "revision": "b9a00c22057778c12ec36a928e041f4786ec2532",
+          "branch": "masterFix/xcode-13",
+          "revision": "f82ec14c2843f980596554e23d1b61003d2219d5",
           "version": null
         }
       },
