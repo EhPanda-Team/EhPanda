@@ -30,9 +30,9 @@ https://ehpanda.app: `Website-Translation.md`
 ## System Requirements
 This app requires iOS / iPadOS 14.0 or later.
 
-iOS / iPadOS 14: [v1.02](https://github.com/tatsuz0u/EhPanda/releases/tag/v1.0.2_b50)
+iOS / iPadOS 14: [v1.0.2](https://github.com/tatsuz0u/EhPanda/releases/tag/v1.0.2_b50)
 
-iOS / iPadOS 15: [v1.03](https://github.com/tatsuz0u/EhPanda/releases/latest)
+iOS / iPadOS 15: [v1.0.3](https://github.com/tatsuz0u/EhPanda/releases/latest)
 
 ## Content & Copyright
 The content in this application is derived from E-Hentai, which is user-generated content.

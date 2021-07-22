@@ -21,9 +21,9 @@
 ## 시스템 요구
 당신의 기계 시스템은 iOS / iPadOS 14.0 이상 확인하십시오.
 
-iOS / iPadOS 14: [v1.02](https://github.com/tatsuz0u/EhPanda/releases/tag/v1.0.2_b50)
+iOS / iPadOS 14: [v1.0.2](https://github.com/tatsuz0u/EhPanda/releases/tag/v1.0.2_b50)
 
-iOS / iPadOS 15: [v1.03](https://github.com/tatsuz0u/EhPanda/releases/latest)
+iOS / iPadOS 15: [v1.0.3](https://github.com/tatsuz0u/EhPanda/releases/latest)
 
 ## 콘텐츠와 저작권
 이 앱의 모두 내용은 E-Hentai을 통해 제공해 드리고 E-Hentai의 모두 내용은 앱 이용자가 생산합니다.
