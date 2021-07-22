@@ -97,7 +97,7 @@ extension String {
         var title = self
 
         if let range = title.range(of: "|") {
-            title = String(title[...range.lowerBound])
+            title = String(title[..<range.lowerBound])
         }
 
         return title

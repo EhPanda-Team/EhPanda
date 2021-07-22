@@ -260,6 +260,33 @@ extension Defaults.URL {
     static func ehMyTags() -> String {
         host + mytags
     }
+    static func normalPreview(
+        plainURL: Substring, width: Substring,
+        height: Substring, offset: Substring
+    ) -> String {
+        plainURL
+            + Defaults.PreviewIdentifier.width + width
+            + Defaults.PreviewIdentifier.height + height
+            + Defaults.PreviewIdentifier.offset + offset
+    }
+}
+
+extension String {
+    var normalPreviewConfigs: (String, CGSize, CGFloat)? {
+        guard let rangeA = range(of: Defaults.PreviewIdentifier.width),
+              let rangeB = range(of: Defaults.PreviewIdentifier.height),
+              let rangeC = range(of: Defaults.PreviewIdentifier.offset)
+        else { return nil }
+
+        let plainURL = String(self[..<rangeA.lowerBound])
+        guard let width = Int(self[rangeA.upperBound..<rangeB.lowerBound]),
+              let height = Int(self[rangeB.upperBound..<rangeC.lowerBound]),
+              let offset = Int(self[rangeC.upperBound...])
+        else { return nil }
+
+        let size = CGSize(width: width, height: height)
+        return (plainURL, size, CGFloat(offset))
+    }
 }
 
 // MARK: Filter

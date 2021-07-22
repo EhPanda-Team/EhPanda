@@ -146,7 +146,7 @@ private struct LogCell: View {
               let range = string.range(of: " ")
         else { return "" }
 
-        return String(string[...range.upperBound])
+        return String(string[..<range.upperBound])
     }
 }
 

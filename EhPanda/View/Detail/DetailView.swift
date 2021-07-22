@@ -671,13 +671,15 @@ private struct PreviewView: View {
                 LazyVGrid(columns: gridItems) {
                     ForEach(1..<pageCount + 1) { index in
                         VStack {
-                            KFImage(URL(string: previews[index] ?? ""))
+                            let (url, modifier) = getConfigs(index: index)
+                            KFImage(URL(string: url))
                                 .placeholder {
                                     Placeholder(style: .activity(
                                         ratio: Defaults.ImageSize
                                             .previewScale
                                     ))
                                 }
+                                .imageModifier(modifier)
                                 .defaultModifier()
                                 .scaledToFit()
                             Text("\(index)")
@@ -699,6 +701,20 @@ private struct PreviewView: View {
             minHeight: 200,
             maxHeight: windowH * 0.75
         )
+    }
+
+    private func getConfigs(index: Int) -> (String, ImageModifier) {
+        let originalURL = previews[index] ?? ""
+        let configs = originalURL.normalPreviewConfigs
+        let containsConfigs = configs != nil
+
+        let plainURL = configs?.0 ?? ""
+        let loadURL = containsConfigs
+            ? plainURL : originalURL
+        let modifier = OffsetModifier(
+            size: configs?.1, offset: configs?.2
+        )
+        return (loadURL, modifier)
     }
 }
 

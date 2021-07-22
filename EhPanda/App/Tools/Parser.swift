@@ -160,7 +160,7 @@ struct Parser {
 
                     var fixedText: String?
                     if let range = aText.range(of: "|") {
-                        fixedText = String(aText[...range.lowerBound])
+                        fixedText = String(aText[..<range.lowerBound])
                     }
                     content.append(fixedText ?? aText)
                 }
@@ -339,13 +339,13 @@ struct Parser {
 
                 let width = linkStyle[rangeA.upperBound..<rangeB.lowerBound]
                 let height = linkStyle[rangeB.upperBound..<rangeC.lowerBound]
-                let basicURL = linkStyle[rangeD.upperBound..<rangeE.lowerBound]
+                let plainURL = linkStyle[rangeD.upperBound..<rangeE.lowerBound]
                 let offset = remainingText[rangeE.upperBound..<rangeF.lowerBound]
 
-                previews[index] = basicURL
-                    + Defaults.PreviewIdentifier.width + width
-                    + Defaults.PreviewIdentifier.height + height
-                    + Defaults.PreviewIdentifier.offset + offset
+                previews[index] = Defaults.URL.normalPreview(
+                    plainURL: plainURL, width: width,
+                    height: height, offset: offset
+                )
             }
 
             return previews
@@ -390,7 +390,7 @@ struct Parser {
                 if let c5Node = c1Link.at_xpath("//div [@class='c5 nosel']") {
                     score = c5Node.at_xpath("//span")?.text
                 }
-                let author = String(c3Node[...rangeB.upperBound])
+                let author = String(c3Node[..<rangeB.upperBound])
                 let commentTime = String(c3Node[rangeA.upperBound..<rangeB.lowerBound])
 
                 var votedUp = false
@@ -604,7 +604,7 @@ struct Parser {
                        let aURL = URL(string: aHref),
                        let range = aURL.lastPathComponent.range(of: ".torrent")
                     {
-                        let hash = String(aURL.lastPathComponent[...range.lowerBound])
+                        let hash = String(aURL.lastPathComponent[..<range.lowerBound])
                         tmpMagnet = Defaults.URL.magnet(hash: hash)
                         tmpFileName = aText
                     }
@@ -687,7 +687,7 @@ extension Parser {
             var gainedTypes = [String]()
             for value in gainedValues {
                 guard let range = text.range(of: value) else { break }
-                let removeText = String(text[...range.upperBound])
+                let removeText = String(text[..<range.upperBound])
 
                 if value != gainedValues.first {
                     if let text = trim(string: removeText) {
@@ -821,7 +821,7 @@ extension Parser {
                let rangeB = text.range(of: "[?]"),
                let rangeC = text.range(of: "Credits")
             {
-                tmpGP = String(text[...rangeA.lowerBound])
+                tmpGP = String(text[..<rangeA.lowerBound])
                     .trimmingCharacters(in: .whitespaces)
                     .replacingOccurrences(of: ",", with: "")
                 tmpCredits = String(text[rangeB.upperBound..<rangeC.lowerBound])
@@ -984,7 +984,7 @@ extension Parser {
                   let range = rawContent.range(of: html)
             else { continue }
 
-            let text = String(rawContent[...range.lowerBound])
+            let text = String(rawContent[..<range.lowerBound])
             if !text.trimmingCharacters(
                 in: .whitespacesAndNewlines
             ).isEmpty {
