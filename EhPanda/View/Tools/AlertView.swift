@@ -126,5 +126,6 @@ struct GenericRetryView: View {
             })
             .buttonStyle(.bordered)
         }
+        .frame(maxWidth: windowW * 0.8)
     }
 }

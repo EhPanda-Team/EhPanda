@@ -44,7 +44,7 @@
 "Favored" = "Favorisiert";
 "Times" = "mal";
 "Language" = "Sprache";
-" Ratings" = "Bewertungen";
+" Ratings" = " Bewertungen";
 "Page Count" = "Seitenzahl";
 "Pages" = "Seiten";
 "Size" = "Dateigröße";
@@ -110,7 +110,7 @@
 "Double tap scale factor" = "Doppel-Tap Skalierungsfaktor";
 
 "Laboratory" = "Experimentelles";
-"Bypass SNI Filtering" = "SNI Filter umgehen (nur wenn du weißt was du tust)";
+"Bypass SNI Filtering" = "SNI Filter umgehen";
 
 "About EhPanda" = "Über EhPanda";
 "Version" = "Version";
@@ -128,7 +128,7 @@
 "Filters" = "Filter";
 "Basic" = "Normal";
 "Reset filters" = "Filter zurücksetzen";
-"Are you sure to reset?" = Bist du sicher?";
+"Are you sure to reset?" = "Bist du sicher?";
 "Reset" = "Zurücksetzen";
 "Advanced settings" = "Erweiterte Einstellungen";
 "Advanced" = "Erweitert";
