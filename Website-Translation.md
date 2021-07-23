@@ -27,6 +27,34 @@ const messages = {
             cat_ele_setting: 'You can login, turn on optional features or modify the app icon, tint color here.'
         }
     },
+    de: {
+        title: {
+            swiftui: 'Mit SwiftUI & Combine erstellt',
+            cat_browse: 'Finde was du willst',
+            cat_retrieve: 'Herunterladen',
+            cat_customize: 'Anpassbar',
+            cat_ele_category: 'Kategorien',
+            cat_ele_detail: 'Detaillierte Beschreibungen',
+            cat_ele_comment: 'Kommentiere',
+            cat_ele_hath_archive: 'Hath Archiv',
+            cat_ele_torrent: 'Torrent',
+            cat_ele_filter: 'Filtern',
+            cat_ele_setting: 'Einstellungen'
+        },
+        desc: {
+            app: 'Eine inoffizielle E-Hentai app für iOS.',
+            system: 'Erfordert iOS / iPadOS 14.0 oder neuer.',
+            swiftui: 'Einfach, Elegant, Mächtig.',
+            cat_ele_category: 'EhPanda unterstützt fast alle E-Hentai Kategorien.',
+            cat_ele_detail: 'helfen dir, mehr über Galerien zu erfahren und ähnliche zu finden',
+            cat_ele_comment: 'Nimm an der Diskussion teil, indem du Kommentare verfasst oder bearbeitest und auf andere reagierst',
+            cat_ele_hath_archive: 'Hast du einen Hath client? Danke für deine Unterstützung, diese Funktion ist für dich',
+            cat_ele_torrent_s1: 'Speichere deine besten Erinnerungen,',
+            cat_ele_torrent_s2: 'ein für alle Mal.',
+            cat_ele_filter: 'Filter-Einstellungen werden automatisch angewendet und helfen dir genau das zu finden nach dem du suchst.',
+            cat_ele_setting: 'Hier kannst du dich einloggen und die App an deinen Geschmack anpassen'
+         }
+    },
     ko: {
         title: {
             swiftui: 'SwiftUI & Combine으로 프로래밍',
