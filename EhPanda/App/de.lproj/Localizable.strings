@@ -1,0 +1,258 @@
+/* 
+  Localizable.strings
+  EhPanda
+
+  Created by Paul Häussler on 23.07.2021.
+  
+*/
+
+// MARK: Response
+"You must have a H@H client assigned to your account to use this feature." = "Du benötigst einen deinem Konto zugehörigen H@H Client um diese Funktion nutzen zu können";
+"Your H@H client appears to be offline. Turn it on, then try again." = "Dein H@H Client scheint offline zu sein. Sieh nach, ob er läuft und probier's nochmal";
+"The requested gallery cannot be downloaded with the selected resolution." = "Die gewünschte Galerie kann nicht in der gewählten Auflösung heruntergeladen werden";
+
+// MARK: HUD
+"Success" = "Erfolg";
+"Error" = "Fehler";
+"Communicating..." = "Verbinde...";
+"Copied to clipboard" = "In Zwischenablage kopiert";
+
+// MARK: LockView
+"The App has been locked due to the auto-lock expiration." = "Die App hat sich selbst gesperrt, da der auto-lock Zeitraum abgelaufen ist";
+
+// MARK: Common
+"null" = "null";
+"expired" = "Abgelaufen";
+"mystery" = "Abgelehnt";
+
+// MARK: User
+"favoriteNameByDev" = "Favoriten";
+"all_appendedByDev" = "Alle";
+
+// MARK: AlertView
+"Loading..." = "Wird geladen...";
+"Login" = "Einloggen";
+"Your search didn't match any docs." = "Deine Suche hat keine Ergebnisse ergeben";
+"Retry" = "Erneut versuchen";
+"A Network error occurred.\nPlease try again later." = "Netzwerkfehler: Bitte überprüfe eine Verbindung und probiere es später nocheinmal";
+
+// MARK: DetailView
+"Archive" = "Archiv";
+"Torrents" = "Torrents";
+"Share" = "Teilen";
+"Read" = "Lesen";
+"Favored" = "Favorisiert";
+"Times" = "mal";
+"Language" = "Sprache";
+" Ratings" = "Bewertungen";
+"Page Count" = "Seitenzahl";
+"Pages" = "Seiten";
+"Size" = "Dateigröße";
+"Give a Rating" = "Bewertung abgeben";
+"Similar Gallery" = "Ähnliche Galerien";
+"Preview" = "Vorschau";
+"Comment" = "Kommentar";
+"Show All" = "Alle anzeigen";
+
+// MARK: ArchiveView
+"N/A" = "./.";
+"Free" = "Frei";
+"Original" = "Original";
+"Download To Hath Client" = "Mit Hath Client herunterladen";
+
+// MARK: CommentView
+"Post Comment" = "Kommentar abgeben";
+"Edit Comment" = "Kommentar bearbeiten";
+"Cancel" = "Abbrechen";
+"Post" = "Senden";
+
+// MARK: SettingView
+"Setting" = "Einstellungen";
+"Account" = "Konto";
+"Gallery" = "Galerie";
+"Login" = "Einloggen";
+"Logout" = "Ausloggen";
+"Account configuration" = "Kontoeinstellungen";
+"Manage tags subscription" = "Meine Tags bearbeiten";
+"Are you sure to logout?" = "Bist du sicher das du dich ausloggen möchtest?";
+"Are you sure to clear?" = "Bist du sicher das du das löschen möchtest?";
+"Clear" = "Löschen";
+"Copy cookies" = "Cookies kopieren";
+
+"General" = "Allgemein";
+"Closes slide menu after selection" = "Menu nach Auswahl schließen";
+"Navigation" = "Navigation";
+"Redirects links to the selected host" = "Links zum ausgewählten Host umleiten";
+"Detects links from the clipboard" = "Übernimmt automatisch Links aus der Zwischenablage";
+"Allows detection even when no changes" = "Auch ohne Änderungen überprüfen";
+"Security" = "Sicherheit";
+"Auto-Lock" = "Auto-Lock";
+"App switcher blur" = "Appinhalt bei Appwechsel unkenntlich machen";
+"Cache" = "Cache";
+"Clear image caches" = "Zwischengespeicherte Bilder (Cache) löschen";
+
+"Appearance" = "Oberfläche";
+"Global" = "Global";
+"Theme" = "Theme";
+"Tint Color" = "Farbe";
+"App Icon" = "App Icon";
+"Translates category" = "Übersetze Kategorie";
+"List" = "List";
+"Shows tags in list" = "Tags als Liste anzeigen";
+"Sets maximum number of tags" = "Maximale Anzahl an Tags auswählen";
+"Maximum number of tags" = "Maximale Anzahl an Tags";
+
+"Reading" = "Am Lesen";
+"Retry limit" = "Limit für neue Versuche";
+" times" = "mal";
+"Separator height" = "Höhe der Teilung";
+"Maximum scale factor" = "Maximaler Skalierungsfaktor";
+"Double tap scale factor" = "Doppel-Tap Skalierungsfaktor";
+
+"Laboratory" = "Experimentelles";
+"Bypass SNI Filtering" = "SNI Filter umgehen (nur wenn du weißt was du tust)";
+
+"About EhPanda" = "Über EhPanda";
+"Version" = "Version";
+"Contacts" = "Kontakt";
+"Website" = "Website";
+"AltStore Source" = "AltStore Quelle";
+"Acknowledgement" = "OK";
+
+// MARK: LogsView
+"Logs" = "Logs";
+"Latest" = "Neueste";
+" records" = " Einträge";
+
+// MARK: FilterView
+"Filters" = "Filter";
+"Basic" = "Normal";
+"Reset filters" = "Filter zurücksetzen";
+"Are you sure to reset?" = Bist du sicher?";
+"Reset" = "Zurücksetzen";
+"Advanced settings" = "Erweiterte Einstellungen";
+"Advanced" = "Erweitert";
+"Search gallery name" = "Galerienamen durchsuchen";
+"Search gallery tags" = "Galerietags durchsuchen";
+"Search gallery description" = "Galeriebeschreibung durchsuchen";
+"Search torrent filenames" = "Torrents durchsuchen";
+"Only show galleries with torrents" = "Nur Galerien mit Torrents zeigen";
+"Search Low-Power tags" = "Low-Power Tags miteinbeziehen";
+"Search downvoted tags" = "Negativ bewertete Tags miteinbeziehen";
+"Show expunged galleries" = "Gelöschte Galerien zeigen";
+"Set minimum rating" = "Minimaleste Bewertung festlegen";
+"Minimum rating" = "Minimale Bewertung";
+"stars" = "Sterne";
+"Set pages range" = "Seitenzahl-Bereich festlegen";
+"Pages range" = "Seitenzahl-Bereich";
+"Default Filter" = "Standardfilter";
+"Disable language filter" = "Gefilterte Sprachen miteinbeziehen";
+"Disable uploader filter" = "Gefilterte Uploader miteinbeziehen";
+"Disable tags filter" = "Gefilterte Tags miteinbeziehen";
+
+// MARK: NewDawnView
+"Show new dawn greeting" = "Neuer-Tag-Meldung anzeigen";
+"It is the dawn of a new day!" = "Es ist der Beginn eines neuen Tages！";
+"Reflecting on your journey so far, you find that you are a little wiser." = "Als du auf deine bisherige Reise zurückblickst wirst du ein kleines bisschen weiser.";
+"GAINCONTENT_START" = "Du erhälst ";
+"GAINCONTENT_SEPARATOR" = ", ";
+"GAINCONTENT_AND" = " und ";
+"GAINCONTENT_END" = "!";
+
+// MARK: HomeListType
+"Search" = "Suche";
+"Frontpage" = "Startseite";
+"Popular" = "Beliebt";
+"Watched" = "Meine Tags";
+"Favorites" = "Favoriten";
+"Downloaded" = "Heruntergeladen";
+"History" = "Verlauf";
+
+// MARK: Category
+"Doujinshi" = "Doujinshi";
+"Manga" = "Manga";
+"Artist CG" = "Artist CG";
+"Game CG" = "Game CG";
+"Western" = "Western";
+"Non-H" = "Non-H";
+"Image Set" = "Image Set";
+"Cosplay" = "Cosplay";
+"Asian Porn" = "Asian Porn";
+"Misc" = "Misc";
+
+// MARK: TagCategory
+"Reclass" = "Reclass";
+"Language" = "Sprache";
+"Parody" = "Parodie";
+"Character" = "Charakter";
+"Group" = "Gruppe";
+"Artist" = "Künstler";
+"Male" = "Männlich";
+"Female" = "Weiblich";
+"Misc" = "Verschiedenes";
+
+// MARK: IconType
+"Normal" = "Normal";
+"Default" = "Standard";
+"Weird" = "Komisch";
+
+// MARK: PreferredColorScheme
+"Automatic" = "Automatisch";
+"Light" = "Hell";
+"Dark" = "Dunkel";
+
+// MARK: AutoLockPolicy
+"Never" = "Nie";
+"Instantly" = "Sofort";
+"15 seconds" = "Nach 15 Sekunden";
+"1 minute" = "Nach 1 Minute";
+"5 minutes" = "Nach 5 Minuten";
+"10 minutes" = "Nach 10 Minuten";
+"30 minutes" = "Nach 30 Minuten";
+
+// MARK: Language
+"Other" = "Andere";
+
+"Afrikaans" = "Afrikaan"; "Albanian" = "Albanisch"; "Arabic" = "Arabisch";
+
+"Bengali" = "Bengali"; "Bosnian" = "Bosnisch"; "Bulgarian" = "Bulgarisch"; "Burmese" = "Birmanisch";
+
+"Catalan" = "Katalanisch"; "Cebuano" = "Cebuano"; "Chinese" = "Chinesisch"; "Croatian" = "Kroatisch"; "Czech" = "Tschechisch";
+
+"Danish" = "Dänisch"; "Dutch" = "Niederländisch";
+
+"English" = "Englisch"; "Esperanto" = "Esperanto"; "Estonian" = "Estländisch";
+
+"Finnish" = "Finnisch"; "French" = "Französisch";
+
+"Georgian" = "Georgisch"; "German" = "Deutsch"; "Greek" = "Griechisch";
+
+"Hebrew" = "Hebräisch"; "Hindi" = "Hindi"; "Hmong" = "Hmong"; "Hungarian" = "Ungarisch";
+
+"Indonesian" = "Indonesisch"; "Indonesian" = "Indonesisch";
+
+"Japanese" = "Japanisch";
+
+"Kazakh" = "Kazakhstanisch"; "Khmer" = "Khmer"; "Korean" = "Koreanisch"; "Kurdish" = "Kurdisch";
+
+"Lao" = "Lao"; "Latin" = "Latein";
+
+"Mongolian" = "Mongolisch";
+
+"Ndebele" = "Ndebele"; "Nepali" = "Nepali"; "Norwegian" = "Norwegisch";
+
+"Oromo" = "Oromo";
+
+"Pashto" = "Pashto"; "Persian" = "Persisch"; "Polish" = "Polnisch"; "Portuguese" = "Portugiesisch"; "Punjabi" = "Punjabi";
+
+"Romanian" = "Rumänisch"; "Russian" = "Russisch";
+
+"Sango" = "Sango"; "Serbian" = "Serbisch"; "Shona" = "Shona"; "Slovak" = "Slovakisch"; "Slovenian" = "Slovenisch"; "Somali" = "Somali"; "Spanish" = "Spanisch"; "Swahili" = "Swahili"; "Swedish" = "Schwedisch";
+
+"Tagalog" = "Tagalog"; "Thai" = "Thai"; "Tigrinya" = "Tigrinya"; "Turkish" = "Türkisch";
+
+"Ukrainian" = "Ukrainisch"; "Urdu" = "Urdu";
+
+"Vietnamese" = "Vietnamesisch";
+
+"Zulu" = "Zulu";
