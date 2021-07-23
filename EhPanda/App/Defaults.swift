@@ -277,16 +277,16 @@ private extension Defaults.URL {
         var filters = [String]()
 
         var category = 0
-        category += filter.doujinshi.isFiltered ? Category.doujinshi.value : 0
-        category += filter.manga.isFiltered ? Category.manga.value : 0
-        category += filter.artistCG.isFiltered ? Category.artistCG.value : 0
-        category += filter.gameCG.isFiltered ? Category.gameCG.value : 0
-        category += filter.western.isFiltered ? Category.western.value : 0
-        category += filter.nonH.isFiltered ? Category.nonH.value : 0
-        category += filter.imageSet.isFiltered ? Category.imageSet.value : 0
-        category += filter.cosplay.isFiltered ? Category.cosplay.value : 0
-        category += filter.asianPorn.isFiltered ? Category.asianPorn.value : 0
-        category += filter.misc.isFiltered ? Category.misc.value : 0
+        category += filter.doujinshi ? Category.doujinshi.value : 0
+        category += filter.manga ? Category.manga.value : 0
+        category += filter.artistCG ? Category.artistCG.value : 0
+        category += filter.gameCG ? Category.gameCG.value : 0
+        category += filter.western ? Category.western.value : 0
+        category += filter.nonH ? Category.nonH.value : 0
+        category += filter.imageSet ? Category.imageSet.value : 0
+        category += filter.cosplay ? Category.cosplay.value : 0
+        category += filter.asianPorn ? Category.asianPorn.value : 0
+        category += filter.misc ? Category.misc.value : 0
 
         if ![0, 1023].contains(category) {
             filters.append(fCats + "\(category)")

@@ -88,25 +88,23 @@ private struct CategoryView: View {
     private let filterBinding: Binding<Filter>
 
     private let gridItems = [
-        GridItem(
-            .adaptive(
-                minimum: isPadWidth
-                    ? 100 : 80,
-                maximum: 100
-            )
-        )
+        GridItem(.adaptive(
+            minimum: isPadWidth ? 100 : 80, maximum: 100
+        ))
     ]
-    private var tuples: [TupleCategory] {
-        [TupleCategory(isFiltered: filterBinding.doujinshi.isFiltered, category: filter.doujinshi.category),
-         TupleCategory(isFiltered: filterBinding.manga.isFiltered, category: filter.manga.category),
-         TupleCategory(isFiltered: filterBinding.artistCG.isFiltered, category: filter.artistCG.category),
-         TupleCategory(isFiltered: filterBinding.gameCG.isFiltered, category: filter.gameCG.category),
-         TupleCategory(isFiltered: filterBinding.western.isFiltered, category: filter.western.category),
-         TupleCategory(isFiltered: filterBinding.nonH.isFiltered, category: filter.nonH.category),
-         TupleCategory(isFiltered: filterBinding.imageSet.isFiltered, category: filter.imageSet.category),
-         TupleCategory(isFiltered: filterBinding.cosplay.isFiltered, category: filter.cosplay.category),
-         TupleCategory(isFiltered: filterBinding.asianPorn.isFiltered, category: filter.asianPorn.category),
-         TupleCategory(isFiltered: filterBinding.misc.isFiltered, category: filter.misc.category)]
+    private var tuples: [(Binding<Bool>, Category)] {
+        [
+            (filterBinding.doujinshi, .doujinshi),
+            (filterBinding.manga, .manga),
+            (filterBinding.artistCG, .artistCG),
+            (filterBinding.gameCG, .gameCG),
+            (filterBinding.western, .western),
+            (filterBinding.nonH, .nonH),
+            (filterBinding.imageSet, .imageSet),
+            (filterBinding.cosplay, .cosplay),
+            (filterBinding.asianPorn, .asianPorn),
+            (filterBinding.misc, .misc)
+        ]
     }
 
     init(filter: Filter, filterBinding: Binding<Filter>) {
@@ -116,10 +114,10 @@ private struct CategoryView: View {
 
     var body: some View {
         LazyVGrid(columns: gridItems) {
-            ForEach(tuples) { tuple in
+            ForEach(tuples, id: \.1) { isFiltered, category in
                 CategoryCell(
-                    isFiltered: tuple.isFiltered,
-                    category: tuple.category
+                    isFiltered: isFiltered,
+                    category: category
                 )
             }
         }

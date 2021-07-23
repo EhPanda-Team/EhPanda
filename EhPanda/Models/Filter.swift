@@ -9,16 +9,16 @@ import SwiftUI
 import BetterCodable
 
 struct Filter: Codable {
-    var doujinshi = AssociatedCategory(category: .doujinshi, isFiltered: false)
-    var manga = AssociatedCategory(category: .manga, isFiltered: false)
-    var artistCG = AssociatedCategory(category: .artistCG, isFiltered: false)
-    var gameCG = AssociatedCategory(category: .gameCG, isFiltered: false)
-    var western = AssociatedCategory(category: .western, isFiltered: false)
-    var nonH = AssociatedCategory(category: .nonH, isFiltered: false)
-    var imageSet = AssociatedCategory(category: .imageSet, isFiltered: false)
-    var cosplay = AssociatedCategory(category: .cosplay, isFiltered: false)
-    var asianPorn = AssociatedCategory(category: .asianPorn, isFiltered: false)
-    var misc = AssociatedCategory(category: .misc, isFiltered: false)
+    @DefaultFalse var doujinshi = false
+    @DefaultFalse var manga = false
+    @DefaultFalse var artistCG = false
+    @DefaultFalse var gameCG = false
+    @DefaultFalse var western = false
+    @DefaultFalse var nonH = false
+    @DefaultFalse var imageSet = false
+    @DefaultFalse var cosplay = false
+    @DefaultFalse var asianPorn = false
+    @DefaultFalse var misc = false
 
     @DefaultFalse var advanced = false
     @DefaultTrue var galleryName = true
