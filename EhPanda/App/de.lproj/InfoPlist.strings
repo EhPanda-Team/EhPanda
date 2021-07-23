@@ -1,0 +1,9 @@
+/* 
+  InfoPlist.strings
+  EhPanda
+
+  Created by Paul Häussler on 23.07.2021.
+  
+*/
+
+"NSFaceIDUsageDescription" = "Diese Berechtigung ist notwendig um Face ID zum Entsperren der Anwendung verwenden zu können.";

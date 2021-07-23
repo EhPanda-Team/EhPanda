@@ -8,6 +8,7 @@
 
 <p align="center">
   <a href="/README.md">English</a>・
+  <a href="/README.de.md">Deutsch</a>・
   <a href="/README.ko.md">한국어</a>・
   <a href="/README.jpn.md">日本語</a>・
   <a href="/README.cht.md">繁體中文</a>・
