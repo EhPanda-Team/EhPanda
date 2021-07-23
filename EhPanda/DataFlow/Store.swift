@@ -22,6 +22,15 @@ final class Store: ObservableObject {
             switch action {
             case .saveAspectBox(let gid, _):
                 SwiftyBeaver.verbose("[ACTION]: saveAspectBox(gid: \(gid))")
+            case .fetchMangaPreviewsDone(let gid, let pageNumber, let result):
+                if case .success(let previews) = result {
+                    SwiftyBeaver.verbose(
+                        "[ACTION]: fetchMangaPreviewsDone("
+                        + "gid: \(gid), "
+                        + "pageNumber: \(pageNumber), "
+                        + "result: \(previews.count) previews)"
+                    )
+                }
             default:
                 SwiftyBeaver.verbose("[ACTION]: " + description)
             }

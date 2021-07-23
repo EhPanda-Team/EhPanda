@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import BetterCodable
 
 struct Filter: Codable {
     var doujinshi = AssociatedCategory(category: .doujinshi, isFiltered: false)
@@ -19,38 +20,54 @@ struct Filter: Codable {
     var asianPorn = AssociatedCategory(category: .asianPorn, isFiltered: false)
     var misc = AssociatedCategory(category: .misc, isFiltered: false)
 
-    var advanced = false
-    var galleryName = true
-    var galleryTags = true
-    var galleryDesc = false
-    var torrentFilenames = false
-    var onlyWithTorrents = false
-    var lowPowerTags = false {
+    @DefaultFalse var advanced = false
+    @DefaultTrue var galleryName = true
+    @DefaultTrue var galleryTags = true
+    @DefaultFalse var galleryDesc = false
+    @DefaultFalse var torrentFilenames = false
+    @DefaultFalse var onlyWithTorrents = false
+    @DefaultFalse var lowPowerTags = false {
         didSet {
             if lowPowerTags {
                 downvotedTags = false
             }
         }
     }
-    var downvotedTags = false {
+    @DefaultFalse var downvotedTags = false {
         didSet {
             if downvotedTags {
                 lowPowerTags = false
             }
         }
     }
-    var expungedGalleries = false
+    @DefaultFalse var expungedGalleries = false
 
-    var minRatingActivated = false
-    var minRating: Int = 2
+    @DefaultFalse var minRatingActivated = false
+    @DefaultIntegerValue var minRating: Int = 2
 
-    var pageRangeActivated = false
-    @NumString var pageLowerBound: String = ""
-    @NumString var pageUpperBound: String = ""
+    @DefaultFalse var pageRangeActivated = false
+    @DefaultStringValue var pageLowerBound: String = "" {
+        didSet {
+            if Int(pageLowerBound) == nil
+                && !pageLowerBound.isEmpty
+            {
+                pageLowerBound = ""
+            }
+        }
+    }
+    @DefaultStringValue var pageUpperBound: String = "" {
+        didSet {
+            if Int(pageUpperBound) == nil
+                && !pageUpperBound.isEmpty
+            {
+                pageUpperBound = ""
+            }
+        }
+    }
 
-    var disableLanguage = false
-    var disableUploader = false
-    var disableTags = false
+    @DefaultFalse var disableLanguage = false
+    @DefaultFalse var disableUploader = false
+    @DefaultFalse var disableTags = false
 }
 
 struct AssociatedCategory: Codable {
@@ -58,24 +75,5 @@ struct AssociatedCategory: Codable {
     var isFiltered: Bool
     var color: Color {
         category.color
-    }
-}
-
-@propertyWrapper
-struct NumString: Codable {
-    private var value = ""
-    var wrappedValue: String {
-        get { value }
-        set {
-            if let num = Int(newValue) {
-                value = String(num)
-            } else if newValue.isEmpty {
-                value = newValue
-            }
-        }
-    }
-
-    init(wrappedValue: String) {
-        self.wrappedValue = wrappedValue
     }
 }

@@ -191,7 +191,7 @@ extension Int {
     }
 }
 
-extension CGFloat {
+extension Double {
     func roundedString() -> String {
         roundedString(with: 1)
     }

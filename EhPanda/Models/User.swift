@@ -8,14 +8,7 @@
 import Foundation
 
 struct User: Codable {
-    static let empty = User(
-        displayName: "",
-        avatarURL: "",
-        apikey: "",
-        currentGP: "",
-        currentCredits: "",
-        favoriteNames: nil
-    )
+    static let empty = User()
 
     var displayName: String?
     var avatarURL: String?

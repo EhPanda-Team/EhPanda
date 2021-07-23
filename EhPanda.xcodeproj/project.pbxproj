@@ -33,6 +33,8 @@
 		AB63EADB2699AC8200090535 /* AppEnvMO+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB63EADA2699AC8200090535 /* AppEnvMO+CoreDataProperties.swift */; };
 		AB63EADD2699AC9100090535 /* AppEnvMO+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB63EADC2699AC9100090535 /* AppEnvMO+CoreDataClass.swift */; };
 		AB6DE897268822390087C579 /* LogsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB6DE896268822390087C579 /* LogsView.swift */; };
+		AB73CEAD26AAB8C600EF6337 /* BetterCodable in Frameworks */ = {isa = PBXBuildFile; productRef = AB73CEAC26AAB8C600EF6337 /* BetterCodable */; };
+		AB73CEAF26AAC13F00EF6337 /* CodableExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB73CEAE26AAC13F00EF6337 /* CodableExtension.swift */; };
 		AB7E6B3025D24FE00035CC68 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = AB7E6B3225D24FE00035CC68 /* InfoPlist.strings */; };
 		AB9A7E3A26A6AF2500779319 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = AB9A7E3926A6AF2500779319 /* Kingfisher */; };
 		ABA732D925A8018A00B3D9AB /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABA732D825A8018A00B3D9AB /* Extensions.swift */; };
@@ -117,6 +119,7 @@
 		AB63EADA2699AC8200090535 /* AppEnvMO+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppEnvMO+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		AB63EADC2699AC9100090535 /* AppEnvMO+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppEnvMO+CoreDataClass.swift"; sourceTree = "<group>"; };
 		AB6DE896268822390087C579 /* LogsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogsView.swift; sourceTree = "<group>"; };
+		AB73CEAE26AAC13F00EF6337 /* CodableExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodableExtension.swift; sourceTree = "<group>"; };
 		AB7E6B3125D24FE00035CC68 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		AB7E6B3425D24FE40035CC68 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
 		AB7E6B3525D24FE50035CC68 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -195,6 +198,7 @@
 				AB9A7E3A26A6AF2500779319 /* Kingfisher in Frameworks */,
 				AB19D619266E5C6700BA752A /* TTProgressHUD in Frameworks */,
 				AB0F68AF26A6D92F00AC3A54 /* DeprecatedAPI in Frameworks */,
+				AB73CEAD26AAB8C600EF6337 /* BetterCodable in Frameworks */,
 				AB018DD2268756D000EB0EA9 /* Kanna in Frameworks */,
 				ABE1867F26A18DD000689FDC /* SwiftyBeaver in Frameworks */,
 			);
@@ -209,6 +213,7 @@
 				ABCD2F0D25976B95008E5A20 /* Parser.swift */,
 				ABE2AE742699F238001D47AA /* AppEnvStorage.swift */,
 				AB38A0CA25CA993D00764D64 /* ColorCodable.swift */,
+				AB73CEAE26AAC13F00EF6337 /* CodableExtension.swift */,
 			);
 			path = Tools;
 			sourceTree = "<group>";
@@ -434,6 +439,7 @@
 				ABE1867E26A18DD000689FDC /* SwiftyBeaver */,
 				AB9A7E3926A6AF2500779319 /* Kingfisher */,
 				AB0F68AE26A6D92F00AC3A54 /* DeprecatedAPI */,
+				AB73CEAC26AAB8C600EF6337 /* BetterCodable */,
 			);
 			productName = EhPanda;
 			productReference = ABC3C7542593696C00E0C11B /* EhPanda.app */;
@@ -472,6 +478,7 @@
 				ABE1867D26A18DD000689FDC /* XCRemoteSwiftPackageReference "SwiftyBeaver" */,
 				AB9A7E3826A6AF2500779319 /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				AB0F68AD26A6D92F00AC3A54 /* XCRemoteSwiftPackageReference "DeprecatedAPI" */,
+				AB73CEAB26AAB8C600EF6337 /* XCRemoteSwiftPackageReference "BetterCodable" */,
 			);
 			productRefGroup = ABC3C7552593696C00E0C11B /* Products */;
 			projectDirPath = "";
@@ -557,6 +564,7 @@
 				ABC3C78F2593699B00E0C11B /* ViewModifiers.swift in Sources */,
 				ABF45AF825F3313D00ECB568 /* EhPandaView.swift in Sources */,
 				ABCA93C42692A0BF00A98BC6 /* PersistenceAccessor.swift in Sources */,
+				AB73CEAF26AAC13F00EF6337 /* CodableExtension.swift in Sources */,
 				ABC3C7862593699B00E0C11B /* Utility.swift in Sources */,
 				ABF45AE725F3313D00ECB568 /* RatingView.swift in Sources */,
 				AB2CED64268AB6AE003130F7 /* MangaMO+CoreDataProperties.swift in Sources */,
@@ -756,7 +764,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = EhPanda/EhPanda.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 62;
+				CURRENT_PROJECT_VERSION = 64;
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = 9SKQ7QTZ74;
 				ENABLE_PREVIEWS = YES;
@@ -783,7 +791,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = EhPanda/EhPanda.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 62;
+				CURRENT_PROJECT_VERSION = 64;
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = 9SKQ7QTZ74;
 				ENABLE_PREVIEWS = YES;
@@ -851,6 +859,14 @@
 				kind = branch;
 			};
 		};
+		AB73CEAB26AAB8C600EF6337 /* XCRemoteSwiftPackageReference "BetterCodable" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/marksands/BetterCodable";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.4.0;
+			};
+		};
 		AB9A7E3826A6AF2500779319 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/tatsuz0u/Kingfisher.git";
@@ -884,6 +900,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = AB19D617266E5C6700BA752A /* XCRemoteSwiftPackageReference "TTProgressHUD" */;
 			productName = TTProgressHUD;
+		};
+		AB73CEAC26AAB8C600EF6337 /* BetterCodable */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AB73CEAB26AAB8C600EF6337 /* XCRemoteSwiftPackageReference "BetterCodable" */;
+			productName = BetterCodable;
 		};
 		AB9A7E3926A6AF2500779319 /* Kingfisher */ = {
 			isa = XCSwiftPackageProductDependency;

@@ -61,6 +61,10 @@ struct EhPandaView: View, StoreAccessor {
                 text: "SwiftyBeaver"
             ),
             Info(
+                url: "https://github.com/marksands/BetterCodable",
+                text: "BetterCodable"
+            ),
+            Info(
                 url: "https://github.com/honkmaster/TTProgressHUD",
                 text: "TTProgressHUD"
             )

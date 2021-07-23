@@ -163,12 +163,6 @@ struct CommentContent: Identifiable, Codable {
     var secondImgURL: String?
 }
 
-struct MangaPreview: Identifiable, Codable {
-    var id = UUID().uuidString
-
-    let url: String
-}
-
 struct MangaContent: Identifiable, Codable, Equatable {
     static func == (lhs: MangaContent, rhs: MangaContent) -> Bool {
         lhs.tag == rhs.tag

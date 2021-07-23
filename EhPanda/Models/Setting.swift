@@ -5,27 +5,27 @@
 //  Created by 荒木辰造 on R 3/01/09.
 //
 
-import UIKit
 import SwiftUI
 import Foundation
+import BetterCodable
 
 struct Setting: Codable {
     // Account
-    var galleryHost = GalleryHost.ehentai {
+    @DefaultGalleryHost var galleryHost = GalleryHost.ehentai {
         didSet {
             setGalleryHost(with: galleryHost)
         }
     }
-    var showNewDawnGreeting = false
+    @DefaultFalse var showNewDawnGreeting = false
 
     // General
-    var closesSlideMenuAfterSelection = true
-    var redirectsLinksToSelectedHost = false
-    var detectsLinksFromPasteboard = false
-    var allowsDetectionWhenNoChanges = false
-    var diskImageCacheSize = "0 KB"
-    var allowsResignActiveBlur = true
-    var autoLockPolicy: AutoLockPolicy = .never
+    @DefaultTrue var closesSlideMenuAfterSelection = true
+    @DefaultFalse var redirectsLinksToSelectedHost = false
+    @DefaultFalse var detectsLinksFromPasteboard = false
+    @DefaultFalse var allowsDetectionWhenNoChanges = false
+    @DefaultStringValue var diskImageCacheSize = "0 KB"
+    @DefaultTrue var allowsResignActiveBlur = true
+    @DefaultAutoLockPolicy var autoLockPolicy: AutoLockPolicy = .never
 
     // Appearance
     var colorScheme: ColorScheme? {
@@ -38,25 +38,26 @@ struct Setting: Codable {
             return nil
         }
     }
-    var preferredColorScheme: PreferredColorScheme = .automatic
-    var accentColor: Color = .blue
-    var appIconType: IconType = .default
-    var translatesCategory = true
-    var showsSummaryRowTags = false
-    var summaryRowTagsMaximumActivated = false
-    var summaryRowTagsMaximum: Int = 5
+    @DefaultPreferredColorScheme var preferredColorScheme =
+        PreferredColorScheme.automatic
+    @DefaultColorValue var accentColor: Color = .blue
+    @DefaultIconType var appIconType: IconType = .default
+    @DefaultTrue var translatesCategory = true
+    @DefaultFalse var showsSummaryRowTags = false
+    @DefaultFalse var summaryRowTagsMaximumActivated = false
+    @DefaultIntegerValue var summaryRowTagsMaximum = 5
 
     // Reading
-    var contentRetryLimit = 10
-    var contentDividerHeight: CGFloat = 0
-    var maximumScaleFactor: CGFloat = 3 {
+    @DefaultIntegerValue var contentRetryLimit = 10
+    @DefaultDoubleValue var contentDividerHeight: Double = 0
+    @DefaultDoubleValue var maximumScaleFactor: Double = 3 {
         didSet {
             if doubleTapScaleFactor > maximumScaleFactor {
                 doubleTapScaleFactor = maximumScaleFactor
             }
         }
     }
-    var doubleTapScaleFactor: CGFloat = 2 {
+    @DefaultDoubleValue var doubleTapScaleFactor: Double = 2 {
         didSet {
             if maximumScaleFactor < doubleTapScaleFactor {
                 maximumScaleFactor = doubleTapScaleFactor
@@ -65,7 +66,7 @@ struct Setting: Codable {
     }
 
     // Laboratory
-    var bypassSNIFiltering = false {
+    @DefaultFalse var bypassSNIFiltering = false {
         didSet {
             postBypassSNIFilteringDidChangeNotification()
         }

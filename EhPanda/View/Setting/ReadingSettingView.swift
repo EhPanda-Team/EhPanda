@@ -71,16 +71,16 @@ struct ReadingSettingView: View, StoreAccessor {
 
 // MARK: ScaleFactorRow
 private struct ScaleFactorRow: View {
-    @Binding private var scaleFactor: CGFloat
+    @Binding private var scaleFactor: Double
     private let labelContent: String
-    private let minFactor: CGFloat
-    private let maxFactor: CGFloat
+    private let minFactor: Double
+    private let maxFactor: Double
 
     init(
-        scaleFactor: Binding<CGFloat>,
+        scaleFactor: Binding<Double>,
         labelContent: String,
-        minFactor: CGFloat,
-        maxFactor: CGFloat
+        minFactor: Double,
+        maxFactor: Double
     ) {
         _scaleFactor = scaleFactor
         self.labelContent = labelContent
