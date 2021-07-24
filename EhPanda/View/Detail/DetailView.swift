@@ -12,15 +12,13 @@ struct DetailView: View, StoreAccessor, PersistenceAccessor {
     @EnvironmentObject var store: Store
     @Environment(\.colorScheme) private var colorScheme
 
-    @State private var associatedKeyword = AssociatedKeyword()
+    @State private var keyword = ""
     @State private var isNavLinkActive = false
 
     let gid: String
-    private let depth: Int
 
-    init(gid: String, depth: Int) {
+    init(gid: String) {
         self.gid = gid
-        self.depth = depth
     }
 
     // MARK: DetailView
@@ -29,8 +27,7 @@ struct DetailView: View, StoreAccessor, PersistenceAccessor {
             NavigationLink(
                 "",
                 destination: AssociatedView(
-                    depth: depth,
-                    keyword: associatedKeyword
+                    keyword: keyword
                 ),
                 isActive: $isNavLinkActive
             )
@@ -47,7 +44,7 @@ struct DetailView: View, StoreAccessor, PersistenceAccessor {
                         )
                         DescScrollView(detail: detail)
                         ActionRow(
-                            state: mangaState,
+                            detail: detail,
                             ratingAction: onUserRatingChanged
                         ) {
                             onSimilarGalleryTap(title: detail.title)
@@ -65,7 +62,6 @@ struct DetailView: View, StoreAccessor, PersistenceAccessor {
                         )
                         CommentScrollView(
                             gid: gid,
-                            depth: depth,
                             comments: mangaState.comments,
                             toggleCommentAction: onCommentButtonTap
                         )
@@ -186,13 +182,11 @@ private extension DetailView {
         store.dispatch(.rate(gid: gid, rating: value))
     }
     func onSimilarGalleryTap(title: String) {
-        associatedKeyword = AssociatedKeyword(
-            title: title.trimmedTitle()
-        )
+        keyword = title.trimmedTitle()
         isNavLinkActive.toggle()
     }
-    func onTagsViewTap(keyword: AssociatedKeyword) {
-        associatedKeyword = keyword
+    func onTagsViewTap(keyword: String) {
+        self.keyword = keyword
         isNavLinkActive.toggle()
     }
     func onCommentPost() {
@@ -487,16 +481,16 @@ private struct ActionRow: View {
     @State private var showUserRating = false
     @State private var userRating: Int = 0
 
-    private let state: MangaState
+    private let detail: MangaDetail
     private let ratingAction: (Int) -> Void
     private let galleryAction: () -> Void
 
     init(
-        state: MangaState,
+        detail: MangaDetail,
         ratingAction: @escaping (Int) -> Void,
         galleryAction: @escaping () -> Void
     ) {
-        self.state = state
+        self.detail = detail
         self.ratingAction = ratingAction
         self.galleryAction = galleryAction
     }
@@ -544,7 +538,7 @@ private struct ActionRow: View {
 
 private extension ActionRow {
     func onStartTasks() {
-        userRating = Int(state.userRating.fixedRating() * 2)
+        userRating = Int(detail.userRating.fixedRating() * 2)
     }
     func onRateButtonTap() {
         withAnimation {
@@ -571,11 +565,11 @@ private extension ActionRow {
 // MARK: TagsView
 private struct TagsView: View {
     private let tags: [MangaTag]
-    private let onTapAction: (AssociatedKeyword) -> Void
+    private let onTapAction: (String) -> Void
 
     init(
         tags: [MangaTag],
-        onTapAction: @escaping (AssociatedKeyword) -> Void
+        onTapAction: @escaping (String) -> Void
     ) {
         self.tags = tags
         self.onTapAction = onTapAction
@@ -595,14 +589,14 @@ private struct TagRow: View {
     @Environment(\.colorScheme) private var colorScheme
 
     private let tag: MangaTag
-    private let onTapAction: (AssociatedKeyword) -> Void
+    private let onTapAction: (String) -> Void
     private var reversePrimary: Color {
         colorScheme == .light ? .white : .black
     }
 
     init(
         tag: MangaTag,
-        onTapAction: @escaping (AssociatedKeyword) -> Void
+        onTapAction: @escaping (String) -> Void
     ) {
         self.tag = tag
         self.onTapAction = onTapAction
@@ -790,18 +784,15 @@ private func getPreviewConfigs(
 // MARK: CommentScrollView
 private struct CommentScrollView: View {
     private let gid: String
-    private let depth: Int
     private let comments: [MangaComment]
     private let toggleCommentAction: () -> Void
 
     init(
         gid: String,
-        depth: Int,
         comments: [MangaComment],
         toggleCommentAction: @escaping () -> Void
     ) {
         self.gid = gid
-        self.depth = depth
         self.comments = comments
         self.toggleCommentAction = toggleCommentAction
     }
@@ -815,8 +806,7 @@ private struct CommentScrollView: View {
                 Spacer()
                 NavigationLink(
                     destination: CommentView(
-                        gid: gid, depth: depth,
-                        comments: comments
+                        gid: gid, comments: comments
                     )
                 ) {
                     Text("Show All")

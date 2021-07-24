@@ -28,7 +28,7 @@ final class Store: ObservableObject {
                         "[ACTION]: fetchMangaPreviewsDone("
                         + "gid: \(gid), "
                         + "pageNumber: \(pageNumber), "
-                        + "result: \(previews.count) previews)"
+                        + "previews: \(previews.count))"
                     )
                 }
             default:
@@ -527,84 +527,6 @@ final class Store: ObservableObject {
                 )
             }
 
-        case .fetchAssociatedItems(let depth, let keyword):
-            appState.detailInfo.associatedItemsNotFound = false
-            appState.detailInfo.associatedItemsLoadFailed = false
-
-            if appState.detailInfo.associatedItemsLoading { break }
-            appState.detailInfo.removeAssociatedItems(depth: depth)
-            appState.detailInfo.associatedItemsLoading = true
-
-            appCommand = FetchAssociatedItemsCommand(depth: depth, keyword: keyword)
-        case .fetchAssociatedItemsDone(let result):
-            appState.detailInfo.associatedItemsLoading = false
-
-            switch result {
-            case .success(let mangas):
-                appState.detailInfo.replaceAssociatedItems(
-                    depth: mangas.0,
-                    keyword: mangas.1,
-                    pageNum: mangas.2,
-                    items: mangas.3
-                )
-                if mangas.3.isEmpty {
-                    if mangas.2.current < mangas.2.maximum {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
-                            self?.dispatch(.fetchMoreAssociatedItems(depth: mangas.0, keyword: mangas.1))
-                        }
-                    } else {
-                        appState.detailInfo.associatedItemsNotFound = true
-                    }
-                } else {
-                    PersistenceController.add(mangas: mangas.3)
-                }
-            case .failure:
-                appState.detailInfo.associatedItemsLoadFailed = true
-            }
-
-        case .fetchMoreAssociatedItems(let depth, let keyword):
-            appState.detailInfo.moreAssociatedItemsLoadFailed = false
-
-            guard appState.detailInfo.associatedItems.count >= depth + 1 else { break }
-            let currentNum = appState.detailInfo.associatedItems[depth].pageNum.current
-            let maximumNum = appState.detailInfo.associatedItems[depth].pageNum.maximum
-            if currentNum + 1 > maximumNum { break }
-
-            if appState.detailInfo.moreAssociatedItemsLoading { break }
-            appState.detailInfo.moreAssociatedItemsLoading = true
-
-            let lastID = appState.detailInfo.associatedItems[depth].mangas.last?.id ?? ""
-            let pageNum = currentNum + 1
-            appCommand = FetchMoreAssociatedItemsCommand(
-                depth: depth,
-                keyword: keyword,
-                lastID: lastID,
-                pageNum: pageNum
-            )
-        case .fetchMoreAssociatedItemsDone(let result):
-            appState.detailInfo.moreAssociatedItemsLoading = false
-
-            switch result {
-            case .success(let mangas):
-                appState.detailInfo.insertAssociatedItems(
-                    depth: mangas.0,
-                    keyword: mangas.1,
-                    pageNum: mangas.2,
-                    items: mangas.3
-                )
-                PersistenceController.add(mangas: mangas.3)
-
-                if mangas.2.current < mangas.2.maximum && mangas.3.isEmpty {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
-                        self?.dispatch(.fetchMoreAssociatedItems(depth: mangas.0, keyword: mangas.1))
-                    }
-                } else if appState.detailInfo.associatedItems.isEmpty {
-                    appState.detailInfo.associatedItemsNotFound = true
-                }
-            case .failure:
-                appState.detailInfo.moreAssociatedItemsLoadFailed = true
-            }
-
         case .fetchMangaPreviews(let gid, let index):
             let pageNumber = index / appState.detailInfo.previewConfig.batchSize
             if appState.detailInfo.previewsLoading[gid]?[pageNumber] == true { break }
@@ -740,10 +662,6 @@ final class Store: ObservableObject {
                   let apiuid = Int(apiuidString),
                   let gid = Int(gid)
             else { break }
-
-            PersistenceController.update(
-                gid: String(gid), userRating: Float(rating) / 2.0
-            )
 
             appCommand = RateCommand(
                 apiuid: apiuid,

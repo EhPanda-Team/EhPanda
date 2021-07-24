@@ -21,12 +21,10 @@ struct CommentView: View, StoreAccessor {
     @State private var hudConfig = TTProgressHUDConfig()
 
     private let gid: String
-    private let depth: Int
     private let comments: [MangaComment]
 
-    init(gid: String, depth: Int, comments: [MangaComment]) {
+    init(gid: String, comments: [MangaComment]) {
         self.gid = gid
-        self.depth = depth
         self.comments = comments
     }
 
@@ -36,8 +34,7 @@ struct CommentView: View, StoreAccessor {
             NavigationLink(
                 "",
                 destination: DetailView(
-                    gid: commentJumpID ?? gid,
-                    depth: depth + 1
+                    gid: commentJumpID ?? gid
                 ),
                 isActive: $isNavLinkActive
             )

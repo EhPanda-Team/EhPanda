@@ -86,10 +86,3 @@ extension StoreAccessor {
         setting.detectsLinksFromPasteboard
     }
 }
-
-// MARK: DetailInfo
-extension StoreAccessor {
-    var assciatedItems: [AssociatedItem] {
-        detailInfo.associatedItems
-    }
-}

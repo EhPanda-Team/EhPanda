@@ -69,11 +69,3 @@ struct Filter: Codable {
     @DefaultFalse var disableUploader = false
     @DefaultFalse var disableTags = false
 }
-
-struct AssociatedCategory: Codable {
-    let category: Category
-    var isFiltered: Bool
-    var color: Color {
-        category.color
-    }
-}

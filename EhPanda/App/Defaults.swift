@@ -189,43 +189,6 @@ extension Defaults.URL {
     static func mangaTorrents(gid: String, token: String) -> String {
         merge(urls: [host + gallerytorrents, Defaults.URL.gid + gid, Defaults.URL.token + token])
     }
-    static func associatedItemsRedir(keyword: AssociatedKeyword) -> String {
-        if let title = keyword.title {
-            return similarGallery(keyword: title)
-        } else {
-            return assciatedItems(keyword: (keyword.category ?? "", keyword.content ?? ""))
-        }
-    }
-    static func assciatedItems(keyword: (String, String)) -> String {
-        merge(keyword: keyword, pageNum: nil, lastID: nil)
-    }
-    static func similarGallery(keyword: String) -> String {
-        merge(urls: [host, fSearch + keyword.urlEncoded()])
-    }
-    static func moreAssociatedItemsRedir(keyword: AssociatedKeyword, lastID: String, pageNum: String) -> String {
-        if let title = keyword.title {
-            return moreSimilarGallery(keyword: title, pageNum: pageNum, lastID: lastID)
-        } else {
-            return moreAssociatedItems(
-                keyword: (keyword.category ?? "", keyword.content ?? ""),
-                pageNum: pageNum, lastID: lastID
-            )
-        }
-    }
-    static func moreAssociatedItems(keyword: (String, String), pageNum: String, lastID: String) -> String {
-        merge(keyword: keyword, pageNum: pageNum, lastID: lastID)
-    }
-    static func moreSimilarGallery(keyword: String, pageNum: String, lastID: String) -> String {
-        merge(urls: [
-                host,
-                fSearch + keyword.urlEncoded(),
-                page + pageNum,
-                from + lastID
-        ])
-    }
-    static func mangaContents(detailURL: String) -> String {
-        detailURL
-    }
 
     // Account Associated Operations
     static func addFavorite(gid: String, token: String) -> String {
@@ -347,11 +310,5 @@ private extension Defaults.URL {
         } else {
             return joinedArray.joined()
         }
-    }
-    static func merge(keyword: (String, String), pageNum: String?, lastID: String?) -> String {
-        guard let pageNum = pageNum, let lastID = lastID else {
-            return host + tag + "\(keyword.0):\(keyword.1.urlEncoded())"
-        }
-        return merge(urls: [host + tag + "\(keyword.0):\(keyword.1.urlEncoded())/\(pageNum)", from + lastID])
     }
 }

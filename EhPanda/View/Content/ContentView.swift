@@ -43,10 +43,11 @@ struct ContentView: View, StoreAccessor, PersistenceAccessor {
         .onEnded(onMagnificationGestureEnded)
 
         Group {
-            if let contents = mangaContents,
-               let setting = setting,
-               !contents.isEmpty
-            {
+            if contentInfo.mangaContentsLoading {
+                LoadingView()
+            } else if contentInfo.mangaContentsLoadFailed {
+                NetworkErrorView(retryAction: fetchMangaContents)
+            } else if let contents = mangaContents, let setting = setting {
                 ScrollViewReader { scrollProxy in
                     ScrollView {
                         MeasureTool(bindingFrame: $position)
@@ -86,10 +87,6 @@ struct ContentView: View, StoreAccessor, PersistenceAccessor {
                     .gesture(drag)
                     .gesture(magnify)
                 }
-            } else if contentInfo.mangaContentsLoading {
-                LoadingView()
-            } else {
-                NetworkErrorView(retryAction: fetchMangaContents)
             }
         }
         .onReceive(
@@ -177,7 +174,7 @@ private extension ContentView {
 
     // MARK: Dispatch
     func fetchMangaContents() {
-        DispatchQueue.main.async {
+        dispatchMainAsync {
             store.dispatch(.fetchMangaContents(gid: gid))
         }
     }

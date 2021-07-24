@@ -62,6 +62,7 @@ struct MangaDetail: Codable {
         title: "",
         isFavored: false,
         rating: 0.0,
+        userRating: 0.0,
         ratingCount: 0,
         category: .nonH,
         language: .English,
@@ -80,6 +81,7 @@ struct MangaDetail: Codable {
     var jpnTitle: String?
     var isFavored: Bool
     var rating: Float
+    var userRating: Float
     var ratingCount: Int
     let category: Category
     let language: Language
@@ -99,7 +101,6 @@ struct MangaState: Codable {
 
     let gid: String
     var tags = [MangaTag]()
-    var userRating: Float = 0
     var currentPageNum = 0
     var pageNumMaximum = 1
     var readingProgress = 0

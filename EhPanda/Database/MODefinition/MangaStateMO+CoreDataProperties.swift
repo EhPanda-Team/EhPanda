@@ -21,5 +21,4 @@ extension MangaStateMO: GalleryIdentifiable {
     @NSManaged public var previews: Data?
     @NSManaged public var readingProgress: Int64
     @NSManaged public var tags: Data?
-    @NSManaged public var userRating: Float
 }

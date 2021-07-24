@@ -23,6 +23,7 @@ extension MangaDetailMO: Identifiable {
     @NSManaged public var pageCount: Int64
     @NSManaged public var publishedDate: Date
     @NSManaged public var rating: Float
+    @NSManaged public var userRating: Float
     @NSManaged public var ratingCount: Int64
     @NSManaged public var sizeCount: Float
     @NSManaged public var sizeType: String

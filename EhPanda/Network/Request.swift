@@ -227,47 +227,6 @@ struct MoreFavoritesItemsRequest {
     }
 }
 
-struct AssociatedItemsRequest {
-    let keyword: AssociatedKeyword
-
-    var publisher: AnyPublisher<(PageNumber, [Manga]), AppError> {
-        URLSession.shared.dataTaskPublisher(
-            for: Defaults.URL
-                .associatedItemsRedir(
-                    keyword: keyword
-                )
-                .safeURL()
-        )
-        .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-        .map { (Parser.parsePageNum(doc: $0), Parser.parseListItems(doc: $0)) }
-        .mapError(mapAppError)
-        .eraseToAnyPublisher()
-    }
-}
-
-struct MoreAssociatedItemsRequest {
-    let keyword: AssociatedKeyword
-    let lastID: String
-    let pageNum: Int
-
-    var publisher: AnyPublisher<(PageNumber, [Manga]), AppError> {
-        URLSession.shared
-            .dataTaskPublisher(
-                for: Defaults.URL
-                    .moreAssociatedItemsRedir(
-                        keyword: keyword,
-                        lastID: lastID,
-                        pageNum: "\(pageNum)"
-                    )
-                    .safeURL()
-            )
-            .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-            .map { (Parser.parsePageNum(doc: $0), Parser.parseListItems(doc: $0)) }
-            .mapError(mapAppError)
-            .eraseToAnyPublisher()
-    }
-}
-
 struct MangaDetailRequest {
     let gid: String
     let detailURL: String
@@ -441,14 +400,9 @@ struct MangaContentsRequest {
     let pageCount: Int
 
     var publisher: AnyPublisher<(PageNumber, [MangaContent]), AppError> {
-        preContents(
-            url: Defaults.URL
-                .mangaContents(
-                    detailURL: detailURL
-                )
-        )
-        .flatMap(contents)
-        .eraseToAnyPublisher()
+        preContents(url: detailURL)
+            .flatMap(contents)
+            .eraseToAnyPublisher()
     }
 
     func preContents(url: String) -> AnyPublisher<(PageNumber, [(Int, URL)]), AppError> {

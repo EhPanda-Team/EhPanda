@@ -15,7 +15,7 @@ struct TagCloudView: View {
     private let backgroundColor: Color
     private let paddingV: CGFloat
     private let paddingH: CGFloat
-    private let onTapAction: (AssociatedKeyword) -> Void
+    private let onTapAction: (String) -> Void
 
     @State private var totalHeight
           = CGFloat.zero       // << variant for ScrollView/List
@@ -29,7 +29,7 @@ struct TagCloudView: View {
         paddingV: CGFloat,
         paddingH: CGFloat,
         onTapAction: @escaping
-            (AssociatedKeyword) -> Void = { _ in }
+            (String) -> Void = { _ in }
     ) {
         self.tag = tag
         self.font = font
@@ -97,14 +97,11 @@ private extension TagCloudView {
                     .foregroundColor(backgroundColor)
             )
             .cornerRadius(5)
-            .onTapGesture(perform: {
+            .onTapGesture {
                 onTapAction(
-                    AssociatedKeyword(
-                        category: tag.category.rawValue,
-                        content: text
-                    )
+                    tag.category.rawValue + ":" + text
                 )
-            })
+            }
     }
 
     func viewHeightReader(binding: Binding<CGFloat>) -> some View {

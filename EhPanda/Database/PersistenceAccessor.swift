@@ -127,6 +127,7 @@ extension PersistenceController {
             managedObject?.sizeCount = detail.sizeCount
             managedObject?.sizeType = detail.sizeType
             managedObject?.rating = detail.rating
+            managedObject?.userRating = detail.userRating
             managedObject?.ratingCount = Int64(detail.ratingCount)
             managedObject?.torrentCount = Int64(detail.torrentCount)
         }
@@ -185,11 +186,6 @@ extension PersistenceController {
     static func update(gid: String, readingProgress: Int) {
         update(gid: gid) { mangaStateMO in
             mangaStateMO.readingProgress = Int64(readingProgress)
-        }
-    }
-    static func update(gid: String, userRating: Float) {
-        update(gid: gid) { mangaStateMO in
-            mangaStateMO.userRating = userRating
         }
     }
     static func update(gid: String, pageNum: PageNumber, contents: [MangaContent]) {

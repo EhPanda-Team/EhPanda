@@ -82,7 +82,7 @@ struct Parser {
                     gid: url.pathComponents[2],
                     token: url.pathComponents[3],
                     title: title,
-                    rating: rating,
+                    rating: rating.0,
                     tags: tagsAndLang.0,
                     category: category,
                     language: tagsAndLang.1,
@@ -127,17 +127,6 @@ struct Parser {
             else { throw AppError.parseFailed }
 
             return String(coverHTML[rangeA.upperBound..<rangeB.lowerBound])
-        }
-
-        func parseRating(node: XMLElement?) throws -> Float {
-            guard let ratingString = node?
-              .at_xpath("//td [@id='rating_label']")?.text?
-              .replacingOccurrences(of: "Average: ", with: "")
-              .replacingOccurrences(of: "Not Yet Rated", with: "0"),
-                  let rating = Float(ratingString)
-            else { throw AppError.parseFailed }
-
-            return rating
         }
 
         func parseTags(node: XMLElement?) throws -> [MangaTag] {
@@ -260,7 +249,6 @@ struct Parser {
                   let gddNode = gd3Node.at_xpath("//div [@id='gdd']"),
                   let gdrNode = gd3Node.at_xpath("//div [@id='gdr']"),
                   let gdfNode = gd3Node.at_xpath("//div [@id='gdf']"),
-                  let rating = try? parseRating(node: gdrNode),
                   let coverURL = try? parseCoverURL(node: link),
                   let tags = try? parseTags(node: gd4Node),
                   let previews = try? parsePreviews(doc: doc),
@@ -272,6 +260,7 @@ struct Parser {
                   let language = Language(rawValue: infoPanel[1]),
                   let engTitle = link.at_xpath("//h1 [@id='gn']")?.text,
                   let uploader = gd3Node.at_xpath("//div [@id='gdn']")?.text,
+                  let (imgRating, textRating, containsUserRating) = try? parseRating(node: gdrNode),
                   let ratingCount = Int(gdrNode.at_xpath("//span [@id='rating_count']")?.text ?? ""),
                   let category = Category(rawValue: gd3Node.at_xpath("//div [@id='gdc']")?.text ?? ""),
                   let publishedDate = try? parseDate(time: infoPanel[0], format: Defaults.DateFormat.publish)
@@ -288,7 +277,10 @@ struct Parser {
                 title: engTitle,
                 jpnTitle: jpnTitle,
                 isFavored: isFavored,
-                rating: rating,
+                rating: containsUserRating ?
+                    textRating ?? 0.0 : imgRating,
+                userRating: containsUserRating
+                    ? imgRating : 0.0,
                 ratingCount: ratingCount,
                 category: category,
                 language: language,
@@ -763,12 +755,29 @@ extension Parser {
     }
 
     // MARK: Rating
-    static func parseRating(node: XMLElement?) throws -> Float {
+    /// Returns ratings parsed from stars image / text and if the return contains a userRating .
+    static func parseRating(node: XMLElement) throws -> (Float, Float?, Bool) {
+        func parseTextRating(node: XMLElement) throws -> Float {
+            guard let ratingString = node
+              .at_xpath("//td [@id='rating_label']")?.text?
+              .replacingOccurrences(of: "Average: ", with: "")
+              .replacingOccurrences(of: "Not Yet Rated", with: "0"),
+                  let rating = Float(ratingString)
+            else { throw AppError.parseFailed }
+
+            return rating
+        }
+
         var tmpRatingString: String?
-        ["ir", "ir irr", "ir irg", "ir irb"].forEach { string in
-            if tmpRatingString != nil { return }
-            let xpath = "//div [@class='" + string + "']"
-            tmpRatingString = node?.at_xpath(xpath)?.toHTML
+        var containsUserRating = false
+
+        for link in node.xpath("//div") where
+            link.className?.contains("ir") == true
+            && link["style"]?.isEmpty == false
+        {
+            if tmpRatingString != nil { break }
+            tmpRatingString = link["style"]
+            containsUserRating = link.className != "ir"
         }
 
         guard let ratingString = tmpRatingString
@@ -786,7 +795,7 @@ extension Parser {
         else { throw AppError.parseFailed }
 
         if ratingString.contains("-21px") { rating -= 0.5 }
-        return rating
+        return (rating, try? parseTextRating(node: node), containsUserRating)
     }
 
     // MARK: Page Number

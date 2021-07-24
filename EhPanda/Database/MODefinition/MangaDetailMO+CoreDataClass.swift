@@ -13,7 +13,7 @@ extension MangaDetailMO: ManagedObjectProtocol {
     func toEntity() -> MangaDetail {
         MangaDetail(
             gid: gid, title: title, isFavored: isFavored,
-            rating: rating, ratingCount: Int(ratingCount),
+            rating: rating, userRating: userRating, ratingCount: Int(ratingCount),
             category: Category(rawValue: category).forceUnwrapped,
             language: Language(rawValue: language).forceUnwrapped,
             uploader: uploader, publishedDate: publishedDate,
@@ -40,6 +40,7 @@ extension MangaDetail: ManagedObjectConvertible {
         mangaDetailMO.pageCount = Int64(pageCount)
         mangaDetailMO.publishedDate = publishedDate
         mangaDetailMO.rating = rating
+        mangaDetailMO.userRating = userRating
         mangaDetailMO.ratingCount = Int64(ratingCount)
         mangaDetailMO.sizeCount = sizeCount
         mangaDetailMO.sizeType = sizeType

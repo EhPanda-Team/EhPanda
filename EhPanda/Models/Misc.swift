@@ -8,7 +8,6 @@
 import Foundation
 
 typealias FavoritesIndex = Int
-typealias Depth = Int
 typealias Percentage = Int
 typealias Keyword = String
 typealias Identity = String
@@ -19,18 +18,6 @@ typealias CurrentCredits = String
 struct PageNumber {
     var current = 0
     var maximum = 0
-}
-
-struct AssociatedKeyword: Equatable {
-    var category: String?
-    var content: String?
-    var title: String?
-}
-
-struct AssociatedItem {
-    var keyword = AssociatedKeyword()
-    var pageNum = PageNumber()
-    var mangas: [Manga]
 }
 
 struct Greeting: Codable, Equatable {

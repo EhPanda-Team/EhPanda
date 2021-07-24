@@ -332,50 +332,6 @@ struct FetchMangaArchiveFundsCommand: AppCommand {
     }
 }
 
-struct FetchAssociatedItemsCommand: AppCommand {
-    let depth: Int
-    let keyword: AssociatedKeyword
-
-    func execute(in store: Store) {
-        let token = SubscriptionToken()
-        AssociatedItemsRequest(keyword: keyword)
-            .publisher
-            .receive(on: DispatchQueue.main)
-            .sink { completion in
-                if case .failure(let error) = completion {
-                    store.dispatch(.fetchAssociatedItemsDone(result: .failure(error)))
-                }
-                token.unseal()
-            } receiveValue: { mangas in
-                store.dispatch(.fetchAssociatedItemsDone(result: .success((depth, keyword, mangas.0, mangas.1))))
-            }
-            .seal(in: token)
-    }
-}
-
-struct FetchMoreAssociatedItemsCommand: AppCommand {
-    let depth: Int
-    let keyword: AssociatedKeyword
-    let lastID: String
-    let pageNum: Int
-
-    func execute(in store: Store) {
-        let token = SubscriptionToken()
-        MoreAssociatedItemsRequest(keyword: keyword, lastID: lastID, pageNum: pageNum)
-            .publisher
-            .receive(on: DispatchQueue.main)
-            .sink { completion in
-                if case .failure(let error) = completion {
-                    store.dispatch(.fetchMoreAssociatedItemsDone(result: .failure(error)))
-                }
-                token.unseal()
-            } receiveValue: { mangas in
-                store.dispatch(.fetchMoreAssociatedItemsDone(result: .success((depth, keyword, mangas.0, mangas.1))))
-            }
-            .seal(in: token)
-    }
-}
-
 struct FetchMangaPreviewsCommand: AppCommand {
     let gid: String
     let url: String

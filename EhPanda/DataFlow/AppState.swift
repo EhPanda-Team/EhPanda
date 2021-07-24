@@ -218,54 +218,6 @@ extension AppState {
         var mangaArchiveFundsLoading = false
         var previewsLoading = [String: [Int: Bool]]()
         var previewConfig = PreviewConfig.large(rows: 4)
-
-        var associatedItems: [AssociatedItem] = []
-        var associatedItemsLoading = false
-        var associatedItemsNotFound = false
-        var associatedItemsLoadFailed = false
-        var moreAssociatedItemsLoading = false
-        var moreAssociatedItemsLoadFailed = false
-
-        mutating func removeAssociatedItems(depth: Int) {
-            if associatedItems.count >= depth + 1 {
-                associatedItems[depth].mangas = []
-            }
-        }
-
-        mutating func replaceAssociatedItems(
-            depth: Int,
-            keyword: AssociatedKeyword,
-            pageNum: PageNumber,
-            items: [Manga]
-        ) {
-            if associatedItems.count >= depth + 1 {
-                associatedItems[depth] = AssociatedItem(
-                    keyword: keyword,
-                    pageNum: pageNum,
-                    mangas: items
-                )
-            } else {
-                associatedItems
-                    .append(AssociatedItem(
-                        keyword: keyword,
-                        pageNum: pageNum,
-                        mangas: items
-                ))
-            }
-        }
-
-        mutating func insertAssociatedItems(
-            depth: Int,
-            keyword: AssociatedKeyword,
-            pageNum: PageNumber,
-            items: [Manga]
-        ) {
-            if associatedItems.count > depth {
-                associatedItems[depth].keyword = keyword
-                associatedItems[depth].pageNum = pageNum
-                associatedItems[depth].mangas.append(contentsOf: items)
-            }
-        }
     }
 
     struct CommentInfo {
