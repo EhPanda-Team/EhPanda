@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="19178.1" systemVersion="20F71" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithCloudKit="YES" userDefinedModelVersionIdentifier="">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="19178.1" systemVersion="20G71" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithCloudKit="YES" userDefinedModelVersionIdentifier="">
     <entity name="AppEnvMO" representedClassName=".AppEnvMO" syncable="YES">
         <attribute name="filter" optional="YES" attributeType="Binary"/>
         <attribute name="historyKeywords" optional="YES" attributeType="Binary" customClassName=".[String]"/>
@@ -19,7 +19,7 @@
         <attribute name="publishedDate" attributeType="Date" defaultDateTimeInterval="646585800" usesScalarValueType="NO"/>
         <attribute name="rating" attributeType="Float" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="ratingCount" attributeType="String" defaultValueString=""/>
-        <attribute name="sizeCount" attributeType="Float" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="sizeCount" attributeType="String" defaultValueString=""/>
         <attribute name="sizeType" attributeType="String" defaultValueString=""/>
         <attribute name="title" attributeType="String" defaultValueString=""/>
         <attribute name="torrentCount" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>

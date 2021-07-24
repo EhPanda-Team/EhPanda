@@ -391,7 +391,7 @@ struct Parser {
                 if let c5Node = c1Link.at_xpath("//div [@class='c5 nosel']") {
                     score = c5Node.at_xpath("//span")?.text
                 }
-                let author = String(c3Node[..<rangeB.upperBound])
+                let author = String(c3Node[rangeB.upperBound...])
                 let commentTime = String(c3Node[rangeA.upperBound..<rangeB.lowerBound])
 
                 var votedUp = false
