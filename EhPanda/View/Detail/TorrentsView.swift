@@ -27,34 +27,59 @@ struct TorrentsView: View, StoreAccessor {
     }
 
     var body: some View {
-        NavigationView {
-            Group {
-                if !torrents.isEmpty {
-                    ZStack {
-                        List(torrents) { torrent in
-                            TorrentRow(
-                                torrent: torrent,
-                                action: onTorrentRowTap
-                            )
+        Group {
+            if !torrents.isEmpty {
+                ZStack {
+                    List {
+                        ForEach(torrents) { torrent in
+                            TorrentRow(torrent: torrent, action: { magnetURL in
+                                onTorrentRowTap(magnetURL: magnetURL)
+                            })
+                            .swipeActions {
+                                Button {
+                                    onTorrentRowSwipe(
+                                        hash: torrent.hash,
+                                        torrentURL: torrent.torrentURL
+                                    )
+                                } label: {
+                                    Image(systemName: "arrow.down.doc.fill")
+                                }
+                            }
                         }
-                        TTProgressHUD($hudVisible, config: hudConfig)
                     }
-                } else if loadingFlag {
-                    LoadingView()
-                } else {
-                    NetworkErrorView(retryAction: fetchMangaTorrents)
+                    TTProgressHUD($hudVisible, config: hudConfig)
                 }
+            } else if loadingFlag {
+                LoadingView()
+            } else {
+                NetworkErrorView(retryAction: fetchMangaTorrents)
             }
-            .navigationBarTitle("Torrents")
         }
+        .navigationBarTitle("Torrents")
         .task(fetchMangaTorrents)
     }
 }
 
 private extension TorrentsView {
-    func onTorrentRowTap(magnet: String) {
-        saveToPasteboard(value: magnet)
+    func onTorrentRowTap(magnetURL: String) {
+        saveToPasteboard(value: magnetURL)
         showCopiedHUD()
+    }
+    func onTorrentRowSwipe(hash: String, torrentURL: String) {
+        guard let torrentURL = URL(string: torrentURL) else { return }
+        URLSession.shared.downloadTask(with: torrentURL) { tmpURL, _, _ in
+            guard let tmpURL = tmpURL,
+                  var localURL = FileManager.default.urls(
+                    for: .cachesDirectory, in: .userDomainMask).first
+            else { return }
+
+            localURL.appendPathComponent(hash + ".torrent")
+            try? FileManager.default.copyItem(at: tmpURL, to: localURL)
+            if FileManager.default.fileExists(atPath: localURL.path) {
+                dispatchMainSync { presentActivityVC(items: [localURL]) }
+            }
+        }
+        .resume()
     }
 
     func showCopiedHUD() {
@@ -122,7 +147,9 @@ private struct TorrentRow: View {
                 }
             }
             .lineLimit(1)
-            Button(action: onFileNameTap) {
+            Button {
+                action(torrent.magnetURL)
+            } label: {
                 Text(torrent.fileName)
                     .font(.headline)
             }
@@ -137,9 +164,5 @@ private struct TorrentRow: View {
             .foregroundStyle(.secondary)
         }
         .padding()
-    }
-
-    private func onFileNameTap() {
-        action(torrent.magnet)
     }
 }

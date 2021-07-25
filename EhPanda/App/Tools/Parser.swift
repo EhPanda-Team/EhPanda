@@ -567,7 +567,8 @@ struct Parser {
             var tmpDownloadCount: Int?
             var tmpUploader: String?
             var tmpFileName: String?
-            var tmpMagnet: String?
+            var tmpHash: String?
+            var tmpTorrentURL: String?
 
             for trLink in link.xpath("//tr") {
                 for tdLink in trLink.xpath("//td") {
@@ -597,8 +598,8 @@ struct Parser {
                        let aURL = URL(string: aHref),
                        let range = aURL.lastPathComponent.range(of: ".torrent")
                     {
-                        let hash = String(aURL.lastPathComponent[..<range.lowerBound])
-                        tmpMagnet = Defaults.URL.magnet(hash: hash)
+                        tmpHash = String(aURL.lastPathComponent[..<range.lowerBound])
+                        tmpTorrentURL = aHref
                         tmpFileName = aText
                     }
                 }
@@ -615,7 +616,8 @@ struct Parser {
                   let downloadCount = tmpDownloadCount,
                   let uploader = tmpUploader,
                   let fileName = tmpFileName,
-                  let magnet = tmpMagnet
+                  let hash = tmpHash,
+                  let torrentURL = tmpTorrentURL
             else { continue }
 
             torrents.append(
@@ -627,7 +629,8 @@ struct Parser {
                     downloadCount: downloadCount,
                     uploader: uploader,
                     fileName: fileName,
-                    magnet: magnet
+                    hash: hash,
+                    torrentURL: torrentURL
                 )
             )
         }

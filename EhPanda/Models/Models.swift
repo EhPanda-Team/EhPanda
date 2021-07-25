@@ -184,7 +184,8 @@ struct MangaTorrent: Identifiable, Codable {
     let downloadCount: Int
     let uploader: String
     let fileName: String
-    let magnet: String
+    let hash: String
+    let torrentURL: String
 }
 
 struct Log: Identifiable, Comparable {
@@ -253,6 +254,9 @@ extension MangaTorrent: DateFormattable, CustomStringConvertible {
     }
     var originalDate: Date {
         postedDate
+    }
+    var magnetURL: String {
+        Defaults.URL.magnet(hash: hash)
     }
 }
 

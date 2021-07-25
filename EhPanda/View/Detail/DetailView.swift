@@ -13,7 +13,8 @@ struct DetailView: View, StoreAccessor, PersistenceAccessor {
     @Environment(\.colorScheme) private var colorScheme
 
     @State private var keyword = ""
-    @State private var isNavLinkActive = false
+    @State private var isTorrentsLinkActive = false
+    @State private var isAssociatedLinkActive = false
 
     let gid: String
 
@@ -26,10 +27,17 @@ struct DetailView: View, StoreAccessor, PersistenceAccessor {
         ZStack {
             NavigationLink(
                 "",
+                destination: TorrentsView(
+                    gid: gid, token: manga.token
+                ),
+                isActive: $isTorrentsLinkActive
+            )
+            NavigationLink(
+                "",
                 destination: AssociatedView(
                     keyword: keyword
                 ),
-                isActive: $isNavLinkActive
+                isActive: $isAssociatedLinkActive
             )
             if let detail = mangaDetail {
                 ScrollView(showsIndicators: false) {
@@ -86,8 +94,6 @@ struct DetailView: View, StoreAccessor, PersistenceAccessor {
                 switch item {
                 case .archive:
                     ArchiveView(gid: gid)
-                case .torrents:
-                    TorrentsView(gid: gid, token: manga.token)
                 case .comment:
                     DraftCommentView(
                         content: commentContentBinding,
@@ -108,7 +114,7 @@ struct DetailView: View, StoreAccessor, PersistenceAccessor {
                         Label("Archive", systemImage: "doc.zipper")
                     }
                     .disabled(mangaDetail?.archiveURL == nil)
-                    Button(action: onTorrentsButtonTap) {
+                    Button(action: navigateToTorrentsView) {
                         Label(
                             "Torrents".localized() + (
                                 mangaDetail?.torrentCount ?? 0 > 0
@@ -168,9 +174,6 @@ private extension DetailView {
     func onArchiveButtonTap() {
         toggleSheet(state: .archive)
     }
-    func onTorrentsButtonTap() {
-        toggleSheet(state: .torrents)
-    }
     func onCommentButtonTap() {
         toggleSheet(state: .comment)
     }
@@ -181,22 +184,25 @@ private extension DetailView {
     func onUserRatingChanged(value: Int) {
         store.dispatch(.rate(gid: gid, rating: value))
     }
-    func navigateToAssociatedGallery(_ keyword: String? = nil) {
+    func navigateToTorrentsView() {
+        isTorrentsLinkActive.toggle()
+    }
+    func navigateToAssociatedView(_ keyword: String? = nil) {
         guard let keyword = keyword else { return }
 
         self.keyword = keyword
-        isNavLinkActive.toggle()
+        isAssociatedLinkActive.toggle()
 
     }
     func onUploaderTap() {
         guard let uploader = mangaDetail?.uploader else { return }
-        navigateToAssociatedGallery("uploader:" + "\"\(uploader)\"$")
+        navigateToAssociatedView("uploader:" + "\"\(uploader)\"$")
     }
     func onSimilarGalleryTap() {
-        navigateToAssociatedGallery(mangaDetail?.title.trimmedTitle())
+        navigateToAssociatedView(mangaDetail?.title.trimmedTitle())
     }
     func onTagViewTap(keyword: String) {
-        navigateToAssociatedGallery(keyword + "$")
+        navigateToAssociatedView(keyword + "$")
     }
     func onCommentPost() {
         store.dispatch(.comment(gid: gid, content: commentContent))
@@ -896,6 +902,5 @@ enum DetailViewSheetState: Identifiable {
     var id: Int { hashValue }
 
     case archive
-    case torrents
     case comment
 }
