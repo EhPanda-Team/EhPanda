@@ -196,13 +196,13 @@ private extension DetailView {
     }
     func onUploaderTap() {
         guard let uploader = mangaDetail?.uploader else { return }
-        navigateToAssociatedView("uploader:" + "\"\(uploader)\"$")
+        navigateToAssociatedView("uploader:" + "\"\(uploader)\"")
     }
     func onSimilarGalleryTap() {
         navigateToAssociatedView(mangaDetail?.title.trimmedTitle())
     }
     func onTagViewTap(keyword: String) {
-        navigateToAssociatedView(keyword + "$")
+        navigateToAssociatedView(keyword)
     }
     func onCommentPost() {
         store.dispatch(.comment(gid: gid, content: commentContent))
