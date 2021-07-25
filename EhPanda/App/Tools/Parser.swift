@@ -259,7 +259,7 @@ struct Parser {
                   let likeCount = Int(infoPanel[5]),
                   let language = Language(rawValue: infoPanel[1]),
                   let engTitle = link.at_xpath("//h1 [@id='gn']")?.text,
-                  let uploader = gd3Node.at_xpath("//div [@id='gdn']")?.text,
+                  let uploader = gd3Node.at_xpath("//div [@id='gdn']")?.at_xpath("//a")?.text,
                   let (imgRating, textRating, containsUserRating) = try? parseRating(node: gdrNode),
                   let ratingCount = Int(gdrNode.at_xpath("//span [@id='rating_count']")?.text ?? ""),
                   let category = Category(rawValue: gd3Node.at_xpath("//div [@id='gdc']")?.text ?? ""),

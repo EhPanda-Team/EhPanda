@@ -99,7 +99,8 @@ private extension TagCloudView {
             .cornerRadius(5)
             .onTapGesture {
                 onTapAction(
-                    tag.category.rawValue + ":" + text
+                    tag.category == .misc ? text
+                    : tag.category.rawValue + ":" + text
                 )
             }
     }

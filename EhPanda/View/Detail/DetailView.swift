@@ -40,19 +40,19 @@ struct DetailView: View, StoreAccessor, PersistenceAccessor {
                                 .translatesCategory,
                             favoriteNames: user.favoriteNames,
                             addFavAction: addFavorite,
-                            deleteFavAction: deleteFavorite
+                            deleteFavAction: deleteFavorite,
+                            onUploaderTapAction: onUploaderTap
                         )
                         DescScrollView(detail: detail)
                         ActionRow(
                             detail: detail,
-                            ratingAction: onUserRatingChanged
-                        ) {
-                            onSimilarGalleryTap(title: detail.title)
-                        }
+                            ratingAction: onUserRatingChanged,
+                            galleryAction: onSimilarGalleryTap
+                        )
                         if !mangaState.tags.isEmpty {
                             TagsView(
                                 tags: mangaState.tags,
-                                onTapAction: onTagsViewTap
+                                onTapAction: onTagViewTap
                             )
                         }
                         PreviewView(
@@ -68,7 +68,7 @@ struct DetailView: View, StoreAccessor, PersistenceAccessor {
                     }
                     .padding(.horizontal)
                     .padding(.bottom, 20)
-                    .padding(.top, -40)
+                    .padding(.top, -25)
                 }
                 .transition(opacityTransition)
             } else if detailInfo.mangaDetailLoading {
@@ -181,13 +181,22 @@ private extension DetailView {
     func onUserRatingChanged(value: Int) {
         store.dispatch(.rate(gid: gid, rating: value))
     }
-    func onSimilarGalleryTap(title: String) {
-        keyword = title.trimmedTitle()
-        isNavLinkActive.toggle()
-    }
-    func onTagsViewTap(keyword: String) {
+    func navigateToAssociatedGallery(_ keyword: String? = nil) {
+        guard let keyword = keyword else { return }
+
         self.keyword = keyword
         isNavLinkActive.toggle()
+
+    }
+    func onUploaderTap() {
+        guard let uploader = mangaDetail?.uploader else { return }
+        navigateToAssociatedGallery("uploader:" + "\"\(uploader)\"$")
+    }
+    func onSimilarGalleryTap() {
+        navigateToAssociatedGallery(mangaDetail?.title.trimmedTitle())
+    }
+    func onTagViewTap(keyword: String) {
+        navigateToAssociatedGallery(keyword + "$")
     }
     func onCommentPost() {
         store.dispatch(.comment(gid: gid, content: commentContent))
@@ -231,6 +240,7 @@ private struct HeaderView: View {
     private let favoriteNames: [Int: String]?
     private let addFavAction: (Int) -> Void
     private let deleteFavAction: () -> Void
+    private let onUploaderTapAction: () -> Void
 
     init(
         manga: Manga,
@@ -238,7 +248,8 @@ private struct HeaderView: View {
         translatesCategory: Bool,
         favoriteNames: [Int: String]?,
         addFavAction: @escaping (Int) -> Void,
-        deleteFavAction: @escaping () -> Void
+        deleteFavAction: @escaping () -> Void,
+        onUploaderTapAction: @escaping () -> Void
     ) {
         self.manga = manga
         self.detail = detail
@@ -246,6 +257,7 @@ private struct HeaderView: View {
         self.favoriteNames = favoriteNames
         self.addFavAction = addFavAction
         self.deleteFavAction = deleteFavAction
+        self.onUploaderTapAction = onUploaderTapAction
     }
 
     var body: some View {
@@ -265,10 +277,13 @@ private struct HeaderView: View {
                     .fontWeight(.bold)
                     .lineLimit(3)
                     .font(.title3)
-                Text(manga.uploader ?? "")
-                    .lineLimit(1)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                Button(
+                    manga.uploader ?? "",
+                    action: onUploaderTapAction
+                )
+                .lineLimit(1)
+                .font(.callout)
+                .foregroundStyle(.secondary)
                 Spacer()
                 HStack {
                     Text(category)
