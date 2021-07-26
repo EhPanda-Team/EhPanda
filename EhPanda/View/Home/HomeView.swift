@@ -433,7 +433,7 @@ private extension HomeView {
             return false
         }
 
-        dispatchMainAsync {
+        DispatchQueue.main.async {
             if setting.showNewDawnGreeting {
                 if let greeting = user.greeting {
                     if verifyDate(with: greeting.updateTime) {

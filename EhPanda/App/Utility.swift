@@ -235,14 +235,6 @@ func dispatchMainSync(execute work: () -> Void) {
     }
 }
 
-func dispatchMainAsync(execute work: @escaping () -> Void) {
-    if Thread.isMainThread {
-        work()
-    } else {
-        DispatchQueue.main.async(execute: work)
-    }
-}
-
 func presentActivityVC(items: [Any]) {
     let activityVC = UIActivityViewController(
         activityItems: items,

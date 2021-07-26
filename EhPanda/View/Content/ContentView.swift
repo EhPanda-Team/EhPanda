@@ -174,7 +174,7 @@ private extension ContentView {
 
     // MARK: Dispatch
     func fetchMangaContents() {
-        dispatchMainAsync {
+        DispatchQueue.main.async {
             store.dispatch(.fetchMangaContents(gid: gid))
         }
     }

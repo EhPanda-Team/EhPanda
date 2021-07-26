@@ -38,15 +38,15 @@ private extension EhPandaApp {
     func onStartTasks() {
         dispatchMainSync {
             syncGalleryHost()
-            configureLogging()
-            configureWebImage()
             configureDomainFronting()
-            configureIgnoreOffensive()
         }
-        dispatchMainAsync {
+        DispatchQueue.main.async {
             fetchAccountInfoIfNeeded()
-            clearImageCachesIfNeeded()
         }
+        configureLogging()
+        configureWebImage()
+        configureIgnoreOffensive()
+        clearImageCachesIfNeeded()
     }
 
     func syncGalleryHost() {

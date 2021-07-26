@@ -229,7 +229,9 @@ private extension DetailView {
         store.dispatch(.fetchMangaDetail(gid: gid))
     }
     func fetchMangaPreviews(index: Int) {
-        store.dispatch(.fetchMangaPreviews(gid: gid, index: index))
+        DispatchQueue.global().async {
+            store.dispatch(.fetchMangaPreviews(gid: gid, index: index))
+        }
     }
     func updateHistoryItems() {
         if environment.homeListType != .history {
