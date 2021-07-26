@@ -15,9 +15,7 @@ extension MangaStateMO: GalleryIdentifiable {
     @NSManaged public var aspectBox: Data?
     @NSManaged public var comments: Data?
     @NSManaged public var contents: Data?
-    @NSManaged public var currentPageNum: Int64
     @NSManaged public var gid: String
-    @NSManaged public var pageNumMaximum: Int64
     @NSManaged public var previews: Data?
     @NSManaged public var readingProgress: Int64
     @NSManaged public var tags: Data?

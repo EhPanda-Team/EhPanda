@@ -439,30 +439,32 @@ struct Parser {
     }
 
     // MARK: Content
-    static func parseImagePreContents(doc: HTMLDocument, pageCount: Int) throws -> [(Int, URL)] {
+    static func parseMangaPreContents(doc: HTMLDocument) throws -> [(Int, URL)] {
         var imageDetailURLs = [(Int, URL)]()
 
         guard let gdtNode = doc.at_xpath("//div [@id='gdt']"),
               let previewMode = try? parsePreviewMode(doc: doc)
         else { throw AppError.parseFailed }
 
-        for (index, element) in gdtNode.xpath("//div [@class='\(previewMode)']").enumerated() {
-            guard let imageDetailStr = element.at_xpath("//a")?["href"],
-                  let imageDetailURL = URL(string: imageDetailStr)
+        for link in gdtNode.xpath("//div [@class='\(previewMode)']") {
+            guard let aLink = link.at_xpath("//a"),
+                  let imageDetailString = aLink["href"],
+                  let imageDetailURL = URL(string: imageDetailString),
+                    let index = Int(aLink.at_xpath("//img")?["alt"] ?? "")
             else { continue }
 
-            imageDetailURLs.append((index + pageCount, imageDetailURL))
+            imageDetailURLs.append((index, imageDetailURL))
         }
 
         return imageDetailURLs
     }
 
-    static func parseMangaContent(doc: HTMLDocument, tag: Int) throws -> MangaContent {
+    static func parseMangaContent(doc: HTMLDocument, index: Int) throws -> (Int, String) {
         guard let i3Node = doc.at_xpath("//div [@id='i3']"),
               let imageURL = i3Node.at_css("img")?["src"]
         else { throw AppError.parseFailed }
 
-        return MangaContent(tag: tag, url: imageURL)
+        return (index, imageURL)
     }
 
     static func parsePreviewMode(doc: HTMLDocument) throws -> String {

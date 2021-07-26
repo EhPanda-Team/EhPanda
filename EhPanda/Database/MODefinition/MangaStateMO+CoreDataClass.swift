@@ -14,12 +14,10 @@ extension MangaStateMO: ManagedObjectProtocol {
     func toEntity() -> MangaState {
         MangaState(
             gid: gid, tags: tags?.toObject() ?? [MangaTag](),
-            currentPageNum: Int(currentPageNum),
-            pageNumMaximum: Int(pageNumMaximum),
             readingProgress: Int(readingProgress),
             previews: previews?.toObject() ?? [Int: String](),
             comments: comments?.toObject() ?? [MangaComment](),
-            contents: contents?.toObject() ?? [MangaContent](),
+            contents: contents?.toObject() ?? [Int: String](),
             aspectBox: aspectBox?.toObject() ?? [Int: CGFloat]()
         )
     }
@@ -32,8 +30,6 @@ extension MangaState: ManagedObjectConvertible {
 
         mangaMO.gid = gid
         mangaMO.tags = tags.toData()
-        mangaMO.currentPageNum = Int64(currentPageNum)
-        mangaMO.pageNumMaximum = Int64(pageNumMaximum)
         mangaMO.readingProgress = Int64(readingProgress)
         mangaMO.previews = previews.toData()
         mangaMO.comments = comments.toData()

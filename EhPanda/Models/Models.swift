@@ -101,13 +101,11 @@ struct MangaState: Codable {
 
     let gid: String
     var tags = [MangaTag]()
-    var currentPageNum = 0
-    var pageNumMaximum = 1
     var readingProgress = 0
     var previews = [Int: String]()
     var previewConfig: PreviewConfig?
     var comments = [MangaComment]()
-    var contents = [MangaContent]()
+    var contents = [Int: String]()
     var aspectBox = [Int: CGFloat]()
 }
 
@@ -162,16 +160,6 @@ struct CommentContent: Identifiable, Codable {
 
     var secondLink: String?
     var secondImgURL: String?
-}
-
-struct MangaContent: Identifiable, Codable, Equatable {
-    static func == (lhs: MangaContent, rhs: MangaContent) -> Bool {
-        lhs.tag == rhs.tag
-    }
-    var id: Int { tag }
-
-    let tag: Int
-    let url: String
 }
 
 struct MangaTorrent: Identifiable, Codable {
@@ -233,12 +221,6 @@ extension MangaState: CustomStringConvertible {
     var description: String {
         "MangaState(gid: \(gid), tags: \(tags.count), "
         + "previews: \(previews.count), comments: \(comments.count))"
-    }
-}
-
-extension MangaContent: CustomStringConvertible {
-    var description: String {
-        "MangaContent(\(tag))"
     }
 }
 

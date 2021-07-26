@@ -49,9 +49,9 @@ final class Store: ObservableObject {
 
         switch action {
         // MARK: App Ops
-        case .replaceUser(let user):
-            appState.settings.user = user
-        case .initializeFilter:
+        case .resetUser:
+            appState.settings.user = User()
+        case .resetFilters:
             appState.settings.filter = Filter()
         case .saveAspectBox(let gid, let box):
             PersistenceController.update(gid: gid, aspectBox: box)
@@ -103,11 +103,6 @@ final class Store: ObservableObject {
         case .toggleCommentViewSheet(let state):
             if state != nil { impactFeedback(style: .light) }
             appState.environment.commentViewSheetState = state
-
-        case .clearDetailViewCommentContent:
-            appState.detailInfo.commentContent = ""
-        case .clearCommentViewCommentContent:
-            appState.commentInfo.commentContent = ""
 
         // MARK: Fetch Data
         case .fetchGreeting:
@@ -486,15 +481,15 @@ final class Store: ObservableObject {
             }
 
         case .fetchMangaDetail(let gid):
-            appState.detailInfo.mangaDetailLoadFailed = false
+            appState.detailInfo.detailLoadFailed[gid] = false
 
-            if appState.detailInfo.mangaDetailLoading { break }
-            appState.detailInfo.mangaDetailLoading = true
+            if appState.detailInfo.detailLoading[gid] == true { break }
+            appState.detailInfo.detailLoading[gid] = true
 
             let detailURL = PersistenceController.fetchManga(gid: gid)?.detailURL ?? ""
             appCommand = FetchMangaDetailCommand(gid: gid, detailURL: detailURL)
-        case .fetchMangaDetailDone(let result):
-            appState.detailInfo.mangaDetailLoading = false
+        case .fetchMangaDetailDone(let gid, let result):
+            appState.detailInfo.detailLoading[gid] = false
 
             switch result {
             case .success(let detail):
@@ -507,16 +502,16 @@ final class Store: ObservableObject {
                 PersistenceController.add(detail: detail.0)
                 PersistenceController.update(fetchedState: detail.1)
             case .failure:
-                appState.detailInfo.mangaDetailLoadFailed = true
+                appState.detailInfo.detailLoadFailed[gid] = true
             }
 
         case .fetchMangaArchiveFunds(let gid):
-            if appState.detailInfo.mangaArchiveFundsLoading { break }
-            appState.detailInfo.mangaArchiveFundsLoading = true
+            if appState.detailInfo.archiveFundsLoading { break }
+            appState.detailInfo.archiveFundsLoading = true
             let detailURL = PersistenceController.fetchManga(gid: gid)?.detailURL ?? ""
             appCommand = FetchMangaArchiveFundsCommand(gid: gid, detailURL: detailURL)
         case .fetchMangaArchiveFundsDone(let result):
-            appState.detailInfo.mangaArchiveFundsLoading = false
+            appState.detailInfo.archiveFundsLoading = false
 
             if case .success(let funds) = result {
                 appState.settings.update(
@@ -529,11 +524,11 @@ final class Store: ObservableObject {
 
         case .fetchMangaPreviews(let gid, let index):
             let pageNumber = index / appState.detailInfo.previewConfig.batchSize
-            if appState.detailInfo.previewsLoading[gid]?[pageNumber] == true { break }
-
             if appState.detailInfo.previewsLoading[gid] == nil {
                 appState.detailInfo.previewsLoading[gid] = [:]
             }
+
+            if appState.detailInfo.previewsLoading[gid]?[pageNumber] == true { break }
             appState.detailInfo.previewsLoading[gid]?[pageNumber] = true
 
             let detailURL = PersistenceController.fetchManga(gid: gid)?.detailURL ?? ""
@@ -550,75 +545,30 @@ final class Store: ObservableObject {
                 SwiftyBeaver.error(error)
             }
 
-        case .fetchMangaContents(let gid):
-            appState.contentInfo.mangaContentsLoadFailed = false
+        case .fetchMangaContents(let gid, let index):
+            let pageNumber = index / appState.detailInfo.previewConfig.batchSize
+            if appState.contentInfo.contentsLoading[gid] == nil {
+                appState.contentInfo.contentsLoading[gid] = [:]
+            }
+            if appState.contentInfo.contentsLoadFailed[gid] == nil {
+                appState.contentInfo.contentsLoadFailed[gid] = [:]
+            }
+            appState.contentInfo.contentsLoadFailed[gid]?[pageNumber] = false
 
-            if appState.contentInfo.mangaContentsLoading { break }
-            appState.contentInfo.mangaContentsLoading = true
+            if appState.contentInfo.contentsLoading[gid]?[pageNumber] == true { break }
+            appState.contentInfo.contentsLoading[gid]?[pageNumber] = true
 
             let detailURL = PersistenceController.fetchManga(gid: gid)?.detailURL ?? ""
-            appCommand = FetchMangaContentsCommand(gid: gid, detailURL: detailURL)
-        case .fetchMangaContentsDone(let result):
-            appState.contentInfo.mangaContentsLoading = false
+            let url = Defaults.URL.detailPage(url: detailURL, pageNum: pageNumber)
+            appCommand = FetchMangaContentsCommand(gid: gid, url: url, pageNumber: pageNumber)
+        case .fetchMangaContentsDone(let gid, let pageNumber, let result):
+            appState.contentInfo.contentsLoading[gid]?[pageNumber] = false
 
             switch result {
             case .success(let contents):
-                PersistenceController.update(
-                    gid: contents.0,
-                    pageNum: contents.1,
-                    contents: contents.2
-                )
+                PersistenceController.update(gid: gid, contents: contents)
             case .failure:
-                appState.contentInfo.mangaContentsLoadFailed = true
-            }
-
-        case .fetchMoreMangaContents(let gid):
-            appState.contentInfo.moreMangaContentsLoadFailed = false
-
-            guard let manga = PersistenceController.fetchManga(gid: gid),
-                  let detail = PersistenceController.fetchMangaDetail(gid: gid)
-            else { break }
-            let state = PersistenceController.fetchMangaStateNonNil(gid: gid)
-
-            let currentNum = state.currentPageNum
-            let maximumNum = state.pageNumMaximum
-            if currentNum + 1 >= maximumNum { break }
-
-            if appState.contentInfo.moreMangaContentsLoading { break }
-            appState.contentInfo.moreMangaContentsLoading = true
-
-            let detailURL = manga.detailURL
-            let pageNum = currentNum + 1
-            let pageCount = state.contents.count
-            appCommand = FetchMoreMangaContentsCommand(
-                gid: gid,
-                detailURL: detailURL,
-                pageNum: pageNum,
-                pageCount: pageCount
-            )
-
-            if pageCount >= detail.pageCount {
-                SwiftyBeaver.error(
-                    "MangaContents overflow",
-                    context: [
-                        "detailURL": manga.detailURL,
-                        "pageLimit": detail.pageCount,
-                        "pageCurrentAmount": pageCount
-                    ]
-                )
-            }
-        case .fetchMoreMangaContentsDone(let result):
-            appState.contentInfo.moreMangaContentsLoading = false
-
-            switch result {
-            case .success(let contents):
-                PersistenceController.update(
-                    gid: contents.0,
-                    pageNum: contents.1,
-                    contents: contents.2
-                )
-            case .failure:
-                appState.contentInfo.moreMangaContentsLoadFailed = true
+                appState.contentInfo.contentsLoadFailed[gid]?[pageNumber] = true
             }
 
         // MARK: Account Ops

@@ -78,7 +78,7 @@ private extension FilterView {
         store.dispatch(.toggleFilterViewActionSheet(state: .resetFilters))
     }
     func resetFilters() {
-        store.dispatch(.initializeFilter)
+        store.dispatch(.resetFilters)
     }
 }
 

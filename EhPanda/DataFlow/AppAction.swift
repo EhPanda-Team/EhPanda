@@ -10,10 +10,8 @@ import Kanna
 import Foundation
 
 enum AppAction {
-    case replaceUser(user: User)
-    case initializeFilter
-    case clearDetailViewCommentContent
-    case clearCommentViewCommentContent
+    case resetUser
+    case resetFilters
     case saveAspectBox(gid: String, box: [Int: CGFloat])
     case saveReadingProgress(gid: String, tag: Int)
     case updateDiskImageCacheSize(size: String)
@@ -64,15 +62,13 @@ enum AppAction {
     case fetchMoreFavoritesItems(index: Int)
     case fetchMoreFavoritesItemsDone(carriedValue: FavoritesIndex, result: Result<(PageNumber, [Manga]), AppError>)
     case fetchMangaDetail(gid: String)
-    case fetchMangaDetailDone(result: Result<(MangaDetail, MangaState, APIKey?), AppError>)
+    case fetchMangaDetailDone(gid: String, result: Result<(MangaDetail, MangaState, APIKey?), AppError>)
     case fetchMangaArchiveFunds(gid: String)
     case fetchMangaArchiveFundsDone(result: Result<((CurrentGP, CurrentCredits)), AppError>)
     case fetchMangaPreviews(gid: String, index: Int)
     case fetchMangaPreviewsDone(gid: String, pageNumber: Int, result: Result<[Int: String], AppError>)
-    case fetchMangaContents(gid: String)
-    case fetchMangaContentsDone(result: Result<(Identity, PageNumber, [MangaContent]), AppError>)
-    case fetchMoreMangaContents(gid: String)
-    case fetchMoreMangaContentsDone(result: Result<(Identity, PageNumber, [MangaContent]), AppError>)
+    case fetchMangaContents(gid: String, index: Int)
+    case fetchMangaContentsDone(gid: String, pageNumber: Int, result: Result<[Int: String], AppError>)
 
     case createProfile
     case verifyProfile

@@ -12,6 +12,7 @@ import TTProgressHUD
 struct CommentView: View, StoreAccessor {
     @EnvironmentObject var store: Store
 
+    @State private var commentContent = ""
     @State private var editCommentContent = ""
     @State private var editCommentID = ""
     @State private var commentJumpID: String?
@@ -88,7 +89,7 @@ struct CommentView: View, StoreAccessor {
                 switch item {
                 case .newComment:
                     DraftCommentView(
-                        content: commentContentBinding,
+                        content: $commentContent,
                         title: "Post Comment",
                         postAction: postNewComment,
                         cancelAction: toggleCommentViewSheetNil
@@ -123,14 +124,8 @@ private extension CommentView {
     var environmentBinding: Binding<AppState.Environment> {
         $store.appState.environment
     }
-    var commentInfoBinding: Binding<AppState.CommentInfo> {
-        $store.appState.commentInfo
-    }
-    var commentContent: String {
-        commentInfo.commentContent
-    }
-    var commentContentBinding: Binding<String> {
-        commentInfoBinding.commentContent
+    var detailInfoBinding: Binding<AppState.DetailInfo> {
+        $store.appState.detailInfo
     }
 
     func onAppear() {
@@ -218,8 +213,8 @@ private extension CommentView {
     }
     func postNewComment() {
         store.dispatch(.comment(gid: gid, content: commentContent))
-        store.dispatch(.clearCommentViewCommentContent)
         toggleCommentViewSheetNil()
+        commentContent = ""
     }
     func postEditComment() {
         store.dispatch(

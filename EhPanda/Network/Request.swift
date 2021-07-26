@@ -395,43 +395,41 @@ struct MangaPreviewsRequest {
 }
 
 struct MangaContentsRequest {
-    let detailURL: String
-    let pageNum: Int
-    let pageCount: Int
+    let url: String
 
-    var publisher: AnyPublisher<(PageNumber, [MangaContent]), AppError> {
-        preContents(url: detailURL)
+    var publisher: AnyPublisher<[Int: String], AppError> {
+        preContents(url: url)
             .flatMap(contents)
             .eraseToAnyPublisher()
     }
 
-    func preContents(url: String) -> AnyPublisher<(PageNumber, [(Int, URL)]), AppError> {
+    func preContents(url: String) -> AnyPublisher<[(Int, URL)], AppError> {
         URLSession.shared
             .dataTaskPublisher(for: url.safeURL())
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-            .tryMap { try (
-                Parser.parsePageNum(doc: $0),
-                Parser.parseImagePreContents(
-                    doc: $0, pageCount: pageCount
-                )
-            ) }
+            .tryMap(Parser.parseMangaPreContents)
             .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
 
-    func contents(pageNum: PageNumber, preContents: [(Int, URL)])
-    -> AnyPublisher<(PageNumber, [MangaContent]), AppError>
-    {
+    func contents(preContents: [(Int, URL)])
+    -> AnyPublisher<[Int: String], AppError> {
         preContents
             .publisher
-            .flatMap { preContent in
+            .flatMap { index, url in
                 URLSession.shared
-                    .dataTaskPublisher(for: preContent.1)
+                    .dataTaskPublisher(for: url)
                     .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-                    .tryMap { try Parser.parseMangaContent(doc: $0, tag: preContent.0) }
+                    .tryMap { try Parser.parseMangaContent(doc: $0, index: index) }
             }
             .collect()
-            .map { (pageNum, $0) }
+            .map { tuples in
+                var contents = [Int: String]()
+                for (index, imageURL) in tuples {
+                    contents[index] = imageURL
+                }
+                return contents
+            }
             .mapError(mapAppError)
             .eraseToAnyPublisher()
     }

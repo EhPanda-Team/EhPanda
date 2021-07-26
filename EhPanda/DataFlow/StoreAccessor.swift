@@ -29,9 +29,6 @@ extension StoreAccessor {
     var detailInfo: AppState.DetailInfo {
         appState.detailInfo
     }
-    var commentInfo: AppState.CommentInfo {
-        appState.commentInfo
-    }
     var contentInfo: AppState.ContentInfo {
         appState.contentInfo
     }

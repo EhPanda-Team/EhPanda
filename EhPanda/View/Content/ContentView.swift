@@ -43,37 +43,32 @@ struct ContentView: View, StoreAccessor, PersistenceAccessor {
         .onEnded(onMagnificationGestureEnded)
 
         Group {
-            if contentInfo.mangaContentsLoading {
+            if contentInfo.contentsLoading[gid]?[0] == true {
                 LoadingView()
-            } else if contentInfo.mangaContentsLoadFailed {
-                NetworkErrorView(retryAction: fetchMangaContents)
-            } else if let contents = mangaContents, let setting = setting {
+            } else if contentInfo.contentsLoadFailed[gid]?[0] == true {
+                NetworkErrorView(retryAction: fetchMangaContentsIfNeeded)
+            } else {
                 ScrollViewReader { scrollProxy in
                     ScrollView {
                         MeasureTool(bindingFrame: $position)
                         LazyVStack(spacing: setting.contentDividerHeight) {
-                            ForEach(contents) { item in
+                            ForEach(1..<pageCount + 1) { index in
                                 ZStack {
                                     ImageContainer(
-                                        content: item,
+                                        url: mangaContents[index] ?? "", index: index,
                                         retryLimit: setting.contentRetryLimit,
                                         onSuccessAction: onWebImageSuccess
                                     )
                                     .frame(
                                         width: absWindowW,
-                                        height: calImageHeight(tag: item.tag)
+                                        height: calImageHeight(index: index)
                                     )
                                     .onAppear {
-                                        onWebImageAppear(item: item)
+                                        onWebImageAppear(index: index)
                                     }
                                 }
+                                .id(index)
                             }
-                            LoadMoreFooter(
-                                moreLoadingFlag: moreLoadingFlag,
-                                moreLoadFailedFlag: moreLoadFailedFlag,
-                                retryAction: fetchMoreMangaContents
-                            )
-                            .padding(.bottom, 20)
                         }
                         .task {
                             onLazyVStackAppear(proxy: scrollProxy)
@@ -128,14 +123,11 @@ struct ContentView: View, StoreAccessor, PersistenceAccessor {
 // MARK: Private Extension
 private extension ContentView {
     // MARK: Properties
-    var mangaContents: [MangaContent] {
+    var pageCount: Int {
+        mangaDetail?.pageCount ?? 0
+    }
+    var mangaContents: [Int: String] {
         mangaState.contents
-    }
-    var moreLoadingFlag: Bool {
-        contentInfo.moreMangaContentsLoading
-    }
-    var moreLoadFailedFlag: Bool {
-        contentInfo.moreMangaContentsLoadFailed
     }
     var contentHScale: CGFloat {
         Defaults.ImageSize.contentHScale
@@ -163,9 +155,9 @@ private extension ContentView {
             proxy.scrollTo(progress)
         }
     }
-    func onWebImageAppear(item: MangaContent) {
-        if item == mangaContents.last {
-            fetchMoreMangaContents()
+    func onWebImageAppear(index: Int) {
+        if mangaContents[index] == nil {
+            fetchMangaContents(index: index)
         }
     }
     func onWebImageSuccess(tag: Int, aspect: CGFloat) {
@@ -173,13 +165,10 @@ private extension ContentView {
     }
 
     // MARK: Dispatch
-    func fetchMangaContents() {
+    func fetchMangaContents(index: Int = 1) {
         DispatchQueue.main.async {
-            store.dispatch(.fetchMangaContents(gid: gid))
+            store.dispatch(.fetchMangaContents(gid: gid, index: index))
         }
-    }
-    func fetchMoreMangaContents() {
-        store.dispatch(.fetchMoreMangaContents(gid: gid))
     }
 
     func fetchMangaContentsIfNeeded() {
@@ -194,8 +183,8 @@ private extension ContentView {
     }
 
     // MARK: ReadingProgress
-    func calImageHeight(tag: Int) -> CGFloat {
-        if let aspect = aspectBox[tag] {
+    func calImageHeight(index: Int) -> CGFloat {
+        if let aspect = aspectBox[index] {
             return absWindowW * aspect
         } else {
             return windowH * contentHScale
@@ -204,8 +193,9 @@ private extension ContentView {
     func calReadingProgress() -> Int {
         var heightArray = Array(
             repeating: windowH * contentHScale,
-            count: mangaContents.count
+            count: pageCount + 1
         )
+        heightArray[0] = 0
         aspectBox.forEach { (key: Int, value: CGFloat) in
             heightArray[key] = value * windowW
         }
@@ -317,16 +307,19 @@ private extension ContentView {
 
 // MARK: ImageContainer
 private struct ImageContainer: View {
-    private var content: MangaContent
-    private var retryLimit: Int
-    private var onSuccessAction: ((Int, CGFloat)) -> Void
+    private let url: String
+    private let index: Int
+    private let retryLimit: Int
+    private let onSuccessAction: ((Int, CGFloat)) -> Void
 
     init(
-        content: MangaContent,
+        url: String,
+        index: Int,
         retryLimit: Int,
         onSuccessAction: @escaping ((Int, CGFloat)) -> Void
     ) {
-        self.content = content
+        self.url = url
+        self.index = index
         self.retryLimit = retryLimit
         self.onSuccessAction = onSuccessAction
     }
@@ -334,7 +327,7 @@ private struct ImageContainer: View {
     private func getPlaceholder(_ progress: Progress) -> some View {
         Placeholder(
             style: .progress(
-                pageNumber: content.tag,
+                pageNumber: index,
                 progress: progress
             )
         )
@@ -347,8 +340,8 @@ private struct ImageContainer: View {
 
     var body: some View {
         Group {
-            if !content.url.contains(".gif") {
-                KFImage(URL(string: content.url))
+            if !url.contains(".gif") {
+                KFImage(URL(string: url))
                     .defaultModifier(
                         withRoundedCorners: false
                     )
@@ -359,7 +352,7 @@ private struct ImageContainer: View {
                     .placeholder(getPlaceholder)
                     .onSuccess(onWebImageSuccess)
             } else {
-                KFAnimatedImage(URL(string: content.url))
+                KFAnimatedImage(URL(string: url))
                     .retry(
                         maxCount: retryLimit,
                         interval: .seconds(0.5)
@@ -375,6 +368,6 @@ private struct ImageContainer: View {
     private func onWebImageSuccess(result: RetrieveImageResult) {
         let size = result.image.size
         let aspect = size.height / size.width
-        onSuccessAction((content.tag, aspect))
+        onSuccessAction((index, aspect))
     }
 }

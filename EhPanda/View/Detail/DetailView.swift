@@ -13,6 +13,7 @@ struct DetailView: View, StoreAccessor, PersistenceAccessor {
     @Environment(\.colorScheme) private var colorScheme
 
     @State private var keyword = ""
+    @State private var commentContent = ""
     @State private var isTorrentsLinkActive = false
     @State private var isAssociatedLinkActive = false
 
@@ -79,9 +80,9 @@ struct DetailView: View, StoreAccessor, PersistenceAccessor {
                     .padding(.top, -25)
                 }
                 .transition(opacityTransition)
-            } else if detailInfo.mangaDetailLoading {
+            } else if detailInfo.detailLoading[gid] == true {
                 LoadingView()
-            } else if detailInfo.mangaDetailLoadFailed {
+            } else if detailInfo.detailLoadFailed[gid] == true {
                 NetworkErrorView(retryAction: fetchMangaDetail)
             }
         }
@@ -96,7 +97,7 @@ struct DetailView: View, StoreAccessor, PersistenceAccessor {
                     ArchiveView(gid: gid)
                 case .comment:
                     DraftCommentView(
-                        content: commentContentBinding,
+                        content: $commentContent,
                         title: "Post Comment",
                         postAction: onCommentPost,
                         cancelAction: toggleSheetStateNil
@@ -133,8 +134,7 @@ struct DetailView: View, StoreAccessor, PersistenceAccessor {
                 }
                 .disabled(
                     mangaDetail == nil
-                        || detailInfo.mangaDetailLoading
-                        || detailInfo.mangaDetailUpdating
+                        || detailInfo.detailLoading[gid] == true
                 )
             }
         }
@@ -148,12 +148,6 @@ private extension DetailView {
     }
     var detailInfoBinding: Binding<AppState.DetailInfo> {
         $store.appState.detailInfo
-    }
-    var commentContent: String {
-        detailInfo.commentContent
-    }
-    var commentContentBinding: Binding<String> {
-        detailInfoBinding.commentContent
     }
 }
 
@@ -206,8 +200,8 @@ private extension DetailView {
     }
     func onCommentPost() {
         store.dispatch(.comment(gid: gid, content: commentContent))
-        store.dispatch(.clearDetailViewCommentContent)
         toggleSheetStateNil()
+        commentContent = ""
     }
     func toggleSheet(state: DetailViewSheetState?) {
         store.dispatch(.toggleDetailViewSheet(state: state))

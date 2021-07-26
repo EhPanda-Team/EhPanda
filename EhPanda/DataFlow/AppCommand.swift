@@ -297,11 +297,11 @@ struct FetchMangaDetailCommand: AppCommand {
             .receive(on: DispatchQueue.main)
             .sink { completion in
                 if case .failure(let error) = completion {
-                    store.dispatch(.fetchMangaDetailDone(result: .failure(error)))
+                    store.dispatch(.fetchMangaDetailDone(gid: gid, result: .failure(error)))
                 }
                 token.unseal()
             } receiveValue: { detail in
-                store.dispatch(.fetchMangaDetailDone(result: .success((detail.0, detail.1, detail.2))))
+                store.dispatch(.fetchMangaDetailDone(gid: gid, result: .success((detail.0, detail.1, detail.2))))
             }
             .seal(in: token)
     }
@@ -360,66 +360,30 @@ struct FetchMangaPreviewsCommand: AppCommand {
 
 struct FetchMangaContentsCommand: AppCommand {
     let gid: String
-    let detailURL: String
+    let url: String
+    let pageNumber: Int
 
     func execute(in store: Store) {
         let token = SubscriptionToken()
-            MangaContentsRequest(
-                detailURL: Defaults.URL
-                    .detailPage(
-                        url: detailURL,
-                        pageNum: 0
-                    ),
-                pageNum: 0,
-                pageCount: 0
-            )
+            MangaContentsRequest(url: url)
             .publisher
             .receive(on: DispatchQueue.main)
             .sink { completion in
                 if case .failure(let error) = completion {
-                    store.dispatch(.fetchMangaContentsDone(result: .failure(error)))
+                    store.dispatch(.fetchMangaContentsDone(
+                        gid: gid, pageNumber: pageNumber, result: .failure(error))
+                    )
                 }
                 token.unseal()
             } receiveValue: { contents in
-                if !contents.1.isEmpty {
-                    store.dispatch(.fetchMangaContentsDone(result: .success((gid, contents.0, contents.1))))
+                if !contents.isEmpty {
+                    store.dispatch(.fetchMangaContentsDone(
+                        gid: gid, pageNumber: pageNumber, result: .success(contents))
+                    )
                 } else {
-                    store.dispatch(.fetchMangaContentsDone(result: .failure(.networkingFailed)))
-                }
-            }
-            .seal(in: token)
-    }
-}
-
-struct FetchMoreMangaContentsCommand: AppCommand {
-    let gid: String
-    let detailURL: String
-    let pageNum: Int
-    let pageCount: Int
-
-    func execute(in store: Store) {
-        let token = SubscriptionToken()
-            MangaContentsRequest(
-                detailURL: Defaults.URL
-                    .detailPage(
-                        url: detailURL,
-                        pageNum: pageNum
-                    ),
-                pageNum: pageNum,
-                pageCount: pageCount
-            )
-            .publisher
-            .receive(on: DispatchQueue.main)
-            .sink { completion in
-                if case .failure(let error) = completion {
-                    store.dispatch(.fetchMoreMangaContentsDone(result: .failure(error)))
-                }
-                token.unseal()
-            } receiveValue: { contents in
-                if !contents.1.isEmpty {
-                    store.dispatch(.fetchMoreMangaContentsDone(result: .success((gid, contents.0, contents.1))))
-                } else {
-                    store.dispatch(.fetchMoreMangaContentsDone(result: .failure(.networkingFailed)))
+                    store.dispatch(.fetchMangaContentsDone(
+                        gid: gid, pageNumber: pageNumber, result: .failure(.networkingFailed))
+                    )
                 }
             }
             .seal(in: token)

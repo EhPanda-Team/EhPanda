@@ -13,7 +13,6 @@ struct AppState {
     var settings = Settings()
     var homeInfo = HomeInfo()
     var detailInfo = DetailInfo()
-    var commentInfo = CommentInfo()
     var contentInfo = ContentInfo()
 }
 
@@ -209,25 +208,15 @@ extension AppState {
 
     // MARK: DetailInfo
     struct DetailInfo {
-        var commentContent = ""
-
-        var mangaDetailLoading = false
-        var mangaDetailLoadFailed = false
-        var mangaDetailUpdating = false
-        var mangaCommentsUpdating = false
-        var mangaArchiveFundsLoading = false
+        var detailLoading = [String: Bool]()
+        var detailLoadFailed = [String: Bool]()
+        var archiveFundsLoading = false
         var previewsLoading = [String: [Int: Bool]]()
-        var previewConfig = PreviewConfig.large(rows: 4)
-    }
-
-    struct CommentInfo {
-        var commentContent = ""
+        var previewConfig = PreviewConfig.normal(rows: 4)
     }
 
     struct ContentInfo {
-        var mangaContentsLoading = false
-        var mangaContentsLoadFailed = false
-        var moreMangaContentsLoading = false
-        var moreMangaContentsLoadFailed = false
+        var contentsLoading = [String: [Int: Bool]]()
+        var contentsLoadFailed = [String: [Int: Bool]]()
     }
 }

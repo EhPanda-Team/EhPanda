@@ -159,6 +159,29 @@ extension PersistenceController {
     static func update(gid: String, mangaStateMO: @escaping ((MangaStateMO) -> Void)) {
         update(entityType: MangaStateMO.self, gid: gid, createIfNil: true, commitChanges: mangaStateMO)
     }
+    static func update(gid: String, aspectBox: [Int: CGFloat]) {
+        update(gid: gid) { mangaStateMO in
+            mangaStateMO.aspectBox = aspectBox.toData()
+        }
+    }
+    static func update(gid: String, readingProgress: Int) {
+        update(gid: gid) { mangaStateMO in
+            mangaStateMO.readingProgress = Int64(readingProgress)
+        }
+    }
+    static func update(gid: String, contents: [Int: String], replaceExisting: Bool = false) {
+        update(gid: gid) { mangaStateMO in
+            if !contents.isEmpty {
+                if let storedContents = mangaStateMO.contents?.toObject() as [Int: String]? {
+                    mangaStateMO.contents = storedContents.merging(
+                        contents, uniquingKeysWith: { stored, new in replaceExisting ? new : stored }
+                    ).toData()
+                } else {
+                    mangaStateMO.contents = contents.toData()
+                }
+            }
+        }
+    }
     static func update(fetchedState: MangaState) {
         update(gid: fetchedState.gid) { mangaStateMO in
             if !fetchedState.tags.isEmpty {
@@ -175,37 +198,6 @@ extension PersistenceController {
                 } else {
                     mangaStateMO.previews = fetchedState.previews.toData()
                 }
-            }
-        }
-    }
-    static func update(gid: String, aspectBox: [Int: CGFloat]) {
-        update(gid: gid) { mangaStateMO in
-            mangaStateMO.aspectBox = aspectBox.toData()
-        }
-    }
-    static func update(gid: String, readingProgress: Int) {
-        update(gid: gid) { mangaStateMO in
-            mangaStateMO.readingProgress = Int64(readingProgress)
-        }
-    }
-    static func update(gid: String, pageNum: PageNumber, contents: [MangaContent]) {
-        update(gid: gid) { mangaStateMO in
-            mangaStateMO.currentPageNum = Int64(pageNum.current)
-            mangaStateMO.pageNumMaximum = Int64(pageNum.maximum)
-
-            let newContents = contents.sorted(by: { $0.tag < $1.tag })
-            var storedContents = mangaStateMO.contents?
-                .toObject() ?? [MangaContent]()
-
-            if storedContents.isEmpty {
-                mangaStateMO.contents = newContents.toData()
-            } else {
-                newContents.forEach { content in
-                    if !storedContents.contains(content) {
-                        storedContents.append(content)
-                    }
-                }
-                mangaStateMO.contents = storedContents.toData()
             }
         }
     }
