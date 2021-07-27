@@ -10,8 +10,8 @@ import SwiftUI
 struct MeasureTool: View {
     @Binding var frame: CGRect
 
-    init(bindingFrame: Binding<CGRect>) {
-        _frame = bindingFrame
+    init(frame: Binding<CGRect>) {
+        _frame = frame
     }
 
     var body: some View {

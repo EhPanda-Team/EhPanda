@@ -43,10 +43,10 @@ struct Filter: Codable {
     @DefaultFalse var expungedGalleries = false
 
     @DefaultFalse var minRatingActivated = false
-    @DefaultIntegerValue var minRating: Int = 2
+    @DefaultIntegerValue var minRating = 2
 
     @DefaultFalse var pageRangeActivated = false
-    @DefaultStringValue var pageLowerBound: String = "" {
+    @DefaultStringValue var pageLowerBound = "" {
         didSet {
             if Int(pageLowerBound) == nil
                 && !pageLowerBound.isEmpty
@@ -55,7 +55,7 @@ struct Filter: Codable {
             }
         }
     }
-    @DefaultStringValue var pageUpperBound: String = "" {
+    @DefaultStringValue var pageUpperBound = "" {
         didSet {
             if Int(pageUpperBound) == nil
                 && !pageUpperBound.isEmpty

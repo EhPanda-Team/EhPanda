@@ -8,10 +8,19 @@
 import SwiftUI
 import Combine
 import Kingfisher
+import SwiftUIPager
 
 struct ContentView: View, StoreAccessor, PersistenceAccessor {
     @EnvironmentObject var store: Store
+    @Environment(\.dismiss) var dismissAction
 
+    @StateObject private var page: Page = .first()
+    @State private var allowDragging = true
+
+    @State private var showsPanel = false
+    @State private var sliderValue: Float = 1
+
+    @State private var index: Int = 0
     @State private var position: CGRect = .zero
     @State private var aspectBox = [Int: CGFloat]()
 
@@ -28,10 +37,13 @@ struct ContentView: View, StoreAccessor, PersistenceAccessor {
 
     // MARK: ContentView
     @ViewBuilder var body: some View {
-        let doubleTap = TapGesture(
-            count: 2
+        let singleTap = TapGesture(count: 1)
+            .onEnded(onSingleTap)
+        let doubleTap = TapGesture(count: 2)
+            .onEnded(onDoubleTap)
+        let tap = ExclusiveGesture(
+            doubleTap, singleTap
         )
-        .onEnded(onDoubleTap)
         let drag = DragGesture(
             minimumDistance: 0.0,
             coordinateSpace: .local
@@ -39,49 +51,48 @@ struct ContentView: View, StoreAccessor, PersistenceAccessor {
         .onChanged(onDragGestureChanged)
         .onEnded(onDragGestureEnded)
         let magnify = MagnificationGesture()
-        .onChanged(onMagnificationGestureChanged)
-        .onEnded(onMagnificationGestureEnded)
+            .onChanged(onMagnificationGestureChanged)
+            .onEnded(onMagnificationGestureEnded)
 
-        Group {
+        ZStack {
             if contentInfo.contentsLoading[gid]?[0] == true {
                 LoadingView()
             } else if contentInfo.contentsLoadFailed[gid]?[0] == true {
                 NetworkErrorView(retryAction: fetchMangaContentsIfNeeded)
             } else {
-                ScrollViewReader { scrollProxy in
-                    ScrollView {
-                        MeasureTool(bindingFrame: $position)
-                        LazyVStack(spacing: setting.contentDividerHeight) {
-                            ForEach(1..<pageCount + 1) { index in
-                                ZStack {
-                                    ImageContainer(
-                                        url: mangaContents[index] ?? "", index: index,
-                                        retryLimit: setting.contentRetryLimit,
-                                        onSuccessAction: onWebImageSuccess
-                                    )
-                                    .frame(
-                                        width: absWindowW,
-                                        height: calImageHeight(index: index)
-                                    )
-                                    .onAppear {
-                                        onWebImageAppear(index: index)
-                                    }
-                                }
-                                .id(index)
-                            }
-                        }
-                        .task {
-                            onLazyVStackAppear(proxy: scrollProxy)
-                        }
+                Pager(page: page, data: Array(1...pageCount) as [Int], id: \.self) { index in
+                    ImageContainer(
+                        url: mangaContents[index] ?? "", index: index,
+                        retryLimit: setting.contentRetryLimit,
+                        onSuccessAction: onWebImageSuccess
+                    )
+                    .onAppear {
+                        onWebImageAppear(index: index)
                     }
-                    .transition(opacityTransition)
-                    .ignoresSafeArea()
-                    .scaleEffect(scale)
-                    .offset(offset)
-                    .gesture(doubleTap)
-                    .gesture(drag)
-                    .gesture(magnify)
                 }
+                .horizontal(.rightToLeft)
+                .allowsDragging(allowDragging)
+                .transition(opacityTransition)
+                .ignoresSafeArea()
+                .scaleEffect(scale)
+                .offset(offset)
+                .gesture(tap)
+                .gesture(drag)
+                .gesture(magnify)
+                ControlPanel(
+                    showsPanel: $showsPanel,
+                    sliderValue: $sliderValue,
+                    title: mangaDetail?.jpnTitle ?? manga.title,
+                    range: 1...Float(pageCount),
+                    backAction: dismissAction.callAsFunction,
+                    settingAction: toggleSetting,
+                    sliderChangedAction: onControlPanelSliderChanged
+                )
+            }
+        }
+        .onChange(of: page.index) { newValue in
+            withAnimation {
+                sliderValue = Float(newValue + 1)
             }
         }
         .onReceive(
@@ -110,13 +121,97 @@ struct ContentView: View, StoreAccessor, PersistenceAccessor {
                 for: NSNotification.Name("AppWidthDidChange")
             )
         ) { _ in
-            onWidthChange()
+            DispatchQueue.main.async {
+                set(newOffset: .zero)
+                set(newScale: 1.1)
+                set(newScale: 1)
+            }
         }
         .task(onStartTasks)
         .onAppear(perform: toggleNavBarHiddenIfNeeded)
         .onDisappear(perform: onEndTasks)
         .navigationBarBackButtonHidden(true)
         .navigationBarHidden(environment.navBarHidden)
+    }
+}
+
+// MARK: ControlPanel
+private struct ControlPanel: View {
+    @Binding private var showsPanel: Bool
+    @Binding private var sliderValue: Float
+    private let title: String
+    private let range: ClosedRange<Float>
+    private let backAction: () -> Void
+    private let settingAction: () -> Void
+    private let sliderChangedAction: (Int) -> Void
+
+    init(
+        showsPanel: Binding<Bool>,
+        sliderValue: Binding<Float>,
+        title: String, range: ClosedRange<Float>,
+        backAction: @escaping () -> Void,
+        settingAction: @escaping () -> Void,
+        sliderChangedAction: @escaping (Int) -> Void
+    ) {
+        _showsPanel = showsPanel
+        _sliderValue = sliderValue
+        self.title = title
+        self.range = range
+        self.backAction = backAction
+        self.settingAction = settingAction
+        self.sliderChangedAction = sliderChangedAction
+    }
+
+    var body: some View {
+        VStack {
+            HStack {
+                Button(action: backAction) {
+                    Image(systemName: "chevron.backward")
+                }
+                .imageScale(.large)
+                .padding(.leading)
+                Text(title)
+                    .lineLimit(1)
+                    .font(.callout)
+                    .padding()
+                Button(action: settingAction) {
+                    Image(systemName: "gear")
+                }
+                .imageScale(.large)
+                .padding(.trailing)
+            }
+            .frame(width: windowW)
+            .background(.thinMaterial)
+            .offset(y: showsPanel ? 0 : -50)
+            Spacer()
+            Text("")
+            Spacer()
+            HStack {
+                Text("\(Int(range.lowerBound))")
+                    .boundTextModifier()
+                Slider(
+                    value: $sliderValue,
+                    in: range, step: 1,
+                    onEditingChanged: { _ in
+                        sliderChangedAction(
+                            Int(sliderValue)
+                        )
+                    }
+                )
+                Text("\(Int(range.upperBound))")
+                    .boundTextModifier()
+            }
+            .background(.thinMaterial)
+            .offset(y: showsPanel ? 0 : 50)
+        }
+        .opacity(showsPanel ? 1 : 0)
+        .disabled(!showsPanel)
+    }
+}
+
+private extension Text {
+    func boundTextModifier() -> some View {
+        self.bold().font(.caption).padding()
     }
 }
 
@@ -142,13 +237,6 @@ private extension ContentView {
         saveAspectBox()
         saveReadingProgress()
     }
-    func onWidthChange() {
-        DispatchQueue.main.async {
-            set(newOffset: .zero)
-            set(newScale: 1.1)
-            set(newScale: 1)
-        }
-    }
     func onLazyVStackAppear(proxy: ScrollViewProxy) {
         let progress = mangaState.readingProgress
         if progress > 0 {
@@ -163,6 +251,11 @@ private extension ContentView {
     func onWebImageSuccess(tag: Int, aspect: CGFloat) {
         aspectBox[tag] = aspect
     }
+    func onControlPanelSliderChanged(newValue: Int) {
+        if page.index != newValue - 1 {
+            page.update(.new(index: newValue - 1))
+        }
+    }
 
     // MARK: Dispatch
     func fetchMangaContents(index: Int = 1) {
@@ -171,6 +264,9 @@ private extension ContentView {
         }
     }
 
+    func toggleSetting() {
+        store.dispatch(.toggleHomeViewSheet(state: .setting))
+    }
     func fetchMangaContentsIfNeeded() {
         if mangaContents.isEmpty {
             fetchMangaContents()
@@ -211,7 +307,8 @@ private extension ContentView {
     }
 
     func saveReadingProgress() {
-        let progress = calReadingProgress()
+//        let progress = calReadingProgress()
+        let progress = page.index + 1
         if progress != -1 {
             store.dispatch(
                 .saveReadingProgress(
@@ -238,7 +335,12 @@ private extension ContentView {
         }
     }
 
-    // MARK: Gestures
+    // MARK: Gesture
+    func onSingleTap(_: TapGesture.Value) {
+        withAnimation {
+            showsPanel.toggle()
+        }
+    }
     func onDoubleTap(value: TapGesture.Value) {
         set(newOffset: .zero)
         set(newScale: scale == 1 ? setting.doubleTapScaleFactor : 1)
@@ -301,6 +403,12 @@ private extension ContentView {
 
         withAnimation {
             scale = newScale
+        }
+
+        if newScale > 1 && allowDragging {
+            allowDragging = false
+        } else if !allowDragging {
+            allowDragging = true
         }
     }
 }
@@ -371,3 +479,83 @@ private struct ImageContainer: View {
         onSuccessAction((index, aspect))
     }
 }
+
+// MARK: AdvancedScrollView
+private struct AdvancedScrollView<Content>: View where Content: View {
+    @Binding private var index: Int
+    @Binding private var frame: CGRect
+    private let spacing: CGFloat
+    private let content: Content
+
+    init(
+        index: Binding<Int>, frame: Binding<CGRect>,
+        spacing: CGFloat, @ViewBuilder content: () -> Content
+    ) {
+        _index = index
+        _frame = frame
+        self.spacing = spacing
+        self.content = content()
+    }
+
+    var body: some View {
+        ScrollViewReader { proxy in
+            ScrollView {
+                MeasureTool(frame: $frame)
+                LazyVStack(spacing: spacing) {
+                    content
+                }
+            }
+            .task {
+                if index > 0 {
+                    proxy.scrollTo(index)
+                }
+            }
+        }
+    }
+}
+
+//                AdvancedScrollView(
+//                    index: $index, frame: $position,
+//                    spacing: setting.contentDividerHeight
+//                ) {
+//                    ForEach(1..<pageCount + 1) { index in
+//                        ImageContainer(
+//                            url: mangaContents[index] ?? "", index: index,
+//                            retryLimit: setting.contentRetryLimit,
+//                            onSuccessAction: onWebImageSuccess
+//                        )
+//                        .frame(
+//                            width: absWindowW,
+//                            height: calImageHeight(index: index)
+//                        )
+//                        .onAppear {
+//                            onWebImageAppear(index: index)
+//                        }
+//                        .id(index)
+//                    }
+//                }
+//                ScrollViewReader { scrollProxy in
+//                    ScrollView {
+//                        MeasureTool(bindingFrame: $position)
+//                        LazyVStack(spacing: setting.contentDividerHeight) {
+//                            ForEach(1..<pageCount + 1) { index in
+//                                ImageContainer(
+//                                    url: mangaContents[index] ?? "", index: index,
+//                                    retryLimit: setting.contentRetryLimit,
+//                                    onSuccessAction: onWebImageSuccess
+//                                )
+//                                .frame(
+//                                    width: absWindowW,
+//                                    height: calImageHeight(index: index)
+//                                )
+//                                .onAppear {
+//                                    onWebImageAppear(index: index)
+//                                }
+//                                .id(index)
+//                            }
+//                        }
+//                        .task {
+//                            onLazyVStackAppear(proxy: scrollProxy)
+//                        }
+//                    }
+//                }

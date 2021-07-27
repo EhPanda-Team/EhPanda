@@ -32,6 +32,7 @@
 		AB4FD2C1268AB83300A95968 /* MangaDetailMO+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB4FD2C0268AB83300A95968 /* MangaDetailMO+CoreDataProperties.swift */; };
 		AB63EADB2699AC8200090535 /* AppEnvMO+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB63EADA2699AC8200090535 /* AppEnvMO+CoreDataProperties.swift */; };
 		AB63EADD2699AC9100090535 /* AppEnvMO+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB63EADC2699AC9100090535 /* AppEnvMO+CoreDataClass.swift */; };
+		AB6505A026B0027800F91E9D /* SwiftUIPager in Frameworks */ = {isa = PBXBuildFile; productRef = AB65059F26B0027800F91E9D /* SwiftUIPager */; };
 		AB6DE897268822390087C579 /* LogsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB6DE896268822390087C579 /* LogsView.swift */; };
 		AB73CEAD26AAB8C600EF6337 /* BetterCodable in Frameworks */ = {isa = PBXBuildFile; productRef = AB73CEAC26AAB8C600EF6337 /* BetterCodable */; };
 		AB73CEAF26AAC13F00EF6337 /* CodableExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB73CEAE26AAC13F00EF6337 /* CodableExtension.swift */; };
@@ -204,6 +205,7 @@
 				AB9A7E3A26A6AF2500779319 /* Kingfisher in Frameworks */,
 				AB19D619266E5C6700BA752A /* TTProgressHUD in Frameworks */,
 				AB0F68AF26A6D92F00AC3A54 /* DeprecatedAPI in Frameworks */,
+				AB6505A026B0027800F91E9D /* SwiftUIPager in Frameworks */,
 				AB73CEAD26AAB8C600EF6337 /* BetterCodable in Frameworks */,
 				AB018DD2268756D000EB0EA9 /* Kanna in Frameworks */,
 				ABE1867F26A18DD000689FDC /* SwiftyBeaver in Frameworks */,
@@ -464,6 +466,7 @@
 				AB9A7E3926A6AF2500779319 /* Kingfisher */,
 				AB0F68AE26A6D92F00AC3A54 /* DeprecatedAPI */,
 				AB73CEAC26AAB8C600EF6337 /* BetterCodable */,
+				AB65059F26B0027800F91E9D /* SwiftUIPager */,
 			);
 			productName = EhPanda;
 			productReference = ABC3C7542593696C00E0C11B /* EhPanda.app */;
@@ -504,6 +507,7 @@
 				AB9A7E3826A6AF2500779319 /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				AB0F68AD26A6D92F00AC3A54 /* XCRemoteSwiftPackageReference "DeprecatedAPI" */,
 				AB73CEAB26AAB8C600EF6337 /* XCRemoteSwiftPackageReference "BetterCodable" */,
+				AB65059E26B0027800F91E9D /* XCRemoteSwiftPackageReference "SwiftUIPager" */,
 			);
 			productRefGroup = ABC3C7552593696C00E0C11B /* Products */;
 			projectDirPath = "";
@@ -888,6 +892,14 @@
 				kind = branch;
 			};
 		};
+		AB65059E26B0027800F91E9D /* XCRemoteSwiftPackageReference "SwiftUIPager" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/fermoya/SwiftUIPager.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.3.1;
+			};
+		};
 		AB73CEAB26AAB8C600EF6337 /* XCRemoteSwiftPackageReference "BetterCodable" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/marksands/BetterCodable";
@@ -929,6 +941,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = AB19D617266E5C6700BA752A /* XCRemoteSwiftPackageReference "TTProgressHUD" */;
 			productName = TTProgressHUD;
+		};
+		AB65059F26B0027800F91E9D /* SwiftUIPager */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AB65059E26B0027800F91E9D /* XCRemoteSwiftPackageReference "SwiftUIPager" */;
+			productName = SwiftUIPager;
 		};
 		AB73CEAC26AAB8C600EF6337 /* BetterCodable */ = {
 			isa = XCSwiftPackageProductDependency;

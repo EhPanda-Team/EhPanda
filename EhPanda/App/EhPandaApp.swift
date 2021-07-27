@@ -15,7 +15,8 @@ struct EhPandaApp: App {
 
     var body: some Scene {
         WindowGroup {
-            Home()
+//            Home()
+            ContentView(gid: "1969713")
                 .task(onStartTasks)
                 .environmentObject(store)
                 .accentColor(accentColor)
