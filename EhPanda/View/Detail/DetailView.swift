@@ -233,7 +233,7 @@ private extension DetailView {
         store.dispatch(.fetchMangaDetail(gid: gid))
     }
     func fetchMangaPreviews(index: Int) {
-        DispatchQueue.global().async {
+        DispatchQueue.main.async {
             store.dispatch(.fetchMangaPreviews(gid: gid, index: index))
         }
     }
