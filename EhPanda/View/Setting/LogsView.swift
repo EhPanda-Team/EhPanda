@@ -7,7 +7,8 @@
 
 import SwiftUI
 
-struct LogsView: View {
+struct LogsView: View, StoreAccessor {
+    @EnvironmentObject var store: Store
     @State private var logs = [Log]()
 
     var body: some View {
@@ -38,6 +39,7 @@ struct LogsView: View {
                 Button(action: exportLog) {
                     Image(systemName: "folder.badge.gearshape")
                 }
+                .foregroundColor(setting.accentColor) // workaround
             }
         }
         .navigationBarTitle("Logs")
@@ -152,15 +154,26 @@ private struct LogCell: View {
 
 // MARK: LogView
 private struct LogView: View {
+    private struct IdentifiableLog: Identifiable {
+        let id: Int
+        let content: String
+    }
+
     private let log: Log
 
     init(log: Log) {
         self.log = log
     }
 
+    private var logs: [IdentifiableLog] {
+        Array(0..<log.contents.count).map { index in
+            IdentifiableLog(id: index, content: log.contents[index])
+        }
+    }
+
     var body: some View {
-        List(0..<log.contents.count) { index in
-            Text("\(index + 1). " + log.contents[index])
+        List(logs) { log in
+            Text("\(log.id + 1). " + log.content)
                 .fontWeight(.medium)
                 .font(.caption)
                 .padding()

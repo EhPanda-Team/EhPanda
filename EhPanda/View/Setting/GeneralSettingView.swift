@@ -20,6 +20,8 @@ struct GeneralSettingView: View, StoreAccessor {
                     Text("Language")
                     Spacer()
                     Button(language, action: toSettingLanguage)
+                        .foregroundColor(setting.accentColor) // workaround
+                        .font(.subheadline)
                 }
                 NavigationLink("Logs", destination: LogsView())
                 NavigationLink("Filters", destination: FilterView())
@@ -70,7 +72,8 @@ struct GeneralSettingView: View, StoreAccessor {
                         Text("Clear image caches")
                         Spacer()
                         Text(setting.diskImageCacheSize)
-                            .foregroundStyle(.tint)
+                            .foregroundColor(setting.accentColor) // workaround
+                            .font(.subheadline)
                     }
                     .foregroundColor(.primary)
                 }

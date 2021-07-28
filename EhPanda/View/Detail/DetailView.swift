@@ -334,8 +334,8 @@ private struct HeaderView: View {
                                 .padding(.horizontal, 2)
                         }
                     })
-                    .buttonStyle(.bordered)
-                    .controlProminence(.increased)
+                    .buttonStyle(.borderedProminent)
+                    .cornerRadius(30)
                 }
             }
             .padding(.horizontal, 10)

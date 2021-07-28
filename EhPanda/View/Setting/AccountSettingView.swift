@@ -67,6 +67,8 @@ struct AccountSettingView: View, StoreAccessor {
                         submitAction: onEhEditingChange
                     )
                     Button("Copy cookies", action: copyEhCookies)
+                        .foregroundColor(setting.accentColor) // workaround
+                        .font(.subheadline)
                 }
                 Section(header: Text("ExHentai")) {
                     CookieRow(
@@ -85,6 +87,8 @@ struct AccountSettingView: View, StoreAccessor {
                         submitAction: onExEditingChange
                     )
                     Button("Copy cookies", action: copyExCookies)
+                        .foregroundColor(setting.accentColor) // workaround
+                        .font(.subheadline)
                 }
             }
             TTProgressHUD($hudVisible, config: hudConfig)

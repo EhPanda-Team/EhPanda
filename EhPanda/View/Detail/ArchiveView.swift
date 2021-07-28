@@ -46,7 +46,8 @@ struct ArchiveView: View, StoreAccessor, PersistenceAccessor {
                                     ArchiveGrid(
                                         isSelected: selection
                                             == hathArchive.resolution,
-                                        archive: hathArchive
+                                        archive: hathArchive,
+                                        accentColor: setting.accentColor
                                     )
                                     .onTapGesture(perform: {
                                         onArchiveGridTap(item: hathArchive)
@@ -70,7 +71,8 @@ struct ArchiveView: View, StoreAccessor, PersistenceAccessor {
                             }
                             DownloadButton(
                                 isDisabled: selection == nil,
-                                action: onDownloadButtonTap
+                                action: onDownloadButtonTap,
+                                accentColor: setting.accentColor
                             )
                         }
                         .padding(.horizontal)
@@ -203,6 +205,7 @@ private extension ArchiveView {
 private struct ArchiveGrid: View {
     private var isSelected: Bool
     private let archive: MangaArchive.HathArchive
+    private let accentColor: Color // workaround
 
     private var disabled: Bool {
         archive.fileSize == "N/A"
@@ -223,7 +226,7 @@ private struct ArchiveGrid: View {
             return disabledColor
         } else {
             return isSelected
-                ? .accentColor
+                ? accentColor
                 : .gray
         }
     }
@@ -231,9 +234,14 @@ private struct ArchiveGrid: View {
         disabled ? disabledColor : nil
     }
 
-    init(isSelected: Bool, archive: MangaArchive.HathArchive) {
+    init(
+        isSelected: Bool,
+        archive: MangaArchive.HathArchive,
+        accentColor: Color
+    ) {
         self.isSelected = isSelected
         self.archive = archive
+        self.accentColor = accentColor
     }
 
     var body: some View {
@@ -267,13 +275,16 @@ private struct DownloadButton: View {
 
     private var isDisabled: Bool
     private var action: () -> Void
+    private let accentColor: Color // workaround
 
     init(
         isDisabled: Bool,
-        action: @escaping () -> Void
+        action: @escaping () -> Void,
+        accentColor: Color
     ) {
         self.isDisabled = isDisabled
         self.action = action
+        self.accentColor = accentColor
     }
 
     var body: some View {
@@ -311,11 +322,11 @@ private extension DownloadButton {
     }
     var backgroundColor: Color {
         if isDisabled {
-            return .accentColor.opacity(0.5)
+            return accentColor.opacity(0.5)
         } else {
             return isPressed
-                ? .accentColor.opacity(0.5)
-                : .accentColor
+                ? accentColor.opacity(0.5)
+                : accentColor
         }
     }
     var paddingInsets: EdgeInsets {
