@@ -13,6 +13,13 @@ import SwiftUIPager
 struct ReadingView: View, StoreAccessor, PersistenceAccessor {
     @EnvironmentObject var store: Store
 
+    @Environment(\.colorScheme) private var colorScheme
+    private var backgroundColor: Color {
+        colorScheme == .light
+        ? Color(.systemGray4)
+        : Color(.systemGray6)
+    }
+
     @StateObject private var page: Page = .first()
     @State private var allowsDragging = true
 
@@ -55,6 +62,7 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
             .onEnded(onMagnificationGestureEnded)
 
         ZStack {
+            backgroundColor.ignoresSafeArea()
             if contentInfo.contentsLoading[gid]?[0] == true {
                 LoadingView()
             } else if contentInfo.contentsLoadFailed[gid]?[0] == true {
@@ -93,9 +101,39 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
                 )
             }
         }
+        .task(onStartTasks)
+        .statusBar(hidden: !showsPanel)
+        .onAppear(perform: toggleNavBarHiddenIfNeeded)
+        .onDisappear(perform: onEndTasks)
+        .navigationBarBackButtonHidden(true)
+        .navigationBarHidden(environment.navBarHidden)
+        .sheet(item: $sheetState) { item in
+            Group {
+                switch item {
+                case .setting:
+                    NavigationView {
+                        ReadingSettingView()
+                    }
+                }
+            }
+            .accentColor(accentColor)
+            .blur(radius: environment.blurRadius)
+            .allowsHitTesting(environment.isAppUnlocked)
+        }
         .onChange(of: page.index) { newValue in
             withAnimation {
                 sliderValue = Float(newValue + 1)
+            }
+        }
+        .onReceive(
+            NotificationCenter.default.publisher(
+                for: NSNotification.Name("AppWidthDidChange")
+            )
+        ) { _ in
+            DispatchQueue.main.async {
+                set(newOffset: .zero)
+                set(newScale: 1.1)
+                set(newScale: 1)
             }
         }
         .onReceive(
@@ -119,41 +157,6 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
         ) { _ in
             onEndTasks()
         }
-        .onReceive(
-            NotificationCenter.default.publisher(
-                for: NSNotification.Name("AppWidthDidChange")
-            )
-        ) { _ in
-            DispatchQueue.main.async {
-                set(newOffset: .zero)
-                set(newScale: 1.1)
-                set(newScale: 1)
-            }
-        }
-        .task(onStartTasks)
-        .onAppear(perform: toggleNavBarHiddenIfNeeded)
-        .onDisappear(perform: onEndTasks)
-        .navigationBarBackButtonHidden(true)
-        .navigationBarHidden(environment.navBarHidden)
-        .sheet(item: $sheetState) { item in
-            Group {
-                switch item {
-                case .setting:
-                    NavigationView {
-                        ReadingSettingView()
-                    }
-                }
-            }
-            .accentColor(accentColor)
-            .blur(radius: environment.blurRadius)
-            .allowsHitTesting(environment.isAppUnlocked)
-        }
-    }
-}
-
-private extension Text {
-    func boundTextModifier() -> some View {
-        self.bold().font(.caption).padding()
     }
 }
 
@@ -201,8 +204,12 @@ private extension ReadingView {
         aspectBox[tag] = aspect
     }
     func onControlPanelSliderChanged(newValue: Int) {
-        if page.index != newValue - 1 {
+        let isVertical = setting.readingDirection == .vertical
+        if !isVertical && page.index != newValue - 1 {
             page.update(.new(index: newValue - 1))
+        }
+        if isVertical {
+            // make list scroll
         }
     }
 
@@ -477,6 +484,7 @@ private struct ImageContainer: View {
 private struct ControlPanel: View {
     @Environment(\.dismiss) var dismissAction
 
+    @State private var isSliderDragging = false
     @Binding private var showsPanel: Bool
     @Binding private var sliderValue: Float
     private let title: String
@@ -500,6 +508,9 @@ private struct ControlPanel: View {
     }
     private var sliderAngle: Angle {
         Angle(degrees: shouldReverseDirection ? 180 : 0)
+    }
+    private var pageIndicatorWidth: CGFloat {
+        CGFloat("\(Int(sliderValue))".count) * 15 + 60
     }
 
     init(
@@ -528,9 +539,8 @@ private struct ControlPanel: View {
                 .imageScale(.large)
                 .padding(.leading)
                 Spacer()
-                Text(title)
+                Text(title).bold()
                     .lineLimit(1)
-                    .font(.callout)
                     .padding()
                     .frame(idealWidth: windowW)
                 Spacer()
@@ -541,32 +551,52 @@ private struct ControlPanel: View {
                 .padding(.trailing)
             }
             .frame(width: windowW)
-            .background(.thinMaterial)
+            .background(.thickMaterial)
             .offset(y: showsPanel ? 0 : -50)
             Spacer()
-            Text("")
+            Text("\(Int(sliderValue))").bold()
+                .font(.title).lineLimit(1)
+                .padding(.vertical, 20)
+                .frame(maxWidth: windowW * 0.8)
+                .frame(width: pageIndicatorWidth)
+                .background(.ultraThinMaterial)
+                .opacity(isSliderDragging ? 1 : 0)
+                .cornerRadius(15)
             Spacer()
-            HStack {
-                Text(lowerBoundText)
-                    .boundTextModifier()
-                Slider(
-                    value: $sliderValue,
-                    in: range, step: 1,
-                    onEditingChanged: { _ in
-                        sliderChangedAction(
-                            Int(sliderValue)
-                        )
-                    }
-                )
-                .rotationEffect(sliderAngle)
-                Text(upperBoundText)
-                    .boundTextModifier()
+            VStack {
+                HStack {
+                    Text(lowerBoundText)
+                        .boundTextModifier()
+                    Slider(
+                        value: $sliderValue,
+                        in: range, step: 1,
+                        onEditingChanged: { isDragging in
+                            sliderChangedAction(
+                                Int(sliderValue)
+                            )
+
+                            impactFeedback(style: .soft)
+                            withAnimation {
+                                isSliderDragging = isDragging
+                            }
+                        }
+                    )
+                    .rotationEffect(sliderAngle)
+                    Text(upperBoundText)
+                        .boundTextModifier()
+                }
             }
-            .background(.thinMaterial)
+            .background(.thickMaterial)
             .offset(y: showsPanel ? 0 : 50)
         }
         .opacity(showsPanel ? 1 : 0)
         .disabled(!showsPanel)
+    }
+}
+
+private extension Text {
+    func boundTextModifier() -> some View {
+        self.fontWeight(.medium).font(.caption).padding()
     }
 }
 

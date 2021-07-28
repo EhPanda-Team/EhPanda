@@ -8,6 +8,13 @@
 import SwiftUI
 
 struct Placeholder: View {
+    @Environment(\.colorScheme) private var colorScheme
+    private var backgroundColor: Color {
+        colorScheme == .light
+        ? Color(.systemGray4)
+        : Color(.systemGray6)
+    }
+
     private let style: PlaceholderStyle
 
     init(style: PlaceholderStyle) {
@@ -26,12 +33,14 @@ struct Placeholder: View {
         case .progress(let pageNumber, let progress):
             GeometryReader { proxy in
                 ZStack {
-                    Color(.systemGray5)
+                    backgroundColor
                     VStack {
                         Text(pageNumber.withoutComma)
                             .fontWeight(.bold)
                             .font(.largeTitle)
-                            .foregroundStyle(.gray)
+                            .foregroundColor(
+                                backgroundColor.darker()
+                            )
                             .padding(.bottom, 15)
                         ProgressView(progress)
                             .progressViewStyle(.plainLinear)
