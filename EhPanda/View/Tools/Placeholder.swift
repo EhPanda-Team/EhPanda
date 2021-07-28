@@ -38,9 +38,7 @@ struct Placeholder: View {
                         Text(pageNumber.withoutComma)
                             .fontWeight(.bold)
                             .font(.largeTitle)
-                            .foregroundColor(
-                                backgroundColor.darker()
-                            )
+                            .foregroundColor(.gray)
                             .padding(.bottom, 15)
                         ProgressView(progress)
                             .progressViewStyle(.plainLinear)

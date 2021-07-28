@@ -17,8 +17,7 @@ extension MangaStateMO: ManagedObjectProtocol {
             readingProgress: Int(readingProgress),
             previews: previews?.toObject() ?? [Int: String](),
             comments: comments?.toObject() ?? [MangaComment](),
-            contents: contents?.toObject() ?? [Int: String](),
-            aspectBox: aspectBox?.toObject() ?? [Int: CGFloat]()
+            contents: contents?.toObject() ?? [Int: String]()
         )
     }
 }
@@ -34,7 +33,6 @@ extension MangaState: ManagedObjectConvertible {
         mangaMO.previews = previews.toData()
         mangaMO.comments = comments.toData()
         mangaMO.contents = contents.toData()
-        mangaMO.aspectBox = aspectBox.toData()
 
         return mangaMO
     }

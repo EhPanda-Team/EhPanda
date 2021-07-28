@@ -29,12 +29,51 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
 
     @State private var index: Int = 0
     @State private var position: CGRect = .zero
-    @State private var aspectBox = [Int: CGFloat]()
 
     @State private var scale: CGFloat = 1
     @State private var baseScale: CGFloat = 1
     @State private var offset: CGSize = .zero
     @State private var newOffset: CGSize = .zero
+
+    @State private var timer = Timer.publish(
+        every: 3, on: .main, in: .common
+    )
+
+    private func imageContainer(index: Int) -> some View {
+        ImageContainer(
+            url: mangaContents[index] ?? "", index: index,
+            retryLimit: setting.contentRetryLimit
+        )
+        .onAppear {
+            onWebImageAppear(index: index)
+        }
+    }
+
+    @ViewBuilder private var conditionalList: some View {
+        if setting.readingDirection == .vertical && pageCount >= 1 {
+            AdvancedList(
+                page: page, data:
+                    Array(1...pageCount) as [Int],
+                id: \.self, spacing: setting
+                    .contentDividerHeight,
+                singleTapAction: onSingleTap,
+                doubleTapAction: onDoubleTap,
+                content: imageContainer
+            )
+            .disabled(!allowsDragging)
+        } else if pageCount >= 1 {
+            Pager(
+                page: page, data:
+                    Array(1...pageCount) as [Int],
+                id: \.self, content: imageContainer
+            )
+            .horizontal(
+                setting.readingDirection == .rightToLeft
+                ? .rightToLeft : .leftToRight
+            )
+            .allowsDragging(allowsDragging)
+        }
+    }
 
     let gid: String
 
@@ -68,28 +107,14 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
             } else if contentInfo.contentsLoadFailed[gid]?[0] == true {
                 NetworkErrorView(retryAction: fetchMangaContentsIfNeeded)
             } else {
-                Pager(page: page, data: Array(1...pageCount) as [Int], id: \.self) { index in
-                    ImageContainer(
-                        url: mangaContents[index] ?? "", index: index,
-                        retryLimit: setting.contentRetryLimit,
-                        onSuccessAction: onWebImageSuccess
-                    )
-                    .onAppear {
-                        onWebImageAppear(index: index)
-                    }
-                }
-                .horizontal(
-                    setting.readingDirection == .rightToLeft
-                    ? .rightToLeft : .leftToRight
-                )
-                .allowsDragging(allowsDragging)
-                .transition(opacityTransition)
-                .scaleEffect(scale)
-                .offset(offset)
-                .gesture(tap)
-                .gesture(drag)
-                .gesture(magnify)
-                .ignoresSafeArea()
+                conditionalList
+                    .transition(opacityTransition)
+                    .scaleEffect(scale)
+                    .offset(offset)
+                    .gesture(tap)
+                    .gesture(drag)
+                    .gesture(magnify)
+                    .ignoresSafeArea()
                 ControlPanel(
                     showsPanel: $showsPanel,
                     sliderValue: $sliderValue,
@@ -125,6 +150,10 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
                 sliderValue = Float(newValue + 1)
             }
         }
+        .onReceive(timer, perform: { _ in
+            dismissPanel()
+            invalidateTimer()
+        })
         .onReceive(
             NotificationCenter.default.publisher(
                 for: NSNotification.Name("AppWidthDidChange")
@@ -175,24 +204,18 @@ private extension ReadingView {
 
     // MARK: Life Cycle
     func onStartTasks() {
-        restoreAspectBox()
         restoreReadingProgress()
         fetchMangaContentsIfNeeded()
     }
     func onEndTasks() {
-        saveAspectBox()
         saveReadingProgress()
     }
-    func restoreReadingProgress(proxy: ScrollViewProxy? = nil) {
+    func restoreReadingProgress() {
         dispatchMainSync {
-            let progress = mangaState.readingProgress
-            if progress > 1 {
-                if setting.readingDirection == .vertical {
-                    proxy?.scrollTo(progress)
-                } else {
-                    page.update(.new(index: progress - 1))
-                }
-            }
+            page.update(.new(
+                index: mangaState
+                    .readingProgress - 1
+            ))
         }
     }
     func onWebImageAppear(index: Int) {
@@ -200,20 +223,53 @@ private extension ReadingView {
             fetchMangaContents(index: index)
         }
     }
-    func onWebImageSuccess(tag: Int, aspect: CGFloat) {
-        aspectBox[tag] = aspect
-    }
-    func onControlPanelSliderChanged(newValue: Int) {
-        let isVertical = setting.readingDirection == .vertical
-        if !isVertical && page.index != newValue - 1 {
-            page.update(.new(index: newValue - 1))
-        }
-        if isVertical {
-            // make list scroll
+    func onControlPanelSliderChanged(newValue: Int, isDragging: Bool) {
+        page.update(.new(index: newValue - 1))
+
+        if isDragging {
+            invalidateTimer()
+        } else {
+            resetTimer()
         }
     }
 
-    // MARK: Dispatch
+    // MARK: Timer
+    func connectTimer() {
+        _ = timer.connect()
+    }
+    func resetTimer() {
+        timer = Timer.publish(
+            every: 3, on: .main, in: .common
+        )
+        connectTimer()
+    }
+    func invalidateTimer() {
+        timer.connect().cancel()
+    }
+
+    // MARK: Misc
+    func dismissPanel() {
+        if showsPanel {
+            toggleShowsPanel()
+        }
+    }
+    func toggleShowsPanel() {
+        withAnimation {
+            showsPanel.toggle()
+        }
+    }
+    func saveReadingProgress() {
+        let progress = page.index + 1
+        if progress > 1 {
+            store.dispatch(
+                .saveReadingProgress(
+                    gid: gid,
+                    tag: progress
+                )
+            )
+        }
+    }
+
     func fetchMangaContents(index: Int = 1) {
         DispatchQueue.main.async {
             store.dispatch(.fetchMangaContents(gid: gid, index: index))
@@ -235,73 +291,15 @@ private extension ReadingView {
         }
     }
 
-    // MARK: ReadingProgress
-    func calImageHeight(index: Int) -> CGFloat {
-        if let aspect = aspectBox[index] {
-            return absWindowW * aspect
-        } else {
-            return windowH * contentHScale
-        }
-    }
-    func calReadingProgress() -> Int {
-        var heightArray = Array(
-            repeating: windowH * contentHScale,
-            count: pageCount + 1
-        )
-        heightArray[0] = 0
-        aspectBox.forEach { (key: Int, value: CGFloat) in
-            heightArray[key] = value * windowW
-        }
-
-        var remainingPosition = abs(position.minY) + windowH / 2
-        for (index, value) in heightArray.enumerated() {
-            remainingPosition -= value
-            if remainingPosition < 0 {
-                return index
-            }
-        }
-        return -1
-    }
-
-    func saveReadingProgress() {
-        let shouldCalculate = setting
-            .readingDirection == .vertical
-        let progress = shouldCalculate
-        ? calReadingProgress() : page.index + 1
-
-        if progress != -1 {
-            store.dispatch(
-                .saveReadingProgress(
-                    gid: gid,
-                    tag: progress
-                )
-            )
-        }
-    }
-    func restoreAspectBox() {
-        let box = mangaState.aspectBox
-        if !box.isEmpty {
-            aspectBox = box
-        }
-    }
-    func saveAspectBox() {
-        if !aspectBox.isEmpty {
-            store.dispatch(
-                .saveAspectBox(
-                    gid: gid,
-                    box: aspectBox
-                )
-            )
-        }
-    }
-
     // MARK: Gesture
     func onSingleTap(_: TapGesture.Value) {
-        withAnimation {
-            showsPanel.toggle()
+        toggleShowsPanel()
+
+        if showsPanel {
+            resetTimer()
         }
     }
-    func onDoubleTap(value: TapGesture.Value) {
+    func onDoubleTap(_: TapGesture.Value) {
         set(newOffset: .zero)
         set(newScale: scale == 1 ? setting.doubleTapScaleFactor : 1)
     }
@@ -379,36 +377,87 @@ private extension ReadingView {
     }
 }
 
-// MARK: AdvancedScrollView
-private struct AdvancedScrollView<Content>: View where Content: View {
-    @Binding private var index: Int
-    @Binding private var frame: CGRect
+// MARK: AdvancedList
+private struct AdvancedList<Element, ID, PageView>: View
+    where PageView: View, Element: Equatable, ID: Hashable {
+    private let pagerModel: Page
+    private var data: [Element]
+    private let id: KeyPath<Element, ID>
     private let spacing: CGFloat
-    private let content: Content
+    private let singleTapAction: (TapGesture.Value) -> Void
+    private let doubleTapAction: (TapGesture.Value) -> Void
+    private let content: (Element) -> PageView
 
-    init(
-        index: Binding<Int>, frame: Binding<CGRect>,
-        spacing: CGFloat, @ViewBuilder content: () -> Content
-    ) {
-        _index = index
-        _frame = frame
+    @State var performingChanges = false
+
+    init<Data: RandomAccessCollection>(
+        page: Page, data: Data,
+        id: KeyPath<Element, ID>, spacing: CGFloat,
+        singleTapAction: @escaping (TapGesture.Value) -> Void,
+        doubleTapAction: @escaping (TapGesture.Value) -> Void,
+        @ViewBuilder content:
+            @escaping (Element) -> PageView
+    )
+    where Data.Index == Int,
+    Data.Element == Element
+    {
+        self.pagerModel = page
+        self.data = Array(data)
+        self.id = id
         self.spacing = spacing
-        self.content = content()
+        self.singleTapAction = singleTapAction
+        self.doubleTapAction = doubleTapAction
+        self.content = content
     }
 
     var body: some View {
         ScrollViewReader { proxy in
-            ScrollView {
-                MeasureTool(frame: $frame)
+            ScrollView(showsIndicators: false) {
                 LazyVStack(spacing: spacing) {
-                    content
+                    ForEach(data, id: id) { index in
+                        let singleTap = TapGesture(count: 1)
+                            .onEnded(singleTapAction)
+                        let doubleTap = TapGesture(count: 2)
+                            .onEnded(doubleTapAction)
+                        let tap = ExclusiveGesture(
+                            doubleTap, singleTap
+                        )
+                        let longPress = LongPressGesture(
+                            minimumDuration: 0,
+                            maximumDistance: .infinity
+                        ).onChanged { isPressing in
+                            print("\(isPressing)")
+                        }.onEnded { _ in
+                            if let index = index as? Int {
+                                performingChanges = true
+                                pagerModel.update(
+                                    .new(index: index - 1)
+                                )
+                                DispatchQueue.main.asyncAfter(
+                                    deadline: .now() + 0.2
+                                ) { performingChanges = false }
+                            }
+                        }
+                        let gestures = SimultaneousGesture(
+                            tap, longPress
+                        )
+                        content(index).gesture(gestures)
+                    }
                 }
             }
             .task {
-                if index > 0 {
-                    proxy.scrollTo(index)
-                }
+                performScrollTo(id: pagerModel.index + 1, proxy: proxy)
             }
+            .onChange(of: pagerModel.index) { newValue in
+                performScrollTo(id: newValue + 1, proxy: proxy)
+            }
+        }
+    }
+
+    private func performScrollTo(id: Int, proxy: ScrollViewProxy) {
+        guard !performingChanges else { return }
+        dispatchMainSync {
+            proxy.scrollTo(id, anchor: .center)
         }
     }
 }
@@ -418,18 +467,15 @@ private struct ImageContainer: View {
     private let url: String
     private let index: Int
     private let retryLimit: Int
-    private let onSuccessAction: ((Int, CGFloat)) -> Void
 
     init(
         url: String,
         index: Int,
-        retryLimit: Int,
-        onSuccessAction: @escaping ((Int, CGFloat)) -> Void
+        retryLimit: Int
     ) {
         self.url = url
         self.index = index
         self.retryLimit = retryLimit
-        self.onSuccessAction = onSuccessAction
     }
 
     private func getPlaceholder(_ progress: Progress) -> some View {
@@ -458,25 +504,17 @@ private struct ImageContainer: View {
                         interval: .seconds(0.5)
                     )
                     .placeholder(getPlaceholder)
-                    .onSuccess(onWebImageSuccess)
             } else {
                 KFAnimatedImage(URL(string: url))
                     .retry(
                         maxCount: retryLimit,
                         interval: .seconds(0.5)
                     )
-                    .onSuccess(onWebImageSuccess)
                     .placeholder(getPlaceholder)
                     .fade(duration: 0.25)
             }
         }
         .scaledToFit()
-    }
-
-    private func onWebImageSuccess(result: RetrieveImageResult) {
-        let size = result.image.size
-        let aspect = size.height / size.width
-        onSuccessAction((index, aspect))
     }
 }
 
@@ -491,7 +529,7 @@ private struct ControlPanel: View {
     private let range: ClosedRange<Float>
     private let readingDirection: ReadingDirection
     private let settingAction: () -> Void
-    private let sliderChangedAction: (Int) -> Void
+    private let sliderChangedAction: (Int, Bool) -> Void
 
     private var shouldReverseDirection: Bool {
         readingDirection == .rightToLeft
@@ -519,7 +557,7 @@ private struct ControlPanel: View {
         title: String, range: ClosedRange<Float>,
         readingDirection: ReadingDirection,
         settingAction: @escaping () -> Void,
-        sliderChangedAction: @escaping (Int) -> Void
+        sliderChangedAction: @escaping (Int, Bool) -> Void
     ) {
         _showsPanel = showsPanel
         _sliderValue = sliderValue
@@ -539,10 +577,13 @@ private struct ControlPanel: View {
                 .imageScale(.large)
                 .padding(.leading)
                 Spacer()
-                Text(title).bold()
-                    .lineLimit(1)
-                    .padding()
-                    .frame(idealWidth: windowW)
+                ZStack {
+                    Text(title).bold()
+                        .lineLimit(1)
+                        .padding()
+                    Slider(value: $sliderValue)
+                        .opacity(0)
+                }
                 Spacer()
                 Button(action: settingAction) {
                     Image(systemName: "gear")
@@ -550,8 +591,7 @@ private struct ControlPanel: View {
                 .imageScale(.large)
                 .padding(.trailing)
             }
-            .frame(width: windowW)
-            .background(.thickMaterial)
+            .background(.thinMaterial)
             .offset(y: showsPanel ? 0 : -50)
             Spacer()
             Text("\(Int(sliderValue))").bold()
@@ -572,9 +612,8 @@ private struct ControlPanel: View {
                         in: range, step: 1,
                         onEditingChanged: { isDragging in
                             sliderChangedAction(
-                                Int(sliderValue)
+                                Int(sliderValue), isDragging
                             )
-
                             impactFeedback(style: .soft)
                             withAnimation {
                                 isSliderDragging = isDragging
@@ -586,7 +625,7 @@ private struct ControlPanel: View {
                         .boundTextModifier()
                 }
             }
-            .background(.thickMaterial)
+            .background(.thinMaterial)
             .offset(y: showsPanel ? 0 : 50)
         }
         .opacity(showsPanel ? 1 : 0)
@@ -600,52 +639,7 @@ private extension Text {
     }
 }
 
-//                AdvancedScrollView(
-//                    index: $index, frame: $position,
-//                    spacing: setting.contentDividerHeight
-//                ) {
-//                    ForEach(1..<pageCount + 1) { index in
-//                        ImageContainer(
-//                            url: mangaContents[index] ?? "", index: index,
-//                            retryLimit: setting.contentRetryLimit,
-//                            onSuccessAction: onWebImageSuccess
-//                        )
-//                        .frame(
-//                            width: absWindowW,
-//                            height: calImageHeight(index: index)
-//                        )
-//                        .onAppear {
-//                            onWebImageAppear(index: index)
-//                        }
-//                        .id(index)
-//                    }
-//                }
-//                ScrollViewReader { scrollProxy in
-//                    ScrollView {
-//                        MeasureTool(bindingFrame: $position)
-//                        LazyVStack(spacing: setting.contentDividerHeight) {
-//                            ForEach(1..<pageCount + 1) { index in
-//                                ImageContainer(
-//                                    url: mangaContents[index] ?? "", index: index,
-//                                    retryLimit: setting.contentRetryLimit,
-//                                    onSuccessAction: onWebImageSuccess
-//                                )
-//                                .frame(
-//                                    width: absWindowW,
-//                                    height: calImageHeight(index: index)
-//                                )
-//                                .onAppear {
-//                                    onWebImageAppear(index: index)
-//                                }
-//                                .id(index)
-//                            }
-//                        }
-//                        .task {
-//                            onLazyVStackAppear(proxy: scrollProxy)
-//                        }
-//                    }
-//                }
-
+// MARK: Definition
 enum ReadingViewSheetState: Identifiable {
     var id: Int { hashValue }
     case setting

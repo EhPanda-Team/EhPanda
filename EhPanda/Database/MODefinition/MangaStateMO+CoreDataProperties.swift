@@ -12,7 +12,6 @@ extension MangaStateMO: GalleryIdentifiable {
         NSFetchRequest<MangaStateMO>(entityName: "MangaStateMO")
     }
 
-    @NSManaged public var aspectBox: Data?
     @NSManaged public var comments: Data?
     @NSManaged public var contents: Data?
     @NSManaged public var gid: String

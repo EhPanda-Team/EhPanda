@@ -106,7 +106,6 @@ struct MangaState: Codable {
     var previewConfig: PreviewConfig?
     var comments = [MangaComment]()
     var contents = [Int: String]()
-    var aspectBox = [Int: CGFloat]()
 }
 
 struct MangaArchive: Codable {

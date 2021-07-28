@@ -12,7 +12,6 @@ import Foundation
 enum AppAction {
     case resetUser
     case resetFilters
-    case saveAspectBox(gid: String, box: [Int: CGFloat])
     case saveReadingProgress(gid: String, tag: Int)
     case updateDiskImageCacheSize(size: String)
     case updateAppIconType(iconType: IconType)

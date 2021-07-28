@@ -159,11 +159,6 @@ extension PersistenceController {
     static func update(gid: String, mangaStateMO: @escaping ((MangaStateMO) -> Void)) {
         update(entityType: MangaStateMO.self, gid: gid, createIfNil: true, commitChanges: mangaStateMO)
     }
-    static func update(gid: String, aspectBox: [Int: CGFloat]) {
-        update(gid: gid) { mangaStateMO in
-            mangaStateMO.aspectBox = aspectBox.toData()
-        }
-    }
     static func update(gid: String, readingProgress: Int) {
         update(gid: gid) { mangaStateMO in
             mangaStateMO.readingProgress = Int64(readingProgress)

@@ -20,8 +20,6 @@ final class Store: ObservableObject {
             SwiftyBeaver.error("[ACTION]: " + description)
         } else {
             switch action {
-            case .saveAspectBox(let gid, _):
-                SwiftyBeaver.verbose("[ACTION]: saveAspectBox(gid: \(gid))")
             case .fetchMangaPreviewsDone(let gid, let pageNumber, let result):
                 if case .success(let previews) = result {
                     SwiftyBeaver.verbose(
@@ -53,8 +51,6 @@ final class Store: ObservableObject {
             appState.settings.user = User()
         case .resetFilters:
             appState.settings.filter = Filter()
-        case .saveAspectBox(let gid, let box):
-            PersistenceController.update(gid: gid, aspectBox: box)
         case .saveReadingProgress(let gid, let tag):
             PersistenceController.update(gid: gid, readingProgress: tag)
         case .updateDiskImageCacheSize(let size):
