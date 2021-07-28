@@ -23,18 +23,18 @@
         "package": "Kanna",
         "repositoryURL": "https://github.com/tid-kijyun/Kanna.git",
         "state": {
-          "branch": "master",
-          "revision": "211beb276b7563eb9bb09474ce2d5f2176976232",
-          "version": null
+          "branch": null,
+          "revision": "126bdc9600e30b4a8aeb8d14088953c16aebf495",
+          "version": "5.2.6"
         }
       },
       {
         "package": "Kingfisher",
-        "repositoryURL": "https://github.com/tatsuz0u/Kingfisher.git",
+        "repositoryURL": "https://github.com/onevcat/Kingfisher.git",
         "state": {
-          "branch": "masterFix/xcode-13",
-          "revision": "f82ec14c2843f980596554e23d1b61003d2219d5",
-          "version": null
+          "branch": null,
+          "revision": "8c73044cd5f6754ce605da05e2a4dab891d1aa0a",
+          "version": "7.0.0-beta.1"
         }
       },
       {

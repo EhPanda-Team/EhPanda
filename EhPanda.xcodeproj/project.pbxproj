@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		AB018DD2268756D000EB0EA9 /* Kanna in Frameworks */ = {isa = PBXBuildFile; productRef = AB018DD1268756D000EB0EA9 /* Kanna */; };
 		AB0F68AF26A6D92F00AC3A54 /* DeprecatedAPI in Frameworks */ = {isa = PBXBuildFile; productRef = AB0F68AE26A6D92F00AC3A54 /* DeprecatedAPI */; };
 		AB10117E26986B7D00C2C1A9 /* MangaStateMO+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB10117D26986B7D00C2C1A9 /* MangaStateMO+CoreDataProperties.swift */; };
 		AB10118026986C1100C2C1A9 /* MangaStateMO+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB10117F26986C1100C2C1A9 /* MangaStateMO+CoreDataClass.swift */; };
@@ -39,7 +38,7 @@
 		AB7B29F226AC471E00EE1F14 /* MigrationPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB7B29F126AC471E00EE1F14 /* MigrationPolicy.swift */; };
 		AB7B29F626AC741600EE1F14 /* GenericList.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB7B29F526AC741600EE1F14 /* GenericList.swift */; };
 		AB7E6B3025D24FE00035CC68 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = AB7E6B3225D24FE00035CC68 /* InfoPlist.strings */; };
-		AB9A7E3A26A6AF2500779319 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = AB9A7E3926A6AF2500779319 /* Kingfisher */; };
+		AB82819B26B1C39B00A80CFA /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = AB82819A26B1C39B00A80CFA /* Kingfisher */; };
 		ABA732D925A8018A00B3D9AB /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABA732D825A8018A00B3D9AB /* Extensions.swift */; };
 		ABA732DF25A852D800B3D9AB /* Filter.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABA732DE25A852D800B3D9AB /* Filter.swift */; };
 		ABAFFE4026A86E3000EE8661 /* MeasureTool.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABAFFE3F26A86E3000EE8661 /* MeasureTool.swift */; };
@@ -59,6 +58,7 @@
 		ABCD2F0A259763FC008E5A20 /* Request.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD2F09259763FC008E5A20 /* Request.swift */; };
 		ABCD2F0E25976B95008E5A20 /* Parser.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD2F0D25976B95008E5A20 /* Parser.swift */; };
 		ABD5FDD4263D05110021A4C6 /* .swiftlint.yml in Resources */ = {isa = PBXBuildFile; fileRef = ABD5FDD3263D05110021A4C6 /* .swiftlint.yml */; };
+		ABD7005926B1C31500DC59C9 /* Kanna in Frameworks */ = {isa = PBXBuildFile; productRef = ABD7005826B1C31500DC59C9 /* Kanna */; };
 		ABE1867826A1733000689FDC /* LaboratorySettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABE1867726A1733000689FDC /* LaboratorySettingView.swift */; };
 		ABE1867F26A18DD000689FDC /* SwiftyBeaver in Frameworks */ = {isa = PBXBuildFile; productRef = ABE1867E26A18DD000689FDC /* SwiftyBeaver */; };
 		ABE2AE752699F238001D47AA /* AppEnvStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABE2AE742699F238001D47AA /* AppEnvStorage.swift */; };
@@ -203,12 +203,12 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AB9A7E3A26A6AF2500779319 /* Kingfisher in Frameworks */,
+				ABD7005926B1C31500DC59C9 /* Kanna in Frameworks */,
 				AB19D619266E5C6700BA752A /* TTProgressHUD in Frameworks */,
+				AB82819B26B1C39B00A80CFA /* Kingfisher in Frameworks */,
 				AB0F68AF26A6D92F00AC3A54 /* DeprecatedAPI in Frameworks */,
 				AB6505A026B0027800F91E9D /* SwiftUIPager in Frameworks */,
 				AB73CEAD26AAB8C600EF6337 /* BetterCodable in Frameworks */,
-				AB018DD2268756D000EB0EA9 /* Kanna in Frameworks */,
 				ABE1867F26A18DD000689FDC /* SwiftyBeaver in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -279,11 +279,19 @@
 			path = Database;
 			sourceTree = "<group>";
 		};
+		AB82819926B1C39B00A80CFA /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		ABC3C74B2593696C00E0C11B = {
 			isa = PBXGroup;
 			children = (
 				ABC3C7562593696C00E0C11B /* EhPanda */,
 				ABC3C7552593696C00E0C11B /* Products */,
+				AB82819926B1C39B00A80CFA /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -462,12 +470,12 @@
 			name = EhPanda;
 			packageProductDependencies = (
 				AB19D618266E5C6700BA752A /* TTProgressHUD */,
-				AB018DD1268756D000EB0EA9 /* Kanna */,
 				ABE1867E26A18DD000689FDC /* SwiftyBeaver */,
-				AB9A7E3926A6AF2500779319 /* Kingfisher */,
 				AB0F68AE26A6D92F00AC3A54 /* DeprecatedAPI */,
 				AB73CEAC26AAB8C600EF6337 /* BetterCodable */,
 				AB65059F26B0027800F91E9D /* SwiftUIPager */,
+				ABD7005826B1C31500DC59C9 /* Kanna */,
+				AB82819A26B1C39B00A80CFA /* Kingfisher */,
 			);
 			productName = EhPanda;
 			productReference = ABC3C7542593696C00E0C11B /* EhPanda.app */;
@@ -503,12 +511,12 @@
 			mainGroup = ABC3C74B2593696C00E0C11B;
 			packageReferences = (
 				AB19D617266E5C6700BA752A /* XCRemoteSwiftPackageReference "TTProgressHUD" */,
-				AB018DD0268756D000EB0EA9 /* XCRemoteSwiftPackageReference "Kanna" */,
 				ABE1867D26A18DD000689FDC /* XCRemoteSwiftPackageReference "SwiftyBeaver" */,
-				AB9A7E3826A6AF2500779319 /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				AB0F68AD26A6D92F00AC3A54 /* XCRemoteSwiftPackageReference "DeprecatedAPI" */,
 				AB73CEAB26AAB8C600EF6337 /* XCRemoteSwiftPackageReference "BetterCodable" */,
 				AB65059E26B0027800F91E9D /* XCRemoteSwiftPackageReference "SwiftUIPager" */,
+				ABD7005626B1C14900DC59C9 /* XCRemoteSwiftPackageReference "Kingfisher" */,
+				ABD7005726B1C31500DC59C9 /* XCRemoteSwiftPackageReference "Kanna" */,
 			);
 			productRefGroup = ABC3C7552593696C00E0C11B /* Products */;
 			projectDirPath = "";
@@ -798,7 +806,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = EhPanda/EhPanda.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 67;
+				CURRENT_PROJECT_VERSION = 68;
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = 9SKQ7QTZ74;
 				ENABLE_PREVIEWS = YES;
@@ -825,7 +833,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = EhPanda/EhPanda.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 67;
+				CURRENT_PROJECT_VERSION = 68;
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = 9SKQ7QTZ74;
 				ENABLE_PREVIEWS = YES;
@@ -869,14 +877,6 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		AB018DD0268756D000EB0EA9 /* XCRemoteSwiftPackageReference "Kanna" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/tid-kijyun/Kanna.git";
-			requirement = {
-				branch = master;
-				kind = branch;
-			};
-		};
 		AB0F68AD26A6D92F00AC3A54 /* XCRemoteSwiftPackageReference "DeprecatedAPI" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/tatsuz0u/DeprecatedAPI.git";
@@ -898,7 +898,7 @@
 			repositoryURL = "https://github.com/fermoya/SwiftUIPager.git";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 2.3.1;
+				minimumVersion = 2.0.0;
 			};
 		};
 		AB73CEAB26AAB8C600EF6337 /* XCRemoteSwiftPackageReference "BetterCodable" */ = {
@@ -909,12 +909,20 @@
 				minimumVersion = 0.4.0;
 			};
 		};
-		AB9A7E3826A6AF2500779319 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
+		ABD7005626B1C14900DC59C9 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/tatsuz0u/Kingfisher.git";
+			repositoryURL = "https://github.com/onevcat/Kingfisher.git";
 			requirement = {
-				branch = "masterFix/xcode-13";
-				kind = branch;
+				kind = upToNextMajorVersion;
+				minimumVersion = "7.0.0-beta.1";
+			};
+		};
+		ABD7005726B1C31500DC59C9 /* XCRemoteSwiftPackageReference "Kanna" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/tid-kijyun/Kanna.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.0.0;
 			};
 		};
 		ABE1867D26A18DD000689FDC /* XCRemoteSwiftPackageReference "SwiftyBeaver" */ = {
@@ -928,11 +936,6 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		AB018DD1268756D000EB0EA9 /* Kanna */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = AB018DD0268756D000EB0EA9 /* XCRemoteSwiftPackageReference "Kanna" */;
-			productName = Kanna;
-		};
 		AB0F68AE26A6D92F00AC3A54 /* DeprecatedAPI */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = AB0F68AD26A6D92F00AC3A54 /* XCRemoteSwiftPackageReference "DeprecatedAPI" */;
@@ -953,10 +956,15 @@
 			package = AB73CEAB26AAB8C600EF6337 /* XCRemoteSwiftPackageReference "BetterCodable" */;
 			productName = BetterCodable;
 		};
-		AB9A7E3926A6AF2500779319 /* Kingfisher */ = {
+		AB82819A26B1C39B00A80CFA /* Kingfisher */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = AB9A7E3826A6AF2500779319 /* XCRemoteSwiftPackageReference "Kingfisher" */;
+			package = ABD7005626B1C14900DC59C9 /* XCRemoteSwiftPackageReference "Kingfisher" */;
 			productName = Kingfisher;
+		};
+		ABD7005826B1C31500DC59C9 /* Kanna */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = ABD7005726B1C31500DC59C9 /* XCRemoteSwiftPackageReference "Kanna" */;
+			productName = Kanna;
 		};
 		ABE1867E26A18DD000689FDC /* SwiftyBeaver */ = {
 			isa = XCSwiftPackageProductDependency;
