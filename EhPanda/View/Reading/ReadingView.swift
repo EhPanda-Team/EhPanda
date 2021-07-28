@@ -12,7 +12,6 @@ import SwiftUIPager
 
 struct ReadingView: View, StoreAccessor, PersistenceAccessor {
     @EnvironmentObject var store: Store
-    @Environment(\.dismiss) var dismissAction
 
     @StateObject private var page: Page = .first()
     @State private var allowsDragging = true
@@ -89,7 +88,6 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
                     title: mangaDetail?.jpnTitle ?? manga.title,
                     range: 1...Float(pageCount),
                     readingDirection: setting.readingDirection,
-                    backAction: dismissAction.callAsFunction,
                     settingAction: toggleSetting,
                     sliderChangedAction: onControlPanelSliderChanged
                 )
@@ -153,101 +151,6 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
     }
 }
 
-// MARK: ControlPanel
-private struct ControlPanel: View {
-    @Binding private var showsPanel: Bool
-    @Binding private var sliderValue: Float
-    private let title: String
-    private let range: ClosedRange<Float>
-    private let readingDirection: ReadingDirection
-    private let backAction: () -> Void
-    private let settingAction: () -> Void
-    private let sliderChangedAction: (Int) -> Void
-
-    private var shouldReverseDirection: Bool {
-        readingDirection == .rightToLeft
-    }
-    private var lowerBoundText: String {
-        shouldReverseDirection
-        ? "\(Int(range.upperBound))"
-        : "\(Int(range.lowerBound))"
-    }
-    private var upperBoundText: String {
-        shouldReverseDirection
-        ? "\(Int(range.lowerBound))"
-        : "\(Int(range.upperBound))"
-    }
-    private var sliderAngle: Angle {
-        Angle(degrees: shouldReverseDirection ? 180 : 0)
-    }
-
-    init(
-        showsPanel: Binding<Bool>,
-        sliderValue: Binding<Float>,
-        title: String, range: ClosedRange<Float>,
-        readingDirection: ReadingDirection,
-        backAction: @escaping () -> Void,
-        settingAction: @escaping () -> Void,
-        sliderChangedAction: @escaping (Int) -> Void
-    ) {
-        _showsPanel = showsPanel
-        _sliderValue = sliderValue
-        self.title = title
-        self.range = range
-        self.readingDirection = readingDirection
-        self.backAction = backAction
-        self.settingAction = settingAction
-        self.sliderChangedAction = sliderChangedAction
-    }
-
-    var body: some View {
-        VStack {
-            HStack {
-                Button(action: backAction) {
-                    Image(systemName: "chevron.backward")
-                }
-                .imageScale(.large)
-                .padding(.leading)
-                Text(title)
-                    .lineLimit(1)
-                    .font(.callout)
-                    .padding()
-                Button(action: settingAction) {
-                    Image(systemName: "gear")
-                }
-                .imageScale(.large)
-                .padding(.trailing)
-            }
-            .frame(width: windowW)
-            .background(.thinMaterial)
-            .offset(y: showsPanel ? 0 : -50)
-            Spacer()
-            Text("")
-            Spacer()
-            HStack {
-                Text(lowerBoundText)
-                    .boundTextModifier()
-                Slider(
-                    value: $sliderValue,
-                    in: range, step: 1,
-                    onEditingChanged: { _ in
-                        sliderChangedAction(
-                            Int(sliderValue)
-                        )
-                    }
-                )
-                .rotationEffect(sliderAngle)
-                Text(upperBoundText)
-                    .boundTextModifier()
-            }
-            .background(.thinMaterial)
-            .offset(y: showsPanel ? 0 : 50)
-        }
-        .opacity(showsPanel ? 1 : 0)
-        .disabled(!showsPanel)
-    }
-}
-
 private extension Text {
     func boundTextModifier() -> some View {
         self.bold().font(.caption).padding()
@@ -270,16 +173,23 @@ private extension ReadingView {
     // MARK: Life Cycle
     func onStartTasks() {
         restoreAspectBox()
+        restoreReadingProgress()
         fetchMangaContentsIfNeeded()
     }
     func onEndTasks() {
         saveAspectBox()
         saveReadingProgress()
     }
-    func onLazyVStackAppear(proxy: ScrollViewProxy) {
-        let progress = mangaState.readingProgress
-        if progress > 0 {
-            proxy.scrollTo(progress)
+    func restoreReadingProgress(proxy: ScrollViewProxy? = nil) {
+        dispatchMainSync {
+            let progress = mangaState.readingProgress
+            if progress > 1 {
+                if setting.readingDirection == .vertical {
+                    proxy?.scrollTo(progress)
+                } else {
+                    page.update(.new(index: progress - 1))
+                }
+            }
         }
     }
     func onWebImageAppear(index: Int) {
@@ -347,8 +257,11 @@ private extension ReadingView {
     }
 
     func saveReadingProgress() {
-//        let progress = calReadingProgress()
-        let progress = page.index + 1
+        let shouldCalculate = setting
+            .readingDirection == .vertical
+        let progress = shouldCalculate
+        ? calReadingProgress() : page.index + 1
+
         if progress != -1 {
             store.dispatch(
                 .saveReadingProgress(
@@ -459,6 +372,40 @@ private extension ReadingView {
     }
 }
 
+// MARK: AdvancedScrollView
+private struct AdvancedScrollView<Content>: View where Content: View {
+    @Binding private var index: Int
+    @Binding private var frame: CGRect
+    private let spacing: CGFloat
+    private let content: Content
+
+    init(
+        index: Binding<Int>, frame: Binding<CGRect>,
+        spacing: CGFloat, @ViewBuilder content: () -> Content
+    ) {
+        _index = index
+        _frame = frame
+        self.spacing = spacing
+        self.content = content()
+    }
+
+    var body: some View {
+        ScrollViewReader { proxy in
+            ScrollView {
+                MeasureTool(frame: $frame)
+                LazyVStack(spacing: spacing) {
+                    content
+                }
+            }
+            .task {
+                if index > 0 {
+                    proxy.scrollTo(index)
+                }
+            }
+        }
+    }
+}
+
 // MARK: ImageContainer
 private struct ImageContainer: View {
     private let url: String
@@ -526,37 +473,100 @@ private struct ImageContainer: View {
     }
 }
 
-// MARK: AdvancedScrollView
-private struct AdvancedScrollView<Content>: View where Content: View {
-    @Binding private var index: Int
-    @Binding private var frame: CGRect
-    private let spacing: CGFloat
-    private let content: Content
+// MARK: ControlPanel
+private struct ControlPanel: View {
+    @Environment(\.dismiss) var dismissAction
+
+    @Binding private var showsPanel: Bool
+    @Binding private var sliderValue: Float
+    private let title: String
+    private let range: ClosedRange<Float>
+    private let readingDirection: ReadingDirection
+    private let settingAction: () -> Void
+    private let sliderChangedAction: (Int) -> Void
+
+    private var shouldReverseDirection: Bool {
+        readingDirection == .rightToLeft
+    }
+    private var lowerBoundText: String {
+        shouldReverseDirection
+        ? "\(Int(range.upperBound))"
+        : "\(Int(range.lowerBound))"
+    }
+    private var upperBoundText: String {
+        shouldReverseDirection
+        ? "\(Int(range.lowerBound))"
+        : "\(Int(range.upperBound))"
+    }
+    private var sliderAngle: Angle {
+        Angle(degrees: shouldReverseDirection ? 180 : 0)
+    }
 
     init(
-        index: Binding<Int>, frame: Binding<CGRect>,
-        spacing: CGFloat, @ViewBuilder content: () -> Content
+        showsPanel: Binding<Bool>,
+        sliderValue: Binding<Float>,
+        title: String, range: ClosedRange<Float>,
+        readingDirection: ReadingDirection,
+        settingAction: @escaping () -> Void,
+        sliderChangedAction: @escaping (Int) -> Void
     ) {
-        _index = index
-        _frame = frame
-        self.spacing = spacing
-        self.content = content()
+        _showsPanel = showsPanel
+        _sliderValue = sliderValue
+        self.title = title
+        self.range = range
+        self.readingDirection = readingDirection
+        self.settingAction = settingAction
+        self.sliderChangedAction = sliderChangedAction
     }
 
     var body: some View {
-        ScrollViewReader { proxy in
-            ScrollView {
-                MeasureTool(frame: $frame)
-                LazyVStack(spacing: spacing) {
-                    content
+        VStack {
+            HStack {
+                Button(action: dismissAction.callAsFunction) {
+                    Image(systemName: "chevron.backward")
                 }
-            }
-            .task {
-                if index > 0 {
-                    proxy.scrollTo(index)
+                .imageScale(.large)
+                .padding(.leading)
+                Spacer()
+                Text(title)
+                    .lineLimit(1)
+                    .font(.callout)
+                    .padding()
+                    .frame(idealWidth: windowW)
+                Spacer()
+                Button(action: settingAction) {
+                    Image(systemName: "gear")
                 }
+                .imageScale(.large)
+                .padding(.trailing)
             }
+            .frame(width: windowW)
+            .background(.thinMaterial)
+            .offset(y: showsPanel ? 0 : -50)
+            Spacer()
+            Text("")
+            Spacer()
+            HStack {
+                Text(lowerBoundText)
+                    .boundTextModifier()
+                Slider(
+                    value: $sliderValue,
+                    in: range, step: 1,
+                    onEditingChanged: { _ in
+                        sliderChangedAction(
+                            Int(sliderValue)
+                        )
+                    }
+                )
+                .rotationEffect(sliderAngle)
+                Text(upperBoundText)
+                    .boundTextModifier()
+            }
+            .background(.thinMaterial)
+            .offset(y: showsPanel ? 0 : 50)
         }
+        .opacity(showsPanel ? 1 : 0)
+        .disabled(!showsPanel)
     }
 }
 

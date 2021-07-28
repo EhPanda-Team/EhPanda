@@ -14,6 +14,7 @@ struct DetailView: View, StoreAccessor, PersistenceAccessor {
 
     @State private var keyword = ""
     @State private var commentContent = ""
+    @State private var isReadingLinkActive = false
     @State private var isTorrentsLinkActive = false
     @State private var isAssociatedLinkActive = false
 
@@ -44,6 +45,7 @@ struct DetailView: View, StoreAccessor, PersistenceAccessor {
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 30) {
                         HeaderView(
+                            isActive: $isReadingLinkActive,
                             manga: manga, detail: detail,
                             translatesCategory: setting
                                 .translatesCategory,
@@ -67,6 +69,7 @@ struct DetailView: View, StoreAccessor, PersistenceAccessor {
                         PreviewView(
                             previews: mangaState.previews,
                             pageCount: detail.pageCount,
+                            tapAction: onPreviewImageTap,
                             fetchAction: fetchMangaPreviews
                         )
                         CommentScrollView(
@@ -198,6 +201,13 @@ private extension DetailView {
     func onTagViewTap(keyword: String) {
         navigateToAssociatedView(keyword)
     }
+    func onPreviewImageTap(index: Int) {
+        store.dispatch(.saveReadingProgress(gid: gid, tag: index))
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
+            isReadingLinkActive.toggle()
+        }
+    }
     func onCommentPost() {
         store.dispatch(.comment(gid: gid, content: commentContent))
         toggleSheetStateNil()
@@ -236,6 +246,8 @@ private extension DetailView {
 
 // MARK: HeaderView
 private struct HeaderView: View {
+    @Binding private var isActive: Bool
+
     private let manga: Manga
     private let detail: MangaDetail
     private let translatesCategory: Bool
@@ -245,6 +257,7 @@ private struct HeaderView: View {
     private let onUploaderTapAction: () -> Void
 
     init(
+        isActive: Binding<Bool>,
         manga: Manga,
         detail: MangaDetail,
         translatesCategory: Bool,
@@ -253,6 +266,7 @@ private struct HeaderView: View {
         deleteFavAction: @escaping () -> Void,
         onUploaderTapAction: @escaping () -> Void
     ) {
+        _isActive = isActive
         self.manga = manga
         self.detail = detail
         self.translatesCategory = translatesCategory
@@ -326,13 +340,16 @@ private struct HeaderView: View {
                         .opacity(detail.isFavored ? 0 : 1)
                     }
                     Button(action: {}, label: {
-                        NavigationLink(destination: ReadingView(gid: manga.gid)) {
-                            Text("Read".localized().uppercased())
-                                .fontWeight(.bold)
-                                .foregroundColor(.white)
-                                .padding(.vertical, -2)
-                                .padding(.horizontal, 2)
-                        }
+                        NavigationLink(
+                            isActive: $isActive,
+                            destination: { ReadingView(gid: manga.gid) },
+                            label: {
+                                Text("Read".localized().uppercased())
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.white)
+                                    .padding(.vertical, -2)
+                                    .padding(.horizontal, 2)
+                        })
                     })
                     .buttonStyle(.borderedProminent)
                     .cornerRadius(30)
@@ -648,15 +665,18 @@ private struct TagRow: View {
 private struct PreviewView: View {
     private let previews: [Int: String]
     private let pageCount: Int
+    private let tapAction: (Int) -> Void
     private let fetchAction: (Int) -> Void
 
     init(
         previews: [Int: String],
         pageCount: Int,
+        tapAction: @escaping (Int) -> Void,
         fetchAction: @escaping (Int) -> Void
     ) {
         self.previews = previews
         self.pageCount = pageCount
+        self.tapAction = tapAction
         self.fetchAction = fetchAction
     }
 
@@ -678,6 +698,7 @@ private struct PreviewView: View {
                     destination: MorePreviewView(
                         previews: previews,
                         pageCount: pageCount,
+                        tapAction: tapAction,
                         fetchAction: fetchAction
                     )
                 ) {
@@ -716,17 +737,22 @@ private struct PreviewView: View {
 
 // MARK: MorePreviewView
 private struct MorePreviewView: View {
+    @Environment(\.dismiss) var dismissAction
+
     private let previews: [Int: String]
     private let pageCount: Int
+    private let tapAction: (Int) -> Void
     private let fetchAction: (Int) -> Void
 
     init(
         previews: [Int: String],
         pageCount: Int,
+        tapAction: @escaping (Int) -> Void,
         fetchAction: @escaping (Int) -> Void
     ) {
         self.previews = previews
         self.pageCount = pageCount
+        self.tapAction = tapAction
         self.fetchAction = fetchAction
     }
 
@@ -759,6 +785,9 @@ private struct MorePreviewView: View {
                             .fade(duration: 0.25)
                             .resizable()
                             .scaledToFit()
+                            .onTapGesture {
+                                onImageTap(index: index)
+                            }
                         Text("\(index)")
                             .font(isPadWidth ? .callout : .caption)
                             .foregroundColor(.secondary)
@@ -777,6 +806,10 @@ private struct MorePreviewView: View {
         if previews[index] == nil && (index - 1) % 20 == 0 {
             fetchAction(index)
         }
+    }
+    private func onImageTap(index: Int) {
+        dismissAction.callAsFunction()
+        tapAction(index)
     }
 }
 

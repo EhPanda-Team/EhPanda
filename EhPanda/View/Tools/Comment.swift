@@ -77,7 +77,7 @@ struct DraftCommentView: View {
     }
 
     private func onTextEditorAppear() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
             isTextEditorFocused = true
         }
     }
