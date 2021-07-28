@@ -17,6 +17,16 @@ struct ReadingSettingView: View, StoreAccessor {
     var body: some View {
         Form {
             Section {
+                Picker(
+                    selection: settingBinding.readingDirection,
+                    label: Text("Direction"),
+                    content: {
+                        ForEach(ReadingDirection.allCases) {
+                            Text($0.rawValue.localized()).tag($0)
+                        }
+                    }
+                )
+                .pickerStyle(.segmented)
                 HStack {
                     let time = " times".localized()
                     Text("Retry limit")
@@ -51,17 +61,20 @@ struct ReadingSettingView: View, StoreAccessor {
                     )
                     .pickerStyle(.menu)
                 }
+                .disabled(setting.readingDirection != .vertical)
                 ScaleFactorRow(
                     scaleFactor: settingBinding.maximumScaleFactor,
                     labelContent: "Maximum scale factor",
                     minFactor: 1.5,
-                    maxFactor: 10
+                    maxFactor: 10,
+                    accentColor: setting.accentColor
                 )
                 ScaleFactorRow(
                     scaleFactor: settingBinding.doubleTapScaleFactor,
                     labelContent: "Double tap scale factor",
                     minFactor: 1.5,
-                    maxFactor: 5
+                    maxFactor: 5,
+                    accentColor: setting.accentColor
                 )
             }
         }
@@ -75,17 +88,20 @@ private struct ScaleFactorRow: View {
     private let labelContent: String
     private let minFactor: Double
     private let maxFactor: Double
+    private let accentColor: Color // workaround
 
     init(
         scaleFactor: Binding<Double>,
         labelContent: String,
         minFactor: Double,
-        maxFactor: Double
+        maxFactor: Double,
+        accentColor: Color
     ) {
         _scaleFactor = scaleFactor
         self.labelContent = labelContent
         self.minFactor = minFactor
         self.maxFactor = maxFactor
+        self.accentColor = accentColor
     }
 
     var body: some View {
@@ -94,7 +110,7 @@ private struct ScaleFactorRow: View {
                 Text(labelContent.localized())
                 Spacer()
                 Text(scaleFactor.roundedString() + "x")
-                    .foregroundStyle(.tint)
+                    .foregroundColor(accentColor)
             }
             Slider(
                 value: $scaleFactor,

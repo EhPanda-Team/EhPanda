@@ -103,6 +103,9 @@
 "Maximum number of tags" = "해시태크 수량";
 
 "Reading" = "열람";
+//"Vertical" = "";
+//"Right-to-left" = "";
+//"Left-to-right" = "";
 "Retry limit" = "시도 횟수";
 " times" = "번";
 "Separator height" = "선 두께";

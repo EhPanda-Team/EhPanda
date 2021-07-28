@@ -103,6 +103,9 @@
 "Maximum number of tags" = "标签数量上限";
 
 "Reading" = "阅读";
+"Vertical" = "垂直";
+"Right-to-left" = "右至左";
+"Left-to-right" = "左至右";
 "Retry limit" = "重试次数上限";
 " times" = "次";
 "Separator height" = "分隔线厚度";

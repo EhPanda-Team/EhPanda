@@ -48,6 +48,7 @@ struct Setting: Codable {
     @DefaultIntegerValue var summaryRowTagsMaximum = 5
 
     // Reading
+    @DefaultReadingDirection var readingDirection: ReadingDirection = .vertical
     @DefaultIntegerValue var contentRetryLimit = 10
     @DefaultDoubleValue var contentDividerHeight: Double = 0
     @DefaultDoubleValue var maximumScaleFactor: Double = 3 {
@@ -73,10 +74,11 @@ struct Setting: Codable {
     }
 }
 
-enum GalleryHost: String, Codable {
+enum GalleryHost: String, Codable, CaseIterable, Identifiable {
     case ehentai = "E-Hentai"
     case exhentai = "ExHentai"
 
+    var id: Int { hashValue }
     var abbr: String {
         switch self {
         case .ehentai:
@@ -123,4 +125,12 @@ enum PreferredColorScheme: String, Codable, CaseIterable, Identifiable {
     case automatic = "Automatic"
     case light = "Light"
     case dark = "Dark"
+}
+
+enum ReadingDirection: String, Codable, CaseIterable, Identifiable {
+    var id: Int { hashValue }
+
+    case vertical = "Vertical"
+    case rightToLeft = "Right-to-left"
+    case leftToRight = "Left-to-right"
 }

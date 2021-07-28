@@ -29,12 +29,12 @@ struct AccountSettingView: View, StoreAccessor {
                         selection: settingBinding.galleryHost,
                         label: Text("Gallery"),
                         content: {
-                            let galleryTypes: [GalleryHost] = [.ehentai, .exhentai]
-                            ForEach(galleryTypes, id: \.self) {
-                                Text($0.rawValue.localized())
+                            ForEach(GalleryHost.allCases) {
+                                Text($0.rawValue.localized()).tag($0)
                             }
-                        })
-                        .pickerStyle(.segmented)
+                        }
+                    )
+                    .pickerStyle(.segmented)
                     if !didLogin {
                         Button("Login", action: toggleWebViewLogin).withArrow()
                             .disabled(setting.bypassSNIFiltering)

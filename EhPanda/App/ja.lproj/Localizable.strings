@@ -103,6 +103,9 @@
 "Maximum number of tags" = "タグ数上限";
 
 "Reading" = "閲覧";
+"Vertical" = "縦読み";
+"Right-to-left" = "右開き";
+"Left-to-right" = "左開き";
 "Retry limit" = "再試行上限数";
 " times" = "回";
 "Separator height" = "仕切りの厚さ";

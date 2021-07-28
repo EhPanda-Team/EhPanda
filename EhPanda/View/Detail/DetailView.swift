@@ -326,7 +326,7 @@ private struct HeaderView: View {
                         .opacity(detail.isFavored ? 0 : 1)
                     }
                     Button(action: {}, label: {
-                        NavigationLink(destination: ContentView(gid: manga.gid)) {
+                        NavigationLink(destination: ReadingView(gid: manga.gid)) {
                             Text("Read".localized().uppercased())
                                 .fontWeight(.bold)
                                 .foregroundColor(.white)

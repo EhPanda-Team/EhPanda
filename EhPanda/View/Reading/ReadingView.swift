@@ -1,5 +1,5 @@
 //
-//  ContentView.swift
+//  ReadingView.swift
 //  EhPanda
 //
 //  Created by 荒木辰造 on R 2/12/13.
@@ -10,15 +10,16 @@ import Combine
 import Kingfisher
 import SwiftUIPager
 
-struct ContentView: View, StoreAccessor, PersistenceAccessor {
+struct ReadingView: View, StoreAccessor, PersistenceAccessor {
     @EnvironmentObject var store: Store
     @Environment(\.dismiss) var dismissAction
 
     @StateObject private var page: Page = .first()
-    @State private var allowDragging = true
+    @State private var allowsDragging = true
 
     @State private var showsPanel = false
     @State private var sliderValue: Float = 1
+    @State private var sheetState: ReadingViewSheetState?
 
     @State private var index: Int = 0
     @State private var position: CGRect = .zero
@@ -35,7 +36,7 @@ struct ContentView: View, StoreAccessor, PersistenceAccessor {
         self.gid = gid
     }
 
-    // MARK: ContentView
+    // MARK: ReadingView
     @ViewBuilder var body: some View {
         let singleTap = TapGesture(count: 1)
             .onEnded(onSingleTap)
@@ -70,20 +71,24 @@ struct ContentView: View, StoreAccessor, PersistenceAccessor {
                         onWebImageAppear(index: index)
                     }
                 }
-                .horizontal(.rightToLeft)
-                .allowsDragging(allowDragging)
+                .horizontal(
+                    setting.readingDirection == .rightToLeft
+                    ? .rightToLeft : .leftToRight
+                )
+                .allowsDragging(allowsDragging)
                 .transition(opacityTransition)
-                .ignoresSafeArea()
                 .scaleEffect(scale)
                 .offset(offset)
                 .gesture(tap)
                 .gesture(drag)
                 .gesture(magnify)
+                .ignoresSafeArea()
                 ControlPanel(
                     showsPanel: $showsPanel,
                     sliderValue: $sliderValue,
                     title: mangaDetail?.jpnTitle ?? manga.title,
                     range: 1...Float(pageCount),
+                    readingDirection: setting.readingDirection,
                     backAction: dismissAction.callAsFunction,
                     settingAction: toggleSetting,
                     sliderChangedAction: onControlPanelSliderChanged
@@ -132,6 +137,19 @@ struct ContentView: View, StoreAccessor, PersistenceAccessor {
         .onDisappear(perform: onEndTasks)
         .navigationBarBackButtonHidden(true)
         .navigationBarHidden(environment.navBarHidden)
+        .sheet(item: $sheetState) { item in
+            Group {
+                switch item {
+                case .setting:
+                    NavigationView {
+                        ReadingSettingView()
+                    }
+                }
+            }
+            .accentColor(accentColor)
+            .blur(radius: environment.blurRadius)
+            .allowsHitTesting(environment.isAppUnlocked)
+        }
     }
 }
 
@@ -141,14 +159,33 @@ private struct ControlPanel: View {
     @Binding private var sliderValue: Float
     private let title: String
     private let range: ClosedRange<Float>
+    private let readingDirection: ReadingDirection
     private let backAction: () -> Void
     private let settingAction: () -> Void
     private let sliderChangedAction: (Int) -> Void
+
+    private var shouldReverseDirection: Bool {
+        readingDirection == .rightToLeft
+    }
+    private var lowerBoundText: String {
+        shouldReverseDirection
+        ? "\(Int(range.upperBound))"
+        : "\(Int(range.lowerBound))"
+    }
+    private var upperBoundText: String {
+        shouldReverseDirection
+        ? "\(Int(range.lowerBound))"
+        : "\(Int(range.upperBound))"
+    }
+    private var sliderAngle: Angle {
+        Angle(degrees: shouldReverseDirection ? 180 : 0)
+    }
 
     init(
         showsPanel: Binding<Bool>,
         sliderValue: Binding<Float>,
         title: String, range: ClosedRange<Float>,
+        readingDirection: ReadingDirection,
         backAction: @escaping () -> Void,
         settingAction: @escaping () -> Void,
         sliderChangedAction: @escaping (Int) -> Void
@@ -157,6 +194,7 @@ private struct ControlPanel: View {
         _sliderValue = sliderValue
         self.title = title
         self.range = range
+        self.readingDirection = readingDirection
         self.backAction = backAction
         self.settingAction = settingAction
         self.sliderChangedAction = sliderChangedAction
@@ -187,7 +225,7 @@ private struct ControlPanel: View {
             Text("")
             Spacer()
             HStack {
-                Text("\(Int(range.lowerBound))")
+                Text(lowerBoundText)
                     .boundTextModifier()
                 Slider(
                     value: $sliderValue,
@@ -198,7 +236,8 @@ private struct ControlPanel: View {
                         )
                     }
                 )
-                Text("\(Int(range.upperBound))")
+                .rotationEffect(sliderAngle)
+                Text(upperBoundText)
                     .boundTextModifier()
             }
             .background(.thinMaterial)
@@ -216,7 +255,7 @@ private extension Text {
 }
 
 // MARK: Private Extension
-private extension ContentView {
+private extension ReadingView {
     // MARK: Properties
     var pageCount: Int {
         mangaDetail?.pageCount ?? 0
@@ -265,7 +304,8 @@ private extension ContentView {
     }
 
     func toggleSetting() {
-        store.dispatch(.toggleHomeViewSheet(state: .setting))
+        sheetState = .setting
+        impactFeedback(style: .light)
     }
     func fetchMangaContentsIfNeeded() {
         if mangaContents.isEmpty {
@@ -345,13 +385,18 @@ private extension ContentView {
         set(newOffset: .zero)
         set(newScale: scale == 1 ? setting.doubleTapScaleFactor : 1)
     }
+
     func onDragGestureChanged(value: DragGesture.Value) {
         if scale > 1 {
             let newX = value.translation.width + newOffset.width
             let marginW = windowW * (scale - 1) / 2
-
             let newOffsetW = min(max(newX, -marginW), marginW)
-            set(newOffset: CGSize(width: newOffsetW, height: offset.height))
+
+            let newY = value.translation.height + newOffset.height
+            let marginH = windowH * (scale - 1) / 2
+            let newOffsetH = min(max(newY, -marginH), marginH)
+
+            set(newOffset: CGSize(width: newOffsetW, height: newOffsetH))
         }
     }
     func onDragGestureEnded(value: DragGesture.Value) {
@@ -359,6 +404,7 @@ private extension ContentView {
 
         if scale > 1 {
             newOffset.width = offset.width
+            newOffset.height = offset.height
         }
     }
     func onMagnificationGestureChanged(value: MagnificationGesture.Value) {
@@ -405,10 +451,10 @@ private extension ContentView {
             scale = newScale
         }
 
-        if newScale > 1 && allowDragging {
-            allowDragging = false
-        } else if !allowDragging {
-            allowDragging = true
+        if newScale > 1 && allowsDragging {
+            allowsDragging = false
+        } else if !allowsDragging {
+            allowsDragging = true
         }
     }
 }
@@ -559,3 +605,8 @@ private struct AdvancedScrollView<Content>: View where Content: View {
 //                        }
 //                    }
 //                }
+
+enum ReadingViewSheetState: Identifiable {
+    var id: Int { hashValue }
+    case setting
+}

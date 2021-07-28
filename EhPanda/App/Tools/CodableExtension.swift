@@ -47,3 +47,8 @@ typealias DefaultIconType = DefaultCodable<DefaultIconTypeStrategy>
 struct DefaultIconTypeStrategy: DefaultCodableStrategy {
     static var defaultValue: IconType { .default }
 }
+
+typealias DefaultReadingDirection = DefaultCodable<DefaultReadingDirectionStrategy>
+struct DefaultReadingDirectionStrategy: DefaultCodableStrategy {
+    static var defaultValue: ReadingDirection { .vertical }
+}
