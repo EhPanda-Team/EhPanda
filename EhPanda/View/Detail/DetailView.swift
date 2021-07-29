@@ -67,7 +67,7 @@ struct DetailView: View, StoreAccessor, PersistenceAccessor {
                             )
                         }
                         PreviewView(
-                            previews: mangaState.previews,
+                            previews: detailInfo.previews[gid] ?? [:],
                             pageCount: detail.pageCount,
                             tapAction: onPreviewImageTap,
                             fetchAction: fetchMangaPreviews
@@ -89,7 +89,7 @@ struct DetailView: View, StoreAccessor, PersistenceAccessor {
                 NetworkErrorView(retryAction: fetchMangaDetail)
             }
         }
-        .task(updateHistoryItems)
+        .task(onStartTasks)
         .onAppear(perform: onAppear)
         .onDisappear(perform: onDisappear)
         .navigationBarHidden(environment.navBarHidden)
@@ -156,6 +156,12 @@ private extension DetailView {
 
 // MARK: Private Methods
 private extension DetailView {
+    func onStartTasks() {
+        updateHistoryItems()
+        dispatchMainSync {
+            store.dispatch(.fulfillMangaPreviews(gid: gid))
+        }
+    }
     func onAppear() {
         if environment.navBarHidden {
             store.dispatch(.toggleNavBar(hidden: false))

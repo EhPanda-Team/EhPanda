@@ -69,6 +69,10 @@ final class Store: ObservableObject {
             appState.environment.mangaItemReverseID = gid
         case .updateIsSlideMenuClosed(let isClosed):
             appState.environment.isSlideMenuClosed = isClosed
+        case .fulfillMangaPreviews(let gid):
+            appState.detailInfo.fulfillPreviews(gid: gid)
+        case .fulfillMangaContents(let gid):
+            appState.contentInfo.fulfillContents(gid: gid)
 
         // MARK: App Env
         case .toggleApp(let unlocked):
@@ -497,6 +501,7 @@ final class Store: ObservableObject {
                 }
                 PersistenceController.add(detail: detail.0)
                 PersistenceController.update(fetchedState: detail.1)
+                appState.detailInfo.update(gid: gid, previews: detail.1.previews)
             case .failure:
                 appState.detailInfo.detailLoadFailed[gid] = true
             }
@@ -536,6 +541,7 @@ final class Store: ObservableObject {
 
             switch result {
             case .success(let previews):
+                appState.detailInfo.update(gid: gid, previews: previews)
                 PersistenceController.update(fetchedState: MangaState(gid: gid, previews: previews))
             case .failure(let error):
                 SwiftyBeaver.error(error)
@@ -562,6 +568,7 @@ final class Store: ObservableObject {
 
             switch result {
             case .success(let contents):
+                appState.contentInfo.update(gid: gid, contents: contents)
                 PersistenceController.update(gid: gid, contents: contents)
             case .failure:
                 appState.contentInfo.contentsLoadFailed[gid]?[pageNumber] = true

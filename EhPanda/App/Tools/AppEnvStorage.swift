@@ -10,26 +10,32 @@ import SwiftyBeaver
 @propertyWrapper
 struct AppEnvStorage<T: Encodable> {
     private var key: String
+    private var value: T?
 
     private var appEnv: AppEnv {
         PersistenceController.fetchAppEnvNonNil()
     }
 
+    private var fetchedValue: T {
+        let mirror = Mirror(reflecting: appEnv)
+        for child in mirror.children where child.label == key {
+            if let value = child.value as? T {
+                return value
+            }
+        }
+        SwiftyBeaver.error(
+            "Failed in force downcasting to generic type..."
+            + "Shutting down now..."
+        )
+        fatalError()
+    }
+
     var wrappedValue: T {
         get {
-            let mirror = Mirror(reflecting: appEnv)
-            for child in mirror.children where child.label == key {
-                if let value = child.value as? T {
-                    return value
-                }
-            }
-            SwiftyBeaver.error(
-                "Failed in force downcasting to generic type..."
-                + "Shutting down now..."
-            )
-            fatalError()
+            value ?? fetchedValue
         }
         set {
+            value = newValue
             PersistenceController.update { appEnvMO in
                 appEnvMO.setValue(newValue.toData(), forKeyPath: key)
             }
@@ -44,5 +50,6 @@ struct AppEnvStorage<T: Encodable> {
                 describing: type
             ).lowercased()
         }
+        value = fetchedValue
     }
 }

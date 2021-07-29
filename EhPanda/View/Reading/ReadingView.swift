@@ -26,13 +26,13 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
     @State private var sliderValue: Float = 1
     @State private var sheetState: ReadingViewSheetState?
 
-    @State private var index: Int = 0
-    @State private var position: CGRect = .zero
-
     @State private var scale: CGFloat = 1
     @State private var baseScale: CGFloat = 1
     @State private var offset: CGSize = .zero
     @State private var newOffset: CGSize = .zero
+
+    @State private var pageCount = 2
+    @State private var controllPanelTitle = ""
 
     private func imageContainer(index: Int) -> some View {
         ImageContainer(
@@ -73,10 +73,22 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
 
     init(gid: String) {
         self.gid = gid
+        initializeParams()
+    }
+
+    mutating func initializeParams() {
+        dispatchMainSync {
+            _pageCount = State(
+                initialValue: mangaDetail?.pageCount ?? 2
+            )
+            _controllPanelTitle = State(
+                initialValue: mangaDetail?.jpnTitle ?? manga.title
+            )
+        }
     }
 
     // MARK: ReadingView
-    @ViewBuilder var body: some View {
+    var body: some View {
         ZStack {
             backgroundColor.ignoresSafeArea()
             if contentInfo.contentsLoading[gid]?[0] == true {
@@ -95,7 +107,7 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
             ControlPanel(
                 showsPanel: $showsPanel,
                 sliderValue: $sliderValue,
-                title: mangaDetail?.jpnTitle ?? manga.title,
+                title: controllPanelTitle,
                 range: 1...Float(pageCount),
                 readingDirection: setting.readingDirection,
                 settingAction: toggleSetting,
@@ -164,11 +176,8 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
 // MARK: Private Extension
 private extension ReadingView {
     // MARK: Properties
-    var pageCount: Int {
-        mangaDetail?.pageCount ?? 0
-    }
     var mangaContents: [Int: String] {
-        mangaState.contents
+        contentInfo.contents[gid] ?? [:]
     }
     var contentHScale: CGFloat {
         Defaults.ImageSize.contentHScale
@@ -178,6 +187,9 @@ private extension ReadingView {
     func onStartTasks() {
         restoreReadingProgress()
         fetchMangaContentsIfNeeded()
+        dispatchMainSync {
+            store.dispatch(.fulfillMangaContents(gid: gid))
+        }
     }
     func onEndTasks() {
         saveReadingProgress()

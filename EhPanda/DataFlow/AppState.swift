@@ -211,12 +211,50 @@ extension AppState {
         var detailLoading = [String: Bool]()
         var detailLoadFailed = [String: Bool]()
         var archiveFundsLoading = false
+        var previews = [String: [Int: String]]()
         var previewsLoading = [String: [Int: Bool]]()
         var previewConfig = PreviewConfig.normal(rows: 4)
+
+        mutating func fulfillPreviews(gid: String) {
+            let mangaState = PersistenceController
+                .fetchMangaStateNonNil(gid: gid)
+            previews[gid] = mangaState.previews
+        }
+
+        mutating func update(gid: String, previews: [Int: String]) {
+            guard !previews.isEmpty else { return }
+
+            if self.previews[gid] == nil {
+                self.previews[gid] = [:]
+            }
+            self.previews[gid] = self.previews[gid]?.merging(
+                previews, uniquingKeysWith:
+                    { stored, _ in stored }
+            )
+        }
     }
 
     struct ContentInfo {
+        var contents = [String: [Int: String]]()
         var contentsLoading = [String: [Int: Bool]]()
         var contentsLoadFailed = [String: [Int: Bool]]()
+
+        mutating func fulfillContents(gid: String) {
+            let mangaState = PersistenceController
+                .fetchMangaStateNonNil(gid: gid)
+            contents[gid] = mangaState.contents
+        }
+
+        mutating func update(gid: String, contents: [Int: String]) {
+            guard !contents.isEmpty else { return }
+
+            if self.contents[gid] == nil {
+                self.contents[gid] = [:]
+            }
+            self.contents[gid] = self.contents[gid]?.merging(
+                contents, uniquingKeysWith:
+                    { stored, _ in stored }
+            )
+        }
     }
 }

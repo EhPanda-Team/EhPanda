@@ -21,6 +21,8 @@ enum AppAction {
     case updateViewControllersCount
     case replaceMangaCommentJumpID(gid: String?)
     case updateIsSlideMenuClosed(isClosed: Bool)
+    case fulfillMangaPreviews(gid: String)
+    case fulfillMangaContents(gid: String)
 
     case toggleApp(unlocked: Bool)
     case toggleBlur(effectOn: Bool)
