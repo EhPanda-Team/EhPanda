@@ -125,6 +125,7 @@ struct GenericRetryView: View {
                     .foregroundColor(.primary.opacity(0.7))
             })
             .buttonStyle(.bordered)
+            .buttonBorderShape(.capsule)
         }
         .frame(maxWidth: windowW * 0.8)
     }

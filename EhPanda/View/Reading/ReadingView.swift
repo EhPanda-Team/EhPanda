@@ -56,9 +56,7 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
                     Array(1...pageCount) as [Int],
                 id: \.self, spacing: setting
                     .contentDividerHeight,
-                panAction: onMagnificationGestureChanged,
-                singleTapAction: onSingleTap,
-                doubleTapAction: onDoubleTap,
+                gesture: gestures,
                 content: imageContainer
             )
             .disabled(!allowsDragging)
@@ -84,23 +82,6 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
 
     // MARK: ReadingView
     @ViewBuilder var body: some View {
-        let singleTap = TapGesture(count: 1)
-            .onEnded(onSingleTap)
-        let doubleTap = TapGesture(count: 2)
-            .onEnded(onDoubleTap)
-        let tap = ExclusiveGesture(
-            doubleTap, singleTap
-        )
-        let drag = DragGesture(
-            minimumDistance: 0.0,
-            coordinateSpace: .local
-        )
-        .onChanged(onDragGestureChanged)
-        .onEnded(onDragGestureEnded)
-        let magnify = MagnificationGesture()
-            .onChanged(onMagnificationGestureChanged)
-            .onEnded(onMagnificationGestureEnded)
-
         ZStack {
             backgroundColor.ignoresSafeArea()
             if contentInfo.contentsLoading[gid]?[0] == true {
@@ -109,30 +90,27 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
                 NetworkErrorView(retryAction: fetchMangaContentsIfNeeded)
             } else {
                 conditionalList
+                    .scaleEffect(scale).offset(offset)
                     .transition(opacityTransition)
-                    .scaleEffect(scale)
-                    .offset(offset)
-                    .gesture(tap)
-                    .gesture(drag)
-                    .gesture(magnify)
+                    .gesture(gestures)
                     .ignoresSafeArea()
-                ControlPanel(
-                    showsPanel: $showsPanel,
-                    sliderValue: $sliderValue,
-                    title: mangaDetail?.jpnTitle ?? manga.title,
-                    range: 1...Float(pageCount),
-                    readingDirection: setting.readingDirection,
-                    settingAction: toggleSetting,
-                    sliderChangedAction: onControlPanelSliderChanged
-                )
             }
+            ControlPanel(
+                showsPanel: $showsPanel,
+                sliderValue: $sliderValue,
+                title: mangaDetail?.jpnTitle ?? manga.title,
+                range: 1...Float(pageCount),
+                readingDirection: setting.readingDirection,
+                settingAction: toggleSetting,
+                sliderChangedAction: onControlPanelSliderChanged
+            )
         }
         .task(onStartTasks)
         .statusBar(hidden: !showsPanel)
-        .onAppear(perform: toggleNavBarHiddenIfNeeded)
-        .onDisappear(perform: onEndTasks)
         .navigationBarBackButtonHidden(true)
         .navigationBarHidden(environment.navBarHidden)
+        .onAppear(perform: toggleNavBarHiddenIfNeeded)
+        .onDisappear(perform: onEndTasks)
         .sheet(item: $sheetState) { item in
             Group {
                 switch item {
@@ -293,6 +271,27 @@ private extension ReadingView {
     }
 
     // MARK: Gesture
+    var gestures: some Gesture {
+        let singleTap = TapGesture(count: 1)
+            .onEnded(onSingleTap)
+        let doubleTap = TapGesture(count: 2)
+            .onEnded(onDoubleTap)
+        let tap = ExclusiveGesture(
+            doubleTap, singleTap
+        )
+        let drag = DragGesture(
+            minimumDistance: 0.0,
+            coordinateSpace: .local
+        )
+        .onChanged(onDragGestureChanged)
+        .onEnded(onDragGestureEnded)
+        let magnify = MagnificationGesture()
+            .onChanged(onMagnificationGestureChanged)
+            .onEnded(onMagnificationGestureEnded)
+        return magnify.simultaneously(with: tap)
+            .simultaneously(with: drag)
+    }
+
     func onSingleTap(_: TapGesture.Value) {
         toggleShowsPanel()
 
@@ -380,25 +379,21 @@ private extension ReadingView {
 }
 
 // MARK: AdvancedList
-private struct AdvancedList<Element, ID, PageView>: View
-    where PageView: View, Element: Equatable, ID: Hashable {
+private struct AdvancedList<Element, ID, PageView, G>: View
+where PageView: View, Element: Equatable, ID: Hashable, G: Gesture {
+    @State var performingChanges = false
+
     private let pagerModel: Page
     private var data: [Element]
     private let id: KeyPath<Element, ID>
     private let spacing: CGFloat
-    private let panAction: (MagnificationGesture.Value) -> Void
-    private let singleTapAction: (TapGesture.Value) -> Void
-    private let doubleTapAction: (TapGesture.Value) -> Void
+    private let gesture: G
     private let content: (Element) -> PageView
-
-    @State var performingChanges = false
 
     init<Data: RandomAccessCollection>(
         page: Page, data: Data,
         id: KeyPath<Element, ID>, spacing: CGFloat,
-        panAction: @escaping (MagnificationGesture.Value) -> Void,
-        singleTapAction: @escaping (TapGesture.Value) -> Void,
-        doubleTapAction: @escaping (TapGesture.Value) -> Void,
+        gesture: G,
         @ViewBuilder content:
             @escaping (Element) -> PageView
     )
@@ -409,9 +404,7 @@ private struct AdvancedList<Element, ID, PageView>: View
         self.data = Array(data)
         self.id = id
         self.spacing = spacing
-        self.panAction = panAction
-        self.singleTapAction = singleTapAction
-        self.doubleTapAction = doubleTapAction
+        self.gesture = gesture
         self.content = content
     }
 
@@ -420,15 +413,6 @@ private struct AdvancedList<Element, ID, PageView>: View
             ScrollView(showsIndicators: false) {
                 LazyVStack(spacing: spacing) {
                     ForEach(data, id: id) { index in
-                        let singleTap = TapGesture(count: 1)
-                            .onEnded(singleTapAction)
-                        let doubleTap = TapGesture(count: 2)
-                            .onEnded(doubleTapAction)
-                        let tap = ExclusiveGesture(
-                            doubleTap, singleTap
-                        )
-                        let pan = MagnificationGesture()
-                            .onChanged(panAction)
                         let longPress = LongPressGesture(
                             minimumDuration: 0,
                             maximumDistance: .infinity
@@ -444,14 +428,13 @@ private struct AdvancedList<Element, ID, PageView>: View
                             }
                         }
                         let gestures = longPress
-                            .simultaneously(with: tap)
-                            .simultaneously(with: pan)
+                            .simultaneously(with: gesture)
                         content(index).gesture(gestures)
                     }
                 }
-            }
-            .task {
-                performScrollTo(id: pagerModel.index + 1, proxy: proxy)
+                .task {
+                    performScrollTo(id: pagerModel.index + 1, proxy: proxy)
+                }
             }
             .onChange(of: pagerModel.index) { newValue in
                 performScrollTo(id: newValue + 1, proxy: proxy)
