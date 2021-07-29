@@ -21,7 +21,6 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
     }
 
     @StateObject private var page: Page = .first()
-    @State private var allowsDragging = true
 
     @State private var showsPanel = false
     @State private var sliderValue: Float = 1
@@ -34,10 +33,6 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
     @State private var baseScale: CGFloat = 1
     @State private var offset: CGSize = .zero
     @State private var newOffset: CGSize = .zero
-
-    @State private var timer = Timer.publish(
-        every: 3, on: .main, in: .common
-    )
 
     private func imageContainer(index: Int) -> some View {
         ImageContainer(
@@ -59,7 +54,7 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
                 gesture: gestures,
                 content: imageContainer
             )
-            .disabled(!allowsDragging)
+            .disabled(scale != 1)
         } else if pageCount >= 1 {
             Pager(
                 page: page, data:
@@ -70,7 +65,7 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
                 setting.readingDirection == .rightToLeft
                 ? .rightToLeft : .leftToRight
             )
-            .allowsDragging(allowsDragging)
+            .allowsDragging(scale == 1)
         }
     }
 
@@ -92,7 +87,9 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
                 conditionalList
                     .scaleEffect(scale).offset(offset)
                     .transition(opacityTransition)
-                    .gesture(gestures)
+                    .gesture(tapGesture)
+                    .gesture(dragGesture)
+                    .gesture(magnifyGesture)
                     .ignoresSafeArea()
             }
             ControlPanel(
@@ -129,10 +126,6 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
                 sliderValue = Float(newValue + 1)
             }
         }
-        .onReceive(timer, perform: { _ in
-            dismissPanel()
-            invalidateTimer()
-        })
         .onReceive(
             NotificationCenter.default.publisher(
                 for: NSNotification.Name("AppWidthDidChange")
@@ -204,26 +197,6 @@ private extension ReadingView {
     }
     func onControlPanelSliderChanged(newValue: Int, isDragging: Bool) {
         page.update(.new(index: newValue - 1))
-
-        if isDragging {
-            invalidateTimer()
-        } else {
-            resetTimer()
-        }
-    }
-
-    // MARK: Timer
-    func connectTimer() {
-        _ = timer.connect()
-    }
-    func resetTimer() {
-        timer = Timer.publish(
-            every: 3, on: .main, in: .common
-        )
-        connectTimer()
-    }
-    func invalidateTimer() {
-        timer.connect().cancel()
     }
 
     // MARK: Misc
@@ -271,33 +244,34 @@ private extension ReadingView {
     }
 
     // MARK: Gesture
-    var gestures: some Gesture {
+    var tapGesture: some Gesture {
         let singleTap = TapGesture(count: 1)
             .onEnded(onSingleTap)
         let doubleTap = TapGesture(count: 2)
             .onEnded(onDoubleTap)
-        let tap = ExclusiveGesture(
+        return ExclusiveGesture(
             doubleTap, singleTap
         )
-        let drag = DragGesture(
+    }
+    var magnifyGesture: some Gesture {
+        MagnificationGesture()
+            .onChanged(onMagnificationGestureChanged)
+            .onEnded(onMagnificationGestureEnded)
+    }
+    var dragGesture: some Gesture {
+        DragGesture(
             minimumDistance: 0.0,
             coordinateSpace: .local
         )
         .onChanged(onDragGestureChanged)
         .onEnded(onDragGestureEnded)
-        let magnify = MagnificationGesture()
-            .onChanged(onMagnificationGestureChanged)
-            .onEnded(onMagnificationGestureEnded)
-        return magnify.simultaneously(with: tap)
-            .simultaneously(with: drag)
+    }
+    var gestures: some Gesture {
+        SimultaneousGesture(magnifyGesture, tapGesture)
     }
 
     func onSingleTap(_: TapGesture.Value) {
         toggleShowsPanel()
-
-        if showsPanel {
-            resetTimer()
-        }
     }
     func onDoubleTap(_: TapGesture.Value) {
         set(newOffset: .zero)
@@ -358,12 +332,6 @@ private extension ReadingView {
             scale = newScale
         }
         fixOffset()
-
-        if newScale > 1 && allowsDragging {
-            allowsDragging = false
-        } else if newScale == 1 && !allowsDragging {
-            allowsDragging = true
-        }
     }
     func fixOffset() {
         let marginW = windowW * (scale - 1) / 2
