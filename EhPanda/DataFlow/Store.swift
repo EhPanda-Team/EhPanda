@@ -29,6 +29,15 @@ final class Store: ObservableObject {
                         + "previews: \(previews.count))"
                     )
                 }
+            case .fetchMangaContentsDone(let gid, let pageNumber, let result):
+                if case .success(let contents) = result {
+                    SwiftyBeaver.verbose(
+                        "[ACTION]: fetchMangaContentsDone("
+                        + "gid: \(gid), "
+                        + "pageNumber: \(pageNumber), "
+                        + "contents: \(contents.count))"
+                    )
+                }
             default:
                 SwiftyBeaver.verbose("[ACTION]: " + description)
             }

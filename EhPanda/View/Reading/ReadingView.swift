@@ -47,18 +47,18 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
     @ViewBuilder private var conditionalList: some View {
         if setting.readingDirection == .vertical && pageCount >= 1 {
             AdvancedList(
-                page: page, data:
-                    Array(1...pageCount) as [Int],
+                page: page, data: Array(1...pageCount),
                 id: \.self, spacing: setting
                     .contentDividerHeight,
-                gesture: gestures,
+                gesture: SimultaneousGesture(
+                    magnifyGesture, tapGesture
+                ),
                 content: imageContainer
             )
             .disabled(scale != 1)
         } else if pageCount >= 1 {
             Pager(
-                page: page, data:
-                    Array(1...pageCount) as [Int],
+                page: page, data: Array(1...pageCount),
                 id: \.self, content: imageContainer
             )
             .horizontal(
@@ -175,7 +175,6 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
 
 // MARK: Private Extension
 private extension ReadingView {
-    // MARK: Properties
     var mangaContents: [Int: String] {
         contentInfo.contents[gid] ?? [:]
     }
@@ -207,7 +206,7 @@ private extension ReadingView {
             fetchMangaContents(index: index)
         }
     }
-    func onControlPanelSliderChanged(newValue: Int, isDragging: Bool) {
+    func onControlPanelSliderChanged(newValue: Int) {
         page.update(.new(index: newValue - 1))
     }
 
@@ -277,9 +276,6 @@ private extension ReadingView {
         )
         .onChanged(onDragGestureChanged)
         .onEnded(onDragGestureEnded)
-    }
-    var gestures: some Gesture {
-        SimultaneousGesture(magnifyGesture, tapGesture)
     }
 
     func onSingleTap(_: TapGesture.Value) {
@@ -497,7 +493,7 @@ private struct ControlPanel: View {
     private let range: ClosedRange<Float>
     private let readingDirection: ReadingDirection
     private let settingAction: () -> Void
-    private let sliderChangedAction: (Int, Bool) -> Void
+    private let sliderChangedAction: (Int) -> Void
 
     private var shouldReverseDirection: Bool {
         readingDirection == .rightToLeft
@@ -525,7 +521,7 @@ private struct ControlPanel: View {
         title: String, range: ClosedRange<Float>,
         readingDirection: ReadingDirection,
         settingAction: @escaping () -> Void,
-        sliderChangedAction: @escaping (Int, Bool) -> Void
+        sliderChangedAction: @escaping (Int) -> Void
     ) {
         _showsPanel = showsPanel
         _sliderValue = sliderValue
@@ -580,7 +576,7 @@ private struct ControlPanel: View {
                         in: range, step: 1,
                         onEditingChanged: { isDragging in
                             sliderChangedAction(
-                                Int(sliderValue), isDragging
+                                Int(sliderValue)
                             )
                             impactFeedback(style: .soft)
                             withAnimation {
