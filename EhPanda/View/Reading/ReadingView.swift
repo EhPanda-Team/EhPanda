@@ -56,6 +56,7 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
                     Array(1...pageCount) as [Int],
                 id: \.self, spacing: setting
                     .contentDividerHeight,
+                panAction: onMagnificationGestureChanged,
                 singleTapAction: onSingleTap,
                 doubleTapAction: onDoubleTap,
                 content: imageContainer
@@ -329,7 +330,6 @@ private extension ReadingView {
         if value == 1 {
             baseScale = scale
         }
-        fixOffset()
         set(newScale: value * baseScale)
     }
     func onMagnificationGestureEnded(value: MagnificationGesture.Value) {
@@ -347,17 +347,7 @@ private extension ReadingView {
             withAnimation(animation) {
                 offset = newOffset
             }
-        }
-    }
-    func fixOffset() {
-        let marginW = windowW * (scale - 1) / 2
-
-        withAnimation {
-            if offset.width > marginW {
-                offset.width = marginW
-            } else if offset.width < -marginW {
-                offset.width = -marginW
-            }
+            fixOffset()
         }
     }
     func set(newScale: CGFloat) {
@@ -368,11 +358,23 @@ private extension ReadingView {
         withAnimation {
             scale = newScale
         }
+        fixOffset()
 
         if newScale > 1 && allowsDragging {
             allowsDragging = false
-        } else if !allowsDragging {
+        } else if newScale == 1 && !allowsDragging {
             allowsDragging = true
+        }
+    }
+    func fixOffset() {
+        let marginW = windowW * (scale - 1) / 2
+        let marginH = windowH * (scale - 1) / 2
+        let currentW = offset.width
+        let currentH = offset.height
+
+        withAnimation {
+            offset.width = min(max(currentW, -marginW), marginW)
+            offset.height = min(max(currentH, -marginH), marginH)
         }
     }
 }
@@ -384,6 +386,7 @@ private struct AdvancedList<Element, ID, PageView>: View
     private var data: [Element]
     private let id: KeyPath<Element, ID>
     private let spacing: CGFloat
+    private let panAction: (MagnificationGesture.Value) -> Void
     private let singleTapAction: (TapGesture.Value) -> Void
     private let doubleTapAction: (TapGesture.Value) -> Void
     private let content: (Element) -> PageView
@@ -393,6 +396,7 @@ private struct AdvancedList<Element, ID, PageView>: View
     init<Data: RandomAccessCollection>(
         page: Page, data: Data,
         id: KeyPath<Element, ID>, spacing: CGFloat,
+        panAction: @escaping (MagnificationGesture.Value) -> Void,
         singleTapAction: @escaping (TapGesture.Value) -> Void,
         doubleTapAction: @escaping (TapGesture.Value) -> Void,
         @ViewBuilder content:
@@ -405,6 +409,7 @@ private struct AdvancedList<Element, ID, PageView>: View
         self.data = Array(data)
         self.id = id
         self.spacing = spacing
+        self.panAction = panAction
         self.singleTapAction = singleTapAction
         self.doubleTapAction = doubleTapAction
         self.content = content
@@ -422,12 +427,12 @@ private struct AdvancedList<Element, ID, PageView>: View
                         let tap = ExclusiveGesture(
                             doubleTap, singleTap
                         )
+                        let pan = MagnificationGesture()
+                            .onChanged(panAction)
                         let longPress = LongPressGesture(
                             minimumDuration: 0,
                             maximumDistance: .infinity
-                        ).onChanged { isPressing in
-                            print("\(isPressing)")
-                        }.onEnded { _ in
+                        ).onEnded { _ in
                             if let index = index as? Int {
                                 performingChanges = true
                                 pagerModel.update(
@@ -438,9 +443,9 @@ private struct AdvancedList<Element, ID, PageView>: View
                                 ) { performingChanges = false }
                             }
                         }
-                        let gestures = SimultaneousGesture(
-                            tap, longPress
-                        )
+                        let gestures = longPress
+                            .simultaneously(with: tap)
+                            .simultaneously(with: pan)
                         content(index).gesture(gestures)
                     }
                 }

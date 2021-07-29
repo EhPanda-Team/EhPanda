@@ -352,7 +352,7 @@ private struct HeaderView: View {
                         })
                     })
                     .buttonStyle(.borderedProminent)
-                    .cornerRadius(30)
+                    .buttonBorderShape(.capsule)
                 }
             }
             .padding(.horizontal, 10)
