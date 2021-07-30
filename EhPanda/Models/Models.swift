@@ -40,6 +40,22 @@ struct Manga: Identifiable, Codable, Equatable {
         detailURL: ""
     )
 
+    static let preview = Manga(
+        gid: "",
+        token: "",
+        title: "Preview",
+        rating: 3.5,
+        tags: [],
+        category: .doujinshi,
+        language: .Japanese,
+        uploader: "Anonymous",
+        publishedDate: .now,
+        coverURL: "https://github.com/"
+            + "tatsuz0u/Imageset/blob/"
+            + "main/JPGs/2.jpg?raw=true",
+        detailURL: ""
+    )
+
     var id: String { gid }
     let gid: String
     let token: String
@@ -67,13 +83,35 @@ struct MangaDetail: Codable {
         category: .nonH,
         language: .English,
         uploader: "",
-        publishedDate: .now,
+        publishedDate: .distantPast,
         coverURL: "",
         likeCount: 0,
         pageCount: 0,
         sizeCount: 0,
         sizeType: "",
         torrentCount: 0
+    )
+
+    static let preview = MangaDetail(
+        gid: "",
+        title: "Preview",
+        jpnTitle: "プレビュー",
+        isFavored: true,
+        rating: 3.5,
+        userRating: 4.0,
+        ratingCount: 1919,
+        category: .doujinshi,
+        language: .Japanese,
+        uploader: "Anonymous",
+        publishedDate: .distantPast,
+        coverURL: "https://github.com/"
+        + "tatsuz0u/Imageset/blob/"
+        + "main/JPGs/2.jpg?raw=true",
+        likeCount: 514,
+        pageCount: 114,
+        sizeCount: 514,
+        sizeType: "MB",
+        torrentCount: 101
     )
 
     let gid: String
@@ -98,6 +136,7 @@ struct MangaDetail: Codable {
 
 struct MangaState: Codable {
     static let empty = MangaState(gid: "")
+    static let preview = MangaState(gid: "")
 
     let gid: String
     var tags = [MangaTag]()

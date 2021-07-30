@@ -31,7 +31,7 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
     @State private var offset: CGSize = .zero
     @State private var newOffset: CGSize = .zero
 
-    @State private var pageCount = 2
+    @State private var pageCount = 1
     @State private var controllPanelTitle = ""
 
     private func imageContainer(index: Int) -> some View {
@@ -45,7 +45,7 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
     }
 
     @ViewBuilder private var conditionalList: some View {
-        if setting.readingDirection == .vertical && pageCount >= 1 {
+        if setting.readingDirection == .vertical {
             AdvancedList(
                 page: page, data: Array(1...pageCount),
                 id: \.self, spacing: setting
@@ -56,7 +56,7 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
                 content: imageContainer
             )
             .disabled(scale != 1)
-        } else if pageCount >= 1 {
+        } else {
             Pager(
                 page: page, data: Array(1...pageCount),
                 id: \.self, content: imageContainer
@@ -79,7 +79,7 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
     mutating func initializeParams() {
         dispatchMainSync {
             _pageCount = State(
-                initialValue: mangaDetail?.pageCount ?? 2
+                initialValue: mangaDetail?.pageCount ?? 1
             )
             _controllPanelTitle = State(
                 initialValue: mangaDetail?.jpnTitle ?? manga.title
@@ -109,6 +109,7 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
                 sliderValue: $sliderValue,
                 title: controllPanelTitle,
                 range: 1...Float(pageCount),
+                previews: detailInfo.previews[gid] ?? [:],
                 readingDirection: setting.readingDirection,
                 settingAction: toggleSetting,
                 sliderChangedAction: onControlPanelSliderChanged
@@ -186,9 +187,6 @@ private extension ReadingView {
     func onStartTasks() {
         restoreReadingProgress()
         fetchMangaContentsIfNeeded()
-        dispatchMainSync {
-            store.dispatch(.fulfillMangaContents(gid: gid))
-        }
     }
     func onEndTasks() {
         saveReadingProgress()
@@ -223,7 +221,7 @@ private extension ReadingView {
     }
     func saveReadingProgress() {
         let progress = page.index + 1
-        if progress > 1 {
+        if progress > 0 {
             store.dispatch(
                 .saveReadingProgress(
                     gid: gid,
@@ -354,78 +352,6 @@ private extension ReadingView {
     }
 }
 
-// MARK: AdvancedList
-private struct AdvancedList<Element, ID, PageView, G>: View
-where PageView: View, Element: Equatable, ID: Hashable, G: Gesture {
-    @State var performingChanges = false
-
-    private let pagerModel: Page
-    private var data: [Element]
-    private let id: KeyPath<Element, ID>
-    private let spacing: CGFloat
-    private let gesture: G
-    private let content: (Element) -> PageView
-
-    init<Data: RandomAccessCollection>(
-        page: Page, data: Data,
-        id: KeyPath<Element, ID>, spacing: CGFloat,
-        gesture: G,
-        @ViewBuilder content:
-            @escaping (Element) -> PageView
-    )
-    where Data.Index == Int,
-    Data.Element == Element
-    {
-        self.pagerModel = page
-        self.data = Array(data)
-        self.id = id
-        self.spacing = spacing
-        self.gesture = gesture
-        self.content = content
-    }
-
-    var body: some View {
-        ScrollViewReader { proxy in
-            ScrollView(showsIndicators: false) {
-                LazyVStack(spacing: spacing) {
-                    ForEach(data, id: id) { index in
-                        let longPress = LongPressGesture(
-                            minimumDuration: 0,
-                            maximumDistance: .infinity
-                        ).onEnded { _ in
-                            if let index = index as? Int {
-                                performingChanges = true
-                                pagerModel.update(
-                                    .new(index: index - 1)
-                                )
-                                DispatchQueue.main.asyncAfter(
-                                    deadline: .now() + 0.2
-                                ) { performingChanges = false }
-                            }
-                        }
-                        let gestures = longPress
-                            .simultaneously(with: gesture)
-                        content(index).gesture(gestures)
-                    }
-                }
-                .task {
-                    performScrollTo(id: pagerModel.index + 1, proxy: proxy)
-                }
-            }
-            .onChange(of: pagerModel.index) { newValue in
-                performScrollTo(id: newValue + 1, proxy: proxy)
-            }
-        }
-    }
-
-    private func performScrollTo(id: Int, proxy: ScrollViewProxy) {
-        guard !performingChanges else { return }
-        dispatchMainSync {
-            proxy.scrollTo(id, anchor: .center)
-        }
-    }
-}
-
 // MARK: ImageContainer
 private struct ImageContainer: View {
     private let url: String
@@ -482,129 +408,15 @@ private struct ImageContainer: View {
     }
 }
 
-// MARK: ControlPanel
-private struct ControlPanel: View {
-    @Environment(\.dismiss) var dismissAction
-
-    @State private var isSliderDragging = false
-    @Binding private var showsPanel: Bool
-    @Binding private var sliderValue: Float
-    private let title: String
-    private let range: ClosedRange<Float>
-    private let readingDirection: ReadingDirection
-    private let settingAction: () -> Void
-    private let sliderChangedAction: (Int) -> Void
-
-    private var shouldReverseDirection: Bool {
-        readingDirection == .rightToLeft
-    }
-    private var lowerBoundText: String {
-        shouldReverseDirection
-        ? "\(Int(range.upperBound))"
-        : "\(Int(range.lowerBound))"
-    }
-    private var upperBoundText: String {
-        shouldReverseDirection
-        ? "\(Int(range.lowerBound))"
-        : "\(Int(range.upperBound))"
-    }
-    private var sliderAngle: Angle {
-        Angle(degrees: shouldReverseDirection ? 180 : 0)
-    }
-    private var pageIndicatorWidth: CGFloat {
-        CGFloat("\(Int(sliderValue))".count) * 15 + 60
-    }
-
-    init(
-        showsPanel: Binding<Bool>,
-        sliderValue: Binding<Float>,
-        title: String, range: ClosedRange<Float>,
-        readingDirection: ReadingDirection,
-        settingAction: @escaping () -> Void,
-        sliderChangedAction: @escaping (Int) -> Void
-    ) {
-        _showsPanel = showsPanel
-        _sliderValue = sliderValue
-        self.title = title
-        self.range = range
-        self.readingDirection = readingDirection
-        self.settingAction = settingAction
-        self.sliderChangedAction = sliderChangedAction
-    }
-
-    var body: some View {
-        VStack {
-            HStack {
-                Button(action: dismissAction.callAsFunction) {
-                    Image(systemName: "chevron.backward")
-                }
-                .imageScale(.large)
-                .padding(.leading)
-                Spacer()
-                ZStack {
-                    Text(title).bold()
-                        .lineLimit(1)
-                        .padding()
-                    Slider(value: $sliderValue)
-                        .opacity(0)
-                }
-                Spacer()
-                Button(action: settingAction) {
-                    Image(systemName: "gear")
-                }
-                .imageScale(.large)
-                .padding(.trailing)
-            }
-            .background(.thinMaterial)
-            .offset(y: showsPanel ? 0 : -50)
-            Spacer()
-            Text("\(Int(sliderValue))").bold()
-                .font(.title).lineLimit(1)
-                .padding(.vertical, 20)
-                .frame(maxWidth: windowW * 0.8)
-                .frame(width: pageIndicatorWidth)
-                .background(.ultraThinMaterial)
-                .opacity(isSliderDragging ? 1 : 0)
-                .cornerRadius(15)
-            Spacer()
-            VStack {
-                HStack {
-                    Text(lowerBoundText)
-                        .boundTextModifier()
-                    Slider(
-                        value: $sliderValue,
-                        in: range, step: 1,
-                        onEditingChanged: { isDragging in
-                            sliderChangedAction(
-                                Int(sliderValue)
-                            )
-                            impactFeedback(style: .soft)
-                            withAnimation {
-                                isSliderDragging = isDragging
-                            }
-                        }
-                    )
-                    .rotationEffect(sliderAngle)
-                    Text(upperBoundText)
-                        .boundTextModifier()
-                }
-            }
-            .background(.thinMaterial)
-            .offset(y: showsPanel ? 0 : 50)
-        }
-        .opacity(showsPanel ? 1 : 0)
-        .disabled(!showsPanel)
-    }
-}
-
-private extension Text {
-    func boundTextModifier() -> some View {
-        self.fontWeight(.medium).font(.caption).padding()
-    }
-}
-
 // MARK: Definition
 enum ReadingViewSheetState: Identifiable {
     var id: Int { hashValue }
     case setting
+}
+
+struct ReadingView_Previews: PreviewProvider {
+    static var previews: some View {
+        PersistenceController.prepareForPreviews()
+        return ReadingView(gid: "").environmentObject(Store.preview)
+    }
 }

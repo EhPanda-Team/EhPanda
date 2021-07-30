@@ -200,11 +200,6 @@ enum SettingViewSheetState: Identifiable {
 
 struct SettingView_Previews: PreviewProvider {
     static var previews: some View {
-        let store = Store()
-        store.appState.settings.setting = Setting()
-        store.appState.environment.isPreview = true
-
-        return SettingView()
-            .environmentObject(store)
+        SettingView().environmentObject(Store.preview)
     }
 }

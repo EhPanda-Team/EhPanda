@@ -22,7 +22,7 @@ struct Defaults {
         static let rowScale: CGFloat = 8/11
         static let avatarScale: CGFloat = 1/1
         static let headerScale: CGFloat = 8/11
-        static let previewScale: CGFloat = 32/45
+        static let previewScale: CGFloat = 8/11
         static let contentHScale: CGFloat = 7/10
 
         static let rowW: CGFloat = rowH * rowScale

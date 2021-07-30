@@ -160,6 +160,7 @@ private extension DetailView {
         updateHistoryItems()
         dispatchMainSync {
             store.dispatch(.fulfillMangaPreviews(gid: gid))
+            store.dispatch(.fulfillMangaContents(gid: gid))
         }
     }
     func onAppear() {
@@ -716,7 +717,8 @@ private struct PreviewView: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHStack {
                     ForEach(1..<min(pageCount, 20)) { index in
-                        let (url, modifier) = getPreviewConfigs(
+                        let (url, modifier) =
+                        PreviewResolver.getPreviewConfigs(
                             previews: previews, index: index
                         )
                         KFImage(URL(string: url))
@@ -777,7 +779,8 @@ private struct MorePreviewView: View {
             LazyVGrid(columns: gridItems) {
                 ForEach(1..<pageCount + 1) { index in
                     VStack {
-                        let (url, modifier) = getPreviewConfigs(
+                        let (url, modifier) =
+                        PreviewResolver.getPreviewConfigs(
                             previews: previews, index: index
                         )
                         KFImage(URL(string: url))
@@ -817,24 +820,6 @@ private struct MorePreviewView: View {
         dismissAction.callAsFunction()
         tapAction(index)
     }
-}
-
-private func getPreviewConfigs(
-    previews: [Int: String], index: Int
-) -> (String, ImageModifier) {
-    let originalURL = previews[index] ?? ""
-    let configs = Parser.parsePreviewConfigs(
-        string: originalURL
-    )
-    let containsConfigs = configs != nil
-
-    let plainURL = configs?.0 ?? ""
-    let loadURL = containsConfigs
-        ? plainURL : originalURL
-    let modifier = RoundedOffsetModifier(
-        size: configs?.1, offset: configs?.2
-    )
-    return (loadURL, modifier)
 }
 
 // MARK: CommentScrollView

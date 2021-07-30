@@ -229,7 +229,7 @@ extension UIImage {
 }
 
 extension Optional {
-    var forceUnwrapped: Wrapped {
+    var forceUnwrapped: Wrapped! {
         if let value = self {
             return value
         }
@@ -240,7 +240,7 @@ extension Optional {
                 "type": Wrapped.self
             ]
         )
-        fatalError()
+        return nil
     }
 }
 

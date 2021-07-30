@@ -11,6 +11,11 @@ import SwiftyBeaver
 
 final class Store: ObservableObject {
     @Published var appState = AppState()
+    static var preview: Store = {
+        let store = Store()
+        store.appState.environment.isPreview = true
+        return store
+    }()
 
     func dispatch(_ action: AppAction) {
         if appState.environment.isPreview { return }

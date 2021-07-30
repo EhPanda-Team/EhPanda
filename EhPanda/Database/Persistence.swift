@@ -22,6 +22,11 @@ struct PersistenceController {
         return container
     }()
 
+    static func prepareForPreviews() {
+        PersistenceController.add(mangas: [Manga.preview])
+        PersistenceController.add(detail: MangaDetail.preview)
+        PersistenceController.update(fetchedState: MangaState.preview)
+    }
     static func saveContext() {
         let context = shared.container.viewContext
         dispatchMainSync {
