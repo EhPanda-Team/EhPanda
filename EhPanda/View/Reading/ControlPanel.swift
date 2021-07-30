@@ -211,7 +211,6 @@ private struct SliderPreivew: View {
 
     var body: some View {
         HStack(spacing: previewSpacing) {
-            Spacer()
             ForEach(previewsIndices, id: \.self) { index in
                 let (url, modifier) =
                 PreviewResolver.getPreviewConfigs(
@@ -245,7 +244,6 @@ private struct SliderPreivew: View {
                     opacity(index: index)
                 )
             }
-            Spacer()
         }
         .padding(.vertical, 20).opacity(isSliderDragging ? 1 : 0)
         .frame(height: isSliderDragging ? previewHeight + 40 : 0)
@@ -254,7 +252,7 @@ private struct SliderPreivew: View {
 
 private extension SliderPreivew {
     var previewsCount: Int {
-        isPadWidth ? 5 : 3
+        isPadWidth ? isLandscape ? 7 : 5 : 3
     }
     var previewsIndices: [Int] {
         guard !previews.isEmpty else { return [] }
@@ -277,13 +275,15 @@ private extension SliderPreivew {
         return (windowW - spacing) / count
     }
 
+    func verify(index: Int) -> Bool {
+        index >= Int(range.lowerBound)
+            && index <= Int(range.upperBound)
+    }
     func opacity(index: Int) -> CGFloat {
-        let outOfRange = index < Int(range.lowerBound)
-            || index > Int(range.upperBound)
-        return outOfRange ? 0 : 1
+        verify(index: index) ? 1 : 0
     }
     func onImageAppear(index: Int) {
-        if previews[index] == nil {
+        if previews[index] == nil && verify(index: index) {
             fetchAction(index)
         }
     }
