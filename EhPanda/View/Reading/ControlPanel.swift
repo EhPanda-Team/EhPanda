@@ -17,6 +17,7 @@ struct ControlPanel: View {
     private let previews: [Int: String]
     private let readingDirection: ReadingDirection
     private let settingAction: () -> Void
+    private let fetchAction: (Int) -> Void
     private let sliderChangedAction: (Int) -> Void
 
     init(
@@ -27,6 +28,7 @@ struct ControlPanel: View {
         previews: [Int: String],
         readingDirection: ReadingDirection,
         settingAction: @escaping () -> Void,
+        fetchAction: @escaping (Int) -> Void,
         sliderChangedAction: @escaping (Int) -> Void
     ) {
         _showsPanel = showsPanel
@@ -36,6 +38,7 @@ struct ControlPanel: View {
         self.previews = previews
         self.readingDirection = readingDirection
         self.settingAction = settingAction
+        self.fetchAction = fetchAction
         self.sliderChangedAction = sliderChangedAction
     }
 
@@ -52,6 +55,7 @@ struct ControlPanel: View {
                     sliderValue: $sliderValue,
                     previews: previews, range: range,
                     isReversed: readingDirection == .rightToLeft,
+                    fetchAction: fetchAction,
                     sliderChangedAction: sliderChangedAction
                 )
                 .offset(y: showsPanel ? 0 : 50)
@@ -106,6 +110,7 @@ private struct LowerPanel: View {
     private let previews: [Int: String]
     private let range: ClosedRange<Float>
     private let isReversed: Bool
+    private let fetchAction: (Int) -> Void
     private let sliderChangedAction: (Int) -> Void
 
     init(
@@ -113,12 +118,14 @@ private struct LowerPanel: View {
         previews: [Int: String],
         range: ClosedRange<Float>,
         isReversed: Bool,
+        fetchAction: @escaping (Int) -> Void,
         sliderChangedAction: @escaping (Int) -> Void
     ) {
         _sliderValue = sliderValue
         self.previews = previews
         self.range = range
         self.isReversed = isReversed
+        self.fetchAction = fetchAction
         self.sliderChangedAction = sliderChangedAction
     }
 
@@ -129,7 +136,8 @@ private struct LowerPanel: View {
                 sliderValue: $sliderValue,
                 previews: previews,
                 range: range,
-                isReversed: isReversed
+                isReversed: isReversed,
+                fetchAction: fetchAction
             )
             VStack {
                 HStack {
@@ -183,19 +191,22 @@ private struct SliderPreivew: View {
     private let previews: [Int: String]
     private let range: ClosedRange<Float>
     private let isReversed: Bool
+    private let fetchAction: (Int) -> Void
 
     init(
         isSliderDragging: Binding<Bool>,
         sliderValue: Binding<Float>,
         previews: [Int: String],
         range: ClosedRange<Float>,
-        isReversed: Bool
+        isReversed: Bool,
+        fetchAction: @escaping (Int) -> Void
     ) {
         _isSliderDragging = isSliderDragging
         _sliderValue = sliderValue
         self.previews = previews
         self.range = range
         self.isReversed = isReversed
+        self.fetchAction = fetchAction
     }
 
     var body: some View {
@@ -226,6 +237,9 @@ private struct SliderPreivew: View {
                     Text("\(index)")
                         .font(isPadWidth ? .callout : .caption)
                         .foregroundColor(.secondary)
+                }
+                .onAppear {
+                    onImageAppear(index: index)
                 }
                 .opacity(
                     opacity(index: index)
@@ -267,6 +281,11 @@ private extension SliderPreivew {
         let outOfRange = index < Int(range.lowerBound)
             || index > Int(range.upperBound)
         return outOfRange ? 0 : 1
+    }
+    func onImageAppear(index: Int) {
+        if previews[index] == nil {
+            fetchAction(index)
+        }
     }
 }
 

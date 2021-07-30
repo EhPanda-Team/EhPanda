@@ -108,6 +108,7 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
                 previews: detailInfo.previews[gid] ?? [:],
                 readingDirection: setting.readingDirection,
                 settingAction: toggleSetting,
+                fetchAction: fetchMangaPreivews,
                 sliderChangedAction: onControlPanelSliderChanged
             )
         }
@@ -230,6 +231,11 @@ private extension ReadingView {
     func fetchMangaContents(index: Int = 1) {
         DispatchQueue.main.async {
             store.dispatch(.fetchMangaContents(gid: gid, index: index))
+        }
+    }
+    func fetchMangaPreivews(index: Int) {
+        DispatchQueue.main.async {
+            store.dispatch(.fetchMangaPreviews(gid: gid, index: index))
         }
     }
 
