@@ -32,7 +32,6 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
     @State private var newOffset: CGSize = .zero
 
     @State private var pageCount = 1
-    @State private var controllPanelTitle = ""
 
     private func imageContainer(index: Int) -> some View {
         ImageContainer(
@@ -81,9 +80,6 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
             _pageCount = State(
                 initialValue: mangaDetail?.pageCount ?? 1
             )
-            _controllPanelTitle = State(
-                initialValue: mangaDetail?.jpnTitle ?? manga.title
-            )
         }
     }
 
@@ -107,7 +103,7 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
             ControlPanel(
                 showsPanel: $showsPanel,
                 sliderValue: $sliderValue,
-                title: controllPanelTitle,
+                currentIndex: page.index + 1,
                 range: 1...Float(pageCount),
                 previews: detailInfo.previews[gid] ?? [:],
                 readingDirection: setting.readingDirection,

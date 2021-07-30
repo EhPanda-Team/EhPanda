@@ -12,7 +12,7 @@ import Kingfisher
 struct ControlPanel: View {
     @Binding private var showsPanel: Bool
     @Binding private var sliderValue: Float
-    private let title: String
+    private let currentIndex: Int
     private let range: ClosedRange<Float>
     private let previews: [Int: String]
     private let readingDirection: ReadingDirection
@@ -22,7 +22,8 @@ struct ControlPanel: View {
     init(
         showsPanel: Binding<Bool>,
         sliderValue: Binding<Float>,
-        title: String, range: ClosedRange<Float>,
+        currentIndex: Int,
+        range: ClosedRange<Float>,
         previews: [Int: String],
         readingDirection: ReadingDirection,
         settingAction: @escaping () -> Void,
@@ -30,7 +31,7 @@ struct ControlPanel: View {
     ) {
         _showsPanel = showsPanel
         _sliderValue = sliderValue
-        self.title = title
+        self.currentIndex = currentIndex
         self.range = range
         self.previews = previews
         self.readingDirection = readingDirection
@@ -41,7 +42,7 @@ struct ControlPanel: View {
     var body: some View {
         VStack {
             UpperPanel(
-                title: title,
+                title: "\(currentIndex) / \(Int(range.upperBound))",
                 settingAction: settingAction
             )
             .offset(y: showsPanel ? 0 : -50)
@@ -205,25 +206,30 @@ private struct SliderPreivew: View {
                 PreviewResolver.getPreviewConfigs(
                     previews: previews, index: index
                 )
-                KFImage(URL(string: url))
-                    .placeholder {
-                        Placeholder(style: .activity(
-                            ratio: Defaults.ImageSize
-                                .previewScale
-                        ))
-                    }
-                    .imageModifier(modifier)
-                    .fade(duration: 0.25)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(
-                        width: previewWidth,
-                        height: isSliderDragging
-                            ? previewHeight : 0
-                    )
-                    .opacity(
-                        opacity(index: index)
-                    )
+                VStack {
+                    KFImage(URL(string: url))
+                        .placeholder {
+                            Placeholder(style: .activity(
+                                ratio: Defaults.ImageSize
+                                    .previewScale
+                            ))
+                        }
+                        .imageModifier(modifier)
+                        .fade(duration: 0.25)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(
+                            width: previewWidth,
+                            height: isSliderDragging
+                                ? previewHeight : 0
+                        )
+                    Text("\(index)")
+                        .font(isPadWidth ? .callout : .caption)
+                        .foregroundColor(.secondary)
+                }
+                .opacity(
+                    opacity(index: index)
+                )
             }
             Spacer()
         }

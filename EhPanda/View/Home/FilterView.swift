@@ -15,7 +15,7 @@ struct FilterView: View, StoreAccessor {
         let filter = settings.filter
         let filterBinding = settingsBinding.filter
         Form {
-            Section(header: Text("Basic")) {
+            Section {
                 CategoryView(filter: filter, filterBinding: filterBinding)
                 Button(action: onResetButtonTap) {
                     Text("Reset filters")

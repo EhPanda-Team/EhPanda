@@ -29,7 +29,7 @@ struct AppearanceSettingView: View, StoreAccessor {
             label: {}
         )
         Form {
-            Section(header: Text("Global")) {
+            Section {
                 HStack {
                     Text("Theme")
                     Spacer()
