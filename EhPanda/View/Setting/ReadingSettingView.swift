@@ -17,16 +17,20 @@ struct ReadingSettingView: View, StoreAccessor {
     var body: some View {
         Form {
             Section {
-                Picker(
-                    selection: settingBinding.readingDirection,
-                    label: Text("Direction"),
-                    content: {
-                        ForEach(ReadingDirection.allCases) {
-                            Text($0.rawValue.localized()).tag($0)
+                HStack {
+                    Text("Direction")
+                    Spacer()
+                    Picker(
+                        selection: settingBinding.readingDirection,
+                        label: Text(setting.readingDirection.rawValue),
+                        content: {
+                            ForEach(ReadingDirection.allCases) {
+                                Text($0.rawValue.localized()).tag($0)
+                            }
                         }
-                    }
-                )
-                .pickerStyle(.segmented)
+                    )
+                    .pickerStyle(.menu)
+                }
                 HStack {
                     let time = " times".localized()
                     Text("Retry limit")

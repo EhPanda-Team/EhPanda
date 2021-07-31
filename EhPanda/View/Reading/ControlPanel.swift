@@ -245,12 +245,19 @@ private struct SliderPreivew: View {
                 )
             }
         }
-        .padding(.vertical, 20).opacity(isSliderDragging ? 1 : 0)
-        .frame(height: isSliderDragging ? previewHeight + 40 : 0)
+        .opacity(isSliderDragging ? 1 : 0)
+        .padding(.vertical, verticalPadding)
+        .frame(
+            height: isSliderDragging ? previewHeight
+                + verticalPadding * 2 : 0
+        )
     }
 }
 
 private extension SliderPreivew {
+    var verticalPadding: CGFloat {
+        isPadWidth ? 30 : 20
+    }
     var previewsCount: Int {
         isPadWidth ? isLandscape ? 7 : 5 : 3
     }

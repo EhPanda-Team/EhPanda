@@ -103,9 +103,10 @@
 "Maximum number of tags" = "해시태크 수량";
 
 "Reading" = "열람";
-//"Vertical" = "";
-//"Right-to-left" = "";
-//"Left-to-right" = "";
+"Direction" = "방향";
+"Vertical" = "수직적으로";
+"Right-to-left" = "왼쪽으로";
+"Left-to-right" = "오른쪽으로";
 "Retry limit" = "시도 횟수";
 " times" = "번";
 "Separator height" = "선 두께";
