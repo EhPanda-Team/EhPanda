@@ -234,8 +234,7 @@ extension Optional {
             return value
         }
         SwiftyBeaver.error(
-            "Failed in force unwrapping..."
-            + "Shutting down now...",
+            "Failed in force unwrapping...",
             context: [
                 "type": Wrapped.self
             ]

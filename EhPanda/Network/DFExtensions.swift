@@ -10,11 +10,17 @@ import SwiftyBeaver
 import DeprecatedAPI
 
 // MARK: Global
-private func forceDowncast<T>(object: Any) -> T {
+private func forceDowncast<T>(object: Any) -> T! {
     if let downcastedValue = object as? T {
         return downcastedValue
     }
-    fatalError()
+    SwiftyBeaver.error(
+        "Failed in force downcasting...",
+        context: [
+            "type": T.self
+        ]
+    )
+    return nil
 }
 
 // MARK: URL

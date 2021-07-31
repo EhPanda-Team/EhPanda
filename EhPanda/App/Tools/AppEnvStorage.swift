@@ -16,7 +16,7 @@ struct AppEnvStorage<T: Encodable> {
         PersistenceController.fetchAppEnvNonNil()
     }
 
-    private var fetchedValue: T {
+    private var fetchedValue: T! {
         let mirror = Mirror(reflecting: appEnv)
         for child in mirror.children where child.label == key {
             if let value = child.value as? T {
@@ -25,9 +25,8 @@ struct AppEnvStorage<T: Encodable> {
         }
         SwiftyBeaver.error(
             "Failed in force downcasting to generic type..."
-            + "Shutting down now..."
         )
-        fatalError()
+        return nil
     }
 
     var wrappedValue: T {
