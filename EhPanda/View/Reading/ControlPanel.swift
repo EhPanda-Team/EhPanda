@@ -119,11 +119,11 @@ private struct UpperPanel: View {
                         }
                         Button {
                             var setting = setting
-                            setting.exceptTheFirstPage.toggle()
+                            setting.exceptCover.toggle()
                             updateSettingAction(setting)
                         } label: {
                             Text("Except the cover")
-                            if setting.exceptTheFirstPage {
+                            if setting.exceptCover {
                                 Image(systemName: "checkmark")
                             }
                         }
@@ -281,7 +281,10 @@ private struct SliderPreivew: View {
                         )
                     Text("\(index)")
                         .font(isPadWidth ? .callout : .caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(
+                            index == Int(sliderValue)
+                            ? .accentColor : .secondary
+                        )
                 }
                 .onAppear {
                     onImageAppear(index: index)

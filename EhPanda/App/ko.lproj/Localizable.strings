@@ -109,7 +109,7 @@
 "Left-to-right" = "오른쪽으로";
 "Retry limit" = "시도 횟수";
 " times" = "번";
-"Separator height" = "선 두께";
+//"Content spacing" = "";
 "Maximum scale factor" = "확대 비율";
 "Double tap scale factor" = "더블 클릭 확대 비율";
 //"Dual-page mode" = "";

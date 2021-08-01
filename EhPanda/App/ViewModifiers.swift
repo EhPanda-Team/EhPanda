@@ -23,6 +23,13 @@ extension View {
     func cornerRadius(_ radius: CGFloat, corners: UIRectCorner) -> some View {
         clipShape( RoundedCorner(radius: radius, corners: corners) )
     }
+
+    @ViewBuilder
+    func withHorizontalSpacing(height: CGFloat? = nil) -> some View {
+        Color.clear.frame(width: 8, height: height)
+        self
+        Color.clear.frame(width: 8, height: height)
+    }
 }
 
 struct PlainLinearProgressViewStyle: ProgressViewStyle {

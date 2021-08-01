@@ -54,6 +54,7 @@ struct DetailView: View, StoreAccessor, PersistenceAccessor {
                             deleteFavAction: deleteFavorite,
                             onUploaderTapAction: onUploaderTap
                         )
+                        .padding(.horizontal)
                         DescScrollView(detail: detail)
                         ActionRow(
                             detail: detail,
@@ -65,6 +66,7 @@ struct DetailView: View, StoreAccessor, PersistenceAccessor {
                                 tags: mangaState.tags,
                                 onTapAction: onTagViewTap
                             )
+                            .padding(.horizontal)
                         }
                         PreviewView(
                             previews: detailInfo.previews[gid] ?? [:],
@@ -78,7 +80,6 @@ struct DetailView: View, StoreAccessor, PersistenceAccessor {
                             toggleCommentAction: onCommentButtonTap
                         )
                     }
-                    .padding(.horizontal)
                     .padding(.bottom, 20)
                     .padding(.top, -25)
                 }
@@ -403,41 +404,44 @@ private struct DescScrollView: View {
 
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            HStack(alignment: .center) {
-                DescScrollItem(
-                    title: "Favored",
-                    value: detail.likeCount,
-                    numeral: "Times"
-                )
-                .frame(width: itemWidth)
-                Divider()
-                DescScrollItem(
-                    title: "Language",
-                    value: detail.languageAbbr,
-                    numeral: detail.language.rawValue
-                )
-                .frame(width: itemWidth)
-                Divider()
-                DescScrollRatingItem(
-                    title: String(detail.ratingCount)
-                        + " Ratings".localized(),
-                    rating: detail.rating
-                )
-                .frame(width: itemWidth)
-                Divider()
-                DescScrollItem(
-                    title: "Page Count",
-                    value: detail.pageCount,
-                    numeral: "Pages"
-                )
-                .frame(width: itemWidth)
-                Divider()
-                DescScrollItem(
-                    title: "Size",
-                    value: String(detail.sizeCount),
-                    numeral: detail.sizeType
-                )
-                .frame(width: itemWidth)
+            HStack {
+                HStack {
+                    DescScrollItem(
+                        title: "Favored",
+                        value: detail.likeCount,
+                        numeral: "Times"
+                    )
+                    .frame(width: itemWidth)
+                    Divider()
+                    DescScrollItem(
+                        title: "Language",
+                        value: detail.languageAbbr,
+                        numeral: detail.language.rawValue
+                    )
+                    .frame(width: itemWidth)
+                    Divider()
+                    DescScrollRatingItem(
+                        title: String(detail.ratingCount)
+                            + " Ratings".localized(),
+                        rating: detail.rating
+                    )
+                    .frame(width: itemWidth)
+                    Divider()
+                    DescScrollItem(
+                        title: "Page Count",
+                        value: detail.pageCount,
+                        numeral: "Pages"
+                    )
+                    .frame(width: itemWidth)
+                    Divider()
+                    DescScrollItem(
+                        title: "Size",
+                        value: String(detail.sizeCount),
+                        numeral: detail.sizeType
+                    )
+                    .frame(width: itemWidth)
+                }
+                .withHorizontalSpacing()
             }
             .drawingGroup()
         }
@@ -714,6 +718,7 @@ private struct PreviewView: View {
                 }
                 .opacity(pageCount > 20 ? 1 : 0)
             }
+            .padding(.horizontal)
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHStack {
                     ForEach(1..<min(pageCount, 20)) { index in
@@ -737,6 +742,7 @@ private struct PreviewView: View {
                                 height: height
                             )
                     }
+                    .withHorizontalSpacing(height: height)
                 }
             }
         }
@@ -855,15 +861,18 @@ private struct CommentScrollView: View {
                 }
                 .opacity(comments.isEmpty ? 0 : 1)
             }
+            .padding(.horizontal)
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack {
                     ForEach(comments.prefix(6)) { comment in
                         CommentScrollCell(comment: comment)
                     }
+                    .withHorizontalSpacing()
                 }
                 .drawingGroup()
             }
             CommentButton(action: toggleCommentAction)
+                .padding(.horizontal)
         }
     }
 }

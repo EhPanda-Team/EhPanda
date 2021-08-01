@@ -109,7 +109,7 @@
 //"Left-to-right" = "";
 "Retry limit" = "Limit für neue Versuche";
 " times" = "mal";
-"Separator height" = "Höhe der Teilung";
+//"Content spacing" = "";
 "Maximum scale factor" = "Maximaler Skalierungsfaktor";
 "Double tap scale factor" = "Doppel-Tap Skalierungsfaktor";
 //"Dual-page mode" = "";

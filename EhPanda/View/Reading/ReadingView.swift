@@ -40,7 +40,7 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
                 && setting.readingDirection != .vertical
         else { return defaultData }
 
-        let data = setting.exceptTheFirstPage
+        let data = setting.exceptCover
             ? [1] + Array(stride(from: 2, through: pageCount, by: 2))
             : Array(stride(from: 1, through: pageCount, by: 2))
 
@@ -50,7 +50,7 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
     private func getImageContainerConfigs(index: Int) -> (Int, Int, Bool, Bool) {
         let direction = setting.readingDirection
         let isReversed = direction == .rightToLeft
-        let isFirstSingle = setting.exceptTheFirstPage
+        let isFirstSingle = setting.exceptCover
         let isFirstPageAndSingle = index == 1 && isFirstSingle
         let isDualPage = isPad && isLandscape
         && setting.enablesDualPageMode
@@ -198,15 +198,15 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
         )
         .onChange(
             of: setting.readingDirection,
-            perform: { _ in onControlPanelSliderChanged(
-                newValue: Int(sliderValue)
-            ) }
+            perform: onControlPanelSliderChanged
         )
         .onChange(
             of: setting.enablesDualPageMode,
-            perform: { _ in onControlPanelSliderChanged(
-                newValue: Int(sliderValue)
-            ) }
+            perform: onControlPanelSliderChanged
+        )
+        .onChange(
+            of: setting.exceptCover,
+            perform: onControlPanelSliderChanged
         )
         .onReceive(
             NotificationCenter.default.publisher(
@@ -270,8 +270,8 @@ private extension ReadingView {
             fetchMangaContents(index: index)
         }
     }
-    func onControlPanelSliderChanged(newValue: Int) {
-        let newIndex = mappingToPager(index: newValue)
+    func onControlPanelSliderChanged(_: Any) {
+        let newIndex = mappingToPager(index: Int(sliderValue))
         if page.index != newIndex {
             page.update(.new(index: newIndex))
         }
@@ -316,7 +316,7 @@ private extension ReadingView {
         else { return index - 1 }
         if index <= 1 { return 0 }
 
-        return setting.exceptTheFirstPage
+        return setting.exceptCover
             ? index / 2 : (index - 1) / 2
     }
     func mappingFromPager(index: Int) -> Int {
@@ -326,7 +326,7 @@ private extension ReadingView {
         else { return index + 1 }
         if index <= 0 { return 1 }
 
-        let result = setting.exceptTheFirstPage
+        let result = setting.exceptCover
             ? index * 2 : index * 2 + 1
 
         if result + 1 == pageCount {

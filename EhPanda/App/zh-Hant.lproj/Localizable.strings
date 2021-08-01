@@ -109,7 +109,7 @@
 "Left-to-right" = "左至右";
 "Retry limit" = "重試次數上限";
 " times" = "次";
-"Separator height" = "分隔線高度";
+"Content spacing" = "";
 "Maximum scale factor" = "縮放上限";
 "Double tap scale factor" = "雙擊縮放值";
 "Dual-page mode" = "";
