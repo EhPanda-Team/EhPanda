@@ -12,41 +12,47 @@ import Kingfisher
 struct ControlPanel: View {
     @Binding private var showsPanel: Bool
     @Binding private var sliderValue: Float
+    @Binding private var setting: Setting
     private let currentIndex: Int
     private let range: ClosedRange<Float>
     private let previews: [Int: String]
-    private let readingDirection: ReadingDirection
     private let settingAction: () -> Void
     private let fetchAction: (Int) -> Void
     private let sliderChangedAction: (Int) -> Void
+    private let updateSettingAction: (Setting) -> Void
 
     init(
         showsPanel: Binding<Bool>,
         sliderValue: Binding<Float>,
+        setting: Binding<Setting>,
         currentIndex: Int,
         range: ClosedRange<Float>,
         previews: [Int: String],
-        readingDirection: ReadingDirection,
         settingAction: @escaping () -> Void,
         fetchAction: @escaping (Int) -> Void,
-        sliderChangedAction: @escaping (Int) -> Void
+        sliderChangedAction: @escaping (Int) -> Void,
+        updateSettingAction: @escaping (Setting) -> Void
     ) {
         _showsPanel = showsPanel
         _sliderValue = sliderValue
+        _setting = setting
         self.currentIndex = currentIndex
         self.range = range
         self.previews = previews
-        self.readingDirection = readingDirection
         self.settingAction = settingAction
         self.fetchAction = fetchAction
         self.sliderChangedAction = sliderChangedAction
+        self.updateSettingAction = updateSettingAction
     }
 
     var body: some View {
         VStack {
             UpperPanel(
-                title: "\(currentIndex) / \(Int(range.upperBound))",
-                settingAction: settingAction
+                title: "\(currentIndex) / "
+                + "\(Int(range.upperBound))",
+                setting: $setting,
+                settingAction: settingAction,
+                updateSettingAction: updateSettingAction
             )
             .offset(y: showsPanel ? 0 : -50)
             Spacer()
@@ -54,7 +60,8 @@ struct ControlPanel: View {
                 LowerPanel(
                     sliderValue: $sliderValue,
                     previews: previews, range: range,
-                    isReversed: readingDirection == .rightToLeft,
+                    isReversed: setting
+                        .readingDirection == .rightToLeft,
                     fetchAction: fetchAction,
                     sliderChangedAction: sliderChangedAction
                 )
@@ -69,35 +76,74 @@ struct ControlPanel: View {
 // MARK: UpperPanel
 private struct UpperPanel: View {
     @Environment(\.dismiss) var dismissAction
+    @Binding var setting: Setting
+
     private let title: String
     private let settingAction: () -> Void
+    private let updateSettingAction: (Setting) -> Void
 
-    init(title: String, settingAction: @escaping () -> Void) {
+    init(
+        title: String, setting: Binding<Setting>,
+        settingAction: @escaping () -> Void,
+        updateSettingAction: @escaping (Setting) -> Void
+    ) {
         self.title = title
+        _setting = setting
         self.settingAction = settingAction
+        self.updateSettingAction = updateSettingAction
     }
 
     var body: some View {
-        HStack {
-            Button(action: dismissAction.callAsFunction) {
-                Image(systemName: "chevron.backward")
-            }
-            .font(.title2)
-            .padding(.leading, 20)
-            Spacer()
-            ZStack {
-                Text(title).bold()
-                    .lineLimit(1)
-                    .padding()
+        ZStack {
+            HStack {
+                Button(action: dismissAction.callAsFunction) {
+                    Image(systemName: "chevron.backward")
+                }
+                .font(.title2)
+                .padding(.leading, 20)
+                Spacer()
                 Slider(value: .constant(0))
                     .opacity(0)
+                Spacer()
+                if isPad && isLandscape {
+                    Menu {
+                        Button {
+                            var setting = setting
+                            setting.enablesDualPageMode.toggle()
+                            updateSettingAction(setting)
+                        } label: {
+                            Text("Dual-page mode")
+                            if setting.enablesDualPageMode {
+                                Image(systemName: "checkmark")
+                            }
+                        }
+                        Button {
+                            var setting = setting
+                            setting.exceptTheFirstPage.toggle()
+                            updateSettingAction(setting)
+                        } label: {
+                            Text("Except the cover")
+                            if setting.exceptTheFirstPage {
+                                Image(systemName: "checkmark")
+                            }
+                        }
+                        .disabled(!setting.enablesDualPageMode)
+                    } label: {
+                        Image(systemName: "rectangle.split.2x1")
+                            .symbolVariant(setting.enablesDualPageMode ? .fill : .none)
+                    }
+                    .font(.title2)
+                    .padding()
+                }
+                Button(action: settingAction) {
+                    Image(systemName: "gear")
+                }
+                .font(.title2)
+                .padding(.trailing, 20)
             }
-            Spacer()
-            Button(action: settingAction) {
-                Image(systemName: "gear")
-            }
-            .font(.title2)
-            .padding(.trailing, 20)
+            Text(title).bold()
+                .lineLimit(1)
+                .padding()
         }
         .background(.thinMaterial)
     }

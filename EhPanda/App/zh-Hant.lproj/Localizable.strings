@@ -112,6 +112,8 @@
 "Separator height" = "分隔線高度";
 "Maximum scale factor" = "縮放上限";
 "Double tap scale factor" = "雙擊縮放值";
+"Dual-page mode" = "";
+"Except the cover" = "";
 
 "Laboratory" = "實驗室";
 "Bypass SNI Filtering" = "域前置繞過SNI阻斷";

@@ -77,6 +77,8 @@ final class Store: ObservableObject {
             appState.homeInfo.historyKeywords = []
         case .updateSearchKeyword(let text):
             appState.homeInfo.searchKeyword = text
+        case .update(let setting):
+            appState.settings.setting = setting
         case .updateViewControllersCount:
             appState.environment.viewControllersCount = viewControllersCount
         case .replaceMangaCommentJumpID(let gid):

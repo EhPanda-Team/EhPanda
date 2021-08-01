@@ -19,6 +19,7 @@ enum AppAction {
     case clearHistoryKeywords
     case updateSearchKeyword(text: String)
     case updateViewControllersCount
+    case update(setting: Setting)
     case replaceMangaCommentJumpID(gid: String?)
     case updateIsSlideMenuClosed(isClosed: Bool)
     case fulfillMangaPreviews(gid: String)

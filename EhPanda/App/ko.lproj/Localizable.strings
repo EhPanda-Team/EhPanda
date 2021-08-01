@@ -112,6 +112,8 @@
 "Separator height" = "선 두께";
 "Maximum scale factor" = "확대 비율";
 "Double tap scale factor" = "더블 클릭 확대 비율";
+//"Dual-page mode" = "";
+//"Except the cover" = "";
 
 "Laboratory" = "실현실";
 "Bypass SNI Filtering" = "SNI차단 우회";

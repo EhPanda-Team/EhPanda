@@ -112,6 +112,8 @@
 "Separator height" = "仕切りの厚さ";
 "Maximum scale factor" = "最大スケール係数";
 "Double tap scale factor" = "ダブルタップスケール係数";
+"Dual-page mode" = "デュアルページモード";
+"Except the cover" = "カバーを除く";
 
 "Laboratory" = "ラボ";
 "Bypass SNI Filtering" = "SNIフィルタリング回避";

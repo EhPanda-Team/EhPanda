@@ -33,22 +33,82 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
 
     @State private var pageCount = 1
 
-    private func imageContainer(index: Int) -> some View {
-        ImageContainer(
-            url: mangaContents[index] ?? "", index: index,
-            retryLimit: setting.contentRetryLimit
+    private var containerDataSource: [Int] {
+        let defaultData = Array(1...pageCount)
+        guard isPad && isLandscape
+                && setting.enablesDualPageMode
+                && setting.readingDirection != .vertical
+        else { return defaultData }
+
+        let data = setting.exceptTheFirstPage
+            ? [1] + Array(stride(from: 2, through: pageCount, by: 2))
+            : Array(stride(from: 1, through: pageCount, by: 2))
+
+        return data
+    }
+
+    private func getImageContainerConfigs(index: Int) -> (Int, Int, Bool, Bool) {
+        let direction = setting.readingDirection
+        let isReversed = direction == .rightToLeft
+        let isFirstSingle = setting.exceptTheFirstPage
+        let isFirstPageAndSingle = index == 1 && isFirstSingle
+        let isDualPage = isPad && isLandscape
+        && setting.enablesDualPageMode
+        && direction != .vertical
+
+        let firstIndex = isDualPage && isReversed &&
+            !isFirstPageAndSingle ? index + 1 : index
+        let secondIndex = firstIndex + (isReversed ? -1 : 1)
+        let isValidFirstRange =
+            firstIndex >= 1 && firstIndex <= pageCount
+        let isValidSecondRange = isFirstSingle
+            ? secondIndex >= 2 && secondIndex <= pageCount
+            : secondIndex >= 1 && secondIndex <= pageCount
+        return (
+            firstIndex, secondIndex,
+            isValidFirstRange,
+            !isFirstPageAndSingle &&
+            isValidSecondRange && isDualPage
         )
-        .onAppear {
-            onWebImageAppear(index: index)
+    }
+    private func imageContainer(index: Int) -> some View {
+        HStack(spacing: setting.contentSpacing) {
+            let (firstIndex, secondIndex, isFirstValid, isSecondValid) =
+                getImageContainerConfigs(index: index)
+            let isDualPage = setting.enablesDualPageMode
+            && setting.readingDirection != .vertical
+            && isPad && isLandscape
+
+            if isFirstValid {
+                ImageContainer(
+                    url: mangaContents[firstIndex] ?? "", index: firstIndex,
+                    retryLimit: setting.contentRetryLimit,
+                    isDualPage: isDualPage
+                )
+                .onAppear {
+                    onWebImageAppear(index: firstIndex)
+                }
+            }
+
+            if isSecondValid {
+                ImageContainer(
+                    url: mangaContents[secondIndex] ?? "", index: secondIndex,
+                    retryLimit: setting.contentRetryLimit,
+                    isDualPage: isDualPage
+                )
+                .onAppear {
+                    onWebImageAppear(index: secondIndex)
+                }
+            }
         }
     }
 
     @ViewBuilder private var conditionalList: some View {
         if setting.readingDirection == .vertical {
             AdvancedList(
-                page: page, data: Array(1...pageCount),
+                page: page, data: containerDataSource,
                 id: \.self, spacing: setting
-                    .contentDividerHeight,
+                    .contentSpacing,
                 gesture: SimultaneousGesture(
                     magnifyGesture, tapGesture
                 ),
@@ -57,7 +117,7 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
             .disabled(scale != 1)
         } else {
             Pager(
-                page: page, data: Array(1...pageCount),
+                page: page, data: containerDataSource,
                 id: \.self, content: imageContainer
             )
             .horizontal(
@@ -103,13 +163,14 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
             ControlPanel(
                 showsPanel: $showsPanel,
                 sliderValue: $sliderValue,
-                currentIndex: page.index + 1,
+                setting: $store.appState.settings.setting,
+                currentIndex: mappingFromPager(index: page.index),
                 range: 1...Float(pageCount),
                 previews: detailInfo.previews[gid] ?? [:],
-                readingDirection: setting.readingDirection,
                 settingAction: toggleSetting,
                 fetchAction: fetchMangaPreivews,
-                sliderChangedAction: onControlPanelSliderChanged
+                sliderChangedAction: onControlPanelSliderChanged,
+                updateSettingAction: update
             )
         }
         .task(onStartTasks)
@@ -131,11 +192,22 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
             .blur(radius: environment.blurRadius)
             .allowsHitTesting(environment.isAppUnlocked)
         }
-        .onChange(of: page.index) { newValue in
-            withAnimation {
-                sliderValue = Float(newValue + 1)
-            }
-        }
+        .onChange(
+            of: page.index,
+            perform: onPagerIndexChanged
+        )
+        .onChange(
+            of: setting.readingDirection,
+            perform: { _ in onControlPanelSliderChanged(
+                newValue: Int(sliderValue)
+            ) }
+        )
+        .onChange(
+            of: setting.enablesDualPageMode,
+            perform: { _ in onControlPanelSliderChanged(
+                newValue: Int(sliderValue)
+            ) }
+        )
         .onReceive(
             NotificationCenter.default.publisher(
                 for: NSNotification.Name("AppWidthDidChange")
@@ -176,9 +248,6 @@ private extension ReadingView {
     var mangaContents: [Int: String] {
         contentInfo.contents[gid] ?? [:]
     }
-    var contentHScale: CGFloat {
-        Defaults.ImageSize.contentHScale
-    }
 
     // MARK: Life Cycle
     func onStartTasks() {
@@ -190,10 +259,10 @@ private extension ReadingView {
     }
     func restoreReadingProgress() {
         dispatchMainSync {
-            page.update(.new(
-                index: mangaState
-                    .readingProgress - 1
-            ))
+            let index = mappingToPager(
+                index: mangaState.readingProgress
+            )
+            page.update(.new(index: index))
         }
     }
     func onWebImageAppear(index: Int) {
@@ -202,7 +271,18 @@ private extension ReadingView {
         }
     }
     func onControlPanelSliderChanged(newValue: Int) {
-        page.update(.new(index: newValue - 1))
+        let newIndex = mappingToPager(index: newValue)
+        if page.index != newIndex {
+            page.update(.new(index: newIndex))
+        }
+    }
+    func onPagerIndexChanged(newIndex: Int) {
+        let newValue = Float(mappingFromPager(index: newIndex))
+        withAnimation {
+            if sliderValue != newValue {
+                sliderValue = newValue
+            }
+        }
     }
 
     // MARK: Misc
@@ -217,7 +297,9 @@ private extension ReadingView {
         }
     }
     func saveReadingProgress() {
-        let progress = page.index + 1
+        let progress = mappingFromPager(
+            index: page.index
+        )
         if progress > 0 {
             store.dispatch(
                 .saveReadingProgress(
@@ -225,6 +307,32 @@ private extension ReadingView {
                     tag: progress
                 )
             )
+        }
+    }
+    func mappingToPager(index: Int) -> Int {
+        guard isPad && isLandscape
+                && setting.readingDirection != .vertical
+                && setting.enablesDualPageMode && isLandscape
+        else { return index - 1 }
+        if index <= 1 { return 0 }
+
+        return setting.exceptTheFirstPage
+            ? index / 2 : (index - 1) / 2
+    }
+    func mappingFromPager(index: Int) -> Int {
+        guard isPad && isLandscape
+                && setting.readingDirection != .vertical
+                && setting.enablesDualPageMode && isLandscape
+        else { return index + 1 }
+        if index <= 0 { return 1 }
+
+        let result = setting.exceptTheFirstPage
+            ? index * 2 : index * 2 + 1
+
+        if result + 1 == pageCount {
+            return pageCount
+        } else {
+            return result
         }
     }
 
@@ -242,6 +350,9 @@ private extension ReadingView {
     func toggleSetting() {
         sheetState = .setting
         impactFeedback(style: .light)
+    }
+    func update(setting: Setting) {
+        store.dispatch(.update(setting: setting))
     }
     func fetchMangaContentsIfNeeded() {
         if mangaContents.isEmpty {
@@ -359,28 +470,34 @@ private struct ImageContainer: View {
     private let url: String
     private let index: Int
     private let retryLimit: Int
+    private let isDualPage: Bool
 
     init(
         url: String,
         index: Int,
-        retryLimit: Int
+        retryLimit: Int,
+        isDualPage: Bool
     ) {
         self.url = url
         self.index = index
         self.retryLimit = retryLimit
+        self.isDualPage = isDualPage
     }
 
+    @ViewBuilder
     private func getPlaceholder(_ progress: Progress) -> some View {
+        let width = windowW / (isDualPage ? 2 : 1)
+        let height = width / Defaults.ImageSize.contentScale
         Placeholder(
             style: .progress(
                 pageNumber: index,
-                progress: progress
+                progress: progress,
+                isDualPage: isDualPage
             )
         )
         .frame(
-            width: absWindowW,
-            height: windowH * Defaults
-                .ImageSize.contentHScale
+            width: width,
+            height: height
         )
     }
 

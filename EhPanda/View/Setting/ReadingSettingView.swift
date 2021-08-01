@@ -50,11 +50,11 @@ struct ReadingSettingView: View, StoreAccessor {
             }
             Section(header: Text("Appearance")) {
                 HStack {
-                    Text("Separator height")
+                    Text("Content spacing")
                     Spacer()
                     Picker(
-                        selection: settingBinding.contentDividerHeight,
-                        label: Text("\(Int(setting.contentDividerHeight))pt"),
+                        selection: settingBinding.contentSpacing,
+                        label: Text("\(Int(setting.contentSpacing))pt"),
                         content: {
                             Text("0pt").tag(CGFloat(0))
                             Text("5pt").tag(CGFloat(5))

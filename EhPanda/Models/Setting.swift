@@ -50,7 +50,9 @@ struct Setting: Codable {
     // Reading
     @DefaultReadingDirection var readingDirection: ReadingDirection = .vertical
     @DefaultIntegerValue var contentRetryLimit = 10
-    @DefaultDoubleValue var contentDividerHeight: Double = 0
+    @DefaultFalse var enablesDualPageMode = false
+    @DefaultFalse var exceptTheFirstPage = false
+    @DefaultDoubleValue var contentSpacing: Double = 0
     @DefaultDoubleValue var maximumScaleFactor: Double = 3 {
         didSet {
             if doubleTapScaleFactor > maximumScaleFactor {
