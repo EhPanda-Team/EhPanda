@@ -52,7 +52,7 @@ struct Setting: Codable {
     @DefaultIntegerValue var contentRetryLimit = 10
     @DefaultFalse var enablesDualPageMode = false
     @DefaultFalse var exceptCover = false
-    @DefaultDoubleValue var contentSpacing: Double = 0
+    @DefaultDoubleValue var contentDividerHeight: Double = 0
     @DefaultDoubleValue var maximumScaleFactor: Double = 3 {
         didSet {
             if doubleTapScaleFactor > maximumScaleFactor {

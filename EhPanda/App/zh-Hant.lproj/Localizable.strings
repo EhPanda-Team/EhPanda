@@ -109,11 +109,11 @@
 "Left-to-right" = "左至右";
 "Retry limit" = "重試次數上限";
 " times" = "次";
-"Content spacing" = "";
+"Separator height" = "分隔線高度";
 "Maximum scale factor" = "縮放上限";
 "Double tap scale factor" = "雙擊縮放值";
-"Dual-page mode" = "";
-"Except the cover" = "";
+"Dual-page mode" = "雙頁模式";
+"Except the cover" = "封面除外";
 
 "Laboratory" = "實驗室";
 "Bypass SNI Filtering" = "域前置繞過SNI阻斷";

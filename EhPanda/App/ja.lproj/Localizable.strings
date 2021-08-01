@@ -109,7 +109,7 @@
 "Left-to-right" = "左開き";
 "Retry limit" = "再試行上限数";
 " times" = "回";
-"Content spacing" = "内容の間隔";
+"Separator height" = "仕切りの厚さ";
 "Maximum scale factor" = "最大スケール係数";
 "Double tap scale factor" = "ダブルタップスケール係数";
 "Dual-page mode" = "デュアルページモード";

@@ -72,7 +72,7 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
         )
     }
     private func imageContainer(index: Int) -> some View {
-        HStack(spacing: setting.contentSpacing) {
+        HStack(spacing: 0) {
             let (firstIndex, secondIndex, isFirstValid, isSecondValid) =
                 getImageContainerConfigs(index: index)
             let isDualPage = setting.enablesDualPageMode
@@ -108,7 +108,7 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
             AdvancedList(
                 page: page, data: containerDataSource,
                 id: \.self, spacing: setting
-                    .contentSpacing,
+                    .contentDividerHeight,
                 gesture: SimultaneousGesture(
                     magnifyGesture, tapGesture
                 ),
