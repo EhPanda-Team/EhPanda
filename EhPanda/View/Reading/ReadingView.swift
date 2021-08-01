@@ -218,6 +218,7 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
                 set(newScale: 1.1)
                 set(newScale: 1)
             }
+            onControlPanelSliderChanged()
         }
         .onReceive(
             NotificationCenter.default.publisher(
@@ -270,7 +271,7 @@ private extension ReadingView {
             fetchMangaContents(index: index)
         }
     }
-    func onControlPanelSliderChanged(_: Any) {
+    func onControlPanelSliderChanged(_: Any? = nil) {
         let newIndex = mappingToPager(index: Int(sliderValue))
         if page.index != newIndex {
             page.update(.new(index: newIndex))
