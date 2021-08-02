@@ -84,18 +84,24 @@ private extension TagCloudView {
         .background(viewHeightReader(binding: $totalHeight))
     }
 
+    @ViewBuilder
     func item(for text: String) -> some View {
-        Text(text)
+        let (rippedText, wrappedHex) = Parser
+            .parseWrappedHex(string: text)
+        let containsHex = wrappedHex != nil
+        let textColor = containsHex ? .white : textColor
+        let backgroundColor = containsHex ? Color(
+            hex: wrappedHex.forceUnwrapped
+        ) : backgroundColor
+
+        Text(rippedText)
             .fontWeight(.bold)
             .lineLimit(1)
             .font(font)
             .foregroundColor(textColor)
             .padding(.vertical, paddingV)
             .padding(.horizontal, paddingH)
-            .background(
-                Rectangle()
-                    .foregroundColor(backgroundColor)
-            )
+            .background(backgroundColor)
             .cornerRadius(5)
             .onTapGesture {
                 onTapAction(

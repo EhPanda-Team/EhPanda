@@ -63,6 +63,10 @@ struct Defaults {
         static let hathClientNotOnline = "Your H@H client appears to be offline. Turn it on, then try again."
         static let invalidResolution = "The requested gallery cannot be downloaded with the selected resolution."
     }
+    struct ParsingMark {
+        static let hexStart = "hexStart<"
+        static let hexEnd = ">hexEnd"
+    }
     struct URL {
         // Domains
         static var host: String {

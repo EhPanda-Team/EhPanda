@@ -148,7 +148,6 @@ private struct WaterfallList: View {
     private var columnsInPortrait: Int {
         isPadWidth ? 4 : 2
     }
-
     private var columnsInLandscape: Int {
         isPadWidth ? 5 : 2
     }
@@ -201,6 +200,7 @@ private struct WaterfallList: View {
         }
         .listStyle(.plain)
     }
+
     private func onRowAppear(item: Manga) {
         if item == items?.last {
             loadMoreAction?()

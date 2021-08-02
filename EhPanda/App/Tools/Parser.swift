@@ -55,7 +55,17 @@ struct Parser {
                     }
                 }
                 if let tagText = tagLink.text {
-                    tags.append(tagText)
+                    if let style = tagLink["style"],
+                       let rangeA = style.range(of: "background:radial-gradient(#"),
+                       let rangeB = style.range(of: ",#")
+                    {
+                        let hex = style[rangeA.upperBound..<rangeB.lowerBound]
+                        let wrappedHex = Defaults.ParsingMark.hexStart
+                            + hex + Defaults.ParsingMark.hexEnd
+                        tags.append(tagText + wrappedHex)
+                    } else {
+                        tags.append(tagText)
+                    }
                 }
             }
             return (tags, language)
@@ -1134,6 +1144,7 @@ extension Parser {
         return contents
     }
 
+    // MARK: parsePreviewConfigs
     static func parsePreviewConfigs(string: String) -> (String, CGSize, CGFloat)? {
         guard let rangeA = string.range(of: Defaults.PreviewIdentifier.width),
               let rangeB = string.range(of: Defaults.PreviewIdentifier.height),
@@ -1148,5 +1159,19 @@ extension Parser {
 
         let size = CGSize(width: width, height: height)
         return (plainURL, size, CGFloat(offset))
+    }
+
+    // MARK: parseWrappedHex
+    static func parseWrappedHex(string: String) -> (String, String?) {
+        let hexStart = Defaults.ParsingMark.hexStart
+        let hexEnd = Defaults.ParsingMark.hexEnd
+        guard let rangeA = string.range(of: hexStart),
+              let rangeB = string.range(of: hexEnd)
+        else { return (string, nil) }
+
+        let wrappedHex = String(string[rangeA.upperBound..<rangeB.lowerBound])
+        let rippedText = string.replacingOccurrences(of: hexStart + wrappedHex + hexEnd, with: "")
+
+        return (rippedText, wrappedHex)
     }
 }
