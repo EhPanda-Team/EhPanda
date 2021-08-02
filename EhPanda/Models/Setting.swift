@@ -50,6 +50,7 @@ struct Setting: Codable {
 
     // Reading
     @DefaultReadingDirection var readingDirection: ReadingDirection = .vertical
+    @DefaultIntegerValue var prefetchLimit = 10
     @DefaultIntegerValue var contentRetryLimit = 10
     @DefaultFalse var enablesDualPageMode = false
     @DefaultFalse var exceptCover = false

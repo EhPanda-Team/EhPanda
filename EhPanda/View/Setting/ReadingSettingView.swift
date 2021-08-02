@@ -32,6 +32,22 @@ struct ReadingSettingView: View, StoreAccessor {
                     .pickerStyle(.menu)
                 }
                 HStack {
+                    let page = " pages".localized()
+                    Text("Preload limit")
+                    Spacer()
+                    Picker(
+                        selection: settingBinding.prefetchLimit,
+                        label: Text("\(setting.prefetchLimit)" + page),
+                        content: {
+                            let values = Array(stride(from: 6, through: 18, by: 4))
+                            ForEach(values, id: \.self) { value in
+                                Text("\(value)" + page).tag(value)
+                            }
+                        }
+                    )
+                    .pickerStyle(.menu)
+                }
+                HStack {
                     let time = " times".localized()
                     Text("Retry limit")
                     Spacer()
@@ -39,10 +55,10 @@ struct ReadingSettingView: View, StoreAccessor {
                         selection: settingBinding.contentRetryLimit,
                         label: Text("\(setting.contentRetryLimit)" + time),
                         content: {
-                            Text("5" + time).tag(5)
-                            Text("10" + time).tag(10)
-                            Text("15" + time).tag(15)
-                            Text("20" + time).tag(20)
+                            let values = Array(stride(from: 5, through: 20, by: 5))
+                            ForEach(values, id: \.self) { value in
+                                Text("\(value)" + time).tag(value)
+                            }
                         }
                     )
                     .pickerStyle(.menu)
@@ -56,11 +72,10 @@ struct ReadingSettingView: View, StoreAccessor {
                         selection: settingBinding.contentDividerHeight,
                         label: Text("\(Int(setting.contentDividerHeight))pt"),
                         content: {
-                            Text("0pt").tag(CGFloat(0))
-                            Text("5pt").tag(CGFloat(5))
-                            Text("10pt").tag(CGFloat(10))
-                            Text("15pt").tag(CGFloat(15))
-                            Text("20pt").tag(CGFloat(20))
+                            let values = Array(stride(from: 0, through: 20, by: 5))
+                            ForEach(values, id: \.self) { value in
+                                Text("\(value)" + "pt").tag(Double(value))
+                            }
                         }
                     )
                     .pickerStyle(.menu)

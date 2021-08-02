@@ -110,6 +110,8 @@
 "Vertical" = "垂直";
 "Right-to-left" = "右至左";
 "Left-to-right" = "左至右";
+"Preload limit" = "預先載入數量上限";
+" pages" = "頁";
 "Retry limit" = "重試次數上限";
 " times" = "次";
 "Separator height" = "分隔線高度";

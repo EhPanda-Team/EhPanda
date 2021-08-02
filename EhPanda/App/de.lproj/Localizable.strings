@@ -110,6 +110,8 @@
 //"Vertical" = "";
 "Right-to-left" = "Von rechts nach links";
 "Left-to-right" = "Von links nach rechts";
+//"Preload limit" = "";
+//" pages" = "";
 "Retry limit" = "Limit für neue Versuche";
 " times" = "mal";
 "Separator height" = "Höhe der Teilung";

@@ -244,7 +244,6 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
     }
 }
 
-// MARK: Private Extension
 private extension ReadingView {
     var mangaContents: [Int: String] {
         contentInfo.contents[gid] ?? [:]
@@ -278,6 +277,8 @@ private extension ReadingView {
         }
     }
     func onPagerIndexChanged(newIndex: Int) {
+        print("debugMark currentIndex is \(newIndex)")
+        prefetchImages(index: newIndex)
         let newValue = Float(mappingFromPager(index: newIndex))
         withAnimation {
             if sliderValue != newValue {
@@ -286,17 +287,7 @@ private extension ReadingView {
         }
     }
 
-    // MARK: Misc
-    func dismissPanel() {
-        if showsPanel {
-            toggleShowsPanel()
-        }
-    }
-    func toggleShowsPanel() {
-        withAnimation {
-            showsPanel.toggle()
-        }
-    }
+    // MARK: Progress
     func saveReadingProgress() {
         let progress = mappingFromPager(
             index: page.index
@@ -337,6 +328,7 @@ private extension ReadingView {
         }
     }
 
+    // MARK: Dispatch
     func fetchMangaContents(index: Int = 1) {
         DispatchQueue.main.async {
             store.dispatch(.fetchMangaContents(gid: gid, index: index))
@@ -366,6 +358,48 @@ private extension ReadingView {
         }
     }
 
+    // MARK: Prefetch
+    func prefetchImages(index: Int) {
+        var prefetchIndices = [URL]()
+
+        let prefetchLimit = setting.prefetchLimit / 2
+
+        let previousUpperBound = max(index - 2, 1)
+        let previousLowerBound = max(
+            previousUpperBound - prefetchLimit, 1
+        )
+        if previousUpperBound - previousLowerBound > 0 {
+            appendPrefetchIndices(
+                array: &prefetchIndices,
+                range: previousLowerBound...previousUpperBound
+            )
+        }
+
+        let nextLowerBound = min(index + 2, pageCount)
+        let nextUpperBound = min(
+            nextLowerBound + prefetchLimit, pageCount
+        )
+        if nextUpperBound - nextLowerBound > 0 {
+            appendPrefetchIndices(
+                array: &prefetchIndices,
+                range: nextLowerBound...nextUpperBound
+            )
+        }
+
+        if !prefetchIndices.isEmpty {
+            let prefetcher = ImagePrefetcher(urls: prefetchIndices)
+            prefetcher.start()
+        }
+    }
+
+    func appendPrefetchIndices(array: inout [URL], range: ClosedRange<Int>) {
+        let indices = Array(range.lowerBound...range.upperBound)
+        array.append(contentsOf: indices.compactMap { index in
+            onWebImageAppear(index: index)
+            return URL(string: mangaContents[index] ?? "")
+        })
+    }
+
     // MARK: Gesture
     var tapGesture: some Gesture {
         let singleTap = TapGesture(count: 1)
@@ -391,7 +425,9 @@ private extension ReadingView {
     }
 
     func onSingleTap(_: TapGesture.Value) {
-        toggleShowsPanel()
+        withAnimation {
+            showsPanel.toggle()
+        }
     }
     func onDoubleTap(_: TapGesture.Value) {
         set(newOffset: .zero)
