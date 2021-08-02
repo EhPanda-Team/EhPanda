@@ -277,7 +277,6 @@ private extension ReadingView {
         }
     }
     func onPagerIndexChanged(newIndex: Int) {
-        print("debugMark currentIndex is \(newIndex)")
         prefetchImages(index: newIndex)
         let newValue = Float(mappingFromPager(index: newIndex))
         withAnimation {
