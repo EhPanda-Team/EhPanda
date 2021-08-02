@@ -66,12 +66,7 @@ struct AppearanceSettingView: View, StoreAccessor {
                 }
                 .pickerStyle(.menu)
                 Toggle(isOn: settingBinding.showsSummaryRowTags) {
-                    HStack {
-                        Text("Shows tags in list")
-                        Image(systemName: "exclamationmark.triangle.fill")
-                            .opacity(setting.showsSummaryRowTags ? 1 : 0)
-                            .foregroundStyle(.yellow)
-                    }
+                    Text("Shows tags in list")
                 }
                 Toggle(isOn: settingBinding.summaryRowTagsMaximumActivated) {
                     Text("Sets maximum number of tags")
