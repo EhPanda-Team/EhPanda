@@ -135,6 +135,7 @@ private struct AvatarView: View {
                     if avatarURL?.contains(".gif") != true {
                         KFImage(URL(string: avatarURL ?? ""))
                             .placeholder(getPlaceholder)
+                            .retry(maxCount: 10)
                             .defaultModifier(
                                 withRoundedCorners: false
                             )
@@ -142,6 +143,7 @@ private struct AvatarView: View {
                         KFAnimatedImage(URL(string: avatarURL ?? ""))
                             .placeholder(getPlaceholder)
                             .fade(duration: 0.25)
+                            .retry(maxCount: 10)
                     }
                 }
                 .scaledToFill()
