@@ -38,6 +38,7 @@ struct Setting: Codable {
             return nil
         }
     }
+    @DefaultListMode var listMode: ListMode = isPadWidth ? .thumbnail : .detail
     @DefaultPreferredColorScheme var preferredColorScheme =
         PreferredColorScheme.automatic
     @DefaultColorValue var accentColor: Color = .blue
@@ -135,4 +136,11 @@ enum ReadingDirection: String, Codable, CaseIterable, Identifiable {
     case vertical = "Vertical"
     case rightToLeft = "Right-to-left"
     case leftToRight = "Left-to-right"
+}
+
+enum ListMode: String, Codable, CaseIterable, Identifiable {
+    var id: Int { hashValue }
+
+    case detail = "LIST_DISPLAY_MODE_DETAIL"
+    case thumbnail = "LIST_DISPLAY_MODE_THUMBNAIL"
 }

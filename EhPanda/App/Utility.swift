@@ -104,7 +104,7 @@ var isPad: Bool {
 }
 
 var isPadWidth: Bool {
-    windowW > 500
+    windowW > 768
 }
 
 var viewControllersCount: Int {

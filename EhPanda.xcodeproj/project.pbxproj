@@ -59,6 +59,9 @@
 		ABCA93C42692A0BF00A98BC6 /* PersistenceAccessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCA93C32692A0BF00A98BC6 /* PersistenceAccessor.swift */; };
 		ABCD2F0A259763FC008E5A20 /* Request.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD2F09259763FC008E5A20 /* Request.swift */; };
 		ABCD2F0E25976B95008E5A20 /* Parser.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD2F0D25976B95008E5A20 /* Parser.swift */; };
+		ABD4032426B6EC6800001B8C /* WaterfallGrid in Frameworks */ = {isa = PBXBuildFile; productRef = ABD4032326B6EC6800001B8C /* WaterfallGrid */; };
+		ABD4032626B78E5A00001B8C /* MangaWaterfallCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABD4032526B78E5A00001B8C /* MangaWaterfallCell.swift */; };
+		ABD4032826B7967F00001B8C /* CategoryLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABD4032726B7967F00001B8C /* CategoryLabel.swift */; };
 		ABD5FDD4263D05110021A4C6 /* .swiftlint.yml in Resources */ = {isa = PBXBuildFile; fileRef = ABD5FDD3263D05110021A4C6 /* .swiftlint.yml */; };
 		ABD7005926B1C31500DC59C9 /* Kanna in Frameworks */ = {isa = PBXBuildFile; productRef = ABD7005826B1C31500DC59C9 /* Kanna */; };
 		ABE1867826A1733000689FDC /* LaboratorySettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABE1867726A1733000689FDC /* LaboratorySettingView.swift */; };
@@ -83,7 +86,7 @@
 		ABF45AE825F3313D00ECB568 /* LinkedText.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF45ACB25F3313D00ECB568 /* LinkedText.swift */; };
 		ABF45AE925F3313D00ECB568 /* AlertView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF45ACC25F3313D00ECB568 /* AlertView.swift */; };
 		ABF45AEA25F3313D00ECB568 /* Placeholder.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF45ACD25F3313D00ECB568 /* Placeholder.swift */; };
-		ABF45AEB25F3313D00ECB568 /* MangaSummaryRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF45ACE25F3313D00ECB568 /* MangaSummaryRow.swift */; };
+		ABF45AEB25F3313D00ECB568 /* MangaDetailCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF45ACE25F3313D00ECB568 /* MangaDetailCell.swift */; };
 		ABF45AEC25F3313D00ECB568 /* ReadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF45AD025F3313D00ECB568 /* ReadingView.swift */; };
 		ABF45AED25F3313D00ECB568 /* DetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF45AD225F3313D00ECB568 /* DetailView.swift */; };
 		ABF45AEE25F3313D00ECB568 /* ArchiveView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF45AD325F3313D00ECB568 /* ArchiveView.swift */; };
@@ -158,6 +161,8 @@
 		ABCA93C32692A0BF00A98BC6 /* PersistenceAccessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceAccessor.swift; sourceTree = "<group>"; };
 		ABCD2F09259763FC008E5A20 /* Request.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Request.swift; sourceTree = "<group>"; };
 		ABCD2F0D25976B95008E5A20 /* Parser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Parser.swift; sourceTree = "<group>"; };
+		ABD4032526B78E5A00001B8C /* MangaWaterfallCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MangaWaterfallCell.swift; sourceTree = "<group>"; };
+		ABD4032726B7967F00001B8C /* CategoryLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryLabel.swift; sourceTree = "<group>"; };
 		ABD5FDD3263D05110021A4C6 /* .swiftlint.yml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.yaml; path = .swiftlint.yml; sourceTree = SOURCE_ROOT; };
 		ABD7005526B1BF6800DC59C9 /* Model 3.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Model 3.xcdatamodel"; sourceTree = "<group>"; };
 		ABE1867726A1733000689FDC /* LaboratorySettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaboratorySettingView.swift; sourceTree = "<group>"; };
@@ -184,7 +189,7 @@
 		ABF45ACB25F3313D00ECB568 /* LinkedText.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LinkedText.swift; sourceTree = "<group>"; };
 		ABF45ACC25F3313D00ECB568 /* AlertView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlertView.swift; sourceTree = "<group>"; };
 		ABF45ACD25F3313D00ECB568 /* Placeholder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Placeholder.swift; sourceTree = "<group>"; };
-		ABF45ACE25F3313D00ECB568 /* MangaSummaryRow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MangaSummaryRow.swift; sourceTree = "<group>"; };
+		ABF45ACE25F3313D00ECB568 /* MangaDetailCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MangaDetailCell.swift; sourceTree = "<group>"; };
 		ABF45AD025F3313D00ECB568 /* ReadingView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReadingView.swift; sourceTree = "<group>"; };
 		ABF45AD225F3313D00ECB568 /* DetailView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DetailView.swift; sourceTree = "<group>"; };
 		ABF45AD325F3313D00ECB568 /* ArchiveView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ArchiveView.swift; sourceTree = "<group>"; };
@@ -212,6 +217,7 @@
 				AB82819B26B1C39B00A80CFA /* Kingfisher in Frameworks */,
 				AB0F68AF26A6D92F00AC3A54 /* DeprecatedAPI in Frameworks */,
 				AB6505A026B0027800F91E9D /* SwiftUIPager in Frameworks */,
+				ABD4032426B6EC6800001B8C /* WaterfallGrid in Frameworks */,
 				AB73CEAD26AAB8C600EF6337 /* BetterCodable in Frameworks */,
 				ABE1867F26A18DD000689FDC /* SwiftyBeaver in Frameworks */,
 			);
@@ -405,12 +411,14 @@
 		ABF45AC625F3313D00ECB568 /* Tools */ = {
 			isa = PBXGroup;
 			children = (
-				ABF45ACE25F3313D00ECB568 /* MangaSummaryRow.swift */,
+				AB7B29F526AC741600EE1F14 /* GenericList.swift */,
+				ABF45ACE25F3313D00ECB568 /* MangaDetailCell.swift */,
+				ABD4032526B78E5A00001B8C /* MangaWaterfallCell.swift */,
 				ABF45ACC25F3313D00ECB568 /* AlertView.swift */,
 				ABF45AC825F3313D00ECB568 /* Comment.swift */,
 				ABF45ACD25F3313D00ECB568 /* Placeholder.swift */,
 				ABF45AC725F3313D00ECB568 /* TagCloudView.swift */,
-				AB7B29F526AC741600EE1F14 /* GenericList.swift */,
+				ABD4032726B7967F00001B8C /* CategoryLabel.swift */,
 			);
 			path = Tools;
 			sourceTree = "<group>";
@@ -482,6 +490,7 @@
 				AB65059F26B0027800F91E9D /* SwiftUIPager */,
 				ABD7005826B1C31500DC59C9 /* Kanna */,
 				AB82819A26B1C39B00A80CFA /* Kingfisher */,
+				ABD4032326B6EC6800001B8C /* WaterfallGrid */,
 			);
 			productName = EhPanda;
 			productReference = ABC3C7542593696C00E0C11B /* EhPanda.app */;
@@ -523,6 +532,7 @@
 				AB65059E26B0027800F91E9D /* XCRemoteSwiftPackageReference "SwiftUIPager" */,
 				ABD7005626B1C14900DC59C9 /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				ABD7005726B1C31500DC59C9 /* XCRemoteSwiftPackageReference "Kanna" */,
+				ABD4032226B6EC6800001B8C /* XCRemoteSwiftPackageReference "WaterfallGrid" */,
 			);
 			productRefGroup = ABC3C7552593696C00E0C11B /* Products */;
 			projectDirPath = "";
@@ -592,6 +602,7 @@
 				AB10118026986C1100C2C1A9 /* MangaStateMO+CoreDataClass.swift in Sources */,
 				AB63EADB2699AC8200090535 /* AppEnvMO+CoreDataProperties.swift in Sources */,
 				ABF45AE025F3313D00ECB568 /* HomeView.swift in Sources */,
+				ABD4032626B78E5A00001B8C /* MangaWaterfallCell.swift in Sources */,
 				AB358319269D9996009466A5 /* DomainResolver.swift in Sources */,
 				AB63EADD2699AC9100090535 /* AppEnvMO+CoreDataClass.swift in Sources */,
 				ABCA93BE26918DE100A98BC6 /* Persistence.swift in Sources */,
@@ -600,7 +611,7 @@
 				ABF45AF625F3313D00ECB568 /* AppearanceSettingView.swift in Sources */,
 				AB69CB8226B3DAF400699359 /* ControlPanel.swift in Sources */,
 				ABE1867826A1733000689FDC /* LaboratorySettingView.swift in Sources */,
-				ABF45AEB25F3313D00ECB568 /* MangaSummaryRow.swift in Sources */,
+				ABF45AEB25F3313D00ECB568 /* MangaDetailCell.swift in Sources */,
 				AB69CB8026B3DABC00699359 /* AdvancedList.swift in Sources */,
 				ABC3C7892593699B00E0C11B /* Defaults.swift in Sources */,
 				ABF45AF125F3313D00ECB568 /* AssociatedView.swift in Sources */,
@@ -617,6 +628,7 @@
 				ABCD2F0E25976B95008E5A20 /* Parser.swift in Sources */,
 				ABF45AF725F3313D00ECB568 /* SettingView.swift in Sources */,
 				ABF45AEA25F3313D00ECB568 /* Placeholder.swift in Sources */,
+				ABD4032826B7967F00001B8C /* CategoryLabel.swift in Sources */,
 				ABC681F326898D46007BBD69 /* Model.xcdatamodeld in Sources */,
 				ABF45AE125F3313D00ECB568 /* Home.swift in Sources */,
 				AB4FD2C1268AB83300A95968 /* MangaDetailMO+CoreDataProperties.swift in Sources */,
@@ -917,6 +929,14 @@
 				minimumVersion = 0.4.0;
 			};
 		};
+		ABD4032226B6EC6800001B8C /* XCRemoteSwiftPackageReference "WaterfallGrid" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/paololeonardi/WaterfallGrid.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
 		ABD7005626B1C14900DC59C9 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/onevcat/Kingfisher.git";
@@ -968,6 +988,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = ABD7005626B1C14900DC59C9 /* XCRemoteSwiftPackageReference "Kingfisher" */;
 			productName = Kingfisher;
+		};
+		ABD4032326B6EC6800001B8C /* WaterfallGrid */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = ABD4032226B6EC6800001B8C /* XCRemoteSwiftPackageReference "WaterfallGrid" */;
+			productName = WaterfallGrid;
 		};
 		ABD7005826B1C31500DC59C9 /* Kanna */ = {
 			isa = XCSwiftPackageProductDependency;

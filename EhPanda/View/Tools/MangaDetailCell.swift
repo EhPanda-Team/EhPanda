@@ -8,7 +8,7 @@
 import SwiftUI
 import Kingfisher
 
-struct MangaSummaryRow: View {
+struct MangaDetailCell: View {
     @Environment(\.colorScheme) private var colorScheme
 
     private let manga: Manga
@@ -57,7 +57,7 @@ struct MangaSummaryRow: View {
                 }
                 HStack {
                     RatingView(rating: manga.rating)
-                        .font(.system(size: 12))
+                        .font(.caption)
                         .foregroundStyle(.yellow)
                     Spacer()
                     Text(manga.language?.rawValue.localized() ?? "")
@@ -66,17 +66,7 @@ struct MangaSummaryRow: View {
                         .foregroundStyle(.secondary)
                 }
                 HStack(alignment: .bottom) {
-                    Text(category)
-                        .fontWeight(.bold)
-                        .lineLimit(1)
-                        .font(.footnote)
-                        .foregroundStyle(.white)
-                        .padding(.vertical, 1)
-                        .padding(.horizontal, 3)
-                        .background(
-                            RoundedRectangle(cornerRadius: 2)
-                                .foregroundStyle(manga.color)
-                        )
+                    CategoryLabel(text: category, color: manga.color)
                     Spacer()
                     Text(manga.formattedDateString)
                         .lineLimit(1)
@@ -93,7 +83,7 @@ struct MangaSummaryRow: View {
     }
 }
 
-private extension MangaSummaryRow {
+private extension MangaDetailCell {
     var width: CGFloat {
         Defaults.ImageSize.rowW
     }
@@ -121,5 +111,12 @@ private extension MangaSummaryRow {
         colorScheme == .light
             ? Color(.systemGray5)
             : Color(.systemGray4)
+    }
+}
+
+struct MangaDetailCell_Previews: PreviewProvider {
+    static var previews: some View {
+        MangaDetailCell(manga: .preview, setting: Setting())
+            .preferredColorScheme(.dark)
     }
 }

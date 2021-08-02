@@ -51,6 +51,20 @@ struct AppearanceSettingView: View, StoreAccessor {
                     .disabled(Locale.current.languageCode == "en")
             }
             Section(header: Text("List")) {
+                HStack {
+                    Text("Display mode")
+                    Spacer()
+                    Picker(
+                        selection: settingBinding.listMode,
+                        label: Text(setting.listMode.rawValue.localized()),
+                        content: {
+                            ForEach(ListMode.allCases) { listMode in
+                                Text(listMode.rawValue.localized()).tag(listMode)
+                            }
+                        }
+                    )
+                }
+                .pickerStyle(.menu)
                 Toggle(isOn: settingBinding.showsSummaryRowTags) {
                     HStack {
                         Text("Shows tags in list")

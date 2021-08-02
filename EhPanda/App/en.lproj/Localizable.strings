@@ -20,3 +20,7 @@
 "GAINCONTENT_SEPARATOR" = ", ";
 "GAINCONTENT_AND" = " and ";
 "GAINCONTENT_END" = "!";
+
+// MARK: Setting
+"LIST_DISPLAY_MODE_DETAIL" = "Detail";
+"LIST_DISPLAY_MODE_THUMBNAIL" = "Thumbnail";

@@ -98,6 +98,9 @@
 "App Icon" = "應用圖標";
 "Translates category" = "翻譯分類";
 "List" = "列表";
+"Display mode" = "顯示模式";
+"LIST_DISPLAY_MODE_DETAIL" = "詳情";
+"LIST_DISPLAY_MODE_THUMBNAIL" = "縮略圖";
 "Shows tags in list" = "在列表中顯示標籤";
 "Sets maximum number of tags" = "設定標籤數量上限";
 "Maximum number of tags" = "標籤數量上限";

@@ -98,6 +98,9 @@
 "App Icon" = "アプリアイコン";
 "Translates category" = "カテゴリーを訳す";
 "List" = "リスト";
+"Display mode" = "表示モード";
+"LIST_DISPLAY_MODE_DETAIL" = "詳細";
+"LIST_DISPLAY_MODE_THUMBNAIL" = "サムネイル";
 "Shows tags in list" = "リストでタグを表示";
 "Sets maximum number of tags" = "リストでのタグ数を制限";
 "Maximum number of tags" = "タグ数上限";

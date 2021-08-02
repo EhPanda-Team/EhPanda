@@ -98,6 +98,9 @@
 "App Icon" = "App Icon";
 "Translates category" = "Übersetze Kategorie";
 "List" = "List";
+//"Display mode" = "";
+"LIST_DISPLAY_MODE_DETAIL" = "Details";
+"LIST_DISPLAY_MODE_THUMBNAIL" = "Miniaturbild";
 "Shows tags in list" = "Tags als Liste anzeigen";
 "Sets maximum number of tags" = "Maximale Anzahl an Tags auswählen";
 "Maximum number of tags" = "Maximale Anzahl an Tags";
@@ -105,8 +108,8 @@
 "Reading" = "Am Lesen";
 //"Direction" = "";
 //"Vertical" = "";
-//"Right-to-left" = "";
-//"Left-to-right" = "";
+"Right-to-left" = "Von rechts nach links";
+"Left-to-right" = "Von links nach rechts";
 "Retry limit" = "Limit für neue Versuche";
 " times" = "mal";
 "Separator height" = "Höhe der Teilung";

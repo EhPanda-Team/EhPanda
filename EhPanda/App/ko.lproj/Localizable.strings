@@ -98,6 +98,9 @@
 "App Icon" = "앱 아이콘";
 "Translates category" = "카테고리 언어";
 "List" = "리스트";
+"Display mode" = "표시방식";
+"LIST_DISPLAY_MODE_DETAIL" = "자세히";
+"LIST_DISPLAY_MODE_THUMBNAIL" = "섬네일";
 "Shows tags in list" = "리스트에서 해시태크를 제시하기";
 "Sets maximum number of tags" = "해시태크 수량 설정";
 "Maximum number of tags" = "해시태크 수량";
@@ -112,8 +115,8 @@
 "Separator height" = "선 두께";
 "Maximum scale factor" = "확대 비율";
 "Double tap scale factor" = "더블 클릭 확대 비율";
-//"Dual-page mode" = "";
-//"Except the cover" = "";
+"Dual-page mode" = "듀얼 페이지 모드";
+"Except the cover" = "표지 제외";
 
 "Laboratory" = "실현실";
 "Bypass SNI Filtering" = "SNI차단 우회";

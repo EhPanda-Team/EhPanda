@@ -33,6 +33,11 @@ struct DefaultGalleryHostStrategy: DefaultCodableStrategy {
     static var defaultValue: GalleryHost { .ehentai }
 }
 
+typealias DefaultListMode = DefaultCodable<DefaultListModeStrategy>
+struct DefaultListModeStrategy: DefaultCodableStrategy {
+    static var defaultValue: ListMode { isPadWidth ? .thumbnail : .detail }
+}
+
 typealias DefaultPreferredColorScheme = DefaultCodable<DefaultPreferredColorSchemeStrategy>
 struct DefaultPreferredColorSchemeStrategy: DefaultCodableStrategy {
     static var defaultValue: PreferredColorScheme { .automatic }
