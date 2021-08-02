@@ -1,6 +1,6 @@
 //
 //  ControlPanel.swift
-//  ControlPanel
+//  EhPanda
 //
 //  Created by 荒木辰造 on 2021/07/30.
 //
@@ -105,7 +105,7 @@ private struct UpperPanel: View {
                 Slider(value: .constant(0))
                     .opacity(0)
                 Spacer()
-                if isPad && isLandscape {
+                if isPad && isLandscape && setting.readingDirection != .vertical {
                     Menu {
                         Button {
                             var setting = setting

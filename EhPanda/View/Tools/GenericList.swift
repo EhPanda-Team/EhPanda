@@ -1,6 +1,6 @@
 //
 //  GenericList.swift
-//  GenericList
+//  EhPanda
 //
 //  Created by 荒木辰造 on 2021/07/25.
 //
@@ -177,7 +177,7 @@ private struct WaterfallList: View {
         .frame(height: 0)
         List {
             WaterfallGrid(items ?? []) { item in
-                MangaWaterfallCell(
+                MangaThumbnailCell(
                     manga: item,
                     setting: setting
                 )

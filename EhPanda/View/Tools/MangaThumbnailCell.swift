@@ -1,6 +1,6 @@
 //
-//  MangaWaterfallCell.swift
-//  MangaWaterfallCell
+//  MangaThumbnailCell.swift
+//  EhPanda
 //
 //  Created by 荒木辰造 on 2021/08/02.
 //
@@ -8,17 +8,11 @@
 import SwiftUI
 import Kingfisher
 
-struct MangaWaterfallCell: View {
+struct MangaThumbnailCell: View {
+    @Environment(\.colorScheme) private var colorScheme
+
     private let manga: Manga
     private let setting: Setting
-
-    var category: String {
-        if setting.translatesCategory {
-            return manga.category.rawValue.localized()
-        } else {
-            return manga.category.rawValue
-        }
-    }
 
     init(manga: Manga, setting: Setting) {
         self.manga = manga
@@ -36,6 +30,7 @@ struct MangaWaterfallCell: View {
                         )
                     )
                 }
+                .fade(duration: 0.25)
                 .resizable()
                 .scaledToFit()
                 .overlay {
@@ -58,28 +53,62 @@ struct MangaWaterfallCell: View {
                 }
             VStack(alignment: .leading) {
                 Text(manga.title).bold()
+                    .font(.callout)
+                    .lineLimit(3)
+                if setting.showsSummaryRowTags, !manga.tags.isEmpty {
+                    TagCloudView(
+                        tag: MangaTag(
+                            category: .artist,
+                            content: manga.tags
+                        ),
+                        font: .caption2,
+                        textColor: .secondary,
+                        backgroundColor: tagColor,
+                        paddingV: 2, paddingH: 4
+                    )
+                }
                 HStack {
                     RatingView(rating: manga.rating)
                         .foregroundColor(.yellow)
                         .font(.caption)
                     Spacer()
                     Text(manga.language?.languageAbbr ?? "")
-                        .lineLimit(1)
-                        .font(.footnote)
                         .foregroundStyle(.secondary)
+                        .font(.footnote)
+                        .lineLimit(1)
                 }
                 .padding(.top, 1)
             }
             .padding()
         }
-        .background(Color(.systemGray6))
+        .background(backgroundColor)
         .cornerRadius(15)
     }
 }
 
-struct MangaWaterfallCell_Previews: PreviewProvider {
+private extension MangaThumbnailCell {
+    var category: String {
+        if setting.translatesCategory {
+            return manga.category.rawValue.localized()
+        } else {
+            return manga.category.rawValue
+        }
+    }
+    var backgroundColor: Color {
+        colorScheme == .light
+        ? Color(.systemGray6)
+        : Color(.systemGray5)
+    }
+    var tagColor: Color {
+        colorScheme == .light
+        ? Color(.systemGray5)
+        : Color(.systemGray4)
+    }
+}
+
+struct MangaThumbnailCell_Previews: PreviewProvider {
     static var previews: some View {
-        MangaWaterfallCell(manga: .preview, setting: Setting())
+        MangaThumbnailCell(manga: .preview, setting: Setting())
             .preferredColorScheme(.dark)
     }
 }

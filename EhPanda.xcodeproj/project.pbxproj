@@ -60,7 +60,7 @@
 		ABCD2F0A259763FC008E5A20 /* Request.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD2F09259763FC008E5A20 /* Request.swift */; };
 		ABCD2F0E25976B95008E5A20 /* Parser.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD2F0D25976B95008E5A20 /* Parser.swift */; };
 		ABD4032426B6EC6800001B8C /* WaterfallGrid in Frameworks */ = {isa = PBXBuildFile; productRef = ABD4032326B6EC6800001B8C /* WaterfallGrid */; };
-		ABD4032626B78E5A00001B8C /* MangaWaterfallCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABD4032526B78E5A00001B8C /* MangaWaterfallCell.swift */; };
+		ABD4032626B78E5A00001B8C /* MangaThumbnailCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABD4032526B78E5A00001B8C /* MangaThumbnailCell.swift */; };
 		ABD4032826B7967F00001B8C /* CategoryLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABD4032726B7967F00001B8C /* CategoryLabel.swift */; };
 		ABD5FDD4263D05110021A4C6 /* .swiftlint.yml in Resources */ = {isa = PBXBuildFile; fileRef = ABD5FDD3263D05110021A4C6 /* .swiftlint.yml */; };
 		ABD7005926B1C31500DC59C9 /* Kanna in Frameworks */ = {isa = PBXBuildFile; productRef = ABD7005826B1C31500DC59C9 /* Kanna */; };
@@ -161,7 +161,7 @@
 		ABCA93C32692A0BF00A98BC6 /* PersistenceAccessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceAccessor.swift; sourceTree = "<group>"; };
 		ABCD2F09259763FC008E5A20 /* Request.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Request.swift; sourceTree = "<group>"; };
 		ABCD2F0D25976B95008E5A20 /* Parser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Parser.swift; sourceTree = "<group>"; };
-		ABD4032526B78E5A00001B8C /* MangaWaterfallCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MangaWaterfallCell.swift; sourceTree = "<group>"; };
+		ABD4032526B78E5A00001B8C /* MangaThumbnailCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MangaThumbnailCell.swift; sourceTree = "<group>"; };
 		ABD4032726B7967F00001B8C /* CategoryLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryLabel.swift; sourceTree = "<group>"; };
 		ABD5FDD3263D05110021A4C6 /* .swiftlint.yml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.yaml; path = .swiftlint.yml; sourceTree = SOURCE_ROOT; };
 		ABD7005526B1BF6800DC59C9 /* Model 3.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Model 3.xcdatamodel"; sourceTree = "<group>"; };
@@ -413,7 +413,7 @@
 			children = (
 				AB7B29F526AC741600EE1F14 /* GenericList.swift */,
 				ABF45ACE25F3313D00ECB568 /* MangaDetailCell.swift */,
-				ABD4032526B78E5A00001B8C /* MangaWaterfallCell.swift */,
+				ABD4032526B78E5A00001B8C /* MangaThumbnailCell.swift */,
 				ABF45ACC25F3313D00ECB568 /* AlertView.swift */,
 				ABF45AC825F3313D00ECB568 /* Comment.swift */,
 				ABF45ACD25F3313D00ECB568 /* Placeholder.swift */,
@@ -602,7 +602,7 @@
 				AB10118026986C1100C2C1A9 /* MangaStateMO+CoreDataClass.swift in Sources */,
 				AB63EADB2699AC8200090535 /* AppEnvMO+CoreDataProperties.swift in Sources */,
 				ABF45AE025F3313D00ECB568 /* HomeView.swift in Sources */,
-				ABD4032626B78E5A00001B8C /* MangaWaterfallCell.swift in Sources */,
+				ABD4032626B78E5A00001B8C /* MangaThumbnailCell.swift in Sources */,
 				AB358319269D9996009466A5 /* DomainResolver.swift in Sources */,
 				AB63EADD2699AC9100090535 /* AppEnvMO+CoreDataClass.swift in Sources */,
 				ABCA93BE26918DE100A98BC6 /* Persistence.swift in Sources */,

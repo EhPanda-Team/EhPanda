@@ -1,6 +1,6 @@
 //
 //  MigrationPolicy.swift
-//  MigrationPolicy
+//  EhPanda
 //
 //  Created by 荒木辰造 on 2021/07/24.
 //

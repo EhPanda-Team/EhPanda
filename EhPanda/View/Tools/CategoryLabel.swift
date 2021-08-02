@@ -1,6 +1,6 @@
 //
 //  CategoryLabel.swift
-//  CategoryLabel
+//  EhPanda
 //
 //  Created by 荒木辰造 on 2021/08/02.
 //
