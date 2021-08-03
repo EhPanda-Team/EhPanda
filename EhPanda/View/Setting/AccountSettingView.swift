@@ -184,8 +184,7 @@ private struct CookieRow: View {
     }
 
     init(
-        key: String,
-        value: CookieValue,
+        key: String, value: CookieValue,
         submitAction: @escaping (String, String) -> Void
     ) {
         _content = State(initialValue: value.rawValue)
@@ -207,7 +206,9 @@ private struct CookieRow: View {
                     .autocapitalization(.none)
                     .disableAutocorrection(true)
                     .multilineTextAlignment(.trailing)
-                    .onSubmit(of: .text, onTextSubmit)
+                    .onChange(of: content) {
+                        submitAction(key, $0)
+                    }
             }
             ZStack {
                 Image(systemName: "checkmark.circle")

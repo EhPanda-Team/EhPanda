@@ -7,10 +7,14 @@
 
 import Foundation
 
-enum AppError: Error, Identifiable {
+enum AppError: Error, Identifiable, Equatable {
     var id: String { localizedDescription }
 
     case networkingFailed
+    case mpvActivated(
+        mpvKey: String,
+        imgKeys: [Int: String]
+    )
     case parseFailed
     case unknown
 }
@@ -20,6 +24,8 @@ extension AppError: LocalizedError {
         switch self {
         case .networkingFailed:
             return "Network Error"
+        case .mpvActivated:
+            return "MPV is activated"
         case .parseFailed:
             return "Parse Error"
         case .unknown:

@@ -470,6 +470,9 @@ struct Parser {
     }
 
     static func parseMangaContent(doc: HTMLDocument, index: Int) throws -> (Int, String) {
+        if let (mpvKey, imgKeys) = try? parseMPVKeys(doc: doc) {
+            throw AppError.mpvActivated(mpvKey: mpvKey, imgKeys: imgKeys)
+        }
         guard let i3Node = doc.at_xpath("//div [@id='i3']"),
               let imageURL = i3Node.at_css("img")?["src"]
         else { throw AppError.parseFailed }
@@ -486,6 +489,41 @@ struct Parser {
             return link["class"] == "ths nosel" ? "gdtl" : "gdtm"
         }
         return "gdtm"
+    }
+
+    static func parseMPVKeys(doc: HTMLDocument) throws -> (String, [Int: String]) {
+        var tmpMPVKey: String?
+        var imgKeys = [Int: String]()
+
+        for link in doc.xpath("//script [@type='text/javascript']") {
+            guard let text = link.text,
+                  let rangeA = text.range(of: "mpvkey = \""),
+                  let rangeB = text.range(of: "\";\nvar imagelist = "),
+                  let rangeC = text.range(of: "\"}]")
+            else { continue }
+
+            tmpMPVKey = String(text[rangeA.upperBound..<rangeB.lowerBound])
+
+            guard let data = String(text[rangeB.upperBound..<rangeC.upperBound])
+                .replacingOccurrences(of: "\\/", with: "/")
+                .replacingOccurrences(of: "\"", with: "\"")
+                .replacingOccurrences(of: "\n", with: "")
+                .data(using: .utf8),
+                  let array = try? JSONSerialization.jsonObject(
+                    with: data) as? [[String: String]]
+            else { throw AppError.parseFailed }
+
+            array.enumerated().forEach { (index, dict) in
+                if let imgKey = dict["k"] {
+                    imgKeys[index + 1] = imgKey
+                }
+            }
+        }
+
+        guard let mpvKey = tmpMPVKey, !imgKeys.isEmpty
+        else { throw AppError.parseFailed }
+
+        return (mpvKey, imgKeys)
     }
 
     // MARK: User

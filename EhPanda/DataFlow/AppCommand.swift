@@ -390,6 +390,36 @@ struct FetchMangaContentsCommand: AppCommand {
     }
 }
 
+struct FetchMangaMPVContentCommand: AppCommand {
+    let gid: Int
+    let index: Int
+    let mpvKey: String
+    let imgKey: String
+
+    func execute(in store: Store) {
+        let token = SubscriptionToken()
+        MangaMPVContentRequest(
+            gid: gid, index: index,
+            mpvKey: mpvKey, imgKey: imgKey
+        )
+        .publisher
+        .receive(on: DispatchQueue.main)
+        .sink { completion in
+            if case .failure(let error) = completion {
+                store.dispatch(.fetchMangaMPVContentDone(
+                    gid: "\(gid)", index: index, result: .failure(error)
+                ))
+            }
+            token.unseal()
+        } receiveValue: { content in
+            store.dispatch(.fetchMangaMPVContentDone(
+                gid: "\(gid)", index: index, result: .success(content)
+            ))
+        }
+        .seal(in: token)
+    }
+}
+
 struct VerifyProfileCommand: AppCommand {
     func execute(in store: Store) {
         let token = SubscriptionToken()

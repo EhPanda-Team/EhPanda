@@ -586,8 +586,39 @@ final class Store: ObservableObject {
             case .success(let contents):
                 appState.contentInfo.update(gid: gid, contents: contents)
                 PersistenceController.update(gid: gid, contents: contents)
-            case .failure:
-                appState.contentInfo.contentsLoadFailed[gid]?[pageNumber] = true
+            case .failure(let error):
+                if case .mpvActivated(let mpvKey, let imgKeys) = error {
+                    appState.contentInfo.mpvKeys[gid] = mpvKey
+                    appState.contentInfo.mpvImageKeys[gid] = imgKeys
+                } else {
+                    appState.contentInfo.contentsLoadFailed[gid]?[pageNumber] = true
+                }
+            }
+
+        case .fetchMangaMPVContent(let gid, let index):
+            guard let gidInteger = Int(gid),
+                  let mpvKey = appState.contentInfo.mpvKeys[gid],
+                  let imgKey = appState.contentInfo.mpvImageKeys[gid]?[index]
+            else { break }
+
+            if appState.contentInfo.mpvImageLoading[gid] == nil {
+                appState.contentInfo.mpvImageLoading[gid] = [:]
+            }
+            if appState.contentInfo.mpvImageLoading[gid]?[index] == true { break }
+            appState.contentInfo.mpvImageLoading[gid]?[index] = true
+
+            appCommand = FetchMangaMPVContentCommand(
+                gid: gidInteger, index: index, mpvKey: mpvKey, imgKey: imgKey
+            )
+        case .fetchMangaMPVContentDone(let gid, let index, let result):
+            appState.contentInfo.mpvImageLoading[gid]?[index] = false
+
+            switch result {
+            case .success(let imageURL):
+                appState.contentInfo.update(gid: gid, contents: [index: imageURL])
+                PersistenceController.update(gid: gid, contents: [index: imageURL])
+            case .failure(let error):
+                SwiftyBeaver.error(error)
             }
 
         // MARK: Account Ops

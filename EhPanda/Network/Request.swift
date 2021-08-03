@@ -11,7 +11,12 @@ import Foundation
 import SwiftyBeaver
 
 private func mapAppError(error: Error) -> AppError {
-    SwiftyBeaver.error(error)
+    if case .mpvActivated = error as? AppError {
+        SwiftyBeaver.warning("MPV is activated.")
+    } else {
+        SwiftyBeaver.error(error)
+    }
+
     switch error {
     case is ParseError:
         return .parseFailed
@@ -429,6 +434,42 @@ struct MangaContentsRequest {
                     contents[index] = imageURL
                 }
                 return contents
+            }
+            .mapError(mapAppError)
+            .eraseToAnyPublisher()
+    }
+}
+
+struct MangaMPVContentRequest {
+    let gid: Int
+    let index: Int
+    let mpvKey: String
+    let imgKey: String
+
+    var publisher: AnyPublisher<String, AppError> {
+        let url = Defaults.URL.ehAPI()
+        let params: [String: Any] = [
+            "method": "imagedispatch",
+            "gid": gid,
+            "page": index,
+            "imgkey": imgKey,
+            "mpvkey": mpvKey
+        ]
+
+        var request = URLRequest(url: url.safeURL())
+
+        request.httpMethod = "POST"
+        request.httpBody = try? JSONSerialization
+            .data(withJSONObject: params, options: [])
+
+        return URLSession.shared
+            .dataTaskPublisher(for: request)
+            .map(\.data).tryMap { data in
+                guard let dict = try JSONSerialization
+                        .jsonObject(with: data) as? [String: Any],
+                      let imageURL = dict["i"] as? String
+                else { throw AppError.parseFailed }
+                return imageURL
             }
             .mapError(mapAppError)
             .eraseToAnyPublisher()

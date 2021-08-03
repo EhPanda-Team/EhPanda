@@ -71,6 +71,8 @@ enum AppAction {
     case fetchMangaPreviewsDone(gid: String, pageNumber: Int, result: Result<[Int: String], AppError>)
     case fetchMangaContents(gid: String, index: Int)
     case fetchMangaContentsDone(gid: String, pageNumber: Int, result: Result<[Int: String], AppError>)
+    case fetchMangaMPVContent(gid: String, index: Int)
+    case fetchMangaMPVContentDone(gid: String, index: Int, result: Result<String, AppError>)
 
     case createProfile
     case verifyProfile

@@ -330,7 +330,11 @@ private extension ReadingView {
     // MARK: Dispatch
     func fetchMangaContents(index: Int = 1) {
         DispatchQueue.main.async {
-            store.dispatch(.fetchMangaContents(gid: gid, index: index))
+            if contentInfo.mpvKeys[gid] != nil {
+                store.dispatch(.fetchMangaMPVContent(gid: gid, index: index))
+            } else {
+                store.dispatch(.fetchMangaContents(gid: gid, index: index))
+            }
         }
     }
     func fetchMangaPreivews(index: Int) {
