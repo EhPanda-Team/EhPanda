@@ -110,8 +110,8 @@
 "Vertical" = "수직적으로";
 "Right-to-left" = "왼쪽으로";
 "Left-to-right" = "오른쪽으로";
-//"Preload limit" = "";
-//" pages" = "";
+"Preload limit" = "프리로드 리미트";
+" pages" = "페이지";
 "Retry limit" = "시도 횟수";
 " times" = "번";
 "Separator height" = "선 두께";

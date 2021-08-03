@@ -79,6 +79,7 @@ struct HomeView: View, StoreAccessor {
             }
         }
         .task(onStartTasks)
+        .onOpenURL(perform: onOpen)
         .navigationViewStyle(.stack)
         .sheet(item: environmentBinding.homeViewSheetState) { item in
             Group {
@@ -278,6 +279,18 @@ private extension HomeView {
             break
         }
     }
+    func onOpen(url: URL) {
+        guard let scheme = url.scheme,
+              let replacedURL = URL(
+                string: url.absoluteString
+                    .replacingOccurrences(
+                        of: scheme, with: "https"
+                    )
+              )
+        else { return }
+
+        handle(jumpLink: replacedURL)
+    }
     func onReceive(greeting: Greeting?) {
         if let greeting = greeting,
            !greeting.gainedNothing
@@ -342,24 +355,26 @@ private extension HomeView {
     }
     func detectPasteboard() {
         if hasJumpPermission {
-            if let link = getPasteboardLinkIfAllowed(),
-               isValidDetailURL(url: link)
-            {
-                let gid = link.pathComponents[2]
-                if PersistenceController.mangaCached(gid: gid) {
-                    replaceMangaCommentJumpID(gid: gid)
-                } else {
-                    store.dispatch(
-                        .fetchMangaItemReverse(
-                            detailURL: link.absoluteString
-                        )
-                    )
-                    showHUD()
-                }
-                clearPasteboard()
-                clearObstruction()
+            if let link = getPasteboardLinkIfAllowed() {
+                handle(jumpLink: link)
             }
         }
+    }
+    func handle(jumpLink: URL) {
+        guard isValidDetailURL(url: jumpLink) else { return }
+        let gid = jumpLink.pathComponents[2]
+        if PersistenceController.mangaCached(gid: gid) {
+            replaceMangaCommentJumpID(gid: gid)
+        } else {
+            store.dispatch(
+                .fetchMangaItemReverse(
+                    detailURL: jumpLink.absoluteString
+                )
+            )
+            showHUD()
+        }
+        clearPasteboard()
+        clearObstruction()
     }
     func replaceMangaCommentJumpID(gid: String?) {
         store.dispatch(.replaceMangaCommentJumpID(gid: gid))
