@@ -88,11 +88,7 @@ struct MangaThumbnailCell: View {
 
 private extension MangaThumbnailCell {
     var category: String {
-        if setting.translatesCategory {
-            return manga.category.rawValue.localized()
-        } else {
-            return manga.category.rawValue
-        }
+        manga.category.rawValue.localized()
     }
     var backgroundColor: Color {
         colorScheme == .light

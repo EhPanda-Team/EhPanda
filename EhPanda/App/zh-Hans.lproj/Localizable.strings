@@ -80,11 +80,9 @@
 "Copy cookies" = "复制Cookies";
 
 "General" = "一般";
-"Closes slide menu after selection" = "选择后关闭侧边栏";
 "Navigation" = "导航";
 "Redirects links to the selected host" = "重定向链接到选定的站点";
 "Detects links from the clipboard" = "从剪切板检测链接";
-"Allows detection even when no changes" = "无变化时依旧检测";
 "Security" = "安全";
 "Auto-Lock" = "自动锁定";
 "App switcher blur" = "在应用切换器中模糊处理";
@@ -96,14 +94,13 @@
 "Theme" = "主题";
 "Tint Color" = "主题色";
 "App Icon" = "应用图标";
-"Translates category" = "显示分类的翻译版本";
 "List" = "列表";
 "Display mode" = "显示模式";
 "LIST_DISPLAY_MODE_DETAIL" = "详情";
 "LIST_DISPLAY_MODE_THUMBNAIL" = "缩略图";
 "Shows tags in list" = "在列表中显示标签";
-"Sets maximum number of tags" = "设置标签数量上限";
 "Maximum number of tags" = "标签数量上限";
+"Infinity" = "无限";
 
 "Reading" = "阅读";
 "Direction" = "方向";
@@ -125,7 +122,6 @@
 
 "About EhPanda" = "关于EhPanda";
 "Version" = "版本";
-"Contacts" = "联系";
 "Website" = "网站";
 "AltStore Source" = "AltStore源";
 "Acknowledgement" = "致谢";

@@ -80,11 +80,9 @@
 "Copy cookies" = "Cookies kopieren";
 
 "General" = "Allgemein";
-"Closes slide menu after selection" = "Menu nach Auswahl schließen";
 "Navigation" = "Navigation";
 "Redirects links to the selected host" = "Links zum ausgewählten Host umleiten";
 "Detects links from the clipboard" = "Übernimmt automatisch Links aus der Zwischenablage";
-"Allows detection even when no changes" = "Auch ohne Änderungen überprüfen";
 "Security" = "Sicherheit";
 "Auto-Lock" = "Auto-Lock";
 "App switcher blur" = "Appinhalt bei Appwechsel unkenntlich machen";
@@ -96,14 +94,13 @@
 "Theme" = "Theme";
 "Tint Color" = "Farbe";
 "App Icon" = "App Icon";
-"Translates category" = "Übersetze Kategorie";
 "List" = "List";
 //"Display mode" = "";
 "LIST_DISPLAY_MODE_DETAIL" = "Details";
 "LIST_DISPLAY_MODE_THUMBNAIL" = "Miniaturbild";
 "Shows tags in list" = "Tags als Liste anzeigen";
-"Sets maximum number of tags" = "Maximale Anzahl an Tags auswählen";
 "Maximum number of tags" = "Maximale Anzahl an Tags";
+//"Infinity" = "";
 
 "Reading" = "Am Lesen";
 //"Direction" = "";
@@ -125,7 +122,6 @@
 
 "About EhPanda" = "Über EhPanda";
 "Version" = "Version";
-"Contacts" = "Kontakt";
 "Website" = "Website";
 "AltStore Source" = "AltStore Quelle";
 "Acknowledgement" = "OK";

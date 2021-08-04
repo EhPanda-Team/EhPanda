@@ -23,6 +23,7 @@ struct AppearanceSettingView: View, StoreAccessor {
         NavigationLink(
             destination: SelectAppIconView(
                 selectedIcon: selectedIcon,
+                accentColor: setting.accentColor,
                 selectAction: onIconSelect
             ),
             isActive: $isNavLinkActive,
@@ -47,8 +48,6 @@ struct AppearanceSettingView: View, StoreAccessor {
                 ColorPicker("Tint Color", selection: settingBinding.accentColor)
                 Button("App Icon", action: onAppIconButtonTap)
                     .foregroundStyle(.primary).withArrow()
-                Toggle("Translates category", isOn: settingBinding.translatesCategory)
-                    .disabled(Locale.current.languageCode == "en")
             }
             Section(header: Text("List")) {
                 HStack {
@@ -68,16 +67,13 @@ struct AppearanceSettingView: View, StoreAccessor {
                 Toggle(isOn: settingBinding.showsSummaryRowTags) {
                     Text("Shows tags in list")
                 }
-                Toggle(isOn: settingBinding.summaryRowTagsMaximumActivated) {
-                    Text("Sets maximum number of tags")
-                }
-                .disabled(!setting.showsSummaryRowTags)
                 HStack {
                     Text("Maximum number of tags")
                     Spacer()
                     Picker(selection: settingBinding.summaryRowTagsMaximum,
                            label: Text("\(setting.summaryRowTagsMaximum)")
                     ) {
+                        Text("Infinity").tag(0)
                         let nums = Array(stride(
                             from: 5, through: 20, by: 5
                         ))
@@ -87,10 +83,7 @@ struct AppearanceSettingView: View, StoreAccessor {
                     }
                     .pickerStyle(.menu)
                 }
-                .disabled(
-                    !setting.summaryRowTagsMaximumActivated
-                    || !setting.showsSummaryRowTags
-                )
+                .disabled(!setting.showsSummaryRowTags)
             }
         }
         .navigationBarTitle("Appearance")
@@ -109,13 +102,16 @@ struct AppearanceSettingView: View, StoreAccessor {
 // MARK: SelectAppIconView
 private struct SelectAppIconView: View {
     private let selectedIcon: IconType
+    private let accentColor: Color // workaround
     private let selectAction: () -> Void
 
     init(
         selectedIcon: IconType,
+        accentColor: Color,
         selectAction: @escaping () -> Void
     ) {
         self.selectedIcon = selectedIcon
+        self.accentColor = accentColor
         self.selectAction = selectAction
     }
 
@@ -126,7 +122,8 @@ private struct SelectAppIconView: View {
                     AppIconRow(
                         iconName: icon.iconName,
                         iconDesc: icon.rawValue,
-                        isSelected: icon == selectedIcon
+                        isSelected: icon == selectedIcon,
+                        accentColor: accentColor
                     )
                     .contentShape(Rectangle())
                     .onTapGesture(perform: {
@@ -154,15 +151,18 @@ private struct AppIconRow: View {
     private let iconName: String
     private let iconDesc: String
     private let isSelected: Bool
+    private let accentColor: Color // workaround
 
     init(
         iconName: String,
         iconDesc: String,
-        isSelected: Bool
+        isSelected: Bool,
+        accentColor: Color
     ) {
         self.iconName = iconName
         self.iconDesc = iconDesc
         self.isSelected = isSelected
+        self.accentColor = accentColor
     }
 
     var body: some View {
@@ -177,8 +177,8 @@ private struct AppIconRow: View {
             Text(iconDesc.localized())
             Spacer()
             Image(systemName: "checkmark.circle.fill")
+                .foregroundColor(accentColor)
                 .opacity(isSelected ? 1 : 0)
-                .foregroundStyle(.tint)
                 .imageScale(.large)
         }
     }

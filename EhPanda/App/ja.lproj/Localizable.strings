@@ -80,11 +80,9 @@
 "Copy cookies" = "クッキーをコピー";
 
 "General" = "一般";
-"Closes slide menu after selection" = "選択後スライドメニューを閉じる";
 "Navigation" = "ナビゲーション";
 "Redirects links to the selected host" = "リンクを選択されたホストへリダイレクト";
 "Detects links from the clipboard" = "クリップボードからリンクを探知";
-"Allows detection even when no changes" = "変化なしの場合でも探知を有効化";
 "Security" = "セキュリティ";
 "Auto-Lock" = "自動ロック";
 "App switcher blur" = "アプリスイッチャーぼかし";
@@ -96,14 +94,13 @@
 "Theme" = "テーマ";
 "Tint Color" = "テーマの色";
 "App Icon" = "アプリアイコン";
-"Translates category" = "カテゴリーを訳す";
 "List" = "リスト";
 "Display mode" = "表示モード";
 "LIST_DISPLAY_MODE_DETAIL" = "詳細";
 "LIST_DISPLAY_MODE_THUMBNAIL" = "サムネイル";
 "Shows tags in list" = "リストでタグを表示";
-"Sets maximum number of tags" = "リストでのタグ数を制限";
 "Maximum number of tags" = "タグ数上限";
+"Infinity" = "無制限";
 
 "Reading" = "閲覧";
 "Direction" = "方向";
@@ -125,7 +122,6 @@
 
 "About EhPanda" = "EhPandaについて";
 "Version" = "バージョン";
-"Contacts" = "連絡";
 "Website" = "ウェブサイト";
 "AltStore Source" = "AltStoreソース";
 "Acknowledgement" = "謝辞";

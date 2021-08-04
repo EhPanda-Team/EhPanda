@@ -92,14 +92,10 @@ private extension MangaDetailCell {
     }
 
     var category: String {
-        if setting.translatesCategory {
-            return manga.category.rawValue.localized()
-        } else {
-            return manga.category.rawValue
-        }
+        manga.category.rawValue.localized()
     }
     var tags: [String] {
-        if setting.summaryRowTagsMaximumActivated {
+        if setting.summaryRowTagsMaximum > 0 {
             return Array(
                 manga.tags.prefix(setting.summaryRowTagsMaximum)
             )

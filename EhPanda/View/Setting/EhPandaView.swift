@@ -100,7 +100,7 @@ struct EhPandaView: View, StoreAccessor {
         }
         .padding(.horizontal)
         Form {
-            Section(header: Text("Contacts")) {
+            Section {
                 ForEach(contacts) { contact in
                     LinkRow(
                         url: contact.url.safeURL(),

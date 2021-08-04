@@ -80,11 +80,9 @@
 "Copy cookies" = "쿠키 복사";
 
 "General" = "일반";
-"Closes slide menu after selection" = "선택한 후 슬라이드 숨기기";
 "Navigation" = "내비게이션";
 "Redirects links to the selected host" = "선택한 서버로 이동하겠습니다";
 "Detects links from the clipboard" = "클립보드에서 링크 붙어놓기";
-"Allows detection even when no changes" = "링크를 못 찾을 때 다시 시도";
 "Security" = "개인 정보 보호";
 "Auto-Lock" = "자동 로크";
 "App switcher blur" = "앱 넘어갈 때 자동 흐리기";
@@ -96,14 +94,13 @@
 "Theme" = "모양새";
 "Tint Color" = "악센트 색상";
 "App Icon" = "앱 아이콘";
-"Translates category" = "카테고리 언어";
 "List" = "리스트";
 "Display mode" = "표시방식";
 "LIST_DISPLAY_MODE_DETAIL" = "자세히";
 "LIST_DISPLAY_MODE_THUMBNAIL" = "섬네일";
 "Shows tags in list" = "리스트에서 해시태크를 제시하기";
-"Sets maximum number of tags" = "해시태크 수량 설정";
 "Maximum number of tags" = "해시태크 수량";
+//"Infinity" = "";
 
 "Reading" = "열람";
 "Direction" = "방향";
@@ -125,7 +122,6 @@
 
 "About EhPanda" = "EhPanda 정보";
 "Version" = "버전";
-"Contacts" = "연락처";
 "Website" = "웹사이트";
 "AltStore Source" = "AltStore 소스";
 "Acknowledgement" = "감사";

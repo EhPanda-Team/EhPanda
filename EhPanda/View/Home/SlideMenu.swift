@@ -79,19 +79,14 @@ private extension SlideMenu {
         if homeListType != item {
             store.dispatch(.toggleHomeList(type: item))
             impactFeedback(style: .soft)
-
-            if setting.closesSlideMenuAfterSelection {
-                performTransition(offset: -width)
-            }
+            performTransition(offset: -width)
         }
     }
     func onSettingMenuRowTap() {
         store.dispatch(.toggleHomeViewSheet(state: .setting))
     }
     func onFavoritesIndexChange(_ : Int) {
-        if setting.closesSlideMenuAfterSelection {
-            performTransition(offset: -width)
-        }
+        performTransition(offset: -width)
     }
 
     func performTransition(offset: CGFloat) {

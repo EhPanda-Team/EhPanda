@@ -380,16 +380,12 @@ private extension HomeView {
         store.dispatch(.replaceMangaCommentJumpID(gid: gid))
     }
     func getPasteboardLinkIfAllowed() -> URL? {
-        if setting.allowsDetectionWhenNoChanges {
+        let currentChangeCount = UIPasteboard.general.changeCount
+        if pasteboardChangeCount != currentChangeCount {
+            setPasteboardChangeCount(with: currentChangeCount)
             return getPasteboardLink()
         } else {
-            let currentChangeCount = UIPasteboard.general.changeCount
-            if pasteboardChangeCount != currentChangeCount {
-                setPasteboardChangeCount(with: currentChangeCount)
-                return getPasteboardLink()
-            } else {
-                return nil
-            }
+            return nil
         }
     }
     func clearObstruction() {

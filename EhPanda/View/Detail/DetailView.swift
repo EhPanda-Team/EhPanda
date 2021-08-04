@@ -47,8 +47,6 @@ struct DetailView: View, StoreAccessor, PersistenceAccessor {
                         HeaderView(
                             isActive: $isReadingLinkActive,
                             manga: manga, detail: detail,
-                            translatesCategory: setting
-                                .translatesCategory,
                             favoriteNames: user.favoriteNames,
                             addFavAction: addFavorite,
                             deleteFavAction: deleteFavorite,
@@ -258,7 +256,6 @@ private struct HeaderView: View {
 
     private let manga: Manga
     private let detail: MangaDetail
-    private let translatesCategory: Bool
     private let favoriteNames: [Int: String]?
     private let addFavAction: (Int) -> Void
     private let deleteFavAction: () -> Void
@@ -268,7 +265,6 @@ private struct HeaderView: View {
         isActive: Binding<Bool>,
         manga: Manga,
         detail: MangaDetail,
-        translatesCategory: Bool,
         favoriteNames: [Int: String]?,
         addFavAction: @escaping (Int) -> Void,
         deleteFavAction: @escaping () -> Void,
@@ -277,7 +273,6 @@ private struct HeaderView: View {
         _isActive = isActive
         self.manga = manga
         self.detail = detail
-        self.translatesCategory = translatesCategory
         self.favoriteNames = favoriteNames
         self.addFavAction = addFavAction
         self.deleteFavAction = deleteFavAction
@@ -384,11 +379,7 @@ private extension HeaderView {
         }
     }
     var category: String {
-        if translatesCategory {
-            return manga.category.rawValue.localized()
-        } else {
-            return manga.category.rawValue
-        }
+        manga.category.rawValue.localized()
     }
 }
 

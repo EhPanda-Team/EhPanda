@@ -19,10 +19,8 @@ struct Setting: Codable {
     @DefaultFalse var showNewDawnGreeting = false
 
     // General
-    @DefaultTrue var closesSlideMenuAfterSelection = true
     @DefaultFalse var redirectsLinksToSelectedHost = false
     @DefaultFalse var detectsLinksFromPasteboard = false
-    @DefaultFalse var allowsDetectionWhenNoChanges = false
     @DefaultStringValue var diskImageCacheSize = "0 KB"
     @DefaultTrue var allowsResignActiveBlur = true
     @DefaultAutoLockPolicy var autoLockPolicy: AutoLockPolicy = .never
@@ -43,10 +41,8 @@ struct Setting: Codable {
         PreferredColorScheme.automatic
     @DefaultColorValue var accentColor: Color = .blue
     @DefaultIconType var appIconType: IconType = .default
-    @DefaultTrue var translatesCategory = true
     @DefaultFalse var showsSummaryRowTags = false
-    @DefaultFalse var summaryRowTagsMaximumActivated = false
-    @DefaultIntegerValue var summaryRowTagsMaximum = 5
+    @DefaultIntegerValue var summaryRowTagsMaximum = 0
 
     // Reading
     @DefaultReadingDirection var readingDirection: ReadingDirection = .vertical

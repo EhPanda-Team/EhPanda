@@ -24,10 +24,6 @@ struct GeneralSettingView: View, StoreAccessor {
                 }
                 NavigationLink("Logs", destination: LogsView())
                 NavigationLink("Filters", destination: FilterView())
-                Toggle(
-                    "Closes slide menu after selection",
-                    isOn: settingBinding.closesSlideMenuAfterSelection
-                )
             }
             Section(header: Text("Navigation")) {
                 Toggle(
@@ -38,11 +34,6 @@ struct GeneralSettingView: View, StoreAccessor {
                     "Detects links from the clipboard",
                     isOn: settingBinding.detectsLinksFromPasteboard
                 )
-                Toggle(
-                    "Allows detection even when no changes",
-                    isOn: settingBinding.allowsDetectionWhenNoChanges
-                )
-                .disabled(!setting.detectsLinksFromPasteboard)
             }
             Section(header: Text("Security")) {
                 HStack {
