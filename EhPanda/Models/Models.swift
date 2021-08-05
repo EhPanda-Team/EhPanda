@@ -440,6 +440,56 @@ extension PreviewConfig {
     }
 }
 
+enum TranslatableLanguage: Codable, CaseIterable {
+    case japanese
+    case simplifiedChinese
+    case traditionalChinese
+}
+
+extension TranslatableLanguage {
+    var languageCode: String {
+        switch self {
+        case .japanese:
+            return "ja"
+        case .simplifiedChinese:
+            return "zh-Hans"
+        case .traditionalChinese:
+            return "zh-Hant"
+        }
+    }
+    var repoName: String {
+        switch self {
+        case .japanese:
+            return Defaults.URL
+                .ehTagTranslationJpnRepo
+        case .simplifiedChinese,
+             .traditionalChinese:
+            return Defaults.URL
+                .ehTagTrasnlationRepo
+        }
+    }
+    var remoteFilename: String {
+        switch self {
+        case .japanese:
+            return "jpn_text.json"
+        case .simplifiedChinese,
+                .traditionalChinese:
+            return "db.text.json"
+        }
+    }
+    var checkUpdateLink: String {
+        Defaults.URL.githubAPI(
+            repoName: repoName
+        )
+    }
+    var downloadLink: String {
+        Defaults.URL.githubDownload(
+            repoName: repoName,
+            fileName: remoteFilename
+        )
+    }
+}
+
 enum Language: String, Codable {
     // swiftlint:disable identifier_name line_length
     case Other = "N/A"

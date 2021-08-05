@@ -399,9 +399,7 @@ private extension HomeView {
 
     // MARK: Fetch Methods
     func fetchFrontpageItems() {
-        DispatchQueue.main.async {
-            store.dispatch(.fetchFrontpageItems)
-        }
+        store.dispatch(.fetchFrontpageItems)
     }
     func fetchPopularItems() {
         store.dispatch(.fetchPopularItems)
@@ -444,15 +442,13 @@ private extension HomeView {
             return false
         }
 
-        DispatchQueue.main.async {
-            if setting.showNewDawnGreeting {
-                if let greeting = user.greeting {
-                    if verifyDate(with: greeting.updateTime) {
-                        store.dispatch(.fetchGreeting)
-                    }
-                } else {
+        if setting.showNewDawnGreeting {
+            if let greeting = user.greeting {
+                if verifyDate(with: greeting.updateTime) {
                     store.dispatch(.fetchGreeting)
                 }
+            } else {
+                store.dispatch(.fetchGreeting)
             }
         }
     }

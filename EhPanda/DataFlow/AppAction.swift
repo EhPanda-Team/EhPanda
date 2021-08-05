@@ -19,7 +19,7 @@ enum AppAction {
     case clearHistoryKeywords
     case updateSearchKeyword(text: String)
     case updateViewControllersCount
-    case update(setting: Setting)
+    case updateSetting(setting: Setting)
     case replaceMangaCommentJumpID(gid: String?)
     case updateIsSlideMenuClosed(isClosed: Bool)
     case fulfillMangaPreviews(gid: String)
@@ -37,6 +37,8 @@ enum AppAction {
     case toggleDetailViewSheet(state: DetailViewSheetState?)
     case toggleCommentViewSheet(state: CommentViewSheetState?)
 
+    case fetchTranslator
+    case fetchTranslatorDone(result: Result<Translator, AppError>)
     case fetchGreeting
     case fetchGreetingDone(result: Result<Greeting, AppError>)
     case fetchUserInfo

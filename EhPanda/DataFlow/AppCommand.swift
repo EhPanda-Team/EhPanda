@@ -69,6 +69,27 @@ struct FetchFavoriteNamesCommand: AppCommand {
     }
 }
 
+struct FetchTranslatorCommand: AppCommand {
+    let language: TranslatableLanguage
+    let updatedDate: Date
+
+    func execute(in store: Store) {
+        let token = SubscriptionToken()
+        TranslatorRequest(language: language, updatedDate: updatedDate)
+            .publisher
+            .receive(on: DispatchQueue.main)
+            .sink { completion in
+                if case .failure(let error) = completion {
+                    store.dispatch(.fetchTranslatorDone(result: .failure(error)))
+                }
+                token.unseal()
+            } receiveValue: { translator in
+                store.dispatch(.fetchTranslatorDone(result: .success(translator)))
+            }
+            .seal(in: token)
+    }
+}
+
 struct FetchMangaItemReverseCommand: AppCommand {
     let detailURL: String
 

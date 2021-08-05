@@ -186,13 +186,6 @@ func notificFeedback(style: UINotificationFeedbackGenerator.FeedbackType) {
 var opacityTransition: AnyTransition {
     AnyTransition.opacity.animation(.default)
 }
-var logsDirectoryURL: URL? {
-    try? FileManager.default.url(
-        for: .documentDirectory, in: .userDomainMask,
-           appropriateFor: nil, create: true
-    )
-    .appendingPathComponent(Defaults.FilePath.logs)
-}
 func clearPasteboard() {
     UIPasteboard.general.string = ""
 }
@@ -255,6 +248,19 @@ func presentActivityVC(items: [Any]) {
             completion: nil
         )
     impactFeedback(style: .light)
+}
+
+// MARK: FileManager
+var documentDirectory: URL? {
+    try? FileManager.default.url(
+        for: .documentDirectory, in: .userDomainMask,
+           appropriateFor: nil, create: true
+    )
+}
+var logsDirectoryURL: URL? {
+    documentDirectory?.appendingPathComponent(
+        Defaults.FilePath.logs
+    )
 }
 
 // MARK: UserDefaults

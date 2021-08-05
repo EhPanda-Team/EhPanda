@@ -16,6 +16,7 @@ enum AppError: Error, Identifiable, Equatable {
         imgKeys: [Int: String]
     )
     case parseFailed
+    case noUpdates
     case unknown
 }
 
@@ -28,6 +29,8 @@ extension AppError: LocalizedError {
             return "MPV is activated"
         case .parseFailed:
             return "Parse Error"
+        case .noUpdates:
+            return "No updates available"
         case .unknown:
             return "Unknown Error"
         }

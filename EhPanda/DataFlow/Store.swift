@@ -18,6 +18,16 @@ final class Store: ObservableObject {
     }()
 
     func dispatch(_ action: AppAction) {
+        if Thread.isMainThread {
+            privateDispatch(action)
+        } else {
+            DispatchQueue.main.async { [weak self] in
+                self?.privateDispatch(action)
+            }
+        }
+    }
+
+    private func privateDispatch(_ action: AppAction) {
         if appState.environment.isPreview { return }
 
         let description = String(describing: action)
@@ -77,7 +87,7 @@ final class Store: ObservableObject {
             appState.homeInfo.historyKeywords = []
         case .updateSearchKeyword(let text):
             appState.homeInfo.searchKeyword = text
-        case .update(let setting):
+        case .updateSetting(let setting):
             appState.settings.setting = setting
         case .updateViewControllersCount:
             appState.environment.viewControllersCount = viewControllersCount
@@ -121,6 +131,26 @@ final class Store: ObservableObject {
             appState.environment.commentViewSheetState = state
 
         // MARK: Fetch Data
+        case .fetchTranslator:
+            guard let language = TranslatableLanguage.allCases.compactMap({ lang in
+                Locale.current.identifier.contains(lang.languageCode) ? lang : nil
+            }).first else {
+                appState.detailInfo.translator = Translator()
+                break
+            }
+
+            let storedLanguage = appState
+                .detailInfo.translator.language
+            if storedLanguage != language {
+                appState.detailInfo.translator = Translator()
+            }
+
+            let updatedDate = appState.detailInfo.translator.updatedDate
+            appCommand = FetchTranslatorCommand(language: language, updatedDate: updatedDate)
+        case .fetchTranslatorDone(let result):
+            if case .success(let translator) = result {
+                appState.detailInfo.translator = translator
+            }
         case .fetchGreeting:
             if appState.settings.greetingLoading { break }
             appState.settings.greetingLoading = true

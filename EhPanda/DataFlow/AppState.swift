@@ -215,6 +215,9 @@ extension AppState {
         var previewsLoading = [String: [Int: Bool]]()
         var previewConfig = PreviewConfig.normal(rows: 4)
 
+        @AppEnvStorage(type: Translator.self)
+        var translator: Translator
+
         mutating func fulfillPreviews(gid: String) {
             let mangaState = PersistenceController
                 .fetchMangaStateNonNil(gid: gid)

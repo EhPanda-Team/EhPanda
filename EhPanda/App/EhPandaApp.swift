@@ -34,23 +34,28 @@ private extension EhPandaApp {
     var preferredColorScheme: ColorScheme? {
         setting.colorScheme
     }
+}
 
+// MARK: Tasks
+private extension EhPandaApp {
     func onStartTasks() {
         dispatchMainSync {
             syncGalleryHost()
             configureDomainFronting()
         }
-        DispatchQueue.main.async {
-            fetchAccountInfoIfNeeded()
-        }
         configureLogging()
         configureWebImage()
+        fetchTranslatorUpdate()
         configureIgnoreOffensive()
         clearImageCachesIfNeeded()
+        fetchAccountInfoIfNeeded()
     }
 
     func syncGalleryHost() {
         setGalleryHost(with: setting.galleryHost)
+    }
+    func fetchTranslatorUpdate() {
+        store.dispatch(.fetchTranslator)
     }
     func fetchAccountInfoIfNeeded() {
         guard didLogin else { return }

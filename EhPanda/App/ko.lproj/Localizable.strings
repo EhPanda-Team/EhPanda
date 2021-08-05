@@ -100,7 +100,7 @@
 "LIST_DISPLAY_MODE_THUMBNAIL" = "섬네일";
 "Shows tags in list" = "리스트에서 해시태크를 제시하기";
 "Maximum number of tags" = "해시태크 수량";
-//"Infinity" = "";
+"Infinity" = "무한";
 
 "Reading" = "열람";
 "Direction" = "방향";

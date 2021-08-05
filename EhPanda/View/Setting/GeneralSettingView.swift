@@ -78,15 +78,10 @@ private extension GeneralSettingView {
         $store.appState.settings.setting
     }
     var language: String {
-        if let code = Locale.current.languageCode,
-           let lang = Locale.current.localizedString(
-            forLanguageCode: code
-           )
-        {
-            return lang
-        } else {
-            return "(null)"
-        }
+        Locale.current.localizedString(
+            forLanguageCode: Locale
+                .current.languageCode ?? ""
+        ) ?? "(null)"
     }
 
     func checkPasscodeExistence() {

@@ -329,18 +329,14 @@ private extension ReadingView {
 
     // MARK: Dispatch
     func fetchMangaContents(index: Int = 1) {
-        DispatchQueue.main.async {
-            if contentInfo.mpvKeys[gid] != nil {
-                store.dispatch(.fetchMangaMPVContent(gid: gid, index: index))
-            } else {
-                store.dispatch(.fetchMangaContents(gid: gid, index: index))
-            }
+        if contentInfo.mpvKeys[gid] != nil {
+            store.dispatch(.fetchMangaMPVContent(gid: gid, index: index))
+        } else {
+            store.dispatch(.fetchMangaContents(gid: gid, index: index))
         }
     }
     func fetchMangaPreivews(index: Int) {
-        DispatchQueue.main.async {
-            store.dispatch(.fetchMangaPreviews(gid: gid, index: index))
-        }
+        store.dispatch(.fetchMangaPreviews(gid: gid, index: index))
     }
 
     func toggleSetting() {
@@ -348,7 +344,7 @@ private extension ReadingView {
         impactFeedback(style: .light)
     }
     func update(setting: Setting) {
-        store.dispatch(.update(setting: setting))
+        store.dispatch(.updateSetting(setting: setting))
     }
     func fetchMangaContentsIfNeeded() {
         if mangaContents.isEmpty {

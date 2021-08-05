@@ -48,6 +48,7 @@ struct Defaults {
         static let publish = "yyyy-MM-dd HH:mm"
         static let torrent = "yyyy-MM-dd HH:mm"
         static let comment = "dd MMMM yyyy, HH:mm"
+        static let github = "yyyy-MM-dd'T'HH:mm:ss'Z'"
     }
     struct FilePath {
         static let logs = "logs"
@@ -128,6 +129,14 @@ struct Defaults {
         static let fSflOn = "f_sfl=on"
         static let fSfuOn = "f_sfu=on"
         static let fSftOn = "f_sft=on"
+
+        // GitHub
+        static let github = "https://github.com/"
+        static let githubAPI = "https://api.github.com/repos/"
+        static let pathToLatest = "/releases/latest"
+        static let pathToDownload = pathToLatest + "/download/"
+        static let ehTagTrasnlationRepo = "EhTagTranslation/Database"
+        static let ehTagTranslationJpnRepo = "tatsuz0u/EhTagTranslation_Database_JPN"
     }
 }
 
@@ -293,6 +302,16 @@ private extension Defaults.URL {
         if filter.disableTags { filters.append(fSftOn) }
 
         return filters
+    }
+}
+
+// MARK: GitHub
+extension Defaults.URL {
+    static func githubAPI(repoName: String) -> String {
+        githubAPI + repoName + pathToLatest
+    }
+    static func githubDownload(repoName: String, fileName: String) -> String {
+        github + repoName + pathToDownload + fileName
     }
 }
 

@@ -69,6 +69,90 @@ struct FavoriteNamesRequest {
     }
 }
 
+struct TranslatorRequest {
+    let language: TranslatableLanguage
+    let updatedDate: Date
+
+    var dateFormatter: DateFormatter {
+        let formatter = DateFormatter()
+        formatter.dateFormat = Defaults.DateFormat.github
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        return formatter
+    }
+    var isChinese: Bool {
+        [.simplifiedChinese,
+         .traditionalChinese]
+            .contains(language)
+    }
+
+    var publisher: AnyPublisher<Translator, AppError> {
+        URLSession.shared
+            .dataTaskPublisher(for: language.checkUpdateLink.safeURL())
+            .tryMap { data, _ -> Date in
+                guard let dict = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+                      let publishedDateString = dict["published_at"] as? String,
+                      let publishedDate = dateFormatter.date(from: publishedDateString)
+                else { throw AppError.networkingFailed }
+
+                guard publishedDate > updatedDate
+                else { throw AppError.noUpdates }
+                return publishedDate
+            }
+            .flatMap { date in
+                URLSession.shared
+                    .dataTaskPublisher(for: language.downloadLink.safeURL())
+                    .tryMap { data, _ in
+                        guard let dict = try? JSONSerialization
+                                .jsonObject(with: data) as? [String: Any],
+                              isChinese ? dict["version"] as? Int == 5 : true
+                        else { throw AppError.parseFailed }
+
+                        return Translator(
+                            language: language,
+                            updatedDate: date,
+                            contents: parseTranslations(dict: dict)
+                        )
+                    }
+            }
+            .mapError(mapAppError)
+            .eraseToAnyPublisher()
+    }
+
+    func parseTranslations(dict: [String: Any]) -> [String: String] {
+        if isChinese {
+            return parseChineseTranslations(dict: dict)
+        } else {
+            var translations = [String: String]()
+            dict.forEach { key, value in
+                let originalText = key
+
+                if let translatedText = value as? String {
+                    translations[originalText] = translatedText
+                }
+            }
+            return translations
+        }
+    }
+    func parseChineseTranslations(dict: [String: Any]) -> [String: String] {
+        let categories = dict["data"] as? [[String: Any]] ?? []
+        let translationsBeforeMapping = categories.compactMap {
+            $0["data"] as? [String: Any]
+        }.reduce([], +)
+
+        var translations = [String: String]()
+        translationsBeforeMapping.forEach { translation in
+            let originalText = translation.key
+            let dict = translation.value as? [String: Any]
+
+            if let translatedText = dict?["name"] as? String {
+                translations[originalText] = translatedText
+            }
+        }
+        return translations
+    }
+}
+
 // MARK: Fetch ListItems
 struct SearchItemsRequest {
     let keyword: String

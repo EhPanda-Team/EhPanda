@@ -93,9 +93,7 @@ struct AppearanceSettingView: View, StoreAccessor {
         isNavLinkActive.toggle()
     }
     private func onIconSelect() {
-        DispatchQueue.main.async {
-            store.dispatch(.updateAppIconType(iconType: appIconType))
-        }
+        store.dispatch(.updateAppIconType(iconType: appIconType))
     }
 }
 

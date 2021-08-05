@@ -16,6 +16,7 @@ struct TagCloudView: View {
     private let paddingV: CGFloat
     private let paddingH: CGFloat
     private let onTapAction: (String) -> Void
+    private let translateAction: ((String) -> String)?
 
     @State private var totalHeight
           = CGFloat.zero       // << variant for ScrollView/List
@@ -29,7 +30,8 @@ struct TagCloudView: View {
         paddingV: CGFloat,
         paddingH: CGFloat,
         onTapAction: @escaping
-            (String) -> Void = { _ in }
+            (String) -> Void = { _ in },
+        translateAction: ((String) -> String)? = nil
     ) {
         self.tag = tag
         self.font = font
@@ -38,6 +40,7 @@ struct TagCloudView: View {
         self.paddingV = paddingV
         self.paddingH = paddingH
         self.onTapAction = onTapAction
+        self.translateAction = translateAction
     }
 
     var body: some View {
@@ -88,13 +91,16 @@ private extension TagCloudView {
     func item(for text: String) -> some View {
         let (rippedText, wrappedHex) = Parser
             .parseWrappedHex(string: text)
+        let translatedText = translateAction?(rippedText)
+        let displayText: String = translatedText == nil
+            ? rippedText : translatedText.forceUnwrapped
         let containsHex = wrappedHex != nil
         let textColor = containsHex ? .white : textColor
         let backgroundColor = containsHex ? Color(
             hex: wrappedHex.forceUnwrapped
         ) : backgroundColor
 
-        Text(rippedText)
+        Text(displayText)
             .fontWeight(.bold)
             .lineLimit(1)
             .font(font)

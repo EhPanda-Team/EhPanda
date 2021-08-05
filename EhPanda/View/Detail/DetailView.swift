@@ -62,7 +62,8 @@ struct DetailView: View, StoreAccessor, PersistenceAccessor {
                         if !mangaState.tags.isEmpty {
                             TagsView(
                                 tags: mangaState.tags,
-                                onTapAction: onTagViewTap
+                                onTapAction: onTagViewTap,
+                                translateAction: translateTag
                             )
                             .padding(.horizontal)
                         }
@@ -157,10 +158,8 @@ private extension DetailView {
 private extension DetailView {
     func onStartTasks() {
         updateHistoryItems()
-        dispatchMainSync {
-            store.dispatch(.fulfillMangaPreviews(gid: gid))
-            store.dispatch(.fulfillMangaContents(gid: gid))
-        }
+        store.dispatch(.fulfillMangaPreviews(gid: gid))
+        store.dispatch(.fulfillMangaContents(gid: gid))
     }
     func onAppear() {
         if environment.navBarHidden {
@@ -195,7 +194,10 @@ private extension DetailView {
 
         self.keyword = keyword
         isAssociatedLinkActive.toggle()
-
+    }
+    func translateTag(text: String) -> String {
+        let translations = detailInfo.translator.contents
+        return translations[text] ?? text
     }
     func onUploaderTap() {
         guard let uploader = mangaDetail?.uploader else { return }
@@ -239,9 +241,7 @@ private extension DetailView {
         store.dispatch(.fetchMangaDetail(gid: gid))
     }
     func fetchMangaPreviews(index: Int) {
-        DispatchQueue.main.async {
-            store.dispatch(.fetchMangaPreviews(gid: gid, index: index))
-        }
+        store.dispatch(.fetchMangaPreviews(gid: gid, index: index))
     }
     func updateHistoryItems() {
         if environment.homeListType != .history {
@@ -602,19 +602,25 @@ private extension ActionRow {
 private struct TagsView: View {
     private let tags: [MangaTag]
     private let onTapAction: (String) -> Void
+    private let translateAction: (String) -> String
 
     init(
         tags: [MangaTag],
-        onTapAction: @escaping (String) -> Void
+        onTapAction: @escaping (String) -> Void,
+        translateAction: @escaping (String) -> String
     ) {
         self.tags = tags
         self.onTapAction = onTapAction
+        self.translateAction = translateAction
     }
 
     var body: some View {
         VStack(alignment: .leading) {
             ForEach(tags) { tag in
-                TagRow(tag: tag, onTapAction: onTapAction)
+                TagRow(
+                    tag: tag, onTapAction: onTapAction,
+                    translateAction: translateAction
+                )
             }
         }
         .padding(.horizontal)
@@ -626,16 +632,19 @@ private struct TagRow: View {
 
     private let tag: MangaTag
     private let onTapAction: (String) -> Void
+    private let translateAction: (String) -> String
     private var reversePrimary: Color {
         colorScheme == .light ? .white : .black
     }
 
     init(
         tag: MangaTag,
-        onTapAction: @escaping (String) -> Void
+        onTapAction: @escaping (String) -> Void,
+        translateAction: @escaping (String) -> String
     ) {
         self.tag = tag
         self.onTapAction = onTapAction
+        self.translateAction = translateAction
     }
 
     var body: some View {
@@ -657,7 +666,8 @@ private struct TagRow: View {
                 textColor: .primary,
                 backgroundColor: Color(.systemGray5),
                 paddingV: 5, paddingH: 14,
-                onTapAction: onTapAction
+                onTapAction: onTapAction,
+                translateAction: translateAction
             )
         }
     }
