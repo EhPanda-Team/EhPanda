@@ -37,8 +37,8 @@ enum AppAction {
     case toggleDetailViewSheet(state: DetailViewSheetState?)
     case toggleCommentViewSheet(state: CommentViewSheetState?)
 
-    case fetchTranslator
-    case fetchTranslatorDone(result: Result<Translator, AppError>)
+    case fetchTagTranslator
+    case fetchTagTranslatorDone(result: Result<TagTranslator, AppError>)
     case fetchGreeting
     case fetchGreetingDone(result: Result<Greeting, AppError>)
     case fetchUserInfo

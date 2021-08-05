@@ -13,10 +13,15 @@ struct MangaThumbnailCell: View {
 
     private let manga: Manga
     private let setting: Setting
+    private let translateAction: ((String) -> String)?
 
-    init(manga: Manga, setting: Setting) {
+    init(
+        manga: Manga, setting: Setting,
+        translateAction: ((String) -> String)? = nil
+    ) {
         self.manga = manga
         self.setting = setting
+        self.translateAction = translateAction
     }
 
     var body: some View {
@@ -64,8 +69,10 @@ struct MangaThumbnailCell: View {
                         font: .caption2,
                         textColor: .secondary,
                         backgroundColor: tagColor,
-                        paddingV: 2, paddingH: 4
+                        paddingV: 2, paddingH: 4,
+                        translateAction: translateAction
                     )
+                    .allowsHitTesting(false)
                 }
                 HStack {
                     RatingView(rating: manga.rating)

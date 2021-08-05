@@ -6,6 +6,7 @@
 //
 
 import Kanna
+import OpenCC
 import Combine
 import Foundation
 import SwiftyBeaver
@@ -69,7 +70,7 @@ struct FavoriteNamesRequest {
     }
 }
 
-struct TranslatorRequest {
+struct TagTranslatorRequest {
     let language: TranslatableLanguage
     let updatedDate: Date
 
@@ -86,7 +87,7 @@ struct TranslatorRequest {
             .contains(language)
     }
 
-    var publisher: AnyPublisher<Translator, AppError> {
+    var publisher: AnyPublisher<TagTranslator, AppError> {
         URLSession.shared
             .dataTaskPublisher(for: language.checkUpdateLink.safeURL())
             .tryMap { data, _ -> Date in
@@ -107,11 +108,13 @@ struct TranslatorRequest {
                                 .jsonObject(with: data) as? [String: Any],
                               isChinese ? dict["version"] as? Int == 5 : true
                         else { throw AppError.parseFailed }
+                        let translations = parseTranslations(dict: dict)
+                        guard !translations.isEmpty else { throw AppError.parseFailed }
 
-                        return Translator(
+                        return TagTranslator(
                             language: language,
                             updatedDate: date,
-                            contents: parseTranslations(dict: dict)
+                            contents: translations
                         )
                     }
             }
@@ -121,17 +124,11 @@ struct TranslatorRequest {
 
     func parseTranslations(dict: [String: Any]) -> [String: String] {
         if isChinese {
-            return parseChineseTranslations(dict: dict)
+            let result = parseChineseTranslations(dict: dict)
+            return language != .traditionalChinese ? result
+            : convertToTraditionalChinese(dict: result)
         } else {
-            var translations = [String: String]()
-            dict.forEach { key, value in
-                let originalText = key
-
-                if let translatedText = value as? String {
-                    translations[originalText] = translatedText
-                }
-            }
-            return translations
+            return dict as? [String: String] ?? [:]
         }
     }
     func parseChineseTranslations(dict: [String: Any]) -> [String: String] {
@@ -148,6 +145,26 @@ struct TranslatorRequest {
             if let translatedText = dict?["name"] as? String {
                 translations[originalText] = translatedText
             }
+        }
+        return translations
+    }
+    func convertToTraditionalChinese(dict: [String: String]) -> [String: String] {
+        guard let preferredLanguage = Locale.preferredLanguages.first else { return [:] }
+
+        var translations = [String: String]()
+
+        var options: ChineseConverter.Options = [.traditionalize]
+        if preferredLanguage.contains("HK") {
+            options = [.traditionalize, .hkStandard]
+        } else if preferredLanguage.contains("TW") {
+            options = [.traditionalize, .twStandard, .twIdiom]
+        }
+
+        guard let converter = try? ChineseConverter(options: options)
+        else { return [:] }
+
+        dict.forEach { key, value in
+            translations[key] = converter.convert(value)
         }
         return translations
     }

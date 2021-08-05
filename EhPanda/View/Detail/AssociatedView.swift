@@ -37,7 +37,8 @@ struct AssociatedView: View, StoreAccessor {
             moreLoadingFlag: moreLoadingFlag,
             moreLoadFailedFlag: moreLoadFailedFlag,
             fetchAction: fetchAssociatedItems,
-            loadMoreAction: fetchMoreAssociatedItems
+            loadMoreAction: fetchMoreAssociatedItems,
+            translateAction: translateTag
         )
         .searchable(
             text: $keyword,
@@ -53,6 +54,19 @@ struct AssociatedView: View, StoreAccessor {
 }
 
 private extension AssociatedView {
+    func translateTag(text: String) -> String {
+        guard setting.translatesTags else { return text }
+        let translations = settings.tagTranslator.contents
+
+        if let range = text.range(of: ":") {
+            let before = text[...range.lowerBound]
+            let after = String(text[range.upperBound...])
+            let result = before + (translations[after] ?? after)
+            return String(result)
+        }
+        return translations[text] ?? text
+    }
+
     func onRowAppear(item: Manga) {
         if item == associatedItems.last {
             fetchMoreAssociatedItems()

@@ -94,6 +94,7 @@
 "Theme" = "主题";
 "Tint Color" = "主题色";
 "App Icon" = "应用图标";
+"Translates tags" = "翻译标签";
 "List" = "列表";
 "Display mode" = "显示模式";
 "LIST_DISPLAY_MODE_DETAIL" = "详情";

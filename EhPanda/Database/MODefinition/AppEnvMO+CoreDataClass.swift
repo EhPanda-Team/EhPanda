@@ -15,7 +15,7 @@ extension AppEnvMO: ManagedObjectProtocol {
             user: user?.toObject() ?? User(),
             filter: filter?.toObject() ?? Filter(),
             setting: setting?.toObject() ?? Setting(),
-            translator: translator?.toObject() ?? Translator(),
+            tagTranslator: tagTranslator?.toObject() ?? TagTranslator(),
             historyKeywords: historyKeywords?.toObject() ?? [String]()
         )
     }
@@ -29,7 +29,7 @@ extension AppEnv: ManagedObjectConvertible {
         appEnvMO.user = user.toData()
         appEnvMO.filter = filter.toData()
         appEnvMO.setting = setting.toData()
-        appEnvMO.translator = translator.toData()
+        appEnvMO.tagTranslator = tagTranslator.toData()
         appEnvMO.historyKeywords = historyKeywords.toData()
 
         return appEnvMO
@@ -40,19 +40,19 @@ struct AppEnv: Codable {
     let user: User
     let filter: Filter
     let setting: Setting
-    let translator: Translator
+    let tagTranslator: TagTranslator
     let historyKeywords: [String]
 }
 
-struct Translator: Codable {
+struct TagTranslator: Codable {
     var language: TranslatableLanguage = .japanese
     var updatedDate: Date = .distantPast
     var contents = [String: String]()
 }
 
-extension Translator: CustomStringConvertible {
+extension TagTranslator: CustomStringConvertible {
     var description: String {
-        "Translator(language: \(language), "
+        "TagTranslator(language: \(language), "
         + "updatedDate: \(updatedDate), "
         + "contents: \(contents.count))"
     }

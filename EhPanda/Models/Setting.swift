@@ -41,6 +41,7 @@ struct Setting: Codable {
         PreferredColorScheme.automatic
     @DefaultColorValue var accentColor: Color = .blue
     @DefaultIconType var appIconType: IconType = .default
+    @DefaultFalse var translatesTags = false
     @DefaultFalse var showsSummaryRowTags = false
     @DefaultIntegerValue var summaryRowTagsMaximum = 0
 

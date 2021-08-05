@@ -45,6 +45,7 @@
 		AB82819B26B1C39B00A80CFA /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = AB82819A26B1C39B00A80CFA /* Kingfisher */; };
 		ABA732D925A8018A00B3D9AB /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABA732D825A8018A00B3D9AB /* Extensions.swift */; };
 		ABA732DF25A852D800B3D9AB /* Filter.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABA732DE25A852D800B3D9AB /* Filter.swift */; };
+		ABAC82FE26BC4A96009F5026 /* OpenCC in Frameworks */ = {isa = PBXBuildFile; productRef = ABAC82FD26BC4A96009F5026 /* OpenCC */; };
 		ABAFFE4026A86E3000EE8661 /* MeasureTool.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABAFFE3F26A86E3000EE8661 /* MeasureTool.swift */; };
 		ABC1FAB6264152C800A9F352 /* StoreAccessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC1FAB5264152C800A9F352 /* StoreAccessor.swift */; };
 		ABC1FAB82642C37D00A9F352 /* NewDawnView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC1FAB72642C37D00A9F352 /* NewDawnView.swift */; };
@@ -255,6 +256,7 @@
 				AB0F68AF26A6D92F00AC3A54 /* DeprecatedAPI in Frameworks */,
 				AB6505A026B0027800F91E9D /* SwiftUIPager in Frameworks */,
 				ABD4032426B6EC6800001B8C /* WaterfallGrid in Frameworks */,
+				ABAC82FE26BC4A96009F5026 /* OpenCC in Frameworks */,
 				AB73CEAD26AAB8C600EF6337 /* BetterCodable in Frameworks */,
 				ABE1867F26A18DD000689FDC /* SwiftyBeaver in Frameworks */,
 			);
@@ -558,6 +560,7 @@
 				ABD7005826B1C31500DC59C9 /* Kanna */,
 				AB82819A26B1C39B00A80CFA /* Kingfisher */,
 				ABD4032326B6EC6800001B8C /* WaterfallGrid */,
+				ABAC82FD26BC4A96009F5026 /* OpenCC */,
 			);
 			productName = EhPanda;
 			productReference = ABC3C7542593696C00E0C11B /* EhPanda.app */;
@@ -603,6 +606,7 @@
 				ABD7005626B1C14900DC59C9 /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				ABD7005726B1C31500DC59C9 /* XCRemoteSwiftPackageReference "Kanna" */,
 				ABD4032226B6EC6800001B8C /* XCRemoteSwiftPackageReference "WaterfallGrid" */,
+				ABAC82FC26BC4866009F5026 /* XCRemoteSwiftPackageReference "SwiftyOpenCC" */,
 			);
 			productRefGroup = ABC3C7552593696C00E0C11B /* Products */;
 			projectDirPath = "";
@@ -1086,6 +1090,14 @@
 				minimumVersion = 0.4.0;
 			};
 		};
+		ABAC82FC26BC4866009F5026 /* XCRemoteSwiftPackageReference "SwiftyOpenCC" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/ddddxxx/SwiftyOpenCC.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = "2.0.0-beta";
+			};
+		};
 		ABD4032226B6EC6800001B8C /* XCRemoteSwiftPackageReference "WaterfallGrid" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/paololeonardi/WaterfallGrid.git";
@@ -1145,6 +1157,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = ABD7005626B1C14900DC59C9 /* XCRemoteSwiftPackageReference "Kingfisher" */;
 			productName = Kingfisher;
+		};
+		ABAC82FD26BC4A96009F5026 /* OpenCC */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = ABAC82FC26BC4866009F5026 /* XCRemoteSwiftPackageReference "SwiftyOpenCC" */;
+			productName = OpenCC;
 		};
 		ABD4032326B6EC6800001B8C /* WaterfallGrid */ = {
 			isa = XCSwiftPackageProductDependency;

@@ -69,22 +69,22 @@ struct FetchFavoriteNamesCommand: AppCommand {
     }
 }
 
-struct FetchTranslatorCommand: AppCommand {
+struct FetchTagTranslatorCommand: AppCommand {
     let language: TranslatableLanguage
     let updatedDate: Date
 
     func execute(in store: Store) {
         let token = SubscriptionToken()
-        TranslatorRequest(language: language, updatedDate: updatedDate)
+        TagTranslatorRequest(language: language, updatedDate: updatedDate)
             .publisher
             .receive(on: DispatchQueue.main)
             .sink { completion in
                 if case .failure(let error) = completion {
-                    store.dispatch(.fetchTranslatorDone(result: .failure(error)))
+                    store.dispatch(.fetchTagTranslatorDone(result: .failure(error)))
                 }
                 token.unseal()
             } receiveValue: { translator in
-                store.dispatch(.fetchTranslatorDone(result: .success(translator)))
+                store.dispatch(.fetchTagTranslatorDone(result: .success(translator)))
             }
             .seal(in: token)
     }

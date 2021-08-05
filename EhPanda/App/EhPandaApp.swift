@@ -45,7 +45,7 @@ private extension EhPandaApp {
         }
         configureLogging()
         configureWebImage()
-        fetchTranslatorUpdate()
+        fetchTagTranslator()
         configureIgnoreOffensive()
         clearImageCachesIfNeeded()
         fetchAccountInfoIfNeeded()
@@ -54,8 +54,8 @@ private extension EhPandaApp {
     func syncGalleryHost() {
         setGalleryHost(with: setting.galleryHost)
     }
-    func fetchTranslatorUpdate() {
-        store.dispatch(.fetchTranslator)
+    func fetchTagTranslator() {
+        store.dispatch(.fetchTagTranslator)
     }
     func fetchAccountInfoIfNeeded() {
         guard didLogin else { return }

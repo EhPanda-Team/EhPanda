@@ -196,7 +196,8 @@ private extension DetailView {
         isAssociatedLinkActive.toggle()
     }
     func translateTag(text: String) -> String {
-        let translations = detailInfo.translator.contents
+        guard setting.translatesTags else { return text }
+        let translations = settings.tagTranslator.contents
         return translations[text] ?? text
     }
     func onUploaderTap() {

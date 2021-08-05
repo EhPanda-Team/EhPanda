@@ -18,6 +18,19 @@ struct AppearanceSettingView: View, StoreAccessor {
     private var selectedIcon: IconType {
         store.appState.settings.setting.appIconType
     }
+    private var isTranslatesTagsVisible: Bool {
+        guard let preferredLanguage =
+                Locale.preferredLanguages.first
+        else { return false }
+        let isLanguageSupported =
+            TranslatableLanguage.allCases
+                .map(\.languageCode).contains(
+                    where: preferredLanguage.contains
+                )
+        let isTranslationsPrepared =
+            !settings.tagTranslator.contents.isEmpty
+        return isLanguageSupported && isTranslationsPrepared
+    }
 
     var body: some View {
         NavigationLink(
@@ -48,6 +61,11 @@ struct AppearanceSettingView: View, StoreAccessor {
                 ColorPicker("Tint Color", selection: settingBinding.accentColor)
                 Button("App Icon", action: onAppIconButtonTap)
                     .foregroundStyle(.primary).withArrow()
+                if isTranslatesTagsVisible {
+                    Toggle(isOn: settingBinding.translatesTags) {
+                        Text("Translates tags")
+                    }
+                }
             }
             Section(header: Text("List")) {
                 HStack {

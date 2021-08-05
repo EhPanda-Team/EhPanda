@@ -175,7 +175,8 @@ private extension HomeView {
                 moreLoadingFlag: homeInfo.moreSearchLoading,
                 moreLoadFailedFlag: homeInfo.moreSearchLoadFailed,
                 fetchAction: onSearchRefresh,
-                loadMoreAction: fetchMoreSearchItems
+                loadMoreAction: fetchMoreSearchItems,
+                translateAction: translateTag
             )
         case .frontpage:
             GenericList(
@@ -187,7 +188,8 @@ private extension HomeView {
                 moreLoadingFlag: homeInfo.moreFrontpageLoading,
                 moreLoadFailedFlag: homeInfo.moreFrontpageLoadFailed,
                 fetchAction: fetchFrontpageItems,
-                loadMoreAction: fetchMoreFrontpageItems
+                loadMoreAction: fetchMoreFrontpageItems,
+                translateAction: translateTag
             )
         case .popular:
             GenericList(
@@ -198,7 +200,8 @@ private extension HomeView {
                 loadFailedFlag: homeInfo.popularLoadFailed,
                 moreLoadingFlag: false,
                 moreLoadFailedFlag: false,
-                fetchAction: fetchPopularItems
+                fetchAction: fetchPopularItems,
+                translateAction: translateTag
             )
         case .watched:
             GenericList(
@@ -210,7 +213,8 @@ private extension HomeView {
                 moreLoadingFlag: homeInfo.moreWatchedLoading,
                 moreLoadFailedFlag: homeInfo.moreWatchedLoadFailed,
                 fetchAction: fetchWatchedItems,
-                loadMoreAction: fetchMoreWatchedItems
+                loadMoreAction: fetchMoreWatchedItems,
+                translateAction: translateTag
             )
         case .favorites:
             GenericList(
@@ -234,7 +238,8 @@ private extension HomeView {
                     environment.favoritesIndex
                 ] ?? false,
                 fetchAction: fetchFavoritesItems,
-                loadMoreAction: fetchMoreFavoritesItems
+                loadMoreAction: fetchMoreFavoritesItems,
+                translateAction: translateTag
             )
         case .downloaded:
             NotFoundView(retryAction: nil)
@@ -246,7 +251,8 @@ private extension HomeView {
                 notFoundFlag: mangaHistory.isEmpty,
                 loadFailedFlag: false,
                 moreLoadingFlag: false,
-                moreLoadFailedFlag: false
+                moreLoadFailedFlag: false,
+                translateAction: translateTag
             )
         }
     }
@@ -395,6 +401,18 @@ private extension HomeView {
         if !environment.isSlideMenuClosed {
             postSlideMenuShouldCloseNotification()
         }
+    }
+    func translateTag(text: String) -> String {
+        guard setting.translatesTags else { return text }
+        let translations = settings.tagTranslator.contents
+
+        if let range = text.range(of: ":") {
+            let before = text[...range.lowerBound]
+            let after = String(text[range.upperBound...])
+            let result = before + (translations[after] ?? after)
+            return String(result)
+        }
+        return translations[text] ?? text
     }
 
     // MARK: Fetch Methods

@@ -18,6 +18,7 @@ struct GenericList: View {
     private let moreLoadFailedFlag: Bool
     private let fetchAction: (() -> Void)?
     private let loadMoreAction: (() -> Void)?
+    private let translateAction: ((String) -> String)?
 
     init(
         items: [Manga]?,
@@ -28,7 +29,8 @@ struct GenericList: View {
         moreLoadingFlag: Bool,
         moreLoadFailedFlag: Bool,
         fetchAction: (() -> Void)? = nil,
-        loadMoreAction: (() -> Void)? = nil
+        loadMoreAction: (() -> Void)? = nil,
+        translateAction: ((String) -> String)? = nil
     ) {
         self.items = items
         self.setting = setting
@@ -39,6 +41,7 @@ struct GenericList: View {
         self.moreLoadFailedFlag = moreLoadFailedFlag
         self.fetchAction = fetchAction
         self.loadMoreAction = loadMoreAction
+        self.translateAction = translateAction
     }
 
     var body: some View {
@@ -56,14 +59,16 @@ struct GenericList: View {
                         items: items, setting: setting,
                         moreLoadingFlag: moreLoadingFlag,
                         moreLoadFailedFlag: moreLoadFailedFlag,
-                        loadMoreAction: loadMoreAction
+                        loadMoreAction: loadMoreAction,
+                        translateAction: translateAction
                     )
                 case .thumbnail:
                     WaterfallList(
                         items: items, setting: setting,
                         moreLoadingFlag: moreLoadingFlag,
                         moreLoadFailedFlag: moreLoadFailedFlag,
-                        loadMoreAction: loadMoreAction
+                        loadMoreAction: loadMoreAction,
+                        translateAction: translateAction
                     )
                 }
             }
@@ -84,18 +89,21 @@ private struct DetailList: View {
     private let moreLoadingFlag: Bool
     private let moreLoadFailedFlag: Bool
     private let loadMoreAction: (() -> Void)?
+    private let translateAction: ((String) -> String)?
 
     init(
         items: [Manga]?, setting: Setting,
         moreLoadingFlag: Bool,
         moreLoadFailedFlag: Bool,
-        loadMoreAction: (() -> Void)?
+        loadMoreAction: (() -> Void)?,
+        translateAction: ((String) -> String)? = nil
     ) {
         self.items = items
         self.setting = setting
         self.moreLoadingFlag = moreLoadingFlag
         self.moreLoadFailedFlag = moreLoadFailedFlag
         self.loadMoreAction = loadMoreAction
+        self.translateAction = translateAction
     }
 
     var body: some View {
@@ -110,7 +118,8 @@ private struct DetailList: View {
                     .opacity(0)
                     MangaDetailCell(
                         manga: item,
-                        setting: setting
+                        setting: setting,
+                        translateAction: translateAction
                     )
                 }
                 .onAppear {
@@ -144,6 +153,7 @@ private struct WaterfallList: View {
     private let moreLoadingFlag: Bool
     private let moreLoadFailedFlag: Bool
     private let loadMoreAction: (() -> Void)?
+    private let translateAction: ((String) -> String)?
 
     private var columnsInPortrait: Int {
         isPadWidth ? 4 : 2
@@ -156,13 +166,15 @@ private struct WaterfallList: View {
         items: [Manga]?, setting: Setting,
         moreLoadingFlag: Bool,
         moreLoadFailedFlag: Bool,
-        loadMoreAction: (() -> Void)?
+        loadMoreAction: (() -> Void)?,
+        translateAction: ((String) -> String)? = nil
     ) {
         self.items = items
         self.setting = setting
         self.moreLoadingFlag = moreLoadingFlag
         self.moreLoadFailedFlag = moreLoadFailedFlag
         self.loadMoreAction = loadMoreAction
+        self.translateAction = translateAction
     }
 
     var body: some View {
@@ -178,7 +190,8 @@ private struct WaterfallList: View {
             WaterfallGrid(items ?? []) { item in
                 MangaThumbnailCell(
                     manga: item,
-                    setting: setting
+                    setting: setting,
+                    translateAction: translateAction
                 )
                 .onTapGesture {
                     gid = item.gid

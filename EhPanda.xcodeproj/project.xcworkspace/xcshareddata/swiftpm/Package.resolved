@@ -56,6 +56,15 @@
         }
       },
       {
+        "package": "SwiftyOpenCC",
+        "repositoryURL": "https://github.com/ddddxxx/SwiftyOpenCC.git",
+        "state": {
+          "branch": null,
+          "revision": "1d8105a0f7199c90af722bff62728050c858e777",
+          "version": "2.0.0-beta"
+        }
+      },
+      {
         "package": "TTProgressHUD",
         "repositoryURL": "https://github.com/tatsuz0u/TTProgressHUD.git",
         "state": {

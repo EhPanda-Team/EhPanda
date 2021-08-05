@@ -61,6 +61,10 @@ struct EhPandaView: View, StoreAccessor {
                 text: "SwiftUIPager"
             ),
             Info(
+                url: "https://github.com/ddddxxx/SwiftyOpenCC",
+                text: "SwiftyOpenCC"
+            ),
+            Info(
                 url: "https://github.com/SwiftyBeaver/SwiftyBeaver",
                 text: "SwiftyBeaver"
             ),
@@ -75,6 +79,10 @@ struct EhPandaView: View, StoreAccessor {
             Info(
                 url: "https://github.com/honkmaster/TTProgressHUD",
                 text: "TTProgressHUD"
+            ),
+            Info(
+                url: "https://github.com/EhTagTranslation/Database",
+                text: "EhTagTranslation/Database"
             )
         ]
     }

@@ -131,26 +131,27 @@ final class Store: ObservableObject {
             appState.environment.commentViewSheetState = state
 
         // MARK: Fetch Data
-        case .fetchTranslator:
-            guard let language = TranslatableLanguage.allCases.compactMap({ lang in
-                Locale.current.identifier.contains(lang.languageCode) ? lang : nil
-            }).first else {
-                appState.detailInfo.translator = Translator()
+        case .fetchTagTranslator:
+            guard let preferredLanguage = Locale.preferredLanguages.first,
+                  let language = TranslatableLanguage.allCases.compactMap({ lang in
+                      preferredLanguage.contains(lang.languageCode) ? lang : nil
+                  }).first
+            else {
+                appState.settings.tagTranslator = TagTranslator()
+                appState.settings.setting.translatesTags = false
                 break
             }
-
-            let storedLanguage = appState
-                .detailInfo.translator.language
-            if storedLanguage != language {
-                appState.detailInfo.translator = Translator()
+            if appState.settings.tagTranslator.language != language {
+                appState.settings.tagTranslator = TagTranslator()
             }
 
-            let updatedDate = appState.detailInfo.translator.updatedDate
-            appCommand = FetchTranslatorCommand(language: language, updatedDate: updatedDate)
-        case .fetchTranslatorDone(let result):
-            if case .success(let translator) = result {
-                appState.detailInfo.translator = translator
+            let updatedDate = appState.settings.tagTranslator.updatedDate
+            appCommand = FetchTagTranslatorCommand(language: language, updatedDate: updatedDate)
+        case .fetchTagTranslatorDone(let result):
+            if case .success(let tagTranslator) = result {
+                appState.settings.tagTranslator = tagTranslator
             }
+
         case .fetchGreeting:
             if appState.settings.greetingLoading { break }
             appState.settings.greetingLoading = true

@@ -58,6 +58,9 @@ extension AppState {
         @AppEnvStorage(type: Setting.self)
         var setting: Setting
 
+        @AppEnvStorage(type: TagTranslator.self, key: "tagTranslator")
+        var tagTranslator: TagTranslator
+
         mutating func update(user: User) {
             if let displayName = user.displayName {
                 self.user.displayName = displayName
@@ -214,9 +217,6 @@ extension AppState {
         var previews = [String: [Int: String]]()
         var previewsLoading = [String: [Int: Bool]]()
         var previewConfig = PreviewConfig.normal(rows: 4)
-
-        @AppEnvStorage(type: Translator.self)
-        var translator: Translator
 
         mutating func fulfillPreviews(gid: String) {
             let mangaState = PersistenceController

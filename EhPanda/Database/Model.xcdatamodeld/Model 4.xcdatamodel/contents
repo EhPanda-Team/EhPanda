@@ -4,7 +4,7 @@
         <attribute name="filter" optional="YES" attributeType="Binary"/>
         <attribute name="historyKeywords" optional="YES" attributeType="Binary" customClassName=".[String]"/>
         <attribute name="setting" optional="YES" attributeType="Binary"/>
-        <attribute name="translator" optional="YES" attributeType="Binary"/>
+        <attribute name="tagTranslator" optional="YES" attributeType="Binary"/>
         <attribute name="user" optional="YES" attributeType="Binary"/>
     </entity>
     <entity name="MangaDetailMO" representedClassName=".MangaDetailMO" syncable="YES">

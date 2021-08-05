@@ -94,6 +94,7 @@
 "Theme" = "テーマ";
 "Tint Color" = "テーマの色";
 "App Icon" = "アプリアイコン";
+"Translates tags" = "タグを訳す";
 "List" = "リスト";
 "Display mode" = "表示モード";
 "LIST_DISPLAY_MODE_DETAIL" = "詳細";
