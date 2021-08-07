@@ -30,7 +30,7 @@ struct Defaults {
         static let avatarW: CGFloat = 100
         static let avatarH: CGFloat = 100
         static let headerW: CGFloat = headerH * headerScale
-        static let headerH: CGFloat = 150
+        static let headerH: CGFloat = isSEWidth ? 110 : 150
         static let previewMinW: CGFloat = isPadWidth ? 180 : 100
         static let previewMaxW: CGFloat = isPadWidth ? 220 : 120
         static let previewAvgW: CGFloat = (previewMinW + previewMaxW) / 2

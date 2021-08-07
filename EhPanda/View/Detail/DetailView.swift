@@ -306,22 +306,23 @@ private struct HeaderView: View {
                 .foregroundStyle(.secondary)
                 Spacer()
                 HStack {
-                    Text(category)
-                        .fontWeight(.bold)
-                        .lineLimit(1)
-                        .font(.headline)
-                        .foregroundStyle(.white)
-                        .padding(.vertical, 2)
-                        .padding(.horizontal, 4)
-                        .background(
-                            RoundedRectangle(cornerRadius: 3)
-                                .foregroundColor(manga.color)
-                        )
+                    CategoryLabel(
+                        text: category,
+                        color: manga.color,
+                        font: isSEWidth
+                            ? .footnote
+                            : .headline,
+                        insets: .init(
+                            top: 2, leading: 4,
+                            bottom: 2, trailing: 4
+                        ),
+                        cornerRadius: 3
+                    )
                     Spacer()
                     ZStack {
                         Button(action: deleteFavAction) {
                             Image(systemName: "heart.fill")
-                                .imageScale(.large)
+                                .imageScale(isSEWidth ? .small : .large)
                                 .foregroundStyle(.tint)
                         }
                         .opacity(detail.isFavored ? 1 : 0)
@@ -348,11 +349,12 @@ private struct HeaderView: View {
                             isActive: $isActive,
                             destination: { ReadingView(gid: manga.gid) },
                             label: {
-                                Text("Read".localized().uppercased())
-                                    .fontWeight(.bold)
+                                Text("Read".localized().uppercased()).bold()
+                                    .font(isSEWidth ? .footnote : .headline)
                                     .foregroundColor(.white)
                                     .padding(.vertical, -2)
                                     .padding(.horizontal, 2)
+                                    .lineLimit(1)
                         })
                     })
                     .buttonStyle(.borderedProminent)

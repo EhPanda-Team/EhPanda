@@ -10,12 +10,14 @@ import SwiftUI
 struct CategoryLabel: View {
     private let text: String
     private let color: Color
+    private let font: Font
     private let insets: EdgeInsets
     private let cornerRadius: CGFloat
     private let corners: UIRectCorner
 
     init(
         text: String, color: Color,
+        font: Font = .footnote,
         insets: EdgeInsets = .init(
             top: 1, leading: 3,
             bottom: 1, trailing: 3
@@ -25,6 +27,7 @@ struct CategoryLabel: View {
     ) {
         self.text = text
         self.color = color
+        self.font = font
         self.insets = insets
         self.cornerRadius = cornerRadius
         self.corners = corners
@@ -34,7 +37,7 @@ struct CategoryLabel: View {
         Text(text)
             .fontWeight(.bold)
             .lineLimit(1)
-            .font(.footnote)
+            .font(font)
             .foregroundStyle(.white)
             .padding(insets)
             .background(

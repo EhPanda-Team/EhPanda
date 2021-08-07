@@ -59,10 +59,14 @@ var galleryHost: GalleryHost {
 }
 
 var appIconType: IconType {
-    if let alterName = UIApplication
-        .shared.alternateIconName,
+    var alterName: String?
+    dispatchMainSync {
+        alterName = UIApplication
+            .shared.alternateIconName
+    }
+    if let iconName = alterName,
        let selection = IconType.allCases.filter(
-        { alterName.contains($0.fileName ?? "") }
+        { iconName.contains($0.fileName ?? "") }
        ).first
        {
         return selection
@@ -105,6 +109,10 @@ var isPad: Bool {
 
 var isPadWidth: Bool {
     windowW > 768
+}
+
+var isSEWidth: Bool {
+    windowW <= 320
 }
 
 var viewControllersCount: Int {

@@ -25,7 +25,7 @@ struct ArchiveView: View, StoreAccessor, PersistenceAccessor {
         type: .loading, title: "Communicating...".localized()
     )
     private let gridItems = [
-        GridItem(.adaptive(minimum: 150, maximum: 200))
+        GridItem(.adaptive(minimum: 125, maximum: 200))
     ]
 
     let gid: String
@@ -41,20 +41,22 @@ struct ArchiveView: View, StoreAccessor, PersistenceAccessor {
                 if !hathArchives.isEmpty {
                     ZStack {
                         VStack {
-                            LazyVGrid(columns: gridItems, spacing: 10) {
-                                ForEach(hathArchives) { hathArchive in
-                                    ArchiveGrid(
-                                        isSelected: selection
-                                            == hathArchive.resolution,
-                                        archive: hathArchive,
-                                        accentColor: setting.accentColor
-                                    )
-                                    .onTapGesture(perform: {
-                                        onArchiveGridTap(item: hathArchive)
-                                    })
+                            ScrollView(showsIndicators: false) {
+                                LazyVGrid(columns: gridItems, spacing: 10) {
+                                    ForEach(hathArchives) { hathArchive in
+                                        ArchiveGrid(
+                                            isSelected: selection
+                                                == hathArchive.resolution,
+                                            archive: hathArchive,
+                                            accentColor: setting.accentColor
+                                        )
+                                        .onTapGesture(perform: {
+                                            onArchiveGridTap(item: hathArchive)
+                                        })
+                                    }
                                 }
+                                .padding(.top, 40)
                             }
-                            .padding(.top, 40)
 
                             Spacer()
 
@@ -233,6 +235,12 @@ private struct ArchiveGrid: View {
     private var environmentColor: Color? {
         disabled ? disabledColor : nil
     }
+    private var width: CGFloat {
+        isSEWidth ? 125 : 150
+    }
+    private var height: CGFloat {
+        width / 1.5
+    }
 
     init(
         isSelected: Bool,
@@ -260,7 +268,7 @@ private struct ArchiveGrid: View {
             .lineLimit(1)
         }
         .foregroundColor(environmentColor)
-        .frame(width: 150, height: 100)
+        .frame(width: width, height: height)
         .contentShape(Rectangle())
         .overlay(
             RoundedRectangle(cornerRadius: 10)
