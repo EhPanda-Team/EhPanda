@@ -74,6 +74,13 @@ extension String {
     var hasLocalizedString: Bool {
         self.localized() != self
     }
+    var lineCount: Int {
+        var count = 0
+        enumerateLines { _, _ in
+            count += 1
+        }
+        return count
+    }
 
     func localized() -> String {
         String(localized: StringLocalizationKey(self))

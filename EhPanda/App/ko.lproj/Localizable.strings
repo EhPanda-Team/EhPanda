@@ -94,7 +94,7 @@
 "Theme" = "모양새";
 "Tint Color" = "악센트 색상";
 "App Icon" = "앱 아이콘";
-//"Translates tags" = "";
+"Translates tags" = "태그를 번역하기";
 "List" = "리스트";
 "Display mode" = "표시방식";
 "LIST_DISPLAY_MODE_DETAIL" = "자세히";
