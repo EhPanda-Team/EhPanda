@@ -969,7 +969,6 @@ extension Parser {
         }
 
         if !favoriteNames.isEmpty {
-            favoriteNames[-1] = "all_appendedByDev"
             return favoriteNames
         } else {
             throw AppError.parseFailed

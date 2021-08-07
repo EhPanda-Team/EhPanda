@@ -59,7 +59,7 @@ struct HomeView: View, StoreAccessor {
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Menu {
-                        ForEach(-1..<(favoriteNames?.count ?? 10) - 1) { index in
+                        ForEach(-1..<10) { index in
                             Button {
                                 onFavMenuSelect(index: index)
                             } label: {

@@ -34,7 +34,8 @@ struct User: Codable {
     }
 
     static func getFavNameFrom(index: Int, names: [Int: String]?) -> String {
-        let name = names?[index] ?? "Favorites \(index)"
+        var name = names?[index] ?? "Favorites \(index)"
+        if index == -1 { name = "all_appendedByDev" }
 
         let replacedName = name
             .dropLast()

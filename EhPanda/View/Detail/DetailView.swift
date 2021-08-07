@@ -327,7 +327,7 @@ private struct HeaderView: View {
                         }
                         .opacity(detail.isFavored ? 1 : 0)
                         Menu {
-                            ForEach(0..<(favoriteNames?.count ?? 10) - 1) { index in
+                            ForEach(0..<10) { index in
                                 Button(
                                     User.getFavNameFrom(
                                         index: index,
