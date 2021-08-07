@@ -166,7 +166,14 @@ struct TagTranslatorRequest {
         dict.forEach { key, value in
             translations[key] = converter.convert(value)
         }
+        customConversion(dict: &translations)
+
         return translations
+    }
+    func customConversion(dict: inout [String: String]) {
+        if dict["full color"] != nil {
+            dict["full color"] = "全彩"
+        }
     }
 }
 
