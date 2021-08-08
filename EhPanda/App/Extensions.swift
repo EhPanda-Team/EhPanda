@@ -173,6 +173,7 @@ extension View {
             Image(systemName: "chevron.right")
                 .foregroundColor(.secondary)
                 .imageScale(.small)
+                .opacity(0.5)
         }
     }
 }

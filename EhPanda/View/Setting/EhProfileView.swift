@@ -6,38 +6,60 @@
 //
 
 import SwiftUI
+import SwiftyBeaver
 
 struct EhProfileView: View {
-    @State private var profile = EhProfile.empty
+    @EnvironmentObject var store: Store
 
-    var body: some View {
+    @State private var profile: EhProfile?
+    @State private var loadingFlag = false
+    @State private var loadFailedFlag = false
+
+    func form(profileBinding: Binding<EhProfile>) -> some View {
         Form {
             Group {
-                ImageLoadSettingsSection(profile: $profile)
-                ImageSizeSettingsSection(profile: $profile)
-                GalleryNameDisplaySection(profile: $profile)
-                ArchiverSettingsSection(profile: $profile)
-                FrontPageSettingsSection(profile: $profile)
-                FavoritesSection(profile: $profile)
-                RatingsSection(profile: $profile)
+                ImageLoadSettingsSection(profile: profileBinding)
+                ImageSizeSettingsSection(profile: profileBinding)
+                GalleryNameDisplaySection(profile: profileBinding)
+                ArchiverSettingsSection(profile: profileBinding)
+                FrontPageSettingsSection(profile: profileBinding)
+                FavoritesSection(profile: profileBinding)
+                RatingsSection(profile: profileBinding)
             }
             Group {
-                TagNamespacesSection(profile: $profile)
-                TagFilteringThresholdSection(profile: $profile)
-                TagWatchingThresholdSection(profile: $profile)
-                ExcludedUploadersSection(profile: $profile)
-                SearchResultCountSection(profile: $profile)
-                ThumbnailSettingsSection(profile: $profile)
-                ThumbnailScalingSection(profile: $profile)
+                TagNamespacesSection(profile: profileBinding)
+                TagFilteringThresholdSection(profile: profileBinding)
+                TagWatchingThresholdSection(profile: profileBinding)
+                ExcludedUploadersSection(profile: profileBinding)
+                SearchResultCountSection(profile: profileBinding)
+                ThumbnailSettingsSection(profile: profileBinding)
+                ThumbnailScalingSection(profile: profileBinding)
             }
             Group {
-                ViewportOverrideSection(profile: $profile)
-                GalleryCommentsSection(profile: $profile)
-                GalleryTagsSection(profile: $profile)
-                GalleryPageNumberingSection(profile: $profile)
-                HathLocalNetworkHostSection(profile: $profile)
-                OriginalImagesSection(profile: $profile)
-                MultiplePageViewerSection(profile: $profile)
+                ViewportOverrideSection(profile: profileBinding)
+                GalleryCommentsSection(profile: profileBinding)
+                GalleryTagsSection(profile: profileBinding)
+                GalleryPageNumberingSection(profile: profileBinding)
+                HathLocalNetworkHostSection(profile: profileBinding)
+                OriginalImagesSection(profile: profileBinding)
+                MultiplePageViewerSection(profile: profileBinding)
+            }
+        }
+        .transition(opacityTransition)
+    }
+
+    var body: some View {
+        Group {
+            if loadingFlag {
+                LoadingView()
+            } else if loadFailedFlag {
+                NetworkErrorView(
+                    retryAction: fetchProfile
+                )
+            } else if let profileBinding = Binding($profile) {
+                form(profileBinding: profileBinding)
+            } else {
+                Circle().frame(width: 1).opacity(0.1)
             }
         }
         .navigationTitle("EhProfile")
@@ -45,16 +67,28 @@ struct EhProfileView: View {
     }
 
     func fetchProfile() {
+        loadFailedFlag = false
+        guard !loadingFlag else { return }
+        loadingFlag = true
+
         let token = SubscriptionToken()
         EhProfileRequest()
             .publisher
             .receive(on: DispatchQueue.main)
-            .sink { _ in
+            .sink { completion in
+                loadingFlag = false
+                if case .failure(let error) = completion {
+                    SwiftyBeaver.error(error)
+                    loadFailedFlag = true
+                }
                 token.unseal()
             } receiveValue: { profile in
-                print(profile)
+                self.profile = profile
             }
             .seal(in: token)
+    }
+    func toggleWebViewConfig() {
+        store.dispatch(.toggleSettingViewSheet(state: .webviewConfig))
     }
 }
 
@@ -728,9 +762,9 @@ private struct HathLocalNetworkHostSection: View {
             + Text(hathLocalNetworkHostDescription)
         ) {
             HStack {
-                Text("IP address:port")
+                Text("IP address:Port")
                 Spacer()
-                SettingTextField(text: $profile.hathLocalNetworkHost, width: 100)
+                SettingTextField(text: $profile.hathLocalNetworkHost, width: 150)
             }
         }
         .textCase(nil)
@@ -879,30 +913,17 @@ private struct ExcludeView: View {
     }
 }
 
+// Workaround to solve footers freezing issue
+private extension Text {
+    func newlineBold() -> Text {
+        bold() + Text("\n")
+    }
+}
+
 struct EhProfileView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
             EhProfileView()
         }
-    }
-}
-
-// MARK: AnySection
-private struct AnySection: View {
-    @Binding private var profile: EhProfile
-
-    init(profile: Binding<EhProfile>) {
-        _profile = profile
-    }
-
-    var body: some View {
-        EmptyView()
-    }
-}
-
-// Workaround to solve footers freezing issue
-private extension Text {
-    func newlineBold() -> Text {
-        bold() + Text("\n")
     }
 }

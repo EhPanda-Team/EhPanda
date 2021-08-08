@@ -43,8 +43,7 @@ struct AccountSettingView: View, StoreAccessor {
                     }
                     if didLogin {
                         Group {
-                            Button("Account configuration", action: toggleWebViewConfig).withArrow()
-                                .disabled(setting.bypassSNIFiltering)
+                            NavigationLink("Account configuration", destination: EhProfileView())
                             Button("Manage tags subscription", action: toggleWebViewMyTags).withArrow()
                                 .disabled(setting.bypassSNIFiltering)
                             Toggle(
@@ -158,9 +157,6 @@ private extension AccountSettingView {
     // MARK: Dispatch Methods
     func toggleWebViewLogin() {
         store.dispatch(.toggleSettingViewSheet(state: .webviewLogin))
-    }
-    func toggleWebViewConfig() {
-        store.dispatch(.toggleSettingViewSheet(state: .webviewConfig))
     }
     func toggleWebViewMyTags() {
         store.dispatch(.toggleSettingViewSheet(state: .webviewMyTags))
