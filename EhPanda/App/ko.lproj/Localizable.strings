@@ -47,7 +47,7 @@
 " Ratings" = "명의　평가";
 "Page Count" = "페이지 수";
 "Pages" = "페이지";
-"Size" = "파일　크기";
+"FILE_SIZE" = "파일　크기";
 "Give a Rating" = "점수 평가";
 "Similar Gallery" = "추천";
 "Preview" = "미리보기";
@@ -126,6 +126,129 @@
 "Website" = "웹사이트";
 "AltStore Source" = "AltStore 소스";
 "Acknowledgement" = "감사";
+
+// MARK: EhProfileView
+//"Image Load Settings" = "";
+//"Any client: Recommended." = "";
+//"Default port clients only: Can be slower. Enable if behind firewall/proxy that blocks outgoing non-standard ports." = "";
+//"No: Donator only. You will not be able to browse as many pages, enable only if having severe problems." = "";
+//"Load images through the Hath network" = "";
+//"Any client" = "";
+//"Default port clients only" = "";
+//"No" = "";
+//
+//"Image Size Settings" = "";
+//"Normally, images are resampled to 1280 pixels of horizontal resolution for online viewing. You can alternatively select one of the following resample resolutions. To avoid murdering the staging servers, resolutions above 1280x are temporarily restricted to donators, people with any hath perk, and people with a UID below 3,000,000." = "";
+//"Image resolution" = "";
+//"Auto" = "";
+//"While the site will automatically scale down images to fit your screen width, you can also manually restrict the maximum display size of an image. Like the automatic scaling, this does not resample the image, as the resizing is done browser-side. (0 = no limit)" = "";
+//"Image size" = "";
+//"Horizontal" = "";
+//
+//"Gallery Name Display" = "";
+//"Many galleries have both an English/Romanized title and a title in Japanese script. Which gallery name would you like as default?" = "";
+//"Gallery name" = "";
+//"Default Title" = "";
+//"Japanese Title (if available)" = "";
+//
+//"Archiver Settings" = "";
+//"The default behavior for the Archiver is to confirm the cost and selection for original or resampled archive, then present a link that can be clicked or copied elsewhere. You can change this behavior here." = "";
+//"Archiver behavior" = "";
+//"Manual Select, Manual Start (Default)" = "";
+//"Manual Select, Auto Start" = "";
+//"Auto Select Original, Manual Start" = "";
+//"Auto Select Original, Auto Start" = "";
+//"Auto Select Resample, Manual Start" = "";
+//"Auto Select Resample, Auto Start" = "";
+//
+//"Front Page Settings" = "";
+//"Which display mode would you like to use on the front and search pages?" = "";
+//"Compact" = "";
+//"Thumbnail" = "";
+//"Extended" = "";
+//"Minimal" = "";
+//"Minimal+" = "";
+//"What categories would you like to show by default on the front page and in searches?" = "";
+//
+//"Here you can choose and rename your favorite categories." = "";
+//"You can also select your default sort order for galleries on your favorites page. Note that favorites added prior to the March 2016 revamp did not store a timestamp, and will use the gallery posted time regardless of this setting." = "";
+//"Favorites sort order" = "";
+//"By last gallery update time" = "";
+//"By favorited time" = "";
+//
+//"Ratings" = "";
+//"By default, galleries that you have rated will appear with red stars for ratings of 2 stars and below, green for ratings between 2.5 and 4 stars, and blue for ratings of 4.5 or 5 stars. You can customize this by entering your desired color combination below. Each letter represents one star. The default RRGGB means R(ed) for the first and second star, G(reen) for the third and fourth, and B(lue) for the fifth. You can also use (Y)ellow for the normal stars. Any five-letter R/G/B/Y combo works." = "";
+//"Ratings color" = "";
+//
+//"Tag Namespaces" = "";
+//"If you want to exclude certain namespaces from a default tag search, you can check those below. Note that this does not prevent galleries with tags in these namespaces from appearing, it just makes it so that when searching tags, it will forego those namespaces." = "";
+//
+//"Tag Filtering Threshold" = "";
+//"You can soft filter tags by adding them to My Tags with a negative weight. If a gallery has tags that add up to weight below this value, it is filtered from view. This threshold can be set between 0 and -9999." = "";
+//"Threshold" = "";
+//
+//"Tag Watching Threshold" = "";
+//"Recently uploaded galleries will be included on the watched screen if it has at least one watched tag with positive weight, and the sum of weights on its watched tags add up to this value or higher. This threshold can be set between 0 and 9999." = "";
+//
+//"Excluded Uploaders" = "";
+//"If you wish to hide galleries from certain uploaders from the gallery list and searches, add them below. Put one username per line. Note that galleries from these uploaders will never appear regardless of your search query.\n" = "";
+//"You are currently using **%lld / 1000** exclusion slots." = "";
+//
+//"Search Result Count" = "";
+//"How many results would you like per page for the index/search page and torrent search pages? (Hath Perk: Paging Enlargement Required)" = "";
+//"Results per page" = "";
+//" results" = "";
+//
+//"Thumbnail Settings" = "";
+//"How would you like the mouse-over thumbnails on the front page to load when using List Mode?\n" = "";
+//"On mouse-over: Pages load faster, but there may be a slight delay before a thumb appears." = "";
+//"On page load: Pages take longer to load, but there is no delay for loading a thumb after the page has loaded." = "";
+//"Thumbnail load timing" = "";
+//"On mouse-over" = "";
+//"On page load" = "";
+//"You can set a default thumbnail configuration for all galleries you visit." = "";
+//"Size" = "";
+//"Large" = "";
+//"Rows" = "";
+//
+//"Thumbnail Scaling" = "";
+//"Thumbnails on the thumbnail and extended gallery list views can be scaled to a custom value between 75% and 150%." = "";
+//"Scale factor" = "";
+//
+//"Viewport Override" = "";
+//"Allows you to override the virtual width of the site for mobile devices. This is normally determined automatically by your device based on its DPI. Sensible values at 100% thumbnail scale are between 640 and 1400." = "";
+//"Virtual width" = "";
+//
+//"Gallery Comments" = "";
+//"Comments sort order" = "";
+//"Oldest comments first" = "";
+//"Recent comments first" = "";
+//"By highest score" = "";
+//"Comment votes show timing" = "";
+//"On score hover or click" = "";
+//"Always" = "";
+//
+//"Gallery Tags" = "";
+//"Tags sort order" = "";
+//"Alphabetical" = "";
+//"By tag power" = "";
+//
+//"Gallery Page Numbering" = "";
+//"Show gallery page numbers" = "";
+//
+//"Hath Local Network Host" = "";
+//"This setting can be used if you have a H@H client running on your local network with the same public IP you browse the site with. Some routers are buggy and cannot route requests back to its own IP; this allows you to work around this problem.\nIf you are running the client on the same PC you browse from, use the loopback address (127.0.0.1:port). If the client is running on another computer on your network, use its local network IP. Some browser configurations prevent external web sites from accessing URLs with local network IPs, the site must then be whitelisted for this to work." = "";
+//"IP address:Port" = "";
+//
+//"Original Images" = "";
+//"Use original images" = "";
+//"Multi-Page Viewer" = "";
+//"Use Multi-Page Viewer" = "";
+//"Display style" = "";
+//"Align left, scale if overwidth" = "";
+//"Align center, scale if overwidth" = "";
+//"Align center, always scale" = "";
+//"Show thumbnail pane" = "";
 
 // MARK: LogsView
 "Logs" = "일지";

@@ -152,6 +152,12 @@ struct EhProfileView: View, StoreAccessor {
 private struct ImageLoadSettingsSection: View {
     @Binding private var profile: EhProfile
 
+    private var capableSettings: [EhProfileLoadThroughHathSetting] {
+        EhProfileLoadThroughHathSetting.allCases.filter { setting in
+            setting <= profile.capableLoadThroughHathSetting
+        }
+    }
+
     init(profile: Binding<EhProfile>) {
         _profile = profile
     }
@@ -160,15 +166,19 @@ private struct ImageLoadSettingsSection: View {
         Section(
             header:
                 Text("Image Load Settings").newlineBold() +
-            Text(profile.loadThroughHathSetting.description)
+                Text(
+                    EhProfileLoadThroughHathSetting.anyClient.description.localized() + "\n"
+                    + EhProfileLoadThroughHathSetting.defaultPortOnly.description.localized() + "\n"
+                    + EhProfileLoadThroughHathSetting.no.description.localized()
+                )
         ) {
             Text("Load images through the Hath network")
             Picker(selection: $profile.loadThroughHathSetting) {
-                ForEach(EhProfileLoadThroughHathSetting.allCases) { setting in
-                    Text(setting.value).tag(setting)
+                ForEach(capableSettings) { setting in
+                    Text(setting.value.localized()).tag(setting)
                 }
             } label: {
-                Text(profile.loadThroughHathSetting.value)
+                Text(profile.loadThroughHathSetting.value.localized())
             }
             .pickerStyle(.menu)
         }
@@ -186,7 +196,7 @@ private struct ImageSizeSettingsSection: View {
     private let imageSizeDescription = "While the site will automatically scale down images to fit your screen width, you can also manually restrict the maximum display size of an image. Like the automatic scaling, this does not resample the image, as the resizing is done browser-side. (0 = no limit)"
     // swiftlint:enable line_length
 
-    private var capableResolution: [EhProfileImageResolution] {
+    private var capableResolutions: [EhProfileImageResolution] {
         EhProfileImageResolution.allCases.filter { resolution in
             resolution <= profile.capableImageResolution
         }
@@ -200,23 +210,23 @@ private struct ImageSizeSettingsSection: View {
     var body: some View {
         Section(
             header: Text("Image Size Settings").newlineBold()
-            + Text(imageResolutionDescription)
+            + Text(imageResolutionDescription.localized())
         ) {
             HStack {
                 Text("Image resolution")
                 Spacer()
                 Picker(selection: $profile.imageResolution) {
-                    ForEach(capableResolution) { setting in
-                        Text(setting.value).tag(setting)
+                    ForEach(capableResolutions) { setting in
+                        Text(setting.value.localized()).tag(setting)
                     }
                 } label: {
-                    Text(profile.imageResolution.value)
+                    Text(profile.imageResolution.value.localized())
                 }
                 .pickerStyle(.menu)
             }
         }
         .textCase(nil)
-        Section(header: Text(imageSizeDescription)) {
+        Section(header: Text(imageSizeDescription.localized())) {
             Text("Image size")
             ValuePicker(
                 title: "Horizontal",
@@ -252,17 +262,17 @@ private struct GalleryNameDisplaySection: View {
     var body: some View {
         Section(
             header: Text("Gallery Name Display").newlineBold()
-            + Text(galleryNameDescription)
+            + Text(galleryNameDescription.localized())
         ) {
             HStack {
                 Text("Gallery name")
                 Spacer()
                 Picker(selection: $profile.galleryName) {
                     ForEach(EhProfileGalleryName.allCases) { name in
-                        Text(name.value).tag(name)
+                        Text(name.value.localized()).tag(name)
                     }
                 } label: {
-                    Text(profile.galleryName.value)
+                    Text(profile.galleryName.value.localized())
                 }
                 .pickerStyle(.menu)
             }
@@ -286,15 +296,15 @@ private struct ArchiverSettingsSection: View {
     var body: some View {
         Section(
             header: Text("Archiver Settings").newlineBold()
-            + Text(archiverSettingsDescription)
+            + Text(archiverSettingsDescription.localized())
         ) {
             Text("Archiver behavior")
             Picker(selection: $profile.archiverBehavior) {
                 ForEach(EhProfileArchiverBehavior.allCases) { behavior in
-                    Text(behavior.value).tag(behavior)
+                    Text(behavior.value.localized()).tag(behavior)
                 }
             } label: {
-                Text(profile.archiverBehavior.value)
+                Text(profile.archiverBehavior.value.localized())
             }
             .pickerStyle(.menu)
         }
@@ -333,23 +343,23 @@ private struct FrontPageSettingsSection: View {
     var body: some View {
         Section(
             header: Text("Front Page Settings").newlineBold()
-            + Text(displayModeDescription)
+            + Text(displayModeDescription.localized())
         ) {
             HStack {
                 Text("Display mode")
                 Spacer()
                 Picker(selection: $profile.displayMode) {
                     ForEach(EhProfileDisplayMode.allCases) { mode in
-                        Text(mode.value).tag(mode)
+                        Text(mode.value.localized()).tag(mode)
                     }
                 } label: {
-                    Text(profile.displayMode.value)
+                    Text(profile.displayMode.value.localized())
                 }
                 .pickerStyle(.menu)
             }
         }
         .textCase(nil)
-        Section(header: Text(categoriesDescription)) {
+        Section(header: Text(categoriesDescription.localized())) {
             CategoryView(bindings: categoryBindings)
         }
         .textCase(nil)
@@ -390,7 +400,7 @@ private struct FavoritesSection: View {
     var body: some View {
         Section(
             header: Text("Favorites").newlineBold()
-            + Text(favoriteNamesDescription)
+            + Text(favoriteNamesDescription.localized())
         ) {
             ForEach(tuples, id: \.0) { category, nameBinding in
                 HStack(spacing: 30) {
@@ -408,16 +418,16 @@ private struct FavoritesSection: View {
             isFocused = false
         }
         .textCase(nil)
-        Section(header: Text(sortOrderDescription)) {
+        Section(header: Text(sortOrderDescription.localized())) {
             HStack {
                 Text("Favorites sort order")
                 Spacer()
                 Picker(selection: $profile.favoritesSortOrder) {
                     ForEach(EhProfileFavoritesSortOrder.allCases) { order in
-                        Text(order.value).tag(order)
+                        Text(order.value.localized()).tag(order)
                     }
                 } label: {
-                    Text(profile.favoritesSortOrder.value)
+                    Text(profile.favoritesSortOrder.value.localized())
                 }
                 .pickerStyle(.menu)
             }
@@ -444,7 +454,7 @@ private struct RatingsSection: View {
     var body: some View {
         Section(
             header: Text("Ratings").newlineBold()
-            + Text(ratingsDescription)
+            + Text(ratingsDescription.localized())
         ) {
             HStack {
                 Text("Ratings color")
@@ -491,7 +501,7 @@ private struct TagNamespacesSection: View {
     var body: some View {
         Section(
             header: Text("Tag Namespaces").newlineBold()
-            + Text(tagNamespacesDescription)
+            + Text(tagNamespacesDescription.localized())
         ) {
             ExcludeView(tuples: tuples)
         }
@@ -516,10 +526,10 @@ private struct TagFilteringThresholdSection: View {
     var body: some View {
         Section(
             header: Text("Tag Filtering Threshold").newlineBold()
-            + Text(tagFilteringThresholdDescription)
+            + Text(tagFilteringThresholdDescription.localized())
         ) {
             ValuePicker(
-                title: "Threshold",
+                title: "Tag Filtering Threshold",
                 value: $profile.tagFilteringThreshold,
                 range: -9999...0,
                 accentColor: accentColor
@@ -546,10 +556,10 @@ private struct TagWatchingThresholdSection: View {
     var body: some View {
         Section(
             header: Text("Tag Watching Threshold").newlineBold()
-            + Text(tagWatchingThresholdDescription)
+            + Text(tagWatchingThresholdDescription.localized())
         ) {
             ValuePicker(
-                title: "Threshold",
+                title: "Tag Watching Threshold",
                 value: $profile.tagWatchingThreshold,
                 range: 0...9999,
                 accentColor: accentColor
@@ -567,8 +577,8 @@ private struct ExcludedUploadersSection: View {
 
     // swiftlint:disable line_length
     private var excludedUploadersDescriptionText: Text {
-        Text("If you wish to hide galleries from certain uploaders from the gallery list and searches, add them below. Put one username per line. Note that galleries from these uploaders will never appear regardless of your search query.\nYou are currently using ")
-        + Text("**\(profile.excludedUploaders.lineCount) / 1000** exclusion slots.")
+        Text("If you wish to hide galleries from certain uploaders from the gallery list and searches, add them below. Put one username per line. Note that galleries from these uploaders will never appear regardless of your search query.\n")
+        + Text("You are currently using **\(profile.excludedUploaders.lineCount) / 1000** exclusion slots.")
     }
     // swiftlint:enable line_length
 
@@ -603,7 +613,7 @@ private struct SearchResultCountSection: View {
     private let searchResultCountDescription = "How many results would you like per page for the index/search page and torrent search pages? (Hath Perk: Paging Enlargement Required)"
     // swiftlint:enable line_length
 
-    private var capableCount: [EhProfileSearchResultCount] {
+    private var capableCounts: [EhProfileSearchResultCount] {
         EhProfileSearchResultCount.allCases.filter { count in
             count <= profile.capableSearchResultCount
         }
@@ -616,17 +626,17 @@ private struct SearchResultCountSection: View {
     var body: some View {
         Section(
             header: Text("Search Result Count").newlineBold()
-            + Text(searchResultCountDescription)
+            + Text(searchResultCountDescription.localized())
         ) {
             HStack {
                 Text("Results per page")
                 Spacer()
                 Picker(selection: $profile.searchResultCount) {
-                    ForEach(capableCount) { count in
-                        Text(String(count.value) + " results").tag(count)
+                    ForEach(capableCounts) { count in
+                        Text(String(count.value) + " results".localized()).tag(count)
                     }
                 } label: {
-                    Text(String(profile.searchResultCount.value) + " results")
+                    Text(String(profile.searchResultCount.value) + " results".localized())
                 }
                 .pickerStyle(.menu)
             }
@@ -644,7 +654,7 @@ private struct ThumbnailSettingsSection: View {
     private let thumbnailConfigurationDescription = "You can set a default thumbnail configuration for all galleries you visit."
     // swiftlint:enable line_length
 
-    private var capableSize: [EhProfileThumbnailSize] {
+    private var capableSizes: [EhProfileThumbnailSize] {
         EhProfileThumbnailSize.allCases.filter { size in
             size <= profile.capableThumbnailConfigSize
         }
@@ -663,8 +673,9 @@ private struct ThumbnailSettingsSection: View {
         Section(
             header: Text("Thumbnail Settings").newlineBold()
             + Text(
-                thumbnailLoadTimingDescription
-                + profile.thumbnailLoadTiming.description
+                thumbnailLoadTimingDescription.localized()
+                + EhProfileThumbnailLoadTiming.onMouseOver.description.localized() + "\n"
+                + EhProfileThumbnailLoadTiming.onPageLoad.description.localized()
             )
         ) {
             HStack {
@@ -672,25 +683,25 @@ private struct ThumbnailSettingsSection: View {
                 Spacer()
                 Picker(selection: $profile.thumbnailLoadTiming) {
                     ForEach(EhProfileThumbnailLoadTiming.allCases) { timing in
-                        Text(timing.value).tag(timing)
+                        Text(timing.value.localized()).tag(timing)
                     }
                 } label: {
-                    Text(profile.thumbnailLoadTiming.value)
+                    Text(profile.thumbnailLoadTiming.value.localized())
                 }
                 .pickerStyle(.menu)
             }
         }
         .textCase(nil)
-        Section(header: Text(thumbnailConfigurationDescription)) {
+        Section(header: Text(thumbnailConfigurationDescription.localized())) {
             HStack {
                 Text("Size")
                 Spacer()
                 Picker(selection: $profile.thumbnailConfigSize) {
-                    ForEach(capableSize) { size in
-                        Text(size.value).tag(size)
+                    ForEach(capableSizes) { size in
+                        Text(size.value.localized()).tag(size)
                     }
                 } label: {
-                    Text(profile.thumbnailConfigSize.value)
+                    Text(profile.thumbnailConfigSize.value.localized())
                 }
                 .pickerStyle(.segmented)
                 .frame(width: 200)
@@ -730,7 +741,7 @@ private struct ThumbnailScalingSection: View {
     var body: some View {
         Section(
             header: Text("Thumbnail Scaling").newlineBold()
-            + Text(thumbnailScalingDescription)
+            + Text(thumbnailScalingDescription.localized())
         ) {
             ValuePicker(
                 title: "Scale factor",
@@ -761,7 +772,7 @@ private struct ViewportOverrideSection: View {
     var body: some View {
         Section(
             header: Text("Viewport Override").newlineBold()
-            + Text(viewportOverrideDescription)
+            + Text(viewportOverrideDescription.localized())
         ) {
             ValuePicker(
                 title: "Virtual width",
@@ -784,16 +795,16 @@ private struct GalleryCommentsSection: View {
     }
 
     var body: some View {
-        Section("Gallery Comments") {
+        Section("Gallery Comments".localized()) {
             HStack {
                 Text("Comments sort order")
                 Spacer()
                 Picker(selection: $profile.commentsSortOrder) {
                     ForEach(EhProfileCommentsSortOrder.allCases) { order in
-                        Text(order.value).tag(order)
+                        Text(order.value.localized()).tag(order)
                     }
                 } label: {
-                    Text(profile.commentsSortOrder.value)
+                    Text(profile.commentsSortOrder.value.localized())
                 }
                 .pickerStyle(.menu)
             }
@@ -802,10 +813,10 @@ private struct GalleryCommentsSection: View {
                 Spacer()
                 Picker(selection: $profile.commentVotesShowTiming) {
                     ForEach(EhProfileCommentVotesShowTiming.allCases) { timing in
-                        Text(timing.value).tag(timing)
+                        Text(timing.value.localized()).tag(timing)
                     }
                 } label: {
-                    Text(profile.commentVotesShowTiming.value)
+                    Text(profile.commentVotesShowTiming.value.localized())
                 }
                 .pickerStyle(.menu)
             }
@@ -823,16 +834,16 @@ private struct GalleryTagsSection: View {
     }
 
     var body: some View {
-        Section("Gallery Tags") {
+        Section("Gallery Tags".localized()) {
             HStack {
                 Text("Tags sort order")
                 Spacer()
                 Picker(selection: $profile.tagsSortOrder) {
                     ForEach(EhProfileTagsSortOrder.allCases) { order in
-                        Text(order.value).tag(order)
+                        Text(order.value.localized()).tag(order)
                     }
                 } label: {
-                    Text(profile.tagsSortOrder.value)
+                    Text(profile.tagsSortOrder.value.localized())
                 }
                 .pickerStyle(.menu)
             }
@@ -850,7 +861,7 @@ private struct GalleryPageNumberingSection: View {
     }
 
     var body: some View {
-        Section("Gallery Page Numbering") {
+        Section("Gallery Page Numbering".localized()) {
             Toggle(
                 "Show gallery page numbers",
                 isOn: $profile.galleryShowPageNumbers
@@ -878,7 +889,7 @@ private struct HathLocalNetworkHostSection: View {
     var body: some View {
         Section(
             header: Text("Hath Local Network Host").newlineBold()
-            + Text(hathLocalNetworkHostDescription)
+            + Text(hathLocalNetworkHostDescription.localized())
         ) {
             HStack {
                 Text("IP address:Port")
@@ -907,7 +918,7 @@ private struct OriginalImagesSection: View {
             if let useOriginalImagesBinding =
                 Binding($profile.useOriginalImages)
             {
-                Section("Original Images") {
+                Section("Original Images".localized()) {
                     Toggle(
                         "Use original images",
                         isOn: useOriginalImagesBinding
@@ -936,7 +947,7 @@ private struct MultiplePageViewerSection: View {
                let multiplePageViewerShowPaneBinding =
                 Binding($profile.multiplePageViewerShowThumbnailPane)
             {
-                Section("Multi-Page Viewer") {
+                Section("Multi-Page Viewer".localized()) {
                     Toggle(
                         "Use Multi-Page Viewer",
                         isOn: useMultiplePageViewerBinding
@@ -946,10 +957,10 @@ private struct MultiplePageViewerSection: View {
                         Spacer()
                         Picker(selection: multiplePageViewerStyleBinding) {
                             ForEach(EhProfileMultiplePageViewerStyle.allCases) { style in
-                                Text(style.value).tag(style)
+                                Text(style.value.localized()).tag(style)
                             }
                         } label: {
-                            Text(profile.multiplePageViewerStyle?.value ?? "")
+                            Text(profile.multiplePageViewerStyle?.value.localized() ?? "")
                         }
                         .pickerStyle(.menu)
                     }
@@ -989,7 +1000,7 @@ private struct ValuePicker: View {
     var body: some View {
         VStack {
             HStack {
-                Text(title)
+                Text(title.localized())
                 Spacer()
                 Text(String(Int(value)) + unit)
                     .foregroundColor(accentColor)
@@ -1021,6 +1032,13 @@ private struct ExcludeView: View {
             minimum: isPadWidth ? 100 : 80, maximum: 100
         ))
     ]
+    private func localizedText(_ text: String) -> String {
+        if text.capitalizingFirstLetter().hasLocalizedString {
+            return text.capitalizingFirstLetter().localized()
+        } else {
+            return text
+        }
+    }
 
     init(tuples: [(String, Binding<Bool>)]) {
         self.tuples = tuples
@@ -1030,10 +1048,10 @@ private struct ExcludeView: View {
         LazyVGrid(columns: gridItems) {
             ForEach(tuples, id: \.0) { text, isExcluded in
                 ZStack {
-                    Text(text).bold()
+                    Text(localizedText(text)).bold()
                         .opacity(isExcluded.wrappedValue ? 0 : 1)
                     ZStack {
-                        Text(text)
+                        Text(localizedText(text))
                         let width = (CGFloat(text.count) * 8) + 8
                         let line = Rectangle().frame(
                             width: width, height: 1

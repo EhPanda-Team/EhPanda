@@ -8,10 +8,11 @@
 // MARK: EhProfile
 struct EhProfile {
     // swiftlint:disable line_length
-    static let empty = EhProfile(capableImageResolution: .x780, capableSearchResultCount: .twentyFive, capableThumbnailConfigSize: .normal, capableThumbnailConfigRows: .twenty, loadThroughHathSetting: .anyClient, imageResolution: .auto, imageSizeWidth: 0, imageSizeHeight: 0, galleryName: .default, archiverBehavior: .manualSelectManualStart, displayMode: .compact, doujinshiDisabled: false, mangaDisabled: false, artistCGDisabled: false, gameCGDisabled: false, westernDisabled: false, nonHDisabled: false, imageSetDisabled: false, cosplayDisabled: false, asianPornDisabled: false, miscDisabled: false, favoriteName0: "Favorites 0", favoriteName1: "Favorites 1", favoriteName2: "Favorites 2", favoriteName3: "Favorites 3", favoriteName4: "Favorites 4", favoriteName5: "Favorites 5", favoriteName6: "Favorites 6", favoriteName7: "Favorites 7", favoriteName8: "Favorites 8", favoriteName9: "Favorites 9", favoritesSortOrder: .favoritedTime, ratingsColor: "", reclassExcluded: false, languageExcluded: false, parodyExcluded: false, characterExcluded: false, groupExcluded: false, artistExcluded: false, maleExcluded: false, femaleExcluded: false, tagFilteringThreshold: 0, tagWatchingThreshold: 0, excludedUploaders: "", searchResultCount: .twentyFive, thumbnailLoadTiming: .onMouseOver, thumbnailConfigSize: .normal, thumbnailConfigRows: .four, thumbnailScaleFactor: 100, viewportVirtualWidth: 0, commentsSortOrder: .oldest, commentVotesShowTiming: .onHoverOrClick, tagsSortOrder: .alphabetical, galleryShowPageNumbers: false, hathLocalNetworkHost: ""
+    static let empty = EhProfile(capableLoadThroughHathSetting: .defaultPortOnly, capableImageResolution: .x780, capableSearchResultCount: .twentyFive, capableThumbnailConfigSize: .normal, capableThumbnailConfigRows: .twenty, loadThroughHathSetting: .anyClient, imageResolution: .auto, imageSizeWidth: 0, imageSizeHeight: 0, galleryName: .default, archiverBehavior: .manualSelectManualStart, displayMode: .compact, doujinshiDisabled: false, mangaDisabled: false, artistCGDisabled: false, gameCGDisabled: false, westernDisabled: false, nonHDisabled: false, imageSetDisabled: false, cosplayDisabled: false, asianPornDisabled: false, miscDisabled: false, favoriteName0: "Favorites 0", favoriteName1: "Favorites 1", favoriteName2: "Favorites 2", favoriteName3: "Favorites 3", favoriteName4: "Favorites 4", favoriteName5: "Favorites 5", favoriteName6: "Favorites 6", favoriteName7: "Favorites 7", favoriteName8: "Favorites 8", favoriteName9: "Favorites 9", favoritesSortOrder: .favoritedTime, ratingsColor: "", reclassExcluded: false, languageExcluded: false, parodyExcluded: false, characterExcluded: false, groupExcluded: false, artistExcluded: false, maleExcluded: false, femaleExcluded: false, tagFilteringThreshold: 0, tagWatchingThreshold: 0, excludedUploaders: "", searchResultCount: .twentyFive, thumbnailLoadTiming: .onMouseOver, thumbnailConfigSize: .normal, thumbnailConfigRows: .four, thumbnailScaleFactor: 100, viewportVirtualWidth: 0, commentsSortOrder: .oldest, commentVotesShowTiming: .onHoverOrClick, tagsSortOrder: .alphabetical, galleryShowPageNumbers: false, hathLocalNetworkHost: ""
     )
     // swiftlint:enable line_length
 
+    var capableLoadThroughHathSetting: EhProfileLoadThroughHathSetting
     var capableImageResolution: EhProfileImageResolution
     var capableSearchResultCount: EhProfileSearchResultCount
     var capableThumbnailConfigSize: EhProfileThumbnailSize
@@ -83,13 +84,19 @@ struct EhProfile {
 }
 
 // MARK: LoadThroughHathSetting
-enum EhProfileLoadThroughHathSetting: Int, CaseIterable, Identifiable {
+enum EhProfileLoadThroughHathSetting: Int, CaseIterable, Identifiable, Comparable {
     case anyClient
     case defaultPortOnly
     case no
 }
 extension EhProfileLoadThroughHathSetting {
     var id: Int { rawValue }
+    static func < (
+        lhs: EhProfileLoadThroughHathSetting,
+        rhs: EhProfileLoadThroughHathSetting
+    ) -> Bool {
+        lhs.rawValue < rhs.rawValue
+    }
 
     var value: String {
         switch self {
@@ -101,16 +108,18 @@ extension EhProfileLoadThroughHathSetting {
             return "No"
         }
     }
+    // swiftlint:disable line_length
     var description: String {
         switch self {
         case .anyClient:
-            return "Recommended"
+            return "Any client: Recommended."
         case .defaultPortOnly:
-            return "Can be slower. Enable if behind firewall/proxy that blocks outgoing non-standard ports."
+            return "Default port clients only: Can be slower. Enable if behind firewall/proxy that blocks outgoing non-standard ports."
         case .no:
-            return "Donator only. You will not be able to browse as many pages, enable only if having severe problems."
+            return "No: Donator only. You will not be able to browse as many pages, enable only if having severe problems."
         }
     }
+    // swiftlint:enable line_length
 }
 
 // MARK: ImageResolution
@@ -292,9 +301,9 @@ extension EhProfileThumbnailLoadTiming {
     var description: String {
         switch self {
         case .onMouseOver:
-            return "On mouse-over (pages load faster, but there may be a slight delay before a thumb appears)"
+            return "On mouse-over: Pages load faster, but there may be a slight delay before a thumb appears."
         case .onPageLoad:
-            return "On page load (pages take longer to load, but there is no delay for loading a thumb after the page has loaded)"
+            return "On page load: Pages take longer to load, but there is no delay for loading a thumb after the page has loaded."
         }
     }
     // swiftlint:enable line_length
@@ -428,24 +437,6 @@ extension EhProfileMultiplePageViewerStyle {
             return "Align center, scale if overwidth"
         case .alignCenterAlwaysScale:
             return "Align center, always scale"
-        }
-    }
-}
-
-// MARK: MultiplePageViewerThumbnailPane
-enum EhProfileMultiplePageViewerThumbnailPane: Int, CaseIterable, Identifiable {
-    case show
-    case hide
-}
-extension EhProfileMultiplePageViewerThumbnailPane {
-    var id: Int { rawValue }
-
-    var value: String {
-        switch self {
-        case .show:
-            return "Show"
-        case .hide:
-            return "Hide"
         }
     }
 }

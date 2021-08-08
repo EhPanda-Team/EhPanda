@@ -429,7 +429,7 @@ private struct DescScrollView: View {
                     .frame(width: itemWidth)
                     Divider()
                     DescScrollItem(
-                        title: "Size",
+                        title: "FILE_SIZE",
                         value: String(detail.sizeCount),
                         numeral: detail.sizeType
                     )
