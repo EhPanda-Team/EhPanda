@@ -1,5 +1,5 @@
 //
-//  EhConfigView.swift
+//  EhProfileView.swift
 //  EhPanda
 //
 //  Created by 荒木辰造 on 2021/08/07.
@@ -7,120 +7,78 @@
 
 import SwiftUI
 
-struct EhConfigView: View {
-    @State private var config = EhConfig(
-        loadThroughHath: .anyClient,
-        imageResolution: .auto,
-        imageSizeWidth: 0,
-        imageSizeHeight: 0,
-        galleryName: .default,
-        archiverBehavior: .manualSelectManualStart,
-        displayMode: .compact,
-        doujinshiDisabled: false,
-        mangaDisabled: false,
-        artistCGDisabled: false,
-        gameCGDisabled: false,
-        westernDisabled: false,
-        nonHDisabled: false,
-        imageSetDisabled: false,
-        cosplayDisabled: false,
-        asianPornDisabled: false,
-        miscDisabled: false,
-        favoriteName0: "Favorites 0",
-        favoriteName1: "Favorites 1",
-        favoriteName2: "Favorites 2",
-        favoriteName3: "Favorites 3",
-        favoriteName4: "Favorites 4",
-        favoriteName5: "Favorites 5",
-        favoriteName6: "Favorites 6",
-        favoriteName7: "Favorites 7",
-        favoriteName8: "Favorites 8",
-        favoriteName9: "Favorites 9",
-        favoritesSortOrder: .favoritedTime,
-        ratingsColor: "",
-        reclassExcluded: false,
-        languageExcluded: false,
-        parodyExcluded: false,
-        characterExcluded: false,
-        groupExcluded: false,
-        artistExcluded: false,
-        maleExcluded: false,
-        femaleExcluded: false,
-        tagFilteringThreshold: 0,
-        tagWatchingThreshold: 0,
-        excludedUploaders: "",
-        searchResultCount: .twentyFive,
-        thumbnailLoadTiming: .onMouseOver,
-        thumbnailConfigSize: .normal,
-        thumbnailConfigRows: .four,
-        thumbnailScaleFactor: 100,
-        viewportVirtualWidth: 0,
-        commentsSortOrder: .oldest,
-        commentVotesShowTiming: .onHoverOrClick,
-        tagsSortOrder: .alphabetical,
-        galleryShowPageNumbers: false,
-        hathLocalNetworkHost: "",
-        useOriginalImages: false,
-        useMultiplePageViewer: false,
-        multiplePageViewerStyle: .alignLeftScaleIfOverWidth,
-        multiplePageViewerShowThumbnailPane: true
-    )
+struct EhProfileView: View {
+    @State private var profile = EhProfile.empty
 
     var body: some View {
         Form {
             Group {
-                ImageLoadSettingsSection(config: $config)
-                ImageSizeSettingsSection(config: $config)
-                GalleryNameDisplaySection(config: $config)
-                ArchiverSettingsSection(config: $config)
-                FrontPageSettingsSection(config: $config)
-                FavoritesSection(config: $config)
-                RatingsSection(config: $config)
+                ImageLoadSettingsSection(profile: $profile)
+                ImageSizeSettingsSection(profile: $profile)
+                GalleryNameDisplaySection(profile: $profile)
+                ArchiverSettingsSection(profile: $profile)
+                FrontPageSettingsSection(profile: $profile)
+                FavoritesSection(profile: $profile)
+                RatingsSection(profile: $profile)
             }
             Group {
-                TagNamespacesSection(config: $config)
-                TagFilteringThresholdSection(config: $config)
-                TagWatchingThresholdSection(config: $config)
-                ExcludedUploadersSection(config: $config)
-                SearchResultCountSection(config: $config)
-                ThumbnailSettingsSection(config: $config)
-                ThumbnailScalingSection(config: $config)
+                TagNamespacesSection(profile: $profile)
+                TagFilteringThresholdSection(profile: $profile)
+                TagWatchingThresholdSection(profile: $profile)
+                ExcludedUploadersSection(profile: $profile)
+                SearchResultCountSection(profile: $profile)
+                ThumbnailSettingsSection(profile: $profile)
+                ThumbnailScalingSection(profile: $profile)
             }
             Group {
-                ViewportOverrideSection(config: $config)
-                GalleryCommentsSection(config: $config)
-                GalleryTagsSection(config: $config)
-                GalleryPageNumberingSection(config: $config)
-                HathLocalNetworkHostSection(config: $config)
-                OriginalImagesSection(config: $config)
-                MultiplePageViewerSection(config: $config)
+                ViewportOverrideSection(profile: $profile)
+                GalleryCommentsSection(profile: $profile)
+                GalleryTagsSection(profile: $profile)
+                GalleryPageNumberingSection(profile: $profile)
+                HathLocalNetworkHostSection(profile: $profile)
+                OriginalImagesSection(profile: $profile)
+                MultiplePageViewerSection(profile: $profile)
             }
         }
-        .navigationTitle("EhConfig")
+        .navigationTitle("EhProfile")
+        .task(fetchProfile)
+    }
+
+    func fetchProfile() {
+        let token = SubscriptionToken()
+        EhProfileRequest()
+            .publisher
+            .receive(on: DispatchQueue.main)
+            .sink { _ in
+                token.unseal()
+            } receiveValue: { profile in
+                print(profile)
+            }
+            .seal(in: token)
     }
 }
 
 // MARK: ImageLoadSettingsSection
 private struct ImageLoadSettingsSection: View {
-    @Binding private var config: EhConfig
+    @Binding private var profile: EhProfile
 
-    init(config: Binding<EhConfig>) {
-        _config = config
+    init(profile: Binding<EhProfile>) {
+        _profile = profile
     }
 
     var body: some View {
         Section(
             header:
                 Text("Image Load Settings").newlineBold() +
-            Text(config.loadThroughHath.description)
+            Text(profile.loadThroughHathSetting.description)
         ) {
             Text("Load images through the Hath network")
-            Picker(selection: $config.loadThroughHath) {
-                ForEach(EhConfigLoadThroughHathSetting.allCases) { setting in
+            Picker(selection: $profile.loadThroughHathSetting) {
+                ForEach(EhProfileLoadThroughHathSetting.allCases) { setting in
                     Text(setting.value).tag(setting)
                 }
             } label: {
-                Text(config.loadThroughHath.value)
+                Text(profile.loadThroughHathSetting.value)
             }
             .pickerStyle(.menu)
         }
@@ -130,15 +88,15 @@ private struct ImageLoadSettingsSection: View {
 
 // MARK: ImageSizeSettingsSection
 private struct ImageSizeSettingsSection: View {
-    @Binding private var config: EhConfig
+    @Binding private var profile: EhProfile
 
     // swiftlint:disable line_length
     private let imageResolutionDescription = "Normally, images are resampled to 1280 pixels of horizontal resolution for online viewing. You can alternatively select one of the following resample resolutions. To avoid murdering the staging servers, resolutions above 1280x are temporarily restricted to donators, people with any hath perk, and people with a UID below 3,000,000."
     private let imageSizeDescription = "While the site will automatically scale down images to fit your screen width, you can also manually restrict the maximum display size of an image. Like the automatic scaling, this does not resample the image, as the resizing is done browser-side. (0 = no limit)"
     // swiftlint:enable line_length
 
-    init(config: Binding<EhConfig>) {
-        _config = config
+    init(profile: Binding<EhProfile>) {
+        _profile = profile
     }
 
     var body: some View {
@@ -149,12 +107,12 @@ private struct ImageSizeSettingsSection: View {
             HStack {
                 Text("Image resolution")
                 Spacer()
-                Picker(selection: $config.imageResolution) {
-                    ForEach(EhConfigImageResolution.allCases) { setting in
+                Picker(selection: $profile.imageResolution) {
+                    ForEach(EhProfileImageResolution.allCases) { setting in
                         Text(setting.value).tag(setting)
                     }
                 } label: {
-                    Text(config.imageResolution.value)
+                    Text(profile.imageResolution.value)
                 }
                 .pickerStyle(.menu)
             }
@@ -164,13 +122,13 @@ private struct ImageSizeSettingsSection: View {
             Text("Image size")
             ValuePicker(
                 title: "Horizontal",
-                value: $config.imageSizeWidth,
+                value: $profile.imageSizeWidth,
                 range: 0...65535,
                 unit: "px"
             )
             ValuePicker(
                 title: "Vertical",
-                value: $config.imageSizeHeight,
+                value: $profile.imageSizeHeight,
                 range: 0...65535,
                 unit: "px"
             )
@@ -181,14 +139,14 @@ private struct ImageSizeSettingsSection: View {
 
 // MARK: GalleryNameDisplaySection
 private struct GalleryNameDisplaySection: View {
-    @Binding private var config: EhConfig
+    @Binding private var profile: EhProfile
 
     // swiftlint:disable line_length
     private let galleryNameDescription = "Many galleries have both an English/Romanized title and a title in Japanese script. Which gallery name would you like as default?"
     // swiftlint:enable line_length
 
-    init(config: Binding<EhConfig>) {
-        _config = config
+    init(profile: Binding<EhProfile>) {
+        _profile = profile
     }
 
     var body: some View {
@@ -199,12 +157,12 @@ private struct GalleryNameDisplaySection: View {
             HStack {
                 Text("Gallery name")
                 Spacer()
-                Picker(selection: $config.galleryName) {
-                    ForEach(EhConfigGalleryName.allCases) { name in
+                Picker(selection: $profile.galleryName) {
+                    ForEach(EhProfileGalleryName.allCases) { name in
                         Text(name.value).tag(name)
                     }
                 } label: {
-                    Text(config.galleryName.value)
+                    Text(profile.galleryName.value)
                 }
                 .pickerStyle(.menu)
             }
@@ -215,14 +173,14 @@ private struct GalleryNameDisplaySection: View {
 
 // MARK: ArchiverSettingsSection
 private struct ArchiverSettingsSection: View {
-    @Binding private var config: EhConfig
+    @Binding private var profile: EhProfile
 
     // swiftlint:disable line_length
     private let archiverSettingsDescription = "The default behavior for the Archiver is to confirm the cost and selection for original or resampled archive, then present a link that can be clicked or copied elsewhere. You can change this behavior here."
     // swiftlint:enable line_length
 
-    init(config: Binding<EhConfig>) {
-        _config = config
+    init(profile: Binding<EhProfile>) {
+        _profile = profile
     }
 
     var body: some View {
@@ -231,12 +189,12 @@ private struct ArchiverSettingsSection: View {
             + Text(archiverSettingsDescription)
         ) {
             Text("Archiver behavior")
-            Picker(selection: $config.archiverBehavior) {
-                ForEach(EhConfigArchiverBehavior.allCases) { behavior in
+            Picker(selection: $profile.archiverBehavior) {
+                ForEach(EhProfileArchiverBehavior.allCases) { behavior in
                     Text(behavior.value).tag(behavior)
                 }
             } label: {
-                Text(config.archiverBehavior.value)
+                Text(profile.archiverBehavior.value)
             }
             .pickerStyle(.menu)
         }
@@ -246,20 +204,20 @@ private struct ArchiverSettingsSection: View {
 
 // MARK: FrontPageSettingsSection
 private struct FrontPageSettingsSection: View {
-    @Binding private var config: EhConfig
+    @Binding private var profile: EhProfile
 
     private var categoryBindings: [Binding<Bool>] {
         [
-            $config.doujinshiDisabled,
-            $config.mangaDisabled,
-            $config.artistCGDisabled,
-            $config.gameCGDisabled,
-            $config.westernDisabled,
-            $config.nonHDisabled,
-            $config.imageSetDisabled,
-            $config.cosplayDisabled,
-            $config.asianPornDisabled,
-            $config.miscDisabled
+            $profile.doujinshiDisabled,
+            $profile.mangaDisabled,
+            $profile.artistCGDisabled,
+            $profile.gameCGDisabled,
+            $profile.westernDisabled,
+            $profile.nonHDisabled,
+            $profile.imageSetDisabled,
+            $profile.cosplayDisabled,
+            $profile.asianPornDisabled,
+            $profile.miscDisabled
         ]
     }
 
@@ -268,8 +226,8 @@ private struct FrontPageSettingsSection: View {
     private let categoriesDescription = "What categories would you like to show by default on the front page and in searches?"
     // swiftlint:enable line_length
 
-    init(config: Binding<EhConfig>) {
-        _config = config
+    init(profile: Binding<EhProfile>) {
+        _profile = profile
     }
 
     var body: some View {
@@ -280,12 +238,12 @@ private struct FrontPageSettingsSection: View {
             HStack {
                 Text("Display mode")
                 Spacer()
-                Picker(selection: $config.displayMode) {
-                    ForEach(EhConfigDisplayMode.allCases) { mode in
+                Picker(selection: $profile.displayMode) {
+                    ForEach(EhProfileDisplayMode.allCases) { mode in
                         Text(mode.value).tag(mode)
                     }
                 } label: {
-                    Text(config.displayMode.value)
+                    Text(profile.displayMode.value)
                 }
                 .pickerStyle(.menu)
             }
@@ -300,20 +258,20 @@ private struct FrontPageSettingsSection: View {
 
 // MARK: FavoritesSection
 private struct FavoritesSection: View {
-    @Binding private var config: EhConfig
+    @Binding private var profile: EhProfile
 
     private var tuples: [(Category, Binding<String>)] {
         [
-            (.misc, $config.favoriteName0),
-            (.doujinshi, $config.favoriteName1),
-            (.manga, $config.favoriteName2),
-            (.artistCG, $config.favoriteName3),
-            (.gameCG, $config.favoriteName4),
-            (.western, $config.favoriteName5),
-            (.nonH, $config.favoriteName6),
-            (.imageSet, $config.favoriteName7),
-            (.cosplay, $config.favoriteName8),
-            (.asianPorn, $config.favoriteName9)
+            (.misc, $profile.favoriteName0),
+            (.doujinshi, $profile.favoriteName1),
+            (.manga, $profile.favoriteName2),
+            (.artistCG, $profile.favoriteName3),
+            (.gameCG, $profile.favoriteName4),
+            (.western, $profile.favoriteName5),
+            (.nonH, $profile.favoriteName6),
+            (.imageSet, $profile.favoriteName7),
+            (.cosplay, $profile.favoriteName8),
+            (.asianPorn, $profile.favoriteName9)
         ]
     }
 
@@ -322,8 +280,8 @@ private struct FavoritesSection: View {
     private let sortOrderDescription = "You can also select your default sort order for galleries on your favorites page. Note that favorites added prior to the March 2016 revamp did not store a timestamp, and will use the gallery posted time regardless of this setting."
     // swiftlint:enable line_length
 
-    init(config: Binding<EhConfig>) {
-        _config = config
+    init(profile: Binding<EhProfile>) {
+        _profile = profile
     }
 
     var body: some View {
@@ -347,12 +305,12 @@ private struct FavoritesSection: View {
             HStack {
                 Text("Favorites sort order")
                 Spacer()
-                Picker(selection: $config.favoritesSortOrder) {
-                    ForEach(EhConfigFavoritesSortOrder.allCases) { order in
+                Picker(selection: $profile.favoritesSortOrder) {
+                    ForEach(EhProfileFavoritesSortOrder.allCases) { order in
                         Text(order.value).tag(order)
                     }
                 } label: {
-                    Text(config.favoritesSortOrder.value)
+                    Text(profile.favoritesSortOrder.value)
                 }
                 .pickerStyle(.menu)
             }
@@ -363,14 +321,14 @@ private struct FavoritesSection: View {
 
 // MARK: RatingsSection
 private struct RatingsSection: View {
-    @Binding private var config: EhConfig
+    @Binding private var profile: EhProfile
 
     // swiftlint:disable line_length
     private let ratingsDescription = "By default, galleries that you have rated will appear with red stars for ratings of 2 stars and below, green for ratings between 2.5 and 4 stars, and blue for ratings of 4.5 or 5 stars. You can customize this by entering your desired color combination below. Each letter represents one star. The default RRGGB means R(ed) for the first and second star, G(reen) for the third and fourth, and B(lue) for the fifth. You can also use (Y)ellow for the normal stars. Any five-letter R/G/B/Y combo works."
     // swiftlint:enable line_length
 
-    init(config: Binding<EhConfig>) {
-        _config = config
+    init(profile: Binding<EhProfile>) {
+        _profile = profile
     }
 
     var body: some View {
@@ -382,7 +340,7 @@ private struct RatingsSection: View {
                 Text("Ratings color")
                 Spacer()
                 SettingTextField(
-                    text: $config.ratingsColor,
+                    text: $profile.ratingsColor,
                     promptText: "RRGGB", width: 80
                 )
             }
@@ -393,18 +351,18 @@ private struct RatingsSection: View {
 
 // MARK: TagNamespacesSection
 private struct TagNamespacesSection: View {
-    @Binding private var config: EhConfig
+    @Binding private var profile: EhProfile
 
     private var tuples: [(String, Binding<Bool>)] {
         [
-            ("reclass", $config.reclassExcluded),
-            ("language", $config.languageExcluded),
-            ("parody", $config.parodyExcluded),
-            ("character", $config.characterExcluded),
-            ("group", $config.groupExcluded),
-            ("artist", $config.artistExcluded),
-            ("male", $config.maleExcluded),
-            ("female", $config.femaleExcluded)
+            ("reclass", $profile.reclassExcluded),
+            ("language", $profile.languageExcluded),
+            ("parody", $profile.parodyExcluded),
+            ("character", $profile.characterExcluded),
+            ("group", $profile.groupExcluded),
+            ("artist", $profile.artistExcluded),
+            ("male", $profile.maleExcluded),
+            ("female", $profile.femaleExcluded)
         ]
     }
 
@@ -412,8 +370,8 @@ private struct TagNamespacesSection: View {
     private let tagNamespacesDescription = "If you want to exclude certain namespaces from a default tag search, you can check those below. Note that this does not prevent galleries with tags in these namespaces from appearing, it just makes it so that when searching tags, it will forego those namespaces."
     // swiftlint:enable line_length
 
-    init(config: Binding<EhConfig>) {
-        _config = config
+    init(profile: Binding<EhProfile>) {
+        _profile = profile
     }
 
     var body: some View {
@@ -429,14 +387,14 @@ private struct TagNamespacesSection: View {
 
 // MARK: TagFilteringThresholdSection
 private struct TagFilteringThresholdSection: View {
-    @Binding private var config: EhConfig
+    @Binding private var profile: EhProfile
 
     // swiftlint:disable line_length
     private let tagFilteringThresholdDescription = "You can soft filter tags by adding them to My Tags with a negative weight. If a gallery has tags that add up to weight below this value, it is filtered from view. This threshold can be set between 0 and -9999."
     // swiftlint:enable line_length
 
-    init(config: Binding<EhConfig>) {
-        _config = config
+    init(profile: Binding<EhProfile>) {
+        _profile = profile
     }
 
     var body: some View {
@@ -446,7 +404,7 @@ private struct TagFilteringThresholdSection: View {
         ) {
             ValuePicker(
                 title: "Threshold",
-                value: $config.tagFilteringThreshold,
+                value: $profile.tagFilteringThreshold,
                 range: -9999...0
             )
         }
@@ -456,14 +414,14 @@ private struct TagFilteringThresholdSection: View {
 
 // MARK: TagWatchingThresholdSection
 private struct TagWatchingThresholdSection: View {
-    @Binding private var config: EhConfig
+    @Binding private var profile: EhProfile
 
     // swiftlint:disable line_length
     private let tagWatchingThresholdDescription = "Recently uploaded galleries will be included on the watched screen if it has at least one watched tag with positive weight, and the sum of weights on its watched tags add up to this value or higher. This threshold can be set between 0 and 9999."
     // swiftlint:enable line_length
 
-    init(config: Binding<EhConfig>) {
-        _config = config
+    init(profile: Binding<EhProfile>) {
+        _profile = profile
     }
 
     var body: some View {
@@ -473,7 +431,7 @@ private struct TagWatchingThresholdSection: View {
         ) {
             ValuePicker(
                 title: "Threshold",
-                value: $config.tagWatchingThreshold,
+                value: $profile.tagWatchingThreshold,
                 range: 0...9999
             )
         }
@@ -483,17 +441,17 @@ private struct TagWatchingThresholdSection: View {
 
 // MARK: ExcludedUploadersSection
 private struct ExcludedUploadersSection: View {
-    @Binding private var config: EhConfig
+    @Binding private var profile: EhProfile
 
     // swiftlint:disable line_length
     private var excludedUploadersDescriptionText: Text {
         Text("If you wish to hide galleries from certain uploaders from the gallery list and searches, add them below. Put one username per line. Note that galleries from these uploaders will never appear regardless of your search query.\nYou are currently using ")
-        + Text("**\(config.excludedUploaders.lineCount) / 1000** exclusion slots.")
+        + Text("**\(profile.excludedUploaders.lineCount) / 1000** exclusion slots.")
     }
     // swiftlint:enable line_length
 
-    init(config: Binding<EhConfig>) {
-        _config = config
+    init(profile: Binding<EhProfile>) {
+        _profile = profile
     }
 
     var body: some View {
@@ -501,7 +459,7 @@ private struct ExcludedUploadersSection: View {
             header: Text("Excluded Uploaders").newlineBold()
             + excludedUploadersDescriptionText
         ) {
-            TextEditor(text: $config.excludedUploaders)
+            TextEditor(text: $profile.excludedUploaders)
                 .frame(maxHeight: windowH * 0.3)
                 .disableAutocorrection(true)
                 .autocapitalization(.none)
@@ -512,14 +470,14 @@ private struct ExcludedUploadersSection: View {
 
 // MARK: SearchResultCountSection
 private struct SearchResultCountSection: View {
-    @Binding private var config: EhConfig
+    @Binding private var profile: EhProfile
 
     // swiftlint:disable line_length
     private let searchResultCountDescription = "How many results would you like per page for the index/search page and torrent search pages? (Hath Perk: Paging Enlargement Required)"
     // swiftlint:enable line_length
 
-    init(config: Binding<EhConfig>) {
-        _config = config
+    init(profile: Binding<EhProfile>) {
+        _profile = profile
     }
 
     var body: some View {
@@ -530,12 +488,12 @@ private struct SearchResultCountSection: View {
             HStack {
                 Text("Results per page")
                 Spacer()
-                Picker(selection: $config.searchResultCount) {
-                    ForEach(EhConfigSearchResultCount.allCases) { count in
+                Picker(selection: $profile.searchResultCount) {
+                    ForEach(EhProfileSearchResultCount.allCases) { count in
                         Text(String(count.value) + " results").tag(count)
                     }
                 } label: {
-                    Text(String(config.searchResultCount.value) + " results")
+                    Text(String(profile.searchResultCount.value) + " results")
                 }
                 .pickerStyle(.menu)
             }
@@ -546,15 +504,15 @@ private struct SearchResultCountSection: View {
 
 // MARK: ThumbnailSettingsSection
 private struct ThumbnailSettingsSection: View {
-    @Binding private var config: EhConfig
+    @Binding private var profile: EhProfile
 
     // swiftlint:disable line_length
     private let thumbnailLoadTimingDescription = "How would you like the mouse-over thumbnails on the front page to load when using List Mode?\n"
     private let thumbnailConfigurationDescription = "You can set a default thumbnail configuration for all galleries you visit."
     // swiftlint:enable line_length
 
-    init(config: Binding<EhConfig>) {
-        _config = config
+    init(profile: Binding<EhProfile>) {
+        _profile = profile
     }
 
     var body: some View {
@@ -562,18 +520,18 @@ private struct ThumbnailSettingsSection: View {
             header: Text("Thumbnail Settings").newlineBold()
             + Text(
                 thumbnailLoadTimingDescription
-                + config.thumbnailLoadTiming.description
+                + profile.thumbnailLoadTiming.description
             )
         ) {
             HStack {
                 Text("Thumbnail load timing")
                 Spacer()
-                Picker(selection: $config.thumbnailLoadTiming) {
-                    ForEach(EhConfigThumbnailLoadTiming.allCases) { timing in
+                Picker(selection: $profile.thumbnailLoadTiming) {
+                    ForEach(EhProfileThumbnailLoadTiming.allCases) { timing in
                         Text(timing.value).tag(timing)
                     }
                 } label: {
-                    Text(config.thumbnailLoadTiming.value)
+                    Text(profile.thumbnailLoadTiming.value)
                 }
                 .pickerStyle(.menu)
             }
@@ -583,12 +541,12 @@ private struct ThumbnailSettingsSection: View {
             HStack {
                 Text("Size")
                 Spacer()
-                Picker(selection: $config.thumbnailConfigSize) {
-                    ForEach(EhConfigThumbnailSize.allCases) { size in
+                Picker(selection: $profile.thumbnailConfigSize) {
+                    ForEach(EhProfileThumbnailSize.allCases) { size in
                         Text(size.value).tag(size)
                     }
                 } label: {
-                    Text(config.thumbnailConfigSize.value)
+                    Text(profile.thumbnailConfigSize.value)
                 }
                 .pickerStyle(.segmented)
                 .frame(width: 200)
@@ -596,12 +554,12 @@ private struct ThumbnailSettingsSection: View {
             HStack {
                 Text("Rows")
                 Spacer()
-                Picker(selection: $config.thumbnailConfigRows) {
-                    ForEach(EhConfigThumbnailRows.allCases) { row in
+                Picker(selection: $profile.thumbnailConfigRows) {
+                    ForEach(EhProfileThumbnailRows.allCases) { row in
                         Text(row.value).tag(row)
                     }
                 } label: {
-                    Text(config.thumbnailConfigRows.value)
+                    Text(profile.thumbnailConfigRows.value)
                 }
                 .pickerStyle(.segmented)
                 .frame(width: 200)
@@ -613,14 +571,14 @@ private struct ThumbnailSettingsSection: View {
 
 // MARK: ThumbnailScalingSection
 private struct ThumbnailScalingSection: View {
-    @Binding private var config: EhConfig
+    @Binding private var profile: EhProfile
 
     // swiftlint:disable line_length
     private let thumbnailScalingDescription = "Thumbnails on the thumbnail and extended gallery list views can be scaled to a custom value between 75% and 150%."
     // swiftlint:enable line_length
 
-    init(config: Binding<EhConfig>) {
-        _config = config
+    init(profile: Binding<EhProfile>) {
+        _profile = profile
     }
 
     var body: some View {
@@ -630,7 +588,7 @@ private struct ThumbnailScalingSection: View {
         ) {
             ValuePicker(
                 title: "Scale factor",
-                value: $config.thumbnailScaleFactor,
+                value: $profile.thumbnailScaleFactor,
                 range: 75...150,
                 unit: "%"
             )
@@ -641,14 +599,14 @@ private struct ThumbnailScalingSection: View {
 
 // MARK: ViewportOverrideSection
 private struct ViewportOverrideSection: View {
-    @Binding private var config: EhConfig
+    @Binding private var profile: EhProfile
 
     // swiftlint:disable line_length
     private let viewportOverrideDescription = "Allows you to override the virtual width of the site for mobile devices. This is normally determined automatically by your device based on its DPI. Sensible values at 100% thumbnail scale are between 640 and 1400."
     // swiftlint:enable line_length
 
-    init(config: Binding<EhConfig>) {
-        _config = config
+    init(profile: Binding<EhProfile>) {
+        _profile = profile
     }
 
     var body: some View {
@@ -658,7 +616,7 @@ private struct ViewportOverrideSection: View {
         ) {
             ValuePicker(
                 title: "Virtual width",
-                value: $config.viewportVirtualWidth,
+                value: $profile.viewportVirtualWidth,
                 range: 0...9999,
                 unit: "px"
             )
@@ -669,10 +627,10 @@ private struct ViewportOverrideSection: View {
 
 // MARK: GalleryCommentsSection
 private struct GalleryCommentsSection: View {
-    @Binding private var config: EhConfig
+    @Binding private var profile: EhProfile
 
-    init(config: Binding<EhConfig>) {
-        _config = config
+    init(profile: Binding<EhProfile>) {
+        _profile = profile
     }
 
     var body: some View {
@@ -680,24 +638,24 @@ private struct GalleryCommentsSection: View {
             HStack {
                 Text("Comments sort order")
                 Spacer()
-                Picker(selection: $config.commentsSortOrder) {
-                    ForEach(EhConfigCommentsSortOrder.allCases) { order in
+                Picker(selection: $profile.commentsSortOrder) {
+                    ForEach(EhProfileCommentsSortOrder.allCases) { order in
                         Text(order.value).tag(order)
                     }
                 } label: {
-                    Text(config.commentsSortOrder.value)
+                    Text(profile.commentsSortOrder.value)
                 }
                 .pickerStyle(.menu)
             }
             HStack {
                 Text("Comment votes show timing")
                 Spacer()
-                Picker(selection: $config.commentVotesShowTiming) {
-                    ForEach(EhConfigCommentVotesShowTiming.allCases) { timing in
+                Picker(selection: $profile.commentVotesShowTiming) {
+                    ForEach(EhProfileCommentVotesShowTiming.allCases) { timing in
                         Text(timing.value).tag(timing)
                     }
                 } label: {
-                    Text(config.commentVotesShowTiming.value)
+                    Text(profile.commentVotesShowTiming.value)
                 }
                 .pickerStyle(.menu)
             }
@@ -708,10 +666,10 @@ private struct GalleryCommentsSection: View {
 
 // MARK: GalleryTagsSection
 private struct GalleryTagsSection: View {
-    @Binding private var config: EhConfig
+    @Binding private var profile: EhProfile
 
-    init(config: Binding<EhConfig>) {
-        _config = config
+    init(profile: Binding<EhProfile>) {
+        _profile = profile
     }
 
     var body: some View {
@@ -719,12 +677,12 @@ private struct GalleryTagsSection: View {
             HStack {
                 Text("Tags sort order")
                 Spacer()
-                Picker(selection: $config.tagsSortOrder) {
-                    ForEach(EhConfigTagsSortOrder.allCases) { order in
+                Picker(selection: $profile.tagsSortOrder) {
+                    ForEach(EhProfileTagsSortOrder.allCases) { order in
                         Text(order.value).tag(order)
                     }
                 } label: {
-                    Text(config.tagsSortOrder.value)
+                    Text(profile.tagsSortOrder.value)
                 }
                 .pickerStyle(.menu)
             }
@@ -735,17 +693,17 @@ private struct GalleryTagsSection: View {
 
 // MARK: GalleryPageNumberingSection
 private struct GalleryPageNumberingSection: View {
-    @Binding private var config: EhConfig
+    @Binding private var profile: EhProfile
 
-    init(config: Binding<EhConfig>) {
-        _config = config
+    init(profile: Binding<EhProfile>) {
+        _profile = profile
     }
 
     var body: some View {
         Section("Gallery Page Numbering") {
             Toggle(
                 "Show gallery page numbers",
-                isOn: $config.galleryShowPageNumbers
+                isOn: $profile.galleryShowPageNumbers
             )
         }
         .textCase(nil)
@@ -754,14 +712,14 @@ private struct GalleryPageNumberingSection: View {
 
 // MARK: HathLocalNetworkHostSection
 private struct HathLocalNetworkHostSection: View {
-    @Binding private var config: EhConfig
+    @Binding private var profile: EhProfile
 
     // swiftlint:disable line_length
     private let hathLocalNetworkHostDescription = "This setting can be used if you have a H@H client running on your local network with the same public IP you browse the site with. Some routers are buggy and cannot route requests back to its own IP; this allows you to work around this problem.\nIf you are running the client on the same PC you browse from, use the loopback address (127.0.0.1:port). If the client is running on another computer on your network, use its local network IP. Some browser configurations prevent external web sites from accessing URLs with local network IPs, the site must then be whitelisted for this to work."
     // swiftlint:enable line_length
 
-    init(config: Binding<EhConfig>) {
-        _config = config
+    init(profile: Binding<EhProfile>) {
+        _profile = profile
     }
 
     var body: some View {
@@ -772,7 +730,7 @@ private struct HathLocalNetworkHostSection: View {
             HStack {
                 Text("IP address:port")
                 Spacer()
-                SettingTextField(text: $config.hathLocalNetworkHost, width: 100)
+                SettingTextField(text: $profile.hathLocalNetworkHost, width: 100)
             }
         }
         .textCase(nil)
@@ -781,17 +739,17 @@ private struct HathLocalNetworkHostSection: View {
 
 // MARK: OriginalImagesSection
 private struct OriginalImagesSection: View {
-    @Binding private var config: EhConfig
+    @Binding private var profile: EhProfile
 
-    init(config: Binding<EhConfig>) {
-        _config = config
+    init(profile: Binding<EhProfile>) {
+        _profile = profile
     }
 
     var body: some View {
         Section("Original Images") {
             Toggle(
                 "Use original images",
-                isOn: $config.useOriginalImages
+                isOn: $profile.useOriginalImages
             )
         }
         .textCase(nil)
@@ -800,33 +758,33 @@ private struct OriginalImagesSection: View {
 
 // MARK: MultiplePageViewerSection
 private struct MultiplePageViewerSection: View {
-    @Binding private var config: EhConfig
+    @Binding private var profile: EhProfile
 
-    init(config: Binding<EhConfig>) {
-        _config = config
+    init(profile: Binding<EhProfile>) {
+        _profile = profile
     }
 
     var body: some View {
         Section("Multi-Page Viewer") {
             Toggle(
                 "Use Multi-Page Viewer",
-                isOn: $config.useMultiplePageViewer
+                isOn: $profile.useMultiplePageViewer
             )
             HStack {
                 Text("Display style")
                 Spacer()
-                Picker(selection: $config.multiplePageViewerStyle) {
-                    ForEach(EhConfigMultiplePageViewerStyle.allCases) { style in
+                Picker(selection: $profile.multiplePageViewerStyle) {
+                    ForEach(EhProfileMultiplePageViewerStyle.allCases) { style in
                         Text(style.value).tag(style)
                     }
                 } label: {
-                    Text(config.multiplePageViewerStyle.value)
+                    Text(profile.multiplePageViewerStyle.value)
                 }
                 .pickerStyle(.menu)
             }
             Toggle(
                 "Show thumbnail pane",
-                isOn: $config.multiplePageViewerShowThumbnailPane
+                isOn: $profile.multiplePageViewerShowThumbnailPane
             )
         }
         .textCase(nil)
@@ -921,20 +879,20 @@ private struct ExcludeView: View {
     }
 }
 
-struct EhConfigView_Previews: PreviewProvider {
+struct EhProfileView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
-            EhConfigView()
+            EhProfileView()
         }
     }
 }
 
 // MARK: AnySection
 private struct AnySection: View {
-    @Binding private var config: EhConfig
+    @Binding private var profile: EhProfile
 
-    init(config: Binding<EhConfig>) {
-        _config = config
+    init(profile: Binding<EhProfile>) {
+        _profile = profile
     }
 
     var body: some View {

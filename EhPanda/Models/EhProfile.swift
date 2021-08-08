@@ -5,73 +5,20 @@
 //  Created by 荒木辰造 on 2021/08/08.
 //
 
-// MARK: EhConfig
+// MARK: EhProfile
 struct EhProfile {
-    static let empty = EhProfile(
-        loadThroughHathSetting: .anyClient,
-        imageResolution: .auto,
-        imageSizeWidth: 0,
-        imageSizeHeight: 0,
-        galleryName: .default,
-        archiverBehavior: .manualSelectManualStart,
-        displayMode: .compact,
-        doujinshiDisabled: false,
-        mangaDisabled: false,
-        artistCGDisabled: false,
-        gameCGDisabled: false,
-        westernDisabled: false,
-        nonHDisabled: false,
-        imageSetDisabled: false,
-        cosplayDisabled: false,
-        asianPornDisabled: false,
-        miscDisabled: false,
-        favoriteName0: "Favorites 0",
-        favoriteName1: "Favorites 1",
-        favoriteName2: "Favorites 2",
-        favoriteName3: "Favorites 3",
-        favoriteName4: "Favorites 4",
-        favoriteName5: "Favorites 5",
-        favoriteName6: "Favorites 6",
-        favoriteName7: "Favorites 7",
-        favoriteName8: "Favorites 8",
-        favoriteName9: "Favorites 9",
-        favoritesSortOrder: .favoritedTime,
-        ratingsColor: "",
-        reclassExcluded: false,
-        languageExcluded: false,
-        parodyExcluded: false,
-        characterExcluded: false,
-        groupExcluded: false,
-        artistExcluded: false,
-        maleExcluded: false,
-        femaleExcluded: false,
-        tagFilteringThreshold: 0,
-        tagWatchingThreshold: 0,
-        excludedUploaders: "",
-        searchResultCount: .twentyFive,
-        thumbnailLoadTiming: .onMouseOver,
-        thumbnailConfigSize: .normal,
-        thumbnailConfigRows: .four,
-        thumbnailScaleFactor: 100,
-        viewportVirtualWidth: 0,
-        commentsSortOrder: .oldest,
-        commentVotesShowTiming: .onHoverOrClick,
-        tagsSortOrder: .alphabetical,
-        galleryShowPageNumbers: false,
-        hathLocalNetworkHost: "",
-        useOriginalImages: false,
-        useMultiplePageViewer: false,
-        multiplePageViewerStyle: .alignLeftScaleIfOverWidth,
-        multiplePageViewerShowThumbnailPane: true
+    // swiftlint:disable line_length
+    static let empty = EhProfile(loadThroughHathSetting: .anyClient, imageResolution: .auto, imageSizeWidth: 0, imageSizeHeight: 0, galleryName: .default, archiverBehavior: .manualSelectManualStart, displayMode: .compact, doujinshiDisabled: false, mangaDisabled: false, artistCGDisabled: false, gameCGDisabled: false, westernDisabled: false, nonHDisabled: false, imageSetDisabled: false, cosplayDisabled: false, asianPornDisabled: false, miscDisabled: false, favoriteName0: "Favorites 0", favoriteName1: "Favorites 1", favoriteName2: "Favorites 2", favoriteName3: "Favorites 3", favoriteName4: "Favorites 4", favoriteName5: "Favorites 5", favoriteName6: "Favorites 6", favoriteName7: "Favorites 7", favoriteName8: "Favorites 8", favoriteName9: "Favorites 9", favoritesSortOrder: .favoritedTime, ratingsColor: "", reclassExcluded: false, languageExcluded: false, parodyExcluded: false, characterExcluded: false, groupExcluded: false, artistExcluded: false, maleExcluded: false, femaleExcluded: false, tagFilteringThreshold: 0, tagWatchingThreshold: 0, excludedUploaders: "", searchResultCount: .twentyFive, thumbnailLoadTiming: .onMouseOver, thumbnailConfigSize: .normal, thumbnailConfigRows: .four, thumbnailScaleFactor: 100, viewportVirtualWidth: 0, commentsSortOrder: .oldest, commentVotesShowTiming: .onHoverOrClick, tagsSortOrder: .alphabetical, galleryShowPageNumbers: false, hathLocalNetworkHost: "", useOriginalImages: false, useMultiplePageViewer: false, multiplePageViewerStyle: .alignLeftScaleIfOverWidth, multiplePageViewerShowThumbnailPane: true
     )
+    // swiftlint:enable line_length
 
-    var loadThroughHathSetting: EhConfigLoadThroughHathSetting
-    var imageResolution: EhConfigImageResolution
+    var loadThroughHathSetting: EhProfileLoadThroughHathSetting
+    var imageResolution: EhProfileImageResolution
     var imageSizeWidth: Float
     var imageSizeHeight: Float
-    var galleryName: EhConfigGalleryName
-    var archiverBehavior: EhConfigArchiverBehavior
-    var displayMode: EhConfigDisplayMode
+    var galleryName: EhProfileGalleryName
+    var archiverBehavior: EhProfileArchiverBehavior
+    var displayMode: EhProfileDisplayMode
 
     // Front Page Settings
     var doujinshiDisabled: Bool
@@ -97,7 +44,7 @@ struct EhProfile {
     var favoriteName8: String
     var favoriteName9: String
 
-    var favoritesSortOrder: EhConfigFavoritesSortOrder
+    var favoritesSortOrder: EhProfileFavoritesSortOrder
     var ratingsColor: String
 
     // Tag Namespaces
@@ -113,30 +60,30 @@ struct EhProfile {
     var tagFilteringThreshold: Float
     var tagWatchingThreshold: Float
     var excludedUploaders: String
-    var searchResultCount: EhConfigSearchResultCount
-    var thumbnailLoadTiming: EhConfigThumbnailLoadTiming
-    var thumbnailConfigSize: EhConfigThumbnailSize
-    var thumbnailConfigRows: EhConfigThumbnailRows
+    var searchResultCount: EhProfileSearchResultCount
+    var thumbnailLoadTiming: EhProfileThumbnailLoadTiming
+    var thumbnailConfigSize: EhProfileThumbnailSize
+    var thumbnailConfigRows: EhProfileThumbnailRows
     var thumbnailScaleFactor: Float
     var viewportVirtualWidth: Float
-    var commentsSortOrder: EhConfigCommentsSortOrder
-    var commentVotesShowTiming: EhConfigCommentVotesShowTiming
-    var tagsSortOrder: EhConfigTagsSortOrder
+    var commentsSortOrder: EhProfileCommentsSortOrder
+    var commentVotesShowTiming: EhProfileCommentVotesShowTiming
+    var tagsSortOrder: EhProfileTagsSortOrder
     var galleryShowPageNumbers: Bool
     var hathLocalNetworkHost: String
     var useOriginalImages: Bool
     var useMultiplePageViewer: Bool
-    var multiplePageViewerStyle: EhConfigMultiplePageViewerStyle
+    var multiplePageViewerStyle: EhProfileMultiplePageViewerStyle
     var multiplePageViewerShowThumbnailPane: Bool
 }
 
 // MARK: LoadThroughHathSetting
-enum EhConfigLoadThroughHathSetting: Int, CaseIterable, Identifiable {
+enum EhProfileLoadThroughHathSetting: Int, CaseIterable, Identifiable {
     case anyClient
     case defaultPortOnly
     case no
 }
-extension EhConfigLoadThroughHathSetting {
+extension EhProfileLoadThroughHathSetting {
     var id: Int { rawValue }
 
     var value: String {
@@ -162,7 +109,7 @@ extension EhConfigLoadThroughHathSetting {
 }
 
 // MARK: ImageResolution
-enum EhConfigImageResolution: Int, CaseIterable, Identifiable {
+enum EhProfileImageResolution: Int, CaseIterable, Identifiable {
     case auto
     case x780
     case x980
@@ -170,7 +117,7 @@ enum EhConfigImageResolution: Int, CaseIterable, Identifiable {
     case x1600
     case x2400
 }
-extension EhConfigImageResolution {
+extension EhProfileImageResolution {
     var id: Int { rawValue }
 
     var value: String {
@@ -192,11 +139,11 @@ extension EhConfigImageResolution {
 }
 
 // MARK: GalleryName
-enum EhConfigGalleryName: Int, CaseIterable, Identifiable {
+enum EhProfileGalleryName: Int, CaseIterable, Identifiable {
     case `default`
     case japanese
 }
-extension EhConfigGalleryName {
+extension EhProfileGalleryName {
     var id: Int { rawValue }
 
     var value: String {
@@ -210,7 +157,7 @@ extension EhConfigGalleryName {
 }
 
 // MARK: ArchiverBehavior
-enum EhConfigArchiverBehavior: Int, CaseIterable, Identifiable {
+enum EhProfileArchiverBehavior: Int, CaseIterable, Identifiable {
     case manualSelectManualStart
     case manualSelectAutoStart
     case autoSelectOriginalManualStart
@@ -218,7 +165,7 @@ enum EhConfigArchiverBehavior: Int, CaseIterable, Identifiable {
     case autoSelectResampleManualStart
     case autoSelectResampleAutoStart
 }
-extension EhConfigArchiverBehavior {
+extension EhProfileArchiverBehavior {
     var id: Int { rawValue }
 
     var value: String {
@@ -240,14 +187,14 @@ extension EhConfigArchiverBehavior {
 }
 
 // MARK: DisplayMode
-enum EhConfigDisplayMode: Int, CaseIterable, Identifiable {
+enum EhProfileDisplayMode: Int, CaseIterable, Identifiable {
     case compact
     case thumbnail
     case extended
     case minimal
     case minimalPlus
 }
-extension EhConfigDisplayMode {
+extension EhProfileDisplayMode {
     var id: Int { rawValue }
 
     var value: String {
@@ -267,11 +214,11 @@ extension EhConfigDisplayMode {
 }
 
 // MARK: FavoritesSortOrder
-enum EhConfigFavoritesSortOrder: Int, CaseIterable, Identifiable {
+enum EhProfileFavoritesSortOrder: Int, CaseIterable, Identifiable {
     case lastUpdateTime
     case favoritedTime
 }
-extension EhConfigFavoritesSortOrder {
+extension EhProfileFavoritesSortOrder {
     var id: Int { rawValue }
 
     var value: String {
@@ -285,13 +232,13 @@ extension EhConfigFavoritesSortOrder {
 }
 
 // MARK: SearchResultCount
-enum EhConfigSearchResultCount: Int, CaseIterable, Identifiable {
+enum EhProfileSearchResultCount: Int, CaseIterable, Identifiable {
     case twentyFive
     case fifty
     case oneHundred
     case twoHundred
 }
-extension EhConfigSearchResultCount {
+extension EhProfileSearchResultCount {
     var id: Int { rawValue }
 
     var value: String {
@@ -309,11 +256,11 @@ extension EhConfigSearchResultCount {
 }
 
 // MARK: ThumbnailLoadTiming
-enum EhConfigThumbnailLoadTiming: Int, CaseIterable, Identifiable {
+enum EhProfileThumbnailLoadTiming: Int, CaseIterable, Identifiable {
     case onMouseOver
     case onPageLoad
 }
-extension EhConfigThumbnailLoadTiming {
+extension EhProfileThumbnailLoadTiming {
     var id: Int { rawValue }
 
     var value: String {
@@ -337,11 +284,11 @@ extension EhConfigThumbnailLoadTiming {
 }
 
 // MARK: ThumbnailSize
-enum EhConfigThumbnailSize: Int, CaseIterable, Identifiable {
+enum EhProfileThumbnailSize: Int, CaseIterable, Identifiable {
     case normal
     case large
 }
-extension EhConfigThumbnailSize {
+extension EhProfileThumbnailSize {
     var id: Int { rawValue }
 
     var value: String {
@@ -355,13 +302,13 @@ extension EhConfigThumbnailSize {
 }
 
 // MARK: ThumbnailRows
-enum EhConfigThumbnailRows: Int, CaseIterable, Identifiable {
+enum EhProfileThumbnailRows: Int, CaseIterable, Identifiable {
     case four
     case ten
     case twenty
     case forty
 }
-extension EhConfigThumbnailRows {
+extension EhProfileThumbnailRows {
     var id: Int { rawValue }
 
     var value: String {
@@ -379,12 +326,12 @@ extension EhConfigThumbnailRows {
 }
 
 // MARK: CommentsSortOrder
-enum EhConfigCommentsSortOrder: Int, CaseIterable, Identifiable {
+enum EhProfileCommentsSortOrder: Int, CaseIterable, Identifiable {
     case oldest
     case recent
     case highestScore
 }
-extension EhConfigCommentsSortOrder {
+extension EhProfileCommentsSortOrder {
     var id: Int { rawValue }
 
     var value: String {
@@ -400,11 +347,11 @@ extension EhConfigCommentsSortOrder {
 }
 
 // MARK: CommentVotesShowTiming
-enum EhConfigCommentVotesShowTiming: Int, CaseIterable, Identifiable {
+enum EhProfileCommentVotesShowTiming: Int, CaseIterable, Identifiable {
     case onHoverOrClick
     case always
 }
-extension EhConfigCommentVotesShowTiming {
+extension EhProfileCommentVotesShowTiming {
     var id: Int { rawValue }
 
     var value: String {
@@ -418,11 +365,11 @@ extension EhConfigCommentVotesShowTiming {
 }
 
 // MARK: TagsSortOrder
-enum EhConfigTagsSortOrder: Int, CaseIterable, Identifiable {
+enum EhProfileTagsSortOrder: Int, CaseIterable, Identifiable {
     case alphabetical
     case tagPower
 }
-extension EhConfigTagsSortOrder {
+extension EhProfileTagsSortOrder {
     var id: Int { rawValue }
 
     var value: String {
@@ -436,12 +383,12 @@ extension EhConfigTagsSortOrder {
 }
 
 // MARK: MultiplePageViewerStyle
-enum EhConfigMultiplePageViewerStyle: Int, CaseIterable, Identifiable {
+enum EhProfileMultiplePageViewerStyle: Int, CaseIterable, Identifiable {
     case alignLeftScaleIfOverWidth
     case alignCenterScaleIfOverWidth
     case alignCenterAlwaysScale
 }
-extension EhConfigMultiplePageViewerStyle {
+extension EhProfileMultiplePageViewerStyle {
     var id: Int { rawValue }
 
     var value: String {
@@ -457,11 +404,11 @@ extension EhConfigMultiplePageViewerStyle {
 }
 
 // MARK: MultiplePageViewerThumbnailPane
-enum EhConfigMultiplePageViewerThumbnailPane: Int, CaseIterable, Identifiable {
+enum EhProfileMultiplePageViewerThumbnailPane: Int, CaseIterable, Identifiable {
     case show
     case hide
 }
-extension EhConfigMultiplePageViewerThumbnailPane {
+extension EhProfileMultiplePageViewerThumbnailPane {
     var id: Int { rawValue }
 
     var value: String {

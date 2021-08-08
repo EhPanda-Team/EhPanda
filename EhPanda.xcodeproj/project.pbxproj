@@ -43,7 +43,7 @@
 		AB7B29F626AC741600EE1F14 /* GenericList.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB7B29F526AC741600EE1F14 /* GenericList.swift */; };
 		AB7E6B3025D24FE00035CC68 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = AB7E6B3225D24FE00035CC68 /* InfoPlist.strings */; };
 		AB82819B26B1C39B00A80CFA /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = AB82819A26B1C39B00A80CFA /* Kingfisher */; };
-		AB8C821926BF801700E8C5E6 /* EhConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB8C821826BF801700E8C5E6 /* EhConfig.swift */; };
+		AB8C821926BF801700E8C5E6 /* EhProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB8C821826BF801700E8C5E6 /* EhProfile.swift */; };
 		ABA732D925A8018A00B3D9AB /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABA732D825A8018A00B3D9AB /* Extensions.swift */; };
 		ABA732DF25A852D800B3D9AB /* Filter.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABA732DE25A852D800B3D9AB /* Filter.swift */; };
 		ABAC82FE26BC4A96009F5026 /* OpenCC in Frameworks */ = {isa = PBXBuildFile; productRef = ABAC82FD26BC4A96009F5026 /* OpenCC */; };
@@ -171,7 +171,7 @@
 		AB7E6B3425D24FE40035CC68 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
 		AB7E6B3525D24FE50035CC68 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		AB86149B26A9C91E003A1F5A /* Model 2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Model 2.xcdatamodel"; sourceTree = "<group>"; };
-		AB8C821826BF801700E8C5E6 /* EhConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EhConfig.swift; sourceTree = "<group>"; };
+		AB8C821826BF801700E8C5E6 /* EhProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EhProfile.swift; sourceTree = "<group>"; };
 		AB994DBB25986F7A00E9A367 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
 		ABA732D825A8018A00B3D9AB /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		ABA732DE25A852D800B3D9AB /* Filter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Filter.swift; sourceTree = "<group>"; };
@@ -422,7 +422,7 @@
 				ABA732DE25A852D800B3D9AB /* Filter.swift */,
 				ABC3C7802593699A00E0C11B /* Models.swift */,
 				ABEA1FE525A9B40B002966B9 /* Setting.swift */,
-				AB8C821826BF801700E8C5E6 /* EhConfig.swift */,
+				AB8C821826BF801700E8C5E6 /* EhProfile.swift */,
 				ABF313A425B1AB6600D47A2F /* Misc.swift */,
 			);
 			path = Models;
@@ -714,7 +714,7 @@
 				ABF45AEB25F3313D00ECB568 /* MangaDetailCell.swift in Sources */,
 				AB69CB8026B3DABC00699359 /* AdvancedList.swift in Sources */,
 				ABC3C7892593699B00E0C11B /* Defaults.swift in Sources */,
-				AB8C821926BF801700E8C5E6 /* EhConfig.swift in Sources */,
+				AB8C821926BF801700E8C5E6 /* EhProfile.swift in Sources */,
 				ABF45AF125F3313D00ECB568 /* AssociatedView.swift in Sources */,
 				ABBC332A26BE7C940084A331 /* SettingTextField.swift in Sources */,
 				AB358317269D826B009466A5 /* DFStreamHandler.swift in Sources */,

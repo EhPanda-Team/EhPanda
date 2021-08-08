@@ -585,7 +585,7 @@ struct VerifyProfileRequest {
                 for: Defaults.URL.ehConfig().safeURL()
             )
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-            .tryMap(Parser.parseProfile)
+            .tryMap(Parser.parseProfileIndex)
             .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
@@ -608,6 +608,19 @@ struct CreateProfileRequest {
 
         return URLSession.shared.dataTaskPublisher(for: request)
             .map { $0 }
+            .mapError(mapAppError)
+            .eraseToAnyPublisher()
+    }
+}
+
+struct EhProfileRequest {
+    var publisher: AnyPublisher<EhProfile, AppError> {
+        URLSession.shared
+            .dataTaskPublisher(
+                for: Defaults.URL.ehConfig().safeURL()
+            )
+            .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
+            .tryMap(Parser.parseEhProfile)
             .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
