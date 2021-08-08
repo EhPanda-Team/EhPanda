@@ -8,9 +8,14 @@
 // MARK: EhProfile
 struct EhProfile {
     // swiftlint:disable line_length
-    static let empty = EhProfile(loadThroughHathSetting: .anyClient, imageResolution: .auto, imageSizeWidth: 0, imageSizeHeight: 0, galleryName: .default, archiverBehavior: .manualSelectManualStart, displayMode: .compact, doujinshiDisabled: false, mangaDisabled: false, artistCGDisabled: false, gameCGDisabled: false, westernDisabled: false, nonHDisabled: false, imageSetDisabled: false, cosplayDisabled: false, asianPornDisabled: false, miscDisabled: false, favoriteName0: "Favorites 0", favoriteName1: "Favorites 1", favoriteName2: "Favorites 2", favoriteName3: "Favorites 3", favoriteName4: "Favorites 4", favoriteName5: "Favorites 5", favoriteName6: "Favorites 6", favoriteName7: "Favorites 7", favoriteName8: "Favorites 8", favoriteName9: "Favorites 9", favoritesSortOrder: .favoritedTime, ratingsColor: "", reclassExcluded: false, languageExcluded: false, parodyExcluded: false, characterExcluded: false, groupExcluded: false, artistExcluded: false, maleExcluded: false, femaleExcluded: false, tagFilteringThreshold: 0, tagWatchingThreshold: 0, excludedUploaders: "", searchResultCount: .twentyFive, thumbnailLoadTiming: .onMouseOver, thumbnailConfigSize: .normal, thumbnailConfigRows: .four, thumbnailScaleFactor: 100, viewportVirtualWidth: 0, commentsSortOrder: .oldest, commentVotesShowTiming: .onHoverOrClick, tagsSortOrder: .alphabetical, galleryShowPageNumbers: false, hathLocalNetworkHost: "", useOriginalImages: false, useMultiplePageViewer: false, multiplePageViewerStyle: .alignLeftScaleIfOverWidth, multiplePageViewerShowThumbnailPane: true
+    static let empty = EhProfile(capableImageResolution: .x780, capableSearchResultCount: .twentyFive, capableThumbnailConfigSize: .normal, capableThumbnailConfigRows: .twenty, loadThroughHathSetting: .anyClient, imageResolution: .auto, imageSizeWidth: 0, imageSizeHeight: 0, galleryName: .default, archiverBehavior: .manualSelectManualStart, displayMode: .compact, doujinshiDisabled: false, mangaDisabled: false, artistCGDisabled: false, gameCGDisabled: false, westernDisabled: false, nonHDisabled: false, imageSetDisabled: false, cosplayDisabled: false, asianPornDisabled: false, miscDisabled: false, favoriteName0: "Favorites 0", favoriteName1: "Favorites 1", favoriteName2: "Favorites 2", favoriteName3: "Favorites 3", favoriteName4: "Favorites 4", favoriteName5: "Favorites 5", favoriteName6: "Favorites 6", favoriteName7: "Favorites 7", favoriteName8: "Favorites 8", favoriteName9: "Favorites 9", favoritesSortOrder: .favoritedTime, ratingsColor: "", reclassExcluded: false, languageExcluded: false, parodyExcluded: false, characterExcluded: false, groupExcluded: false, artistExcluded: false, maleExcluded: false, femaleExcluded: false, tagFilteringThreshold: 0, tagWatchingThreshold: 0, excludedUploaders: "", searchResultCount: .twentyFive, thumbnailLoadTiming: .onMouseOver, thumbnailConfigSize: .normal, thumbnailConfigRows: .four, thumbnailScaleFactor: 100, viewportVirtualWidth: 0, commentsSortOrder: .oldest, commentVotesShowTiming: .onHoverOrClick, tagsSortOrder: .alphabetical, galleryShowPageNumbers: false, hathLocalNetworkHost: ""
     )
     // swiftlint:enable line_length
+
+    var capableImageResolution: EhProfileImageResolution
+    var capableSearchResultCount: EhProfileSearchResultCount
+    var capableThumbnailConfigSize: EhProfileThumbnailSize
+    var capableThumbnailConfigRows: EhProfileThumbnailRows
 
     var loadThroughHathSetting: EhProfileLoadThroughHathSetting
     var imageResolution: EhProfileImageResolution
@@ -71,10 +76,10 @@ struct EhProfile {
     var tagsSortOrder: EhProfileTagsSortOrder
     var galleryShowPageNumbers: Bool
     var hathLocalNetworkHost: String
-    var useOriginalImages: Bool
-    var useMultiplePageViewer: Bool
-    var multiplePageViewerStyle: EhProfileMultiplePageViewerStyle
-    var multiplePageViewerShowThumbnailPane: Bool
+    var useOriginalImages: Bool?
+    var useMultiplePageViewer: Bool?
+    var multiplePageViewerStyle: EhProfileMultiplePageViewerStyle?
+    var multiplePageViewerShowThumbnailPane: Bool?
 }
 
 // MARK: LoadThroughHathSetting
@@ -109,7 +114,7 @@ extension EhProfileLoadThroughHathSetting {
 }
 
 // MARK: ImageResolution
-enum EhProfileImageResolution: Int, CaseIterable, Identifiable {
+enum EhProfileImageResolution: Int, CaseIterable, Identifiable, Comparable {
     case auto
     case x780
     case x980
@@ -119,6 +124,12 @@ enum EhProfileImageResolution: Int, CaseIterable, Identifiable {
 }
 extension EhProfileImageResolution {
     var id: Int { rawValue }
+    static func < (
+        lhs: EhProfileImageResolution,
+        rhs: EhProfileImageResolution
+    ) -> Bool {
+        lhs.rawValue < rhs.rawValue
+    }
 
     var value: String {
         switch self {
@@ -232,7 +243,7 @@ extension EhProfileFavoritesSortOrder {
 }
 
 // MARK: SearchResultCount
-enum EhProfileSearchResultCount: Int, CaseIterable, Identifiable {
+enum EhProfileSearchResultCount: Int, CaseIterable, Identifiable, Comparable {
     case twentyFive
     case fifty
     case oneHundred
@@ -240,6 +251,12 @@ enum EhProfileSearchResultCount: Int, CaseIterable, Identifiable {
 }
 extension EhProfileSearchResultCount {
     var id: Int { rawValue }
+    static func < (
+        lhs: EhProfileSearchResultCount,
+        rhs: EhProfileSearchResultCount
+    ) -> Bool {
+        lhs.rawValue < rhs.rawValue
+    }
 
     var value: String {
         switch self {
@@ -284,12 +301,18 @@ extension EhProfileThumbnailLoadTiming {
 }
 
 // MARK: ThumbnailSize
-enum EhProfileThumbnailSize: Int, CaseIterable, Identifiable {
+enum EhProfileThumbnailSize: Int, CaseIterable, Identifiable, Comparable {
     case normal
     case large
 }
 extension EhProfileThumbnailSize {
     var id: Int { rawValue }
+    static func < (
+        lhs: EhProfileThumbnailSize,
+        rhs: EhProfileThumbnailSize
+    ) -> Bool {
+        lhs.rawValue < rhs.rawValue
+    }
 
     var value: String {
         switch self {
@@ -302,7 +325,7 @@ extension EhProfileThumbnailSize {
 }
 
 // MARK: ThumbnailRows
-enum EhProfileThumbnailRows: Int, CaseIterable, Identifiable {
+enum EhProfileThumbnailRows: Int, CaseIterable, Identifiable, Comparable {
     case four
     case ten
     case twenty
@@ -310,6 +333,12 @@ enum EhProfileThumbnailRows: Int, CaseIterable, Identifiable {
 }
 extension EhProfileThumbnailRows {
     var id: Int { rawValue }
+    static func < (
+        lhs: EhProfileThumbnailRows,
+        rhs: EhProfileThumbnailRows
+    ) -> Bool {
+        lhs.rawValue < rhs.rawValue
+    }
 
     var value: String {
         switch self {

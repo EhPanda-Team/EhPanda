@@ -778,16 +778,20 @@ extension Parser {
 
     // MARK: EhProfile
     static func parseEhProfile(doc: HTMLDocument) throws -> EhProfile {
-        func parseEnum<T: RawRepresentable>(node: XMLElement, name: String) -> T?
-            where T.RawValue == Int
-        {
+        func parseInt(node: XMLElement, name: String) -> Int? {
             var value: Int?
             for link in node.xpath("//input [@name='\(name)']")
                 where link["checked"] == "checked" {
                 value = Int(link["value"] ?? "")
             }
-
-            guard let rawValue = value else { return nil }
+            return value
+        }
+        func parseEnum<T: RawRepresentable>(node: XMLElement, name: String) -> T?
+            where T.RawValue == Int
+        {
+            guard let rawValue = parseInt(
+                node: node, name: name
+            ) else { return nil }
             return T(rawValue: rawValue)
         }
         func parseString(node: XMLElement, name: String) -> String? {
@@ -804,15 +808,23 @@ extension Parser {
             }
         }
         func parseCheckBoxBool(node: XMLElement, name: String) -> Bool? {
-            let checkBox = node.at_xpath(
-                "//input [@name='\(name)']"
-            )?.nextSibling
-
-            switch checkBox?.text {
-            case "::after": return true
-            case "": return false
-            default: return nil
+            node.at_xpath("//input [@name='\(name)']")?["checked"] == "checked"
+        }
+        func parseCapability<T: RawRepresentable>(node: XMLElement, name: String) -> T?
+            where T.RawValue == Int
+        {
+            var maxValue: Int?
+            for link in node.xpath("//input [@name='\(name)']")
+                where link["disabled"] != "disabled"
+            {
+                let value = Int(link["value"] ?? "") ?? 0
+                if maxValue == nil {
+                    maxValue = value
+                } else if maxValue ?? 0 < value {
+                    maxValue = value
+                }
             }
+            return T(rawValue: maxValue ?? 0)
         }
 
         var tmpForm: XMLElement?
@@ -823,7 +835,7 @@ extension Parser {
         guard let form = tmpForm else { throw AppError.parseFailed }
 
         // swiftlint:disable line_length
-        var tmpLoadThroughHathSetting: EhProfileLoadThroughHathSetting?; var tmpImageResolution: EhProfileImageResolution?; var tmpImageSizeWidth: Float?; var tmpImageSizeHeight: Float?; var tmpGalleryName: EhProfileGalleryName?; var tmpArchiverBehavior: EhProfileArchiverBehavior?; var tmpDisplayMode: EhProfileDisplayMode?; var tmpDoujinshiDisabled: Bool?; var tmpMangaDisabled: Bool?; var tmpArtistCGDisabled: Bool?; var tmpGameCGDisabled: Bool?; var tmpWesternDisabled: Bool?; var tmpNonHDisabled: Bool?; var tmpImageSetDisabled: Bool?; var tmpCosplayDisabled: Bool?; var tmpAsianPornDisabled: Bool?; var tmpMiscDisabled: Bool?; var tmpFavoriteName0: String?; var tmpFavoriteName1: String?; var tmpFavoriteName2: String?; var tmpFavoriteName3: String?; var tmpFavoriteName4: String?; var tmpFavoriteName5: String?; var tmpFavoriteName6: String?; var tmpFavoriteName7: String?; var tmpFavoriteName8: String?; var tmpFavoriteName9: String?; var tmpFavoritesSortOrder: EhProfileFavoritesSortOrder?; var tmpRatingsColor: String?; var tmpReclassExcluded: Bool?; var tmpLanguageExcluded: Bool?; var tmpParodyExcluded: Bool?; var tmpCharacterExcluded: Bool?; var tmpGroupExcluded: Bool?; var tmpArtistExcluded: Bool?; var tmpMaleExcluded: Bool?; var tmpFemaleExcluded: Bool?; var tmpTagFilteringThreshold: Float?; var tmpTagWatchingThreshold: Float?; var tmpExcludedUploaders: String?; var tmpSearchResultCount: EhProfileSearchResultCount?; var tmpThumbnailLoadTiming: EhProfileThumbnailLoadTiming?; var tmpThumbnailConfigSize: EhProfileThumbnailSize?; var tmpThumbnailConfigRows: EhProfileThumbnailRows?; var tmpThumbnailScaleFactor: Float?; var tmpViewportVirtualWidth: Float?; var tmpCommentsSortOrder: EhProfileCommentsSortOrder?; var tmpCommentVotesShowTiming: EhProfileCommentVotesShowTiming?; var tmpTagsSortOrder: EhProfileTagsSortOrder?; var tmpGalleryShowPageNumbers: Bool?; var tmpHathLocalNetworkHost: String?; var tmpUseOriginalImages: Bool?; var tmpUseMultiplePageViewer: Bool?; var tmpMultiplePageViewerStyle: EhProfileMultiplePageViewerStyle?; var tmpMultiplePageViewerShowThumbnailPane: Bool?
+        var tmpCapableImageResolution: EhProfileImageResolution?; var tmpCapableSearchResultCount: EhProfileSearchResultCount?; var tmpCapableThumbnailConfigSize: EhProfileThumbnailSize?; var tmpCapableThumbnailConfigRows: EhProfileThumbnailRows?; var tmpLoadThroughHathSetting: EhProfileLoadThroughHathSetting?; var tmpImageResolution: EhProfileImageResolution?; var tmpImageSizeWidth: Float?; var tmpImageSizeHeight: Float?; var tmpGalleryName: EhProfileGalleryName?; var tmpArchiverBehavior: EhProfileArchiverBehavior?; var tmpDisplayMode: EhProfileDisplayMode?; var tmpDoujinshiDisabled: Bool?; var tmpMangaDisabled: Bool?; var tmpArtistCGDisabled: Bool?; var tmpGameCGDisabled: Bool?; var tmpWesternDisabled: Bool?; var tmpNonHDisabled: Bool?; var tmpImageSetDisabled: Bool?; var tmpCosplayDisabled: Bool?; var tmpAsianPornDisabled: Bool?; var tmpMiscDisabled: Bool?; var tmpFavoriteName0: String?; var tmpFavoriteName1: String?; var tmpFavoriteName2: String?; var tmpFavoriteName3: String?; var tmpFavoriteName4: String?; var tmpFavoriteName5: String?; var tmpFavoriteName6: String?; var tmpFavoriteName7: String?; var tmpFavoriteName8: String?; var tmpFavoriteName9: String?; var tmpFavoritesSortOrder: EhProfileFavoritesSortOrder?; var tmpRatingsColor: String?; var tmpReclassExcluded: Bool?; var tmpLanguageExcluded: Bool?; var tmpParodyExcluded: Bool?; var tmpCharacterExcluded: Bool?; var tmpGroupExcluded: Bool?; var tmpArtistExcluded: Bool?; var tmpMaleExcluded: Bool?; var tmpFemaleExcluded: Bool?; var tmpTagFilteringThreshold: Float?; var tmpTagWatchingThreshold: Float?; var tmpExcludedUploaders: String?; var tmpSearchResultCount: EhProfileSearchResultCount?; var tmpThumbnailLoadTiming: EhProfileThumbnailLoadTiming?; var tmpThumbnailConfigSize: EhProfileThumbnailSize?; var tmpThumbnailConfigRows: EhProfileThumbnailRows?; var tmpThumbnailScaleFactor: Float?; var tmpViewportVirtualWidth: Float?; var tmpCommentsSortOrder: EhProfileCommentsSortOrder?; var tmpCommentVotesShowTiming: EhProfileCommentVotesShowTiming?; var tmpTagsSortOrder: EhProfileTagsSortOrder?; var tmpGalleryShowPageNumbers: Bool?; var tmpHathLocalNetworkHost: String?; var tmpUseOriginalImages: Bool?; var tmpUseMultiplePageViewer: Bool?; var tmpMultiplePageViewerStyle: EhProfileMultiplePageViewerStyle?; var tmpMultiplePageViewerShowThumbnailPane: Bool?
         // swiftlint:enable line_length
 
         for optouter in form.xpath("//div [@class='optouter']") {
@@ -832,12 +844,15 @@ extension Parser {
             }
             if optouter.at_xpath("//input [@name='xr']") != nil {
                 tmpImageResolution = parseEnum(node: optouter, name: "xr")
+                tmpCapableImageResolution = parseCapability(node: optouter, name: "xr")
             }
             if optouter.at_xpath("//input [@name='rx']") != nil {
-                tmpImageSizeWidth = Float(parseString(node: optouter, name: "rx") ?? "")
+                tmpImageSizeWidth = Float(parseString(node: optouter, name: "rx") ?? "0")
+                if tmpImageSizeWidth == nil { tmpImageSizeWidth = 0 }
             }
             if optouter.at_xpath("//input [@name='ry']") != nil {
-                tmpImageSizeHeight = Float(parseString(node: optouter, name: "ry") ?? "")
+                tmpImageSizeHeight = Float(parseString(node: optouter, name: "ry") ?? "0")
+                if tmpImageSizeHeight == nil { tmpImageSizeHeight = 0 }
             }
             if optouter.at_xpath("//input [@name='tl']") != nil {
                 tmpGalleryName = parseEnum(node: optouter, name: "tl")
@@ -889,31 +904,38 @@ extension Parser {
                 tmpFemaleExcluded = parseCheckBoxBool(node: optouter, name: "xn_8")
             }
             if optouter.at_xpath("//input [@name='ft']") != nil {
-                tmpTagFilteringThreshold = Float(parseString(node: optouter, name: "ft") ?? "")
+                tmpTagFilteringThreshold = Float(parseString(node: optouter, name: "ft") ?? "0")
+                if tmpTagFilteringThreshold == nil { tmpTagFilteringThreshold = 0 }
             }
             if optouter.at_xpath("//input [@name='wt']") != nil {
-                tmpTagWatchingThreshold = Float(parseString(node: optouter, name: "wt") ?? "")
+                tmpTagWatchingThreshold = Float(parseString(node: optouter, name: "wt") ?? "0")
+                if tmpTagWatchingThreshold == nil { tmpTagWatchingThreshold = 0 }
             }
             if optouter.at_xpath("//textarea [@name='xu']") != nil {
                 tmpExcludedUploaders = parseTextEditorString(node: optouter, name: "xu") ?? ""
             }
             if optouter.at_xpath("//input [@name='rc']") != nil {
                 tmpSearchResultCount = parseEnum(node: optouter, name: "rc")
+                tmpCapableSearchResultCount = parseCapability(node: optouter, name: "rc")
             }
             if optouter.at_xpath("//input [@name='lt']") != nil {
                 tmpThumbnailLoadTiming = parseEnum(node: optouter, name: "lt")
             }
             if optouter.at_xpath("//input [@name='ts']") != nil {
                 tmpThumbnailConfigSize = parseEnum(node: optouter, name: "ts")
+                tmpCapableThumbnailConfigSize = parseCapability(node: optouter, name: "ts")
             }
             if optouter.at_xpath("//input [@name='tr']") != nil {
                 tmpThumbnailConfigRows = parseEnum(node: optouter, name: "tr")
+                tmpCapableThumbnailConfigRows = parseCapability(node: optouter, name: "tr")
             }
             if optouter.at_xpath("//input [@name='tp']") != nil {
-                tmpThumbnailScaleFactor = Float(parseString(node: optouter, name: "tp") ?? "")
+                tmpThumbnailScaleFactor = Float(parseString(node: optouter, name: "tp") ?? "100")
+                if tmpThumbnailScaleFactor == nil { tmpThumbnailScaleFactor = 100 }
             }
             if optouter.at_xpath("//input [@name='vp']") != nil {
-                tmpViewportVirtualWidth = Float(parseString(node: optouter, name: "vp") ?? "")
+                tmpViewportVirtualWidth = Float(parseString(node: optouter, name: "vp") ?? "0")
+                if tmpViewportVirtualWidth == nil { tmpViewportVirtualWidth = 0 }
             }
             if optouter.at_xpath("//input [@name='cs']") != nil {
                 tmpCommentsSortOrder = parseEnum(node: optouter, name: "cs")
@@ -925,30 +947,30 @@ extension Parser {
                 tmpTagsSortOrder = parseEnum(node: optouter, name: "tb")
             }
             if optouter.at_xpath("//input [@name='pn']") != nil {
-                tmpGalleryShowPageNumbers = parseBool(node: optouter, name: "pn")
+                tmpGalleryShowPageNumbers = parseInt(node: optouter, name: "pn") == 1
             }
             if optouter.at_xpath("//input [@name='hh']") != nil {
                 tmpHathLocalNetworkHost = parseString(node: optouter, name: "hh")
             }
             if optouter.at_xpath("//input [@name='oi']") != nil {
-                tmpUseOriginalImages = parseBool(node: optouter, name: "oi")
+                tmpUseOriginalImages = parseInt(node: optouter, name: "oi") == 1
             }
             if optouter.at_xpath("//input [@name='qb']") != nil {
-                tmpUseMultiplePageViewer = parseBool(node: optouter, name: "qb")
+                tmpUseMultiplePageViewer = parseInt(node: optouter, name: "qb") == 1
             }
             if optouter.at_xpath("//input [@name='ms']") != nil {
                 tmpMultiplePageViewerStyle = parseEnum(node: optouter, name: "ms")
             }
             if optouter.at_xpath("//input [@name='mt']") != nil {
-                tmpMultiplePageViewerShowThumbnailPane = parseBool(node: optouter, name: "mt")
+                tmpMultiplePageViewerShowThumbnailPane = parseInt(node: optouter, name: "mt") == 0
             }
         }
 
         // swiftlint:disable line_length
-        guard let loadThroughHathSetting = tmpLoadThroughHathSetting, let imageResolution = tmpImageResolution, let imageSizeWidth = tmpImageSizeWidth, let imageSizeHeight = tmpImageSizeHeight, let galleryName = tmpGalleryName, let archiverBehavior = tmpArchiverBehavior, let displayMode = tmpDisplayMode, let doujinshiDisabled = tmpDoujinshiDisabled, let mangaDisabled = tmpMangaDisabled, let artistCGDisabled = tmpArtistCGDisabled, let gameCGDisabled = tmpGameCGDisabled, let westernDisabled = tmpWesternDisabled, let nonHDisabled = tmpNonHDisabled, let imageSetDisabled = tmpImageSetDisabled, let cosplayDisabled = tmpCosplayDisabled, let asianPornDisabled = tmpAsianPornDisabled, let miscDisabled = tmpMiscDisabled, let favoriteName0 = tmpFavoriteName0, let favoriteName1 = tmpFavoriteName1, let favoriteName2 = tmpFavoriteName2, let favoriteName3 = tmpFavoriteName3, let favoriteName4 = tmpFavoriteName4, let favoriteName5 = tmpFavoriteName5, let favoriteName6 = tmpFavoriteName6, let favoriteName7 = tmpFavoriteName7, let favoriteName8 = tmpFavoriteName8, let favoriteName9 = tmpFavoriteName9, let favoritesSortOrder = tmpFavoritesSortOrder, let ratingsColor = tmpRatingsColor, let reclassExcluded = tmpReclassExcluded, let languageExcluded = tmpLanguageExcluded, let parodyExcluded = tmpParodyExcluded, let characterExcluded = tmpCharacterExcluded, let groupExcluded = tmpGroupExcluded, let artistExcluded = tmpArtistExcluded, let maleExcluded = tmpMaleExcluded, let femaleExcluded = tmpFemaleExcluded, let tagFilteringThreshold = tmpTagFilteringThreshold, let tagWatchingThreshold = tmpTagWatchingThreshold, let excludedUploaders = tmpExcludedUploaders, let searchResultCount = tmpSearchResultCount, let thumbnailLoadTiming = tmpThumbnailLoadTiming, let thumbnailConfigSize = tmpThumbnailConfigSize, let thumbnailConfigRows = tmpThumbnailConfigRows, let thumbnailScaleFactor = tmpThumbnailScaleFactor, let viewportVirtualWidth = tmpViewportVirtualWidth, let commentsSortOrder = tmpCommentsSortOrder, let commentVotesShowTiming = tmpCommentVotesShowTiming, let tagsSortOrder = tmpTagsSortOrder, let galleryShowPageNumbers = tmpGalleryShowPageNumbers, let hathLocalNetworkHost = tmpHathLocalNetworkHost, let useOriginalImages = tmpUseOriginalImages, let useMultiplePageViewer = tmpUseMultiplePageViewer, let multiplePageViewerStyle = tmpMultiplePageViewerStyle, let multiplePageViewerShowThumbnailPane = tmpMultiplePageViewerShowThumbnailPane
+        guard let capableImageResolution = tmpCapableImageResolution, let capableSearchResultCount = tmpCapableSearchResultCount, let capableThumbnailConfigSize = tmpCapableThumbnailConfigSize, let capableThumbnailConfigRows = tmpCapableThumbnailConfigRows, let loadThroughHathSetting = tmpLoadThroughHathSetting, let imageResolution = tmpImageResolution, let imageSizeWidth = tmpImageSizeWidth, let imageSizeHeight = tmpImageSizeHeight, let galleryName = tmpGalleryName, let archiverBehavior = tmpArchiverBehavior, let displayMode = tmpDisplayMode, let doujinshiDisabled = tmpDoujinshiDisabled, let mangaDisabled = tmpMangaDisabled, let artistCGDisabled = tmpArtistCGDisabled, let gameCGDisabled = tmpGameCGDisabled, let westernDisabled = tmpWesternDisabled, let nonHDisabled = tmpNonHDisabled, let imageSetDisabled = tmpImageSetDisabled, let cosplayDisabled = tmpCosplayDisabled, let asianPornDisabled = tmpAsianPornDisabled, let miscDisabled = tmpMiscDisabled, let favoriteName0 = tmpFavoriteName0, let favoriteName1 = tmpFavoriteName1, let favoriteName2 = tmpFavoriteName2, let favoriteName3 = tmpFavoriteName3, let favoriteName4 = tmpFavoriteName4, let favoriteName5 = tmpFavoriteName5, let favoriteName6 = tmpFavoriteName6, let favoriteName7 = tmpFavoriteName7, let favoriteName8 = tmpFavoriteName8, let favoriteName9 = tmpFavoriteName9, let favoritesSortOrder = tmpFavoritesSortOrder, let ratingsColor = tmpRatingsColor, let reclassExcluded = tmpReclassExcluded, let languageExcluded = tmpLanguageExcluded, let parodyExcluded = tmpParodyExcluded, let characterExcluded = tmpCharacterExcluded, let groupExcluded = tmpGroupExcluded, let artistExcluded = tmpArtistExcluded, let maleExcluded = tmpMaleExcluded, let femaleExcluded = tmpFemaleExcluded, let tagFilteringThreshold = tmpTagFilteringThreshold, let tagWatchingThreshold = tmpTagWatchingThreshold, let excludedUploaders = tmpExcludedUploaders, let searchResultCount = tmpSearchResultCount, let thumbnailLoadTiming = tmpThumbnailLoadTiming, let thumbnailConfigSize = tmpThumbnailConfigSize, let thumbnailConfigRows = tmpThumbnailConfigRows, let thumbnailScaleFactor = tmpThumbnailScaleFactor, let viewportVirtualWidth = tmpViewportVirtualWidth, let commentsSortOrder = tmpCommentsSortOrder, let commentVotesShowTiming = tmpCommentVotesShowTiming, let tagsSortOrder = tmpTagsSortOrder, let galleryShowPageNumbers = tmpGalleryShowPageNumbers, let hathLocalNetworkHost = tmpHathLocalNetworkHost
         else { throw AppError.parseFailed }
 
-        return EhProfile(loadThroughHathSetting: loadThroughHathSetting, imageResolution: imageResolution, imageSizeWidth: imageSizeWidth, imageSizeHeight: imageSizeHeight, galleryName: galleryName, archiverBehavior: archiverBehavior, displayMode: displayMode, doujinshiDisabled: doujinshiDisabled, mangaDisabled: mangaDisabled, artistCGDisabled: artistCGDisabled, gameCGDisabled: gameCGDisabled, westernDisabled: westernDisabled, nonHDisabled: nonHDisabled, imageSetDisabled: imageSetDisabled, cosplayDisabled: cosplayDisabled, asianPornDisabled: asianPornDisabled, miscDisabled: miscDisabled, favoriteName0: favoriteName0, favoriteName1: favoriteName1, favoriteName2: favoriteName2, favoriteName3: favoriteName3, favoriteName4: favoriteName4, favoriteName5: favoriteName5, favoriteName6: favoriteName6, favoriteName7: favoriteName7, favoriteName8: favoriteName8, favoriteName9: favoriteName9, favoritesSortOrder: favoritesSortOrder, ratingsColor: ratingsColor, reclassExcluded: reclassExcluded, languageExcluded: languageExcluded, parodyExcluded: parodyExcluded, characterExcluded: characterExcluded, groupExcluded: groupExcluded, artistExcluded: artistExcluded, maleExcluded: maleExcluded, femaleExcluded: femaleExcluded, tagFilteringThreshold: tagFilteringThreshold, tagWatchingThreshold: tagWatchingThreshold, excludedUploaders: excludedUploaders, searchResultCount: searchResultCount, thumbnailLoadTiming: thumbnailLoadTiming, thumbnailConfigSize: thumbnailConfigSize, thumbnailConfigRows: thumbnailConfigRows, thumbnailScaleFactor: thumbnailScaleFactor, viewportVirtualWidth: viewportVirtualWidth, commentsSortOrder: commentsSortOrder, commentVotesShowTiming: commentVotesShowTiming, tagsSortOrder: tagsSortOrder, galleryShowPageNumbers: galleryShowPageNumbers, hathLocalNetworkHost: hathLocalNetworkHost, useOriginalImages: useOriginalImages, useMultiplePageViewer: useMultiplePageViewer, multiplePageViewerStyle: multiplePageViewerStyle, multiplePageViewerShowThumbnailPane: multiplePageViewerShowThumbnailPane
+        return EhProfile(capableImageResolution: capableImageResolution, capableSearchResultCount: capableSearchResultCount, capableThumbnailConfigSize: capableThumbnailConfigSize, capableThumbnailConfigRows: capableThumbnailConfigRows, loadThroughHathSetting: loadThroughHathSetting, imageResolution: imageResolution, imageSizeWidth: imageSizeWidth, imageSizeHeight: imageSizeHeight, galleryName: galleryName, archiverBehavior: archiverBehavior, displayMode: displayMode, doujinshiDisabled: doujinshiDisabled, mangaDisabled: mangaDisabled, artistCGDisabled: artistCGDisabled, gameCGDisabled: gameCGDisabled, westernDisabled: westernDisabled, nonHDisabled: nonHDisabled, imageSetDisabled: imageSetDisabled, cosplayDisabled: cosplayDisabled, asianPornDisabled: asianPornDisabled, miscDisabled: miscDisabled, favoriteName0: favoriteName0, favoriteName1: favoriteName1, favoriteName2: favoriteName2, favoriteName3: favoriteName3, favoriteName4: favoriteName4, favoriteName5: favoriteName5, favoriteName6: favoriteName6, favoriteName7: favoriteName7, favoriteName8: favoriteName8, favoriteName9: favoriteName9, favoritesSortOrder: favoritesSortOrder, ratingsColor: ratingsColor, reclassExcluded: reclassExcluded, languageExcluded: languageExcluded, parodyExcluded: parodyExcluded, characterExcluded: characterExcluded, groupExcluded: groupExcluded, artistExcluded: artistExcluded, maleExcluded: maleExcluded, femaleExcluded: femaleExcluded, tagFilteringThreshold: tagFilteringThreshold, tagWatchingThreshold: tagWatchingThreshold, excludedUploaders: excludedUploaders, searchResultCount: searchResultCount, thumbnailLoadTiming: thumbnailLoadTiming, thumbnailConfigSize: thumbnailConfigSize, thumbnailConfigRows: thumbnailConfigRows, thumbnailScaleFactor: thumbnailScaleFactor, viewportVirtualWidth: viewportVirtualWidth, commentsSortOrder: commentsSortOrder, commentVotesShowTiming: commentVotesShowTiming, tagsSortOrder: tagsSortOrder, galleryShowPageNumbers: galleryShowPageNumbers, hathLocalNetworkHost: hathLocalNetworkHost, useOriginalImages: tmpUseOriginalImages, useMultiplePageViewer: tmpUseMultiplePageViewer, multiplePageViewerStyle: tmpMultiplePageViewerStyle, multiplePageViewerShowThumbnailPane: tmpMultiplePageViewerShowThumbnailPane
         )
         // swiftlint:enable line_length
     }

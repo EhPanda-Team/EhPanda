@@ -626,6 +626,94 @@ struct EhProfileRequest {
     }
 }
 
+struct SubmitEhProfileChangesRequest {
+    let profile: EhProfile
+
+    var publisher: AnyPublisher<EhProfile, AppError> {
+        let url = Defaults.URL.ehConfig()
+        var params: [String: String] = [
+            "uh": String(profile.loadThroughHathSetting.rawValue),
+            "xr": String(profile.imageResolution.rawValue),
+            "rx": String(Int(profile.imageSizeWidth)),
+            "ry": String(Int(profile.imageSizeHeight)),
+            "tl": String(profile.galleryName.rawValue),
+            "ar": String(profile.archiverBehavior.rawValue),
+            "dm": String(profile.displayMode.rawValue),
+            "ct_doujinshi": profile.doujinshiDisabled ? "1" : "0",
+            "ct_manga": profile.mangaDisabled ? "1" : "0",
+            "ct_artistcg": profile.artistCGDisabled ? "1" : "0",
+            "ct_gamecg": profile.gameCGDisabled ? "1" : "0",
+            "ct_western": profile.westernDisabled ? "1" : "0",
+            "ct_non-h": profile.nonHDisabled ? "1" : "0",
+            "ct_imageset": profile.imageSetDisabled ? "1" : "0",
+            "ct_cosplay": profile.cosplayDisabled ? "1" : "0",
+            "ct_asianporn": profile.asianPornDisabled ? "1" : "0",
+            "ct_misc": profile.miscDisabled ? "1" : "0",
+            "favorite_0": profile.favoriteName0,
+            "favorite_1": profile.favoriteName1,
+            "favorite_2": profile.favoriteName2,
+            "favorite_3": profile.favoriteName3,
+            "favorite_4": profile.favoriteName4,
+            "favorite_5": profile.favoriteName5,
+            "favorite_6": profile.favoriteName6,
+            "favorite_7": profile.favoriteName7,
+            "favorite_8": profile.favoriteName8,
+            "favorite_9": profile.favoriteName9,
+            "fs": String(profile.favoritesSortOrder.rawValue),
+            "ru": profile.ratingsColor,
+            "xn_1": profile.reclassExcluded ? "1" : "0",
+            "xn_2": profile.languageExcluded ? "1" : "0",
+            "xn_3": profile.parodyExcluded ? "1" : "0",
+            "xn_4": profile.characterExcluded ? "1" : "0",
+            "xn_5": profile.groupExcluded ? "1" : "0",
+            "xn_6": profile.artistExcluded ? "1" : "0",
+            "xn_7": profile.maleExcluded ? "1" : "0",
+            "xn_8": profile.femaleExcluded ? "1" : "0",
+            "ft": String(Int(profile.tagFilteringThreshold)),
+            "wt": String(Int(profile.tagWatchingThreshold)),
+            "xu": profile.excludedUploaders,
+            "rc": String(profile.searchResultCount.rawValue),
+            "lt": String(profile.thumbnailLoadTiming.rawValue),
+            "ts": String(profile.thumbnailConfigSize.rawValue),
+            "tr": String(profile.thumbnailConfigRows.rawValue),
+            "tp": String(Int(profile.thumbnailScaleFactor)),
+            "vp": String(Int(profile.viewportVirtualWidth)),
+            "cs": String(profile.commentsSortOrder.rawValue),
+            "sc": String(profile.commentVotesShowTiming.rawValue),
+            "tb": String(profile.tagsSortOrder.rawValue),
+            "pn": profile.galleryShowPageNumbers ? "1" : "0",
+            "hh": profile.hathLocalNetworkHost,
+            "apply": "Apply"
+        ]
+
+        if let useOriginalImages = profile.useOriginalImages {
+            params["oi"] = useOriginalImages ? "1" : "0"
+        }
+        if let useMultiplePageViewer = profile.useMultiplePageViewer {
+            params["qb"] = useMultiplePageViewer ? "1" : "0"
+        }
+        if let multiplePageViewerStyle = profile.multiplePageViewerStyle {
+            params["ms"] = String(multiplePageViewerStyle.rawValue)
+        }
+        if let multiplePageViewerShowThumbnailPane = profile.multiplePageViewerShowThumbnailPane {
+            params["mt"] = multiplePageViewerShowThumbnailPane ? "0" : "1"
+        }
+
+        var request = URLRequest(url: url.safeURL())
+
+        request.httpMethod = "POST"
+        request.httpBody = params.dictString()
+            .urlEncoded().data(using: .utf8)
+        request.setURLEncodedContentType()
+
+        return URLSession.shared.dataTaskPublisher(for: request)
+            .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
+            .tryMap(Parser.parseEhProfile)
+            .mapError(mapAppError)
+            .eraseToAnyPublisher()
+    }
+}
+
 struct AddFavoriteRequest {
     let gid: String
     let token: String
