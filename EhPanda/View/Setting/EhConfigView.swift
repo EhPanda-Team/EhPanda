@@ -7,304 +7,6 @@
 
 import SwiftUI
 
-private enum LoadThroughHathSetting: Int, CaseIterable, Identifiable {
-    case anyClient
-    case defaultPortOnly
-    case no
-}
-private extension LoadThroughHathSetting {
-    var id: Int { rawValue }
-
-    var value: String {
-        switch self {
-        case .anyClient:
-            return "Any client"
-        case .defaultPortOnly:
-            return "Default port clients only"
-        case .no:
-            return "No"
-        }
-    }
-    var description: String {
-        switch self {
-        case .anyClient:
-            return "Recommended"
-        case .defaultPortOnly:
-            return "Can be slower. Enable if behind firewall/proxy that blocks outgoing non-standard ports."
-        case .no:
-            return "Donator only. You will not be able to browse as many pages, enable only if having severe problems."
-        }
-    }
-}
-
-private enum ImageResolution: Int, CaseIterable, Identifiable {
-    case auto
-    case x780
-    case x980
-    case x1280
-    case x1600
-    case x2400
-}
-
-private extension ImageResolution {
-    var id: Int { rawValue }
-
-    var value: String {
-        switch self {
-        case .auto:
-            return "Auto"
-        case .x780:
-            return "780x"
-        case .x980:
-            return "980x"
-        case .x1280:
-            return "1280x"
-        case .x1600:
-            return "1600x"
-        case .x2400:
-            return "2400x"
-        }
-    }
-}
-
-private enum GalleryName: Int, CaseIterable, Identifiable {
-    case `default`
-    case japanese
-}
-private extension GalleryName {
-    var id: Int { rawValue }
-
-    var value: String {
-        switch self {
-        case .default:
-            return "Default Title"
-        case .japanese:
-            return "Japanese Title (if available)"
-        }
-    }
-}
-
-private enum ArchiverBehavior: Int, CaseIterable, Identifiable {
-    case manualSelectManualStart
-    case manualSelectAutoStart
-    case autoSelectOriginalManualStart
-    case autoSelectOriginalAutoStart
-    case autoSelectResampleManualStart
-    case autoSelectResampleAutoStart
-}
-private extension ArchiverBehavior {
-    var id: Int { rawValue }
-
-    var value: String {
-        switch self {
-        case .manualSelectManualStart:
-            return "Manual Select, Manual Start (Default)"
-        case .manualSelectAutoStart:
-            return "Manual Select, Auto Start"
-        case .autoSelectOriginalManualStart:
-            return "Auto Select Original, Manual Start"
-        case .autoSelectOriginalAutoStart:
-            return "Auto Select Original, Auto Start"
-        case .autoSelectResampleManualStart:
-            return "Auto Select Resample, Manual Start"
-        case .autoSelectResampleAutoStart:
-            return "Auto Select Resample, Auto Start"
-        }
-    }
-}
-
-private enum DisplayMode: Int, CaseIterable, Identifiable {
-    case compact
-    case thumbnail
-    case extended
-    case minimal
-    case minimalPlus
-}
-private extension DisplayMode {
-    var id: Int { rawValue }
-
-    var value: String {
-        switch self {
-        case .compact:
-            return "Compact"
-        case .thumbnail:
-            return "Thumbnail"
-        case .extended:
-            return "Extended"
-        case .minimal:
-            return "Minimal"
-        case .minimalPlus:
-            return "Minimal+"
-        }
-    }
-}
-
-private enum SortOrder: Int, CaseIterable, Identifiable {
-    case lastUpdateTime
-    case favoritedTime
-}
-private extension SortOrder {
-    var id: Int { rawValue }
-
-    var value: String {
-        switch self {
-        case .lastUpdateTime:
-            return "By last gallery update time"
-        case .favoritedTime:
-            return "By favorited time"
-        }
-    }
-}
-
-private enum SearchResultCount: Int, CaseIterable, Identifiable {
-    case twentyFive
-    case fifty
-    case oneHundred
-    case twoHundred
-}
-private extension SearchResultCount {
-    var id: Int { rawValue }
-
-    var value: String {
-        switch self {
-        case .twentyFive:
-            return "25"
-        case .fifty:
-            return "50"
-        case .oneHundred:
-            return "100"
-        case .twoHundred:
-            return "200"
-        }
-    }
-}
-
-private enum ThumbnailLoadTiming: Int, CaseIterable, Identifiable {
-    case onMouseOver
-    case onPageLoad
-}
-private extension ThumbnailLoadTiming {
-    var id: Int { rawValue }
-
-    var value: String {
-        switch self {
-        case .onMouseOver:
-            return "On mouse-over"
-        case .onPageLoad:
-            return "On page load"
-        }
-    }
-    // swiftlint:disable line_length
-    var description: String {
-        switch self {
-        case .onMouseOver:
-            return "On mouse-over (pages load faster, but there may be a slight delay before a thumb appears)"
-        case .onPageLoad:
-            return "On page load (pages take longer to load, but there is no delay for loading a thumb after the page has loaded)"
-        }
-    }
-    // swiftlint:enable line_length
-}
-
-private enum ThumbnailSize: Int, CaseIterable, Identifiable {
-    case normal
-    case large
-}
-private extension ThumbnailSize {
-    var id: Int { rawValue }
-
-    var value: String {
-        switch self {
-        case .normal:
-            return "Normal"
-        case .large:
-            return "Large"
-        }
-    }
-}
-
-private enum ThumbnailRows: Int, CaseIterable, Identifiable {
-    case four
-    case ten
-    case twenty
-    case forty
-}
-private extension ThumbnailRows {
-    var id: Int { rawValue }
-
-    var value: String {
-        switch self {
-        case .four:
-            return "4"
-        case .ten:
-            return "10"
-        case .twenty:
-            return "20"
-        case .forty:
-            return "40"
-        }
-    }
-}
-
-// MARK: EhConfig
-private struct EhConfig {
-    var loadThroughHath: LoadThroughHathSetting
-    var imageResolution: ImageResolution
-    var imageSizeWidth: Float
-    var imageSizeHeight: Float
-    var galleryName: GalleryName
-    var archiverBehavior: ArchiverBehavior
-    var displayMode: DisplayMode
-
-    // Front Page Settings
-    var doujinshiDisabled: Bool
-    var mangaDisabled: Bool
-    var artistCGDisabled: Bool
-    var gameCGDisabled: Bool
-    var westernDisabled: Bool
-    var nonHDisabled: Bool
-    var imageSetDisabled: Bool
-    var cosplayDisabled: Bool
-    var asianPornDisabled: Bool
-    var miscDisabled: Bool
-
-    // Favorites
-    var favoriteName0: String
-    var favoriteName1: String
-    var favoriteName2: String
-    var favoriteName3: String
-    var favoriteName4: String
-    var favoriteName5: String
-    var favoriteName6: String
-    var favoriteName7: String
-    var favoriteName8: String
-    var favoriteName9: String
-
-    var sortOrder: SortOrder
-    var ratingsColor: String
-
-    // Tag Namespaces
-    var reclassExcluded: Bool
-    var languageExcluded: Bool
-    var parodyExcluded: Bool
-    var characterExcluded: Bool
-    var groupExcluded: Bool
-    var artistExcluded: Bool
-    var maleExcluded: Bool
-    var femaleExcluded: Bool
-
-    var tagFilteringThreshold: Float
-    var tagWatchingThreshold: Float
-    var excludedUploaders: String
-    var searchResultCount: SearchResultCount
-    var thumbnailLoadTiming: ThumbnailLoadTiming
-    var thumbnailConfigSize: ThumbnailSize
-    var thumbnailConfigRows: ThumbnailRows
-    var thumbnailScaleFactor: Float
-    var viewportVirtualWidth: Float
-}
-
-// MARK: EhConfigView
 struct EhConfigView: View {
     @State private var config = EhConfig(
         loadThroughHath: .anyClient,
@@ -334,7 +36,7 @@ struct EhConfigView: View {
         favoriteName7: "Favorites 7",
         favoriteName8: "Favorites 8",
         favoriteName9: "Favorites 9",
-        sortOrder: .favoritedTime,
+        favoritesSortOrder: .favoritedTime,
         ratingsColor: "",
         reclassExcluded: false,
         languageExcluded: false,
@@ -352,29 +54,46 @@ struct EhConfigView: View {
         thumbnailConfigSize: .normal,
         thumbnailConfigRows: .four,
         thumbnailScaleFactor: 100,
-        viewportVirtualWidth: 0
+        viewportVirtualWidth: 0,
+        commentsSortOrder: .oldest,
+        commentVotesShowTiming: .onHoverOrClick,
+        tagsSortOrder: .alphabetical,
+        galleryShowPageNumbers: false,
+        hathLocalNetworkHost: "",
+        useOriginalImages: false,
+        useMultiplePageViewer: false,
+        multiplePageViewerStyle: .alignLeftScaleIfOverWidth,
+        multiplePageViewerShowThumbnailPane: true
     )
 
     var body: some View {
         Form {
-//            Group {
-//                ImageLoadSettingsSection(config: $config)
-//                ImageSizeSettingsSection(config: $config)
-//                GalleryNameDisplaySection(config: $config)
-//                ArchiverSettingsSection(config: $config)
-//                FrontPageSettingsSection(config: $config)
-//                FavoritesSection(config: $config)
-//                RatingsSection(config: $config)
-//                TagNamespacesSection(config: $config)
-//                TagFilteringThresholdSection(config: $config)
-//                TagWatchingThresholdSection(config: $config)
-//            }
             Group {
-//                ExcludedUploadersSection(config: $config)
-//                SearchResultCountSection(config: $config)
-//                ThumbnailSettingsSection(config: $config)
+                ImageLoadSettingsSection(config: $config)
+                ImageSizeSettingsSection(config: $config)
+                GalleryNameDisplaySection(config: $config)
+                ArchiverSettingsSection(config: $config)
+                FrontPageSettingsSection(config: $config)
+                FavoritesSection(config: $config)
+                RatingsSection(config: $config)
+            }
+            Group {
+                TagNamespacesSection(config: $config)
+                TagFilteringThresholdSection(config: $config)
+                TagWatchingThresholdSection(config: $config)
+                ExcludedUploadersSection(config: $config)
+                SearchResultCountSection(config: $config)
+                ThumbnailSettingsSection(config: $config)
                 ThumbnailScalingSection(config: $config)
+            }
+            Group {
                 ViewportOverrideSection(config: $config)
+                GalleryCommentsSection(config: $config)
+                GalleryTagsSection(config: $config)
+                GalleryPageNumberingSection(config: $config)
+                HathLocalNetworkHostSection(config: $config)
+                OriginalImagesSection(config: $config)
+                MultiplePageViewerSection(config: $config)
             }
         }
         .navigationTitle("EhConfig")
@@ -393,11 +112,11 @@ private struct ImageLoadSettingsSection: View {
         Section(
             header:
                 Text("Image Load Settings").newlineBold() +
-                Text(config.loadThroughHath.description)
+            Text(config.loadThroughHath.description)
         ) {
             Text("Load images through the Hath network")
             Picker(selection: $config.loadThroughHath) {
-                ForEach(LoadThroughHathSetting.allCases) { setting in
+                ForEach(EhConfigLoadThroughHathSetting.allCases) { setting in
                     Text(setting.value).tag(setting)
                 }
             } label: {
@@ -431,7 +150,7 @@ private struct ImageSizeSettingsSection: View {
                 Text("Image resolution")
                 Spacer()
                 Picker(selection: $config.imageResolution) {
-                    ForEach(ImageResolution.allCases) { setting in
+                    ForEach(EhConfigImageResolution.allCases) { setting in
                         Text(setting.value).tag(setting)
                     }
                 } label: {
@@ -481,7 +200,7 @@ private struct GalleryNameDisplaySection: View {
                 Text("Gallery name")
                 Spacer()
                 Picker(selection: $config.galleryName) {
-                    ForEach(GalleryName.allCases) { name in
+                    ForEach(EhConfigGalleryName.allCases) { name in
                         Text(name.value).tag(name)
                     }
                 } label: {
@@ -513,7 +232,7 @@ private struct ArchiverSettingsSection: View {
         ) {
             Text("Archiver behavior")
             Picker(selection: $config.archiverBehavior) {
-                ForEach(ArchiverBehavior.allCases) { behavior in
+                ForEach(EhConfigArchiverBehavior.allCases) { behavior in
                     Text(behavior.value).tag(behavior)
                 }
             } label: {
@@ -562,7 +281,7 @@ private struct FrontPageSettingsSection: View {
                 Text("Display mode")
                 Spacer()
                 Picker(selection: $config.displayMode) {
-                    ForEach(DisplayMode.allCases) { mode in
+                    ForEach(EhConfigDisplayMode.allCases) { mode in
                         Text(mode.value).tag(mode)
                     }
                 } label: {
@@ -626,14 +345,14 @@ private struct FavoritesSection: View {
         .textCase(nil)
         Section(header: Text(sortOrderDescription)) {
             HStack {
-                Text("Sort order")
+                Text("Favorites sort order")
                 Spacer()
-                Picker(selection: $config.sortOrder) {
-                    ForEach(SortOrder.allCases) { order in
+                Picker(selection: $config.favoritesSortOrder) {
+                    ForEach(EhConfigFavoritesSortOrder.allCases) { order in
                         Text(order.value).tag(order)
                     }
                 } label: {
-                    Text(config.sortOrder.value)
+                    Text(config.favoritesSortOrder.value)
                 }
                 .pickerStyle(.menu)
             }
@@ -812,7 +531,7 @@ private struct SearchResultCountSection: View {
                 Text("Results per page")
                 Spacer()
                 Picker(selection: $config.searchResultCount) {
-                    ForEach(SearchResultCount.allCases) { count in
+                    ForEach(EhConfigSearchResultCount.allCases) { count in
                         Text(String(count.value) + " results").tag(count)
                     }
                 } label: {
@@ -850,7 +569,7 @@ private struct ThumbnailSettingsSection: View {
                 Text("Thumbnail load timing")
                 Spacer()
                 Picker(selection: $config.thumbnailLoadTiming) {
-                    ForEach(ThumbnailLoadTiming.allCases) { timing in
+                    ForEach(EhConfigThumbnailLoadTiming.allCases) { timing in
                         Text(timing.value).tag(timing)
                     }
                 } label: {
@@ -865,7 +584,7 @@ private struct ThumbnailSettingsSection: View {
                 Text("Size")
                 Spacer()
                 Picker(selection: $config.thumbnailConfigSize) {
-                    ForEach(ThumbnailSize.allCases) { size in
+                    ForEach(EhConfigThumbnailSize.allCases) { size in
                         Text(size.value).tag(size)
                     }
                 } label: {
@@ -878,7 +597,7 @@ private struct ThumbnailSettingsSection: View {
                 Text("Rows")
                 Spacer()
                 Picker(selection: $config.thumbnailConfigRows) {
-                    ForEach(ThumbnailRows.allCases) { row in
+                    ForEach(EhConfigThumbnailRows.allCases) { row in
                         Text(row.value).tag(row)
                     }
                 } label: {
@@ -942,6 +661,172 @@ private struct ViewportOverrideSection: View {
                 value: $config.viewportVirtualWidth,
                 range: 0...9999,
                 unit: "px"
+            )
+        }
+        .textCase(nil)
+    }
+}
+
+// MARK: GalleryCommentsSection
+private struct GalleryCommentsSection: View {
+    @Binding private var config: EhConfig
+
+    init(config: Binding<EhConfig>) {
+        _config = config
+    }
+
+    var body: some View {
+        Section("Gallery Comments") {
+            HStack {
+                Text("Comments sort order")
+                Spacer()
+                Picker(selection: $config.commentsSortOrder) {
+                    ForEach(EhConfigCommentsSortOrder.allCases) { order in
+                        Text(order.value).tag(order)
+                    }
+                } label: {
+                    Text(config.commentsSortOrder.value)
+                }
+                .pickerStyle(.menu)
+            }
+            HStack {
+                Text("Comment votes show timing")
+                Spacer()
+                Picker(selection: $config.commentVotesShowTiming) {
+                    ForEach(EhConfigCommentVotesShowTiming.allCases) { timing in
+                        Text(timing.value).tag(timing)
+                    }
+                } label: {
+                    Text(config.commentVotesShowTiming.value)
+                }
+                .pickerStyle(.menu)
+            }
+        }
+        .textCase(nil)
+    }
+}
+
+// MARK: GalleryTagsSection
+private struct GalleryTagsSection: View {
+    @Binding private var config: EhConfig
+
+    init(config: Binding<EhConfig>) {
+        _config = config
+    }
+
+    var body: some View {
+        Section("Gallery Tags") {
+            HStack {
+                Text("Tags sort order")
+                Spacer()
+                Picker(selection: $config.tagsSortOrder) {
+                    ForEach(EhConfigTagsSortOrder.allCases) { order in
+                        Text(order.value).tag(order)
+                    }
+                } label: {
+                    Text(config.tagsSortOrder.value)
+                }
+                .pickerStyle(.menu)
+            }
+        }
+        .textCase(nil)
+    }
+}
+
+// MARK: GalleryPageNumberingSection
+private struct GalleryPageNumberingSection: View {
+    @Binding private var config: EhConfig
+
+    init(config: Binding<EhConfig>) {
+        _config = config
+    }
+
+    var body: some View {
+        Section("Gallery Page Numbering") {
+            Toggle(
+                "Show gallery page numbers",
+                isOn: $config.galleryShowPageNumbers
+            )
+        }
+        .textCase(nil)
+    }
+}
+
+// MARK: HathLocalNetworkHostSection
+private struct HathLocalNetworkHostSection: View {
+    @Binding private var config: EhConfig
+
+    // swiftlint:disable line_length
+    private let hathLocalNetworkHostDescription = "This setting can be used if you have a H@H client running on your local network with the same public IP you browse the site with. Some routers are buggy and cannot route requests back to its own IP; this allows you to work around this problem.\nIf you are running the client on the same PC you browse from, use the loopback address (127.0.0.1:port). If the client is running on another computer on your network, use its local network IP. Some browser configurations prevent external web sites from accessing URLs with local network IPs, the site must then be whitelisted for this to work."
+    // swiftlint:enable line_length
+
+    init(config: Binding<EhConfig>) {
+        _config = config
+    }
+
+    var body: some View {
+        Section(
+            header: Text("Hath Local Network Host").newlineBold()
+            + Text(hathLocalNetworkHostDescription)
+        ) {
+            HStack {
+                Text("IP address:port")
+                Spacer()
+                SettingTextField(text: $config.hathLocalNetworkHost, width: 100)
+            }
+        }
+        .textCase(nil)
+    }
+}
+
+// MARK: OriginalImagesSection
+private struct OriginalImagesSection: View {
+    @Binding private var config: EhConfig
+
+    init(config: Binding<EhConfig>) {
+        _config = config
+    }
+
+    var body: some View {
+        Section("Original Images") {
+            Toggle(
+                "Use original images",
+                isOn: $config.useOriginalImages
+            )
+        }
+        .textCase(nil)
+    }
+}
+
+// MARK: MultiplePageViewerSection
+private struct MultiplePageViewerSection: View {
+    @Binding private var config: EhConfig
+
+    init(config: Binding<EhConfig>) {
+        _config = config
+    }
+
+    var body: some View {
+        Section("Multi-Page Viewer") {
+            Toggle(
+                "Use Multi-Page Viewer",
+                isOn: $config.useMultiplePageViewer
+            )
+            HStack {
+                Text("Display style")
+                Spacer()
+                Picker(selection: $config.multiplePageViewerStyle) {
+                    ForEach(EhConfigMultiplePageViewerStyle.allCases) { style in
+                        Text(style.value).tag(style)
+                    }
+                } label: {
+                    Text(config.multiplePageViewerStyle.value)
+                }
+                .pickerStyle(.menu)
+            }
+            Toggle(
+                "Show thumbnail pane",
+                isOn: $config.multiplePageViewerShowThumbnailPane
             )
         }
         .textCase(nil)
