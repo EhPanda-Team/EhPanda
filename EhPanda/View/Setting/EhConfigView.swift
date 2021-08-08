@@ -10,7 +10,7 @@ import SwiftUI
 private enum LoadThroughHathSetting: Int, CaseIterable, Identifiable {
     case anyClient
     case defaultPortOnly
-    case none
+    case no
 }
 private extension LoadThroughHathSetting {
     var id: Int { rawValue }
@@ -21,7 +21,7 @@ private extension LoadThroughHathSetting {
             return "Any client"
         case .defaultPortOnly:
             return "Default port clients only"
-        case .none:
+        case .no:
             return "No"
         }
     }
@@ -31,7 +31,7 @@ private extension LoadThroughHathSetting {
             return "Recommended"
         case .defaultPortOnly:
             return "Can be slower. Enable if behind firewall/proxy that blocks outgoing non-standard ports."
-        case .none:
+        case .no:
             return "Donator only. You will not be able to browse as many pages, enable only if having severe problems."
         }
     }
@@ -250,8 +250,8 @@ private extension ThumbnailRows {
 private struct EhConfig {
     var loadThroughHath: LoadThroughHathSetting
     var imageResolution: ImageResolution
-    var imageSizeWidth: String
-    var imageSizeHeight: String
+    var imageSizeWidth: Float
+    var imageSizeHeight: Float
     var galleryName: GalleryName
     var archiverBehavior: ArchiverBehavior
     var displayMode: DisplayMode
@@ -300,15 +300,17 @@ private struct EhConfig {
     var thumbnailLoadTiming: ThumbnailLoadTiming
     var thumbnailConfigSize: ThumbnailSize
     var thumbnailConfigRows: ThumbnailRows
+    var thumbnailScaleFactor: Float
+    var viewportVirtualWidth: Float
 }
 
 // MARK: EhConfigView
 struct EhConfigView: View {
-    @State private var ehConfig = EhConfig(
+    @State private var config = EhConfig(
         loadThroughHath: .anyClient,
         imageResolution: .auto,
-        imageSizeWidth: "0",
-        imageSizeHeight: "0",
+        imageSizeWidth: 0,
+        imageSizeHeight: 0,
         galleryName: .default,
         archiverBehavior: .manualSelectManualStart,
         displayMode: .compact,
@@ -348,50 +350,58 @@ struct EhConfigView: View {
         searchResultCount: .twentyFive,
         thumbnailLoadTiming: .onMouseOver,
         thumbnailConfigSize: .normal,
-        thumbnailConfigRows: .four
+        thumbnailConfigRows: .four,
+        thumbnailScaleFactor: 100,
+        viewportVirtualWidth: 0
     )
 
     var body: some View {
         Form {
-            ImageLoadSettingsSection(ehConfig: $ehConfig)
-            ImageSizeSettingsSection(ehConfig: $ehConfig)
-            GalleryNameDisplaySection(ehConfig: $ehConfig)
-            ArchiverSettingsSection(ehConfig: $ehConfig)
-            FrontPageSettingsSection(ehConfig: $ehConfig)
-            FavoritesSection(ehConfig: $ehConfig)
-            RatingsSection(ehConfig: $ehConfig)
-            TagNamespacesSection(ehConfig: $ehConfig)
-            TagFilteringThresholdSection(ehConfig: $ehConfig)
-            TagWatchingThresholdSection(ehConfig: $ehConfig)
-//            ExcludedUploadersSection(ehConfig: $ehConfig)
-//            SearchResultCountSection(ehConfig: $ehConfig)
-//            ThumbnailSettingsSection(ehConfig: $ehConfig)
+//            Group {
+//                ImageLoadSettingsSection(config: $config)
+//                ImageSizeSettingsSection(config: $config)
+//                GalleryNameDisplaySection(config: $config)
+//                ArchiverSettingsSection(config: $config)
+//                FrontPageSettingsSection(config: $config)
+//                FavoritesSection(config: $config)
+//                RatingsSection(config: $config)
+//                TagNamespacesSection(config: $config)
+//                TagFilteringThresholdSection(config: $config)
+//                TagWatchingThresholdSection(config: $config)
+//            }
+            Group {
+//                ExcludedUploadersSection(config: $config)
+//                SearchResultCountSection(config: $config)
+//                ThumbnailSettingsSection(config: $config)
+                ThumbnailScalingSection(config: $config)
+                ViewportOverrideSection(config: $config)
+            }
         }
-        .listStyle(.insetGrouped)
         .navigationTitle("EhConfig")
     }
 }
 
 // MARK: ImageLoadSettingsSection
 private struct ImageLoadSettingsSection: View {
-    @Binding private var ehConfig: EhConfig
+    @Binding private var config: EhConfig
 
-    init(ehConfig: Binding<EhConfig>) {
-        _ehConfig = ehConfig
+    init(config: Binding<EhConfig>) {
+        _config = config
     }
 
     var body: some View {
         Section(
-            header: Text("Image Load Settings"),
-            footer: Text(ehConfig.loadThroughHath.description)
+            header:
+                Text("Image Load Settings").newlineBold() +
+                Text(config.loadThroughHath.description)
         ) {
             Text("Load images through the Hath network")
-            Picker(selection: $ehConfig.loadThroughHath) {
+            Picker(selection: $config.loadThroughHath) {
                 ForEach(LoadThroughHathSetting.allCases) { setting in
                     Text(setting.value).tag(setting)
                 }
             } label: {
-                Text(ehConfig.loadThroughHath.value)
+                Text(config.loadThroughHath.value)
             }
             .pickerStyle(.menu)
         }
@@ -401,82 +411,81 @@ private struct ImageLoadSettingsSection: View {
 
 // MARK: ImageSizeSettingsSection
 private struct ImageSizeSettingsSection: View {
-    @Binding private var ehConfig: EhConfig
+    @Binding private var config: EhConfig
 
     // swiftlint:disable line_length
     private let imageResolutionDescription = "Normally, images are resampled to 1280 pixels of horizontal resolution for online viewing. You can alternatively select one of the following resample resolutions. To avoid murdering the staging servers, resolutions above 1280x are temporarily restricted to donators, people with any hath perk, and people with a UID below 3,000,000."
     private let imageSizeDescription = "While the site will automatically scale down images to fit your screen width, you can also manually restrict the maximum display size of an image. Like the automatic scaling, this does not resample the image, as the resizing is done browser-side. (0 = no limit)"
     // swiftlint:enable line_length
 
-    init(ehConfig: Binding<EhConfig>) {
-        _ehConfig = ehConfig
+    init(config: Binding<EhConfig>) {
+        _config = config
     }
 
     var body: some View {
         Section(
-            header: Text("Image Size Settings"),
-            footer: Text(imageResolutionDescription)
+            header: Text("Image Size Settings").newlineBold()
+            + Text(imageResolutionDescription)
         ) {
             HStack {
                 Text("Image resolution")
                 Spacer()
-                Picker(selection: $ehConfig.imageResolution) {
+                Picker(selection: $config.imageResolution) {
                     ForEach(ImageResolution.allCases) { setting in
                         Text(setting.value).tag(setting)
                     }
                 } label: {
-                    Text(ehConfig.imageResolution.value)
+                    Text(config.imageResolution.value)
                 }
                 .pickerStyle(.menu)
             }
         }
         .textCase(nil)
-        Section(footer: Text(imageSizeDescription)) {
+        Section(header: Text(imageSizeDescription)) {
             Text("Image size")
-            HStack {
-                Text("Horizontal")
-                Spacer()
-                SettingTextField(text: $ehConfig.imageSizeWidth)
-                Text("pixels")
-            }
-            .font(.footnote)
-            HStack {
-                Text("Vertical")
-                Spacer()
-                SettingTextField(text: $ehConfig.imageSizeHeight)
-                Text("pixels")
-            }
-            .font(.footnote)
+            ValuePicker(
+                title: "Horizontal",
+                value: $config.imageSizeWidth,
+                range: 0...65535,
+                unit: "px"
+            )
+            ValuePicker(
+                title: "Vertical",
+                value: $config.imageSizeHeight,
+                range: 0...65535,
+                unit: "px"
+            )
         }
+        .textCase(nil)
     }
 }
 
 // MARK: GalleryNameDisplaySection
 private struct GalleryNameDisplaySection: View {
-    @Binding private var ehConfig: EhConfig
+    @Binding private var config: EhConfig
 
     // swiftlint:disable line_length
     private let galleryNameDescription = "Many galleries have both an English/Romanized title and a title in Japanese script. Which gallery name would you like as default?"
     // swiftlint:enable line_length
 
-    init(ehConfig: Binding<EhConfig>) {
-        _ehConfig = ehConfig
+    init(config: Binding<EhConfig>) {
+        _config = config
     }
 
     var body: some View {
         Section(
-            header: Text("Gallery Name Display"),
-            footer: Text(galleryNameDescription)
+            header: Text("Gallery Name Display").newlineBold()
+            + Text(galleryNameDescription)
         ) {
             HStack {
                 Text("Gallery name")
                 Spacer()
-                Picker(selection: $ehConfig.galleryName) {
+                Picker(selection: $config.galleryName) {
                     ForEach(GalleryName.allCases) { name in
                         Text(name.value).tag(name)
                     }
                 } label: {
-                    Text(ehConfig.galleryName.value)
+                    Text(config.galleryName.value)
                 }
                 .pickerStyle(.menu)
             }
@@ -487,28 +496,28 @@ private struct GalleryNameDisplaySection: View {
 
 // MARK: ArchiverSettingsSection
 private struct ArchiverSettingsSection: View {
-    @Binding private var ehConfig: EhConfig
+    @Binding private var config: EhConfig
 
     // swiftlint:disable line_length
     private let archiverSettingsDescription = "The default behavior for the Archiver is to confirm the cost and selection for original or resampled archive, then present a link that can be clicked or copied elsewhere. You can change this behavior here."
     // swiftlint:enable line_length
 
-    init(ehConfig: Binding<EhConfig>) {
-        _ehConfig = ehConfig
+    init(config: Binding<EhConfig>) {
+        _config = config
     }
 
     var body: some View {
         Section(
-            header: Text("Archiver Settings"),
-            footer: Text(archiverSettingsDescription)
+            header: Text("Archiver Settings").newlineBold()
+            + Text(archiverSettingsDescription)
         ) {
             Text("Archiver behavior")
-            Picker(selection: $ehConfig.archiverBehavior) {
+            Picker(selection: $config.archiverBehavior) {
                 ForEach(ArchiverBehavior.allCases) { behavior in
                     Text(behavior.value).tag(behavior)
                 }
             } label: {
-                Text(ehConfig.archiverBehavior.value)
+                Text(config.archiverBehavior.value)
             }
             .pickerStyle(.menu)
         }
@@ -518,20 +527,20 @@ private struct ArchiverSettingsSection: View {
 
 // MARK: FrontPageSettingsSection
 private struct FrontPageSettingsSection: View {
-    @Binding private var ehConfig: EhConfig
+    @Binding private var config: EhConfig
 
     private var categoryBindings: [Binding<Bool>] {
         [
-            $ehConfig.doujinshiDisabled,
-            $ehConfig.mangaDisabled,
-            $ehConfig.artistCGDisabled,
-            $ehConfig.gameCGDisabled,
-            $ehConfig.westernDisabled,
-            $ehConfig.nonHDisabled,
-            $ehConfig.imageSetDisabled,
-            $ehConfig.cosplayDisabled,
-            $ehConfig.asianPornDisabled,
-            $ehConfig.miscDisabled
+            $config.doujinshiDisabled,
+            $config.mangaDisabled,
+            $config.artistCGDisabled,
+            $config.gameCGDisabled,
+            $config.westernDisabled,
+            $config.nonHDisabled,
+            $config.imageSetDisabled,
+            $config.cosplayDisabled,
+            $config.asianPornDisabled,
+            $config.miscDisabled
         ]
     }
 
@@ -540,51 +549,52 @@ private struct FrontPageSettingsSection: View {
     private let categoriesDescription = "What categories would you like to show by default on the front page and in searches?"
     // swiftlint:enable line_length
 
-    init(ehConfig: Binding<EhConfig>) {
-        _ehConfig = ehConfig
+    init(config: Binding<EhConfig>) {
+        _config = config
     }
 
     var body: some View {
         Section(
-            header: Text("Front Page Settings"),
-            footer: Text(displayModeDescription)
+            header: Text("Front Page Settings").newlineBold()
+            + Text(displayModeDescription)
         ) {
             HStack {
                 Text("Display mode")
                 Spacer()
-                Picker(selection: $ehConfig.displayMode) {
+                Picker(selection: $config.displayMode) {
                     ForEach(DisplayMode.allCases) { mode in
                         Text(mode.value).tag(mode)
                     }
                 } label: {
-                    Text(ehConfig.displayMode.value)
+                    Text(config.displayMode.value)
                 }
                 .pickerStyle(.menu)
             }
         }
         .textCase(nil)
-        Section(footer: Text(categoriesDescription)) {
+        Section(header: Text(categoriesDescription)) {
             CategoryView(bindings: categoryBindings)
         }
+        .textCase(nil)
     }
 }
 
 // MARK: FavoritesSection
 private struct FavoritesSection: View {
-    @Binding private var ehConfig: EhConfig
+    @Binding private var config: EhConfig
 
     private var tuples: [(Category, Binding<String>)] {
         [
-            (.misc, $ehConfig.favoriteName0),
-            (.doujinshi, $ehConfig.favoriteName1),
-            (.manga, $ehConfig.favoriteName2),
-            (.artistCG, $ehConfig.favoriteName3),
-            (.gameCG, $ehConfig.favoriteName4),
-            (.western, $ehConfig.favoriteName5),
-            (.nonH, $ehConfig.favoriteName6),
-            (.imageSet, $ehConfig.favoriteName7),
-            (.cosplay, $ehConfig.favoriteName8),
-            (.asianPorn, $ehConfig.favoriteName9)
+            (.misc, $config.favoriteName0),
+            (.doujinshi, $config.favoriteName1),
+            (.manga, $config.favoriteName2),
+            (.artistCG, $config.favoriteName3),
+            (.gameCG, $config.favoriteName4),
+            (.western, $config.favoriteName5),
+            (.nonH, $config.favoriteName6),
+            (.imageSet, $config.favoriteName7),
+            (.cosplay, $config.favoriteName8),
+            (.asianPorn, $config.favoriteName9)
         ]
     }
 
@@ -593,14 +603,14 @@ private struct FavoritesSection: View {
     private let sortOrderDescription = "You can also select your default sort order for galleries on your favorites page. Note that favorites added prior to the March 2016 revamp did not store a timestamp, and will use the gallery posted time regardless of this setting."
     // swiftlint:enable line_length
 
-    init(ehConfig: Binding<EhConfig>) {
-        _ehConfig = ehConfig
+    init(config: Binding<EhConfig>) {
+        _config = config
     }
 
     var body: some View {
         Section(
-            header: Text("Favorites"),
-            footer: Text(favoriteNamesDescription)
+            header: Text("Favorites").newlineBold()
+            + Text(favoriteNamesDescription)
         ) {
             ForEach(tuples, id: \.0) { category, nameBinding in
                 HStack(spacing: 30) {
@@ -614,16 +624,16 @@ private struct FavoritesSection: View {
             }
         }
         .textCase(nil)
-        Section(footer: Text(sortOrderDescription)) {
+        Section(header: Text(sortOrderDescription)) {
             HStack {
                 Text("Sort order")
                 Spacer()
-                Picker(selection: $ehConfig.sortOrder) {
+                Picker(selection: $config.sortOrder) {
                     ForEach(SortOrder.allCases) { order in
                         Text(order.value).tag(order)
                     }
                 } label: {
-                    Text(ehConfig.sortOrder.value)
+                    Text(config.sortOrder.value)
                 }
                 .pickerStyle(.menu)
             }
@@ -634,26 +644,26 @@ private struct FavoritesSection: View {
 
 // MARK: RatingsSection
 private struct RatingsSection: View {
-    @Binding private var ehConfig: EhConfig
+    @Binding private var config: EhConfig
 
     // swiftlint:disable line_length
-    private let ratingsDescription = "By default, galleries that you have rated will appear with red stars for ratings of 2 stars and below, green for ratings between 2.5 and 4 stars, and blue for ratings of 4.5 or 5 stars. You can customize this by entering your desired color combination above. Each letter represents one star. The default RRGGB means R(ed) for the first and second star, G(reen) for the third and fourth, and B(lue) for the fifth. You can also use (Y)ellow for the normal stars. Any five-letter R/G/B/Y combo works."
+    private let ratingsDescription = "By default, galleries that you have rated will appear with red stars for ratings of 2 stars and below, green for ratings between 2.5 and 4 stars, and blue for ratings of 4.5 or 5 stars. You can customize this by entering your desired color combination below. Each letter represents one star. The default RRGGB means R(ed) for the first and second star, G(reen) for the third and fourth, and B(lue) for the fifth. You can also use (Y)ellow for the normal stars. Any five-letter R/G/B/Y combo works."
     // swiftlint:enable line_length
 
-    init(ehConfig: Binding<EhConfig>) {
-        _ehConfig = ehConfig
+    init(config: Binding<EhConfig>) {
+        _config = config
     }
 
     var body: some View {
         Section(
-            header: Text("Ratings"),
-            footer: Text(ratingsDescription)
+            header: Text("Ratings").newlineBold()
+            + Text(ratingsDescription)
         ) {
             HStack {
                 Text("Ratings color")
                 Spacer()
                 SettingTextField(
-                    text: $ehConfig.ratingsColor,
+                    text: $config.ratingsColor,
                     promptText: "RRGGB", width: 80
                 )
             }
@@ -664,37 +674,322 @@ private struct RatingsSection: View {
 
 // MARK: TagNamespacesSection
 private struct TagNamespacesSection: View {
-    @Binding private var ehConfig: EhConfig
+    @Binding private var config: EhConfig
 
     private var tuples: [(String, Binding<Bool>)] {
         [
-            ("reclass", $ehConfig.reclassExcluded),
-            ("language", $ehConfig.languageExcluded),
-            ("parody", $ehConfig.parodyExcluded),
-            ("character", $ehConfig.characterExcluded),
-            ("group", $ehConfig.groupExcluded),
-            ("artist", $ehConfig.artistExcluded),
-            ("male", $ehConfig.maleExcluded),
-            ("female", $ehConfig.femaleExcluded)
+            ("reclass", $config.reclassExcluded),
+            ("language", $config.languageExcluded),
+            ("parody", $config.parodyExcluded),
+            ("character", $config.characterExcluded),
+            ("group", $config.groupExcluded),
+            ("artist", $config.artistExcluded),
+            ("male", $config.maleExcluded),
+            ("female", $config.femaleExcluded)
         ]
     }
 
     // swiftlint:disable line_length
-    private let tagNamespacesDescription = "If you want to exclude certain namespaces from a default tag search, you can check those above. Note that this does not prevent galleries with tags in these namespaces from appearing, it just makes it so that when searching tags, it will forego those namespaces."
+    private let tagNamespacesDescription = "If you want to exclude certain namespaces from a default tag search, you can check those below. Note that this does not prevent galleries with tags in these namespaces from appearing, it just makes it so that when searching tags, it will forego those namespaces."
     // swiftlint:enable line_length
 
-    init(ehConfig: Binding<EhConfig>) {
-        _ehConfig = ehConfig
+    init(config: Binding<EhConfig>) {
+        _config = config
     }
 
     var body: some View {
         Section(
-            header: Text("Tag Namespaces"),
-            footer: Text(tagNamespacesDescription)
+            header: Text("Tag Namespaces").newlineBold()
+            + Text(tagNamespacesDescription)
         ) {
             ExcludeView(tuples: tuples)
         }
         .textCase(nil)
+    }
+}
+
+// MARK: TagFilteringThresholdSection
+private struct TagFilteringThresholdSection: View {
+    @Binding private var config: EhConfig
+
+    // swiftlint:disable line_length
+    private let tagFilteringThresholdDescription = "You can soft filter tags by adding them to My Tags with a negative weight. If a gallery has tags that add up to weight below this value, it is filtered from view. This threshold can be set between 0 and -9999."
+    // swiftlint:enable line_length
+
+    init(config: Binding<EhConfig>) {
+        _config = config
+    }
+
+    var body: some View {
+        Section(
+            header: Text("Tag Filtering Threshold").newlineBold()
+            + Text(tagFilteringThresholdDescription)
+        ) {
+            ValuePicker(
+                title: "Threshold",
+                value: $config.tagFilteringThreshold,
+                range: -9999...0
+            )
+        }
+        .textCase(nil)
+    }
+}
+
+// MARK: TagWatchingThresholdSection
+private struct TagWatchingThresholdSection: View {
+    @Binding private var config: EhConfig
+
+    // swiftlint:disable line_length
+    private let tagWatchingThresholdDescription = "Recently uploaded galleries will be included on the watched screen if it has at least one watched tag with positive weight, and the sum of weights on its watched tags add up to this value or higher. This threshold can be set between 0 and 9999."
+    // swiftlint:enable line_length
+
+    init(config: Binding<EhConfig>) {
+        _config = config
+    }
+
+    var body: some View {
+        Section(
+            header: Text("Tag Watching Threshold").newlineBold()
+            + Text(tagWatchingThresholdDescription)
+        ) {
+            ValuePicker(
+                title: "Threshold",
+                value: $config.tagWatchingThreshold,
+                range: 0...9999
+            )
+        }
+        .textCase(nil)
+    }
+}
+
+// MARK: ExcludedUploadersSection
+private struct ExcludedUploadersSection: View {
+    @Binding private var config: EhConfig
+
+    // swiftlint:disable line_length
+    private var excludedUploadersDescriptionText: Text {
+        Text("If you wish to hide galleries from certain uploaders from the gallery list and searches, add them below. Put one username per line. Note that galleries from these uploaders will never appear regardless of your search query.\nYou are currently using ")
+        + Text("**\(config.excludedUploaders.lineCount) / 1000** exclusion slots.")
+    }
+    // swiftlint:enable line_length
+
+    init(config: Binding<EhConfig>) {
+        _config = config
+    }
+
+    var body: some View {
+        Section(
+            header: Text("Excluded Uploaders").newlineBold()
+            + excludedUploadersDescriptionText
+        ) {
+            TextEditor(text: $config.excludedUploaders)
+                .frame(maxHeight: windowH * 0.3)
+                .disableAutocorrection(true)
+                .autocapitalization(.none)
+        }
+        .textCase(nil)
+    }
+}
+
+// MARK: SearchResultCountSection
+private struct SearchResultCountSection: View {
+    @Binding private var config: EhConfig
+
+    // swiftlint:disable line_length
+    private let searchResultCountDescription = "How many results would you like per page for the index/search page and torrent search pages? (Hath Perk: Paging Enlargement Required)"
+    // swiftlint:enable line_length
+
+    init(config: Binding<EhConfig>) {
+        _config = config
+    }
+
+    var body: some View {
+        Section(
+            header: Text("Search Result Count").newlineBold()
+            + Text(searchResultCountDescription)
+        ) {
+            HStack {
+                Text("Results per page")
+                Spacer()
+                Picker(selection: $config.searchResultCount) {
+                    ForEach(SearchResultCount.allCases) { count in
+                        Text(String(count.value) + " results").tag(count)
+                    }
+                } label: {
+                    Text(String(config.searchResultCount.value) + " results")
+                }
+                .pickerStyle(.menu)
+            }
+        }
+        .textCase(nil)
+    }
+}
+
+// MARK: ThumbnailSettingsSection
+private struct ThumbnailSettingsSection: View {
+    @Binding private var config: EhConfig
+
+    // swiftlint:disable line_length
+    private let thumbnailLoadTimingDescription = "How would you like the mouse-over thumbnails on the front page to load when using List Mode?\n"
+    private let thumbnailConfigurationDescription = "You can set a default thumbnail configuration for all galleries you visit."
+    // swiftlint:enable line_length
+
+    init(config: Binding<EhConfig>) {
+        _config = config
+    }
+
+    var body: some View {
+        Section(
+            header: Text("Thumbnail Settings").newlineBold()
+            + Text(
+                thumbnailLoadTimingDescription
+                + config.thumbnailLoadTiming.description
+            )
+        ) {
+            HStack {
+                Text("Thumbnail load timing")
+                Spacer()
+                Picker(selection: $config.thumbnailLoadTiming) {
+                    ForEach(ThumbnailLoadTiming.allCases) { timing in
+                        Text(timing.value).tag(timing)
+                    }
+                } label: {
+                    Text(config.thumbnailLoadTiming.value)
+                }
+                .pickerStyle(.menu)
+            }
+        }
+        .textCase(nil)
+        Section(header: Text(thumbnailConfigurationDescription)) {
+            HStack {
+                Text("Size")
+                Spacer()
+                Picker(selection: $config.thumbnailConfigSize) {
+                    ForEach(ThumbnailSize.allCases) { size in
+                        Text(size.value).tag(size)
+                    }
+                } label: {
+                    Text(config.thumbnailConfigSize.value)
+                }
+                .pickerStyle(.segmented)
+                .frame(width: 200)
+            }
+            HStack {
+                Text("Rows")
+                Spacer()
+                Picker(selection: $config.thumbnailConfigRows) {
+                    ForEach(ThumbnailRows.allCases) { row in
+                        Text(row.value).tag(row)
+                    }
+                } label: {
+                    Text(config.thumbnailConfigRows.value)
+                }
+                .pickerStyle(.segmented)
+                .frame(width: 200)
+            }
+        }
+        .textCase(nil)
+    }
+}
+
+// MARK: ThumbnailScalingSection
+private struct ThumbnailScalingSection: View {
+    @Binding private var config: EhConfig
+
+    // swiftlint:disable line_length
+    private let thumbnailScalingDescription = "Thumbnails on the thumbnail and extended gallery list views can be scaled to a custom value between 75% and 150%."
+    // swiftlint:enable line_length
+
+    init(config: Binding<EhConfig>) {
+        _config = config
+    }
+
+    var body: some View {
+        Section(
+            header: Text("Thumbnail Scaling").newlineBold()
+            + Text(thumbnailScalingDescription)
+        ) {
+            ValuePicker(
+                title: "Scale factor",
+                value: $config.thumbnailScaleFactor,
+                range: 75...150,
+                unit: "%"
+            )
+        }
+        .textCase(nil)
+    }
+}
+
+// MARK: ViewportOverrideSection
+private struct ViewportOverrideSection: View {
+    @Binding private var config: EhConfig
+
+    // swiftlint:disable line_length
+    private let viewportOverrideDescription = "Allows you to override the virtual width of the site for mobile devices. This is normally determined automatically by your device based on its DPI. Sensible values at 100% thumbnail scale are between 640 and 1400."
+    // swiftlint:enable line_length
+
+    init(config: Binding<EhConfig>) {
+        _config = config
+    }
+
+    var body: some View {
+        Section(
+            header: Text("Viewport Override").newlineBold()
+            + Text(viewportOverrideDescription)
+        ) {
+            ValuePicker(
+                title: "Virtual width",
+                value: $config.viewportVirtualWidth,
+                range: 0...9999,
+                unit: "px"
+            )
+        }
+        .textCase(nil)
+    }
+}
+
+// MARK: ValuePicker
+private struct ValuePicker: View {
+    private let title: String
+    @Binding private var value: Float
+    private let range: ClosedRange<Float>
+    private let unit: String
+
+    init(
+        title: String,
+        value: Binding<Float>,
+        range: ClosedRange<Float>,
+        unit: String = ""
+    ) {
+        self.title = title
+        _value = value
+        self.range = range
+        self.unit = unit
+    }
+
+    var body: some View {
+        VStack {
+            HStack {
+                Text(title)
+                Spacer()
+                Text(String(Int(value)) + unit)
+                    .foregroundStyle(.tint)
+            }
+        }
+        Slider(
+            value: $value,
+            in: range,
+            step: 1,
+            minimumValueLabel:
+                Text(String(Int(range.lowerBound)) + unit)
+                .fontWeight(.medium)
+                .font(.callout),
+            maximumValueLabel:
+                Text(String(Int(range.upperBound)) + unit)
+                .fontWeight(.medium)
+                .font(.callout),
+            label: EmptyView.init
+        )
     }
 }
 
@@ -741,250 +1036,30 @@ private struct ExcludeView: View {
     }
 }
 
-// MARK: TagFilteringThresholdSection
-private struct TagFilteringThresholdSection: View {
-    @Binding private var ehConfig: EhConfig
-
-    // swiftlint:disable line_length
-    private let tagFilteringThresholdDescription = "You can soft filter tags by adding them to My Tags with a negative weight. If a gallery has tags that add up to weight below this value, it is filtered from view. This threshold can be set between 0 and -9999."
-    // swiftlint:enable line_length
-
-    init(ehConfig: Binding<EhConfig>) {
-        _ehConfig = ehConfig
-    }
-
-    var body: some View {
-        Section(
-            header: Text("Tag Filtering Threshold"),
-            footer: Text(tagFilteringThresholdDescription)
-        ) {
-            ThresholdPicker(
-                title: "Threshold",
-                threshold: $ehConfig.tagFilteringThreshold,
-                range: -9999...0
-            )
-        }
-        .textCase(nil)
-    }
-}
-
-// MARK: TagWatchingThresholdSection
-private struct TagWatchingThresholdSection: View {
-    @Binding private var ehConfig: EhConfig
-
-    // swiftlint:disable line_length
-    private let tagWatchingThresholdDescription = "Recently uploaded galleries will be included on the watched screen if it has at least one watched tag with positive weight, and the sum of weights on its watched tags add up to this value or higher. This threshold can be set between 0 and 9999."
-    // swiftlint:enable line_length
-
-    init(ehConfig: Binding<EhConfig>) {
-        _ehConfig = ehConfig
-    }
-
-    var body: some View {
-        Section(
-            header: Text("Tag Watching Threshold"),
-            footer: Text(tagWatchingThresholdDescription)
-        ) {
-            ThresholdPicker(
-                title: "Threshold",
-                threshold: $ehConfig.tagWatchingThreshold,
-                range: 0...9999
-            )
-        }
-        .textCase(nil)
-    }
-}
-
-// MARK: ThresholdPicker
-private struct ThresholdPicker: View {
-    private let title: String
-    @Binding private var threshold: Float
-    private let range: ClosedRange<Float>
-
-    init(
-        title: String,
-        threshold: Binding<Float>,
-        range: ClosedRange<Float>
-    ) {
-        self.title = title
-        _threshold = threshold
-        self.range = range
-    }
-
-    var body: some View {
-        VStack {
-            HStack {
-                Text(title)
-                Spacer()
-                Text(String(Int(threshold)))
-                    .foregroundStyle(.tint)
-            }
-        }
-        Slider(
-            value: $threshold,
-            in: range,
-            step: 1,
-            minimumValueLabel:
-                Text(String(Int(range.lowerBound)))
-                .fontWeight(.medium)
-                .font(.callout),
-            maximumValueLabel:
-                Text(String(Int(range.upperBound)))
-                .fontWeight(.medium)
-                .font(.callout),
-            label: EmptyView.init
-        )
-    }
-}
-
-// MARK: ExcludedUploadersSection
-private struct ExcludedUploadersSection: View {
-    @Binding private var ehConfig: EhConfig
-
-    // swiftlint:disable line_length
-    private var excludedUploadersDescriptionText: Text {
-        Text("If you wish to hide galleries from certain uploaders from the gallery list and searches, add them below. Put one username per line. Note that galleries from these uploaders will never appear regardless of your search query.\nYou are currently using ")
-        + Text("**\(ehConfig.excludedUploaders.lineCount) / 1000** exclusion slots.")
-    }
-    // swiftlint:enable line_length
-
-    init(ehConfig: Binding<EhConfig>) {
-        _ehConfig = ehConfig
-    }
-
-    var body: some View {
-        Section(
-            header: Text("Excluded Uploaders"),
-            footer: excludedUploadersDescriptionText
-        ) {
-            TextEditor(text: $ehConfig.excludedUploaders)
-                .frame(maxHeight: windowH * 0.3)
-                .disableAutocorrection(true)
-                .autocapitalization(.none)
-        }
-        .textCase(nil)
-    }
-}
-
-// MARK: SearchResultCountSection
-private struct SearchResultCountSection: View {
-    @Binding private var ehConfig: EhConfig
-
-    // swiftlint:disable line_length
-    private let searchResultCountDescription = "How many results would you like per page for the index/search page and torrent search pages? (Hath Perk: Paging Enlargement Required)"
-    // swiftlint:enable line_length
-
-    init(ehConfig: Binding<EhConfig>) {
-        _ehConfig = ehConfig
-    }
-
-    var body: some View {
-        Section(
-            header: Text("Search Result Count"),
-            footer: Text(searchResultCountDescription)
-        ) {
-            HStack {
-                Text("Results per page")
-                Spacer()
-                Picker(selection: $ehConfig.searchResultCount) {
-                    ForEach(SearchResultCount.allCases) { count in
-                        Text(String(count.value) + " results").tag(count)
-                    }
-                } label: {
-                    Text(String(ehConfig.searchResultCount.value) + " results")
-                }
-                .pickerStyle(.menu)
-            }
-        }
-        .textCase(nil)
-    }
-}
-
-// MARK: ThumbnailSettingsSection
-private struct ThumbnailSettingsSection: View {
-    @Binding private var ehConfig: EhConfig
-
-    // swiftlint:disable line_length
-    private let thumbnailLoadTimingDescription = "How would you like the mouse-over thumbnails on the front page to load when using List Mode?\n"
-    private let thumbnailConfigurationDescription = "You can set a default thumbnail configuration for all galleries you visit."
-    // swiftlint:enable line_length
-
-    init(ehConfig: Binding<EhConfig>) {
-        _ehConfig = ehConfig
-    }
-
-    var body: some View {
-        Section(
-            header: Text("Thumbnail Settings"),
-            footer: Text(
-                thumbnailLoadTimingDescription
-                + ehConfig.thumbnailLoadTiming.description
-            )
-        ) {
-            HStack {
-                Text("Thumbnail load timing")
-                Spacer()
-                Picker(selection: $ehConfig.thumbnailLoadTiming) {
-                    ForEach(ThumbnailLoadTiming.allCases) { timing in
-                        Text(timing.value).tag(timing)
-                    }
-                } label: {
-                    Text(ehConfig.thumbnailLoadTiming.value)
-                }
-                .pickerStyle(.menu)
-            }
-        }
-        .textCase(nil)
-        Section(footer: Text(thumbnailConfigurationDescription)) {
-            HStack {
-                Text("Size")
-                Spacer()
-                Picker(selection: $ehConfig.thumbnailConfigSize) {
-                    ForEach(ThumbnailSize.allCases) { size in
-                        Text(size.value).tag(size)
-                    }
-                } label: {
-                    Text(ehConfig.thumbnailConfigSize.value)
-                }
-                .pickerStyle(.segmented)
-                .frame(width: 200)
-            }
-            HStack {
-                Text("Rows")
-                Spacer()
-                Picker(selection: $ehConfig.thumbnailConfigRows) {
-                    ForEach(ThumbnailRows.allCases) { row in
-                        Text(row.value).tag(row)
-                    }
-                } label: {
-                    Text(ehConfig.thumbnailConfigRows.value)
-                }
-                .pickerStyle(.segmented)
-                .frame(width: 200)
-            }
-        }
-        .textCase(nil)
-    }
-}
-
 struct EhConfigView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
             EhConfigView()
         }
-        .preferredColorScheme(.dark)
     }
 }
 
 // MARK: AnySection
 private struct AnySection: View {
-    @Binding private var ehConfig: EhConfig
+    @Binding private var config: EhConfig
 
-    init(ehConfig: Binding<EhConfig>) {
-        _ehConfig = ehConfig
+    init(config: Binding<EhConfig>) {
+        _config = config
     }
 
     var body: some View {
         EmptyView()
+    }
+}
+
+// Workaround to solve footers freezing issue
+private extension Text {
+    func newlineBold() -> Text {
+        bold() + Text("\n")
     }
 }
