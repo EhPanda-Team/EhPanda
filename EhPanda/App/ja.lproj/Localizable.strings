@@ -105,7 +105,7 @@
 
 "Reading" = "閲覧";
 "Direction" = "方向";
-"Vertical" = "縦読み";
+"READING_DIRECTION_VERTICAL" = "縦読み";
 "Right-to-left" = "右開き";
 "Left-to-right" = "左開き";
 "Preload limit" = "プリロード上限数";
@@ -128,58 +128,59 @@
 "Acknowledgement" = "謝辞";
 
 // MARK: EhProfileView
-//"Image Load Settings" = "";
-//"Any client: Recommended." = "";
-//"Default port clients only: Can be slower. Enable if behind firewall/proxy that blocks outgoing non-standard ports." = "";
-//"No: Donator only. You will not be able to browse as many pages, enable only if having severe problems." = "";
-//"Load images through the Hath network" = "";
-//"Any client" = "";
-//"Default port clients only" = "";
-//"No" = "";
-//
-//"Image Size Settings" = "";
-//"Normally, images are resampled to 1280 pixels of horizontal resolution for online viewing. You can alternatively select one of the following resample resolutions. To avoid murdering the staging servers, resolutions above 1280x are temporarily restricted to donators, people with any hath perk, and people with a UID below 3,000,000." = "";
-//"Image resolution" = "";
-//"Auto" = "";
-//"While the site will automatically scale down images to fit your screen width, you can also manually restrict the maximum display size of an image. Like the automatic scaling, this does not resample the image, as the resizing is done browser-side. (0 = no limit)" = "";
-//"Image size" = "";
-//"Horizontal" = "";
-//
-//"Gallery Name Display" = "";
-//"Many galleries have both an English/Romanized title and a title in Japanese script. Which gallery name would you like as default?" = "";
-//"Gallery name" = "";
-//"Default Title" = "";
-//"Japanese Title (if available)" = "";
-//
-//"Archiver Settings" = "";
-//"The default behavior for the Archiver is to confirm the cost and selection for original or resampled archive, then present a link that can be clicked or copied elsewhere. You can change this behavior here." = "";
-//"Archiver behavior" = "";
-//"Manual Select, Manual Start (Default)" = "";
-//"Manual Select, Auto Start" = "";
-//"Auto Select Original, Manual Start" = "";
-//"Auto Select Original, Auto Start" = "";
-//"Auto Select Resample, Manual Start" = "";
-//"Auto Select Resample, Auto Start" = "";
-//
-//"Front Page Settings" = "";
-//"Which display mode would you like to use on the front and search pages?" = "";
-//"Compact" = "";
-//"Thumbnail" = "";
-//"Extended" = "";
-//"Minimal" = "";
-//"Minimal+" = "";
-//"What categories would you like to show by default on the front page and in searches?" = "";
-//
-//"Here you can choose and rename your favorite categories." = "";
-//"You can also select your default sort order for galleries on your favorites page. Note that favorites added prior to the March 2016 revamp did not store a timestamp, and will use the gallery posted time regardless of this setting." = "";
-//"Favorites sort order" = "";
-//"By last gallery update time" = "";
-//"By favorited time" = "";
-//
-//"Ratings" = "";
-//"By default, galleries that you have rated will appear with red stars for ratings of 2 stars and below, green for ratings between 2.5 and 4 stars, and blue for ratings of 4.5 or 5 stars. You can customize this by entering your desired color combination below. Each letter represents one star. The default RRGGB means R(ed) for the first and second star, G(reen) for the third and fourth, and B(lue) for the fifth. You can also use (Y)ellow for the normal stars. Any five-letter R/G/B/Y combo works." = "";
-//"Ratings color" = "";
-//
+"Image Load Settings" = "画像読み込み設定";
+"Any client: Recommended." = "任意のクライアント：推奨。";
+"Default port clients only: Can be slower. Enable if behind firewall/proxy that blocks outgoing non-standard ports." = "デフォルトポートのクライアントのみ：遅くなることがあります。非標準発信ポートがファイヤーウォール・プロキシにブロックされた場合のみ有効にしてください。";
+"No: Donator only. You will not be able to browse as many pages, enable only if having severe problems." = "使わない：寄付者独占オプション。閲覧による割当額の消耗は激しくなります、厳重な問題が起こった場合のみ有効にしてください。";
+"Load images through the Hath network" = "Hathネットワーク経由で画像を読み込む";
+"Any client" = "任意のクライアント";
+"Default port clients only" = "デフォルトポートのクライアントのみ";
+"No" = "使わない";
+
+"Image Size Settings" = "画像サイズ設定";
+"Normally, images are resampled to 1280 pixels of horizontal resolution for online viewing. You can alternatively select one of the following resample resolutions. To avoid murdering the staging servers, resolutions above 1280x are temporarily restricted to donators, people with any hath perk, and people with a UID below 3,000,000." = "一般的に、オンライン閲覧の画像は1280xまでにリサンプリングされます。下のいずれかのリサンプリング解像度に変更できます。サーバー負荷軽減のため、1280x以上の解像度は現時点で寄付者、Hath Perks利用者またはUIDが3,000,000以下の者に限定されます。";
+"Image resolution" = "画像解像度";
+"Auto" = "自動";
+"While the site will automatically scale down images to fit your screen width, you can also manually restrict the maximum display size of an image. Like the automatic scaling, this does not resample the image, as the resizing is done browser-side. (0 = no limit)" = "サイト側は画像を自動的にスクリーンに適したサイズにスケールしますが、手動的にその画像の表示サイズ最大値を指定することも可能です。ブラウザが処理を実行するため、画像のリサンプリングは行われません。（ゼロは無制限を意味する）";
+"Image size" = "画像サイズ";
+"Horizontal" = "水平";
+"Vertical" = "垂直";
+
+"Gallery Name Display" = "ギャラリー名表示";
+"Many galleries have both an English/Romanized title and a title in Japanese script. Which gallery name would you like as default?" = "英語・ローマ字と日本語両方のタイトルを持つギャラリーはたくさんあります。デフォルトにどちらがお好みですか？";
+"Gallery name" = "ギャラリー名";
+"Default Title" = "デフォルトタイトル";
+"Japanese Title (if available)" = "日本語タイトル（可能なら）";
+
+"Archiver Settings" = "アーカイバー設定";
+"The default behavior for the Archiver is to confirm the cost and selection for original or resampled archive, then present a link that can be clicked or copied elsewhere. You can change this behavior here." = "アーカイバーのデフォルト操作はオリジナルとリサンプルのアーカイブのコストと選択を確認してからリンクを提供し、それからそのリンクをクリックしたりどこかにペーストしたりすることも可能です。そのデフォルト操作はここで変更できます。";
+"Archiver behavior" = "アーカイバー操作";
+"Manual Select, Manual Start (Default)" = "手動で選択、手動で開始（デフォルト）";
+"Manual Select, Auto Start" = "手動で選択、自動で開始";
+"Auto Select Original, Manual Start" = "自動でオリジナルを選択、手動で開始";
+"Auto Select Original, Auto Start" = "自動でオリジナルを選択、自動で開始";
+"Auto Select Resample, Manual Start" = "自動でリサンプルを選択、手動で開始";
+"Auto Select Resample, Auto Start" = "自動でリサンプルを選択、自動で開始";
+
+"Front Page Settings" = "ホームページ設定";
+"Which display mode would you like to use on the front and search pages?" = "ホームと検索ページで使う表示モードはどれがお好みですか？";
+"Compact" = "コンパクト";
+"Thumbnail" = "サムネイル";
+"Extended" = "拡張";
+"Minimal" = "最小化";
+"Minimal+" = "最小化＋";
+"What categories would you like to show by default on the front page and in searches?" = "ホームと検索ページでどれらのカテゴリーのギャラリーを表示しますか？";
+
+"Here you can choose and rename your favorite categories." = "ここではお気に入りカテゴリー名の変更ができます。";
+"You can also select your default sort order for galleries on your favorites page. Note that favorites added prior to the March 2016 revamp did not store a timestamp, and will use the gallery posted time regardless of this setting." = "お気に入りページのデフォルト並び替え基準も変更可能です。平成２８年３月の改修前にお気に入りに追加した項目はタイムスタンプが含まれていないため、この設定を無視して代わりにギャラリーの投稿時間を使います。";
+"Favorites sort order" = "お気に入りの並び替え基準";
+"By last gallery update time" = "更新時間で";
+"By favorited time" = "気に入った時間で";
+
+"Ratings" = "評価";
+"By default, galleries that you have rated will appear with red stars for ratings of 2 stars and below, green for ratings between 2.5 and 4 stars, and blue for ratings of 4.5 or 5 stars. You can customize this by entering your desired color combination below. Each letter represents one star. The default RRGGB means R(ed) for the first and second star, G(reen) for the third and fourth, and B(lue) for the fifth. You can also use (Y)ellow for the normal stars. Any five-letter R/G/B/Y combo works." = "デフォルトでは、評価済みのギャラリーは２以下の評価に赤い星を使う、２.５〜４には緑、４.５以上には青。下に色の組み合わせを入れることでこのルールをカスタマイズできます。一つの星の色は一つの文字で指定します。デフォルトの「RRGGB」は「一番目と二番目の星は赤（Red）、三番と四番は緑（Green）、五番は青（Blue）」を意味します。黄色（Yellow）も使用可能です。R・G・B・Yで組み合わせた五文字はどれも機能します。";
+"Ratings color" = "評価値の色";
+
 //"Tag Namespaces" = "";
 //"If you want to exclude certain namespaces from a default tag search, you can check those below. Note that this does not prevent galleries with tags in these namespaces from appearing, it just makes it so that when searching tags, it will forego those namespaces." = "";
 //

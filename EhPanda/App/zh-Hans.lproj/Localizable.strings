@@ -105,7 +105,7 @@
 
 "Reading" = "阅读";
 "Direction" = "方向";
-"Vertical" = "垂直";
+"READING_DIRECTION_VERTICAL" = "垂直";
 "Right-to-left" = "右至左";
 "Left-to-right" = "左至右";
 "Preload limit" = "预加载数量上限";
@@ -144,6 +144,7 @@
 "While the site will automatically scale down images to fit your screen width, you can also manually restrict the maximum display size of an image. Like the automatic scaling, this does not resample the image, as the resizing is done browser-side. (0 = no limit)" = "虽然图片会自动根据窗口缩小，你也可以手动设置最大大小，图片并没有重新采样（0 为不限制）";
 "Image size" = "图像尺寸";
 "Horizontal" = "水平";
+"Vertical" = "垂直";
 
 "Gallery Name Display" = "画廊名称显示";
 "Many galleries have both an English/Romanized title and a title in Japanese script. Which gallery name would you like as default?" = "很多画廊都同时拥有英文或者日文标题，你想默认显示哪一个？";

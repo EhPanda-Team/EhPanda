@@ -105,7 +105,7 @@
 
 "Reading" = "閱讀";
 "Direction" = "方向";
-"Vertical" = "垂直";
+"READING_DIRECTION_VERTICAL" = "垂直";
 "Right-to-left" = "右至左";
 "Left-to-right" = "左至右";
 "Preload limit" = "預先載入數量上限";
@@ -144,6 +144,7 @@
 //"While the site will automatically scale down images to fit your screen width, you can also manually restrict the maximum display size of an image. Like the automatic scaling, this does not resample the image, as the resizing is done browser-side. (0 = no limit)" = "";
 //"Image size" = "";
 //"Horizontal" = "";
+//"Vertical" = "";
 //
 //"Gallery Name Display" = "";
 //"Many galleries have both an English/Romanized title and a title in Japanese script. Which gallery name would you like as default?" = "";

@@ -105,7 +105,7 @@
 
 "Reading" = "열람";
 "Direction" = "방향";
-"Vertical" = "수직적으로";
+"READING_DIRECTION_VERTICAL" = "수직적으로";
 "Right-to-left" = "왼쪽으로";
 "Left-to-right" = "오른쪽으로";
 "Preload limit" = "프리로드 리미트";
@@ -144,6 +144,7 @@
 //"While the site will automatically scale down images to fit your screen width, you can also manually restrict the maximum display size of an image. Like the automatic scaling, this does not resample the image, as the resizing is done browser-side. (0 = no limit)" = "";
 //"Image size" = "";
 //"Horizontal" = "";
+//"Vertical" = "";
 //
 //"Gallery Name Display" = "";
 //"Many galleries have both an English/Romanized title and a title in Japanese script. Which gallery name would you like as default?" = "";

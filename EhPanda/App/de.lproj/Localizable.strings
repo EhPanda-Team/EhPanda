@@ -105,7 +105,7 @@
 
 "Reading" = "Am Lesen";
 //"Direction" = "";
-//"Vertical" = "";
+"READING_DIRECTION_VERTICAL" = "Vertikal";
 "Right-to-left" = "Von rechts nach links";
 "Left-to-right" = "Von links nach rechts";
 //"Preload limit" = "";
@@ -144,6 +144,7 @@
 //"While the site will automatically scale down images to fit your screen width, you can also manually restrict the maximum display size of an image. Like the automatic scaling, this does not resample the image, as the resizing is done browser-side. (0 = no limit)" = "";
 //"Image size" = "";
 //"Horizontal" = "";
+//"Vertical" = "";
 //
 //"Gallery Name Display" = "";
 //"Many galleries have both an English/Romanized title and a title in Japanese script. Which gallery name would you like as default?" = "";
