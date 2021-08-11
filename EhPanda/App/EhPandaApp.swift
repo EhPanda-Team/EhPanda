@@ -16,9 +16,9 @@ struct EhPandaApp: App {
     var body: some Scene {
         WindowGroup {
             Home()
-                .task(onStartTasks)
                 .environmentObject(store)
                 .accentColor(accentColor)
+                .onAppear(perform: onStartTasks)
                 .preferredColorScheme(preferredColorScheme)
         }
     }
@@ -41,13 +41,12 @@ private extension EhPandaApp {
     func onStartTasks() {
         dispatchMainSync {
             syncGalleryHost()
+            configureWebImage()
             configureDomainFronting()
         }
         configureLogging()
-        configureWebImage()
         fetchTagTranslator()
         configureIgnoreOffensive()
-        clearImageCachesIfNeeded()
         fetchAccountInfoIfNeeded()
     }
 
@@ -63,15 +62,6 @@ private extension EhPandaApp {
         store.dispatch(.verifyProfile)
         store.dispatch(.fetchUserInfo)
         store.dispatch(.fetchFavoriteNames)
-    }
-    func clearImageCachesIfNeeded() {
-        let threshold = 200 * 1024 * 1024
-
-        KingfisherManager.shared.cache.calculateDiskStorageSize { result in
-            if case .success(let size) = result, size > threshold {
-                KingfisherManager.shared.cache.clearDiskCache()
-            }
-        }
     }
 }
 
@@ -116,12 +106,13 @@ private extension EhPandaApp {
     }
 
     func configureWebImage() {
-        let config = KingfisherManager.shared.downloader.sessionConfiguration
-        config.httpCookieStorage = HTTPCookieStorage.shared
-        KingfisherManager.shared.downloader.sessionConfiguration = config
+        KingfisherManager.configure(
+            bypassesSNIFiltering: setting
+                .bypassesSNIFiltering
+        )
     }
     func configureDomainFronting() {
-        if setting.bypassSNIFiltering {
+        if setting.bypassesSNIFiltering {
             URLProtocol.registerClass(DFURLProtocol.self)
         }
     }

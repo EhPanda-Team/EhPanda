@@ -85,15 +85,13 @@ struct ReadingSettingView: View, StoreAccessor {
                     scaleFactor: settingBinding.maximumScaleFactor,
                     labelContent: "Maximum scale factor",
                     minFactor: 1.5,
-                    maxFactor: 10,
-                    accentColor: setting.accentColor
+                    maxFactor: 10
                 )
                 ScaleFactorRow(
                     scaleFactor: settingBinding.doubleTapScaleFactor,
                     labelContent: "Double tap scale factor",
                     minFactor: 1.5,
-                    maxFactor: 5,
-                    accentColor: setting.accentColor
+                    maxFactor: 5
                 )
             }
         }
@@ -107,20 +105,17 @@ private struct ScaleFactorRow: View {
     private let labelContent: String
     private let minFactor: Double
     private let maxFactor: Double
-    private let accentColor: Color // workaround
 
     init(
         scaleFactor: Binding<Double>,
         labelContent: String,
         minFactor: Double,
-        maxFactor: Double,
-        accentColor: Color
+        maxFactor: Double
     ) {
         _scaleFactor = scaleFactor
         self.labelContent = labelContent
         self.minFactor = minFactor
         self.maxFactor = maxFactor
-        self.accentColor = accentColor
     }
 
     var body: some View {
@@ -129,7 +124,7 @@ private struct ScaleFactorRow: View {
                 Text(labelContent.localized())
                 Spacer()
                 Text(scaleFactor.roundedString() + "x")
-                    .foregroundColor(accentColor)
+                    .foregroundStyle(.tint)
             }
             Slider(
                 value: $scaleFactor,

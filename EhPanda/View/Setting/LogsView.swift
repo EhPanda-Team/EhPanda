@@ -39,11 +39,11 @@ struct LogsView: View, StoreAccessor {
                 Button(action: exportLog) {
                     Image(systemName: "folder.badge.gearshape")
                 }
-                .foregroundColor(setting.accentColor) // workaround
+                .foregroundStyle(.tint)
             }
         }
+        .onAppear(perform: fetchLogsIfNeeded)
         .navigationBarTitle("Logs")
-        .task(fetchLogsIfNeeded)
     }
 }
 

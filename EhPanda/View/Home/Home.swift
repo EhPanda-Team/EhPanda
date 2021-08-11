@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 struct Home: View, StoreAccessor {
     @EnvironmentObject var store: Store
@@ -96,7 +97,7 @@ struct Home: View, StoreAccessor {
         }
         .onReceive(
             NotificationCenter.default.publisher(
-                for: NSNotification.Name("BypassSNIFilteringDidChange")
+                for: NSNotification.Name("BypassesSNIFilteringDidChange")
             )
         ) { _ in
             toggleDomainFronting()
@@ -133,11 +134,14 @@ private extension Home {
         performTransition(offset: -width)
     }
     func toggleDomainFronting() {
-        if setting.bypassSNIFiltering {
+        if setting.bypassesSNIFiltering {
             URLProtocol.registerClass(DFURLProtocol.self)
         } else {
             URLProtocol.unregisterClass(DFURLProtocol.self)
         }
+        KingfisherManager.configure(
+            bypassesSNIFiltering: setting.bypassesSNIFiltering
+        )
     }
 
     func performTransition(offset: CGFloat) {

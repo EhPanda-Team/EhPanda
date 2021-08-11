@@ -73,7 +73,7 @@ struct DraftCommentView: View {
                 }
             }
         }
-        .task(onTextEditorAppear)
+        .onAppear(perform: onTextEditorAppear)
     }
 
     private func onTextEditorAppear() {

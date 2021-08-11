@@ -89,7 +89,6 @@ struct DetailView: View, StoreAccessor, PersistenceAccessor {
                 NetworkErrorView(retryAction: fetchMangaDetail)
             }
         }
-        .task(onStartTasks)
         .onAppear(perform: onAppear)
         .onDisappear(perform: onDisappear)
         .navigationBarHidden(environment.navBarHidden)
@@ -165,7 +164,7 @@ private extension DetailView {
         if environment.navBarHidden {
             store.dispatch(.toggleNavBar(hidden: false))
         }
-
+        onStartTasks()
         fetchMangaDetail()
         updateViewControllersCount()
     }
@@ -429,7 +428,7 @@ private struct DescScrollView: View {
                     .frame(width: itemWidth)
                     Divider()
                     DescScrollItem(
-                        title: "Size",
+                        title: "FILE_SIZE",
                         value: String(detail.sizeCount),
                         numeral: detail.sizeType
                     )
@@ -571,7 +570,7 @@ private struct ActionRow: View {
             }
         }
         .padding(.horizontal)
-        .task(onStartTasks)
+        .onAppear(perform: onStartTasks)
     }
 }
 

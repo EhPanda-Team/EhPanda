@@ -68,9 +68,9 @@ struct Setting: Codable {
     }
 
     // Laboratory
-    @DefaultFalse var bypassSNIFiltering = false {
+    @DefaultFalse var bypassesSNIFiltering = false {
         didSet {
-            postBypassSNIFilteringDidChangeNotification()
+            postBypassesSNIFilteringDidChangeNotification()
         }
     }
 }
@@ -131,7 +131,7 @@ enum PreferredColorScheme: String, Codable, CaseIterable, Identifiable {
 enum ReadingDirection: String, Codable, CaseIterable, Identifiable {
     var id: Int { hashValue }
 
-    case vertical = "Vertical"
+    case vertical = "READING_DIRECTION_VERTICAL"
     case rightToLeft = "Right-to-left"
     case leftToRight = "Left-to-right"
 }

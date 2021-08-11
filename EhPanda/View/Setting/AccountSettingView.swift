@@ -37,16 +37,15 @@ struct AccountSettingView: View, StoreAccessor {
                     .pickerStyle(.segmented)
                     if !didLogin {
                         Button("Login", action: toggleWebViewLogin).withArrow()
-                            .disabled(setting.bypassSNIFiltering)
+                            .disabled(setting.bypassesSNIFiltering)
                     } else {
                         Button("Logout", action: toggleLogout).foregroundStyle(.red)
                     }
                     if didLogin {
                         Group {
-                            Button("Account configuration", action: toggleWebViewConfig).withArrow()
-                                .disabled(setting.bypassSNIFiltering)
+                            NavigationLink("Account configuration", destination: EhSettingsView())
                             Button("Manage tags subscription", action: toggleWebViewMyTags).withArrow()
-                                .disabled(setting.bypassSNIFiltering)
+                                .disabled(setting.bypassesSNIFiltering)
                             Toggle(
                                 "Show new dawn greeting",
                                 isOn: settingBinding.showNewDawnGreeting
@@ -67,7 +66,7 @@ struct AccountSettingView: View, StoreAccessor {
                         submitAction: onEhEditingChange
                     )
                     Button("Copy cookies", action: copyEhCookies)
-                        .foregroundColor(setting.accentColor) // workaround
+                        .foregroundStyle(.tint)
                         .font(.subheadline)
                 }
                 Section(header: Text("ExHentai")) {
@@ -87,7 +86,7 @@ struct AccountSettingView: View, StoreAccessor {
                         submitAction: onExEditingChange
                     )
                     Button("Copy cookies", action: copyExCookies)
-                        .foregroundColor(setting.accentColor) // workaround
+                        .foregroundStyle(.tint)
                         .font(.subheadline)
                 }
             }
@@ -158,9 +157,6 @@ private extension AccountSettingView {
     // MARK: Dispatch Methods
     func toggleWebViewLogin() {
         store.dispatch(.toggleSettingViewSheet(state: .webviewLogin))
-    }
-    func toggleWebViewConfig() {
-        store.dispatch(.toggleSettingViewSheet(state: .webviewConfig))
     }
     func toggleWebViewMyTags() {
         store.dispatch(.toggleSettingViewSheet(state: .webviewMyTags))

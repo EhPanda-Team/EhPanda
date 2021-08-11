@@ -9,3 +9,4 @@ disabled_rules:
 identifier_name:
  excluded:
   - id
+  - no

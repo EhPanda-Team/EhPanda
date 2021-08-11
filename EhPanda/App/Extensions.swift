@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Combine
+import Kingfisher
 import SwiftyBeaver
 
 extension Dictionary where Key == String, Value == String {
@@ -74,9 +75,16 @@ extension String {
     var hasLocalizedString: Bool {
         self.localized() != self
     }
+    var lineCount: Int {
+        var count = 0
+        enumerateLines { _, _ in
+            count += 1
+        }
+        return count
+    }
 
     func localized() -> String {
-        String(localized: StringLocalizationKey(self))
+        String(localized: String.LocalizationValue(self))
     }
 
     func urlEncoded() -> String {
@@ -166,6 +174,7 @@ extension View {
             Image(systemName: "chevron.right")
                 .foregroundColor(.secondary)
                 .imageScale(.small)
+                .opacity(0.5)
         }
     }
 }
@@ -347,5 +356,18 @@ extension Color {
             blue: Double(blue) / 255.0,
             opacity: Double(alpha) / 255.0
         )
+    }
+}
+
+extension KingfisherManager {
+    static func configure(bypassesSNIFiltering: Bool, handlesCookies: Bool = true) {
+        let config = KingfisherManager.shared.downloader.sessionConfiguration
+        if handlesCookies {
+            config.httpCookieStorage = HTTPCookieStorage.shared
+        }
+        if bypassesSNIFiltering {
+            config.protocolClasses = [DFURLProtocol.self]
+        }
+        KingfisherManager.shared.downloader.sessionConfiguration = config
     }
 }

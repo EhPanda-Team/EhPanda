@@ -73,12 +73,10 @@ struct GenericList: View {
                 }
             }
             .transition(opacityTransition)
-            .refreshable(action: onUpdate)
+            .refreshable {
+                fetchAction?()
+            }
         }
-    }
-
-    private func onUpdate() {
-        fetchAction?()
     }
 }
 
@@ -203,6 +201,18 @@ private struct WaterfallList: View {
                 columnsInLandscape: columnsInLandscape,
                 spacing: 15, animation: nil
             )
+            if !moreLoadingFlag && !moreLoadFailedFlag {
+                Button {
+                    loadMoreAction?()
+                } label: {
+                    HStack {
+                        Spacer()
+                        Image(systemName: "chevron.down")
+                        Spacer()
+                    }
+                }
+                .foregroundStyle(.tint)
+            }
             if moreLoadingFlag || moreLoadFailedFlag {
                 LoadMoreFooter(
                     moreLoadingFlag: moreLoadingFlag,
@@ -212,11 +222,5 @@ private struct WaterfallList: View {
             }
         }
         .listStyle(.plain)
-    }
-
-    private func onRowAppear(item: Manga) {
-        if item == items?.last {
-            loadMoreAction?()
-        }
     }
 }

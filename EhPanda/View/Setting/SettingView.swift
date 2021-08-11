@@ -26,7 +26,7 @@ struct SettingView: View, StoreAccessor {
                         symbolName: "switch.2",
                         text: "General",
                         destination: GeneralSettingView()
-                            .task(calculateDiskCachesSize)
+                            .onAppear(perform: calculateDiskCachesSize)
                     )
                     SettingRow(
                         symbolName: "circle.righthalf.fill",

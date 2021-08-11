@@ -36,7 +36,6 @@ struct AppearanceSettingView: View, StoreAccessor {
         NavigationLink(
             destination: SelectAppIconView(
                 selectedIcon: selectedIcon,
-                accentColor: setting.accentColor,
                 selectAction: onIconSelect
             ),
             isActive: $isNavLinkActive,
@@ -118,16 +117,13 @@ struct AppearanceSettingView: View, StoreAccessor {
 // MARK: SelectAppIconView
 private struct SelectAppIconView: View {
     private let selectedIcon: IconType
-    private let accentColor: Color // workaround
     private let selectAction: () -> Void
 
     init(
         selectedIcon: IconType,
-        accentColor: Color,
         selectAction: @escaping () -> Void
     ) {
         self.selectedIcon = selectedIcon
-        self.accentColor = accentColor
         self.selectAction = selectAction
     }
 
@@ -138,8 +134,7 @@ private struct SelectAppIconView: View {
                     AppIconRow(
                         iconName: icon.iconName,
                         iconDesc: icon.rawValue,
-                        isSelected: icon == selectedIcon,
-                        accentColor: accentColor
+                        isSelected: icon == selectedIcon
                     )
                     .contentShape(Rectangle())
                     .onTapGesture(perform: {
@@ -148,7 +143,7 @@ private struct SelectAppIconView: View {
                 }
             }
         }
-        .task(selectAction)
+        .onAppear(perform: selectAction)
     }
 
     private func onAppIconRowTap(icon: IconType) {
@@ -167,18 +162,15 @@ private struct AppIconRow: View {
     private let iconName: String
     private let iconDesc: String
     private let isSelected: Bool
-    private let accentColor: Color // workaround
 
     init(
         iconName: String,
         iconDesc: String,
-        isSelected: Bool,
-        accentColor: Color
+        isSelected: Bool
     ) {
         self.iconName = iconName
         self.iconDesc = iconDesc
         self.isSelected = isSelected
-        self.accentColor = accentColor
     }
 
     var body: some View {
@@ -193,8 +185,8 @@ private struct AppIconRow: View {
             Text(iconDesc.localized())
             Spacer()
             Image(systemName: "checkmark.circle.fill")
-                .foregroundColor(accentColor)
                 .opacity(isSelected ? 1 : 0)
+                .foregroundStyle(.tint)
                 .imageScale(.large)
         }
     }

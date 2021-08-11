@@ -10,13 +10,26 @@ import SwiftUI
 struct FilterView: View, StoreAccessor {
     @EnvironmentObject var store: Store
 
+    private var categoryBindings: [Binding<Bool>] {
+        [
+            filterBinding.doujinshi,
+            filterBinding.manga,
+            filterBinding.artistCG,
+            filterBinding.gameCG,
+            filterBinding.western,
+            filterBinding.nonH,
+            filterBinding.imageSet,
+            filterBinding.cosplay,
+            filterBinding.asianPorn,
+            filterBinding.misc
+        ]
+    }
+
     // MARK: FilterView
     var body: some View {
-        let filter = settings.filter
-        let filterBinding = settingsBinding.filter
         Form {
             Section {
-                CategoryView(filter: filter, filterBinding: filterBinding)
+                CategoryView(bindings: categoryBindings)
                 Button(action: onResetButtonTap) {
                     Text("Reset filters")
                         .foregroundStyle(.red)
@@ -73,88 +86,15 @@ private extension FilterView {
     var environmentBinding: Binding<AppState.Environment> {
         $store.appState.environment
     }
+    var filterBinding: Binding<Filter> {
+        settingsBinding.filter
+    }
 
     func onResetButtonTap() {
         store.dispatch(.toggleFilterViewActionSheet(state: .resetFilters))
     }
     func resetFilters() {
         store.dispatch(.resetFilters)
-    }
-}
-
-// MARK: CategoryView
-private struct CategoryView: View {
-    private let filter: Filter
-    private let filterBinding: Binding<Filter>
-
-    private let gridItems = [
-        GridItem(.adaptive(
-            minimum: isPadWidth ? 100 : 80, maximum: 100
-        ))
-    ]
-    private var tuples: [(Binding<Bool>, Category)] {
-        [
-            (filterBinding.doujinshi, .doujinshi),
-            (filterBinding.manga, .manga),
-            (filterBinding.artistCG, .artistCG),
-            (filterBinding.gameCG, .gameCG),
-            (filterBinding.western, .western),
-            (filterBinding.nonH, .nonH),
-            (filterBinding.imageSet, .imageSet),
-            (filterBinding.cosplay, .cosplay),
-            (filterBinding.asianPorn, .asianPorn),
-            (filterBinding.misc, .misc)
-        ]
-    }
-
-    init(filter: Filter, filterBinding: Binding<Filter>) {
-        self.filter = filter
-        self.filterBinding = filterBinding
-    }
-
-    var body: some View {
-        LazyVGrid(columns: gridItems) {
-            ForEach(tuples, id: \.1) { isFiltered, category in
-                CategoryCell(
-                    isFiltered: isFiltered,
-                    category: category
-                )
-            }
-        }
-        .padding(.vertical)
-    }
-}
-
-// MARK: CategoryCell
-private struct CategoryCell: View {
-    @Binding private var isFiltered: Bool
-    private let category: Category
-
-    init(isFiltered: Binding<Bool>, category: Category) {
-        _isFiltered = isFiltered
-        self.category = category
-    }
-
-    var body: some View {
-        ZStack {
-            Rectangle()
-                .foregroundColor(
-                    isFiltered
-                        ? category.color.opacity(0.3)
-                        : category.color
-                )
-            Text(category.rawValue.localized())
-                .fontWeight(.bold)
-                .foregroundStyle(.white)
-                .padding(.vertical, 5)
-                .lineLimit(1)
-        }
-        .onTapGesture(perform: onTapGesture)
-        .cornerRadius(5)
-    }
-
-    private func onTapGesture() {
-        isFiltered.toggle()
     }
 }
 
@@ -187,17 +127,8 @@ private struct MinimumRatingSetter: View {
 
 // MARK: PagesRangeSetter
 private struct PagesRangeSetter: View {
-    @Environment(\.colorScheme) private var colorScheme
     @Binding private var lowerBound: String
     @Binding private var upperBound: String
-
-    private var color: Color {
-        if colorScheme == .light {
-            return Color(.systemGray6)
-        } else {
-            return Color(.systemGray3)
-        }
-    }
 
     init(
         lowerBound: Binding<String>,
@@ -211,23 +142,8 @@ private struct PagesRangeSetter: View {
         HStack {
             Text("Pages range")
             Spacer()
-            TextField("", text: $lowerBound)
-                .keyboardType(.numbersAndPunctuation)
-                .multilineTextAlignment(.center)
-                .disableAutocorrection(true)
-                .autocapitalization(.none)
-                .background(color)
-                .frame(width: 50)
-                .cornerRadius(5)
-            Text("-")
-            TextField("", text: $upperBound)
-                .keyboardType(.numbersAndPunctuation)
-                .multilineTextAlignment(.center)
-                .disableAutocorrection(true)
-                .autocapitalization(.none)
-                .background(color)
-                .frame(width: 50)
-                .cornerRadius(5)
+            SettingTextField(text: $lowerBound)
+            SettingTextField(text: $upperBound)
         }
     }
 }

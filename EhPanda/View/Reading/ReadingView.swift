@@ -173,8 +173,8 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
                 updateSettingAction: update
             )
         }
-        .task(onStartTasks)
         .statusBar(hidden: !showsPanel)
+        .onAppear(perform: onStartTasks)
         .navigationBarBackButtonHidden(true)
         .navigationBarHidden(environment.navBarHidden)
         .onAppear(perform: toggleNavBarHiddenIfNeeded)
