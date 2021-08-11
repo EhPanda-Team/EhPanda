@@ -108,18 +108,16 @@ extension EhProfileLoadThroughHathSetting {
             return "No"
         }
     }
-    // swiftlint:disable line_length
     var description: String {
         switch self {
         case .anyClient:
-            return "Any client: Recommended."
+            return "Recommended."
         case .defaultPortOnly:
-            return "Default port clients only: Can be slower. Enable if behind firewall/proxy that blocks outgoing non-standard ports."
+            return "Can be slower. Enable if behind firewall/proxy that blocks outgoing non-standard ports."
         case .no:
-            return "No: Donator only. You will not be able to browse as many pages, enable only if having severe problems."
+            return "Donator only. You will not be able to browse as many pages, enable only if having severe problems."
         }
     }
-    // swiftlint:enable line_length
 }
 
 // MARK: ImageResolution
@@ -297,16 +295,14 @@ extension EhProfileThumbnailLoadTiming {
             return "On page load"
         }
     }
-    // swiftlint:disable line_length
     var description: String {
         switch self {
         case .onMouseOver:
-            return "On mouse-over: Pages load faster, but there may be a slight delay before a thumb appears."
+            return "Pages load faster, but there may be a slight delay before a thumb appears."
         case .onPageLoad:
-            return "On page load: Pages take longer to load, but there is no delay for loading a thumb after the page has loaded."
+            return "Pages take longer to load, but there is no delay for loading a thumb after the page has loaded."
         }
     }
-    // swiftlint:enable line_length
 }
 
 // MARK: ThumbnailSize

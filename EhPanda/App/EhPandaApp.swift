@@ -16,9 +16,9 @@ struct EhPandaApp: App {
     var body: some Scene {
         WindowGroup {
             Home()
-                .task(onStartTasks)
                 .environmentObject(store)
                 .accentColor(accentColor)
+                .onAppear(perform: onStartTasks)
                 .preferredColorScheme(preferredColorScheme)
         }
     }

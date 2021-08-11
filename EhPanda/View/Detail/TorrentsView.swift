@@ -55,8 +55,8 @@ struct TorrentsView: View, StoreAccessor {
                 NetworkErrorView(retryAction: fetchMangaTorrents)
             }
         }
+        .onAppear(perform: fetchMangaTorrents)
         .navigationBarTitle("Torrents")
-        .task(fetchMangaTorrents)
     }
 }
 

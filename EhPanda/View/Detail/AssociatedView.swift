@@ -48,8 +48,8 @@ struct AssociatedView: View, StoreAccessor {
             prompt: "Search"
         )
         .navigationBarTitle(title)
-        .task(fetchAssociatedItemsIfNeeded)
         .onSubmit(of: .search, fetchAssociatedItems)
+        .onAppear(perform: fetchAssociatedItemsIfNeeded)
     }
 }
 

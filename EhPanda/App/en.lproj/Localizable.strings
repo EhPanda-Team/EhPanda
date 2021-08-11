@@ -24,3 +24,4 @@
 // MARK: Setting
 "LIST_DISPLAY_MODE_DETAIL" = "Detail";
 "LIST_DISPLAY_MODE_THUMBNAIL" = "Thumbnail";
+"READING_DIRECTION_VERTICAL" = "Vertical";

@@ -127,11 +127,13 @@
 "AltStore Source" = "AltStore源";
 "Acknowledgement" = "致谢";
 
-// MARK: EhProfileView
+// MARK: EhSettingsView
+"Settings" = "设置";
+
 "Image Load Settings" = "图片加载设置";
-"Any client: Recommended." = "所有客户端：推荐。";
-"Default port clients only: Can be slower. Enable if behind firewall/proxy that blocks outgoing non-standard ports." = "仅使用默认端口的客户端：可能稍慢。当防火墙或代理阻止非标准接口的流量时启用此项。";
-"No: Donator only. You will not be able to browse as many pages, enable only if having severe problems." = "否：仅限赞助者。配额消耗会加快，只有出现问题时才启用。";
+"Recommended." = "推荐。";
+"Can be slower. Enable if behind firewall/proxy that blocks outgoing non-standard ports." = "可能稍慢。当防火墙或代理阻止非标准接口的流量时启用此项。";
+"Donator only. You will not be able to browse as many pages, enable only if having severe problems." = "仅限赞助者。配额消耗会加快，只有出现问题时才启用。";
 "Load images through the Hath network" = "通过Hath网络加载图像";
 "Any client" = "所有客户端";
 "Default port clients only" = "仅使用默认端口的客户端";
@@ -141,7 +143,7 @@
 "Normally, images are resampled to 1280 pixels of horizontal resolution for online viewing. You can alternatively select one of the following resample resolutions. To avoid murdering the staging servers, resolutions above 1280x are temporarily restricted to donators, people with any hath perk, and people with a UID below 3,000,000." = "通常情况，图像将重采样到 1280 像素宽度以用于在线浏览，您也可以选择以下重新采样分辨率。但是为了避免负载过高，高于 1280 像素将只供给于赞助者、特殊贡献者，以及 UID 小于 3,000,000 的用户。";
 "Image resolution" = "图像分辨率";
 "Auto" = "自动";
-"While the site will automatically scale down images to fit your screen width, you can also manually restrict the maximum display size of an image. Like the automatic scaling, this does not resample the image, as the resizing is done browser-side. (0 = no limit)" = "虽然图片会自动根据窗口缩小，你也可以手动设置最大大小，图片并没有重新采样（0 为不限制）";
+"While the site will automatically scale down images to fit your screen width, you can also manually restrict the maximum display size of an image. Like the automatic scaling, this does not resample the image, as the resizing is done browser-side. (0 = no limit)" = "虽然图片会自动根据窗口缩小，你也可以手动设置最大大小，图片并没有重新采样。（0 为不限制）";
 "Image size" = "图像尺寸";
 "Horizontal" = "水平";
 "Vertical" = "垂直";
@@ -181,19 +183,18 @@
 "By default, galleries that you have rated will appear with red stars for ratings of 2 stars and below, green for ratings between 2.5 and 4 stars, and blue for ratings of 4.5 or 5 stars. You can customize this by entering your desired color combination below. Each letter represents one star. The default RRGGB means R(ed) for the first and second star, G(reen) for the third and fourth, and B(lue) for the fifth. You can also use (Y)ellow for the normal stars. Any five-letter R/G/B/Y combo works." = "默认设置下，你评为 2 星及以下的画廊显示为红星，2.5 ~ 4 星显示为绿星，4.5 ~ 5 星显示为蓝星。你可以将其设定为其他颜色组合。每一个字幕代表一颗星, 默认的 RRGGB 表示第一第二颗星显示为红色 R(ed)，第三第四颗星显示是绿色 G(reen)，第五颗星显示为蓝色 B(lue)。你也可以使用黄色 (Y)ellow，R/G/B/Y 任何五个组合都是有效的。";
 "Ratings color" = "评分颜色";
 
-"Tag Namespaces" = "标签组";
-"If you want to exclude certain namespaces from a default tag search, you can check those below. Note that this does not prevent galleries with tags in these namespaces from appearing, it just makes it so that when searching tags, it will forego those namespaces." = "如果要从默认标签搜索中排除某些标签组，可以检查以下内容。请注意，这不会阻止在这些标签组中的标签的展示区出现，它只是在搜索标签时排除这些标签组。";
+"Tag Namespaces" = "标签命名空间";
+"If you want to exclude certain namespaces from a default tag search, you can check those below. Note that this does not prevent galleries with tags in these namespaces from appearing, it just makes it so that when searching tags, it will forego those namespaces." = "如果要从默认标签搜索中排除某些命名空间，可以将以下内容标记为删除样式。请注意，这不会阻止带有这些命名空间中标签的画廊出现，它只是在搜索标签时排除这些命名空间。";
 
 "Tag Filtering Threshold" = "标签筛选阈值";
 "You can soft filter tags by adding them to My Tags with a negative weight. If a gallery has tags that add up to weight below this value, it is filtered from view. This threshold can be set between 0 and -9999." = "你可以通过将标签加入“我的标签”并设置一个负权重来软过滤它们。如果一个作品所有的标签权重之和低于设定值，此作品将从视图中被过滤。这个值可以设定为 0 ~ -9999。";
-"Threshold" = "阈值";
 
 "Tag Watching Threshold" = "标签订阅阈值";
-"Recently uploaded galleries will be included on the watched screen if it has at least one watched tag with positive weight, and the sum of weights on its watched tags add up to this value or higher. This threshold can be set between 0 and 9999." = "你可以通过将标签加入“我的标签”并设置一个正权重来关注它们。如果一个最近上传的作品所有标签的权重之和高于设定值，则它将会被包含在”关注“里。这个值可以设定为 0 ~ 9999。";
+"Recently uploaded galleries will be included on the watched screen if it has at least one watched tag with positive weight, and the sum of weights on its watched tags add up to this value or higher. This threshold can be set between 0 and 9999." = "你可以通过将标签加入“我的标签”并设置一个正权重来关注它们。如果一个最近上传的作品所有标签的权重之和高于设定值，则它将会被包含在“关注”里。这个值可以设定为 0 ~ 9999。";
 
 "Excluded Uploaders" = "屏蔽的上传者";
-"If you wish to hide galleries from certain uploaders from the gallery list and searches, add them below. Put one username per line. Note that galleries from these uploaders will never appear regardless of your search query.\n" = "如果你希望在画廊中和搜索中隐藏某个上传者的话，请把他们的用户名填写在下方，每行一个。注意：无论你如何搜索，这些上传者都不会出现。\n";
-"You are currently using **%lld / 1000** exclusion slots." = "已使用 **%lld / 1000**";
+"If you wish to hide galleries from certain uploaders from the gallery list and searches, add them below. Put one username per line. Note that galleries from these uploaders will never appear regardless of your search query." = "如果你希望在画廊中和搜索中隐藏某个上传者的话，请把他们的用户名填写在下方，每行一个。注意：无论你如何搜索，这些上传者都不会出现。";
+"You are currently using **%lld / 1000** exclusion slots." = "已使用 **%lld / 1000** 个屏蔽槽位。";
 
 "Search Result Count" = "搜索结果数";
 "How many results would you like per page for the index/search page and torrent search pages? (Hath Perk: Paging Enlargement Required)" = "搜索页面每页显示多少条数据？（Hath Perk：需要“页面扩大”）";
@@ -201,9 +202,9 @@
 " results" = "条";
 
 "Thumbnail Settings" = "缩略图设置";
-"How would you like the mouse-over thumbnails on the front page to load when using List Mode?\n" = "你希望鼠标悬停缩略图何时加载？\n";
-"On mouse-over: Pages load faster, but there may be a slight delay before a thumb appears." = "鼠标悬停时：页面加载快，缩略图加载有延迟。";
-"On page load: Pages take longer to load, but there is no delay for loading a thumb after the page has loaded." = "页面加载时：页面加载时间更长，显示缩略图无需等待。";
+"How would you like the mouse-over thumbnails on the front page to load when using List Mode?" = "你希望鼠标悬停缩略图何时加载？";
+"Pages load faster, but there may be a slight delay before a thumb appears." = "页面加载快，缩略图加载有延迟。";
+"Pages take longer to load, but there is no delay for loading a thumb after the page has loaded." = "页面加载时间更长，显示缩略图无需等待。";
 "Thumbnail load timing" = "缩略图加载时机";
 "On mouse-over" = "鼠标悬停时";
 "On page load" = "页面加载时";

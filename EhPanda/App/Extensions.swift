@@ -83,7 +83,7 @@ extension String {
     }
 
     func localized() -> String {
-        String(localized: StringLocalizationKey(self))
+        String(localized: String.LocalizationValue(self))
     }
 
     func urlEncoded() -> String {

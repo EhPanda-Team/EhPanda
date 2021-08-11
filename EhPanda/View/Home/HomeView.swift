@@ -78,9 +78,9 @@ struct HomeView: View, StoreAccessor {
                 }
             }
         }
-        .task(onStartTasks)
         .onOpenURL(perform: onOpen)
         .navigationViewStyle(.stack)
+        .onAppear(perform: onStartTasks)
         .sheet(item: environmentBinding.homeViewSheetState) { item in
             Group {
                 switch item {

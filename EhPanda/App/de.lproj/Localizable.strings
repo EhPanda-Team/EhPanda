@@ -127,11 +127,13 @@
 "AltStore Source" = "AltStore Quelle";
 "Acknowledgement" = "OK";
 
-// MARK: EhProfileView
+// MARK: EhSettingsView
+//"Settings" = "";
+//
 //"Image Load Settings" = "";
-//"Any client: Recommended." = "";
-//"Default port clients only: Can be slower. Enable if behind firewall/proxy that blocks outgoing non-standard ports." = "";
-//"No: Donator only. You will not be able to browse as many pages, enable only if having severe problems." = "";
+//"Recommended." = "";
+//"Can be slower. Enable if behind firewall/proxy that blocks outgoing non-standard ports." = "";
+//"Donator only. You will not be able to browse as many pages, enable only if having severe problems." = "";
 //"Load images through the Hath network" = "";
 //"Any client" = "";
 //"Default port clients only" = "";
@@ -186,13 +188,12 @@
 //
 //"Tag Filtering Threshold" = "";
 //"You can soft filter tags by adding them to My Tags with a negative weight. If a gallery has tags that add up to weight below this value, it is filtered from view. This threshold can be set between 0 and -9999." = "";
-//"Threshold" = "";
 //
 //"Tag Watching Threshold" = "";
 //"Recently uploaded galleries will be included on the watched screen if it has at least one watched tag with positive weight, and the sum of weights on its watched tags add up to this value or higher. This threshold can be set between 0 and 9999." = "";
 //
 //"Excluded Uploaders" = "";
-//"If you wish to hide galleries from certain uploaders from the gallery list and searches, add them below. Put one username per line. Note that galleries from these uploaders will never appear regardless of your search query.\n" = "";
+//"If you wish to hide galleries from certain uploaders from the gallery list and searches, add them below. Put one username per line. Note that galleries from these uploaders will never appear regardless of your search query." = "";
 //"You are currently using **%lld / 1000** exclusion slots." = "";
 //
 //"Search Result Count" = "";
@@ -201,9 +202,9 @@
 //" results" = "";
 //
 //"Thumbnail Settings" = "";
-//"How would you like the mouse-over thumbnails on the front page to load when using List Mode?\n" = "";
-//"On mouse-over: Pages load faster, but there may be a slight delay before a thumb appears." = "";
-//"On page load: Pages take longer to load, but there is no delay for loading a thumb after the page has loaded." = "";
+//"How would you like the mouse-over thumbnails on the front page to load when using List Mode?" = "";
+//"Pages load faster, but there may be a slight delay before a thumb appears." = "";
+//"Pages take longer to load, but there is no delay for loading a thumb after the page has loaded." = "";
 //"Thumbnail load timing" = "";
 //"On mouse-over" = "";
 //"On page load" = "";

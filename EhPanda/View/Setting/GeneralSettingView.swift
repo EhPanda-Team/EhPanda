@@ -20,7 +20,7 @@ struct GeneralSettingView: View, StoreAccessor {
                     Text("Language")
                     Spacer()
                     Button(language, action: toSettingLanguage)
-                        .foregroundColor(setting.accentColor) // workaround
+                        .foregroundStyle(.tint)
                 }
                 NavigationLink("Logs", destination: LogsView())
                 NavigationLink("Filters", destination: FilterView())
@@ -62,14 +62,14 @@ struct GeneralSettingView: View, StoreAccessor {
                         Text("Clear image caches")
                         Spacer()
                         Text(setting.diskImageCacheSize)
-                            .foregroundColor(setting.accentColor) // workaround
+                            .foregroundStyle(.tint)
                     }
                     .foregroundColor(.primary)
                 }
             }
         }
+        .onAppear(perform: checkPasscodeExistence)
         .navigationBarTitle("General")
-        .task(checkPasscodeExistence)
     }
 }
 

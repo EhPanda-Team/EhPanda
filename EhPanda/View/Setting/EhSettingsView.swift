@@ -1,5 +1,5 @@
 //
-//  EhProfileView.swift
+//  EhSettingsView.swift
 //  EhPanda
 //
 //  Created by 荒木辰造 on 2021/08/07.
@@ -8,7 +8,7 @@
 import SwiftUI
 import SwiftyBeaver
 
-struct EhProfileView: View, StoreAccessor {
+struct EhSettingsView: View, StoreAccessor {
     @EnvironmentObject var store: Store
 
     @State private var profile: EhProfile?
@@ -17,11 +17,15 @@ struct EhProfileView: View, StoreAccessor {
     @State private var submittingFlag = false
     @State private var shouldHideKeyboard = ""
 
-    func form(profileBinding: Binding<EhProfile>) -> some View {
+    private var title: String {
+        galleryHost.rawValue + " " + "Settings".localized()
+    }
+
+    private func form(profileBinding: Binding<EhProfile>) -> some View {
         Form {
             Group {
                 ImageLoadSettingsSection(profile: profileBinding)
-                ImageSizeSettingsSection(profile: profileBinding, accentColor: setting.accentColor)
+                ImageSizeSettingsSection(profile: profileBinding)
                 GalleryNameDisplaySection(profile: profileBinding)
                 ArchiverSettingsSection(profile: profileBinding)
                 FrontPageSettingsSection(profile: profileBinding)
@@ -30,15 +34,15 @@ struct EhProfileView: View, StoreAccessor {
             }
             Group {
                 TagNamespacesSection(profile: profileBinding)
-                TagFilteringThresholdSection(profile: profileBinding, accentColor: setting.accentColor)
-                TagWatchingThresholdSection(profile: profileBinding, accentColor: setting.accentColor)
+                TagFilteringThresholdSection(profile: profileBinding)
+                TagWatchingThresholdSection(profile: profileBinding)
                 ExcludedUploadersSection(profile: profileBinding, shouldHideKeyboard: $shouldHideKeyboard)
                 SearchResultCountSection(profile: profileBinding)
                 ThumbnailSettingsSection(profile: profileBinding)
-                ThumbnailScalingSection(profile: profileBinding, accentColor: setting.accentColor)
+                ThumbnailScalingSection(profile: profileBinding)
             }
             Group {
-                ViewportOverrideSection(profile: profileBinding, accentColor: setting.accentColor)
+                ViewportOverrideSection(profile: profileBinding)
                 GalleryCommentsSection(profile: profileBinding)
                 GalleryTagsSection(profile: profileBinding)
                 GalleryPageNumberingSection(profile: profileBinding)
@@ -69,21 +73,15 @@ struct EhProfileView: View, StoreAccessor {
                 Button(action: toggleWebViewConfig) {
                     Image(systemName: "globe")
                 }
-                .foregroundColor(
-                    setting.bypassSNIFiltering
-                    ? .gray : setting.accentColor
-                )
                 .disabled(setting.bypassSNIFiltering)
+                .foregroundStyle(.tint)
             }
             ToolbarItem(placement: .confirmationAction) {
                 Button(action: submitProfileChanges) {
                     Image(systemName: "icloud.and.arrow.up")
                 }
-                .foregroundColor(
-                    profile == nil
-                    ? .gray : setting.accentColor
-                )
                 .disabled(profile == nil)
+                .foregroundStyle(.tint)
             }
             ToolbarItem(placement: .keyboard) {
                 HStack {
@@ -91,12 +89,12 @@ struct EhProfileView: View, StoreAccessor {
                     Button("Done") {
                         shouldHideKeyboard = UUID().uuidString
                     }
-                    .foregroundColor(setting.accentColor)
+                    .foregroundStyle(.tint)
                 }
             }
         }
-        .navigationTitle("EhProfile")
-        .task(fetchProfile)
+        .onAppear(perform: fetchProfile)
+        .navigationTitle(title)
     }
 
     func fetchProfile() {
@@ -164,13 +162,8 @@ private struct ImageLoadSettingsSection: View {
 
     var body: some View {
         Section(
-            header:
-                Text("Image Load Settings").newlineBold() +
-                Text(
-                    EhProfileLoadThroughHathSetting.anyClient.description.localized() + "\n"
-                    + EhProfileLoadThroughHathSetting.defaultPortOnly.description.localized() + "\n"
-                    + EhProfileLoadThroughHathSetting.no.description.localized()
-                )
+            header: Text("Image Load Settings"),
+            footer: Text(profile.loadThroughHathSetting.description.localized())
         ) {
             Text("Load images through the Hath network")
             Picker(selection: $profile.loadThroughHathSetting) {
@@ -189,7 +182,6 @@ private struct ImageLoadSettingsSection: View {
 // MARK: ImageSizeSettingsSection
 private struct ImageSizeSettingsSection: View {
     @Binding private var profile: EhProfile
-    private let accentColor: Color // workaround
 
     // swiftlint:disable line_length
     private let imageResolutionDescription = "Normally, images are resampled to 1280 pixels of horizontal resolution for online viewing. You can alternatively select one of the following resample resolutions. To avoid murdering the staging servers, resolutions above 1280x are temporarily restricted to donators, people with any hath perk, and people with a UID below 3,000,000."
@@ -202,9 +194,8 @@ private struct ImageSizeSettingsSection: View {
         }
     }
 
-    init(profile: Binding<EhProfile>, accentColor: Color) {
+    init(profile: Binding<EhProfile>) {
         _profile = profile
-        self.accentColor = accentColor
     }
 
     var body: some View {
@@ -232,15 +223,13 @@ private struct ImageSizeSettingsSection: View {
                 title: "Horizontal",
                 value: $profile.imageSizeWidth,
                 range: 0...65535,
-                unit: "px",
-                accentColor: accentColor
+                unit: "px"
             )
             ValuePicker(
                 title: "Vertical",
                 value: $profile.imageSizeHeight,
                 range: 0...65535,
-                unit: "px",
-                accentColor: accentColor
+                unit: "px"
             )
         }
         .textCase(nil)
@@ -512,15 +501,13 @@ private struct TagNamespacesSection: View {
 // MARK: TagFilteringThresholdSection
 private struct TagFilteringThresholdSection: View {
     @Binding private var profile: EhProfile
-    private let accentColor: Color // workaround
 
     // swiftlint:disable line_length
     private let tagFilteringThresholdDescription = "You can soft filter tags by adding them to My Tags with a negative weight. If a gallery has tags that add up to weight below this value, it is filtered from view. This threshold can be set between 0 and -9999."
     // swiftlint:enable line_length
 
-    init(profile: Binding<EhProfile>, accentColor: Color) {
+    init(profile: Binding<EhProfile>) {
         _profile = profile
-        self.accentColor = accentColor
     }
 
     var body: some View {
@@ -531,8 +518,7 @@ private struct TagFilteringThresholdSection: View {
             ValuePicker(
                 title: "Tag Filtering Threshold",
                 value: $profile.tagFilteringThreshold,
-                range: -9999...0,
-                accentColor: accentColor
+                range: -9999...0
             )
         }
         .textCase(nil)
@@ -542,15 +528,13 @@ private struct TagFilteringThresholdSection: View {
 // MARK: TagWatchingThresholdSection
 private struct TagWatchingThresholdSection: View {
     @Binding private var profile: EhProfile
-    private let accentColor: Color // workaround
 
     // swiftlint:disable line_length
     private let tagWatchingThresholdDescription = "Recently uploaded galleries will be included on the watched screen if it has at least one watched tag with positive weight, and the sum of weights on its watched tags add up to this value or higher. This threshold can be set between 0 and 9999."
     // swiftlint:enable line_length
 
-    init(profile: Binding<EhProfile>, accentColor: Color) {
+    init(profile: Binding<EhProfile>) {
         _profile = profile
-        self.accentColor = accentColor
     }
 
     var body: some View {
@@ -561,8 +545,7 @@ private struct TagWatchingThresholdSection: View {
             ValuePicker(
                 title: "Tag Watching Threshold",
                 value: $profile.tagWatchingThreshold,
-                range: 0...9999,
-                accentColor: accentColor
+                range: 0...9999
             )
         }
         .textCase(nil)
@@ -576,9 +559,9 @@ private struct ExcludedUploadersSection: View {
     @FocusState var isFocused
 
     // swiftlint:disable line_length
-    private var excludedUploadersDescriptionText: Text {
-        Text("If you wish to hide galleries from certain uploaders from the gallery list and searches, add them below. Put one username per line. Note that galleries from these uploaders will never appear regardless of your search query.\n")
-        + Text("You are currently using **\(profile.excludedUploaders.lineCount) / 1000** exclusion slots.")
+    private let excludedUploadersDescription = "If you wish to hide galleries from certain uploaders from the gallery list and searches, add them below. Put one username per line. Note that galleries from these uploaders will never appear regardless of your search query."
+    private var exclusionSlotsDescriptionText: Text {
+        Text("You are currently using **\(profile.excludedUploaders.lineCount) / 1000** exclusion slots.")
     }
     // swiftlint:enable line_length
 
@@ -590,7 +573,8 @@ private struct ExcludedUploadersSection: View {
     var body: some View {
         Section(
             header: Text("Excluded Uploaders").newlineBold()
-            + excludedUploadersDescriptionText
+            + Text(excludedUploadersDescription.localized()),
+            footer: exclusionSlotsDescriptionText
         ) {
             TextEditor(text: $profile.excludedUploaders)
                 .frame(maxHeight: windowH * 0.3)
@@ -650,7 +634,7 @@ private struct ThumbnailSettingsSection: View {
     @Binding private var profile: EhProfile
 
     // swiftlint:disable line_length
-    private let thumbnailLoadTimingDescription = "How would you like the mouse-over thumbnails on the front page to load when using List Mode?\n"
+    private let thumbnailLoadTimingDescription = "How would you like the mouse-over thumbnails on the front page to load when using List Mode?"
     private let thumbnailConfigurationDescription = "You can set a default thumbnail configuration for all galleries you visit."
     // swiftlint:enable line_length
 
@@ -672,11 +656,8 @@ private struct ThumbnailSettingsSection: View {
     var body: some View {
         Section(
             header: Text("Thumbnail Settings").newlineBold()
-            + Text(
-                thumbnailLoadTimingDescription.localized()
-                + EhProfileThumbnailLoadTiming.onMouseOver.description.localized() + "\n"
-                + EhProfileThumbnailLoadTiming.onPageLoad.description.localized()
-            )
+            + Text(thumbnailLoadTimingDescription.localized()),
+            footer: Text(profile.thumbnailLoadTiming.description.localized())
         ) {
             HStack {
                 Text("Thumbnail load timing")
@@ -727,15 +708,13 @@ private struct ThumbnailSettingsSection: View {
 // MARK: ThumbnailScalingSection
 private struct ThumbnailScalingSection: View {
     @Binding private var profile: EhProfile
-    private let accentColor: Color // workaround
 
     // swiftlint:disable line_length
     private let thumbnailScalingDescription = "Thumbnails on the thumbnail and extended gallery list views can be scaled to a custom value between 75% and 150%."
     // swiftlint:enable line_length
 
-    init(profile: Binding<EhProfile>, accentColor: Color) {
+    init(profile: Binding<EhProfile>) {
         _profile = profile
-        self.accentColor = accentColor
     }
 
     var body: some View {
@@ -747,8 +726,7 @@ private struct ThumbnailScalingSection: View {
                 title: "Scale factor",
                 value: $profile.thumbnailScaleFactor,
                 range: 75...150,
-                unit: "%",
-                accentColor: accentColor
+                unit: "%"
             )
         }
         .textCase(nil)
@@ -758,15 +736,13 @@ private struct ThumbnailScalingSection: View {
 // MARK: ViewportOverrideSection
 private struct ViewportOverrideSection: View {
     @Binding private var profile: EhProfile
-    private let accentColor: Color // workaround
 
     // swiftlint:disable line_length
     private let viewportOverrideDescription = "Allows you to override the virtual width of the site for mobile devices. This is normally determined automatically by your device based on its DPI. Sensible values at 100% thumbnail scale are between 640 and 1400."
     // swiftlint:enable line_length
 
-    init(profile: Binding<EhProfile>, accentColor: Color) {
+    init(profile: Binding<EhProfile>) {
         _profile = profile
-        self.accentColor = accentColor
     }
 
     var body: some View {
@@ -778,8 +754,7 @@ private struct ViewportOverrideSection: View {
                 title: "Virtual width",
                 value: $profile.viewportVirtualWidth,
                 range: 0...9999,
-                unit: "px",
-                accentColor: accentColor
+                unit: "px"
             )
         }
         .textCase(nil)
@@ -981,20 +956,17 @@ private struct ValuePicker: View {
     @Binding private var value: Float
     private let range: ClosedRange<Float>
     private let unit: String
-    private let accentColor: Color // workaround
 
     init(
         title: String,
         value: Binding<Float>,
         range: ClosedRange<Float>,
-        unit: String = "",
-        accentColor: Color
+        unit: String = ""
     ) {
         self.title = title
         _value = value
         self.range = range
         self.unit = unit
-        self.accentColor = accentColor
     }
 
     var body: some View {
@@ -1003,7 +975,7 @@ private struct ValuePicker: View {
                 Text(title.localized())
                 Spacer()
                 Text(String(Int(value)) + unit)
-                    .foregroundColor(accentColor)
+                    .foregroundStyle(.tint)
             }
         }
         Slider(
@@ -1073,17 +1045,16 @@ private struct ExcludeView: View {
     }
 }
 
-// Workaround to solve footers freezing issue
 private extension Text {
     func newlineBold() -> Text {
         bold() + Text("\n")
     }
 }
 
-struct EhProfileView_Previews: PreviewProvider {
+struct EhSettingsView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
-            EhProfileView()
+            EhSettingsView()
         }
     }
 }

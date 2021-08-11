@@ -43,7 +43,7 @@ struct AccountSettingView: View, StoreAccessor {
                     }
                     if didLogin {
                         Group {
-                            NavigationLink("Account configuration", destination: EhProfileView())
+                            NavigationLink("Account configuration", destination: EhSettingsView())
                             Button("Manage tags subscription", action: toggleWebViewMyTags).withArrow()
                                 .disabled(setting.bypassSNIFiltering)
                             Toggle(
@@ -66,7 +66,7 @@ struct AccountSettingView: View, StoreAccessor {
                         submitAction: onEhEditingChange
                     )
                     Button("Copy cookies", action: copyEhCookies)
-                        .foregroundColor(setting.accentColor) // workaround
+                        .foregroundStyle(.tint)
                         .font(.subheadline)
                 }
                 Section(header: Text("ExHentai")) {
@@ -86,7 +86,7 @@ struct AccountSettingView: View, StoreAccessor {
                         submitAction: onExEditingChange
                     )
                     Button("Copy cookies", action: copyExCookies)
-                        .foregroundColor(setting.accentColor) // workaround
+                        .foregroundStyle(.tint)
                         .font(.subheadline)
                 }
             }
