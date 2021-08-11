@@ -13,22 +13,20 @@ struct LogsView: View, StoreAccessor {
 
     var body: some View {
         ZStack {
-            List {
-                ForEach(logs) { log in
-                    NavigationLink(destination: LogView(log: log)) {
-                        LogCell(
-                            log: log,
-                            isLatest: log == logs.first
-                        )
+            List(logs) { log in
+                NavigationLink(destination: LogView(log: log)) {
+                    LogCell(
+                        log: log,
+                        isLatest: log == logs.first
+                    )
+                }
+                .swipeActions {
+                    Button {
+                        deleteLog(name: log.fileName)
+                    } label: {
+                        Image(systemName: "trash")
                     }
-                    .swipeActions {
-                        Button {
-                            deleteLog(name: log.fileName)
-                        } label: {
-                            Image(systemName: "trash")
-                        }
-                        .tint(.red)
-                    }
+                    .tint(.red)
                 }
             }
             NotFoundView(retryAction: fetchLogs)

@@ -52,7 +52,7 @@ struct GenericList: View {
         } else if notFoundFlag {
             NotFoundView(retryAction: fetchAction)
         } else {
-            VStack {
+            VStack(spacing: 0) {
                 switch setting.listMode {
                 case .detail:
                     DetailList(
@@ -105,27 +105,24 @@ private struct DetailList: View {
     }
 
     var body: some View {
-        List {
-            ForEach(items ?? []) { item in
-                ZStack {
-                    NavigationLink(
-                        destination: DetailView(
-                            gid: item.gid
-                        )
-                    ) {}
-                    .opacity(0)
-                    MangaDetailCell(
-                        manga: item,
-                        setting: setting,
-                        translateAction: translateAction
+        List(items ?? []) { item in
+            ZStack {
+                NavigationLink(
+                    destination: DetailView(
+                        gid: item.gid
                     )
-                }
-                .onAppear {
-                    onRowAppear(item: item)
-                }
+                ) {}
+                .opacity(0)
+                MangaDetailCell(
+                    manga: item,
+                    setting: setting,
+                    translateAction: translateAction
+                )
             }
-            .transition(opacityTransition)
-            if moreLoadingFlag || moreLoadFailedFlag {
+            .onAppear {
+                onRowAppear(item: item)
+            }
+            if (moreLoadingFlag || moreLoadFailedFlag) && item == items?.last {
                 LoadMoreFooter(
                     moreLoadingFlag: moreLoadingFlag,
                     moreLoadFailedFlag: moreLoadFailedFlag,

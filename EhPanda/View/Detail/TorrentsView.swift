@@ -30,20 +30,18 @@ struct TorrentsView: View, StoreAccessor {
         Group {
             if !torrents.isEmpty {
                 ZStack {
-                    List {
-                        ForEach(torrents) { torrent in
-                            TorrentRow(torrent: torrent, action: { magnetURL in
-                                onTorrentRowTap(magnetURL: magnetURL)
-                            })
-                            .swipeActions {
-                                Button {
-                                    onTorrentRowSwipe(
-                                        hash: torrent.hash,
-                                        torrentURL: torrent.torrentURL
-                                    )
-                                } label: {
-                                    Image(systemName: "arrow.down.doc.fill")
-                                }
+                    List(torrents) { torrent in
+                        TorrentRow(torrent: torrent, action: { magnetURL in
+                            onTorrentRowTap(magnetURL: magnetURL)
+                        })
+                        .swipeActions {
+                            Button {
+                                onTorrentRowSwipe(
+                                    hash: torrent.hash,
+                                    torrentURL: torrent.torrentURL
+                                )
+                            } label: {
+                                Image(systemName: "arrow.down.doc.fill")
                             }
                         }
                     }

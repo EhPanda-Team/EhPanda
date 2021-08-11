@@ -39,38 +39,36 @@ struct CommentView: View, StoreAccessor {
                 ),
                 isActive: $isNavLinkActive
             )
-            List {
-                ForEach(comments) { comment in
-                    CommentCell(
-                        gid: gid,
-                        comment: comment,
-                        linkAction: onLinkTap
-                    )
-                    .swipeActions(edge: .leading) {
-                        if comment.votable {
-                            Button {
-                                voteDown(comment: comment)
-                            } label: {
-                                Image(systemName: "hand.thumbsdown")
-                            }
-                            .tint(.red)
+            List(comments) { comment in
+                CommentCell(
+                    gid: gid,
+                    comment: comment,
+                    linkAction: onLinkTap
+                )
+                .swipeActions(edge: .leading) {
+                    if comment.votable {
+                        Button {
+                            voteDown(comment: comment)
+                        } label: {
+                            Image(systemName: "hand.thumbsdown")
                         }
+                        .tint(.red)
                     }
-                    .swipeActions(edge: .trailing) {
-                        if comment.votable {
-                            Button {
-                                voteUp(comment: comment)
-                            } label: {
-                                Image(systemName: "hand.thumbsup")
-                            }
-                            .tint(.green)
+                }
+                .swipeActions(edge: .trailing) {
+                    if comment.votable {
+                        Button {
+                            voteUp(comment: comment)
+                        } label: {
+                            Image(systemName: "hand.thumbsup")
                         }
-                        if comment.editable {
-                            Button {
-                                edit(comment: comment)
-                            } label: {
-                                Image(systemName: "square.and.pencil")
-                            }
+                        .tint(.green)
+                    }
+                    if comment.editable {
+                        Button {
+                            edit(comment: comment)
+                        } label: {
+                            Image(systemName: "square.and.pencil")
                         }
                     }
                 }
