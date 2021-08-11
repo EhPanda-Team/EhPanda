@@ -853,7 +853,7 @@ private struct HathLocalNetworkHostSection: View {
     @FocusState var isFocused
 
     // swiftlint:disable line_length
-    private let hathLocalNetworkHostDescription = "This setting can be used if you have a H@H client running on your local network with the same public IP you browse the site with. Some routers are buggy and cannot route requests back to its own IP; this allows you to work around this problem.\nIf you are running the client on the same PC you browse from, use the loopback address (127.0.0.1:port). If the client is running on another computer on your network, use its local network IP. Some browser configurations prevent external web sites from accessing URLs with local network IPs, the site must then be whitelisted for this to work."
+    private let hathLocalNetworkHostDescription = "This setting can be used if you have a Hath client running on your local network with the same public IP you browse the site with. Some routers are buggy and cannot route requests back to its own IP; this allows you to work around this problem.\nIf you are running the client on the same device you browse from, use the loopback address (127.0.0.1:port). If the client is running on another device on your network, use its local network IP. Some browser configurations prevent external web sites from accessing URLs with local network IPs, the site must then be whitelisted for this to work."
     // swiftlint:enable line_length
 
     init(profile: Binding<EhProfile>, shouldHideKeyboard: Binding<String>) {

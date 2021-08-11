@@ -6,6 +6,10 @@
   
 */
 
+// MARK: Response
+"You must have a H@H client assigned to your account to use this feature." = "You must have a Hath client assigned to your account to use this feature.";
+"Your H@H client appears to be offline. Turn it on, then try again." = "Your Hath client appears to be offline. Turn it on, then try again.";
+
 // MARK: Common
 "null" = "None";
 "expired" = "Expired";
