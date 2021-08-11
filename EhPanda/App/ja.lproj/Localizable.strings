@@ -143,7 +143,7 @@
 "Normally, images are resampled to 1280 pixels of horizontal resolution for online viewing. You can alternatively select one of the following resample resolutions. To avoid murdering the staging servers, resolutions above 1280x are temporarily restricted to donators, people with any hath perk, and people with a UID below 3,000,000." = "一般的に、オンライン閲覧の画像は1280xまでにリサンプリングされます。下のいずれかのリサンプリング解像度に変更できます。サーバー負荷軽減のため、1280x以上の解像度は現時点で寄付者、Hath Perks利用者またはUIDが3,000,000以下の者に限定されます。";
 "Image resolution" = "画像解像度";
 "Auto" = "自動";
-"While the site will automatically scale down images to fit your screen width, you can also manually restrict the maximum display size of an image. Like the automatic scaling, this does not resample the image, as the resizing is done browser-side. (0 = no limit)" = "サイト側は画像を自動的にスクリーンに適したサイズにスケールしますが、手動的にその画像の表示サイズ最大値を指定することも可能です。ブラウザが処理を実行するため、画像のリサンプリングは行われません。（ゼロは無制限を意味する）";
+"While the site will automatically scale down images to fit your screen width, you can also manually restrict the maximum display size of an image. Like the automatic scaling, this does not resample the image, as the resizing is done browser-side. (0 = no limit)" = "サイト側は画像を自動的にスクリーンに適したサイズにスケールしますが、手動的にその画像の表示サイズ最大値を指定することも可能です。ブラウザが処理を実行するため、画像のリサンプリングは行われません。（ゼロは無制限を意味します）";
 "Image size" = "画像サイズ";
 "Horizontal" = "水平";
 "Vertical" = "垂直";
@@ -174,13 +174,13 @@
 "What categories would you like to show by default on the front page and in searches?" = "ホームと検索ページでどれらのカテゴリーのギャラリーを表示しますか？";
 
 "Here you can choose and rename your favorite categories." = "ここではお気に入りカテゴリー名の変更ができます。";
-"You can also select your default sort order for galleries on your favorites page. Note that favorites added prior to the March 2016 revamp did not store a timestamp, and will use the gallery posted time regardless of this setting." = "お気に入りページのデフォルト並び替え基準も変更可能です。注意：平成２８年３月の改修前にお気に入りに追加した項目はタイムスタンプが含まれていないため、この設定を無視して代わりにギャラリーの投稿時間を使います。";
-"Favorites sort order" = "お気に入りの並び替え基準";
-"By last gallery update time" = "更新時間で";
-"By favorited time" = "気に入った時間で";
+"You can also select your default sort order for galleries on your favorites page. Note that favorites added prior to the March 2016 revamp did not store a timestamp, and will use the gallery posted time regardless of this setting." = "お気に入りページのデフォルト並び替え順序も変更可能です。注意：平成28年3月の改修前にお気に入りに追加した項目はタイムスタンプが含まれていないため、この設定を無視して代わりにギャラリーの投稿時間を使います。";
+"Favorites sort order" = "お気に入りの並び替え";
+"By last gallery update time" = "更新時間の新しい順";
+"By favorited time" = "気に入った時間の新しい順";
 
 "Ratings" = "評価";
-"By default, galleries that you have rated will appear with red stars for ratings of 2 stars and below, green for ratings between 2.5 and 4 stars, and blue for ratings of 4.5 or 5 stars. You can customize this by entering your desired color combination below. Each letter represents one star. The default RRGGB means R(ed) for the first and second star, G(reen) for the third and fourth, and B(lue) for the fifth. You can also use (Y)ellow for the normal stars. Any five-letter R/G/B/Y combo works." = "デフォルトでは、評価済みのギャラリーは２以下の評価に赤い星を使う、２.５〜４には緑、４.５以上には青。下に色の組み合わせを入れることでこのルールをカスタマイズできます。一つの星の色は一つの文字で指定します。デフォルトの「RRGGB」は「一番目と二番目の星は赤（Red）、三番と四番は緑（Green）、五番は青（Blue）」を意味します。黄色（Yellow）も使用可能です。R・G・B・Yで組み合わせた五文字はどれも機能します。";
+"By default, galleries that you have rated will appear with red stars for ratings of 2 stars and below, green for ratings between 2.5 and 4 stars, and blue for ratings of 4.5 or 5 stars. You can customize this by entering your desired color combination below. Each letter represents one star. The default RRGGB means R(ed) for the first and second star, G(reen) for the third and fourth, and B(lue) for the fifth. You can also use (Y)ellow for the normal stars. Any five-letter R/G/B/Y combo works." = "デフォルトでは、評価済みのギャラリーは2以下の評価に赤い星を使う、2.5 ~ 4には緑、4.5以上には青。下に色の組み合わせを入れることでこのルールをカスタマイズできます。一つの星の色は一つの文字で指定します。デフォルトの「RRGGB」は「一番目と二番目の星は赤（Red）、三番と四番は緑（Green）、五番は青（Blue）」を意味します。黄色（Yellow）も使用可能です。R・G・B・Yで組み合わせた五文字はどれも機能します。";
 "Ratings color" = "評価の色";
 
 "Tag Namespaces" = "タグの名前空間";
@@ -207,32 +207,32 @@
 "Thumbnail load timing" = "サムネイル読み込みタイミング";
 "On mouse-over" = "マウス経過時";
 "On page load" = "ページ読み込み時";
-"You can set a default thumbnail configuration for all galleries you visit." = "すべてのギャラリーにデフォルトのサムネイルコンフィグレーションを設定できます。";
+"You can set a default thumbnail configuration for all galleries you visit." = "すべてのギャラリーに適応するデフォルトのサムネイル構成を設定できます。";
 "Size" = "サイズ";
 "Large" = "大きめ";
 "Rows" = "行数";
 
 "Thumbnail Scaling" = "サムネイルスケーリング";
-"Thumbnails on the thumbnail and extended gallery list views can be scaled to a custom value between 75% and 150%." = "サムネイル・拡張表示モードでのサムネイルを７５％〜１５０％のカスタム値にスケールすることができます。";
+"Thumbnails on the thumbnail and extended gallery list views can be scaled to a custom value between 75% and 150%." = "サムネイル・拡張表示モードでのサムネイルを75% ~ 150%のカスタム値にスケールすることができます。";
 "Scale factor" = "スケール係数";
 
 "Viewport Override" = "表示領域オーバーライド";
-"Allows you to override the virtual width of the site for mobile devices. This is normally determined automatically by your device based on its DPI. Sensible values at 100% thumbnail scale are between 640 and 1400." = "モバイルデバイスの仮想広さをオーバーライドすることができます。一般的にはデバイスのDPIに基づいて自動的に決定されます。例えばサムネイルスケール係数が１００％の場合、６４０〜１４００の広さが合理的です。";
+"Allows you to override the virtual width of the site for mobile devices. This is normally determined automatically by your device based on its DPI. Sensible values at 100% thumbnail scale are between 640 and 1400." = "モバイルデバイスの仮想広さをオーバーライドすることができます。一般的にはデバイスのDPIに基づいて自動的に決定されます。例えばサムネイルスケール係数が100%の場合、640 ~ 1400の広さが合理的です。";
 "Virtual width" = "仮想広さ";
 
 "Gallery Comments" = "ギャラリーコメント";
-"Comments sort order" = "コメントの並び替え基準";
-"Oldest comments first" = "コメントが古い順で";
-"Recent comments first" = "コメントが新しい順で";
-"By highest score" = "スコアが高い順で";
+"Comments sort order" = "コメントの並び替え";
+"Oldest comments first" = "コメントの古い順";
+"Recent comments first" = "コメントの新しい順";
+"By highest score" = "スコアの高い順";
 "Comment votes show timing" = "コメントスコア表示タイミング";
 "On score hover or click" = "スコアに経過・クリック時";
 "Always" = "常時";
 
 "Gallery Tags" = "ギャラリータグ";
-"Tags sort order" = "タグの並び替え基準";
-"Alphabetical" = "アルファベット順で";
-"By tag power" = "タグのパワーで";
+"Tags sort order" = "タグの並び替え";
+"Alphabetical" = "アルファベット順";
+"By tag power" = "タグパワーの高い順";
 
 "Gallery Page Numbering" = "ギャラリーページ数";
 "Show gallery page numbers" = "ギャラリーページ数を表示";
