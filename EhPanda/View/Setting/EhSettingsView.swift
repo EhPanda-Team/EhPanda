@@ -594,7 +594,7 @@ private struct SearchResultCountSection: View {
     @Binding private var profile: EhProfile
 
     // swiftlint:disable line_length
-    private let searchResultCountDescription = "How many results would you like per page for the index/search page and torrent search pages? (Hath Perk: Paging Enlargement Required)"
+    private let searchResultCountDescription = "How many results would you like per page for the index/search page and torrent search pages?\n(Hath Perk: Paging Enlargement Required)"
     // swiftlint:enable line_length
 
     private var capableCounts: [EhProfileSearchResultCount] {
@@ -613,14 +613,14 @@ private struct SearchResultCountSection: View {
             + Text(searchResultCountDescription.localized())
         ) {
             HStack {
-                Text("Results per page")
+                Text("Result count")
                 Spacer()
                 Picker(selection: $profile.searchResultCount) {
                     ForEach(capableCounts) { count in
-                        Text(String(count.value) + " results".localized()).tag(count)
+                        Text(String(count.value)).tag(count)
                     }
                 } label: {
-                    Text(String(profile.searchResultCount.value) + " results".localized())
+                    Text(String(profile.searchResultCount.value))
                 }
                 .pickerStyle(.menu)
             }

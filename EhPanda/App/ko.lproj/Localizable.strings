@@ -197,9 +197,8 @@
 //"You are currently using **%lld / 1000** exclusion slots." = "";
 //
 //"Search Result Count" = "";
-//"How many results would you like per page for the index/search page and torrent search pages? (Hath Perk: Paging Enlargement Required)" = "";
-//"Results per page" = "";
-//" results" = "";
+//"How many results would you like per page for the index/search page and torrent search pages?\n(Hath Perk: Paging Enlargement Required)" = "";
+//"Result count" = "";
 //
 //"Thumbnail Settings" = "";
 //"How would you like the mouse-over thumbnails on the front page to load when using List Mode?" = "";

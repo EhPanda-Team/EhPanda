@@ -197,9 +197,8 @@
 "You are currently using **%lld / 1000** exclusion slots." = "已使用 **%lld / 1000** 个屏蔽槽位。";
 
 "Search Result Count" = "搜索结果数";
-"How many results would you like per page for the index/search page and torrent search pages? (Hath Perk: Paging Enlargement Required)" = "搜索页面每页显示多少条数据？（Hath Perk：需要“页面扩大”）";
-"Results per page" = "每页搜索结果";
-" results" = "条";
+"How many results would you like per page for the index/search page and torrent search pages?\n(Hath Perk: Paging Enlargement Required)" = "搜索页面每页显示多少条数据？\n（需要“Hath Perk：页面扩大”）";
+"Result count" = "结果数";
 
 "Thumbnail Settings" = "缩略图设置";
 "How would you like the mouse-over thumbnails on the front page to load when using List Mode?" = "你希望鼠标悬停缩略图何时加载？";

@@ -196,61 +196,60 @@
 "If you wish to hide galleries from certain uploaders from the gallery list and searches, add them below. Put one username per line. Note that galleries from these uploaders will never appear regardless of your search query." = "特定の投稿者のギャラリーをリストと検索結果から隠したければ、下に彼らの名前を追加してください。一行に一つのユーザー名で。注意：どんな検索クエリーを使ってもこの投稿者たちのギャラリーは表示されません。";
 "You are currently using **%lld / 1000** exclusion slots." = "現時点で **%lld / 1000** の排除スロットが使用済みです。";
 
-//"Search Result Count" = "";
-//"How many results would you like per page for the index/search page and torrent search pages? (Hath Perk: Paging Enlargement Required)" = "";
-//"Results per page" = "";
-//" results" = "";
-//
-//"Thumbnail Settings" = "";
-//"How would you like the mouse-over thumbnails on the front page to load when using List Mode?" = "";
-//"Pages load faster, but there may be a slight delay before a thumb appears." = "";
-//"Pages take longer to load, but there is no delay for loading a thumb after the page has loaded." = "";
-//"Thumbnail load timing" = "";
-//"On mouse-over" = "";
-//"On page load" = "";
-//"You can set a default thumbnail configuration for all galleries you visit." = "";
-//"Size" = "";
-//"Large" = "";
-//"Rows" = "";
-//
-//"Thumbnail Scaling" = "";
-//"Thumbnails on the thumbnail and extended gallery list views can be scaled to a custom value between 75% and 150%." = "";
-//"Scale factor" = "";
-//
-//"Viewport Override" = "";
-//"Allows you to override the virtual width of the site for mobile devices. This is normally determined automatically by your device based on its DPI. Sensible values at 100% thumbnail scale are between 640 and 1400." = "";
-//"Virtual width" = "";
-//
-//"Gallery Comments" = "";
-//"Comments sort order" = "";
-//"Oldest comments first" = "";
-//"Recent comments first" = "";
-//"By highest score" = "";
-//"Comment votes show timing" = "";
-//"On score hover or click" = "";
-//"Always" = "";
-//
-//"Gallery Tags" = "";
-//"Tags sort order" = "";
-//"Alphabetical" = "";
-//"By tag power" = "";
-//
-//"Gallery Page Numbering" = "";
-//"Show gallery page numbers" = "";
-//
-//"Hath Local Network Host" = "";
-//"This setting can be used if you have a H@H client running on your local network with the same public IP you browse the site with. Some routers are buggy and cannot route requests back to its own IP; this allows you to work around this problem.\nIf you are running the client on the same PC you browse from, use the loopback address (127.0.0.1:port). If the client is running on another computer on your network, use its local network IP. Some browser configurations prevent external web sites from accessing URLs with local network IPs, the site must then be whitelisted for this to work." = "";
-//"IP address:Port" = "";
-//
-//"Original Images" = "";
-//"Use original images" = "";
-//"Multi-Page Viewer" = "";
-//"Use Multi-Page Viewer" = "";
-//"Display style" = "";
-//"Align left, scale if overwidth" = "";
-//"Align center, scale if overwidth" = "";
-//"Align center, always scale" = "";
-//"Show thumbnail pane" = "";
+"Search Result Count" = "検索結果数";
+"How many results would you like per page for the index/search page and torrent search pages?\n(Hath Perk: Paging Enlargement Required)" = "インデックス・トレントの検索ページで、各ページにどれくらいの結果数がお望みですか？\n（「Hath Perk：ページング拡張」が必要）";
+"Result count" = "結果数";
+
+"Thumbnail Settings" = "サムネイル設定";
+"How would you like the mouse-over thumbnails on the front page to load when using List Mode?" = "リストでは、どんなタイミングでホームページのマウスオーバーサムネイルを読み込みますか？";
+"Pages load faster, but there may be a slight delay before a thumb appears." = "ページの読み込みが速くなりますが、サムネイルの表示はちょっぴり遅れてきます。";
+"Pages take longer to load, but there is no delay for loading a thumb after the page has loaded." = "ページの読み込み時間が増えますが、サムネイルはすぐに表示できます。";
+"Thumbnail load timing" = "サムネイル読み込みタイミング";
+"On mouse-over" = "マウス経過時";
+"On page load" = "ページ読み込み時";
+"You can set a default thumbnail configuration for all galleries you visit." = "すべてのギャラリーにデフォルトのサムネイルコンフィグレーションを設定できます。";
+"Size" = "サイズ";
+"Large" = "大きめ";
+"Rows" = "行数";
+
+"Thumbnail Scaling" = "サムネイルスケーリング";
+"Thumbnails on the thumbnail and extended gallery list views can be scaled to a custom value between 75% and 150%." = "サムネイル・拡張表示モードでのサムネイルを７５％〜１５０％のカスタム値にスケールすることができます。";
+"Scale factor" = "スケール係数";
+
+"Viewport Override" = "表示領域オーバーライド";
+"Allows you to override the virtual width of the site for mobile devices. This is normally determined automatically by your device based on its DPI. Sensible values at 100% thumbnail scale are between 640 and 1400." = "モバイルデバイスの仮想広さをオーバーライドすることができます。一般的にはデバイスのDPIに基づいて自動的に決定されます。例えばサムネイルスケール係数が１００％の場合、６４０〜１４００の広さが合理的です。";
+"Virtual width" = "仮想広さ";
+
+"Gallery Comments" = "ギャラリーコメント";
+"Comments sort order" = "コメントの並び替え基準";
+"Oldest comments first" = "コメントが古い順で";
+"Recent comments first" = "コメントが新しい順で";
+"By highest score" = "スコアが高い順で";
+"Comment votes show timing" = "コメントスコア表示タイミング";
+"On score hover or click" = "スコアに経過・クリック時";
+"Always" = "常時";
+
+"Gallery Tags" = "ギャラリータグ";
+"Tags sort order" = "タグの並び替え基準";
+"Alphabetical" = "アルファベット順で";
+"By tag power" = "タグのパワーで";
+
+"Gallery Page Numbering" = "ギャラリーページ数";
+"Show gallery page numbers" = "ギャラリーページ数を表示";
+
+"Hath Local Network Host" = "Hathローカルネットワークホスト";
+"This setting can be used if you have a H@H client running on your local network with the same public IP you browse the site with. Some routers are buggy and cannot route requests back to its own IP; this allows you to work around this problem.\nIf you are running the client on the same PC you browse from, use the loopback address (127.0.0.1:port). If the client is running on another computer on your network, use its local network IP. Some browser configurations prevent external web sites from accessing URLs with local network IPs, the site must then be whitelisted for this to work." = "ローカルネットワークで今と同じパブリックIPを使うHathクライアントがお持ちの場合、この設定が役立ちます。ルーターがバグが多くてリクエストを自分のIPにルートすることができないこともあります、それをこの設定で回避できます。\nHathクライアントが今と同じデバイスで運行してる場合はループバックアドレス（127.0.0.1:ポート）を使ってください。別のデバイスの場合はそのローカルIPを使ってください。かなりのブラウザの構成では外部サイトがローカルIPにアクセスすることをブロックしています、この設定を有効にするには本サイトをホワイトリストに入れてください。";
+"IP address:Port" = "IPアドレス:ポート";
+
+"Original Images" = "オリジナル画像";
+"Use original images" = "オリジナル画像を使う";
+"Multi-Page Viewer" = "マルチページビューア";
+"Use Multi-Page Viewer" = "マルチページビューアを使う";
+"Display style" = "表示仕様";
+"Align left, scale if overwidth" = "左寄せ、広さによってスケール";
+"Align center, scale if overwidth" = "中央揃え、広さによってスケール";
+"Align center, always scale" = "中央揃え、常時スケール";
+"Show thumbnail pane" = "サムネイルパネルを表示";
 
 // MARK: LogsView
 "Logs" = "ログ";
