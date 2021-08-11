@@ -73,7 +73,7 @@ struct EhSettingsView: View, StoreAccessor {
                 Button(action: toggleWebViewConfig) {
                     Image(systemName: "globe")
                 }
-                .disabled(setting.bypassSNIFiltering)
+                .disabled(setting.bypassesSNIFiltering)
                 .foregroundStyle(.tint)
             }
             ToolbarItem(placement: .confirmationAction) {

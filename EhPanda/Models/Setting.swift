@@ -68,9 +68,9 @@ struct Setting: Codable {
     }
 
     // Laboratory
-    @DefaultFalse var bypassSNIFiltering = false {
+    @DefaultFalse var bypassesSNIFiltering = false {
         didSet {
-            postBypassSNIFilteringDidChangeNotification()
+            postBypassesSNIFilteringDidChangeNotification()
         }
     }
 }

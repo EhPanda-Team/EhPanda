@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Combine
+import Kingfisher
 import SwiftyBeaver
 
 extension Dictionary where Key == String, Value == String {
@@ -355,5 +356,18 @@ extension Color {
             blue: Double(blue) / 255.0,
             opacity: Double(alpha) / 255.0
         )
+    }
+}
+
+extension KingfisherManager {
+    static func configure(bypassesSNIFiltering: Bool, handlesCookies: Bool = true) {
+        let config = KingfisherManager.shared.downloader.sessionConfiguration
+        if handlesCookies {
+            config.httpCookieStorage = HTTPCookieStorage.shared
+        }
+        if bypassesSNIFiltering {
+            config.protocolClasses = [DFURLProtocol.self]
+        }
+        KingfisherManager.shared.downloader.sessionConfiguration = config
     }
 }

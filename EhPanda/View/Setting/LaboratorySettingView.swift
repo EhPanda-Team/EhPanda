@@ -18,7 +18,7 @@ struct LaboratorySettingView: View, StoreAccessor {
         ScrollView {
             VStack {
                 LaboratoryCell(
-                    isOn: settingBinding.bypassSNIFiltering,
+                    isOn: settingBinding.bypassesSNIFiltering,
                     title: "Bypass SNI Filtering",
                     symbol: "theatermasks.fill",
                     tintColor: .purple

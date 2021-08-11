@@ -37,7 +37,7 @@ struct AccountSettingView: View, StoreAccessor {
                     .pickerStyle(.segmented)
                     if !didLogin {
                         Button("Login", action: toggleWebViewLogin).withArrow()
-                            .disabled(setting.bypassSNIFiltering)
+                            .disabled(setting.bypassesSNIFiltering)
                     } else {
                         Button("Logout", action: toggleLogout).foregroundStyle(.red)
                     }
@@ -45,7 +45,7 @@ struct AccountSettingView: View, StoreAccessor {
                         Group {
                             NavigationLink("Account configuration", destination: EhSettingsView())
                             Button("Manage tags subscription", action: toggleWebViewMyTags).withArrow()
-                                .disabled(setting.bypassSNIFiltering)
+                                .disabled(setting.bypassesSNIFiltering)
                             Toggle(
                                 "Show new dawn greeting",
                                 isOn: settingBinding.showNewDawnGreeting

@@ -305,9 +305,9 @@ func postDetailViewOnDisappearNotification() {
     )
 }
 
-func postBypassSNIFilteringDidChangeNotification() {
+func postBypassesSNIFilteringDidChangeNotification() {
     NotificationCenter.default.post(
-        name: NSNotification.Name("BypassSNIFilteringDidChange"),
+        name: NSNotification.Name("BypassesSNIFilteringDidChange"),
         object: nil
     )
 }
