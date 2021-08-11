@@ -27,20 +27,6 @@ struct DetailView: View, StoreAccessor, PersistenceAccessor {
     // MARK: DetailView
     var body: some View {
         ZStack {
-            NavigationLink(
-                "",
-                destination: TorrentsView(
-                    gid: gid, token: manga.token
-                ),
-                isActive: $isTorrentsLinkActive
-            )
-            NavigationLink(
-                "",
-                destination: AssociatedView(
-                    keyword: keyword
-                ),
-                isActive: $isAssociatedLinkActive
-            )
             if let detail = mangaDetail {
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 30) {
@@ -88,6 +74,22 @@ struct DetailView: View, StoreAccessor, PersistenceAccessor {
             } else if detailInfo.detailLoadFailed[gid] == true {
                 NetworkErrorView(retryAction: fetchMangaDetail)
             }
+        }
+        .background {
+            NavigationLink(
+                "",
+                destination: TorrentsView(
+                    gid: gid, token: manga.token
+                ),
+                isActive: $isTorrentsLinkActive
+            )
+            NavigationLink(
+                "",
+                destination: AssociatedView(
+                    keyword: keyword
+                ),
+                isActive: $isAssociatedLinkActive
+            )
         }
         .onAppear(perform: onAppear)
         .onDisappear(perform: onDisappear)

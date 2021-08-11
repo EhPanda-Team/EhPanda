@@ -32,13 +32,6 @@ struct CommentView: View, StoreAccessor {
     // MARK: CommentView
     var body: some View {
         ZStack {
-            NavigationLink(
-                "",
-                destination: DetailView(
-                    gid: commentJumpID ?? gid
-                ),
-                isActive: $isNavLinkActive
-            )
             List(comments) { comment in
                 CommentCell(
                     gid: gid,
@@ -74,6 +67,15 @@ struct CommentView: View, StoreAccessor {
                 }
             }
             TTProgressHUD($hudVisible, config: hudConfig)
+        }
+        .background {
+            NavigationLink(
+                "",
+                destination: DetailView(
+                    gid: commentJumpID ?? gid
+                ),
+                isActive: $isNavLinkActive
+            )
         }
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {

@@ -24,6 +24,10 @@ struct HomeView: View, StoreAccessor {
     var body: some View {
         NavigationView {
             ZStack {
+                conditionalList
+                TTProgressHUD($hudVisible, config: hudConfig)
+            }
+            .background {
                 NavigationLink(
                     "",
                     destination: DetailView(
@@ -31,8 +35,6 @@ struct HomeView: View, StoreAccessor {
                     ),
                     isActive: $isNavLinkActive
                 )
-                conditionalList
-                TTProgressHUD($hudVisible, config: hudConfig)
             }
             .searchable(
                 text: homeInfoBinding.searchKeyword,

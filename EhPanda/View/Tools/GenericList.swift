@@ -106,18 +106,18 @@ private struct DetailList: View {
 
     var body: some View {
         List(items ?? []) { item in
-            ZStack {
+            MangaDetailCell(
+                manga: item,
+                setting: setting,
+                translateAction: translateAction
+            )
+            .background {
                 NavigationLink(
                     destination: DetailView(
                         gid: item.gid
                     )
                 ) {}
                 .opacity(0)
-                MangaDetailCell(
-                    manga: item,
-                    setting: setting,
-                    translateAction: translateAction
-                )
             }
             .onAppear {
                 onRowAppear(item: item)
@@ -173,14 +173,6 @@ private struct WaterfallList: View {
     }
 
     var body: some View {
-        NavigationLink(
-            destination: DetailView(
-                gid: gid
-            ),
-            isActive: $isNavLinkActive
-        ) {}
-        .opacity(0)
-        .frame(height: 0)
         List {
             WaterfallGrid(items ?? []) { item in
                 MangaThumbnailCell(
@@ -217,6 +209,15 @@ private struct WaterfallList: View {
                     retryAction: loadMoreAction
                 )
             }
+        }
+        .background {
+            NavigationLink(
+                destination: DetailView(
+                    gid: gid
+                ),
+                isActive: $isNavLinkActive
+            ) {}
+            .opacity(0)
         }
         .listStyle(.plain)
     }

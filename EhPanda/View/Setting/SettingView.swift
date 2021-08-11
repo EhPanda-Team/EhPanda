@@ -146,39 +146,39 @@ private struct SettingRow<Destination: View>: View {
     }
 
     var body: some View {
-        ZStack {
+        HStack {
+            Image(systemName: symbolName)
+                .font(.largeTitle)
+                .foregroundColor(color)
+                .padding(.trailing, 20)
+                .frame(width: 45)
+            Text(text.localized())
+                .fontWeight(.medium)
+                .font(.title3)
+                .foregroundColor(color)
+            Spacer()
+        }
+        .background {
             NavigationLink(
                 "",
                 destination: destination,
                 isActive: $isActive
             )
-            HStack {
-                Image(systemName: symbolName)
-                    .font(.largeTitle)
-                    .foregroundColor(color)
-                    .padding(.trailing, 20)
-                    .frame(width: 45)
-                Text(text.localized())
-                    .fontWeight(.medium)
-                    .font(.title3)
-                    .foregroundColor(color)
-                Spacer()
-            }
-            .contentShape(Rectangle())
-            .padding(.vertical, 10)
-            .padding(.horizontal, 20)
-            .background(backgroundColor)
-            .cornerRadius(10)
-            .onTapGesture {
-                isActive.toggle()
-            }
-            .onLongPressGesture(
-                minimumDuration: .infinity,
-                maximumDistance: 50,
-                pressing: { isPressing = $0 },
-                perform: {}
-            )
         }
+        .contentShape(Rectangle())
+        .padding(.vertical, 10)
+        .padding(.horizontal, 20)
+        .background(backgroundColor)
+        .cornerRadius(10)
+        .onTapGesture {
+            isActive.toggle()
+        }
+        .onLongPressGesture(
+            minimumDuration: .infinity,
+            maximumDistance: 50,
+            pressing: { isPressing = $0 },
+            perform: {}
+        )
     }
 }
 

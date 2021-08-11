@@ -33,14 +33,6 @@ struct AppearanceSettingView: View, StoreAccessor {
     }
 
     var body: some View {
-        NavigationLink(
-            destination: SelectAppIconView(
-                selectedIcon: selectedIcon,
-                selectAction: onIconSelect
-            ),
-            isActive: $isNavLinkActive,
-            label: {}
-        )
         Form {
             Section {
                 HStack {
@@ -102,6 +94,16 @@ struct AppearanceSettingView: View, StoreAccessor {
                 }
                 .disabled(!setting.showsSummaryRowTags)
             }
+        }
+        .background {
+            NavigationLink(
+                destination: SelectAppIconView(
+                    selectedIcon: selectedIcon,
+                    selectAction: onIconSelect
+                ),
+                isActive: $isNavLinkActive,
+                label: {}
+            )
         }
         .navigationBarTitle("Appearance")
     }
