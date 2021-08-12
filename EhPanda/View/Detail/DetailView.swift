@@ -726,7 +726,7 @@ private struct PreviewView: View {
             .padding(.horizontal)
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHStack {
-                    ForEach(1..<min(pageCount, 20)) { index in
+                    ForEach(1..<21) { index in
                         let (url, modifier) =
                         PreviewResolver.getPreviewConfigs(
                             previews: previews, index: index
