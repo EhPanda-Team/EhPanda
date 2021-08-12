@@ -7,7 +7,14 @@
 
 import SwiftUI
 
+private enum FocusedField {
+    case username
+    case password
+}
+
 struct LoginView: View {
+    @FocusState private var focusedState: FocusedField?
+    @State var isLoggingIn = false
     @State var username = ""
     @State var password = ""
 
@@ -15,9 +22,10 @@ struct LoginView: View {
         username.isEmpty || password.isEmpty
     }
     private var loginButtonColor: Color {
-        isLoginButtonDisabled
-        ? .primary.opacity(0.25)
-        : .primary.opacity(0.75)
+        guard !isLoggingIn else { return .clear }
+        return isLoginButtonDisabled
+            ? .primary.opacity(0.25)
+            : .primary.opacity(0.75)
     }
 
     var body: some View {
@@ -35,12 +43,23 @@ struct LoginView: View {
                 }
                 .offset(y: proxy.size.height * 0.3)
                 VStack(spacing: 15) {
-                    LoginTextField(text: $username, description: "Username", isPassword: false)
-                        .padding(.horizontal, proxy.size.width * 0.2)
-                    LoginTextField(text: $password, description: "Password", isPassword: true)
-                        .padding(.horizontal, proxy.size.width * 0.2)
+                    Group {
+                        LoginTextField(
+                            focusedState: $focusedState, text: $username,
+                            description: "Username", isPassword: false
+                        )
+                        LoginTextField(
+                            focusedState: $focusedState, text: $password,
+                            description: "Password", isPassword: true
+                        )
+                    }
+                    .padding(.horizontal, proxy.size.width * 0.2)
                     Button(action: login) {
                         Image(systemName: "chevron.forward.circle.fill")
+                    }
+                    .overlay {
+                        ProgressView()
+                            .opacity(isLoggingIn ? 1 : 0)
                     }
                     .imageScale(.large).font(.largeTitle)
                     .foregroundColor(loginButtonColor)
@@ -49,25 +68,51 @@ struct LoginView: View {
                 }
             }
         }
+        .onSubmit {
+            switch focusedState {
+            case .username:
+                focusedState = .password
+            case .password:
+                focusedState = nil
+                login()
+            default:
+                break
+            }
+        }
         .navigationTitle("Login")
         .ignoresSafeArea()
     }
 
     private func login() {
+        guard !isLoginButtonDisabled else { return }
+        impactFeedback(style: .soft)
+        withAnimation {
+            isLoggingIn = true
+        }
 
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+            withAnimation {
+                isLoggingIn = false
+            }
+        }
     }
 }
 
 private struct LoginTextField: View {
+    private let focusedState: FocusState
+                <FocusedField?>.Binding
     @Binding private var text: String
     private let description: String
     private let isPassword: Bool
 
     init(
+        focusedState: FocusState
+        <FocusedField?>.Binding,
         text: Binding<String>,
         description: String,
         isPassword: Bool
     ) {
+        self.focusedState = focusedState
         _text = text
         self.description = description
         self.isPassword = isPassword
@@ -84,7 +129,12 @@ private struct LoginTextField: View {
                     TextField("", text: $text)
                 }
             }
+            .focused(
+                focusedState.projectedValue,
+                equals: isPassword ? .password : .username
+            )
             .textContentType(isPassword ? .password : .username)
+            .submitLabel(isPassword ? .done : .next)
             .textInputAutocapitalization(.none)
             .disableAutocorrection(true)
             .keyboardType(.asciiCapable)
