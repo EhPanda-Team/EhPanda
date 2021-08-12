@@ -71,6 +71,8 @@
 "Account" = "アカウント";
 "Gallery" = "ギャラリー";
 "Login" = "ログイン";
+"Username" = "ユーザー名";
+"Password" = "パスワード";
 "Logout" = "ログアウト";
 "Account configuration" = "アカウント設定";
 "Manage tags subscription" = "タグの購読を管理";

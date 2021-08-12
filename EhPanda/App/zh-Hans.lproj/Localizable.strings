@@ -71,6 +71,8 @@
 "Account" = "账户";
 "Gallery" = "画廊";
 "Login" = "登录";
+"Username" = "用户名";
+"Password" = "密码";
 "Logout" = "退出登录";
 "Account configuration" = "账户设置";
 "Manage tags subscription" = "管理标签订阅";

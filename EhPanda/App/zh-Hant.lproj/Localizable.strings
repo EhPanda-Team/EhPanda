@@ -71,6 +71,8 @@
 "Account" = "帳號";
 "Gallery" = "畫廊";
 "Login" = "登入";
+//"Username" = "";
+//"Password" = "";
 "Logout" = "登出";
 "Account configuration" = "帳號設定";
 "Manage tags subscription" = "管理訂閱標籤";

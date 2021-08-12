@@ -71,6 +71,8 @@
 "Account" = "계정";
 "Gallery" = "갤러리";
 "Login" = "로그인";
+//"Username" = "";
+//"Password" = "";
 "Logout" = "로그아웃";
 "Account configuration" = "계정 설정";
 "Manage tags subscription" = "해시태크 관리";

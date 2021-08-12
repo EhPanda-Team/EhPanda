@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		AB0ABCB526C5406400AD970F /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0ABCB426C5406400AD970F /* LoginView.swift */; };
+		AB0ABCB726C541A400AD970F /* WaveForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0ABCB626C541A400AD970F /* WaveForm.swift */; };
 		AB0F68AF26A6D92F00AC3A54 /* DeprecatedAPI in Frameworks */ = {isa = PBXBuildFile; productRef = AB0F68AE26A6D92F00AC3A54 /* DeprecatedAPI */; };
 		AB10117E26986B7D00C2C1A9 /* MangaStateMO+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB10117D26986B7D00C2C1A9 /* MangaStateMO+CoreDataProperties.swift */; };
 		AB10118026986C1100C2C1A9 /* MangaStateMO+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB10117F26986C1100C2C1A9 /* MangaStateMO+CoreDataClass.swift */; };
@@ -134,6 +136,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		AB0ABCB426C5406400AD970F /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
+		AB0ABCB626C541A400AD970F /* WaveForm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaveForm.swift; sourceTree = "<group>"; };
 		AB10117D26986B7D00C2C1A9 /* MangaStateMO+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MangaStateMO+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		AB10117F26986C1100C2C1A9 /* MangaStateMO+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MangaStateMO+CoreDataClass.swift"; sourceTree = "<group>"; };
 		AB253B4726AB08B500F95275 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -477,6 +481,7 @@
 				ABF45ACD25F3313D00ECB568 /* Placeholder.swift */,
 				ABF45AC725F3313D00ECB568 /* TagCloudView.swift */,
 				ABBC332926BE7C940084A331 /* SettingTextField.swift */,
+				AB0ABCB626C541A400AD970F /* WaveForm.swift */,
 			);
 			path = Tools;
 			sourceTree = "<group>";
@@ -520,6 +525,7 @@
 				ABF45ADA25F3313D00ECB568 /* WebView.swift */,
 				AB6DE896268822390087C579 /* LogsView.swift */,
 				ABBC332726BE31AE0084A331 /* EhSettingsView.swift */,
+				AB0ABCB426C5406400AD970F /* LoginView.swift */,
 			);
 			path = Setting;
 			sourceTree = "<group>";
@@ -741,10 +747,12 @@
 				ABF45AE325F3313D00ECB568 /* SlideMenu.swift in Sources */,
 				ABF45AE225F3313D00ECB568 /* AuthView.swift in Sources */,
 				ABF45ABC25F3312F00ECB568 /* AppAction.swift in Sources */,
+				AB0ABCB726C541A400AD970F /* WaveForm.swift in Sources */,
 				ABF45AF525F3313D00ECB568 /* ReadingSettingView.swift in Sources */,
 				AB38A0CB25CA993D00764D64 /* ColorCodable.swift in Sources */,
 				ABF45AF425F3313D00ECB568 /* WebView.swift in Sources */,
 				AB7B29F626AC741600EE1F14 /* GenericList.swift in Sources */,
+				AB0ABCB526C5406400AD970F /* LoginView.swift in Sources */,
 				ABF45AF225F3313D00ECB568 /* GeneralSettingView.swift in Sources */,
 				AB358311269D7B63009466A5 /* DFURLProtocol.swift in Sources */,
 				ABF45ABA25F3312F00ECB568 /* AppCommand.swift in Sources */,

@@ -71,6 +71,8 @@
 "Account" = "Konto";
 "Gallery" = "Galerie";
 "Login" = "Einloggen";
+//"Username" = "";
+//"Password" = "";
 "Logout" = "Ausloggen";
 "Account configuration" = "Kontoeinstellungen";
 "Manage tags subscription" = "Meine Tags bearbeiten";
