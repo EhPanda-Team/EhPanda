@@ -222,7 +222,7 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
         }
         .onReceive(
             NotificationCenter.default.publisher(
-                for: Notification.Name("DetailViewOnDisappear")
+                for: Notification.Name("ReadingViewShouldHideStatusBar")
             )
         ) { _ in
             toggleNavBarHiddenIfNeeded()

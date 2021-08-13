@@ -14,7 +14,6 @@ struct DetailView: View, StoreAccessor, PersistenceAccessor {
 
     @State private var keyword = ""
     @State private var commentContent = ""
-    @State private var isReadingLinkActive = false
     @State private var isTorrentsLinkActive = false
     @State private var isAssociatedLinkActive = false
 
@@ -31,7 +30,6 @@ struct DetailView: View, StoreAccessor, PersistenceAccessor {
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 30) {
                         HeaderView(
-                            isActive: $isReadingLinkActive,
                             manga: manga, detail: detail,
                             favoriteNames: user.favoriteNames,
                             addFavAction: addFavorite,
@@ -54,6 +52,7 @@ struct DetailView: View, StoreAccessor, PersistenceAccessor {
                             .padding(.horizontal)
                         }
                         PreviewView(
+                            gid: gid,
                             previews: detailInfo.previews[gid] ?? [:],
                             pageCount: detail.pageCount,
                             tapAction: onPreviewImageTap,
@@ -172,7 +171,7 @@ private extension DetailView {
     }
     func onDisappear() {
         updateViewControllersCount()
-        postDetailViewOnDisappearNotification()
+        postReadingViewShouldHideStatusBarNotification()
     }
     func onArchiveButtonTap() {
         toggleSheet(state: .archive)
@@ -213,10 +212,7 @@ private extension DetailView {
     }
     func onPreviewImageTap(index: Int) {
         store.dispatch(.saveReadingProgress(gid: gid, tag: index))
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
-            isReadingLinkActive.toggle()
-        }
+        postReadingViewShouldHideStatusBarNotification()
     }
     func onCommentPost() {
         store.dispatch(.comment(gid: gid, content: commentContent))
@@ -254,8 +250,6 @@ private extension DetailView {
 
 // MARK: HeaderView
 private struct HeaderView: View {
-    @Binding private var isActive: Bool
-
     private let manga: Manga
     private let detail: MangaDetail
     private let favoriteNames: [Int: String]?
@@ -264,7 +258,6 @@ private struct HeaderView: View {
     private let onUploaderTapAction: () -> Void
 
     init(
-        isActive: Binding<Bool>,
         manga: Manga,
         detail: MangaDetail,
         favoriteNames: [Int: String]?,
@@ -272,7 +265,6 @@ private struct HeaderView: View {
         deleteFavAction: @escaping () -> Void,
         onUploaderTapAction: @escaping () -> Void
     ) {
-        _isActive = isActive
         self.manga = manga
         self.detail = detail
         self.favoriteNames = favoriteNames
@@ -347,7 +339,6 @@ private struct HeaderView: View {
                     }
                     Button(action: {}, label: {
                         NavigationLink(
-                            isActive: $isActive,
                             destination: { ReadingView(gid: manga.gid) },
                             label: {
                                 Text("Read".localized().uppercased()).bold()
@@ -679,17 +670,20 @@ private struct TagRow: View {
 
 // MARK: PreviewView
 private struct PreviewView: View {
+    private let gid: String
     private let previews: [Int: String]
     private let pageCount: Int
     private let tapAction: (Int) -> Void
     private let fetchAction: (Int) -> Void
 
     init(
+        gid: String,
         previews: [Int: String],
         pageCount: Int,
         tapAction: @escaping (Int) -> Void,
         fetchAction: @escaping (Int) -> Void
     ) {
+        self.gid = gid
         self.previews = previews
         self.pageCount = pageCount
         self.tapAction = tapAction
@@ -712,6 +706,7 @@ private struct PreviewView: View {
                 Spacer()
                 NavigationLink(
                     destination: MorePreviewView(
+                        gid: gid,
                         previews: previews,
                         pageCount: pageCount,
                         tapAction: tapAction,
@@ -758,17 +753,22 @@ private struct PreviewView: View {
 private struct MorePreviewView: View {
     @Environment(\.dismiss) var dismissAction
 
+    @State private var isActive = false
+
+    private let gid: String
     private let previews: [Int: String]
     private let pageCount: Int
     private let tapAction: (Int) -> Void
     private let fetchAction: (Int) -> Void
 
     init(
+        gid: String,
         previews: [Int: String],
         pageCount: Int,
         tapAction: @escaping (Int) -> Void,
         fetchAction: @escaping (Int) -> Void
     ) {
+        self.gid = gid
         self.previews = previews
         self.pageCount = pageCount
         self.tapAction = tapAction
@@ -820,6 +820,13 @@ private struct MorePreviewView: View {
             .padding(.horizontal)
             .padding(.bottom)
         }
+        .background {
+            NavigationLink(
+                "",
+                destination: ReadingView(gid: gid),
+                isActive: $isActive
+            )
+        }
     }
 
     private func onImageAppear(index: Int) {
@@ -828,8 +835,8 @@ private struct MorePreviewView: View {
         }
     }
     private func onImageTap(index: Int) {
-        dismissAction.callAsFunction()
         tapAction(index)
+        isActive = true
     }
 }
 

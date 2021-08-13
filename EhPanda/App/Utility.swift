@@ -298,9 +298,9 @@ func postAppWidthDidChangeNotification() {
     )
 }
 
-func postDetailViewOnDisappearNotification() {
+func postReadingViewShouldHideStatusBarNotification() {
     NotificationCenter.default.post(
-        name: NSNotification.Name("DetailViewOnDisappear"),
+        name: NSNotification.Name("ReadingViewShouldHideStatusBar"),
         object: nil
     )
 }
