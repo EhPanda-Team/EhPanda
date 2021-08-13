@@ -17,6 +17,7 @@ struct LoginView: View, StoreAccessor {
     @Environment(\.dismiss) var dismissAction
 
     @FocusState private var focusedState: FocusedField?
+    @State var shouldRestoreFocus = false
     @State var isLoggingIn = false
     @State var username = ""
     @State var password = ""
@@ -76,6 +77,25 @@ struct LoginView: View, StoreAccessor {
                 .disabled(setting.bypassesSNIFiltering)
             }
         }
+        .onReceive(
+            NotificationCenter.default.publisher(
+                for: UIApplication.willResignActiveNotification
+            )
+        ) { _ in
+            if focusedState != nil {
+                shouldRestoreFocus = true
+            }
+        }
+        .onReceive(
+            NotificationCenter.default.publisher(
+                for: UIApplication.didBecomeActiveNotification
+            )
+        ) { _ in
+            if shouldRestoreFocus {
+                focusedState = .username
+                shouldRestoreFocus = false
+            }
+        }
         .onSubmit {
             switch focusedState {
             case .username:
@@ -122,11 +142,17 @@ struct LoginView: View, StoreAccessor {
 }
 
 private struct LoginTextField: View {
-    private let focusedState: FocusState
-                <FocusedField?>.Binding
+    @Environment(\.colorScheme) private var colorScheme
+    private let focusedState: FocusState<FocusedField?>.Binding
     @Binding private var text: String
     private let description: String
     private let isPassword: Bool
+
+    private var backgroundColor: Color {
+        colorScheme == .light
+        ? Color(.systemGray6)
+        : Color(.systemGray5)
+    }
 
     init(
         focusedState: FocusState
@@ -164,7 +190,7 @@ private struct LoginTextField: View {
             .autocapitalization(.none)
             .padding(10)
             .background(
-                Color(.systemGray6)
+                backgroundColor
                     .opacity(0.75)
                     .cornerRadius(8)
             )
