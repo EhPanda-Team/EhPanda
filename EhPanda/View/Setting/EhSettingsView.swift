@@ -74,14 +74,12 @@ struct EhSettingsView: View, StoreAccessor {
                     Image(systemName: "globe")
                 }
                 .disabled(setting.bypassesSNIFiltering)
-                .foregroundStyle(.tint)
             }
             ToolbarItem(placement: .confirmationAction) {
                 Button(action: submitProfileChanges) {
                     Image(systemName: "icloud.and.arrow.up")
                 }
                 .disabled(profile == nil)
-                .foregroundStyle(.tint)
             }
             ToolbarItem(placement: .keyboard) {
                 HStack {
@@ -89,7 +87,6 @@ struct EhSettingsView: View, StoreAccessor {
                     Button("Done") {
                         shouldHideKeyboard = UUID().uuidString
                     }
-                    .foregroundStyle(.tint)
                 }
             }
         }

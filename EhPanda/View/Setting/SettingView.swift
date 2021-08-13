@@ -57,7 +57,7 @@ struct SettingView: View, StoreAccessor {
                 Group {
                     switch item {
                     case .webviewLogin:
-                        WebView(url: Defaults.URL.login.safeURL())
+                        WebView(url: Defaults.URL.webLogin.safeURL())
                     case .webviewConfig:
                         WebView(url: Defaults.URL.ehConfig().safeURL())
                     case .webviewMyTags:

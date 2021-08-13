@@ -12,7 +12,10 @@ private enum FocusedField {
     case password
 }
 
-struct LoginView: View {
+struct LoginView: View, StoreAccessor {
+    @EnvironmentObject var store: Store
+    @Environment(\.dismiss) var dismissAction
+
     @FocusState private var focusedState: FocusedField?
     @State var isLoggingIn = false
     @State var username = ""
@@ -57,15 +60,20 @@ struct LoginView: View {
                     Button(action: login) {
                         Image(systemName: "chevron.forward.circle.fill")
                     }
-                    .overlay {
-                        ProgressView()
-                            .opacity(isLoggingIn ? 1 : 0)
-                    }
+                    .overlay { ProgressView().opacity(isLoggingIn ? 1 : 0) }
                     .imageScale(.large).font(.largeTitle)
                     .foregroundColor(loginButtonColor)
                     .disabled(isLoginButtonDisabled)
                     .padding(.top, 30)
                 }
+            }
+        }
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button(action: toggleWebLogin) {
+                    Image(systemName: "globe")
+                }
+                .disabled(setting.bypassesSNIFiltering)
             }
         }
         .onSubmit {
@@ -84,17 +92,32 @@ struct LoginView: View {
     }
 
     private func login() {
-        guard !isLoginButtonDisabled else { return }
+        guard !isLoginButtonDisabled || isLoggingIn else { return }
+        withAnimation { isLoggingIn = true }
         impactFeedback(style: .soft)
-        withAnimation {
-            isLoggingIn = true
-        }
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-            withAnimation {
-                isLoggingIn = false
-            }
-        }
+        let token = SubscriptionToken()
+        LoginRequest(username: username, password: password)
+            .publisher.receive(on: DispatchQueue.main)
+            .sink { _ in
+                DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                    withAnimation { isLoggingIn = false }
+                    guard didLogin else {
+                        notificFeedback(style: .error)
+                        return
+                    }
+                    notificFeedback(style: .success)
+                    dismissAction.callAsFunction()
+                    store.dispatch(.fetchFrontpageItems)
+                    store.dispatch(.fetchUserInfo)
+                    store.dispatch(.verifyProfile)
+                }
+                token.unseal()
+            } receiveValue: { _ in }
+            .seal(in: token)
+    }
+    private func toggleWebLogin() {
+        store.dispatch(.toggleSettingViewSheet(state: .webviewLogin))
     }
 }
 
@@ -139,8 +162,7 @@ private struct LoginTextField: View {
             .disableAutocorrection(true)
             .keyboardType(.asciiCapable)
             .autocapitalization(.none)
-            .padding(.vertical, 5)
-            .padding(.horizontal, 10)
+            .padding(10)
             .background(
                 Color(.systemGray6)
                     .opacity(0.75)

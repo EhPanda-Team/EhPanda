@@ -75,8 +75,9 @@ struct Defaults {
         }
         static let ehentai = "https://e-hentai.org/"
         static let exhentai = "https://exhentai.org/"
-        static let forum = "https://forums.e-hentai.org/"
-        static let login = merge(urls: [forum + index, loginAct])
+        static let forum = "https://forums.e-hentai.org/index.php"
+        static let login = merge(urls: [forum, "act=Login", "CODE=01"])
+        static let webLogin = merge(urls: [forum, "act=Login"])
         static let magnet = "magnet:?xt=urn:btih:"
 
         // Functional Pages
@@ -86,7 +87,6 @@ struct Defaults {
         static let mytags = "mytags"
         static let api = "api.php"
         static let news = "news.php"
-        static let index = "index.php"
         static let uconfig = "uconfig.php"
         static let favorites = "favorites.php"
         static let gallerypopups = "gallerypopups.php"
@@ -207,11 +207,8 @@ extension Defaults.URL {
     static func addFavorite(gid: String, token: String) -> String {
         merge(urls: [host + gallerypopups, Defaults.URL.gid + gid, Defaults.URL.token + token, addfavAct])
     }
-    static func userID() -> String {
-        forum + index
-    }
     static func userInfo(uid: String) -> String {
-        merge(urls: [forum + index, showuser + uid])
+        merge(urls: [forum, showuser + uid])
     }
     static func greeting() -> String {
         ehentai + news

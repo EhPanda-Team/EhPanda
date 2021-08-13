@@ -585,6 +585,35 @@ struct MangaMPVContentRequest {
 }
 
 // MARK: Account Ops
+struct LoginRequest {
+    let username: String
+    let password: String
+
+    var publisher: AnyPublisher<Any, AppError> {
+        let url = Defaults.URL.login
+        let params: [String: String] = [
+            "b": "d",
+            "bt": "1-1",
+            "CookieDate": "1",
+            "UserName": username,
+            "PassWord": password,
+            "ipb_login_submit": "Login!"
+        ]
+
+        var request = URLRequest(url: url.safeURL())
+
+        request.httpMethod = "POST"
+        request.httpBody = params.dictString()
+            .urlEncoded().data(using: .utf8)
+        request.setURLEncodedContentType()
+
+        return URLSession.shared
+            .dataTaskPublisher(for: request)
+            .map { $0 }.mapError(mapAppError)
+            .eraseToAnyPublisher()
+    }
+}
+
 struct VerifyProfileRequest {
     var publisher: AnyPublisher<(Int?, Bool), AppError> {
         URLSession.shared
@@ -613,9 +642,9 @@ struct CreateProfileRequest {
             .urlEncoded().data(using: .utf8)
         request.setURLEncodedContentType()
 
-        return URLSession.shared.dataTaskPublisher(for: request)
-            .map { $0 }
-            .mapError(mapAppError)
+        return URLSession.shared
+            .dataTaskPublisher(for: request)
+            .map { $0 }.mapError(mapAppError)
             .eraseToAnyPublisher()
     }
 }
@@ -742,9 +771,9 @@ struct AddFavoriteRequest {
             .urlEncoded().data(using: .utf8)
         request.setURLEncodedContentType()
 
-        return URLSession.shared.dataTaskPublisher(for: request)
-            .map { $0 }
-            .mapError(mapAppError)
+        return URLSession.shared
+            .dataTaskPublisher(for: request)
+            .map { $0 }.mapError(mapAppError)
             .eraseToAnyPublisher()
     }
 }
@@ -767,9 +796,9 @@ struct DeleteFavoriteRequest {
             .urlEncoded().data(using: .utf8)
         request.setURLEncodedContentType()
 
-        return URLSession.shared.dataTaskPublisher(for: request)
-            .map { $0 }
-            .mapError(mapAppError)
+        return URLSession.shared
+            .dataTaskPublisher(for: request)
+            .map { $0 }.mapError(mapAppError)
             .eraseToAnyPublisher()
     }
 }
@@ -822,9 +851,9 @@ struct RateRequest {
         request.httpBody = try? JSONSerialization
             .data(withJSONObject: params, options: [])
 
-        return URLSession.shared.dataTaskPublisher(for: request)
-            .map { $0 }
-            .mapError(mapAppError)
+        return URLSession.shared
+            .dataTaskPublisher(for: request)
+            .map { $0 }.mapError(mapAppError)
             .eraseToAnyPublisher()
     }
 }
@@ -844,9 +873,9 @@ struct CommentRequest {
             .urlEncoded().data(using: .utf8)
         request.setURLEncodedContentType()
 
-        return URLSession.shared.dataTaskPublisher(for: request)
-            .map { $0 }
-            .mapError(mapAppError)
+        return URLSession.shared
+            .dataTaskPublisher(for: request)
+            .map { $0 }.mapError(mapAppError)
             .eraseToAnyPublisher()
     }
 }
@@ -870,9 +899,9 @@ struct EditCommentRequest {
             .urlEncoded().data(using: .utf8)
         request.setURLEncodedContentType()
 
-        return URLSession.shared.dataTaskPublisher(for: request)
-            .map { $0 }
-            .mapError(mapAppError)
+        return URLSession.shared
+            .dataTaskPublisher(for: request)
+            .map { $0 }.mapError(mapAppError)
             .eraseToAnyPublisher()
     }
 }
@@ -903,9 +932,9 @@ struct VoteCommentRequest {
         request.httpBody = try? JSONSerialization
             .data(withJSONObject: params, options: [])
 
-        return URLSession.shared.dataTaskPublisher(for: request)
-            .map { $0 }
-            .mapError(mapAppError)
+        return URLSession.shared
+            .dataTaskPublisher(for: request)
+            .map { $0 }.mapError(mapAppError)
             .eraseToAnyPublisher()
     }
 }

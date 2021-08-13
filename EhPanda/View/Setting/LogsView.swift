@@ -37,7 +37,6 @@ struct LogsView: View, StoreAccessor {
                 Button(action: exportLog) {
                     Image(systemName: "folder.badge.gearshape")
                 }
-                .foregroundStyle(.tint)
             }
         }
         .onAppear(perform: fetchLogsIfNeeded)

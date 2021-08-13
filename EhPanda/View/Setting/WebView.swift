@@ -37,7 +37,7 @@ struct WebView: UIViewControllerRepresentable {
                 cookies.forEach { HTTPCookieStorage.shared.setCookie($0) }
             }
 
-            Timer.scheduledTimer(withTimeInterval: 3, repeats: false) { [weak self] _ in
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [weak self] in
                 guard didLogin else { return }
                 let store = self?.parent.store
                 store?.dispatch(.toggleSettingViewSheet(state: nil))

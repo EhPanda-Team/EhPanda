@@ -36,8 +36,7 @@ struct AccountSettingView: View, StoreAccessor {
                     )
                     .pickerStyle(.segmented)
                     if !didLogin {
-                        Button("Login", action: toggleWebViewLogin).withArrow()
-                            .disabled(setting.bypassesSNIFiltering)
+                        NavigationLink("Login", destination: LoginView())
                     } else {
                         Button("Logout", action: toggleLogout).foregroundStyle(.red)
                     }
@@ -155,9 +154,6 @@ private extension AccountSettingView {
     }
 
     // MARK: Dispatch Methods
-    func toggleWebViewLogin() {
-        store.dispatch(.toggleSettingViewSheet(state: .webviewLogin))
-    }
     func toggleWebViewMyTags() {
         store.dispatch(.toggleSettingViewSheet(state: .webviewMyTags))
     }
