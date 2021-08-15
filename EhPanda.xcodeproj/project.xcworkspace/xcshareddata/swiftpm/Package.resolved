@@ -24,17 +24,17 @@
         "repositoryURL": "https://github.com/tid-kijyun/Kanna.git",
         "state": {
           "branch": null,
-          "revision": "126bdc9600e30b4a8aeb8d14088953c16aebf495",
-          "version": "5.2.6"
+          "revision": "f9e4922223dd0d3dfbf02ca70812cf5531fc0593",
+          "version": "5.2.7"
         }
       },
       {
         "package": "Kingfisher",
-        "repositoryURL": "https://github.com/onevcat/Kingfisher.git",
+        "repositoryURL": "https://github.com/tatsuz0u/Kingfisher.git",
         "state": {
-          "branch": null,
-          "revision": "5da2de8f603e2c1f850a22491c1dc68dca81ff88",
-          "version": "7.0.0-beta.2"
+          "branch": "master",
+          "revision": "53ab111ad62105fdd5a1461bc9beac82fbaf7247",
+          "version": null
         }
       },
       {

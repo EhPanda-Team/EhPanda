@@ -739,7 +739,7 @@ private struct PreviewView: View {
                     ForEach(1..<21) { index in
                         let (url, modifier) =
                         PreviewResolver.getPreviewConfigs(
-                            previews: previews, index: index
+                            originalURL: previews[index] ?? ""
                         )
                         KFImage(URL(string: url))
                             .placeholder {
@@ -807,7 +807,7 @@ private struct MorePreviewView: View {
                     VStack {
                         let (url, modifier) =
                         PreviewResolver.getPreviewConfigs(
-                            previews: previews, index: index
+                            originalURL: previews[index] ?? ""
                         )
                         KFImage(URL(string: url))
                             .placeholder {

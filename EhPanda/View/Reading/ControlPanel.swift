@@ -260,7 +260,7 @@ private struct SliderPreivew: View {
             ForEach(previewsIndices, id: \.self) { index in
                 let (url, modifier) =
                 PreviewResolver.getPreviewConfigs(
-                    previews: previews, index: index
+                    originalURL: previews[index] ?? ""
                 )
                 VStack {
                     KFImage(URL(string: url))
