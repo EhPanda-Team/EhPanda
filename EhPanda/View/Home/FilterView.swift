@@ -13,7 +13,7 @@ struct FilterView: View, StoreAccessor {
     private var categoryBindings: [Binding<Bool>] {
         [
             filterBinding.doujinshi,
-            filterBinding.manga,
+            filterBinding.gallery,
             filterBinding.artistCG,
             filterBinding.gameCG,
             filterBinding.western,

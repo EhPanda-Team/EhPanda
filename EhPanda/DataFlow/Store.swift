@@ -35,19 +35,19 @@ final class Store: ObservableObject {
             SwiftyBeaver.error("[ACTION]: " + description)
         } else {
             switch action {
-            case .fetchMangaPreviewsDone(let gid, let pageNumber, let result):
+            case .fetchGalleryPreviewsDone(let gid, let pageNumber, let result):
                 if case .success(let previews) = result {
                     SwiftyBeaver.verbose(
-                        "[ACTION]: fetchMangaPreviewsDone("
+                        "[ACTION]: fetchGalleryPreviewsDone("
                         + "gid: \(gid), "
                         + "pageNumber: \(pageNumber), "
                         + "previews: \(previews.count))"
                     )
                 }
-            case .fetchMangaContentsDone(let gid, let pageNumber, let result):
+            case .fetchGalleryContentsDone(let gid, let pageNumber, let result):
                 if case .success(let contents) = result {
                     SwiftyBeaver.verbose(
-                        "[ACTION]: fetchMangaContentsDone("
+                        "[ACTION]: fetchGalleryContentsDone("
                         + "gid: \(gid), "
                         + "pageNumber: \(pageNumber), "
                         + "contents: \(contents.count))"
@@ -91,13 +91,13 @@ final class Store: ObservableObject {
             appState.settings.setting = setting
         case .updateViewControllersCount:
             appState.environment.viewControllersCount = viewControllersCount
-        case .replaceMangaCommentJumpID(let gid):
-            appState.environment.mangaItemReverseID = gid
+        case .replaceGalleryCommentJumpID(let gid):
+            appState.environment.galleryItemReverseID = gid
         case .updateIsSlideMenuClosed(let isClosed):
             appState.environment.isSlideMenuClosed = isClosed
-        case .fulfillMangaPreviews(let gid):
+        case .fulfillGalleryPreviews(let gid):
             appState.detailInfo.fulfillPreviews(gid: gid)
-        case .fulfillMangaContents(let gid):
+        case .fulfillGalleryContents(let gid):
             appState.contentInfo.fulfillContents(gid: gid)
 
         // MARK: App Env
@@ -197,11 +197,11 @@ final class Store: ObservableObject {
                 appState.settings.user.favoriteNames = names
             }
 
-        case .fetchMangaItemReverse(var galleryURL):
-            appState.environment.mangaItemReverseLoadFailed = false
+        case .fetchGalleryItemReverse(var galleryURL):
+            appState.environment.galleryItemReverseLoadFailed = false
 
-            if appState.environment.mangaItemReverseLoading { break }
-            appState.environment.mangaItemReverseLoading = true
+            if appState.environment.galleryItemReverseLoading { break }
+            appState.environment.galleryItemReverseLoading = true
 
             if appState.settings.setting.redirectsLinksToSelectedHost {
                 galleryURL = galleryURL.replacingOccurrences(
@@ -213,16 +213,16 @@ final class Store: ObservableObject {
                     with: Defaults.URL.host
                 )
             }
-            appCommand = FetchMangaItemReverseCommand(galleryURL: galleryURL)
-        case .fetchMangaItemReverseDone(let result):
-            appState.environment.mangaItemReverseLoading = false
+            appCommand = FetchGalleryItemReverseCommand(galleryURL: galleryURL)
+        case .fetchGalleryItemReverseDone(let result):
+            appState.environment.galleryItemReverseLoading = false
 
             switch result {
-            case .success(let manga):
-                PersistenceController.add(mangas: [manga])
-                appState.environment.mangaItemReverseID = manga.gid
+            case .success(let gallery):
+                PersistenceController.add(galleries: [gallery])
+                appState.environment.galleryItemReverseID = gallery.gid
             case .failure:
-                appState.environment.mangaItemReverseLoadFailed = true
+                appState.environment.galleryItemReverseLoadFailed = true
             }
 
         case .fetchSearchItems(let keyword):
@@ -239,21 +239,21 @@ final class Store: ObservableObject {
             appState.homeInfo.searchLoading = false
 
             switch result {
-            case .success(let mangas):
-                appState.homeInfo.searchCurrentPageNum = mangas.1.current
-                appState.homeInfo.searchPageNumMaximum = mangas.1.maximum
+            case .success(let galleries):
+                appState.homeInfo.searchCurrentPageNum = galleries.1.current
+                appState.homeInfo.searchPageNumMaximum = galleries.1.maximum
 
-                appState.homeInfo.searchItems = mangas.2
-                if mangas.2.isEmpty {
-                    if mangas.1.current < mangas.1.maximum {
+                appState.homeInfo.searchItems = galleries.2
+                if galleries.2.isEmpty {
+                    if galleries.1.current < galleries.1.maximum {
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
-                            self?.dispatch(.fetchMoreSearchItems(keyword: mangas.0))
+                            self?.dispatch(.fetchMoreSearchItems(keyword: galleries.0))
                         }
                     } else {
                         appState.homeInfo.searchNotFound = true
                     }
                 } else {
-                    PersistenceController.add(mangas: mangas.2)
+                    PersistenceController.add(galleries: galleries.2)
                 }
             case .failure:
                 appState.homeInfo.searchLoadFailed = true
@@ -282,16 +282,16 @@ final class Store: ObservableObject {
             appState.homeInfo.moreSearchLoading = false
 
             switch result {
-            case .success(let mangas):
-                appState.homeInfo.searchCurrentPageNum = mangas.1.current
-                appState.homeInfo.searchPageNumMaximum = mangas.1.maximum
+            case .success(let galleries):
+                appState.homeInfo.searchCurrentPageNum = galleries.1.current
+                appState.homeInfo.searchPageNumMaximum = galleries.1.maximum
 
-                appState.homeInfo.insertSearchItems(mangas: mangas.2)
-                PersistenceController.add(mangas: mangas.2)
+                appState.homeInfo.insertSearchItems(galleries: galleries.2)
+                PersistenceController.add(galleries: galleries.2)
 
-                if mangas.1.current < mangas.1.maximum && mangas.2.isEmpty {
+                if galleries.1.current < galleries.1.maximum && galleries.2.isEmpty {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
-                        self?.dispatch(.fetchMoreSearchItems(keyword: mangas.0))
+                        self?.dispatch(.fetchMoreSearchItems(keyword: galleries.0))
                     }
                 } else if appState.homeInfo.searchItems?.isEmpty == true {
                     appState.homeInfo.searchNotFound = true
@@ -312,13 +312,13 @@ final class Store: ObservableObject {
             appState.homeInfo.frontpageLoading = false
 
             switch result {
-            case .success(let mangas):
-                appState.homeInfo.frontpageCurrentPageNum = mangas.0.current
-                appState.homeInfo.frontpagePageNumMaximum = mangas.0.maximum
+            case .success(let galleries):
+                appState.homeInfo.frontpageCurrentPageNum = galleries.0.current
+                appState.homeInfo.frontpagePageNumMaximum = galleries.0.maximum
 
-                appState.homeInfo.frontpageItems = mangas.1
-                if mangas.1.isEmpty {
-                    if mangas.0.current < mangas.0.maximum {
+                appState.homeInfo.frontpageItems = galleries.1
+                if galleries.1.isEmpty {
+                    if galleries.0.current < galleries.0.maximum {
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
                             self?.dispatch(.fetchMoreFrontpageItems)
                         }
@@ -326,7 +326,7 @@ final class Store: ObservableObject {
                         appState.homeInfo.frontpageNotFound = true
                     }
                 } else {
-                    PersistenceController.add(mangas: mangas.1)
+                    PersistenceController.add(galleries: galleries.1)
                 }
             case .failure:
                 appState.homeInfo.frontpageLoadFailed = true
@@ -349,14 +349,14 @@ final class Store: ObservableObject {
             appState.homeInfo.moreFrontpageLoading = false
 
             switch result {
-            case .success(let mangas):
-                appState.homeInfo.frontpageCurrentPageNum = mangas.0.current
-                appState.homeInfo.frontpagePageNumMaximum = mangas.0.maximum
+            case .success(let galleries):
+                appState.homeInfo.frontpageCurrentPageNum = galleries.0.current
+                appState.homeInfo.frontpagePageNumMaximum = galleries.0.maximum
 
-                appState.homeInfo.insertFrontpageItems(mangas: mangas.1)
-                PersistenceController.add(mangas: mangas.1)
+                appState.homeInfo.insertFrontpageItems(galleries: galleries.1)
+                PersistenceController.add(galleries: galleries.1)
 
-                if mangas.0.current < mangas.0.maximum && mangas.1.isEmpty {
+                if galleries.0.current < galleries.0.maximum && galleries.1.isEmpty {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
                         self?.dispatch(.fetchMoreFrontpageItems)
                     }
@@ -378,12 +378,12 @@ final class Store: ObservableObject {
             appState.homeInfo.popularLoading = false
 
             switch result {
-            case .success(let mangas):
-                if mangas.1.isEmpty {
+            case .success(let galleries):
+                if galleries.1.isEmpty {
                     appState.homeInfo.popularNotFound = true
                 } else {
-                    appState.homeInfo.popularItems = mangas.1
-                    PersistenceController.add(mangas: mangas.1)
+                    appState.homeInfo.popularItems = galleries.1
+                    PersistenceController.add(galleries: galleries.1)
                 }
             case .failure:
                 appState.homeInfo.popularLoadFailed = true
@@ -401,13 +401,13 @@ final class Store: ObservableObject {
             appState.homeInfo.watchedLoading = false
 
             switch result {
-            case .success(let mangas):
-                appState.homeInfo.watchedCurrentPageNum = mangas.0.current
-                appState.homeInfo.watchedPageNumMaximum = mangas.0.maximum
+            case .success(let galleries):
+                appState.homeInfo.watchedCurrentPageNum = galleries.0.current
+                appState.homeInfo.watchedPageNumMaximum = galleries.0.maximum
 
-                appState.homeInfo.watchedItems = mangas.1
-                if mangas.1.isEmpty {
-                    if mangas.0.current < mangas.0.maximum {
+                appState.homeInfo.watchedItems = galleries.1
+                if galleries.1.isEmpty {
+                    if galleries.0.current < galleries.0.maximum {
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
                             self?.dispatch(.fetchMoreWatchedItems)
                         }
@@ -415,7 +415,7 @@ final class Store: ObservableObject {
                         appState.homeInfo.watchedNotFound = true
                     }
                 } else {
-                    PersistenceController.add(mangas: mangas.1)
+                    PersistenceController.add(galleries: galleries.1)
                 }
             case .failure:
                 appState.homeInfo.watchedLoadFailed = true
@@ -438,14 +438,14 @@ final class Store: ObservableObject {
             appState.homeInfo.moreWatchedLoading = false
 
             switch result {
-            case .success(let mangas):
-                appState.homeInfo.watchedCurrentPageNum = mangas.0.current
-                appState.homeInfo.watchedPageNumMaximum = mangas.0.maximum
+            case .success(let galleries):
+                appState.homeInfo.watchedCurrentPageNum = galleries.0.current
+                appState.homeInfo.watchedPageNumMaximum = galleries.0.maximum
 
-                appState.homeInfo.insertWatchedItems(mangas: mangas.1)
-                PersistenceController.add(mangas: mangas.1)
+                appState.homeInfo.insertWatchedItems(galleries: galleries.1)
+                PersistenceController.add(galleries: galleries.1)
 
-                if mangas.0.current < mangas.0.maximum && mangas.1.isEmpty {
+                if galleries.0.current < galleries.0.maximum && galleries.1.isEmpty {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
                         self?.dispatch(.fetchMoreWatchedItems)
                     }
@@ -468,13 +468,13 @@ final class Store: ObservableObject {
             appState.homeInfo.favoritesLoading[carriedValue] = false
 
             switch result {
-            case .success(let mangas):
-                appState.homeInfo.favoritesCurrentPageNum[carriedValue] = mangas.0.current
-                appState.homeInfo.favoritesPageNumMaximum[carriedValue] = mangas.0.maximum
+            case .success(let galleries):
+                appState.homeInfo.favoritesCurrentPageNum[carriedValue] = galleries.0.current
+                appState.homeInfo.favoritesPageNumMaximum[carriedValue] = galleries.0.maximum
 
-                appState.homeInfo.favoritesItems[carriedValue] = mangas.1
-                if mangas.1.isEmpty {
-                    if mangas.0.current < mangas.0.maximum {
+                appState.homeInfo.favoritesItems[carriedValue] = galleries.1
+                if galleries.1.isEmpty {
+                    if galleries.0.current < galleries.0.maximum {
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
                             self?.dispatch(.fetchMoreFavoritesItems(index: carriedValue))
                         }
@@ -482,7 +482,7 @@ final class Store: ObservableObject {
                         appState.homeInfo.favoritesNotFound[carriedValue] = true
                     }
                 } else {
-                    PersistenceController.add(mangas: mangas.1)
+                    PersistenceController.add(galleries: galleries.1)
                 }
             case .failure:
                 appState.homeInfo.favoritesLoadFailed[carriedValue] = true
@@ -509,14 +509,14 @@ final class Store: ObservableObject {
             appState.homeInfo.moreFavoritesLoading[carriedValue] = false
 
             switch result {
-            case .success(let mangas):
-                appState.homeInfo.favoritesCurrentPageNum[carriedValue] = mangas.0.current
-                appState.homeInfo.favoritesPageNumMaximum[carriedValue] = mangas.0.maximum
+            case .success(let galleries):
+                appState.homeInfo.favoritesCurrentPageNum[carriedValue] = galleries.0.current
+                appState.homeInfo.favoritesPageNumMaximum[carriedValue] = galleries.0.maximum
 
-                appState.homeInfo.insertFavoritesItems(favIndex: carriedValue, mangas: mangas.1)
-                PersistenceController.add(mangas: mangas.1)
+                appState.homeInfo.insertFavoritesItems(favIndex: carriedValue, galleries: galleries.1)
+                PersistenceController.add(galleries: galleries.1)
 
-                if mangas.0.current < mangas.0.maximum && mangas.1.isEmpty {
+                if galleries.0.current < galleries.0.maximum && galleries.1.isEmpty {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
                         self?.dispatch(.fetchMoreFavoritesItems(index: carriedValue))
                     }
@@ -527,15 +527,15 @@ final class Store: ObservableObject {
                 appState.homeInfo.moreFavoritesLoading[carriedValue] = true
             }
 
-        case .fetchMangaDetail(let gid):
+        case .fetchGalleryDetail(let gid):
             appState.detailInfo.detailLoadFailed[gid] = false
 
             if appState.detailInfo.detailLoading[gid] == true { break }
             appState.detailInfo.detailLoading[gid] = true
 
-            let galleryURL = PersistenceController.fetchManga(gid: gid)?.galleryURL ?? ""
-            appCommand = FetchMangaDetailCommand(gid: gid, galleryURL: galleryURL)
-        case .fetchMangaDetailDone(let gid, let result):
+            let galleryURL = PersistenceController.fetchGallery(gid: gid)?.galleryURL ?? ""
+            appCommand = FetchGalleryDetailCommand(gid: gid, galleryURL: galleryURL)
+        case .fetchGalleryDetailDone(let gid, let result):
             appState.detailInfo.detailLoading[gid] = false
 
             switch result {
@@ -553,12 +553,12 @@ final class Store: ObservableObject {
                 appState.detailInfo.detailLoadFailed[gid] = true
             }
 
-        case .fetchMangaArchiveFunds(let gid):
+        case .fetchGalleryArchiveFunds(let gid):
             if appState.detailInfo.archiveFundsLoading { break }
             appState.detailInfo.archiveFundsLoading = true
-            let galleryURL = PersistenceController.fetchManga(gid: gid)?.galleryURL ?? ""
-            appCommand = FetchMangaArchiveFundsCommand(gid: gid, galleryURL: galleryURL)
-        case .fetchMangaArchiveFundsDone(let result):
+            let galleryURL = PersistenceController.fetchGallery(gid: gid)?.galleryURL ?? ""
+            appCommand = FetchGalleryArchiveFundsCommand(gid: gid, galleryURL: galleryURL)
+        case .fetchGalleryArchiveFundsDone(let result):
             appState.detailInfo.archiveFundsLoading = false
 
             if case .success(let funds) = result {
@@ -570,7 +570,7 @@ final class Store: ObservableObject {
                 )
             }
 
-        case .fetchMangaPreviews(let gid, let index):
+        case .fetchGalleryPreviews(let gid, let index):
             let pageNumber = index / appState.detailInfo.previewConfig.batchSize
             if appState.detailInfo.previewsLoading[gid] == nil {
                 appState.detailInfo.previewsLoading[gid] = [:]
@@ -579,22 +579,22 @@ final class Store: ObservableObject {
             if appState.detailInfo.previewsLoading[gid]?[pageNumber] == true { break }
             appState.detailInfo.previewsLoading[gid]?[pageNumber] = true
 
-            let galleryURL = PersistenceController.fetchManga(gid: gid)?.galleryURL ?? ""
+            let galleryURL = PersistenceController.fetchGallery(gid: gid)?.galleryURL ?? ""
             let url = Defaults.URL.detailPage(url: galleryURL, pageNum: pageNumber)
-            appCommand = FetchMangaPreviewsCommand(gid: gid, url: url, pageNumber: pageNumber)
+            appCommand = FetchGalleryPreviewsCommand(gid: gid, url: url, pageNumber: pageNumber)
 
-        case .fetchMangaPreviewsDone(let gid, let pageNumber, let result):
+        case .fetchGalleryPreviewsDone(let gid, let pageNumber, let result):
             appState.detailInfo.previewsLoading[gid]?[pageNumber] = false
 
             switch result {
             case .success(let previews):
                 appState.detailInfo.update(gid: gid, previews: previews)
-                PersistenceController.update(fetchedState: MangaState(gid: gid, previews: previews))
+                PersistenceController.update(fetchedState: GalleryState(gid: gid, previews: previews))
             case .failure(let error):
                 SwiftyBeaver.error(error)
             }
 
-        case .fetchMangaContents(let gid, let index):
+        case .fetchGalleryContents(let gid, let index):
             let pageNumber = index / appState.detailInfo.previewConfig.batchSize
             if appState.contentInfo.contentsLoading[gid] == nil {
                 appState.contentInfo.contentsLoading[gid] = [:]
@@ -607,10 +607,10 @@ final class Store: ObservableObject {
             if appState.contentInfo.contentsLoading[gid]?[pageNumber] == true { break }
             appState.contentInfo.contentsLoading[gid]?[pageNumber] = true
 
-            let galleryURL = PersistenceController.fetchManga(gid: gid)?.galleryURL ?? ""
+            let galleryURL = PersistenceController.fetchGallery(gid: gid)?.galleryURL ?? ""
             let url = Defaults.URL.detailPage(url: galleryURL, pageNum: pageNumber)
-            appCommand = FetchMangaContentsCommand(gid: gid, url: url, pageNumber: pageNumber)
-        case .fetchMangaContentsDone(let gid, let pageNumber, let result):
+            appCommand = FetchGalleryContentsCommand(gid: gid, url: url, pageNumber: pageNumber)
+        case .fetchGalleryContentsDone(let gid, let pageNumber, let result):
             appState.contentInfo.contentsLoading[gid]?[pageNumber] = false
 
             switch result {
@@ -626,7 +626,7 @@ final class Store: ObservableObject {
                 }
             }
 
-        case .fetchMangaMPVContent(let gid, let index):
+        case .fetchGalleryMPVContent(let gid, let index):
             guard let gidInteger = Int(gid),
                   let mpvKey = appState.contentInfo.mpvKeys[gid],
                   let imgKey = appState.contentInfo.mpvImageKeys[gid]?[index]
@@ -638,10 +638,10 @@ final class Store: ObservableObject {
             if appState.contentInfo.mpvImageLoading[gid]?[index] == true { break }
             appState.contentInfo.mpvImageLoading[gid]?[index] = true
 
-            appCommand = FetchMangaMPVContentCommand(
+            appCommand = FetchGalleryMPVContentCommand(
                 gid: gidInteger, index: index, mpvKey: mpvKey, imgKey: imgKey
             )
-        case .fetchMangaMPVContentDone(let gid, let index, let result):
+        case .fetchGalleryMPVContentDone(let gid, let index, let result):
             appState.contentInfo.mpvImageLoading[gid]?[index] = false
 
             switch result {
@@ -684,7 +684,7 @@ final class Store: ObservableObject {
                 SwiftyBeaver.error(error)
             }
         case .addFavorite(let gid, let favIndex):
-            let token = PersistenceController.fetchManga(gid: gid)?.token ?? ""
+            let token = PersistenceController.fetchGallery(gid: gid)?.token ?? ""
             appCommand = AddFavoriteCommand(gid: gid, token: token, favIndex: favIndex)
         case .deleteFavorite(let gid):
             appCommand = DeleteFavoriteCommand(gid: gid)
@@ -693,7 +693,7 @@ final class Store: ObservableObject {
             let apiuidString = appState.settings.user.apiuid
             guard !apiuidString.isEmpty,
                   let apikey = appState.settings.user.apikey,
-                  let token = PersistenceController.fetchManga(gid: gid)?.token,
+                  let token = PersistenceController.fetchGallery(gid: gid)?.token,
                   let apiuid = Int(apiuidString),
                   let gid = Int(gid)
             else { break }
@@ -707,10 +707,10 @@ final class Store: ObservableObject {
             )
 
         case .comment(let gid, let content):
-            let galleryURL = PersistenceController.fetchManga(gid: gid)?.galleryURL ?? ""
+            let galleryURL = PersistenceController.fetchGallery(gid: gid)?.galleryURL ?? ""
             appCommand = CommentCommand(gid: gid, content: content, galleryURL: galleryURL)
         case .editComment(let gid, let commentID, let content):
-            let galleryURL = PersistenceController.fetchManga(gid: gid)?.galleryURL ?? ""
+            let galleryURL = PersistenceController.fetchGallery(gid: gid)?.galleryURL ?? ""
 
             appCommand = EditCommentCommand(
                 gid: gid,
@@ -722,7 +722,7 @@ final class Store: ObservableObject {
             let apiuidString = appState.settings.user.apiuid
             guard !apiuidString.isEmpty,
                   let apikey = appState.settings.user.apikey,
-                  let token = PersistenceController.fetchManga(gid: gid)?.token,
+                  let token = PersistenceController.fetchGallery(gid: gid)?.token,
                   let commentID = Int(commentID),
                   let apiuid = Int(apiuidString),
                   let gid = Int(gid)

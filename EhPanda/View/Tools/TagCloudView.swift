@@ -9,7 +9,7 @@
 import SwiftUI
 
 struct TagCloudView: View {
-    private let tag: MangaTag
+    private let tag: GalleryTag
     private let font: Font
     private let textColor: Color
     private let backgroundColor: Color
@@ -23,7 +23,7 @@ struct TagCloudView: View {
 //        = CGFloat.infinity   // << variant for VStack
 
     init(
-        tag: MangaTag,
+        tag: GalleryTag,
         font: Font,
         textColor: Color,
         backgroundColor: Color,

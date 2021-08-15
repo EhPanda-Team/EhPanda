@@ -13,7 +13,7 @@ struct ArchiveView: View, StoreAccessor, PersistenceAccessor {
     @EnvironmentObject var store: Store
     @State private var selection: ArchiveRes?
 
-    @State private var archive: MangaArchive?
+    @State private var archive: GalleryArchive?
     @State private var response: String?
     @State private var loadingFlag = false
     @State private var sendingFlag = false
@@ -85,12 +85,12 @@ struct ArchiveView: View, StoreAccessor, PersistenceAccessor {
                 } else if loadingFlag {
                     LoadingView()
                 } else {
-                    NetworkErrorView(retryAction: fetchMangaArchive)
+                    NetworkErrorView(retryAction: fetchGalleryArchive)
                 }
             }
             .navigationBarTitle("Archive")
         }
-        .onAppear(perform: fetchMangaArchive)
+        .onAppear(perform: fetchGalleryArchive)
     }
 }
 
@@ -99,11 +99,11 @@ private extension ArchiveView {
     var detailInfoBinding: Binding<AppState.DetailInfo> {
         $store.appState.detailInfo
     }
-    var hathArchives: [MangaArchive.HathArchive] {
+    var hathArchives: [GalleryArchive.HathArchive] {
         archive?.hathArchives ?? []
     }
 
-    func onArchiveGridTap(item: MangaArchive.HathArchive) {
+    func onArchiveGridTap(item: GalleryArchive.HathArchive) {
         if item.fileSize != "N/A"
             && item.gpPrice != "N/A"
         {
@@ -140,13 +140,13 @@ private extension ArchiveView {
     }
 
     // MARK: Networking
-    func fetchMangaArchive() {
-        guard let archiveURL = mangaDetail?.archiveURL, !loadingFlag
+    func fetchGalleryArchive() {
+        guard let archiveURL = galleryDetail?.archiveURL, !loadingFlag
         else { return }
         loadingFlag = true
 
         let token = SubscriptionToken()
-        MangaArchiveRequest(archiveURL: archiveURL)
+        GalleryArchiveRequest(archiveURL: archiveURL)
             .publisher
             .receive(on: DispatchQueue.main)
             .sink { _ in
@@ -155,18 +155,18 @@ private extension ArchiveView {
             } receiveValue: { arc in
                 archive = arc.0
                 if let galleryPoints = arc.1, let credits = arc.2 {
-                    store.dispatch(.fetchMangaArchiveFundsDone(
+                    store.dispatch(.fetchGalleryArchiveFundsDone(
                         result: .success((galleryPoints, credits)))
                     )
                 } else if isSameAccount {
-                    store.dispatch(.fetchMangaArchiveFunds(gid: gid))
+                    store.dispatch(.fetchGalleryArchiveFunds(gid: gid))
                 }
             }
             .seal(in: token)
     }
     func fetchDownloadResponse() {
         sendFailedFlag = false
-        guard let archiveURL = mangaDetail?.archiveURL,
+        guard let archiveURL = galleryDetail?.archiveURL,
               let resolution = selection, !sendingFlag
         else { return }
         sendingFlag = true
@@ -195,7 +195,7 @@ private extension ArchiveView {
                 break
             }
             response = resp
-            store.dispatch(.fetchMangaArchiveFunds(gid: gid))
+            store.dispatch(.fetchGalleryArchiveFunds(gid: gid))
         }
         .seal(in: token)
     }
@@ -204,7 +204,7 @@ private extension ArchiveView {
 // MARK: ArchiveGrid
 private struct ArchiveGrid: View {
     private var isSelected: Bool
-    private let archive: MangaArchive.HathArchive
+    private let archive: GalleryArchive.HathArchive
 
     private var disabled: Bool {
         archive.fileSize == "N/A"
@@ -241,7 +241,7 @@ private struct ArchiveGrid: View {
 
     init(
         isSelected: Bool,
-        archive: MangaArchive.HathArchive
+        archive: GalleryArchive.HathArchive
     ) {
         self.isSelected = isSelected
         self.archive = archive
@@ -359,15 +359,15 @@ struct ArchiveView_Previews: PreviewProvider {
     static var previews: some View {
         let store = Store()
         var user = User.empty
-//        var manga = Manga.empty
+//        var gallery = Gallery.empty
 //        let hathArchives = ArchiveRes.allCases.map {
-//            MangaArchive.HathArchive(
+//            GalleryArchive.HathArchive(
 //                resolution: $0,
 //                fileSize: "114 MB",
 //                gpPrice: "514 GP"
 //            )
 //        }
-//        let archive = MangaArchive(
+//        let archive = GalleryArchive(
 //            hathArchives: hathArchives
 //        )
 
@@ -376,7 +376,7 @@ struct ArchiveView_Previews: PreviewProvider {
         store.appState.settings.user = user
         store.appState.environment.isPreview = true
 
-//        store.appState.cachedList.cache(mangas: [manga])
+//        store.appState.cachedList.cache(galleries: [gallery])
 
         return ArchiveView(gid: "")
             .environmentObject(store)

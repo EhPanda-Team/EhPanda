@@ -1,22 +1,25 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="19178.1" systemVersion="20G71" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithCloudKit="YES" userDefinedModelVersionIdentifier="">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="19197" systemVersion="20G95" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithCloudKit="YES" userDefinedModelVersionIdentifier="">
     <entity name="AppEnvMO" representedClassName=".AppEnvMO" syncable="YES">
         <attribute name="filter" optional="YES" attributeType="Binary"/>
         <attribute name="historyKeywords" optional="YES" attributeType="Binary" customClassName=".[String]"/>
         <attribute name="setting" optional="YES" attributeType="Binary"/>
+        <attribute name="tagTranslator" optional="YES" attributeType="Binary"/>
         <attribute name="user" optional="YES" attributeType="Binary"/>
     </entity>
-    <entity name="MangaDetailMO" representedClassName=".MangaDetailMO" syncable="YES">
+    <entity name="GalleryDetailMO" representedClassName=".GalleryDetailMO" syncable="YES">
         <attribute name="archiveURL" optional="YES" attributeType="String"/>
         <attribute name="category" attributeType="String" defaultValueString=""/>
         <attribute name="coverURL" attributeType="String" defaultValueString=""/>
+        <attribute name="favoredCount" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="gid" attributeType="String" defaultValueString=""/>
         <attribute name="isFavored" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="isVisible" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
         <attribute name="jpnTitle" optional="YES" attributeType="String"/>
         <attribute name="language" attributeType="String" defaultValueString=""/>
-        <attribute name="likeCount" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="pageCount" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
-        <attribute name="publishedDate" attributeType="Date" defaultDateTimeInterval="646585800" usesScalarValueType="NO"/>
+        <attribute name="parentURL" optional="YES" attributeType="String"/>
+        <attribute name="postedDate" attributeType="Date" defaultDateTimeInterval="646585800" usesScalarValueType="NO"/>
         <attribute name="rating" attributeType="Float" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="ratingCount" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="sizeCount" attributeType="Float" defaultValueString="0" usesScalarValueType="YES"/>
@@ -26,34 +29,32 @@
         <attribute name="uploader" attributeType="String" defaultValueString=""/>
         <attribute name="userRating" attributeType="Float" defaultValueString="0.0" usesScalarValueType="YES"/>
     </entity>
-    <entity name="MangaMO" representedClassName=".MangaMO" syncable="YES">
+    <entity name="GalleryMO" representedClassName=".GalleryMO" syncable="YES">
         <attribute name="category" attributeType="String" defaultValueString=""/>
         <attribute name="coverURL" attributeType="String" defaultValueString=""/>
-        <attribute name="detailURL" attributeType="String" defaultValueString=""/>
+        <attribute name="galleryURL" attributeType="String" defaultValueString=""/>
         <attribute name="gid" attributeType="String" defaultValueString=""/>
         <attribute name="language" optional="YES" attributeType="String"/>
         <attribute name="lastOpenDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
-        <attribute name="publishedDate" attributeType="Date" defaultDateTimeInterval="646585860" usesScalarValueType="NO"/>
+        <attribute name="pageCount" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="postedDate" attributeType="Date" defaultDateTimeInterval="646585860" usesScalarValueType="NO"/>
         <attribute name="rating" attributeType="Float" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="title" attributeType="String" defaultValueString=""/>
         <attribute name="token" attributeType="String" defaultValueString=""/>
         <attribute name="uploader" optional="YES" attributeType="String"/>
     </entity>
-    <entity name="MangaStateMO" representedClassName=".MangaStateMO" syncable="YES">
-        <attribute name="aspectBox" optional="YES" attributeType="Binary"/>
+    <entity name="GalleryStateMO" representedClassName=".GalleryStateMO" syncable="YES">
         <attribute name="comments" optional="YES" attributeType="Binary"/>
         <attribute name="contents" optional="YES" attributeType="Binary"/>
-        <attribute name="currentPageNum" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="gid" attributeType="String" defaultValueString=""/>
-        <attribute name="pageNumMaximum" attributeType="Integer 64" defaultValueString="1" usesScalarValueType="YES"/>
         <attribute name="previews" optional="YES" attributeType="Binary"/>
         <attribute name="readingProgress" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="tags" optional="YES" attributeType="Binary"/>
     </entity>
     <elements>
-        <element name="AppEnvMO" positionX="-45" positionY="126" width="128" height="89"/>
-        <element name="MangaDetailMO" positionX="-54" positionY="9" width="128" height="299"/>
-        <element name="MangaMO" positionX="-63" positionY="-18" width="128" height="194"/>
-        <element name="MangaStateMO" positionX="-36" positionY="18" width="128" height="164"/>
+        <element name="AppEnvMO" positionX="-45" positionY="126" width="128" height="104"/>
+        <element name="GalleryDetailMO" positionX="-54" positionY="9" width="128" height="329"/>
+        <element name="GalleryMO" positionX="-63" positionY="-18" width="128" height="209"/>
+        <element name="GalleryStateMO" positionX="-36" positionY="18" width="128" height="119"/>
     </elements>
 </model>

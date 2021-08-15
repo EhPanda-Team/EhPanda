@@ -81,7 +81,7 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
 
             if isFirstValid {
                 ImageContainer(
-                    url: mangaContents[firstIndex] ?? "", index: firstIndex,
+                    url: galleryContents[firstIndex] ?? "", index: firstIndex,
                     retryLimit: setting.contentRetryLimit,
                     isDualPage: isDualPage
                 )
@@ -92,7 +92,7 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
 
             if isSecondValid {
                 ImageContainer(
-                    url: mangaContents[secondIndex] ?? "", index: secondIndex,
+                    url: galleryContents[secondIndex] ?? "", index: secondIndex,
                     retryLimit: setting.contentRetryLimit,
                     isDualPage: isDualPage
                 )
@@ -138,7 +138,7 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
     mutating func initializeParams() {
         dispatchMainSync {
             _pageCount = State(
-                initialValue: mangaDetail?.pageCount ?? 1
+                initialValue: galleryDetail?.pageCount ?? 1
             )
         }
     }
@@ -150,7 +150,7 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
             if contentInfo.contentsLoading[gid]?[0] == true {
                 LoadingView()
             } else if contentInfo.contentsLoadFailed[gid]?[0] == true {
-                NetworkErrorView(retryAction: fetchMangaContentsIfNeeded)
+                NetworkErrorView(retryAction: fetchGalleryContentsIfNeeded)
             } else {
                 conditionalList
                     .scaleEffect(scale).offset(offset)
@@ -168,7 +168,7 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
                 range: 1...Float(pageCount),
                 previews: detailInfo.previews[gid] ?? [:],
                 settingAction: toggleSetting,
-                fetchAction: fetchMangaPreivews,
+                fetchAction: fetchGalleryPreivews,
                 sliderChangedAction: onControlPanelSliderChanged,
                 updateSettingAction: update
             )
@@ -245,14 +245,14 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
 }
 
 private extension ReadingView {
-    var mangaContents: [Int: String] {
+    var galleryContents: [Int: String] {
         contentInfo.contents[gid] ?? [:]
     }
 
     // MARK: Life Cycle
     func onStartTasks() {
         restoreReadingProgress()
-        fetchMangaContentsIfNeeded()
+        fetchGalleryContentsIfNeeded()
     }
     func onEndTasks() {
         saveReadingProgress()
@@ -260,14 +260,14 @@ private extension ReadingView {
     func restoreReadingProgress() {
         dispatchMainSync {
             let index = mappingToPager(
-                index: mangaState.readingProgress
+                index: galleryState.readingProgress
             )
             page.update(.new(index: index))
         }
     }
     func onWebImageAppear(index: Int) {
-        if mangaContents[index] == nil {
-            fetchMangaContents(index: index)
+        if galleryContents[index] == nil {
+            fetchGalleryContents(index: index)
         }
     }
     func onControlPanelSliderChanged(_: Any? = nil) {
@@ -328,15 +328,15 @@ private extension ReadingView {
     }
 
     // MARK: Dispatch
-    func fetchMangaContents(index: Int = 1) {
+    func fetchGalleryContents(index: Int = 1) {
         if contentInfo.mpvKeys[gid] != nil {
-            store.dispatch(.fetchMangaMPVContent(gid: gid, index: index))
+            store.dispatch(.fetchGalleryMPVContent(gid: gid, index: index))
         } else {
-            store.dispatch(.fetchMangaContents(gid: gid, index: index))
+            store.dispatch(.fetchGalleryContents(gid: gid, index: index))
         }
     }
-    func fetchMangaPreivews(index: Int) {
-        store.dispatch(.fetchMangaPreviews(gid: gid, index: index))
+    func fetchGalleryPreivews(index: Int) {
+        store.dispatch(.fetchGalleryPreviews(gid: gid, index: index))
     }
 
     func toggleSetting() {
@@ -346,9 +346,9 @@ private extension ReadingView {
     func update(setting: Setting) {
         store.dispatch(.updateSetting(setting: setting))
     }
-    func fetchMangaContentsIfNeeded() {
-        if mangaContents.isEmpty {
-            fetchMangaContents()
+    func fetchGalleryContentsIfNeeded() {
+        if galleryContents.isEmpty {
+            fetchGalleryContents()
         }
     }
     func toggleNavBarHiddenIfNeeded() {
@@ -395,7 +395,7 @@ private extension ReadingView {
         let indices = Array(range.lowerBound...range.upperBound)
         array.append(contentsOf: indices.compactMap { index in
             onWebImageAppear(index: index)
-            return URL(string: mangaContents[index] ?? "")
+            return URL(string: galleryContents[index] ?? "")
         })
     }
 

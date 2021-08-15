@@ -23,11 +23,11 @@ extension DateFormattable {
 }
 
 // MARK: Structs
-struct Manga: Identifiable, Codable, Equatable {
-    static func == (lhs: Manga, rhs: Manga) -> Bool {
+struct Gallery: Identifiable, Codable, Equatable {
+    static func == (lhs: Gallery, rhs: Gallery) -> Bool {
         lhs.gid == rhs.gid
     }
-    static let empty = Manga(
+    static let empty = Gallery(
         gid: "",
         token: "",
         title: "",
@@ -40,7 +40,7 @@ struct Manga: Identifiable, Codable, Equatable {
         galleryURL: ""
     )
 
-    static let preview = Manga(
+    static let preview = Gallery(
         gid: "",
         token: "",
         title: "Preview",
@@ -73,8 +73,8 @@ struct Manga: Identifiable, Codable, Equatable {
     var lastOpenDate: Date?
 }
 
-struct MangaDetail: Codable {
-    static let empty = MangaDetail(
+struct GalleryDetail: Codable {
+    static let empty = GalleryDetail(
         gid: "",
         title: "",
         isFavored: false,
@@ -94,7 +94,7 @@ struct MangaDetail: Codable {
         torrentCount: 0
     )
 
-    static let preview = MangaDetail(
+    static let preview = GalleryDetail(
         gid: "",
         title: "Preview",
         jpnTitle: "プレビュー",
@@ -139,20 +139,20 @@ struct MangaDetail: Codable {
     var torrentCount: Int
 }
 
-struct MangaState: Codable {
-    static let empty = MangaState(gid: "")
-    static let preview = MangaState(gid: "")
+struct GalleryState: Codable {
+    static let empty = GalleryState(gid: "")
+    static let preview = GalleryState(gid: "")
 
     let gid: String
-    var tags = [MangaTag]()
+    var tags = [GalleryTag]()
     var readingProgress = 0
     var previews = [Int: String]()
     var previewConfig: PreviewConfig?
-    var comments = [MangaComment]()
+    var comments = [GalleryComment]()
     var contents = [Int: String]()
 }
 
-struct MangaArchive: Codable {
+struct GalleryArchive: Codable {
     struct HathArchive: Codable, Identifiable {
         var id: String { resolution.rawValue }
 
@@ -164,14 +164,14 @@ struct MangaArchive: Codable {
     let hathArchives: [HathArchive]
 }
 
-struct MangaTag: Codable, Identifiable {
+struct GalleryTag: Codable, Identifiable {
     var id: String { category.rawValue }
 
     let category: TagCategory
     let content: [String]
 }
 
-struct MangaComment: Identifiable, Codable {
+struct GalleryComment: Identifiable, Codable {
     var id: String { author + formattedDateString }
 
     var votedUp: Bool
@@ -205,7 +205,7 @@ struct CommentContent: Identifiable, Codable {
     var secondImgURL: String?
 }
 
-struct MangaTorrent: Identifiable, Codable {
+struct GalleryTorrent: Identifiable, Codable {
     var id: String { uploader + formattedDateString }
 
     let postedDate: Date
@@ -230,9 +230,9 @@ struct Log: Identifiable, Comparable {
 }
 
 // MARK: Computed Properties
-extension Manga: DateFormattable, CustomStringConvertible {
+extension Gallery: DateFormattable, CustomStringConvertible {
     var description: String {
-        "Manga(\(gid))"
+        "Gallery(\(gid))"
     }
 
     var filledCount: Int { Int(rating) }
@@ -247,9 +247,9 @@ extension Manga: DateFormattable, CustomStringConvertible {
     }
 }
 
-extension MangaDetail: DateFormattable, CustomStringConvertible {
+extension GalleryDetail: DateFormattable, CustomStringConvertible {
     var description: String {
-        "MangaDetail(gid: \(gid), \(jpnTitle ?? title))"
+        "GalleryDetail(gid: \(gid), \(jpnTitle ?? title))"
     }
 
     var languageAbbr: String {
@@ -260,22 +260,22 @@ extension MangaDetail: DateFormattable, CustomStringConvertible {
     }
 }
 
-extension MangaState: CustomStringConvertible {
+extension GalleryState: CustomStringConvertible {
     var description: String {
-        "MangaState(gid: \(gid), tags: \(tags.count), "
+        "GalleryState(gid: \(gid), tags: \(tags.count), "
         + "previews: \(previews.count), comments: \(comments.count))"
     }
 }
 
-extension MangaComment: DateFormattable {
+extension GalleryComment: DateFormattable {
     var originalDate: Date {
         commentDate
     }
 }
 
-extension MangaTorrent: DateFormattable, CustomStringConvertible {
+extension GalleryTorrent: DateFormattable, CustomStringConvertible {
     var description: String {
-        "MangaTorrent(\(fileName))"
+        "GalleryTorrent(\(fileName))"
     }
     var originalDate: Date {
         postedDate
@@ -293,7 +293,7 @@ extension Category {
         switch self {
         case .doujinshi:
             return 2
-        case .manga:
+        case .gallery:
             return 4
         case .artistCG:
             return 8
@@ -374,7 +374,7 @@ enum Category: String, Codable, CaseIterable, Identifiable {
     var id: String { rawValue }
 
     case doujinshi = "Doujinshi"
-    case manga = "Manga"
+    case gallery = "Gallery"
     case artistCG = "Artist CG"
     case gameCG = "Game CG"
     case western = "Western"

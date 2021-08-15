@@ -90,24 +90,24 @@ struct FetchTagTranslatorCommand: AppCommand {
     }
 }
 
-struct FetchMangaItemReverseCommand: AppCommand {
+struct FetchGalleryItemReverseCommand: AppCommand {
     let galleryURL: String
 
     func execute(in store: Store) {
         let token = SubscriptionToken()
-        MangaItemReverseRequest(galleryURL: galleryURL)
+        GalleryItemReverseRequest(galleryURL: galleryURL)
             .publisher
             .receive(on: DispatchQueue.main)
             .sink { completion in
                 if case .failure(let error) = completion {
-                    store.dispatch(.fetchMangaItemReverseDone(result: .failure(error)))
+                    store.dispatch(.fetchGalleryItemReverseDone(result: .failure(error)))
                 }
                 token.unseal()
-            } receiveValue: { manga in
-                if let manga = manga {
-                    store.dispatch(.fetchMangaItemReverseDone(result: .success(manga)))
+            } receiveValue: { gallery in
+                if let gallery = gallery {
+                    store.dispatch(.fetchGalleryItemReverseDone(result: .success(gallery)))
                 } else {
-                    store.dispatch(.fetchMangaItemReverseDone(result: .failure(.networkingFailed)))
+                    store.dispatch(.fetchGalleryItemReverseDone(result: .failure(.networkingFailed)))
                 }
             }
             .seal(in: token)
@@ -128,11 +128,11 @@ struct FetchSearchItemsCommand: AppCommand {
                     store.dispatch(.fetchSearchItemsDone(result: .failure(error)))
                 }
                 token.unseal()
-            } receiveValue: { mangas in
+            } receiveValue: { galleries in
                 store.dispatch(
                     .fetchSearchItemsDone(
                         result: .success(
-                            (keyword, mangas.0, mangas.1)
+                            (keyword, galleries.0, galleries.1)
                         )
                     )
                 )
@@ -162,8 +162,8 @@ struct FetchMoreSearchItemsCommand: AppCommand {
                 store.dispatch(.fetchMoreSearchItemsDone(result: .failure(error)))
             }
             token.unseal()
-        } receiveValue: { mangas in
-            store.dispatch(.fetchMoreSearchItemsDone(result: .success((keyword, mangas.0, mangas.1))))
+        } receiveValue: { galleries in
+            store.dispatch(.fetchMoreSearchItemsDone(result: .success((keyword, galleries.0, galleries.1))))
         }
         .seal(in: token)
     }
@@ -180,8 +180,8 @@ struct FetchFrontpageItemsCommand: AppCommand {
                     store.dispatch(.fetchFrontpageItemsDone(result: .failure(error)))
                 }
                 token.unseal()
-            } receiveValue: { mangas in
-                store.dispatch(.fetchFrontpageItemsDone(result: .success(mangas)))
+            } receiveValue: { galleries in
+                store.dispatch(.fetchFrontpageItemsDone(result: .success(galleries)))
             }
             .seal(in: token)
     }
@@ -201,8 +201,8 @@ struct FetchMoreFrontpageItemsCommand: AppCommand {
                     store.dispatch(.fetchMoreFrontpageItemsDone(result: .failure(error)))
                 }
                 token.unseal()
-            } receiveValue: { mangas in
-                store.dispatch(.fetchMoreFrontpageItemsDone(result: .success(mangas)))
+            } receiveValue: { galleries in
+                store.dispatch(.fetchMoreFrontpageItemsDone(result: .success(galleries)))
             }
             .seal(in: token)
     }
@@ -219,8 +219,8 @@ struct FetchPopularItemsCommand: AppCommand {
                     store.dispatch(.fetchPopularItemsDone(result: .failure(error)))
                 }
                 token.unseal()
-            } receiveValue: { mangas in
-                store.dispatch(.fetchPopularItemsDone(result: .success(mangas)))
+            } receiveValue: { galleries in
+                store.dispatch(.fetchPopularItemsDone(result: .success(galleries)))
             }
             .seal(in: token)
     }
@@ -237,8 +237,8 @@ struct FetchWatchedItemsCommand: AppCommand {
                     store.dispatch(.fetchWatchedItemsDone(result: .failure(error)))
                 }
                 token.unseal()
-            } receiveValue: { mangas in
-                store.dispatch(.fetchWatchedItemsDone(result: .success(mangas)))
+            } receiveValue: { galleries in
+                store.dispatch(.fetchWatchedItemsDone(result: .success(galleries)))
             }
             .seal(in: token)
     }
@@ -258,8 +258,8 @@ struct FetchMoreWatchedItemsCommand: AppCommand {
                     store.dispatch(.fetchMoreWatchedItemsDone(result: .failure(error)))
                 }
                 token.unseal()
-            } receiveValue: { mangas in
-                store.dispatch(.fetchMoreWatchedItemsDone(result: .success(mangas)))
+            } receiveValue: { galleries in
+                store.dispatch(.fetchMoreWatchedItemsDone(result: .success(galleries)))
             }
             .seal(in: token)
     }
@@ -278,8 +278,8 @@ struct FetchFavoritesItemsCommand: AppCommand {
                     store.dispatch(.fetchFavoritesItemsDone(carriedValue: favIndex, result: .failure(error)))
                 }
                 token.unseal()
-            } receiveValue: { mangas in
-                store.dispatch(.fetchFavoritesItemsDone(carriedValue: favIndex, result: .success((mangas))))
+            } receiveValue: { galleries in
+                store.dispatch(.fetchFavoritesItemsDone(carriedValue: favIndex, result: .success((galleries))))
             }
             .seal(in: token)
     }
@@ -300,78 +300,78 @@ struct FetchMoreFavoritesItemsCommand: AppCommand {
                     store.dispatch(.fetchMoreFavoritesItemsDone(carriedValue: favIndex, result: .failure(error)))
                 }
                 token.unseal()
-            } receiveValue: { mangas in
-                store.dispatch(.fetchMoreFavoritesItemsDone(carriedValue: favIndex, result: .success((mangas))))
+            } receiveValue: { galleries in
+                store.dispatch(.fetchMoreFavoritesItemsDone(carriedValue: favIndex, result: .success((galleries))))
             }
             .seal(in: token)
     }
 }
 
-struct FetchMangaDetailCommand: AppCommand {
+struct FetchGalleryDetailCommand: AppCommand {
     let gid: String
     let galleryURL: String
 
     func execute(in store: Store) {
         let token = SubscriptionToken()
-        MangaDetailRequest(gid: gid, galleryURL: galleryURL)
+        GalleryDetailRequest(gid: gid, galleryURL: galleryURL)
             .publisher
             .receive(on: DispatchQueue.main)
             .sink { completion in
                 if case .failure(let error) = completion {
-                    store.dispatch(.fetchMangaDetailDone(gid: gid, result: .failure(error)))
+                    store.dispatch(.fetchGalleryDetailDone(gid: gid, result: .failure(error)))
                 }
                 token.unseal()
             } receiveValue: { detail in
-                store.dispatch(.fetchMangaDetailDone(gid: gid, result: .success((detail.0, detail.1, detail.2))))
+                store.dispatch(.fetchGalleryDetailDone(gid: gid, result: .success((detail.0, detail.1, detail.2))))
             }
             .seal(in: token)
     }
 }
 
-struct FetchMangaArchiveFundsCommand: AppCommand {
+struct FetchGalleryArchiveFundsCommand: AppCommand {
     let gid: String
     let galleryURL: String
 
     func execute(in store: Store) {
         let sToken = SubscriptionToken()
-        MangaArchiveFundsRequest(gid: gid, galleryURL: galleryURL)
+        GalleryArchiveFundsRequest(gid: gid, galleryURL: galleryURL)
             .publisher
             .receive(on: DispatchQueue.main)
             .sink { completion in
                 if case .failure(let error) = completion {
-                    store.dispatch(.fetchMangaArchiveFundsDone(result: .failure(error)))
+                    store.dispatch(.fetchGalleryArchiveFundsDone(result: .failure(error)))
                 }
                 sToken.unseal()
             } receiveValue: { funds in
                 if let funds = funds {
-                    store.dispatch(.fetchMangaArchiveFundsDone(result: .success(funds)))
+                    store.dispatch(.fetchGalleryArchiveFundsDone(result: .success(funds)))
                 } else {
-                    store.dispatch(.fetchMangaArchiveFundsDone(result: .failure(.networkingFailed)))
+                    store.dispatch(.fetchGalleryArchiveFundsDone(result: .failure(.networkingFailed)))
                 }
             }
             .seal(in: sToken)
     }
 }
 
-struct FetchMangaPreviewsCommand: AppCommand {
+struct FetchGalleryPreviewsCommand: AppCommand {
     let gid: String
     let url: String
     let pageNumber: Int
 
     func execute(in store: Store) {
         let token = SubscriptionToken()
-        MangaPreviewsRequest(url: url)
+        GalleryPreviewsRequest(url: url)
             .publisher
             .receive(on: DispatchQueue.main)
             .sink { completion in
                 if case .failure(let error) = completion {
-                    store.dispatch(.fetchMangaPreviewsDone(
+                    store.dispatch(.fetchGalleryPreviewsDone(
                         gid: gid, pageNumber: pageNumber, result: .failure(error)
                     ))
                 }
                 token.unseal()
             } receiveValue: { previews in
-                store.dispatch(.fetchMangaPreviewsDone(
+                store.dispatch(.fetchGalleryPreviewsDone(
                     gid: gid, pageNumber: pageNumber, result: .success(previews)
                 ))
             }
@@ -379,30 +379,30 @@ struct FetchMangaPreviewsCommand: AppCommand {
     }
 }
 
-struct FetchMangaContentsCommand: AppCommand {
+struct FetchGalleryContentsCommand: AppCommand {
     let gid: String
     let url: String
     let pageNumber: Int
 
     func execute(in store: Store) {
         let token = SubscriptionToken()
-            MangaContentsRequest(url: url)
+            GalleryContentsRequest(url: url)
             .publisher
             .receive(on: DispatchQueue.main)
             .sink { completion in
                 if case .failure(let error) = completion {
-                    store.dispatch(.fetchMangaContentsDone(
+                    store.dispatch(.fetchGalleryContentsDone(
                         gid: gid, pageNumber: pageNumber, result: .failure(error))
                     )
                 }
                 token.unseal()
             } receiveValue: { contents in
                 if !contents.isEmpty {
-                    store.dispatch(.fetchMangaContentsDone(
+                    store.dispatch(.fetchGalleryContentsDone(
                         gid: gid, pageNumber: pageNumber, result: .success(contents))
                     )
                 } else {
-                    store.dispatch(.fetchMangaContentsDone(
+                    store.dispatch(.fetchGalleryContentsDone(
                         gid: gid, pageNumber: pageNumber, result: .failure(.networkingFailed))
                     )
                 }
@@ -411,7 +411,7 @@ struct FetchMangaContentsCommand: AppCommand {
     }
 }
 
-struct FetchMangaMPVContentCommand: AppCommand {
+struct FetchGalleryMPVContentCommand: AppCommand {
     let gid: Int
     let index: Int
     let mpvKey: String
@@ -419,7 +419,7 @@ struct FetchMangaMPVContentCommand: AppCommand {
 
     func execute(in store: Store) {
         let token = SubscriptionToken()
-        MangaMPVContentRequest(
+        GalleryMPVContentRequest(
             gid: gid, index: index,
             mpvKey: mpvKey, imgKey: imgKey
         )
@@ -427,13 +427,13 @@ struct FetchMangaMPVContentCommand: AppCommand {
         .receive(on: DispatchQueue.main)
         .sink { completion in
             if case .failure(let error) = completion {
-                store.dispatch(.fetchMangaMPVContentDone(
+                store.dispatch(.fetchGalleryMPVContentDone(
                     gid: "\(gid)", index: index, result: .failure(error)
                 ))
             }
             token.unseal()
         } receiveValue: { content in
-            store.dispatch(.fetchMangaMPVContentDone(
+            store.dispatch(.fetchGalleryMPVContentDone(
                 gid: "\(gid)", index: index, result: .success(content)
             ))
         }
@@ -484,7 +484,7 @@ struct AddFavoriteCommand: AppCommand {
             .receive(on: DispatchQueue.main)
             .sink { completion in
                 if case .finished = completion {
-                    store.dispatch(.fetchMangaDetail(gid: gid))
+                    store.dispatch(.fetchGalleryDetail(gid: gid))
                 }
                 sToken.unseal()
             } receiveValue: { _ in }
@@ -502,7 +502,7 @@ struct DeleteFavoriteCommand: AppCommand {
             .receive(on: DispatchQueue.main)
             .sink { completion in
                 if case .finished = completion {
-                    store.dispatch(.fetchMangaDetail(gid: gid))
+                    store.dispatch(.fetchGalleryDetail(gid: gid))
                 }
                 sToken.unseal()
             } receiveValue: { _ in }
@@ -530,7 +530,7 @@ struct RateCommand: AppCommand {
         .receive(on: DispatchQueue.main)
         .sink { completion in
             if case .finished = completion {
-                store.dispatch(.fetchMangaDetail(gid: String(gid)))
+                store.dispatch(.fetchGalleryDetail(gid: String(gid)))
             }
             sToken.unseal()
         } receiveValue: { _ in }
@@ -550,7 +550,7 @@ struct CommentCommand: AppCommand {
             .receive(on: DispatchQueue.main)
             .sink { completion in
                 if case .finished = completion {
-                    store.dispatch(.fetchMangaDetail(gid: gid))
+                    store.dispatch(.fetchGalleryDetail(gid: gid))
                 }
                 token.unseal()
             } receiveValue: { _ in }
@@ -575,7 +575,7 @@ struct EditCommentCommand: AppCommand {
         .receive(on: DispatchQueue.main)
         .sink { completion in
             if case .finished = completion {
-                store.dispatch(.fetchMangaDetail(gid: gid))
+                store.dispatch(.fetchGalleryDetail(gid: gid))
             }
             token.unseal()
         } receiveValue: { _ in }
@@ -605,7 +605,7 @@ struct VoteCommentCommand: AppCommand {
         .receive(on: DispatchQueue.main)
         .sink { completion in
             if case .finished = completion {
-                store.dispatch(.fetchMangaDetail(gid: String(gid)))
+                store.dispatch(.fetchGalleryDetail(gid: String(gid)))
             }
             sToken.unseal()
         } receiveValue: { _ in }

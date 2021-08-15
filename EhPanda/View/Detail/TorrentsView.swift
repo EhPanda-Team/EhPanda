@@ -16,7 +16,7 @@ struct TorrentsView: View, StoreAccessor {
     @State private var hudConfig = TTProgressHUDConfig()
 
     @State private var loadingFlag = false
-    @State private var torrents = [MangaTorrent]()
+    @State private var torrents = [GalleryTorrent]()
 
     private let gid: String
     private let token: String
@@ -50,10 +50,10 @@ struct TorrentsView: View, StoreAccessor {
             } else if loadingFlag {
                 LoadingView()
             } else {
-                NetworkErrorView(retryAction: fetchMangaTorrents)
+                NetworkErrorView(retryAction: fetchGalleryTorrents)
             }
         }
-        .onAppear(perform: fetchMangaTorrents)
+        .onAppear(perform: fetchGalleryTorrents)
         .navigationBarTitle("Torrents")
     }
 }
@@ -92,12 +92,12 @@ private extension TorrentsView {
     }
 
     // MARK: Networking
-    func fetchMangaTorrents() {
+    func fetchGalleryTorrents() {
         if loadingFlag { return }
         loadingFlag = true
 
         let sToken = SubscriptionToken()
-        MangaTorrentsRequest(gid: gid, token: token)
+        GalleryTorrentsRequest(gid: gid, token: token)
             .publisher
             .receive(on: DispatchQueue.main)
             .sink { _ in
@@ -112,11 +112,11 @@ private extension TorrentsView {
 
 // MARK: TorrentRow
 private struct TorrentRow: View {
-    private let torrent: MangaTorrent
+    private let torrent: GalleryTorrent
     private let action: (String) -> Void
 
     init(
-        torrent: MangaTorrent,
+        torrent: GalleryTorrent,
         action: @escaping (String) -> Void
     ) {
         self.torrent = torrent

@@ -10,7 +10,7 @@ import BetterCodable
 
 struct Filter: Codable {
     @DefaultFalse var doujinshi = false
-    @DefaultFalse var manga = false
+    @DefaultFalse var gallery = false
     @DefaultFalse var artistCG = false
     @DefaultFalse var gameCG = false
     @DefaultFalse var western = false

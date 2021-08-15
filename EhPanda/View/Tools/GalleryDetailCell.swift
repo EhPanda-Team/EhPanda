@@ -1,5 +1,5 @@
 //
-//  MangaDetailCell.swift
+//  GalleryDetailCell.swift
 //  EhPanda
 //
 //  Created by 荒木辰造 on R 3/01/16.
@@ -8,26 +8,26 @@
 import SwiftUI
 import Kingfisher
 
-struct MangaDetailCell: View {
+struct GalleryDetailCell: View {
     @Environment(\.colorScheme) private var colorScheme
 
-    private let manga: Manga
+    private let gallery: Gallery
     private let setting: Setting
     private let translateAction: ((String) -> String)?
 
     init(
-        manga: Manga,
+        gallery: Gallery,
         setting: Setting,
         translateAction: ((String) -> String)? = nil
     ) {
-        self.manga = manga
+        self.gallery = gallery
         self.setting = setting
         self.translateAction = translateAction
     }
 
     var body: some View {
         HStack(spacing: 10) {
-            KFImage(URL(string: manga.coverURL))
+            KFImage(URL(string: gallery.coverURL))
                 .placeholder {
                     Placeholder(style: .activity(
                         ratio: Defaults.ImageSize
@@ -38,17 +38,17 @@ struct MangaDetailCell: View {
                 .scaledToFit()
                 .frame(width: width, height: height)
             VStack(alignment: .leading) {
-                Text(manga.title)
+                Text(gallery.title)
                     .lineLimit(1)
                     .font(.headline)
                     .foregroundStyle(.primary)
-                Text(manga.uploader ?? "")
+                Text(gallery.uploader ?? "")
                     .lineLimit(1)
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                 if setting.showsSummaryRowTags, !tags.isEmpty {
                     TagCloudView(
-                        tag: MangaTag(
+                        tag: GalleryTag(
                             category: .artist,
                             content: tags
                         ),
@@ -61,16 +61,16 @@ struct MangaDetailCell: View {
                     .allowsHitTesting(false)
                 }
                 HStack {
-                    RatingView(rating: manga.rating)
+                    RatingView(rating: gallery.rating)
                         .font(.caption)
                         .foregroundStyle(.yellow)
                     Spacer()
                     HStack(spacing: 10) {
-                        Text(manga.language?.rawValue.localized() ?? "")
-                        if manga.pageCount ?? 0 > 0 && !isSEWidth {
+                        Text(gallery.language?.rawValue.localized() ?? "")
+                        if gallery.pageCount ?? 0 > 0 && !isSEWidth {
                             HStack(spacing: 2) {
                                 Image(systemName: "photo.on.rectangle.angled")
-                                Text(String(manga.pageCount ?? 0))
+                                Text(String(gallery.pageCount ?? 0))
                             }
                         }
                     }
@@ -78,9 +78,9 @@ struct MangaDetailCell: View {
                     .foregroundStyle(.secondary)
                 }
                 HStack(alignment: .bottom) {
-                    CategoryLabel(text: category, color: manga.color)
+                    CategoryLabel(text: category, color: gallery.color)
                     Spacer()
-                    Text(manga.formattedDateString)
+                    Text(gallery.formattedDateString)
                         .lineLimit(1)
                         .font(.footnote)
                         .foregroundStyle(.secondary)
@@ -95,7 +95,7 @@ struct MangaDetailCell: View {
     }
 }
 
-private extension MangaDetailCell {
+private extension GalleryDetailCell {
     var width: CGFloat {
         Defaults.ImageSize.rowW
     }
@@ -104,15 +104,15 @@ private extension MangaDetailCell {
     }
 
     var category: String {
-        manga.category.rawValue.localized()
+        gallery.category.rawValue.localized()
     }
     var tags: [String] {
         if setting.summaryRowTagsMaximum > 0 {
             return Array(
-                manga.tags.prefix(setting.summaryRowTagsMaximum)
+                gallery.tags.prefix(setting.summaryRowTagsMaximum)
             )
         } else {
-            return manga.tags
+            return gallery.tags
         }
     }
     var tagColor: Color {
@@ -122,9 +122,9 @@ private extension MangaDetailCell {
     }
 }
 
-struct MangaDetailCell_Previews: PreviewProvider {
+struct GalleryDetailCell_Previews: PreviewProvider {
     static var previews: some View {
-        MangaDetailCell(manga: .preview, setting: Setting())
+        GalleryDetailCell(gallery: .preview, setting: Setting())
             .preferredColorScheme(.dark)
     }
 }

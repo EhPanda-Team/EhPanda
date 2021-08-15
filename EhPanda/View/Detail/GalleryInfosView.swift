@@ -12,20 +12,20 @@ struct GalleryInfosView: View {
     @State private var hudVisible = false
     @State private var hudConfig = TTProgressHUDConfig()
 
-    private let manga: Manga
-    private let detail: MangaDetail
+    private let gallery: Gallery
+    private let detail: GalleryDetail
 
     private var infos: [Info] {
         [
             Info(title: "ID", value: detail.gid),
-            Info(title: "Token", value: manga.token),
+            Info(title: "Token", value: gallery.token),
             Info(title: "Title", value: detail.title),
             Info(title: "Japanese title", value: detail.jpnTitle),
-            Info(title: "Gallery URL", value: manga.galleryURL),
+            Info(title: "Gallery URL", value: gallery.galleryURL),
             Info(title: "Cover URL", value: detail.coverURL),
             Info(title: "Archive URL", value: detail.archiveURL),
             Info(title: "Torrent URL", value: Defaults.URL
-                .mangaTorrents(gid: manga.gid, token: manga.token)),
+                .galleryTorrents(gid: gallery.gid, token: gallery.token)),
             Info(title: "Parent URL", value: detail.parentURL),
             Info(title: "Category", value: detail.category.rawValue.localized()),
             Info(title: "Uploader", value: detail.uploader),
@@ -44,8 +44,8 @@ struct GalleryInfosView: View {
         ]
     }
 
-    init(manga: Manga, detail: MangaDetail) {
-        self.manga = manga
+    init(gallery: Gallery, detail: GalleryDetail) {
+        self.gallery = gallery
         self.detail = detail
     }
 
@@ -103,7 +103,7 @@ private struct Info: Identifiable {
 struct GalleryInfosView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
-            GalleryInfosView(manga: .preview, detail: .preview)
+            GalleryInfosView(gallery: .preview, detail: .preview)
                 .preferredColorScheme(.dark)
         }
     }

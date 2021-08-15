@@ -362,7 +362,7 @@ private struct FavoritesSection: View {
         [
             (.misc, $profile.favoriteName0),
             (.doujinshi, $profile.favoriteName1),
-            (.manga, $profile.favoriteName2),
+            (.gallery, $profile.favoriteName2),
             (.artistCG, $profile.favoriteName3),
             (.gameCG, $profile.favoriteName4),
             (.western, $profile.favoriteName5),

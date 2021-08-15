@@ -9,7 +9,7 @@ import SwiftUI
 import WaterfallGrid
 
 struct GenericList: View {
-    private let items: [Manga]?
+    private let items: [Gallery]?
     private let setting: Setting
     private let loadingFlag: Bool
     private let notFoundFlag: Bool
@@ -21,7 +21,7 @@ struct GenericList: View {
     private let translateAction: ((String) -> String)?
 
     init(
-        items: [Manga]?,
+        items: [Gallery]?,
         setting: Setting,
         loadingFlag: Bool,
         notFoundFlag: Bool,
@@ -82,7 +82,7 @@ struct GenericList: View {
 
 // MARK: DetailList
 private struct DetailList: View {
-    private let items: [Manga]?
+    private let items: [Gallery]?
     private let setting: Setting
     private let moreLoadingFlag: Bool
     private let moreLoadFailedFlag: Bool
@@ -90,7 +90,7 @@ private struct DetailList: View {
     private let translateAction: ((String) -> String)?
 
     init(
-        items: [Manga]?, setting: Setting,
+        items: [Gallery]?, setting: Setting,
         moreLoadingFlag: Bool,
         moreLoadFailedFlag: Bool,
         loadMoreAction: (() -> Void)?,
@@ -106,8 +106,8 @@ private struct DetailList: View {
 
     var body: some View {
         List(items ?? []) { item in
-            MangaDetailCell(
-                manga: item,
+            GalleryDetailCell(
+                gallery: item,
                 setting: setting,
                 translateAction: translateAction
             )
@@ -131,7 +131,7 @@ private struct DetailList: View {
             }
         }
     }
-    private func onRowAppear(item: Manga) {
+    private func onRowAppear(item: Gallery) {
         if item == items?.last {
             loadMoreAction?()
         }
@@ -143,7 +143,7 @@ private struct WaterfallList: View {
     @State var gid: String = ""
     @State var isNavLinkActive = false
 
-    private let items: [Manga]?
+    private let items: [Gallery]?
     private let setting: Setting
     private let moreLoadingFlag: Bool
     private let moreLoadFailedFlag: Bool
@@ -158,7 +158,7 @@ private struct WaterfallList: View {
     }
 
     init(
-        items: [Manga]?, setting: Setting,
+        items: [Gallery]?, setting: Setting,
         moreLoadingFlag: Bool,
         moreLoadFailedFlag: Bool,
         loadMoreAction: (() -> Void)?,
@@ -175,8 +175,8 @@ private struct WaterfallList: View {
     var body: some View {
         List {
             WaterfallGrid(items ?? []) { item in
-                MangaThumbnailCell(
-                    manga: item,
+                GalleryThumbnailCell(
+                    gallery: item,
                     setting: setting,
                     translateAction: translateAction
                 )

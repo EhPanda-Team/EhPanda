@@ -13,40 +13,40 @@ protocol PersistenceAccessor {
 }
 
 extension PersistenceAccessor {
-    var manga: Manga {
-        PersistenceController.fetchMangaNonNil(gid: gid)
+    var gallery: Gallery {
+        PersistenceController.fetchGalleryNonNil(gid: gid)
     }
-    var mangaDetail: MangaDetail? {
-        PersistenceController.fetchMangaDetail(gid: gid)
+    var galleryDetail: GalleryDetail? {
+        PersistenceController.fetchGalleryDetail(gid: gid)
     }
-    var mangaState: MangaState {
-        PersistenceController.fetchMangaStateNonNil(gid: gid)
+    var galleryState: GalleryState {
+        PersistenceController.fetchGalleryStateNonNil(gid: gid)
     }
 }
 
 // MARK: Accessor Method
 extension PersistenceController {
-    static func fetchManga(gid: String) -> Manga? {
-        var entity: Manga?
+    static func fetchGallery(gid: String) -> Gallery? {
+        var entity: Gallery?
         dispatchMainSync {
-            entity = fetch(entityType: MangaMO.self, gid: gid)?.toEntity()
+            entity = fetch(entityType: GalleryMO.self, gid: gid)?.toEntity()
         }
         return entity.forceUnwrapped
     }
-    static func fetchMangaNonNil(gid: String) -> Manga {
-        fetchManga(gid: gid) ?? Manga.empty
+    static func fetchGalleryNonNil(gid: String) -> Gallery {
+        fetchGallery(gid: gid) ?? Gallery.empty
     }
-    static func fetchMangaDetail(gid: String) -> MangaDetail? {
-        var entity: MangaDetail?
+    static func fetchGalleryDetail(gid: String) -> GalleryDetail? {
+        var entity: GalleryDetail?
         dispatchMainSync {
-            entity = fetch(entityType: MangaDetailMO.self, gid: gid)?.toEntity()
+            entity = fetch(entityType: GalleryDetailMO.self, gid: gid)?.toEntity()
         }
         return entity
     }
-    static func fetchMangaStateNonNil(gid: String) -> MangaState {
-        var entity: MangaState?
+    static func fetchGalleryStateNonNil(gid: String) -> GalleryState {
+        var entity: GalleryState?
         dispatchMainSync {
-            entity = fetchOrCreate(entityType: MangaStateMO.self, gid: gid).toEntity()
+            entity = fetchOrCreate(entityType: GalleryStateMO.self, gid: gid).toEntity()
         }
         return entity.forceUnwrapped
     }
@@ -57,13 +57,13 @@ extension PersistenceController {
         }
         return entity.forceUnwrapped
     }
-    static func fetchMangaHistory() -> [Manga] {
+    static func fetchGalleryHistory() -> [Gallery] {
         let predicate = NSPredicate(format: "lastOpenDate != nil")
         let sortDescriptor = NSSortDescriptor(
-            keyPath: \MangaMO.lastOpenDate, ascending: false
+            keyPath: \GalleryMO.lastOpenDate, ascending: false
         )
         return fetch(
-            entityType: MangaMO.self,
+            entityType: GalleryMO.self,
             predicate: predicate,
             findBeforeFetch: false,
             sortDescriptors: [sortDescriptor]
@@ -97,27 +97,27 @@ extension PersistenceController {
         }
     }
 
-    static func add(mangas: [Manga]) {
-        for manga in mangas {
+    static func add(galleries: [Gallery]) {
+        for gallery in galleries {
             let storedMO = fetch(
-                entityType: MangaMO.self,
-                gid: manga.gid
+                entityType: GalleryMO.self,
+                gid: gallery.gid
             ) { managedObject in
-                managedObject?.title = manga.title
-                managedObject?.rating = manga.rating
-                managedObject?.language = manga.language?.rawValue
-                managedObject?.pageCount = Int64(manga.pageCount ?? 0)
+                managedObject?.title = gallery.title
+                managedObject?.rating = gallery.rating
+                managedObject?.language = gallery.language?.rawValue
+                managedObject?.pageCount = Int64(gallery.pageCount ?? 0)
             }
             if storedMO == nil {
-                manga.toManagedObject(in: shared.container.viewContext)
+                gallery.toManagedObject(in: shared.container.viewContext)
             }
         }
         saveContext()
     }
 
-    static func add(detail: MangaDetail) {
+    static func add(detail: GalleryDetail) {
         let storedMO = fetch(
-            entityType: MangaDetailMO.self,
+            entityType: GalleryDetailMO.self,
             gid: detail.gid
         ) { managedObject in
             managedObject?.isFavored = detail.isFavored
@@ -138,9 +138,9 @@ extension PersistenceController {
         saveContext()
     }
 
-    static func mangaCached(gid: String) -> Bool {
+    static func galleryCached(gid: String) -> Bool {
         PersistenceController.checkExistence(
-            entityType: MangaMO.self,
+            entityType: GalleryMO.self,
             predicate: NSPredicate(
                 format: "gid == %@", gid
             )
@@ -148,51 +148,51 @@ extension PersistenceController {
     }
 
     static func updateLastOpenDate(gid: String) {
-        update(entityType: MangaMO.self, gid: gid) { mangaMO in
-            mangaMO.lastOpenDate = Date()
+        update(entityType: GalleryMO.self, gid: gid) { galleryMO in
+            galleryMO.lastOpenDate = Date()
         }
     }
     static func update(appEnvMO: ((AppEnvMO) -> Void)) {
         update(entityType: AppEnvMO.self, createIfNil: true, commitChanges: appEnvMO)
     }
 
-    // MARK: MangaState
-    static func update(gid: String, mangaStateMO: @escaping ((MangaStateMO) -> Void)) {
-        update(entityType: MangaStateMO.self, gid: gid, createIfNil: true, commitChanges: mangaStateMO)
+    // MARK: GalleryState
+    static func update(gid: String, galleryStateMO: @escaping ((GalleryStateMO) -> Void)) {
+        update(entityType: GalleryStateMO.self, gid: gid, createIfNil: true, commitChanges: galleryStateMO)
     }
     static func update(gid: String, readingProgress: Int) {
-        update(gid: gid) { mangaStateMO in
-            mangaStateMO.readingProgress = Int64(readingProgress)
+        update(gid: gid) { galleryStateMO in
+            galleryStateMO.readingProgress = Int64(readingProgress)
         }
     }
     static func update(gid: String, contents: [Int: String], replaceExisting: Bool = false) {
-        update(gid: gid) { mangaStateMO in
+        update(gid: gid) { galleryStateMO in
             if !contents.isEmpty {
-                if let storedContents = mangaStateMO.contents?.toObject() as [Int: String]? {
-                    mangaStateMO.contents = storedContents.merging(
+                if let storedContents = galleryStateMO.contents?.toObject() as [Int: String]? {
+                    galleryStateMO.contents = storedContents.merging(
                         contents, uniquingKeysWith: { stored, new in replaceExisting ? new : stored }
                     ).toData()
                 } else {
-                    mangaStateMO.contents = contents.toData()
+                    galleryStateMO.contents = contents.toData()
                 }
             }
         }
     }
-    static func update(fetchedState: MangaState) {
-        update(gid: fetchedState.gid) { mangaStateMO in
+    static func update(fetchedState: GalleryState) {
+        update(gid: fetchedState.gid) { galleryStateMO in
             if !fetchedState.tags.isEmpty {
-                mangaStateMO.tags = fetchedState.tags.toData()
+                galleryStateMO.tags = fetchedState.tags.toData()
             }
             if !fetchedState.comments.isEmpty {
-                mangaStateMO.comments = fetchedState.comments.toData()
+                galleryStateMO.comments = fetchedState.comments.toData()
             }
             if !fetchedState.previews.isEmpty {
-                if let storedPreviews = mangaStateMO.previews?.toObject() as [Int: String]? {
-                    mangaStateMO.previews = storedPreviews.merging(
+                if let storedPreviews = galleryStateMO.previews?.toObject() as [Int: String]? {
+                    galleryStateMO.previews = storedPreviews.merging(
                         fetchedState.previews, uniquingKeysWith: { stored, _ in stored }
                     ).toData()
                 } else {
-                    mangaStateMO.previews = fetchedState.previews.toData()
+                    galleryStateMO.previews = fetchedState.previews.toData()
                 }
             }
         }

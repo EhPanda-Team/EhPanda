@@ -34,9 +34,9 @@ extension AppState {
         var detailViewSheetState: DetailViewSheetState?
         var commentViewSheetState: CommentViewSheetState?
 
-        var mangaItemReverseID: String?
-        var mangaItemReverseLoading = false
-        var mangaItemReverseLoadFailed = false
+        var galleryItemReverseID: String?
+        var galleryItemReverseLoading = false
+        var galleryItemReverseLoadFailed = false
     }
 
     // MARK: Settings
@@ -97,7 +97,7 @@ extension AppState {
     struct HomeInfo {
         var searchKeyword = ""
 
-        var searchItems: [Manga]?
+        var searchItems: [Gallery]?
         var searchLoading = false
         var searchNotFound = false
         var searchLoadFailed = false
@@ -106,7 +106,7 @@ extension AppState {
         var moreSearchLoading = false
         var moreSearchLoadFailed = false
 
-        var frontpageItems: [Manga]?
+        var frontpageItems: [Gallery]?
         var frontpageLoading = false
         var frontpageNotFound = false
         var frontpageLoadFailed = false
@@ -115,12 +115,12 @@ extension AppState {
         var moreFrontpageLoading = false
         var moreFrontpageLoadFailed = false
 
-        var popularItems: [Manga]?
+        var popularItems: [Gallery]?
         var popularLoading = false
         var popularNotFound = false
         var popularLoadFailed = false
 
-        var watchedItems: [Manga]?
+        var watchedItems: [Gallery]?
         var watchedLoading = false
         var watchedNotFound = false
         var watchedLoadFailed = false
@@ -129,7 +129,7 @@ extension AppState {
         var moreWatchedLoading = false
         var moreWatchedLoadFailed = false
 
-        var favoritesItems = [Int: [Manga]]()
+        var favoritesItems = [Int: [Gallery]]()
         var favoritesLoading = generateBoolDict()
         var favoritesNotFound = generateBoolDict()
         var favoritesLoadFailed = generateBoolDict()
@@ -157,31 +157,31 @@ extension AppState {
             return tmp
         }
 
-        mutating func insertSearchItems(mangas: [Manga]) {
-            mangas.forEach { manga in
-                if searchItems?.contains(manga) == false {
-                    searchItems?.append(manga)
+        mutating func insertSearchItems(galleries: [Gallery]) {
+            galleries.forEach { gallery in
+                if searchItems?.contains(gallery) == false {
+                    searchItems?.append(gallery)
                 }
             }
         }
-        mutating func insertFrontpageItems(mangas: [Manga]) {
-            mangas.forEach { manga in
-                if frontpageItems?.contains(manga) == false {
-                    frontpageItems?.append(manga)
+        mutating func insertFrontpageItems(galleries: [Gallery]) {
+            galleries.forEach { gallery in
+                if frontpageItems?.contains(gallery) == false {
+                    frontpageItems?.append(gallery)
                 }
             }
         }
-        mutating func insertWatchedItems(mangas: [Manga]) {
-            mangas.forEach { manga in
-                if watchedItems?.contains(manga) == false {
-                    watchedItems?.append(manga)
+        mutating func insertWatchedItems(galleries: [Gallery]) {
+            galleries.forEach { gallery in
+                if watchedItems?.contains(gallery) == false {
+                    watchedItems?.append(gallery)
                 }
             }
         }
-        mutating func insertFavoritesItems(favIndex: Int, mangas: [Manga]) {
-            mangas.forEach { manga in
-                if favoritesItems[favIndex]?.contains(manga) == false {
-                    favoritesItems[favIndex]?.append(manga)
+        mutating func insertFavoritesItems(favIndex: Int, galleries: [Gallery]) {
+            galleries.forEach { gallery in
+                if favoritesItems[favIndex]?.contains(gallery) == false {
+                    favoritesItems[favIndex]?.append(gallery)
                 }
             }
         }
@@ -219,9 +219,9 @@ extension AppState {
         var previewConfig = PreviewConfig.normal(rows: 4)
 
         mutating func fulfillPreviews(gid: String) {
-            let mangaState = PersistenceController
-                .fetchMangaStateNonNil(gid: gid)
-            previews[gid] = mangaState.previews
+            let galleryState = PersistenceController
+                .fetchGalleryStateNonNil(gid: gid)
+            previews[gid] = galleryState.previews
         }
 
         mutating func update(gid: String, previews: [Int: String]) {
@@ -246,9 +246,9 @@ extension AppState {
         var contentsLoadFailed = [String: [Int: Bool]]()
 
         mutating func fulfillContents(gid: String) {
-            let mangaState = PersistenceController
-                .fetchMangaStateNonNil(gid: gid)
-            contents[gid] = mangaState.contents
+            let galleryState = PersistenceController
+                .fetchGalleryStateNonNil(gid: gid)
+            contents[gid] = galleryState.contents
         }
 
         mutating func update(gid: String, contents: [Int: String]) {

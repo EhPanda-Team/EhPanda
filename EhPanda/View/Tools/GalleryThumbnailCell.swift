@@ -1,5 +1,5 @@
 //
-//  MangaThumbnailCell.swift
+//  GalleryThumbnailCell.swift
 //  EhPanda
 //
 //  Created by 荒木辰造 on 2021/08/02.
@@ -8,25 +8,25 @@
 import SwiftUI
 import Kingfisher
 
-struct MangaThumbnailCell: View {
+struct GalleryThumbnailCell: View {
     @Environment(\.colorScheme) private var colorScheme
 
-    private let manga: Manga
+    private let gallery: Gallery
     private let setting: Setting
     private let translateAction: ((String) -> String)?
 
     init(
-        manga: Manga, setting: Setting,
+        gallery: Gallery, setting: Setting,
         translateAction: ((String) -> String)? = nil
     ) {
-        self.manga = manga
+        self.gallery = gallery
         self.setting = setting
         self.translateAction = translateAction
     }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            KFImage(URL(string: manga.coverURL))
+            KFImage(URL(string: gallery.coverURL))
                 .placeholder {
                     Placeholder(
                         style: .activity(
@@ -44,7 +44,7 @@ struct MangaThumbnailCell: View {
                             Spacer()
                             CategoryLabel(
                                 text: category,
-                                color: manga.color,
+                                color: gallery.color,
                                 insets: .init(
                                     top: 3, leading: 6,
                                     bottom: 3, trailing: 6
@@ -57,14 +57,14 @@ struct MangaThumbnailCell: View {
                     }
                 }
             VStack(alignment: .leading) {
-                Text(manga.title).bold()
+                Text(gallery.title).bold()
                     .font(.callout)
                     .lineLimit(3)
-                if setting.showsSummaryRowTags, !manga.tags.isEmpty {
+                if setting.showsSummaryRowTags, !gallery.tags.isEmpty {
                     TagCloudView(
-                        tag: MangaTag(
+                        tag: GalleryTag(
                             category: .artist,
-                            content: manga.tags
+                            content: gallery.tags
                         ),
                         font: .caption2,
                         textColor: .secondary,
@@ -75,16 +75,16 @@ struct MangaThumbnailCell: View {
                     .allowsHitTesting(false)
                 }
                 HStack {
-                    RatingView(rating: manga.rating)
+                    RatingView(rating: gallery.rating)
                         .foregroundColor(.yellow)
                         .font(.caption)
                     Spacer()
                     HStack(spacing: 10) {
-                        Text(manga.language?.languageAbbr ?? "")
-                        if manga.pageCount ?? 0 > 0 && !isSEWidth {
+                        Text(gallery.language?.languageAbbr ?? "")
+                        if gallery.pageCount ?? 0 > 0 && !isSEWidth {
                             HStack(spacing: 2) {
                                 Image(systemName: "photo.on.rectangle.angled")
-                                Text(String(manga.pageCount ?? 0))
+                                Text(String(gallery.pageCount ?? 0))
                             }
                         }
                     }
@@ -100,9 +100,9 @@ struct MangaThumbnailCell: View {
     }
 }
 
-private extension MangaThumbnailCell {
+private extension GalleryThumbnailCell {
     var category: String {
-        manga.category.rawValue.localized()
+        gallery.category.rawValue.localized()
     }
     var backgroundColor: Color {
         colorScheme == .light
@@ -116,9 +116,9 @@ private extension MangaThumbnailCell {
     }
 }
 
-struct MangaThumbnailCell_Previews: PreviewProvider {
+struct GalleryThumbnailCell_Previews: PreviewProvider {
     static var previews: some View {
-        MangaThumbnailCell(manga: .preview, setting: Setting())
+        GalleryThumbnailCell(gallery: .preview, setting: Setting())
             .preferredColorScheme(.dark)
     }
 }

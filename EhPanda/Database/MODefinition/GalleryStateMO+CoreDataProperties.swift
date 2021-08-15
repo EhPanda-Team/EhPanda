@@ -1,5 +1,5 @@
 //
-//  MangaStateMO+CoreDataProperties.swift
+//  GalleryStateMO+CoreDataProperties.swift
 //  EhPanda
 //
 //  Created by 荒木辰造 on R 3/07/09.
@@ -7,9 +7,9 @@
 
 import CoreData
 
-extension MangaStateMO: GalleryIdentifiable {
-    @nonobjc public class func fetchRequest() -> NSFetchRequest<MangaStateMO> {
-        NSFetchRequest<MangaStateMO>(entityName: "MangaStateMO")
+extension GalleryStateMO: GalleryIdentifiable {
+    @nonobjc public class func fetchRequest() -> NSFetchRequest<GalleryStateMO> {
+        NSFetchRequest<GalleryStateMO>(entityName: "GalleryStateMO")
     }
 
     @NSManaged public var comments: Data?

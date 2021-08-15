@@ -26,26 +26,26 @@ struct DetailView: View, StoreAccessor, PersistenceAccessor {
     // MARK: DetailView
     var body: some View {
         ZStack {
-            if let detail = mangaDetail {
+            if let detail = galleryDetail {
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 30) {
                         HeaderView(
-                            manga: manga, detail: detail,
+                            gallery: gallery, detail: detail,
                             favoriteNames: user.favoriteNames,
                             addFavAction: addFavorite,
                             deleteFavAction: deleteFavorite,
                             onUploaderTapAction: onUploaderTap
                         )
                         .padding(.horizontal)
-                        DescScrollView(manga: manga, detail: detail)
+                        DescScrollView(gallery: gallery, detail: detail)
                         ActionRow(
                             detail: detail,
                             ratingAction: onUserRatingChanged,
                             galleryAction: onSimilarGalleryTap
                         )
-                        if !mangaState.tags.isEmpty {
+                        if !galleryState.tags.isEmpty {
                             TagsView(
-                                tags: mangaState.tags,
+                                tags: galleryState.tags,
                                 onTapAction: onTagViewTap,
                                 translateAction: translateTag
                             )
@@ -56,11 +56,11 @@ struct DetailView: View, StoreAccessor, PersistenceAccessor {
                             previews: detailInfo.previews[gid] ?? [:],
                             pageCount: detail.pageCount,
                             tapAction: onPreviewImageTap,
-                            fetchAction: fetchMangaPreviews
+                            fetchAction: fetchGalleryPreviews
                         )
                         CommentScrollView(
                             gid: gid,
-                            comments: mangaState.comments,
+                            comments: galleryState.comments,
                             toggleCommentAction: onCommentButtonTap
                         )
                     }
@@ -71,14 +71,14 @@ struct DetailView: View, StoreAccessor, PersistenceAccessor {
             } else if detailInfo.detailLoading[gid] == true {
                 LoadingView()
             } else if detailInfo.detailLoadFailed[gid] == true {
-                NetworkErrorView(retryAction: fetchMangaDetail)
+                NetworkErrorView(retryAction: fetchGalleryDetail)
             }
         }
         .background {
             NavigationLink(
                 "",
                 destination: TorrentsView(
-                    gid: gid, token: manga.token
+                    gid: gid, token: gallery.token
                 ),
                 isActive: $isTorrentsLinkActive
             )
@@ -117,17 +117,17 @@ struct DetailView: View, StoreAccessor, PersistenceAccessor {
                     Button(action: onArchiveButtonTap) {
                         Label("Archive", systemImage: "doc.zipper")
                     }
-                    .disabled(mangaDetail?.archiveURL == nil || !didLogin)
+                    .disabled(galleryDetail?.archiveURL == nil || !didLogin)
                     Button(action: navigateToTorrentsView) {
                         Label(
                             "Torrents".localized() + (
-                                mangaDetail?.torrentCount ?? 0 > 0
-                                ? " (\(mangaDetail?.torrentCount ?? 0))" : ""
+                                galleryDetail?.torrentCount ?? 0 > 0
+                                ? " (\(galleryDetail?.torrentCount ?? 0))" : ""
                             ),
                             systemImage: "leaf"
                         )
                     }
-                    .disabled((mangaDetail?.torrentCount ?? 0 > 0) != true)
+                    .disabled((galleryDetail?.torrentCount ?? 0 > 0) != true)
                     Button(action: onShareButtonTap) {
                         Label("Share", systemImage: "square.and.arrow.up")
                     }
@@ -136,7 +136,7 @@ struct DetailView: View, StoreAccessor, PersistenceAccessor {
                         .imageScale(.large)
                 }
                 .disabled(
-                    mangaDetail == nil
+                    galleryDetail == nil
                         || detailInfo.detailLoading[gid] == true
                 )
             }
@@ -158,15 +158,15 @@ private extension DetailView {
 private extension DetailView {
     func onStartTasks() {
         updateHistoryItems()
-        store.dispatch(.fulfillMangaPreviews(gid: gid))
-        store.dispatch(.fulfillMangaContents(gid: gid))
+        store.dispatch(.fulfillGalleryPreviews(gid: gid))
+        store.dispatch(.fulfillGalleryContents(gid: gid))
     }
     func onAppear() {
         if environment.navBarHidden {
             store.dispatch(.toggleNavBar(hidden: false))
         }
         onStartTasks()
-        fetchMangaDetail()
+        fetchGalleryDetail()
         updateViewControllersCount()
     }
     func onDisappear() {
@@ -180,7 +180,7 @@ private extension DetailView {
         toggleSheet(state: .comment)
     }
     func onShareButtonTap() {
-        guard let data = URL(string: manga.galleryURL) else { return }
+        guard let data = URL(string: gallery.galleryURL) else { return }
         presentActivityVC(items: [data])
     }
     func onUserRatingChanged(value: Int) {
@@ -201,11 +201,11 @@ private extension DetailView {
         return translations[text] ?? text
     }
     func onUploaderTap() {
-        guard let uploader = mangaDetail?.uploader else { return }
+        guard let uploader = galleryDetail?.uploader else { return }
         navigateToAssociatedView("uploader:" + "\"\(uploader)\"")
     }
     func onSimilarGalleryTap() {
-        navigateToAssociatedView(mangaDetail?.title.trimmedTitle())
+        navigateToAssociatedView(galleryDetail?.title.trimmedTitle())
     }
     func onTagViewTap(keyword: String) {
         navigateToAssociatedView(keyword)
@@ -227,19 +227,19 @@ private extension DetailView {
     }
 
     func addFavorite(index: Int) {
-        store.dispatch(.addFavorite(gid: manga.gid, favIndex: index))
+        store.dispatch(.addFavorite(gid: gallery.gid, favIndex: index))
     }
     func deleteFavorite() {
-        store.dispatch(.deleteFavorite(gid: manga.gid))
+        store.dispatch(.deleteFavorite(gid: gallery.gid))
     }
     func updateViewControllersCount() {
         store.dispatch(.updateViewControllersCount)
     }
-    func fetchMangaDetail() {
-        store.dispatch(.fetchMangaDetail(gid: gid))
+    func fetchGalleryDetail() {
+        store.dispatch(.fetchGalleryDetail(gid: gid))
     }
-    func fetchMangaPreviews(index: Int) {
-        store.dispatch(.fetchMangaPreviews(gid: gid, index: index))
+    func fetchGalleryPreviews(index: Int) {
+        store.dispatch(.fetchGalleryPreviews(gid: gid, index: index))
     }
     func updateHistoryItems() {
         if environment.homeListType != .history {
@@ -250,22 +250,22 @@ private extension DetailView {
 
 // MARK: HeaderView
 private struct HeaderView: View {
-    private let manga: Manga
-    private let detail: MangaDetail
+    private let gallery: Gallery
+    private let detail: GalleryDetail
     private let favoriteNames: [Int: String]?
     private let addFavAction: (Int) -> Void
     private let deleteFavAction: () -> Void
     private let onUploaderTapAction: () -> Void
 
     init(
-        manga: Manga,
-        detail: MangaDetail,
+        gallery: Gallery,
+        detail: GalleryDetail,
         favoriteNames: [Int: String]?,
         addFavAction: @escaping (Int) -> Void,
         deleteFavAction: @escaping () -> Void,
         onUploaderTapAction: @escaping () -> Void
     ) {
-        self.manga = manga
+        self.gallery = gallery
         self.detail = detail
         self.favoriteNames = favoriteNames
         self.addFavAction = addFavAction
@@ -275,7 +275,7 @@ private struct HeaderView: View {
 
     var body: some View {
         HStack {
-            KFImage(URL(string: manga.coverURL))
+            KFImage(URL(string: gallery.coverURL))
                 .placeholder {
                     Placeholder(style: .activity(
                         ratio: Defaults.ImageSize
@@ -291,7 +291,7 @@ private struct HeaderView: View {
                     .lineLimit(3)
                     .font(.title3)
                 Button(
-                    manga.uploader ?? "",
+                    gallery.uploader ?? "",
                     action: onUploaderTapAction
                 )
                 .lineLimit(1)
@@ -301,7 +301,7 @@ private struct HeaderView: View {
                 HStack {
                     CategoryLabel(
                         text: category,
-                        color: manga.color,
+                        color: gallery.color,
                         font: isSEWidth
                             ? .footnote
                             : .headline,
@@ -340,7 +340,7 @@ private struct HeaderView: View {
                     .disabled(!didLogin)
                     Button(action: {}, label: {
                         NavigationLink(
-                            destination: { ReadingView(gid: manga.gid) },
+                            destination: { ReadingView(gid: gallery.gid) },
                             label: {
                                 Text("Read".localized().uppercased()).bold()
                                     .font(isSEWidth ? .footnote : .headline)
@@ -375,7 +375,7 @@ private extension HeaderView {
         }
     }
     var category: String {
-        manga.category.rawValue.localized()
+        gallery.category.rawValue.localized()
     }
 }
 
@@ -393,8 +393,8 @@ private struct DescScrollView: View {
 
     @State private var itemWidth = max(absWindowW / 5, 80)
 
-    private let manga: Manga
-    private let detail: MangaDetail
+    private let gallery: Gallery
+    private let detail: GalleryDetail
     private var infos: [DescScrollInfo] {
         [
             DescScrollInfo(
@@ -423,8 +423,8 @@ private struct DescScrollView: View {
         ]
     }
 
-    init(manga: Manga, detail: MangaDetail) {
-        self.manga = manga
+    init(gallery: Gallery, detail: GalleryDetail) {
+        self.gallery = gallery
         self.detail = detail
     }
 
@@ -452,7 +452,7 @@ private struct DescScrollView: View {
                     if info == infos.last {
                         NavigationLink(
                             destination: GalleryInfosView(
-                                manga: manga, detail: detail
+                                gallery: gallery, detail: detail
                             )) {
                                 Image(systemName: "ellipsis")
                                     .font(.system(size: 20, weight: .bold))
@@ -538,12 +538,12 @@ private struct ActionRow: View {
     @State private var showUserRating = false
     @State private var userRating: Int = 0
 
-    private let detail: MangaDetail
+    private let detail: GalleryDetail
     private let ratingAction: (Int) -> Void
     private let galleryAction: () -> Void
 
     init(
-        detail: MangaDetail,
+        detail: GalleryDetail,
         ratingAction: @escaping (Int) -> Void,
         galleryAction: @escaping () -> Void
     ) {
@@ -622,12 +622,12 @@ private extension ActionRow {
 
 // MARK: TagsView
 private struct TagsView: View {
-    private let tags: [MangaTag]
+    private let tags: [GalleryTag]
     private let onTapAction: (String) -> Void
     private let translateAction: (String) -> String
 
     init(
-        tags: [MangaTag],
+        tags: [GalleryTag],
         onTapAction: @escaping (String) -> Void,
         translateAction: @escaping (String) -> String
     ) {
@@ -652,7 +652,7 @@ private struct TagsView: View {
 private struct TagRow: View {
     @Environment(\.colorScheme) private var colorScheme
 
-    private let tag: MangaTag
+    private let tag: GalleryTag
     private let onTapAction: (String) -> Void
     private let translateAction: (String) -> String
     private var reversePrimary: Color {
@@ -660,7 +660,7 @@ private struct TagRow: View {
     }
 
     init(
-        tag: MangaTag,
+        tag: GalleryTag,
         onTapAction: @escaping (String) -> Void,
         translateAction: @escaping (String) -> String
     ) {
@@ -870,12 +870,12 @@ private struct MorePreviewView: View {
 // MARK: CommentScrollView
 private struct CommentScrollView: View {
     private let gid: String
-    private let comments: [MangaComment]
+    private let comments: [GalleryComment]
     private let toggleCommentAction: () -> Void
 
     init(
         gid: String,
-        comments: [MangaComment],
+        comments: [GalleryComment],
         toggleCommentAction: @escaping () -> Void
     ) {
         self.gid = gid
@@ -918,7 +918,7 @@ private struct CommentScrollView: View {
 }
 
 private struct CommentScrollCell: View {
-    private let comment: MangaComment
+    private let comment: GalleryComment
     private var content: String {
         comment.contents
             .filter {
@@ -931,7 +931,7 @@ private struct CommentScrollCell: View {
             .joined()
     }
 
-    init(comment: MangaComment) {
+    init(comment: GalleryComment) {
         self.comment = comment
     }
 

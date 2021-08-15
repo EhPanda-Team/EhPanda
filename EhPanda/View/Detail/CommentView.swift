@@ -22,9 +22,9 @@ struct CommentView: View, StoreAccessor {
     @State private var hudConfig = TTProgressHUDConfig()
 
     private let gid: String
-    private let comments: [MangaComment]
+    private let comments: [GalleryComment]
 
-    init(gid: String, comments: [MangaComment]) {
+    init(gid: String, comments: [GalleryComment]) {
         self.gid = gid
         self.comments = comments
     }
@@ -110,11 +110,11 @@ struct CommentView: View, StoreAccessor {
         }
         .onAppear(perform: onAppear)
         .onChange(
-            of: environment.mangaItemReverseID,
+            of: environment.galleryItemReverseID,
             perform: onJumpIDChange
         )
         .onChange(
-            of: environment.mangaItemReverseLoading,
+            of: environment.galleryItemReverseLoading,
             perform: onJumpDetailFetchFinish
         )
     }
@@ -130,7 +130,7 @@ private extension CommentView {
     }
 
     func onAppear() {
-        replaceMangaCommentJumpID(gid: nil)
+        replaceGalleryCommentJumpID(gid: nil)
     }
     func onJumpDetailFetchFinish(value: Bool) {
         if !value {
@@ -140,11 +140,11 @@ private extension CommentView {
     func onLinkTap(link: URL) {
         if isValidGalleryURL(url: link) {
             let gid = link.pathComponents[2]
-            if PersistenceController.mangaCached(gid: gid) {
-                replaceMangaCommentJumpID(gid: gid)
+            if PersistenceController.galleryCached(gid: gid) {
+                replaceGalleryCommentJumpID(gid: gid)
             } else {
                 store.dispatch(
-                    .fetchMangaItemReverse(
+                    .fetchGalleryItemReverse(
                         galleryURL: link.absoluteString
                     )
                 )
@@ -159,7 +159,7 @@ private extension CommentView {
             commentJumpID = value
             isNavLinkActive = true
 
-            replaceMangaCommentJumpID(gid: nil)
+            replaceGalleryCommentJumpID(gid: nil)
         }
     }
 
@@ -191,7 +191,7 @@ private extension CommentView {
             .joined()
     }
 
-    func voteUp(comment: MangaComment) {
+    func voteUp(comment: GalleryComment) {
         store.dispatch(
             .voteComment(
                 gid: gid, commentID: comment.commentID,
@@ -199,7 +199,7 @@ private extension CommentView {
             )
         )
     }
-    func voteDown(comment: MangaComment) {
+    func voteDown(comment: GalleryComment) {
         store.dispatch(
             .voteComment(
                 gid: gid, commentID: comment.commentID,
@@ -207,7 +207,7 @@ private extension CommentView {
             )
         )
     }
-    func edit(comment: MangaComment) {
+    func edit(comment: GalleryComment) {
         editCommentID = comment.commentID
         editCommentContent = trim(contents: comment.contents)
         store.dispatch(.toggleCommentViewSheet(state: .editComment))
@@ -229,8 +229,8 @@ private extension CommentView {
         editCommentContent = ""
         toggleCommentViewSheetNil()
     }
-    func replaceMangaCommentJumpID(gid: String?) {
-        store.dispatch(.replaceMangaCommentJumpID(gid: gid))
+    func replaceGalleryCommentJumpID(gid: String?) {
+        store.dispatch(.replaceGalleryCommentJumpID(gid: gid))
     }
 
     func toggleNewComment() {
@@ -244,12 +244,12 @@ private extension CommentView {
 // MARK: CommentCell
 private struct CommentCell: View {
     private let gid: String
-    private var comment: MangaComment
+    private var comment: GalleryComment
     private let linkAction: (URL) -> Void
 
     init(
         gid: String,
-        comment: MangaComment,
+        comment: GalleryComment,
         linkAction: @escaping (URL) -> Void
     ) {
         self.gid = gid

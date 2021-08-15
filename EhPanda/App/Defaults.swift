@@ -196,10 +196,10 @@ extension Defaults.URL {
             return merge(urls: [host + favorites, favcat + "\(favIndex)", page + pageNum, from + lastID])
         }
     }
-    static func mangaDetail(url: String) -> String {
+    static func galleryDetail(url: String) -> String {
         merge(urls: [url, showComments])
     }
-    static func mangaTorrents(gid: String, token: String) -> String {
+    static func galleryTorrents(gid: String, token: String) -> String {
         merge(urls: [host + gallerytorrents, Defaults.URL.gid + gid, Defaults.URL.token + token])
     }
 
@@ -251,7 +251,7 @@ private extension Defaults.URL {
 
         var category = 0
         category += filter.doujinshi ? Category.doujinshi.value : 0
-        category += filter.manga ? Category.manga.value : 0
+        category += filter.gallery ? Category.gallery.value : 0
         category += filter.artistCG ? Category.artistCG.value : 0
         category += filter.gameCG ? Category.gameCG.value : 0
         category += filter.western ? Category.western.value : 0

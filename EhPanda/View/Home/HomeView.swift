@@ -106,11 +106,11 @@ struct HomeView: View, StoreAccessor {
             onBecomeActive()
         }
         .onChange(
-            of: environment.mangaItemReverseID,
+            of: environment.galleryItemReverseID,
             perform: onJumpIDChange
         )
         .onChange(
-            of: environment.mangaItemReverseLoading,
+            of: environment.galleryItemReverseLoading,
             perform: onJumpDetailFetchFinish
         )
         .onChange(
@@ -134,8 +134,8 @@ struct HomeView: View, StoreAccessor {
 
 // MARK: Private Properties
 private extension HomeView {
-    var mangaHistory: [Manga] {
-        PersistenceController.fetchMangaHistory()
+    var galleryHistory: [Gallery] {
+        PersistenceController.fetchGalleryHistory()
     }
     var environmentBinding: Binding<AppState.Environment> {
         $store.appState.environment
@@ -247,10 +247,10 @@ private extension HomeView {
             NotFoundView(retryAction: nil)
         case .history:
             GenericList(
-                items: mangaHistory,
+                items: galleryHistory,
                 setting: setting,
                 loadingFlag: false,
-                notFoundFlag: mangaHistory.isEmpty,
+                notFoundFlag: galleryHistory.isEmpty,
                 loadFailedFlag: false,
                 moreLoadingFlag: false,
                 moreLoadFailedFlag: false,
@@ -323,7 +323,7 @@ private extension HomeView {
             clipboardJumpID = value
             isNavLinkActive = true
 
-            replaceMangaCommentJumpID(gid: nil)
+            replaceGalleryCommentJumpID(gid: nil)
         }
     }
     func onJumpDetailFetchFinish(value: Bool) {
@@ -371,11 +371,11 @@ private extension HomeView {
     func handle(jumpLink: URL) {
         guard isValidGalleryURL(url: jumpLink) else { return }
         let gid = jumpLink.pathComponents[2]
-        if PersistenceController.mangaCached(gid: gid) {
-            replaceMangaCommentJumpID(gid: gid)
+        if PersistenceController.galleryCached(gid: gid) {
+            replaceGalleryCommentJumpID(gid: gid)
         } else {
             store.dispatch(
-                .fetchMangaItemReverse(
+                .fetchGalleryItemReverse(
                     galleryURL: jumpLink.absoluteString
                 )
             )
@@ -384,8 +384,8 @@ private extension HomeView {
         clearPasteboard()
         clearObstruction()
     }
-    func replaceMangaCommentJumpID(gid: String?) {
-        store.dispatch(.replaceMangaCommentJumpID(gid: gid))
+    func replaceGalleryCommentJumpID(gid: String?) {
+        store.dispatch(.replaceGalleryCommentJumpID(gid: gid))
     }
     func getPasteboardLinkIfAllowed() -> URL? {
         let currentChangeCount = UIPasteboard.general.changeCount

@@ -19,7 +19,7 @@ struct AssociatedView: View, StoreAccessor {
     @State private var loadFailedFlag = false
     @State private var moreLoadingFlag = false
     @State private var moreLoadFailedFlag = false
-    @State private var associatedItems = [Manga]()
+    @State private var associatedItems = [Gallery]()
     @State private var pageNumber = PageNumber()
 
     init(keyword: String) {
@@ -67,7 +67,7 @@ private extension AssociatedView {
         return translations[text] ?? text
     }
 
-    func onRowAppear(item: Manga) {
+    func onRowAppear(item: Gallery) {
         if item == associatedItems.last {
             fetchMoreAssociatedItems()
         }
@@ -106,16 +106,16 @@ private extension AssociatedView {
                 SwiftyBeaver.error(error)
             }
             token.unseal()
-        } receiveValue: { pageNumber, mangas in
+        } receiveValue: { pageNumber, galleries in
             self.pageNumber = pageNumber
-            if !mangas.isEmpty {
-                associatedItems = mangas
+            if !galleries.isEmpty {
+                associatedItems = galleries
             } else {
                 notFoundFlag = true
             }
-            PersistenceController.add(mangas: mangas)
+            PersistenceController.add(galleries: galleries)
 
-            if mangas.isEmpty
+            if galleries.isEmpty
                 && pageNumber.current
                 < pageNumber.maximum
             {
@@ -145,21 +145,21 @@ private extension AssociatedView {
                 SwiftyBeaver.error(error)
             }
             token.unseal()
-        } receiveValue: { pageNumber, mangas in
+        } receiveValue: { pageNumber, galleries in
             self.pageNumber = pageNumber
 
             if associatedItems.isEmpty {
-                associatedItems = mangas
+                associatedItems = galleries
             } else {
                 associatedItems.append(
-                    contentsOf: mangas.filter({
+                    contentsOf: galleries.filter({
                         !associatedItems.contains($0)
                     })
                 )
             }
-            PersistenceController.add(mangas: mangas)
+            PersistenceController.add(galleries: galleries)
 
-            if mangas.isEmpty
+            if galleries.isEmpty
                 && pageNumber.current
                 < pageNumber.maximum
             {
