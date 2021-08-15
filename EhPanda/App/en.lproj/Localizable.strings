@@ -19,6 +19,9 @@
 "favoriteNameByDev" = "Favorite";
 "all_appendedByDev" = "All";
 
+// MARK: DetailView
+"FILE_SIZE" = "Size";
+
 // MARK: NewDawnView
 "GAINCONTENT_START" = "You gain ";
 "GAINCONTENT_SEPARATOR" = ", ";

@@ -46,6 +46,7 @@ struct LoginView: View, StoreAccessor {
                     )
                 }
                 .offset(y: proxy.size.height * 0.3)
+                .drawingGroup()
                 VStack(spacing: 15) {
                     Group {
                         LoginTextField(

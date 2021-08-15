@@ -380,9 +380,46 @@ private extension HeaderView {
 
 // MARK: DescScrollView
 private struct DescScrollView: View {
+    struct DescScrollInfo: Identifiable, Equatable {
+        var id: Int { title.hashValue }
+
+        let title: String
+        let numeral: String
+        let value: String
+        var rating: Float = 0
+        var isRating = false
+    }
+
     @State private var itemWidth = max(absWindowW / 5, 80)
 
     private let detail: MangaDetail
+    private var infos: [DescScrollInfo] {
+        [
+            DescScrollInfo(
+                title: "Favored", numeral: "Times",
+                value: String(detail.likeCount)
+            ),
+            DescScrollInfo(
+                title: "Language",
+                numeral: detail.language.rawValue,
+                value: detail.languageAbbr
+            ),
+            DescScrollInfo(
+                title: String(detail.ratingCount)
+                + " Ratings".localized(),
+                numeral: "", value: "",
+                rating: detail.rating, isRating: true
+            ),
+            DescScrollInfo(
+                title: "Page Count", numeral: "Pages",
+                value: String(detail.pageCount)
+            ),
+            DescScrollInfo(
+                title: "FILE_SIZE", numeral: detail.sizeType,
+                value: String(detail.sizeCount)
+            )
+        ]
+    }
 
     init(detail: MangaDetail) {
         self.detail = detail
@@ -391,45 +428,29 @@ private struct DescScrollView: View {
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack {
-                HStack {
-                    DescScrollItem(
-                        title: "Favored",
-                        value: detail.likeCount,
-                        numeral: "Times"
-                    )
+                ForEach(infos) { info in
+                    Group {
+                        if info.isRating {
+                            DescScrollRatingItem(
+                                title: info.title,
+                                rating: info.rating
+                            )
+                        } else {
+                            DescScrollItem(
+                                title: info.title,
+                                value: info.value,
+                                numeral: info.numeral
+                            )
+                        }
+                    }
                     .frame(width: itemWidth)
-                    Divider()
-                    DescScrollItem(
-                        title: "Language",
-                        value: detail.languageAbbr,
-                        numeral: detail.language.rawValue
-                    )
-                    .frame(width: itemWidth)
-                    Divider()
-                    DescScrollRatingItem(
-                        title: String(detail.ratingCount)
-                            + " Ratings".localized(),
-                        rating: detail.rating
-                    )
-                    .frame(width: itemWidth)
-                    Divider()
-                    DescScrollItem(
-                        title: "Page Count",
-                        value: detail.pageCount,
-                        numeral: "Pages"
-                    )
-                    .frame(width: itemWidth)
-                    Divider()
-                    DescScrollItem(
-                        title: "FILE_SIZE",
-                        value: String(detail.sizeCount),
-                        numeral: detail.sizeType
-                    )
-                    .frame(width: itemWidth)
+                    if info != infos.last {
+                        Divider()
+                    }
                 }
                 .withHorizontalSpacing()
+                .drawingGroup()
             }
-            .drawingGroup()
         }
         .frame(height: 60)
         .onReceive(
@@ -460,12 +481,6 @@ private struct DescScrollItem: View {
     init(title: String, value: String, numeral: String) {
         self.title = title
         self.value = value
-        self.numeral = numeral
-    }
-
-    init(title: String, value: Int, numeral: String) {
-        self.title = title
-        self.value = String(value)
         self.numeral = numeral
     }
 
