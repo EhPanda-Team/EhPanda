@@ -263,7 +263,7 @@ private struct SliderPreivew: View {
                     originalURL: previews[index] ?? ""
                 )
                 VStack {
-                    KFImage(URL(string: url))
+                    KFImage.url(URL(string: url), cacheKey: previews[index])
                         .placeholder {
                             Placeholder(style: .activity(
                                 ratio: Defaults.ImageSize

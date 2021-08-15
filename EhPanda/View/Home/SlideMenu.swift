@@ -15,6 +15,12 @@ struct SlideMenu: View, StoreAccessor {
     @Binding private var offset: CGFloat
     private var edges = keyWindow?.safeAreaInsets
 
+    private var menuItems: [HomeListType] {
+        let excludedType: [HomeListType] = didLogin ? [.search, .downloaded]
+            : [.search, .watched, .favorites, .downloaded]
+        return HomeListType.allCases.filter { !excludedType.contains($0) }
+    }
+
     init(offset: Binding<CGFloat>) {
         _offset = offset
     }
@@ -34,7 +40,7 @@ struct SlideMenu: View, StoreAccessor {
                 .padding(.bottom, 20)
                 Divider().padding(.vertical)
                 ScrollView(showsIndicators: false) {
-                    ForEach(HomeListType.allCases.filter({ $0 != .search })) { item in
+                    ForEach(menuItems) { item in
                         MenuRow(
                             isSelected: item == homeListType,
                             symbolName: item.symbolName,

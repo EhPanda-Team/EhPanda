@@ -117,7 +117,7 @@ struct DetailView: View, StoreAccessor, PersistenceAccessor {
                     Button(action: onArchiveButtonTap) {
                         Label("Archive", systemImage: "doc.zipper")
                     }
-                    .disabled(mangaDetail?.archiveURL == nil)
+                    .disabled(mangaDetail?.archiveURL == nil || !didLogin)
                     Button(action: navigateToTorrentsView) {
                         Label(
                             "Torrents".localized() + (
@@ -337,6 +337,7 @@ private struct HeaderView: View {
                         }
                         .opacity(detail.isFavored ? 0 : 1)
                     }
+                    .disabled(!didLogin)
                     Button(action: {}, label: {
                         NavigationLink(
                             destination: { ReadingView(gid: manga.gid) },
@@ -552,6 +553,7 @@ private struct ActionRow: View {
                             .fontWeight(.bold)
                         Spacer()
                     }
+                    .disabled(!didLogin)
                     Button(action: galleryAction) {
                         Spacer()
                         Image(systemName: "photo.on.rectangle.angled")
@@ -736,12 +738,12 @@ private struct PreviewView: View {
             .padding(.horizontal)
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHStack {
-                    ForEach(1..<21) { index in
+                    ForEach(1..<min(pageCount + 1, 21)) { index in
                         let (url, modifier) =
                         PreviewResolver.getPreviewConfigs(
                             originalURL: previews[index] ?? ""
                         )
-                        KFImage(URL(string: url))
+                        KFImage.url(URL(string: url), cacheKey: previews[index])
                             .placeholder {
                                 Placeholder(style: .activity(
                                     ratio: Defaults.ImageSize
@@ -809,7 +811,7 @@ private struct MorePreviewView: View {
                         PreviewResolver.getPreviewConfigs(
                             originalURL: previews[index] ?? ""
                         )
-                        KFImage(URL(string: url))
+                        KFImage.url(URL(string: url), cacheKey: previews[index])
                             .placeholder {
                                 Placeholder(style: .activity(
                                     ratio: Defaults.ImageSize
@@ -900,6 +902,7 @@ private struct CommentScrollView: View {
             }
             CommentButton(action: toggleCommentAction)
                 .padding(.horizontal)
+                .disabled(!didLogin)
         }
     }
 }

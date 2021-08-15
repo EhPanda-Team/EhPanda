@@ -82,6 +82,7 @@ struct CommentView: View, StoreAccessor {
                 Button(action: toggleNewComment, label: {
                     Image(systemName: "square.and.pencil")
                 })
+                .disabled(!didLogin)
             }
         }
         .sheet(item: environmentBinding.commentViewSheetState) { item in
