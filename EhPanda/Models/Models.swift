@@ -66,6 +66,7 @@ struct Manga: Identifiable, Codable, Equatable {
     let category: Category
     var language: Language?
     let uploader: String?
+    var pageCount: Int?
     let publishedDate: Date
     let coverURL: String
     let detailURL: String

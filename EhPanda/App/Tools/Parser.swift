@@ -73,7 +73,10 @@ struct Parser {
 
         var mangaItems = [Manga]()
         for link in doc.xpath("//tr") {
-            let uploader = link.at_xpath("//td [@class='gl4c glhide']")?.at_xpath("//a")?.text
+            let firstDivNode = link.at_xpath("//td [@class='gl4c glhide']")?.at_xpath("//div")
+            let uploader = firstDivNode?.at_xpath("//a")?.text
+            let pageCount = Int(firstDivNode?.nextSibling?.text?
+                .replacingOccurrences(of: " pages", with: "") ?? "")
             guard let gl2cNode = link.at_xpath("//td [@class='gl2c']"),
                   let gl3cNode = link.at_xpath("//td [@class='gl3c glname']"),
                   let rating = try? parseRating(node: gl2cNode),
@@ -97,6 +100,7 @@ struct Parser {
                     category: category,
                     language: tagsAndLang.1,
                     uploader: uploader,
+                    pageCount: pageCount,
                     publishedDate: publishedDate,
                     coverURL: coverURL,
                     detailURL: detailURL

@@ -79,10 +79,17 @@ struct MangaThumbnailCell: View {
                         .foregroundColor(.yellow)
                         .font(.caption)
                     Spacer()
-                    Text(manga.language?.languageAbbr ?? "")
-                        .foregroundStyle(.secondary)
-                        .font(.footnote)
-                        .lineLimit(1)
+                    HStack(spacing: 10) {
+                        Text(manga.language?.languageAbbr ?? "")
+                        if manga.pageCount ?? 0 > 0 && !isSEWidth {
+                            HStack(spacing: 2) {
+                                Image(systemName: "photo.on.rectangle.angled")
+                                Text(String(manga.pageCount ?? 0))
+                            }
+                        }
+                    }
+                    .fixedSize().lineLimit(1).font(.footnote)
+                    .foregroundStyle(.secondary)
                 }
                 .padding(.top, 1)
             }

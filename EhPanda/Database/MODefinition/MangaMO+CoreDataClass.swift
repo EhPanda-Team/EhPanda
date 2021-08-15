@@ -16,7 +16,8 @@ extension MangaMO: ManagedObjectProtocol {
             title: title, rating: rating, tags: [],
             category: Category(rawValue: category).forceUnwrapped,
             language: Language(rawValue: language ?? ""),
-            uploader: uploader, publishedDate: publishedDate,
+            uploader: uploader, pageCount: Int(pageCount),
+            publishedDate: publishedDate,
             coverURL: coverURL, detailURL: detailURL,
             lastOpenDate: lastOpenDate
         )
@@ -28,11 +29,12 @@ extension Manga: ManagedObjectConvertible {
         let mangaMO = MangaMO(context: context)
 
         mangaMO.gid = gid
-        mangaMO.lastOpenDate = lastOpenDate
         mangaMO.category = category.rawValue
         mangaMO.coverURL = coverURL
         mangaMO.detailURL = detailURL
         mangaMO.language = language?.rawValue
+        mangaMO.lastOpenDate = lastOpenDate
+        mangaMO.pageCount = Int64(pageCount ?? 0)
         mangaMO.publishedDate = publishedDate
         mangaMO.rating = rating
         mangaMO.title = title

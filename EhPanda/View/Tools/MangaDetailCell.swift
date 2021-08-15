@@ -65,10 +65,17 @@ struct MangaDetailCell: View {
                         .font(.caption)
                         .foregroundStyle(.yellow)
                     Spacer()
-                    Text(manga.language?.rawValue.localized() ?? "")
-                        .lineLimit(1)
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
+                    HStack(spacing: 10) {
+                        Text(manga.language?.rawValue.localized() ?? "")
+                        if manga.pageCount ?? 0 > 0 && !isSEWidth {
+                            HStack(spacing: 2) {
+                                Image(systemName: "photo.on.rectangle.angled")
+                                Text(String(manga.pageCount ?? 0))
+                            }
+                        }
+                    }
+                    .lineLimit(1).font(.footnote)
+                    .foregroundStyle(.secondary)
                 }
                 HStack(alignment: .bottom) {
                     CategoryLabel(text: category, color: manga.color)

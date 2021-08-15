@@ -106,6 +106,7 @@ extension PersistenceController {
                 managedObject?.title = manga.title
                 managedObject?.rating = manga.rating
                 managedObject?.language = manga.language?.rawValue
+                managedObject?.pageCount = Int64(manga.pageCount ?? 0)
             }
             if storedMO == nil {
                 manga.toManagedObject(in: shared.container.viewContext)

@@ -185,6 +185,7 @@
 		ABB5013126A41EBA00B542D9 /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		ABBC332726BE31AE0084A331 /* EhSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EhSettingsView.swift; sourceTree = "<group>"; };
 		ABBC332926BE7C940084A331 /* SettingTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingTextField.swift; sourceTree = "<group>"; };
+		ABBCCC8E26C94C3A007D8A36 /* Model 5.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Model 5.xcdatamodel"; sourceTree = "<group>"; };
 		ABC1FAB5264152C800A9F352 /* StoreAccessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreAccessor.swift; sourceTree = "<group>"; };
 		ABC1FAB72642C37D00A9F352 /* NewDawnView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewDawnView.swift; sourceTree = "<group>"; };
 		ABC3C7542593696C00E0C11B /* EhPanda.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EhPanda.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1204,12 +1205,13 @@
 		ABC681F126898D46007BBD69 /* Model.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
+				ABBCCC8E26C94C3A007D8A36 /* Model 5.xcdatamodel */,
 				ABAC82FB26BBEBB5009F5026 /* Model 4.xcdatamodel */,
 				ABD7005526B1BF6800DC59C9 /* Model 3.xcdatamodel */,
 				AB86149B26A9C91E003A1F5A /* Model 2.xcdatamodel */,
 				ABC681F226898D46007BBD69 /* Model.xcdatamodel */,
 			);
-			currentVersion = ABAC82FB26BBEBB5009F5026 /* Model 4.xcdatamodel */;
+			currentVersion = ABBCCC8E26C94C3A007D8A36 /* Model 5.xcdatamodel */;
 			path = Model.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;
