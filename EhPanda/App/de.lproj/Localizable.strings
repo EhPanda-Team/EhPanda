@@ -41,13 +41,13 @@
 "Torrents" = "Torrents";
 "Share" = "Teilen";
 "Read" = "Lesen";
-"Favored" = "Favorisiert";
+"DESC_SCROLL_ITEM_FAVORITED" = "Favorisiert";
 "Times" = "mal";
 "Language" = "Sprache";
 " Ratings" = " Bewertungen";
 "Page Count" = "Seitenzahl";
 "Pages" = "Seiten";
-"FILE_SIZE" = "Dateigröße";
+"File Size" = "Dateigröße";
 "Give a Rating" = "Bewertung abgeben";
 "Similar Gallery" = "Ähnliche Galerien";
 "Preview" = "Vorschau";
@@ -59,6 +59,30 @@
 "Free" = "Frei";
 "Original" = "Original";
 "Download To Hath Client" = "Mit Hath Client herunterladen";
+
+// MARK: GalleryInfosView
+//"Gallery infos" = "";
+//"Title" = "";
+//"Japanese title" = "";
+//"Gallery URL" = "";
+//"Cover URL" = "";
+//"Archive URL" = "";
+//"Torrent URL" = "";
+//"Parent URL" = "";
+//"Category" = "";
+//"Uploader" = "";
+//"Posted date" = "";
+//"Visible" = "";
+//"Page count" = "";
+//"File size" = "";
+//"Favorited times" = "";
+//"Favorited" = "";
+//"Rating count" = "";
+//"Average rating" = "";
+//"User rating" = "";
+//"Torrent count" = "";
+//"Yes" = "";
+//"No" = "";
 
 // MARK: CommentView
 "Post Comment" = "Kommentar abgeben";
@@ -139,7 +163,7 @@
 //"Load images through the Hath network" = "";
 //"Any client" = "";
 //"Default port clients only" = "";
-//"No" = "";
+//"LOAD_THROUGH_HATH_NO" = "";
 //
 //"Image Size Settings" = "";
 //"Normally, images are resampled to 1280 pixels of horizontal resolution for online viewing. You can alternatively select one of the following resample resolutions. To avoid murdering the staging servers, resolutions above 1280x are temporarily restricted to donators, people with any hath perk, and people with a UID below 3,000,000." = "";

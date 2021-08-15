@@ -35,9 +35,9 @@ struct Manga: Identifiable, Codable, Equatable {
         tags: [],
         category: .nonH,
         uploader: nil,
-        publishedDate: Date(),
+        postedDate: Date(),
         coverURL: "",
-        detailURL: ""
+        galleryURL: ""
     )
 
     static let preview = Manga(
@@ -49,11 +49,11 @@ struct Manga: Identifiable, Codable, Equatable {
         category: .doujinshi,
         language: .Japanese,
         uploader: "Anonymous",
-        publishedDate: .now,
+        postedDate: .now,
         coverURL: "https://github.com/"
             + "tatsuz0u/Imageset/blob/"
             + "main/JPGs/2.jpg?raw=true",
-        detailURL: ""
+        galleryURL: ""
     )
 
     var id: String { gid }
@@ -67,9 +67,9 @@ struct Manga: Identifiable, Codable, Equatable {
     var language: Language?
     let uploader: String?
     var pageCount: Int?
-    let publishedDate: Date
+    let postedDate: Date
     let coverURL: String
-    let detailURL: String
+    let galleryURL: String
     var lastOpenDate: Date?
 }
 
@@ -78,15 +78,16 @@ struct MangaDetail: Codable {
         gid: "",
         title: "",
         isFavored: false,
+        isVisible: true,
         rating: 0.0,
         userRating: 0.0,
         ratingCount: 0,
         category: .nonH,
         language: .English,
         uploader: "",
-        publishedDate: .distantPast,
+        postedDate: .distantPast,
         coverURL: "",
-        likeCount: 0,
+        favoredCount: 0,
         pageCount: 0,
         sizeCount: 0,
         sizeType: "",
@@ -98,17 +99,18 @@ struct MangaDetail: Codable {
         title: "Preview",
         jpnTitle: "プレビュー",
         isFavored: true,
+        isVisible: true,
         rating: 3.5,
         userRating: 4.0,
         ratingCount: 1919,
         category: .doujinshi,
         language: .Japanese,
         uploader: "Anonymous",
-        publishedDate: .distantPast,
+        postedDate: .distantPast,
         coverURL: "https://github.com/"
         + "tatsuz0u/Imageset/blob/"
         + "main/JPGs/2.jpg?raw=true",
-        likeCount: 514,
+        favoredCount: 514,
         pageCount: 114,
         sizeCount: 514,
         sizeType: "MB",
@@ -119,16 +121,18 @@ struct MangaDetail: Codable {
     var title: String
     var jpnTitle: String?
     var isFavored: Bool
+    var isVisible: Bool
     var rating: Float
     var userRating: Float
     var ratingCount: Int
     let category: Category
     let language: Language
     let uploader: String
-    let publishedDate: Date
+    let postedDate: Date
     let coverURL: String
     var archiveURL: String?
-    var likeCount: Int
+    var parentURL: String?
+    var favoredCount: Int
     var pageCount: Int
     var sizeCount: Float
     var sizeType: String
@@ -239,7 +243,7 @@ extension Manga: DateFormattable, CustomStringConvertible {
         category.color
     }
     var originalDate: Date {
-        publishedDate
+        postedDate
     }
 }
 
@@ -252,7 +256,7 @@ extension MangaDetail: DateFormattable, CustomStringConvertible {
         language.languageAbbr
     }
     var originalDate: Date {
-        publishedDate
+        postedDate
     }
 }
 

@@ -41,13 +41,13 @@
 "Torrents" = "种子";
 "Share" = "分享";
 "Read" = "阅读";
-"Favored" = "收藏";
+"DESC_SCROLL_ITEM_FAVORITED" = "收藏";
 "Times" = "次";
 "Language" = "语言";
 " Ratings" = "个评分";
 "Page Count" = "页数";
 "Pages" = "页";
-"FILE_SIZE" = "文件大小";
+"File Size" = "文件大小";
 "Give a Rating" = "发布评分";
 "Similar Gallery" = "相似画廊";
 "Preview" = "预览";
@@ -59,6 +59,30 @@
 "Free" = "免费";
 "Original" = "原始尺寸";
 "Download To Hath Client" = "下载到Hath客户端";
+
+// MARK: GalleryInfosView
+"Gallery infos" = "画廊信息";
+"Title" = "标题";
+"Japanese title" = "日文标题";
+"Gallery URL" = "画廊地址";
+"Cover URL" = "封面地址";
+"Archive URL" = "归档地址";
+"Torrent URL" = "种子地址";
+"Parent URL" = "上游画廊地址";
+"Category" = "分类";
+"Uploader" = "上传者";
+"Posted date" = "发布日期";
+"Visible" = "可见";
+"Page count" = "页数";
+"File size" = "文件大小";
+"Favorited times" = "收藏次数";
+"Favorited" = "已收藏";
+"Rating count" = "评分次数";
+"Average rating" = "平均评分";
+"User rating" = "用户评分";
+"Torrent count" = "种子个数";
+"Yes" = "是";
+"No" = "否";
 
 // MARK: CommentView
 "Post Comment" = "发布评论";
@@ -139,7 +163,7 @@
 "Load images through the Hath network" = "通过Hath网络加载图像";
 "Any client" = "所有客户端";
 "Default port clients only" = "仅使用默认端口的客户端";
-"No" = "否";
+"LOAD_THROUGH_HATH_NO" = "否";
 
 "Image Size Settings" = "图片尺寸设置";
 "Normally, images are resampled to 1280 pixels of horizontal resolution for online viewing. You can alternatively select one of the following resample resolutions. To avoid murdering the staging servers, resolutions above 1280x are temporarily restricted to donators, people with any hath perk, and people with a UID below 3,000,000." = "通常情况，图像将重采样到 1280 像素宽度以用于在线浏览，您也可以选择以下重新采样分辨率。但是为了避免负载过高，高于 1280 像素将只供给于赞助者、特殊贡献者，以及 UID 小于 3,000,000 的用户。";

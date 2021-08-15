@@ -11,13 +11,15 @@
         <attribute name="archiveURL" optional="YES" attributeType="String"/>
         <attribute name="category" attributeType="String" defaultValueString=""/>
         <attribute name="coverURL" attributeType="String" defaultValueString=""/>
+        <attribute name="favoredCount" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="gid" attributeType="String" defaultValueString=""/>
         <attribute name="isFavored" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="isVisible" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
         <attribute name="jpnTitle" optional="YES" attributeType="String"/>
         <attribute name="language" attributeType="String" defaultValueString=""/>
-        <attribute name="likeCount" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="pageCount" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
-        <attribute name="publishedDate" attributeType="Date" defaultDateTimeInterval="646585800" usesScalarValueType="NO"/>
+        <attribute name="parentURL" optional="YES" attributeType="String"/>
+        <attribute name="postedDate" attributeType="Date" defaultDateTimeInterval="646585800" usesScalarValueType="NO"/>
         <attribute name="rating" attributeType="Float" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="ratingCount" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="sizeCount" attributeType="Float" defaultValueString="0" usesScalarValueType="YES"/>
@@ -30,12 +32,12 @@
     <entity name="MangaMO" representedClassName=".MangaMO" syncable="YES">
         <attribute name="category" attributeType="String" defaultValueString=""/>
         <attribute name="coverURL" attributeType="String" defaultValueString=""/>
-        <attribute name="detailURL" attributeType="String" defaultValueString=""/>
+        <attribute name="galleryURL" attributeType="String" defaultValueString=""/>
         <attribute name="gid" attributeType="String" defaultValueString=""/>
         <attribute name="language" optional="YES" attributeType="String"/>
         <attribute name="lastOpenDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="pageCount" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
-        <attribute name="publishedDate" attributeType="Date" defaultDateTimeInterval="646585860" usesScalarValueType="NO"/>
+        <attribute name="postedDate" attributeType="Date" defaultDateTimeInterval="646585860" usesScalarValueType="NO"/>
         <attribute name="rating" attributeType="Float" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="title" attributeType="String" defaultValueString=""/>
         <attribute name="token" attributeType="String" defaultValueString=""/>
@@ -51,7 +53,7 @@
     </entity>
     <elements>
         <element name="AppEnvMO" positionX="-45" positionY="126" width="128" height="104"/>
-        <element name="MangaDetailMO" positionX="-54" positionY="9" width="128" height="299"/>
+        <element name="MangaDetailMO" positionX="-54" positionY="9" width="128" height="329"/>
         <element name="MangaMO" positionX="-63" positionY="-18" width="128" height="209"/>
         <element name="MangaStateMO" positionX="-36" positionY="18" width="128" height="119"/>
     </elements>

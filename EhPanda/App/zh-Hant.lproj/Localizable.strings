@@ -41,13 +41,13 @@
 "Torrents" = "種子";
 "Share" = "分享";
 "Read" = "閱讀";
-"Favored" = "收藏";
+"DESC_SCROLL_ITEM_FAVORITED" = "收藏";
 "Times" = "次";
 "Language" = "語言";
 " Ratings" = "個評分";
 "Page Count" = "頁數";
 "Pages" = "頁";
-"FILE_SIZE" = "文件大小";
+"File Size" = "文件大小";
 "Give a Rating" = "給予評分";
 "Similar Gallery" = "相似畫廊";
 "Preview" = "預覽";
@@ -59,6 +59,30 @@
 "Free" = "免費";
 "Original" = "原始尺寸";
 "Download To Hath Client" = "下載到Hath客戶端";
+
+// MARK: GalleryInfosView
+//"Gallery infos" = "";
+//"Title" = "";
+//"Japanese title" = "";
+//"Gallery URL" = "";
+//"Cover URL" = "";
+//"Archive URL" = "";
+//"Torrent URL" = "";
+//"Parent URL" = "";
+//"Category" = "";
+//"Uploader" = "";
+//"Posted date" = "";
+//"Visible" = "";
+//"Page count" = "";
+//"File size" = "";
+//"Favorited times" = "";
+//"Favorited" = "";
+//"Rating count" = "";
+//"Average rating" = "";
+//"User rating" = "";
+//"Torrent count" = "";
+//"Yes" = "";
+//"No" = "";
 
 // MARK: CommentView
 "Post Comment" = "發表評論";
@@ -139,7 +163,7 @@
 //"Load images through the Hath network" = "";
 //"Any client" = "";
 //"Default port clients only" = "";
-//"No" = "";
+//"LOAD_THROUGH_HATH_NO" = "";
 //
 //"Image Size Settings" = "";
 //"Normally, images are resampled to 1280 pixels of horizontal resolution for online viewing. You can alternatively select one of the following resample resolutions. To avoid murdering the staging servers, resolutions above 1280x are temporarily restricted to donators, people with any hath perk, and people with a UID below 3,000,000." = "";

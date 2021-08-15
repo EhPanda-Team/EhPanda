@@ -369,14 +369,14 @@ private extension HomeView {
         }
     }
     func handle(jumpLink: URL) {
-        guard isValidDetailURL(url: jumpLink) else { return }
+        guard isValidGalleryURL(url: jumpLink) else { return }
         let gid = jumpLink.pathComponents[2]
         if PersistenceController.mangaCached(gid: gid) {
             replaceMangaCommentJumpID(gid: gid)
         } else {
             store.dispatch(
                 .fetchMangaItemReverse(
-                    detailURL: jumpLink.absoluteString
+                    galleryURL: jumpLink.absoluteString
                 )
             )
             showHUD()

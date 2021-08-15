@@ -105,7 +105,7 @@ extension EhProfileLoadThroughHathSetting {
         case .defaultPortOnly:
             return "Default port clients only"
         case .no:
-            return "No"
+            return "LOAD_THROUGH_HATH_NO"
         }
     }
     var description: String {

@@ -41,13 +41,13 @@
 "Torrents" = "トレント";
 "Share" = "共有";
 "Read" = "読む";
-"Favored" = "気に入り";
+"DESC_SCROLL_ITEM_FAVORITED" = "気に入り";
 "Times" = "人";
 "Language" = "言語";
 " Ratings" = "件の評価";
-"Page Count" = "ページ";
-"Pages" = "頁";
-"FILE_SIZE" = "サイズ";
+"Page Count" = "ページ数";
+"Pages" = "ページ";
+"File Size" = "ファイルサイズ";
 "Give a Rating" = "評価する";
 "Similar Gallery" = "類似ギャラリー";
 "Preview" = "プレビュー";
@@ -59,6 +59,30 @@
 "Free" = "無料";
 "Original" = "オリジナル";
 "Download To Hath Client" = "Hathクライアントにダウンロード";
+
+// MARK: GalleryInfosView
+"Gallery infos" = "ギャラリー情報";
+"Title" = "タイトル";
+"Japanese title" = "日本語タイトル";
+"Gallery URL" = "ギャラリーリンク";
+"Cover URL" = "カバーリンク";
+"Archive URL" = "アーカイブリンク";
+"Torrent URL" = "トレントリンク";
+"Parent URL" = "親ギャラリーリンク";
+"Category" = "カテゴリー";
+"Uploader" = "アップローダー";
+"Posted date" = "投稿日付";
+"Visible" = "可視";
+"Page count" = "ページ数";
+"File size" = "ファイルサイズ";
+"Favorited times" = "気に入り数";
+"Favorited" = "お気に入り済み";
+"Rating count" = "評価数";
+"Average rating" = "平均評価";
+"User rating" = "ユーザー評価";
+"Torrent count" = "トレント数";
+"Yes" = "はい";
+"No" = "いいえ";
 
 // MARK: CommentView
 "Post Comment" = "コメントを書く";
@@ -139,7 +163,7 @@
 "Load images through the Hath network" = "Hathネットワーク経由で画像を読み込む";
 "Any client" = "任意のクライアント";
 "Default port clients only" = "デフォルトポートのクライアントのみ";
-"No" = "使わない";
+"LOAD_THROUGH_HATH_NO" = "使わない";
 
 "Image Size Settings" = "画像サイズ設定";
 "Normally, images are resampled to 1280 pixels of horizontal resolution for online viewing. You can alternatively select one of the following resample resolutions. To avoid murdering the staging servers, resolutions above 1280x are temporarily restricted to donators, people with any hath perk, and people with a UID below 3,000,000." = "一般的に、オンライン閲覧の画像は1280xまでにリサンプリングされます。下のいずれかのリサンプリング解像度に変更できます。サーバー負荷軽減のため、1280x以上の解像度は現時点で寄付者、Hath Perks利用者またはUIDが3,000,000以下の者に限定されます。";

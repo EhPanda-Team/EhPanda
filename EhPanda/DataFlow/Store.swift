@@ -197,14 +197,14 @@ final class Store: ObservableObject {
                 appState.settings.user.favoriteNames = names
             }
 
-        case .fetchMangaItemReverse(var detailURL):
+        case .fetchMangaItemReverse(var galleryURL):
             appState.environment.mangaItemReverseLoadFailed = false
 
             if appState.environment.mangaItemReverseLoading { break }
             appState.environment.mangaItemReverseLoading = true
 
             if appState.settings.setting.redirectsLinksToSelectedHost {
-                detailURL = detailURL.replacingOccurrences(
+                galleryURL = galleryURL.replacingOccurrences(
                     of: Defaults.URL.ehentai,
                     with: Defaults.URL.host
                 )
@@ -213,7 +213,7 @@ final class Store: ObservableObject {
                     with: Defaults.URL.host
                 )
             }
-            appCommand = FetchMangaItemReverseCommand(detailURL: detailURL)
+            appCommand = FetchMangaItemReverseCommand(galleryURL: galleryURL)
         case .fetchMangaItemReverseDone(let result):
             appState.environment.mangaItemReverseLoading = false
 
@@ -533,8 +533,8 @@ final class Store: ObservableObject {
             if appState.detailInfo.detailLoading[gid] == true { break }
             appState.detailInfo.detailLoading[gid] = true
 
-            let detailURL = PersistenceController.fetchManga(gid: gid)?.detailURL ?? ""
-            appCommand = FetchMangaDetailCommand(gid: gid, detailURL: detailURL)
+            let galleryURL = PersistenceController.fetchManga(gid: gid)?.galleryURL ?? ""
+            appCommand = FetchMangaDetailCommand(gid: gid, galleryURL: galleryURL)
         case .fetchMangaDetailDone(let gid, let result):
             appState.detailInfo.detailLoading[gid] = false
 
@@ -556,8 +556,8 @@ final class Store: ObservableObject {
         case .fetchMangaArchiveFunds(let gid):
             if appState.detailInfo.archiveFundsLoading { break }
             appState.detailInfo.archiveFundsLoading = true
-            let detailURL = PersistenceController.fetchManga(gid: gid)?.detailURL ?? ""
-            appCommand = FetchMangaArchiveFundsCommand(gid: gid, detailURL: detailURL)
+            let galleryURL = PersistenceController.fetchManga(gid: gid)?.galleryURL ?? ""
+            appCommand = FetchMangaArchiveFundsCommand(gid: gid, galleryURL: galleryURL)
         case .fetchMangaArchiveFundsDone(let result):
             appState.detailInfo.archiveFundsLoading = false
 
@@ -579,8 +579,8 @@ final class Store: ObservableObject {
             if appState.detailInfo.previewsLoading[gid]?[pageNumber] == true { break }
             appState.detailInfo.previewsLoading[gid]?[pageNumber] = true
 
-            let detailURL = PersistenceController.fetchManga(gid: gid)?.detailURL ?? ""
-            let url = Defaults.URL.detailPage(url: detailURL, pageNum: pageNumber)
+            let galleryURL = PersistenceController.fetchManga(gid: gid)?.galleryURL ?? ""
+            let url = Defaults.URL.detailPage(url: galleryURL, pageNum: pageNumber)
             appCommand = FetchMangaPreviewsCommand(gid: gid, url: url, pageNumber: pageNumber)
 
         case .fetchMangaPreviewsDone(let gid, let pageNumber, let result):
@@ -607,8 +607,8 @@ final class Store: ObservableObject {
             if appState.contentInfo.contentsLoading[gid]?[pageNumber] == true { break }
             appState.contentInfo.contentsLoading[gid]?[pageNumber] = true
 
-            let detailURL = PersistenceController.fetchManga(gid: gid)?.detailURL ?? ""
-            let url = Defaults.URL.detailPage(url: detailURL, pageNum: pageNumber)
+            let galleryURL = PersistenceController.fetchManga(gid: gid)?.galleryURL ?? ""
+            let url = Defaults.URL.detailPage(url: galleryURL, pageNum: pageNumber)
             appCommand = FetchMangaContentsCommand(gid: gid, url: url, pageNumber: pageNumber)
         case .fetchMangaContentsDone(let gid, let pageNumber, let result):
             appState.contentInfo.contentsLoading[gid]?[pageNumber] = false
@@ -707,16 +707,16 @@ final class Store: ObservableObject {
             )
 
         case .comment(let gid, let content):
-            let detailURL = PersistenceController.fetchManga(gid: gid)?.detailURL ?? ""
-            appCommand = CommentCommand(gid: gid, content: content, detailURL: detailURL)
+            let galleryURL = PersistenceController.fetchManga(gid: gid)?.galleryURL ?? ""
+            appCommand = CommentCommand(gid: gid, content: content, galleryURL: galleryURL)
         case .editComment(let gid, let commentID, let content):
-            let detailURL = PersistenceController.fetchManga(gid: gid)?.detailURL ?? ""
+            let galleryURL = PersistenceController.fetchManga(gid: gid)?.galleryURL ?? ""
 
             appCommand = EditCommentCommand(
                 gid: gid,
                 commentID: commentID,
                 content: content,
-                detailURL: detailURL
+                galleryURL: galleryURL
             )
         case .voteComment(let gid, let commentID, let vote):
             let apiuidString = appState.settings.user.apiuid

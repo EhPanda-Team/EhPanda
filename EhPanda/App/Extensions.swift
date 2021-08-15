@@ -371,3 +371,9 @@ extension KingfisherManager {
         KingfisherManager.shared.downloader.sessionConfiguration = config
     }
 }
+
+extension Bool {
+    var yesNoDescription: String {
+        self ? "Yes" : "No"
+    }
+}

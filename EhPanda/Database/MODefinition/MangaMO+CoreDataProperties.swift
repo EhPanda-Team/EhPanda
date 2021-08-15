@@ -14,12 +14,12 @@ extension MangaMO: Identifiable, GalleryIdentifiable {
 
     @NSManaged public var category: String
     @NSManaged public var coverURL: String
-    @NSManaged public var detailURL: String
+    @NSManaged public var galleryURL: String
     @NSManaged public var gid: String
     @NSManaged public var language: String?
     @NSManaged public var lastOpenDate: Date?
     @NSManaged public var pageCount: Int64
-    @NSManaged public var publishedDate: Date
+    @NSManaged public var postedDate: Date
     @NSManaged public var rating: Float
     @NSManaged public var title: String
     @NSManaged public var token: String

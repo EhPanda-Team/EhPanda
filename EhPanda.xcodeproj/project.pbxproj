@@ -52,6 +52,7 @@
 		ABBC332826BE31AE0084A331 /* EhSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABBC332726BE31AE0084A331 /* EhSettingsView.swift */; };
 		ABBC332A26BE7C940084A331 /* SettingTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABBC332926BE7C940084A331 /* SettingTextField.swift */; };
 		ABBCCC8D26C93F0D007D8A36 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = ABBCCC8C26C93F0D007D8A36 /* Kingfisher */; };
+		ABBCCC9026C95F6E007D8A36 /* GalleryInfosView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABBCCC8F26C95F6E007D8A36 /* GalleryInfosView.swift */; };
 		ABC1FAB6264152C800A9F352 /* StoreAccessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC1FAB5264152C800A9F352 /* StoreAccessor.swift */; };
 		ABC1FAB82642C37D00A9F352 /* NewDawnView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC1FAB72642C37D00A9F352 /* NewDawnView.swift */; };
 		ABC3C7852593699B00E0C11B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = ABC3C7692593699A00E0C11B /* Assets.xcassets */; };
@@ -186,6 +187,7 @@
 		ABBC332726BE31AE0084A331 /* EhSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EhSettingsView.swift; sourceTree = "<group>"; };
 		ABBC332926BE7C940084A331 /* SettingTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingTextField.swift; sourceTree = "<group>"; };
 		ABBCCC8E26C94C3A007D8A36 /* Model 5.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Model 5.xcdatamodel"; sourceTree = "<group>"; };
+		ABBCCC8F26C95F6E007D8A36 /* GalleryInfosView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryInfosView.swift; sourceTree = "<group>"; };
 		ABC1FAB5264152C800A9F352 /* StoreAccessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreAccessor.swift; sourceTree = "<group>"; };
 		ABC1FAB72642C37D00A9F352 /* NewDawnView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewDawnView.swift; sourceTree = "<group>"; };
 		ABC3C7542593696C00E0C11B /* EhPanda.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EhPanda.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -508,6 +510,7 @@
 				ABF45AD625F3313D00ECB568 /* AssociatedView.swift */,
 				ABF45ACA25F3313D00ECB568 /* RatingView.swift */,
 				ABF45ACB25F3313D00ECB568 /* LinkedText.swift */,
+				ABBCCC8F26C95F6E007D8A36 /* GalleryInfosView.swift */,
 			);
 			path = Detail;
 			sourceTree = "<group>";
@@ -749,6 +752,7 @@
 				ABF45AE225F3313D00ECB568 /* AuthView.swift in Sources */,
 				ABF45ABC25F3312F00ECB568 /* AppAction.swift in Sources */,
 				AB0ABCB726C541A400AD970F /* WaveForm.swift in Sources */,
+				ABBCCC9026C95F6E007D8A36 /* GalleryInfosView.swift in Sources */,
 				ABF45AF525F3313D00ECB568 /* ReadingSettingView.swift in Sources */,
 				AB38A0CB25CA993D00764D64 /* ColorCodable.swift in Sources */,
 				ABF45AF425F3313D00ECB568 /* WebView.swift in Sources */,
@@ -835,7 +839,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0.3;
-				PRODUCT_BUNDLE_IDENTIFIER = zeng.EhPanda.ShareExtension;
+				PRODUCT_BUNDLE_IDENTIFIER = app.ehpanda.shareExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -861,7 +865,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0.3;
-				PRODUCT_BUNDLE_IDENTIFIER = zeng.EhPanda.ShareExtension;
+				PRODUCT_BUNDLE_IDENTIFIER = app.ehpanda.shareExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -1010,7 +1014,7 @@
 				);
 				MARKETING_VERSION = 1.0.3;
 				OTHER_LDFLAGS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = zeng.EhPanda;
+				PRODUCT_BUNDLE_IDENTIFIER = app.ehpanda;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -1038,7 +1042,7 @@
 				);
 				MARKETING_VERSION = 1.0.3;
 				OTHER_LDFLAGS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = zeng.EhPanda;
+				PRODUCT_BUNDLE_IDENTIFIER = app.ehpanda;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;

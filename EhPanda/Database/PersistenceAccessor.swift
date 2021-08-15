@@ -123,7 +123,7 @@ extension PersistenceController {
             managedObject?.isFavored = detail.isFavored
             managedObject?.archiveURL = detail.archiveURL
             managedObject?.jpnTitle = detail.jpnTitle
-            managedObject?.likeCount = Int64(detail.likeCount)
+            managedObject?.favoredCount = Int64(detail.favoredCount)
             managedObject?.pageCount = Int64(detail.pageCount)
             managedObject?.sizeCount = detail.sizeCount
             managedObject?.sizeType = detail.sizeType

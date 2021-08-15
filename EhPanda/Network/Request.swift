@@ -92,13 +92,13 @@ struct TagTranslatorRequest {
             .dataTaskPublisher(for: language.checkUpdateLink.safeURL())
             .tryMap { data, _ -> Date in
                 guard let dict = try JSONSerialization.jsonObject(with: data) as? [String: Any],
-                      let publishedDateString = dict["published_at"] as? String,
-                      let publishedDate = dateFormatter.date(from: publishedDateString)
+                      let postedDateString = dict["published_at"] as? String,
+                      let postedDate = dateFormatter.date(from: postedDateString)
                 else { throw AppError.networkingFailed }
 
-                guard publishedDate > updatedDate
+                guard postedDate > updatedDate
                 else { throw AppError.noUpdates }
-                return publishedDate
+                return postedDate
             }
             .flatMap { date in
                 URLSession.shared
@@ -342,14 +342,14 @@ struct MoreFavoritesItemsRequest {
 
 struct MangaDetailRequest {
     let gid: String
-    let detailURL: String
+    let galleryURL: String
 
     var publisher: AnyPublisher<(MangaDetail, MangaState, APIKey), AppError> {
         URLSession.shared
             .dataTaskPublisher(
                 for: Defaults.URL
                     .mangaDetail(
-                        url: detailURL
+                        url: galleryURL
                     )
                     .safeURL()
             )
@@ -364,17 +364,17 @@ struct MangaDetailRequest {
 }
 
 struct MangaItemReverseRequest {
-    let detailURL: String
+    let galleryURL: String
     var gid: String {
-        if detailURL.safeURL().pathComponents.count >= 4 {
-            return detailURL.safeURL().pathComponents[2]
+        if galleryURL.safeURL().pathComponents.count >= 4 {
+            return galleryURL.safeURL().pathComponents[2]
         } else {
             return ""
         }
     }
     var token: String {
-        if detailURL.safeURL().pathComponents.count >= 4 {
-            return detailURL.safeURL().pathComponents[3]
+        if galleryURL.safeURL().pathComponents.count >= 4 {
+            return galleryURL.safeURL().pathComponents[3]
         } else {
             return ""
         }
@@ -390,9 +390,9 @@ struct MangaItemReverseRequest {
                 category: detail.category,
                 language: detail.language,
                 uploader: detail.uploader,
-                publishedDate: detail.publishedDate,
+                postedDate: detail.postedDate,
                 coverURL: detail.coverURL,
-                detailURL: detailURL
+                galleryURL: galleryURL
             )
         } else {
             return nil
@@ -401,7 +401,7 @@ struct MangaItemReverseRequest {
 
     var publisher: AnyPublisher<Manga?, AppError> {
         URLSession.shared
-            .dataTaskPublisher(for: detailURL.safeURL())
+            .dataTaskPublisher(for: galleryURL.safeURL())
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .compactMap { getManga(from: try? Parser.parseMangaDetail(doc: $0, gid: gid).0) }
             .mapError(mapAppError)
@@ -434,17 +434,17 @@ struct MangaArchiveRequest {
 
 struct MangaArchiveFundsRequest {
     let gid: String
-    let detailURL: String
+    let galleryURL: String
 
-    var alterDetailURL: String {
-        detailURL.replacingOccurrences(
+    var alterGalleryURL: String {
+        galleryURL.replacingOccurrences(
             of: Defaults.URL.exhentai,
             with: Defaults.URL.ehentai
         )
     }
 
     var publisher: AnyPublisher<(CurrentGP, CurrentCredits)?, AppError> {
-        archiveURL(url: alterDetailURL)
+        archiveURL(url: alterGalleryURL)
             .flatMap(funds)
             .eraseToAnyPublisher()
     }
@@ -860,13 +860,13 @@ struct RateRequest {
 
 struct CommentRequest {
     let content: String
-    let detailURL: String
+    let galleryURL: String
 
     var publisher: AnyPublisher<Any, AppError> {
         let fixedContent = content.replacingOccurrences(of: "\n", with: "%0A")
         let params: [String: String] = ["commenttext_new": fixedContent]
 
-        var request = URLRequest(url: detailURL.safeURL())
+        var request = URLRequest(url: galleryURL.safeURL())
 
         request.httpMethod = "POST"
         request.httpBody = params.dictString()
@@ -883,7 +883,7 @@ struct CommentRequest {
 struct EditCommentRequest {
     let commentID: String
     let content: String
-    let detailURL: String
+    let galleryURL: String
 
     var publisher: AnyPublisher<Any, AppError> {
         let fixedContent = content.replacingOccurrences(of: "\n", with: "%0A")
@@ -892,7 +892,7 @@ struct EditCommentRequest {
             "commenttext_edit": fixedContent
         ]
 
-        var request = URLRequest(url: detailURL.safeURL())
+        var request = URLRequest(url: galleryURL.safeURL())
 
         request.httpMethod = "POST"
         request.httpBody = params.dictString()

@@ -17,8 +17,8 @@ extension MangaMO: ManagedObjectProtocol {
             category: Category(rawValue: category).forceUnwrapped,
             language: Language(rawValue: language ?? ""),
             uploader: uploader, pageCount: Int(pageCount),
-            publishedDate: publishedDate,
-            coverURL: coverURL, detailURL: detailURL,
+            postedDate: postedDate,
+            coverURL: coverURL, galleryURL: galleryURL,
             lastOpenDate: lastOpenDate
         )
     }
@@ -31,11 +31,11 @@ extension Manga: ManagedObjectConvertible {
         mangaMO.gid = gid
         mangaMO.category = category.rawValue
         mangaMO.coverURL = coverURL
-        mangaMO.detailURL = detailURL
+        mangaMO.galleryURL = galleryURL
         mangaMO.language = language?.rawValue
         mangaMO.lastOpenDate = lastOpenDate
         mangaMO.pageCount = Int64(pageCount ?? 0)
-        mangaMO.publishedDate = publishedDate
+        mangaMO.postedDate = postedDate
         mangaMO.rating = rating
         mangaMO.title = title
         mangaMO.token = token

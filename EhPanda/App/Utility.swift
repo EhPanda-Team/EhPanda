@@ -211,7 +211,7 @@ func getPasteboardLink() -> URL? {
     }
 }
 
-func isValidDetailURL(url: URL) -> Bool {
+func isValidGalleryURL(url: URL) -> Bool {
     (url.absoluteString.contains(Defaults.URL.ehentai)
         || url.absoluteString.contains(Defaults.URL.exhentai))
         && url.pathComponents.count >= 4

@@ -91,11 +91,11 @@ struct FetchTagTranslatorCommand: AppCommand {
 }
 
 struct FetchMangaItemReverseCommand: AppCommand {
-    let detailURL: String
+    let galleryURL: String
 
     func execute(in store: Store) {
         let token = SubscriptionToken()
-        MangaItemReverseRequest(detailURL: detailURL)
+        MangaItemReverseRequest(galleryURL: galleryURL)
             .publisher
             .receive(on: DispatchQueue.main)
             .sink { completion in
@@ -309,11 +309,11 @@ struct FetchMoreFavoritesItemsCommand: AppCommand {
 
 struct FetchMangaDetailCommand: AppCommand {
     let gid: String
-    let detailURL: String
+    let galleryURL: String
 
     func execute(in store: Store) {
         let token = SubscriptionToken()
-        MangaDetailRequest(gid: gid, detailURL: detailURL)
+        MangaDetailRequest(gid: gid, galleryURL: galleryURL)
             .publisher
             .receive(on: DispatchQueue.main)
             .sink { completion in
@@ -330,11 +330,11 @@ struct FetchMangaDetailCommand: AppCommand {
 
 struct FetchMangaArchiveFundsCommand: AppCommand {
     let gid: String
-    let detailURL: String
+    let galleryURL: String
 
     func execute(in store: Store) {
         let sToken = SubscriptionToken()
-        MangaArchiveFundsRequest(gid: gid, detailURL: detailURL)
+        MangaArchiveFundsRequest(gid: gid, galleryURL: galleryURL)
             .publisher
             .receive(on: DispatchQueue.main)
             .sink { completion in
@@ -541,11 +541,11 @@ struct RateCommand: AppCommand {
 struct CommentCommand: AppCommand {
     let gid: String
     let content: String
-    let detailURL: String
+    let galleryURL: String
 
     func execute(in store: Store) {
         let token = SubscriptionToken()
-        CommentRequest(content: content, detailURL: detailURL)
+        CommentRequest(content: content, galleryURL: galleryURL)
             .publisher
             .receive(on: DispatchQueue.main)
             .sink { completion in
@@ -562,14 +562,14 @@ struct EditCommentCommand: AppCommand {
     let gid: String
     let commentID: String
     let content: String
-    let detailURL: String
+    let galleryURL: String
 
     func execute(in store: Store) {
         let token = SubscriptionToken()
         EditCommentRequest(
             commentID: commentID,
             content: content,
-            detailURL: detailURL
+            galleryURL: galleryURL
         )
         .publisher
         .receive(on: DispatchQueue.main)

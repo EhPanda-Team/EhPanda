@@ -20,7 +20,7 @@
 "all_appendedByDev" = "All";
 
 // MARK: DetailView
-"FILE_SIZE" = "Size";
+"DESC_SCROLL_ITEM_FAVORITED" = "Favorited";
 
 // MARK: NewDawnView
 "GAINCONTENT_START" = "You gain ";
@@ -32,3 +32,6 @@
 "LIST_DISPLAY_MODE_DETAIL" = "Detail";
 "LIST_DISPLAY_MODE_THUMBNAIL" = "Thumbnail";
 "READING_DIRECTION_VERTICAL" = "Vertical";
+
+// MARK: EhSettingsView
+"LOAD_THROUGH_HATH_NO" = "No";

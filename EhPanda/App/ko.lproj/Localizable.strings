@@ -41,13 +41,13 @@
 "Torrents" = "토렌트";
 "Share" = "공유";
 "Read" = "열람";
-"Favored" = "관심";
+"DESC_SCROLL_ITEM_FAVORITED" = "관심";
 "Times" = "번";
 "Language" = "언어";
 " Ratings" = "명의　평가";
 "Page Count" = "페이지 수";
 "Pages" = "페이지";
-"FILE_SIZE" = "파일　크기";
+"File Size" = "파일　크기";
 "Give a Rating" = "점수 평가";
 "Similar Gallery" = "추천";
 "Preview" = "미리보기";
@@ -59,6 +59,30 @@
 "Free" = "무료";
 "Original" = "자동";
 "Download To Hath Client" = "Hath 클라이언트로 저장";
+
+// MARK: GalleryInfosView
+//"Gallery infos" = "";
+//"Title" = "";
+//"Japanese title" = "";
+//"Gallery URL" = "";
+//"Cover URL" = "";
+//"Archive URL" = "";
+//"Torrent URL" = "";
+//"Parent URL" = "";
+//"Category" = "";
+//"Uploader" = "";
+//"Posted date" = "";
+//"Visible" = "";
+//"Page count" = "";
+//"File size" = "";
+//"Favorited times" = "";
+//"Favorited" = "";
+//"Rating count" = "";
+//"Average rating" = "";
+//"User rating" = "";
+//"Torrent count" = "";
+//"Yes" = "";
+//"No" = "";
 
 // MARK: CommentView
 "Post Comment" = "평가　남기";
@@ -139,7 +163,7 @@
 //"Load images through the Hath network" = "";
 //"Any client" = "";
 //"Default port clients only" = "";
-//"No" = "";
+//"LOAD_THROUGH_HATH_NO" = "";
 //
 //"Image Size Settings" = "";
 //"Normally, images are resampled to 1280 pixels of horizontal resolution for online viewing. You can alternatively select one of the following resample resolutions. To avoid murdering the staging servers, resolutions above 1280x are temporarily restricted to donators, people with any hath perk, and people with a UID below 3,000,000." = "";

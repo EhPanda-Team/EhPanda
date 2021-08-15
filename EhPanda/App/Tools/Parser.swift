@@ -84,10 +84,10 @@ struct Parser {
                   let tagsAndLang = try? parseTagsAndLang(node: gl3cNode),
                   let publishedTime = try? parsePublishedTime(node: gl2cNode),
                   let title = link.at_xpath("//div [@class='glink']")?.text,
-                  let detailURL = link.at_xpath("//td [@class='gl3c glname'] //a")?["href"],
-                  let publishedDate = try? parseDate(time: publishedTime, format: Defaults.DateFormat.publish),
+                  let galleryURL = link.at_xpath("//td [@class='gl3c glname'] //a")?["href"],
+                  let postedDate = try? parseDate(time: publishedTime, format: Defaults.DateFormat.publish),
                   let category = Category(rawValue: link.at_xpath("//td [@class='gl1c glcat'] //div")?.text ?? ""),
-                  let url = URL(string: detailURL), url.pathComponents.count >= 4
+                  let url = URL(string: galleryURL), url.pathComponents.count >= 4
             else { continue }
 
             mangaItems.append(
@@ -101,9 +101,9 @@ struct Parser {
                     language: tagsAndLang.1,
                     uploader: uploader,
                     pageCount: pageCount,
-                    publishedDate: publishedDate,
+                    postedDate: postedDate,
                     coverURL: coverURL,
-                    detailURL: detailURL
+                    galleryURL: galleryURL
                 )
             )
         }
@@ -212,43 +212,52 @@ struct Parser {
 
             var infoPanel = Array(
                 repeating: "",
-                count: 6
+                count: 8
             )
             for gddLink in object {
                 guard let gdt1Text = gddLink.at_xpath("//td [@class='gdt1']")?.text,
                       let gdt2Text = gddLink.at_xpath("//td [@class='gdt2']")?.text
                 else { continue }
+                let aHref = gddLink.at_xpath("//td [@class='gdt2']")?.at_xpath("//a")?["href"]
 
                 if gdt1Text.contains("Posted") {
                     infoPanel[0] = gdt2Text
                 }
+                if gdt1Text.contains("Parent") {
+                    infoPanel[1] = aHref ?? "None"
+                }
+                if gdt1Text.contains("Visible") {
+                    infoPanel[2] = gdt2Text
+                        .replacingOccurrences(of: "Yes", with: "true")
+                        .replacingOccurrences(of: "No", with: "false")
+                }
                 if gdt1Text.contains("Language") {
-                    infoPanel[1] = gdt2Text
+                    infoPanel[3] = gdt2Text
                         .replacingOccurrences(of: "  TR", with: "")
                         .trimmingCharacters(in: .whitespaces)
                 }
                 if gdt1Text.contains("File Size") {
-                    infoPanel[2] = gdt2Text
+                    infoPanel[4] = gdt2Text
                         .replacingOccurrences(of: " KB", with: "")
                         .replacingOccurrences(of: " MB", with: "")
                         .replacingOccurrences(of: " GB", with: "")
 
-                    if gdt2Text.contains("KB") { infoPanel[3] = "KB" }
-                    if gdt2Text.contains("MB") { infoPanel[3] = "MB" }
-                    if gdt2Text.contains("GB") { infoPanel[3] = "GB" }
+                    if gdt2Text.contains("KB") { infoPanel[5] = "KB" }
+                    if gdt2Text.contains("MB") { infoPanel[5] = "MB" }
+                    if gdt2Text.contains("GB") { infoPanel[5] = "GB" }
                 }
                 if gdt1Text.contains("Length") {
-                    infoPanel[4] = gdt2Text.replacingOccurrences(of: " pages", with: "")
+                    infoPanel[6] = gdt2Text.replacingOccurrences(of: " pages", with: "")
                 }
                 if gdt1Text.contains("Favorited") {
-                    infoPanel[5] = gdt2Text
+                    infoPanel[7] = gdt2Text
                         .replacingOccurrences(of: " times", with: "")
                         .replacingOccurrences(of: "Never", with: "0")
                         .replacingOccurrences(of: "Once", with: "1")
                 }
             }
 
-            guard infoPanel.filter({ !$0.isEmpty }).count == 6
+            guard infoPanel.filter({ !$0.isEmpty }).count == 8
             else { throw AppError.parseFailed }
 
             return infoPanel
@@ -268,16 +277,17 @@ struct Parser {
                   let previews = try? parsePreviews(doc: doc),
                   let arcAndTor = try? parseArcAndTor(node: gd5Node),
                   let infoPanel = try? parseInfoPanel(node: gddNode),
-                  let sizeCount = Float(infoPanel[2]),
-                  let pageCount = Int(infoPanel[4]),
-                  let likeCount = Int(infoPanel[5]),
-                  let language = Language(rawValue: infoPanel[1]),
+                  let isVisible = Bool(infoPanel[2]),
+                  let sizeCount = Float(infoPanel[4]),
+                  let pageCount = Int(infoPanel[6]),
+                  let favoredCount = Int(infoPanel[7]),
+                  let language = Language(rawValue: infoPanel[3]),
                   let engTitle = link.at_xpath("//h1 [@id='gn']")?.text,
                   let uploader = gd3Node.at_xpath("//div [@id='gdn']")?.at_xpath("//a")?.text,
                   let (imgRating, textRating, containsUserRating) = try? parseRating(node: gdrNode),
                   let ratingCount = Int(gdrNode.at_xpath("//span [@id='rating_count']")?.text ?? ""),
                   let category = Category(rawValue: gd3Node.at_xpath("//div [@id='gdc']")?.text ?? ""),
-                  let publishedDate = try? parseDate(time: infoPanel[0], format: Defaults.DateFormat.publish)
+                  let postedDate = try? parseDate(time: infoPanel[0], format: Defaults.DateFormat.publish)
             else { throw AppError.parseFailed }
 
             let isFavored = gdfNode
@@ -291,6 +301,7 @@ struct Parser {
                 title: engTitle,
                 jpnTitle: jpnTitle,
                 isFavored: isFavored,
+                isVisible: isVisible,
                 rating: containsUserRating ?
                     textRating ?? 0.0 : imgRating,
                 userRating: containsUserRating
@@ -299,13 +310,15 @@ struct Parser {
                 category: category,
                 language: language,
                 uploader: uploader,
-                publishedDate: publishedDate,
+                postedDate: postedDate,
                 coverURL: coverURL,
                 archiveURL: arcAndTor.0,
-                likeCount: likeCount,
+                parentURL: infoPanel[1] == "None"
+                    ? nil : infoPanel[1],
+                favoredCount: favoredCount,
                 pageCount: pageCount,
                 sizeCount: sizeCount,
-                sizeType: infoPanel[3],
+                sizeType: infoPanel[5],
                 torrentCount: arcAndTor.1
             )
             tmpMangaState = MangaState(
@@ -454,7 +467,7 @@ struct Parser {
 
     // MARK: Content
     static func parseMangaPreContents(doc: HTMLDocument) throws -> [(Int, URL)] {
-        var imageDetailURLs = [(Int, URL)]()
+        var imageGalleryURLs = [(Int, URL)]()
 
         guard let gdtNode = doc.at_xpath("//div [@id='gdt']"),
               let previewMode = try? parsePreviewMode(doc: doc)
@@ -462,15 +475,15 @@ struct Parser {
 
         for link in gdtNode.xpath("//div [@class='\(previewMode)']") {
             guard let aLink = link.at_xpath("//a"),
-                  let imageDetailString = aLink["href"],
-                  let imageDetailURL = URL(string: imageDetailString),
+                  let imageGalleryString = aLink["href"],
+                  let imageGalleryURL = URL(string: imageGalleryString),
                     let index = Int(aLink.at_xpath("//img")?["alt"] ?? "")
             else { continue }
 
-            imageDetailURLs.append((index, imageDetailURL))
+            imageGalleryURLs.append((index, imageGalleryURL))
         }
 
-        return imageDetailURLs
+        return imageGalleryURLs
     }
 
     static func parseMangaContent(doc: HTMLDocument, index: Int) throws -> (Int, String) {

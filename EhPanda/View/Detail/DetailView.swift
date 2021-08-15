@@ -37,7 +37,7 @@ struct DetailView: View, StoreAccessor, PersistenceAccessor {
                             onUploaderTapAction: onUploaderTap
                         )
                         .padding(.horizontal)
-                        DescScrollView(detail: detail)
+                        DescScrollView(manga: manga, detail: detail)
                         ActionRow(
                             detail: detail,
                             ratingAction: onUserRatingChanged,
@@ -180,7 +180,7 @@ private extension DetailView {
         toggleSheet(state: .comment)
     }
     func onShareButtonTap() {
-        guard let data = URL(string: manga.detailURL) else { return }
+        guard let data = URL(string: manga.galleryURL) else { return }
         presentActivityVC(items: [data])
     }
     func onUserRatingChanged(value: Int) {
@@ -393,12 +393,13 @@ private struct DescScrollView: View {
 
     @State private var itemWidth = max(absWindowW / 5, 80)
 
+    private let manga: Manga
     private let detail: MangaDetail
     private var infos: [DescScrollInfo] {
         [
             DescScrollInfo(
-                title: "Favored", numeral: "Times",
-                value: String(detail.likeCount)
+                title: "DESC_SCROLL_ITEM_FAVORITED", numeral: "Times",
+                value: String(detail.favoredCount)
             ),
             DescScrollInfo(
                 title: "Language",
@@ -416,13 +417,14 @@ private struct DescScrollView: View {
                 value: String(detail.pageCount)
             ),
             DescScrollInfo(
-                title: "FILE_SIZE", numeral: detail.sizeType,
+                title: "File Size", numeral: detail.sizeType,
                 value: String(detail.sizeCount)
             )
         ]
     }
 
-    init(detail: MangaDetail) {
+    init(manga: Manga, detail: MangaDetail) {
+        self.manga = manga
         self.detail = detail
     }
 
@@ -445,12 +447,20 @@ private struct DescScrollView: View {
                         }
                     }
                     .frame(width: itemWidth)
-                    if info != infos.last {
-                        Divider()
+                    .drawingGroup()
+                    Divider()
+                    if info == infos.last {
+                        NavigationLink(
+                            destination: GalleryInfosView(
+                                manga: manga, detail: detail
+                            )) {
+                                Image(systemName: "ellipsis")
+                                    .font(.system(size: 20, weight: .bold))
+                        }
+                        .frame(width: itemWidth)
                     }
                 }
                 .withHorizontalSpacing()
-                .drawingGroup()
             }
         }
         .frame(height: 60)

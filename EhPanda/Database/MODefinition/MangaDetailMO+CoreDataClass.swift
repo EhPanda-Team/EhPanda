@@ -12,13 +12,13 @@ public class MangaDetailMO: NSManagedObject {}
 extension MangaDetailMO: ManagedObjectProtocol {
     func toEntity() -> MangaDetail {
         MangaDetail(
-            gid: gid, title: title, isFavored: isFavored,
+            gid: gid, title: title, isFavored: isFavored, isVisible: isVisible,
             rating: rating, userRating: userRating, ratingCount: Int(ratingCount),
             category: Category(rawValue: category).forceUnwrapped,
             language: Language(rawValue: language).forceUnwrapped,
-            uploader: uploader, publishedDate: publishedDate,
-            coverURL: coverURL, archiveURL: archiveURL,
-            likeCount: Int(likeCount), pageCount: Int(pageCount),
+            uploader: uploader, postedDate: postedDate,
+            coverURL: coverURL, archiveURL: archiveURL, parentURL: parentURL,
+            favoredCount: Int(favoredCount), pageCount: Int(pageCount),
             sizeCount: sizeCount, sizeType: sizeType,
             torrentCount: Int(torrentCount)
         )
@@ -34,11 +34,13 @@ extension MangaDetail: ManagedObjectConvertible {
         mangaDetailMO.category = category.rawValue
         mangaDetailMO.coverURL = coverURL
         mangaDetailMO.isFavored = isFavored
+        mangaDetailMO.isVisible = isVisible
         mangaDetailMO.jpnTitle = jpnTitle
         mangaDetailMO.language = language.rawValue
-        mangaDetailMO.likeCount = Int64(likeCount)
+        mangaDetailMO.favoredCount = Int64(favoredCount)
         mangaDetailMO.pageCount = Int64(pageCount)
-        mangaDetailMO.publishedDate = publishedDate
+        mangaDetailMO.parentURL = parentURL
+        mangaDetailMO.postedDate = postedDate
         mangaDetailMO.rating = rating
         mangaDetailMO.userRating = userRating
         mangaDetailMO.ratingCount = Int64(ratingCount)

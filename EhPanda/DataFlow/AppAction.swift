@@ -45,7 +45,7 @@ enum AppAction {
     case fetchUserInfoDone(result: Result<User, AppError>)
     case fetchFavoriteNames
     case fetchFavoriteNamesDone(result: Result<[Int: String], AppError>)
-    case fetchMangaItemReverse(detailURL: String)
+    case fetchMangaItemReverse(galleryURL: String)
     case fetchMangaItemReverseDone(result: Result<Manga, AppError>)
     case fetchSearchItems(keyword: String)
     case fetchSearchItemsDone(result: Result<(Keyword, PageNumber, [Manga]), AppError>)
