@@ -401,7 +401,7 @@ struct GalleryItemReverseRequest {
 
     var publisher: AnyPublisher<Gallery?, AppError> {
         URLSession.shared
-            .dataTaskPublisher(for: galleryURL.safeURL())
+            .dataTaskPublisher(for: galleryURL.safeURL()).retry(3)
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .compactMap { getGallery(from: try? Parser.parseGalleryDetail(doc: $0, gid: gid).0) }
             .mapError(mapAppError)
@@ -513,7 +513,7 @@ struct GalleryContentsRequest {
     var publisher: AnyPublisher<[Int: String], AppError> {
         preContents(url: url)
             .flatMap(contents)
-            .eraseToAnyPublisher()
+            .retry(3).eraseToAnyPublisher()
     }
 
     func preContents(url: String) -> AnyPublisher<[(Int, URL)], AppError> {
@@ -610,6 +610,21 @@ struct LoginRequest {
         return URLSession.shared
             .dataTaskPublisher(for: request)
             .map { $0 }.mapError(mapAppError)
+            .eraseToAnyPublisher()
+    }
+}
+
+struct IgneousRequest {
+    var publisher: AnyPublisher<Any, AppError> {
+        URLSession.shared
+            .dataTaskPublisher(for: Defaults.URL.exhentai.safeURL())
+            .map { value in
+                if let (_, resp) = value as? (Data, HTTPURLResponse) {
+                    setCookie(response: resp)
+                }
+                return value
+            }
+            .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
 }

@@ -131,6 +131,8 @@ final class Store: ObservableObject {
             appState.environment.commentViewSheetState = state
 
         // MARK: Fetch Data
+        case .fetchIgneous:
+            appCommand = FetchIgneousCommand()
         case .fetchTagTranslator:
             guard let preferredLanguage = Locale.preferredLanguages.first,
                   let language = TranslatableLanguage.allCases.compactMap({ lang in

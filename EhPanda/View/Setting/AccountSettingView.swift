@@ -37,6 +37,7 @@ struct AccountSettingView: View, StoreAccessor {
                     .pickerStyle(.segmented)
                     if !didLogin {
                         NavigationLink("Login", destination: LoginView())
+                            .foregroundStyle(.tint)
                     } else {
                         Button("Logout", action: toggleLogout).foregroundStyle(.red)
                     }

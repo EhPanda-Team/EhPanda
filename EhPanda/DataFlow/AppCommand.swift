@@ -441,6 +441,19 @@ struct FetchGalleryMPVContentCommand: AppCommand {
     }
 }
 
+struct FetchIgneousCommand: AppCommand {
+    func execute(in store: Store) {
+        let token = SubscriptionToken()
+        IgneousRequest()
+            .publisher
+            .receive(on: DispatchQueue.main)
+            .sink { _ in
+                token.unseal()
+            } receiveValue: { _ in }
+            .seal(in: token)
+    }
+}
+
 struct VerifyProfileCommand: AppCommand {
     func execute(in store: Store) {
         let token = SubscriptionToken()
