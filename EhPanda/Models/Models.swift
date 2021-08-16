@@ -47,7 +47,7 @@ struct Gallery: Identifiable, Codable, Equatable {
         rating: 3.5,
         tags: [],
         category: .doujinshi,
-        language: .Japanese,
+        language: .japanese,
         uploader: "Anonymous",
         postedDate: .now,
         coverURL: "https://github.com/"
@@ -83,7 +83,7 @@ struct GalleryDetail: Codable {
         userRating: 0.0,
         ratingCount: 0,
         category: .nonH,
-        language: .English,
+        language: .japanese,
         uploader: "",
         postedDate: .distantPast,
         coverURL: "",
@@ -104,7 +104,7 @@ struct GalleryDetail: Codable {
         userRating: 4.0,
         ratingCount: 1919,
         category: .doujinshi,
-        language: .Japanese,
+        language: .japanese,
         uploader: "Anonymous",
         postedDate: .distantPast,
         coverURL: "https://github.com/"
@@ -319,51 +319,7 @@ extension Language {
     var languageAbbr: String {
         switch self {
         // swiftlint:disable switch_case_alignment line_length
-        case .Other: return "N/A"
-
-        case .Afrikaans: return "AF"; case .Albanian: return "SQ"; case .Arabic: return "AR"
-
-        case .Bengali: return "BN"; case .Bosnian: return "BS"; case .Bulgarian: return "BG"; case .Burmese: return "MY"
-
-        case .Catalan: return "CA"; case .Cebuano: return "CEB"; case .Chinese: return "ZH"; case .Croatian: return "HR"; case .Czech: return "CS"
-
-        case .Danish: return "DA"; case .Dutch: return "NL"
-
-        case .English: return "EN"; case .Esperanto: return "EO"; case .Estonian: return "ET"
-
-        case .Finnish: return "FI"; case .French: return "FR"
-
-        case .Georgian: return "KA"; case .German: return "DE"; case .Greek: return "EL"
-
-        case .Hebrew: return "HE"; case .Hindi: return "HI"; case .Hmong: return "HMN"; case .Hungarian: return "HU"
-
-        case .Indonesian: return "ID"; case .Italian: return "IT"
-
-        case .Japanese: return "JA"
-
-        case .Kazakh: return "KK"; case .Khmer: return "KM"; case .Korean: return "KO"; case .Kurdish: return "KU"
-
-        case .Lao: return "LO"; case .Latin: return "LA"
-
-        case .Mongolian: return "MN"
-
-        case .Ndebele: return "ND"; case .Nepali: return "NE"; case .Norwegian: return "NO"
-
-        case .Oromo: return "OM"
-
-        case .Pashto: return "PS"; case .Persian: return "FA"; case .Polish: return "PL"; case .Portuguese: return "PT"; case .Punjabi: return "PA"
-
-        case .Romanian: return "RO"; case .Russian: return "RU"
-
-        case .Sango: return "SG"; case .Serbian: return "SR"; case .Shona: return "SN"; case .Slovak: return "SK"; case .Slovenian: return "SL"; case .Somali: return "SO"; case .Spanish: return "ES"; case .Swahili: return "SW"; case .Swedish: return "SV"
-
-        case .Tagalog: return "TL"; case .Thai: return "TH"; case .Tigrinya: return "TI"; case .Turkish: return "TR"
-
-        case .Ukrainian: return "UK"; case .Urdu: return "UR"
-
-        case .Vietnamese: return "VI"
-
-        case .Zulu: return "ZU"
+        case .other: return "N/A"; case .afrikaans: return "AF"; case .albanian: return "SQ"; case .arabic: return "AR"; case .bengali: return "BN"; case .bosnian: return "BS"; case .bulgarian: return "BG"; case .burmese: return "MY"; case .catalan: return "CA"; case .cebuano: return "CEB"; case .chinese: return "ZH"; case .croatian: return "HR"; case .czech: return "CS"; case .danish: return "DA"; case .dutch: return "NL"; case .english: return "EN"; case .esperanto: return "EO"; case .estonian: return "ET"; case .finnish: return "FI"; case .french: return "FR"; case .georgian: return "KA"; case .german: return "DE"; case .greek: return "EL"; case .hebrew: return "HE"; case .hindi: return "HI"; case .hmong: return "HMN"; case .hungarian: return "HU"; case .indonesian: return "ID"; case .italian: return "IT"; case .japanese: return "JA"; case .kazakh: return "KK"; case .khmer: return "KM"; case .korean: return "KO"; case .kurdish: return "KU"; case .lao: return "LO"; case .latin: return "LA"; case .mongolian: return "MN"; case .ndebele: return "ND"; case .nepali: return "NE"; case .norwegian: return "NO"; case .oromo: return "OM"; case .pashto: return "PS"; case .persian: return "FA"; case .polish: return "PL"; case .portuguese: return "PT"; case .punjabi: return "PA"; case .romanian: return "RO"; case .russian: return "RU"; case .sango: return "SG"; case .serbian: return "SR"; case .shona: return "SN"; case .slovak: return "SK"; case .slovenian: return "SL"; case .somali: return "SO"; case .spanish: return "ES"; case .swahili: return "SW"; case .swedish: return "SV"; case .tagalog: return "TL"; case .thai: return "TH"; case .tigrinya: return "TI"; case .turkish: return "TR"; case .ukrainian: return "UK"; case .urdu: return "UR"; case .vietnamese: return "VI"; case .zulu: return "ZU"
         // swiftlint:enable switch_case_alignment line_length
         }
     }
@@ -496,51 +452,7 @@ extension TranslatableLanguage {
 }
 
 enum Language: String, Codable {
-    // swiftlint:disable identifier_name line_length
-    case Other = "N/A"
-
-    case Afrikaans = "Afrikaans"; case Albanian = "Albanian"; case Arabic = "Arabic"
-
-    case Bengali = "Bengali"; case Bosnian = "Bosnian"; case Bulgarian = "Bulgarian"; case Burmese = "Burmese"
-
-    case Catalan = "Catalan"; case Cebuano = "Cebuano"; case Chinese = "Chinese"; case Croatian = "Croatian"; case Czech = "Czech"
-
-    case Danish = "Danish"; case Dutch = "Dutch"
-
-    case English = "English"; case Esperanto = "Esperanto"; case Estonian = "Estonian"
-
-    case Finnish = "Finnish"; case French = "French"
-
-    case Georgian = "Georgian"; case German = "German"; case Greek = "Greek"
-
-    case Hebrew = "Hebrew"; case Hindi = "Hindi"; case Hmong = "Hmong"; case Hungarian = "Hungarian"
-
-    case Indonesian = "Indonesian"; case Italian = "Italian"
-
-    case Japanese = "Japanese"
-
-    case Kazakh = "Kazakh"; case Khmer = "Khmer"; case Korean = "Korean"; case Kurdish = "Kurdish"
-
-    case Lao = "Lao"; case Latin = "Latin"
-
-    case Mongolian = "Mongolian"
-
-    case Ndebele = "Ndebele"; case Nepali = "Nepali"; case Norwegian = "Norwegian"
-
-    case Oromo = "Oromo"
-
-    case Pashto = "Pashto"; case Persian = "Persian"; case Polish = "Polish"; case Portuguese = "Portuguese"; case Punjabi = "Punjabi"
-
-    case Romanian = "Romanian"; case Russian = "Russian"
-
-    case Sango = "Sango"; case Serbian = "Serbian"; case Shona = "Shona"; case Slovak = "Slovak"; case Slovenian = "Slovenian"; case Somali = "Somali"; case Spanish = "Spanish"; case Swahili = "Swahili"; case Swedish = "Swedish"
-
-    case Tagalog = "Tagalog"; case Thai = "Thai"; case Tigrinya = "Tigrinya"; case Turkish = "Turkish"
-
-    case Ukrainian = "Ukrainian"; case Urdu = "Urdu"
-
-    case Vietnamese = "Vietnamese"
-
-    case Zulu = "Zulu"
-    // swiftlint:enable identifier_name line_length
+    // swiftlint:disable line_length
+    case other = "N/A"; case afrikaans = "Afrikaans"; case albanian = "Albanian"; case arabic = "Arabic"; case bengali = "Bengali"; case bosnian = "Bosnian"; case bulgarian = "Bulgarian"; case burmese = "Burmese"; case catalan = "Catalan"; case cebuano = "Cebuano"; case chinese = "Chinese"; case croatian = "Croatian"; case czech = "Czech"; case danish = "Danish"; case dutch = "Dutch"; case english = "English"; case esperanto = "Esperanto"; case estonian = "Estonian"; case finnish = "Finnish"; case french = "French"; case georgian = "Georgian"; case german = "German"; case greek = "Greek"; case hebrew = "Hebrew"; case hindi = "Hindi"; case hmong = "Hmong"; case hungarian = "Hungarian"; case indonesian = "Indonesian"; case italian = "Italian"; case japanese = "Japanese"; case kazakh = "Kazakh"; case khmer = "Khmer"; case korean = "Korean"; case kurdish = "Kurdish"; case lao = "Lao"; case latin = "Latin"; case mongolian = "Mongolian"; case ndebele = "Ndebele"; case nepali = "Nepali"; case norwegian = "Norwegian"; case oromo = "Oromo"; case pashto = "Pashto"; case persian = "Persian"; case polish = "Polish"; case portuguese = "Portuguese"; case punjabi = "Punjabi"; case romanian = "Romanian"; case russian = "Russian"; case sango = "Sango"; case serbian = "Serbian"; case shona = "Shona"; case slovak = "Slovak"; case slovenian = "Slovenian"; case somali = "Somali"; case spanish = "Spanish"; case swahili = "Swahili"; case swedish = "Swedish"; case tagalog = "Tagalog"; case thai = "Thai"; case tigrinya = "Tigrinya"; case turkish = "Turkish"; case ukrainian = "Ukrainian"; case urdu = "Urdu"; case vietnamese = "Vietnamese"; case zulu = "Zulu"
+    // swiftlint:enable line_length
 }
