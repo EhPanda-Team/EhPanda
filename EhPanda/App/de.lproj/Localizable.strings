@@ -44,7 +44,7 @@
 "DESC_SCROLL_ITEM_FAVORITED" = "Favorisiert";
 "Times" = "mal";
 "Language" = "Sprache";
-" Ratings" = " Bewertungen";
+"%lld Ratings" = "%lld Bewertungen";
 "Page Count" = "Seitenzahl";
 "Pages" = "Seiten";
 "File Size" = "Dateigröße";
@@ -135,9 +135,9 @@
 "Right-to-left" = "Von rechts nach links";
 "Left-to-right" = "Von links nach rechts";
 //"Preload limit" = "";
-//" pages" = "";
+//"%lld pages" = "%lld ";
 "Retry limit" = "Limit für neue Versuche";
-" times" = "mal";
+"%lld times" = "%lld mal";
 "Separator height" = "Höhe der Teilung";
 "Maximum scale factor" = "Maximaler Skalierungsfaktor";
 "Double tap scale factor" = "Doppel-Tap Skalierungsfaktor";
@@ -282,7 +282,7 @@
 // MARK: LogsView
 "Logs" = "Logs";
 "Latest" = "Neueste";
-" records" = " Einträge";
+"%lld records" = "%lld Einträge";
 
 // MARK: FilterView
 "Filters" = "Filter";
@@ -302,7 +302,7 @@
 "Show expunged galleries" = "Gelöschte Galerien zeigen";
 "Set minimum rating" = "Minimaleste Bewertung festlegen";
 "Minimum rating" = "Minimale Bewertung";
-"stars" = "Sterne";
+"%lld stars" = "%lld Sterne";
 "Set pages range" = "Seitenzahl-Bereich festlegen";
 "Pages range" = "Seitenzahl-Bereich";
 "Default Filter" = "Standardfilter";

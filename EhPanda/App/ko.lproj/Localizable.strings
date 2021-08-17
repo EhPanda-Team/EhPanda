@@ -44,7 +44,7 @@
 "DESC_SCROLL_ITEM_FAVORITED" = "관심";
 "Times" = "번";
 "Language" = "언어";
-" Ratings" = "명의　평가";
+"%lld Ratings" = "%lld명의　평가";
 "Page Count" = "페이지 수";
 "Pages" = "페이지";
 "File Size" = "파일　크기";
@@ -135,9 +135,9 @@
 "Right-to-left" = "왼쪽으로";
 "Left-to-right" = "오른쪽으로";
 "Preload limit" = "프리로드 리미트";
-" pages" = "페이지";
+"%lld pages" = "%lld페이지";
 "Retry limit" = "시도 횟수";
-" times" = "번";
+"%lld times" = "%lld번";
 "Separator height" = "선 두께";
 "Maximum scale factor" = "확대 비율";
 "Double tap scale factor" = "더블 클릭 확대 비율";
@@ -282,7 +282,7 @@
 // MARK: LogsView
 "Logs" = "일지";
 "Latest" = "최신";
-" records" = " 기록수";
+"%lld records" = "%lld 기록수";
 
 // MARK: FilterView
 "Filters" = "옵션";
@@ -302,7 +302,7 @@
 "Show expunged galleries" = "삭제된 갤러리를 제시하기";
 "Set minimum rating" = "별점 범위를 설정하기";
 "Minimum rating" = "별점 범위";
-"stars" = "별";
+"%lld stars" = "%lld별";
 "Set pages range" = "페이지 범위 설정";
 "Pages range" = "페이지 범위";
 "Default Filter" = "자동 옵션";

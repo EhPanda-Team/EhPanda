@@ -44,7 +44,7 @@
 "DESC_SCROLL_ITEM_FAVORITED" = "收藏";
 "Times" = "次";
 "Language" = "语言";
-" Ratings" = "个评分";
+"%lld Ratings" = "%lld个评分";
 "Page Count" = "页数";
 "Pages" = "页";
 "File Size" = "文件大小";
@@ -135,9 +135,9 @@
 "Right-to-left" = "右至左";
 "Left-to-right" = "左至右";
 "Preload limit" = "预加载数量上限";
-" pages" = "页";
+"%lld pages" = "%lld页";
 "Retry limit" = "重试次数上限";
-" times" = "次";
+"%lld times" = "%lld次";
 "Separator height" = "分隔线厚度";
 "Maximum scale factor" = "最大缩放系数";
 "Double tap scale factor" = "双击缩放系数";
@@ -282,7 +282,7 @@
 // MARK: LogsView
 "Logs" = "日志";
 "Latest" = "最新";
-" records" = "条记录";
+"%lld records" = "%lld条记录";
 
 // MARK: FilterView
 "Filters" = "筛选";
@@ -302,7 +302,7 @@
 "Show expunged galleries" = "显示已被删除的画廊";
 "Set minimum rating" = "设定评分下限";
 "Minimum rating" = "评分下限";
-"stars" = "星";
+"%lld stars" = "%lld星";
 "Set pages range" = "设定页数范围";
 "Pages range" = "页数范围";
 "Default Filter" = "默认筛选";

@@ -293,7 +293,7 @@ extension Category {
         switch self {
         case .doujinshi:
             return 2
-        case .gallery:
+        case .manga:
             return 4
         case .artistCG:
             return 8
@@ -330,7 +330,7 @@ enum Category: String, Codable, CaseIterable, Identifiable {
     var id: String { rawValue }
 
     case doujinshi = "Doujinshi"
-    case gallery = "Gallery"
+    case manga = "Manga"
     case artistCG = "Artist CG"
     case gameCG = "Game CG"
     case western = "Western"

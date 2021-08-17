@@ -342,7 +342,7 @@ private struct HeaderView: View {
                         NavigationLink(
                             destination: { ReadingView(gid: gallery.gid) },
                             label: {
-                                Text("Read".localized().uppercased()).bold()
+                                Text("Read".localized()).bold().textCase(.uppercase)
                                     .font(isSEWidth ? .footnote : .headline)
                                     .foregroundColor(.white)
                                     .padding(.vertical, -2)
@@ -385,6 +385,7 @@ private struct DescScrollView: View {
         var id: Int { title.hashValue }
 
         let title: String
+        var titleKey: LocalizedStringKey = ""
         let numeral: String
         let value: String
         var rating: Float = 0
@@ -407,8 +408,10 @@ private struct DescScrollView: View {
                 value: detail.languageAbbr
             ),
             DescScrollInfo(
-                title: String(detail.ratingCount)
-                + " Ratings".localized(),
+                title: "",
+                titleKey: LocalizedStringKey(
+                    "\(detail.ratingCount) Ratings"
+                ),
                 numeral: "", value: "",
                 rating: detail.rating, isRating: true
             ),
@@ -435,7 +438,7 @@ private struct DescScrollView: View {
                     Group {
                         if info.isRating {
                             DescScrollRatingItem(
-                                title: info.title,
+                                titleKey: info.titleKey,
                                 rating: info.rating
                             )
                         } else {
@@ -497,7 +500,8 @@ private struct DescScrollItem: View {
 
     var body: some View {
         VStack(spacing: 3) {
-            Text(title.localized().uppercased())
+            Text(title.localized())
+                .textCase(.uppercase)
                 .font(.caption)
             Text(value)
                 .fontWeight(.medium)
@@ -510,17 +514,18 @@ private struct DescScrollItem: View {
 }
 
 private struct DescScrollRatingItem: View {
-    private let title: String
+    private let titleKey: LocalizedStringKey
     private let rating: Float
 
-    init(title: String, rating: Float) {
-        self.title = title
+    init(titleKey: LocalizedStringKey, rating: Float) {
+        self.titleKey = titleKey
         self.rating = rating
     }
 
     var body: some View {
         VStack(spacing: 3) {
-            Text(title.localized().uppercased())
+            Text(titleKey)
+                .textCase(.uppercase)
                 .font(.caption)
                 .lineLimit(1)
             Text(String(format: "%.2f", rating))

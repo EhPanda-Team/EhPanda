@@ -9,7 +9,7 @@
 // MARK: Response
 "You must have a H@H client assigned to your account to use this feature." = "この機能を使うには、アカウントに関連付けられているHathクライアントが必要です";
 "Your H@H client appears to be offline. Turn it on, then try again." = "Hathクライアントは現在オフラインのようです、起動してからもう一度お試しください";
-"The requested gallery cannot be downloaded with the selected resolution." = "選択された解像度はこのギャラリーのダウンロードにはご利用いただけません";
+"The requested gallery cannot be downloaded with the selected resolution." = "このギャラリーは選択された解像度ではダウンロードできません";
 
 // MARK: HUD
 "Success" = "成功";
@@ -44,7 +44,7 @@
 "DESC_SCROLL_ITEM_FAVORITED" = "気に入り";
 "Times" = "人";
 "Language" = "言語";
-" Ratings" = "件の評価";
+"%lld Ratings" = "%lld件の評価";
 "Page Count" = "ページ数";
 "Pages" = "ページ";
 "File Size" = "ファイルサイズ";
@@ -135,9 +135,9 @@
 "Right-to-left" = "右開き";
 "Left-to-right" = "左開き";
 "Preload limit" = "プリロード上限数";
-" pages" = "ページ";
+"%lld pages" = "%lldページ";
 "Retry limit" = "再試行上限数";
-" times" = "回";
+"%lld times" = "%lld回";
 "Separator height" = "仕切りの厚さ";
 "Maximum scale factor" = "最大スケール係数";
 "Double tap scale factor" = "ダブルタップスケール係数";
@@ -164,7 +164,7 @@
 "Any client" = "任意のクライアント";
 "Default port clients only" = "デフォルトポートのクライアントのみ";
 "LOAD_THROUGH_HATH_NO" = "使わない";
-"You appear to be browsing the site from **PLACEHOLDER** or use a VPN or proxy in this country, which means the site will try to load images from Hath clients in this general geographic region. If this is incorrect, or if you want to use a different region for any reason (like if you are using a split tunneling VPN), you can select a different country below." = "**PLACEHOLDER** から本サイトに閲覧してる、またはその国のVPN・プロキシを使ってるようです、本サイトがその地域のHathクライアントから画像を読み込もうとすることを意味します。もし自動検知の結果が間違ってる、またはある理由で別の地域を希望する場合（例えばスプリットトンネルVPNを使ってる）、下に別の国を選択できます。";
+"You appear to be browsing the site from **PLACEHOLDER** or use a VPN or proxy in this country, which means the site will try to load images from Hath clients in this general geographic region. If this is incorrect, or if you want to use a different region for any reason (like if you are using a split tunneling VPN), you can select a different country below." = "**PLACEHOLDER** から本サイトを閲覧している、またはその国のVPN・プロキシを使用しているようです。本サイトはその地域のHathクライアントから画像を読み込もうとしますが、もし自動検知の結果が誤っている、または特別な事情でほかの地域のクライアントを希望する場合（例えばスプリットトンネルVPNを使用している）は下に手動選択できます。";
 "Browsing country" = "閲覧国";
 
 "Image Size Settings" = "画像サイズ設定";
@@ -177,7 +177,7 @@
 "Vertical" = "垂直";
 
 "Gallery Name Display" = "ギャラリー名表示";
-"Many galleries have both an English/Romanized title and a title in Japanese script. Which gallery name would you like as default?" = "英語・ローマ字と日本語両方のタイトルを持つギャラリーはたくさんあります。デフォルトにどちらがお好みですか？";
+"Many galleries have both an English/Romanized title and a title in Japanese script. Which gallery name would you like as default?" = "英語・ローマ字と日本語両方のタイトルを持つギャラリーはたくさんあります。どちらをデフォルトにしますか？";
 "Gallery name" = "ギャラリー名";
 "Default Title" = "デフォルトタイトル";
 "Japanese Title (if available)" = "日本語タイトル（可能なら）";
@@ -266,7 +266,7 @@
 "Show gallery page numbers" = "ギャラリーページ数を表示";
 
 "Hath Local Network Host" = "Hathローカルネットワークホスト";
-"This setting can be used if you have a Hath client running on your local network with the same public IP you browse the site with. Some routers are buggy and cannot route requests back to its own IP; this allows you to work around this problem.\nIf you are running the client on the same device you browse from, use the loopback address (127.0.0.1:port). If the client is running on another device on your network, use its local network IP. Some browser configurations prevent external web sites from accessing URLs with local network IPs, the site must then be whitelisted for this to work." = "ローカルネットワークで今と同じパブリックIPを使うHathクライアントがお持ちの場合、この設定が役立ちます。ルーターがバグが多くてリクエストを自分のIPにルートすることができないこともあります、それをこの設定で回避できます。\nHathクライアントが今と同じデバイスで運行してる場合はループバックアドレス（127.0.0.1:ポート）を使ってください。別のデバイスの場合はそのローカルIPを使ってください。かなりのブラウザの構成では外部サイトがローカルIPにアクセスすることをブロックしています、この設定を有効にするには本サイトをホワイトリストに入れてください。";
+"This setting can be used if you have a Hath client running on your local network with the same public IP you browse the site with. Some routers are buggy and cannot route requests back to its own IP; this allows you to work around this problem.\nIf you are running the client on the same device you browse from, use the loopback address (127.0.0.1:port). If the client is running on another device on your network, use its local network IP. Some browser configurations prevent external web sites from accessing URLs with local network IPs, the site must then be whitelisted for this to work." = "ローカルネットワークで今と同じパブリックIPを使うHathクライアントがお持ちの場合、この設定が役立ちます。ルーターがバグが多くてリクエストを自分のIPにルートすることができないこともあります、それをこの設定で回避できます。\nHathクライアントが今と同じデバイスで運行している場合はループバックアドレス（127.0.0.1:ポート）を使ってください。別のデバイスの場合はそのローカルIPを使ってください。かなりのブラウザの構成では外部サイトがローカルIPにアクセスすることをブロックしています、この設定を有効にするには本サイトをホワイトリストに入れてください。";
 "IP address:Port" = "IPアドレス:ポート";
 
 "Original Images" = "オリジナル画像";
@@ -282,7 +282,7 @@
 // MARK: LogsView
 "Logs" = "ログ";
 "Latest" = "最新";
-" records" = "件レコード";
+"%lld records" = "%lld件のレコード";
 
 // MARK: FilterView
 "Filters" = "フィルター";
@@ -302,7 +302,7 @@
 "Show expunged galleries" = "削除済みのギャラリーを表示";
 "Set minimum rating" = "評価の下限を指定";
 "Minimum rating" = "評価の下限";
-"stars" = "つ星";
+"%lld stars" = "%lldつ星";
 "Set pages range" = "ページ数範囲を指定";
 "Pages range" = "ページ数範囲";
 "Default Filter" = "既定フィルター";

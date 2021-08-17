@@ -128,10 +128,7 @@ private struct LogCell: View {
             HStack {
                 Text(dateRangeString).bold()
                 Spacer()
-                Text(
-                    (log.contents.count.withComma ?? "0")
-                    + " records".localized()
-                )
+                Text("\(log.contents.count) records")
             }
             .foregroundColor(.secondary)
             .font(.caption2)
