@@ -164,6 +164,8 @@
 //"Any client" = "";
 //"Default port clients only" = "";
 //"LOAD_THROUGH_HATH_NO" = "";
+//"You appear to be browsing the site from **PLACEHOLDER** or use a VPN or proxy in this country, which means the site will try to load images from Hath clients in this general geographic region. If this is incorrect, or if you want to use a different region for any reason (like if you are using a split tunneling VPN), you can select a different country below." = "";
+//"Browsing country" = "";
 //
 //"Image Size Settings" = "";
 //"Normally, images are resampled to 1280 pixels of horizontal resolution for online viewing. You can alternatively select one of the following resample resolutions. To avoid murdering the staging servers, resolutions above 1280x are temporarily restricted to donators, people with any hath perk, and people with a UID below 3,000,000." = "";

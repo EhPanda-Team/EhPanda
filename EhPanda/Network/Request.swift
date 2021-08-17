@@ -684,6 +684,7 @@ struct SubmitEhProfileChangesRequest {
         let url = Defaults.URL.ehConfig()
         var params: [String: String] = [
             "uh": String(profile.loadThroughHathSetting.rawValue),
+            "co": profile.browsingCountry.rawValue,
             "xr": String(profile.imageResolution.rawValue),
             "rx": String(Int(profile.imageSizeWidth)),
             "ry": String(Int(profile.imageSizeHeight)),

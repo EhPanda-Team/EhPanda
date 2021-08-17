@@ -152,6 +152,14 @@ private struct ImageLoadSettingsSection: View {
             setting <= profile.capableLoadThroughHathSetting
         }
     }
+    // swiftlint:disable line_length
+    private var browsingCountryKey: LocalizedStringKey {
+        LocalizedStringKey(
+            "You appear to be browsing the site from **PLACEHOLDER** or use a VPN or proxy in this country, which means the site will try to load images from Hath clients in this general geographic region. If this is incorrect, or if you want to use a different region for any reason (like if you are using a split tunneling VPN), you can select a different country below.".localized()
+                .replacingOccurrences(of: "PLACEHOLDER", with: profile.literalBrowsingCountry.localized())
+        )
+    }
+    // swiftlint:enable line_length
 
     init(profile: Binding<EhProfile>) {
         _profile = profile
@@ -171,6 +179,21 @@ private struct ImageLoadSettingsSection: View {
                 Text(profile.loadThroughHathSetting.value.localized())
             }
             .pickerStyle(.menu)
+        }
+        .textCase(nil)
+        Section(browsingCountryKey) {
+            HStack {
+                Text("Browsing country")
+                Spacer()
+                Picker(selection: $profile.browsingCountry) {
+                    ForEach(EhProfileBrowsingCountry.allCases) { country in
+                        Text(country.name.localized()).tag(country)
+                    }
+                } label: {
+                    Text(profile.browsingCountry.name.localized())
+                }
+                .pickerStyle(.menu)
+            }
         }
         .textCase(nil)
     }
@@ -557,8 +580,8 @@ private struct ExcludedUploadersSection: View {
 
     // swiftlint:disable line_length
     private let excludedUploadersDescription = "If you wish to hide galleries from certain uploaders from the gallery list and searches, add them below. Put one username per line. Note that galleries from these uploaders will never appear regardless of your search query."
-    private var exclusionSlotsDescriptionText: Text {
-        Text("You are currently using **\(profile.excludedUploaders.lineCount) / 1000** exclusion slots.")
+    private var exclusionSlotsKey: LocalizedStringKey {
+        LocalizedStringKey("You are currently using **\(profile.excludedUploaders.lineCount) / 1000** exclusion slots.")
     }
     // swiftlint:enable line_length
 
@@ -571,7 +594,7 @@ private struct ExcludedUploadersSection: View {
         Section(
             header: Text("Excluded Uploaders").newlineBold()
             + Text(excludedUploadersDescription.localized()),
-            footer: exclusionSlotsDescriptionText
+            footer: Text(exclusionSlotsKey)
         ) {
             TextEditor(text: $profile.excludedUploaders)
                 .frame(maxHeight: windowH * 0.3)
