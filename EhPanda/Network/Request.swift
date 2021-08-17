@@ -691,36 +691,8 @@ struct SubmitEhProfileChangesRequest {
             "tl": String(profile.galleryName.rawValue),
             "ar": String(profile.archiverBehavior.rawValue),
             "dm": String(profile.displayMode.rawValue),
-            "ct_doujinshi": profile.doujinshiDisabled ? "1" : "0",
-            "ct_manga": profile.mangaDisabled ? "1" : "0",
-            "ct_artistcg": profile.artistCGDisabled ? "1" : "0",
-            "ct_gamecg": profile.gameCGDisabled ? "1" : "0",
-            "ct_western": profile.westernDisabled ? "1" : "0",
-            "ct_non-h": profile.nonHDisabled ? "1" : "0",
-            "ct_imageset": profile.imageSetDisabled ? "1" : "0",
-            "ct_cosplay": profile.cosplayDisabled ? "1" : "0",
-            "ct_asianporn": profile.asianPornDisabled ? "1" : "0",
-            "ct_misc": profile.miscDisabled ? "1" : "0",
-            "favorite_0": profile.favoriteName0,
-            "favorite_1": profile.favoriteName1,
-            "favorite_2": profile.favoriteName2,
-            "favorite_3": profile.favoriteName3,
-            "favorite_4": profile.favoriteName4,
-            "favorite_5": profile.favoriteName5,
-            "favorite_6": profile.favoriteName6,
-            "favorite_7": profile.favoriteName7,
-            "favorite_8": profile.favoriteName8,
-            "favorite_9": profile.favoriteName9,
             "fs": String(profile.favoritesSortOrder.rawValue),
             "ru": profile.ratingsColor,
-            "xn_1": profile.reclassExcluded ? "1" : "0",
-            "xn_2": profile.languageExcluded ? "1" : "0",
-            "xn_3": profile.parodyExcluded ? "1" : "0",
-            "xn_4": profile.characterExcluded ? "1" : "0",
-            "xn_5": profile.groupExcluded ? "1" : "0",
-            "xn_6": profile.artistExcluded ? "1" : "0",
-            "xn_7": profile.maleExcluded ? "1" : "0",
-            "xn_8": profile.femaleExcluded ? "1" : "0",
             "ft": String(Int(profile.tagFilteringThreshold)),
             "wt": String(Int(profile.tagWatchingThreshold)),
             "xu": profile.excludedUploaders,
@@ -737,6 +709,16 @@ struct SubmitEhProfileChangesRequest {
             "hh": profile.hathLocalNetworkHost,
             "apply": "Apply"
         ]
+
+        EhProfile.categoryNames.enumerated().forEach { (index, name) in
+            params["ct_\(name)"] = profile.disabledCategories[index] ? "1" : "0"
+        }
+        Array(stride(from: 0, through: 9, by: 1)).forEach { index in
+            params["favorite_\(index)"] = profile.favoriteNames[index]
+        }
+        Array(stride(from: 0, through: 7, by: 1)).forEach { index in
+            params["xn_\(index)"] = profile.excludedNamespaces[index] ? "1" : "0"
+        }
 
         if let useOriginalImages = profile.useOriginalImages {
             params["oi"] = useOriginalImages ? "1" : "0"

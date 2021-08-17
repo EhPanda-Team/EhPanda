@@ -8,8 +8,11 @@
 // MARK: EhProfile
 struct EhProfile {
     // swiftlint:disable line_length
-    static let empty = EhProfile(capableLoadThroughHathSetting: .defaultPortOnly, capableImageResolution: .x780, capableSearchResultCount: .twentyFive, capableThumbnailConfigSize: .normal, capableThumbnailConfigRows: .twenty, loadThroughHathSetting: .anyClient, browsingCountry: .autoDetect, literalBrowsingCountry: "Hong Kong", imageResolution: .auto, imageSizeWidth: 0, imageSizeHeight: 0, galleryName: .default, archiverBehavior: .manualSelectManualStart, displayMode: .compact, doujinshiDisabled: false, mangaDisabled: false, artistCGDisabled: false, gameCGDisabled: false, westernDisabled: false, nonHDisabled: false, imageSetDisabled: false, cosplayDisabled: false, asianPornDisabled: false, miscDisabled: false, favoriteName0: "Favorites 0", favoriteName1: "Favorites 1", favoriteName2: "Favorites 2", favoriteName3: "Favorites 3", favoriteName4: "Favorites 4", favoriteName5: "Favorites 5", favoriteName6: "Favorites 6", favoriteName7: "Favorites 7", favoriteName8: "Favorites 8", favoriteName9: "Favorites 9", favoritesSortOrder: .favoritedTime, ratingsColor: "", reclassExcluded: false, languageExcluded: false, parodyExcluded: false, characterExcluded: false, groupExcluded: false, artistExcluded: false, maleExcluded: false, femaleExcluded: false, tagFilteringThreshold: 0, tagWatchingThreshold: 0, excludedUploaders: "", searchResultCount: .twentyFive, thumbnailLoadTiming: .onMouseOver, thumbnailConfigSize: .normal, thumbnailConfigRows: .four, thumbnailScaleFactor: 100, viewportVirtualWidth: 0, commentsSortOrder: .oldest, commentVotesShowTiming: .onHoverOrClick, tagsSortOrder: .alphabetical, galleryShowPageNumbers: false, hathLocalNetworkHost: ""
+    static let empty = EhProfile(capableLoadThroughHathSetting: .defaultPortOnly, capableImageResolution: .x780, capableSearchResultCount: .twentyFive, capableThumbnailConfigSize: .normal, capableThumbnailConfigRows: .twenty, loadThroughHathSetting: .anyClient, browsingCountry: .autoDetect, literalBrowsingCountry: "Hong Kong", imageResolution: .auto, imageSizeWidth: 0, imageSizeHeight: 0, galleryName: .default, archiverBehavior: .manualSelectManualStart, displayMode: .compact, disabledCategories: Array(repeating: false, count: 10), favoriteNames: Array(repeating: "debug", count: 10), favoritesSortOrder: .favoritedTime, ratingsColor: "", excludedNamespaces: Array(repeating: false, count: 8), tagFilteringThreshold: 0, tagWatchingThreshold: 0, excludedUploaders: "", searchResultCount: .twentyFive, thumbnailLoadTiming: .onMouseOver, thumbnailConfigSize: .normal, thumbnailConfigRows: .four, thumbnailScaleFactor: 100, viewportVirtualWidth: 0, commentsSortOrder: .oldest, commentVotesShowTiming: .onHoverOrClick, tagsSortOrder: .alphabetical, galleryShowPageNumbers: false, hathLocalNetworkHost: ""
     )
+    static let categoryNames = Category.allCases.map(\.rawValue).map { value in
+        value.lowercased().replacingOccurrences(of: " ", with: "")
+    }
     // swiftlint:enable line_length
 
     var capableLoadThroughHathSetting: EhProfileLoadThroughHathSetting
@@ -27,44 +30,11 @@ struct EhProfile {
     var galleryName: EhProfileGalleryName
     var archiverBehavior: EhProfileArchiverBehavior
     var displayMode: EhProfileDisplayMode
-
-    // Front Page Settings
-    var doujinshiDisabled: Bool
-    var mangaDisabled: Bool
-    var artistCGDisabled: Bool
-    var gameCGDisabled: Bool
-    var westernDisabled: Bool
-    var nonHDisabled: Bool
-    var imageSetDisabled: Bool
-    var cosplayDisabled: Bool
-    var asianPornDisabled: Bool
-    var miscDisabled: Bool
-
-    // Favorites
-    var favoriteName0: String
-    var favoriteName1: String
-    var favoriteName2: String
-    var favoriteName3: String
-    var favoriteName4: String
-    var favoriteName5: String
-    var favoriteName6: String
-    var favoriteName7: String
-    var favoriteName8: String
-    var favoriteName9: String
-
+    var disabledCategories: [Bool]
+    var favoriteNames: [String]
     var favoritesSortOrder: EhProfileFavoritesSortOrder
     var ratingsColor: String
-
-    // Tag Namespaces
-    var reclassExcluded: Bool
-    var languageExcluded: Bool
-    var parodyExcluded: Bool
-    var characterExcluded: Bool
-    var groupExcluded: Bool
-    var artistExcluded: Bool
-    var maleExcluded: Bool
-    var femaleExcluded: Bool
-
+    var excludedNamespaces: [Bool]
     var tagFilteringThreshold: Float
     var tagWatchingThreshold: Float
     var excludedUploaders: String

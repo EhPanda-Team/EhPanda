@@ -326,18 +326,7 @@ private struct FrontPageSettingsSection: View {
     @Binding private var profile: EhProfile
 
     private var categoryBindings: [Binding<Bool>] {
-        [
-            $profile.doujinshiDisabled,
-            $profile.mangaDisabled,
-            $profile.artistCGDisabled,
-            $profile.gameCGDisabled,
-            $profile.westernDisabled,
-            $profile.nonHDisabled,
-            $profile.imageSetDisabled,
-            $profile.cosplayDisabled,
-            $profile.asianPornDisabled,
-            $profile.miscDisabled
-        ]
+        $profile.disabledCategories.map({ $0 })
     }
 
     // swiftlint:disable line_length
@@ -382,18 +371,10 @@ private struct FavoritesSection: View {
     @FocusState private var isFocused
 
     private var tuples: [(Category, Binding<String>)] {
-        [
-            (.misc, $profile.favoriteName0),
-            (.doujinshi, $profile.favoriteName1),
-            (.manga, $profile.favoriteName2),
-            (.artistCG, $profile.favoriteName3),
-            (.gameCG, $profile.favoriteName4),
-            (.western, $profile.favoriteName5),
-            (.nonH, $profile.favoriteName6),
-            (.imageSet, $profile.favoriteName7),
-            (.cosplay, $profile.favoriteName8),
-            (.asianPorn, $profile.favoriteName9)
-        ]
+        let categories = [Category.misc] + Category.allCases.dropLast()
+        return categories.enumerated().map { index, category in
+            (category, $profile.favoriteNames[index])
+        }
     }
 
     // swiftlint:disable line_length
@@ -488,15 +469,12 @@ private struct TagNamespacesSection: View {
 
     private var tuples: [(String, Binding<Bool>)] {
         [
-            ("reclass", $profile.reclassExcluded),
-            ("language", $profile.languageExcluded),
-            ("parody", $profile.parodyExcluded),
-            ("character", $profile.characterExcluded),
-            ("group", $profile.groupExcluded),
-            ("artist", $profile.artistExcluded),
-            ("male", $profile.maleExcluded),
-            ("female", $profile.femaleExcluded)
+            "reclass", "language", "parody", "character",
+            "group", "artist", "male", "female"
         ]
+        .enumerated().map { index, value in
+            (value, $profile.excludedNamespaces[index])
+        }
     }
 
     // swiftlint:disable line_length
