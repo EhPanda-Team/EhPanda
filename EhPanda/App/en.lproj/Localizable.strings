@@ -22,6 +22,9 @@
 // MARK: DetailView
 "DESC_SCROLL_ITEM_FAVORITED" = "Favorited";
 
+// MARK: ArchiveView
+"ARCHIVE_RESOLUTION_ORIGINAL" = "Original";
+
 // MARK: NewDawnView
 "GAINCONTENT_START" = "You gain ";
 "GAINCONTENT_SEPARATOR" = ", ";

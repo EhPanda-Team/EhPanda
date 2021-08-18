@@ -57,7 +57,7 @@
 // MARK: ArchiveView
 "N/A" = "不適用";
 "Free" = "免費";
-"Original" = "原始尺寸";
+"ARCHIVE_RESOLUTION_ORIGINAL" = "原始解析度";
 "Download To Hath Client" = "下載到Hath客戶端";
 
 // MARK: GalleryInfosView
@@ -219,6 +219,12 @@
 //
 //"Tag Watching Threshold" = "";
 //"Recently uploaded galleries will be included on the watched screen if it has at least one watched tag with positive weight, and the sum of weights on its watched tags add up to this value or higher. This threshold can be set between 0 and 9999." = "";
+//
+//"Excluded Languages" = "";
+//"If you wish to hide galleries in certain languages from the gallery list and searches, select them from the list below. Note that matching galleries will never appear regardless of your search query." = "";
+//"Original" = "";
+//"Translated" = "";
+//"Rewrite" = "";
 //
 //"Excluded Uploaders" = "";
 //"If you wish to hide galleries from certain uploaders from the gallery list and searches, add them below. Put one username per line. Note that galleries from these uploaders will never appear regardless of your search query." = "";
@@ -389,7 +395,7 @@
 
 "Hebrew" = "希伯來語"; "Hindi" = "印地語"; "Hmong" = "苗語"; "Hungarian" = "匈牙利語";
 
-"Indonesian" = "印尼語"; "Indonesian" = "意大利語";
+"Indonesian" = "印尼語"; "Italian" = "意大利語";
 
 "Japanese" = "日語";
 

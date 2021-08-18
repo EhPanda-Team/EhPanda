@@ -359,7 +359,7 @@ enum ArchiveRes: String, Codable, CaseIterable {
     case x1280 = "1280x"
     case x1600 = "1600x"
     case x2400 = "2400x"
-    case original = "Original"
+    case original = "ARCHIVE_RESOLUTION_ORIGINAL"
 }
 
 extension ArchiveRes {

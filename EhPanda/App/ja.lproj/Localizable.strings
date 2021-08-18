@@ -57,7 +57,7 @@
 // MARK: ArchiveView
 "N/A" = "無効";
 "Free" = "無料";
-"Original" = "オリジナル";
+"ARCHIVE_RESOLUTION_ORIGINAL" = "オリジナル";
 "Download To Hath Client" = "Hathクライアントにダウンロード";
 
 // MARK: GalleryInfosView
@@ -220,8 +220,14 @@
 "Tag Watching Threshold" = "タグ購読しきい値";
 "Recently uploaded galleries will be included on the watched screen if it has at least one watched tag with positive weight, and the sum of weights on its watched tags add up to this value or higher. This threshold can be set between 0 and 9999." = "もしあるギャラリーは最近投稿されたもので、少なくても一つの正の重みの購読タグを持っていて、購読タグの重み総和がこのしきい値と同じまたはより高ければ、そのギャラリーは購読画面で表示されます。このしきい値はゼロから9999まで設定できます。";
 
+"Excluded Languages" = "排除された言語";
+"If you wish to hide galleries in certain languages from the gallery list and searches, select them from the list below. Note that matching galleries will never appear regardless of your search query." = "特定の言語のギャラリーをリストと検索結果から隠したい場合、下に選択してください。注意：どんな検索クエリーを使ってもこれらの言語のギャラリーは表示されません。";
+"Original" = "オリジナル";
+"Translated" = "翻訳版";
+"Rewrite" = "書き換え版";
+
 "Excluded Uploaders" = "排除された投稿者";
-"If you wish to hide galleries from certain uploaders from the gallery list and searches, add them below. Put one username per line. Note that galleries from these uploaders will never appear regardless of your search query." = "特定の投稿者のギャラリーをリストと検索結果から隠したければ、下に彼らの名前を追加してください。一行に一つのユーザー名で。注意：どんな検索クエリーを使ってもこの投稿者たちのギャラリーは表示されません。";
+"If you wish to hide galleries from certain uploaders from the gallery list and searches, add them below. Put one username per line. Note that galleries from these uploaders will never appear regardless of your search query." = "特定の投稿者のギャラリーをリストと検索結果から隠したい場合、下に名前を記入してください。一行に一つのユーザー名で。注意：どんな検索クエリーを使ってもこの投稿者たちのギャラリーは表示されません。";
 "You are currently using **%lld / 1000** exclusion slots." = "現時点で **%lld / 1000** の排除スロットが使用済みです。";
 
 "Search Result Count" = "検索結果数";
@@ -389,7 +395,7 @@
 
 "Hebrew" = "ヘブライ語"; "Hindi" = "ヒンディー語"; "Hmong" = "ミャオ語"; "Hungarian" = "ハンガリー語";
 
-"Indonesian" = "インドネシア語"; "Indonesian" = "イタリア語";
+"Indonesian" = "インドネシア語"; "Italian" = "イタリア語";
 
 "Japanese" = "日本語";
 

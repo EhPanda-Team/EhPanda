@@ -710,7 +710,7 @@ struct SubmitEhProfileChangesRequest {
             "apply": "Apply"
         ]
 
-        EhProfile.categoryNames.enumerated().forEach { (index, name) in
+        EhProfile.categoryNames.enumerated().forEach { index, name in
             params["ct_\(name)"] = profile.disabledCategories[index] ? "1" : "0"
         }
         Array(0...9).forEach { index in
@@ -718,6 +718,10 @@ struct SubmitEhProfileChangesRequest {
         }
         Array(0...7).forEach { index in
             params["xn_\(index)"] = profile.excludedNamespaces[index] ? "1" : "0"
+        }
+        profile.excludedLanguages.enumerated().forEach { index, value in
+            guard value else { return }
+            params["xl_\(EhProfile.languageValues[index])"] = "on"
         }
 
         if let useOriginalImages = profile.useOriginalImages {

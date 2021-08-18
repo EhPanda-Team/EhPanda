@@ -57,7 +57,7 @@
 // MARK: ArchiveView
 "N/A" = "无效";
 "Free" = "免费";
-"Original" = "原始尺寸";
+"ARCHIVE_RESOLUTION_ORIGINAL" = "原始分辨率";
 "Download To Hath Client" = "下载到Hath客户端";
 
 // MARK: GalleryInfosView
@@ -168,7 +168,7 @@
 "Browsing country" = "浏览国家";
 
 "Image Size Settings" = "图片尺寸设置";
-"Normally, images are resampled to 1280 pixels of horizontal resolution for online viewing. You can alternatively select one of the following resample resolutions. To avoid murdering the staging servers, resolutions above 1280x are temporarily restricted to donators, people with any hath perk, and people with a UID below 3,000,000." = "通常情况，图像将重采样到 1280 像素宽度以用于在线浏览，您也可以选择以下重新采样分辨率。但是为了避免负载过高，高于 1280 像素将只供给于赞助者、特殊贡献者，以及 UID 小于 3,000,000 的用户。";
+"Normally, images are resampled to 1280 pixels of horizontal resolution for online viewing. You can alternatively select one of the following resample resolutions. To avoid murdering the staging servers, resolutions above 1280x are temporarily restricted to donators, people with any hath perk, and people with a UID below 3,000,000." = "通常情况，图像将重采样到 1280 像素宽度以用于在线浏览，你也可以选择以下重新采样分辨率。但是为了避免负载过高，高于 1280 像素将只供给于赞助者、特殊贡献者，以及 UID 小于 3,000,000 的用户。";
 "Image resolution" = "图像分辨率";
 "Auto" = "自动";
 "While the site will automatically scale down images to fit your screen width, you can also manually restrict the maximum display size of an image. Like the automatic scaling, this does not resample the image, as the resizing is done browser-side. (0 = no limit)" = "虽然图片会自动根据窗口缩小，你也可以手动设置最大大小，图片并没有重新采样。（0 为不限制）";
@@ -202,7 +202,7 @@
 "What categories would you like to show by default on the front page and in searches?" = "你希望在首页上看到哪些类别？";
 
 "Here you can choose and rename your favorite categories." = "在这里你可以重命名你的收藏夹。";
-"You can also select your default sort order for galleries on your favorites page. Note that favorites added prior to the March 2016 revamp did not store a timestamp, and will use the gallery posted time regardless of this setting." = "你也可以选择收藏夹中默认排序。请注意，2016 年 3 月改版之前加入收藏夹的画廊并未保存收藏时间，会以画廊发布时间代替。";
+"You can also select your default sort order for galleries on your favorites page. Note that favorites added prior to the March 2016 revamp did not store a timestamp, and will use the gallery posted time regardless of this setting." = "你也可以选择收藏夹中默认排序。注意：2016年3月改版之前加入收藏夹的画廊并未保存收藏时间，会以画廊发布时间代替。";
 "Favorites sort order" = "收藏排序方式";
 "By last gallery update time" = "按更新时间";
 "By favorited time" = "按收藏时间";
@@ -212,7 +212,7 @@
 "Ratings color" = "评分颜色";
 
 "Tag Namespaces" = "标签命名空间";
-"If you want to exclude certain namespaces from a default tag search, you can check those below. Note that this does not prevent galleries with tags in these namespaces from appearing, it just makes it so that when searching tags, it will forego those namespaces." = "如果要从默认标签搜索中排除某些命名空间，可以将以下内容标记为删除样式。请注意，这不会阻止带有这些命名空间中标签的画廊出现，它只是在搜索标签时排除这些命名空间。";
+"If you want to exclude certain namespaces from a default tag search, you can check those below. Note that this does not prevent galleries with tags in these namespaces from appearing, it just makes it so that when searching tags, it will forego those namespaces." = "如果要从默认标签搜索中排除某些命名空间，可以将以下内容标记为删除样式。注意：这不会阻止带有这些命名空间中标签的画廊出现，它只是在搜索标签时排除这些命名空间。";
 
 "Tag Filtering Threshold" = "标签筛选阈值";
 "You can soft filter tags by adding them to My Tags with a negative weight. If a gallery has tags that add up to weight below this value, it is filtered from view. This threshold can be set between 0 and -9999." = "你可以通过将标签加入“我的标签”并设置一个负权重来软过滤它们。如果一个作品所有的标签权重之和低于设定值，此作品将从视图中被过滤。这个值可以设定为 0 ~ -9999。";
@@ -220,8 +220,14 @@
 "Tag Watching Threshold" = "标签订阅阈值";
 "Recently uploaded galleries will be included on the watched screen if it has at least one watched tag with positive weight, and the sum of weights on its watched tags add up to this value or higher. This threshold can be set between 0 and 9999." = "你可以通过将标签加入“我的标签”并设置一个正权重来关注它们。如果一个最近上传的作品所有标签的权重之和高于设定值，则它将会被包含在“关注”里。这个值可以设定为 0 ~ 9999。";
 
+"Excluded Languages" = "屏蔽的语言";
+"If you wish to hide galleries in certain languages from the gallery list and searches, select them from the list below. Note that matching galleries will never appear regardless of your search query." = "如果你希望以从列表或搜索结果中隐藏特定语言的画廊，请从下面的列表中选择。注意：无论搜索条件为何，这些画廊都不会出现。";
+"Original" = "原始";
+"Translated" = "翻译版本";
+"Rewrite" = "改编版本";
+
 "Excluded Uploaders" = "屏蔽的上传者";
-"If you wish to hide galleries from certain uploaders from the gallery list and searches, add them below. Put one username per line. Note that galleries from these uploaders will never appear regardless of your search query." = "如果你希望在画廊中和搜索中隐藏某个上传者的话，请把他们的用户名填写在下方，每行一个。注意：无论你如何搜索，这些上传者都不会出现。";
+"If you wish to hide galleries from certain uploaders from the gallery list and searches, add them below. Put one username per line. Note that galleries from these uploaders will never appear regardless of your search query." = "如果你希望在画廊中和搜索中隐藏某个上传者的话，请把他们的用户名填写在下方，每行一个。注意：无论搜索条件为何，这些上传者都不会出现。";
 "You are currently using **%lld / 1000** exclusion slots." = "已使用 **%lld / 1000** 个屏蔽槽位。";
 
 "Search Result Count" = "搜索结果数";
@@ -389,7 +395,7 @@
 
 "Hebrew" = "希伯来语"; "Hindi" = "印地语"; "Hmong" = "苗语"; "Hungarian" = "匈牙利语";
 
-"Indonesian" = "印度尼西亚语"; "Indonesian" = "意大利语";
+"Indonesian" = "印度尼西亚语"; "Italian" = "意大利语";
 
 "Japanese" = "日语";
 

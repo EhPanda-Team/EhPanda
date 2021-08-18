@@ -31,22 +31,23 @@ struct EhSettingsView: View, StoreAccessor {
                 FrontPageSettingsSection(profile: profileBinding)
                 FavoritesSection(profile: profileBinding, shouldHideKeyboard: $shouldHideKeyboard)
                 RatingsSection(profile: profileBinding, shouldHideKeyboard: $shouldHideKeyboard)
-            }
-            Group {
                 TagNamespacesSection(profile: profileBinding)
                 TagFilteringThresholdSection(profile: profileBinding)
                 TagWatchingThresholdSection(profile: profileBinding)
+            }
+            Group {
+                ExcludedLanguagesSection(profile: profileBinding)
                 ExcludedUploadersSection(profile: profileBinding, shouldHideKeyboard: $shouldHideKeyboard)
                 SearchResultCountSection(profile: profileBinding)
                 ThumbnailSettingsSection(profile: profileBinding)
                 ThumbnailScalingSection(profile: profileBinding)
-            }
-            Group {
                 ViewportOverrideSection(profile: profileBinding)
                 GalleryCommentsSection(profile: profileBinding)
                 GalleryTagsSection(profile: profileBinding)
                 GalleryPageNumberingSection(profile: profileBinding)
                 HathLocalNetworkHostSection(profile: profileBinding, shouldHideKeyboard: $shouldHideKeyboard)
+            }
+            Group {
                 OriginalImagesSection(profile: profileBinding)
                 MultiplePageViewerSection(profile: profileBinding)
             }
@@ -500,6 +501,55 @@ private struct TagNamespacesSection: View {
     }
 }
 
+private struct ExcludeView: View {
+    private let tuples: [(String, Binding<Bool>)]
+
+    private let gridItems = [
+        GridItem(.adaptive(
+            minimum: isPadWidth ? 100 : 80, maximum: 100
+        ))
+    ]
+    private func localizedText(_ text: String) -> String {
+        if text.capitalizingFirstLetter().hasLocalizedString {
+            return text.capitalizingFirstLetter().localized()
+        } else {
+            return text
+        }
+    }
+
+    init(tuples: [(String, Binding<Bool>)]) {
+        self.tuples = tuples
+    }
+
+    var body: some View {
+        LazyVGrid(columns: gridItems) {
+            ForEach(tuples, id: \.0) { text, isExcluded in
+                ZStack {
+                    Text(localizedText(text)).bold()
+                        .opacity(isExcluded.wrappedValue ? 0 : 1)
+                    ZStack {
+                        Text(localizedText(text))
+                        let width = (CGFloat(text.count) * 8) + 8
+                        let line = Rectangle().frame(
+                            width: width, height: 1
+                        )
+                        VStack(spacing: 2) {
+                            line
+                            line
+                        }
+                    }
+                    .foregroundColor(.red)
+                    .opacity(isExcluded.wrappedValue ? 1 : 0)
+                }
+                .onTapGesture {
+                    isExcluded.wrappedValue.toggle()
+                }
+            }
+        }
+        .padding(.vertical)
+    }
+}
+
 // MARK: TagFilteringThresholdSection
 private struct TagFilteringThresholdSection: View {
     @Binding private var profile: EhProfile
@@ -551,6 +601,110 @@ private struct TagWatchingThresholdSection: View {
             )
         }
         .textCase(nil)
+    }
+}
+
+// MARK: ExcludedLanguagesSection
+private struct ExcludedLanguagesSection: View {
+    @Binding private var profile: EhProfile
+//    @State private var showDetailIndex: Int?
+
+    // swiftlint:disable line_length
+    private let excludedLanguagesDescription = "If you wish to hide galleries in certain languages from the gallery list and searches, select them from the list below. Note that matching galleries will never appear regardless of your search query."
+    // swiftlint:enable line_length
+
+    private var languageBindings: [Binding<Bool>] {
+        $profile.excludedLanguages.map( { $0 })
+    }
+    private let languages = [
+        "Japanese", "English", "Chinese", "Dutch",
+        "French", "German", "Hungarian", "Italian",
+        "Korean", "Polish", "Portuguese", "Russian",
+        "Spanish", "Thai", "Vietnamese", "N/A", "Other"
+    ]
+
+    init(profile: Binding<EhProfile>) {
+        _profile = profile
+    }
+
+    var body: some View {
+        Section(
+            header: Text("Excluded Languages").newlineBold()
+            + Text(excludedLanguagesDescription.localized())
+        ) {
+            HStack {
+                Text("").frame(width: windowW * 0.25)
+                ForEach(["Original", "Translated", "Rewrite"], id: \.self) { category in
+                    Color.clear.overlay {
+                        Text(category.localized()).lineLimit(1)
+                            .font(.subheadline).fixedSize()
+                    }
+                }
+            }
+            ForEach(0..<(languageBindings.count / 3) + 1) { index in
+                ExcludeRow(
+                    title: languages[index],
+                    bindings: [-1, 0, 1].map { num in
+                        let index = index * 3 + num
+
+                        guard index != -1
+                        else { return .constant(false) }
+                        return languageBindings[index]
+                    },
+                    isFirstRow: index == 0
+                )
+            }
+        }
+        .textCase(nil)
+    }
+}
+
+private struct ExcludeRow: View {
+    private let title: String
+    private let bindings: [Binding<Bool>]
+    private let isFirstRow: Bool
+
+    init(title: String, bindings: [Binding<Bool>], isFirstRow: Bool) {
+        self.title = title
+        self.bindings = bindings
+        self.isFirstRow = isFirstRow
+    }
+
+    var body: some View {
+        HStack {
+            HStack {
+                Text(title.localized()).lineLimit(1)
+                    .font(.subheadline).fixedSize()
+                Spacer()
+            }
+            .frame(width: windowW * 0.25)
+            ForEach(0..<bindings.count) { index in
+                let shouldHide = isFirstRow && index == 0
+                ExcludeToggle(isOn: bindings[index])
+                    .opacity(shouldHide ? 0 : 1)
+            }
+        }
+    }
+}
+
+private struct ExcludeToggle: View {
+    @Binding private var isOn: Bool
+
+    init(isOn: Binding<Bool>) {
+        _isOn = isOn
+    }
+
+    var body: some View {
+        Color.clear
+            .overlay {
+                Image(systemName: isOn ? "nosign" : "circle")
+                    .foregroundColor(isOn ? .red : .primary)
+                    .font(.title)
+            }
+            .onTapGesture {
+                withAnimation { isOn.toggle() }
+                impactFeedback(style: .light)
+            }
     }
 }
 
@@ -763,6 +917,50 @@ private struct ViewportOverrideSection: View {
     }
 }
 
+private struct ValuePicker: View {
+    private let title: String
+    @Binding private var value: Float
+    private let range: ClosedRange<Float>
+    private let unit: String
+
+    init(
+        title: String,
+        value: Binding<Float>,
+        range: ClosedRange<Float>,
+        unit: String = ""
+    ) {
+        self.title = title
+        _value = value
+        self.range = range
+        self.unit = unit
+    }
+
+    var body: some View {
+        VStack {
+            HStack {
+                Text(title.localized())
+                Spacer()
+                Text(String(Int(value)) + unit)
+                    .foregroundStyle(.tint)
+            }
+        }
+        Slider(
+            value: $value,
+            in: range,
+            step: 1,
+            minimumValueLabel:
+                Text(String(Int(range.lowerBound)) + unit)
+                .fontWeight(.medium)
+                .font(.callout),
+            maximumValueLabel:
+                Text(String(Int(range.upperBound)) + unit)
+                .fontWeight(.medium)
+                .font(.callout),
+            label: EmptyView.init
+        )
+    }
+}
+
 // MARK: GalleryCommentsSection
 private struct GalleryCommentsSection: View {
     @Binding private var profile: EhProfile
@@ -952,101 +1150,6 @@ private struct MultiplePageViewerSection: View {
     }
 }
 
-// MARK: ValuePicker
-private struct ValuePicker: View {
-    private let title: String
-    @Binding private var value: Float
-    private let range: ClosedRange<Float>
-    private let unit: String
-
-    init(
-        title: String,
-        value: Binding<Float>,
-        range: ClosedRange<Float>,
-        unit: String = ""
-    ) {
-        self.title = title
-        _value = value
-        self.range = range
-        self.unit = unit
-    }
-
-    var body: some View {
-        VStack {
-            HStack {
-                Text(title.localized())
-                Spacer()
-                Text(String(Int(value)) + unit)
-                    .foregroundStyle(.tint)
-            }
-        }
-        Slider(
-            value: $value,
-            in: range,
-            step: 1,
-            minimumValueLabel:
-                Text(String(Int(range.lowerBound)) + unit)
-                .fontWeight(.medium)
-                .font(.callout),
-            maximumValueLabel:
-                Text(String(Int(range.upperBound)) + unit)
-                .fontWeight(.medium)
-                .font(.callout),
-            label: EmptyView.init
-        )
-    }
-}
-
-// MARK: ExcludeView
-private struct ExcludeView: View {
-    private let tuples: [(String, Binding<Bool>)]
-
-    private let gridItems = [
-        GridItem(.adaptive(
-            minimum: isPadWidth ? 100 : 80, maximum: 100
-        ))
-    ]
-    private func localizedText(_ text: String) -> String {
-        if text.capitalizingFirstLetter().hasLocalizedString {
-            return text.capitalizingFirstLetter().localized()
-        } else {
-            return text
-        }
-    }
-
-    init(tuples: [(String, Binding<Bool>)]) {
-        self.tuples = tuples
-    }
-
-    var body: some View {
-        LazyVGrid(columns: gridItems) {
-            ForEach(tuples, id: \.0) { text, isExcluded in
-                ZStack {
-                    Text(localizedText(text)).bold()
-                        .opacity(isExcluded.wrappedValue ? 0 : 1)
-                    ZStack {
-                        Text(localizedText(text))
-                        let width = (CGFloat(text.count) * 8) + 8
-                        let line = Rectangle().frame(
-                            width: width, height: 1
-                        )
-                        VStack(spacing: 2) {
-                            line
-                            line
-                        }
-                    }
-                    .foregroundColor(.red)
-                    .opacity(isExcluded.wrappedValue ? 1 : 0)
-                }
-                .onTapGesture {
-                    isExcluded.wrappedValue.toggle()
-                }
-            }
-        }
-        .padding(.vertical)
-    }
-}
-
 private extension Text {
     func newlineBold() -> Text {
         bold() + Text("\n")
@@ -1057,6 +1160,9 @@ struct EhSettingsView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
             EhSettingsView()
+                .environmentObject(Store.preview)
+                .preferredColorScheme(.dark)
         }
+        .navigationViewStyle(.stack)
     }
 }

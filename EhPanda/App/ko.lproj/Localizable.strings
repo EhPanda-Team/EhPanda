@@ -57,7 +57,7 @@
 // MARK: ArchiveView
 "N/A" = "무효";
 "Free" = "무료";
-"Original" = "자동";
+"ARCHIVE_RESOLUTION_ORIGINAL" = "자동";
 "Download To Hath Client" = "Hath 클라이언트로 저장";
 
 // MARK: GalleryInfosView
@@ -219,6 +219,12 @@
 //
 //"Tag Watching Threshold" = "";
 //"Recently uploaded galleries will be included on the watched screen if it has at least one watched tag with positive weight, and the sum of weights on its watched tags add up to this value or higher. This threshold can be set between 0 and 9999." = "";
+//
+//"Excluded Languages" = "";
+//"If you wish to hide galleries in certain languages from the gallery list and searches, select them from the list below. Note that matching galleries will never appear regardless of your search query." = "";
+//"Original" = "";
+//"Translated" = "";
+//"Rewrite" = "";
 //
 //"Excluded Uploaders" = "";
 //"If you wish to hide galleries from certain uploaders from the gallery list and searches, add them below. Put one username per line. Note that galleries from these uploaders will never appear regardless of your search query." = "";

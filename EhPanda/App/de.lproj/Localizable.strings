@@ -57,7 +57,7 @@
 // MARK: ArchiveView
 "N/A" = "./.";
 "Free" = "Frei";
-"Original" = "Original";
+"ARCHIVE_RESOLUTION_ORIGINAL" = "Original";
 "Download To Hath Client" = "Mit Hath Client herunterladen";
 
 // MARK: GalleryInfosView
@@ -219,6 +219,12 @@
 //
 //"Tag Watching Threshold" = "";
 //"Recently uploaded galleries will be included on the watched screen if it has at least one watched tag with positive weight, and the sum of weights on its watched tags add up to this value or higher. This threshold can be set between 0 and 9999." = "";
+//
+//"Excluded Languages" = "";
+//"If you wish to hide galleries in certain languages from the gallery list and searches, select them from the list below. Note that matching galleries will never appear regardless of your search query." = "";
+//"Original" = "";
+//"Translated" = "";
+//"Rewrite" = "";
 //
 //"Excluded Uploaders" = "";
 //"If you wish to hide galleries from certain uploaders from the gallery list and searches, add them below. Put one username per line. Note that galleries from these uploaders will never appear regardless of your search query." = "";
@@ -389,7 +395,7 @@
 
 "Hebrew" = "Hebräisch"; "Hindi" = "Hindi"; "Hmong" = "Hmong"; "Hungarian" = "Ungarisch";
 
-"Indonesian" = "Indonesisch"; "Indonesian" = "Indonesisch";
+"Indonesian" = "Indonesisch"; // "Italian" = "";
 
 "Japanese" = "Japanisch";
 
