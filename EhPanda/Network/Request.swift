@@ -713,10 +713,10 @@ struct SubmitEhProfileChangesRequest {
         EhProfile.categoryNames.enumerated().forEach { (index, name) in
             params["ct_\(name)"] = profile.disabledCategories[index] ? "1" : "0"
         }
-        Array(stride(from: 0, through: 9, by: 1)).forEach { index in
+        Array(0...9).forEach { index in
             params["favorite_\(index)"] = profile.favoriteNames[index]
         }
-        Array(stride(from: 0, through: 7, by: 1)).forEach { index in
+        Array(0...7).forEach { index in
             params["xn_\(index)"] = profile.excludedNamespaces[index] ? "1" : "0"
         }
 

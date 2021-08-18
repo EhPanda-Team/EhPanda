@@ -90,10 +90,12 @@ struct EhSettingsView: View, StoreAccessor {
                 }
             }
         }
-        .onAppear(perform: fetchProfile)
+        .onAppear(perform: fetchProfileIfNeeded)
         .navigationTitle(title)
     }
+}
 
+private extension EhSettingsView {
     func fetchProfile() {
         loadFailedFlag = false
         guard !loadingFlag else { return }
@@ -137,6 +139,11 @@ struct EhSettingsView: View, StoreAccessor {
                 self.profile = profile
             }
             .seal(in: token)
+    }
+    func fetchProfileIfNeeded() {
+        if profile == nil {
+            fetchProfile()
+        }
     }
     func toggleWebViewConfig() {
         store.dispatch(.toggleSettingViewSheet(state: .webviewConfig))
@@ -182,17 +189,14 @@ private struct ImageLoadSettingsSection: View {
         }
         .textCase(nil)
         Section(browsingCountryKey) {
-            HStack {
-                Text("Browsing country")
-                Spacer()
-                Picker(selection: $profile.browsingCountry) {
-                    ForEach(EhProfileBrowsingCountry.allCases) { country in
-                        Text(country.name.localized()).tag(country)
-                    }
-                } label: {
-                    Text(profile.browsingCountry.name.localized())
+            Picker("Browsing country", selection: $profile.browsingCountry) {
+                ForEach(EhProfileBrowsingCountry.allCases) { country in
+                    Text(country.name.localized()).tag(country)
+                        .foregroundColor(
+                            country == profile.browsingCountry
+                            ? .accentColor : .primary
+                        )
                 }
-                .pickerStyle(.menu)
             }
         }
         .textCase(nil)
