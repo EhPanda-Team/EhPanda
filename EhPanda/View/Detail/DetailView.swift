@@ -466,6 +466,7 @@ private struct DescScrollView: View {
                 .withHorizontalSpacing()
             }
         }
+        .swipeBackable()
         .frame(height: 60)
         .onReceive(
             NotificationCenter.default.publisher(
@@ -777,6 +778,7 @@ private struct PreviewView: View {
                     .withHorizontalSpacing(height: height)
                 }
             }
+            .swipeBackable()
         }
     }
 }
@@ -915,6 +917,7 @@ private struct CommentScrollView: View {
                 }
                 .drawingGroup()
             }
+            .swipeBackable()
             CommentButton(action: toggleCommentAction)
                 .padding(.horizontal)
                 .disabled(!didLogin)

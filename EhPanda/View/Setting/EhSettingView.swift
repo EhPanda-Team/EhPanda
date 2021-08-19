@@ -96,6 +96,7 @@ struct EhSettingView: View, StoreAccessor {
             }
         }
         .onAppear(perform: fetchEhSettingIfNeeded)
+        .onDisappear(perform: resetSelection)
         .navigationTitle(title)
     }
 }
@@ -146,7 +147,7 @@ private extension EhSettingView {
             .seal(in: token)
     }
     func performEhProfileAction(
-        action: String?, name: String? = nil, set: Int
+        action: EhProfileAction?, name: String? = nil, set: Int
     ) {
         guard !submittingFlag else { return }
         submittingFlag = true
@@ -172,6 +173,17 @@ private extension EhSettingView {
             fetchEhSetting()
         }
     }
+    func resetSelection() {
+        guard let set = ehSetting?.ehProfiles.filter({ ehProfile in
+            ehProfile.name == "EhPanda"
+        }).first?.value else { return }
+
+        setCookie(
+            url: Defaults.URL.host.safeURL(),
+            key: Defaults.Cookie.selectedProfile,
+            value: String(set)
+        )
+    }
     func toggleWebViewConfig() {
         store.dispatch(.toggleSettingViewSheet(state: .webviewConfig))
     }
@@ -187,11 +199,11 @@ private struct EhProfileSection: View {
     @FocusState private var isFocused
     @State private var dialogPresented = false
 
-    private let performEhProfileAction: (String?, String?, Int) -> Void
+    private let performEhProfileAction: (EhProfileAction?, String?, Int) -> Void
 
     init(
         ehSetting: Binding<EhSetting>, shouldHideKeyboard: Binding<String>,
-        performEhProfileAction: @escaping (String?, String?, Int) -> Void
+        performEhProfileAction: @escaping (EhProfileAction?, String?, Int) -> Void
     ) {
         let selection: EhProfile = ehSetting.wrappedValue.ehProfiles
             .filter(\.isSelected).first.forceUnwrapped
@@ -256,16 +268,16 @@ private struct EhProfileSection: View {
         performEhProfileAction(nil, nil, newValue.value)
     }
     private func setDefault() {
-        performEhProfileAction("default", nil, selection.value)
+        performEhProfileAction(.default, nil, selection.value)
     }
     private func delete() {
-        performEhProfileAction("delete", nil, selection.value)
+        performEhProfileAction(.default, nil, selection.value)
     }
     private func rename() {
-        performEhProfileAction("rename", newname, selection.value)
+        performEhProfileAction(.rename, newname, selection.value)
     }
     private func create() {
-        performEhProfileAction("create", newname, selection.value)
+        performEhProfileAction(.create, newname, selection.value)
     }
 }
 

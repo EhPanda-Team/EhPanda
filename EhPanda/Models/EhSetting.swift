@@ -80,6 +80,12 @@ struct EhProfile: Comparable, Identifiable, Hashable {
         value == 1
     }
 }
+enum EhProfileAction: String {
+    case create
+    case delete
+    case rename
+    case `default`
+}
 
 // MARK: LoadThroughHathSetting
 enum EhSettingLoadThroughHathSetting: Int, CaseIterable, Identifiable, Comparable {

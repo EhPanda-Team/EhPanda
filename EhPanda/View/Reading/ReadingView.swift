@@ -124,6 +124,7 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
                 setting.readingDirection == .rightToLeft
                 ? .rightToLeft : .leftToRight
             )
+            .swipeInteractionArea(.allAvailable)
             .allowsDragging(scale == 1)
         }
     }

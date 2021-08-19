@@ -665,7 +665,8 @@ final class Store: ObservableObject {
                 if let profileValue = profileValue {
                     let profileValueString = String(profileValue)
                     let hostURL = Defaults.URL.host.safeURL()
-                    let selectedProfileKey = "sp"
+                    let selectedProfileKey =
+                    Defaults.Cookie.selectedProfile
 
                     let cookieValue = getCookieValue(
                         url: hostURL, key: selectedProfileKey

@@ -477,7 +477,7 @@ struct CreateEhProfileCommand: AppCommand {
 
     func execute(in store: Store) {
         let token = SubscriptionToken()
-        EhProfileRequest(action: "create", name: name)
+        EhProfileRequest(action: .create, name: name)
             .publisher
             .receive(on: DispatchQueue.main)
             .sink { _ in

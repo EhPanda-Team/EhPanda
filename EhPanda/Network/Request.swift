@@ -643,7 +643,7 @@ struct VerifyEhProfileRequest {
 }
 
 struct EhProfileRequest {
-    var action: String?
+    var action: EhProfileAction?
     var name: String?
     var set: Int?
 
@@ -652,7 +652,7 @@ struct EhProfileRequest {
         var params = [String: String]()
 
         if let action = action {
-            params["profile_action"] = action
+            params["profile_action"] = action.rawValue
         }
         if let name = name {
             params["profile_name"] = name
