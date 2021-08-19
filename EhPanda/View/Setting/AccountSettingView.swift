@@ -37,12 +37,13 @@ struct AccountSettingView: View, StoreAccessor {
                     .pickerStyle(.segmented)
                     if !didLogin {
                         NavigationLink("Login", destination: LoginView())
+                            .foregroundStyle(.tint)
                     } else {
-                        Button("Logout", action: toggleLogout).foregroundStyle(.red)
+                        Button("Logout", role: .destructive, action: toggleLogout)
                     }
                     if didLogin {
                         Group {
-                            NavigationLink("Account configuration", destination: EhSettingsView())
+                            NavigationLink("Account configuration", destination: EhSettingView())
                             Button("Manage tags subscription", action: toggleWebViewMyTags).withArrow()
                                 .disabled(setting.bypassesSNIFiltering)
                             Toggle(

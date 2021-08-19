@@ -39,6 +39,7 @@ struct Defaults {
         static let null = "null"
         static let expired = "expired"
         static let mystery = "mystery"
+        static let selectedProfile = "sp"
 
         static let igneous = "igneous"
         static let ipbMemberId = "ipb_member_id"
@@ -251,7 +252,7 @@ private extension Defaults.URL {
 
         var category = 0
         category += filter.doujinshi ? Category.doujinshi.value : 0
-        category += filter.gallery ? Category.gallery.value : 0
+        category += filter.manga ? Category.manga.value : 0
         category += filter.artistCG ? Category.artistCG.value : 0
         category += filter.gameCG ? Category.gameCG.value : 0
         category += filter.western ? Category.western.value : 0

@@ -131,6 +131,8 @@ final class Store: ObservableObject {
             appState.environment.commentViewSheetState = state
 
         // MARK: Fetch Data
+        case .fetchIgneous:
+            appCommand = FetchIgneousCommand()
         case .fetchTagTranslator:
             guard let preferredLanguage = Locale.preferredLanguages.first,
                   let language = TranslatableLanguage.allCases.compactMap({ lang in
@@ -653,17 +655,18 @@ final class Store: ObservableObject {
             }
 
         // MARK: Account Ops
-        case .createProfile:
-            appCommand = CreateProfileCommand()
-        case .verifyProfile:
-            appCommand = VerifyProfileCommand()
-        case .verifyProfileDone(let result):
+        case .createEhProfile(let name):
+            appCommand = CreateEhProfileCommand(name: name)
+        case .verifyEhProfile:
+            appCommand = VerifyEhProfileCommand()
+        case .verifyEhProfileDone(let result):
             switch result {
             case .success((let profileValue, let profileNotFound)):
                 if let profileValue = profileValue {
                     let profileValueString = String(profileValue)
                     let hostURL = Defaults.URL.host.safeURL()
-                    let selectedProfileKey = "sp"
+                    let selectedProfileKey =
+                    Defaults.Cookie.selectedProfile
 
                     let cookieValue = getCookieValue(
                         url: hostURL, key: selectedProfileKey
@@ -676,7 +679,7 @@ final class Store: ObservableObject {
                         )
                     }
                 } else if profileNotFound {
-                    dispatch(.createProfile)
+                    dispatch(.createEhProfile(name: "EhPanda"))
                 } else {
                     SwiftyBeaver.error("Found profile but failed in parsing value.")
                 }

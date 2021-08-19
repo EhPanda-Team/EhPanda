@@ -37,6 +37,7 @@ enum AppAction {
     case toggleDetailViewSheet(state: DetailViewSheetState?)
     case toggleCommentViewSheet(state: CommentViewSheetState?)
 
+    case fetchIgneous
     case fetchTagTranslator
     case fetchTagTranslatorDone(result: Result<TagTranslator, AppError>)
     case fetchGreeting
@@ -76,9 +77,9 @@ enum AppAction {
     case fetchGalleryMPVContent(gid: String, index: Int)
     case fetchGalleryMPVContentDone(gid: String, index: Int, result: Result<String, AppError>)
 
-    case createProfile
-    case verifyProfile
-    case verifyProfileDone(result: Result<(Int?, Bool), AppError>)
+    case createEhProfile(name: String)
+    case verifyEhProfile
+    case verifyEhProfileDone(result: Result<(Int?, Bool), AppError>)
     case addFavorite(gid: String, favIndex: Int)
     case deleteFavorite(gid: String)
     case rate(gid: String, rating: Int)

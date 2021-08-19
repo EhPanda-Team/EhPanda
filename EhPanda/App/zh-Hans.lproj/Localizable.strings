@@ -44,7 +44,7 @@
 "DESC_SCROLL_ITEM_FAVORITED" = "收藏";
 "Times" = "次";
 "Language" = "语言";
-" Ratings" = "个评分";
+"%lld Ratings" = "%lld个评分";
 "Page Count" = "页数";
 "Pages" = "页";
 "File Size" = "文件大小";
@@ -57,7 +57,7 @@
 // MARK: ArchiveView
 "N/A" = "无效";
 "Free" = "免费";
-"Original" = "原始尺寸";
+"ARCHIVE_RESOLUTION_ORIGINAL" = "原始分辨率";
 "Download To Hath Client" = "下载到Hath客户端";
 
 // MARK: GalleryInfosView
@@ -135,9 +135,9 @@
 "Right-to-left" = "右至左";
 "Left-to-right" = "左至右";
 "Preload limit" = "预加载数量上限";
-" pages" = "页";
+"%lld pages" = "%lld页";
 "Retry limit" = "重试次数上限";
-" times" = "次";
+"%lld times" = "%lld次";
 "Separator height" = "分隔线厚度";
 "Maximum scale factor" = "最大缩放系数";
 "Double tap scale factor" = "双击缩放系数";
@@ -153,8 +153,15 @@
 "AltStore Source" = "AltStore源";
 "Acknowledgement" = "致谢";
 
-// MARK: EhSettingsView
-"Settings" = "设置";
+// MARK: EhSettingView
+"Profile Settings" = "档案设置";
+"Selected profile" = "当前选定档案";
+"Set as default" = "设置为默认";
+"Delete profile" = "删除档案";
+"Are you sure to delete this profile?" = "确定要删除这个档案吗？";
+"Delete" = "删除";
+"Rename" = "重命名";
+"Create new" = "创建新档案";
 
 "Image Load Settings" = "图片加载设置";
 "Recommended." = "推荐。";
@@ -164,9 +171,11 @@
 "Any client" = "所有客户端";
 "Default port clients only" = "仅使用默认端口的客户端";
 "LOAD_THROUGH_HATH_NO" = "否";
+"You appear to be browsing the site from **PLACEHOLDER** or use a VPN or proxy in this country, which means the site will try to load images from Hath clients in this general geographic region. If this is incorrect, or if you want to use a different region for any reason (like if you are using a split tunneling VPN), you can select a different country below." = "你似乎正在 **%lld** 浏览此网页，或是使用了一个来自这个国家的VPN或代理，这意味着网站将尝试通过在此区域的Hath客户端加载图片。如果该结果不正确，或你想通过其它地区的Hath客户端加载图片（例如你正在使用分割隧道 VPN），你可以在下方选择另一个国家。";
+"Browsing country" = "浏览国家";
 
 "Image Size Settings" = "图片尺寸设置";
-"Normally, images are resampled to 1280 pixels of horizontal resolution for online viewing. You can alternatively select one of the following resample resolutions. To avoid murdering the staging servers, resolutions above 1280x are temporarily restricted to donators, people with any hath perk, and people with a UID below 3,000,000." = "通常情况，图像将重采样到 1280 像素宽度以用于在线浏览，您也可以选择以下重新采样分辨率。但是为了避免负载过高，高于 1280 像素将只供给于赞助者、特殊贡献者，以及 UID 小于 3,000,000 的用户。";
+"Normally, images are resampled to 1280 pixels of horizontal resolution for online viewing. You can alternatively select one of the following resample resolutions. To avoid murdering the staging servers, resolutions above 1280x are temporarily restricted to donators, people with any hath perk, and people with a UID below 3,000,000." = "通常情况，图像将重采样到 1280 像素宽度以用于在线浏览，你也可以选择以下重新采样分辨率。但是为了避免负载过高，高于 1280 像素将只供给于赞助者、特殊贡献者，以及 UID 小于 3,000,000 的用户。";
 "Image resolution" = "图像分辨率";
 "Auto" = "自动";
 "While the site will automatically scale down images to fit your screen width, you can also manually restrict the maximum display size of an image. Like the automatic scaling, this does not resample the image, as the resizing is done browser-side. (0 = no limit)" = "虽然图片会自动根据窗口缩小，你也可以手动设置最大大小，图片并没有重新采样。（0 为不限制）";
@@ -200,7 +209,7 @@
 "What categories would you like to show by default on the front page and in searches?" = "你希望在首页上看到哪些类别？";
 
 "Here you can choose and rename your favorite categories." = "在这里你可以重命名你的收藏夹。";
-"You can also select your default sort order for galleries on your favorites page. Note that favorites added prior to the March 2016 revamp did not store a timestamp, and will use the gallery posted time regardless of this setting." = "你也可以选择收藏夹中默认排序。请注意，2016 年 3 月改版之前加入收藏夹的画廊并未保存收藏时间，会以画廊发布时间代替。";
+"You can also select your default sort order for galleries on your favorites page. Note that favorites added prior to the March 2016 revamp did not store a timestamp, and will use the gallery posted time regardless of this setting." = "你也可以选择收藏夹中默认排序。注意：2016年3月改版之前加入收藏夹的画廊并未保存收藏时间，会以画廊发布时间代替。";
 "Favorites sort order" = "收藏排序方式";
 "By last gallery update time" = "按更新时间";
 "By favorited time" = "按收藏时间";
@@ -210,7 +219,7 @@
 "Ratings color" = "评分颜色";
 
 "Tag Namespaces" = "标签命名空间";
-"If you want to exclude certain namespaces from a default tag search, you can check those below. Note that this does not prevent galleries with tags in these namespaces from appearing, it just makes it so that when searching tags, it will forego those namespaces." = "如果要从默认标签搜索中排除某些命名空间，可以将以下内容标记为删除样式。请注意，这不会阻止带有这些命名空间中标签的画廊出现，它只是在搜索标签时排除这些命名空间。";
+"If you want to exclude certain namespaces from a default tag search, you can check those below. Note that this does not prevent galleries with tags in these namespaces from appearing, it just makes it so that when searching tags, it will forego those namespaces." = "如果要从默认标签搜索中排除某些命名空间，可以将以下内容标记为删除样式。注意：这不会阻止带有这些命名空间中标签的画廊出现，它只是在搜索标签时排除这些命名空间。";
 
 "Tag Filtering Threshold" = "标签筛选阈值";
 "You can soft filter tags by adding them to My Tags with a negative weight. If a gallery has tags that add up to weight below this value, it is filtered from view. This threshold can be set between 0 and -9999." = "你可以通过将标签加入“我的标签”并设置一个负权重来软过滤它们。如果一个作品所有的标签权重之和低于设定值，此作品将从视图中被过滤。这个值可以设定为 0 ~ -9999。";
@@ -218,8 +227,14 @@
 "Tag Watching Threshold" = "标签订阅阈值";
 "Recently uploaded galleries will be included on the watched screen if it has at least one watched tag with positive weight, and the sum of weights on its watched tags add up to this value or higher. This threshold can be set between 0 and 9999." = "你可以通过将标签加入“我的标签”并设置一个正权重来关注它们。如果一个最近上传的作品所有标签的权重之和高于设定值，则它将会被包含在“关注”里。这个值可以设定为 0 ~ 9999。";
 
+"Excluded Languages" = "屏蔽的语言";
+"If you wish to hide galleries in certain languages from the gallery list and searches, select them from the list below. Note that matching galleries will never appear regardless of your search query." = "如果你希望以从列表或搜索结果中隐藏特定语言的画廊，请从下面的列表中选择。注意：无论搜索条件为何，这些画廊都不会出现。";
+"Original" = "原始";
+"Translated" = "翻译版本";
+"Rewrite" = "改编版本";
+
 "Excluded Uploaders" = "屏蔽的上传者";
-"If you wish to hide galleries from certain uploaders from the gallery list and searches, add them below. Put one username per line. Note that galleries from these uploaders will never appear regardless of your search query." = "如果你希望在画廊中和搜索中隐藏某个上传者的话，请把他们的用户名填写在下方，每行一个。注意：无论你如何搜索，这些上传者都不会出现。";
+"If you wish to hide galleries from certain uploaders from the gallery list and searches, add them below. Put one username per line. Note that galleries from these uploaders will never appear regardless of your search query." = "如果你希望在画廊中和搜索中隐藏某个上传者的话，请把他们的用户名填写在下方，每行一个。注意：无论搜索条件为何，这些上传者都不会出现。";
 "You are currently using **%lld / 1000** exclusion slots." = "已使用 **%lld / 1000** 个屏蔽槽位。";
 
 "Search Result Count" = "搜索结果数";
@@ -280,7 +295,7 @@
 // MARK: LogsView
 "Logs" = "日志";
 "Latest" = "最新";
-" records" = "条记录";
+"%lld records" = "%lld条记录";
 
 // MARK: FilterView
 "Filters" = "筛选";
@@ -300,7 +315,7 @@
 "Show expunged galleries" = "显示已被删除的画廊";
 "Set minimum rating" = "设定评分下限";
 "Minimum rating" = "评分下限";
-"stars" = "星";
+"%lld stars" = "%lld星";
 "Set pages range" = "设定页数范围";
 "Pages range" = "页数范围";
 "Default Filter" = "默认筛选";
@@ -387,7 +402,7 @@
 
 "Hebrew" = "希伯来语"; "Hindi" = "印地语"; "Hmong" = "苗语"; "Hungarian" = "匈牙利语";
 
-"Indonesian" = "印度尼西亚语"; "Indonesian" = "意大利语";
+"Indonesian" = "印度尼西亚语"; "Italian" = "意大利语";
 
 "Japanese" = "日语";
 
@@ -414,3 +429,6 @@
 "Vietnamese" = "越南语";
 
 "Zulu" = "祖鲁语";
+
+// MARK: EhSettingCountry
+"Auto-Detect" = "自动检测"; "Afghanistan" = "阿富汗"; "Aland Islands" = "奥兰群岛"; "Albania" = "阿尔巴尼亚"; "Algeria" = "阿尔及利亚"; "American Samoa" = "美属萨摩亚"; "Andorra" = "安道尔"; "Angola" = "安哥拉"; "Anguilla" = "安圭拉"; "Antarctica" = "南极洲"; "Antigua and Barbuda" = "安提瓜和巴布达"; "Argentina" = "阿根廷"; "Armenia" = "亚美尼亚"; "Aruba" = "阿鲁巴"; "Asia-Pacific Region" = "亚太地区"; "Australia" = "澳大利亚"; "Austria" = "奥地利"; "Azerbaijan" = "阿塞拜疆"; "Bahamas" = "巴哈马"; "Bahrain" = "巴林"; "Bangladesh" = "孟加拉国"; "Barbados" = "巴巴多斯"; "Belarus" = "白俄罗斯"; "Belgium" = "比利时"; "Belize" = "伯利兹"; "Benin" = "贝宁"; "Bermuda" = "百慕大"; "Bhutan" = "不丹"; "Bolivia" = "玻利维亚"; "Bonaire Saint Eustatius and Saba" = "博奈尔、圣尤斯特歇斯与萨巴"; "Bosnia and Herzegovina" = "波斯尼亚和黑塞哥维那"; "Botswana" = "博茨瓦纳"; "Bouvet Island" = "布韦岛"; "Brazil" = "巴西"; "British Indian Ocean Territory" = "英属印度洋领地"; "Brunei Darussalam" = "文莱"; "Bulgaria" = "保加利亚"; "Burkina Faso" = "布基纳法索"; "Burundi" = "蒲隆地"; "Cambodia" = "柬埔寨"; "Cameroon" = "喀麦隆"; "Canada" = "加拿大"; "Cape Verde" = "佛得角"; "Cayman Islands" = "开曼群岛"; "Central African Republic" = "中非"; "Chad" = "乍得"; "Chile" = "智利"; "China" = "中华人民共和国"; "Christmas Island" = "圣诞岛"; "Cocos Islands" = "科科斯岛"; "Colombia" = "哥伦比亚"; "Comoros" = "科摩罗"; "Congo" = "刚果共和国"; "The Democratic Republic of the Congo" = "刚果民主共和国"; "Cook Islands" = "库克群岛"; "Costa Rica" = "哥斯达黎加"; "Cote D'Ivoire" = "科特迪瓦"; "Croatia" = "克罗地亚"; "Cuba" = "古巴"; "Curacao" = "库拉索"; "Cyprus" = "塞浦路斯"; "Czech Republic" = "捷克"; "Denmark" = "丹麦"; "Djibouti" = "吉布提"; "Dominica" = "多米尼克"; "Dominican Republic" = "多米尼加"; "Ecuador" = "厄瓜多尔"; "Egypt" = "埃及"; "El Salvador" = "萨尔瓦多"; "Equatorial Guinea" = "赤道几内亚"; "Eritrea" = "厄立特里亚"; "Estonia" = "爱沙尼亚"; "Ethiopia" = "埃塞俄比亚"; "Europe" = "欧洲"; "Falkland Islands" = "福克兰群岛"; "Faroe Islands" = "法罗群岛"; "Fiji" = "斐济"; "Finland" = "芬兰"; "France" = "法国"; "French Guiana" = "法属圭亚那"; "French Polynesia" = "法属波利尼西亚"; "French Southern Territories" = "法属南部和南极领地"; "Gabon" = "加蓬"; "Gambia" = "冈比亚"; "Georgia" = "格鲁吉亚"; "Germany" = "德国"; "Ghana" = "加纳"; "Gibraltar" = "直布罗陀"; "Greece" = "希腊"; "Greenland" = "格陵兰"; "Grenada" = "格林纳达"; "Guadeloupe" = "瓜德罗普"; "Guam" = "关岛"; "Guatemala" = "危地马拉"; "Guernsey" = "根西"; "Guinea" = "几内亚"; "Guinea-Bissau" = "几内亚比绍"; "Guyana" = "圭亚那"; "Haiti" = "海地"; "Heard Island and McDonald Islands" = "赫德岛和麦克唐纳群岛"; "Vatican City State" = "梵蒂冈城国"; "Honduras" = "洪都拉斯"; "Hong Kong" = "香港"; "Hungary" = "匈牙利"; "Iceland" = "冰岛"; "India" = "印度"; "Indonesia" = "印度尼西亚"; "Iran" = "伊朗"; "Iraq" = "伊拉克"; "Ireland" = "爱尔兰"; "Isle of Man" = "曼岛"; "Israel" = "以色列"; "Italy" = "意大利"; "Jamaica" = "牙买加"; "Japan" = "日本"; "Jersey" = "泽西"; "Jordan" = "约旦"; "Kazakhstan" = "哈萨克斯坦"; "Kenya" = "肯尼亚"; "Kiribati" = "基里巴斯"; "Kuwait" = "科威特"; "Kyrgyzstan" = "吉尔吉斯斯坦"; "Lao People's Democratic Republic" = "老挝"; "Latvia" = "拉脱维亚"; "Lebanon" = "黎巴嫩"; "Lesotho" = "莱索托"; "Liberia" = "利比里亚"; "Libya" = "利比亚"; "Liechtenstein" = "列支敦士登"; "Lithuania" = "立陶宛"; "Luxembourg" = "卢森堡"; "Macau" = "澳门"; "Macedonia" = "马其顿"; "Madagascar" = "马达加斯加"; "Malawi" = "马拉维"; "Malaysia" = "马来西亚"; "Maldives" = "马尔代夫"; "Mali" = "马里"; "Malta" = "马耳他"; "Marshall Islands" = "马绍尔群岛"; "Martinique" = "马提尼克"; "Mauritania" = "毛里塔尼亚"; "Mauritius" = "模里西斯"; "Mayotte" = "马约特"; "Mexico" = "墨西哥"; "Micronesia" = "密克罗尼西亚"; "Moldova" = "摩尔多瓦"; "Monaco" = "摩纳哥"; "Mongolia" = "蒙古"; "Montenegro" = "黑山"; "Montserrat" = "蒙塞拉特岛"; "Morocco" = "摩洛哥"; "Mozambique" = "莫桑比克"; "Myanmar" = "缅甸"; "Namibia" = "纳米比亚"; "Nauru" = "诺鲁"; "Nepal" = "尼泊尔"; "Netherlands" = "荷兰"; "New Caledonia" = "新喀里多尼亚"; "New Zealand" = "新西兰"; "Nicaragua" = "尼加拉瓜"; "Niger" = "尼日尔"; "Nigeria" = "尼日利亚"; "Niue" = "纽埃"; "Norfolk Island" = "诺福克岛"; "North Korea" = "朝鲜"; "Northern Mariana Islands" = "北马里亚纳群岛"; "Norway" = "挪威"; "Oman" = "阿曼"; "Pakistan" = "巴基斯坦"; "Palau" = "帛琉"; "Palestinian Territory" = "巴勒斯坦"; "Panama" = "巴拿马"; "Papua New Guinea" = "巴布亚新几内亚"; "Paraguay" = "巴拉圭"; "Peru" = "秘鲁"; "Philippines" = "菲律宾"; "Pitcairn Islands" = "皮特凯恩群岛"; "Poland" = "波兰"; "Portugal" = "葡萄牙"; "Puerto Rico" = "波多黎各"; "Qatar" = "卡塔尔"; "Reunion" = "留尼汪"; "Romania" = ""; "Russian Federation" = "俄罗斯"; "Rwanda" = "卢旺达"; "Saint Barthelemy" = "圣巴泰勒米"; "Saint Helena" = "圣赫勒拿"; "Saint Kitts and Nevis" = "圣基茨岛"; "Saint Lucia" = "圣卢西亚"; "Saint Martin" = "圣马丁岛"; "Saint Pierre and Miquelon" = "圣皮埃尔和密克隆"; "Saint Vincent and the Grenadines" = "圣文森特和格林纳丁斯"; "Samoa" = "萨摩亚"; "San Marino" = "圣马力诺"; "Sao Tome and Principe" = "圣多美和普林西比"; "Saudi Arabia" = "沙地阿拉伯"; "Senegal" = "塞内加尔"; "Serbia" = "塞尔维亚"; "Seychelles" = "塞舌尔"; "Sierra Leone" = "塞拉利昂"; "Singapore" = "新加坡"; "Sint Maarten" = "圣马丁岛"; "Slovakia" = "斯洛伐克"; "Slovenia" = "斯洛文尼亚"; "Solomon Islands" = "所罗门群岛"; "Somalia" = "索马里"; "South Africa" = "南非"; "South Georgia and the South Sandwich Islands" = "南乔治亚和南桑威奇群岛"; "South Korea" = "韩国"; "South Sudan" = "南苏丹"; "Spain" = "西班牙"; "Sri Lanka" = "斯里兰卡"; "Sudan" = "苏丹"; "Suriname" = "苏里南"; "Svalbard and Jan Mayen" = "斯瓦尔巴和扬马延"; "Swaziland" = "史瓦帝尼"; "Sweden" = "瑞典"; "Switzerland" = "瑞士"; "Syrian Arab Republic" = "叙利亚"; "Taiwan" = "台湾"; "Tajikistan" = "塔吉克斯坦"; "Tanzania" = "坦桑尼亚"; "Thailand" = "泰国"; "Timor-Leste" = "东帝汶"; "Togo" = "多哥"; "Tokelau" = "托克劳"; "Tonga" = "汤加"; "Trinidad and Tobago" = "特立尼达和多巴哥"; "Tunisia" = "突尼斯"; "Turkey" = "土耳其"; "Turkmenistan" = "土库曼斯坦"; "Turks and Caicos Islands" = "特克斯和凯科斯群岛"; "Tuvalu" = "图瓦卢"; "Uganda" = "乌干达"; "Ukraine" = "乌克兰"; "United Arab Emirates" = "阿拉伯联合酋长国"; "United Kingdom" = "英国"; "United States" = "美国"; "United States Minor Outlying Islands" = "美国本土外小岛屿"; "Uruguay" = "乌拉圭"; "Uzbekistan" = "乌兹别克斯坦"; "Vanuatu" = "瓦努阿图"; "Venezuela" = "委內瑞拉"; "Vietnam" = "越南"; "British Virgin Islands" = "英属维尔京群岛"; "U.S. Virgin Islands" = "美属维尔京群岛"; "Wallis and Futuna" = "瓦利斯和富图纳"; "Western Sahara" = "西撒哈拉"; "Yemen" = "也门"; "Zambia" = "赞比亚"; "Zimbabwe" = "津巴布韦";

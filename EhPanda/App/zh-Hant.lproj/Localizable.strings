@@ -44,7 +44,7 @@
 "DESC_SCROLL_ITEM_FAVORITED" = "收藏";
 "Times" = "次";
 "Language" = "語言";
-" Ratings" = "個評分";
+"%lld Ratings" = "%lld個評分";
 "Page Count" = "頁數";
 "Pages" = "頁";
 "File Size" = "文件大小";
@@ -57,7 +57,7 @@
 // MARK: ArchiveView
 "N/A" = "不適用";
 "Free" = "免費";
-"Original" = "原始尺寸";
+"ARCHIVE_RESOLUTION_ORIGINAL" = "原始解析度";
 "Download To Hath Client" = "下載到Hath客戶端";
 
 // MARK: GalleryInfosView
@@ -135,9 +135,9 @@
 "Right-to-left" = "右至左";
 "Left-to-right" = "左至右";
 "Preload limit" = "預先載入數量上限";
-" pages" = "頁";
+"%lld pages" = "%lld頁";
 "Retry limit" = "重試次數上限";
-" times" = "次";
+"%lld times" = "%lld次";
 "Separator height" = "分隔線高度";
 "Maximum scale factor" = "縮放上限";
 "Double tap scale factor" = "雙擊縮放值";
@@ -153,8 +153,15 @@
 "AltStore Source" = "AltStore源";
 "Acknowledgement" = "致謝";
 
-// MARK: EhSettingsView
-//"Settings" = "";
+// MARK: EhSettingView
+//"Profile Settings" = "";
+//"Selected profile" = "";
+//"Set as default" = "";
+//"Delete profile" = "";
+//"Are you sure to delete this profile?" = "";
+//"Delete" = "";
+//"Rename" = "";
+//"Create new" = "";
 //
 //"Image Load Settings" = "";
 //"Recommended." = "";
@@ -164,6 +171,8 @@
 //"Any client" = "";
 //"Default port clients only" = "";
 //"LOAD_THROUGH_HATH_NO" = "";
+//"You appear to be browsing the site from **PLACEHOLDER** or use a VPN or proxy in this country, which means the site will try to load images from Hath clients in this general geographic region. If this is incorrect, or if you want to use a different region for any reason (like if you are using a split tunneling VPN), you can select a different country below." = "";
+//"Browsing country" = "";
 //
 //"Image Size Settings" = "";
 //"Normally, images are resampled to 1280 pixels of horizontal resolution for online viewing. You can alternatively select one of the following resample resolutions. To avoid murdering the staging servers, resolutions above 1280x are temporarily restricted to donators, people with any hath perk, and people with a UID below 3,000,000." = "";
@@ -217,6 +226,12 @@
 //
 //"Tag Watching Threshold" = "";
 //"Recently uploaded galleries will be included on the watched screen if it has at least one watched tag with positive weight, and the sum of weights on its watched tags add up to this value or higher. This threshold can be set between 0 and 9999." = "";
+//
+//"Excluded Languages" = "";
+//"If you wish to hide galleries in certain languages from the gallery list and searches, select them from the list below. Note that matching galleries will never appear regardless of your search query." = "";
+//"Original" = "";
+//"Translated" = "";
+//"Rewrite" = "";
 //
 //"Excluded Uploaders" = "";
 //"If you wish to hide galleries from certain uploaders from the gallery list and searches, add them below. Put one username per line. Note that galleries from these uploaders will never appear regardless of your search query." = "";
@@ -280,7 +295,7 @@
 // MARK: LogsView
 "Logs" = "日誌";
 "Latest" = "最新";
-" records" = "條紀錄";
+"%lld records" = "%lld條紀錄";
 
 // MARK: FilterView
 "Filters" = "篩選";
@@ -300,7 +315,7 @@
 "Show expunged galleries" = "顯示被刪除的畫廊";
 "Set minimum rating" = "設定評分下限";
 "Minimum rating" = "評分下限";
-"stars" = "星";
+"%lld stars" = "%lld星";
 "Set pages range" = "設定頁數範圍";
 "Pages range" = "頁數範圍";
 "Default Filter" = "預設篩選";
@@ -387,7 +402,7 @@
 
 "Hebrew" = "希伯來語"; "Hindi" = "印地語"; "Hmong" = "苗語"; "Hungarian" = "匈牙利語";
 
-"Indonesian" = "印尼語"; "Indonesian" = "意大利語";
+"Indonesian" = "印尼語"; "Italian" = "意大利語";
 
 "Japanese" = "日語";
 
@@ -414,3 +429,6 @@
 "Vietnamese" = "越南語";
 
 "Zulu" = "祖魯語";
+
+// MARK: EhSettingCountry
+//"Auto-Detect" = ""; "Afghanistan" = ""; "Aland Islands" = ""; "Albania" = ""; "Algeria" = ""; "American Samoa" = ""; "Andorra" = ""; "Angola" = ""; "Anguilla" = ""; "Antarctica" = ""; "Antigua and Barbuda" = ""; "Argentina" = ""; "Armenia" = ""; "Aruba" = ""; "Asia-Pacific Region" = ""; "Australia" = ""; "Austria" = ""; "Azerbaijan" = ""; "Bahamas" = ""; "Bahrain" = ""; "Bangladesh" = ""; "Barbados" = ""; "Belarus" = ""; "Belgium" = ""; "Belize" = ""; "Benin" = ""; "Bermuda" = ""; "Bhutan" = ""; "Bolivia" = ""; "Bonaire Saint Eustatius and Saba" = ""; "Bosnia and Herzegovina" = ""; "Botswana" = ""; "Bouvet Island" = ""; "Brazil" = ""; "British Indian Ocean Territory" = ""; "Brunei Darussalam" = ""; "Bulgaria" = ""; "Burkina Faso" = ""; "Burundi" = ""; "Cambodia" = ""; "Cameroon" = ""; "Canada" = ""; "Cape Verde" = ""; "Cayman Islands" = ""; "Central African Republic" = ""; "Chad" = ""; "Chile" = ""; "China" = ""; "Christmas Island" = ""; "Cocos Islands" = ""; "Colombia" = ""; "Comoros" = ""; "Congo" = ""; "The Democratic Republic of the Congo" = ""; "Cook Islands" = ""; "Costa Rica" = ""; "Cote D'Ivoire" = ""; "Croatia" = ""; "Cuba" = ""; "Curacao" = ""; "Cyprus" = ""; "Czech Republic" = ""; "Denmark" = ""; "Djibouti" = ""; "Dominica" = ""; "Dominican Republic" = ""; "Ecuador" = ""; "Egypt" = ""; "El Salvador" = ""; "Equatorial Guinea" = ""; "Eritrea" = ""; "Estonia" = ""; "Ethiopia" = ""; "Europe" = ""; "Falkland Islands" = ""; "Faroe Islands" = ""; "Fiji" = ""; "Finland" = ""; "France" = ""; "French Guiana" = ""; "French Polynesia" = ""; "French Southern Territories" = ""; "Gabon" = ""; "Gambia" = ""; "Georgia" = ""; "Germany" = ""; "Ghana" = ""; "Gibraltar" = ""; "Greece" = ""; "Greenland" = ""; "Grenada" = ""; "Guadeloupe" = ""; "Guam" = ""; "Guatemala" = ""; "Guernsey" = ""; "Guinea" = ""; "Guinea-Bissau" = ""; "Guyana" = ""; "Haiti" = ""; "Heard Island and McDonald Islands" = ""; "Vatican City State" = ""; "Honduras" = ""; "Hong Kong" = ""; "Hungary" = ""; "Iceland" = ""; "India" = ""; "Indonesia" = ""; "Iran" = ""; "Iraq" = ""; "Ireland" = ""; "Isle of Man" = ""; "Israel" = ""; "Italy" = ""; "Jamaica" = ""; "Japan" = ""; "Jersey" = ""; "Jordan" = ""; "Kazakhstan" = ""; "Kenya" = ""; "Kiribati" = ""; "Kuwait" = ""; "Kyrgyzstan" = ""; "Lao People's Democratic Republic" = ""; "Latvia" = ""; "Lebanon" = ""; "Lesotho" = ""; "Liberia" = ""; "Libya" = ""; "Liechtenstein" = ""; "Lithuania" = ""; "Luxembourg" = ""; "Macau" = ""; "Macedonia" = ""; "Madagascar" = ""; "Malawi" = ""; "Malaysia" = ""; "Maldives" = ""; "Mali" = ""; "Malta" = ""; "Marshall Islands" = ""; "Martinique" = ""; "Mauritania" = ""; "Mauritius" = ""; "Mayotte" = ""; "Mexico" = ""; "Micronesia" = ""; "Moldova" = ""; "Monaco" = ""; "Mongolia" = ""; "Montenegro" = ""; "Montserrat" = ""; "Morocco" = ""; "Mozambique" = ""; "Myanmar" = ""; "Namibia" = ""; "Nauru" = ""; "Nepal" = ""; "Netherlands" = ""; "New Caledonia" = ""; "New Zealand" = ""; "Nicaragua" = ""; "Niger" = ""; "Nigeria" = ""; "Niue" = ""; "Norfolk Island" = ""; "North Korea" = ""; "Northern Mariana Islands" = ""; "Norway" = ""; "Oman" = ""; "Pakistan" = ""; "Palau" = ""; "Palestinian Territory" = ""; "Panama" = ""; "Papua New Guinea" = ""; "Paraguay" = ""; "Peru" = ""; "Philippines" = ""; "Pitcairn Islands" = ""; "Poland" = ""; "Portugal" = ""; "Puerto Rico" = ""; "Qatar" = ""; "Reunion" = ""; "Romania" = ""; "Russian Federation" = ""; "Rwanda" = ""; "Saint Barthelemy" = ""; "Saint Helena" = ""; "Saint Kitts and Nevis" = ""; "Saint Lucia" = ""; "Saint Martin" = ""; "Saint Pierre and Miquelon" = ""; "Saint Vincent and the Grenadines" = ""; "Samoa" = ""; "San Marino" = ""; "Sao Tome and Principe" = ""; "Saudi Arabia" = ""; "Senegal" = ""; "Serbia" = ""; "Seychelles" = ""; "Sierra Leone" = ""; "Singapore" = ""; "Sint Maarten" = ""; "Slovakia" = ""; "Slovenia" = ""; "Solomon Islands" = ""; "Somalia" = ""; "South Africa" = ""; "South Georgia and the South Sandwich Islands" = ""; "South Korea" = ""; "South Sudan" = ""; "Spain" = ""; "Sri Lanka" = ""; "Sudan" = ""; "Suriname" = ""; "Svalbard and Jan Mayen" = ""; "Swaziland" = ""; "Sweden" = ""; "Switzerland" = ""; "Syrian Arab Republic" = ""; "Taiwan" = ""; "Tajikistan" = ""; "Tanzania" = ""; "Thailand" = ""; "Timor-Leste" = ""; "Togo" = ""; "Tokelau" = ""; "Tonga" = ""; "Trinidad and Tobago" = ""; "Tunisia" = ""; "Turkey" = ""; "Turkmenistan" = ""; "Turks and Caicos Islands" = ""; "Tuvalu" = ""; "Uganda" = ""; "Ukraine" = ""; "United Arab Emirates" = ""; "United Kingdom" = ""; "United States" = ""; "United States Minor Outlying Islands" = ""; "Uruguay" = ""; "Uzbekistan" = ""; "Vanuatu" = ""; "Venezuela" = ""; "Vietnam" = ""; "British Virgin Islands" = ""; "U.S. Virgin Islands" = ""; "Wallis and Futuna" = ""; "Western Sahara" = ""; "Yemen" = ""; "Zambia" = ""; "Zimbabwe" = "";

@@ -13,7 +13,7 @@ struct FilterView: View, StoreAccessor {
     private var categoryBindings: [Binding<Bool>] {
         [
             filterBinding.doujinshi,
-            filterBinding.gallery,
+            filterBinding.manga,
             filterBinding.artistCG,
             filterBinding.gameCG,
             filterBinding.western,
@@ -108,17 +108,17 @@ private struct MinimumRatingSetter: View {
 
     var body: some View {
         HStack {
-            let star = "stars".localized()
             Text("Minimum rating")
             Spacer()
             Picker(
                 selection: $minimum,
-                label: Text("\(minimum)" + star)
+                label: Text("\(minimum) stars")
             ) {
-                Text("2" + star).tag(2)
-                Text("3" + star).tag(3)
-                Text("4" + star).tag(4)
-                Text("5" + star).tag(5)
+                ForEach(Array(stride(
+                    from: 2, through: 5, by: 1
+                )), id: \.self) { num in
+                    Text("\(num) stars").tag(num)
+                }
             }
             .pickerStyle(.menu)
         }
@@ -127,8 +127,14 @@ private struct MinimumRatingSetter: View {
 
 // MARK: PagesRangeSetter
 private struct PagesRangeSetter: View {
+    @FocusState private var focusBound: FocusBound?
     @Binding private var lowerBound: String
     @Binding private var upperBound: String
+
+    enum FocusBound {
+        case lower
+        case upper
+    }
 
     init(
         lowerBound: Binding<String>,
@@ -143,7 +149,22 @@ private struct PagesRangeSetter: View {
             Text("Pages range")
             Spacer()
             SettingTextField(text: $lowerBound)
+                .focused($focusBound, equals: .lower)
+                .submitLabel(.next)
+            Text("-")
             SettingTextField(text: $upperBound)
+                .focused($focusBound, equals: .upper)
+                .submitLabel(.done)
+        }
+        .onSubmit {
+            switch focusBound {
+            case .lower:
+                focusBound = .upper
+            case .upper:
+                focusBound = nil
+            default:
+                break
+            }
         }
     }
 }

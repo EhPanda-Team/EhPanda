@@ -46,6 +46,7 @@ private extension EhPandaApp {
         }
         configureLogging()
         fetchTagTranslator()
+        fetchIgneousIfNeeded()
         configureIgnoreOffensive()
         fetchAccountInfoIfNeeded()
     }
@@ -59,9 +60,27 @@ private extension EhPandaApp {
     func fetchAccountInfoIfNeeded() {
         guard didLogin else { return }
 
-        store.dispatch(.verifyProfile)
         store.dispatch(.fetchUserInfo)
+        store.dispatch(.verifyEhProfile)
         store.dispatch(.fetchFavoriteNames)
+    }
+    func fetchIgneousIfNeeded() {
+        guard setting.bypassesSNIFiltering,
+              !getCookieValue(
+                url: Defaults.URL.exhentai.safeURL(),
+                key: Defaults.Cookie.ipbMemberId
+              ).rawValue.isEmpty,
+              !getCookieValue(
+                url: Defaults.URL.exhentai.safeURL(),
+                key: Defaults.Cookie.ipbPassHash
+              ).rawValue.isEmpty,
+              getCookieValue(
+                url: Defaults.URL.exhentai.safeURL(),
+                key: Defaults.Cookie.igneous
+              ).rawValue.isEmpty
+        else { return }
+
+        store.dispatch(.fetchIgneous)
     }
 }
 

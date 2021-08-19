@@ -441,28 +441,43 @@ struct FetchGalleryMPVContentCommand: AppCommand {
     }
 }
 
-struct VerifyProfileCommand: AppCommand {
+struct FetchIgneousCommand: AppCommand {
     func execute(in store: Store) {
         let token = SubscriptionToken()
-        VerifyProfileRequest()
+        IgneousRequest()
+            .publisher
+            .receive(on: DispatchQueue.main)
+            .sink { _ in
+                token.unseal()
+            } receiveValue: { _ in }
+            .seal(in: token)
+    }
+}
+
+struct VerifyEhProfileCommand: AppCommand {
+    func execute(in store: Store) {
+        let token = SubscriptionToken()
+        VerifyEhProfileRequest()
             .publisher
             .receive(on: DispatchQueue.main)
             .sink { completion in
                 if case .failure(let error) = completion {
-                    store.dispatch(.verifyProfileDone(result: .failure(error)))
+                    store.dispatch(.verifyEhProfileDone(result: .failure(error)))
                 }
                 token.unseal()
             } receiveValue: {
-                store.dispatch(.verifyProfileDone(result: .success($0)))
+                store.dispatch(.verifyEhProfileDone(result: .success($0)))
             }
             .seal(in: token)
     }
 }
 
-struct CreateProfileCommand: AppCommand {
+struct CreateEhProfileCommand: AppCommand {
+    let name: String
+
     func execute(in store: Store) {
         let token = SubscriptionToken()
-        CreateProfileRequest()
+        EhProfileRequest(action: .create, name: name)
             .publisher
             .receive(on: DispatchQueue.main)
             .sink { _ in

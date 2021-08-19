@@ -32,32 +32,30 @@ struct ReadingSettingView: View, StoreAccessor {
                     .pickerStyle(.menu)
                 }
                 HStack {
-                    let time = " times".localized()
                     Text("Retry limit")
                     Spacer()
                     Picker(
                         selection: settingBinding.contentRetryLimit,
-                        label: Text("\(setting.contentRetryLimit)" + time),
+                        label: Text("\(setting.contentRetryLimit) times"),
                         content: {
                             let values = Array(stride(from: 5, through: 20, by: 5))
                             ForEach(values, id: \.self) { value in
-                                Text("\(value)" + time).tag(value)
+                                Text("\(value) times").tag(value)
                             }
                         }
                     )
                     .pickerStyle(.menu)
                 }
                 HStack {
-                    let page = " pages".localized()
                     Text("Preload limit")
                     Spacer()
                     Picker(
                         selection: settingBinding.prefetchLimit,
-                        label: Text("\(setting.prefetchLimit)" + page),
+                        label: Text("\(setting.prefetchLimit) pages"),
                         content: {
                             let values = Array(stride(from: 6, through: 18, by: 4))
                             ForEach(values, id: \.self) { value in
-                                Text("\(value)" + page).tag(value)
+                                Text("\(value) pages").tag(value)
                             }
                         }
                     )

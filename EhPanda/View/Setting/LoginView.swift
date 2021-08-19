@@ -130,11 +130,18 @@ struct LoginView: View, StoreAccessor {
                     notificFeedback(style: .success)
                     dismissAction.callAsFunction()
                     store.dispatch(.fetchFrontpageItems)
+                    store.dispatch(.verifyEhProfile)
                     store.dispatch(.fetchUserInfo)
-                    store.dispatch(.verifyProfile)
                 }
                 token.unseal()
-            } receiveValue: { _ in }
+            } receiveValue: { value in
+                guard setting.bypassesSNIFiltering,
+                let (_, resp) = value as? (Data, HTTPURLResponse)
+                else { return }
+
+                setCookie(response: resp)
+                store.dispatch(.fetchIgneous)
+            }
             .seal(in: token)
     }
     private func toggleWebLogin() {

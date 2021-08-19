@@ -8,6 +8,7 @@
 import Kanna
 import UIKit
 import Foundation
+import SwiftUI
 
 struct Parser {
     // MARK: List
@@ -793,8 +794,8 @@ extension Parser {
         return greeting
     }
 
-    // MARK: EhProfile
-    static func parseEhProfile(doc: HTMLDocument) throws -> EhProfile {
+    // MARK: EhSetting
+    static func parseEhSetting(doc: HTMLDocument) throws -> EhSetting {
         func parseInt(node: XMLElement, name: String) -> Int? {
             var value: Int?
             for link in node.xpath("//input [@name='\(name)']")
@@ -843,22 +844,62 @@ extension Parser {
             }
             return T(rawValue: maxValue ?? 0)
         }
+        func parseSelections(node: XMLElement, name: String) -> [(String, String, Bool)] {
+            guard let select = node.at_xpath("//select [@name='\(name)']")
+            else { return [] }
+
+            var selections = [(String, String, Bool)]()
+            for link in select.xpath("//option") {
+                guard let name = link.text,
+                      let value = link["value"]
+                else { continue }
+
+                selections.append((name, value, link["selected"] == "selected"))
+            }
+
+            return selections
+        }
 
         var tmpForm: XMLElement?
         for link in doc.xpath("//form [@method='post']")
             where link["id"] == nil {
             tmpForm = link
         }
-        guard let form = tmpForm else { throw AppError.parseFailed }
+        guard let profileOuter = doc.at_xpath("//div [@id='profile_outer']"),
+              let form = tmpForm else { throw AppError.parseFailed }
 
         // swiftlint:disable line_length
-        var tmpCapableLoadThroughHathSetting: EhProfileLoadThroughHathSetting?; var tmpCapableImageResolution: EhProfileImageResolution?; var tmpCapableSearchResultCount: EhProfileSearchResultCount?; var tmpCapableThumbnailConfigSize: EhProfileThumbnailSize?; var tmpCapableThumbnailConfigRows: EhProfileThumbnailRows?; var tmpLoadThroughHathSetting: EhProfileLoadThroughHathSetting?; var tmpImageResolution: EhProfileImageResolution?; var tmpImageSizeWidth: Float?; var tmpImageSizeHeight: Float?; var tmpGalleryName: EhProfileGalleryName?; var tmpArchiverBehavior: EhProfileArchiverBehavior?; var tmpDisplayMode: EhProfileDisplayMode?; var tmpDoujinshiDisabled: Bool?; var tmpGalleryDisabled: Bool?; var tmpArtistCGDisabled: Bool?; var tmpGameCGDisabled: Bool?; var tmpWesternDisabled: Bool?; var tmpNonHDisabled: Bool?; var tmpImageSetDisabled: Bool?; var tmpCosplayDisabled: Bool?; var tmpAsianPornDisabled: Bool?; var tmpMiscDisabled: Bool?; var tmpFavoriteName0: String?; var tmpFavoriteName1: String?; var tmpFavoriteName2: String?; var tmpFavoriteName3: String?; var tmpFavoriteName4: String?; var tmpFavoriteName5: String?; var tmpFavoriteName6: String?; var tmpFavoriteName7: String?; var tmpFavoriteName8: String?; var tmpFavoriteName9: String?; var tmpFavoritesSortOrder: EhProfileFavoritesSortOrder?; var tmpRatingsColor: String?; var tmpReclassExcluded: Bool?; var tmpLanguageExcluded: Bool?; var tmpParodyExcluded: Bool?; var tmpCharacterExcluded: Bool?; var tmpGroupExcluded: Bool?; var tmpArtistExcluded: Bool?; var tmpMaleExcluded: Bool?; var tmpFemaleExcluded: Bool?; var tmpTagFilteringThreshold: Float?; var tmpTagWatchingThreshold: Float?; var tmpExcludedUploaders: String?; var tmpSearchResultCount: EhProfileSearchResultCount?; var tmpThumbnailLoadTiming: EhProfileThumbnailLoadTiming?; var tmpThumbnailConfigSize: EhProfileThumbnailSize?; var tmpThumbnailConfigRows: EhProfileThumbnailRows?; var tmpThumbnailScaleFactor: Float?; var tmpViewportVirtualWidth: Float?; var tmpCommentsSortOrder: EhProfileCommentsSortOrder?; var tmpCommentVotesShowTiming: EhProfileCommentVotesShowTiming?; var tmpTagsSortOrder: EhProfileTagsSortOrder?; var tmpGalleryShowPageNumbers: Bool?; var tmpHathLocalNetworkHost: String?; var tmpUseOriginalImages: Bool?; var tmpUseMultiplePageViewer: Bool?; var tmpMultiplePageViewerStyle: EhProfileMultiplePageViewerStyle?; var tmpMultiplePageViewerShowThumbnailPane: Bool?
+        var tmpEhProfiles = [EhProfile](); var tmpCapableLoadThroughHathSetting: EhSettingLoadThroughHathSetting?; var tmpCapableImageResolution: EhSettingImageResolution?; var tmpCapableSearchResultCount: EhSettingSearchResultCount?; var tmpCapableThumbnailConfigSize: EhSettingThumbnailSize?; var tmpCapableThumbnailConfigRows: EhSettingThumbnailRows?; var tmpLoadThroughHathSetting: EhSettingLoadThroughHathSetting?; var tmpBrowsingCountry: EhSettingBrowsingCountry?; var tmpImageResolution: EhSettingImageResolution?; var tmpImageSizeWidth: Float?; var tmpImageSizeHeight: Float?; var tmpGalleryName: EhSettingGalleryName?; var tmpLiteralBrowsingCountry: String?; var tmpArchiverBehavior: EhSettingArchiverBehavior?; var tmpDisplayMode: EhSettingDisplayMode?; var tmpDisabledCategories = [Bool](); var tmpFavoritesNames = [String](); var tmpFavoritesSortOrder: EhSettingFavoritesSortOrder?; var tmpRatingsColor: String?; var tmpExcludedNamespaces = [Bool](); var tmpTagFilteringThreshold: Float?; var tmpTagWatchingThreshold: Float?; var tmpExcludedLanguages = [Bool](); var tmpExcludedUploaders: String?; var tmpSearchResultCount: EhSettingSearchResultCount?; var tmpThumbnailLoadTiming: EhSettingThumbnailLoadTiming?; var tmpThumbnailConfigSize: EhSettingThumbnailSize?; var tmpThumbnailConfigRows: EhSettingThumbnailRows?; var tmpThumbnailScaleFactor: Float?; var tmpViewportVirtualWidth: Float?; var tmpCommentsSortOrder: EhSettingCommentsSortOrder?; var tmpCommentVotesShowTiming: EhSettingCommentVotesShowTiming?; var tmpTagsSortOrder: EhSettingTagsSortOrder?; var tmpGalleryShowPageNumbers: Bool?; var tmpHathLocalNetworkHost: String?; var tmpUseOriginalImages: Bool?; var tmpUseMultiplePageViewer: Bool?; var tmpMultiplePageViewerStyle: EhSettingMultiplePageViewerStyle?; var tmpMultiplePageViewerShowThumbnailPane: Bool?
         // swiftlint:enable line_length
+
+        tmpEhProfiles = parseSelections(node: profileOuter, name: "profile_set")
+            .compactMap { (name, value, isSelected) in
+                guard let value = Int(value)
+                else { return nil }
+
+                return EhProfile(
+                    value: value, name: name,
+                    isSelected: isSelected
+                )
+            }
 
         for optouter in form.xpath("//div [@class='optouter']") {
             if optouter.at_xpath("//input [@name='uh']") != nil {
                 tmpLoadThroughHathSetting = parseEnum(node: optouter, name: "uh")
                 tmpCapableLoadThroughHathSetting = parseCapability(node: optouter, name: "uh")
+            }
+            if optouter.at_xpath("//select [@name='co']") != nil {
+                var value = parseSelections(node: optouter, name: "co").filter(\.2).first?.1
+
+                if value == "" { value = "-" }
+                tmpBrowsingCountry = EhSettingBrowsingCountry(rawValue: value ?? "")
+
+                if let pText = optouter.at_xpath("//p")?.text,
+                   let rangeA = pText.range(of: "You appear to be browsing the site from "),
+                   let rangeB = pText.range(of: " or use a VPN or proxy in this country")
+                {
+                    tmpLiteralBrowsingCountry = String(pText[rangeA.upperBound..<rangeB.lowerBound])
+                }
             }
             if optouter.at_xpath("//input [@name='xr']") != nil {
                 tmpImageResolution = parseEnum(node: optouter, name: "xr")
@@ -882,28 +923,13 @@ extension Parser {
                 tmpDisplayMode = parseEnum(node: optouter, name: "dm")
             }
             if optouter.at_xpath("//div [@id='catsel']") != nil {
-                tmpDoujinshiDisabled = parseBool(node: optouter, name: "ct_doujinshi")
-                tmpGalleryDisabled = parseBool(node: optouter, name: "ct_manga")
-                tmpArtistCGDisabled = parseBool(node: optouter, name: "ct_artistcg")
-                tmpGameCGDisabled = parseBool(node: optouter, name: "ct_gamecg")
-                tmpWesternDisabled = parseBool(node: optouter, name: "ct_western")
-                tmpNonHDisabled = parseBool(node: optouter, name: "ct_non-h")
-                tmpImageSetDisabled = parseBool(node: optouter, name: "ct_imageset")
-                tmpCosplayDisabled = parseBool(node: optouter, name: "ct_cosplay")
-                tmpAsianPornDisabled = parseBool(node: optouter, name: "ct_asianporn")
-                tmpMiscDisabled = parseBool(node: optouter, name: "ct_misc")
+                tmpDisabledCategories = Array(0...9)
+                    .map { "ct_\(EhSetting.categoryNames[$0])" }
+                    .compactMap { parseBool(node: optouter, name: $0) }
             }
             if optouter.at_xpath("//div [@id='favsel']") != nil {
-                tmpFavoriteName0 = parseString(node: optouter, name: "favorite_0")
-                tmpFavoriteName1 = parseString(node: optouter, name: "favorite_1")
-                tmpFavoriteName2 = parseString(node: optouter, name: "favorite_2")
-                tmpFavoriteName3 = parseString(node: optouter, name: "favorite_3")
-                tmpFavoriteName4 = parseString(node: optouter, name: "favorite_4")
-                tmpFavoriteName5 = parseString(node: optouter, name: "favorite_5")
-                tmpFavoriteName6 = parseString(node: optouter, name: "favorite_6")
-                tmpFavoriteName7 = parseString(node: optouter, name: "favorite_7")
-                tmpFavoriteName8 = parseString(node: optouter, name: "favorite_8")
-                tmpFavoriteName9 = parseString(node: optouter, name: "favorite_9")
+                tmpFavoritesNames = Array(0...9).map { "favorite_\($0)" }
+                    .compactMap { parseString(node: optouter, name: $0) }
             }
             if optouter.at_xpath("//input [@name='fs']") != nil {
                 tmpFavoritesSortOrder = parseEnum(node: optouter, name: "fs")
@@ -912,14 +938,8 @@ extension Parser {
                 tmpRatingsColor = parseString(node: optouter, name: "ru") ?? ""
             }
             if optouter.at_xpath("//div [@id='nssel']") != nil {
-                tmpReclassExcluded = parseCheckBoxBool(node: optouter, name: "xn_1")
-                tmpLanguageExcluded = parseCheckBoxBool(node: optouter, name: "xn_2")
-                tmpParodyExcluded = parseCheckBoxBool(node: optouter, name: "xn_3")
-                tmpCharacterExcluded = parseCheckBoxBool(node: optouter, name: "xn_4")
-                tmpGroupExcluded = parseCheckBoxBool(node: optouter, name: "xn_5")
-                tmpArtistExcluded = parseCheckBoxBool(node: optouter, name: "xn_6")
-                tmpMaleExcluded = parseCheckBoxBool(node: optouter, name: "xn_7")
-                tmpFemaleExcluded = parseCheckBoxBool(node: optouter, name: "xn_8")
+                tmpExcludedNamespaces = Array(0...7).map { "xn_\($0)" }
+                    .compactMap { parseCheckBoxBool(node: optouter, name: $0) }
             }
             if optouter.at_xpath("//input [@name='ft']") != nil {
                 tmpTagFilteringThreshold = Float(parseString(node: optouter, name: "ft") ?? "0")
@@ -928,6 +948,11 @@ extension Parser {
             if optouter.at_xpath("//input [@name='wt']") != nil {
                 tmpTagWatchingThreshold = Float(parseString(node: optouter, name: "wt") ?? "0")
                 if tmpTagWatchingThreshold == nil { tmpTagWatchingThreshold = 0 }
+            }
+            if optouter.at_xpath("//div [@id='xlasel']") != nil {
+                tmpExcludedLanguages = Array(0...49)
+                    .map { "xl_\(EhSetting.languageValues[$0])" }
+                    .compactMap { parseCheckBoxBool(node: optouter, name: $0) }
             }
             if optouter.at_xpath("//textarea [@name='xu']") != nil {
                 tmpExcludedUploaders = parseTextEditorString(node: optouter, name: "xu") ?? ""
@@ -985,10 +1010,10 @@ extension Parser {
         }
 
         // swiftlint:disable line_length
-        guard let capableLoadThroughHathSetting = tmpCapableLoadThroughHathSetting, let capableImageResolution = tmpCapableImageResolution, let capableSearchResultCount = tmpCapableSearchResultCount, let capableThumbnailConfigSize = tmpCapableThumbnailConfigSize, let capableThumbnailConfigRows = tmpCapableThumbnailConfigRows, let loadThroughHathSetting = tmpLoadThroughHathSetting, let imageResolution = tmpImageResolution, let imageSizeWidth = tmpImageSizeWidth, let imageSizeHeight = tmpImageSizeHeight, let galleryName = tmpGalleryName, let archiverBehavior = tmpArchiverBehavior, let displayMode = tmpDisplayMode, let doujinshiDisabled = tmpDoujinshiDisabled, let mangaDisabled = tmpGalleryDisabled, let artistCGDisabled = tmpArtistCGDisabled, let gameCGDisabled = tmpGameCGDisabled, let westernDisabled = tmpWesternDisabled, let nonHDisabled = tmpNonHDisabled, let imageSetDisabled = tmpImageSetDisabled, let cosplayDisabled = tmpCosplayDisabled, let asianPornDisabled = tmpAsianPornDisabled, let miscDisabled = tmpMiscDisabled, let favoriteName0 = tmpFavoriteName0, let favoriteName1 = tmpFavoriteName1, let favoriteName2 = tmpFavoriteName2, let favoriteName3 = tmpFavoriteName3, let favoriteName4 = tmpFavoriteName4, let favoriteName5 = tmpFavoriteName5, let favoriteName6 = tmpFavoriteName6, let favoriteName7 = tmpFavoriteName7, let favoriteName8 = tmpFavoriteName8, let favoriteName9 = tmpFavoriteName9, let favoritesSortOrder = tmpFavoritesSortOrder, let ratingsColor = tmpRatingsColor, let reclassExcluded = tmpReclassExcluded, let languageExcluded = tmpLanguageExcluded, let parodyExcluded = tmpParodyExcluded, let characterExcluded = tmpCharacterExcluded, let groupExcluded = tmpGroupExcluded, let artistExcluded = tmpArtistExcluded, let maleExcluded = tmpMaleExcluded, let femaleExcluded = tmpFemaleExcluded, let tagFilteringThreshold = tmpTagFilteringThreshold, let tagWatchingThreshold = tmpTagWatchingThreshold, let excludedUploaders = tmpExcludedUploaders, let searchResultCount = tmpSearchResultCount, let thumbnailLoadTiming = tmpThumbnailLoadTiming, let thumbnailConfigSize = tmpThumbnailConfigSize, let thumbnailConfigRows = tmpThumbnailConfigRows, let thumbnailScaleFactor = tmpThumbnailScaleFactor, let viewportVirtualWidth = tmpViewportVirtualWidth, let commentsSortOrder = tmpCommentsSortOrder, let commentVotesShowTiming = tmpCommentVotesShowTiming, let tagsSortOrder = tmpTagsSortOrder, let galleryShowPageNumbers = tmpGalleryShowPageNumbers, let hathLocalNetworkHost = tmpHathLocalNetworkHost
+        guard !tmpEhProfiles.filter(\.isSelected).isEmpty, let capableLoadThroughHathSetting = tmpCapableLoadThroughHathSetting, let capableImageResolution = tmpCapableImageResolution, let capableSearchResultCount = tmpCapableSearchResultCount, let capableThumbnailConfigSize = tmpCapableThumbnailConfigSize, let capableThumbnailConfigRows = tmpCapableThumbnailConfigRows, let loadThroughHathSetting = tmpLoadThroughHathSetting, let browsingCountry = tmpBrowsingCountry, let literalBrowsingCountry = tmpLiteralBrowsingCountry, let imageResolution = tmpImageResolution, let imageSizeWidth = tmpImageSizeWidth, let imageSizeHeight = tmpImageSizeHeight, let galleryName = tmpGalleryName, let archiverBehavior = tmpArchiverBehavior, let displayMode = tmpDisplayMode, tmpDisabledCategories.count == 10, tmpFavoritesNames.count == 10, let favoritesSortOrder = tmpFavoritesSortOrder, let ratingsColor = tmpRatingsColor, tmpExcludedNamespaces.count == 8, let tagFilteringThreshold = tmpTagFilteringThreshold, let tagWatchingThreshold = tmpTagWatchingThreshold, tmpExcludedLanguages.count == 50, let excludedUploaders = tmpExcludedUploaders, let searchResultCount = tmpSearchResultCount, let thumbnailLoadTiming = tmpThumbnailLoadTiming, let thumbnailConfigSize = tmpThumbnailConfigSize, let thumbnailConfigRows = tmpThumbnailConfigRows, let thumbnailScaleFactor = tmpThumbnailScaleFactor, let viewportVirtualWidth = tmpViewportVirtualWidth, let commentsSortOrder = tmpCommentsSortOrder, let commentVotesShowTiming = tmpCommentVotesShowTiming, let tagsSortOrder = tmpTagsSortOrder, let galleryShowPageNumbers = tmpGalleryShowPageNumbers, let hathLocalNetworkHost = tmpHathLocalNetworkHost
         else { throw AppError.parseFailed }
 
-        return EhProfile(capableLoadThroughHathSetting: capableLoadThroughHathSetting, capableImageResolution: capableImageResolution, capableSearchResultCount: capableSearchResultCount, capableThumbnailConfigSize: capableThumbnailConfigSize, capableThumbnailConfigRows: capableThumbnailConfigRows, loadThroughHathSetting: loadThroughHathSetting, imageResolution: imageResolution, imageSizeWidth: imageSizeWidth, imageSizeHeight: imageSizeHeight, galleryName: galleryName, archiverBehavior: archiverBehavior, displayMode: displayMode, doujinshiDisabled: doujinshiDisabled, mangaDisabled: mangaDisabled, artistCGDisabled: artistCGDisabled, gameCGDisabled: gameCGDisabled, westernDisabled: westernDisabled, nonHDisabled: nonHDisabled, imageSetDisabled: imageSetDisabled, cosplayDisabled: cosplayDisabled, asianPornDisabled: asianPornDisabled, miscDisabled: miscDisabled, favoriteName0: favoriteName0, favoriteName1: favoriteName1, favoriteName2: favoriteName2, favoriteName3: favoriteName3, favoriteName4: favoriteName4, favoriteName5: favoriteName5, favoriteName6: favoriteName6, favoriteName7: favoriteName7, favoriteName8: favoriteName8, favoriteName9: favoriteName9, favoritesSortOrder: favoritesSortOrder, ratingsColor: ratingsColor, reclassExcluded: reclassExcluded, languageExcluded: languageExcluded, parodyExcluded: parodyExcluded, characterExcluded: characterExcluded, groupExcluded: groupExcluded, artistExcluded: artistExcluded, maleExcluded: maleExcluded, femaleExcluded: femaleExcluded, tagFilteringThreshold: tagFilteringThreshold, tagWatchingThreshold: tagWatchingThreshold, excludedUploaders: excludedUploaders, searchResultCount: searchResultCount, thumbnailLoadTiming: thumbnailLoadTiming, thumbnailConfigSize: thumbnailConfigSize, thumbnailConfigRows: thumbnailConfigRows, thumbnailScaleFactor: thumbnailScaleFactor, viewportVirtualWidth: viewportVirtualWidth, commentsSortOrder: commentsSortOrder, commentVotesShowTiming: commentVotesShowTiming, tagsSortOrder: tagsSortOrder, galleryShowPageNumbers: galleryShowPageNumbers, hathLocalNetworkHost: hathLocalNetworkHost, useOriginalImages: tmpUseOriginalImages, useMultiplePageViewer: tmpUseMultiplePageViewer, multiplePageViewerStyle: tmpMultiplePageViewerStyle, multiplePageViewerShowThumbnailPane: tmpMultiplePageViewerShowThumbnailPane
+        return EhSetting(ehProfiles: tmpEhProfiles.sorted(), capableLoadThroughHathSetting: capableLoadThroughHathSetting, capableImageResolution: capableImageResolution, capableSearchResultCount: capableSearchResultCount, capableThumbnailConfigSize: capableThumbnailConfigSize, capableThumbnailConfigRows: capableThumbnailConfigRows, loadThroughHathSetting: loadThroughHathSetting, browsingCountry: browsingCountry, literalBrowsingCountry: literalBrowsingCountry, imageResolution: imageResolution, imageSizeWidth: imageSizeWidth, imageSizeHeight: imageSizeHeight, galleryName: galleryName, archiverBehavior: archiverBehavior, displayMode: displayMode, disabledCategories: tmpDisabledCategories, favoriteNames: tmpFavoritesNames, favoritesSortOrder: favoritesSortOrder, ratingsColor: ratingsColor, excludedNamespaces: tmpExcludedNamespaces, tagFilteringThreshold: tagFilteringThreshold, tagWatchingThreshold: tagWatchingThreshold, excludedLanguages: tmpExcludedLanguages, excludedUploaders: excludedUploaders, searchResultCount: searchResultCount, thumbnailLoadTiming: thumbnailLoadTiming, thumbnailConfigSize: thumbnailConfigSize, thumbnailConfigRows: thumbnailConfigRows, thumbnailScaleFactor: thumbnailScaleFactor, viewportVirtualWidth: viewportVirtualWidth, commentsSortOrder: commentsSortOrder, commentVotesShowTiming: commentVotesShowTiming, tagsSortOrder: tagsSortOrder, galleryShowPageNumbers: galleryShowPageNumbers, hathLocalNetworkHost: hathLocalNetworkHost, useOriginalImages: tmpUseOriginalImages, useMultiplePageViewer: tmpUseMultiplePageViewer, multiplePageViewerStyle: tmpMultiplePageViewerStyle, multiplePageViewerShowThumbnailPane: tmpMultiplePageViewerShowThumbnailPane
         )
         // swiftlint:enable line_length
     }

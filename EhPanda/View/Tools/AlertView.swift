@@ -121,8 +121,9 @@ struct GenericRetryView: View {
                 .font(.headline)
                 .padding(.bottom, 5)
             Button(action: { retryAction?() }, label: {
-                Text(buttonText.localized().uppercased())
+                Text(buttonText.localized())
                     .foregroundColor(.primary.opacity(0.7))
+                    .textCase(.uppercase)
             })
             .buttonStyle(.bordered)
             .buttonBorderShape(.capsule)

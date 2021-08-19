@@ -377,6 +377,34 @@ func setCookie(url: URL, key: String, value: String) {
     }
 }
 
+func setCookie(response: HTTPURLResponse) {
+    guard let setString = response.allHeaderFields["Set-Cookie"] as? String else { return }
+    setString.components(separatedBy: ", ")
+        .flatMap { $0.components(separatedBy: "; ") }
+        .forEach { value in
+            [Defaults.URL.ehentai, Defaults.URL.exhentai].forEach { url in
+                [
+                    Defaults.Cookie.ipbMemberId,
+                    Defaults.Cookie.ipbPassHash,
+                    Defaults.Cookie.igneous
+                ].forEach { key in
+                    guard !(
+                        url == Defaults.URL.ehentai
+                        && key == Defaults.Cookie.igneous
+                    ) else { return }
+
+                    if let range = value.range(of: "\(key)=") {
+                        setCookie(
+                            url: url.safeURL(),
+                            key: key,
+                            value: String(value[range.upperBound...])
+                        )
+                    }
+                }
+            }
+        }
+}
+
 func removeCookie(url: URL, key: String) {
     if let cookies = HTTPCookieStorage.shared.cookies(for: url) {
         cookies.forEach { cookie in
