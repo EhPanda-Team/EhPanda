@@ -156,6 +156,15 @@
 // MARK: EhSettingsView
 "Settings" = "設定";
 
+"Profile Settings" = "プロファイル設定";
+"Selected profile" = "選択されたプロファイル";
+"Set as default" = "デフォルトに設定";
+"Delete profile" = "プロファイルを削除";
+"Are you sure to delete this profile?" = "本当にこのプロファイルを削除しますか？";
+"Delete" = "削除";
+"Rename" = "名前を変更";
+"Create new" = "新規作成";
+
 "Image Load Settings" = "画像読み込み設定";
 "Recommended." = "推奨。";
 "Can be slower. Enable if behind firewall/proxy that blocks outgoing non-standard ports." = "遅くなることがあります。非標準発信ポートがファイヤーウォール・プロキシにブロックされた場合のみ有効にしてください。";

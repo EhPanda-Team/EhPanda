@@ -39,7 +39,7 @@ struct AccountSettingView: View, StoreAccessor {
                         NavigationLink("Login", destination: LoginView())
                             .foregroundStyle(.tint)
                     } else {
-                        Button("Logout", action: toggleLogout).foregroundStyle(.red)
+                        Button("Logout", role: .destructive, action: toggleLogout)
                     }
                     if didLogin {
                         Group {

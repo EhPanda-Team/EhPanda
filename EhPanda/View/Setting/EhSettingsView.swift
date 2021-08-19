@@ -24,6 +24,10 @@ struct EhSettingsView: View, StoreAccessor {
     private func form(profileBinding: Binding<EhProfile>) -> some View {
         Form {
             Group {
+                ProfileSetSection(
+                    profile: profileBinding, shouldHideKeyboard: $shouldHideKeyboard,
+                    performProfileSetAction: performProfileSetAction
+                )
                 ImageLoadSettingsSection(profile: profileBinding)
                 ImageSizeSettingsSection(profile: profileBinding)
                 GalleryNameDisplaySection(profile: profileBinding)
@@ -33,9 +37,9 @@ struct EhSettingsView: View, StoreAccessor {
                 RatingsSection(profile: profileBinding, shouldHideKeyboard: $shouldHideKeyboard)
                 TagNamespacesSection(profile: profileBinding)
                 TagFilteringThresholdSection(profile: profileBinding)
-                TagWatchingThresholdSection(profile: profileBinding)
             }
             Group {
+                TagWatchingThresholdSection(profile: profileBinding)
                 ExcludedLanguagesSection(profile: profileBinding)
                 ExcludedUploadersSection(profile: profileBinding, shouldHideKeyboard: $shouldHideKeyboard)
                 SearchResultCountSection(profile: profileBinding)
@@ -45,9 +49,9 @@ struct EhSettingsView: View, StoreAccessor {
                 GalleryCommentsSection(profile: profileBinding)
                 GalleryTagsSection(profile: profileBinding)
                 GalleryPageNumberingSection(profile: profileBinding)
-                HathLocalNetworkHostSection(profile: profileBinding, shouldHideKeyboard: $shouldHideKeyboard)
             }
             Group {
+                HathLocalNetworkHostSection(profile: profileBinding, shouldHideKeyboard: $shouldHideKeyboard)
                 OriginalImagesSection(profile: profileBinding)
                 MultiplePageViewerSection(profile: profileBinding)
             }
@@ -141,6 +145,28 @@ private extension EhSettingsView {
             }
             .seal(in: token)
     }
+    func performProfileSetAction(
+        action: String?, value: Int, name: String? = nil
+    ) {
+        guard !submittingFlag else { return }
+        submittingFlag = true
+
+        let token = SubscriptionToken()
+        EhProfileSetRequest(action: action, name: name, value: value)
+            .publisher
+            .receive(on: DispatchQueue.main)
+            .sink { completion in
+                submittingFlag = false
+                if case .failure(let error) = completion {
+                    SwiftyBeaver.error(error)
+                    loadFailedFlag = true
+                }
+                token.unseal()
+            } receiveValue: { profile in
+                self.profile = profile
+            }
+            .seal(in: token)
+    }
     func fetchProfileIfNeeded() {
         if profile == nil {
             fetchProfile()
@@ -148,6 +174,98 @@ private extension EhSettingsView {
     }
     func toggleWebViewConfig() {
         store.dispatch(.toggleSettingViewSheet(state: .webviewConfig))
+    }
+}
+
+// MARK: ProfileSetSection
+private struct ProfileSetSection: View {
+    @Binding private var profile: EhProfile
+    @State private var selection: EhProfileSet
+    @State private var newname: String
+    @Binding private var shouldHideKeyboard: String
+
+    @FocusState private var isFocused
+    @State private var dialogPresented = false
+
+    private let performProfileSetAction: (String?, Int, String?) -> Void
+
+    init(
+        profile: Binding<EhProfile>, shouldHideKeyboard: Binding<String>,
+        performProfileSetAction: @escaping (String?, Int, String?) -> Void
+    ) {
+        let selection: EhProfileSet = profile.wrappedValue.ehProfileSets
+            .filter(\.isSelected).first.forceUnwrapped
+
+        _profile = profile
+        _selection = State(initialValue: selection)
+        _newname = State(initialValue: selection.name)
+        _shouldHideKeyboard = shouldHideKeyboard
+        self.performProfileSetAction = performProfileSetAction
+    }
+
+    var body: some View {
+        Section("Profile Settings".localized()) {
+            HStack {
+                Text("Selected profile")
+                Spacer()
+                Picker(selection: $selection) {
+                    ForEach(profile.ehProfileSets) { profileSet in
+                        Text(profileSet.name).tag(profileSet)
+                    }
+                } label: {
+                    Text(selection.name)
+                }
+                .pickerStyle(.menu)
+            }
+            if !selection.isDefault {
+                Button("Set as default", action: setDefault)
+                Button("Delete profile", role: .destructive, action: showDialog)
+            }
+        }
+        .confirmationDialog(
+            "Are you sure to delete this profile?",
+            isPresented: $dialogPresented,
+            titleVisibility: .visible
+        ) {
+            Button("Delete", role: .destructive, action: delete)
+        }
+        .onChange(of: selection, perform: select)
+        .textCase(nil)
+        Section {
+            SettingTextField(
+                text: $newname, width: nil,
+                alignment: .leading, background: .clear
+            )
+            .focused($isFocused)
+            Button("Rename", action: rename)
+                .disabled(isFocused)
+            if profile.ehProfileSets.count < 10 {
+                Button("Create new", action: create)
+                    .disabled(isFocused)
+            }
+        }
+        .onChange(of: shouldHideKeyboard) { _ in
+            isFocused = false
+        }
+    }
+
+    private func showDialog() {
+        dialogPresented = true
+    }
+    private func select(newValue: EhProfileSet) {
+        performProfileSetAction(nil, newValue.value, nil)
+    }
+    private func setDefault() {
+        performProfileSetAction("default", selection.value, nil)
+    }
+    private func delete() {
+        performProfileSetAction("delete", selection.value, nil)
+    }
+    private func rename() {
+        performProfileSetAction("rename", selection.value, newname)
+    }
+    private func create() {
+        performProfileSetAction("create", selection.value, newname)
     }
 }
 
@@ -1161,7 +1279,6 @@ struct EhSettingsView_Previews: PreviewProvider {
         NavigationView {
             EhSettingsView()
                 .environmentObject(Store.preview)
-                .preferredColorScheme(.dark)
         }
         .navigationViewStyle(.stack)
     }

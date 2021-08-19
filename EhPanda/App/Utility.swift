@@ -388,6 +388,11 @@ func setCookie(response: HTTPURLResponse) {
                     Defaults.Cookie.ipbPassHash,
                     Defaults.Cookie.igneous
                 ].forEach { key in
+                    guard !(
+                        url == Defaults.URL.ehentai
+                        && key == Defaults.Cookie.igneous
+                    ) else { return }
+
                     if let range = value.range(of: "\(key)=") {
                         setCookie(
                             url: url.safeURL(),

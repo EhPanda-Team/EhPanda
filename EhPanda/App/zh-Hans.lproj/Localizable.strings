@@ -156,6 +156,15 @@
 // MARK: EhSettingsView
 "Settings" = "设置";
 
+"Profile Settings" = "档案设置";
+"Selected profile" = "当前选定档案";
+"Set as default" = "设置为默认";
+"Delete profile" = "删除档案";
+"Are you sure to delete this profile?" = "确定要删除这个档案吗？";
+"Delete" = "删除";
+"Rename" = "重命名";
+"Create new" = "创建新档案";
+
 "Image Load Settings" = "图片加载设置";
 "Recommended." = "推荐。";
 "Can be slower. Enable if behind firewall/proxy that blocks outgoing non-standard ports." = "可能稍慢。当防火墙或代理阻止非标准接口的流量时启用此项。";

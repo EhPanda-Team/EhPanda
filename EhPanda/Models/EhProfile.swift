@@ -8,7 +8,7 @@
 // MARK: EhProfile
 struct EhProfile {
     // swiftlint:disable line_length
-    static let empty = EhProfile(capableLoadThroughHathSetting: .defaultPortOnly, capableImageResolution: .x780, capableSearchResultCount: .twentyFive, capableThumbnailConfigSize: .normal, capableThumbnailConfigRows: .twenty, loadThroughHathSetting: .anyClient, browsingCountry: .autoDetect, literalBrowsingCountry: "Hong Kong", imageResolution: .auto, imageSizeWidth: 0, imageSizeHeight: 0, galleryName: .default, archiverBehavior: .manualSelectManualStart, displayMode: .compact, disabledCategories: Array(repeating: false, count: 10), favoriteNames: Array(repeating: "debug", count: 10), favoritesSortOrder: .favoritedTime, ratingsColor: "", excludedNamespaces: Array(repeating: false, count: 8), tagFilteringThreshold: 0, tagWatchingThreshold: 0, excludedLanguages: Array(repeating: false, count: 50), excludedUploaders: "", searchResultCount: .twentyFive, thumbnailLoadTiming: .onMouseOver, thumbnailConfigSize: .normal, thumbnailConfigRows: .four, thumbnailScaleFactor: 100, viewportVirtualWidth: 0, commentsSortOrder: .oldest, commentVotesShowTiming: .onHoverOrClick, tagsSortOrder: .alphabetical, galleryShowPageNumbers: false, hathLocalNetworkHost: ""
+    static let empty = EhProfile(ehProfileSets: [EhProfileSet(value: 1, name: "Default", isSelected: true)], capableLoadThroughHathSetting: .defaultPortOnly, capableImageResolution: .x780, capableSearchResultCount: .twentyFive, capableThumbnailConfigSize: .normal, capableThumbnailConfigRows: .twenty, loadThroughHathSetting: .anyClient, browsingCountry: .autoDetect, literalBrowsingCountry: "Hong Kong", imageResolution: .auto, imageSizeWidth: 0, imageSizeHeight: 0, galleryName: .default, archiverBehavior: .manualSelectManualStart, displayMode: .compact, disabledCategories: Array(repeating: false, count: 10), favoriteNames: Array(repeating: "debug", count: 10), favoritesSortOrder: .favoritedTime, ratingsColor: "", excludedNamespaces: Array(repeating: false, count: 8), tagFilteringThreshold: 0, tagWatchingThreshold: 0, excludedLanguages: Array(repeating: false, count: 50), excludedUploaders: "", searchResultCount: .twentyFive, thumbnailLoadTiming: .onMouseOver, thumbnailConfigSize: .normal, thumbnailConfigRows: .four, thumbnailScaleFactor: 100, viewportVirtualWidth: 0, commentsSortOrder: .oldest, commentVotesShowTiming: .onHoverOrClick, tagsSortOrder: .alphabetical, galleryShowPageNumbers: false, hathLocalNetworkHost: ""
     )
     static let categoryNames = Category.allCases.map(\.rawValue).map { value in
         value.lowercased().replacingOccurrences(of: " ", with: "")
@@ -22,6 +22,8 @@ struct EhProfile {
         254, 1278, 2302, 255, 1279, 2303
     ]
     // swiftlint:enable line_length
+
+    let ehProfileSets: [EhProfileSet]
 
     var capableLoadThroughHathSetting: EhProfileLoadThroughHathSetting
     var capableImageResolution: EhProfileImageResolution
@@ -62,6 +64,21 @@ struct EhProfile {
     var useMultiplePageViewer: Bool?
     var multiplePageViewerStyle: EhProfileMultiplePageViewerStyle?
     var multiplePageViewerShowThumbnailPane: Bool?
+}
+
+// MARK: EhProfileSet
+struct EhProfileSet: Comparable, Identifiable, Hashable {
+    static func < (lhs: EhProfileSet, rhs: EhProfileSet) -> Bool {
+        lhs.value < rhs.value
+    }
+    var id: Int { value }
+
+    let value: Int
+    let name: String
+    let isSelected: Bool
+    var isDefault: Bool {
+        value == 1
+    }
 }
 
 // MARK: LoadThroughHathSetting

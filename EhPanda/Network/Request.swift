@@ -629,7 +629,7 @@ struct IgneousRequest {
     }
 }
 
-struct VerifyProfileRequest {
+struct VerifyEhProfileSetRequest {
     var publisher: AnyPublisher<(Int?, Bool), AppError> {
         URLSession.shared
             .dataTaskPublisher(
@@ -642,13 +642,24 @@ struct VerifyProfileRequest {
     }
 }
 
-struct CreateProfileRequest {
-    var publisher: AnyPublisher<Any, AppError> {
+struct EhProfileSetRequest {
+    var action: String?
+    var name: String?
+    var value: Int?
+
+    var publisher: AnyPublisher<EhProfile, AppError> {
         let url = Defaults.URL.ehConfig()
-        let params: [String: String] = [
-            "profile_action": "create",
-            "profile_name": "EhPanda"
-        ]
+        var params = [String: String]()
+
+        if let action = action {
+            params["profile_action"] = action
+        }
+        if let name = name {
+            params["profile_name"] = name
+        }
+        if let value = value {
+            params["profile_set"] = "\(value)"
+        }
 
         var request = URLRequest(url: url.safeURL())
 
@@ -657,9 +668,10 @@ struct CreateProfileRequest {
             .urlEncoded().data(using: .utf8)
         request.setURLEncodedContentType()
 
-        return URLSession.shared
-            .dataTaskPublisher(for: request)
-            .map { $0 }.mapError(mapAppError)
+        return URLSession.shared.dataTaskPublisher(for: request)
+            .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
+            .tryMap(Parser.parseEhProfile)
+            .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
 }

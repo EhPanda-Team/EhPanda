@@ -454,28 +454,30 @@ struct FetchIgneousCommand: AppCommand {
     }
 }
 
-struct VerifyProfileCommand: AppCommand {
+struct VerifyEhProfileSetCommand: AppCommand {
     func execute(in store: Store) {
         let token = SubscriptionToken()
-        VerifyProfileRequest()
+        VerifyEhProfileSetRequest()
             .publisher
             .receive(on: DispatchQueue.main)
             .sink { completion in
                 if case .failure(let error) = completion {
-                    store.dispatch(.verifyProfileDone(result: .failure(error)))
+                    store.dispatch(.verifyEhProfileSetDone(result: .failure(error)))
                 }
                 token.unseal()
             } receiveValue: {
-                store.dispatch(.verifyProfileDone(result: .success($0)))
+                store.dispatch(.verifyEhProfileSetDone(result: .success($0)))
             }
             .seal(in: token)
     }
 }
 
-struct CreateProfileCommand: AppCommand {
+struct CreateEhProfileSetCommand: AppCommand {
+    let name: String
+
     func execute(in store: Store) {
         let token = SubscriptionToken()
-        CreateProfileRequest()
+        EhProfileSetRequest(action: "create", name: name)
             .publisher
             .receive(on: DispatchQueue.main)
             .sink { _ in

@@ -156,6 +156,15 @@
 // MARK: EhSettingsView
 //"Settings" = "";
 //
+//"Profile Settings" = "";
+//"Selected profile" = "";
+//"Set as default" = "";
+//"Delete profile" = "";
+//"Are you sure to delete this profile?" = "";
+//"Delete" = "";
+//"Rename" = "";
+//"Create new" = "";
+//
 //"Image Load Settings" = "";
 //"Recommended." = "";
 //"Can be slower. Enable if behind firewall/proxy that blocks outgoing non-standard ports." = "";

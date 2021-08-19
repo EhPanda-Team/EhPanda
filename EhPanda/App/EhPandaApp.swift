@@ -60,8 +60,8 @@ private extension EhPandaApp {
     func fetchAccountInfoIfNeeded() {
         guard didLogin else { return }
 
-        store.dispatch(.verifyProfile)
         store.dispatch(.fetchUserInfo)
+        store.dispatch(.verifyEhProfileSet)
         store.dispatch(.fetchFavoriteNames)
     }
     func fetchIgneousIfNeeded() {
