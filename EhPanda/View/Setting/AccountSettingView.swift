@@ -43,7 +43,7 @@ struct AccountSettingView: View, StoreAccessor {
                     }
                     if didLogin {
                         Group {
-                            NavigationLink("Account configuration", destination: EhSettingsView())
+                            NavigationLink("Account configuration", destination: EhSettingView())
                             Button("Manage tags subscription", action: toggleWebViewMyTags).withArrow()
                                 .disabled(setting.bypassesSNIFiltering)
                             Toggle(

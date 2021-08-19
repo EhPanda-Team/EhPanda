@@ -629,7 +629,7 @@ struct IgneousRequest {
     }
 }
 
-struct VerifyEhProfileSetRequest {
+struct VerifyEhProfileRequest {
     var publisher: AnyPublisher<(Int?, Bool), AppError> {
         URLSession.shared
             .dataTaskPublisher(
@@ -642,12 +642,12 @@ struct VerifyEhProfileSetRequest {
     }
 }
 
-struct EhProfileSetRequest {
+struct EhProfileRequest {
     var action: String?
     var name: String?
-    var value: Int?
+    var set: Int?
 
-    var publisher: AnyPublisher<EhProfile, AppError> {
+    var publisher: AnyPublisher<EhSetting, AppError> {
         let url = Defaults.URL.ehConfig()
         var params = [String: String]()
 
@@ -657,8 +657,8 @@ struct EhProfileSetRequest {
         if let name = name {
             params["profile_name"] = name
         }
-        if let value = value {
-            params["profile_set"] = "\(value)"
+        if let set = set {
+            params["profile_set"] = "\(set)"
         }
 
         var request = URLRequest(url: url.safeURL())
@@ -670,82 +670,82 @@ struct EhProfileSetRequest {
 
         return URLSession.shared.dataTaskPublisher(for: request)
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-            .tryMap(Parser.parseEhProfile)
+            .tryMap(Parser.parseEhSetting)
             .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
 }
 
-struct EhProfileRequest {
-    var publisher: AnyPublisher<EhProfile, AppError> {
+struct EhSettingRequest {
+    var publisher: AnyPublisher<EhSetting, AppError> {
         URLSession.shared
             .dataTaskPublisher(
                 for: Defaults.URL.ehConfig().safeURL()
             )
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-            .tryMap(Parser.parseEhProfile)
+            .tryMap(Parser.parseEhSetting)
             .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
 }
 
-struct SubmitEhProfileChangesRequest {
-    let profile: EhProfile
+struct SubmitEhSettingChangesRequest {
+    let ehSetting: EhSetting
 
-    var publisher: AnyPublisher<EhProfile, AppError> {
+    var publisher: AnyPublisher<EhSetting, AppError> {
         let url = Defaults.URL.ehConfig()
         var params: [String: String] = [
-            "uh": String(profile.loadThroughHathSetting.rawValue),
-            "co": profile.browsingCountry.rawValue,
-            "xr": String(profile.imageResolution.rawValue),
-            "rx": String(Int(profile.imageSizeWidth)),
-            "ry": String(Int(profile.imageSizeHeight)),
-            "tl": String(profile.galleryName.rawValue),
-            "ar": String(profile.archiverBehavior.rawValue),
-            "dm": String(profile.displayMode.rawValue),
-            "fs": String(profile.favoritesSortOrder.rawValue),
-            "ru": profile.ratingsColor,
-            "ft": String(Int(profile.tagFilteringThreshold)),
-            "wt": String(Int(profile.tagWatchingThreshold)),
-            "xu": profile.excludedUploaders,
-            "rc": String(profile.searchResultCount.rawValue),
-            "lt": String(profile.thumbnailLoadTiming.rawValue),
-            "ts": String(profile.thumbnailConfigSize.rawValue),
-            "tr": String(profile.thumbnailConfigRows.rawValue),
-            "tp": String(Int(profile.thumbnailScaleFactor)),
-            "vp": String(Int(profile.viewportVirtualWidth)),
-            "cs": String(profile.commentsSortOrder.rawValue),
-            "sc": String(profile.commentVotesShowTiming.rawValue),
-            "tb": String(profile.tagsSortOrder.rawValue),
-            "pn": profile.galleryShowPageNumbers ? "1" : "0",
-            "hh": profile.hathLocalNetworkHost,
+            "uh": String(ehSetting.loadThroughHathSetting.rawValue),
+            "co": ehSetting.browsingCountry.rawValue,
+            "xr": String(ehSetting.imageResolution.rawValue),
+            "rx": String(Int(ehSetting.imageSizeWidth)),
+            "ry": String(Int(ehSetting.imageSizeHeight)),
+            "tl": String(ehSetting.galleryName.rawValue),
+            "ar": String(ehSetting.archiverBehavior.rawValue),
+            "dm": String(ehSetting.displayMode.rawValue),
+            "fs": String(ehSetting.favoritesSortOrder.rawValue),
+            "ru": ehSetting.ratingsColor,
+            "ft": String(Int(ehSetting.tagFilteringThreshold)),
+            "wt": String(Int(ehSetting.tagWatchingThreshold)),
+            "xu": ehSetting.excludedUploaders,
+            "rc": String(ehSetting.searchResultCount.rawValue),
+            "lt": String(ehSetting.thumbnailLoadTiming.rawValue),
+            "ts": String(ehSetting.thumbnailConfigSize.rawValue),
+            "tr": String(ehSetting.thumbnailConfigRows.rawValue),
+            "tp": String(Int(ehSetting.thumbnailScaleFactor)),
+            "vp": String(Int(ehSetting.viewportVirtualWidth)),
+            "cs": String(ehSetting.commentsSortOrder.rawValue),
+            "sc": String(ehSetting.commentVotesShowTiming.rawValue),
+            "tb": String(ehSetting.tagsSortOrder.rawValue),
+            "pn": ehSetting.galleryShowPageNumbers ? "1" : "0",
+            "hh": ehSetting.hathLocalNetworkHost,
             "apply": "Apply"
         ]
 
-        EhProfile.categoryNames.enumerated().forEach { index, name in
-            params["ct_\(name)"] = profile.disabledCategories[index] ? "1" : "0"
+        EhSetting.categoryNames.enumerated().forEach { index, name in
+            params["ct_\(name)"] = ehSetting.disabledCategories[index] ? "1" : "0"
         }
         Array(0...9).forEach { index in
-            params["favorite_\(index)"] = profile.favoriteNames[index]
+            params["favorite_\(index)"] = ehSetting.favoriteNames[index]
         }
         Array(0...7).forEach { index in
-            params["xn_\(index)"] = profile.excludedNamespaces[index] ? "1" : "0"
+            params["xn_\(index)"] = ehSetting.excludedNamespaces[index] ? "1" : "0"
         }
-        profile.excludedLanguages.enumerated().forEach { index, value in
+        ehSetting.excludedLanguages.enumerated().forEach { index, value in
             guard value else { return }
-            params["xl_\(EhProfile.languageValues[index])"] = "on"
+            params["xl_\(EhSetting.languageValues[index])"] = "on"
         }
 
-        if let useOriginalImages = profile.useOriginalImages {
+        if let useOriginalImages = ehSetting.useOriginalImages {
             params["oi"] = useOriginalImages ? "1" : "0"
         }
-        if let useMultiplePageViewer = profile.useMultiplePageViewer {
+        if let useMultiplePageViewer = ehSetting.useMultiplePageViewer {
             params["qb"] = useMultiplePageViewer ? "1" : "0"
         }
-        if let multiplePageViewerStyle = profile.multiplePageViewerStyle {
+        if let multiplePageViewerStyle = ehSetting.multiplePageViewerStyle {
             params["ms"] = String(multiplePageViewerStyle.rawValue)
         }
-        if let multiplePageViewerShowThumbnailPane = profile.multiplePageViewerShowThumbnailPane {
+        if let multiplePageViewerShowThumbnailPane = ehSetting.multiplePageViewerShowThumbnailPane {
             params["mt"] = multiplePageViewerShowThumbnailPane ? "0" : "1"
         }
 
@@ -758,7 +758,7 @@ struct SubmitEhProfileChangesRequest {
 
         return URLSession.shared.dataTaskPublisher(for: request)
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-            .tryMap(Parser.parseEhProfile)
+            .tryMap(Parser.parseEhSetting)
             .mapError(mapAppError)
             .eraseToAnyPublisher()
     }

@@ -1,14 +1,14 @@
 //
-//  EhProfile.swift
-//  EhProfile
+//  EhSetting.swift
+//  EhSetting
 //
 //  Created by 荒木辰造 on 2021/08/08.
 //
 
-// MARK: EhProfile
-struct EhProfile {
+// MARK: EhSetting
+struct EhSetting {
     // swiftlint:disable line_length
-    static let empty = EhProfile(ehProfileSets: [EhProfileSet(value: 1, name: "Default", isSelected: true)], capableLoadThroughHathSetting: .defaultPortOnly, capableImageResolution: .x780, capableSearchResultCount: .twentyFive, capableThumbnailConfigSize: .normal, capableThumbnailConfigRows: .twenty, loadThroughHathSetting: .anyClient, browsingCountry: .autoDetect, literalBrowsingCountry: "Hong Kong", imageResolution: .auto, imageSizeWidth: 0, imageSizeHeight: 0, galleryName: .default, archiverBehavior: .manualSelectManualStart, displayMode: .compact, disabledCategories: Array(repeating: false, count: 10), favoriteNames: Array(repeating: "debug", count: 10), favoritesSortOrder: .favoritedTime, ratingsColor: "", excludedNamespaces: Array(repeating: false, count: 8), tagFilteringThreshold: 0, tagWatchingThreshold: 0, excludedLanguages: Array(repeating: false, count: 50), excludedUploaders: "", searchResultCount: .twentyFive, thumbnailLoadTiming: .onMouseOver, thumbnailConfigSize: .normal, thumbnailConfigRows: .four, thumbnailScaleFactor: 100, viewportVirtualWidth: 0, commentsSortOrder: .oldest, commentVotesShowTiming: .onHoverOrClick, tagsSortOrder: .alphabetical, galleryShowPageNumbers: false, hathLocalNetworkHost: ""
+    static let empty = EhSetting(ehProfiles: [EhProfile(value: 1, name: "Default", isSelected: true)], capableLoadThroughHathSetting: .defaultPortOnly, capableImageResolution: .x780, capableSearchResultCount: .twentyFive, capableThumbnailConfigSize: .normal, capableThumbnailConfigRows: .twenty, loadThroughHathSetting: .anyClient, browsingCountry: .autoDetect, literalBrowsingCountry: "Hong Kong", imageResolution: .auto, imageSizeWidth: 0, imageSizeHeight: 0, galleryName: .default, archiverBehavior: .manualSelectManualStart, displayMode: .compact, disabledCategories: Array(repeating: false, count: 10), favoriteNames: Array(repeating: "debug", count: 10), favoritesSortOrder: .favoritedTime, ratingsColor: "", excludedNamespaces: Array(repeating: false, count: 8), tagFilteringThreshold: 0, tagWatchingThreshold: 0, excludedLanguages: Array(repeating: false, count: 50), excludedUploaders: "", searchResultCount: .twentyFive, thumbnailLoadTiming: .onMouseOver, thumbnailConfigSize: .normal, thumbnailConfigRows: .four, thumbnailScaleFactor: 100, viewportVirtualWidth: 0, commentsSortOrder: .oldest, commentVotesShowTiming: .onHoverOrClick, tagsSortOrder: .alphabetical, galleryShowPageNumbers: false, hathLocalNetworkHost: ""
     )
     static let categoryNames = Category.allCases.map(\.rawValue).map { value in
         value.lowercased().replacingOccurrences(of: " ", with: "")
@@ -23,52 +23,52 @@ struct EhProfile {
     ]
     // swiftlint:enable line_length
 
-    let ehProfileSets: [EhProfileSet]
+    let ehProfiles: [EhProfile]
 
-    var capableLoadThroughHathSetting: EhProfileLoadThroughHathSetting
-    var capableImageResolution: EhProfileImageResolution
-    var capableSearchResultCount: EhProfileSearchResultCount
-    var capableThumbnailConfigSize: EhProfileThumbnailSize
-    var capableThumbnailConfigRows: EhProfileThumbnailRows
+    var capableLoadThroughHathSetting: EhSettingLoadThroughHathSetting
+    var capableImageResolution: EhSettingImageResolution
+    var capableSearchResultCount: EhSettingSearchResultCount
+    var capableThumbnailConfigSize: EhSettingThumbnailSize
+    var capableThumbnailConfigRows: EhSettingThumbnailRows
 
-    var loadThroughHathSetting: EhProfileLoadThroughHathSetting
-    var browsingCountry: EhProfileBrowsingCountry
+    var loadThroughHathSetting: EhSettingLoadThroughHathSetting
+    var browsingCountry: EhSettingBrowsingCountry
     let literalBrowsingCountry: String
-    var imageResolution: EhProfileImageResolution
+    var imageResolution: EhSettingImageResolution
     var imageSizeWidth: Float
     var imageSizeHeight: Float
-    var galleryName: EhProfileGalleryName
-    var archiverBehavior: EhProfileArchiverBehavior
-    var displayMode: EhProfileDisplayMode
+    var galleryName: EhSettingGalleryName
+    var archiverBehavior: EhSettingArchiverBehavior
+    var displayMode: EhSettingDisplayMode
     var disabledCategories: [Bool]
     var favoriteNames: [String]
-    var favoritesSortOrder: EhProfileFavoritesSortOrder
+    var favoritesSortOrder: EhSettingFavoritesSortOrder
     var ratingsColor: String
     var excludedNamespaces: [Bool]
     var tagFilteringThreshold: Float
     var tagWatchingThreshold: Float
     var excludedLanguages: [Bool]
     var excludedUploaders: String
-    var searchResultCount: EhProfileSearchResultCount
-    var thumbnailLoadTiming: EhProfileThumbnailLoadTiming
-    var thumbnailConfigSize: EhProfileThumbnailSize
-    var thumbnailConfigRows: EhProfileThumbnailRows
+    var searchResultCount: EhSettingSearchResultCount
+    var thumbnailLoadTiming: EhSettingThumbnailLoadTiming
+    var thumbnailConfigSize: EhSettingThumbnailSize
+    var thumbnailConfigRows: EhSettingThumbnailRows
     var thumbnailScaleFactor: Float
     var viewportVirtualWidth: Float
-    var commentsSortOrder: EhProfileCommentsSortOrder
-    var commentVotesShowTiming: EhProfileCommentVotesShowTiming
-    var tagsSortOrder: EhProfileTagsSortOrder
+    var commentsSortOrder: EhSettingCommentsSortOrder
+    var commentVotesShowTiming: EhSettingCommentVotesShowTiming
+    var tagsSortOrder: EhSettingTagsSortOrder
     var galleryShowPageNumbers: Bool
     var hathLocalNetworkHost: String
     var useOriginalImages: Bool?
     var useMultiplePageViewer: Bool?
-    var multiplePageViewerStyle: EhProfileMultiplePageViewerStyle?
+    var multiplePageViewerStyle: EhSettingMultiplePageViewerStyle?
     var multiplePageViewerShowThumbnailPane: Bool?
 }
 
-// MARK: EhProfileSet
-struct EhProfileSet: Comparable, Identifiable, Hashable {
-    static func < (lhs: EhProfileSet, rhs: EhProfileSet) -> Bool {
+// MARK: EhProfile
+struct EhProfile: Comparable, Identifiable, Hashable {
+    static func < (lhs: EhProfile, rhs: EhProfile) -> Bool {
         lhs.value < rhs.value
     }
     var id: Int { value }
@@ -82,16 +82,16 @@ struct EhProfileSet: Comparable, Identifiable, Hashable {
 }
 
 // MARK: LoadThroughHathSetting
-enum EhProfileLoadThroughHathSetting: Int, CaseIterable, Identifiable, Comparable {
+enum EhSettingLoadThroughHathSetting: Int, CaseIterable, Identifiable, Comparable {
     case anyClient
     case defaultPortOnly
     case no
 }
-extension EhProfileLoadThroughHathSetting {
+extension EhSettingLoadThroughHathSetting {
     var id: Int { rawValue }
     static func < (
-        lhs: EhProfileLoadThroughHathSetting,
-        rhs: EhProfileLoadThroughHathSetting
+        lhs: EhSettingLoadThroughHathSetting,
+        rhs: EhSettingLoadThroughHathSetting
     ) -> Bool {
         lhs.rawValue < rhs.rawValue
     }
@@ -119,7 +119,7 @@ extension EhProfileLoadThroughHathSetting {
 }
 
 // MARK: ImageResolution
-enum EhProfileImageResolution: Int, CaseIterable, Identifiable, Comparable {
+enum EhSettingImageResolution: Int, CaseIterable, Identifiable, Comparable {
     case auto
     case x780
     case x980
@@ -127,11 +127,11 @@ enum EhProfileImageResolution: Int, CaseIterable, Identifiable, Comparable {
     case x1600
     case x2400
 }
-extension EhProfileImageResolution {
+extension EhSettingImageResolution {
     var id: Int { rawValue }
     static func < (
-        lhs: EhProfileImageResolution,
-        rhs: EhProfileImageResolution
+        lhs: EhSettingImageResolution,
+        rhs: EhSettingImageResolution
     ) -> Bool {
         lhs.rawValue < rhs.rawValue
     }
@@ -155,11 +155,11 @@ extension EhProfileImageResolution {
 }
 
 // MARK: GalleryName
-enum EhProfileGalleryName: Int, CaseIterable, Identifiable {
+enum EhSettingGalleryName: Int, CaseIterable, Identifiable {
     case `default`
     case japanese
 }
-extension EhProfileGalleryName {
+extension EhSettingGalleryName {
     var id: Int { rawValue }
 
     var value: String {
@@ -173,7 +173,7 @@ extension EhProfileGalleryName {
 }
 
 // MARK: ArchiverBehavior
-enum EhProfileArchiverBehavior: Int, CaseIterable, Identifiable {
+enum EhSettingArchiverBehavior: Int, CaseIterable, Identifiable {
     case manualSelectManualStart
     case manualSelectAutoStart
     case autoSelectOriginalManualStart
@@ -181,7 +181,7 @@ enum EhProfileArchiverBehavior: Int, CaseIterable, Identifiable {
     case autoSelectResampleManualStart
     case autoSelectResampleAutoStart
 }
-extension EhProfileArchiverBehavior {
+extension EhSettingArchiverBehavior {
     var id: Int { rawValue }
 
     var value: String {
@@ -203,14 +203,14 @@ extension EhProfileArchiverBehavior {
 }
 
 // MARK: DisplayMode
-enum EhProfileDisplayMode: Int, CaseIterable, Identifiable {
+enum EhSettingDisplayMode: Int, CaseIterable, Identifiable {
     case compact
     case thumbnail
     case extended
     case minimal
     case minimalPlus
 }
-extension EhProfileDisplayMode {
+extension EhSettingDisplayMode {
     var id: Int { rawValue }
 
     var value: String {
@@ -230,11 +230,11 @@ extension EhProfileDisplayMode {
 }
 
 // MARK: FavoritesSortOrder
-enum EhProfileFavoritesSortOrder: Int, CaseIterable, Identifiable {
+enum EhSettingFavoritesSortOrder: Int, CaseIterable, Identifiable {
     case lastUpdateTime
     case favoritedTime
 }
-extension EhProfileFavoritesSortOrder {
+extension EhSettingFavoritesSortOrder {
     var id: Int { rawValue }
 
     var value: String {
@@ -248,17 +248,17 @@ extension EhProfileFavoritesSortOrder {
 }
 
 // MARK: SearchResultCount
-enum EhProfileSearchResultCount: Int, CaseIterable, Identifiable, Comparable {
+enum EhSettingSearchResultCount: Int, CaseIterable, Identifiable, Comparable {
     case twentyFive
     case fifty
     case oneHundred
     case twoHundred
 }
-extension EhProfileSearchResultCount {
+extension EhSettingSearchResultCount {
     var id: Int { rawValue }
     static func < (
-        lhs: EhProfileSearchResultCount,
-        rhs: EhProfileSearchResultCount
+        lhs: EhSettingSearchResultCount,
+        rhs: EhSettingSearchResultCount
     ) -> Bool {
         lhs.rawValue < rhs.rawValue
     }
@@ -278,11 +278,11 @@ extension EhProfileSearchResultCount {
 }
 
 // MARK: ThumbnailLoadTiming
-enum EhProfileThumbnailLoadTiming: Int, CaseIterable, Identifiable {
+enum EhSettingThumbnailLoadTiming: Int, CaseIterable, Identifiable {
     case onMouseOver
     case onPageLoad
 }
-extension EhProfileThumbnailLoadTiming {
+extension EhSettingThumbnailLoadTiming {
     var id: Int { rawValue }
 
     var value: String {
@@ -304,15 +304,15 @@ extension EhProfileThumbnailLoadTiming {
 }
 
 // MARK: ThumbnailSize
-enum EhProfileThumbnailSize: Int, CaseIterable, Identifiable, Comparable {
+enum EhSettingThumbnailSize: Int, CaseIterable, Identifiable, Comparable {
     case normal
     case large
 }
-extension EhProfileThumbnailSize {
+extension EhSettingThumbnailSize {
     var id: Int { rawValue }
     static func < (
-        lhs: EhProfileThumbnailSize,
-        rhs: EhProfileThumbnailSize
+        lhs: EhSettingThumbnailSize,
+        rhs: EhSettingThumbnailSize
     ) -> Bool {
         lhs.rawValue < rhs.rawValue
     }
@@ -328,17 +328,17 @@ extension EhProfileThumbnailSize {
 }
 
 // MARK: ThumbnailRows
-enum EhProfileThumbnailRows: Int, CaseIterable, Identifiable, Comparable {
+enum EhSettingThumbnailRows: Int, CaseIterable, Identifiable, Comparable {
     case four
     case ten
     case twenty
     case forty
 }
-extension EhProfileThumbnailRows {
+extension EhSettingThumbnailRows {
     var id: Int { rawValue }
     static func < (
-        lhs: EhProfileThumbnailRows,
-        rhs: EhProfileThumbnailRows
+        lhs: EhSettingThumbnailRows,
+        rhs: EhSettingThumbnailRows
     ) -> Bool {
         lhs.rawValue < rhs.rawValue
     }
@@ -358,12 +358,12 @@ extension EhProfileThumbnailRows {
 }
 
 // MARK: CommentsSortOrder
-enum EhProfileCommentsSortOrder: Int, CaseIterable, Identifiable {
+enum EhSettingCommentsSortOrder: Int, CaseIterable, Identifiable {
     case oldest
     case recent
     case highestScore
 }
-extension EhProfileCommentsSortOrder {
+extension EhSettingCommentsSortOrder {
     var id: Int { rawValue }
 
     var value: String {
@@ -379,11 +379,11 @@ extension EhProfileCommentsSortOrder {
 }
 
 // MARK: CommentVotesShowTiming
-enum EhProfileCommentVotesShowTiming: Int, CaseIterable, Identifiable {
+enum EhSettingCommentVotesShowTiming: Int, CaseIterable, Identifiable {
     case onHoverOrClick
     case always
 }
-extension EhProfileCommentVotesShowTiming {
+extension EhSettingCommentVotesShowTiming {
     var id: Int { rawValue }
 
     var value: String {
@@ -397,11 +397,11 @@ extension EhProfileCommentVotesShowTiming {
 }
 
 // MARK: TagsSortOrder
-enum EhProfileTagsSortOrder: Int, CaseIterable, Identifiable {
+enum EhSettingTagsSortOrder: Int, CaseIterable, Identifiable {
     case alphabetical
     case tagPower
 }
-extension EhProfileTagsSortOrder {
+extension EhSettingTagsSortOrder {
     var id: Int { rawValue }
 
     var value: String {
@@ -415,12 +415,12 @@ extension EhProfileTagsSortOrder {
 }
 
 // MARK: MultiplePageViewerStyle
-enum EhProfileMultiplePageViewerStyle: Int, CaseIterable, Identifiable {
+enum EhSettingMultiplePageViewerStyle: Int, CaseIterable, Identifiable {
     case alignLeftScaleIfOverWidth
     case alignCenterScaleIfOverWidth
     case alignCenterAlwaysScale
 }
-extension EhProfileMultiplePageViewerStyle {
+extension EhSettingMultiplePageViewerStyle {
     var id: Int { rawValue }
 
     var value: String {
@@ -435,12 +435,12 @@ extension EhProfileMultiplePageViewerStyle {
     }
 }
 
-// MARK: EhProfileBrowsingCountry
+// MARK: EhSettingBrowsingCountry
 // swiftlint:disable line_length switch_case_alignment
-enum EhProfileBrowsingCountry: String, CaseIterable, Identifiable, Equatable {
+enum EhSettingBrowsingCountry: String, CaseIterable, Identifiable, Equatable {
     case autoDetect = "-"; case afghanistan = "AF"; case alandIslands = "AX"; case albania = "AL"; case algeria = "DZ"; case americanSamoa = "AS"; case andorra = "AD"; case angola = "AO"; case anguilla = "AI"; case antarctica = "AQ"; case antiguaandBarbuda = "AG"; case argentina = "AR"; case armenia = "AM"; case aruba = "AW"; case asiaPacificRegion = "AP"; case australia = "AU"; case austria = "AT"; case azerbaijan = "AZ"; case bahamas = "BS"; case bahrain = "BH"; case bangladesh = "BD"; case barbados = "BB"; case belarus = "BY"; case belgium = "BE"; case belize = "BZ"; case benin = "BJ"; case bermuda = "BM"; case bhutan = "BT"; case bolivia = "BO"; case bonaireSaintEustatiusandSaba = "BQ"; case bosniaandHerzegovina = "BA"; case botswana = "BW"; case bouvetIsland = "BV"; case brazil = "BR"; case britishIndianOceanTerritory = "IO"; case bruneiDarussalam = "BN"; case bulgaria = "BG"; case burkinaFaso = "BF"; case burundi = "BI"; case cambodia = "KH"; case cameroon = "CM"; case canada = "CA"; case capeVerde = "CV"; case caymanIslands = "KY"; case centralAfricanRepublic = "CF"; case chad = "TD"; case chile = "CL"; case china = "CN"; case christmasIsland = "CX"; case cocosIslands = "CC"; case colombia = "CO"; case comoros = "KM"; case congo = "CG"; case congoTheDemocraticRepublicofthe = "CD"; case cookIslands = "CK"; case costaRica = "CR"; case coteDIvoire = "CI"; case croatia = "HR"; case cuba = "CU"; case curacao = "CW"; case cyprus = "CY"; case czechRepublic = "CZ"; case denmark = "DK"; case djibouti = "DJ"; case dominica = "DM"; case dominicanRepublic = "DO"; case ecuador = "EC"; case egypt = "EG"; case elSalvador = "SV"; case equatorialGuinea = "GQ"; case eritrea = "ER"; case estonia = "EE"; case ethiopia = "ET"; case europe = "EU"; case falklandIslands = "FK"; case faroeIslands = "FO"; case fiji = "FJ"; case finland = "FI"; case france = "FR"; case frenchGuiana = "GF"; case frenchPolynesia = "PF"; case frenchSouthernTerritories = "TF"; case gabon = "GA"; case gambia = "GM"; case georgia = "GE"; case germany = "DE"; case ghana = "GH"; case gibraltar = "GI"; case greece = "GR"; case greenland = "GL"; case grenada = "GD"; case guadeloupe = "GP"; case guam = "GU"; case guatemala = "GT"; case guernsey = "GG"; case guinea = "GN"; case guineaBissau = "GW"; case guyana = "GY"; case haiti = "HT"; case heardIslandandMcDonaldIslands = "HM"; case holySeeVaticanCityState = "VA"; case honduras = "HN"; case hongKong = "HK"; case hungary = "HU"; case iceland = "IS"; case india = "IN"; case indonesia = "ID"; case iran = "IR"; case iraq = "IQ"; case ireland = "IE"; case isleofMan = "IM"; case israel = "IL"; case italy = "IT"; case jamaica = "JM"; case japan = "JP"; case jersey = "JE"; case jordan = "JO"; case kazakhstan = "KZ"; case kenya = "KE"; case kiribati = "KI"; case kuwait = "KW"; case kyrgyzstan = "KG"; case laoPeoplesDemocraticRepublic = "LA"; case latvia = "LV"; case lebanon = "LB"; case lesotho = "LS"; case liberia = "LR"; case libya = "LY"; case liechtenstein = "LI"; case lithuania = "LT"; case luxembourg = "LU"; case macau = "MO"; case macedonia = "MK"; case madagascar = "MG"; case malawi = "MW"; case malaysia = "MY"; case maldives = "MV"; case mali = "ML"; case malta = "MT"; case marshallIslands = "MH"; case martinique = "MQ"; case mauritania = "MR"; case mauritius = "MU"; case mayotte = "YT"; case mexico = "MX"; case micronesia = "FM"; case moldova = "MD"; case monaco = "MC"; case mongolia = "MN"; case montenegro = "ME"; case montserrat = "MS"; case morocco = "MA"; case mozambique = "MZ"; case myanmar = "MM"; case namibia = "NA"; case nauru = "NR"; case nepal = "NP"; case netherlands = "NL"; case newCaledonia = "NC"; case newZealand = "NZ"; case nicaragua = "NI"; case niger = "NE"; case nigeria = "NG"; case niue = "NU"; case norfolkIsland = "NF"; case northKorea = "KP"; case northernMarianaIslands = "MP"; case norway = "NO"; case oman = "OM"; case pakistan = "PK"; case palau = "PW"; case palestinianTerritory = "PS"; case panama = "PA"; case papuaNewGuinea = "PG"; case paraguay = "PY"; case peru = "PE"; case philippines = "PH"; case pitcairnIslands = "PN"; case poland = "PL"; case portugal = "PT"; case puertoRico = "PR"; case qatar = "QA"; case reunion = "RE"; case romania = "RO"; case russianFederation = "RU"; case rwanda = "RW"; case saintBarthelemy = "BL"; case saintHelena = "SH"; case saintKittsandNevis = "KN"; case saintLucia = "LC"; case saintMartin = "MF"; case saintPierreandMiquelon = "PM"; case saintVincentandtheGrenadines = "VC"; case samoa = "WS"; case sanMarino = "SM"; case saoTomeandPrincipe = "ST"; case saudiArabia = "SA"; case senegal = "SN"; case serbia = "RS"; case seychelles = "SC"; case sierraLeone = "SL"; case singapore = "SG"; case sintMaarten = "SX"; case slovakia = "SK"; case slovenia = "SI"; case solomonIslands = "SB"; case somalia = "SO"; case southAfrica = "ZA"; case southGeorgiaandtheSouthSandwichIslands = "GS"; case southKorea = "KR"; case southSudan = "SS"; case spain = "ES"; case sriLanka = "LK"; case sudan = "SD"; case suriname = "SR"; case svalbardandJanMayen = "SJ"; case swaziland = "SZ"; case sweden = "SE"; case switzerland = "CH"; case syrianArabRepublic = "SY"; case taiwan = "TW"; case tajikistan = "TJ"; case tanzania = "TZ"; case thailand = "TH"; case timorLeste = "TL"; case togo = "TG"; case tokelau = "TK"; case tonga = "TO"; case trinidadandTobago = "TT"; case tunisia = "TN"; case turkey = "TR"; case turkmenistan = "TM"; case turksandCaicosIslands = "TC"; case tuvalu = "TV"; case uganda = "UG"; case ukraine = "UA"; case unitedArabEmirates = "AE"; case unitedKingdom = "GB"; case unitedStates = "US"; case unitedStatesMinorOutlyingIslands = "UM"; case uruguay = "UY"; case uzbekistan = "UZ"; case vanuatu = "VU"; case venezuela = "VE"; case vietnam = "VN"; case virginIslandsBritish = "VG"; case virginIslandsUS = "VI"; case wallisandFutuna = "WF"; case westernSahara = "EH"; case yemen = "YE"; case zambia = "ZM"; case zimbabwe = "ZW"
 }
-extension EhProfileBrowsingCountry {
+extension EhSettingBrowsingCountry {
     var id: Int { hashValue }
     var name: String {
         switch self {

@@ -130,7 +130,7 @@ struct LoginView: View, StoreAccessor {
                     notificFeedback(style: .success)
                     dismissAction.callAsFunction()
                     store.dispatch(.fetchFrontpageItems)
-                    store.dispatch(.verifyEhProfileSet)
+                    store.dispatch(.verifyEhProfile)
                     store.dispatch(.fetchUserInfo)
                 }
                 token.unseal()

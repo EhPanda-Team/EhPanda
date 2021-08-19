@@ -794,8 +794,8 @@ extension Parser {
         return greeting
     }
 
-    // MARK: EhProfile
-    static func parseEhProfile(doc: HTMLDocument) throws -> EhProfile {
+    // MARK: EhSetting
+    static func parseEhSetting(doc: HTMLDocument) throws -> EhSetting {
         func parseInt(node: XMLElement, name: String) -> Int? {
             var value: Int?
             for link in node.xpath("//input [@name='\(name)']")
@@ -869,15 +869,15 @@ extension Parser {
               let form = tmpForm else { throw AppError.parseFailed }
 
         // swiftlint:disable line_length
-        var tmpEhProfileSets = [EhProfileSet](); var tmpCapableLoadThroughHathSetting: EhProfileLoadThroughHathSetting?; var tmpCapableImageResolution: EhProfileImageResolution?; var tmpCapableSearchResultCount: EhProfileSearchResultCount?; var tmpCapableThumbnailConfigSize: EhProfileThumbnailSize?; var tmpCapableThumbnailConfigRows: EhProfileThumbnailRows?; var tmpLoadThroughHathSetting: EhProfileLoadThroughHathSetting?; var tmpBrowsingCountry: EhProfileBrowsingCountry?; var tmpImageResolution: EhProfileImageResolution?; var tmpImageSizeWidth: Float?; var tmpImageSizeHeight: Float?; var tmpGalleryName: EhProfileGalleryName?; var tmpLiteralBrowsingCountry: String?; var tmpArchiverBehavior: EhProfileArchiverBehavior?; var tmpDisplayMode: EhProfileDisplayMode?; var tmpDisabledCategories = [Bool](); var tmpFavoritesNames = [String](); var tmpFavoritesSortOrder: EhProfileFavoritesSortOrder?; var tmpRatingsColor: String?; var tmpExcludedNamespaces = [Bool](); var tmpTagFilteringThreshold: Float?; var tmpTagWatchingThreshold: Float?; var tmpExcludedLanguages = [Bool](); var tmpExcludedUploaders: String?; var tmpSearchResultCount: EhProfileSearchResultCount?; var tmpThumbnailLoadTiming: EhProfileThumbnailLoadTiming?; var tmpThumbnailConfigSize: EhProfileThumbnailSize?; var tmpThumbnailConfigRows: EhProfileThumbnailRows?; var tmpThumbnailScaleFactor: Float?; var tmpViewportVirtualWidth: Float?; var tmpCommentsSortOrder: EhProfileCommentsSortOrder?; var tmpCommentVotesShowTiming: EhProfileCommentVotesShowTiming?; var tmpTagsSortOrder: EhProfileTagsSortOrder?; var tmpGalleryShowPageNumbers: Bool?; var tmpHathLocalNetworkHost: String?; var tmpUseOriginalImages: Bool?; var tmpUseMultiplePageViewer: Bool?; var tmpMultiplePageViewerStyle: EhProfileMultiplePageViewerStyle?; var tmpMultiplePageViewerShowThumbnailPane: Bool?
+        var tmpEhProfiles = [EhProfile](); var tmpCapableLoadThroughHathSetting: EhSettingLoadThroughHathSetting?; var tmpCapableImageResolution: EhSettingImageResolution?; var tmpCapableSearchResultCount: EhSettingSearchResultCount?; var tmpCapableThumbnailConfigSize: EhSettingThumbnailSize?; var tmpCapableThumbnailConfigRows: EhSettingThumbnailRows?; var tmpLoadThroughHathSetting: EhSettingLoadThroughHathSetting?; var tmpBrowsingCountry: EhSettingBrowsingCountry?; var tmpImageResolution: EhSettingImageResolution?; var tmpImageSizeWidth: Float?; var tmpImageSizeHeight: Float?; var tmpGalleryName: EhSettingGalleryName?; var tmpLiteralBrowsingCountry: String?; var tmpArchiverBehavior: EhSettingArchiverBehavior?; var tmpDisplayMode: EhSettingDisplayMode?; var tmpDisabledCategories = [Bool](); var tmpFavoritesNames = [String](); var tmpFavoritesSortOrder: EhSettingFavoritesSortOrder?; var tmpRatingsColor: String?; var tmpExcludedNamespaces = [Bool](); var tmpTagFilteringThreshold: Float?; var tmpTagWatchingThreshold: Float?; var tmpExcludedLanguages = [Bool](); var tmpExcludedUploaders: String?; var tmpSearchResultCount: EhSettingSearchResultCount?; var tmpThumbnailLoadTiming: EhSettingThumbnailLoadTiming?; var tmpThumbnailConfigSize: EhSettingThumbnailSize?; var tmpThumbnailConfigRows: EhSettingThumbnailRows?; var tmpThumbnailScaleFactor: Float?; var tmpViewportVirtualWidth: Float?; var tmpCommentsSortOrder: EhSettingCommentsSortOrder?; var tmpCommentVotesShowTiming: EhSettingCommentVotesShowTiming?; var tmpTagsSortOrder: EhSettingTagsSortOrder?; var tmpGalleryShowPageNumbers: Bool?; var tmpHathLocalNetworkHost: String?; var tmpUseOriginalImages: Bool?; var tmpUseMultiplePageViewer: Bool?; var tmpMultiplePageViewerStyle: EhSettingMultiplePageViewerStyle?; var tmpMultiplePageViewerShowThumbnailPane: Bool?
         // swiftlint:enable line_length
 
-        tmpEhProfileSets = parseSelections(node: profileOuter, name: "profile_set")
+        tmpEhProfiles = parseSelections(node: profileOuter, name: "profile_set")
             .compactMap { (name, value, isSelected) in
                 guard let value = Int(value)
                 else { return nil }
 
-                return EhProfileSet(
+                return EhProfile(
                     value: value, name: name,
                     isSelected: isSelected
                 )
@@ -892,7 +892,7 @@ extension Parser {
                 var value = parseSelections(node: optouter, name: "co").filter(\.2).first?.1
 
                 if value == "" { value = "-" }
-                tmpBrowsingCountry = EhProfileBrowsingCountry(rawValue: value ?? "")
+                tmpBrowsingCountry = EhSettingBrowsingCountry(rawValue: value ?? "")
 
                 if let pText = optouter.at_xpath("//p")?.text,
                    let rangeA = pText.range(of: "You appear to be browsing the site from "),
@@ -924,7 +924,7 @@ extension Parser {
             }
             if optouter.at_xpath("//div [@id='catsel']") != nil {
                 tmpDisabledCategories = Array(0...9)
-                    .map { "ct_\(EhProfile.categoryNames[$0])" }
+                    .map { "ct_\(EhSetting.categoryNames[$0])" }
                     .compactMap { parseBool(node: optouter, name: $0) }
             }
             if optouter.at_xpath("//div [@id='favsel']") != nil {
@@ -951,7 +951,7 @@ extension Parser {
             }
             if optouter.at_xpath("//div [@id='xlasel']") != nil {
                 tmpExcludedLanguages = Array(0...49)
-                    .map { "xl_\(EhProfile.languageValues[$0])" }
+                    .map { "xl_\(EhSetting.languageValues[$0])" }
                     .compactMap { parseCheckBoxBool(node: optouter, name: $0) }
             }
             if optouter.at_xpath("//textarea [@name='xu']") != nil {
@@ -1010,10 +1010,10 @@ extension Parser {
         }
 
         // swiftlint:disable line_length
-        guard !tmpEhProfileSets.filter(\.isSelected).isEmpty, let capableLoadThroughHathSetting = tmpCapableLoadThroughHathSetting, let capableImageResolution = tmpCapableImageResolution, let capableSearchResultCount = tmpCapableSearchResultCount, let capableThumbnailConfigSize = tmpCapableThumbnailConfigSize, let capableThumbnailConfigRows = tmpCapableThumbnailConfigRows, let loadThroughHathSetting = tmpLoadThroughHathSetting, let browsingCountry = tmpBrowsingCountry, let literalBrowsingCountry = tmpLiteralBrowsingCountry, let imageResolution = tmpImageResolution, let imageSizeWidth = tmpImageSizeWidth, let imageSizeHeight = tmpImageSizeHeight, let galleryName = tmpGalleryName, let archiverBehavior = tmpArchiverBehavior, let displayMode = tmpDisplayMode, tmpDisabledCategories.count == 10, tmpFavoritesNames.count == 10, let favoritesSortOrder = tmpFavoritesSortOrder, let ratingsColor = tmpRatingsColor, tmpExcludedNamespaces.count == 8, let tagFilteringThreshold = tmpTagFilteringThreshold, let tagWatchingThreshold = tmpTagWatchingThreshold, tmpExcludedLanguages.count == 50, let excludedUploaders = tmpExcludedUploaders, let searchResultCount = tmpSearchResultCount, let thumbnailLoadTiming = tmpThumbnailLoadTiming, let thumbnailConfigSize = tmpThumbnailConfigSize, let thumbnailConfigRows = tmpThumbnailConfigRows, let thumbnailScaleFactor = tmpThumbnailScaleFactor, let viewportVirtualWidth = tmpViewportVirtualWidth, let commentsSortOrder = tmpCommentsSortOrder, let commentVotesShowTiming = tmpCommentVotesShowTiming, let tagsSortOrder = tmpTagsSortOrder, let galleryShowPageNumbers = tmpGalleryShowPageNumbers, let hathLocalNetworkHost = tmpHathLocalNetworkHost
+        guard !tmpEhProfiles.filter(\.isSelected).isEmpty, let capableLoadThroughHathSetting = tmpCapableLoadThroughHathSetting, let capableImageResolution = tmpCapableImageResolution, let capableSearchResultCount = tmpCapableSearchResultCount, let capableThumbnailConfigSize = tmpCapableThumbnailConfigSize, let capableThumbnailConfigRows = tmpCapableThumbnailConfigRows, let loadThroughHathSetting = tmpLoadThroughHathSetting, let browsingCountry = tmpBrowsingCountry, let literalBrowsingCountry = tmpLiteralBrowsingCountry, let imageResolution = tmpImageResolution, let imageSizeWidth = tmpImageSizeWidth, let imageSizeHeight = tmpImageSizeHeight, let galleryName = tmpGalleryName, let archiverBehavior = tmpArchiverBehavior, let displayMode = tmpDisplayMode, tmpDisabledCategories.count == 10, tmpFavoritesNames.count == 10, let favoritesSortOrder = tmpFavoritesSortOrder, let ratingsColor = tmpRatingsColor, tmpExcludedNamespaces.count == 8, let tagFilteringThreshold = tmpTagFilteringThreshold, let tagWatchingThreshold = tmpTagWatchingThreshold, tmpExcludedLanguages.count == 50, let excludedUploaders = tmpExcludedUploaders, let searchResultCount = tmpSearchResultCount, let thumbnailLoadTiming = tmpThumbnailLoadTiming, let thumbnailConfigSize = tmpThumbnailConfigSize, let thumbnailConfigRows = tmpThumbnailConfigRows, let thumbnailScaleFactor = tmpThumbnailScaleFactor, let viewportVirtualWidth = tmpViewportVirtualWidth, let commentsSortOrder = tmpCommentsSortOrder, let commentVotesShowTiming = tmpCommentVotesShowTiming, let tagsSortOrder = tmpTagsSortOrder, let galleryShowPageNumbers = tmpGalleryShowPageNumbers, let hathLocalNetworkHost = tmpHathLocalNetworkHost
         else { throw AppError.parseFailed }
 
-        return EhProfile(ehProfileSets: tmpEhProfileSets.sorted(), capableLoadThroughHathSetting: capableLoadThroughHathSetting, capableImageResolution: capableImageResolution, capableSearchResultCount: capableSearchResultCount, capableThumbnailConfigSize: capableThumbnailConfigSize, capableThumbnailConfigRows: capableThumbnailConfigRows, loadThroughHathSetting: loadThroughHathSetting, browsingCountry: browsingCountry, literalBrowsingCountry: literalBrowsingCountry, imageResolution: imageResolution, imageSizeWidth: imageSizeWidth, imageSizeHeight: imageSizeHeight, galleryName: galleryName, archiverBehavior: archiverBehavior, displayMode: displayMode, disabledCategories: tmpDisabledCategories, favoriteNames: tmpFavoritesNames, favoritesSortOrder: favoritesSortOrder, ratingsColor: ratingsColor, excludedNamespaces: tmpExcludedNamespaces, tagFilteringThreshold: tagFilteringThreshold, tagWatchingThreshold: tagWatchingThreshold, excludedLanguages: tmpExcludedLanguages, excludedUploaders: excludedUploaders, searchResultCount: searchResultCount, thumbnailLoadTiming: thumbnailLoadTiming, thumbnailConfigSize: thumbnailConfigSize, thumbnailConfigRows: thumbnailConfigRows, thumbnailScaleFactor: thumbnailScaleFactor, viewportVirtualWidth: viewportVirtualWidth, commentsSortOrder: commentsSortOrder, commentVotesShowTiming: commentVotesShowTiming, tagsSortOrder: tagsSortOrder, galleryShowPageNumbers: galleryShowPageNumbers, hathLocalNetworkHost: hathLocalNetworkHost, useOriginalImages: tmpUseOriginalImages, useMultiplePageViewer: tmpUseMultiplePageViewer, multiplePageViewerStyle: tmpMultiplePageViewerStyle, multiplePageViewerShowThumbnailPane: tmpMultiplePageViewerShowThumbnailPane
+        return EhSetting(ehProfiles: tmpEhProfiles.sorted(), capableLoadThroughHathSetting: capableLoadThroughHathSetting, capableImageResolution: capableImageResolution, capableSearchResultCount: capableSearchResultCount, capableThumbnailConfigSize: capableThumbnailConfigSize, capableThumbnailConfigRows: capableThumbnailConfigRows, loadThroughHathSetting: loadThroughHathSetting, browsingCountry: browsingCountry, literalBrowsingCountry: literalBrowsingCountry, imageResolution: imageResolution, imageSizeWidth: imageSizeWidth, imageSizeHeight: imageSizeHeight, galleryName: galleryName, archiverBehavior: archiverBehavior, displayMode: displayMode, disabledCategories: tmpDisabledCategories, favoriteNames: tmpFavoritesNames, favoritesSortOrder: favoritesSortOrder, ratingsColor: ratingsColor, excludedNamespaces: tmpExcludedNamespaces, tagFilteringThreshold: tagFilteringThreshold, tagWatchingThreshold: tagWatchingThreshold, excludedLanguages: tmpExcludedLanguages, excludedUploaders: excludedUploaders, searchResultCount: searchResultCount, thumbnailLoadTiming: thumbnailLoadTiming, thumbnailConfigSize: thumbnailConfigSize, thumbnailConfigRows: thumbnailConfigRows, thumbnailScaleFactor: thumbnailScaleFactor, viewportVirtualWidth: viewportVirtualWidth, commentsSortOrder: commentsSortOrder, commentVotesShowTiming: commentVotesShowTiming, tagsSortOrder: tagsSortOrder, galleryShowPageNumbers: galleryShowPageNumbers, hathLocalNetworkHost: hathLocalNetworkHost, useOriginalImages: tmpUseOriginalImages, useMultiplePageViewer: tmpUseMultiplePageViewer, multiplePageViewerStyle: tmpMultiplePageViewerStyle, multiplePageViewerShowThumbnailPane: tmpMultiplePageViewerShowThumbnailPane
         )
         // swiftlint:enable line_length
     }

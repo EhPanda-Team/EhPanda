@@ -36,5 +36,5 @@
 "LIST_DISPLAY_MODE_THUMBNAIL" = "Thumbnail";
 "READING_DIRECTION_VERTICAL" = "Vertical";
 
-// MARK: EhSettingsView
+// MARK: EhSettingView
 "LOAD_THROUGH_HATH_NO" = "No";

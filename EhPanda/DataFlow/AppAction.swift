@@ -77,9 +77,9 @@ enum AppAction {
     case fetchGalleryMPVContent(gid: String, index: Int)
     case fetchGalleryMPVContentDone(gid: String, index: Int, result: Result<String, AppError>)
 
-    case createEhProfileSet(name: String)
-    case verifyEhProfileSet
-    case verifyEhProfileSetDone(result: Result<(Int?, Bool), AppError>)
+    case createEhProfile(name: String)
+    case verifyEhProfile
+    case verifyEhProfileDone(result: Result<(Int?, Bool), AppError>)
     case addFavorite(gid: String, favIndex: Int)
     case deleteFavorite(gid: String)
     case rate(gid: String, rating: Int)

@@ -655,11 +655,11 @@ final class Store: ObservableObject {
             }
 
         // MARK: Account Ops
-        case .createEhProfileSet(let name):
-            appCommand = CreateEhProfileSetCommand(name: name)
-        case .verifyEhProfileSet:
-            appCommand = VerifyEhProfileSetCommand()
-        case .verifyEhProfileSetDone(let result):
+        case .createEhProfile(let name):
+            appCommand = CreateEhProfileCommand(name: name)
+        case .verifyEhProfile:
+            appCommand = VerifyEhProfileCommand()
+        case .verifyEhProfileDone(let result):
             switch result {
             case .success((let profileValue, let profileNotFound)):
                 if let profileValue = profileValue {
@@ -678,7 +678,7 @@ final class Store: ObservableObject {
                         )
                     }
                 } else if profileNotFound {
-                    dispatch(.createEhProfileSet(name: "EhPanda"))
+                    dispatch(.createEhProfile(name: "EhPanda"))
                 } else {
                     SwiftyBeaver.error("Found profile but failed in parsing value.")
                 }
