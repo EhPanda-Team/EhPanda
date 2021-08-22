@@ -311,7 +311,7 @@ private struct CommentCell: View {
                     )
                 }
             }
-            .padding(.top, 1)
+            .fixedSize(horizontal: false, vertical: true)
         }
         .padding()
     }
@@ -332,14 +332,14 @@ private struct CommentCell: View {
                    let secondLink = secondLink
                 {
                     KFImage(URL(string: imgURL))
-                        .defaultModifier()
+                        .commentDefaultModifier()
                         .scaledToFit()
                         .frame(width: windowW / 4)
                         .onTapGesture {
                             linkAction(link.safeURL())
                         }
                     KFImage(URL(string: secondImgURL))
-                        .defaultModifier()
+                        .commentDefaultModifier()
                         .scaledToFit()
                         .frame(width: windowW / 4)
                         .onTapGesture {
@@ -347,11 +347,11 @@ private struct CommentCell: View {
                         }
                 } else {
                     KFImage(URL(string: imgURL))
-                        .defaultModifier()
+                        .commentDefaultModifier()
                         .scaledToFit()
                         .frame(width: windowW / 4)
                     KFImage(URL(string: secondImgURL))
-                        .defaultModifier()
+                        .commentDefaultModifier()
                         .scaledToFit()
                         .frame(width: windowW / 4)
                 }
@@ -361,7 +361,7 @@ private struct CommentCell: View {
         else if let imgURL = imgURL {
             if let link = link {
                 KFImage(URL(string: imgURL))
-                    .defaultModifier()
+                    .commentDefaultModifier()
                     .scaledToFit()
                     .frame(width: windowW / 2)
                     .onTapGesture {
@@ -369,10 +369,21 @@ private struct CommentCell: View {
                     }
             } else {
                 KFImage(URL(string: imgURL))
-                    .defaultModifier()
+                    .commentDefaultModifier()
                     .scaledToFit()
                     .frame(width: windowW / 2)
             }
+        }
+    }
+}
+
+private extension KFImage {
+    func commentDefaultModifier() -> KFImage {
+        defaultModifier()
+        .placeholder {
+            Placeholder(
+                style: .activity(ratio: 1)
+            )
         }
     }
 }
