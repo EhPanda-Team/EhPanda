@@ -959,6 +959,7 @@ private struct CommentScrollCell: View {
                     }
                     Text(comment.score ?? "")
                     Text(comment.formattedDateString)
+                        .lineLimit(1)
                 }
                 .font(.footnote)
                 .foregroundStyle(.secondary)

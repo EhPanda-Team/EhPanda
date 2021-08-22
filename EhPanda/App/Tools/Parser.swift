@@ -72,16 +72,35 @@ struct Parser {
             return (tags, language)
         }
 
+        func parsePageCount(node: XMLElement?) throws -> Int {
+            guard let object = node?.at_xpath("//div [@class='glthumb']")
+            else { throw AppError.parseFailed }
+
+            for link in object.xpath("//div")
+            where link.text?.contains(" pages") == true
+            {
+                guard let pageCount = Int(
+                    link.text?.replacingOccurrences(
+                            of: " pages", with: ""
+                    ) ?? ""
+                )
+                else { continue }
+
+                return pageCount
+            }
+
+            throw AppError.parseFailed
+        }
+
         var galleryItems = [Gallery]()
         for link in doc.xpath("//tr") {
             let firstDivNode = link.at_xpath("//td [@class='gl4c glhide']")?.at_xpath("//div")
             let uploader = firstDivNode?.at_xpath("//a")?.text
-            let pageCount = Int(firstDivNode?.nextSibling?.text?
-                .replacingOccurrences(of: " pages", with: "") ?? "")
             guard let gl2cNode = link.at_xpath("//td [@class='gl2c']"),
                   let gl3cNode = link.at_xpath("//td [@class='gl3c glname']"),
                   let rating = try? parseRating(node: gl2cNode),
                   let coverURL = try? parseCoverURL(node: gl2cNode),
+                  let pageCount = try? parsePageCount(node: gl2cNode),
                   let tagsAndLang = try? parseTagsAndLang(node: gl3cNode),
                   let publishedTime = try? parsePublishedTime(node: gl2cNode),
                   let title = link.at_xpath("//div [@class='glink']")?.text,

@@ -34,7 +34,7 @@ extension Gallery: ManagedObjectConvertible {
         galleryMO.galleryURL = galleryURL
         galleryMO.language = language?.rawValue
         galleryMO.lastOpenDate = lastOpenDate
-        galleryMO.pageCount = Int64(pageCount ?? 0)
+        galleryMO.pageCount = Int64(pageCount)
         galleryMO.postedDate = postedDate
         galleryMO.rating = rating
         galleryMO.title = title

@@ -27,18 +27,6 @@ struct Gallery: Identifiable, Codable, Equatable {
     static func == (lhs: Gallery, rhs: Gallery) -> Bool {
         lhs.gid == rhs.gid
     }
-    static let empty = Gallery(
-        gid: "",
-        token: "",
-        title: "",
-        rating: 0,
-        tags: [],
-        category: .nonH,
-        uploader: nil,
-        postedDate: Date(),
-        coverURL: "",
-        galleryURL: ""
-    )
 
     static let preview = Gallery(
         gid: "",
@@ -49,6 +37,7 @@ struct Gallery: Identifiable, Codable, Equatable {
         category: .doujinshi,
         language: .japanese,
         uploader: "Anonymous",
+        pageCount: 0,
         postedDate: .now,
         coverURL: "https://github.com/"
             + "tatsuz0u/Imageset/blob/"
@@ -66,7 +55,7 @@ struct Gallery: Identifiable, Codable, Equatable {
     let category: Category
     var language: Language?
     let uploader: String?
-    var pageCount: Int?
+    var pageCount: Int
     let postedDate: Date
     let coverURL: String
     let galleryURL: String
@@ -74,26 +63,6 @@ struct Gallery: Identifiable, Codable, Equatable {
 }
 
 struct GalleryDetail: Codable {
-    static let empty = GalleryDetail(
-        gid: "",
-        title: "",
-        isFavored: false,
-        isVisible: true,
-        rating: 0.0,
-        userRating: 0.0,
-        ratingCount: 0,
-        category: .nonH,
-        language: .japanese,
-        uploader: "",
-        postedDate: .distantPast,
-        coverURL: "",
-        favoredCount: 0,
-        pageCount: 0,
-        sizeCount: 0,
-        sizeType: "",
-        torrentCount: 0
-    )
-
     static let preview = GalleryDetail(
         gid: "",
         title: "Preview",

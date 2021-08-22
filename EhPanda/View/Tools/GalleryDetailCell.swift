@@ -67,10 +67,10 @@ struct GalleryDetailCell: View {
                     Spacer()
                     HStack(spacing: 10) {
                         Text(gallery.language?.rawValue.localized() ?? "")
-                        if gallery.pageCount ?? 0 > 0 && !isSEWidth {
+                        if !isSEWidth {
                             HStack(spacing: 2) {
                                 Image(systemName: "photo.on.rectangle.angled")
-                                Text(String(gallery.pageCount ?? 0))
+                                Text(String(gallery.pageCount))
                             }
                         }
                     }

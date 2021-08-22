@@ -34,7 +34,7 @@ extension PersistenceController {
         return entity.forceUnwrapped
     }
     static func fetchGalleryNonNil(gid: String) -> Gallery {
-        fetchGallery(gid: gid) ?? Gallery.empty
+        fetchGallery(gid: gid) ?? Gallery.preview
     }
     static func fetchGalleryDetail(gid: String) -> GalleryDetail? {
         var entity: GalleryDetail?
@@ -106,7 +106,7 @@ extension PersistenceController {
                 managedObject?.title = gallery.title
                 managedObject?.rating = gallery.rating
                 managedObject?.language = gallery.language?.rawValue
-                managedObject?.pageCount = Int64(gallery.pageCount ?? 0)
+                managedObject?.pageCount = Int64(gallery.pageCount)
             }
             if storedMO == nil {
                 gallery.toManagedObject(in: shared.container.viewContext)

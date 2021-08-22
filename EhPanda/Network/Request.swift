@@ -390,6 +390,7 @@ struct GalleryItemReverseRequest {
                 category: detail.category,
                 language: detail.language,
                 uploader: detail.uploader,
+                pageCount: detail.pageCount,
                 postedDate: detail.postedDate,
                 coverURL: detail.coverURL,
                 galleryURL: galleryURL

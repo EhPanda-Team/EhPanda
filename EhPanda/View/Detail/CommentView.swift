@@ -273,6 +273,7 @@ private struct CommentCell: View {
                     }
                     Text(comment.score ?? "")
                     Text(comment.formattedDateString)
+                        .lineLimit(1)
                 }
                 .font(.footnote)
                 .foregroundStyle(.secondary)
