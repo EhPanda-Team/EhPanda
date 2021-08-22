@@ -83,6 +83,7 @@
 "Torrent count" = "トレント数";
 "Yes" = "はい";
 "No" = "いいえ";
+"Expunged" = "削除済み";
 
 // MARK: CommentView
 "Post Comment" = "コメントを書く";

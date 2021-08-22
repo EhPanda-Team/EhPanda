@@ -83,6 +83,7 @@
 //"Torrent count" = "";
 //"Yes" = "";
 //"No" = "";
+//"Expunged" = "";
 
 // MARK: CommentView
 "Post Comment" = "평가　남기";

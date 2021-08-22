@@ -17,7 +17,6 @@ extension GalleryDetailMO: Identifiable {
     @NSManaged public var coverURL: String
     @NSManaged public var gid: String
     @NSManaged public var isFavored: Bool
-    @NSManaged public var isVisible: Bool
     @NSManaged public var jpnTitle: String?
     @NSManaged public var language: String
     @NSManaged public var favoredCount: Int64
@@ -32,4 +31,5 @@ extension GalleryDetailMO: Identifiable {
     @NSManaged public var title: String
     @NSManaged public var torrentCount: Int64
     @NSManaged public var uploader: String
+    @NSManaged public var visibility: Data?
 }

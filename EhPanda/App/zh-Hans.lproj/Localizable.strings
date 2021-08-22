@@ -83,6 +83,7 @@
 "Torrent count" = "种子个数";
 "Yes" = "是";
 "No" = "否";
+"Expunged" = "已删除";
 
 // MARK: CommentView
 "Post Comment" = "发布评论";

@@ -248,8 +248,6 @@ struct Parser {
                 }
                 if gdt1Text.contains("Visible") {
                     infoPanel[2] = gdt2Text
-                        .replacingOccurrences(of: "Yes", with: "true")
-                        .replacingOccurrences(of: "No", with: "false")
                 }
                 if gdt1Text.contains("Language") {
                     infoPanel[3] = gdt2Text
@@ -283,6 +281,16 @@ struct Parser {
             return infoPanel
         }
 
+        func parseVisibility(value: String) throws -> GalleryVisibility {
+            guard value != "Yes" else { return .yes }
+            guard let rangeA = value.range(of: "("),
+                  let rangeB = value.range(of: ")")
+            else { throw AppError.parseFailed }
+
+            let reason = String(value[rangeA.upperBound..<rangeB.lowerBound])
+            return .no(reason: reason)
+        }
+
         var tmpGalleryDetail: GalleryDetail?
         var tmpGalleryState: GalleryState?
         for link in doc.xpath("//div [@class='gm']") {
@@ -297,7 +305,7 @@ struct Parser {
                   let previews = try? parsePreviews(doc: doc),
                   let arcAndTor = try? parseArcAndTor(node: gd5Node),
                   let infoPanel = try? parseInfoPanel(node: gddNode),
-                  let isVisible = Bool(infoPanel[2]),
+                  let visibility = try? parseVisibility(value: infoPanel[2]),
                   let sizeCount = Float(infoPanel[4]),
                   let pageCount = Int(infoPanel[6]),
                   let favoredCount = Int(infoPanel[7]),
@@ -321,7 +329,7 @@ struct Parser {
                 title: engTitle,
                 jpnTitle: jpnTitle,
                 isFavored: isFavored,
-                isVisible: isVisible,
+                visibility: visibility,
                 rating: containsUserRating ?
                     textRating ?? 0.0 : imgRating,
                 userRating: containsUserRating

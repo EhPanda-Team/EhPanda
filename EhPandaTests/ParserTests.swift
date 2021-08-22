@@ -59,7 +59,7 @@ class GalleryParserTests: XCTestCase, TestHelper {
         XCTAssertEqual(detail.title, "[Hiroya] Shirotaegiku | Dusty miller (COMIC ExE 32) [English] [INSURRECTION] [Digital]")
         XCTAssertEqual(detail.jpnTitle, "[広弥] 白妙菊 (コミック エグゼ 32) [英訳] [DL版]")
         XCTAssertFalse(detail.isFavored)
-        XCTAssertTrue(detail.isVisible)
+        XCTAssertEqual(detail.visibility, .yes)
         XCTAssertEqual(detail.rating, 5)
         XCTAssertEqual(detail.userRating, 0)
         XCTAssertEqual(detail.ratingCount, 38)

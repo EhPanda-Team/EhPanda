@@ -12,7 +12,8 @@ public class GalleryDetailMO: NSManagedObject {}
 extension GalleryDetailMO: ManagedObjectProtocol {
     func toEntity() -> GalleryDetail {
         GalleryDetail(
-            gid: gid, title: title, isFavored: isFavored, isVisible: isVisible,
+            gid: gid, title: title, isFavored: isFavored,
+            visibility: visibility?.toObject() ?? GalleryVisibility.yes,
             rating: rating, userRating: userRating, ratingCount: Int(ratingCount),
             category: Category(rawValue: category).forceUnwrapped,
             language: Language(rawValue: language).forceUnwrapped,
@@ -34,7 +35,7 @@ extension GalleryDetail: ManagedObjectConvertible {
         galleryDetailMO.category = category.rawValue
         galleryDetailMO.coverURL = coverURL
         galleryDetailMO.isFavored = isFavored
-        galleryDetailMO.isVisible = isVisible
+        galleryDetailMO.visibility = visibility.toData()
         galleryDetailMO.jpnTitle = jpnTitle
         galleryDetailMO.language = language.rawValue
         galleryDetailMO.favoredCount = Int64(favoredCount)

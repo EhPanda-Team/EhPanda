@@ -83,6 +83,7 @@
 //"Torrent count" = "";
 //"Yes" = "";
 //"No" = "";
+//"Expunged" = "";
 
 // MARK: CommentView
 "Post Comment" = "Kommentar abgeben";

@@ -30,7 +30,7 @@ struct GalleryInfosView: View {
             Info(title: "Category", value: detail.category.rawValue.localized()),
             Info(title: "Uploader", value: detail.uploader),
             Info(title: "Posted date", value: detail.formattedDateString),
-            Info(title: "Visible", value: detail.isVisible.yesNoDescription.localized()),
+            Info(title: "Visible", value: detail.visibility.value.localized()),
             Info(title: "Language", value: detail.language.rawValue.localized()),
             Info(title: "Page count", value: String(detail.pageCount)),
             Info(title: "File size", value: String(Int(detail.sizeCount)) + detail.sizeType),

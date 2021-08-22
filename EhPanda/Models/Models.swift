@@ -68,7 +68,7 @@ struct GalleryDetail: Codable {
         title: "Preview",
         jpnTitle: "プレビュー",
         isFavored: true,
-        isVisible: true,
+        visibility: .yes,
         rating: 3.5,
         userRating: 4.0,
         ratingCount: 1919,
@@ -90,7 +90,7 @@ struct GalleryDetail: Codable {
     var title: String
     var jpnTitle: String?
     var isFavored: Bool
-    var isVisible: Bool
+    var visibility: GalleryVisibility
     var rating: Float
     var userRating: Float
     var ratingCount: Int
@@ -320,6 +320,23 @@ enum TagCategory: String, Codable {
     case male = "Male"
     case female = "Female"
     case misc = "Misc"
+}
+
+enum GalleryVisibility: Codable, Equatable {
+    case yes
+    case no(reason: String)
+}
+
+extension GalleryVisibility {
+    var value: String {
+        switch self {
+        case .yes:
+            return "Yes"
+        case .no(let reason):
+            return "No".localized()
+            + " (\(reason.localized()))"
+        }
+    }
 }
 
 enum ArchiveRes: String, Codable, CaseIterable {
