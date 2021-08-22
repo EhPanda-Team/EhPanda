@@ -113,7 +113,7 @@ private struct TextView: View {
 
     var body: some View {
         HStack {
-            Text(text.localized())
+            Text(text.localized)
                 .fontWeight(fontWeight)
                 .font(font)
                 .lineLimit(nil)

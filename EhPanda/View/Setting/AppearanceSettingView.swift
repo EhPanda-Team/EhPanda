@@ -40,10 +40,10 @@ struct AppearanceSettingView: View, StoreAccessor {
                     Spacer()
                     Picker(
                         selection: settingBinding.preferredColorScheme,
-                        label: Text(setting.preferredColorScheme.rawValue.localized()),
+                        label: Text(setting.preferredColorScheme.rawValue.localized),
                         content: {
                             ForEach(PreferredColorScheme.allCases) { colorScheme in
-                                Text(colorScheme.rawValue.localized()).tag(colorScheme)
+                                Text(colorScheme.rawValue.localized).tag(colorScheme)
                             }
                         }
                     )
@@ -64,10 +64,10 @@ struct AppearanceSettingView: View, StoreAccessor {
                     Spacer()
                     Picker(
                         selection: settingBinding.listMode,
-                        label: Text(setting.listMode.rawValue.localized()),
+                        label: Text(setting.listMode.rawValue.localized),
                         content: {
                             ForEach(ListMode.allCases) { listMode in
-                                Text(listMode.rawValue.localized()).tag(listMode)
+                                Text(listMode.rawValue.localized).tag(listMode)
                             }
                         }
                     )
@@ -184,7 +184,7 @@ private struct AppIconRow: View {
                 .cornerRadius(12)
                 .padding(.vertical, 10)
                 .padding(.trailing, 20)
-            Text(iconDesc.localized())
+            Text(iconDesc.localized)
             Spacer()
             Image(systemName: "checkmark.circle.fill")
                 .opacity(isSelected ? 1 : 0)

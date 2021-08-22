@@ -304,11 +304,7 @@ struct FavoritesItemsRequest {
     var publisher: AnyPublisher<(PageNumber, [Gallery]), AppError> {
         URLSession.shared
             .dataTaskPublisher(
-                for: Defaults.URL
-                    .favoritesList(
-                        favIndex: favIndex
-                    )
-                    .safeURL()
+                for: Defaults.URL.favoritesList(favIndex: favIndex).safeURL()
             )
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .map { (Parser.parsePageNum(doc: $0), Parser.parseListItems(doc: $0)) }
@@ -330,6 +326,42 @@ struct MoreFavoritesItemsRequest {
                         favIndex: favIndex,
                         pageNum: "\(pageNum)",
                         lastID: lastID
+                    )
+                    .safeURL()
+            )
+            .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
+            .map { (Parser.parsePageNum(doc: $0), Parser.parseListItems(doc: $0)) }
+            .mapError(mapAppError)
+            .eraseToAnyPublisher()
+    }
+}
+
+struct ToplistsItemsRequest {
+    let catIndex: Int
+
+    var publisher: AnyPublisher<(PageNumber, [Gallery]), AppError> {
+        URLSession.shared
+            .dataTaskPublisher(
+                for: Defaults.URL.toplistsList(catIndex: catIndex).safeURL()
+            )
+            .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
+            .map { (Parser.parsePageNum(doc: $0), Parser.parseListItems(doc: $0)) }
+            .mapError(mapAppError)
+            .eraseToAnyPublisher()
+    }
+}
+
+struct MoreToplistsItemsRequest {
+    let catIndex: Int
+    let pageNum: Int
+
+    var publisher: AnyPublisher<(PageNumber, [Gallery]), AppError> {
+        URLSession.shared
+            .dataTaskPublisher(
+                for: Defaults.URL
+                    .moreToplistsList(
+                        catIndex: catIndex,
+                        pageNum: "\(pageNum)"
                     )
                     .safeURL()
             )

@@ -28,7 +28,8 @@ enum AppAction {
     case toggleApp(unlocked: Bool)
     case toggleBlur(effectOn: Bool)
     case toggleHomeList(type: HomeListType)
-    case toggleFavorite(index: Int)
+    case toggleFavorites(index: Int)
+    case toggleToplists(type: ToplistsType)
     case toggleNavBar(hidden: Bool)
     case toggleHomeViewSheet(state: HomeViewSheetState?)
     case toggleSettingViewSheet(state: SettingViewSheetState?)
@@ -62,10 +63,14 @@ enum AppAction {
     case fetchWatchedItemsDone(result: Result<(PageNumber, [Gallery]), AppError>)
     case fetchMoreWatchedItems
     case fetchMoreWatchedItemsDone(result: Result<(PageNumber, [Gallery]), AppError>)
-    case fetchFavoritesItems(index: Int)
-    case fetchFavoritesItemsDone(carriedValue: FavoritesIndex, result: Result<(PageNumber, [Gallery]), AppError>)
-    case fetchMoreFavoritesItems(index: Int)
-    case fetchMoreFavoritesItemsDone(carriedValue: FavoritesIndex, result: Result<(PageNumber, [Gallery]), AppError>)
+    case fetchFavoritesItems
+    case fetchFavoritesItemsDone(carriedValue: Int, result: Result<(PageNumber, [Gallery]), AppError>)
+    case fetchMoreFavoritesItems
+    case fetchMoreFavoritesItemsDone(carriedValue: Int, result: Result<(PageNumber, [Gallery]), AppError>)
+    case fetchToplistsItems
+    case fetchToplistsItemsDone(carriedValue: Int, result: Result<(PageNumber, [Gallery]), AppError>)
+    case fetchMoreToplistsItems
+    case fetchMoreToplistsItemsDone(carriedValue: Int, result: Result<(PageNumber, [Gallery]), AppError>)
     case fetchGalleryDetail(gid: String)
     case fetchGalleryDetailDone(gid: String, result: Result<(GalleryDetail, GalleryState, APIKey?), AppError>)
     case fetchGalleryArchiveFunds(gid: String)

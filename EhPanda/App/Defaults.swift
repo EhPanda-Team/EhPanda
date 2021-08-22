@@ -90,15 +90,17 @@ struct Defaults {
         static let news = "news.php"
         static let uconfig = "uconfig.php"
         static let favorites = "favorites.php"
+        static let toplist = "toplist.php"
         static let gallerypopups = "gallerypopups.php"
         static let gallerytorrents = "gallerytorrents.php"
 
-        static let contentPage = "p="
         static let token = "t="
         static let gid = "gid="
-        static let page = "page="
+        static let page1 = "p="
+        static let page2 = "page="
         static let from = "from="
         static let favcat = "favcat="
+        static let topcat = "tl="
         static let showuser = "showuser="
         static let fSearch = "f_search="
 
@@ -162,7 +164,7 @@ extension Defaults.URL {
             urls: [
                 host,
                 fSearch + keyword.urlEncoded(),
-                page + pageNum,
+                page2 + pageNum,
                 from + lastID
             ]
             + applyFilters(filter: filter)
@@ -172,7 +174,7 @@ extension Defaults.URL {
         host
     }
     static func moreFrontpageList(pageNum: String, lastID: String) -> String {
-        merge(urls: [host, page + pageNum, from + lastID])
+        merge(urls: [host, page2 + pageNum, from + lastID])
     }
     static func popularList() -> String {
         host + popular
@@ -181,7 +183,7 @@ extension Defaults.URL {
         host + watched
     }
     static func moreWatchedList(pageNum: String, lastID: String) -> String {
-        merge(urls: [host + watched, page + pageNum, from + lastID])
+        merge(urls: [host + watched, page2 + pageNum, from + lastID])
     }
     static func favoritesList(favIndex: Int) -> String {
         if favIndex == -1 {
@@ -192,10 +194,16 @@ extension Defaults.URL {
     }
     static func moreFavoritesList(favIndex: Int, pageNum: String, lastID: String) -> String {
         if favIndex == -1 {
-            return merge(urls: [host + favorites, page + pageNum, from + lastID])
+            return merge(urls: [host + favorites, page2 + pageNum, from + lastID])
         } else {
-            return merge(urls: [host + favorites, favcat + "\(favIndex)", page + pageNum, from + lastID])
+            return merge(urls: [host + favorites, favcat + "\(favIndex)", page2 + pageNum, from + lastID])
         }
+    }
+    static func toplistsList(catIndex: Int) -> String {
+        merge(urls: [ehentai + toplist, topcat + "\(catIndex)"])
+    }
+    static func moreToplistsList(catIndex: Int, pageNum: String) -> String {
+        merge(urls: [ehentai + toplist, topcat + "\(catIndex)", page1 + pageNum])
     }
     static func galleryDetail(url: String) -> String {
         merge(urls: [url, showComments])
@@ -217,7 +225,7 @@ extension Defaults.URL {
 
     // Misc
     static func detailPage(url: String, pageNum: Int) -> String {
-        merge(urls: [url, contentPage + "\(pageNum)"])
+        merge(urls: [url, page1 + "\(pageNum)"])
     }
     static func magnet(hash: String) -> String {
         magnet + hash

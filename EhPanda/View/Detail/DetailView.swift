@@ -120,7 +120,7 @@ struct DetailView: View, StoreAccessor, PersistenceAccessor {
                     .disabled(galleryDetail?.archiveURL == nil || !didLogin)
                     Button(action: navigateToTorrentsView) {
                         Label(
-                            "Torrents".localized() + (
+                            "Torrents".localized + (
                                 galleryDetail?.torrentCount ?? 0 > 0
                                 ? " (\(galleryDetail?.torrentCount ?? 0))" : ""
                             ),
@@ -342,7 +342,7 @@ private struct HeaderView: View {
                         NavigationLink(
                             destination: { ReadingView(gid: gallery.gid) },
                             label: {
-                                Text("Read".localized()).bold().textCase(.uppercase)
+                                Text("Read".localized).bold().textCase(.uppercase)
                                     .font(isSEWidth ? .footnote : .headline)
                                     .foregroundColor(.white)
                                     .padding(.vertical, -2)
@@ -375,7 +375,7 @@ private extension HeaderView {
         }
     }
     var category: String {
-        gallery.category.rawValue.localized()
+        gallery.category.rawValue.localized
     }
 }
 
@@ -501,14 +501,14 @@ private struct DescScrollItem: View {
 
     var body: some View {
         VStack(spacing: 3) {
-            Text(title.localized())
+            Text(title.localized)
                 .textCase(.uppercase)
                 .font(.caption)
             Text(value)
                 .fontWeight(.medium)
                 .font(.title3)
                 .lineLimit(1)
-            Text(numeral.localized())
+            Text(numeral.localized)
                 .font(.caption)
         }
     }
@@ -677,7 +677,7 @@ private struct TagRow: View {
 
     var body: some View {
         HStack(alignment: .top) {
-            Text(tag.category.rawValue.localized())
+            Text(tag.category.rawValue.localized)
                 .fontWeight(.bold)
                 .font(.subheadline)
                 .foregroundColor(reversePrimary)

@@ -45,9 +45,9 @@ struct User: Codable {
             )
 
         if replacedName.hasLocalizedString {
-            return replacedName.localized() + " \(index)"
+            return replacedName.localized + " \(index)"
         } else {
-            return name.localized()
+            return name.localized
         }
     }
 }

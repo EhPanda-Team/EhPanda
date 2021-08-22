@@ -27,15 +27,15 @@ struct GalleryInfosView: View {
             Info(title: "Torrent URL", value: Defaults.URL
                 .galleryTorrents(gid: gallery.gid, token: gallery.token)),
             Info(title: "Parent URL", value: detail.parentURL),
-            Info(title: "Category", value: detail.category.rawValue.localized()),
+            Info(title: "Category", value: detail.category.rawValue.localized),
             Info(title: "Uploader", value: detail.uploader),
             Info(title: "Posted date", value: detail.formattedDateString),
-            Info(title: "Visible", value: detail.visibility.value.localized()),
-            Info(title: "Language", value: detail.language.rawValue.localized()),
+            Info(title: "Visible", value: detail.visibility.value.localized),
+            Info(title: "Language", value: detail.language.rawValue.localized),
             Info(title: "Page count", value: String(detail.pageCount)),
             Info(title: "File size", value: String(Int(detail.sizeCount)) + detail.sizeType),
             Info(title: "Favorited times", value: String(detail.favoredCount)),
-            Info(title: "Favorited", value: detail.isFavored.yesNoDescription.localized()),
+            Info(title: "Favorited", value: detail.isFavored.yesNoDescription.localized),
             Info(title: "Rating count", value: String(detail.ratingCount)),
             Info(title: "Average rating", value: String(Int(detail.rating))),
             Info(title: "User rating", value:
@@ -55,7 +55,7 @@ struct GalleryInfosView: View {
                 List(infos) { info in
                     HStack {
                         HStack {
-                            Text(info.title.localized())
+                            Text(info.title.localized)
                             Spacer()
                         }
                         .frame(width: proxy.size.width / 3)
@@ -63,7 +63,7 @@ struct GalleryInfosView: View {
                         Button {
                             copy(value: info.value)
                         } label: {
-                            Text(info.value ?? "null".localized())
+                            Text(info.value ?? "null".localized)
                                 .lineLimit(3)
                                 .font(.caption)
                                 .foregroundStyle(.tint)
@@ -85,8 +85,8 @@ struct GalleryInfosView: View {
     private func showCopiedHUD() {
         hudConfig = TTProgressHUDConfig(
             type: .success,
-            title: "Success".localized(),
-            caption: "Copied to clipboard".localized(),
+            title: "Success".localized,
+            caption: "Copied to clipboard".localized,
             shouldAutoHide: true,
             autoHideInterval: 2
         )

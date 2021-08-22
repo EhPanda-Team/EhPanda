@@ -339,8 +339,15 @@
 "Popular" = "热门";
 "Watched" = "标签";
 "Favorites" = "收藏";
+"Toplists" = "排行";
 "Downloaded" = "下载";
 "History" = "历史";
+
+// MARK: ToplistType
+"All time" = "全部";
+"Past year" = "去年";
+"Past month" = "上月";
+"Yesterday" = "昨日";
 
 // MARK: Category
 "Doujinshi" = "同人志";

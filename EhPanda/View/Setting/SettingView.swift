@@ -152,7 +152,7 @@ private struct SettingRow<Destination: View>: View {
                 .foregroundColor(color)
                 .padding(.trailing, 20)
                 .frame(width: 45)
-            Text(text.localized())
+            Text(text.localized)
                 .fontWeight(.medium)
                 .font(.title3)
                 .foregroundColor(color)

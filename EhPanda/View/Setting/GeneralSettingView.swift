@@ -43,10 +43,10 @@ struct GeneralSettingView: View, StoreAccessor {
                         .opacity((passcodeNotSet && setting.autoLockPolicy != .never) ? 1 : 0)
                     Picker(
                         selection: settingBinding.autoLockPolicy,
-                        label: Text(setting.autoLockPolicy.rawValue.localized())
+                        label: Text(setting.autoLockPolicy.rawValue.localized)
                     ) {
                         ForEach(AutoLockPolicy.allCases) { policy in
-                            Text(policy.rawValue.localized()).tag(policy)
+                            Text(policy.rawValue.localized).tag(policy)
                         }
                     }
                     .pickerStyle(.menu)

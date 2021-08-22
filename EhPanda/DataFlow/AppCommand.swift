@@ -307,6 +307,49 @@ struct FetchMoreFavoritesItemsCommand: AppCommand {
     }
 }
 
+struct FetchToplistsItemsCommand: AppCommand {
+    let topIndex: Int
+    let catIndex: Int
+
+    func execute(in store: Store) {
+        let token = SubscriptionToken()
+        ToplistsItemsRequest(catIndex: catIndex)
+            .publisher
+            .receive(on: DispatchQueue.main)
+            .sink { completion in
+                if case .failure(let error)  = completion {
+                    store.dispatch(.fetchToplistsItemsDone(carriedValue: topIndex, result: .failure(error)))
+                }
+                token.unseal()
+            } receiveValue: { galleries in
+                store.dispatch(.fetchToplistsItemsDone(carriedValue: topIndex, result: .success((galleries))))
+            }
+            .seal(in: token)
+    }
+}
+
+struct FetchMoreToplistsItemsCommand: AppCommand {
+    let topIndex: Int
+    let catIndex: Int
+    let pageNum: Int
+
+    func execute(in store: Store) {
+        let token = SubscriptionToken()
+        MoreToplistsItemsRequest(catIndex: catIndex, pageNum: pageNum)
+            .publisher
+            .receive(on: DispatchQueue.main)
+            .sink { completion in
+                if case .failure(let error)  = completion {
+                    store.dispatch(.fetchMoreToplistsItemsDone(carriedValue: topIndex, result: .failure(error)))
+                }
+                token.unseal()
+            } receiveValue: { galleries in
+                store.dispatch(.fetchMoreToplistsItemsDone(carriedValue: topIndex, result: .success((galleries))))
+            }
+            .seal(in: token)
+    }
+}
+
 struct FetchGalleryDetailCommand: AppCommand {
     let gid: String
     let galleryURL: String

@@ -73,7 +73,7 @@ extension Float {
 
 extension String {
     var hasLocalizedString: Bool {
-        self.localized() != self
+        localized != self
     }
     var lineCount: Int {
         var count = 0
@@ -83,7 +83,7 @@ extension String {
         return count
     }
 
-    func localized() -> String {
+    var localized: String {
         String(localized: String.LocalizationValue(self))
     }
 

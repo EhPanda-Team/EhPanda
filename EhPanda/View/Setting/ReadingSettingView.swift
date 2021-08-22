@@ -25,7 +25,7 @@ struct ReadingSettingView: View, StoreAccessor {
                         label: Text(setting.readingDirection.rawValue),
                         content: {
                             ForEach(ReadingDirection.allCases) {
-                                Text($0.rawValue.localized()).tag($0)
+                                Text($0.rawValue.localized).tag($0)
                             }
                         }
                     )
@@ -119,7 +119,7 @@ private struct ScaleFactorRow: View {
     var body: some View {
         VStack {
             HStack {
-                Text(labelContent.localized())
+                Text(labelContent.localized)
                 Spacer()
                 Text(scaleFactor.roundedString() + "x")
                     .foregroundStyle(.tint)

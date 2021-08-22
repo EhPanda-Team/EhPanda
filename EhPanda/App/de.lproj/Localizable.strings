@@ -339,8 +339,15 @@
 "Popular" = "Beliebt";
 "Watched" = "Meine Tags";
 "Favorites" = "Favoriten";
+//"Toplists" = "";
 "Downloaded" = "Heruntergeladen";
 "History" = "Verlauf";
+
+// MARK: ToplistType
+//"All time" = "";
+//"Past year" = "";
+//"Past month" = "";
+//"Yesterday" = "";
 
 // MARK: Category
 "Doujinshi" = "Doujinshi";

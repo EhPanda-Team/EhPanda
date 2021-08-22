@@ -339,8 +339,15 @@
 "Popular" = "핫이슈";
 "Watched" = "해시태크";
 "Favorites" = "관심";
+//"Toplists" = "";
 "Downloaded" = "저장";
 "History" = "역사";
+
+// MARK: ToplistType
+//"All time" = "";
+//"Past year" = "";
+//"Past month" = "";
+//"Yesterday" = "";
 
 // MARK: Category
 "Doujinshi" = "동인지";

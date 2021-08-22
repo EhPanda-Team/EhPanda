@@ -60,7 +60,7 @@ struct DraftCommentView: View {
                 Spacer()
             }
             .navigationBarTitle(
-                title.localized(),
+                title.localized,
                 displayMode: .inline
             )
             .toolbar {

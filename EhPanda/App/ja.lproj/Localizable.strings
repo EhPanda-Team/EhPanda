@@ -339,8 +339,15 @@
 "Popular" = "人気";
 "Watched" = "タグの購読";
 "Favorites" = "お気に入り";
+"Toplists" = "ランキング";
 "Downloaded" = "ダウンロード";
 "History" = "閲覧履歴";
+
+// MARK: ToplistType
+"All time" = "すべて";
+"Past year" = "去年";
+"Past month" = "先月";
+"Yesterday" = "昨日";
 
 // MARK: Category
 "Doujinshi" = "同人誌";

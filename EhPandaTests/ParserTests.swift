@@ -15,6 +15,7 @@ enum ListParserTestType: String, CaseIterable {
     case watched = "Watched"
     case popular = "Popular"
     case favorites = "Favorites"
+    case toplists = "Toplists"
 }
 
 extension ListParserTestType {
@@ -28,6 +29,8 @@ extension ListParserTestType {
             return 50
         case .favorites:
             return 92
+        case .toplists:
+            return 50
         }
     }
 }

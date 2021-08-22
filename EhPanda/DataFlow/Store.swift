@@ -113,8 +113,10 @@ final class Store: ObservableObject {
             }
         case .toggleHomeList(let type):
             appState.environment.homeListType = type
-        case .toggleFavorite(let index):
+        case .toggleFavorites(let index):
             appState.environment.favoritesIndex = index
+        case .toggleToplists(let type):
+            appState.environment.toplistsType = type
         case .toggleNavBar(let hidden):
             appState.environment.navBarHidden = hidden
         case .toggleHomeViewSheet(let state):
@@ -462,7 +464,8 @@ final class Store: ObservableObject {
                 appState.homeInfo.moreWatchedLoadFailed = true
             }
 
-        case .fetchFavoritesItems(let favIndex):
+        case .fetchFavoritesItems:
+            let favIndex = appState.environment.favoritesIndex
             appState.homeInfo.favoritesNotFound[favIndex] = false
             appState.homeInfo.favoritesLoadFailed[favIndex] = false
 
@@ -482,7 +485,7 @@ final class Store: ObservableObject {
                 if galleries.1.isEmpty {
                     if galleries.0.current < galleries.0.maximum {
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
-                            self?.dispatch(.fetchMoreFavoritesItems(index: carriedValue))
+                            self?.dispatch(.fetchMoreFavoritesItems)
                         }
                     } else {
                         appState.homeInfo.favoritesNotFound[carriedValue] = true
@@ -494,7 +497,8 @@ final class Store: ObservableObject {
                 appState.homeInfo.favoritesLoadFailed[carriedValue] = true
             }
 
-        case .fetchMoreFavoritesItems(let favIndex):
+        case .fetchMoreFavoritesItems:
+            let favIndex = appState.environment.favoritesIndex
             appState.homeInfo.moreFavoritesLoadFailed[favIndex] = false
 
             let currentNum = appState.homeInfo.favoritesCurrentPageNum[favIndex]
@@ -524,13 +528,87 @@ final class Store: ObservableObject {
 
                 if galleries.0.current < galleries.0.maximum && galleries.1.isEmpty {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
-                        self?.dispatch(.fetchMoreFavoritesItems(index: carriedValue))
+                        self?.dispatch(.fetchMoreFavoritesItems)
                     }
                 } else if appState.homeInfo.favoritesItems[carriedValue]?.isEmpty == true {
                     appState.homeInfo.favoritesNotFound[carriedValue] = true
                 }
             case .failure:
                 appState.homeInfo.moreFavoritesLoading[carriedValue] = true
+            }
+
+        case .fetchToplistsItems:
+            let topType = appState.environment.toplistsType
+            appState.homeInfo.toplistsNotFound[topType.rawValue] = false
+            appState.homeInfo.toplistsLoadFailed[topType.rawValue] = false
+
+            if appState.homeInfo.toplistsLoading[topType.rawValue] != false { break }
+            appState.homeInfo.toplistsCurrentPageNum[topType.rawValue] = 0
+            appState.homeInfo.toplistsLoading[topType.rawValue] = true
+            appCommand = FetchToplistsItemsCommand(
+                topIndex: topType.rawValue, catIndex: topType.categoryIndex
+            )
+        case .fetchToplistsItemsDone(let carriedValue, let result):
+            appState.homeInfo.toplistsLoading[carriedValue] = false
+
+            switch result {
+            case .success(let galleries):
+                appState.homeInfo.toplistsCurrentPageNum[carriedValue] = galleries.0.current
+                appState.homeInfo.toplistsPageNumMaximum[carriedValue] = galleries.0.maximum
+
+                appState.homeInfo.toplistsItems[carriedValue] = galleries.1
+                if galleries.1.isEmpty {
+                    if galleries.0.current < galleries.0.maximum {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
+                            self?.dispatch(.fetchMoreToplistsItems)
+                        }
+                    } else {
+                        appState.homeInfo.toplistsNotFound[carriedValue] = true
+                    }
+                } else {
+                    PersistenceController.add(galleries: galleries.1)
+                }
+            case .failure:
+                appState.homeInfo.toplistsLoadFailed[carriedValue] = true
+            }
+
+        case .fetchMoreToplistsItems:
+            let topType = appState.environment.toplistsType
+            appState.homeInfo.moreToplistsLoadFailed[topType.rawValue] = false
+
+            let currentNum = appState.homeInfo.toplistsCurrentPageNum[topType.rawValue]
+            let maximumNum = appState.homeInfo.toplistsPageNumMaximum[topType.rawValue]
+            if (currentNum ?? 0) + 1 >= maximumNum ?? 1 { break }
+
+            if appState.homeInfo.moreToplistsLoading[topType.rawValue] != false { break }
+            appState.homeInfo.moreToplistsLoading[topType.rawValue] = true
+
+            let pageNum = (appState.homeInfo.toplistsCurrentPageNum[topType.rawValue] ?? 0) + 1
+            appCommand = FetchMoreToplistsItemsCommand(
+                topIndex: topType.rawValue,
+                catIndex: topType.categoryIndex,
+                pageNum: pageNum
+            )
+        case .fetchMoreToplistsItemsDone(let carriedValue, let result):
+            appState.homeInfo.moreToplistsLoading[carriedValue] = false
+
+            switch result {
+            case .success(let galleries):
+                appState.homeInfo.toplistsCurrentPageNum[carriedValue] = galleries.0.current
+                appState.homeInfo.toplistsPageNumMaximum[carriedValue] = galleries.0.maximum
+
+                appState.homeInfo.insertToplistsItems(topIndex: carriedValue, galleries: galleries.1)
+                PersistenceController.add(galleries: galleries.1)
+
+                if galleries.0.current < galleries.0.maximum && galleries.1.isEmpty {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
+                        self?.dispatch(.fetchMoreToplistsItems)
+                    }
+                } else if appState.homeInfo.toplistsItems[carriedValue]?.isEmpty == true {
+                    appState.homeInfo.toplistsNotFound[carriedValue] = true
+                }
+            case .failure:
+                appState.homeInfo.moreToplistsLoading[carriedValue] = true
             }
 
         case .fetchGalleryDetail(let gid):

@@ -30,7 +30,7 @@ struct AccountSettingView: View, StoreAccessor {
                         label: Text("Gallery"),
                         content: {
                             ForEach(GalleryHost.allCases) {
-                                Text($0.rawValue.localized()).tag($0)
+                                Text($0.rawValue.localized).tag($0)
                             }
                         }
                     )
@@ -146,8 +146,8 @@ private extension AccountSettingView {
     func showCopiedHUD() {
         hudConfig = TTProgressHUDConfig(
             type: .success,
-            title: "Success".localized(),
-            caption: "Copied to clipboard".localized(),
+            title: "Success".localized,
+            caption: "Copied to clipboard".localized,
             shouldAutoHide: true,
             autoHideInterval: 2
         )

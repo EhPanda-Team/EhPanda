@@ -7,7 +7,6 @@
 
 import Foundation
 
-typealias FavoritesIndex = Int
 typealias Percentage = Int
 typealias Keyword = String
 typealias Identity = String
@@ -49,7 +48,7 @@ struct Greeting: Codable, Equatable {
     var gainContent: String? {
         guard !strings.isEmpty else { return nil }
 
-        var base = "GAINCONTENT_START".localized()
+        var base = "GAINCONTENT_START".localized
 
         if strings.count == 1 {
             base += strings[0]
@@ -61,15 +60,15 @@ struct Greeting: Codable, Equatable {
                 .joined(
                     separator:
                         "GAINCONTENT_SEPARATOR"
-                        .localized()
+                        .localized
                 )
             if strings.count > 2 {
-                base += "GAINCONTENT_AND".localized()
+                base += "GAINCONTENT_AND".localized
                 base += strings[strings.count - 1]
             }
         }
 
-        base += "GAINCONTENT_END".localized()
+        base += "GAINCONTENT_END".localized
 
         return base
     }

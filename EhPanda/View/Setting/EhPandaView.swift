@@ -14,7 +14,7 @@ struct EhPandaView: View, StoreAccessor {
         [
             Info(
                 url: "https://ehpanda.app",
-                text: "Website".localized()
+                text: "Website".localized
             ),
             Info(
                 url: "https://github.com/tatsuz0u/EhPanda",
@@ -29,7 +29,7 @@ struct EhPandaView: View, StoreAccessor {
                     + "https://github.com/tatsuz0u"
                     + "/EhPanda-PromotionResources"
                     + "/raw/main/altStore.json",
-                text: "AltStore Source".localized()
+                text: "AltStore Source".localized
             )
         ]
     }
@@ -89,7 +89,7 @@ struct EhPandaView: View, StoreAccessor {
 
     private var version: String {
         [
-            "Version".localized(),
+            "Version".localized,
             appVersion,
             "(\(appBuild))"
         ]

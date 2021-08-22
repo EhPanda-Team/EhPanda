@@ -26,6 +26,7 @@ extension AppState {
         var isSlideMenuClosed = true
         var navBarHidden = false
         var favoritesIndex = -1
+        var toplistsType: ToplistsType = .allTime
         var homeListType: HomeListType = .frontpage
         var homeViewSheetState: HomeViewSheetState?
         var settingViewSheetState: SettingViewSheetState?
@@ -130,28 +131,37 @@ extension AppState {
         var moreWatchedLoadFailed = false
 
         var favoritesItems = [Int: [Gallery]]()
-        var favoritesLoading = generateBoolDict()
-        var favoritesNotFound = generateBoolDict()
-        var favoritesLoadFailed = generateBoolDict()
-        var favoritesCurrentPageNum = generateIntDict()
-        var favoritesPageNumMaximum = generateIntDict(defaultValue: 1)
-        var moreFavoritesLoading = generateBoolDict()
-        var moreFavoritesLoadFailed = generateBoolDict()
+        var favoritesLoading = generateBoolDict(range: -1..<10)
+        var favoritesNotFound = generateBoolDict(range: -1..<10)
+        var favoritesLoadFailed = generateBoolDict(range: -1..<10)
+        var favoritesCurrentPageNum = generateIntDict(range: -1..<10)
+        var favoritesPageNumMaximum = generateIntDict(defaultValue: 1, range: -1..<10)
+        var moreFavoritesLoading = generateBoolDict(range: -1..<10)
+        var moreFavoritesLoadFailed = generateBoolDict(range: -1..<10)
+
+        var toplistsItems = [Int: [Gallery]]()
+        var toplistsLoading = generateBoolDict(range: 0..<4)
+        var toplistsNotFound = generateBoolDict(range: 0..<4)
+        var toplistsLoadFailed = generateBoolDict(range: 0..<4)
+        var toplistsCurrentPageNum = generateIntDict(range: 0..<4)
+        var toplistsPageNumMaximum = generateIntDict(defaultValue: 1, range: 0..<4)
+        var moreToplistsLoading = generateBoolDict(range: 0..<4)
+        var moreToplistsLoadFailed = generateBoolDict(range: 0..<4)
 
         @AppEnvStorage(type: [String].self, key: "historyKeywords")
         var historyKeywords: [String]
 
-        static func generateBoolDict(defaultValue: Bool = false) -> [Int: Bool] {
+        static func generateBoolDict(defaultValue: Bool = false, range: Range<Int>) -> [Int: Bool] {
             var tmp = [Int: Bool]()
-            (-1..<10).forEach { index in
+            range.forEach { index in
                 tmp[index] = defaultValue
             }
             return tmp
         }
 
-        static func generateIntDict(defaultValue: Int = 0) -> [Int: Int] {
+        static func generateIntDict(defaultValue: Int = 0, range: Range<Int>) -> [Int: Int] {
             var tmp = [Int: Int]()
-            (-1..<10).forEach { index in
+            range.forEach { index in
                 tmp[index] = defaultValue
             }
             return tmp
@@ -182,6 +192,13 @@ extension AppState {
             galleries.forEach { gallery in
                 if favoritesItems[favIndex]?.contains(gallery) == false {
                     favoritesItems[favIndex]?.append(gallery)
+                }
+            }
+        }
+        mutating func insertToplistsItems(topIndex: Int, galleries: [Gallery]) {
+            galleries.forEach { gallery in
+                if toplistsItems[topIndex]?.contains(gallery) == false {
+                    toplistsItems[topIndex]?.append(gallery)
                 }
             }
         }

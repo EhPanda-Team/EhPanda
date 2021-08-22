@@ -1196,7 +1196,7 @@ extension Parser {
                 let clientName = String(respString[rangeC.upperBound..<rangeD.lowerBound])
                     .trimmingCharacters(in: .whitespacesAndNewlines)
 
-                respString = resp.localized() + " -> " + clientName
+                respString = resp.localized + " -> " + clientName
             }
         }
 

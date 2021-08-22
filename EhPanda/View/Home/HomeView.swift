@@ -61,22 +61,20 @@ struct HomeView: View, StoreAccessor {
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Menu {
-                        ForEach(-1..<10) { index in
-                            Button {
-                                onFavMenuSelect(index: index)
-                            } label: {
-                                Text(User.getFavNameFrom(index: index, names: favoriteNames))
-                                if index == environment.favoritesIndex {
-                                    Image(systemName: "checkmark")
-                                }
-                            }
+                        if environment.homeListType == .favorites {
+                            favoritesMenuContent
+                        } else if environment.homeListType == .toplists {
+                            toplistsMenuContent
                         }
                     } label: {
                         Image(systemName: "square.3.stack.3d.top.fill")
                             .symbolRenderingMode(.hierarchical)
                             .foregroundColor(.primary)
                     }
-                    .opacity(environment.homeListType == .favorites ? 1 : 0)
+                    .opacity(
+                        [.favorites, .toplists]
+                            .contains(environment.homeListType) ? 1 : 0
+                    )
                 }
             }
         }
@@ -122,6 +120,10 @@ struct HomeView: View, StoreAccessor {
             perform: onFavIndexChange
         )
         .onChange(
+            of: environment.toplistsType,
+            perform: onTopTypeChange
+        )
+        .onChange(
             of: user.greeting,
             perform: onReceive
         )
@@ -160,11 +162,35 @@ private extension HomeView {
         {
             return settings.user.getFavNameFrom(index: environment.favoritesIndex)
         } else {
-            return environment.homeListType.rawValue.localized()
+            return environment.homeListType.rawValue.localized
         }
     }
 
-    // MARK: conditionalList
+    // MARK: View Properties
+    var favoritesMenuContent: some View {
+        ForEach(-1..<10) { index in
+            Button {
+                onFavMenuSelect(index: index)
+            } label: {
+                Text(User.getFavNameFrom(index: index, names: favoriteNames))
+                if index == environment.favoritesIndex {
+                    Image(systemName: "checkmark")
+                }
+            }
+        }
+    }
+    var toplistsMenuContent: some View {
+        ForEach(ToplistsType.allCases) { type in
+            Button {
+                onTopMenuSelect(type: type)
+            } label: {
+                Text(type.description.localized)
+                if type == environment.toplistsType {
+                    Image(systemName: "checkmark")
+                }
+            }
+        }
+    }
     @ViewBuilder var conditionalList: some View {
         switch environment.homeListType {
         case .search:
@@ -243,6 +269,31 @@ private extension HomeView {
                 loadMoreAction: fetchMoreFavoritesItems,
                 translateAction: translateTag
             )
+        case .toplists:
+            GenericList(
+                items: homeInfo.toplistsItems[
+                    environment.toplistsType.rawValue
+                ],
+                setting: setting,
+                loadingFlag: homeInfo.toplistsLoading[
+                    environment.toplistsType.rawValue
+                ] ?? false,
+                notFoundFlag: homeInfo.toplistsNotFound[
+                    environment.toplistsType.rawValue
+                ] ?? false,
+                loadFailedFlag: homeInfo.toplistsLoadFailed[
+                    environment.toplistsType.rawValue
+                ] ?? false,
+                moreLoadingFlag: homeInfo.moreToplistsLoading[
+                    environment.toplistsType.rawValue
+                ] ?? false,
+                moreLoadFailedFlag: homeInfo.moreToplistsLoadFailed[
+                    environment.toplistsType.rawValue
+                ] ?? false,
+                fetchAction: fetchToplistsItems,
+                loadMoreAction: fetchMoreToplistsItems,
+                translateAction: translateTag
+            )
         case .downloaded:
             NotFoundView(retryAction: nil)
         case .history:
@@ -283,6 +334,8 @@ private extension HomeView {
             fetchWatchedItemsIfNeeded()
         case .favorites:
             fetchFavoritesItemsIfNeeded()
+        case .toplists:
+            fetchToplistsItemsIfNeeded()
         case .downloaded, .search, .history:
             break
         }
@@ -315,8 +368,14 @@ private extension HomeView {
     func onFavIndexChange(_ : Int) {
         fetchFavoritesItemsIfNeeded()
     }
+    func onTopTypeChange(_ : ToplistsType) {
+        fetchToplistsItemsIfNeeded()
+    }
     func onFavMenuSelect(index: Int) {
-        store.dispatch(.toggleFavorite(index: index))
+        store.dispatch(.toggleFavorites(index: index))
+    }
+    func onTopMenuSelect(type: ToplistsType) {
+        store.dispatch(.toggleToplists(type: type))
     }
     func onJumpIDChange(value: String?) {
         if value != nil, hasJumpPermission {
@@ -353,7 +412,7 @@ private extension HomeView {
     func showHUD() {
         hudConfig = TTProgressHUDConfig(
             type: .loading,
-            title: "Loading...".localized()
+            title: "Loading...".localized
         )
         hudVisible = true
     }
@@ -428,7 +487,10 @@ private extension HomeView {
         store.dispatch(.fetchWatchedItems)
     }
     func fetchFavoritesItems() {
-        store.dispatch(.fetchFavoritesItems(index: environment.favoritesIndex))
+        store.dispatch(.fetchFavoritesItems)
+    }
+    func fetchToplistsItems() {
+        store.dispatch(.fetchToplistsItems)
     }
 
     func fetchMoreSearchItems() {
@@ -441,7 +503,10 @@ private extension HomeView {
         store.dispatch(.fetchMoreWatchedItems)
     }
     func fetchMoreFavoritesItems() {
-        store.dispatch(.fetchMoreFavoritesItems(index: environment.favoritesIndex))
+        store.dispatch(.fetchMoreFavoritesItems)
+    }
+    func fetchMoreToplistsItems() {
+        store.dispatch(.fetchMoreToplistsItems)
     }
 
     func fetchGreetingIfNeeded() {
@@ -492,6 +557,11 @@ private extension HomeView {
             fetchFavoritesItems()
         }
     }
+    func fetchToplistsItemsIfNeeded() {
+        if homeInfo.toplistsItems[environment.toplistsType.rawValue]?.isEmpty != false {
+            fetchToplistsItems()
+        }
+    }
 }
 
 // MARK: Definition
@@ -503,6 +573,7 @@ enum HomeListType: String, Identifiable, CaseIterable {
     case popular = "Popular"
     case watched = "Watched"
     case favorites = "Favorites"
+    case toplists = "Toplists"
     case downloaded = "Downloaded"
     case history = "History"
 
@@ -518,6 +589,8 @@ enum HomeListType: String, Identifiable, CaseIterable {
             return "tag.circle"
         case .favorites:
             return "heart.circle"
+        case .toplists:
+            return "list.bullet.circle"
         case .downloaded:
             return "arrow.down.circle"
         case .history:
@@ -532,4 +605,40 @@ enum HomeViewSheetState: Identifiable {
     case setting
     case filter
     case newDawn
+}
+
+enum ToplistsType: Int, Codable, CaseIterable, Identifiable {
+    case allTime
+    case pastYear
+    case pastMonth
+    case yesterday
+}
+
+extension ToplistsType {
+    var id: Int { description.hashValue }
+
+    var description: String {
+        switch self {
+        case .allTime:
+            return "All time"
+        case .pastYear:
+            return "Past year"
+        case .pastMonth:
+            return "Past month"
+        case .yesterday:
+            return "Yesterday"
+        }
+    }
+    var categoryIndex: Int {
+        switch self {
+        case .allTime:
+            return 11
+        case .pastYear:
+            return 12
+        case .pastMonth:
+            return 13
+        case .yesterday:
+            return 15
+        }
+    }
 }

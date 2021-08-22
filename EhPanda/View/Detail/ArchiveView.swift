@@ -22,7 +22,7 @@ struct ArchiveView: View, StoreAccessor, PersistenceAccessor {
     @State private var hudVisible = false
     @State private var hudConfig = TTProgressHUDConfig()
     private var loadingHUDConfig = TTProgressHUDConfig(
-        type: .loading, title: "Communicating...".localized()
+        type: .loading, title: "Communicating...".localized
     )
     private let gridItems = [
         GridItem(.adaptive(minimum: 125, maximum: 200))
@@ -117,8 +117,8 @@ private extension ArchiveView {
     func performHUD() {
         let isSuccess = !sendFailedFlag
         let type: TTProgressHUDType = isSuccess ? .success : .error
-        let title = (isSuccess ? "Success" : "Error").localized()
-        let caption = response?.localized()
+        let title = (isSuccess ? "Success" : "Error").localized
+        let caption = response?.localized
 
         switch type {
         case .success:
@@ -249,14 +249,14 @@ private struct ArchiveGrid: View {
 
     var body: some View {
         VStack(spacing: 10) {
-            Text(archive.resolution.rawValue.localized())
+            Text(archive.resolution.rawValue.localized)
                 .fontWeight(.bold)
                 .font(.title3)
             VStack {
-                Text(archive.fileSize.localized())
+                Text(archive.fileSize.localized)
                     .fontWeight(.medium)
                     .font(.caption)
-                Text(archive.gpPrice.localized())
+                Text(archive.gpPrice.localized)
                     .foregroundColor(fileSizeColor)
                     .font(.caption2)
             }

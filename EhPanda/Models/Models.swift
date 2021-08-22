@@ -333,8 +333,8 @@ extension GalleryVisibility {
         case .yes:
             return "Yes"
         case .no(let reason):
-            return "No".localized()
-            + " (\(reason.localized()))"
+            return "No".localized
+            + " (\(reason.localized))"
         }
     }
 }

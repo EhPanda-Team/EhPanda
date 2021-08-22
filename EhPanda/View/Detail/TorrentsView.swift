@@ -83,8 +83,8 @@ private extension TorrentsView {
     func showCopiedHUD() {
         hudConfig = TTProgressHUDConfig(
             type: .success,
-            title: "Success".localized(),
-            caption: "Copied to clipboard".localized(),
+            title: "Success".localized,
+            caption: "Copied to clipboard".localized,
             shouldAutoHide: true,
             autoHideInterval: 2
         )

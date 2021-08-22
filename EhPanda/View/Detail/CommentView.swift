@@ -166,7 +166,7 @@ private extension CommentView {
     func showHUD() {
         hudConfig = TTProgressHUDConfig(
             type: .loading,
-            title: "Loading...".localized()
+            title: "Loading...".localized
         )
         hudVisible = true
     }

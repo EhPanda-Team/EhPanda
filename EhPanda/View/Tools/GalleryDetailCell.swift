@@ -66,7 +66,7 @@ struct GalleryDetailCell: View {
                         .foregroundStyle(.yellow)
                     Spacer()
                     HStack(spacing: 10) {
-                        Text(gallery.language?.rawValue.localized() ?? "")
+                        Text(gallery.language?.rawValue.localized ?? "")
                         if !isSEWidth {
                             HStack(spacing: 2) {
                                 Image(systemName: "photo.on.rectangle.angled")
@@ -104,7 +104,7 @@ private extension GalleryDetailCell {
     }
 
     var category: String {
-        gallery.category.rawValue.localized()
+        gallery.category.rawValue.localized
     }
     var tags: [String] {
         if setting.summaryRowTagsMaximum > 0 {

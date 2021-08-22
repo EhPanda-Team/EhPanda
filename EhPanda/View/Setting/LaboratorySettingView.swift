@@ -60,7 +60,7 @@ struct LaboratoryCell: View {
             Spacer()
             Group {
                 Image(systemName: symbol)
-                Text(title.localized())
+                Text(title.localized)
                     .fontWeight(.bold)
             }
             .foregroundColor(contentColor)

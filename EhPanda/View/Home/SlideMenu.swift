@@ -66,10 +66,6 @@ struct SlideMenu: View, StoreAccessor {
 
             Spacer()
         }
-        .onChange(
-            of: environment.favoritesIndex,
-            perform: onFavoritesIndexChange
-        )
     }
 }
 
@@ -90,9 +86,6 @@ private extension SlideMenu {
     }
     func onSettingMenuRowTap() {
         store.dispatch(.toggleHomeViewSheet(state: .setting))
-    }
-    func onFavoritesIndexChange(_ : Int) {
-        performTransition(offset: -width)
     }
 
     func performTransition(offset: CGFloat) {
@@ -203,11 +196,11 @@ private struct MenuRow: View {
         VStack {
             HStack {
                 Image(systemName: symbolName)
-                    .font(.title)
-                    .frame(width: 35)
+                    .symbolVariant(isSelected ? .fill : .none)
+                    .font(.title).frame(width: 35)
                     .foregroundColor(textColor)
                     .padding(.trailing, 20)
-                Text(text.localized())
+                Text(text.localized)
                     .fontWeight(.medium)
                     .foregroundColor(textColor)
                     .font(.headline)

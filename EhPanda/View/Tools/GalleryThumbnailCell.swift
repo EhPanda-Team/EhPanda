@@ -102,7 +102,7 @@ struct GalleryThumbnailCell: View {
 
 private extension GalleryThumbnailCell {
     var category: String {
-        gallery.category.rawValue.localized()
+        gallery.category.rawValue.localized
     }
     var backgroundColor: Color {
         colorScheme == .light

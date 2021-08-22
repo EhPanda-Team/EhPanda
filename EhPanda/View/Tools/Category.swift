@@ -103,7 +103,7 @@ private struct CategoryCell: View {
                         ? category.color.opacity(0.3)
                         : category.color
                 )
-            Text(category.rawValue.localized())
+            Text(category.rawValue.localized)
                 .fontWeight(.bold)
                 .foregroundStyle(.white)
                 .padding(.vertical, 5)
