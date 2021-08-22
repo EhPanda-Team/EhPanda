@@ -56,15 +56,15 @@ struct AssociatedView: View, StoreAccessor {
 private extension AssociatedView {
     func translateTag(text: String) -> String {
         guard setting.translatesTags else { return text }
-        let translations = settings.tagTranslator.contents
+        let translator = settings.tagTranslator
 
         if let range = text.range(of: ":") {
             let before = text[...range.lowerBound]
             let after = String(text[range.upperBound...])
-            let result = before + (translations[after] ?? after)
+            let result = before + translator.translate(text: after)
             return String(result)
         }
-        return translations[text] ?? text
+        return translator.translate(text: text)
     }
 
     func onRowAppear(item: Gallery) {

@@ -48,6 +48,14 @@ struct TagTranslator: Codable {
     var language: TranslatableLanguage = .japanese
     var updatedDate: Date = .distantPast
     var contents = [String: String]()
+
+    func translate(text: String) -> String {
+        guard let translatedText = contents[text],
+              !translatedText.isEmpty
+        else { return text }
+
+        return translatedText
+    }
 }
 
 extension TagTranslator: CustomStringConvertible {

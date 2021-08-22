@@ -197,8 +197,7 @@ private extension DetailView {
     }
     func translateTag(text: String) -> String {
         guard setting.translatesTags else { return text }
-        let translations = settings.tagTranslator.contents
-        return translations[text] ?? text
+        return settings.tagTranslator.translate(text: text)
     }
     func onUploaderTap() {
         guard let uploader = galleryDetail?.uploader else { return }
