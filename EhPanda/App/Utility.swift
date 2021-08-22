@@ -194,6 +194,11 @@ func notificFeedback(style: UINotificationFeedbackGenerator.FeedbackType) {
 var opacityTransition: AnyTransition {
     AnyTransition.opacity.animation(.default)
 }
+var isUnitTesting: Bool {
+    ProcessInfo.processInfo.environment[
+      "XCTestConfigurationFilePath"
+    ] != nil
+}
 func clearPasteboard() {
     UIPasteboard.general.string = ""
 }

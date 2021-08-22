@@ -354,7 +354,7 @@ enum CommentContentType: Int, Codable {
     case singleLink
 }
 
-enum PreviewConfig: Codable {
+enum PreviewConfig: Codable, Equatable {
     case normal(rows: Int)
     case large(rows: Int)
 }

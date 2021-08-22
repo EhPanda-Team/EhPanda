@@ -18,6 +18,12 @@ final class Store: ObservableObject {
     }()
 
     func dispatch(_ action: AppAction) {
+        #if DEBUG
+        guard !appState.environment.isPreview,
+              !isUnitTesting
+        else { return }
+        #endif
+
         if Thread.isMainThread {
             privateDispatch(action)
         } else {
@@ -28,8 +34,6 @@ final class Store: ObservableObject {
     }
 
     private func privateDispatch(_ action: AppAction) {
-        if appState.environment.isPreview { return }
-
         let description = String(describing: action)
         if description.contains("error") {
             SwiftyBeaver.error("[ACTION]: " + description)

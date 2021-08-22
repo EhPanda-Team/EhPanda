@@ -10,3 +10,6 @@ identifier_name:
  excluded:
   - id
   - no
+
+excluded:
+ - EhPandaTests

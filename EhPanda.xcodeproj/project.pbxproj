@@ -20,6 +20,13 @@
 		AB358317269D826B009466A5 /* DFStreamHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB358316269D826B009466A5 /* DFStreamHandler.swift */; };
 		AB358319269D9996009466A5 /* DomainResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB358318269D9996009466A5 /* DomainResolver.swift */; };
 		AB38A0CB25CA993D00764D64 /* ColorCodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB38A0CA25CA993D00764D64 /* ColorCodable.swift */; };
+		AB3E9E6E26D210B1008FE518 /* GalleryDetail.html in Resources */ = {isa = PBXBuildFile; fileRef = AB3E9E6526D210B1008FE518 /* GalleryDetail.html */; };
+		AB3E9E6F26D210B1008FE518 /* Favorites.html in Resources */ = {isa = PBXBuildFile; fileRef = AB3E9E6726D210B1008FE518 /* Favorites.html */; };
+		AB3E9E7026D210B1008FE518 /* Watched.html in Resources */ = {isa = PBXBuildFile; fileRef = AB3E9E6826D210B1008FE518 /* Watched.html */; };
+		AB3E9E7126D210B1008FE518 /* FrontPage.html in Resources */ = {isa = PBXBuildFile; fileRef = AB3E9E6926D210B1008FE518 /* FrontPage.html */; };
+		AB3E9E7226D210B1008FE518 /* Popular.html in Resources */ = {isa = PBXBuildFile; fileRef = AB3E9E6A26D210B1008FE518 /* Popular.html */; };
+		AB3E9E7326D210B1008FE518 /* ParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB3E9E6B26D210B1008FE518 /* ParserTests.swift */; };
+		AB3E9E7426D210B1008FE518 /* TestHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB3E9E6D26D210B1008FE518 /* TestHelper.swift */; };
 		AB47FD9F25BC81A40007765D /* Normal@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = AB47FD9925BC81A40007765D /* Normal@3x.png */; };
 		AB47FDA025BC81A40007765D /* Normal@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = AB47FD9A25BC81A40007765D /* Normal@2x.png */; };
 		AB47FDA125BC81A40007765D /* Weird@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = AB47FD9B25BC81A40007765D /* Weird@3x.png */; };
@@ -120,6 +127,13 @@
 			remoteGlobalIDString = AB5BE67526B95FDD007D4A55;
 			remoteInfo = ShareExtension;
 		};
+		ABF294D026D20F82004DD03A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = ABC3C74C2593696C00E0C11B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = ABC3C7532593696C00E0C11B;
+			remoteInfo = EhPanda;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -150,6 +164,13 @@
 		AB358316269D826B009466A5 /* DFStreamHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DFStreamHandler.swift; sourceTree = "<group>"; };
 		AB358318269D9996009466A5 /* DomainResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DomainResolver.swift; sourceTree = "<group>"; };
 		AB38A0CA25CA993D00764D64 /* ColorCodable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ColorCodable.swift; sourceTree = "<group>"; };
+		AB3E9E6526D210B1008FE518 /* GalleryDetail.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = GalleryDetail.html; sourceTree = "<group>"; };
+		AB3E9E6726D210B1008FE518 /* Favorites.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = Favorites.html; sourceTree = "<group>"; };
+		AB3E9E6826D210B1008FE518 /* Watched.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = Watched.html; sourceTree = "<group>"; };
+		AB3E9E6926D210B1008FE518 /* FrontPage.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = FrontPage.html; sourceTree = "<group>"; };
+		AB3E9E6A26D210B1008FE518 /* Popular.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = Popular.html; sourceTree = "<group>"; };
+		AB3E9E6B26D210B1008FE518 /* ParserTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ParserTests.swift; sourceTree = "<group>"; };
+		AB3E9E6D26D210B1008FE518 /* TestHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestHelper.swift; sourceTree = "<group>"; };
 		AB47FD9925BC81A40007765D /* Normal@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Normal@3x.png"; sourceTree = "<group>"; };
 		AB47FD9A25BC81A40007765D /* Normal@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Normal@2x.png"; sourceTree = "<group>"; };
 		AB47FD9B25BC81A40007765D /* Weird@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Weird@3x.png"; sourceTree = "<group>"; };
@@ -212,6 +233,7 @@
 		ABEA1FE525A9B40B002966B9 /* Setting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Setting.swift; sourceTree = "<group>"; };
 		ABEE0AFB2595C6F800C997AE /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		ABEE0AFE2595C73D00C997AE /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
+		ABF294CC26D20F82004DD03A /* EhPandaTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EhPandaTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		ABF313A425B1AB6600D47A2F /* Misc.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Misc.swift; sourceTree = "<group>"; };
 		ABF45AB425F3312F00ECB568 /* AppState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		ABF45AB525F3312F00ECB568 /* AppCommand.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppCommand.swift; sourceTree = "<group>"; };
@@ -271,9 +293,70 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		ABF294C926D20F82004DD03A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		AB3E9E6126D210B1008FE518 /* EhPandaTests */ = {
+			isa = PBXGroup;
+			children = (
+				AB3E9E6226D210B1008FE518 /* Resources */,
+				AB3E9E6B26D210B1008FE518 /* ParserTests.swift */,
+			);
+			path = EhPandaTests;
+			sourceTree = "<group>";
+		};
+		AB3E9E6226D210B1008FE518 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				AB3E9E6C26D210B1008FE518 /* Utility */,
+				AB3E9E6326D210B1008FE518 /* Parser */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		AB3E9E6326D210B1008FE518 /* Parser */ = {
+			isa = PBXGroup;
+			children = (
+				AB3E9E6426D210B1008FE518 /* Gallery */,
+				AB3E9E6626D210B1008FE518 /* List */,
+			);
+			path = Parser;
+			sourceTree = "<group>";
+		};
+		AB3E9E6426D210B1008FE518 /* Gallery */ = {
+			isa = PBXGroup;
+			children = (
+				AB3E9E6526D210B1008FE518 /* GalleryDetail.html */,
+			);
+			path = Gallery;
+			sourceTree = "<group>";
+		};
+		AB3E9E6626D210B1008FE518 /* List */ = {
+			isa = PBXGroup;
+			children = (
+				AB3E9E6726D210B1008FE518 /* Favorites.html */,
+				AB3E9E6826D210B1008FE518 /* Watched.html */,
+				AB3E9E6926D210B1008FE518 /* FrontPage.html */,
+				AB3E9E6A26D210B1008FE518 /* Popular.html */,
+			);
+			path = List;
+			sourceTree = "<group>";
+		};
+		AB3E9E6C26D210B1008FE518 /* Utility */ = {
+			isa = PBXGroup;
+			children = (
+				AB3E9E6D26D210B1008FE518 /* TestHelper.swift */,
+			);
+			path = Utility;
+			sourceTree = "<group>";
+		};
 		AB40CFE52598423E00D1DC9A /* Tools */ = {
 			isa = PBXGroup;
 			children = (
@@ -358,6 +441,7 @@
 			children = (
 				ABC3C7562593696C00E0C11B /* EhPanda */,
 				AB5BE67726B95FDD007D4A55 /* ShareExtension */,
+				AB3E9E6126D210B1008FE518 /* EhPandaTests */,
 				ABC3C7552593696C00E0C11B /* Products */,
 				AB82819926B1C39B00A80CFA /* Frameworks */,
 			);
@@ -368,6 +452,7 @@
 			children = (
 				ABC3C7542593696C00E0C11B /* EhPanda.app */,
 				AB5BE67626B95FDD007D4A55 /* ShareExtension.appex */,
+				ABF294CC26D20F82004DD03A /* EhPandaTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -581,6 +666,24 @@
 			productReference = ABC3C7542593696C00E0C11B /* EhPanda.app */;
 			productType = "com.apple.product-type.application";
 		};
+		ABF294CB26D20F82004DD03A /* EhPandaTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = ABF294D426D20F82004DD03A /* Build configuration list for PBXNativeTarget "EhPandaTests" */;
+			buildPhases = (
+				ABF294C826D20F82004DD03A /* Sources */,
+				ABF294C926D20F82004DD03A /* Frameworks */,
+				ABF294CA26D20F82004DD03A /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				ABF294D126D20F82004DD03A /* PBXTargetDependency */,
+			);
+			name = EhPandaTests;
+			productName = EhPandaTests;
+			productReference = ABF294CC26D20F82004DD03A /* EhPandaTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -595,6 +698,10 @@
 					};
 					ABC3C7532593696C00E0C11B = {
 						CreatedOnToolsVersion = 12.2;
+					};
+					ABF294CB26D20F82004DD03A = {
+						CreatedOnToolsVersion = 13.0;
+						TestTargetID = ABC3C7532593696C00E0C11B;
 					};
 				};
 			};
@@ -629,6 +736,7 @@
 			targets = (
 				ABC3C7532593696C00E0C11B /* EhPanda */,
 				AB5BE67526B95FDD007D4A55 /* ShareExtension */,
+				ABF294CB26D20F82004DD03A /* EhPandaTests */,
 			);
 		};
 /* End PBXProject section */
@@ -659,6 +767,18 @@
 				AB47FDAE25BC85060007765D /* Normal-ipad-pro@2x.png in Resources */,
 				AB47FDA125BC81A40007765D /* Weird@3x.png in Resources */,
 				AB47FDAD25BC85060007765D /* Normal-ipad@2x.png in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		ABF294CA26D20F82004DD03A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AB3E9E6F26D210B1008FE518 /* Favorites.html in Resources */,
+				AB3E9E6E26D210B1008FE518 /* GalleryDetail.html in Resources */,
+				AB3E9E7026D210B1008FE518 /* Watched.html in Resources */,
+				AB3E9E7226D210B1008FE518 /* Popular.html in Resources */,
+				AB3E9E7126D210B1008FE518 /* FrontPage.html in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -778,6 +898,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		ABF294C826D20F82004DD03A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AB3E9E7326D210B1008FE518 /* ParserTests.swift in Sources */,
+				AB3E9E7426D210B1008FE518 /* TestHelper.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -785,6 +914,11 @@
 			isa = PBXTargetDependency;
 			target = AB5BE67526B95FDD007D4A55 /* ShareExtension */;
 			targetProxy = AB5BE67E26B95FDD007D4A55 /* PBXContainerItemProxy */;
+		};
+		ABF294D126D20F82004DD03A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = ABC3C7532593696C00E0C11B /* EhPanda */;
+			targetProxy = ABF294D026D20F82004DD03A /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -1050,6 +1184,54 @@
 			};
 			name = Release;
 		};
+		ABF294D226D20F82004DD03A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 9SKQ7QTZ74;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = app.ehpanda.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/EhPanda.app/EhPanda";
+			};
+			name = Debug;
+		};
+		ABF294D326D20F82004DD03A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 9SKQ7QTZ74;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = app.ehpanda.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/EhPanda.app/EhPanda";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1076,6 +1258,15 @@
 			buildConfigurations = (
 				ABC3C7642593696E00E0C11B /* Debug */,
 				ABC3C7652593696E00E0C11B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		ABF294D426D20F82004DD03A /* Build configuration list for PBXNativeTarget "EhPandaTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				ABF294D226D20F82004DD03A /* Debug */,
+				ABF294D326D20F82004DD03A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

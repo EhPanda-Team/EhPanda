@@ -101,6 +101,7 @@ private extension EhPandaApp {
 
         SwiftyBeaver.addDestination(file)
         #if DEBUG
+        guard !isUnitTesting else { return }
         SwiftyBeaver.addDestination(console)
         #endif
     }
