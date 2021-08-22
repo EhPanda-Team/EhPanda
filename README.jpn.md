@@ -24,7 +24,7 @@
 
 iOS・iPadOS 14: [v1.0.2](https://github.com/tatsuz0u/EhPanda/releases/tag/v1.0.2_b50)
 
-iOS・iPadOS 15: [v1.0.3](https://github.com/tatsuz0u/EhPanda/releases/latest)
+iOS・iPadOS 15: [v1.0.4](https://github.com/tatsuz0u/EhPanda/releases/latest)
 
 ## コンテンツとその著作権
 本アプリの内容はすべてE-Hentai由来のものです、E-Hentaiの内容もまたすべてユーザー生成コンテンツです。
