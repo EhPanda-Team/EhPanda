@@ -91,23 +91,25 @@ struct FetchTagTranslatorCommand: AppCommand {
 }
 
 struct FetchGalleryItemReverseCommand: AppCommand {
-    let galleryURL: String
+    let gid: String
+    let url: String
+    let shouldParseGalleryURL: Bool
 
     func execute(in store: Store) {
         let token = SubscriptionToken()
-        GalleryItemReverseRequest(galleryURL: galleryURL)
+        GalleryItemReverseRequest(url: url, shouldParseGalleryURL: shouldParseGalleryURL)
             .publisher
             .receive(on: DispatchQueue.main)
             .sink { completion in
                 if case .failure(let error) = completion {
-                    store.dispatch(.fetchGalleryItemReverseDone(result: .failure(error)))
+                    store.dispatch(.fetchGalleryItemReverseDone(carriedValue: gid, result: .failure(error)))
                 }
                 token.unseal()
             } receiveValue: { gallery in
                 if let gallery = gallery {
-                    store.dispatch(.fetchGalleryItemReverseDone(result: .success(gallery)))
+                    store.dispatch(.fetchGalleryItemReverseDone(carriedValue: gid, result: .success(gallery)))
                 } else {
-                    store.dispatch(.fetchGalleryItemReverseDone(result: .failure(.networkingFailed)))
+                    store.dispatch(.fetchGalleryItemReverseDone(carriedValue: gid, result: .failure(.networkingFailed)))
                 }
             }
             .seal(in: token)

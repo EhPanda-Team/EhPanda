@@ -396,26 +396,14 @@ struct GalleryDetailRequest {
 }
 
 struct GalleryItemReverseRequest {
-    let galleryURL: String
-    var gid: String {
-        if galleryURL.safeURL().pathComponents.count >= 4 {
-            return galleryURL.safeURL().pathComponents[2]
-        } else {
-            return ""
-        }
-    }
-    var token: String {
-        if galleryURL.safeURL().pathComponents.count >= 4 {
-            return galleryURL.safeURL().pathComponents[3]
-        } else {
-            return ""
-        }
-    }
-    func getGallery(from detail: GalleryDetail?) -> Gallery? {
+    let url: String
+    let shouldParseGalleryURL: Bool
+
+    func getGallery(from detail: GalleryDetail?, and url: URL) -> Gallery? {
         if let detail = detail {
             return Gallery(
-                gid: gid,
-                token: token,
+                gid: url.pathComponents[2],
+                token: url.pathComponents[3],
                 title: detail.title,
                 rating: detail.rating,
                 tags: [],
@@ -425,7 +413,7 @@ struct GalleryItemReverseRequest {
                 pageCount: detail.pageCount,
                 postedDate: detail.postedDate,
                 coverURL: detail.coverURL,
-                galleryURL: galleryURL
+                galleryURL: url.absoluteString
             )
         } else {
             return nil
@@ -433,14 +421,41 @@ struct GalleryItemReverseRequest {
     }
 
     var publisher: AnyPublisher<Gallery?, AppError> {
+        galleryURL(url: url).retry(3).flatMap(gallery).eraseToAnyPublisher()
+    }
+
+    func galleryURL(url: String) -> AnyPublisher<String, AppError> {
+        switch shouldParseGalleryURL {
+        case true:
+            return URLSession.shared
+                .dataTaskPublisher(for: url.safeURL())
+                .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
+                .tryMap(Parser.parseGalleryURL)
+                .mapError(mapAppError)
+                .eraseToAnyPublisher()
+        case false:
+            return Just(url)
+                .setFailureType(to: AppError.self)
+                .eraseToAnyPublisher()
+        }
+    }
+
+    func gallery(url: String) -> AnyPublisher<Gallery?, AppError> {
         URLSession.shared
-            .dataTaskPublisher(for: galleryURL.safeURL()).retry(3)
+            .dataTaskPublisher(for: url.safeURL())
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-            .compactMap { getGallery(from: try? Parser.parseGalleryDetail(doc: $0, gid: gid).0) }
+            .compactMap {
+                guard url.isValidURL, let url = URL(string: url),
+                      let detail = try? Parser.parseGalleryDetail(
+                        doc: $0, gid: url.pathComponents[2]
+                      ).0
+                else { return nil }
+
+                return getGallery(from: detail, and: url)
+            }
             .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
-
 }
 
 struct GalleryArchiveRequest {

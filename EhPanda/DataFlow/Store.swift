@@ -103,6 +103,9 @@ final class Store: ObservableObject {
             appState.detailInfo.fulfillPreviews(gid: gid)
         case .fulfillGalleryContents(let gid):
             appState.contentInfo.fulfillContents(gid: gid)
+        case .updatePendingJumpInfos(let gid, let pageIndex, let commentID):
+            appState.detailInfo.pendingJumpPageIndices[gid] = pageIndex
+            appState.detailInfo.pendingJumpCommentIDs[gid] = commentID
 
         // MARK: App Env
         case .toggleApp(let unlocked):
@@ -205,14 +208,16 @@ final class Store: ObservableObject {
                 appState.settings.user.favoriteNames = names
             }
 
-        case .fetchGalleryItemReverse(var galleryURL):
+        case .fetchGalleryItemReverse(var url, let shouldParseGalleryURL):
             appState.environment.galleryItemReverseLoadFailed = false
 
+            guard let tmpURL = URL(string: url),
+                  tmpURL.pathComponents.count >= 4 else { break }
             if appState.environment.galleryItemReverseLoading { break }
             appState.environment.galleryItemReverseLoading = true
 
             if appState.settings.setting.redirectsLinksToSelectedHost {
-                galleryURL = galleryURL.replacingOccurrences(
+                url = url.replacingOccurrences(
                     of: Defaults.URL.ehentai,
                     with: Defaults.URL.host
                 )
@@ -221,8 +226,11 @@ final class Store: ObservableObject {
                     with: Defaults.URL.host
                 )
             }
-            appCommand = FetchGalleryItemReverseCommand(galleryURL: galleryURL)
-        case .fetchGalleryItemReverseDone(let result):
+            appCommand = FetchGalleryItemReverseCommand(
+                gid: parseGID(url: tmpURL, isGalleryURL: shouldParseGalleryURL),
+                url: url, shouldParseGalleryURL: shouldParseGalleryURL
+            )
+        case .fetchGalleryItemReverseDone(let carriedValue, let result):
             appState.environment.galleryItemReverseLoading = false
 
             switch result {
@@ -231,6 +239,7 @@ final class Store: ObservableObject {
                 appState.environment.galleryItemReverseID = gallery.gid
             case .failure:
                 appState.environment.galleryItemReverseLoadFailed = true
+                dispatch(.updatePendingJumpInfos(gid: carriedValue, pageIndex: nil, commentID: nil))
             }
 
         case .fetchSearchItems(let keyword):

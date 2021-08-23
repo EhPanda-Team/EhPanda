@@ -24,6 +24,7 @@ enum AppAction {
     case updateIsSlideMenuClosed(isClosed: Bool)
     case fulfillGalleryPreviews(gid: String)
     case fulfillGalleryContents(gid: String)
+    case updatePendingJumpInfos(gid: String, pageIndex: Int?, commentID: String?)
 
     case toggleApp(unlocked: Bool)
     case toggleBlur(effectOn: Bool)
@@ -47,8 +48,8 @@ enum AppAction {
     case fetchUserInfoDone(result: Result<User, AppError>)
     case fetchFavoriteNames
     case fetchFavoriteNamesDone(result: Result<[Int: String], AppError>)
-    case fetchGalleryItemReverse(galleryURL: String)
-    case fetchGalleryItemReverseDone(result: Result<Gallery, AppError>)
+    case fetchGalleryItemReverse(url: String, shouldParseGalleryURL: Bool)
+    case fetchGalleryItemReverseDone(carriedValue: String, result: Result<Gallery, AppError>)
     case fetchSearchItems(keyword: String)
     case fetchSearchItemsDone(result: Result<(Keyword, PageNumber, [Gallery]), AppError>)
     case fetchMoreSearchItems(keyword: String)

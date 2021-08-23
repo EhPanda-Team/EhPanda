@@ -132,6 +132,11 @@ struct Parser {
     }
 
     // MARK: Detail
+    static func parseGalleryURL(doc: HTMLDocument) throws -> String {
+        guard let galleryURL = doc.at_xpath("//div [@class='sb']")?
+                .at_xpath("//a")?["href"] else { throw AppError.parseFailed }
+        return galleryURL
+    }
     static func parseGalleryDetail(doc: HTMLDocument, gid: String) throws -> (GalleryDetail, GalleryState) {
         func parsePreviewConfig(doc: HTMLDocument) throws -> PreviewConfig {
             guard let previewMode = try? parsePreviewMode(doc: doc),

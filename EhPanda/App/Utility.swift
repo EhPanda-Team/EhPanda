@@ -216,13 +216,48 @@ func getPasteboardLink() -> URL? {
     }
 }
 
-func isValidGalleryURL(url: URL) -> Bool {
+func isHandleableURL(url: URL) -> Bool {
     (url.absoluteString.contains(Defaults.URL.ehentai)
         || url.absoluteString.contains(Defaults.URL.exhentai))
         && url.pathComponents.count >= 4
-        && url.pathComponents[1] == "g"
+        && ["g", "s"].contains(url.pathComponents[1])
         && !url.pathComponents[2].isEmpty
         && !url.pathComponents[3].isEmpty
+}
+
+func parseGID(url: URL, isGalleryURL: Bool) -> String {
+    var gid = url.pathComponents[2]
+    let token = url.pathComponents[3]
+    if let range = token.range(of: "-"), isGalleryURL {
+        gid = String(token[..<range.lowerBound])
+    }
+    return gid
+}
+
+func handleIncomingURL(_ url: URL, completion: (Bool, URL?, Int?, String?) -> Void) {
+    guard isHandleableURL(url: url) else {
+        UIApplication.shared.open(url, options: [:])
+        completion(false, nil, nil, nil)
+        return
+    }
+
+    let token = url.pathComponents[3]
+    if let range = token.range(of: "-") {
+        let pageIndex = Int(token[range.upperBound...])
+        completion(true, url, pageIndex, nil)
+        return
+    }
+
+    if let range = url.absoluteString.range(of: url.pathComponents[3] + "/") {
+        let commentField = String(url.absoluteString[range.upperBound...])
+        if let range = commentField.range(of: "#c") {
+            let commentID = String(commentField[range.upperBound...])
+            completion(false, url, nil, commentID)
+            return
+        }
+    }
+
+    completion(false, url, nil, nil)
 }
 
 @available(*, deprecated, message: "Use @FocusState instead.")

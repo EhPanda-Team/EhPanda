@@ -350,7 +350,7 @@ private extension HomeView {
               )
         else { return }
 
-        handle(jumpLink: replacedURL)
+        handle(incomingURL: replacedURL)
     }
     func onReceive(greeting: Greeting?) {
         if let greeting = greeting,
@@ -423,25 +423,31 @@ private extension HomeView {
     func detectPasteboard() {
         if hasJumpPermission {
             if let link = getPasteboardLinkIfAllowed() {
-                handle(jumpLink: link)
+                handle(incomingURL: link)
             }
         }
     }
-    func handle(jumpLink: URL) {
-        guard isValidGalleryURL(url: jumpLink) else { return }
-        let gid = jumpLink.pathComponents[2]
-        if PersistenceController.galleryCached(gid: gid) {
-            replaceGalleryCommentJumpID(gid: gid)
-        } else {
-            store.dispatch(
-                .fetchGalleryItemReverse(
-                    galleryURL: jumpLink.absoluteString
-                )
-            )
-            showHUD()
+    func handle(incomingURL: URL) {
+        handleIncomingURL(incomingURL) { shouldParseGalleryURL, incomingURL, pageIndex, commentID in
+            guard let incomingURL = incomingURL else { return }
+
+            let gid = parseGID(url: incomingURL, isGalleryURL: shouldParseGalleryURL)
+            store.dispatch(.updatePendingJumpInfos(
+                gid: gid, pageIndex: pageIndex, commentID: commentID
+            ))
+
+            if PersistenceController.galleryCached(gid: gid) {
+                replaceGalleryCommentJumpID(gid: gid)
+            } else {
+                store.dispatch(.fetchGalleryItemReverse(
+                    url: incomingURL.absoluteString,
+                    shouldParseGalleryURL: shouldParseGalleryURL
+                ))
+                showHUD()
+            }
+            clearPasteboard()
+            clearObstruction()
         }
-        clearPasteboard()
-        clearObstruction()
     }
     func replaceGalleryCommentJumpID(gid: String?) {
         store.dispatch(.replaceGalleryCommentJumpID(gid: gid))

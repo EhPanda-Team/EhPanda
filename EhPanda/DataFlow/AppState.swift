@@ -235,6 +235,9 @@ extension AppState {
         var previewsLoading = [String: [Int: Bool]]()
         var previewConfig = PreviewConfig.normal(rows: 4)
 
+        var pendingJumpPageIndices = [String: Int]()
+        var pendingJumpCommentIDs = [String: String]()
+
         mutating func fulfillPreviews(gid: String) {
             let galleryState = PersistenceController
                 .fetchGalleryStateNonNil(gid: gid)

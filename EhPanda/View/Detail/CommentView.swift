@@ -138,20 +138,23 @@ private extension CommentView {
         }
     }
     func onLinkTap(link: URL) {
-        if isValidGalleryURL(url: link) {
-            let gid = link.pathComponents[2]
+        handleIncomingURL(link) { shouldParseGalleryURL, incomingURL, pageIndex, commentID in
+            guard let incomingURL = incomingURL else { return }
+
+            let gid = parseGID(url: incomingURL, isGalleryURL: shouldParseGalleryURL)
+            store.dispatch(.updatePendingJumpInfos(
+                gid: gid, pageIndex: pageIndex, commentID: commentID
+            ))
+
             if PersistenceController.galleryCached(gid: gid) {
                 replaceGalleryCommentJumpID(gid: gid)
             } else {
-                store.dispatch(
-                    .fetchGalleryItemReverse(
-                        galleryURL: link.absoluteString
-                    )
-                )
+                store.dispatch(.fetchGalleryItemReverse(
+                    url: incomingURL.absoluteString,
+                    shouldParseGalleryURL: shouldParseGalleryURL
+                ))
                 showHUD()
             }
-        } else {
-            UIApplication.shared.open(link, options: [:], completionHandler: nil)
         }
     }
     func onJumpIDChange(value: String?) {
