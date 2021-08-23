@@ -14,6 +14,9 @@ struct DetailView: View, StoreAccessor, PersistenceAccessor {
 
     @State private var keyword = ""
     @State private var commentContent = ""
+    @State private var commentViewScrollID = ""
+    @State private var isReadingLinkActive = false
+    @State private var isCommentsLinkActive = false
     @State private var isTorrentsLinkActive = false
     @State private var isAssociatedLinkActive = false
 
@@ -75,6 +78,19 @@ struct DetailView: View, StoreAccessor, PersistenceAccessor {
             }
         }
         .background {
+            NavigationLink(
+                "",
+                destination: ReadingView(gid: gid),
+                isActive: $isReadingLinkActive
+            )
+            NavigationLink(
+                "",
+                destination: CommentView(
+                    gid: gid, comments: galleryState.comments,
+                    scrollID: commentViewScrollID
+                ),
+                isActive: $isCommentsLinkActive
+            )
             NavigationLink(
                 "",
                 destination: TorrentsView(
@@ -168,6 +184,7 @@ private extension DetailView {
         onStartTasks()
         fetchGalleryDetail()
         updateViewControllersCount()
+        detectAvailableNavigations()
     }
     func onDisappear() {
         updateViewControllersCount()
@@ -185,6 +202,22 @@ private extension DetailView {
     }
     func onUserRatingChanged(value: Int) {
         store.dispatch(.rate(gid: gid, rating: value))
+    }
+    func detectAvailableNavigations() {
+        if let pageIndex = detailInfo.pendingJumpPageIndices[gid] {
+            store.dispatch(.updatePendingJumpInfos(gid: gid, pageIndex: nil, commentID: nil))
+            store.dispatch(.saveReadingProgress(gid: gid, tag: pageIndex))
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
+                isReadingLinkActive.toggle()
+            }
+        }
+        if let commentID = detailInfo.pendingJumpCommentIDs[gid] {
+            store.dispatch(.updatePendingJumpInfos(gid: gid, pageIndex: nil, commentID: nil))
+            commentViewScrollID = commentID
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
+                isCommentsLinkActive.toggle()
+            }
+        }
     }
     func navigateToTorrentsView() {
         isTorrentsLinkActive.toggle()

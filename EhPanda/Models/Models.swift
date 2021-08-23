@@ -141,7 +141,7 @@ struct GalleryTag: Codable, Identifiable {
 }
 
 struct GalleryComment: Identifiable, Codable {
-    var id: String { author + formattedDateString }
+    var id: String { commentID }
 
     var votedUp: Bool
     var votedDown: Bool

@@ -21,48 +21,75 @@ struct CommentView: View, StoreAccessor {
     @State private var hudVisible = false
     @State private var hudConfig = TTProgressHUDConfig()
 
+    @State private var commentCellOpacity: Double = 1
+
     private let gid: String
     private let comments: [GalleryComment]
+    private var scrollID: String?
 
-    init(gid: String, comments: [GalleryComment]) {
+    init(
+        gid: String,
+        comments: [GalleryComment],
+        scrollID: String? = nil
+    ) {
         self.gid = gid
         self.comments = comments
+        self.scrollID = scrollID
     }
 
     // MARK: CommentView
     var body: some View {
         ZStack {
-            List(comments) { comment in
-                CommentCell(
-                    gid: gid,
-                    comment: comment,
-                    linkAction: onLinkTap
-                )
-                .swipeActions(edge: .leading) {
-                    if comment.votable {
-                        Button {
-                            voteDown(comment: comment)
-                        } label: {
-                            Image(systemName: "hand.thumbsdown")
+            ScrollViewReader { proxy in
+                List(comments) { comment in
+                    CommentCell(
+                        gid: gid,
+                        comment: comment,
+                        linkAction: onLinkTap
+                    )
+                    .opacity(comment.commentID == scrollID ? commentCellOpacity : 1)
+                    .onAppear {
+                        if comment.commentID == scrollID {
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
+                                withAnimation { commentCellOpacity = 0.25 }
+                            }
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 1.25) {
+                                withAnimation { commentCellOpacity = 1 }
+                            }
                         }
-                        .tint(.red)
+                    }
+                    .swipeActions(edge: .leading) {
+                        if comment.votable {
+                            Button {
+                                voteDown(comment: comment)
+                            } label: {
+                                Image(systemName: "hand.thumbsdown")
+                            }
+                            .tint(.red)
+                        }
+                    }
+                    .swipeActions(edge: .trailing) {
+                        if comment.votable {
+                            Button {
+                                voteUp(comment: comment)
+                            } label: {
+                                Image(systemName: "hand.thumbsup")
+                            }
+                            .tint(.green)
+                        }
+                        if comment.editable {
+                            Button {
+                                edit(comment: comment)
+                            } label: {
+                                Image(systemName: "square.and.pencil")
+                            }
+                        }
                     }
                 }
-                .swipeActions(edge: .trailing) {
-                    if comment.votable {
-                        Button {
-                            voteUp(comment: comment)
-                        } label: {
-                            Image(systemName: "hand.thumbsup")
-                        }
-                        .tint(.green)
-                    }
-                    if comment.editable {
-                        Button {
-                            edit(comment: comment)
-                        } label: {
-                            Image(systemName: "square.and.pencil")
-                        }
+                .onAppear {
+                    guard let id = scrollID else { return }
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
+                        withAnimation { proxy.scrollTo(id) }
                     }
                 }
             }
@@ -276,11 +303,11 @@ private struct CommentCell: View {
                     }
                     Text(comment.score ?? "")
                     Text(comment.formattedDateString)
-                        .lineLimit(1)
                 }
                 .font(.footnote)
                 .foregroundStyle(.secondary)
             }
+            .lineLimit(1)
             ForEach(comment.contents) { content in
                 switch content.type {
                 case .plainText:
