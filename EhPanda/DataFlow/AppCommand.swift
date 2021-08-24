@@ -424,30 +424,88 @@ struct FetchGalleryPreviewsCommand: AppCommand {
     }
 }
 
-struct FetchGalleryContentsCommand: AppCommand {
+struct FetchMPVKeysCommand: AppCommand {
+    let gid: String
+    let mpvURL: String
+    let pageNumber: Int
+
+    func execute(in store: Store) {
+        let token = SubscriptionToken()
+        MPVKeysRequest(mpvURL: mpvURL)
+            .publisher
+            .receive(on: DispatchQueue.main)
+            .sink { completion in
+                if case .failure(let error) = completion {
+                    store.dispatch(.fetchMPVKeysDone(
+                        gid: gid, pageNumber: pageNumber, result: .failure(error))
+                    )
+                }
+                token.unseal()
+            } receiveValue: { keys in
+                store.dispatch(.fetchMPVKeysDone(
+                    gid: gid, pageNumber: pageNumber, result: .success(keys))
+                )
+            }
+            .seal(in: token)
+    }
+}
+
+struct FetchThumbnailURLsCommand: AppCommand {
     let gid: String
     let url: String
     let pageNumber: Int
 
     func execute(in store: Store) {
         let token = SubscriptionToken()
-            GalleryContentsRequest(url: url)
+        ThumbnailURLsRequest(url: url)
             .publisher
             .receive(on: DispatchQueue.main)
             .sink { completion in
                 if case .failure(let error) = completion {
-                    store.dispatch(.fetchGalleryContentsDone(
+                    store.dispatch(.fetchThumbnailURLsDone(
+                        gid: gid, pageNumber: pageNumber, result: .failure(error))
+                    )
+                }
+                token.unseal()
+            } receiveValue: { urls in
+                if !urls.isEmpty {
+                    store.dispatch(.fetchThumbnailURLsDone(
+                        gid: gid, pageNumber: pageNumber, result: .success(urls))
+                    )
+                } else {
+                    store.dispatch(.fetchThumbnailURLsDone(
+                        gid: gid, pageNumber: pageNumber, result: .failure(.networkingFailed))
+                    )
+                }
+            }
+            .seal(in: token)
+    }
+}
+
+struct FetchGalleryNormalContentsCommand: AppCommand {
+    let gid: String
+    let pageNumber: Int
+    let thumbnailURLs: [(Int, URL)]
+
+    func execute(in store: Store) {
+        let token = SubscriptionToken()
+        GalleryNormalContentsRequest(thumbnailURLs: thumbnailURLs)
+            .publisher
+            .receive(on: DispatchQueue.main)
+            .sink { completion in
+                if case .failure(let error) = completion {
+                    store.dispatch(.fetchGalleryNormalContentsDone(
                         gid: gid, pageNumber: pageNumber, result: .failure(error))
                     )
                 }
                 token.unseal()
             } receiveValue: { contents in
                 if !contents.isEmpty {
-                    store.dispatch(.fetchGalleryContentsDone(
+                    store.dispatch(.fetchGalleryNormalContentsDone(
                         gid: gid, pageNumber: pageNumber, result: .success(contents))
                     )
                 } else {
-                    store.dispatch(.fetchGalleryContentsDone(
+                    store.dispatch(.fetchGalleryNormalContentsDone(
                         gid: gid, pageNumber: pageNumber, result: .failure(.networkingFailed))
                     )
                 }

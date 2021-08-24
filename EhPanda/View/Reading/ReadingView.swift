@@ -333,7 +333,7 @@ private extension ReadingView {
         if contentInfo.mpvKeys[gid] != nil {
             store.dispatch(.fetchGalleryMPVContent(gid: gid, index: index))
         } else {
-            store.dispatch(.fetchGalleryContents(gid: gid, index: index))
+            store.dispatch(.fetchThumbnailURLs(gid: gid, index: index))
         }
     }
     func fetchGalleryPreivews(index: Int) {

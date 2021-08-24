@@ -499,8 +499,8 @@ struct Parser {
     }
 
     // MARK: Content
-    static func parseGalleryPreContents(doc: HTMLDocument) throws -> [(Int, URL)] {
-        var imageGalleryURLs = [(Int, URL)]()
+    static func parseThumbnailURLs(doc: HTMLDocument) throws -> [(Int, URL)] {
+        var thumbnailURLs = [(Int, URL)]()
 
         guard let gdtNode = doc.at_xpath("//div [@id='gdt']"),
               let previewMode = try? parsePreviewMode(doc: doc)
@@ -508,21 +508,18 @@ struct Parser {
 
         for link in gdtNode.xpath("//div [@class='\(previewMode)']") {
             guard let aLink = link.at_xpath("//a"),
-                  let imageGalleryString = aLink["href"],
-                  let imageGalleryURL = URL(string: imageGalleryString),
+                  let thumbnailString = aLink["href"],
+                  let thumbnailURL = URL(string: thumbnailString),
                     let index = Int(aLink.at_xpath("//img")?["alt"] ?? "")
             else { continue }
 
-            imageGalleryURLs.append((index, imageGalleryURL))
+            thumbnailURLs.append((index, thumbnailURL))
         }
 
-        return imageGalleryURLs
+        return thumbnailURLs
     }
 
-    static func parseGalleryContent(doc: HTMLDocument, index: Int) throws -> (Int, String) {
-        if let (mpvKey, imgKeys) = try? parseMPVKeys(doc: doc) {
-            throw AppError.mpvActivated(mpvKey: mpvKey, imgKeys: imgKeys)
-        }
+    static func parseGalleryNormalContent(doc: HTMLDocument, index: Int) throws -> (Int, String) {
         guard let i3Node = doc.at_xpath("//div [@id='i3']"),
               let imageURL = i3Node.at_css("img")?["src"]
         else { throw AppError.parseFailed }

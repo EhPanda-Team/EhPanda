@@ -12,11 +12,7 @@ import Foundation
 import SwiftyBeaver
 
 private func mapAppError(error: Error) -> AppError {
-    if case .mpvActivated = error as? AppError {
-        SwiftyBeaver.warning("MPV is activated.")
-    } else {
-        SwiftyBeaver.error(error)
-    }
+    SwiftyBeaver.error(error)
 
     switch error {
     case is ParseError:
@@ -555,33 +551,43 @@ struct GalleryPreviewsRequest {
     }
 }
 
-struct GalleryContentsRequest {
-    let url: String
+struct MPVKeysRequest {
+    let mpvURL: String
 
-    var publisher: AnyPublisher<[Int: String], AppError> {
-        preContents(url: url)
-            .flatMap(contents)
-            .retry(3).eraseToAnyPublisher()
-    }
-
-    func preContents(url: String) -> AnyPublisher<[(Int, URL)], AppError> {
+    var publisher: AnyPublisher<(String, [Int: String]), AppError> {
         URLSession.shared
-            .dataTaskPublisher(for: url.safeURL())
+            .dataTaskPublisher(for: mpvURL.safeURL()).retry(3)
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-            .tryMap(Parser.parseGalleryPreContents)
+            .tryMap(Parser.parseMPVKeys)
             .mapError(mapAppError)
             .eraseToAnyPublisher()
     }
+}
 
-    func contents(preContents: [(Int, URL)])
-    -> AnyPublisher<[Int: String], AppError> {
-        preContents
+struct ThumbnailURLsRequest {
+    let url: String
+
+    var publisher: AnyPublisher<[(Int, URL)], AppError> {
+        URLSession.shared
+            .dataTaskPublisher(for: url.safeURL()).retry(3)
+            .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
+            .tryMap(Parser.parseThumbnailURLs)
+            .mapError(mapAppError)
+            .eraseToAnyPublisher()
+    }
+}
+
+struct GalleryNormalContentsRequest {
+    let thumbnailURLs: [(Int, URL)]
+
+    var publisher: AnyPublisher<[Int: String], AppError> {
+        thumbnailURLs
             .publisher
             .flatMap { index, url in
                 URLSession.shared
                     .dataTaskPublisher(for: url)
                     .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-                    .tryMap { try Parser.parseGalleryContent(doc: $0, index: index) }
+                    .tryMap { try Parser.parseGalleryNormalContent(doc: $0, index: index) }
             }
             .collect()
             .map { tuples in

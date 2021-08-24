@@ -48,10 +48,19 @@ final class Store: ObservableObject {
                         + "previews: \(previews.count))"
                     )
                 }
-            case .fetchGalleryContentsDone(let gid, let pageNumber, let result):
+            case .fetchThumbnailURLsDone(let gid, let pageNumber, let result):
                 if case .success(let contents) = result {
                     SwiftyBeaver.verbose(
-                        "[ACTION]: fetchGalleryContentsDone("
+                        "[ACTION]: fetchThumbnailURLsDone("
+                        + "gid: \(gid), "
+                        + "pageNumber: \(pageNumber), "
+                        + "contents: \(contents.count))"
+                    )
+                }
+            case .fetchGalleryNormalContentsDone(let gid, let pageNumber, let result):
+                if case .success(let contents) = result {
+                    SwiftyBeaver.verbose(
+                        "[ACTION]: fetchGalleryNormalContentsDone("
                         + "gid: \(gid), "
                         + "pageNumber: \(pageNumber), "
                         + "contents: \(contents.count))"
@@ -679,15 +688,24 @@ final class Store: ObservableObject {
         case .fetchGalleryPreviewsDone(let gid, let pageNumber, let result):
             appState.detailInfo.previewsLoading[gid]?[pageNumber] = false
 
-            switch result {
-            case .success(let previews):
+            if case .success(let previews) = result {
                 appState.detailInfo.update(gid: gid, previews: previews)
                 PersistenceController.update(fetchedState: GalleryState(gid: gid, previews: previews))
-            case .failure(let error):
-                SwiftyBeaver.error(error)
             }
 
-        case .fetchGalleryContents(let gid, let index):
+        case .fetchMPVKeys(let gid, let pageNumber, let mpvURL):
+            appCommand = FetchMPVKeysCommand(gid: gid, mpvURL: mpvURL, pageNumber: pageNumber)
+        case .fetchMPVKeysDone(let gid, let pageNumber, let result):
+            appState.contentInfo.contentsLoading[gid]?[pageNumber] = false
+
+            switch result {
+            case .success((let mpvKey, let imgKeys)):
+                appState.contentInfo.mpvKeys[gid] = mpvKey
+                appState.contentInfo.mpvImageKeys[gid] = imgKeys
+            case .failure:
+                appState.contentInfo.contentsLoadFailed[gid]?[pageNumber] = true
+            }
+        case .fetchThumbnailURLs(let gid, let index):
             let pageNumber = index / appState.detailInfo.previewConfig.batchSize
             if appState.contentInfo.contentsLoading[gid] == nil {
                 appState.contentInfo.contentsLoading[gid] = [:]
@@ -702,21 +720,36 @@ final class Store: ObservableObject {
 
             let galleryURL = PersistenceController.fetchGallery(gid: gid)?.galleryURL ?? ""
             let url = Defaults.URL.detailPage(url: galleryURL, pageNum: pageNumber)
-            appCommand = FetchGalleryContentsCommand(gid: gid, url: url, pageNumber: pageNumber)
-        case .fetchGalleryContentsDone(let gid, let pageNumber, let result):
+            appCommand = FetchThumbnailURLsCommand(gid: gid, url: url, pageNumber: pageNumber)
+        case .fetchThumbnailURLsDone(let gid, let pageNumber, let result):
+            switch result {
+            case .success(let thumbnailURLs):
+                let thumbnailURL = thumbnailURLs[0].1
+                if thumbnailURL.pathComponents.count >= 1, thumbnailURL.pathComponents[1] == "mpv" {
+                    dispatch(.fetchMPVKeys(gid: gid, pageNumber: pageNumber, mpvURL: thumbnailURL.absoluteString))
+                } else {
+                    dispatch(.fetchGalleryNormalContents(
+                        gid: gid, pageNumber: pageNumber, thumbnailURLs: thumbnailURLs
+                    ))
+                }
+            case .failure:
+                appState.contentInfo.contentsLoading[gid]?[pageNumber] = false
+                appState.contentInfo.contentsLoadFailed[gid]?[pageNumber] = true
+            }
+
+        case .fetchGalleryNormalContents(let gid, let pageNumber, let thumbnailURLs):
+            appCommand = FetchGalleryNormalContentsCommand(
+                gid: gid, pageNumber: pageNumber, thumbnailURLs: thumbnailURLs
+            )
+        case .fetchGalleryNormalContentsDone(let gid, let pageNumber, let result):
             appState.contentInfo.contentsLoading[gid]?[pageNumber] = false
 
             switch result {
             case .success(let contents):
                 appState.contentInfo.update(gid: gid, contents: contents)
                 PersistenceController.update(gid: gid, contents: contents)
-            case .failure(let error):
-                if case .mpvActivated(let mpvKey, let imgKeys) = error {
-                    appState.contentInfo.mpvKeys[gid] = mpvKey
-                    appState.contentInfo.mpvImageKeys[gid] = imgKeys
-                } else {
-                    appState.contentInfo.contentsLoadFailed[gid]?[pageNumber] = true
-                }
+            case .failure:
+                appState.contentInfo.contentsLoadFailed[gid]?[pageNumber] = true
             }
 
         case .fetchGalleryMPVContent(let gid, let index):
@@ -724,6 +757,9 @@ final class Store: ObservableObject {
                   let mpvKey = appState.contentInfo.mpvKeys[gid],
                   let imgKey = appState.contentInfo.mpvImageKeys[gid]?[index]
             else { break }
+
+            appState.contentInfo.contentsLoading[gid] = nil
+            appState.contentInfo.contentsLoadFailed[gid] = nil
 
             if appState.contentInfo.mpvImageLoading[gid] == nil {
                 appState.contentInfo.mpvImageLoading[gid] = [:]
@@ -737,12 +773,9 @@ final class Store: ObservableObject {
         case .fetchGalleryMPVContentDone(let gid, let index, let result):
             appState.contentInfo.mpvImageLoading[gid]?[index] = false
 
-            switch result {
-            case .success(let imageURL):
+            if case .success(let imageURL) = result {
                 appState.contentInfo.update(gid: gid, contents: [index: imageURL])
                 PersistenceController.update(gid: gid, contents: [index: imageURL])
-            case .failure(let error):
-                SwiftyBeaver.error(error)
             }
 
         // MARK: Account Ops
@@ -751,8 +784,7 @@ final class Store: ObservableObject {
         case .verifyEhProfile:
             appCommand = VerifyEhProfileCommand()
         case .verifyEhProfileDone(let result):
-            switch result {
-            case .success((let profileValue, let profileNotFound)):
+            if case .success((let profileValue, let profileNotFound)) = result {
                 if let profileValue = profileValue {
                     let profileValueString = String(profileValue)
                     let hostURL = Defaults.URL.host.safeURL()
@@ -774,8 +806,6 @@ final class Store: ObservableObject {
                 } else {
                     SwiftyBeaver.error("Found profile but failed in parsing value.")
                 }
-            case .failure(let error):
-                SwiftyBeaver.error(error)
             }
         case .addFavorite(let gid, let favIndex):
             let token = PersistenceController.fetchGallery(gid: gid)?.token ?? ""
