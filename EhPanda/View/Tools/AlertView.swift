@@ -70,24 +70,22 @@ struct LoadMoreFooter: View {
     }
 }
 
-struct NetworkErrorView: View {
+struct ErrorView: View {
+    private let error: AppError
     private let retryAction: (() -> Void)?
 
-    init(retryAction: (() -> Void)?) {
+    init(error: AppError, retryAction: (() -> Void)? = nil) {
+        self.error = error
         self.retryAction = retryAction
     }
 
     var body: some View {
         GenericRetryView(
-            symbolName: "wifi.exclamationmark",
-            message: "A Network error occurred.\nPlease try again later.",
+            symbolName: error.symbolName,
+            message: error.alertText,
             buttonText: "Retry",
-            retryAction: onRetryButtonTap
+            retryAction: retryAction
         )
-    }
-
-    private func onRetryButtonTap() {
-        retryAction?()
     }
 }
 
@@ -120,13 +118,15 @@ struct GenericRetryView: View {
                 .foregroundStyle(.gray)
                 .font(.headline)
                 .padding(.bottom, 5)
-            Button(action: { retryAction?() }, label: {
-                Text(buttonText.localized)
-                    .foregroundColor(.primary.opacity(0.7))
-                    .textCase(.uppercase)
-            })
-            .buttonStyle(.bordered)
-            .buttonBorderShape(.capsule)
+            if let action = retryAction {
+                Button(action: action) {
+                    Text(buttonText.localized)
+                        .foregroundColor(.primary.opacity(0.7))
+                        .textCase(.uppercase)
+                }
+                .buttonStyle(.bordered)
+                .buttonBorderShape(.capsule)
+            }
         }
         .frame(maxWidth: windowW * 0.8)
     }

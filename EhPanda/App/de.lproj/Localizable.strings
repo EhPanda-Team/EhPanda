@@ -34,7 +34,11 @@
 "Login" = "Einloggen";
 "Your search didn't match any docs." = "Deine Suche hat keine Ergebnisse ergeben";
 "Retry" = "Erneut versuchen";
-"A Network error occurred.\nPlease try again later." = "Netzwerkfehler: Bitte überprüfe eine Verbindung und probiere es später nocheinmal";
+//"A network error occurred." = "";
+//"A parsing error occurred." = "";
+//"An unknown error occurred." = "";
+//"Please try again later." = "";
+//"This gallery is unavailable due to a copyright claim by PLACEHOLDER. Sorry about that." = "";
 
 // MARK: DetailView
 "Archive" = "Archiv";

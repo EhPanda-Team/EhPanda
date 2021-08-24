@@ -13,7 +13,7 @@ struct EhSettingView: View, StoreAccessor {
 
     @State private var ehSetting: EhSetting?
     @State private var loadingFlag = false
-    @State private var loadFailedFlag = false
+    @State private var loadError: AppError?
     @State private var submittingFlag = false
     @State private var shouldHideKeyboard = ""
 
@@ -63,10 +63,8 @@ struct EhSettingView: View, StoreAccessor {
         Group {
             if loadingFlag || submittingFlag {
                 LoadingView()
-            } else if loadFailedFlag {
-                NetworkErrorView(
-                    retryAction: fetchEhSetting
-                )
+            } else if let error = loadError {
+                ErrorView(error: error, retryAction: fetchEhSetting)
             } else if let ehSettingBinding = Binding($ehSetting) {
                 form(ehSettingBinding: ehSettingBinding)
             } else {
@@ -103,7 +101,7 @@ struct EhSettingView: View, StoreAccessor {
 
 private extension EhSettingView {
     func fetchEhSetting() {
-        loadFailedFlag = false
+        loadError = nil
         guard !loadingFlag else { return }
         loadingFlag = true
 
@@ -115,7 +113,7 @@ private extension EhSettingView {
                 loadingFlag = false
                 if case .failure(let error) = completion {
                     SwiftyBeaver.error(error)
-                    loadFailedFlag = true
+                    loadError = error
                 }
                 token.unseal()
             } receiveValue: { ehSetting in
@@ -138,7 +136,7 @@ private extension EhSettingView {
                 submittingFlag = false
                 if case .failure(let error) = completion {
                     SwiftyBeaver.error(error)
-                    loadFailedFlag = true
+                    loadError = error
                 }
                 token.unseal()
             } receiveValue: { ehSetting in
@@ -160,7 +158,7 @@ private extension EhSettingView {
                 submittingFlag = false
                 if case .failure(let error) = completion {
                     SwiftyBeaver.error(error)
-                    loadFailedFlag = true
+                    loadError = error
                 }
                 token.unseal()
             } receiveValue: { ehSetting in

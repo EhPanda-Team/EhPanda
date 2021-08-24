@@ -151,7 +151,10 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
             if contentInfo.contentsLoading[gid]?[0] == true {
                 LoadingView()
             } else if contentInfo.contentsLoadFailed[gid]?[0] == true {
-                NetworkErrorView(retryAction: fetchGalleryContentsIfNeeded)
+                ErrorView(
+                    error: .networkingFailed,
+                    retryAction: fetchGalleryContentsIfNeeded
+                )
             } else {
                 conditionalList
                     .scaleEffect(scale).offset(offset)

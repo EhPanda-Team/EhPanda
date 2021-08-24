@@ -73,8 +73,13 @@ struct DetailView: View, StoreAccessor, PersistenceAccessor {
                 .transition(opacityTransition)
             } else if detailInfo.detailLoading[gid] == true {
                 LoadingView()
-            } else if detailInfo.detailLoadFailed[gid] == true {
-                NetworkErrorView(retryAction: fetchGalleryDetail)
+            } else if let error = detailInfo.detailLoadErrors[gid] {
+                switch error {
+                case .copyrightClaim, .expunged:
+                    ErrorView(error: error)
+                default:
+                    ErrorView(error: error, retryAction: fetchGalleryDetail)
+                }
             }
         }
         .background {

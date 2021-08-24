@@ -34,7 +34,11 @@
 "Login" = "로그인";
 "Your search didn't match any docs." = "검색 결과가　없습니다.";
 "Retry" = "재시도";
-"A Network error occurred.\nPlease try again later." = "인터넷 접속 불가.\n잠시후　다시　시도해　보십시오.";
+"A network error occurred." = "인터넷 접속 불가.";
+//"A parsing error occurred." = "";
+//"An unknown error occurred." = "";
+"Please try again later." = "잠시후　다시　시도해　보십시오.";
+//"This gallery is unavailable due to a copyright claim by PLACEHOLDER. Sorry about that." = "";
 
 // MARK: DetailView
 "Archive" = "아카이브";

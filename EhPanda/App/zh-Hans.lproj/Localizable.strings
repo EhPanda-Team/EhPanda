@@ -34,7 +34,11 @@
 "Login" = "登录";
 "Your search didn't match any docs." = "未能找到你需要的信息";
 "Retry" = "重试";
-"A Network error occurred.\nPlease try again later." = "网络发生故障\n请稍后再试";
+"A network error occurred." = "发生了网络故障";
+"A parsing error occurred." = "发生了解析错误";
+"An unknown error occurred." = "发生了未知错误";
+"Please try again later." = "请稍后再试";
+"This gallery is unavailable due to a copyright claim by PLACEHOLDER. Sorry about that." = "抱歉，该画廊因PLACEHOLDER的版权主张已无法访问。";
 
 // MARK: DetailView
 "Archive" = "归档";

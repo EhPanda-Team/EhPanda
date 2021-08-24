@@ -16,6 +16,7 @@ struct ArchiveView: View, StoreAccessor, PersistenceAccessor {
     @State private var archive: GalleryArchive?
     @State private var response: String?
     @State private var loadingFlag = false
+    @State private var loadError: AppError?
     @State private var sendingFlag = false
     @State private var sendFailedFlag = false
 
@@ -84,8 +85,10 @@ struct ArchiveView: View, StoreAccessor, PersistenceAccessor {
                     }
                 } else if loadingFlag {
                     LoadingView()
+                } else if let error = loadError {
+                    ErrorView(error: error, retryAction: fetchGalleryArchive)
                 } else {
-                    NetworkErrorView(retryAction: fetchGalleryArchive)
+                    Circle().frame(width: 1).opacity(0.1)
                 }
             }
             .navigationBarTitle("Archive")
@@ -141,20 +144,24 @@ private extension ArchiveView {
 
     // MARK: Networking
     func fetchGalleryArchive() {
+        loadError = nil
         guard let archiveURL = galleryDetail?.archiveURL, !loadingFlag
         else { return }
         loadingFlag = true
 
         let token = SubscriptionToken()
         GalleryArchiveRequest(archiveURL: archiveURL)
-            .publisher
-            .receive(on: DispatchQueue.main)
-            .sink { _ in
+            .publisher.receive(on: DispatchQueue.main)
+            .sink { completion in
+                if case .failure(let error) = completion {
+                    SwiftyBeaver.error(error)
+                    loadError = error
+                }
                 loadingFlag = false
                 token.unseal()
-            } receiveValue: { arc in
-                archive = arc.0
-                if let galleryPoints = arc.1, let credits = arc.2 {
+            } receiveValue: { (archive, galleryPoints, credits) in
+                self.archive = archive
+                if let galleryPoints = galleryPoints, let credits = credits {
                     store.dispatch(.fetchGalleryArchiveFundsDone(
                         result: .success((galleryPoints, credits)))
                     )

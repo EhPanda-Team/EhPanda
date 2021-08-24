@@ -9,17 +9,6 @@ import SwiftUI
 import Kingfisher
 
 extension View {
-    func modify<T, U>(if condition: Bool, then modifierT: T, else modifierU: U
-    ) -> some View where T: ViewModifier, U: ViewModifier {
-        Group {
-            if condition {
-                modifier(modifierT)
-            } else {
-                modifier(modifierU)
-            }
-        }
-    }
-
     func cornerRadius(_ radius: CGFloat, corners: UIRectCorner) -> some View {
         clipShape( RoundedCorner(radius: radius, corners: corners) )
     }
@@ -144,18 +133,17 @@ struct PreviewResolver {
     static func getPreviewConfigs(
         originalURL: String
     ) -> (String, ImageModifier) {
-        let configs = Parser.parsePreviewConfigs(
+        guard let (plainURL, size, offset) =
+        Parser.parsePreviewConfigs(
             string: originalURL
-        )
-        let containsConfigs = configs != nil
-
-        let plainURL = configs?.0 ?? ""
-        let loadURL = containsConfigs
-            ? plainURL : originalURL
-        let modifier = RoundedOffsetModifier(
-            size: configs?.1, offset: configs?.2
-        )
-        return (loadURL, modifier)
+        ) else {
+            return (originalURL, RoundedOffsetModifier(
+                size: nil, offset: nil
+            ))
+        }
+        return (plainURL, RoundedOffsetModifier(
+            size: size, offset: offset
+        ))
     }
 }
 

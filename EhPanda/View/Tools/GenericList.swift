@@ -48,7 +48,7 @@ struct GenericList: View {
         if loadingFlag {
             LoadingView()
         } else if loadFailedFlag {
-            NetworkErrorView(retryAction: fetchAction)
+            ErrorView(error: .networkingFailed, retryAction: fetchAction)
         } else if notFoundFlag {
             NotFoundView(retryAction: fetchAction)
         } else {

@@ -131,41 +131,25 @@ extension AppState {
         var moreWatchedLoadFailed = false
 
         var favoritesItems = [Int: [Gallery]]()
-        var favoritesLoading = generateBoolDict(range: -1..<10)
-        var favoritesNotFound = generateBoolDict(range: -1..<10)
-        var favoritesLoadFailed = generateBoolDict(range: -1..<10)
-        var favoritesCurrentPageNum = generateIntDict(range: -1..<10)
-        var favoritesPageNumMaximum = generateIntDict(defaultValue: 1, range: -1..<10)
-        var moreFavoritesLoading = generateBoolDict(range: -1..<10)
-        var moreFavoritesLoadFailed = generateBoolDict(range: -1..<10)
+        var favoritesLoading = [Int: Bool]()
+        var favoritesNotFound = [Int: Bool]()
+        var favoritesLoadFailed = [Int: Bool]()
+        var favoritesCurrentPageNum = [Int: Int]()
+        var favoritesPageNumMaximum = [Int: Int]()
+        var moreFavoritesLoading = [Int: Bool]()
+        var moreFavoritesLoadFailed = [Int: Bool]()
 
         var toplistsItems = [Int: [Gallery]]()
-        var toplistsLoading = generateBoolDict(range: 0..<4)
-        var toplistsNotFound = generateBoolDict(range: 0..<4)
-        var toplistsLoadFailed = generateBoolDict(range: 0..<4)
-        var toplistsCurrentPageNum = generateIntDict(range: 0..<4)
-        var toplistsPageNumMaximum = generateIntDict(defaultValue: 1, range: 0..<4)
-        var moreToplistsLoading = generateBoolDict(range: 0..<4)
-        var moreToplistsLoadFailed = generateBoolDict(range: 0..<4)
+        var toplistsLoading = [Int: Bool]()
+        var toplistsNotFound = [Int: Bool]()
+        var toplistsLoadFailed = [Int: Bool]()
+        var toplistsCurrentPageNum = [Int: Int]()
+        var toplistsPageNumMaximum = [Int: Int]()
+        var moreToplistsLoading = [Int: Bool]()
+        var moreToplistsLoadFailed = [Int: Bool]()
 
         @AppEnvStorage(type: [String].self, key: "historyKeywords")
         var historyKeywords: [String]
-
-        static func generateBoolDict(defaultValue: Bool = false, range: Range<Int>) -> [Int: Bool] {
-            var tmp = [Int: Bool]()
-            range.forEach { index in
-                tmp[index] = defaultValue
-            }
-            return tmp
-        }
-
-        static func generateIntDict(defaultValue: Int = 0, range: Range<Int>) -> [Int: Int] {
-            var tmp = [Int: Int]()
-            range.forEach { index in
-                tmp[index] = defaultValue
-            }
-            return tmp
-        }
 
         mutating func insertSearchItems(galleries: [Gallery]) {
             galleries.forEach { gallery in
@@ -229,7 +213,7 @@ extension AppState {
     // MARK: DetailInfo
     struct DetailInfo {
         var detailLoading = [String: Bool]()
-        var detailLoadFailed = [String: Bool]()
+        var detailLoadErrors = [String: AppError]()
         var archiveFundsLoading = false
         var previews = [String: [Int: String]]()
         var previewsLoading = [String: [Int: Bool]]()

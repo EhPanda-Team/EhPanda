@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftyBeaver
 import TTProgressHUD
 
 struct TorrentsView: View, StoreAccessor {
@@ -16,6 +17,7 @@ struct TorrentsView: View, StoreAccessor {
     @State private var hudConfig = TTProgressHUDConfig()
 
     @State private var loadingFlag = false
+    @State private var loadError: AppError?
     @State private var torrents = [GalleryTorrent]()
 
     private let gid: String
@@ -49,8 +51,10 @@ struct TorrentsView: View, StoreAccessor {
                 }
             } else if loadingFlag {
                 LoadingView()
+            } else if let error = loadError {
+                ErrorView(error: error, retryAction: fetchGalleryTorrents)
             } else {
-                NetworkErrorView(retryAction: fetchGalleryTorrents)
+                Circle().frame(width: 1).opacity(0.1)
             }
         }
         .onAppear(perform: fetchGalleryTorrents)
@@ -93,6 +97,7 @@ private extension TorrentsView {
 
     // MARK: Networking
     func fetchGalleryTorrents() {
+        loadError = nil
         if loadingFlag { return }
         loadingFlag = true
 
@@ -100,7 +105,11 @@ private extension TorrentsView {
         GalleryTorrentsRequest(gid: gid, token: token)
             .publisher
             .receive(on: DispatchQueue.main)
-            .sink { _ in
+            .sink { completion in
+                if case .failure(let error) = completion {
+                    SwiftyBeaver.error(error)
+                    loadError = error
+                }
                 loadingFlag = false
                 sToken.unseal()
             } receiveValue: {

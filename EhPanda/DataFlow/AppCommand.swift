@@ -130,11 +130,11 @@ struct FetchSearchItemsCommand: AppCommand {
                     store.dispatch(.fetchSearchItemsDone(result: .failure(error)))
                 }
                 token.unseal()
-            } receiveValue: { galleries in
+            } receiveValue: { (pageNumber, galleries) in
                 store.dispatch(
                     .fetchSearchItemsDone(
                         result: .success(
-                            (keyword, galleries.0, galleries.1)
+                            (keyword, pageNumber, galleries)
                         )
                     )
                 )
@@ -164,8 +164,8 @@ struct FetchMoreSearchItemsCommand: AppCommand {
                 store.dispatch(.fetchMoreSearchItemsDone(result: .failure(error)))
             }
             token.unseal()
-        } receiveValue: { galleries in
-            store.dispatch(.fetchMoreSearchItemsDone(result: .success((keyword, galleries.0, galleries.1))))
+        } receiveValue: { (pageNumber, galleries) in
+            store.dispatch(.fetchMoreSearchItemsDone(result: .success((keyword, pageNumber, galleries))))
         }
         .seal(in: token)
     }
@@ -366,8 +366,8 @@ struct FetchGalleryDetailCommand: AppCommand {
                     store.dispatch(.fetchGalleryDetailDone(gid: gid, result: .failure(error)))
                 }
                 token.unseal()
-            } receiveValue: { detail in
-                store.dispatch(.fetchGalleryDetailDone(gid: gid, result: .success((detail.0, detail.1, detail.2))))
+            } receiveValue: { (detail, state, apiKey) in
+                store.dispatch(.fetchGalleryDetailDone(gid: gid, result: .success((detail, state, apiKey))))
             }
             .seal(in: token)
     }

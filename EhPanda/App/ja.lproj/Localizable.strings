@@ -34,7 +34,11 @@
 "Login" = "ログイン";
 "Your search didn't match any docs." = "お探しの情報が見つかりませんでした";
 "Retry" = "やり直す";
-"A Network error occurred.\nPlease try again later." = "ネットワーク障害が発生しました\nしばらくしてからもう一度お試しください";
+"A network error occurred." = "ネットワーク障害が発生しました";
+"A parsing error occurred." = "解析中に問題が発生しました";
+"An unknown error occurred." = "不明なエラーが発生しました";
+"Please try again later." = "しばらくしてからもう一度お試しください";
+"This gallery is unavailable due to a copyright claim by PLACEHOLDER. Sorry about that." = "申し訳ありませんが、このギャラリーはPLACEHOLDERの著作権主張によってアクセス不可になっています。";
 
 // MARK: DetailView
 "Archive" = "アーカイブ";

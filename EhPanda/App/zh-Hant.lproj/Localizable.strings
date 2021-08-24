@@ -34,7 +34,11 @@
 "Login" = "登入";
 "Your search didn't match any docs." = "未能找到你需要的資訊";
 "Retry" = "重試";
-"A Network error occurred.\nPlease try again later." = "網絡發生故障\n請稍後再試";
+"A network error occurred." = "網絡發生故障";
+//"A parsing error occurred." = "";
+//"An unknown error occurred." = "";
+"Please try again later." = "請稍後再試";
+//"This gallery is unavailable due to a copyright claim by PLACEHOLDER. Sorry about that." = "";
 
 // MARK: DetailView
 "Archive" = "封存";

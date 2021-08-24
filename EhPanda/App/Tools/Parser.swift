@@ -98,10 +98,10 @@ struct Parser {
             let uploader = firstDivNode?.at_xpath("//a")?.text
             guard let gl2cNode = link.at_xpath("//td [@class='gl2c']"),
                   let gl3cNode = link.at_xpath("//td [@class='gl3c glname']"),
-                  let rating = try? parseRating(node: gl2cNode),
+                  let (rating, _, _) = try? parseRating(node: gl2cNode),
                   let coverURL = try? parseCoverURL(node: gl2cNode),
                   let pageCount = try? parsePageCount(node: gl2cNode),
-                  let tagsAndLang = try? parseTagsAndLang(node: gl3cNode),
+                  let (tags, language) = try? parseTagsAndLang(node: gl3cNode),
                   let publishedTime = try? parsePublishedTime(node: gl2cNode),
                   let title = link.at_xpath("//div [@class='glink']")?.text,
                   let galleryURL = link.at_xpath("//td [@class='gl3c glname'] //a")?["href"],
@@ -115,10 +115,10 @@ struct Parser {
                     gid: url.pathComponents[2],
                     token: url.pathComponents[3],
                     title: title,
-                    rating: rating.0,
-                    tags: tagsAndLang.0,
+                    rating: rating,
+                    tags: tags,
                     category: category,
-                    language: tagsAndLang.1,
+                    language: language,
                     uploader: uploader,
                     pageCount: pageCount,
                     postedDate: postedDate,
@@ -299,7 +299,8 @@ struct Parser {
         var tmpGalleryDetail: GalleryDetail?
         var tmpGalleryState: GalleryState?
         for link in doc.xpath("//div [@class='gm']") {
-            guard let gd3Node = link.at_xpath("//div [@id='gd3']"),
+            guard tmpGalleryDetail == nil, tmpGalleryState == nil,
+                  let gd3Node = link.at_xpath("//div [@id='gd3']"),
                   let gd4Node = link.at_xpath("//div [@id='gd4']"),
                   let gd5Node = link.at_xpath("//div [@id='gd5']"),
                   let gddNode = gd3Node.at_xpath("//div [@id='gdd']"),
@@ -321,7 +322,7 @@ struct Parser {
                   let ratingCount = Int(gdrNode.at_xpath("//span [@id='rating_count']")?.text ?? ""),
                   let category = Category(rawValue: gd3Node.at_xpath("//div [@id='gdc']")?.text ?? ""),
                   let postedDate = try? parseDate(time: infoPanel[0], format: Defaults.DateFormat.publish)
-            else { throw AppError.parseFailed }
+            else { continue }
 
             let isFavored = gdfNode
                 .at_xpath("//a [@id='favoritelink']")?
@@ -365,7 +366,20 @@ struct Parser {
 
         guard let galleryDetail = tmpGalleryDetail,
               let galleryState = tmpGalleryState
-        else { throw AppError.parseFailed }
+        else {
+            if let reason = doc.at_xpath("//div [@class='d']")?.at_xpath("//p")?.text {
+                if let rangeA = reason.range(of: "copyright claim by "),
+                   let rangeB = reason.range(of: ".Sorry about that.")
+                {
+                    let owner = String(reason[rangeA.upperBound..<rangeB.lowerBound])
+                    throw AppError.copyrightClaim(owner: owner)
+                } else {
+                    throw AppError.expunged(reason: reason)
+                }
+            } else {
+                throw AppError.parseFailed
+            }
+        }
 
         return (galleryDetail, galleryState)
     }
