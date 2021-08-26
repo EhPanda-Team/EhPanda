@@ -12,8 +12,7 @@ struct GenericList: View {
     private let items: [Gallery]?
     private let setting: Setting
     private let loadingFlag: Bool
-    private let notFoundFlag: Bool
-    private let loadFailedFlag: Bool
+    private let loadError: AppError?
     private let moreLoadingFlag: Bool
     private let moreLoadFailedFlag: Bool
     private let fetchAction: (() -> Void)?
@@ -24,8 +23,7 @@ struct GenericList: View {
         items: [Gallery]?,
         setting: Setting,
         loadingFlag: Bool,
-        notFoundFlag: Bool,
-        loadFailedFlag: Bool,
+        loadError: AppError?,
         moreLoadingFlag: Bool,
         moreLoadFailedFlag: Bool,
         fetchAction: (() -> Void)? = nil,
@@ -35,8 +33,7 @@ struct GenericList: View {
         self.items = items
         self.setting = setting
         self.loadingFlag = loadingFlag
-        self.notFoundFlag = notFoundFlag
-        self.loadFailedFlag = loadFailedFlag
+        self.loadError = loadError
         self.moreLoadingFlag = moreLoadingFlag
         self.moreLoadFailedFlag = moreLoadFailedFlag
         self.fetchAction = fetchAction
@@ -47,10 +44,8 @@ struct GenericList: View {
     var body: some View {
         if loadingFlag {
             LoadingView()
-        } else if loadFailedFlag {
-            ErrorView(error: .networkingFailed, retryAction: fetchAction)
-        } else if notFoundFlag {
-            NotFoundView(retryAction: fetchAction)
+        } else if let error = loadError {
+            ErrorView(error: error, retryAction: fetchAction)
         } else {
             VStack(spacing: 0) {
                 switch setting.listMode {

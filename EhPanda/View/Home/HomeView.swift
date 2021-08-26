@@ -92,45 +92,21 @@ struct HomeView: View, StoreAccessor {
                     NewDawnView(greeting: greeting)
                 }
             }
+            .tint(accentColor)
             .accentColor(accentColor)
             .blur(radius: environment.blurRadius)
             .allowsHitTesting(environment.isAppUnlocked)
         }
         .onReceive(
-            NotificationCenter.default.publisher(
-                for: UIApplication.didBecomeActiveNotification
-            )
-        ) { _ in
-            onBecomeActive()
-        }
-        .onChange(
-            of: environment.galleryItemReverseID,
-            perform: onJumpIDChange
-        )
-        .onChange(
-            of: environment.galleryItemReverseLoading,
-            perform: onJumpDetailFetchFinish
-        )
-        .onChange(
-            of: environment.homeListType,
-            perform: onHomeListTypeChange
-        )
-        .onChange(
-            of: environment.favoritesIndex,
-            perform: onFavIndexChange
-        )
-        .onChange(
-            of: environment.toplistsType,
-            perform: onTopTypeChange
-        )
-        .onChange(
-            of: user.greeting,
-            perform: onReceive
-        )
-        .onChange(
-            of: homeInfo.searchKeyword,
-            perform: onSearchKeywordChange
-        )
+            NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)
+        ) { _ in onBecomeActive() }
+        .onChange(of: environment.galleryItemReverseLoading, perform: onJumpDetailFetchFinish)
+        .onChange(of: environment.galleryItemReverseID, perform: onJumpIDChange)
+        .onChange(of: environment.homeListType, perform: onHomeListTypeChange)
+        .onChange(of: homeInfo.searchKeyword, perform: onSearchKeywordChange)
+        .onChange(of: environment.favoritesIndex, perform: onFavIndexChange)
+        .onChange(of: environment.toplistsType, perform: onTopTypeChange)
+        .onChange(of: user.greeting, perform: onReceiveGreeting)
     }
 }
 
@@ -198,8 +174,7 @@ private extension HomeView {
                 items: homeInfo.searchItems,
                 setting: setting,
                 loadingFlag: homeInfo.searchLoading,
-                notFoundFlag: homeInfo.searchNotFound,
-                loadFailedFlag: homeInfo.searchLoadFailed,
+                loadError: homeInfo.searchLoadError,
                 moreLoadingFlag: homeInfo.moreSearchLoading,
                 moreLoadFailedFlag: homeInfo.moreSearchLoadFailed,
                 fetchAction: onSearchRefresh,
@@ -211,8 +186,7 @@ private extension HomeView {
                 items: homeInfo.frontpageItems,
                 setting: setting,
                 loadingFlag: homeInfo.frontpageLoading,
-                notFoundFlag: homeInfo.frontpageNotFound,
-                loadFailedFlag: homeInfo.frontpageLoadFailed,
+                loadError: homeInfo.frontpageLoadError,
                 moreLoadingFlag: homeInfo.moreFrontpageLoading,
                 moreLoadFailedFlag: homeInfo.moreFrontpageLoadFailed,
                 fetchAction: fetchFrontpageItems,
@@ -224,8 +198,7 @@ private extension HomeView {
                 items: homeInfo.popularItems,
                 setting: setting,
                 loadingFlag: homeInfo.popularLoading,
-                notFoundFlag: homeInfo.popularNotFound,
-                loadFailedFlag: homeInfo.popularLoadFailed,
+                loadError: homeInfo.popularLoadError,
                 moreLoadingFlag: false,
                 moreLoadFailedFlag: false,
                 fetchAction: fetchPopularItems,
@@ -236,8 +209,7 @@ private extension HomeView {
                 items: homeInfo.watchedItems,
                 setting: setting,
                 loadingFlag: homeInfo.watchedLoading,
-                notFoundFlag: homeInfo.watchedNotFound,
-                loadFailedFlag: homeInfo.watchedLoadFailed,
+                loadError: homeInfo.watchedLoadError,
                 moreLoadingFlag: homeInfo.moreWatchedLoading,
                 moreLoadFailedFlag: homeInfo.moreWatchedLoadFailed,
                 fetchAction: fetchWatchedItems,
@@ -253,12 +225,9 @@ private extension HomeView {
                 loadingFlag: homeInfo.favoritesLoading[
                     environment.favoritesIndex
                 ] ?? false,
-                notFoundFlag: homeInfo.favoritesNotFound[
+                loadError: homeInfo.favoritesLoadErrors[
                     environment.favoritesIndex
-                ] ?? false,
-                loadFailedFlag: homeInfo.favoritesLoadFailed[
-                    environment.favoritesIndex
-                ] ?? false,
+                ],
                 moreLoadingFlag: homeInfo.moreFavoritesLoading[
                     environment.favoritesIndex
                 ] ?? false,
@@ -278,12 +247,9 @@ private extension HomeView {
                 loadingFlag: homeInfo.toplistsLoading[
                     environment.toplistsType.rawValue
                 ] ?? false,
-                notFoundFlag: homeInfo.toplistsNotFound[
+                loadError: homeInfo.toplistsLoadErrors[
                     environment.toplistsType.rawValue
-                ] ?? false,
-                loadFailedFlag: homeInfo.toplistsLoadFailed[
-                    environment.toplistsType.rawValue
-                ] ?? false,
+                ],
                 moreLoadingFlag: homeInfo.moreToplistsLoading[
                     environment.toplistsType.rawValue
                 ] ?? false,
@@ -301,8 +267,7 @@ private extension HomeView {
                 items: galleryHistory,
                 setting: setting,
                 loadingFlag: false,
-                notFoundFlag: galleryHistory.isEmpty,
-                loadFailedFlag: false,
+                loadError: galleryHistory.isEmpty ? .notFound : nil,
                 moreLoadingFlag: false,
                 moreLoadFailedFlag: false,
                 translateAction: translateTag
@@ -352,7 +317,7 @@ private extension HomeView {
 
         handle(incomingURL: replacedURL)
     }
-    func onReceive(greeting: Greeting?) {
+    func onReceiveGreeting(_ greeting: Greeting?) {
         if let greeting = greeting,
            !greeting.gainedNothing
         {

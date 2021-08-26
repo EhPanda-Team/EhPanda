@@ -100,8 +100,7 @@ extension AppState {
 
         var searchItems: [Gallery]?
         var searchLoading = false
-        var searchNotFound = false
-        var searchLoadFailed = false
+        var searchLoadError: AppError?
         var searchCurrentPageNum = 0
         var searchPageNumMaximum = 1
         var moreSearchLoading = false
@@ -109,8 +108,7 @@ extension AppState {
 
         var frontpageItems: [Gallery]?
         var frontpageLoading = false
-        var frontpageNotFound = false
-        var frontpageLoadFailed = false
+        var frontpageLoadError: AppError?
         var frontpageCurrentPageNum = 0
         var frontpagePageNumMaximum = 1
         var moreFrontpageLoading = false
@@ -118,13 +116,11 @@ extension AppState {
 
         var popularItems: [Gallery]?
         var popularLoading = false
-        var popularNotFound = false
-        var popularLoadFailed = false
+        var popularLoadError: AppError?
 
         var watchedItems: [Gallery]?
         var watchedLoading = false
-        var watchedNotFound = false
-        var watchedLoadFailed = false
+        var watchedLoadError: AppError?
         var watchedCurrentPageNum = 0
         var watchedPageNumMaximum = 1
         var moreWatchedLoading = false
@@ -132,8 +128,7 @@ extension AppState {
 
         var favoritesItems = [Int: [Gallery]]()
         var favoritesLoading = [Int: Bool]()
-        var favoritesNotFound = [Int: Bool]()
-        var favoritesLoadFailed = [Int: Bool]()
+        var favoritesLoadErrors = [Int: AppError]()
         var favoritesCurrentPageNum = [Int: Int]()
         var favoritesPageNumMaximum = [Int: Int]()
         var moreFavoritesLoading = [Int: Bool]()
@@ -141,8 +136,7 @@ extension AppState {
 
         var toplistsItems = [Int: [Gallery]]()
         var toplistsLoading = [Int: Bool]()
-        var toplistsNotFound = [Int: Bool]()
-        var toplistsLoadFailed = [Int: Bool]()
+        var toplistsLoadErrors = [Int: AppError]()
         var toplistsCurrentPageNum = [Int: Int]()
         var toplistsPageNumMaximum = [Int: Int]()
         var moreToplistsLoading = [Int: Bool]()

@@ -51,9 +51,9 @@ struct SettingTextField: View {
     var body: some View {
         TextField("", text: $text, prompt: prompt)
             .keyboardType(.numbersAndPunctuation)
+            .textInputAutocapitalization(.none)
             .multilineTextAlignment(alignment)
             .disableAutocorrection(true)
-            .autocapitalization(.none)
             .background(color)
             .frame(width: width)
             .cornerRadius(5)

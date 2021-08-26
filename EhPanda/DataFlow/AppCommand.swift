@@ -131,13 +131,15 @@ struct FetchSearchItemsCommand: AppCommand {
                 }
                 token.unseal()
             } receiveValue: { (pageNumber, galleries) in
-                store.dispatch(
-                    .fetchSearchItemsDone(
-                        result: .success(
-                            (keyword, pageNumber, galleries)
-                        )
-                    )
-                )
+                if !galleries.isEmpty {
+                    store.dispatch(.fetchSearchItemsDone(result: .success((pageNumber, galleries))))
+                } else {
+                    store.dispatch(.fetchSearchItemsDone(result: .failure(.notFound)))
+                    guard pageNumber.current < pageNumber.maximum else { return }
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                        store.dispatch(.fetchMoreSearchItems(keyword: keyword))
+                    }
+                }
             }
             .seal(in: token)
     }
@@ -165,7 +167,12 @@ struct FetchMoreSearchItemsCommand: AppCommand {
             }
             token.unseal()
         } receiveValue: { (pageNumber, galleries) in
-            store.dispatch(.fetchMoreSearchItemsDone(result: .success((keyword, pageNumber, galleries))))
+            store.dispatch(.fetchMoreSearchItemsDone(result: .success((pageNumber, galleries))))
+
+            guard galleries.isEmpty, pageNumber.current < pageNumber.maximum else { return }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                store.dispatch(.fetchMoreSearchItems(keyword: keyword))
+            }
         }
         .seal(in: token)
     }
@@ -182,8 +189,16 @@ struct FetchFrontpageItemsCommand: AppCommand {
                     store.dispatch(.fetchFrontpageItemsDone(result: .failure(error)))
                 }
                 token.unseal()
-            } receiveValue: { galleries in
-                store.dispatch(.fetchFrontpageItemsDone(result: .success(galleries)))
+            } receiveValue: { (pageNumber, galleries) in
+                if !galleries.isEmpty {
+                    store.dispatch(.fetchFrontpageItemsDone(result: .success((pageNumber, galleries))))
+                } else {
+                    store.dispatch(.fetchFrontpageItemsDone(result: .failure(.notFound)))
+                    guard pageNumber.current < pageNumber.maximum else { return }
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                        store.dispatch(.fetchMoreFrontpageItems)
+                    }
+                }
             }
             .seal(in: token)
     }
@@ -203,8 +218,13 @@ struct FetchMoreFrontpageItemsCommand: AppCommand {
                     store.dispatch(.fetchMoreFrontpageItemsDone(result: .failure(error)))
                 }
                 token.unseal()
-            } receiveValue: { galleries in
-                store.dispatch(.fetchMoreFrontpageItemsDone(result: .success(galleries)))
+            } receiveValue: { (pageNumber, galleries) in
+                store.dispatch(.fetchMoreFrontpageItemsDone(result: .success((pageNumber, galleries))))
+
+                guard galleries.isEmpty, pageNumber.current < pageNumber.maximum else { return }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                    store.dispatch(.fetchMoreFrontpageItems)
+                }
             }
             .seal(in: token)
     }
@@ -222,7 +242,11 @@ struct FetchPopularItemsCommand: AppCommand {
                 }
                 token.unseal()
             } receiveValue: { galleries in
-                store.dispatch(.fetchPopularItemsDone(result: .success(galleries)))
+                if !galleries.isEmpty {
+                    store.dispatch(.fetchPopularItemsDone(result: .success(galleries)))
+                } else {
+                    store.dispatch(.fetchPopularItemsDone(result: .failure(.notFound)))
+                }
             }
             .seal(in: token)
     }
@@ -239,8 +263,16 @@ struct FetchWatchedItemsCommand: AppCommand {
                     store.dispatch(.fetchWatchedItemsDone(result: .failure(error)))
                 }
                 token.unseal()
-            } receiveValue: { galleries in
-                store.dispatch(.fetchWatchedItemsDone(result: .success(galleries)))
+            } receiveValue: { (pageNumber, galleries) in
+                if !galleries.isEmpty {
+                    store.dispatch(.fetchWatchedItemsDone(result: .success((pageNumber, galleries))))
+                } else {
+                    store.dispatch(.fetchWatchedItemsDone(result: .failure(.notFound)))
+                    guard pageNumber.current < pageNumber.maximum else { return }
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                        store.dispatch(.fetchMoreWatchedItems)
+                    }
+                }
             }
             .seal(in: token)
     }
@@ -260,8 +292,13 @@ struct FetchMoreWatchedItemsCommand: AppCommand {
                     store.dispatch(.fetchMoreWatchedItemsDone(result: .failure(error)))
                 }
                 token.unseal()
-            } receiveValue: { galleries in
-                store.dispatch(.fetchMoreWatchedItemsDone(result: .success(galleries)))
+            } receiveValue: { (pageNumber, galleries) in
+                store.dispatch(.fetchMoreWatchedItemsDone(result: .success((pageNumber, galleries))))
+
+                guard galleries.isEmpty, pageNumber.current < pageNumber.maximum else { return }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                    store.dispatch(.fetchMoreWatchedItems)
+                }
             }
             .seal(in: token)
     }
@@ -280,8 +317,18 @@ struct FetchFavoritesItemsCommand: AppCommand {
                     store.dispatch(.fetchFavoritesItemsDone(carriedValue: favIndex, result: .failure(error)))
                 }
                 token.unseal()
-            } receiveValue: { galleries in
-                store.dispatch(.fetchFavoritesItemsDone(carriedValue: favIndex, result: .success((galleries))))
+            } receiveValue: { (pageNumber, galleries) in
+                if !galleries.isEmpty {
+                    store.dispatch(.fetchFavoritesItemsDone(
+                        carriedValue: favIndex, result: .success((pageNumber, galleries)))
+                    )
+                } else {
+                    store.dispatch(.fetchFavoritesItemsDone(carriedValue: favIndex, result: .failure(.notFound)))
+                    guard pageNumber.current < pageNumber.maximum else { return }
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                        store.dispatch(.fetchMoreFavoritesItems)
+                    }
+                }
             }
             .seal(in: token)
     }
@@ -302,8 +349,14 @@ struct FetchMoreFavoritesItemsCommand: AppCommand {
                     store.dispatch(.fetchMoreFavoritesItemsDone(carriedValue: favIndex, result: .failure(error)))
                 }
                 token.unseal()
-            } receiveValue: { galleries in
-                store.dispatch(.fetchMoreFavoritesItemsDone(carriedValue: favIndex, result: .success((galleries))))
+            } receiveValue: { (pageNumber, galleries) in
+                store.dispatch(.fetchMoreFavoritesItemsDone(
+                    carriedValue: favIndex, result: .success((pageNumber, galleries)))
+                )
+                guard galleries.isEmpty, pageNumber.current < pageNumber.maximum else { return }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                    store.dispatch(.fetchMoreFavoritesItems)
+                }
             }
             .seal(in: token)
     }
@@ -323,8 +376,18 @@ struct FetchToplistsItemsCommand: AppCommand {
                     store.dispatch(.fetchToplistsItemsDone(carriedValue: topIndex, result: .failure(error)))
                 }
                 token.unseal()
-            } receiveValue: { galleries in
-                store.dispatch(.fetchToplistsItemsDone(carriedValue: topIndex, result: .success((galleries))))
+            } receiveValue: { (pageNumber, galleries) in
+                if !galleries.isEmpty {
+                    store.dispatch(.fetchToplistsItemsDone(
+                        carriedValue: topIndex, result: .success((pageNumber, galleries)))
+                    )
+                } else {
+                    store.dispatch(.fetchToplistsItemsDone(carriedValue: topIndex, result: .failure(.notFound)))
+                    guard pageNumber.current < pageNumber.maximum else { return }
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                        store.dispatch(.fetchMoreToplistsItems)
+                    }
+                }
             }
             .seal(in: token)
     }
@@ -345,8 +408,14 @@ struct FetchMoreToplistsItemsCommand: AppCommand {
                     store.dispatch(.fetchMoreToplistsItemsDone(carriedValue: topIndex, result: .failure(error)))
                 }
                 token.unseal()
-            } receiveValue: { galleries in
-                store.dispatch(.fetchMoreToplistsItemsDone(carriedValue: topIndex, result: .success((galleries))))
+            } receiveValue: { (pageNumber, galleries) in
+                store.dispatch(.fetchMoreToplistsItemsDone(
+                    carriedValue: topIndex, result: .success((pageNumber, galleries)))
+                )
+                guard galleries.isEmpty, pageNumber.current < pageNumber.maximum else { return }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                    store.dispatch(.fetchMoreToplistsItems)
+                }
             }
             .seal(in: token)
     }

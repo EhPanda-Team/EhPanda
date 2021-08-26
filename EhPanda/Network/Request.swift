@@ -75,7 +75,7 @@ struct TagTranslatorRequest {
                 guard let dict = try JSONSerialization.jsonObject(with: data) as? [String: Any],
                       let postedDateString = dict["published_at"] as? String,
                       let postedDate = dateFormatter.date(from: postedDateString)
-                else { throw AppError.networkingFailed }
+                else { throw AppError.parseFailed }
 
                 guard postedDate > updatedDate
                 else { throw AppError.noUpdates }
@@ -212,11 +212,11 @@ struct MoreFrontpageItemsRequest {
 }
 
 struct PopularItemsRequest {
-    var publisher: AnyPublisher<(PageNumber, [Gallery]), AppError> {
+    var publisher: AnyPublisher<[Gallery], AppError> {
         URLSession.shared.dataTaskPublisher(for: Defaults.URL.popularList().safeURL())
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-            .map { (Parser.parsePageNum(doc: $0), Parser.parseListItems(doc: $0)) }
-            .mapError(mapAppError).eraseToAnyPublisher()
+            .map(Parser.parseListItems).mapError(mapAppError)
+            .eraseToAnyPublisher()
     }
 }
 

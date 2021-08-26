@@ -195,7 +195,6 @@ private struct LoginTextField: View {
             .textInputAutocapitalization(.none)
             .disableAutocorrection(true)
             .keyboardType(.asciiCapable)
-            .autocapitalization(.none)
             .padding(10)
             .background(
                 backgroundColor

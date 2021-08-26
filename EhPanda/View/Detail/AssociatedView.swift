@@ -15,8 +15,7 @@ struct AssociatedView: View, StoreAccessor {
     @State private var keyword: String
 
     @State private var loadingFlag = false
-    @State private var notFoundFlag = false
-    @State private var loadFailedFlag = false
+    @State private var loadError: AppError?
     @State private var moreLoadingFlag = false
     @State private var moreLoadFailedFlag = false
     @State private var associatedItems = [Gallery]()
@@ -32,8 +31,7 @@ struct AssociatedView: View, StoreAccessor {
             items: associatedItems,
             setting: setting,
             loadingFlag: loadingFlag,
-            notFoundFlag: notFoundFlag,
-            loadFailedFlag: loadFailedFlag,
+            loadError: loadError,
             moreLoadingFlag: moreLoadingFlag,
             moreLoadFailedFlag: moreLoadFailedFlag,
             fetchAction: fetchAssociatedItems,
@@ -86,8 +84,7 @@ private extension AssociatedView {
             title = keyword
         }
 
-        notFoundFlag = false
-        loadFailedFlag = false
+        loadError = nil
         guard !loadingFlag else { return }
         loadingFlag = true
 
@@ -102,8 +99,8 @@ private extension AssociatedView {
         .sink { completion in
             loadingFlag = false
             if case .failure(let error) = completion {
-                loadFailedFlag = true
                 SwiftyBeaver.error(error)
+                loadError = error
             }
             token.unseal()
         } receiveValue: { pageNumber, galleries in
@@ -111,7 +108,7 @@ private extension AssociatedView {
             if !galleries.isEmpty {
                 associatedItems = galleries
             } else {
-                notFoundFlag = true
+                loadError = .notFound
             }
             PersistenceController.add(galleries: galleries)
 

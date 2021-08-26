@@ -345,10 +345,18 @@ enum ArchiveRes: String, Codable, CaseIterable {
     case x1280 = "1280x"
     case x1600 = "1600x"
     case x2400 = "2400x"
-    case original = "ARCHIVE_RESOLUTION_ORIGINAL"
+    case original = "Original"
 }
 
 extension ArchiveRes {
+    var name: String {
+        switch self {
+        case .x780, .x980, .x1280, .x1600, .x2400:
+            return rawValue
+        case .original:
+            return "ARCHIVE_RESOLUTION_ORIGINAL"
+        }
+    }
     var param: String {
         switch self {
         case .original:

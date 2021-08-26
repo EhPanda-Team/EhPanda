@@ -252,8 +252,7 @@ final class Store: ObservableObject {
             }
 
         case .fetchSearchItems(let keyword):
-            appState.homeInfo.searchNotFound = false
-            appState.homeInfo.searchLoadFailed = false
+            appState.homeInfo.searchLoadError = nil
 
             if appState.homeInfo.searchLoading { break }
             appState.homeInfo.searchCurrentPageNum = 0
@@ -265,24 +264,14 @@ final class Store: ObservableObject {
             appState.homeInfo.searchLoading = false
 
             switch result {
-            case .success(let (keyword, pageNumber, galleries)):
+            case .success(let (pageNumber, galleries)):
                 appState.homeInfo.searchCurrentPageNum = pageNumber.current
                 appState.homeInfo.searchPageNumMaximum = pageNumber.maximum
 
                 appState.homeInfo.searchItems = galleries
-                if galleries.isEmpty {
-                    if pageNumber.current < pageNumber.maximum {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
-                            self?.dispatch(.fetchMoreSearchItems(keyword: keyword))
-                        }
-                    } else {
-                        appState.homeInfo.searchNotFound = true
-                    }
-                } else {
-                    PersistenceController.add(galleries: galleries)
-                }
-            case .failure:
-                appState.homeInfo.searchLoadFailed = true
+                PersistenceController.add(galleries: galleries)
+            case .failure(let error):
+                appState.homeInfo.searchLoadError = error
             }
 
         case .fetchMoreSearchItems(let keyword):
@@ -299,36 +288,25 @@ final class Store: ObservableObject {
             let lastID = appState.homeInfo.searchItems?.last?.id ?? ""
             let pageNum = appState.homeInfo.searchCurrentPageNum + 1
             appCommand = FetchMoreSearchItemsCommand(
-                keyword: keyword,
-                filter: filter,
-                lastID: lastID,
-                pageNum: pageNum
+                keyword: keyword, filter: filter,
+                lastID: lastID, pageNum: pageNum
             )
         case .fetchMoreSearchItemsDone(let result):
             appState.homeInfo.moreSearchLoading = false
 
             switch result {
-            case .success(let (keyword, pageNumber, galleries)):
+            case .success(let (pageNumber, galleries)):
                 appState.homeInfo.searchCurrentPageNum = pageNumber.current
                 appState.homeInfo.searchPageNumMaximum = pageNumber.maximum
 
                 appState.homeInfo.insertSearchItems(galleries: galleries)
                 PersistenceController.add(galleries: galleries)
-
-                if pageNumber.current < pageNumber.maximum && galleries.isEmpty {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
-                        self?.dispatch(.fetchMoreSearchItems(keyword: keyword))
-                    }
-                } else if appState.homeInfo.searchItems?.isEmpty == true {
-                    appState.homeInfo.searchNotFound = true
-                }
             case .failure:
                 appState.homeInfo.moreSearchLoadFailed = true
             }
 
         case .fetchFrontpageItems:
-            appState.homeInfo.frontpageNotFound = false
-            appState.homeInfo.frontpageLoadFailed = false
+            appState.homeInfo.frontpageLoadError = nil
 
             if appState.homeInfo.frontpageLoading { break }
             appState.homeInfo.frontpageCurrentPageNum = 0
@@ -343,19 +321,9 @@ final class Store: ObservableObject {
                 appState.homeInfo.frontpagePageNumMaximum = pageNumber.maximum
 
                 appState.homeInfo.frontpageItems = galleries
-                if galleries.isEmpty {
-                    if pageNumber.current < pageNumber.maximum {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
-                            self?.dispatch(.fetchMoreFrontpageItems)
-                        }
-                    } else {
-                        appState.homeInfo.frontpageNotFound = true
-                    }
-                } else {
-                    PersistenceController.add(galleries: galleries)
-                }
-            case .failure:
-                appState.homeInfo.frontpageLoadFailed = true
+                PersistenceController.add(galleries: galleries)
+            case .failure(let error):
+                appState.homeInfo.frontpageLoadError = error
             }
 
         case .fetchMoreFrontpageItems:
@@ -381,21 +349,12 @@ final class Store: ObservableObject {
 
                 appState.homeInfo.insertFrontpageItems(galleries: galleries)
                 PersistenceController.add(galleries: galleries)
-
-                if pageNumber.current < pageNumber.maximum && galleries.isEmpty {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
-                        self?.dispatch(.fetchMoreFrontpageItems)
-                    }
-                } else if appState.homeInfo.frontpageItems?.isEmpty == true {
-                    appState.homeInfo.frontpageNotFound = true
-                }
             case .failure:
                 appState.homeInfo.moreFrontpageLoadFailed = true
             }
 
         case .fetchPopularItems:
-            appState.homeInfo.popularNotFound = false
-            appState.homeInfo.popularLoadFailed = false
+            appState.homeInfo.popularLoadError = nil
 
             if appState.homeInfo.popularLoading { break }
             appState.homeInfo.popularLoading = true
@@ -405,19 +364,14 @@ final class Store: ObservableObject {
 
             switch result {
             case .success(let galleries):
-                if galleries.1.isEmpty {
-                    appState.homeInfo.popularNotFound = true
-                } else {
-                    appState.homeInfo.popularItems = galleries.1
-                    PersistenceController.add(galleries: galleries.1)
-                }
-            case .failure:
-                appState.homeInfo.popularLoadFailed = true
+                appState.homeInfo.popularItems = galleries
+                PersistenceController.add(galleries: galleries)
+            case .failure(let error):
+                appState.homeInfo.popularLoadError = error
             }
 
         case .fetchWatchedItems:
-            appState.homeInfo.watchedNotFound = false
-            appState.homeInfo.watchedLoadFailed = false
+            appState.homeInfo.watchedLoadError = nil
 
             if appState.homeInfo.watchedLoading { break }
             appState.homeInfo.watchedCurrentPageNum = 0
@@ -432,19 +386,9 @@ final class Store: ObservableObject {
                 appState.homeInfo.watchedPageNumMaximum = pageNumber.maximum
 
                 appState.homeInfo.watchedItems = galleries
-                if galleries.isEmpty {
-                    if pageNumber.current < pageNumber.maximum {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
-                            self?.dispatch(.fetchMoreWatchedItems)
-                        }
-                    } else {
-                        appState.homeInfo.watchedNotFound = true
-                    }
-                } else {
-                    PersistenceController.add(galleries: galleries)
-                }
-            case .failure:
-                appState.homeInfo.watchedLoadFailed = true
+                PersistenceController.add(galleries: galleries)
+            case .failure(let error):
+                appState.homeInfo.watchedLoadError = error
             }
 
         case .fetchMoreWatchedItems:
@@ -470,22 +414,13 @@ final class Store: ObservableObject {
 
                 appState.homeInfo.insertWatchedItems(galleries: galleries)
                 PersistenceController.add(galleries: galleries)
-
-                if pageNumber.current < pageNumber.maximum && galleries.isEmpty {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
-                        self?.dispatch(.fetchMoreWatchedItems)
-                    }
-                } else if appState.homeInfo.watchedItems?.isEmpty == true {
-                    appState.homeInfo.watchedNotFound = true
-                }
             case .failure:
                 appState.homeInfo.moreWatchedLoadFailed = true
             }
 
         case .fetchFavoritesItems:
             let favIndex = appState.environment.favoritesIndex
-            appState.homeInfo.favoritesNotFound[favIndex] = false
-            appState.homeInfo.favoritesLoadFailed[favIndex] = false
+            appState.homeInfo.favoritesLoadErrors[favIndex] = nil
 
             if appState.homeInfo.favoritesLoading[favIndex] == true { break }
             appState.homeInfo.favoritesCurrentPageNum[favIndex] = 0
@@ -500,19 +435,9 @@ final class Store: ObservableObject {
                 appState.homeInfo.favoritesPageNumMaximum[carriedValue] = pageNumber.maximum
 
                 appState.homeInfo.favoritesItems[carriedValue] = galleries
-                if galleries.isEmpty {
-                    if pageNumber.current < pageNumber.maximum {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
-                            self?.dispatch(.fetchMoreFavoritesItems)
-                        }
-                    } else {
-                        appState.homeInfo.favoritesNotFound[carriedValue] = true
-                    }
-                } else {
-                    PersistenceController.add(galleries: galleries)
-                }
-            case .failure:
-                appState.homeInfo.favoritesLoadFailed[carriedValue] = true
+                PersistenceController.add(galleries: galleries)
+            case .failure(let error):
+                appState.homeInfo.favoritesLoadErrors[carriedValue] = error
             }
 
         case .fetchMoreFavoritesItems:
@@ -543,22 +468,13 @@ final class Store: ObservableObject {
 
                 appState.homeInfo.insertFavoritesItems(favIndex: carriedValue, galleries: galleries)
                 PersistenceController.add(galleries: galleries)
-
-                if pageNumber.current < pageNumber.maximum && galleries.isEmpty {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
-                        self?.dispatch(.fetchMoreFavoritesItems)
-                    }
-                } else if appState.homeInfo.favoritesItems[carriedValue]?.isEmpty == true {
-                    appState.homeInfo.favoritesNotFound[carriedValue] = true
-                }
             case .failure:
                 appState.homeInfo.moreFavoritesLoading[carriedValue] = true
             }
 
         case .fetchToplistsItems:
             let topType = appState.environment.toplistsType
-            appState.homeInfo.toplistsNotFound[topType.rawValue] = false
-            appState.homeInfo.toplistsLoadFailed[topType.rawValue] = false
+            appState.homeInfo.toplistsLoadErrors[topType.rawValue] = nil
 
             if appState.homeInfo.toplistsLoading[topType.rawValue] == true { break }
             appState.homeInfo.toplistsCurrentPageNum[topType.rawValue] = 0
@@ -575,19 +491,9 @@ final class Store: ObservableObject {
                 appState.homeInfo.toplistsPageNumMaximum[carriedValue] = pageNumber.maximum
 
                 appState.homeInfo.toplistsItems[carriedValue] = galleries
-                if galleries.isEmpty {
-                    if pageNumber.current < pageNumber.maximum {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
-                            self?.dispatch(.fetchMoreToplistsItems)
-                        }
-                    } else {
-                        appState.homeInfo.toplistsNotFound[carriedValue] = true
-                    }
-                } else {
-                    PersistenceController.add(galleries: galleries)
-                }
-            case .failure:
-                appState.homeInfo.toplistsLoadFailed[carriedValue] = true
+                PersistenceController.add(galleries: galleries)
+            case .failure(let error):
+                appState.homeInfo.toplistsLoadErrors[carriedValue] = error
             }
 
         case .fetchMoreToplistsItems:
@@ -617,14 +523,6 @@ final class Store: ObservableObject {
 
                 appState.homeInfo.insertToplistsItems(topIndex: carriedValue, galleries: galleries)
                 PersistenceController.add(galleries: galleries)
-
-                if pageNumber.current < pageNumber.maximum && galleries.isEmpty {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
-                        self?.dispatch(.fetchMoreToplistsItems)
-                    }
-                } else if appState.homeInfo.toplistsItems[carriedValue]?.isEmpty == true {
-                    appState.homeInfo.toplistsNotFound[carriedValue] = true
-                }
             case .failure:
                 appState.homeInfo.moreToplistsLoading[carriedValue] = true
             }

@@ -26,7 +26,10 @@ struct ArchiveView: View, StoreAccessor, PersistenceAccessor {
         type: .loading, title: "Communicating...".localized
     )
     private let gridItems = [
-        GridItem(.adaptive(minimum: 125, maximum: 200))
+        GridItem(.adaptive(
+            minimum: Defaults.FrameSize.archiveGridWidth,
+            maximum: Defaults.FrameSize.archiveGridWidth
+        ))
     ]
 
     let gid: String
@@ -240,7 +243,7 @@ private struct ArchiveGrid: View {
         disabled ? disabledColor : nil
     }
     private var width: CGFloat {
-        isSEWidth ? 125 : 150
+        Defaults.FrameSize.archiveGridWidth
     }
     private var height: CGFloat {
         width / 1.5
@@ -256,7 +259,7 @@ private struct ArchiveGrid: View {
 
     var body: some View {
         VStack(spacing: 10) {
-            Text(archive.resolution.rawValue.localized)
+            Text(archive.resolution.name.localized)
                 .fontWeight(.bold)
                 .font(.title3)
             VStack {

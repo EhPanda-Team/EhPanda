@@ -51,15 +51,15 @@ enum AppAction {
     case fetchGalleryItemReverse(url: String, shouldParseGalleryURL: Bool)
     case fetchGalleryItemReverseDone(carriedValue: String, result: Result<Gallery, AppError>)
     case fetchSearchItems(keyword: String)
-    case fetchSearchItemsDone(result: Result<(Keyword, PageNumber, [Gallery]), AppError>)
+    case fetchSearchItemsDone(result: Result<(PageNumber, [Gallery]), AppError>)
     case fetchMoreSearchItems(keyword: String)
-    case fetchMoreSearchItemsDone(result: Result<(Keyword, PageNumber, [Gallery]), AppError>)
+    case fetchMoreSearchItemsDone(result: Result<(PageNumber, [Gallery]), AppError>)
     case fetchFrontpageItems
     case fetchFrontpageItemsDone(result: Result<(PageNumber, [Gallery]), AppError>)
     case fetchMoreFrontpageItems
     case fetchMoreFrontpageItemsDone(result: Result<(PageNumber, [Gallery]), AppError>)
     case fetchPopularItems
-    case fetchPopularItemsDone(result: Result<(PageNumber, [Gallery]), AppError>)
+    case fetchPopularItemsDone(result: Result<[Gallery], AppError>)
     case fetchWatchedItems
     case fetchWatchedItemsDone(result: Result<(PageNumber, [Gallery]), AppError>)
     case fetchMoreWatchedItems

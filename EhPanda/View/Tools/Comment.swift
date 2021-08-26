@@ -54,8 +54,6 @@ struct DraftCommentView: View {
             VStack {
                 TextEditor(text: $content)
                     .focused($isTextEditorFocused)
-                    .disableAutocorrection(true)
-                    .autocapitalization(.none)
                     .padding()
                 Spacer()
             }

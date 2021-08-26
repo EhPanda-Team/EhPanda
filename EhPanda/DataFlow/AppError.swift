@@ -15,6 +15,7 @@ enum AppError: Error, Identifiable, Equatable {
     case networkingFailed
     case parseFailed
     case noUpdates
+    case notFound
     case unknown
 }
 
@@ -31,6 +32,8 @@ extension AppError: LocalizedError {
             return "Parse Error"
         case .noUpdates:
             return "No updates available"
+        case .notFound:
+            return "Not found"
         case .unknown:
             return "Unknown Error"
         }
@@ -45,7 +48,7 @@ extension AppError: LocalizedError {
             return "rectangle.and.text.magnifyingglass"
         case .noUpdates:
             return ""
-        case .unknown:
+        case .notFound, .unknown:
             return "questionmark.circle.fill"
         }
     }
@@ -66,6 +69,8 @@ extension AppError: LocalizedError {
                 .map(\.localized).joined(separator: "\n")
         case .noUpdates:
             return ""
+        case .notFound:
+            return "Your search didn't match any docs."
         case .unknown:
             return ["An unknown error occurred.", tryLater]
                 .map(\.localized).joined(separator: "\n")

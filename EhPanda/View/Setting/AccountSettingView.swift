@@ -196,9 +196,9 @@ private struct CookieRow: View {
             ZStack {
                 TextField(value, text: $content)
                     .submitLabel(.done)
-                    .autocapitalization(.none)
                     .disableAutocorrection(true)
                     .multilineTextAlignment(.trailing)
+                    .textInputAutocapitalization(.none)
                     .onChange(of: content) {
                         submitAction(key, $0)
                     }

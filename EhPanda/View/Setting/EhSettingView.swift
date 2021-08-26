@@ -670,7 +670,10 @@ private struct ExcludeView: View {
                     .opacity(isExcluded.wrappedValue ? 1 : 0)
                 }
                 .onTapGesture {
-                    isExcluded.wrappedValue.toggle()
+                    impactFeedback(style: .light)
+                    withAnimation {
+                        isExcluded.wrappedValue.toggle()
+                    }
                 }
             }
         }
@@ -861,9 +864,9 @@ private struct ExcludedUploadersSection: View {
             footer: Text(exclusionSlotsKey)
         ) {
             TextEditor(text: $ehSetting.excludedUploaders)
+                .textInputAutocapitalization(.none)
                 .frame(maxHeight: windowH * 0.3)
                 .disableAutocorrection(true)
-                .autocapitalization(.none)
                 .focused($isFocused)
         }
         .onChange(of: shouldHideKeyboard) { _ in

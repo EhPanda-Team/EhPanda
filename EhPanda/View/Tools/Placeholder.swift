@@ -26,7 +26,7 @@ struct Placeholder: View {
         case .activity(let ratio, let cornerRadius):
             ZStack {
                 Color(.systemGray5)
-                ProgressView()
+                ProgressView().tint(nil)
             }
             .aspectRatio(ratio, contentMode: .fill)
             .cornerRadius(cornerRadius)
