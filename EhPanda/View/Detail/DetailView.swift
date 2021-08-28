@@ -340,9 +340,7 @@ private struct HeaderView: View {
                     CategoryLabel(
                         text: category,
                         color: gallery.color,
-                        font: isSEWidth
-                            ? .footnote
-                            : .headline,
+                        font: .headline,
                         insets: .init(
                             top: 2, leading: 4,
                             bottom: 2, trailing: 4
@@ -353,8 +351,8 @@ private struct HeaderView: View {
                     ZStack {
                         Button(action: deleteFavAction) {
                             Image(systemName: "heart.fill")
-                                .imageScale(isSEWidth ? .small : .large)
                                 .foregroundStyle(.tint)
+                                .imageScale(.large)
                         }
                         .opacity(detail.isFavored ? 1 : 0)
                         Menu {
@@ -381,8 +379,7 @@ private struct HeaderView: View {
                             destination: { ReadingView(gid: gallery.gid) },
                             label: {
                                 Text("Read".localized).bold().textCase(.uppercase)
-                                    .font(isSEWidth ? .footnote : .headline)
-                                    .foregroundColor(.white)
+                                    .font(.headline).foregroundColor(.white)
                                     .padding(.vertical, -2)
                                     .padding(.horizontal, 2)
                                     .lineLimit(1)
@@ -391,6 +388,7 @@ private struct HeaderView: View {
                     .buttonStyle(.borderedProminent)
                     .buttonBorderShape(.capsule)
                 }
+                .minimumScaleFactor(0.5)
             }
             .padding(.horizontal, 10)
             .frame(height: height)
@@ -1002,6 +1000,8 @@ private struct CommentScrollCell: View {
                 .font(.footnote)
                 .foregroundStyle(.secondary)
             }
+            .minimumScaleFactor(0.75)
+            .lineLimit(1)
             Text(content)
                 .padding(.top, 1)
             Spacer()

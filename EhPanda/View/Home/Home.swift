@@ -145,7 +145,7 @@ private extension Home {
     }
 
     func performTransition(offset: CGFloat) {
-        withAnimation(Animation.default) {
+        withAnimation {
             self.offset = offset
         }
         updateSlideMenuState(isClosed: offset == -width)

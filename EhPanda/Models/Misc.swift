@@ -16,7 +16,7 @@ typealias CurrentCredits = String
 
 struct PageNumber {
     var current = 0
-    var maximum = 0
+    var maximum = 1
 }
 
 struct Greeting: Codable, Equatable {

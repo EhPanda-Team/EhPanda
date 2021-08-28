@@ -13,23 +13,6 @@ struct LoadingView: View {
     }
 }
 
-struct NotFoundView: View {
-    private let retryAction: (() -> Void)?
-
-    init(retryAction: (() -> Void)?) {
-        self.retryAction = retryAction
-    }
-
-    var body: some View {
-        GenericRetryView(
-            symbolName: "questionmark.circle.fill",
-            message: "Your search didn't match any docs.",
-            buttonText: "Retry",
-            retryAction: retryAction
-        )
-    }
-}
-
 struct LoadMoreFooter: View {
     private var moreLoadingFlag: Bool
     private var moreLoadFailedFlag: Bool

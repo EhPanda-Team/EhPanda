@@ -62,28 +62,26 @@ struct GalleryDetailCell: View {
                 }
                 HStack {
                     RatingView(rating: gallery.rating)
-                        .font(.caption)
-                        .foregroundStyle(.yellow)
+                        .font(.caption).foregroundStyle(.yellow)
                     Spacer()
                     HStack(spacing: 10) {
                         Text(gallery.language?.rawValue.localized ?? "")
-                        if !isSEWidth {
-                            HStack(spacing: 2) {
-                                Image(systemName: "photo.on.rectangle.angled")
-                                Text(String(gallery.pageCount))
-                            }
+                        HStack(spacing: 2) {
+                            Image(systemName: "photo.on.rectangle.angled")
+                            Text(String(gallery.pageCount))
                         }
                     }
                     .lineLimit(1).font(.footnote)
                     .foregroundStyle(.secondary)
+                    .minimumScaleFactor(0.75)
                 }
                 HStack(alignment: .bottom) {
                     CategoryLabel(text: category, color: gallery.color)
                     Spacer()
                     Text(gallery.formattedDateString)
-                        .lineLimit(1)
-                        .font(.footnote)
+                        .lineLimit(1).font(.footnote)
                         .foregroundStyle(.secondary)
+                        .minimumScaleFactor(0.75)
                 }
                 .padding(.top, 1)
             }

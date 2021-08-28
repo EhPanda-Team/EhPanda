@@ -29,7 +29,7 @@ struct LogsView: View, StoreAccessor {
                     .tint(.red)
                 }
             }
-            NotFoundView(retryAction: fetchLogs)
+            ErrorView(error: .notFound, retryAction: nil)
                 .opacity(logs.isEmpty ? 1 : 0)
         }
         .toolbar {

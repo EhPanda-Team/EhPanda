@@ -308,6 +308,7 @@ private struct CommentCell: View {
                 .font(.footnote)
                 .foregroundStyle(.secondary)
             }
+            .minimumScaleFactor(0.75)
             .lineLimit(1)
             ForEach(comment.contents) { content in
                 switch content.type {

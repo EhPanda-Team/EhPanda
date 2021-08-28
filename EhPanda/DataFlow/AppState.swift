@@ -98,73 +98,63 @@ extension AppState {
     struct HomeInfo {
         var searchKeyword = ""
 
-        var searchItems: [Gallery]?
+        var searchItems = [Gallery]()
         var searchLoading = false
         var searchLoadError: AppError?
-        var searchCurrentPageNum = 0
-        var searchPageNumMaximum = 1
+        var searchPageNumber = PageNumber()
         var moreSearchLoading = false
         var moreSearchLoadFailed = false
 
-        var frontpageItems: [Gallery]?
+        var frontpageItems = [Gallery]()
         var frontpageLoading = false
         var frontpageLoadError: AppError?
-        var frontpageCurrentPageNum = 0
-        var frontpagePageNumMaximum = 1
+        var frontpagePageNumber = PageNumber()
         var moreFrontpageLoading = false
         var moreFrontpageLoadFailed = false
 
-        var popularItems: [Gallery]?
+        var popularItems = [Gallery]()
         var popularLoading = false
         var popularLoadError: AppError?
 
-        var watchedItems: [Gallery]?
+        var watchedItems = [Gallery]()
         var watchedLoading = false
         var watchedLoadError: AppError?
-        var watchedCurrentPageNum = 0
-        var watchedPageNumMaximum = 1
+        var watchedPageNumber = PageNumber()
         var moreWatchedLoading = false
         var moreWatchedLoadFailed = false
 
         var favoritesItems = [Int: [Gallery]]()
         var favoritesLoading = [Int: Bool]()
         var favoritesLoadErrors = [Int: AppError]()
-        var favoritesCurrentPageNum = [Int: Int]()
-        var favoritesPageNumMaximum = [Int: Int]()
+        var favoritesPageNumbers = [Int: PageNumber]()
         var moreFavoritesLoading = [Int: Bool]()
         var moreFavoritesLoadFailed = [Int: Bool]()
 
         var toplistsItems = [Int: [Gallery]]()
         var toplistsLoading = [Int: Bool]()
         var toplistsLoadErrors = [Int: AppError]()
-        var toplistsCurrentPageNum = [Int: Int]()
-        var toplistsPageNumMaximum = [Int: Int]()
+        var toplistsPageNumbers = [Int: PageNumber]()
         var moreToplistsLoading = [Int: Bool]()
         var moreToplistsLoadFailed = [Int: Bool]()
 
         @AppEnvStorage(type: [String].self, key: "historyKeywords")
         var historyKeywords: [String]
 
-        mutating func insertSearchItems(galleries: [Gallery]) {
-            galleries.forEach { gallery in
-                if searchItems?.contains(gallery) == false {
-                    searchItems?.append(gallery)
+        func insertGalleries(stored: inout [Gallery], new: [Gallery]) {
+            new.forEach { gallery in
+                if !stored.contains(gallery) {
+                    stored.append(gallery)
                 }
             }
+        }
+        mutating func insertSearchItems(galleries: [Gallery]) {
+            insertGalleries(stored: &searchItems, new: galleries)
         }
         mutating func insertFrontpageItems(galleries: [Gallery]) {
-            galleries.forEach { gallery in
-                if frontpageItems?.contains(gallery) == false {
-                    frontpageItems?.append(gallery)
-                }
-            }
+            insertGalleries(stored: &frontpageItems, new: galleries)
         }
         mutating func insertWatchedItems(galleries: [Gallery]) {
-            galleries.forEach { gallery in
-                if watchedItems?.contains(gallery) == false {
-                    watchedItems?.append(gallery)
-                }
-            }
+            insertGalleries(stored: &watchedItems, new: galleries)
         }
         mutating func insertFavoritesItems(favIndex: Int, galleries: [Gallery]) {
             galleries.forEach { gallery in
@@ -182,7 +172,6 @@ extension AppState {
         }
         mutating func insertHistoryKeyword(text: String) {
             guard !text.isEmpty else { return }
-
             if let index = historyKeywords.firstIndex(of: text) {
                 if historyKeywords.last != text {
                     historyKeywords.remove(at: index)
@@ -190,16 +179,13 @@ extension AppState {
                 }
             } else {
                 historyKeywords.append(text)
-
                 let overflow = historyKeywords.count - 10
-
                 if overflow > 0 {
                     historyKeywords = Array(
                         historyKeywords.dropFirst(overflow)
                     )
                 }
             }
-
             self.historyKeywords = historyKeywords
         }
     }

@@ -153,6 +153,7 @@ private struct TorrentRow: View {
                     Text(torrent.fileSize)
                 }
             }
+            .minimumScaleFactor(0.1)
             .lineLimit(1)
             Button {
                 action(torrent.magnetURL)
@@ -165,10 +166,10 @@ private struct TorrentRow: View {
                 Text(torrent.uploader)
                 Text(torrent.formattedDateString)
             }
-            .lineLimit(1)
-            .font(.callout)
-            .padding(.top, 10)
+            .lineLimit(1).font(.callout)
             .foregroundStyle(.secondary)
+            .minimumScaleFactor(0.5)
+            .padding(.top, 10)
         }
         .padding()
     }

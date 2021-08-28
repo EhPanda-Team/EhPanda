@@ -69,6 +69,7 @@ struct LaboratoryCell: View {
         }
         .contentShape(Rectangle())
         .onTapGesture(perform: onTap)
+        .minimumScaleFactor(0.75)
         .padding(.vertical, 20)
         .background(bgColor)
         .cornerRadius(15)

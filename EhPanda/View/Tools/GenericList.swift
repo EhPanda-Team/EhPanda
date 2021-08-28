@@ -9,7 +9,7 @@ import SwiftUI
 import WaterfallGrid
 
 struct GenericList: View {
-    private let items: [Gallery]?
+    private let items: [Gallery]
     private let setting: Setting
     private let loadingFlag: Bool
     private let loadError: AppError?
@@ -20,7 +20,7 @@ struct GenericList: View {
     private let translateAction: ((String) -> String)?
 
     init(
-        items: [Gallery]?,
+        items: [Gallery],
         setting: Setting,
         loadingFlag: Bool,
         loadError: AppError?,
@@ -77,7 +77,7 @@ struct GenericList: View {
 
 // MARK: DetailList
 private struct DetailList: View {
-    private let items: [Gallery]?
+    private let items: [Gallery]
     private let setting: Setting
     private let moreLoadingFlag: Bool
     private let moreLoadFailedFlag: Bool
@@ -85,7 +85,7 @@ private struct DetailList: View {
     private let translateAction: ((String) -> String)?
 
     init(
-        items: [Gallery]?, setting: Setting,
+        items: [Gallery], setting: Setting,
         moreLoadingFlag: Bool,
         moreLoadFailedFlag: Bool,
         loadMoreAction: (() -> Void)?,
@@ -100,7 +100,7 @@ private struct DetailList: View {
     }
 
     var body: some View {
-        List(items ?? []) { item in
+        List(items) { item in
             GalleryDetailCell(
                 gallery: item,
                 setting: setting,
@@ -117,7 +117,7 @@ private struct DetailList: View {
             .onAppear {
                 onRowAppear(item: item)
             }
-            if (moreLoadingFlag || moreLoadFailedFlag) && item == items?.last {
+            if (moreLoadingFlag || moreLoadFailedFlag) && item == items.last {
                 LoadMoreFooter(
                     moreLoadingFlag: moreLoadingFlag,
                     moreLoadFailedFlag: moreLoadFailedFlag,
@@ -127,7 +127,7 @@ private struct DetailList: View {
         }
     }
     private func onRowAppear(item: Gallery) {
-        if item == items?.last {
+        if item == items.last {
             loadMoreAction?()
         }
     }
@@ -138,7 +138,7 @@ private struct WaterfallList: View {
     @State var gid: String = ""
     @State var isNavLinkActive = false
 
-    private let items: [Gallery]?
+    private let items: [Gallery]
     private let setting: Setting
     private let moreLoadingFlag: Bool
     private let moreLoadFailedFlag: Bool
@@ -153,7 +153,7 @@ private struct WaterfallList: View {
     }
 
     init(
-        items: [Gallery]?, setting: Setting,
+        items: [Gallery], setting: Setting,
         moreLoadingFlag: Bool,
         moreLoadFailedFlag: Bool,
         loadMoreAction: (() -> Void)?,
@@ -169,7 +169,7 @@ private struct WaterfallList: View {
 
     var body: some View {
         List {
-            WaterfallGrid(items ?? []) { item in
+            WaterfallGrid(items) { item in
                 GalleryThumbnailCell(
                     gallery: item,
                     setting: setting,

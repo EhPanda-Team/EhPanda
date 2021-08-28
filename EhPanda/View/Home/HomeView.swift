@@ -220,7 +220,7 @@ private extension HomeView {
             GenericList(
                 items: homeInfo.favoritesItems[
                     environment.favoritesIndex
-                ],
+                ] ?? [],
                 setting: setting,
                 loadingFlag: homeInfo.favoritesLoading[
                     environment.favoritesIndex
@@ -242,7 +242,7 @@ private extension HomeView {
             GenericList(
                 items: homeInfo.toplistsItems[
                     environment.toplistsType.rawValue
-                ],
+                ] ?? [],
                 setting: setting,
                 loadingFlag: homeInfo.toplistsLoading[
                     environment.toplistsType.rawValue
@@ -261,7 +261,7 @@ private extension HomeView {
                 translateAction: translateTag
             )
         case .downloaded:
-            NotFoundView(retryAction: nil)
+            ErrorView(error: .notFound, retryAction: nil)
         case .history:
             GenericList(
                 items: galleryHistory,
@@ -509,17 +509,17 @@ private extension HomeView {
         }
     }
     func fetchFrontpageItemsIfNeeded() {
-        if homeInfo.frontpageItems?.isEmpty != false {
+        if homeInfo.frontpageItems.isEmpty {
             fetchFrontpageItems()
         }
     }
     func fetchPopularItemsIfNeeded() {
-        if homeInfo.popularItems?.isEmpty != false {
+        if homeInfo.popularItems.isEmpty {
             fetchPopularItems()
         }
     }
     func fetchWatchedItemsIfNeeded() {
-        if homeInfo.watchedItems?.isEmpty != false {
+        if homeInfo.watchedItems.isEmpty {
             fetchWatchedItems()
         }
     }
