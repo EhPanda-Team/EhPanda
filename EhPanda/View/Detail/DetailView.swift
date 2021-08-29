@@ -802,7 +802,7 @@ private struct PreviewView: View {
                                 ))
                             }
                             .imageModifier(modifier)
-                            .fade(duration: 0.25)
+//                            .fade(duration: 0.25)
                             .resizable()
                             .scaledToFit()
                             .frame(
@@ -871,7 +871,7 @@ private struct MorePreviewView: View {
                                 ))
                             }
                             .imageModifier(modifier)
-                            .fade(duration: 0.25)
+//                            .fade(duration: 0.25)
                             .resizable()
                             .scaledToFit()
                             .onTapGesture {

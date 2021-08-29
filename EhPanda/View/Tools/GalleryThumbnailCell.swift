@@ -35,7 +35,7 @@ struct GalleryThumbnailCell: View {
                         )
                     )
                 }
-                .fade(duration: 0.25)
+//                .fade(duration: 0.25)
                 .resizable()
                 .scaledToFit()
                 .overlay {

@@ -271,7 +271,7 @@ private struct SliderPreivew: View {
                             ))
                         }
                         .imageModifier(modifier)
-                        .fade(duration: 0.25)
+//                        .fade(duration: 0.25)
                         .resizable()
                         .scaledToFit()
                         .frame(

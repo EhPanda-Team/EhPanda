@@ -601,7 +601,7 @@ private struct ImageContainer: View {
                 .onSuccess(onSuccess).onFailure(onFailure)
         } else {
             KFAnimatedImage(URL(string: imageURL))
-                .placeholder(placeholder).fade(duration: 0.25)
+                .placeholder(placeholder)// .fade(duration: 0.25)
                 .retry(maxCount: 3, interval: .seconds(0.5))
                 .onSuccess(onSuccess).onFailure(onFailure)
         }
