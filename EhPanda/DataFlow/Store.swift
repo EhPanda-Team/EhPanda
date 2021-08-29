@@ -47,19 +47,19 @@ final class Store: ObservableObject {
                         + "previews: \(previews.count))"
                     )
                 }
-            case .fetchThumbnailURLsDone(let gid, let index, let result):
+            case .fetchThumbnailsDone(let gid, let index, let result):
                 if case .success(let contents) = result {
                     SwiftyBeaver.verbose(
-                        "[ACTION]: fetchThumbnailURLsDone("
+                        "[ACTION]: fetchThumbnailsDone("
                         + "gid: \(gid), index: \(index), "
                         + "contents: \(contents.count))"
                     )
                 }
-            case .fetchGalleryNormalContents(let gid, let index, let thumbnailURLs):
+            case .fetchGalleryNormalContents(let gid, let index, let thumbnails):
                 SwiftyBeaver.verbose(
                     "[ACTION]: fetchGalleryNormalContents("
                     + "gid: \(gid), index: \(index), "
-                    + "thumbnailURLs: \(thumbnailURLs.count))"
+                    + "thumbnails: \(thumbnails.count))"
                 )
             case .fetchGalleryNormalContentsDone(let gid, let index, let result):
                 if case .success(let contents) = result {
@@ -607,7 +607,7 @@ final class Store: ObservableObject {
                 batchRange.forEach { appState.contentInfo.contentsLoadErrors[gid]?[$0] = error }
             }
 
-        case .fetchThumbnailURLs(let gid, let index):
+        case .fetchThumbnails(let gid, let index):
             let batchRange = appState.detailInfo.previewConfig.batchRange(index: index)
             let pageNumber = appState.detailInfo.previewConfig.pageNumber(index: index)
             if appState.contentInfo.contentsLoading[gid] == nil {
@@ -621,20 +621,22 @@ final class Store: ObservableObject {
             if appState.contentInfo.contentsLoading[gid]?[index] == true { break }
             batchRange.forEach { appState.contentInfo.contentsLoading[gid]?[$0] = true }
 
-            let galleryURL = PersistenceController.fetchGallery(gid: gid)?.galleryURL ?? ""
-            let url = Defaults.URL.detailPage(url: galleryURL, pageNum: pageNumber)
-            appCommand = FetchThumbnailURLsCommand(gid: gid, url: url, index: index)
-        case .fetchThumbnailURLsDone(let gid, let index, let result):
+            let url = PersistenceController.fetchGallery(gid: gid)?.galleryURL ?? ""
+            let galleryURL = Defaults.URL.detailPage(url: url, pageNum: pageNumber)
+            appCommand = FetchThumbnailsCommand(gid: gid, index: index, url: galleryURL)
+        case .fetchThumbnailsDone(let gid, let index, let result):
             let batchRange = appState.detailInfo.previewConfig.batchRange(index: index)
             switch result {
-            case .success(let thumbnailURLs):
-                let thumbnailURL = thumbnailURLs[0].1
-                if thumbnailURL.pathComponents.count >= 1, thumbnailURL.pathComponents[1] == "mpv" {
-                    dispatch(.fetchMPVKeys(gid: gid, index: index, mpvURL: thumbnailURL.absoluteString))
+            case .success(let thumbnails):
+                let thumbnailURL = thumbnails[index]
+                if thumbnailURL?.pathComponents.count ?? 0 >= 1, thumbnailURL?.pathComponents[1] == "mpv" {
+                    dispatch(.fetchMPVKeys(gid: gid, index: index, mpvURL: thumbnailURL?.absoluteString ?? ""))
                 } else {
                     dispatch(.fetchGalleryNormalContents(
-                        gid: gid, index: index, thumbnailURLs: thumbnailURLs
+                        gid: gid, index: index, thumbnails: thumbnails
                     ))
+                    appState.contentInfo.update(gid: gid, thumbnails: thumbnails)
+                    PersistenceController.update(gid: gid, thumbnails: thumbnails)
                 }
             case .failure(let error):
                 batchRange.forEach { index in
@@ -643,9 +645,9 @@ final class Store: ObservableObject {
                 }
             }
 
-        case .fetchGalleryNormalContents(let gid, let index, let thumbnailURLs):
+        case .fetchGalleryNormalContents(let gid, let index, let thumbnails):
             appCommand = FetchGalleryNormalContentsCommand(
-                gid: gid, index: index, thumbnailURLs: thumbnailURLs
+                gid: gid, index: index, thumbnails: thumbnails
             )
         case .fetchGalleryNormalContentsDone(let gid, let index, let result):
             let batchRange = appState.detailInfo.previewConfig.batchRange(index: index)
@@ -657,6 +659,30 @@ final class Store: ObservableObject {
                 PersistenceController.update(gid: gid, contents: contents)
             case .failure(let error):
                 batchRange.forEach { appState.contentInfo.contentsLoadErrors[gid]?[$0] = error }
+            }
+
+        case .refetchGalleryNormalContent(let gid, let index):
+            let pageNumber = appState.detailInfo.previewConfig.pageNumber(index: index)
+            appState.contentInfo.contentsLoadErrors[gid]?[index] = nil
+
+            if appState.contentInfo.contentsLoading[gid]?[index] == true { break }
+            appState.contentInfo.contentsLoading[gid]?[index] = true
+
+            let url = PersistenceController.fetchGallery(gid: gid)?.galleryURL ?? ""
+            let galleryURL = Defaults.URL.detailPage(url: url, pageNum: pageNumber)
+            let thumbnailURL = appState.contentInfo.thumbnails[gid]?[index]
+            appCommand = RefetchGalleryNormalContentCommand(
+                gid: gid, index: index, galleryURL: galleryURL, thumbnailURL: thumbnailURL
+            )
+        case .refetchGalleryNormalContentDone(let gid, let index, let result):
+            appState.contentInfo.contentsLoading[gid]?[index] = false
+
+            switch result {
+            case .success(let content):
+                appState.contentInfo.update(gid: gid, contents: content)
+                PersistenceController.update(gid: gid, contents: content)
+            case .failure(let error):
+                appState.contentInfo.contentsLoadErrors[gid]?[index] = error
             }
 
         case .fetchGalleryMPVContent(let gid, let index, let isRefetch):

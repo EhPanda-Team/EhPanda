@@ -513,8 +513,8 @@ struct Parser {
     }
 
     // MARK: Content
-    static func parseThumbnailURLs(doc: HTMLDocument) throws -> [(Int, URL)] {
-        var thumbnailURLs = [(Int, URL)]()
+    static func parseThumbnails(doc: HTMLDocument) throws -> [Int: URL] {
+        var thumbnails = [Int: URL]()
 
         guard let gdtNode = doc.at_xpath("//div [@id='gdt']"),
               let previewMode = try? parsePreviewMode(doc: doc)
@@ -527,10 +527,23 @@ struct Parser {
                     let index = Int(aLink.at_xpath("//img")?["alt"] ?? "")
             else { continue }
 
-            thumbnailURLs.append((index, thumbnailURL))
+            thumbnails[index] = thumbnailURL
         }
 
-        return thumbnailURLs
+        return thumbnails
+    }
+
+    static func parseRenewedThumbnail(doc: HTMLDocument, stored: URL) throws -> URL {
+        guard let text = doc.at_xpath("//div [@id='i6']")?.at_xpath("//a [@id='loadfail']")?["onclick"],
+              let rangeA = text.range(of: "nl('"), let rangeB = text.range(of: "')")
+        else { throw AppError.parseFailed }
+
+        let reloadToken = String(text[rangeA.upperBound..<rangeB.lowerBound])
+        let renewedString = stored.absoluteString + "?nl=" + reloadToken
+        guard let renewedThumbnail = URL(string: renewedString)
+        else { throw AppError.parseFailed }
+
+        return renewedThumbnail
     }
 
     static func parseGalleryNormalContent(doc: HTMLDocument, index: Int) throws -> (Int, String) {

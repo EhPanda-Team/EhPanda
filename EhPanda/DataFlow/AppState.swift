@@ -223,6 +223,7 @@ extension AppState {
 
     // MARK: ContentInfo
     struct ContentInfo {
+        var thumbnails = [String: [Int: URL]]()
         var mpvKeys = [String: String]()
         var mpvImageKeys = [String: [Int: String]]()
         var mpvReloadTokens = [String: [Int: ReloadToken]]()
@@ -234,18 +235,27 @@ extension AppState {
             let galleryState = PersistenceController
                 .fetchGalleryStateNonNil(gid: gid)
             contents[gid] = galleryState.contents
+            thumbnails[gid] = galleryState.thumbnails
         }
 
-        mutating func update(gid: String, contents: [Int: String]) {
-            guard !contents.isEmpty else { return }
+        func update<T>(
+            gid: String, stored: inout [String: [Int: T]],
+            new: [Int: T], replaceExisting: Bool = true
+        ) {
+            guard !new.isEmpty else { return }
 
-            if self.contents[gid] == nil {
-                self.contents[gid] = [:]
+            if stored[gid] == nil {
+                stored[gid] = [:]
             }
-            self.contents[gid] = self.contents[gid]?.merging(
-                contents, uniquingKeysWith:
-                    { stored, _ in stored }
+            stored[gid] = stored[gid]?.merging(
+                new, uniquingKeysWith: { stored, new in replaceExisting ? new : stored }
             )
+        }
+        mutating func update(gid: String, thumbnails: [Int: URL]) {
+            update(gid: gid, stored: &self.thumbnails, new: thumbnails)
+        }
+        mutating func update(gid: String, contents: [Int: String]) {
+            update(gid: gid, stored: &self.contents, new: contents)
         }
     }
 }

@@ -520,26 +520,26 @@ struct FetchMPVKeysCommand: AppCommand {
     }
 }
 
-struct FetchThumbnailURLsCommand: AppCommand {
+struct FetchThumbnailsCommand: AppCommand {
     let gid: String
-    let url: String
     let index: Int
+    let url: String
 
     func execute(in store: Store) {
         let token = SubscriptionToken()
-        ThumbnailURLsRequest(url: url)
+        ThumbnailsRequest(url: url)
             .publisher
             .receive(on: DispatchQueue.main)
             .sink { completion in
                 if case .failure(let error) = completion {
-                    store.dispatch(.fetchThumbnailURLsDone(gid: gid, index: index, result: .failure(error)))
+                    store.dispatch(.fetchThumbnailsDone(gid: gid, index: index, result: .failure(error)))
                 }
                 token.unseal()
             } receiveValue: { urls in
                 if !urls.isEmpty {
-                    store.dispatch(.fetchThumbnailURLsDone(gid: gid, index: index, result: .success(urls)))
+                    store.dispatch(.fetchThumbnailsDone(gid: gid, index: index, result: .success(urls)))
                 } else {
-                    store.dispatch(.fetchThumbnailURLsDone(gid: gid, index: index, result: .failure(.networkingFailed)))
+                    store.dispatch(.fetchThumbnailsDone(gid: gid, index: index, result: .failure(.networkingFailed)))
                 }
             }
             .seal(in: token)
@@ -549,11 +549,11 @@ struct FetchThumbnailURLsCommand: AppCommand {
 struct FetchGalleryNormalContentsCommand: AppCommand {
     let gid: String
     let index: Int
-    let thumbnailURLs: [(Int, URL)]
+    let thumbnails: [Int: URL]
 
     func execute(in store: Store) {
         let token = SubscriptionToken()
-        GalleryNormalContentsRequest(thumbnailURLs: thumbnailURLs)
+        GalleryNormalContentsRequest(thumbnails: thumbnails)
             .publisher
             .receive(on: DispatchQueue.main)
             .sink { completion in
@@ -566,6 +566,35 @@ struct FetchGalleryNormalContentsCommand: AppCommand {
                     store.dispatch(.fetchGalleryNormalContentsDone(gid: gid, index: index, result: .success(contents)))
                 } else {
                     store.dispatch(.fetchGalleryNormalContentsDone(
+                        gid: gid, index: index, result: .failure(.networkingFailed))
+                    )
+                }
+            }
+            .seal(in: token)
+    }
+}
+
+struct RefetchGalleryNormalContentCommand: AppCommand {
+    let gid: String
+    let index: Int
+    let galleryURL: String
+    let thumbnailURL: URL?
+
+    func execute(in store: Store) {
+        let token = SubscriptionToken()
+        GalleryNormalContentRefetchRequest(index: index, galleryURL: galleryURL, thumbnailURL: thumbnailURL)
+            .publisher
+            .receive(on: DispatchQueue.main)
+            .sink { completion in
+                if case .failure(let error) = completion {
+                    store.dispatch(.refetchGalleryNormalContentDone(gid: gid, index: index, result: .failure(error)))
+                }
+                token.unseal()
+            } receiveValue: { content in
+                if !content.isEmpty {
+                    store.dispatch(.refetchGalleryNormalContentDone(gid: gid, index: index, result: .success(content)))
+                } else {
+                    store.dispatch(.refetchGalleryNormalContentDone(
                         gid: gid, index: index, result: .failure(.networkingFailed))
                     )
                 }

@@ -17,7 +17,8 @@ extension GalleryStateMO: ManagedObjectProtocol {
             readingProgress: Int(readingProgress),
             previews: previews?.toObject() ?? [Int: String](),
             comments: comments?.toObject() ?? [GalleryComment](),
-            contents: contents?.toObject() ?? [Int: String]()
+            contents: contents?.toObject() ?? [Int: String](),
+            thumbnails: thumbnails?.toObject() ?? [Int: URL]()
         )
     }
 }
@@ -33,6 +34,7 @@ extension GalleryState: ManagedObjectConvertible {
         galleryStateMO.previews = previews.toData()
         galleryStateMO.comments = comments.toData()
         galleryStateMO.contents = contents.toData()
+        galleryStateMO.thumbnails = thumbnails.toData()
 
         return galleryStateMO
     }

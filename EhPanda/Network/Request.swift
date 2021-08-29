@@ -446,21 +446,21 @@ struct MPVKeysRequest {
     }
 }
 
-struct ThumbnailURLsRequest {
+struct ThumbnailsRequest {
     let url: String
 
-    var publisher: AnyPublisher<[(Int, URL)], AppError> {
+    var publisher: AnyPublisher<[Int: URL], AppError> {
         URLSession.shared.dataTaskPublisher(for: url.safeURL())
             .genericRetry().tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-            .tryMap(Parser.parseThumbnailURLs).mapError(mapAppError).eraseToAnyPublisher()
+            .tryMap(Parser.parseThumbnails).mapError(mapAppError).eraseToAnyPublisher()
     }
 }
 
 struct GalleryNormalContentsRequest {
-    let thumbnailURLs: [(Int, URL)]
+    let thumbnails: [Int: URL]
 
     var publisher: AnyPublisher<[Int: String], AppError> {
-        thumbnailURLs.publisher
+        thumbnails.publisher
             .flatMap { index, url in
                 URLSession.shared.dataTaskPublisher(for: url).genericRetry()
                     .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
@@ -474,6 +474,42 @@ struct GalleryNormalContentsRequest {
                 return contents
             }
             .mapError(mapAppError).eraseToAnyPublisher()
+    }
+}
+
+struct GalleryNormalContentRefetchRequest {
+    let index: Int
+    let galleryURL: String
+    let thumbnailURL: URL?
+
+    var publisher: AnyPublisher<[Int: String], AppError> {
+        storedThumbnail().flatMap(renewThumbnail).flatMap(content)
+            .genericRetry().map({ content in [index: content] })
+            .eraseToAnyPublisher()
+    }
+
+    func storedThumbnail() -> AnyPublisher<URL, AppError> {
+        if let thumbnailURL = thumbnailURL {
+            return Just(thumbnailURL).setFailureType(to: AppError.self).eraseToAnyPublisher()
+        } else {
+            return URLSession.shared.dataTaskPublisher(for: galleryURL.safeURL())
+                .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }.tryMap(Parser.parseThumbnails)
+                .compactMap({ thumbnails in thumbnails[index] }).mapError(mapAppError).eraseToAnyPublisher()
+        }
+    }
+
+    func renewThumbnail(stored: URL) -> AnyPublisher<URL, AppError> {
+        URLSession.shared.dataTaskPublisher(for: stored)
+            .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
+            .tryMap { try Parser.parseRenewedThumbnail(doc: $0, stored: stored) }
+            .mapError(mapAppError).eraseToAnyPublisher()
+    }
+
+    func content(thumbnailURL: URL) -> AnyPublisher<String, AppError> {
+        URLSession.shared.dataTaskPublisher(for: thumbnailURL)
+            .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
+            .tryMap { try Parser.parseGalleryNormalContent(doc: $0, index: index) }
+            .map(\.1).mapError(mapAppError).eraseToAnyPublisher()
     }
 }
 
@@ -545,7 +581,7 @@ struct IgneousRequest {
         URLSession.shared.dataTaskPublisher(for: Defaults.URL.exhentai.safeURL())
             .genericRetry().map { value in
                 if let (_, resp) = value as? (Data, HTTPURLResponse) {
-                    setCookie(response: resp)
+                    setIgneousCookie(response: resp)
                 }
                 return value
             }

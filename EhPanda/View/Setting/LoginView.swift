@@ -141,7 +141,7 @@ struct LoginView: View, StoreAccessor {
                 let (_, resp) = value as? (Data, HTTPURLResponse)
                 else { return }
 
-                setCookie(response: resp)
+                setIgneousCookie(response: resp)
                 store.dispatch(.fetchIgneous)
             }
             .seal(in: token)

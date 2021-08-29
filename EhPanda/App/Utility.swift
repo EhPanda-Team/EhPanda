@@ -404,14 +404,14 @@ func checkExistence(url: URL, key: String) -> Bool {
     }
 }
 
-func setCookie(url: URL, key: String, value: String) {
+func setCookie(url: URL, key: String, value: String, path: String = "/") {
     let expiredDate = Date(
         timeIntervalSinceNow:
             TimeInterval(60 * 60 * 24 * 365)
     )
     let properties: [HTTPCookiePropertyKey: Any] =
     [
-        .path: "/",
+        .path: path,
         .name: key,
         .value: value,
         .originURL: url,
@@ -422,7 +422,7 @@ func setCookie(url: URL, key: String, value: String) {
     }
 }
 
-func setCookie(response: HTTPURLResponse) {
+func setIgneousCookie(response: HTTPURLResponse) {
     guard let setString = response.allHeaderFields["Set-Cookie"] as? String else { return }
     setString.components(separatedBy: ", ")
         .flatMap { $0.components(separatedBy: "; ") }

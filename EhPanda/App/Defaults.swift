@@ -42,6 +42,7 @@ struct Defaults {
         static let expired = "expired"
         static let mystery = "mystery"
         static let selectedProfile = "sp"
+        static let skipServer = "skipserver"
 
         static let igneous = "igneous"
         static let ipbMemberId = "ipb_member_id"

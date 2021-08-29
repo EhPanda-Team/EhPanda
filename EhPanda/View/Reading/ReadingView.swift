@@ -333,14 +333,14 @@ private extension ReadingView {
         if contentInfo.mpvKeys[gid] != nil {
             store.dispatch(.fetchGalleryMPVContent(gid: gid, index: index))
         } else {
-            store.dispatch(.fetchThumbnailURLs(gid: gid, index: index))
+            store.dispatch(.fetchThumbnails(gid: gid, index: index))
         }
     }
     func refetchGalleryContents(index: Int) {
         if contentInfo.mpvKeys[gid] != nil {
             store.dispatch(.fetchGalleryMPVContent(gid: gid, index: index, isRefetch: true))
         } else {
-
+            store.dispatch(.refetchGalleryNormalContent(gid: gid, index: index))
         }
     }
     func fetchGalleryPreivews(index: Int) {
@@ -615,6 +615,7 @@ private struct ImageContainer: View {
     private func reloadImage() {
         if webImageLoadFailed {
             reloadAction(index)
+            webImageLoadFailed = false
         } else if loadError != nil {
             retryAction(index)
         }
