@@ -131,7 +131,6 @@ struct CommentView: View, StoreAccessor {
                     )
                 }
             }
-            .tint(accentColor)
             .accentColor(accentColor)
             .blur(radius: environment.blurRadius)
             .allowsHitTesting(environment.isAppUnlocked)
@@ -166,7 +165,8 @@ private extension CommentView {
         }
     }
     func onLinkTap(link: URL) {
-        handleIncomingURL(link) { shouldParseGalleryURL, incomingURL, pageIndex, commentID in
+        handleIncomingURL(link, handlesOutgoingURL: true)
+        { shouldParseGalleryURL, incomingURL, pageIndex, commentID in
             guard let incomingURL = incomingURL else { return }
 
             let gid = parseGID(url: incomingURL, isGalleryURL: shouldParseGalleryURL)

@@ -234,9 +234,14 @@ func parseGID(url: URL, isGalleryURL: Bool) -> String {
     return gid
 }
 
-func handleIncomingURL(_ url: URL, completion: (Bool, URL?, Int?, String?) -> Void) {
+func handleIncomingURL(
+    _ url: URL, handlesOutgoingURL: Bool = false,
+    completion: (Bool, URL?, Int?, String?) -> Void
+) {
     guard isHandleableURL(url: url) else {
-        UIApplication.shared.open(url, options: [:])
+        if handlesOutgoingURL {
+            UIApplication.shared.open(url, options: [:])
+        }
         completion(false, nil, nil, nil)
         return
     }

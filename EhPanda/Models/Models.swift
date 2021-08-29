@@ -393,6 +393,15 @@ extension PreviewConfig {
             return 5 * rows
         }
     }
+
+    func pageNumber(index: Int) -> Int {
+        index / batchSize
+    }
+    func batchRange(index: Int) -> ClosedRange<Int> {
+        let lowerBound = pageNumber(index: index) * batchSize + 1
+        let upperBound = lowerBound + batchSize - 1
+        return lowerBound...upperBound
+    }
 }
 
 enum TranslatableLanguage: Codable, CaseIterable {

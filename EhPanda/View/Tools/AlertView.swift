@@ -9,7 +9,7 @@ import SwiftUI
 
 struct LoadingView: View {
     var body: some View {
-        ProgressView("Loading...").tint(nil)
+        ProgressView("Loading...")
     }
 }
 
@@ -34,8 +34,7 @@ struct LoadMoreFooter: View {
         HStack(alignment: .center) {
             Spacer()
             ZStack {
-                ProgressView().tint(nil)
-                    .opacity(moreLoadingFlag ? 1 : 0)
+                ProgressView().opacity(moreLoadingFlag ? 1 : 0)
                 Button(action: onButtonTap) {
                     Image(systemName: symbolName)
                         .foregroundStyle(.red)

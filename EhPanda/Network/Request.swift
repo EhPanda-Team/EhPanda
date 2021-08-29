@@ -23,14 +23,18 @@ private func mapAppError(error: Error) -> AppError {
         return error as? AppError ?? .unknown
     }
 }
+private extension Publisher {
+    func genericRetry() -> Publishers.Retry<Self> {
+        retry(3)
+    }
+}
 
 // MARK: Routine
 struct GreetingRequest {
     var publisher: AnyPublisher<Greeting, AppError> {
         URLSession.shared.dataTaskPublisher(for: Defaults.URL.greeting().safeURL())
-            .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-            .tryMap(Parser.parseGreeting).mapError(mapAppError)
-            .eraseToAnyPublisher()
+            .genericRetry().tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
+            .tryMap(Parser.parseGreeting).mapError(mapAppError).eraseToAnyPublisher()
     }
 }
 
@@ -39,18 +43,16 @@ struct UserInfoRequest {
 
     var publisher: AnyPublisher<User, AppError> {
         URLSession.shared.dataTaskPublisher(for: Defaults.URL.userInfo(uid: uid).safeURL())
-            .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-            .tryMap(Parser.parseUserInfo).mapError(mapAppError)
-            .eraseToAnyPublisher()
+            .genericRetry().tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
+            .tryMap(Parser.parseUserInfo).mapError(mapAppError).eraseToAnyPublisher()
     }
 }
 
 struct FavoriteNamesRequest {
     var publisher: AnyPublisher<[Int: String], AppError> {
         URLSession.shared.dataTaskPublisher(for: Defaults.URL.ehConfig().safeURL())
-            .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-            .tryMap(Parser.parseFavoriteNames).mapError(mapAppError)
-            .eraseToAnyPublisher()
+            .genericRetry().tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
+            .tryMap(Parser.parseFavoriteNames).mapError(mapAppError).eraseToAnyPublisher()
     }
 }
 
@@ -71,7 +73,7 @@ struct TagTranslatorRequest {
 
     var publisher: AnyPublisher<TagTranslator, AppError> {
         URLSession.shared.dataTaskPublisher(for: language.checkUpdateLink.safeURL())
-            .tryMap { data, _ -> Date in
+            .genericRetry().tryMap { data, _ -> Date in
                 guard let dict = try JSONSerialization.jsonObject(with: data) as? [String: Any],
                       let postedDateString = dict["published_at"] as? String,
                       let postedDate = dateFormatter.date(from: postedDateString)
@@ -98,8 +100,7 @@ struct TagTranslatorRequest {
                         )
                     }
             }
-            .mapError(mapAppError)
-            .eraseToAnyPublisher()
+            .mapError(mapAppError).eraseToAnyPublisher()
     }
 
     func parseTranslations(dict: [String: Any]) -> [String: String] {
@@ -166,7 +167,7 @@ struct SearchItemsRequest {
         URLSession.shared.dataTaskPublisher(
             for: Defaults.URL.searchList(keyword: keyword, filter: filter).safeURL()
         )
-        .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
+        .genericRetry().tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
         .map { (Parser.parsePageNum(doc: $0), Parser.parseListItems(doc: $0)) }
         .mapError(mapAppError).eraseToAnyPublisher()
     }
@@ -182,7 +183,7 @@ struct MoreSearchItemsRequest {
         URLSession.shared.dataTaskPublisher(for: Defaults.URL.moreSearchList(
             keyword: keyword, filter: filter, pageNum: "\(pageNum)", lastID: lastID
         ).safeURL())
-        .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
+        .genericRetry().tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
         .map { (Parser.parsePageNum(doc: $0), Parser.parseListItems(doc: $0)) }
         .mapError(mapAppError).eraseToAnyPublisher()
     }
@@ -191,7 +192,7 @@ struct MoreSearchItemsRequest {
 struct FrontpageItemsRequest {
     var publisher: AnyPublisher<(PageNumber, [Gallery]), AppError> {
         URLSession.shared.dataTaskPublisher(for: Defaults.URL.frontpageList().safeURL())
-            .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
+            .genericRetry().tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .map { (Parser.parsePageNum(doc: $0), Parser.parseListItems(doc: $0)) }
             .mapError(mapAppError).eraseToAnyPublisher()
     }
@@ -205,7 +206,7 @@ struct MoreFrontpageItemsRequest {
         URLSession.shared.dataTaskPublisher(for: Defaults.URL.moreFrontpageList(
             pageNum: "\(pageNum)", lastID: lastID
         ).safeURL())
-        .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
+        .genericRetry().tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
         .map { (Parser.parsePageNum(doc: $0), Parser.parseListItems(doc: $0)) }
         .mapError(mapAppError).eraseToAnyPublisher()
     }
@@ -214,16 +215,15 @@ struct MoreFrontpageItemsRequest {
 struct PopularItemsRequest {
     var publisher: AnyPublisher<[Gallery], AppError> {
         URLSession.shared.dataTaskPublisher(for: Defaults.URL.popularList().safeURL())
-            .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-            .map(Parser.parseListItems).mapError(mapAppError)
-            .eraseToAnyPublisher()
+            .genericRetry().tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
+            .map(Parser.parseListItems).mapError(mapAppError).eraseToAnyPublisher()
     }
 }
 
 struct WatchedItemsRequest {
     var publisher: AnyPublisher<(PageNumber, [Gallery]), AppError> {
         URLSession.shared.dataTaskPublisher(for: Defaults.URL.watchedList().safeURL())
-            .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
+            .genericRetry().tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .map { (Parser.parsePageNum(doc: $0), Parser.parseListItems(doc: $0)) }
             .mapError(mapAppError).eraseToAnyPublisher()
     }
@@ -237,7 +237,7 @@ struct MoreWatchedItemsRequest {
         URLSession.shared.dataTaskPublisher(for: Defaults.URL.moreWatchedList(
             pageNum: "\(pageNum)", lastID: lastID
         ).safeURL())
-        .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
+        .genericRetry().tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
         .map { (Parser.parsePageNum(doc: $0), Parser.parseListItems(doc: $0)) }
         .mapError(mapAppError).eraseToAnyPublisher()
     }
@@ -250,7 +250,7 @@ struct FavoritesItemsRequest {
         URLSession.shared.dataTaskPublisher(
             for: Defaults.URL.favoritesList(favIndex: favIndex).safeURL()
         )
-        .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
+        .genericRetry().tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
         .map { (Parser.parsePageNum(doc: $0), Parser.parseListItems(doc: $0)) }
         .mapError(mapAppError).eraseToAnyPublisher()
     }
@@ -265,7 +265,7 @@ struct MoreFavoritesItemsRequest {
         URLSession.shared.dataTaskPublisher(for: Defaults.URL.moreFavoritesList(
             favIndex: favIndex, pageNum: "\(pageNum)", lastID: lastID
         ).safeURL())
-        .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
+        .genericRetry().tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
         .map { (Parser.parsePageNum(doc: $0), Parser.parseListItems(doc: $0)) }
         .mapError(mapAppError).eraseToAnyPublisher()
     }
@@ -278,7 +278,7 @@ struct ToplistsItemsRequest {
         URLSession.shared.dataTaskPublisher(
             for: Defaults.URL.toplistsList(catIndex: catIndex).safeURL()
         )
-        .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
+        .genericRetry().tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
         .map { (Parser.parsePageNum(doc: $0), Parser.parseListItems(doc: $0)) }
         .mapError(mapAppError).eraseToAnyPublisher()
     }
@@ -292,7 +292,7 @@ struct MoreToplistsItemsRequest {
         URLSession.shared.dataTaskPublisher(for: Defaults.URL.moreToplistsList(
             catIndex: catIndex, pageNum: "\(pageNum)"
         ).safeURL())
-        .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
+        .genericRetry().tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
         .map { (Parser.parsePageNum(doc: $0), Parser.parseListItems(doc: $0)) }
         .mapError(mapAppError).eraseToAnyPublisher()
     }
@@ -304,7 +304,7 @@ struct GalleryDetailRequest {
 
     var publisher: AnyPublisher<(GalleryDetail, GalleryState, APIKey), AppError> {
         URLSession.shared.dataTaskPublisher(for: Defaults.URL.galleryDetail(url: galleryURL).safeURL())
-            .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
+            .genericRetry().tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .tryMap {
                 let (detail, state) = try Parser.parseGalleryDetail(doc: $0, gid: gid)
                 return (detail, state, try Parser.parseAPIKey(doc: $0))
@@ -333,7 +333,7 @@ struct GalleryItemReverseRequest {
     }
 
     var publisher: AnyPublisher<Gallery?, AppError> {
-        galleryURL(url: url).retry(3).flatMap(gallery).eraseToAnyPublisher()
+        galleryURL(url: url).genericRetry().flatMap(gallery).eraseToAnyPublisher()
     }
 
     func galleryURL(url: String) -> AnyPublisher<String, AppError> {
@@ -368,7 +368,7 @@ struct GalleryArchiveRequest {
     let archiveURL: String
 
     var publisher: AnyPublisher<(GalleryArchive?, CurrentGP?, CurrentCredits?), AppError> {
-        URLSession.shared.dataTaskPublisher(for: archiveURL.safeURL())
+        URLSession.shared.dataTaskPublisher(for: archiveURL.safeURL()).genericRetry()
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .map {
                 let archive = try? Parser.parseGalleryArchive(doc: $0)
@@ -394,9 +394,8 @@ struct GalleryArchiveFundsRequest {
     }
 
     var publisher: AnyPublisher<(CurrentGP, CurrentCredits)?, AppError> {
-        archiveURL(url: alterGalleryURL)
-            .flatMap(funds)
-            .eraseToAnyPublisher()
+        archiveURL(url: alterGalleryURL).genericRetry()
+            .flatMap(funds).eraseToAnyPublisher()
     }
 
     func archiveURL(url: String) -> AnyPublisher<String, AppError> {
@@ -422,9 +421,8 @@ struct GalleryTorrentsRequest {
         URLSession.shared.dataTaskPublisher(
             for: Defaults.URL.galleryTorrents(gid: gid, token: token).safeURL()
         )
-        .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-        .map(Parser.parseGalleryTorrents).mapError(mapAppError)
-        .eraseToAnyPublisher()
+        .genericRetry().tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
+        .map(Parser.parseGalleryTorrents).mapError(mapAppError).eraseToAnyPublisher()
     }
 }
 
@@ -433,9 +431,8 @@ struct GalleryPreviewsRequest {
 
     var publisher: AnyPublisher<[Int: String], AppError> {
         URLSession.shared.dataTaskPublisher(for: url.safeURL())
-            .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-            .tryMap(Parser.parsePreviews).mapError(mapAppError)
-            .eraseToAnyPublisher()
+            .genericRetry().tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
+            .tryMap(Parser.parsePreviews).mapError(mapAppError).eraseToAnyPublisher()
     }
 }
 
@@ -443,10 +440,9 @@ struct MPVKeysRequest {
     let mpvURL: String
 
     var publisher: AnyPublisher<(String, [Int: String]), AppError> {
-        URLSession.shared.dataTaskPublisher(for: mpvURL.safeURL()).retry(3)
-            .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-            .tryMap(Parser.parseMPVKeys).mapError(mapAppError)
-            .eraseToAnyPublisher()
+        URLSession.shared.dataTaskPublisher(for: mpvURL.safeURL())
+            .genericRetry().tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
+            .tryMap(Parser.parseMPVKeys).mapError(mapAppError).eraseToAnyPublisher()
     }
 }
 
@@ -454,10 +450,9 @@ struct ThumbnailURLsRequest {
     let url: String
 
     var publisher: AnyPublisher<[(Int, URL)], AppError> {
-        URLSession.shared.dataTaskPublisher(for: url.safeURL()).retry(3)
-            .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-            .tryMap(Parser.parseThumbnailURLs).mapError(mapAppError)
-            .eraseToAnyPublisher()
+        URLSession.shared.dataTaskPublisher(for: url.safeURL())
+            .genericRetry().tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
+            .tryMap(Parser.parseThumbnailURLs).mapError(mapAppError).eraseToAnyPublisher()
     }
 }
 
@@ -467,7 +462,7 @@ struct GalleryNormalContentsRequest {
     var publisher: AnyPublisher<[Int: String], AppError> {
         thumbnailURLs.publisher
             .flatMap { index, url in
-                URLSession.shared.dataTaskPublisher(for: url)
+                URLSession.shared.dataTaskPublisher(for: url).genericRetry()
                     .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
                     .tryMap { try Parser.parseGalleryNormalContent(doc: $0, index: index) }
             }
@@ -501,7 +496,7 @@ struct GalleryMPVContentRequest {
             .data(withJSONObject: params, options: [])
 
         return URLSession.shared.dataTaskPublisher(for: request)
-            .map(\.data).tryMap { data in
+            .genericRetry().map(\.data).tryMap { data in
                 guard let dict = try JSONSerialization
                         .jsonObject(with: data) as? [String: Any],
                       let imageURL = dict["i"] as? String
@@ -531,7 +526,7 @@ struct LoginRequest {
             .urlEncoded().data(using: .utf8)
         request.setURLEncodedContentType()
 
-        return URLSession.shared.dataTaskPublisher(for: request)
+        return URLSession.shared.dataTaskPublisher(for: request).genericRetry()
             .map { $0 }.mapError(mapAppError).eraseToAnyPublisher()
     }
 }
@@ -539,7 +534,7 @@ struct LoginRequest {
 struct IgneousRequest {
     var publisher: AnyPublisher<Any, AppError> {
         URLSession.shared.dataTaskPublisher(for: Defaults.URL.exhentai.safeURL())
-            .map { value in
+            .genericRetry().map { value in
                 if let (_, resp) = value as? (Data, HTTPURLResponse) {
                     setCookie(response: resp)
                 }
@@ -554,9 +549,8 @@ struct VerifyEhProfileRequest {
         URLSession.shared.dataTaskPublisher(
             for: Defaults.URL.ehConfig().safeURL()
         )
-        .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-        .tryMap(Parser.parseProfileIndex).mapError(mapAppError)
-        .eraseToAnyPublisher()
+        .genericRetry().tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
+        .tryMap(Parser.parseProfileIndex).mapError(mapAppError).eraseToAnyPublisher()
     }
 }
 
@@ -586,9 +580,8 @@ struct EhProfileRequest {
         request.setURLEncodedContentType()
 
         return URLSession.shared.dataTaskPublisher(for: request)
-            .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-            .tryMap(Parser.parseEhSetting).mapError(mapAppError)
-            .eraseToAnyPublisher()
+            .genericRetry().tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
+            .tryMap(Parser.parseEhSetting).mapError(mapAppError).eraseToAnyPublisher()
     }
 }
 
@@ -597,9 +590,8 @@ struct EhSettingRequest {
         URLSession.shared.dataTaskPublisher(
             for: Defaults.URL.ehConfig().safeURL()
         )
-        .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-        .tryMap(Parser.parseEhSetting).mapError(mapAppError)
-        .eraseToAnyPublisher()
+        .genericRetry().tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
+        .tryMap(Parser.parseEhSetting).mapError(mapAppError).eraseToAnyPublisher()
     }
 }
 
@@ -670,9 +662,8 @@ struct SubmitEhSettingChangesRequest {
         request.setURLEncodedContentType()
 
         return URLSession.shared.dataTaskPublisher(for: request)
-            .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-            .tryMap(Parser.parseEhSetting).mapError(mapAppError)
-            .eraseToAnyPublisher()
+            .genericRetry().tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
+            .tryMap(Parser.parseEhSetting).mapError(mapAppError).eraseToAnyPublisher()
     }
 }
 
@@ -695,7 +686,8 @@ struct AddFavoriteRequest {
         request.setURLEncodedContentType()
 
         return URLSession.shared.dataTaskPublisher(for: request)
-            .map { $0 }.mapError(mapAppError).eraseToAnyPublisher()
+            .genericRetry().map { $0 }.mapError(mapAppError)
+            .eraseToAnyPublisher()
     }
 }
 
@@ -715,7 +707,8 @@ struct DeleteFavoriteRequest {
         request.setURLEncodedContentType()
 
         return URLSession.shared.dataTaskPublisher(for: request)
-            .map { $0 }.mapError(mapAppError).eraseToAnyPublisher()
+            .genericRetry().map { $0 }.mapError(mapAppError)
+            .eraseToAnyPublisher()
     }
 }
 
@@ -735,9 +728,8 @@ struct SendDownloadCommandRequest {
         request.setURLEncodedContentType()
 
         return URLSession.shared.dataTaskPublisher(for: request)
-            .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-            .tryMap(Parser.parseDownloadCommandResponse)
-            .mapError(mapAppError).eraseToAnyPublisher()
+            .genericRetry().tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
+            .tryMap(Parser.parseDownloadCommandResponse).mapError(mapAppError).eraseToAnyPublisher()
     }
 }
 
@@ -762,7 +754,8 @@ struct RateRequest {
             .data(withJSONObject: params, options: [])
 
         return URLSession.shared.dataTaskPublisher(for: request)
-            .map { $0 }.mapError(mapAppError).eraseToAnyPublisher()
+            .genericRetry().map { $0 }.mapError(mapAppError)
+            .eraseToAnyPublisher()
     }
 }
 
@@ -781,7 +774,8 @@ struct CommentRequest {
         request.setURLEncodedContentType()
 
         return URLSession.shared.dataTaskPublisher(for: request)
-            .map { $0 }.mapError(mapAppError).eraseToAnyPublisher()
+            .genericRetry().map { $0 }.mapError(mapAppError)
+            .eraseToAnyPublisher()
     }
 }
 
@@ -803,7 +797,8 @@ struct EditCommentRequest {
         request.setURLEncodedContentType()
 
         return URLSession.shared.dataTaskPublisher(for: request)
-            .map { $0 }.mapError(mapAppError).eraseToAnyPublisher()
+            .genericRetry().map { $0 }.mapError(mapAppError)
+            .eraseToAnyPublisher()
     }
 }
 
@@ -829,6 +824,7 @@ struct VoteCommentRequest {
             .data(withJSONObject: params, options: [])
 
         return URLSession.shared.dataTaskPublisher(for: request)
-            .map { $0 }.mapError(mapAppError).eraseToAnyPublisher()
+            .genericRetry().map { $0 }.mapError(mapAppError)
+            .eraseToAnyPublisher()
     }
 }

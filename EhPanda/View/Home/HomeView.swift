@@ -92,7 +92,6 @@ struct HomeView: View, StoreAccessor {
                     NewDawnView(greeting: greeting)
                 }
             }
-            .tint(accentColor)
             .accentColor(accentColor)
             .blur(radius: environment.blurRadius)
             .allowsHitTesting(environment.isAppUnlocked)

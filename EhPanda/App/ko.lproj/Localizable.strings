@@ -141,7 +141,6 @@
 "Left-to-right" = "오른쪽으로";
 "Preload limit" = "프리로드 리미트";
 "%lld pages" = "%lld페이지";
-"Retry limit" = "시도 횟수";
 "%lld times" = "%lld번";
 "Separator height" = "선 두께";
 "Maximum scale factor" = "확대 비율";

@@ -63,8 +63,7 @@ struct LoginView: View, StoreAccessor {
                         Image(systemName: "chevron.forward.circle.fill")
                     }
                     .overlay {
-                        ProgressView().tint(nil)
-                            .opacity(isLoggingIn ? 1 : 0)
+                        ProgressView().opacity(isLoggingIn ? 1 : 0)
                     }
                     .imageScale(.large).font(.largeTitle)
                     .foregroundColor(loginButtonColor)

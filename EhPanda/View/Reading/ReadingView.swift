@@ -81,24 +81,24 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
 
             if isFirstValid {
                 ImageContainer(
-                    url: galleryContents[firstIndex] ?? "", index: firstIndex,
-                    retryLimit: setting.contentRetryLimit,
-                    isDualPage: isDualPage
+                    index: firstIndex,
+                    imageURL: galleryContents[firstIndex] ?? "",
+                    loadingFlag: galleryLoadingFlags[firstIndex] ?? false,
+                    loadError: galleryLoadErrors[firstIndex],
+                    isDualPage: isDualPage, reloadAction: onWebImageReload
                 )
-                .onAppear {
-                    onWebImageAppear(index: firstIndex)
-                }
+                .onAppear { onWebImageAppear(index: firstIndex) }
             }
 
             if isSecondValid {
                 ImageContainer(
-                    url: galleryContents[secondIndex] ?? "", index: secondIndex,
-                    retryLimit: setting.contentRetryLimit,
-                    isDualPage: isDualPage
+                    index: secondIndex,
+                    imageURL: galleryContents[secondIndex] ?? "",
+                    loadingFlag: galleryLoadingFlags[secondIndex] ?? false,
+                    loadError: galleryLoadErrors[secondIndex],
+                    isDualPage: isDualPage, reloadAction: onWebImageReload
                 )
-                .onAppear {
-                    onWebImageAppear(index: secondIndex)
-                }
+                .onAppear { onWebImageAppear(index: secondIndex) }
             }
         }
     }
@@ -148,22 +148,13 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
     var body: some View {
         ZStack {
             backgroundColor.ignoresSafeArea()
-            if contentInfo.contentsLoading[gid]?[0] == true {
-                LoadingView()
-            } else if contentInfo.contentsLoadFailed[gid]?[0] == true {
-                ErrorView(
-                    error: .networkingFailed,
-                    retryAction: fetchGalleryContentsIfNeeded
-                )
-            } else {
-                conditionalList
-                    .scaleEffect(scale).offset(offset)
-                    .transition(opacityTransition)
-                    .gesture(tapGesture)
-                    .gesture(dragGesture)
-                    .gesture(magnifyGesture)
-                    .ignoresSafeArea()
-            }
+            conditionalList
+                .scaleEffect(scale).offset(offset)
+                .transition(opacityTransition)
+                .gesture(tapGesture)
+                .gesture(dragGesture)
+                .gesture(magnifyGesture)
+                .ignoresSafeArea()
             ControlPanel(
                 showsPanel: $showsPanel,
                 sliderValue: $sliderValue,
@@ -192,7 +183,6 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
                     }
                 }
             }
-            .tint(accentColor)
             .accentColor(accentColor)
             .blur(radius: environment.blurRadius)
             .allowsHitTesting(environment.isAppUnlocked)
@@ -253,6 +243,12 @@ private extension ReadingView {
     var galleryContents: [Int: String] {
         contentInfo.contents[gid] ?? [:]
     }
+    var galleryLoadingFlags: [Int: Bool] {
+        contentInfo.contentsLoading[gid] ?? [:]
+    }
+    var galleryLoadErrors: [Int: AppError] {
+        contentInfo.contentsLoadErrors[gid] ?? [:]
+    }
 
     // MARK: Life Cycle
     func onStartTasks() {
@@ -274,6 +270,9 @@ private extension ReadingView {
         if galleryContents[index] == nil {
             fetchGalleryContents(index: index)
         }
+    }
+    func onWebImageReload(index: Int) {
+
     }
     func onControlPanelSliderChanged(_: Any? = nil) {
         let newIndex = mappingToPager(index: Int(sliderValue))
@@ -508,63 +507,117 @@ private extension ReadingView {
 
 // MARK: ImageContainer
 private struct ImageContainer: View {
-    private let url: String
-    private let index: Int
-    private let retryLimit: Int
-    private let isDualPage: Bool
-
-    init(
-        url: String,
-        index: Int,
-        retryLimit: Int,
-        isDualPage: Bool
-    ) {
-        self.url = url
-        self.index = index
-        self.retryLimit = retryLimit
-        self.isDualPage = isDualPage
+    @Environment(\.colorScheme) private var colorScheme
+    private var backgroundColor: Color {
+        colorScheme == .light
+        ? Color(.systemGray4)
+        : Color(.systemGray6)
     }
 
-    @ViewBuilder
-    private func getPlaceholder(_ progress: Progress) -> some View {
-        let width = windowW / (isDualPage ? 2 : 1)
-        let height = width / Defaults.ImageSize.contentScale
+    @State private var webImageLoadFailed = false
+
+    private var reloadSymbolName: String =
+    "exclamationmark.arrow.triangle.2.circlepath"
+    private var width: CGFloat {
+        windowW / (isDualPage ? 2 : 1)
+    }
+    private var height: CGFloat {
+        width / Defaults.ImageSize.contentScale
+    }
+    private var loadFailedFlag: Bool {
+        loadError != nil || webImageLoadFailed
+    }
+
+    private let index: Int
+    private let imageURL: String
+    private let isDualPage: Bool
+    private let loadingFlag: Bool
+    private let loadError: AppError?
+    private let reloadAction: (Int) -> Void
+
+    init(
+        index: Int,
+        imageURL: String,
+        loadingFlag: Bool,
+        loadError: AppError?,
+        isDualPage: Bool,
+        reloadAction: @escaping (Int) -> Void
+    ) {
+        self.index = index
+        self.imageURL = imageURL
+        self.loadingFlag = loadingFlag
+        self.loadError = loadError
+        self.isDualPage = isDualPage
+        self.reloadAction = reloadAction
+    }
+
+    private func placeholder(_ progress: Progress) -> some View {
         Placeholder(
             style: .progress(
                 pageNumber: index,
                 progress: progress,
-                isDualPage: isDualPage
+                isDualPage: isDualPage,
+                backgroundColor: backgroundColor
             )
         )
-        .frame(
-            width: width,
-            height: height
-        )
+        .frame(width: width, height: height)
+    }
+    private func retryView() -> some View {
+        ZStack {
+            backgroundColor
+            VStack {
+                Text(index.withoutComma)
+                    .fontWeight(.bold)
+                    .font(.largeTitle)
+                    .foregroundColor(.gray)
+                    .padding(.bottom, 30)
+                if loadFailedFlag {
+                    Button(action: reloadImage) {
+                        Image(systemName: reloadSymbolName)
+                    }
+                    .font(.system(size: 30, weight: .medium))
+                    .foregroundColor(.gray)
+                } else {
+                    ProgressView()
+                }
+            }
+        }
+        .frame(width: width, height: height)
+    }
+    @ViewBuilder
+    private func image(url: String) -> some View {
+        if !imageURL.contains(".gif") {
+            KFImage(URL(string: imageURL))
+                .placeholder(placeholder)
+                .defaultModifier(withRoundedCorners: false)
+                .retry(maxCount: 3, interval: .seconds(0.5))
+                .onSuccess(onSuccess).onFailure(onFailure)
+        } else {
+            KFAnimatedImage(URL(string: imageURL))
+                .placeholder(placeholder).fade(duration: 0.25)
+                .retry(maxCount: 3, interval: .seconds(0.5))
+                .onSuccess(onSuccess).onFailure(onFailure)
+        }
     }
 
     var body: some View {
-        Group {
-            if !url.contains(".gif") {
-                KFImage(URL(string: url))
-                    .defaultModifier(
-                        withRoundedCorners: false
-                    )
-                    .retry(
-                        maxCount: retryLimit,
-                        interval: .seconds(0.5)
-                    )
-                    .placeholder(getPlaceholder)
-            } else {
-                KFAnimatedImage(URL(string: url))
-                    .retry(
-                        maxCount: retryLimit,
-                        interval: .seconds(0.5)
-                    )
-                    .placeholder(getPlaceholder)
-                    .fade(duration: 0.25)
-            }
+        if loadingFlag || loadFailedFlag { retryView() } else {
+            image(url: imageURL).scaledToFit()
         }
-        .scaledToFit()
+    }
+    private func reloadImage() {
+        if webImageLoadFailed {
+            webImageLoadFailed = false
+        } else if loadError != nil {
+            reloadAction(index)
+        }
+    }
+    private func onSuccess(_: RetrieveImageResult) {
+        webImageLoadFailed = false
+    }
+    private func onFailure(_: KingfisherError) {
+        guard !imageURL.isEmpty else { return }
+        webImageLoadFailed = true
     }
 }
 

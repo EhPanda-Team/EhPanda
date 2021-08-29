@@ -221,13 +221,13 @@ extension AppState {
         }
     }
 
+    // MARK: ContentInfo
     struct ContentInfo {
         var mpvKeys = [String: String]()
         var mpvImageKeys = [String: [Int: String]]()
-        var mpvImageLoading = [String: [Int: Bool]]()
         var contents = [String: [Int: String]]()
         var contentsLoading = [String: [Int: Bool]]()
-        var contentsLoadFailed = [String: [Int: Bool]]()
+        var contentsLoadErrors = [String: [Int: AppError]]()
 
         mutating func fulfillContents(gid: String) {
             let galleryState = PersistenceController

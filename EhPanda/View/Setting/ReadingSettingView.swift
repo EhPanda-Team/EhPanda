@@ -32,21 +32,6 @@ struct ReadingSettingView: View, StoreAccessor {
                     .pickerStyle(.menu)
                 }
                 HStack {
-                    Text("Retry limit")
-                    Spacer()
-                    Picker(
-                        selection: settingBinding.contentRetryLimit,
-                        label: Text("\(setting.contentRetryLimit) times"),
-                        content: {
-                            let values = Array(stride(from: 5, through: 20, by: 5))
-                            ForEach(values, id: \.self) { value in
-                                Text("\(value) times").tag(value)
-                            }
-                        }
-                    )
-                    .pickerStyle(.menu)
-                }
-                HStack {
                     Text("Preload limit")
                     Spacer()
                     Picker(

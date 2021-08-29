@@ -43,27 +43,38 @@ final class Store: ObservableObject {
                 if case .success(let previews) = result {
                     SwiftyBeaver.verbose(
                         "[ACTION]: fetchGalleryPreviewsDone("
-                        + "gid: \(gid), "
-                        + "pageNumber: \(pageNumber), "
+                        + "gid: \(gid), pageNumber: \(pageNumber), "
                         + "previews: \(previews.count))"
                     )
                 }
-            case .fetchThumbnailURLsDone(let gid, let pageNumber, let result):
+            case .fetchThumbnailURLsDone(let gid, let index, let result):
                 if case .success(let contents) = result {
                     SwiftyBeaver.verbose(
                         "[ACTION]: fetchThumbnailURLsDone("
-                        + "gid: \(gid), "
-                        + "pageNumber: \(pageNumber), "
+                        + "gid: \(gid), index: \(index), "
                         + "contents: \(contents.count))"
                     )
                 }
-            case .fetchGalleryNormalContentsDone(let gid, let pageNumber, let result):
+            case .fetchGalleryNormalContents(let gid, let index, let thumbnailURLs):
+                SwiftyBeaver.verbose(
+                    "[ACTION]: fetchGalleryNormalContents("
+                    + "gid: \(gid), index: \(index), "
+                    + "thumbnailURLs: \(thumbnailURLs.count))"
+                )
+            case .fetchGalleryNormalContentsDone(let gid, let index, let result):
                 if case .success(let contents) = result {
                     SwiftyBeaver.verbose(
                         "[ACTION]: fetchGalleryNormalContentsDone("
-                        + "gid: \(gid), "
-                        + "pageNumber: \(pageNumber), "
+                        + "gid: \(gid), index: \(index), "
                         + "contents: \(contents.count))"
+                    )
+                }
+            case .fetchMPVKeysDone(let gid, let index, let result):
+                if case .success(let (mpvKey, imgKeys)) = result {
+                    SwiftyBeaver.verbose(
+                        "[ACTION]: fetchMPVKeysDone("
+                        + "gid: \(gid), index: \(index), "
+                        + "mpvKey: \(mpvKey), imgKeys: \(imgKeys.count))"
                     )
                 }
             default:
@@ -552,7 +563,7 @@ final class Store: ObservableObject {
             }
 
         case .fetchGalleryPreviews(let gid, let index):
-            let pageNumber = index / appState.detailInfo.previewConfig.batchSize
+            let pageNumber = appState.detailInfo.previewConfig.pageNumber(index: index)
             if appState.detailInfo.previewsLoading[gid] == nil {
                 appState.detailInfo.previewsLoading[gid] = [:]
             }
@@ -572,63 +583,71 @@ final class Store: ObservableObject {
                 PersistenceController.update(fetchedState: GalleryState(gid: gid, previews: previews))
             }
 
-        case .fetchMPVKeys(let gid, let pageNumber, let mpvURL):
-            appCommand = FetchMPVKeysCommand(gid: gid, mpvURL: mpvURL, pageNumber: pageNumber)
-        case .fetchMPVKeysDone(let gid, let pageNumber, let result):
-            appState.contentInfo.contentsLoading[gid]?[pageNumber] = false
+        case .fetchMPVKeys(let gid, let index, let mpvURL):
+            let pageCount = PersistenceController.fetchGallery(gid: gid)?.pageCount ?? -1
+            appCommand = FetchMPVKeysCommand(gid: gid, mpvURL: mpvURL, pageCount: pageCount, index: index)
+        case .fetchMPVKeysDone(let gid, let index, let result):
+            let batchRange = appState.detailInfo.previewConfig.batchRange(index: index)
+            batchRange.forEach { appState.contentInfo.contentsLoading[gid]?[$0] = false }
 
             switch result {
             case .success(let (mpvKey, imgKeys)):
                 appState.contentInfo.mpvKeys[gid] = mpvKey
                 appState.contentInfo.mpvImageKeys[gid] = imgKeys
-            case .failure:
-                appState.contentInfo.contentsLoadFailed[gid]?[pageNumber] = true
+            case .failure(let error):
+                batchRange.forEach { appState.contentInfo.contentsLoadErrors[gid]?[$0] = error }
             }
+
         case .fetchThumbnailURLs(let gid, let index):
-            let pageNumber = index / appState.detailInfo.previewConfig.batchSize
+            let batchRange = appState.detailInfo.previewConfig.batchRange(index: index)
+            let pageNumber = appState.detailInfo.previewConfig.pageNumber(index: index)
             if appState.contentInfo.contentsLoading[gid] == nil {
                 appState.contentInfo.contentsLoading[gid] = [:]
             }
-            if appState.contentInfo.contentsLoadFailed[gid] == nil {
-                appState.contentInfo.contentsLoadFailed[gid] = [:]
+            if appState.contentInfo.contentsLoadErrors[gid] == nil {
+                appState.contentInfo.contentsLoadErrors[gid] = [:]
             }
-            appState.contentInfo.contentsLoadFailed[gid]?[pageNumber] = false
+            batchRange.forEach { appState.contentInfo.contentsLoadErrors[gid]?[$0] = nil }
 
-            if appState.contentInfo.contentsLoading[gid]?[pageNumber] == true { break }
-            appState.contentInfo.contentsLoading[gid]?[pageNumber] = true
+            if appState.contentInfo.contentsLoading[gid]?[index] == true { break }
+            batchRange.forEach { appState.contentInfo.contentsLoading[gid]?[$0] = true }
 
             let galleryURL = PersistenceController.fetchGallery(gid: gid)?.galleryURL ?? ""
             let url = Defaults.URL.detailPage(url: galleryURL, pageNum: pageNumber)
-            appCommand = FetchThumbnailURLsCommand(gid: gid, url: url, pageNumber: pageNumber)
-        case .fetchThumbnailURLsDone(let gid, let pageNumber, let result):
+            appCommand = FetchThumbnailURLsCommand(gid: gid, url: url, index: index)
+        case .fetchThumbnailURLsDone(let gid, let index, let result):
+            let batchRange = appState.detailInfo.previewConfig.batchRange(index: index)
             switch result {
             case .success(let thumbnailURLs):
                 let thumbnailURL = thumbnailURLs[0].1
                 if thumbnailURL.pathComponents.count >= 1, thumbnailURL.pathComponents[1] == "mpv" {
-                    dispatch(.fetchMPVKeys(gid: gid, pageNumber: pageNumber, mpvURL: thumbnailURL.absoluteString))
+                    dispatch(.fetchMPVKeys(gid: gid, index: index, mpvURL: thumbnailURL.absoluteString))
                 } else {
                     dispatch(.fetchGalleryNormalContents(
-                        gid: gid, pageNumber: pageNumber, thumbnailURLs: thumbnailURLs
+                        gid: gid, index: index, thumbnailURLs: thumbnailURLs
                     ))
                 }
-            case .failure:
-                appState.contentInfo.contentsLoading[gid]?[pageNumber] = false
-                appState.contentInfo.contentsLoadFailed[gid]?[pageNumber] = true
+            case .failure(let error):
+                batchRange.forEach { index in
+                    appState.contentInfo.contentsLoading[gid]?[index] = false
+                    appState.contentInfo.contentsLoadErrors[gid]?[index] = error
+                }
             }
 
-        case .fetchGalleryNormalContents(let gid, let pageNumber, let thumbnailURLs):
+        case .fetchGalleryNormalContents(let gid, let index, let thumbnailURLs):
             appCommand = FetchGalleryNormalContentsCommand(
-                gid: gid, pageNumber: pageNumber, thumbnailURLs: thumbnailURLs
+                gid: gid, index: index, thumbnailURLs: thumbnailURLs
             )
-        case .fetchGalleryNormalContentsDone(let gid, let pageNumber, let result):
-            appState.contentInfo.contentsLoading[gid]?[pageNumber] = false
+        case .fetchGalleryNormalContentsDone(let gid, let index, let result):
+            let batchRange = appState.detailInfo.previewConfig.batchRange(index: index)
+            batchRange.forEach { appState.contentInfo.contentsLoading[gid]?[$0] = false }
 
             switch result {
             case .success(let contents):
                 appState.contentInfo.update(gid: gid, contents: contents)
                 PersistenceController.update(gid: gid, contents: contents)
-            case .failure:
-                appState.contentInfo.contentsLoadFailed[gid]?[pageNumber] = true
+            case .failure(let error):
+                batchRange.forEach { appState.contentInfo.contentsLoadErrors[gid]?[$0] = error }
             }
 
         case .fetchGalleryMPVContent(let gid, let index):
@@ -637,20 +656,16 @@ final class Store: ObservableObject {
                   let imgKey = appState.contentInfo.mpvImageKeys[gid]?[index]
             else { break }
 
-            appState.contentInfo.contentsLoading[gid] = nil
-            appState.contentInfo.contentsLoadFailed[gid] = nil
+            appState.contentInfo.contentsLoadErrors[gid]?[index] = nil
 
-            if appState.contentInfo.mpvImageLoading[gid] == nil {
-                appState.contentInfo.mpvImageLoading[gid] = [:]
-            }
-            if appState.contentInfo.mpvImageLoading[gid]?[index] == true { break }
-            appState.contentInfo.mpvImageLoading[gid]?[index] = true
+            if appState.contentInfo.contentsLoading[gid]?[index] == true { break }
+            appState.contentInfo.contentsLoading[gid]?[index] = true
 
             appCommand = FetchGalleryMPVContentCommand(
                 gid: gidInteger, index: index, mpvKey: mpvKey, imgKey: imgKey
             )
         case .fetchGalleryMPVContentDone(let gid, let index, let result):
-            appState.contentInfo.mpvImageLoading[gid]?[index] = false
+            appState.contentInfo.contentsLoading[gid]?[index] = false
 
             if case .success(let imageURL) = result {
                 appState.contentInfo.update(gid: gid, contents: [index: imageURL])

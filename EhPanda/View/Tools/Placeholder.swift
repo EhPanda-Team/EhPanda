@@ -8,13 +8,6 @@
 import SwiftUI
 
 struct Placeholder: View {
-    @Environment(\.colorScheme) private var colorScheme
-    private var backgroundColor: Color {
-        colorScheme == .light
-        ? Color(.systemGray4)
-        : Color(.systemGray6)
-    }
-
     private let style: PlaceholderStyle
 
     init(style: PlaceholderStyle) {
@@ -26,11 +19,11 @@ struct Placeholder: View {
         case .activity(let ratio, let cornerRadius):
             ZStack {
                 Color(.systemGray5)
-                ProgressView().tint(nil)
+                ProgressView()
             }
             .aspectRatio(ratio, contentMode: .fill)
             .cornerRadius(cornerRadius)
-        case .progress(let pageNumber, let progress, let isDualPage):
+        case .progress(let pageNumber, let progress, let isDualPage, let backgroundColor):
             ZStack {
                 backgroundColor
                 VStack {
@@ -38,7 +31,7 @@ struct Placeholder: View {
                         .fontWeight(.bold)
                         .font(.largeTitle)
                         .foregroundColor(.gray)
-                        .padding(.bottom, 15)
+                        .padding(.bottom, 30)
                     ProgressView(progress)
                         .progressViewStyle(.plainLinear)
                         .frame(
@@ -54,5 +47,5 @@ struct Placeholder: View {
 
 enum PlaceholderStyle {
     case activity(ratio: CGFloat, cornerRadius: CGFloat = 5)
-    case progress(pageNumber: Int, progress: Progress, isDualPage: Bool = false)
+    case progress(pageNumber: Int, progress: Progress, isDualPage: Bool = false, backgroundColor: Color)
 }

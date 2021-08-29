@@ -141,7 +141,6 @@
 "Left-to-right" = "左開き";
 "Preload limit" = "プリロード上限数";
 "%lld pages" = "%lldページ";
-"Retry limit" = "再試行上限数";
 "%lld times" = "%lld回";
 "Separator height" = "仕切りの厚さ";
 "Maximum scale factor" = "最大スケール係数";

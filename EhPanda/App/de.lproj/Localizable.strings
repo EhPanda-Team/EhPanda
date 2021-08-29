@@ -141,7 +141,6 @@
 "Left-to-right" = "Von links nach rechts";
 //"Preload limit" = "";
 //"%lld pages" = "%lld ";
-"Retry limit" = "Limit für neue Versuche";
 "%lld times" = "%lld mal";
 "Separator height" = "Höhe der Teilung";
 "Maximum scale factor" = "Maximaler Skalierungsfaktor";

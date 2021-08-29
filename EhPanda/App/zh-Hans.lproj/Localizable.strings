@@ -141,7 +141,6 @@
 "Left-to-right" = "左至右";
 "Preload limit" = "预加载数量上限";
 "%lld pages" = "%lld页";
-"Retry limit" = "重试次数上限";
 "%lld times" = "%lld次";
 "Separator height" = "分隔线厚度";
 "Maximum scale factor" = "最大缩放系数";
