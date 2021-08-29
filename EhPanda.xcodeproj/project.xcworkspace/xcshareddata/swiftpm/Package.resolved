@@ -30,11 +30,11 @@
       },
       {
         "package": "Kingfisher",
-        "repositoryURL": "https://github.com/onevcat/Kingfisher.git",
+        "repositoryURL": "https://github.com/tatsuz0u/Kingfisher.git",
         "state": {
-          "branch": null,
-          "revision": "79f8d2a611ee6b77b2d07dc2033e85b6e6a4438f",
-          "version": "7.0.0-beta.3"
+          "branch": "fix/binder-loaded",
+          "revision": "37c6740f5d6433309f813f5a99300710becfb51f",
+          "version": null
         }
       },
       {
