@@ -48,6 +48,15 @@ struct Setting: Codable {
     // Reading
     @DefaultReadingDirection var readingDirection: ReadingDirection = .vertical
     @DefaultIntegerValue var prefetchLimit = 10
+    @DefaultFalse var prefersLandscape = false {
+        didSet {
+            if !prefersLandscape && !isPad {
+                AppDelegate.orientationLock = [
+                    .portrait, .portraitUpsideDown
+                ]
+            }
+        }
+    }
     @DefaultFalse var enablesDualPageMode = false
     @DefaultFalse var exceptCover = false
     @DefaultDoubleValue var contentDividerHeight: Double = 0

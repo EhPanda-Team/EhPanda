@@ -118,16 +118,14 @@ private extension Home {
     }
 
     func onWidthChange() {
-        if isPad {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                if width != Defaults.FrameSize.slideMenuWidth {
-                    withAnimation {
-                        offset = -Defaults.FrameSize.slideMenuWidth
-                        width = Defaults.FrameSize.slideMenuWidth
-                    }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+            if width != Defaults.FrameSize.slideMenuWidth {
+                withAnimation {
+                    offset = -Defaults.FrameSize.slideMenuWidth
+                    width = Defaults.FrameSize.slideMenuWidth
                 }
-                postAppWidthDidChangeNotification()
             }
+            postAppWidthDidChangeNotification()
         }
     }
     func onSlideMenuShouldCloseNotificationReceive() {

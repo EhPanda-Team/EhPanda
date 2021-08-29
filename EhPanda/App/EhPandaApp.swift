@@ -11,6 +11,7 @@ import SwiftyBeaver
 
 @main
 struct EhPandaApp: App {
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @StateObject private var store = Store()
 
     var body: some Scene {
@@ -140,4 +141,15 @@ private extension EhPandaApp {
         setCookie(url: Defaults.URL.ehentai.safeURL(), key: "nw", value: "1")
         setCookie(url: Defaults.URL.exhentai.safeURL(), key: "nw", value: "1")
     }
+}
+
+// MARK: AppDelegate
+class AppDelegate: UIResponder, UIApplicationDelegate {
+    static var orientationLock: UIInterfaceOrientationMask =
+        isPad ? .all : [.portrait, .portraitUpsideDown]
+
+    func application(
+        _ application: UIApplication,
+        supportedInterfaceOrientationsFor window: UIWindow?
+    ) -> UIInterfaceOrientationMask { AppDelegate.orientationLock }
 }

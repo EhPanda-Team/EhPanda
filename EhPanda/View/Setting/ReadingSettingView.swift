@@ -46,6 +46,9 @@ struct ReadingSettingView: View, StoreAccessor {
                     )
                     .pickerStyle(.menu)
                 }
+                if !isPad {
+                    Toggle("Prefers landscape", isOn: settingBinding.prefersLandscape)
+                }
             }
             Section(header: Text("Appearance")) {
                 HStack {

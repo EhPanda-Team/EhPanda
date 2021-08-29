@@ -18,7 +18,7 @@ struct Defaults {
             }
         }
         static let archiveGridWidth: CGFloat =
-            isPadWidth ? isSEWidth ? 150 : 125 : 175
+        isPadWidth ? 175 : isSEWidth ? 125 : 150
     }
     struct ImageSize {
         static let rowScale: CGFloat = 8/11

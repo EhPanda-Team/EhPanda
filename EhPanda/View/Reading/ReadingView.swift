@@ -35,8 +35,7 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
 
     private var containerDataSource: [Int] {
         let defaultData = Array(1...pageCount)
-        guard isPad && isLandscape
-                && setting.enablesDualPageMode
+        guard isLandscape && setting.enablesDualPageMode
                 && setting.readingDirection != .vertical
         else { return defaultData }
 
@@ -52,7 +51,7 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
         let isReversed = direction == .rightToLeft
         let isFirstSingle = setting.exceptCover
         let isFirstPageAndSingle = index == 1 && isFirstSingle
-        let isDualPage = isPad && isLandscape
+        let isDualPage = isLandscape
         && setting.enablesDualPageMode
         && direction != .vertical
 
@@ -77,7 +76,7 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
                 getImageContainerConfigs(index: index)
             let isDualPage = setting.enablesDualPageMode
             && setting.readingDirection != .vertical
-            && isPad && isLandscape
+            && isLandscape
 
             if isFirstValid {
                 ImageContainer(
@@ -133,6 +132,21 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
         }
     }
 
+    private var readingSettingView: some View {
+        NavigationView {
+            ReadingSettingView()
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        if !isPad && isLandscape {
+                            Button(action: dismissSetting) {
+                                Image(systemName: "chevron.down")
+                            }
+                        }
+                    }
+                }
+        }
+    }
+
     let gid: String
 
     init(gid: String) {
@@ -174,39 +188,24 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
         }
         .statusBar(hidden: !showsPanel)
         .onAppear(perform: onStartTasks)
+        .onDisappear(perform: onEndTasks)
         .navigationBarBackButtonHidden(true)
         .navigationBarHidden(environment.navBarHidden)
-        .onAppear(perform: toggleNavBarHiddenIfNeeded)
-        .onDisappear(perform: onEndTasks)
         .sheet(item: $sheetState) { item in
             Group {
                 switch item {
                 case .setting:
-                    NavigationView {
-                        ReadingSettingView()
-                    }
+                    readingSettingView
                 }
             }
             .accentColor(accentColor)
             .blur(radius: environment.blurRadius)
             .allowsHitTesting(environment.isAppUnlocked)
         }
-        .onChange(
-            of: page.index,
-            perform: onPagerIndexChanged
-        )
-        .onChange(
-            of: setting.readingDirection,
-            perform: onControlPanelSliderChanged
-        )
-        .onChange(
-            of: setting.enablesDualPageMode,
-            perform: onControlPanelSliderChanged
-        )
-        .onChange(
-            of: setting.exceptCover,
-            perform: onControlPanelSliderChanged
-        )
+        .onChange(of: page.index, perform: onPagerIndexChanged)
+        .onChange(of: setting.exceptCover, perform: onControlPanelSliderChanged)
+        .onChange(of: setting.readingDirection, perform: onControlPanelSliderChanged)
+        .onChange(of: setting.enablesDualPageMode, perform: onControlPanelSliderChanged)
         .onReceive(
             NotificationCenter.default.publisher(
                 for: NSNotification.Name("AppWidthDidChange")
@@ -225,6 +224,11 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
             )
         ) { _ in
             toggleNavBarHiddenIfNeeded()
+        }
+        .onReceive(NotificationCenter.default.publisher(
+            for: UIApplication.didBecomeActiveNotification
+        )) { _ in
+            setOrientation(allowsLandscape: true, shouldChangeOrientation: true)
         }
         .onReceive(
             NotificationCenter.default.publisher(
@@ -256,11 +260,29 @@ private extension ReadingView {
 
     // MARK: Life Cycle
     func onStartTasks() {
+        setOrientation(
+            allowsLandscape: true,
+            shouldChangeOrientation: true
+        )
         restoreReadingProgress()
         fetchGalleryContentsIfNeeded()
     }
     func onEndTasks() {
         saveReadingProgress()
+        setOrientation(allowsLandscape: false)
+    }
+    func setOrientation(allowsLandscape: Bool, shouldChangeOrientation: Bool = false) {
+        guard !isPad, setting.prefersLandscape else { return }
+        if allowsLandscape {
+            AppDelegate.orientationLock = .all
+            if shouldChangeOrientation {
+                UIDevice.current.setValue(UIInterfaceOrientation.landscapeRight.rawValue, forKey: "orientation")
+            }
+        } else {
+            AppDelegate.orientationLock = [.portrait, .portraitUpsideDown]
+            UIDevice.current.setValue(UIInterfaceOrientation.portrait.rawValue, forKey: "orientation")
+        }
+        UINavigationController.attemptRotationToDeviceOrientation()
     }
     func restoreReadingProgress() {
         dispatchMainSync {
@@ -301,8 +323,7 @@ private extension ReadingView {
         }
     }
     func mappingToPager(index: Int) -> Int {
-        guard isPad && isLandscape
-                && setting.readingDirection != .vertical
+        guard isLandscape && setting.readingDirection != .vertical
                 && setting.enablesDualPageMode && isLandscape
         else { return index - 1 }
         if index <= 1 { return 0 }
@@ -350,6 +371,9 @@ private extension ReadingView {
     func toggleSetting() {
         sheetState = .setting
         impactFeedback(style: .light)
+    }
+    func dismissSetting() {
+        sheetState = nil
     }
     func update(setting: Setting) {
         store.dispatch(.updateSetting(setting: setting))

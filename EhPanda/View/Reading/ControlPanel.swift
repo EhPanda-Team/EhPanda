@@ -105,7 +105,7 @@ private struct UpperPanel: View {
                 Slider(value: .constant(0))
                     .opacity(0)
                 Spacer()
-                if isPad && isLandscape && setting.readingDirection != .vertical {
+                if isLandscape && setting.readingDirection != .vertical {
                     Menu {
                         Button {
                             var setting = setting
