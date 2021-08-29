@@ -169,7 +169,7 @@ extension PersistenceController {
         update(gid: gid) { galleryStateMO in
             if !thumbnails.isEmpty {
                 if let storedThumbnails = galleryStateMO.thumbnails?.toObject() as [Int: URL]? {
-                    galleryStateMO.contents = storedThumbnails.merging(
+                    galleryStateMO.thumbnails = storedThumbnails.merging(
                         thumbnails, uniquingKeysWith: { _, new in new }
                     ).toData()
                 } else {

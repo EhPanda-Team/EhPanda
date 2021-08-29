@@ -293,9 +293,11 @@ private extension ReadingView {
         }
     }
     func onControlPanelSliderChanged(_: Any? = nil) {
-        let newIndex = mappingToPager(index: Int(sliderValue))
-        if page.index != newIndex {
-            page.update(.new(index: newIndex))
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            let newIndex = mappingToPager(index: Int(sliderValue))
+            if page.index != newIndex {
+                page.update(.new(index: newIndex))
+            }
         }
     }
     func onPagerIndexChanged(newIndex: Int) {
@@ -323,8 +325,8 @@ private extension ReadingView {
         }
     }
     func mappingToPager(index: Int) -> Int {
-        guard isLandscape && setting.readingDirection != .vertical
-                && setting.enablesDualPageMode && isLandscape
+        guard isLandscape && setting.enablesDualPageMode
+                && setting.readingDirection != .vertical
         else { return index - 1 }
         if index <= 1 { return 0 }
 
@@ -332,9 +334,8 @@ private extension ReadingView {
             ? index / 2 : (index - 1) / 2
     }
     func mappingFromPager(index: Int) -> Int {
-        guard isPad && isLandscape
+        guard isLandscape && setting.enablesDualPageMode
                 && setting.readingDirection != .vertical
-                && setting.enablesDualPageMode && isLandscape
         else { return index + 1 }
         if index <= 0 { return 1 }
 
@@ -632,7 +633,12 @@ private struct ImageContainer: View {
     }
 
     var body: some View {
-        if loadingFlag || loadFailedFlag { retryView() } else {
+        if loadingFlag || loadFailedFlag {
+            retryView()
+                .onChange(of: imageURL) { _ in
+                    webImageLoadFailed = false
+                }
+        } else {
             image(url: imageURL).scaledToFit()
         }
     }
