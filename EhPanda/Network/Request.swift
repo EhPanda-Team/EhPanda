@@ -482,13 +482,21 @@ struct GalleryMPVContentRequest {
     let index: Int
     let mpvKey: String
     let imgKey: String
+    let reloadToken: ReloadToken?
 
-    var publisher: AnyPublisher<String, AppError> {
+    var publisher: AnyPublisher<(String, ReloadToken), AppError> {
         let url = Defaults.URL.ehAPI()
-        let params: [String: Any] = [
+        var params: [String: Any] = [
             "method": "imagedispatch", "gid": gid,
             "page": index, "imgkey": imgKey, "mpvkey": mpvKey
         ]
+        if let reloadToken = reloadToken {
+            if let reloadToken = reloadToken as? Int {
+                params["nl"] = reloadToken
+            } else if let reloadToken = reloadToken as? String {
+                params["nl"] = reloadToken
+            }
+        }
 
         var request = URLRequest(url: url.safeURL())
         request.httpMethod = "POST"
@@ -499,9 +507,10 @@ struct GalleryMPVContentRequest {
             .genericRetry().map(\.data).tryMap { data in
                 guard let dict = try JSONSerialization
                         .jsonObject(with: data) as? [String: Any],
-                      let imageURL = dict["i"] as? String
+                      let imageURL = dict["i"] as? String,
+                      let reloadToken = dict["s"]
                 else { throw AppError.parseFailed }
-                return imageURL
+                return (imageURL, reloadToken)
             }
             .mapError(mapAppError).eraseToAnyPublisher()
     }

@@ -594,6 +594,15 @@ final class Store: ObservableObject {
             case .success(let (mpvKey, imgKeys)):
                 appState.contentInfo.mpvKeys[gid] = mpvKey
                 appState.contentInfo.mpvImageKeys[gid] = imgKeys
+
+                if appState.contentInfo.contents[gid]?.isEmpty == true,
+                   let pageCount = PersistenceController.fetchGallery(gid: gid)?.pageCount {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
+                        Array(1...min(3, max(1, pageCount))).forEach { index in
+                            self?.dispatch(.fetchGalleryMPVContent(gid: gid, index: index))
+                        }
+                    }
+                }
             case .failure(let error):
                 batchRange.forEach { appState.contentInfo.contentsLoadErrors[gid]?[$0] = error }
             }
@@ -650,7 +659,7 @@ final class Store: ObservableObject {
                 batchRange.forEach { appState.contentInfo.contentsLoadErrors[gid]?[$0] = error }
             }
 
-        case .fetchGalleryMPVContent(let gid, let index):
+        case .fetchGalleryMPVContent(let gid, let index, let isRefetch):
             guard let gidInteger = Int(gid),
                   let mpvKey = appState.contentInfo.mpvKeys[gid],
                   let imgKey = appState.contentInfo.mpvImageKeys[gid]?[index]
@@ -661,15 +670,21 @@ final class Store: ObservableObject {
             if appState.contentInfo.contentsLoading[gid]?[index] == true { break }
             appState.contentInfo.contentsLoading[gid]?[index] = true
 
+            let reloadToken = isRefetch ? appState.contentInfo.mpvReloadTokens[gid]?[index] : nil
             appCommand = FetchGalleryMPVContentCommand(
-                gid: gidInteger, index: index, mpvKey: mpvKey, imgKey: imgKey
+                gid: gidInteger, index: index, mpvKey: mpvKey, imgKey: imgKey, reloadToken: reloadToken
             )
         case .fetchGalleryMPVContentDone(let gid, let index, let result):
             appState.contentInfo.contentsLoading[gid]?[index] = false
 
-            if case .success(let imageURL) = result {
+            if case .success(let (imageURL, reloadToken)) = result {
                 appState.contentInfo.update(gid: gid, contents: [index: imageURL])
                 PersistenceController.update(gid: gid, contents: [index: imageURL])
+                if appState.contentInfo.mpvReloadTokens[gid] == nil {
+                    appState.contentInfo.mpvReloadTokens[gid] = [index: reloadToken]
+                } else {
+                    appState.contentInfo.mpvReloadTokens[gid]?[index] = reloadToken
+                }
             }
 
         // MARK: Account Ops

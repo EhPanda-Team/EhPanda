@@ -579,12 +579,14 @@ struct FetchGalleryMPVContentCommand: AppCommand {
     let index: Int
     let mpvKey: String
     let imgKey: String
+    let reloadToken: ReloadToken?
 
     func execute(in store: Store) {
         let token = SubscriptionToken()
         GalleryMPVContentRequest(
             gid: gid, index: index,
-            mpvKey: mpvKey, imgKey: imgKey
+            mpvKey: mpvKey, imgKey: imgKey,
+            reloadToken: reloadToken
         )
         .publisher
         .receive(on: DispatchQueue.main)

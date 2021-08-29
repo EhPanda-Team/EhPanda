@@ -225,6 +225,7 @@ extension AppState {
     struct ContentInfo {
         var mpvKeys = [String: String]()
         var mpvImageKeys = [String: [Int: String]]()
+        var mpvReloadTokens = [String: [Int: ReloadToken]]()
         var contents = [String: [Int: String]]()
         var contentsLoading = [String: [Int: Bool]]()
         var contentsLoadErrors = [String: [Int: AppError]]()

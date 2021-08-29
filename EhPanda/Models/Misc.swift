@@ -13,6 +13,7 @@ typealias Identity = String
 typealias APIKey = String
 typealias CurrentGP = String
 typealias CurrentCredits = String
+typealias ReloadToken = Any
 
 struct PageNumber {
     var current = 0

@@ -85,9 +85,11 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
                     imageURL: galleryContents[firstIndex] ?? "",
                     loadingFlag: galleryLoadingFlags[firstIndex] ?? false,
                     loadError: galleryLoadErrors[firstIndex],
-                    isDualPage: isDualPage, reloadAction: onWebImageReload
+                    isDualPage: isDualPage,
+                    retryAction: fetchGalleryContents,
+                    reloadAction: refetchGalleryContents
                 )
-                .onAppear { onWebImageAppear(index: firstIndex) }
+                .onAppear { fetchGalleryContents(index: firstIndex) }
             }
 
             if isSecondValid {
@@ -96,9 +98,11 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
                     imageURL: galleryContents[secondIndex] ?? "",
                     loadingFlag: galleryLoadingFlags[secondIndex] ?? false,
                     loadError: galleryLoadErrors[secondIndex],
-                    isDualPage: isDualPage, reloadAction: onWebImageReload
+                    isDualPage: isDualPage,
+                    retryAction: fetchGalleryContents,
+                    reloadAction: refetchGalleryContents
                 )
-                .onAppear { onWebImageAppear(index: secondIndex) }
+                .onAppear { fetchGalleryContents(index: secondIndex) }
             }
         }
     }
@@ -266,14 +270,6 @@ private extension ReadingView {
             page.update(.new(index: index))
         }
     }
-    func onWebImageAppear(index: Int) {
-        if galleryContents[index] == nil {
-            fetchGalleryContents(index: index)
-        }
-    }
-    func onWebImageReload(index: Int) {
-
-    }
     func onControlPanelSliderChanged(_: Any? = nil) {
         let newIndex = mappingToPager(index: Int(sliderValue))
         if page.index != newIndex {
@@ -333,10 +329,18 @@ private extension ReadingView {
 
     // MARK: Dispatch
     func fetchGalleryContents(index: Int = 1) {
+        guard galleryContents[index] == nil else { return }
         if contentInfo.mpvKeys[gid] != nil {
             store.dispatch(.fetchGalleryMPVContent(gid: gid, index: index))
         } else {
             store.dispatch(.fetchThumbnailURLs(gid: gid, index: index))
+        }
+    }
+    func refetchGalleryContents(index: Int) {
+        if contentInfo.mpvKeys[gid] != nil {
+            store.dispatch(.fetchGalleryMPVContent(gid: gid, index: index, isRefetch: true))
+        } else {
+
         }
     }
     func fetchGalleryPreivews(index: Int) {
@@ -398,7 +402,7 @@ private extension ReadingView {
     func appendPrefetchIndices(array: inout [URL], range: ClosedRange<Int>) {
         let indices = Array(range.lowerBound...range.upperBound)
         array.append(contentsOf: indices.compactMap { index in
-            onWebImageAppear(index: index)
+            fetchGalleryContents(index: index)
             return URL(string: galleryContents[index] ?? "")
         })
     }
@@ -533,6 +537,7 @@ private struct ImageContainer: View {
     private let isDualPage: Bool
     private let loadingFlag: Bool
     private let loadError: AppError?
+    private let retryAction: (Int) -> Void
     private let reloadAction: (Int) -> Void
 
     init(
@@ -541,6 +546,7 @@ private struct ImageContainer: View {
         loadingFlag: Bool,
         loadError: AppError?,
         isDualPage: Bool,
+        retryAction: @escaping (Int) -> Void,
         reloadAction: @escaping (Int) -> Void
     ) {
         self.index = index
@@ -548,6 +554,7 @@ private struct ImageContainer: View {
         self.loadingFlag = loadingFlag
         self.loadError = loadError
         self.isDualPage = isDualPage
+        self.retryAction = retryAction
         self.reloadAction = reloadAction
     }
 
@@ -607,9 +614,9 @@ private struct ImageContainer: View {
     }
     private func reloadImage() {
         if webImageLoadFailed {
-            webImageLoadFailed = false
-        } else if loadError != nil {
             reloadAction(index)
+        } else if loadError != nil {
+            retryAction(index)
         }
     }
     private func onSuccess(_: RetrieveImageResult) {

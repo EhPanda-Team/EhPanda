@@ -84,8 +84,8 @@ enum AppAction {
     case fetchThumbnailURLsDone(gid: String, index: Int, result: Result<[(Int, URL)], AppError>)
     case fetchGalleryNormalContents(gid: String, index: Int, thumbnailURLs: [(Int, URL)])
     case fetchGalleryNormalContentsDone(gid: String, index: Int, result: Result<[Int: String], AppError>)
-    case fetchGalleryMPVContent(gid: String, index: Int)
-    case fetchGalleryMPVContentDone(gid: String, index: Int, result: Result<String, AppError>)
+    case fetchGalleryMPVContent(gid: String, index: Int, isRefetch: Bool = false)
+    case fetchGalleryMPVContentDone(gid: String, index: Int, result: Result<(String, ReloadToken), AppError>)
 
     case createEhProfile(name: String)
     case verifyEhProfile
