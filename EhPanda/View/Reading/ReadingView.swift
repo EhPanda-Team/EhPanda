@@ -622,12 +622,10 @@ private struct ImageContainer: View {
             KFImage(URL(string: imageURL))
                 .placeholder(placeholder)
                 .defaultModifier(withRoundedCorners: false)
-                .retry(maxCount: 3, interval: .seconds(0.5))
                 .onSuccess(onSuccess).onFailure(onFailure)
         } else {
             KFAnimatedImage(URL(string: imageURL))
                 .placeholder(placeholder)// .fade(duration: 0.25)
-                .retry(maxCount: 3, interval: .seconds(0.5))
                 .onSuccess(onSuccess).onFailure(onFailure)
         }
     }
@@ -645,7 +643,6 @@ private struct ImageContainer: View {
     private func reloadImage() {
         if webImageLoadFailed {
             reloadAction(index)
-            webImageLoadFailed = false
         } else if loadError != nil {
             retryAction(index)
         }
