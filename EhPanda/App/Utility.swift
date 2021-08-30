@@ -404,11 +404,11 @@ func checkExistence(url: URL, key: String) -> Bool {
     }
 }
 
-func setCookie(url: URL, key: String, value: String, path: String = "/") {
-    let expiredDate = Date(
-        timeIntervalSinceNow:
-            TimeInterval(60 * 60 * 24 * 365)
-    )
+func setCookie(
+    url: URL, key: String, value: String, path: String = "/",
+    expiresTime: TimeInterval = TimeInterval(60 * 60 * 24 * 365)
+) {
+    let expiredDate = Date(timeIntervalSinceNow: expiresTime)
     let properties: [HTTPCookiePropertyKey: Any] =
     [
         .path: path,

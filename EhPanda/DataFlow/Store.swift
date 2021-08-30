@@ -671,8 +671,11 @@ final class Store: ObservableObject {
             let url = PersistenceController.fetchGallery(gid: gid)?.galleryURL ?? ""
             let galleryURL = Defaults.URL.detailPage(url: url, pageNum: pageNumber)
             let thumbnailURL = appState.contentInfo.thumbnails[gid]?[index]
+            let storedImageURL = appState.contentInfo.contents[gid]?[index] ?? ""
             appCommand = RefetchGalleryNormalContentCommand(
-                gid: gid, index: index, galleryURL: galleryURL, thumbnailURL: thumbnailURL
+                gid: gid, index: index, galleryURL: galleryURL,
+                thumbnailURL: thumbnailURL, storedImageURL: storedImageURL,
+                bypassesSNIFiltering: appState.settings.setting.bypassesSNIFiltering
             )
         case .refetchGalleryNormalContentDone(let gid, let index, let result):
             appState.contentInfo.contentsLoading[gid]?[index] = false

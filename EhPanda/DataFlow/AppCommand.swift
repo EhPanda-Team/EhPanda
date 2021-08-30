@@ -579,27 +579,34 @@ struct RefetchGalleryNormalContentCommand: AppCommand {
     let index: Int
     let galleryURL: String
     let thumbnailURL: URL?
+    let storedImageURL: String
+    let bypassesSNIFiltering: Bool
 
     func execute(in store: Store) {
         let token = SubscriptionToken()
-        GalleryNormalContentRefetchRequest(index: index, galleryURL: galleryURL, thumbnailURL: thumbnailURL)
-            .publisher
-            .receive(on: DispatchQueue.main)
-            .sink { completion in
-                if case .failure(let error) = completion {
-                    store.dispatch(.refetchGalleryNormalContentDone(gid: gid, index: index, result: .failure(error)))
-                }
-                token.unseal()
-            } receiveValue: { content in
-                if !content.isEmpty {
-                    store.dispatch(.refetchGalleryNormalContentDone(gid: gid, index: index, result: .success(content)))
-                } else {
-                    store.dispatch(.refetchGalleryNormalContentDone(
-                        gid: gid, index: index, result: .failure(.networkingFailed))
-                    )
-                }
+        GalleryNormalContentRefetchRequest(
+            index: index, galleryURL: galleryURL,
+            thumbnailURL: thumbnailURL,
+            storedImageURL: storedImageURL,
+            bypassesSNIFiltering: bypassesSNIFiltering
+        )
+        .publisher
+        .receive(on: DispatchQueue.main)
+        .sink { completion in
+            if case .failure(let error) = completion {
+                store.dispatch(.refetchGalleryNormalContentDone(gid: gid, index: index, result: .failure(error)))
             }
-            .seal(in: token)
+            token.unseal()
+        } receiveValue: { content in
+            if !content.isEmpty {
+                store.dispatch(.refetchGalleryNormalContentDone(gid: gid, index: index, result: .success(content)))
+            } else {
+                store.dispatch(.refetchGalleryNormalContentDone(
+                    gid: gid, index: index, result: .failure(.networkingFailed))
+                )
+            }
+        }
+        .seal(in: token)
     }
 }
 
