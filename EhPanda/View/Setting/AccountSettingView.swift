@@ -149,7 +149,7 @@ private extension AccountSettingView {
             title: "Success".localized,
             caption: "Copied to clipboard".localized,
             shouldAutoHide: true,
-            autoHideInterval: 2
+            autoHideInterval: 1
         )
         hudVisible.toggle()
     }

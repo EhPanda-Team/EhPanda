@@ -90,7 +90,7 @@ private extension TorrentsView {
             title: "Success".localized,
             caption: "Copied to clipboard".localized,
             shouldAutoHide: true,
-            autoHideInterval: 2
+            autoHideInterval: 1
         )
         hudVisible.toggle()
     }

@@ -140,7 +140,7 @@ private extension ArchiveView {
             title: title,
             caption: caption,
             shouldAutoHide: true,
-            autoHideInterval: 2
+            autoHideInterval: 1
         )
         hudVisible = true
     }

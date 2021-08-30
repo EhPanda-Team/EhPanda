@@ -234,7 +234,8 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
         .onChange(of: setting.readingDirection, perform: onControlPanelSliderChanged)
         .onChange(of: setting.enablesDualPageMode, perform: onControlPanelSliderChanged)
         .onChange(of: isImageSaveSuccess, perform: { newValue in
-            if let isSuccess = newValue { performHUD(isSuccess: isSuccess) }
+            guard let isSuccess = newValue else { return }
+            performHUD(isSuccess: isSuccess, caption: "Saved to photo library")
         })
         .onReceive(
             NotificationCenter.default.publisher(
@@ -481,7 +482,7 @@ private extension ReadingView {
     func copyImage(url: String) {
         retrieveImage(url: url) { image in
             UIPasteboard.general.image = image
-            performHUD(isSuccess: true)
+            performHUD(isSuccess: true, caption: "Copied to clipboard")
         }
     }
     func saveImage(url: String) {
@@ -495,27 +496,27 @@ private extension ReadingView {
             presentActivityVC(items: [image])
         }
     }
-    func performHUD(isSuccess: Bool) {
+    func performHUD(isSuccess: Bool, caption: String? = nil) {
         let type: TTProgressHUDType = isSuccess ? .success : .error
         let title = (isSuccess ? "Success" : "Error").localized
 
-        switch type {
-        case .success:
-            notificFeedback(style: .success)
-        case .error:
-            notificFeedback(style: .error)
-        default:
-            break
-        }
-
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
+            switch type {
+            case .success:
+                notificFeedback(style: .success)
+            case .error:
+                notificFeedback(style: .error)
+            default:
+                break
+            }
+
             hudConfig = TTProgressHUDConfig(
-                type: type, title: title,
-                shouldAutoHide: true,
-                autoHideInterval: 2
+                type: type, title: title, caption: caption?.localized,
+                shouldAutoHide: true, autoHideInterval: 1
             )
             hudVisible = true
         }
+        isImageSaveSuccess = nil
     }
 
     // MARK: Gesture

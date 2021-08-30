@@ -99,6 +99,7 @@
 "Reload" = "重新加载";
 "Copy" = "复制";
 "Save" = "保存";
+"Saved to photo library" = "已保存到图库";
 
 // MARK: SettingView
 "Setting" = "设置";
