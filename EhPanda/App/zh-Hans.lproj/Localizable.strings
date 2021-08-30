@@ -95,6 +95,11 @@
 "Cancel" = "取消";
 "Post" = "发布";
 
+// MARK: ReadingView
+"Reload" = "重新加载";
+"Copy" = "复制";
+"Save" = "保存";
+
 // MARK: SettingView
 "Setting" = "设置";
 "Account" = "账户";

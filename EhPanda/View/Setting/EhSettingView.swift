@@ -114,10 +114,20 @@ private extension EhSettingView {
                 if case .failure(let error) = completion {
                     SwiftyBeaver.error(error)
                     loadError = error
+
+                    SwiftyBeaver.error(
+                        "EhSettingRequest failed",
+                        context: [ "Error": error ]
+                    )
                 }
                 token.unseal()
             } receiveValue: { ehSetting in
                 self.ehSetting = ehSetting
+
+                SwiftyBeaver.info(
+                    "EhSettingRequest succeeded",
+                    context: [ "EhProfiles": ehSetting.ehProfiles ]
+                )
             }
             .seal(in: token)
     }
@@ -137,10 +147,20 @@ private extension EhSettingView {
                 if case .failure(let error) = completion {
                     SwiftyBeaver.error(error)
                     loadError = error
+
+                    SwiftyBeaver.error(
+                        "SubmitEhSettingChangesRequest failed",
+                        context: [ "Error": error ]
+                    )
                 }
                 token.unseal()
             } receiveValue: { ehSetting in
                 self.ehSetting = ehSetting
+
+                SwiftyBeaver.info(
+                    "SubmitEhSettingChangesRequest succeeded",
+                    context: [ "EhProfiles": ehSetting.ehProfiles ]
+                )
             }
             .seal(in: token)
     }
@@ -159,10 +179,26 @@ private extension EhSettingView {
                 if case .failure(let error) = completion {
                     SwiftyBeaver.error(error)
                     loadError = error
+
+                    SwiftyBeaver.error(
+                        "EhProfileRequest failed",
+                        context: [
+                            "Action": action as Any, "Name": name as Any,
+                            "Set": set, "Error": error
+                        ]
+                    )
                 }
                 token.unseal()
             } receiveValue: { ehSetting in
                 self.ehSetting = ehSetting
+
+                SwiftyBeaver.info(
+                    "EhProfileRequest succeeded",
+                    context: [
+                        "Action": action as Any, "Name": name as Any,
+                        "Set": set as Any, "EhProfiles": ehSetting.ehProfiles
+                    ]
+                )
             }
             .seal(in: token)
     }

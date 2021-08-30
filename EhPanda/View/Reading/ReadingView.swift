@@ -9,6 +9,8 @@ import SwiftUI
 import Combine
 import Kingfisher
 import SwiftUIPager
+import SwiftyBeaver
+import TTProgressHUD
 
 struct ReadingView: View, StoreAccessor, PersistenceAccessor {
     @EnvironmentObject var store: Store
@@ -32,6 +34,11 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
     @State private var newOffset: CGSize = .zero
 
     @State private var pageCount = 1
+
+    @State private var imageSaver: ImageSaver?
+    @State private var isImageSaveSuccess: Bool?
+    @State private var hudVisible = false
+    @State private var hudConfig = TTProgressHUDConfig()
 
     private var containerDataSource: [Int] {
         let defaultData = Array(1...pageCount)
@@ -89,6 +96,7 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
                     reloadAction: refetchGalleryContents
                 )
                 .onAppear { fetchGalleryContents(index: firstIndex) }
+                .contextMenu { contextMenuItems(index: firstIndex) }
             }
 
             if isSecondValid {
@@ -102,7 +110,25 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
                     reloadAction: refetchGalleryContents
                 )
                 .onAppear { fetchGalleryContents(index: secondIndex) }
+                .contextMenu { contextMenuItems(index: secondIndex) }
             }
+        }
+    }
+
+    @ViewBuilder private func contextMenuItems(index: Int) -> some View {
+        Button(action: { refetchGalleryContents(index: index) }, label: {
+            Label("Reload", systemImage: "arrow.counterclockwise")
+        })
+        if let imageURL = galleryContents[index], !imageURL.isEmpty {
+            Button(action: { copyImage(url: imageURL) }, label: {
+                Label("Copy", systemImage: "plus.square.on.square")
+            })
+            Button(action: { saveImage(url: imageURL) }, label: {
+                Label("Save", systemImage: "square.and.arrow.down")
+            })
+            Button(action: { shareImage(url: imageURL) }, label: {
+                Label("Share", systemImage: "square.and.arrow.up")
+            })
         }
     }
 
@@ -185,6 +211,7 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
                 sliderChangedAction: onControlPanelSliderChanged,
                 updateSettingAction: update
             )
+            TTProgressHUD($hudVisible, config: hudConfig)
         }
         .statusBar(hidden: !showsPanel)
         .onAppear(perform: onStartTasks)
@@ -206,6 +233,9 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
         .onChange(of: setting.exceptCover, perform: onControlPanelSliderChanged)
         .onChange(of: setting.readingDirection, perform: onControlPanelSliderChanged)
         .onChange(of: setting.enablesDualPageMode, perform: onControlPanelSliderChanged)
+        .onChange(of: isImageSaveSuccess, perform: { newValue in
+            if let isSuccess = newValue { performHUD(isSuccess: isSuccess) }
+        })
         .onReceive(
             NotificationCenter.default.publisher(
                 for: NSNotification.Name("AppWidthDidChange")
@@ -430,6 +460,62 @@ private extension ReadingView {
             fetchGalleryContents(index: index)
             return URL(string: galleryContents[index] ?? "")
         })
+    }
+
+    // MARK: ContextMenu
+    func retrieveImage(url: String, completion: @escaping (UIImage) -> Void) {
+        KingfisherManager.shared.cache.retrieveImage(forKey: url) { result in
+            switch result {
+            case .success(let result):
+                if let image = result.image {
+                    completion(image)
+                } else {
+                    performHUD(isSuccess: false)
+                }
+            case .failure(let error):
+                SwiftyBeaver.error(error)
+                performHUD(isSuccess: false)
+            }
+        }
+    }
+    func copyImage(url: String) {
+        retrieveImage(url: url) { image in
+            UIPasteboard.general.image = image
+            performHUD(isSuccess: true)
+        }
+    }
+    func saveImage(url: String) {
+        retrieveImage(url: url) { image in
+            imageSaver = ImageSaver(isSuccess: $isImageSaveSuccess)
+            imageSaver?.saveImage(image)
+        }
+    }
+    func shareImage(url: String) {
+        retrieveImage(url: url) { image in
+            presentActivityVC(items: [image])
+        }
+    }
+    func performHUD(isSuccess: Bool) {
+        let type: TTProgressHUDType = isSuccess ? .success : .error
+        let title = (isSuccess ? "Success" : "Error").localized
+
+        switch type {
+        case .success:
+            notificFeedback(style: .success)
+        case .error:
+            notificFeedback(style: .error)
+        default:
+            break
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
+            hudConfig = TTProgressHUDConfig(
+                type: type, title: title,
+                shouldAutoHide: true,
+                autoHideInterval: 2
+            )
+            hudVisible = true
+        }
     }
 
     // MARK: Gesture

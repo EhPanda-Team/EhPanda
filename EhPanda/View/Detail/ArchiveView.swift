@@ -157,8 +157,15 @@ private extension ArchiveView {
             .publisher.receive(on: DispatchQueue.main)
             .sink { completion in
                 if case .failure(let error) = completion {
-                    SwiftyBeaver.error(error)
                     loadError = error
+
+                    SwiftyBeaver.error(
+                        "GalleryArchiveRequest failed",
+                        context: [
+                            "ArchiveURL": archiveURL,
+                            "Error": error
+                        ]
+                    )
                 }
                 loadingFlag = false
                 token.unseal()
@@ -167,6 +174,15 @@ private extension ArchiveView {
                 if let galleryPoints = galleryPoints, let credits = credits {
                     store.dispatch(.fetchGalleryArchiveFundsDone(
                         result: .success((galleryPoints, credits)))
+                    )
+                    SwiftyBeaver.info(
+                        "GalleryArchiveRequest succeeded",
+                        context: [
+                            "ArchiveURL": archiveURL,
+                            "Archive": archive as Any,
+                            "GalleryPoints": galleryPoints,
+                            "Credits": credits
+                        ]
                     )
                 } else if isSameAccount {
                     store.dispatch(.fetchGalleryArchiveFunds(gid: gid))
@@ -189,8 +205,17 @@ private extension ArchiveView {
         .publisher
         .receive(on: DispatchQueue.main)
         .sink { completion in
-            if case .failure = completion {
+            if case .failure(let error) = completion {
                 sendFailedFlag = true
+
+                SwiftyBeaver.error(
+                    "SendDownloadCommandRequest failed",
+                    context: [
+                        "ArchiveURL": archiveURL,
+                        "Resolution": resolution.param,
+                        "Error": error
+                    ]
+                )
             }
             sendingFlag = false
             performHUD()
@@ -201,8 +226,24 @@ private extension ArchiveView {
                  Defaults.Response.hathClientNotOnline,
                  Defaults.Response.invalidResolution, .none:
                 sendFailedFlag = true
+
+                SwiftyBeaver.error(
+                    "SendDownloadCommandRequest failed",
+                    context: [
+                        "ArchiveURL": archiveURL,
+                        "Resolution": resolution.param,
+                        "Response": resp as Any
+                    ]
+                )
             default:
-                break
+                SwiftyBeaver.info(
+                    "SendDownloadCommandRequest succeeded",
+                    context: [
+                        "ArchiveURL": archiveURL,
+                        "Resolution": resolution.param,
+                        "Response": resp as Any
+                    ]
+                )
             }
             response = resp
             store.dispatch(.fetchGalleryArchiveFunds(gid: gid))

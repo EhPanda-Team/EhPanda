@@ -109,11 +109,29 @@ private extension TorrentsView {
                 if case .failure(let error) = completion {
                     SwiftyBeaver.error(error)
                     loadError = error
+
+                    SwiftyBeaver.error(
+                        "GalleryTorrentsRequest Failed",
+                        context: [
+                            "gid": gid,
+                            "Token": token,
+                            "Error": error
+                        ]
+                    )
                 }
                 loadingFlag = false
                 sToken.unseal()
             } receiveValue: {
                 torrents = $0
+
+                SwiftyBeaver.info(
+                    "GalleryTorrentsRequest succeeded",
+                    context: [
+                        "gid": gid,
+                        "Token": token,
+                        "Torrents count": $0.count
+                    ]
+                )
             }
             .seal(in: sToken)
     }

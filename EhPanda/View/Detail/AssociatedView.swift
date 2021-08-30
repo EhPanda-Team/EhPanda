@@ -101,14 +101,38 @@ private extension AssociatedView {
             if case .failure(let error) = completion {
                 SwiftyBeaver.error(error)
                 loadError = error
+
+                SwiftyBeaver.error(
+                    "SearchItemsRequest failed",
+                    context: [
+                        "Keyword": keyword.isEmpty ? title : keyword,
+                        "Error": error
+                    ]
+                )
             }
             token.unseal()
         } receiveValue: { pageNumber, galleries in
             self.pageNumber = pageNumber
             if !galleries.isEmpty {
                 associatedItems = galleries
+
+                SwiftyBeaver.info(
+                    "SearchItemsRequest succeeded",
+                    context: [
+                        "Keyword": keyword.isEmpty ? title : keyword,
+                        "Galleries count": galleries.count
+                    ]
+                )
             } else {
                 loadError = .notFound
+
+                SwiftyBeaver.error(
+                    "SearchItemsRequest failed",
+                    context: [
+                        "Keyword": keyword.isEmpty ? title : keyword,
+                        "Error": loadError as Any
+                    ]
+                )
             }
             PersistenceController.add(galleries: galleries)
 
@@ -140,6 +164,14 @@ private extension AssociatedView {
             if case .failure(let error)  = completion {
                 moreLoadFailedFlag = true
                 SwiftyBeaver.error(error)
+
+                SwiftyBeaver.error(
+                    "MoreSearchItemsRequest failed",
+                    context: [
+                        "Keyword": keyword, "LastID": lastID,
+                        "PageNum": pageNumber.current + 1, "Error": error
+                    ]
+                )
             }
             token.unseal()
         } receiveValue: { pageNumber, galleries in
@@ -156,11 +188,21 @@ private extension AssociatedView {
             }
             PersistenceController.add(galleries: galleries)
 
-            if galleries.isEmpty
-                && pageNumber.current
-                < pageNumber.maximum
-            {
+            SwiftyBeaver.info(
+                "MoreSearchItemsRequest succeeded",
+                context: [
+                    "Keyword": keyword, "LastID": lastID,
+                    "PageNum": pageNumber.current + 1,
+                    "Galleries count": galleries.count
+                ]
+            )
+
+            if galleries.isEmpty && pageNumber.current < pageNumber.maximum {
                 fetchMoreAssociatedItems()
+
+                SwiftyBeaver.warning(
+                    "MoreSearchItemsRequest result empty, requesting more..."
+                )
             }
         }
         .seal(in: token)

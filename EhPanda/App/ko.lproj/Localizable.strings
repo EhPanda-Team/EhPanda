@@ -95,6 +95,11 @@
 "Cancel" = "취소";
 "Post" = "등록";
 
+// MARK: ReadingView
+//"Reload" = "";
+//"Copy" = "";
+//"Save" = "";
+
 // MARK: SettingView
 "Setting" = "설정";
 "Account" = "계정";

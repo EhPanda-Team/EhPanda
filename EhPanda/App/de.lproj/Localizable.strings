@@ -95,6 +95,11 @@
 "Cancel" = "Abbrechen";
 "Post" = "Senden";
 
+// MARK: ReadingView
+//"Reload" = "";
+//"Copy" = "";
+//"Save" = "";
+
 // MARK: SettingView
 "Setting" = "Einstellungen";
 "Account" = "Konto";

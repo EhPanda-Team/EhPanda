@@ -7,3 +7,4 @@
 */
 
 "NSFaceIDUsageDescription" = "Diese Berechtigung ist notwendig um Face ID zum Entsperren der Anwendung verwenden zu können.";
+//"NSPhotoLibraryAddUsageDescription" = "";

@@ -95,6 +95,11 @@
 "Cancel" = "取消";
 "Post" = "發表";
 
+// MARK: ReadingView
+//"Reload" = "";
+//"Copy" = "";
+//"Save" = "";
+
 // MARK: SettingView
 "Setting" = "設定";
 "Account" = "帳號";

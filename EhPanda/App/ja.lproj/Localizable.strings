@@ -95,6 +95,11 @@
 "Cancel" = "キャンセル";
 "Post" = "投稿";
 
+// MARK: ReadingView
+"Reload" = "再読み込み";
+"Copy" = "コピー";
+"Save" = "保存";
+
 // MARK: SettingView
 "Setting" = "設定";
 "Account" = "アカウント";

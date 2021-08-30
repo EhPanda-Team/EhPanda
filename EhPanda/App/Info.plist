@@ -81,6 +81,8 @@
 	<true/>
 	<key>NSFaceIDUsageDescription</key>
 	<string>We need this permission to provide Face ID option while unlocking the App.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>We need this permission to save images to your photo library.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
