@@ -435,8 +435,8 @@ struct FetchGalleryDetailCommand: AppCommand {
                     store.dispatch(.fetchGalleryDetailDone(gid: gid, result: .failure(error)))
                 }
                 token.unseal()
-            } receiveValue: { (detail, state, apiKey) in
-                store.dispatch(.fetchGalleryDetailDone(gid: gid, result: .success((detail, state, apiKey))))
+            } receiveValue: { (detail, state, apiKey, greeting) in
+                store.dispatch(.fetchGalleryDetailDone(gid: gid, result: .success((detail, state, apiKey, greeting))))
             }
             .seal(in: token)
     }

@@ -83,3 +83,19 @@ class GalleryParserTests: XCTestCase, TestHelper {
         XCTAssertEqual(state.comments.count, 4)
     }
 }
+
+// MARK: Greeting
+class GreetingParserTests: XCTestCase, TestHelper {
+    func testExample() {
+        let greeting = try! Parser.parseGreeting(
+            doc: getHTML(resourceName: "GalleryDetailWithGreeting")!
+        )
+        XCTAssertEqual(greeting.gainedEXP, 30)
+        XCTAssertEqual(greeting.gainedCredits, 9)
+        XCTAssertNil(greeting.gainedGP)
+        XCTAssertNil(greeting.gainedHath)
+        XCTAssertNotNil(greeting.updateTime)
+        XCTAssertFalse(greeting.gainedNothing)
+        XCTAssertNotNil(greeting.gainContent)
+    }
+}

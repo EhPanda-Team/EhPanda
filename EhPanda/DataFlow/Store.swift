@@ -531,9 +531,10 @@ final class Store: ObservableObject {
             appState.detailInfo.detailLoading[gid] = false
 
             switch result {
-            case .success(let (detail, state, apiKey)):
-                if let apikey = apiKey {
-                    appState.settings.user.apikey = apikey
+            case .success(let (detail, state, apiKey, greeting)):
+                appState.settings.user.apikey = apiKey
+                if let greeting = greeting {
+                    appState.settings.insert(greeting: greeting)
                 }
                 if let previewConfig = state.previewConfig {
                     appState.detailInfo.previewConfig = previewConfig

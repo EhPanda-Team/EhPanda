@@ -317,7 +317,8 @@ private extension HomeView {
         handle(incomingURL: replacedURL)
     }
     func onReceiveGreeting(_ greeting: Greeting?) {
-        if let greeting = greeting,
+        if setting.showNewDawnGreeting,
+           let greeting = greeting,
            !greeting.gainedNothing
         {
             self.greeting = greeting

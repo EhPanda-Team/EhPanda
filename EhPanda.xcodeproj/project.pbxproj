@@ -119,6 +119,7 @@
 		ABF45AF825F3313D00ECB568 /* EhPandaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF45ADE25F3313D00ECB568 /* EhPandaView.swift */; };
 		ABF75F3F25A19CD200544D29 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF75F3E25A19CD200544D29 /* User.swift */; };
 		ABF971FF26DD394200118887 /* ImageSaver.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF971FE26DD394200118887 /* ImageSaver.swift */; };
+		ABF9720A26DE6E1300118887 /* GalleryDetailWithGreeting.html in Resources */ = {isa = PBXBuildFile; fileRef = ABF9720926DE6E1300118887 /* GalleryDetailWithGreeting.html */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -273,6 +274,7 @@
 		ABF53F4725A306D200AB5918 /* EhPanda.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = EhPanda.entitlements; sourceTree = "<group>"; };
 		ABF75F3E25A19CD200544D29 /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		ABF971FE26DD394200118887 /* ImageSaver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageSaver.swift; sourceTree = "<group>"; };
+		ABF9720926DE6E1300118887 /* GalleryDetailWithGreeting.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = GalleryDetailWithGreeting.html; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -340,6 +342,7 @@
 			isa = PBXGroup;
 			children = (
 				AB3E9E6526D210B1008FE518 /* GalleryDetail.html */,
+				ABF9720926DE6E1300118887 /* GalleryDetailWithGreeting.html */,
 			);
 			path = Gallery;
 			sourceTree = "<group>";
@@ -783,6 +786,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				AB3E9E6F26D210B1008FE518 /* Favorites.html in Resources */,
+				ABF9720A26DE6E1300118887 /* GalleryDetailWithGreeting.html in Resources */,
 				AB3E9E6E26D210B1008FE518 /* GalleryDetail.html in Resources */,
 				AB30E34826D277F7007420BC /* Toplists.html in Resources */,
 				AB3E9E7026D210B1008FE518 /* Watched.html in Resources */,

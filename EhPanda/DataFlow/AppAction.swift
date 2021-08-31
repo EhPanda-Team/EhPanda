@@ -73,7 +73,7 @@ enum AppAction {
     case fetchMoreToplistsItems
     case fetchMoreToplistsItemsDone(carriedValue: Int, result: Result<(PageNumber, [Gallery]), AppError>)
     case fetchGalleryDetail(gid: String)
-    case fetchGalleryDetailDone(gid: String, result: Result<(GalleryDetail, GalleryState, APIKey?), AppError>)
+    case fetchGalleryDetailDone(gid: String, result: Result<(GalleryDetail, GalleryState, APIKey, Greeting?), AppError>)
     case fetchGalleryArchiveFunds(gid: String)
     case fetchGalleryArchiveFundsDone(result: Result<((CurrentGP, CurrentCredits)), AppError>)
     case fetchGalleryPreviews(gid: String, index: Int)

@@ -302,12 +302,13 @@ struct GalleryDetailRequest {
     let gid: String
     let galleryURL: String
 
-    var publisher: AnyPublisher<(GalleryDetail, GalleryState, APIKey), AppError> {
+    var publisher: AnyPublisher<(GalleryDetail, GalleryState, APIKey, Greeting?), AppError> {
         URLSession.shared.dataTaskPublisher(for: Defaults.URL.galleryDetail(url: galleryURL).safeURL())
             .genericRetry().tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .tryMap {
+                let greeting = try Parser.parseGreeting(doc: $0)
                 let (detail, state) = try Parser.parseGalleryDetail(doc: $0, gid: gid)
-                return (detail, state, try Parser.parseAPIKey(doc: $0))
+                return (detail, state, try Parser.parseAPIKey(doc: $0), greeting)
             }
             .mapError(mapAppError).eraseToAnyPublisher()
     }
