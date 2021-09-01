@@ -21,6 +21,10 @@ struct EhPandaView: View, StoreAccessor {
                 text: "GitHub"
             ),
             Info(
+                url: "https://discord.gg/BSBE9FCBTq",
+                text: "Discord"
+            ),
+            Info(
                 url: "https://t.me/ehpanda",
                 text: "Telegram"
             ),

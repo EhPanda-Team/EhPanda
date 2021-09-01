@@ -781,11 +781,8 @@ extension Parser {
         }
 
         func trim(int: String) -> Int? {
-            Int(
-                int
-                    .replacingOccurrences(of: ",", with: "")
-                    .replacingOccurrences(of: " ", with: "")
-            )
+            Int(int.replacingOccurrences(of: ",", with: "")
+                    .replacingOccurrences(of: " ", with: ""))
         }
 
         guard let node = doc.at_xpath("//div [@id='eventpane']")
