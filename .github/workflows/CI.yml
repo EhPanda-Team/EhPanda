@@ -18,7 +18,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: SourcePackages
-          key: ${{ runner.os }}-spm-${{ hashFiles('*.xcodeproj/project.xcworkspace/ xcshareddata/swiftpm/Package.resolved') }}
+          key: ${{ runner.os }}-spm-${{ hashFiles('EhPanda.xcodeproj/project.xcworkspace/ xcshareddata/swiftpm/Package.resolved') }}
           restore-keys: ${{ runner.os }}-spm-
       - name: Xcode build
         run: xcodebuild
