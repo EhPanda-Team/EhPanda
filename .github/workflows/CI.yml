@@ -21,13 +21,6 @@ jobs:
           key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
           restore-keys: | 
             ${{ runner.os }}-spm-
-      - name: Cache DerivedData
-        uses: actions/cache@v2
-        with:
-          path: ~/Library/Developer/Xcode/DerivedData
-          key: ${{ runner.os }}_derived_data-xcode_${{ env.XCODE_VERSION }}
-          restore-keys: |
-            ${{ runner.os }}_derived_data
       - name: Xcode build
         run: xcodebuild
           -scheme EhPanda -sdk iphonesimulator -configuration Debug
