@@ -24,7 +24,6 @@ jobs:
         run: xcodebuild
           -scheme EhPanda -sdk iphonesimulator -configuration Debug
           -destination 'platform=iOS Simulator,name=iPhone 12'
-          -clonedSourcePackagesDirPath SourcePackages
           build
       - name: Run tests
         run: xcodebuild
