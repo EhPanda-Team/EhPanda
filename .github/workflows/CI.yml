@@ -14,6 +14,12 @@ jobs:
         run: ls /Applications | grep 'Xcode'
       - name: Show Xcode version
         run: xcodebuild -version
+      - name: Cache Swift packages
+        uses: actions/cache@v2
+        with:
+          path: SourcePackages
+          key: ${{ runner.os }}-spm-${{ hashFiles('*.xcodeproj/project.xcworkspace/ xcshareddata/swiftpm/Package.resolved') }}
+          restore-keys: ${{ runner.os }}-spm-
       - name: Xcode build
         run: xcodebuild
           -scheme EhPanda -sdk iphonesimulator -configuration Debug
