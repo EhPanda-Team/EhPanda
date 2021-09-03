@@ -2,19 +2,18 @@ name: CI
 on:
   push:
     branches: [test/CI]
+env:
+   XCODE_VERSION: 13.0
 jobs:
   Build-and-test:
     runs-on: macos-11
-    strategy:
-      matrix:
-        xcode: ["13.0"]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Show Xcode version
         run: xcodebuild -version
       - name: Select Xcode
-        run: sudo xcode-select --switch /Applications/Xcode_${{ matrix.xcode }}.app
+        run: sudo xcode-select --switch /Applications/Xcode_${{ env.XCODE_VERSION }}.app
       - name: Cache Swift packages
         uses: actions/cache@v2
         with:
@@ -26,7 +25,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ~/Library/Developer/Xcode/DerivedData
-          key: ${{ runner.os }}_derived_data-xcode_${{ matrix.xcode }}
+          key: ${{ runner.os }}_derived_data-xcode_${{ env.XCODE_VERSION }}
           restore-keys: |
             ${{ runner.os }}_derived_data
       - name: Xcode build
