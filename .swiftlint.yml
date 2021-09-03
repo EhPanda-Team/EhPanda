@@ -13,3 +13,4 @@ identifier_name:
 
 excluded:
  - EhPandaTests
+ - SourcePackages
