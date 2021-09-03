@@ -28,7 +28,7 @@ jobs:
           path: ~/Library/Developer/Xcode/DerivedData
           key: ${{ runner.os }}_derived_data-xcode_${{ matrix.xcode }}
           restore-keys: |
-            ${{ runner.os }}-${{ matrix.platform }}_derived_data
+            ${{ runner.os }}_derived_data
       - name: Xcode build
         run: xcodebuild
           -scheme EhPanda -sdk iphonesimulator -configuration Debug
