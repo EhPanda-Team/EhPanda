@@ -17,9 +17,10 @@ jobs:
       - name: Cache Swift packages
         uses: actions/cache@v2
         with:
-          path: SourcePackages
-          key: ${{ runner.os }}-spm-${{ hashFiles('EhPanda.xcodeproj/project.xcworkspace/ xcshareddata/swiftpm/Package.resolved') }}
-          restore-keys: ${{ runner.os }}-spm-
+          path: .build
+          key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
+          restore-keys: | 
+            ${{ runner.os }}-spm-
       - name: Xcode build
         run: xcodebuild
           -scheme EhPanda -sdk iphonesimulator -configuration Debug
