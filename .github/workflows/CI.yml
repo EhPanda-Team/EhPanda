@@ -16,11 +16,11 @@ jobs:
         run: xcodebuild -version
       - name: Xcode build
         run: xcodebuild
-          -scheme DemoApp -sdk iphonesimulator -configuration Debug
+          -scheme EhPanda -sdk iphonesimulator -configuration Debug
           -destination 'platform=iOS Simulator,name=iPhone 12'
           build
       - name: Run tests
         run: xcodebuild
-          -scheme DemoApp -sdk iphonesimulator
+          -scheme EhPanda -sdk iphonesimulator
           -destination 'platform=iOS Simulator,name=iPhone 12'
           clean test
