@@ -2,6 +2,7 @@ name: CI
 on: [push, pull_request]
 env:
    XCODE_VERSION: '13.0'
+   SIMULATOR_IDENTIFIER: 'iPhone 12'
 jobs:
   Build-and-test:
     runs-on: macos-11
@@ -13,12 +14,10 @@ jobs:
       - name: Xcode build
         run: xcodebuild
           -scheme EhPanda -sdk iphonesimulator -configuration Debug
-          -destination 'platform=iOS Simulator,name=iPhone 12'
-          -clonedSourcePackagesDirPath SourcePackages
+          -destination 'platform=iOS Simulator,name=${{ env.SIMULATOR_IDENTIFIER }}'
           build
       - name: Run tests
         run: xcodebuild
           -scheme EhPanda -sdk iphonesimulator
-          -clonedSourcePackagesDirPath SourcePackages
-          -destination 'platform=iOS Simulator,name=iPhone 12'
+          -destination 'platform=iOS Simulator,name=${{ env.SIMULATOR_IDENTIFIER }}'
           clean test
