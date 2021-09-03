@@ -17,7 +17,7 @@ jobs:
       - name: Cache Swift packages
         uses: actions/cache@v2
         with:
-          path: .build
+          path: SourcePackages
           key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
           restore-keys: | 
             ${{ runner.os }}-spm-
@@ -25,6 +25,7 @@ jobs:
         run: xcodebuild
           -scheme EhPanda -sdk iphonesimulator -configuration Debug
           -destination 'platform=iOS Simulator,name=iPhone 12'
+          -clonedSourcePackagesDirPath SourcePackages
           build
       - name: Run tests
         run: xcodebuild
