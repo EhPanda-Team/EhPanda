@@ -10,7 +10,7 @@ env:
    SIMULATOR_IDENTIFIER: 'iPhone 12'
    DEVICE_IDENTIFIER: 'Any iOS Device'
    ARCHIVE_PATH: '/builds/EhPanda.xcarchive'
-   APP_PROVISION_FILE_BASE64: ${{ secrets.APP_DEV_PROVISION_FILE_BASE64 }}
+   APP_DEV_PROVISION_FILE_BASE64: ${{ secrets.APP_DEV_PROVISION_FILE_BASE64 }}
 jobs:
   Build-and-test:
     runs-on: macos-11
@@ -28,11 +28,11 @@ jobs:
 #           -scheme ${{ env.SCHEME_NAME }} -sdk iphonesimulator
 #           -destination 'platform=iOS Simulator,name=${{ env.SIMULATOR_IDENTIFIER }}'
 #           clean test
-      - name: Install provison profile
+      - name: Install provison file
         run: |
           APP_DEV_PROVISION_PATH=/builds/app_dev.mobileprovision
           
-          echo -n "$BUILD_PROVISION_PROFILE_BASE64" | base64 --decode --output $APP_DEV_PROVISION_PATH
+          echo -n "$APP_DEV_PROVISION_FILE_BASE64" | base64 --decode --output $APP_DEV_PROVISION_PATH
           
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           cp $APP_DEV_PROVISION_PATH ~/Library/MobileDevice/Provisioning\ Profiles
