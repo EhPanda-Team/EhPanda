@@ -11,7 +11,11 @@ env:
    BUILDS_PATH: '/tmp/action-builds'
    ARCHIVE_PATH: '/tmp/action-builds/EhPanda.xcarchive'
    APP_DEV_PROVISION_PATH: '/tmp/action-builds/app_dev.mobileprovision'
-   APP_DEV_PROVISION_FILE_BASE64: ${{ secrets.APP_DEV_PROVISION_FILE_BASE64 }}
+   APP_DEV_CERTIFICATE_PATH: '/tmp/action-builds/app_dev.p12'
+   APP_KEYCHAIN_PATH: '/tmp/action-builds/app-signing.keychain-db'
+   APP_DEV_PROVISION_BASE64: ${{ secrets.APP_DEV_PROVISION }}
+   APP_DEV_CERTIFICATE_BASE64: ${{ secrets.APP_DEV_CERTIFICATE }}
+   APP_DEV_CERTIFICATE_PASSWORD: ${{ secrets.APP_DEV_CERTIFICATE_PASSWORD }}
 jobs:
   Deploy:
     runs-on: macos-11
@@ -32,7 +36,15 @@ jobs:
       - name: Install provison file
         run: |
           mkdir $BUILDS_PATH
-          echo -n "$APP_DEV_PROVISION_FILE_BASE64" | base64 -d -o $APP_DEV_PROVISION_PATH
+          echo -n "$APP_DEV_PROVISION_BASE64" | base64 -d -o $APP_DEV_PROVISION_PATH
+          echo -n "$APP_DEV_CERTIFICATE_BASE64" | base64 -d -o $APP_DEV_CERTIFICATE_PATH
+ 
+          security create-keychain -p $APP_DEV_CERTIFICATE_PASSWORD $APP_KEYCHAIN_PATH
+          security set-keychain-settings -lut 21600 $APP_KEYCHAIN_PATH
+          security unlock-keychain -p $APP_DEV_CERTIFICATE_PASSWORD $APP_KEYCHAIN_PATH
+
+          security import $APP_DEV_CERTIFICATE_PATH -P $APP_DEV_CERTIFICATE_PASSWORD -A -t cert -f pkcs12 -k $APP_KEYCHAIN_PATH
+          security list-keychain -d user -s $APP_KEYCHAIN_PATH
           
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           cp $APP_DEV_PROVISION_PATH ~/Library/MobileDevice/Provisioning\ Profiles
