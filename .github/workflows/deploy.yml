@@ -8,7 +8,9 @@ env:
    XCODE_VERSION: '13.0'
    SCHEME_NAME: 'EhPanda'
    SIMULATOR_IDENTIFIER: 'iPhone 12'
+   DEVICE_IDENTIFIER: 'Any iOS Device'
    ARCHIVE_PATH: '/builds/EhPanda.xcarchive'
+   APP_PROVISION_FILE_BASE64: ${{ secrets.APP_DEV_PROVISION_FILE_BASE64 }}
 jobs:
   Build-and-test:
     runs-on: macos-11
@@ -28,5 +30,6 @@ jobs:
 #           clean test
       - name: Xcode archive
         run: xcodebuild
-          -scheme ${{ env.SCHEME_NAME }} -archivePath ${{ env.ARCHIVE_PATH }} 
+          -scheme ${{ env.SCHEME_NAME }} -archivePath ${{ env.ARCHIVE_PATH }}
+          -destination 'platform=iOS,name=${{ env.DEVICE_IDENTIFIER }}'
           archive
