@@ -9,9 +9,8 @@ env:
    SCHEME_NAME: 'EhPanda'
    SIMULATOR_IDENTIFIER: 'iPhone 12'
    DEVICE_IDENTIFIER: 'Any iOS Device'
-   BUILDS_PATH: '/builds'
-   ARCHIVE_PATH: '/builds/EhPanda.xcarchive'
-   APP_DEV_PROVISION_PATH: '/builds/app_dev.mobileprovision'
+   ARCHIVE_PATH: '$RUNNER_TEMP/EhPanda.xcarchive'
+   APP_DEV_PROVISION_PATH: '$RUNNER_TEMP/app_dev.mobileprovision'
    APP_DEV_PROVISION_FILE_BASE64: ${{ secrets.APP_DEV_PROVISION_FILE_BASE64 }}
 jobs:
   Deploy:
@@ -32,7 +31,6 @@ jobs:
 #           clean test
       - name: Install provison file
         run: |
-          mkdir $BUILDS_PATH
           echo -n "$APP_DEV_PROVISION_FILE_BASE64" | base64 -d -o $APP_DEV_PROVISION_PATH
           
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
