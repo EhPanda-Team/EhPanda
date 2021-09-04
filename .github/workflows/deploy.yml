@@ -40,6 +40,7 @@ jobs:
           echo -n "$DEV_CERTIFICATE_BASE64" | base64 -d -o $DEV_CERTIFICATE_PATH
  
           security create-keychain -p $DEV_CERTIFICATE_PASSWORD $KEYCHAIN_PATH
+          security list-keychain -s $KEYCHAIN_PATH
           security unlock-keychain -p $DEV_CERTIFICATE_PASSWORD $KEYCHAIN_PATH
           security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
 
