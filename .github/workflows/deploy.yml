@@ -28,6 +28,14 @@ jobs:
 #           -scheme ${{ env.SCHEME_NAME }} -sdk iphonesimulator
 #           -destination 'platform=iOS Simulator,name=${{ env.SIMULATOR_IDENTIFIER }}'
 #           clean test
+      - name: Install provison profile
+        run: |
+          APP_DEV_PROVISION_PATH=/builds/app_dev.mobileprovision
+          
+          echo -n "$BUILD_PROVISION_PROFILE_BASE64" | base64 --decode --output $APP_DEV_PROVISION_PATH
+          
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+          cp $APP_DEV_PROVISION_PATH ~/Library/MobileDevice/Provisioning\ Profiles
       - name: Xcode archive
         run: xcodebuild
           -scheme ${{ env.SCHEME_NAME }} -archivePath ${{ env.ARCHIVE_PATH }}
