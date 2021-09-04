@@ -21,11 +21,11 @@ jobs:
         run: sudo xcode-select --switch /Applications/Xcode_${{ env.XCODE_VERSION }}.app
       - name: Show Xcode version
         run: xcodebuild -version
-      - name: Run tests
-        run: xcodebuild
-          -scheme ${{ env.SCHEME_NAME }} -sdk iphonesimulator
-          -destination 'platform=iOS Simulator,name=${{ env.SIMULATOR_IDENTIFIER }}'
-          clean test
+#       - name: Run tests
+#         run: xcodebuild
+#           -scheme ${{ env.SCHEME_NAME }} -sdk iphonesimulator
+#           -destination 'platform=iOS Simulator,name=${{ env.SIMULATOR_IDENTIFIER }}'
+#           clean test
       - name: Xcode archive
         run: xcodebuild
           -scheme ${{ env.SCHEME_NAME }} -archivePath ${{ env.ARCHIVE_PATH }} 
