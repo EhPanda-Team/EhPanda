@@ -1,0 +1,17 @@
+name: Deploy
+on: 
+  merge:
+    - test/pipeline-mergeInto
+env:
+   XCODE_VERSION: '13.0'
+   SIMULATOR_IDENTIFIER: 'iPhone 12'
+jobs:
+  Build-and-test:
+    runs-on: macos-11
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Select Xcode
+        run: sudo xcode-select --switch /Applications/Xcode_${{ env.XCODE_VERSION }}.app
+      - name: Show Xcode version
+        run: xcodebuild -version
