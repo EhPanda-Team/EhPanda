@@ -12,7 +12,7 @@ env:
    ARCHIVE_PATH: '/builds/EhPanda.xcarchive'
    APP_DEV_PROVISION_FILE_BASE64: ${{ secrets.APP_DEV_PROVISION_FILE_BASE64 }}
 jobs:
-  Build-and-test:
+  Deploy:
     runs-on: macos-11
 #     if: github.event.pull_request.merged == true
 #       && github.event.pull_request.user.login == 'tatsuz0u'
@@ -30,7 +30,7 @@ jobs:
 #           clean test
       - name: Install provison file
         run: |
-          APP_DEV_PROVISION_PATH=/builds/app_dev.mobileprovision
+          APP_DEV_PROVISION_PATH=$RUNNER_TEMP/builds/app_dev.mobileprovision
           
           echo -n "$APP_DEV_PROVISION_FILE_BASE64" | base64 --decode --output $APP_DEV_PROVISION_PATH
           
