@@ -11,8 +11,8 @@ env:
    BUILDS_PATH: '/tmp/action-builds'
    ARCHIVE_PATH: '/tmp/action-builds/EhPanda.xcarchive'
    APP_DEV_PROVISION_PATH: '/tmp/action-builds/app_dev.mobileprovision'
-   DEV_CERTIFICATE_PATH: '/tmp/action-builds/app_dev.p12'
-   KEYCHAIN_PATH: '/tmp/action-builds/app_dev.keychain'
+   DEV_CERTIFICATE_PATH: '/tmp/action-builds/dev.p12'
+   KEYCHAIN_PATH: '/tmp/action-builds/generated.keychain'
    APP_DEV_PROVISION_BASE64: ${{ secrets.APP_DEV_PROVISION }}
    DEV_CERTIFICATE_BASE64: ${{ secrets.DEV_CERTIFICATE }}
    DEV_CERTIFICATE_PASSWORD: ${{ secrets.DEV_CERTIFICATE_PASSWORD }}
@@ -45,8 +45,8 @@ jobs:
           security unlock-keychain -p $DEV_CERTIFICATE_PASSWORD $KEYCHAIN_PATH
           security set-keychain-settings
 
-          security import $DEV_CERTIFICATE_PATH -P $DEV_CERTIFICATE_PASSWORD -A -t cert -f pkcs12 -k $APP_KEYCHAIN_PATH
-          security list-keychain -s $APP_KEYCHAIN_PATH
+          security import $DEV_CERTIFICATE_PATH -P $DEV_CERTIFICATE_PASSWORD -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+          security list-keychain -s $KEYCHAIN_PATH
           
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           cp $APP_DEV_PROVISION_PATH ~/Library/MobileDevice/Provisioning\ Profiles
@@ -54,5 +54,5 @@ jobs:
         run: xcodebuild
           -scheme ${{ env.SCHEME_NAME }} -archivePath ${{ env.ARCHIVE_PATH }}
           -destination 'generic/platform=iOS'
-          "OTHER_CODE_SIGN_FLAGS=--keychain '$APP_KEYCHAIN_PATH'"
+          "OTHER_CODE_SIGN_FLAGS=--keychain '$KEYCHAIN_PATH'"
           archive
