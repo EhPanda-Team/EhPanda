@@ -6,8 +6,11 @@ on:
     types: [closed]
 env:
    XCODE_VERSION: '13.0'
+   SCHEME_NAME: 'EhPanda'
    AUTHORIZED_AUTHOR: 'tatsuz0u'
    SIMULATOR_IDENTIFIER: 'iPhone 12'
+   BUILDS_PATH: '/Builds'
+   ARCHIVE_PATH: '${{ BUILDS_PATH }}/${{ SCHEME_NAME }}.xcarchive'
 jobs:
   Build-and-test:
     runs-on: macos-11
@@ -25,3 +28,7 @@ jobs:
           -scheme ${{ env.SCHEME_NAME }} -sdk iphonesimulator
           -destination 'platform=iOS Simulator,name=${{ env.SIMULATOR_IDENTIFIER }}'
           clean test
+      - name: Xcode archive
+        run: xcodebuild
+          -scheme ${{ env.SCHEME_NAME }} -archivePath ${{ env.ARCHIVE_PATH }} 
+          archive
