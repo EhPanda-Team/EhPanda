@@ -39,10 +39,10 @@ jobs:
           echo -n "$APP_DEV_PROVISION_BASE64" | base64 -d -o $APP_DEV_PROVISION_PATH
           echo -n "$DEV_CERTIFICATE_BASE64" | base64 -d -o $DEV_CERTIFICATE_PATH
  
-          security create-keychain -p $DEV_CERTIFICATE_PASSWORD $KEYCHAIN_PATH
+          security create-keychain -p $DEV_CERTIFICATE_PASSWORD $KEYCHAIN_PATH -T /usr/bin/codesign
           security list-keychains -s $KEYCHAIN_PATH
           security default-keychain -s $KEYCHAIN_PATH
-          security unlock-keychain -p $DEV_CERTIFICATE_PASSWORD $KEYCHAIN_PATH
+          security unlock-keychain -p $DEV_CERTIFICATE_PASSWORD $KEYCHAIN_PATH -T /usr/bin/codesign
           security set-keychain-settings
 
           security import $DEV_CERTIFICATE_PATH -P $DEV_CERTIFICATE_PASSWORD -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
