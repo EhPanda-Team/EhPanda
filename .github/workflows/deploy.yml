@@ -1,9 +1,9 @@
 name: Deploy
-on: 
-  pull_request:
-    branches:
-      - test/pipeline-mergeInto
-    types: [closed]
+on: [push]
+#   pull_request:
+#     branches:
+#       - test/pipeline-mergeInto
+#     types: [closed]
 env:
    XCODE_VERSION: '13.0'
    SCHEME_NAME: 'EhPanda'
