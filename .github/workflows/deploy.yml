@@ -47,6 +47,7 @@ jobs:
 
           security import $DEV_CERTIFICATE_PATH -P $DEV_CERTIFICATE_PASSWORD -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
           security list-keychain -s $KEYCHAIN_PATH
+          security set-key-partition-list -S apple-tool:,apple: -s -k $DEV_CERTIFICATE_PASSWORD $KEYCHAIN_PATH
           
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           cp $APP_DEV_PROVISION_PATH ~/Library/MobileDevice/Provisioning\ Profiles
