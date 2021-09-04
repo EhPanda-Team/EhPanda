@@ -7,14 +7,13 @@ on: [push]
 env:
    XCODE_VERSION: '13.0'
    SCHEME_NAME: 'EhPanda'
-   AUTHORIZED_AUTHOR: 'tatsuz0u'
    SIMULATOR_IDENTIFIER: 'iPhone 12'
    ARCHIVE_PATH: '/builds/EhPanda.xcarchive'
 jobs:
   Build-and-test:
     runs-on: macos-11
     if: github.event.pull_request.merged == true
-      && github.event.pull_request.user.login == ${{ env.AUTHORIZED_AUTHOR }}
+      && github.event.pull_request.user.login == 'tatsuz0u'
     steps:
       - name: Checkout
         uses: actions/checkout@v2
