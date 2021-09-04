@@ -9,8 +9,8 @@ env:
    SCHEME_NAME: 'EhPanda'
    AUTHORIZED_AUTHOR: 'tatsuz0u'
    SIMULATOR_IDENTIFIER: 'iPhone 12'
-   BUILDS_PATH: '/Builds'
-   ARCHIVE_PATH: '${{ BUILDS_PATH }}/${{ SCHEME_NAME }}.xcarchive'
+   BUILDS_PATH: '/github-actions-builds'
+   ARCHIVE_PATH: '${{ env.BUILDS_PATH }}/${{ env.SCHEME_NAME }}.xcarchive'
 jobs:
   Build-and-test:
     runs-on: macos-11
