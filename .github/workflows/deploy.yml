@@ -11,11 +11,11 @@ env:
    BUILDS_PATH: '/tmp/action-builds'
    ARCHIVE_PATH: '/tmp/action-builds/EhPanda.xcarchive'
    APP_DEV_PROVISION_PATH: '/tmp/action-builds/app_dev.mobileprovision'
-   APP_DEV_CERTIFICATE_PATH: '/tmp/action-builds/app_dev.p12'
-   APP_KEYCHAIN_PATH: '/tmp/action-builds/app_dev.keychain'
+   DEV_CERTIFICATE_PATH: '/tmp/action-builds/app_dev.p12'
+   KEYCHAIN_PATH: '/tmp/action-builds/app_dev.keychain'
    APP_DEV_PROVISION_BASE64: ${{ secrets.APP_DEV_PROVISION }}
-   APP_DEV_CERTIFICATE_BASE64: ${{ secrets.APP_DEV_CERTIFICATE }}
-   APP_DEV_CERTIFICATE_PASSWORD: ${{ secrets.APP_DEV_CERTIFICATE_PASSWORD }}
+   DEV_CERTIFICATE_BASE64: ${{ secrets.DEV_CERTIFICATE }}
+   DEV_CERTIFICATE_PASSWORD: ${{ secrets.DEV_CERTIFICATE_PASSWORD }}
 jobs:
   Deploy:
     runs-on: macos-11
@@ -37,15 +37,15 @@ jobs:
         run: |
           mkdir $BUILDS_PATH
           echo -n "$APP_DEV_PROVISION_BASE64" | base64 -d -o $APP_DEV_PROVISION_PATH
-          echo -n "$APP_DEV_CERTIFICATE_BASE64" | base64 -d -o $APP_DEV_CERTIFICATE_PATH
+          echo -n "$DEV_CERTIFICATE_BASE64" | base64 -d -o $DEV_CERTIFICATE_PATH
  
-          security create-keychain -p $APP_DEV_CERTIFICATE_PASSWORD $APP_KEYCHAIN_PATH
-          security list-keychains -s $APP_KEYCHAIN_PATH
-          security default-keychain -s $APP_KEYCHAIN_PATH
-          security unlock-keychain -p $APP_DEV_CERTIFICATE_PASSWORD $APP_KEYCHAIN_PATH
+          security create-keychain -p $DEV_CERTIFICATE_PASSWORD $KEYCHAIN_PATH
+          security list-keychains -s $KEYCHAIN_PATH
+          security default-keychain -s $KEYCHAIN_PATH
+          security unlock-keychain -p $DEV_CERTIFICATE_PASSWORD $KEYCHAIN_PATH
           security set-keychain-settings
 
-          security import $APP_DEV_CERTIFICATE_PATH -P $APP_DEV_CERTIFICATE_PASSWORD -A -t cert -f pkcs12 -k $APP_KEYCHAIN_PATH
+          security import $DEV_CERTIFICATE_PATH -P $DEV_CERTIFICATE_PASSWORD -A -t cert -f pkcs12 -k $APP_KEYCHAIN_PATH
           security list-keychain -s $APP_KEYCHAIN_PATH
           
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
