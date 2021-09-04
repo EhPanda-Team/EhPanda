@@ -1,13 +1,18 @@
 name: Deploy
 on: 
-  merge:
-    - test/pipeline-mergeInto
+  pull_request:
+    branches:
+      - test/pipeline-mergeInto
+    types: [closed]
 env:
    XCODE_VERSION: '13.0'
+   AUTHORIZED_AUTHOR: 'tatsuz0u'
    SIMULATOR_IDENTIFIER: 'iPhone 12'
 jobs:
   Build-and-test:
     runs-on: macos-11
+    if: github.event.pull_request.merged == true
+      && github.event.pull_request.user.login == ${{ env.AUTHORIZED_AUTHOR }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -15,3 +20,8 @@ jobs:
         run: sudo xcode-select --switch /Applications/Xcode_${{ env.XCODE_VERSION }}.app
       - name: Show Xcode version
         run: xcodebuild -version
+      - name: Run tests
+        run: xcodebuild
+          -scheme ${{ env.SCHEME_NAME }} -sdk iphonesimulator
+          -destination 'platform=iOS Simulator,name=${{ env.SIMULATOR_IDENTIFIER }}'
+          clean test
