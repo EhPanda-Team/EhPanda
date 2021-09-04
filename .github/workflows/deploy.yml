@@ -8,7 +8,6 @@ env:
    XCODE_VERSION: '13.0'
    SCHEME_NAME: 'EhPanda'
    SIMULATOR_IDENTIFIER: 'iPhone 12'
-   DEVICE_IDENTIFIER: 'Any iOS Device'
    BUILDS_PATH: '/tmp/action-builds'
    ARCHIVE_PATH: '/tmp/action-builds/EhPanda.xcarchive'
    APP_DEV_PROVISION_PATH: '/tmp/action-builds/app_dev.mobileprovision'
@@ -40,5 +39,5 @@ jobs:
       - name: Xcode archive
         run: xcodebuild
           -scheme ${{ env.SCHEME_NAME }} -archivePath ${{ env.ARCHIVE_PATH }}
-          -destination 'platform=iOS,name=${{ env.DEVICE_IDENTIFIER }}'
+          -destination 'generic/platform=iOS'
           archive
