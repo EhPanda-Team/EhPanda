@@ -12,7 +12,7 @@ env:
    ARCHIVE_PATH: '/tmp/action-builds/EhPanda.xcarchive'
    APP_DEV_PROVISION_PATH: '/tmp/action-builds/app_dev.mobileprovision'
    APP_DEV_CERTIFICATE_PATH: '/tmp/action-builds/app_dev.p12'
-   APP_KEYCHAIN_PATH: '/tmp/action-builds/app-signing.keychain-db'
+   APP_KEYCHAIN_PATH: '/tmp/action-builds/app_dev.keychain'
    APP_DEV_PROVISION_BASE64: ${{ secrets.APP_DEV_PROVISION }}
    APP_DEV_CERTIFICATE_BASE64: ${{ secrets.APP_DEV_CERTIFICATE }}
    APP_DEV_CERTIFICATE_PASSWORD: ${{ secrets.APP_DEV_CERTIFICATE_PASSWORD }}
@@ -52,4 +52,5 @@ jobs:
         run: xcodebuild
           -scheme ${{ env.SCHEME_NAME }} -archivePath ${{ env.ARCHIVE_PATH }}
           -destination 'generic/platform=iOS'
+          "OTHER_CODE_SIGN_FLAGS=--keychain '$APP_KEYCHAIN_PATH'"
           archive
