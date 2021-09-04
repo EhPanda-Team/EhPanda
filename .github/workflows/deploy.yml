@@ -30,9 +30,9 @@ jobs:
 #           clean test
       - name: Install provison file
         run: |
-          APP_DEV_PROVISION_PATH=$RUNNER_TEMP/builds/app_dev.mobileprovision
+          APP_DEV_PROVISION_PATH=/builds/app_dev.mobileprovision
           
-          echo -n "$APP_DEV_PROVISION_FILE_BASE64" | base64 --decode --output $APP_DEV_PROVISION_PATH
+          echo -n "${{ secrets.APP_DEV_PROVISION_FILE_BASE64 }}" | base64 -d -o $APP_DEV_PROVISION_PATH
           
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           cp $APP_DEV_PROVISION_PATH ~/Library/MobileDevice/Provisioning\ Profiles
