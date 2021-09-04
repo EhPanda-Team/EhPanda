@@ -9,8 +9,8 @@ env:
    SCHEME_NAME: 'EhPanda'
    SIMULATOR_IDENTIFIER: 'iPhone 12'
    DEVICE_IDENTIFIER: 'Any iOS Device'
-   ARCHIVE_PATH: '$RUNNER_TEMP/EhPanda.xcarchive'
-   APP_DEV_PROVISION_PATH: '$RUNNER_TEMP/app_dev.mobileprovision'
+   ARCHIVE_PATH: '${{ RUNNER_TEMP }}/EhPanda.xcarchive'
+   APP_DEV_PROVISION_PATH: '${{ RUNNER_TEMP }}/app_dev.mobileprovision'
    APP_DEV_PROVISION_FILE_BASE64: ${{ secrets.APP_DEV_PROVISION_FILE_BASE64 }}
 jobs:
   Deploy:
