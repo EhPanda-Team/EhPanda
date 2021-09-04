@@ -2,6 +2,7 @@ name: Build
 on: [push, pull_request]
 env:
    XCODE_VERSION: '13.0'
+   SCHEME_NAME: 'EhPanda'
    SIMULATOR_IDENTIFIER: 'iPhone 12'
 jobs:
   Build-and-test:
@@ -15,11 +16,11 @@ jobs:
         run: xcodebuild -version
       - name: Xcode build
         run: xcodebuild
-          -scheme EhPanda -sdk iphonesimulator -configuration Debug
+          -scheme ${{ env.SCHEME_NAME }} -sdk iphonesimulator -configuration Debug
           -destination 'platform=iOS Simulator,name=${{ env.SIMULATOR_IDENTIFIER }}'
           build
       - name: Run tests
         run: xcodebuild
-          -scheme EhPanda -sdk iphonesimulator
+          -scheme ${{ env.SCHEME_NAME }} -sdk iphonesimulator
           -destination 'platform=iOS Simulator,name=${{ env.SIMULATOR_IDENTIFIER }}'
           clean test
