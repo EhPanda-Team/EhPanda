@@ -36,7 +36,7 @@ jobs:
 #           clean test
       - name: Install provison file
         run: |
-          KEY_CHAIN=build.keychain
+          KEY_CHAIN=action-builds.keychain-db
           
           mkdir $BUILDS_PATH
           echo -n "$APP_DEV_PROVISION_BASE64" | base64 -d -o $APP_DEV_PROVISION_PATH
@@ -50,14 +50,14 @@ jobs:
 
           security import $DEV_CERTIFICATE_PATH -k $KEY_CHAIN -T /usr/bin/codesign
           security import $DEV_P12_PATH -k $KEY_CHAIN -P $DEV_P12_PASSWORD -T /usr/bin/codesign
-          security set-key-partition-list -S apple-tool:,apple: -s -k $DEV_P12_PASSWORD ~/Library/Keychains/build.keychain
+          security set-key-partition-list -S apple-tool:,apple: -s -k $DEV_P12_PASSWORD ~/Library/Keychains/action-builds.keychain-db
           
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           uuid=`grep UUID -A1 -a $APP_DEV_PROVISION_PATH | grep -io "[-A-F0-9]\{36\}"`
           cp $APP_DEV_PROVISION_PATH ~/Library/MobileDevice/Provisioning\ Profiles/$uuid.mobileprovision
           
           security list-keychains
-          security find-identity -p codesigning  ~/Library/Keychains/build.keychain
+          security find-identity -p codesigning  ~/Library/Keychains/action-builds.keychain-db
           ls ~/Library/MobileDevice/Provisioning\ Profiles
       - name: Xcode archive
         run: xcodebuild
