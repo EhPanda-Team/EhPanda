@@ -41,6 +41,7 @@ jobs:
           mkdir $BUILDS_PATH
           echo -n "$APP_DEV_PROVISION_BASE64" | base64 -d -o $APP_DEV_PROVISION_PATH
           echo -n "$DEV_CERTIFICATE_BASE64" | base64 -d -o $DEV_CERTIFICATE_PATH
+          echo -n "$DEV_P12_BASE64" | base64 -d -o $DEV_P12_PATH
  
           security create-keychain -p $DEV_P12_PASSWORD $KEY_CHAIN
           security default-keychain -s $KEY_CHAIN
