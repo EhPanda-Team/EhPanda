@@ -13,7 +13,6 @@ env:
    APP_DEV_PROVISION_PATH: '/tmp/action-builds/app_dev.mobileprovision'
    DEV_CERTIFICATE_PATH: '/tmp/action-builds/dev.cer'
    DEV_P12_PATH: '/tmp/action-builds/dev.p12'
-   KEYCHAIN_PATH: '/tmp/action-builds/generated.keychain'
    APP_DEV_PROVISION_BASE64: ${{ secrets.APP_DEV_PROVISION }}
    DEV_CERTIFICATE_BASE64: ${{ secrets.DEV_CERTIFICATE }}
    DEV_P12_PASSWORD: ${{ secrets.DEV_P12_PASSWORD }}
@@ -37,20 +36,28 @@ jobs:
 #           clean test
       - name: Install provison file
         run: |
+          KEY_CHAIN = build.keychain
+          
           mkdir $BUILDS_PATH
           echo -n "$APP_DEV_PROVISION_BASE64" | base64 -d -o $APP_DEV_PROVISION_PATH
           echo -n "$DEV_CERTIFICATE_BASE64" | base64 -d -o $DEV_CERTIFICATE_PATH
  
-          security create-keychain -p $DEV_P12_PASSWORD $KEYCHAIN_PATH
-          security default-keychain -s $KEYCHAIN_PATH
-          security unlock-keychain -p $DEV_P12_PASSWORD $KEYCHAIN_PATH
-          security set-keychain-settings -t 3600 -u $KEYCHAIN_PATH
+          security create-keychain -p $DEV_P12_PASSWORD $KEY_CHAIN
+          security default-keychain -s $KEY_CHAIN
+          security unlock-keychain -p $DEV_P12_PASSWORD $KEY_CHAIN
+          security set-keychain-settings -t 3600 -u $KEY_CHAIN
 
-          security import $DEV_CERTIFICATE_PATH -k $KEYCHAIN_PATH -T /usr/bin/codesign
-          security list-keychain -s $KEYCHAIN_PATH
+          security import $DEV_CERTIFICATE_PATH -k $KEY_CHAIN -T /usr/bin/codesign
+          security import $DEV_P12_PATH -k $KEY_CHAIN -P $DEV_P12_PASSWORD -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple: -s -k $DEV_P12_PASSWORD ~/Library/Keychains/build.keychain
           
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-          cp $APP_DEV_PROVISION_PATH ~/Library/MobileDevice/Provisioning\ Profiles
+          uuid=`grep UUID -A1 -a $APP_DEV_PROVISION_PATH | grep -io "[-A-F0-9]\{36\}"`
+          cp $APP_DEV_PROVISION_PATH ~/Library/MobileDevice/Provisioning\ Profiles/$uuid.mobileprovision
+          
+          security list-keychains
+          security find-identity -p codesigning  ~/Library/Keychains/build.keychain
+          ls ~/Library/MobileDevice/Provisioning\ Profiles
       - name: Xcode archive
         run: xcodebuild
           -scheme ${{ env.SCHEME_NAME }} -archivePath ${{ env.ARCHIVE_PATH }}
