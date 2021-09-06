@@ -36,7 +36,7 @@ jobs:
 #           clean test
       - name: Install provison file
         run: |
-          KEY_CHAIN = build.keychain
+          KEY_CHAIN=build.keychain
           
           mkdir $BUILDS_PATH
           echo -n "$APP_DEV_PROVISION_BASE64" | base64 -d -o $APP_DEV_PROVISION_PATH
