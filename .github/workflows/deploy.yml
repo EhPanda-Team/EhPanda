@@ -63,5 +63,4 @@ jobs:
         run: xcodebuild
           -scheme ${{ env.SCHEME_NAME }} -archivePath ${{ env.ARCHIVE_PATH }}
           -destination 'generic/platform=iOS'
-          "OTHER_CODE_SIGN_FLAGS=--keychain '$KEYCHAIN_PATH'"
           archive
