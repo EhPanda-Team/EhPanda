@@ -105,9 +105,10 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-         files: ${{ env.IPA_OUTPUT_PATH }}
+         files: 'EhPanda.ipa'
          tag_name: 'v1.0.4_b93'
          prerelease: true
+         fail_on_unmatched_files: true
          body: 'This is a test build released by bot, do not download.'
       - name: Commit bump version
         run: |
