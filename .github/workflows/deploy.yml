@@ -12,15 +12,23 @@ env:
    ARCHIVE_PATH: '/tmp/action-builds/EhPanda.xcarchive'
    IPA_OUTPUT_PATH: '/tmp/action-builds/EhPanda.ipa'
    EXPORT_PLIST_PATH: '/github/workspace/ExportOptions.plist'
-   APP_DEV_PROVISION_PATH: '/tmp/action-builds/app_dev.mobileprovision'
-   SHARE_EXTENSION_DEV_PROVISION_PATH: '/tmp/action-builds/share_extension_dev.mobileprovision'
    DEV_CERTIFICATE_PATH: '/tmp/action-builds/dev.cer'
+   DIS_CERTIFICATE_PATH: '/tmp/action-builds/dis.cer'
    DEV_P12_PATH: '/tmp/action-builds/dev.p12'
-   SHARE_EXTENSION_DEV_PROVISION_BASE64: ${{ secrets.SHARE_EXTENSION_DEV_PROVISION }}
-   APP_DEV_PROVISION_BASE64: ${{ secrets.APP_DEV_PROVISION }}
+   DIS_P12_PATH: '/tmp/action-builds/dis.p12'
+   APP_DEV_PROVISION_PATH: '/tmp/action-builds/app_dev.mobileprovision'
+   APP_DIS_PROVISION_PATH: '/tmp/action-builds/app_dis.mobileprovision'
+   SHARE_EXTENSION_DEV_PROVISION_PATH: '/tmp/action-builds/share_extension_dev.mobileprovision'
+   SHARE_EXTENSION_DIS_PROVISION_PATH: '/tmp/action-builds/share_extension_dis.mobileprovision'
    DEV_CERTIFICATE_BASE64: ${{ secrets.DEV_CERTIFICATE }}
-   DEV_P12_PASSWORD: ${{ secrets.DEV_P12_PASSWORD }}
+   DIS_CERTIFICATE_BASE64: ${{ secrets.DIS_CERTIFICATE }}
    DEV_P12_BASE64: ${{ secrets.DEV_P12 }}
+   DIS_P12_BASE64: ${{ secrets.DIS_P12 }}
+   P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
+   APP_DEV_PROVISION_BASE64: ${{ secrets.APP_DEV_PROVISION }}
+   APP_DIS_PROVISION_BASE64: ${{ secrets.APP_DIS_PROVISION }}
+   SHARE_EXTENSION_DEV_PROVISION_BASE64: ${{ secrets.SHARE_EXTENSION_DEV_PROVISION }}
+   SHARE_EXTENSION_DIS_PROVISION_BASE64: ${{ secrets.SHARE_EXTENSION_DIS_PROVISION }}
 jobs:
   Deploy:
     runs-on: macos-11
@@ -39,10 +47,14 @@ jobs:
       - name: Decode certificates and provisioning profiles
         run: |
           mkdir $BUILDS_PATH
-          echo -n "$SHARE_EXTENSION_DEV_PROVISION_BASE64" | base64 -d -o $SHARE_EXTENSION_DEV_PROVISION_PATH
-          echo -n "$APP_DEV_PROVISION_BASE64" | base64 -d -o $APP_DEV_PROVISION_PATH
           echo -n "$DEV_CERTIFICATE_BASE64" | base64 -d -o $DEV_CERTIFICATE_PATH
+          echo -n "$DIS_CERTIFICATE_BASE64" | base64 -d -o $DIS_CERTIFICATE_PATH
           echo -n "$DEV_P12_BASE64" | base64 -d -o $DEV_P12_PATH
+          echo -n "$DIS_P12_BASE64" | base64 -d -o $DIS_P12_PATH
+          echo -n "$APP_DEV_PROVISION_BASE64" | base64 -d -o $APP_DEV_PROVISION_PATH
+          echo -n "$APP_DIS_PROVISION_BASE64" | base64 -d -o $APP_DIS_PROVISION_PATH
+          echo -n "$SHARE_EXTENSION_DEV_PROVISION_BASE64" | base64 -d -o $SHARE_EXTENSION_DEV_PROVISION_PATH
+          echo -n "$SHARE_EXTENSION_DIS_PROVISION_BASE64" | base64 -d -o $SHARE_EXTENSION_DIS_PROVISION_PATH
       - name: Install certificates
         run: |
           KEY_CHAIN=action-builds.keychain-db
