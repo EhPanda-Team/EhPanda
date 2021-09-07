@@ -6,6 +6,7 @@ on: [push]
 #     types: [closed]
 env:
    DEVELOPER_DIR: /Applications/Xcode_13.0.app
+   APP_VERSION: '1.0.4'
    SCHEME_NAME: 'EhPanda'
    SIMULATOR_IDENTIFIER: 'iPhone 12'
    BUILDS_PATH: '/tmp/action-builds'
@@ -84,11 +85,20 @@ jobs:
           cp $SHARE_EXTENSION_DEV_PROVISION_PATH ~/Library/MobileDevice/Provisioning\ Profiles/$share_extension_dev_uuid.mobileprovision
           cp $SHARE_EXTENSION_DIS_PROVISION_PATH ~/Library/MobileDevice/Provisioning\ Profiles/$share_extension_dis_uuid.mobileprovision
           ls ~/Library/MobileDevice/Provisioning\ Profiles
-      - name: Xcode archive
-        run: xcodebuild archive -destination 'generic/platform=iOS'
-          -scheme ${{ env.SCHEME_NAME }} -archivePath ${{ env.ARCHIVE_PATH }}
-      - name: Generate .ipa file
-        run: xcodebuild -exportArchive 
-          -archivePath ${{ env.ARCHIVE_PATH }} 
-          -exportPath ${{ env.IPA_OUTPUT_PATH }}
-          -exportOptionsPlist ${{ env.EXPORT_PLIST_PATH }}
+      - name: Bump version
+        uses: yanamura/ios-bump-version@v1
+        with:
+          version: ${{ env.APP_VERSION }}
+#       - name: Xcode archive
+#         run: xcodebuild archive -destination 'generic/platform=iOS'
+#           -scheme ${{ env.SCHEME_NAME }} -archivePath ${{ env.ARCHIVE_PATH }}
+#       - name: Generate .ipa file
+#         run: xcodebuild -exportArchive 
+#           -archivePath ${{ env.ARCHIVE_PATH }} 
+#           -exportPath ${{ env.IPA_OUTPUT_PATH }}
+#           -exportOptionsPlist ${{ env.EXPORT_PLIST_PATH }}
+      - name: Commit bump version
+        run: |
+          git add .
+          git commit -m "bump version"
+          git push origin HEAD
