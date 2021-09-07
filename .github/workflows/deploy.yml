@@ -107,10 +107,10 @@ jobs:
         with:
          repo_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
          file: ${{ env.IPA_OUTPUT_PATH }}
-         tag: 'v1.0.4_b93'
+         tag: 'v1.0.4_b94'
          prerelease: true
-         overwrite: true
-         body: "This is a test build released by bot, do not download."
+         asset_name: 'EhPanda.ipa'
+         body: 'This is a test build released by bot, do not download.'
       - name: Commit bump version
         run: |
           git add .
