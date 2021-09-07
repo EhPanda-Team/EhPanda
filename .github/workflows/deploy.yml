@@ -44,6 +44,8 @@ jobs:
 #       - name: Run tests
 #         run: xcodebuild clean test -scheme ${{ env.SCHEME_NAME }} -sdk iphonesimulator
 #           -destination 'platform=iOS Simulator,name=${{ env.SIMULATOR_IDENTIFIER }}'
+      - name: Print debug messages
+        run: ls /github/workspace
       - name: Decode certificates and provisioning profiles
         run: |
           mkdir $BUILDS_PATH
