@@ -34,8 +34,6 @@ jobs:
 #           -destination 'platform=iOS Simulator,name=${{ env.SIMULATOR_IDENTIFIER }}'
       - name: Show Xcode version
         run: xcodebuild -version
-      - name: Print debug messages
-        run: ls
       - name: Decode certificates and provisioning profiles
         env: 
           DEV_CERTIFICATE_BASE64: ${{ secrets.DEV_CERTIFICATE }}
