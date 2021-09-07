@@ -20,7 +20,6 @@ env:
    APP_DIS_PROVISION_PATH: '/tmp/action-builds/app_dis.mobileprovision'
    SHARE_EXTENSION_DEV_PROVISION_PATH: '/tmp/action-builds/share_extension_dev.mobileprovision'
    SHARE_EXTENSION_DIS_PROVISION_PATH: '/tmp/action-builds/share_extension_dis.mobileprovision'
-   P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
 jobs:
   Deploy:
     runs-on: macos-11
@@ -55,6 +54,8 @@ jobs:
           echo -n "$SHARE_EXTENSION_DEV_PROVISION_BASE64" | base64 -d -o $SHARE_EXTENSION_DEV_PROVISION_PATH
           echo -n "$SHARE_EXTENSION_DIS_PROVISION_BASE64" | base64 -d -o $SHARE_EXTENSION_DIS_PROVISION_PATH
       - name: Install certificates
+        env:
+          P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
         run: |
           KEY_CHAIN=action-builds.keychain-db
  
