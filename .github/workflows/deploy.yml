@@ -101,15 +101,13 @@ jobs:
           -archivePath ${{ env.ARCHIVE_PATH }} 
           -exportPath ${{ env.IPA_OUTPUT_PATH }}
           -exportOptionsPlist ${{ env.EXPORT_PLIST_PATH }}
-      - run: ls /tmp/action-builds
       - name: Release to GitHub
-        uses: svenstaro/upload-release-action@v2
+        uses: softprops/action-gh-release@v1
         with:
-         repo_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-         file: ${{ env.IPA_OUTPUT_PATH }}
-         tag: 'v1.0.4_b93'
+         token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+         files: ${{ env.IPA_OUTPUT_PATH }}
+         tag_name: 'v1.0.4_b93'
          prerelease: true
-         asset_name: 'EhPanda.ipa'
          body: 'This is a test build released by bot, do not download.'
       - name: Commit bump version
         run: |
