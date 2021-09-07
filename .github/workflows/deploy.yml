@@ -59,24 +59,30 @@ jobs:
         run: |
           KEY_CHAIN=action-builds.keychain-db
  
-          security create-keychain -p $DEV_P12_PASSWORD $KEY_CHAIN
+          security create-keychain -p $P12_PASSWORD $KEY_CHAIN
           security default-keychain -s $KEY_CHAIN
-          security unlock-keychain -p $DEV_P12_PASSWORD $KEY_CHAIN
+          security unlock-keychain -p $P12_PASSWORD $KEY_CHAIN
           security set-keychain-settings -t 3600 -u $KEY_CHAIN
 
           security import $DEV_CERTIFICATE_PATH -k $KEY_CHAIN -T /usr/bin/codesign
-          security import $DEV_P12_PATH -k $KEY_CHAIN -P $DEV_P12_PASSWORD -T /usr/bin/codesign
-          security set-key-partition-list -S apple-tool:,apple: -s -k $DEV_P12_PASSWORD ~/Library/Keychains/action-builds.keychain-db
+          security import $DIS_CERTIFICATE_PATH -k $KEY_CHAIN -T /usr/bin/codesign
+          security import $DEV_P12_PATH -k $KEY_CHAIN -P $P12_PASSWORD -T /usr/bin/codesign
+          security import $DIS_P12_PATH -k $KEY_CHAIN -P $P12_PASSWORD -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple: -s -k $P12_PASSWORD ~/Library/Keychains/action-builds.keychain-db
           
           security list-keychains
           security find-identity -p codesigning  ~/Library/Keychains/action-builds.keychain-db
       - name: Install provisioning profiles
         run: |
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-          app_uuid=`grep UUID -A1 -a $APP_DEV_PROVISION_PATH | grep -io "[-A-F0-9]\{36\}"`
-          share_extension_uuid=`grep UUID -A1 -a $SHARE_EXTENSION_DEV_PROVISION_PATH | grep -io "[-A-F0-9]\{36\}"`
-          cp $APP_DEV_PROVISION_PATH ~/Library/MobileDevice/Provisioning\ Profiles/$app_uuid.mobileprovision
-          cp $SHARE_EXTENSION_DEV_PROVISION_PATH ~/Library/MobileDevice/Provisioning\ Profiles/$share_extension_uuid.mobileprovision
+          app_dev_uuid=`grep UUID -A1 -a $APP_DEV_PROVISION_PATH | grep -io "[-A-F0-9]\{36\}"`
+          app_dis_uuid=`grep UUID -A1 -a $APP_DIS_PROVISION_PATH | grep -io "[-A-F0-9]\{36\}"`
+          share_extension_dev_uuid=`grep UUID -A1 -a $SHARE_EXTENSION_DEV_PROVISION_PATH | grep -io "[-A-F0-9]\{36\}"`
+          share_extension_dis_uuid=`grep UUID -A1 -a $SHARE_EXTENSION_DIS_PROVISION_PATH | grep -io "[-A-F0-9]\{36\}"`
+          cp $APP_DEV_PROVISION_PATH ~/Library/MobileDevice/Provisioning\ Profiles/$app_dev_uuid.mobileprovision
+          cp $APP_DIS_PROVISION_PATH ~/Library/MobileDevice/Provisioning\ Profiles/$app_dis_uuid.mobileprovision
+          cp $SHARE_EXTENSION_DEV_PROVISION_PATH ~/Library/MobileDevice/Provisioning\ Profiles/$share_extension_dev_uuid.mobileprovision
+          cp $SHARE_EXTENSION_DIS_PROVISION_PATH ~/Library/MobileDevice/Provisioning\ Profiles/$share_extension_dis_uuid.mobileprovision
           ls ~/Library/MobileDevice/Provisioning\ Profiles
       - name: Xcode archive
         run: xcodebuild archive -destination 'generic/platform=iOS'
