@@ -100,5 +100,7 @@ jobs:
       - name: Commit bump version
         run: |
           git add .
-          git commit -m "bump version"
+          git commit -m "Bump version"
+          git config user.name "たつぞう-Bot"
+          git config user.email "kendellcarol@gmail.com"
           git push origin HEAD
