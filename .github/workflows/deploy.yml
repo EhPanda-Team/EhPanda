@@ -107,7 +107,7 @@ jobs:
         with:
          repo_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
          file: ${{ env.IPA_OUTPUT_PATH }}
-         tag: 'v1.0.4_b94'
+         tag: 'v1.0.4_b95'
          prerelease: true
          asset_name: 'EhPanda.ipa'
          body: 'This is a test build released by bot, do not download.'
