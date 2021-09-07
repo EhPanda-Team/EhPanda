@@ -5,7 +5,7 @@ on: [push]
 #       - test/pipeline-mergeInto
 #     types: [closed]
 env:
-   XCODE_VERSION: '13.0'
+   DEVELOPER_DIR: /Applications/Xcode_13.0.app
    SCHEME_NAME: 'EhPanda'
    SIMULATOR_IDENTIFIER: 'iPhone 12'
    BUILDS_PATH: '/tmp/action-builds'
@@ -37,15 +37,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Select Xcode
-        run: sudo xcode-select --switch /Applications/Xcode_${{ env.XCODE_VERSION }}.app
-      - name: Show Xcode version
-        run: xcodebuild -version
 #       - name: Run tests
 #         run: xcodebuild clean test -scheme ${{ env.SCHEME_NAME }} -sdk iphonesimulator
 #           -destination 'platform=iOS Simulator,name=${{ env.SIMULATOR_IDENTIFIER }}'
+      - name: Show Xcode version
+        run: xcodebuild -version
       - name: Print debug messages
-        run: ls /github/workspace
+        run: ls
       - name: Decode certificates and provisioning profiles
         run: |
           mkdir $BUILDS_PATH
