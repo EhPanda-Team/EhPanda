@@ -97,10 +97,12 @@ jobs:
         run: xcodebuild archive -destination 'generic/platform=iOS'
           -scheme ${{ env.SCHEME_NAME }} -archivePath ${{ env.ARCHIVE_PATH }}
       - name: Generate .ipa file
-        run: xcodebuild -exportArchive 
+        run: | 
+          xcodebuild -exportArchive 
           -archivePath ${{ env.ARCHIVE_PATH }} 
           -exportPath ${{ env.IPA_OUTPUT_PATH }}
           -exportOptionsPlist ${{ env.EXPORT_PLIST_PATH }}
+          ls /tmp/action-builds
       - name: Release to GitHub
         uses: svenstaro/upload-release-action@v2
         with:
