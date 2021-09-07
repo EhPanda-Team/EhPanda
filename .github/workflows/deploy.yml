@@ -10,6 +10,8 @@ env:
    SIMULATOR_IDENTIFIER: 'iPhone 12'
    BUILDS_PATH: '/tmp/action-builds'
    ARCHIVE_PATH: '/tmp/action-builds/EhPanda.xcarchive'
+   IPA_OUTPUT_PATH: '/tmp/action-builds/EhPanda.ipa'
+   EXPORT_PLIST_PATH: '/github/workspace/ExportOptions.plist'
    APP_DEV_PROVISION_PATH: '/tmp/action-builds/app_dev.mobileprovision'
    SHARE_EXTENSION_DEV_PROVISION_PATH: '/tmp/action-builds/share_extension_dev.mobileprovision'
    DEV_CERTIFICATE_PATH: '/tmp/action-builds/dev.cer'
@@ -31,11 +33,9 @@ jobs:
         run: sudo xcode-select --switch /Applications/Xcode_${{ env.XCODE_VERSION }}.app
       - name: Show Xcode version
         run: xcodebuild -version
-#       - name: Run tests
-#         run: xcodebuild
-#           -scheme ${{ env.SCHEME_NAME }} -sdk iphonesimulator
-#           -destination 'platform=iOS Simulator,name=${{ env.SIMULATOR_IDENTIFIER }}'
-#           clean test
+      - name: Run tests
+        run: xcodebuild clean test -scheme ${{ env.SCHEME_NAME }} -sdk iphonesimulator
+          -destination 'platform=iOS Simulator,name=${{ env.SIMULATOR_IDENTIFIER }}'
       - name: Decode certificates and provisioning profiles
         run: |
           mkdir $BUILDS_PATH
@@ -67,7 +67,10 @@ jobs:
           cp $SHARE_EXTENSION_DEV_PROVISION_PATH ~/Library/MobileDevice/Provisioning\ Profiles/$share_extension_uuid.mobileprovision
           ls ~/Library/MobileDevice/Provisioning\ Profiles
       - name: Xcode archive
-        run: xcodebuild
+        run: xcodebuild archive -destination 'generic/platform=iOS'
           -scheme ${{ env.SCHEME_NAME }} -archivePath ${{ env.ARCHIVE_PATH }}
-          -destination 'generic/platform=iOS'
-          archive
+      - name: Generate .ipa file
+        run: xcodebuild -exportArchive 
+          -archivePath ${{ env.ARCHIVE_PATH }} 
+          -exportPath ${{ env.IPA_OUTPUT_PATH }}
+          -exportOptionsPlist ${{ env.EXPORT_PLIST_PATH }}
