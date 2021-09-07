@@ -105,7 +105,8 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-         files: 'EhPanda.ipa'
+         files: |
+          ${{ env.IPA_OUTPUT_PATH }}
          tag_name: 'v1.0.4_b93'
          prerelease: true
          fail_on_unmatched_files: true
