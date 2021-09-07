@@ -31,8 +31,8 @@ jobs:
         uses: actions/checkout@v2
       - name: Modify git config
         run: |
-          git config user.name "たつぞう-Bot"
-          git config user.email "kendellcarol@gmail.com"
+           git config user.name "github-actions[bot]"
+           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 #       - name: Run tests
 #         run: xcodebuild clean test -scheme ${{ env.SCHEME_NAME }} -sdk iphonesimulator
 #           -destination 'platform=iOS Simulator,name=${{ env.SIMULATOR_IDENTIFIER }}'
@@ -93,14 +93,23 @@ jobs:
         uses: yanamura/ios-bump-version@v1
         with:
           version: ${{ env.APP_VERSION }}
-#       - name: Xcode archive
-#         run: xcodebuild archive -destination 'generic/platform=iOS'
-#           -scheme ${{ env.SCHEME_NAME }} -archivePath ${{ env.ARCHIVE_PATH }}
-#       - name: Generate .ipa file
-#         run: xcodebuild -exportArchive 
-#           -archivePath ${{ env.ARCHIVE_PATH }} 
-#           -exportPath ${{ env.IPA_OUTPUT_PATH }}
-#           -exportOptionsPlist ${{ env.EXPORT_PLIST_PATH }}
+      - name: Xcode archive
+        run: xcodebuild archive -destination 'generic/platform=iOS'
+          -scheme ${{ env.SCHEME_NAME }} -archivePath ${{ env.ARCHIVE_PATH }}
+      - name: Generate .ipa file
+        run: xcodebuild -exportArchive 
+          -archivePath ${{ env.ARCHIVE_PATH }} 
+          -exportPath ${{ env.IPA_OUTPUT_PATH }}
+          -exportOptionsPlist ${{ env.EXPORT_PLIST_PATH }}
+      - name: Release to GitHub
+        uses: svenstaro/upload-release-action@v2
+        with:
+         repo_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+         file: ${{ env.IPA_OUTPUT_PATH }}
+         tag: 'v1.0.4_b93'
+         prerelease: true
+         overwrite: true
+         body: "This is a test build released by bot, do not download."
       - name: Commit bump version
         run: |
           git add .
