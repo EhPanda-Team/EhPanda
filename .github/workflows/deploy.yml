@@ -78,7 +78,7 @@ jobs:
 #           ls ~/Library/MobileDevice/Provisioning\ Profiles
       - name: Bump version
         id: bump-version
-        uses: tatsuz0u/ios-bump-version@feature/output-version
+        uses: tatsuz0u/ios-bump-version@feature/outputs
         with:
           version: ${{ env.APP_VERSION }}
 #       - name: Xcode archive
