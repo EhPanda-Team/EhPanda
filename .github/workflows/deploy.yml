@@ -101,7 +101,6 @@ jobs:
           -archivePath ${{ env.ARCHIVE_PATH }} 
           -exportPath ${{ env.BUILDS_PATH }}
           -exportOptionsPlist ${{ env.EXPORT_PLIST_PATH }}
-      - run: ls -p ${{ env.BUILDS_PATH }}
       - name: Rename .ipa file
         run: mv ${{ env.BUILDS_PATH }}/*.ipa ${{ env.IPA_OUTPUT_PATH }}
       - name: Release to GitHub
