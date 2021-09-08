@@ -101,6 +101,7 @@ jobs:
           -archivePath ${{ env.ARCHIVE_PATH }} 
           -exportPath ${{ env.IPA_OUTPUT_PATH }}
           -exportOptionsPlist ${{ env.EXPORT_PLIST_PATH }}
+      - run: ls -p /tmp/action-builds/
       - name: Release to GitHub
         uses: ncipollo/release-action@v1
         with:
