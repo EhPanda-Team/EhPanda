@@ -1,9 +1,9 @@
 name: Deploy
-on: [push]
-#   pull_request:
-#     branches:
-#       - test/pipeline-mergeInto
-#     types: [closed]
+on:
+  pull_request:
+    branches:
+      - test/pipeline-mergeInto
+    types: [closed]
 env:
    DEVELOPER_DIR: /Applications/Xcode_13.0.app
    APP_VERSION: '1.0.4'
@@ -22,7 +22,7 @@ env:
 jobs:
   Deploy:
     runs-on: macos-11
-#     if: github.event.pull_request.merged == true && github.event.pull_request.user.login == 'tatsuz0u'
+    if: github.event.pull_request.merged == true && github.event.pull_request.user.login == 'tatsuz0u'
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -31,7 +31,7 @@ jobs:
            git config user.name "github-actions[bot]"
            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
       - name: Run tests
-        run: xcodebuild clean test -scheme $SCHEME_NAME -sdk iphonesimulator
+        run: xcodebuild clean test -scheme ${{ env.SCHEME_NAME }} -sdk iphonesimulator
           -destination 'platform=iOS Simulator,name=iPhone 12'
       - name: Show Xcode version
         run: xcodebuild -version
@@ -83,22 +83,20 @@ jobs:
           version: ${{ env.APP_VERSION }}
       - name: Xcode archive
         run: xcodebuild archive -destination 'generic/platform=iOS'
-          -scheme $SCHEME_NAME -archivePath $ARCHIVE_PATH
+          -scheme ${{ env.SCHEME_NAME }} -archivePath ${{ env.ARCHIVE_PATH }}
       - name: Generate .ipa file
-        run: xcodebuild -exportArchive -archivePath $ARCHIVE_PATH
-          -exportPath $BUILDS_PATH -exportOptionsPlist ./ExportOptions.plist
+        run: xcodebuild -exportArchive -archivePath ${{ env.ARCHIVE_PATH }}
+          -exportPath ${{ env.BUILDS_PATH }} -exportOptionsPlist ./ExportOptions.plist
       - name: Release to GitHub
         uses: softprops/action-gh-release@v1
         with:
-         prerelease: true
-         files: $IPA_OUTPUT_PATH
          fail_on_unmatched_files: true
+         files: ${{ env.IPA_OUTPUT_PATH }}
          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-         body: 'This is a test build released by bot, do not download.'
          tag_name: 'v${{ steps.bump-version.outputs.version }}_b${{ steps.bump-version.outputs.build-number }}'
-#       - name: Upload to ASC
-#         run: xcrun altool --upload-app -t ios -f $IPA_OUTPUT_PATH
-#           -u ${{ secrets.ASC_USER }} -p ${{ secrets.ASC_PASSWORD }}
+      - name: Upload to ASC
+        run: xcrun altool --upload-app -t ios -f ${{ env.IPA_OUTPUT_PATH }}
+          -u ${{ secrets.ASC_USER }} -p ${{ secrets.ASC_PASSWORD }}
       - name: Commit bump version
         run: |
           git add .
