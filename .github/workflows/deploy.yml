@@ -10,9 +10,9 @@ env:
    SCHEME_NAME: 'EhPanda'
    SIMULATOR_IDENTIFIER: 'iPhone 12'
    BUILDS_PATH: '/tmp/action-builds'
-   PRIVATE_KEYS_PATH: '~/private_keys'
-   ASC_KEY_PATH: '~/private_keys/AuthKey.p8'
    EXPORT_PLIST_PATH: './ExportOptions.plist'
+   PRIVATE_KEYS_PATH: '/Users/runner/private_keys'
+   ASC_KEY_PATH: '/Users/runner/private_keys/AuthKey.p8'
    ARCHIVE_PATH: '/tmp/action-builds/EhPanda.xcarchive'
    IPA_OUTPUT_PATH: '/tmp/action-builds/EhPanda.ipa'
    DEV_CERTIFICATE_PATH: '/tmp/action-builds/dev.cer'
@@ -40,8 +40,7 @@ jobs:
 #           -destination 'platform=iOS Simulator,name=${{ env.SIMULATOR_IDENTIFIER }}'
       - name: Show Xcode version
         run: xcodebuild -version
-      - run: ls /Users
-      - name: Decode certificates, provisioning profiles and ASC key
+      - name: Decode ASC key, certificates & provisioning profiles
         env: 
           ASC_KEY_BASE64: ${{ secrets.ASC_KEY }}
           DEV_CERTIFICATE_BASE64: ${{ secrets.DEV_CERTIFICATE }}
