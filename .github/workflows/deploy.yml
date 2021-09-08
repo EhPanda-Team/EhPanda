@@ -30,68 +30,68 @@ jobs:
         run: |
            git config user.name "github-actions[bot]"
            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-#       - name: Run tests
-#         run: xcodebuild clean test -scheme $SCHEME_NAME -sdk iphonesimulator
-#           -destination 'platform=iOS Simulator,name=iPhone 12'
+      - name: Run tests
+        run: xcodebuild clean test -scheme $SCHEME_NAME -sdk iphonesimulator
+          -destination 'platform=iOS Simulator,name=iPhone 12'
       - name: Show Xcode version
         run: xcodebuild -version
-#       - name: Decode certificates & provisioning profiles
-#         run: |
-#           mkdir $BUILDS_PATH
-#           echo -n ${{ secrets.DEV_CERTIFICATE }} | base64 -d -o $DEV_CERTIFICATE_PATH
-#           echo -n ${{ secrets.DIS_CERTIFICATE }} | base64 -d -o $DIS_CERTIFICATE_PATH
-#           echo -n ${{ secrets.DEV_P12 }} | base64 -d -o $DEV_P12_PATH
-#           echo -n ${{ secrets.DIS_P12 }} | base64 -d -o $DIS_P12_PATH
-#           echo -n ${{ secrets.APP_DEV_PROVISION }} | base64 -d -o $APP_DEV_PROVISION_PATH
-#           echo -n ${{ secrets.APP_DIS_PROVISION }} | base64 -d -o $APP_DIS_PROVISION_PATH
-#           echo -n ${{ secrets.SHARE_EXTENSION_DEV_PROVISION }} | base64 -d -o $SHARE_EXTENSION_DEV_PROVISION_PATH
-#           echo -n ${{ secrets.SHARE_EXTENSION_DIS_PROVISION }} | base64 -d -o $SHARE_EXTENSION_DIS_PROVISION_PATH
-#       - name: Install certificates
-#         run: |
-#           KEY_CHAIN=action-builds.keychain-db
-#           P12_PASSWORD=${{ secrets.P12_PASSWORD }}
+      - name: Decode certificates & provisioning profiles
+        run: |
+          mkdir $BUILDS_PATH
+          echo -n ${{ secrets.DEV_CERTIFICATE }} | base64 -d -o $DEV_CERTIFICATE_PATH
+          echo -n ${{ secrets.DIS_CERTIFICATE }} | base64 -d -o $DIS_CERTIFICATE_PATH
+          echo -n ${{ secrets.DEV_P12 }} | base64 -d -o $DEV_P12_PATH
+          echo -n ${{ secrets.DIS_P12 }} | base64 -d -o $DIS_P12_PATH
+          echo -n ${{ secrets.APP_DEV_PROVISION }} | base64 -d -o $APP_DEV_PROVISION_PATH
+          echo -n ${{ secrets.APP_DIS_PROVISION }} | base64 -d -o $APP_DIS_PROVISION_PATH
+          echo -n ${{ secrets.SHARE_EXTENSION_DEV_PROVISION }} | base64 -d -o $SHARE_EXTENSION_DEV_PROVISION_PATH
+          echo -n ${{ secrets.SHARE_EXTENSION_DIS_PROVISION }} | base64 -d -o $SHARE_EXTENSION_DIS_PROVISION_PATH
+      - name: Install certificates
+        run: |
+          KEY_CHAIN=action-builds.keychain-db
+          P12_PASSWORD=${{ secrets.P12_PASSWORD }}
  
-#           security create-keychain -p $P12_PASSWORD $KEY_CHAIN
-#           security default-keychain -s $KEY_CHAIN
-#           security unlock-keychain -p $P12_PASSWORD $KEY_CHAIN
-#           security set-keychain-settings -t 3600 -u $KEY_CHAIN
+          security create-keychain -p $P12_PASSWORD $KEY_CHAIN
+          security default-keychain -s $KEY_CHAIN
+          security unlock-keychain -p $P12_PASSWORD $KEY_CHAIN
+          security set-keychain-settings -t 3600 -u $KEY_CHAIN
 
-#           security import $DEV_CERTIFICATE_PATH -k $KEY_CHAIN -T /usr/bin/codesign
-#           security import $DIS_CERTIFICATE_PATH -k $KEY_CHAIN -T /usr/bin/codesign
-#           security import $DEV_P12_PATH -k $KEY_CHAIN -P $P12_PASSWORD -T /usr/bin/codesign
-#           security import $DIS_P12_PATH -k $KEY_CHAIN -P $P12_PASSWORD -T /usr/bin/codesign
-#           security set-key-partition-list -S apple-tool:,apple: -s -k $P12_PASSWORD ~/Library/Keychains/$KEY_CHAIN
+          security import $DEV_CERTIFICATE_PATH -k $KEY_CHAIN -T /usr/bin/codesign
+          security import $DIS_CERTIFICATE_PATH -k $KEY_CHAIN -T /usr/bin/codesign
+          security import $DEV_P12_PATH -k $KEY_CHAIN -P $P12_PASSWORD -T /usr/bin/codesign
+          security import $DIS_P12_PATH -k $KEY_CHAIN -P $P12_PASSWORD -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple: -s -k $P12_PASSWORD ~/Library/Keychains/$KEY_CHAIN
           
-#           security list-keychains
-#           security find-identity -p codesigning  ~/Library/Keychains/$KEY_CHAIN
-#       - name: Install provisioning profiles
-#         run: |
-#           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-#           app_dev_uuid=`grep UUID -A1 -a $APP_DEV_PROVISION_PATH | grep -io "[-A-F0-9]\{36\}"`
-#           app_dis_uuid=`grep UUID -A1 -a $APP_DIS_PROVISION_PATH | grep -io "[-A-F0-9]\{36\}"`
-#           share_extension_dev_uuid=`grep UUID -A1 -a $SHARE_EXTENSION_DEV_PROVISION_PATH | grep -io "[-A-F0-9]\{36\}"`
-#           share_extension_dis_uuid=`grep UUID -A1 -a $SHARE_EXTENSION_DIS_PROVISION_PATH | grep -io "[-A-F0-9]\{36\}"`
-#           cp $APP_DEV_PROVISION_PATH ~/Library/MobileDevice/Provisioning\ Profiles/$app_dev_uuid.mobileprovision
-#           cp $APP_DIS_PROVISION_PATH ~/Library/MobileDevice/Provisioning\ Profiles/$app_dis_uuid.mobileprovision
-#           cp $SHARE_EXTENSION_DEV_PROVISION_PATH ~/Library/MobileDevice/Provisioning\ Profiles/$share_extension_dev_uuid.mobileprovision
-#           cp $SHARE_EXTENSION_DIS_PROVISION_PATH ~/Library/MobileDevice/Provisioning\ Profiles/$share_extension_dis_uuid.mobileprovision
-#           ls ~/Library/MobileDevice/Provisioning\ Profiles
+          security list-keychains
+          security find-identity -p codesigning  ~/Library/Keychains/$KEY_CHAIN
+      - name: Install provisioning profiles
+        run: |
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+          app_dev_uuid=`grep UUID -A1 -a $APP_DEV_PROVISION_PATH | grep -io "[-A-F0-9]\{36\}"`
+          app_dis_uuid=`grep UUID -A1 -a $APP_DIS_PROVISION_PATH | grep -io "[-A-F0-9]\{36\}"`
+          share_extension_dev_uuid=`grep UUID -A1 -a $SHARE_EXTENSION_DEV_PROVISION_PATH | grep -io "[-A-F0-9]\{36\}"`
+          share_extension_dis_uuid=`grep UUID -A1 -a $SHARE_EXTENSION_DIS_PROVISION_PATH | grep -io "[-A-F0-9]\{36\}"`
+          cp $APP_DEV_PROVISION_PATH ~/Library/MobileDevice/Provisioning\ Profiles/$app_dev_uuid.mobileprovision
+          cp $APP_DIS_PROVISION_PATH ~/Library/MobileDevice/Provisioning\ Profiles/$app_dis_uuid.mobileprovision
+          cp $SHARE_EXTENSION_DEV_PROVISION_PATH ~/Library/MobileDevice/Provisioning\ Profiles/$share_extension_dev_uuid.mobileprovision
+          cp $SHARE_EXTENSION_DIS_PROVISION_PATH ~/Library/MobileDevice/Provisioning\ Profiles/$share_extension_dis_uuid.mobileprovision
+          ls ~/Library/MobileDevice/Provisioning\ Profiles
       - name: Bump version
         id: bump-version
         uses: tatsuz0u/ios-bump-version@feature/outputs
         with:
           version: ${{ env.APP_VERSION }}
-#       - name: Xcode archive
-#         run: xcodebuild archive -destination 'generic/platform=iOS'
-#           -scheme $SCHEME_NAME -archivePath $ARCHIVE_PATH
-#       - name: Generate .ipa file
-#         run: xcodebuild -exportArchive -archivePath $ARCHIVE_PATH
-#           -exportPath $BUILDS_PATH -exportOptionsPlist ./ExportOptions.plist
+      - name: Xcode archive
+        run: xcodebuild archive -destination 'generic/platform=iOS'
+          -scheme $SCHEME_NAME -archivePath $ARCHIVE_PATH
+      - name: Generate .ipa file
+        run: xcodebuild -exportArchive -archivePath $ARCHIVE_PATH
+          -exportPath $BUILDS_PATH -exportOptionsPlist ./ExportOptions.plist
       - name: Release to GitHub
         uses: softprops/action-gh-release@v1
         with:
          prerelease: true
-#          files: $IPA_OUTPUT_PATH
+         files: $IPA_OUTPUT_PATH
          fail_on_unmatched_files: true
          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
          body: 'This is a test build released by bot, do not download.'
