@@ -80,7 +80,7 @@ jobs:
         id: bump-version
         uses: tatsuz0u/ios-bump-version@feature/output-version
         with:
-          version: $APP_VERSION
+          version: ${{ env.APP_VERSION }}
 #       - name: Xcode archive
 #         run: xcodebuild archive -destination 'generic/platform=iOS'
 #           -scheme $SCHEME_NAME -archivePath $ARCHIVE_PATH
