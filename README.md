@@ -29,11 +29,7 @@ https://ehpanda.app: `Website-Translation.md`
 2. Use some software like [AltStore](https://altstore.io) to install the ipa file on your device.
 
 ## System Requirements
-This app requires iOS / iPadOS 14.0 or later.
-
-iOS / iPadOS 14: [v1.0.2](https://github.com/tatsuz0u/EhPanda/releases/tag/v1.0.2_b50)
-
-iOS / iPadOS 15: [v1.0.4](https://github.com/tatsuz0u/EhPanda/releases/latest)
+This app requires iOS / iPadOS 15.0 or later.
 
 ## Content & Copyright
 The content in this application is derived from E-Hentai, which is user-generated content.
