@@ -5,7 +5,7 @@
 	<key>destination</key>
 	<string>export</string>
 	<key>manageAppVersionAndBuildNumber</key>
-	<true/>
+	<false/>
 	<key>method</key>
 	<string>app-store</string>
 	<key>provisioningProfiles</key>
