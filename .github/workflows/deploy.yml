@@ -95,7 +95,7 @@ jobs:
          fail_on_unmatched_files: true
          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
          body: 'This is a test build released by bot, do not download.'
-         tag_name: 'v${{ env.APP_VERSION }}_b${{ steps.bump-version.outputs.build-number }}'
+         tag_name: 'v${{ steps.bump-version.outputs.version }}_b${{ steps.bump-version.outputs.build-number }}'
 #       - name: Upload to ASC
 #         run: xcrun altool --upload-app -t ios -f $IPA_OUTPUT_PATH
 #           -u ${{ secrets.ASC_USER }} -p ${{ secrets.ASC_PASSWORD }}
