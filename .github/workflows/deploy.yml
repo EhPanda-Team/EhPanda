@@ -105,7 +105,7 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-         artifacts: ${{ env.IPA_OUTPUT_PATH }}
+         artifacts: /tmp/action-builds/*.ipa
          tag: 'test'
          prerelease: true
          artifactErrorsFailBuild: true
