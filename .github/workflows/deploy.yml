@@ -117,7 +117,7 @@ jobs:
 #          body: 'This is a test build released by bot, do not download.'
       - name: Upload to ASC
         run: |
-          xcrun altool --upload-app -f ${{ env.IPA_OUTPUT_PATH }} -t ios 
+          xcrun altool --upload-app -t ios -f ${{ env.IPA_OUTPUT_PATH }}
           --apiKey ${{ secrets.ASC_KEY_ID }} --apiIssuer ${{ secrets.ASC_ISSUER_ID }}
       - name: Commit bump version
         run: |
