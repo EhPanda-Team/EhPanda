@@ -12,7 +12,6 @@ env:
    BUILDS_PATH: '/tmp/action-builds'
    EXPORT_PLIST_PATH: './ExportOptions.plist'
    PRIVATE_KEYS_PATH: '/Users/runner/private_keys'
-   ASC_KEY_PATH: '/Users/runner/private_keys/AuthKey.p8'
    ARCHIVE_PATH: '/tmp/action-builds/EhPanda.xcarchive'
    IPA_OUTPUT_PATH: '/tmp/action-builds/EhPanda.ipa'
    DEV_CERTIFICATE_PATH: '/tmp/action-builds/dev.cer'
@@ -43,6 +42,7 @@ jobs:
       - name: Decode ASC key, certificates & provisioning profiles
         env: 
           ASC_KEY_BASE64: ${{ secrets.ASC_KEY }}
+          ASC_KEY_PATH: ${{ env.PRIVATE_KEYS_PATH }}/AuthKey_${{ secrets.ASC_KEY_ID }}.p8
           DEV_CERTIFICATE_BASE64: ${{ secrets.DEV_CERTIFICATE }}
           DIS_CERTIFICATE_BASE64: ${{ secrets.DIS_CERTIFICATE }}
           DEV_P12_BASE64: ${{ secrets.DEV_P12 }}
@@ -118,7 +118,7 @@ jobs:
       - name: Upload to ASC
         run: |
           xcrun altool --upload-app -f ${{ env.IPA_OUTPUT_PATH }} -t ios 
-          --apiKey ${{ secrets.ASC_KEY_ID }} --apiIssuer ${{ secrets.ASC_ISSUER_ID }} --verbose
+          --apiKey ${{ secrets.ASC_KEY_ID }} --apiIssuer ${{ secrets.ASC_ISSUER_ID }}
       - name: Commit bump version
         run: |
           git add .
