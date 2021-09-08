@@ -41,14 +41,14 @@ jobs:
       - name: Decode certificates & provisioning profiles
         run: |
           mkdir $BUILDS_PATH
-          echo -n "$DEV_CERTIFICATE" | base64 -d -o $DEV_CERTIFICATE_PATH
-          echo -n "$DIS_CERTIFICATE" | base64 -d -o $DIS_CERTIFICATE_PATH
-          echo -n "$DEV_P12" | base64 -d -o $DEV_P12_PATH
-          echo -n "$DIS_P12" | base64 -d -o $DIS_P12_PATH
-          echo -n "$APP_DEV_PROVISION" | base64 -d -o $APP_DEV_PROVISION_PATH
-          echo -n "$APP_DIS_PROVISION" | base64 -d -o $APP_DIS_PROVISION_PATH
-          echo -n "$SHARE_EXTENSION_DEV_PROVISION" | base64 -d -o $SHARE_EXTENSION_DEV_PROVISION_PATH
-          echo -n "$SHARE_EXTENSION_DIS_PROVISION" | base64 -d -o $SHARE_EXTENSION_DIS_PROVISION_PATH
+          echo -n $DEV_CERTIFICATE | base64 -d -o $DEV_CERTIFICATE_PATH
+          echo -n $DIS_CERTIFICATE | base64 -d -o $DIS_CERTIFICATE_PATH
+          echo -n $DEV_P12 | base64 -d -o $DEV_P12_PATH
+          echo -n $DIS_P12 | base64 -d -o $DIS_P12_PATH
+          echo -n $APP_DEV_PROVISION | base64 -d -o $APP_DEV_PROVISION_PATH
+          echo -n $APP_DIS_PROVISION | base64 -d -o $APP_DIS_PROVISION_PATH
+          echo -n $SHARE_EXTENSION_DEV_PROVISION | base64 -d -o $SHARE_EXTENSION_DEV_PROVISION_PATH
+          echo -n $SHARE_EXTENSION_DIS_PROVISION | base64 -d -o $SHARE_EXTENSION_DIS_PROVISION_PATH
       - name: Install certificates
         env:
           P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
