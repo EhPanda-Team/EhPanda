@@ -11,7 +11,7 @@ env:
    SIMULATOR_IDENTIFIER: 'iPhone 12'
    BUILDS_PATH: '/tmp/action-builds'
    ARCHIVE_PATH: '/tmp/action-builds/EhPanda.xcarchive'
-   IPA_OUTPUT_PATH: '/tmp/action-builds/EhPanda.ipa'
+   IPA_OUTPUT_PATH: './EhPanda.ipa'
    EXPORT_PLIST_PATH: './ExportOptions.plist'
    DEV_CERTIFICATE_PATH: '/tmp/action-builds/dev.cer'
    DIS_CERTIFICATE_PATH: '/tmp/action-builds/dis.cer'
@@ -105,8 +105,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-         files: |
-          ${{ env.IPA_OUTPUT_PATH }}
+         files: EhPanda.ipa
          tag_name: 'v1.0.4_b93'
          prerelease: true
          fail_on_unmatched_files: true
