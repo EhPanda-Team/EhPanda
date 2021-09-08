@@ -101,8 +101,6 @@ jobs:
           -archivePath ${{ env.ARCHIVE_PATH }} 
           -exportPath ${{ env.BUILDS_PATH }}
           -exportOptionsPlist ${{ env.EXPORT_PLIST_PATH }}
-      - name: Rename .ipa file
-        run: mv ${{ env.BUILDS_PATH }}/*.ipa ${{ env.IPA_OUTPUT_PATH }}
       - name: Release to GitHub
         uses: softprops/action-gh-release@v1
         with:
