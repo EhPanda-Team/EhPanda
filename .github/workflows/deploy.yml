@@ -108,7 +108,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-         files: /tmp/action-builds/*.ipa
+         files: ${{ env.IPA_OUTPUT_PATH }}
          tag_name: 'test'
          prerelease: true
          fail_on_unmatched_files: true
