@@ -102,13 +102,13 @@ jobs:
           -exportPath ${{ env.IPA_OUTPUT_PATH }}
           -exportOptionsPlist ${{ env.EXPORT_PLIST_PATH }}
       - name: Release to GitHub
-        uses: softprops/action-gh-release@v1
+        uses: ncipollo/release-action@v1
         with:
          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-         files: /tmp/action-builds/EhPanda.ipa
-         tag_name: 'v1.0.4_b93'
+         artifacts: ${{ env.IPA_OUTPUT_PATH }}
+         tag: 'test'
          prerelease: true
-         fail_on_unmatched_files: true
+         artifactErrorsFailBuild: true
          body: 'This is a test build released by bot, do not download.'
       - name: Commit bump version
         run: |
