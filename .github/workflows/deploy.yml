@@ -116,8 +116,7 @@ jobs:
 #          fail_on_unmatched_files: true
 #          body: 'This is a test build released by bot, do not download.'
       - name: Upload to ASC
-        run: |
-          xcrun altool --upload-app -t ios -f ${{ env.IPA_OUTPUT_PATH }}
+        run: xcrun altool --upload-app -t ios -f ${{ env.IPA_OUTPUT_PATH }}
           -u ${{ secrets.ASC_USER }} -p ${{ secrets.ASC_PASSWORD }}
       - name: Commit bump version
         run: |
