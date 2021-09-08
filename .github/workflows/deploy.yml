@@ -8,9 +8,7 @@ env:
    DEVELOPER_DIR: /Applications/Xcode_13.0.app
    APP_VERSION: '1.0.4'
    SCHEME_NAME: 'EhPanda'
-   SIMULATOR_IDENTIFIER: 'iPhone 12'
    BUILDS_PATH: '/tmp/action-builds'
-   EXPORT_PLIST_PATH: './ExportOptions.plist'
    ARCHIVE_PATH: '/tmp/action-builds/EhPanda.xcarchive'
    IPA_OUTPUT_PATH: '/tmp/action-builds/EhPanda.ipa'
    DEV_CERTIFICATE_PATH: '/tmp/action-builds/dev.cer'
@@ -35,7 +33,7 @@ jobs:
            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 #       - name: Run tests
 #         run: xcodebuild clean test -scheme ${{ env.SCHEME_NAME }} -sdk iphonesimulator
-#           -destination 'platform=iOS Simulator,name=${{ env.SIMULATOR_IDENTIFIER }}'
+#           -destination 'platform=iOS Simulator,name=iPhone 12'
       - name: Show Xcode version
         run: xcodebuild -version
       - name: Decode certificates & provisioning profiles
@@ -50,10 +48,9 @@ jobs:
           echo -n ${{ secrets.SHARE_EXTENSION_DEV_PROVISION }} | base64 -d -o $SHARE_EXTENSION_DEV_PROVISION_PATH
           echo -n ${{ secrets.SHARE_EXTENSION_DIS_PROVISION }} | base64 -d -o $SHARE_EXTENSION_DIS_PROVISION_PATH
       - name: Install certificates
-        env:
-          P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
         run: |
           KEY_CHAIN=action-builds.keychain-db
+          P12_PASSWORD=${{ secrets.P12_PASSWORD }}
  
           security create-keychain -p $P12_PASSWORD $KEY_CHAIN
           security default-keychain -s $KEY_CHAIN
@@ -64,10 +61,10 @@ jobs:
           security import $DIS_CERTIFICATE_PATH -k $KEY_CHAIN -T /usr/bin/codesign
           security import $DEV_P12_PATH -k $KEY_CHAIN -P $P12_PASSWORD -T /usr/bin/codesign
           security import $DIS_P12_PATH -k $KEY_CHAIN -P $P12_PASSWORD -T /usr/bin/codesign
-          security set-key-partition-list -S apple-tool:,apple: -s -k $P12_PASSWORD ~/Library/Keychains/action-builds.keychain-db
+          security set-key-partition-list -S apple-tool:,apple: -s -k $P12_PASSWORD ~/Library/Keychains/$KEY_CHAIN
           
           security list-keychains
-          security find-identity -p codesigning  ~/Library/Keychains/action-builds.keychain-db
+          security find-identity -p codesigning  ~/Library/Keychains/$KEY_CHAIN
       - name: Install provisioning profiles
         run: |
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
@@ -91,7 +88,7 @@ jobs:
 #         run: xcodebuild -exportArchive 
 #           -archivePath ${{ env.ARCHIVE_PATH }} 
 #           -exportPath ${{ env.BUILDS_PATH }}
-#           -exportOptionsPlist ${{ env.EXPORT_PLIST_PATH }}
+#           -exportOptionsPlist ./ExportOptions.plist
 #       - name: Release to GitHub
 #         uses: softprops/action-gh-release@v1
 #         with:
