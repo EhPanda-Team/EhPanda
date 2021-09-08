@@ -22,8 +22,7 @@ env:
 jobs:
   Deploy:
     runs-on: macos-11
-#     if: github.event.pull_request.merged == true
-#       && github.event.pull_request.user.login == 'tatsuz0u'
+#     if: github.event.pull_request.merged == true && github.event.pull_request.user.login == 'tatsuz0u'
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -31,9 +30,9 @@ jobs:
         run: |
            git config user.name "github-actions[bot]"
            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-      - name: Run tests
-        run: xcodebuild clean test -scheme $SCHEME_NAME -sdk iphonesimulator
-          -destination 'platform=iOS Simulator,name=iPhone 12'
+#       - name: Run tests
+#         run: xcodebuild clean test -scheme $SCHEME_NAME -sdk iphonesimulator
+#           -destination 'platform=iOS Simulator,name=iPhone 12'
       - name: Show Xcode version
         run: xcodebuild -version
       - name: Decode certificates & provisioning profiles
@@ -78,31 +77,30 @@ jobs:
           cp $SHARE_EXTENSION_DIS_PROVISION_PATH ~/Library/MobileDevice/Provisioning\ Profiles/$share_extension_dis_uuid.mobileprovision
           ls ~/Library/MobileDevice/Provisioning\ Profiles
       - name: Bump version
-        uses: yanamura/ios-bump-version@v1
+        id: bump-version
+        uses: tatsuz0u/ios-bump-version@feature/output-version
         with:
           version: $APP_VERSION
 #       - name: Xcode archive
 #         run: xcodebuild archive -destination 'generic/platform=iOS'
-#           -scheme ${{ env.SCHEME_NAME }} -archivePath ${{ env.ARCHIVE_PATH }}
+#           -scheme $SCHEME_NAME -archivePath $ARCHIVE_PATH
 #       - name: Generate .ipa file
-#         run: xcodebuild -exportArchive 
-#           -archivePath ${{ env.ARCHIVE_PATH }} 
-#           -exportPath ${{ env.BUILDS_PATH }}
-#           -exportOptionsPlist ./ExportOptions.plist
-#       - name: Release to GitHub
-#         uses: softprops/action-gh-release@v1
-#         with:
-#          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-#          files: ${{ env.IPA_OUTPUT_PATH }}
-#          tag_name: 'test'
-#          prerelease: true
-#          fail_on_unmatched_files: true
-#          body: 'This is a test build released by bot, do not download.'
+#         run: xcodebuild -exportArchive -archivePath $ARCHIVE_PATH
+#           -exportPath $BUILDS_PATH -exportOptionsPlist ./ExportOptions.plist
+      - name: Release to GitHub
+        uses: softprops/action-gh-release@v1
+        with:
+         prerelease: true
+#          files: $IPA_OUTPUT_PATH
+         fail_on_unmatched_files: true
+         token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+         body: 'This is a test build released by bot, do not download.'
+         tag_name: 'v$APP_VERSION_b${{ steps.bump-version.outputs.build-number }}'
 #       - name: Upload to ASC
-#         run: xcrun altool --upload-app -t ios -f ${{ env.IPA_OUTPUT_PATH }}
+#         run: xcrun altool --upload-app -t ios -f $IPA_OUTPUT_PATH
 #           -u ${{ secrets.ASC_USER }} -p ${{ secrets.ASC_PASSWORD }}
-#       - name: Commit bump version
-#         run: |
-#           git add .
-#           git commit -m "Bump version"
-#           git push origin HEAD
+      - name: Commit bump version
+        run: |
+          git add .
+          git commit -m "Bump version"
+          git push origin HEAD
