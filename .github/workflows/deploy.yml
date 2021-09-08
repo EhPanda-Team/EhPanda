@@ -10,9 +10,10 @@ env:
    SCHEME_NAME: 'EhPanda'
    SIMULATOR_IDENTIFIER: 'iPhone 12'
    BUILDS_PATH: '/tmp/action-builds'
+   ASC_KEY_PATH: '~/private_keys/AuthKey.p8'
+   EXPORT_PLIST_PATH: './ExportOptions.plist'
    ARCHIVE_PATH: '/tmp/action-builds/EhPanda.xcarchive'
    IPA_OUTPUT_PATH: '/tmp/action-builds/EhPanda.ipa'
-   EXPORT_PLIST_PATH: './ExportOptions.plist'
    DEV_CERTIFICATE_PATH: '/tmp/action-builds/dev.cer'
    DIS_CERTIFICATE_PATH: '/tmp/action-builds/dis.cer'
    DEV_P12_PATH: '/tmp/action-builds/dev.p12'
@@ -38,8 +39,9 @@ jobs:
 #           -destination 'platform=iOS Simulator,name=${{ env.SIMULATOR_IDENTIFIER }}'
       - name: Show Xcode version
         run: xcodebuild -version
-      - name: Decode certificates and provisioning profiles
+      - name: Decode certificates, provisioning profiles and ASC key
         env: 
+          ASC_KEY_BASE64: ${{ secrets.ASC_KEY }}
           DEV_CERTIFICATE_BASE64: ${{ secrets.DEV_CERTIFICATE }}
           DIS_CERTIFICATE_BASE64: ${{ secrets.DIS_CERTIFICATE }}
           DEV_P12_BASE64: ${{ secrets.DEV_P12 }}
@@ -50,6 +52,7 @@ jobs:
           SHARE_EXTENSION_DIS_PROVISION_BASE64: ${{ secrets.SHARE_EXTENSION_DIS_PROVISION }}
         run: |
           mkdir $BUILDS_PATH
+          echo -n "$ASC_KEY_BASE64" | base64 -d -o $ASC_KEY_PATH
           echo -n "$DEV_CERTIFICATE_BASE64" | base64 -d -o $DEV_CERTIFICATE_PATH
           echo -n "$DIS_CERTIFICATE_BASE64" | base64 -d -o $DIS_CERTIFICATE_PATH
           echo -n "$DEV_P12_BASE64" | base64 -d -o $DEV_P12_PATH
@@ -101,15 +104,19 @@ jobs:
           -archivePath ${{ env.ARCHIVE_PATH }} 
           -exportPath ${{ env.BUILDS_PATH }}
           -exportOptionsPlist ${{ env.EXPORT_PLIST_PATH }}
-      - name: Release to GitHub
-        uses: softprops/action-gh-release@v1
-        with:
-         token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-         files: ${{ env.IPA_OUTPUT_PATH }}
-         tag_name: 'test'
-         prerelease: true
-         fail_on_unmatched_files: true
-         body: 'This is a test build released by bot, do not download.'
+#       - name: Release to GitHub
+#         uses: softprops/action-gh-release@v1
+#         with:
+#          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+#          files: ${{ env.IPA_OUTPUT_PATH }}
+#          tag_name: 'test'
+#          prerelease: true
+#          fail_on_unmatched_files: true
+#          body: 'This is a test build released by bot, do not download.'
+      - name: Upload to ASC
+        run: |
+          xcrun altool --upload-app -f ${{ env.IPA_OUTPUT_PATH }} -t ios 
+          --apiKey ${{ secrets.ASC_KEY_ID }} --apiIssuer ${{ secrets.ASC_ISSUER_ID }} --verbose
       - name: Commit bump version
         run: |
           git add .
