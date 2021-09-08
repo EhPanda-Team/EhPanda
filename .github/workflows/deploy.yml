@@ -11,7 +11,6 @@ env:
    SIMULATOR_IDENTIFIER: 'iPhone 12'
    BUILDS_PATH: '/tmp/action-builds'
    ARCHIVE_PATH: '/tmp/action-builds/EhPanda.xcarchive'
-   IPA_OUTPUT_PATH: '/tmp/action-builds/EhPanda.ipa'
    EXPORT_PLIST_PATH: './ExportOptions.plist'
    DEV_CERTIFICATE_PATH: '/tmp/action-builds/dev.cer'
    DIS_CERTIFICATE_PATH: '/tmp/action-builds/dis.cer'
@@ -99,17 +98,17 @@ jobs:
       - name: Generate .ipa file
         run: xcodebuild -exportArchive 
           -archivePath ${{ env.ARCHIVE_PATH }} 
-          -exportPath ${{ env.IPA_OUTPUT_PATH }}
+          -exportPath ${{ env.BUILDS_PATH }}
           -exportOptionsPlist ${{ env.EXPORT_PLIST_PATH }}
       - run: ls -p /tmp/action-builds/
       - name: Release to GitHub
         uses: ncipollo/release-action@v1
         with:
          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-         artifacts: /tmp/action-builds/*.ipa
-         tag: 'test'
+         files: /tmp/action-builds/*.ipa
+         tag_name: 'test'
          prerelease: true
-         artifactErrorsFailBuild: true
+         fail_on_unmatched_files: true
          body: 'This is a test build released by bot, do not download.'
       - name: Commit bump version
         run: |
