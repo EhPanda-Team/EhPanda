@@ -10,6 +10,7 @@ env:
    SCHEME_NAME: 'EhPanda'
    SIMULATOR_IDENTIFIER: 'iPhone 12'
    BUILDS_PATH: '/tmp/action-builds'
+   PRIVATE_KEYS_PATH: '~/private_keys'
    ASC_KEY_PATH: '~/private_keys/AuthKey.p8'
    EXPORT_PLIST_PATH: './ExportOptions.plist'
    ARCHIVE_PATH: '/tmp/action-builds/EhPanda.xcarchive'
@@ -52,6 +53,7 @@ jobs:
           SHARE_EXTENSION_DIS_PROVISION_BASE64: ${{ secrets.SHARE_EXTENSION_DIS_PROVISION }}
         run: |
           mkdir $BUILDS_PATH
+          mkdir $PRIVATE_KEYS_PATH
           echo -n "$ASC_KEY_BASE64" | base64 -d -o $ASC_KEY_PATH
           echo -n "$DEV_CERTIFICATE_BASE64" | base64 -d -o $DEV_CERTIFICATE_PATH
           echo -n "$DIS_CERTIFICATE_BASE64" | base64 -d -o $DIS_CERTIFICATE_PATH
