@@ -31,8 +31,7 @@ struct EhPandaView: View, StoreAccessor {
             Info(
                 url: "altstore://source?url="
                     + "https://github.com/tatsuz0u"
-                    + "/EhPanda-PromotionResources"
-                    + "/raw/main/altStore.json",
+                    + "/EhPanda/raw/main/AltStore.json",
                 text: "AltStore Source".localized
             )
         ]
