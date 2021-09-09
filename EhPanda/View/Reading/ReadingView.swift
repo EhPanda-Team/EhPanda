@@ -296,6 +296,7 @@ private extension ReadingView {
             shouldChangeOrientation: true
         )
         restoreReadingProgress()
+        toggleNavBarHiddenIfNeeded()
         fetchGalleryContentsIfNeeded()
     }
     func onEndTasks() {

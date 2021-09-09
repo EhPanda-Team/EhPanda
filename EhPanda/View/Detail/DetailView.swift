@@ -249,7 +249,9 @@ private extension DetailView {
     }
     func onPreviewImageTap(index: Int) {
         store.dispatch(.saveReadingProgress(gid: gid, tag: index))
-        postReadingViewShouldHideStatusBarNotification()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+            postReadingViewShouldHideStatusBarNotification()
+        }
     }
     func onCommentPost() {
         store.dispatch(.comment(gid: gid, content: commentContent))
