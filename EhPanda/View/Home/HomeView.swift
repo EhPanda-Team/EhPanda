@@ -393,6 +393,7 @@ private extension HomeView {
         }
     }
     func handle(incomingURL: URL) {
+        let shouldDelayDisplay = homeInfo.frontpageItems.isEmpty
         handleIncomingURL(incomingURL) { shouldParseGalleryURL, incomingURL, pageIndex, commentID in
             guard let incomingURL = incomingURL else { return }
 
@@ -404,11 +405,21 @@ private extension HomeView {
             if PersistenceController.galleryCached(gid: gid) {
                 replaceGalleryCommentJumpID(gid: gid)
             } else {
-                store.dispatch(.fetchGalleryItemReverse(
-                    url: incomingURL.absoluteString,
-                    shouldParseGalleryURL: shouldParseGalleryURL
-                ))
-                showHUD()
+                if shouldDelayDisplay {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
+                        store.dispatch(.fetchGalleryItemReverse(
+                            url: incomingURL.absoluteString,
+                            shouldParseGalleryURL: shouldParseGalleryURL
+                        ))
+                        showHUD()
+                    }
+                } else {
+                    store.dispatch(.fetchGalleryItemReverse(
+                        url: incomingURL.absoluteString,
+                        shouldParseGalleryURL: shouldParseGalleryURL
+                    ))
+                    showHUD()
+                }
             }
             clearPasteboard()
             clearObstruction()
