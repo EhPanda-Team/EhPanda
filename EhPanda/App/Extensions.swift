@@ -21,6 +21,7 @@ extension Dictionary where Key == String, Value == String {
     }
 }
 
+// Enables fullscreen swipe back gesture
 extension UINavigationController: UIGestureRecognizerDelegate {
     override open func viewDidLoad() {
         super.viewDidLoad()

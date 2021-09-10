@@ -28,6 +28,7 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
     @State private var sliderValue: Float = 1
     @State private var sheetState: ReadingViewSheetState?
 
+    @State private var scaleAnchor: UnitPoint = .center
     @State private var scale: CGFloat = 1
     @State private var baseScale: CGFloat = 1
     @State private var offset: CGSize = .zero
@@ -193,12 +194,10 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
         ZStack {
             backgroundColor.ignoresSafeArea()
             conditionalList
-                .scaleEffect(scale).offset(offset)
-                .transition(opacityTransition)
-                .gesture(tapGesture)
-                .gesture(dragGesture)
-                .gesture(magnifyGesture)
-                .ignoresSafeArea()
+                .scaleEffect(scale, anchor: scaleAnchor)
+                .offset(offset).transition(opacityTransition)
+                .gesture(tapGesture).gesture(dragGesture)
+                .gesture(magnifyGesture).ignoresSafeArea()
             ControlPanel(
                 showsPanel: $showsPanel,
                 sliderValue: $sliderValue,
@@ -550,6 +549,7 @@ private extension ReadingView {
         }
     }
     func onDoubleTap(_: TapGesture.Value) {
+        syncScaleAnchor()
         set(newOffset: .zero)
         set(newScale: scale == 1 ? setting.doubleTapScaleFactor : 1)
     }
@@ -557,12 +557,9 @@ private extension ReadingView {
     func onDragGestureChanged(value: DragGesture.Value) {
         if scale > 1 {
             let newX = value.translation.width + newOffset.width
-            let marginW = windowW * (scale - 1) / 2
-            let newOffsetW = min(max(newX, -marginW), marginW)
-
             let newY = value.translation.height + newOffset.height
-            let marginH = windowH * (scale - 1) / 2
-            let newOffsetH = min(max(newY, -marginH), marginH)
+            let newOffsetW = fixWidth(x: newX)
+            let newOffsetH = fixHeight(y: newY)
 
             set(newOffset: CGSize(width: newOffsetW, height: newOffsetH))
         }
@@ -579,6 +576,7 @@ private extension ReadingView {
         if value == 1 {
             baseScale = scale
         }
+        syncScaleAnchor()
         set(newScale: value * baseScale)
     }
     func onMagnificationGestureEnded(value: MagnificationGesture.Value) {
@@ -609,16 +607,30 @@ private extension ReadingView {
         }
         fixOffset()
     }
-    func fixOffset() {
-        let marginW = windowW * (scale - 1) / 2
-        let marginH = windowH * (scale - 1) / 2
-        let currentW = offset.width
-        let currentH = offset.height
+    func syncScaleAnchor() {
+        guard let point = TouchHandler.shared.currentPoint else { return }
 
+        let x = min(max(point.x / absWindowW, 0), 1)
+        let y = min(max(point.y / absWindowH, 0), 1)
+        scaleAnchor = UnitPoint(x: x, y: y)
+    }
+    func fixOffset() {
         withAnimation {
-            offset.width = min(max(currentW, -marginW), marginW)
-            offset.height = min(max(currentH, -marginH), marginH)
+            offset.width = fixWidth(x: offset.width)
+            offset.height = fixHeight(y: offset.height)
         }
+    }
+    func fixWidth(x: CGFloat) -> CGFloat {
+        let marginW = absWindowW * (scale - 1) / 2
+        let leadingMargin = scaleAnchor.x / 0.5 * marginW
+        let trailingMargin = (1 - scaleAnchor.x) / 0.5 * marginW
+        return min(max(x, -trailingMargin), leadingMargin)
+    }
+    func fixHeight(y: CGFloat) -> CGFloat {
+        let marginH = absWindowH * (scale - 1) / 2
+        let topMargin = scaleAnchor.y / 0.5 * marginH
+        let bottomMargin = (1 - scaleAnchor.y) / 0.5 * marginH
+        return min(max(y, -bottomMargin), topMargin)
     }
 }
 
