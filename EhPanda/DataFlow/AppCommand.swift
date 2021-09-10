@@ -6,6 +6,7 @@
 //
 
 import Kanna
+import SwiftUI
 import Combine
 import Foundation
 
@@ -16,8 +17,7 @@ protocol AppCommand {
 struct FetchGreetingCommand: AppCommand {
     func execute(in store: Store) {
         let token = SubscriptionToken()
-        GreetingRequest()
-            .publisher
+        GreetingRequest().publisher
             .receive(on: DispatchQueue.main)
             .sink { completion in
                 if case .failure(let error) = completion {
@@ -36,8 +36,7 @@ struct FetchUserInfoCommand: AppCommand {
 
     func execute(in store: Store) {
         let token = SubscriptionToken()
-        UserInfoRequest(uid: uid)
-            .publisher
+        UserInfoRequest(uid: uid).publisher
             .receive(on: DispatchQueue.main)
             .sink { completion in
                 if case .failure(let error) = completion {
@@ -54,8 +53,7 @@ struct FetchUserInfoCommand: AppCommand {
 struct FetchFavoriteNamesCommand: AppCommand {
     func execute(in store: Store) {
         let token = SubscriptionToken()
-        FavoriteNamesRequest()
-            .publisher
+        FavoriteNamesRequest().publisher
             .receive(on: DispatchQueue.main)
             .sink { completion in
                 if case .failure(let error) = completion {
@@ -76,8 +74,7 @@ struct FetchTagTranslatorCommand: AppCommand {
     func execute(in store: Store) {
         let token = SubscriptionToken()
         TagTranslatorRequest(language: language, updatedDate: updatedDate)
-            .publisher
-            .receive(on: DispatchQueue.main)
+            .publisher.receive(on: DispatchQueue.main)
             .sink { completion in
                 if case .failure(let error) = completion {
                     store.dispatch(.fetchTagTranslatorDone(result: .failure(error)))
@@ -91,6 +88,8 @@ struct FetchTagTranslatorCommand: AppCommand {
 }
 
 struct FetchGalleryItemReverseCommand: AppCommand {
+    @State var didReceiveGallery = false // workaround
+
     let gid: String
     let url: String
     let shouldParseGalleryURL: Bool
@@ -98,15 +97,19 @@ struct FetchGalleryItemReverseCommand: AppCommand {
     func execute(in store: Store) {
         let token = SubscriptionToken()
         GalleryItemReverseRequest(url: url, shouldParseGalleryURL: shouldParseGalleryURL)
-            .publisher
-            .receive(on: DispatchQueue.main)
+            .publisher.receive(on: DispatchQueue.main)
             .sink { completion in
-                if case .failure(let error) = completion {
+                switch completion {
+                case .failure(let error):
                     store.dispatch(.fetchGalleryItemReverseDone(carriedValue: gid, result: .failure(error)))
+                case .finished:
+                    guard !didReceiveGallery else { break }
+                    store.dispatch(.fetchGalleryItemReverseDone(carriedValue: gid, result: .failure(.networkingFailed)))
                 }
                 token.unseal()
             } receiveValue: { gallery in
                 if let gallery = gallery {
+                    didReceiveGallery = true
                     store.dispatch(.fetchGalleryItemReverseDone(carriedValue: gid, result: .success(gallery)))
                 } else {
                     store.dispatch(.fetchGalleryItemReverseDone(carriedValue: gid, result: .failure(.networkingFailed)))
@@ -123,8 +126,7 @@ struct FetchSearchItemsCommand: AppCommand {
     func execute(in store: Store) {
         let token = SubscriptionToken()
         SearchItemsRequest(keyword: keyword, filter: filter)
-            .publisher
-            .receive(on: DispatchQueue.main)
+            .publisher.receive(on: DispatchQueue.main)
             .sink { completion in
                 if case .failure(let error) = completion {
                     store.dispatch(.fetchSearchItemsDone(result: .failure(error)))
@@ -181,8 +183,7 @@ struct FetchMoreSearchItemsCommand: AppCommand {
 struct FetchFrontpageItemsCommand: AppCommand {
     func execute(in store: Store) {
         let token = SubscriptionToken()
-        FrontpageItemsRequest()
-            .publisher
+        FrontpageItemsRequest().publisher
             .receive(on: DispatchQueue.main)
             .sink { completion in
                 if case .failure(let error)  = completion {
@@ -211,8 +212,7 @@ struct FetchMoreFrontpageItemsCommand: AppCommand {
     func execute(in store: Store) {
         let token = SubscriptionToken()
         MoreFrontpageItemsRequest(lastID: lastID, pageNum: pageNum)
-            .publisher
-            .receive(on: DispatchQueue.main)
+            .publisher.receive(on: DispatchQueue.main)
             .sink { completion in
                 if case .failure(let error)  = completion {
                     store.dispatch(.fetchMoreFrontpageItemsDone(result: .failure(error)))
@@ -233,8 +233,7 @@ struct FetchMoreFrontpageItemsCommand: AppCommand {
 struct FetchPopularItemsCommand: AppCommand {
     func execute(in store: Store) {
         let token = SubscriptionToken()
-        PopularItemsRequest()
-            .publisher
+        PopularItemsRequest().publisher
             .receive(on: DispatchQueue.main)
             .sink { completion in
                 if case .failure(let error)  = completion {
@@ -255,8 +254,7 @@ struct FetchPopularItemsCommand: AppCommand {
 struct FetchWatchedItemsCommand: AppCommand {
     func execute(in store: Store) {
         let token = SubscriptionToken()
-        WatchedItemsRequest()
-            .publisher
+        WatchedItemsRequest().publisher
             .receive(on: DispatchQueue.main)
             .sink { completion in
                 if case .failure(let error)  = completion {
@@ -285,8 +283,7 @@ struct FetchMoreWatchedItemsCommand: AppCommand {
     func execute(in store: Store) {
         let token = SubscriptionToken()
         MoreWatchedItemsRequest(lastID: lastID, pageNum: pageNum)
-            .publisher
-            .receive(on: DispatchQueue.main)
+            .publisher.receive(on: DispatchQueue.main)
             .sink { completion in
                 if case .failure(let error)  = completion {
                     store.dispatch(.fetchMoreWatchedItemsDone(result: .failure(error)))
@@ -310,8 +307,7 @@ struct FetchFavoritesItemsCommand: AppCommand {
     func execute(in store: Store) {
         let token = SubscriptionToken()
         FavoritesItemsRequest(favIndex: favIndex)
-            .publisher
-            .receive(on: DispatchQueue.main)
+            .publisher.receive(on: DispatchQueue.main)
             .sink { completion in
                 if case .failure(let error)  = completion {
                     store.dispatch(.fetchFavoritesItemsDone(carriedValue: favIndex, result: .failure(error)))
@@ -342,8 +338,7 @@ struct FetchMoreFavoritesItemsCommand: AppCommand {
     func execute(in store: Store) {
         let token = SubscriptionToken()
         MoreFavoritesItemsRequest(favIndex: favIndex, lastID: lastID, pageNum: pageNum)
-            .publisher
-            .receive(on: DispatchQueue.main)
+            .publisher.receive(on: DispatchQueue.main)
             .sink { completion in
                 if case .failure(let error)  = completion {
                     store.dispatch(.fetchMoreFavoritesItemsDone(carriedValue: favIndex, result: .failure(error)))
@@ -369,8 +364,7 @@ struct FetchToplistsItemsCommand: AppCommand {
     func execute(in store: Store) {
         let token = SubscriptionToken()
         ToplistsItemsRequest(catIndex: catIndex)
-            .publisher
-            .receive(on: DispatchQueue.main)
+            .publisher.receive(on: DispatchQueue.main)
             .sink { completion in
                 if case .failure(let error)  = completion {
                     store.dispatch(.fetchToplistsItemsDone(carriedValue: topIndex, result: .failure(error)))
@@ -401,8 +395,7 @@ struct FetchMoreToplistsItemsCommand: AppCommand {
     func execute(in store: Store) {
         let token = SubscriptionToken()
         MoreToplistsItemsRequest(catIndex: catIndex, pageNum: pageNum)
-            .publisher
-            .receive(on: DispatchQueue.main)
+            .publisher.receive(on: DispatchQueue.main)
             .sink { completion in
                 if case .failure(let error)  = completion {
                     store.dispatch(.fetchMoreToplistsItemsDone(carriedValue: topIndex, result: .failure(error)))
@@ -428,8 +421,7 @@ struct FetchGalleryDetailCommand: AppCommand {
     func execute(in store: Store) {
         let token = SubscriptionToken()
         GalleryDetailRequest(gid: gid, galleryURL: galleryURL)
-            .publisher
-            .receive(on: DispatchQueue.main)
+            .publisher.receive(on: DispatchQueue.main)
             .sink { completion in
                 if case .failure(let error) = completion {
                     store.dispatch(.fetchGalleryDetailDone(gid: gid, result: .failure(error)))
@@ -449,8 +441,7 @@ struct FetchGalleryArchiveFundsCommand: AppCommand {
     func execute(in store: Store) {
         let sToken = SubscriptionToken()
         GalleryArchiveFundsRequest(gid: gid, galleryURL: galleryURL)
-            .publisher
-            .receive(on: DispatchQueue.main)
+            .publisher.receive(on: DispatchQueue.main)
             .sink { completion in
                 if case .failure(let error) = completion {
                     store.dispatch(.fetchGalleryArchiveFundsDone(result: .failure(error)))
@@ -474,8 +465,7 @@ struct FetchGalleryPreviewsCommand: AppCommand {
 
     func execute(in store: Store) {
         let token = SubscriptionToken()
-        GalleryPreviewsRequest(url: url)
-            .publisher
+        GalleryPreviewsRequest(url: url).publisher
             .receive(on: DispatchQueue.main)
             .sink { completion in
                 if case .failure(let error) = completion {
@@ -501,8 +491,7 @@ struct FetchMPVKeysCommand: AppCommand {
 
     func execute(in store: Store) {
         let token = SubscriptionToken()
-        MPVKeysRequest(mpvURL: mpvURL)
-            .publisher
+        MPVKeysRequest(mpvURL: mpvURL).publisher
             .receive(on: DispatchQueue.main)
             .sink { completion in
                 if case .failure(let error) = completion {
@@ -527,8 +516,7 @@ struct FetchThumbnailsCommand: AppCommand {
 
     func execute(in store: Store) {
         let token = SubscriptionToken()
-        ThumbnailsRequest(url: url)
-            .publisher
+        ThumbnailsRequest(url: url).publisher
             .receive(on: DispatchQueue.main)
             .sink { completion in
                 if case .failure(let error) = completion {
@@ -554,8 +542,7 @@ struct FetchGalleryNormalContentsCommand: AppCommand {
     func execute(in store: Store) {
         let token = SubscriptionToken()
         GalleryNormalContentsRequest(thumbnails: thumbnails)
-            .publisher
-            .receive(on: DispatchQueue.main)
+            .publisher.receive(on: DispatchQueue.main)
             .sink { completion in
                 if case .failure(let error) = completion {
                     store.dispatch(.fetchGalleryNormalContentsDone(gid: gid, index: index, result: .failure(error)))
@@ -645,8 +632,7 @@ struct FetchGalleryMPVContentCommand: AppCommand {
 struct FetchIgneousCommand: AppCommand {
     func execute(in store: Store) {
         let token = SubscriptionToken()
-        IgneousRequest()
-            .publisher
+        IgneousRequest().publisher
             .receive(on: DispatchQueue.main)
             .sink { _ in
                 token.unseal()
@@ -658,8 +644,7 @@ struct FetchIgneousCommand: AppCommand {
 struct VerifyEhProfileCommand: AppCommand {
     func execute(in store: Store) {
         let token = SubscriptionToken()
-        VerifyEhProfileRequest()
-            .publisher
+        VerifyEhProfileRequest().publisher
             .receive(on: DispatchQueue.main)
             .sink { completion in
                 if case .failure(let error) = completion {
@@ -679,8 +664,7 @@ struct CreateEhProfileCommand: AppCommand {
     func execute(in store: Store) {
         let token = SubscriptionToken()
         EhProfileRequest(action: .create, name: name)
-            .publisher
-            .receive(on: DispatchQueue.main)
+            .publisher.receive(on: DispatchQueue.main)
             .sink { _ in
                 token.unseal()
             } receiveValue: { _ in }
@@ -696,8 +680,7 @@ struct AddFavoriteCommand: AppCommand {
     func execute(in store: Store) {
         let sToken = SubscriptionToken()
         AddFavoriteRequest(gid: gid, token: token, favIndex: favIndex)
-            .publisher
-            .receive(on: DispatchQueue.main)
+            .publisher.receive(on: DispatchQueue.main)
             .sink { completion in
                 if case .finished = completion {
                     store.dispatch(.fetchGalleryDetail(gid: gid))
@@ -713,8 +696,7 @@ struct DeleteFavoriteCommand: AppCommand {
 
     func execute(in store: Store) {
         let sToken = SubscriptionToken()
-        DeleteFavoriteRequest(gid: gid)
-            .publisher
+        DeleteFavoriteRequest(gid: gid).publisher
             .receive(on: DispatchQueue.main)
             .sink { completion in
                 if case .finished = completion {
@@ -762,8 +744,7 @@ struct CommentCommand: AppCommand {
     func execute(in store: Store) {
         let token = SubscriptionToken()
         CommentRequest(content: content, galleryURL: galleryURL)
-            .publisher
-            .receive(on: DispatchQueue.main)
+            .publisher.receive(on: DispatchQueue.main)
             .sink { completion in
                 if case .finished = completion {
                     store.dispatch(.fetchGalleryDetail(gid: gid))

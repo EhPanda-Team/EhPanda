@@ -6,7 +6,7 @@ on:
     types: [closed]
 env:
    DEVELOPER_DIR: /Applications/Xcode_13.0.app
-   APP_VERSION: '1.0.5'
+   APP_VERSION: '1.0.6'
    SCHEME_NAME: 'EhPanda'
    BUILDS_PATH: '/tmp/action-builds'
    ARCHIVE_PATH: '/tmp/action-builds/EhPanda.xcarchive'
