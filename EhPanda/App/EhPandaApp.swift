@@ -45,6 +45,7 @@ private extension EhPandaApp {
             configureWebImage()
             configureDomainFronting()
         }
+        addTouchHandler()
         configureLogging()
         fetchTagTranslator()
         fetchIgneousIfNeeded()
@@ -87,6 +88,15 @@ private extension EhPandaApp {
 
 // MARK: Configuration
 private extension EhPandaApp {
+    func addTouchHandler() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+            let tapGesture = UITapGestureRecognizer(
+                target: self, action: nil
+            )
+            tapGesture.delegate = TouchHandler.shared
+            keyWindow?.addGestureRecognizer(tapGesture)
+        }
+    }
     func configureLogging() {
         var file = FileDestination()
         var console = ConsoleDestination()
@@ -152,4 +162,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         _ application: UIApplication,
         supportedInterfaceOrientationsFor window: UIWindow?
     ) -> UIInterfaceOrientationMask { AppDelegate.orientationLock }
+}
+
+final class TouchHandler: NSObject, UIGestureRecognizerDelegate {
+    static let shared = TouchHandler()
+    var currentPoint: CGPoint?
+
+    func gestureRecognizer(
+        _ gestureRecognizer: UIGestureRecognizer,
+        shouldReceive touch: UITouch
+    ) -> Bool {
+        currentPoint = touch.location(in: touch.window)
+        return false
+    }
 }

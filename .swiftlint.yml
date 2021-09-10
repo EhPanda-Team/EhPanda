@@ -8,6 +8,8 @@ disabled_rules:
 
 identifier_name:
  excluded:
+  - x
+  - y
   - id
   - no
 
