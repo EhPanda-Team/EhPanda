@@ -85,6 +85,19 @@ jobs:
       - name: Export .ipa file
         run: xcodebuild -exportArchive -archivePath ${{ env.ARCHIVE_PATH }}
           -exportPath ${{ env.BUILDS_PATH }} -exportOptionsPlist ./ExportOptions.plist
+      - name: Retrieve data
+        id: retrieve-data
+        run: |
+          echo "::set-output name=size::$(stat -f%z $IPA_OUTPUT_PATH)"
+          echo "::set-output name=version_date::$(date -u +"%Y-%m-%dT%T")"
+      - name: Validate data
+        run: |
+          [[ ! -z "${{ github.event.pull_request.body }}" ]] || exit 1
+          [[ ! -z "${{ github.event.pull_request.title }}" ]] || exit 1
+          [[ ! -z "${{ steps.retrieve-data.outputs.size }}" ]] || exit 1
+          [[ ! -z "${{ steps.bump-version.outputs.version }}" ]] || exit 1
+          [[ ! -z "${{ steps.bump-version.outputs.build-number }}" ]] || exit 1
+          [[ ! -z "${{ steps.retrieve-data.outputs.version_date }}" ]] || exit 1
       - name: Release to GitHub
         uses: softprops/action-gh-release@v1
         with:
@@ -102,18 +115,8 @@ jobs:
           git add .
           git commit -m "Bump version"
           git push origin HEAD
-      - name: Retrieve data
-        id: retrieve-data
-        run: |
-          echo "::set-output name=size::$(stat -f%z $IPA_OUTPUT_PATH)"
-          echo "::set-output name=version_date::$(date -u +"%Y-%m-%dT%T")"
       - name: Update AltStore.json
-        run: |          
-          [[ ! -z "${{ github.event.pull_request.body }}" ]] || exit 1
-          [[ ! -z "${{ steps.retrieve-data.outputs.size }}" ]] || exit 1
-          [[ ! -z "${{ steps.bump-version.outputs.version }}" ]] || exit 1
-          [[ ! -z "${{ steps.bump-version.outputs.build-number }}" ]] || exit 1
-          [[ ! -z "${{ steps.retrieve-data.outputs.version_date }}" ]] || exit 1
+        run: |
           echo "`jq '.apps[0].size=${{ steps.retrieve-data.outputs.size }}' $ALTSTORE_JSON_PATH`" > $ALTSTORE_JSON_PATH
           echo "`jq '.apps[0].versionDescription="${{ github.event.pull_request.body }}"' $ALTSTORE_JSON_PATH`" > $ALTSTORE_JSON_PATH
           echo "`jq '.apps[0].versionDate="${{ steps.retrieve-data.outputs.version_date }}"' $ALTSTORE_JSON_PATH`" > $ALTSTORE_JSON_PATH
