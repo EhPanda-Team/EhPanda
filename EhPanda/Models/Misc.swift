@@ -17,7 +17,7 @@ typealias ReloadToken = Any
 
 struct PageNumber {
     var current = 0
-    var maximum = 1
+    var maximum = 0
 }
 
 struct Greeting: Codable, Equatable {

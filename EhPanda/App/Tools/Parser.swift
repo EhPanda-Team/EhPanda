@@ -1162,7 +1162,7 @@ extension Parser {
         }
         for aLink in link.xpath("//a") {
             if let num = Int(aLink.text ?? "") {
-                maximum = num
+                maximum = num - 1
             }
         }
         return PageNumber(current: current, maximum: maximum)
