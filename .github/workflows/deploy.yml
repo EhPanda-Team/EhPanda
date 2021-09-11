@@ -51,18 +51,15 @@ jobs:
         run: |
           KEY_CHAIN=action-builds.keychain-db
           P12_PASSWORD=${{ secrets.P12_PASSWORD }}
- 
           security create-keychain -p $P12_PASSWORD $KEY_CHAIN
           security default-keychain -s $KEY_CHAIN
           security unlock-keychain -p $P12_PASSWORD $KEY_CHAIN
           security set-keychain-settings -t 3600 -u $KEY_CHAIN
-
           security import $DEV_CERTIFICATE_PATH -k $KEY_CHAIN -T /usr/bin/codesign
           security import $DIS_CERTIFICATE_PATH -k $KEY_CHAIN -T /usr/bin/codesign
           security import $DEV_P12_PATH -k $KEY_CHAIN -P $P12_PASSWORD -T /usr/bin/codesign
           security import $DIS_P12_PATH -k $KEY_CHAIN -P $P12_PASSWORD -T /usr/bin/codesign
           security set-key-partition-list -S apple-tool:,apple: -s -k $P12_PASSWORD ~/Library/Keychains/$KEY_CHAIN
-          
           security list-keychains
           security find-identity -p codesigning  ~/Library/Keychains/$KEY_CHAIN
       - name: Install provisioning profiles
