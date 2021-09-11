@@ -117,9 +117,8 @@ jobs:
           [[ ! -z "${{ steps.bump-version.outputs.version }}" ]] || exit 1
           [[ ! -z "${{ steps.bump-version.outputs.build-number }}" ]] || exit 1
           [[ ! -z "${{ steps.retrieve-data.outputs.version_date }}" ]] || exit 1
-          
-          echo "`jq '.apps[0].versionDescription="test"' $ALTSTORE_JSON_PATH`" > $ALTSTORE_JSON_PATH
           echo "`jq '.apps[0].size=${{ steps.retrieve-data.outputs.size }}' $ALTSTORE_JSON_PATH`" > $ALTSTORE_JSON_PATH
+          echo "`jq '.apps[0].versionDescription="${{ github.event.pull_request.body }}"' $ALTSTORE_JSON_PATH`" > $ALTSTORE_JSON_PATH
           echo "`jq '.apps[0].versionDate="${{ steps.retrieve-data.outputs.version_date }}"' $ALTSTORE_JSON_PATH`" > $ALTSTORE_JSON_PATH
           echo "`jq '.apps[0].version="v${{ steps.bump-version.outputs.version }}b${{ steps.bump-version.outputs.build-number }}"' $ALTSTORE_JSON_PATH`" > $ALTSTORE_JSON_PATH
           echo "`jq '.apps[0].downloadURL="https://github.com/tatsuz0u/EhPanda/releases/download/v${{ steps.bump-version.outputs.version }}_b${{ steps.bump-version.outputs.build-number }}/EhPanda.ipa"' $ALTSTORE_JSON_PATH`" > $ALTSTORE_JSON_PATH
