@@ -17,4 +17,6 @@ jobs:
 #           -destination 'platform=iOS Simulator,name=iPhone 12'
 #           clean test
       - name: Post a message to Telegram
-        run: curl "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage?parse_mode=markdown&chat_id=${{ secrets.TELEGRAM_CHANNEL_ID_TEST }}&text=*testing*%0A321"
+        run: curl https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage
+         -d parse_mode=markdown -d chat_id=${{ secrets.TELEGRAM_CHANNEL_ID_TEST }}
+         -d text='*testing*%0A321'
