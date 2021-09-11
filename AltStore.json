@@ -32,7 +32,7 @@
         },
         {
           "type": "faceid",
-          "usageDescription": "Allows you to use FaceID to unlock EhPanda."
+          "usageDescription": "Allows you to use Face ID to unlock EhPanda."
         }
       ]
     }
