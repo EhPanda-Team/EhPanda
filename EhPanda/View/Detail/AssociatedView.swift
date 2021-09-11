@@ -119,7 +119,7 @@ private extension AssociatedView {
                 SwiftyBeaver.info(
                     "SearchItemsRequest succeeded",
                     context: [
-                        "Keyword": keyword.isEmpty ? title : keyword,
+                        "Keyword": keyword.isEmpty ? title : keyword, "PageNumber": pageNumber,
                         "Galleries count": galleries.count
                     ]
                 )
@@ -130,7 +130,7 @@ private extension AssociatedView {
                     "SearchItemsRequest failed",
                     context: [
                         "Keyword": keyword.isEmpty ? title : keyword,
-                        "Error": loadError as Any
+                        "PageNumber": pageNumber, "Error": loadError as Any
                     ]
                 )
             }
@@ -169,7 +169,7 @@ private extension AssociatedView {
                     "MoreSearchItemsRequest failed",
                     context: [
                         "Keyword": keyword, "LastID": lastID,
-                        "PageNum": pageNumber.current + 1, "Error": error
+                        "PageNumber": pageNumber, "Error": error
                     ]
                 )
             }
@@ -191,8 +191,7 @@ private extension AssociatedView {
             SwiftyBeaver.info(
                 "MoreSearchItemsRequest succeeded",
                 context: [
-                    "Keyword": keyword, "LastID": lastID,
-                    "PageNum": pageNumber.current + 1,
+                    "Keyword": keyword, "LastID": lastID, "PageNumber": pageNumber,
                     "Galleries count": galleries.count
                 ]
             )
