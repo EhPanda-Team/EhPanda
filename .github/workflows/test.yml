@@ -7,21 +7,12 @@ jobs:
   Test:
     runs-on: macos-11
     steps:
-#       - name: Checkout
-#         uses: actions/checkout@v2
-#       - name: Show Xcode version
-#         run: xcodebuild -version
-#       - name: Run tests
-#         run: xcodebuild
-#           -scheme ${{ env.SCHEME_NAME }} -sdk iphonesimulator
-#           -destination 'platform=iOS Simulator,name=iPhone 12'
-#           clean test
-      - name: Post release note
-        run: |
-         curl https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage \
-         -d parse_mode=markdown -d chat_id=${{ secrets.TELEGRAM_CHANNEL_ID_TEST }} \
-         -d text='*testing*%0A321'
-
-         curl ${{ secrets.DISCORD_WEBHOOK_TEST }} \
-         -H "Content-Type: application/json" \
-         -d "{\"username\": \"Tatsuzou\", \"content\": \"**testing**\n321\"}"
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Show Xcode version
+        run: xcodebuild -version
+      - name: Run tests
+        run: xcodebuild
+          -scheme ${{ env.SCHEME_NAME }} -sdk iphonesimulator
+          -destination 'platform=iOS Simulator,name=iPhone 12'
+          clean test
