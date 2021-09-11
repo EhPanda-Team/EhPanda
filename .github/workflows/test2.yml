@@ -20,5 +20,5 @@ jobs:
          -d text='*${{ env.TEST_VERSION }} Release Notes:*%0A${{ github.event.pull_request.body }}'
 
          curl ${{ secrets.DISCORD_WEBHOOK_TEST }} -H "Content-Type: application/json" -d username=Tatsuzou \
-         -d content='**${{ env.TEST_VERSION }} Release Notes:**\n${{ github.event.pull_request.body }}}'
+         -d content='**${{ env.TEST_VERSION }} Release Notes:**%0A${{ github.event.pull_request.body }}}'
 #
