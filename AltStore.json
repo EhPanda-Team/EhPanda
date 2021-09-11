@@ -1,7 +1,7 @@
 {
   "name": "EhPanda",
-  "identifier": "zeng.EhPanda",
-  "sourceURL": "https://github.com/tatsuz0u/EhPanda-PromotionResources/raw/main/altStore.json",
+  "identifier": "app.ehpanda",
+  "sourceURL": "https://github.com/tatsuz0u/EhPanda/raw/main/AltStore.json",
   "apps": [
     {
       "name": "EhPanda",
