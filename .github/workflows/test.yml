@@ -23,6 +23,7 @@ jobs:
           brew install docker docker-machine
           docker-machine create --driver virtualbox default
           docker-machine env default
+      - run: eval $(docker-machine env default)
       - name: Post a message to Telegram
         uses: appleboy/telegram-action@master
         with:
