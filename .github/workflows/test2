@@ -1,0 +1,23 @@
+name: Test
+on: 
+  pull_request:
+    branches:
+      - test/merge
+    types: [closed]
+env:
+   SCHEME_NAME: 'EhPanda'
+   DEVELOPER_DIR: /Applications/Xcode_13.0.app
+   TEST_VERSION: 'v1.0.0'
+jobs:
+  Test:
+    runs-on: macos-11
+    if: github.event.pull_request.merged == true && github.event.pull_request.user.login == 'tatsuz0u'
+    steps:
+      - name: Post release notes
+        run: |
+         curl https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage \
+         -d parse_mode=markdown -d chat_id=${{ secrets.TELEGRAM_CHANNEL_ID_TEST }} \
+         -d text='*${{ env.TEST_VERSION }} Release Notes:*%0A${{ github.event.pull_request.body }}'
+
+         curl ${{ secrets.DISCORD_WEBHOOK_TEST }} -H "Content-Type: application/json" \
+         -d "{\"username\": \"Tatsuzou\", \"content\": \"**${{ env.TEST_VERSION }} Release Notes:**\n${{ github.event.pull_request.body }}"}"
