@@ -7,12 +7,18 @@ jobs:
   Test:
     runs-on: macos-11
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Show Xcode version
-        run: xcodebuild -version
-      - name: Run tests
-        run: xcodebuild
-          -scheme ${{ env.SCHEME_NAME }} -sdk iphonesimulator
-          -destination 'platform=iOS Simulator,name=iPhone 12'
-          clean test
+#       - name: Checkout
+#         uses: actions/checkout@v2
+#       - name: Show Xcode version
+#         run: xcodebuild -version
+#       - name: Run tests
+#         run: xcodebuild
+#           -scheme ${{ env.SCHEME_NAME }} -sdk iphonesimulator
+#           -destination 'platform=iOS Simulator,name=iPhone 12'
+#           clean test
+      - name: Post a message to Telegram
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_CHANNEL_ID }}
+          token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          message: 'Testing~ Testing~ This is a message posted by たつぞう-Bot.'
