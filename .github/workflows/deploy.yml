@@ -148,7 +148,7 @@ jobs:
         with:
           file_path: ${{ env.ALTSTORE_JSON_PATH }}
           field_path: 'apps.0.size'
-          field_value: 0
+          field_value: ${{ 0 }}
       - name: Sync AltStore.json changes
         run: mv ${{ steps.update-altstore-size.outputs.out_file }} ${{ env.ALTSTORE_JSON_PATH }}
       - name: Commit update AltStore.json
