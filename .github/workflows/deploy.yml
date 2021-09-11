@@ -106,7 +106,7 @@ jobs:
           field_path: 'apps.0.version'
           field_value: 'v${{ steps.bump-version.outputs.version }}b${{ steps.bump-version.outputs.build-number }}'
       - name: Sync AltStore.json changes
-        run: mv ${{ steps.update-altstore.outputs.out_file }} ${{ env.ALTSTORE_JSON_PATH }}
+        run: mv ${{ steps.update-altstore-version.outputs.out_file }} ${{ env.ALTSTORE_JSON_PATH }}
       - name: Commit changes
         run: |
           git add .
