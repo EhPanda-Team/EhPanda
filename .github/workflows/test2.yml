@@ -19,6 +19,5 @@ jobs:
          -d parse_mode=markdown -d chat_id=${{ secrets.TELEGRAM_CHANNEL_ID_TEST }} \
          -d text='*${{ env.TEST_VERSION }} Release Notes:*%0A${{ github.event.pull_request.body }}'
 
-         curl ${{ secrets.DISCORD_WEBHOOK_TEST }} -H "Content-Type: application/json" -d username=Tatsuzou \
-         -d content='**${{ env.TEST_VERSION }} Release Notes:**%0A${{ github.event.pull_request.body }}}'
-#
+         curl $WEBHOOK_URL -H "Content-Type: application/json" \
+         -d '{"username": "Tatsuzou-Bot", "content": "**release**\n123"}'
