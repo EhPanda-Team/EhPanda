@@ -130,7 +130,7 @@ jobs:
         with:
           file_path: ${{ env.ALTSTORE_JSON_PATH }}
           field_path: 'apps.0.versionDescription'
-          field_value: ''
+          field_value: 'test'
       - name: Sync AltStore.json changes
         run: mv ${{ steps.update-altstore-versionDescription.outputs.out_file }} ${{ env.ALTSTORE_JSON_PATH }}
       - name: Update AltStore.json downloadURL
