@@ -21,7 +21,3 @@ jobs:
          curl https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage \
          -d parse_mode=markdown -d chat_id=${{ secrets.TELEGRAM_CHANNEL_ID_TEST }} \
          -d text='*testing*%0A321'
-         curl ${{ secrets.DISCORD_WEBHOOK_TEST }} \
-         -H "Content-Type: application/json" \
-         -d "{"username": "Tatsuzou", "content": "*testing*%0A321"}"
-  
