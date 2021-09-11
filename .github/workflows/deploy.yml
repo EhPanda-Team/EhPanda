@@ -99,11 +99,14 @@ jobs:
 #         run: xcrun altool --upload-app -t ios -f ${{ env.IPA_OUTPUT_PATH }}
 #           -u ${{ secrets.ASC_USER }} -p ${{ secrets.ASC_PASSWORD }}
       - name: Update AltStore.json version
+        id: update-altstore-version
         uses: 898anil/github-actions-json-edit@master
         with:
           file_path: ${{ env.ALTSTORE_JSON_PATH }}
           field_path: 'apps.0.version'
           field_value: 'v${{ steps.bump-version.outputs.version }}b${{ steps.bump-version.outputs.build-number }}'
+      - name: Sync AltStore.json changes
+        run: mv ${{ steps.update-altstore.outputs.out_file }} ${{ env.ALTSTORE_JSON_PATH }}
       - name: Commit changes
         run: |
           git add .
