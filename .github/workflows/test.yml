@@ -17,7 +17,7 @@ jobs:
 #           -destination 'platform=iOS Simulator,name=iPhone 12'
 #           clean test
       - name: Post a message to Telegram
-        uses: yanzay/notify-telegram@v0.1.0
+        uses: appleboy/telegram-action@master
         with:
           to: ${{ secrets.TELEGRAM_CHANNEL_ID }}
           token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
