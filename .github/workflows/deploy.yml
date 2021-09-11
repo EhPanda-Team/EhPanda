@@ -112,13 +112,16 @@ jobs:
           field_value: 'v${{ steps.bump-version.outputs.version }}b${{ steps.bump-version.outputs.build-number }}'
       - name: Sync AltStore.json changes
         run: mv ${{ steps.update-altstore-version.outputs.out_file }} ${{ env.ALTSTORE_JSON_PATH }}
+      - name: Retrieve versionDate
+        id: retrieve-versionDate
+        run: echo "::set-output name=version_date::$(date -u +"%Y-%m-%dT%T")"
       - name: Update AltStore.json versionDate
         id: update-altstore-versionDate
         uses: 898anil/github-actions-json-edit@master
         with:
           file_path: ${{ env.ALTSTORE_JSON_PATH }}
           field_path: 'apps.0.versionDate'
-          field_value: ${{ date -u +"%Y-%m-%dT%T" }}
+          field_value: ${{ steps.retrieve-versionDate.outputs.version_date }}
       - name: Sync AltStore.json changes
         run: mv ${{ steps.update-altstore-versionDate.outputs.out_file }} ${{ env.ALTSTORE_JSON_PATH }}
       - name: Commit update AltStore.json
