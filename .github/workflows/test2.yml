@@ -13,9 +13,9 @@ jobs:
     runs-on: macos-11
     if: github.event.pull_request.merged == true && github.event.pull_request.user.login == 'tatsuz0u'
     steps:
-      - name: test
-        id: test
-        run: echo "::set-output name=test::$(${{ github.event.pull_request.body }} | tr '\n' '\\n')"
+      - name: test0
+        id: test1
+        run: echo "::set-output name=test2::$('${{ github.event.pull_request.body }}' | tr '\n' '\\n')"
       - name: Post release notes
         run: |
          curl https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage \
@@ -23,4 +23,4 @@ jobs:
          -d text='*${{ env.TEST_VERSION }} Release Notes:*%0A${{ github.event.pull_request.body }}'
 
          curl ${{ secrets.DISCORD_WEBHOOK_TEST }} -H "Content-Type: application/json" \
-         -d '{"username": "Tatsuzou-Bot", "content": "**${{ env.TEST_VERSION }} Release Notes:**\n${{ steps.test.outputs.test }}"}'
+         -d '{"username": "Tatsuzou-Bot", "content": "**${{ env.TEST_VERSION }} Release Notes:**\n${{ steps.test1.outputs.test2 }}"}'
