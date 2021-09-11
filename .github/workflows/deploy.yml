@@ -23,7 +23,7 @@ env:
 jobs:
   Deploy:
     runs-on: macos-11
-    if: github.event.pull_request.merged == true && github.event.pull_request.user.login == 'tatsuz0u'
+#     if: github.event.pull_request.merged == true && github.event.pull_request.user.login == 'tatsuz0u'
     steps:
       - name: Checkout
         uses: actions/checkout@v2
