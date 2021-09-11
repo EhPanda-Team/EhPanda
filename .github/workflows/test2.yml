@@ -15,7 +15,7 @@ jobs:
     steps:
       - name: test0
         id: test1
-        run: echo "::set-output name=test2::$(echo ${{ github.event.pull_request.body }} | tr '\n' '\\n')"
+        run: echo "::set-output name=test2::$(echo '${{ github.event.pull_request.body }}' | tr '\n' '\\n')"
       - name: Post release notes
         run: |
          curl https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage \
