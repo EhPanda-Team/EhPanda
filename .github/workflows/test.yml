@@ -17,7 +17,6 @@ jobs:
 #           -destination 'platform=iOS Simulator,name=iPhone 12'
 #           clean test
       - name: Post release note
-        run: | 
-         curl ${{ secrets.DISCORD_WEBHOOK_TEST }} \
-         -H "Content-Type: application/json" \
-         -d "{\"username\": \"Tatsuzou\", \"content\": \"*testing*%0A321\"}"
+        run: curl ${{ secrets.DISCORD_WEBHOOK_TEST }}
+          -H "Content-Type: application/json"
+          -d "{"username": "Tatsuzou", "content": "*testing*%0A321"}"
