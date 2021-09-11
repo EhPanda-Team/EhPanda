@@ -98,6 +98,11 @@ jobs:
 #       - name: Upload to ASC
 #         run: xcrun altool --upload-app -t ios -f ${{ env.IPA_OUTPUT_PATH }}
 #           -u ${{ secrets.ASC_USER }} -p ${{ secrets.ASC_PASSWORD }}
+      - name: Commit bump version
+        run: |
+          git add .
+          git commit -m "Bump version"
+          git push origin HEAD
       - name: Update AltStore.json version
         id: update-altstore-version
         uses: 898anil/github-actions-json-edit@master
@@ -107,8 +112,8 @@ jobs:
           field_value: 'v${{ steps.bump-version.outputs.version }}b${{ steps.bump-version.outputs.build-number }}'
       - name: Sync AltStore.json changes
         run: mv ${{ steps.update-altstore-version.outputs.out_file }} ${{ env.ALTSTORE_JSON_PATH }}
-      - name: Commit changes
+      - name: Commit update AltStore.json
         run: |
           git add .
-          git commit -m "Bump version & update AltStore.json"
+          git commit -m "Update AltStore.json"
           git push origin HEAD
