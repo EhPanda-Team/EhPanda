@@ -15,7 +15,7 @@ jobs:
     steps:
       - name: Get replaced body
         id: replaced-body
-        run: echo "::set-output name=body::$(echo "${{ github.event.pull_request.body }}" | perl -pe 's/\n/\\n/g')"
+        run: echo "::set-output name=body::$(echo "${{ github.event.pull_request.body }}" | jq -sR)"
       - name: Post release notes
         run: |
          curl https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage \
