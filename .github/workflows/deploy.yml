@@ -102,7 +102,7 @@ jobs:
         uses: 898anil/github-actions-json-edit@master
         with:
           file_path: ${{ env.ALTSTORE_JSON_PATH }}
-          field_path: <apps.0.version>
+          field_path: apps.0.version
           field_value: 'v${{ steps.bump-version.outputs.version }}b${{ steps.bump-version.outputs.build-number }}'
       - name: Commit changes
         run: |
