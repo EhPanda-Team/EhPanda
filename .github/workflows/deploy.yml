@@ -8,6 +8,7 @@ env:
    DEVELOPER_DIR: /Applications/Xcode_13.0.app
    APP_VERSION: '1.1.1'
    SCHEME_NAME: 'EhPanda'
+   ALTSTORE_JSON_PATH: './AltStore.json'
    BUILDS_PATH: '/tmp/action-builds'
    ARCHIVE_PATH: '/tmp/action-builds/EhPanda.xcarchive'
    IPA_OUTPUT_PATH: '/tmp/action-builds/EhPanda.ipa'
@@ -93,6 +94,8 @@ jobs:
          fail_on_unmatched_files: true
          files: ${{ env.IPA_OUTPUT_PATH }}
          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+         body: ${{ github.event.pull_request.body }}
+         name: ${{ github.event.pull_request.title }}
          tag_name: 'v${{ steps.bump-version.outputs.version }}_b${{ steps.bump-version.outputs.build-number }}'
       - name: Upload to ASC
         run: xcrun altool --upload-app -t ios -f ${{ env.IPA_OUTPUT_PATH }}
@@ -101,4 +104,27 @@ jobs:
         run: |
           git add .
           git commit -m "Bump version"
+          git push origin HEAD
+      - name: Retrieve data
+        id: retrieve-data
+        run: |
+          echo "::set-output name=size::$(stat -f%z $IPA_OUTPUT_PATH)"
+          echo "::set-output name=version_date::$(date -u +"%Y-%m-%dT%T")"
+      - name: Update AltStore.json
+        run: |          
+          [[ ! -z "${{ github.event.pull_request.body }}" ]] || exit 1
+          [[ ! -z "${{ steps.retrieve-data.outputs.size }}" ]] || exit 1
+          [[ ! -z "${{ steps.bump-version.outputs.version }}" ]] || exit 1
+          [[ ! -z "${{ steps.bump-version.outputs.build-number }}" ]] || exit 1
+          [[ ! -z "${{ steps.retrieve-data.outputs.version_date }}" ]] || exit 1
+          
+          echo "`jq '.apps[0].versionDescription="test"' $ALTSTORE_JSON_PATH`" > $ALTSTORE_JSON_PATH
+          echo "`jq '.apps[0].size=${{ steps.retrieve-data.outputs.size }}' $ALTSTORE_JSON_PATH`" > $ALTSTORE_JSON_PATH
+          echo "`jq '.apps[0].versionDate="${{ steps.retrieve-data.outputs.version_date }}"' $ALTSTORE_JSON_PATH`" > $ALTSTORE_JSON_PATH
+          echo "`jq '.apps[0].version="v${{ steps.bump-version.outputs.version }}b${{ steps.bump-version.outputs.build-number }}"' $ALTSTORE_JSON_PATH`" > $ALTSTORE_JSON_PATH
+          echo "`jq '.apps[0].downloadURL="https://github.com/tatsuz0u/EhPanda/releases/download/v${{ steps.bump-version.outputs.version }}_b${{ steps.bump-version.outputs.build-number }}/EhPanda.ipa"' $ALTSTORE_JSON_PATH`" > $ALTSTORE_JSON_PATH
+      - name: Commit update AltStore.json
+        run: |
+          git add .
+          git commit -m "Update AltStore.json"
           git push origin HEAD
