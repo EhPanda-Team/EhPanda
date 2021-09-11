@@ -124,6 +124,33 @@ jobs:
           field_value: ${{ steps.retrieve-versionDate.outputs.version_date }}
       - name: Sync AltStore.json changes
         run: mv ${{ steps.update-altstore-versionDate.outputs.out_file }} ${{ env.ALTSTORE_JSON_PATH }}
+      - name: Update AltStore.json versionDescription
+        id: update-altstore-versionDescription
+        uses: 898anil/github-actions-json-edit@master
+        with:
+          file_path: ${{ env.ALTSTORE_JSON_PATH }}
+          field_path: 'apps.0.versionDescription'
+          field_value: ''
+      - name: Sync AltStore.json changes
+        run: mv ${{ steps.update-altstore-versionDescription.outputs.out_file }} ${{ env.ALTSTORE_JSON_PATH }}
+      - name: Update AltStore.json downloadURL
+        id: update-altstore-downloadURL
+        uses: 898anil/github-actions-json-edit@master
+        with:
+          file_path: ${{ env.ALTSTORE_JSON_PATH }}
+          field_path: 'apps.0.downloadURL'
+          field_value: 'https://github.com/tatsuz0u/EhPanda/releases/download/v${{ steps.bump-version.outputs.version }}_b${{ steps.bump-version.outputs.build-number }}/EhPanda.ipa'
+      - name: Sync AltStore.json changes
+        run: mv ${{ steps.update-altstore-downloadURL.outputs.out_file }} ${{ env.ALTSTORE_JSON_PATH }}
+      - name: Update AltStore.json size
+        id: update-altstore-size
+        uses: 898anil/github-actions-json-edit@master
+        with:
+          file_path: ${{ env.ALTSTORE_JSON_PATH }}
+          field_path: 'apps.0.size'
+          field_value: 0
+      - name: Sync AltStore.json changes
+        run: mv ${{ steps.update-altstore-size.outputs.out_file }} ${{ env.ALTSTORE_JSON_PATH }}
       - name: Commit update AltStore.json
         run: |
           git add .
