@@ -16,17 +16,4 @@ jobs:
 #           -scheme ${{ env.SCHEME_NAME }} -sdk iphonesimulator
 #           -destination 'platform=iOS Simulator,name=iPhone 12'
 #           clean test
-      - name: Install docker # Taken from https://github.com/actions/virtual-environments/issues/1143#issuecomment-652264388
-        run: |
-          mkdir -p ~/.docker/machine/cache
-          curl -Lo ~/.docker/machine/cache/boot2docker.iso https://github.com/boot2docker/boot2docker/releases/download/v19.03.12/boot2docker.iso
-          brew install docker docker-machine
-          docker-machine create --driver virtualbox default
-          docker-machine env default
-      - run: eval $(docker-machine env default)
       - name: Post a message to Telegram
-        uses: appleboy/telegram-action@master
-        with:
-          to: ${{ secrets.TELEGRAM_CHANNEL_ID }}
-          token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          message: 'Testing~ Testing~ This is a message posted by たつぞう-Bot.'
