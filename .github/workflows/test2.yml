@@ -1,4 +1,4 @@
-name: Test
+name: Test2
 on: 
   pull_request:
     branches:
@@ -9,7 +9,7 @@ env:
    DEVELOPER_DIR: /Applications/Xcode_13.0.app
    TEST_VERSION: 'v1.0.0'
 jobs:
-  Test:
+  Test2:
     runs-on: macos-11
     if: github.event.pull_request.merged == true && github.event.pull_request.user.login == 'tatsuz0u'
     steps:
