@@ -15,7 +15,7 @@ jobs:
     steps:
       - name: Get replaced body
         id: replaced-body
-        run: echo "::set-output name=body::$(echo "${{ github.event.pull_request.body }}" | sed -E ':a;N;$!ba;s/\r{0,1}\n/\\n/g')"
+        run: echo "::set-output name=body::$(echo "${{ github.event.pull_request.body }}" | sed -z 's/\n/\\n/g')"
       - name: Post release notes
         run: |
          curl https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage \
