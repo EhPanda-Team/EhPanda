@@ -19,7 +19,7 @@ jobs:
         id: replaced-body
         run: | 
          sudo chmod 777 ./EngFilter
-         BEFORE=$(echo "${{ github.event.pull_request.body }}")
+         BEFORE=$(echo -e "${{ github.event.pull_request.body }}")
          after=$(./EngFilter "$BEFORE")
          echo "::set-output name=body::$after"
       - name: Post release notes
