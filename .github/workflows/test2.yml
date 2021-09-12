@@ -7,6 +7,7 @@ on:
 env:
    SCHEME_NAME: 'EhPanda'
    DEVELOPER_DIR: /Applications/Xcode_13.0.app
+   FILTER_PATH: './EngFilter'
    TEST_VERSION: 'v1.0.0'
 jobs:
   Test2:
@@ -15,6 +16,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+      - name: Retrieve data
+        id: retrieve-data
+        run: |
+          sudo chmod 777 $FILTER_PATH
+          echo "::set-output name=notes::$($FILTER_PATH "${{ github.event.pull_request.body }}")"
+      - name: Validate data
+        run: |
+          [[ ! -z "${{ steps.retrieve-data.outputs.notes }}" ]] || exit 1
       - name: Get replaced body
         id: replaced-body
         run: |
