@@ -19,6 +19,7 @@ jobs:
         id: replaced-body
         run: |
          sudo chmod 777 ./EngFilter
+         echo "$(./EngFilter "${{ github.event.pull_request.body }}")"
          echo "::set-output name=body::$(./EngFilter "${{ github.event.pull_request.body }}")"
       - name: Post release notes
         run: |
@@ -27,4 +28,4 @@ jobs:
          -d text='*${{ env.TEST_VERSION }} Release Notes:*%0A${{ github.event.pull_request.body }}'
 
          curl ${{ secrets.DISCORD_WEBHOOK_TEST }} \
-         -F 'payload_json={"username": "Tatsuzou", "content": "**${{ env.TEST_VERSION }} Release Notes:**\n${{ steps.replaced-body.outputs.body }}"}'
+         -F 'payload_json={"content": "**${{ env.TEST_VERSION }} Release Notes:**\n${{ steps.replaced-body.outputs.body }}"}'
