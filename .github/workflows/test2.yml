@@ -19,20 +19,12 @@ jobs:
         id: replaced-body
         run: |
          sudo chmod 777 ./EngFilter
-         before='${{ github.event.pull_request.body }}'
-         echo "print before"
-         echo "$before"
-         echo "print before end"
-         after=$(./EngFilter "$before")
-         echo "print after"
-         echo "$after"
-         echo "print after end"
-         echo "::set-output name=body::$after"
+         echo "::set-output name=body::$(./EngFilter "${{ github.event.pull_request.body }}")"
       - name: Post release notes
         run: |
          curl https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage \
          -d parse_mode=markdown -d chat_id=${{ secrets.TELEGRAM_CHANNEL_ID_TEST }} \
-         -d text='*${{ env.TEST_VERSION }} Release Notes:*%0A${{ steps.replaced-body.outputs.body }}'
+         -d text='*${{ env.TEST_VERSION }} Release Notes:*%0A${{ github.event.pull_request.body }}'
 
          curl ${{ secrets.DISCORD_WEBHOOK_TEST }} \
          -F 'payload_json={"username": "Tatsuzou", "content": "**${{ env.TEST_VERSION }} Release Notes:**\n${{ steps.replaced-body.outputs.body }}"}'
