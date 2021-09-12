@@ -19,7 +19,7 @@ jobs:
         id: replaced-body
         run: |
          sudo chmod 777 ./EngFilter
-         before=${{ github.event.pull_request.body }}
+         before='${{ github.event.pull_request.body }}'
          echo "print before"
          echo "$before"
          echo "print before end"
