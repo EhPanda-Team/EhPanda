@@ -13,6 +13,8 @@ jobs:
     runs-on: macos-11
     if: github.event.pull_request.merged == true && github.event.pull_request.user.login == 'tatsuz0u'
     steps:
+      - name: Checkout
+        uses: actions/checkout@v2
       - name: Get replaced body
         id: replaced-body
         run: echo "::set-output name=body::$(./EngFilter "${{ github.event.pull_request.body }}")"
