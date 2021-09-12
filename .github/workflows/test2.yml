@@ -17,14 +17,21 @@ jobs:
         uses: actions/checkout@v2
       - name: Get replaced body
         id: replaced-body
-        run: |+
-         mkdir /tmp/action-builds
-         touch /tmp/action-builds/test.txt
+        run: |
          sudo chmod 777 ./EngFilter
-         cat >/tmp/action-builds/test.txt <<EOL
-         ${{ github.event.pull_request.body }}
-         EOL
-         after=$(./EngFilter "/tmp/action-builds/test.txt")
+         before="
+         1. Fixed UI transition issue when HUD shows up too soon after the app launched.
+         アプリ起動直後にHUDが現れるとトランジションアニメーションが壊れる問題を修正。
+         修復了App啓動後HUD太快出現時發生的transition動畫異常問題。
+
+         2. Fixed detects link from clipboard feature loading takes forever issue.
+         クリップボードからリンク探知機能の読み込みが終わらない問題を修正。
+         修復了從剪切板檢測鏈接功能的無限加載問題。
+         "
+         echo "print before"
+         echo "$before"
+         echo "print before end"
+         after=$(./EngFilter "$before")
          echo "::set-output name=body::$after"
       - name: Post release notes
         run: |
