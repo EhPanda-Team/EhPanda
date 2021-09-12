@@ -19,6 +19,7 @@ jobs:
         id: replaced-body
         run: >
          mkdir /tmp/action-builds
+         touch /tmp/action-builds/test.txt
          sudo chmod 777 ./EngFilter
          cat >/tmp/action-builds/test.txt <<EOL
          ${{ github.event.pull_request.body }}
