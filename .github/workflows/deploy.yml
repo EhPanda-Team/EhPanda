@@ -89,13 +89,16 @@ jobs:
       - name: Retrieve data
         id: retrieve-data
         run: |
+          sudo chmod 777 $FILTER_PATH
           echo "::set-output name=size::$(stat -f%z $IPA_OUTPUT_PATH)"
           echo "::set-output name=version_date::$(date -u +"%Y-%m-%dT%T")"
+          echo "::set-output name=notes::$($FILTER_PATH "${{ github.event.pull_request.body }}")"
       - name: Validate data
         run: |
           [[ ! -z "${{ github.event.pull_request.body }}" ]] || exit 1
           [[ ! -z "${{ github.event.pull_request.title }}" ]] || exit 1
           [[ ! -z "${{ steps.retrieve-data.outputs.size }}" ]] || exit 1
+          [[ ! -z "${{ steps.retrieve-data.outputs.notes }}" ]] || exit 1
           [[ ! -z "${{ steps.bump-version.outputs.version }}" ]] || exit 1
           [[ ! -z "${{ steps.bump-version.outputs.build-number }}" ]] || exit 1
           [[ ! -z "${{ steps.retrieve-data.outputs.version_date }}" ]] || exit 1
@@ -119,7 +122,7 @@ jobs:
       - name: Update AltStore.json
         run: |
           echo "`jq '.apps[0].size=${{ steps.retrieve-data.outputs.size }}' $ALTSTORE_JSON_PATH`" > $ALTSTORE_JSON_PATH
-          echo "`jq '.apps[0].versionDescription="${{ github.event.pull_request.body }}"' $ALTSTORE_JSON_PATH`" > $ALTSTORE_JSON_PATH
+          echo "`jq '.apps[0].versionDescription="${{ steps.retrieve-data.outputs.notes }}"' $ALTSTORE_JSON_PATH`" > $ALTSTORE_JSON_PATH
           echo "`jq '.apps[0].versionDate="${{ steps.retrieve-data.outputs.version_date }}"' $ALTSTORE_JSON_PATH`" > $ALTSTORE_JSON_PATH
           echo "`jq '.apps[0].version="v${{ steps.bump-version.outputs.version }}b${{ steps.bump-version.outputs.build-number }}"' $ALTSTORE_JSON_PATH`" > $ALTSTORE_JSON_PATH
           echo "`jq '.apps[0].downloadURL="https://github.com/tatsuz0u/EhPanda/releases/download/v${{ steps.bump-version.outputs.version }}_b${{ steps.bump-version.outputs.build-number }}/EhPanda.ipa"' $ALTSTORE_JSON_PATH`" > $ALTSTORE_JSON_PATH
@@ -128,11 +131,6 @@ jobs:
           git add .
           git commit -m "Update AltStore.json"
           git push origin HEAD
-      - name: Filter release notes
-        id: filter-notes
-        run: |
-         sudo chmod 777 $FILTER_PATH
-         echo "::set-output name=notes::$($FILTER_PATH "${{ github.event.pull_request.body }}")"
       - name: Post release notes
         run: |
          curl https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage \
@@ -140,4 +138,4 @@ jobs:
          -d text='*v${{ steps.bump-version.outputs.version }}_b${{ steps.bump-version.outputs.build-number }} Release Notes:*%0A${{ github.event.pull_request.body }}'
 
          curl ${{ secrets.DISCORD_WEBHOOK }} \
-         -F 'payload_json={"content": "**v${{ steps.bump-version.outputs.version }}_b${{ steps.bump-version.outputs.build-number }} Release Notes:**\n${{ steps.filter-notes.outputs.notes }}"}'
+         -F 'payload_json={"content": "**v${{ steps.bump-version.outputs.version }}_b${{ steps.bump-version.outputs.build-number }} Release Notes:**\n${{ steps.retrieve-data.outputs.notes }}"}'
