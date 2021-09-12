@@ -17,7 +17,9 @@ jobs:
         uses: actions/checkout@v2
       - name: Get replaced body
         id: replaced-body
-        run: echo "::set-output name=body::$(./EngFilter "${{ github.event.pull_request.body }}")"
+        run: | 
+         sudo chmod 777 ./EngFilter
+         echo "::set-output name=body::$(./EngFilter "${{ github.event.pull_request.body }}")"
       - name: Post release notes
         run: |
          curl https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage \
