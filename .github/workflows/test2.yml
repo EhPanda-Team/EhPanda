@@ -18,8 +18,11 @@ jobs:
       - name: Get replaced body
         id: replaced-body
         run: | 
+         read -r -d '' MULTI_LINE_VAR << EOM
+         ${{ github.event.pull_request.body }}
+         EOM
          sudo chmod 777 ./EngFilter
-         echo "::set-output name=body::$(./EngFilter '' read -r -d '' String <<"EOF" "${{ github.event.pull_request.body }}" EOF)"
+         echo "::set-output name=body::$(./EngFilter $MULTI_LINE_VAR)"
       - name: Post release notes
         run: |
          curl https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage \
