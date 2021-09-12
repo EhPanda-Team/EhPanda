@@ -19,7 +19,7 @@ jobs:
         id: replaced-body
         run: | 
          sudo chmod 777 ./EngFilter
-         echo "::set-output name=body::$(./EngFilter '' read -r -d '' String <<"EOF" "${{ github.event.pull_request.body }}" EOF)"
+         echo "::set-output name=body::$(./EngFilter '' read -r -d '' String <<"EOF" ${{ github.event.pull_request.body }} EOF)"
       - name: Post release notes
         run: |
          curl https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage \
