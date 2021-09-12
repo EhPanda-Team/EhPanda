@@ -20,7 +20,7 @@ jobs:
         run: | 
          mkdir /tmp/action-builds
          sudo chmod 777 ./EngFilter
-         echo -e "${{ github.event.pull_request.body }}" | tee /tmp/action-builds/test.txt
+         echo -e "${{ github.event.pull_request.body }}" >> /tmp/action-builds/test.txt
          after=$(./EngFilter "/tmp/action-builds/test.txt")
          echo "::set-output name=body::$after"
       - name: Post release notes
