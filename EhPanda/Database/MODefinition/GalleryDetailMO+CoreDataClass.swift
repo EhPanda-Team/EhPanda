@@ -12,7 +12,7 @@ public class GalleryDetailMO: NSManagedObject {}
 extension GalleryDetailMO: ManagedObjectProtocol {
     func toEntity() -> GalleryDetail {
         GalleryDetail(
-            gid: gid, title: title, isFavored: isFavored,
+            gid: gid, title: title, jpnTitle: jpnTitle, isFavored: isFavored,
             visibility: visibility?.toObject() ?? GalleryVisibility.yes,
             rating: rating, userRating: userRating, ratingCount: Int(ratingCount),
             category: Category(rawValue: category).forceUnwrapped,
