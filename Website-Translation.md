@@ -1,5 +1,5 @@
 const messages = {
-    en: {
+    'en': {
         title: {
             swiftui: 'Built with SwiftUI & Combine',
             cat_browse: 'Browse',
@@ -15,7 +15,7 @@ const messages = {
         },
         desc: {
             app: 'An unofficial E-Hentai app for iOS.',
-            system: 'Requires iOS / iPadOS 14.0 or later.',
+            system: 'Requires iOS / iPadOS 15.0 or later.',
             swiftui: 'Smooth, elegant, powerful.',
             cat_ele_category: 'EhPanda supports almost every E-Hentai categories. Download feature is not available at present though.',
             cat_ele_detail: 'Help you know more about this gallery and find more associated contents.',
@@ -27,7 +27,7 @@ const messages = {
             cat_ele_setting: 'You can login, turn on optional features or modify the app icon, tint color here.'
         }
     },
-    de: {
+    'de': {
         title: {
             swiftui: 'Mit SwiftUI & Combine erstellt',
             cat_browse: 'Finde was du willst',
@@ -43,7 +43,7 @@ const messages = {
         },
         desc: {
             app: 'Eine inoffizielle E-Hentai app für iOS.',
-            system: 'Erfordert iOS / iPadOS 14.0 oder neuer.',
+            system: 'Erfordert iOS / iPadOS 15.0 oder neuer.',
             swiftui: 'Einfach, Elegant, Mächtig.',
             cat_ele_category: 'EhPanda unterstützt fast alle E-Hentai Kategorien.',
             cat_ele_detail: 'helfen dir, mehr über Galerien zu erfahren und ähnliche zu finden',
@@ -55,7 +55,7 @@ const messages = {
             cat_ele_setting: 'Hier kannst du dich einloggen und die App an deinen Geschmack anpassen'
          }
     },
-    ko: {
+    'ko': {
         title: {
             swiftui: 'SwiftUI & Combine으로 프로래밍',
             cat_browse: '열람',
@@ -71,7 +71,7 @@ const messages = {
         },
         desc: {
             app: 'iOS의 비공식 E-Hentai 에플리케이션',
-            system: 'iOS / iPadOS 14.0 이상',
+            system: 'iOS / iPadOS 15.0 이상',
             swiftui: 'Smooth, elegant, powerful.',
             cat_ele_category: 'EhPanda가 거의 모두 E-Hentai의 카테고리에 가능합니다. 다로운드 기능 지금까지 제공하지 못 합니다.',
             cat_ele_detail: '이 갤러리를 알아보기와 유사한 내용을 찾아보기에 도움을 제공해드립니다.',
@@ -83,7 +83,7 @@ const messages = {
             cat_ele_setting: '여기서 로그인이나 가능한 기능을 선택하고 주제색과 아니콘 수정할 수 있니다.'
         }
     },
-    ja: {
+    'ja': {
         title: {
             swiftui: 'SwiftUI & Combineで構築',
             cat_browse: '閲覧',
@@ -99,7 +99,7 @@ const messages = {
         },
         desc: {
             app: 'iOSの非公式E-Hentaiアプリ',
-            system: 'iOS・iPadOS 14.0以上であることが必要です。',
+            system: 'iOS・iPadOS 15.0以上であることが必要です。',
             swiftui: '素早く、優雅で、パワフル。',
             cat_ele_category: 'EhPandaは、ほとんどのE-Hentaiカテゴリーを対応しています。ダウンロード機能はまだです。',
             cat_ele_detail: '特定のギャラリーについての情報やその関連コンテンツを探すには、この機能がお力添えになるでしょう。',
@@ -111,7 +111,35 @@ const messages = {
             cat_ele_setting: 'ログイン、機能の有効化、アプリアイコンやテーマの色の変更は、ここでできます。'
         }
     },
-    zh: {
+    'zh': {
+        title: {
+            swiftui: '以SwiftUI & Combine構築',
+            cat_browse: '瀏覽',
+            cat_retrieve: '獲取',
+            cat_customize: '自訂',
+            cat_ele_category: '分類',
+            cat_ele_detail: '詳情',
+            cat_ele_comment: '評論',
+            cat_ele_hath_archive: 'Hath封存',
+            cat_ele_torrent: '種子',
+            cat_ele_filter: '篩選器',
+            cat_ele_setting: '設定'
+        },
+        desc: {
+            app: 'iOS的非官方E-Hentai應用程式',
+            system: '須使用iOS / iPadOS 15.0或以上。',
+            swiftui: '流暢、優雅、強大。',
+            cat_ele_category: 'EhPanda幾乎支援所有E-Hentai分類類型。目前尚未支援下載功能。',
+            cat_ele_detail: '幫助你瞭解這個畫廊、搜尋更多相似內容。',
+            cat_ele_comment: '通過發佈、編輯和回覆評論，參與紳士們的討論吧。',
+            cat_ele_hath_archive: '碰巧有一台Hath用戶端嗎？感謝你對E-Hentai的貢獻！這是專為你準備的功能。',
+            cat_ele_torrent_s1: '種子恆久遠，',
+            cat_ele_torrent_s2: '一顆永流傳。',
+            cat_ele_filter: '設定篩選器後將會自動生效並影響搜尋結果。',
+            cat_ele_setting: '你可以在這裡登入、啓用自訂功能、修改App圖示或主題色。'
+        }
+    },
+    'zh-CN': {
         title: {
             swiftui: '以SwiftUI & Combine构筑',
             cat_browse: '浏览',
@@ -127,11 +155,11 @@ const messages = {
         },
         desc: {
             app: 'iOS的非官方E-Hentai应用程序',
-            system: '要求iOS / iPadOS 14.0或以上。',
+            system: '要求iOS / iPadOS 15.0或以上。',
             swiftui: '流畅、优雅、强大。',
             cat_ele_category: 'EhPanda对E-Hentai几乎所有的分类提供了支持。下载功能目前尚未实装。',
             cat_ele_detail: '帮助你了解这个画廊、查找更多相似内容。',
-            cat_ele_comment: '通过发布、编辑和响应评论，参与绅士们的讨论吧。',
+            cat_ele_comment: '通过发布、编辑和回复评论，参与绅士们的讨论吧。',
             cat_ele_hath_archive: '碰巧有一台Hath客户端吗？感谢你对E-Hentai的贡献！这是专为你准备的功能。',
             cat_ele_torrent_s1: '种子恒久远，',
             cat_ele_torrent_s2: '一颗永流传。',

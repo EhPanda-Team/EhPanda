@@ -653,8 +653,8 @@
 				ABC3C7502593696C00E0C11B /* Sources */,
 				ABC3C7512593696C00E0C11B /* Frameworks */,
 				ABC3C7522593696C00E0C11B /* Resources */,
-				AB69FE41263C328400716FBD /* ShellScript */,
 				AB5BE68126B95FDD007D4A55 /* Embed App Extensions */,
+				AB69FE41263C328400716FBD /* SwiftLint */,
 			);
 			buildRules = (
 			);
@@ -798,7 +798,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		AB69FE41263C328400716FBD /* ShellScript */ = {
+		AB69FE41263C328400716FBD /* SwiftLint */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -807,6 +807,7 @@
 			);
 			inputPaths = (
 			);
+			name = SwiftLint;
 			outputFileListPaths = (
 			);
 			outputPaths = (
