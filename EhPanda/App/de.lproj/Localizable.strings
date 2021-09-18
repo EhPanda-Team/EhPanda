@@ -38,6 +38,7 @@
 //"A parsing error occurred." = "";
 //"An unknown error occurred." = "";
 //"Please try again later." = "";
+//"This gallery has been removed or is unavailable." = "";
 //"This gallery is unavailable due to a copyright claim by PLACEHOLDER. Sorry about that." = "";
 
 // MARK: DetailView

@@ -38,6 +38,7 @@
 "A parsing error occurred." = "发生了解析错误";
 "An unknown error occurred." = "发生了未知错误";
 "Please try again later." = "请稍后再试";
+"This gallery has been removed or is unavailable." = "该画廊已被移除或不可用。";
 "This gallery is unavailable due to a copyright claim by PLACEHOLDER. Sorry about that." = "抱歉，该画廊因PLACEHOLDER的版权主张已无法访问。";
 
 // MARK: DetailView

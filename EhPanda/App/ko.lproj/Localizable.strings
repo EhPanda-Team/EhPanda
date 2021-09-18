@@ -38,6 +38,7 @@
 "A parsing error occurred." = "구분 분석 오류가 발생했습니다.";
 "An unknown error occurred." = "알 수 없는 오류가 발생했습니다.";
 "Please try again later." = "잠시후　다시　시도해　보십시오.";
+"This gallery has been removed or is unavailable." = "이 갤러리가 제거되었거나 사용할 수 없습니다.";
 "This gallery is unavailable due to a copyright claim by PLACEHOLDER. Sorry about that." = "죄송합니다. PLACEHOLDER의 저작권 요청으로 인하여 이 갤러리를 사용할 수 없습니다.";
 
 // MARK: DetailView

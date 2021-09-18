@@ -62,9 +62,9 @@ struct EhSettingView: View, StoreAccessor {
     var body: some View {
         Group {
             if loadingFlag || submittingFlag {
-                LoadingView()
+                LoadingView().tint(nil)
             } else if let error = loadError {
-                ErrorView(error: error, retryAction: fetchEhSetting)
+                ErrorView(error: error, retryAction: fetchEhSetting).tint(nil)
             } else if let ehSettingBinding = Binding($ehSetting) {
                 form(ehSettingBinding: ehSettingBinding)
             } else {

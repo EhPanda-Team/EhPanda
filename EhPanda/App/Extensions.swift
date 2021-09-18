@@ -54,6 +54,18 @@ extension Data {
     func toObject<O: Decodable>() -> O? {
         try? JSONDecoder().decode(O.self, from: self)
     }
+    var utf8InvalidCharactersRipped: Data {
+        var data = self
+        data.append(0)
+
+        let str = Array(self).withUnsafeBufferPointer { ptr -> String? in
+            guard let address = ptr.baseAddress else { return nil }
+            return String(cString: address)
+        }
+        guard let string = str else { return data }
+        data = string.data(using: .utf8) ?? self
+        return data
+    }
 }
 
 extension Float {

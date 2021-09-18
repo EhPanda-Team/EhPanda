@@ -161,7 +161,7 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
 
     private var readingSettingView: some View {
         NavigationView {
-            ReadingSettingView()
+            ReadingSettingView().tint(accentColor)
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) {
                         if !isPad && isLandscape {

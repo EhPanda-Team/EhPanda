@@ -85,9 +85,11 @@ struct HomeView: View, StoreAccessor {
             Group {
                 switch item {
                 case .setting:
-                    SettingView()
+                    SettingView().tint(accentColor)
                 case .filter:
-                    FilterView()
+                    NavigationView {
+                        FilterView().tint(accentColor)
+                    }
                 case .newDawn:
                     NewDawnView(greeting: greeting)
                 }

@@ -255,9 +255,11 @@ struct Parser {
                     infoPanel[2] = gdt2Text
                 }
                 if gdt1Text.contains("Language") {
-                    infoPanel[3] = gdt2Text
-                        .replacingOccurrences(of: "  TR", with: "")
-                        .trimmingCharacters(in: .whitespaces)
+                    let words = gdt2Text.split(separator: " ")
+                    if !words.isEmpty {
+                        infoPanel[3] = words[0]
+                            .trimmingCharacters(in: .whitespaces)
+                    }
                 }
                 if gdt1Text.contains("File Size") {
                     infoPanel[4] = gdt2Text

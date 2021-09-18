@@ -304,7 +304,18 @@ struct GalleryDetailRequest {
 
     var publisher: AnyPublisher<(GalleryDetail, GalleryState, APIKey, Greeting?), AppError> {
         URLSession.shared.dataTaskPublisher(for: Defaults.URL.galleryDetail(url: galleryURL).safeURL())
-            .genericRetry().tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
+            .genericRetry().compactMap { resp -> HTMLDocument? in
+                var htmlDocument: HTMLDocument?
+                do {
+                    htmlDocument = try Kanna.HTML(html: resp.data, encoding: .utf8)
+                } catch {
+                    guard let parseError = error as? ParseError, parseError == .EncodingMismatch
+                    else { return htmlDocument }
+
+                    htmlDocument = try? Kanna.HTML(html: resp.data.utf8InvalidCharactersRipped, encoding: .utf8)
+                }
+                return htmlDocument
+            }
             .tryMap {
                 let (detail, state) = try Parser.parseGalleryDetail(doc: $0, gid: gid)
                 return ($0, detail, state, try Parser.parseAPIKey(doc: $0))
