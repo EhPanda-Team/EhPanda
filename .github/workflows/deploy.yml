@@ -11,6 +11,7 @@ env:
    ALTSTORE_JSON_PATH: './AltStore.json'
    FILTER_PATH: './ReleaseNotesFilter'
    BUILDS_PATH: '/tmp/action-builds'
+   ASC_KEY_PATH: '/Users/runner/private_keys'
    ARCHIVE_PATH: '/tmp/action-builds/EhPanda.xcarchive'
    IPA_OUTPUT_PATH: '/tmp/action-builds/EhPanda.ipa'
    DEV_CERTIFICATE_PATH: '/tmp/action-builds/dev.cer'
@@ -40,6 +41,7 @@ jobs:
       - name: Decode certificates & provisioning profiles
         run: |
           mkdir $BUILDS_PATH
+          mkdir $ASC_KEY_PATH
           echo -n ${{ secrets.DEV_CERTIFICATE }} | base64 -d -o $DEV_CERTIFICATE_PATH
           echo -n ${{ secrets.DIS_CERTIFICATE }} | base64 -d -o $DIS_CERTIFICATE_PATH
           echo -n ${{ secrets.DEV_P12 }} | base64 -d -o $DEV_P12_PATH
@@ -48,6 +50,7 @@ jobs:
           echo -n ${{ secrets.APP_DIS_PROVISION }} | base64 -d -o $APP_DIS_PROVISION_PATH
           echo -n ${{ secrets.SHARE_EXTENSION_DEV_PROVISION }} | base64 -d -o $SHARE_EXTENSION_DEV_PROVISION_PATH
           echo -n ${{ secrets.SHARE_EXTENSION_DIS_PROVISION }} | base64 -d -o $SHARE_EXTENSION_DIS_PROVISION_PATH
+          echo -n ${{ secrets.ASC_KEY_P8 }} | base64 -d -o $ASC_KEY_PATH/AuthKey_${{ secrets.ASC_KEY_ID }}.p8
       - name: Install certificates
         run: |
           KEY_CHAIN=action-builds.keychain-db
@@ -113,7 +116,7 @@ jobs:
          tag_name: 'v${{ steps.bump-version.outputs.version }}_b${{ steps.bump-version.outputs.build-number }}'
       - name: Upload to ASC
         run: xcrun altool --upload-app -t ios -f ${{ env.IPA_OUTPUT_PATH }}
-          -u ${{ secrets.ASC_USER }} -p ${{ secrets.ASC_PASSWORD }}
+          --apiKey ${{ secrets.ASC_KEY_ID }} --apiIssuer ${{ secrets.ASC_ISSUER_ID }}
       - name: Commit bump version
         run: |
           git add .
