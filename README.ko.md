@@ -15,6 +15,15 @@
   <a href="/README.chs.md">简体中文</a>
 </p>
 
+## 📢 번역 수요 📢
+번역을 돕고 싶으면 Pull Request를 제출하세요.
+
+App Strings: `{lang}.lproj`
+
+GitHub Readme: `README.{lang}.md`
+
+https://ehpanda.app: `Website-Translation.md`
+
 ## 다운로드
 1. [Releases](https://github.com/arakitatsuzou/EhPanda/releases)에서 ipa파일 획득.
 2. [AltStore](https://altstore.io)을 사용해서 ipa 파일을 기계에 설치할 수 있습니다.

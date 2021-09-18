@@ -71,16 +71,16 @@ const messages = {
             cat_browse: '열람',
             cat_retrieve: '획득',
             cat_customize: '나의 설정',
-            cat_network: 'Network', <!-- Fallback -->
+            cat_network: '네트워크',
             cat_ele_category: '카테고리',
             cat_ele_detail: '상세정보',
             cat_ele_comment: '평가',
             cat_ele_hath_archive: 'Hath 분류',
             cat_ele_torrent: '토렌트',
-            cat_ele_ehSetting: 'E-Hentai Setting', <!-- Fallback -->
+            cat_ele_ehSetting: 'E-Hentai 설정',
             cat_ele_filter: '옵션',
             cat_ele_setting: '설정',
-            cat_ele_domainFronting: 'Bypass SNI Filtering' <!-- Fallback -->
+            cat_ele_domainFronting: 'SNI차단 우회'
         },
         desc: {
             app: 'iOS의 비공식 E-Hentai 에플리케이션',
@@ -92,10 +92,10 @@ const messages = {
             cat_ele_hath_archive: 'Hath클라이언트 있습니까? E-Hentai에 대한 지지를 감사합니다! 이 것은 당신을 위해 준비한 기능입니다.',
             cat_ele_torrent_s1: '가장 좋은 기억을',
             cat_ele_torrent_s2: '영원히 간직하세요.',
-            cat_ele_ehSetting: 'Handy, native, fully localized. The best way to configure your E-Hentai account on mobile devices.', <!-- Fallback -->
+            cat_ele_ehSetting: '편리, 네이티브, 완전 로컬라이제이션. 모바일 장치에서 E-Hentai 계정을 구성하는 가장 좋은 방법입니다.',
             cat_ele_filter: '옵션 설정이 자동으로 적용하여, 검색 결과에 영향을 미칩니다.',
             cat_ele_setting: '여기서 로그인이나 가능한 기능을 선택하고 주제색과 아니콘 수정할 수 있니다.',
-            cat_ele_domainFronting: 'Hentai contents are fantastic. We believe watching them should be a fundamental right for any adults. We noticed there are people who cannot access E-Hentai due to a limited network. Hey, we here to help, turn it on and EhPanda will handle everything.' <!-- Fallback -->
+            cat_ele_domainFronting: 'Hentai의 내용물은 최고입니다. 우리는 그들을 읽는 것이 모든 어른들에게 기본권이 되어야 한다고 믿습니다. 제한된 통신망으로 인하여 E-Hentai에 접속할 수 없는 사람들이 있다는 것을 알게 되었습니다. 하지만, 우리는 도와주러 왔잖아요! 애플 켜면 EhPanda가 다 알아서 할 겁니다.'
         }
     },
     'ja': {
