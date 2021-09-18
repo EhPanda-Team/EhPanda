@@ -34,11 +34,11 @@
 "Login" = "로그인";
 "Your search didn't match any docs." = "검색 결과가　없습니다.";
 "Retry" = "재시도";
-"A network error occurred." = "인터넷 접속 불가.";
-//"A parsing error occurred." = "";
-//"An unknown error occurred." = "";
+"A network error occurred." = "인터넷 접속 오류가 발생했습니다.";
+"A parsing error occurred." = "구분 분석 오류가 발생했습니다.";
+"An unknown error occurred." = "알 수 없는 오류가 발생했습니다.";
 "Please try again later." = "잠시후　다시　시도해　보십시오.";
-//"This gallery is unavailable due to a copyright claim by PLACEHOLDER. Sorry about that." = "";
+"This gallery is unavailable due to a copyright claim by PLACEHOLDER. Sorry about that." = "죄송합니다. PLACEHOLDER의 저작권 요청으로 인하여 이 갤러리를 사용할 수 없습니다.";
 
 // MARK: DetailView
 "Archive" = "아카이브";
@@ -48,7 +48,7 @@
 "DESC_SCROLL_ITEM_FAVORITED" = "관심";
 "Times" = "번";
 "Language" = "언어";
-"%lld Ratings" = "%lld명의　평가";
+"%lld Ratings" = "%lld명의　병점";
 "Page Count" = "페이지 수";
 "Pages" = "페이지";
 "File Size" = "파일　크기";
@@ -65,29 +65,29 @@
 "Download To Hath Client" = "Hath 클라이언트로 저장";
 
 // MARK: GalleryInfosView
-//"Gallery infos" = "";
-//"Title" = "";
-//"Japanese title" = "";
-//"Gallery URL" = "";
-//"Cover URL" = "";
-//"Archive URL" = "";
-//"Torrent URL" = "";
-//"Parent URL" = "";
-//"Category" = "";
-//"Uploader" = "";
-//"Posted date" = "";
-//"Visible" = "";
-//"Page count" = "";
-//"File size" = "";
-//"Favorited times" = "";
-//"Favorited" = "";
-//"Rating count" = "";
-//"Average rating" = "";
-//"User rating" = "";
-//"Torrent count" = "";
-//"Yes" = "";
-//"No" = "";
-//"Expunged" = "";
+"Gallery infos" = "갤러리 정보";
+"Title" = "제목";
+"Japanese title" = "일본어 제목";
+"Gallery URL" = "갤러리 주소";
+"Cover URL" = "표지 주소";
+"Archive URL" = "아카이브 주소";
+"Torrent URL" = "토렌트 주소";
+"Parent URL" = "부모 갤러리 링크";
+"Category" = "장르";
+"Uploader" = "업로드";
+"Posted date" = "투고 날짜";
+"Visible" = "가시성";
+"Page count" = "페이지 수";
+"File size" = "파일 크기";
+"Favorited times" = "관심수";
+"Favorited" = "관심";
+"Rating count" = "평점수";
+"Average rating" = "평군 별점";
+"User rating" = "이용자 별점";
+"Torrent count" = "토렌트 수";
+"Yes" = "네";
+"No" = "아닙니다";
+"Expunged" = "삭제됨";
 
 // MARK: CommentView
 "Post Comment" = "평가　남기";
@@ -96,18 +96,18 @@
 "Post" = "등록";
 
 // MARK: ReadingView
-//"Reload" = "";
-//"Copy" = "";
-//"Save" = "";
-//"Saved to photo library" = "";
+"Reload" = "재시도";
+"Copy" = "복사";
+"Save" = "저장";
+"Saved to photo library" = "이미지 저장";
 
 // MARK: SettingView
 "Setting" = "설정";
 "Account" = "계정";
 "Gallery" = "갤러리";
 "Login" = "로그인";
-//"Username" = "";
-//"Password" = "";
+"Username" = "이름";
+"Password" = "비밀번호";
 "Logout" = "로그아웃";
 "Account configuration" = "계정 설정";
 "Manage tags subscription" = "해시태크 관리";
@@ -148,7 +148,7 @@
 "Preload limit" = "프리로드 리미트";
 "%lld pages" = "%lld페이지";
 "%lld times" = "%lld번";
-//"Prefers landscape" = "";
+"Prefers landscape" = "가로 화면 편애";
 "Separator height" = "선 두께";
 "Maximum scale factor" = "확대 비율";
 "Double tap scale factor" = "더블 클릭 확대 비율";
@@ -165,143 +165,143 @@
 "Acknowledgement" = "감사";
 
 // MARK: EhSettingView
-//"Profile Settings" = "";
-//"Selected profile" = "";
-//"Set as default" = "";
-//"Delete profile" = "";
-//"Are you sure to delete this profile?" = "";
-//"Delete" = "";
-//"Rename" = "";
-//"Create new" = "";
-//
-//"Image Load Settings" = "";
-//"Recommended." = "";
-//"Can be slower. Enable if behind firewall/proxy that blocks outgoing non-standard ports." = "";
-//"Donator only. You will not be able to browse as many pages, enable only if having severe problems." = "";
-//"Load images through the Hath network" = "";
-//"Any client" = "";
-//"Default port clients only" = "";
-//"LOAD_THROUGH_HATH_NO" = "";
-//"You appear to be browsing the site from **PLACEHOLDER** or use a VPN or proxy in this country, which means the site will try to load images from Hath clients in this general geographic region. If this is incorrect, or if you want to use a different region for any reason (like if you are using a split tunneling VPN), you can select a different country below." = "";
-//"Browsing country" = "";
-//
-//"Image Size Settings" = "";
-//"Normally, images are resampled to 1280 pixels of horizontal resolution for online viewing. You can alternatively select one of the following resample resolutions. To avoid murdering the staging servers, resolutions above 1280x are temporarily restricted to donators, people with any hath perk, and people with a UID below 3,000,000." = "";
-//"Image resolution" = "";
-//"Auto" = "";
-//"While the site will automatically scale down images to fit your screen width, you can also manually restrict the maximum display size of an image. Like the automatic scaling, this does not resample the image, as the resizing is done browser-side. (0 = no limit)" = "";
-//"Image size" = "";
-//"Horizontal" = "";
-//"Vertical" = "";
-//
-//"Gallery Name Display" = "";
-//"Many galleries have both an English/Romanized title and a title in Japanese script. Which gallery name would you like as default?" = "";
-//"Gallery name" = "";
-//"Default Title" = "";
-//"Japanese Title (if available)" = "";
-//
-//"Archiver Settings" = "";
-//"The default behavior for the Archiver is to confirm the cost and selection for original or resampled archive, then present a link that can be clicked or copied elsewhere. You can change this behavior here." = "";
-//"Archiver behavior" = "";
-//"Manual Select, Manual Start (Default)" = "";
-//"Manual Select, Auto Start" = "";
-//"Auto Select Original, Manual Start" = "";
-//"Auto Select Original, Auto Start" = "";
-//"Auto Select Resample, Manual Start" = "";
-//"Auto Select Resample, Auto Start" = "";
-//
-//"Front Page Settings" = "";
-//"Which display mode would you like to use on the front and search pages?" = "";
-//"Compact" = "";
-//"Thumbnail" = "";
-//"Extended" = "";
-//"Minimal" = "";
-//"Minimal+" = "";
-//"What categories would you like to show by default on the front page and in searches?" = "";
-//
-//"Here you can choose and rename your favorite categories." = "";
-//"You can also select your default sort order for galleries on your favorites page. Note that favorites added prior to the March 2016 revamp did not store a timestamp, and will use the gallery posted time regardless of this setting." = "";
-//"Favorites sort order" = "";
-//"By last gallery update time" = "";
-//"By favorited time" = "";
-//
-//"Ratings" = "";
-//"By default, galleries that you have rated will appear with red stars for ratings of 2 stars and below, green for ratings between 2.5 and 4 stars, and blue for ratings of 4.5 or 5 stars. You can customize this by entering your desired color combination below. Each letter represents one star. The default RRGGB means R(ed) for the first and second star, G(reen) for the third and fourth, and B(lue) for the fifth. You can also use (Y)ellow for the normal stars. Any five-letter R/G/B/Y combo works." = "";
-//"Ratings color" = "";
-//
-//"Tag Namespaces" = "";
-//"If you want to exclude certain namespaces from a default tag search, you can check those below. Note that this does not prevent galleries with tags in these namespaces from appearing, it just makes it so that when searching tags, it will forego those namespaces." = "";
-//
-//"Tag Filtering Threshold" = "";
-//"You can soft filter tags by adding them to My Tags with a negative weight. If a gallery has tags that add up to weight below this value, it is filtered from view. This threshold can be set between 0 and -9999." = "";
-//
-//"Tag Watching Threshold" = "";
-//"Recently uploaded galleries will be included on the watched screen if it has at least one watched tag with positive weight, and the sum of weights on its watched tags add up to this value or higher. This threshold can be set between 0 and 9999." = "";
-//
-//"Excluded Languages" = "";
-//"If you wish to hide galleries in certain languages from the gallery list and searches, select them from the list below. Note that matching galleries will never appear regardless of your search query." = "";
-//"Original" = "";
-//"Translated" = "";
-//"Rewrite" = "";
-//
-//"Excluded Uploaders" = "";
-//"If you wish to hide galleries from certain uploaders from the gallery list and searches, add them below. Put one username per line. Note that galleries from these uploaders will never appear regardless of your search query." = "";
-//"You are currently using **%lld / 1000** exclusion slots." = "";
-//
-//"Search Result Count" = "";
-//"How many results would you like per page for the index/search page and torrent search pages?\n(Hath Perk: Paging Enlargement Required)" = "";
-//"Result count" = "";
-//
-//"Thumbnail Settings" = "";
-//"How would you like the mouse-over thumbnails on the front page to load when using List Mode?" = "";
-//"Pages load faster, but there may be a slight delay before a thumb appears." = "";
-//"Pages take longer to load, but there is no delay for loading a thumb after the page has loaded." = "";
-//"Thumbnail load timing" = "";
-//"On mouse-over" = "";
-//"On page load" = "";
-//"You can set a default thumbnail configuration for all galleries you visit." = "";
-//"Size" = "";
-//"Large" = "";
-//"Rows" = "";
-//
-//"Thumbnail Scaling" = "";
-//"Thumbnails on the thumbnail and extended gallery list views can be scaled to a custom value between 75% and 150%." = "";
-//"Scale factor" = "";
-//
-//"Viewport Override" = "";
-//"Allows you to override the virtual width of the site for mobile devices. This is normally determined automatically by your device based on its DPI. Sensible values at 100% thumbnail scale are between 640 and 1400." = "";
-//"Virtual width" = "";
-//
-//"Gallery Comments" = "";
-//"Comments sort order" = "";
-//"Oldest comments first" = "";
-//"Recent comments first" = "";
-//"By highest score" = "";
-//"Comment votes show timing" = "";
-//"On score hover or click" = "";
-//"Always" = "";
-//
-//"Gallery Tags" = "";
-//"Tags sort order" = "";
-//"Alphabetical" = "";
-//"By tag power" = "";
-//
-//"Gallery Page Numbering" = "";
-//"Show gallery page numbers" = "";
-//
-//"Hath Local Network Host" = "";
-//"This setting can be used if you have a Hath client running on your local network with the same public IP you browse the site with. Some routers are buggy and cannot route requests back to its own IP; this allows you to work around this problem.\nIf you are running the client on the same device you browse from, use the loopback address (127.0.0.1:port). If the client is running on another device on your network, use its local network IP. Some browser configurations prevent external web sites from accessing URLs with local network IPs, the site must then be whitelisted for this to work." = "";
-//"IP address:Port" = "";
-//
-//"Original Images" = "";
-//"Use original images" = "";
-//"Multi-Page Viewer" = "";
-//"Use Multi-Page Viewer" = "";
-//"Display style" = "";
-//"Align left, scale if overwidth" = "";
-//"Align center, scale if overwidth" = "";
-//"Align center, always scale" = "";
-//"Show thumbnail pane" = "";
+"Profile Settings" = "프로필 설정";
+"Selected profile" = "선택한 프로필";
+"Set as default" = "기본으로 설정";
+"Delete profile" = "프로필 삭제";
+"Are you sure to delete this profile?" = "이 프로필을 삭제하시겠습니까?";
+"Delete" = "삭제";
+"Rename" = "이름 변경";
+"Create new" = "추가";
+
+"Image Load Settings" = "이미지 로드 설정";
+"Recommended." = "추천됨.";
+"Can be slower. Enable if behind firewall/proxy that blocks outgoing non-standard ports." = "[느려짐 가능]방화벽/프록시가 비료준 포트를 차단하는 경우에 응용할 수 있습니다.";
+"Donator only. You will not be able to browse as many pages, enable only if having severe problems." = "[기분자 전용] 심각한 문제가 있는 경우를 제외하고 페이지 수가 많기 때문에 탬색할 수 없습니다.";
+"Load images through the Hath network" = "Hath 네트워크를 통하여 이미지 로드";
+"Any client" = "모두 클라이언트";
+"Default port clients only" = "기본 포트 사용자만";
+"LOAD_THROUGH_HATH_NO" = "아닙니다";
+"You appear to be browsing the site from **PLACEHOLDER** or use a VPN or proxy in this country, which means the site will try to load images from Hath clients in this general geographic region. If this is incorrect, or if you want to use a different region for any reason (like if you are using a split tunneling VPN), you can select a different country below." = "**PLACEHOLDER**에서 사트를 탐색하거나 이 나라에서 VPN이나 프록시를 사용하는 것을 원합니다. 즉, 사이트에서 이 일반 지리적 지역에서 Hath 클라이언트의 이미지를 로드하려고 시도합니다. 만약에 이 항목이 잘 못되었거나 분할 터널 VPN을 사용하는 경우와 같이 어떤 이유로든 다른 지역을 사용하려는 경우가 나타나면 아래에서 다른 나라를 선택할 수 있습니다.";
+"Browsing country" = "나라 검색";
+
+"Image Size Settings" = "이미지 사이즈 설정";
+"Normally, images are resampled to 1280 pixels of horizontal resolution for online viewing. You can alternatively select one of the following resample resolutions. To avoid murdering the staging servers, resolutions above 1280x are temporarily restricted to donators, people with any hath perk, and people with a UID below 3,000,000." = "일반적으로 이미지는 온라인 보기를 위해 1280픽셀의 수평 해상도로 다시 샘플링됩니다. 또는 당신은 아래의 샘플 해상도 중 하나를 선택할 수 있습니다. 스테이징 서버를 살해하지 않기 위해, 1280ㅌ 이상의 해상도는 기부자, 어떤 특권을 가진 사람, 그리고 UID가 300만 이하인 사람들로 일시적으로 제한되다.";
+"Image resolution" = "이미지 해상도";
+"Auto" = "자동";
+"While the site will automatically scale down images to fit your screen width, you can also manually restrict the maximum display size of an image. Like the automatic scaling, this does not resample the image, as the resizing is done browser-side. (0 = no limit)" = "사이트가 사용자의 화면 너비에 맞게 이미지를 자동으로 축소하지만 이미지의 최대 표시 크기를 수동으로 제한할 수도 가능합니다. 자동 스케일링과 마찬가지로 크기 조정은 브라우저측에서 수행되므로 이미지를 다시 샘플링하지 않습니다. (0 = no limit)";
+"Image size" = "이미지 사이즈";
+"Horizontal" = "가로";
+"Vertical" = "세로";
+
+"Gallery Name Display" = "갤러리 이름 보이기";
+"Many galleries have both an English/Romanized title and a title in Japanese script. Which gallery name would you like as default?" = "많은 갤러리들은 영어/로마의 제목과 일본어 대본의 제목을 둘 다 가지고 있습니다. 기본값으로 사용할 갤러리 이름을 선택하십시오.";
+"Gallery name" = "갤러리 이름";
+"Default Title" = "기본 제목";
+"Japanese Title (if available)" = "일본어 제목 (가능하면)";
+
+"Archiver Settings" = "압축기 설정";
+"The default behavior for the Archiver is to confirm the cost and selection for original or resampled archive, then present a link that can be clicked or copied elsewhere. You can change this behavior here." = "Archiver의 기본 동작은 원본 또는 다시 샘플링된 Archive에 대한 비용과 선택을 확인한 다음 다른 곳에서 클릭하거나 복사할 수 있는 링크를 표시하는 것입니다. 여기서 이 동작을 변경할 수 있습니다 ";
+"Archiver behavior" = "안푹기 동작";
+"Manual Select, Manual Start (Default)" = "수동 선택, 수동 시작 (기본)";
+"Manual Select, Auto Start" = "수동 선택, 자동 시작";
+"Auto Select Original, Manual Start" = "자동 원본을 선택, 수동 시작";
+"Auto Select Original, Auto Start" = "자동 원본을 선택, 자동 시작";
+"Auto Select Resample, Manual Start" = "자동 재샘플을 선택, 수동 시작";
+"Auto Select Resample, Auto Start" = "자동 재샘플을 선택, 자동 시작";
+
+"Front Page Settings" = "첫 페이지 설정";
+"Which display mode would you like to use on the front and search pages?" = "전면 및 검색 페이지에서 어떤 표시 모드가 사용하고 싶습니까?";
+"Compact" = "타이트";
+"Thumbnail" = "섬네일";
+"Extended" = "확장됨";
+"Minimal" = "미니멀";
+"Minimal+" = "미니멀+";
+"What categories would you like to show by default on the front page and in searches?" = "전면 및 검색 페이지에서 어떤 장르가 기본으로 사용하고 싶습니까?";
+
+"Here you can choose and rename your favorite categories." = "여기서 좋아하는 장르들을 선택하고 이름을 바꿀 수 있습니다.";
+"You can also select your default sort order for galleries on your favorites page. Note that favorites added prior to the March 2016 revamp did not store a timestamp, and will use the gallery posted time regardless of this setting." = "당신의 관심 페이지의 기본 순서 법칙을 선택할 수 있습니다. 2016년 3월 개정 전에 추가된 관심은 타임스탬프를 저장하지 않았으며 이 설정에 관계없이 갤러리에 게시된 시간을 사용합니다.";
+"Favorites sort order" = "관심 순서를 배열";
+"By last gallery update time" = "마지막 업데이트 시간으로";
+"By favorited time" = "별점 시간으로";
+
+"Ratings" = "별점";
+"By default, galleries that you have rated will appear with red stars for ratings of 2 stars and below, green for ratings between 2.5 and 4 stars, and blue for ratings of 4.5 or 5 stars. You can customize this by entering your desired color combination below. Each letter represents one star. The default RRGGB means R(ed) for the first and second star, G(reen) for the third and fourth, and B(lue) for the fifth. You can also use (Y)ellow for the normal stars. Any five-letter R/G/B/Y combo works." = "기본적으로 등급을 매긴 갤러리는 별 2개 이하의 등급에 대해 빨간색 별, 2.5~4개의 등급에 대해 녹색, 4.5~5개의 등급에 대해 파란색으로 표시됩니다. 아래에 원하는 색상 조합을 입력하여 사용자 정의할 수 있습니다. 각 문자는 별 하나 표현합니다. 기본 RRGGB는 첫 번째와 두 번째 별의 경우 R(ed), 세 번째와 네 번째 별의 경우 G(reen), 다섯 번째 별의 경우 B(lue)를 의미합니다. 일반 별에 (Y)ellow를 사용할 수도 있습니다. 모든 5글자의 R/G/B/Y 콤보가 작동합니다.";
+"Ratings color" = "별점 색깔";
+
+"Tag Namespaces" = "태그 네임스페이스";
+"If you want to exclude certain namespaces from a default tag search, you can check those below. Note that this does not prevent galleries with tags in these namespaces from appearing, it just makes it so that when searching tags, it will forego those namespaces." = "기본 태그 검색에서 특정 네임스페이스를 제외하려면 아래 네임스페이스들을 확인하십시오. 이렇게 해도 이러한 네임스페이스에 태그가 있는 갤러리가 나타나지 않고 태그를 검색할 때 해당 네임스페이스가 표시되지 않도록 할 수 있습니다.";
+
+"Tag Filtering Threshold" = "태그 필터링 임계값";
+"You can soft filter tags by adding them to My Tags with a negative weight. If a gallery has tags that add up to weight below this value, it is filtered from view. This threshold can be set between 0 and -9999." = "마이너스 가중치로 My Tags에 추가하여 태그를 소프트 필터할 수 있습니다. 갤러리에 이 값 이하의 가중치를 추가하는 태그가 있으면 보기에서 필터링됩니다. 이 임계값은 0과 -9999 사이에서 설정할 수 있습니다.";
+
+"Tag Watching Threshold" = "태그 전시 임계값";
+"Recently uploaded galleries will be included on the watched screen if it has at least one watched tag with positive weight, and the sum of weights on its watched tags add up to this value or higher. This threshold can be set between 0 and 9999." = "최근에 업로드된 갤러리는 최소 한 개의 양수 무게의 감시 태그가 있고 감시 태그의 가중치의 합이 이 값 이상이 될 경우 감시 화면에 포함됩니다. 이 임계값은 0과 9999 사이에서 설정할 수 있습니다.";
+
+"Excluded Languages" = "제외된 언어";
+"If you wish to hide galleries in certain languages from the gallery list and searches, select them from the list below. Note that matching galleries will never appear regardless of your search query." = "갤러리 목록에서 특정 언어로 된 갤러리를 숨기고 검색하려면 아래 리스트에서 해당 갤러리를 선택하십시오. 검색 쿼리에 관계없이 맞추는 갤러리는 나타나지 않습니다.";
+"Original" = "원본";
+"Translated" = "번역됨";
+"Rewrite" = "다시 쓰기";
+
+"Excluded Uploaders" = "제외된 업로드";
+"If you wish to hide galleries from certain uploaders from the gallery list and searches, add them below. Put one username per line. Note that galleries from these uploaders will never appear regardless of your search query." = "갤러리 목록 및 검색에서 특정 업로더의 갤러리를 숨기려면 아래에 해당 갤러리를 추가하십시오. 한 줄에 하나의 사용자 이름을 입력합니다. 이러한 업로더의 갤러리는 검색 쿼리에 관계없이 나타나지 않습니다.";
+"You are currently using **%lld / 1000** exclusion slots." = "이제 **%lld / 1000** 제외 슬롯을 사용하고 있습니다.";
+
+"Search Result Count" = "검색 결과 수";
+"How many results would you like per page for the index/search page and torrent search pages?\n(Hath Perk: Paging Enlargement Required)" = "인덱스/검색 페이지 및 토렌트 검색 페이지에 대해 페이지당 몇 개의 결과를 원하십니까?\n(Hath Perk: 페이징 확장 필요)";
+"Result count" = "결과 수";
+
+"Thumbnail Settings" = "섬네일 설정";
+"How would you like the mouse-over thumbnails on the front page to load when using List Mode?" = "목록 모드를 사용할 때 전면 페이지에서 마우스 오버로 미리 보기를 로드하는 어떤 방법을 원하겠습니까?";
+"Pages load faster, but there may be a slight delay before a thumb appears." = "페이지가 더 빨리 로드되지만 엄지손가락이 나타나기 전까지 약간의 지연이 있을 수 있습니다.";
+"Pages take longer to load, but there is no delay for loading a thumb after the page has loaded." = "페이지를 로드하는 데 시간이 더 오래 걸리지만 페이지가 로드된 후 엄지손가락을 로드하는 데 지연이 없습니다.";
+"Thumbnail load timing" = "섬네일 로드 시간";
+"On mouse-over" = "마우시 오버 때";
+"On page load" = "페이지 로드 떼";
+"You can set a default thumbnail configuration for all galleries you visit." = "모두 방문하는 갤러리에 대하여 기분 선네일을 설정할 수 있습니다.";
+"Size" = "사이즈";
+"Large" = "큰";
+"Rows" = "조수";
+
+"Thumbnail Scaling" = "섬네일 스케일링";
+"Thumbnails on the thumbnail and extended gallery list views can be scaled to a custom value between 75% and 150%." = "축소판 그림 및 확장된 갤러리 목록 보기의 미리 보기는 75%에서 150% 사이의 사용자 지정 값으로 조정할 수 있습니다.";
+"Scale factor" = "스케일 계수";
+
+"Viewport Override" = "보임창 기각";
+"Allows you to override the virtual width of the site for mobile devices. This is normally determined automatically by your device based on its DPI. Sensible values at 100% thumbnail scale are between 640 and 1400." = "모바일 장치의 사이트 가상 너비를 재정의할 수 있습니다. 일반적으로 DPI에 따라 장치에 의해 자동으로 결정됩니다. 100% 섬네일 스케일의 합리적인 값은 640에서 1400 사이입니다.";
+"Virtual width" = "가상 너비";
+
+"Gallery Comments" = "샐러리 평가";
+"Comments sort order" = "평가 순서를 배열";
+"Oldest comments first" = "가장 이른 순서";
+"Recent comments first" = "최신순";
+"By highest score" = "평가 가장 높은 순서";
+"Comment votes show timing" = "평가의 시간을 보이기";
+"On score hover or click" = "점수를 카리키커나 클리하기";
+"Always" = "내내";
+
+"Gallery Tags" = "갤러리 태크";
+"Tags sort order" = "태크 순서를 배열";
+"Alphabetical" = "알파벳순";
+"By tag power" = "태크 가중치로";
+
+"Gallery Page Numbering" = "갤러리 페이지 번호 매기기";
+"Show gallery page numbers" = "갤러리 페이지 번호 보이기";
+
+"Hath Local Network Host" = "Hath 로컬 네트워크 호스트";
+"This setting can be used if you have a Hath client running on your local network with the same public IP you browse the site with. Some routers are buggy and cannot route requests back to its own IP; this allows you to work around this problem.\nIf you are running the client on the same device you browse from, use the loopback address (127.0.0.1:port). If the client is running on another device on your network, use its local network IP. Some browser configurations prevent external web sites from accessing URLs with local network IPs, the site must then be whitelisted for this to work." = "이 설정은 사이트를 검색하는 것과 동일한 공용 IP로 로컬 네트워크에서 Had 클라이언트를 실행하는 경우 사용할 수 있습니다. 일부 라우터는 버그가 있어 요청을 자신의 IP로 다시 라우팅할 수 없습니다. 따라서 이 문제를 해결할 수 있습니다.\n찾아보는 동일한 장치에서 클라이언트를 실행하는 경우 루프백 주소(127.0.0.1:port)를 사용할 수 있습니다. 클라이언트가 네트워크의 다른 장치에서 실행 중인 경우 로컬 네트워크 IP를 사용할 수 있습니다. 일부 브라우저 구성에서는 외부 웹 사이트가 로컬 네트워크 IP가 있는 URL에 액세스할 수 없도록 합니다. 그런 다음 사이트가 작동하려면 사이트를 화이트리스트에 추가해야 합니다.";
+"IP address:Port" = "IP주소: 포트";
+
+"Original Images" = "원본 이미지";
+"Use original images" = "원본 뷰어 적용";
+"Multi-Page Viewer" = "페이지 뷰어";
+"Use Multi-Page Viewer" = "다중 페이지 뷰어 적용";
+"Display style" = "스타일 전시";
+"Align left, scale if overwidth" = "왼쪽 정렬, 너비 초과할 때 맟추기";
+"Align center, scale if overwidth" = "가운데 정렬, 너비 초과할 때 맟추기";
+"Align center, always scale" = "가운데 정렬 항상 맟추기";
+"Show thumbnail pane" = "섬네일 표시";
 
 // MARK: LogsView
 "Logs" = "일지";
@@ -349,15 +349,15 @@
 "Popular" = "핫이슈";
 "Watched" = "해시태크";
 "Favorites" = "관심";
-//"Toplists" = "";
+"Toplists" = "상위 목록";
 "Downloaded" = "저장";
 "History" = "역사";
 
 // MARK: ToplistType
-//"All time" = "";
-//"Past year" = "";
-//"Past month" = "";
-//"Yesterday" = "";
+"All time" = "전체";
+"Past year" = "지난 해";
+"Past month" = "지난 달";
+"Yesterday" = "어제";
 
 // MARK: Category
 "Doujinshi" = "동인지";
@@ -449,4 +449,4 @@
 "Zulu" = "줄루어";
 
 // MARK: EhSettingCountry
-//"Auto-Detect" = ""; "Afghanistan" = ""; "Aland Islands" = ""; "Albania" = ""; "Algeria" = ""; "American Samoa" = ""; "Andorra" = ""; "Angola" = ""; "Anguilla" = ""; "Antarctica" = ""; "Antigua and Barbuda" = ""; "Argentina" = ""; "Armenia" = ""; "Aruba" = ""; "Asia-Pacific Region" = ""; "Australia" = ""; "Austria" = ""; "Azerbaijan" = ""; "Bahamas" = ""; "Bahrain" = ""; "Bangladesh" = ""; "Barbados" = ""; "Belarus" = ""; "Belgium" = ""; "Belize" = ""; "Benin" = ""; "Bermuda" = ""; "Bhutan" = ""; "Bolivia" = ""; "Bonaire Saint Eustatius and Saba" = ""; "Bosnia and Herzegovina" = ""; "Botswana" = ""; "Bouvet Island" = ""; "Brazil" = ""; "British Indian Ocean Territory" = ""; "Brunei Darussalam" = ""; "Bulgaria" = ""; "Burkina Faso" = ""; "Burundi" = ""; "Cambodia" = ""; "Cameroon" = ""; "Canada" = ""; "Cape Verde" = ""; "Cayman Islands" = ""; "Central African Republic" = ""; "Chad" = ""; "Chile" = ""; "China" = ""; "Christmas Island" = ""; "Cocos Islands" = ""; "Colombia" = ""; "Comoros" = ""; "Congo" = ""; "The Democratic Republic of the Congo" = ""; "Cook Islands" = ""; "Costa Rica" = ""; "Cote D'Ivoire" = ""; "Croatia" = ""; "Cuba" = ""; "Curacao" = ""; "Cyprus" = ""; "Czech Republic" = ""; "Denmark" = ""; "Djibouti" = ""; "Dominica" = ""; "Dominican Republic" = ""; "Ecuador" = ""; "Egypt" = ""; "El Salvador" = ""; "Equatorial Guinea" = ""; "Eritrea" = ""; "Estonia" = ""; "Ethiopia" = ""; "Europe" = ""; "Falkland Islands" = ""; "Faroe Islands" = ""; "Fiji" = ""; "Finland" = ""; "France" = ""; "French Guiana" = ""; "French Polynesia" = ""; "French Southern Territories" = ""; "Gabon" = ""; "Gambia" = ""; "Georgia" = ""; "Germany" = ""; "Ghana" = ""; "Gibraltar" = ""; "Greece" = ""; "Greenland" = ""; "Grenada" = ""; "Guadeloupe" = ""; "Guam" = ""; "Guatemala" = ""; "Guernsey" = ""; "Guinea" = ""; "Guinea-Bissau" = ""; "Guyana" = ""; "Haiti" = ""; "Heard Island and McDonald Islands" = ""; "Vatican City State" = ""; "Honduras" = ""; "Hong Kong" = ""; "Hungary" = ""; "Iceland" = ""; "India" = ""; "Indonesia" = ""; "Iran" = ""; "Iraq" = ""; "Ireland" = ""; "Isle of Man" = ""; "Israel" = ""; "Italy" = ""; "Jamaica" = ""; "Japan" = ""; "Jersey" = ""; "Jordan" = ""; "Kazakhstan" = ""; "Kenya" = ""; "Kiribati" = ""; "Kuwait" = ""; "Kyrgyzstan" = ""; "Lao People's Democratic Republic" = ""; "Latvia" = ""; "Lebanon" = ""; "Lesotho" = ""; "Liberia" = ""; "Libya" = ""; "Liechtenstein" = ""; "Lithuania" = ""; "Luxembourg" = ""; "Macau" = ""; "Macedonia" = ""; "Madagascar" = ""; "Malawi" = ""; "Malaysia" = ""; "Maldives" = ""; "Mali" = ""; "Malta" = ""; "Marshall Islands" = ""; "Martinique" = ""; "Mauritania" = ""; "Mauritius" = ""; "Mayotte" = ""; "Mexico" = ""; "Micronesia" = ""; "Moldova" = ""; "Monaco" = ""; "Mongolia" = ""; "Montenegro" = ""; "Montserrat" = ""; "Morocco" = ""; "Mozambique" = ""; "Myanmar" = ""; "Namibia" = ""; "Nauru" = ""; "Nepal" = ""; "Netherlands" = ""; "New Caledonia" = ""; "New Zealand" = ""; "Nicaragua" = ""; "Niger" = ""; "Nigeria" = ""; "Niue" = ""; "Norfolk Island" = ""; "North Korea" = ""; "Northern Mariana Islands" = ""; "Norway" = ""; "Oman" = ""; "Pakistan" = ""; "Palau" = ""; "Palestinian Territory" = ""; "Panama" = ""; "Papua New Guinea" = ""; "Paraguay" = ""; "Peru" = ""; "Philippines" = ""; "Pitcairn Islands" = ""; "Poland" = ""; "Portugal" = ""; "Puerto Rico" = ""; "Qatar" = ""; "Reunion" = ""; "Romania" = ""; "Russian Federation" = ""; "Rwanda" = ""; "Saint Barthelemy" = ""; "Saint Helena" = ""; "Saint Kitts and Nevis" = ""; "Saint Lucia" = ""; "Saint Martin" = ""; "Saint Pierre and Miquelon" = ""; "Saint Vincent and the Grenadines" = ""; "Samoa" = ""; "San Marino" = ""; "Sao Tome and Principe" = ""; "Saudi Arabia" = ""; "Senegal" = ""; "Serbia" = ""; "Seychelles" = ""; "Sierra Leone" = ""; "Singapore" = ""; "Sint Maarten" = ""; "Slovakia" = ""; "Slovenia" = ""; "Solomon Islands" = ""; "Somalia" = ""; "South Africa" = ""; "South Georgia and the South Sandwich Islands" = ""; "South Korea" = ""; "South Sudan" = ""; "Spain" = ""; "Sri Lanka" = ""; "Sudan" = ""; "Suriname" = ""; "Svalbard and Jan Mayen" = ""; "Swaziland" = ""; "Sweden" = ""; "Switzerland" = ""; "Syrian Arab Republic" = ""; "Taiwan" = ""; "Tajikistan" = ""; "Tanzania" = ""; "Thailand" = ""; "Timor-Leste" = ""; "Togo" = ""; "Tokelau" = ""; "Tonga" = ""; "Trinidad and Tobago" = ""; "Tunisia" = ""; "Turkey" = ""; "Turkmenistan" = ""; "Turks and Caicos Islands" = ""; "Tuvalu" = ""; "Uganda" = ""; "Ukraine" = ""; "United Arab Emirates" = ""; "United Kingdom" = ""; "United States" = ""; "United States Minor Outlying Islands" = ""; "Uruguay" = ""; "Uzbekistan" = ""; "Vanuatu" = ""; "Venezuela" = ""; "Vietnam" = ""; "British Virgin Islands" = ""; "U.S. Virgin Islands" = ""; "Wallis and Futuna" = ""; "Western Sahara" = ""; "Yemen" = ""; "Zambia" = ""; "Zimbabwe" = "";
+"Auto-Detect" = "자동 탐지"; "Afghanistan" = "아프가니스탄"; "Aland Islands" = "알란드 제도"; "Albania" = "알바니아"; "Algeria" = "알제리아"; "American Samoa" = "아메리칸 사모아"; "Andorra" = "안도라"; "Angola" = "앙골라"; "Anguilla" = "안젤라"; "Antarctica" = "남극"; "Antigua and Barbuda" = "앤티가 바부다"; "Argentina" = "아르헨티나"; "Armenia" = "아르메니아"; "Aruba" = "아루바 섬"; "Asia-Pacific Region" = "아시아 태평양 영역"; "Australia" = "호주"; "Austria" = "오스트리아"; "Azerbaijan" = "아제르바이잔"; "Bahamas" = "바하마스"; "Bahrain" = "바레인"; "Bangladesh" = "방글라데시"; "Barbados" = "바베이도스"; "Belarus" = "벨라루스"; "Belgium" = "벨기에"; "Belize" = "벨리즈"; "Benin" = "베냉"; "Bermuda" = "버뮤다"; "Bhutan" = "부탄"; "Bolivia" = "볼리비아"; "Bonaire Saint Eustatius and Saba" = "보네르 성 유스타티우스와 사바"; "Bosnia and Herzegovina" = "보스니아 헤르체코비나 "; "Botswana" = "보츠와나"; "Bouvet Island" = "부베섬"; "Brazil" = "브라질"; "British Indian Ocean Territory" = "영국령 인도양 식민지"; "Brunei Darussalam" = "브루나이 다루살람"; "Bulgaria" = "불가리아"; "Burkina Faso" = "부르키나 파소"; "Burundi" = "부룬디"; "Cambodia" = "캄보디아"; "Cameroon" = "카메룬"; "Canada" = "캐나다"; "Cape Verde" = "포르투갈어"; "Cayman Islands" = "케이맨 제도"; "Central African Republic" = "중앙아프리카 공화국"; "Chad" = "차드"; "Chile" = "칠레"; "China" = "중국"; "Christmas Island" = "크리스마스 섬"; "Cocos Islands" = "코코스 제도"; "Colombia" = "콜롬비아"; "Comoros" = "코모로"; "Congo" = "콩고"; "The Democratic Republic of the Congo" = "콩고민주공화국"; "Cook Islands" = "쿡제도"; "Costa Rica" = "코스타리카"; "Cote D'Ivoire" = "코트디부아르"; "Croatia" = "크로아티아"; "Cuba" = "쿠바"; "Curacao" = "큐라소"; "Cyprus" = "키프로스"; "Czech Republic" = "체코 공화국"; "Denmark" = "덴마크"; "Djibouti" = "지부티"; "Dominica" = "도미니카"; "Dominican Republic" = "도미니카 공화국"; "Ecuador" = "에콰도르"; "Egypt" = "이집트"; "El Salvador" = "엘살바도르"; "Equatorial Guinea" = "적도 기니"; "Eritrea" = "에리트레아"; "Estonia" = "에스토니아"; "Ethiopia" = "에티오피아"; "Europe" = "유럽"; "Falkland Islands" = "포클랜드 제도"; "Faroe Islands" = "페로스 제도"; "Fiji" = "피지"; "Finland" = "핀란드"; "France" = "프랑스"; "French Guiana" = "프랑스령 기아나"; "French Polynesia" = "프랑스령 폴리네시아"; "French Southern Territories" = "프랑스령 남부와 남극지역"; "Gabon" = "가봉"; "Gambia" = "감비아"; "Georgia" = "그루지야"; "Germany" = "독일"; "Ghana" = "가나"; "Gibraltar" = "지브롤터"; "Greece" = "희랍"; "Greenland" = "그린란드"; "Grenada" = "그레나다"; "Guadeloupe" = "과들루프 섬"; "Guam" = "괌"; "Guatemala" = "과테말라"; "Guernsey" = "건지종 젖소"; "Guinea" = "기니"; "Guinea-Bissau" = "기니비사우"; "Guyana" = "가이아나"; "Haiti" = "아이티"; "Heard Island and McDonald Islands" = "허드 맥도널드 제도"; "Vatican City State" = "바티칸 시국"; "Honduras" = "온두라스"; "Hong Kong" = "홍콩"; "Hungary" = "헝가리"; "Iceland" = "Iceland"; "India" = "인도"; "Indonesia" = "인도네시아"; "Iran" = "이란"; "Iraq" = "이라크"; "Ireland" = "아일랜드"; "Isle of Man" = "맨 섬"; "Israel" = "이스라엘"; "Italy" = "이탈리아"; "Jamaica" = "자마이카"; "Japan" = "일본"; "Jersey" = "저시"; "Jordan" = "요단"; "Kazakhstan" = "카자흐스탄"; "Kenya" = "케냐"; "Kiribati" = "키리바시"; "Kuwait" = "쿠웨이트"; "Kyrgyzstan" = "키르기스스탄"; "Lao People's Democratic Republic" = "라오 인민민주공화국"; "Latvia" = "라트비아"; "Lebanon" = "레바논"; "Lesotho" = "레소토"; "Liberia" = "리베리아"; "Libya" = "리비아"; "Liechtenstein" = "리히텐슈타인"; "Lithuania" = "리투아니아"; "Luxembourg" = "룩셈부르크"; "Macau" = "마카오"; "Macedonia" = "마케도니아"; "Madagascar" = "마다스카르"; "Malawi" = "말라위"; "Malaysia" = "말레이시아"; "Maldives" = "말디브"; "Mali" = "말리"; "Malta" = "말타"; "Marshall Islands" = "마샬군도"; "Martinique" = "마르티니크"; "Mauritania" = "모리타니아"; "Mauritius" = "모리셔스"; "Mayotte" = "마요트 섬"; "Mexico" = "맥시코"; "Micronesia" = "마크로네시아"; "Moldova" = "몰도바"; "Monaco" = "모나코"; "Mongolia" = "몽콜"; "Montenegro" = "몬테네그로"; "Montserrat" = "몬트세라트섬"; "Morocco" = "모로코가족"; "Mozambique" = "모잠비크"; "Myanmar" = "미얀마"; "Namibia" = "나미비아"; "Nauru" = "나우루"; "Nepal" = "네팔"; "Netherlands" = "네덜란드"; "New Caledonia" = "뉴칼레도니아"; "New Zealand" = "뉴질랜드"; "Nicaragua" = "나카라과"; "Niger" = "니제르"; "Nigeria" = "나이지리아"; "Niue" = "니우에 섬"; "Norfolk Island" = "노퍽섬"; "North Korea" = "북한"; "Northern Mariana Islands" = "북마리아나제도"; "Norway" = "노르웨이"; "Oman" = "오만"; "Pakistan" = "파키스탄"; "Palau" = "팔라우"; "Palestinian Territory" = "팔레스타인의 지역"; "Panama" = "파나마모자"; "Papua New Guinea" = "파푸아뉴기니"; "Paraguay" = "파라과이"; "Peru" = "페루"; "Philippines" = "필리핀"; "Pitcairn Islands" = "핏케언 제도"; "Poland" = "폴란드"; "Portugal" = "포르투갈"; "Puerto Rico" = "푸에르토리코"; "Qatar" = "카타로"; "Reunion" = "레워니옹"; "Romania" = "루마니아"; "Russian Federation" = "러시아 연방"; "Rwanda" = "르완다"; "Saint Barthelemy" = "생바르텔레미"; "Saint Helena" = "세인츠헬레나 섬"; "Saint Kitts and Nevis" = "세인트키츠네비스"; "Saint Lucia" = "세인트루시아"; "Saint Martin" = "세인트 마틴"; "Saint Pierre and Miquelon" = "생피에르 미글롱"; "Saint Vincent and the Grenadines" = "세인트빈센트 그레나딘"; "Samoa" = "사모아"; "San Marino" = "산마리노"; "Sao Tome and Principe" = "상투메 프린시페 도브라"; "Saudi Arabia" = "사우디 아라비아"; "Senegal" = "세네갈"; "Serbia" = "세르비아"; "Seychelles" = "세이셸"; "Sierra Leone" = "시에라리온"; "Singapore" = "싱가포르"; "Sint Maarten" = "신트마르턴"; "Slovakia" = "슬로바키아"; "Slovenia" = "슬로베니아"; "Solomon Islands" = "솔로몬 제도"; "Somalia" = "소말리아"; "South Africa" = "남아프리카"; "South Georgia and the South Sandwich Islands" = "사우스조지아 사우스샌드위치 제도"; "South Korea" = "한국"; "South Sudan" = "남수단"; "Spain" = "스페인"; "Sri Lanka" = "스리랑카"; "Sudan" = "수단"; "Suriname" = "수리남"; "Svalbard and Jan Mayen" = "스발바르 얀마옌 제도"; "Swaziland" = "스와질란드"; "Sweden" = "스웨덴"; "Switzerland" = "스위스"; "Syrian Arab Republic" = "시리아"; "Taiwan" = "대만"; "Tajikistan" = "타지키스탄"; "Tanzania" = "탄지니아"; "Thailand" = "태국"; "Timor-Leste" = "동티모르"; "Togo" = "토고"; "Tokelau" = "토켈라우"; "Tonga" = "통가"; "Trinidad and Tobago" = "트리니다드토바고"; "Tunisia" = "튀니지"; "Turkey" = "터키"; "Turkmenistan" = "투르크메니스탄"; "Turks and Caicos Islands" = "터크스카이코스 제도"; "Tuvalu" = "투발루"; "Uganda" = "우간다"; "Ukraine" = "우크라이나"; "United Arab Emirates" = "아랍 에미리트 연합국"; "United Kingdom" = "영국"; "United States" = "미국"; "United States Minor Outlying Islands" = "미국령 군소 제도"; "Uruguay" = "우루과이"; "Uzbekistan" = "우즈베키스탄"; "Vanuatu" = "바누어투"; "Venezuela" = "베네수엘라"; "Vietnam" = "베트남"; "British Virgin Islands" = "영국령 버진 제도"; "U.S. Virgin Islands" = "세인트존 섬"; "Wallis and Futuna" = "월리스 푸투나제도"; "Western Sahara" = "서사하라"; "Yemen" = "예멘"; "Zambia" = "잠비아"; "Zimbabwe" = "짐바브웨";

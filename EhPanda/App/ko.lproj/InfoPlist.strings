@@ -7,4 +7,4 @@
 */
 
 "NSFaceIDUsageDescription" = "이 권한을 허용해야 앱 잠금 해제할때 Face ID 옵션을 제공합니다.";
-//"NSPhotoLibraryAddUsageDescription" = "";
+"NSPhotoLibraryAddUsageDescription" = "이미지를 사진 라이브러리에 저정하고 싶으면 이 권한을 허용해주세요.";
