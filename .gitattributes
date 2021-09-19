@@ -1,1 +1,2 @@
 *.html linguist-detectable=false
+ehpanda-vue/* linguist-documentation
