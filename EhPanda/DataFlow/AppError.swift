@@ -88,9 +88,9 @@ extension AppError: LocalizedError {
 }
 
 enum BanInterval: Equatable {
-    case days(_: Int, hours: Int)
-    case hours(_: Int, minutes: Int)
-    case minutes(_: Int, seconds: Int)
+    case days(_: Int, hours: Int?)
+    case hours(_: Int, minutes: Int?)
+    case minutes(_: Int, seconds: Int?)
     case unrecognized(content: String)
 }
 
@@ -101,23 +101,29 @@ extension BanInterval {
 
         switch self {
         case .days(let days, let hours):
-            placeholder = [
-                String(days), "BAN_INTERVAL_DAYS",
-                "BAN_INTERVAL_AND",
-                String(hours), "BAN_INTERVAL_HOURS"
-            ].map{ $0.localized }.joined(separator: "")
+            var params = [String(days), "BAN_INTERVAL_DAYS"]
+            if let hours = hours {
+                params += [
+                    "BAN_INTERVAL_AND", String(hours), "BAN_INTERVAL_HOURS"
+                ]
+            }
+            placeholder = params.map{ $0.localized }.joined(separator: "")
         case .hours(let hours, let minutes):
-            placeholder = [
-                String(hours), "BAN_INTERVAL_HOURS",
-                "BAN_INTERVAL_AND",
-                String(minutes), "BAN_INTERVAL_MINUTES"
-            ].map{ $0.localized }.joined(separator: "")
+            var params = [String(hours), "BAN_INTERVAL_HOURS"]
+            if let minutes = minutes {
+                params += [
+                    "BAN_INTERVAL_AND", String(minutes), "BAN_INTERVAL_MINUTES"
+                ]
+            }
+            placeholder = params.map{ $0.localized }.joined(separator: "")
         case .minutes(let minutes, let seconds):
-            placeholder = [
-                String(minutes), "BAN_INTERVAL_MINUTES",
-                "BAN_INTERVAL_AND",
-                String(seconds), "BAN_INTERVAL_SECONDS"
-            ].map{ $0.localized }.joined(separator: "")
+            var params = [String(minutes), "BAN_INTERVAL_MINUTES"]
+            if let seconds = seconds {
+                params += [
+                    "BAN_INTERVAL_AND", String(seconds), "BAN_INTERVAL_SECONDS"
+                ]
+            }
+            placeholder = params.map{ $0.localized }.joined(separator: "")
         case .unrecognized(let content):
             placeholder = content
         }
