@@ -8,11 +8,11 @@
 
 <p align="center">
   <a href="/README.md">English</a>・
-  <a href="/README.de.md">Deutsch</a>・
-  <a href="/README.ko.md">한국어</a>・
-  <a href="/README.jpn.md">日本語</a>・
-  <a href="/README.cht.md">繁體中文</a>・
-  <a href="/README.chs.md">简体中文</a>
+  <a href="/READMEs/README.de.md">Deutsch</a>・
+  <a href="/READMEs/README.ko.md">한국어</a>・
+  <a href="/READMEs/README.jpn.md">日本語</a>・
+  <a href="/READMEs/README.cht.md">繁體中文</a>・
+  <a href="/READMEs/README.chs.md">简体中文</a>
 </p>
 
 ## 📢 募集翻译 📢
@@ -20,9 +20,9 @@
 
 App Strings: `{lang}.lproj`
 
-GitHub Readme: `README.{lang}.md`
+GitHub Readme: `[README.{lang}.md](/READMEs)`
 
-https://ehpanda.app: `Website-Translation.md`
+https://ehpanda.app: `[main.js](/ehpanda-vue/src/main.js)`
 
 ## 安装步骤
 1. 在 [Releases](https://github.com/arakitatsuzou/EhPanda/releases) 取得 ipa 文件。

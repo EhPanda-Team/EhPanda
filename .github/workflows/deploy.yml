@@ -9,9 +9,9 @@ env:
    APP_VERSION: '1.2.0'
    SCHEME_NAME: 'EhPanda'
    ALTSTORE_JSON_PATH: './AltStore.json'
-   FILTER_PATH: './ReleaseNotesFilter'
    BUILDS_PATH: '/tmp/action-builds'
    ASC_KEY_PATH: '/Users/runner/private_keys'
+   FILTER_PATH: './actions-tool/ReleaseNotesFilter'
    ARCHIVE_PATH: '/tmp/action-builds/EhPanda.xcarchive'
    IPA_OUTPUT_PATH: '/tmp/action-builds/EhPanda.ipa'
    DEV_CERTIFICATE_PATH: '/tmp/action-builds/dev.cer'
@@ -37,7 +37,7 @@ jobs:
         run: xcodebuild -version
       - name: Run tests
         run: xcodebuild clean test -scheme ${{ env.SCHEME_NAME }} -sdk iphonesimulator
-          -destination 'platform=iOS Simulator,name=iPhone 12'
+          -destination 'platform=iOS Simulator,name=iPhone 13'
       - name: Decode certificates & provisioning profiles
         run: |
           mkdir $BUILDS_PATH
@@ -88,7 +88,7 @@ jobs:
           -scheme ${{ env.SCHEME_NAME }} -archivePath ${{ env.ARCHIVE_PATH }}
       - name: Export .ipa file
         run: xcodebuild -exportArchive -archivePath ${{ env.ARCHIVE_PATH }}
-          -exportPath ${{ env.BUILDS_PATH }} -exportOptionsPlist ./ExportOptions.plist
+          -exportPath ${{ env.BUILDS_PATH }} -exportOptionsPlist ./actions-tool/ExportOptions.plist
       - name: Retrieve data
         id: retrieve-data
         run: |
