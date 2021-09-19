@@ -1,4 +1,5 @@
-EhPanda.xcodeproj/project.xcworkspace/xcuserdata
-EhPanda.xcodeproj/xcuserdata
 .DS_Store
-
+ehpanda-vue/dist
+ehpanda-vue/node_modules
+EhPanda.xcodeproj/xcuserdata
+EhPanda.xcodeproj/project.xcworkspace/xcuserdata
