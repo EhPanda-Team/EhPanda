@@ -18,11 +18,11 @@
 ## 📢 번역 수요 📢
 번역을 돕고 싶으면 Pull Request를 제출하세요.
 
-App Strings: `{lang}.lproj`
+App Strings: [{lang}.lproj](/EhPanda/App)
 
-GitHub Readme: `[README.{lang}.md](/READMEs)`
+GitHub Readme: [README.{lang}.md](/READMEs)
 
-https://ehpanda.app: `[main.js](/ehpanda-vue/src/main.js)`
+https://ehpanda.app: [main.js](/ehpanda-vue/src/main.js)
 
 ## 다운로드
 1. [Releases](https://github.com/arakitatsuzou/EhPanda/releases)에서 ipa파일 획득.

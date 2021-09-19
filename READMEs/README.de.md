@@ -18,11 +18,11 @@
 ## 📢 Übersetzer gesucht 📢
 Stelle eine Pull-Request wenn du bei der Übersetzung mithelfen möchtest.
 
-App Strings: `{lang}.lproj`
+App Strings: [{lang}.lproj](/EhPanda/App)
 
-GitHub Readme: `[README.{lang}.md](/READMEs)`
+GitHub Readme: [README.{lang}.md](/READMEs)
 
-https://ehpanda.app: `[main.js](/ehpanda-vue/src/main.js)`
+https://ehpanda.app: [main.js](/ehpanda-vue/src/main.js)
 
 ## Installation
 1. Lade die IPA-Datei hier herunter: [Releases](https://github.com/arakitatsuzou/EhPanda/releases).
