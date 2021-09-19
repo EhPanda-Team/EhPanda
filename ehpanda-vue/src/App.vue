@@ -227,7 +227,7 @@ export default {
     @apply flex flex-col items-center justify-center py-20 space-y-20 md:space-y-0
   }
   .cat-section-title {
-    @apply pb-10 text-4xl font-bold md:text-6xl
+    @apply pb-5 text-4xl font-bold md:pb-10 md:text-6xl
   }
   .cat-section-element {
     @apply flex flex-col items-center justify-between space-y-4 md:flex-row
