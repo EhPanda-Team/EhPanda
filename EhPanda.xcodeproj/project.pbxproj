@@ -61,6 +61,7 @@
 		ABBC332826BE31AE0084A331 /* EhSettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABBC332726BE31AE0084A331 /* EhSettingView.swift */; };
 		ABBC332A26BE7C940084A331 /* SettingTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABBC332926BE7C940084A331 /* SettingTextField.swift */; };
 		ABBCCC9026C95F6E007D8A36 /* GalleryInfosView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABBCCC8F26C95F6E007D8A36 /* GalleryInfosView.swift */; };
+		ABC0A8D126F7037F008EC24C /* IPBanned.html in Resources */ = {isa = PBXBuildFile; fileRef = ABC0A8D026F7037F008EC24C /* IPBanned.html */; };
 		ABC1FAB6264152C800A9F352 /* StoreAccessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC1FAB5264152C800A9F352 /* StoreAccessor.swift */; };
 		ABC1FAB82642C37D00A9F352 /* NewDawnView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC1FAB72642C37D00A9F352 /* NewDawnView.swift */; };
 		ABC3C7852593699B00E0C11B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = ABC3C7692593699A00E0C11B /* Assets.xcassets */; };
@@ -212,6 +213,7 @@
 		ABBC332726BE31AE0084A331 /* EhSettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EhSettingView.swift; sourceTree = "<group>"; };
 		ABBC332926BE7C940084A331 /* SettingTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingTextField.swift; sourceTree = "<group>"; };
 		ABBCCC8F26C95F6E007D8A36 /* GalleryInfosView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryInfosView.swift; sourceTree = "<group>"; };
+		ABC0A8D026F7037F008EC24C /* IPBanned.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = IPBanned.html; sourceTree = "<group>"; };
 		ABC1FAB5264152C800A9F352 /* StoreAccessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreAccessor.swift; sourceTree = "<group>"; };
 		ABC1FAB72642C37D00A9F352 /* NewDawnView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewDawnView.swift; sourceTree = "<group>"; };
 		ABC3C7542593696C00E0C11B /* EhPanda.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EhPanda.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -332,6 +334,7 @@
 		AB3E9E6326D210B1008FE518 /* Parser */ = {
 			isa = PBXGroup;
 			children = (
+				ABC0A8D026F7037F008EC24C /* IPBanned.html */,
 				AB3E9E6426D210B1008FE518 /* Gallery */,
 				AB3E9E6626D210B1008FE518 /* List */,
 			);
@@ -786,6 +789,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				AB3E9E6F26D210B1008FE518 /* Favorites.html in Resources */,
+				ABC0A8D126F7037F008EC24C /* IPBanned.html in Resources */,
 				ABF9720A26DE6E1300118887 /* GalleryDetailWithGreeting.html in Resources */,
 				AB3E9E6E26D210B1008FE518 /* GalleryDetail.html in Resources */,
 				AB30E34826D277F7007420BC /* Toplists.html in Resources */,

@@ -247,11 +247,12 @@ private extension DetailView {
     func onTagViewTap(keyword: String) {
         navigateToAssociatedView(keyword)
     }
-    func onPreviewImageTap(index: Int) {
+    func onPreviewImageTap(index: Int, triggersLink: Bool) {
         store.dispatch(.saveReadingProgress(gid: gid, tag: index))
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
             postReadingViewShouldHideStatusBarNotification()
         }
+        if triggersLink { isReadingLinkActive.toggle() }
     }
     func onCommentPost() {
         store.dispatch(.comment(gid: gid, content: commentContent))
@@ -743,14 +744,14 @@ private struct PreviewView: View {
     private let gid: String
     private let previews: [Int: String]
     private let pageCount: Int
-    private let tapAction: (Int) -> Void
+    private let tapAction: (Int, Bool) -> Void
     private let fetchAction: (Int) -> Void
 
     init(
         gid: String,
         previews: [Int: String],
         pageCount: Int,
-        tapAction: @escaping (Int) -> Void,
+        tapAction: @escaping (Int, Bool) -> Void,
         fetchAction: @escaping (Int) -> Void
     ) {
         self.gid = gid
@@ -811,6 +812,9 @@ private struct PreviewView: View {
                                 width: width,
                                 height: height
                             )
+                            .onTapGesture {
+                                tapAction(index, true)
+                            }
                     }
                     .withHorizontalSpacing(height: height)
                 }
@@ -829,14 +833,14 @@ private struct MorePreviewView: View {
     private let gid: String
     private let previews: [Int: String]
     private let pageCount: Int
-    private let tapAction: (Int) -> Void
+    private let tapAction: (Int, Bool) -> Void
     private let fetchAction: (Int) -> Void
 
     init(
         gid: String,
         previews: [Int: String],
         pageCount: Int,
-        tapAction: @escaping (Int) -> Void,
+        tapAction: @escaping (Int, Bool) -> Void,
         fetchAction: @escaping (Int) -> Void
     ) {
         self.gid = gid
@@ -906,7 +910,7 @@ private struct MorePreviewView: View {
         }
     }
     private func onImageTap(index: Int) {
-        tapAction(index)
+        tapAction(index, false)
         isActive = true
     }
 }

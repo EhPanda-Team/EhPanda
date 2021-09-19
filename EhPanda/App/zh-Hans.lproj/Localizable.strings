@@ -7,8 +7,8 @@
 */
 
 // MARK: Response
-"You must have a H@H client assigned to your account to use this feature." = "你需要一个关联到账户的Hath客户端才能使用这个功能";
-"Your H@H client appears to be offline. Turn it on, then try again." = "你的Hath客户端似乎处于离线状态，请启动它后再试";
+"You must have a H@H client assigned to your account to use this feature." = "你需要一个关联到账户的 Hath 客户端才能使用这个功能";
+"Your H@H client appears to be offline. Turn it on, then try again." = "你的 Hath 客户端似乎处于离线状态，请启动它后再试";
 "The requested gallery cannot be downloaded with the selected resolution." = "该画廊不能以选中的分辨率下载";
 
 // MARK: HUD
@@ -18,7 +18,7 @@
 "Copied to clipboard" = "已复制到剪切板";
 
 // MARK: LockView
-"The App has been locked due to the auto-lock expiration." = "因超过设定的自动锁定期限，App已被锁定";
+"The App has been locked due to the auto-lock expiration." = "因超过设定的自动锁定期限，App 已被锁定";
 
 // MARK: Common
 "null" = "无内容";
@@ -39,7 +39,14 @@
 "An unknown error occurred." = "发生了未知错误";
 "Please try again later." = "请稍后再试";
 "This gallery has been removed or is unavailable." = "该画廊已被移除或不可用。";
-"This gallery is unavailable due to a copyright claim by PLACEHOLDER. Sorry about that." = "抱歉，该画廊因PLACEHOLDER的版权主张已无法访问。";
+"This gallery is unavailable due to a copyright claim by PLACEHOLDER. Sorry about that." = "抱歉，该画廊因 PLACEHOLDER 的版权主张已无法访问。";
+"Your IP address has been temporarily banned for excessive pageloads which indicates that you are using automated mirroring / harvesting software." = "当前的 IP 地址发生了过量的页面加载，因有使用爬虫程序的嫌疑已被暂时封禁。";
+"The ban expires in PLACEHOLDER." = "封禁将在 PLACEHOLDER 后解除。";
+"BAN_INTERVAL_AND" = " ";
+"BAN_INTERVAL_DAYS" = " 天";
+"BAN_INTERVAL_HOURS" = " 小时";
+"BAN_INTERVAL_MINUTES" = " 分";
+"BAN_INTERVAL_SECONDS" = " 秒";
 
 // MARK: DetailView
 "Archive" = "归档";
@@ -49,7 +56,7 @@
 "DESC_SCROLL_ITEM_FAVORITED" = "收藏";
 "Times" = "次";
 "Language" = "语言";
-"%lld Ratings" = "%lld个评分";
+"%lld Ratings" = "%lld 个评分";
 "Page Count" = "页数";
 "Pages" = "页";
 "File Size" = "文件大小";
@@ -63,7 +70,7 @@
 "N/A" = "无效";
 "Free" = "免费";
 "ARCHIVE_RESOLUTION_ORIGINAL" = "原始分辨率";
-"Download To Hath Client" = "下载到Hath客户端";
+"Download To Hath Client" = "下载到 Hath 客户端";
 
 // MARK: GalleryInfosView
 "Gallery infos" = "画廊信息";
@@ -115,7 +122,7 @@
 "Are you sure to logout?" = "确定要退出登录吗？";
 "Are you sure to clear?" = "确定要清空吗？";
 "Clear" = "清空";
-"Copy cookies" = "复制Cookies";
+"Copy cookies" = "复制 Cookies";
 
 "General" = "一般";
 "Navigation" = "导航";
@@ -147,8 +154,8 @@
 "Right-to-left" = "右至左";
 "Left-to-right" = "左至右";
 "Preload limit" = "预加载数量上限";
-"%lld pages" = "%lld页";
-"%lld times" = "%lld次";
+"%lld pages" = "%lld 页";
+"%lld times" = "%lld 次";
 "Prefers landscape" = "偏好横屏";
 "Separator height" = "分隔线厚度";
 "Maximum scale factor" = "最大缩放系数";
@@ -157,12 +164,12 @@
 "Except the cover" = "封面除外";
 
 "Laboratory" = "实验室";
-"Bypass SNI Filtering" = "域前置绕过SNI阻断";
+"Bypass SNI Filtering" = "域前置绕过 SNI 阻断";
 
-"About EhPanda" = "关于EhPanda";
+"About EhPanda" = "关于 EhPanda";
 "Version" = "版本";
 "Website" = "网站";
-"AltStore Source" = "AltStore源";
+"AltStore Source" = "AltStore 源";
 "Acknowledgement" = "致谢";
 
 // MARK: EhSettingView
@@ -179,11 +186,11 @@
 "Recommended." = "推荐。";
 "Can be slower. Enable if behind firewall/proxy that blocks outgoing non-standard ports." = "可能稍慢。当防火墙或代理阻止非标准接口的流量时启用此项。";
 "Donator only. You will not be able to browse as many pages, enable only if having severe problems." = "仅限赞助者。配额消耗会加快，只有出现问题时才启用。";
-"Load images through the Hath network" = "通过Hath网络加载图像";
+"Load images through the Hath network" = "通过 Hath 网络加载图像";
 "Any client" = "所有客户端";
 "Default port clients only" = "仅使用默认端口的客户端";
 "LOAD_THROUGH_HATH_NO" = "否";
-"You appear to be browsing the site from **PLACEHOLDER** or use a VPN or proxy in this country, which means the site will try to load images from Hath clients in this general geographic region. If this is incorrect, or if you want to use a different region for any reason (like if you are using a split tunneling VPN), you can select a different country below." = "你似乎正在 **PLACEHOLDER** 浏览此网页，或是使用了一个来自这个国家的VPN或代理，这意味着网站将尝试通过在此区域的Hath客户端加载图片。如果该结果不正确，或你想通过其它地区的Hath客户端加载图片（例如你正在使用分割隧道 VPN），你可以在下方选择另一个国家。";
+"You appear to be browsing the site from **PLACEHOLDER** or use a VPN or proxy in this country, which means the site will try to load images from Hath clients in this general geographic region. If this is incorrect, or if you want to use a different region for any reason (like if you are using a split tunneling VPN), you can select a different country below." = "你似乎正在 **PLACEHOLDER** 浏览此网页，或是使用了一个来自这个国家的 VPN 或代理，这意味着网站将尝试通过在此区域的 Hath 客户端加载图片。如果该结果不正确，或你想通过其它地区的 Hath 客户端加载图片（例如你正在使用分割隧道 VPN），你可以在下方选择另一个国家。";
 "Browsing country" = "浏览国家";
 
 "Image Size Settings" = "图片尺寸设置";
@@ -217,11 +224,11 @@
 "Thumbnail" = "缩略图";
 "Extended" = "扩展";
 "Minimal" = "最小化";
-"Minimal+" = "最小化+";
+"Minimal+" = "最小化 +";
 "What categories would you like to show by default on the front page and in searches?" = "你希望在首页上看到哪些类别？";
 
 "Here you can choose and rename your favorite categories." = "在这里你可以重命名你的收藏夹。";
-"You can also select your default sort order for galleries on your favorites page. Note that favorites added prior to the March 2016 revamp did not store a timestamp, and will use the gallery posted time regardless of this setting." = "你也可以选择收藏夹中默认排序。注意：2016年3月改版之前加入收藏夹的画廊并未保存收藏时间，会以画廊发布时间代替。";
+"You can also select your default sort order for galleries on your favorites page. Note that favorites added prior to the March 2016 revamp did not store a timestamp, and will use the gallery posted time regardless of this setting." = "你也可以选择收藏夹中默认排序。注意：2016 年 3 月改版之前加入收藏夹的画廊并未保存收藏时间，会以画廊发布时间代替。";
 "Favorites sort order" = "收藏排序方式";
 "By last gallery update time" = "按更新时间";
 "By favorited time" = "按收藏时间";
@@ -290,9 +297,9 @@
 "Gallery Page Numbering" = "画廊页面页码";
 "Show gallery page numbers" = "显示画廊页码";
 
-"Hath Local Network Host" = "Hath本地网络服务器";
-"This setting can be used if you have a Hath client running on your local network with the same public IP you browse the site with. Some routers are buggy and cannot route requests back to its own IP; this allows you to work around this problem.\nIf you are running the client on the same device you browse from, use the loopback address (127.0.0.1:port). If the client is running on another device on your network, use its local network IP. Some browser configurations prevent external web sites from accessing URLs with local network IPs, the site must then be whitelisted for this to work." = "如果你本地安装了Hath客户端，本地 IP 与浏览网站的公共 IP 相同，一些路由器不支持回流导致无法访问到自己，你可以设置这里来解决。\n如果在同一台设备上访问网站和运行客户端，请使用本地回环地址(127.0.0.1:端口号)。如果客户端在网络上的其它设备运行，请使用那台机器的内网 IP。某些浏览器的配置可能阻止外部网站访问本地网络，你必须将网站列入白名单才能工作。";
-"IP address:Port" = "IP地址:端口";
+"Hath Local Network Host" = "Hath 本地网络服务器";
+"This setting can be used if you have a Hath client running on your local network with the same public IP you browse the site with. Some routers are buggy and cannot route requests back to its own IP; this allows you to work around this problem.\nIf you are running the client on the same device you browse from, use the loopback address (127.0.0.1:port). If the client is running on another device on your network, use its local network IP. Some browser configurations prevent external web sites from accessing URLs with local network IPs, the site must then be whitelisted for this to work." = "如果你本地安装了 Hath 客户端，本地 IP 与浏览网站的公共 IP 相同，一些路由器不支持回流导致无法访问到自己，你可以设置这里来解决。\n如果在同一台设备上访问网站和运行客户端，请使用本地回环地址 (127.0.0.1:端口号)。如果客户端在网络上的其它设备运行，请使用那台机器的内网 IP。某些浏览器的配置可能阻止外部网站访问本地网络，你必须将网站列入白名单才能工作。";
+"IP address:Port" = "IP 地址:端口";
 
 "Original Images" = "原始图像";
 "Use original images" = "显示原图";
@@ -307,7 +314,7 @@
 // MARK: LogsView
 "Logs" = "日志";
 "Latest" = "最新";
-"%lld records" = "%lld条记录";
+"%lld records" = "%lld 条记录";
 
 // MARK: FilterView
 "Filters" = "筛选";
@@ -327,7 +334,7 @@
 "Show expunged galleries" = "显示已被删除的画廊";
 "Set minimum rating" = "设定评分下限";
 "Minimum rating" = "评分下限";
-"%lld stars" = "%lld星";
+"%lld stars" = "%lld 星";
 "Set pages range" = "设定页数范围";
 "Pages range" = "页数范围";
 "Default Filter" = "默认筛选";
@@ -364,7 +371,7 @@
 "Doujinshi" = "同人志";
 "Manga" = "漫画";
 "Artist CG" = "插画";
-"Game CG" = "游戏CG";
+"Game CG" = "游戏 CG";
 "Western" = "西方";
 "Non-H" = "健康";
 "Image Set" = "照片集";
@@ -396,11 +403,11 @@
 // MARK: AutoLockPolicy
 "Never" = "不锁定";
 "Instantly" = "立即";
-"15 seconds" = "15秒";
-"1 minute" = "1分钟";
-"5 minutes" = "5分钟";
-"10 minutes" = "10分钟";
-"30 minutes" = "30分钟";
+"15 seconds" = "15 秒";
+"1 minute" = "1 分钟";
+"5 minutes" = "5 分钟";
+"10 minutes" = "10 分钟";
+"30 minutes" = "30 分钟";
 
 // MARK: Language
 "Other" = "其它";

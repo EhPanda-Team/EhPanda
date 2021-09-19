@@ -40,6 +40,13 @@
 //"Please try again later." = "";
 //"This gallery has been removed or is unavailable." = "";
 //"This gallery is unavailable due to a copyright claim by PLACEHOLDER. Sorry about that." = "";
+//"Your IP address has been temporarily banned for excessive pageloads which indicates that you are using automated mirroring / harvesting software." = "";
+//"The ban expires in PLACEHOLDER." = "";
+//"BAN_INTERVAL_AND" = "";
+//"BAN_INTERVAL_DAYS" = "";
+//"BAN_INTERVAL_HOURS" = "";
+//"BAN_INTERVAL_MINUTES" = "";
+//"BAN_INTERVAL_SECONDS" = "";
 
 // MARK: DetailView
 "Archive" = "Archiv";

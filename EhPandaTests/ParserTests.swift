@@ -45,7 +45,7 @@ class ListParserTests: XCTestCase, TestHelper {
 
         tuples.forEach { type, document in
             XCTAssertEqual(
-                Parser.parseListItems(doc: document).count,
+                try! Parser.parseListItems(doc: document).count,
                 type.assertCount, type.rawValue
             )
         }
@@ -97,5 +97,15 @@ class GreetingParserTests: XCTestCase, TestHelper {
         XCTAssertNotNil(greeting.updateTime)
         XCTAssertFalse(greeting.gainedNothing)
         XCTAssertNotNil(greeting.gainContent)
+    }
+}
+
+// MARK: BanInterval
+class BanIntervalParserTests: XCTestCase, TestHelper {
+    func testExample() {
+        let banInterval = Parser.parseBanInterval(
+            doc: getHTML(resourceName: "IPBanned")!
+        )
+        XCTAssertEqual(banInterval, .minutes(59, seconds: 48))
     }
 }

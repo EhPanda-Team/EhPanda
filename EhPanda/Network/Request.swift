@@ -168,7 +168,7 @@ struct SearchItemsRequest {
             for: Defaults.URL.searchList(keyword: keyword, filter: filter).safeURL()
         )
         .genericRetry().tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-        .map { (Parser.parsePageNum(doc: $0), Parser.parseListItems(doc: $0)) }
+        .tryMap { (Parser.parsePageNum(doc: $0), try Parser.parseListItems(doc: $0)) }
         .mapError(mapAppError).eraseToAnyPublisher()
     }
 }
@@ -184,7 +184,7 @@ struct MoreSearchItemsRequest {
             keyword: keyword, filter: filter, pageNum: "\(pageNum)", lastID: lastID
         ).safeURL())
         .genericRetry().tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-        .map { (Parser.parsePageNum(doc: $0), Parser.parseListItems(doc: $0)) }
+        .tryMap { (Parser.parsePageNum(doc: $0), try Parser.parseListItems(doc: $0)) }
         .mapError(mapAppError).eraseToAnyPublisher()
     }
 }
@@ -193,7 +193,7 @@ struct FrontpageItemsRequest {
     var publisher: AnyPublisher<(PageNumber, [Gallery]), AppError> {
         URLSession.shared.dataTaskPublisher(for: Defaults.URL.frontpageList().safeURL())
             .genericRetry().tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-            .map { (Parser.parsePageNum(doc: $0), Parser.parseListItems(doc: $0)) }
+            .tryMap { (Parser.parsePageNum(doc: $0), try Parser.parseListItems(doc: $0)) }
             .mapError(mapAppError).eraseToAnyPublisher()
     }
 }
@@ -207,7 +207,7 @@ struct MoreFrontpageItemsRequest {
             pageNum: "\(pageNum)", lastID: lastID
         ).safeURL())
         .genericRetry().tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-        .map { (Parser.parsePageNum(doc: $0), Parser.parseListItems(doc: $0)) }
+        .tryMap { (Parser.parsePageNum(doc: $0), try Parser.parseListItems(doc: $0)) }
         .mapError(mapAppError).eraseToAnyPublisher()
     }
 }
@@ -216,7 +216,7 @@ struct PopularItemsRequest {
     var publisher: AnyPublisher<[Gallery], AppError> {
         URLSession.shared.dataTaskPublisher(for: Defaults.URL.popularList().safeURL())
             .genericRetry().tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-            .map(Parser.parseListItems).mapError(mapAppError).eraseToAnyPublisher()
+            .tryMap(Parser.parseListItems).mapError(mapAppError).eraseToAnyPublisher()
     }
 }
 
@@ -224,7 +224,7 @@ struct WatchedItemsRequest {
     var publisher: AnyPublisher<(PageNumber, [Gallery]), AppError> {
         URLSession.shared.dataTaskPublisher(for: Defaults.URL.watchedList().safeURL())
             .genericRetry().tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-            .map { (Parser.parsePageNum(doc: $0), Parser.parseListItems(doc: $0)) }
+            .tryMap { (Parser.parsePageNum(doc: $0), try Parser.parseListItems(doc: $0)) }
             .mapError(mapAppError).eraseToAnyPublisher()
     }
 }
@@ -238,7 +238,7 @@ struct MoreWatchedItemsRequest {
             pageNum: "\(pageNum)", lastID: lastID
         ).safeURL())
         .genericRetry().tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-        .map { (Parser.parsePageNum(doc: $0), Parser.parseListItems(doc: $0)) }
+        .tryMap { (Parser.parsePageNum(doc: $0), try Parser.parseListItems(doc: $0)) }
         .mapError(mapAppError).eraseToAnyPublisher()
     }
 }
@@ -251,7 +251,7 @@ struct FavoritesItemsRequest {
             for: Defaults.URL.favoritesList(favIndex: favIndex).safeURL()
         )
         .genericRetry().tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-        .map { (Parser.parsePageNum(doc: $0), Parser.parseListItems(doc: $0)) }
+        .tryMap { (Parser.parsePageNum(doc: $0), try Parser.parseListItems(doc: $0)) }
         .mapError(mapAppError).eraseToAnyPublisher()
     }
 }
@@ -266,7 +266,7 @@ struct MoreFavoritesItemsRequest {
             favIndex: favIndex, pageNum: "\(pageNum)", lastID: lastID
         ).safeURL())
         .genericRetry().tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-        .map { (Parser.parsePageNum(doc: $0), Parser.parseListItems(doc: $0)) }
+        .tryMap { (Parser.parsePageNum(doc: $0), try Parser.parseListItems(doc: $0)) }
         .mapError(mapAppError).eraseToAnyPublisher()
     }
 }
@@ -279,7 +279,7 @@ struct ToplistsItemsRequest {
             for: Defaults.URL.toplistsList(catIndex: catIndex).safeURL()
         )
         .genericRetry().tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-        .map { (Parser.parsePageNum(doc: $0), Parser.parseListItems(doc: $0)) }
+        .tryMap { (Parser.parsePageNum(doc: $0), try Parser.parseListItems(doc: $0)) }
         .mapError(mapAppError).eraseToAnyPublisher()
     }
 }
@@ -293,7 +293,7 @@ struct MoreToplistsItemsRequest {
             catIndex: catIndex, pageNum: "\(pageNum)"
         ).safeURL())
         .genericRetry().tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-        .map { (Parser.parsePageNum(doc: $0), Parser.parseListItems(doc: $0)) }
+        .tryMap { (Parser.parsePageNum(doc: $0), try Parser.parseListItems(doc: $0)) }
         .mapError(mapAppError).eraseToAnyPublisher()
     }
 }

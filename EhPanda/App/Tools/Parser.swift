@@ -9,10 +9,11 @@ import Kanna
 import UIKit
 import Foundation
 import SwiftUI
+import SwiftyBeaver
 
 struct Parser {
     // MARK: List
-    static func parseListItems(doc: HTMLDocument) -> [Gallery] {
+    static func parseListItems(doc: HTMLDocument) throws -> [Gallery] {
         func parseCoverURL(node: XMLElement?) throws -> String {
             guard let node = node?.at_xpath("//div [@class='glthumb']")?.at_css("img")
             else { throw AppError.parseFailed }
@@ -126,6 +127,10 @@ struct Parser {
                     galleryURL: galleryURL
                 )
             )
+        }
+
+        if galleryItems.isEmpty, let banInterval = parseBanInterval(doc: doc) {
+            throw AppError.ipBanned(interval: banInterval)
         }
 
         return galleryItems
@@ -378,6 +383,8 @@ struct Parser {
                 } else {
                     throw AppError.expunged(reason: reason)
                 }
+            } else if let banInterval = parseBanInterval(doc: doc) {
+                throw AppError.ipBanned(interval: banInterval)
             } else {
                 throw AppError.parseFailed
             }
@@ -1507,5 +1514,54 @@ extension Parser {
         let rippedText = string.replacingOccurrences(of: hexStart + wrappedHex + hexEnd, with: "")
 
         return (rippedText, wrappedHex)
+    }
+
+    // MARK: parseBanInterval
+    static func parseBanInterval(doc: HTMLDocument) -> BanInterval? {
+        guard let text = doc.body?.text, let range = text.range(of: "The ban expires in ")
+        else { return nil }
+
+        let expireDescription = String(text[range.upperBound...])
+        guard let andRange = expireDescription.range(of: "and") else {
+            SwiftyBeaver.error(
+                "Unrecognized BanInterval format", context: [
+                    "expireDescription": expireDescription
+                ]
+            )
+            return .unrecognized(content: expireDescription)
+        }
+
+        if let daysRange = expireDescription.range(of: "days"),
+           let hoursRange = expireDescription.range(of: "hours"),
+           let days = Int(expireDescription[..<daysRange.lowerBound]
+                            .trimmingCharacters(in: .whitespaces)),
+           let hours = Int(expireDescription[andRange.upperBound..<hoursRange.lowerBound]
+                            .trimmingCharacters(in: .whitespaces))
+        {
+            return .days(days, hours: hours)
+        } else if let hoursRange = expireDescription.range(of: "hours"),
+                  let minutesRange = expireDescription.range(of: "minutes"),
+                  let hours = Int(expireDescription[..<hoursRange.lowerBound]
+                                    .trimmingCharacters(in: .whitespaces)),
+                  let minutes = Int(expireDescription[andRange.upperBound..<minutesRange.lowerBound]
+                                        .trimmingCharacters(in: .whitespaces))
+        {
+            return .hours(hours, minutes: minutes)
+        } else if let minutesRange = expireDescription.range(of: "minutes"),
+                  let secondsRange = expireDescription.range(of: "seconds"),
+                  let minutes = Int(expireDescription[..<minutesRange.lowerBound]
+                                        .trimmingCharacters(in: .whitespaces)),
+                  let seconds = Int(expireDescription[andRange.upperBound..<secondsRange.lowerBound]
+                                        .trimmingCharacters(in: .whitespaces))
+        {
+            return .minutes(minutes, seconds: seconds)
+        } else {
+            SwiftyBeaver.error(
+                "Unrecognized BanInterval format", context: [
+                    "expireDescription": expireDescription
+                ]
+            )
+            return .unrecognized(content: expireDescription)
+        }
     }
 }
