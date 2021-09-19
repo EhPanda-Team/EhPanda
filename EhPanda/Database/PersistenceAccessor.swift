@@ -120,16 +120,19 @@ extension PersistenceController {
             entityType: GalleryDetailMO.self,
             gid: detail.gid
         ) { managedObject in
-            managedObject?.isFavored = detail.isFavored
-            managedObject?.archiveURL = detail.archiveURL
+            managedObject?.title = detail.title
             managedObject?.jpnTitle = detail.jpnTitle
+            managedObject?.isFavored = detail.isFavored
+            managedObject?.visibility = detail.visibility.toData()
+            managedObject?.rating = detail.rating
+            managedObject?.userRating = detail.userRating
+            managedObject?.ratingCount = Int64(detail.ratingCount)
+            managedObject?.archiveURL = detail.archiveURL
+            managedObject?.parentURL = detail.parentURL
             managedObject?.favoredCount = Int64(detail.favoredCount)
             managedObject?.pageCount = Int64(detail.pageCount)
             managedObject?.sizeCount = detail.sizeCount
             managedObject?.sizeType = detail.sizeType
-            managedObject?.rating = detail.rating
-            managedObject?.userRating = detail.userRating
-            managedObject?.ratingCount = Int64(detail.ratingCount)
             managedObject?.torrentCount = Int64(detail.torrentCount)
         }
         if storedMO == nil {

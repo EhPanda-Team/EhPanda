@@ -8,7 +8,7 @@
 
 // MARK: Response
 "You must have a H@H client assigned to your account to use this feature." = "この機能を使うには、アカウントに関連付けられているHathクライアントが必要です";
-"Your H@H client appears to be offline. Turn it on, then try again." = "Hathクライアントは現在オフラインのようです、起動してからもう一度お試しください";
+"Your H@H client appears to be offline. Turn it on, then try again." = "Hath クライアントは現在オフラインのようです、起動してからもう一度お試しください";
 "The requested gallery cannot be downloaded with the selected resolution." = "このギャラリーは選択された解像度ではダウンロードできません";
 
 // MARK: HUD
@@ -38,7 +38,15 @@
 "A parsing error occurred." = "解析中に問題が発生しました";
 "An unknown error occurred." = "不明なエラーが発生しました";
 "Please try again later." = "しばらくしてからもう一度お試しください";
-"This gallery is unavailable due to a copyright claim by PLACEHOLDER. Sorry about that." = "申し訳ありませんが、このギャラリーはPLACEHOLDERの著作権主張によってアクセス不可になっています。";
+"This gallery has been removed or is unavailable." = "このギャラリーはすでに削除済みまたは無効です。";
+"This gallery is unavailable due to a copyright claim by PLACEHOLDER. Sorry about that." = "申し訳ありませんが、このギャラリーは PLACEHOLDER の著作権主張によってアクセス不可になっています。";
+"Your IP address has been temporarily banned for excessive pageloads which indicates that you are using automated mirroring / harvesting software." = "この IP アドレスを経由して過剰なページロードが行われました。クローラの疑いがあるため、この IP アドレスは一時的にブロックされました。";
+"The ban expires in PLACEHOLDER." = "ブロックは PLACEHOLDER 後に解除されます。";
+"BAN_INTERVAL_AND" = " ";
+"BAN_INTERVAL_DAYS" = " 日";
+"BAN_INTERVAL_HOURS" = " 時間";
+"BAN_INTERVAL_MINUTES" = " 分";
+"BAN_INTERVAL_SECONDS" = " 秒";
 
 // MARK: DetailView
 "Archive" = "アーカイブ";
@@ -48,7 +56,7 @@
 "DESC_SCROLL_ITEM_FAVORITED" = "気に入り";
 "Times" = "人";
 "Language" = "言語";
-"%lld Ratings" = "%lld件の評価";
+"%lld Ratings" = "%lld 件の評価";
 "Page Count" = "ページ数";
 "Pages" = "ページ";
 "File Size" = "ファイルサイズ";
@@ -62,7 +70,7 @@
 "N/A" = "無効";
 "Free" = "無料";
 "ARCHIVE_RESOLUTION_ORIGINAL" = "オリジナル";
-"Download To Hath Client" = "Hathクライアントにダウンロード";
+"Download To Hath Client" = "Hath クライアントにダウンロード";
 
 // MARK: GalleryInfosView
 "Gallery infos" = "ギャラリー情報";
@@ -146,8 +154,8 @@
 "Right-to-left" = "右開き";
 "Left-to-right" = "左開き";
 "Preload limit" = "プリロード上限数";
-"%lld pages" = "%lldページ";
-"%lld times" = "%lld回";
+"%lld pages" = "%lld ページ";
+"%lld times" = "%lld 回";
 "Prefers landscape" = "横向きを好む";
 "Separator height" = "仕切りの厚さ";
 "Maximum scale factor" = "最大スケール係数";
@@ -156,12 +164,12 @@
 "Except the cover" = "カバーを除く";
 
 "Laboratory" = "ラボ";
-"Bypass SNI Filtering" = "SNIフィルタリング回避";
+"Bypass SNI Filtering" = "SNI フィルタリング回避";
 
-"About EhPanda" = "EhPandaについて";
+"About EhPanda" = "EhPanda について";
 "Version" = "バージョン";
 "Website" = "ウェブサイト";
-"AltStore Source" = "AltStoreソース";
+"AltStore Source" = "AltStore ソース";
 "Acknowledgement" = "謝辞";
 
 // MARK: EhSettingView
@@ -178,15 +186,15 @@
 "Recommended." = "推奨。";
 "Can be slower. Enable if behind firewall/proxy that blocks outgoing non-standard ports." = "遅くなることがあります。非標準発信ポートがファイヤーウォール・プロキシにブロックされた場合のみ有効にしてください。";
 "Donator only. You will not be able to browse as many pages, enable only if having severe problems." = "寄付者独占オプション。閲覧による割当額の消耗は激しくなります、厳重な問題が起こった場合のみ有効にしてください。";
-"Load images through the Hath network" = "Hathネットワーク経由で画像を読み込む";
+"Load images through the Hath network" = "Hath ネットワーク経由で画像を読み込む";
 "Any client" = "任意のクライアント";
 "Default port clients only" = "デフォルトポートのクライアントのみ";
 "LOAD_THROUGH_HATH_NO" = "使わない";
-"You appear to be browsing the site from **PLACEHOLDER** or use a VPN or proxy in this country, which means the site will try to load images from Hath clients in this general geographic region. If this is incorrect, or if you want to use a different region for any reason (like if you are using a split tunneling VPN), you can select a different country below." = "**PLACEHOLDER** から本サイトを閲覧している、またはその国のVPN・プロキシを使用しているようです。本サイトはその地域のHathクライアントから画像を読み込もうとしますが、もし自動検知の結果が誤っている、または特別な事情でほかの地域のクライアントを希望する場合（例えばスプリットトンネルVPNを使用している）は下に手動選択できます。";
+"You appear to be browsing the site from **PLACEHOLDER** or use a VPN or proxy in this country, which means the site will try to load images from Hath clients in this general geographic region. If this is incorrect, or if you want to use a different region for any reason (like if you are using a split tunneling VPN), you can select a different country below." = "**PLACEHOLDER** から本サイトを閲覧している、またはその国の VPN・プロキシを使用しているようです。本サイトはその地域の Hath クライアントから画像を読み込もうとしますが、もし自動検知の結果が誤っている、または特別な事情でほかの地域のクライアントを希望する場合（例えばスプリットトンネル VPN を使用している）は下に手動選択できます。";
 "Browsing country" = "閲覧国";
 
 "Image Size Settings" = "画像サイズ設定";
-"Normally, images are resampled to 1280 pixels of horizontal resolution for online viewing. You can alternatively select one of the following resample resolutions. To avoid murdering the staging servers, resolutions above 1280x are temporarily restricted to donators, people with any hath perk, and people with a UID below 3,000,000." = "一般的に、オンライン閲覧の画像は1280xまでにリサンプリングされます。下のいずれかのリサンプリング解像度に変更できます。サーバー負荷軽減のため、1280x以上の解像度は現時点で寄付者、Hath Perks利用者またはUIDが3,000,000以下の者に限定されます。";
+"Normally, images are resampled to 1280 pixels of horizontal resolution for online viewing. You can alternatively select one of the following resample resolutions. To avoid murdering the staging servers, resolutions above 1280x are temporarily restricted to donators, people with any hath perk, and people with a UID below 3,000,000." = "一般的に、オンライン閲覧の画像は 1280x までにリサンプリングされます。下のいずれかのリサンプリング解像度に変更できます。サーバー負荷軽減のため、1280x 以上の解像度は現時点で寄付者、Hath Perks 利用者または UID が 3,000,000 以下の者に限定されます。";
 "Image resolution" = "画像解像度";
 "Auto" = "自動";
 "While the site will automatically scale down images to fit your screen width, you can also manually restrict the maximum display size of an image. Like the automatic scaling, this does not resample the image, as the resizing is done browser-side. (0 = no limit)" = "サイト側は画像を自動的にスクリーンに適したサイズにスケールしますが、手動的にその画像の表示サイズ最大値を指定することも可能です。ブラウザが処理を実行するため、画像のリサンプリングは行われません。（ゼロは無制限を意味します）";
@@ -226,17 +234,17 @@
 "By favorited time" = "気に入った時間の新しい順";
 
 "Ratings" = "評価";
-"By default, galleries that you have rated will appear with red stars for ratings of 2 stars and below, green for ratings between 2.5 and 4 stars, and blue for ratings of 4.5 or 5 stars. You can customize this by entering your desired color combination below. Each letter represents one star. The default RRGGB means R(ed) for the first and second star, G(reen) for the third and fourth, and B(lue) for the fifth. You can also use (Y)ellow for the normal stars. Any five-letter R/G/B/Y combo works." = "デフォルトでは、評価済みのギャラリーは2以下の評価に赤い星を使う、2.5 ~ 4には緑、4.5以上には青。下に色の組み合わせを入れることでこのルールをカスタマイズできます。一つの星の色は一つの文字で指定します。デフォルトの「RRGGB」は「一番目と二番目の星は赤（Red）、三番と四番は緑（Green）、五番は青（Blue）」を意味します。黄色（Yellow）も使用可能です。R・G・B・Yで組み合わせた五文字はどれも機能します。";
+"By default, galleries that you have rated will appear with red stars for ratings of 2 stars and below, green for ratings between 2.5 and 4 stars, and blue for ratings of 4.5 or 5 stars. You can customize this by entering your desired color combination below. Each letter represents one star. The default RRGGB means R(ed) for the first and second star, G(reen) for the third and fourth, and B(lue) for the fifth. You can also use (Y)ellow for the normal stars. Any five-letter R/G/B/Y combo works." = "デフォルトでは、評価済みのギャラリーは 2 以下の評価に赤い星を使う、2.5 ~ 4 には緑、4.5 以上には青。下に色の組み合わせを入れることでこのルールをカスタマイズできます。一つの星の色は一つの文字で指定します。デフォルトの「RRGGB」は「一番目と二番目の星は赤（Red）、三番と四番は緑（Green）、五番は青（Blue）」を意味します。黄色（Yellow）も使用可能です。R・G・B・Yで組み合わせた五文字はどれも機能します。";
 "Ratings color" = "評価の色";
 
 "Tag Namespaces" = "タグの名前空間";
 "If you want to exclude certain namespaces from a default tag search, you can check those below. Note that this does not prevent galleries with tags in these namespaces from appearing, it just makes it so that when searching tags, it will forego those namespaces." = "下にある名前空間を削除仕様にすることで通常のタグ検索結果から排除できます。注意：排除された名前空間のタグを持つギャラリーが表示されなくなることはありません。";
 
 "Tag Filtering Threshold" = "タグフィルタリングしきい値";
-"You can soft filter tags by adding them to My Tags with a negative weight. If a gallery has tags that add up to weight below this value, it is filtered from view. This threshold can be set between 0 and -9999." = "負の重み付きでマイタグに追加することでタグをソフトフィルタリングすることができます。もしあるギャラリーが持つタグの重み総和がこのしきい値より低ければ、そのギャラリーはフィルタリングされます。このしきい値はゼロから-9999まで設定できます。";
+"You can soft filter tags by adding them to My Tags with a negative weight. If a gallery has tags that add up to weight below this value, it is filtered from view. This threshold can be set between 0 and -9999." = "負の重み付きでマイタグに追加することでタグをソフトフィルタリングすることができます。もしあるギャラリーが持つタグの重み総和がこのしきい値より低ければ、そのギャラリーはフィルタリングされます。このしきい値はゼロから -9999 まで設定できます。";
 
 "Tag Watching Threshold" = "タグ購読しきい値";
-"Recently uploaded galleries will be included on the watched screen if it has at least one watched tag with positive weight, and the sum of weights on its watched tags add up to this value or higher. This threshold can be set between 0 and 9999." = "もしあるギャラリーは最近投稿されたもので、少なくても一つの正の重みの購読タグを持っていて、購読タグの重み総和がこのしきい値と同じまたはより高ければ、そのギャラリーは購読画面で表示されます。このしきい値はゼロから9999まで設定できます。";
+"Recently uploaded galleries will be included on the watched screen if it has at least one watched tag with positive weight, and the sum of weights on its watched tags add up to this value or higher. This threshold can be set between 0 and 9999." = "もしあるギャラリーは最近投稿されたもので、少なくても一つの正の重みの購読タグを持っていて、購読タグの重み総和がこのしきい値と同じまたはより高ければ、そのギャラリーは購読画面で表示されます。このしきい値はゼロから 9999 まで設定できます。";
 
 "Excluded Languages" = "排除された言語";
 "If you wish to hide galleries in certain languages from the gallery list and searches, select them from the list below. Note that matching galleries will never appear regardless of your search query." = "特定の言語のギャラリーをリストと検索結果から隠したい場合、下に選択してください。注意：どんな検索クエリーを使ってもこれらの言語のギャラリーは表示されません。";
@@ -265,11 +273,11 @@
 "Rows" = "行数";
 
 "Thumbnail Scaling" = "サムネイルスケーリング";
-"Thumbnails on the thumbnail and extended gallery list views can be scaled to a custom value between 75% and 150%." = "サムネイル・拡張表示モードでのサムネイルを75% ~ 150%のカスタム値にスケールすることができます。";
+"Thumbnails on the thumbnail and extended gallery list views can be scaled to a custom value between 75% and 150%." = "サムネイル・拡張表示モードでのサムネイルを 75% ~ 150% のカスタム値にスケールすることができます。";
 "Scale factor" = "スケール係数";
 
 "Viewport Override" = "表示領域オーバーライド";
-"Allows you to override the virtual width of the site for mobile devices. This is normally determined automatically by your device based on its DPI. Sensible values at 100% thumbnail scale are between 640 and 1400." = "モバイルデバイスの仮想広さをオーバーライドすることができます。一般的にはデバイスのDPIに基づいて自動的に決定されます。例えばサムネイルスケール係数が100%の場合、640 ~ 1400の広さが合理的です。";
+"Allows you to override the virtual width of the site for mobile devices. This is normally determined automatically by your device based on its DPI. Sensible values at 100% thumbnail scale are between 640 and 1400." = "モバイルデバイスの仮想広さをオーバーライドすることができます。一般的にはデバイスの DPI に基づいて自動的に決定されます。例えばサムネイルスケール係数が 100% の場合、640 ~ 1400 の広さが合理的です。";
 "Virtual width" = "仮想広さ";
 
 "Gallery Comments" = "ギャラリーコメント";
@@ -290,8 +298,8 @@
 "Show gallery page numbers" = "ギャラリーページ数を表示";
 
 "Hath Local Network Host" = "Hathローカルネットワークホスト";
-"This setting can be used if you have a Hath client running on your local network with the same public IP you browse the site with. Some routers are buggy and cannot route requests back to its own IP; this allows you to work around this problem.\nIf you are running the client on the same device you browse from, use the loopback address (127.0.0.1:port). If the client is running on another device on your network, use its local network IP. Some browser configurations prevent external web sites from accessing URLs with local network IPs, the site must then be whitelisted for this to work." = "ローカルネットワークで今と同じパブリックIPを使うHathクライアントがお持ちの場合、この設定が役立ちます。ルーターがバグが多くてリクエストを自分のIPにルートすることができないこともあります、それをこの設定で回避できます。\nHathクライアントが今と同じデバイスで運行している場合はループバックアドレス（127.0.0.1:ポート）を使ってください。別のデバイスの場合はそのローカルIPを使ってください。かなりのブラウザの構成では外部サイトがローカルIPにアクセスすることをブロックしています、この設定を有効にするには本サイトをホワイトリストに入れてください。";
-"IP address:Port" = "IPアドレス:ポート";
+"This setting can be used if you have a Hath client running on your local network with the same public IP you browse the site with. Some routers are buggy and cannot route requests back to its own IP; this allows you to work around this problem.\nIf you are running the client on the same device you browse from, use the loopback address (127.0.0.1:port). If the client is running on another device on your network, use its local network IP. Some browser configurations prevent external web sites from accessing URLs with local network IPs, the site must then be whitelisted for this to work." = "ローカルネットワークで今と同じパブリック IP を使う Hath クライアントがお持ちの場合、この設定が役立ちます。ルーターがバグが多くてリクエストを自分の IP にルートすることができないこともあります、それをこの設定で回避できます。\nHath クライアントが今と同じデバイスで運行している場合はループバックアドレス（127.0.0.1:ポート）を使ってください。別のデバイスの場合はそのローカル IP を使ってください。かなりのブラウザの構成では外部サイトがローカル IP にアクセスすることをブロックしています、この設定を有効にするには本サイトをホワイトリストに入れてください。";
+"IP address:Port" = "IP アドレス:ポート";
 
 "Original Images" = "オリジナル画像";
 "Use original images" = "オリジナル画像を使う";
@@ -306,7 +314,7 @@
 // MARK: LogsView
 "Logs" = "ログ";
 "Latest" = "最新";
-"%lld records" = "%lld件のレコード";
+"%lld records" = "%lld 件のレコード";
 
 // MARK: FilterView
 "Filters" = "フィルター";
@@ -326,7 +334,7 @@
 "Show expunged galleries" = "削除済みのギャラリーを表示";
 "Set minimum rating" = "評価の下限を指定";
 "Minimum rating" = "評価の下限";
-"%lld stars" = "%lldつ星";
+"%lld stars" = "%lld つ星";
 "Set pages range" = "ページ数範囲を指定";
 "Pages range" = "ページ数範囲";
 "Default Filter" = "既定フィルター";
@@ -363,7 +371,7 @@
 "Doujinshi" = "同人誌";
 "Manga" = "漫画";
 "Artist CG" = "イラスト";
-"Game CG" = "ゲームCG";
+"Game CG" = "ゲーム CG";
 "Western" = "西洋";
 "Non-H" = "健全";
 "Image Set" = "画像集";
@@ -395,11 +403,11 @@
 // MARK: AutoLockPolicy
 "Never" = "なし";
 "Instantly" = "すぐに";
-"15 seconds" = "15秒";
-"1 minute" = "1分";
-"5 minutes" = "5分";
-"10 minutes" = "10分";
-"30 minutes" = "30分";
+"15 seconds" = "15 秒";
+"1 minute" = "1 分";
+"5 minutes" = "5 分";
+"10 minutes" = "10 分";
+"30 minutes" = "30 分";
 
 // MARK: Language
 "Other" = "その他";

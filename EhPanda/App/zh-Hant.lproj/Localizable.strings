@@ -7,8 +7,8 @@
 */
 
 // MARK: Response
-"You must have a H@H client assigned to your account to use this feature." = "你需要一個關聯到帳號的Hath客戶端才能使用這個功能";
-"Your H@H client appears to be offline. Turn it on, then try again." = "你的Hath客戶端為離線狀態，請啓動後再試";
+"You must have a H@H client assigned to your account to use this feature." = "你需要一個關聯到帳號的 Hath 客戶端才能使用這個功能";
+"Your H@H client appears to be offline. Turn it on, then try again." = "你的 Hath 客戶端為離線狀態，請啓動後再試";
 "The requested gallery cannot be downloaded with the selected resolution." = "該畫廊不能以選定的解析度下載";
 
 // MARK: HUD
@@ -18,7 +18,7 @@
 "Copied to clipboard" = "已複製到剪貼簿";
 
 // MARK: LockView
-"The App has been locked due to the auto-lock expiration." = "因超過自動鎖定期限，App已被鎖定";
+"The App has been locked due to the auto-lock expiration." = "因超過自動鎖定期限，App 已被鎖定";
 
 // MARK: Common
 "null" = "無內容";
@@ -38,7 +38,15 @@
 //"A parsing error occurred." = "";
 //"An unknown error occurred." = "";
 "Please try again later." = "請稍後再試";
+//"This gallery has been removed or is unavailable." = "";
 //"This gallery is unavailable due to a copyright claim by PLACEHOLDER. Sorry about that." = "";
+//"Your IP address has been temporarily banned for excessive pageloads which indicates that you are using automated mirroring / harvesting software." = "";
+//"The ban expires in PLACEHOLDER." = "";
+//"BAN_INTERVAL_AND" = "";
+//"BAN_INTERVAL_DAYS" = "";
+//"BAN_INTERVAL_HOURS" = "";
+//"BAN_INTERVAL_MINUTES" = "";
+//"BAN_INTERVAL_SECONDS" = "";
 
 // MARK: DetailView
 "Archive" = "封存";
@@ -48,7 +56,7 @@
 "DESC_SCROLL_ITEM_FAVORITED" = "收藏";
 "Times" = "次";
 "Language" = "語言";
-"%lld Ratings" = "%lld個評分";
+"%lld Ratings" = "%lld 個評分";
 "Page Count" = "頁數";
 "Pages" = "頁";
 "File Size" = "文件大小";
@@ -62,7 +70,7 @@
 "N/A" = "不適用";
 "Free" = "免費";
 "ARCHIVE_RESOLUTION_ORIGINAL" = "原始解析度";
-"Download To Hath Client" = "下載到Hath客戶端";
+"Download To Hath Client" = "下載到 Hath 客戶端";
 
 // MARK: GalleryInfosView
 //"Gallery infos" = "";
@@ -114,7 +122,7 @@
 "Are you sure to logout?" = "確定要登出嗎？";
 "Are you sure to clear?" = "確定要清空嗎？";
 "Clear" = "清空";
-"Copy cookies" = "複製Cookies";
+"Copy cookies" = "複製 Cookies";
 
 "General" = "一般";
 "Navigation" = "導航";
@@ -146,8 +154,8 @@
 "Right-to-left" = "右至左";
 "Left-to-right" = "左至右";
 "Preload limit" = "預先載入數量上限";
-"%lld pages" = "%lld頁";
-"%lld times" = "%lld次";
+"%lld pages" = "%lld 頁";
+"%lld times" = "%lld 次";
 //"Prefers landscape" = "";
 "Separator height" = "分隔線高度";
 "Maximum scale factor" = "縮放上限";
@@ -156,12 +164,12 @@
 "Except the cover" = "封面除外";
 
 "Laboratory" = "實驗室";
-"Bypass SNI Filtering" = "域前置繞過SNI阻斷";
+"Bypass SNI Filtering" = "域前置繞過 SNI 阻斷";
 
-"About EhPanda" = "關於EhPanda";
+"About EhPanda" = "關於 EhPanda";
 "Version" = "版本";
 "Website" = "網站";
-"AltStore Source" = "AltStore源";
+"AltStore Source" = "AltStore 源";
 "Acknowledgement" = "致謝";
 
 // MARK: EhSettingView
@@ -306,7 +314,7 @@
 // MARK: LogsView
 "Logs" = "日誌";
 "Latest" = "最新";
-"%lld records" = "%lld條紀錄";
+"%lld records" = "%lld 條紀錄";
 
 // MARK: FilterView
 "Filters" = "篩選";
@@ -326,7 +334,7 @@
 "Show expunged galleries" = "顯示被刪除的畫廊";
 "Set minimum rating" = "設定評分下限";
 "Minimum rating" = "評分下限";
-"%lld stars" = "%lld星";
+"%lld stars" = "%lld 星";
 "Set pages range" = "設定頁數範圍";
 "Pages range" = "頁數範圍";
 "Default Filter" = "預設篩選";
@@ -363,7 +371,7 @@
 "Doujinshi" = "同人誌";
 "Manga" = "漫畫";
 "Artist CG" = "插畫";
-"Game CG" = "遊戲CG";
+"Game CG" = "遊戲 CG";
 "Western" = "西方";
 "Non-H" = "健康";
 "Image Set" = "圖片集";
@@ -395,11 +403,11 @@
 // MARK: AutoLockPolicy
 "Never" = "不鎖定";
 "Instantly" = "立即";
-"15 seconds" = "15秒";
-"1 minute" = "1分鐘";
-"5 minutes" = "5分鐘";
-"10 minutes" = "10分鐘";
-"30 minutes" = "30分鐘";
+"15 seconds" = "15 秒";
+"1 minute" = "1 分鐘";
+"5 minutes" = "5 分鐘";
+"10 minutes" = "10 分鐘";
+"30 minutes" = "30 分鐘";
 
 // MARK: Language
 "Other" = "其它";

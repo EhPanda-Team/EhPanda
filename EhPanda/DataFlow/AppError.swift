@@ -10,6 +10,7 @@ import Foundation
 enum AppError: Error, Identifiable, Equatable {
     var id: String { localizedDescription }
 
+    case ipBanned(interval: BanInterval)
     case copyrightClaim(owner: String)
     case expunged(reason: String)
     case networkingFailed
@@ -22,6 +23,8 @@ enum AppError: Error, Identifiable, Equatable {
 extension AppError: LocalizedError {
     var localizedDescription: String {
         switch self {
+        case .ipBanned:
+            return "IP Banned"
         case .copyrightClaim:
             return "Copyright Claim"
         case .expunged:
@@ -40,6 +43,8 @@ extension AppError: LocalizedError {
     }
     var symbolName: String {
         switch self {
+        case .ipBanned:
+            return "network.badge.shield.half.filled"
         case .copyrightClaim, .expunged:
             return "trash.circle.fill"
         case .networkingFailed:
@@ -52,10 +57,13 @@ extension AppError: LocalizedError {
             return "questionmark.circle.fill"
         }
     }
+    // swiftlint:disable line_length
     var alertText: String {
         let tryLater = "Please try again later."
 
         switch self {
+        case .ipBanned(let interval):
+            return "Your IP address has been temporarily banned for excessive pageloads which indicates that you are using automated mirroring / harvesting software.".localized + " " + interval.description
         case .copyrightClaim(let owner):
             return "This gallery is unavailable due to a copyright claim by PLACEHOLDER. Sorry about that."
                 .localized.replacingOccurrences(of: "PLACEHOLDER", with: owner)
@@ -75,5 +83,45 @@ extension AppError: LocalizedError {
             return ["An unknown error occurred.", tryLater]
                 .map(\.localized).joined(separator: "\n")
         }
+    }
+    // swiftlint:enable line_length
+}
+
+enum BanInterval: Equatable {
+    case days(_: Int, hours: Int)
+    case hours(_: Int, minutes: Int)
+    case minutes(_: Int, seconds: Int)
+    case unrecognized(content: String)
+}
+
+extension BanInterval {
+    var description: String {
+        let base = "The ban expires in PLACEHOLDER.".localized
+        var placeholder = ""
+
+        switch self {
+        case .days(let days, let hours):
+            placeholder = [
+                String(days), "BAN_INTERVAL_DAYS",
+                "BAN_INTERVAL_AND",
+                String(hours), "BAN_INTERVAL_HOURS"
+            ].map{ $0.localized }.joined(separator: "")
+        case .hours(let hours, let minutes):
+            placeholder = [
+                String(hours), "BAN_INTERVAL_HOURS",
+                "BAN_INTERVAL_AND",
+                String(minutes), "BAN_INTERVAL_MINUTES"
+            ].map{ $0.localized }.joined(separator: "")
+        case .minutes(let minutes, let seconds):
+            placeholder = [
+                String(minutes), "BAN_INTERVAL_MINUTES",
+                "BAN_INTERVAL_AND",
+                String(seconds), "BAN_INTERVAL_SECONDS"
+            ].map{ $0.localized }.joined(separator: "")
+        case .unrecognized(let content):
+            placeholder = content
+        }
+
+        return base.replacingOccurrences(of: "PLACEHOLDER", with: placeholder)
     }
 }
