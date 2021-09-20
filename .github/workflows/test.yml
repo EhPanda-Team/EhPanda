@@ -12,7 +12,6 @@ jobs:
       - name: Show Xcode version
         run: xcodebuild -version
       - name: Run tests
-        run: xcodebuild
+        run: xcodebuild clean test
           -scheme ${{ env.SCHEME_NAME }} -sdk iphonesimulator
           -destination 'platform=iOS Simulator,name=iPhone 13'
-          clean test
