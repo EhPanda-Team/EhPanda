@@ -16,7 +16,7 @@
 </p>
 
 ## 📢 번역 수요 📢
-번역을 돕고 싶으면 Pull Request를 제출하세요.
+번역을 돕고 싶으면 Pull Request를 제출해주세요.
 
 App Strings: [{lang}.lproj](/EhPanda/App)
 
@@ -25,16 +25,16 @@ GitHub Readme: [README.{lang}.md](/READMEs)
 https://ehpanda.app: [main.js](/ehpanda-vue/src/main.js)
 
 ## 다운로드
-1. [Releases](https://github.com/arakitatsuzou/EhPanda/releases)에서 ipa파일 획득.
-2. [AltStore](https://altstore.io)을 사용해서 ipa 파일을 기계에 설치할 수 있습니다.
+1. [Releases](https://github.com/arakitatsuzou/EhPanda/releases)에서 ipa 파일을 다운로드 받으세요.
+2. [AltStore](https://altstore.io)를 사용해서 ipa 파일을 설치할 수 있습니다.
 
-## 시스템 요구
-당신의 기계 시스템은 iOS / iPadOS 15.0 이상 확인하십시오.
+## 시스템 요구 사항
+iOS / iPadOS 버전이 15.0 이상인지 확인해주세요.
 
-## 콘텐츠와 저작권
-이 앱의 모두 내용은 E-Hentai을 통해 제공해 드리고 E-Hentai의 모두 내용은 앱 이용자가 생산합니다.
+## 컨텐츠와 저작권
+이 앱의 내용은 E-Hentai을 통해 제공되고, E-Hentai의 모든 내용은 앱 이용자가 만듭니다.
 
-**사용자는 스스로 E-Hentai 방문 책임을 집니다.**
+**사용자 스스로가 E-Hentai를 방문하는 책임을 지는 것에 동의합니다.**
 
 ## 문의, 피드백
 [![Discord](https://img.shields.io/badge/Discord-7289DA?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/BSBE9FCBTq)
