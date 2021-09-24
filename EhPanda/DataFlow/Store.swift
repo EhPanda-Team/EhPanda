@@ -442,7 +442,7 @@ final class Store: ObservableObject {
             appState.homeInfo.moreFavoritesLoadFailed[favIndex] = false
 
             let pageNumber = appState.homeInfo.favoritesPageNumbers[favIndex]
-            if (pageNumber?.current ?? 0) + 1 >= pageNumber?.maximum ?? 1 { break }
+            if (pageNumber?.current ?? 0) + 1 > pageNumber?.maximum ?? 0 { break }
 
             if appState.homeInfo.moreFavoritesLoading[favIndex] == true { break }
             appState.homeInfo.moreFavoritesLoading[favIndex] = true
@@ -496,7 +496,7 @@ final class Store: ObservableObject {
             appState.homeInfo.moreToplistsLoadFailed[topType.rawValue] = false
 
             let pageNumber = appState.homeInfo.toplistsPageNumbers[topType.rawValue]
-            if pageNumber?.current ?? 0 + 1 >= pageNumber?.maximum ?? 1 { break }
+            if pageNumber?.current ?? 0 + 1 > pageNumber?.maximum ?? 0 { break }
 
             if appState.homeInfo.moreToplistsLoading[topType.rawValue] == true { break }
             appState.homeInfo.moreToplistsLoading[topType.rawValue] = true
