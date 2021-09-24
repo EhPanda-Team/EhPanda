@@ -38,7 +38,7 @@
       </div>
       <div class="flex-row-reverse items-end hidden md:flex">
           <img alt="home-ipad" class="frontpage-ipad-img-size" id="img-home-ipad">
-          <img alt="home" class="mb-9 frontpage-img-size -mr-36" id="img-home">
+          <img alt="home" class="mb-5 lg:mb-8 frontpage-img-size -mr-28 lg:-mr-44" id="img-home">
       </div>
   </section>
   <section class="flex flex-col items-center justify-center w-screen min-h-screen bg-gray-200 dark:bg-gray-900">
@@ -273,7 +273,7 @@ export default {
   }
   .frontpage-ipad-img-size {
       width: 300px;
-      height: 430px;
+      height: 392px;
   }
   .feature-img-size {
       width: 243px;
@@ -292,7 +292,7 @@ export default {
       }
       .frontpage-ipad-img-size {
           width: 500px;
-          height: 715px;
+          height: 654px;
       }
   }
   @media(min-width: 1280px) {
