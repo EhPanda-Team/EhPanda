@@ -80,7 +80,6 @@ struct GalleryThumbnailCell: View {
                         .font(.caption)
                     Spacer()
                     HStack(spacing: 10) {
-                        Text(gallery.language?.languageAbbr ?? "")
                         if !isSEWidth {
                             HStack(spacing: 2) {
                                 Image(systemName: "photo.on.rectangle.angled")
@@ -88,7 +87,7 @@ struct GalleryThumbnailCell: View {
                             }
                         }
                     }
-                    .fixedSize().lineLimit(1).font(.footnote)
+                    .lineLimit(1).font(.footnote)
                     .foregroundStyle(.secondary)
                 }
                 .padding(.top, 1)

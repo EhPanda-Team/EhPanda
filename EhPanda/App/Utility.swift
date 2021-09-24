@@ -108,7 +108,7 @@ var isPad: Bool {
 }
 
 var isPadWidth: Bool {
-    windowW > 768
+    windowW >= 744
 }
 
 var isSEWidth: Bool {
