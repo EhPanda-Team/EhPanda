@@ -25,6 +25,10 @@ enum AppAction {
     case fulfillGalleryPreviews(gid: String)
     case fulfillGalleryContents(gid: String)
     case updatePendingJumpInfos(gid: String, pageIndex: Int?, commentID: String?)
+    case appendQuickSearchWord
+    case deleteQuickSearchWord(offsets: IndexSet)
+    case modifyQuickSearchWord(newWord: QuickSearchWord)
+    case moveQuickSearchWord(source: IndexSet, destination: Int)
 
     case toggleApp(unlocked: Bool)
     case toggleBlur(effectOn: Bool)

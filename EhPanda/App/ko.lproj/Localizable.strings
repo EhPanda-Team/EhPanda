@@ -352,6 +352,9 @@
 "GAINCONTENT_AND" = "과";
 "GAINCONTENT_END" = "획득했어요!";
 
+// MARK: QuickSearchView
+//"Quick search" = "";
+
 // MARK: HomeListType
 "Search" = "검색";
 "Frontpage" = "프론트";

@@ -44,8 +44,9 @@ struct AccountSettingView: View, StoreAccessor {
                     if didLogin {
                         Group {
                             NavigationLink("Account configuration", destination: EhSettingView())
-                            Button("Manage tags subscription", action: toggleWebViewMyTags).withArrow()
-                                .disabled(setting.bypassesSNIFiltering)
+                            if !setting.bypassesSNIFiltering {
+                                Button("Manage tags subscription", action: toggleWebViewMyTags).withArrow()
+                            }
                             Toggle(
                                 "Show new dawn greeting",
                                 isOn: settingBinding.showNewDawnGreeting

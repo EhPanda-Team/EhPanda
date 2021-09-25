@@ -126,6 +126,14 @@ final class Store: ObservableObject {
         case .updatePendingJumpInfos(let gid, let pageIndex, let commentID):
             appState.detailInfo.pendingJumpPageIndices[gid] = pageIndex
             appState.detailInfo.pendingJumpCommentIDs[gid] = commentID
+        case .appendQuickSearchWord:
+            appState.homeInfo.appendQuickSearchWord()
+        case .deleteQuickSearchWord(let offsets):
+            appState.homeInfo.deleteQuickSearchWords(offsets: offsets)
+        case .modifyQuickSearchWord(let newWord):
+            appState.homeInfo.modifyQuickSearchWord(newWord: newWord)
+        case .moveQuickSearchWord(let source, let destination):
+            appState.homeInfo.moveQuickSearchWords(source: source, destination: destination)
 
         // MARK: App Env
         case .toggleApp(let unlocked):

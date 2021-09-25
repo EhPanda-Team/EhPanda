@@ -87,6 +87,10 @@ struct HomeView: View, StoreAccessor {
                                 Image(systemName: "line.3.horizontal.decrease.circle")
                                 Text("Filters")
                             }
+                            Button(action: toggleQuickSearch) {
+                                Image(systemName: "magnifyingglass.circle")
+                                Text("Quick search")
+                            }
                         } label: {
                             Image(systemName: "ellipsis.circle")
                                 .symbolRenderingMode(.hierarchical)
@@ -108,6 +112,8 @@ struct HomeView: View, StoreAccessor {
                     FilterView().tint(accentColor)
                 case .newDawn:
                     NewDawnView(greeting: greeting)
+                case .quickSearch:
+                    QuickSearchView()
                 }
             }
             .accentColor(accentColor)
@@ -565,6 +571,9 @@ private extension HomeView {
     func toggleFilter() {
         store.dispatch(.toggleHomeViewSheet(state: .filter))
     }
+    func toggleQuickSearch() {
+        store.dispatch(.toggleHomeViewSheet(state: .quickSearch))
+    }
 }
 
 // MARK: Definition
@@ -608,6 +617,7 @@ enum HomeViewSheetState: Identifiable {
     case setting
     case filter
     case newDawn
+    case quickSearch
 }
 
 enum ToplistsType: Int, Codable, CaseIterable, Identifiable {

@@ -352,6 +352,9 @@
 "GAINCONTENT_AND" = "和";
 "GAINCONTENT_END" = "！";
 
+// MARK: QuickSearchView
+"Quick search" = "快速搜索";
+
 // MARK: HomeListType
 "Search" = "搜索";
 "Frontpage" = "主页";

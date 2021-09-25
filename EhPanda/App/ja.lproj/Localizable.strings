@@ -352,6 +352,9 @@
 "GAINCONTENT_AND" = "と";
 "GAINCONTENT_END" = "を手に入れた！";
 
+// MARK: QuickSearchView
+"Quick search" = "クイック検索";
+
 // MARK: HomeListType
 "Search" = "検索";
 "Frontpage" = "ホーム";

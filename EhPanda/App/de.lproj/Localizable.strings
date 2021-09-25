@@ -352,6 +352,9 @@
 "GAINCONTENT_AND" = " und ";
 "GAINCONTENT_END" = "!";
 
+// MARK: QuickSearchView
+//"Quick search" = "";
+
 // MARK: HomeListType
 "Search" = "Suche";
 "Frontpage" = "Startseite";

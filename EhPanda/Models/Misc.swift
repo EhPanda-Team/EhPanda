@@ -85,3 +85,8 @@ struct Greeting: Codable, Equatable {
         .isEmpty
     }
 }
+
+struct QuickSearchWord: Codable, Identifiable {
+    var id = UUID().uuidString
+    let content: String
+}
