@@ -59,22 +59,40 @@ struct HomeView: View, StoreAccessor {
             .onSubmit(of: .search, onSearchSubmit)
             .navigationBarTitle(navigationBarTitle)
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Menu {
-                        if environment.homeListType == .favorites {
-                            favoritesMenuContent
-                        } else if environment.homeListType == .toplists {
-                            toplistsMenuContent
-                        }
-                    } label: {
-                        Image(systemName: "square.3.stack.3d.top.fill")
-                            .symbolRenderingMode(.hierarchical)
-                            .foregroundColor(.primary)
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button(action: postShouldShowSlideMenuNotification) {
+                        Image(systemName: "line.3.horizontal")
+                            .foregroundColor(.secondary)
                     }
-                    .opacity(
-                        [.favorites, .toplists]
-                            .contains(environment.homeListType) ? 1 : 0
-                    )
+                }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    HStack {
+                        Menu {
+                            if environment.homeListType == .favorites {
+                                favoritesMenuContent
+                            } else if environment.homeListType == .toplists {
+                                toplistsMenuContent
+                            }
+                        } label: {
+                            Image(systemName: "square.3.stack.3d.top.fill")
+                                .symbolRenderingMode(.hierarchical)
+                                .foregroundColor(.primary)
+                        }
+                        .opacity(
+                            [.favorites, .toplists]
+                                .contains(environment.homeListType) ? 1 : 0
+                        )
+                        Menu {
+                            Button(action: toggleFilter) {
+                                Image(systemName: "line.3.horizontal.decrease.circle")
+                                Text("Filters")
+                            }
+                        } label: {
+                            Image(systemName: "ellipsis.circle")
+                                .symbolRenderingMode(.hierarchical)
+                                .foregroundColor(.primary)
+                        }
+                    }
                 }
             }
         }
@@ -87,9 +105,7 @@ struct HomeView: View, StoreAccessor {
                 case .setting:
                     SettingView().tint(accentColor)
                 case .filter:
-                    NavigationView {
-                        FilterView().tint(accentColor)
-                    }
+                    FilterView().tint(accentColor)
                 case .newDawn:
                     NewDawnView(greeting: greeting)
                 }
@@ -277,8 +293,8 @@ private extension HomeView {
     }
 }
 
-// MARK: Private Methods
 private extension HomeView {
+    // MARK: Life Cycle
     func onStartTasks() {
         detectPasteboard()
         fetchGreetingIfNeeded()
@@ -444,7 +460,7 @@ private extension HomeView {
             store.dispatch(.toggleHomeViewSheet(state: nil))
         }
         if !environment.isSlideMenuClosed {
-            postSlideMenuShouldCloseNotification()
+            postShouldHideSlideMenuNotification()
         }
     }
     func translateTag(text: String) -> String {
@@ -460,7 +476,7 @@ private extension HomeView {
         return translator.translate(text: text)
     }
 
-    // MARK: Fetch Methods
+    // MARK: Dispatch Methods
     func fetchFrontpageItems() {
         store.dispatch(.fetchFrontpageItems)
     }
@@ -545,6 +561,9 @@ private extension HomeView {
         if homeInfo.toplistsItems[environment.toplistsType.rawValue]?.isEmpty != false {
             fetchToplistsItems()
         }
+    }
+    func toggleFilter() {
+        store.dispatch(.toggleHomeViewSheet(state: .filter))
     }
 }
 

@@ -27,55 +27,57 @@ struct FilterView: View, StoreAccessor {
 
     // MARK: FilterView
     var body: some View {
-        Form {
-            Section {
-                CategoryView(bindings: categoryBindings)
-                Button(action: onResetButtonTap) {
-                    Text("Reset filters")
-                        .foregroundStyle(.red)
-                }
-                Toggle("Advanced settings", isOn: filterBinding.advanced)
-            }
-            Group {
-                Section(header: Text("Advanced")) {
-                    Toggle("Search gallery name", isOn: filterBinding.galleryName)
-                    Toggle("Search gallery tags", isOn: filterBinding.galleryTags)
-                    Toggle("Search gallery description", isOn: filterBinding.galleryDesc)
-                    Toggle("Search torrent filenames", isOn: filterBinding.torrentFilenames)
-                    Toggle("Only show galleries with torrents", isOn: filterBinding.onlyWithTorrents)
-                    Toggle("Search Low-Power tags", isOn: filterBinding.lowPowerTags)
-                    Toggle("Search downvoted tags", isOn: filterBinding.downvotedTags)
-                    Toggle("Show expunged galleries", isOn: filterBinding.expungedGalleries)
-                }
+        NavigationView {
+            Form {
                 Section {
-                    Toggle("Set minimum rating", isOn: filterBinding.minRatingActivated)
-                    MinimumRatingSetter(minimum: filterBinding.minRating)
-                        .disabled(!filter.minRatingActivated)
-                    Toggle("Set pages range", isOn: filterBinding.pageRangeActivated)
-                    PagesRangeSetter(
-                        lowerBound: filterBinding.pageLowerBound,
-                        upperBound: filterBinding.pageUpperBound
-                    )
-                    .disabled(!filter.pageRangeActivated)
+                    CategoryView(bindings: categoryBindings)
+                    Button(action: onResetButtonTap) {
+                        Text("Reset filters")
+                            .foregroundStyle(.red)
+                    }
+                    Toggle("Advanced settings", isOn: filterBinding.advanced)
                 }
-                Section(header: Text("Default Filter")) {
-                    Toggle("Disable language filter", isOn: filterBinding.disableLanguage)
-                    Toggle("Disable uploader filter", isOn: filterBinding.disableUploader)
-                    Toggle("Disable tags filter", isOn: filterBinding.disableTags)
+                Group {
+                    Section(header: Text("Advanced")) {
+                        Toggle("Search gallery name", isOn: filterBinding.galleryName)
+                        Toggle("Search gallery tags", isOn: filterBinding.galleryTags)
+                        Toggle("Search gallery description", isOn: filterBinding.galleryDesc)
+                        Toggle("Search torrent filenames", isOn: filterBinding.torrentFilenames)
+                        Toggle("Only show galleries with torrents", isOn: filterBinding.onlyWithTorrents)
+                        Toggle("Search Low-Power tags", isOn: filterBinding.lowPowerTags)
+                        Toggle("Search downvoted tags", isOn: filterBinding.downvotedTags)
+                        Toggle("Show expunged galleries", isOn: filterBinding.expungedGalleries)
+                    }
+                    Section {
+                        Toggle("Set minimum rating", isOn: filterBinding.minRatingActivated)
+                        MinimumRatingSetter(minimum: filterBinding.minRating)
+                            .disabled(!filter.minRatingActivated)
+                        Toggle("Set pages range", isOn: filterBinding.pageRangeActivated)
+                        PagesRangeSetter(
+                            lowerBound: filterBinding.pageLowerBound,
+                            upperBound: filterBinding.pageUpperBound
+                        )
+                        .disabled(!filter.pageRangeActivated)
+                    }
+                    Section(header: Text("Default Filter")) {
+                        Toggle("Disable language filter", isOn: filterBinding.disableLanguage)
+                        Toggle("Disable uploader filter", isOn: filterBinding.disableUploader)
+                        Toggle("Disable tags filter", isOn: filterBinding.disableTags)
+                    }
+                }
+                .disabled(!filter.advanced)
+            }
+            .actionSheet(item: environmentBinding.filterViewActionSheetState) { item in
+                switch item {
+                case .resetFilters:
+                    return ActionSheet(title: Text("Are you sure to reset?"), buttons: [
+                        .destructive(Text("Reset"), action: resetFilters),
+                        .cancel()
+                    ])
                 }
             }
-            .disabled(!filter.advanced)
+            .navigationBarTitle("Filters")
         }
-        .actionSheet(item: environmentBinding.filterViewActionSheetState) { item in
-            switch item {
-            case .resetFilters:
-                return ActionSheet(title: Text("Are you sure to reset?"), buttons: [
-                    .destructive(Text("Reset"), action: resetFilters),
-                    .cancel()
-                ])
-            }
-        }
-        .navigationBarTitle("Filters")
     }
 }
 

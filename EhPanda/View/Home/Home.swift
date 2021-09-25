@@ -76,9 +76,7 @@ struct Home: View, StoreAccessor {
             NotificationCenter.default.publisher(
                 for: UIApplication.didBecomeActiveNotification
             )
-        ) { _ in
-            onWidthChange()
-        }
+        ) { _ in onWidthChange() }
         .onReceive(
             NotificationCenter.default.publisher(
                 for: UIDevice.orientationDidChangeNotification
@@ -90,18 +88,19 @@ struct Home: View, StoreAccessor {
         }
         .onReceive(
             NotificationCenter.default.publisher(
-                for: NSNotification.Name("SlideMenuShouldClose")
+                for: NSNotification.Name("ShouldShowSlideMenu")
             )
-        ) { _ in
-            onSlideMenuShouldCloseNotificationReceive()
-        }
+        ) { _ in performTransition(offset: 0) }
+        .onReceive(
+            NotificationCenter.default.publisher(
+                for: NSNotification.Name("ShouldHideSlideMenu")
+            )
+        ) { _ in performTransition(offset: -width) }
         .onReceive(
             NotificationCenter.default.publisher(
                 for: NSNotification.Name("BypassesSNIFilteringDidChange")
             )
-        ) { _ in
-            toggleDomainFronting()
-        }
+        ) { _ in toggleDomainFronting() }
     }
 }
 
@@ -127,9 +126,6 @@ private extension Home {
             }
             postAppWidthDidChangeNotification()
         }
-    }
-    func onSlideMenuShouldCloseNotificationReceive() {
-        performTransition(offset: -width)
     }
     func toggleDomainFronting() {
         if setting.bypassesSNIFiltering {
