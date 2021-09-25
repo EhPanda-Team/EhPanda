@@ -25,6 +25,10 @@ enum AppAction {
     case fulfillGalleryPreviews(gid: String)
     case fulfillGalleryContents(gid: String)
     case updatePendingJumpInfos(gid: String, pageIndex: Int?, commentID: String?)
+    case appendQuickSearchWord
+    case deleteQuickSearchWord(offsets: IndexSet)
+    case modifyQuickSearchWord(newWord: QuickSearchWord)
+    case moveQuickSearchWord(source: IndexSet, destination: Int)
 
     case toggleApp(unlocked: Bool)
     case toggleBlur(effectOn: Bool)
@@ -39,6 +43,7 @@ enum AppAction {
     case toggleDetailViewSheet(state: DetailViewSheetState?)
     case toggleCommentViewSheet(state: CommentViewSheetState?)
 
+    case handleJumpPage(index: Int, keyword: String? = nil)
     case fetchIgneous
     case fetchTagTranslator
     case fetchTagTranslatorDone(result: Result<TagTranslator, AppError>)
@@ -50,25 +55,25 @@ enum AppAction {
     case fetchFavoriteNamesDone(result: Result<[Int: String], AppError>)
     case fetchGalleryItemReverse(url: String, shouldParseGalleryURL: Bool)
     case fetchGalleryItemReverseDone(carriedValue: String, result: Result<Gallery, AppError>)
-    case fetchSearchItems(keyword: String)
+    case fetchSearchItems(keyword: String, pageNum: Int? = nil)
     case fetchSearchItemsDone(result: Result<(PageNumber, [Gallery]), AppError>)
     case fetchMoreSearchItems(keyword: String)
     case fetchMoreSearchItemsDone(result: Result<(PageNumber, [Gallery]), AppError>)
-    case fetchFrontpageItems
+    case fetchFrontpageItems(pageNum: Int? = nil)
     case fetchFrontpageItemsDone(result: Result<(PageNumber, [Gallery]), AppError>)
     case fetchMoreFrontpageItems
     case fetchMoreFrontpageItemsDone(result: Result<(PageNumber, [Gallery]), AppError>)
     case fetchPopularItems
     case fetchPopularItemsDone(result: Result<[Gallery], AppError>)
-    case fetchWatchedItems
+    case fetchWatchedItems(pageNum: Int? = nil)
     case fetchWatchedItemsDone(result: Result<(PageNumber, [Gallery]), AppError>)
     case fetchMoreWatchedItems
     case fetchMoreWatchedItemsDone(result: Result<(PageNumber, [Gallery]), AppError>)
-    case fetchFavoritesItems
+    case fetchFavoritesItems(pageNum: Int? = nil)
     case fetchFavoritesItemsDone(carriedValue: Int, result: Result<(PageNumber, [Gallery]), AppError>)
     case fetchMoreFavoritesItems
     case fetchMoreFavoritesItemsDone(carriedValue: Int, result: Result<(PageNumber, [Gallery]), AppError>)
-    case fetchToplistsItems
+    case fetchToplistsItems(pageNum: Int? = nil)
     case fetchToplistsItemsDone(carriedValue: Int, result: Result<(PageNumber, [Gallery]), AppError>)
     case fetchMoreToplistsItems
     case fetchMoreToplistsItemsDone(carriedValue: Int, result: Result<(PageNumber, [Gallery]), AppError>)

@@ -13,6 +13,20 @@ struct GeneralSettingView: View, StoreAccessor {
     @EnvironmentObject var store: Store
     @State private var passcodeNotSet = false
 
+    private var isTranslatesTagsVisible: Bool {
+        guard let preferredLanguage =
+                Locale.preferredLanguages.first
+        else { return false }
+        let isLanguageSupported =
+            TranslatableLanguage.allCases
+                .map(\.languageCode).contains(
+                    where: preferredLanguage.contains
+                )
+        let isTranslationsPrepared =
+            !settings.tagTranslator.contents.isEmpty
+        return isLanguageSupported && isTranslationsPrepared
+    }
+
     var body: some View {
         Form {
             Section {
@@ -22,8 +36,12 @@ struct GeneralSettingView: View, StoreAccessor {
                     Button(language, action: toSettingLanguage)
                         .foregroundStyle(.tint)
                 }
+                if isTranslatesTagsVisible {
+                    Toggle(isOn: settingBinding.translatesTags) {
+                        Text("Translates tags")
+                    }
+                }
                 NavigationLink("Logs", destination: LogsView())
-                NavigationLink("Filters", destination: FilterView())
             }
             Section(header: Text("Navigation")) {
                 Toggle(
@@ -43,10 +61,10 @@ struct GeneralSettingView: View, StoreAccessor {
                         .opacity((passcodeNotSet && setting.autoLockPolicy != .never) ? 1 : 0)
                     Picker(
                         selection: settingBinding.autoLockPolicy,
-                        label: Text(setting.autoLockPolicy.rawValue.localized)
+                        label: Text(setting.autoLockPolicy.descriptionKey)
                     ) {
                         ForEach(AutoLockPolicy.allCases) { policy in
-                            Text(policy.rawValue.localized).tag(policy)
+                            Text(policy.descriptionKey).tag(policy)
                         }
                     }
                     .pickerStyle(.menu)

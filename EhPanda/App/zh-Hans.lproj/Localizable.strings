@@ -32,7 +32,7 @@
 // MARK: AlertView
 "Loading..." = "加载中...";
 "Login" = "登录";
-"Your search didn't match any docs." = "未能找到你需要的信息";
+"There seems to be nothing here." = "这里似乎什么也没有";
 "Retry" = "重试";
 "A network error occurred." = "发生了网络故障";
 "A parsing error occurred." = "发生了解析错误";
@@ -47,6 +47,8 @@
 "BAN_INTERVAL_HOURS" = " 小时";
 "BAN_INTERVAL_MINUTES" = " 分";
 "BAN_INTERVAL_SECONDS" = " 秒";
+"Jump page" = "页码跳转";
+"Confirm" = "确认";
 
 // MARK: DetailView
 "Archive" = "归档";
@@ -104,6 +106,7 @@
 "Post" = "发布";
 
 // MARK: ReadingView
+"AutoPlay" = "自动播放";
 "Reload" = "重新加载";
 "Copy" = "复制";
 "Save" = "保存";
@@ -351,6 +354,9 @@
 "GAINCONTENT_AND" = "和";
 "GAINCONTENT_END" = "！";
 
+// MARK: QuickSearchView
+"Quick search" = "快速搜索";
+
 // MARK: HomeListType
 "Search" = "搜索";
 "Frontpage" = "主页";
@@ -403,11 +409,9 @@
 // MARK: AutoLockPolicy
 "Never" = "不锁定";
 "Instantly" = "立即";
-"15 seconds" = "15 秒";
-"1 minute" = "1 分钟";
-"5 minutes" = "5 分钟";
-"10 minutes" = "10 分钟";
-"30 minutes" = "30 分钟";
+"%lld seconds" = "%lld 秒";
+"%lld minute" = "%lld 分钟";
+"%lld minutes" = "%lld 分钟";
 
 // MARK: Language
 "Other" = "其它";

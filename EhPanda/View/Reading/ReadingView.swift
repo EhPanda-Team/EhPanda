@@ -28,6 +28,9 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
     @State private var sliderValue: Float = 1
     @State private var sheetState: ReadingViewSheetState?
 
+    @State private var autoPlayTimer: Timer?
+    @State private var autoPlayPolicy: AutoPlayPolicy = .never
+
     @State private var scaleAnchor: UnitPoint = .center
     @State private var scale: CGFloat = 1
     @State private var baseScale: CGFloat = 1
@@ -202,6 +205,7 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
                 showsPanel: $showsPanel,
                 sliderValue: $sliderValue,
                 setting: $store.appState.settings.setting,
+                autoPlayPolicy: $autoPlayPolicy,
                 currentIndex: mappingFromPager(index: page.index),
                 range: 1...Float(pageCount),
                 previews: detailInfo.previews[gid] ?? [:],
@@ -229,6 +233,7 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
             .allowsHitTesting(environment.isAppUnlocked)
         }
         .onChange(of: page.index, perform: onPagerIndexChanged)
+        .onChange(of: autoPlayPolicy, perform: onAutoPlayPolicyChanged)
         .onChange(of: setting.exceptCover, perform: onControlPanelSliderChanged)
         .onChange(of: setting.readingDirection, perform: onControlPanelSliderChanged)
         .onChange(of: setting.enablesDualPageMode, perform: onControlPanelSliderChanged)
@@ -264,16 +269,12 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
             NotificationCenter.default.publisher(
                 for: UIApplication.willResignActiveNotification
             )
-        ) { _ in
-            onEndTasks()
-        }
+        ) { _ in onEndTasks() }
         .onReceive(
             NotificationCenter.default.publisher(
                 for: UIApplication.willTerminateNotification
             )
-        ) { _ in
-            onEndTasks()
-        }
+        ) { _ in onEndTasks() }
     }
 }
 
@@ -300,6 +301,7 @@ private extension ReadingView {
     }
     func onEndTasks() {
         saveReadingProgress()
+        autoPlayPolicy = .never
         setOrientation(allowsLandscape: false)
     }
     func setOrientation(allowsLandscape: Bool, shouldChangeOrientation: Bool = false) {
@@ -339,6 +341,27 @@ private extension ReadingView {
                 sliderValue = newValue
             }
         }
+    }
+    func onAutoPlayPolicyChanged(newPolicy: AutoPlayPolicy) {
+        autoPlayTimer?.invalidate()
+        guard newPolicy != .never else { return }
+        autoPlayTimer = Timer.scheduledTimer(
+            withTimeInterval: TimeInterval(newPolicy.rawValue),
+            repeats: true, block: onAutoPlayTimerFired
+        )
+    }
+    func onAutoPlayTimerFired(_: Timer) {
+        let distance = isLandscape
+        && setting.enablesDualPageMode
+        && setting.readingDirection != .vertical ? 2 : 1
+
+        guard Int(sliderValue) + distance <= pageCount else {
+            autoPlayPolicy = .never
+            return
+        }
+
+        sliderValue += Float(distance)
+        onControlPanelSliderChanged()
     }
 
     // MARK: Progress
@@ -402,6 +425,7 @@ private extension ReadingView {
 
     func toggleSetting() {
         sheetState = .setting
+        autoPlayPolicy = .never
         impactFeedback(style: .light)
     }
     func dismissSetting() {
@@ -766,5 +790,27 @@ struct ReadingView_Previews: PreviewProvider {
     static var previews: some View {
         PersistenceController.prepareForPreviews()
         return ReadingView(gid: "").environmentObject(Store.preview)
+    }
+}
+
+enum AutoPlayPolicy: Int, CaseIterable, Identifiable {
+    var id: Int { rawValue }
+
+    case never = -1
+    case sec1 = 1
+    case sec2 = 2
+    case sec3 = 3
+    case sec4 = 4
+    case sec5 = 5
+}
+
+extension AutoPlayPolicy {
+    var descriptionKey: LocalizedStringKey {
+        switch self {
+        case .never:
+            return "Never"
+        default:
+            return "\(rawValue) seconds"
+        }
     }
 }

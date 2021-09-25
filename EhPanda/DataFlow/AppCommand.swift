@@ -122,10 +122,11 @@ struct FetchGalleryItemReverseCommand: AppCommand {
 struct FetchSearchItemsCommand: AppCommand {
     let keyword: String
     let filter: Filter
+    var pageNum: Int?
 
     func execute(in store: Store) {
         let token = SubscriptionToken()
-        SearchItemsRequest(keyword: keyword, filter: filter)
+        SearchItemsRequest(keyword: keyword, filter: filter, pageNum: pageNum)
             .publisher.receive(on: DispatchQueue.main)
             .sink { completion in
                 if case .failure(let error) = completion {
@@ -181,9 +182,11 @@ struct FetchMoreSearchItemsCommand: AppCommand {
 }
 
 struct FetchFrontpageItemsCommand: AppCommand {
+    var pageNum: Int?
+
     func execute(in store: Store) {
         let token = SubscriptionToken()
-        FrontpageItemsRequest().publisher
+        FrontpageItemsRequest(pageNum: pageNum).publisher
             .receive(on: DispatchQueue.main)
             .sink { completion in
                 if case .failure(let error)  = completion {
@@ -231,6 +234,8 @@ struct FetchMoreFrontpageItemsCommand: AppCommand {
 }
 
 struct FetchPopularItemsCommand: AppCommand {
+    var pageNum: Int?
+
     func execute(in store: Store) {
         let token = SubscriptionToken()
         PopularItemsRequest().publisher
@@ -252,9 +257,11 @@ struct FetchPopularItemsCommand: AppCommand {
 }
 
 struct FetchWatchedItemsCommand: AppCommand {
+    var pageNum: Int?
+
     func execute(in store: Store) {
         let token = SubscriptionToken()
-        WatchedItemsRequest().publisher
+        WatchedItemsRequest(pageNum: pageNum).publisher
             .receive(on: DispatchQueue.main)
             .sink { completion in
                 if case .failure(let error)  = completion {
@@ -303,10 +310,11 @@ struct FetchMoreWatchedItemsCommand: AppCommand {
 
 struct FetchFavoritesItemsCommand: AppCommand {
     let favIndex: Int
+    var pageNum: Int?
 
     func execute(in store: Store) {
         let token = SubscriptionToken()
-        FavoritesItemsRequest(favIndex: favIndex)
+        FavoritesItemsRequest(favIndex: favIndex, pageNum: pageNum)
             .publisher.receive(on: DispatchQueue.main)
             .sink { completion in
                 if case .failure(let error)  = completion {
@@ -360,10 +368,11 @@ struct FetchMoreFavoritesItemsCommand: AppCommand {
 struct FetchToplistsItemsCommand: AppCommand {
     let topIndex: Int
     let catIndex: Int
+    var pageNum: Int?
 
     func execute(in store: Store) {
         let token = SubscriptionToken()
-        ToplistsItemsRequest(catIndex: catIndex)
+        ToplistsItemsRequest(catIndex: catIndex, pageNum: pageNum)
             .publisher.receive(on: DispatchQueue.main)
             .sink { completion in
                 if case .failure(let error)  = completion {

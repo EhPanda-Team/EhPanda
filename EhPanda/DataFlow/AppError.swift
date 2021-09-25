@@ -78,7 +78,7 @@ extension AppError: LocalizedError {
         case .noUpdates:
             return ""
         case .notFound:
-            return "Your search didn't match any docs."
+            return "There seems to be nothing here."
         case .unknown:
             return ["An unknown error occurred.", tryLater]
                 .map(\.localized).joined(separator: "\n")

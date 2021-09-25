@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import AlertKit
 import TTProgressHUD
 
 struct HomeView: View, StoreAccessor {
@@ -19,6 +20,10 @@ struct HomeView: View, StoreAccessor {
 
     @State private var hudVisible = false
     @State private var hudConfig = TTProgressHUDConfig()
+
+    @State private var alertInput = ""
+    @FocusState private var isAlertFocused: Bool
+    @StateObject private var alertManager = CustomAlertManager()
 
     // MARK: HomeView
     var body: some View {
@@ -59,39 +64,83 @@ struct HomeView: View, StoreAccessor {
             .onSubmit(of: .search, onSearchSubmit)
             .navigationBarTitle(navigationBarTitle)
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Menu {
-                        if environment.homeListType == .favorites {
-                            favoritesMenuContent
-                        } else if environment.homeListType == .toplists {
-                            toplistsMenuContent
-                        }
-                    } label: {
-                        Image(systemName: "square.3.stack.3d.top.fill")
-                            .symbolRenderingMode(.hierarchical)
-                            .foregroundColor(.primary)
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button(action: postShouldShowSlideMenuNotification) {
+                        Image(systemName: "line.3.horizontal")
+                            .foregroundColor(.secondary)
                     }
-                    .opacity(
-                        [.favorites, .toplists]
-                            .contains(environment.homeListType) ? 1 : 0
-                    )
+                }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    HStack {
+                        Menu {
+                            if environment.homeListType == .favorites {
+                                favoritesMenuContent
+                            } else if environment.homeListType == .toplists {
+                                toplistsMenuContent
+                            }
+                        } label: {
+                            Image(systemName: "square.3.stack.3d.top.fill")
+                                .symbolRenderingMode(.hierarchical)
+                                .foregroundColor(.primary)
+                        }
+                        .opacity(
+                            [.favorites, .toplists]
+                                .contains(environment.homeListType) ? 1 : 0
+                        )
+                        Menu {
+                            Button(action: toggleFilter) {
+                                Image(systemName: "line.3.horizontal.decrease.circle")
+                                Text("Filters")
+                            }
+                            Button(action: toggleQuickSearch) {
+                                Image(systemName: "magnifyingglass.circle")
+                                Text("Quick search")
+                            }
+                            Button(action: toggleJumpPage) {
+                                Image(systemName: "arrowshape.bounce.forward")
+                                Text("Jump page")
+                            }
+                            .disabled(currentListTypePageNumber.isSinglePage)
+                        } label: {
+                            Image(systemName: "ellipsis.circle")
+                                .symbolRenderingMode(.hierarchical)
+                                .foregroundColor(.primary)
+                        }
+                    }
                 }
             }
         }
         .onOpenURL(perform: onOpen)
         .navigationViewStyle(.stack)
         .onAppear(perform: onStartTasks)
+        .customAlert(
+            manager: alertManager,
+            widthFactor: isPadWidth ? 0.5 : 1.0,
+            content: {
+                PageJumpView(
+                    inputText: $alertInput,
+                    isFocused: $isAlertFocused,
+                    pageNumber: currentListTypePageNumber
+                )
+            }, buttons: [
+                .regular {
+                    Text("Confirm")
+                } action: {
+                    performJumpPage()
+                }
+            ]
+        )
         .sheet(item: environmentBinding.homeViewSheetState) { item in
             Group {
                 switch item {
                 case .setting:
                     SettingView().tint(accentColor)
                 case .filter:
-                    NavigationView {
-                        FilterView().tint(accentColor)
-                    }
+                    FilterView().tint(accentColor)
                 case .newDawn:
                     NewDawnView(greeting: greeting)
+                case .quickSearch:
+                    QuickSearchView()
                 }
             }
             .accentColor(accentColor)
@@ -102,8 +151,10 @@ struct HomeView: View, StoreAccessor {
             NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)
         ) { _ in onBecomeActive() }
         .onChange(of: environment.galleryItemReverseLoading, perform: onJumpDetailFetchFinish)
+        .onChange(of: alertManager.isPresented, perform: onAlertVisibilityChanged)
         .onChange(of: environment.galleryItemReverseID, perform: onJumpIDChange)
         .onChange(of: environment.homeListType, perform: onHomeListTypeChange)
+        .onChange(of: currentListTypePageNumber, perform: onPageNumberChanged)
         .onChange(of: homeInfo.searchKeyword, perform: onSearchKeywordChange)
         .onChange(of: environment.favoritesIndex, perform: onFavIndexChange)
         .onChange(of: environment.toplistsType, perform: onTopTypeChange)
@@ -140,6 +191,24 @@ private extension HomeView {
             return settings.user.getFavNameFrom(index: environment.favoritesIndex)
         } else {
             return environment.homeListType.rawValue.localized
+        }
+    }
+    var currentListTypePageNumber: PageNumber {
+        switch environment.homeListType {
+        case .search:
+            return homeInfo.searchPageNumber
+        case .frontpage:
+            return homeInfo.frontpagePageNumber
+        case .watched:
+            return homeInfo.watchedPageNumber
+        case .favorites:
+            let index = environment.favoritesIndex
+            return homeInfo.favoritesPageNumbers[index] ?? PageNumber()
+        case .toplists:
+            let index = environment.toplistsType.rawValue
+            return homeInfo.toplistsPageNumbers[index] ?? PageNumber()
+        case .popular, .downloaded, .history:
+            return PageNumber()
         }
     }
 
@@ -277,8 +346,8 @@ private extension HomeView {
     }
 }
 
-// MARK: Private Methods
 private extension HomeView {
+    // MARK: Life Cycle
     func onStartTasks() {
         detectPasteboard()
         fetchGreetingIfNeeded()
@@ -374,6 +443,12 @@ private extension HomeView {
     func onSuggestionTap(word: String) {
         store.dispatch(.updateSearchKeyword(text: word))
     }
+    func onAlertVisibilityChanged(_: Bool) {
+        isAlertFocused = false
+    }
+    func onPageNumberChanged(pageNumber: PageNumber) {
+        alertInput = String(pageNumber.current + 1)
+    }
 
     // MARK: Tool Methods
     func showHUD() {
@@ -444,7 +519,7 @@ private extension HomeView {
             store.dispatch(.toggleHomeViewSheet(state: nil))
         }
         if !environment.isSlideMenuClosed {
-            postSlideMenuShouldCloseNotification()
+            postShouldHideSlideMenuNotification()
         }
     }
     func translateTag(text: String) -> String {
@@ -460,21 +535,21 @@ private extension HomeView {
         return translator.translate(text: text)
     }
 
-    // MARK: Fetch Methods
+    // MARK: Dispatch Methods
     func fetchFrontpageItems() {
-        store.dispatch(.fetchFrontpageItems)
+        store.dispatch(.fetchFrontpageItems())
     }
     func fetchPopularItems() {
         store.dispatch(.fetchPopularItems)
     }
     func fetchWatchedItems() {
-        store.dispatch(.fetchWatchedItems)
+        store.dispatch(.fetchWatchedItems())
     }
     func fetchFavoritesItems() {
-        store.dispatch(.fetchFavoritesItems)
+        store.dispatch(.fetchFavoritesItems())
     }
     func fetchToplistsItems() {
-        store.dispatch(.fetchToplistsItems)
+        store.dispatch(.fetchToplistsItems())
     }
 
     func fetchMoreSearchItems() {
@@ -546,6 +621,22 @@ private extension HomeView {
             fetchToplistsItems()
         }
     }
+    func toggleFilter() {
+        store.dispatch(.toggleHomeViewSheet(state: .filter))
+    }
+    func toggleQuickSearch() {
+        store.dispatch(.toggleHomeViewSheet(state: .quickSearch))
+    }
+    func toggleJumpPage() {
+        alertManager.show()
+        isAlertFocused = true
+    }
+    func performJumpPage() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            if let index = Int(alertInput), index <= currentListTypePageNumber.maximum + 1
+            { store.dispatch(.handleJumpPage(index: index - 1, keyword: archivedKeyword)) }
+        }
+    }
 }
 
 // MARK: Definition
@@ -589,6 +680,7 @@ enum HomeViewSheetState: Identifiable {
     case setting
     case filter
     case newDawn
+    case quickSearch
 }
 
 enum ToplistsType: Int, Codable, CaseIterable, Identifiable {

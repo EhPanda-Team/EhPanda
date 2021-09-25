@@ -126,6 +126,14 @@ final class Store: ObservableObject {
         case .updatePendingJumpInfos(let gid, let pageIndex, let commentID):
             appState.detailInfo.pendingJumpPageIndices[gid] = pageIndex
             appState.detailInfo.pendingJumpCommentIDs[gid] = commentID
+        case .appendQuickSearchWord:
+            appState.homeInfo.appendQuickSearchWord()
+        case .deleteQuickSearchWord(let offsets):
+            appState.homeInfo.deleteQuickSearchWords(offsets: offsets)
+        case .modifyQuickSearchWord(let newWord):
+            appState.homeInfo.modifyQuickSearchWord(newWord: newWord)
+        case .moveQuickSearchWord(let source, let destination):
+            appState.homeInfo.moveQuickSearchWords(source: source, destination: destination)
 
         // MARK: App Env
         case .toggleApp(let unlocked):
@@ -160,6 +168,23 @@ final class Store: ObservableObject {
             appState.environment.commentViewSheetState = state
 
         // MARK: Fetch Data
+        case .handleJumpPage(let index, let keyword):
+            switch appState.environment.homeListType {
+            case .search:
+                if let keyword = keyword {
+                    dispatch(.fetchSearchItems(keyword: keyword, pageNum: index))
+                }
+            case .frontpage:
+                dispatch(.fetchFrontpageItems(pageNum: index))
+            case .watched:
+                dispatch(.fetchWatchedItems(pageNum: index))
+            case .favorites:
+                dispatch(.fetchFavoritesItems(pageNum: index))
+            case .toplists:
+                dispatch(.fetchToplistsItems(pageNum: index))
+            case .popular, .downloaded, .history:
+                break
+            }
         case .fetchIgneous:
             appCommand = FetchIgneousCommand()
         case .fetchTagTranslator:
@@ -262,7 +287,7 @@ final class Store: ObservableObject {
                 dispatch(.updatePendingJumpInfos(gid: carriedValue, pageIndex: nil, commentID: nil))
             }
 
-        case .fetchSearchItems(let keyword):
+        case .fetchSearchItems(let keyword, let pageNum):
             appState.homeInfo.searchLoadError = nil
 
             if appState.homeInfo.searchLoading { break }
@@ -270,7 +295,7 @@ final class Store: ObservableObject {
             appState.homeInfo.searchLoading = true
 
             let filter = appState.settings.filter
-            appCommand = FetchSearchItemsCommand(keyword: keyword, filter: filter)
+            appCommand = FetchSearchItemsCommand(keyword: keyword, filter: filter, pageNum: pageNum)
         case .fetchSearchItemsDone(let result):
             appState.homeInfo.searchLoading = false
 
@@ -311,13 +336,13 @@ final class Store: ObservableObject {
                 appState.homeInfo.moreSearchLoadFailed = true
             }
 
-        case .fetchFrontpageItems:
+        case .fetchFrontpageItems(let pageNum):
             appState.homeInfo.frontpageLoadError = nil
 
             if appState.homeInfo.frontpageLoading { break }
             appState.homeInfo.frontpagePageNumber.current = 0
             appState.homeInfo.frontpageLoading = true
-            appCommand = FetchFrontpageItemsCommand()
+            appCommand = FetchFrontpageItemsCommand(pageNum: pageNum)
         case .fetchFrontpageItemsDone(let result):
             appState.homeInfo.frontpageLoading = false
 
@@ -371,13 +396,13 @@ final class Store: ObservableObject {
                 appState.homeInfo.popularLoadError = error
             }
 
-        case .fetchWatchedItems:
+        case .fetchWatchedItems(let pageNum):
             appState.homeInfo.watchedLoadError = nil
 
             if appState.homeInfo.watchedLoading { break }
             appState.homeInfo.watchedPageNumber.current = 0
             appState.homeInfo.watchedLoading = true
-            appCommand = FetchWatchedItemsCommand()
+            appCommand = FetchWatchedItemsCommand(pageNum: pageNum)
         case .fetchWatchedItemsDone(let result):
             appState.homeInfo.watchedLoading = false
 
@@ -414,7 +439,7 @@ final class Store: ObservableObject {
                 appState.homeInfo.moreWatchedLoadFailed = true
             }
 
-        case .fetchFavoritesItems:
+        case .fetchFavoritesItems(let pageNum):
             let favIndex = appState.environment.favoritesIndex
             appState.homeInfo.favoritesLoadErrors[favIndex] = nil
 
@@ -424,7 +449,7 @@ final class Store: ObservableObject {
             }
             appState.homeInfo.favoritesPageNumbers[favIndex]?.current = 0
             appState.homeInfo.favoritesLoading[favIndex] = true
-            appCommand = FetchFavoritesItemsCommand(favIndex: favIndex)
+            appCommand = FetchFavoritesItemsCommand(favIndex: favIndex, pageNum: pageNum)
         case .fetchFavoritesItemsDone(let carriedValue, let result):
             appState.homeInfo.favoritesLoading[carriedValue] = false
 
@@ -466,7 +491,7 @@ final class Store: ObservableObject {
                 appState.homeInfo.moreFavoritesLoading[carriedValue] = true
             }
 
-        case .fetchToplistsItems:
+        case .fetchToplistsItems(let pageNum):
             let topType = appState.environment.toplistsType
             appState.homeInfo.toplistsLoadErrors[topType.rawValue] = nil
 
@@ -477,7 +502,7 @@ final class Store: ObservableObject {
             appState.homeInfo.toplistsPageNumbers[topType.rawValue]?.current = 0
             appState.homeInfo.toplistsLoading[topType.rawValue] = true
             appCommand = FetchToplistsItemsCommand(
-                topIndex: topType.rawValue, catIndex: topType.categoryIndex
+                topIndex: topType.rawValue, catIndex: topType.categoryIndex, pageNum: pageNum
             )
         case .fetchToplistsItemsDone(let carriedValue, let result):
             appState.homeInfo.toplistsLoading[carriedValue] = false
@@ -496,7 +521,7 @@ final class Store: ObservableObject {
             appState.homeInfo.moreToplistsLoadFailed[topType.rawValue] = false
 
             let pageNumber = appState.homeInfo.toplistsPageNumbers[topType.rawValue]
-            if pageNumber?.current ?? 0 + 1 > pageNumber?.maximum ?? 0 { break }
+            if (pageNumber?.current ?? 0) + 1 > pageNumber?.maximum ?? 0 { break }
 
             if appState.homeInfo.moreToplistsLoading[topType.rawValue] == true { break }
             appState.homeInfo.moreToplistsLoading[topType.rawValue] = true

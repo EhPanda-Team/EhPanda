@@ -13,6 +13,7 @@ struct ControlPanel: View {
     @Binding private var showsPanel: Bool
     @Binding private var sliderValue: Float
     @Binding private var setting: Setting
+    @Binding private var autoPlayPolicy: AutoPlayPolicy
     private let currentIndex: Int
     private let range: ClosedRange<Float>
     private let previews: [Int: String]
@@ -25,6 +26,7 @@ struct ControlPanel: View {
         showsPanel: Binding<Bool>,
         sliderValue: Binding<Float>,
         setting: Binding<Setting>,
+        autoPlayPolicy: Binding<AutoPlayPolicy>,
         currentIndex: Int,
         range: ClosedRange<Float>,
         previews: [Int: String],
@@ -36,6 +38,7 @@ struct ControlPanel: View {
         _showsPanel = showsPanel
         _sliderValue = sliderValue
         _setting = setting
+        _autoPlayPolicy = autoPlayPolicy
         self.currentIndex = currentIndex
         self.range = range
         self.previews = previews
@@ -51,6 +54,7 @@ struct ControlPanel: View {
                 title: "\(currentIndex) / "
                 + "\(Int(range.upperBound))",
                 setting: $setting,
+                autoPlayPolicy: $autoPlayPolicy,
                 settingAction: settingAction,
                 updateSettingAction: updateSettingAction
             )
@@ -77,6 +81,7 @@ struct ControlPanel: View {
 private struct UpperPanel: View {
     @Environment(\.dismiss) var dismissAction
     @Binding var setting: Setting
+    @Binding private var autoPlayPolicy: AutoPlayPolicy
 
     private let title: String
     private let settingAction: () -> Void
@@ -84,11 +89,13 @@ private struct UpperPanel: View {
 
     init(
         title: String, setting: Binding<Setting>,
+        autoPlayPolicy: Binding<AutoPlayPolicy>,
         settingAction: @escaping () -> Void,
         updateSettingAction: @escaping (Setting) -> Void
     ) {
         self.title = title
         _setting = setting
+        _autoPlayPolicy = autoPlayPolicy
         self.settingAction = settingAction
         self.updateSettingAction = updateSettingAction
     }
@@ -105,41 +112,58 @@ private struct UpperPanel: View {
                 Slider(value: .constant(0))
                     .opacity(0)
                 Spacer()
-                if isLandscape && setting.readingDirection != .vertical {
-                    Menu {
-                        Button {
-                            var setting = setting
-                            setting.enablesDualPageMode.toggle()
-                            updateSettingAction(setting)
-                        } label: {
-                            Text("Dual-page mode")
-                            if setting.enablesDualPageMode {
-                                Image(systemName: "checkmark")
+                HStack(spacing: 20) {
+                    if isLandscape && setting.readingDirection != .vertical {
+                        Menu {
+                            Button {
+                                var setting = setting
+                                setting.enablesDualPageMode.toggle()
+                                updateSettingAction(setting)
+                            } label: {
+                                Text("Dual-page mode")
+                                if setting.enablesDualPageMode {
+                                    Image(systemName: "checkmark")
+                                }
                             }
-                        }
-                        Button {
-                            var setting = setting
-                            setting.exceptCover.toggle()
-                            updateSettingAction(setting)
-                        } label: {
-                            Text("Except the cover")
-                            if setting.exceptCover {
-                                Image(systemName: "checkmark")
+                            Button {
+                                var setting = setting
+                                setting.exceptCover.toggle()
+                                updateSettingAction(setting)
+                            } label: {
+                                Text("Except the cover")
+                                if setting.exceptCover {
+                                    Image(systemName: "checkmark")
+                                }
                             }
+                            .disabled(!setting.enablesDualPageMode)
+                        } label: {
+                            Image(systemName: "rectangle.split.2x1")
+                                .symbolVariant(setting.enablesDualPageMode ? .fill : .none)
                         }
-                        .disabled(!setting.enablesDualPageMode)
-                    } label: {
-                        Image(systemName: "rectangle.split.2x1")
-                            .symbolVariant(setting.enablesDualPageMode ? .fill : .none)
                     }
-                    .font(.title2)
-                    .padding()
-                }
-                Button(action: settingAction) {
-                    Image(systemName: "gear")
+                    Menu {
+                        Text("AutoPlay").foregroundColor(.secondary)
+                        ForEach(AutoPlayPolicy.allCases) { policy in
+                            Button {
+                                autoPlayPolicy = policy
+                            } label: {
+                                Text(policy.descriptionKey)
+                                if autoPlayPolicy == policy {
+                                    Image(systemName: "checkmark")
+                                }
+                            }
+                        }
+                    } label: {
+                        Image(systemName: "timer")
+                    }
+                    .frame(height: 25) // workaround
+                    .clipped()
+                    Button(action: settingAction) {
+                        Image(systemName: "gear")
+                    }
+                    .padding(.trailing, 20)
                 }
                 .font(.title2)
-                .padding(.trailing, 20)
             }
             Text(title).bold()
                 .lineLimit(1)

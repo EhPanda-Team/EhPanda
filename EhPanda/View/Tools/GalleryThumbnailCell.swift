@@ -64,7 +64,7 @@ struct GalleryThumbnailCell: View {
                     TagCloudView(
                         tag: GalleryTag(
                             category: .artist,
-                            content: gallery.tags
+                            content: tags
                         ),
                         font: .caption2,
                         textColor: .secondary,
@@ -112,6 +112,15 @@ private extension GalleryThumbnailCell {
         colorScheme == .light
         ? Color(.systemGray5)
         : Color(.systemGray4)
+    }
+    var tags: [String] {
+        if setting.summaryRowTagsMaximum > 0 {
+            return Array(
+                gallery.tags.prefix(setting.summaryRowTagsMaximum)
+            )
+        } else {
+            return gallery.tags
+        }
     }
 }
 

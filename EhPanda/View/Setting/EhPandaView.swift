@@ -56,6 +56,10 @@ struct EhPandaView: View, StoreAccessor {
                 text: "Kanna"
             ),
             Info(
+                url: "https://github.com/rebeloper/AlertKit",
+                text: "AlertKit"
+            ),
+            Info(
                 url: "https://github.com/onevcat/Kingfisher",
                 text: "Kingfisher"
             ),

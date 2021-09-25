@@ -17,4 +17,5 @@ extension AppEnvMO {
     @NSManaged public var setting: Data?
     @NSManaged public var tagTranslator: Data?
     @NSManaged public var historyKeywords: Data?
+    @NSManaged public var quickSearchWords: Data?
 }

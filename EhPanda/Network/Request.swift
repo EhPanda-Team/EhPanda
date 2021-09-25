@@ -162,10 +162,11 @@ struct TagTranslatorRequest {
 struct SearchItemsRequest {
     let keyword: String
     let filter: Filter
+    var pageNum: Int?
 
     var publisher: AnyPublisher<(PageNumber, [Gallery]), AppError> {
         URLSession.shared.dataTaskPublisher(
-            for: Defaults.URL.searchList(keyword: keyword, filter: filter).safeURL()
+            for: Defaults.URL.searchList(keyword: keyword, filter: filter, pageNum: pageNum).safeURL()
         )
         .genericRetry().tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
         .tryMap { (Parser.parsePageNum(doc: $0), try Parser.parseListItems(doc: $0)) }
@@ -181,7 +182,7 @@ struct MoreSearchItemsRequest {
 
     var publisher: AnyPublisher<(PageNumber, [Gallery]), AppError> {
         URLSession.shared.dataTaskPublisher(for: Defaults.URL.moreSearchList(
-            keyword: keyword, filter: filter, pageNum: "\(pageNum)", lastID: lastID
+            keyword: keyword, filter: filter, pageNum: pageNum, lastID: lastID
         ).safeURL())
         .genericRetry().tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
         .tryMap { (Parser.parsePageNum(doc: $0), try Parser.parseListItems(doc: $0)) }
@@ -190,8 +191,10 @@ struct MoreSearchItemsRequest {
 }
 
 struct FrontpageItemsRequest {
+    var pageNum: Int?
+
     var publisher: AnyPublisher<(PageNumber, [Gallery]), AppError> {
-        URLSession.shared.dataTaskPublisher(for: Defaults.URL.frontpageList().safeURL())
+        URLSession.shared.dataTaskPublisher(for: Defaults.URL.frontpageList(pageNum: pageNum).safeURL())
             .genericRetry().tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .tryMap { (Parser.parsePageNum(doc: $0), try Parser.parseListItems(doc: $0)) }
             .mapError(mapAppError).eraseToAnyPublisher()
@@ -204,7 +207,7 @@ struct MoreFrontpageItemsRequest {
 
     var publisher: AnyPublisher<(PageNumber, [Gallery]), AppError> {
         URLSession.shared.dataTaskPublisher(for: Defaults.URL.moreFrontpageList(
-            pageNum: "\(pageNum)", lastID: lastID
+            pageNum: pageNum, lastID: lastID
         ).safeURL())
         .genericRetry().tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
         .tryMap { (Parser.parsePageNum(doc: $0), try Parser.parseListItems(doc: $0)) }
@@ -221,8 +224,10 @@ struct PopularItemsRequest {
 }
 
 struct WatchedItemsRequest {
+    var pageNum: Int?
+
     var publisher: AnyPublisher<(PageNumber, [Gallery]), AppError> {
-        URLSession.shared.dataTaskPublisher(for: Defaults.URL.watchedList().safeURL())
+        URLSession.shared.dataTaskPublisher(for: Defaults.URL.watchedList(pageNum: pageNum).safeURL())
             .genericRetry().tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .tryMap { (Parser.parsePageNum(doc: $0), try Parser.parseListItems(doc: $0)) }
             .mapError(mapAppError).eraseToAnyPublisher()
@@ -235,7 +240,7 @@ struct MoreWatchedItemsRequest {
 
     var publisher: AnyPublisher<(PageNumber, [Gallery]), AppError> {
         URLSession.shared.dataTaskPublisher(for: Defaults.URL.moreWatchedList(
-            pageNum: "\(pageNum)", lastID: lastID
+            pageNum: pageNum, lastID: lastID
         ).safeURL())
         .genericRetry().tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
         .tryMap { (Parser.parsePageNum(doc: $0), try Parser.parseListItems(doc: $0)) }
@@ -245,10 +250,11 @@ struct MoreWatchedItemsRequest {
 
 struct FavoritesItemsRequest {
     let favIndex: Int
+    var pageNum: Int?
 
     var publisher: AnyPublisher<(PageNumber, [Gallery]), AppError> {
         URLSession.shared.dataTaskPublisher(
-            for: Defaults.URL.favoritesList(favIndex: favIndex).safeURL()
+            for: Defaults.URL.favoritesList(favIndex: favIndex, pageNum: pageNum).safeURL()
         )
         .genericRetry().tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
         .tryMap { (Parser.parsePageNum(doc: $0), try Parser.parseListItems(doc: $0)) }
@@ -263,7 +269,7 @@ struct MoreFavoritesItemsRequest {
 
     var publisher: AnyPublisher<(PageNumber, [Gallery]), AppError> {
         URLSession.shared.dataTaskPublisher(for: Defaults.URL.moreFavoritesList(
-            favIndex: favIndex, pageNum: "\(pageNum)", lastID: lastID
+            favIndex: favIndex, pageNum: pageNum, lastID: lastID
         ).safeURL())
         .genericRetry().tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
         .tryMap { (Parser.parsePageNum(doc: $0), try Parser.parseListItems(doc: $0)) }
@@ -273,10 +279,11 @@ struct MoreFavoritesItemsRequest {
 
 struct ToplistsItemsRequest {
     let catIndex: Int
+    var pageNum: Int?
 
     var publisher: AnyPublisher<(PageNumber, [Gallery]), AppError> {
         URLSession.shared.dataTaskPublisher(
-            for: Defaults.URL.toplistsList(catIndex: catIndex).safeURL()
+            for: Defaults.URL.toplistsList(catIndex: catIndex, pageNum: pageNum).safeURL()
         )
         .genericRetry().tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
         .tryMap { (Parser.parsePageNum(doc: $0), try Parser.parseListItems(doc: $0)) }
@@ -290,7 +297,7 @@ struct MoreToplistsItemsRequest {
 
     var publisher: AnyPublisher<(PageNumber, [Gallery]), AppError> {
         URLSession.shared.dataTaskPublisher(for: Defaults.URL.moreToplistsList(
-            catIndex: catIndex, pageNum: "\(pageNum)"
+            catIndex: catIndex, pageNum: pageNum
         ).safeURL())
         .genericRetry().tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
         .tryMap { (Parser.parsePageNum(doc: $0), try Parser.parseListItems(doc: $0)) }

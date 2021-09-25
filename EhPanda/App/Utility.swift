@@ -329,9 +329,15 @@ func setPasteboardChangeCount(with value: Int) {
     UserDefaults.standard.set(value, forKey: "PasteboardChangeCount")
 }
 
-func postSlideMenuShouldCloseNotification() {
+func postShouldShowSlideMenuNotification() {
     NotificationCenter.default.post(
-        name: NSNotification.Name("SlideMenuShouldClose"),
+        name: NSNotification.Name("ShouldShowSlideMenu"),
+        object: nil
+    )
+}
+func postShouldHideSlideMenuNotification() {
+    NotificationCenter.default.post(
+        name: NSNotification.Name("ShouldHideSlideMenu"),
         object: nil
     )
 }

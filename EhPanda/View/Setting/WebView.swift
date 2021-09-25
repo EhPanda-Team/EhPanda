@@ -41,7 +41,7 @@ struct WebView: UIViewControllerRepresentable {
                 guard didLogin else { return }
                 let store = self?.parent.store
                 store?.dispatch(.toggleSettingViewSheet(state: nil))
-                store?.dispatch(.fetchFrontpageItems)
+                store?.dispatch(.fetchFrontpageItems())
                 store?.dispatch(.verifyEhProfile)
                 store?.dispatch(.fetchUserInfo)
             }

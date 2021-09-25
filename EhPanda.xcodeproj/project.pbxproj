@@ -85,6 +85,8 @@
 		ABE1867826A1733000689FDC /* LaboratorySettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABE1867726A1733000689FDC /* LaboratorySettingView.swift */; };
 		ABE1867F26A18DD000689FDC /* SwiftyBeaver in Frameworks */ = {isa = PBXBuildFile; productRef = ABE1867E26A18DD000689FDC /* SwiftyBeaver */; };
 		ABE2AE752699F238001D47AA /* AppEnvStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABE2AE742699F238001D47AA /* AppEnvStorage.swift */; };
+		ABE9401526FF158D0085E158 /* QuickSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABE9401426FF158D0085E158 /* QuickSearchView.swift */; };
+		ABE9402D26FF89220085E158 /* AlertKit in Frameworks */ = {isa = PBXBuildFile; productRef = ABE9402C26FF89220085E158 /* AlertKit */; };
 		ABEA1FE625A9B40B002966B9 /* Setting.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABEA1FE525A9B40B002966B9 /* Setting.swift */; };
 		ABEE0AFA2595C6F800C997AE /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = ABEE0AFC2595C6F800C997AE /* Localizable.strings */; };
 		ABF313A525B1AB6600D47A2F /* Misc.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF313A425B1AB6600D47A2F /* Misc.swift */; };
@@ -238,6 +240,8 @@
 		ABE2AE742699F238001D47AA /* AppEnvStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppEnvStorage.swift; sourceTree = "<group>"; };
 		ABE9376C265DCD9400EA8B30 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		ABE9376D265DCD9400EA8B30 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
+		ABE9401426FF158D0085E158 /* QuickSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickSearchView.swift; sourceTree = "<group>"; };
+		ABE9401626FF2E610085E158 /* Model 4.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Model 4.xcdatamodel"; sourceTree = "<group>"; };
 		ABEA1FE525A9B40B002966B9 /* Setting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Setting.swift; sourceTree = "<group>"; };
 		ABEE0AFB2595C6F800C997AE /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		ABEE0AFE2595C73D00C997AE /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
@@ -293,6 +297,7 @@
 			files = (
 				ABD7005926B1C31500DC59C9 /* Kanna in Frameworks */,
 				AB19D619266E5C6700BA752A /* TTProgressHUD in Frameworks */,
+				ABE9402D26FF89220085E158 /* AlertKit in Frameworks */,
 				AB0F68AF26A6D92F00AC3A54 /* DeprecatedAPI in Frameworks */,
 				ABB944DD26DBBB1800C365C1 /* Kingfisher in Frameworks */,
 				AB6505A026B0027800F91E9D /* SwiftUIPager in Frameworks */,
@@ -563,6 +568,7 @@
 				ABF45AC225F3313D00ECB568 /* HomeView.swift */,
 				ABF45AC125F3313D00ECB568 /* FilterView.swift */,
 				ABF45AC425F3313D00ECB568 /* AuthView.swift */,
+				ABE9401426FF158D0085E158 /* QuickSearchView.swift */,
 			);
 			path = Home;
 			sourceTree = "<group>";
@@ -675,6 +681,7 @@
 				ABD4032326B6EC6800001B8C /* WaterfallGrid */,
 				ABAC82FD26BC4A96009F5026 /* OpenCC */,
 				ABB944DC26DBBB1800C365C1 /* Kingfisher */,
+				ABE9402C26FF89220085E158 /* AlertKit */,
 			);
 			productName = EhPanda;
 			productReference = ABC3C7542593696C00E0C11B /* EhPanda.app */;
@@ -743,6 +750,7 @@
 				ABD4032226B6EC6800001B8C /* XCRemoteSwiftPackageReference "WaterfallGrid" */,
 				ABAC82FC26BC4866009F5026 /* XCRemoteSwiftPackageReference "SwiftyOpenCC" */,
 				ABB944DB26DBBB1800C365C1 /* XCRemoteSwiftPackageReference "Kingfisher" */,
+				ABE9402B26FF89220085E158 /* XCRemoteSwiftPackageReference "AlertKit" */,
 			);
 			productRefGroup = ABC3C7552593696C00E0C11B /* Products */;
 			projectDirPath = "";
@@ -881,6 +889,7 @@
 				ABAFFE4026A86E3000EE8661 /* MeasureTool.swift in Sources */,
 				AB6DE897268822390087C579 /* LogsView.swift in Sources */,
 				AB7B29F226AC471E00EE1F14 /* MigrationPolicy.swift in Sources */,
+				ABE9401526FF158D0085E158 /* QuickSearchView.swift in Sources */,
 				ABF45AF025F3313D00ECB568 /* CommentView.swift in Sources */,
 				ABF45AE325F3313D00ECB568 /* SlideMenu.swift in Sources */,
 				ABF45AE225F3313D00ECB568 /* AuthView.swift in Sources */,
@@ -1361,6 +1370,14 @@
 				kind = branch;
 			};
 		};
+		ABE9402B26FF89220085E158 /* XCRemoteSwiftPackageReference "AlertKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/tatsuz0u/AlertKit.git";
+			requirement = {
+				branch = custom;
+				kind = branch;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -1409,17 +1426,23 @@
 			package = ABE1867D26A18DD000689FDC /* XCRemoteSwiftPackageReference "SwiftyBeaver" */;
 			productName = SwiftyBeaver;
 		};
+		ABE9402C26FF89220085E158 /* AlertKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = ABE9402B26FF89220085E158 /* XCRemoteSwiftPackageReference "AlertKit" */;
+			productName = AlertKit;
+		};
 /* End XCSwiftPackageProductDependency section */
 
 /* Begin XCVersionGroup section */
 		ABC681F126898D46007BBD69 /* Model.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
+				ABE9401626FF2E610085E158 /* Model 4.xcdatamodel */,
 				AB543FF126DB7FD9009344C0 /* Model 3.xcdatamodel */,
 				AB48BCF626D2539B0021A06C /* Model 2.xcdatamodel */,
 				ABC681F226898D46007BBD69 /* Model.xcdatamodel */,
 			);
-			currentVersion = AB543FF126DB7FD9009344C0 /* Model 3.xcdatamodel */;
+			currentVersion = ABE9401626FF2E610085E158 /* Model 4.xcdatamodel */;
 			path = Model.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;

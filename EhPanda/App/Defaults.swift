@@ -149,64 +149,78 @@ struct Defaults {
 // MARK: Request
 extension Defaults.URL {
     // Fetch
-    static func searchList(keyword: String, filter: Filter) -> String {
-        merge(urls: [
-            host, fSearch
-            + keyword.urlEncoded()
-        ]
-        + applyFilters(filter: filter)
-        )
+    static func searchList(keyword: String, filter: Filter, pageNum: Int? = nil) -> String {
+        var params = [host, fSearch + keyword.urlEncoded()]
+        if let pageNum = pageNum { params.append(page2 + String(pageNum)) }
+        return merge(urls: params + applyFilters(filter: filter))
     }
     static func moreSearchList(
         keyword: String,
         filter: Filter,
-        pageNum: String,
+        pageNum: Int,
         lastID: String
     ) -> String {
         merge(
             urls: [
                 host,
                 fSearch + keyword.urlEncoded(),
-                page2 + pageNum,
+                page2 + String(pageNum),
                 from + lastID
             ]
             + applyFilters(filter: filter)
         )
     }
-    static func frontpageList() -> String {
-        host
+    static func frontpageList(pageNum: Int? = nil) -> String {
+        if let pageNum = pageNum {
+            return merge(urls: [host, page2 + String(pageNum)])
+        } else {
+            return host
+        }
     }
-    static func moreFrontpageList(pageNum: String, lastID: String) -> String {
-        merge(urls: [host, page2 + pageNum, from + lastID])
+    static func moreFrontpageList(pageNum: Int, lastID: String) -> String {
+        merge(urls: [host, page2 + String(pageNum), from + lastID])
     }
     static func popularList() -> String {
         host + popular
     }
-    static func watchedList() -> String {
-        host + watched
-    }
-    static func moreWatchedList(pageNum: String, lastID: String) -> String {
-        merge(urls: [host + watched, page2 + pageNum, from + lastID])
-    }
-    static func favoritesList(favIndex: Int) -> String {
-        if favIndex == -1 {
-            return host + favorites
+    static func watchedList(pageNum: Int? = nil) -> String {
+        if let pageNum = pageNum {
+            return merge(urls: [host + watched, page2 + String(pageNum)])
         } else {
-            return merge(urls: [host + favorites, favcat + "\(favIndex)"])
+            return host + watched
         }
     }
-    static func moreFavoritesList(favIndex: Int, pageNum: String, lastID: String) -> String {
+    static func moreWatchedList(pageNum: Int, lastID: String) -> String {
+        merge(urls: [host + watched, page2 + String(pageNum), from + lastID])
+    }
+    static func favoritesList(favIndex: Int, pageNum: Int? = nil) -> String {
+        var params = [host + favorites]
         if favIndex == -1 {
-            return merge(urls: [host + favorites, page2 + pageNum, from + lastID])
+            if pageNum == nil { return params[0] }
         } else {
-            return merge(urls: [host + favorites, favcat + "\(favIndex)", page2 + pageNum, from + lastID])
+            params.append(favcat + "\(favIndex)")
+        }
+        if let pageNum = pageNum {
+            params.append(page2 + String(pageNum))
+        }
+        return merge(urls: params)
+    }
+    static func moreFavoritesList(favIndex: Int, pageNum: Int, lastID: String) -> String {
+        if favIndex == -1 {
+            return merge(urls: [host + favorites, page2 + String(pageNum), from + lastID])
+        } else {
+            return merge(urls: [host + favorites, favcat + "\(favIndex)", page2 + String(pageNum), from + lastID])
         }
     }
-    static func toplistsList(catIndex: Int) -> String {
-        merge(urls: [ehentai + toplist, topcat + "\(catIndex)"])
+    static func toplistsList(catIndex: Int, pageNum: Int? = nil) -> String {
+        if let pageNum = pageNum {
+            return merge(urls: [ehentai + toplist, topcat + "\(catIndex)", page1 + String(pageNum)])
+        } else {
+            return merge(urls: [ehentai + toplist, topcat + "\(catIndex)"])
+        }
     }
-    static func moreToplistsList(catIndex: Int, pageNum: String) -> String {
-        merge(urls: [ehentai + toplist, topcat + "\(catIndex)", page1 + pageNum])
+    static func moreToplistsList(catIndex: Int, pageNum: Int) -> String {
+        merge(urls: [ehentai + toplist, topcat + "\(catIndex)", page1 + String(pageNum)])
     }
     static func galleryDetail(url: String) -> String {
         merge(urls: [url, showComments])

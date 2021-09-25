@@ -32,7 +32,7 @@
 // MARK: AlertView
 "Loading..." = "読み込み中...";
 "Login" = "ログイン";
-"Your search didn't match any docs." = "お探しの情報が見つかりませんでした";
+"There seems to be nothing here." = "ここには何もないようです";
 "Retry" = "やり直す";
 "A network error occurred." = "ネットワーク障害が発生しました";
 "A parsing error occurred." = "解析中に問題が発生しました";
@@ -47,6 +47,8 @@
 "BAN_INTERVAL_HOURS" = " 時間";
 "BAN_INTERVAL_MINUTES" = " 分";
 "BAN_INTERVAL_SECONDS" = " 秒";
+"Jump page" = "ページジャンプ";
+"Confirm" = "確認";
 
 // MARK: DetailView
 "Archive" = "アーカイブ";
@@ -104,6 +106,7 @@
 "Post" = "投稿";
 
 // MARK: ReadingView
+"AutoPlay" = "自動再生";
 "Reload" = "再読み込み";
 "Copy" = "コピー";
 "Save" = "保存";
@@ -351,6 +354,9 @@
 "GAINCONTENT_AND" = "と";
 "GAINCONTENT_END" = "を手に入れた！";
 
+// MARK: QuickSearchView
+"Quick search" = "クイック検索";
+
 // MARK: HomeListType
 "Search" = "検索";
 "Frontpage" = "ホーム";
@@ -403,11 +409,9 @@
 // MARK: AutoLockPolicy
 "Never" = "なし";
 "Instantly" = "すぐに";
-"15 seconds" = "15 秒";
-"1 minute" = "1 分";
-"5 minutes" = "5 分";
-"10 minutes" = "10 分";
-"30 minutes" = "30 分";
+"%lld seconds" = "%lld 秒";
+"%lld minute" = "%lld 分";
+"%lld minutes" = "%lld 分";
 
 // MARK: Language
 "Other" = "その他";

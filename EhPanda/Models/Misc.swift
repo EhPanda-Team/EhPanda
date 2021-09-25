@@ -15,9 +15,13 @@ typealias CurrentGP = String
 typealias CurrentCredits = String
 typealias ReloadToken = Any
 
-struct PageNumber {
+struct PageNumber: Equatable {
     var current = 0
     var maximum = 0
+
+    var isSinglePage: Bool {
+        current == 0 && maximum == 0
+    }
 }
 
 struct Greeting: Codable, Equatable {
@@ -84,4 +88,9 @@ struct Greeting: Codable, Equatable {
         .compactMap({ $0 })
         .isEmpty
     }
+}
+
+struct QuickSearchWord: Codable, Identifiable {
+    var id = UUID().uuidString
+    let content: String
 }

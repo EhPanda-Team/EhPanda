@@ -139,6 +139,8 @@ extension AppState {
 
         @AppEnvStorage(type: [String].self, key: "historyKeywords")
         var historyKeywords: [String]
+        @AppEnvStorage(type: [QuickSearchWord].self, key: "quickSearchWords")
+        var quickSearchWords: [QuickSearchWord]
 
         func insertGalleries(stored: inout [Gallery], new: [Gallery]) {
             new.forEach { gallery in
@@ -187,6 +189,20 @@ extension AppState {
                 }
             }
             self.historyKeywords = historyKeywords
+        }
+        mutating func appendQuickSearchWord() {
+            quickSearchWords.append(QuickSearchWord(content: ""))
+        }
+        mutating func deleteQuickSearchWords(offsets: IndexSet) {
+            quickSearchWords.remove(atOffsets: offsets)
+        }
+        mutating func moveQuickSearchWords(source: IndexSet, destination: Int) {
+            quickSearchWords.move(fromOffsets: source, toOffset: destination)
+        }
+        mutating func modifyQuickSearchWord(newWord: QuickSearchWord) {
+            if let index = quickSearchWords.firstIndex(
+                where: { word in word.id == newWord.id }
+            ) { quickSearchWords[index] = newWord }
         }
     }
 

@@ -98,34 +98,37 @@ enum GalleryHost: String, Codable, CaseIterable, Identifiable {
     }
 }
 
-enum AutoLockPolicy: String, Codable, CaseIterable, Identifiable {
-    var id: Int { hashValue }
-    var value: Int {
+enum AutoLockPolicy: Int, Codable, CaseIterable, Identifiable {
+    var id: Int { rawValue }
+
+    case never = -1
+    case instantly = 0
+    case sec15 = 15
+    case min1 = 60
+    case min5 = 300
+    case min10 = 600
+    case min30 = 1800
+}
+
+extension AutoLockPolicy {
+    var descriptionKey: LocalizedStringKey {
         switch self {
         case .never:
-            return -1
+            return "Never"
         case .instantly:
-            return 0
+            return "Instantly"
         case .sec15:
-            return 15
+            return "\(15) seconds"
         case .min1:
-            return 60
+            return "\(1) minute"
         case .min5:
-            return 300
+            return "\(5) minutes"
         case .min10:
-            return 600
+            return "\(10) minute"
         case .min30:
-            return 1800
+            return "\(30) minute"
         }
     }
-
-    case never = "Never"
-    case instantly = "Instantly"
-    case sec15 = "15 seconds"
-    case min1 = "1 minute"
-    case min5 = "5 minutes"
-    case min10 = "10 minutes"
-    case min30 = "30 minutes"
 }
 
 enum PreferredColorScheme: String, Codable, CaseIterable, Identifiable {
