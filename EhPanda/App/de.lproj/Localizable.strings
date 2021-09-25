@@ -32,7 +32,7 @@
 // MARK: AlertView
 "Loading..." = "Wird geladen...";
 "Login" = "Einloggen";
-"Your search didn't match any docs." = "Deine Suche hat keine Ergebnisse ergeben";
+//"There seems to be nothing here." = "";
 "Retry" = "Erneut versuchen";
 //"A network error occurred." = "";
 //"A parsing error occurred." = "";
@@ -104,6 +104,7 @@
 "Post" = "Senden";
 
 // MARK: ReadingView
+//"AutoPlay" = "";
 //"Reload" = "";
 //"Copy" = "";
 //"Save" = "";
@@ -403,11 +404,9 @@
 // MARK: AutoLockPolicy
 "Never" = "Nie";
 "Instantly" = "Sofort";
-"15 seconds" = "Nach 15 Sekunden";
-"1 minute" = "Nach 1 Minute";
-"5 minutes" = "Nach 5 Minuten";
-"10 minutes" = "Nach 10 Minuten";
-"30 minutes" = "Nach 30 Minuten";
+"%lld seconds" = "Nach %lld Sekunden";
+"%lld minute" = "Nach %lld Minute";
+"%lld minutes" = "Nach %lld Minuten";
 
 // MARK: Language
 "Other" = "Andere";

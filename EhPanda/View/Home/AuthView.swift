@@ -49,7 +49,7 @@ struct AuthView: View, StoreAccessor {
 
 private extension AuthView {
     var autoLockThreshold: Int {
-        autoLockPolicy.value
+        autoLockPolicy.rawValue
     }
 
     func onAppear() {

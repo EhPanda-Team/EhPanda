@@ -32,7 +32,7 @@
 // MARK: AlertView
 "Loading..." = "로딩 중...";
 "Login" = "로그인";
-"Your search didn't match any docs." = "검색 결과가 없어요.";
+//"There seems to be nothing here." = "";
 "Retry" = "재시도";
 "A network error occurred." = "인터넷 접속 오류가 발생했어요.";
 "A parsing error occurred." = "구분 분석 오류가 발생했어요.";
@@ -104,6 +104,7 @@
 "Post" = "등록";
 
 // MARK: ReadingView
+//"AutoPlay" = "";
 "Reload" = "재시도";
 "Copy" = "복사";
 "Save" = "저장";
@@ -403,11 +404,9 @@
 // MARK: AutoLockPolicy
 "Never" = "안 함";
 "Instantly" = "즉시";
-"15 seconds" = "15초";
-"1 minute" = "1분";
-"5 minutes" = "5분";
-"10 minutes" = "10분";
-"30 minutes" = "30분";
+"%lld seconds" = "%lld초";
+"%lld minute" = "%lld분";
+"%lld minutes" = "%lld분";
 
 // MARK: Language
 "Other" = "기타";
