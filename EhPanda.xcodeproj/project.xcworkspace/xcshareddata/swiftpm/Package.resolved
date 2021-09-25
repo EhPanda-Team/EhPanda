@@ -2,6 +2,15 @@
   "object": {
     "pins": [
       {
+        "package": "AlertKit",
+        "repositoryURL": "https://github.com/tatsuz0u/AlertKit.git",
+        "state": {
+          "branch": "custom",
+          "revision": "b16168b456545408417d014c702747f3abd46226",
+          "version": null
+        }
+      },
+      {
         "package": "BetterCodable",
         "repositoryURL": "https://github.com/marksands/BetterCodable",
         "state": {

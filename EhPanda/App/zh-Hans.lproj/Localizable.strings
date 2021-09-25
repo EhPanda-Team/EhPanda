@@ -47,6 +47,8 @@
 "BAN_INTERVAL_HOURS" = " 小时";
 "BAN_INTERVAL_MINUTES" = " 分";
 "BAN_INTERVAL_SECONDS" = " 秒";
+"Jump page" = "页码跳转";
+"Confirm" = "确认";
 
 // MARK: DetailView
 "Archive" = "归档";

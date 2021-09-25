@@ -47,6 +47,8 @@
 "BAN_INTERVAL_HOURS" = " 時間";
 "BAN_INTERVAL_MINUTES" = " 分";
 "BAN_INTERVAL_SECONDS" = " 秒";
+"Jump page" = "ページジャンプ";
+"Confirm" = "確認";
 
 // MARK: DetailView
 "Archive" = "アーカイブ";

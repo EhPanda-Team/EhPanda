@@ -131,7 +131,7 @@ struct LoginView: View, StoreAccessor {
                     }
                     notificFeedback(style: .success)
                     dismissAction.callAsFunction()
-                    store.dispatch(.fetchFrontpageItems)
+                    store.dispatch(.fetchFrontpageItems())
                     store.dispatch(.verifyEhProfile)
                     store.dispatch(.fetchUserInfo)
                 }

@@ -154,7 +154,7 @@ private struct UpperPanel: View {
                             }
                         }
                     } label: {
-                        Image(systemName: "clock")
+                        Image(systemName: "timer")
                     }
                     .frame(height: 25) // workaround
                     .clipped()

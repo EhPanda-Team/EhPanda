@@ -265,7 +265,6 @@ func handleIncomingURL(
     completion(false, url, nil, nil)
 }
 
-@available(*, deprecated, message: "Use @FocusState instead.")
 func hideKeyboard() {
     UIApplication.shared.sendAction(
         #selector(UIResponder.resignFirstResponder),

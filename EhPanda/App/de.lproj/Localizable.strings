@@ -47,6 +47,8 @@
 "BAN_INTERVAL_HOURS" = " hours";
 "BAN_INTERVAL_MINUTES" = " minutes";
 "BAN_INTERVAL_SECONDS" = " seconds";
+//"Jump page" = "";
+//"Confirm" = "";
 
 // MARK: DetailView
 "Archive" = "Archiv";
