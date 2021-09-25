@@ -9,8 +9,9 @@ import SwiftUI
 
 struct AuthView: View, StoreAccessor {
     @EnvironmentObject var store: Store
-    @State private var enterBackgroundDate: Date?
+    @State private var isLaunchingApp = true
     @Binding private var blurRadius: CGFloat
+    @State private var enterBackgroundDate: Date?
 
     init(blurRadius: Binding<CGFloat>) {
         _blurRadius = blurRadius
@@ -20,36 +21,29 @@ struct AuthView: View, StoreAccessor {
     var body: some View {
         Image(systemName: "lock.fill")
             .font(.system(size: 80))
+            .onAppear(perform: onAppear)
             .opacity(isAppUnlocked ? 0 : 1)
             .onTapGesture(perform: authenticate)
             .onReceive(
                 NotificationCenter.default.publisher(
                     for: UIApplication.willResignActiveNotification
                 )
-            ) { _ in
-                onResignActive()
-            }
+            ) { _ in onResignActive() }
             .onReceive(
                 NotificationCenter.default.publisher(
                     for: UIApplication.didBecomeActiveNotification
                 )
-            ) { _ in
-                onDidBecomeActive()
-            }
+            ) { _ in onDidBecomeActive() }
             .onReceive(
                 NotificationCenter.default.publisher(
                     for: UIApplication.didEnterBackgroundNotification
                 )
-            ) { _ in
-                onDidEnterBackground()
-            }
+            ) { _ in onDidEnterBackground() }
             .onReceive(
                 NotificationCenter.default.publisher(
                     for: UIApplication.willEnterForegroundNotification
                 )
-            ) { _ in
-                onWillEnterForeground()
-            }
+            ) { _ in onWillEnterForeground() }
     }
 }
 
@@ -58,6 +52,13 @@ private extension AuthView {
         autoLockPolicy.value
     }
 
+    func onAppear() {
+        guard autoLockPolicy != .never
+                && isLaunchingApp
+        else { return }
+        isLaunchingApp = false
+        lock()
+    }
     func onLockTap() {
         impactFeedback(style: .soft)
         authenticate()
@@ -94,19 +95,18 @@ private extension AuthView {
         }
         store.dispatch(.toggleBlur(effectOn: effectOn))
     }
-
     func set(isUnlocked: Bool) {
         store.dispatch(.toggleApp(unlocked: isUnlocked))
     }
 
+    func lock() {
+        set(isUnlocked: false)
+        setBlur(effectOn: true)
+    }
     func lockIfExpired() {
         if let resignDate = enterBackgroundDate,
            Date().timeIntervalSince(resignDate)
-            > Double(autoLockThreshold)
-        {
-            set(isUnlocked: false)
-            setBlur(effectOn: true)
-        }
+            > Double(autoLockThreshold) { lock() }
         enterBackgroundDate = nil
     }
 
