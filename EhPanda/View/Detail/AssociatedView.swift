@@ -23,6 +23,7 @@ struct AssociatedView: View, StoreAccessor {
     @State private var pageNumber = PageNumber()
 
     @State private var alertInput = ""
+    @FocusState private var isAlertFocused: Bool
     @StateObject private var alertManager = CustomAlertManager()
 
     init(keyword: String) {
@@ -68,15 +69,23 @@ struct AssociatedView: View, StoreAccessor {
                 }
             }
         }
-        .customAlert(manager: alertManager, widthFactor: isPadWidth ? 0.5 : 1.0, content: {
-            PageJumpView(inputText: $alertInput, pageNumber: pageNumber)
-        }, buttons: [
-            .regular {
-                Text("Confirm")
-            } action: {
-                performJumpPage()
-            }
-        ])
+        .customAlert(
+            manager: alertManager,
+            widthFactor: isPadWidth ? 0.5 : 1.0,
+            content: {
+                PageJumpView(
+                    inputText: $alertInput,
+                    isFocused: $isAlertFocused,
+                    pageNumber: pageNumber
+                )
+            }, buttons: [
+                .regular {
+                    Text("Confirm")
+                } action: {
+                    performJumpPage()
+                }
+            ]
+        )
         .navigationBarTitle(title)
         .onSubmit(of: .search, fetchAssociatedItems)
         .onAppear(perform: fetchAssociatedItemsIfNeeded)
@@ -105,7 +114,7 @@ private extension AssociatedView {
         }
     }
     func onAlertVisibilityChanged(_: Bool) {
-        hideKeyboard()
+        isAlertFocused = false
     }
     func onPageNumberChanged(pageNumber: PageNumber) {
         alertInput = String(pageNumber.current + 1)
@@ -255,6 +264,7 @@ private extension AssociatedView {
     }
     func toggleJumpPage() {
         alertManager.show()
+        isAlertFocused = true
     }
     func performJumpPage() {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {

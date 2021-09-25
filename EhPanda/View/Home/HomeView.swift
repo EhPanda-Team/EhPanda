@@ -22,6 +22,7 @@ struct HomeView: View, StoreAccessor {
     @State private var hudConfig = TTProgressHUDConfig()
 
     @State private var alertInput = ""
+    @FocusState private var isAlertFocused: Bool
     @StateObject private var alertManager = CustomAlertManager()
 
     // MARK: HomeView
@@ -112,15 +113,23 @@ struct HomeView: View, StoreAccessor {
         .onOpenURL(perform: onOpen)
         .navigationViewStyle(.stack)
         .onAppear(perform: onStartTasks)
-        .customAlert(manager: alertManager, widthFactor: isPadWidth ? 0.5 : 1.0, content: {
-            PageJumpView(inputText: $alertInput, pageNumber: currentListTypePageNumber)
-        }, buttons: [
-            .regular {
-                Text("Confirm")
-            } action: {
-                performJumpPage()
-            }
-        ])
+        .customAlert(
+            manager: alertManager,
+            widthFactor: isPadWidth ? 0.5 : 1.0,
+            content: {
+                PageJumpView(
+                    inputText: $alertInput,
+                    isFocused: $isAlertFocused,
+                    pageNumber: currentListTypePageNumber
+                )
+            }, buttons: [
+                .regular {
+                    Text("Confirm")
+                } action: {
+                    performJumpPage()
+                }
+            ]
+        )
         .sheet(item: environmentBinding.homeViewSheetState) { item in
             Group {
                 switch item {
@@ -435,7 +444,7 @@ private extension HomeView {
         store.dispatch(.updateSearchKeyword(text: word))
     }
     func onAlertVisibilityChanged(_: Bool) {
-        hideKeyboard()
+        isAlertFocused = false
     }
     func onPageNumberChanged(pageNumber: PageNumber) {
         alertInput = String(pageNumber.current + 1)
@@ -620,6 +629,7 @@ private extension HomeView {
     }
     func toggleJumpPage() {
         alertManager.show()
+        isAlertFocused = true
     }
     func performJumpPage() {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
