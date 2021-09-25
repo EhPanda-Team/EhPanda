@@ -113,23 +113,10 @@ struct HomeView: View, StoreAccessor {
         .navigationViewStyle(.stack)
         .onAppear(perform: onStartTasks)
         .customAlert(manager: alertManager, widthFactor: isPadWidth ? 0.5 : 1.0, content: {
-            VStack {
-                Text("Jump page").bold()
-                HStack {
-                    let opacity = colorScheme == .light ? 0.15 : 0.1
-                    TextField(alertInput, text: $alertInput)
-                        .multilineTextAlignment(.center).keyboardType(.numberPad)
-                        .padding(.horizontal, 10).padding(.vertical, 5)
-                        .background(Color.gray.opacity(opacity))
-                        .cornerRadius(5).frame(width: 75)
-                    Text("-")
-                    Text("\(currentListTypePageNumber.maximum + 1)")
-                }
-                .lineLimit(1)
-            }
+            PageJumpView(inputText: $alertInput, pageNumber: currentListTypePageNumber)
         }, buttons: [
             .regular {
-                Text("Confirm").bold()
+                Text("Confirm")
             } action: {
                 performJumpPage()
             }
@@ -155,10 +142,10 @@ struct HomeView: View, StoreAccessor {
             NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)
         ) { _ in onBecomeActive() }
         .onChange(of: environment.galleryItemReverseLoading, perform: onJumpDetailFetchFinish)
-        .onChange(of: currentListTypePageNumber, perform: onCurrentListTypePageNumberChanged)
         .onChange(of: alertManager.isPresented, perform: onAlertVisibilityChanged)
         .onChange(of: environment.galleryItemReverseID, perform: onJumpIDChange)
         .onChange(of: environment.homeListType, perform: onHomeListTypeChange)
+        .onChange(of: currentListTypePageNumber, perform: onPageNumberChanged)
         .onChange(of: homeInfo.searchKeyword, perform: onSearchKeywordChange)
         .onChange(of: environment.favoritesIndex, perform: onFavIndexChange)
         .onChange(of: environment.toplistsType, perform: onTopTypeChange)
@@ -450,7 +437,7 @@ private extension HomeView {
     func onAlertVisibilityChanged(_: Bool) {
         hideKeyboard()
     }
-    func onCurrentListTypePageNumberChanged(pageNumber: PageNumber) {
+    func onPageNumberChanged(pageNumber: PageNumber) {
         alertInput = String(pageNumber.current + 1)
     }
 
@@ -635,7 +622,7 @@ private extension HomeView {
         alertManager.show()
     }
     func performJumpPage() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             if let index = Int(alertInput), index <= currentListTypePageNumber.maximum + 1
             { store.dispatch(.handleJumpPage(index: index - 1, keyword: archivedKeyword)) }
         }

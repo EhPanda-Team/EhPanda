@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import AlertKit
 import SwiftyBeaver
 
 struct AssociatedView: View, StoreAccessor {
@@ -20,6 +21,9 @@ struct AssociatedView: View, StoreAccessor {
     @State private var moreLoadFailedFlag = false
     @State private var associatedItems = [Gallery]()
     @State private var pageNumber = PageNumber()
+
+    @State private var alertInput = ""
+    @StateObject private var alertManager = CustomAlertManager()
 
     init(keyword: String) {
         self.title = keyword
@@ -45,9 +49,39 @@ struct AssociatedView: View, StoreAccessor {
             ),
             prompt: "Search"
         )
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Menu {
+                    Button(action: toggleFilter) {
+                        Image(systemName: "line.3.horizontal.decrease.circle")
+                        Text("Filters")
+                    }
+                    Button(action: toggleJumpPage) {
+                        Image(systemName: "arrowshape.bounce.forward")
+                        Text("Jump page")
+                    }
+                    .disabled(pageNumber.isSinglePage)
+                } label: {
+                    Image(systemName: "ellipsis.circle")
+                        .symbolRenderingMode(.hierarchical)
+                        .foregroundColor(.primary)
+                }
+            }
+        }
+        .customAlert(manager: alertManager, widthFactor: isPadWidth ? 0.5 : 1.0, content: {
+            PageJumpView(inputText: $alertInput, pageNumber: pageNumber)
+        }, buttons: [
+            .regular {
+                Text("Confirm")
+            } action: {
+                performJumpPage()
+            }
+        ])
         .navigationBarTitle(title)
         .onSubmit(of: .search, fetchAssociatedItems)
         .onAppear(perform: fetchAssociatedItemsIfNeeded)
+        .onChange(of: pageNumber, perform: onPageNumberChanged)
+        .onChange(of: alertManager.isPresented, perform: onAlertVisibilityChanged)
     }
 }
 
@@ -70,6 +104,12 @@ private extension AssociatedView {
             fetchMoreAssociatedItems()
         }
     }
+    func onAlertVisibilityChanged(_: Bool) {
+        hideKeyboard()
+    }
+    func onPageNumberChanged(pageNumber: PageNumber) {
+        alertInput = String(pageNumber.current + 1)
+    }
 
     func fetchAssociatedItemsIfNeeded() {
         DispatchQueue.main.async {
@@ -80,6 +120,9 @@ private extension AssociatedView {
     }
 
     func fetchAssociatedItems() {
+        fetchAssociatedItems(pageNum: nil)
+    }
+    func fetchAssociatedItems(pageNum: Int? = nil) {
         if !keyword.isEmpty {
             title = keyword
         }
@@ -92,7 +135,8 @@ private extension AssociatedView {
         SearchItemsRequest(
             keyword: keyword.isEmpty
                 ? title : keyword,
-            filter: filter
+            filter: filter,
+            pageNum: pageNum
         )
         .publisher
         .receive(on: DispatchQueue.main)
@@ -205,5 +249,17 @@ private extension AssociatedView {
             }
         }
         .seal(in: token)
+    }
+    func toggleFilter() {
+        store.dispatch(.toggleHomeViewSheet(state: .filter))
+    }
+    func toggleJumpPage() {
+        alertManager.show()
+    }
+    func performJumpPage() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            if let index = Int(alertInput), index <= pageNumber.maximum + 1
+            { fetchAssociatedItems(pageNum: index - 1) }
+        }
     }
 }

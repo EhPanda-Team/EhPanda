@@ -113,3 +113,31 @@ struct GenericRetryView: View {
         .frame(maxWidth: windowW * 0.8)
     }
 }
+
+struct PageJumpView: View {
+    @Environment(\.colorScheme) private var colorScheme
+    @Binding private var inputText: String
+    private let pageNumber: PageNumber
+
+    init(inputText: Binding<String>, pageNumber: PageNumber) {
+        _inputText = inputText
+        self.pageNumber = pageNumber
+    }
+
+    var body: some View {
+        VStack {
+            Text("Jump page").bold()
+            HStack {
+                let opacity = colorScheme == .light ? 0.15 : 0.1
+                TextField(inputText, text: $inputText)
+                    .multilineTextAlignment(.center).keyboardType(.numberPad)
+                    .padding(.horizontal, 10).padding(.vertical, 5)
+                    .background(Color.gray.opacity(opacity))
+                    .cornerRadius(5).frame(width: 75)
+                Text("-")
+                Text("\(pageNumber.maximum + 1)")
+            }
+            .lineLimit(1)
+        }
+    }
+}
