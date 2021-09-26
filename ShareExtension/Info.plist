@@ -18,6 +18,6 @@
 		<string>$(PRODUCT_MODULE_NAME).ShareViewController</string>
 	</dict>
     <key>CFBundleShortVersionString</key>
-    <string>1.3.2</string>
+    <string>1.3.3</string>
 </dict>
 </plist>
