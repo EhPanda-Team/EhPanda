@@ -201,7 +201,7 @@ private extension AssociatedView {
     func fetchMoreAssociatedItems() {
         moreLoadFailedFlag = false
         guard let lastID = associatedItems.last?.id,
-              pageNumber.current + 1 < pageNumber.maximum,
+              pageNumber.current + 1 <= pageNumber.maximum,
               !moreLoadingFlag else { return }
         moreLoadingFlag = true
 

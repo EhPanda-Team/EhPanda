@@ -169,21 +169,22 @@ final class Store: ObservableObject {
 
         // MARK: Fetch Data
         case .handleJumpPage(let index, let keyword):
-            switch appState.environment.homeListType {
-            case .search:
-                if let keyword = keyword {
-                    dispatch(.fetchSearchItems(keyword: keyword, pageNum: index))
+            DispatchQueue.main.async { [weak self] in
+                switch appState.environment.homeListType {
+                case .search:
+                    guard let keyword = keyword else { break }
+                    self?.dispatch(.fetchSearchItems(keyword: keyword, pageNum: index))
+                case .frontpage:
+                    self?.dispatch(.fetchFrontpageItems(pageNum: index))
+                case .watched:
+                    self?.dispatch(.fetchWatchedItems(pageNum: index))
+                case .favorites:
+                    self?.dispatch(.fetchFavoritesItems(pageNum: index))
+                case .toplists:
+                    self?.dispatch(.fetchToplistsItems(pageNum: index))
+                case .popular, .downloaded, .history:
+                    break
                 }
-            case .frontpage:
-                dispatch(.fetchFrontpageItems(pageNum: index))
-            case .watched:
-                dispatch(.fetchWatchedItems(pageNum: index))
-            case .favorites:
-                dispatch(.fetchFavoritesItems(pageNum: index))
-            case .toplists:
-                dispatch(.fetchToplistsItems(pageNum: index))
-            case .popular, .downloaded, .history:
-                break
             }
         case .fetchIgneous:
             appCommand = FetchIgneousCommand()
