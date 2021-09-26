@@ -263,6 +263,7 @@ private extension AssociatedView {
     func toggleJumpPage() {
         alertManager.show()
         isAlertFocused = true
+        impactFeedback(style: .light)
     }
     func performJumpPage() {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
