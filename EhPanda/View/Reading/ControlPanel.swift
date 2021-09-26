@@ -10,6 +10,8 @@ import Kingfisher
 
 // MARK: ControlPanel
 struct ControlPanel: View {
+    @State private var refreshID = UUID().uuidString
+
     @Binding private var showsPanel: Bool
     @Binding private var sliderValue: Float
     @Binding private var setting: Setting
@@ -54,6 +56,7 @@ struct ControlPanel: View {
                 title: "\(currentIndex) / "
                 + "\(Int(range.upperBound))",
                 setting: $setting,
+                refreshID: $refreshID,
                 autoPlayPolicy: $autoPlayPolicy,
                 settingAction: settingAction,
                 updateSettingAction: updateSettingAction
@@ -74,13 +77,20 @@ struct ControlPanel: View {
         }
         .opacity(showsPanel ? 1 : 0)
         .disabled(!showsPanel)
+        .onChange(of: showsPanel) { newValue in
+            guard newValue else { return } // workaround
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                refreshID = UUID().uuidString
+            }
+        }
     }
 }
 
 // MARK: UpperPanel
 private struct UpperPanel: View {
     @Environment(\.dismiss) var dismissAction
-    @Binding var setting: Setting
+    @Binding private var setting: Setting
+    @Binding private var refreshID: String
     @Binding private var autoPlayPolicy: AutoPlayPolicy
 
     private let title: String
@@ -88,13 +98,16 @@ private struct UpperPanel: View {
     private let updateSettingAction: (Setting) -> Void
 
     init(
-        title: String, setting: Binding<Setting>,
+        title: String,
+        setting: Binding<Setting>,
+        refreshID: Binding<String>,
         autoPlayPolicy: Binding<AutoPlayPolicy>,
         settingAction: @escaping () -> Void,
         updateSettingAction: @escaping (Setting) -> Void
     ) {
         self.title = title
         _setting = setting
+        _refreshID = refreshID
         _autoPlayPolicy = autoPlayPolicy
         self.settingAction = settingAction
         self.updateSettingAction = updateSettingAction
@@ -141,23 +154,25 @@ private struct UpperPanel: View {
                                 .symbolVariant(setting.enablesDualPageMode ? .fill : .none)
                         }
                     }
-                    Menu {
-                        Text("AutoPlay").foregroundColor(.secondary)
-                        ForEach(AutoPlayPolicy.allCases) { policy in
-                            Button {
-                                autoPlayPolicy = policy
-                            } label: {
-                                Text(policy.descriptionKey)
-                                if autoPlayPolicy == policy {
-                                    Image(systemName: "checkmark")
+                    Image(systemName: "timer").opacity(0.01)
+                        .overlay {
+                            Menu {
+                                Text("AutoPlay").foregroundColor(.secondary)
+                                ForEach(AutoPlayPolicy.allCases) { policy in
+                                    Button {
+                                        autoPlayPolicy = policy
+                                    } label: {
+                                        Text(policy.descriptionKey)
+                                        if autoPlayPolicy == policy {
+                                            Image(systemName: "checkmark")
+                                        }
+                                    }
                                 }
+                            } label: {
+                                Image(systemName: "timer")
                             }
                         }
-                    } label: {
-                        Image(systemName: "timer")
-                    }
-                    .frame(height: 25) // workaround
-                    .clipped()
+                        .id(refreshID)
                     Button(action: settingAction) {
                         Image(systemName: "gear")
                     }
