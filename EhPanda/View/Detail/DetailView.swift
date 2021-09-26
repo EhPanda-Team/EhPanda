@@ -154,7 +154,6 @@ struct DetailView: View, StoreAccessor, PersistenceAccessor {
                     }
                 } label: {
                     Image(systemName: "ellipsis.circle")
-                        .imageScale(.large)
                 }
                 .disabled(
                     galleryDetail == nil

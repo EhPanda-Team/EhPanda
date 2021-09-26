@@ -64,8 +64,6 @@ struct AssociatedView: View, StoreAccessor {
                     .disabled(pageNumber.isSinglePage)
                 } label: {
                     Image(systemName: "ellipsis.circle")
-                        .symbolRenderingMode(.hierarchical)
-                        .foregroundColor(.primary)
                 }
             }
         }
