@@ -89,11 +89,11 @@ struct HomeView: View, StoreAccessor {
                         )
                         Menu {
                             Button(action: toggleFilter) {
-                                Image(systemName: "line.3.horizontal.decrease.circle")
+                                Image(systemName: "line.3.horizontal.decrease")
                                 Text("Filters")
                             }
                             Button(action: toggleQuickSearch) {
-                                Image(systemName: "magnifyingglass.circle")
+                                Image(systemName: "magnifyingglass")
                                 Text("Quick search")
                             }
                             Button(action: toggleJumpPage) {
@@ -114,15 +114,16 @@ struct HomeView: View, StoreAccessor {
         .navigationViewStyle(.stack)
         .onAppear(perform: onStartTasks)
         .customAlert(
-            manager: alertManager,
-            widthFactor: isPadWidth ? 0.5 : 1.0,
+            manager: alertManager, widthFactor: isPadWidth ? 0.5 : 1.0,
+            backgroundOpacity: colorScheme == .light ? 0.2 : 0.5,
             content: {
                 PageJumpView(
                     inputText: $alertInput,
                     isFocused: $isAlertFocused,
                     pageNumber: currentListTypePageNumber
                 )
-            }, buttons: [
+            },
+            buttons: [
                 .regular {
                     Text("Confirm")
                 } action: {
