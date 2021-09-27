@@ -11,6 +11,7 @@ import SwiftyBeaver
 
 struct AssociatedView: View, StoreAccessor {
     @EnvironmentObject var store: Store
+    @Environment(\.colorScheme) private var colorScheme
 
     @State private var title: String
     @State private var keyword: String
@@ -27,8 +28,8 @@ struct AssociatedView: View, StoreAccessor {
     @StateObject private var alertManager = CustomAlertManager()
 
     init(keyword: String) {
-        self.title = keyword
-        self.keyword = keyword
+        _title = State(initialValue: keyword)
+        _keyword = State(initialValue: keyword)
     }
 
     var body: some View {
@@ -54,7 +55,7 @@ struct AssociatedView: View, StoreAccessor {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Menu {
                     Button(action: toggleFilter) {
-                        Image(systemName: "line.3.horizontal.decrease.circle")
+                        Image(systemName: "line.3.horizontal.decrease")
                         Text("Filters")
                     }
                     Button(action: toggleJumpPage) {
@@ -68,15 +69,16 @@ struct AssociatedView: View, StoreAccessor {
             }
         }
         .customAlert(
-            manager: alertManager,
-            widthFactor: isPadWidth ? 0.5 : 1.0,
+            manager: alertManager, widthFactor: isPadWidth ? 0.5 : 1.0,
+            backgroundOpacity: colorScheme == .light ? 0.2 : 0.5,
             content: {
                 PageJumpView(
                     inputText: $alertInput,
                     isFocused: $isAlertFocused,
                     pageNumber: pageNumber
                 )
-            }, buttons: [
+            },
+            buttons: [
                 .regular {
                     Text("Confirm")
                 } action: {
