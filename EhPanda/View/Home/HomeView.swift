@@ -141,7 +141,7 @@ struct HomeView: View, StoreAccessor {
                 case .newDawn:
                     NewDawnView(greeting: greeting)
                 case .quickSearch:
-                    QuickSearchView()
+                    QuickSearchView(searchAction: onQuickSearchSubmit)
                 }
             }
             .accentColor(accentColor)
@@ -431,24 +431,29 @@ private extension HomeView {
         if environment.homeListType != .search {
             store.dispatch(.toggleHomeList(type: .search))
         }
-        if !homeInfo.searchKeyword.isEmpty {
-            archivedKeyword = homeInfo.searchKeyword
+        if !keyword.isEmpty {
+            store.dispatch(.updateLastKeyword(text: keyword))
         }
-        store.dispatch(.fetchSearchItems(keyword: homeInfo.searchKeyword))
+        store.dispatch(.fetchSearchItems(keyword: keyword))
     }
     func onSearchRefresh() {
-        if let keyword = archivedKeyword {
-            store.dispatch(.fetchSearchItems(keyword: keyword))
+        if !homeInfo.lastKeyword.isEmpty {
+            store.dispatch(.fetchSearchItems(keyword: homeInfo.lastKeyword))
         }
     }
     func onSuggestionTap(word: String) {
-        store.dispatch(.updateSearchKeyword(text: word))
+        keyword = word
     }
-    func onAlertVisibilityChanged(_: Bool) {
+    func onAlertVisibilityChange(_: Bool) {
         isAlertFocused = false
     }
-    func onPageNumberChanged(pageNumber: PageNumber) {
+    func onPageNumberChange(pageNumber: PageNumber) {
         alertInput = String(pageNumber.current + 1)
+    }
+    func onQuickSearchSubmit(keyword: String) {
+        store.dispatch(.toggleHomeViewSheet(state: .none))
+        self.keyword = keyword
+        onSearchSubmit()
     }
 
     // MARK: Tool Methods
