@@ -43,7 +43,7 @@ struct DetailView: View, StoreAccessor, PersistenceAccessor {
                         DescScrollView(gallery: gallery, detail: detail)
                         ActionRow(
                             detail: detail,
-                            ratingAction: onUserRatingChanged,
+                            ratingAction: onUserRatingChange,
                             galleryAction: onSimilarGalleryTap
                         )
                         if !galleryState.tags.isEmpty {
@@ -204,7 +204,7 @@ private extension DetailView {
         guard let data = URL(string: gallery.galleryURL) else { return }
         presentActivityVC(items: [data])
     }
-    func onUserRatingChanged(value: Int) {
+    func onUserRatingChange(value: Int) {
         store.dispatch(.rate(gid: gid, rating: value))
     }
     func detectAvailableNavigations() {

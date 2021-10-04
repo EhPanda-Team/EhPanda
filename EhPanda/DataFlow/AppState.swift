@@ -96,7 +96,7 @@ extension AppState {
 extension AppState {
     // MARK: HomeInfo
     struct HomeInfo {
-        var searchKeyword = ""
+        var lastKeyword = ""
 
         var searchItems = [Gallery]()
         var searchLoading = false

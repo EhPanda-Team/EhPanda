@@ -109,8 +109,8 @@ final class Store: ObservableObject {
             appState.homeInfo.insertHistoryKeyword(text: text)
         case .clearHistoryKeywords:
             appState.homeInfo.historyKeywords = []
-        case .updateSearchKeyword(let text):
-            appState.homeInfo.searchKeyword = text
+        case .updateLastKeyword(let text):
+            appState.homeInfo.lastKeyword = text
         case .updateSetting(let setting):
             appState.settings.setting = setting
         case .updateViewControllersCount:

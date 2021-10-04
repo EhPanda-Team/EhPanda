@@ -11,6 +11,7 @@ import WaterfallGrid
 struct GenericList: View {
     private let items: [Gallery]
     private let setting: Setting
+    private let pageNumber: PageNumber?
     private let loadingFlag: Bool
     private let loadError: AppError?
     private let moreLoadingFlag: Bool
@@ -22,6 +23,7 @@ struct GenericList: View {
     init(
         items: [Gallery],
         setting: Setting,
+        pageNumber: PageNumber?,
         loadingFlag: Bool,
         loadError: AppError?,
         moreLoadingFlag: Bool,
@@ -32,6 +34,7 @@ struct GenericList: View {
     ) {
         self.items = items
         self.setting = setting
+        self.pageNumber = pageNumber
         self.loadingFlag = loadingFlag
         self.loadError = loadError
         self.moreLoadingFlag = moreLoadingFlag
@@ -52,6 +55,7 @@ struct GenericList: View {
                 case .detail:
                     DetailList(
                         items: items, setting: setting,
+                        pageNumber: pageNumber,
                         moreLoadingFlag: moreLoadingFlag,
                         moreLoadFailedFlag: moreLoadFailedFlag,
                         loadMoreAction: loadMoreAction,
@@ -60,6 +64,7 @@ struct GenericList: View {
                 case .thumbnail:
                     WaterfallList(
                         items: items, setting: setting,
+                        pageNumber: pageNumber,
                         moreLoadingFlag: moreLoadingFlag,
                         moreLoadFailedFlag: moreLoadFailedFlag,
                         loadMoreAction: loadMoreAction,
@@ -79,6 +84,7 @@ struct GenericList: View {
 private struct DetailList: View {
     private let items: [Gallery]
     private let setting: Setting
+    private let pageNumber: PageNumber?
     private let moreLoadingFlag: Bool
     private let moreLoadFailedFlag: Bool
     private let loadMoreAction: (() -> Void)?
@@ -86,6 +92,7 @@ private struct DetailList: View {
 
     init(
         items: [Gallery], setting: Setting,
+        pageNumber: PageNumber?,
         moreLoadingFlag: Bool,
         moreLoadFailedFlag: Bool,
         loadMoreAction: (() -> Void)?,
@@ -93,10 +100,16 @@ private struct DetailList: View {
     ) {
         self.items = items
         self.setting = setting
+        self.pageNumber = pageNumber
         self.moreLoadingFlag = moreLoadingFlag
         self.moreLoadFailedFlag = moreLoadFailedFlag
         self.loadMoreAction = loadMoreAction
         self.translateAction = translateAction
+    }
+
+    private var inValidRange: Bool {
+        guard let pageNumber = pageNumber else { return false }
+        return pageNumber.current + 1 <= pageNumber.maximum
     }
 
     var body: some View {
@@ -117,7 +130,7 @@ private struct DetailList: View {
             .onAppear {
                 onRowAppear(item: item)
             }
-            if (moreLoadingFlag || moreLoadFailedFlag) && item == items.last {
+            if (moreLoadingFlag || moreLoadFailedFlag) && item == items.last && inValidRange {
                 LoadMoreFooter(
                     moreLoadingFlag: moreLoadingFlag,
                     moreLoadFailedFlag: moreLoadFailedFlag,
@@ -140,6 +153,7 @@ private struct WaterfallList: View {
 
     private let items: [Gallery]
     private let setting: Setting
+    private let pageNumber: PageNumber?
     private let moreLoadingFlag: Bool
     private let moreLoadFailedFlag: Bool
     private let loadMoreAction: (() -> Void)?
@@ -151,9 +165,14 @@ private struct WaterfallList: View {
     private var columnsInLandscape: Int {
         isPadWidth ? 5 : 2
     }
+    private var inValidRange: Bool {
+        guard let pageNumber = pageNumber else { return false }
+        return pageNumber.current + 1 <= pageNumber.maximum
+    }
 
     init(
         items: [Gallery], setting: Setting,
+        pageNumber: PageNumber?,
         moreLoadingFlag: Bool,
         moreLoadFailedFlag: Bool,
         loadMoreAction: (() -> Void)?,
@@ -161,6 +180,7 @@ private struct WaterfallList: View {
     ) {
         self.items = items
         self.setting = setting
+        self.pageNumber = pageNumber
         self.moreLoadingFlag = moreLoadingFlag
         self.moreLoadFailedFlag = moreLoadFailedFlag
         self.loadMoreAction = loadMoreAction
@@ -185,7 +205,7 @@ private struct WaterfallList: View {
                 columnsInLandscape: columnsInLandscape,
                 spacing: 15, animation: nil
             )
-            if !moreLoadingFlag && !moreLoadFailedFlag {
+            if !moreLoadingFlag && !moreLoadFailedFlag && inValidRange {
                 Button {
                     loadMoreAction?()
                 } label: {

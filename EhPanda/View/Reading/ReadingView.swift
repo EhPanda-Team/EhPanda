@@ -211,7 +211,7 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
                 previews: detailInfo.previews[gid] ?? [:],
                 settingAction: toggleSetting,
                 fetchAction: fetchGalleryPreivews,
-                sliderChangedAction: onControlPanelSliderChanged,
+                sliderChangedAction: onControlPanelSliderChange,
                 updateSettingAction: update
             )
             TTProgressHUD($hudVisible, config: hudConfig)
@@ -232,11 +232,11 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
             .blur(radius: environment.blurRadius)
             .allowsHitTesting(environment.isAppUnlocked)
         }
-        .onChange(of: page.index, perform: onPagerIndexChanged)
-        .onChange(of: autoPlayPolicy, perform: onAutoPlayPolicyChanged)
-        .onChange(of: setting.exceptCover, perform: onControlPanelSliderChanged)
-        .onChange(of: setting.readingDirection, perform: onControlPanelSliderChanged)
-        .onChange(of: setting.enablesDualPageMode, perform: onControlPanelSliderChanged)
+        .onChange(of: page.index, perform: onPagerIndexChange)
+        .onChange(of: autoPlayPolicy, perform: onAutoPlayPolicyChange)
+        .onChange(of: setting.exceptCover, perform: onControlPanelSliderChange)
+        .onChange(of: setting.readingDirection, perform: onControlPanelSliderChange)
+        .onChange(of: setting.enablesDualPageMode, perform: onControlPanelSliderChange)
         .onChange(of: isImageSaveSuccess, perform: { newValue in
             guard let isSuccess = newValue else { return }
             performHUD(isSuccess: isSuccess, caption: "Saved to photo library")
@@ -251,7 +251,7 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
                 set(newScale: 1.1)
                 set(newScale: 1)
             }
-            onControlPanelSliderChanged()
+            onControlPanelSliderChange()
         }
         .onReceive(
             NotificationCenter.default.publisher(
@@ -325,7 +325,7 @@ private extension ReadingView {
             page.update(.new(index: index))
         }
     }
-    func onControlPanelSliderChanged(_: Any? = nil) {
+    func onControlPanelSliderChange(_: Any? = nil) {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             let newIndex = mappingToPager(index: Int(sliderValue))
             if page.index != newIndex {
@@ -333,7 +333,7 @@ private extension ReadingView {
             }
         }
     }
-    func onPagerIndexChanged(newIndex: Int) {
+    func onPagerIndexChange(newIndex: Int) {
         prefetchImages(index: newIndex)
         let newValue = Float(mappingFromPager(index: newIndex))
         withAnimation {
@@ -342,7 +342,7 @@ private extension ReadingView {
             }
         }
     }
-    func onAutoPlayPolicyChanged(newPolicy: AutoPlayPolicy) {
+    func onAutoPlayPolicyChange(newPolicy: AutoPlayPolicy) {
         autoPlayTimer?.invalidate()
         guard newPolicy != .never else { return }
         autoPlayTimer = Timer.scheduledTimer(
@@ -361,7 +361,7 @@ private extension ReadingView {
         }
 
         sliderValue += Float(distance)
-        onControlPanelSliderChanged()
+        onControlPanelSliderChange()
     }
 
     // MARK: Progress

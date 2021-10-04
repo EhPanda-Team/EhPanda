@@ -32,7 +32,7 @@
 // MARK: AlertView
 "Loading..." = "로딩 중...";
 "Login" = "로그인";
-//"There seems to be nothing here." = "";
+"There seems to be nothing here." = "여기가 아무도 없는 것 같습니다.";
 "Retry" = "재시도";
 "A network error occurred." = "인터넷 접속 오류가 발생했어요.";
 "A parsing error occurred." = "구분 분석 오류가 발생했어요.";
@@ -40,15 +40,15 @@
 "Please try again later." = "잠시 후 다시 시도해 주세요.";
 "This gallery has been removed or is unavailable." = "이 갤러리는 제거되었거나 사용할 수 없어요.";
 "This gallery is unavailable due to a copyright claim by PLACEHOLDER. Sorry about that." = "PLACEHOLDER의 저작권 요청으로 인하여 이 갤러리를 사용할 수 없어요.";
-//"Your IP address has been temporarily banned for excessive pageloads which indicates that you are using automated mirroring / harvesting software." = "";
-//"The ban expires in PLACEHOLDER." = "";
+"Your IP address has been temporarily banned for excessive pageloads which indicates that you are using automated mirroring / harvesting software." = "자동화된 미러링/수집 소프트웨어를 사용 중임을 나타내는 과도한 페이지 로드로 인해 IP 주소가 일시적으로 금지되었습니다.";
+"The ban expires in PLACEHOLDER." = "금지효과는 PLACEHOLDER에서 만료되었습니다.";
 "BAN_INTERVAL_AND" = " and ";
 "BAN_INTERVAL_DAYS" = " days";
 "BAN_INTERVAL_HOURS" = " hours";
 "BAN_INTERVAL_MINUTES" = " minutes";
 "BAN_INTERVAL_SECONDS" = " seconds";
-//"Jump page" = "";
-//"Confirm" = "";
+"Jump page" = "페이지 이동";
+"Confirm" = "확인";
 
 // MARK: DetailView
 "Archive" = "아카이브";
@@ -106,7 +106,7 @@
 "Post" = "등록";
 
 // MARK: ReadingView
-//"AutoPlay" = "";
+"AutoPlay" = "자동 재생";
 "Reload" = "재시도";
 "Copy" = "복사";
 "Save" = "저장";
@@ -355,7 +355,7 @@
 "GAINCONTENT_END" = "획득했어요!";
 
 // MARK: QuickSearchView
-//"Quick search" = "";
+"Quick search" = "빠른 검색";
 
 // MARK: HomeListType
 "Search" = "검색";

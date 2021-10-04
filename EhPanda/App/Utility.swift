@@ -183,8 +183,7 @@ var absScreenH: CGFloat {
 }
 
 func impactFeedback(style: UIImpactFeedbackGenerator.FeedbackStyle) {
-    UIImpactFeedbackGenerator(style: style)
-        .impactOccurred()
+    UIImpactFeedbackGenerator(style: style).impactOccurred()
 }
 func notificFeedback(style: UINotificationFeedbackGenerator.FeedbackType) {
     UINotificationFeedbackGenerator().notificationOccurred(style)
@@ -368,25 +367,6 @@ func readableUnit<I: BinaryInteger>(bytes: I) -> String {
     let formatter = ByteCountFormatter()
     formatter.allowedUnits = [.useAll]
     return formatter.string(fromByteCount: Int64(bytes))
-}
-
-func browsingCaches() -> String {
-    guard let fileURL = FileManager
-            .default
-            .urls(
-                for: .cachesDirectory,
-                in: .userDomainMask
-            )
-            .first?
-            .appendingPathComponent(
-                "cachedList.json"
-            ),
-          let data = try? Data(
-            contentsOf: fileURL
-          )
-    else { return "0 KB" }
-
-    return readableUnit(bytes: data.count)
 }
 
 // MARK: Cookies

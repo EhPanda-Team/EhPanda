@@ -12,6 +12,12 @@ struct QuickSearchView: View, StoreAccessor {
     @State private var isEditting = false
     @State private var refreshID = UUID().uuidString
 
+    private let searchAction: (String) -> Void
+
+    init(searchAction: @escaping (String) -> Void) {
+        self.searchAction = searchAction
+    }
+
     var body: some View {
         NavigationView {
             ZStack {
@@ -21,7 +27,7 @@ struct QuickSearchView: View, StoreAccessor {
                             word: word,
                             isEditting: $isEditting,
                             submitID: $refreshID,
-                            searchAction: search,
+                            searchAction: searchAction,
                             submitAction: modify
                         )
                     }
@@ -73,11 +79,6 @@ private extension QuickSearchView {
         refreshID = UUID().uuidString
         store.dispatch(.moveQuickSearchWord(source: source, destination: destination))
     }
-    func search(keyword: String) {
-        store.dispatch(.toggleHomeViewSheet(state: .none))
-        store.dispatch(.toggleHomeList(type: .search))
-        store.dispatch(.fetchSearchItems(keyword: keyword))
-    }
 }
 
 // MARK: QuickSearchWordRow
@@ -121,10 +122,10 @@ private struct QuickSearchWordRow: View {
         }
         .onChange(of: submitID, perform: submit)
         .onChange(of: isFocused, perform: submit)
-        .onChange(of: isEditting, perform: onIsEdittingChanged)
+        .onChange(of: isEditting, perform: onIsEdittingChange)
     }
 
-    private func onIsEdittingChanged(_: Any? = nil) {
+    private func onIsEdittingChange(_: Any? = nil) {
         submit()
         isFocused = false
     }
@@ -136,7 +137,7 @@ private struct QuickSearchWordRow: View {
 
 struct QuickSearchView_Previews: PreviewProvider {
     static var previews: some View {
-        QuickSearchView()
+        QuickSearchView(searchAction: { _ in })
             .preferredColorScheme(.dark)
             .environmentObject(Store.preview)
     }

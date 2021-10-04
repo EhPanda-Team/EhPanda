@@ -6,7 +6,7 @@ on:
     types: [closed]
 env:
   DEVELOPER_DIR: /Applications/Xcode_13.0.app
-  APP_VERSION: '1.3.6'
+  APP_VERSION: '1.3.7'
   SCHEME_NAME: 'EhPanda'
   ALTSTORE_JSON_PATH: './AltStore.json'
   BUILDS_PATH: '/tmp/action-builds'
@@ -80,7 +80,7 @@ jobs:
           ls ~/Library/MobileDevice/Provisioning\ Profiles
       - name: Bump version
         id: bump-version
-        uses: tatsuz0u/ios-bump-version@feature/outputs
+        uses: yanamura/ios-bump-version@v1
         with:
           version: ${{ env.APP_VERSION }}
       - name: Xcode archive

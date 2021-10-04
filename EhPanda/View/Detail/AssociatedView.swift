@@ -36,6 +36,7 @@ struct AssociatedView: View, StoreAccessor {
         GenericList(
             items: associatedItems,
             setting: setting,
+            pageNumber: pageNumber,
             loadingFlag: loadingFlag,
             loadError: loadError,
             moreLoadingFlag: moreLoadingFlag,
@@ -89,8 +90,8 @@ struct AssociatedView: View, StoreAccessor {
         .navigationBarTitle(title)
         .onSubmit(of: .search, fetchAssociatedItems)
         .onAppear(perform: fetchAssociatedItemsIfNeeded)
-        .onChange(of: pageNumber, perform: onPageNumberChanged)
-        .onChange(of: alertManager.isPresented, perform: onAlertVisibilityChanged)
+        .onChange(of: pageNumber, perform: onPageNumberChange)
+        .onChange(of: alertManager.isPresented, perform: onAlertVisibilityChange)
     }
 }
 
@@ -113,10 +114,10 @@ private extension AssociatedView {
             fetchMoreAssociatedItems()
         }
     }
-    func onAlertVisibilityChanged(_: Bool) {
+    func onAlertVisibilityChange(_: Bool) {
         isAlertFocused = false
     }
-    func onPageNumberChanged(pageNumber: PageNumber) {
+    func onPageNumberChange(pageNumber: PageNumber) {
         alertInput = String(pageNumber.current + 1)
     }
 
