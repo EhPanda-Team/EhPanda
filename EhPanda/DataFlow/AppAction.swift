@@ -17,7 +17,7 @@ enum AppAction {
     case updateAppIconType(iconType: IconType)
     case updateHistoryKeywords(text: String)
     case clearHistoryKeywords
-    case updateSearchKeyword(text: String)
+    case updateLastKeyword(text: String)
     case updateViewControllersCount
     case updateSetting(setting: Setting)
     case replaceGalleryCommentJumpID(gid: String?)

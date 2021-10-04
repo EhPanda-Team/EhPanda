@@ -13,7 +13,7 @@ struct HomeView: View, StoreAccessor {
     @EnvironmentObject var store: Store
     @Environment(\.colorScheme) private var colorScheme
 
-    @State private var archivedKeyword: String?
+    @State private var keyword = ""
     @State private var clipboardJumpID: String?
     @State private var isNavLinkActive = false
     @State private var greeting: Greeting?
@@ -42,16 +42,14 @@ struct HomeView: View, StoreAccessor {
                 )
             }
             .searchable(
-                text: homeInfoBinding.searchKeyword,
+                text: $keyword,
                 placement: .navigationBarDrawer(
                     displayMode: .always
                 ),
-                prompt: "Search",
                 suggestions: {
                     ForEach(suggestions, id: \.self) { word in
                         HStack {
-                            Text(word)
-                                .foregroundStyle(.tint)
+                            Text(word).foregroundStyle(.tint)
                             Spacer()
                         }
                         .contentShape(Rectangle())
@@ -152,14 +150,14 @@ struct HomeView: View, StoreAccessor {
             NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)
         ) { _ in onBecomeActive() }
         .onChange(of: environment.galleryItemReverseLoading, perform: onJumpDetailFetchFinish)
-        .onChange(of: alertManager.isPresented, perform: onAlertVisibilityChanged)
+        .onChange(of: alertManager.isPresented, perform: onAlertVisibilityChange)
         .onChange(of: environment.galleryItemReverseID, perform: onJumpIDChange)
         .onChange(of: environment.homeListType, perform: onHomeListTypeChange)
-        .onChange(of: currentListTypePageNumber, perform: onPageNumberChanged)
-        .onChange(of: homeInfo.searchKeyword, perform: onSearchKeywordChange)
+        .onChange(of: currentListTypePageNumber, perform: onPageNumberChange)
         .onChange(of: environment.favoritesIndex, perform: onFavIndexChange)
         .onChange(of: environment.toplistsType, perform: onTopTypeChange)
         .onChange(of: user.greeting, perform: onReceiveGreeting)
+        .onChange(of: keyword, perform: onKeywordChange)
     }
 }
 
@@ -181,8 +179,7 @@ private extension HomeView {
     }
     var suggestions: [String] {
         homeInfo.historyKeywords.reversed().filter({ word in
-            homeInfo.searchKeyword.isEmpty ? true
-            : word.contains(homeInfo.searchKeyword)
+            keyword.isEmpty ? true : word.contains(keyword)
         })
     }
     var navigationBarTitle: String {
@@ -244,6 +241,7 @@ private extension HomeView {
             GenericList(
                 items: homeInfo.searchItems,
                 setting: setting,
+                pageNumber: homeInfo.searchPageNumber,
                 loadingFlag: homeInfo.searchLoading,
                 loadError: homeInfo.searchLoadError,
                 moreLoadingFlag: homeInfo.moreSearchLoading,
@@ -256,6 +254,7 @@ private extension HomeView {
             GenericList(
                 items: homeInfo.frontpageItems,
                 setting: setting,
+                pageNumber: homeInfo.frontpagePageNumber,
                 loadingFlag: homeInfo.frontpageLoading,
                 loadError: homeInfo.frontpageLoadError,
                 moreLoadingFlag: homeInfo.moreFrontpageLoading,
@@ -268,6 +267,7 @@ private extension HomeView {
             GenericList(
                 items: homeInfo.popularItems,
                 setting: setting,
+                pageNumber: nil,
                 loadingFlag: homeInfo.popularLoading,
                 loadError: homeInfo.popularLoadError,
                 moreLoadingFlag: false,
@@ -279,6 +279,7 @@ private extension HomeView {
             GenericList(
                 items: homeInfo.watchedItems,
                 setting: setting,
+                pageNumber: homeInfo.watchedPageNumber,
                 loadingFlag: homeInfo.watchedLoading,
                 loadError: homeInfo.watchedLoadError,
                 moreLoadingFlag: homeInfo.moreWatchedLoading,
@@ -293,6 +294,9 @@ private extension HomeView {
                     environment.favoritesIndex
                 ] ?? [],
                 setting: setting,
+                pageNumber: homeInfo.favoritesPageNumbers[
+                    environment.favoritesIndex
+                ],
                 loadingFlag: homeInfo.favoritesLoading[
                     environment.favoritesIndex
                 ] ?? false,
@@ -315,6 +319,9 @@ private extension HomeView {
                     environment.toplistsType.rawValue
                 ] ?? [],
                 setting: setting,
+                pageNumber: homeInfo.toplistsPageNumbers[
+                    environment.toplistsType.rawValue
+                ],
                 loadingFlag: homeInfo.toplistsLoading[
                     environment.toplistsType.rawValue
                 ] ?? false,
@@ -337,6 +344,7 @@ private extension HomeView {
             GenericList(
                 items: galleryHistory,
                 setting: setting,
+                pageNumber: nil,
                 loadingFlag: false,
                 loadError: galleryHistory.isEmpty ? .notFound : nil,
                 moreLoadingFlag: false,
@@ -397,9 +405,9 @@ private extension HomeView {
             store.dispatch(.toggleHomeViewSheet(state: .newDawn))
         }
     }
-    func onSearchKeywordChange(keyword: String) {
-        if let archivedKeyword = archivedKeyword, keyword.isEmpty {
-            store.dispatch(.updateHistoryKeywords(text: archivedKeyword))
+    func onKeywordChange(keyword: String) {
+        if keyword.isEmpty {
+            store.dispatch(.updateHistoryKeywords(text: homeInfo.lastKeyword))
         }
     }
     func onFavIndexChange(_ : Int) {
@@ -559,7 +567,7 @@ private extension HomeView {
     }
 
     func fetchMoreSearchItems() {
-        store.dispatch(.fetchMoreSearchItems(keyword: homeInfo.searchKeyword))
+        store.dispatch(.fetchMoreSearchItems(keyword: homeInfo.lastKeyword))
     }
     func fetchMoreFrontpageItems() {
         store.dispatch(.fetchMoreFrontpageItems)
@@ -580,9 +588,9 @@ private extension HomeView {
 
             let currentTime = Date()
             let formatter = DateFormatter()
-            formatter.dateFormat = "dd MMMM yyyy"
             formatter.locale = Locale.current
             formatter.timeZone = TimeZone(secondsFromGMT: 0)
+            formatter.dateFormat = Defaults.DateFormat.greeting
 
             let currentTimeString = formatter.string(from: currentTime)
             if let currDay = formatter.date(from: currentTimeString) {
@@ -641,7 +649,7 @@ private extension HomeView {
     func performJumpPage() {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             if let index = Int(alertInput), index <= currentListTypePageNumber.maximum + 1
-            { store.dispatch(.handleJumpPage(index: index - 1, keyword: archivedKeyword)) }
+            { store.dispatch(.handleJumpPage(index: index - 1, keyword: homeInfo.lastKeyword)) }
         }
     }
 }

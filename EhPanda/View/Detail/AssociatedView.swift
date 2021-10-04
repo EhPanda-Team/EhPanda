@@ -36,6 +36,7 @@ struct AssociatedView: View, StoreAccessor {
         GenericList(
             items: associatedItems,
             setting: setting,
+            pageNumber: pageNumber,
             loadingFlag: loadingFlag,
             loadError: loadError,
             moreLoadingFlag: moreLoadingFlag,
