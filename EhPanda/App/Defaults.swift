@@ -49,6 +49,7 @@ struct Defaults {
         static let ipbPassHash = "ipb_pass_hash"
     }
     struct DateFormat {
+        static let greeting = "dd MMMM yyyy"
         static let publish = "yyyy-MM-dd HH:mm"
         static let torrent = "yyyy-MM-dd HH:mm"
         static let comment = "dd MMMM yyyy, HH:mm"
@@ -154,19 +155,9 @@ extension Defaults.URL {
         if let pageNum = pageNum { params.append(page2 + String(pageNum)) }
         return merge(urls: params + applyFilters(filter: filter))
     }
-    static func moreSearchList(
-        keyword: String,
-        filter: Filter,
-        pageNum: Int,
-        lastID: String
-    ) -> String {
+    static func moreSearchList(keyword: String, filter: Filter, pageNum: Int, lastID: String) -> String {
         merge(
-            urls: [
-                host,
-                fSearch + keyword.urlEncoded(),
-                page2 + String(pageNum),
-                from + lastID
-            ]
+            urls: [host, fSearch + keyword.urlEncoded(), page2 + String(pageNum), from + lastID]
             + applyFilters(filter: filter)
         )
     }
