@@ -6,21 +6,9 @@
 //
 
 import SwiftUI
-import Combine
-import Kingfisher
 import SwiftyBeaver
 
-extension Dictionary where Key == String, Value == String {
-    func dictString() -> String {
-        var array = [String]()
-        keys.forEach { key in
-            let value = self[key]!
-            array.append(key + "=" + value)
-        }
-        return array.joined(separator: "&")
-    }
-}
-
+// MARK: UINavigationController
 // Enables fullscreen swipe back gesture
 extension UINavigationController: UIGestureRecognizerDelegate {
     override open func viewDidLoad() {
@@ -33,23 +21,14 @@ extension UINavigationController: UIGestureRecognizerDelegate {
     }
 }
 
-extension Array where Element: Publisher {
-    var zipAll: AnyPublisher<[Element.Output], Element.Failure> {
-        let initial = Just([Element.Output]())
-            .setFailureType(to: Element.Failure.self)
-            .eraseToAnyPublisher()
-        return reduce(initial) { result, publisher in
-            result.zip(publisher) { $0 + [$1] }.eraseToAnyPublisher()
-        }
-    }
-}
-
+// MARK: Encodable
 extension Encodable {
     func toData() -> Data? {
         try? JSONEncoder().encode(self)
     }
 }
 
+// MARK: Data
 extension Data {
     func toObject<O: Decodable>() -> O? {
         try? JSONDecoder().decode(O.self, from: self)
@@ -68,8 +47,9 @@ extension Data {
     }
 }
 
+// MARK: Float
 extension Float {
-    func fixedRating() -> Float {
+    var halfRounded: Float {
         let lowerbound = Int(self)
         let upperbound = lowerbound + 1
         let decimal: Float = self - Float(lowerbound)
@@ -84,16 +64,10 @@ extension Float {
     }
 }
 
+// MARK: String
 extension String {
     var hasLocalizedString: Bool {
         localized != self
-    }
-    var lineCount: Int {
-        var count = 0
-        enumerateLines { _, _ in
-            count += 1
-        }
-        return count
     }
 
     var localized: String {
@@ -106,28 +80,8 @@ extension String {
         ) ?? ""
     }
 
-    var withComma: String? {
-        Int(self)?.formatted(.number)
-    }
-
     func capitalizingFirstLetter() -> String {
         prefix(1).capitalized + dropFirst()
-    }
-
-    func trimmedTitle() -> String {
-        var title = self
-
-        if let range = title.range(of: "|") {
-            title = String(title[..<range.lowerBound])
-        }
-
-        return title
-            .replacingOccurrences(from: "(", to: ")", with: "")
-            .replacingOccurrences(from: "[", to: "]", with: "")
-            .replacingOccurrences(from: "{", to: "}", with: "")
-            .replacingOccurrences(from: "【", to: "】", with: "")
-            .replacingOccurrences(from: "「", to: "」", with: "")
-            .trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     func replacingOccurrences(
@@ -169,19 +123,7 @@ extension String {
     }
 }
 
-extension View {
-    func withArrow() -> some View {
-        HStack {
-            self
-            Spacer()
-            Image(systemName: "chevron.right")
-                .foregroundColor(.secondary)
-                .imageScale(.small)
-                .opacity(0.5)
-        }
-    }
-}
-
+// MARK: Bundle
 extension Bundle {
     var icon: UIImage? {
         if let icons = infoDictionary?["CFBundleIcons"] as? [String: Any],
@@ -194,25 +136,7 @@ extension Bundle {
     }
 }
 
-extension Int {
-    var withComma: String? {
-        formatted(.number)
-    }
-    var withoutComma: String {
-        String(self).replacingOccurrences(of: ",", with: "")
-    }
-}
-
-extension Double {
-    func roundedString() -> String {
-        roundedString(with: 1)
-    }
-
-    func roundedString(with places: Int) -> String {
-        String(format: "%.\(places)f", self)
-    }
-}
-
+// MARK: UIImage
 extension UIImage {
     func cropping(to rect: CGRect) -> UIImage? {
         let scaledRect = CGRect(
@@ -222,15 +146,8 @@ extension UIImage {
             height: rect.size.height * scale
         )
 
-        guard let cgImage = cgImage?
-                .cropping(to: scaledRect)
-        else { return nil }
-
-        return UIImage(
-            cgImage: cgImage,
-            scale: scale,
-            orientation: imageOrientation
-        )
+        guard let cgImage = cgImage?.cropping(to: scaledRect) else { return nil }
+        return UIImage(cgImage: cgImage, scale: scale, orientation: imageOrientation)
     }
 
     func cropping(size: CGSize, offset: CGFloat) -> UIImage? {
@@ -238,39 +155,7 @@ extension UIImage {
         let rect = CGRect(origin: origin, size: size)
         return cropping(to: rect)
     }
-}
 
-extension Optional {
-    var forceUnwrapped: Wrapped! {
-        if let value = self {
-            return value
-        }
-        SwiftyBeaver.error(
-            "Failed in force unwrapping...",
-            context: [
-                "type": Wrapped.self
-            ]
-        )
-        return nil
-    }
-}
-
-extension CGSize {
-    static func * (left: CGSize, right: CGFloat) -> CGSize {
-        CGSize(width: left.width * right, height: left.height * right)
-    }
-}
-
-extension URLRequest {
-    mutating func setURLEncodedContentType() {
-        setValue(
-            "application/x-www-form-urlencoded",
-            forHTTPHeaderField: "Content-Type"
-        )
-    }
-}
-
-extension UIImage {
     func withRoundedCorners(radius: CGFloat) -> UIImage? {
         let maxRadius = min(size.width, size.height) / 2
 
@@ -283,13 +168,8 @@ extension UIImage {
 
         UIGraphicsBeginImageContextWithOptions(size, false, scale)
 
-        let rect = CGRect(
-            origin: .zero, size: size
-        )
-        UIBezierPath(
-            roundedRect: rect,
-            cornerRadius: cornerRadius
-        ).addClip()
+        let rect = CGRect(origin: .zero, size: size)
+        UIBezierPath(roundedRect: rect, cornerRadius: cornerRadius).addClip()
         draw(in: rect)
 
         let image = UIGraphicsGetImageFromCurrentImageContext()
@@ -298,85 +178,44 @@ extension UIImage {
     }
 }
 
-extension Color {
-    func lighter(by percentage: CGFloat = 30.0) -> Color {
-        self.adjust(by: abs(percentage) ) ?? self
-    }
-
-    func darker(by percentage: CGFloat = 30.0) -> Color {
-        self.adjust(by: -1 * abs(percentage) ) ?? self
-    }
-
-    func adjust(by percentage: CGFloat = 30.0) -> Color? {
-        var red: CGFloat = 0, green: CGFloat = 0,
-            blue: CGFloat = 0, alpha: CGFloat = 0
-        if UIColor(self).getRed(
-            &red, green: &green, blue: &blue, alpha: &alpha
-        ) {
-            return Color(uiColor: UIColor(
-                red: min(red + percentage/100, 1.0),
-                green: min(green + percentage/100, 1.0),
-                blue: min(blue + percentage/100, 1.0),
-                alpha: alpha
-            ))
-        } else {
-            return nil
+// MARK: Optional
+extension Optional {
+    var forceUnwrapped: Wrapped! {
+        if let value = self {
+            return value
         }
+        SwiftyBeaver.error(
+            "Failed in force unwrapping...",
+            context: ["type": Wrapped.self]
+        )
+        return nil
     }
+}
+
+// MARK: Color
+extension Color {
     init(hex: String) {
         let hex = hex.trimmingCharacters(
             in: CharacterSet.alphanumerics.inverted
         )
         var int: UInt64 = 0
         Scanner(string: hex).scanHexInt64(&int)
+
         let alpha, red, green, blue: UInt64
         switch hex.count {
         case 3:
-            (alpha, red, green, blue) = (
-                255, (int >> 8) * 17,
-                (int >> 4 & 0xF) * 17,
-                (int & 0xF) * 17
-            )
+            (alpha, red, green, blue) = (255, (int >> 8) * 17, (int >> 4 & 0xF) * 17, (int & 0xF) * 17)
         case 6:
-            (alpha, red, green, blue) = (
-                255, int >> 16,
-                int >> 8 & 0xFF,
-                int & 0xFF
-            )
+            (alpha, red, green, blue) = (255, int >> 16, int >> 8 & 0xFF, int & 0xFF)
         case 8:
-            (alpha, red, green, blue) = (
-                int >> 24, int >> 16 & 0xFF,
-                int >> 8 & 0xFF, int & 0xFF
-            )
+            (alpha, red, green, blue) = (int >> 24, int >> 16 & 0xFF, int >> 8 & 0xFF, int & 0xFF)
         default:
             (alpha, red, green, blue) = (1, 1, 1, 0)
         }
 
         self.init(
-            .sRGB,
-            red: Double(red) / 255.0,
-            green: Double(green) / 255.0,
-            blue: Double(blue) / 255.0,
-            opacity: Double(alpha) / 255.0
+            .sRGB, red: Double(red) / 255.0, green: Double(green) / 255.0,
+            blue: Double(blue) / 255.0, opacity: Double(alpha) / 255.0
         )
-    }
-}
-
-extension KingfisherManager {
-    static func configure(bypassesSNIFiltering: Bool, handlesCookies: Bool = true) {
-        let config = KingfisherManager.shared.downloader.sessionConfiguration
-        if handlesCookies {
-            config.httpCookieStorage = HTTPCookieStorage.shared
-        }
-        if bypassesSNIFiltering {
-            config.protocolClasses = [DFURLProtocol.self]
-        }
-        KingfisherManager.shared.downloader.sessionConfiguration = config
-    }
-}
-
-extension Bool {
-    var yesNoDescription: String {
-        self ? "Yes" : "No"
     }
 }

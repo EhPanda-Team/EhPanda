@@ -35,7 +35,7 @@ struct DefaultGalleryHostStrategy: DefaultCodableStrategy {
 
 typealias DefaultListMode = DefaultCodable<DefaultListModeStrategy>
 struct DefaultListModeStrategy: DefaultCodableStrategy {
-    static var defaultValue: ListMode { isPadWidth ? .thumbnail : .detail }
+    static var defaultValue: ListMode { DeviceUtil.isPadWidth ? .thumbnail : .detail }
 }
 
 typealias DefaultPreferredColorScheme = DefaultCodable<DefaultPreferredColorSchemeStrategy>

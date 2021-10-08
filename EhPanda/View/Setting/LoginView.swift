@@ -117,7 +117,7 @@ struct LoginView: View, StoreAccessor {
     private func login() {
         guard !isLoginButtonDisabled || isLoggingIn else { return }
         withAnimation { isLoggingIn = true }
-        impactFeedback(style: .soft)
+        HapticUtil.generateFeedback(style: .soft)
 
         let token = SubscriptionToken()
         LoginRequest(username: username, password: password)
@@ -125,11 +125,11 @@ struct LoginView: View, StoreAccessor {
             .sink { _ in
                 DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
                     withAnimation { isLoggingIn = false }
-                    guard didLogin else {
-                        notificFeedback(style: .error)
+                    guard AuthorizationUtil.didLogin else {
+                        HapticUtil.generateNotificationFeedback(style: .error)
                         return
                     }
-                    notificFeedback(style: .success)
+                    HapticUtil.generateNotificationFeedback(style: .success)
                     dismissAction.callAsFunction()
                     store.dispatch(.fetchFrontpageItems())
                     store.dispatch(.verifyEhProfile)

@@ -34,17 +34,17 @@ struct Greeting: Codable, Equatable {
     var strings: [String] {
         var strings = [String]()
 
-        if let exp = gainedEXP?.withComma {
-            strings.append(exp + " EXP")
+        if let exp = gainedEXP {
+            strings.append("\(exp) EXP")
         }
-        if let credits = gainedCredits?.withComma {
-            strings.append(credits + " Credits")
+        if let credits = gainedCredits {
+            strings.append("\(credits) Credits")
         }
-        if let galleryPoint = gainedGP?.withComma {
-            strings.append(galleryPoint + " GP")
+        if let galleryPoint = gainedGP {
+            strings.append("\(galleryPoint) GP")
         }
-        if let hath = gainedHath?.withComma {
-            strings.append(hath + " Hath")
+        if let hath = gainedHath {
+            strings.append("\(hath) Hath")
         }
 
         return strings

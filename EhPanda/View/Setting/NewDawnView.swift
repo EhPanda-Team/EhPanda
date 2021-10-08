@@ -7,14 +7,14 @@
 
 import SwiftUI
 
-private let sunWidth = windowW * (isPad ? 0.5 : 0.6)
+private let sunWidth = DeviceUtil.windowW * (DeviceUtil.isPad ? 0.5 : 0.6)
 
 struct NewDawnView: View {
     @Environment(\.colorScheme) private var colorScheme
     @State private var rotationAngle: Double = 0
     @State private var greeting: Greeting?
 
-    private let offset = windowW * 0.2
+    private let offset = DeviceUtil.windowW * 0.2
 
     private var gradientColors: [Color] {
         let teal = Color(.systemTeal)

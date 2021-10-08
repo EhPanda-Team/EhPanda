@@ -46,7 +46,7 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
 
     private var containerDataSource: [Int] {
         let defaultData = Array(1...pageCount)
-        guard isLandscape && setting.enablesDualPageMode
+        guard DeviceUtil.isLandscape && setting.enablesDualPageMode
                 && setting.readingDirection != .vertical
         else { return defaultData }
 
@@ -62,7 +62,7 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
         let isReversed = direction == .rightToLeft
         let isFirstSingle = setting.exceptCover
         let isFirstPageAndSingle = index == 1 && isFirstSingle
-        let isDualPage = isLandscape
+        let isDualPage = DeviceUtil.isLandscape
         && setting.enablesDualPageMode
         && direction != .vertical
 
@@ -87,7 +87,7 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
                 getImageContainerConfigs(index: index)
             let isDualPage = setting.enablesDualPageMode
             && setting.readingDirection != .vertical
-            && isLandscape
+            && DeviceUtil.isLandscape
 
             if isFirstValid {
                 ImageContainer(
@@ -167,7 +167,7 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
             ReadingSettingView().tint(accentColor)
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) {
-                        if !isPad && isLandscape {
+                        if !DeviceUtil.isPad && DeviceUtil.isLandscape {
                             Button(action: dismissSetting) {
                                 Image(systemName: "chevron.down")
                             }
@@ -305,7 +305,7 @@ private extension ReadingView {
         setOrientation(allowsLandscape: false)
     }
     func setOrientation(allowsLandscape: Bool, shouldChangeOrientation: Bool = false) {
-        guard !isPad, setting.prefersLandscape else { return }
+        guard !DeviceUtil.isPad, setting.prefersLandscape else { return }
         if allowsLandscape {
             AppDelegate.orientationLock = .all
             if shouldChangeOrientation {
@@ -351,7 +351,7 @@ private extension ReadingView {
         )
     }
     func onAutoPlayTimerFired(_: Timer) {
-        let distance = isLandscape
+        let distance = DeviceUtil.isLandscape
         && setting.enablesDualPageMode
         && setting.readingDirection != .vertical ? 2 : 1
 
@@ -379,7 +379,7 @@ private extension ReadingView {
         }
     }
     func mappingToPager(index: Int) -> Int {
-        guard isLandscape && setting.enablesDualPageMode
+        guard DeviceUtil.isLandscape && setting.enablesDualPageMode
                 && setting.readingDirection != .vertical
         else { return index - 1 }
         if index <= 1 { return 0 }
@@ -388,7 +388,7 @@ private extension ReadingView {
             ? index / 2 : (index - 1) / 2
     }
     func mappingFromPager(index: Int) -> Int {
-        guard isLandscape && setting.enablesDualPageMode
+        guard DeviceUtil.isLandscape && setting.enablesDualPageMode
                 && setting.readingDirection != .vertical
         else { return index + 1 }
         if index <= 0 { return 1 }
@@ -426,7 +426,7 @@ private extension ReadingView {
     func toggleSetting() {
         sheetState = .setting
         autoPlayPolicy = .never
-        impactFeedback(style: .light)
+        HapticUtil.generateFeedback(style: .light)
     }
     func dismissSetting() {
         sheetState = nil
@@ -527,9 +527,9 @@ private extension ReadingView {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
             switch type {
             case .success:
-                notificFeedback(style: .success)
+                HapticUtil.generateNotificationFeedback(style: .success)
             case .error:
-                notificFeedback(style: .error)
+                HapticUtil.generateNotificationFeedback(style: .error)
             default:
                 break
             }
@@ -634,8 +634,8 @@ private extension ReadingView {
     func syncScaleAnchor() {
         guard let point = TouchHandler.shared.currentPoint else { return }
 
-        let x = min(max(point.x / absWindowW, 0), 1)
-        let y = min(max(point.y / absWindowH, 0), 1)
+        let x = min(max(point.x / DeviceUtil.absWindowW, 0), 1)
+        let y = min(max(point.y / DeviceUtil.absWindowH, 0), 1)
         scaleAnchor = UnitPoint(x: x, y: y)
     }
     func fixOffset() {
@@ -645,13 +645,13 @@ private extension ReadingView {
         }
     }
     func fixWidth(x: CGFloat) -> CGFloat {
-        let marginW = absWindowW * (scale - 1) / 2
+        let marginW = DeviceUtil.absWindowW * (scale - 1) / 2
         let leadingMargin = scaleAnchor.x / 0.5 * marginW
         let trailingMargin = (1 - scaleAnchor.x) / 0.5 * marginW
         return min(max(x, -trailingMargin), leadingMargin)
     }
     func fixHeight(y: CGFloat) -> CGFloat {
-        let marginH = absWindowH * (scale - 1) / 2
+        let marginH = DeviceUtil.absWindowH * (scale - 1) / 2
         let topMargin = scaleAnchor.y / 0.5 * marginH
         let bottomMargin = (1 - scaleAnchor.y) / 0.5 * marginH
         return min(max(y, -bottomMargin), topMargin)
@@ -672,7 +672,7 @@ private struct ImageContainer: View {
     private var reloadSymbolName: String =
     "exclamationmark.arrow.triangle.2.circlepath"
     private var width: CGFloat {
-        windowW / (isDualPage ? 2 : 1)
+        DeviceUtil.windowW / (isDualPage ? 2 : 1)
     }
     private var height: CGFloat {
         width / Defaults.ImageSize.contentScale
@@ -722,7 +722,7 @@ private struct ImageContainer: View {
         ZStack {
             backgroundColor
             VStack {
-                Text(index.withoutComma)
+                Text(String(index))
                     .fontWeight(.bold)
                     .font(.largeTitle)
                     .foregroundColor(.gray)

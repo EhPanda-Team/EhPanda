@@ -110,7 +110,7 @@ struct GenericRetryView: View {
                 .buttonBorderShape(.capsule)
             }
         }
-        .frame(maxWidth: windowW * 0.8)
+        .frame(maxWidth: DeviceUtil.windowW * 0.8)
     }
 }
 

@@ -60,7 +60,7 @@ private extension AuthView {
         lock()
     }
     func onLockTap() {
-        impactFeedback(style: .soft)
+        HapticUtil.generateFeedback(style: .soft)
         authenticate()
     }
     func onResignActive() {
@@ -111,7 +111,7 @@ private extension AuthView {
     }
 
     func authenticate() {
-        localAuth(
+        AuthorizationUtil.localAuth(
             reason: "The App has been locked due to the auto-lock expiration.",
             successAction: {
                 set(isUnlocked: true)

@@ -63,12 +63,12 @@ struct ArchiveView: View, StoreAccessor, PersistenceAccessor {
 
                             Spacer()
 
-                            if let galleryPoints = currentGP?.withComma,
-                               let credits = currentCredits?.withComma
+                            if let galleryPoints = Int(currentGP ?? ""),
+                               let credits = Int(currentCredits ?? "")
                             {
                                 HStack(spacing: 20) {
-                                    Label(galleryPoints, systemImage: "g.circle.fill")
-                                    Label(credits, systemImage: "c.circle.fill")
+                                    Label("\(galleryPoints)", systemImage: "g.circle.fill")
+                                    Label("\(credits)", systemImage: "c.circle.fill")
                                 }
                                 .font(.headline)
                                 .lineLimit(1)
@@ -118,7 +118,7 @@ private extension ArchiveView {
     }
     func onDownloadButtonTap() {
         fetchDownloadResponse()
-        impactFeedback(style: .soft)
+        HapticUtil.generateFeedback(style: .soft)
     }
     func performHUD() {
         let isSuccess = !sendFailedFlag
@@ -128,9 +128,9 @@ private extension ArchiveView {
 
         switch type {
         case .success:
-            notificFeedback(style: .success)
+            HapticUtil.generateNotificationFeedback(style: .success)
         case .error:
-            notificFeedback(style: .error)
+            HapticUtil.generateNotificationFeedback(style: .error)
         default:
             break
         }
@@ -184,7 +184,7 @@ private extension ArchiveView {
                             "Credits": credits
                         ]
                     )
-                } else if isSameAccount {
+                } else if AuthorizationUtil.isSameAccount {
                     store.dispatch(.fetchGalleryArchiveFunds(gid: gid))
                 }
             }
@@ -381,7 +381,7 @@ private extension DownloadButton {
         }
     }
     var paddingInsets: EdgeInsets {
-        isPadWidth
+        DeviceUtil.isPadWidth
             ? .init(
                 top: 0,
                 leading: 0,

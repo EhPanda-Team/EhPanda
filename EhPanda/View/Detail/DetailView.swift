@@ -138,7 +138,7 @@ struct DetailView: View, StoreAccessor, PersistenceAccessor {
                     Button(action: onArchiveButtonTap) {
                         Label("Archive", systemImage: "doc.zipper")
                     }
-                    .disabled(galleryDetail?.archiveURL == nil || !didLogin)
+                    .disabled(galleryDetail?.archiveURL == nil || !AuthorizationUtil.didLogin)
                     Button(action: navigateToTorrentsView) {
                         Label(
                             "Torrents".localized + (
@@ -226,9 +226,7 @@ private extension DetailView {
     func navigateToTorrentsView() {
         isTorrentsLinkActive.toggle()
     }
-    func navigateToAssociatedView(_ keyword: String? = nil) {
-        guard let keyword = keyword else { return }
-
+    func navigateToAssociatedView(_ keyword: String) {
         self.keyword = keyword
         isAssociatedLinkActive.toggle()
     }
@@ -241,7 +239,20 @@ private extension DetailView {
         navigateToAssociatedView("uploader:" + "\"\(uploader)\"")
     }
     func onSimilarGalleryTap() {
-        navigateToAssociatedView(galleryDetail?.title.trimmedTitle())
+        guard var title = galleryDetail?.title else { return }
+
+        if let range = title.range(of: "|") {
+            title = String(title[..<range.lowerBound])
+        }
+
+        title = title
+            .replacingOccurrences(from: "(", to: ")", with: "")
+            .replacingOccurrences(from: "[", to: "]", with: "")
+            .replacingOccurrences(from: "{", to: "}", with: "")
+            .replacingOccurrences(from: "【", to: "】", with: "")
+            .replacingOccurrences(from: "「", to: "」", with: "")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        navigateToAssociatedView(title)
     }
     func onTagViewTap(keyword: String) {
         navigateToAssociatedView(keyword)
@@ -374,7 +385,7 @@ private struct HeaderView: View {
                         }
                         .opacity(detail.isFavored ? 0 : 1)
                     }
-                    .disabled(!didLogin)
+                    .disabled(!AuthorizationUtil.didLogin)
                     Button(action: {}, label: {
                         NavigationLink(
                             destination: { ReadingView(gid: gallery.gid) },
@@ -429,7 +440,7 @@ private struct DescScrollView: View {
         var isRating = false
     }
 
-    @State private var itemWidth = max(absWindowW / 5, 80)
+    @State private var itemWidth = max(DeviceUtil.absWindowW / 5, 80)
 
     private let gallery: Gallery
     private let detail: GalleryDetail
@@ -516,9 +527,9 @@ private struct DescScrollView: View {
 
     private func onWidthChange() {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-            if itemWidth != max(absWindowW / 5, 80) {
+            if itemWidth != max(DeviceUtil.absWindowW / 5, 80) {
                 withAnimation {
-                    itemWidth = max(absWindowW / 5, 80)
+                    itemWidth = max(DeviceUtil.absWindowW / 5, 80)
                 }
             }
         }
@@ -606,7 +617,7 @@ private struct ActionRow: View {
                             .fontWeight(.bold)
                         Spacer()
                     }
-                    .disabled(!didLogin)
+                    .disabled(!AuthorizationUtil.didLogin)
                     Button(action: galleryAction) {
                         Spacer()
                         Image(systemName: "photo.on.rectangle.angled")
@@ -639,7 +650,7 @@ private struct ActionRow: View {
 
 private extension ActionRow {
     func onStartTasks() {
-        userRating = Int(detail.userRating.fixedRating() * 2)
+        userRating = Int(detail.userRating.halfRounded * 2)
     }
     func onRateButtonTap() {
         withAnimation {
@@ -652,7 +663,7 @@ private extension ActionRow {
     func onRatingEnded(value: DragGesture.Value) {
         updateRating(value: value)
         ratingAction(userRating)
-        impactFeedback(style: .soft)
+        HapticUtil.generateFeedback(style: .soft)
         withAnimation(Animation.default.delay(1)) {
             showUserRating.toggle()
         }
@@ -883,7 +894,7 @@ private struct MorePreviewView: View {
                                 onImageTap(index: index)
                             }
                         Text("\(index)")
-                            .font(isPadWidth ? .callout : .caption)
+                            .font(DeviceUtil.isPadWidth ? .callout : .caption)
                             .foregroundColor(.secondary)
                     }
                     .onAppear {
@@ -959,8 +970,7 @@ private struct CommentScrollView: View {
             }
             .swipeBackable()
             CommentButton(action: toggleCommentAction)
-                .padding(.horizontal)
-                .disabled(!didLogin)
+                .padding(.horizontal).disabled(!AuthorizationUtil.didLogin)
         }
     }
 }

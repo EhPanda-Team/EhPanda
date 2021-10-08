@@ -28,6 +28,23 @@ private extension Publisher {
         retry(3)
     }
 }
+private extension URLRequest {
+    mutating func setURLEncodedContentType() {
+        setValue(
+            "application/x-www-form-urlencoded",
+            forHTTPHeaderField: "Content-Type"
+        )
+    }
+}
+private extension Dictionary where Key == String, Value == String {
+    func dictString() -> String {
+        var array = [String]()
+        keys.forEach { key in
+            array.append(key + "=" + self[key].forceUnwrapped)
+        }
+        return array.joined(separator: "&")
+    }
+}
 
 // MARK: Routine
 struct GreetingRequest {

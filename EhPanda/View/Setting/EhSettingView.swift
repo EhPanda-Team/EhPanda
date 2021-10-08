@@ -18,7 +18,7 @@ struct EhSettingView: View, StoreAccessor {
     @State private var shouldHideKeyboard = ""
 
     private var title: String {
-        galleryHost.rawValue + " " + "Setting".localized
+        AppUtil.galleryHost.rawValue + " " + "Setting".localized
     }
 
     private func form(ehSettingBinding: Binding<EhSetting>) -> some View {
@@ -670,7 +670,7 @@ private struct ExcludeView: View {
 
     private let gridItems = [
         GridItem(.adaptive(
-            minimum: isPadWidth ? 100 : 80, maximum: 100
+            minimum: DeviceUtil.isPadWidth ? 100 : 80, maximum: 100
         ))
     ]
     private func localizedText(_ text: String) -> String {
@@ -706,7 +706,7 @@ private struct ExcludeView: View {
                     .opacity(isExcluded.wrappedValue ? 1 : 0)
                 }
                 .onTapGesture {
-                    impactFeedback(style: .light)
+                    HapticUtil.generateFeedback(style: .light)
                     withAnimation {
                         isExcluded.wrappedValue.toggle()
                     }
@@ -800,7 +800,7 @@ private struct ExcludedLanguagesSection: View {
             + Text(excludedLanguagesDescription.localized)
         ) {
             HStack {
-                Text("").frame(width: windowW * 0.25)
+                Text("").frame(width: DeviceUtil.windowW * 0.25)
                 ForEach(["Original", "Translated", "Rewrite"], id: \.self) { category in
                     Color.clear.overlay {
                         Text(category.localized).lineLimit(1)
@@ -844,7 +844,7 @@ private struct ExcludeRow: View {
                     .font(.subheadline).fixedSize()
                 Spacer()
             }
-            .frame(width: windowW * 0.25)
+            .frame(width: DeviceUtil.windowW * 0.25)
             ForEach(0..<bindings.count) { index in
                 let shouldHide = isFirstRow && index == 0
                 ExcludeToggle(isOn: bindings[index])
@@ -870,7 +870,7 @@ private struct ExcludeToggle: View {
             }
             .onTapGesture {
                 withAnimation { isOn.toggle() }
-                impactFeedback(style: .light)
+                HapticUtil.generateFeedback(style: .light)
             }
     }
 }
@@ -901,7 +901,7 @@ private struct ExcludedUploadersSection: View {
         ) {
             TextEditor(text: $ehSetting.excludedUploaders)
                 .textInputAutocapitalization(.none)
-                .frame(maxHeight: windowH * 0.3)
+                .frame(maxHeight: DeviceUtil.windowH * 0.3)
                 .disableAutocorrection(true)
                 .focused($isFocused)
         }
@@ -1317,6 +1317,15 @@ private struct MultiplePageViewerSection: View {
     }
 }
 
+private extension String {
+    var lineCount: Int {
+        var count = 0
+        enumerateLines { _, _ in
+            count += 1
+        }
+        return count
+    }
+}
 private extension Text {
     func newlineBold() -> Text {
         bold() + Text("\n")

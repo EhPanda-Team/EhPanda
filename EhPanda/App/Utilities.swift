@@ -1,5 +1,5 @@
 //
-//  Utility.swift
+//  Utilities.swift
 //  EhPanda
 //
 //  Created by 荒木辰造 on R 2/11/22.
@@ -8,185 +8,229 @@
 import SwiftUI
 import Combine
 import Kingfisher
+import AudioToolbox
 import LocalAuthentication
 
-// MARK: Account
-var isSameAccount: Bool {
-    if let ehentai = URL(string: Defaults.URL.ehentai),
-       let exhentai = URL(string: Defaults.URL.exhentai)
-    {
-        let ehUID = getCookieValue(
-            url: ehentai,
-            key: Defaults.Cookie.ipbMemberId
-        ).rawValue
-        let exUID = getCookieValue(
-            url: exhentai,
-            key: Defaults.Cookie.ipbMemberId
-        ).rawValue
+// MARK: Authorization
+struct AuthorizationUtil {
+    static var isSameAccount: Bool {
+        if let ehentai = URL(string: Defaults.URL.ehentai),
+           let exhentai = URL(string: Defaults.URL.exhentai)
+        {
+            let ehUID = getCookieValue(
+                url: ehentai,
+                key: Defaults.Cookie.ipbMemberId
+            ).rawValue
+            let exUID = getCookieValue(
+                url: exhentai,
+                key: Defaults.Cookie.ipbMemberId
+            ).rawValue
 
-        if !ehUID.isEmpty && !exUID.isEmpty {
-            return ehUID == exUID
+            if !ehUID.isEmpty && !exUID.isEmpty {
+                return ehUID == exUID
+            } else {
+                return true
+            }
         } else {
             return true
         }
-    } else {
-        return true
     }
-}
 
-var didLogin: Bool {
-    verifyCookies(url: Defaults.URL.ehentai.safeURL(), isEx: false)
-        || verifyCookies(url: Defaults.URL.exhentai.safeURL(), isEx: true)
+    static var didLogin: Bool {
+        verifyCookies(url: Defaults.URL.ehentai.safeURL(), isEx: false)
+            || verifyCookies(url: Defaults.URL.exhentai.safeURL(), isEx: true)
+    }
+
+    static func localAuth(
+        reason: String,
+        successAction: (() -> Void)? = nil,
+        failureAction: (() -> Void)? = nil,
+        passcodeNotFoundAction: (() -> Void)? = nil
+    ) {
+        let context = LAContext()
+        var error: NSError?
+
+        if context.canEvaluatePolicy(.deviceOwnerAuthentication, error: &error) {
+            context.evaluatePolicy(
+                .deviceOwnerAuthentication,
+                localizedReason: reason.localized
+            ) { success, _ in
+                DispatchQueue.main.async {
+                    if success {
+                        successAction?()
+                    } else {
+                        failureAction?()
+                    }
+                }
+            }
+        } else {
+            passcodeNotFoundAction?()
+        }
+    }
 }
 
 // MARK: App
-var appVersion: String {
-    Bundle.main.object(
-        forInfoDictionaryKey: "CFBundleShortVersionString"
-    ) as? String ?? "(null)"
-}
-var appBuild: String {
-    Bundle.main.object(
-        forInfoDictionaryKey: "CFBundleVersion"
-    ) as? String ?? "(null)"
-}
-
-var galleryHost: GalleryHost {
-    let rawValue = UserDefaults
-        .standard
-        .string(forKey: "GalleryHost") ?? ""
-    return GalleryHost(rawValue: rawValue) ?? .ehentai
-}
-
-var appIconType: IconType {
-    var alterName: String?
-    dispatchMainSync {
-        alterName = UIApplication
-            .shared.alternateIconName
+struct AppUtil {
+    static var version: String {
+        Bundle.main.object(
+            forInfoDictionaryKey: "CFBundleShortVersionString"
+        ) as? String ?? "(null)"
     }
-    if let iconName = alterName,
-       let selection = IconType.allCases.filter(
-        { iconName.contains($0.fileName ?? "") }
-       ).first
-       {
-        return selection
-    } else {
-        return .default
+    static var build: String {
+        Bundle.main.object(
+            forInfoDictionaryKey: "CFBundleVersion"
+        ) as? String ?? "(null)"
     }
-}
 
-func localAuth(
-    reason: String,
-    successAction: (() -> Void)? = nil,
-    failureAction: (() -> Void)? = nil,
-    passcodeNotFoundAction: (() -> Void)? = nil
-) {
-    let context = LAContext()
-    var error: NSError?
-
-    if context.canEvaluatePolicy(.deviceOwnerAuthentication, error: &error) {
-        context.evaluatePolicy(
-            .deviceOwnerAuthentication,
-            localizedReason: reason.localized
-        ) { success, _ in
-            DispatchQueue.main.async {
-                if success {
-                    successAction?()
-                } else {
-                    failureAction?()
-                }
-            }
+    static var iconType: IconType {
+        var alterName: String?
+        dispatchMainSync {
+            alterName = UIApplication
+                .shared.alternateIconName
         }
-    } else {
-        passcodeNotFoundAction?()
+        if let iconName = alterName,
+           let selection = IconType.allCases.filter(
+            { iconName.contains($0.fileName ?? "") }
+           ).first
+           {
+            return selection
+        } else {
+            return .default
+        }
+    }
+
+    static var galleryHost: GalleryHost {
+        let rawValue = UserDefaults
+            .standard
+            .string(forKey: "GalleryHost") ?? ""
+        return GalleryHost(rawValue: rawValue) ?? .ehentai
+    }
+
+    static func configureKingfisher(bypassesSNIFiltering: Bool, handlesCookies: Bool = true) {
+        let config = KingfisherManager.shared.downloader.sessionConfiguration
+        if handlesCookies {
+            config.httpCookieStorage = HTTPCookieStorage.shared
+        }
+        if bypassesSNIFiltering {
+            config.protocolClasses = [DFURLProtocol.self]
+        }
+        KingfisherManager.shared.downloader.sessionConfiguration = config
     }
 }
 
 // MARK: Device
-var isPad: Bool {
-    UIDevice.current.userInterfaceIdiom == .pad
-}
-
-var isPadWidth: Bool {
-    windowW >= 744
-}
-
-var isSEWidth: Bool {
-    windowW <= 320
-}
-
-var viewControllersCount: Int {
-    if let navigationVC = keyWindow?
-        .rootViewController?
-        .children.first
-        as? UINavigationController
-    {
-        return navigationVC
-            .viewControllers.count
+struct DeviceUtil {
+    static var viewControllersCount: Int {
+        if let navigationVC = keyWindow?
+            .rootViewController?
+            .children.first
+            as? UINavigationController
+        {
+            return navigationVC
+                .viewControllers.count
+        }
+        return -1
     }
-    return -1
-}
 
-var keyWindow: UIWindow? {
-    UIApplication.shared.connectedScenes
-        .filter({ $0.activationState == .foregroundActive })
-        .compactMap({ $0 as? UIWindowScene }).last?
-        .windows.filter({ $0.isKeyWindow }).last
-}
+    static var isPad: Bool {
+        UIDevice.current.userInterfaceIdiom == .pad
+    }
 
-var isLandscape: Bool {
-    [.landscapeLeft, .landscapeRight]
-        .contains(
-            keyWindow?.windowScene?
-                .interfaceOrientation
-        )
-}
+    static var isPadWidth: Bool {
+        windowW >= 744
+    }
 
-var isPortrait: Bool {
-    [.portrait, .portraitUpsideDown]
-        .contains(
-            keyWindow?.windowScene?
-                .interfaceOrientation
-        )
-}
+    static var isSEWidth: Bool {
+        windowW <= 320
+    }
 
-var windowW: CGFloat {
-    min(absWindowW, absWindowH)
-}
+    static var keyWindow: UIWindow? {
+        UIApplication.shared.connectedScenes
+            .filter({ $0.activationState == .foregroundActive })
+            .compactMap({ $0 as? UIWindowScene }).last?
+            .windows.filter({ $0.isKeyWindow }).last
+    }
 
-var windowH: CGFloat {
-    max(absWindowW, absWindowH)
-}
+    static var isLandscape: Bool {
+        [.landscapeLeft, .landscapeRight]
+            .contains(
+                keyWindow?.windowScene?
+                    .interfaceOrientation
+            )
+    }
 
-var screenW: CGFloat {
-    min(absScreenW, absScreenH)
-}
+    static var isPortrait: Bool {
+        [.portrait, .portraitUpsideDown]
+            .contains(
+                keyWindow?.windowScene?
+                    .interfaceOrientation
+            )
+    }
 
-var screenH: CGFloat {
-    max(absScreenW, absScreenH)
-}
+    static var windowW: CGFloat {
+        min(absWindowW, absWindowH)
+    }
 
-var absWindowW: CGFloat {
-    keyWindow?.frame.size.width ?? absScreenW
-}
+    static var windowH: CGFloat {
+        max(absWindowW, absWindowH)
+    }
 
-var absWindowH: CGFloat {
-    keyWindow?.frame.size.height ?? absScreenH
-}
+    static var screenW: CGFloat {
+        min(absScreenW, absScreenH)
+    }
 
-var absScreenW: CGFloat {
-    UIScreen.main.bounds.size.width
-}
+    static var screenH: CGFloat {
+        max(absScreenW, absScreenH)
+    }
 
-var absScreenH: CGFloat {
-    UIScreen.main.bounds.size.height
-}
+    static var absWindowW: CGFloat {
+        keyWindow?.frame.size.width ?? absScreenW
+    }
 
-func impactFeedback(style: UIImpactFeedbackGenerator.FeedbackStyle) {
-    UIImpactFeedbackGenerator(style: style).impactOccurred()
+    static var absWindowH: CGFloat {
+        keyWindow?.frame.size.height ?? absScreenH
+    }
+
+    static var absScreenW: CGFloat {
+        UIScreen.main.bounds.size.width
+    }
+
+    static var absScreenH: CGFloat {
+        UIScreen.main.bounds.size.height
+    }
 }
-func notificFeedback(style: UINotificationFeedbackGenerator.FeedbackType) {
-    UINotificationFeedbackGenerator().notificationOccurred(style)
+// MARK: Haptic
+struct HapticUtil {
+    static func generateFeedback(style: UIImpactFeedbackGenerator.FeedbackStyle) {
+        guard !isLegacyTapticEngine else {
+            generateLegacyFeedback()
+            return
+        }
+        UIImpactFeedbackGenerator(style: style).impactOccurred()
+    }
+    static func generateNotificationFeedback(style: UINotificationFeedbackGenerator.FeedbackType) {
+        guard !isLegacyTapticEngine else {
+            generateLegacyFeedback()
+            return
+        }
+        UINotificationFeedbackGenerator().notificationOccurred(style)
+    }
+    private static func generateLegacyFeedback() {
+        AudioServicesPlaySystemSound(1519)
+        AudioServicesPlaySystemSound(1520)
+        AudioServicesPlaySystemSound(1521)
+        AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)
+    }
+    private static var isLegacyTapticEngine: Bool {
+        var systemInfo = utsname()
+        uname(&systemInfo)
+        let machineMirror = Mirror(reflecting: systemInfo.machine)
+        let identifier = machineMirror.children.reduce("") { identifier, element in
+            guard let value = element.value as? Int8, value != 0 else { return identifier }
+            return identifier + String(UnicodeScalar(UInt8(value)))
+        }
+        return ["iPhone8,1", "iPhone8,2"].contains(identifier)
+    }
 }
 
 // MARK: Tools
@@ -204,7 +248,7 @@ func clearPasteboard() {
 
 func saveToPasteboard(value: String) {
     UIPasteboard.general.string = value
-    notificFeedback(style: .success)
+    HapticUtil.generateNotificationFeedback(style: .success)
 }
 
 func getPasteboardLink() -> URL? {
@@ -285,21 +329,21 @@ func presentActivityVC(items: [Any]) {
         activityItems: items,
         applicationActivities: nil
     )
-    if isPad {
-        activityVC.popoverPresentationController?.sourceView = keyWindow
+    if DeviceUtil.isPad {
+        activityVC.popoverPresentationController?.sourceView = DeviceUtil.keyWindow
         activityVC.popoverPresentationController?.sourceRect = CGRect(
-            x: screenW, y: 0,
+            x: DeviceUtil.screenW, y: 0,
             width: 200, height: 200
         )
     }
     activityVC.modalPresentationStyle = .overFullScreen
-    keyWindow?.rootViewController?
+    DeviceUtil.keyWindow?.rootViewController?
         .present(
             activityVC,
             animated: true,
             completion: nil
         )
-    impactFeedback(style: .light)
+    HapticUtil.generateFeedback(style: .light)
 }
 
 // MARK: FileManager

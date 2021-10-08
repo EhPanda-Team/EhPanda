@@ -13,10 +13,10 @@ struct SlideMenu: View, StoreAccessor {
     @Environment(\.colorScheme) private var colorScheme
 
     @Binding private var offset: CGFloat
-    private var edges = keyWindow?.safeAreaInsets
+    private var edges = DeviceUtil.keyWindow?.safeAreaInsets
 
     private var menuItems: [HomeListType] {
-        let excludedType: [HomeListType] = didLogin ? [.search, .downloaded]
+        let excludedType: [HomeListType] = AuthorizationUtil.didLogin ? [.search, .downloaded]
             : [.search, .watched, .favorites, .downloaded]
         return HomeListType.allCases.filter { !excludedType.contains($0) }
     }
@@ -80,7 +80,7 @@ private extension SlideMenu {
     func onMenuRowTap(item: HomeListType) {
         if homeListType != item {
             store.dispatch(.toggleHomeList(type: item))
-            impactFeedback(style: .soft)
+            HapticUtil.generateFeedback(style: .soft)
             performTransition(offset: -width)
         }
     }

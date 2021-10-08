@@ -46,7 +46,7 @@ struct ReadingSettingView: View, StoreAccessor {
                     )
                     .pickerStyle(.menu)
                 }
-                if !isPad {
+                if !DeviceUtil.isPad {
                     Toggle("Prefers landscape", isOn: settingBinding.prefersLandscape)
                 }
             }
@@ -140,5 +140,16 @@ struct ReadingSettingView_Previews: PreviewProvider {
         return ReadingSettingView()
             .environmentObject(store)
             .preferredColorScheme(.dark)
+    }
+}
+
+// MARK: Definition
+private extension Double {
+    func roundedString() -> String {
+        roundedString(with: 1)
+    }
+
+    func roundedString(with places: Int) -> String {
+        String(format: "%.\(places)f", self)
     }
 }

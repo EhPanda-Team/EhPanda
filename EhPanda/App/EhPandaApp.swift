@@ -60,7 +60,7 @@ private extension EhPandaApp {
         store.dispatch(.fetchTagTranslator)
     }
     func fetchAccountInfoIfNeeded() {
-        guard didLogin else { return }
+        guard AuthorizationUtil.didLogin else { return }
 
         store.dispatch(.fetchUserInfo)
         store.dispatch(.verifyEhProfile)
@@ -94,7 +94,7 @@ private extension EhPandaApp {
                 target: self, action: nil
             )
             tapGesture.delegate = TouchHandler.shared
-            keyWindow?.addGestureRecognizer(tapGesture)
+            DeviceUtil.keyWindow?.addGestureRecognizer(tapGesture)
         }
     }
     func configureLogging() {
@@ -137,10 +137,7 @@ private extension EhPandaApp {
     }
 
     func configureWebImage() {
-        KingfisherManager.configure(
-            bypassesSNIFiltering: setting
-                .bypassesSNIFiltering
-        )
+        AppUtil.configureKingfisher(bypassesSNIFiltering: setting.bypassesSNIFiltering)
     }
     func configureDomainFronting() {
         if setting.bypassesSNIFiltering {
@@ -156,7 +153,7 @@ private extension EhPandaApp {
 // MARK: AppDelegate
 class AppDelegate: UIResponder, UIApplicationDelegate {
     static var orientationLock: UIInterfaceOrientationMask =
-        isPad ? .all : [.portrait, .portraitUpsideDown]
+        DeviceUtil.isPad ? .all : [.portrait, .portraitUpsideDown]
 
     func application(
         _ application: UIApplication,

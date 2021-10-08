@@ -97,8 +97,8 @@ struct EhPandaView: View, StoreAccessor {
     private var version: String {
         [
             "Version".localized,
-            appVersion,
-            "(\(appBuild))"
+            AppUtil.version,
+            "(\(AppUtil.build))"
         ]
         .joined(separator: " ")
     }

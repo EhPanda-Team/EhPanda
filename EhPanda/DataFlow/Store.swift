@@ -114,7 +114,7 @@ final class Store: ObservableObject {
         case .updateSetting(let setting):
             appState.settings.setting = setting
         case .updateViewControllersCount:
-            appState.environment.viewControllersCount = viewControllersCount
+            appState.environment.viewControllersCount = DeviceUtil.viewControllersCount
         case .replaceGalleryCommentJumpID(let gid):
             appState.environment.galleryItemReverseID = gid
         case .updateIsSlideMenuClosed(let isClosed):
@@ -151,20 +151,20 @@ final class Store: ObservableObject {
         case .toggleNavBar(let hidden):
             appState.environment.navBarHidden = hidden
         case .toggleHomeViewSheet(let state):
-            if state != nil { impactFeedback(style: .light) }
+            if state != nil { HapticUtil.generateFeedback(style: .light) }
             appState.environment.homeViewSheetState = state
         case .toggleSettingViewSheet(let state):
-            if state != nil { impactFeedback(style: .light) }
+            if state != nil { HapticUtil.generateFeedback(style: .light) }
             appState.environment.settingViewSheetState = state
         case .toggleSettingViewActionSheet(let state):
             appState.environment.settingViewActionSheetState = state
         case .toggleFilterViewActionSheet(let state):
             appState.environment.filterViewActionSheetState = state
         case .toggleDetailViewSheet(let state):
-            if state != nil { impactFeedback(style: .light) }
+            if state != nil { HapticUtil.generateFeedback(style: .light) }
             appState.environment.detailViewSheetState = state
         case .toggleCommentViewSheet(let state):
-            if state != nil { impactFeedback(style: .light) }
+            if state != nil { HapticUtil.generateFeedback(style: .light) }
             appState.environment.commentViewSheetState = state
 
         // MARK: Fetch Data

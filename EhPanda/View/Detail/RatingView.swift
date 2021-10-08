@@ -57,7 +57,7 @@ struct RatingView: View {
 
 private extension RatingView {
     private var rating: Float {
-        rawRating.fixedRating()
+        rawRating.halfRounded
     }
 
     struct FilledStar: View {

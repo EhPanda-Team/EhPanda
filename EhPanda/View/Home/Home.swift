@@ -82,7 +82,7 @@ struct Home: View, StoreAccessor {
                 for: UIDevice.orientationDidChangeNotification
             )
         ) { _ in
-            if isPortrait || isLandscape {
+            if DeviceUtil.isPad || DeviceUtil.isLandscape {
                 onWidthChange()
             }
         }
@@ -133,9 +133,7 @@ private extension Home {
         } else {
             URLProtocol.unregisterClass(DFURLProtocol.self)
         }
-        KingfisherManager.configure(
-            bypassesSNIFiltering: setting.bypassesSNIFiltering
-        )
+        AppUtil.configureKingfisher(bypassesSNIFiltering: setting.bypassesSNIFiltering)
     }
 
     func performTransition(offset: CGFloat) {

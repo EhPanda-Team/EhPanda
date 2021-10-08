@@ -77,9 +77,7 @@ struct LaboratoryCell: View {
     }
 
     private func onTap() {
-        withAnimation {
-            isOn.toggle()
-        }
-        impactFeedback(style: .soft)
+        withAnimation { isOn.toggle() }
+        HapticUtil.generateFeedback(style: .soft)
     }
 }

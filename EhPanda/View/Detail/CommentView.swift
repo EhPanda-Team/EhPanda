@@ -109,7 +109,7 @@ struct CommentView: View, StoreAccessor {
                 Button(action: toggleNewComment, label: {
                     Image(systemName: "square.and.pencil")
                 })
-                .disabled(!didLogin)
+                .disabled(!AuthorizationUtil.didLogin)
             }
         }
         .sheet(item: environmentBinding.commentViewSheetState) { item in
@@ -364,28 +364,24 @@ private struct CommentCell: View {
                    let secondLink = secondLink
                 {
                     KFImage(URL(string: imgURL))
-                        .commentDefaultModifier()
-                        .scaledToFit()
-                        .frame(width: windowW / 4)
+                        .commentDefaultModifier().scaledToFit()
+                        .frame(width: DeviceUtil.windowW / 4)
                         .onTapGesture {
                             linkAction(link.safeURL())
                         }
                     KFImage(URL(string: secondImgURL))
-                        .commentDefaultModifier()
-                        .scaledToFit()
-                        .frame(width: windowW / 4)
+                        .commentDefaultModifier().scaledToFit()
+                        .frame(width: DeviceUtil.windowW / 4)
                         .onTapGesture {
                             linkAction(secondLink.safeURL())
                         }
                 } else {
                     KFImage(URL(string: imgURL))
-                        .commentDefaultModifier()
-                        .scaledToFit()
-                        .frame(width: windowW / 4)
+                        .commentDefaultModifier().scaledToFit()
+                        .frame(width: DeviceUtil.windowW / 4)
                     KFImage(URL(string: secondImgURL))
-                        .commentDefaultModifier()
-                        .scaledToFit()
-                        .frame(width: windowW / 4)
+                        .commentDefaultModifier().scaledToFit()
+                        .frame(width: DeviceUtil.windowW / 4)
                 }
             }
         }
@@ -395,15 +391,14 @@ private struct CommentCell: View {
                 KFImage(URL(string: imgURL))
                     .commentDefaultModifier()
                     .scaledToFit()
-                    .frame(width: windowW / 2)
+                    .frame(width: DeviceUtil.windowW / 2)
                     .onTapGesture {
                         linkAction(link.safeURL())
                     }
             } else {
                 KFImage(URL(string: imgURL))
-                    .commentDefaultModifier()
-                    .scaledToFit()
-                    .frame(width: windowW / 2)
+                    .commentDefaultModifier().scaledToFit()
+                    .frame(width: DeviceUtil.windowW / 2)
             }
         }
     }

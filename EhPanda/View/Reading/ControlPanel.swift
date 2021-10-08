@@ -126,7 +126,7 @@ private struct UpperPanel: View {
                     .opacity(0)
                 Spacer()
                 HStack(spacing: 20) {
-                    if isLandscape && setting.readingDirection != .vertical {
+                    if DeviceUtil.isLandscape && setting.readingDirection != .vertical {
                         Menu {
                             Button {
                                 var setting = setting
@@ -235,7 +235,7 @@ private struct LowerPanel: View {
                             sliderChangedAction(
                                 Int(sliderValue)
                             )
-                            impactFeedback(style: .soft)
+                            HapticUtil.generateFeedback(style: .soft)
                             withAnimation {
                                 isSliderDragging = isDragging
                             }
@@ -319,7 +319,7 @@ private struct SliderPreivew: View {
                                 ? previewHeight : 0
                         )
                     Text("\(index)")
-                        .font(isPadWidth ? .callout : .caption)
+                        .font(DeviceUtil.isPadWidth ? .callout : .caption)
                         .foregroundColor(
                             index == Int(sliderValue)
                             ? .accentColor : .secondary
@@ -344,10 +344,10 @@ private struct SliderPreivew: View {
 
 private extension SliderPreivew {
     var verticalPadding: CGFloat {
-        isPadWidth ? 30 : 20
+        DeviceUtil.isPadWidth ? 30 : 20
     }
     var previewsCount: Int {
-        isPadWidth ? isLandscape ? 7 : 5 : 3
+        DeviceUtil.isPadWidth ? DeviceUtil.isLandscape ? 7 : 5 : 3
     }
     var previewsIndices: [Int] {
         guard !previews.isEmpty else { return [] }
@@ -367,7 +367,7 @@ private extension SliderPreivew {
         guard previewsCount > 0 else { return 0 }
         let count = CGFloat(previewsCount)
         let spacing = (count + 1) * previewSpacing
-        return (windowW - spacing) / count
+        return (DeviceUtil.windowW - spacing) / count
     }
 
     func verify(index: Int) -> Bool {

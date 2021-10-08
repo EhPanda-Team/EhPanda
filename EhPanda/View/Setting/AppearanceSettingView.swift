@@ -94,7 +94,7 @@ struct AppearanceSettingView: View, StoreAccessor {
         isNavLinkActive.toggle()
     }
     private func onIconSelect() {
-        store.dispatch(.updateAppIconType(iconType: appIconType))
+        store.dispatch(.updateAppIconType(iconType: AppUtil.iconType))
     }
 }
 
@@ -133,7 +133,7 @@ private struct SelectAppIconView: View {
     private func onAppIconRowTap(icon: IconType) {
         UIApplication.shared.setAlternateIconName(icon.fileName) { error in
             if let error = error {
-                notificFeedback(style: .error)
+                HapticUtil.generateNotificationFeedback(style: .error)
                 SwiftyBeaver.error(error)
             }
             selectAction()

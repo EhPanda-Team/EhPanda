@@ -35,7 +35,7 @@ struct GalleryInfosView: View {
             Info(title: "Page count", value: String(detail.pageCount)),
             Info(title: "File size", value: String(Int(detail.sizeCount)) + detail.sizeType),
             Info(title: "Favorited times", value: String(detail.favoredCount)),
-            Info(title: "Favorited", value: detail.isFavored.yesNoDescription.localized),
+            Info(title: "Favorited", value: (detail.isFavored ? "Yes" : "No").localized),
             Info(title: "Rating count", value: String(detail.ratingCount)),
             Info(title: "Average rating", value: String(Int(detail.rating))),
             Info(title: "User rating", value:

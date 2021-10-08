@@ -112,7 +112,7 @@ struct HomeView: View, StoreAccessor {
         .navigationViewStyle(.stack)
         .onAppear(perform: onStartTasks)
         .customAlert(
-            manager: alertManager, widthFactor: isPadWidth ? 0.5 : 1.0,
+            manager: alertManager, widthFactor: DeviceUtil.isPadWidth ? 0.5 : 1.0,
             backgroundOpacity: colorScheme == .light ? 0.2 : 0.5,
             content: {
                 PageJumpView(
@@ -644,7 +644,7 @@ private extension HomeView {
     func toggleJumpPage() {
         alertManager.show()
         isAlertFocused = true
-        impactFeedback(style: .light)
+        HapticUtil.generateFeedback(style: .light)
     }
     func performJumpPage() {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {

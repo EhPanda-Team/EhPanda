@@ -58,7 +58,7 @@ struct CategoryView: View {
 
     private let gridItems = [
         GridItem(.adaptive(
-            minimum: isPadWidth ? 100 : 80, maximum: 100
+            minimum: DeviceUtil.isPadWidth ? 100 : 80, maximum: 100
         ))
     ]
     private var tuples: [(Binding<Bool>, Category)] {

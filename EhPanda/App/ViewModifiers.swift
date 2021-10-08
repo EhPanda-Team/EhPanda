@@ -19,6 +19,17 @@ extension View {
         self
         Color.clear.frame(width: 8, height: height)
     }
+
+    func withArrow() -> some View {
+        HStack {
+            self
+            Spacer()
+            Image(systemName: "chevron.right")
+                .foregroundColor(.secondary)
+                .imageScale(.small)
+                .opacity(0.5)
+        }
+    }
 }
 
 struct PlainLinearProgressViewStyle: ProgressViewStyle {

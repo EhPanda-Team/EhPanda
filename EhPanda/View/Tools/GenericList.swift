@@ -160,10 +160,10 @@ private struct WaterfallList: View {
     private let translateAction: ((String) -> String)?
 
     private var columnsInPortrait: Int {
-        isPadWidth ? 4 : 2
+        DeviceUtil.isPadWidth ? 4 : 2
     }
     private var columnsInLandscape: Int {
-        isPadWidth ? 5 : 2
+        DeviceUtil.isPadWidth ? 5 : 2
     }
     private var inValidRange: Bool {
         guard let pageNumber = pageNumber else { return false }

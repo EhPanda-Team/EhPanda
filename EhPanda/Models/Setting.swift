@@ -36,7 +36,7 @@ struct Setting: Codable {
             return nil
         }
     }
-    @DefaultListMode var listMode: ListMode = isPadWidth ? .thumbnail : .detail
+    @DefaultListMode var listMode: ListMode = DeviceUtil.isPadWidth ? .thumbnail : .detail
     @DefaultPreferredColorScheme var preferredColorScheme =
         PreferredColorScheme.automatic
     @DefaultColorValue var accentColor: Color = .blue
@@ -50,7 +50,7 @@ struct Setting: Codable {
     @DefaultIntegerValue var prefetchLimit = 10
     @DefaultFalse var prefersLandscape = false {
         didSet {
-            if !prefersLandscape && !isPad {
+            if !prefersLandscape && !DeviceUtil.isPad {
                 AppDelegate.orientationLock = [
                     .portrait, .portraitUpsideDown
                 ]

@@ -35,13 +35,13 @@ struct AccountSettingView: View, StoreAccessor {
                         }
                     )
                     .pickerStyle(.segmented)
-                    if !didLogin {
+                    if !AuthorizationUtil.didLogin {
                         NavigationLink("Login", destination: LoginView())
                             .foregroundStyle(.tint)
                     } else {
                         Button("Logout", role: .destructive, action: toggleLogout)
                     }
-                    if didLogin {
+                    if AuthorizationUtil.didLogin {
                         Group {
                             NavigationLink("Account configuration", destination: EhSettingView())
                             if !setting.bypassesSNIFiltering {

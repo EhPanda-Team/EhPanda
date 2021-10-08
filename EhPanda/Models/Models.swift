@@ -257,7 +257,7 @@ extension GalleryTorrent: DateFormattable, CustomStringConvertible {
 
 extension Category {
     var color: Color {
-        Color(galleryHost.rawValue + "/" + rawValue)
+        Color(AppUtil.galleryHost.rawValue + "/" + rawValue)
     }
     var value: Int {
         switch self {

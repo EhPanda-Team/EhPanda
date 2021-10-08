@@ -65,7 +65,7 @@
 		ABC1FAB6264152C800A9F352 /* StoreAccessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC1FAB5264152C800A9F352 /* StoreAccessor.swift */; };
 		ABC1FAB82642C37D00A9F352 /* NewDawnView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC1FAB72642C37D00A9F352 /* NewDawnView.swift */; };
 		ABC3C7852593699B00E0C11B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = ABC3C7692593699A00E0C11B /* Assets.xcassets */; };
-		ABC3C7862593699B00E0C11B /* Utility.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC3C76A2593699A00E0C11B /* Utility.swift */; };
+		ABC3C7862593699B00E0C11B /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC3C76A2593699A00E0C11B /* Utilities.swift */; };
 		ABC3C7872593699B00E0C11B /* EhPandaApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC3C76B2593699A00E0C11B /* EhPandaApp.swift */; };
 		ABC3C7892593699B00E0C11B /* Defaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC3C76D2593699A00E0C11B /* Defaults.swift */; };
 		ABC3C78F2593699B00E0C11B /* ViewModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC3C7762593699A00E0C11B /* ViewModifiers.swift */; };
@@ -220,7 +220,7 @@
 		ABC1FAB72642C37D00A9F352 /* NewDawnView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewDawnView.swift; sourceTree = "<group>"; };
 		ABC3C7542593696C00E0C11B /* EhPanda.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EhPanda.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		ABC3C7692593699A00E0C11B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		ABC3C76A2593699A00E0C11B /* Utility.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utility.swift; sourceTree = "<group>"; };
+		ABC3C76A2593699A00E0C11B /* Utilities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utilities.swift; sourceTree = "<group>"; };
 		ABC3C76B2593699A00E0C11B /* EhPandaApp.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EhPandaApp.swift; sourceTree = "<group>"; };
 		ABC3C76D2593699A00E0C11B /* Defaults.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Defaults.swift; sourceTree = "<group>"; };
 		ABC3C76E2593699A00E0C11B /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -495,7 +495,7 @@
 			isa = PBXGroup;
 			children = (
 				ABC3C76B2593699A00E0C11B /* EhPandaApp.swift */,
-				ABC3C76A2593699A00E0C11B /* Utility.swift */,
+				ABC3C76A2593699A00E0C11B /* Utilities.swift */,
 				ABC3C76D2593699A00E0C11B /* Defaults.swift */,
 				ABA732D825A8018A00B3D9AB /* Extensions.swift */,
 				ABC3C7762593699A00E0C11B /* ViewModifiers.swift */,
@@ -876,7 +876,7 @@
 				ABF45AF825F3313D00ECB568 /* EhPandaView.swift in Sources */,
 				ABCA93C42692A0BF00A98BC6 /* PersistenceAccessor.swift in Sources */,
 				AB73CEAF26AAC13F00EF6337 /* CodableExtension.swift in Sources */,
-				ABC3C7862593699B00E0C11B /* Utility.swift in Sources */,
+				ABC3C7862593699B00E0C11B /* Utilities.swift in Sources */,
 				ABF45AE725F3313D00ECB568 /* RatingView.swift in Sources */,
 				AB2CED64268AB6AE003130F7 /* GalleryMO+CoreDataProperties.swift in Sources */,
 				ABCD2F0E25976B95008E5A20 /* Parser.swift in Sources */,

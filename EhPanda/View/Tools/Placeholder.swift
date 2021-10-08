@@ -27,7 +27,7 @@ struct Placeholder: View {
             ZStack {
                 backgroundColor
                 VStack {
-                    Text(pageNumber.withoutComma)
+                    Text(String(pageNumber))
                         .fontWeight(.bold)
                         .font(.largeTitle)
                         .foregroundColor(.gray)
@@ -35,7 +35,7 @@ struct Placeholder: View {
                     ProgressView(progress)
                         .progressViewStyle(.plainLinear)
                         .frame(
-                            width: absWindowW * (
+                            width: DeviceUtil.absWindowW * (
                                 isDualPage ? 0.25 : 0.5
                             )
                         )

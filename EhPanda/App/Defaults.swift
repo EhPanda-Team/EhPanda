@@ -11,14 +11,14 @@ import Foundation
 struct Defaults {
     struct FrameSize {
         static var slideMenuWidth: CGFloat {
-            if isPadWidth {
-                return max(windowW - 500, 300)
+            if DeviceUtil.isPadWidth {
+                return max(DeviceUtil.windowW - 500, 300)
             } else {
-                return max(windowW - 90, 250)
+                return max(DeviceUtil.windowW - 90, 250)
             }
         }
         static let archiveGridWidth: CGFloat =
-        isPadWidth ? 175 : isSEWidth ? 125 : 150
+        DeviceUtil.isPadWidth ? 175 : DeviceUtil.isSEWidth ? 125 : 150
     }
     struct ImageSize {
         static let rowScale: CGFloat = 8/11
@@ -33,8 +33,8 @@ struct Defaults {
         static let avatarH: CGFloat = 100
         static let headerW: CGFloat = headerH * headerScale
         static let headerH: CGFloat = 150
-        static let previewMinW: CGFloat = isPadWidth ? 180 : 100
-        static let previewMaxW: CGFloat = isPadWidth ? 220 : 120
+        static let previewMinW: CGFloat = DeviceUtil.isPadWidth ? 180 : 100
+        static let previewMaxW: CGFloat = DeviceUtil.isPadWidth ? 220 : 120
         static let previewAvgW: CGFloat = (previewMinW + previewMaxW) / 2
     }
     struct Cookie {
@@ -76,7 +76,7 @@ struct Defaults {
     struct URL {
         // Domains
         static var host: String {
-            galleryHost == .exhentai ? exhentai : ehentai
+            AppUtil.galleryHost == .exhentai ? exhentai : ehentai
         }
         static let ehentai = "https://e-hentai.org/"
         static let exhentai = "https://exhentai.org/"

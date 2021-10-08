@@ -80,7 +80,7 @@ struct GalleryThumbnailCell: View {
                         .font(.caption)
                     Spacer()
                     HStack(spacing: 10) {
-                        if !isSEWidth {
+                        if !DeviceUtil.isSEWidth {
                             HStack(spacing: 2) {
                                 Image(systemName: "photo.on.rectangle.angled")
                                 Text(String(gallery.pageCount))
