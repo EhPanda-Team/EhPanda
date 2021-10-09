@@ -20,8 +20,8 @@ struct User: Codable {
     var greeting: Greeting?
 
     var apiuid: String {
-        getCookieValue(
-            url: Defaults.URL.host.safeURL(),
+        CookiesUtil.get(
+            for: Defaults.URL.host.safeURL(),
             key: Defaults.Cookie.ipbMemberId
         )
         .rawValue

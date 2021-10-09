@@ -90,11 +90,23 @@ struct AppearanceSettingView: View, StoreAccessor {
         .navigationBarTitle("Appearance")
     }
 
+    var iconType: IconType {
+        var alterName: String?
+        dispatchMainSync {
+            alterName = UIApplication.shared.alternateIconName
+        }
+
+        guard let iconName = alterName,
+              let selection = IconType.allCases.filter({
+                  iconName.contains($0.fileName ?? "")
+              }).first else { return .default }
+        return selection
+    }
     private func onAppIconButtonTap() {
         isNavLinkActive.toggle()
     }
     private func onIconSelect() {
-        store.dispatch(.updateAppIconType(iconType: AppUtil.iconType))
+        store.dispatch(.updateAppIconType(iconType: iconType))
     }
 }
 

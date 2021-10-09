@@ -63,7 +63,7 @@ struct HomeView: View, StoreAccessor {
             .navigationBarTitle(navigationBarTitle)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button(action: postShouldShowSlideMenuNotification) {
+                    Button(action: NotificationUtil.postShouldShowSlideMenu) {
                         Image(systemName: "line.3.horizontal")
                             .foregroundColor(.secondary)
                     }
@@ -478,8 +478,8 @@ private extension HomeView {
     }
     func detectPasteboard() {
         if hasJumpPermission {
-            if let link = getPasteboardLinkIfAllowed() {
-                handle(incomingURL: link)
+            if let url = getPasteboardURLIfAllowed() {
+                handle(incomingURL: url)
             }
         }
     }
@@ -512,18 +512,18 @@ private extension HomeView {
                     showHUD()
                 }
             }
-            clearPasteboard()
+            PasteboardUtil.clear()
             clearObstruction()
         }
     }
     func replaceGalleryCommentJumpID(gid: String?) {
         store.dispatch(.replaceGalleryCommentJumpID(gid: gid))
     }
-    func getPasteboardLinkIfAllowed() -> URL? {
+    func getPasteboardURLIfAllowed() -> URL? {
         let currentChangeCount = UIPasteboard.general.changeCount
-        if pasteboardChangeCount != currentChangeCount {
-            setPasteboardChangeCount(with: currentChangeCount)
-            return getPasteboardLink()
+        if PasteboardUtil.changeCount != currentChangeCount {
+            PasteboardUtil.setChangeCount(value: currentChangeCount)
+            return PasteboardUtil.getURL()
         } else {
             return nil
         }
@@ -533,7 +533,7 @@ private extension HomeView {
             store.dispatch(.toggleHomeViewSheet(state: nil))
         }
         if !environment.isSlideMenuClosed {
-            postShouldHideSlideMenuNotification()
+            NotificationUtil.postShouldHideSlideMenu()
         }
     }
     func translateTag(text: String) -> String {

@@ -64,7 +64,7 @@ struct TorrentsView: View, StoreAccessor {
 
 private extension TorrentsView {
     func onTorrentRowTap(magnetURL: String) {
-        saveToPasteboard(value: magnetURL)
+        PasteboardUtil.save(value: magnetURL)
         showCopiedHUD()
     }
     func onTorrentRowSwipe(hash: String, torrentURL: String) {

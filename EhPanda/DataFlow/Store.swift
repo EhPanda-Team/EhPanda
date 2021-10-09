@@ -20,7 +20,7 @@ final class Store: ObservableObject {
     func dispatch(_ action: AppAction) {
         #if DEBUG
         guard !appState.environment.isPreview,
-              !isUnitTesting
+              !AppUtil.isUnitTesting
         else { return }
         #endif
 
@@ -753,18 +753,11 @@ final class Store: ObservableObject {
                 if let profileValue = profileValue {
                     let profileValueString = String(profileValue)
                     let hostURL = Defaults.URL.host.safeURL()
-                    let selectedProfileKey =
-                    Defaults.Cookie.selectedProfile
+                    let selectedProfileKey = Defaults.Cookie.selectedProfile
 
-                    let cookieValue = getCookieValue(
-                        url: hostURL, key: selectedProfileKey
-                    )
+                    let cookieValue = CookiesUtil.get(for: hostURL, key: selectedProfileKey)
                     if cookieValue.rawValue != profileValueString {
-                        setCookie(
-                            url: hostURL,
-                            key: selectedProfileKey,
-                            value: profileValueString
-                        )
+                        CookiesUtil.set(for: hostURL, key: selectedProfileKey, value: profileValueString)
                     }
                 } else if profileNotFound {
                     dispatch(.createEhProfile(name: "EhPanda"))

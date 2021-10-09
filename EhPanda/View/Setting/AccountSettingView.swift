@@ -104,19 +104,19 @@ private extension AccountSettingView {
 
     // MARK: Cookies Methods
     var igneous: CookieValue {
-        getCookieValue(url: exURL, key: igneousKey)
+        CookiesUtil.get(for: exURL, key: igneousKey)
     }
     var ehMemberID: CookieValue {
-        getCookieValue(url: ehURL, key: memberIDKey)
+        CookiesUtil.get(for: ehURL, key: memberIDKey)
     }
     var exMemberID: CookieValue {
-        getCookieValue(url: exURL, key: memberIDKey)
+        CookiesUtil.get(for: exURL, key: memberIDKey)
     }
     var ehPassHash: CookieValue {
-        getCookieValue(url: ehURL, key: passHashKey)
+        CookiesUtil.get(for: ehURL, key: passHashKey)
     }
     var exPassHash: CookieValue {
-        getCookieValue(url: exURL, key: passHashKey)
+        CookiesUtil.get(for: exURL, key: passHashKey)
     }
     func onEhEditingChange(key: String, value: String) {
         setCookieValue(url: ehURL, key: key, value: value)
@@ -125,23 +125,23 @@ private extension AccountSettingView {
         setCookieValue(url: exURL, key: key, value: value)
     }
     func setCookieValue(url: URL, key: String, value: String) {
-        if checkExistence(url: url, key: key) {
-            editCookie(url: url, key: key, value: value)
+        if CookiesUtil.checkExistence(for: url, key: key) {
+            CookiesUtil.edit(for: url, key: key, value: value)
         } else {
-            setCookie(url: url, key: key, value: value)
+            CookiesUtil.set(for: url, key: key, value: value)
         }
     }
     func copyEhCookies() {
         let cookies = "\(memberIDKey): \(ehMemberID.rawValue)"
             + "\n\(passHashKey): \(ehPassHash.rawValue)"
-        saveToPasteboard(value: cookies)
+        PasteboardUtil.save(value: cookies)
         showCopiedHUD()
     }
     func copyExCookies() {
         let cookies = "\(igneousKey): \(igneous.rawValue)"
             + "\n\(memberIDKey): \(exMemberID.rawValue)"
             + "\n\(passHashKey): \(exPassHash.rawValue)"
-        saveToPasteboard(value: cookies)
+        PasteboardUtil.save(value: cookies)
         showCopiedHUD()
     }
     func showCopiedHUD() {

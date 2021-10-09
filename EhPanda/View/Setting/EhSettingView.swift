@@ -203,20 +203,12 @@ private extension EhSettingView {
             .seal(in: token)
     }
     func fetchEhSettingIfNeeded() {
-        if ehSetting == nil {
-            fetchEhSetting()
-        }
+        guard ehSetting != nil else { return }
+        fetchEhSetting()
     }
     func resetSelection() {
-        guard let set = ehSetting?.ehProfiles.filter({ ehProfile in
-            ehProfile.name == "EhPanda"
-        }).first?.value else { return }
-
-        setCookie(
-            url: Defaults.URL.host.safeURL(),
-            key: Defaults.Cookie.selectedProfile,
-            value: String(set)
-        )
+        guard let set = ehSetting?.ehProfiles.filter({ $0.name == "EhPanda"}).first?.value else { return }
+        CookiesUtil.set(for: Defaults.URL.host.safeURL(), key: Defaults.Cookie.selectedProfile, value: String(set))
     }
     func toggleWebViewConfig() {
         store.dispatch(.toggleSettingViewSheet(state: .webviewConfig))

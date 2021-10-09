@@ -17,33 +17,21 @@ struct AuthorizationUtil {
         if let ehentai = URL(string: Defaults.URL.ehentai),
            let exhentai = URL(string: Defaults.URL.exhentai)
         {
-            let ehUID = getCookieValue(
-                url: ehentai,
-                key: Defaults.Cookie.ipbMemberId
-            ).rawValue
-            let exUID = getCookieValue(
-                url: exhentai,
-                key: Defaults.Cookie.ipbMemberId
-            ).rawValue
-
-            if !ehUID.isEmpty && !exUID.isEmpty {
-                return ehUID == exUID
-            } else {
-                return true
-            }
+            let ehUID = CookiesUtil.get(for: ehentai, key: Defaults.Cookie.ipbMemberId).rawValue
+            let exUID = CookiesUtil.get(for: exhentai, key: Defaults.Cookie.ipbMemberId).rawValue
+            if !ehUID.isEmpty && !exUID.isEmpty { return ehUID == exUID } else { return true }
         } else {
             return true
         }
     }
 
     static var didLogin: Bool {
-        verifyCookies(url: Defaults.URL.ehentai.safeURL(), isEx: false)
-            || verifyCookies(url: Defaults.URL.exhentai.safeURL(), isEx: true)
+        CookiesUtil.verify(for: Defaults.URL.ehentai.safeURL(), isEx: false)
+        || CookiesUtil.verify(for: Defaults.URL.exhentai.safeURL(), isEx: true)
     }
 
     static func localAuth(
-        reason: String,
-        successAction: (() -> Void)? = nil,
+        reason: String, successAction: (() -> Void)? = nil,
         failureAction: (() -> Void)? = nil,
         passcodeNotFoundAction: (() -> Void)? = nil
     ) {
@@ -51,16 +39,9 @@ struct AuthorizationUtil {
         var error: NSError?
 
         if context.canEvaluatePolicy(.deviceOwnerAuthentication, error: &error) {
-            context.evaluatePolicy(
-                .deviceOwnerAuthentication,
-                localizedReason: reason.localized
-            ) { success, _ in
+            context.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: reason.localized) { success, _ in
                 DispatchQueue.main.async {
-                    if success {
-                        successAction?()
-                    } else {
-                        failureAction?()
-                    }
+                    if success { successAction?() } else { failureAction?() }
                 }
             }
         } else {
@@ -72,48 +53,31 @@ struct AuthorizationUtil {
 // MARK: App
 struct AppUtil {
     static var version: String {
-        Bundle.main.object(
-            forInfoDictionaryKey: "CFBundleShortVersionString"
-        ) as? String ?? "(null)"
+        Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "(null)"
     }
     static var build: String {
-        Bundle.main.object(
-            forInfoDictionaryKey: "CFBundleVersion"
-        ) as? String ?? "(null)"
+        Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "(null)"
     }
 
-    static var iconType: IconType {
-        var alterName: String?
-        dispatchMainSync {
-            alterName = UIApplication
-                .shared.alternateIconName
-        }
-        if let iconName = alterName,
-           let selection = IconType.allCases.filter(
-            { iconName.contains($0.fileName ?? "") }
-           ).first
-           {
-            return selection
-        } else {
-            return .default
-        }
+    static var isUnitTesting: Bool {
+        ProcessInfo.processInfo.environment[
+          "XCTestConfigurationFilePath"
+        ] != nil
     }
 
     static var galleryHost: GalleryHost {
-        let rawValue = UserDefaults
-            .standard
-            .string(forKey: "GalleryHost") ?? ""
+        let rawValue = UserDefaults.standard.string(forKey: "GalleryHost") ?? ""
         return GalleryHost(rawValue: rawValue) ?? .ehentai
+    }
+
+    static func setGalleryHost(value: GalleryHost) {
+        UserDefaults.standard.set(value.rawValue, forKey: "GalleryHost")
     }
 
     static func configureKingfisher(bypassesSNIFiltering: Bool, handlesCookies: Bool = true) {
         let config = KingfisherManager.shared.downloader.sessionConfiguration
-        if handlesCookies {
-            config.httpCookieStorage = HTTPCookieStorage.shared
-        }
-        if bypassesSNIFiltering {
-            config.protocolClasses = [DFURLProtocol.self]
-        }
+        if handlesCookies { config.httpCookieStorage = HTTPCookieStorage.shared }
+        if bypassesSNIFiltering { config.protocolClasses = [DFURLProtocol.self] }
         KingfisherManager.shared.downloader.sessionConfiguration = config
     }
 }
@@ -121,15 +85,9 @@ struct AppUtil {
 // MARK: Device
 struct DeviceUtil {
     static var viewControllersCount: Int {
-        if let navigationVC = keyWindow?
-            .rootViewController?
-            .children.first
-            as? UINavigationController
-        {
-            return navigationVC
-                .viewControllers.count
-        }
-        return -1
+        guard let navigationVC = keyWindow?.rootViewController?.children.first
+                as? UINavigationController else { return -1 }
+        return navigationVC.viewControllers.count
     }
 
     static var isPad: Bool {
@@ -233,30 +191,201 @@ struct HapticUtil {
     }
 }
 
+// MARK: Pasteboard
+struct PasteboardUtil {
+    static var changeCount: Int? {
+        UserDefaults.standard.integer(forKey: "PasteboardChangeCount")
+    }
+
+    static func setChangeCount(value: Int) {
+        UserDefaults.standard.set(value, forKey: "PasteboardChangeCount")
+    }
+
+    static func clear() {
+        UIPasteboard.general.string = ""
+    }
+
+    static func save(value: String) {
+        UIPasteboard.general.string = value
+        HapticUtil.generateNotificationFeedback(style: .success)
+    }
+
+    static func getURL() -> URL? {
+        if UIPasteboard.general.hasURLs {
+            return UIPasteboard.general.url
+        } else {
+            return nil
+        }
+    }
+}
+
+// MARK: Notification
+struct NotificationUtil {
+    static func postShouldShowSlideMenu() {
+        NotificationCenter.default.post(name: NSNotification.Name("ShouldShowSlideMenu"), object: nil)
+    }
+    static func postShouldHideSlideMenu() {
+        NotificationCenter.default.post(name: NSNotification.Name("ShouldHideSlideMenu"), object: nil)
+    }
+    static func postAppWidthDidChange() {
+        NotificationCenter.default.post(name: NSNotification.Name("AppWidthDidChange"), object: nil)
+    }
+    static func postReadingViewShouldHideStatusBar() {
+        NotificationCenter.default.post(name: NSNotification.Name("ReadingViewShouldHideStatusBar"), object: nil)
+    }
+    static func postBypassesSNIFilteringDidChange() {
+        NotificationCenter.default.post(name: NSNotification.Name("BypassesSNIFilteringDidChange"), object: nil)
+    }
+}
+
+// MARK: Cookies
+struct CookiesUtil {
+    static func initializeCookie(from cookie: HTTPCookie, value: String) -> HTTPCookie {
+        var properties = cookie.properties
+        properties?[.value] = value
+        return HTTPCookie(properties: properties ?? [:]) ?? HTTPCookie()
+    }
+
+    static func checkExistence(for url: URL, key: String) -> Bool {
+        if let cookies = HTTPCookieStorage.shared.cookies(for: url) {
+            var existence: HTTPCookie?
+            cookies.forEach { cookie in
+                if cookie.name == key {
+                    existence = cookie
+                }
+            }
+            return existence != nil
+        } else {
+            return false
+        }
+    }
+
+    static func set(
+        for url: URL, key: String, value: String, path: String = "/",
+        expiresTime: TimeInterval = TimeInterval(60 * 60 * 24 * 365)
+    ) {
+        let expiredDate = Date(timeIntervalSinceNow: expiresTime)
+        let properties: [HTTPCookiePropertyKey: Any] = [
+            .path: path, .name: key, .value: value,
+            .originURL: url, .expires: expiredDate
+        ]
+        if let cookie = HTTPCookie(properties: properties) {
+            HTTPCookieStorage.shared.setCookie(cookie)
+        }
+    }
+
+    static func setIgneous(for response: HTTPURLResponse) {
+        guard let setString = response.allHeaderFields["Set-Cookie"] as? String else { return }
+        setString.components(separatedBy: ", ")
+            .flatMap { $0.components(separatedBy: "; ") }.forEach { value in
+                [Defaults.URL.ehentai, Defaults.URL.exhentai].forEach { url in
+                    [Defaults.Cookie.ipbMemberId, Defaults.Cookie.ipbPassHash, Defaults.Cookie.igneous].forEach { key in
+                        guard !(url == Defaults.URL.ehentai && key == Defaults.Cookie.igneous),
+                              let range = value.range(of: "\(key)=") else { return }
+
+                        set(for: url.safeURL(), key: key, value: String(value[range.upperBound...]) )
+                    }
+                }
+            }
+    }
+
+    static func remove(for url: URL, key: String) {
+        if let cookies = HTTPCookieStorage.shared.cookies(for: url) {
+            cookies.forEach { cookie in
+                if cookie.name == key {
+                    HTTPCookieStorage.shared.deleteCookie(cookie)
+                }
+            }
+        }
+    }
+
+    static func clearAll() {
+        if let historyCookies = HTTPCookieStorage.shared.cookies {
+            historyCookies.forEach {
+                HTTPCookieStorage.shared.deleteCookie($0)
+            }
+        }
+    }
+
+    static func edit(for url: URL, key: String, value: String) {
+        var newCookie: HTTPCookie?
+        if let cookies = HTTPCookieStorage.shared.cookies(for: url) {
+            cookies.forEach { cookie in
+                if cookie.name == key
+                {
+                    newCookie = initializeCookie(from: cookie, value: value)
+                    remove(for: url, key: key)
+                }
+            }
+        }
+
+        guard let cookie = newCookie else { return }
+        HTTPCookieStorage.shared.setCookie(cookie)
+    }
+
+    static func get(for url: URL, key: String) -> CookieValue {
+        var value = CookieValue(rawValue: "", localizedString: Defaults.Cookie.null.localized)
+
+        guard let cookies = HTTPCookieStorage.shared.cookies(for: url),
+                !cookies.isEmpty else { return value }
+
+        cookies.forEach { cookie in
+            guard let expiresDate = cookie.expiresDate,
+                  cookie.name == key && !cookie.value.isEmpty else { return }
+
+            guard expiresDate > .now else {
+                value = CookieValue(rawValue: "", localizedString: Defaults.Cookie.expired.localized)
+                return
+            }
+
+            guard cookie.value != Defaults.Cookie.mystery else {
+                value = CookieValue(rawValue: cookie.value, localizedString: Defaults.Cookie.mystery.localized)
+                return
+            }
+
+            value = CookieValue(rawValue: cookie.value, localizedString: "")
+        }
+
+        return value
+    }
+
+    static func verify(for url: URL, isEx: Bool) -> Bool {
+        guard let cookies = HTTPCookieStorage.shared.cookies(for: url),
+                !cookies.isEmpty else { return false }
+
+        var igneous, memberID, passHash: String?
+
+        cookies.forEach { cookie in
+            guard let expiresDate = cookie.expiresDate,
+                    expiresDate > .now, !cookie.value.isEmpty
+            else { return }
+
+            if cookie.name == Defaults.Cookie.igneous
+                && cookie.value != Defaults.Cookie.mystery
+            {
+                igneous = cookie.value
+            }
+
+            if cookie.name == Defaults.Cookie.ipbMemberId {
+                memberID = cookie.value
+            }
+
+            if cookie.name == Defaults.Cookie.ipbPassHash {
+                passHash = cookie.value
+            }
+        }
+
+        if isEx {
+            return igneous != nil && memberID != nil && passHash != nil
+        } else {
+            return memberID != nil && passHash != nil
+        }
+    }
+}
+
 // MARK: Tools
 var opacityTransition: AnyTransition {
     AnyTransition.opacity.animation(.default)
-}
-var isUnitTesting: Bool {
-    ProcessInfo.processInfo.environment[
-      "XCTestConfigurationFilePath"
-    ] != nil
-}
-func clearPasteboard() {
-    UIPasteboard.general.string = ""
-}
-
-func saveToPasteboard(value: String) {
-    UIPasteboard.general.string = value
-    HapticUtil.generateNotificationFeedback(style: .success)
-}
-
-func getPasteboardLink() -> URL? {
-    if UIPasteboard.general.hasURLs {
-        return UIPasteboard.general.url
-    } else {
-        return nil
-    }
 }
 
 func isHandleableURL(url: URL) -> Bool {
@@ -308,14 +437,6 @@ func handleIncomingURL(
     completion(false, url, nil, nil)
 }
 
-@available(*, deprecated, message: "Use @FocusState instead.")
-func hideKeyboard() {
-    UIApplication.shared.sendAction(
-        #selector(UIResponder.resignFirstResponder),
-        to: nil, from: nil, for: nil
-    )
-}
-
 func dispatchMainSync(execute work: () -> Void) {
     if Thread.isMainThread {
         work()
@@ -357,252 +478,4 @@ var logsDirectoryURL: URL? {
     documentDirectory?.appendingPathComponent(
         Defaults.FilePath.logs
     )
-}
-
-// MARK: UserDefaults
-var pasteboardChangeCount: Int? {
-    UserDefaults.standard.integer(forKey: "PasteboardChangeCount")
-}
-
-func setGalleryHost(with host: GalleryHost) {
-    UserDefaults.standard.set(host.rawValue, forKey: "GalleryHost")
-}
-
-func setPasteboardChangeCount(with value: Int) {
-    UserDefaults.standard.set(value, forKey: "PasteboardChangeCount")
-}
-
-func postShouldShowSlideMenuNotification() {
-    NotificationCenter.default.post(
-        name: NSNotification.Name("ShouldShowSlideMenu"),
-        object: nil
-    )
-}
-func postShouldHideSlideMenuNotification() {
-    NotificationCenter.default.post(
-        name: NSNotification.Name("ShouldHideSlideMenu"),
-        object: nil
-    )
-}
-
-func postAppWidthDidChangeNotification() {
-    NotificationCenter.default.post(
-        name: NSNotification.Name("AppWidthDidChange"),
-        object: nil
-    )
-}
-
-func postReadingViewShouldHideStatusBarNotification() {
-    NotificationCenter.default.post(
-        name: NSNotification.Name("ReadingViewShouldHideStatusBar"),
-        object: nil
-    )
-}
-
-func postBypassesSNIFilteringDidChangeNotification() {
-    NotificationCenter.default.post(
-        name: NSNotification.Name("BypassesSNIFilteringDidChange"),
-        object: nil
-    )
-}
-
-// MARK: Storage Management
-func readableUnit<I: BinaryInteger>(bytes: I) -> String {
-    let formatter = ByteCountFormatter()
-    formatter.allowedUnits = [.useAll]
-    return formatter.string(fromByteCount: Int64(bytes))
-}
-
-// MARK: Cookies
-func initializeCookieFrom(cookie: HTTPCookie, value: String) -> HTTPCookie {
-    var properties = cookie.properties
-    properties?[.value] = value
-    return HTTPCookie(properties: properties ?? [:]) ?? HTTPCookie()
-}
-
-func checkExistence(url: URL, key: String) -> Bool {
-    if let cookies = HTTPCookieStorage.shared.cookies(for: url) {
-        var existence: HTTPCookie?
-        cookies.forEach { cookie in
-            if cookie.name == key {
-                existence = cookie
-            }
-        }
-        return existence != nil
-    } else {
-        return false
-    }
-}
-
-func setCookie(
-    url: URL, key: String, value: String, path: String = "/",
-    expiresTime: TimeInterval = TimeInterval(60 * 60 * 24 * 365)
-) {
-    let expiredDate = Date(timeIntervalSinceNow: expiresTime)
-    let properties: [HTTPCookiePropertyKey: Any] =
-    [
-        .path: path,
-        .name: key,
-        .value: value,
-        .originURL: url,
-        .expires: expiredDate
-    ]
-    if let cookie = HTTPCookie(properties: properties) {
-        HTTPCookieStorage.shared.setCookie(cookie)
-    }
-}
-
-func setIgneousCookie(response: HTTPURLResponse) {
-    guard let setString = response.allHeaderFields["Set-Cookie"] as? String else { return }
-    setString.components(separatedBy: ", ")
-        .flatMap { $0.components(separatedBy: "; ") }
-        .forEach { value in
-            [Defaults.URL.ehentai, Defaults.URL.exhentai].forEach { url in
-                [
-                    Defaults.Cookie.ipbMemberId,
-                    Defaults.Cookie.ipbPassHash,
-                    Defaults.Cookie.igneous
-                ].forEach { key in
-                    guard !(
-                        url == Defaults.URL.ehentai
-                        && key == Defaults.Cookie.igneous
-                    ) else { return }
-
-                    if let range = value.range(of: "\(key)=") {
-                        setCookie(
-                            url: url.safeURL(),
-                            key: key,
-                            value: String(value[range.upperBound...])
-                        )
-                    }
-                }
-            }
-        }
-}
-
-func removeCookie(url: URL, key: String) {
-    if let cookies = HTTPCookieStorage.shared.cookies(for: url) {
-        cookies.forEach { cookie in
-            if cookie.name == key {
-                HTTPCookieStorage.shared.deleteCookie(cookie)
-            }
-        }
-    }
-}
-
-func clearCookies() {
-    if let historyCookies = HTTPCookieStorage.shared.cookies {
-        historyCookies.forEach {
-            HTTPCookieStorage.shared.deleteCookie($0)
-        }
-    }
-}
-
-func editCookie(url: URL, key: String, value: String) {
-    var newCookie: HTTPCookie?
-    if let cookies = HTTPCookieStorage.shared.cookies(for: url) {
-        cookies.forEach { cookie in
-            if cookie.name == key
-            {
-                newCookie = initializeCookieFrom(cookie: cookie, value: value)
-                removeCookie(url: url, key: key)
-            }
-        }
-    }
-
-    guard let cookie = newCookie else { return }
-    HTTPCookieStorage.shared.setCookie(cookie)
-}
-
-func getCookieValue(url: URL, key: String) -> CookieValue {
-    var value = CookieValue(
-        rawValue: "",
-        localizedString: Defaults.Cookie.null.localized
-    )
-
-    guard let cookies =
-            HTTPCookieStorage
-            .shared
-            .cookies(for: url),
-          !cookies.isEmpty
-    else { return value }
-
-    let date = Date()
-
-    cookies.forEach { cookie in
-        guard let expiresDate = cookie.expiresDate
-        else { return }
-
-        if cookie.name == key
-            && !cookie.value.isEmpty
-        {
-            if expiresDate > date {
-                if cookie.value == Defaults.Cookie.mystery {
-                    value = CookieValue(
-                        rawValue: cookie.value,
-                        localizedString: Defaults.Cookie.mystery.localized
-                    )
-                } else {
-                    value = CookieValue(
-                        rawValue: cookie.value,
-                        localizedString: ""
-                    )
-                }
-            } else {
-                value = CookieValue(
-                    rawValue: "",
-                    localizedString: Defaults.Cookie.expired.localized
-                )
-            }
-        }
-    }
-
-    return value
-}
-
-func verifyCookies(url: URL, isEx: Bool) -> Bool {
-    guard let cookies =
-            HTTPCookieStorage
-            .shared
-            .cookies(for: url),
-          !cookies.isEmpty
-    else { return false }
-
-    let date = Date()
-    var igneous: String?
-    var memberID: String?
-    var passHash: String?
-
-    cookies.forEach { cookie in
-        guard let expiresDate = cookie.expiresDate
-        else { return }
-
-        if cookie.name == Defaults.Cookie.igneous
-            && !cookie.value.isEmpty
-            && cookie.value != Defaults.Cookie.mystery
-            && expiresDate > date
-        {
-            igneous = cookie.value
-        }
-
-        if cookie.name == Defaults.Cookie.ipbMemberId
-            && !cookie.value.isEmpty
-            && expiresDate > date
-        {
-            memberID = cookie.value
-        }
-
-        if cookie.name == Defaults.Cookie.ipbPassHash
-            && !cookie.value.isEmpty
-            && expiresDate > date
-        {
-            passHash = cookie.value
-        }
-    }
-
-    if isEx {
-        return igneous != nil && memberID != nil && passHash != nil
-    } else {
-        return memberID != nil && passHash != nil
-    }
 }

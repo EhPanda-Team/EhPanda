@@ -561,8 +561,8 @@ struct GalleryNormalContentRefetchRequest {
                         .forEach { value in
                             let key = Defaults.Cookie.skipServer
                             if let range = value.range(of: "\(key)=") {
-                                setCookie(
-                                    url: Defaults.URL.host.safeURL(), key: key,
+                                CookiesUtil.set(
+                                    for: Defaults.URL.host.safeURL(), key: key,
                                     value: String(value[range.upperBound...]), path: "/s/",
                                     expiresTime: TimeInterval(60 * 60 * 24 * 30)
                                 )
@@ -644,7 +644,7 @@ struct IgneousRequest {
         URLSession.shared.dataTaskPublisher(for: Defaults.URL.exhentai.safeURL())
             .genericRetry().map { value in
                 if let (_, resp) = value as? (Data, HTTPURLResponse) {
-                    setIgneousCookie(response: resp)
+                    CookiesUtil.setIgneous(for: resp)
                 }
                 return value
             }

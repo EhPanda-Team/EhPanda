@@ -124,7 +124,7 @@ private extension Home {
                     width = Defaults.FrameSize.slideMenuWidth
                 }
             }
-            postAppWidthDidChangeNotification()
+            NotificationUtil.postAppWidthDidChange()
         }
     }
     func toggleDomainFronting() {

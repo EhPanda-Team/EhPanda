@@ -54,7 +54,7 @@ private extension EhPandaApp {
     }
 
     func syncGalleryHost() {
-        setGalleryHost(with: setting.galleryHost)
+        AppUtil.setGalleryHost(value: setting.galleryHost)
     }
     func fetchTagTranslator() {
         store.dispatch(.fetchTagTranslator)
@@ -67,19 +67,11 @@ private extension EhPandaApp {
         store.dispatch(.fetchFavoriteNames)
     }
     func fetchIgneousIfNeeded() {
+        let url = Defaults.URL.exhentai.safeURL()
         guard setting.bypassesSNIFiltering,
-              !getCookieValue(
-                url: Defaults.URL.exhentai.safeURL(),
-                key: Defaults.Cookie.ipbMemberId
-              ).rawValue.isEmpty,
-              !getCookieValue(
-                url: Defaults.URL.exhentai.safeURL(),
-                key: Defaults.Cookie.ipbPassHash
-              ).rawValue.isEmpty,
-              getCookieValue(
-                url: Defaults.URL.exhentai.safeURL(),
-                key: Defaults.Cookie.igneous
-              ).rawValue.isEmpty
+              !CookiesUtil.get(for: url, key: Defaults.Cookie.ipbMemberId).rawValue.isEmpty,
+              !CookiesUtil.get(for: url, key: Defaults.Cookie.ipbPassHash).rawValue.isEmpty,
+              CookiesUtil.get(for: url, key: Defaults.Cookie.igneous).rawValue.isEmpty
         else { return }
 
         store.dispatch(.fetchIgneous)
@@ -112,7 +104,7 @@ private extension EhPandaApp {
 
         SwiftyBeaver.addDestination(file)
         #if DEBUG
-        guard !isUnitTesting else { return }
+        guard !AppUtil.isUnitTesting else { return }
         SwiftyBeaver.addDestination(console)
         #endif
     }
@@ -145,8 +137,8 @@ private extension EhPandaApp {
         }
     }
     func configureIgnoreOffensive() {
-        setCookie(url: Defaults.URL.ehentai.safeURL(), key: "nw", value: "1")
-        setCookie(url: Defaults.URL.exhentai.safeURL(), key: "nw", value: "1")
+        CookiesUtil.set(for: Defaults.URL.ehentai.safeURL(), key: "nw", value: "1")
+        CookiesUtil.set(for: Defaults.URL.exhentai.safeURL(), key: "nw", value: "1")
     }
 }
 

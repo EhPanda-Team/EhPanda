@@ -192,7 +192,7 @@ private extension DetailView {
     }
     func onDisappear() {
         updateViewControllersCount()
-        postReadingViewShouldHideStatusBarNotification()
+        NotificationUtil.postReadingViewShouldHideStatusBar()
     }
     func onArchiveButtonTap() {
         toggleSheet(state: .archive)
@@ -260,7 +260,7 @@ private extension DetailView {
     func onPreviewImageTap(index: Int, triggersLink: Bool) {
         store.dispatch(.saveReadingProgress(gid: gid, tag: index))
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-            postReadingViewShouldHideStatusBarNotification()
+            NotificationUtil.postReadingViewShouldHideStatusBar()
         }
         if triggersLink { isReadingLinkActive.toggle() }
     }

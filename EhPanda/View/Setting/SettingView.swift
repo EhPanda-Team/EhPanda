@@ -91,20 +91,21 @@ private extension SettingView {
     }
 
     func logout() {
-        clearCookies()
         clearImageCaches()
+        CookiesUtil.clearAll()
         store.dispatch(.resetUser)
     }
 
+    func readableUnit<I: BinaryInteger>(bytes: I) -> String {
+        let formatter = ByteCountFormatter()
+        formatter.allowedUnits = [.useAll]
+        return formatter.string(fromByteCount: Int64(bytes))
+    }
     func calculateDiskCachesSize() {
         KingfisherManager.shared.cache.calculateDiskStorageSize { result in
             switch result {
             case .success(let size):
-                store.dispatch(
-                    .updateDiskImageCacheSize(
-                        size: readableUnit(bytes: size)
-                    )
-                )
+                store.dispatch(.updateDiskImageCacheSize(size: readableUnit(bytes: size)))
             case .failure(let error):
                 SwiftyBeaver.error(error)
             }
