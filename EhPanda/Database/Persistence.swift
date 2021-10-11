@@ -29,7 +29,7 @@ struct PersistenceController {
     }
     static func saveContext() {
         let context = shared.container.viewContext
-        dispatchMainSync {
+        AppUtil.dispatchMainSync {
             if context.hasChanges {
                 do {
                     try context.save()
@@ -84,7 +84,7 @@ struct PersistenceController {
     ) -> [MO] {
         var results = [MO]()
         let context = shared.container.viewContext
-        dispatchMainSync {
+        AppUtil.dispatchMainSync {
             if findBeforeFetch, let predicate = predicate {
                 if let objects = materializedObjects(
                     in: context, matching: predicate
@@ -155,7 +155,7 @@ struct PersistenceController {
         createIfNil: Bool = false,
         commitChanges: @escaping ((MO) -> Void)
     ) {
-        dispatchMainSync {
+        AppUtil.dispatchMainSync {
             let storedMO: MO?
             if createIfNil {
                 storedMO = fetchOrCreate(

@@ -2,7 +2,7 @@
 //  MigrationPolicy.swift
 //  EhPanda
 //
-//  Created by 荒木辰造 on 2021/07/24.
+//  Created by 荒木辰造 on R 3/07/24.
 //
 
 import CoreData

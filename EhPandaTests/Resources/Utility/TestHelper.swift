@@ -2,7 +2,7 @@
 //  TestHelper.swift
 //  TestHelper
 //
-//  Created by 荒木辰造 on 2021/08/21.
+//  Created by 荒木辰造 on R 3/08/21.
 //
 
 import XCTest

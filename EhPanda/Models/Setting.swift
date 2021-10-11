@@ -11,9 +11,6 @@ import BetterCodable
 
 struct Setting: Codable {
     // Account
-    @DefaultGalleryHost var galleryHost = GalleryHost.ehentai {
-        didSet { AppUtil.setGalleryHost(value: galleryHost) }
-    }
     @DefaultFalse var showNewDawnGreeting = false
 
     // General
@@ -75,7 +72,7 @@ struct Setting: Codable {
 
     // Laboratory
     @DefaultFalse var bypassesSNIFiltering = false {
-        didSet { NotificationUtil.postBypassesSNIFilteringDidChange() }
+        didSet { NotificationUtil.post(.bypassesSNIFilteringDidChange) }
     }
 }
 

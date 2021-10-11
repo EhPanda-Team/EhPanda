@@ -52,6 +52,9 @@ struct AuthorizationUtil {
 
 // MARK: App
 struct AppUtil {
+    static var opacityTransition: AnyTransition {
+        AnyTransition.opacity.animation(.default)
+    }
     static var version: String {
         Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "(null)"
     }
@@ -66,12 +69,12 @@ struct AppUtil {
     }
 
     static var galleryHost: GalleryHost {
-        let rawValue = UserDefaults.standard.string(forKey: "GalleryHost") ?? ""
-        return GalleryHost(rawValue: rawValue) ?? .ehentai
+        let rawValue: String? = UserDefaultsUtil.value(forKey: .galleryHost)
+        return GalleryHost(rawValue: rawValue ?? "") ?? .ehentai
     }
 
     static func setGalleryHost(value: GalleryHost) {
-        UserDefaults.standard.set(value.rawValue, forKey: "GalleryHost")
+        UserDefaultsUtil.set(value: value.rawValue, forKey: .galleryHost)
     }
 
     static func configureKingfisher(bypassesSNIFiltering: Bool, handlesCookies: Bool = true) {
@@ -79,6 +82,30 @@ struct AppUtil {
         if handlesCookies { config.httpCookieStorage = HTTPCookieStorage.shared }
         if bypassesSNIFiltering { config.protocolClasses = [DFURLProtocol.self] }
         KingfisherManager.shared.downloader.sessionConfiguration = config
+    }
+
+    static func presentActivity(items: [Any]) {
+        let activityVC = UIActivityViewController(
+            activityItems: items, applicationActivities: nil
+        )
+        if DeviceUtil.isPad {
+            activityVC.popoverPresentationController?.sourceView = DeviceUtil.keyWindow
+            activityVC.popoverPresentationController?.sourceRect = CGRect(
+                x: DeviceUtil.screenW, y: 0, width: 200, height: 200
+            )
+        }
+        activityVC.modalPresentationStyle = .overFullScreen
+        DeviceUtil.keyWindow?.rootViewController?
+            .present(activityVC, animated: true, completion: nil)
+        HapticUtil.generateFeedback(style: .light)
+    }
+
+    static func dispatchMainSync(execute work: () -> Void) {
+        if Thread.isMainThread {
+            work()
+        } else {
+            DispatchQueue.main.sync(execute: work)
+        }
     }
 }
 
@@ -111,18 +138,12 @@ struct DeviceUtil {
 
     static var isLandscape: Bool {
         [.landscapeLeft, .landscapeRight]
-            .contains(
-                keyWindow?.windowScene?
-                    .interfaceOrientation
-            )
+            .contains(keyWindow?.windowScene?.interfaceOrientation)
     }
 
     static var isPortrait: Bool {
         [.portrait, .portraitUpsideDown]
-            .contains(
-                keyWindow?.windowScene?
-                    .interfaceOrientation
-            )
+            .contains(keyWindow?.windowScene?.interfaceOrientation)
     }
 
     static var windowW: CGFloat {
@@ -157,6 +178,7 @@ struct DeviceUtil {
         UIScreen.main.bounds.size.height
     }
 }
+
 // MARK: Haptic
 struct HapticUtil {
     static func generateFeedback(style: UIImpactFeedbackGenerator.FeedbackStyle) {
@@ -166,6 +188,7 @@ struct HapticUtil {
         }
         UIImpactFeedbackGenerator(style: style).impactOccurred()
     }
+
     static func generateNotificationFeedback(style: UINotificationFeedbackGenerator.FeedbackType) {
         guard !isLegacyTapticEngine else {
             generateLegacyFeedback()
@@ -173,12 +196,14 @@ struct HapticUtil {
         }
         UINotificationFeedbackGenerator().notificationOccurred(style)
     }
+
     private static func generateLegacyFeedback() {
         AudioServicesPlaySystemSound(1519)
         AudioServicesPlaySystemSound(1520)
         AudioServicesPlaySystemSound(1521)
         AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)
     }
+
     private static var isLegacyTapticEngine: Bool {
         var systemInfo = utsname()
         uname(&systemInfo)
@@ -194,11 +219,11 @@ struct HapticUtil {
 // MARK: Pasteboard
 struct PasteboardUtil {
     static var changeCount: Int? {
-        UserDefaults.standard.integer(forKey: "PasteboardChangeCount")
+        UserDefaultsUtil.value(forKey: .pasteboardChangeCount)
     }
 
     static func setChangeCount(value: Int) {
-        UserDefaults.standard.set(value, forKey: "PasteboardChangeCount")
+        UserDefaultsUtil.set(value: value, forKey: .pasteboardChangeCount)
     }
 
     static func clear() {
@@ -219,22 +244,43 @@ struct PasteboardUtil {
     }
 }
 
+// MARK: UserDefaults
+struct UserDefaultsUtil {
+    static func value<T: Codable>(forKey key: AppUserDefaults) -> T? {
+        UserDefaults.standard.value(forKey: key.rawValue) as? T
+    }
+
+    static func set(value: Any, forKey key: AppUserDefaults) {
+        UserDefaults.standard.set(value, forKey: key.rawValue)
+    }
+}
+
+enum AppUserDefaults: String {
+    case galleryHost
+    case pasteboardChangeCount
+}
+
 // MARK: Notification
 struct NotificationUtil {
-    static func postShouldShowSlideMenu() {
-        NotificationCenter.default.post(name: NSNotification.Name("ShouldShowSlideMenu"), object: nil)
+    static func post(_ notification: AppNotification) {
+        NotificationCenter.default.post(name: notification.name, object: nil)
     }
-    static func postShouldHideSlideMenu() {
-        NotificationCenter.default.post(name: NSNotification.Name("ShouldHideSlideMenu"), object: nil)
+}
+
+enum AppNotification: String {
+    case appWidthDidChange
+    case shouldShowSlideMenu
+    case shouldHideSlideMenu
+    case bypassesSNIFilteringDidChange
+    case readingViewShouldHideStatusBar
+}
+
+extension AppNotification {
+    var name: NSNotification.Name {
+        .init(rawValue: rawValue)
     }
-    static func postAppWidthDidChange() {
-        NotificationCenter.default.post(name: NSNotification.Name("AppWidthDidChange"), object: nil)
-    }
-    static func postReadingViewShouldHideStatusBar() {
-        NotificationCenter.default.post(name: NSNotification.Name("ReadingViewShouldHideStatusBar"), object: nil)
-    }
-    static func postBypassesSNIFilteringDidChange() {
-        NotificationCenter.default.post(name: NSNotification.Name("BypassesSNIFilteringDidChange"), object: nil)
+    var publisher: NotificationCenter.Publisher {
+        name.publisher
     }
 }
 
@@ -383,99 +429,70 @@ struct CookiesUtil {
     }
 }
 
-// MARK: Tools
-var opacityTransition: AnyTransition {
-    AnyTransition.opacity.animation(.default)
-}
-
-func isHandleableURL(url: URL) -> Bool {
-    (url.absoluteString.contains(Defaults.URL.ehentai)
-        || url.absoluteString.contains(Defaults.URL.exhentai))
-        && url.pathComponents.count >= 4
-        && ["g", "s"].contains(url.pathComponents[1])
-        && !url.pathComponents[2].isEmpty
-        && !url.pathComponents[3].isEmpty
-}
-
-func parseGID(url: URL, isGalleryURL: Bool) -> String {
-    var gid = url.pathComponents[2]
-    let token = url.pathComponents[3]
-    if let range = token.range(of: "-"), isGalleryURL {
-        gid = String(token[..<range.lowerBound])
+// MARK: URL
+struct URLUtil {
+    private static func checkIfHandleable(url: URL) -> Bool {
+        (url.absoluteString.contains(Defaults.URL.ehentai)
+            || url.absoluteString.contains(Defaults.URL.exhentai))
+            && url.pathComponents.count >= 4
+            && ["g", "s"].contains(url.pathComponents[1])
+            && !url.pathComponents[2].isEmpty
+            && !url.pathComponents[3].isEmpty
     }
-    return gid
-}
 
-func handleIncomingURL(
-    _ url: URL, handlesOutgoingURL: Bool = false,
-    completion: (Bool, URL?, Int?, String?) -> Void
-) {
-    guard isHandleableURL(url: url) else {
-        if handlesOutgoingURL {
-            UIApplication.shared.open(url, options: [:])
+    static func parseGID(url: URL, isGalleryURL: Bool) -> String {
+        var gid = url.pathComponents[2]
+        let token = url.pathComponents[3]
+        if let range = token.range(of: "-"), isGalleryURL {
+            gid = String(token[..<range.lowerBound])
         }
-        completion(false, nil, nil, nil)
-        return
+        return gid
     }
 
-    let token = url.pathComponents[3]
-    if let range = token.range(of: "-") {
-        let pageIndex = Int(token[range.upperBound...])
-        completion(true, url, pageIndex, nil)
-        return
-    }
-
-    if let range = url.absoluteString.range(of: url.pathComponents[3] + "/") {
-        let commentField = String(url.absoluteString[range.upperBound...])
-        if let range = commentField.range(of: "#c") {
-            let commentID = String(commentField[range.upperBound...])
-            completion(false, url, nil, commentID)
+    static func handleIncomingURL(
+        _ url: URL, handlesOutgoingURL: Bool = false,
+        completion: (Bool, URL?, Int?, String?) -> Void
+    ) {
+        guard checkIfHandleable(url: url) else {
+            if handlesOutgoingURL {
+                UIApplication.shared.open(url, options: [:])
+            }
+            completion(false, nil, nil, nil)
             return
         }
-    }
 
-    completion(false, url, nil, nil)
+        let token = url.pathComponents[3]
+        if let range = token.range(of: "-") {
+            let pageIndex = Int(token[range.upperBound...])
+            completion(true, url, pageIndex, nil)
+            return
+        }
+
+        if let range = url.absoluteString.range(of: url.pathComponents[3] + "/") {
+            let commentField = String(url.absoluteString[range.upperBound...])
+            if let range = commentField.range(of: "#c") {
+                let commentID = String(commentField[range.upperBound...])
+                completion(false, url, nil, commentID)
+                return
+            }
+        }
+
+        completion(false, url, nil, nil)
+    }
 }
 
-func dispatchMainSync(execute work: () -> Void) {
-    if Thread.isMainThread {
-        work()
-    } else {
-        DispatchQueue.main.sync(execute: work)
-    }
-}
-
-func presentActivityVC(items: [Any]) {
-    let activityVC = UIActivityViewController(
-        activityItems: items,
-        applicationActivities: nil
-    )
-    if DeviceUtil.isPad {
-        activityVC.popoverPresentationController?.sourceView = DeviceUtil.keyWindow
-        activityVC.popoverPresentationController?.sourceRect = CGRect(
-            x: DeviceUtil.screenW, y: 0,
-            width: 200, height: 200
+// MARK: File
+struct FileUtil {
+    static var documentDirectory: URL? {
+        try? FileManager.default.url(
+            for: .documentDirectory, in: .userDomainMask,
+               appropriateFor: nil, create: true
         )
     }
-    activityVC.modalPresentationStyle = .overFullScreen
-    DeviceUtil.keyWindow?.rootViewController?
-        .present(
-            activityVC,
-            animated: true,
-            completion: nil
-        )
-    HapticUtil.generateFeedback(style: .light)
-}
 
-// MARK: FileManager
-var documentDirectory: URL? {
-    try? FileManager.default.url(
-        for: .documentDirectory, in: .userDomainMask,
-           appropriateFor: nil, create: true
-    )
-}
-var logsDirectoryURL: URL? {
-    documentDirectory?.appendingPathComponent(
-        Defaults.FilePath.logs
-    )
+    static var logsDirectoryURL: URL? {
+        documentDirectory?.appendingPathComponent(
+            Defaults.FilePath.logs
+        )
+    }
 }

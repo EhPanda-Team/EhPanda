@@ -165,11 +165,11 @@ private extension CommentView {
         }
     }
     func onLinkTap(link: URL) {
-        handleIncomingURL(link, handlesOutgoingURL: true)
+        URLUtil.handleIncomingURL(link, handlesOutgoingURL: true)
         { shouldParseGalleryURL, incomingURL, pageIndex, commentID in
             guard let incomingURL = incomingURL else { return }
 
-            let gid = parseGID(url: incomingURL, isGalleryURL: shouldParseGalleryURL)
+            let gid = URLUtil.parseGID(url: incomingURL, isGalleryURL: shouldParseGalleryURL)
             store.dispatch(.updatePendingJumpInfos(
                 gid: gid, pageIndex: pageIndex, commentID: commentID
             ))

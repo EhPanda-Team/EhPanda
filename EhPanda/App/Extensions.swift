@@ -17,7 +17,7 @@ extension UINavigationController: UIGestureRecognizerDelegate {
     }
 
     public func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
-        return viewControllers.count > 1
+        viewControllers.count > 1
     }
 }
 
@@ -80,7 +80,7 @@ extension String {
         ) ?? ""
     }
 
-    func capitalizingFirstLetter() -> String {
+    var firstLetterCapitalized: String {
         prefix(1).capitalized + dropFirst()
     }
 
@@ -120,19 +120,6 @@ extension String {
                 return match.range.length == utf16.count
             } else { return false }
         } else { return false }
-    }
-}
-
-// MARK: Bundle
-extension Bundle {
-    var icon: UIImage? {
-        if let icons = infoDictionary?["CFBundleIcons"] as? [String: Any],
-           let primaryIcon = icons["CFBundlePrimaryIcon"] as? [String: Any],
-           let iconFiles = primaryIcon["CFBundleIconFiles"] as? [String],
-           let lastIcon = iconFiles.last {
-            return UIImage(named: lastIcon)
-        }
-        return nil
     }
 }
 
@@ -217,5 +204,11 @@ extension Color {
             .sRGB, red: Double(red) / 255.0, green: Double(green) / 255.0,
             blue: Double(blue) / 255.0, opacity: Double(alpha) / 255.0
         )
+    }
+}
+
+extension NSNotification.Name {
+    var publisher: NotificationCenter.Publisher {
+        NotificationCenter.default.publisher(for: self)
     }
 }

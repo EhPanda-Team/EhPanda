@@ -92,7 +92,7 @@ struct AppearanceSettingView: View, StoreAccessor {
 
     var iconType: IconType {
         var alterName: String?
-        dispatchMainSync {
+        AppUtil.dispatchMainSync {
             alterName = UIApplication.shared.alternateIconName
         }
 

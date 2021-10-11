@@ -2,7 +2,7 @@
 //  GenericList.swift
 //  EhPanda
 //
-//  Created by 荒木辰造 on 2021/07/25.
+//  Created by 荒木辰造 on R 3/07/25.
 //
 
 import SwiftUI
@@ -72,7 +72,7 @@ struct GenericList: View {
                     )
                 }
             }
-            .transition(opacityTransition)
+            .transition(AppUtil.opacityTransition)
             .refreshable {
                 fetchAction?()
             }

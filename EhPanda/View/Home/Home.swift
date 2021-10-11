@@ -72,35 +72,13 @@ struct Home: View, StoreAccessor {
                 },
             including: viewControllersCount == 1 ? .all : .none
         )
-        .onReceive(
-            NotificationCenter.default.publisher(
-                for: UIApplication.didBecomeActiveNotification
-            )
-        ) { _ in onWidthChange() }
-        .onReceive(
-            NotificationCenter.default.publisher(
-                for: UIDevice.orientationDidChangeNotification
-            )
-        ) { _ in
-            if DeviceUtil.isPad || DeviceUtil.isLandscape {
-                onWidthChange()
-            }
+        .onReceive(AppNotification.shouldHideSlideMenu.publisher) { _ in performTransition(offset: -width) }
+        .onReceive(AppNotification.bypassesSNIFilteringDidChange.publisher, perform: toggleDomainFronting)
+        .onReceive(AppNotification.shouldShowSlideMenu.publisher) { _ in performTransition(offset: 0) }
+        .onReceive(UIApplication.didBecomeActiveNotification.publisher, perform: onWidthChange)
+        .onReceive(UIDevice.orientationDidChangeNotification.publisher) { _ in
+            if DeviceUtil.isPad || DeviceUtil.isLandscape { onWidthChange() }
         }
-        .onReceive(
-            NotificationCenter.default.publisher(
-                for: NSNotification.Name("ShouldShowSlideMenu")
-            )
-        ) { _ in performTransition(offset: 0) }
-        .onReceive(
-            NotificationCenter.default.publisher(
-                for: NSNotification.Name("ShouldHideSlideMenu")
-            )
-        ) { _ in performTransition(offset: -width) }
-        .onReceive(
-            NotificationCenter.default.publisher(
-                for: NSNotification.Name("BypassesSNIFilteringDidChange")
-            )
-        ) { _ in toggleDomainFronting() }
     }
 }
 
@@ -116,7 +94,7 @@ private extension Home {
         return (width + offset) / width * scale
     }
 
-    func onWidthChange() {
+    func onWidthChange(_: Any? = nil) {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
             if width != Defaults.FrameSize.slideMenuWidth {
                 withAnimation {
@@ -124,10 +102,10 @@ private extension Home {
                     width = Defaults.FrameSize.slideMenuWidth
                 }
             }
-            NotificationUtil.postAppWidthDidChange()
+            NotificationUtil.post(.appWidthDidChange)
         }
     }
-    func toggleDomainFronting() {
+    func toggleDomainFronting(_: Any? = nil) {
         if setting.bypassesSNIFiltering {
             URLProtocol.registerClass(DFURLProtocol.self)
         } else {

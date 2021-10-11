@@ -28,7 +28,7 @@ extension PersistenceAccessor {
 extension PersistenceController {
     static func fetchGallery(gid: String) -> Gallery? {
         var entity: Gallery?
-        dispatchMainSync {
+        AppUtil.dispatchMainSync {
             entity = fetch(entityType: GalleryMO.self, gid: gid)?.toEntity()
         }
         return entity.forceUnwrapped
@@ -38,21 +38,21 @@ extension PersistenceController {
     }
     static func fetchGalleryDetail(gid: String) -> GalleryDetail? {
         var entity: GalleryDetail?
-        dispatchMainSync {
+        AppUtil.dispatchMainSync {
             entity = fetch(entityType: GalleryDetailMO.self, gid: gid)?.toEntity()
         }
         return entity
     }
     static func fetchGalleryStateNonNil(gid: String) -> GalleryState {
         var entity: GalleryState?
-        dispatchMainSync {
+        AppUtil.dispatchMainSync {
             entity = fetchOrCreate(entityType: GalleryStateMO.self, gid: gid).toEntity()
         }
         return entity.forceUnwrapped
     }
     static func fetchAppEnvNonNil() -> AppEnv {
         var entity: AppEnv?
-        dispatchMainSync {
+        AppUtil.dispatchMainSync {
             entity = fetchOrCreate(entityType: AppEnvMO.self).toEntity()
         }
         return entity.forceUnwrapped

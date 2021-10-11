@@ -2,7 +2,7 @@
 //  EhSettingView.swift
 //  EhPanda
 //
-//  Created by 荒木辰造 on 2021/08/07.
+//  Created by 荒木辰造 on R 3/08/07.
 //
 
 import SwiftUI
@@ -56,7 +56,7 @@ struct EhSettingView: View, StoreAccessor {
                 MultiplePageViewerSection(ehSetting: ehSettingBinding)
             }
         }
-        .transition(opacityTransition)
+        .transition(AppUtil.opacityTransition)
     }
 
     var body: some View {
@@ -666,8 +666,8 @@ private struct ExcludeView: View {
         ))
     ]
     private func localizedText(_ text: String) -> String {
-        if text.capitalizingFirstLetter().hasLocalizedString {
-            return text.capitalizingFirstLetter().localized
+        if text.firstLetterCapitalized.hasLocalizedString {
+            return text.firstLetterCapitalized.localized
         } else {
             return text
         }

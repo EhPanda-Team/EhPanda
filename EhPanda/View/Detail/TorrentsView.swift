@@ -78,7 +78,7 @@ private extension TorrentsView {
             localURL.appendPathComponent(hash + ".torrent")
             try? FileManager.default.copyItem(at: tmpURL, to: localURL)
             if FileManager.default.fileExists(atPath: localURL.path) {
-                dispatchMainSync { presentActivityVC(items: [localURL]) }
+                AppUtil.dispatchMainSync { AppUtil.presentActivity(items: [localURL]) }
             }
         }
         .resume()

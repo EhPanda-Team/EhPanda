@@ -70,7 +70,7 @@ struct DetailView: View, StoreAccessor, PersistenceAccessor {
                     .padding(.bottom, 20)
                     .padding(.top, -25)
                 }
-                .transition(opacityTransition)
+                .transition(AppUtil.opacityTransition)
             } else if detailInfo.detailLoading[gid] == true {
                 LoadingView()
             } else if let error = detailInfo.detailLoadErrors[gid] {
@@ -192,7 +192,7 @@ private extension DetailView {
     }
     func onDisappear() {
         updateViewControllersCount()
-        NotificationUtil.postReadingViewShouldHideStatusBar()
+        NotificationUtil.post(.readingViewShouldHideStatusBar)
     }
     func onArchiveButtonTap() {
         toggleSheet(state: .archive)
@@ -202,7 +202,7 @@ private extension DetailView {
     }
     func onShareButtonTap() {
         guard let data = URL(string: gallery.galleryURL) else { return }
-        presentActivityVC(items: [data])
+        AppUtil.presentActivity(items: [data])
     }
     func onUserRatingChange(value: Int) {
         store.dispatch(.rate(gid: gid, rating: value))
@@ -260,7 +260,7 @@ private extension DetailView {
     func onPreviewImageTap(index: Int, triggersLink: Bool) {
         store.dispatch(.saveReadingProgress(gid: gid, tag: index))
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-            NotificationUtil.postReadingViewShouldHideStatusBar()
+            NotificationUtil.post(.readingViewShouldHideStatusBar)
         }
         if triggersLink { isReadingLinkActive.toggle() }
     }
@@ -514,18 +514,11 @@ private struct DescScrollView: View {
                 .withHorizontalSpacing()
             }
         }
-        .swipeBackable()
-        .frame(height: 60)
-        .onReceive(
-            NotificationCenter.default.publisher(
-                for: NSNotification.Name("AppWidthDidChange")
-            )
-        ) { _ in
-            onWidthChange()
-        }
+        .swipeBackable().frame(height: 60)
+        .onReceive(AppNotification.appWidthDidChange.publisher, perform: onWidthChange)
     }
 
-    private func onWidthChange() {
+    private func onWidthChange(_: Any? = nil) {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
             if itemWidth != max(DeviceUtil.absWindowW / 5, 80) {
                 withAnimation {

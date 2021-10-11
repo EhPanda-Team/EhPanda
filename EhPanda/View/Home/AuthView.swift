@@ -20,30 +20,12 @@ struct AuthView: View, StoreAccessor {
     // MARK: AuthView
     var body: some View {
         Image(systemName: "lock.fill")
-            .font(.system(size: 80))
-            .onAppear(perform: onAppear)
-            .opacity(isAppUnlocked ? 0 : 1)
-            .onTapGesture(perform: authenticate)
-            .onReceive(
-                NotificationCenter.default.publisher(
-                    for: UIApplication.willResignActiveNotification
-                )
-            ) { _ in onResignActive() }
-            .onReceive(
-                NotificationCenter.default.publisher(
-                    for: UIApplication.didBecomeActiveNotification
-                )
-            ) { _ in onDidBecomeActive() }
-            .onReceive(
-                NotificationCenter.default.publisher(
-                    for: UIApplication.didEnterBackgroundNotification
-                )
-            ) { _ in onDidEnterBackground() }
-            .onReceive(
-                NotificationCenter.default.publisher(
-                    for: UIApplication.willEnterForegroundNotification
-                )
-            ) { _ in onWillEnterForeground() }
+            .font(.system(size: 80)).onAppear(perform: onAppear)
+            .opacity(isAppUnlocked ? 0 : 1).onTapGesture(perform: authenticate)
+            .onReceive(UIApplication.willResignActiveNotification.publisher, perform: onResignActive)
+            .onReceive(UIApplication.didBecomeActiveNotification.publisher, perform: onDidBecomeActive)
+            .onReceive(UIApplication.didEnterBackgroundNotification.publisher, perform: onDidEnterBackground)
+            .onReceive(UIApplication.willEnterForegroundNotification.publisher, perform: onWillEnterForeground)
     }
 }
 
@@ -63,22 +45,22 @@ private extension AuthView {
         HapticUtil.generateFeedback(style: .soft)
         authenticate()
     }
-    func onResignActive() {
+    func onResignActive(_: Any? = nil) {
         if allowsResignActiveBlur {
             setBlur(effectOn: true)
         }
     }
-    func onDidBecomeActive() {
+    func onDidBecomeActive(_: Any? = nil) {
         if isAppUnlocked {
             setBlur(effectOn: false)
         }
     }
-    func onDidEnterBackground() {
+    func onDidEnterBackground(_: Any? = nil) {
         if autoLockThreshold >= 0 {
             enterBackgroundDate = Date()
         }
     }
-    func onWillEnterForeground() {
+    func onWillEnterForeground(_: Any? = nil) {
         if autoLockThreshold >= 0 {
             lockIfExpired()
             if !isAppUnlocked {

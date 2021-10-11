@@ -40,8 +40,7 @@ private extension EhPandaApp {
 // MARK: Tasks
 private extension EhPandaApp {
     func onStartTasks() {
-        dispatchMainSync {
-            syncGalleryHost()
+        AppUtil.dispatchMainSync {
             configureWebImage()
             configureDomainFronting()
         }
@@ -53,9 +52,6 @@ private extension EhPandaApp {
         fetchAccountInfoIfNeeded()
     }
 
-    func syncGalleryHost() {
-        AppUtil.setGalleryHost(value: setting.galleryHost)
-    }
     func fetchTagTranslator() {
         store.dispatch(.fetchTagTranslator)
     }
@@ -111,7 +107,7 @@ private extension EhPandaApp {
     func configure(file: inout FileDestination) {
         file.calendar = Calendar(identifier: .gregorian)
         file.logFileAmount = 10
-        file.logFileURL = logsDirectoryURL?
+        file.logFileURL = FileUtil.logsDirectoryURL?
             .appendingPathComponent(
                 Defaults.FilePath.ehpandaLog
             )

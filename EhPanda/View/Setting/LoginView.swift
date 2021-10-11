@@ -2,7 +2,7 @@
 //  LoginView.swift
 //  EhPanda
 //
-//  Created by 荒木辰造 on 2021/08/12.
+//  Created by 荒木辰造 on R 3/08/12.
 //
 
 import SwiftUI
@@ -80,20 +80,12 @@ struct LoginView: View, StoreAccessor {
                 .disabled(setting.bypassesSNIFiltering)
             }
         }
-        .onReceive(
-            NotificationCenter.default.publisher(
-                for: UIApplication.willResignActiveNotification
-            )
-        ) { _ in
+        .onReceive(UIApplication.willResignActiveNotification.publisher) { _ in
             if focusedState != nil {
                 shouldRestoreFocus = true
             }
         }
-        .onReceive(
-            NotificationCenter.default.publisher(
-                for: UIApplication.didBecomeActiveNotification
-            )
-        ) { _ in
+        .onReceive(UIApplication.didBecomeActiveNotification.publisher) { _ in
             if shouldRestoreFocus {
                 focusedState = .username
                 shouldRestoreFocus = false
@@ -151,6 +143,7 @@ struct LoginView: View, StoreAccessor {
     }
 }
 
+// MARK: LoginTextField
 private struct LoginTextField: View {
     @Environment(\.colorScheme) private var colorScheme
     private let focusedState: FocusState<FocusedField?>.Binding

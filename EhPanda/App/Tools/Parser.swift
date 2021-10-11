@@ -50,7 +50,7 @@ struct Parser {
             var language: Language?
             for tagLink in object {
                 if tagLink["title"]?.contains("language") == true {
-                    if let langText = tagLink.text?.capitalizingFirstLetter(),
+                    if let langText = tagLink.text?.firstLetterCapitalized,
                        let lang = Language(rawValue: langText)
                     {
                         language = lang
@@ -183,7 +183,7 @@ struct Parser {
                         .at_xpath("//td [@class='tc']")?
                         .text?.replacingOccurrences(of: ":", with: ""),
                       let category = TagCategory(
-                        rawValue: categoryString.capitalizingFirstLetter()
+                        rawValue: categoryString.firstLetterCapitalized
                       )
                 else { continue }
 
@@ -1225,7 +1225,7 @@ extension Parser {
         {
             let resp = String(respString[rangeA.upperBound..<rangeB.lowerBound])
                 .trimmingCharacters(in: .whitespacesAndNewlines)
-                .capitalizingFirstLetter()
+                .firstLetterCapitalized
 
             if ArchiveRes(rawValue: resp) != nil {
                 let clientName = String(respString[rangeC.upperBound..<rangeD.lowerBound])

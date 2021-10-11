@@ -2,7 +2,7 @@
 //  SettingTextField.swift
 //  SettingTextField
 //
-//  Created by 荒木辰造 on 2021/08/07.
+//  Created by 荒木辰造 on R 3/08/07.
 //
 
 import SwiftUI

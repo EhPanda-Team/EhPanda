@@ -2,7 +2,7 @@
 //  AdvancedList.swift
 //  EhPanda
 //
-//  Created by 荒木辰造 on 2021/07/30.
+//  Created by 荒木辰造 on R 3/07/30.
 //
 
 import SwiftUI
@@ -56,12 +56,11 @@ where PageView: View, Element: Equatable, ID: Hashable, G: Gesture {
                                 ) { performingChanges = false }
                             }
                         }
-                        let gestures = longPress
-                            .simultaneously(with: gesture)
+                        let gestures = longPress.simultaneously(with: gesture)
                         content(index).gesture(gestures)
                     }
                 }
-                .task {
+                .onAppear {
                     performScrollTo(id: pagerModel.index + 1, proxy: proxy)
                 }
             }
@@ -73,7 +72,7 @@ where PageView: View, Element: Equatable, ID: Hashable, G: Gesture {
 
     private func performScrollTo(id: Int, proxy: ScrollViewProxy) {
         guard !performingChanges else { return }
-        dispatchMainSync {
+        AppUtil.dispatchMainSync {
             proxy.scrollTo(id, anchor: .center)
         }
     }

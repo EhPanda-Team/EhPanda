@@ -47,7 +47,7 @@ struct LogsView: View, StoreAccessor {
 // MARK: Private Methods
 private extension LogsView {
     func deleteLog(name: String) {
-        guard let fileURL = logsDirectoryURL?
+        guard let fileURL = FileUtil.logsDirectoryURL?
                 .appendingPathComponent(name)
         else { return }
 
@@ -58,7 +58,7 @@ private extension LogsView {
     }
 
     func exportLog() {
-        guard let dirPath = logsDirectoryURL?.path,
+        guard let dirPath = FileUtil.logsDirectoryURL?.path,
               let dirURL = URL(string: "shareddocuments://" + dirPath)
         else { return }
 
@@ -66,14 +66,14 @@ private extension LogsView {
     }
 
     func fetchLogs() {
-        guard let path = logsDirectoryURL?.path,
+        guard let path = FileUtil.logsDirectoryURL?.path,
               let enumerator = FileManager.default.enumerator(atPath: path),
               let fileNames = (enumerator.allObjects as? [String])?
                 .filter({ $0.contains(Defaults.FilePath.ehpandaLog) })
         else { return }
 
         let logs: [Log] = fileNames.compactMap { name in
-            guard let fileURL = logsDirectoryURL?
+            guard let fileURL = FileUtil.logsDirectoryURL?
                     .appendingPathComponent(name),
                   let content = try? String(contentsOf: fileURL)
             else { return nil }

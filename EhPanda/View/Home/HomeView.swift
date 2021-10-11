@@ -63,7 +63,9 @@ struct HomeView: View, StoreAccessor {
             .navigationBarTitle(navigationBarTitle)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button(action: NotificationUtil.postShouldShowSlideMenu) {
+                    Button {
+                        NotificationUtil.post(.shouldShowSlideMenu)
+                    } label: {
                         Image(systemName: "line.3.horizontal")
                             .foregroundColor(.secondary)
                     }
@@ -146,9 +148,7 @@ struct HomeView: View, StoreAccessor {
             .blur(radius: environment.blurRadius)
             .allowsHitTesting(environment.isAppUnlocked)
         }
-        .onReceive(
-            NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)
-        ) { _ in onBecomeActive() }
+        .onReceive(UIApplication.didBecomeActiveNotification.publisher, perform: onBecomeActive)
         .onChange(of: environment.galleryItemReverseLoading, perform: onJumpDetailFetchFinish)
         .onChange(of: alertManager.isPresented, perform: onAlertVisibilityChange)
         .onChange(of: environment.galleryItemReverseID, perform: onJumpIDChange)
@@ -362,7 +362,7 @@ private extension HomeView {
         fetchGreetingIfNeeded()
         fetchFrontpageItemsIfNeeded()
     }
-    func onBecomeActive() {
+    func onBecomeActive(_: Any? = nil) {
         if viewControllersCount == 1 {
             detectPasteboard()
             fetchGreetingIfNeeded()
@@ -485,10 +485,10 @@ private extension HomeView {
     }
     func handle(incomingURL: URL) {
         let shouldDelayDisplay = homeInfo.frontpageItems.isEmpty
-        handleIncomingURL(incomingURL) { shouldParseGalleryURL, incomingURL, pageIndex, commentID in
+        URLUtil.handleIncomingURL(incomingURL) { shouldParseGalleryURL, incomingURL, pageIndex, commentID in
             guard let incomingURL = incomingURL else { return }
 
-            let gid = parseGID(url: incomingURL, isGalleryURL: shouldParseGalleryURL)
+            let gid = URLUtil.parseGID(url: incomingURL, isGalleryURL: shouldParseGalleryURL)
             store.dispatch(.updatePendingJumpInfos(
                 gid: gid, pageIndex: pageIndex, commentID: commentID
             ))
@@ -533,7 +533,7 @@ private extension HomeView {
             store.dispatch(.toggleHomeViewSheet(state: nil))
         }
         if !environment.isSlideMenuClosed {
-            NotificationUtil.postShouldHideSlideMenu()
+            NotificationUtil.post(.shouldHideSlideMenu)
         }
     }
     func translateTag(text: String) -> String {

@@ -9,6 +9,8 @@ import SwiftUI
 import TTProgressHUD
 
 struct AccountSettingView: View, StoreAccessor {
+    @AppStorage(wrappedValue: .ehentai, AppUserDefaults.galleryHost.rawValue)
+    var galleryHost: GalleryHost
     @EnvironmentObject var store: Store
 
     @State private var hudVisible = false
@@ -26,7 +28,7 @@ struct AccountSettingView: View, StoreAccessor {
             Form {
                 Section {
                     Picker(
-                        selection: settingBinding.galleryHost,
+                        selection: $galleryHost,
                         label: Text("Gallery"),
                         content: {
                             ForEach(GalleryHost.allCases) {

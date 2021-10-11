@@ -273,7 +273,7 @@ final class Store: ObservableObject {
                 )
             }
             appCommand = FetchGalleryItemReverseCommand(
-                gid: parseGID(url: tmpURL, isGalleryURL: shouldParseGalleryURL),
+                gid: URLUtil.parseGID(url: tmpURL, isGalleryURL: shouldParseGalleryURL),
                 url: url, shouldParseGalleryURL: shouldParseGalleryURL
             )
         case .fetchGalleryItemReverseDone(let carriedValue, let result):

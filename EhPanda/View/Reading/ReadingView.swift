@@ -185,7 +185,7 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
     }
 
     mutating func initializeParams() {
-        dispatchMainSync {
+        AppUtil.dispatchMainSync {
             _pageCount = State(
                 initialValue: galleryDetail?.pageCount ?? 1
             )
@@ -198,7 +198,7 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
             backgroundColor.ignoresSafeArea()
             conditionalList
                 .scaleEffect(scale, anchor: scaleAnchor)
-                .offset(offset).transition(opacityTransition)
+                .offset(offset).transition(AppUtil.opacityTransition)
                 .gesture(tapGesture).gesture(dragGesture)
                 .gesture(magnifyGesture).ignoresSafeArea()
             ControlPanel(
@@ -241,11 +241,7 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
             guard let isSuccess = newValue else { return }
             performHUD(isSuccess: isSuccess, caption: "Saved to photo library")
         })
-        .onReceive(
-            NotificationCenter.default.publisher(
-                for: NSNotification.Name("AppWidthDidChange")
-            )
-        ) { _ in
+        .onReceive(AppNotification.appWidthDidChange.publisher) { _ in
             DispatchQueue.main.async {
                 set(newOffset: .zero)
                 set(newScale: 1.1)
@@ -253,28 +249,12 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
             }
             onControlPanelSliderChange()
         }
-        .onReceive(
-            NotificationCenter.default.publisher(
-                for: Notification.Name("ReadingViewShouldHideStatusBar")
-            )
-        ) { _ in
-            toggleNavBarHiddenIfNeeded()
-        }
-        .onReceive(NotificationCenter.default.publisher(
-            for: UIApplication.didBecomeActiveNotification
-        )) { _ in
+        .onReceive(UIApplication.didBecomeActiveNotification.publisher) { _ in
             setOrientation(allowsLandscape: true, shouldChangeOrientation: true)
         }
-        .onReceive(
-            NotificationCenter.default.publisher(
-                for: UIApplication.willResignActiveNotification
-            )
-        ) { _ in onEndTasks() }
-        .onReceive(
-            NotificationCenter.default.publisher(
-                for: UIApplication.willTerminateNotification
-            )
-        ) { _ in onEndTasks() }
+        .onReceive(UIApplication.willTerminateNotification.publisher) { _ in onEndTasks() }
+        .onReceive(UIApplication.willResignActiveNotification.publisher) { _ in onEndTasks() }
+        .onReceive(AppNotification.readingViewShouldHideStatusBar.publisher, perform: toggleNavBarHiddenIfNeeded)
     }
 }
 
@@ -318,7 +298,7 @@ private extension ReadingView {
         UINavigationController.attemptRotationToDeviceOrientation()
     }
     func restoreReadingProgress() {
-        dispatchMainSync {
+        AppUtil.dispatchMainSync {
             let index = mappingToPager(
                 index: galleryState.readingProgress
             )
@@ -439,7 +419,7 @@ private extension ReadingView {
             fetchGalleryContents()
         }
     }
-    func toggleNavBarHiddenIfNeeded() {
+    func toggleNavBarHiddenIfNeeded(_: Any? = nil) {
         if !environment.navBarHidden {
             store.dispatch(.toggleNavBar(hidden: true))
         }
@@ -517,7 +497,7 @@ private extension ReadingView {
     }
     func shareImage(url: String) {
         retrieveImage(url: url) { image in
-            presentActivityVC(items: [image])
+            AppUtil.presentActivity(items: [image])
         }
     }
     func performHUD(isSuccess: Bool, caption: String? = nil) {

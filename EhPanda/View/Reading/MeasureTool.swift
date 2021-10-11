@@ -2,7 +2,7 @@
 //  MeasureTool.swift
 //  EhPanda
 //
-//  Created by 荒木辰造 on 2021/07/21.
+//  Created by 荒木辰造 on R 3/07/21.
 //
 
 import SwiftUI
