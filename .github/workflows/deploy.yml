@@ -14,8 +14,6 @@ env:
   FILTER_PATH: './actions-tool/ReleaseNotesFilter'
   ARCHIVE_PATH: '/tmp/action-builds/EhPanda.xcarchive'
   IPA_OUTPUT_PATH: '/tmp/action-builds/EhPanda.ipa'
-  DEV_CERTIFICATE_PATH: '/tmp/action-builds/dev.cer'
-  DIS_CERTIFICATE_PATH: '/tmp/action-builds/dis.cer'
   DEV_P12_PATH: '/tmp/action-builds/dev.p12'
   DIS_P12_PATH: '/tmp/action-builds/dis.p12'
   APP_DEV_PROVISION_PATH: '/tmp/action-builds/app_dev.mobileprovision'
@@ -42,8 +40,6 @@ jobs:
         run: |
           mkdir $BUILDS_PATH
           mkdir $ASC_KEY_PATH
-          echo -n ${{ secrets.DEV_CERTIFICATE }} | base64 -d -o $DEV_CERTIFICATE_PATH
-          echo -n ${{ secrets.DIS_CERTIFICATE }} | base64 -d -o $DIS_CERTIFICATE_PATH
           echo -n ${{ secrets.DEV_P12 }} | base64 -d -o $DEV_P12_PATH
           echo -n ${{ secrets.DIS_P12 }} | base64 -d -o $DIS_P12_PATH
           echo -n ${{ secrets.APP_DEV_PROVISION }} | base64 -d -o $APP_DEV_PROVISION_PATH
@@ -59,8 +55,6 @@ jobs:
           security default-keychain -s $KEY_CHAIN
           security unlock-keychain -p $P12_PASSWORD $KEY_CHAIN
           security set-keychain-settings -t 3600 -u $KEY_CHAIN
-          security import $DEV_CERTIFICATE_PATH -k $KEY_CHAIN -T /usr/bin/codesign
-          security import $DIS_CERTIFICATE_PATH -k $KEY_CHAIN -T /usr/bin/codesign
           security import $DEV_P12_PATH -k $KEY_CHAIN -P $P12_PASSWORD -T /usr/bin/codesign
           security import $DIS_P12_PATH -k $KEY_CHAIN -P $P12_PASSWORD -T /usr/bin/codesign
           security set-key-partition-list -S apple-tool:,apple: -s -k $P12_PASSWORD ~/Library/Keychains/$KEY_CHAIN
