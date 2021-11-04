@@ -414,7 +414,8 @@
 "%lld minutes" = "Nach %lld Minuten";
 
 // MARK: Language
-"Other" = "Andere";
+"LANGUAGE_OTHER" = "Andere";
+"LANGUAGE_INVALID" = "N/A";
 
 "Afrikaans" = "Afrikaan"; "Albanian" = "Albanisch"; "Arabic" = "Arabisch";
 
