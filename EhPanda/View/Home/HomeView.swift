@@ -366,7 +366,14 @@ private extension HomeView {
         guard setting.showNewDawnGreeting, let greeting = newValue, !greeting.gainedNothing else { return }
 
         self.greeting = greeting
-        store.dispatch(.setHomeViewSheetState(.newDawn))
+        if environment.homeViewSheetState == nil {
+            store.dispatch(.setHomeViewSheetState(.newDawn))
+        } else {
+            store.dispatch(.setHomeViewSheetState(nil))
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
+                store.dispatch(.setHomeViewSheetState(.newDawn))
+            }
+        }
     }
 
     // MARK: Navigation(handleURL)
@@ -412,7 +419,6 @@ private extension HomeView {
                 }
             }
             PasteboardUtil.clear()
-            clearObstruction()
         }
     }
 
@@ -425,14 +431,6 @@ private extension HomeView {
         guard !newValue, hasJumpPermission else { return }
         hudVisible = false
         hudConfig = TTProgressHUDConfig()
-    }
-    func clearObstruction() {
-        if environment.homeViewSheetState != nil {
-            store.dispatch(.setHomeViewSheetState(nil))
-        }
-        if !environment.slideMenuClosed {
-            NotificationUtil.post(.shouldHideSlideMenu)
-        }
     }
     func replaceGalleryCommentJumpID(gid: String?) {
         store.dispatch(.setGalleryCommentJumpID(gid: gid))

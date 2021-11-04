@@ -6,7 +6,6 @@
 //
 
 import Kanna
-import SwiftUI
 import Combine
 import Foundation
 
@@ -88,8 +87,6 @@ struct FetchTagTranslatorCommand: AppCommand {
 }
 
 struct FetchGalleryItemReverseCommand: AppCommand {
-    @State var didReceiveGallery = false // workaround
-
     let gid: String
     let url: String
     let shouldParseGalleryURL: Bool
@@ -103,13 +100,11 @@ struct FetchGalleryItemReverseCommand: AppCommand {
                 case .failure(let error):
                     store.dispatch(.fetchGalleryItemReverseDone(carriedValue: gid, result: .failure(error)))
                 case .finished:
-                    guard !didReceiveGallery else { break }
                     store.dispatch(.fetchGalleryItemReverseDone(carriedValue: gid, result: .failure(.networkingFailed)))
                 }
                 token.unseal()
             } receiveValue: { gallery in
                 if let gallery = gallery {
-                    didReceiveGallery = true
                     store.dispatch(.fetchGalleryItemReverseDone(carriedValue: gid, result: .success(gallery)))
                 } else {
                     store.dispatch(.fetchGalleryItemReverseDone(carriedValue: gid, result: .failure(.networkingFailed)))

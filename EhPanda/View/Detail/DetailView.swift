@@ -369,7 +369,7 @@ private struct DescScrollView: View {
             ),
             DescScrollInfo(
                 title: "Language",
-                numeral: detail.language.rawValue,
+                numeral: detail.language.name,
                 value: detail.languageAbbr
             ),
             DescScrollInfo(

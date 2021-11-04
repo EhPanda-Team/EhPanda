@@ -414,7 +414,8 @@
 "%lld minutes" = "%lld 分";
 
 // MARK: Language
-"Other" = "その他";
+"LANGUAGE_OTHER" = "その他";
+"LANGUAGE_INVALID" = "無効";
 
 "Afrikaans" = "アフリカーンス語"; "Albanian" = "アルバニア語"; "Arabic" = "アラビア語";
 

@@ -638,7 +638,7 @@ private struct ExcludeView: View {
                     .foregroundColor(.red).opacity(isExcluded.wrappedValue ? 1 : 0)
                 }
                 .onTapGesture {
-                    HapticUtil.generateFeedback(style: .light)
+                    HapticUtil.generateFeedback(style: .soft)
                     withAnimation { isExcluded.wrappedValue.toggle() }
                 }
             }
@@ -781,7 +781,7 @@ private struct ExcludeToggle: View {
         }
         .onTapGesture {
             withAnimation { isOn.toggle() }
-            HapticUtil.generateFeedback(style: .light)
+            HapticUtil.generateFeedback(style: .soft)
         }
     }
 }
