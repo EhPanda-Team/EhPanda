@@ -85,17 +85,13 @@ private struct LinkRow: View {
 
     var body: some View {
         Link(destination: url, label: {
-            Text(text).fontWeight(.medium)
-                .foregroundColor(.primary).withArrow()
+            Text(text).fontWeight(.medium).foregroundColor(.primary).withArrow()
         })
     }
 }
 
 private extension Text {
     func captionTextStyle() -> some View {
-        self
-            .fontWeight(.bold)
-            .foregroundStyle(.gray)
-            .font(.caption2)
+        self.fontWeight(.bold).foregroundStyle(.gray).font(.caption2)
     }
 }

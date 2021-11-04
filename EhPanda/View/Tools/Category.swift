@@ -82,6 +82,10 @@ private struct CategoryCell: View {
             Text(category.rawValue.localized).fontWeight(.bold).foregroundStyle(.white)
                 .padding(.vertical, 5).lineLimit(1)
         }
-        .onTapGesture { isFiltered.toggle() }.cornerRadius(5)
+        .onTapGesture {
+            isFiltered.toggle()
+            HapticUtil.generateFeedback(style: .soft)
+        }
+        .cornerRadius(5)
     }
 }
