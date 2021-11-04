@@ -17,16 +17,10 @@ struct NewDawnView: View {
     private let offset = DeviceUtil.windowW * 0.2
 
     private var gradientColors: [Color] {
-        let teal = Color(.systemTeal)
-        let indigo = Color(.systemIndigo)
-
         if colorScheme == .light {
-            return [teal, indigo]
+            return [Color(.systemTeal), Color(.systemIndigo)]
         } else {
-            return [
-                Color(.systemGray5),
-                Color(.systemGray2)
-            ]
+            return [Color(.systemGray5), Color(.systemGray2)]
         }
     }
 
@@ -42,11 +36,8 @@ struct NewDawnView: View {
 
             ZStack {
                 LinearGradient(
-                    gradient: Gradient(
-                        colors: gradientColors
-                    ),
-                    startPoint: .top,
-                    endPoint: .bottom
+                    gradient: Gradient(colors: gradientColors),
+                    startPoint: .top, endPoint: .bottom
                 )
                 VStack {
                     HStack {
@@ -78,8 +69,7 @@ struct NewDawnView: View {
                     }
                     TextView(
                         text: greeting?.gainContent ?? "",
-                        font: .title3,
-                        fontWeight: .bold
+                        font: .title3, fontWeight: .bold
                     )
                 }
                 .padding()
@@ -101,11 +91,7 @@ private struct TextView: View {
         colorScheme == .light ? .white : .black
     }
 
-    init(
-        text: String,
-        font: Font,
-        fontWeight: Font.Weight = .bold
-    ) {
+    init(text: String, font: Font, fontWeight: Font.Weight = .bold) {
         self.text = text
         self.font = font
         self.fontWeight = fontWeight
@@ -114,14 +100,9 @@ private struct TextView: View {
     var body: some View {
         HStack {
             Text(text.localized)
-                .fontWeight(fontWeight)
-                .font(font)
-                .lineLimit(nil)
-                .foregroundStyle(.white)
-                .fixedSize(
-                    horizontal: false,
-                    vertical: true
-                )
+                .fontWeight(fontWeight).font(font)
+                .lineLimit(nil).foregroundStyle(.white)
+                .fixedSize(horizontal: false, vertical: true)
             Spacer()
         }
     }
@@ -133,8 +114,7 @@ private struct SunView: View {
 
     var body: some View {
         ZStack {
-            Circle()
-                .foregroundStyle(.yellow)
+            Circle().foregroundStyle(.yellow)
                 .frame(width: width, height: width)
         }
     }
@@ -173,18 +153,12 @@ private struct SunBeamView: View {
 // MARK: SunBeamItem
 private struct SunBeamItem: View {
     private let width = sunWidth / 10
-    private var height: CGFloat {
-        width * 5
-    }
-    private var cornerRadius: CGFloat {
-        width / 3
-    }
 
     var body: some View {
         Rectangle()
             .foregroundStyle(.yellow)
-            .frame(width: width, height: height)
-            .cornerRadius(cornerRadius)
+            .frame(width: width, height: width * 5)
+            .cornerRadius(width / 3)
     }
 }
 

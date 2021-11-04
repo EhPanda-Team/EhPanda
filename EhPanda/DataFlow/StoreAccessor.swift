@@ -39,7 +39,7 @@ extension StoreAccessor {
         environment.isAppUnlocked
     }
     var isSlideMenuClosed: Bool {
-        environment.isSlideMenuClosed
+        environment.slideMenuClosed
     }
     var homeListType: HomeListType {
         environment.homeListType

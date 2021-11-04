@@ -40,7 +40,7 @@ struct WebView: UIViewControllerRepresentable {
             DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [weak self] in
                 guard AuthorizationUtil.didLogin else { return }
                 let store = self?.parent.store
-                store?.dispatch(.toggleSettingViewSheet(state: nil))
+                store?.dispatch(.setSettingViewSheetState(nil))
                 store?.dispatch(.fetchFrontpageItems())
                 store?.dispatch(.verifyEhProfile)
                 store?.dispatch(.fetchUserInfo)

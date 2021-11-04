@@ -20,8 +20,8 @@ struct AuthView: View, StoreAccessor {
     // MARK: AuthView
     var body: some View {
         Image(systemName: "lock.fill")
-            .font(.system(size: 80)).onAppear(perform: onAppear)
-            .opacity(isAppUnlocked ? 0 : 1).onTapGesture(perform: authenticate)
+            .font(.system(size: 80)).opacity(isAppUnlocked ? 0 : 1)
+            .onAppear(perform: onStartTasks).onTapGesture(perform: authenticate)
             .onReceive(UIApplication.willResignActiveNotification.publisher, perform: onResignActive)
             .onReceive(UIApplication.didBecomeActiveNotification.publisher, perform: onDidBecomeActive)
             .onReceive(UIApplication.didEnterBackgroundNotification.publisher, perform: onDidEnterBackground)
@@ -34,58 +34,51 @@ private extension AuthView {
         autoLockPolicy.rawValue
     }
 
-    func onAppear() {
-        guard autoLockPolicy != .never
-                && isLaunchingApp
-        else { return }
+    // MARK: Life Cycle
+    func onStartTasks() {
+        guard autoLockPolicy != .never && isLaunchingApp else { return }
         isLaunchingApp = false
         lock()
     }
-    func onLockTap() {
-        HapticUtil.generateFeedback(style: .soft)
-        authenticate()
-    }
     func onResignActive(_: Any? = nil) {
-        if allowsResignActiveBlur {
-            setBlur(effectOn: true)
-        }
+        guard allowsResignActiveBlur else { return }
+        setBlurEffect(activated: true)
     }
     func onDidBecomeActive(_: Any? = nil) {
-        if isAppUnlocked {
-            setBlur(effectOn: false)
-        }
+        guard isAppUnlocked else { return }
+        setBlurEffect(activated: false)
     }
     func onDidEnterBackground(_: Any? = nil) {
-        if autoLockThreshold >= 0 {
-            enterBackgroundDate = Date()
-        }
+        guard autoLockThreshold >= 0 else { return }
+        enterBackgroundDate = Date()
     }
     func onWillEnterForeground(_: Any? = nil) {
         if autoLockThreshold >= 0 {
-            lockIfExpired()
+            tryLock()
             if !isAppUnlocked {
                 authenticate()
             }
         } else {
-            setBlur(effectOn: false)
+            setBlurEffect(activated: false)
         }
     }
 
-    func setBlur(effectOn: Bool) {
+    // MARK: Authorization
+    func setBlurEffect(activated: Bool) {
         withAnimation(.linear(duration: 0.1)) {
-            blurRadius = effectOn ? 10 : 0
+            blurRadius = activated ? 10 : 0
         }
-        store.dispatch(.toggleBlur(effectOn: effectOn))
+        store.dispatch(.setBlurEffect(activated: activated))
     }
-    func set(isUnlocked: Bool) {
-        store.dispatch(.toggleApp(unlocked: isUnlocked))
+    func setAppLock(activated: Bool) {
+        store.dispatch(.setAppLock(activated: activated))
     }
 
     func lock() {
-        set(isUnlocked: false)
-        setBlur(effectOn: true)
+        setAppLock(activated: true)
+        setBlurEffect(activated: true)
     }
-    func lockIfExpired() {
+    func tryLock() {
         if let resignDate = enterBackgroundDate,
            Date().timeIntervalSince(resignDate)
             > Double(autoLockThreshold) { lock() }
@@ -96,8 +89,8 @@ private extension AuthView {
         AuthorizationUtil.localAuth(
             reason: "The App has been locked due to the auto-lock expiration.",
             successAction: {
-                set(isUnlocked: true)
-                setBlur(effectOn: false)
+                setAppLock(activated: false)
+                setBlurEffect(activated: false)
             }
         )
     }

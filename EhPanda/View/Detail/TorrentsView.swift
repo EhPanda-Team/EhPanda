@@ -28,24 +28,17 @@ struct TorrentsView: View, StoreAccessor {
         self.token = token
     }
 
+    // MARK: TorrentsView
     var body: some View {
         Group {
             if !torrents.isEmpty {
                 ZStack {
                     List(torrents) { torrent in
                         TorrentRow(torrent: torrent, action: { magnetURL in
-                            onTorrentRowTap(magnetURL: magnetURL)
+                            PasteboardUtil.save(value: magnetURL)
+                            presentHUD()
                         })
-                        .swipeActions {
-                            Button {
-                                onTorrentRowSwipe(
-                                    hash: torrent.hash,
-                                    torrentURL: torrent.torrentURL
-                                )
-                            } label: {
-                                Image(systemName: "arrow.down.doc.fill")
-                            }
-                        }
+                        .swipeActions { swipeActions(torrent: torrent) }
                     }
                     TTProgressHUD($hudVisible, config: hudConfig)
                 }
@@ -60,14 +53,18 @@ struct TorrentsView: View, StoreAccessor {
         .onAppear(perform: fetchGalleryTorrents)
         .navigationBarTitle("Torrents")
     }
+    // MARK: SwipeActions
+    private func swipeActions(torrent: GalleryTorrent) -> some View {
+        Button {
+            tryPresentTorrentActivity(hash: torrent.hash, torrentURL: torrent.torrentURL)
+        } label: {
+            Image(systemName: "arrow.down.doc.fill")
+        }
+    }
 }
 
 private extension TorrentsView {
-    func onTorrentRowTap(magnetURL: String) {
-        PasteboardUtil.save(value: magnetURL)
-        showCopiedHUD()
-    }
-    func onTorrentRowSwipe(hash: String, torrentURL: String) {
+    func tryPresentTorrentActivity(hash: String, torrentURL: String) {
         guard let torrentURL = URL(string: torrentURL) else { return }
         URLSession.shared.downloadTask(with: torrentURL) { tmpURL, _, _ in
             guard let tmpURL = tmpURL,
@@ -84,13 +81,11 @@ private extension TorrentsView {
         .resume()
     }
 
-    func showCopiedHUD() {
+    func presentHUD() {
         hudConfig = TTProgressHUDConfig(
-            type: .success,
-            title: "Success".localized,
+            type: .success, title: "Success".localized,
             caption: "Copied to clipboard".localized,
-            shouldAutoHide: true,
-            autoHideInterval: 1
+            shouldAutoHide: true, autoHideInterval: 1
         )
         hudVisible.toggle()
     }
@@ -103,8 +98,7 @@ private extension TorrentsView {
 
         let sToken = SubscriptionToken()
         GalleryTorrentsRequest(gid: gid, token: token)
-            .publisher
-            .receive(on: DispatchQueue.main)
+            .publisher.receive(on: DispatchQueue.main)
             .sink { completion in
                 if case .failure(let error) = completion {
                     SwiftyBeaver.error(error)
@@ -112,11 +106,7 @@ private extension TorrentsView {
 
                     SwiftyBeaver.error(
                         "GalleryTorrentsRequest Failed",
-                        context: [
-                            "gid": gid,
-                            "Token": token,
-                            "Error": error
-                        ]
+                        context: ["gid": gid, "Token": token, "Error": error]
                     )
                 }
                 loadingFlag = false
@@ -126,11 +116,7 @@ private extension TorrentsView {
 
                 SwiftyBeaver.info(
                     "GalleryTorrentsRequest succeeded",
-                    context: [
-                        "gid": gid,
-                        "Token": token,
-                        "Torrents count": $0.count
-                    ]
+                    context: ["gid": gid, "Token": token, "Torrents count": $0.count]
                 )
             }
             .seal(in: sToken)
@@ -142,10 +128,7 @@ private struct TorrentRow: View {
     private let torrent: GalleryTorrent
     private let action: (String) -> Void
 
-    init(
-        torrent: GalleryTorrent,
-        action: @escaping (String) -> Void
-    ) {
+    init(torrent: GalleryTorrent, action: @escaping (String) -> Void) {
         self.torrent = torrent
         self.action = action
     }
@@ -171,13 +154,11 @@ private struct TorrentRow: View {
                     Text(torrent.fileSize)
                 }
             }
-            .minimumScaleFactor(0.1)
-            .lineLimit(1)
+            .minimumScaleFactor(0.1).lineLimit(1)
             Button {
                 action(torrent.magnetURL)
             } label: {
-                Text(torrent.fileName)
-                    .font(.headline)
+                Text(torrent.fileName).font(.headline)
             }
             HStack {
                 Spacer()

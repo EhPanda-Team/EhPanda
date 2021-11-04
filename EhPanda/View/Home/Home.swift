@@ -23,61 +23,24 @@ struct Home: View, StoreAccessor {
     var body: some View {
         ZStack {
             ZStack {
-                HomeView()
-                    .offset(x: offset + width)
-                SlideMenu(offset: $offset)
-                    .offset(x: offset)
-                    .background(
-                        Color.black.opacity(opacity)
-                            .edgesIgnoringSafeArea(.vertical)
-                            .onTapGesture {
-                                performTransition(offset: -width)
-                            }
-                    )
-                    .opacity(viewControllersCount > 1 ? 0 : 1)
+                HomeView().offset(x: offset + width)
+                SlideMenu(offset: $offset).offset(x: offset).background(
+                    Color.black.opacity(opacity).edgesIgnoringSafeArea(.vertical)
+                        .onTapGesture { performTransition(offset: -width) }
+                )
+                .opacity(viewControllersCount > 1 ? 0 : 1)
             }
             .blur(radius: blurRadius)
             .allowsHitTesting(isAppUnlocked)
             AuthView(blurRadius: $blurRadius)
         }
-        .gesture(
-            DragGesture()
-                .onChanged { value in
-                    withAnimation(Animation.linear(duration: 0.2)) {
-                        switch direction {
-                        case .none:
-                            let isToLeft = value.translation.width < 0
-                            direction = isToLeft ? .toLeft : .toRight
-                        case .toLeft:
-                            if offset > -width {
-                                offset = min(value.translation.width, 0)
-                            }
-                        case .toRight:
-                            if offset < 0, value.startLocation.x < 20 {
-                                offset = max(-width + value.translation.width, -width)
-                            }
-                        }
-                        updateSlideMenuState(isClosed: offset == -width)
-                    }
-                }
-                .onEnded { value in
-                    let perdictedWidth = value.predictedEndTranslation.width
-                    if perdictedWidth > width / 2 || -offset < width / 2 {
-                        performTransition(offset: 0)
-                    }
-                    if perdictedWidth < -width / 2 || -offset > width / 2 {
-                        performTransition(offset: -width)
-                    }
-                    direction = .none
-                },
-            including: viewControllersCount == 1 ? .all : .none
-        )
+        .gesture(dragGesture, including: viewControllersCount == 1 ? .all : .none)
         .onReceive(AppNotification.shouldHideSlideMenu.publisher) { _ in performTransition(offset: -width) }
         .onReceive(AppNotification.bypassesSNIFilteringDidChange.publisher, perform: toggleDomainFronting)
         .onReceive(AppNotification.shouldShowSlideMenu.publisher) { _ in performTransition(offset: 0) }
-        .onReceive(UIApplication.didBecomeActiveNotification.publisher, perform: onWidthChange)
+        .onReceive(UIApplication.didBecomeActiveNotification.publisher, perform: tryResetWidth)
         .onReceive(UIDevice.orientationDidChangeNotification.publisher) { _ in
-            if DeviceUtil.isPad || DeviceUtil.isLandscape { onWidthChange() }
+            if DeviceUtil.isPad || DeviceUtil.isLandscape { tryResetWidth() }
         }
     }
 }
@@ -89,12 +52,44 @@ private extension Home {
         case toRight
     }
 
+    var dragGesture: some Gesture {
+        DragGesture()
+            .onChanged { value in
+                withAnimation(Animation.linear(duration: 0.2)) {
+                    switch direction {
+                    case .none:
+                        let isToLeft = value.translation.width < 0
+                        direction = isToLeft ? .toLeft : .toRight
+                    case .toLeft:
+                        if offset > -width {
+                            offset = min(value.translation.width, 0)
+                        }
+                    case .toRight:
+                        if offset < 0, value.startLocation.x < 20 {
+                            offset = max(-width + value.translation.width, -width)
+                        }
+                    }
+                    tryUpdateSlideMenuState(value: offset == -width)
+                }
+            }
+            .onEnded { value in
+                let perdictedWidth = value.predictedEndTranslation.width
+                if perdictedWidth > width / 2 || -offset < width / 2 {
+                    performTransition(offset: 0)
+                }
+                if perdictedWidth < -width / 2 || -offset > width / 2 {
+                    performTransition(offset: -width)
+                }
+                direction = .none
+            }
+    }
+
     var opacity: Double {
         let scale = colorScheme == .light ? 0.2 : 0.5
         return (width + offset) / width * scale
     }
 
-    func onWidthChange(_: Any? = nil) {
+    func tryResetWidth(_: Any? = nil) {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
             if width != Defaults.FrameSize.slideMenuWidth {
                 withAnimation {
@@ -115,15 +110,12 @@ private extension Home {
     }
 
     func performTransition(offset: CGFloat) {
-        withAnimation {
-            self.offset = offset
-        }
-        updateSlideMenuState(isClosed: offset == -width)
+        withAnimation { self.offset = offset }
+        tryUpdateSlideMenuState(value: offset == -width)
     }
 
-    func updateSlideMenuState(isClosed: Bool) {
-        if isSlideMenuClosed != isClosed {
-            store.dispatch(.updateIsSlideMenuClosed(isClosed: isClosed))
-        }
+    func tryUpdateSlideMenuState(value: Bool) {
+        guard isSlideMenuClosed != value else { return }
+        store.dispatch(.setSlideMenuClosed(closed: value))
     }
 }

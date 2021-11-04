@@ -18,69 +18,62 @@ struct SettingView: View, StoreAccessor {
             ScrollView {
                 VStack(spacing: 0) {
                     SettingRow(
-                        symbolName: "person.fill",
-                        text: "Account",
+                        symbolName: "person.fill", text: "Account",
                         destination: AccountSettingView()
                     )
                     SettingRow(
-                        symbolName: "switch.2",
-                        text: "General",
+                        symbolName: "switch.2", text: "General",
                         destination: GeneralSettingView()
                             .onAppear(perform: calculateDiskCachesSize)
                     )
                     SettingRow(
-                        symbolName: "circle.righthalf.fill",
-                        text: "Appearance",
+                        symbolName: "circle.righthalf.fill", text: "Appearance",
                         destination: AppearanceSettingView()
                     )
                     SettingRow(
-                        symbolName: "newspaper.fill",
-                        text: "Reading",
+                        symbolName: "newspaper.fill", text: "Reading",
                         destination: ReadingSettingView()
                     )
                     SettingRow(
-                        symbolName: "testtube.2",
-                        text: "Laboratory",
+                        symbolName: "testtube.2", text: "Laboratory",
                         destination: LaboratorySettingView()
                     )
                     SettingRow(
-                        symbolName: "p.circle.fill",
-                        text: "About EhPanda",
+                        symbolName: "p.circle.fill", text: "About EhPanda",
                         destination: EhPandaView()
                     )
                 }
-                .padding(.vertical, 40)
-                .padding(.horizontal)
+                .padding(.vertical, 40).padding(.horizontal)
             }
             .navigationBarTitle("Setting")
-            .sheet(item: environmentBinding.settingViewSheetState) { item in
-                Group {
-                    switch item {
-                    case .webviewLogin:
-                        WebView(url: Defaults.URL.webLogin.safeURL())
-                    case .webviewConfig:
-                        WebView(url: Defaults.URL.ehConfig().safeURL())
-                    case .webviewMyTags:
-                        WebView(url: Defaults.URL.ehMyTags().safeURL())
-                    }
-                }
-                .blur(radius: environment.blurRadius)
-                .allowsHitTesting(environment.isAppUnlocked)
+            .sheet(item: environmentBinding.settingViewSheetState, content: sheet)
+            .actionSheet(item: environmentBinding.settingViewActionSheetState, content: actionSheet)
+        }
+    }
+    private func sheet(item: SettingViewSheetState) -> some View {
+        Group {
+            switch item {
+            case .webviewLogin:
+                WebView(url: Defaults.URL.webLogin.safeURL())
+            case .webviewConfig:
+                WebView(url: Defaults.URL.ehConfig().safeURL())
+            case .webviewMyTags:
+                WebView(url: Defaults.URL.ehMyTags().safeURL())
             }
-            .actionSheet(item: environmentBinding.settingViewActionSheetState) { item in
-                switch item {
-                case .logout:
-                    return ActionSheet(title: Text("Are you sure to logout?"), buttons: [
-                        .destructive(Text("Logout"), action: logout),
-                        .cancel()
-                    ])
-                case .clearImgCaches:
-                    return ActionSheet(title: Text("Are you sure to clear?"), buttons: [
-                        .destructive(Text("Clear"), action: clearImageCaches),
-                        .cancel()
-                    ])
-                }
-            }
+        }
+        .blur(radius: environment.blurRadius)
+        .allowsHitTesting(environment.isAppUnlocked)
+    }
+    private func actionSheet(item: SettingViewActionSheetState) -> ActionSheet {
+        switch item {
+        case .logout:
+            return ActionSheet(title: Text("Are you sure to logout?"), buttons: [
+                .destructive(Text("Logout"), action: logout), .cancel()
+            ])
+        case .clearImgCaches:
+            return ActionSheet(title: Text("Are you sure to clear?"), buttons: [
+                .destructive(Text("Clear"), action: clearImageCaches), .cancel()
+            ])
         }
     }
 }
@@ -105,7 +98,7 @@ private extension SettingView {
         KingfisherManager.shared.cache.calculateDiskStorageSize { result in
             switch result {
             case .success(let size):
-                store.dispatch(.updateDiskImageCacheSize(size: readableUnit(bytes: size)))
+                store.dispatch(.setDiskImageCacheSize(size: readableUnit(bytes: size)))
             case .failure(let error):
                 SwiftyBeaver.error(error)
             }
@@ -128,19 +121,13 @@ private struct SettingRow<Destination: View>: View {
     private let destination: Destination
 
     private var color: Color {
-        colorScheme == .light
-            ? Color(.darkGray)
-            : Color(.lightGray)
+        colorScheme == .light ? Color(.darkGray) : Color(.lightGray)
     }
     private var backgroundColor: Color {
         isPressing ? color.opacity(0.1) : .clear
     }
 
-    init(
-        symbolName: String,
-        text: String,
-        destination: Destination
-    ) {
+    init(symbolName: String, text: String, destination: Destination) {
         self.symbolName = symbolName
         self.text = text
         self.destination = destination
@@ -149,36 +136,21 @@ private struct SettingRow<Destination: View>: View {
     var body: some View {
         HStack {
             Image(systemName: symbolName)
-                .font(.largeTitle)
-                .foregroundColor(color)
-                .padding(.trailing, 20)
-                .frame(width: 45)
-            Text(text.localized)
-                .fontWeight(.medium)
-                .font(.title3)
-                .foregroundColor(color)
+                .font(.largeTitle).foregroundColor(color)
+                .padding(.trailing, 20).frame(width: 45)
+            Text(text.localized).fontWeight(.medium)
+                .font(.title3).foregroundColor(color)
             Spacer()
         }
         .background {
-            NavigationLink(
-                "",
-                destination: destination,
-                isActive: $isActive
-            )
+            NavigationLink("", destination: destination, isActive: $isActive)
         }
-        .contentShape(Rectangle())
-        .padding(.vertical, 10)
-        .padding(.horizontal, 20)
-        .background(backgroundColor)
-        .cornerRadius(10)
-        .onTapGesture {
-            isActive.toggle()
-        }
+        .contentShape(Rectangle()).padding(.vertical, 10)
+        .padding(.horizontal, 20).background(backgroundColor)
+        .cornerRadius(10).onTapGesture { isActive.toggle() }
         .onLongPressGesture(
-            minimumDuration: .infinity,
-            maximumDistance: 50,
-            pressing: { isPressing = $0 },
-            perform: {}
+            minimumDuration: .infinity, maximumDistance: 50,
+            pressing: { isPressing = $0 }, perform: {}
         )
     }
 }

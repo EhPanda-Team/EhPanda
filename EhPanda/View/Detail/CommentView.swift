@@ -27,11 +27,7 @@ struct CommentView: View, StoreAccessor {
     private let comments: [GalleryComment]
     private var scrollID: String?
 
-    init(
-        gid: String,
-        comments: [GalleryComment],
-        scrollID: String? = nil
-    ) {
+    init(gid: String, comments: [GalleryComment], scrollID: String? = nil) {
         self.gid = gid
         self.comments = comments
         self.scrollID = scrollID
@@ -42,49 +38,20 @@ struct CommentView: View, StoreAccessor {
         ZStack {
             ScrollViewReader { proxy in
                 List(comments) { comment in
-                    CommentCell(
-                        gid: gid,
-                        comment: comment,
-                        linkAction: onLinkTap
-                    )
-                    .opacity(comment.commentID == scrollID ? commentCellOpacity : 1)
-                    .onAppear {
-                        if comment.commentID == scrollID {
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
-                                withAnimation { commentCellOpacity = 0.25 }
-                            }
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 1.25) {
-                                withAnimation { commentCellOpacity = 1 }
+                    CommentCell(gid: gid, comment: comment, linkAction: handleURL)
+                        .opacity(comment.commentID == scrollID ? commentCellOpacity : 1)
+                        .onAppear {
+                            if comment.commentID == scrollID {
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
+                                    withAnimation { commentCellOpacity = 0.25 }
+                                }
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 1.25) {
+                                    withAnimation { commentCellOpacity = 1 }
+                                }
                             }
                         }
-                    }
-                    .swipeActions(edge: .leading) {
-                        if comment.votable {
-                            Button {
-                                voteDown(comment: comment)
-                            } label: {
-                                Image(systemName: "hand.thumbsdown")
-                            }
-                            .tint(.red)
-                        }
-                    }
-                    .swipeActions(edge: .trailing) {
-                        if comment.votable {
-                            Button {
-                                voteUp(comment: comment)
-                            } label: {
-                                Image(systemName: "hand.thumbsup")
-                            }
-                            .tint(.green)
-                        }
-                        if comment.editable {
-                            Button {
-                                edit(comment: comment)
-                            } label: {
-                                Image(systemName: "square.and.pencil")
-                            }
-                        }
-                    }
+                        .swipeActions(edge: .leading) { leadingSwipeActions(comment: comment) }
+                        .swipeActions(edge: .trailing) { trailingSwipeActions(comment: comment) }
                 }
                 .onAppear {
                     guard let id = scrollID else { return }
@@ -96,81 +63,84 @@ struct CommentView: View, StoreAccessor {
             TTProgressHUD($hudVisible, config: hudConfig)
         }
         .background {
-            NavigationLink(
-                "",
-                destination: DetailView(
-                    gid: commentJumpID ?? gid
-                ),
-                isActive: $isNavLinkActive
-            )
+            NavigationLink("", destination: DetailView(gid: commentJumpID ?? gid), isActive: $isNavLinkActive)
         }
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button(action: toggleNewComment, label: {
-                    Image(systemName: "square.and.pencil")
-                })
-                .disabled(!AuthorizationUtil.didLogin)
+        .toolbar(content: toolbar).sheet(item: $store.appState.environment.commentViewSheetState, content: sheet)
+        .onChange(of: environment.galleryItemReverseLoading) { if !$0 { dismissHUD() } }
+        .onChange(of: environment.galleryItemReverseID, perform: tryActivateNavLink)
+        .onAppear { replaceGalleryCommentJumpID(gid: nil) }
+    }
+    // MARK: LeadingSwipeActions
+    @ViewBuilder private func leadingSwipeActions(comment: GalleryComment) -> some View {
+        if comment.votable {
+            Button {
+                voteDownComment(comment)
+            } label: {
+                Image(systemName: "hand.thumbsdown")
+            }
+            .tint(.red)
+        }
+    }
+    // MARK: TrailingSwipeActions
+    @ViewBuilder private func trailingSwipeActions(comment: GalleryComment) -> some View {
+        if comment.votable {
+            Button {
+                voteUpComment(comment)
+            } label: {
+                Image(systemName: "hand.thumbsup")
+            }
+            .tint(.green)
+        }
+        if comment.editable {
+            Button {
+                editComment(comment)
+            } label: {
+                Image(systemName: "square.and.pencil")
             }
         }
-        .sheet(item: environmentBinding.commentViewSheetState) { item in
-            Group {
-                switch item {
-                case .newComment:
-                    DraftCommentView(
-                        content: $commentContent,
-                        title: "Post Comment",
-                        postAction: postNewComment,
-                        cancelAction: toggleCommentViewSheetNil
-                    )
-                case .editComment:
-                    DraftCommentView(
-                        content: $editCommentContent,
-                        title: "Edit Comment",
-                        postAction: postEditComment,
-                        cancelAction: toggleCommentViewSheetNil
-                    )
-                }
+    }
+    // MARK: Toolbar
+    private func toolbar() -> some ToolbarContent {
+        ToolbarItem(placement: .navigationBarTrailing) {
+            Button {
+                store.dispatch(.setCommentViewSheetState(.newComment))
+            } label: {
+                Image(systemName: "square.and.pencil")
             }
-            .accentColor(accentColor)
-            .blur(radius: environment.blurRadius)
-            .allowsHitTesting(environment.isAppUnlocked)
+            .disabled(!AuthorizationUtil.didLogin)
         }
-        .onAppear(perform: onAppear)
-        .onChange(
-            of: environment.galleryItemReverseID,
-            perform: onJumpIDChange
-        )
-        .onChange(
-            of: environment.galleryItemReverseLoading,
-            perform: onJumpDetailFetchFinish
-        )
+    }
+    // MARK: Sheet
+    private func sheet(item: CommentViewSheetState) -> some View {
+        Group {
+            switch item {
+            case .newComment:
+                DraftCommentView(
+                    content: $commentContent, title: "Post Comment",
+                    postAction: postNewComment, cancelAction: toggleCommentViewSheetNil
+                )
+            case .editComment:
+                DraftCommentView(
+                    content: $editCommentContent, title: "Edit Comment",
+                    postAction: postEditComment, cancelAction: toggleCommentViewSheetNil
+                )
+            }
+        }
+        .accentColor(accentColor)
+        .blur(radius: environment.blurRadius)
+        .allowsHitTesting(environment.isAppUnlocked)
     }
 }
 
 // MARK: Private Extension
 private extension CommentView {
-    var environmentBinding: Binding<AppState.Environment> {
-        $store.appState.environment
-    }
-    var detailInfoBinding: Binding<AppState.DetailInfo> {
-        $store.appState.detailInfo
-    }
-
-    func onAppear() {
-        replaceGalleryCommentJumpID(gid: nil)
-    }
-    func onJumpDetailFetchFinish(value: Bool) {
-        if !value {
-            dismissHUD()
-        }
-    }
-    func onLinkTap(link: URL) {
-        URLUtil.handleIncomingURL(link, handlesOutgoingURL: true)
+    func handleURL(_ url: URL) {
+        URLUtil.handleURL(url, handlesOutgoingURL: true)
         { shouldParseGalleryURL, incomingURL, pageIndex, commentID in
             guard let incomingURL = incomingURL else { return }
 
             let gid = URLUtil.parseGID(url: incomingURL, isGalleryURL: shouldParseGalleryURL)
-            store.dispatch(.updatePendingJumpInfos(
+            store.dispatch(.setPendingJumpInfos(
                 gid: gid, pageIndex: pageIndex, commentID: commentID
             ))
 
@@ -181,24 +151,20 @@ private extension CommentView {
                     url: incomingURL.absoluteString,
                     shouldParseGalleryURL: shouldParseGalleryURL
                 ))
-                showHUD()
+                presentHUD()
             }
         }
     }
-    func onJumpIDChange(value: String?) {
-        if value != nil {
-            commentJumpID = value
-            isNavLinkActive = true
+    func tryActivateNavLink(newValue: String?) {
+        guard newValue != nil else { return }
 
-            replaceGalleryCommentJumpID(gid: nil)
-        }
+        commentJumpID = newValue
+        isNavLinkActive = true
+        replaceGalleryCommentJumpID(gid: nil)
     }
 
-    func showHUD() {
-        hudConfig = TTProgressHUDConfig(
-            type: .loading,
-            title: "Loading...".localized
-        )
+    func presentHUD() {
+        hudConfig = TTProgressHUDConfig(type: .loading, title: "Loading...".localized)
         hudVisible = true
     }
     func dismissHUD() {
@@ -206,69 +172,36 @@ private extension CommentView {
         hudConfig = TTProgressHUDConfig()
     }
 
-    func trim(contents: [CommentContent]) -> String {
-        contents
-            .filter {
-                [.plainText, .linkedText, .singleLink]
-                    .contains($0.type)
-            }
-            .compactMap {
-                if $0.type == .singleLink {
-                    return $0.link
-                } else {
-                    return $0.text
-                }
-            }
-            .joined()
+    func voteUpComment(_ comment: GalleryComment) {
+        store.dispatch(.voteGalleryComment(gid: gid, commentID: comment.commentID, vote: 1))
     }
-
-    func voteUp(comment: GalleryComment) {
-        store.dispatch(
-            .voteComment(
-                gid: gid, commentID: comment.commentID,
-                vote: 1
-            )
-        )
+    func voteDownComment(_ comment: GalleryComment) {
+        store.dispatch(.voteGalleryComment(gid: gid, commentID: comment.commentID, vote: -1))
     }
-    func voteDown(comment: GalleryComment) {
-        store.dispatch(
-            .voteComment(
-                gid: gid, commentID: comment.commentID,
-                vote: -1
-            )
-        )
-    }
-    func edit(comment: GalleryComment) {
+    func editComment(_ comment: GalleryComment) {
         editCommentID = comment.commentID
-        editCommentContent = trim(contents: comment.contents)
-        store.dispatch(.toggleCommentViewSheet(state: .editComment))
+        editCommentContent = comment.contents
+            .filter { [.plainText, .linkedText, .singleLink].contains($0.type) }
+            .compactMap { $0.type == .singleLink ? $0.link : $0.text }.joined()
+        store.dispatch(.setCommentViewSheetState(.editComment))
     }
     func postNewComment() {
-        store.dispatch(.comment(gid: gid, content: commentContent))
+        store.dispatch(.commentGallery(gid: gid, content: commentContent))
         toggleCommentViewSheetNil()
         commentContent = ""
     }
     func postEditComment() {
-        store.dispatch(
-            .editComment(
-                gid: gid,
-                commentID: editCommentID,
-                content: editCommentContent
-            )
-        )
+        store.dispatch(.editGalleryComment(gid: gid, commentID: editCommentID, content: editCommentContent))
         editCommentID = ""
         editCommentContent = ""
         toggleCommentViewSheetNil()
     }
-    func replaceGalleryCommentJumpID(gid: String?) {
-        store.dispatch(.replaceGalleryCommentJumpID(gid: gid))
-    }
 
-    func toggleNewComment() {
-        store.dispatch(.toggleCommentViewSheet(state: .newComment))
+    func replaceGalleryCommentJumpID(gid: String?) {
+        store.dispatch(.setGalleryCommentJumpID(gid: gid))
     }
     func toggleCommentViewSheetNil() {
-        store.dispatch(.toggleCommentViewSheet(state: nil))
+        store.dispatch(.setCommentViewSheetState(nil))
     }
 }
 
@@ -278,11 +211,7 @@ private struct CommentCell: View {
     private var comment: GalleryComment
     private let linkAction: (URL) -> Void
 
-    init(
-        gid: String,
-        comment: GalleryComment,
-        linkAction: @escaping (URL) -> Void
-    ) {
+    init(gid: String, comment: GalleryComment, linkAction: @escaping (URL) -> Void) {
         self.gid = gid
         self.comment = comment
         self.linkAction = linkAction
@@ -291,9 +220,7 @@ private struct CommentCell: View {
     var body: some View {
         VStack(alignment: .leading) {
             HStack {
-                Text(comment.author)
-                    .fontWeight(.bold)
-                    .font(.subheadline)
+                Text(comment.author).fontWeight(.bold).font(.subheadline)
                 Spacer()
                 Group {
                     ZStack {
@@ -305,11 +232,9 @@ private struct CommentCell: View {
                     Text(comment.score ?? "")
                     Text(comment.formattedDateString)
                 }
-                .font(.footnote)
-                .foregroundStyle(.secondary)
+                .font(.footnote).foregroundStyle(.secondary)
             }
-            .minimumScaleFactor(0.75)
-            .lineLimit(1)
+            .minimumScaleFactor(0.75).lineLimit(1)
             ForEach(comment.contents) { content in
                 switch content.type {
                 case .plainText:
@@ -317,29 +242,19 @@ private struct CommentCell: View {
                         LinkedText(text: text, action: linkAction)
                     }
                 case .linkedText:
-                    if let text = content.text,
-                       let link = content.link
-                    {
-                        Text(text)
-                            .foregroundStyle(.tint)
-                            .onTapGesture {
-                                linkAction(link.safeURL())
-                            }
+                    if let text = content.text, let link = content.link {
+                        Text(text).foregroundStyle(.tint)
+                            .onTapGesture { linkAction(link.safeURL()) }
                     }
                 case .singleLink:
                     if let link = content.link {
-                        Text(link)
-                            .foregroundStyle(.tint)
-                            .onTapGesture {
-                                linkAction(link.safeURL())
-                            }
+                        Text(link).foregroundStyle(.tint)
+                            .onTapGesture { linkAction(link.safeURL()) }
                     }
                 case .singleImg, .doubleImg, .linkedImg, .doubleLinkedImg:
                     generateWebImages(
-                        imgURL: content.imgURL,
-                        secondImgURL: content.secondImgURL,
-                        link: content.link,
-                        secondLink: content.secondLink
+                        imgURL: content.imgURL, secondImgURL: content.secondImgURL,
+                        link: content.link, secondLink: content.secondLink
                     )
                 }
             }
@@ -350,31 +265,21 @@ private struct CommentCell: View {
 
     @ViewBuilder
     private func generateWebImages(
-        imgURL: String?,
-        secondImgURL: String?,
-        link: String?,
-        secondLink: String?
+        imgURL: String?, secondImgURL: String?,
+        link: String?, secondLink: String?
     ) -> some View {
         // Double
-        if let imgURL = imgURL,
-           let secondImgURL = secondImgURL
-        {
+        if let imgURL = imgURL, let secondImgURL = secondImgURL {
             HStack(spacing: 0) {
-                if let link = link,
-                   let secondLink = secondLink
-                {
+                if let link = link, let secondLink = secondLink {
                     KFImage(URL(string: imgURL))
                         .commentDefaultModifier().scaledToFit()
                         .frame(width: DeviceUtil.windowW / 4)
-                        .onTapGesture {
-                            linkAction(link.safeURL())
-                        }
+                        .onTapGesture { linkAction(link.safeURL()) }
                     KFImage(URL(string: secondImgURL))
                         .commentDefaultModifier().scaledToFit()
                         .frame(width: DeviceUtil.windowW / 4)
-                        .onTapGesture {
-                            linkAction(secondLink.safeURL())
-                        }
+                        .onTapGesture { linkAction(secondLink.safeURL()) }
                 } else {
                     KFImage(URL(string: imgURL))
                         .commentDefaultModifier().scaledToFit()
@@ -389,12 +294,9 @@ private struct CommentCell: View {
         else if let imgURL = imgURL {
             if let link = link {
                 KFImage(URL(string: imgURL))
-                    .commentDefaultModifier()
-                    .scaledToFit()
+                    .commentDefaultModifier().scaledToFit()
                     .frame(width: DeviceUtil.windowW / 2)
-                    .onTapGesture {
-                        linkAction(link.safeURL())
-                    }
+                    .onTapGesture { linkAction(link.safeURL()) }
             } else {
                 KFImage(URL(string: imgURL))
                     .commentDefaultModifier().scaledToFit()
@@ -407,11 +309,9 @@ private struct CommentCell: View {
 private extension KFImage {
     func commentDefaultModifier() -> KFImage {
         defaultModifier()
-        .placeholder {
-            Placeholder(
-                style: .activity(ratio: 1)
-            )
-        }
+            .placeholder {
+                Placeholder(style: .activity(ratio: 1))
+            }
     }
 }
 

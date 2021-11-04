@@ -21,24 +21,15 @@ struct Placeholder: View {
                 Color(.systemGray5)
                 ProgressView()
             }
-            .aspectRatio(ratio, contentMode: .fill)
-            .cornerRadius(cornerRadius)
+            .aspectRatio(ratio, contentMode: .fill).cornerRadius(cornerRadius)
         case .progress(let pageNumber, let progress, let isDualPage, let backgroundColor):
             ZStack {
                 backgroundColor
                 VStack {
-                    Text(String(pageNumber))
-                        .fontWeight(.bold)
-                        .font(.largeTitle)
-                        .foregroundColor(.gray)
-                        .padding(.bottom, 30)
-                    ProgressView(progress)
-                        .progressViewStyle(.plainLinear)
-                        .frame(
-                            width: DeviceUtil.absWindowW * (
-                                isDualPage ? 0.25 : 0.5
-                            )
-                        )
+                    Text(String(pageNumber)).fontWeight(.bold).font(.largeTitle)
+                        .foregroundColor(.gray).padding(.bottom, 30)
+                    ProgressView(progress).progressViewStyle(.plainLinear)
+                        .frame(width: DeviceUtil.absWindowW * (isDualPage ? 0.25 : 0.5))
                 }
             }
         }

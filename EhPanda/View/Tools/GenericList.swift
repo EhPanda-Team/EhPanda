@@ -21,14 +21,9 @@ struct GenericList: View {
     private let translateAction: ((String) -> String)?
 
     init(
-        items: [Gallery],
-        setting: Setting,
-        pageNumber: PageNumber?,
-        loadingFlag: Bool,
-        loadError: AppError?,
-        moreLoadingFlag: Bool,
-        moreLoadFailedFlag: Bool,
-        fetchAction: (() -> Void)? = nil,
+        items: [Gallery], setting: Setting, pageNumber: PageNumber?,
+        loadingFlag: Bool, loadError: AppError?, moreLoadingFlag: Bool,
+        moreLoadFailedFlag: Bool, fetchAction: (() -> Void)? = nil,
         loadMoreAction: (() -> Void)? = nil,
         translateAction: ((String) -> String)? = nil
     ) {
@@ -54,28 +49,20 @@ struct GenericList: View {
                 switch setting.listMode {
                 case .detail:
                     DetailList(
-                        items: items, setting: setting,
-                        pageNumber: pageNumber,
-                        moreLoadingFlag: moreLoadingFlag,
-                        moreLoadFailedFlag: moreLoadFailedFlag,
-                        loadMoreAction: loadMoreAction,
-                        translateAction: translateAction
+                        items: items, setting: setting, pageNumber: pageNumber,
+                        moreLoadingFlag: moreLoadingFlag, moreLoadFailedFlag: moreLoadFailedFlag,
+                        loadMoreAction: loadMoreAction, translateAction: translateAction
                     )
                 case .thumbnail:
                     WaterfallList(
-                        items: items, setting: setting,
-                        pageNumber: pageNumber,
-                        moreLoadingFlag: moreLoadingFlag,
-                        moreLoadFailedFlag: moreLoadFailedFlag,
-                        loadMoreAction: loadMoreAction,
-                        translateAction: translateAction
+                        items: items, setting: setting, pageNumber: pageNumber,
+                        moreLoadingFlag: moreLoadingFlag, moreLoadFailedFlag: moreLoadFailedFlag,
+                        loadMoreAction: loadMoreAction, translateAction: translateAction
                     )
                 }
             }
             .transition(AppUtil.opacityTransition)
-            .refreshable {
-                fetchAction?()
-            }
+            .refreshable { fetchAction?() }
         }
     }
 }
@@ -91,10 +78,8 @@ private struct DetailList: View {
     private let translateAction: ((String) -> String)?
 
     init(
-        items: [Gallery], setting: Setting,
-        pageNumber: PageNumber?,
-        moreLoadingFlag: Bool,
-        moreLoadFailedFlag: Bool,
+        items: [Gallery], setting: Setting, pageNumber: PageNumber?,
+        moreLoadingFlag: Bool, moreLoadFailedFlag: Bool,
         loadMoreAction: (() -> Void)?,
         translateAction: ((String) -> String)? = nil
     ) {
@@ -114,34 +99,18 @@ private struct DetailList: View {
 
     var body: some View {
         List(items) { item in
-            GalleryDetailCell(
-                gallery: item,
-                setting: setting,
-                translateAction: translateAction
-            )
-            .background {
-                NavigationLink(
-                    destination: DetailView(
-                        gid: item.gid
-                    )
-                ) {}
-                .opacity(0)
-            }
-            .onAppear {
-                onRowAppear(item: item)
-            }
+            GalleryDetailCell(gallery: item, setting: setting, translateAction: translateAction)
+                .background { NavigationLink(destination: DetailView(gid: item.gid)) {}.opacity(0) }
+                .onAppear {
+                    guard item == items.last else { return }
+                    loadMoreAction?()
+                }
             if (moreLoadingFlag || moreLoadFailedFlag) && item == items.last && inValidRange {
                 LoadMoreFooter(
-                    moreLoadingFlag: moreLoadingFlag,
-                    moreLoadFailedFlag: moreLoadFailedFlag,
+                    moreLoadingFlag: moreLoadingFlag, moreLoadFailedFlag: moreLoadFailedFlag,
                     retryAction: loadMoreAction
                 )
             }
-        }
-    }
-    private func onRowAppear(item: Gallery) {
-        if item == items.last {
-            loadMoreAction?()
         }
     }
 }
@@ -171,10 +140,8 @@ private struct WaterfallList: View {
     }
 
     init(
-        items: [Gallery], setting: Setting,
-        pageNumber: PageNumber?,
-        moreLoadingFlag: Bool,
-        moreLoadFailedFlag: Bool,
+        items: [Gallery], setting: Setting, pageNumber: PageNumber?,
+        moreLoadingFlag: Bool, moreLoadFailedFlag: Bool,
         loadMoreAction: (() -> Void)?,
         translateAction: ((String) -> String)? = nil
     ) {
@@ -190,19 +157,14 @@ private struct WaterfallList: View {
     var body: some View {
         List {
             WaterfallGrid(items) { item in
-                GalleryThumbnailCell(
-                    gallery: item,
-                    setting: setting,
-                    translateAction: translateAction
-                )
-                .onTapGesture {
-                    gid = item.gid
-                    isNavLinkActive.toggle()
-                }
+                GalleryThumbnailCell(gallery: item, setting: setting, translateAction: translateAction)
+                    .onTapGesture {
+                        gid = item.gid
+                        isNavLinkActive.toggle()
+                    }
             }
             .gridStyle(
-                columnsInPortrait: columnsInPortrait,
-                columnsInLandscape: columnsInLandscape,
+                columnsInPortrait: columnsInPortrait, columnsInLandscape: columnsInLandscape,
                 spacing: 15, animation: nil
             )
             if !moreLoadingFlag && !moreLoadFailedFlag && inValidRange {
@@ -219,21 +181,12 @@ private struct WaterfallList: View {
             }
             if moreLoadingFlag || moreLoadFailedFlag {
                 LoadMoreFooter(
-                    moreLoadingFlag: moreLoadingFlag,
-                    moreLoadFailedFlag: moreLoadFailedFlag,
+                    moreLoadingFlag: moreLoadingFlag, moreLoadFailedFlag: moreLoadFailedFlag,
                     retryAction: loadMoreAction
                 )
             }
         }
-        .background {
-            NavigationLink(
-                destination: DetailView(
-                    gid: gid
-                ),
-                isActive: $isNavLinkActive
-            ) {}
-            .opacity(0)
-        }
+        .background { NavigationLink(destination: DetailView(gid: gid), isActive: $isNavLinkActive) {}.opacity(0) }
         .listStyle(.plain)
     }
 }

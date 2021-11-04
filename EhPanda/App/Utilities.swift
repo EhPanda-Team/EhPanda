@@ -218,6 +218,14 @@ struct HapticUtil {
 
 // MARK: Pasteboard
 struct PasteboardUtil {
+    static var url: URL? {
+        if UIPasteboard.general.hasURLs {
+            return UIPasteboard.general.url
+        } else {
+            return nil
+        }
+    }
+
     static var changeCount: Int? {
         UserDefaultsUtil.value(forKey: .pasteboardChangeCount)
     }
@@ -233,14 +241,6 @@ struct PasteboardUtil {
     static func save(value: String) {
         UIPasteboard.general.string = value
         HapticUtil.generateNotificationFeedback(style: .success)
-    }
-
-    static func getURL() -> URL? {
-        if UIPasteboard.general.hasURLs {
-            return UIPasteboard.general.url
-        } else {
-            return nil
-        }
     }
 }
 
@@ -296,9 +296,8 @@ struct CookiesUtil {
         if let cookies = HTTPCookieStorage.shared.cookies(for: url) {
             var existence: HTTPCookie?
             cookies.forEach { cookie in
-                if cookie.name == key {
-                    existence = cookie
-                }
+                guard cookie.name == key else { return }
+                existence = cookie
             }
             return existence != nil
         } else {
@@ -328,7 +327,6 @@ struct CookiesUtil {
                     [Defaults.Cookie.ipbMemberId, Defaults.Cookie.ipbPassHash, Defaults.Cookie.igneous].forEach { key in
                         guard !(url == Defaults.URL.ehentai && key == Defaults.Cookie.igneous),
                               let range = value.range(of: "\(key)=") else { return }
-
                         set(for: url.safeURL(), key: key, value: String(value[range.upperBound...]) )
                     }
                 }
@@ -338,9 +336,8 @@ struct CookiesUtil {
     static func remove(for url: URL, key: String) {
         if let cookies = HTTPCookieStorage.shared.cookies(for: url) {
             cookies.forEach { cookie in
-                if cookie.name == key {
-                    HTTPCookieStorage.shared.deleteCookie(cookie)
-                }
+                guard cookie.name == key else { return }
+                HTTPCookieStorage.shared.deleteCookie(cookie)
             }
         }
     }
@@ -357,14 +354,11 @@ struct CookiesUtil {
         var newCookie: HTTPCookie?
         if let cookies = HTTPCookieStorage.shared.cookies(for: url) {
             cookies.forEach { cookie in
-                if cookie.name == key
-                {
-                    newCookie = initializeCookie(from: cookie, value: value)
-                    remove(for: url, key: key)
-                }
+                guard cookie.name == key else { return }
+                newCookie = initializeCookie(from: cookie, value: value)
+                remove(for: url, key: key)
             }
         }
-
         guard let cookie = newCookie else { return }
         HTTPCookieStorage.shared.setCookie(cookie)
     }
@@ -372,12 +366,10 @@ struct CookiesUtil {
     static func get(for url: URL, key: String) -> CookieValue {
         var value = CookieValue(rawValue: "", localizedString: Defaults.Cookie.null.localized)
 
-        guard let cookies = HTTPCookieStorage.shared.cookies(for: url),
-                !cookies.isEmpty else { return value }
+        guard let cookies = HTTPCookieStorage.shared.cookies(for: url), !cookies.isEmpty else { return value }
 
         cookies.forEach { cookie in
-            guard let expiresDate = cookie.expiresDate,
-                  cookie.name == key && !cookie.value.isEmpty else { return }
+            guard let expiresDate = cookie.expiresDate, cookie.name == key && !cookie.value.isEmpty else { return }
 
             guard expiresDate > .now else {
                 value = CookieValue(rawValue: "", localizedString: Defaults.Cookie.expired.localized)
@@ -402,13 +394,9 @@ struct CookiesUtil {
         var igneous, memberID, passHash: String?
 
         cookies.forEach { cookie in
-            guard let expiresDate = cookie.expiresDate,
-                    expiresDate > .now, !cookie.value.isEmpty
-            else { return }
+            guard let expiresDate = cookie.expiresDate, expiresDate > .now, !cookie.value.isEmpty else { return }
 
-            if cookie.name == Defaults.Cookie.igneous
-                && cookie.value != Defaults.Cookie.mystery
-            {
+            if cookie.name == Defaults.Cookie.igneous && cookie.value != Defaults.Cookie.mystery {
                 igneous = cookie.value
             }
 
@@ -432,12 +420,9 @@ struct CookiesUtil {
 // MARK: URL
 struct URLUtil {
     private static func checkIfHandleable(url: URL) -> Bool {
-        (url.absoluteString.contains(Defaults.URL.ehentai)
-            || url.absoluteString.contains(Defaults.URL.exhentai))
-            && url.pathComponents.count >= 4
-            && ["g", "s"].contains(url.pathComponents[1])
-            && !url.pathComponents[2].isEmpty
-            && !url.pathComponents[3].isEmpty
+        (url.absoluteString.contains(Defaults.URL.ehentai) || url.absoluteString.contains(Defaults.URL.exhentai))
+            && url.pathComponents.count >= 4 && ["g", "s"].contains(url.pathComponents[1])
+            && !url.pathComponents[2].isEmpty && !url.pathComponents[3].isEmpty
     }
 
     static func parseGID(url: URL, isGalleryURL: Bool) -> String {
@@ -449,7 +434,7 @@ struct URLUtil {
         return gid
     }
 
-    static func handleIncomingURL(
+    static func handleURL(
         _ url: URL, handlesOutgoingURL: Bool = false,
         completion: (Bool, URL?, Int?, String?) -> Void
     ) {
@@ -485,8 +470,7 @@ struct URLUtil {
 struct FileUtil {
     static var documentDirectory: URL? {
         try? FileManager.default.url(
-            for: .documentDirectory, in: .userDomainMask,
-               appropriateFor: nil, create: true
+            for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true
         )
     }
 

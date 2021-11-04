@@ -18,6 +18,18 @@ struct AppearanceSettingView: View, StoreAccessor {
     private var selectedIcon: IconType {
         store.appState.settings.setting.appIconType
     }
+    private var iconType: IconType {
+        var alterName: String?
+        AppUtil.dispatchMainSync {
+            alterName = UIApplication.shared.alternateIconName
+        }
+
+        guard let iconName = alterName,
+              let selection = IconType.allCases.filter({
+                  iconName.contains($0.fileName ?? "")
+              }).first else { return .default }
+        return selection
+    }
 
     var body: some View {
         Form {
@@ -37,10 +49,12 @@ struct AppearanceSettingView: View, StoreAccessor {
                 }
                 .pickerStyle(.menu)
                 ColorPicker("Tint Color", selection: settingBinding.accentColor)
-                Button("App Icon", action: onAppIconButtonTap)
-                    .foregroundStyle(.primary).withArrow()
+                Button("App Icon") {
+                    isNavLinkActive.toggle()
+                }
+                .foregroundStyle(.primary).withArrow()
             }
-            Section(header: Text("List")) {
+            Section("List".localized) {
                 HStack {
                     Text("Display mode")
                     Spacer()
@@ -61,14 +75,12 @@ struct AppearanceSettingView: View, StoreAccessor {
                 HStack {
                     Text("Maximum number of tags")
                     Spacer()
-                    Picker(selection: settingBinding.summaryRowTagsMaximum,
-                           label: Text("\(setting.summaryRowTagsMaximum)")
+                    Picker(
+                        selection: settingBinding.summaryRowTagsMaximum,
+                        label: Text("\(setting.summaryRowTagsMaximum)")
                     ) {
                         Text("Infinity").tag(0)
-                        let nums = Array(stride(
-                            from: 5, through: 20, by: 5
-                        ))
-                        ForEach(nums, id: \.self) { num in
+                        ForEach(Array(stride(from: 5, through: 20, by: 5)), id: \.self) { num in
                             Text("\(num)").tag(num)
                         }
                     }
@@ -79,34 +91,13 @@ struct AppearanceSettingView: View, StoreAccessor {
         }
         .background {
             NavigationLink(
-                destination: SelectAppIconView(
-                    selectedIcon: selectedIcon,
-                    selectAction: onIconSelect
-                ),
-                isActive: $isNavLinkActive,
-                label: {}
+                destination: SelectAppIconView(selectedIcon: selectedIcon) {
+                    store.dispatch(.setAppIconType(iconType))
+                },
+                isActive: $isNavLinkActive, label: {}
             )
         }
         .navigationBarTitle("Appearance")
-    }
-
-    var iconType: IconType {
-        var alterName: String?
-        AppUtil.dispatchMainSync {
-            alterName = UIApplication.shared.alternateIconName
-        }
-
-        guard let iconName = alterName,
-              let selection = IconType.allCases.filter({
-                  iconName.contains($0.fileName ?? "")
-              }).first else { return .default }
-        return selection
-    }
-    private func onAppIconButtonTap() {
-        isNavLinkActive.toggle()
-    }
-    private func onIconSelect() {
-        store.dispatch(.updateAppIconType(iconType: iconType))
     }
 }
 
@@ -115,10 +106,7 @@ private struct SelectAppIconView: View {
     private let selectedIcon: IconType
     private let selectAction: () -> Void
 
-    init(
-        selectedIcon: IconType,
-        selectAction: @escaping () -> Void
-    ) {
+    init(selectedIcon: IconType, selectAction: @escaping () -> Void) {
         self.selectedIcon = selectedIcon
         self.selectAction = selectAction
     }
@@ -133,16 +121,14 @@ private struct SelectAppIconView: View {
                         isSelected: icon == selectedIcon
                     )
                     .contentShape(Rectangle())
-                    .onTapGesture(perform: {
-                        onAppIconRowTap(icon: icon)
-                    })
+                    .onTapGesture { setIcon(icon) }
                 }
             }
         }
         .onAppear(perform: selectAction)
     }
 
-    private func onAppIconRowTap(icon: IconType) {
+    private func setIcon(_ icon: IconType) {
         UIApplication.shared.setAlternateIconName(icon.fileName) { error in
             if let error = error {
                 HapticUtil.generateNotificationFeedback(style: .error)
@@ -159,11 +145,7 @@ private struct AppIconRow: View {
     private let iconDesc: String
     private let isSelected: Bool
 
-    init(
-        iconName: String,
-        iconDesc: String,
-        isSelected: Bool
-    ) {
+    init(iconName: String, iconDesc: String, isSelected: Bool) {
         self.iconName = iconName
         self.iconDesc = iconDesc
         self.isSelected = isSelected
@@ -171,19 +153,13 @@ private struct AppIconRow: View {
 
     var body: some View {
         HStack {
-            Image(iconName)
-                .resizable()
-                .scaledToFit()
-                .frame(width: 60, height: 60)
-                .cornerRadius(12)
-                .padding(.vertical, 10)
-                .padding(.trailing, 20)
+            Image(iconName).resizable().scaledToFit()
+                .frame(width: 60, height: 60).cornerRadius(12)
+                .padding(.vertical, 10).padding(.trailing, 20)
             Text(iconDesc.localized)
             Spacer()
             Image(systemName: "checkmark.circle.fill")
-                .opacity(isSelected ? 1 : 0)
-                .foregroundStyle(.tint)
-                .imageScale(.large)
+                .opacity(isSelected ? 1 : 0).foregroundStyle(.tint).imageScale(.large)
         }
     }
 }

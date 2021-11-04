@@ -35,129 +35,249 @@ struct HomeView: View, StoreAccessor {
             .background {
                 NavigationLink(
                     "",
-                    destination: DetailView(
-                        gid: clipboardJumpID ?? ""
-                    ),
+                    destination: DetailView(gid: clipboardJumpID ?? ""),
                     isActive: $isNavLinkActive
                 )
             }
             .searchable(
                 text: $keyword,
-                placement: .navigationBarDrawer(
-                    displayMode: .always
-                ),
-                suggestions: {
-                    ForEach(suggestions, id: \.self) { word in
-                        HStack {
-                            Text(word).foregroundStyle(.tint)
-                            Spacer()
-                        }
-                        .contentShape(Rectangle())
-                        .onTapGesture {
-                            onSuggestionTap(word: word)
-                        }
-                    }
-                }
+                placement: .navigationBarDrawer(displayMode: .always),
+                suggestions: suggestions
             )
-            .onSubmit(of: .search, onSearchSubmit)
             .navigationBarTitle(navigationBarTitle)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button {
-                        NotificationUtil.post(.shouldShowSlideMenu)
-                    } label: {
-                        Image(systemName: "line.3.horizontal")
-                            .foregroundColor(.secondary)
-                    }
-                }
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    HStack {
-                        Menu {
-                            if environment.homeListType == .favorites {
-                                favoritesMenuContent
-                            } else if environment.homeListType == .toplists {
-                                toplistsMenuContent
-                            }
-                        } label: {
-                            Image(systemName: "square.3.stack.3d.top.fill")
-                                .symbolRenderingMode(.hierarchical)
-                                .foregroundColor(.primary)
-                        }
-                        .opacity(
-                            [.favorites, .toplists]
-                                .contains(environment.homeListType) ? 1 : 0
-                        )
-                        Menu {
-                            Button(action: toggleFilter) {
-                                Image(systemName: "line.3.horizontal.decrease")
-                                Text("Filters")
-                            }
-                            Button(action: toggleQuickSearch) {
-                                Image(systemName: "magnifyingglass")
-                                Text("Quick search")
-                            }
-                            Button(action: toggleJumpPage) {
-                                Image(systemName: "arrowshape.bounce.forward")
-                                Text("Jump page")
-                            }
-                            .disabled(currentListTypePageNumber.isSinglePage)
-                        } label: {
-                            Image(systemName: "ellipsis.circle")
-                                .symbolRenderingMode(.hierarchical)
-                                .foregroundColor(.primary)
-                        }
-                    }
-                }
-            }
+            .onSubmit(of: .search, performSearch)
+            .toolbar(content: toolbar)
         }
-        .onOpenURL(perform: onOpen)
         .navigationViewStyle(.stack)
-        .onAppear(perform: onStartTasks)
+        .onOpenURL(perform: tryOpenURL).onAppear(perform: onStartTasks)
+        .sheet(item: environmentBinding.homeViewSheetState, content: sheet)
+        .onReceive(UIApplication.didBecomeActiveNotification.publisher, perform: onBecomeActive)
+        .onChange(of: environment.galleryItemReverseLoading, perform: tryDismissLoadingHUD)
+        .onChange(of: currentListTypePageNumber) { alertInput = String($0.current + 1) }
+        .onChange(of: environment.galleryItemReverseID, perform: tryActivateNavLink)
+        .onChange(of: environment.favoritesIndex) { _ in tryFetchFavoritesItems() }
+        .onChange(of: environment.toplistsType) { _ in tryFetchToplistsItems() }
+        .onChange(of: alertManager.isPresented) { _ in isAlertFocused = false }
+        .onChange(of: environment.homeListType, perform: onHomeListTypeChange)
+        .onChange(of: user.greeting, perform: tryPresentNewDawnSheet)
+        .onChange(of: keyword, perform: tryUpdateHistoryKeywords)
         .customAlert(
             manager: alertManager, widthFactor: DeviceUtil.isPadWidth ? 0.5 : 1.0,
             backgroundOpacity: colorScheme == .light ? 0.2 : 0.5,
             content: {
                 PageJumpView(
-                    inputText: $alertInput,
-                    isFocused: $isAlertFocused,
+                    inputText: $alertInput, isFocused: $isAlertFocused,
                     pageNumber: currentListTypePageNumber
                 )
             },
-            buttons: [
-                .regular {
-                    Text("Confirm")
-                } action: {
-                    performJumpPage()
-                }
-            ]
+            buttons: [.regular(content: { Text("Confirm") }, action: tryPerformJumpPage)]
         )
-        .sheet(item: environmentBinding.homeViewSheetState) { item in
-            Group {
-                switch item {
-                case .setting:
-                    SettingView().tint(accentColor)
-                case .filter:
-                    FilterView().tint(accentColor)
-                case .newDawn:
-                    NewDawnView(greeting: greeting)
-                case .quickSearch:
-                    QuickSearchView(searchAction: onQuickSearchSubmit)
+    }
+}
+
+private extension HomeView {
+    // MARK: Suggestions
+    @ViewBuilder
+    func suggestions() -> some View {
+        let historyKeywords = homeInfo.historyKeywords.reversed().filter({ word in
+            keyword.isEmpty ? true : word.contains(keyword)
+        })
+        ForEach(historyKeywords, id: \.self) { word in
+            HStack {
+                Text(word).foregroundStyle(.tint)
+                Spacer()
+            }
+            .contentShape(Rectangle())
+            .onTapGesture { keyword = word }
+        }
+    }
+
+    // MARK: Sheet
+    func sheet(item: HomeViewSheetState) -> some View {
+        Group {
+            switch item {
+            case .setting:
+                SettingView().tint(accentColor)
+            case .filter:
+                FilterView().tint(accentColor)
+            case .newDawn:
+                NewDawnView(greeting: greeting)
+            case .quickSearch:
+                QuickSearchView(searchAction: performQuickSearch)
+            }
+        }
+        .accentColor(accentColor)
+        .blur(radius: environment.blurRadius)
+        .allowsHitTesting(environment.isAppUnlocked)
+    }
+
+    // MARK: Toolbar
+    func toolbar() -> some ToolbarContent {
+        func selectIndexMenu() -> some View {
+            Menu {
+                if environment.homeListType == .favorites {
+                    ForEach(-1..<10) { index in
+                        Button {
+                            store.dispatch(.setFavoritesIndex(index))
+                        } label: {
+                            Text(User.getFavNameFrom(index: index, names: favoriteNames))
+                            if index == environment.favoritesIndex {
+                                Image(systemName: "checkmark")
+                            }
+                        }
+                    }
+                } else if environment.homeListType == .toplists {
+                    ForEach(ToplistsType.allCases) { type in
+                        Button {
+                            store.dispatch(.setToplistsType(type))
+                        } label: {
+                            Text(type.description.localized)
+                            if type == environment.toplistsType {
+                                Image(systemName: "checkmark")
+                            }
+                        }
+                    }
+                }
+            } label: {
+                Image(systemName: "square.3.stack.3d.top.fill")
+                    .symbolRenderingMode(.hierarchical)
+                    .foregroundColor(.primary)
+            }
+            .opacity([.favorites, .toplists].contains(environment.homeListType) ? 1 : 0)
+        }
+        func moreFeaturesMenu() -> some View {
+            Menu {
+                Button {
+                    store.dispatch(.setHomeViewSheetState(.filter))
+                } label: {
+                    Image(systemName: "line.3.horizontal.decrease")
+                    Text("Filters")
+                }
+                Button {
+                    store.dispatch(.setHomeViewSheetState(.quickSearch))
+                } label: {
+                    Image(systemName: "magnifyingglass")
+                    Text("Quick search")
+                }
+                Button(action: presentJumpPageAlert) {
+                    Image(systemName: "arrowshape.bounce.forward")
+                    Text("Jump page")
+                }
+                .disabled(currentListTypePageNumber.isSinglePage)
+            } label: {
+                Image(systemName: "ellipsis.circle")
+                    .symbolRenderingMode(.hierarchical)
+                    .foregroundColor(.primary)
+            }
+        }
+        return Group {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button {
+                    NotificationUtil.post(.shouldShowSlideMenu)
+                } label: {
+                    Image(systemName: "line.3.horizontal")
+                        .foregroundColor(.secondary)
                 }
             }
-            .accentColor(accentColor)
-            .blur(radius: environment.blurRadius)
-            .allowsHitTesting(environment.isAppUnlocked)
+            ToolbarItem(placement: .navigationBarTrailing) {
+                HStack {
+                    selectIndexMenu()
+                    moreFeaturesMenu()
+                }
+            }
         }
-        .onReceive(UIApplication.didBecomeActiveNotification.publisher, perform: onBecomeActive)
-        .onChange(of: environment.galleryItemReverseLoading, perform: onJumpDetailFetchFinish)
-        .onChange(of: alertManager.isPresented, perform: onAlertVisibilityChange)
-        .onChange(of: environment.galleryItemReverseID, perform: onJumpIDChange)
-        .onChange(of: environment.homeListType, perform: onHomeListTypeChange)
-        .onChange(of: currentListTypePageNumber, perform: onPageNumberChange)
-        .onChange(of: environment.favoritesIndex, perform: onFavIndexChange)
-        .onChange(of: environment.toplistsType, perform: onTopTypeChange)
-        .onChange(of: user.greeting, perform: onReceiveGreeting)
-        .onChange(of: keyword, perform: onKeywordChange)
+    }
+
+    // MARK: List
+    @ViewBuilder var conditionalList: some View {
+        switch environment.homeListType {
+        case .search:
+            GenericList(
+                items: homeInfo.searchItems,
+                setting: setting,
+                pageNumber: homeInfo.searchPageNumber,
+                loadingFlag: homeInfo.searchLoading,
+                loadError: homeInfo.searchLoadError,
+                moreLoadingFlag: homeInfo.moreSearchLoading,
+                moreLoadFailedFlag: homeInfo.moreSearchLoadFailed,
+                fetchAction: tryRefetchSearchItems,
+                loadMoreAction: fetchMoreSearchItems,
+                translateAction: tryTranslateTag
+            )
+        case .frontpage:
+            GenericList(
+                items: homeInfo.frontpageItems,
+                setting: setting,
+                pageNumber: homeInfo.frontpagePageNumber,
+                loadingFlag: homeInfo.frontpageLoading,
+                loadError: homeInfo.frontpageLoadError,
+                moreLoadingFlag: homeInfo.moreFrontpageLoading,
+                moreLoadFailedFlag: homeInfo.moreFrontpageLoadFailed,
+                fetchAction: fetchFrontpageItems,
+                loadMoreAction: fetchMoreFrontpageItems,
+                translateAction: tryTranslateTag
+            )
+        case .popular:
+            GenericList(
+                items: homeInfo.popularItems,
+                setting: setting,
+                pageNumber: nil,
+                loadingFlag: homeInfo.popularLoading,
+                loadError: homeInfo.popularLoadError,
+                moreLoadingFlag: false,
+                moreLoadFailedFlag: false,
+                fetchAction: fetchPopularItems,
+                translateAction: tryTranslateTag
+            )
+        case .watched:
+            GenericList(
+                items: homeInfo.watchedItems,
+                setting: setting,
+                pageNumber: homeInfo.watchedPageNumber,
+                loadingFlag: homeInfo.watchedLoading,
+                loadError: homeInfo.watchedLoadError,
+                moreLoadingFlag: homeInfo.moreWatchedLoading,
+                moreLoadFailedFlag: homeInfo.moreWatchedLoadFailed,
+                fetchAction: fetchWatchedItems,
+                loadMoreAction: fetchMoreWatchedItems,
+                translateAction: tryTranslateTag
+            )
+        case .favorites:
+            GenericList(
+                items: homeInfo.favoritesItems[environment.favoritesIndex] ?? [], setting: setting,
+                pageNumber: homeInfo.favoritesPageNumbers[environment.favoritesIndex],
+                loadingFlag: homeInfo.favoritesLoading[environment.favoritesIndex] ?? false,
+                loadError: homeInfo.favoritesLoadErrors[environment.favoritesIndex],
+                moreLoadingFlag: homeInfo.moreFavoritesLoading[environment.favoritesIndex] ?? false,
+                moreLoadFailedFlag: homeInfo.moreFavoritesLoadFailed[environment.favoritesIndex] ?? false,
+                fetchAction: fetchFavoritesItems, loadMoreAction: fetchMoreFavoritesItems,
+                translateAction: tryTranslateTag
+            )
+        case .toplists:
+            GenericList(
+                items: homeInfo.toplistsItems[environment.toplistsType.rawValue] ?? [], setting: setting,
+                pageNumber: homeInfo.toplistsPageNumbers[environment.toplistsType.rawValue],
+                loadingFlag: homeInfo.toplistsLoading[environment.toplistsType.rawValue] ?? false,
+                loadError: homeInfo.toplistsLoadErrors[environment.toplistsType.rawValue],
+                moreLoadingFlag: homeInfo.moreToplistsLoading[environment.toplistsType.rawValue] ?? false,
+                moreLoadFailedFlag: homeInfo.moreToplistsLoadFailed[environment.toplistsType.rawValue] ?? false,
+                fetchAction: fetchToplistsItems, loadMoreAction: fetchMoreToplistsItems,
+                translateAction: tryTranslateTag
+            )
+        case .downloaded:
+            ErrorView(error: .notFound, retryAction: nil)
+        case .history:
+            GenericList(
+                items: galleryHistory,
+                setting: setting,
+                pageNumber: nil,
+                loadingFlag: false,
+                loadError: galleryHistory.isEmpty ? .notFound : nil,
+                moreLoadingFlag: false,
+                moreLoadFailedFlag: false,
+                translateAction: tryTranslateTag
+            )
+        }
     }
 }
 
@@ -174,21 +294,22 @@ private extension HomeView {
     }
 
     var hasJumpPermission: Bool {
-        detectsLinksFromPasteboard
-            && viewControllersCount == 1
-    }
-    var suggestions: [String] {
-        homeInfo.historyKeywords.reversed().filter({ word in
-            keyword.isEmpty ? true : word.contains(keyword)
-        })
+        detectsLinksFromPasteboard && viewControllersCount == 1
     }
     var navigationBarTitle: String {
-        if environment.favoritesIndex != -1,
-           environment.homeListType == .favorites
-        {
+        if environment.favoritesIndex != -1, environment.homeListType == .favorites {
             return settings.user.getFavNameFrom(index: environment.favoritesIndex)
         } else {
             return environment.homeListType.rawValue.localized
+        }
+    }
+    var pasteboardURL: URL? {
+        let currentChangeCount = UIPasteboard.general.changeCount
+        if PasteboardUtil.changeCount != currentChangeCount {
+            PasteboardUtil.setChangeCount(value: currentChangeCount)
+            return PasteboardUtil.url
+        } else {
+            return nil
         }
     }
     var currentListTypePageNumber: PageNumber {
@@ -209,287 +330,65 @@ private extension HomeView {
             return PageNumber()
         }
     }
-
-    // MARK: View Properties
-    var favoritesMenuContent: some View {
-        ForEach(-1..<10) { index in
-            Button {
-                onFavMenuSelect(index: index)
-            } label: {
-                Text(User.getFavNameFrom(index: index, names: favoriteNames))
-                if index == environment.favoritesIndex {
-                    Image(systemName: "checkmark")
-                }
-            }
-        }
-    }
-    var toplistsMenuContent: some View {
-        ForEach(ToplistsType.allCases) { type in
-            Button {
-                onTopMenuSelect(type: type)
-            } label: {
-                Text(type.description.localized)
-                if type == environment.toplistsType {
-                    Image(systemName: "checkmark")
-                }
-            }
-        }
-    }
-    @ViewBuilder var conditionalList: some View {
-        switch environment.homeListType {
-        case .search:
-            GenericList(
-                items: homeInfo.searchItems,
-                setting: setting,
-                pageNumber: homeInfo.searchPageNumber,
-                loadingFlag: homeInfo.searchLoading,
-                loadError: homeInfo.searchLoadError,
-                moreLoadingFlag: homeInfo.moreSearchLoading,
-                moreLoadFailedFlag: homeInfo.moreSearchLoadFailed,
-                fetchAction: onSearchRefresh,
-                loadMoreAction: fetchMoreSearchItems,
-                translateAction: translateTag
-            )
-        case .frontpage:
-            GenericList(
-                items: homeInfo.frontpageItems,
-                setting: setting,
-                pageNumber: homeInfo.frontpagePageNumber,
-                loadingFlag: homeInfo.frontpageLoading,
-                loadError: homeInfo.frontpageLoadError,
-                moreLoadingFlag: homeInfo.moreFrontpageLoading,
-                moreLoadFailedFlag: homeInfo.moreFrontpageLoadFailed,
-                fetchAction: fetchFrontpageItems,
-                loadMoreAction: fetchMoreFrontpageItems,
-                translateAction: translateTag
-            )
-        case .popular:
-            GenericList(
-                items: homeInfo.popularItems,
-                setting: setting,
-                pageNumber: nil,
-                loadingFlag: homeInfo.popularLoading,
-                loadError: homeInfo.popularLoadError,
-                moreLoadingFlag: false,
-                moreLoadFailedFlag: false,
-                fetchAction: fetchPopularItems,
-                translateAction: translateTag
-            )
-        case .watched:
-            GenericList(
-                items: homeInfo.watchedItems,
-                setting: setting,
-                pageNumber: homeInfo.watchedPageNumber,
-                loadingFlag: homeInfo.watchedLoading,
-                loadError: homeInfo.watchedLoadError,
-                moreLoadingFlag: homeInfo.moreWatchedLoading,
-                moreLoadFailedFlag: homeInfo.moreWatchedLoadFailed,
-                fetchAction: fetchWatchedItems,
-                loadMoreAction: fetchMoreWatchedItems,
-                translateAction: translateTag
-            )
-        case .favorites:
-            GenericList(
-                items: homeInfo.favoritesItems[
-                    environment.favoritesIndex
-                ] ?? [],
-                setting: setting,
-                pageNumber: homeInfo.favoritesPageNumbers[
-                    environment.favoritesIndex
-                ],
-                loadingFlag: homeInfo.favoritesLoading[
-                    environment.favoritesIndex
-                ] ?? false,
-                loadError: homeInfo.favoritesLoadErrors[
-                    environment.favoritesIndex
-                ],
-                moreLoadingFlag: homeInfo.moreFavoritesLoading[
-                    environment.favoritesIndex
-                ] ?? false,
-                moreLoadFailedFlag: homeInfo.moreFavoritesLoadFailed[
-                    environment.favoritesIndex
-                ] ?? false,
-                fetchAction: fetchFavoritesItems,
-                loadMoreAction: fetchMoreFavoritesItems,
-                translateAction: translateTag
-            )
-        case .toplists:
-            GenericList(
-                items: homeInfo.toplistsItems[
-                    environment.toplistsType.rawValue
-                ] ?? [],
-                setting: setting,
-                pageNumber: homeInfo.toplistsPageNumbers[
-                    environment.toplistsType.rawValue
-                ],
-                loadingFlag: homeInfo.toplistsLoading[
-                    environment.toplistsType.rawValue
-                ] ?? false,
-                loadError: homeInfo.toplistsLoadErrors[
-                    environment.toplistsType.rawValue
-                ],
-                moreLoadingFlag: homeInfo.moreToplistsLoading[
-                    environment.toplistsType.rawValue
-                ] ?? false,
-                moreLoadFailedFlag: homeInfo.moreToplistsLoadFailed[
-                    environment.toplistsType.rawValue
-                ] ?? false,
-                fetchAction: fetchToplistsItems,
-                loadMoreAction: fetchMoreToplistsItems,
-                translateAction: translateTag
-            )
-        case .downloaded:
-            ErrorView(error: .notFound, retryAction: nil)
-        case .history:
-            GenericList(
-                items: galleryHistory,
-                setting: setting,
-                pageNumber: nil,
-                loadingFlag: false,
-                loadError: galleryHistory.isEmpty ? .notFound : nil,
-                moreLoadingFlag: false,
-                moreLoadFailedFlag: false,
-                translateAction: translateTag
-            )
-        }
-    }
 }
 
 private extension HomeView {
     // MARK: Life Cycle
     func onStartTasks() {
-        detectPasteboard()
-        fetchGreetingIfNeeded()
-        fetchFrontpageItemsIfNeeded()
+        tryOpenPasteboardURL()
+        tryFetchGreeting()
+        tryFetchFrontpageItems()
     }
     func onBecomeActive(_: Any? = nil) {
-        if viewControllersCount == 1 {
-            detectPasteboard()
-            fetchGreetingIfNeeded()
-        }
+        guard viewControllersCount == 1 else { return }
+        tryOpenPasteboardURL()
+        tryFetchGreeting()
     }
     func onHomeListTypeChange(type: HomeListType) {
         switch type {
         case .frontpage:
-            fetchFrontpageItemsIfNeeded()
+            tryFetchFrontpageItems()
         case .popular:
-            fetchPopularItemsIfNeeded()
+            guard homeInfo.popularItems.isEmpty else { return }
+            fetchPopularItems()
         case .watched:
-            fetchWatchedItemsIfNeeded()
+            guard homeInfo.watchedItems.isEmpty else { return }
+            fetchWatchedItems()
         case .favorites:
-            fetchFavoritesItemsIfNeeded()
+            tryFetchFavoritesItems()
         case .toplists:
-            fetchToplistsItemsIfNeeded()
+            tryFetchToplistsItems()
         case .downloaded, .search, .history:
-            break
+            return
         }
     }
-    func onOpen(url: URL) {
-        guard let scheme = url.scheme,
-              let replacedURL = URL(
-                string: url.absoluteString
-                    .replacingOccurrences(
-                        of: scheme, with: "https"
-                    )
-              )
-        else { return }
+    func tryPresentNewDawnSheet(newValue: Greeting?) {
+        guard setting.showNewDawnGreeting, let greeting = newValue, !greeting.gainedNothing else { return }
 
-        handle(incomingURL: replacedURL)
-    }
-    func onReceiveGreeting(_ greeting: Greeting?) {
-        if setting.showNewDawnGreeting,
-           let greeting = greeting,
-           !greeting.gainedNothing
-        {
-            self.greeting = greeting
-            store.dispatch(.toggleHomeViewSheet(state: .newDawn))
-        }
-    }
-    func onKeywordChange(keyword: String) {
-        if keyword.isEmpty {
-            store.dispatch(.updateHistoryKeywords(text: homeInfo.lastKeyword))
-        }
-    }
-    func onFavIndexChange(_ : Int) {
-        fetchFavoritesItemsIfNeeded()
-    }
-    func onTopTypeChange(_ : ToplistsType) {
-        fetchToplistsItemsIfNeeded()
-    }
-    func onFavMenuSelect(index: Int) {
-        store.dispatch(.toggleFavorites(index: index))
-    }
-    func onTopMenuSelect(type: ToplistsType) {
-        store.dispatch(.toggleToplists(type: type))
-    }
-    func onJumpIDChange(value: String?) {
-        if value != nil, hasJumpPermission {
-            clipboardJumpID = value
-            isNavLinkActive = true
-
-            replaceGalleryCommentJumpID(gid: nil)
-        }
-    }
-    func onJumpDetailFetchFinish(value: Bool) {
-        if !value, hasJumpPermission {
-            dismissHUD()
-        }
-    }
-    func onSearchSubmit() {
-        if environment.homeListType != .search {
-            store.dispatch(.toggleHomeList(type: .search))
-        }
-        if !keyword.isEmpty {
-            store.dispatch(.updateLastKeyword(text: keyword))
-        }
-        store.dispatch(.fetchSearchItems(keyword: keyword))
-    }
-    func onSearchRefresh() {
-        if !homeInfo.lastKeyword.isEmpty {
-            store.dispatch(.fetchSearchItems(keyword: homeInfo.lastKeyword))
-        }
-    }
-    func onSuggestionTap(word: String) {
-        keyword = word
-    }
-    func onAlertVisibilityChange(_: Bool) {
-        isAlertFocused = false
-    }
-    func onPageNumberChange(pageNumber: PageNumber) {
-        alertInput = String(pageNumber.current + 1)
-    }
-    func onQuickSearchSubmit(keyword: String) {
-        store.dispatch(.toggleHomeViewSheet(state: .none))
-        self.keyword = keyword
-        onSearchSubmit()
+        self.greeting = greeting
+        store.dispatch(.setHomeViewSheetState(.newDawn))
     }
 
-    // MARK: Tool Methods
-    func showHUD() {
-        hudConfig = TTProgressHUDConfig(
-            type: .loading,
-            title: "Loading...".localized
-        )
-        hudVisible = true
+    // MARK: Navigation(handleURL)
+    func tryOpenURL(_ url: URL) {
+        guard let scheme = url.scheme else { return }
+        let replacedString = url.absoluteString
+            .replacingOccurrences(of: scheme, with: "https")
+        guard let replacedURL = URL(string: replacedString) else { return }
+
+        handleURL(replacedURL)
     }
-    func dismissHUD() {
-        hudVisible = false
-        hudConfig = TTProgressHUDConfig()
+    func tryOpenPasteboardURL() {
+        guard hasJumpPermission, let url = pasteboardURL else { return }
+        handleURL(url)
     }
-    func detectPasteboard() {
-        if hasJumpPermission {
-            if let url = getPasteboardURLIfAllowed() {
-                handle(incomingURL: url)
-            }
-        }
-    }
-    func handle(incomingURL: URL) {
+    func handleURL(_ url: URL) {
         let shouldDelayDisplay = homeInfo.frontpageItems.isEmpty
-        URLUtil.handleIncomingURL(incomingURL) { shouldParseGalleryURL, incomingURL, pageIndex, commentID in
+        URLUtil.handleURL(url) { shouldParseGalleryURL, incomingURL, pageIndex, commentID in
             guard let incomingURL = incomingURL else { return }
 
             let gid = URLUtil.parseGID(url: incomingURL, isGalleryURL: shouldParseGalleryURL)
-            store.dispatch(.updatePendingJumpInfos(
+            store.dispatch(.setPendingJumpInfos(
                 gid: gid, pageIndex: pageIndex, commentID: commentID
             ))
 
@@ -502,41 +401,86 @@ private extension HomeView {
                             url: incomingURL.absoluteString,
                             shouldParseGalleryURL: shouldParseGalleryURL
                         ))
-                        showHUD()
+                        presentLoadingHUD()
                     }
                 } else {
                     store.dispatch(.fetchGalleryItemReverse(
                         url: incomingURL.absoluteString,
                         shouldParseGalleryURL: shouldParseGalleryURL
                     ))
-                    showHUD()
+                    presentLoadingHUD()
                 }
             }
             PasteboardUtil.clear()
             clearObstruction()
         }
     }
-    func replaceGalleryCommentJumpID(gid: String?) {
-        store.dispatch(.replaceGalleryCommentJumpID(gid: gid))
+
+    // MARK: Navigation(other)
+    func presentLoadingHUD() {
+        hudConfig = TTProgressHUDConfig(type: .loading, title: "Loading...".localized)
+        hudVisible = true
     }
-    func getPasteboardURLIfAllowed() -> URL? {
-        let currentChangeCount = UIPasteboard.general.changeCount
-        if PasteboardUtil.changeCount != currentChangeCount {
-            PasteboardUtil.setChangeCount(value: currentChangeCount)
-            return PasteboardUtil.getURL()
-        } else {
-            return nil
-        }
+    func tryDismissLoadingHUD(newValue: Bool) {
+        guard !newValue, hasJumpPermission else { return }
+        hudVisible = false
+        hudConfig = TTProgressHUDConfig()
     }
     func clearObstruction() {
         if environment.homeViewSheetState != nil {
-            store.dispatch(.toggleHomeViewSheet(state: nil))
+            store.dispatch(.setHomeViewSheetState(nil))
         }
-        if !environment.isSlideMenuClosed {
+        if !environment.slideMenuClosed {
             NotificationUtil.post(.shouldHideSlideMenu)
         }
     }
-    func translateTag(text: String) -> String {
+    func replaceGalleryCommentJumpID(gid: String?) {
+        store.dispatch(.setGalleryCommentJumpID(gid: gid))
+    }
+    func presentJumpPageAlert() {
+        alertManager.show()
+        isAlertFocused = true
+        HapticUtil.generateFeedback(style: .light)
+    }
+    func tryPerformJumpPage() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            guard let index = Int(alertInput), index <= currentListTypePageNumber.maximum + 1 else { return }
+            store.dispatch(.handleJumpPage(index: index - 1, keyword: homeInfo.lastKeyword))
+        }
+    }
+    func tryActivateNavLink(newValue: String?) {
+        guard newValue != nil, hasJumpPermission else { return }
+        clipboardJumpID = newValue
+        isNavLinkActive = true
+        replaceGalleryCommentJumpID(gid: nil)
+    }
+
+    // MARK: Search
+    func tryUpdateHistoryKeywords(_ keyword: String) {
+        guard keyword.isEmpty else { return }
+        store.dispatch(.appendHistoryKeywords(text: homeInfo.lastKeyword))
+    }
+    func tryRefetchSearchItems() {
+        guard !homeInfo.lastKeyword.isEmpty else { return }
+        store.dispatch(.fetchSearchItems(keyword: homeInfo.lastKeyword))
+    }
+    func performSearch() {
+        if environment.homeListType != .search {
+            store.dispatch(.setHomeListType(.search))
+        }
+        if !keyword.isEmpty {
+            store.dispatch(.setLastKeyword(text: keyword))
+        }
+        store.dispatch(.fetchSearchItems(keyword: keyword))
+    }
+    func performQuickSearch(keyword: String) {
+        store.dispatch(.setHomeViewSheetState(.none))
+        self.keyword = keyword
+        performSearch()
+    }
+
+    // MARK: Tools
+    func tryTranslateTag(text: String) -> String {
         guard setting.translatesTags else { return text }
         let translator = settings.tagTranslator
 
@@ -548,8 +492,34 @@ private extension HomeView {
         }
         return translator.translate(text: text)
     }
+    func tryFetchGreeting() {
+        func verifyDate(with updateTime: Date?) -> Bool {
+            guard let updateTime = updateTime else { return false }
 
-    // MARK: Dispatch Methods
+            let currentTime = Date()
+            let formatter = DateFormatter()
+            formatter.locale = Locale.current
+            formatter.timeZone = TimeZone(secondsFromGMT: 0)
+            formatter.dateFormat = Defaults.DateFormat.greeting
+
+            let currentTimeString = formatter.string(from: currentTime)
+            if let currDay = formatter.date(from: currentTimeString) {
+                return currentTime > currDay && updateTime < currDay
+            }
+
+            return false
+        }
+
+        guard setting.showNewDawnGreeting else { return }
+        if let greeting = user.greeting {
+            guard verifyDate(with: greeting.updateTime) else { return }
+            store.dispatch(.fetchGreeting)
+        } else {
+            store.dispatch(.fetchGreeting)
+        }
+    }
+
+    // MARK: Fetching list items
     func fetchFrontpageItems() {
         store.dispatch(.fetchFrontpageItems())
     }
@@ -582,75 +552,17 @@ private extension HomeView {
         store.dispatch(.fetchMoreToplistsItems)
     }
 
-    func fetchGreetingIfNeeded() {
-        func verifyDate(with updateTime: Date?) -> Bool {
-            guard let updateTime = updateTime else { return false }
-
-            let currentTime = Date()
-            let formatter = DateFormatter()
-            formatter.locale = Locale.current
-            formatter.timeZone = TimeZone(secondsFromGMT: 0)
-            formatter.dateFormat = Defaults.DateFormat.greeting
-
-            let currentTimeString = formatter.string(from: currentTime)
-            if let currDay = formatter.date(from: currentTimeString) {
-                return currentTime > currDay && updateTime < currDay
-            }
-
-            return false
-        }
-
-        if setting.showNewDawnGreeting {
-            if let greeting = user.greeting {
-                if verifyDate(with: greeting.updateTime) {
-                    store.dispatch(.fetchGreeting)
-                }
-            } else {
-                store.dispatch(.fetchGreeting)
-            }
-        }
+    func tryFetchFrontpageItems() {
+        guard homeInfo.frontpageItems.isEmpty else { return }
+        fetchFrontpageItems()
     }
-    func fetchFrontpageItemsIfNeeded() {
-        if homeInfo.frontpageItems.isEmpty {
-            fetchFrontpageItems()
-        }
+    func tryFetchFavoritesItems() {
+        guard homeInfo.favoritesItems[environment.favoritesIndex]?.isEmpty != false else { return }
+        fetchFavoritesItems()
     }
-    func fetchPopularItemsIfNeeded() {
-        if homeInfo.popularItems.isEmpty {
-            fetchPopularItems()
-        }
-    }
-    func fetchWatchedItemsIfNeeded() {
-        if homeInfo.watchedItems.isEmpty {
-            fetchWatchedItems()
-        }
-    }
-    func fetchFavoritesItemsIfNeeded() {
-        if homeInfo.favoritesItems[environment.favoritesIndex]?.isEmpty != false {
-            fetchFavoritesItems()
-        }
-    }
-    func fetchToplistsItemsIfNeeded() {
-        if homeInfo.toplistsItems[environment.toplistsType.rawValue]?.isEmpty != false {
-            fetchToplistsItems()
-        }
-    }
-    func toggleFilter() {
-        store.dispatch(.toggleHomeViewSheet(state: .filter))
-    }
-    func toggleQuickSearch() {
-        store.dispatch(.toggleHomeViewSheet(state: .quickSearch))
-    }
-    func toggleJumpPage() {
-        alertManager.show()
-        isAlertFocused = true
-        HapticUtil.generateFeedback(style: .light)
-    }
-    func performJumpPage() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            if let index = Int(alertInput), index <= currentListTypePageNumber.maximum + 1
-            { store.dispatch(.handleJumpPage(index: index - 1, keyword: homeInfo.lastKeyword)) }
-        }
+    func tryFetchToplistsItems() {
+        guard homeInfo.toplistsItems[environment.toplistsType.rawValue]?.isEmpty != false else { return }
+        fetchToplistsItems()
     }
 }
 

@@ -22,9 +22,7 @@ struct CommentButton: View {
                 Text("Post Comment").fontWeight(.bold)
                 Spacer()
             }
-            .padding()
-            .background(Color(.systemGray6))
-            .cornerRadius(15)
+            .padding().background(Color(.systemGray6)).cornerRadius(15)
         }
     }
 }
@@ -38,8 +36,7 @@ struct DraftCommentView: View {
     private let cancelAction: () -> Void
 
     init(
-        content: Binding<String>,
-        title: String,
+        content: Binding<String>, title: String,
         postAction: @escaping () -> Void,
         cancelAction: @escaping () -> Void
     ) {
@@ -52,31 +49,23 @@ struct DraftCommentView: View {
     var body: some View {
         NavigationView {
             VStack {
-                TextEditor(text: $content)
-                    .focused($isTextEditorFocused)
-                    .padding()
+                TextEditor(text: $content).focused($isTextEditorFocused).padding()
                 Spacer()
             }
-            .navigationBarTitle(
-                title.localized,
-                displayMode: .inline
-            )
+            .navigationBarTitle(title.localized, displayMode: .inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel", action: cancelAction)
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Post", action: postAction)
-                        .disabled(content.isEmpty)
+                    Button("Post", action: postAction).disabled(content.isEmpty)
                 }
             }
         }
-        .onAppear(perform: onTextEditorAppear)
-    }
-
-    private func onTextEditorAppear() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
-            isTextEditorFocused = true
+        .onAppear {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
+                isTextEditorFocused = true
+            }
         }
     }
 }

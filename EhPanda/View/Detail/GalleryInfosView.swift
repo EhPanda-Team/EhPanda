@@ -61,11 +61,10 @@ struct GalleryInfosView: View {
                         .frame(width: proxy.size.width / 3)
                         Spacer()
                         Button {
-                            copy(value: info.value)
+                            tryCopy(value: info.value)
                         } label: {
                             Text(info.value ?? "null".localized)
-                                .lineLimit(3)
-                                .font(.caption)
+                                .lineLimit(3).font(.caption)
                                 .foregroundStyle(.tint)
                         }
                     }
@@ -76,19 +75,17 @@ struct GalleryInfosView: View {
         .navigationTitle("Gallery infos")
     }
 
-    private func copy(value: String?) {
+    private func tryCopy(value: String?) {
         guard let value = value else { return }
 
         PasteboardUtil.save(value: value)
-        showCopiedHUD()
+        presentHUD()
     }
-    private func showCopiedHUD() {
+    private func presentHUD() {
         hudConfig = TTProgressHUDConfig(
-            type: .success,
-            title: "Success".localized,
+            type: .success, title: "Success".localized,
             caption: "Copied to clipboard".localized,
-            shouldAutoHide: true,
-            autoHideInterval: 1
+            shouldAutoHide: true, autoHideInterval: 1
         )
         hudVisible.toggle()
     }

@@ -17,14 +17,9 @@ struct LoadMoreFooter: View {
     private var moreLoadingFlag: Bool
     private var moreLoadFailedFlag: Bool
     private var retryAction: (() -> Void)?
-    private var symbolName =
-    "exclamationmark.arrow.triangle.2.circlepath"
+    private var symbolName = "exclamationmark.arrow.triangle.2.circlepath"
 
-    init(
-        moreLoadingFlag: Bool,
-        moreLoadFailedFlag: Bool,
-        retryAction: (() -> Void)?
-    ) {
+    init(moreLoadingFlag: Bool, moreLoadFailedFlag: Bool, retryAction: (() -> Void)?) {
         self.moreLoadingFlag = moreLoadingFlag
         self.moreLoadFailedFlag = moreLoadFailedFlag
         self.retryAction = retryAction
@@ -35,20 +30,16 @@ struct LoadMoreFooter: View {
             Spacer()
             ZStack {
                 ProgressView().opacity(moreLoadingFlag ? 1 : 0)
-                Button(action: onButtonTap) {
-                    Image(systemName: symbolName)
-                        .foregroundStyle(.red)
-                        .imageScale(.large)
+                Button {
+                    retryAction?()
+                } label: {
+                    Image(systemName: symbolName).foregroundStyle(.red).imageScale(.large)
                 }
                 .opacity(moreLoadFailedFlag ? 1 : 0)
             }
             Spacer()
         }
         .frame(height: 50)
-    }
-
-    private func onButtonTap() {
-        retryAction?()
     }
 }
 
@@ -63,10 +54,8 @@ struct ErrorView: View {
 
     var body: some View {
         GenericRetryView(
-            symbolName: error.symbolName,
-            message: error.alertText,
-            buttonText: "Retry",
-            retryAction: retryAction
+            symbolName: error.symbolName, message: error.alertText,
+            buttonText: "Retry", retryAction: retryAction
         )
     }
 }
@@ -78,12 +67,7 @@ struct GenericRetryView: View {
     private let buttonText: String
     private let retryAction: (() -> Void)?
 
-    init(
-        symbolName: String,
-        message: String,
-        buttonText: String,
-        retryAction: (() -> Void)?
-    ) {
+    init(symbolName: String, message: String, buttonText: String, retryAction: (() -> Void)?) {
         self.symbolName = symbolName
         self.message = message
         self.buttonText = buttonText
@@ -92,22 +76,14 @@ struct GenericRetryView: View {
 
     var body: some View {
         VStack {
-            Image(systemName: symbolName)
-                .font(.system(size: 50))
-                .padding(.bottom, 15)
-            Text(message.localized)
-                .multilineTextAlignment(.center)
-                .foregroundStyle(.gray)
-                .font(.headline)
-                .padding(.bottom, 5)
+            Image(systemName: symbolName).font(.system(size: 50)).padding(.bottom, 15)
+            Text(message.localized).multilineTextAlignment(.center).foregroundStyle(.gray)
+                .font(.headline).padding(.bottom, 5)
             if let action = retryAction {
                 Button(action: action) {
-                    Text(buttonText.localized)
-                        .foregroundColor(.primary.opacity(0.7))
-                        .textCase(.uppercase)
+                    Text(buttonText.localized).foregroundColor(.primary.opacity(0.7)).textCase(.uppercase)
                 }
-                .buttonStyle(.bordered)
-                .buttonBorderShape(.capsule)
+                .buttonStyle(.bordered).buttonBorderShape(.capsule)
             }
         }
         .frame(maxWidth: DeviceUtil.windowW * 0.8)
@@ -120,10 +96,7 @@ struct PageJumpView: View {
     private var isFocused: FocusState<Bool>.Binding
     private let pageNumber: PageNumber
 
-    init(inputText: Binding<String>,
-         isFocused: FocusState<Bool>.Binding,
-         pageNumber: PageNumber
-    ) {
+    init(inputText: Binding<String>, isFocused: FocusState<Bool>.Binding, pageNumber: PageNumber) {
         _inputText = inputText
         self.isFocused = isFocused
         self.pageNumber = pageNumber
@@ -134,12 +107,9 @@ struct PageJumpView: View {
             Text("Jump page").bold()
             HStack {
                 let opacity = colorScheme == .light ? 0.15 : 0.1
-                TextField(inputText, text: $inputText)
-                    .multilineTextAlignment(.center).keyboardType(.numberPad)
-                    .padding(.horizontal, 10).padding(.vertical, 5)
-                    .background(Color.gray.opacity(opacity))
-                    .cornerRadius(5).frame(width: 75)
-                    .focused(isFocused.projectedValue)
+                TextField(inputText, text: $inputText).multilineTextAlignment(.center).keyboardType(.numberPad)
+                    .padding(.horizontal, 10).padding(.vertical, 5).background(Color.gray.opacity(opacity))
+                    .cornerRadius(5).frame(width: 75).focused(isFocused.projectedValue)
                 Text("-")
                 Text("\(pageNumber.maximum + 1)")
             }

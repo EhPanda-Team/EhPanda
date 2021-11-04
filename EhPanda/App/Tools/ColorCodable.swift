@@ -37,14 +37,8 @@ private extension Color {
 
         #if os(macOS)
         SystemColor(self).getRed(&red, green: &green, blue: &blue, alpha: &alpha)
-        // Note that non RGB color will raise an exception,
-        // that I don't now how to catch because it is an Objc exception.
         #else
-        guard SystemColor(self).getRed(&red, green: &green, blue: &blue, alpha: &alpha) else {
-            // Pay attention that the color should be convertible into RGB format
-            // Colors using hue, saturation and brightness won't work
-            return nil
-        }
+        guard SystemColor(self).getRed(&red, green: &green, blue: &blue, alpha: &alpha) else { return nil }
         #endif
 
         return RGBA(red: red, green: green, blue: blue, alpha: alpha)
@@ -61,17 +55,12 @@ extension Color: Codable {
         let red = try container.decode(Double.self, forKey: .red)
         let green = try container.decode(Double.self, forKey: .green)
         let blue = try container.decode(Double.self, forKey: .blue)
-
         self.init(red: red, green: green, blue: blue)
     }
 
     public func encode(to encoder: Encoder) throws {
-        guard let colorComponents = self.colorComponents else {
-            return
-        }
-
+        guard let colorComponents = self.colorComponents else { return }
         var container = encoder.container(keyedBy: CodingKeys.self)
-
         try container.encode(colorComponents.red, forKey: .red)
         try container.encode(colorComponents.green, forKey: .green)
         try container.encode(colorComponents.blue, forKey: .blue)

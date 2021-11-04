@@ -25,15 +25,10 @@ struct ControlPanel: View {
     private let updateSettingAction: (Setting) -> Void
 
     init(
-        showsPanel: Binding<Bool>,
-        sliderValue: Binding<Float>,
-        setting: Binding<Setting>,
-        autoPlayPolicy: Binding<AutoPlayPolicy>,
-        currentIndex: Int,
-        range: ClosedRange<Float>,
-        previews: [Int: String],
-        settingAction: @escaping () -> Void,
-        fetchAction: @escaping (Int) -> Void,
+        showsPanel: Binding<Bool>, sliderValue: Binding<Float>,
+        setting: Binding<Setting>, autoPlayPolicy: Binding<AutoPlayPolicy>,
+        currentIndex: Int, range: ClosedRange<Float>, previews: [Int: String],
+        settingAction: @escaping () -> Void, fetchAction: @escaping (Int) -> Void,
         sliderChangedAction: @escaping (Int) -> Void,
         updateSettingAction: @escaping (Setting) -> Void
     ) {
@@ -53,10 +48,8 @@ struct ControlPanel: View {
     var body: some View {
         VStack {
             UpperPanel(
-                title: "\(currentIndex) / "
-                + "\(Int(range.upperBound))",
-                setting: $setting,
-                refreshID: $refreshID,
+                title: "\(currentIndex) / " + "\(Int(range.upperBound))",
+                setting: $setting, refreshID: $refreshID,
                 autoPlayPolicy: $autoPlayPolicy,
                 settingAction: settingAction,
                 updateSettingAction: updateSettingAction
@@ -65,18 +58,14 @@ struct ControlPanel: View {
             Spacer()
             if range.upperBound > range.lowerBound {
                 LowerPanel(
-                    sliderValue: $sliderValue,
-                    previews: previews, range: range,
-                    isReversed: setting
-                        .readingDirection == .rightToLeft,
-                    fetchAction: fetchAction,
-                    sliderChangedAction: sliderChangedAction
+                    sliderValue: $sliderValue, previews: previews, range: range,
+                    isReversed: setting.readingDirection == .rightToLeft,
+                    fetchAction: fetchAction, sliderChangedAction: sliderChangedAction
                 )
                 .offset(y: showsPanel ? 0 : 50)
             }
         }
-        .opacity(showsPanel ? 1 : 0)
-        .disabled(!showsPanel)
+        .opacity(showsPanel ? 1 : 0).disabled(!showsPanel)
         .onChange(of: showsPanel) { newValue in
             guard newValue else { return } // workaround
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
@@ -98,12 +87,9 @@ private struct UpperPanel: View {
     private let updateSettingAction: (Setting) -> Void
 
     init(
-        title: String,
-        setting: Binding<Setting>,
-        refreshID: Binding<String>,
-        autoPlayPolicy: Binding<AutoPlayPolicy>,
-        settingAction: @escaping () -> Void,
-        updateSettingAction: @escaping (Setting) -> Void
+        title: String, setting: Binding<Setting>,
+        refreshID: Binding<String>, autoPlayPolicy: Binding<AutoPlayPolicy>,
+        settingAction: @escaping () -> Void, updateSettingAction: @escaping (Setting) -> Void
     ) {
         self.title = title
         _setting = setting
@@ -119,11 +105,9 @@ private struct UpperPanel: View {
                 Button(action: dismissAction.callAsFunction) {
                     Image(systemName: "chevron.backward")
                 }
-                .font(.title2)
-                .padding(.leading, 20)
+                .font(.title2).padding(.leading, 20)
                 Spacer()
-                Slider(value: .constant(0))
-                    .opacity(0)
+                Slider(value: .constant(0)).opacity(0)
                 Spacer()
                 HStack(spacing: 20) {
                     if DeviceUtil.isLandscape && setting.readingDirection != .vertical {
@@ -180,9 +164,7 @@ private struct UpperPanel: View {
                 }
                 .font(.title2)
             }
-            Text(title).bold()
-                .lineLimit(1)
-                .padding()
+            Text(title).bold().lineLimit(1).padding()
         }
         .background(.thinMaterial)
     }
@@ -199,10 +181,8 @@ private struct LowerPanel: View {
     private let sliderChangedAction: (Int) -> Void
 
     init(
-        sliderValue: Binding<Float>,
-        previews: [Int: String],
-        range: ClosedRange<Float>,
-        isReversed: Bool,
+        sliderValue: Binding<Float>, previews: [Int: String],
+        range: ClosedRange<Float>, isReversed: Bool,
         fetchAction: @escaping (Int) -> Void,
         sliderChangedAction: @escaping (Int) -> Void
     ) {
@@ -218,23 +198,16 @@ private struct LowerPanel: View {
         VStack(spacing: 0) {
             SliderPreivew(
                 isSliderDragging: $isSliderDragging,
-                sliderValue: $sliderValue,
-                previews: previews,
-                range: range,
-                isReversed: isReversed,
-                fetchAction: fetchAction
+                sliderValue: $sliderValue, previews: previews, range: range,
+                isReversed: isReversed, fetchAction: fetchAction
             )
             VStack {
                 HStack {
-                    Text(lowerBoundText)
-                        .boundTextModifier()
+                    Text(lowerBoundText).boundTextModifier()
                     Slider(
-                        value: $sliderValue,
-                        in: range, step: 1,
+                        value: $sliderValue, in: range, step: 1,
                         onEditingChanged: { isDragging in
-                            sliderChangedAction(
-                                Int(sliderValue)
-                            )
+                            sliderChangedAction(Int(sliderValue))
                             HapticUtil.generateFeedback(style: .soft)
                             withAnimation {
                                 isSliderDragging = isDragging
@@ -242,11 +215,9 @@ private struct LowerPanel: View {
                         }
                     )
                     .rotationEffect(sliderAngle)
-                    Text(upperBoundText)
-                        .boundTextModifier()
+                    Text(upperBoundText).boundTextModifier()
                 }
-                .padding(.horizontal)
-                .padding(.bottom)
+                .padding(.horizontal).padding(.bottom)
             }
         }
         .background(.thinMaterial)
@@ -255,14 +226,10 @@ private struct LowerPanel: View {
 
 private extension LowerPanel {
     var lowerBoundText: String {
-        isReversed
-        ? "\(Int(range.upperBound))"
-        : "\(Int(range.lowerBound))"
+        isReversed ? "\(Int(range.upperBound))" : "\(Int(range.lowerBound))"
     }
     var upperBoundText: String {
-        isReversed
-        ? "\(Int(range.lowerBound))"
-        : "\(Int(range.upperBound))"
+        isReversed ? "\(Int(range.lowerBound))" : "\(Int(range.upperBound))"
     }
     var sliderAngle: Angle {
         Angle(degrees: isReversed ? 180 : 0)
@@ -279,12 +246,9 @@ private struct SliderPreivew: View {
     private let fetchAction: (Int) -> Void
 
     init(
-        isSliderDragging: Binding<Bool>,
-        sliderValue: Binding<Float>,
-        previews: [Int: String],
-        range: ClosedRange<Float>,
-        isReversed: Bool,
-        fetchAction: @escaping (Int) -> Void
+        isSliderDragging: Binding<Bool>, sliderValue: Binding<Float>,
+        previews: [Int: String], range: ClosedRange<Float>,
+        isReversed: Bool, fetchAction: @escaping (Int) -> Void
     ) {
         _isSliderDragging = isSliderDragging
         _sliderValue = sliderValue
@@ -305,40 +269,24 @@ private struct SliderPreivew: View {
                     KFImage.url(URL(string: url), cacheKey: previews[index])
                         .placeholder {
                             Placeholder(style: .activity(
-                                ratio: Defaults.ImageSize
-                                    .previewScale
+                                ratio: Defaults.ImageSize.previewScale
                             ))
                         }
-                        .imageModifier(modifier)
 //                        .fade(duration: 0.25)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(
-                            width: previewWidth,
-                            height: isSliderDragging
-                                ? previewHeight : 0
-                        )
-                    Text("\(index)")
-                        .font(DeviceUtil.isPadWidth ? .callout : .caption)
-                        .foregroundColor(
-                            index == Int(sliderValue)
-                            ? .accentColor : .secondary
-                        )
+                        .imageModifier(modifier).resizable().scaledToFit()
+                        .frame(width: previewWidth, height: isSliderDragging ? previewHeight : 0)
+                    Text("\(index)").font(DeviceUtil.isPadWidth ? .callout : .caption)
+                        .foregroundColor(index == Int(sliderValue) ? .accentColor : .secondary)
                 }
                 .onAppear {
-                    onImageAppear(index: index)
+                    guard previews[index] == nil && checkIndex(index) else { return }
+                    fetchAction(index)
                 }
-                .opacity(
-                    opacity(index: index)
-                )
+                .opacity(checkIndex(index) ? 1 : 0)
             }
         }
-        .opacity(isSliderDragging ? 1 : 0)
-        .padding(.vertical, verticalPadding)
-        .frame(
-            height: isSliderDragging ? previewHeight
-                + verticalPadding * 2 : 0
-        )
+        .opacity(isSliderDragging ? 1 : 0).padding(.vertical, verticalPadding)
+        .frame(height: isSliderDragging ? previewHeight + verticalPadding * 2 : 0)
     }
 }
 
@@ -369,18 +317,8 @@ private extension SliderPreivew {
         let spacing = (count + 1) * previewSpacing
         return (DeviceUtil.windowW - spacing) / count
     }
-
-    func verify(index: Int) -> Bool {
-        index >= Int(range.lowerBound)
-            && index <= Int(range.upperBound)
-    }
-    func opacity(index: Int) -> CGFloat {
-        verify(index: index) ? 1 : 0
-    }
-    func onImageAppear(index: Int) {
-        if previews[index] == nil && verify(index: index) {
-            fetchAction(index)
-        }
+    func checkIndex(_ index: Int) -> Bool {
+        index >= Int(range.lowerBound) && index <= Int(range.upperBound)
     }
 }
 

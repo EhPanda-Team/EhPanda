@@ -45,45 +45,16 @@ struct ArchiveView: View, StoreAccessor, PersistenceAccessor {
                 if !hathArchives.isEmpty {
                     ZStack {
                         VStack {
-                            ScrollView(showsIndicators: false) {
-                                LazyVGrid(columns: gridItems, spacing: 10) {
-                                    ForEach(hathArchives) { hathArchive in
-                                        ArchiveGrid(
-                                            isSelected: selection
-                                                == hathArchive.resolution,
-                                            archive: hathArchive
-                                        )
-                                        .onTapGesture(perform: {
-                                            onArchiveGridTap(item: hathArchive)
-                                        })
-                                    }
-                                }
-                                .padding(.top, 40)
-                            }
-
+                            gridView
                             Spacer()
-
-                            if let galleryPoints = Int(currentGP ?? ""),
-                               let credits = Int(currentCredits ?? "")
-                            {
-                                HStack(spacing: 20) {
-                                    Label("\(galleryPoints)", systemImage: "g.circle.fill")
-                                    Label("\(credits)", systemImage: "c.circle.fill")
-                                }
-                                .font(.headline)
-                                .lineLimit(1)
-                                .padding()
-                            }
+                            balanceView
                             DownloadButton(
                                 isDisabled: selection == nil,
-                                action: onDownloadButtonTap
+                                action: sendDownloadCommand
                             )
                         }
                         .padding(.horizontal)
-                        TTProgressHUD(
-                            $sendingFlag,
-                            config: loadingHUDConfig
-                        )
+                        TTProgressHUD($sendingFlag, config: loadingHUDConfig)
                         TTProgressHUD($hudVisible, config: hudConfig)
                     }
                 } else if loadingFlag {
@@ -91,36 +62,57 @@ struct ArchiveView: View, StoreAccessor, PersistenceAccessor {
                 } else if let error = loadError {
                     ErrorView(error: error, retryAction: fetchGalleryArchive)
                 } else {
-                    Circle().frame(width: 1).opacity(0.1)
+                    Circle().foregroundColor(.blue).frame(width: 1).opacity(0.1)
                 }
             }
             .navigationBarTitle("Archive")
         }
         .onAppear(perform: fetchGalleryArchive)
     }
+
+    // MARK: GridView
+    private var gridView: some View {
+        ScrollView(showsIndicators: false) {
+            LazyVGrid(columns: gridItems, spacing: 10) {
+                ForEach(hathArchives) { hathArchive in
+                    ArchiveGrid(
+                        isSelected: selection
+                            == hathArchive.resolution,
+                        archive: hathArchive
+                    )
+                    .onTapGesture { trySelectArchive(item: hathArchive) }
+                }
+            }
+            .padding(.top, 40)
+        }
+    }
+    // MARK: BalanceView
+    @ViewBuilder private var balanceView: some View {
+        if let galleryPoints = Int(currentGP ?? ""), let credits = Int(currentCredits ?? "") {
+            HStack(spacing: 20) {
+                Label("\(galleryPoints)", systemImage: "g.circle.fill")
+                Label("\(credits)", systemImage: "c.circle.fill")
+            }
+            .font(.headline).lineLimit(1).padding()
+        }
+    }
 }
 
 // MARK: Private Extension
 private extension ArchiveView {
-    var detailInfoBinding: Binding<AppState.DetailInfo> {
-        $store.appState.detailInfo
-    }
     var hathArchives: [GalleryArchive.HathArchive] {
         archive?.hathArchives ?? []
     }
 
-    func onArchiveGridTap(item: GalleryArchive.HathArchive) {
-        if item.fileSize != "N/A"
-            && item.gpPrice != "N/A"
-        {
-            selection = item.resolution
-        }
+    func trySelectArchive(item: GalleryArchive.HathArchive) {
+        guard item.fileSize != "N/A", item.gpPrice != "N/A" else { return }
+        selection = item.resolution
     }
-    func onDownloadButtonTap() {
+    func sendDownloadCommand() {
         fetchDownloadResponse()
         HapticUtil.generateFeedback(style: .soft)
     }
-    func performHUD() {
+    func presentHUD() {
         let isSuccess = !sendFailedFlag
         let type: TTProgressHUDType = isSuccess ? .success : .error
         let title = (isSuccess ? "Success" : "Error").localized
@@ -136,11 +128,8 @@ private extension ArchiveView {
         }
 
         hudConfig = TTProgressHUDConfig(
-            type: type,
-            title: title,
-            caption: caption,
-            shouldAutoHide: true,
-            autoHideInterval: 1
+            type: type, title: title, caption: caption,
+            shouldAutoHide: true, autoHideInterval: 1
         )
         hudVisible = true
     }
@@ -148,8 +137,7 @@ private extension ArchiveView {
     // MARK: Networking
     func fetchGalleryArchive() {
         loadError = nil
-        guard let archiveURL = galleryDetail?.archiveURL, !loadingFlag
-        else { return }
+        guard let archiveURL = galleryDetail?.archiveURL, !loadingFlag else { return }
         loadingFlag = true
 
         let token = SubscriptionToken()
@@ -161,10 +149,7 @@ private extension ArchiveView {
 
                     SwiftyBeaver.error(
                         "GalleryArchiveRequest failed",
-                        context: [
-                            "ArchiveURL": archiveURL,
-                            "Error": error
-                        ]
+                        context: ["ArchiveURL": archiveURL, "Error": error]
                     )
                 }
                 loadingFlag = false
@@ -178,10 +163,8 @@ private extension ArchiveView {
                     SwiftyBeaver.info(
                         "GalleryArchiveRequest succeeded",
                         context: [
-                            "ArchiveURL": archiveURL,
-                            "Archive": archive as Any,
-                            "GalleryPoints": galleryPoints,
-                            "Credits": credits
+                            "ArchiveURL": archiveURL, "Archive": archive as Any,
+                            "GalleryPoints": galleryPoints, "Credits": credits
                         ]
                     )
                 } else if AuthorizationUtil.isSameAccount {
@@ -202,8 +185,7 @@ private extension ArchiveView {
             archiveURL: archiveURL,
             resolution: resolution.param
         )
-        .publisher
-        .receive(on: DispatchQueue.main)
+        .publisher.receive(on: DispatchQueue.main)
         .sink { completion in
             if case .failure(let error) = completion {
                 sendFailedFlag = true
@@ -218,7 +200,7 @@ private extension ArchiveView {
                 )
             }
             sendingFlag = false
-            performHUD()
+            presentHUD()
             token.unseal()
         } receiveValue: { resp in
             switch resp {
@@ -258,27 +240,16 @@ private struct ArchiveGrid: View {
     private let archive: GalleryArchive.HathArchive
 
     private var disabled: Bool {
-        archive.fileSize == "N/A"
-            || archive.gpPrice == "N/A"
+        archive.fileSize == "N/A" || archive.gpPrice == "N/A"
     }
     private var disabledColor: Color {
         .gray.opacity(0.5)
     }
     private var fileSizeColor: Color {
-        if disabled {
-            return disabledColor
-        } else {
-            return .gray
-        }
+        disabled ? disabledColor : .gray
     }
     private var borderColor: Color {
-        if disabled {
-            return disabledColor
-        } else {
-            return isSelected
-                ? .accentColor
-                : .gray
-        }
+        disabled ? disabledColor : isSelected ? .accentColor : .gray
     }
     private var environmentColor: Color? {
         disabled ? disabledColor : nil
@@ -290,33 +261,22 @@ private struct ArchiveGrid: View {
         width / 1.5
     }
 
-    init(
-        isSelected: Bool,
-        archive: GalleryArchive.HathArchive
-    ) {
+    init(isSelected: Bool, archive: GalleryArchive.HathArchive) {
         self.isSelected = isSelected
         self.archive = archive
     }
 
     var body: some View {
         VStack(spacing: 10) {
-            Text(archive.resolution.name.localized)
-                .fontWeight(.bold)
-                .font(.title3)
+            Text(archive.resolution.name.localized).fontWeight(.bold).font(.title3)
             VStack {
-                Text(archive.fileSize.localized)
-                    .fontWeight(.medium)
-                    .font(.caption)
-                Text(archive.gpPrice.localized)
-                    .foregroundColor(fileSizeColor)
-                    .font(.caption2)
+                Text(archive.fileSize.localized).fontWeight(.medium).font(.caption)
+                Text(archive.gpPrice.localized).foregroundColor(fileSizeColor).font(.caption2)
             }
             .lineLimit(1)
         }
-        .foregroundColor(environmentColor)
-        .frame(width: width, height: height)
-        .contentShape(Rectangle())
-        .overlay(
+        .foregroundColor(environmentColor).frame(width: width, height: height)
+        .contentShape(Rectangle()).overlay(
             RoundedRectangle(cornerRadius: 10)
                 .stroke(borderColor, lineWidth: 1)
         )
@@ -330,10 +290,7 @@ private struct DownloadButton: View {
     private var isDisabled: Bool
     private var action: () -> Void
 
-    init(
-        isDisabled: Bool,
-        action: @escaping () -> Void
-    ) {
+    init(isDisabled: Bool, action: @escaping () -> Void) {
         self.isDisabled = isDisabled
         self.action = action
     }
@@ -341,95 +298,43 @@ private struct DownloadButton: View {
     var body: some View {
         HStack {
             Spacer()
-            Text("Download To Hath Client")
-                .fontWeight(.bold)
-                .font(.headline)
-                .foregroundColor(textColor)
+            Text("Download To Hath Client").fontWeight(.bold)
+                .font(.headline).foregroundColor(textColor)
             Spacer()
         }
-        .frame(height: 50)
-        .background(backgroundColor)
-        .cornerRadius(30)
-        .padding(paddingInsets)
-        .onTapGesture(perform: onTap)
+        .frame(height: 50).background(backgroundColor)
+        .cornerRadius(30).padding(paddingInsets)
+        .onTapGesture { if !isDisabled { action() }}
         .onLongPressGesture(
-            minimumDuration: 0,
-            maximumDistance: 50,
-            pressing: onLongPressing,
-            perform: {}
+            minimumDuration: 0, maximumDistance: 50,
+            pressing: { isPressed = $0 }, perform: {}
         )
     }
 }
 
 private extension DownloadButton {
     var textColor: Color {
-        if isDisabled {
-            return .white.opacity(0.5)
-        } else {
-            return isPressed
-                ? .white.opacity(0.5)
-                : .white
-        }
+        isDisabled ? .white.opacity(0.5) : isPressed ? .white.opacity(0.5) : .white
     }
     var backgroundColor: Color {
-        if isDisabled {
-            return .accentColor.opacity(0.5)
-        } else {
-            return isPressed
-                ? .accentColor.opacity(0.5)
-                : .accentColor
-        }
+        isDisabled ? .accentColor.opacity(0.5) : isPressed ? .accentColor.opacity(0.5) : .accentColor
     }
     var paddingInsets: EdgeInsets {
         DeviceUtil.isPadWidth
-            ? .init(
-                top: 0,
-                leading: 0,
-                bottom: 30,
-                trailing: 0
-            )
-            : .init(
-                top: 0,
-                leading: 10,
-                bottom: 30,
-                trailing: 10
-            )
-    }
-
-    func onTap() {
-        if !isDisabled {
-            action()
-        }
-    }
-    func onLongPressing(isPressed: Bool) {
-        self.isPressed = isPressed
+            ? .init(top: 0, leading: 0, bottom: 30, trailing: 0)
+            : .init(top: 0, leading: 10, bottom: 30, trailing: 10)
     }
 }
 
 struct ArchiveView_Previews: PreviewProvider {
     static var previews: some View {
-        let store = Store()
+        let store = Store.preview
         var user = User.empty
-//        var gallery = Gallery.empty
-//        let hathArchives = ArchiveRes.allCases.map {
-//            GalleryArchive.HathArchive(
-//                resolution: $0,
-//                fileSize: "114 MB",
-//                gpPrice: "514 GP"
-//            )
-//        }
-//        let archive = GalleryArchive(
-//            hathArchives: hathArchives
-//        )
 
         user.currentGP = "114"
         user.currentCredits = "514"
         store.appState.settings.user = user
-        store.appState.environment.isPreview = true
 
-//        store.appState.cachedList.cache(galleries: [gallery])
-
-        return ArchiveView(gid: "")
-            .environmentObject(store)
+        return ArchiveView(gid: "").environmentObject(store)
     }
 }

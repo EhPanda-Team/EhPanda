@@ -17,29 +17,17 @@ struct SettingTextField: View {
     private let background: Color?
 
     private var color: Color {
-        if let background = background {
-            return background
-        }
-        if colorScheme == .light {
-            return Color(.systemGray6)
-        } else {
-            return Color(.systemGray3)
-        }
+        if let background = background { return background }
+        return colorScheme == .light ? Color(.systemGray6) : Color(.systemGray3)
     }
     private var prompt: Text? {
-        if let text = promptText {
-            return Text(text)
-        } else {
-            return nil
-        }
+        guard let text = promptText else { return nil }
+        return Text(text)
     }
 
     init(
-        text: Binding<String>,
-        promptText: String? = nil,
-        width: CGFloat? = 50,
-        alignment: TextAlignment = .center,
-        background: Color? = nil
+        text: Binding<String>, promptText: String? = nil, width: CGFloat? = 50,
+        alignment: TextAlignment = .center, background: Color? = nil
     ) {
         _text = text
         self.promptText = promptText
@@ -49,13 +37,8 @@ struct SettingTextField: View {
     }
 
     var body: some View {
-        TextField("", text: $text, prompt: prompt)
-            .keyboardType(.numbersAndPunctuation)
-            .textInputAutocapitalization(.none)
-            .multilineTextAlignment(alignment)
-            .disableAutocorrection(true)
-            .background(color)
-            .frame(width: width)
-            .cornerRadius(5)
+        TextField("", text: $text, prompt: prompt).keyboardType(.numbersAndPunctuation)
+            .textInputAutocapitalization(.none).multilineTextAlignment(alignment)
+            .disableAutocorrection(true).background(color).frame(width: width).cornerRadius(5)
     }
 }

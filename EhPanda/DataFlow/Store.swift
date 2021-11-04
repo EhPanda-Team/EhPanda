@@ -99,31 +99,31 @@ final class Store: ObservableObject {
             appState.settings.user = User()
         case .resetFilters:
             appState.settings.filter = Filter()
-        case .saveReadingProgress(let gid, let tag):
+        case .setReadingProgress(let gid, let tag):
             PersistenceController.update(gid: gid, readingProgress: tag)
-        case .updateDiskImageCacheSize(let size):
+        case .setDiskImageCacheSize(let size):
             appState.settings.setting.diskImageCacheSize = size
-        case .updateAppIconType(let iconType):
+        case .setAppIconType(let iconType):
             appState.settings.setting.appIconType = iconType
-        case .updateHistoryKeywords(let text):
+        case .appendHistoryKeywords(let text):
             appState.homeInfo.insertHistoryKeyword(text: text)
         case .clearHistoryKeywords:
             appState.homeInfo.historyKeywords = []
-        case .updateLastKeyword(let text):
+        case .setLastKeyword(let text):
             appState.homeInfo.lastKeyword = text
-        case .updateSetting(let setting):
+        case .setSetting(let setting):
             appState.settings.setting = setting
-        case .updateViewControllersCount:
+        case .setViewControllersCount:
             appState.environment.viewControllersCount = DeviceUtil.viewControllersCount
-        case .replaceGalleryCommentJumpID(let gid):
+        case .setGalleryCommentJumpID(let gid):
             appState.environment.galleryItemReverseID = gid
-        case .updateIsSlideMenuClosed(let isClosed):
-            appState.environment.isSlideMenuClosed = isClosed
+        case .setSlideMenuClosed(let closed):
+            appState.environment.slideMenuClosed = closed
         case .fulfillGalleryPreviews(let gid):
             appState.detailInfo.fulfillPreviews(gid: gid)
         case .fulfillGalleryContents(let gid):
             appState.contentInfo.fulfillContents(gid: gid)
-        case .updatePendingJumpInfos(let gid, let pageIndex, let commentID):
+        case .setPendingJumpInfos(let gid, let pageIndex, let commentID):
             appState.detailInfo.pendingJumpPageIndices[gid] = pageIndex
             appState.detailInfo.pendingJumpCommentIDs[gid] = commentID
         case .appendQuickSearchWord:
@@ -136,34 +136,34 @@ final class Store: ObservableObject {
             appState.homeInfo.moveQuickSearchWords(source: source, destination: destination)
 
         // MARK: App Env
-        case .toggleApp(let unlocked):
-            appState.environment.isAppUnlocked = unlocked
-        case .toggleBlur(let effectOn):
+        case .setAppLock(let activated):
+            appState.environment.isAppUnlocked = !activated
+        case .setBlurEffect(let activated):
             withAnimation(.linear(duration: 0.1)) {
-                appState.environment.blurRadius = effectOn ? 10 : 0
+                appState.environment.blurRadius = activated ? 10 : 0
             }
-        case .toggleHomeList(let type):
+        case .setHomeListType(let type):
             appState.environment.homeListType = type
-        case .toggleFavorites(let index):
+        case .setFavoritesIndex(let index):
             appState.environment.favoritesIndex = index
-        case .toggleToplists(let type):
+        case .setToplistsType(let type):
             appState.environment.toplistsType = type
-        case .toggleNavBar(let hidden):
-            appState.environment.navBarHidden = hidden
-        case .toggleHomeViewSheet(let state):
+        case .setNavigationBarHidden(let hidden):
+            appState.environment.navigationBarHidden = hidden
+        case .setHomeViewSheetState(let state):
             if state != nil { HapticUtil.generateFeedback(style: .light) }
             appState.environment.homeViewSheetState = state
-        case .toggleSettingViewSheet(let state):
+        case .setSettingViewSheetState(let state):
             if state != nil { HapticUtil.generateFeedback(style: .light) }
             appState.environment.settingViewSheetState = state
-        case .toggleSettingViewActionSheet(let state):
+        case .setSettingViewActionSheetState(let state):
             appState.environment.settingViewActionSheetState = state
-        case .toggleFilterViewActionSheet(let state):
+        case .setFilterViewActionSheetState(let state):
             appState.environment.filterViewActionSheetState = state
-        case .toggleDetailViewSheet(let state):
+        case .setDetailViewSheetState(let state):
             if state != nil { HapticUtil.generateFeedback(style: .light) }
             appState.environment.detailViewSheetState = state
-        case .toggleCommentViewSheet(let state):
+        case .setCommentViewSheetState(let state):
             if state != nil { HapticUtil.generateFeedback(style: .light) }
             appState.environment.commentViewSheetState = state
 
@@ -285,7 +285,7 @@ final class Store: ObservableObject {
                 appState.environment.galleryItemReverseID = gallery.gid
             case .failure:
                 appState.environment.galleryItemReverseLoadFailed = true
-                dispatch(.updatePendingJumpInfos(gid: carriedValue, pageIndex: nil, commentID: nil))
+                dispatch(.setPendingJumpInfos(gid: carriedValue, pageIndex: nil, commentID: nil))
             }
 
         case .fetchSearchItems(let keyword, let pageNum):
@@ -765,13 +765,13 @@ final class Store: ObservableObject {
                     SwiftyBeaver.error("Found profile but failed in parsing value.")
                 }
             }
-        case .addFavorite(let gid, let favIndex):
+        case .favorGallery(let gid, let favIndex):
             let token = PersistenceController.fetchGallery(gid: gid)?.token ?? ""
             appCommand = AddFavoriteCommand(gid: gid, token: token, favIndex: favIndex)
-        case .deleteFavorite(let gid):
+        case .unfavorGallery(let gid):
             appCommand = DeleteFavoriteCommand(gid: gid)
 
-        case .rate(let gid, let rating):
+        case .rateGallery(let gid, let rating):
             let apiuidString = appState.settings.user.apiuid
             guard !apiuidString.isEmpty,
                   let apikey = appState.settings.user.apikey,
@@ -788,10 +788,10 @@ final class Store: ObservableObject {
                 rating: rating
             )
 
-        case .comment(let gid, let content):
+        case .commentGallery(let gid, let content):
             let galleryURL = PersistenceController.fetchGallery(gid: gid)?.galleryURL ?? ""
             appCommand = CommentCommand(gid: gid, content: content, galleryURL: galleryURL)
-        case .editComment(let gid, let commentID, let content):
+        case .editGalleryComment(let gid, let commentID, let content):
             let galleryURL = PersistenceController.fetchGallery(gid: gid)?.galleryURL ?? ""
 
             appCommand = EditCommentCommand(
@@ -800,7 +800,7 @@ final class Store: ObservableObject {
                 content: content,
                 galleryURL: galleryURL
             )
-        case .voteComment(let gid, let commentID, let vote):
+        case .voteGalleryComment(let gid, let commentID, let vote):
             let apiuidString = appState.settings.user.apiuid
             guard !apiuidString.isEmpty,
                   let apikey = appState.settings.user.apikey,

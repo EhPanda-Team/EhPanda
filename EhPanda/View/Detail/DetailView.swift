@@ -35,36 +35,33 @@ struct DetailView: View, StoreAccessor, PersistenceAccessor {
                         HeaderView(
                             gallery: gallery, detail: detail,
                             favoriteNames: user.favoriteNames,
-                            addFavAction: addFavorite,
-                            deleteFavAction: deleteFavorite,
-                            onUploaderTapAction: onUploaderTap
+                            addFavAction: { store.dispatch(.favorGallery(gid: gid, favIndex: $0)) },
+                            deleteFavAction: { store.dispatch(.unfavorGallery(gid: gid)) },
+                            onUploaderTapAction: tryNavigateToUploader
                         )
                         .padding(.horizontal)
                         DescScrollView(gallery: gallery, detail: detail)
                         ActionRow(
                             detail: detail,
-                            ratingAction: onUserRatingChange,
-                            galleryAction: onSimilarGalleryTap
+                            ratingAction: rateGallery,
+                            galleryAction: tryNavigateToSimilarGallery
                         )
                         if !galleryState.tags.isEmpty {
                             TagsView(
                                 tags: galleryState.tags,
-                                onTapAction: onTagViewTap,
-                                translateAction: translateTag
+                                onTapAction: navigateToAssociatedView,
+                                translateAction: tryTranslateTag
                             )
                             .padding(.horizontal)
                         }
                         PreviewView(
-                            gid: gid,
-                            previews: detailInfo.previews[gid] ?? [:],
-                            pageCount: detail.pageCount,
-                            tapAction: onPreviewImageTap,
-                            fetchAction: fetchGalleryPreviews
+                            gid: gid, previews: detailInfo.previews[gid] ?? [:],
+                            pageCount: detail.pageCount, tapAction: navigateToReading,
+                            fetchAction: { store.dispatch(.fetchGalleryPreviews(gid: gid, index: $0)) }
                         )
                         CommentScrollView(
-                            gid: gid,
-                            comments: galleryState.comments,
-                            toggleCommentAction: onCommentButtonTap
+                            gid: gid, comments: galleryState.comments,
+                            toggleCommentAction: { presentSheet(state: .comment) }
                         )
                     }
                     .padding(.bottom, 20)
@@ -82,163 +79,128 @@ struct DetailView: View, StoreAccessor, PersistenceAccessor {
                 }
             }
         }
-        .background {
-            NavigationLink(
-                "",
-                destination: ReadingView(gid: gid),
-                isActive: $isReadingLinkActive
-            )
-            NavigationLink(
-                "",
-                destination: CommentView(
-                    gid: gid, comments: galleryState.comments,
-                    scrollID: commentViewScrollID
-                ),
-                isActive: $isCommentsLinkActive
-            )
-            NavigationLink(
-                "",
-                destination: TorrentsView(
-                    gid: gid, token: gallery.token
-                ),
-                isActive: $isTorrentsLinkActive
-            )
-            NavigationLink(
-                "",
-                destination: AssociatedView(
-                    keyword: keyword
-                ),
-                isActive: $isAssociatedLinkActive
-            )
-        }
-        .onAppear(perform: onAppear)
-        .onDisappear(perform: onDisappear)
-        .navigationBarHidden(environment.navBarHidden)
-        .sheet(item: environmentBinding.detailViewSheetState) { item in
-            Group {
-                switch item {
-                case .archive:
-                    ArchiveView(gid: gid)
-                case .comment:
-                    DraftCommentView(
-                        content: $commentContent,
-                        title: "Post Comment",
-                        postAction: onCommentPost,
-                        cancelAction: toggleSheetStateNil
-                    )
-                }
-            }
-            .accentColor(accentColor)
-            .blur(radius: environment.blurRadius)
-            .allowsHitTesting(environment.isAppUnlocked)
-        }
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Menu {
-                    Button(action: onArchiveButtonTap) {
-                        Label("Archive", systemImage: "doc.zipper")
-                    }
-                    .disabled(galleryDetail?.archiveURL == nil || !AuthorizationUtil.didLogin)
-                    Button(action: navigateToTorrentsView) {
-                        Label(
-                            "Torrents".localized + (
-                                galleryDetail?.torrentCount ?? 0 > 0
-                                ? " (\(galleryDetail?.torrentCount ?? 0))" : ""
-                            ),
-                            systemImage: "leaf"
-                        )
-                    }
-                    .disabled((galleryDetail?.torrentCount ?? 0 > 0) != true)
-                    Button(action: onShareButtonTap) {
-                        Label("Share", systemImage: "square.and.arrow.up")
-                    }
-                } label: {
-                    Image(systemName: "ellipsis.circle")
-                }
-                .disabled(
-                    galleryDetail == nil
-                        || detailInfo.detailLoading[gid] == true
-                )
-            }
-        }
+        .onAppear(perform: onStartTasks).onDisappear(perform: onEndTasks)
+        .navigationBarHidden(environment.navigationBarHidden)
+        .sheet(item: $store.appState.environment.detailViewSheetState, content: sheet)
+        .background(content: navigationLinks).toolbar(content: toolbar)
     }
 }
 
-// MARK: Private Properties
 private extension DetailView {
-    var environmentBinding: Binding<AppState.Environment> {
-        $store.appState.environment
+    // MARK: NavigationLinks
+    @ViewBuilder func navigationLinks() -> some View {
+        NavigationLink("", destination: ReadingView(gid: gid), isActive: $isReadingLinkActive)
+        NavigationLink(
+            "", destination: CommentView(gid: gid, comments: galleryState.comments, scrollID: commentViewScrollID),
+            isActive: $isCommentsLinkActive
+        )
+        NavigationLink("", destination: TorrentsView(gid: gid, token: gallery.token), isActive: $isTorrentsLinkActive)
+        NavigationLink("", destination: AssociatedView(keyword: keyword), isActive: $isAssociatedLinkActive)
     }
-    var detailInfoBinding: Binding<AppState.DetailInfo> {
-        $store.appState.detailInfo
+    // MARK: Sheet
+    func sheet(item: DetailViewSheetState) -> some View {
+        Group {
+            switch item {
+            case .archive:
+                ArchiveView(gid: gid)
+            case .comment:
+                DraftCommentView(
+                    content: $commentContent,
+                    title: "Post Comment",
+                    postAction: postComment,
+                    cancelAction: { presentSheet(state: nil) }
+                )
+            }
+        }
+        .accentColor(accentColor)
+        .blur(radius: environment.blurRadius)
+        .allowsHitTesting(environment.isAppUnlocked)
+    }
+    // MARK: Toolbar
+    func toolbar() -> some ToolbarContent {
+        ToolbarItem(placement: .navigationBarTrailing) {
+            Menu {
+                Button {
+                    presentSheet(state: .archive)
+                } label: {
+                    Label("Archive", systemImage: "doc.zipper")
+                }
+                .disabled(galleryDetail?.archiveURL == nil || !AuthorizationUtil.didLogin)
+                Button {
+                    isTorrentsLinkActive.toggle()
+                } label: {
+                    Label(
+                        "Torrents".localized + (
+                            galleryDetail?.torrentCount ?? 0 > 0
+                            ? " (\(galleryDetail?.torrentCount ?? 0))" : ""
+                        ),
+                        systemImage: "leaf"
+                    )
+                }
+                .disabled((galleryDetail?.torrentCount ?? 0 > 0) != true)
+                Button {
+                    guard let data = URL(string: gallery.galleryURL) else { return }
+                    AppUtil.presentActivity(items: [data])
+                } label: {
+                    Label("Share", systemImage: "square.and.arrow.up")
+                }
+            } label: {
+                Image(systemName: "ellipsis.circle")
+            }
+            .disabled(galleryDetail == nil || detailInfo.detailLoading[gid] == true)
+        }
     }
 }
 
 // MARK: Private Methods
 private extension DetailView {
+    // MARK: Life Cycle
     func onStartTasks() {
-        updateHistoryItems()
+        if environment.navigationBarHidden {
+            store.dispatch(.setNavigationBarHidden(false))
+        }
+        if environment.homeListType != .history {
+            PersistenceController.updateLastOpenDate(gid: gid)
+        }
+
         store.dispatch(.fulfillGalleryPreviews(gid: gid))
         store.dispatch(.fulfillGalleryContents(gid: gid))
-    }
-    func onAppear() {
-        if environment.navBarHidden {
-            store.dispatch(.toggleNavBar(hidden: false))
-        }
-        onStartTasks()
+
         fetchGalleryDetail()
         updateViewControllersCount()
-        detectAvailableNavigations()
+        detectNavigations()
     }
-    func onDisappear() {
+    func onEndTasks() {
         updateViewControllersCount()
         NotificationUtil.post(.readingViewShouldHideStatusBar)
     }
-    func onArchiveButtonTap() {
-        toggleSheet(state: .archive)
-    }
-    func onCommentButtonTap() {
-        toggleSheet(state: .comment)
-    }
-    func onShareButtonTap() {
-        guard let data = URL(string: gallery.galleryURL) else { return }
-        AppUtil.presentActivity(items: [data])
-    }
-    func onUserRatingChange(value: Int) {
-        store.dispatch(.rate(gid: gid, rating: value))
-    }
-    func detectAvailableNavigations() {
+
+    // MARK: Navigation
+    func detectNavigations() {
         if let pageIndex = detailInfo.pendingJumpPageIndices[gid] {
-            store.dispatch(.updatePendingJumpInfos(gid: gid, pageIndex: nil, commentID: nil))
-            store.dispatch(.saveReadingProgress(gid: gid, tag: pageIndex))
+            store.dispatch(.setPendingJumpInfos(gid: gid, pageIndex: nil, commentID: nil))
+            store.dispatch(.setReadingProgress(gid: gid, tag: pageIndex))
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
                 isReadingLinkActive.toggle()
             }
         }
         if let commentID = detailInfo.pendingJumpCommentIDs[gid] {
-            store.dispatch(.updatePendingJumpInfos(gid: gid, pageIndex: nil, commentID: nil))
+            store.dispatch(.setPendingJumpInfos(gid: gid, pageIndex: nil, commentID: nil))
             commentViewScrollID = commentID
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
                 isCommentsLinkActive.toggle()
             }
         }
     }
-    func navigateToTorrentsView() {
-        isTorrentsLinkActive.toggle()
-    }
     func navigateToAssociatedView(_ keyword: String) {
         self.keyword = keyword
         isAssociatedLinkActive.toggle()
     }
-    func translateTag(text: String) -> String {
-        guard setting.translatesTags else { return text }
-        return settings.tagTranslator.translate(text: text)
-    }
-    func onUploaderTap() {
+    func tryNavigateToUploader() {
         guard let uploader = galleryDetail?.uploader else { return }
         navigateToAssociatedView("uploader:" + "\"\(uploader)\"")
     }
-    func onSimilarGalleryTap() {
+    func tryNavigateToSimilarGallery() {
         guard var title = galleryDetail?.title else { return }
 
         if let range = title.range(of: "|") {
@@ -252,49 +214,40 @@ private extension DetailView {
             .replacingOccurrences(from: "【", to: "】", with: "")
             .replacingOccurrences(from: "「", to: "」", with: "")
             .trimmingCharacters(in: .whitespacesAndNewlines)
+
         navigateToAssociatedView(title)
     }
-    func onTagViewTap(keyword: String) {
-        navigateToAssociatedView(keyword)
-    }
-    func onPreviewImageTap(index: Int, triggersLink: Bool) {
-        store.dispatch(.saveReadingProgress(gid: gid, tag: index))
+    func navigateToReading(index: Int, triggersLink: Bool) {
+        store.dispatch(.setReadingProgress(gid: gid, tag: index))
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
             NotificationUtil.post(.readingViewShouldHideStatusBar)
         }
-        if triggersLink { isReadingLinkActive.toggle() }
-    }
-    func onCommentPost() {
-        store.dispatch(.comment(gid: gid, content: commentContent))
-        toggleSheetStateNil()
-        commentContent = ""
-    }
-    func toggleSheet(state: DetailViewSheetState?) {
-        store.dispatch(.toggleDetailViewSheet(state: state))
-    }
-    func toggleSheetStateNil() {
-        toggleSheet(state: nil)
+
+        guard triggersLink else { return }
+        isReadingLinkActive.toggle()
     }
 
-    func addFavorite(index: Int) {
-        store.dispatch(.addFavorite(gid: gallery.gid, favIndex: index))
+    // MARK: Tools
+    func rateGallery(value: Int) {
+        store.dispatch(.rateGallery(gid: gid, rating: value))
     }
-    func deleteFavorite() {
-        store.dispatch(.deleteFavorite(gid: gallery.gid))
+    func tryTranslateTag(text: String) -> String {
+        guard setting.translatesTags else { return text }
+        return settings.tagTranslator.translate(text: text)
+    }
+    func postComment() {
+        store.dispatch(.commentGallery(gid: gid, content: commentContent))
+        presentSheet(state: nil)
+        commentContent = ""
+    }
+    func presentSheet(state: DetailViewSheetState?) {
+        store.dispatch(.setDetailViewSheetState(state))
     }
     func updateViewControllersCount() {
-        store.dispatch(.updateViewControllersCount)
+        store.dispatch(.setViewControllersCount)
     }
     func fetchGalleryDetail() {
         store.dispatch(.fetchGalleryDetail(gid: gid))
-    }
-    func fetchGalleryPreviews(index: Int) {
-        store.dispatch(.fetchGalleryPreviews(gid: gid, index: index))
-    }
-    func updateHistoryItems() {
-        if environment.homeListType != .history {
-            PersistenceController.updateLastOpenDate(gid: gid)
-        }
     }
 }
 
@@ -326,79 +279,46 @@ private struct HeaderView: View {
     var body: some View {
         HStack {
             KFImage(URL(string: gallery.coverURL))
-                .placeholder {
-                    Placeholder(style: .activity(
-                        ratio: Defaults.ImageSize
-                            .headerScale
-                    ))
-                }
-                .defaultModifier()
-                .scaledToFit()
-                .frame(width: width, height: height)
+                .placeholder { Placeholder(style: .activity(ratio: Defaults.ImageSize.headerScale)) }
+                .defaultModifier().scaledToFit().frame(width: width, height: height)
             VStack(alignment: .leading) {
-                Text(title)
-                    .fontWeight(.bold)
-                    .lineLimit(3)
-                    .font(.title3)
-                Button(
-                    gallery.uploader ?? "",
-                    action: onUploaderTapAction
-                )
-                .lineLimit(1)
-                .font(.callout)
-                .foregroundStyle(.secondary)
+                Text(title).fontWeight(.bold).lineLimit(3).font(.title3)
+                Button(gallery.uploader ?? "", action: onUploaderTapAction)
+                    .lineLimit(1).font(.callout).foregroundStyle(.secondary)
                 Spacer()
                 HStack {
                     CategoryLabel(
-                        text: category,
-                        color: gallery.color,
-                        font: .headline,
-                        insets: .init(
-                            top: 2, leading: 4,
-                            bottom: 2, trailing: 4
-                        ),
+                        text: gallery.category.rawValue.localized, color: gallery.color,
+                        font: .headline, insets: .init(top: 2, leading: 4, bottom: 2, trailing: 4),
                         cornerRadius: 3
                     )
                     Spacer()
                     ZStack {
                         Button(action: deleteFavAction) {
-                            Image(systemName: "heart.fill")
-                                .foregroundStyle(.tint)
-                                .imageScale(.large)
+                            Image(systemName: "heart.fill").foregroundStyle(.tint).imageScale(.large)
                         }
                         .opacity(detail.isFavored ? 1 : 0)
                         Menu {
                             ForEach(0..<10) { index in
-                                Button(
-                                    User.getFavNameFrom(
-                                        index: index,
-                                        names: favoriteNames
-                                    )
-                                ) {
+                                Button(User.getFavNameFrom(index: index, names: favoriteNames)) {
                                     addFavAction(index)
                                 }
                             }
                         } label: {
-                            Image(systemName: "heart")
-                                .imageScale(.large)
-                                .foregroundStyle(.tint)
+                            Image(systemName: "heart").imageScale(.large).foregroundStyle(.tint)
                         }
                         .opacity(detail.isFavored ? 0 : 1)
                     }
                     .disabled(!AuthorizationUtil.didLogin)
                     Button(action: {}, label: {
-                        NavigationLink(
-                            destination: { ReadingView(gid: gallery.gid) },
-                            label: {
-                                Text("Read".localized).bold().textCase(.uppercase)
-                                    .font(.headline).foregroundColor(.white)
-                                    .padding(.vertical, -2)
-                                    .padding(.horizontal, 2)
-                                    .lineLimit(1)
+                        NavigationLink(destination: { ReadingView(gid: gallery.gid) }, label: {
+                            Text("Read".localized).bold().textCase(.uppercase)
+                                .font(.headline).foregroundColor(.white)
+                                .padding(.vertical, -2).padding(.horizontal, 2)
+                                .lineLimit(1)
                         })
                     })
-                    .buttonStyle(.borderedProminent)
-                    .buttonBorderShape(.capsule)
+                    .buttonStyle(.borderedProminent).buttonBorderShape(.capsule)
                 }
                 .minimumScaleFactor(0.5)
             }
@@ -421,9 +341,6 @@ private extension HeaderView {
         } else {
             return detail.title
         }
-    }
-    var category: String {
-        gallery.category.rawValue.localized
     }
 }
 
@@ -497,16 +414,16 @@ private struct DescScrollView: View {
                             )
                         }
                     }
-                    .frame(width: itemWidth)
-                    .drawingGroup()
+                    .frame(width: itemWidth).drawingGroup()
                     Divider()
                     if info == infos.last {
                         NavigationLink(
                             destination: GalleryInfosView(
                                 gallery: gallery, detail: detail
-                            )) {
-                                Image(systemName: "ellipsis")
-                                    .font(.system(size: 20, weight: .bold))
+                            )
+                        ) {
+                            Image(systemName: "ellipsis")
+                                .font(.system(size: 20, weight: .bold))
                         }
                         .frame(width: itemWidth)
                     }
@@ -515,16 +432,13 @@ private struct DescScrollView: View {
             }
         }
         .swipeBackable().frame(height: 60)
-        .onReceive(AppNotification.appWidthDidChange.publisher, perform: onWidthChange)
+        .onReceive(AppNotification.appWidthDidChange.publisher, perform: tryResetItemWidth)
     }
 
-    private func onWidthChange(_: Any? = nil) {
+    private func tryResetItemWidth(_: Any? = nil) {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-            if itemWidth != max(DeviceUtil.absWindowW / 5, 80) {
-                withAnimation {
-                    itemWidth = max(DeviceUtil.absWindowW / 5, 80)
-                }
-            }
+            guard itemWidth != max(DeviceUtil.absWindowW / 5, 80) else { return }
+            withAnimation { itemWidth = max(DeviceUtil.absWindowW / 5, 80) }
         }
     }
 }
@@ -542,15 +456,9 @@ private struct DescScrollItem: View {
 
     var body: some View {
         VStack(spacing: 3) {
-            Text(title.localized)
-                .textCase(.uppercase)
-                .font(.caption)
-            Text(value)
-                .fontWeight(.medium)
-                .font(.title3)
-                .lineLimit(1)
-            Text(numeral.localized)
-                .font(.caption)
+            Text(title.localized).textCase(.uppercase).font(.caption)
+            Text(value).fontWeight(.medium).font(.title3).lineLimit(1)
+            Text(numeral.localized).font(.caption)
         }
     }
 }
@@ -566,16 +474,9 @@ private struct DescScrollRatingItem: View {
 
     var body: some View {
         VStack(spacing: 3) {
-            Text(titleKey)
-                .textCase(.uppercase)
-                .font(.caption)
-                .lineLimit(1)
-            Text(String(format: "%.2f", rating))
-                .fontWeight(.medium)
-                .font(.title3)
-            RatingView(rating: rating)
-                .font(.system(size: 12))
-                .foregroundStyle(.primary)
+            Text(titleKey).textCase(.uppercase).font(.caption).lineLimit(1)
+            Text(String(format: "%.2f", rating)).fontWeight(.medium).font(.title3)
+            RatingView(rating: rating).font(.system(size: 12)).foregroundStyle(.primary)
         }
     }
 }
@@ -583,7 +484,7 @@ private struct DescScrollRatingItem: View {
 // MARK: ActionRow
 private struct ActionRow: View {
     @State private var showUserRating = false
-    @State private var userRating: Int = 0
+    @State private var userRating: Int
 
     private let detail: GalleryDetail
     private let ratingAction: (Int) -> Void
@@ -597,73 +498,64 @@ private struct ActionRow: View {
         self.detail = detail
         self.ratingAction = ratingAction
         self.galleryAction = galleryAction
+        let userRating = Int(detail.userRating.halfRounded * 2)
+        _userRating = State(initialValue: userRating)
+    }
+
+    private var dragGesture: some Gesture {
+        DragGesture(minimumDistance: 0)
+            .onChanged(updateRating)
+            .onEnded(confirmRating)
     }
 
     var body: some View {
         VStack {
             HStack {
                 Group {
-                    Button(action: onRateButtonTap) {
+                    Button {
+                        withAnimation { showUserRating.toggle() }
+                    } label: {
                         Spacer()
                         Image(systemName: "square.and.pencil")
-                        Text("Give a Rating")
-                            .fontWeight(.bold)
+                        Text("Give a Rating").bold()
                         Spacer()
                     }
                     .disabled(!AuthorizationUtil.didLogin)
                     Button(action: galleryAction) {
                         Spacer()
                         Image(systemName: "photo.on.rectangle.angled")
-                        Text("Similar Gallery")
-                            .fontWeight(.bold)
+                        Text("Similar Gallery").bold()
                         Spacer()
                     }
                 }
-                .font(.callout)
-                .foregroundStyle(.primary)
+                .font(.callout).foregroundStyle(.primary)
             }
             if showUserRating {
                 HStack {
                     RatingView(rating: Float(userRating) / 2)
                         .font(.system(size: 24))
                         .foregroundStyle(.yellow)
-                        .gesture(
-                            DragGesture(minimumDistance: 0)
-                                .onChanged(onRatingChanged)
-                                .onEnded(onRatingEnded)
-                        )
+                        .gesture(dragGesture)
                 }
                 .padding(.top, 10)
             }
         }
         .padding(.horizontal)
-        .onAppear(perform: onStartTasks)
     }
 }
 
 private extension ActionRow {
-    func onStartTasks() {
-        userRating = Int(detail.userRating.halfRounded * 2)
+    func updateRating(value: DragGesture.Value) {
+        let rating = Int(value.location.x / 31 * 2) + 1
+        userRating = min(max(rating, 1), 10)
     }
-    func onRateButtonTap() {
-        withAnimation {
-            showUserRating.toggle()
-        }
-    }
-    func onRatingChanged(value: DragGesture.Value) {
-        updateRating(value: value)
-    }
-    func onRatingEnded(value: DragGesture.Value) {
+    func confirmRating(value: DragGesture.Value) {
         updateRating(value: value)
         ratingAction(userRating)
         HapticUtil.generateFeedback(style: .soft)
         withAnimation(Animation.default.delay(1)) {
             showUserRating.toggle()
         }
-    }
-    func updateRating(value: DragGesture.Value) {
-        let rating = Int(value.location.x / 31 * 2) + 1
-        userRating = min(max(rating, 1), 10)
     }
 }
 
@@ -718,25 +610,12 @@ private struct TagRow: View {
 
     var body: some View {
         HStack(alignment: .top) {
-            Text(tag.category.rawValue.localized)
-                .fontWeight(.bold)
-                .font(.subheadline)
-                .foregroundColor(reversePrimary)
-                .padding(.vertical, 5)
-                .padding(.horizontal, 14)
-                .background(
-                    Rectangle()
-                        .foregroundColor(Color(.systemGray))
-                )
-                .cornerRadius(5)
+            Text(tag.category.rawValue.localized).fontWeight(.bold).font(.subheadline)
+                .foregroundColor(reversePrimary).padding(.vertical, 5).padding(.horizontal, 14)
+                .background(Rectangle().foregroundColor(Color(.systemGray))).cornerRadius(5)
             TagCloudView(
-                tag: tag,
-                font: .subheadline,
-                textColor: .primary,
-                backgroundColor: Color(.systemGray5),
-                paddingV: 5, paddingH: 14,
-                onTapAction: onTapAction,
-                translateAction: translateAction
+                tag: tag, font: .subheadline, textColor: .primary, backgroundColor: Color(.systemGray5),
+                paddingV: 5, paddingH: 14, onTapAction: onTapAction, translateAction: translateAction
             )
         }
     }
@@ -780,15 +659,11 @@ private struct PreviewView: View {
                 Spacer()
                 NavigationLink(
                     destination: MorePreviewView(
-                        gid: gid,
-                        previews: previews,
-                        pageCount: pageCount,
-                        tapAction: tapAction,
-                        fetchAction: fetchAction
+                        gid: gid, previews: previews, pageCount: pageCount,
+                        tapAction: tapAction, fetchAction: fetchAction
                     )
                 ) {
-                    Text("Show All")
-                        .font(.subheadline)
+                    Text("Show All").font(.subheadline)
                 }
                 .opacity(pageCount > 20 ? 1 : 0)
             }
@@ -809,15 +684,9 @@ private struct PreviewView: View {
                             }
                             .imageModifier(modifier)
 //                            .fade(duration: 0.25)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(
-                                width: width,
-                                height: height
-                            )
-                            .onTapGesture {
-                                tapAction(index, true)
-                            }
+                            .resizable().scaledToFit()
+                            .frame(width: width, height: height)
+                            .onTapGesture { tapAction(index, true) }
                     }
                     .withHorizontalSpacing(height: height)
                 }
@@ -881,17 +750,18 @@ private struct MorePreviewView: View {
                             }
                             .imageModifier(modifier)
 //                            .fade(duration: 0.25)
-                            .resizable()
-                            .scaledToFit()
+                            .resizable().scaledToFit()
                             .onTapGesture {
-                                onImageTap(index: index)
+                                tapAction(index, false)
+                                isActive = true
                             }
                         Text("\(index)")
                             .font(DeviceUtil.isPadWidth ? .callout : .caption)
                             .foregroundColor(.secondary)
                     }
                     .onAppear {
-                        onImageAppear(index: index)
+                        guard previews[index] == nil && (index - 1) % 20 == 0 else { return }
+                        fetchAction(index)
                     }
                 }
             }
@@ -905,16 +775,6 @@ private struct MorePreviewView: View {
                 isActive: $isActive
             )
         }
-    }
-
-    private func onImageAppear(index: Int) {
-        if previews[index] == nil && (index - 1) % 20 == 0 {
-            fetchAction(index)
-        }
-    }
-    private func onImageTap(index: Int) {
-        tapAction(index, false)
-        isActive = true
     }
 }
 
@@ -937,17 +797,10 @@ private struct CommentScrollView: View {
     var body: some View {
         VStack {
             HStack {
-                Text("Comment")
-                    .fontWeight(.bold)
-                    .font(.title3)
+                Text("Comment").fontWeight(.bold).font(.title3)
                 Spacer()
-                NavigationLink(
-                    destination: CommentView(
-                        gid: gid, comments: comments
-                    )
-                ) {
-                    Text("Show All")
-                        .font(.subheadline)
+                NavigationLink(destination: CommentView(gid: gid, comments: comments)) {
+                    Text("Show All").font(.subheadline)
                 }
                 .opacity(comments.isEmpty ? 0 : 1)
             }
@@ -962,8 +815,8 @@ private struct CommentScrollView: View {
                 .drawingGroup()
             }
             .swipeBackable()
-            CommentButton(action: toggleCommentAction)
-                .padding(.horizontal).disabled(!AuthorizationUtil.didLogin)
+            CommentButton(action: toggleCommentAction).padding(.horizontal)
+                .disabled(!AuthorizationUtil.didLogin)
         }
     }
 }
@@ -972,14 +825,8 @@ private struct CommentScrollCell: View {
     private let comment: GalleryComment
     private var content: String {
         comment.contents
-            .filter {
-                [.plainText, .linkedText]
-                    .contains($0.type)
-            }
-            .compactMap {
-                $0.text
-            }
-            .joined()
+            .filter { [.plainText, .linkedText].contains($0.type) }
+            .compactMap { $0.text }.joined()
     }
 
     init(comment: GalleryComment) {
@@ -989,9 +836,7 @@ private struct CommentScrollCell: View {
     var body: some View {
         VStack(alignment: .leading) {
             HStack {
-                Text(comment.author)
-                    .fontWeight(.bold)
-                    .font(.subheadline)
+                Text(comment.author).fontWeight(.bold).font(.subheadline)
                 Spacer()
                 Group {
                     ZStack {
@@ -1001,20 +846,15 @@ private struct CommentScrollCell: View {
                             .opacity(comment.votedDown ? 1 : 0)
                     }
                     Text(comment.score ?? "")
-                    Text(comment.formattedDateString)
-                        .lineLimit(1)
+                    Text(comment.formattedDateString).lineLimit(1)
                 }
-                .font(.footnote)
-                .foregroundStyle(.secondary)
+                .font(.footnote).foregroundStyle(.secondary)
             }
-            .minimumScaleFactor(0.75)
-            .lineLimit(1)
-            Text(content)
-                .padding(.top, 1)
+            .minimumScaleFactor(0.75).lineLimit(1)
+            Text(content).padding(.top, 1)
             Spacer()
         }
-        .padding()
-        .background(Color(.systemGray6))
+        .padding().background(Color(.systemGray6))
         .frame(width: 300, height: 120)
         .cornerRadius(15)
     }

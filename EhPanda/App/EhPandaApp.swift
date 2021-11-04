@@ -105,12 +105,10 @@ private extension EhPandaApp {
         #endif
     }
     func configure(file: inout FileDestination) {
-        file.calendar = Calendar(identifier: .gregorian)
         file.logFileAmount = 10
+        file.calendar = Calendar(identifier: .gregorian)
         file.logFileURL = FileUtil.logsDirectoryURL?
-            .appendingPathComponent(
-                Defaults.FilePath.ehpandaLog
-            )
+            .appendingPathComponent(Defaults.FilePath.ehpandaLog)
     }
     func configure(console: inout ConsoleDestination) {
         console.calendar = Calendar(identifier: .gregorian)
@@ -118,10 +116,10 @@ private extension EhPandaApp {
         console.asynchronously = false
         #endif
         console.levelColor.verbose = "😪"
-        console.levelColor.debug = "🐛"
-        console.levelColor.info = "📖"
         console.levelColor.warning = "⚠️"
         console.levelColor.error = "‼️"
+        console.levelColor.debug = "🐛"
+        console.levelColor.info = "📖"
     }
 
     func configureWebImage() {

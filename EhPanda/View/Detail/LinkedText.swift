@@ -28,10 +28,7 @@ private struct LinkColoredText: View {
         for result in links {
             if result.range.location > index {
                 let trimmedText = nsText.substring(
-                    with: NSRange(
-                        location: index,
-                        length: result.range.location - index
-                    )
+                    with: NSRange(location: index, length: result.range.location - index)
                 )
                 components.append(.text(trimmedText))
             }
@@ -52,8 +49,7 @@ private struct LinkColoredText: View {
             case .text(let text):
                 return Text(verbatim: text)
             case .link(let text, _):
-                return Text(verbatim: text)
-                    .foregroundColor(.accentColor)
+                return Text(verbatim: text).foregroundColor(.accentColor)
             }
         }.reduce(Text(""), +)
     }
@@ -86,11 +82,7 @@ private struct LinkTapOverlay: UIViewRepresentable {
     private let action: (URL) -> Void
     private let links: [NSTextCheckingResult]
 
-    init(
-        text: String,
-        action: @escaping (URL) -> Void,
-        links: [NSTextCheckingResult]
-    ) {
+    init(text: String, action: @escaping (URL) -> Void, links: [NSTextCheckingResult]) {
         self.text = text
         self.action = action
         self.links = links

@@ -12,17 +12,15 @@ struct FilterView: View, StoreAccessor {
 
     private var categoryBindings: [Binding<Bool>] {
         [
-            filterBinding.doujinshi,
-            filterBinding.manga,
-            filterBinding.artistCG,
-            filterBinding.gameCG,
-            filterBinding.western,
-            filterBinding.nonH,
-            filterBinding.imageSet,
-            filterBinding.cosplay,
-            filterBinding.asianPorn,
-            filterBinding.misc
+            filterBinding.doujinshi, filterBinding.manga,
+            filterBinding.artistCG, filterBinding.gameCG,
+            filterBinding.western, filterBinding.nonH,
+            filterBinding.imageSet, filterBinding.cosplay,
+            filterBinding.asianPorn, filterBinding.misc
         ]
+    }
+    private var filterBinding: Binding<Filter> {
+        $store.appState.settings.filter
     }
 
     // MARK: FilterView
@@ -31,14 +29,15 @@ struct FilterView: View, StoreAccessor {
             Form {
                 Section {
                     CategoryView(bindings: categoryBindings)
-                    Button(action: onResetButtonTap) {
-                        Text("Reset filters")
-                            .foregroundStyle(.red)
+                    Button {
+                        store.dispatch(.setFilterViewActionSheetState(.resetFilters))
+                    } label: {
+                        Text("Reset filters").foregroundStyle(.red)
                     }
                     Toggle("Advanced settings", isOn: filterBinding.advanced)
                 }
                 Group {
-                    Section(header: Text("Advanced")) {
+                    Section("Advanced".localized) {
                         Toggle("Search gallery name", isOn: filterBinding.galleryName)
                         Toggle("Search gallery tags", isOn: filterBinding.galleryTags)
                         Toggle("Search gallery description", isOn: filterBinding.galleryDesc)
@@ -59,7 +58,7 @@ struct FilterView: View, StoreAccessor {
                         )
                         .disabled(!filter.pageRangeActivated)
                     }
-                    Section(header: Text("Default Filter")) {
+                    Section("Default Filter".localized) {
                         Toggle("Disable language filter", isOn: filterBinding.disableLanguage)
                         Toggle("Disable uploader filter", isOn: filterBinding.disableUploader)
                         Toggle("Disable tags filter", isOn: filterBinding.disableTags)
@@ -67,36 +66,25 @@ struct FilterView: View, StoreAccessor {
                 }
                 .disabled(!filter.advanced)
             }
-            .actionSheet(item: environmentBinding.filterViewActionSheetState) { item in
-                switch item {
-                case .resetFilters:
-                    return ActionSheet(title: Text("Are you sure to reset?"), buttons: [
-                        .destructive(Text("Reset"), action: resetFilters),
-                        .cancel()
-                    ])
-                }
-            }
+            .actionSheet(item: $store.appState.environment.filterViewActionSheetState, content: actionSheet)
             .navigationBarTitle("Filters")
         }
     }
-}
 
-private extension FilterView {
-    var settingsBinding: Binding<AppState.Settings> {
-        $store.appState.settings
-    }
-    var environmentBinding: Binding<AppState.Environment> {
-        $store.appState.environment
-    }
-    var filterBinding: Binding<Filter> {
-        settingsBinding.filter
-    }
-
-    func onResetButtonTap() {
-        store.dispatch(.toggleFilterViewActionSheet(state: .resetFilters))
-    }
-    func resetFilters() {
-        store.dispatch(.resetFilters)
+    // MARK: ActionSheet
+    private func actionSheet(item: FilterViewActionSheetState) -> ActionSheet {
+        switch item {
+        case .resetFilters:
+            return ActionSheet(
+                title: Text("Are you sure to reset?"),
+                buttons: [
+                    .destructive(Text("Reset")) {
+                        store.dispatch(.resetFilters)
+                    },
+                    .cancel()
+                ]
+            )
+        }
     }
 }
 
@@ -112,13 +100,8 @@ private struct MinimumRatingSetter: View {
         HStack {
             Text("Minimum rating")
             Spacer()
-            Picker(
-                selection: $minimum,
-                label: Text("\(minimum) stars")
-            ) {
-                ForEach(Array(stride(
-                    from: 2, through: 5, by: 1
-                )), id: \.self) { num in
+            Picker(selection: $minimum, label: Text("\(minimum) stars")) {
+                ForEach(Array(2...5), id: \.self) { num in
                     Text("\(num) stars").tag(num)
                 }
             }
@@ -138,10 +121,7 @@ private struct PagesRangeSetter: View {
         case upper
     }
 
-    init(
-        lowerBound: Binding<String>,
-        upperBound: Binding<String>
-    ) {
+    init(lowerBound: Binding<String>, upperBound: Binding<String>) {
         _lowerBound = lowerBound
         _upperBound = upperBound
     }

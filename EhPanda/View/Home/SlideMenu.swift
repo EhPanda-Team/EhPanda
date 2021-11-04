@@ -30,14 +30,13 @@ struct SlideMenu: View, StoreAccessor {
         HStack(spacing: 0) {
             VStack(spacing: 0) {
                 AvatarView(
-                    iconName: iconType.iconName,
+                    iconName: setting.appIconType.iconName,
                     avatarURL: user.avatarURL,
                     displayName: user.displayName,
                     width: Defaults.ImageSize.avatarW,
                     height: Defaults.ImageSize.avatarH
                 )
-                .padding(.top, 40)
-                .padding(.bottom, 20)
+                .padding(.top, 40).padding(.bottom, 20)
                 Divider().padding(.vertical)
                 ScrollView(showsIndicators: false) {
                     ForEach(menuItems) { item in
@@ -45,17 +44,14 @@ struct SlideMenu: View, StoreAccessor {
                             isSelected: item == homeListType,
                             symbolName: item.symbolName,
                             text: item.rawValue,
-                            action: { onMenuRowTap(item: item) }
+                            action: { trySetHomeListType(item: item) }
                         )
                     }
                 }
                 Divider().padding(.vertical)
-                MenuRow(
-                    isSelected: false,
-                    symbolName: "gear",
-                    text: "Setting",
-                    action: onSettingMenuRowTap
-                )
+                MenuRow(isSelected: false, symbolName: "gear", text: "Setting") {
+                    store.dispatch(.setHomeViewSheetState(.setting))
+                }
             }
             .padding(.horizontal, 20)
             .padding(.top, edges?.top == 0 ? 15 : edges?.top)
@@ -67,31 +63,11 @@ struct SlideMenu: View, StoreAccessor {
             Spacer()
         }
     }
-}
-
-private extension SlideMenu {
-    var width: CGFloat {
-        Defaults.FrameSize.slideMenuWidth
-    }
-    var iconType: IconType {
-        store.appState.settings.setting.appIconType
-    }
-
-    func onMenuRowTap(item: HomeListType) {
-        if homeListType != item {
-            store.dispatch(.toggleHomeList(type: item))
-            HapticUtil.generateFeedback(style: .soft)
-            performTransition(offset: -width)
-        }
-    }
-    func onSettingMenuRowTap() {
-        store.dispatch(.toggleHomeViewSheet(state: .setting))
-    }
-
-    func performTransition(offset: CGFloat) {
-        withAnimation {
-            self.offset = offset
-        }
+    private func trySetHomeListType(item: HomeListType) {
+        guard homeListType != item else { return }
+        HapticUtil.generateFeedback(style: .soft)
+        store.dispatch(.setHomeListType(item))
+        withAnimation { offset = -Defaults.FrameSize.slideMenuWidth }
     }
 }
 
@@ -128,11 +104,8 @@ private struct AvatarView: View {
                 Group {
                     if avatarURL?.contains(".gif") != true {
                         KFImage(URL(string: avatarURL ?? ""))
-                            .placeholder(getPlaceholder)
-                            .retry(maxCount: 10)
-                            .defaultModifier(
-                                withRoundedCorners: false
-                            )
+                            .placeholder(getPlaceholder).retry(maxCount: 10)
+                            .defaultModifier(withRoundedCorners: false)
                     } else {
                         KFAnimatedImage(URL(string: avatarURL ?? ""))
                             .placeholder(getPlaceholder)
@@ -140,8 +113,7 @@ private struct AvatarView: View {
                             .retry(maxCount: 10)
                     }
                 }
-                .scaledToFill()
-                .frame(width: width, height: height)
+                .scaledToFill().frame(width: width, height: height)
                 .clipShape(Circle())
                 Text(displayName ?? "Sad Panda")
                     .fontWeight(.bold)
@@ -164,20 +136,15 @@ private struct MenuRow: View {
     private let action: () -> Void
 
     private var textColor: Color {
-        isSelected
-            ? .primary
-            : (colorScheme == .light
-                ? Color(.darkGray)
-                : Color(.lightGray))
+        guard !isSelected else { return .primary }
+        return colorScheme == .light ? Color(.darkGray) : Color(.lightGray)
     }
     private var backgroundColor: Color {
-        let color = Color(.systemGray6)
+        let selectedColor = Color(.systemGray6)
+        let pressingColor = selectedColor.opacity(0.6)
 
-        return isSelected
-            ? color
-            : (isPressing
-                ? color.opacity(0.6)
-                : .clear)
+        guard !isSelected else { return selectedColor }
+        return isPressing ? pressingColor : .clear
     }
 
     init(

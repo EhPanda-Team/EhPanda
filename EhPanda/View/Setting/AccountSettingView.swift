@@ -28,8 +28,7 @@ struct AccountSettingView: View, StoreAccessor {
             Form {
                 Section {
                     Picker(
-                        selection: $galleryHost,
-                        label: Text("Gallery"),
+                        selection: $galleryHost, label: Text("Gallery"),
                         content: {
                             ForEach(GalleryHost.allCases) {
                                 Text($0.rawValue.localized).tag($0)
@@ -38,59 +37,38 @@ struct AccountSettingView: View, StoreAccessor {
                     )
                     .pickerStyle(.segmented)
                     if !AuthorizationUtil.didLogin {
-                        NavigationLink("Login", destination: LoginView())
-                            .foregroundStyle(.tint)
+                        NavigationLink("Login", destination: LoginView()).foregroundStyle(.tint)
                     } else {
-                        Button("Logout", role: .destructive, action: toggleLogout)
+                        Button("Logout", role: .destructive) {
+                            store.dispatch(.setSettingViewActionSheetState(.logout))
+                        }
                     }
                     if AuthorizationUtil.didLogin {
                         Group {
                             NavigationLink("Account configuration", destination: EhSettingView())
                             if !setting.bypassesSNIFiltering {
-                                Button("Manage tags subscription", action: toggleWebViewMyTags).withArrow()
+                                Button("Manage tags subscription") {
+                                    store.dispatch(.setSettingViewSheetState(.webviewMyTags))
+                                }
+                                .withArrow()
                             }
                             Toggle(
-                                "Show new dawn greeting",
-                                isOn: settingBinding.showNewDawnGreeting
+                                "Show new dawn greeting", isOn: $store.appState.settings.setting.showNewDawnGreeting
                             )
                         }
                         .foregroundColor(.primary)
                     }
                 }
-                Section(header: Text("E-Hentai")) {
-                    CookieRow(
-                        key: memberIDKey,
-                        value: ehMemberID,
-                        submitAction: onEhEditingChange
-                    )
-                    CookieRow(
-                        key: passHashKey,
-                        value: ehPassHash,
-                        submitAction: onEhEditingChange
-                    )
-                    Button("Copy cookies", action: copyEhCookies)
-                        .foregroundStyle(.tint)
-                        .font(.subheadline)
+                Section("E-Hentai") {
+                    CookieRow(key: memberIDKey, value: ehMemberID, submitAction: setEhCookieValue)
+                    CookieRow(key: passHashKey, value: ehPassHash, submitAction: setEhCookieValue)
+                    Button("Copy cookies", action: copyEhCookies).foregroundStyle(.tint).font(.subheadline)
                 }
-                Section(header: Text("ExHentai")) {
-                    CookieRow(
-                        key: igneousKey,
-                        value: igneous,
-                        submitAction: onExEditingChange
-                    )
-                    CookieRow(
-                        key: memberIDKey,
-                        value: exMemberID,
-                        submitAction: onExEditingChange
-                    )
-                    CookieRow(
-                        key: passHashKey,
-                        value: exPassHash,
-                        submitAction: onExEditingChange
-                    )
-                    Button("Copy cookies", action: copyExCookies)
-                        .foregroundStyle(.tint)
-                        .font(.subheadline)
+                Section("ExHentai") {
+                    CookieRow(key: igneousKey, value: igneous, submitAction: setExCookieValue)
+                    CookieRow(key: memberIDKey, value: exMemberID, submitAction: setExCookieValue)
+                    CookieRow(key: passHashKey, value: exPassHash, submitAction: setExCookieValue)
+                    Button("Copy cookies", action: copyExCookies).foregroundStyle(.tint).font(.subheadline)
                 }
             }
             TTProgressHUD($hudVisible, config: hudConfig)
@@ -100,11 +78,7 @@ struct AccountSettingView: View, StoreAccessor {
 }
 
 private extension AccountSettingView {
-    var settingBinding: Binding<Setting> {
-        $store.appState.settings.setting
-    }
-
-    // MARK: Cookies Methods
+    // MARK: Cookies stuff
     var igneous: CookieValue {
         CookiesUtil.get(for: exURL, key: igneousKey)
     }
@@ -120,10 +94,10 @@ private extension AccountSettingView {
     var exPassHash: CookieValue {
         CookiesUtil.get(for: exURL, key: passHashKey)
     }
-    func onEhEditingChange(key: String, value: String) {
+    func setEhCookieValue(key: String, value: String) {
         setCookieValue(url: ehURL, key: key, value: value)
     }
-    func onExEditingChange(key: String, value: String) {
+    func setExCookieValue(key: String, value: String) {
         setCookieValue(url: exURL, key: key, value: value)
     }
     func setCookieValue(url: URL, key: String, value: String) {
@@ -137,32 +111,22 @@ private extension AccountSettingView {
         let cookies = "\(memberIDKey): \(ehMemberID.rawValue)"
             + "\n\(passHashKey): \(ehPassHash.rawValue)"
         PasteboardUtil.save(value: cookies)
-        showCopiedHUD()
+        presentHUD()
     }
     func copyExCookies() {
         let cookies = "\(igneousKey): \(igneous.rawValue)"
             + "\n\(memberIDKey): \(exMemberID.rawValue)"
             + "\n\(passHashKey): \(exPassHash.rawValue)"
         PasteboardUtil.save(value: cookies)
-        showCopiedHUD()
+        presentHUD()
     }
-    func showCopiedHUD() {
+    func presentHUD() {
         hudConfig = TTProgressHUDConfig(
-            type: .success,
-            title: "Success".localized,
+            type: .success, title: "Success".localized,
             caption: "Copied to clipboard".localized,
-            shouldAutoHide: true,
-            autoHideInterval: 1
+            shouldAutoHide: true, autoHideInterval: 1
         )
         hudVisible.toggle()
-    }
-
-    // MARK: Dispatch Methods
-    func toggleWebViewMyTags() {
-        store.dispatch(.toggleSettingViewSheet(state: .webviewMyTags))
-    }
-    func toggleLogout() {
-        store.dispatch(.toggleSettingViewActionSheet(state: .logout))
     }
 }
 
@@ -175,8 +139,7 @@ private struct CookieRow: View {
     private let cookieValue: CookieValue
     private let submitAction: (String, String) -> Void
     private var notVerified: Bool {
-        !cookieValue.localizedString.isEmpty
-            && !cookieValue.rawValue.isEmpty
+        !cookieValue.localizedString.isEmpty && !cookieValue.rawValue.isEmpty
     }
 
     init(
@@ -208,17 +171,11 @@ private struct CookieRow: View {
             }
             ZStack {
                 Image(systemName: "checkmark.circle")
-                    .foregroundStyle(.green)
-                    .opacity(notVerified ? 0 : 1)
+                    .foregroundStyle(.green).opacity(notVerified ? 0 : 1)
                 Image(systemName: "xmark.circle")
-                    .foregroundStyle(.red)
-                    .opacity(notVerified ? 1 : 0)
+                    .foregroundStyle(.red).opacity(notVerified ? 1 : 0)
             }
         }
-    }
-
-    private func onTextSubmit() {
-        submitAction(key, content)
     }
 }
 

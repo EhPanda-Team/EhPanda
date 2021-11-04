@@ -15,41 +15,39 @@ struct LogsView: View, StoreAccessor {
         ZStack {
             List(logs) { log in
                 NavigationLink(destination: LogView(log: log)) {
-                    LogCell(
-                        log: log,
-                        isLatest: log == logs.first
-                    )
+                    LogCell(log: log, isLatest: log == logs.first)
                 }
-                .swipeActions {
-                    Button {
-                        deleteLog(name: log.fileName)
-                    } label: {
-                        Image(systemName: "trash")
-                    }
-                    .tint(.red)
-                }
+                .swipeActions { swipeActions(log: log) }
             }
             ErrorView(error: .notFound, retryAction: nil)
                 .opacity(logs.isEmpty ? 1 : 0)
         }
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button(action: exportLog) {
-                    Image(systemName: "folder.badge.gearshape")
-                }
-            }
-        }
         .onAppear(perform: fetchLogsIfNeeded)
         .navigationBarTitle("Logs")
+        .toolbar(content: toolbar)
+    }
+
+    private func swipeActions(log: Log) -> some View {
+        Button {
+            tryDeleteLog(name: log.fileName)
+        } label: {
+            Image(systemName: "trash")
+        }
+        .tint(.red)
+    }
+    private func toolbar() -> some ToolbarContent {
+        ToolbarItem(placement: .navigationBarTrailing) {
+            Button(action: tryExportLog) {
+                Image(systemName: "folder.badge.gearshape")
+            }
+        }
     }
 }
 
 // MARK: Private Methods
 private extension LogsView {
-    func deleteLog(name: String) {
-        guard let fileURL = FileUtil.logsDirectoryURL?
-                .appendingPathComponent(name)
-        else { return }
+    func tryDeleteLog(name: String) {
+        guard let fileURL = FileUtil.logsDirectoryURL?.appendingPathComponent(name) else { return }
 
         try? FileManager.default.removeItem(at: fileURL)
         if !FileManager.default.fileExists(atPath: fileURL.path) {
@@ -57,7 +55,7 @@ private extension LogsView {
         }
     }
 
-    func exportLog() {
+    func tryExportLog() {
         guard let dirPath = FileUtil.logsDirectoryURL?.path,
               let dirURL = URL(string: "shareddocuments://" + dirPath)
         else { return }
@@ -73,14 +71,12 @@ private extension LogsView {
         else { return }
 
         let logs: [Log] = fileNames.compactMap { name in
-            guard let fileURL = FileUtil.logsDirectoryURL?
-                    .appendingPathComponent(name),
+            guard let fileURL = FileUtil.logsDirectoryURL?.appendingPathComponent(name),
                   let content = try? String(contentsOf: fileURL)
             else { return nil }
 
             return Log(
-                fileName: name,
-                contents: content
+                fileName: name, contents: content
                     .components(separatedBy: "\n")
                     .filter({ !$0.isEmpty })
             )
@@ -89,9 +85,8 @@ private extension LogsView {
         self.logs = logs
     }
     func fetchLogsIfNeeded() {
-        if logs.isEmpty {
-            fetchLogs()
-        }
+        guard logs.isEmpty else { return }
+        fetchLogs()
     }
 }
 
@@ -113,14 +108,11 @@ private struct LogCell: View {
     var body: some View {
         VStack(spacing: 5) {
             HStack {
-                Text(log.fileName)
-                    .font(.callout)
+                Text(log.fileName).font(.callout)
                 Spacer()
                 HStack(spacing: 2) {
-                    Image(systemName: "checkmark.circle")
-                        .foregroundColor(.green)
-                    Text("Latest")
-                        .foregroundColor(.secondary)
+                    Image(systemName: "checkmark.circle").foregroundColor(.green)
+                    Text("Latest").foregroundColor(.secondary)
                 }
                 .opacity(isLatest ? 1 : 0)
                 .font(.caption)
@@ -131,8 +123,7 @@ private struct LogCell: View {
                 Text("\(log.contents.count) records")
             }
             .foregroundColor(.secondary)
-            .font(.caption2)
-            .lineLimit(1)
+            .font(.caption2).lineLimit(1)
         }
         .padding()
     }
@@ -168,14 +159,9 @@ private struct LogView: View {
     var body: some View {
         List(logs) { log in
             Text("\(log.id + 1). " + log.content)
-                .fontWeight(.medium)
-                .font(.caption)
-                .padding()
+                .fontWeight(.medium).font(.caption).padding()
         }
-        .navigationBarTitle(
-            log.fileName,
-            displayMode: .inline
-        )
+        .navigationBarTitle(log.fileName, displayMode: .inline)
     }
 }
 

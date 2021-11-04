@@ -14,17 +14,11 @@ struct GeneralSettingView: View, StoreAccessor {
     @State private var passcodeNotSet = false
 
     private var isTranslatesTagsVisible: Bool {
-        guard let preferredLanguage =
-                Locale.preferredLanguages.first
-        else { return false }
-        let isLanguageSupported =
-            TranslatableLanguage.allCases
-                .map(\.languageCode).contains(
-                    where: preferredLanguage.contains
-                )
-        let isTranslationsPrepared =
-            !settings.tagTranslator.contents.isEmpty
-        return isLanguageSupported && isTranslationsPrepared
+        guard let preferredLanguage = Locale.preferredLanguages.first else { return false }
+        let isLanguageSupported = TranslatableLanguage.allCases.map(\.languageCode).contains(
+            where: preferredLanguage.contains
+        )
+        return isLanguageSupported && !settings.tagTranslator.contents.isEmpty
     }
 
     var body: some View {
@@ -33,8 +27,7 @@ struct GeneralSettingView: View, StoreAccessor {
                 HStack {
                     Text("Language")
                     Spacer()
-                    Button(language, action: toSettingLanguage)
-                        .foregroundStyle(.tint)
+                    Button(language, action: tryNavigateToSystemSetting).foregroundStyle(.tint)
                 }
                 if isTranslatesTagsVisible {
                     Toggle(isOn: settingBinding.translatesTags) {
@@ -43,17 +36,11 @@ struct GeneralSettingView: View, StoreAccessor {
                 }
                 NavigationLink("Logs", destination: LogsView())
             }
-            Section(header: Text("Navigation")) {
-                Toggle(
-                    "Redirects links to the selected host",
-                    isOn: settingBinding.redirectsLinksToSelectedHost
-                )
-                Toggle(
-                    "Detects links from the clipboard",
-                    isOn: settingBinding.detectsLinksFromPasteboard
-                )
+            Section("Navigation".localized) {
+                Toggle("Redirects links to the selected host", isOn: settingBinding.redirectsLinksToSelectedHost)
+                Toggle("Detects links from the clipboard", isOn: settingBinding.detectsLinksFromPasteboard)
             }
-            Section(header: Text("Security")) {
+            Section("Security".localized) {
                 HStack {
                     Text("Auto-Lock")
                     Spacer()
@@ -69,18 +56,16 @@ struct GeneralSettingView: View, StoreAccessor {
                     }
                     .pickerStyle(.menu)
                 }
-                Toggle(
-                    "App switcher blur",
-                    isOn: settingBinding.allowsResignActiveBlur
-                )
+                Toggle("App switcher blur", isOn: settingBinding.allowsResignActiveBlur)
             }
-            Section(header: Text("Cache")) {
-                Button(action: toggleClearImgCaches) {
+            Section("Cache".localized) {
+                Button {
+                    store.dispatch(.setSettingViewActionSheetState(.clearImgCaches))
+                } label: {
                     HStack {
                         Text("Clear image caches")
                         Spacer()
-                        Text(setting.diskImageCacheSize)
-                            .foregroundStyle(.tint)
+                        Text(setting.diskImageCacheSize).foregroundStyle(.tint)
                     }
                     .foregroundColor(.primary)
                 }
@@ -96,31 +81,18 @@ private extension GeneralSettingView {
         $store.appState.settings.setting
     }
     var language: String {
-        Locale.current.localizedString(
-            forLanguageCode: Locale
-                .current.languageCode ?? ""
-        ) ?? "(null)"
+        Locale.current.localizedString(forLanguageCode: Locale.current.languageCode ?? "") ?? "(null)"
     }
 
     func checkPasscodeExistence() {
-        let context = LAContext()
         var error: NSError?
 
-        if !context.canEvaluatePolicy(
-            .deviceOwnerAuthentication,
-            error: &error
-        ) {
-            passcodeNotSet = true
-        }
+        guard !LAContext().canEvaluatePolicy(.deviceOwnerAuthentication, error: &error) else { return }
+        passcodeNotSet = true
     }
 
-    func toSettingLanguage() {
-        if let settingURL = URL(string: UIApplication.openSettingsURLString) {
-            UIApplication.shared.open(settingURL, options: [:])
-        }
-    }
-
-    func toggleClearImgCaches() {
-        store.dispatch(.toggleSettingViewActionSheet(state: .clearImgCaches))
+    func tryNavigateToSystemSetting() {
+        guard let settingURL = URL(string: UIApplication.openSettingsURLString) else { return }
+        UIApplication.shared.open(settingURL, options: [:])
     }
 }

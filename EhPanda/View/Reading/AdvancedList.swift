@@ -21,14 +21,9 @@ where PageView: View, Element: Equatable, ID: Hashable, G: Gesture {
 
     init<Data: RandomAccessCollection>(
         page: Page, data: Data,
-        id: KeyPath<Element, ID>, spacing: CGFloat,
-        gesture: G,
-        @ViewBuilder content:
-            @escaping (Element) -> PageView
-    )
-    where Data.Index == Int,
-    Data.Element == Element
-    {
+        id: KeyPath<Element, ID>, spacing: CGFloat, gesture: G,
+        @ViewBuilder content: @escaping (Element) -> PageView
+    ) where Data.Index == Int, Data.Element == Element {
         self.pagerModel = page
         self.data = Array(data)
         self.id = id
@@ -42,35 +37,33 @@ where PageView: View, Element: Equatable, ID: Hashable, G: Gesture {
             ScrollView(showsIndicators: false) {
                 LazyVStack(spacing: spacing) {
                     ForEach(data, id: id) { index in
-                        let longPress = LongPressGesture(
-                            minimumDuration: 0,
-                            maximumDistance: .infinity
-                        ).onEnded { _ in
-                            if let index = index as? Int {
-                                performingChanges = true
-                                pagerModel.update(
-                                    .new(index: index - 1)
-                                )
-                                DispatchQueue.main.asyncAfter(
-                                    deadline: .now() + 0.2
-                                ) { performingChanges = false }
-                            }
-                        }
+                        let longPress = longPressGesture(index: index)
                         let gestures = longPress.simultaneously(with: gesture)
                         content(index).gesture(gestures)
                     }
                 }
-                .onAppear {
-                    performScrollTo(id: pagerModel.index + 1, proxy: proxy)
-                }
+                .onAppear { tryScrollTo(id: pagerModel.index + 1, proxy: proxy) }
             }
             .onChange(of: pagerModel.index) { newValue in
-                performScrollTo(id: newValue + 1, proxy: proxy)
+                tryScrollTo(id: newValue + 1, proxy: proxy)
             }
         }
     }
 
-    private func performScrollTo(id: Int, proxy: ScrollViewProxy) {
+    private func longPressGesture(index: Element) -> some Gesture {
+        LongPressGesture(minimumDuration: 0, maximumDistance: .infinity)
+            .onEnded { _ in
+                guard let index = index as? Int else { return }
+
+                performingChanges = true
+                pagerModel.update(.new(index: index - 1))
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                    performingChanges = false
+                }
+            }
+    }
+
+    private func tryScrollTo(id: Int, proxy: ScrollViewProxy) {
         guard !performingChanges else { return }
         AppUtil.dispatchMainSync {
             proxy.scrollTo(id, anchor: .center)

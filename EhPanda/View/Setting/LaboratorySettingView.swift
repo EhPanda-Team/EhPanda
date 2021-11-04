@@ -37,10 +37,8 @@ struct LaboratoryCell: View {
     private let tintColor: Color
 
     init(
-        isOn: Binding<Bool>,
-        title: String,
-        symbol: String,
-        tintColor: Color
+        isOn: Binding<Bool>, title: String,
+        symbol: String, tintColor: Color
     ) {
         _isOn = isOn
         self.title = title
@@ -60,24 +58,16 @@ struct LaboratoryCell: View {
             Spacer()
             Group {
                 Image(systemName: symbol)
-                Text(title.localized)
-                    .fontWeight(.bold)
+                Text(title.localized).fontWeight(.bold)
             }
-            .foregroundColor(contentColor)
-            .font(.title2)
+            .foregroundColor(contentColor).font(.title2)
             Spacer()
         }
-        .contentShape(Rectangle())
-        .onTapGesture(perform: onTap)
-        .minimumScaleFactor(0.75)
-        .padding(.vertical, 20)
-        .background(bgColor)
-        .cornerRadius(15)
-        .lineLimit(1)
-    }
-
-    private func onTap() {
-        withAnimation { isOn.toggle() }
-        HapticUtil.generateFeedback(style: .soft)
+        .contentShape(Rectangle()).onTapGesture {
+            withAnimation { isOn.toggle() }
+            HapticUtil.generateFeedback(style: .soft)
+        }
+        .minimumScaleFactor(0.75).padding(.vertical, 20)
+        .background(bgColor).cornerRadius(15).lineLimit(1)
     }
 }

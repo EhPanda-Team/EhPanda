@@ -18,44 +18,44 @@ struct QuickSearchView: View, StoreAccessor {
         self.searchAction = searchAction
     }
 
+    // MARK: QuickSearchView
     var body: some View {
         NavigationView {
             ZStack {
                 List {
                     ForEach(words) { word in
                         QuickSearchWordRow(
-                            word: word,
-                            isEditting: $isEditting,
-                            submitID: $refreshID,
-                            searchAction: searchAction,
-                            submitAction: modify
+                            word: word, isEditting: $isEditting,
+                            submitID: $refreshID, searchAction: searchAction,
+                            submitAction: { store.dispatch(.modifyQuickSearchWord(newWord: $0)) }
                         )
                     }
-                    .onDelete(perform: delete)
+                    .onDelete { store.dispatch(.deleteQuickSearchWord(offsets: $0)) }
                     .onMove(perform: move)
                 }
                 .id(refreshID)
-                ErrorView(error: .notFound, retryAction: nil)
-                    .opacity(words.isEmpty ? 1 : 0)
+                ErrorView(error: .notFound, retryAction: nil).opacity(words.isEmpty ? 1 : 0)
             }
-            .environment(\.editMode, .constant(
-                isEditting ? .active : .inactive
-            ))
-            .navigationTitle("Quick search")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    HStack {
-                        Button(action: append) {
-                            Image(systemName: "plus")
-                        }
-                        .opacity(isEditting ? 1 : 0)
-                        Button {
-                            isEditting.toggle()
-                        } label: {
-                            Image(systemName: "pencil.circle")
-                                .symbolVariant(isEditting ? .fill : .none)
-                        }
-                    }
+            .environment(\.editMode, .constant(isEditting ? .active : .inactive))
+            .toolbar(content: toolbar).navigationTitle("Quick search")
+        }
+    }
+
+    // MARK: Toolbar
+    private func toolbar() -> some ToolbarContent {
+        ToolbarItem(placement: .navigationBarTrailing) {
+            HStack {
+                Button {
+                    store.dispatch(.appendQuickSearchWord)
+                } label: {
+                    Image(systemName: "plus")
+                }
+                .opacity(isEditting ? 1 : 0)
+                Button {
+                    isEditting.toggle()
+                } label: {
+                    Image(systemName: "pencil.circle")
+                        .symbolVariant(isEditting ? .fill : .none)
                 }
             }
         }
@@ -64,16 +64,7 @@ struct QuickSearchView: View, StoreAccessor {
 
 private extension QuickSearchView {
     var words: [QuickSearchWord] {
-        store.appState.homeInfo.quickSearchWords
-    }
-    func append() {
-        store.dispatch(.appendQuickSearchWord)
-    }
-    func delete(atOffsets offsets: IndexSet) {
-        store.dispatch(.deleteQuickSearchWord(offsets: offsets))
-    }
-    func modify(newWord: QuickSearchWord) {
-        store.dispatch(.modifyQuickSearchWord(newWord: newWord))
+        homeInfo.quickSearchWords
     }
     func move(from source: IndexSet, to destination: Int) {
         refreshID = UUID().uuidString
@@ -120,16 +111,15 @@ private struct QuickSearchWordRow: View {
                 .opacity(isEditting ? 1 : 0)
                 .focused($isFocused)
         }
-        .onChange(of: submitID, perform: submit)
-        .onChange(of: isFocused, perform: submit)
-        .onChange(of: isEditting, perform: onIsEdittingChange)
+        .onChange(of: isFocused, perform: trySubmit)
+        .onChange(of: submitID, perform: trySubmit)
+        .onChange(of: isEditting) { _ in
+            trySubmit()
+            isFocused = false
+        }
     }
 
-    private func onIsEdittingChange(_: Any? = nil) {
-        submit()
-        isFocused = false
-    }
-    private func submit(_: Any? = nil) {
+    private func trySubmit(_: Any? = nil) {
         guard editableContent != plainWord.content else { return }
         submitAction(QuickSearchWord(id: plainWord.id, content: editableContent))
     }

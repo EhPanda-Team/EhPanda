@@ -15,10 +15,7 @@ struct GalleryThumbnailCell: View {
     private let setting: Setting
     private let translateAction: ((String) -> String)?
 
-    init(
-        gallery: Gallery, setting: Setting,
-        translateAction: ((String) -> String)? = nil
-    ) {
+    init(gallery: Gallery, setting: Setting, translateAction: ((String) -> String)? = nil) {
         self.gallery = gallery
         self.setting = setting
         self.translateAction = translateAction
@@ -27,57 +24,33 @@ struct GalleryThumbnailCell: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             KFImage(URL(string: gallery.coverURL))
-                .placeholder {
-                    Placeholder(
-                        style: .activity(
-                            ratio: Defaults.ImageSize
-                                .rowScale
-                        )
-                    )
-                }
+                .placeholder { Placeholder(style: .activity(ratio: Defaults.ImageSize.rowScale)) }
 //                .fade(duration: 0.25)
-                .resizable()
-                .scaledToFit()
-                .overlay {
+                .resizable().scaledToFit().overlay {
                     VStack {
                         HStack {
                             Spacer()
                             CategoryLabel(
-                                text: category,
-                                color: gallery.color,
-                                insets: .init(
-                                    top: 3, leading: 6,
-                                    bottom: 3, trailing: 6
-                                ),
-                                cornerRadius: 15,
-                                corners: .bottomLeft
+                                text: category, color: gallery.color,
+                                insets: .init(top: 3, leading: 6, bottom: 3, trailing: 6),
+                                cornerRadius: 15, corners: .bottomLeft
                             )
                         }
                         Spacer()
                     }
                 }
             VStack(alignment: .leading) {
-                Text(gallery.title).bold()
-                    .font(.callout)
-                    .lineLimit(3)
+                Text(gallery.title).bold().font(.callout).lineLimit(3)
                 if setting.showsSummaryRowTags, !gallery.tags.isEmpty {
                     TagCloudView(
-                        tag: GalleryTag(
-                            category: .artist,
-                            content: tags
-                        ),
-                        font: .caption2,
-                        textColor: .secondary,
-                        backgroundColor: tagColor,
-                        paddingV: 2, paddingH: 4,
-                        translateAction: translateAction
+                        tag: GalleryTag(category: .artist, content: tags), font: .caption2,
+                        textColor: .secondary, backgroundColor: tagColor,
+                        paddingV: 2, paddingH: 4, translateAction: translateAction
                     )
                     .allowsHitTesting(false)
                 }
                 HStack {
-                    RatingView(rating: gallery.rating)
-                        .foregroundColor(.yellow)
-                        .font(.caption)
+                    RatingView(rating: gallery.rating).foregroundColor(.yellow).font(.caption)
                     Spacer()
                     HStack(spacing: 10) {
                         if !DeviceUtil.isSEWidth {
@@ -87,15 +60,13 @@ struct GalleryThumbnailCell: View {
                             }
                         }
                     }
-                    .lineLimit(1).font(.footnote)
-                    .foregroundStyle(.secondary)
+                    .lineLimit(1).font(.footnote).foregroundStyle(.secondary)
                 }
                 .padding(.top, 1)
             }
             .padding()
         }
-        .background(backgroundColor)
-        .cornerRadius(15)
+        .background(backgroundColor).cornerRadius(15)
     }
 }
 
@@ -104,23 +75,14 @@ private extension GalleryThumbnailCell {
         gallery.category.rawValue.localized
     }
     var backgroundColor: Color {
-        colorScheme == .light
-        ? Color(.systemGray6)
-        : Color(.systemGray5)
+        colorScheme == .light ? Color(.systemGray6) : Color(.systemGray5)
     }
     var tagColor: Color {
-        colorScheme == .light
-        ? Color(.systemGray5)
-        : Color(.systemGray4)
+        colorScheme == .light ? Color(.systemGray5) : Color(.systemGray4)
     }
     var tags: [String] {
-        if setting.summaryRowTagsMaximum > 0 {
-            return Array(
-                gallery.tags.prefix(setting.summaryRowTagsMaximum)
-            )
-        } else {
-            return gallery.tags
-        }
+        guard setting.summaryRowTagsMaximum > 0 else { return gallery.tags }
+        return Array(gallery.tags.prefix(setting.summaryRowTagsMaximum))
     }
 }
 

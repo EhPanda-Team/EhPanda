@@ -18,19 +18,12 @@ struct TagCloudView: View {
     private let onTapAction: (String) -> Void
     private let translateAction: ((String) -> String)?
 
-    @State private var totalHeight
-          = CGFloat.zero       // << variant for ScrollView/List
-//        = CGFloat.infinity   // << variant for VStack
+    @State private var totalHeight = CGFloat.zero
 
     init(
-        tag: GalleryTag,
-        font: Font,
-        textColor: Color,
-        backgroundColor: Color,
-        paddingV: CGFloat,
-        paddingH: CGFloat,
-        onTapAction: @escaping
-            (String) -> Void = { _ in },
+        tag: GalleryTag, font: Font, textColor: Color,
+        backgroundColor: Color, paddingV: CGFloat, paddingH: CGFloat,
+        onTapAction: @escaping (String) -> Void = { _ in },
         translateAction: ((String) -> String)? = nil
     ) {
         self.tag = tag
@@ -49,8 +42,7 @@ struct TagCloudView: View {
                 generateContent(in: geometry)
             }
         }
-        .frame(height: totalHeight) // << variant for ScrollView/List
-//        .frame(maxHeight: totalHeight) // << variant for VStack
+        .frame(height: totalHeight)
     }
 }
 
@@ -89,30 +81,18 @@ private extension TagCloudView {
 
     @ViewBuilder
     func item(for text: String) -> some View {
-        let (rippedText, wrappedHex) = Parser
-            .parseWrappedHex(string: text)
-        let translatedText = translateAction?(rippedText)
-        let displayText: String = translatedText == nil
-            ? rippedText : translatedText.forceUnwrapped
+        let (rippedText, wrappedHex) = Parser.parseWrappedHex(string: text)
         let containsHex = wrappedHex != nil
         let textColor = containsHex ? .white : textColor
-        let backgroundColor = containsHex ? Color(
-            hex: wrappedHex.forceUnwrapped
-        ) : backgroundColor
+        let translatedText = translateAction?(rippedText)
+        let displayText: String = translatedText == nil ? rippedText : translatedText.forceUnwrapped
+        let backgroundColor = containsHex ? Color(hex: wrappedHex.forceUnwrapped) : backgroundColor
 
-        Text(displayText)
-            .fontWeight(.bold)
-            .lineLimit(1)
-            .font(font)
-            .foregroundColor(textColor)
-            .padding(.vertical, paddingV)
-            .padding(.horizontal, paddingH)
-            .background(backgroundColor)
-            .cornerRadius(5)
-            .onTapGesture {
+        Text(displayText).fontWeight(.bold).lineLimit(1).font(font).foregroundColor(textColor)
+            .padding(.vertical, paddingV).padding(.horizontal, paddingH).background(backgroundColor)
+            .cornerRadius(5).onTapGesture {
                 onTapAction(
-                    tag.category == .misc ? "\"\(text)$\""
-                    : tag.category.rawValue.lowercased()
+                    tag.category == .misc ? "\"\(text)$\"" : tag.category.rawValue.lowercased()
                     + ":" + "\"\(text)$\""
                 )
             }
