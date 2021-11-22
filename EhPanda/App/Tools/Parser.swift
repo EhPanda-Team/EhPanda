@@ -1309,16 +1309,13 @@ extension Parser {
         var profileNotFound = true
         var profileValue: Int?
 
-        let selector = doc.at_xpath(
-            "//select [@name='profile_set']"
-        )
+        let selector = doc.at_xpath("//select [@name='profile_set']")
         let options = selector?.xpath("//option")
 
-        guard let options = options,
-                options.count >= 1
+        guard let options = options, options.count >= 1
         else { throw AppError.parseFailed }
 
-        for link in options where link.text == "EhPanda" {
+        for link in options where AppUtil.verifyEhPandaProfileName(with: link.text) {
             profileNotFound = false
             profileValue = Int(link["value"] ?? "")
         }

@@ -10,9 +10,7 @@ import SwiftUI
 import SwiftyBeaver
 
 struct WebView: UIViewControllerRepresentable {
-    static let loginURLString
-        = "https://forums.e-hentai.org/"
-        + "index.php?act=Login"
+    static let loginURLString = "https://forums.e-hentai.org/index.php?act=Login"
 
     @EnvironmentObject private var store: Store
     private let url: URL
