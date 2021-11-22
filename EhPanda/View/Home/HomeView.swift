@@ -419,6 +419,16 @@ private extension HomeView {
                 }
             }
             PasteboardUtil.clear()
+            clearObstruction()
+        }
+    }
+    // Removing this could cause unexpected blank leading space
+    func clearObstruction() {
+        if environment.homeViewSheetState != nil {
+            store.dispatch(.setHomeViewSheetState(nil))
+        }
+        if !environment.slideMenuClosed {
+            NotificationUtil.post(.shouldHideSlideMenu)
         }
     }
 
@@ -501,8 +511,8 @@ private extension HomeView {
             formatter.dateFormat = Defaults.DateFormat.greeting
 
             let currentTimeString = formatter.string(from: currentTime)
-            if let currDay = formatter.date(from: currentTimeString) {
-                return currentTime > currDay && updateTime < currDay
+            if let currentDay = formatter.date(from: currentTimeString) {
+                return currentTime > currentDay && updateTime < currentDay
             }
 
             return false
