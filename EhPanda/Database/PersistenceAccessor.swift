@@ -63,10 +63,8 @@ extension PersistenceController {
             keyPath: \GalleryMO.lastOpenDate, ascending: false
         )
         return fetch(
-            entityType: GalleryMO.self,
-            predicate: predicate,
-            findBeforeFetch: false,
-            sortDescriptors: [sortDescriptor]
+            entityType: GalleryMO.self, predicate: predicate,
+            findBeforeFetch: false, sortDescriptors: [sortDescriptor]
         ).map({ $0.toEntity() })
     }
 
@@ -76,22 +74,13 @@ extension PersistenceController {
         commitChanges: ((MO?) -> Void)? = nil
     ) -> MO? {
         fetch(
-            entityType: entityType,
-            predicate: NSPredicate(
-                format: "gid == %@", gid
-            ),
-            findBeforeFetch: findBeforeFetch,
-            commitChanges: commitChanges
+            entityType: entityType, predicate: NSPredicate(format: "gid == %@", gid),
+            findBeforeFetch: findBeforeFetch, commitChanges: commitChanges
         )
     }
-    static func fetchOrCreate<MO: GalleryIdentifiable>(
-        entityType: MO.Type, gid: String
-    ) -> MO {
+    static func fetchOrCreate<MO: GalleryIdentifiable>(entityType: MO.Type, gid: String) -> MO {
         fetchOrCreate(
-            entityType: entityType,
-            predicate: NSPredicate(
-                format: "gid == %@", gid
-            )
+            entityType: entityType, predicate: NSPredicate(format: "gid == %@", gid)
         ) { managedObject in
             managedObject?.gid = gid
         }
@@ -99,14 +88,18 @@ extension PersistenceController {
 
     static func add(galleries: [Gallery]) {
         for gallery in galleries {
-            let storedMO = fetch(
-                entityType: GalleryMO.self,
-                gid: gallery.gid
-            ) { managedObject in
-                managedObject?.title = gallery.title
-                managedObject?.rating = gallery.rating
+            let storedMO = fetch(entityType: GalleryMO.self, gid: gallery.gid) { managedObject in
+                managedObject?.category = gallery.category.rawValue
+                managedObject?.coverURL = gallery.coverURL
+                managedObject?.galleryURL = gallery.galleryURL
                 managedObject?.language = gallery.language?.rawValue
+                managedObject?.lastOpenDate = gallery.lastOpenDate
                 managedObject?.pageCount = Int64(gallery.pageCount)
+                managedObject?.postedDate = gallery.postedDate
+                managedObject?.rating = gallery.rating
+                managedObject?.title = gallery.title
+                managedObject?.token = gallery.token
+                managedObject?.uploader = gallery.uploader
             }
             if storedMO == nil {
                 gallery.toManagedObject(in: shared.container.viewContext)
@@ -120,20 +113,25 @@ extension PersistenceController {
             entityType: GalleryDetailMO.self,
             gid: detail.gid
         ) { managedObject in
-            managedObject?.title = detail.title
-            managedObject?.jpnTitle = detail.jpnTitle
+            managedObject?.archiveURL = detail.archiveURL
+            managedObject?.category = detail.category.rawValue
+            managedObject?.coverURL = detail.coverURL
             managedObject?.isFavored = detail.isFavored
             managedObject?.visibility = detail.visibility.toData()
+            managedObject?.jpnTitle = detail.jpnTitle
+            managedObject?.language = detail.language.rawValue
+            managedObject?.favoredCount = Int64(detail.favoredCount)
+            managedObject?.pageCount = Int64(detail.pageCount)
+            managedObject?.parentURL = detail.parentURL
+            managedObject?.postedDate = detail.postedDate
             managedObject?.rating = detail.rating
             managedObject?.userRating = detail.userRating
             managedObject?.ratingCount = Int64(detail.ratingCount)
-            managedObject?.archiveURL = detail.archiveURL
-            managedObject?.parentURL = detail.parentURL
-            managedObject?.favoredCount = Int64(detail.favoredCount)
-            managedObject?.pageCount = Int64(detail.pageCount)
             managedObject?.sizeCount = detail.sizeCount
             managedObject?.sizeType = detail.sizeType
+            managedObject?.title = detail.title
             managedObject?.torrentCount = Int64(detail.torrentCount)
+            managedObject?.uploader = detail.uploader
         }
         if storedMO == nil {
             detail.toManagedObject(in: shared.container.viewContext)
@@ -143,10 +141,7 @@ extension PersistenceController {
 
     static func galleryCached(gid: String) -> Bool {
         PersistenceController.checkExistence(
-            entityType: GalleryMO.self,
-            predicate: NSPredicate(
-                format: "gid == %@", gid
-            )
+            entityType: GalleryMO.self, predicate: NSPredicate(format: "gid == %@", gid)
         )
     }
 
@@ -170,27 +165,25 @@ extension PersistenceController {
     }
     static func update(gid: String, thumbnails: [Int: URL]) {
         update(gid: gid) { galleryStateMO in
-            if !thumbnails.isEmpty {
-                if let storedThumbnails = galleryStateMO.thumbnails?.toObject() as [Int: URL]? {
-                    galleryStateMO.thumbnails = storedThumbnails.merging(
-                        thumbnails, uniquingKeysWith: { _, new in new }
-                    ).toData()
-                } else {
-                    galleryStateMO.thumbnails = thumbnails.toData()
-                }
+            guard !thumbnails.isEmpty else { return }
+            if let storedThumbnails = galleryStateMO.thumbnails?.toObject() as [Int: URL]? {
+                galleryStateMO.thumbnails = storedThumbnails.merging(
+                    thumbnails, uniquingKeysWith: { _, new in new }
+                ).toData()
+            } else {
+                galleryStateMO.thumbnails = thumbnails.toData()
             }
         }
     }
     static func update(gid: String, contents: [Int: String]) {
         update(gid: gid) { galleryStateMO in
-            if !contents.isEmpty {
-                if let storedContents = galleryStateMO.contents?.toObject() as [Int: String]? {
-                    galleryStateMO.contents = storedContents.merging(
-                        contents, uniquingKeysWith: { _, new in new }
-                    ).toData()
-                } else {
-                    galleryStateMO.contents = contents.toData()
-                }
+            guard !contents.isEmpty else { return }
+            if let storedContents = galleryStateMO.contents?.toObject() as [Int: String]? {
+                galleryStateMO.contents = storedContents.merging(
+                    contents, uniquingKeysWith: { _, new in new }
+                ).toData()
+            } else {
+                galleryStateMO.contents = contents.toData()
             }
         }
     }

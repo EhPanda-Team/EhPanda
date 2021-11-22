@@ -15,9 +15,8 @@ struct PersistenceController {
         let container = NSPersistentCloudKitContainer(name: "Model")
 
         container.loadPersistentStores {
-            if let error = $1 {
-                SwiftyBeaver.error(error as Any)
-            }
+            guard let error = $1 else { return }
+            SwiftyBeaver.error(error as Any)
         }
         return container
     }()
@@ -30,13 +29,12 @@ struct PersistenceController {
     static func saveContext() {
         let context = shared.container.viewContext
         AppUtil.dispatchMainSync {
-            if context.hasChanges {
-                do {
-                    try context.save()
-                } catch {
-                    SwiftyBeaver.error(error)
-                    fatalError("Unresolved error \(error)")
-                }
+            guard context.hasChanges else { return }
+            do {
+                try context.save()
+            } catch {
+                SwiftyBeaver.error(error)
+                fatalError("Unresolved error \(error)")
             }
         }
     }
@@ -48,14 +46,11 @@ struct PersistenceController {
     }
 
     static func materializedObjects(
-        in context: NSManagedObjectContext,
-        matching predicate: NSPredicate
+        in context: NSManagedObjectContext, matching predicate: NSPredicate
     ) -> [NSManagedObject] {
         var objects = [NSManagedObject]()
-        for object in context.registeredObjects
-        where !object.isFault {
-            guard object.entity.attributesByName
-                    .keys.contains("gid"),
+        for object in context.registeredObjects where !object.isFault {
+            guard object.entity.attributesByName.keys.contains("gid"),
                   predicate.evaluate(with: object)
             else { continue }
             objects.append(object)
@@ -76,11 +71,8 @@ struct PersistenceController {
     }
 
     static func fetch<MO: NSManagedObject>(
-        entityType: MO.Type,
-        fetchLimit: Int = 0,
-        predicate: NSPredicate? = nil,
-        findBeforeFetch: Bool = true,
-        sortDescriptors: [NSSortDescriptor]? = nil
+        entityType: MO.Type, fetchLimit: Int = 0, predicate: NSPredicate? = nil,
+        findBeforeFetch: Bool = true, sortDescriptors: [NSSortDescriptor]? = nil
     ) -> [MO] {
         var results = [MO]()
         let context = shared.container.viewContext
@@ -109,17 +101,11 @@ struct PersistenceController {
         commitChanges: ((MO?) -> Void)? = nil
     ) -> MO {
         if let storedMO = fetch(
-            entityType: entityType,
-            predicate: predicate,
-            commitChanges: commitChanges
+            entityType: entityType, predicate: predicate, commitChanges: commitChanges
         ) {
             return storedMO
         } else {
-            let newMO = MO(
-                context: shared
-                    .container
-                    .viewContext
-            )
+            let newMO = MO(context: shared.container.viewContext)
             commitChanges?(newMO)
             saveContext()
             return newMO
@@ -127,22 +113,14 @@ struct PersistenceController {
     }
 
     static func update<MO: NSManagedObject>(
-        entityType: MO.Type,
-        predicate: NSPredicate? = nil,
-        createIfNil: Bool = false,
-        commitChanges: ((MO) -> Void)
+        entityType: MO.Type, predicate: NSPredicate? = nil,
+        createIfNil: Bool = false, commitChanges: ((MO) -> Void)
     ) {
         let storedMO: MO?
         if createIfNil {
-            storedMO = fetchOrCreate(
-                entityType: entityType,
-                predicate: predicate
-            )
+            storedMO = fetchOrCreate(entityType: entityType, predicate: predicate)
         } else {
-            storedMO = fetch(
-                entityType: entityType,
-                predicate: predicate
-            )
+            storedMO = fetch(entityType: entityType, predicate: predicate)
         }
         if let storedMO = storedMO {
             commitChanges(storedMO)
@@ -158,13 +136,9 @@ struct PersistenceController {
         AppUtil.dispatchMainSync {
             let storedMO: MO?
             if createIfNil {
-                storedMO = fetchOrCreate(
-                    entityType: entityType, gid: gid
-                )
+                storedMO = fetchOrCreate(entityType: entityType, gid: gid)
             } else {
-                storedMO = fetch(
-                    entityType: entityType, gid: gid
-                )
+                storedMO = fetch(entityType: entityType, gid: gid)
             }
             if let storedMO = storedMO {
                 commitChanges(storedMO)

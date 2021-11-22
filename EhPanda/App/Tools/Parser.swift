@@ -93,12 +93,25 @@ struct Parser {
             throw AppError.parseFailed
         }
 
+        func parseUploader(node: XMLElement?) throws -> String {
+            guard let divNode = node?.at_xpath("//td [@class='gl4c glhide']")?.at_xpath("//div") else {
+                throw AppError.parseFailed
+            }
+
+            if let aText = divNode.at_xpath("//a")?.text {
+                return aText
+            } else if let divText = divNode.text {
+                return divText
+            } else {
+                throw AppError.parseFailed
+            }
+        }
+
         var galleryItems = [Gallery]()
         for link in doc.xpath("//tr") {
-            let firstDivNode = link.at_xpath("//td [@class='gl4c glhide']")?.at_xpath("//div")
-            let uploader = firstDivNode?.at_xpath("//a")?.text
             guard let gl2cNode = link.at_xpath("//td [@class='gl2c']"),
                   let gl3cNode = link.at_xpath("//td [@class='gl3c glname']"),
+                  let uploader = try? parseUploader(node: link),
                   let (rating, _, _) = try? parseRating(node: gl2cNode),
                   let coverURL = try? parseCoverURL(node: gl2cNode),
                   let pageCount = try? parsePageCount(node: gl2cNode),
@@ -303,6 +316,20 @@ struct Parser {
             return .no(reason: reason)
         }
 
+        func parseUploader(node: XMLElement?) throws -> String {
+            guard let gdnNode = node?.at_xpath("//div [@id='gdn']") else {
+                throw AppError.parseFailed
+            }
+
+            if let aText = gdnNode.at_xpath("//a")?.text {
+                return aText
+            } else if let gdnText = gdnNode.text {
+                return gdnText
+            } else {
+                throw AppError.parseFailed
+            }
+        }
+
         var tmpGalleryDetail: GalleryDetail?
         var tmpGalleryState: GalleryState?
         for link in doc.xpath("//div [@class='gm']") {
@@ -324,7 +351,7 @@ struct Parser {
                   let favoredCount = Int(infoPanel[7]),
                   let language = Language(rawValue: infoPanel[3]),
                   let engTitle = link.at_xpath("//h1 [@id='gn']")?.text,
-                  let uploader = gd3Node.at_xpath("//div [@id='gdn']")?.at_xpath("//a")?.text,
+                  let uploader = try? parseUploader(node: gd3Node),
                   let (imgRating, textRating, containsUserRating) = try? parseRating(node: gdrNode),
                   let ratingCount = Int(gdrNode.at_xpath("//span [@id='rating_count']")?.text ?? ""),
                   let category = Category(rawValue: gd3Node.at_xpath("//div [@id='gdc']")?.text ?? ""),
