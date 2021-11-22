@@ -93,25 +93,23 @@ struct Parser {
             throw AppError.parseFailed
         }
 
-        func parseUploader(node: XMLElement?) throws -> String {
+        func parseUploader(node: XMLElement?) throws -> String? {
             guard let divNode = node?.at_xpath("//td [@class='gl4c glhide']")?.at_xpath("//div") else {
                 throw AppError.parseFailed
             }
 
             if let aText = divNode.at_xpath("//a")?.text {
                 return aText
-            } else if let divText = divNode.text {
-                return divText
             } else {
-                throw AppError.parseFailed
+                return divNode.text
             }
         }
 
         var galleryItems = [Gallery]()
         for link in doc.xpath("//tr") {
+            let uploader = try? parseUploader(node: link)
             guard let gl2cNode = link.at_xpath("//td [@class='gl2c']"),
                   let gl3cNode = link.at_xpath("//td [@class='gl3c glname']"),
-                  let uploader = try? parseUploader(node: link),
                   let (rating, _, _) = try? parseRating(node: gl2cNode),
                   let coverURL = try? parseCoverURL(node: gl2cNode),
                   let pageCount = try? parsePageCount(node: gl2cNode),

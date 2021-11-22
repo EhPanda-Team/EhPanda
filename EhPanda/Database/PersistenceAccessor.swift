@@ -92,14 +92,18 @@ extension PersistenceController {
                 managedObject?.category = gallery.category.rawValue
                 managedObject?.coverURL = gallery.coverURL
                 managedObject?.galleryURL = gallery.galleryURL
-                managedObject?.language = gallery.language?.rawValue
-                managedObject?.lastOpenDate = gallery.lastOpenDate
+                if let language = gallery.language {
+                    managedObject?.language = language.rawValue
+                }
+                // managedObject?.lastOpenDate = gallery.lastOpenDate
                 managedObject?.pageCount = Int64(gallery.pageCount)
                 managedObject?.postedDate = gallery.postedDate
                 managedObject?.rating = gallery.rating
                 managedObject?.title = gallery.title
                 managedObject?.token = gallery.token
-                managedObject?.uploader = gallery.uploader
+                if let uploader = gallery.uploader {
+                    managedObject?.uploader = uploader
+                }
             }
             if storedMO == nil {
                 gallery.toManagedObject(in: shared.container.viewContext)
