@@ -435,20 +435,17 @@ extension TranslatableLanguage {
     var repoName: String {
         switch self {
         case .japanese:
-            return Defaults.URL
-                .ehTagTranslationJpnRepo
+            return Defaults.URL.ehTagTranslationJpnRepo
         case .simplifiedChinese,
              .traditionalChinese:
-            return Defaults.URL
-                .ehTagTrasnlationRepo
+            return Defaults.URL.ehTagTrasnlationRepo
         }
     }
     var remoteFilename: String {
         switch self {
         case .japanese:
             return "jpn_text.json"
-        case .simplifiedChinese,
-                .traditionalChinese:
+        case .simplifiedChinese, .traditionalChinese:
             return "db.text.json"
         }
     }
@@ -458,10 +455,7 @@ extension TranslatableLanguage {
         )
     }
     var downloadLink: String {
-        Defaults.URL.githubDownload(
-            repoName: repoName,
-            fileName: remoteFilename
-        )
+        Defaults.URL.githubDownload(repoName: repoName, fileName: remoteFilename)
     }
 }
 

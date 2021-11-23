@@ -25,8 +25,8 @@ struct GalleryThumbnailCell: View {
         VStack(alignment: .leading, spacing: 0) {
             KFImage(URL(string: gallery.coverURL))
                 .placeholder { Placeholder(style: .activity(ratio: Defaults.ImageSize.rowScale)) }
-//                .fade(duration: 0.25)
-                .resizable().scaledToFit().overlay {
+                /*.fade(duration: 0.25)*/
+                .resizable().frame(maxHeight: DeviceUtil.absWindowH * 2/3).scaledToFit().overlay {
                     VStack {
                         HStack {
                             Spacer()
