@@ -14,7 +14,6 @@ enum AppAction {
     case resetFilters
     case resetHomeInfo
     case setReadingProgress(gid: String, tag: Int)
-    case setDiskImageCacheSize(size: String)
     case setAppIconType(_ iconType: IconType)
     case appendHistoryKeyword(text: String)
     case removeHistoryKeyword(text: String)
@@ -39,8 +38,6 @@ enum AppAction {
     case setNavigationBarHidden(_ hidden: Bool)
     case setHomeViewSheetState(_ state: HomeViewSheetState?)
     case setSettingViewSheetState(_ state: SettingViewSheetState?)
-    case setSettingViewActionSheetState(_ state: SettingViewActionSheetState)
-    case setFilterViewActionSheetState(_ state: FilterViewActionSheetState)
     case setDetailViewSheetState(_ state: DetailViewSheetState?)
     case setCommentViewSheetState(_ state: CommentViewSheetState?)
 

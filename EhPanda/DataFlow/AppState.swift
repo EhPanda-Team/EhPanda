@@ -30,8 +30,6 @@ extension AppState {
         var homeListType: HomeListType = .frontpage
         var homeViewSheetState: HomeViewSheetState?
         var settingViewSheetState: SettingViewSheetState?
-        var settingViewActionSheetState: SettingViewActionSheetState?
-        var filterViewActionSheetState: FilterViewActionSheetState?
         var detailViewSheetState: DetailViewSheetState?
         var commentViewSheetState: CommentViewSheetState?
 

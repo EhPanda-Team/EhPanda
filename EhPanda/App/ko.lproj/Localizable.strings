@@ -50,6 +50,9 @@
 "Jump page" = "페이지 이동";
 "Confirm" = "확인";
 
+// MARK: HomeView
+//"Clear history" = "";
+
 // MARK: DetailView
 "Archive" = "아카이브";
 "Torrents" = "토렌트";
@@ -120,11 +123,9 @@
 "Username" = "이름";
 "Password" = "비밀번호";
 "Logout" = "로그아웃";
+"Are you sure to logout?" = "로그아웃 하시겠어요?";
 "Account configuration" = "계정 설정";
 "Manage tags subscription" = "태그 구독 관리";
-"Are you sure to logout?" = "로그아웃 하시겠어요?";
-"Are you sure to clear?" = "삭제하시겠어요?";
-"Clear" = "삭제";
 "Copy cookies" = "쿠키 복사하기";
 
 "General" = "일반";
@@ -135,6 +136,8 @@
 "Auto-Lock" = "앱 자동 잠금";
 "App switcher blur" = "앱 안 쓸 때 자동으로 흐려지게 만들기";
 "Cache" = "캐시";
+"Clear" = "삭제";
+"Are you sure to clear?" = "삭제하시겠어요?";
 "Clear image caches" = "이미지 캐시 지우기";
 
 "Appearance" = "외관";

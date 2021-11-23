@@ -9,6 +9,7 @@ import SwiftUI
 
 struct FilterView: View, StoreAccessor {
     @EnvironmentObject var store: Store
+    @State var resetDialogPresented = false
 
     private var categoryBindings: [Binding<Bool>] {
         [
@@ -30,7 +31,7 @@ struct FilterView: View, StoreAccessor {
                 Section {
                     CategoryView(bindings: categoryBindings)
                     Button {
-                        store.dispatch(.setFilterViewActionSheetState(.resetFilters))
+                        resetDialogPresented = true
                     } label: {
                         Text("Reset filters").foregroundStyle(.red)
                     }
@@ -66,24 +67,16 @@ struct FilterView: View, StoreAccessor {
                 }
                 .disabled(!filter.advanced)
             }
-            .actionSheet(item: $store.appState.environment.filterViewActionSheetState, content: actionSheet)
+            .confirmationDialog(
+                "Are you sure to reset?",
+                isPresented: $resetDialogPresented,
+                titleVisibility: .visible
+            ) {
+                Button("Reset", role: .destructive) {
+                    store.dispatch(.resetFilters)
+                }
+            }
             .navigationBarTitle("Filters")
-        }
-    }
-
-    // MARK: ActionSheet
-    private func actionSheet(item: FilterViewActionSheetState) -> ActionSheet {
-        switch item {
-        case .resetFilters:
-            return ActionSheet(
-                title: Text("Are you sure to reset?"),
-                buttons: [
-                    .destructive(Text("Reset")) {
-                        store.dispatch(.resetFilters)
-                    },
-                    .cancel()
-                ]
-            )
         }
     }
 }
@@ -152,12 +145,6 @@ private struct PagesRangeSetter: View {
 }
 
 // MARK: Definition
-enum FilterViewActionSheetState: Identifiable {
-    var id: Int { hashValue }
-
-    case resetFilters
-}
-
 private struct TupleCategory: Identifiable {
     var id: String { category.rawValue }
 

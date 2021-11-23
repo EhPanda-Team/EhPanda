@@ -50,6 +50,9 @@
 "Jump page" = "ページジャンプ";
 "Confirm" = "確認";
 
+// MARK: HomeView
+"Clear history" = "履歴を削除";
+
 // MARK: DetailView
 "Archive" = "アーカイブ";
 "Torrents" = "トレント";
@@ -120,11 +123,9 @@
 "Username" = "ユーザー名";
 "Password" = "パスワード";
 "Logout" = "ログアウト";
+"Are you sure to logout?" = "本当にログアウトしますか？";
 "Account configuration" = "アカウント設定";
 "Manage tags subscription" = "タグの購読を管理";
-"Are you sure to logout?" = "本当にログアウトしますか？";
-"Are you sure to clear?" = "本当に削除しますか？";
-"Clear" = "削除";
 "Copy cookies" = "クッキーをコピー";
 
 "General" = "一般";
@@ -135,7 +136,9 @@
 "Auto-Lock" = "自動ロック";
 "App switcher blur" = "アプリスイッチャーぼかし";
 "Cache" = "キャッシュ";
+"Clear" = "削除";
 "Clear image caches" = "画像キャッシュを削除";
+"Are you sure to clear?" = "本当に削除しますか？";
 
 "Appearance" = "外観";
 "Global" = "全般";

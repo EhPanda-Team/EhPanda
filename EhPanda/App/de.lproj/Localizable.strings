@@ -50,6 +50,9 @@
 //"Jump page" = "";
 //"Confirm" = "";
 
+// MARK: HomeView
+//"Clear history" = "";
+
 // MARK: DetailView
 "Archive" = "Archiv";
 "Torrents" = "Torrents";
@@ -120,11 +123,9 @@
 //"Username" = "";
 //"Password" = "";
 "Logout" = "Ausloggen";
+"Are you sure to logout?" = "Bist du sicher das du dich ausloggen möchtest?";
 "Account configuration" = "Kontoeinstellungen";
 "Manage tags subscription" = "Meine Tags bearbeiten";
-"Are you sure to logout?" = "Bist du sicher das du dich ausloggen möchtest?";
-"Are you sure to clear?" = "Bist du sicher das du das löschen möchtest?";
-"Clear" = "Löschen";
 "Copy cookies" = "Cookies kopieren";
 
 "General" = "Allgemein";
@@ -135,6 +136,8 @@
 "Auto-Lock" = "Auto-Lock";
 "App switcher blur" = "Appinhalt bei Appwechsel unkenntlich machen";
 "Cache" = "Cache";
+"Clear" = "Löschen";
+"Are you sure to clear?" = "Bist du sicher das du das löschen möchtest?";
 "Clear image caches" = "Zwischengespeicherte Bilder (Cache) löschen";
 
 "Appearance" = "Oberfläche";

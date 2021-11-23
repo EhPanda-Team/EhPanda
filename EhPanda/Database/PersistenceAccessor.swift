@@ -67,6 +67,14 @@ extension PersistenceController {
             findBeforeFetch: false, sortDescriptors: [sortDescriptor]
         ).map({ $0.toEntity() })
     }
+    static func clearGalleryHistory() {
+        let predicate = NSPredicate(format: "lastOpenDate != nil")
+        batchUpdate(entityType: GalleryMO.self, predicate: predicate) { galleryMOs in
+            galleryMOs.forEach { galleryMO in
+                galleryMO.lastOpenDate = nil
+            }
+        }
+    }
 
     static func fetch<MO: NSManagedObject>(
         entityType: MO.Type, gid: String,
@@ -151,7 +159,7 @@ extension PersistenceController {
             galleryMO.lastOpenDate = Date()
         }
     }
-    static func update(appEnvMO: ((AppEnvMO) -> Void)) {
+    static func update(appEnvMO: (AppEnvMO) -> Void) {
         update(entityType: AppEnvMO.self, createIfNil: true, commitChanges: appEnvMO)
     }
 

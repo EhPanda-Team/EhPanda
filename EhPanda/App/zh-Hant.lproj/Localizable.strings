@@ -50,6 +50,9 @@
 //"Jump page" = "";
 //"Confirm" = "";
 
+// MARK: HomeView
+"Clear history" = "清空歷史";
+
 // MARK: DetailView
 "Archive" = "封存";
 "Torrents" = "種子";
@@ -120,11 +123,9 @@
 //"Username" = "";
 //"Password" = "";
 "Logout" = "登出";
+"Are you sure to logout?" = "確定要登出嗎？";
 "Account configuration" = "帳號設定";
 "Manage tags subscription" = "管理訂閱標籤";
-"Are you sure to logout?" = "確定要登出嗎？";
-"Are you sure to clear?" = "確定要清空嗎？";
-"Clear" = "清空";
 "Copy cookies" = "複製 Cookies";
 
 "General" = "一般";
@@ -135,6 +136,8 @@
 "Auto-Lock" = "自動鎖定";
 "App switcher blur" = "模糊多工處理中的預覽";
 "Cache" = "快取";
+"Clear" = "清空";
+"Are you sure to clear?" = "確定要清空嗎？";
 "Clear image caches" = "清空圖片快取";
 
 "Appearance" = "外觀";

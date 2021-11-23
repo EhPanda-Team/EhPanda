@@ -29,6 +29,7 @@ struct HomeView: View, StoreAccessor {
     @State private var alertInput = ""
     @FocusState private var isAlertFocused: Bool
     @StateObject private var alertManager = CustomAlertManager()
+    @State private var clearHistoryDialogPresented = false
 
     // MARK: HomeView
     var body: some View {
@@ -76,6 +77,13 @@ struct HomeView: View, StoreAccessor {
             },
             buttons: [.regular(content: { Text("Confirm") }, action: tryPerformJumpPage)]
         )
+        .confirmationDialog(
+            "Are you sure to clear?",
+            isPresented: $clearHistoryDialogPresented,
+            titleVisibility: .visible
+        ) {
+            Button("Clear", role: .destructive, action: PersistenceController.clearGalleryHistory)
+        }
     }
 }
 
@@ -152,6 +160,15 @@ private extension HomeView {
                     Text("Jump page")
                 }
                 .disabled(currentListTypePageNumber.isSinglePage)
+                if environment.homeListType == .history {
+                    Button {
+                        clearHistoryDialogPresented = true
+                    } label: {
+                        Image(systemName: "trash")
+                        Text("Clear history")
+                    }
+                    .disabled(galleryHistory.isEmpty)
+                }
             } label: {
                 Image(systemName: "ellipsis.circle")
                     .symbolRenderingMode(.hierarchical)

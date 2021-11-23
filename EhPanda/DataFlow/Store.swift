@@ -105,8 +105,6 @@ final class Store: ObservableObject {
             dispatch(.fetchFrontpageItems(pageNum: nil))
         case .setReadingProgress(let gid, let tag):
             PersistenceController.update(gid: gid, readingProgress: tag)
-        case .setDiskImageCacheSize(let size):
-            appState.settings.setting.diskImageCacheSize = size
         case .setAppIconType(let iconType):
             appState.settings.setting.appIconType = iconType
         case .appendHistoryKeyword(let text):
@@ -161,10 +159,6 @@ final class Store: ObservableObject {
         case .setSettingViewSheetState(let state):
             if state != nil { HapticUtil.generateFeedback(style: .light) }
             appState.environment.settingViewSheetState = state
-        case .setSettingViewActionSheetState(let state):
-            appState.environment.settingViewActionSheetState = state
-        case .setFilterViewActionSheetState(let state):
-            appState.environment.filterViewActionSheetState = state
         case .setDetailViewSheetState(let state):
             if state != nil { HapticUtil.generateFeedback(style: .light) }
             appState.environment.detailViewSheetState = state

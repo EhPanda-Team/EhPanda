@@ -128,8 +128,10 @@ struct PersistenceController {
         }
     }
 
-    static func batchUpdate<MO: NSManagedObject>(entityType: MO.Type, commitChanges: ([MO]) -> Void) {
-        let storedMOs = batchFetch(entityType: entityType)
+    static func batchUpdate<MO: NSManagedObject>(
+        entityType: MO.Type, predicate: NSPredicate? = nil, commitChanges: ([MO]) -> Void
+    ) {
+        let storedMOs = batchFetch(entityType: entityType, predicate: predicate, findBeforeFetch: false)
         commitChanges(storedMOs)
         saveContext()
     }
