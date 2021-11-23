@@ -56,7 +56,14 @@ struct GeneralSettingView: View, StoreAccessor {
                     }
                     .pickerStyle(.menu)
                 }
-                Toggle("App switcher blur", isOn: settingBinding.allowsResignActiveBlur)
+                VStack(alignment: .leading) {
+                    Text("App switcher blur")
+                    HStack {
+                        Image(systemName: "eye")
+                        Slider(value: settingBinding.backgroundBlurRadius, in: 0...100, step: 10)
+                        Image(systemName: "eye.slash")
+                    }
+                }
             }
             Section("Cache".localized) {
                 Button {

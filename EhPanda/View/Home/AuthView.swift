@@ -41,7 +41,7 @@ private extension AuthView {
         lock()
     }
     func onResignActive(_: Any? = nil) {
-        guard allowsResignActiveBlur else { return }
+        guard backgroundBlurRadius > 0 else { return }
         setBlurEffect(activated: true)
     }
     func onDidBecomeActive(_: Any? = nil) {
@@ -66,7 +66,7 @@ private extension AuthView {
     // MARK: Authorization
     func setBlurEffect(activated: Bool) {
         withAnimation(.linear(duration: 0.1)) {
-            blurRadius = activated ? 10 : 0
+            blurRadius = activated ? backgroundBlurRadius : 0
         }
         store.dispatch(.setBlurEffect(activated: activated))
     }

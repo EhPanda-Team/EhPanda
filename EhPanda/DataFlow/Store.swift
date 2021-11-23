@@ -140,7 +140,8 @@ final class Store: ObservableObject {
             appState.environment.isAppUnlocked = !activated
         case .setBlurEffect(let activated):
             withAnimation(.linear(duration: 0.1)) {
-                appState.environment.blurRadius = activated ? 10 : 0
+                appState.environment.blurRadius =
+                    activated ? appState.settings.setting.backgroundBlurRadius : 0
             }
         case .setHomeListType(let type):
             appState.environment.homeListType = type
