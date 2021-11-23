@@ -168,21 +168,25 @@ extension AppState {
                 }
             }
         }
-        mutating func appendHistoryKeyword(text: String) {
-            guard !text.isEmpty else { return }
+        mutating func appendHistoryKeywords(texts: [String]) {
+            guard !texts.isEmpty else { return }
             var historyKeywords = historyKeywords
-            if let index = historyKeywords.firstIndex(of: text) {
-                if historyKeywords.last != text {
-                    historyKeywords.remove(at: index)
+
+            texts.forEach { text in
+                guard !text.isEmpty else { return }
+                if let index = historyKeywords.firstIndex(of: text) {
+                    if historyKeywords.last != text {
+                        historyKeywords.remove(at: index)
+                        historyKeywords.append(text)
+                    }
+                } else {
                     historyKeywords.append(text)
-                }
-            } else {
-                historyKeywords.append(text)
-                let overflow = historyKeywords.count - 10
-                if overflow > 0 {
-                    historyKeywords = Array(
-                        historyKeywords.dropFirst(overflow)
-                    )
+                    let overflow = historyKeywords.count - 15
+                    if overflow > 0 {
+                        historyKeywords = Array(
+                            historyKeywords.dropFirst(overflow)
+                        )
+                    }
                 }
             }
             self.historyKeywords = historyKeywords

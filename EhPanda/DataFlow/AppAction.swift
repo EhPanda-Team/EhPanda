@@ -15,7 +15,7 @@ enum AppAction {
     case resetHomeInfo
     case setReadingProgress(gid: String, tag: Int)
     case setAppIconType(_ iconType: IconType)
-    case appendHistoryKeyword(text: String)
+    case appendHistoryKeywords(texts: [String])
     case removeHistoryKeyword(text: String)
     case clearHistoryKeywords
     case setViewControllersCount

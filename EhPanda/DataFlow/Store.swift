@@ -107,8 +107,8 @@ final class Store: ObservableObject {
             PersistenceController.update(gid: gid, readingProgress: tag)
         case .setAppIconType(let iconType):
             appState.settings.setting.appIconType = iconType
-        case .appendHistoryKeyword(let text):
-            appState.homeInfo.appendHistoryKeyword(text: text)
+        case .appendHistoryKeywords(let texts):
+            appState.homeInfo.appendHistoryKeywords(texts: texts)
         case .removeHistoryKeyword(let text):
             appState.homeInfo.removeHistoryKeyword(text: text)
         case .clearHistoryKeywords:

@@ -16,8 +16,10 @@ struct HomeView: View, StoreAccessor {
     @AppStorage(wrappedValue: .ehentai, AppUserDefaults.galleryHost.rawValue)
     var galleryHost: GalleryHost
 
+    @State private var isSearching = false
     @State private var keyword = ""
     @State private var lastKeyword = ""
+    @State private var pendingKeywords = [String]()
 
     @State private var clipboardJumpID: String?
     @State private var isNavLinkActive = false
@@ -36,6 +38,7 @@ struct HomeView: View, StoreAccessor {
         NavigationView {
             ZStack {
                 conditionalList
+                SearchHelper(isSearching: $isSearching)
                 TTProgressHUD($hudVisible, config: hudConfig)
             }
             .background {
@@ -55,7 +58,6 @@ struct HomeView: View, StoreAccessor {
         .navigationViewStyle(.stack)
         .onOpenURL(perform: tryOpenURL).onAppear(perform: onStartTasks)
         .sheet(item: environmentBinding.homeViewSheetState, content: sheet)
-        .onReceive(UIResponder.keyboardDidHideNotification.publisher, perform: tryUpdateHistoryKeywords)
         .onReceive(UIApplication.didBecomeActiveNotification.publisher, perform: onBecomeActive)
         .onChange(of: environment.galleryItemReverseLoading, perform: tryDismissLoadingHUD)
         .onChange(of: currentListTypePageNumber) { alertInput = String($0.current + 1) }
@@ -66,6 +68,7 @@ struct HomeView: View, StoreAccessor {
         .onChange(of: environment.homeListType, perform: onHomeListTypeChange)
         .onChange(of: galleryHost) { _ in store.dispatch(.resetHomeInfo) }
         .onChange(of: user.greeting, perform: tryPresentNewDawnSheet)
+        .onChange(of: isSearching, perform: tryUpdateHistoryKeywords)
         .customAlert(
             manager: alertManager, widthFactor: DeviceUtil.isPadWidth ? 0.5 : 1.0,
             backgroundOpacity: colorScheme == .light ? 0.2 : 0.5,
@@ -469,9 +472,10 @@ private extension HomeView {
     }
 
     // MARK: Search
-    func tryUpdateHistoryKeywords(_: Any) {
-        guard !lastKeyword.isEmpty else { return }
-        store.dispatch(.appendHistoryKeyword(text: lastKeyword))
+    func tryUpdateHistoryKeywords(isSearching: Bool) {
+        guard !isSearching, !lastKeyword.isEmpty else { return }
+        store.dispatch(.appendHistoryKeywords(texts: pendingKeywords))
+        pendingKeywords = []
     }
     func tryRefetchSearchItems() {
         guard !lastKeyword.isEmpty else { return }
@@ -482,6 +486,7 @@ private extension HomeView {
             store.dispatch(.setHomeListType(.search))
         }
         if !keyword.isEmpty {
+            pendingKeywords.append(keyword)
             lastKeyword = keyword
         }
         store.dispatch(.fetchSearchItems(keyword: keyword))
@@ -576,6 +581,22 @@ private extension HomeView {
     func tryFetchToplistsItems() {
         guard homeInfo.toplistsItems[environment.toplistsType.rawValue]?.isEmpty != false else { return }
         fetchToplistsItems()
+    }
+}
+
+// MARK: SearchHelper
+private struct SearchHelper: View {
+    @Environment(\.isSearching) var isSearchingEnvironment
+    @Binding var isSearching: Bool
+
+    init(isSearching: Binding<Bool>) {
+        _isSearching = isSearching
+    }
+
+    var body: some View {
+        Text("").onChange(of: isSearchingEnvironment) { newValue in
+            isSearching = newValue
+        }
     }
 }
 
