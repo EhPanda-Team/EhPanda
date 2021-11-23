@@ -62,7 +62,7 @@ struct PersistenceController {
         entityType: MO.Type, predicate: NSPredicate? = nil,
         findBeforeFetch: Bool = true, commitChanges: ((MO?) -> Void)? = nil
     ) -> MO? {
-        let managedObject = fetch(
+        let managedObject = batchFetch(
             entityType: entityType, fetchLimit: 1,
             predicate: predicate, findBeforeFetch: findBeforeFetch
         ).first
@@ -70,7 +70,7 @@ struct PersistenceController {
         return managedObject
     }
 
-    static func fetch<MO: NSManagedObject>(
+    static func batchFetch<MO: NSManagedObject>(
         entityType: MO.Type, fetchLimit: Int = 0, predicate: NSPredicate? = nil,
         findBeforeFetch: Bool = true, sortDescriptors: [NSSortDescriptor]? = nil
     ) -> [MO] {
@@ -114,7 +114,7 @@ struct PersistenceController {
 
     static func update<MO: NSManagedObject>(
         entityType: MO.Type, predicate: NSPredicate? = nil,
-        createIfNil: Bool = false, commitChanges: ((MO) -> Void)
+        createIfNil: Bool = false, commitChanges: (MO) -> Void
     ) {
         let storedMO: MO?
         if createIfNil {
@@ -126,6 +126,12 @@ struct PersistenceController {
             commitChanges(storedMO)
             saveContext()
         }
+    }
+
+    static func batchUpdate<MO: NSManagedObject>(entityType: MO.Type, commitChanges: ([MO]) -> Void) {
+        let storedMOs = batchFetch(entityType: entityType)
+        commitChanges(storedMOs)
+        saveContext()
     }
 
     static func update<MO: GalleryIdentifiable>(

@@ -70,7 +70,7 @@ struct SettingView: View, StoreAccessor {
             return ActionSheet(title: Text("Are you sure to logout?"), buttons: [
                 .destructive(Text("Logout"), action: logout), .cancel()
             ])
-        case .clearImgCaches:
+        case .clearImageCaches:
             return ActionSheet(title: Text("Are you sure to clear?"), buttons: [
                 .destructive(Text("Clear"), action: clearImageCaches), .cancel()
             ])
@@ -106,6 +106,7 @@ private extension SettingView {
     }
     func clearImageCaches() {
         KingfisherManager.shared.cache.clearDiskCache()
+        PersistenceController.removeImageURLs()
         calculateDiskCachesSize()
     }
 }
@@ -160,7 +161,7 @@ enum SettingViewActionSheetState: Identifiable {
     var id: Int { hashValue }
 
     case logout
-    case clearImgCaches
+    case clearImageCaches
 }
 
 enum SettingViewSheetState: Identifiable {

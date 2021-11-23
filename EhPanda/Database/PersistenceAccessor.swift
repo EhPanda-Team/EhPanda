@@ -62,7 +62,7 @@ extension PersistenceController {
         let sortDescriptor = NSSortDescriptor(
             keyPath: \GalleryMO.lastOpenDate, ascending: false
         )
-        return fetch(
+        return batchFetch(
             entityType: GalleryMO.self, predicate: predicate,
             findBeforeFetch: false, sortDescriptors: [sortDescriptor]
         ).map({ $0.toEntity() })
@@ -113,10 +113,7 @@ extension PersistenceController {
     }
 
     static func add(detail: GalleryDetail) {
-        let storedMO = fetch(
-            entityType: GalleryDetailMO.self,
-            gid: detail.gid
-        ) { managedObject in
+        let storedMO = fetch(entityType: GalleryDetailMO.self, gid: detail.gid) { managedObject in
             managedObject?.archiveURL = detail.archiveURL
             managedObject?.category = detail.category.rawValue
             managedObject?.coverURL = detail.coverURL
@@ -159,6 +156,15 @@ extension PersistenceController {
     }
 
     // MARK: GalleryState
+    static func removeImageURLs() {
+        batchUpdate(entityType: GalleryStateMO.self) { galleryStateMOs in
+            galleryStateMOs.forEach { galleryStateMO in
+                galleryStateMO.contents = nil
+                galleryStateMO.previews = nil
+                galleryStateMO.thumbnails = nil
+            }
+        }
+    }
     static func update(gid: String, galleryStateMO: @escaping ((GalleryStateMO) -> Void)) {
         update(entityType: GalleryStateMO.self, gid: gid, createIfNil: true, commitChanges: galleryStateMO)
     }

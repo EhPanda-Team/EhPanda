@@ -60,7 +60,7 @@ struct GeneralSettingView: View, StoreAccessor {
             }
             Section("Cache".localized) {
                 Button {
-                    store.dispatch(.setSettingViewActionSheetState(.clearImgCaches))
+                    store.dispatch(.setSettingViewActionSheetState(.clearImageCaches))
                 } label: {
                     HStack {
                         Text("Clear image caches")
