@@ -16,9 +16,9 @@ enum AppAction {
     case setReadingProgress(gid: String, tag: Int)
     case setDiskImageCacheSize(size: String)
     case setAppIconType(_ iconType: IconType)
-    case appendHistoryKeywords(text: String)
+    case appendHistoryKeyword(text: String)
+    case removeHistoryKeyword(text: String)
     case clearHistoryKeywords
-    case setLastKeyword(text: String)
     case setViewControllersCount
     case setSetting(_ setting: Setting)
     case setGalleryCommentJumpID(gid: String?)

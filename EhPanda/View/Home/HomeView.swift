@@ -17,6 +17,8 @@ struct HomeView: View, StoreAccessor {
     var galleryHost: GalleryHost
 
     @State private var keyword = ""
+    @State private var lastKeyword = ""
+
     @State private var clipboardJumpID: String?
     @State private var isNavLinkActive = false
     @State private var greeting: Greeting?
@@ -43,10 +45,8 @@ struct HomeView: View, StoreAccessor {
                 )
             }
             .searchable(
-                text: $keyword,
-                placement: .navigationBarDrawer(displayMode: .always),
-                suggestions: suggestions
-            )
+                text: $keyword, placement: .navigationBarDrawer(displayMode: .always)
+            ) { SuggestionProvider(keyword: $keyword) }
             .navigationBarTitle(navigationBarTitle)
             .onSubmit(of: .search, performSearch)
             .toolbar(content: toolbar)
@@ -54,6 +54,7 @@ struct HomeView: View, StoreAccessor {
         .navigationViewStyle(.stack)
         .onOpenURL(perform: tryOpenURL).onAppear(perform: onStartTasks)
         .sheet(item: environmentBinding.homeViewSheetState, content: sheet)
+        .onReceive(UIResponder.keyboardDidHideNotification.publisher, perform: tryUpdateHistoryKeywords)
         .onReceive(UIApplication.didBecomeActiveNotification.publisher, perform: onBecomeActive)
         .onChange(of: environment.galleryItemReverseLoading, perform: tryDismissLoadingHUD)
         .onChange(of: currentListTypePageNumber) { alertInput = String($0.current + 1) }
@@ -64,7 +65,6 @@ struct HomeView: View, StoreAccessor {
         .onChange(of: environment.homeListType, perform: onHomeListTypeChange)
         .onChange(of: galleryHost) { _ in store.dispatch(.resetHomeInfo) }
         .onChange(of: user.greeting, perform: tryPresentNewDawnSheet)
-        .onChange(of: keyword, perform: tryUpdateHistoryKeywords)
         .customAlert(
             manager: alertManager, widthFactor: DeviceUtil.isPadWidth ? 0.5 : 1.0,
             backgroundOpacity: colorScheme == .light ? 0.2 : 0.5,
@@ -80,22 +80,6 @@ struct HomeView: View, StoreAccessor {
 }
 
 private extension HomeView {
-    // MARK: Suggestions
-    @ViewBuilder
-    func suggestions() -> some View {
-        let historyKeywords = homeInfo.historyKeywords.reversed().filter({ word in
-            keyword.isEmpty ? true : word.contains(keyword)
-        })
-        ForEach(historyKeywords, id: \.self) { word in
-            HStack {
-                Text(word).foregroundStyle(.tint)
-                Spacer()
-            }
-            .contentShape(Rectangle())
-            .onTapGesture { keyword = word }
-        }
-    }
-
     // MARK: Sheet
     func sheet(item: HomeViewSheetState) -> some View {
         Group {
@@ -457,7 +441,7 @@ private extension HomeView {
     func tryPerformJumpPage() {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             guard let index = Int(alertInput), index <= currentListTypePageNumber.maximum + 1 else { return }
-            store.dispatch(.handleJumpPage(index: index - 1, keyword: homeInfo.lastKeyword))
+            store.dispatch(.handleJumpPage(index: index - 1, keyword: lastKeyword))
         }
     }
     func tryActivateNavLink(newValue: String?) {
@@ -468,20 +452,20 @@ private extension HomeView {
     }
 
     // MARK: Search
-    func tryUpdateHistoryKeywords(_ keyword: String) {
-        guard keyword.isEmpty else { return }
-        store.dispatch(.appendHistoryKeywords(text: homeInfo.lastKeyword))
+    func tryUpdateHistoryKeywords(_: Any) {
+        guard !lastKeyword.isEmpty else { return }
+        store.dispatch(.appendHistoryKeyword(text: lastKeyword))
     }
     func tryRefetchSearchItems() {
-        guard !homeInfo.lastKeyword.isEmpty else { return }
-        store.dispatch(.fetchSearchItems(keyword: homeInfo.lastKeyword))
+        guard !lastKeyword.isEmpty else { return }
+        store.dispatch(.fetchSearchItems(keyword: lastKeyword))
     }
     func performSearch() {
         if environment.homeListType != .search {
             store.dispatch(.setHomeListType(.search))
         }
         if !keyword.isEmpty {
-            store.dispatch(.setLastKeyword(text: keyword))
+            lastKeyword = keyword
         }
         store.dispatch(.fetchSearchItems(keyword: keyword))
     }
@@ -549,7 +533,7 @@ private extension HomeView {
     }
 
     func fetchMoreSearchItems() {
-        store.dispatch(.fetchMoreSearchItems(keyword: homeInfo.lastKeyword))
+        store.dispatch(.fetchMoreSearchItems(keyword: lastKeyword))
     }
     func fetchMoreFrontpageItems() {
         store.dispatch(.fetchMoreFrontpageItems)

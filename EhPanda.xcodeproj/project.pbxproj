@@ -45,6 +45,7 @@
 		AB5BE68026B95FDD007D4A55 /* ShareExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = AB5BE67626B95FDD007D4A55 /* ShareExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		AB60D0CF274C7AA000F899AB /* BetterCodable in Frameworks */ = {isa = PBXBuildFile; productRef = AB60D0CE274C7AA000F899AB /* BetterCodable */; };
 		AB60D0E9274C7ECE00F899AB /* WaterfallGrid in Frameworks */ = {isa = PBXBuildFile; productRef = AB60D0E8274C7ECE00F899AB /* WaterfallGrid */; };
+		AB60D0EB274CFB6D00F899AB /* SuggestionProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB60D0EA274CFB6D00F899AB /* SuggestionProvider.swift */; };
 		AB63EADB2699AC8200090535 /* AppEnvMO+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB63EADA2699AC8200090535 /* AppEnvMO+CoreDataProperties.swift */; };
 		AB63EADD2699AC9100090535 /* AppEnvMO+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB63EADC2699AC9100090535 /* AppEnvMO+CoreDataClass.swift */; };
 		AB6505A026B0027800F91E9D /* SwiftUIPager in Frameworks */ = {isa = PBXBuildFile; productRef = AB65059F26B0027800F91E9D /* SwiftUIPager */; };
@@ -194,6 +195,7 @@
 		AB5BE67626B95FDD007D4A55 /* ShareExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ShareExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		AB5BE67826B95FDD007D4A55 /* ShareViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareViewController.swift; sourceTree = "<group>"; };
 		AB5BE67D26B95FDD007D4A55 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		AB60D0EA274CFB6D00F899AB /* SuggestionProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuggestionProvider.swift; sourceTree = "<group>"; };
 		AB63EADA2699AC8200090535 /* AppEnvMO+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppEnvMO+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		AB63EADC2699AC9100090535 /* AppEnvMO+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppEnvMO+CoreDataClass.swift"; sourceTree = "<group>"; };
 		AB69CB7F26B3DABC00699359 /* AdvancedList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdvancedList.swift; sourceTree = "<group>"; };
@@ -586,6 +588,7 @@
 				ABF45AC725F3313D00ECB568 /* TagCloudView.swift */,
 				ABBC332926BE7C940084A331 /* SettingTextField.swift */,
 				AB0ABCB626C541A400AD970F /* WaveForm.swift */,
+				AB60D0EA274CFB6D00F899AB /* SuggestionProvider.swift */,
 			);
 			path = Tools;
 			sourceTree = "<group>";
@@ -859,6 +862,7 @@
 				AB63EADD2699AC9100090535 /* AppEnvMO+CoreDataClass.swift in Sources */,
 				ABCA93BE26918DE100A98BC6 /* Persistence.swift in Sources */,
 				ABF45AEF25F3313D00ECB568 /* TorrentsView.swift in Sources */,
+				AB60D0EB274CFB6D00F899AB /* SuggestionProvider.swift in Sources */,
 				ABF45AB925F3312F00ECB568 /* AppState.swift in Sources */,
 				ABF45AF625F3313D00ECB568 /* AppearanceSettingView.swift in Sources */,
 				AB69CB8226B3DAF400699359 /* ControlPanel.swift in Sources */,

@@ -109,12 +109,12 @@ final class Store: ObservableObject {
             appState.settings.setting.diskImageCacheSize = size
         case .setAppIconType(let iconType):
             appState.settings.setting.appIconType = iconType
-        case .appendHistoryKeywords(let text):
-            appState.homeInfo.insertHistoryKeyword(text: text)
+        case .appendHistoryKeyword(let text):
+            appState.homeInfo.appendHistoryKeyword(text: text)
+        case .removeHistoryKeyword(let text):
+            appState.homeInfo.removeHistoryKeyword(text: text)
         case .clearHistoryKeywords:
             appState.homeInfo.historyKeywords = []
-        case .setLastKeyword(let text):
-            appState.homeInfo.lastKeyword = text
         case .setSetting(let setting):
             appState.settings.setting = setting
         case .setViewControllersCount:

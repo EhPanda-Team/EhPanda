@@ -96,8 +96,6 @@ extension AppState {
 extension AppState {
     // MARK: HomeInfo
     struct HomeInfo {
-        var lastKeyword = ""
-
         var searchItems = [Gallery]()
         var searchLoading = false
         var searchLoadError: AppError?
@@ -172,8 +170,9 @@ extension AppState {
                 }
             }
         }
-        mutating func insertHistoryKeyword(text: String) {
+        mutating func appendHistoryKeyword(text: String) {
             guard !text.isEmpty else { return }
+            var historyKeywords = historyKeywords
             if let index = historyKeywords.firstIndex(of: text) {
                 if historyKeywords.last != text {
                     historyKeywords.remove(at: index)
@@ -189,6 +188,9 @@ extension AppState {
                 }
             }
             self.historyKeywords = historyKeywords
+        }
+        mutating func removeHistoryKeyword(text: String) {
+            historyKeywords = historyKeywords.filter { $0 != text }
         }
         mutating func appendQuickSearchWord() {
             quickSearchWords.append(QuickSearchWord(content: ""))
