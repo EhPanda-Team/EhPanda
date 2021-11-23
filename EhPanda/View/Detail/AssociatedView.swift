@@ -186,7 +186,7 @@ private extension AssociatedView {
 
         let token = SubscriptionToken()
         MoreSearchItemsRequest(
-            keyword: keyword, filter: filter,
+            keyword: keyword.isEmpty ? title : keyword, filter: filter,
             lastID: lastID, pageNum: pageNumber.current + 1
         )
         .publisher.receive(on: DispatchQueue.main)
