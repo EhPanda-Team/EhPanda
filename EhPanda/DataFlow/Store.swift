@@ -99,18 +99,20 @@ final class Store: ObservableObject {
             appState.settings.user = User()
         case .resetFilters:
             appState.settings.filter = Filter()
+        case .resetHomeInfo:
+            appState.homeInfo = AppState.HomeInfo()
+            dispatch(.setHomeListType(.frontpage))
+            dispatch(.fetchFrontpageItems(pageNum: nil))
         case .setReadingProgress(let gid, let tag):
             PersistenceController.update(gid: gid, readingProgress: tag)
-        case .setDiskImageCacheSize(let size):
-            appState.settings.setting.diskImageCacheSize = size
         case .setAppIconType(let iconType):
             appState.settings.setting.appIconType = iconType
-        case .appendHistoryKeywords(let text):
-            appState.homeInfo.insertHistoryKeyword(text: text)
+        case .appendHistoryKeywords(let texts):
+            appState.homeInfo.appendHistoryKeywords(texts: texts)
+        case .removeHistoryKeyword(let text):
+            appState.homeInfo.removeHistoryKeyword(text: text)
         case .clearHistoryKeywords:
             appState.homeInfo.historyKeywords = []
-        case .setLastKeyword(let text):
-            appState.homeInfo.lastKeyword = text
         case .setSetting(let setting):
             appState.settings.setting = setting
         case .setViewControllersCount:
@@ -140,7 +142,8 @@ final class Store: ObservableObject {
             appState.environment.isAppUnlocked = !activated
         case .setBlurEffect(let activated):
             withAnimation(.linear(duration: 0.1)) {
-                appState.environment.blurRadius = activated ? 10 : 0
+                appState.environment.blurRadius =
+                    activated ? appState.settings.setting.backgroundBlurRadius : 0
             }
         case .setHomeListType(let type):
             appState.environment.homeListType = type
@@ -156,10 +159,6 @@ final class Store: ObservableObject {
         case .setSettingViewSheetState(let state):
             if state != nil { HapticUtil.generateFeedback(style: .light) }
             appState.environment.settingViewSheetState = state
-        case .setSettingViewActionSheetState(let state):
-            appState.environment.settingViewActionSheetState = state
-        case .setFilterViewActionSheetState(let state):
-            appState.environment.filterViewActionSheetState = state
         case .setDetailViewSheetState(let state):
             if state != nil { HapticUtil.generateFeedback(style: .light) }
             appState.environment.detailViewSheetState = state

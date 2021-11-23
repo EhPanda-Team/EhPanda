@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import Kingfisher
 import SwiftyBeaver
 
 struct SettingView: View, StoreAccessor {
@@ -24,7 +23,6 @@ struct SettingView: View, StoreAccessor {
                     SettingRow(
                         symbolName: "switch.2", text: "General",
                         destination: GeneralSettingView()
-                            .onAppear(perform: calculateDiskCachesSize)
                     )
                     SettingRow(
                         symbolName: "circle.righthalf.fill", text: "Appearance",
@@ -46,8 +44,7 @@ struct SettingView: View, StoreAccessor {
                 .padding(.vertical, 40).padding(.horizontal)
             }
             .navigationBarTitle("Setting")
-            .sheet(item: environmentBinding.settingViewSheetState, content: sheet)
-            .actionSheet(item: environmentBinding.settingViewActionSheetState, content: actionSheet)
+            .sheet(item: $store.appState.environment.settingViewSheetState, content: sheet)
         }
     }
     private func sheet(item: SettingViewSheetState) -> some View {
@@ -63,50 +60,6 @@ struct SettingView: View, StoreAccessor {
         }
         .blur(radius: environment.blurRadius)
         .allowsHitTesting(environment.isAppUnlocked)
-    }
-    private func actionSheet(item: SettingViewActionSheetState) -> ActionSheet {
-        switch item {
-        case .logout:
-            return ActionSheet(title: Text("Are you sure to logout?"), buttons: [
-                .destructive(Text("Logout"), action: logout), .cancel()
-            ])
-        case .clearImgCaches:
-            return ActionSheet(title: Text("Are you sure to clear?"), buttons: [
-                .destructive(Text("Clear"), action: clearImageCaches), .cancel()
-            ])
-        }
-    }
-}
-
-private extension SettingView {
-    var environmentBinding: Binding<AppState.Environment> {
-        $store.appState.environment
-    }
-
-    func logout() {
-        clearImageCaches()
-        CookiesUtil.clearAll()
-        store.dispatch(.resetUser)
-    }
-
-    func readableUnit<I: BinaryInteger>(bytes: I) -> String {
-        let formatter = ByteCountFormatter()
-        formatter.allowedUnits = [.useAll]
-        return formatter.string(fromByteCount: Int64(bytes))
-    }
-    func calculateDiskCachesSize() {
-        KingfisherManager.shared.cache.calculateDiskStorageSize { result in
-            switch result {
-            case .success(let size):
-                store.dispatch(.setDiskImageCacheSize(size: readableUnit(bytes: size)))
-            case .failure(let error):
-                SwiftyBeaver.error(error)
-            }
-        }
-    }
-    func clearImageCaches() {
-        KingfisherManager.shared.cache.clearDiskCache()
-        calculateDiskCachesSize()
     }
 }
 
@@ -156,13 +109,6 @@ private struct SettingRow<Destination: View>: View {
 }
 
 // MARK: Definition
-enum SettingViewActionSheetState: Identifiable {
-    var id: Int { hashValue }
-
-    case logout
-    case clearImgCaches
-}
-
 enum SettingViewSheetState: Identifiable {
     var id: Int { hashValue }
 

@@ -24,8 +24,12 @@ struct GalleryThumbnailCell: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             KFImage(URL(string: gallery.coverURL))
-                .placeholder { Placeholder(style: .activity(ratio: Defaults.ImageSize.rowScale)) }
-//                .fade(duration: 0.25)
+                .placeholder { Placeholder(style: .activity(ratio: Defaults.ImageSize.rowAspect)) }
+                .imageModifier(WebtoonModifier(
+                    minAspect: Defaults.ImageSize.webtoonMinAspect,
+                    idealAspect: Defaults.ImageSize.webtoonIdealAspect
+                ))
+                /*.fade(duration: 0.25)*/
                 .resizable().scaledToFit().overlay {
                     VStack {
                         HStack {

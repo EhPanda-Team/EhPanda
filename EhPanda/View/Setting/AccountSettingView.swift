@@ -6,12 +6,14 @@
 //
 
 import SwiftUI
+import Kingfisher
 import TTProgressHUD
 
 struct AccountSettingView: View, StoreAccessor {
     @AppStorage(wrappedValue: .ehentai, AppUserDefaults.galleryHost.rawValue)
     var galleryHost: GalleryHost
     @EnvironmentObject var store: Store
+    @State private var logoutDialogPresented = false
 
     @State private var hudVisible = false
     @State private var hudConfig = TTProgressHUDConfig()
@@ -40,7 +42,7 @@ struct AccountSettingView: View, StoreAccessor {
                         NavigationLink("Login", destination: LoginView()).foregroundStyle(.tint)
                     } else {
                         Button("Logout", role: .destructive) {
-                            store.dispatch(.setSettingViewActionSheetState(.logout))
+                            logoutDialogPresented = true
                         }
                     }
                     if AuthorizationUtil.didLogin {
@@ -73,12 +75,27 @@ struct AccountSettingView: View, StoreAccessor {
             }
             TTProgressHUD($hudVisible, config: hudConfig)
         }
+        .confirmationDialog(
+            "Are you sure to logout?",
+            isPresented: $logoutDialogPresented,
+            titleVisibility: .visible
+        ) {
+            Button("Logout", role: .destructive, action: logout)
+        }
         .navigationBarTitle("Account")
     }
 }
 
 private extension AccountSettingView {
-    // MARK: Cookies stuff
+    // MARK: Logout
+    func logout() {
+        CookiesUtil.clearAll()
+        store.dispatch(.resetUser)
+        PersistenceController.removeImageURLs()
+        KingfisherManager.shared.cache.clearDiskCache()
+    }
+
+    // MARK: Cookies
     var igneous: CookieValue {
         CookiesUtil.get(for: exURL, key: igneousKey)
     }

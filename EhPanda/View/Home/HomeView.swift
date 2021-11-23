@@ -13,7 +13,14 @@ struct HomeView: View, StoreAccessor {
     @EnvironmentObject var store: Store
     @Environment(\.colorScheme) private var colorScheme
 
+    @AppStorage(wrappedValue: .ehentai, AppUserDefaults.galleryHost.rawValue)
+    var galleryHost: GalleryHost
+
+    @State private var isSearching = false
     @State private var keyword = ""
+    @State private var lastKeyword = ""
+    @State private var pendingKeywords = [String]()
+
     @State private var clipboardJumpID: String?
     @State private var isNavLinkActive = false
     @State private var greeting: Greeting?
@@ -24,12 +31,14 @@ struct HomeView: View, StoreAccessor {
     @State private var alertInput = ""
     @FocusState private var isAlertFocused: Bool
     @StateObject private var alertManager = CustomAlertManager()
+    @State private var clearHistoryDialogPresented = false
 
     // MARK: HomeView
     var body: some View {
         NavigationView {
             ZStack {
                 conditionalList
+                SearchHelper(isSearching: $isSearching)
                 TTProgressHUD($hudVisible, config: hudConfig)
             }
             .background {
@@ -40,10 +49,8 @@ struct HomeView: View, StoreAccessor {
                 )
             }
             .searchable(
-                text: $keyword,
-                placement: .navigationBarDrawer(displayMode: .always),
-                suggestions: suggestions
-            )
+                text: $keyword, placement: .navigationBarDrawer(displayMode: .always)
+            ) { SuggestionProvider(keyword: $keyword) }
             .navigationBarTitle(navigationBarTitle)
             .onSubmit(of: .search, performSearch)
             .toolbar(content: toolbar)
@@ -59,8 +66,9 @@ struct HomeView: View, StoreAccessor {
         .onChange(of: environment.toplistsType) { _ in tryFetchToplistsItems() }
         .onChange(of: alertManager.isPresented) { _ in isAlertFocused = false }
         .onChange(of: environment.homeListType, perform: onHomeListTypeChange)
+        .onChange(of: galleryHost) { _ in store.dispatch(.resetHomeInfo) }
         .onChange(of: user.greeting, perform: tryPresentNewDawnSheet)
-        .onChange(of: keyword, perform: tryUpdateHistoryKeywords)
+        .onChange(of: isSearching, perform: tryUpdateHistoryKeywords)
         .customAlert(
             manager: alertManager, widthFactor: DeviceUtil.isPadWidth ? 0.5 : 1.0,
             backgroundOpacity: colorScheme == .light ? 0.2 : 0.5,
@@ -72,26 +80,17 @@ struct HomeView: View, StoreAccessor {
             },
             buttons: [.regular(content: { Text("Confirm") }, action: tryPerformJumpPage)]
         )
+        .confirmationDialog(
+            "Are you sure to clear?",
+            isPresented: $clearHistoryDialogPresented,
+            titleVisibility: .visible
+        ) {
+            Button("Clear", role: .destructive, action: PersistenceController.clearGalleryHistory)
+        }
     }
 }
 
 private extension HomeView {
-    // MARK: Suggestions
-    @ViewBuilder
-    func suggestions() -> some View {
-        let historyKeywords = homeInfo.historyKeywords.reversed().filter({ word in
-            keyword.isEmpty ? true : word.contains(keyword)
-        })
-        ForEach(historyKeywords, id: \.self) { word in
-            HStack {
-                Text(word).foregroundStyle(.tint)
-                Spacer()
-            }
-            .contentShape(Rectangle())
-            .onTapGesture { keyword = word }
-        }
-    }
-
     // MARK: Sheet
     func sheet(item: HomeViewSheetState) -> some View {
         Group {
@@ -164,6 +163,15 @@ private extension HomeView {
                     Text("Jump page")
                 }
                 .disabled(currentListTypePageNumber.isSinglePage)
+                if environment.homeListType == .history {
+                    Button {
+                        clearHistoryDialogPresented = true
+                    } label: {
+                        Image(systemName: "trash")
+                        Text("Clear history")
+                    }
+                    .disabled(galleryHistory.isEmpty)
+                }
             } label: {
                 Image(systemName: "ellipsis.circle")
                     .symbolRenderingMode(.hierarchical)
@@ -419,6 +427,16 @@ private extension HomeView {
                 }
             }
             PasteboardUtil.clear()
+            clearObstruction()
+        }
+    }
+    // Removing this could cause unexpected blank leading space
+    func clearObstruction() {
+        if environment.homeViewSheetState != nil {
+            store.dispatch(.setHomeViewSheetState(nil))
+        }
+        if !environment.slideMenuClosed {
+            NotificationUtil.post(.shouldHideSlideMenu)
         }
     }
 
@@ -443,7 +461,7 @@ private extension HomeView {
     func tryPerformJumpPage() {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             guard let index = Int(alertInput), index <= currentListTypePageNumber.maximum + 1 else { return }
-            store.dispatch(.handleJumpPage(index: index - 1, keyword: homeInfo.lastKeyword))
+            store.dispatch(.handleJumpPage(index: index - 1, keyword: lastKeyword))
         }
     }
     func tryActivateNavLink(newValue: String?) {
@@ -454,20 +472,22 @@ private extension HomeView {
     }
 
     // MARK: Search
-    func tryUpdateHistoryKeywords(_ keyword: String) {
-        guard keyword.isEmpty else { return }
-        store.dispatch(.appendHistoryKeywords(text: homeInfo.lastKeyword))
+    func tryUpdateHistoryKeywords(isSearching: Bool) {
+        guard !isSearching, !lastKeyword.isEmpty else { return }
+        store.dispatch(.appendHistoryKeywords(texts: pendingKeywords))
+        pendingKeywords = []
     }
     func tryRefetchSearchItems() {
-        guard !homeInfo.lastKeyword.isEmpty else { return }
-        store.dispatch(.fetchSearchItems(keyword: homeInfo.lastKeyword))
+        guard !lastKeyword.isEmpty else { return }
+        store.dispatch(.fetchSearchItems(keyword: lastKeyword))
     }
     func performSearch() {
         if environment.homeListType != .search {
             store.dispatch(.setHomeListType(.search))
         }
         if !keyword.isEmpty {
-            store.dispatch(.setLastKeyword(text: keyword))
+            pendingKeywords.append(keyword)
+            lastKeyword = keyword
         }
         store.dispatch(.fetchSearchItems(keyword: keyword))
     }
@@ -501,8 +521,8 @@ private extension HomeView {
             formatter.dateFormat = Defaults.DateFormat.greeting
 
             let currentTimeString = formatter.string(from: currentTime)
-            if let currDay = formatter.date(from: currentTimeString) {
-                return currentTime > currDay && updateTime < currDay
+            if let currentDay = formatter.date(from: currentTimeString) {
+                return currentTime > currentDay && updateTime < currentDay
             }
 
             return false
@@ -535,7 +555,7 @@ private extension HomeView {
     }
 
     func fetchMoreSearchItems() {
-        store.dispatch(.fetchMoreSearchItems(keyword: homeInfo.lastKeyword))
+        store.dispatch(.fetchMoreSearchItems(keyword: lastKeyword))
     }
     func fetchMoreFrontpageItems() {
         store.dispatch(.fetchMoreFrontpageItems)
@@ -561,6 +581,22 @@ private extension HomeView {
     func tryFetchToplistsItems() {
         guard homeInfo.toplistsItems[environment.toplistsType.rawValue]?.isEmpty != false else { return }
         fetchToplistsItems()
+    }
+}
+
+// MARK: SearchHelper
+private struct SearchHelper: View {
+    @Environment(\.isSearching) var isSearchingEnvironment
+    @Binding var isSearching: Bool
+
+    init(isSearching: Binding<Bool>) {
+        _isSearching = isSearching
+    }
+
+    var body: some View {
+        Text("").onChange(of: isSearchingEnvironment) { newValue in
+            isSearching = newValue
+        }
     }
 }
 

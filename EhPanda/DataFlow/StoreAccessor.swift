@@ -72,8 +72,11 @@ extension StoreAccessor {
     var accentColor: Color {
         setting.accentColor
     }
-    var allowsResignActiveBlur: Bool {
-        setting.allowsResignActiveBlur
+    var appIconType: IconType {
+        setting.appIconType
+    }
+    var backgroundBlurRadius: Double {
+        setting.backgroundBlurRadius
     }
     var autoLockPolicy: AutoLockPolicy {
         setting.autoLockPolicy

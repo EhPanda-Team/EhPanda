@@ -94,21 +94,17 @@ private struct AvatarView: View {
         self.height = height
     }
 
-    private func getPlaceholder() -> some View {
-        Image(iconName).resizable()
-    }
-
     var body: some View {
         HStack {
             VStack(alignment: .leading) {
                 Group {
                     if avatarURL?.contains(".gif") != true {
                         KFImage(URL(string: avatarURL ?? ""))
-                            .placeholder(getPlaceholder).retry(maxCount: 10)
+                            .placeholder(placeholder).retry(maxCount: 10)
                             .defaultModifier(withRoundedCorners: false)
                     } else {
                         KFAnimatedImage(URL(string: avatarURL ?? ""))
-                            .placeholder(getPlaceholder)
+                            .placeholder(placeholder)
 //                            .fade(duration: 0.25)
                             .retry(maxCount: 10)
                     }
@@ -122,6 +118,9 @@ private struct AvatarView: View {
             }
             Spacer()
         }
+    }
+    private func placeholder() -> some View {
+        Image(iconName).resizable()
     }
 }
 

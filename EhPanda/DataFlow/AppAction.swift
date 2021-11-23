@@ -12,12 +12,12 @@ import Foundation
 enum AppAction {
     case resetUser
     case resetFilters
+    case resetHomeInfo
     case setReadingProgress(gid: String, tag: Int)
-    case setDiskImageCacheSize(size: String)
     case setAppIconType(_ iconType: IconType)
-    case appendHistoryKeywords(text: String)
+    case appendHistoryKeywords(texts: [String])
+    case removeHistoryKeyword(text: String)
     case clearHistoryKeywords
-    case setLastKeyword(text: String)
     case setViewControllersCount
     case setSetting(_ setting: Setting)
     case setGalleryCommentJumpID(gid: String?)
@@ -38,8 +38,6 @@ enum AppAction {
     case setNavigationBarHidden(_ hidden: Bool)
     case setHomeViewSheetState(_ state: HomeViewSheetState?)
     case setSettingViewSheetState(_ state: SettingViewSheetState?)
-    case setSettingViewActionSheetState(_ state: SettingViewActionSheetState)
-    case setFilterViewActionSheetState(_ state: FilterViewActionSheetState)
     case setDetailViewSheetState(_ state: DetailViewSheetState?)
     case setCommentViewSheetState(_ state: CommentViewSheetState?)
 

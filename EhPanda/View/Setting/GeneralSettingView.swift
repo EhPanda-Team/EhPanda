@@ -7,11 +7,14 @@
 
 import SwiftUI
 import Kingfisher
+import SwiftyBeaver
 import LocalAuthentication
 
 struct GeneralSettingView: View, StoreAccessor {
     @EnvironmentObject var store: Store
     @State private var passcodeNotSet = false
+    @State private var diskImageCacheSize = "0 KB"
+    @State private var clearDialogPresented = false
 
     private var isTranslatesTagsVisible: Bool {
         guard let preferredLanguage = Locale.preferredLanguages.first else { return false }
@@ -56,26 +59,38 @@ struct GeneralSettingView: View, StoreAccessor {
                     }
                     .pickerStyle(.menu)
                 }
-                Toggle("App switcher blur", isOn: settingBinding.allowsResignActiveBlur)
+                VStack(alignment: .leading) {
+                    Text("App switcher blur")
+                    HStack {
+                        Image(systemName: "eye")
+                        Slider(value: settingBinding.backgroundBlurRadius, in: 0...100, step: 10)
+                        Image(systemName: "eye.slash")
+                    }
+                }
             }
             Section("Cache".localized) {
                 Button {
-                    store.dispatch(.setSettingViewActionSheetState(.clearImgCaches))
+                    clearDialogPresented = true
                 } label: {
                     HStack {
                         Text("Clear image caches")
                         Spacer()
-                        Text(setting.diskImageCacheSize).foregroundStyle(.tint)
+                        Text(diskImageCacheSize).foregroundStyle(.tint)
                     }
                     .foregroundColor(.primary)
                 }
             }
         }
-        .onAppear(perform: checkPasscodeExistence)
-        .navigationBarTitle("General")
+        .confirmationDialog(
+            "Are you sure to clear?",
+            isPresented: $clearDialogPresented,
+            titleVisibility: .visible
+        ) {
+            Button("Clear", role: .destructive, action: clearImageCaches)
+        }
+        .onAppear(perform: onStartTasks).navigationBarTitle("General")
     }
 }
-
 private extension GeneralSettingView {
     var settingBinding: Binding<Setting> {
         $store.appState.settings.setting
@@ -84,6 +99,10 @@ private extension GeneralSettingView {
         Locale.current.localizedString(forLanguageCode: Locale.current.languageCode ?? "") ?? "(null)"
     }
 
+    func onStartTasks() {
+        checkPasscodeExistence()
+        calculateDiskCachesSize()
+    }
     func checkPasscodeExistence() {
         var error: NSError?
 
@@ -94,5 +113,26 @@ private extension GeneralSettingView {
     func tryNavigateToSystemSetting() {
         guard let settingURL = URL(string: UIApplication.openSettingsURLString) else { return }
         UIApplication.shared.open(settingURL, options: [:])
+    }
+
+    func readableUnit<I: BinaryInteger>(bytes: I) -> String {
+        let formatter = ByteCountFormatter()
+        formatter.allowedUnits = [.useAll]
+        return formatter.string(fromByteCount: Int64(bytes))
+    }
+    func calculateDiskCachesSize() {
+        KingfisherManager.shared.cache.calculateDiskStorageSize { result in
+            switch result {
+            case .success(let size):
+                diskImageCacheSize = readableUnit(bytes: size)
+            case .failure(let error):
+                SwiftyBeaver.error(error)
+            }
+        }
+    }
+    func clearImageCaches() {
+        KingfisherManager.shared.cache.clearDiskCache()
+        PersistenceController.removeImageURLs()
+        calculateDiskCachesSize()
     }
 }

@@ -39,7 +39,9 @@ struct EhSettingView: View, StoreAccessor {
             fetchEhSetting()
         }
         .onDisappear {
-            guard let set = ehSetting?.ehProfiles.filter({ $0.name == "EhPanda"}).first?.value else { return }
+            guard let set = ehSetting?.ehProfiles.filter({
+                AppUtil.verifyEhPandaProfileName(with: $0.name)
+            }).first?.value else { return }
             CookiesUtil.set(for: Defaults.URL.host.safeURL(), key: Defaults.Cookie.selectedProfile, value: String(set))
         }
         .toolbar(content: toolbar).navigationTitle(title)

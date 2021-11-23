@@ -16,8 +16,7 @@ struct Setting: Codable {
     // General
     @DefaultFalse var redirectsLinksToSelectedHost = false
     @DefaultFalse var detectsLinksFromPasteboard = false
-    @DefaultStringValue var diskImageCacheSize = "0 KB"
-    @DefaultTrue var allowsResignActiveBlur = true
+    @DefaultDoubleValue var backgroundBlurRadius = 10
     @DefaultAutoLockPolicy var autoLockPolicy: AutoLockPolicy = .never
 
     // Appearance

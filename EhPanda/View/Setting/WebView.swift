@@ -10,9 +10,7 @@ import SwiftUI
 import SwiftyBeaver
 
 struct WebView: UIViewControllerRepresentable {
-    static let loginURLString
-        = "https://forums.e-hentai.org/"
-        + "index.php?act=Login"
+    static let loginURLString = "https://forums.e-hentai.org/index.php?act=Login"
 
     @EnvironmentObject private var store: Store
     private let url: URL
@@ -41,8 +39,8 @@ struct WebView: UIViewControllerRepresentable {
                 guard AuthorizationUtil.didLogin else { return }
                 let store = self?.parent.store
                 store?.dispatch(.setSettingViewSheetState(nil))
-                store?.dispatch(.fetchFrontpageItems())
                 store?.dispatch(.verifyEhProfile)
+                store?.dispatch(.resetHomeInfo)
                 store?.dispatch(.fetchUserInfo)
             }
         }

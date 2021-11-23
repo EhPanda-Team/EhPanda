@@ -40,7 +40,9 @@ struct AssociatedView: View, StoreAccessor {
             moreLoadFailedFlag: moreLoadFailedFlag, fetchAction: fetchAssociatedItems,
             loadMoreAction: fetchMoreAssociatedItems, translateAction: translateTag
         )
-        .searchable(text: $keyword, placement: .navigationBarDrawer(displayMode: .always))
+        .searchable(
+            text: $keyword, placement: .navigationBarDrawer(displayMode: .always)
+        ) { SuggestionProvider(keyword: $keyword) }
         .toolbar(content: toolbar)
         .customAlert(
             manager: alertManager, widthFactor: DeviceUtil.isPadWidth ? 0.5 : 1.0,
@@ -186,7 +188,7 @@ private extension AssociatedView {
 
         let token = SubscriptionToken()
         MoreSearchItemsRequest(
-            keyword: keyword, filter: filter,
+            keyword: keyword.isEmpty ? title : keyword, filter: filter,
             lastID: lastID, pageNum: pageNumber.current + 1
         )
         .publisher.receive(on: DispatchQueue.main)

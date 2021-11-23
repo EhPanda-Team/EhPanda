@@ -12,7 +12,7 @@
       },
       {
         "package": "BetterCodable",
-        "repositoryURL": "https://github.com/marksands/BetterCodable",
+        "repositoryURL": "https://github.com/marksands/BetterCodable.git",
         "state": {
           "branch": null,
           "revision": "61153170668db7a46a20a87e35e70f80b24d4eb5",
@@ -42,7 +42,7 @@
         "repositoryURL": "https://github.com/tatsuz0u/Kingfisher.git",
         "state": {
           "branch": "fix/binder-loaded",
-          "revision": "184d0968c9cbefde319f47e992913ef7bc64de5c",
+          "revision": "57744dfc08e6594f3df4490b12a89746ebf0f094",
           "version": null
         }
       },
@@ -51,16 +51,16 @@
         "repositoryURL": "https://github.com/fermoya/SwiftUIPager.git",
         "state": {
           "branch": null,
-          "revision": "d6745593cfa38ffa1fca75244a01e422d220d407",
-          "version": "2.3.1"
+          "revision": "3c0485ffc369f2138477ec508cafc5fffd39f2bf",
+          "version": "2.3.2"
         }
       },
       {
         "package": "SwiftyBeaver",
-        "repositoryURL": "https://github.com/SwiftyBeaver/SwiftyBeaver.git",
+        "repositoryURL": "https://github.com/tatsuz0u/SwiftyBeaver.git",
         "state": {
-          "branch": "master",
-          "revision": "2a2e1552c41d2e82b86f5822a95a03d0587e0683",
+          "branch": "custom",
+          "revision": "2e8a65567ca877a7fdf6a63ab53b2c49a927af87",
           "version": null
         }
       },
@@ -77,8 +77,8 @@
         "package": "TTProgressHUD",
         "repositoryURL": "https://github.com/tatsuz0u/TTProgressHUD.git",
         "state": {
-          "branch": "master",
-          "revision": "1d6360603a1f3d7b8dac9ecd46f3ed504d19c2bd",
+          "branch": "custom",
+          "revision": "349b595c4f0ff86e8d3c8d65be206a02642fd525",
           "version": null
         }
       },

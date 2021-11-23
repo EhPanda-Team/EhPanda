@@ -21,17 +21,19 @@ struct Defaults {
         DeviceUtil.isPadWidth ? 175 : DeviceUtil.isSEWidth ? 125 : 150
     }
     struct ImageSize {
-        static let rowScale: CGFloat = 8/11
-        static let avatarScale: CGFloat = 1/1
-        static let headerScale: CGFloat = 8/11
-        static let previewScale: CGFloat = 8/11
-        static let contentScale: CGFloat = 7/10
+        static let rowAspect: CGFloat = 8/11
+        static let avatarAspect: CGFloat = 1/1
+        static let headerAspect: CGFloat = 8/11
+        static let previewAspect: CGFloat = 8/11
+        static let contentAspect: CGFloat = 7/10
+        static let webtoonMinAspect: CGFloat = 1/4
+        static let webtoonIdealAspect: CGFloat = 2/3
 
-        static let rowW: CGFloat = rowH * rowScale
+        static let rowW: CGFloat = rowH * rowAspect
         static let rowH: CGFloat = 110
         static let avatarW: CGFloat = 100
         static let avatarH: CGFloat = 100
-        static let headerW: CGFloat = headerH * headerScale
+        static let headerW: CGFloat = headerH * headerAspect
         static let headerH: CGFloat = 150
         static let previewMinW: CGFloat = DeviceUtil.isPadWidth ? 180 : 100
         static let previewMaxW: CGFloat = DeviceUtil.isPadWidth ? 220 : 120

@@ -50,6 +50,9 @@
 "Jump page" = "页码跳转";
 "Confirm" = "确认";
 
+// MARK: HomeView
+"Clear history" = "清空历史";
+
 // MARK: DetailView
 "Archive" = "归档";
 "Torrents" = "种子";
@@ -120,11 +123,9 @@
 "Username" = "用户名";
 "Password" = "密码";
 "Logout" = "退出登录";
+"Are you sure to logout?" = "确定要退出登录吗？";
 "Account configuration" = "账户设置";
 "Manage tags subscription" = "管理标签订阅";
-"Are you sure to logout?" = "确定要退出登录吗？";
-"Are you sure to clear?" = "确定要清空吗？";
-"Clear" = "清空";
 "Copy cookies" = "复制 Cookies";
 
 "General" = "一般";
@@ -135,7 +136,9 @@
 "Auto-Lock" = "自动锁定";
 "App switcher blur" = "在应用切换器中模糊处理";
 "Cache" = "缓存";
+"Clear" = "清空";
 "Clear image caches" = "清空图片缓存";
+"Are you sure to clear?" = "确定要清空吗？";
 
 "Appearance" = "外观";
 "Global" = "全局";

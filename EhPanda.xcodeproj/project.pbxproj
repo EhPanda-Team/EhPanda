@@ -13,6 +13,8 @@
 		AB10117E26986B7D00C2C1A9 /* GalleryStateMO+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB10117D26986B7D00C2C1A9 /* GalleryStateMO+CoreDataProperties.swift */; };
 		AB10118026986C1100C2C1A9 /* GalleryStateMO+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB10117F26986C1100C2C1A9 /* GalleryStateMO+CoreDataClass.swift */; };
 		AB19D619266E5C6700BA752A /* TTProgressHUD in Frameworks */ = {isa = PBXBuildFile; productRef = AB19D618266E5C6700BA752A /* TTProgressHUD */; };
+		AB21CC9A274B4ED700C115B1 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = AB21CC99274B4ED700C115B1 /* Kingfisher */; };
+		AB21CCA0274B4F0C00C115B1 /* SwiftyBeaver in Frameworks */ = {isa = PBXBuildFile; productRef = AB21CC9F274B4F0C00C115B1 /* SwiftyBeaver */; };
 		AB2CED64268AB6AE003130F7 /* GalleryMO+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB2CED63268AB6AE003130F7 /* GalleryMO+CoreDataProperties.swift */; };
 		AB30E34826D277F7007420BC /* Toplists.html in Resources */ = {isa = PBXBuildFile; fileRef = AB30E34726D277F7007420BC /* Toplists.html */; };
 		AB358311269D7B63009466A5 /* DFURLProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB358310269D7B63009466A5 /* DFURLProtocol.swift */; };
@@ -41,13 +43,15 @@
 		AB4FD2C1268AB83300A95968 /* GalleryDetailMO+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB4FD2C0268AB83300A95968 /* GalleryDetailMO+CoreDataProperties.swift */; };
 		AB5BE67926B95FDD007D4A55 /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB5BE67826B95FDD007D4A55 /* ShareViewController.swift */; };
 		AB5BE68026B95FDD007D4A55 /* ShareExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = AB5BE67626B95FDD007D4A55 /* ShareExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		AB60D0CF274C7AA000F899AB /* BetterCodable in Frameworks */ = {isa = PBXBuildFile; productRef = AB60D0CE274C7AA000F899AB /* BetterCodable */; };
+		AB60D0E9274C7ECE00F899AB /* WaterfallGrid in Frameworks */ = {isa = PBXBuildFile; productRef = AB60D0E8274C7ECE00F899AB /* WaterfallGrid */; };
+		AB60D0EB274CFB6D00F899AB /* SuggestionProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB60D0EA274CFB6D00F899AB /* SuggestionProvider.swift */; };
 		AB63EADB2699AC8200090535 /* AppEnvMO+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB63EADA2699AC8200090535 /* AppEnvMO+CoreDataProperties.swift */; };
 		AB63EADD2699AC9100090535 /* AppEnvMO+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB63EADC2699AC9100090535 /* AppEnvMO+CoreDataClass.swift */; };
 		AB6505A026B0027800F91E9D /* SwiftUIPager in Frameworks */ = {isa = PBXBuildFile; productRef = AB65059F26B0027800F91E9D /* SwiftUIPager */; };
 		AB69CB8026B3DABC00699359 /* AdvancedList.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB69CB7F26B3DABC00699359 /* AdvancedList.swift */; };
 		AB69CB8226B3DAF400699359 /* ControlPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB69CB8126B3DAF400699359 /* ControlPanel.swift */; };
 		AB6DE897268822390087C579 /* LogsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB6DE896268822390087C579 /* LogsView.swift */; };
-		AB73CEAD26AAB8C600EF6337 /* BetterCodable in Frameworks */ = {isa = PBXBuildFile; productRef = AB73CEAC26AAB8C600EF6337 /* BetterCodable */; };
 		AB73CEAF26AAC13F00EF6337 /* CodableExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB73CEAE26AAC13F00EF6337 /* CodableExtension.swift */; };
 		AB7B29F226AC471E00EE1F14 /* MigrationPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB7B29F126AC471E00EE1F14 /* MigrationPolicy.swift */; };
 		AB7B29F626AC741600EE1F14 /* GenericList.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB7B29F526AC741600EE1F14 /* GenericList.swift */; };
@@ -57,7 +61,6 @@
 		ABA732DF25A852D800B3D9AB /* Filter.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABA732DE25A852D800B3D9AB /* Filter.swift */; };
 		ABAC82FE26BC4A96009F5026 /* OpenCC in Frameworks */ = {isa = PBXBuildFile; productRef = ABAC82FD26BC4A96009F5026 /* OpenCC */; };
 		ABAFFE4026A86E3000EE8661 /* MeasureTool.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABAFFE3F26A86E3000EE8661 /* MeasureTool.swift */; };
-		ABB944DD26DBBB1800C365C1 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = ABB944DC26DBBB1800C365C1 /* Kingfisher */; };
 		ABBC332826BE31AE0084A331 /* EhSettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABBC332726BE31AE0084A331 /* EhSettingView.swift */; };
 		ABBC332A26BE7C940084A331 /* SettingTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABBC332926BE7C940084A331 /* SettingTextField.swift */; };
 		ABBCCC9026C95F6E007D8A36 /* GalleryInfosView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABBCCC8F26C95F6E007D8A36 /* GalleryInfosView.swift */; };
@@ -77,13 +80,11 @@
 		ABCA93C42692A0BF00A98BC6 /* PersistenceAccessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCA93C32692A0BF00A98BC6 /* PersistenceAccessor.swift */; };
 		ABCD2F0A259763FC008E5A20 /* Request.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD2F09259763FC008E5A20 /* Request.swift */; };
 		ABCD2F0E25976B95008E5A20 /* Parser.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCD2F0D25976B95008E5A20 /* Parser.swift */; };
-		ABD4032426B6EC6800001B8C /* WaterfallGrid in Frameworks */ = {isa = PBXBuildFile; productRef = ABD4032326B6EC6800001B8C /* WaterfallGrid */; };
 		ABD4032626B78E5A00001B8C /* GalleryThumbnailCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABD4032526B78E5A00001B8C /* GalleryThumbnailCell.swift */; };
 		ABD4032826B7967F00001B8C /* Category.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABD4032726B7967F00001B8C /* Category.swift */; };
 		ABD5FDD4263D05110021A4C6 /* .swiftlint.yml in Resources */ = {isa = PBXBuildFile; fileRef = ABD5FDD3263D05110021A4C6 /* .swiftlint.yml */; };
 		ABD7005926B1C31500DC59C9 /* Kanna in Frameworks */ = {isa = PBXBuildFile; productRef = ABD7005826B1C31500DC59C9 /* Kanna */; };
 		ABE1867826A1733000689FDC /* LaboratorySettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABE1867726A1733000689FDC /* LaboratorySettingView.swift */; };
-		ABE1867F26A18DD000689FDC /* SwiftyBeaver in Frameworks */ = {isa = PBXBuildFile; productRef = ABE1867E26A18DD000689FDC /* SwiftyBeaver */; };
 		ABE2AE752699F238001D47AA /* AppEnvStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABE2AE742699F238001D47AA /* AppEnvStorage.swift */; };
 		ABE9401526FF158D0085E158 /* QuickSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABE9401426FF158D0085E158 /* QuickSearchView.swift */; };
 		ABE9402D26FF89220085E158 /* AlertKit in Frameworks */ = {isa = PBXBuildFile; productRef = ABE9402C26FF89220085E158 /* AlertKit */; };
@@ -194,6 +195,7 @@
 		AB5BE67626B95FDD007D4A55 /* ShareExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ShareExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		AB5BE67826B95FDD007D4A55 /* ShareViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareViewController.swift; sourceTree = "<group>"; };
 		AB5BE67D26B95FDD007D4A55 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		AB60D0EA274CFB6D00F899AB /* SuggestionProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuggestionProvider.swift; sourceTree = "<group>"; };
 		AB63EADA2699AC8200090535 /* AppEnvMO+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppEnvMO+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		AB63EADC2699AC9100090535 /* AppEnvMO+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppEnvMO+CoreDataClass.swift"; sourceTree = "<group>"; };
 		AB69CB7F26B3DABC00699359 /* AdvancedList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdvancedList.swift; sourceTree = "<group>"; };
@@ -298,13 +300,13 @@
 				ABD7005926B1C31500DC59C9 /* Kanna in Frameworks */,
 				AB19D619266E5C6700BA752A /* TTProgressHUD in Frameworks */,
 				ABE9402D26FF89220085E158 /* AlertKit in Frameworks */,
+				AB60D0E9274C7ECE00F899AB /* WaterfallGrid in Frameworks */,
 				AB0F68AF26A6D92F00AC3A54 /* DeprecatedAPI in Frameworks */,
-				ABB944DD26DBBB1800C365C1 /* Kingfisher in Frameworks */,
+				AB21CC9A274B4ED700C115B1 /* Kingfisher in Frameworks */,
+				AB60D0CF274C7AA000F899AB /* BetterCodable in Frameworks */,
 				AB6505A026B0027800F91E9D /* SwiftUIPager in Frameworks */,
-				ABD4032426B6EC6800001B8C /* WaterfallGrid in Frameworks */,
+				AB21CCA0274B4F0C00C115B1 /* SwiftyBeaver in Frameworks */,
 				ABAC82FE26BC4A96009F5026 /* OpenCC in Frameworks */,
-				AB73CEAD26AAB8C600EF6337 /* BetterCodable in Frameworks */,
-				ABE1867F26A18DD000689FDC /* SwiftyBeaver in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -586,6 +588,7 @@
 				ABF45AC725F3313D00ECB568 /* TagCloudView.swift */,
 				ABBC332926BE7C940084A331 /* SettingTextField.swift */,
 				AB0ABCB626C541A400AD970F /* WaveForm.swift */,
+				AB60D0EA274CFB6D00F899AB /* SuggestionProvider.swift */,
 			);
 			path = Tools;
 			sourceTree = "<group>";
@@ -673,15 +676,15 @@
 			name = EhPanda;
 			packageProductDependencies = (
 				AB19D618266E5C6700BA752A /* TTProgressHUD */,
-				ABE1867E26A18DD000689FDC /* SwiftyBeaver */,
 				AB0F68AE26A6D92F00AC3A54 /* DeprecatedAPI */,
-				AB73CEAC26AAB8C600EF6337 /* BetterCodable */,
 				AB65059F26B0027800F91E9D /* SwiftUIPager */,
 				ABD7005826B1C31500DC59C9 /* Kanna */,
-				ABD4032326B6EC6800001B8C /* WaterfallGrid */,
 				ABAC82FD26BC4A96009F5026 /* OpenCC */,
-				ABB944DC26DBBB1800C365C1 /* Kingfisher */,
 				ABE9402C26FF89220085E158 /* AlertKit */,
+				AB21CC99274B4ED700C115B1 /* Kingfisher */,
+				AB21CC9F274B4F0C00C115B1 /* SwiftyBeaver */,
+				AB60D0CE274C7AA000F899AB /* BetterCodable */,
+				AB60D0E8274C7ECE00F899AB /* WaterfallGrid */,
 			);
 			productName = EhPanda;
 			productReference = ABC3C7542593696C00E0C11B /* EhPanda.app */;
@@ -742,15 +745,15 @@
 			mainGroup = ABC3C74B2593696C00E0C11B;
 			packageReferences = (
 				AB19D617266E5C6700BA752A /* XCRemoteSwiftPackageReference "TTProgressHUD" */,
-				ABE1867D26A18DD000689FDC /* XCRemoteSwiftPackageReference "SwiftyBeaver" */,
 				AB0F68AD26A6D92F00AC3A54 /* XCRemoteSwiftPackageReference "DeprecatedAPI" */,
-				AB73CEAB26AAB8C600EF6337 /* XCRemoteSwiftPackageReference "BetterCodable" */,
 				AB65059E26B0027800F91E9D /* XCRemoteSwiftPackageReference "SwiftUIPager" */,
 				ABD7005726B1C31500DC59C9 /* XCRemoteSwiftPackageReference "Kanna" */,
-				ABD4032226B6EC6800001B8C /* XCRemoteSwiftPackageReference "WaterfallGrid" */,
 				ABAC82FC26BC4866009F5026 /* XCRemoteSwiftPackageReference "SwiftyOpenCC" */,
-				ABB944DB26DBBB1800C365C1 /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				ABE9402B26FF89220085E158 /* XCRemoteSwiftPackageReference "AlertKit" */,
+				AB21CC98274B4ED700C115B1 /* XCRemoteSwiftPackageReference "Kingfisher" */,
+				AB21CC9E274B4F0C00C115B1 /* XCRemoteSwiftPackageReference "SwiftyBeaver" */,
+				AB60D0CD274C7AA000F899AB /* XCRemoteSwiftPackageReference "BetterCodable" */,
+				AB60D0E7274C7ECE00F899AB /* XCRemoteSwiftPackageReference "WaterfallGrid" */,
 			);
 			productRefGroup = ABC3C7552593696C00E0C11B /* Products */;
 			projectDirPath = "";
@@ -859,6 +862,7 @@
 				AB63EADD2699AC9100090535 /* AppEnvMO+CoreDataClass.swift in Sources */,
 				ABCA93BE26918DE100A98BC6 /* Persistence.swift in Sources */,
 				ABF45AEF25F3313D00ECB568 /* TorrentsView.swift in Sources */,
+				AB60D0EB274CFB6D00F899AB /* SuggestionProvider.swift in Sources */,
 				ABF45AB925F3312F00ECB568 /* AppState.swift in Sources */,
 				ABF45AF625F3313D00ECB568 /* AppearanceSettingView.swift in Sources */,
 				AB69CB8226B3DAF400699359 /* ControlPanel.swift in Sources */,
@@ -1318,8 +1322,40 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/tatsuz0u/TTProgressHUD.git";
 			requirement = {
-				branch = master;
+				branch = custom;
 				kind = branch;
+			};
+		};
+		AB21CC98274B4ED700C115B1 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/tatsuz0u/Kingfisher.git";
+			requirement = {
+				branch = "fix/binder-loaded";
+				kind = branch;
+			};
+		};
+		AB21CC9E274B4F0C00C115B1 /* XCRemoteSwiftPackageReference "SwiftyBeaver" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/tatsuz0u/SwiftyBeaver.git";
+			requirement = {
+				branch = custom;
+				kind = branch;
+			};
+		};
+		AB60D0CD274C7AA000F899AB /* XCRemoteSwiftPackageReference "BetterCodable" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/marksands/BetterCodable.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.4.0;
+			};
+		};
+		AB60D0E7274C7ECE00F899AB /* XCRemoteSwiftPackageReference "WaterfallGrid" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/paololeonardi/WaterfallGrid.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.1;
 			};
 		};
 		AB65059E26B0027800F91E9D /* XCRemoteSwiftPackageReference "SwiftUIPager" */ = {
@@ -1330,14 +1366,6 @@
 				minimumVersion = 2.0.0;
 			};
 		};
-		AB73CEAB26AAB8C600EF6337 /* XCRemoteSwiftPackageReference "BetterCodable" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/marksands/BetterCodable";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.4.0;
-			};
-		};
 		ABAC82FC26BC4866009F5026 /* XCRemoteSwiftPackageReference "SwiftyOpenCC" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/ddddxxx/SwiftyOpenCC.git";
@@ -1346,36 +1374,12 @@
 				minimumVersion = "2.0.0-beta";
 			};
 		};
-		ABB944DB26DBBB1800C365C1 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/tatsuz0u/Kingfisher.git";
-			requirement = {
-				branch = "fix/binder-loaded";
-				kind = branch;
-			};
-		};
-		ABD4032226B6EC6800001B8C /* XCRemoteSwiftPackageReference "WaterfallGrid" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/paololeonardi/WaterfallGrid.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.0.0;
-			};
-		};
 		ABD7005726B1C31500DC59C9 /* XCRemoteSwiftPackageReference "Kanna" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/tid-kijyun/Kanna.git";
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 5.0.0;
-			};
-		};
-		ABE1867D26A18DD000689FDC /* XCRemoteSwiftPackageReference "SwiftyBeaver" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/SwiftyBeaver/SwiftyBeaver.git";
-			requirement = {
-				branch = master;
-				kind = branch;
 			};
 		};
 		ABE9402B26FF89220085E158 /* XCRemoteSwiftPackageReference "AlertKit" */ = {
@@ -1399,40 +1403,40 @@
 			package = AB19D617266E5C6700BA752A /* XCRemoteSwiftPackageReference "TTProgressHUD" */;
 			productName = TTProgressHUD;
 		};
+		AB21CC99274B4ED700C115B1 /* Kingfisher */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AB21CC98274B4ED700C115B1 /* XCRemoteSwiftPackageReference "Kingfisher" */;
+			productName = Kingfisher;
+		};
+		AB21CC9F274B4F0C00C115B1 /* SwiftyBeaver */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AB21CC9E274B4F0C00C115B1 /* XCRemoteSwiftPackageReference "SwiftyBeaver" */;
+			productName = SwiftyBeaver;
+		};
+		AB60D0CE274C7AA000F899AB /* BetterCodable */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AB60D0CD274C7AA000F899AB /* XCRemoteSwiftPackageReference "BetterCodable" */;
+			productName = BetterCodable;
+		};
+		AB60D0E8274C7ECE00F899AB /* WaterfallGrid */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AB60D0E7274C7ECE00F899AB /* XCRemoteSwiftPackageReference "WaterfallGrid" */;
+			productName = WaterfallGrid;
+		};
 		AB65059F26B0027800F91E9D /* SwiftUIPager */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = AB65059E26B0027800F91E9D /* XCRemoteSwiftPackageReference "SwiftUIPager" */;
 			productName = SwiftUIPager;
-		};
-		AB73CEAC26AAB8C600EF6337 /* BetterCodable */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = AB73CEAB26AAB8C600EF6337 /* XCRemoteSwiftPackageReference "BetterCodable" */;
-			productName = BetterCodable;
 		};
 		ABAC82FD26BC4A96009F5026 /* OpenCC */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = ABAC82FC26BC4866009F5026 /* XCRemoteSwiftPackageReference "SwiftyOpenCC" */;
 			productName = OpenCC;
 		};
-		ABB944DC26DBBB1800C365C1 /* Kingfisher */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = ABB944DB26DBBB1800C365C1 /* XCRemoteSwiftPackageReference "Kingfisher" */;
-			productName = Kingfisher;
-		};
-		ABD4032326B6EC6800001B8C /* WaterfallGrid */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = ABD4032226B6EC6800001B8C /* XCRemoteSwiftPackageReference "WaterfallGrid" */;
-			productName = WaterfallGrid;
-		};
 		ABD7005826B1C31500DC59C9 /* Kanna */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = ABD7005726B1C31500DC59C9 /* XCRemoteSwiftPackageReference "Kanna" */;
 			productName = Kanna;
-		};
-		ABE1867E26A18DD000689FDC /* SwiftyBeaver */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = ABE1867D26A18DD000689FDC /* XCRemoteSwiftPackageReference "SwiftyBeaver" */;
-			productName = SwiftyBeaver;
 		};
 		ABE9402C26FF89220085E158 /* AlertKit */ = {
 			isa = XCSwiftPackageProductDependency;

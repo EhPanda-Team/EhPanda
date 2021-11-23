@@ -93,10 +93,21 @@ struct Parser {
             throw AppError.parseFailed
         }
 
+        func parseUploader(node: XMLElement?) throws -> String? {
+            guard let divNode = node?.at_xpath("//td [@class='gl4c glhide']")?.at_xpath("//div") else {
+                throw AppError.parseFailed
+            }
+
+            if let aText = divNode.at_xpath("//a")?.text {
+                return aText
+            } else {
+                return divNode.text
+            }
+        }
+
         var galleryItems = [Gallery]()
         for link in doc.xpath("//tr") {
-            let firstDivNode = link.at_xpath("//td [@class='gl4c glhide']")?.at_xpath("//div")
-            let uploader = firstDivNode?.at_xpath("//a")?.text
+            let uploader = try? parseUploader(node: link)
             guard let gl2cNode = link.at_xpath("//td [@class='gl2c']"),
                   let gl3cNode = link.at_xpath("//td [@class='gl3c glname']"),
                   let (rating, _, _) = try? parseRating(node: gl2cNode),
@@ -303,6 +314,20 @@ struct Parser {
             return .no(reason: reason)
         }
 
+        func parseUploader(node: XMLElement?) throws -> String {
+            guard let gdnNode = node?.at_xpath("//div [@id='gdn']") else {
+                throw AppError.parseFailed
+            }
+
+            if let aText = gdnNode.at_xpath("//a")?.text {
+                return aText
+            } else if let gdnText = gdnNode.text {
+                return gdnText
+            } else {
+                throw AppError.parseFailed
+            }
+        }
+
         var tmpGalleryDetail: GalleryDetail?
         var tmpGalleryState: GalleryState?
         for link in doc.xpath("//div [@class='gm']") {
@@ -324,7 +349,7 @@ struct Parser {
                   let favoredCount = Int(infoPanel[7]),
                   let language = Language(rawValue: infoPanel[3]),
                   let engTitle = link.at_xpath("//h1 [@id='gn']")?.text,
-                  let uploader = gd3Node.at_xpath("//div [@id='gdn']")?.at_xpath("//a")?.text,
+                  let uploader = try? parseUploader(node: gd3Node),
                   let (imgRating, textRating, containsUserRating) = try? parseRating(node: gdrNode),
                   let ratingCount = Int(gdrNode.at_xpath("//span [@id='rating_count']")?.text ?? ""),
                   let category = Category(rawValue: gd3Node.at_xpath("//div [@id='gdc']")?.text ?? ""),
@@ -1284,16 +1309,13 @@ extension Parser {
         var profileNotFound = true
         var profileValue: Int?
 
-        let selector = doc.at_xpath(
-            "//select [@name='profile_set']"
-        )
+        let selector = doc.at_xpath("//select [@name='profile_set']")
         let options = selector?.xpath("//option")
 
-        guard let options = options,
-                options.count >= 1
+        guard let options = options, options.count >= 1
         else { throw AppError.parseFailed }
 
-        for link in options where link.text == "EhPanda" {
+        for link in options where AppUtil.verifyEhPandaProfileName(with: link.text) {
             profileNotFound = false
             profileValue = Int(link["value"] ?? "")
         }
@@ -1486,7 +1508,7 @@ extension Parser {
     }
 
     // MARK: parsePreviewConfigs
-    static func parsePreviewConfigs(string: String) -> (String, CGSize, CGFloat)? {
+    static func parsePreviewConfigs(string: String) -> (String, CGSize, CGSize)? {
         guard let rangeA = string.range(of: Defaults.PreviewIdentifier.width),
               let rangeB = string.range(of: Defaults.PreviewIdentifier.height),
               let rangeC = string.range(of: Defaults.PreviewIdentifier.offset)
@@ -1495,11 +1517,11 @@ extension Parser {
         let plainURL = String(string[..<rangeA.lowerBound])
         guard let width = Int(string[rangeA.upperBound..<rangeB.lowerBound]),
               let height = Int(string[rangeB.upperBound..<rangeC.lowerBound]),
-              let offset = Int(string[rangeC.upperBound...])
+              let offsetX = Int(string[rangeC.upperBound...])
         else { return nil }
 
         let size = CGSize(width: width, height: height)
-        return (plainURL, size, CGFloat(offset))
+        return (plainURL, size, CGSize(width: offsetX, height: 0))
     }
 
     // MARK: parseWrappedHex

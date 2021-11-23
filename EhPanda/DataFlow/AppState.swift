@@ -30,8 +30,6 @@ extension AppState {
         var homeListType: HomeListType = .frontpage
         var homeViewSheetState: HomeViewSheetState?
         var settingViewSheetState: SettingViewSheetState?
-        var settingViewActionSheetState: SettingViewActionSheetState?
-        var filterViewActionSheetState: FilterViewActionSheetState?
         var detailViewSheetState: DetailViewSheetState?
         var commentViewSheetState: CommentViewSheetState?
 
@@ -96,8 +94,6 @@ extension AppState {
 extension AppState {
     // MARK: HomeInfo
     struct HomeInfo {
-        var lastKeyword = ""
-
         var searchItems = [Gallery]()
         var searchLoading = false
         var searchLoadError: AppError?
@@ -172,23 +168,31 @@ extension AppState {
                 }
             }
         }
-        mutating func insertHistoryKeyword(text: String) {
-            guard !text.isEmpty else { return }
-            if let index = historyKeywords.firstIndex(of: text) {
-                if historyKeywords.last != text {
-                    historyKeywords.remove(at: index)
+        mutating func appendHistoryKeywords(texts: [String]) {
+            guard !texts.isEmpty else { return }
+            var historyKeywords = historyKeywords
+
+            texts.forEach { text in
+                guard !text.isEmpty else { return }
+                if let index = historyKeywords.firstIndex(of: text) {
+                    if historyKeywords.last != text {
+                        historyKeywords.remove(at: index)
+                        historyKeywords.append(text)
+                    }
+                } else {
                     historyKeywords.append(text)
-                }
-            } else {
-                historyKeywords.append(text)
-                let overflow = historyKeywords.count - 10
-                if overflow > 0 {
-                    historyKeywords = Array(
-                        historyKeywords.dropFirst(overflow)
-                    )
+                    let overflow = historyKeywords.count - 15
+                    if overflow > 0 {
+                        historyKeywords = Array(
+                            historyKeywords.dropFirst(overflow)
+                        )
+                    }
                 }
             }
             self.historyKeywords = historyKeywords
+        }
+        mutating func removeHistoryKeyword(text: String) {
+            historyKeywords = historyKeywords.filter { $0 != text }
         }
         mutating func appendQuickSearchWord() {
             quickSearchWords.append(QuickSearchWord(content: ""))

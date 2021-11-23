@@ -269,7 +269,7 @@ private struct SliderPreivew: View {
                     KFImage.url(URL(string: url), cacheKey: previews[index])
                         .placeholder {
                             Placeholder(style: .activity(
-                                ratio: Defaults.ImageSize.previewScale
+                                ratio: Defaults.ImageSize.previewAspect
                             ))
                         }
 //                        .fade(duration: 0.25)
@@ -309,7 +309,7 @@ private extension SliderPreivew {
     }
     var previewSpacing: CGFloat { 10 }
     var previewHeight: CGFloat {
-        previewWidth / Defaults.ImageSize.previewScale
+        previewWidth / Defaults.ImageSize.previewAspect
     }
     var previewWidth: CGFloat {
         guard previewsCount > 0 else { return 0 }
