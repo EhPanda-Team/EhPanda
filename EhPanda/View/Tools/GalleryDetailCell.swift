@@ -24,7 +24,7 @@ struct GalleryDetailCell: View {
     var body: some View {
         HStack(spacing: 10) {
             KFImage(URL(string: gallery.coverURL))
-                .placeholder { Placeholder(style: .activity(ratio: Defaults.ImageSize.rowScale)) }
+                .placeholder { Placeholder(style: .activity(ratio: Defaults.ImageSize.rowAspect)) }
                 .defaultModifier().scaledToFit().frame(width: Defaults.ImageSize.rowW, height: Defaults.ImageSize.rowH)
             VStack(alignment: .leading) {
                 Text(gallery.title).lineLimit(1).font(.headline).foregroundStyle(.primary)

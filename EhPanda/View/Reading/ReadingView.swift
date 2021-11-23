@@ -609,7 +609,7 @@ private struct ImageContainer: View {
         DeviceUtil.windowW / (isDualPage ? 2 : 1)
     }
     private var height: CGFloat {
-        width / Defaults.ImageSize.contentScale
+        width / Defaults.ImageSize.contentAspect
     }
     private var loadFailedFlag: Bool {
         loadError != nil || webImageLoadFailed

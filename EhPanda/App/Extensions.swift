@@ -137,8 +137,8 @@ extension UIImage {
         return UIImage(cgImage: cgImage, scale: scale, orientation: imageOrientation)
     }
 
-    func cropping(size: CGSize, offset: CGFloat) -> UIImage? {
-        let origin = CGPoint(x: offset, y: 0)
+    func cropping(size: CGSize, offset: CGSize) -> UIImage? {
+        let origin = CGPoint(x: offset.width, y: offset.height)
         let rect = CGRect(origin: origin, size: size)
         return cropping(to: rect)
     }

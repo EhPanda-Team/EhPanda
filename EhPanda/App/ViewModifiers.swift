@@ -10,11 +10,10 @@ import Kingfisher
 
 extension View {
     func cornerRadius(_ radius: CGFloat, corners: UIRectCorner) -> some View {
-        clipShape( RoundedCorner(radius: radius, corners: corners) )
+        clipShape(RoundedCorner(radius: radius, corners: corners))
     }
 
-    @ViewBuilder
-    func withHorizontalSpacing(height: CGFloat? = nil) -> some View {
+    @ViewBuilder func withHorizontalSpacing(height: CGFloat? = nil) -> some View {
         Color.clear.frame(width: 8, height: height)
         self
         Color.clear.frame(width: 8, height: height)
@@ -62,53 +61,55 @@ struct CornersModifier: ImageModifier {
 
 struct OffsetModifier: ImageModifier {
     private let size: CGSize?
-    private let offset: CGFloat?
+    private let offset: CGSize?
 
-    init(size: CGSize?, offset: CGFloat?) {
+    init(size: CGSize?, offset: CGSize?) {
         self.size = size
         self.offset = offset
     }
 
-    func modify(
-        _ image: KFCrossPlatformImage
-    ) -> KFCrossPlatformImage
-    {
-        guard let size = size,
-                let offset = offset
+    func modify(_ image: KFCrossPlatformImage) -> KFCrossPlatformImage {
+        guard let size = size, let offset = offset
         else { return image }
 
-        return image.cropping(
-            size: size, offset: offset
-        ) ?? image
+        return image.cropping(size: size, offset: offset) ?? image
     }
 }
 
 struct RoundedOffsetModifier: ImageModifier {
     private let size: CGSize?
-    private let offset: CGFloat?
+    private let offset: CGSize?
 
-    init(size: CGSize?, offset: CGFloat?) {
+    init(size: CGSize?, offset: CGSize?) {
         self.size = size
         self.offset = offset
     }
 
-    func modify(
-        _ image: KFCrossPlatformImage
-    ) -> KFCrossPlatformImage
-    {
-        guard let size = size,
-                let offset = offset,
-              let croppedImg = image.cropping(
-                size: size, offset: offset
-              ),
-              let roundedCroppedImg = croppedImg
-                .withRoundedCorners(radius: 5)
-        else {
-            return image
-            .withRoundedCorners(radius: 5) ?? image
-        }
+    func modify(_ image: KFCrossPlatformImage) -> KFCrossPlatformImage {
+        guard let size = size, let offset = offset,
+              let croppedImg = image.cropping(size: size, offset: offset),
+              let roundedCroppedImg = croppedImg.withRoundedCorners(radius: 5)
+        else { return image.withRoundedCorners(radius: 5) ?? image }
 
         return roundedCroppedImg
+    }
+}
+
+struct WebtoonModifier: ImageModifier {
+    private let minAspect: CGFloat
+    private let idealAspect: CGFloat
+
+    init(minAspect: CGFloat, idealAspect: CGFloat) {
+        self.minAspect = minAspect
+        self.idealAspect = idealAspect
+    }
+
+    func modify(_ image: KFCrossPlatformImage) -> KFCrossPlatformImage {
+        let width = image.size.width
+        let height = image.size.height
+        let idealHeight = width / idealAspect
+        guard width / height < minAspect else { return image }
+        return image.cropping(size: CGSize(width: width, height: idealHeight), offset: .zero) ?? image
     }
 }
 

@@ -279,7 +279,7 @@ private struct HeaderView: View {
     var body: some View {
         HStack {
             KFImage(URL(string: gallery.coverURL))
-                .placeholder { Placeholder(style: .activity(ratio: Defaults.ImageSize.headerScale)) }
+                .placeholder { Placeholder(style: .activity(ratio: Defaults.ImageSize.headerAspect)) }
                 .defaultModifier().scaledToFit().frame(width: width, height: height)
             VStack(alignment: .leading) {
                 Text(title).fontWeight(.bold).lineLimit(3).font(.title3)
@@ -647,7 +647,7 @@ private struct PreviewView: View {
         Defaults.ImageSize.previewAvgW
     }
     private var height: CGFloat {
-        width / Defaults.ImageSize.previewScale
+        width / Defaults.ImageSize.previewAspect
     }
 
     var body: some View {
@@ -679,7 +679,7 @@ private struct PreviewView: View {
                             .placeholder {
                                 Placeholder(style: .activity(
                                     ratio: Defaults.ImageSize
-                                        .previewScale
+                                        .previewAspect
                                 ))
                             }
                             .imageModifier(modifier)
@@ -745,7 +745,7 @@ private struct MorePreviewView: View {
                             .placeholder {
                                 Placeholder(style: .activity(
                                     ratio: Defaults.ImageSize
-                                        .previewScale
+                                        .previewAspect
                                 ))
                             }
                             .imageModifier(modifier)

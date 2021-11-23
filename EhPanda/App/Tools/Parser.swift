@@ -1508,7 +1508,7 @@ extension Parser {
     }
 
     // MARK: parsePreviewConfigs
-    static func parsePreviewConfigs(string: String) -> (String, CGSize, CGFloat)? {
+    static func parsePreviewConfigs(string: String) -> (String, CGSize, CGSize)? {
         guard let rangeA = string.range(of: Defaults.PreviewIdentifier.width),
               let rangeB = string.range(of: Defaults.PreviewIdentifier.height),
               let rangeC = string.range(of: Defaults.PreviewIdentifier.offset)
@@ -1517,11 +1517,11 @@ extension Parser {
         let plainURL = String(string[..<rangeA.lowerBound])
         guard let width = Int(string[rangeA.upperBound..<rangeB.lowerBound]),
               let height = Int(string[rangeB.upperBound..<rangeC.lowerBound]),
-              let offset = Int(string[rangeC.upperBound...])
+              let offsetX = Int(string[rangeC.upperBound...])
         else { return nil }
 
         let size = CGSize(width: width, height: height)
-        return (plainURL, size, CGFloat(offset))
+        return (plainURL, size, CGSize(width: offsetX, height: 0))
     }
 
     // MARK: parseWrappedHex
