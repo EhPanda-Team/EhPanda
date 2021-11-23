@@ -12,6 +12,7 @@ import Foundation
 enum AppAction {
     case resetUser
     case resetFilters
+    case resetHomeInfo
     case setReadingProgress(gid: String, tag: Int)
     case setDiskImageCacheSize(size: String)
     case setAppIconType(_ iconType: IconType)

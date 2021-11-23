@@ -99,6 +99,10 @@ final class Store: ObservableObject {
             appState.settings.user = User()
         case .resetFilters:
             appState.settings.filter = Filter()
+        case .resetHomeInfo:
+            appState.homeInfo = AppState.HomeInfo()
+            dispatch(.setHomeListType(.frontpage))
+            dispatch(.fetchFrontpageItems(pageNum: nil))
         case .setReadingProgress(let gid, let tag):
             PersistenceController.update(gid: gid, readingProgress: tag)
         case .setDiskImageCacheSize(let size):

@@ -39,8 +39,8 @@ struct WebView: UIViewControllerRepresentable {
                 guard AuthorizationUtil.didLogin else { return }
                 let store = self?.parent.store
                 store?.dispatch(.setSettingViewSheetState(nil))
-                store?.dispatch(.fetchFrontpageItems())
                 store?.dispatch(.verifyEhProfile)
+                store?.dispatch(.resetHomeInfo)
                 store?.dispatch(.fetchUserInfo)
             }
         }

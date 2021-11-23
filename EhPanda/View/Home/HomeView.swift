@@ -13,6 +13,9 @@ struct HomeView: View, StoreAccessor {
     @EnvironmentObject var store: Store
     @Environment(\.colorScheme) private var colorScheme
 
+    @AppStorage(wrappedValue: .ehentai, AppUserDefaults.galleryHost.rawValue)
+    var galleryHost: GalleryHost
+
     @State private var keyword = ""
     @State private var clipboardJumpID: String?
     @State private var isNavLinkActive = false
@@ -59,6 +62,7 @@ struct HomeView: View, StoreAccessor {
         .onChange(of: environment.toplistsType) { _ in tryFetchToplistsItems() }
         .onChange(of: alertManager.isPresented) { _ in isAlertFocused = false }
         .onChange(of: environment.homeListType, perform: onHomeListTypeChange)
+        .onChange(of: galleryHost) { _ in store.dispatch(.resetHomeInfo) }
         .onChange(of: user.greeting, perform: tryPresentNewDawnSheet)
         .onChange(of: keyword, perform: tryUpdateHistoryKeywords)
         .customAlert(
