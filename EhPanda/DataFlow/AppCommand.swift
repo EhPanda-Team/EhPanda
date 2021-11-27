@@ -541,7 +541,7 @@ struct FetchThumbnailsCommand: AppCommand {
 struct FetchGalleryNormalContentsCommand: AppCommand {
     let gid: String
     let index: Int
-    let thumbnails: [Int: URL]
+    let thumbnails: [Int: String]
 
     func execute(in store: Store) {
         let token = SubscriptionToken()
@@ -569,7 +569,7 @@ struct RefetchGalleryNormalContentCommand: AppCommand {
     let gid: String
     let index: Int
     let galleryURL: String
-    let thumbnailURL: URL?
+    let thumbnailURL: String?
     let storedImageURL: String
     let bypassesSNIFiltering: Bool
 

@@ -119,7 +119,7 @@ struct GalleryState: Codable {
     var previewConfig: PreviewConfig?
     var comments = [GalleryComment]()
     var contents = [Int: String]()
-    var thumbnails = [Int: URL]()
+    var thumbnails = [Int: String]()
 }
 
 struct GalleryArchive: Codable {

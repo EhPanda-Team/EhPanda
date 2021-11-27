@@ -547,8 +547,8 @@ struct Parser {
     }
 
     // MARK: Content
-    static func parseThumbnails(doc: HTMLDocument) throws -> [Int: URL] {
-        var thumbnails = [Int: URL]()
+    static func parseThumbnails(doc: HTMLDocument) throws -> [Int: String] {
+        var thumbnails = [Int: String]()
 
         guard let gdtNode = doc.at_xpath("//div [@id='gdt']"),
               let previewMode = try? parsePreviewMode(doc: doc)
@@ -556,12 +556,11 @@ struct Parser {
 
         for link in gdtNode.xpath("//div [@class='\(previewMode)']") {
             guard let aLink = link.at_xpath("//a"),
-                  let thumbnailString = aLink["href"],
-                  let thumbnailURL = URL(string: thumbnailString),
-                    let index = Int(aLink.at_xpath("//img")?["alt"] ?? "")
+                  let thumbnail = aLink["href"],
+                  let index = Int(aLink.at_xpath("//img")?["alt"] ?? "")
             else { continue }
 
-            thumbnails[index] = thumbnailURL
+            thumbnails[index] = thumbnail
         }
 
         return thumbnails

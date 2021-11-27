@@ -652,7 +652,7 @@ final class Store: ObservableObject {
             let batchRange = appState.detailInfo.previewConfig.batchRange(index: index)
             switch result {
             case .success(let thumbnails):
-                let thumbnailURL = thumbnails[index]
+                let thumbnailURL = thumbnails[index]?.safeURL()
                 if thumbnailURL?.pathComponents.count ?? 0 >= 1, thumbnailURL?.pathComponents[1] == "mpv" {
                     dispatch(.fetchMPVKeys(gid: gid, index: index, mpvURL: thumbnailURL?.absoluteString ?? ""))
                 } else {
