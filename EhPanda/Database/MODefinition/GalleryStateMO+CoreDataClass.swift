@@ -18,7 +18,7 @@ extension GalleryStateMO: ManagedObjectProtocol {
             previews: previews?.toObject() ?? [Int: String](),
             comments: comments?.toObject() ?? [GalleryComment](),
             contents: contents?.toObject() ?? [Int: String](),
-            thumbnails: thumbnails?.toObject() ?? [Int: URL]()
+            thumbnails: thumbnails?.toObject() ?? [Int: String]()
         )
     }
 }

@@ -487,7 +487,7 @@ struct MPVKeysRequest {
 struct ThumbnailsRequest {
     let url: String
 
-    var publisher: AnyPublisher<[Int: URL], AppError> {
+    var publisher: AnyPublisher<[Int: String], AppError> {
         URLSession.shared.dataTaskPublisher(for: url.safeURL())
             .genericRetry().tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .tryMap(Parser.parseThumbnails).mapError(mapAppError).eraseToAnyPublisher()
@@ -495,12 +495,12 @@ struct ThumbnailsRequest {
 }
 
 struct GalleryNormalContentsRequest {
-    let thumbnails: [Int: URL]
+    let thumbnails: [Int: String]
 
     var publisher: AnyPublisher<[Int: String], AppError> {
         thumbnails.publisher
             .flatMap { index, url in
-                URLSession.shared.dataTaskPublisher(for: url).genericRetry()
+                URLSession.shared.dataTaskPublisher(for: url.safeURL()).genericRetry()
                     .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
                     .tryMap { try Parser.parseGalleryNormalContent(doc: $0, index: index) }
             }
@@ -518,7 +518,7 @@ struct GalleryNormalContentsRequest {
 struct GalleryNormalContentRefetchRequest {
     let index: Int
     let galleryURL: String
-    let thumbnailURL: URL?
+    let thumbnailURL: String?
     let storedImageURL: String
     let bypassesSNIFiltering: Bool
 
@@ -532,11 +532,12 @@ struct GalleryNormalContentRefetchRequest {
 
     func storedThumbnail() -> AnyPublisher<URL, AppError> {
         if let thumbnailURL = thumbnailURL {
-            return Just(thumbnailURL).setFailureType(to: AppError.self).eraseToAnyPublisher()
+            return Just(thumbnailURL).compactMap(URL.init).setFailureType(to: AppError.self).eraseToAnyPublisher()
         } else {
             return URLSession.shared.dataTaskPublisher(for: galleryURL.safeURL())
                 .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }.tryMap(Parser.parseThumbnails)
-                .compactMap({ thumbnails in thumbnails[index] }).mapError(mapAppError).eraseToAnyPublisher()
+                .compactMap({ thumbnails in URL(string: thumbnails[index] ?? "") })
+                .mapError(mapAppError).eraseToAnyPublisher()
         }
     }
 

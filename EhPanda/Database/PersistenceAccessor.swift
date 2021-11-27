@@ -181,10 +181,10 @@ extension PersistenceController {
             galleryStateMO.readingProgress = Int64(readingProgress)
         }
     }
-    static func update(gid: String, thumbnails: [Int: URL]) {
+    static func update(gid: String, thumbnails: [Int: String]) {
         update(gid: gid) { galleryStateMO in
             guard !thumbnails.isEmpty else { return }
-            if let storedThumbnails = galleryStateMO.thumbnails?.toObject() as [Int: URL]? {
+            if let storedThumbnails = galleryStateMO.thumbnails?.toObject() as [Int: String]? {
                 galleryStateMO.thumbnails = storedThumbnails.merging(
                     thumbnails, uniquingKeysWith: { _, new in new }
                 ).toData()

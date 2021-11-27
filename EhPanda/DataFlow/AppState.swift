@@ -243,7 +243,7 @@ extension AppState {
 
     // MARK: ContentInfo
     struct ContentInfo {
-        var thumbnails = [String: [Int: URL]]()
+        var thumbnails = [String: [Int: String]]()
         var mpvKeys = [String: String]()
         var mpvImageKeys = [String: [Int: String]]()
         var mpvReloadTokens = [String: [Int: ReloadToken]]()
@@ -271,7 +271,7 @@ extension AppState {
                 new, uniquingKeysWith: { stored, new in replaceExisting ? new : stored }
             )
         }
-        mutating func update(gid: String, thumbnails: [Int: URL]) {
+        mutating func update(gid: String, thumbnails: [Int: String]) {
             update(gid: gid, stored: &self.thumbnails, new: thumbnails)
         }
         mutating func update(gid: String, contents: [Int: String]) {
