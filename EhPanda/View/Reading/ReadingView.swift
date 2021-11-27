@@ -485,30 +485,28 @@ private extension ReadingView {
 
     // MARK: Gesture
     var tapGesture: some Gesture {
-        let singleTap = TapGesture(count: 1)
-            .onEnded { _ in
-                let defaultAction = { withAnimation { showsPanel.toggle() } }
-                guard setting.readingDirection != .vertical,
-                      let pointX = TouchHandler.shared.currentPoint?.x
-                else {
-                    defaultAction()
-                    return
-                }
-                let rightToLeft = setting.readingDirection == .rightToLeft
-                if pointX < DeviceUtil.absWindowW * 0.2 {
-                    page.update(rightToLeft ? .next : .previous)
-                } else if pointX > DeviceUtil.absWindowW * (1 - 0.2) {
-                    page.update(rightToLeft ? .previous : .next)
-                } else {
-                    defaultAction()
-                }
+        let singleTap = TapGesture(count: 1).onEnded { _ in
+            let defaultAction = { withAnimation { showsPanel.toggle() } }
+            guard setting.readingDirection != .vertical,
+                  let pointX = TouchHandler.shared.currentPoint?.x
+            else {
+                defaultAction()
+                return
             }
-        let doubleTap = TapGesture(count: 2)
-            .onEnded { _ in
-                trySyncScaleAnchor()
-                trySetOffset(.zero)
-                trySetScale(scale == 1 ? setting.doubleTapScaleFactor : 1)
+            let rightToLeft = setting.readingDirection == .rightToLeft
+            if pointX < DeviceUtil.absWindowW * 0.2 {
+                page.update(rightToLeft ? .next : .previous)
+            } else if pointX > DeviceUtil.absWindowW * (1 - 0.2) {
+                page.update(rightToLeft ? .previous : .next)
+            } else {
+                defaultAction()
             }
+        }
+        let doubleTap = TapGesture(count: 2).onEnded { _ in
+            trySyncScaleAnchor()
+            trySetOffset(.zero)
+            trySetScale(scale == 1 ? setting.doubleTapScaleFactor : 1)
+        }
         return ExclusiveGesture(doubleTap, singleTap)
     }
     var magnifyGesture: some Gesture {

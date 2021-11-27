@@ -359,6 +359,7 @@
 
 // MARK: QuickSearchView
 "Quick search" = "クイック検索";
+"Alias" = "エイリアス";
 
 // MARK: HomeListType
 "Search" = "検索";

@@ -19,9 +19,7 @@ final class Store: ObservableObject {
 
     func dispatch(_ action: AppAction) {
         #if DEBUG
-        guard !appState.environment.isPreview,
-              !AppUtil.isUnitTesting
-        else { return }
+        guard !AppUtil.isUnitTesting else { return }
         #endif
 
         if Thread.isMainThread {
