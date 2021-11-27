@@ -321,16 +321,11 @@ private extension ReadingView {
         )
     }
     func tryUpdatePagerIndexByTimer(_: Timer) {
-        let distance = DeviceUtil.isLandscape && setting.enablesDualPageMode
-        && setting.readingDirection != .vertical ? 2 : 1
-
-        guard Int(sliderValue) + distance <= pageCount else {
+        guard Int(sliderValue) < pageCount else {
             autoPlayPolicy = .never
             return
         }
-
-        sliderValue += Float(distance)
-        tryUpdatePagerIndex()
+        page.update(.next)
     }
     func trySaveReadingProgress() {
         let progress = mapFromPager(index: page.index)
@@ -491,16 +486,30 @@ private extension ReadingView {
     // MARK: Gesture
     var tapGesture: some Gesture {
         let singleTap = TapGesture(count: 1)
-            .onEnded { _ in withAnimation { showsPanel.toggle() } }
+            .onEnded { _ in
+                let defaultAction = { withAnimation { showsPanel.toggle() } }
+                guard setting.readingDirection != .vertical,
+                      let pointX = TouchHandler.shared.currentPoint?.x
+                else {
+                    defaultAction()
+                    return
+                }
+                let rightToLeft = setting.readingDirection == .rightToLeft
+                if pointX < DeviceUtil.absWindowW * 0.2 {
+                    page.update(rightToLeft ? .next : .previous)
+                } else if pointX > DeviceUtil.absWindowW * (1 - 0.2) {
+                    page.update(rightToLeft ? .previous : .next)
+                } else {
+                    defaultAction()
+                }
+            }
         let doubleTap = TapGesture(count: 2)
             .onEnded { _ in
                 trySyncScaleAnchor()
                 trySetOffset(.zero)
                 trySetScale(scale == 1 ? setting.doubleTapScaleFactor : 1)
             }
-        return ExclusiveGesture(
-            doubleTap, singleTap
-        )
+        return ExclusiveGesture(doubleTap, singleTap)
     }
     var magnifyGesture: some Gesture {
         MagnificationGesture()
@@ -508,12 +517,8 @@ private extension ReadingView {
             .onEnded(onMagnificationGestureEnded)
     }
     var dragGesture: some Gesture {
-        DragGesture(
-            minimumDistance: 0.0,
-            coordinateSpace: .local
-        )
-        .onChanged(onDragGestureChanged)
-        .onEnded(onDragGestureEnded)
+        DragGesture(minimumDistance: 0.0, coordinateSpace: .local)
+            .onChanged(onDragGestureChanged).onEnded(onDragGestureEnded)
     }
 
     func onDragGestureChanged(value: DragGesture.Value) {
