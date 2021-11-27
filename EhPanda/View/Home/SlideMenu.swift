@@ -105,7 +105,7 @@ private struct AvatarView: View {
                     } else {
                         KFAnimatedImage(URL(string: avatarURL ?? ""))
                             .placeholder(placeholder)
-//                            .fade(duration: 0.25)
+                            .fade(duration: 0.25)
                             .retry(maxCount: 10)
                     }
                 }

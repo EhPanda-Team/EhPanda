@@ -29,8 +29,7 @@ struct GalleryThumbnailCell: View {
                     minAspect: Defaults.ImageSize.webtoonMinAspect,
                     idealAspect: Defaults.ImageSize.webtoonIdealAspect
                 ))
-                /*.fade(duration: 0.25)*/
-                .resizable().scaledToFit().overlay {
+                .fade(duration: 0.25).resizable().scaledToFit().overlay {
                     VStack {
                         HStack {
                             Spacer()
