@@ -306,20 +306,21 @@ struct FetchMoreWatchedItemsCommand: AppCommand {
 struct FetchFavoritesItemsCommand: AppCommand {
     let favIndex: Int
     var pageNum: Int?
+    var sortOrder: FavoritesSortOrder?
 
     func execute(in store: Store) {
         let token = SubscriptionToken()
-        FavoritesItemsRequest(favIndex: favIndex, pageNum: pageNum)
+        FavoritesItemsRequest(favIndex: favIndex, pageNum: pageNum, sortOrder: sortOrder)
             .publisher.receive(on: DispatchQueue.main)
             .sink { completion in
                 if case .failure(let error)  = completion {
                     store.dispatch(.fetchFavoritesItemsDone(carriedValue: favIndex, result: .failure(error)))
                 }
                 token.unseal()
-            } receiveValue: { (pageNumber, galleries) in
+            } receiveValue: { (pageNumber, sortOrder, galleries) in
                 if !galleries.isEmpty {
                     store.dispatch(.fetchFavoritesItemsDone(
-                        carriedValue: favIndex, result: .success((pageNumber, galleries)))
+                        carriedValue: favIndex, result: .success((pageNumber, sortOrder, galleries)))
                     )
                 } else {
                     store.dispatch(.fetchFavoritesItemsDone(carriedValue: favIndex, result: .failure(.notFound)))
@@ -347,9 +348,9 @@ struct FetchMoreFavoritesItemsCommand: AppCommand {
                     store.dispatch(.fetchMoreFavoritesItemsDone(carriedValue: favIndex, result: .failure(error)))
                 }
                 token.unseal()
-            } receiveValue: { (pageNumber, galleries) in
+            } receiveValue: { (pageNumber, sortOrder, galleries) in
                 store.dispatch(.fetchMoreFavoritesItemsDone(
-                    carriedValue: favIndex, result: .success((pageNumber, galleries)))
+                    carriedValue: favIndex, result: .success((pageNumber, sortOrder, galleries)))
                 )
                 guard galleries.isEmpty, pageNumber.current < pageNumber.maximum else { return }
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {

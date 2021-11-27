@@ -268,13 +268,18 @@ struct MoreWatchedItemsRequest {
 struct FavoritesItemsRequest {
     let favIndex: Int
     var pageNum: Int?
+    var sortOrder: FavoritesSortOrder?
 
-    var publisher: AnyPublisher<(PageNumber, [Gallery]), AppError> {
+    var publisher: AnyPublisher<(PageNumber, FavoritesSortOrder?, [Gallery]), AppError> {
         URLSession.shared.dataTaskPublisher(
-            for: Defaults.URL.favoritesList(favIndex: favIndex, pageNum: pageNum).safeURL()
+            for: Defaults.URL.favoritesList(favIndex: favIndex, pageNum: pageNum, sortOrder: sortOrder).safeURL()
         )
         .genericRetry().tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-        .tryMap { (Parser.parsePageNum(doc: $0), try Parser.parseListItems(doc: $0)) }
+        .tryMap { (
+            Parser.parsePageNum(doc: $0),
+            Parser.parseFavoritesSortOrder(doc: $0),
+            try Parser.parseListItems(doc: $0)
+        ) }
         .mapError(mapAppError).eraseToAnyPublisher()
     }
 }
@@ -284,12 +289,16 @@ struct MoreFavoritesItemsRequest {
     let lastID: String
     let pageNum: Int
 
-    var publisher: AnyPublisher<(PageNumber, [Gallery]), AppError> {
+    var publisher: AnyPublisher<(PageNumber, FavoritesSortOrder?, [Gallery]), AppError> {
         URLSession.shared.dataTaskPublisher(for: Defaults.URL.moreFavoritesList(
             favIndex: favIndex, pageNum: pageNum, lastID: lastID
         ).safeURL())
         .genericRetry().tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-        .tryMap { (Parser.parsePageNum(doc: $0), try Parser.parseListItems(doc: $0)) }
+        .tryMap { (
+            Parser.parsePageNum(doc: $0),
+            Parser.parseFavoritesSortOrder(doc: $0),
+            try Parser.parseListItems(doc: $0)
+        ) }
         .mapError(mapAppError).eraseToAnyPublisher()
     }
 }

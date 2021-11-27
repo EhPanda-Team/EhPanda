@@ -10,6 +10,7 @@ import Kanna
 import Foundation
 
 enum AppAction {
+    // swiftlint:disable line_length
     case resetUser
     case resetFilters
     case resetHomeInfo
@@ -67,10 +68,10 @@ enum AppAction {
     case fetchWatchedItemsDone(result: Result<(PageNumber, [Gallery]), AppError>)
     case fetchMoreWatchedItems
     case fetchMoreWatchedItemsDone(result: Result<(PageNumber, [Gallery]), AppError>)
-    case fetchFavoritesItems(pageNum: Int? = nil)
-    case fetchFavoritesItemsDone(carriedValue: Int, result: Result<(PageNumber, [Gallery]), AppError>)
+    case fetchFavoritesItems(pageNum: Int? = nil, sortOrder: FavoritesSortOrder? = nil)
+    case fetchFavoritesItemsDone(carriedValue: Int, result: Result<(PageNumber, FavoritesSortOrder?, [Gallery]), AppError>)
     case fetchMoreFavoritesItems
-    case fetchMoreFavoritesItemsDone(carriedValue: Int, result: Result<(PageNumber, [Gallery]), AppError>)
+    case fetchMoreFavoritesItemsDone(carriedValue: Int, result: Result<(PageNumber, FavoritesSortOrder?, [Gallery]), AppError>)
     case fetchToplistsItems(pageNum: Int? = nil)
     case fetchToplistsItemsDone(carriedValue: Int, result: Result<(PageNumber, [Gallery]), AppError>)
     case fetchMoreToplistsItems
@@ -101,4 +102,5 @@ enum AppAction {
     case commentGallery(gid: String, content: String)
     case editGalleryComment(gid: String, commentID: String, content: String)
     case voteGalleryComment(gid: String, commentID: String, vote: Int)
+    // swiftlint:enable line_length
 }

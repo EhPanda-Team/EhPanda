@@ -1179,7 +1179,7 @@ extension Parser {
         return (rating, try? parseTextRating(node: node), containsUserRating)
     }
 
-    // MARK: Page Number
+    // MARK: PageNumber
     static func parsePageNum(doc: HTMLDocument) -> PageNumber {
         var current = 0
         var maximum = 0
@@ -1199,6 +1199,20 @@ extension Parser {
             }
         }
         return PageNumber(current: current, maximum: maximum)
+    }
+
+    // MARK: SortOrder
+    static func parseFavoritesSortOrder(doc: HTMLDocument) -> FavoritesSortOrder? {
+        guard let idoNode = doc.at_xpath("//div [@class='ido']") else { return nil }
+        for link in idoNode.xpath("//div") where link.className == nil {
+            guard let aText = link.at_xpath("//div")?.at_xpath("//a")?.text else { continue }
+            if aText == "Use Posted" {
+                return .favoritedTime
+            } else if aText == "Use Favorited" {
+                return .lastUpdateTime
+            }
+        }
+        return nil
     }
 
     // MARK: Balance

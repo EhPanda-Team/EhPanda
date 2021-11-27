@@ -14,6 +14,7 @@ typealias APIKey = String
 typealias CurrentGP = String
 typealias CurrentCredits = String
 typealias ReloadToken = Any
+typealias FavoritesSortOrder = EhSettingFavoritesSortOrder
 
 struct PageNumber: Equatable {
     var current = 0
