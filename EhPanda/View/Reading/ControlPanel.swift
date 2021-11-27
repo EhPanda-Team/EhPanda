@@ -272,7 +272,7 @@ private struct SliderPreivew: View {
                                 ratio: Defaults.ImageSize.previewAspect
                             ))
                         }
-//                        .fade(duration: 0.25)
+                        .fade(duration: 0.25)
                         .imageModifier(modifier).resizable().scaledToFit()
                         .frame(width: previewWidth, height: isSliderDragging ? previewHeight : 0)
                     Text("\(index)").font(DeviceUtil.isPadWidth ? .callout : .caption)
