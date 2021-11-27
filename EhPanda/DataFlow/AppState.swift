@@ -26,6 +26,7 @@ extension AppState {
         var slideMenuClosed = true
         var navigationBarHidden = false
         var favoritesIndex = -1
+        var favoritesSortOrder: FavoritesSortOrder?
         var toplistsType: ToplistsType = .allTime
         var homeListType: HomeListType = .frontpage
         var homeViewSheetState: HomeViewSheetState?

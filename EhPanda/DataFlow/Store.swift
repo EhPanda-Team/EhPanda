@@ -437,7 +437,7 @@ final class Store: ObservableObject {
                 appState.homeInfo.moreWatchedLoadFailed = true
             }
 
-        case .fetchFavoritesItems(let pageNum):
+        case .fetchFavoritesItems(let pageNum, let sortOrder):
             let favIndex = appState.environment.favoritesIndex
             appState.homeInfo.favoritesLoadErrors[favIndex] = nil
 
@@ -447,14 +447,15 @@ final class Store: ObservableObject {
             }
             appState.homeInfo.favoritesPageNumbers[favIndex]?.current = 0
             appState.homeInfo.favoritesLoading[favIndex] = true
-            appCommand = FetchFavoritesItemsCommand(favIndex: favIndex, pageNum: pageNum)
+            appCommand = FetchFavoritesItemsCommand(favIndex: favIndex, pageNum: pageNum, sortOrder: sortOrder)
         case .fetchFavoritesItemsDone(let carriedValue, let result):
             appState.homeInfo.favoritesLoading[carriedValue] = false
 
             switch result {
-            case .success(let (pageNumber, galleries)):
+            case .success(let (pageNumber, sortOrder, galleries)):
                 appState.homeInfo.favoritesPageNumbers[carriedValue] = pageNumber
                 appState.homeInfo.favoritesItems[carriedValue] = galleries
+                appState.environment.favoritesSortOrder = sortOrder
                 PersistenceController.add(galleries: galleries)
             case .failure(let error):
                 appState.homeInfo.favoritesLoadErrors[carriedValue] = error
@@ -481,9 +482,10 @@ final class Store: ObservableObject {
             appState.homeInfo.moreFavoritesLoading[carriedValue] = false
 
             switch result {
-            case .success(let (pageNumber, galleries)):
+            case .success(let (pageNumber, sortOrder, galleries)):
                 appState.homeInfo.favoritesPageNumbers[carriedValue] = pageNumber
                 appState.homeInfo.insertFavoritesItems(favIndex: carriedValue, galleries: galleries)
+                appState.environment.favoritesSortOrder = sortOrder
                 PersistenceController.add(galleries: galleries)
             case .failure:
                 appState.homeInfo.moreFavoritesLoading[carriedValue] = true

@@ -114,10 +114,12 @@ struct Defaults {
         static let loginAct = "act=Login"
         static let addfavAct = "act=addfav"
         static let ignoreOffensive = "nw=always"
+        static let rowsLimit = "inline_set=tr_"
         static let listCompact = "inline_set=dm_l"
         static let previewNormal = "inline_set=ts_m"
         static let previewLarge = "inline_set=ts_l"
-        static let rowsLimit = "inline_set=tr_4"
+        static let sortOrderByUpdateTime = "inline_set=fs_p"
+        static let sortOrderByFavoritedTime = "inline_set=fs_f"
 
         // Filter
         static let fCats = "f_cats="
@@ -186,15 +188,24 @@ extension Defaults.URL {
     static func moreWatchedList(pageNum: Int, lastID: String) -> String {
         merge(urls: [host + watched, page2 + String(pageNum), from + lastID])
     }
-    static func favoritesList(favIndex: Int, pageNum: Int? = nil) -> String {
+    static func favoritesList(favIndex: Int, pageNum: Int? = nil, sortOrder: FavoritesSortOrder? = nil) -> String {
         var params = [host + favorites]
         if favIndex == -1 {
-            if pageNum == nil { return params[0] }
+            if pageNum == nil {
+                guard let sortOrder = sortOrder else {
+                    return params[0]
+                }
+                params.append(sortOrder == .favoritedTime ? sortOrderByFavoritedTime : sortOrderByUpdateTime)
+                return merge(urls: params)
+            }
         } else {
             params.append(favcat + "\(favIndex)")
         }
         if let pageNum = pageNum {
             params.append(page2 + String(pageNum))
+        }
+        if let sortOrder = sortOrder {
+            params.append(sortOrder == .favoritedTime ? sortOrderByFavoritedTime : sortOrderByUpdateTime)
         }
         return merge(urls: params)
     }

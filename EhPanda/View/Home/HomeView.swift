@@ -117,6 +117,7 @@ private extension HomeView {
                 if environment.homeListType == .favorites {
                     ForEach(-1..<10) { index in
                         Button {
+                            guard index != environment.favoritesIndex else { return }
                             store.dispatch(.setFavoritesIndex(index))
                         } label: {
                             Text(User.getFavNameFrom(index: index, names: favoriteNames))
@@ -128,6 +129,7 @@ private extension HomeView {
                 } else if environment.homeListType == .toplists {
                     ForEach(ToplistsType.allCases) { type in
                         Button {
+                            guard type != environment.toplistsType else { return }
                             store.dispatch(.setToplistsType(type))
                         } label: {
                             Text(type.description.localized)
@@ -138,11 +140,31 @@ private extension HomeView {
                     }
                 }
             } label: {
-                Image(systemName: "square.3.stack.3d.top.fill")
+                Image(systemName: "dial.min")
                     .symbolRenderingMode(.hierarchical)
                     .foregroundColor(.primary)
             }
             .opacity([.favorites, .toplists].contains(environment.homeListType) ? 1 : 0)
+        }
+        func sortOrderMenu() -> some View {
+            Menu {
+                ForEach(FavoritesSortOrder.allCases) { order in
+                    Button {
+                        guard order != environment.favoritesSortOrder else { return }
+                        store.dispatch(.fetchFavoritesItems(sortOrder: order))
+                    } label: {
+                        Text(order.value.localized)
+                        if order == environment.favoritesSortOrder {
+                            Image(systemName: "checkmark")
+                        }
+                    }
+                }
+            } label: {
+                Image(systemName: "arrow.up.arrow.down.circle")
+                    .symbolRenderingMode(.hierarchical)
+                    .foregroundColor(.primary)
+            }
+            .opacity(environment.homeListType == .favorites ? 1 : 0)
         }
         func moreFeaturesMenu() -> some View {
             Menu {
@@ -190,6 +212,7 @@ private extension HomeView {
             ToolbarItem(placement: .navigationBarTrailing) {
                 HStack {
                     selectIndexMenu()
+                    sortOrderMenu()
                     moreFeaturesMenu()
                 }
             }
