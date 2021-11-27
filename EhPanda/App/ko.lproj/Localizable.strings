@@ -359,6 +359,7 @@
 
 // MARK: QuickSearchView
 "Quick search" = "빠른 검색";
+//"Alias" = "";
 
 // MARK: HomeListType
 "Search" = "검색";

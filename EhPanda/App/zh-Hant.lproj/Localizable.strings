@@ -359,6 +359,7 @@
 
 // MARK: QuickSearchView
 "Quick search" = "快速搜尋";
+//"Alias" = "";
 
 // MARK: HomeListType
 "Search" = "搜尋";

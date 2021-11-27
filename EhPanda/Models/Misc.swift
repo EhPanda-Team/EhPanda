@@ -90,7 +90,8 @@ struct Greeting: Codable, Equatable {
     }
 }
 
-struct QuickSearchWord: Codable, Identifiable {
+struct QuickSearchWord: Codable, Equatable, Identifiable {
     var id = UUID().uuidString
+    var alias: String?
     let content: String
 }
