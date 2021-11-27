@@ -105,9 +105,11 @@ struct LoginView: View, StoreAccessor {
                     }
                     HapticUtil.generateNotificationFeedback(style: .success)
                     dismissAction.callAsFunction()
-                    store.dispatch(.fetchFrontpageItems())
                     store.dispatch(.verifyEhProfile)
                     store.dispatch(.fetchUserInfo)
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                        store.dispatch(.resetHomeInfo)
+                    }
                 }
                 token.unseal()
             } receiveValue: { value in
