@@ -26,6 +26,7 @@ extension AppState {
         var slideMenuClosed = true
         var navigationBarHidden = false
         var favoritesIndex = -1
+        var favoritesSortOrder: FavoritesSortOrder?
         var toplistsType: ToplistsType = .allTime
         var homeListType: HomeListType = .frontpage
         var homeViewSheetState: HomeViewSheetState?
@@ -51,8 +52,11 @@ extension AppState {
         @AppEnvStorage(type: User.self)
         var user: User
 
-        @AppEnvStorage(type: Filter.self)
-        var filter: Filter
+        @AppEnvStorage(type: Filter.self, key: "searchFilter")
+        var searchFilter: Filter
+
+        @AppEnvStorage(type: Filter.self, key: "globalFilter")
+        var globalFilter: Filter
 
         @AppEnvStorage(type: Setting.self)
         var setting: Setting
@@ -243,18 +247,19 @@ extension AppState {
 
     // MARK: ContentInfo
     struct ContentInfo {
-        var thumbnails = [String: [Int: URL]]()
+        var thumbnails = [String: [Int: String]]()
         var mpvKeys = [String: String]()
         var mpvImageKeys = [String: [Int: String]]()
         var mpvReloadTokens = [String: [Int: ReloadToken]]()
         var contents = [String: [Int: String]]()
+        var originalContents = [String: [Int: String]]()
         var contentsLoading = [String: [Int: Bool]]()
         var contentsLoadErrors = [String: [Int: AppError]]()
 
         mutating func fulfillContents(gid: String) {
-            let galleryState = PersistenceController
-                .fetchGalleryStateNonNil(gid: gid)
+            let galleryState = PersistenceController.fetchGalleryStateNonNil(gid: gid)
             contents[gid] = galleryState.contents
+            originalContents[gid] = galleryState.originalContents
             thumbnails[gid] = galleryState.thumbnails
         }
 
@@ -271,11 +276,12 @@ extension AppState {
                 new, uniquingKeysWith: { stored, new in replaceExisting ? new : stored }
             )
         }
-        mutating func update(gid: String, thumbnails: [Int: URL]) {
+        mutating func update(gid: String, thumbnails: [Int: String]) {
             update(gid: gid, stored: &self.thumbnails, new: thumbnails)
         }
-        mutating func update(gid: String, contents: [Int: String]) {
+        mutating func update(gid: String, contents: [Int: String], originalContents: [Int: String]) {
             update(gid: gid, stored: &self.contents, new: contents)
+            update(gid: gid, stored: &self.originalContents, new: originalContents)
         }
     }
 }

@@ -5,8 +5,6 @@
 //  Created by 荒木辰造 on R 3/07/13.
 //
 
-import SwiftyBeaver
-
 struct DomainResolver {
     static func resolve(domain: String) -> String? {
         ResolvableDomain(rawValue: domain)?.ipPool.randomElement()

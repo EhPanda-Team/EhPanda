@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import SwiftyBeaver
 
 struct AppearanceSettingView: View, StoreAccessor {
     @EnvironmentObject var store: Store
@@ -132,7 +131,7 @@ private struct SelectAppIconView: View {
         UIApplication.shared.setAlternateIconName(icon.fileName) { error in
             if let error = error {
                 HapticUtil.generateNotificationFeedback(style: .error)
-                SwiftyBeaver.error(error)
+                Logger.error(error)
             }
             selectAction()
         }

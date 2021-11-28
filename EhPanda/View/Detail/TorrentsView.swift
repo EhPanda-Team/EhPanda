@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import SwiftyBeaver
 import TTProgressHUD
 
 struct TorrentsView: View, StoreAccessor {
@@ -101,10 +100,10 @@ private extension TorrentsView {
             .publisher.receive(on: DispatchQueue.main)
             .sink { completion in
                 if case .failure(let error) = completion {
-                    SwiftyBeaver.error(error)
+                    Logger.error(error)
                     loadError = error
 
-                    SwiftyBeaver.error(
+                    Logger.error(
                         "GalleryTorrentsRequest Failed",
                         context: ["gid": gid, "Token": token, "Error": error]
                     )
@@ -114,7 +113,7 @@ private extension TorrentsView {
             } receiveValue: {
                 torrents = $0
 
-                SwiftyBeaver.info(
+                Logger.info(
                     "GalleryTorrentsRequest succeeded",
                     context: ["gid": gid, "Token": token, "Torrents count": $0.count]
                 )

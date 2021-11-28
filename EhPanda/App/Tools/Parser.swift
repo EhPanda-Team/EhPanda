@@ -7,9 +7,6 @@
 
 import Kanna
 import UIKit
-import Foundation
-import SwiftUI
-import SwiftyBeaver
 
 struct Parser {
     // MARK: List
@@ -547,8 +544,8 @@ struct Parser {
     }
 
     // MARK: Content
-    static func parseThumbnails(doc: HTMLDocument) throws -> [Int: URL] {
-        var thumbnails = [Int: URL]()
+    static func parseThumbnails(doc: HTMLDocument) throws -> [Int: String] {
+        var thumbnails = [Int: String]()
 
         guard let gdtNode = doc.at_xpath("//div [@id='gdt']"),
               let previewMode = try? parsePreviewMode(doc: doc)
@@ -556,12 +553,11 @@ struct Parser {
 
         for link in gdtNode.xpath("//div [@class='\(previewMode)']") {
             guard let aLink = link.at_xpath("//a"),
-                  let thumbnailString = aLink["href"],
-                  let thumbnailURL = URL(string: thumbnailString),
-                    let index = Int(aLink.at_xpath("//img")?["alt"] ?? "")
+                  let thumbnail = aLink["href"],
+                  let index = Int(aLink.at_xpath("//img")?["alt"] ?? "")
             else { continue }
 
-            thumbnails[index] = thumbnailURL
+            thumbnails[index] = thumbnail
         }
 
         return thumbnails
@@ -580,12 +576,16 @@ struct Parser {
         return renewedThumbnail
     }
 
-    static func parseGalleryNormalContent(doc: HTMLDocument, index: Int) throws -> (Int, String) {
+    static func parseGalleryNormalContent(doc: HTMLDocument, index: Int) throws -> (Int, String, String?) {
         guard let i3Node = doc.at_xpath("//div [@id='i3']"),
               let imageURL = i3Node.at_css("img")?["src"]
         else { throw AppError.parseFailed }
 
-        return (index, imageURL)
+        guard let i7Node = doc.at_xpath("//div [@id='i7']"),
+              let originalImageURL = i7Node.at_xpath("//a")?["href"]
+        else { return (index, imageURL, nil) }
+
+        return (index, imageURL, originalImageURL)
     }
 
     static func parsePreviewMode(doc: HTMLDocument) throws -> String {
@@ -1180,7 +1180,7 @@ extension Parser {
         return (rating, try? parseTextRating(node: node), containsUserRating)
     }
 
-    // MARK: Page Number
+    // MARK: PageNumber
     static func parsePageNum(doc: HTMLDocument) -> PageNumber {
         var current = 0
         var maximum = 0
@@ -1200,6 +1200,20 @@ extension Parser {
             }
         }
         return PageNumber(current: current, maximum: maximum)
+    }
+
+    // MARK: SortOrder
+    static func parseFavoritesSortOrder(doc: HTMLDocument) -> FavoritesSortOrder? {
+        guard let idoNode = doc.at_xpath("//div [@class='ido']") else { return nil }
+        for link in idoNode.xpath("//div") where link.className == nil {
+            guard let aText = link.at_xpath("//div")?.at_xpath("//a")?.text else { continue }
+            if aText == "Use Posted" {
+                return .favoritedTime
+            } else if aText == "Use Favorited" {
+                return .lastUpdateTime
+            }
+        }
+        return nil
     }
 
     // MARK: Balance
@@ -1585,7 +1599,7 @@ extension Parser {
                 return .minutes(minutes, seconds: nil)
             }
         } else {
-            SwiftyBeaver.error(
+            Logger.error(
                 "Unrecognized BanInterval format", context: [
                     "expireDescription": expireDescription
                 ]

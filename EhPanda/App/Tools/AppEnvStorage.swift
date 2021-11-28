@@ -5,8 +5,6 @@
 //  Created by 荒木辰造 on R 3/07/10.
 //
 
-import SwiftyBeaver
-
 @propertyWrapper
 struct AppEnvStorage<T: Encodable> {
     private var key: String
@@ -23,9 +21,7 @@ struct AppEnvStorage<T: Encodable> {
                 return value
             }
         }
-        SwiftyBeaver.error(
-            "Failed in force downcasting to generic type..."
-        )
+        Logger.error("Failed in force downcasting to generic type...")
         return nil
     }
 
@@ -45,9 +41,7 @@ struct AppEnvStorage<T: Encodable> {
         if let key = key {
             self.key = key
         } else {
-            self.key = String(
-                describing: type
-            ).lowercased()
+            self.key = String(describing: type).lowercased()
         }
         value = fetchedValue
     }

@@ -113,6 +113,7 @@
 "Reload" = "재시도";
 "Copy" = "복사";
 "Save" = "저장";
+//"Save original" = "";
 "Saved to photo library" = "이미지 저장";
 
 // MARK: SettingView
@@ -359,6 +360,7 @@
 
 // MARK: QuickSearchView
 "Quick search" = "빠른 검색";
+//"Alias" = "";
 
 // MARK: HomeListType
 "Search" = "검색";

@@ -7,7 +7,6 @@
 
 import SwiftUI
 import Kingfisher
-import SwiftyBeaver
 import LocalAuthentication
 
 struct GeneralSettingView: View, StoreAccessor {
@@ -82,9 +81,7 @@ struct GeneralSettingView: View, StoreAccessor {
             }
         }
         .confirmationDialog(
-            "Are you sure to clear?",
-            isPresented: $clearDialogPresented,
-            titleVisibility: .visible
+            "Are you sure to clear?", isPresented: $clearDialogPresented, titleVisibility: .visible
         ) {
             Button("Clear", role: .destructive, action: clearImageCaches)
         }
@@ -126,7 +123,7 @@ private extension GeneralSettingView {
             case .success(let size):
                 diskImageCacheSize = readableUnit(bytes: size)
             case .failure(let error):
-                SwiftyBeaver.error(error)
+                Logger.error(error)
             }
         }
     }

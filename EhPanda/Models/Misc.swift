@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftyBeaver
 
 typealias Percentage = Int
 typealias Keyword = String
@@ -14,6 +15,8 @@ typealias APIKey = String
 typealias CurrentGP = String
 typealias CurrentCredits = String
 typealias ReloadToken = Any
+typealias Logger = SwiftyBeaver
+typealias FavoritesSortOrder = EhSettingFavoritesSortOrder
 
 struct PageNumber: Equatable {
     var current = 0
@@ -90,7 +93,8 @@ struct Greeting: Codable, Equatable {
     }
 }
 
-struct QuickSearchWord: Codable, Identifiable {
+struct QuickSearchWord: Codable, Equatable, Identifiable {
     var id = UUID().uuidString
+    var alias: String?
     let content: String
 }

@@ -9,75 +9,110 @@ import SwiftUI
 
 struct FilterView: View, StoreAccessor {
     @EnvironmentObject var store: Store
-    @State var resetDialogPresented = false
+    @State private var resetDialogPresented = false
+    @State private var filterRange: FilterRange = .search
 
-    private var categoryBindings: [Binding<Bool>] {
-        [
-            filterBinding.doujinshi, filterBinding.manga,
-            filterBinding.artistCG, filterBinding.gameCG,
-            filterBinding.western, filterBinding.nonH,
-            filterBinding.imageSet, filterBinding.cosplay,
-            filterBinding.asianPorn, filterBinding.misc
-        ]
-    }
     private var filterBinding: Binding<Filter> {
-        $store.appState.settings.filter
+        filterRange == .search
+            ? $store.appState.settings.searchFilter
+            : $store.appState.settings.globalFilter
     }
 
     // MARK: FilterView
     var body: some View {
         NavigationView {
             Form {
-                Section {
-                    CategoryView(bindings: categoryBindings)
-                    Button {
-                        resetDialogPresented = true
-                    } label: {
-                        Text("Reset filters").foregroundStyle(.red)
-                    }
-                    Toggle("Advanced settings", isOn: filterBinding.advanced)
-                }
-                Group {
-                    Section("Advanced".localized) {
-                        Toggle("Search gallery name", isOn: filterBinding.galleryName)
-                        Toggle("Search gallery tags", isOn: filterBinding.galleryTags)
-                        Toggle("Search gallery description", isOn: filterBinding.galleryDesc)
-                        Toggle("Search torrent filenames", isOn: filterBinding.torrentFilenames)
-                        Toggle("Only show galleries with torrents", isOn: filterBinding.onlyWithTorrents)
-                        Toggle("Search Low-Power tags", isOn: filterBinding.lowPowerTags)
-                        Toggle("Search downvoted tags", isOn: filterBinding.downvotedTags)
-                        Toggle("Show expunged galleries", isOn: filterBinding.expungedGalleries)
-                    }
-                    Section {
-                        Toggle("Set minimum rating", isOn: filterBinding.minRatingActivated)
-                        MinimumRatingSetter(minimum: filterBinding.minRating)
-                            .disabled(!filter.minRatingActivated)
-                        Toggle("Set pages range", isOn: filterBinding.pageRangeActivated)
-                        PagesRangeSetter(
-                            lowerBound: filterBinding.pageLowerBound,
-                            upperBound: filterBinding.pageUpperBound
-                        )
-                        .disabled(!filter.pageRangeActivated)
-                    }
-                    Section("Default Filter".localized) {
-                        Toggle("Disable language filter", isOn: filterBinding.disableLanguage)
-                        Toggle("Disable uploader filter", isOn: filterBinding.disableUploader)
-                        Toggle("Disable tags filter", isOn: filterBinding.disableTags)
-                    }
-                }
-                .disabled(!filter.advanced)
+                BasicSection(
+                    filter: filterBinding, filterRange: $filterRange,
+                    resetDialogPresented: $resetDialogPresented
+                )
+                AdvancedSection(filter: filterBinding)
             }
             .confirmationDialog(
-                "Are you sure to reset?",
-                isPresented: $resetDialogPresented,
-                titleVisibility: .visible
+                "Are you sure to reset?", isPresented: $resetDialogPresented, titleVisibility: .visible
             ) {
                 Button("Reset", role: .destructive) {
-                    store.dispatch(.resetFilters)
+                    store.dispatch(.resetFilter(range: filterRange))
                 }
             }
             .navigationBarTitle("Filters")
         }
+    }
+}
+
+// MARK: BasicSection
+private struct BasicSection: View {
+    @Binding private var filter: Filter
+    @Binding private var filterRange: FilterRange
+    @Binding private var resetDialogPresented: Bool
+    private var categoryBindings: [Binding<Bool>] { [
+        $filter.doujinshi, $filter.manga, $filter.artistCG, $filter.gameCG, $filter.western,
+        $filter.nonH, $filter.imageSet, $filter.cosplay, $filter.asianPorn, $filter.misc
+    ] }
+
+    init(filter: Binding<Filter>, filterRange: Binding<FilterRange>, resetDialogPresented: Binding<Bool>) {
+        _filter = filter
+        _filterRange = filterRange
+        _resetDialogPresented = resetDialogPresented
+    }
+
+    var body: some View {
+        Section {
+            Picker("Range", selection: $filterRange) {
+                ForEach(FilterRange.allCases) { range in
+                    Text(range.rawValue.localized).tag(range)
+                }
+            }
+            .pickerStyle(.segmented)
+            CategoryView(bindings: categoryBindings)
+            Button {
+                resetDialogPresented = true
+            } label: {
+                Text("Reset filters").foregroundStyle(.red)
+            }
+            Toggle("Advanced settings", isOn: $filter.advanced)
+        }
+    }
+}
+
+// MARK: AdvancedSection
+private struct AdvancedSection: View {
+    @Binding private var filter: Filter
+
+    init(filter: Binding<Filter>) {
+        _filter = filter
+    }
+
+    var body: some View {
+        Group {
+            Section("Advanced".localized) {
+                Toggle("Search gallery name", isOn: $filter.galleryName)
+                Toggle("Search gallery tags", isOn: $filter.galleryTags)
+                Toggle("Search gallery description", isOn: $filter.galleryDesc)
+                Toggle("Search torrent filenames", isOn: $filter.torrentFilenames)
+                Toggle("Only show galleries with torrents", isOn: $filter.onlyWithTorrents)
+                Toggle("Search Low-Power tags", isOn: $filter.lowPowerTags)
+                Toggle("Search downvoted tags", isOn: $filter.downvotedTags)
+                Toggle("Show expunged galleries", isOn: $filter.expungedGalleries)
+            }
+            Section {
+                Toggle("Set minimum rating", isOn: $filter.minRatingActivated)
+                MinimumRatingSetter(minimum: $filter.minRating)
+                    .disabled(!filter.minRatingActivated)
+                Toggle("Set pages range", isOn: $filter.pageRangeActivated)
+                PagesRangeSetter(
+                    lowerBound: $filter.pageLowerBound,
+                    upperBound: $filter.pageUpperBound
+                )
+                .disabled(!filter.pageRangeActivated)
+            }
+            Section("Default Filter".localized) {
+                Toggle("Disable language filter", isOn: $filter.disableLanguage)
+                Toggle("Disable uploader filter", isOn: $filter.disableUploader)
+                Toggle("Disable tags filter", isOn: $filter.disableTags)
+            }
+        }
+        .disabled(!filter.advanced)
     }
 }
 
@@ -150,4 +185,11 @@ private struct TupleCategory: Identifiable {
 
     let isFiltered: Binding<Bool>
     let category: Category
+}
+
+enum FilterRange: String, CaseIterable, Identifiable {
+    var id: String { rawValue }
+
+    case search = "Search"
+    case global = "Global"
 }

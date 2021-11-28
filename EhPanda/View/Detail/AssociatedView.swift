@@ -7,7 +7,6 @@
 
 import SwiftUI
 import AlertKit
-import SwiftyBeaver
 
 struct AssociatedView: View, StoreAccessor {
     @EnvironmentObject var store: Store
@@ -130,16 +129,16 @@ private extension AssociatedView {
         let token = SubscriptionToken()
         SearchItemsRequest(
             keyword: keyword.isEmpty ? title : keyword,
-            filter: filter, pageNum: pageNum
+            filter: searchFilter, pageNum: pageNum
         )
         .publisher.receive(on: DispatchQueue.main)
         .sink { completion in
             loadingFlag = false
             if case .failure(let error) = completion {
-                SwiftyBeaver.error(error)
+                Logger.error(error)
                 loadError = error
 
-                SwiftyBeaver.error(
+                Logger.error(
                     "SearchItemsRequest failed",
                     context: [
                         "Keyword": keyword.isEmpty ? title : keyword,
@@ -153,7 +152,7 @@ private extension AssociatedView {
             if !galleries.isEmpty {
                 associatedItems = galleries
 
-                SwiftyBeaver.info(
+                Logger.info(
                     "SearchItemsRequest succeeded",
                     context: [
                         "Keyword": keyword.isEmpty ? title : keyword, "PageNumber": pageNumber,
@@ -163,7 +162,7 @@ private extension AssociatedView {
             } else {
                 loadError = .notFound
 
-                SwiftyBeaver.error(
+                Logger.error(
                     "SearchItemsRequest failed",
                     context: [
                         "Keyword": keyword.isEmpty ? title : keyword,
@@ -188,7 +187,7 @@ private extension AssociatedView {
 
         let token = SubscriptionToken()
         MoreSearchItemsRequest(
-            keyword: keyword.isEmpty ? title : keyword, filter: filter,
+            keyword: keyword.isEmpty ? title : keyword, filter: searchFilter,
             lastID: lastID, pageNum: pageNumber.current + 1
         )
         .publisher.receive(on: DispatchQueue.main)
@@ -196,9 +195,9 @@ private extension AssociatedView {
             moreLoadingFlag = false
             if case .failure(let error)  = completion {
                 moreLoadFailedFlag = true
-                SwiftyBeaver.error(error)
+                Logger.error(error)
 
-                SwiftyBeaver.error(
+                Logger.error(
                     "MoreSearchItemsRequest failed",
                     context: [
                         "Keyword": keyword, "LastID": lastID,
@@ -221,7 +220,7 @@ private extension AssociatedView {
             }
             PersistenceController.add(galleries: galleries)
 
-            SwiftyBeaver.info(
+            Logger.info(
                 "MoreSearchItemsRequest succeeded",
                 context: [
                     "Keyword": keyword, "LastID": lastID, "PageNumber": pageNumber,
@@ -231,7 +230,7 @@ private extension AssociatedView {
 
             if galleries.isEmpty && pageNumber.current < pageNumber.maximum {
                 fetchMoreAssociatedItems()
-                SwiftyBeaver.warning("MoreSearchItemsRequest result empty, requesting more...")
+                Logger.warning("MoreSearchItemsRequest result empty, requesting more...")
             }
         }
         .seal(in: token)

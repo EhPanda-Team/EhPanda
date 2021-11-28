@@ -6,19 +6,19 @@
 //
 
 import SwiftUI
-import SwiftyBeaver
 
 // MARK: UINavigationController
-// Enables fullscreen swipe back gesture
 extension UINavigationController: UIGestureRecognizerDelegate {
+    // Enables the swipe-back gesture in fullscreen
     override open func viewDidLoad() {
         super.viewDidLoad()
         interactivePopGestureRecognizer?.delegate = self
     }
-
-    public func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
-        viewControllers.count > 1
-    }
+    // Gives the swipe-back gesture a higher priority
+    public func gestureRecognizer(
+        _ gestureRecognizer: UIGestureRecognizer,
+        shouldBeRequiredToFailBy otherGestureRecognizer: UIGestureRecognizer
+    ) -> Bool { gestureRecognizer.isKind(of: UIScreenEdgePanGestureRecognizer.self) }
 }
 
 // MARK: Encodable
@@ -105,7 +105,7 @@ extension String {
         if isValidURL {
             return URL(string: self).forceUnwrapped
         } else {
-            SwiftyBeaver.error("Invalid URL, redirect to default host...")
+            Logger.error("Invalid URL, redirect to default host...")
             return URL(string: Defaults.URL.ehentai).forceUnwrapped
         }
     }
@@ -171,7 +171,7 @@ extension Optional {
         if let value = self {
             return value
         }
-        SwiftyBeaver.error(
+        Logger.error(
             "Failed in force unwrapping...",
             context: ["type": Wrapped.self]
         )

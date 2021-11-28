@@ -9,7 +9,6 @@ import SwiftUI
 import Combine
 import Kingfisher
 import SwiftUIPager
-import SwiftyBeaver
 import TTProgressHUD
 
 struct ReadingView: View, StoreAccessor, PersistenceAccessor {
@@ -39,8 +38,7 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
 
     @State private var pageCount = 1
 
-    @State private var imageSaver: ImageSaver?
-    @State private var isImageSaveSuccess: Bool?
+    @StateObject private var imageSaver = ImageSaver()
     @State private var hudVisible = false
     @State private var hudConfig = TTProgressHUDConfig()
 
@@ -94,7 +92,7 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
         .onChange(of: setting.exceptCover, perform: tryUpdatePagerIndex)
         .onChange(of: setting.readingDirection, perform: tryUpdatePagerIndex)
         .onChange(of: setting.enablesDualPageMode, perform: tryUpdatePagerIndex)
-        .onChange(of: isImageSaveSuccess, perform: { newValue in
+        .onChange(of: imageSaver.saveSucceeded, perform: { newValue in
             guard let isSuccess = newValue else { return }
             presentHUD(isSuccess: isSuccess, caption: "Saved to photo library")
         })
@@ -191,13 +189,18 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
             Label("Reload", systemImage: "arrow.counterclockwise")
         })
         if let imageURL = galleryContents[index], !imageURL.isEmpty {
-            Button(action: { copyImage(url: imageURL) }, label: {
+            Button(action: { Task { await copyImage(url: imageURL) } }, label: {
                 Label("Copy", systemImage: "plus.square.on.square")
             })
-            Button(action: { saveImage(url: imageURL) }, label: {
+            Button(action: { Task { await saveImage(url: imageURL) } }, label: {
                 Label("Save", systemImage: "square.and.arrow.down")
             })
-            Button(action: { shareImage(url: imageURL) }, label: {
+            if let originalImageURL = galleryOriginalContents[index], !originalImageURL.isEmpty {
+                Button(action: { Task { await saveImage(url: originalImageURL) } }, label: {
+                    Label("Save original", systemImage: "square.and.arrow.down.on.square")
+                })
+            }
+            Button(action: { Task { await shareImage(url: imageURL) } }, label: {
                 Label("Share", systemImage: "square.and.arrow.up")
             })
         }
@@ -255,6 +258,9 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
 private extension ReadingView {
     var galleryContents: [Int: String] {
         contentInfo.contents[gid] ?? [:]
+    }
+    var galleryOriginalContents: [Int: String] {
+        contentInfo.originalContents[gid] ?? [:]
     }
     var galleryLoadingFlags: [Int: Bool] {
         contentInfo.contentsLoading[gid] ?? [:]
@@ -321,16 +327,11 @@ private extension ReadingView {
         )
     }
     func tryUpdatePagerIndexByTimer(_: Timer) {
-        let distance = DeviceUtil.isLandscape && setting.enablesDualPageMode
-        && setting.readingDirection != .vertical ? 2 : 1
-
-        guard Int(sliderValue) + distance <= pageCount else {
+        guard Int(sliderValue) < pageCount else {
             autoPlayPolicy = .never
             return
         }
-
-        sliderValue += Float(distance)
-        tryUpdatePagerIndex()
+        page.update(.next)
     }
     func trySaveReadingProgress() {
         let progress = mapFromPager(index: page.index)
@@ -433,37 +434,27 @@ private extension ReadingView {
     }
 
     // MARK: ContextMenu
-    func retrieveImage(url: String, completion: @escaping (UIImage) -> Void) {
-        KingfisherManager.shared.cache.retrieveImage(forKey: url) { result in
-            switch result {
-            case .success(let result):
-                if let image = result.image {
-                    completion(image)
-                } else {
-                    presentHUD(isSuccess: false)
-                }
-            case .failure(let error):
-                SwiftyBeaver.error(error)
-                presentHUD(isSuccess: false)
-            }
+    func copyImage(url: String) async {
+        guard let image = try? await imageSaver.retrieveImage(url: url.safeURL()) else {
+            presentHUD(isSuccess: false)
+            return
         }
+        UIPasteboard.general.image = image
+        presentHUD(isSuccess: true, caption: "Copied to clipboard")
     }
-    func copyImage(url: String) {
-        retrieveImage(url: url) { image in
-            UIPasteboard.general.image = image
-            presentHUD(isSuccess: true, caption: "Copied to clipboard")
+    func saveImage(url: String) async {
+        guard let image = try? await imageSaver.retrieveImage(url: url.safeURL()) else {
+            presentHUD(isSuccess: false)
+            return
         }
+        imageSaver.saveImage(image)
     }
-    func saveImage(url: String) {
-        retrieveImage(url: url) { image in
-            imageSaver = ImageSaver(isSuccess: $isImageSaveSuccess)
-            imageSaver?.saveImage(image)
+    func shareImage(url: String) async {
+        guard let image = try? await imageSaver.retrieveImage(url: url.safeURL()) else {
+            presentHUD(isSuccess: false)
+            return
         }
-    }
-    func shareImage(url: String) {
-        retrieveImage(url: url) { image in
-            AppUtil.presentActivity(items: [image])
-        }
+        AppUtil.presentActivity(items: [image])
     }
     func presentHUD(isSuccess: Bool, caption: String? = nil) {
         let type: TTProgressHUDType = isSuccess ? .success : .error
@@ -485,22 +476,33 @@ private extension ReadingView {
             )
             hudVisible = true
         }
-        isImageSaveSuccess = nil
     }
 
     // MARK: Gesture
     var tapGesture: some Gesture {
-        let singleTap = TapGesture(count: 1)
-            .onEnded { _ in withAnimation { showsPanel.toggle() } }
-        let doubleTap = TapGesture(count: 2)
-            .onEnded { _ in
-                trySyncScaleAnchor()
-                trySetOffset(.zero)
-                trySetScale(scale == 1 ? setting.doubleTapScaleFactor : 1)
+        let singleTap = TapGesture(count: 1).onEnded { _ in
+            let defaultAction = { withAnimation { showsPanel.toggle() } }
+            guard setting.readingDirection != .vertical,
+                  let pointX = TouchHandler.shared.currentPoint?.x
+            else {
+                defaultAction()
+                return
             }
-        return ExclusiveGesture(
-            doubleTap, singleTap
-        )
+            let rightToLeft = setting.readingDirection == .rightToLeft
+            if pointX < DeviceUtil.absWindowW * 0.2 {
+                page.update(rightToLeft ? .next : .previous)
+            } else if pointX > DeviceUtil.absWindowW * (1 - 0.2) {
+                page.update(rightToLeft ? .previous : .next)
+            } else {
+                defaultAction()
+            }
+        }
+        let doubleTap = TapGesture(count: 2).onEnded { _ in
+            trySyncScaleAnchor()
+            trySetOffset(.zero)
+            trySetScale(scale == 1 ? setting.doubleTapScaleFactor : 1)
+        }
+        return ExclusiveGesture(doubleTap, singleTap)
     }
     var magnifyGesture: some Gesture {
         MagnificationGesture()
@@ -508,12 +510,8 @@ private extension ReadingView {
             .onEnded(onMagnificationGestureEnded)
     }
     var dragGesture: some Gesture {
-        DragGesture(
-            minimumDistance: 0.0,
-            coordinateSpace: .local
-        )
-        .onChanged(onDragGestureChanged)
-        .onEnded(onDragGestureEnded)
+        DragGesture(minimumDistance: 0.0, coordinateSpace: .local)
+            .onChanged(onDragGestureChanged).onEnded(onDragGestureEnded)
     }
 
     func onDragGestureChanged(value: DragGesture.Value) {
@@ -673,7 +671,7 @@ private struct ImageContainer: View {
                 .onSuccess(onSuccess).onFailure(onFailure)
         } else {
             KFAnimatedImage(URL(string: imageURL))
-                .placeholder(placeholder)// .fade(duration: 0.25)
+                .placeholder(placeholder).fade(duration: 0.25)
                 .onSuccess(onSuccess).onFailure(onFailure)
         }
     }

@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import SwiftyBeaver
 
 class DFURLProtocol: URLProtocol {
     private var dfRequest: DFRequest?
@@ -16,12 +15,12 @@ class DFURLProtocol: URLProtocol {
         for request: URLRequest) -> URLRequest { request }
     override class func canInit(with request: URLRequest) -> Bool {
         if property(forKey: requestIdentifier, in: request) != nil {
-            SwiftyBeaver.error("URLRequest has been initialized.")
+            Logger.error("URLRequest has been initialized.")
             return false
         }
         if !["http", "https"].contains(request.url?.scheme) {
             let scheme = request.url?.scheme ?? "nil"
-            SwiftyBeaver.error("URL scheme \"\(scheme)\" is not supported.")
+            Logger.error("URL scheme \"\(scheme)\" is not supported.")
             return false
         }
         return true

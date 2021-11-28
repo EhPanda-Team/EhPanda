@@ -10,9 +10,10 @@ import Kanna
 import Foundation
 
 enum AppAction {
+    // swiftlint:disable line_length
     case resetUser
-    case resetFilters
     case resetHomeInfo
+    case resetFilter(range: FilterRange)
     case setReadingProgress(gid: String, tag: Int)
     case setAppIconType(_ iconType: IconType)
     case appendHistoryKeywords(texts: [String])
@@ -67,10 +68,10 @@ enum AppAction {
     case fetchWatchedItemsDone(result: Result<(PageNumber, [Gallery]), AppError>)
     case fetchMoreWatchedItems
     case fetchMoreWatchedItemsDone(result: Result<(PageNumber, [Gallery]), AppError>)
-    case fetchFavoritesItems(pageNum: Int? = nil)
-    case fetchFavoritesItemsDone(carriedValue: Int, result: Result<(PageNumber, [Gallery]), AppError>)
+    case fetchFavoritesItems(pageNum: Int? = nil, sortOrder: FavoritesSortOrder? = nil)
+    case fetchFavoritesItemsDone(carriedValue: Int, result: Result<(PageNumber, FavoritesSortOrder?, [Gallery]), AppError>)
     case fetchMoreFavoritesItems
-    case fetchMoreFavoritesItemsDone(carriedValue: Int, result: Result<(PageNumber, [Gallery]), AppError>)
+    case fetchMoreFavoritesItemsDone(carriedValue: Int, result: Result<(PageNumber, FavoritesSortOrder?, [Gallery]), AppError>)
     case fetchToplistsItems(pageNum: Int? = nil)
     case fetchToplistsItemsDone(carriedValue: Int, result: Result<(PageNumber, [Gallery]), AppError>)
     case fetchMoreToplistsItems
@@ -84,13 +85,13 @@ enum AppAction {
     case fetchMPVKeys(gid: String, index: Int, mpvURL: String)
     case fetchMPVKeysDone(gid: String, index: Int, result: Result<(String, [Int: String]), AppError>)
     case fetchThumbnails(gid: String, index: Int)
-    case fetchThumbnailsDone(gid: String, index: Int, result: Result<[Int: URL], AppError>)
-    case fetchGalleryNormalContents(gid: String, index: Int, thumbnails: [Int: URL])
-    case fetchGalleryNormalContentsDone(gid: String, index: Int, result: Result<[Int: String], AppError>)
+    case fetchThumbnailsDone(gid: String, index: Int, result: Result<[Int: String], AppError>)
+    case fetchGalleryNormalContents(gid: String, index: Int, thumbnails: [Int: String])
+    case fetchGalleryNormalContentsDone(gid: String, index: Int, result: Result<([Int: String], [Int: String]), AppError>)
     case refetchGalleryNormalContent(gid: String, index: Int)
     case refetchGalleryNormalContentDone(gid: String, index: Int, result: Result<[Int: String], AppError>)
     case fetchGalleryMPVContent(gid: String, index: Int, isRefetch: Bool = false)
-    case fetchGalleryMPVContentDone(gid: String, index: Int, result: Result<(String, ReloadToken), AppError>)
+    case fetchGalleryMPVContentDone(gid: String, index: Int, result: Result<(String, String?, ReloadToken), AppError>)
 
     case createEhProfile(name: String)
     case verifyEhProfile
@@ -101,4 +102,5 @@ enum AppAction {
     case commentGallery(gid: String, content: String)
     case editGalleryComment(gid: String, commentID: String, content: String)
     case voteGalleryComment(gid: String, commentID: String, vote: Int)
+    // swiftlint:enable line_length
 }

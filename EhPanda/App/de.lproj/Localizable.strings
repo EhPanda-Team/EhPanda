@@ -113,6 +113,7 @@
 //"Reload" = "";
 //"Copy" = "";
 //"Save" = "";
+//"Save original" = "";
 //"Saved to photo library" = "";
 
 // MARK: SettingView
@@ -359,6 +360,7 @@
 
 // MARK: QuickSearchView
 //"Quick search" = "";
+//"Alias" = "";
 
 // MARK: HomeListType
 "Search" = "Suche";

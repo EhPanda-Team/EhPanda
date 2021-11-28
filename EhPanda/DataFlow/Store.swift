@@ -7,7 +7,6 @@
 
 import SwiftUI
 import Combine
-import SwiftyBeaver
 
 final class Store: ObservableObject {
     @Published var appState = AppState()
@@ -19,9 +18,7 @@ final class Store: ObservableObject {
 
     func dispatch(_ action: AppAction) {
         #if DEBUG
-        guard !appState.environment.isPreview,
-              !AppUtil.isUnitTesting
-        else { return }
+        guard !AppUtil.isUnitTesting else { return }
         #endif
 
         if Thread.isMainThread {
@@ -36,12 +33,12 @@ final class Store: ObservableObject {
     private func privateDispatch(_ action: AppAction) {
         let description = String(describing: action)
         if description.contains("error") {
-            SwiftyBeaver.error("[ACTION]: " + description)
+            Logger.error("[ACTION]: " + description)
         } else {
             switch action {
             case .fetchGalleryPreviewsDone(let gid, let pageNumber, let result):
                 if case .success(let previews) = result {
-                    SwiftyBeaver.verbose(
+                    Logger.verbose(
                         "[ACTION]: fetchGalleryPreviewsDone("
                         + "gid: \(gid), pageNumber: \(pageNumber), "
                         + "previews: \(previews.count))"
@@ -49,43 +46,44 @@ final class Store: ObservableObject {
                 }
             case .fetchThumbnailsDone(let gid, let index, let result):
                 if case .success(let contents) = result {
-                    SwiftyBeaver.verbose(
+                    Logger.verbose(
                         "[ACTION]: fetchThumbnailsDone("
                         + "gid: \(gid), index: \(index), "
                         + "contents: \(contents.count))"
                     )
                 }
             case .fetchGalleryNormalContents(let gid, let index, let thumbnails):
-                SwiftyBeaver.verbose(
+                Logger.verbose(
                     "[ACTION]: fetchGalleryNormalContents("
                     + "gid: \(gid), index: \(index), "
                     + "thumbnails: \(thumbnails.count))"
                 )
             case .fetchGalleryNormalContentsDone(let gid, let index, let result):
-                if case .success(let contents) = result {
-                    SwiftyBeaver.verbose(
+                if case .success(let (contents, originalContents)) = result {
+                    Logger.verbose(
                         "[ACTION]: fetchGalleryNormalContentsDone("
                         + "gid: \(gid), index: \(index), "
-                        + "contents: \(contents.count))"
+                        + "contents: \(contents.count), "
+                        + "originalContents: \(originalContents.count))"
                     )
                 }
             case .fetchMPVKeysDone(let gid, let index, let result):
                 if case .success(let (mpvKey, imgKeys)) = result {
-                    SwiftyBeaver.verbose(
+                    Logger.verbose(
                         "[ACTION]: fetchMPVKeysDone("
                         + "gid: \(gid), index: \(index), "
                         + "mpvKey: \(mpvKey), imgKeys: \(imgKeys.count))"
                     )
                 }
             default:
-                SwiftyBeaver.verbose("[ACTION]: " + description)
+                Logger.verbose("[ACTION]: " + description)
             }
         }
         let (state, command) = reduce(state: appState, action: action)
         appState = state
 
         guard let command = command else { return }
-        SwiftyBeaver.verbose("[COMMAND]: \(command)")
+        Logger.verbose("[COMMAND]: \(command)")
         command.execute(in: self)
     }
 
@@ -97,12 +95,17 @@ final class Store: ObservableObject {
         // MARK: App Ops
         case .resetUser:
             appState.settings.user = User()
-        case .resetFilters:
-            appState.settings.filter = Filter()
         case .resetHomeInfo:
             appState.homeInfo = AppState.HomeInfo()
             dispatch(.setHomeListType(.frontpage))
             dispatch(.fetchFrontpageItems(pageNum: nil))
+        case .resetFilter(let range):
+            switch range {
+            case .search:
+                appState.settings.searchFilter = Filter()
+            case .global:
+                appState.settings.globalFilter = Filter()
+            }
         case .setReadingProgress(let gid, let tag):
             PersistenceController.update(gid: gid, readingProgress: tag)
         case .setAppIconType(let iconType):
@@ -294,7 +297,7 @@ final class Store: ObservableObject {
             appState.homeInfo.searchPageNumber.current = 0
             appState.homeInfo.searchLoading = true
 
-            let filter = appState.settings.filter
+            let filter = appState.settings.searchFilter
             appCommand = FetchSearchItemsCommand(keyword: keyword, filter: filter, pageNum: pageNum)
         case .fetchSearchItemsDone(let result):
             appState.homeInfo.searchLoading = false
@@ -318,7 +321,7 @@ final class Store: ObservableObject {
             appState.homeInfo.moreSearchLoading = true
 
             let pageNum = pageNumber.current + 1
-            let filter = appState.settings.filter
+            let filter = appState.settings.searchFilter
             let lastID = appState.homeInfo.searchItems.last?.id ?? ""
             appCommand = FetchMoreSearchItemsCommand(
                 keyword: keyword, filter: filter,
@@ -342,7 +345,8 @@ final class Store: ObservableObject {
             if appState.homeInfo.frontpageLoading { break }
             appState.homeInfo.frontpagePageNumber.current = 0
             appState.homeInfo.frontpageLoading = true
-            appCommand = FetchFrontpageItemsCommand(pageNum: pageNum)
+            let filter = appState.settings.globalFilter
+            appCommand = FetchFrontpageItemsCommand(filter: filter, pageNum: pageNum)
         case .fetchFrontpageItemsDone(let result):
             appState.homeInfo.frontpageLoading = false
 
@@ -365,8 +369,9 @@ final class Store: ObservableObject {
             appState.homeInfo.moreFrontpageLoading = true
 
             let pageNum = pageNumber.current + 1
+            let filter = appState.settings.globalFilter
             let lastID = appState.homeInfo.frontpageItems.last?.id ?? ""
-            appCommand = FetchMoreFrontpageItemsCommand(lastID: lastID, pageNum: pageNum)
+            appCommand = FetchMoreFrontpageItemsCommand(filter: filter, lastID: lastID, pageNum: pageNum)
         case .fetchMoreFrontpageItemsDone(let result):
             appState.homeInfo.moreFrontpageLoading = false
 
@@ -384,7 +389,8 @@ final class Store: ObservableObject {
 
             if appState.homeInfo.popularLoading { break }
             appState.homeInfo.popularLoading = true
-            appCommand = FetchPopularItemsCommand()
+            let filter = appState.settings.globalFilter
+            appCommand = FetchPopularItemsCommand(filter: filter)
         case .fetchPopularItemsDone(let result):
             appState.homeInfo.popularLoading = false
 
@@ -402,7 +408,8 @@ final class Store: ObservableObject {
             if appState.homeInfo.watchedLoading { break }
             appState.homeInfo.watchedPageNumber.current = 0
             appState.homeInfo.watchedLoading = true
-            appCommand = FetchWatchedItemsCommand(pageNum: pageNum)
+            let filter = appState.settings.globalFilter
+            appCommand = FetchWatchedItemsCommand(filter: filter, pageNum: pageNum)
         case .fetchWatchedItemsDone(let result):
             appState.homeInfo.watchedLoading = false
 
@@ -425,8 +432,9 @@ final class Store: ObservableObject {
             appState.homeInfo.moreWatchedLoading = true
 
             let pageNum = pageNumber.current + 1
+            let filter = appState.settings.globalFilter
             let lastID = appState.homeInfo.watchedItems.last?.id ?? ""
-            appCommand = FetchMoreWatchedItemsCommand(lastID: lastID, pageNum: pageNum)
+            appCommand = FetchMoreWatchedItemsCommand(filter: filter, lastID: lastID, pageNum: pageNum)
         case .fetchMoreWatchedItemsDone(let result):
             appState.homeInfo.moreWatchedLoading = false
 
@@ -439,7 +447,7 @@ final class Store: ObservableObject {
                 appState.homeInfo.moreWatchedLoadFailed = true
             }
 
-        case .fetchFavoritesItems(let pageNum):
+        case .fetchFavoritesItems(let pageNum, let sortOrder):
             let favIndex = appState.environment.favoritesIndex
             appState.homeInfo.favoritesLoadErrors[favIndex] = nil
 
@@ -449,14 +457,15 @@ final class Store: ObservableObject {
             }
             appState.homeInfo.favoritesPageNumbers[favIndex]?.current = 0
             appState.homeInfo.favoritesLoading[favIndex] = true
-            appCommand = FetchFavoritesItemsCommand(favIndex: favIndex, pageNum: pageNum)
+            appCommand = FetchFavoritesItemsCommand(favIndex: favIndex, pageNum: pageNum, sortOrder: sortOrder)
         case .fetchFavoritesItemsDone(let carriedValue, let result):
             appState.homeInfo.favoritesLoading[carriedValue] = false
 
             switch result {
-            case .success(let (pageNumber, galleries)):
+            case .success(let (pageNumber, sortOrder, galleries)):
                 appState.homeInfo.favoritesPageNumbers[carriedValue] = pageNumber
                 appState.homeInfo.favoritesItems[carriedValue] = galleries
+                appState.environment.favoritesSortOrder = sortOrder
                 PersistenceController.add(galleries: galleries)
             case .failure(let error):
                 appState.homeInfo.favoritesLoadErrors[carriedValue] = error
@@ -475,17 +484,16 @@ final class Store: ObservableObject {
             let pageNum = (pageNumber?.current ?? 0) + 1
             let lastID = appState.homeInfo.favoritesItems[favIndex]?.last?.id ?? ""
             appCommand = FetchMoreFavoritesItemsCommand(
-                favIndex: favIndex,
-                lastID: lastID,
-                pageNum: pageNum
+                favIndex: favIndex, lastID: lastID, pageNum: pageNum
             )
         case .fetchMoreFavoritesItemsDone(let carriedValue, let result):
             appState.homeInfo.moreFavoritesLoading[carriedValue] = false
 
             switch result {
-            case .success(let (pageNumber, galleries)):
+            case .success(let (pageNumber, sortOrder, galleries)):
                 appState.homeInfo.favoritesPageNumbers[carriedValue] = pageNumber
                 appState.homeInfo.insertFavoritesItems(favIndex: carriedValue, galleries: galleries)
+                appState.environment.favoritesSortOrder = sortOrder
                 PersistenceController.add(galleries: galleries)
             case .failure:
                 appState.homeInfo.moreFavoritesLoading[carriedValue] = true
@@ -528,9 +536,7 @@ final class Store: ObservableObject {
 
             let pageNum = (pageNumber?.current ?? 0) + 1
             appCommand = FetchMoreToplistsItemsCommand(
-                topIndex: topType.rawValue,
-                catIndex: topType.categoryIndex,
-                pageNum: pageNum
+                topIndex: topType.rawValue, catIndex: topType.categoryIndex, pageNum: pageNum
             )
         case .fetchMoreToplistsItemsDone(let carriedValue, let result):
             appState.homeInfo.moreToplistsLoading[carriedValue] = false
@@ -654,7 +660,7 @@ final class Store: ObservableObject {
             let batchRange = appState.detailInfo.previewConfig.batchRange(index: index)
             switch result {
             case .success(let thumbnails):
-                let thumbnailURL = thumbnails[index]
+                let thumbnailURL = thumbnails[index]?.safeURL()
                 if thumbnailURL?.pathComponents.count ?? 0 >= 1, thumbnailURL?.pathComponents[1] == "mpv" {
                     dispatch(.fetchMPVKeys(gid: gid, index: index, mpvURL: thumbnailURL?.absoluteString ?? ""))
                 } else {
@@ -680,9 +686,9 @@ final class Store: ObservableObject {
             batchRange.forEach { appState.contentInfo.contentsLoading[gid]?[$0] = false }
 
             switch result {
-            case .success(let contents):
-                appState.contentInfo.update(gid: gid, contents: contents)
-                PersistenceController.update(gid: gid, contents: contents)
+            case .success(let (contents, originalContents)):
+                appState.contentInfo.update(gid: gid, contents: contents, originalContents: originalContents)
+                PersistenceController.update(gid: gid, contents: contents, originalContents: originalContents)
             case .failure(let error):
                 batchRange.forEach { appState.contentInfo.contentsLoadErrors[gid]?[$0] = error }
             }
@@ -708,8 +714,8 @@ final class Store: ObservableObject {
 
             switch result {
             case .success(let content):
-                appState.contentInfo.update(gid: gid, contents: content)
-                PersistenceController.update(gid: gid, contents: content)
+                appState.contentInfo.update(gid: gid, contents: content, originalContents: [:])
+                PersistenceController.update(gid: gid, contents: content, originalContents: [:])
             case .failure(let error):
                 appState.contentInfo.contentsLoadErrors[gid]?[index] = error
             }
@@ -732,9 +738,13 @@ final class Store: ObservableObject {
         case .fetchGalleryMPVContentDone(let gid, let index, let result):
             appState.contentInfo.contentsLoading[gid]?[index] = false
 
-            if case .success(let (imageURL, reloadToken)) = result {
-                appState.contentInfo.update(gid: gid, contents: [index: imageURL])
-                PersistenceController.update(gid: gid, contents: [index: imageURL])
+            if case .success(let (imageURL, originalImageURL, reloadToken)) = result {
+                var originalContents = [Int: String]()
+                if let originalImageURL = originalImageURL {
+                    originalContents[index] = originalImageURL
+                }
+                appState.contentInfo.update(gid: gid, contents: [index: imageURL], originalContents: originalContents)
+                PersistenceController.update(gid: gid, contents: [index: imageURL], originalContents: originalContents)
                 if appState.contentInfo.mpvReloadTokens[gid] == nil {
                     appState.contentInfo.mpvReloadTokens[gid] = [index: reloadToken]
                 } else {
@@ -761,7 +771,7 @@ final class Store: ObservableObject {
                 } else if profileNotFound {
                     dispatch(.createEhProfile(name: "EhPanda"))
                 } else {
-                    SwiftyBeaver.error("Found profile but failed in parsing value.")
+                    Logger.error("Found profile but failed in parsing value.")
                 }
             }
         case .favorGallery(let gid, let favIndex):

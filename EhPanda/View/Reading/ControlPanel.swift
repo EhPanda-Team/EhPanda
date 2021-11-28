@@ -10,7 +10,7 @@ import Kingfisher
 
 // MARK: ControlPanel
 struct ControlPanel: View {
-    @State private var refreshID = UUID().uuidString
+    @State private var refreshTrigger = UUID().uuidString
 
     @Binding private var showsPanel: Bool
     @Binding private var sliderValue: Float
@@ -49,7 +49,7 @@ struct ControlPanel: View {
         VStack {
             UpperPanel(
                 title: "\(currentIndex) / " + "\(Int(range.upperBound))",
-                setting: $setting, refreshID: $refreshID,
+                setting: $setting, refreshTrigger: $refreshTrigger,
                 autoPlayPolicy: $autoPlayPolicy,
                 settingAction: settingAction,
                 updateSettingAction: updateSettingAction
@@ -69,7 +69,7 @@ struct ControlPanel: View {
         .onChange(of: showsPanel) { newValue in
             guard newValue else { return } // workaround
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                refreshID = UUID().uuidString
+                refreshTrigger = UUID().uuidString
             }
         }
     }
@@ -79,7 +79,7 @@ struct ControlPanel: View {
 private struct UpperPanel: View {
     @Environment(\.dismiss) var dismissAction
     @Binding private var setting: Setting
-    @Binding private var refreshID: String
+    @Binding private var refreshTrigger: String
     @Binding private var autoPlayPolicy: AutoPlayPolicy
 
     private let title: String
@@ -88,12 +88,12 @@ private struct UpperPanel: View {
 
     init(
         title: String, setting: Binding<Setting>,
-        refreshID: Binding<String>, autoPlayPolicy: Binding<AutoPlayPolicy>,
+        refreshTrigger: Binding<String>, autoPlayPolicy: Binding<AutoPlayPolicy>,
         settingAction: @escaping () -> Void, updateSettingAction: @escaping (Setting) -> Void
     ) {
         self.title = title
         _setting = setting
-        _refreshID = refreshID
+        _refreshTrigger = refreshTrigger
         _autoPlayPolicy = autoPlayPolicy
         self.settingAction = settingAction
         self.updateSettingAction = updateSettingAction
@@ -156,7 +156,7 @@ private struct UpperPanel: View {
                                 Image(systemName: "timer")
                             }
                         }
-                        .id(refreshID)
+                        .id(refreshTrigger)
                     Button(action: settingAction) {
                         Image(systemName: "gear")
                     }
@@ -272,7 +272,7 @@ private struct SliderPreivew: View {
                                 ratio: Defaults.ImageSize.previewAspect
                             ))
                         }
-//                        .fade(duration: 0.25)
+                        .fade(duration: 0.25)
                         .imageModifier(modifier).resizable().scaledToFit()
                         .frame(width: previewWidth, height: isSliderDragging ? previewHeight : 0)
                     Text("\(index)").font(DeviceUtil.isPadWidth ? .callout : .caption)

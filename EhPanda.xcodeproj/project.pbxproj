@@ -13,7 +13,6 @@
 		AB10117E26986B7D00C2C1A9 /* GalleryStateMO+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB10117D26986B7D00C2C1A9 /* GalleryStateMO+CoreDataProperties.swift */; };
 		AB10118026986C1100C2C1A9 /* GalleryStateMO+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB10117F26986C1100C2C1A9 /* GalleryStateMO+CoreDataClass.swift */; };
 		AB19D619266E5C6700BA752A /* TTProgressHUD in Frameworks */ = {isa = PBXBuildFile; productRef = AB19D618266E5C6700BA752A /* TTProgressHUD */; };
-		AB21CC9A274B4ED700C115B1 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = AB21CC99274B4ED700C115B1 /* Kingfisher */; };
 		AB21CCA0274B4F0C00C115B1 /* SwiftyBeaver in Frameworks */ = {isa = PBXBuildFile; productRef = AB21CC9F274B4F0C00C115B1 /* SwiftyBeaver */; };
 		AB2CED64268AB6AE003130F7 /* GalleryMO+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB2CED63268AB6AE003130F7 /* GalleryMO+CoreDataProperties.swift */; };
 		AB30E34826D277F7007420BC /* Toplists.html in Resources */ = {isa = PBXBuildFile; fileRef = AB30E34726D277F7007420BC /* Toplists.html */; };
@@ -73,6 +72,7 @@
 		ABC3C7892593699B00E0C11B /* Defaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC3C76D2593699A00E0C11B /* Defaults.swift */; };
 		ABC3C78F2593699B00E0C11B /* ViewModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC3C7762593699A00E0C11B /* ViewModifiers.swift */; };
 		ABC3C7962593699B00E0C11B /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC3C7802593699A00E0C11B /* Models.swift */; };
+		ABC4A0792751B40E00968A4F /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = ABC4A0782751B40E00968A4F /* Kingfisher */; };
 		ABC681F326898D46007BBD69 /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = ABC681F126898D46007BBD69 /* Model.xcdatamodeld */; };
 		ABCA93BE26918DE100A98BC6 /* Persistence.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCA93BD26918DE100A98BC6 /* Persistence.swift */; };
 		ABCA93C02691925900A98BC6 /* GalleryMO+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABCA93BF2691925900A98BC6 /* GalleryMO+CoreDataClass.swift */; };
@@ -228,6 +228,7 @@
 		ABC3C76E2593699A00E0C11B /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		ABC3C7762593699A00E0C11B /* ViewModifiers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewModifiers.swift; sourceTree = "<group>"; };
 		ABC3C7802593699A00E0C11B /* Models.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
+		ABC4A07A2753084100968A4F /* Model 5.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Model 5.xcdatamodel"; sourceTree = "<group>"; };
 		ABC681F226898D46007BBD69 /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
 		ABCA93BD26918DE100A98BC6 /* Persistence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Persistence.swift; sourceTree = "<group>"; };
 		ABCA93BF2691925900A98BC6 /* GalleryMO+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GalleryMO+CoreDataClass.swift"; sourceTree = "<group>"; };
@@ -301,8 +302,8 @@
 				AB19D619266E5C6700BA752A /* TTProgressHUD in Frameworks */,
 				ABE9402D26FF89220085E158 /* AlertKit in Frameworks */,
 				AB60D0E9274C7ECE00F899AB /* WaterfallGrid in Frameworks */,
+				ABC4A0792751B40E00968A4F /* Kingfisher in Frameworks */,
 				AB0F68AF26A6D92F00AC3A54 /* DeprecatedAPI in Frameworks */,
-				AB21CC9A274B4ED700C115B1 /* Kingfisher in Frameworks */,
 				AB60D0CF274C7AA000F899AB /* BetterCodable in Frameworks */,
 				AB6505A026B0027800F91E9D /* SwiftUIPager in Frameworks */,
 				AB21CCA0274B4F0C00C115B1 /* SwiftyBeaver in Frameworks */,
@@ -681,10 +682,10 @@
 				ABD7005826B1C31500DC59C9 /* Kanna */,
 				ABAC82FD26BC4A96009F5026 /* OpenCC */,
 				ABE9402C26FF89220085E158 /* AlertKit */,
-				AB21CC99274B4ED700C115B1 /* Kingfisher */,
 				AB21CC9F274B4F0C00C115B1 /* SwiftyBeaver */,
 				AB60D0CE274C7AA000F899AB /* BetterCodable */,
 				AB60D0E8274C7ECE00F899AB /* WaterfallGrid */,
+				ABC4A0782751B40E00968A4F /* Kingfisher */,
 			);
 			productName = EhPanda;
 			productReference = ABC3C7542593696C00E0C11B /* EhPanda.app */;
@@ -750,10 +751,10 @@
 				ABD7005726B1C31500DC59C9 /* XCRemoteSwiftPackageReference "Kanna" */,
 				ABAC82FC26BC4866009F5026 /* XCRemoteSwiftPackageReference "SwiftyOpenCC" */,
 				ABE9402B26FF89220085E158 /* XCRemoteSwiftPackageReference "AlertKit" */,
-				AB21CC98274B4ED700C115B1 /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				AB21CC9E274B4F0C00C115B1 /* XCRemoteSwiftPackageReference "SwiftyBeaver" */,
 				AB60D0CD274C7AA000F899AB /* XCRemoteSwiftPackageReference "BetterCodable" */,
 				AB60D0E7274C7ECE00F899AB /* XCRemoteSwiftPackageReference "WaterfallGrid" */,
+				ABC4A0772751B40E00968A4F /* XCRemoteSwiftPackageReference "Kingfisher" */,
 			);
 			productRefGroup = ABC3C7552593696C00E0C11B /* Products */;
 			projectDirPath = "";
@@ -1326,14 +1327,6 @@
 				kind = branch;
 			};
 		};
-		AB21CC98274B4ED700C115B1 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/tatsuz0u/Kingfisher.git";
-			requirement = {
-				branch = "fix/binder-loaded";
-				kind = branch;
-			};
-		};
 		AB21CC9E274B4F0C00C115B1 /* XCRemoteSwiftPackageReference "SwiftyBeaver" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/tatsuz0u/SwiftyBeaver.git";
@@ -1374,6 +1367,14 @@
 				minimumVersion = "2.0.0-beta";
 			};
 		};
+		ABC4A0772751B40E00968A4F /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/onevcat/Kingfisher.git";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
 		ABD7005726B1C31500DC59C9 /* XCRemoteSwiftPackageReference "Kanna" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/tid-kijyun/Kanna.git";
@@ -1403,11 +1404,6 @@
 			package = AB19D617266E5C6700BA752A /* XCRemoteSwiftPackageReference "TTProgressHUD" */;
 			productName = TTProgressHUD;
 		};
-		AB21CC99274B4ED700C115B1 /* Kingfisher */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = AB21CC98274B4ED700C115B1 /* XCRemoteSwiftPackageReference "Kingfisher" */;
-			productName = Kingfisher;
-		};
 		AB21CC9F274B4F0C00C115B1 /* SwiftyBeaver */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = AB21CC9E274B4F0C00C115B1 /* XCRemoteSwiftPackageReference "SwiftyBeaver" */;
@@ -1433,6 +1429,11 @@
 			package = ABAC82FC26BC4866009F5026 /* XCRemoteSwiftPackageReference "SwiftyOpenCC" */;
 			productName = OpenCC;
 		};
+		ABC4A0782751B40E00968A4F /* Kingfisher */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = ABC4A0772751B40E00968A4F /* XCRemoteSwiftPackageReference "Kingfisher" */;
+			productName = Kingfisher;
+		};
 		ABD7005826B1C31500DC59C9 /* Kanna */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = ABD7005726B1C31500DC59C9 /* XCRemoteSwiftPackageReference "Kanna" */;
@@ -1449,12 +1450,13 @@
 		ABC681F126898D46007BBD69 /* Model.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
+				ABC4A07A2753084100968A4F /* Model 5.xcdatamodel */,
 				ABE9401626FF2E610085E158 /* Model 4.xcdatamodel */,
 				AB543FF126DB7FD9009344C0 /* Model 3.xcdatamodel */,
 				AB48BCF626D2539B0021A06C /* Model 2.xcdatamodel */,
 				ABC681F226898D46007BBD69 /* Model.xcdatamodel */,
 			);
-			currentVersion = ABE9401626FF2E610085E158 /* Model 4.xcdatamodel */;
+			currentVersion = ABC4A07A2753084100968A4F /* Model 5.xcdatamodel */;
 			path = Model.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;

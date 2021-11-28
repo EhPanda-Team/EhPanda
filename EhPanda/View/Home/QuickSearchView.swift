@@ -10,7 +10,7 @@ import SwiftUI
 struct QuickSearchView: View, StoreAccessor {
     @EnvironmentObject var store: Store
     @State private var isEditting = false
-    @State private var refreshID = UUID().uuidString
+    @State private var refreshTrigger = UUID().uuidString
 
     private let searchAction: (String) -> Void
 
@@ -26,14 +26,14 @@ struct QuickSearchView: View, StoreAccessor {
                     ForEach(words) { word in
                         QuickSearchWordRow(
                             word: word, isEditting: $isEditting,
-                            submitID: $refreshID, searchAction: searchAction,
+                            refreshTrigger: $refreshTrigger, searchAction: searchAction,
                             submitAction: { store.dispatch(.modifyQuickSearchWord(newWord: $0)) }
                         )
                     }
                     .onDelete { store.dispatch(.deleteQuickSearchWord(offsets: $0)) }
                     .onMove(perform: move)
                 }
-                .id(refreshID)
+                .id(refreshTrigger)
                 ErrorView(error: .notFound, retryAction: nil).opacity(words.isEmpty ? 1 : 0)
             }
             .environment(\.editMode, .constant(isEditting ? .active : .inactive))
@@ -67,68 +67,93 @@ private extension QuickSearchView {
         homeInfo.quickSearchWords
     }
     func move(from source: IndexSet, to destination: Int) {
-        refreshID = UUID().uuidString
+        refreshTrigger = UUID().uuidString
         store.dispatch(.moveQuickSearchWord(source: source, destination: destination))
     }
 }
 
 // MARK: QuickSearchWordRow
 private struct QuickSearchWordRow: View {
-    @FocusState private var isFocused
+    @FocusState private var focusField: FocusField?
+    @State private var editableAlias: String
     @State private var editableContent: String
     private var plainWord: QuickSearchWord
     @Binding private var isEditting: Bool
-    @Binding private var submitID: String
+    @Binding private var refreshTrigger: String
     private var searchAction: (String) -> Void
     private var submitAction: (QuickSearchWord) -> Void
+
+    enum FocusField {
+        case alias
+        case content
+    }
 
     init(
         word: QuickSearchWord,
         isEditting: Binding<Bool>,
-        submitID: Binding<String>,
+        refreshTrigger: Binding<String>,
         searchAction: @escaping (String) -> Void,
         submitAction: @escaping (QuickSearchWord) -> Void
     ) {
+        _editableAlias = State(initialValue: word.alias ?? "")
         _editableContent = State(initialValue: word.content)
 
         plainWord = word
         _isEditting = isEditting
-        _submitID = submitID
+        _refreshTrigger = refreshTrigger
         self.searchAction = searchAction
         self.submitAction = submitAction
     }
 
+    private var title: String {
+        if let alias = plainWord.alias, !alias.isEmpty {
+            return alias
+        } else {
+            return plainWord.content
+        }
+    }
+
     var body: some View {
         ZStack {
-            Button(plainWord.content) {
-                searchAction(plainWord.content)
+            if isEditting {
+                VStack {
+                    TextField(editableAlias, text: $editableAlias, prompt: Text("Alias"))
+                        .submitLabel(.next).lineLimit(1).focused($focusField, equals: .alias)
+                    Divider().foregroundColor(.secondary.opacity(0.2))
+                    TextEditor(text: $editableContent).textInputAutocapitalization(.none)
+                        .disableAutocorrection(true).focused($focusField, equals: .content)
+                }
+            } else {
+                Button(title) {
+                    searchAction(plainWord.content)
+                }
+                .withArrow().foregroundColor(.primary)
             }
-            .withArrow().foregroundColor(.primary)
-            .opacity(isEditting ? 0 : 1)
-            TextEditor(text: $editableContent)
-                .textInputAutocapitalization(.none)
-                .disableAutocorrection(true)
-                .opacity(isEditting ? 1 : 0)
-                .focused($isFocused)
         }
-        .onChange(of: isFocused, perform: trySubmit)
-        .onChange(of: submitID, perform: trySubmit)
-        .onChange(of: isEditting) { _ in
-            trySubmit()
-            isFocused = false
+        .onChange(of: isEditting) { _ in focusField = nil }
+        .onChange(of: refreshTrigger, perform: trySubmit)
+        .onChange(of: focusField, perform: trySubmit)
+        .onSubmit {
+            switch focusField {
+            case .alias:
+                focusField = .content
+            default:
+                focusField = nil
+            }
         }
     }
 
     private func trySubmit(_: Any? = nil) {
-        guard editableContent != plainWord.content else { return }
-        submitAction(QuickSearchWord(id: plainWord.id, content: editableContent))
+        var newWord = QuickSearchWord(id: plainWord.id, content: editableContent)
+        if !editableAlias.isEmpty { newWord.alias = editableAlias }
+        guard newWord != plainWord else { return }
+        submitAction(newWord)
     }
 }
 
 struct QuickSearchView_Previews: PreviewProvider {
     static var previews: some View {
         QuickSearchView(searchAction: { _ in })
-            .preferredColorScheme(.dark)
             .environmentObject(Store.preview)
     }
 }
