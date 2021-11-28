@@ -13,8 +13,9 @@ extension AppEnvMO {
     }
 
     @NSManaged public var user: Data?
-    @NSManaged public var filter: Data?
     @NSManaged public var setting: Data?
+    @NSManaged public var searchFilter: Data?
+    @NSManaged public var globalFilter: Data?
     @NSManaged public var tagTranslator: Data?
     @NSManaged public var historyKeywords: Data?
     @NSManaged public var quickSearchWords: Data?

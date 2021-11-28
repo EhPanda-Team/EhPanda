@@ -130,7 +130,7 @@ private extension AssociatedView {
         let token = SubscriptionToken()
         SearchItemsRequest(
             keyword: keyword.isEmpty ? title : keyword,
-            filter: filter, pageNum: pageNum
+            filter: searchFilter, pageNum: pageNum
         )
         .publisher.receive(on: DispatchQueue.main)
         .sink { completion in
@@ -188,7 +188,7 @@ private extension AssociatedView {
 
         let token = SubscriptionToken()
         MoreSearchItemsRequest(
-            keyword: keyword.isEmpty ? title : keyword, filter: filter,
+            keyword: keyword.isEmpty ? title : keyword, filter: searchFilter,
             lastID: lastID, pageNum: pageNumber.current + 1
         )
         .publisher.receive(on: DispatchQueue.main)

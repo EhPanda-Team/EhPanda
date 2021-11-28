@@ -52,8 +52,11 @@ extension AppState {
         @AppEnvStorage(type: User.self)
         var user: User
 
-        @AppEnvStorage(type: Filter.self)
-        var filter: Filter
+        @AppEnvStorage(type: Filter.self, key: "searchFilter")
+        var searchFilter: Filter
+
+        @AppEnvStorage(type: Filter.self, key: "globalFilter")
+        var globalFilter: Filter
 
         @AppEnvStorage(type: Setting.self)
         var setting: Setting

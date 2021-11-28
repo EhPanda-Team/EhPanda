@@ -23,9 +23,7 @@ struct AppEnvStorage<T: Encodable> {
                 return value
             }
         }
-        SwiftyBeaver.error(
-            "Failed in force downcasting to generic type..."
-        )
+        SwiftyBeaver.error("Failed in force downcasting to generic type...")
         return nil
     }
 
@@ -45,9 +43,7 @@ struct AppEnvStorage<T: Encodable> {
         if let key = key {
             self.key = key
         } else {
-            self.key = String(
-                describing: type
-            ).lowercased()
+            self.key = String(describing: type).lowercased()
         }
         value = fetchedValue
     }

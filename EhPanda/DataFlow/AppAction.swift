@@ -12,7 +12,7 @@ import Foundation
 enum AppAction {
     // swiftlint:disable line_length
     case resetUser
-    case resetFilters
+    case resetSearchFilter
     case resetHomeInfo
     case setReadingProgress(gid: String, tag: Int)
     case setAppIconType(_ iconType: IconType)
