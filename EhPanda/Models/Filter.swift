@@ -48,18 +48,14 @@ struct Filter: Codable {
     @DefaultFalse var pageRangeActivated = false
     @DefaultStringValue var pageLowerBound = "" {
         didSet {
-            if Int(pageLowerBound) == nil
-                && !pageLowerBound.isEmpty
-            {
+            if Int(pageLowerBound) == nil && !pageLowerBound.isEmpty {
                 pageLowerBound = ""
             }
         }
     }
     @DefaultStringValue var pageUpperBound = "" {
         didSet {
-            if Int(pageUpperBound) == nil
-                && !pageUpperBound.isEmpty
-            {
+            if Int(pageUpperBound) == nil && !pageUpperBound.isEmpty {
                 pageUpperBound = ""
             }
         }

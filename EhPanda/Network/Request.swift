@@ -208,10 +208,11 @@ struct MoreSearchItemsRequest {
 }
 
 struct FrontpageItemsRequest {
+    let filter: Filter
     var pageNum: Int?
 
     var publisher: AnyPublisher<(PageNumber, [Gallery]), AppError> {
-        URLSession.shared.dataTaskPublisher(for: Defaults.URL.frontpageList(pageNum: pageNum).safeURL())
+        URLSession.shared.dataTaskPublisher(for: Defaults.URL.frontpageList(filter: filter, pageNum: pageNum).safeURL())
             .genericRetry().tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .tryMap { (Parser.parsePageNum(doc: $0), try Parser.parseListItems(doc: $0)) }
             .mapError(mapAppError).eraseToAnyPublisher()
@@ -219,12 +220,13 @@ struct FrontpageItemsRequest {
 }
 
 struct MoreFrontpageItemsRequest {
+    let filter: Filter
     let lastID: String
     let pageNum: Int
 
     var publisher: AnyPublisher<(PageNumber, [Gallery]), AppError> {
         URLSession.shared.dataTaskPublisher(for: Defaults.URL.moreFrontpageList(
-            pageNum: pageNum, lastID: lastID
+            filter: filter, pageNum: pageNum, lastID: lastID
         ).safeURL())
         .genericRetry().tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
         .tryMap { (Parser.parsePageNum(doc: $0), try Parser.parseListItems(doc: $0)) }
@@ -233,18 +235,21 @@ struct MoreFrontpageItemsRequest {
 }
 
 struct PopularItemsRequest {
+    let filter: Filter
+
     var publisher: AnyPublisher<[Gallery], AppError> {
-        URLSession.shared.dataTaskPublisher(for: Defaults.URL.popularList().safeURL())
+        URLSession.shared.dataTaskPublisher(for: Defaults.URL.popularList(filter: filter).safeURL())
             .genericRetry().tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .tryMap(Parser.parseListItems).mapError(mapAppError).eraseToAnyPublisher()
     }
 }
 
 struct WatchedItemsRequest {
+    let filter: Filter
     var pageNum: Int?
 
     var publisher: AnyPublisher<(PageNumber, [Gallery]), AppError> {
-        URLSession.shared.dataTaskPublisher(for: Defaults.URL.watchedList(pageNum: pageNum).safeURL())
+        URLSession.shared.dataTaskPublisher(for: Defaults.URL.watchedList(filter: filter, pageNum: pageNum).safeURL())
             .genericRetry().tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .tryMap { (Parser.parsePageNum(doc: $0), try Parser.parseListItems(doc: $0)) }
             .mapError(mapAppError).eraseToAnyPublisher()
@@ -252,12 +257,13 @@ struct WatchedItemsRequest {
 }
 
 struct MoreWatchedItemsRequest {
+    let filter: Filter
     let lastID: String
     let pageNum: Int
 
     var publisher: AnyPublisher<(PageNumber, [Gallery]), AppError> {
         URLSession.shared.dataTaskPublisher(for: Defaults.URL.moreWatchedList(
-            pageNum: pageNum, lastID: lastID
+            filter: filter, pageNum: pageNum, lastID: lastID
         ).safeURL())
         .genericRetry().tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
         .tryMap { (Parser.parsePageNum(doc: $0), try Parser.parseListItems(doc: $0)) }

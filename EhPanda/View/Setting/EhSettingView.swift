@@ -262,9 +262,7 @@ private struct EhProfileSection: View {
             }
         }
         .confirmationDialog(
-            "Are you sure to delete this profile?",
-            isPresented: $dialogPresented,
-            titleVisibility: .visible
+            "Are you sure to delete this profile?", isPresented: $dialogPresented, titleVisibility: .visible
         ) {
             Button("Delete", role: .destructive) {
                 performEhProfileAction(.default, nil, selection.value)
