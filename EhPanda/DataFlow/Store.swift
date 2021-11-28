@@ -95,12 +95,17 @@ final class Store: ObservableObject {
         // MARK: App Ops
         case .resetUser:
             appState.settings.user = User()
-        case .resetSearchFilter:
-            appState.settings.searchFilter = Filter()
         case .resetHomeInfo:
             appState.homeInfo = AppState.HomeInfo()
             dispatch(.setHomeListType(.frontpage))
             dispatch(.fetchFrontpageItems(pageNum: nil))
+        case .resetFilter(let range):
+            switch range {
+            case .search:
+                appState.settings.searchFilter = Filter()
+            case .global:
+                appState.settings.globalFilter = Filter()
+            }
         case .setReadingProgress(let gid, let tag):
             PersistenceController.update(gid: gid, readingProgress: tag)
         case .setAppIconType(let iconType):
@@ -340,7 +345,8 @@ final class Store: ObservableObject {
             if appState.homeInfo.frontpageLoading { break }
             appState.homeInfo.frontpagePageNumber.current = 0
             appState.homeInfo.frontpageLoading = true
-            appCommand = FetchFrontpageItemsCommand(pageNum: pageNum)
+            let filter = appState.settings.globalFilter
+            appCommand = FetchFrontpageItemsCommand(filter: filter, pageNum: pageNum)
         case .fetchFrontpageItemsDone(let result):
             appState.homeInfo.frontpageLoading = false
 
@@ -363,8 +369,9 @@ final class Store: ObservableObject {
             appState.homeInfo.moreFrontpageLoading = true
 
             let pageNum = pageNumber.current + 1
+            let filter = appState.settings.globalFilter
             let lastID = appState.homeInfo.frontpageItems.last?.id ?? ""
-            appCommand = FetchMoreFrontpageItemsCommand(lastID: lastID, pageNum: pageNum)
+            appCommand = FetchMoreFrontpageItemsCommand(filter: filter, lastID: lastID, pageNum: pageNum)
         case .fetchMoreFrontpageItemsDone(let result):
             appState.homeInfo.moreFrontpageLoading = false
 
@@ -382,7 +389,8 @@ final class Store: ObservableObject {
 
             if appState.homeInfo.popularLoading { break }
             appState.homeInfo.popularLoading = true
-            appCommand = FetchPopularItemsCommand()
+            let filter = appState.settings.globalFilter
+            appCommand = FetchPopularItemsCommand(filter: filter)
         case .fetchPopularItemsDone(let result):
             appState.homeInfo.popularLoading = false
 
@@ -400,7 +408,8 @@ final class Store: ObservableObject {
             if appState.homeInfo.watchedLoading { break }
             appState.homeInfo.watchedPageNumber.current = 0
             appState.homeInfo.watchedLoading = true
-            appCommand = FetchWatchedItemsCommand(pageNum: pageNum)
+            let filter = appState.settings.globalFilter
+            appCommand = FetchWatchedItemsCommand(filter: filter, pageNum: pageNum)
         case .fetchWatchedItemsDone(let result):
             appState.homeInfo.watchedLoading = false
 
@@ -423,8 +432,9 @@ final class Store: ObservableObject {
             appState.homeInfo.moreWatchedLoading = true
 
             let pageNum = pageNumber.current + 1
+            let filter = appState.settings.globalFilter
             let lastID = appState.homeInfo.watchedItems.last?.id ?? ""
-            appCommand = FetchMoreWatchedItemsCommand(lastID: lastID, pageNum: pageNum)
+            appCommand = FetchMoreWatchedItemsCommand(filter: filter, lastID: lastID, pageNum: pageNum)
         case .fetchMoreWatchedItemsDone(let result):
             appState.homeInfo.moreWatchedLoading = false
 
@@ -474,9 +484,7 @@ final class Store: ObservableObject {
             let pageNum = (pageNumber?.current ?? 0) + 1
             let lastID = appState.homeInfo.favoritesItems[favIndex]?.last?.id ?? ""
             appCommand = FetchMoreFavoritesItemsCommand(
-                favIndex: favIndex,
-                lastID: lastID,
-                pageNum: pageNum
+                favIndex: favIndex, lastID: lastID, pageNum: pageNum
             )
         case .fetchMoreFavoritesItemsDone(let carriedValue, let result):
             appState.homeInfo.moreFavoritesLoading[carriedValue] = false
@@ -528,9 +536,7 @@ final class Store: ObservableObject {
 
             let pageNum = (pageNumber?.current ?? 0) + 1
             appCommand = FetchMoreToplistsItemsCommand(
-                topIndex: topType.rawValue,
-                catIndex: topType.categoryIndex,
-                pageNum: pageNum
+                topIndex: topType.rawValue, catIndex: topType.categoryIndex, pageNum: pageNum
             )
         case .fetchMoreToplistsItemsDone(let carriedValue, let result):
             appState.homeInfo.moreToplistsLoading[carriedValue] = false

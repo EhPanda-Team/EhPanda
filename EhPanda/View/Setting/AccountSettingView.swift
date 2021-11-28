@@ -29,14 +29,11 @@ struct AccountSettingView: View, StoreAccessor {
         ZStack {
             Form {
                 Section {
-                    Picker(
-                        selection: $galleryHost, label: Text("Gallery"),
-                        content: {
-                            ForEach(GalleryHost.allCases) {
-                                Text($0.rawValue.localized).tag($0)
-                            }
+                    Picker("Gallery", selection: $galleryHost) {
+                        ForEach(GalleryHost.allCases) {
+                            Text($0.rawValue.localized).tag($0)
                         }
-                    )
+                    }
                     .pickerStyle(.segmented)
                     if !AuthorizationUtil.didLogin {
                         NavigationLink("Login", destination: LoginView()).foregroundStyle(.tint)
@@ -76,9 +73,7 @@ struct AccountSettingView: View, StoreAccessor {
             TTProgressHUD($hudVisible, config: hudConfig)
         }
         .confirmationDialog(
-            "Are you sure to logout?",
-            isPresented: $logoutDialogPresented,
-            titleVisibility: .visible
+            "Are you sure to logout?", isPresented: $logoutDialogPresented, titleVisibility: .visible
         ) {
             Button("Logout", role: .destructive, action: logout)
         }

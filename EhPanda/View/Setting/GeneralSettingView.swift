@@ -82,9 +82,7 @@ struct GeneralSettingView: View, StoreAccessor {
             }
         }
         .confirmationDialog(
-            "Are you sure to clear?",
-            isPresented: $clearDialogPresented,
-            titleVisibility: .visible
+            "Are you sure to clear?", isPresented: $clearDialogPresented, titleVisibility: .visible
         ) {
             Button("Clear", role: .destructive, action: clearImageCaches)
         }

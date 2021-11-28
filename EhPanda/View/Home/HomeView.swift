@@ -81,9 +81,7 @@ struct HomeView: View, StoreAccessor {
             buttons: [.regular(content: { Text("Confirm") }, action: tryPerformJumpPage)]
         )
         .confirmationDialog(
-            "Are you sure to clear?",
-            isPresented: $clearHistoryDialogPresented,
-            titleVisibility: .visible
+            "Are you sure to clear?", isPresented: $clearHistoryDialogPresented, titleVisibility: .visible
         ) {
             Button("Clear", role: .destructive, action: PersistenceController.clearGalleryHistory)
         }
@@ -164,7 +162,6 @@ private extension HomeView {
                     .symbolRenderingMode(.hierarchical)
                     .foregroundColor(.primary)
             }
-            .opacity(environment.homeListType == .favorites ? 1 : 0)
         }
         func moreFeaturesMenu() -> some View {
             Menu {
@@ -212,7 +209,9 @@ private extension HomeView {
             ToolbarItem(placement: .navigationBarTrailing) {
                 HStack {
                     selectIndexMenu()
-                    sortOrderMenu()
+                    if environment.homeListType == .favorites {
+                        sortOrderMenu()
+                    }
                     moreFeaturesMenu()
                 }
             }

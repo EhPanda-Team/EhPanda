@@ -165,35 +165,35 @@ extension Defaults.URL {
             + applyFilters(filter: filter)
         )
     }
-    static func frontpageList(pageNum: Int? = nil) -> String {
+    static func frontpageList(filter: Filter, pageNum: Int? = nil) -> String {
         if let pageNum = pageNum {
-            return merge(urls: [host, page2 + String(pageNum)])
+            return merge(urls: [host, page2 + String(pageNum)] + applyFilters(filter: filter))
         } else {
-            return host
+            return merge(urls: [host] + applyFilters(filter: filter))
         }
     }
-    static func moreFrontpageList(pageNum: Int, lastID: String) -> String {
-        merge(urls: [host, page2 + String(pageNum), from + lastID])
+    static func moreFrontpageList(filter: Filter, pageNum: Int, lastID: String) -> String {
+        merge(urls: [host, page2 + String(pageNum), from + lastID] + applyFilters(filter: filter))
     }
-    static func popularList() -> String {
-        host + popular
+    static func popularList(filter: Filter) -> String {
+        merge(urls: [host + popular] + applyFilters(filter: filter))
     }
-    static func watchedList(pageNum: Int? = nil) -> String {
+    static func watchedList(filter: Filter, pageNum: Int? = nil) -> String {
         if let pageNum = pageNum {
             return merge(urls: [host + watched, page2 + String(pageNum)])
         } else {
-            return host + watched
+            return merge(urls: [host + watched] + applyFilters(filter: filter))
         }
     }
-    static func moreWatchedList(pageNum: Int, lastID: String) -> String {
-        merge(urls: [host + watched, page2 + String(pageNum), from + lastID])
+    static func moreWatchedList(filter: Filter, pageNum: Int, lastID: String) -> String {
+        merge(urls: [host + watched, page2 + String(pageNum), from + lastID] + applyFilters(filter: filter))
     }
     static func favoritesList(favIndex: Int, pageNum: Int? = nil, sortOrder: FavoritesSortOrder? = nil) -> String {
         var params = [host + favorites]
         if favIndex == -1 {
             if pageNum == nil {
                 guard let sortOrder = sortOrder else {
-                    return params[0]
+                    return merge(urls: params)
                 }
                 params.append(sortOrder == .favoritedTime ? sortOrderByFavoritedTime : sortOrderByUpdateTime)
                 return merge(urls: params)
@@ -307,17 +307,14 @@ private extension Defaults.URL {
         if filter.downvotedTags { filters.append(fSdt2On) }
         if filter.expungedGalleries { filters.append(fShOn) }
 
-        if filter.minRatingActivated,
-           [2, 3, 4, 5].contains(filter.minRating)
-        {
+        if filter.minRatingActivated, [2, 3, 4, 5].contains(filter.minRating) {
             filters.append(fSrOn)
             filters.append(fSrdd + "\(filter.minRating)")
         }
 
-        if filter.pageRangeActivated,
-           let minPages = Int(filter.pageLowerBound),
-           let maxPages = Int(filter.pageUpperBound),
-           minPages > 0 && maxPages > 0 && minPages <= maxPages
+        if filter.pageRangeActivated, let minPages = Int(filter.pageLowerBound),
+            let maxPages = Int(filter.pageUpperBound),
+            minPages > 0 && maxPages > 0 && minPages <= maxPages
         {
             filters.append(fSpOn)
             filters.append(fSpf + "\(minPages)")
@@ -345,6 +342,8 @@ extension Defaults.URL {
 // MARK: Tools
 private extension Defaults.URL {
     static func merge(urls: [String]) -> String {
+        guard !urls.isEmpty else { return "" }
+        guard urls.count > 1 else { return urls[0] }
         let firstTwo = urls.prefix(2)
         let remainder = urls.suffix(from: 2)
 

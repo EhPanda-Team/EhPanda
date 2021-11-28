@@ -177,11 +177,12 @@ struct FetchMoreSearchItemsCommand: AppCommand {
 }
 
 struct FetchFrontpageItemsCommand: AppCommand {
+    let filter: Filter
     var pageNum: Int?
 
     func execute(in store: Store) {
         let token = SubscriptionToken()
-        FrontpageItemsRequest(pageNum: pageNum).publisher
+        FrontpageItemsRequest(filter: filter, pageNum: pageNum).publisher
             .receive(on: DispatchQueue.main)
             .sink { completion in
                 if case .failure(let error)  = completion {
@@ -204,12 +205,13 @@ struct FetchFrontpageItemsCommand: AppCommand {
 }
 
 struct FetchMoreFrontpageItemsCommand: AppCommand {
+    let filter: Filter
     let lastID: String
     let pageNum: Int
 
     func execute(in store: Store) {
         let token = SubscriptionToken()
-        MoreFrontpageItemsRequest(lastID: lastID, pageNum: pageNum)
+        MoreFrontpageItemsRequest(filter: filter, lastID: lastID, pageNum: pageNum)
             .publisher.receive(on: DispatchQueue.main)
             .sink { completion in
                 if case .failure(let error)  = completion {
@@ -229,11 +231,12 @@ struct FetchMoreFrontpageItemsCommand: AppCommand {
 }
 
 struct FetchPopularItemsCommand: AppCommand {
+    let filter: Filter
     var pageNum: Int?
 
     func execute(in store: Store) {
         let token = SubscriptionToken()
-        PopularItemsRequest().publisher
+        PopularItemsRequest(filter: filter).publisher
             .receive(on: DispatchQueue.main)
             .sink { completion in
                 if case .failure(let error)  = completion {
@@ -252,11 +255,12 @@ struct FetchPopularItemsCommand: AppCommand {
 }
 
 struct FetchWatchedItemsCommand: AppCommand {
+    let filter: Filter
     var pageNum: Int?
 
     func execute(in store: Store) {
         let token = SubscriptionToken()
-        WatchedItemsRequest(pageNum: pageNum).publisher
+        WatchedItemsRequest(filter: filter, pageNum: pageNum).publisher
             .receive(on: DispatchQueue.main)
             .sink { completion in
                 if case .failure(let error)  = completion {
@@ -279,12 +283,13 @@ struct FetchWatchedItemsCommand: AppCommand {
 }
 
 struct FetchMoreWatchedItemsCommand: AppCommand {
+    let filter: Filter
     let lastID: String
     let pageNum: Int
 
     func execute(in store: Store) {
         let token = SubscriptionToken()
-        MoreWatchedItemsRequest(lastID: lastID, pageNum: pageNum)
+        MoreWatchedItemsRequest(filter: filter, lastID: lastID, pageNum: pageNum)
             .publisher.receive(on: DispatchQueue.main)
             .sink { completion in
                 if case .failure(let error)  = completion {
