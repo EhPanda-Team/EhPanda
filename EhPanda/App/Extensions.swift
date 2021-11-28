@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import SwiftyBeaver
 
 // MARK: UINavigationController
 extension UINavigationController: UIGestureRecognizerDelegate {
@@ -106,7 +105,7 @@ extension String {
         if isValidURL {
             return URL(string: self).forceUnwrapped
         } else {
-            SwiftyBeaver.error("Invalid URL, redirect to default host...")
+            Logger.error("Invalid URL, redirect to default host...")
             return URL(string: Defaults.URL.ehentai).forceUnwrapped
         }
     }
@@ -172,7 +171,7 @@ extension Optional {
         if let value = self {
             return value
         }
-        SwiftyBeaver.error(
+        Logger.error(
             "Failed in force unwrapping...",
             context: ["type": Wrapped.self]
         )

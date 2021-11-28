@@ -7,7 +7,6 @@
 
 import SwiftUI
 import Kingfisher
-import SwiftyBeaver
 
 final class ImageSaver: NSObject, ObservableObject {
     @Published var saveSucceeded: Bool?
@@ -34,7 +33,7 @@ final class ImageSaver: NSObject, ObservableObject {
                         continuation.resume(throwing: AppError.notFound)
                     }
                 case .failure(let error):
-                    SwiftyBeaver.error(error)
+                    Logger.error(error)
                     continuation.resume(throwing: error)
                 }
             }
@@ -47,7 +46,7 @@ final class ImageSaver: NSObject, ObservableObject {
                 case .success(let result):
                     continuation.resume(returning: result.image)
                 case .failure(let error):
-                    SwiftyBeaver.error(error)
+                    Logger.error(error)
                     continuation.resume(throwing: error)
                 }
             }
@@ -64,7 +63,7 @@ final class ImageSaver: NSObject, ObservableObject {
         _ image: UIImage, didFinishSavingWithError error: Error?, contextInfo: UnsafeRawPointer
     ) {
         if let error = error {
-            SwiftyBeaver.error(error)
+            Logger.error(error)
         }
         saveSucceeded = error == nil
     }

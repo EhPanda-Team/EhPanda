@@ -7,7 +7,6 @@
 
 import SwiftUI
 import Combine
-import SwiftyBeaver
 
 final class Store: ObservableObject {
     @Published var appState = AppState()
@@ -34,12 +33,12 @@ final class Store: ObservableObject {
     private func privateDispatch(_ action: AppAction) {
         let description = String(describing: action)
         if description.contains("error") {
-            SwiftyBeaver.error("[ACTION]: " + description)
+            Logger.error("[ACTION]: " + description)
         } else {
             switch action {
             case .fetchGalleryPreviewsDone(let gid, let pageNumber, let result):
                 if case .success(let previews) = result {
-                    SwiftyBeaver.verbose(
+                    Logger.verbose(
                         "[ACTION]: fetchGalleryPreviewsDone("
                         + "gid: \(gid), pageNumber: \(pageNumber), "
                         + "previews: \(previews.count))"
@@ -47,21 +46,21 @@ final class Store: ObservableObject {
                 }
             case .fetchThumbnailsDone(let gid, let index, let result):
                 if case .success(let contents) = result {
-                    SwiftyBeaver.verbose(
+                    Logger.verbose(
                         "[ACTION]: fetchThumbnailsDone("
                         + "gid: \(gid), index: \(index), "
                         + "contents: \(contents.count))"
                     )
                 }
             case .fetchGalleryNormalContents(let gid, let index, let thumbnails):
-                SwiftyBeaver.verbose(
+                Logger.verbose(
                     "[ACTION]: fetchGalleryNormalContents("
                     + "gid: \(gid), index: \(index), "
                     + "thumbnails: \(thumbnails.count))"
                 )
             case .fetchGalleryNormalContentsDone(let gid, let index, let result):
                 if case .success(let (contents, originalContents)) = result {
-                    SwiftyBeaver.verbose(
+                    Logger.verbose(
                         "[ACTION]: fetchGalleryNormalContentsDone("
                         + "gid: \(gid), index: \(index), "
                         + "contents: \(contents.count), "
@@ -70,21 +69,21 @@ final class Store: ObservableObject {
                 }
             case .fetchMPVKeysDone(let gid, let index, let result):
                 if case .success(let (mpvKey, imgKeys)) = result {
-                    SwiftyBeaver.verbose(
+                    Logger.verbose(
                         "[ACTION]: fetchMPVKeysDone("
                         + "gid: \(gid), index: \(index), "
                         + "mpvKey: \(mpvKey), imgKeys: \(imgKeys.count))"
                     )
                 }
             default:
-                SwiftyBeaver.verbose("[ACTION]: " + description)
+                Logger.verbose("[ACTION]: " + description)
             }
         }
         let (state, command) = reduce(state: appState, action: action)
         appState = state
 
         guard let command = command else { return }
-        SwiftyBeaver.verbose("[COMMAND]: \(command)")
+        Logger.verbose("[COMMAND]: \(command)")
         command.execute(in: self)
     }
 
@@ -772,7 +771,7 @@ final class Store: ObservableObject {
                 } else if profileNotFound {
                     dispatch(.createEhProfile(name: "EhPanda"))
                 } else {
-                    SwiftyBeaver.error("Found profile but failed in parsing value.")
+                    Logger.error("Found profile but failed in parsing value.")
                 }
             }
         case .favorGallery(let gid, let favIndex):

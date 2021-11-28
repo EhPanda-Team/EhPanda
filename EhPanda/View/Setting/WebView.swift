@@ -7,7 +7,6 @@
 
 import WebKit
 import SwiftUI
-import SwiftyBeaver
 
 struct WebView: UIViewControllerRepresentable {
     static let loginURLString = "https://forums.e-hentai.org/index.php?act=Login"
@@ -48,7 +47,7 @@ struct WebView: UIViewControllerRepresentable {
         }
 
         func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
-            SwiftyBeaver.error(error)
+            Logger.error(error)
         }
     }
 

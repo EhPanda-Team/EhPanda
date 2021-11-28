@@ -7,7 +7,6 @@
 
 import SwiftUI
 import Kingfisher
-import SwiftyBeaver
 import LocalAuthentication
 
 struct GeneralSettingView: View, StoreAccessor {
@@ -124,7 +123,7 @@ private extension GeneralSettingView {
             case .success(let size):
                 diskImageCacheSize = readableUnit(bytes: size)
             case .failure(let error):
-                SwiftyBeaver.error(error)
+                Logger.error(error)
             }
         }
     }

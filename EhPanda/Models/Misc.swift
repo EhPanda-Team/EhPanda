@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftyBeaver
 
 typealias Percentage = Int
 typealias Keyword = String
@@ -14,6 +15,7 @@ typealias APIKey = String
 typealias CurrentGP = String
 typealias CurrentCredits = String
 typealias ReloadToken = Any
+typealias Logger = SwiftyBeaver
 typealias FavoritesSortOrder = EhSettingFavoritesSortOrder
 
 struct PageNumber: Equatable {

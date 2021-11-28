@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import SwiftyBeaver
 
 class DFStreamEventHandler: NSObject {
     private var request: DFRequest
@@ -84,7 +83,7 @@ private extension DFStreamEventHandler {
         if SecTrustEvaluateWithError(serverTrust, &error) {
             return true
         } else {
-            SwiftyBeaver.error(error as Any)
+            Logger.error(error as Any)
             return false
         }
     }
@@ -94,7 +93,7 @@ private extension DFStreamEventHandler {
 extension DFStreamEventHandler: StreamDelegate {
     func stream(_ aStream: Stream, handle eventCode: Stream.Event) {
         guard let input = aStream as? InputStream else {
-            SwiftyBeaver.error("Unexpected stream, should be a InputStream, but \(aStream).")
+            Logger.error("Unexpected stream, should be a InputStream, but \(aStream).")
             return
         }
 
@@ -119,14 +118,14 @@ private extension DFStreamEventHandler {
     func openCompleted() {
         if !request.request.urlContainsImageURL {
             let urlString = request.request.url?.absoluteString ?? ""
-            SwiftyBeaver.verbose("Stream open completed for: \(urlString).")
+            Logger.verbose("Stream open completed for: \(urlString).")
         }
     }
 
     func endEncountered(_ stream: InputStream) {
         if !request.request.urlContainsImageURL {
             let urlString = request.request.url?.absoluteString ?? ""
-            SwiftyBeaver.verbose("Stream end off for: \(urlString).")
+            Logger.verbose("Stream end off for: \(urlString).")
         }
 
         let message = stream.httpMessage()
@@ -137,7 +136,7 @@ private extension DFStreamEventHandler {
             } else {
                 if !self.request.request.urlContainsImageURL {
                     let urlString = self.request.request.url?.absoluteString ?? ""
-                    SwiftyBeaver.verbose("Request loading finished for: \(urlString).")
+                    Logger.verbose("Request loading finished for: \(urlString).")
                 }
                 self.request.delegate?.dfRequestDidFinishLoading(self.request)
             }
@@ -168,7 +167,7 @@ private extension DFStreamEventHandler {
                 url = originalURL.appendingPathComponent(url.absoluteString)
             }
 
-            SwiftyBeaver.warning("Request redirected to: \(url.absoluteString).")
+            Logger.warning("Request redirected to: \(url.absoluteString).")
 
             var req = URLRequest(url: url)
             req.httpMethod = "GET"
@@ -187,7 +186,7 @@ private extension DFStreamEventHandler {
         if let err = stream.streamError as NSError? {
             if !request.request.urlContainsImageURL {
                 let urlString = request.request.url?.absoluteString ?? ""
-                SwiftyBeaver.error("\(stream) Occurred error: \(err) for: \(urlString).")
+                Logger.error("\(stream) Occurred error: \(err) for: \(urlString).")
             }
             request.delegate?.dfRequest(
                 request.request,
@@ -198,6 +197,6 @@ private extension DFStreamEventHandler {
     }
 
     func defaultHandle(event: Stream.Event) {
-        SwiftyBeaver.error("An unexpected Evnet: \(event) occurred.")
+        Logger.error("An unexpected Evnet: \(event) occurred.")
     }
 }

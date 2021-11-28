@@ -6,7 +6,6 @@
 //
 
 import CoreData
-import SwiftyBeaver
 
 struct PersistenceController {
     static let shared = PersistenceController()
@@ -16,7 +15,7 @@ struct PersistenceController {
 
         container.loadPersistentStores {
             guard let error = $1 else { return }
-            SwiftyBeaver.error(error as Any)
+            Logger.error(error as Any)
         }
         return container
     }()
@@ -33,7 +32,7 @@ struct PersistenceController {
             do {
                 try context.save()
             } catch {
-                SwiftyBeaver.error(error)
+                Logger.error(error)
                 fatalError("Unresolved error \(error)")
             }
         }

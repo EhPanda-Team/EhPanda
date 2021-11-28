@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import SwiftyBeaver
 import TTProgressHUD
 
 struct ArchiveView: View, StoreAccessor, PersistenceAccessor {
@@ -147,7 +146,7 @@ private extension ArchiveView {
                 if case .failure(let error) = completion {
                     loadError = error
 
-                    SwiftyBeaver.error(
+                    Logger.error(
                         "GalleryArchiveRequest failed",
                         context: ["ArchiveURL": archiveURL, "Error": error]
                     )
@@ -160,7 +159,7 @@ private extension ArchiveView {
                     store.dispatch(.fetchGalleryArchiveFundsDone(
                         result: .success((galleryPoints, credits)))
                     )
-                    SwiftyBeaver.info(
+                    Logger.info(
                         "GalleryArchiveRequest succeeded",
                         context: [
                             "ArchiveURL": archiveURL, "Archive": archive as Any,
@@ -190,7 +189,7 @@ private extension ArchiveView {
             if case .failure(let error) = completion {
                 sendFailedFlag = true
 
-                SwiftyBeaver.error(
+                Logger.error(
                     "SendDownloadCommandRequest failed",
                     context: [
                         "ArchiveURL": archiveURL,
@@ -209,7 +208,7 @@ private extension ArchiveView {
                  Defaults.Response.invalidResolution, .none:
                 sendFailedFlag = true
 
-                SwiftyBeaver.error(
+                Logger.error(
                     "SendDownloadCommandRequest failed",
                     context: [
                         "ArchiveURL": archiveURL,
@@ -218,7 +217,7 @@ private extension ArchiveView {
                     ]
                 )
             default:
-                SwiftyBeaver.info(
+                Logger.info(
                     "SendDownloadCommandRequest succeeded",
                     context: [
                         "ArchiveURL": archiveURL,

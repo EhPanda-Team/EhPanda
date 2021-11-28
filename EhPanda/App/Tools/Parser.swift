@@ -7,9 +7,6 @@
 
 import Kanna
 import UIKit
-import Foundation
-import SwiftUI
-import SwiftyBeaver
 
 struct Parser {
     // MARK: List
@@ -1602,7 +1599,7 @@ extension Parser {
                 return .minutes(minutes, seconds: nil)
             }
         } else {
-            SwiftyBeaver.error(
+            Logger.error(
                 "Unrecognized BanInterval format", context: [
                     "expireDescription": expireDescription
                 ]

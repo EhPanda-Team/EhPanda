@@ -98,10 +98,10 @@ private extension EhPandaApp {
         configure(file: &file)
         configure(console: &console)
 
-        SwiftyBeaver.addDestination(file)
+        Logger.addDestination(file)
         #if DEBUG
         guard !AppUtil.isUnitTesting else { return }
-        SwiftyBeaver.addDestination(console)
+        Logger.addDestination(console)
         #endif
     }
     func configure(file: inout FileDestination) {

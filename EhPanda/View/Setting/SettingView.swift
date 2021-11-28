@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import SwiftyBeaver
 
 struct SettingView: View, StoreAccessor {
     @EnvironmentObject var store: Store
