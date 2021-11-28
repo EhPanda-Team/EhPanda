@@ -66,8 +66,11 @@ extension StoreAccessor {
     var setting: Setting {
         settings.setting
     }
-    var filter: Filter {
-        settings.filter
+    var searchFilter: Filter {
+        settings.searchFilter
+    }
+    var globalFilter: Filter {
+        settings.globalFilter
     }
     var accentColor: Color {
         setting.accentColor

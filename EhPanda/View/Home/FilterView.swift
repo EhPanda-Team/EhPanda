@@ -11,17 +11,17 @@ struct FilterView: View, StoreAccessor {
     @EnvironmentObject var store: Store
     @State var resetDialogPresented = false
 
-    private var categoryBindings: [Binding<Bool>] {
+    private var searchCategoryBindings: [Binding<Bool>] {
         [
-            filterBinding.doujinshi, filterBinding.manga,
-            filterBinding.artistCG, filterBinding.gameCG,
-            filterBinding.western, filterBinding.nonH,
-            filterBinding.imageSet, filterBinding.cosplay,
-            filterBinding.asianPorn, filterBinding.misc
+            searchFilterBinding.doujinshi, searchFilterBinding.manga,
+            searchFilterBinding.artistCG, searchFilterBinding.gameCG,
+            searchFilterBinding.western, searchFilterBinding.nonH,
+            searchFilterBinding.imageSet, searchFilterBinding.cosplay,
+            searchFilterBinding.asianPorn, searchFilterBinding.misc
         ]
     }
-    private var filterBinding: Binding<Filter> {
-        $store.appState.settings.filter
+    private var searchFilterBinding: Binding<Filter> {
+        $store.appState.settings.searchFilter
     }
 
     // MARK: FilterView
@@ -29,43 +29,43 @@ struct FilterView: View, StoreAccessor {
         NavigationView {
             Form {
                 Section {
-                    CategoryView(bindings: categoryBindings)
+                    CategoryView(bindings: searchCategoryBindings)
                     Button {
                         resetDialogPresented = true
                     } label: {
                         Text("Reset filters").foregroundStyle(.red)
                     }
-                    Toggle("Advanced settings", isOn: filterBinding.advanced)
+                    Toggle("Advanced settings", isOn: searchFilterBinding.advanced)
                 }
                 Group {
                     Section("Advanced".localized) {
-                        Toggle("Search gallery name", isOn: filterBinding.galleryName)
-                        Toggle("Search gallery tags", isOn: filterBinding.galleryTags)
-                        Toggle("Search gallery description", isOn: filterBinding.galleryDesc)
-                        Toggle("Search torrent filenames", isOn: filterBinding.torrentFilenames)
-                        Toggle("Only show galleries with torrents", isOn: filterBinding.onlyWithTorrents)
-                        Toggle("Search Low-Power tags", isOn: filterBinding.lowPowerTags)
-                        Toggle("Search downvoted tags", isOn: filterBinding.downvotedTags)
-                        Toggle("Show expunged galleries", isOn: filterBinding.expungedGalleries)
+                        Toggle("Search gallery name", isOn: searchFilterBinding.galleryName)
+                        Toggle("Search gallery tags", isOn: searchFilterBinding.galleryTags)
+                        Toggle("Search gallery description", isOn: searchFilterBinding.galleryDesc)
+                        Toggle("Search torrent filenames", isOn: searchFilterBinding.torrentFilenames)
+                        Toggle("Only show galleries with torrents", isOn: searchFilterBinding.onlyWithTorrents)
+                        Toggle("Search Low-Power tags", isOn: searchFilterBinding.lowPowerTags)
+                        Toggle("Search downvoted tags", isOn: searchFilterBinding.downvotedTags)
+                        Toggle("Show expunged galleries", isOn: searchFilterBinding.expungedGalleries)
                     }
                     Section {
-                        Toggle("Set minimum rating", isOn: filterBinding.minRatingActivated)
-                        MinimumRatingSetter(minimum: filterBinding.minRating)
-                            .disabled(!filter.minRatingActivated)
-                        Toggle("Set pages range", isOn: filterBinding.pageRangeActivated)
+                        Toggle("Set minimum rating", isOn: searchFilterBinding.minRatingActivated)
+                        MinimumRatingSetter(minimum: searchFilterBinding.minRating)
+                            .disabled(!searchFilter.minRatingActivated)
+                        Toggle("Set pages range", isOn: searchFilterBinding.pageRangeActivated)
                         PagesRangeSetter(
-                            lowerBound: filterBinding.pageLowerBound,
-                            upperBound: filterBinding.pageUpperBound
+                            lowerBound: searchFilterBinding.pageLowerBound,
+                            upperBound: searchFilterBinding.pageUpperBound
                         )
-                        .disabled(!filter.pageRangeActivated)
+                        .disabled(!searchFilter.pageRangeActivated)
                     }
                     Section("Default Filter".localized) {
-                        Toggle("Disable language filter", isOn: filterBinding.disableLanguage)
-                        Toggle("Disable uploader filter", isOn: filterBinding.disableUploader)
-                        Toggle("Disable tags filter", isOn: filterBinding.disableTags)
+                        Toggle("Disable language filter", isOn: searchFilterBinding.disableLanguage)
+                        Toggle("Disable uploader filter", isOn: searchFilterBinding.disableUploader)
+                        Toggle("Disable tags filter", isOn: searchFilterBinding.disableTags)
                     }
                 }
-                .disabled(!filter.advanced)
+                .disabled(!searchFilter.advanced)
             }
             .confirmationDialog(
                 "Are you sure to reset?",
@@ -73,7 +73,7 @@ struct FilterView: View, StoreAccessor {
                 titleVisibility: .visible
             ) {
                 Button("Reset", role: .destructive) {
-                    store.dispatch(.resetFilters)
+                    store.dispatch(.resetSearchFilter)
                 }
             }
             .navigationBarTitle("Filters")

@@ -95,8 +95,8 @@ final class Store: ObservableObject {
         // MARK: App Ops
         case .resetUser:
             appState.settings.user = User()
-        case .resetFilters:
-            appState.settings.filter = Filter()
+        case .resetSearchFilter:
+            appState.settings.searchFilter = Filter()
         case .resetHomeInfo:
             appState.homeInfo = AppState.HomeInfo()
             dispatch(.setHomeListType(.frontpage))
@@ -292,7 +292,7 @@ final class Store: ObservableObject {
             appState.homeInfo.searchPageNumber.current = 0
             appState.homeInfo.searchLoading = true
 
-            let filter = appState.settings.filter
+            let filter = appState.settings.searchFilter
             appCommand = FetchSearchItemsCommand(keyword: keyword, filter: filter, pageNum: pageNum)
         case .fetchSearchItemsDone(let result):
             appState.homeInfo.searchLoading = false
@@ -316,7 +316,7 @@ final class Store: ObservableObject {
             appState.homeInfo.moreSearchLoading = true
 
             let pageNum = pageNumber.current + 1
-            let filter = appState.settings.filter
+            let filter = appState.settings.searchFilter
             let lastID = appState.homeInfo.searchItems.last?.id ?? ""
             appCommand = FetchMoreSearchItemsCommand(
                 keyword: keyword, filter: filter,

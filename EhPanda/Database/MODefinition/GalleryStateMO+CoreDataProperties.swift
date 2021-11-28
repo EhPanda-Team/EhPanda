@@ -14,6 +14,7 @@ extension GalleryStateMO: GalleryIdentifiable {
 
     @NSManaged public var comments: Data?
     @NSManaged public var contents: Data?
+    @NSManaged public var originalContents: Data?
     @NSManaged public var gid: String
     @NSManaged public var previews: Data?
     @NSManaged public var readingProgress: Int64
