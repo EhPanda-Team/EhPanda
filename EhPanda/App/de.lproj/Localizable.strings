@@ -113,6 +113,7 @@
 //"Reload" = "";
 //"Copy" = "";
 //"Save" = "";
+//"Save original" = "";
 //"Saved to photo library" = "";
 
 // MARK: SettingView

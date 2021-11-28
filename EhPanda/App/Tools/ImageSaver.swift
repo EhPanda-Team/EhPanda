@@ -6,28 +6,66 @@
 //
 
 import SwiftUI
+import Kingfisher
 import SwiftyBeaver
 
-class ImageSaver: NSObject {
-    @Binding var isSuccess: Bool?
+final class ImageSaver: NSObject, ObservableObject {
+    @Published var saveSucceeded: Bool?
 
-    init(isSuccess: Binding<Bool?>) {
-        _isSuccess = isSuccess
+    func retrieveImage(url: URL) async throws -> UIImage {
+        if let cachedImage = try? await retrieveCache(key: url.absoluteString) {
+            return cachedImage
+        } else {
+            do {
+                return try await downloadImage(url: url)
+            } catch {
+                throw error
+            }
+        }
+    }
+    private func retrieveCache(key: String) async throws -> UIImage {
+        try await withCheckedThrowingContinuation { continuation in
+            KingfisherManager.shared.cache.retrieveImage(forKey: key) { result in
+                switch result {
+                case .success(let result):
+                    if let image = result.image {
+                        continuation.resume(returning: image)
+                    } else {
+                        continuation.resume(throwing: AppError.notFound)
+                    }
+                case .failure(let error):
+                    SwiftyBeaver.error(error)
+                    continuation.resume(throwing: error)
+                }
+            }
+        }
+    }
+    private func downloadImage(url: URL) async throws -> UIImage {
+        try await withCheckedThrowingContinuation { continuation in
+            KingfisherManager.shared.downloader.downloadImage(with: url, options: nil) { result in
+                switch result {
+                case .success(let result):
+                    continuation.resume(returning: result.image)
+                case .failure(let error):
+                    SwiftyBeaver.error(error)
+                    continuation.resume(throwing: error)
+                }
+            }
+        }
     }
 
     func saveImage(_ image: UIImage) {
-        UIImageWriteToSavedPhotosAlbum(
-            image, self, #selector(didFinishSavingImage), nil
-        )
+        UIImageWriteToSavedPhotosAlbum(image, self, #selector(didFinishSavingImage), nil)
+        DispatchQueue.main.async { [weak self] in
+            self?.saveSucceeded = nil
+        }
     }
     @objc func didFinishSavingImage(
-        _ image: UIImage,
-        didFinishSavingWithError error: Error?,
-        contextInfo: UnsafeRawPointer
+        _ image: UIImage, didFinishSavingWithError error: Error?, contextInfo: UnsafeRawPointer
     ) {
-        isSuccess = error == nil
         if let error = error {
             SwiftyBeaver.error(error)
         }
+        saveSucceeded = error == nil
     }
 }

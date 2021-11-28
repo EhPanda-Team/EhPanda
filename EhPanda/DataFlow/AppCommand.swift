@@ -558,9 +558,11 @@ struct FetchGalleryNormalContentsCommand: AppCommand {
                     store.dispatch(.fetchGalleryNormalContentsDone(gid: gid, index: index, result: .failure(error)))
                 }
                 token.unseal()
-            } receiveValue: { contents in
+            } receiveValue: { contents, originalContents in
                 if !contents.isEmpty {
-                    store.dispatch(.fetchGalleryNormalContentsDone(gid: gid, index: index, result: .success(contents)))
+                    store.dispatch(.fetchGalleryNormalContentsDone(
+                        gid: gid, index: index, result: .success((contents, originalContents))
+                    ))
                 } else {
                     store.dispatch(.fetchGalleryNormalContentsDone(
                         gid: gid, index: index, result: .failure(.networkingFailed))
@@ -617,9 +619,7 @@ struct FetchGalleryMPVContentCommand: AppCommand {
     func execute(in store: Store) {
         let token = SubscriptionToken()
         GalleryMPVContentRequest(
-            gid: gid, index: index,
-            mpvKey: mpvKey, imgKey: imgKey,
-            reloadToken: reloadToken
+            gid: gid, index: index, mpvKey: mpvKey, imgKey: imgKey, reloadToken: reloadToken
         )
         .publisher
         .receive(on: DispatchQueue.main)

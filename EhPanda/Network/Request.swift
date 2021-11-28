@@ -512,7 +512,7 @@ struct ThumbnailsRequest {
 struct GalleryNormalContentsRequest {
     let thumbnails: [Int: String]
 
-    var publisher: AnyPublisher<[Int: String], AppError> {
+    var publisher: AnyPublisher<([Int: String], [Int: String]), AppError> {
         thumbnails.publisher
             .flatMap { index, url in
                 URLSession.shared.dataTaskPublisher(for: url.safeURL()).genericRetry()
@@ -521,10 +521,12 @@ struct GalleryNormalContentsRequest {
             }
             .collect().map { tuples in
                 var contents = [Int: String]()
-                for (index, imageURL) in tuples {
+                var originalContents = [Int: String]()
+                for (index, imageURL, originalImageURL) in tuples {
                     contents[index] = imageURL
+                    originalContents[index] = originalImageURL
                 }
-                return contents
+                return (contents, originalContents)
             }
             .mapError(mapAppError).eraseToAnyPublisher()
     }
@@ -599,7 +601,7 @@ struct GalleryMPVContentRequest {
     let imgKey: String
     let reloadToken: ReloadToken?
 
-    var publisher: AnyPublisher<(String, ReloadToken), AppError> {
+    var publisher: AnyPublisher<(String, String?, ReloadToken), AppError> {
         let url = Defaults.URL.ehAPI()
         var params: [String: Any] = [
             "method": "imagedispatch", "gid": gid,
@@ -625,7 +627,12 @@ struct GalleryMPVContentRequest {
                       let imageURL = dict["i"] as? String,
                       let reloadToken = dict["s"]
                 else { throw AppError.parseFailed }
-                return (imageURL, reloadToken)
+
+                if let originalImageURL = dict["lf"] as? String {
+                    return (imageURL, Defaults.URL.host + originalImageURL, reloadToken)
+                } else {
+                    return (imageURL, nil, reloadToken)
+                }
             }
             .mapError(mapAppError).eraseToAnyPublisher()
     }

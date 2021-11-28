@@ -113,6 +113,7 @@
 "Reload" = "重新加载";
 "Copy" = "复制";
 "Save" = "保存";
+"Save original" = "保存原图";
 "Saved to photo library" = "已保存到图库";
 
 // MARK: SettingView

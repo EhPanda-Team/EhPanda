@@ -252,13 +252,14 @@ extension AppState {
         var mpvImageKeys = [String: [Int: String]]()
         var mpvReloadTokens = [String: [Int: ReloadToken]]()
         var contents = [String: [Int: String]]()
+        var originalContents = [String: [Int: String]]()
         var contentsLoading = [String: [Int: Bool]]()
         var contentsLoadErrors = [String: [Int: AppError]]()
 
         mutating func fulfillContents(gid: String) {
-            let galleryState = PersistenceController
-                .fetchGalleryStateNonNil(gid: gid)
+            let galleryState = PersistenceController.fetchGalleryStateNonNil(gid: gid)
             contents[gid] = galleryState.contents
+            originalContents[gid] = galleryState.originalContents
             thumbnails[gid] = galleryState.thumbnails
         }
 
@@ -278,8 +279,9 @@ extension AppState {
         mutating func update(gid: String, thumbnails: [Int: String]) {
             update(gid: gid, stored: &self.thumbnails, new: thumbnails)
         }
-        mutating func update(gid: String, contents: [Int: String]) {
+        mutating func update(gid: String, contents: [Int: String], originalContents: [Int: String]) {
             update(gid: gid, stored: &self.contents, new: contents)
+            update(gid: gid, stored: &self.originalContents, new: originalContents)
         }
     }
 }

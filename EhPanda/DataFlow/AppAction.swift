@@ -87,11 +87,11 @@ enum AppAction {
     case fetchThumbnails(gid: String, index: Int)
     case fetchThumbnailsDone(gid: String, index: Int, result: Result<[Int: String], AppError>)
     case fetchGalleryNormalContents(gid: String, index: Int, thumbnails: [Int: String])
-    case fetchGalleryNormalContentsDone(gid: String, index: Int, result: Result<[Int: String], AppError>)
+    case fetchGalleryNormalContentsDone(gid: String, index: Int, result: Result<([Int: String], [Int: String]), AppError>)
     case refetchGalleryNormalContent(gid: String, index: Int)
     case refetchGalleryNormalContentDone(gid: String, index: Int, result: Result<[Int: String], AppError>)
     case fetchGalleryMPVContent(gid: String, index: Int, isRefetch: Bool = false)
-    case fetchGalleryMPVContentDone(gid: String, index: Int, result: Result<(String, ReloadToken), AppError>)
+    case fetchGalleryMPVContentDone(gid: String, index: Int, result: Result<(String, String?, ReloadToken), AppError>)
 
     case createEhProfile(name: String)
     case verifyEhProfile

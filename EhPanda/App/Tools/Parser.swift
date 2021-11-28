@@ -579,12 +579,16 @@ struct Parser {
         return renewedThumbnail
     }
 
-    static func parseGalleryNormalContent(doc: HTMLDocument, index: Int) throws -> (Int, String) {
+    static func parseGalleryNormalContent(doc: HTMLDocument, index: Int) throws -> (Int, String, String?) {
         guard let i3Node = doc.at_xpath("//div [@id='i3']"),
               let imageURL = i3Node.at_css("img")?["src"]
         else { throw AppError.parseFailed }
 
-        return (index, imageURL)
+        guard let i7Node = doc.at_xpath("//div [@id='i7']"),
+              let originalImageURL = i7Node.at_xpath("//a")?["href"]
+        else { return (index, imageURL, nil) }
+
+        return (index, imageURL, originalImageURL)
     }
 
     static func parsePreviewMode(doc: HTMLDocument) throws -> String {
