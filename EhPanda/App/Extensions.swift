@@ -14,6 +14,10 @@ extension UINavigationController: UIGestureRecognizerDelegate {
         super.viewDidLoad()
         interactivePopGestureRecognizer?.delegate = self
     }
+    // Prevents above codes from blocking the slide menu
+    public func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+        viewControllers.count > 1
+    }
     // Gives the swipe-back gesture a higher priority
     public func gestureRecognizer(
         _ gestureRecognizer: UIGestureRecognizer,
