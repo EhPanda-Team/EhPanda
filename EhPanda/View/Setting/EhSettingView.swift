@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import SwiftyBeaver
 
 struct EhSettingView: View, StoreAccessor {
     @EnvironmentObject var store: Store
@@ -126,10 +125,10 @@ private extension EhSettingView {
             .sink { completion in
                 loadingFlag = false
                 if case .failure(let error) = completion {
-                    SwiftyBeaver.error(error)
+                    Logger.error(error)
                     loadError = error
 
-                    SwiftyBeaver.error(
+                    Logger.error(
                         "EhSettingRequest failed",
                         context: [ "Error": error ]
                     )
@@ -138,7 +137,7 @@ private extension EhSettingView {
             } receiveValue: { ehSetting in
                 self.ehSetting = ehSetting
 
-                SwiftyBeaver.info(
+                Logger.info(
                     "EhSettingRequest succeeded",
                     context: [ "EhProfiles": ehSetting.ehProfiles ]
                 )
@@ -156,10 +155,10 @@ private extension EhSettingView {
             .sink { completion in
                 submittingFlag = false
                 if case .failure(let error) = completion {
-                    SwiftyBeaver.error(error)
+                    Logger.error(error)
                     loadError = error
 
-                    SwiftyBeaver.error(
+                    Logger.error(
                         "SubmitEhSettingChangesRequest failed",
                         context: [ "Error": error ]
                     )
@@ -168,7 +167,7 @@ private extension EhSettingView {
             } receiveValue: { ehSetting in
                 self.ehSetting = ehSetting
 
-                SwiftyBeaver.info(
+                Logger.info(
                     "SubmitEhSettingChangesRequest succeeded",
                     context: [ "EhProfiles": ehSetting.ehProfiles ]
                 )
@@ -185,10 +184,10 @@ private extension EhSettingView {
             .sink { completion in
                 submittingFlag = false
                 if case .failure(let error) = completion {
-                    SwiftyBeaver.error(error)
+                    Logger.error(error)
                     loadError = error
 
-                    SwiftyBeaver.error(
+                    Logger.error(
                         "EhProfileRequest failed",
                         context: [
                             "Action": action as Any, "Name": name as Any,
@@ -200,7 +199,7 @@ private extension EhSettingView {
             } receiveValue: { ehSetting in
                 self.ehSetting = ehSetting
 
-                SwiftyBeaver.info(
+                Logger.info(
                     "EhProfileRequest succeeded",
                     context: [
                         "Action": action as Any, "Name": name as Any,

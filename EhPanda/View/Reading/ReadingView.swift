@@ -9,7 +9,6 @@ import SwiftUI
 import Combine
 import Kingfisher
 import SwiftUIPager
-import SwiftyBeaver
 import TTProgressHUD
 
 struct ReadingView: View, StoreAccessor, PersistenceAccessor {

@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import SwiftyBeaver
 
 struct DFRequest {
     var request: URLRequest
@@ -46,7 +45,7 @@ struct DFRequest {
 
     mutating func resume() {
         if !request.urlContainsImageURL {
-            SwiftyBeaver.verbose("Request from: \(request.url?.absoluteString ?? "")")
+            Logger.verbose("Request from: \(request.url?.absoluteString ?? "")")
         }
 
         stream.schedule(in: RunLoop.current, forMode: .common)

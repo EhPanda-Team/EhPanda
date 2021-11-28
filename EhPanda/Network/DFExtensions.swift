@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import SwiftyBeaver
 import DeprecatedAPI
 
 // MARK: Global
@@ -14,7 +13,7 @@ private func forceDowncast<T>(object: Any) -> T! {
     if let downcastedValue = object as? T {
         return downcastedValue
     }
-    SwiftyBeaver.error(
+    Logger.error(
         "Failed in force downcasting...",
         context: [
             "type": T.self
@@ -150,10 +149,10 @@ extension URLRequest {
             if readSize > 0 {
                 body.append(buffer, count: readSize)
             } else if readSize == 0 {
-                SwiftyBeaver.verbose("HTTPBodyStream read EOF.")
+                Logger.verbose("HTTPBodyStream read EOF.")
             } else {
                 if let error = stream.streamError as Error? {
-                    SwiftyBeaver.error("HTTPBodyStream read Error: \(error).")
+                    Logger.error("HTTPBodyStream read Error: \(error).")
                 }
             }
         } while readSize > 0
