@@ -193,16 +193,25 @@ extension PersistenceController {
             }
         }
     }
-    static func update(gid: String, contents: [Int: String]) {
+    static func update(gid: String, contents: [Int: String], originalContents: [Int: String]) {
         update(gid: gid) { galleryStateMO in
             guard !contents.isEmpty else { return }
-            if let storedContents = galleryStateMO.contents?.toObject() as [Int: String]? {
-                galleryStateMO.contents = storedContents.merging(
-                    contents, uniquingKeysWith: { _, new in new }
-                ).toData()
-            } else {
-                galleryStateMO.contents = contents.toData()
-            }
+            update(gid: gid, storedData: &galleryStateMO.contents, new: contents)
+            guard !originalContents.isEmpty else { return }
+            update(gid: gid, storedData: &galleryStateMO.originalContents, new: originalContents)
+        }
+    }
+    private static func update<T: Codable>(
+        gid: String, storedData: inout Data?, new: [Int: T]
+    ) {
+        guard !new.isEmpty else { return }
+
+        if let storedDictionary = storedData?.toObject() as [Int: T]? {
+            storedData = storedDictionary.merging(
+                new, uniquingKeysWith: { _, new in new }
+            ).toData()
+        } else {
+            storedData = new.toData()
         }
     }
     static func update(fetchedState: GalleryState) {

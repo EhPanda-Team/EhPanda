@@ -113,6 +113,7 @@
 "Reload" = "再読み込み";
 "Copy" = "コピー";
 "Save" = "保存";
+"Save original" = "オリジナルを保存";
 "Saved to photo library" = "ライブラリに保存しました";
 
 // MARK: SettingView

@@ -60,11 +60,12 @@ final class Store: ObservableObject {
                     + "thumbnails: \(thumbnails.count))"
                 )
             case .fetchGalleryNormalContentsDone(let gid, let index, let result):
-                if case .success(let contents) = result {
+                if case .success(let (contents, originalContents)) = result {
                     SwiftyBeaver.verbose(
                         "[ACTION]: fetchGalleryNormalContentsDone("
                         + "gid: \(gid), index: \(index), "
-                        + "contents: \(contents.count))"
+                        + "contents: \(contents.count), "
+                        + "originalContents: \(originalContents.count))"
                     )
                 }
             case .fetchMPVKeysDone(let gid, let index, let result):
@@ -686,9 +687,9 @@ final class Store: ObservableObject {
             batchRange.forEach { appState.contentInfo.contentsLoading[gid]?[$0] = false }
 
             switch result {
-            case .success(let contents):
-                appState.contentInfo.update(gid: gid, contents: contents)
-                PersistenceController.update(gid: gid, contents: contents)
+            case .success(let (contents, originalContents)):
+                appState.contentInfo.update(gid: gid, contents: contents, originalContents: originalContents)
+                PersistenceController.update(gid: gid, contents: contents, originalContents: originalContents)
             case .failure(let error):
                 batchRange.forEach { appState.contentInfo.contentsLoadErrors[gid]?[$0] = error }
             }
@@ -714,8 +715,8 @@ final class Store: ObservableObject {
 
             switch result {
             case .success(let content):
-                appState.contentInfo.update(gid: gid, contents: content)
-                PersistenceController.update(gid: gid, contents: content)
+                appState.contentInfo.update(gid: gid, contents: content, originalContents: [:])
+                PersistenceController.update(gid: gid, contents: content, originalContents: [:])
             case .failure(let error):
                 appState.contentInfo.contentsLoadErrors[gid]?[index] = error
             }
@@ -738,9 +739,13 @@ final class Store: ObservableObject {
         case .fetchGalleryMPVContentDone(let gid, let index, let result):
             appState.contentInfo.contentsLoading[gid]?[index] = false
 
-            if case .success(let (imageURL, reloadToken)) = result {
-                appState.contentInfo.update(gid: gid, contents: [index: imageURL])
-                PersistenceController.update(gid: gid, contents: [index: imageURL])
+            if case .success(let (imageURL, originalImageURL, reloadToken)) = result {
+                var originalContents = [Int: String]()
+                if let originalImageURL = originalImageURL {
+                    originalContents[index] = originalImageURL
+                }
+                appState.contentInfo.update(gid: gid, contents: [index: imageURL], originalContents: originalContents)
+                PersistenceController.update(gid: gid, contents: [index: imageURL], originalContents: originalContents)
                 if appState.contentInfo.mpvReloadTokens[gid] == nil {
                     appState.contentInfo.mpvReloadTokens[gid] = [index: reloadToken]
                 } else {
