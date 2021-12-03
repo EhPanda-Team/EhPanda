@@ -14,6 +14,7 @@ enum AppAction {
     case resetUser
     case resetHomeInfo
     case resetFilter(range: FilterRange)
+    case doFinishLoginTasks
     case setReadingProgress(gid: String, tag: Int)
     case setAppIconType(_ iconType: IconType)
     case appendHistoryKeywords(texts: [String])

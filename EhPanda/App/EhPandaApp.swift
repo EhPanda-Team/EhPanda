@@ -58,6 +58,7 @@ private extension EhPandaApp {
     func fetchAccountInfoIfNeeded() {
         guard AuthorizationUtil.didLogin else { return }
 
+        CookiesUtil.removeYay()
         store.dispatch(.fetchUserInfo)
         store.dispatch(.verifyEhProfile)
         store.dispatch(.fetchFavoriteNames)

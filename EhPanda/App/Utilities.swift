@@ -336,6 +336,9 @@ struct CookiesUtil {
                 }
             }
     }
+    static func removeYay() {
+        remove(for: Defaults.URL.exhentai.safeURL(), key: "yay")
+    }
 
     static func remove(for url: URL, key: String) {
         if let cookies = HTTPCookieStorage.shared.cookies(for: url) {
