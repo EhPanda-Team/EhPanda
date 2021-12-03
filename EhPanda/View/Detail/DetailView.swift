@@ -610,7 +610,7 @@ private struct TagRow: View {
 
     var body: some View {
         HStack(alignment: .top) {
-            Text(tag.category.rawValue.localized).fontWeight(.bold).font(.subheadline)
+            Text(tag.namespace.firstLetterCapitalized.localized).fontWeight(.bold).font(.subheadline)
                 .foregroundColor(reversePrimary).padding(.vertical, 5).padding(.horizontal, 14)
                 .background(Rectangle().foregroundColor(Color(.systemGray))).cornerRadius(5)
             TagCloudView(

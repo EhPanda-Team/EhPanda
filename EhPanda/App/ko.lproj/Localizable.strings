@@ -399,7 +399,10 @@
 "Artist" = "작가";
 "Male" = "남성";
 "Female" = "여성";
-"Misc" = "기타";
+//"Mixed" = "";
+//"Cosplayer" = "";
+//"Other" = "";
+//"Temp" = "";
 
 // MARK: IconType
 "Normal" = "보통";

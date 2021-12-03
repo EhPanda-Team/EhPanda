@@ -66,9 +66,15 @@ struct HomeView: View, StoreAccessor {
         .onChange(of: environment.toplistsType) { _ in tryFetchToplistsItems() }
         .onChange(of: alertManager.isPresented) { _ in isAlertFocused = false }
         .onChange(of: environment.homeListType, perform: onHomeListTypeChange)
-        .onChange(of: galleryHost) { _ in store.dispatch(.resetHomeInfo) }
         .onChange(of: user.greeting, perform: tryPresentNewDawnSheet)
         .onChange(of: isSearching, perform: tryUpdateHistoryKeywords)
+        .onChange(of: galleryHost) { _ in
+            CookiesUtil.removeYay()
+            store.dispatch(.verifyEhProfile)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                store.dispatch(.resetHomeInfo)
+            }
+        }
         .customAlert(
             manager: alertManager, widthFactor: DeviceUtil.isPadWidth ? 0.5 : 1.0,
             backgroundOpacity: colorScheme == .light ? 0.2 : 0.5,

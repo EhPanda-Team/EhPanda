@@ -136,10 +136,17 @@ struct GalleryArchive: Codable {
 }
 
 struct GalleryTag: Codable, Identifiable {
-    var id: String { category.rawValue }
+    var id: String { namespace }
 
-    let category: TagCategory
+    let namespace: String
     let content: [String]
+    let category: TagCategory?
+
+    init(namespace: String = "other", content: [String]) {
+        self.namespace = namespace
+        self.content = content
+        self.category = TagCategory(rawValue: namespace)
+    }
 }
 
 struct GalleryComment: Identifiable, Codable {
@@ -322,16 +329,19 @@ enum Category: String, Codable, CaseIterable, Identifiable {
     case misc = "Misc"
 }
 
-enum TagCategory: String, Codable {
-    case reclass = "Reclass"
-    case language = "Language"
-    case parody = "Parody"
-    case character = "Character"
-    case group = "Group"
-    case artist = "Artist"
-    case male = "Male"
-    case female = "Female"
-    case misc = "Misc"
+enum TagCategory: String, Codable, CaseIterable {
+    case reclass
+    case language
+    case parody
+    case character
+    case group
+    case artist
+    case male
+    case female
+    case mixed
+    case cosplayer
+    case other
+    case temp
 }
 
 enum GalleryVisibility: Codable, Equatable {

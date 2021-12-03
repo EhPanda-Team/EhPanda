@@ -106,6 +106,13 @@ final class Store: ObservableObject {
             case .global:
                 appState.settings.globalFilter = Filter()
             }
+        case .doFinishLoginTasks:
+            CookiesUtil.removeYay()
+            dispatch(.verifyEhProfile)
+            dispatch(.fetchUserInfo)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
+                self?.dispatch(.resetHomeInfo)
+            }
         case .setReadingProgress(let gid, let tag):
             PersistenceController.update(gid: gid, readingProgress: tag)
         case .setAppIconType(let iconType):

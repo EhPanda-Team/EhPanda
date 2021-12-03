@@ -31,7 +31,7 @@ struct GalleryDetailCell: View {
                 Text(gallery.uploader ?? "").lineLimit(1).font(.subheadline).foregroundStyle(.secondary)
                 if setting.showsSummaryRowTags, !tags.isEmpty {
                     TagCloudView(
-                        tag: GalleryTag(category: .artist, content: tags), font: .caption2,
+                        tag: GalleryTag(content: tags), font: .caption2,
                         textColor: .secondary, backgroundColor: tagColor,
                         paddingV: 2, paddingH: 4, translateAction: translateAction
                     )

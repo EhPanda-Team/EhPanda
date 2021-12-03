@@ -46,7 +46,7 @@ struct GalleryThumbnailCell: View {
                 Text(gallery.title).bold().font(.callout).lineLimit(3)
                 if setting.showsSummaryRowTags, !gallery.tags.isEmpty {
                     TagCloudView(
-                        tag: GalleryTag(category: .artist, content: tags), font: .caption2,
+                        tag: GalleryTag(content: tags), font: .caption2,
                         textColor: .secondary, backgroundColor: tagColor,
                         paddingV: 2, paddingH: 4, translateAction: translateAction
                     )

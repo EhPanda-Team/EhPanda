@@ -399,7 +399,10 @@
 "Artist" = "Künstler";
 "Male" = "Männlich";
 "Female" = "Weiblich";
-"Misc" = "Verschiedenes";
+//"Mixed" = "";
+//"Cosplayer" = "";
+//"Other" = "";
+//"Temp" = "";
 
 // MARK: IconType
 "Normal" = "Normal";

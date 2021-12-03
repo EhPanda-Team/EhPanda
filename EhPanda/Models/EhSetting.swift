@@ -7,9 +7,6 @@
 
 // MARK: EhSetting
 struct EhSetting {
-    // swiftlint:disable line_length
-    static let empty = EhSetting(ehProfiles: [EhProfile(value: 1, name: "Default", isSelected: true)], capableLoadThroughHathSetting: .defaultPortOnly, capableImageResolution: .x780, capableSearchResultCount: .twentyFive, capableThumbnailConfigSize: .normal, capableThumbnailConfigRows: .twenty, loadThroughHathSetting: .anyClient, browsingCountry: .autoDetect, literalBrowsingCountry: "Hong Kong", imageResolution: .auto, imageSizeWidth: 0, imageSizeHeight: 0, galleryName: .default, archiverBehavior: .manualSelectManualStart, displayMode: .compact, disabledCategories: Array(repeating: false, count: 10), favoriteNames: Array(repeating: "debug", count: 10), favoritesSortOrder: .favoritedTime, ratingsColor: "", excludedNamespaces: Array(repeating: false, count: 8), tagFilteringThreshold: 0, tagWatchingThreshold: 0, excludedLanguages: Array(repeating: false, count: 50), excludedUploaders: "", searchResultCount: .twentyFive, thumbnailLoadTiming: .onMouseOver, thumbnailConfigSize: .normal, thumbnailConfigRows: .four, thumbnailScaleFactor: 100, viewportVirtualWidth: 0, commentsSortOrder: .oldest, commentVotesShowTiming: .onHoverOrClick, tagsSortOrder: .alphabetical, galleryShowPageNumbers: false, hathLocalNetworkHost: ""
-    )
     static let categoryNames = Category.allCases.map(\.rawValue).map { value in
         value.lowercased().replacingOccurrences(of: " ", with: "")
     }
@@ -21,7 +18,6 @@ struct EhSetting {
         110, 1134, 2158, 120, 1144, 2168, 130, 1154, 2178,
         254, 1278, 2302, 255, 1279, 2303
     ]
-    // swiftlint:enable line_length
 
     let ehProfiles: [EhProfile]
 
