@@ -92,7 +92,7 @@ private extension TagCloudView {
             .padding(.vertical, paddingV).padding(.horizontal, paddingH).background(backgroundColor)
             .cornerRadius(5).onTapGesture {
                 onTapAction(
-                    tag.category == .misc ? "\"\(text)$\"" : tag.category.rawValue.lowercased()
+                    tag.category == .temp ? "\"\(text)$\"" : tag.namespace.lowercased()
                     + ":" + "\"\(text)$\""
                 )
             }

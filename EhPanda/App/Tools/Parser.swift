@@ -187,12 +187,9 @@ struct Parser {
 
             var tags = [GalleryTag]()
             for link in object {
-                guard let categoryString = link
+                guard let category = link
                         .at_xpath("//td [@class='tc']")?
-                        .text?.replacingOccurrences(of: ":", with: ""),
-                      let category = TagCategory(
-                        rawValue: categoryString.firstLetterCapitalized
-                      )
+                        .text?.replacingOccurrences(of: ":", with: "")
                 else { continue }
 
                 var content = [String]()
@@ -207,7 +204,7 @@ struct Parser {
                     content.append(fixedText ?? aText)
                 }
 
-                tags.append(GalleryTag(category: category, content: content))
+                tags.append(GalleryTag(namespace: category, content: content))
             }
 
             return tags
@@ -1025,7 +1022,7 @@ extension Parser {
                 tmpRatingsColor = parseString(node: optouter, name: "ru") ?? ""
             }
             if optouter.at_xpath("//div [@id='nssel']") != nil {
-                tmpExcludedNamespaces = Array(0...7).map { "xn_\($0)" }
+                tmpExcludedNamespaces = Array(1...11).map { "xn_\($0)" }
                     .compactMap { parseCheckBoxBool(node: optouter, name: $0) }
             }
             if optouter.at_xpath("//input [@name='ft']") != nil {
@@ -1097,7 +1094,7 @@ extension Parser {
         }
 
         // swiftlint:disable line_length
-        guard !tmpEhProfiles.filter(\.isSelected).isEmpty, let capableLoadThroughHathSetting = tmpCapableLoadThroughHathSetting, let capableImageResolution = tmpCapableImageResolution, let capableSearchResultCount = tmpCapableSearchResultCount, let capableThumbnailConfigSize = tmpCapableThumbnailConfigSize, let capableThumbnailConfigRows = tmpCapableThumbnailConfigRows, let loadThroughHathSetting = tmpLoadThroughHathSetting, let browsingCountry = tmpBrowsingCountry, let literalBrowsingCountry = tmpLiteralBrowsingCountry, let imageResolution = tmpImageResolution, let imageSizeWidth = tmpImageSizeWidth, let imageSizeHeight = tmpImageSizeHeight, let galleryName = tmpGalleryName, let archiverBehavior = tmpArchiverBehavior, let displayMode = tmpDisplayMode, tmpDisabledCategories.count == 10, tmpFavoritesNames.count == 10, let favoritesSortOrder = tmpFavoritesSortOrder, let ratingsColor = tmpRatingsColor, tmpExcludedNamespaces.count == 8, let tagFilteringThreshold = tmpTagFilteringThreshold, let tagWatchingThreshold = tmpTagWatchingThreshold, tmpExcludedLanguages.count == 50, let excludedUploaders = tmpExcludedUploaders, let searchResultCount = tmpSearchResultCount, let thumbnailLoadTiming = tmpThumbnailLoadTiming, let thumbnailConfigSize = tmpThumbnailConfigSize, let thumbnailConfigRows = tmpThumbnailConfigRows, let thumbnailScaleFactor = tmpThumbnailScaleFactor, let viewportVirtualWidth = tmpViewportVirtualWidth, let commentsSortOrder = tmpCommentsSortOrder, let commentVotesShowTiming = tmpCommentVotesShowTiming, let tagsSortOrder = tmpTagsSortOrder, let galleryShowPageNumbers = tmpGalleryShowPageNumbers, let hathLocalNetworkHost = tmpHathLocalNetworkHost
+        guard !tmpEhProfiles.filter(\.isSelected).isEmpty, let capableLoadThroughHathSetting = tmpCapableLoadThroughHathSetting, let capableImageResolution = tmpCapableImageResolution, let capableSearchResultCount = tmpCapableSearchResultCount, let capableThumbnailConfigSize = tmpCapableThumbnailConfigSize, let capableThumbnailConfigRows = tmpCapableThumbnailConfigRows, let loadThroughHathSetting = tmpLoadThroughHathSetting, let browsingCountry = tmpBrowsingCountry, let literalBrowsingCountry = tmpLiteralBrowsingCountry, let imageResolution = tmpImageResolution, let imageSizeWidth = tmpImageSizeWidth, let imageSizeHeight = tmpImageSizeHeight, let galleryName = tmpGalleryName, let archiverBehavior = tmpArchiverBehavior, let displayMode = tmpDisplayMode, tmpDisabledCategories.count == 10, tmpFavoritesNames.count == 10, let favoritesSortOrder = tmpFavoritesSortOrder, let ratingsColor = tmpRatingsColor, tmpExcludedNamespaces.count == 11, let tagFilteringThreshold = tmpTagFilteringThreshold, let tagWatchingThreshold = tmpTagWatchingThreshold, tmpExcludedLanguages.count == 50, let excludedUploaders = tmpExcludedUploaders, let searchResultCount = tmpSearchResultCount, let thumbnailLoadTiming = tmpThumbnailLoadTiming, let thumbnailConfigSize = tmpThumbnailConfigSize, let thumbnailConfigRows = tmpThumbnailConfigRows, let thumbnailScaleFactor = tmpThumbnailScaleFactor, let viewportVirtualWidth = tmpViewportVirtualWidth, let commentsSortOrder = tmpCommentsSortOrder, let commentVotesShowTiming = tmpCommentVotesShowTiming, let tagsSortOrder = tmpTagsSortOrder, let galleryShowPageNumbers = tmpGalleryShowPageNumbers, let hathLocalNetworkHost = tmpHathLocalNetworkHost
         else { throw AppError.parseFailed }
 
         return EhSetting(ehProfiles: tmpEhProfiles.sorted(), capableLoadThroughHathSetting: capableLoadThroughHathSetting, capableImageResolution: capableImageResolution, capableSearchResultCount: capableSearchResultCount, capableThumbnailConfigSize: capableThumbnailConfigSize, capableThumbnailConfigRows: capableThumbnailConfigRows, loadThroughHathSetting: loadThroughHathSetting, browsingCountry: browsingCountry, literalBrowsingCountry: literalBrowsingCountry, imageResolution: imageResolution, imageSizeWidth: imageSizeWidth, imageSizeHeight: imageSizeHeight, galleryName: galleryName, archiverBehavior: archiverBehavior, displayMode: displayMode, disabledCategories: tmpDisabledCategories, favoriteNames: tmpFavoritesNames, favoritesSortOrder: favoritesSortOrder, ratingsColor: ratingsColor, excludedNamespaces: tmpExcludedNamespaces, tagFilteringThreshold: tagFilteringThreshold, tagWatchingThreshold: tagWatchingThreshold, excludedLanguages: tmpExcludedLanguages, excludedUploaders: excludedUploaders, searchResultCount: searchResultCount, thumbnailLoadTiming: thumbnailLoadTiming, thumbnailConfigSize: thumbnailConfigSize, thumbnailConfigRows: thumbnailConfigRows, thumbnailScaleFactor: thumbnailScaleFactor, viewportVirtualWidth: viewportVirtualWidth, commentsSortOrder: commentsSortOrder, commentVotesShowTiming: commentVotesShowTiming, tagsSortOrder: tagsSortOrder, galleryShowPageNumbers: galleryShowPageNumbers, hathLocalNetworkHost: hathLocalNetworkHost, useOriginalImages: tmpUseOriginalImages, useMultiplePageViewer: tmpUseMultiplePageViewer, multiplePageViewerStyle: tmpMultiplePageViewerStyle, multiplePageViewerShowThumbnailPane: tmpMultiplePageViewerShowThumbnailPane

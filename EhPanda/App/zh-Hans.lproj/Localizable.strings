@@ -399,7 +399,10 @@
 "Artist" = "作者";
 "Male" = "男性";
 "Female" = "女性";
-"Misc" = "其它";
+"Mixed" = "混合性别";
+"Cosplayer" = "角色扮演者";
+"Other" = "其它";
+"Temp" = "临时";
 
 // MARK: IconType
 "Normal" = "普通";

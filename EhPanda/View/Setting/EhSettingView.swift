@@ -575,12 +575,8 @@ private struct TagNamespacesSection: View {
     @Binding private var ehSetting: EhSetting
 
     private var tuples: [(String, Binding<Bool>)] {
-        [
-            "reclass", "language", "parody", "character",
-            "group", "artist", "male", "female"
-        ]
-        .enumerated().map { index, value in
-            (value, $ehSetting.excludedNamespaces[index])
+        TagCategory.allCases.dropLast().enumerated().map { index, value in
+            (value.rawValue.firstLetterCapitalized, $ehSetting.excludedNamespaces[index])
         }
     }
 
@@ -608,13 +604,6 @@ private struct ExcludeView: View {
             minimum: DeviceUtil.isPadWidth ? 100 : 80, maximum: 100
         ))
     ]
-    private func localizedText(_ text: String) -> String {
-        if text.firstLetterCapitalized.hasLocalizedString {
-            return text.firstLetterCapitalized.localized
-        } else {
-            return text
-        }
-    }
 
     init(tuples: [(String, Binding<Bool>)]) {
         self.tuples = tuples
@@ -624,9 +613,9 @@ private struct ExcludeView: View {
         LazyVGrid(columns: gridItems) {
             ForEach(tuples, id: \.0) { text, isExcluded in
                 ZStack {
-                    Text(localizedText(text)).bold().opacity(isExcluded.wrappedValue ? 0 : 1)
+                    Text(text.localized).bold().opacity(isExcluded.wrappedValue ? 0 : 1)
                     ZStack {
-                        Text(localizedText(text))
+                        Text(text.localized)
                         let width = (CGFloat(text.count) * 8) + 8
                         let line = Rectangle().frame(width: width, height: 1)
                         VStack(spacing: 2) {

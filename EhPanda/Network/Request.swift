@@ -764,8 +764,8 @@ struct SubmitEhSettingChangesRequest {
         Array(0...9).forEach { index in
             params["favorite_\(index)"] = ehSetting.favoriteNames[index]
         }
-        Array(0...7).forEach { index in
-            params["xn_\(index)"] = ehSetting.excludedNamespaces[index] ? "1" : "0"
+        Array(0...10).forEach { index in
+            params["xn_\(index + 1)"] = ehSetting.excludedNamespaces[index] ? "1" : "0"
         }
         ehSetting.excludedLanguages.enumerated().forEach { index, value in
             guard value else { return }

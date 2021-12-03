@@ -399,7 +399,10 @@
 "Artist" = "作者";
 "Male" = "男性";
 "Female" = "女性";
-"Misc" = "その他";
+"Mixed" = "混在性別";
+"Cosplayer" = "レイヤー";
+"Other" = "その他";
+"Temp" = "一時的";
 
 // MARK: IconType
 "Normal" = "普通";
