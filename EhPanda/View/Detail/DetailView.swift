@@ -431,7 +431,7 @@ private struct DescScrollView: View {
                 .withHorizontalSpacing()
             }
         }
-        .swipeBackable().frame(height: 60)
+        .frame(height: 60)
         .onReceive(AppNotification.appWidthDidChange.publisher, perform: tryResetItemWidth)
     }
 
@@ -691,7 +691,6 @@ private struct PreviewView: View {
                     .withHorizontalSpacing(height: height)
                 }
             }
-            .swipeBackable()
         }
     }
 }
@@ -814,7 +813,6 @@ private struct CommentScrollView: View {
                 }
                 .drawingGroup()
             }
-            .swipeBackable()
             CommentButton(action: toggleCommentAction).padding(.horizontal)
                 .disabled(!AuthorizationUtil.didLogin)
         }

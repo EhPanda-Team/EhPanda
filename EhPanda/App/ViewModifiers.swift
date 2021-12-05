@@ -158,17 +158,3 @@ struct PreviewResolver {
         ))
     }
 }
-
-extension ScrollView {
-    func swipeBackable() -> some View {
-        ZStack {
-            self
-            HStack {
-                Color(.systemGray6)
-                    .opacity(0.01)
-                    .frame(width: 40)
-                Spacer()
-            }
-        }
-    }
-}
