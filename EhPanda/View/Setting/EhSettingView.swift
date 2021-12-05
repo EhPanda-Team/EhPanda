@@ -264,7 +264,7 @@ private struct EhProfileSection: View {
             "Are you sure to delete this profile?", isPresented: $dialogPresented, titleVisibility: .visible
         ) {
             Button("Delete", role: .destructive) {
-                performEhProfileAction(.default, nil, selection.value)
+                performEhProfileAction(.delete, nil, selection.value)
             }
         }
         .onChange(of: selection) {

@@ -6,7 +6,7 @@ on:
     types: [closed]
 env:
   DEVELOPER_DIR: /Applications/Xcode_13.1.app
-  APP_VERSION: '1.5.2'
+  APP_VERSION: '1.5.3'
   SCHEME_NAME: 'EhPanda'
   ALTSTORE_JSON_PATH: './AltStore.json'
   BUILDS_PATH: '/tmp/action-builds'
