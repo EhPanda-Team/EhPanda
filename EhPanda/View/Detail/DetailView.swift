@@ -206,14 +206,7 @@ private extension DetailView {
         if let range = title.range(of: "|") {
             title = String(title[..<range.lowerBound])
         }
-
-        title = title
-            .replacingOccurrences(from: "(", to: ")", with: "")
-            .replacingOccurrences(from: "[", to: "]", with: "")
-            .replacingOccurrences(from: "{", to: "}", with: "")
-            .replacingOccurrences(from: "【", to: "】", with: "")
-            .replacingOccurrences(from: "「", to: "」", with: "")
-            .trimmingCharacters(in: .whitespacesAndNewlines)
+        title = title.barcesAndSpacesRemoved
 
         navigateToAssociatedView(title)
     }

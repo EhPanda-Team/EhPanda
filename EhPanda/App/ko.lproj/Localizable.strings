@@ -117,7 +117,6 @@
 "Saved to photo library" = "이미지 저장";
 
 // MARK: SettingView
-"Setting" = "설정";
 "Account" = "계정";
 "Gallery" = "갤러리";
 "Login" = "로그인";
@@ -362,14 +361,18 @@
 "Quick search" = "빠른 검색";
 //"Alias" = "";
 
-// MARK: HomeListType
+// MARK: TabType
+//"Home" = "";
+"Favorites" = "즐겨찾기";
+"Download" = "다운로드";
 "Search" = "검색";
+"Setting" = "설정";
+
+// MARK: HomeViewSection
 "Frontpage" = "프론트";
 "Popular" = "인기 작품";
 "Watched" = "주시 태그";
-"Favorites" = "즐겨찾기";
 "Toplists" = "상위 목록";
-"Downloaded" = "다운로드";
 "History" = "읽은 목록";
 
 // MARK: ToplistType

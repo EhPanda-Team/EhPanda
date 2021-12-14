@@ -117,7 +117,6 @@
 //"Saved to photo library" = "";
 
 // MARK: SettingView
-"Setting" = "設定";
 "Account" = "帳號";
 "Gallery" = "畫廊";
 "Login" = "登入";
@@ -362,14 +361,18 @@
 "Quick search" = "快速搜尋";
 //"Alias" = "";
 
-// MARK: HomeListType
+// MARK: TabType
+"Home" = "主页";
+"Favorites" = "收藏";
+"Download" = "下載";
 "Search" = "搜尋";
-"Frontpage" = "主頁";
+"Setting" = "設定";
+
+// MARK: HomeViewSection
+//"Frontpage" = "";
 "Popular" = "熱門";
 "Watched" = "標籤";
-"Favorites" = "收藏";
 //"Toplists" = "";
-"Downloaded" = "下載";
 "History" = "歷史";
 
 // MARK: ToplistType

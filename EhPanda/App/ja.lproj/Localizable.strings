@@ -117,7 +117,6 @@
 "Saved to photo library" = "ライブラリに保存しました";
 
 // MARK: SettingView
-"Setting" = "設定";
 "Account" = "アカウント";
 "Gallery" = "ギャラリー";
 "Login" = "ログイン";
@@ -362,14 +361,18 @@
 "Quick search" = "クイック検索";
 "Alias" = "エイリアス";
 
-// MARK: HomeListType
+// MARK: TabType
+"Home" = "ホーム";
+"Favorites" = "お気に入り";
+"Download" = "ダウンロード";
 "Search" = "検索";
-"Frontpage" = "ホーム";
+"Setting" = "設定";
+
+// MARK: HomeViewSection
+"Frontpage" = "フロントページ";
 "Popular" = "人気";
 "Watched" = "タグの購読";
-"Favorites" = "お気に入り";
 "Toplists" = "ランキング";
-"Downloaded" = "ダウンロード";
 "History" = "閲覧履歴";
 
 // MARK: ToplistType

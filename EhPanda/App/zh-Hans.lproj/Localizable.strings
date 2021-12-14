@@ -117,7 +117,6 @@
 "Saved to photo library" = "已保存到图库";
 
 // MARK: SettingView
-"Setting" = "设置";
 "Account" = "账户";
 "Gallery" = "画廊";
 "Login" = "登录";
@@ -362,14 +361,18 @@
 "Quick search" = "快速搜索";
 "Alias" = "别称";
 
-// MARK: HomeListType
+// MARK: TabType
+"Home" = "主页";
+"Favorites" = "收藏";
+"Download" = "下载";
 "Search" = "搜索";
-"Frontpage" = "主页";
+"Setting" = "设置";
+
+// MARK: HomeViewSection
+"Frontpage" = "扉页";
 "Popular" = "热门";
 "Watched" = "标签";
-"Favorites" = "收藏";
 "Toplists" = "排行";
-"Downloaded" = "下载";
 "History" = "历史";
 
 // MARK: ToplistType

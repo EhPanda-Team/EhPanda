@@ -12,15 +12,44 @@ import SwiftyBeaver
 @main
 struct EhPandaApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    @State private var tabType: TabType = .home
     @StateObject private var store = Store()
 
+    // MARK: EhPandaApp.body
     var body: some Scene {
         WindowGroup {
-            Home()
-                .accentColor(accentColor)
-                .environmentObject(store)
-                .onAppear(perform: onStartTasks)
-                .preferredColorScheme(preferredColorScheme)
+            TabView(selection: $tabType) {
+                ForEach(TabType.allCases) { type in
+                    type.view.tabItem(type.label).tag(type).accentColor(accentColor)
+                }
+            }
+            .onReceive(AppNotification.bypassesSNIFilteringDidChange.publisher, perform: toggleDomainFronting)
+            .onReceive(UIDevice.orientationDidChangeNotification.publisher) { _ in
+                if DeviceUtil.isPad || DeviceUtil.isLandscape { NotificationUtil.post(.appWidthDidChange) }
+            }
+            .onReceive(UIApplication.didBecomeActiveNotification.publisher) { _ in
+                NotificationUtil.post(.appWidthDidChange)
+            }
+            .accentColor(.primary).preferredColorScheme(preferredColorScheme)
+            .environmentObject(store).onAppear(perform: onStartTasks)
+            .navigationViewStyle(.stack)
+        }
+    }
+}
+// MARK: TabType.view
+private extension TabType {
+    var view: some View {
+        Group {
+            switch self {
+            case .home:
+                HomeView()
+            case .favorites:
+                FavoritesView()
+            case .search:
+                Text("Hello")
+            case .setting:
+                SettingView()
+            }
         }
     }
 }
@@ -34,6 +63,14 @@ private extension EhPandaApp {
     }
     var preferredColorScheme: ColorScheme? {
         setting.colorScheme
+    }
+    func toggleDomainFronting(_: Any? = nil) {
+        if setting.bypassesSNIFiltering {
+            URLProtocol.registerClass(DFURLProtocol.self)
+        } else {
+            URLProtocol.unregisterClass(DFURLProtocol.self)
+        }
+        AppUtil.configureKingfisher(bypassesSNIFiltering: setting.bypassesSNIFiltering)
     }
 }
 
@@ -158,5 +195,33 @@ final class TouchHandler: NSObject, UIGestureRecognizerDelegate {
     ) -> Bool {
         currentPoint = touch.location(in: touch.window)
         return false
+    }
+}
+
+// MARK: TabType
+private enum TabType: String, CaseIterable, Identifiable {
+    var id: String { rawValue }
+
+    case home = "Home"
+    case favorites = "Favorites"
+    case search = "Search"
+    case setting = "Setting"
+}
+
+private extension TabType {
+    var symbolName: String {
+        switch self {
+        case .home:
+            return "house.circle"
+        case .favorites:
+            return "heart.circle"
+        case .search:
+            return "magnifyingglass.circle"
+        case .setting:
+            return "gearshape.circle"
+        }
+    }
+    func label() -> Label<Text, Image> {
+        Label(rawValue.localized, systemImage: symbolName)
     }
 }

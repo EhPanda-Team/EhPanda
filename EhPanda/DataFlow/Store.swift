@@ -129,8 +129,6 @@ final class Store: ObservableObject {
             appState.environment.viewControllersCount = DeviceUtil.viewControllersCount
         case .setGalleryCommentJumpID(let gid):
             appState.environment.galleryItemReverseID = gid
-        case .setSlideMenuClosed(let closed):
-            appState.environment.slideMenuClosed = closed
         case .fulfillGalleryPreviews(let gid):
             appState.detailInfo.fulfillPreviews(gid: gid)
         case .fulfillGalleryContents(let gid):

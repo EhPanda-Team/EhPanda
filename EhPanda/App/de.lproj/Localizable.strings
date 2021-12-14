@@ -117,7 +117,6 @@
 //"Saved to photo library" = "";
 
 // MARK: SettingView
-"Setting" = "Einstellungen";
 "Account" = "Konto";
 "Gallery" = "Galerie";
 "Login" = "Einloggen";
@@ -362,14 +361,18 @@
 //"Quick search" = "";
 //"Alias" = "";
 
-// MARK: HomeListType
+// MARK: TabType
+//"Home" = "";
+"Favorites" = "Favoriten";
+"Download" = "Heruntergeladen";
 "Search" = "Suche";
+"Setting" = "Einstellungen";
+
+// MARK: HomeViewSection
 "Frontpage" = "Startseite";
 "Popular" = "Beliebt";
 "Watched" = "Meine Tags";
-"Favorites" = "Favoriten";
 //"Toplists" = "";
-"Downloaded" = "Heruntergeladen";
 "History" = "Verlauf";
 
 // MARK: ToplistType

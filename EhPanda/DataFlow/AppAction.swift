@@ -23,7 +23,6 @@ enum AppAction {
     case setViewControllersCount
     case setSetting(_ setting: Setting)
     case setGalleryCommentJumpID(gid: String?)
-    case setSlideMenuClosed(closed: Bool)
     case fulfillGalleryPreviews(gid: String)
     case fulfillGalleryContents(gid: String)
     case setPendingJumpInfos(gid: String, pageIndex: Int?, commentID: String?)

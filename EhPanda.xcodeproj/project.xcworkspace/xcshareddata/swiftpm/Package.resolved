@@ -20,6 +20,15 @@
         }
       },
       {
+        "package": "Colorful",
+        "repositoryURL": "https://github.com/Co2333/Colorful.git",
+        "state": {
+          "branch": null,
+          "revision": "eb5a350aec759bd413615273cb6d64553aead4d5",
+          "version": "1.0.1"
+        }
+      },
+      {
         "package": "DeprecatedAPI",
         "repositoryURL": "https://github.com/tatsuz0u/DeprecatedAPI.git",
         "state": {
@@ -41,9 +50,9 @@
         "package": "Kingfisher",
         "repositoryURL": "https://github.com/onevcat/Kingfisher.git",
         "state": {
-          "branch": "master",
-          "revision": "c874e5ef178a65b6a2b6a04d5981652d4fa95e22",
-          "version": null
+          "branch": null,
+          "revision": "0c02c46cfdc0656ce74fd0963a75e5000a0b7f23",
+          "version": "7.1.2"
         }
       },
       {
@@ -80,6 +89,15 @@
           "branch": "custom",
           "revision": "349b595c4f0ff86e8d3c8d65be206a02642fd525",
           "version": null
+        }
+      },
+      {
+        "package": "UIImageColors",
+        "repositoryURL": "https://github.com/jathu/UIImageColors.git",
+        "state": {
+          "branch": null,
+          "revision": "e49e6c32ea556e9fa0109dc79686bea4a10d41a2",
+          "version": "2.2.0"
         }
       },
       {

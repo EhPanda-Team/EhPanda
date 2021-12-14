@@ -10,13 +10,6 @@ import Foundation
 
 struct Defaults {
     struct FrameSize {
-        static var slideMenuWidth: CGFloat {
-            if DeviceUtil.isPadWidth {
-                return max(DeviceUtil.windowW - 500, 300)
-            } else {
-                return max(DeviceUtil.windowW - 90, 250)
-            }
-        }
         static let archiveGridWidth: CGFloat =
         DeviceUtil.isPadWidth ? 175 : DeviceUtil.isSEWidth ? 125 : 150
     }

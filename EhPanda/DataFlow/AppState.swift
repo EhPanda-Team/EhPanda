@@ -23,7 +23,6 @@ extension AppState {
         var isAppUnlocked = true
         var blurRadius: CGFloat = 0
         var viewControllersCount = 1
-        var slideMenuClosed = true
         var navigationBarHidden = false
         var favoritesIndex = -1
         var favoritesSortOrder: FavoritesSortOrder?

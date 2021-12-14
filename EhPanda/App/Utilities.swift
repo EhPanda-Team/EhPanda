@@ -273,8 +273,6 @@ struct NotificationUtil {
 
 enum AppNotification: String {
     case appWidthDidChange
-    case shouldShowSlideMenu
-    case shouldHideSlideMenu
     case bypassesSNIFilteringDidChange
     case readingViewShouldHideStatusBar
 }

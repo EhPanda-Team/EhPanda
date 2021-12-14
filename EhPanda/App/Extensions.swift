@@ -88,6 +88,15 @@ extension String {
         prefix(1).capitalized + dropFirst()
     }
 
+    var barcesAndSpacesRemoved: String {
+        replacingOccurrences(from: "(", to: ")", with: "")
+            .replacingOccurrences(from: "[", to: "]", with: "")
+            .replacingOccurrences(from: "{", to: "}", with: "")
+            .replacingOccurrences(from: "【", to: "】", with: "")
+            .replacingOccurrences(from: "「", to: "」", with: "")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
     func replacingOccurrences(
         from subString1: String,
         to subString2: String,
