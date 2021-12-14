@@ -16,11 +16,15 @@ struct HomeView: View, StoreAccessor {
         NavigationView {
             ZStack {
                 if !homeInfo.popularItems.isEmpty {
-                    VStack {
-                        CardSlideSection(galleries: homeInfo.popularItems)
-                        Divider()
-                        CoverWallSection(galleries: homeInfo.popularItems)
-                        Spacer()
+                    ScrollView(showsIndicators: false) {
+                        VStack {
+                            CardSlideSection(galleries: homeInfo.popularItems)
+                            Divider()
+                            CoverWallSection(galleries: homeInfo.frontpageItems)
+                            Divider()
+                            ToplistsSection(galleries: homeInfo.toplistsItems)
+                            Spacer()
+                        }
                     }
                     .transition(AppUtil.opacityTransition)
                 } else if homeInfo.popularLoading {
@@ -38,6 +42,14 @@ struct HomeView: View, StoreAccessor {
 private extension HomeView {
     func fetchPopularItems() {
         store.dispatch(.fetchPopularItems)
+        store.dispatch(.fetchFrontpageItems())
+        store.dispatch(.fetchToplistsItems())
+        store.dispatch(.setToplistsType(.pastYear))
+        store.dispatch(.fetchToplistsItems())
+        store.dispatch(.setToplistsType(.pastMonth))
+        store.dispatch(.fetchToplistsItems())
+        store.dispatch(.setToplistsType(.yesterday))
+        store.dispatch(.fetchToplistsItems())
     }
     func tryFetchPopularItems() {
         guard homeInfo.popularItems.isEmpty else { return }
@@ -78,10 +90,10 @@ private struct CoverWallSection: View {
         self.galleries = galleries
     }
 
-    private var coverURLs: [(String, String)] {
+    private var coverURLs: [[String]] {
         let urls = galleries.map(\.coverURL).prefix(20)
         return stride(from: 0, to: urls.count, by: 2).map { index in
-            (urls[index], urls[index + 1])
+            [urls[index], urls[index + 1]]
         }
     }
 
@@ -90,10 +102,8 @@ private struct CoverWallSection: View {
             Text("Frontpage").font(.title3.bold()).padding(.horizontal)
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 20) {
-                    ForEach(coverURLs, id: \.0) { coverURLs in
-                        VerticalCoverStack(coverURLs: coverURLs)
-                    }
-                    .withHorizontalSpacing(width: 0)
+                    ForEach(coverURLs, id: \.hashValue, content: VerticalCoverStack.init)
+                        .withHorizontalSpacing(width: 0)
                 }
             }
             .frame(height: Defaults.ImageSize.rowH * 2 + 20)
@@ -103,9 +113,9 @@ private struct CoverWallSection: View {
 }
 
 private struct VerticalCoverStack: View {
-    private let coverURLs: (String, String)
+    private let coverURLs: [String]
 
-    init(coverURLs: (String, String)) {
+    init(coverURLs: [String]) {
         self.coverURLs = coverURLs
     }
 
@@ -119,8 +129,63 @@ private struct VerticalCoverStack: View {
 
     var body: some View {
         VStack(spacing: 20) {
-            imageContainer(url: coverURLs.0)
-            imageContainer(url: coverURLs.1)
+            ForEach(coverURLs, id: \.self, content: imageContainer)
+        }
+    }
+}
+
+private struct ToplistsSection: View {
+    private let galleries: [Int: [Gallery]]
+
+    init(galleries: [Int: [Gallery]]) {
+        self.galleries = galleries
+    }
+
+    private func galleries(type: ToplistsType, range: ClosedRange<Int>) -> [Gallery] {
+        let galleries = galleries[type.rawValue] ?? []
+        guard galleries.count > range.upperBound else { return [] }
+        return Array(galleries[range])
+    }
+
+    var body: some View {
+        VStack(alignment: .leading) {
+            Text("Toplists").font(.title3.bold()).padding(.horizontal)
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack {
+                    ForEach(ToplistsType.allCases.reversed()) { type in
+                        VStack(alignment: .leading) {
+                            Text(type.description.localized).font(.subheadline.bold())
+                            HStack {
+                                VerticalToplistStack(galleries: galleries(type: type, range: 0...2), startRanking: 1)
+                                if DeviceUtil.isPad {
+                                    VerticalToplistStack(galleries: galleries(type: type, range: 3...5), startRanking: 4)
+                                }
+                            }
+                        }
+                        .padding(.horizontal, 20)
+                    }
+                }
+            }
+        }
+        .padding(.vertical)
+    }
+}
+
+private struct VerticalToplistStack: View {
+    private let galleries: [Gallery]
+    private let startRanking: Int
+
+    init(galleries: [Gallery], startRanking: Int) {
+        self.galleries = galleries
+        self.startRanking = startRanking
+    }
+
+    var body: some View {
+        VStack {
+            ForEach(0..<galleries.count, id: \.self) { index in
+                GalleryRankingCell(gallery: galleries[index], ranking: startRanking + index)
+                    .frame(width: DeviceUtil.windowW * 0.8)
+            }
         }
     }
 }
