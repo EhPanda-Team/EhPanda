@@ -45,6 +45,15 @@ struct Gallery: Identifiable, Codable, Equatable {
         galleryURL: ""
     )
 
+    var trimmedTitle: String {
+        var title = title
+        if let range = title.range(of: "|") {
+            title = String(title[..<range.lowerBound])
+        }
+        title = title.barcesAndSpacesRemoved
+        return title
+    }
+
     var id: String { gid }
     let gid: String
     let token: String
@@ -85,6 +94,15 @@ struct GalleryDetail: Codable {
         sizeType: "MB",
         torrentCount: 101
     )
+
+    var trimmedTitle: String {
+        var title = title
+        if let range = title.range(of: "|") {
+            title = String(title[..<range.lowerBound])
+        }
+        title = title.barcesAndSpacesRemoved
+        return title
+    }
 
     let gid: String
     var title: String

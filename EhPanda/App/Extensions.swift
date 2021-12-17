@@ -220,6 +220,7 @@ extension Color {
     }
 }
 
+// MARK: NSNotification.Name
 extension NSNotification.Name {
     var publisher: NotificationCenter.Publisher {
         NotificationCenter.default.publisher(for: self)

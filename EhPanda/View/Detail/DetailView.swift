@@ -201,13 +201,7 @@ private extension DetailView {
         navigateToAssociatedView("uploader:" + "\"\(uploader)\"")
     }
     func tryNavigateToSimilarGallery() {
-        guard var title = galleryDetail?.title else { return }
-
-        if let range = title.range(of: "|") {
-            title = String(title[..<range.lowerBound])
-        }
-        title = title.barcesAndSpacesRemoved
-
+        guard let title = galleryDetail?.trimmedTitle else { return }
         navigateToAssociatedView(title)
     }
     func navigateToReading(index: Int, triggersLink: Bool) {

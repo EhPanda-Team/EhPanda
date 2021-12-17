@@ -11,8 +11,8 @@ import Kingfisher
 import UIImageColors
 
 struct GalleryCardCell: View {
-    @State private var colors = ColorfulView.defaultColorList
     @State private var animated = false
+    @State private var colors = [Color.clear]
     @Binding private var currentID: String
 
     private let gallery: Gallery
@@ -26,18 +26,11 @@ struct GalleryCardCell: View {
     }
 
     var title: String {
+        let trimmedTitle = gallery.trimmedTitle
         guard !DeviceUtil.isPad, trimmedTitle.count > 20 else {
             return gallery.title
         }
         return trimmedTitle
-    }
-    var trimmedTitle: String {
-        var title = gallery.title
-        if let range = title.range(of: "|") {
-            title = String(title[..<range.lowerBound])
-        }
-        title = title.barcesAndSpacesRemoved
-        return title
     }
 
     var body: some View {
