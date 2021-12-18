@@ -82,10 +82,12 @@ private extension EhPandaApp {
             configureDomainFronting()
         }
         addTouchHandler()
+        configureTabBar()
         configureLogging()
+        configureIgnoreOffensive()
+
         fetchTagTranslator()
         fetchIgneousIfNeeded()
-        configureIgnoreOffensive()
         fetchAccountInfoIfNeeded()
     }
 
@@ -160,6 +162,11 @@ private extension EhPandaApp {
         console.levelColor.info = "📖"
     }
 
+    func configureTabBar() {
+        let apparence = UITabBarAppearance()
+        apparence.configureWithOpaqueBackground()
+        UITabBar.appearance().scrollEdgeAppearance = apparence
+    }
     func configureWebImage() {
         AppUtil.configureKingfisher(bypassesSNIFiltering: setting.bypassesSNIFiltering)
     }

@@ -647,8 +647,7 @@ private struct ImageContainer: View {
         ZStack {
             backgroundColor
             VStack {
-                Text(String(index))
-                    .fontWeight(.bold).font(.largeTitle)
+                Text(String(index)).font(.largeTitle.bold())
                     .foregroundColor(.gray).padding(.bottom, 30)
                 if loadFailedFlag {
                     Button(action: reloadImage) {

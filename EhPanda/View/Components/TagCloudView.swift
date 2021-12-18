@@ -88,7 +88,7 @@ private extension TagCloudView {
         let displayText: String = translatedText == nil ? rippedText : translatedText.forceUnwrapped
         let backgroundColor = containsHex ? Color(hex: wrappedHex.forceUnwrapped) : backgroundColor
 
-        Text(displayText).fontWeight(.bold).lineLimit(1).font(font).foregroundColor(textColor)
+        Text(displayText).font(font.bold()).lineLimit(1).foregroundColor(textColor)
             .padding(.vertical, paddingV).padding(.horizontal, paddingH).background(backgroundColor)
             .cornerRadius(5).onTapGesture {
                 onTapAction(

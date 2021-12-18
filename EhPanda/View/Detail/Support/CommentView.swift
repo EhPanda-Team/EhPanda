@@ -220,7 +220,7 @@ private struct CommentCell: View {
     var body: some View {
         VStack(alignment: .leading) {
             HStack {
-                Text(comment.author).fontWeight(.bold).font(.subheadline)
+                Text(comment.author).font(.subheadline.bold())
                 Spacer()
                 Group {
                     ZStack {

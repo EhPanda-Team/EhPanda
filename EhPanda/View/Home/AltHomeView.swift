@@ -12,6 +12,7 @@ import SwiftUIPager
 struct HomeView: View, StoreAccessor {
     @EnvironmentObject var store: Store
 
+    // MARK: HomeView
     var body: some View {
         NavigationView {
             ZStack {
@@ -19,11 +20,12 @@ struct HomeView: View, StoreAccessor {
                     ScrollView(showsIndicators: false) {
                         VStack {
                             CardSlideSection(galleries: homeInfo.popularItems)
-                            Divider()
-                            CoverWallSection(galleries: homeInfo.frontpageItems)
-                            Divider()
-                            ToplistsSection(galleries: homeInfo.toplistsItems)
-                            Spacer()
+                            Group {
+                                CoverWallSection(galleries: homeInfo.frontpageItems)
+                                ToplistsSection(galleries: homeInfo.toplistsItems)
+                                MiscGridSection()
+                            }
+                            .padding(.vertical)
                         }
                     }
                     .transition(AppUtil.opacityTransition)
@@ -57,6 +59,7 @@ private extension HomeView {
     }
 }
 
+// MARK: CardSlideSection
 private struct CardSlideSection: View {
     @State private var currentID: String
     @StateObject private var page: Page = .withIndex(1)
@@ -79,7 +82,7 @@ private struct CardSlideSection: View {
         Pager(page: page, data: galleries) { gallery in
             NavigationLink(destination: DetailView(gid: gallery.gid)) {
                 GalleryCardCell(gallery: gallery, currentID: $currentID)
-                    .accentColor(.primary).multilineTextAlignment(.leading)
+                    .tint(.primary).multilineTextAlignment(.leading)
             }
         }
         .preferredItemSize(CGSize(width: DeviceUtil.windowW * 0.8, height: 100))
@@ -90,6 +93,7 @@ private struct CardSlideSection: View {
     }
 }
 
+// MARK: CoverWallSection
 private struct CoverWallSection: View {
     private let galleries: [Gallery]
 
@@ -106,17 +110,15 @@ private struct CoverWallSection: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading) {
-            Text("Frontpage").font(.title3.bold()).padding(.horizontal)
+        SubSection(title: "Frontpage", tint: .secondary, destination: EmptyView()) {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 20) {
                     ForEach(filteredGalleries, id: \.description, content: VerticalCoverStack.init)
                         .withHorizontalSpacing(width: 0)
                 }
             }
-            .frame(height: Defaults.ImageSize.rowH * 2 + 20)
+            .frame(height: Defaults.ImageSize.rowH * 2 + 30)
         }
-        .padding(.vertical)
     }
 }
 
@@ -144,6 +146,7 @@ private struct VerticalCoverStack: View {
     }
 }
 
+// MARK: ToplistsSection
 private struct ToplistsSection: View {
     private let galleries: [Int: [Gallery]]
 
@@ -158,8 +161,7 @@ private struct ToplistsSection: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading) {
-            Text("Toplists").font(.title3.bold()).padding(.horizontal)
+        SubSection(title: "Toplists", tint: .secondary, destination: EmptyView()) {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack {
                     ForEach(ToplistsType.allCases.reversed()) { type in
@@ -176,12 +178,11 @@ private struct ToplistsSection: View {
                                 }
                             }
                         }
-                        .padding(.horizontal, 20)
+                        .padding(.horizontal, 20).padding(.vertical, 5)
                     }
                 }
             }
         }
-        .padding(.vertical)
     }
 }
 
@@ -199,14 +200,60 @@ private struct VerticalToplistStack: View {
             ForEach(0..<galleries.count, id: \.self) { index in
                 NavigationLink(destination: DetailView(gid: galleries[index].gid)) {
                     GalleryRankingCell(gallery: galleries[index], ranking: startRanking + index)
-                        .accentColor(.primary).multilineTextAlignment(.leading)
-                        .frame(width: DeviceUtil.windowW * 0.8)
+                        .tint(.primary).multilineTextAlignment(.leading)
+                }
+            }
+        }
+        .frame(width: DeviceUtil.windowW * 0.7)
+    }
+}
+
+// MARK: MiscGridSection
+private struct MiscGridSection: View {
+    var body: some View {
+        SubSection(title: "Other", showAll: false, destination: EmptyView()) {
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack {
+                    ForEach(MiscItemType.allCases) { type in
+                        NavigationLink(destination: type.destination) {
+                            MiscGridItem(title: type.rawValue.localized, symbolName: type.symbolName)
+                        }
+                        .tint(.primary)
+                    }
+                    .withHorizontalSpacing()
                 }
             }
         }
     }
 }
 
+private struct MiscGridItem: View {
+    private let title: String
+    private let subTitle: String?
+    private let symbolName: String
+
+    init(title: String, subTitle: String? = nil, symbolName: String) {
+        self.title = title
+        self.subTitle = subTitle
+        self.symbolName = symbolName
+    }
+
+    var body: some View {
+        HStack {
+            VStack(alignment: .leading) {
+                Text(title).font(.title2.bold()).lineLimit(1)
+                if let subTitle = subTitle {
+                    Text(subTitle).font(.subheadline).foregroundColor(.secondary).lineLimit(2)
+                }
+            }
+            Image(systemName: symbolName).font(.system(size: 50, weight: .light, design: .default))
+                .foregroundColor(.secondary).imageScale(.large).offset(x: 20, y: 20)
+        }
+        .padding(30).cornerRadius(15).background(Color(.systemGray6).cornerRadius(15))
+    }
+}
+
+// MARK: Definition
 private extension Array where Element == Gallery {
     var duplicatesRemoved: [Element] {
         var result = [Element]()
@@ -217,6 +264,34 @@ private extension Array where Element == Gallery {
             result.append(value)
         }
         return result
+    }
+}
+
+private enum MiscItemType: String, CaseIterable, Identifiable {
+    var id: String { rawValue }
+
+    case watched = "Watched"
+    case history = "History"
+}
+
+private extension MiscItemType {
+    var destination: some View {
+        Group {
+            switch self {
+            case .watched:
+                EmptyView()
+            case .history:
+                EmptyView()
+            }
+        }
+    }
+    var symbolName: String {
+        switch self {
+        case .watched:
+            return "tag.circle"
+        case .history:
+            return "clock.arrow.circlepath"
+        }
     }
 }
 

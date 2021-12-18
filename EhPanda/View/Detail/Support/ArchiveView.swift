@@ -267,7 +267,7 @@ private struct ArchiveGrid: View {
 
     var body: some View {
         VStack(spacing: 10) {
-            Text(archive.resolution.name.localized).fontWeight(.bold).font(.title3)
+            Text(archive.resolution.name.localized).font(.title3.bold())
             VStack {
                 Text(archive.fileSize.localized).fontWeight(.medium).font(.caption)
                 Text(archive.gpPrice.localized).foregroundColor(fileSizeColor).font(.caption2)
@@ -297,8 +297,7 @@ private struct DownloadButton: View {
     var body: some View {
         HStack {
             Spacer()
-            Text("Download To Hath Client").fontWeight(.bold)
-                .font(.headline).foregroundColor(textColor)
+            Text("Download To Hath Client").font(.headline.bold()).foregroundColor(textColor)
             Spacer()
         }
         .frame(height: 50).background(backgroundColor)

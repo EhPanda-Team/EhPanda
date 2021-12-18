@@ -19,7 +19,7 @@ struct CommentButton: View {
             HStack {
                 Spacer()
                 Image(systemName: "square.and.pencil")
-                Text("Post Comment").fontWeight(.bold)
+                Text("Post Comment").bold()
                 Spacer()
             }
             .padding().background(Color(.systemGray6)).cornerRadius(15)

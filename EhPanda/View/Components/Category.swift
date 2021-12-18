@@ -30,7 +30,7 @@ struct CategoryLabel: View {
     }
 
     var body: some View {
-        Text(text).fontWeight(.bold).lineLimit(1).font(font).foregroundStyle(.white)
+        Text(text).font(font.bold()).lineLimit(1).foregroundStyle(.white)
             .padding(insets).background(
                 Rectangle().foregroundStyle(color).cornerRadius(cornerRadius, corners: corners)
             )
@@ -79,7 +79,7 @@ private struct CategoryCell: View {
         ZStack {
             Rectangle()
                 .foregroundColor(isFiltered ? category.color.opacity(0.3) : category.color)
-            Text(category.rawValue.localized).fontWeight(.bold).foregroundStyle(.white)
+            Text(category.rawValue.localized).bold().foregroundStyle(.white)
                 .padding(.vertical, 5).lineLimit(1)
         }
         .onTapGesture {

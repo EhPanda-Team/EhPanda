@@ -43,7 +43,7 @@ struct GalleryThumbnailCell: View {
                     }
                 }
             VStack(alignment: .leading) {
-                Text(gallery.title).bold().font(.callout).lineLimit(3)
+                Text(gallery.title).font(.callout.bold()).lineLimit(3)
                 if setting.showsSummaryRowTags, !gallery.tags.isEmpty {
                     TagCloudView(
                         tag: GalleryTag(content: tags), font: .caption2,

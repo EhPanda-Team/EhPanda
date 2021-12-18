@@ -269,7 +269,7 @@ private struct HeaderView: View {
                 .placeholder { Placeholder(style: .activity(ratio: Defaults.ImageSize.headerAspect)) }
                 .defaultModifier().scaledToFit().frame(width: width, height: height)
             VStack(alignment: .leading) {
-                Text(title).fontWeight(.bold).lineLimit(3).font(.title3)
+                Text(title).font(.title3.bold()).lineLimit(3)
                 Button(gallery.uploader ?? "", action: onUploaderTapAction)
                     .lineLimit(1).font(.callout).foregroundStyle(.secondary)
                 Spacer()
@@ -597,7 +597,7 @@ private struct TagRow: View {
 
     var body: some View {
         HStack(alignment: .top) {
-            Text(tag.namespace.firstLetterCapitalized.localized).fontWeight(.bold).font(.subheadline)
+            Text(tag.namespace.firstLetterCapitalized.localized).font(.subheadline.bold())
                 .foregroundColor(reversePrimary).padding(.vertical, 5).padding(.horizontal, 14)
                 .background(Rectangle().foregroundColor(Color(.systemGray))).cornerRadius(5)
             TagCloudView(
@@ -638,23 +638,13 @@ private struct PreviewView: View {
     }
 
     var body: some View {
-        VStack {
-            HStack {
-                Text("Preview")
-                    .fontWeight(.bold)
-                    .font(.title3)
-                Spacer()
-                NavigationLink(
-                    destination: MorePreviewView(
-                        gid: gid, previews: previews, pageCount: pageCount,
-                        tapAction: tapAction, fetchAction: fetchAction
-                    )
-                ) {
-                    Text("Show All").font(.subheadline)
-                }
-                .opacity(pageCount > 20 ? 1 : 0)
-            }
-            .padding(.horizontal)
+        SubSection(
+            title: "Preview", showAll: pageCount > 20,
+            destination: MorePreviewView(
+                gid: gid, previews: previews, pageCount: pageCount,
+                tapAction: tapAction, fetchAction: fetchAction
+            )
+        ) {
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHStack {
                     ForEach(1..<min(pageCount + 1, 21)) { index in
@@ -781,16 +771,10 @@ private struct CommentScrollView: View {
     }
 
     var body: some View {
-        VStack {
-            HStack {
-                Text("Comment").fontWeight(.bold).font(.title3)
-                Spacer()
-                NavigationLink(destination: CommentView(gid: gid, comments: comments)) {
-                    Text("Show All").font(.subheadline)
-                }
-                .opacity(comments.isEmpty ? 0 : 1)
-            }
-            .padding(.horizontal)
+        SubSection(
+            title: "Comment", showAll: !comments.isEmpty,
+            destination: CommentView(gid: gid, comments: comments)
+        ) {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack {
                     ForEach(comments.prefix(6)) { comment in
@@ -821,7 +805,7 @@ private struct CommentScrollCell: View {
     var body: some View {
         VStack(alignment: .leading) {
             HStack {
-                Text(comment.author).fontWeight(.bold).font(.subheadline)
+                Text(comment.author).font(.subheadline.bold())
                 Spacer()
                 Group {
                     ZStack {

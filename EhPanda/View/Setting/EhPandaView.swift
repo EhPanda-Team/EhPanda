@@ -7,41 +7,33 @@
 
 import SwiftUI
 
-struct EhPandaView: View, StoreAccessor {
-    @EnvironmentObject var store: Store
+struct EhPandaView: View {
+    private var contacts: [Info] {[
+        Info(url: "https://ehpanda.app", text: "Website".localized),
+        Info(url: "https://github.com/tatsuz0u/EhPanda", text: "GitHub"),
+        Info(url: "https://discord.gg/BSBE9FCBTq", text: "Discord"),
+        Info(url: "https://t.me/ehpanda", text: "Telegram"),
+        Info(
+            url: "altstore://source?url=https://github.com/tatsuz0u/EhPanda/raw/main/AltStore.json",
+            text: "AltStore Source".localized
+        )
+    ]}
 
-    private var contacts: [Info] {
-        [
-            Info(url: "https://ehpanda.app", text: "Website".localized),
-            Info(url: "https://github.com/tatsuz0u/EhPanda", text: "GitHub"),
-            Info(url: "https://discord.gg/BSBE9FCBTq", text: "Discord"),
-            Info(url: "https://t.me/ehpanda", text: "Telegram"),
-            Info(
-                url: "altstore://source?url="
-                    + "https://github.com/tatsuz0u"
-                    + "/EhPanda/raw/main/AltStore.json",
-                text: "AltStore Source".localized
-            )
-        ]
-    }
-
-    private var acknowledgements: [Info] {
-        [
-            Info(url: "https://github.com/taylorlannister", text: "taylorlannister"),
-            Info(url: "https://github.com/caxerx", text: "caxerx"),
-            Info(url: "https://github.com/honjow", text: "honjow"),
-            Info(url: "https://github.com/tid-kijyun/Kanna", text: "Kanna"),
-            Info(url: "https://github.com/rebeloper/AlertKit", text: "AlertKit"),
-            Info(url: "https://github.com/onevcat/Kingfisher", text: "Kingfisher"),
-            Info(url: "https://github.com/fermoya/SwiftUIPager", text: "SwiftUIPager"),
-            Info(url: "https://github.com/SwiftyBeaver/SwiftyBeaver", text: "SwiftyBeaver"),
-            Info(url: "https://github.com/paololeonardi/WaterfallGrid", text: "WaterfallGrid"),
-            Info(url: "https://github.com/marksands/BetterCodable", text: "BetterCodable"),
-            Info(url: "https://github.com/ddddxxx/SwiftyOpenCC", text: "SwiftyOpenCC"),
-            Info(url: "https://github.com/honkmaster/TTProgressHUD", text: "TTProgressHUD"),
-            Info(url: "https://github.com/EhTagTranslation/Database", text: "EhTagTranslation/Database")
-        ]
-    }
+    private var acknowledgements: [Info] {[
+        Info(url: "https://github.com/taylorlannister", text: "taylorlannister"),
+        Info(url: "https://github.com/caxerx", text: "caxerx"),
+        Info(url: "https://github.com/honjow", text: "honjow"),
+        Info(url: "https://github.com/tid-kijyun/Kanna", text: "Kanna"),
+        Info(url: "https://github.com/rebeloper/AlertKit", text: "AlertKit"),
+        Info(url: "https://github.com/onevcat/Kingfisher", text: "Kingfisher"),
+        Info(url: "https://github.com/fermoya/SwiftUIPager", text: "SwiftUIPager"),
+        Info(url: "https://github.com/SwiftyBeaver/SwiftyBeaver", text: "SwiftyBeaver"),
+        Info(url: "https://github.com/paololeonardi/WaterfallGrid", text: "WaterfallGrid"),
+        Info(url: "https://github.com/marksands/BetterCodable", text: "BetterCodable"),
+        Info(url: "https://github.com/ddddxxx/SwiftyOpenCC", text: "SwiftyOpenCC"),
+        Info(url: "https://github.com/honkmaster/TTProgressHUD", text: "TTProgressHUD"),
+        Info(url: "https://github.com/EhTagTranslation/Database", text: "EhTagTranslation/Database")
+    ]}
 
     private var version: String {
         ["Version".localized, AppUtil.version, "(\(AppUtil.build))"].joined(separator: " ")
@@ -92,6 +84,6 @@ private struct LinkRow: View {
 
 private extension Text {
     func captionTextStyle() -> some View {
-        self.fontWeight(.bold).foregroundStyle(.gray).font(.caption2)
+        foregroundStyle(.gray).font(.caption2.bold())
     }
 }

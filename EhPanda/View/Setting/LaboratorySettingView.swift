@@ -58,7 +58,7 @@ struct LaboratoryCell: View {
             Spacer()
             Group {
                 Image(systemName: symbol)
-                Text(title.localized).fontWeight(.bold)
+                Text(title.localized).bold()
             }
             .foregroundColor(contentColor).font(.title2)
             Spacer()

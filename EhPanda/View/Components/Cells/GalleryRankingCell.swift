@@ -20,9 +20,9 @@ struct GalleryRankingCell: View {
     var body: some View {
         HStack {
             KFImage(URL(string: gallery.coverURL))
-                .placeholder { Placeholder(style: .activity(ratio: Defaults.ImageSize.headerAspect)) }
-                .defaultModifier().scaledToFill()
-                .frame(width: Defaults.ImageSize.rowW * 0.75, height: Defaults.ImageSize.rowH * 0.75).cornerRadius(2)
+                .placeholder { Placeholder(style: .activity(ratio: Defaults.ImageSize.headerAspect)) }.defaultModifier()
+                .scaledToFill().frame(width: Defaults.ImageSize.rowW * 0.75, height: Defaults.ImageSize.rowH * 0.75)
+                .cornerRadius(2)
             Text(String(ranking)).fontWeight(.medium).font(.title2).padding(.horizontal)
             VStack(alignment: .leading) {
                 Text(gallery.title).bold().lineLimit(2)

@@ -45,9 +45,9 @@ struct GalleryCardCell: View {
                     .frame(width: Defaults.ImageSize.headerW, height: Defaults.ImageSize.headerH)
                     .cornerRadius(5)
                 VStack(alignment: .leading) {
-                    Text(title).bold().font(.title3).lineLimit(4)
+                    Text(title).font(.title3.bold()).lineLimit(4).shadow(radius: 5)
                     Spacer()
-                    RatingView(rating: gallery.rating).foregroundColor(.yellow)
+                    RatingView(rating: gallery.rating).foregroundColor(.yellow).shadow(radius: 2)
                 }
                 .padding(.leading, 15)
             }
