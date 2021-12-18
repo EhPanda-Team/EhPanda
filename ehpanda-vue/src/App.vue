@@ -151,7 +151,7 @@ export default {
   },
   methods: {
     getUserLang() {
-        return (navigator.language || navigator.userLanguage).split('-')[0]
+        return (navigator.language || navigator.userLanguage)
     },
     isDarkModeOn() {
         return window.matchMedia('(prefers-color-scheme: dark)').matches
@@ -178,16 +178,16 @@ export default {
 
         const userLang = this.getUserLang()
         var langParam = 'EN'
-        if (userLang == 'de') {
+        if (userLang.split('-')[0] == 'de') {
             langParam = 'DE'
-        } else if (userLang == 'ko') {
+        } else if (userLang.split('-')[0] == 'ko') {
             langParam = 'KO'
-        } else if (userLang == 'ja') {
+        } else if (userLang.split('-')[0] == 'ja') {
             langParam = 'JA'
-        } else if (userLang.includes('zh')) {
-            langParam = 'CHT'
-        } else if (userLang == 'zh_CN') {
+        } else if (userLang == 'zh-CN') {
             langParam = 'CHS'
+        } else if (userLang.split('-')[0] == 'zh') {
+            langParam = 'CHT'
         }
         const darkParam = this.isDarkModeOn() ? 'Dark' : 'Light'
         const nameParms = ['appicon','home','home-ipad','slideMenu','detail','comment','archive','torrent','ehSetting','filter','setting','domainFronting']
