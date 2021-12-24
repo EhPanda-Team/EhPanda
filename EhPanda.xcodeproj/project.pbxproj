@@ -21,6 +21,7 @@
 		AB24C566276758E30085C33A /* GalleryCardCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB24C565276758E30085C33A /* GalleryCardCell.swift */; };
 		AB2CED64268AB6AE003130F7 /* GalleryMO+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB2CED63268AB6AE003130F7 /* GalleryMO+CoreDataProperties.swift */; };
 		AB3072D2276D734800EFF242 /* SubSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB3072D1276D734800EFF242 /* SubSection.swift */; };
+		AB3072D4276E19AA00EFF242 /* FrontpageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB3072D3276E19AA00EFF242 /* FrontpageView.swift */; };
 		AB30E34826D277F7007420BC /* Toplists.html in Resources */ = {isa = PBXBuildFile; fileRef = AB30E34726D277F7007420BC /* Toplists.html */; };
 		AB358311269D7B63009466A5 /* DFURLProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB358310269D7B63009466A5 /* DFURLProtocol.swift */; };
 		AB358313269D7E89009466A5 /* DFRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB358312269D7E89009466A5 /* DFRequest.swift */; };
@@ -46,6 +47,7 @@
 		AB47FDB525BC859E0007765D /* Weird-ipad-pro@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = AB47FDB225BC859E0007765D /* Weird-ipad-pro@2x.png */; };
 		AB47FDB625BC859E0007765D /* Weird-ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = AB47FDB325BC859E0007765D /* Weird-ipad.png */; };
 		AB4FD2C1268AB83300A95968 /* GalleryDetailMO+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB4FD2C0268AB83300A95968 /* GalleryDetailMO+CoreDataProperties.swift */; };
+		AB58A5A32776078F00C0D285 /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = AB58A5A22776078F00C0D285 /* ComposableArchitecture */; };
 		AB5BE67926B95FDD007D4A55 /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB5BE67826B95FDD007D4A55 /* ShareViewController.swift */; };
 		AB5BE68026B95FDD007D4A55 /* ShareExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = AB5BE67626B95FDD007D4A55 /* ShareExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		AB60D0CF274C7AA000F899AB /* BetterCodable in Frameworks */ = {isa = PBXBuildFile; productRef = AB60D0CE274C7AA000F899AB /* BetterCodable */; };
@@ -174,6 +176,7 @@
 		AB253B4826AB08B500F95275 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		AB2CED63268AB6AE003130F7 /* GalleryMO+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GalleryMO+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		AB3072D1276D734800EFF242 /* SubSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubSection.swift; sourceTree = "<group>"; };
+		AB3072D3276E19AA00EFF242 /* FrontpageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrontpageView.swift; sourceTree = "<group>"; };
 		AB30E34726D277F7007420BC /* Toplists.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = Toplists.html; sourceTree = "<group>"; };
 		AB358310269D7B63009466A5 /* DFURLProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DFURLProtocol.swift; sourceTree = "<group>"; };
 		AB358312269D7E89009466A5 /* DFRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DFRequest.swift; sourceTree = "<group>"; };
@@ -317,6 +320,7 @@
 				AB6505A026B0027800F91E9D /* SwiftUIPager in Frameworks */,
 				AB21CCA0274B4F0C00C115B1 /* SwiftyBeaver in Frameworks */,
 				ABAC82FE26BC4A96009F5026 /* OpenCC in Frameworks */,
+				AB58A5A32776078F00C0D285 /* ComposableArchitecture in Frameworks */,
 				AB17573D27675B1E00FD64E2 /* Colorful in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -654,6 +658,7 @@
 			children = (
 				ABF45AC225F3313D00ECB568 /* HomeView.swift */,
 				AB24C55B2767565A0085C33A /* AltHomeView.swift */,
+				AB3072D3276E19AA00EFF242 /* FrontpageView.swift */,
 			);
 			path = Home;
 			sourceTree = "<group>";
@@ -757,6 +762,7 @@
 				ABC4A0782751B40E00968A4F /* Kingfisher */,
 				AB17573C27675B1E00FD64E2 /* Colorful */,
 				AB17573F27678B3400FD64E2 /* UIImageColors */,
+				AB58A5A22776078F00C0D285 /* ComposableArchitecture */,
 			);
 			productName = EhPanda;
 			productReference = ABC3C7542593696C00E0C11B /* EhPanda.app */;
@@ -828,6 +834,7 @@
 				ABC4A0772751B40E00968A4F /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				AB17573B27675B1E00FD64E2 /* XCRemoteSwiftPackageReference "Colorful" */,
 				AB17573E27678B3400FD64E2 /* XCRemoteSwiftPackageReference "UIImageColors" */,
+				AB58A5A12776078F00C0D285 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */,
 			);
 			productRefGroup = ABC3C7552593696C00E0C11B /* Products */;
 			projectDirPath = "";
@@ -937,6 +944,7 @@
 				ABCA93BE26918DE100A98BC6 /* Persistence.swift in Sources */,
 				ABF45AEF25F3313D00ECB568 /* TorrentsView.swift in Sources */,
 				AB60D0EB274CFB6D00F899AB /* SuggestionProvider.swift in Sources */,
+				AB3072D4276E19AA00EFF242 /* FrontpageView.swift in Sources */,
 				ABF45AB925F3312F00ECB568 /* AppState.swift in Sources */,
 				AB3072D2276D734800EFF242 /* SubSection.swift in Sources */,
 				ABF45AF625F3313D00ECB568 /* AppearanceSettingView.swift in Sources */,
@@ -1427,6 +1435,14 @@
 				kind = branch;
 			};
 		};
+		AB58A5A12776078F00C0D285 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/pointfreeco/swift-composable-architecture.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.31.0;
+			};
+		};
 		AB60D0CD274C7AA000F899AB /* XCRemoteSwiftPackageReference "BetterCodable" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/marksands/BetterCodable.git";
@@ -1510,6 +1526,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = AB21CC9E274B4F0C00C115B1 /* XCRemoteSwiftPackageReference "SwiftyBeaver" */;
 			productName = SwiftyBeaver;
+		};
+		AB58A5A22776078F00C0D285 /* ComposableArchitecture */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AB58A5A12776078F00C0D285 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */;
+			productName = ComposableArchitecture;
 		};
 		AB60D0CE274C7AA000F899AB /* BetterCodable */ = {
 			isa = XCSwiftPackageProductDependency;

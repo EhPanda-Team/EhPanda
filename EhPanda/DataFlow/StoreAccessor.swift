@@ -38,9 +38,6 @@ extension StoreAccessor {
     var isAppUnlocked: Bool {
         environment.isAppUnlocked
     }
-    var homeListType: HomeListType {
-        environment.homeListType
-    }
     var viewControllersCount: Int {
         environment.viewControllersCount
     }

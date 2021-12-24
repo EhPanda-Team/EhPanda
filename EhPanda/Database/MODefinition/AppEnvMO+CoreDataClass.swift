@@ -55,12 +55,22 @@ struct TagTranslator: Codable {
     var updatedDate: Date = .distantPast
     var contents = [String: String]()
 
-    func translate(text: String) -> String {
+    private func lookup(text: String) -> String {
         guard let translatedText = contents[text],
               !translatedText.isEmpty
         else { return text }
 
         return translatedText
+    }
+    func tryTranslate(text: String, returnOriginal: Bool) -> String {
+        guard !returnOriginal else { return text }
+        if let range = text.range(of: ":") {
+            let before = text[...range.lowerBound]
+            let after = String(text[range.upperBound...])
+            let result = before + lookup(text: after)
+            return String(result)
+        }
+        return lookup(text: text)
     }
 }
 

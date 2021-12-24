@@ -19,6 +19,11 @@ struct FavoritesView: View, StoreAccessor {
     @FocusState private var isAlertFocused: Bool
     @StateObject private var alertManager = CustomAlertManager()
 
+    private var pageNumber: PageNumber {
+        homeInfo.favoritesPageNumbers[environment.favoritesIndex] ?? PageNumber()
+    }
+
+    // MARK: FavoritesView
     var body: some View {
         NavigationView {
             GenericList(
@@ -29,19 +34,21 @@ struct FavoritesView: View, StoreAccessor {
                 moreLoadingFlag: homeInfo.moreFavoritesLoading[environment.favoritesIndex] ?? false,
                 moreLoadFailedFlag: homeInfo.moreFavoritesLoadFailed[environment.favoritesIndex] ?? false,
                 fetchAction: fetchFavoritesItems, loadMoreAction: fetchMoreFavoritesItems,
-                translateAction: tryTranslateTag
+                translateAction: {
+                    settings.tagTranslator.tryTranslate(text: $0, returnOriginal: !setting.translatesTags)
+                }
             )
             .customAlert(
                 manager: alertManager, widthFactor: DeviceUtil.isPadWidth ? 0.5 : 1.0,
                 backgroundOpacity: colorScheme == .light ? 0.2 : 0.5,
                 content: {
                     PageJumpView(
-                        inputText: $alertInput, isFocused: $isAlertFocused,
-                        pageNumber: currentListTypePageNumber
+                        inputText: $alertInput, isFocused: $isAlertFocused, pageNumber: pageNumber
                     )
                 },
                 buttons: [.regular(content: { Text("Confirm") }, action: tryPerformJumpPage)]
             )
+            .onChange(of: alertManager.isPresented) { _ in isAlertFocused = false }
             .searchable(text: $keyword) { SuggestionProvider(keyword: $keyword) }
             .onAppear(perform: tryFetchFavoritesItems)
             .navigationTitle("Favorites")
@@ -49,25 +56,8 @@ struct FavoritesView: View, StoreAccessor {
         }
     }
 
-    var currentListTypePageNumber: PageNumber {
-        switch environment.homeListType {
-        case .search:
-            return homeInfo.searchPageNumber
-        case .frontpage:
-            return homeInfo.frontpagePageNumber
-        case .watched:
-            return homeInfo.watchedPageNumber
-        case .favorites:
-            let index = environment.favoritesIndex
-            return homeInfo.favoritesPageNumbers[index] ?? PageNumber()
-        case .toplists:
-            let index = environment.toplistsType.rawValue
-            return homeInfo.toplistsPageNumbers[index] ?? PageNumber()
-        case .popular, .downloaded, .history:
-            return PageNumber()
-        }
-    }
-    func toolbar() -> some ToolbarContent {
+    // MARK: Toolbar
+    private func toolbar() -> some ToolbarContent {
         func selectIndexMenu() -> some View {
             Menu {
                 ForEach(-1..<10) { index in
@@ -118,7 +108,7 @@ struct FavoritesView: View, StoreAccessor {
                     Image(systemName: "arrowshape.bounce.forward")
                     Text("Jump page")
                 }
-                .disabled(currentListTypePageNumber.isSinglePage)
+                .disabled(pageNumber.isSinglePage)
             } label: {
                 Image(systemName: "ellipsis.circle")
                     .symbolRenderingMode(.hierarchical)
@@ -133,6 +123,10 @@ struct FavoritesView: View, StoreAccessor {
             }
         }
     }
+}
+
+// MARK: Methods
+private extension FavoritesView {
     func fetchFavoritesItems() {
         store.dispatch(.fetchFavoritesItems())
     }
@@ -143,18 +137,6 @@ struct FavoritesView: View, StoreAccessor {
         guard homeInfo.favoritesItems[environment.favoritesIndex]?.isEmpty != false else { return }
         fetchFavoritesItems()
     }
-    func tryTranslateTag(text: String) -> String {
-        guard setting.translatesTags else { return text }
-        let translator = settings.tagTranslator
-
-        if let range = text.range(of: ":") {
-            let before = text[...range.lowerBound]
-            let after = String(text[range.upperBound...])
-            let result = before + translator.translate(text: after)
-            return String(result)
-        }
-        return translator.translate(text: text)
-    }
     func presentJumpPageAlert() {
         alertManager.show()
         isAlertFocused = true
@@ -162,7 +144,7 @@ struct FavoritesView: View, StoreAccessor {
     }
     func tryPerformJumpPage() {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            guard let index = Int(alertInput), index <= currentListTypePageNumber.maximum + 1 else { return }
+            guard let index = Int(alertInput), index <= pageNumber.maximum + 1 else { return }
             store.dispatch(.handleJumpPage(index: index - 1, keyword: lastKeyword))
         }
     }

@@ -98,14 +98,13 @@ extension String {
     }
 
     func replacingOccurrences(
-        from subString1: String,
-        to subString2: String,
-        with replacement: String
+        from subString1: String, to subString2: String, with replacement: String
     ) -> String {
         var result = self
 
         while let rangeA = result.range(of: subString1),
-              let rangeB = result.range(of: subString2)
+              let rangeB = result.range(of: subString2),
+              rangeA.lowerBound < rangeB.upperBound
         {
             let unwanted = result[rangeA.lowerBound..<rangeB.upperBound]
             result = result.replacingOccurrences(of: unwanted, with: replacement)

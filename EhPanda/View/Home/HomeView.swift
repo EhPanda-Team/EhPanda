@@ -618,40 +618,40 @@
 //    }
 //}
 //
-// MARK: Definition
-enum HomeListType: String, Identifiable, CaseIterable {
-    var id: Int { hashValue }
-
-    case search = "Search"
-    case frontpage = "Frontpage"
-    case popular = "Popular"
-    case watched = "Watched"
-    case favorites = "Favorites"
-    case toplists = "Toplists"
-    case downloaded = "Downloaded"
-    case history = "History"
-
-    var symbolName: String {
-        switch self {
-        case .search:
-            return "magnifyingglass.circle"
-        case .frontpage:
-            return "house"
-        case .popular:
-            return "flame"
-        case .watched:
-            return "tag.circle"
-        case .favorites:
-            return "heart.circle"
-        case .toplists:
-            return "list.bullet.circle"
-        case .downloaded:
-            return "arrow.down.circle"
-        case .history:
-            return "clock.arrow.circlepath"
-        }
-    }
-}
+//// MARK: Definition
+//enum HomeListType: String, Identifiable, CaseIterable {
+//    var id: Int { hashValue }
+//
+//    case search = "Search"
+//    case frontpage = "Frontpage"
+//    case popular = "Popular"
+//    case watched = "Watched"
+//    case favorites = "Favorites"
+//    case toplists = "Toplists"
+//    case downloaded = "Downloaded"
+//    case history = "History"
+//
+//    var symbolName: String {
+//        switch self {
+//        case .search:
+//            return "magnifyingglass.circle"
+//        case .frontpage:
+//            return "house"
+//        case .popular:
+//            return "flame"
+//        case .watched:
+//            return "tag.circle"
+//        case .favorites:
+//            return "heart.circle"
+//        case .toplists:
+//            return "list.bullet.circle"
+//        case .downloaded:
+//            return "arrow.down.circle"
+//        case .history:
+//            return "clock.arrow.circlepath"
+//        }
+//    }
+//}
 
 enum HomeViewSheetState: Identifiable {
     var id: Int { hashValue }

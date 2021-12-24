@@ -110,7 +110,7 @@ private struct CoverWallSection: View {
     }
 
     var body: some View {
-        SubSection(title: "Frontpage", tint: .secondary, destination: EmptyView()) {
+        SubSection(title: "Frontpage", tint: .secondary, destination: FrontpageView()) {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 20) {
                     ForEach(filteredGalleries, id: \.description, content: VerticalCoverStack.init)
@@ -196,11 +196,14 @@ private struct VerticalToplistStack: View {
     }
 
     var body: some View {
-        VStack {
+        VStack(spacing: 10) {
             ForEach(0..<galleries.count, id: \.self) { index in
-                NavigationLink(destination: DetailView(gid: galleries[index].gid)) {
-                    GalleryRankingCell(gallery: galleries[index], ranking: startRanking + index)
-                        .tint(.primary).multilineTextAlignment(.leading)
+                VStack(spacing: 10) {
+                    NavigationLink(destination: DetailView(gid: galleries[index].gid)) {
+                        GalleryRankingCell(gallery: galleries[index], ranking: startRanking + index)
+                            .tint(.primary).multilineTextAlignment(.leading)
+                    }
+                    Divider().opacity(index == galleries.count - 1 ? 0 : 1)
                 }
             }
         }
@@ -241,7 +244,7 @@ private struct MiscGridItem: View {
     var body: some View {
         HStack {
             VStack(alignment: .leading) {
-                Text(title).font(.title2.bold()).lineLimit(1)
+                Text(title).font(.title2.bold()).lineLimit(1).frame(minWidth: 100)
                 if let subTitle = subTitle {
                     Text(subTitle).font(.subheadline).foregroundColor(.secondary).lineLimit(2)
                 }
@@ -270,6 +273,7 @@ private extension Array where Element == Gallery {
 private enum MiscItemType: String, CaseIterable, Identifiable {
     var id: String { rawValue }
 
+    case popular = "Popular"
     case watched = "Watched"
     case history = "History"
 }
@@ -278,6 +282,8 @@ private extension MiscItemType {
     var destination: some View {
         Group {
             switch self {
+            case .popular:
+                EmptyView()
             case .watched:
                 EmptyView()
             case .history:
@@ -287,6 +293,8 @@ private extension MiscItemType {
     }
     var symbolName: String {
         switch self {
+        case .popular:
+            return "flame"
         case .watched:
             return "tag.circle"
         case .history:

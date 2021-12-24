@@ -50,7 +50,11 @@ struct DetailView: View, StoreAccessor, PersistenceAccessor {
                             TagsView(
                                 tags: galleryState.tags,
                                 onTapAction: navigateToAssociatedView,
-                                translateAction: tryTranslateTag
+                                translateAction: {
+                                    settings.tagTranslator.tryTranslate(
+                                        text: $0, returnOriginal: !setting.translatesTags
+                                    )
+                                }
                             )
                             .padding(.horizontal)
                         }
@@ -159,12 +163,9 @@ private extension DetailView {
         if environment.navigationBarHidden {
             store.dispatch(.setNavigationBarHidden(false))
         }
-        if environment.homeListType != .history {
-            PersistenceController.updateLastOpenDate(gid: gid)
-        }
-
         store.dispatch(.fulfillGalleryPreviews(gid: gid))
         store.dispatch(.fulfillGalleryContents(gid: gid))
+        PersistenceController.updateLastOpenDate(gid: gid)
 
         fetchGalleryDetail()
         updateViewControllersCount()
@@ -217,10 +218,6 @@ private extension DetailView {
     // MARK: Tools
     func rateGallery(value: Int) {
         store.dispatch(.rateGallery(gid: gid, rating: value))
-    }
-    func tryTranslateTag(text: String) -> String {
-        guard setting.translatesTags else { return text }
-        return settings.tagTranslator.translate(text: text)
     }
     func postComment() {
         store.dispatch(.commentGallery(gid: gid, content: commentContent))

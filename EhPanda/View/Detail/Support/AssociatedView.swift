@@ -37,7 +37,9 @@ struct AssociatedView: View, StoreAccessor {
             items: associatedItems, setting: setting, pageNumber: pageNumber,
             loadingFlag: loadingFlag, loadError: loadError, moreLoadingFlag: moreLoadingFlag,
             moreLoadFailedFlag: moreLoadFailedFlag, fetchAction: fetchAssociatedItems,
-            loadMoreAction: fetchMoreAssociatedItems, translateAction: translateTag
+            loadMoreAction: fetchMoreAssociatedItems, translateAction: {
+                settings.tagTranslator.tryTranslate(text: $0, returnOriginal: !setting.translatesTags)
+            }
         )
         .searchable(
             text: $keyword, placement: .navigationBarDrawer(displayMode: .always)
@@ -81,19 +83,6 @@ struct AssociatedView: View, StoreAccessor {
 
 private extension AssociatedView {
     // MARK: Tools
-    func translateTag(text: String) -> String {
-        guard setting.translatesTags else { return text }
-        let translator = settings.tagTranslator
-
-        guard let range = text.range(of: ":") else {
-            return translator.translate(text: text)
-        }
-
-        let before = text[...range.lowerBound]
-        let after = String(text[range.upperBound...])
-        let result = before + translator.translate(text: after)
-        return String(result)
-    }
     func presentJumpPageAlert() {
         alertManager.show()
         isAlertFocused = true

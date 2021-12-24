@@ -11,9 +11,8 @@ import Kingfisher
 import UIImageColors
 
 struct GalleryCardCell: View {
-    @State private var animated = false
-    @State private var colors = [Color.clear]
     @Binding private var currentID: String
+    @State private var colors = [Color.clear]
 
     private let gallery: Gallery
 
@@ -25,19 +24,22 @@ struct GalleryCardCell: View {
         _currentID = currentID
     }
 
-    var title: String {
+    private var title: String {
         let trimmedTitle = gallery.trimmedTitle
         guard !DeviceUtil.isPad, trimmedTitle.count > 20 else {
             return gallery.title
         }
         return trimmedTitle
     }
+    private var animated: Bool {
+        gallery.gid == currentID
+    }
 
     var body: some View {
         ZStack {
             Color.gray.opacity(0.2)
             ColorfulView(animated: animated, animation: animation, colors: colors)
-                .id(currentID + String(animated))
+                .id(gallery.gid + String(animated))
             HStack {
                 KFImage(URL(string: gallery.coverURL))
                     .placeholder { Placeholder(style: .activity(ratio: Defaults.ImageSize.headerAspect)) }
@@ -55,15 +57,9 @@ struct GalleryCardCell: View {
             .padding(.vertical, 20)
         }
         .frame(width: DeviceUtil.windowW * 0.8).cornerRadius(15)
-        .onChange(of: currentID, perform: resyncAnimated)
-        .onAppear { resyncAnimated(newID: currentID) }
     }
 
-    func resyncAnimated(newID: String) {
-        animated = newID == gallery.gid
-    }
-
-    func updateColors(result: RetrieveImageResult) {
+    private func updateColors(result: RetrieveImageResult) {
         result.image.getColors { newColors in
             guard let newColors = newColors else { return }
             colors = [

@@ -27,7 +27,7 @@ extension AppState {
         var favoritesIndex = -1
         var favoritesSortOrder: FavoritesSortOrder?
         var toplistsType: ToplistsType = .allTime
-        var homeListType: HomeListType = .frontpage
+        // var homeListType: HomeListType = .frontpage
         var homeViewSheetState: HomeViewSheetState?
         var settingViewSheetState: SettingViewSheetState?
         var detailViewSheetState: DetailViewSheetState?

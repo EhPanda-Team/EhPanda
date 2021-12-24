@@ -33,7 +33,7 @@ enum AppAction {
 
     case setAppLock(activated: Bool)
     case setBlurEffect(activated: Bool)
-    case setHomeListType(_ type: HomeListType)
+    // case setHomeListType(_ type: HomeListType)
     case setFavoritesIndex(_ index: Int)
     case setToplistsType(_ type: ToplistsType)
     case setNavigationBarHidden(_ hidden: Bool)

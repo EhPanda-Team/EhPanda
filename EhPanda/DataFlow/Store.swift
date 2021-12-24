@@ -97,7 +97,6 @@ final class Store: ObservableObject {
             appState.settings.user = User()
         case .resetHomeInfo:
             appState.homeInfo = AppState.HomeInfo()
-            dispatch(.setHomeListType(.frontpage))
             dispatch(.fetchFrontpageItems(pageNum: nil))
         case .resetFilter(let range):
             switch range {
@@ -153,8 +152,8 @@ final class Store: ObservableObject {
                 appState.environment.blurRadius =
                     activated ? appState.settings.setting.backgroundBlurRadius : 0
             }
-        case .setHomeListType(let type):
-            appState.environment.homeListType = type
+//        case .setHomeListType(let type):
+//            appState.environment.homeListType = type
         case .setFavoritesIndex(let index):
             appState.environment.favoritesIndex = index
         case .setToplistsType(let type):
@@ -175,24 +174,25 @@ final class Store: ObservableObject {
             appState.environment.commentViewSheetState = state
 
         // MARK: Fetch Data
-        case .handleJumpPage(let index, let keyword):
-            DispatchQueue.main.async { [weak self] in
-                switch appState.environment.homeListType {
-                case .search:
-                    guard let keyword = keyword else { break }
-                    self?.dispatch(.fetchSearchItems(keyword: keyword, pageNum: index))
-                case .frontpage:
-                    self?.dispatch(.fetchFrontpageItems(pageNum: index))
-                case .watched:
-                    self?.dispatch(.fetchWatchedItems(pageNum: index))
-                case .favorites:
-                    self?.dispatch(.fetchFavoritesItems(pageNum: index))
-                case .toplists:
-                    self?.dispatch(.fetchToplistsItems(pageNum: index))
-                case .popular, .downloaded, .history:
-                    break
-                }
-            }
+        case .handleJumpPage:
+//            DispatchQueue.main.async { [weak self] in
+//                switch appState.environment.homeListType {
+//                case .search:
+//                    guard let keyword = keyword else { break }
+//                    self?.dispatch(.fetchSearchItems(keyword: keyword, pageNum: index))
+//                case .frontpage:
+//                    self?.dispatch(.fetchFrontpageItems(pageNum: index))
+//                case .watched:
+//                    self?.dispatch(.fetchWatchedItems(pageNum: index))
+//                case .favorites:
+//                    self?.dispatch(.fetchFavoritesItems(pageNum: index))
+//                case .toplists:
+//                    self?.dispatch(.fetchToplistsItems(pageNum: index))
+//                case .popular, .downloaded, .history:
+//                    break
+//                }
+//            }
+            break
         case .fetchIgneous:
             appCommand = FetchIgneousCommand()
         case .fetchTagTranslator:
