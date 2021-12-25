@@ -10,11 +10,11 @@ import Combine
 import Foundation
 
 protocol AppCommand {
-    func execute(in store: Store)
+    func execute(in store: DeprecatedStore)
 }
 
 struct FetchGreetingCommand: AppCommand {
-    func execute(in store: Store) {
+    func execute(in store: DeprecatedStore) {
         let token = SubscriptionToken()
         GreetingRequest().publisher
             .receive(on: DispatchQueue.main)
@@ -33,7 +33,7 @@ struct FetchGreetingCommand: AppCommand {
 struct FetchUserInfoCommand: AppCommand {
     let uid: String
 
-    func execute(in store: Store) {
+    func execute(in store: DeprecatedStore) {
         let token = SubscriptionToken()
         UserInfoRequest(uid: uid).publisher
             .receive(on: DispatchQueue.main)
@@ -50,7 +50,7 @@ struct FetchUserInfoCommand: AppCommand {
 }
 
 struct FetchFavoriteNamesCommand: AppCommand {
-    func execute(in store: Store) {
+    func execute(in store: DeprecatedStore) {
         let token = SubscriptionToken()
         FavoriteNamesRequest().publisher
             .receive(on: DispatchQueue.main)
@@ -70,7 +70,7 @@ struct FetchTagTranslatorCommand: AppCommand {
     let language: TranslatableLanguage
     let updatedDate: Date
 
-    func execute(in store: Store) {
+    func execute(in store: DeprecatedStore) {
         let token = SubscriptionToken()
         TagTranslatorRequest(language: language, updatedDate: updatedDate)
             .publisher.receive(on: DispatchQueue.main)
@@ -91,7 +91,7 @@ struct FetchGalleryItemReverseCommand: AppCommand {
     let url: String
     let shouldParseGalleryURL: Bool
 
-    func execute(in store: Store) {
+    func execute(in store: DeprecatedStore) {
         let token = SubscriptionToken()
         GalleryItemReverseRequest(url: url, shouldParseGalleryURL: shouldParseGalleryURL)
             .publisher.receive(on: DispatchQueue.main)
@@ -119,7 +119,7 @@ struct FetchSearchItemsCommand: AppCommand {
     let filter: Filter
     var pageNum: Int?
 
-    func execute(in store: Store) {
+    func execute(in store: DeprecatedStore) {
         let token = SubscriptionToken()
         SearchItemsRequest(keyword: keyword, filter: filter, pageNum: pageNum)
             .publisher.receive(on: DispatchQueue.main)
@@ -149,7 +149,7 @@ struct FetchMoreSearchItemsCommand: AppCommand {
     let lastID: String
     let pageNum: Int
 
-    func execute(in store: Store) {
+    func execute(in store: DeprecatedStore) {
         let token = SubscriptionToken()
         MoreSearchItemsRequest(
             keyword: keyword,
@@ -180,7 +180,7 @@ struct FetchFrontpageItemsCommand: AppCommand {
     let filter: Filter
     var pageNum: Int?
 
-    func execute(in store: Store) {
+    func execute(in store: DeprecatedStore) {
         let token = SubscriptionToken()
         FrontpageItemsRequest(filter: filter, pageNum: pageNum).publisher
             .receive(on: DispatchQueue.main)
@@ -209,7 +209,7 @@ struct FetchMoreFrontpageItemsCommand: AppCommand {
     let lastID: String
     let pageNum: Int
 
-    func execute(in store: Store) {
+    func execute(in store: DeprecatedStore) {
         let token = SubscriptionToken()
         MoreFrontpageItemsRequest(filter: filter, lastID: lastID, pageNum: pageNum)
             .publisher.receive(on: DispatchQueue.main)
@@ -234,7 +234,7 @@ struct FetchPopularItemsCommand: AppCommand {
     let filter: Filter
     var pageNum: Int?
 
-    func execute(in store: Store) {
+    func execute(in store: DeprecatedStore) {
         let token = SubscriptionToken()
         PopularItemsRequest(filter: filter).publisher
             .receive(on: DispatchQueue.main)
@@ -258,7 +258,7 @@ struct FetchWatchedItemsCommand: AppCommand {
     let filter: Filter
     var pageNum: Int?
 
-    func execute(in store: Store) {
+    func execute(in store: DeprecatedStore) {
         let token = SubscriptionToken()
         WatchedItemsRequest(filter: filter, pageNum: pageNum).publisher
             .receive(on: DispatchQueue.main)
@@ -287,7 +287,7 @@ struct FetchMoreWatchedItemsCommand: AppCommand {
     let lastID: String
     let pageNum: Int
 
-    func execute(in store: Store) {
+    func execute(in store: DeprecatedStore) {
         let token = SubscriptionToken()
         MoreWatchedItemsRequest(filter: filter, lastID: lastID, pageNum: pageNum)
             .publisher.receive(on: DispatchQueue.main)
@@ -313,7 +313,7 @@ struct FetchFavoritesItemsCommand: AppCommand {
     var pageNum: Int?
     var sortOrder: FavoritesSortOrder?
 
-    func execute(in store: Store) {
+    func execute(in store: DeprecatedStore) {
         let token = SubscriptionToken()
         FavoritesItemsRequest(favIndex: favIndex, pageNum: pageNum, sortOrder: sortOrder)
             .publisher.receive(on: DispatchQueue.main)
@@ -344,7 +344,7 @@ struct FetchMoreFavoritesItemsCommand: AppCommand {
     let lastID: String
     let pageNum: Int
 
-    func execute(in store: Store) {
+    func execute(in store: DeprecatedStore) {
         let token = SubscriptionToken()
         MoreFavoritesItemsRequest(favIndex: favIndex, lastID: lastID, pageNum: pageNum)
             .publisher.receive(on: DispatchQueue.main)
@@ -371,7 +371,7 @@ struct FetchToplistsItemsCommand: AppCommand {
     let catIndex: Int
     var pageNum: Int?
 
-    func execute(in store: Store) {
+    func execute(in store: DeprecatedStore) {
         let token = SubscriptionToken()
         ToplistsItemsRequest(catIndex: catIndex, pageNum: pageNum)
             .publisher.receive(on: DispatchQueue.main)
@@ -402,7 +402,7 @@ struct FetchMoreToplistsItemsCommand: AppCommand {
     let catIndex: Int
     let pageNum: Int
 
-    func execute(in store: Store) {
+    func execute(in store: DeprecatedStore) {
         let token = SubscriptionToken()
         MoreToplistsItemsRequest(catIndex: catIndex, pageNum: pageNum)
             .publisher.receive(on: DispatchQueue.main)
@@ -428,7 +428,7 @@ struct FetchGalleryDetailCommand: AppCommand {
     let gid: String
     let galleryURL: String
 
-    func execute(in store: Store) {
+    func execute(in store: DeprecatedStore) {
         let token = SubscriptionToken()
         GalleryDetailRequest(gid: gid, galleryURL: galleryURL)
             .publisher.receive(on: DispatchQueue.main)
@@ -448,7 +448,7 @@ struct FetchGalleryArchiveFundsCommand: AppCommand {
     let gid: String
     let galleryURL: String
 
-    func execute(in store: Store) {
+    func execute(in store: DeprecatedStore) {
         let sToken = SubscriptionToken()
         GalleryArchiveFundsRequest(gid: gid, galleryURL: galleryURL)
             .publisher.receive(on: DispatchQueue.main)
@@ -473,7 +473,7 @@ struct FetchGalleryPreviewsCommand: AppCommand {
     let url: String
     let pageNumber: Int
 
-    func execute(in store: Store) {
+    func execute(in store: DeprecatedStore) {
         let token = SubscriptionToken()
         GalleryPreviewsRequest(url: url).publisher
             .receive(on: DispatchQueue.main)
@@ -499,7 +499,7 @@ struct FetchMPVKeysCommand: AppCommand {
     let pageCount: Int
     let index: Int
 
-    func execute(in store: Store) {
+    func execute(in store: DeprecatedStore) {
         let token = SubscriptionToken()
         MPVKeysRequest(mpvURL: mpvURL).publisher
             .receive(on: DispatchQueue.main)
@@ -524,7 +524,7 @@ struct FetchThumbnailsCommand: AppCommand {
     let index: Int
     let url: String
 
-    func execute(in store: Store) {
+    func execute(in store: DeprecatedStore) {
         let token = SubscriptionToken()
         ThumbnailsRequest(url: url).publisher
             .receive(on: DispatchQueue.main)
@@ -549,7 +549,7 @@ struct FetchGalleryNormalContentsCommand: AppCommand {
     let index: Int
     let thumbnails: [Int: String]
 
-    func execute(in store: Store) {
+    func execute(in store: DeprecatedStore) {
         let token = SubscriptionToken()
         GalleryNormalContentsRequest(thumbnails: thumbnails)
             .publisher.receive(on: DispatchQueue.main)
@@ -581,7 +581,7 @@ struct RefetchGalleryNormalContentCommand: AppCommand {
     let storedImageURL: String
     let bypassesSNIFiltering: Bool
 
-    func execute(in store: Store) {
+    func execute(in store: DeprecatedStore) {
         let token = SubscriptionToken()
         GalleryNormalContentRefetchRequest(
             index: index, galleryURL: galleryURL,
@@ -616,7 +616,7 @@ struct FetchGalleryMPVContentCommand: AppCommand {
     let imgKey: String
     let reloadToken: ReloadToken?
 
-    func execute(in store: Store) {
+    func execute(in store: DeprecatedStore) {
         let token = SubscriptionToken()
         GalleryMPVContentRequest(
             gid: gid, index: index, mpvKey: mpvKey, imgKey: imgKey, reloadToken: reloadToken
@@ -640,7 +640,7 @@ struct FetchGalleryMPVContentCommand: AppCommand {
 }
 
 struct FetchIgneousCommand: AppCommand {
-    func execute(in store: Store) {
+    func execute(in store: DeprecatedStore) {
         let token = SubscriptionToken()
         IgneousRequest().publisher
             .receive(on: DispatchQueue.main)
@@ -652,7 +652,7 @@ struct FetchIgneousCommand: AppCommand {
 }
 
 struct VerifyEhProfileCommand: AppCommand {
-    func execute(in store: Store) {
+    func execute(in store: DeprecatedStore) {
         let token = SubscriptionToken()
         VerifyEhProfileRequest().publisher
             .receive(on: DispatchQueue.main)
@@ -671,7 +671,7 @@ struct VerifyEhProfileCommand: AppCommand {
 struct CreateEhProfileCommand: AppCommand {
     let name: String
 
-    func execute(in store: Store) {
+    func execute(in store: DeprecatedStore) {
         let token = SubscriptionToken()
         EhProfileRequest(action: .create, name: name)
             .publisher.receive(on: DispatchQueue.main)
@@ -687,7 +687,7 @@ struct AddFavoriteCommand: AppCommand {
     let token: String
     let favIndex: Int
 
-    func execute(in store: Store) {
+    func execute(in store: DeprecatedStore) {
         let sToken = SubscriptionToken()
         AddFavoriteRequest(gid: gid, token: token, favIndex: favIndex)
             .publisher.receive(on: DispatchQueue.main)
@@ -704,7 +704,7 @@ struct AddFavoriteCommand: AppCommand {
 struct DeleteFavoriteCommand: AppCommand {
     let gid: String
 
-    func execute(in store: Store) {
+    func execute(in store: DeprecatedStore) {
         let sToken = SubscriptionToken()
         DeleteFavoriteRequest(gid: gid).publisher
             .receive(on: DispatchQueue.main)
@@ -725,7 +725,7 @@ struct RateCommand: AppCommand {
     let token: String
     let rating: Int
 
-    func execute(in store: Store) {
+    func execute(in store: DeprecatedStore) {
         let sToken = SubscriptionToken()
         RateRequest(
             apiuid: apiuid,
@@ -751,7 +751,7 @@ struct CommentCommand: AppCommand {
     let content: String
     let galleryURL: String
 
-    func execute(in store: Store) {
+    func execute(in store: DeprecatedStore) {
         let token = SubscriptionToken()
         CommentRequest(content: content, galleryURL: galleryURL)
             .publisher.receive(on: DispatchQueue.main)
@@ -771,7 +771,7 @@ struct EditCommentCommand: AppCommand {
     let content: String
     let galleryURL: String
 
-    func execute(in store: Store) {
+    func execute(in store: DeprecatedStore) {
         let token = SubscriptionToken()
         EditCommentRequest(
             commentID: commentID,
@@ -798,7 +798,7 @@ struct VoteCommentCommand: AppCommand {
     let commentID: Int
     let commentVote: Int
 
-    func execute(in store: Store) {
+    func execute(in store: DeprecatedStore) {
         let sToken = SubscriptionToken()
         VoteCommentRequest(
             apiuid: apiuid,

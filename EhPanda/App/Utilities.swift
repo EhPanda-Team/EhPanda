@@ -288,6 +288,12 @@ extension AppNotification {
 
 // MARK: Cookies
 struct CookiesUtil {
+    static var shouldFetchIgneous: Bool {
+        let url = Defaults.URL.exhentai.safeURL()
+        return !CookiesUtil.get(for: url, key: Defaults.Cookie.ipbMemberId).rawValue.isEmpty
+        && !CookiesUtil.get(for: url, key: Defaults.Cookie.ipbPassHash).rawValue.isEmpty
+        && CookiesUtil.get(for: url, key: Defaults.Cookie.igneous).rawValue.isEmpty
+    }
     static func initializeCookie(from cookie: HTTPCookie, value: String) -> HTTPCookie {
         var properties = cookie.properties
         properties?[.value] = value

@@ -31,8 +31,7 @@ struct Setting: Codable {
         }
     }
     @DefaultListMode var listMode: ListMode = DeviceUtil.isPadWidth ? .thumbnail : .detail
-    @DefaultPreferredColorScheme var preferredColorScheme =
-        PreferredColorScheme.automatic
+    @DefaultPreferredColorScheme var preferredColorScheme = PreferredColorScheme.automatic
     @DefaultColorValue var accentColor: Color = .blue
     @DefaultIconType var appIconType: IconType = .default
     @DefaultFalse var translatesTags = false
@@ -71,7 +70,14 @@ struct Setting: Codable {
 
     // Laboratory
     @DefaultFalse var bypassesSNIFiltering = false {
-        didSet { NotificationUtil.post(.bypassesSNIFilteringDidChange) }
+        didSet {
+            if bypassesSNIFiltering {
+                URLProtocol.registerClass(DFURLProtocol.self)
+            } else {
+                URLProtocol.unregisterClass(DFURLProtocol.self)
+            }
+            AppUtil.configureKingfisher(bypassesSNIFiltering: bypassesSNIFiltering)
+        }
     }
 }
 

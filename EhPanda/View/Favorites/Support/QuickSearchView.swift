@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct QuickSearchView: View, StoreAccessor {
-    @EnvironmentObject var store: Store
+    @EnvironmentObject var store: DeprecatedStore
     @State private var isEditting = false
     @State private var refreshTrigger = UUID().uuidString
 
@@ -154,6 +154,6 @@ private struct QuickSearchWordRow: View {
 struct QuickSearchView_Previews: PreviewProvider {
     static var previews: some View {
         QuickSearchView(searchAction: { _ in })
-            .environmentObject(Store.preview)
+            .environmentObject(DeprecatedStore.preview)
     }
 }

@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct AuthView: View, StoreAccessor {
-    @EnvironmentObject var store: Store
+    @EnvironmentObject var store: DeprecatedStore
     @State private var isLaunchingApp = true
     @Binding private var blurRadius: CGFloat
     @State private var enterBackgroundDate: Date?

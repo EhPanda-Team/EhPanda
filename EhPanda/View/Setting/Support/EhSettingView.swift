@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct EhSettingView: View, StoreAccessor {
-    @EnvironmentObject var store: Store
+    @EnvironmentObject var store: DeprecatedStore
 
     @State private var ehSetting: EhSetting?
     @State private var loadingFlag = false
@@ -1175,7 +1175,7 @@ private extension Text {
 struct EhSettingView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
-            EhSettingView().environmentObject(Store.preview)
+            EhSettingView().environmentObject(DeprecatedStore.preview)
         }
         .navigationViewStyle(.stack)
     }

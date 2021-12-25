@@ -10,7 +10,7 @@ import Kingfisher
 import SwiftUIPager
 
 struct HomeView: View, StoreAccessor {
-    @EnvironmentObject var store: Store
+    @EnvironmentObject var store: DeprecatedStore
 
     // MARK: HomeView
     var body: some View {
@@ -305,6 +305,6 @@ private extension MiscItemType {
 
 struct HomeView_Previews: PreviewProvider {
     static var previews: some View {
-        HomeView().environmentObject(Store.preview)
+        HomeView().environmentObject(DeprecatedStore.preview)
     }
 }

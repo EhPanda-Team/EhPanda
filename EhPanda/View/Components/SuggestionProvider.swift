@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct SuggestionProvider: View {
-    @EnvironmentObject var store: Store
+    @EnvironmentObject var store: DeprecatedStore
     @Binding private var keyword: String
 
     init(keyword: Binding<String>) {

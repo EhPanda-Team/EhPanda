@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct LaboratorySettingView: View, StoreAccessor {
-    @EnvironmentObject var store: Store
+    @EnvironmentObject var store: DeprecatedStore
 
     private var settingBinding: Binding<Setting> {
         $store.appState.settings.setting

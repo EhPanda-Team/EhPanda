@@ -9,7 +9,7 @@ import SwiftUI
 import Kingfisher
 
 struct DetailView: View, StoreAccessor, PersistenceAccessor {
-    @EnvironmentObject var store: Store
+    @EnvironmentObject var store: DeprecatedStore
     @Environment(\.colorScheme) private var colorScheme
 
     @State private var keyword = ""

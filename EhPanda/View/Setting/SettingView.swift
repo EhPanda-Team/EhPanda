@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct SettingView: View, StoreAccessor {
-    @EnvironmentObject var store: Store
+    @EnvironmentObject var store: DeprecatedStore
 
     // MARK: SettingView
     var body: some View {
@@ -118,6 +118,6 @@ enum SettingViewSheetState: Identifiable {
 
 struct SettingView_Previews: PreviewProvider {
     static var previews: some View {
-        SettingView().environmentObject(Store.preview)
+        SettingView().environmentObject(DeprecatedStore.preview)
     }
 }

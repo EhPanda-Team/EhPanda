@@ -12,7 +12,7 @@ import TTProgressHUD
 struct AccountSettingView: View, StoreAccessor {
     @AppStorage(wrappedValue: .ehentai, AppUserDefaults.galleryHost.rawValue)
     var galleryHost: GalleryHost
-    @EnvironmentObject var store: Store
+    @EnvironmentObject var store: DeprecatedStore
     @State private var logoutDialogPresented = false
 
     @State private var hudVisible = false

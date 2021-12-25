@@ -12,7 +12,7 @@ import SwiftUIPager
 import TTProgressHUD
 
 struct ReadingView: View, StoreAccessor, PersistenceAccessor {
-    @EnvironmentObject var store: Store
+    @EnvironmentObject var store: DeprecatedStore
 
     @Environment(\.colorScheme) private var colorScheme
     private var backgroundColor: Color {
@@ -710,7 +710,7 @@ enum ReadingViewSheetState: Identifiable {
 struct ReadingView_Previews: PreviewProvider {
     static var previews: some View {
         PersistenceController.prepareForPreviews()
-        return ReadingView(gid: "").environmentObject(Store.preview)
+        return ReadingView(gid: "").environmentObject(DeprecatedStore.preview)
     }
 }
 

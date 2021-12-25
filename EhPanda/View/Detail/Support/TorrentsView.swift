@@ -9,7 +9,7 @@ import SwiftUI
 import TTProgressHUD
 
 struct TorrentsView: View, StoreAccessor {
-    @EnvironmentObject var store: Store
+    @EnvironmentObject var store: DeprecatedStore
     @Environment(\.colorScheme) private var colorScheme
 
     @State private var hudVisible = false

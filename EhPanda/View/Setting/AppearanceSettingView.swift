@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct AppearanceSettingView: View, StoreAccessor {
-    @EnvironmentObject var store: Store
+    @EnvironmentObject var store: DeprecatedStore
     @State private var isNavLinkActive = false
 
     private var settingBinding: Binding<Setting> {

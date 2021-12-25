@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct FrontpageView: View, StoreAccessor {
-    @EnvironmentObject var store: Store
+    @EnvironmentObject var store: DeprecatedStore
 
     var body: some View {
         GenericList(
@@ -40,6 +40,6 @@ private extension FrontpageView {
 
 struct FrontpageView_Previews: PreviewProvider {
     static var previews: some View {
-        FrontpageView().environmentObject(Store.preview)
+        FrontpageView().environmentObject(DeprecatedStore.preview)
     }
 }

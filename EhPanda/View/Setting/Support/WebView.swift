@@ -11,7 +11,7 @@ import SwiftUI
 struct WebView: UIViewControllerRepresentable {
     static let loginURLString = "https://forums.e-hentai.org/index.php?act=Login"
 
-    @EnvironmentObject private var store: Store
+    @EnvironmentObject private var store: DeprecatedStore
     private let url: URL
 
     init(url: URL) {

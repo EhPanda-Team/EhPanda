@@ -10,7 +10,7 @@ import Kingfisher
 import TTProgressHUD
 
 struct CommentView: View, StoreAccessor {
-    @EnvironmentObject var store: Store
+    @EnvironmentObject var store: DeprecatedStore
 
     @State private var commentContent = ""
     @State private var editCommentContent = ""

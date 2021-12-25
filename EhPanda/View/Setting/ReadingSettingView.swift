@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ReadingSettingView: View, StoreAccessor {
-    @EnvironmentObject var store: Store
+    @EnvironmentObject var store: DeprecatedStore
 
     private var settingBinding: Binding<Setting> {
         $store.appState.settings.setting
@@ -120,7 +120,7 @@ private struct ScaleFactorRow: View {
 
 struct ReadingSettingView_Previews: PreviewProvider {
     static var previews: some View {
-        let store = Store.preview
+        let store = DeprecatedStore.preview
         store.appState.settings.setting = Setting()
 
         return ReadingSettingView()

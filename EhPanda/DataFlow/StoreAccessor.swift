@@ -8,7 +8,7 @@
 import SwiftUI
 
 protocol StoreAccessor {
-    var store: Store { get }
+    var store: DeprecatedStore { get }
 }
 
 // MARK: AppState

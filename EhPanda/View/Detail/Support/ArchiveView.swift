@@ -9,7 +9,7 @@ import SwiftUI
 import TTProgressHUD
 
 struct ArchiveView: View, StoreAccessor, PersistenceAccessor {
-    @EnvironmentObject var store: Store
+    @EnvironmentObject var store: DeprecatedStore
     @State private var selection: ArchiveRes?
 
     @State private var archive: GalleryArchive?
@@ -326,7 +326,7 @@ private extension DownloadButton {
 
 struct ArchiveView_Previews: PreviewProvider {
     static var previews: some View {
-        let store = Store.preview
+        let store = DeprecatedStore.preview
         var user = User.empty
 
         user.currentGP = "114"

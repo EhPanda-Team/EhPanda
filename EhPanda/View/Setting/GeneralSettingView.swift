@@ -10,7 +10,7 @@ import Kingfisher
 import LocalAuthentication
 
 struct GeneralSettingView: View, StoreAccessor {
-    @EnvironmentObject var store: Store
+    @EnvironmentObject var store: DeprecatedStore
     @State private var passcodeNotSet = false
     @State private var diskImageCacheSize = "0 KB"
     @State private var clearDialogPresented = false

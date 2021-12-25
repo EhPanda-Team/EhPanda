@@ -8,10 +8,10 @@
 import SwiftUI
 import Combine
 
-final class Store: ObservableObject {
+final class DeprecatedStore: ObservableObject {
     @Published var appState = AppState()
-    static var preview: Store = {
-        let store = Store()
+    static var preview: DeprecatedStore = {
+        let store = DeprecatedStore()
         store.appState.environment.isPreview = true
         return store
     }()

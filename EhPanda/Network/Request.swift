@@ -9,19 +9,31 @@ import Kanna
 import OpenCC
 import Combine
 import Foundation
+import ComposableArchitecture
 
-private func mapAppError(error: Error) -> AppError {
-    Logger.error(error)
+protocol Request {
+    associatedtype Response
 
-    switch error {
-    case is ParseError:
-        return .parseFailed
-    case is URLError:
-        return .networkingFailed
-    default:
-        return error as? AppError ?? .unknown
+    var publisher: AnyPublisher<Response, AppError> { get }
+}
+extension Request {
+    var effect: Effect<Result<Response, AppError>, Never> {
+        publisher.receive(on: DispatchQueue.main).catchToEffect()
+    }
+    func mapAppError(error: Error) -> AppError {
+        Logger.error(error)
+
+        switch error {
+        case is ParseError:
+            return .parseFailed
+        case is URLError:
+            return .networkingFailed
+        default:
+            return error as? AppError ?? .unknown
+        }
     }
 }
+
 private extension Publisher {
     func genericRetry() -> Publishers.Retry<Self> {
         retry(3)
@@ -46,7 +58,7 @@ private extension Dictionary where Key == String, Value == String {
 }
 
 // MARK: Routine
-struct GreetingRequest {
+struct GreetingRequest: Request {
     var publisher: AnyPublisher<Greeting, AppError> {
         URLSession.shared.dataTaskPublisher(for: Defaults.URL.greeting().safeURL())
             .genericRetry().tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
@@ -54,7 +66,7 @@ struct GreetingRequest {
     }
 }
 
-struct UserInfoRequest {
+struct UserInfoRequest: Request {
     let uid: String
 
     var publisher: AnyPublisher<User, AppError> {
@@ -64,7 +76,7 @@ struct UserInfoRequest {
     }
 }
 
-struct FavoriteNamesRequest {
+struct FavoriteNamesRequest: Request {
     var publisher: AnyPublisher<[Int: String], AppError> {
         URLSession.shared.dataTaskPublisher(for: Defaults.URL.ehConfig().safeURL())
             .genericRetry().tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
@@ -72,7 +84,7 @@ struct FavoriteNamesRequest {
     }
 }
 
-struct TagTranslatorRequest {
+struct TagTranslatorRequest: Request {
     let language: TranslatableLanguage
     let updatedDate: Date
 
@@ -175,7 +187,7 @@ struct TagTranslatorRequest {
 }
 
 // MARK: Fetch ListItems
-struct SearchItemsRequest {
+struct SearchItemsRequest: Request {
     let keyword: String
     let filter: Filter
     var pageNum: Int?
@@ -190,7 +202,7 @@ struct SearchItemsRequest {
     }
 }
 
-struct MoreSearchItemsRequest {
+struct MoreSearchItemsRequest: Request {
     let keyword: String
     let filter: Filter
     let lastID: String
@@ -206,7 +218,7 @@ struct MoreSearchItemsRequest {
     }
 }
 
-struct FrontpageItemsRequest {
+struct FrontpageItemsRequest: Request {
     let filter: Filter
     var pageNum: Int?
 
@@ -218,7 +230,7 @@ struct FrontpageItemsRequest {
     }
 }
 
-struct MoreFrontpageItemsRequest {
+struct MoreFrontpageItemsRequest: Request {
     let filter: Filter
     let lastID: String
     let pageNum: Int
@@ -233,7 +245,7 @@ struct MoreFrontpageItemsRequest {
     }
 }
 
-struct PopularItemsRequest {
+struct PopularItemsRequest: Request {
     let filter: Filter
 
     var publisher: AnyPublisher<[Gallery], AppError> {
@@ -243,7 +255,7 @@ struct PopularItemsRequest {
     }
 }
 
-struct WatchedItemsRequest {
+struct WatchedItemsRequest: Request {
     let filter: Filter
     var pageNum: Int?
 
@@ -255,7 +267,7 @@ struct WatchedItemsRequest {
     }
 }
 
-struct MoreWatchedItemsRequest {
+struct MoreWatchedItemsRequest: Request {
     let filter: Filter
     let lastID: String
     let pageNum: Int
@@ -270,7 +282,7 @@ struct MoreWatchedItemsRequest {
     }
 }
 
-struct FavoritesItemsRequest {
+struct FavoritesItemsRequest: Request {
     let favIndex: Int
     var pageNum: Int?
     var sortOrder: FavoritesSortOrder?
@@ -289,7 +301,7 @@ struct FavoritesItemsRequest {
     }
 }
 
-struct MoreFavoritesItemsRequest {
+struct MoreFavoritesItemsRequest: Request {
     let favIndex: Int
     let lastID: String
     let pageNum: Int
@@ -308,7 +320,7 @@ struct MoreFavoritesItemsRequest {
     }
 }
 
-struct ToplistsItemsRequest {
+struct ToplistsItemsRequest: Request {
     let catIndex: Int
     var pageNum: Int?
 
@@ -322,7 +334,7 @@ struct ToplistsItemsRequest {
     }
 }
 
-struct MoreToplistsItemsRequest {
+struct MoreToplistsItemsRequest: Request {
     let catIndex: Int
     let pageNum: Int
 
@@ -336,7 +348,7 @@ struct MoreToplistsItemsRequest {
     }
 }
 
-struct GalleryDetailRequest {
+struct GalleryDetailRequest: Request {
     let gid: String
     let galleryURL: String
 
@@ -365,7 +377,7 @@ struct GalleryDetailRequest {
     }
 }
 
-struct GalleryItemReverseRequest {
+struct GalleryItemReverseRequest: Request {
     let url: String
     let shouldParseGalleryURL: Bool
 
@@ -416,7 +428,7 @@ struct GalleryItemReverseRequest {
     }
 }
 
-struct GalleryArchiveRequest {
+struct GalleryArchiveRequest: Request {
     let archiveURL: String
 
     var publisher: AnyPublisher<(GalleryArchive?, CurrentGP?, CurrentCredits?), AppError> {
@@ -434,7 +446,7 @@ struct GalleryArchiveRequest {
     }
 }
 
-struct GalleryArchiveFundsRequest {
+struct GalleryArchiveFundsRequest: Request {
     let gid: String
     let galleryURL: String
 
@@ -465,7 +477,7 @@ struct GalleryArchiveFundsRequest {
     }
 }
 
-struct GalleryTorrentsRequest {
+struct GalleryTorrentsRequest: Request {
     let gid: String
     let token: String
 
@@ -478,7 +490,7 @@ struct GalleryTorrentsRequest {
     }
 }
 
-struct GalleryPreviewsRequest {
+struct GalleryPreviewsRequest: Request {
     let url: String
 
     var publisher: AnyPublisher<[Int: String], AppError> {
@@ -488,7 +500,7 @@ struct GalleryPreviewsRequest {
     }
 }
 
-struct MPVKeysRequest {
+struct MPVKeysRequest: Request {
     let mpvURL: String
 
     var publisher: AnyPublisher<(String, [Int: String]), AppError> {
@@ -498,7 +510,7 @@ struct MPVKeysRequest {
     }
 }
 
-struct ThumbnailsRequest {
+struct ThumbnailsRequest: Request {
     let url: String
 
     var publisher: AnyPublisher<[Int: String], AppError> {
@@ -508,7 +520,7 @@ struct ThumbnailsRequest {
     }
 }
 
-struct GalleryNormalContentsRequest {
+struct GalleryNormalContentsRequest: Request {
     let thumbnails: [Int: String]
 
     var publisher: AnyPublisher<([Int: String], [Int: String]), AppError> {
@@ -531,7 +543,7 @@ struct GalleryNormalContentsRequest {
     }
 }
 
-struct GalleryNormalContentRefetchRequest {
+struct GalleryNormalContentRefetchRequest: Request {
     let index: Int
     let galleryURL: String
     let thumbnailURL: String?
@@ -593,7 +605,7 @@ struct GalleryNormalContentRefetchRequest {
     }
 }
 
-struct GalleryMPVContentRequest {
+struct GalleryMPVContentRequest: Request {
     let gid: Int
     let index: Int
     let mpvKey: String
@@ -638,7 +650,7 @@ struct GalleryMPVContentRequest {
 }
 
 // MARK: Account Ops
-struct LoginRequest {
+struct LoginRequest: Request {
     let username: String
     let password: String
 
@@ -661,7 +673,7 @@ struct LoginRequest {
     }
 }
 
-struct IgneousRequest {
+struct IgneousRequest: Request {
     var publisher: AnyPublisher<Any, AppError> {
         URLSession.shared.dataTaskPublisher(for: Defaults.URL.exhentai.safeURL())
             .genericRetry().map { value in
@@ -674,7 +686,7 @@ struct IgneousRequest {
     }
 }
 
-struct VerifyEhProfileRequest {
+struct VerifyEhProfileRequest: Request {
     var publisher: AnyPublisher<(Int?, Bool), AppError> {
         URLSession.shared.dataTaskPublisher(
             for: Defaults.URL.ehConfig().safeURL()
@@ -684,7 +696,7 @@ struct VerifyEhProfileRequest {
     }
 }
 
-struct EhProfileRequest {
+struct EhProfileRequest: Request {
     var action: EhProfileAction?
     var name: String?
     var set: Int?
@@ -715,7 +727,7 @@ struct EhProfileRequest {
     }
 }
 
-struct EhSettingRequest {
+struct EhSettingRequest: Request {
     var publisher: AnyPublisher<EhSetting, AppError> {
         URLSession.shared.dataTaskPublisher(
             for: Defaults.URL.ehConfig().safeURL()
@@ -725,7 +737,7 @@ struct EhSettingRequest {
     }
 }
 
-struct SubmitEhSettingChangesRequest {
+struct SubmitEhSettingChangesRequest: Request {
     let ehSetting: EhSetting
 
     var publisher: AnyPublisher<EhSetting, AppError> {
@@ -797,7 +809,7 @@ struct SubmitEhSettingChangesRequest {
     }
 }
 
-struct AddFavoriteRequest {
+struct AddFavoriteRequest: Request {
     let gid: String
     let token: String
     let favIndex: Int
@@ -821,7 +833,7 @@ struct AddFavoriteRequest {
     }
 }
 
-struct DeleteFavoriteRequest {
+struct DeleteFavoriteRequest: Request {
     let gid: String
 
     var publisher: AnyPublisher<Any, AppError> {
@@ -842,7 +854,7 @@ struct DeleteFavoriteRequest {
     }
 }
 
-struct SendDownloadCommandRequest {
+struct SendDownloadCommandRequest: Request {
     let archiveURL: String
     let resolution: String
 
@@ -863,7 +875,7 @@ struct SendDownloadCommandRequest {
     }
 }
 
-struct RateRequest {
+struct RateRequest: Request {
     let apiuid: Int
     let apikey: String
     let gid: Int
@@ -889,7 +901,7 @@ struct RateRequest {
     }
 }
 
-struct CommentRequest {
+struct CommentRequest: Request {
     let content: String
     let galleryURL: String
 
@@ -909,7 +921,7 @@ struct CommentRequest {
     }
 }
 
-struct EditCommentRequest {
+struct EditCommentRequest: Request {
     let commentID: String
     let content: String
     let galleryURL: String
@@ -932,7 +944,7 @@ struct EditCommentRequest {
     }
 }
 
-struct VoteCommentRequest {
+struct VoteCommentRequest: Request {
     let apiuid: Int
     let apikey: String
     let gid: Int

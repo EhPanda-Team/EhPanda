@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct LogsView: View, StoreAccessor {
-    @EnvironmentObject var store: Store
+    @EnvironmentObject var store: DeprecatedStore
     @State private var logs = [Log]()
 
     var body: some View {

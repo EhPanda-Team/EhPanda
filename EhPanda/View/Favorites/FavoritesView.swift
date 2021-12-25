@@ -9,7 +9,7 @@ import SwiftUI
 import AlertKit
 
 struct FavoritesView: View, StoreAccessor {
-    @EnvironmentObject var store: Store
+    @EnvironmentObject var store: DeprecatedStore
     @Environment(\.colorScheme) private var colorScheme
 
     @State private var keyword = ""

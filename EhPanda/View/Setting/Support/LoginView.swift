@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct LoginView: View, StoreAccessor {
-    @EnvironmentObject var store: Store
+    @EnvironmentObject var store: DeprecatedStore
     @Environment(\.dismiss) var dismissAction
 
     @FocusState private var focusedState: FocusedField?
