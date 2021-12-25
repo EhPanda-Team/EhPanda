@@ -105,13 +105,6 @@ final class DeprecatedStore: ObservableObject {
             case .global:
                 appState.settings.globalFilter = Filter()
             }
-        case .doFinishLoginTasks:
-            CookiesUtil.removeYay()
-            dispatch(.verifyEhProfile)
-            dispatch(.fetchUserInfo)
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
-                self?.dispatch(.resetHomeInfo)
-            }
         case .setReadingProgress(let gid, let tag):
             PersistenceController.update(gid: gid, readingProgress: tag)
         case .setAppIconType(let iconType):
@@ -175,26 +168,7 @@ final class DeprecatedStore: ObservableObject {
 
         // MARK: Fetch Data
         case .handleJumpPage:
-//            DispatchQueue.main.async { [weak self] in
-//                switch appState.environment.homeListType {
-//                case .search:
-//                    guard let keyword = keyword else { break }
-//                    self?.dispatch(.fetchSearchItems(keyword: keyword, pageNum: index))
-//                case .frontpage:
-//                    self?.dispatch(.fetchFrontpageItems(pageNum: index))
-//                case .watched:
-//                    self?.dispatch(.fetchWatchedItems(pageNum: index))
-//                case .favorites:
-//                    self?.dispatch(.fetchFavoritesItems(pageNum: index))
-//                case .toplists:
-//                    self?.dispatch(.fetchToplistsItems(pageNum: index))
-//                case .popular, .downloaded, .history:
-//                    break
-//                }
-//            }
             break
-        case .fetchIgneous:
-            appCommand = FetchIgneousCommand()
         case .fetchTagTranslator:
             guard let preferredLanguage = Locale.preferredLanguages.first,
                   let language = TranslatableLanguage.allCases.compactMap({ lang in
@@ -233,32 +207,6 @@ final class DeprecatedStore: ObservableObject {
                     greeting.updateTime = Date()
                     appState.settings.insert(greeting: greeting)
                 }
-            }
-
-        case .fetchUserInfo:
-            let uid = appState.settings.user.apiuid
-            guard !uid.isEmpty, !appState.settings.userInfoLoading
-            else { break }
-            appState.settings.userInfoLoading = true
-
-            appCommand = FetchUserInfoCommand(uid: uid)
-        case .fetchUserInfoDone(let result):
-            appState.settings.userInfoLoading = false
-
-            if case .success(let user) = result {
-                appState.settings.update(user: user)
-            }
-
-        case .fetchFavoriteNames:
-            if appState.settings.favoriteNamesLoading { break }
-            appState.settings.favoriteNamesLoading = true
-
-            appCommand = FetchFavoriteNamesCommand()
-        case .fetchFavoriteNamesDone(let result):
-            appState.settings.favoriteNamesLoading = false
-
-            if case .success(let names) = result {
-                appState.settings.user.favoriteNames = names
             }
 
         case .fetchGalleryItemReverse(var url, let shouldParseGalleryURL):
@@ -758,27 +706,6 @@ final class DeprecatedStore: ObservableObject {
             }
 
         // MARK: Account Ops
-        case .createEhProfile(let name):
-            appCommand = CreateEhProfileCommand(name: name)
-        case .verifyEhProfile:
-            appCommand = VerifyEhProfileCommand()
-        case .verifyEhProfileDone(let result):
-            if case .success(let (profileValue, profileNotFound)) = result {
-                if let profileValue = profileValue {
-                    let profileValueString = String(profileValue)
-                    let hostURL = Defaults.URL.host.safeURL()
-                    let selectedProfileKey = Defaults.Cookie.selectedProfile
-
-                    let cookieValue = CookiesUtil.get(for: hostURL, key: selectedProfileKey)
-                    if cookieValue.rawValue != profileValueString {
-                        CookiesUtil.set(for: hostURL, key: selectedProfileKey, value: profileValueString)
-                    }
-                } else if profileNotFound {
-                    dispatch(.createEhProfile(name: "EhPanda"))
-                } else {
-                    Logger.error("Found profile but failed in parsing value.")
-                }
-            }
         case .favorGallery(let gid, let favIndex):
             let token = PersistenceController.fetchGallery(gid: gid)?.token ?? ""
             appCommand = AddFavoriteCommand(gid: gid, token: token, favIndex: favIndex)

@@ -14,7 +14,6 @@ enum AppAction {
     case resetUser
     case resetHomeInfo
     case resetFilter(range: FilterRange)
-    case doFinishLoginTasks
     case setReadingProgress(gid: String, tag: Int)
     case setAppIconType(_ iconType: IconType)
     case appendHistoryKeywords(texts: [String])
@@ -43,15 +42,10 @@ enum AppAction {
     case setCommentViewSheetState(_ state: CommentViewSheetState?)
 
     case handleJumpPage(index: Int, keyword: String? = nil)
-    case fetchIgneous
     case fetchTagTranslator
     case fetchTagTranslatorDone(result: Result<TagTranslator, AppError>)
     case fetchGreeting
     case fetchGreetingDone(result: Result<Greeting, AppError>)
-    case fetchUserInfo
-    case fetchUserInfoDone(result: Result<User, AppError>)
-    case fetchFavoriteNames
-    case fetchFavoriteNamesDone(result: Result<[Int: String], AppError>)
     case fetchGalleryItemReverse(url: String, shouldParseGalleryURL: Bool)
     case fetchGalleryItemReverseDone(carriedValue: String, result: Result<Gallery, AppError>)
     case fetchSearchItems(keyword: String, pageNum: Int? = nil)
@@ -93,9 +87,6 @@ enum AppAction {
     case fetchGalleryMPVContent(gid: String, index: Int, isRefetch: Bool = false)
     case fetchGalleryMPVContentDone(gid: String, index: Int, result: Result<(String, String?, ReloadToken), AppError>)
 
-    case createEhProfile(name: String)
-    case verifyEhProfile
-    case verifyEhProfileDone(result: Result<(Int?, Bool), AppError>)
     case favorGallery(gid: String, favIndex: Int)
     case unfavorGallery(gid: String)
     case rateGallery(gid: String, rating: Int)

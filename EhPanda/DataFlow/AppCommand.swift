@@ -30,42 +30,6 @@ struct FetchGreetingCommand: AppCommand {
     }
 }
 
-struct FetchUserInfoCommand: AppCommand {
-    let uid: String
-
-    func execute(in store: DeprecatedStore) {
-        let token = SubscriptionToken()
-        UserInfoRequest(uid: uid).publisher
-            .receive(on: DispatchQueue.main)
-            .sink { completion in
-                if case .failure(let error) = completion {
-                    store.dispatch(.fetchUserInfoDone(result: .failure(error)))
-                }
-                token.unseal()
-            } receiveValue: { user in
-                store.dispatch(.fetchUserInfoDone(result: .success(user)))
-            }
-            .seal(in: token)
-    }
-}
-
-struct FetchFavoriteNamesCommand: AppCommand {
-    func execute(in store: DeprecatedStore) {
-        let token = SubscriptionToken()
-        FavoriteNamesRequest().publisher
-            .receive(on: DispatchQueue.main)
-            .sink { completion in
-                if case .failure(let error) = completion {
-                    store.dispatch(.fetchFavoriteNamesDone(result: .failure(error)))
-                }
-                token.unseal()
-            } receiveValue: { names in
-                store.dispatch(.fetchFavoriteNamesDone(result: .success(names)))
-            }
-            .seal(in: token)
-    }
-}
-
 struct FetchTagTranslatorCommand: AppCommand {
     let language: TranslatableLanguage
     let updatedDate: Date
@@ -647,23 +611,6 @@ struct FetchIgneousCommand: AppCommand {
             .sink { _ in
                 token.unseal()
             } receiveValue: { _ in }
-            .seal(in: token)
-    }
-}
-
-struct VerifyEhProfileCommand: AppCommand {
-    func execute(in store: DeprecatedStore) {
-        let token = SubscriptionToken()
-        VerifyEhProfileRequest().publisher
-            .receive(on: DispatchQueue.main)
-            .sink { completion in
-                if case .failure(let error) = completion {
-                    store.dispatch(.verifyEhProfileDone(result: .failure(error)))
-                }
-                token.unseal()
-            } receiveValue: {
-                store.dispatch(.verifyEhProfileDone(result: .success($0)))
-            }
             .seal(in: token)
     }
 }

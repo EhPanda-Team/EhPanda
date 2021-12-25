@@ -38,7 +38,6 @@ struct WebView: UIViewControllerRepresentable {
                 guard AuthorizationUtil.didLogin else { return }
                 let store = self?.parent.store
                 store?.dispatch(.setSettingViewSheetState(nil))
-                store?.dispatch(.doFinishLoginTasks)
             }
         }
 

@@ -21,7 +21,9 @@ let userDataReducer = Reducer<UserData, UserDataAction, AnyEnvironment> { state,
     case .fetchIgneous:
         return IgneousRequest().effect.fireAndForget()
     case .fetchUserInfo:
-        return UserInfoRequest(uid: state.user.apiuid).effect.map(UserDataAction.fetchUserInfoDone)
+        let uid = state.user.apiuid
+        guard !uid.isEmpty else { return .none }
+        return UserInfoRequest(uid: uid).effect.map(UserDataAction.fetchUserInfoDone)
     case .fetchUserInfoDone(let result):
         if case .success(let user) = result {
             state.user = user

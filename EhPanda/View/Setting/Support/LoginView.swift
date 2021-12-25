@@ -105,14 +105,14 @@ struct LoginView: View, StoreAccessor {
                     }
                     HapticUtil.generateNotificationFeedback(style: .success)
                     dismissAction.callAsFunction()
-                    store.dispatch(.doFinishLoginTasks)
+//                    store.dispatch(.doFinishLoginTasks)
                 }
                 token.unseal()
             } receiveValue: { value in
                 guard setting.bypassesSNIFiltering, let (_, resp) = value as? (Data, HTTPURLResponse) else { return }
 
                 CookiesUtil.setIgneous(for: resp)
-                store.dispatch(.fetchIgneous)
+//                store.dispatch(.fetchIgneous)
             }
             .seal(in: token)
     }
