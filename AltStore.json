@@ -12,20 +12,20 @@
       "versionDescription": "1. Fixed an issue of deleting profiles feature.",
       "downloadURL": "https://github.com/tatsuz0u/EhPanda/releases/download/v1.5.3_b124/EhPanda.ipa",
       "localizedDescription": "An unofficial E-Hentai App for iOS.",
-      "iconURL": "https://github.com/tatsuz0u/EhPanda-PromotionResources/raw/main/images/appicon/appicon-512.png",
+      "iconURL": "https://github.com/tatsuz0u/ehpanda-website/raw/main/public/img/appicon/appicon-512.png",
       "tintColor": "289979",
       "size": 6133813,
       "screenshotURLs": [
-        "https://github.com/tatsuz0u/EhPanda/raw/main/ehpanda-vue/public/img/screenshot/Home_EN_Light.png",
-        "https://github.com/tatsuz0u/EhPanda/raw/main/ehpanda-vue/public/img/screenshot/SlideMenu_EN_Light.png",
-        "https://github.com/tatsuz0u/EhPanda/raw/main/ehpanda-vue/public/img/screenshot/Detail_EN_Light.png",
-        "https://github.com/tatsuz0u/EhPanda/raw/main/ehpanda-vue/public/img/screenshot/Comment_EN_Light.png",
-        "https://github.com/tatsuz0u/EhPanda/raw/main/ehpanda-vue/public/img/screenshot/Archive_EN_Light.png",
-        "https://github.com/tatsuz0u/EhPanda/raw/main/ehpanda-vue/public/img/screenshot/Torrent_EN_Light.png",
-        "https://github.com/tatsuz0u/EhPanda/raw/main/ehpanda-vue/public/img/screenshot/EhSetting_EN_Light.png",
-        "https://github.com/tatsuz0u/EhPanda/raw/main/ehpanda-vue/public/img/screenshot/Filter_EN_Light.png",
-        "https://github.com/tatsuz0u/EhPanda/raw/main/ehpanda-vue/public/img/screenshot/Setting_EN_Light.png",
-        "https://github.com/tatsuz0u/EhPanda/raw/main/ehpanda-vue/public/img/screenshot/DomainFronting_EN_Light.png"
+        "https://github.com/tatsuz0u/ehpanda-website/raw/main/public/img/screenshot/Home_EN_Light.png",
+        "https://github.com/tatsuz0u/ehpanda-website/raw/main/public/img/screenshot/SlideMenu_EN_Light.png",
+        "https://github.com/tatsuz0u/ehpanda-website/raw/main/public/img/screenshot/Detail_EN_Light.png",
+        "https://github.com/tatsuz0u/ehpanda-website/raw/main/public/img/screenshot/Comment_EN_Light.png",
+        "https://github.com/tatsuz0u/ehpanda-website/raw/main/public/img/screenshot/Archive_EN_Light.png",
+        "https://github.com/tatsuz0u/ehpanda-website/raw/main/public/img/screenshot/Torrent_EN_Light.png",
+        "https://github.com/tatsuz0u/ehpanda-website/raw/main/public/img/screenshot/EhSetting_EN_Light.png",
+        "https://github.com/tatsuz0u/ehpanda-website/raw/main/public/img/screenshot/Filter_EN_Light.png",
+        "https://github.com/tatsuz0u/ehpanda-website/raw/main/public/img/screenshot/Setting_EN_Light.png",
+        "https://github.com/tatsuz0u/ehpanda-website/raw/main/public/img/screenshot/DomainFronting_EN_Light.png"
       ],
       "permissions": [
         {

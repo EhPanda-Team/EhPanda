@@ -22,7 +22,7 @@ App Strings: [{lang}.lproj](/EhPanda/App)
 
 GitHub Readme: [README.{lang}.md](/READMEs)
 
-https://ehpanda.app: [main.js](/ehpanda-vue/src/main.js)
+https://ehpanda.app: [main.js](https://github.com/tatsuz0u/ehpanda-website/blob/main/src/main.js)
 
 ## 다운로드
 1. [Releases](https://github.com/arakitatsuzou/EhPanda/releases)에서 ipa 파일을 다운로드 받으세요.
