@@ -22,7 +22,7 @@ App Strings: [{lang}.lproj](/EhPanda/App)
 
 GitHub Readme: [README.{lang}.md](/READMEs)
 
-https://ehpanda.app: [main.js](/ehpanda-vue/src/main.js)
+https://ehpanda.app: [main.js](https://github.com/tatsuz0u/ehpanda-website/blob/main/src/main.js)
 
 ## Installation
 1. Lade die IPA-Datei hier herunter: [Releases](https://github.com/arakitatsuzou/EhPanda/releases).
