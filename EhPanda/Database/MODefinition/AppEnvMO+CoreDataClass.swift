@@ -50,7 +50,7 @@ struct AppEnv: Codable {
     let quickSearchWords: [QuickSearchWord]
 }
 
-struct TagTranslator: Codable {
+struct TagTranslator: Codable, Equatable {
     var language: TranslatableLanguage = .japanese
     var updatedDate: Date = .distantPast
     var contents = [String: String]()

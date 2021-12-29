@@ -8,7 +8,7 @@
 import SwiftUI
 import BetterCodable
 
-struct Filter: Codable {
+struct Filter: Codable, Equatable {
     @DefaultFalse var doujinshi = false
     @DefaultFalse var manga = false
     @DefaultFalse var artistCG = false

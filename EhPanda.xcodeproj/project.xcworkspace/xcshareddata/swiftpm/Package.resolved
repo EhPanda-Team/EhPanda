@@ -65,6 +65,15 @@
         }
       },
       {
+        "package": "SFSafeSymbols",
+        "repositoryURL": "https://github.com/SFSafeSymbols/SFSafeSymbols.git",
+        "state": {
+          "branch": "stable",
+          "revision": "7a2310d55391f063e8a31b9d587d593d1dd3af9c",
+          "version": null
+        }
+      },
+      {
         "package": "swift-case-paths",
         "repositoryURL": "https://github.com/pointfreeco/swift-case-paths",
         "state": {

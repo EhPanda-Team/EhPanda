@@ -9,7 +9,7 @@ import SwiftUI
 import Foundation
 import BetterCodable
 
-struct Setting: Codable {
+struct Setting: Codable, Equatable {
     // Account
     @DefaultFalse var showNewDawnGreeting = false
 

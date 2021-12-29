@@ -103,6 +103,9 @@
 		ABD4032626B78E5A00001B8C /* GalleryThumbnailCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABD4032526B78E5A00001B8C /* GalleryThumbnailCell.swift */; };
 		ABD4032826B7967F00001B8C /* Category.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABD4032726B7967F00001B8C /* Category.swift */; };
 		ABD49D5A277C5356003D1A07 /* FavoritesStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABD49D59277C5356003D1A07 /* FavoritesStore.swift */; };
+		ABD49D5D277C6C9D003D1A07 /* SFSafeSymbols in Frameworks */ = {isa = PBXBuildFile; productRef = ABD49D5C277C6C9D003D1A07 /* SFSafeSymbols */; };
+		ABD49D60277C7722003D1A07 /* TabBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABD49D5F277C7722003D1A07 /* TabBarView.swift */; };
+		ABD49D64277C7AD5003D1A07 /* TabBarStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABD49D63277C7AD5003D1A07 /* TabBarStore.swift */; };
 		ABD5FDD4263D05110021A4C6 /* .swiftlint.yml in Resources */ = {isa = PBXBuildFile; fileRef = ABD5FDD3263D05110021A4C6 /* .swiftlint.yml */; };
 		ABD7005926B1C31500DC59C9 /* Kanna in Frameworks */ = {isa = PBXBuildFile; productRef = ABD7005826B1C31500DC59C9 /* Kanna */; };
 		ABE1867826A1733000689FDC /* LaboratorySettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABE1867726A1733000689FDC /* LaboratorySettingView.swift */; };
@@ -275,6 +278,8 @@
 		ABD4032526B78E5A00001B8C /* GalleryThumbnailCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryThumbnailCell.swift; sourceTree = "<group>"; };
 		ABD4032726B7967F00001B8C /* Category.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Category.swift; sourceTree = "<group>"; };
 		ABD49D59277C5356003D1A07 /* FavoritesStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoritesStore.swift; sourceTree = "<group>"; };
+		ABD49D5F277C7722003D1A07 /* TabBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarView.swift; sourceTree = "<group>"; };
+		ABD49D63277C7AD5003D1A07 /* TabBarStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarStore.swift; sourceTree = "<group>"; };
 		ABD5FDD3263D05110021A4C6 /* .swiftlint.yml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.yaml; path = .swiftlint.yml; sourceTree = SOURCE_ROOT; };
 		ABE1867726A1733000689FDC /* LaboratorySettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaboratorySettingView.swift; sourceTree = "<group>"; };
 		ABE2AE742699F238001D47AA /* AppEnvStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppEnvStorage.swift; sourceTree = "<group>"; };
@@ -343,6 +348,7 @@
 				AB60D0CF274C7AA000F899AB /* BetterCodable in Frameworks */,
 				AB6505A026B0027800F91E9D /* SwiftUIPager in Frameworks */,
 				AB21CCA0274B4F0C00C115B1 /* SwiftyBeaver in Frameworks */,
+				ABD49D5D277C6C9D003D1A07 /* SFSafeSymbols in Frameworks */,
 				ABAC82FE26BC4A96009F5026 /* OpenCC in Frameworks */,
 				AB58A5A32776078F00C0D285 /* ComposableArchitecture in Frameworks */,
 				AB17573D27675B1E00FD64E2 /* Colorful in Frameworks */,
@@ -685,6 +691,15 @@
 			path = Models;
 			sourceTree = "<group>";
 		};
+		ABD49D5E277C7715003D1A07 /* TabBar */ = {
+			isa = PBXGroup;
+			children = (
+				ABD49D5F277C7722003D1A07 /* TabBarView.swift */,
+				ABD49D63277C7AD5003D1A07 /* TabBarStore.swift */,
+			);
+			path = TabBar;
+			sourceTree = "<group>";
+		};
 		ABF45AB325F3312F00ECB568 /* DataFlow */ = {
 			isa = PBXGroup;
 			children = (
@@ -702,6 +717,7 @@
 		ABF45ABF25F3313D00ECB568 /* View */ = {
 			isa = PBXGroup;
 			children = (
+				ABD49D5E277C7715003D1A07 /* TabBar */,
 				ABF45AC025F3313D00ECB568 /* Home */,
 				AB24C55F276757240085C33A /* Favorites */,
 				ABF45AD125F3313D00ECB568 /* Detail */,
@@ -823,6 +839,7 @@
 				AB17573C27675B1E00FD64E2 /* Colorful */,
 				AB17573F27678B3400FD64E2 /* UIImageColors */,
 				AB58A5A22776078F00C0D285 /* ComposableArchitecture */,
+				ABD49D5C277C6C9D003D1A07 /* SFSafeSymbols */,
 			);
 			productName = EhPanda;
 			productReference = ABC3C7542593696C00E0C11B /* EhPanda.app */;
@@ -895,6 +912,7 @@
 				AB17573B27675B1E00FD64E2 /* XCRemoteSwiftPackageReference "Colorful" */,
 				AB17573E27678B3400FD64E2 /* XCRemoteSwiftPackageReference "UIImageColors" */,
 				AB58A5A12776078F00C0D285 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */,
+				ABD49D5B277C6C9D003D1A07 /* XCRemoteSwiftPackageReference "SFSafeSymbols" */,
 			);
 			productRefGroup = ABC3C7552593696C00E0C11B /* Products */;
 			projectDirPath = "";
@@ -1028,6 +1046,7 @@
 				ABC3C78F2593699B00E0C11B /* ViewModifiers.swift in Sources */,
 				ABF45AF825F3313D00ECB568 /* EhPandaView.swift in Sources */,
 				ABCA93C42692A0BF00A98BC6 /* PersistenceAccessor.swift in Sources */,
+				ABD49D60277C7722003D1A07 /* TabBarView.swift in Sources */,
 				AB73CEAF26AAC13F00EF6337 /* CodableExtension.swift in Sources */,
 				ABC3C7862593699B00E0C11B /* Utilities.swift in Sources */,
 				AB58A5BA2776CE2F00C0D285 /* UserDataAction.swift in Sources */,
@@ -1048,6 +1067,7 @@
 				AB6DE897268822390087C579 /* LogsView.swift in Sources */,
 				AB7B29F226AC471E00EE1F14 /* MigrationPolicy.swift in Sources */,
 				ABE9401526FF158D0085E158 /* QuickSearchView.swift in Sources */,
+				ABD49D64277C7AD5003D1A07 /* TabBarStore.swift in Sources */,
 				ABF45AF025F3313D00ECB568 /* CommentView.swift in Sources */,
 				ABBD2B602768D7AD0072AED2 /* GalleryRankingCell.swift in Sources */,
 				ABF45AE225F3313D00ECB568 /* AuthView.swift in Sources */,
@@ -1555,6 +1575,14 @@
 				minimumVersion = 7.1.2;
 			};
 		};
+		ABD49D5B277C6C9D003D1A07 /* XCRemoteSwiftPackageReference "SFSafeSymbols" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SFSafeSymbols/SFSafeSymbols.git";
+			requirement = {
+				branch = stable;
+				kind = branch;
+			};
+		};
 		ABD7005726B1C31500DC59C9 /* XCRemoteSwiftPackageReference "Kanna" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/tid-kijyun/Kanna.git";
@@ -1628,6 +1656,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = ABC4A0772751B40E00968A4F /* XCRemoteSwiftPackageReference "Kingfisher" */;
 			productName = Kingfisher;
+		};
+		ABD49D5C277C6C9D003D1A07 /* SFSafeSymbols */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = ABD49D5B277C6C9D003D1A07 /* XCRemoteSwiftPackageReference "SFSafeSymbols" */;
+			productName = SFSafeSymbols;
 		};
 		ABD7005826B1C31500DC59C9 /* Kanna */ = {
 			isa = XCSwiftPackageProductDependency;

@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct User: Codable {
+struct User: Codable, Equatable {
     static let empty = User()
 
     var displayName: String?

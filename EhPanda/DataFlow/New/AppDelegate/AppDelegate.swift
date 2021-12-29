@@ -11,7 +11,7 @@ import ComposableArchitecture
 // MARK: AppDelegate
 class AppDelegate: UIResponder, UIApplicationDelegate {
     let store = Store(initialState: AltAppState(), reducer: appReducer, environment: AppEnvironment())
-    lazy var viewStore = ViewStore(store.scope(state: { _ in () }), removeDuplicates: ==)
+    lazy var viewStore = ViewStore(store.stateless)
 
     static var orientationLock: UIInterfaceOrientationMask =
         DeviceUtil.isPad ? .all : [.portrait, .portraitUpsideDown]

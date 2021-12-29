@@ -8,7 +8,8 @@
 import SwiftUI
 import ComposableArchitecture
 
-struct AltAppState {
+struct AltAppState: Equatable {
     var userData = UserData()
+    var tabBarState = TabBarState()
     var favoritesState = FavoritesState()
 }

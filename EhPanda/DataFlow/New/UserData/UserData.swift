@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct UserData {
+struct UserData: Equatable {
     @AppEnvStorage(type: User.self) var user: User
     @AppEnvStorage(type: Setting.self) var setting: Setting
 

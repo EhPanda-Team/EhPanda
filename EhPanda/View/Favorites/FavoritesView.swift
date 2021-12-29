@@ -7,6 +7,7 @@
 
 import SwiftUI
 import AlertKit
+import SFSafeSymbols
 import ComposableArchitecture
 
 struct FavoritesView: View {
@@ -55,15 +56,15 @@ struct FavoritesView: View {
             .onChange(of: alertManager.isPresented) { _ in
                 jumpPageAlertFocused = false
             }
+            .synchronize(
+                viewStore.binding(\.$jumpPageAlertFocused),
+                $jumpPageAlertFocused
+            )
             .onAppear {
                 if viewStore.galleries?.isEmpty != false {
                     viewStore.send(.fetchGalleries())
                 }
             }
-            .synchronize(
-                viewStore.binding(\.$jumpPageAlertFocused),
-                $jumpPageAlertFocused
-            )
             .navigationTitle("Favorites")
             .toolbar(content: toolbar)
         }
@@ -81,12 +82,12 @@ struct FavoritesView: View {
                     } label: {
                         Text(User.getFavNameFrom(index: index, names: [:]))
                         if index == viewStore.index {
-                            Image(systemName: "checkmark")
+                            Image(systemSymbol: .checkmark)
                         }
                     }
                 }
             } label: {
-                Image(systemName: "dial.min")
+                Image(systemSymbol: .dialMin)
                     .symbolRenderingMode(.hierarchical)
                     .foregroundColor(.primary)
             }
@@ -101,12 +102,12 @@ struct FavoritesView: View {
                     } label: {
                         Text(order.value.localized)
                         if order == viewStore.sortOrder {
-                            Image(systemName: "checkmark")
+                            Image(systemSymbol: .checkmark)
                         }
                     }
                 }
             } label: {
-                Image(systemName: "arrow.up.arrow.down.circle")
+                Image(systemSymbol: .arrowUpArrowDownCircle)
                     .symbolRenderingMode(.hierarchical)
                     .foregroundColor(.primary)
             }
@@ -117,12 +118,12 @@ struct FavoritesView: View {
                     alertManager.show()
                     viewStore.send(.presentJumpPageAlert)
                 } label: {
-                    Image(systemName: "arrowshape.bounce.forward")
+                    Image(systemSymbol: .arrowshapeBounceForward)
                     Text("Jump page")
                 }
                 .disabled(viewStore.pageNumber?.isSinglePage ?? true)
             } label: {
-                Image(systemName: "ellipsis.circle")
+                Image(systemSymbol: .ellipsisCircle)
                     .symbolRenderingMode(.hierarchical)
                     .foregroundColor(.primary)
             }

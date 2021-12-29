@@ -6,7 +6,7 @@
 //
 
 @propertyWrapper
-struct AppEnvStorage<T: Encodable> {
+struct AppEnvStorage<T: Encodable & Equatable>: Equatable {
     private var key: String
     private var value: T?
 
