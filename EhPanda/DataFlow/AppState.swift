@@ -157,13 +157,6 @@ extension AppState {
         mutating func insertWatchedItems(galleries: [Gallery]) {
             insertGalleries(stored: &watchedItems, new: galleries)
         }
-        mutating func insertFavoritesItems(favIndex: Int, galleries: [Gallery]) {
-            galleries.forEach { gallery in
-                if favoritesItems[favIndex]?.contains(gallery) == false {
-                    favoritesItems[favIndex]?.append(gallery)
-                }
-            }
-        }
         mutating func insertToplistsItems(topIndex: Int, galleries: [Gallery]) {
             galleries.forEach { gallery in
                 if toplistsItems[topIndex]?.contains(gallery) == false {

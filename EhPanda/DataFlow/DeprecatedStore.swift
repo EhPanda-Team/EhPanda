@@ -145,10 +145,6 @@ final class DeprecatedStore: ObservableObject {
                 appState.environment.blurRadius =
                     activated ? appState.settings.setting.backgroundBlurRadius : 0
             }
-//        case .setHomeListType(let type):
-//            appState.environment.homeListType = type
-        case .setFavoritesIndex(let index):
-            appState.environment.favoritesIndex = index
         case .setToplistsType(let type):
             appState.environment.toplistsType = type
         case .setNavigationBarHidden(let hidden):
@@ -398,58 +394,6 @@ final class DeprecatedStore: ObservableObject {
                 PersistenceController.add(galleries: galleries)
             case .failure:
                 appState.homeInfo.moreWatchedLoadFailed = true
-            }
-
-        case .fetchFavoritesItems(let pageNum, let sortOrder):
-            let favIndex = appState.environment.favoritesIndex
-            appState.homeInfo.favoritesLoadErrors[favIndex] = nil
-
-            if appState.homeInfo.favoritesLoading[favIndex] == true { break }
-            if appState.homeInfo.favoritesPageNumbers[favIndex] == nil {
-                appState.homeInfo.favoritesPageNumbers[favIndex] = PageNumber()
-            }
-            appState.homeInfo.favoritesPageNumbers[favIndex]?.current = 0
-            appState.homeInfo.favoritesLoading[favIndex] = true
-            appCommand = FetchFavoritesItemsCommand(favIndex: favIndex, pageNum: pageNum, sortOrder: sortOrder)
-        case .fetchFavoritesItemsDone(let carriedValue, let result):
-            appState.homeInfo.favoritesLoading[carriedValue] = false
-
-            switch result {
-            case .success(let (pageNumber, sortOrder, galleries)):
-                appState.homeInfo.favoritesPageNumbers[carriedValue] = pageNumber
-                appState.homeInfo.favoritesItems[carriedValue] = galleries
-                appState.environment.favoritesSortOrder = sortOrder
-                PersistenceController.add(galleries: galleries)
-            case .failure(let error):
-                appState.homeInfo.favoritesLoadErrors[carriedValue] = error
-            }
-
-        case .fetchMoreFavoritesItems:
-            let favIndex = appState.environment.favoritesIndex
-            appState.homeInfo.moreFavoritesLoadFailed[favIndex] = false
-
-            let pageNumber = appState.homeInfo.favoritesPageNumbers[favIndex]
-            if (pageNumber?.current ?? 0) + 1 > pageNumber?.maximum ?? 0 { break }
-
-            if appState.homeInfo.moreFavoritesLoading[favIndex] == true { break }
-            appState.homeInfo.moreFavoritesLoading[favIndex] = true
-
-            let pageNum = (pageNumber?.current ?? 0) + 1
-            let lastID = appState.homeInfo.favoritesItems[favIndex]?.last?.id ?? ""
-            appCommand = FetchMoreFavoritesItemsCommand(
-                favIndex: favIndex, lastID: lastID, pageNum: pageNum
-            )
-        case .fetchMoreFavoritesItemsDone(let carriedValue, let result):
-            appState.homeInfo.moreFavoritesLoading[carriedValue] = false
-
-            switch result {
-            case .success(let (pageNumber, sortOrder, galleries)):
-                appState.homeInfo.favoritesPageNumbers[carriedValue] = pageNumber
-                appState.homeInfo.insertFavoritesItems(favIndex: carriedValue, galleries: galleries)
-                appState.environment.favoritesSortOrder = sortOrder
-                PersistenceController.add(galleries: galleries)
-            case .failure:
-                appState.homeInfo.moreFavoritesLoading[carriedValue] = true
             }
 
         case .fetchToplistsItems(let pageNum):

@@ -17,6 +17,11 @@ let appReducer = Reducer<AltAppState, AltAppAction, AppEnvironment>.combine(
         state: \.userData,
         action: /AltAppAction.userData,
         environment: { _ in AnyEnvironment() }
+    ),
+    favoritesReducer.pullback(
+        state: \.favoritesState,
+        action: /AltAppAction.favorites,
+        environment: { _ in FavoritesEnvironment() }
     )
 )
 

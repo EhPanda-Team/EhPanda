@@ -272,64 +272,6 @@ struct FetchMoreWatchedItemsCommand: AppCommand {
     }
 }
 
-struct FetchFavoritesItemsCommand: AppCommand {
-    let favIndex: Int
-    var pageNum: Int?
-    var sortOrder: FavoritesSortOrder?
-
-    func execute(in store: DeprecatedStore) {
-        let token = SubscriptionToken()
-        FavoritesItemsRequest(favIndex: favIndex, pageNum: pageNum, sortOrder: sortOrder)
-            .publisher.receive(on: DispatchQueue.main)
-            .sink { completion in
-                if case .failure(let error)  = completion {
-                    store.dispatch(.fetchFavoritesItemsDone(carriedValue: favIndex, result: .failure(error)))
-                }
-                token.unseal()
-            } receiveValue: { (pageNumber, sortOrder, galleries) in
-                if !galleries.isEmpty {
-                    store.dispatch(.fetchFavoritesItemsDone(
-                        carriedValue: favIndex, result: .success((pageNumber, sortOrder, galleries)))
-                    )
-                } else {
-                    store.dispatch(.fetchFavoritesItemsDone(carriedValue: favIndex, result: .failure(.notFound)))
-                    guard pageNumber.current < pageNumber.maximum else { return }
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                        store.dispatch(.fetchMoreFavoritesItems)
-                    }
-                }
-            }
-            .seal(in: token)
-    }
-}
-
-struct FetchMoreFavoritesItemsCommand: AppCommand {
-    let favIndex: Int
-    let lastID: String
-    let pageNum: Int
-
-    func execute(in store: DeprecatedStore) {
-        let token = SubscriptionToken()
-        MoreFavoritesItemsRequest(favIndex: favIndex, lastID: lastID, pageNum: pageNum)
-            .publisher.receive(on: DispatchQueue.main)
-            .sink { completion in
-                if case .failure(let error)  = completion {
-                    store.dispatch(.fetchMoreFavoritesItemsDone(carriedValue: favIndex, result: .failure(error)))
-                }
-                token.unseal()
-            } receiveValue: { (pageNumber, sortOrder, galleries) in
-                store.dispatch(.fetchMoreFavoritesItemsDone(
-                    carriedValue: favIndex, result: .success((pageNumber, sortOrder, galleries)))
-                )
-                guard galleries.isEmpty, pageNumber.current < pageNumber.maximum else { return }
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                    store.dispatch(.fetchMoreFavoritesItems)
-                }
-            }
-            .seal(in: token)
-    }
-}
-
 struct FetchToplistsItemsCommand: AppCommand {
     let topIndex: Int
     let catIndex: Int

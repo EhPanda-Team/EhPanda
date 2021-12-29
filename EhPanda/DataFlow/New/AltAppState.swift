@@ -10,4 +10,5 @@ import ComposableArchitecture
 
 struct AltAppState {
     var userData = UserData()
+    var favoritesState = FavoritesState()
 }

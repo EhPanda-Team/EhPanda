@@ -7,50 +7,63 @@
 
 import SwiftUI
 import AlertKit
+import ComposableArchitecture
 
-struct FavoritesView: View, StoreAccessor {
-    @EnvironmentObject var store: DeprecatedStore
+struct FavoritesView: View {
     @Environment(\.colorScheme) private var colorScheme
 
-    @State private var keyword = ""
-    @State private var lastKeyword = ""
+    let store: Store<FavoritesState, FavoritesAction>
+    @ObservedObject var viewStore: ViewStore<FavoritesState, FavoritesAction>
 
-    @State private var alertInput = ""
-    @FocusState private var isAlertFocused: Bool
+    @FocusState private var jumpPageAlertFocused: Bool
     @StateObject private var alertManager = CustomAlertManager()
 
-    private var pageNumber: PageNumber {
-        homeInfo.favoritesPageNumbers[environment.favoritesIndex] ?? PageNumber()
+    init(store: Store<FavoritesState, FavoritesAction>) {
+        self.store = store
+        viewStore = ViewStore(store)
     }
 
     // MARK: FavoritesView
     var body: some View {
         NavigationView {
             GenericList(
-                items: homeInfo.favoritesItems[environment.favoritesIndex] ?? [], setting: setting,
-                pageNumber: homeInfo.favoritesPageNumbers[environment.favoritesIndex],
-                loadingFlag: homeInfo.favoritesLoading[environment.favoritesIndex] ?? false,
-                loadError: homeInfo.favoritesLoadErrors[environment.favoritesIndex],
-                moreLoadingFlag: homeInfo.moreFavoritesLoading[environment.favoritesIndex] ?? false,
-                moreLoadFailedFlag: homeInfo.moreFavoritesLoadFailed[environment.favoritesIndex] ?? false,
-                fetchAction: fetchFavoritesItems, loadMoreAction: fetchMoreFavoritesItems,
-                translateAction: {
-                    settings.tagTranslator.tryTranslate(text: $0, returnOriginal: !setting.translatesTags)
-                }
+                items: viewStore.galleries ?? [], setting: Setting(),
+                pageNumber: viewStore.pageNumber,
+                loadingFlag: viewStore.loadingState == .loading,
+                loadError: (/LoadingState.failed).extract(from: viewStore.loadingState),
+                moreLoadingFlag: viewStore.footerLoadingState == .loading,
+                moreLoadFailedFlag: ![.none, .idle, .loading].contains(viewStore.footerLoadingState),
+                fetchAction: { viewStore.send(.fetchGalleries()) },
+                loadMoreAction: { viewStore.send(.fetchMoreGalleries) },
+                translateAction: { $0 }
             )
             .customAlert(
                 manager: alertManager, widthFactor: DeviceUtil.isPadWidth ? 0.5 : 1.0,
                 backgroundOpacity: colorScheme == .light ? 0.2 : 0.5,
-                content: {
-                    PageJumpView(
-                        inputText: $alertInput, isFocused: $isAlertFocused, pageNumber: pageNumber
-                    )
-                },
-                buttons: [.regular(content: { Text("Confirm") }, action: tryPerformJumpPage)]
+                content: { PageJumpView(
+                    inputText: viewStore.binding(\.$jumpPageIndex),
+                    isFocused: $jumpPageAlertFocused,
+                    pageNumber: viewStore.pageNumber ?? PageNumber()
+                ) },
+                buttons: [.regular(
+                    content: { Text("Confirm") }, action: {
+                        viewStore.send(.performJumpPage)
+                    }
+                )]
             )
-            .onChange(of: alertManager.isPresented) { _ in isAlertFocused = false }
-            .searchable(text: $keyword) { SuggestionProvider(keyword: $keyword) }
-            .onAppear(perform: tryFetchFavoritesItems)
+            .searchable(text: viewStore.binding(\.$keyword))
+            .onChange(of: alertManager.isPresented) { _ in
+                jumpPageAlertFocused = false
+            }
+            .onAppear {
+                if viewStore.galleries?.isEmpty != false {
+                    viewStore.send(.fetchGalleries())
+                }
+            }
+            .synchronize(
+                viewStore.binding(\.$jumpPageAlertFocused),
+                $jumpPageAlertFocused
+            )
             .navigationTitle("Favorites")
             .toolbar(content: toolbar)
         }
@@ -62,11 +75,12 @@ struct FavoritesView: View, StoreAccessor {
             Menu {
                 ForEach(-1..<10) { index in
                     Button {
-                        guard index != environment.favoritesIndex else { return }
-                        store.dispatch(.setFavoritesIndex(index))
+                        if index != viewStore.index {
+                            viewStore.send(.setFavoritesIndex(index))
+                        }
                     } label: {
-                        Text(User.getFavNameFrom(index: index, names: favoriteNames))
-                        if index == environment.favoritesIndex {
+                        Text(User.getFavNameFrom(index: index, names: [:]))
+                        if index == viewStore.index {
                             Image(systemName: "checkmark")
                         }
                     }
@@ -81,11 +95,12 @@ struct FavoritesView: View, StoreAccessor {
             Menu {
                 ForEach(FavoritesSortOrder.allCases) { order in
                     Button {
-                        guard order != environment.favoritesSortOrder else { return }
-                        store.dispatch(.fetchFavoritesItems(sortOrder: order))
+                        if order != viewStore.sortOrder {
+                            viewStore.send(.fetchGalleries(nil, order))
+                        }
                     } label: {
                         Text(order.value.localized)
-                        if order == environment.favoritesSortOrder {
+                        if order == viewStore.sortOrder {
                             Image(systemName: "checkmark")
                         }
                     }
@@ -99,16 +114,13 @@ struct FavoritesView: View, StoreAccessor {
         func moreFeaturesMenu() -> some View {
             Menu {
                 Button {
-                    store.dispatch(.setHomeViewSheetState(.filter))
+                    alertManager.show()
+                    viewStore.send(.presentJumpPageAlert)
                 } label: {
-                    Image(systemName: "line.3.horizontal.decrease")
-                    Text("Filters")
-                }
-                Button(action: presentJumpPageAlert) {
                     Image(systemName: "arrowshape.bounce.forward")
                     Text("Jump page")
                 }
-                .disabled(pageNumber.isSinglePage)
+                .disabled(viewStore.pageNumber?.isSinglePage ?? true)
             } label: {
                 Image(systemName: "ellipsis.circle")
                     .symbolRenderingMode(.hierarchical)
@@ -125,33 +137,10 @@ struct FavoritesView: View, StoreAccessor {
     }
 }
 
-// MARK: Methods
-private extension FavoritesView {
-    func fetchFavoritesItems() {
-        store.dispatch(.fetchFavoritesItems())
-    }
-    func fetchMoreFavoritesItems() {
-        store.dispatch(.fetchMoreFavoritesItems)
-    }
-    func tryFetchFavoritesItems() {
-        guard homeInfo.favoritesItems[environment.favoritesIndex]?.isEmpty != false else { return }
-        fetchFavoritesItems()
-    }
-    func presentJumpPageAlert() {
-        alertManager.show()
-        isAlertFocused = true
-        HapticUtil.generateFeedback(style: .light)
-    }
-    func tryPerformJumpPage() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            guard let index = Int(alertInput), index <= pageNumber.maximum + 1 else { return }
-            store.dispatch(.handleJumpPage(index: index - 1, keyword: lastKeyword))
-        }
-    }
-}
-
 struct FavoritesView_Previews: PreviewProvider {
     static var previews: some View {
-        FavoritesView()
+        FavoritesView(store: Store<FavoritesState, FavoritesAction>(
+            initialState: FavoritesState(), reducer: favoritesReducer, environment: FavoritesEnvironment())
+        )
     }
 }

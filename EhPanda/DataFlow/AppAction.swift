@@ -32,8 +32,6 @@ enum AppAction {
 
     case setAppLock(activated: Bool)
     case setBlurEffect(activated: Bool)
-    // case setHomeListType(_ type: HomeListType)
-    case setFavoritesIndex(_ index: Int)
     case setToplistsType(_ type: ToplistsType)
     case setNavigationBarHidden(_ hidden: Bool)
     case setHomeViewSheetState(_ state: HomeViewSheetState?)
@@ -62,10 +60,6 @@ enum AppAction {
     case fetchWatchedItemsDone(result: Result<(PageNumber, [Gallery]), AppError>)
     case fetchMoreWatchedItems
     case fetchMoreWatchedItemsDone(result: Result<(PageNumber, [Gallery]), AppError>)
-    case fetchFavoritesItems(pageNum: Int? = nil, sortOrder: FavoritesSortOrder? = nil)
-    case fetchFavoritesItemsDone(carriedValue: Int, result: Result<(PageNumber, FavoritesSortOrder?, [Gallery]), AppError>)
-    case fetchMoreFavoritesItems
-    case fetchMoreFavoritesItemsDone(carriedValue: Int, result: Result<(PageNumber, FavoritesSortOrder?, [Gallery]), AppError>)
     case fetchToplistsItems(pageNum: Int? = nil)
     case fetchToplistsItemsDone(carriedValue: Int, result: Result<(PageNumber, [Gallery]), AppError>)
     case fetchMoreToplistsItems
