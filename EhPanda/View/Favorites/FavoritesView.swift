@@ -14,26 +14,29 @@ struct FavoritesView: View {
     @Environment(\.colorScheme) private var colorScheme
 
     let store: Store<FavoritesState, FavoritesAction>
+    let userDataStore: Store<UserData, UserDataAction>
     @ObservedObject var viewStore: ViewStore<FavoritesState, FavoritesAction>
+    @ObservedObject var userDataViewStore: ViewStore<UserData, UserDataAction>
 
     @FocusState private var jumpPageAlertFocused: Bool
     @StateObject private var alertManager = CustomAlertManager()
 
-    init(store: Store<FavoritesState, FavoritesAction>) {
+    init(store: Store<FavoritesState, FavoritesAction>, userDataStore: Store<UserData, UserDataAction>) {
         self.store = store
+        self.userDataStore = userDataStore
         viewStore = ViewStore(store)
+        userDataViewStore = ViewStore(userDataStore)
     }
 
     // MARK: FavoritesView
     var body: some View {
         NavigationView {
             GenericList(
-                items: viewStore.galleries ?? [], setting: Setting(),
+                galleries: viewStore.galleries ?? [],
+                setting: userDataViewStore.setting,
                 pageNumber: viewStore.pageNumber,
-                loadingFlag: viewStore.loadingState == .loading,
-                loadError: (/LoadingState.failed).extract(from: viewStore.loadingState),
-                moreLoadingFlag: viewStore.footerLoadingState == .loading,
-                moreLoadFailedFlag: ![.none, .idle, .loading].contains(viewStore.footerLoadingState),
+                loadingState: viewStore.loadingState ?? .idle,
+                footerLoadingState: viewStore.footerLoadingState ?? .idle,
                 fetchAction: { viewStore.send(.fetchGalleries()) },
                 loadMoreAction: { viewStore.send(.fetchMoreGalleries) },
                 translateAction: { $0 }
@@ -41,24 +44,31 @@ struct FavoritesView: View {
             .customAlert(
                 manager: alertManager, widthFactor: DeviceUtil.isPadWidth ? 0.5 : 1.0,
                 backgroundOpacity: colorScheme == .light ? 0.2 : 0.5,
-                content: { PageJumpView(
-                    inputText: viewStore.binding(\.$jumpPageIndex),
-                    isFocused: $jumpPageAlertFocused,
-                    pageNumber: viewStore.pageNumber ?? PageNumber()
-                ) },
-                buttons: [.regular(
-                    content: { Text("Confirm") }, action: {
-                        viewStore.send(.performJumpPage)
-                    }
-                )]
+                content: {
+                    PageJumpView(
+                        inputText: viewStore.binding(\.$jumpPageIndex),
+                        isFocused: $jumpPageAlertFocused,
+                        pageNumber: viewStore.pageNumber ?? PageNumber()
+                    )
+                },
+                buttons: [
+                    .regular(
+                        content: { Text("Confirm") },
+                        action: { viewStore.send(.performJumpPage) }
+                    )
+                ]
             )
             .searchable(text: viewStore.binding(\.$keyword))
             .onChange(of: alertManager.isPresented) { _ in
-                jumpPageAlertFocused = false
+                viewStore.send(.setJumpPageAlertFocused(false))
             }
             .synchronize(
                 viewStore.binding(\.$jumpPageAlertFocused),
                 $jumpPageAlertFocused
+            )
+            .synchronize(
+                viewStore.binding(\.$jumpPageAlertPresented),
+                $alertManager.isPresented, animated: true
             )
             .onAppear {
                 if viewStore.galleries?.isEmpty != false {
@@ -80,7 +90,9 @@ struct FavoritesView: View {
                             viewStore.send(.setFavoritesIndex(index))
                         }
                     } label: {
-                        Text(User.getFavNameFrom(index: index, names: [:]))
+                        Text(User.getFavNameFrom(
+                            index: index, names: userDataViewStore.user.favoriteNames
+                        ))
                         if index == viewStore.index {
                             Image(systemSymbol: .checkmark)
                         }
@@ -115,8 +127,10 @@ struct FavoritesView: View {
         func moreFeaturesMenu() -> some View {
             Menu {
                 Button {
-                    alertManager.show()
                     viewStore.send(.presentJumpPageAlert)
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                        viewStore.send(.setJumpPageAlertFocused(true))
+                    }
                 } label: {
                     Image(systemSymbol: .arrowshapeBounceForward)
                     Text("Jump page")
@@ -140,8 +154,13 @@ struct FavoritesView: View {
 
 struct FavoritesView_Previews: PreviewProvider {
     static var previews: some View {
-        FavoritesView(store: Store<FavoritesState, FavoritesAction>(
-            initialState: FavoritesState(), reducer: favoritesReducer, environment: FavoritesEnvironment())
+        FavoritesView(
+            store: Store<FavoritesState, FavoritesAction>(
+                initialState: FavoritesState(), reducer: favoritesReducer, environment: FavoritesEnvironment()
+            ),
+            userDataStore: Store<UserData, UserDataAction>(
+                initialState: UserData(), reducer: userDataReducer, environment: AnyEnvironment()
+            )
         )
     }
 }

@@ -9,54 +9,50 @@ import SwiftUI
 import WaterfallGrid
 
 struct GenericList: View {
-    private let items: [Gallery]
+    private let galleries: [Gallery]
     private let setting: Setting
     private let pageNumber: PageNumber?
-    private let loadingFlag: Bool
-    private let loadError: AppError?
-    private let moreLoadingFlag: Bool
-    private let moreLoadFailedFlag: Bool
+    private let loadingState: LoadingState
+    private let footerLoadingState: LoadingState
     private let fetchAction: (() -> Void)?
     private let loadMoreAction: (() -> Void)?
     private let translateAction: ((String) -> String)?
 
     init(
-        items: [Gallery], setting: Setting, pageNumber: PageNumber?,
-        loadingFlag: Bool, loadError: AppError?, moreLoadingFlag: Bool,
-        moreLoadFailedFlag: Bool, fetchAction: (() -> Void)? = nil,
+        galleries: [Gallery], setting: Setting, pageNumber: PageNumber?,
+        loadingState: LoadingState, footerLoadingState: LoadingState,
+        fetchAction: (() -> Void)? = nil,
         loadMoreAction: (() -> Void)? = nil,
         translateAction: ((String) -> String)? = nil
     ) {
-        self.items = items
+        self.galleries = galleries
         self.setting = setting
         self.pageNumber = pageNumber
-        self.loadingFlag = loadingFlag
-        self.loadError = loadError
-        self.moreLoadingFlag = moreLoadingFlag
-        self.moreLoadFailedFlag = moreLoadFailedFlag
+        self.loadingState = loadingState
+        self.footerLoadingState = footerLoadingState
         self.fetchAction = fetchAction
         self.loadMoreAction = loadMoreAction
         self.translateAction = translateAction
     }
 
     var body: some View {
-        if loadingFlag {
+        if loadingState == .loading {
             LoadingView()
-        } else if let error = loadError {
+        } else if case .failed(let error) = loadingState {
             ErrorView(error: error, retryAction: fetchAction)
         } else {
             VStack(spacing: 0) {
                 switch setting.listMode {
                 case .detail:
                     DetailList(
-                        items: items, setting: setting, pageNumber: pageNumber,
-                        moreLoadingFlag: moreLoadingFlag, moreLoadFailedFlag: moreLoadFailedFlag,
+                        galleries: galleries, setting: setting, pageNumber: pageNumber,
+                        footerLoadingState: footerLoadingState,
                         loadMoreAction: loadMoreAction, translateAction: translateAction
                     )
                 case .thumbnail:
                     WaterfallList(
-                        items: items, setting: setting, pageNumber: pageNumber,
-                        moreLoadingFlag: moreLoadingFlag, moreLoadFailedFlag: moreLoadFailedFlag,
+                        galleries: galleries, setting: setting, pageNumber: pageNumber,
+                        footerLoadingState: footerLoadingState,
                         loadMoreAction: loadMoreAction, translateAction: translateAction
                     )
                 }
@@ -69,47 +65,48 @@ struct GenericList: View {
 
 // MARK: DetailList
 private struct DetailList: View {
-    private let items: [Gallery]
+    private let galleries: [Gallery]
     private let setting: Setting
     private let pageNumber: PageNumber?
-    private let moreLoadingFlag: Bool
-    private let moreLoadFailedFlag: Bool
+    private let footerLoadingState: LoadingState
     private let loadMoreAction: (() -> Void)?
     private let translateAction: ((String) -> String)?
 
     init(
-        items: [Gallery], setting: Setting, pageNumber: PageNumber?,
-        moreLoadingFlag: Bool, moreLoadFailedFlag: Bool,
+        galleries: [Gallery], setting: Setting, pageNumber: PageNumber?,
+        footerLoadingState: LoadingState,
         loadMoreAction: (() -> Void)?,
         translateAction: ((String) -> String)? = nil
     ) {
-        self.items = items
+        self.galleries = galleries
         self.setting = setting
         self.pageNumber = pageNumber
-        self.moreLoadingFlag = moreLoadingFlag
-        self.moreLoadFailedFlag = moreLoadFailedFlag
+        self.footerLoadingState = footerLoadingState
         self.loadMoreAction = loadMoreAction
         self.translateAction = translateAction
     }
 
-    private var inValidRange: Bool {
+    private func shouldShowFooter(gallery: Gallery) -> Bool {
         guard let pageNumber = pageNumber else { return false }
-        return pageNumber.current + 1 <= pageNumber.maximum
+
+        let isLastGallery = gallery == galleries.last
+        let isLoadingStateIdle = footerLoadingState == .idle
+        let isPageNumberValid = pageNumber.current + 1 <= pageNumber.maximum
+
+        return isLastGallery && !isLoadingStateIdle && isPageNumberValid
     }
 
     var body: some View {
-        List(items) { item in
-            GalleryDetailCell(gallery: item, setting: setting, translateAction: translateAction)
-                .background { NavigationLink(destination: DetailView(gid: item.gid)) {}.opacity(0) }
+        List(galleries) { gallery in
+            GalleryDetailCell(gallery: gallery, setting: setting, translateAction: translateAction)
+                .background { NavigationLink(destination: DetailView(gid: gallery.gid)) {}.opacity(0) }
                 .onAppear {
-                    guard item == items.last else { return }
-                    loadMoreAction?()
+                    if gallery == galleries.last {
+                        loadMoreAction?()
+                    }
                 }
-            if (moreLoadingFlag || moreLoadFailedFlag) && item == items.last && inValidRange {
-                LoadMoreFooter(
-                    moreLoadingFlag: moreLoadingFlag, moreLoadFailedFlag: moreLoadFailedFlag,
-                    retryAction: loadMoreAction
-                )
+            if shouldShowFooter(gallery: gallery) {
+                LoadMoreFooter(loadingState: footerLoadingState, retryAction: loadMoreAction)
             }
         }
     }
@@ -120,11 +117,10 @@ private struct WaterfallList: View {
     @State var gid: String = ""
     @State var isNavLinkActive = false
 
-    private let items: [Gallery]
+    private let galleries: [Gallery]
     private let setting: Setting
     private let pageNumber: PageNumber?
-    private let moreLoadingFlag: Bool
-    private let moreLoadFailedFlag: Bool
+    private let footerLoadingState: LoadingState
     private let loadMoreAction: (() -> Void)?
     private let translateAction: ((String) -> String)?
 
@@ -134,32 +130,36 @@ private struct WaterfallList: View {
     private var columnsInLandscape: Int {
         DeviceUtil.isPadWidth ? 5 : 2
     }
-    private var inValidRange: Bool {
+
+    private var shouldShowFooter: Bool {
         guard let pageNumber = pageNumber else { return false }
-        return pageNumber.current + 1 <= pageNumber.maximum
+
+        let isPageNumberValid = pageNumber.current + 1 <= pageNumber.maximum
+        let isLoadingStateIdle = footerLoadingState == .idle
+
+        return !isLoadingStateIdle && isPageNumberValid
     }
 
     init(
-        items: [Gallery], setting: Setting, pageNumber: PageNumber?,
-        moreLoadingFlag: Bool, moreLoadFailedFlag: Bool,
+        galleries: [Gallery], setting: Setting, pageNumber: PageNumber?,
+        footerLoadingState: LoadingState,
         loadMoreAction: (() -> Void)?,
         translateAction: ((String) -> String)? = nil
     ) {
-        self.items = items
+        self.galleries = galleries
         self.setting = setting
         self.pageNumber = pageNumber
-        self.moreLoadingFlag = moreLoadingFlag
-        self.moreLoadFailedFlag = moreLoadFailedFlag
+        self.footerLoadingState = footerLoadingState
         self.loadMoreAction = loadMoreAction
         self.translateAction = translateAction
     }
 
     var body: some View {
         List {
-            WaterfallGrid(items) { item in
-                GalleryThumbnailCell(gallery: item, setting: setting, translateAction: translateAction)
+            WaterfallGrid(galleries) { gallery in
+                GalleryThumbnailCell(gallery: gallery, setting: setting, translateAction: translateAction)
                     .onTapGesture {
-                        gid = item.gid
+                        gid = gallery.gid
                         isNavLinkActive.toggle()
                     }
             }
@@ -167,7 +167,7 @@ private struct WaterfallList: View {
                 columnsInPortrait: columnsInPortrait, columnsInLandscape: columnsInLandscape,
                 spacing: 15, animation: nil
             )
-            if !moreLoadingFlag && !moreLoadFailedFlag && inValidRange {
+            if !shouldShowFooter {
                 Button {
                     loadMoreAction?()
                 } label: {
@@ -178,10 +178,9 @@ private struct WaterfallList: View {
                     }
                 }
                 .foregroundStyle(.tint)
-            }
-            if moreLoadingFlag || moreLoadFailedFlag {
+            } else {
                 LoadMoreFooter(
-                    moreLoadingFlag: moreLoadingFlag, moreLoadFailedFlag: moreLoadFailedFlag,
+                    loadingState: footerLoadingState,
                     retryAction: loadMoreAction
                 )
             }

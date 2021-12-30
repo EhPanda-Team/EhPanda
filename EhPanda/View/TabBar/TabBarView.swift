@@ -27,10 +27,16 @@ struct TabBarView: View {
                 Group {
                     switch type {
                     case .favorites:
-                        FavoritesView(store: store.scope(
-                            state: \.favoritesState,
-                            action: AltAppAction.favorites
-                        ))
+                        FavoritesView(
+                            store: store.scope(
+                                state: \.favoritesState,
+                                action: AltAppAction.favorites
+                            ),
+                            userDataStore: store.scope(
+                                state: \.userData,
+                                action: AltAppAction.userData
+                            )
+                        )
                     }
                 }
                 .tabItem(type.label).tag(type)

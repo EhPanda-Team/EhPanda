@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SFSafeSymbols
 
 struct LoadingView: View {
     var body: some View {
@@ -14,14 +15,11 @@ struct LoadingView: View {
 }
 
 struct LoadMoreFooter: View {
-    private var moreLoadingFlag: Bool
-    private var moreLoadFailedFlag: Bool
-    private var retryAction: (() -> Void)?
-    private var symbolName = "exclamationmark.arrow.triangle.2.circlepath"
+    private let loadingState: LoadingState
+    private let retryAction: (() -> Void)?
 
-    init(moreLoadingFlag: Bool, moreLoadFailedFlag: Bool, retryAction: (() -> Void)?) {
-        self.moreLoadingFlag = moreLoadingFlag
-        self.moreLoadFailedFlag = moreLoadFailedFlag
+    init(loadingState: LoadingState, retryAction: (() -> Void)?) {
+        self.loadingState = loadingState
         self.retryAction = retryAction
     }
 
@@ -29,13 +27,14 @@ struct LoadMoreFooter: View {
         HStack(alignment: .center) {
             Spacer()
             ZStack {
-                ProgressView().opacity(moreLoadingFlag ? 1 : 0)
+                ProgressView().opacity(loadingState == .loading ? 1 : 0)
                 Button {
                     retryAction?()
                 } label: {
-                    Image(systemName: symbolName).foregroundStyle(.red).imageScale(.large)
+                    Image(systemSymbol: .exclamationmarkArrowTriangle2Circlepath)
+                        .foregroundStyle(.red).imageScale(.large)
                 }
-                .opacity(moreLoadFailedFlag ? 1 : 0)
+                .opacity(![.idle, .loading].contains(loadingState) ? 1 : 0)
             }
             Spacer()
         }

@@ -33,31 +33,32 @@ struct AssociatedView: View, StoreAccessor {
 
     // MARK: AssociatedView
     var body: some View {
-        GenericList(
-            items: associatedItems, setting: setting, pageNumber: pageNumber,
-            loadingFlag: loadingFlag, loadError: loadError, moreLoadingFlag: moreLoadingFlag,
-            moreLoadFailedFlag: moreLoadFailedFlag, fetchAction: fetchAssociatedItems,
-            loadMoreAction: fetchMoreAssociatedItems, translateAction: {
-                settings.tagTranslator.tryTranslate(text: $0, returnOriginal: !setting.translatesTags)
-            }
-        )
-        .searchable(
-            text: $keyword, placement: .navigationBarDrawer(displayMode: .always)
-        ) { SuggestionProvider(keyword: $keyword) }
-        .toolbar(content: toolbar)
-        .customAlert(
-            manager: alertManager, widthFactor: DeviceUtil.isPadWidth ? 0.5 : 1.0,
-            backgroundOpacity: colorScheme == .light ? 0.2 : 0.5,
-            content: {
-                PageJumpView(inputText: $alertInput, isFocused: $isAlertFocused, pageNumber: pageNumber)
-            },
-            buttons: [ .regular { Text("Confirm") } action: { performJumpPage()} ]
-        )
-        .navigationBarTitle(title)
-        .onSubmit(of: .search, fetchAssociatedItems)
-        .onAppear(perform: fetchAssociatedItemsIfNeeded)
-        .onChange(of: pageNumber) { alertInput = String($0.current + 1) }
-        .onChange(of: alertManager.isPresented) { _ in isAlertFocused = false }
+        EmptyView()
+//        GenericList(
+//            items: associatedItems, setting: setting, pageNumber: pageNumber,
+//            loadingFlag: loadingFlag, loadError: loadError, moreLoadingFlag: moreLoadingFlag,
+//            moreLoadFailedFlag: moreLoadFailedFlag, fetchAction: fetchAssociatedItems,
+//            loadMoreAction: fetchMoreAssociatedItems, translateAction: {
+//                settings.tagTranslator.tryTranslate(text: $0, returnOriginal: !setting.translatesTags)
+//            }
+//        )
+//        .searchable(
+//            text: $keyword, placement: .navigationBarDrawer(displayMode: .always)
+//        ) { SuggestionProvider(keyword: $keyword) }
+//        .toolbar(content: toolbar)
+//        .customAlert(
+//            manager: alertManager, widthFactor: DeviceUtil.isPadWidth ? 0.5 : 1.0,
+//            backgroundOpacity: colorScheme == .light ? 0.2 : 0.5,
+//            content: {
+//                PageJumpView(inputText: $alertInput, isFocused: $isAlertFocused, pageNumber: pageNumber)
+//            },
+//            buttons: [ .regular { Text("Confirm") } action: { performJumpPage()} ]
+//        )
+//        .navigationBarTitle(title)
+//        .onSubmit(of: .search, fetchAssociatedItems)
+//        .onAppear(perform: fetchAssociatedItemsIfNeeded)
+//        .onChange(of: pageNumber) { alertInput = String($0.current + 1) }
+//        .onChange(of: alertManager.isPresented) { _ in isAlertFocused = false }
     }
     // MARK: Toolbar
     private func toolbar() -> some ToolbarContent {

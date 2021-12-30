@@ -11,20 +11,21 @@ struct FrontpageView: View, StoreAccessor {
     @EnvironmentObject var store: DeprecatedStore
 
     var body: some View {
-        GenericList(
-            items: homeInfo.frontpageItems,
-            setting: setting,
-            pageNumber: homeInfo.frontpagePageNumber,
-            loadingFlag: homeInfo.frontpageLoading,
-            loadError: homeInfo.frontpageLoadError,
-            moreLoadingFlag: homeInfo.moreFrontpageLoading,
-            moreLoadFailedFlag: homeInfo.moreFrontpageLoadFailed,
-            fetchAction: fetchFrontpageItems,
-            loadMoreAction: fetchMoreFrontpageItems,
-            translateAction: {
-                settings.tagTranslator.tryTranslate(text: $0, returnOriginal: !setting.translatesTags)
-            }
-        )
+        EmptyView()
+//        GenericList(
+//            items: homeInfo.frontpageItems,
+//            setting: setting,
+//            pageNumber: homeInfo.frontpagePageNumber,
+//            loadingFlag: homeInfo.frontpageLoading,
+//            loadError: homeInfo.frontpageLoadError,
+//            moreLoadingFlag: homeInfo.moreFrontpageLoading,
+//            moreLoadFailedFlag: homeInfo.moreFrontpageLoadFailed,
+//            fetchAction: fetchFrontpageItems,
+//            loadMoreAction: fetchMoreFrontpageItems,
+//            translateAction: {
+//                settings.tagTranslator.tryTranslate(text: $0, returnOriginal: !setting.translatesTags)
+//            }
+//        )
         .navigationTitle("Frontpage")
     }
 }

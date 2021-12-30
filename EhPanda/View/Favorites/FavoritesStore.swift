@@ -18,6 +18,7 @@ struct FavoritesState: Equatable {
     @BindableState var keyword = ""
     @BindableState var jumpPageIndex = ""
     @BindableState var jumpPageAlertFocused = false
+    @BindableState var jumpPageAlertPresented = false
 
     var index = -1
     var sortOrder: FavoritesSortOrder?
@@ -74,6 +75,7 @@ enum FavoritesAction: BindableAction {
     case binding(BindingAction<FavoritesState>)
     case performJumpPage
     case presentJumpPageAlert
+    case setJumpPageAlertFocused(Bool)
     case setFavoritesIndex(Int)
     case fetchGalleries(Int? = nil, FavoritesSortOrder? = nil)
     case fetchGalleriesDone(Int, Result<(PageNumber, FavoritesSortOrder?, [Gallery]), AppError>)
@@ -100,8 +102,12 @@ let favoritesReducer = Reducer<FavoritesState, FavoritesAction, FavoritesEnviron
         return .init(value: .fetchGalleries(index))
 
     case .presentJumpPageAlert:
-        state.jumpPageAlertFocused = true
+        state.jumpPageAlertPresented = true
         HapticUtil.generateFeedback(style: .light)
+        return .none
+
+    case .setJumpPageAlertFocused(let isFocused):
+        state.jumpPageAlertFocused = isFocused
         return .none
 
     case .setFavoritesIndex(let index):
