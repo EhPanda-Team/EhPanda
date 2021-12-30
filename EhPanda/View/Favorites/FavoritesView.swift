@@ -14,18 +14,18 @@ struct FavoritesView: View {
     @Environment(\.colorScheme) private var colorScheme
 
     let store: Store<FavoritesState, FavoritesAction>
-    let userDataStore: Store<UserData, UserDataAction>
+    let sharedDataStore: Store<SharedData, SharedDataAction>
     @ObservedObject var viewStore: ViewStore<FavoritesState, FavoritesAction>
-    @ObservedObject var userDataViewStore: ViewStore<UserData, UserDataAction>
+    @ObservedObject var sharedDataViewStore: ViewStore<SharedData, SharedDataAction>
 
     @FocusState private var jumpPageAlertFocused: Bool
     @StateObject private var alertManager = CustomAlertManager()
 
-    init(store: Store<FavoritesState, FavoritesAction>, userDataStore: Store<UserData, UserDataAction>) {
+    init(store: Store<FavoritesState, FavoritesAction>, sharedDataStore: Store<SharedData, SharedDataAction>) {
         self.store = store
-        self.userDataStore = userDataStore
+        self.sharedDataStore = sharedDataStore
         viewStore = ViewStore(store)
-        userDataViewStore = ViewStore(userDataStore)
+        sharedDataViewStore = ViewStore(sharedDataStore)
     }
 
     // MARK: FavoritesView
@@ -33,13 +33,15 @@ struct FavoritesView: View {
         NavigationView {
             GenericList(
                 galleries: viewStore.galleries ?? [],
-                setting: userDataViewStore.setting,
+                setting: sharedDataViewStore.setting,
                 pageNumber: viewStore.pageNumber,
                 loadingState: viewStore.loadingState ?? .idle,
                 footerLoadingState: viewStore.footerLoadingState ?? .idle,
                 fetchAction: { viewStore.send(.fetchGalleries()) },
                 loadMoreAction: { viewStore.send(.fetchMoreGalleries) },
-                translateAction: { $0 }
+                translateAction: { sharedDataViewStore.tagTranslator.tryTranslate(
+                    text: $0, returnOriginal: sharedDataViewStore.setting.translatesTags
+                ) }
             )
             .customAlert(
                 manager: alertManager, widthFactor: DeviceUtil.isPadWidth ? 0.5 : 1.0,
@@ -91,7 +93,7 @@ struct FavoritesView: View {
                         }
                     } label: {
                         Text(User.getFavNameFrom(
-                            index: index, names: userDataViewStore.user.favoriteNames
+                            index: index, names: sharedDataViewStore.user.favoriteNames
                         ))
                         if index == viewStore.index {
                             Image(systemSymbol: .checkmark)
@@ -101,7 +103,6 @@ struct FavoritesView: View {
             } label: {
                 Image(systemSymbol: .dialMin)
                     .symbolRenderingMode(.hierarchical)
-                    .foregroundColor(.primary)
             }
         }
         func sortOrderMenu() -> some View {
@@ -121,7 +122,6 @@ struct FavoritesView: View {
             } label: {
                 Image(systemSymbol: .arrowUpArrowDownCircle)
                     .symbolRenderingMode(.hierarchical)
-                    .foregroundColor(.primary)
             }
         }
         func moreFeaturesMenu() -> some View {
@@ -139,7 +139,6 @@ struct FavoritesView: View {
             } label: {
                 Image(systemSymbol: .ellipsisCircle)
                     .symbolRenderingMode(.hierarchical)
-                    .foregroundColor(.primary)
             }
         }
         return ToolbarItem(placement: .navigationBarTrailing) {
@@ -148,6 +147,7 @@ struct FavoritesView: View {
                 sortOrderMenu()
                 moreFeaturesMenu()
             }
+            .foregroundColor(.primary)
         }
     }
 }
@@ -158,8 +158,8 @@ struct FavoritesView_Previews: PreviewProvider {
             store: Store<FavoritesState, FavoritesAction>(
                 initialState: FavoritesState(), reducer: favoritesReducer, environment: FavoritesEnvironment()
             ),
-            userDataStore: Store<UserData, UserDataAction>(
-                initialState: UserData(), reducer: userDataReducer, environment: AnyEnvironment()
+            sharedDataStore: Store<SharedData, SharedDataAction>(
+                initialState: SharedData(), reducer: sharedDataReducer, environment: AnyEnvironment()
             )
         )
     }

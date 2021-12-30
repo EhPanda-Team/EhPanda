@@ -282,7 +282,7 @@ struct MoreWatchedItemsRequest: Request {
     }
 }
 
-struct FavoritesItemsRequest: Request {
+struct FavoritesGalleriesRequest: Request {
     let favIndex: Int
     var pageNum: Int?
     var sortOrder: FavoritesSortOrder?
@@ -301,7 +301,7 @@ struct FavoritesItemsRequest: Request {
     }
 }
 
-struct MoreFavoritesItemsRequest: Request {
+struct MoreFavoritesGalleriesRequest: Request {
     let favIndex: Int
     let lastID: String
     let pageNum: Int

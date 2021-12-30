@@ -9,7 +9,7 @@ import Foundation
 
 enum AltAppAction {
     case appDelegate(AppDelegateAction)
-    case userData(UserDataAction)
+    case sharedData(SharedDataAction)
     case tabBar(TabBarAction)
     case favorites(FavoritesAction)
 }

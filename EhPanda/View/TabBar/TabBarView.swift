@@ -32,21 +32,21 @@ struct TabBarView: View {
                                 state: \.favoritesState,
                                 action: AltAppAction.favorites
                             ),
-                            userDataStore: store.scope(
-                                state: \.userData,
-                                action: AltAppAction.userData
+                            sharedDataStore: store.scope(
+                                state: \.sharedData,
+                                action: AltAppAction.sharedData
                             )
                         )
                     }
                 }
                 .tabItem(type.label).tag(type)
             }
-            .accentColor(viewStore.userData.setting.accentColor)
+            .accentColor(viewStore.sharedData.setting.accentColor)
         }
 //        .onChange(of: scenePhase) { newValue in
 //            <#code#>
 //        }
-        .preferredColorScheme(viewStore.userData.setting.colorScheme)
+        .preferredColorScheme(viewStore.sharedData.setting.colorScheme)
     }
 }
 

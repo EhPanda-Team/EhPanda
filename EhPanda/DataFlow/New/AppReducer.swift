@@ -9,13 +9,13 @@ import ComposableArchitecture
 
 let appReducer = Reducer<AltAppState, AltAppAction, AppEnvironment>.combine(
     appDelegateReducer.pullback(
-        state: \.userData.setting.bypassesSNIFiltering,
+        state: \.sharedData.setting.bypassesSNIFiltering,
         action: /AltAppAction.appDelegate,
         environment: { _ in AppDelegateEnvironment() }
     ),
-    userDataReducer.pullback(
-        state: \.userData,
-        action: /AltAppAction.userData,
+    sharedDataReducer.pullback(
+        state: \.sharedData,
+        action: /AltAppAction.sharedData,
         environment: { _ in AnyEnvironment() }
     ),
     favoritesReducer.pullback(

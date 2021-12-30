@@ -25,9 +25,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
         viewStore.send(.appDelegate(.didFinishLaunching))
-        if AuthorizationUtil.didLogin {
-            viewStore.send(.userData(.didFinishLaunching))
-        }
+        viewStore.send(.sharedData(.didFinishLaunching))
         return true
     }
 }

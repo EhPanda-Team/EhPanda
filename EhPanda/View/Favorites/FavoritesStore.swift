@@ -87,7 +87,6 @@ enum FavoritesAction: BindableAction {
 let favoritesReducer = Reducer<FavoritesState, FavoritesAction, FavoritesEnvironment> { state, action, _ in
     Logger.info(action)
     switch action {
-
     case .binding:
         return .none
 
@@ -123,7 +122,7 @@ let favoritesReducer = Reducer<FavoritesState, FavoritesAction, FavoritesEnviron
         } else {
             state.pageNumber?.current = 0
         }
-        return FavoritesItemsRequest(favIndex: state.index, pageNum: pageNum, sortOrder: sortOrder)
+        return FavoritesGalleriesRequest(favIndex: state.index, pageNum: pageNum, sortOrder: sortOrder)
             .effect.map { [index = state.index] result in FavoritesAction.fetchGalleriesDone(index, result) }
 
     case .fetchGalleriesDone(let targetFavIndex, let result):
@@ -156,7 +155,7 @@ let favoritesReducer = Reducer<FavoritesState, FavoritesAction, FavoritesEnviron
         state.footerLoadingState = .loading
         let pageNum = pageNumber.current + 1
         let lastID = state.galleries?.last?.id ?? ""
-        return MoreFavoritesItemsRequest(favIndex: state.index, lastID: lastID, pageNum: pageNum)
+        return MoreFavoritesGalleriesRequest(favIndex: state.index, lastID: lastID, pageNum: pageNum)
             .effect.map { [index = state.index] result in FavoritesAction.fetchMoreGalleriesDone(index, result) }
 
     case .fetchMoreGalleriesDone(let targetFavIndex, let result):

@@ -1,5 +1,5 @@
 //
-//  UserData.swift
+//  SharedData.swift
 //  EhPanda
 //
 //  Created by 荒木辰造 on R 3/12/25.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct UserData: Equatable {
+struct SharedData: Equatable {
     @AppEnvStorage(type: User.self) var user: User
     @AppEnvStorage(type: Setting.self) var setting: Setting
 
@@ -15,4 +15,7 @@ struct UserData: Equatable {
     var searchFilter: Filter
     @AppEnvStorage(type: Filter.self, key: "globalFilter")
     var globalFilter: Filter
+
+    @AppEnvStorage(type: TagTranslator.self, key: "tagTranslator")
+    var tagTranslator: TagTranslator
 }
