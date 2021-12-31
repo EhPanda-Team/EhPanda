@@ -277,7 +277,7 @@ extension GalleryTorrent: DateFormattable, CustomStringConvertible {
         postedDate
     }
     var magnetURL: String {
-        Defaults.URL.magnet(hash: hash)
+        "magnet:?xt=urn:btih:\(hash)"
     }
 }
 
@@ -464,10 +464,9 @@ extension TranslatableLanguage {
     var repoName: String {
         switch self {
         case .japanese:
-            return Defaults.URL.ehTagTranslationJpnRepo
-        case .simplifiedChinese,
-             .traditionalChinese:
-            return Defaults.URL.ehTagTrasnlationRepo
+            return "tatsuz0u/EhTagTranslation_Database_JPN"
+        case .simplifiedChinese, .traditionalChinese:
+            return "EhTagTranslation/Database"
         }
     }
     var remoteFilename: String {
@@ -478,13 +477,11 @@ extension TranslatableLanguage {
             return "db.text.json"
         }
     }
-    var checkUpdateLink: String {
-        Defaults.URL.githubAPI(
-            repoName: repoName
-        )
+    var checkUpdateURL: URL {
+        URLUtil.githubAPI(repoName: repoName)
     }
-    var downloadLink: String {
-        Defaults.URL.githubDownload(repoName: repoName, fileName: remoteFilename)
+    var downloadURL: URL {
+        URLUtil.githubDownload(repoName: repoName, fileName: remoteFilename)
     }
 }
 

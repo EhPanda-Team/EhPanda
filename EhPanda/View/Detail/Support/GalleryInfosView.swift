@@ -24,8 +24,8 @@ struct GalleryInfosView: View {
             Info(title: "Gallery URL", value: gallery.galleryURL),
             Info(title: "Cover URL", value: detail.coverURL),
             Info(title: "Archive URL", value: detail.archiveURL),
-            Info(title: "Torrent URL", value: Defaults.URL
-                .galleryTorrents(gid: gallery.gid, token: gallery.token)),
+            Info(title: "Torrent URL", value: URLUtil.galleryTorrents(
+                gid: gallery.gid, token: gallery.token).absoluteString),
             Info(title: "Parent URL", value: detail.parentURL),
             Info(title: "Category", value: detail.category.rawValue.localized),
             Info(title: "Uploader", value: detail.uploader),

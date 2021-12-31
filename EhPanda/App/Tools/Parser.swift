@@ -437,10 +437,11 @@ struct Parser {
                 let plainURL = linkStyle[rangeD.upperBound..<rangeE.lowerBound]
                 let offset = remainingText[rangeE.upperBound..<rangeF.lowerBound]
 
-                previews[index] = Defaults.URL.normalPreview(
-                    plainURL: plainURL, width: width,
-                    height: height, offset: offset
+                previews[index] = URLUtil.normalPreview(
+                    plainURL: String(plainURL), width: String(width),
+                    height: String(height), offset: String(offset)
                 )
+                .absoluteString
             }
 
             return previews
@@ -1520,9 +1521,9 @@ extension Parser {
 
     // MARK: parsePreviewConfigs
     static func parsePreviewConfigs(string: String) -> (String, CGSize, CGSize)? {
-        guard let rangeA = string.range(of: Defaults.PreviewIdentifier.width),
-              let rangeB = string.range(of: Defaults.PreviewIdentifier.height),
-              let rangeC = string.range(of: Defaults.PreviewIdentifier.offset)
+        guard let rangeA = string.range(of: Defaults.URL.Component.Key.ehpandaWidth.rawValue),
+              let rangeB = string.range(of: Defaults.URL.Component.Key.ehpandaHeight.rawValue),
+              let rangeC = string.range(of: Defaults.URL.Component.Key.ehpandaOffset.rawValue)
         else { return nil }
 
         let plainURL = String(string[..<rangeA.lowerBound])

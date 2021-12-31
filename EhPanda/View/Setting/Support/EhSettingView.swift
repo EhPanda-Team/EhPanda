@@ -38,10 +38,11 @@ struct EhSettingView: View, StoreAccessor {
             fetchEhSetting()
         }
         .onDisappear {
-            guard let set = ehSetting?.ehProfiles.filter({
+            if let set = ehSetting?.ehProfiles.filter({
                 AppUtil.verifyEhPandaProfileName(with: $0.name)
-            }).first?.value else { return }
-            CookiesUtil.set(for: Defaults.URL.host.safeURL(), key: Defaults.Cookie.selectedProfile, value: String(set))
+            }).first?.value {
+                CookiesUtil.set(for: Defaults.URL.host, key: Defaults.Cookie.selectedProfile, value: String(set))
+            }
         }
         .toolbar(content: toolbar).navigationTitle(title)
     }

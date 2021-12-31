@@ -20,11 +20,7 @@ struct User: Codable, Equatable {
     var greeting: Greeting?
 
     var apiuid: String {
-        CookiesUtil.get(
-            for: Defaults.URL.host.safeURL(),
-            key: Defaults.Cookie.ipbMemberId
-        )
-        .rawValue
+        CookiesUtil.get(for: Defaults.URL.host, key: Defaults.Cookie.ipbMemberId).rawValue
     }
 
     var favoriteNames: [Int: String]?

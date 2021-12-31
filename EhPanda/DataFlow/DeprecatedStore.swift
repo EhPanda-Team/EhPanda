@@ -165,26 +165,6 @@ final class DeprecatedStore: ObservableObject {
         // MARK: Fetch Data
         case .handleJumpPage:
             break
-        case .fetchTagTranslator:
-            guard let preferredLanguage = Locale.preferredLanguages.first,
-                  let language = TranslatableLanguage.allCases.compactMap({ lang in
-                      preferredLanguage.contains(lang.languageCode) ? lang : nil
-                  }).first
-            else {
-                appState.settings.tagTranslator = TagTranslator()
-                appState.settings.setting.translatesTags = false
-                break
-            }
-            if appState.settings.tagTranslator.language != language {
-                appState.settings.tagTranslator = TagTranslator()
-            }
-
-            let updatedDate = appState.settings.tagTranslator.updatedDate
-            appCommand = FetchTagTranslatorCommand(language: language, updatedDate: updatedDate)
-        case .fetchTagTranslatorDone(let result):
-            if case .success(let tagTranslator) = result {
-                appState.settings.tagTranslator = tagTranslator
-            }
 
         case .fetchGreeting:
             if appState.settings.greetingLoading { break }
@@ -215,12 +195,12 @@ final class DeprecatedStore: ObservableObject {
 
             if appState.settings.setting.redirectsLinksToSelectedHost {
                 url = url.replacingOccurrences(
-                    of: Defaults.URL.ehentai,
-                    with: Defaults.URL.host
+                    of: Defaults.URL.ehentai.absoluteString,
+                    with: Defaults.URL.host.absoluteString
                 )
                 .replacingOccurrences(
-                    of: Defaults.URL.exhentai,
-                    with: Defaults.URL.host
+                    of: Defaults.URL.exhentai.absoluteString,
+                    with: Defaults.URL.host.absoluteString
                 )
             }
             appCommand = FetchGalleryItemReverseCommand(
@@ -491,18 +471,19 @@ final class DeprecatedStore: ObservableObject {
                 )
             }
 
-        case .fetchGalleryPreviews(let gid, let index):
-            let pageNumber = appState.detailInfo.previewConfig.pageNumber(index: index)
-            if appState.detailInfo.previewsLoading[gid] == nil {
-                appState.detailInfo.previewsLoading[gid] = [:]
-            }
-
-            if appState.detailInfo.previewsLoading[gid]?[pageNumber] == true { break }
-            appState.detailInfo.previewsLoading[gid]?[pageNumber] = true
-
-            let galleryURL = PersistenceController.fetchGallery(gid: gid)?.galleryURL ?? ""
-            let url = Defaults.URL.detailPage(url: galleryURL, pageNum: pageNumber)
-            appCommand = FetchGalleryPreviewsCommand(gid: gid, url: url, pageNumber: pageNumber)
+        case .fetchGalleryPreviews/*(let gid, let index)*/:
+            break
+//            let pageNumber = appState.detailInfo.previewConfig.pageNumber(index: index)
+//            if appState.detailInfo.previewsLoading[gid] == nil {
+//                appState.detailInfo.previewsLoading[gid] = [:]
+//            }
+//
+//            if appState.detailInfo.previewsLoading[gid]?[pageNumber] == true { break }
+//            appState.detailInfo.previewsLoading[gid]?[pageNumber] = true
+//
+//            let galleryURL = PersistenceController.fetchGallery(gid: gid)?.galleryURL ?? ""
+//            let url = URLUtil.detailPage(url: galleryURL, pageNum: pageNumber)
+//            appCommand = FetchGalleryPreviewsCommand(gid: gid, url: url, pageNumber: pageNumber)
 
         case .fetchGalleryPreviewsDone(let gid, let pageNumber, let result):
             appState.detailInfo.previewsLoading[gid]?[pageNumber] = false
@@ -536,23 +517,24 @@ final class DeprecatedStore: ObservableObject {
                 batchRange.forEach { appState.contentInfo.contentsLoadErrors[gid]?[$0] = error }
             }
 
-        case .fetchThumbnails(let gid, let index):
-            let batchRange = appState.detailInfo.previewConfig.batchRange(index: index)
-            let pageNumber = appState.detailInfo.previewConfig.pageNumber(index: index)
-            if appState.contentInfo.contentsLoading[gid] == nil {
-                appState.contentInfo.contentsLoading[gid] = [:]
-            }
-            if appState.contentInfo.contentsLoadErrors[gid] == nil {
-                appState.contentInfo.contentsLoadErrors[gid] = [:]
-            }
-            batchRange.forEach { appState.contentInfo.contentsLoadErrors[gid]?[$0] = nil }
-
-            if appState.contentInfo.contentsLoading[gid]?[index] == true { break }
-            batchRange.forEach { appState.contentInfo.contentsLoading[gid]?[$0] = true }
-
-            let url = PersistenceController.fetchGallery(gid: gid)?.galleryURL ?? ""
-            let galleryURL = Defaults.URL.detailPage(url: url, pageNum: pageNumber)
-            appCommand = FetchThumbnailsCommand(gid: gid, index: index, url: galleryURL)
+        case .fetchThumbnails/*(let gid, let index)*/:
+            break
+//            let batchRange = appState.detailInfo.previewConfig.batchRange(index: index)
+//            let pageNumber = appState.detailInfo.previewConfig.pageNumber(index: index)
+//            if appState.contentInfo.contentsLoading[gid] == nil {
+//                appState.contentInfo.contentsLoading[gid] = [:]
+//            }
+//            if appState.contentInfo.contentsLoadErrors[gid] == nil {
+//                appState.contentInfo.contentsLoadErrors[gid] = [:]
+//            }
+//            batchRange.forEach { appState.contentInfo.contentsLoadErrors[gid]?[$0] = nil }
+//
+//            if appState.contentInfo.contentsLoading[gid]?[index] == true { break }
+//            batchRange.forEach { appState.contentInfo.contentsLoading[gid]?[$0] = true }
+//
+//            let url = PersistenceController.fetchGallery(gid: gid)?.galleryURL ?? ""
+//            let galleryURL = URLUtil.detailPage(url: url, pageNum: pageNumber)
+//            appCommand = FetchThumbnailsCommand(gid: gid, index: index, url: galleryURL)
         case .fetchThumbnailsDone(let gid, let index, let result):
             let batchRange = appState.detailInfo.previewConfig.batchRange(index: index)
             switch result {
@@ -590,22 +572,23 @@ final class DeprecatedStore: ObservableObject {
                 batchRange.forEach { appState.contentInfo.contentsLoadErrors[gid]?[$0] = error }
             }
 
-        case .refetchGalleryNormalContent(let gid, let index):
-            let pageNumber = appState.detailInfo.previewConfig.pageNumber(index: index)
-            appState.contentInfo.contentsLoadErrors[gid]?[index] = nil
-
-            if appState.contentInfo.contentsLoading[gid]?[index] == true { break }
-            appState.contentInfo.contentsLoading[gid]?[index] = true
-
-            let url = PersistenceController.fetchGallery(gid: gid)?.galleryURL ?? ""
-            let galleryURL = Defaults.URL.detailPage(url: url, pageNum: pageNumber)
-            let thumbnailURL = appState.contentInfo.thumbnails[gid]?[index]
-            let storedImageURL = appState.contentInfo.contents[gid]?[index] ?? ""
-            appCommand = RefetchGalleryNormalContentCommand(
-                gid: gid, index: index, galleryURL: galleryURL,
-                thumbnailURL: thumbnailURL, storedImageURL: storedImageURL,
-                bypassesSNIFiltering: appState.settings.setting.bypassesSNIFiltering
-            )
+        case .refetchGalleryNormalContent/*(let gid, let index)*/:
+            break
+//            let pageNumber = appState.detailInfo.previewConfig.pageNumber(index: index)
+//            appState.contentInfo.contentsLoadErrors[gid]?[index] = nil
+//
+//            if appState.contentInfo.contentsLoading[gid]?[index] == true { break }
+//            appState.contentInfo.contentsLoading[gid]?[index] = true
+//
+//            let url = PersistenceController.fetchGallery(gid: gid)?.galleryURL ?? ""
+//            let galleryURL = URLUtil.detailPage(url: url, pageNum: pageNumber)
+//            let thumbnailURL = appState.contentInfo.thumbnails[gid]?[index]
+//            let storedImageURL = appState.contentInfo.contents[gid]?[index] ?? ""
+//            appCommand = RefetchGalleryNormalContentCommand(
+//                gid: gid, index: index, galleryURL: galleryURL,
+//                thumbnailURL: thumbnailURL, storedImageURL: storedImageURL,
+//                bypassesSNIFiltering: appState.settings.setting.bypassesSNIFiltering
+//            )
         case .refetchGalleryNormalContentDone(let gid, let index, let result):
             appState.contentInfo.contentsLoading[gid]?[index] = false
 

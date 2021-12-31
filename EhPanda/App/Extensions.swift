@@ -6,6 +6,8 @@
 //
 
 import SwiftUI
+import Foundation
+import OrderedCollections
 
 // MARK: UINavigationController
 extension UINavigationController: UIGestureRecognizerDelegate {
@@ -68,6 +70,41 @@ extension Float {
     }
 }
 
+// MARK: URL
+extension URL {
+    func appending(queryItems: [URLQueryItem]) -> URL {
+        var components: URLComponents = .init(
+            url: self, resolvingAgainstBaseURL: false
+        ).forceUnwrapped
+        if components.queryItems == nil {
+            components.queryItems = []
+        }
+        components.queryItems?.append(contentsOf: queryItems)
+        return components.url.forceUnwrapped
+    }
+    func appending(queryItems: OrderedDictionary<String, String>) -> URL {
+        appending(queryItems: queryItems.map(URLQueryItem.init))
+    }
+    func appending(queryItems: OrderedDictionary<Defaults.URL.Component.Key, Defaults.URL.Component.Value>) -> URL {
+        appending(queryItems: queryItems.map({ URLQueryItem(name: $0.rawValue, value: $1.rawValue) }))
+    }
+    func appending(queryItems: OrderedDictionary<Defaults.URL.Component.Key, String>) -> URL {
+        appending(queryItems: queryItems.map({ URLQueryItem(name: $0.rawValue, value: $1) }))
+    }
+    mutating func append(queryItems: [URLQueryItem]) {
+        self = appending(queryItems: queryItems)
+    }
+    mutating func append(queryItems: OrderedDictionary<String, String>) {
+        self = appending(queryItems: queryItems)
+    }
+    mutating func append(queryItems: OrderedDictionary<Defaults.URL.Component.Key, Defaults.URL.Component.Value>) {
+        self = appending(queryItems: queryItems)
+    }
+    mutating func append(queryItems: OrderedDictionary<Defaults.URL.Component.Key, String>) {
+        self = appending(queryItems: queryItems)
+    }
+}
+
 // MARK: String
 extension String {
     var hasLocalizedString: Bool {
@@ -118,7 +155,7 @@ extension String {
             return URL(string: self).forceUnwrapped
         } else {
             Logger.error("Invalid URL, redirect to default host...")
-            return URL(string: Defaults.URL.ehentai).forceUnwrapped
+            return Defaults.URL.ehentai
         }
     }
 

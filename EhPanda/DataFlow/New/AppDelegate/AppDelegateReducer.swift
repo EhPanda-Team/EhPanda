@@ -64,19 +64,14 @@ private func configure(console: inout ConsoleDestination) {
     console.levelColor.info = "📖"
 }
 
+// MARK: TabBar
 private func configureTabBar() {
     let apparence = UITabBarAppearance()
     apparence.configureWithOpaqueBackground()
     UITabBar.appearance().scrollEdgeAppearance = apparence
 }
-private func configureWebImage(bypassesSNIFiltering: Bool) {
-    AppUtil.configureKingfisher(bypassesSNIFiltering: bypassesSNIFiltering)
-}
+// MARK: DomainFronting
 private func configureDomainFronting(bypassesSNIFiltering: Bool) {
     guard bypassesSNIFiltering else { return }
     URLProtocol.registerClass(DFURLProtocol.self)
-}
-private func configureIgnoreOffensive() {
-    CookiesUtil.set(for: Defaults.URL.ehentai.safeURL(), key: "nw", value: "1")
-    CookiesUtil.set(for: Defaults.URL.exhentai.safeURL(), key: "nw", value: "1")
 }

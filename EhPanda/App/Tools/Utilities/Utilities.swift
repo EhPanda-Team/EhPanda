@@ -14,20 +14,14 @@ import LocalAuthentication
 // MARK: Authorization
 struct AuthorizationUtil {
     static var isSameAccount: Bool {
-        if let ehentai = URL(string: Defaults.URL.ehentai),
-           let exhentai = URL(string: Defaults.URL.exhentai)
-        {
-            let ehUID = CookiesUtil.get(for: ehentai, key: Defaults.Cookie.ipbMemberId).rawValue
-            let exUID = CookiesUtil.get(for: exhentai, key: Defaults.Cookie.ipbMemberId).rawValue
-            if !ehUID.isEmpty && !exUID.isEmpty { return ehUID == exUID } else { return true }
-        } else {
-            return true
-        }
+        let ehUID = CookiesUtil.get(for: Defaults.URL.ehentai, key: Defaults.Cookie.ipbMemberId).rawValue
+        let exUID = CookiesUtil.get(for: Defaults.URL.exhentai, key: Defaults.Cookie.ipbMemberId).rawValue
+        if !ehUID.isEmpty && !exUID.isEmpty { return ehUID == exUID } else { return true }
     }
 
     static var didLogin: Bool {
-        CookiesUtil.verify(for: Defaults.URL.ehentai.safeURL(), isEx: false)
-        || CookiesUtil.verify(for: Defaults.URL.exhentai.safeURL(), isEx: true)
+        CookiesUtil.verify(for: Defaults.URL.ehentai, isEx: false)
+        || CookiesUtil.verify(for: Defaults.URL.exhentai, isEx: true)
     }
 
     static func localAuth(
@@ -289,7 +283,7 @@ extension AppNotification {
 // MARK: Cookies
 struct CookiesUtil {
     static var shouldFetchIgneous: Bool {
-        let url = Defaults.URL.exhentai.safeURL()
+        let url = Defaults.URL.exhentai
         return !CookiesUtil.get(for: url, key: Defaults.Cookie.ipbMemberId).rawValue.isEmpty
         && !CookiesUtil.get(for: url, key: Defaults.Cookie.ipbPassHash).rawValue.isEmpty
         && CookiesUtil.get(for: url, key: Defaults.Cookie.igneous).rawValue.isEmpty
@@ -335,13 +329,17 @@ struct CookiesUtil {
                     [Defaults.Cookie.ipbMemberId, Defaults.Cookie.ipbPassHash, Defaults.Cookie.igneous].forEach { key in
                         guard !(url == Defaults.URL.ehentai && key == Defaults.Cookie.igneous),
                               let range = value.range(of: "\(key)=") else { return }
-                        set(for: url.safeURL(), key: key, value: String(value[range.upperBound...]) )
+                        set(for: url, key: key, value: String(value[range.upperBound...]) )
                     }
                 }
             }
     }
     static func removeYay() {
-        remove(for: Defaults.URL.exhentai.safeURL(), key: "yay")
+        remove(for: Defaults.URL.exhentai, key: "yay")
+    }
+    static func ignoreOffensive() {
+        set(for: Defaults.URL.ehentai, key: "nw", value: "1")
+        set(for: Defaults.URL.exhentai, key: "nw", value: "1")
     }
 
     static func remove(for url: URL, key: String) {
@@ -425,55 +423,6 @@ struct CookiesUtil {
         } else {
             return memberID != nil && passHash != nil
         }
-    }
-}
-
-// MARK: URL
-struct URLUtil {
-    private static func checkIfHandleable(url: URL) -> Bool {
-        (url.absoluteString.contains(Defaults.URL.ehentai) || url.absoluteString.contains(Defaults.URL.exhentai))
-            && url.pathComponents.count >= 4 && ["g", "s"].contains(url.pathComponents[1])
-            && !url.pathComponents[2].isEmpty && !url.pathComponents[3].isEmpty
-    }
-
-    static func parseGID(url: URL, isGalleryURL: Bool) -> String {
-        var gid = url.pathComponents[2]
-        let token = url.pathComponents[3]
-        if let range = token.range(of: "-"), isGalleryURL {
-            gid = String(token[..<range.lowerBound])
-        }
-        return gid
-    }
-
-    static func handleURL(
-        _ url: URL, handlesOutgoingURL: Bool = false,
-        completion: (Bool, URL?, Int?, String?) -> Void
-    ) {
-        guard checkIfHandleable(url: url) else {
-            if handlesOutgoingURL {
-                UIApplication.shared.open(url, options: [:])
-            }
-            completion(false, nil, nil, nil)
-            return
-        }
-
-        let token = url.pathComponents[3]
-        if let range = token.range(of: "-") {
-            let pageIndex = Int(token[range.upperBound...])
-            completion(true, url, pageIndex, nil)
-            return
-        }
-
-        if let range = url.absoluteString.range(of: url.pathComponents[3] + "/") {
-            let commentField = String(url.absoluteString[range.upperBound...])
-            if let range = commentField.range(of: "#c") {
-                let commentID = String(commentField[range.upperBound...])
-                completion(false, url, nil, commentID)
-                return
-            }
-        }
-
-        completion(false, url, nil, nil)
     }
 }
 

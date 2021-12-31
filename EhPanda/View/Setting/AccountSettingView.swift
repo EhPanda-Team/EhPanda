@@ -18,8 +18,8 @@ struct AccountSettingView: View, StoreAccessor {
     @State private var hudVisible = false
     @State private var hudConfig = TTProgressHUDConfig()
 
-    private let ehURL = Defaults.URL.ehentai.safeURL()
-    private let exURL = Defaults.URL.exhentai.safeURL()
+    private let ehURL = Defaults.URL.ehentai
+    private let exURL = Defaults.URL.exhentai
     private let igneousKey = Defaults.Cookie.igneous
     private let memberIDKey = Defaults.Cookie.ipbMemberId
     private let passHashKey = Defaults.Cookie.ipbPassHash

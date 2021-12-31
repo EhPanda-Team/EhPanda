@@ -74,8 +74,8 @@ let sharedDataReducer = Reducer<SharedData, SharedDataAction, AnyEnvironment> { 
     case .fetchEhProfileIndexDone(let result):
         if case .success(let (profileValue, profileNotFound)) = result {
             if let profileValue = profileValue {
+                let hostURL = Defaults.URL.host
                 let profileValueString = String(profileValue)
-                let hostURL = Defaults.URL.host.safeURL()
                 let selectedProfileKey = Defaults.Cookie.selectedProfile
 
                 let cookieValue = CookiesUtil.get(for: hostURL, key: selectedProfileKey)

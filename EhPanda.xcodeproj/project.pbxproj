@@ -106,6 +106,7 @@
 		ABD49D5D277C6C9D003D1A07 /* SFSafeSymbols in Frameworks */ = {isa = PBXBuildFile; productRef = ABD49D5C277C6C9D003D1A07 /* SFSafeSymbols */; };
 		ABD49D60277C7722003D1A07 /* TabBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABD49D5F277C7722003D1A07 /* TabBarView.swift */; };
 		ABD49D64277C7AD5003D1A07 /* TabBarStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABD49D63277C7AD5003D1A07 /* TabBarStore.swift */; };
+		ABD49D67277EAC90003D1A07 /* URLUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABD49D66277EAC90003D1A07 /* URLUtil.swift */; };
 		ABD5FDD4263D05110021A4C6 /* .swiftlint.yml in Resources */ = {isa = PBXBuildFile; fileRef = ABD5FDD3263D05110021A4C6 /* .swiftlint.yml */; };
 		ABD7005926B1C31500DC59C9 /* Kanna in Frameworks */ = {isa = PBXBuildFile; productRef = ABD7005826B1C31500DC59C9 /* Kanna */; };
 		ABE1867826A1733000689FDC /* LaboratorySettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABE1867726A1733000689FDC /* LaboratorySettingView.swift */; };
@@ -280,6 +281,7 @@
 		ABD49D59277C5356003D1A07 /* FavoritesStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoritesStore.swift; sourceTree = "<group>"; };
 		ABD49D5F277C7722003D1A07 /* TabBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarView.swift; sourceTree = "<group>"; };
 		ABD49D63277C7AD5003D1A07 /* TabBarStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarStore.swift; sourceTree = "<group>"; };
+		ABD49D66277EAC90003D1A07 /* URLUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLUtil.swift; sourceTree = "<group>"; };
 		ABD5FDD3263D05110021A4C6 /* .swiftlint.yml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.yaml; path = .swiftlint.yml; sourceTree = SOURCE_ROOT; };
 		ABE1867726A1733000689FDC /* LaboratorySettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaboratorySettingView.swift; sourceTree = "<group>"; };
 		ABE2AE742699F238001D47AA /* AppEnvStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppEnvStorage.swift; sourceTree = "<group>"; };
@@ -500,6 +502,7 @@
 		AB40CFE52598423E00D1DC9A /* Tools */ = {
 			isa = PBXGroup;
 			children = (
+				ABD49D65277EAC7E003D1A07 /* Utilities */,
 				ABCD2F0D25976B95008E5A20 /* Parser.swift */,
 				ABE2AE742699F238001D47AA /* AppEnvStorage.swift */,
 				AB38A0CA25CA993D00764D64 /* ColorCodable.swift */,
@@ -651,7 +654,6 @@
 			isa = PBXGroup;
 			children = (
 				ABC3C76B2593699A00E0C11B /* EhPandaApp.swift */,
-				ABC3C76A2593699A00E0C11B /* Utilities.swift */,
 				ABC3C76D2593699A00E0C11B /* Defaults.swift */,
 				ABA732D825A8018A00B3D9AB /* Extensions.swift */,
 				ABC3C7762593699A00E0C11B /* ViewModifiers.swift */,
@@ -698,6 +700,15 @@
 				ABD49D63277C7AD5003D1A07 /* TabBarStore.swift */,
 			);
 			path = TabBar;
+			sourceTree = "<group>";
+		};
+		ABD49D65277EAC7E003D1A07 /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				ABC3C76A2593699A00E0C11B /* Utilities.swift */,
+				ABD49D66277EAC90003D1A07 /* URLUtil.swift */,
+			);
+			path = Utilities;
 			sourceTree = "<group>";
 		};
 		ABF45AB325F3312F00ECB568 /* DataFlow */ = {
@@ -1098,6 +1109,7 @@
 				ABA732DF25A852D800B3D9AB /* Filter.swift in Sources */,
 				ABC1FAB82642C37D00A9F352 /* NewDawnView.swift in Sources */,
 				ABF45AE825F3313D00ECB568 /* LinkedText.swift in Sources */,
+				ABD49D67277EAC90003D1A07 /* URLUtil.swift in Sources */,
 				AB10117E26986B7D00C2C1A9 /* GalleryStateMO+CoreDataProperties.swift in Sources */,
 				ABF971FF26DD394200118887 /* ImageSaver.swift in Sources */,
 				ABF45AE525F3313D00ECB568 /* Comment.swift in Sources */,
