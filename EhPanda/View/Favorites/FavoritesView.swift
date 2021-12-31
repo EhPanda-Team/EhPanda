@@ -13,10 +13,10 @@ import ComposableArchitecture
 struct FavoritesView: View {
     @Environment(\.colorScheme) private var colorScheme
 
-    let store: Store<FavoritesState, FavoritesAction>
-    let sharedDataStore: Store<SharedData, SharedDataAction>
-    @ObservedObject var viewStore: ViewStore<FavoritesState, FavoritesAction>
-    @ObservedObject var sharedDataViewStore: ViewStore<SharedData, SharedDataAction>
+    private let store: Store<FavoritesState, FavoritesAction>
+    private let sharedDataStore: Store<SharedData, SharedDataAction>
+    @ObservedObject private var viewStore: ViewStore<FavoritesState, FavoritesAction>
+    @ObservedObject private var sharedDataViewStore: ViewStore<SharedData, SharedDataAction>
 
     @FocusState private var jumpPageAlertFocused: Bool
     @StateObject private var alertManager = CustomAlertManager()

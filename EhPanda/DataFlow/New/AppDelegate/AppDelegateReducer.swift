@@ -17,7 +17,6 @@ let appDelegateReducer = Reducer<Bool, AppDelegateAction, AppDelegateEnvironment
             configureDomainFronting(bypassesSNIFiltering: state)
             AppUtil.configureKingfisher(bypassesSNIFiltering: state)
         }
-        configureTabBar()
         configureLogging()
         CookiesUtil.removeYay()
         CookiesUtil.ignoreOffensive()
@@ -27,7 +26,6 @@ let appDelegateReducer = Reducer<Bool, AppDelegateAction, AppDelegateEnvironment
     }
 }
 
-// MARK: Logging
 private func configureLogging() {
     var file = FileDestination()
     var console = ConsoleDestination()
@@ -64,14 +62,6 @@ private func configure(console: inout ConsoleDestination) {
     console.levelColor.debug = "🐛"
     console.levelColor.info = "📖"
 }
-
-// MARK: TabBar
-private func configureTabBar() {
-    let apparence = UITabBarAppearance()
-    apparence.configureWithOpaqueBackground()
-    UITabBar.appearance().scrollEdgeAppearance = apparence
-}
-// MARK: DomainFronting
 private func configureDomainFronting(bypassesSNIFiltering: Bool) {
     guard bypassesSNIFiltering else { return }
     URLProtocol.registerClass(DFURLProtocol.self)

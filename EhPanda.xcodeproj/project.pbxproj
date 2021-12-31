@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		AB0929B6277F043D00F107CA /* AccountSettingStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0929B5277F043D00F107CA /* AccountSettingStore.swift */; };
+		AB0929B9277F16A100F107CA /* SharedDataSettingStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0929B8277F16A100F107CA /* SharedDataSettingStore.swift */; };
 		AB0ABCB526C5406400AD970F /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0ABCB426C5406400AD970F /* LoginView.swift */; };
 		AB0ABCB726C541A400AD970F /* WaveForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0ABCB626C541A400AD970F /* WaveForm.swift */; };
 		AB0F68AF26A6D92F00AC3A54 /* DeprecatedAPI in Frameworks */ = {isa = PBXBuildFile; productRef = AB0F68AE26A6D92F00AC3A54 /* DeprecatedAPI */; };
@@ -61,7 +63,6 @@
 		AB58A5BF2776CF2F00C0D285 /* SharedDataReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB58A5BE2776CF2F00C0D285 /* SharedDataReducer.swift */; };
 		AB5BE67926B95FDD007D4A55 /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB5BE67826B95FDD007D4A55 /* ShareViewController.swift */; };
 		AB5BE68026B95FDD007D4A55 /* ShareExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = AB5BE67626B95FDD007D4A55 /* ShareExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		AB60D0CF274C7AA000F899AB /* BetterCodable in Frameworks */ = {isa = PBXBuildFile; productRef = AB60D0CE274C7AA000F899AB /* BetterCodable */; };
 		AB60D0E9274C7ECE00F899AB /* WaterfallGrid in Frameworks */ = {isa = PBXBuildFile; productRef = AB60D0E8274C7ECE00F899AB /* WaterfallGrid */; };
 		AB60D0EB274CFB6D00F899AB /* SuggestionProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB60D0EA274CFB6D00F899AB /* SuggestionProvider.swift */; };
 		AB63EADB2699AC8200090535 /* AppEnvMO+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB63EADA2699AC8200090535 /* AppEnvMO+CoreDataProperties.swift */; };
@@ -70,7 +71,6 @@
 		AB69CB8026B3DABC00699359 /* AdvancedList.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB69CB7F26B3DABC00699359 /* AdvancedList.swift */; };
 		AB69CB8226B3DAF400699359 /* ControlPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB69CB8126B3DAF400699359 /* ControlPanel.swift */; };
 		AB6DE897268822390087C579 /* LogsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB6DE896268822390087C579 /* LogsView.swift */; };
-		AB73CEAF26AAC13F00EF6337 /* CodableExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB73CEAE26AAC13F00EF6337 /* CodableExtension.swift */; };
 		AB7B29F226AC471E00EE1F14 /* MigrationPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB7B29F126AC471E00EE1F14 /* MigrationPolicy.swift */; };
 		AB7B29F626AC741600EE1F14 /* GenericList.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB7B29F526AC741600EE1F14 /* GenericList.swift */; };
 		AB7E6B3025D24FE00035CC68 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = AB7E6B3225D24FE00035CC68 /* InfoPlist.strings */; };
@@ -182,6 +182,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		AB0929B5277F043D00F107CA /* AccountSettingStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountSettingStore.swift; sourceTree = "<group>"; };
+		AB0929B8277F16A100F107CA /* SharedDataSettingStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedDataSettingStore.swift; sourceTree = "<group>"; };
 		AB0ABCB426C5406400AD970F /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		AB0ABCB626C541A400AD970F /* WaveForm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaveForm.swift; sourceTree = "<group>"; };
 		AB10117D26986B7D00C2C1A9 /* GalleryStateMO+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GalleryStateMO+CoreDataProperties.swift"; sourceTree = "<group>"; };
@@ -241,7 +243,6 @@
 		AB69CB7F26B3DABC00699359 /* AdvancedList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdvancedList.swift; sourceTree = "<group>"; };
 		AB69CB8126B3DAF400699359 /* ControlPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlPanel.swift; sourceTree = "<group>"; };
 		AB6DE896268822390087C579 /* LogsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogsView.swift; sourceTree = "<group>"; };
-		AB73CEAE26AAC13F00EF6337 /* CodableExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodableExtension.swift; sourceTree = "<group>"; };
 		AB7B29F126AC471E00EE1F14 /* MigrationPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MigrationPolicy.swift; sourceTree = "<group>"; };
 		AB7B29F526AC741600EE1F14 /* GenericList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenericList.swift; sourceTree = "<group>"; };
 		AB7E6B3125D24FE00035CC68 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -349,7 +350,6 @@
 				AB60D0E9274C7ECE00F899AB /* WaterfallGrid in Frameworks */,
 				ABC4A0792751B40E00968A4F /* Kingfisher in Frameworks */,
 				AB0F68AF26A6D92F00AC3A54 /* DeprecatedAPI in Frameworks */,
-				AB60D0CF274C7AA000F899AB /* BetterCodable in Frameworks */,
 				AB6505A026B0027800F91E9D /* SwiftUIPager in Frameworks */,
 				AB21CCA0274B4F0C00C115B1 /* SwiftyBeaver in Frameworks */,
 				ABD49D5D277C6C9D003D1A07 /* SFSafeSymbols in Frameworks */,
@@ -369,6 +369,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		AB0929BA277F1B7400F107CA /* DataFlow */ = {
+			isa = PBXGroup;
+			children = (
+				ABD49D69277EEF73003D1A07 /* SettingStore.swift */,
+				AB0929B5277F043D00F107CA /* AccountSettingStore.swift */,
+			);
+			path = DataFlow;
+			sourceTree = "<group>";
+		};
 		AB24C55D276756A40085C33A /* Support */ = {
 			isa = PBXGroup;
 			children = (
@@ -508,7 +517,6 @@
 				ABCD2F0D25976B95008E5A20 /* Parser.swift */,
 				ABE2AE742699F238001D47AA /* AppEnvStorage.swift */,
 				AB38A0CA25CA993D00764D64 /* ColorCodable.swift */,
-				AB73CEAE26AAC13F00EF6337 /* CodableExtension.swift */,
 				ABF971FE26DD394200118887 /* ImageSaver.swift */,
 			);
 			path = Tools;
@@ -561,6 +569,7 @@
 				AB58A5B72776CE1100C0D285 /* SharedData.swift */,
 				AB58A5B92776CE2F00C0D285 /* SharedDataAction.swift */,
 				AB58A5BE2776CF2F00C0D285 /* SharedDataReducer.swift */,
+				AB0929B8277F16A100F107CA /* SharedDataSettingStore.swift */,
 			);
 			path = SharedData;
 			sourceTree = "<group>";
@@ -791,13 +800,13 @@
 			isa = PBXGroup;
 			children = (
 				ABF45ADD25F3313D00ECB568 /* SettingView.swift */,
-				ABD49D69277EEF73003D1A07 /* SettingStore.swift */,
 				ABF45AD925F3313D00ECB568 /* AccountSettingView.swift */,
 				ABF45AD825F3313D00ECB568 /* GeneralSettingView.swift */,
 				ABF45ADC25F3313D00ECB568 /* AppearanceSettingView.swift */,
 				ABF45ADB25F3313D00ECB568 /* ReadingSettingView.swift */,
 				ABE1867726A1733000689FDC /* LaboratorySettingView.swift */,
 				ABF45ADE25F3313D00ECB568 /* EhPandaView.swift */,
+				AB0929BA277F1B7400F107CA /* DataFlow */,
 				AB24C560276757940085C33A /* Support */,
 			);
 			path = Setting;
@@ -847,7 +856,6 @@
 				ABAC82FD26BC4A96009F5026 /* OpenCC */,
 				ABE9402C26FF89220085E158 /* AlertKit */,
 				AB21CC9F274B4F0C00C115B1 /* SwiftyBeaver */,
-				AB60D0CE274C7AA000F899AB /* BetterCodable */,
 				AB60D0E8274C7ECE00F899AB /* WaterfallGrid */,
 				ABC4A0782751B40E00968A4F /* Kingfisher */,
 				AB17573C27675B1E00FD64E2 /* Colorful */,
@@ -920,7 +928,6 @@
 				ABAC82FC26BC4866009F5026 /* XCRemoteSwiftPackageReference "SwiftyOpenCC" */,
 				ABE9402B26FF89220085E158 /* XCRemoteSwiftPackageReference "AlertKit" */,
 				AB21CC9E274B4F0C00C115B1 /* XCRemoteSwiftPackageReference "SwiftyBeaver" */,
-				AB60D0CD274C7AA000F899AB /* XCRemoteSwiftPackageReference "BetterCodable" */,
 				AB60D0E7274C7ECE00F899AB /* XCRemoteSwiftPackageReference "WaterfallGrid" */,
 				ABC4A0772751B40E00968A4F /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				AB17573B27675B1E00FD64E2 /* XCRemoteSwiftPackageReference "Colorful" */,
@@ -1032,6 +1039,7 @@
 				ABBC332826BE31AE0084A331 /* EhSettingView.swift in Sources */,
 				ABD4032626B78E5A00001B8C /* GalleryThumbnailCell.swift in Sources */,
 				AB358319269D9996009466A5 /* DomainResolver.swift in Sources */,
+				AB0929B9277F16A100F107CA /* SharedDataSettingStore.swift in Sources */,
 				AB63EADD2699AC9100090535 /* AppEnvMO+CoreDataClass.swift in Sources */,
 				ABCA93BE26918DE100A98BC6 /* Persistence.swift in Sources */,
 				ABF45AEF25F3313D00ECB568 /* TorrentsView.swift in Sources */,
@@ -1062,7 +1070,6 @@
 				ABF45AF825F3313D00ECB568 /* EhPandaView.swift in Sources */,
 				ABCA93C42692A0BF00A98BC6 /* PersistenceAccessor.swift in Sources */,
 				ABD49D60277C7722003D1A07 /* TabBarView.swift in Sources */,
-				AB73CEAF26AAC13F00EF6337 /* CodableExtension.swift in Sources */,
 				ABC3C7862593699B00E0C11B /* Utilities.swift in Sources */,
 				AB58A5BA2776CE2F00C0D285 /* SharedDataAction.swift in Sources */,
 				ABF45AE725F3313D00ECB568 /* RatingView.swift in Sources */,
@@ -1113,6 +1120,7 @@
 				ABA732DF25A852D800B3D9AB /* Filter.swift in Sources */,
 				ABC1FAB82642C37D00A9F352 /* NewDawnView.swift in Sources */,
 				ABF45AE825F3313D00ECB568 /* LinkedText.swift in Sources */,
+				AB0929B6277F043D00F107CA /* AccountSettingStore.swift in Sources */,
 				ABD49D67277EAC90003D1A07 /* URLUtil.swift in Sources */,
 				AB10117E26986B7D00C2C1A9 /* GalleryStateMO+CoreDataProperties.swift in Sources */,
 				ABF971FF26DD394200118887 /* ImageSaver.swift in Sources */,
@@ -1551,14 +1559,6 @@
 				minimumVersion = 0.31.0;
 			};
 		};
-		AB60D0CD274C7AA000F899AB /* XCRemoteSwiftPackageReference "BetterCodable" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/marksands/BetterCodable.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.4.0;
-			};
-		};
 		AB60D0E7274C7ECE00F899AB /* XCRemoteSwiftPackageReference "WaterfallGrid" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/paololeonardi/WaterfallGrid.git";
@@ -1647,11 +1647,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = AB58A5A12776078F00C0D285 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */;
 			productName = ComposableArchitecture;
-		};
-		AB60D0CE274C7AA000F899AB /* BetterCodable */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = AB60D0CD274C7AA000F899AB /* XCRemoteSwiftPackageReference "BetterCodable" */;
-			productName = BetterCodable;
 		};
 		AB60D0E8274C7ECE00F899AB /* WaterfallGrid */ = {
 			isa = XCSwiftPackageProductDependency;

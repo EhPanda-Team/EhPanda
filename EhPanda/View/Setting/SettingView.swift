@@ -13,13 +13,13 @@ struct SettingView: View {
     private let store: Store<SettingState, SettingAction>
     private let sharedDataStore: Store<SharedData, SharedDataAction>
     @ObservedObject private var viewStore: ViewStore<SettingState, SettingAction>
-    @ObservedObject private var sharedDataViewStore: ViewStore<SharedData, SharedDataAction>
+    @ObservedObject private var coreViewStore: ViewStore<CoreSettingState, CoreSettingAction>
 
     init(store: Store<SettingState, SettingAction>, sharedDataStore: Store<SharedData, SharedDataAction>) {
         self.store = store
         self.sharedDataStore = sharedDataStore
         viewStore = ViewStore(store)
-        sharedDataViewStore = ViewStore(sharedDataStore)
+        coreViewStore = ViewStore(store.scope(state: \.coreSettingState, action: SettingAction.core))
     }
 
     // MARK: SettingView
@@ -29,7 +29,7 @@ struct SettingView: View {
                 VStack(spacing: 0) {
                     ForEach(SettingRowType.allCases) { type in
                         SettingRow(rowType: type) {
-                            viewStore.send(.setRoute($0))
+                            coreViewStore.send(.setRoute($0))
                         }
                     }
                 }
@@ -37,17 +37,27 @@ struct SettingView: View {
             }
             .background(
                 ForEach(SettingRowType.allCases) { type in
-                    NavigationLink(
-                        "", tag: type, selection: viewStore.binding(\.$route),
-                        destination: { type.destination }
-                    )
+                    NavigationLink("", tag: type, selection: coreViewStore.binding(\.$route), destination: {
+                        switch type {
+                        case .account:
+                            AccountSettingView(
+                                store: store.scope(state: \.accountSettingState, action: SettingAction.account),
+                                sharedDataStore: sharedDataStore
+                            )
+                        case .general:
+                            GeneralSettingView()
+                        case .appearance:
+                            AppearanceSettingView()
+                        case .reading:
+                            ReadingSettingView()
+                        case .laboratory:
+                            LaboratorySettingView()
+                        case .ehpanda:
+                            EhPandaView()
+                        }
+                    })
                 }
             )
-            .sheet(item: viewStore.binding(\.$sheetState)) { state in
-                WebView(url: state.url)
-//                    .blur(radius: environment.blurRadius)
-//                    .allowsHitTesting(environment.isAppUnlocked)
-            }
             .navigationBarTitle("Setting")
         }
     }
@@ -93,25 +103,6 @@ private struct SettingRow: View {
 }
 
 // MARK: Definition
-enum SettingViewSheetState: Identifiable {
-    var id: Int { hashValue }
-
-    case webviewLogin
-    case webviewConfig
-    case webviewMyTags
-}
-extension SettingViewSheetState {
-    var url: URL {
-        switch self {
-        case .webviewLogin:
-            return Defaults.URL.webLogin
-        case .webviewConfig:
-            return Defaults.URL.uConfig
-        case .webviewMyTags:
-            return Defaults.URL.myTags
-        }
-    }
-}
 
 enum SettingRowType: String, Hashable, Identifiable, CaseIterable {
     var id: String { rawValue }
@@ -138,22 +129,6 @@ extension SettingRowType {
             return .testtube2
         case .ehpanda:
             return .pCircleFill
-        }
-    }
-    @ViewBuilder var destination: some View {
-        switch self {
-        case .account:
-            AccountSettingView()
-        case .general:
-            GeneralSettingView()
-        case .appearance:
-            AppearanceSettingView()
-        case .reading:
-            ReadingSettingView()
-        case .laboratory:
-            LaboratorySettingView()
-        case .ehpanda:
-            EhPandaView()
         }
     }
 }

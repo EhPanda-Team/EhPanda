@@ -5,6 +5,7 @@
 //  Created by 荒木辰造 on R 3/12/25.
 //
 
+import Kingfisher
 import ComposableArchitecture
 
 let sharedDataReducer = Reducer<SharedData, SharedDataAction, AnyEnvironment> { state, action, _ in
@@ -95,5 +96,16 @@ let sharedDataReducer = Reducer<SharedData, SharedDataAction, AnyEnvironment> { 
             state.user.favoriteNames = names
         }
         return .none
+
+    case .binding:
+        return .none
+
+    case .logout:
+        state.user = User()
+        CookiesUtil.clearAll()
+        PersistenceController.removeImageURLs()
+        KingfisherManager.shared.cache.clearDiskCache()
+        return .none
     }
 }
+.binding()

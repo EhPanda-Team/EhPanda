@@ -6,8 +6,9 @@
 //
 
 import Foundation
+import ComposableArchitecture
 
-enum SharedDataAction {
+enum SharedDataAction: BindableAction {
     case didFinishLaunching
     case createDefaultEhProfile
     case fetchIgneous
@@ -19,4 +20,7 @@ enum SharedDataAction {
     case fetchEhProfileIndexDone(Result<(Int?, Bool), AppError>)
     case fetchFavoriteNames
     case fetchFavoriteNamesDone(Result<[Int: String], AppError>)
+
+    case binding(BindingAction<SharedData>)
+    case logout
 }
