@@ -29,7 +29,6 @@ struct EhPandaView: View {
         Info(url: "https://github.com/fermoya/SwiftUIPager", text: "SwiftUIPager"),
         Info(url: "https://github.com/SwiftyBeaver/SwiftyBeaver", text: "SwiftyBeaver"),
         Info(url: "https://github.com/paololeonardi/WaterfallGrid", text: "WaterfallGrid"),
-        Info(url: "https://github.com/marksands/BetterCodable", text: "BetterCodable"),
         Info(url: "https://github.com/ddddxxx/SwiftyOpenCC", text: "SwiftyOpenCC"),
         Info(url: "https://github.com/honkmaster/TTProgressHUD", text: "TTProgressHUD"),
         Info(url: "https://github.com/EhTagTranslation/Database", text: "EhTagTranslation/Database")

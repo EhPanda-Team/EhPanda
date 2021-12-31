@@ -11,15 +11,6 @@
         }
       },
       {
-        "package": "BetterCodable",
-        "repositoryURL": "https://github.com/marksands/BetterCodable.git",
-        "state": {
-          "branch": null,
-          "revision": "61153170668db7a46a20a87e35e70f80b24d4eb5",
-          "version": "0.4.0"
-        }
-      },
-      {
         "package": "Colorful",
         "repositoryURL": "https://github.com/Co2333/Colorful.git",
         "state": {
