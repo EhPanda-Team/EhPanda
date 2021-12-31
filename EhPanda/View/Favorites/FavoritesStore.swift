@@ -98,7 +98,7 @@ let favoritesReducer = Reducer<FavoritesState, FavoritesAction, FavoritesEnviron
             HapticUtil.generateNotificationFeedback(style: .error)
             return .none
         }
-        return .init(value: .fetchGalleries(index))
+        return .init(value: .fetchGalleries(index - 1))
 
     case .presentJumpPageAlert:
         state.jumpPageAlertPresented = true
