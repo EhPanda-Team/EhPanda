@@ -28,6 +28,12 @@ struct FavoritesView: View {
         sharedDataViewStore = ViewStore(sharedDataStore)
     }
 
+    private var navigationTitle: String {
+        (viewStore.index == -1 ? "Favorites" : User.getFavNameFrom(
+            index: viewStore.index, names: sharedDataViewStore.user.favoriteNames
+        )).localized
+    }
+
     // MARK: FavoritesView
     var body: some View {
         NavigationView {
@@ -77,7 +83,7 @@ struct FavoritesView: View {
                     viewStore.send(.fetchGalleries())
                 }
             }
-            .navigationTitle("Favorites")
+            .navigationTitle(navigationTitle)
             .toolbar(content: toolbar)
         }
     }

@@ -11,9 +11,8 @@ let sharedDataReducer = Reducer<SharedData, SharedDataAction, AnyEnvironment> { 
     Logger.info(action)
     switch action {
     case .didFinishLaunching:
-        CookiesUtil.removeYay()
-
         var effects = [Effect<SharedDataAction, Never>]()
+
         if CookiesUtil.shouldFetchIgneous {
             effects.append(.init(value: .fetchIgneous))
         }
@@ -28,8 +27,7 @@ let sharedDataReducer = Reducer<SharedData, SharedDataAction, AnyEnvironment> { 
             effects.append(.init(value: .fetchTagTranslator(preferredLanguage)))
         }
 
-        guard !effects.isEmpty else { return .none }
-        return .merge(effects)
+        return effects.isEmpty ? .none : .merge(effects)
 
     case .createDefaultEhProfile:
         return EhProfileRequest(action: .create, name: "EhPanda").effect.fireAndForget()

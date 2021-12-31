@@ -14,19 +14,20 @@ let appDelegateReducer = Reducer<Bool, AppDelegateAction, AppDelegateEnvironment
     switch action {
     case .didFinishLaunching:
         AppUtil.dispatchMainSync {
-            configureWebImage(bypassesSNIFiltering: state)
             configureDomainFronting(bypassesSNIFiltering: state)
+            AppUtil.configureKingfisher(bypassesSNIFiltering: state)
         }
         configureTabBar()
         configureLogging()
-        configureIgnoreOffensive()
+        CookiesUtil.removeYay()
+        CookiesUtil.ignoreOffensive()
 
         Logger.info(action)
         return .none
     }
 }
 
-// MARK: Configuration
+// MARK: Logging
 private func configureLogging() {
     var file = FileDestination()
     var console = ConsoleDestination()

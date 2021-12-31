@@ -40,8 +40,6 @@ enum AppAction {
     case setCommentViewSheetState(_ state: CommentViewSheetState?)
 
     case handleJumpPage(index: Int, keyword: String? = nil)
-    case fetchTagTranslator
-    case fetchTagTranslatorDone(result: Result<TagTranslator, AppError>)
     case fetchGreeting
     case fetchGreetingDone(result: Result<Greeting, AppError>)
     case fetchGalleryItemReverse(url: String, shouldParseGalleryURL: Bool)

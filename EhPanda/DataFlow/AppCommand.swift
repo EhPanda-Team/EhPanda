@@ -30,26 +30,6 @@ struct FetchGreetingCommand: AppCommand {
     }
 }
 
-struct FetchTagTranslatorCommand: AppCommand {
-    let language: TranslatableLanguage
-    let updatedDate: Date
-
-    func execute(in store: DeprecatedStore) {
-        let token = SubscriptionToken()
-        TagTranslatorRequest(language: language, updatedDate: updatedDate)
-            .publisher.receive(on: DispatchQueue.main)
-            .sink { completion in
-                if case .failure(let error) = completion {
-                    store.dispatch(.fetchTagTranslatorDone(result: .failure(error)))
-                }
-                token.unseal()
-            } receiveValue: { translator in
-                store.dispatch(.fetchTagTranslatorDone(result: .success(translator)))
-            }
-            .seal(in: token)
-    }
-}
-
 struct FetchGalleryItemReverseCommand: AppCommand {
     let gid: String
     let url: String
