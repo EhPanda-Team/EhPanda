@@ -18,10 +18,20 @@ let appReducer = Reducer<AltAppState, AltAppAction, AppEnvironment>.combine(
         action: /AltAppAction.sharedData,
         environment: { _ in AnyEnvironment() }
     ),
+    tabBarReducer.pullback(
+        state: \.tabBarState,
+        action: /AltAppAction.tabBar,
+        environment: { _ in AnyEnvironment() }
+    ),
     favoritesReducer.pullback(
         state: \.favoritesState,
         action: /AltAppAction.favorites,
         environment: { _ in FavoritesEnvironment() }
+    ),
+    settingReducer.pullback(
+        state: \.settingState,
+        action: /AltAppAction.setting,
+        environment: { _ in AnyEnvironment() }
     )
 )
 

@@ -10,6 +10,8 @@ import ComposableArchitecture
 
 struct AltAppState: Equatable {
     var sharedData = SharedData()
+
     var tabBarState = TabBarState()
     var favoritesState = FavoritesState()
+    var settingState = SettingState()
 }

@@ -107,6 +107,7 @@
 		ABD49D60277C7722003D1A07 /* TabBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABD49D5F277C7722003D1A07 /* TabBarView.swift */; };
 		ABD49D64277C7AD5003D1A07 /* TabBarStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABD49D63277C7AD5003D1A07 /* TabBarStore.swift */; };
 		ABD49D67277EAC90003D1A07 /* URLUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABD49D66277EAC90003D1A07 /* URLUtil.swift */; };
+		ABD49D6A277EEF73003D1A07 /* SettingStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABD49D69277EEF73003D1A07 /* SettingStore.swift */; };
 		ABD5FDD4263D05110021A4C6 /* .swiftlint.yml in Resources */ = {isa = PBXBuildFile; fileRef = ABD5FDD3263D05110021A4C6 /* .swiftlint.yml */; };
 		ABD7005926B1C31500DC59C9 /* Kanna in Frameworks */ = {isa = PBXBuildFile; productRef = ABD7005826B1C31500DC59C9 /* Kanna */; };
 		ABE1867826A1733000689FDC /* LaboratorySettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABE1867726A1733000689FDC /* LaboratorySettingView.swift */; };
@@ -282,6 +283,7 @@
 		ABD49D5F277C7722003D1A07 /* TabBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarView.swift; sourceTree = "<group>"; };
 		ABD49D63277C7AD5003D1A07 /* TabBarStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarStore.swift; sourceTree = "<group>"; };
 		ABD49D66277EAC90003D1A07 /* URLUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLUtil.swift; sourceTree = "<group>"; };
+		ABD49D69277EEF73003D1A07 /* SettingStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingStore.swift; sourceTree = "<group>"; };
 		ABD5FDD3263D05110021A4C6 /* .swiftlint.yml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.yaml; path = .swiftlint.yml; sourceTree = SOURCE_ROOT; };
 		ABE1867726A1733000689FDC /* LaboratorySettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaboratorySettingView.swift; sourceTree = "<group>"; };
 		ABE2AE742699F238001D47AA /* AppEnvStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppEnvStorage.swift; sourceTree = "<group>"; };
@@ -789,6 +791,7 @@
 			isa = PBXGroup;
 			children = (
 				ABF45ADD25F3313D00ECB568 /* SettingView.swift */,
+				ABD49D69277EEF73003D1A07 /* SettingStore.swift */,
 				ABF45AD925F3313D00ECB568 /* AccountSettingView.swift */,
 				ABF45AD825F3313D00ECB568 /* GeneralSettingView.swift */,
 				ABF45ADC25F3313D00ECB568 /* AppearanceSettingView.swift */,
@@ -1047,6 +1050,7 @@
 				ABF45AEB25F3313D00ECB568 /* GalleryDetailCell.swift in Sources */,
 				AB69CB8026B3DABC00699359 /* AdvancedList.swift in Sources */,
 				ABC3C7892593699B00E0C11B /* Defaults.swift in Sources */,
+				ABD49D6A277EEF73003D1A07 /* SettingStore.swift in Sources */,
 				AB8C821926BF801700E8C5E6 /* EhSetting.swift in Sources */,
 				ABF45AF125F3313D00ECB568 /* AssociatedView.swift in Sources */,
 				AB58A5AC2776B2BC00C0D285 /* AppDelegate.swift in Sources */,

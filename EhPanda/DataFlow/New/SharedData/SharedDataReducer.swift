@@ -48,9 +48,8 @@ let sharedDataReducer = Reducer<SharedData, SharedDataAction, AnyEnvironment> { 
 
     case .fetchTagTranslator(let preferredLanguage):
         guard let language = TranslatableLanguage.allCases.compactMap({ lang in
-                  preferredLanguage.contains(lang.languageCode) ? lang : nil
-              }).first
-        else {
+            preferredLanguage.contains(lang.languageCode) ? lang : nil
+        }).first else {
             state.tagTranslator = TagTranslator()
             state.setting.translatesTags = false
             return .none

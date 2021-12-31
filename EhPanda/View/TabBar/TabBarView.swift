@@ -28,14 +28,13 @@ struct TabBarView: View {
                     switch type {
                     case .favorites:
                         FavoritesView(
-                            store: store.scope(
-                                state: \.favoritesState,
-                                action: AltAppAction.favorites
-                            ),
-                            sharedDataStore: store.scope(
-                                state: \.sharedData,
-                                action: AltAppAction.sharedData
-                            )
+                            store: store.scope(state: \.favoritesState, action: AltAppAction.favorites),
+                            sharedDataStore: store.scope(state: \.sharedData, action: AltAppAction.sharedData)
+                        )
+                    case .setting:
+                        SettingView(
+                            store: store.scope(state: \.settingState, action: AltAppAction.setting),
+                            sharedDataStore: store.scope(state: \.sharedData, action: AltAppAction.sharedData)
                         )
                     }
                 }
@@ -57,7 +56,7 @@ enum TabBarItemType: String, CaseIterable, Identifiable {
 //    case home = "Home"
     case favorites = "Favorites"
 //    case search = "Search"
-//    case setting = "Setting"
+    case setting = "Setting"
 }
 
 extension TabBarItemType {
@@ -69,8 +68,8 @@ extension TabBarItemType {
             return .heartCircle
 //        case .search:
 //            return .magnifyingglassCircle
-//        case .setting:
-//            return .gearshapeCircle
+        case .setting:
+            return .gearshapeCircle
         }
     }
     func label() -> Label<Text, Image> {
