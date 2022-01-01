@@ -80,11 +80,15 @@ private extension AccountSettingView {
             NavigationLink("", tag: route, selection: viewStore.binding(\.$route), destination: {
                 switch route {
                 case .login:
-                    LoginView()
+                    LoginView(
+                        store: store.scope(state: \.loginState, action: AccountSettingAction.login),
+                        parentStore: store.stateless,
+                        sharedDataStore: sharedDataStore
+                    )
                 case .ehSetting:
                     EhSettingView(
                         store: store.scope(state: \.ehSettingState, action: AccountSettingAction.ehSetting),
-                        settingStore: sharedDataStore.scope(state: \.setting).actionless
+                        settingStore: sharedDataStore.scope(state: \.setting.bypassesSNIFiltering).actionless
                     )
                 }
             })

@@ -6,22 +6,29 @@
 //
 
 import SwiftUI
+import SFSafeSymbols
+import ComposableArchitecture
 
-struct LoginView: View, StoreAccessor {
-    @EnvironmentObject var store: DeprecatedStore
-    @Environment(\.dismiss) var dismissAction
+struct LoginView: View {
+    private let store: Store<LoginState, LoginAction>
+    private let parentStore: Store<Void, AccountSettingAction>
+    private let sharedDataStore: Store<SharedData, SharedDataAction>
+    @ObservedObject private var viewStore: ViewStore<LoginState, LoginAction>
+    @ObservedObject private var parentViewStore: ViewStore<Void, AccountSettingAction>
+    @ObservedObject private var sharedDataViewStore: ViewStore<SharedData, SharedDataAction>
+    @FocusState private var focusedField: LoginFocusedField?
 
-    @FocusState private var focusedState: FocusedField?
-    @State var shouldRestoreFocus = false
-    @State var isLoggingIn = false
-    @State var username = ""
-    @State var password = ""
-
-    private var isLoginButtonDisabled: Bool {
-        username.isEmpty || password.isEmpty
-    }
-    private var loginButtonColor: Color {
-        isLoggingIn ? .clear : isLoginButtonDisabled ? .primary.opacity(0.25) : .primary.opacity(0.75)
+    init(
+        store: Store<LoginState, LoginAction>,
+        parentStore: Store<Void, AccountSettingAction>,
+        sharedDataStore: Store<SharedData, SharedDataAction>
+    ) {
+        self.store = store
+        self.parentStore = parentStore
+        self.sharedDataStore = sharedDataStore
+        viewStore = ViewStore(store)
+        parentViewStore = ViewStore(parentStore)
+        sharedDataViewStore = ViewStore(sharedDataStore)
     }
 
     // MARK: LoginView
@@ -36,92 +43,75 @@ struct LoginView: View, StoreAccessor {
                 VStack(spacing: 15) {
                     Group {
                         LoginTextField(
-                            focusedState: $focusedState, text: $username, description: "Username", isPassword: false
+                            focusedField: $focusedField, text: viewStore.binding(\.$username),
+                            description: "Username", isPassword: false
                         )
                         LoginTextField(
-                            focusedState: $focusedState, text: $password, description: "Password", isPassword: true
+                            focusedField: $focusedField, text: viewStore.binding(\.$password),
+                            description: "Password", isPassword: true
                         )
                     }
                     .padding(.horizontal, proxy.size.width * 0.2)
-                    Button(action: login) {
-                        Image(systemName: "chevron.forward.circle.fill")
+                    Button {
+                        viewStore.send(.login)
+                    } label: {
+                        Image(systemSymbol: .chevronForwardCircleFill)
                     }
-                    .overlay { ProgressView().tint(nil).opacity(isLoggingIn ? 1 : 0) }
-                    .imageScale(.large).font(.largeTitle).foregroundColor(loginButtonColor)
-                    .disabled(isLoginButtonDisabled).padding(.top, 30)
+                    .overlay {
+                        ProgressView().tint(nil).opacity(
+                            viewStore.loginState == .loading ? 1 : 0
+                        )
+                    }
+                    .imageScale(.large).font(.largeTitle)
+                    .foregroundColor(viewStore.loginButtonColor)
+                    .disabled(viewStore.loginButtonDisabled).padding(.top, 30)
                 }
             }
         }
-        .toolbar(content: toolbar)
-        .onReceive(UIApplication.willResignActiveNotification.publisher) { _ in
-            guard focusedState != nil else { return }
-            shouldRestoreFocus = true
+        .onChange(of: viewStore.loginState) { newValue in
+            if newValue == .idle && AuthorizationUtil.didLogin {
+                sharedDataViewStore.send(.didFinishLogining)
+                parentViewStore.send(.setRoute(nil))
+            }
         }
-        .onReceive(UIApplication.didBecomeActiveNotification.publisher) { _ in
-            guard shouldRestoreFocus else { return }
-            focusedState = .username
-            shouldRestoreFocus = false
+        .synchronize(viewStore.binding(\.$focusedField), $focusedField)
+        .sheet(isPresented: viewStore.binding(\.$webViewSheetPresented)) {
+            WebView(url: Defaults.URL.login)
+//                    .blur(radius: environment.blurRadius)
+//                    .allowsHitTesting(environment.isAppUnlocked)
         }
         .onSubmit {
-            switch focusedState {
+            switch focusedField {
             case .username:
-                focusedState = .password
+                focusedField = .password
             case .password:
-                focusedState = nil
-                login()
+                focusedField = nil
+                viewStore.send(.login)
             default:
                 break
             }
         }
-        .navigationTitle("Login").ignoresSafeArea()
+        .toolbar(content: toolbar)
+        .navigationTitle("Login")
+        .ignoresSafeArea()
     }
     // MARK: Toolbar
     private func toolbar() -> some ToolbarContent {
         ToolbarItem(placement: .navigationBarTrailing) {
             Button {
-                store.dispatch(.setSettingViewSheetState(.webviewLogin))
+                viewStore.send(.setWebViewSheet(true))
             } label: {
-                Image(systemName: "globe")
+                Image(systemSymbol: .globe)
             }
-            .disabled(setting.bypassesSNIFiltering)
+            .disabled(sharedDataViewStore.setting.bypassesSNIFiltering)
         }
-    }
-
-    // MARK: Networking
-    private func login() {
-        guard !isLoginButtonDisabled || isLoggingIn else { return }
-        withAnimation { isLoggingIn = true }
-        HapticUtil.generateFeedback(style: .soft)
-
-        let token = SubscriptionToken()
-        LoginRequest(username: username, password: password)
-            .publisher.receive(on: DispatchQueue.main)
-            .sink { _ in
-                DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                    withAnimation { isLoggingIn = false }
-                    guard AuthorizationUtil.didLogin else {
-                        HapticUtil.generateNotificationFeedback(style: .error)
-                        return
-                    }
-                    HapticUtil.generateNotificationFeedback(style: .success)
-                    dismissAction.callAsFunction()
-//                    store.dispatch(.doFinishLoginTasks)
-                }
-                token.unseal()
-            } receiveValue: { value in
-                guard setting.bypassesSNIFiltering, let (_, resp) = value as? (Data, HTTPURLResponse) else { return }
-
-                CookiesUtil.setIgneous(for: resp)
-//                store.dispatch(.fetchIgneous)
-            }
-            .seal(in: token)
     }
 }
 
 // MARK: LoginTextField
 private struct LoginTextField: View {
     @Environment(\.colorScheme) private var colorScheme
-    private let focusedState: FocusState<FocusedField?>.Binding
+    private let focusedField: FocusState<LoginFocusedField?>.Binding
     @Binding private var text: String
     private let description: String
     private let isPassword: Bool
@@ -131,10 +121,10 @@ private struct LoginTextField: View {
     }
 
     init(
-        focusedState: FocusState<FocusedField?>.Binding,
+        focusedField: FocusState<LoginFocusedField?>.Binding,
         text: Binding<String>, description: String, isPassword: Bool
     ) {
-        self.focusedState = focusedState
+        self.focusedField = focusedField
         _text = text
         self.description = description
         self.isPassword = isPassword
@@ -150,7 +140,7 @@ private struct LoginTextField: View {
                     TextField("", text: $text)
                 }
             }
-            .focused(focusedState.projectedValue, equals: isPassword ? .password : .username)
+            .focused(focusedField.projectedValue, equals: isPassword ? .password : .username)
             .textContentType(isPassword ? .password : .username).submitLabel(isPassword ? .done : .next)
             .textInputAutocapitalization(.none).disableAutocorrection(true).keyboardType(.asciiCapable)
             .padding(10).background(backgroundColor.opacity(0.75).cornerRadius(8))
@@ -158,16 +148,32 @@ private struct LoginTextField: View {
     }
 }
 
+// MARK: Definition
+enum LoginFocusedField {
+    case username
+    case password
+}
+
 struct LoginView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
-            LoginView()
+            LoginView(
+                store: Store<LoginState, LoginAction>(
+                    initialState: LoginState(),
+                    reducer: loginReducer,
+                    environment: AnyEnvironment()
+                ),
+                parentStore: Store<Void, AccountSettingAction>(
+                    initialState: (),
+                    reducer: .empty,
+                    environment: AnyEnvironment()
+                ),
+                sharedDataStore: Store<SharedData, SharedDataAction>(
+                    initialState: SharedData(),
+                    reducer: sharedDataReducer,
+                    environment: AnyEnvironment()
+                )
+            )
         }
     }
-}
-
-// MARK: Definition
-private enum FocusedField {
-    case username
-    case password
 }

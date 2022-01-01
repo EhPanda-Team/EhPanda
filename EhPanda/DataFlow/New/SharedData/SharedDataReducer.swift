@@ -30,6 +30,17 @@ let sharedDataReducer = Reducer<SharedData, SharedDataAction, AnyEnvironment> { 
 
         return effects.isEmpty ? .none : .merge(effects)
 
+    case .didFinishLogining:
+        var effects: [Effect<SharedDataAction, Never>] = [
+            .init(value: .fetchUserInfo),
+            .init(value: .fetchFavoriteNames),
+            .init(value: .fetchEhProfileIndex)
+        ]
+        if CookiesUtil.shouldFetchIgneous {
+            effects.append(.init(value: .fetchIgneous))
+        }
+        return .merge(effects)
+
     case .createDefaultEhProfile:
         return EhProfileRequest(action: .create, name: "EhPanda").effect.fireAndForget()
 

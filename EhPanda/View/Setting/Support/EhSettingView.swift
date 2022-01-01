@@ -11,11 +11,11 @@ import ComposableArchitecture
 
 struct EhSettingView: View {
     private let store: Store<EhSettingState, EhSettingAction>
-    private let settingStore: Store<Setting, Never>
+    private let settingStore: Store<Bool, Never>
     @ObservedObject private var viewStore: ViewStore<EhSettingState, EhSettingAction>
-    @ObservedObject private var settingViewStore: ViewStore<Setting, Never>
+    @ObservedObject private var settingViewStore: ViewStore<Bool, Never>
 
-    init(store: Store<EhSettingState, EhSettingAction>, settingStore: Store<Setting, Never>) {
+    init(store: Store<EhSettingState, EhSettingAction>, settingStore: Store<Bool, Never>) {
         self.store = store
         self.settingStore = settingStore
         viewStore = ViewStore(store)
@@ -106,7 +106,7 @@ struct EhSettingView: View {
                 } label: {
                     Image(systemSymbol: .globe)
                 }
-                .disabled(settingViewStore.bypassesSNIFiltering)
+                .disabled(settingViewStore.state)
             }
             ToolbarItem(placement: .confirmationAction) {
                 Button {
@@ -1075,8 +1075,8 @@ struct EhSettingView_Previews: PreviewProvider {
                     reducer: ehSettingReducer,
                     environment: AnyEnvironment()
                 ),
-                settingStore: Store<Setting, Never>(
-                    initialState: Setting(),
+                settingStore: Store<Bool, Never>(
+                    initialState: false,
                     reducer: .empty,
                     environment: AnyEnvironment()
                 )

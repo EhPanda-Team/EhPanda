@@ -10,6 +10,7 @@
 		AB0929B6277F043D00F107CA /* AccountSettingStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0929B5277F043D00F107CA /* AccountSettingStore.swift */; };
 		AB0929B9277F16A100F107CA /* SharedDataSettingStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0929B8277F16A100F107CA /* SharedDataSettingStore.swift */; };
 		AB0929BE2780032400F107CA /* EhSettingStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0929BD2780032400F107CA /* EhSettingStore.swift */; };
+		AB0929C027805A8200F107CA /* LoginStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0929BF27805A8200F107CA /* LoginStore.swift */; };
 		AB0ABCB526C5406400AD970F /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0ABCB426C5406400AD970F /* LoginView.swift */; };
 		AB0ABCB726C541A400AD970F /* WaveForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0ABCB626C541A400AD970F /* WaveForm.swift */; };
 		AB0F68AF26A6D92F00AC3A54 /* DeprecatedAPI in Frameworks */ = {isa = PBXBuildFile; productRef = AB0F68AE26A6D92F00AC3A54 /* DeprecatedAPI */; };
@@ -186,6 +187,7 @@
 		AB0929B5277F043D00F107CA /* AccountSettingStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountSettingStore.swift; sourceTree = "<group>"; };
 		AB0929B8277F16A100F107CA /* SharedDataSettingStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedDataSettingStore.swift; sourceTree = "<group>"; };
 		AB0929BD2780032400F107CA /* EhSettingStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EhSettingStore.swift; sourceTree = "<group>"; };
+		AB0929BF27805A8200F107CA /* LoginStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginStore.swift; sourceTree = "<group>"; };
 		AB0ABCB426C5406400AD970F /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		AB0ABCB626C541A400AD970F /* WaveForm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaveForm.swift; sourceTree = "<group>"; };
 		AB10117D26986B7D00C2C1A9 /* GalleryStateMO+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GalleryStateMO+CoreDataProperties.swift"; sourceTree = "<group>"; };
@@ -377,6 +379,7 @@
 				ABD49D69277EEF73003D1A07 /* SettingStore.swift */,
 				AB0929B5277F043D00F107CA /* AccountSettingStore.swift */,
 				AB0929BD2780032400F107CA /* EhSettingStore.swift */,
+				AB0929BF27805A8200F107CA /* LoginStore.swift */,
 			);
 			path = DataFlow;
 			sourceTree = "<group>";
@@ -1086,6 +1089,7 @@
 				ABD4032826B7967F00001B8C /* Category.swift in Sources */,
 				AB58A5BF2776CF2F00C0D285 /* SharedDataReducer.swift in Sources */,
 				ABC681F326898D46007BBD69 /* Model.xcdatamodeld in Sources */,
+				AB0929C027805A8200F107CA /* LoginStore.swift in Sources */,
 				AB58A5B22776B99000C0D285 /* AppReducer.swift in Sources */,
 				AB24C566276758E30085C33A /* GalleryCardCell.swift in Sources */,
 				AB4FD2C1268AB83300A95968 /* GalleryDetailMO+CoreDataProperties.swift in Sources */,

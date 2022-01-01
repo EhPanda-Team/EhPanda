@@ -10,6 +10,7 @@ import ComposableArchitecture
 
 enum SharedDataAction: BindableAction {
     case didFinishLaunching
+    case didFinishLogining
     case createDefaultEhProfile
     case fetchIgneous
     case fetchUserInfo

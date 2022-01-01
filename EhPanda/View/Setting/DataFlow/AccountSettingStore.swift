@@ -15,6 +15,7 @@ struct AccountSettingState: Equatable {
     @BindableState var hudVisible = false
     var hudConfig = TTProgressHUDConfig()
 
+    var loginState = LoginState()
     var ehSettingState = EhSettingState()
 }
 
@@ -25,6 +26,7 @@ enum AccountSettingAction: BindableAction {
     case setLogoutDialog(Bool)
     case setHUD(Bool, TTProgressHUDConfig)
 
+    case login(LoginAction)
     case ehSetting(EhSettingAction)
 }
 
@@ -52,11 +54,19 @@ let accountSettingReducer = Reducer<AccountSettingState, AccountSettingAction, A
             state.hudConfig = config
             return .none
 
+        case .login:
+            return .none
+
         case .ehSetting:
             return .none
         }
     }
     .binding(),
+    loginReducer.pullback(
+        state: \.loginState,
+        action: /AccountSettingAction.login,
+        environment: { _ in AnyEnvironment() }
+    ),
     ehSettingReducer.pullback(
         state: \.ehSettingState,
         action: /AccountSettingAction.ehSetting,
