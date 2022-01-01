@@ -13,13 +13,11 @@ struct SettingView: View {
     private let store: Store<SettingState, SettingAction>
     private let sharedDataStore: Store<SharedData, SharedDataAction>
     @ObservedObject private var viewStore: ViewStore<SettingState, SettingAction>
-    @ObservedObject private var coreViewStore: ViewStore<CoreSettingState, CoreSettingAction>
 
     init(store: Store<SettingState, SettingAction>, sharedDataStore: Store<SharedData, SharedDataAction>) {
         self.store = store
         self.sharedDataStore = sharedDataStore
         viewStore = ViewStore(store)
-        coreViewStore = ViewStore(store.scope(state: \.coreSettingState, action: SettingAction.core))
     }
 
     // MARK: SettingView
@@ -27,38 +25,43 @@ struct SettingView: View {
         NavigationView {
             ScrollView {
                 VStack(spacing: 0) {
-                    ForEach(SettingRowType.allCases) { type in
-                        SettingRow(rowType: type) {
-                            coreViewStore.send(.setRoute($0))
+                    ForEach(SettingRoute.allCases) { route in
+                        SettingRow(rowType: route) {
+                            viewStore.send(.setRoute($0))
                         }
                     }
                 }
                 .padding(.vertical, 40).padding(.horizontal)
             }
-            .background(
-                ForEach(SettingRowType.allCases) { type in
-                    NavigationLink("", tag: type, selection: coreViewStore.binding(\.$route), destination: {
-                        switch type {
-                        case .account:
-                            AccountSettingView(
-                                store: store.scope(state: \.accountSettingState, action: SettingAction.account),
-                                sharedDataStore: sharedDataStore
-                            )
-                        case .general:
-                            GeneralSettingView()
-                        case .appearance:
-                            AppearanceSettingView()
-                        case .reading:
-                            ReadingSettingView()
-                        case .laboratory:
-                            LaboratorySettingView()
-                        case .ehpanda:
-                            EhPandaView()
-                        }
-                    })
-                }
-            )
+            .background(navigationLinks)
             .navigationBarTitle("Setting")
+        }
+    }
+}
+
+// MARK: NavigationLinks
+private extension SettingView {
+    var navigationLinks: some View {
+        ForEach(SettingRoute.allCases) { route in
+            NavigationLink("", tag: route, selection: viewStore.binding(\.$route), destination: {
+                switch route {
+                case .account:
+                    AccountSettingView(
+                        store: store.scope(state: \.accountSettingState, action: SettingAction.account),
+                        sharedDataStore: sharedDataStore
+                    )
+                case .general:
+                    GeneralSettingView()
+                case .appearance:
+                    AppearanceSettingView()
+                case .reading:
+                    ReadingSettingView()
+                case .laboratory:
+                    LaboratorySettingView()
+                case .ehpanda:
+                    EhPandaView()
+                }
+            })
         }
     }
 }
@@ -68,8 +71,8 @@ private struct SettingRow: View {
     @Environment(\.colorScheme) private var colorScheme
     @State private var isPressing = false
 
-    private let rowType: SettingRowType
-    private let tapAction: (SettingRowType) -> Void
+    private let rowType: SettingRoute
+    private let tapAction: (SettingRoute) -> Void
 
     private var color: Color {
         colorScheme == .light ? Color(.darkGray) : Color(.lightGray)
@@ -78,7 +81,7 @@ private struct SettingRow: View {
         isPressing ? color.opacity(0.1) : .clear
     }
 
-    init(rowType: SettingRowType, tapAction: @escaping (SettingRowType) -> Void) {
+    init(rowType: SettingRoute, tapAction: @escaping (SettingRoute) -> Void) {
         self.rowType = rowType
         self.tapAction = tapAction
     }
@@ -103,8 +106,7 @@ private struct SettingRow: View {
 }
 
 // MARK: Definition
-
-enum SettingRowType: String, Hashable, Identifiable, CaseIterable {
+enum SettingRoute: String, Hashable, Identifiable, CaseIterable {
     var id: String { rawValue }
 
     case account = "Account"
@@ -114,7 +116,7 @@ enum SettingRowType: String, Hashable, Identifiable, CaseIterable {
     case laboratory = "Laboratory"
     case ehpanda = "About EhPanda"
 }
-extension SettingRowType {
+extension SettingRoute {
     var symbol: SFSymbol {
         switch self {
         case .account:

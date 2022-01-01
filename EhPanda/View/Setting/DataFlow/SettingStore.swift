@@ -8,43 +8,34 @@
 import ComposableArchitecture
 
 struct SettingState: Equatable {
-    var coreSettingState = CoreSettingState()
+    @BindableState var route: SettingRoute?
+
     var accountSettingState = AccountSettingState()
 }
 
-enum SettingAction {
-    case core(CoreSettingAction)
+enum SettingAction: BindableAction {
+    case binding(BindingAction<SettingState>)
+    case setRoute(SettingRoute?)
+
     case account(AccountSettingAction)
 }
 
-struct CoreSettingState: Equatable {
-    @BindableState var route: SettingRowType?
-}
-
-enum CoreSettingAction: BindableAction {
-    case binding(BindingAction<CoreSettingState>)
-    case setRoute(SettingRowType?)
-}
-
-let coreSettingReducer = Reducer<CoreSettingState, CoreSettingAction, AnyEnvironment> { state, action, _ in
-    Logger.info(action)
-    switch action {
-    case .binding:
-        return .none
-
-    case .setRoute(let route):
-        state.route = route
-        return .none
-    }
-}
-.binding()
-
 let settingReducer = Reducer<SettingState, SettingAction, AnyEnvironment>.combine(
-    coreSettingReducer.pullback(
-        state: \.coreSettingState,
-        action: /SettingAction.core,
-        environment: { _ in AnyEnvironment() }
-    ),
+    .init { state, action, _ in
+        Logger.info(action)
+        switch action {
+        case .binding:
+            return .none
+
+        case .setRoute(let route):
+            state.route = route
+            return .none
+
+        case .account:
+            return .none
+        }
+    }
+    .binding(),
     accountSettingReducer.pullback(
         state: \.accountSettingState,
         action: /SettingAction.account,

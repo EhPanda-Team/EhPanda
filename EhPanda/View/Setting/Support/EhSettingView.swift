@@ -6,15 +6,21 @@
 //
 
 import SwiftUI
+import SFSafeSymbols
+import ComposableArchitecture
 
-struct EhSettingView: View, StoreAccessor {
-    @EnvironmentObject var store: DeprecatedStore
+struct EhSettingView: View {
+    private let store: Store<EhSettingState, EhSettingAction>
+    private let settingStore: Store<Setting, Never>
+    @ObservedObject private var viewStore: ViewStore<EhSettingState, EhSettingAction>
+    @ObservedObject private var settingViewStore: ViewStore<Setting, Never>
 
-    @State private var ehSetting: EhSetting?
-    @State private var loadingFlag = false
-    @State private var loadError: AppError?
-    @State private var submittingFlag = false
-    @State private var shouldHideKeyboard = ""
+    init(store: Store<EhSettingState, EhSettingAction>, settingStore: Store<Setting, Never>) {
+        self.store = store
+        self.settingStore = settingStore
+        viewStore = ViewStore(store)
+        settingViewStore = ViewStore(settingStore)
+    }
 
     private var title: String {
         AppUtil.galleryHost.rawValue + " " + "Setting".localized
@@ -22,64 +28,71 @@ struct EhSettingView: View, StoreAccessor {
 
     // MARK: EhSettingView
     var body: some View {
-        Group {
-            if loadingFlag || submittingFlag {
+        ZStack {
+            if viewStore.loadingState == .loading || viewStore.submittingState == .loading {
                 LoadingView().tint(nil)
-            } else if let error = loadError {
-                ErrorView(error: error, retryAction: fetchEhSetting).tint(nil)
-            } else if let ehSettingBinding = Binding($ehSetting) {
-                form(ehSettingBinding: ehSettingBinding)
+            } else if case .failed(let error) = viewStore.loadingState {
+                ErrorView(error: error, retryAction: { viewStore.send(.fetchEhSetting) }).tint(nil)
+            } else if let ehSetting = Binding(viewStore.binding(\.$ehSetting)),
+                      let ehProfile = Binding(viewStore.binding(\.$ehProfile))
+            {
+                form(ehSetting: ehSetting, ehProfile: ehProfile)
             } else {
                 Circle().frame(width: 1).opacity(0.1)
             }
         }
-        .onAppear {
-            guard ehSetting == nil else { return }
-            fetchEhSetting()
-        }
+        .onAppear { viewStore.send(.fetchEhSetting) }
         .onDisappear {
-            if let set = ehSetting?.ehProfiles.filter({
+            if let set = viewStore.ehSetting?.ehProfiles.filter({
                 AppUtil.verifyEhPandaProfileName(with: $0.name)
             }).first?.value {
                 CookiesUtil.set(for: Defaults.URL.host, key: Defaults.Cookie.selectedProfile, value: String(set))
             }
         }
+        .sheet(isPresented: viewStore.binding(\.$webViewSheetPresented)) {
+            WebView(url: Defaults.URL.uConfig)
+//                    .blur(radius: environment.blurRadius)
+//                    .allowsHitTesting(environment.isAppUnlocked)
+        }
         .toolbar(content: toolbar).navigationTitle(title)
     }
     // MARK: Form
-    private func form(ehSettingBinding: Binding<EhSetting>) -> some View {
+    private func form(ehSetting: Binding<EhSetting>, ehProfile: Binding<EhProfile>) -> some View {
         Form {
             Group {
                 EhProfileSection(
-                    ehSetting: ehSettingBinding, shouldHideKeyboard: $shouldHideKeyboard,
-                    performEhProfileAction: performEhProfileAction
+                    ehSetting: ehSetting, ehProfile: ehProfile,
+                    editingProfileName: viewStore.binding(\.$editingProfileName),
+                    deleteDialogPresented: viewStore.binding(\.$deleteDialogPresented),
+                    deleteAction: { viewStore.send(.setDeleteDialog(true)) },
+                    performEhProfileAction: { viewStore.send(.performAction($0, $1, $2)) }
                 )
-                ImageLoadSettingsSection(ehSetting: ehSettingBinding)
-                ImageSizeSettingsSection(ehSetting: ehSettingBinding)
-                GalleryNameDisplaySection(ehSetting: ehSettingBinding)
-                ArchiverSettingsSection(ehSetting: ehSettingBinding)
-                FrontPageSettingsSection(ehSetting: ehSettingBinding)
-                FavoritesSection(ehSetting: ehSettingBinding, shouldHideKeyboard: $shouldHideKeyboard)
-                RatingsSection(ehSetting: ehSettingBinding, shouldHideKeyboard: $shouldHideKeyboard)
-                TagNamespacesSection(ehSetting: ehSettingBinding)
-                TagFilteringThresholdSection(ehSetting: ehSettingBinding)
+                ImageLoadSettingsSection(ehSetting: ehSetting)
+                ImageSizeSettingsSection(ehSetting: ehSetting)
+                GalleryNameDisplaySection(ehSetting: ehSetting)
+                ArchiverSettingsSection(ehSetting: ehSetting)
+                FrontPageSettingsSection(ehSetting: ehSetting)
+                FavoritesSection(ehSetting: ehSetting)
+                RatingsSection(ehSetting: ehSetting)
+                TagNamespacesSection(ehSetting: ehSetting)
+                TagFilteringThresholdSection(ehSetting: ehSetting)
             }
             Group {
-                TagWatchingThresholdSection(ehSetting: ehSettingBinding)
-                ExcludedLanguagesSection(ehSetting: ehSettingBinding)
-                ExcludedUploadersSection(ehSetting: ehSettingBinding, shouldHideKeyboard: $shouldHideKeyboard)
-                SearchResultCountSection(ehSetting: ehSettingBinding)
-                ThumbnailSettingsSection(ehSetting: ehSettingBinding)
-                ThumbnailScalingSection(ehSetting: ehSettingBinding)
-                ViewportOverrideSection(ehSetting: ehSettingBinding)
-                GalleryCommentsSection(ehSetting: ehSettingBinding)
-                GalleryTagsSection(ehSetting: ehSettingBinding)
-                GalleryPageNumberingSection(ehSetting: ehSettingBinding)
+                TagWatchingThresholdSection(ehSetting: ehSetting)
+                ExcludedLanguagesSection(ehSetting: ehSetting)
+                ExcludedUploadersSection(ehSetting: ehSetting)
+                SearchResultCountSection(ehSetting: ehSetting)
+                ThumbnailSettingsSection(ehSetting: ehSetting)
+                ThumbnailScalingSection(ehSetting: ehSetting)
+                ViewportOverrideSection(ehSetting: ehSetting)
+                GalleryCommentsSection(ehSetting: ehSetting)
+                GalleryTagsSection(ehSetting: ehSetting)
+                GalleryPageNumberingSection(ehSetting: ehSetting)
             }
             Group {
-                HathLocalNetworkHostSection(ehSetting: ehSettingBinding, shouldHideKeyboard: $shouldHideKeyboard)
-                OriginalImagesSection(ehSetting: ehSettingBinding)
-                MultiplePageViewerSection(ehSetting: ehSettingBinding)
+                HathLocalNetworkHostSection(ehSetting: ehSetting)
+                OriginalImagesSection(ehSetting: ehSetting)
+                MultiplePageViewerSection(ehSetting: ehSetting)
             }
         }
         .transition(AppUtil.opacityTransition)
@@ -89,23 +102,25 @@ struct EhSettingView: View, StoreAccessor {
         Group {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button {
-                    store.dispatch(.setSettingViewSheetState(.webviewConfig))
+                    viewStore.send(.setWebViewSheet(true))
                 } label: {
-                    Image(systemName: "globe")
+                    Image(systemSymbol: .globe)
                 }
-                .disabled(setting.bypassesSNIFiltering)
+                .disabled(settingViewStore.bypassesSNIFiltering)
             }
             ToolbarItem(placement: .confirmationAction) {
-                Button(action: submitEhSettingChanges) {
-                    Image(systemName: "icloud.and.arrow.up")
+                Button {
+                    viewStore.send(.submitChanges)
+                } label: {
+                    Image(systemSymbol: .icloudAndArrowUp)
                 }
-                .disabled(ehSetting == nil)
+                .disabled(viewStore.ehSetting == nil)
             }
             ToolbarItem(placement: .keyboard) {
                 HStack {
                     Spacer()
                     Button("Done") {
-                        shouldHideKeyboard = UUID().uuidString
+                        UIApplication.shared.endEditing()
                     }
                 }
             }
@@ -113,128 +128,28 @@ struct EhSettingView: View, StoreAccessor {
     }
 }
 
-private extension EhSettingView {
-    // MARK: Networking
-    func fetchEhSetting() {
-        loadError = nil
-        guard !loadingFlag else { return }
-        loadingFlag = true
-
-        let token = SubscriptionToken()
-        EhSettingRequest()
-            .publisher.receive(on: DispatchQueue.main)
-            .sink { completion in
-                loadingFlag = false
-                if case .failure(let error) = completion {
-                    Logger.error(error)
-                    loadError = error
-
-                    Logger.error(
-                        "EhSettingRequest failed",
-                        context: [ "Error": error ]
-                    )
-                }
-                token.unseal()
-            } receiveValue: { ehSetting in
-                self.ehSetting = ehSetting
-
-                Logger.info(
-                    "EhSettingRequest succeeded",
-                    context: [ "EhProfiles": ehSetting.ehProfiles ]
-                )
-            }
-            .seal(in: token)
-    }
-    func submitEhSettingChanges() {
-        guard let ehSetting = ehSetting, !submittingFlag else { return }
-
-        submittingFlag = true
-
-        let token = SubscriptionToken()
-        SubmitEhSettingChangesRequest(ehSetting: ehSetting)
-            .publisher.receive(on: DispatchQueue.main)
-            .sink { completion in
-                submittingFlag = false
-                if case .failure(let error) = completion {
-                    Logger.error(error)
-                    loadError = error
-
-                    Logger.error(
-                        "SubmitEhSettingChangesRequest failed",
-                        context: [ "Error": error ]
-                    )
-                }
-                token.unseal()
-            } receiveValue: { ehSetting in
-                self.ehSetting = ehSetting
-
-                Logger.info(
-                    "SubmitEhSettingChangesRequest succeeded",
-                    context: [ "EhProfiles": ehSetting.ehProfiles ]
-                )
-            }
-            .seal(in: token)
-    }
-    func performEhProfileAction(action: EhProfileAction?, name: String? = nil, set: Int) {
-        guard !submittingFlag else { return }
-        submittingFlag = true
-
-        let token = SubscriptionToken()
-        EhProfileRequest(action: action, name: name, set: set)
-            .publisher.receive(on: DispatchQueue.main)
-            .sink { completion in
-                submittingFlag = false
-                if case .failure(let error) = completion {
-                    Logger.error(error)
-                    loadError = error
-
-                    Logger.error(
-                        "EhProfileRequest failed",
-                        context: [
-                            "Action": action as Any, "Name": name as Any,
-                            "Set": set, "Error": error
-                        ]
-                    )
-                }
-                token.unseal()
-            } receiveValue: { ehSetting in
-                self.ehSetting = ehSetting
-
-                Logger.info(
-                    "EhProfileRequest succeeded",
-                    context: [
-                        "Action": action as Any, "Name": name as Any,
-                        "Set": set as Any, "EhProfiles": ehSetting.ehProfiles
-                    ]
-                )
-            }
-            .seal(in: token)
-    }
-}
-
 // MARK: EhProfileSection
 private struct EhProfileSection: View {
     @Binding private var ehSetting: EhSetting
-    @State private var selection: EhProfile
-    @State private var newName: String
-    @Binding private var shouldHideKeyboard: String
-
-    @FocusState private var isFocused
-    @State private var dialogPresented = false
-
+    @Binding private var ehProfile: EhProfile
+    @Binding private var editingProfileName: String
+    @Binding private var deleteDialogPresented: Bool
+    private let deleteAction: () -> Void
     private let performEhProfileAction: (EhProfileAction?, String?, Int) -> Void
 
-    init(
-        ehSetting: Binding<EhSetting>, shouldHideKeyboard: Binding<String>,
-        performEhProfileAction: @escaping (EhProfileAction?, String?, Int) -> Void
-    ) {
-        let selection: EhProfile = ehSetting.wrappedValue.ehProfiles
-            .filter(\.isSelected).first.forceUnwrapped
+    @FocusState private var isFocused
 
+    init(
+        ehSetting: Binding<EhSetting>, ehProfile: Binding<EhProfile>,
+        editingProfileName: Binding<String>, deleteDialogPresented: Binding<Bool>,
+        deleteAction: @escaping () -> Void, performEhProfileAction:
+        @escaping (EhProfileAction?, String?, Int) -> Void
+    ) {
         _ehSetting = ehSetting
-        _selection = State(initialValue: selection)
-        _newName = State(initialValue: selection.name)
-        _shouldHideKeyboard = shouldHideKeyboard
+        _ehProfile = ehProfile
+        _editingProfileName = editingProfileName
+        _deleteDialogPresented = deleteDialogPresented
+        self.deleteAction = deleteAction
         self.performEhProfileAction = performEhProfileAction
     }
 
@@ -243,50 +158,49 @@ private struct EhProfileSection: View {
             HStack {
                 Text("Selected profile")
                 Spacer()
-                Picker(selection: $selection) {
+                Picker(selection: $ehProfile) {
                     ForEach(ehSetting.ehProfiles) { ehProfile in
                         Text(ehProfile.name).tag(ehProfile)
                     }
                 } label: {
-                    Text(selection.name)
+                    Text(ehProfile.name)
                 }
                 .pickerStyle(.menu)
             }
-            if !selection.isDefault {
+            if !ehProfile.isDefault {
                 Button("Set as default") {
-                    performEhProfileAction(.default, nil, selection.value)
+                    performEhProfileAction(.default, nil, ehProfile.value)
                 }
-                Button("Delete profile", role: .destructive) {
-                    dialogPresented = true
-                }
+                Button("Delete profile", role: .destructive, action: deleteAction)
             }
         }
         .confirmationDialog(
-            "Are you sure to delete this profile?", isPresented: $dialogPresented, titleVisibility: .visible
+            "Are you sure to delete this profile?",
+            isPresented: $deleteDialogPresented, titleVisibility: .visible
         ) {
             Button("Delete", role: .destructive) {
-                performEhProfileAction(.delete, nil, selection.value)
+                performEhProfileAction(.delete, nil, ehProfile.value)
             }
         }
-        .onChange(of: selection) {
+        .onChange(of: ehProfile) {
             performEhProfileAction(nil, nil, $0.value)
         }
         .textCase(nil)
         Section {
-            SettingTextField(text: $newName, width: nil, alignment: .leading, background: .clear).focused($isFocused)
+            SettingTextField(
+                text: $editingProfileName, width: nil, alignment: .leading, background: .clear
+            )
+            .focused($isFocused)
             Button("Rename") {
-                performEhProfileAction(.rename, newName, selection.value)
+                performEhProfileAction(.rename, editingProfileName, ehProfile.value)
             }
             .disabled(isFocused)
             if ehSetting.ehProfiles.count < 10 {
                 Button("Create new") {
-                    performEhProfileAction(.create, newName, selection.value)
+                    performEhProfileAction(.create, editingProfileName, ehProfile.value)
                 }
                 .disabled(isFocused)
             }
-        }
-        .onChange(of: shouldHideKeyboard) { _ in
-            isFocused = false
         }
     }
 }
@@ -486,7 +400,6 @@ private struct FrontPageSettingsSection: View {
 // MARK: FavoritesSection
 private struct FavoritesSection: View {
     @Binding private var ehSetting: EhSetting
-    @Binding private var shouldHideKeyboard: String
     @FocusState private var isFocused
 
     private var tuples: [(Category, Binding<String>)] {
@@ -501,9 +414,8 @@ private struct FavoritesSection: View {
     private let sortOrderDescription = "You can also select your default sort order for galleries on your favorites page. Note that favorites added prior to the March 2016 revamp did not store a timestamp, and will use the gallery posted time regardless of this setting."
     // swiftlint:enable line_length
 
-    init(ehSetting: Binding<EhSetting>, shouldHideKeyboard: Binding<String>) {
+    init(ehSetting: Binding<EhSetting>) {
         _ehSetting = ehSetting
-        _shouldHideKeyboard = shouldHideKeyboard
     }
 
     var body: some View {
@@ -518,9 +430,6 @@ private struct FavoritesSection: View {
                 }
                 .padding(.leading)
             }
-        }
-        .onChange(of: shouldHideKeyboard) { _ in
-            isFocused = false
         }
         .textCase(nil)
         Section(sortOrderDescription.localized) {
@@ -544,16 +453,14 @@ private struct FavoritesSection: View {
 // MARK: RatingsSection
 private struct RatingsSection: View {
     @Binding private var ehSetting: EhSetting
-    @Binding private var shouldHideKeyboard: String
     @FocusState var isFocused
 
     // swiftlint:disable line_length
     private let ratingsDescription = "By default, galleries that you have rated will appear with red stars for ratings of 2 stars and below, green for ratings between 2.5 and 4 stars, and blue for ratings of 4.5 or 5 stars. You can customize this by entering your desired color combination below. Each letter represents one star. The default RRGGB means R(ed) for the first and second star, G(reen) for the third and fourth, and B(lue) for the fifth. You can also use (Y)ellow for the normal stars. Any five-letter R/G/B/Y combo works."
     // swiftlint:enable line_length
 
-    init(ehSetting: Binding<EhSetting>, shouldHideKeyboard: Binding<String>) {
+    init(ehSetting: Binding<EhSetting>) {
         _ehSetting = ehSetting
-        _shouldHideKeyboard = shouldHideKeyboard
     }
 
     var body: some View {
@@ -563,9 +470,6 @@ private struct RatingsSection: View {
                 Spacer()
                 SettingTextField(text: $ehSetting.ratingsColor, promptText: "RRGGB", width: 80).focused($isFocused)
             }
-        }
-        .onChange(of: shouldHideKeyboard) { _ in
-            isFocused = false
         }
         .textCase(nil)
     }
@@ -683,7 +587,6 @@ private struct TagWatchingThresholdSection: View {
 // MARK: ExcludedLanguagesSection
 private struct ExcludedLanguagesSection: View {
     @Binding private var ehSetting: EhSetting
-//    @State private var showDetailIndex: Int?
 
     private var languageBindings: [Binding<Bool>] {
         $ehSetting.excludedLanguages.map( { $0 })
@@ -766,7 +669,7 @@ private struct ExcludeToggle: View {
 
     var body: some View {
         Color.clear.overlay {
-            Image(systemName: isOn ? "nosign" : "circle").foregroundColor(isOn ? .red : .primary).font(.title)
+            Image(systemSymbol: isOn ? .nosign : .circle).foregroundColor(isOn ? .red : .primary).font(.title)
         }
         .onTapGesture {
             withAnimation { isOn.toggle() }
@@ -778,7 +681,6 @@ private struct ExcludeToggle: View {
 // MARK: ExcludedUploadersSection
 private struct ExcludedUploadersSection: View {
     @Binding private var ehSetting: EhSetting
-    @Binding private var shouldHideKeyboard: String
     @FocusState var isFocused
 
     // swiftlint:disable line_length
@@ -788,9 +690,8 @@ private struct ExcludedUploadersSection: View {
     }
     // swiftlint:enable line_length
 
-    init(ehSetting: Binding<EhSetting>, shouldHideKeyboard: Binding<String>) {
+    init(ehSetting: Binding<EhSetting>) {
         _ehSetting = ehSetting
-        _shouldHideKeyboard = shouldHideKeyboard
     }
 
     var body: some View {
@@ -800,9 +701,6 @@ private struct ExcludedUploadersSection: View {
         ) {
             TextEditor(text: $ehSetting.excludedUploaders).textInputAutocapitalization(.none)
                 .frame(maxHeight: DeviceUtil.windowH * 0.3).disableAutocorrection(true).focused($isFocused)
-        }
-        .onChange(of: shouldHideKeyboard) { _ in
-            isFocused = false
         }
         .textCase(nil)
     }
@@ -1073,16 +971,14 @@ private struct GalleryPageNumberingSection: View {
 // MARK: HathLocalNetworkHostSection
 private struct HathLocalNetworkHostSection: View {
     @Binding private var ehSetting: EhSetting
-    @Binding private var shouldHideKeyboard: String
     @FocusState var isFocused
 
     // swiftlint:disable line_length
     private let hathLocalNetworkHostDescription = "This setting can be used if you have a Hath client running on your local network with the same public IP you browse the site with. Some routers are buggy and cannot route requests back to its own IP; this allows you to work around this problem.\nIf you are running the client on the same device you browse from, use the loopback address (127.0.0.1:port). If the client is running on another device on your network, use its local network IP. Some browser configurations prevent external web sites from accessing URLs with local network IPs, the site must then be whitelisted for this to work."
     // swiftlint:enable line_length
 
-    init(ehSetting: Binding<EhSetting>, shouldHideKeyboard: Binding<String>) {
+    init(ehSetting: Binding<EhSetting>) {
         _ehSetting = ehSetting
-        _shouldHideKeyboard = shouldHideKeyboard
     }
 
     var body: some View {
@@ -1094,9 +990,6 @@ private struct HathLocalNetworkHostSection: View {
                 Spacer()
                 SettingTextField(text: $ehSetting.hathLocalNetworkHost, width: 150).focused($isFocused)
             }
-        }
-        .onChange(of: shouldHideKeyboard) { _ in
-            isFocused = false
         }
         .textCase(nil)
     }
@@ -1176,7 +1069,18 @@ private extension Text {
 struct EhSettingView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
-            EhSettingView().environmentObject(DeprecatedStore.preview)
+            EhSettingView(
+                store: Store<EhSettingState, EhSettingAction>(
+                    initialState: EhSettingState(),
+                    reducer: ehSettingReducer,
+                    environment: AnyEnvironment()
+                ),
+                settingStore: Store<Setting, Never>(
+                    initialState: Setting(),
+                    reducer: .empty,
+                    environment: AnyEnvironment()
+                )
+            )
         }
         .navigationViewStyle(.stack)
     }

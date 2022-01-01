@@ -6,7 +6,7 @@
 //
 
 // MARK: EhSetting
-struct EhSetting {
+struct EhSetting: Equatable {
     static let categoryNames = Category.allCases.map(\.rawValue).map { value in
         value.lowercased().replacingOccurrences(of: " ", with: "")
     }

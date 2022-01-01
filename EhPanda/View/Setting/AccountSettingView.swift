@@ -43,7 +43,9 @@ struct AccountSettingView: View {
                     AccountSection(
                         showNewDawnGreeting: sharedDataViewStore.binding(\.setting.$showNewDawnGreeting),
                         bypassesSNIFiltering: sharedDataViewStore.setting.bypassesSNIFiltering,
+                        loginAction: { viewStore.send(.setRoute(.login)) },
                         logoutAction: { viewStore.send(.setLogoutDialog(true)) },
+                        configureAccountAction: { viewStore.send(.setRoute(.ehSetting)) },
                         manageTagsAction: { viewStore.send(.setWebViewSheet(true)) }
                     )
                 }
@@ -66,7 +68,27 @@ struct AccountSettingView: View {
 //                    .blur(radius: environment.blurRadius)
 //                    .allowsHitTesting(environment.isAppUnlocked)
         }
+        .background(navigationLinks)
         .navigationBarTitle("Account")
+    }
+}
+
+// MARK: NavigationLinks
+private extension AccountSettingView {
+    var navigationLinks: some View {
+        ForEach(AccountSettingRoute.allCases) { route in
+            NavigationLink("", tag: route, selection: viewStore.binding(\.$route), destination: {
+                switch route {
+                case .login:
+                    LoginView()
+                case .ehSetting:
+                    EhSettingView(
+                        store: store.scope(state: \.ehSettingState, action: AccountSettingAction.ehSetting),
+                        settingStore: sharedDataStore.scope(state: \.setting).actionless
+                    )
+                }
+            })
+        }
     }
 }
 
@@ -74,26 +96,31 @@ struct AccountSettingView: View {
 private struct AccountSection: View {
     @Binding private var showNewDawnGreeting: Bool
     private let bypassesSNIFiltering: Bool
+    private let loginAction: () -> Void
     private let logoutAction: () -> Void
+    private let configureAccountAction: () -> Void
     private let manageTagsAction: () -> Void
 
     init(
         showNewDawnGreeting: Binding<Bool>, bypassesSNIFiltering: Bool,
-        logoutAction: @escaping () -> Void, manageTagsAction: @escaping () -> Void
+        loginAction: @escaping () -> Void, logoutAction: @escaping () -> Void,
+        configureAccountAction: @escaping () -> Void, manageTagsAction: @escaping () -> Void
     ) {
         _showNewDawnGreeting = showNewDawnGreeting
         self.bypassesSNIFiltering = bypassesSNIFiltering
+        self.loginAction = loginAction
         self.logoutAction = logoutAction
+        self.configureAccountAction = configureAccountAction
         self.manageTagsAction = manageTagsAction
     }
 
     var body: some View {
         if !AuthorizationUtil.didLogin {
-            NavigationLink("Login", destination: LoginView()).foregroundStyle(.tint)
+            Button("Login", action: loginAction)
         } else {
             Button("Logout", role: .destructive, action: logoutAction)
             Group {
-                NavigationLink("Account configuration", destination: EhSettingView())
+                Button("Account configuration", action: configureAccountAction).withArrow()
                 if !bypassesSNIFiltering {
                     Button("Manage tags subscription", action: manageTagsAction).withArrow()
                 }
@@ -258,4 +285,11 @@ extension SettingViewSheetState {
             return Defaults.URL.myTags
         }
     }
+}
+
+enum AccountSettingRoute: Int, Hashable, Identifiable, CaseIterable {
+    var id: Int { rawValue }
+
+    case login
+    case ehSetting
 }

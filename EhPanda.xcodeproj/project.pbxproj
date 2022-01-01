@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		AB0929B6277F043D00F107CA /* AccountSettingStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0929B5277F043D00F107CA /* AccountSettingStore.swift */; };
 		AB0929B9277F16A100F107CA /* SharedDataSettingStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0929B8277F16A100F107CA /* SharedDataSettingStore.swift */; };
+		AB0929BE2780032400F107CA /* EhSettingStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0929BD2780032400F107CA /* EhSettingStore.swift */; };
 		AB0ABCB526C5406400AD970F /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0ABCB426C5406400AD970F /* LoginView.swift */; };
 		AB0ABCB726C541A400AD970F /* WaveForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0ABCB626C541A400AD970F /* WaveForm.swift */; };
 		AB0F68AF26A6D92F00AC3A54 /* DeprecatedAPI in Frameworks */ = {isa = PBXBuildFile; productRef = AB0F68AE26A6D92F00AC3A54 /* DeprecatedAPI */; };
@@ -184,6 +185,7 @@
 /* Begin PBXFileReference section */
 		AB0929B5277F043D00F107CA /* AccountSettingStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountSettingStore.swift; sourceTree = "<group>"; };
 		AB0929B8277F16A100F107CA /* SharedDataSettingStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedDataSettingStore.swift; sourceTree = "<group>"; };
+		AB0929BD2780032400F107CA /* EhSettingStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EhSettingStore.swift; sourceTree = "<group>"; };
 		AB0ABCB426C5406400AD970F /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		AB0ABCB626C541A400AD970F /* WaveForm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaveForm.swift; sourceTree = "<group>"; };
 		AB10117D26986B7D00C2C1A9 /* GalleryStateMO+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GalleryStateMO+CoreDataProperties.swift"; sourceTree = "<group>"; };
@@ -374,6 +376,7 @@
 			children = (
 				ABD49D69277EEF73003D1A07 /* SettingStore.swift */,
 				AB0929B5277F043D00F107CA /* AccountSettingStore.swift */,
+				AB0929BD2780032400F107CA /* EhSettingStore.swift */,
 			);
 			path = DataFlow;
 			sourceTree = "<group>";
@@ -1042,6 +1045,7 @@
 				AB0929B9277F16A100F107CA /* SharedDataSettingStore.swift in Sources */,
 				AB63EADD2699AC9100090535 /* AppEnvMO+CoreDataClass.swift in Sources */,
 				ABCA93BE26918DE100A98BC6 /* Persistence.swift in Sources */,
+				AB0929BE2780032400F107CA /* EhSettingStore.swift in Sources */,
 				ABF45AEF25F3313D00ECB568 /* TorrentsView.swift in Sources */,
 				AB58A5B02776B75600C0D285 /* AppDelegateReducer.swift in Sources */,
 				AB60D0EB274CFB6D00F899AB /* SuggestionProvider.swift in Sources */,
