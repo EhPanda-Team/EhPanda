@@ -8,7 +8,7 @@
 import SwiftUI
 import Foundation
 
-struct AppState {
+struct DeprecatedAppState {
     var environment = Environment()
     var settings = Settings()
     var homeInfo = HomeInfo()
@@ -16,7 +16,7 @@ struct AppState {
     var contentInfo = ContentInfo()
 }
 
-extension AppState {
+extension DeprecatedAppState {
     // MARK: Environment
     struct Environment {
         var isPreview = false
@@ -94,7 +94,7 @@ extension AppState {
     }
 }
 
-extension AppState {
+extension DeprecatedAppState {
     // MARK: HomeInfo
     struct HomeInfo {
         var searchItems = [Gallery]()

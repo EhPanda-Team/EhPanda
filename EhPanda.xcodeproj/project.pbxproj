@@ -8,9 +8,11 @@
 
 /* Begin PBXBuildFile section */
 		AB0929B6277F043D00F107CA /* AccountSettingStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0929B5277F043D00F107CA /* AccountSettingStore.swift */; };
-		AB0929B9277F16A100F107CA /* SharedDataSettingStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0929B8277F16A100F107CA /* SharedDataSettingStore.swift */; };
 		AB0929BE2780032400F107CA /* EhSettingStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0929BD2780032400F107CA /* EhSettingStore.swift */; };
 		AB0929C027805A8200F107CA /* LoginStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0929BF27805A8200F107CA /* LoginStore.swift */; };
+		AB0929C6278160AE00F107CA /* LibraryClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0929C5278160AE00F107CA /* LibraryClient.swift */; };
+		AB0929C82781938A00F107CA /* DFClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0929C72781938A00F107CA /* DFClient.swift */; };
+		AB0929CA278196ED00F107CA /* CookiesClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0929C9278196ED00F107CA /* CookiesClient.swift */; };
 		AB0ABCB526C5406400AD970F /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0ABCB426C5406400AD970F /* LoginView.swift */; };
 		AB0ABCB726C541A400AD970F /* WaveForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0ABCB626C541A400AD970F /* WaveForm.swift */; };
 		AB0F68AF26A6D92F00AC3A54 /* DeprecatedAPI in Frameworks */ = {isa = PBXBuildFile; productRef = AB0F68AE26A6D92F00AC3A54 /* DeprecatedAPI */; };
@@ -52,17 +54,9 @@
 		AB47FDB625BC859E0007765D /* Weird-ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = AB47FDB325BC859E0007765D /* Weird-ipad.png */; };
 		AB4FD2C1268AB83300A95968 /* GalleryDetailMO+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB4FD2C0268AB83300A95968 /* GalleryDetailMO+CoreDataProperties.swift */; };
 		AB58A5A32776078F00C0D285 /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = AB58A5A22776078F00C0D285 /* ComposableArchitecture */; };
-		AB58A5A52776AA9300C0D285 /* AltAppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB58A5A42776AA9300C0D285 /* AltAppState.swift */; };
-		AB58A5A72776AB8900C0D285 /* AltAppAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB58A5A62776AB8900C0D285 /* AltAppAction.swift */; };
-		AB58A5AA2776B0B200C0D285 /* AppEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB58A5A92776B0B200C0D285 /* AppEnvironment.swift */; };
-		AB58A5AC2776B2BC00C0D285 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB58A5AB2776B2BC00C0D285 /* AppDelegate.swift */; };
-		AB58A5AE2776B33A00C0D285 /* AppDelegateEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB58A5AD2776B33A00C0D285 /* AppDelegateEnvironment.swift */; };
-		AB58A5B02776B75600C0D285 /* AppDelegateReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB58A5AF2776B75600C0D285 /* AppDelegateReducer.swift */; };
-		AB58A5B22776B99000C0D285 /* AppReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB58A5B12776B99000C0D285 /* AppReducer.swift */; };
-		AB58A5B62776C8A300C0D285 /* AppDelegateAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB58A5B52776C8A300C0D285 /* AppDelegateAction.swift */; };
-		AB58A5B82776CE1100C0D285 /* SharedData.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB58A5B72776CE1100C0D285 /* SharedData.swift */; };
-		AB58A5BA2776CE2F00C0D285 /* SharedDataAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB58A5B92776CE2F00C0D285 /* SharedDataAction.swift */; };
-		AB58A5BF2776CF2F00C0D285 /* SharedDataReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB58A5BE2776CF2F00C0D285 /* SharedDataReducer.swift */; };
+		AB58A5AC2776B2BC00C0D285 /* AppDelegateStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB58A5AB2776B2BC00C0D285 /* AppDelegateStore.swift */; };
+		AB58A5B22776B99000C0D285 /* AppStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB58A5B12776B99000C0D285 /* AppStore.swift */; };
+		AB58A5B82776CE1100C0D285 /* SharedDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB58A5B72776CE1100C0D285 /* SharedDataStore.swift */; };
 		AB5BE67926B95FDD007D4A55 /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB5BE67826B95FDD007D4A55 /* ShareViewController.swift */; };
 		AB5BE68026B95FDD007D4A55 /* ShareExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = AB5BE67626B95FDD007D4A55 /* ShareExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		AB60D0E9274C7ECE00F899AB /* WaterfallGrid in Frameworks */ = {isa = PBXBuildFile; productRef = AB60D0E8274C7ECE00F899AB /* WaterfallGrid */; };
@@ -119,7 +113,7 @@
 		ABEA1FE625A9B40B002966B9 /* Setting.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABEA1FE525A9B40B002966B9 /* Setting.swift */; };
 		ABEE0AFA2595C6F800C997AE /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = ABEE0AFC2595C6F800C997AE /* Localizable.strings */; };
 		ABF313A525B1AB6600D47A2F /* Misc.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF313A425B1AB6600D47A2F /* Misc.swift */; };
-		ABF45AB925F3312F00ECB568 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF45AB425F3312F00ECB568 /* AppState.swift */; };
+		ABF45AB925F3312F00ECB568 /* DeprecatedAppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF45AB425F3312F00ECB568 /* DeprecatedAppState.swift */; };
 		ABF45ABA25F3312F00ECB568 /* AppCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF45AB525F3312F00ECB568 /* AppCommand.swift */; };
 		ABF45ABB25F3312F00ECB568 /* AppError.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF45AB625F3312F00ECB568 /* AppError.swift */; };
 		ABF45ABC25F3312F00ECB568 /* AppAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF45AB725F3312F00ECB568 /* AppAction.swift */; };
@@ -185,9 +179,11 @@
 
 /* Begin PBXFileReference section */
 		AB0929B5277F043D00F107CA /* AccountSettingStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountSettingStore.swift; sourceTree = "<group>"; };
-		AB0929B8277F16A100F107CA /* SharedDataSettingStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedDataSettingStore.swift; sourceTree = "<group>"; };
 		AB0929BD2780032400F107CA /* EhSettingStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EhSettingStore.swift; sourceTree = "<group>"; };
 		AB0929BF27805A8200F107CA /* LoginStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginStore.swift; sourceTree = "<group>"; };
+		AB0929C5278160AE00F107CA /* LibraryClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryClient.swift; sourceTree = "<group>"; };
+		AB0929C72781938A00F107CA /* DFClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DFClient.swift; sourceTree = "<group>"; };
+		AB0929C9278196ED00F107CA /* CookiesClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CookiesClient.swift; sourceTree = "<group>"; };
 		AB0ABCB426C5406400AD970F /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		AB0ABCB626C541A400AD970F /* WaveForm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaveForm.swift; sourceTree = "<group>"; };
 		AB10117D26986B7D00C2C1A9 /* GalleryStateMO+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GalleryStateMO+CoreDataProperties.swift"; sourceTree = "<group>"; };
@@ -227,17 +223,9 @@
 		AB48BCF626D2539B0021A06C /* Model 2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Model 2.xcdatamodel"; sourceTree = "<group>"; };
 		AB4FD2C0268AB83300A95968 /* GalleryDetailMO+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GalleryDetailMO+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		AB543FF126DB7FD9009344C0 /* Model 3.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Model 3.xcdatamodel"; sourceTree = "<group>"; };
-		AB58A5A42776AA9300C0D285 /* AltAppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AltAppState.swift; sourceTree = "<group>"; };
-		AB58A5A62776AB8900C0D285 /* AltAppAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AltAppAction.swift; sourceTree = "<group>"; };
-		AB58A5A92776B0B200C0D285 /* AppEnvironment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppEnvironment.swift; sourceTree = "<group>"; };
-		AB58A5AB2776B2BC00C0D285 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		AB58A5AD2776B33A00C0D285 /* AppDelegateEnvironment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegateEnvironment.swift; sourceTree = "<group>"; };
-		AB58A5AF2776B75600C0D285 /* AppDelegateReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegateReducer.swift; sourceTree = "<group>"; };
-		AB58A5B12776B99000C0D285 /* AppReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppReducer.swift; sourceTree = "<group>"; };
-		AB58A5B52776C8A300C0D285 /* AppDelegateAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegateAction.swift; sourceTree = "<group>"; };
-		AB58A5B72776CE1100C0D285 /* SharedData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedData.swift; sourceTree = "<group>"; };
-		AB58A5B92776CE2F00C0D285 /* SharedDataAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedDataAction.swift; sourceTree = "<group>"; };
-		AB58A5BE2776CF2F00C0D285 /* SharedDataReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedDataReducer.swift; sourceTree = "<group>"; };
+		AB58A5AB2776B2BC00C0D285 /* AppDelegateStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegateStore.swift; sourceTree = "<group>"; };
+		AB58A5B12776B99000C0D285 /* AppStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStore.swift; sourceTree = "<group>"; };
+		AB58A5B72776CE1100C0D285 /* SharedDataStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedDataStore.swift; sourceTree = "<group>"; };
 		AB5BE67626B95FDD007D4A55 /* ShareExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ShareExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		AB5BE67826B95FDD007D4A55 /* ShareViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareViewController.swift; sourceTree = "<group>"; };
 		AB5BE67D26B95FDD007D4A55 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -301,7 +289,7 @@
 		ABEE0AFE2595C73D00C997AE /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		ABF294CC26D20F82004DD03A /* EhPandaTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EhPandaTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		ABF313A425B1AB6600D47A2F /* Misc.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Misc.swift; sourceTree = "<group>"; };
-		ABF45AB425F3312F00ECB568 /* AppState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
+		ABF45AB425F3312F00ECB568 /* DeprecatedAppState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeprecatedAppState.swift; sourceTree = "<group>"; };
 		ABF45AB525F3312F00ECB568 /* AppCommand.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppCommand.swift; sourceTree = "<group>"; };
 		ABF45AB625F3312F00ECB568 /* AppError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppError.swift; sourceTree = "<group>"; };
 		ABF45AB725F3312F00ECB568 /* AppAction.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppAction.swift; sourceTree = "<group>"; };
@@ -382,6 +370,28 @@
 				AB0929BF27805A8200F107CA /* LoginStore.swift */,
 			);
 			path = DataFlow;
+			sourceTree = "<group>";
+		};
+		AB0929C12781589000F107CA /* Clients */ = {
+			isa = PBXGroup;
+			children = (
+				AB0929C72781938A00F107CA /* DFClient.swift */,
+				AB0929C5278160AE00F107CA /* LibraryClient.swift */,
+				AB0929C9278196ED00F107CA /* CookiesClient.swift */,
+			);
+			path = Clients;
+			sourceTree = "<group>";
+		};
+		AB0929C427815C6000F107CA /* Deprecated */ = {
+			isa = PBXGroup;
+			children = (
+				ABF45AB825F3312F00ECB568 /* DeprecatedStore.swift */,
+				ABC1FAB5264152C800A9F352 /* StoreAccessor.swift */,
+				ABF45AB425F3312F00ECB568 /* DeprecatedAppState.swift */,
+				ABF45AB725F3312F00ECB568 /* AppAction.swift */,
+				ABF45AB525F3312F00ECB568 /* AppCommand.swift */,
+			);
+			path = Deprecated;
 			sourceTree = "<group>";
 		};
 		AB24C55D276756A40085C33A /* Support */ = {
@@ -519,6 +529,7 @@
 		AB40CFE52598423E00D1DC9A /* Tools */ = {
 			isa = PBXGroup;
 			children = (
+				AB0929C12781589000F107CA /* Clients */,
 				ABD49D65277EAC7E003D1A07 /* Utilities */,
 				ABCD2F0D25976B95008E5A20 /* Parser.swift */,
 				ABE2AE742699F238001D47AA /* AppEnvStorage.swift */,
@@ -543,41 +554,6 @@
 				AB47FDB225BC859E0007765D /* Weird-ipad-pro@2x.png */,
 			);
 			path = AltIcons;
-			sourceTree = "<group>";
-		};
-		AB58A5A82776AB8E00C0D285 /* New */ = {
-			isa = PBXGroup;
-			children = (
-				AB58A5B12776B99000C0D285 /* AppReducer.swift */,
-				AB58A5A42776AA9300C0D285 /* AltAppState.swift */,
-				AB58A5A62776AB8900C0D285 /* AltAppAction.swift */,
-				AB58A5A92776B0B200C0D285 /* AppEnvironment.swift */,
-				AB58A5BC2776CEB300C0D285 /* AppDelegate */,
-				AB58A5BD2776CEBD00C0D285 /* SharedData */,
-			);
-			path = New;
-			sourceTree = "<group>";
-		};
-		AB58A5BC2776CEB300C0D285 /* AppDelegate */ = {
-			isa = PBXGroup;
-			children = (
-				AB58A5AB2776B2BC00C0D285 /* AppDelegate.swift */,
-				AB58A5AF2776B75600C0D285 /* AppDelegateReducer.swift */,
-				AB58A5B52776C8A300C0D285 /* AppDelegateAction.swift */,
-				AB58A5AD2776B33A00C0D285 /* AppDelegateEnvironment.swift */,
-			);
-			path = AppDelegate;
-			sourceTree = "<group>";
-		};
-		AB58A5BD2776CEBD00C0D285 /* SharedData */ = {
-			isa = PBXGroup;
-			children = (
-				AB58A5B72776CE1100C0D285 /* SharedData.swift */,
-				AB58A5B92776CE2F00C0D285 /* SharedDataAction.swift */,
-				AB58A5BE2776CF2F00C0D285 /* SharedDataReducer.swift */,
-				AB0929B8277F16A100F107CA /* SharedDataSettingStore.swift */,
-			);
-			path = SharedData;
 			sourceTree = "<group>";
 		};
 		AB5BE67726B95FDD007D4A55 /* ShareExtension */ = {
@@ -731,13 +707,11 @@
 		ABF45AB325F3312F00ECB568 /* DataFlow */ = {
 			isa = PBXGroup;
 			children = (
-				ABF45AB825F3312F00ECB568 /* DeprecatedStore.swift */,
-				ABC1FAB5264152C800A9F352 /* StoreAccessor.swift */,
-				ABF45AB425F3312F00ECB568 /* AppState.swift */,
-				AB58A5A82776AB8E00C0D285 /* New */,
-				ABF45AB725F3312F00ECB568 /* AppAction.swift */,
-				ABF45AB525F3312F00ECB568 /* AppCommand.swift */,
+				AB0929C427815C6000F107CA /* Deprecated */,
 				ABF45AB625F3312F00ECB568 /* AppError.swift */,
+				AB58A5B12776B99000C0D285 /* AppStore.swift */,
+				AB58A5AB2776B2BC00C0D285 /* AppDelegateStore.swift */,
+				AB58A5B72776CE1100C0D285 /* SharedDataStore.swift */,
 			);
 			path = DataFlow;
 			sourceTree = "<group>";
@@ -1042,22 +1016,18 @@
 				AB10118026986C1100C2C1A9 /* GalleryStateMO+CoreDataClass.swift in Sources */,
 				AB63EADB2699AC8200090535 /* AppEnvMO+CoreDataProperties.swift in Sources */,
 				ABF45AE025F3313D00ECB568 /* HomeView.swift in Sources */,
+				AB0929CA278196ED00F107CA /* CookiesClient.swift in Sources */,
 				ABBC332826BE31AE0084A331 /* EhSettingView.swift in Sources */,
 				ABD4032626B78E5A00001B8C /* GalleryThumbnailCell.swift in Sources */,
 				AB358319269D9996009466A5 /* DomainResolver.swift in Sources */,
-				AB0929B9277F16A100F107CA /* SharedDataSettingStore.swift in Sources */,
 				AB63EADD2699AC9100090535 /* AppEnvMO+CoreDataClass.swift in Sources */,
 				ABCA93BE26918DE100A98BC6 /* Persistence.swift in Sources */,
 				AB0929BE2780032400F107CA /* EhSettingStore.swift in Sources */,
 				ABF45AEF25F3313D00ECB568 /* TorrentsView.swift in Sources */,
-				AB58A5B02776B75600C0D285 /* AppDelegateReducer.swift in Sources */,
 				AB60D0EB274CFB6D00F899AB /* SuggestionProvider.swift in Sources */,
 				AB3072D4276E19AA00EFF242 /* FrontpageView.swift in Sources */,
-				ABF45AB925F3312F00ECB568 /* AppState.swift in Sources */,
-				AB58A5A52776AA9300C0D285 /* AltAppState.swift in Sources */,
+				ABF45AB925F3312F00ECB568 /* DeprecatedAppState.swift in Sources */,
 				AB3072D2276D734800EFF242 /* SubSection.swift in Sources */,
-				AB58A5B62776C8A300C0D285 /* AppDelegateAction.swift in Sources */,
-				AB58A5AA2776B0B200C0D285 /* AppEnvironment.swift in Sources */,
 				ABF45AF625F3313D00ECB568 /* AppearanceSettingView.swift in Sources */,
 				AB69CB8226B3DAF400699359 /* ControlPanel.swift in Sources */,
 				ABD49D5A277C5356003D1A07 /* FavoritesStore.swift in Sources */,
@@ -1068,9 +1038,10 @@
 				ABD49D6A277EEF73003D1A07 /* SettingStore.swift in Sources */,
 				AB8C821926BF801700E8C5E6 /* EhSetting.swift in Sources */,
 				ABF45AF125F3313D00ECB568 /* AssociatedView.swift in Sources */,
-				AB58A5AC2776B2BC00C0D285 /* AppDelegate.swift in Sources */,
+				AB58A5AC2776B2BC00C0D285 /* AppDelegateStore.swift in Sources */,
 				ABBC332A26BE7C940084A331 /* SettingTextField.swift in Sources */,
 				AB358317269D826B009466A5 /* DFStreamHandler.swift in Sources */,
+				AB0929C6278160AE00F107CA /* LibraryClient.swift in Sources */,
 				ABF45ADF25F3313D00ECB568 /* FilterView.swift in Sources */,
 				ABE2AE752699F238001D47AA /* AppEnvStorage.swift in Sources */,
 				ABC3C78F2593699B00E0C11B /* ViewModifiers.swift in Sources */,
@@ -1078,19 +1049,15 @@
 				ABCA93C42692A0BF00A98BC6 /* PersistenceAccessor.swift in Sources */,
 				ABD49D60277C7722003D1A07 /* TabBarView.swift in Sources */,
 				ABC3C7862593699B00E0C11B /* Utilities.swift in Sources */,
-				AB58A5BA2776CE2F00C0D285 /* SharedDataAction.swift in Sources */,
 				ABF45AE725F3313D00ECB568 /* RatingView.swift in Sources */,
 				AB2CED64268AB6AE003130F7 /* GalleryMO+CoreDataProperties.swift in Sources */,
 				ABCD2F0E25976B95008E5A20 /* Parser.swift in Sources */,
-				AB58A5A72776AB8900C0D285 /* AltAppAction.swift in Sources */,
 				ABF45AF725F3313D00ECB568 /* SettingView.swift in Sources */,
 				ABF45AEA25F3313D00ECB568 /* Placeholder.swift in Sources */,
-				AB58A5AE2776B33A00C0D285 /* AppDelegateEnvironment.swift in Sources */,
 				ABD4032826B7967F00001B8C /* Category.swift in Sources */,
-				AB58A5BF2776CF2F00C0D285 /* SharedDataReducer.swift in Sources */,
 				ABC681F326898D46007BBD69 /* Model.xcdatamodeld in Sources */,
 				AB0929C027805A8200F107CA /* LoginStore.swift in Sources */,
-				AB58A5B22776B99000C0D285 /* AppReducer.swift in Sources */,
+				AB58A5B22776B99000C0D285 /* AppStore.swift in Sources */,
 				AB24C566276758E30085C33A /* GalleryCardCell.swift in Sources */,
 				AB4FD2C1268AB83300A95968 /* GalleryDetailMO+CoreDataProperties.swift in Sources */,
 				ABAFFE4026A86E3000EE8661 /* MeasureTool.swift in Sources */,
@@ -1120,10 +1087,11 @@
 				ABF45AEC25F3313D00ECB568 /* ReadingView.swift in Sources */,
 				ABEA1FE625A9B40B002966B9 /* Setting.swift in Sources */,
 				ABCA93C02691925900A98BC6 /* GalleryMO+CoreDataClass.swift in Sources */,
-				AB58A5B82776CE1100C0D285 /* SharedData.swift in Sources */,
+				AB58A5B82776CE1100C0D285 /* SharedDataStore.swift in Sources */,
 				ABC3C7962593699B00E0C11B /* Models.swift in Sources */,
 				AB358315269D821D009466A5 /* DFExtensions.swift in Sources */,
 				ABC3C7872593699B00E0C11B /* EhPandaApp.swift in Sources */,
+				AB0929C82781938A00F107CA /* DFClient.swift in Sources */,
 				ABF313A525B1AB6600D47A2F /* Misc.swift in Sources */,
 				ABA732DF25A852D800B3D9AB /* Filter.swift in Sources */,
 				ABC1FAB82642C37D00A9F352 /* NewDawnView.swift in Sources */,

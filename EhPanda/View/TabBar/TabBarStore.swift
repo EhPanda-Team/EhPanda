@@ -16,7 +16,6 @@ enum TabBarAction: BindableAction {
 }
 
 let tabBarReducer = Reducer<TabBarState, TabBarAction, AnyEnvironment> { _, action, _ in
-    Logger.info(action)
     switch action {
     case .binding:
         return .none

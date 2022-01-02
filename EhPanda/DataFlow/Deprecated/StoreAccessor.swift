@@ -13,22 +13,22 @@ protocol StoreAccessor {
 
 // MARK: AppState
 extension StoreAccessor {
-    var appState: AppState {
+    var appState: DeprecatedAppState {
         store.appState
     }
-    var environment: AppState.Environment {
+    var environment: DeprecatedAppState.Environment {
         appState.environment
     }
-    var settings: AppState.Settings {
+    var settings: DeprecatedAppState.Settings {
         appState.settings
     }
-    var homeInfo: AppState.HomeInfo {
+    var homeInfo: DeprecatedAppState.HomeInfo {
         appState.homeInfo
     }
-    var detailInfo: AppState.DetailInfo {
+    var detailInfo: DeprecatedAppState.DetailInfo {
         appState.detailInfo
     }
-    var contentInfo: AppState.ContentInfo {
+    var contentInfo: DeprecatedAppState.ContentInfo {
         appState.contentInfo
     }
 }

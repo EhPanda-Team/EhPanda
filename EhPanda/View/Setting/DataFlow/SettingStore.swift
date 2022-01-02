@@ -22,7 +22,6 @@ enum SettingAction: BindableAction {
 
 let settingReducer = Reducer<SettingState, SettingAction, AnyEnvironment>.combine(
     .init { state, action, _ in
-        Logger.info(action)
         switch action {
         case .binding:
             return .none

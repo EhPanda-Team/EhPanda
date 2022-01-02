@@ -32,7 +32,6 @@ enum AccountSettingAction: BindableAction {
 
 let accountSettingReducer = Reducer<AccountSettingState, AccountSettingAction, AnyEnvironment>.combine(
     .init { state, action, _ in
-        Logger.info(action)
         switch action {
         case .binding:
             return .none
@@ -53,6 +52,9 @@ let accountSettingReducer = Reducer<AccountSettingState, AccountSettingAction, A
             state.hudVisible = visible
             state.hudConfig = config
             return .none
+
+        case .login(.loginDone):
+            return .init(value: .setRoute(nil))
 
         case .login:
             return .none

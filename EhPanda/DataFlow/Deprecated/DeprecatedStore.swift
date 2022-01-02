@@ -9,7 +9,7 @@ import SwiftUI
 import Combine
 
 final class DeprecatedStore: ObservableObject {
-    @Published var appState = AppState()
+    @Published var appState = DeprecatedAppState()
     static var preview: DeprecatedStore = {
         let store = DeprecatedStore()
         store.appState.environment.isPreview = true
@@ -87,7 +87,7 @@ final class DeprecatedStore: ObservableObject {
         command.execute(in: self)
     }
 
-    func reduce(state: AppState, action: AppAction) -> (AppState, AppCommand?) {
+    func reduce(state: DeprecatedAppState, action: AppAction) -> (DeprecatedAppState, AppCommand?) {
         var appState = state
         var appCommand: AppCommand?
 
@@ -96,7 +96,7 @@ final class DeprecatedStore: ObservableObject {
         case .resetUser:
             appState.settings.user = User()
         case .resetHomeInfo:
-            appState.homeInfo = AppState.HomeInfo()
+            appState.homeInfo = DeprecatedAppState.HomeInfo()
             dispatch(.fetchFrontpageItems(pageNum: nil))
         case .resetFilter(let range):
             switch range {

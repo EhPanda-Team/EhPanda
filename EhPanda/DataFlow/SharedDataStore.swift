@@ -1,15 +1,57 @@
 //
-//  SharedDataReducer.swift
+//  SharedData.swift
 //  EhPanda
 //
 //  Created by 荒木辰造 on R 3/12/25.
 //
 
+import SwiftUI
 import Kingfisher
 import ComposableArchitecture
 
+struct SharedData: Equatable {
+    @AppEnvStorage(type: User.self) var user: User
+    @AppEnvStorage(type: Setting.self) var setting: Setting
+
+    @AppEnvStorage(type: Filter.self, key: "searchFilter")
+    var searchFilter: Filter
+    @AppEnvStorage(type: Filter.self, key: "globalFilter")
+    var globalFilter: Filter
+
+    @AppEnvStorage(type: TagTranslator.self, key: "tagTranslator")
+    var tagTranslator: TagTranslator
+}
+
+enum SharedDataSettingAction: BindableAction {
+    case binding(BindingAction<Setting>)
+}
+enum SharedDataAction: BindableAction {
+    case didFinishLaunching
+    case didFinishLogining
+    case createDefaultEhProfile
+    case fetchIgneous
+    case fetchUserInfo
+    case fetchUserInfoDone(Result<User, AppError>)
+    case fetchTagTranslator(String)
+    case fetchTagTranslatorDone(Result<TagTranslator, AppError>)
+    case fetchEhProfileIndex
+    case fetchEhProfileIndexDone(Result<(Int?, Bool), AppError>)
+    case fetchFavoriteNames
+    case fetchFavoriteNamesDone(Result<[Int: String], AppError>)
+
+    case binding(BindingAction<SharedData>)
+    case logout
+}
+
+let sharedDataSettingReducer = Reducer<Setting, SharedDataSettingAction, AnyEnvironment> { _, action, _ in
+    switch action {
+    case .binding:
+        return .none
+    }
+}
+.binding()
+
 let sharedDataReducer = Reducer<SharedData, SharedDataAction, AnyEnvironment> { state, action, _ in
-    Logger.info(action)
     switch action {
     case .didFinishLaunching:
         var effects = [Effect<SharedDataAction, Never>]()
@@ -31,15 +73,20 @@ let sharedDataReducer = Reducer<SharedData, SharedDataAction, AnyEnvironment> { 
         return effects.isEmpty ? .none : .merge(effects)
 
     case .didFinishLogining:
-        var effects: [Effect<SharedDataAction, Never>] = [
-            .init(value: .fetchUserInfo),
-            .init(value: .fetchFavoriteNames),
-            .init(value: .fetchEhProfileIndex)
-        ]
+        var effects = [Effect<SharedDataAction, Never>]()
+
         if CookiesUtil.shouldFetchIgneous {
             effects.append(.init(value: .fetchIgneous))
         }
-        return .merge(effects)
+        if AuthorizationUtil.didLogin {
+            effects.append(contentsOf: [
+                .init(value: .fetchUserInfo),
+                .init(value: .fetchFavoriteNames),
+                .init(value: .fetchEhProfileIndex)
+            ])
+        }
+
+        return effects.isEmpty ? .none : .merge(effects)
 
     case .createDefaultEhProfile:
         return EhProfileRequest(action: .create, name: "EhPanda").effect.fireAndForget()

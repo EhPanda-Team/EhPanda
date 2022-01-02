@@ -82,8 +82,7 @@ private extension AccountSettingView {
                 case .login:
                     LoginView(
                         store: store.scope(state: \.loginState, action: AccountSettingAction.login),
-                        parentStore: store.stateless,
-                        sharedDataStore: sharedDataStore
+                        settingStore: sharedDataStore.scope(state: \.setting.bypassesSNIFiltering).actionless
                     )
                 case .ehSetting:
                     EhSettingView(

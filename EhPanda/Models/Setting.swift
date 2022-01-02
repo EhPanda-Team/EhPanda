@@ -155,9 +155,6 @@ enum ListMode: String, Codable, CaseIterable, Identifiable {
 // swiftlint:disable line_length
 // MARK: Manually decode
 extension Setting {
-    enum CodingKeys: String, CodingKey {
-        case showNewDawnGreeting, redirectsLinksToSelectedHost, detectsLinksFromPasteboard, backgroundBlurRadius, autoLockPolicy, listMode, preferredColorScheme, accentColor, appIconType, translatesTags, showsSummaryRowTags, summaryRowTagsMaximum, readingDirection, prefetchLimit, prefersLandscape, enablesDualPageMode, exceptCover, contentDividerHeight, maximumScaleFactor, doubleTapScaleFactor, bypassesSNIFiltering
-    }
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         // Account

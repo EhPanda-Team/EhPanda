@@ -11,24 +11,19 @@ import ComposableArchitecture
 
 struct LoginView: View {
     private let store: Store<LoginState, LoginAction>
-    private let parentStore: Store<Void, AccountSettingAction>
-    private let sharedDataStore: Store<SharedData, SharedDataAction>
+    private let settingStore: Store<Bool, Never>
     @ObservedObject private var viewStore: ViewStore<LoginState, LoginAction>
-    @ObservedObject private var parentViewStore: ViewStore<Void, AccountSettingAction>
-    @ObservedObject private var sharedDataViewStore: ViewStore<SharedData, SharedDataAction>
+    @ObservedObject private var settingViewStore: ViewStore<Bool, Never>
     @FocusState private var focusedField: LoginFocusedField?
 
     init(
         store: Store<LoginState, LoginAction>,
-        parentStore: Store<Void, AccountSettingAction>,
-        sharedDataStore: Store<SharedData, SharedDataAction>
+        settingStore: Store<Bool, Never>
     ) {
         self.store = store
-        self.parentStore = parentStore
-        self.sharedDataStore = sharedDataStore
+        self.settingStore = settingStore
         viewStore = ViewStore(store)
-        parentViewStore = ViewStore(parentStore)
-        sharedDataViewStore = ViewStore(sharedDataStore)
+        settingViewStore = ViewStore(settingStore)
     }
 
     // MARK: LoginView
@@ -68,12 +63,6 @@ struct LoginView: View {
                 }
             }
         }
-        .onChange(of: viewStore.loginState) { newValue in
-            if newValue == .idle && AuthorizationUtil.didLogin {
-                sharedDataViewStore.send(.didFinishLogining)
-                parentViewStore.send(.setRoute(nil))
-            }
-        }
         .synchronize(viewStore.binding(\.$focusedField), $focusedField)
         .sheet(isPresented: viewStore.binding(\.$webViewSheetPresented)) {
             WebView(url: Defaults.URL.login)
@@ -103,7 +92,7 @@ struct LoginView: View {
             } label: {
                 Image(systemSymbol: .globe)
             }
-            .disabled(sharedDataViewStore.setting.bypassesSNIFiltering)
+            .disabled(settingViewStore.state)
         }
     }
 }
@@ -163,14 +152,9 @@ struct LoginView_Previews: PreviewProvider {
                     reducer: loginReducer,
                     environment: AnyEnvironment()
                 ),
-                parentStore: Store<Void, AccountSettingAction>(
-                    initialState: (),
+                settingStore: Store<Bool, Never>(
+                    initialState: false,
                     reducer: .empty,
-                    environment: AnyEnvironment()
-                ),
-                sharedDataStore: Store<SharedData, SharedDataAction>(
-                    initialState: SharedData(),
-                    reducer: sharedDataReducer,
                     environment: AnyEnvironment()
                 )
             )

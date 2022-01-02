@@ -32,7 +32,6 @@ enum LoginAction: BindableAction {
 }
 
 let loginReducer = Reducer<LoginState, LoginAction, AnyEnvironment> { state, action, _ in
-    Logger.info(action)
     switch action {
     case .binding:
         return .none

@@ -65,12 +65,8 @@ struct Filter: Codable, Equatable {
     var disableTags = false
 }
 
-// swiftlint:disable line_length
 // MARK: Manually decode
 extension Filter {
-    enum CodingKeys: String, CodingKey {
-        case doujinshi, manga, artistCG, gameCG, western, nonH, imageSet, cosplay, asianPorn, misc, advanced, galleryName, galleryTags, galleryDesc, torrentFilenames, onlyWithTorrents, lowPowerTags, downvotedTags, expungedGalleries, minRatingActivated, minRating, pageRangeActivated, pageLowerBound, pageUpperBound, disableLanguage, disableUploader, disableTags
-    }
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         doujinshi = try container.decodeIfPresent(Bool.self, forKey: .doujinshi) ?? false
@@ -106,4 +102,3 @@ extension Filter {
         disableTags = try container.decodeIfPresent(Bool.self, forKey: .disableTags) ?? false
     }
 }
-// swiftlint:enable line_length

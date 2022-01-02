@@ -85,7 +85,6 @@ enum FavoritesAction: BindableAction {
 
 // MARK: Reducer
 let favoritesReducer = Reducer<FavoritesState, FavoritesAction, FavoritesEnvironment> { state, action, _ in
-    Logger.info(action)
     switch action {
     case .binding:
         return .none

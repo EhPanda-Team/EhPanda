@@ -38,7 +38,6 @@ enum EhSettingAction: BindableAction {
 }
 
 let ehSettingReducer = Reducer<EhSettingState, EhSettingAction, AnyEnvironment> { state, action, _ in
-    Logger.info(action)
     switch action {
     case .binding:
         return .none
