@@ -11,20 +11,14 @@ import SwiftyBeaver
 import ComposableArchitecture
 
 struct LibraryClient {
-    let initializeKingfisher: () -> Effect<Never, Never>
-    let initializeSwiftyBeaver: () -> Effect<Never, Never>
+    let initializeLogger: () -> Effect<Never, Never>
+    let initializeWebImage: () -> Effect<Never, Never>
+    let clearWebImageDiskCache: () -> Effect<Never, Never>
 }
 
 extension LibraryClient {
     static let live: Self = .init(
-        initializeKingfisher: {
-            .fireAndForget {
-                let config = KingfisherManager.shared.downloader.sessionConfiguration
-                config.httpCookieStorage = HTTPCookieStorage.shared
-                KingfisherManager.shared.downloader.sessionConfiguration = config
-            }
-        },
-        initializeSwiftyBeaver: {
+        initializeLogger: {
             .fireAndForget {
                 // MARK: SwiftyBeaver
                 let file = FileDestination()
@@ -53,6 +47,18 @@ extension LibraryClient {
                 #if DEBUG
                 SwiftyBeaver.addDestination(console)
                 #endif
+            }
+        },
+        initializeWebImage: {
+            .fireAndForget {
+                let config = KingfisherManager.shared.downloader.sessionConfiguration
+                config.httpCookieStorage = HTTPCookieStorage.shared
+                KingfisherManager.shared.downloader.sessionConfiguration = config
+            }
+        },
+        clearWebImageDiskCache: {
+            .fireAndForget {
+                KingfisherManager.shared.cache.clearDiskCache()
             }
         }
     )

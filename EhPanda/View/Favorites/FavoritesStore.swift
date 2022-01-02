@@ -8,11 +8,6 @@
 import SwiftUI
 import ComposableArchitecture
 
-// MARK: Environment
-struct FavoritesEnvironment {
-
-}
-
 // MARK: State
 struct FavoritesState: Equatable {
     @BindableState var keyword = ""
@@ -83,8 +78,14 @@ enum FavoritesAction: BindableAction {
     case fetchMoreGalleriesDone(Int, Result<(PageNumber, FavoritesSortOrder?, [Gallery]), AppError>)
 }
 
+// MARK: Environment
+struct FavoritesEnvironment {
+    let hapticClient: HapticClient
+    let databaseClient: DatabaseClient
+}
+
 // MARK: Reducer
-let favoritesReducer = Reducer<FavoritesState, FavoritesAction, FavoritesEnvironment> { state, action, _ in
+let favoritesReducer = Reducer<FavoritesState, FavoritesAction, FavoritesEnvironment> { state, action, environment in
     switch action {
     case .binding:
         return .none
@@ -94,15 +95,13 @@ let favoritesReducer = Reducer<FavoritesState, FavoritesAction, FavoritesEnviron
               let pageNumber = state.pageNumber,
               index <= pageNumber.maximum + 1
         else {
-            HapticUtil.generateNotificationFeedback(style: .error)
-            return .none
+            return environment.hapticClient.generateNotificationFeedback(.error).fireAndForget()
         }
         return .init(value: .fetchGalleries(index - 1))
 
     case .presentJumpPageAlert:
         state.jumpPageAlertPresented = true
-        HapticUtil.generateFeedback(style: .light)
-        return .none
+        return environment.hapticClient.generateFeedback(.light).fireAndForget()
 
     case .setJumpPageAlertFocused(let isFocused):
         state.jumpPageAlertFocused = isFocused
@@ -139,7 +138,7 @@ let favoritesReducer = Reducer<FavoritesState, FavoritesAction, FavoritesEnviron
             state.rawPageNumber[targetFavIndex] = pageNumber
             state.rawGalleries[targetFavIndex] = galleries
             state.sortOrder = sortOrder
-            PersistenceController.add(galleries: galleries)
+            return environment.databaseClient.cacheGalleries(galleries).fireAndForget()
         case .failure(let error):
             state.rawLoadingState[targetFavIndex] = .failed(error)
         }
@@ -165,10 +164,15 @@ let favoritesReducer = Reducer<FavoritesState, FavoritesAction, FavoritesEnviron
             state.rawPageNumber[targetFavIndex] = pageNumber
             state.insertGalleries(index: targetFavIndex, galleries: galleries)
             state.sortOrder = sortOrder
-            PersistenceController.add(galleries: galleries)
+
+            var effects: [Effect<FavoritesAction, Never>] = [
+                environment.databaseClient.cacheGalleries(galleries).fireAndForget()
+            ]
             if galleries.isEmpty, pageNumber.current < pageNumber.maximum {
-                return .init(value: .fetchMoreGalleries)
+                effects.append(.init(value: .fetchMoreGalleries))
             }
+            return .merge(effects)
+
         case .failure(let error):
             state.rawFooterLoadingState[targetFavIndex] = .failed(error)
         }

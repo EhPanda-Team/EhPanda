@@ -16,8 +16,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         reducer: appReducer,
         environment: AppEnvironment(
             dfClient: .live,
+            loggerClient: .live,
+            hapticClient: .live,
             libraryClient: .live,
-            cookiesClient: .live
+            cookiesClient: .live,
+            databaseClient: .live,
+            userDefaultsClient: .live,
+            uiApplicationClient: .live
         )
     )
     lazy var viewStore = ViewStore(store.stateless)
@@ -34,7 +39,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
         viewStore.send(.appDelegate(.didFinishLaunching))
-        viewStore.send(.sharedData(.didFinishLaunching))
+        viewStore.send(.setting(.didFinishLaunching))
         return true
     }
 }
@@ -53,8 +58,8 @@ let appDelegateReducer = Reducer<Bool, AppDelegateAction, AppDelegateEnvironment
     switch action {
     case .didFinishLaunching:
         return .merge(
-            environment.libraryClient.initializeKingfisher().fireAndForget(),
-            environment.libraryClient.initializeSwiftyBeaver().fireAndForget(),
+            environment.libraryClient.initializeLogger().fireAndForget(),
+            environment.libraryClient.initializeWebImage().fireAndForget(),
             environment.dfClient.setActive(state).fireAndForget(),
             environment.cookiesClient.removeYay().fireAndForget(),
             environment.cookiesClient.ignoreOffensive().fireAndForget()

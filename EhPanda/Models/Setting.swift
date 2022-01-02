@@ -11,6 +11,7 @@ import ComposableArchitecture
 
 struct Setting: Codable, Equatable {
     // Account
+    @BindableState var galleryHost: GalleryHost = .ehentai
     @BindableState var showNewDawnGreeting = false
 
     // General
@@ -158,6 +159,7 @@ extension Setting {
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         // Account
+        galleryHost = try container.decodeIfPresent(GalleryHost.self, forKey: .galleryHost) ?? .ehentai
         showNewDawnGreeting = try container.decodeIfPresent(Bool.self, forKey: .showNewDawnGreeting) ?? false
         // General
         redirectsLinksToSelectedHost = try container.decodeIfPresent(Bool.self, forKey: .redirectsLinksToSelectedHost) ?? false

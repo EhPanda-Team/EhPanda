@@ -11,15 +11,13 @@ import ComposableArchitecture
 
 struct EhSettingView: View {
     private let store: Store<EhSettingState, EhSettingAction>
-    private let settingStore: Store<Bool, Never>
     @ObservedObject private var viewStore: ViewStore<EhSettingState, EhSettingAction>
-    @ObservedObject private var settingViewStore: ViewStore<Bool, Never>
+    private let bypassesSNIFiltering: Bool
 
-    init(store: Store<EhSettingState, EhSettingAction>, settingStore: Store<Bool, Never>) {
+    init(store: Store<EhSettingState, EhSettingAction>, bypassesSNIFiltering: Bool) {
         self.store = store
-        self.settingStore = settingStore
         viewStore = ViewStore(store)
-        settingViewStore = ViewStore(settingStore)
+        self.bypassesSNIFiltering = bypassesSNIFiltering
     }
 
     private var title: String {
@@ -43,10 +41,10 @@ struct EhSettingView: View {
         }
         .onAppear { viewStore.send(.fetchEhSetting) }
         .onDisappear {
-            if let set = viewStore.ehSetting?.ehProfiles.filter({
+            if let profileSet = viewStore.ehSetting?.ehProfiles.filter({
                 AppUtil.verifyEhPandaProfileName(with: $0.name)
             }).first?.value {
-                CookiesUtil.set(for: Defaults.URL.host, key: Defaults.Cookie.selectedProfile, value: String(set))
+                viewStore.send(.setDefaultProfile(profileSet))
             }
         }
         .sheet(isPresented: viewStore.binding(\.$webViewSheetPresented)) {
@@ -106,7 +104,7 @@ struct EhSettingView: View {
                 } label: {
                     Image(systemSymbol: .globe)
                 }
-                .disabled(settingViewStore.state)
+                .disabled(bypassesSNIFiltering)
             }
             ToolbarItem(placement: .confirmationAction) {
                 Button {
@@ -120,7 +118,6 @@ struct EhSettingView: View {
                 HStack {
                     Spacer()
                     Button("Done") {
-                        UIApplication.shared.endEditing()
                     }
                 }
             }
@@ -1073,13 +1070,13 @@ struct EhSettingView_Previews: PreviewProvider {
                 store: Store<EhSettingState, EhSettingAction>(
                     initialState: EhSettingState(),
                     reducer: ehSettingReducer,
-                    environment: AnyEnvironment()
+                    environment: EhSettingEnvironment(
+                        hapticClient: .live,
+                        cookiesClient: .live,
+                        uiApplicationClient: .live
+                    )
                 ),
-                settingStore: Store<Bool, Never>(
-                    initialState: false,
-                    reducer: .empty,
-                    environment: AnyEnvironment()
-                )
+                bypassesSNIFiltering: false
             )
         }
         .navigationViewStyle(.stack)

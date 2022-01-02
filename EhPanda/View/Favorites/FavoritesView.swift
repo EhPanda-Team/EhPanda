@@ -14,23 +14,28 @@ struct FavoritesView: View {
     @Environment(\.colorScheme) private var colorScheme
 
     private let store: Store<FavoritesState, FavoritesAction>
-    private let sharedDataStore: Store<SharedData, SharedDataAction>
     @ObservedObject private var viewStore: ViewStore<FavoritesState, FavoritesAction>
-    @ObservedObject private var sharedDataViewStore: ViewStore<SharedData, SharedDataAction>
+    private let user: User
+    private let setting: Setting
+    private let tagTranslator: TagTranslator
 
     @FocusState private var jumpPageAlertFocused: Bool
     @StateObject private var alertManager = CustomAlertManager()
 
-    init(store: Store<FavoritesState, FavoritesAction>, sharedDataStore: Store<SharedData, SharedDataAction>) {
+    init(
+        store: Store<FavoritesState, FavoritesAction>,
+        user: User, setting: Setting, tagTranslator: TagTranslator
+    ) {
         self.store = store
-        self.sharedDataStore = sharedDataStore
         viewStore = ViewStore(store)
-        sharedDataViewStore = ViewStore(sharedDataStore)
+        self.user = user
+        self.setting = setting
+        self.tagTranslator = tagTranslator
     }
 
     private var navigationTitle: String {
         (viewStore.index == -1 ? "Favorites" : User.getFavNameFrom(
-            index: viewStore.index, names: sharedDataViewStore.user.favoriteNames
+            index: viewStore.index, names: user.favoriteNames
         )).localized
     }
 
@@ -39,14 +44,14 @@ struct FavoritesView: View {
         NavigationView {
             GenericList(
                 galleries: viewStore.galleries ?? [],
-                setting: sharedDataViewStore.setting,
+                setting: setting,
                 pageNumber: viewStore.pageNumber,
                 loadingState: viewStore.loadingState ?? .idle,
                 footerLoadingState: viewStore.footerLoadingState ?? .idle,
                 fetchAction: { viewStore.send(.fetchGalleries()) },
                 loadMoreAction: { viewStore.send(.fetchMoreGalleries) },
-                translateAction: { sharedDataViewStore.tagTranslator.tryTranslate(
-                    text: $0, returnOriginal: sharedDataViewStore.setting.translatesTags
+                translateAction: { tagTranslator.tryTranslate(
+                    text: $0, returnOriginal: setting.translatesTags
                 ) }
             )
             .customAlert(
@@ -99,7 +104,7 @@ struct FavoritesView: View {
                         }
                     } label: {
                         Text(User.getFavNameFrom(
-                            index: index, names: sharedDataViewStore.user.favoriteNames
+                            index: index, names: user.favoriteNames
                         ))
                         if index == viewStore.index {
                             Image(systemSymbol: .checkmark)
@@ -162,11 +167,14 @@ struct FavoritesView_Previews: PreviewProvider {
     static var previews: some View {
         FavoritesView(
             store: Store<FavoritesState, FavoritesAction>(
-                initialState: FavoritesState(), reducer: favoritesReducer, environment: FavoritesEnvironment()
+                initialState: FavoritesState(),
+                reducer: favoritesReducer,
+                environment: FavoritesEnvironment(
+                    hapticClient: .live,
+                    databaseClient: .live
+                )
             ),
-            sharedDataStore: Store<SharedData, SharedDataAction>(
-                initialState: SharedData(), reducer: sharedDataReducer, environment: AnyEnvironment()
-            )
+            user: User(), setting: Setting(), tagTranslator: TagTranslator()
         )
     }
 }

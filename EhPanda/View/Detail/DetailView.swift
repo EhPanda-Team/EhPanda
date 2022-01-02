@@ -129,7 +129,7 @@ private extension DetailView {
                 } label: {
                     Label("Archive", systemImage: "doc.zipper")
                 }
-                .disabled(galleryDetail?.archiveURL == nil || !AuthorizationUtil.didLogin)
+                .disabled(galleryDetail?.archiveURL == nil || !CookiesUtil.didLogin)
                 Button {
                     isTorrentsLinkActive.toggle()
                 } label: {
@@ -293,7 +293,7 @@ private struct HeaderView: View {
                         }
                         .opacity(detail.isFavored ? 0 : 1)
                     }
-                    .disabled(!AuthorizationUtil.didLogin)
+                    .disabled(!CookiesUtil.didLogin)
                     Button(action: {}, label: {
                         NavigationLink(destination: { ReadingView(gid: gallery.gid) }, label: {
                             Text("Read".localized).bold().textCase(.uppercase)
@@ -504,7 +504,7 @@ private struct ActionRow: View {
                         Text("Give a Rating").bold()
                         Spacer()
                     }
-                    .disabled(!AuthorizationUtil.didLogin)
+                    .disabled(!CookiesUtil.didLogin)
                     Button(action: galleryAction) {
                         Spacer()
                         Image(systemName: "photo.on.rectangle.angled")
@@ -782,7 +782,7 @@ private struct CommentScrollView: View {
                 .drawingGroup()
             }
             CommentButton(action: toggleCommentAction).padding(.horizontal)
-                .disabled(!AuthorizationUtil.didLogin)
+                .disabled(!CookiesUtil.didLogin)
         }
     }
 }

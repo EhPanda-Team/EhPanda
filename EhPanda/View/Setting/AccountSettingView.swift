@@ -11,22 +11,22 @@ import TTProgressHUD
 import ComposableArchitecture
 
 struct AccountSettingView: View {
-    @AppStorage(wrappedValue: .ehentai, AppUserDefaults.galleryHost.rawValue)
-    private var galleryHost: GalleryHost
-
     private let store: Store<AccountSettingState, AccountSettingAction>
-    private let sharedDataStore: Store<SharedData, SharedDataAction>
     @ObservedObject private var viewStore: ViewStore<AccountSettingState, AccountSettingAction>
-    @ObservedObject private var sharedDataViewStore: ViewStore<SharedData, SharedDataAction>
+    @Binding private var galleryHost: GalleryHost
+    @Binding private var showNewDawnGreeting: Bool
+    private let bypassesSNIFiltering: Bool
 
     init(
         store: Store<AccountSettingState, AccountSettingAction>,
-        sharedDataStore: Store<SharedData, SharedDataAction>
+        galleryHost: Binding<GalleryHost>, showNewDawnGreeting: Binding<Bool>,
+        bypassesSNIFiltering: Bool
     ) {
         self.store = store
-        self.sharedDataStore = sharedDataStore
         viewStore = ViewStore(store)
-        sharedDataViewStore = ViewStore(sharedDataStore)
+        _galleryHost = galleryHost
+        _showNewDawnGreeting = showNewDawnGreeting
+        self.bypassesSNIFiltering = bypassesSNIFiltering
     }
 
     // MARK: AccountSettingView
@@ -41,8 +41,8 @@ struct AccountSettingView: View {
                     }
                     .pickerStyle(.segmented)
                     AccountSection(
-                        showNewDawnGreeting: sharedDataViewStore.binding(\.setting.$showNewDawnGreeting),
-                        bypassesSNIFiltering: sharedDataViewStore.setting.bypassesSNIFiltering,
+                        showNewDawnGreeting: $showNewDawnGreeting,
+                        bypassesSNIFiltering: bypassesSNIFiltering,
                         loginAction: { viewStore.send(.setRoute(.login)) },
                         logoutAction: { viewStore.send(.setLogoutDialog(true)) },
                         configureAccountAction: { viewStore.send(.setRoute(.ehSetting)) },
@@ -60,7 +60,7 @@ struct AccountSettingView: View {
             titleVisibility: .visible
         ) {
             Button("Logout", role: .destructive) {
-                sharedDataViewStore.send(.logout)
+                viewStore.send(.logoutConfirmButtonTapped)
             }
         }
         .sheet(isPresented: viewStore.binding(\.$webViewSheetPresented)) {
@@ -82,12 +82,12 @@ private extension AccountSettingView {
                 case .login:
                     LoginView(
                         store: store.scope(state: \.loginState, action: AccountSettingAction.login),
-                        settingStore: sharedDataStore.scope(state: \.setting.bypassesSNIFiltering).actionless
+                        bypassesSNIFiltering: bypassesSNIFiltering
                     )
                 case .ehSetting:
                     EhSettingView(
                         store: store.scope(state: \.ehSettingState, action: AccountSettingAction.ehSetting),
-                        settingStore: sharedDataStore.scope(state: \.setting.bypassesSNIFiltering).actionless
+                        bypassesSNIFiltering: bypassesSNIFiltering
                     )
                 }
             })
@@ -118,7 +118,7 @@ private struct AccountSection: View {
     }
 
     var body: some View {
-        if !AuthorizationUtil.didLogin {
+        if !CookiesUtil.didLogin {
             Button("Login", action: loginAction)
         } else {
             Button("Logout", role: .destructive, action: logoutAction)

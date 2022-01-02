@@ -667,7 +667,13 @@ struct LoginRequest: Request {
         request.setURLEncodedContentType()
 
         return URLSession.shared.dataTaskPublisher(for: request).genericRetry()
-            .map { $0 }.mapError(mapAppError).eraseToAnyPublisher()
+            .map { value in
+                if let (_, resp) = value as? (Data, HTTPURLResponse) {
+                    CookiesUtil.setIgneous(for: resp)
+                }
+                return value
+            }
+            .mapError(mapAppError).eraseToAnyPublisher()
     }
 }
 

@@ -8,8 +8,6 @@
 import ComposableArchitecture
 
 struct AltAppState: Equatable {
-    var sharedData = SharedData()
-
     var tabBarState = TabBarState()
     var favoritesState = FavoritesState()
     var settingState = SettingState()
@@ -17,22 +15,26 @@ struct AltAppState: Equatable {
 
 enum AltAppAction {
     case appDelegate(AppDelegateAction)
-    case sharedData(SharedDataAction)
-
     case tabBar(TabBarAction)
     case favorites(FavoritesAction)
     case setting(SettingAction)
 }
 
+struct AnyEnvironment {}
 struct AppEnvironment {
     let dfClient: DFClient
+    let loggerClient: LoggerClient
+    let hapticClient: HapticClient
     let libraryClient: LibraryClient
     let cookiesClient: CookiesClient
+    let databaseClient: DatabaseClient
+    let userDefaultsClient: UserDefaultsClient
+    let uiApplicationClient: UIApplicationClient
 }
 
 let appReducer = Reducer<AltAppState, AltAppAction, AppEnvironment>.combine(
     appDelegateReducer.pullback(
-        state: \.sharedData.setting.bypassesSNIFiltering,
+        state: \.settingState.setting.bypassesSNIFiltering,
         action: /AltAppAction.appDelegate,
         environment: {
             .init(
@@ -42,11 +44,6 @@ let appReducer = Reducer<AltAppState, AltAppAction, AppEnvironment>.combine(
             )
         }
     ),
-    sharedDataReducer.pullback(
-        state: \.sharedData,
-        action: /AltAppAction.sharedData,
-        environment: { _ in AnyEnvironment() }
-    ),
     tabBarReducer.pullback(
         state: \.tabBarState,
         action: /AltAppAction.tabBar,
@@ -55,21 +52,26 @@ let appReducer = Reducer<AltAppState, AltAppAction, AppEnvironment>.combine(
     favoritesReducer.pullback(
         state: \.favoritesState,
         action: /AltAppAction.favorites,
-        environment: { _ in FavoritesEnvironment() }
+        environment: {
+            .init(
+                hapticClient: $0.hapticClient,
+                databaseClient: $0.databaseClient
+            )
+        }
     ),
     settingReducer.pullback(
         state: \.settingState,
         action: /AltAppAction.setting,
-        environment: { _ in AnyEnvironment() }
-    ),
-    .init { _, action, _ in
-        switch action {
-        case .setting(.account(.login(.loginDone))):
-            return .init(value: .sharedData(.didFinishLogining))
-        default:
-            return .none
+        environment: {
+            .init(
+                loggerClient: $0.loggerClient,
+                hapticClient: $0.hapticClient,
+                libraryClient: $0.libraryClient,
+                cookiesClient: $0.cookiesClient,
+                databaseClient: $0.databaseClient,
+                userDefaultsClient: $0.userDefaultsClient,
+                uiApplicationClient: $0.uiApplicationClient
+            )
         }
-    }
+    )
 )
-
-struct AnyEnvironment {}

@@ -11,12 +11,10 @@ import ComposableArchitecture
 
 struct SettingView: View {
     private let store: Store<SettingState, SettingAction>
-    private let sharedDataStore: Store<SharedData, SharedDataAction>
     @ObservedObject private var viewStore: ViewStore<SettingState, SettingAction>
 
-    init(store: Store<SettingState, SettingAction>, sharedDataStore: Store<SharedData, SharedDataAction>) {
+    init(store: Store<SettingState, SettingAction>) {
         self.store = store
-        self.sharedDataStore = sharedDataStore
         viewStore = ViewStore(store)
     }
 
@@ -48,7 +46,9 @@ private extension SettingView {
                 case .account:
                     AccountSettingView(
                         store: store.scope(state: \.accountSettingState, action: SettingAction.account),
-                        sharedDataStore: sharedDataStore
+                        galleryHost: viewStore.binding(\.setting.$galleryHost),
+                        showNewDawnGreeting: viewStore.binding(\.setting.$showNewDawnGreeting),
+                        bypassesSNIFiltering: viewStore.setting.bypassesSNIFiltering
                     )
                 case .general:
                     GeneralSettingView()
@@ -139,10 +139,17 @@ struct SettingView_Previews: PreviewProvider {
     static var previews: some View {
         SettingView(
             store: Store<SettingState, SettingAction>(
-                initialState: SettingState(), reducer: settingReducer, environment: AnyEnvironment()
-            ),
-            sharedDataStore: Store<SharedData, SharedDataAction>(
-                initialState: SharedData(), reducer: sharedDataReducer, environment: AnyEnvironment()
+                initialState: SettingState(),
+                reducer: settingReducer,
+                environment: SettingEnvironment(
+                    loggerClient: .live,
+                    hapticClient: .live,
+                    libraryClient: .live,
+                    cookiesClient: .live,
+                    databaseClient: .live,
+                    userDefaultsClient: .live,
+                    uiApplicationClient: .live
+                )
             )
         )
     }

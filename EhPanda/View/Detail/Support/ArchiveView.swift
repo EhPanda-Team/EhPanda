@@ -166,7 +166,7 @@ private extension ArchiveView {
                             "GalleryPoints": galleryPoints, "Credits": credits
                         ]
                     )
-                } else if AuthorizationUtil.isSameAccount {
+                } else if CookiesUtil.isSameAccount {
                     store.dispatch(.fetchGalleryArchiveFunds(gid: gid))
                 }
             }

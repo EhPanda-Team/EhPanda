@@ -35,7 +35,7 @@ struct WebView: UIViewControllerRepresentable {
             }
 
             DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [weak self] in
-                guard AuthorizationUtil.didLogin else { return }
+                guard CookiesUtil.didLogin else { return }
                 let store = self?.parent.store
                 store?.dispatch(.setSettingViewSheetState(nil))
             }

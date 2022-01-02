@@ -27,8 +27,10 @@ struct EhSettingState: Equatable {
 
 enum EhSettingAction: BindableAction {
     case binding(BindingAction<EhSettingState>)
+    case setKeyboardHidden
     case setWebViewSheet(Bool)
     case setDeleteDialog(Bool)
+    case setDefaultProfile(Int)
     case fetchEhSetting
     case fetchEhSettingDone(Result<EhSetting, AppError>)
     case submitChanges
@@ -37,18 +39,33 @@ enum EhSettingAction: BindableAction {
     case performActionDone(Result<EhSetting, AppError>)
 }
 
-let ehSettingReducer = Reducer<EhSettingState, EhSettingAction, AnyEnvironment> { state, action, _ in
+struct EhSettingEnvironment {
+    let hapticClient: HapticClient
+    let cookiesClient: CookiesClient
+    let uiApplicationClient: UIApplicationClient
+}
+
+let ehSettingReducer = Reducer<EhSettingState, EhSettingAction, EhSettingEnvironment> { state, action, environment in
     switch action {
     case .binding:
         return .none
 
+    case .setKeyboardHidden:
+        return environment.uiApplicationClient.hideKeyboard().fireAndForget()
+
     case .setWebViewSheet(let presented):
         state.webViewSheetPresented = presented
-        return .none
+        return environment.hapticClient.generateFeedback(.light).fireAndForget()
 
     case .setDeleteDialog(let presented):
         state.deleteDialogPresented = presented
         return .none
+
+    case .setDefaultProfile(let profileSet):
+        return environment.cookiesClient.setCookie(
+            Defaults.URL.host, Defaults.Cookie.selectedProfile, String(profileSet)
+        )
+        .fireAndForget()
 
     case .fetchEhSetting:
         guard state.loadingState != .loading else { return .none }

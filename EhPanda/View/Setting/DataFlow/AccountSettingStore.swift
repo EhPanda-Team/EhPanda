@@ -27,11 +27,18 @@ enum AccountSettingAction: BindableAction {
     case setHUD(Bool, TTProgressHUDConfig)
 
     case login(LoginAction)
+    case logoutConfirmButtonTapped
     case ehSetting(EhSettingAction)
 }
 
-let accountSettingReducer = Reducer<AccountSettingState, AccountSettingAction, AnyEnvironment>.combine(
-    .init { state, action, _ in
+struct AccountSettingEnvironment {
+    let hapticClient: HapticClient
+    let cookiesClient: CookiesClient
+    let uiApplicationClient: UIApplicationClient
+}
+
+let accountSettingReducer = Reducer<AccountSettingState, AccountSettingAction, AccountSettingEnvironment>.combine(
+    .init { state, action, environment in
         switch action {
         case .binding:
             return .none
@@ -42,7 +49,7 @@ let accountSettingReducer = Reducer<AccountSettingState, AccountSettingAction, A
 
         case .setWebViewSheet(let presented):
             state.webViewSheetPresented = presented
-            return .none
+            return environment.hapticClient.generateFeedback(.light).fireAndForget()
 
         case .setLogoutDialog(let presented):
             state.logoutDialogPresented = presented
@@ -54,9 +61,12 @@ let accountSettingReducer = Reducer<AccountSettingState, AccountSettingAction, A
             return .none
 
         case .login(.loginDone):
-            return .init(value: .setRoute(nil))
+            return environment.cookiesClient.didLogin() ? .init(value: .setRoute(nil)) : .none
 
         case .login:
+            return .none
+
+        case .logoutConfirmButtonTapped:
             return .none
 
         case .ehSetting:
@@ -67,11 +77,22 @@ let accountSettingReducer = Reducer<AccountSettingState, AccountSettingAction, A
     loginReducer.pullback(
         state: \.loginState,
         action: /AccountSettingAction.login,
-        environment: { _ in AnyEnvironment() }
+        environment: {
+            .init(
+                hapticClient: $0.hapticClient,
+                cookiesClient: $0.cookiesClient
+            )
+        }
     ),
     ehSettingReducer.pullback(
         state: \.ehSettingState,
         action: /AccountSettingAction.ehSetting,
-        environment: { _ in AnyEnvironment() }
+        environment: {
+            .init(
+                hapticClient: $0.hapticClient,
+                cookiesClient: $0.cookiesClient,
+                uiApplicationClient: $0.uiApplicationClient
+            )
+        }
     )
 )

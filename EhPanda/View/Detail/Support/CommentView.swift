@@ -107,7 +107,7 @@ struct CommentView: View, StoreAccessor {
             } label: {
                 Image(systemName: "square.and.pencil")
             }
-            .disabled(!AuthorizationUtil.didLogin)
+            .disabled(!CookiesUtil.didLogin)
         }
     }
     // MARK: Sheet

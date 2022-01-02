@@ -13,17 +13,6 @@ import LocalAuthentication
 
 // MARK: Authorization
 struct AuthorizationUtil {
-    static var isSameAccount: Bool {
-        let ehUID = CookiesUtil.get(for: Defaults.URL.ehentai, key: Defaults.Cookie.ipbMemberId).rawValue
-        let exUID = CookiesUtil.get(for: Defaults.URL.exhentai, key: Defaults.Cookie.ipbMemberId).rawValue
-        if !ehUID.isEmpty && !exUID.isEmpty { return ehUID == exUID } else { return true }
-    }
-
-    static var didLogin: Bool {
-        CookiesUtil.verify(for: Defaults.URL.ehentai, isEx: false)
-        || CookiesUtil.verify(for: Defaults.URL.exhentai, isEx: true)
-    }
-
     static func localAuth(
         reason: String, successAction: (() -> Void)? = nil,
         failureAction: (() -> Void)? = nil,
@@ -65,10 +54,6 @@ struct AppUtil {
     static var galleryHost: GalleryHost {
         let rawValue: String? = UserDefaultsUtil.value(forKey: .galleryHost)
         return GalleryHost(rawValue: rawValue ?? "") ?? .ehentai
-    }
-
-    static func setGalleryHost(value: GalleryHost) {
-        UserDefaultsUtil.set(value: value.rawValue, forKey: .galleryHost)
     }
 
     static func verifyEhPandaProfileName(with name: String?) -> Bool {
@@ -282,6 +267,15 @@ extension AppNotification {
 
 // MARK: Cookies
 struct CookiesUtil {
+    static var didLogin: Bool {
+        CookiesUtil.verify(for: Defaults.URL.ehentai, isEx: false)
+        || CookiesUtil.verify(for: Defaults.URL.exhentai, isEx: true)
+    }
+    static var isSameAccount: Bool {
+        let ehUID = CookiesUtil.get(for: Defaults.URL.ehentai, key: Defaults.Cookie.ipbMemberId).rawValue
+        let exUID = CookiesUtil.get(for: Defaults.URL.exhentai, key: Defaults.Cookie.ipbMemberId).rawValue
+        if !ehUID.isEmpty && !exUID.isEmpty { return ehUID == exUID } else { return true }
+    }
     static var shouldFetchIgneous: Bool {
         let url = Defaults.URL.exhentai
         return !CookiesUtil.get(for: url, key: Defaults.Cookie.ipbMemberId).rawValue.isEmpty

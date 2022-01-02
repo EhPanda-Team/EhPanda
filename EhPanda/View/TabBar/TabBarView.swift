@@ -29,23 +29,20 @@ struct TabBarView: View {
                     case .favorites:
                         FavoritesView(
                             store: store.scope(state: \.favoritesState, action: AltAppAction.favorites),
-                            sharedDataStore: store.scope(state: \.sharedData, action: AltAppAction.sharedData)
+                            user: viewStore.settingState.user, setting: viewStore.settingState.setting,
+                            tagTranslator: viewStore.settingState.tagTranslator
                         )
                     case .setting:
-                        SettingView(
-                            store: store.scope(state: \.settingState, action: AltAppAction.setting),
-                            sharedDataStore: store.scope(state: \.sharedData, action: AltAppAction.sharedData)
-                        )
+                        SettingView(store: store.scope(state: \.settingState, action: AltAppAction.setting))
                     }
                 }
                 .tabItem(type.label).tag(type)
             }
-            .accentColor(viewStore.sharedData.setting.accentColor)
+            .accentColor(viewStore.settingState.setting.accentColor)
         }
 //        .onChange(of: scenePhase) { newValue in
 //            <#code#>
 //        }
-        .preferredColorScheme(viewStore.sharedData.setting.colorScheme)
     }
 }
 

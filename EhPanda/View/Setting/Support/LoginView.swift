@@ -11,19 +11,15 @@ import ComposableArchitecture
 
 struct LoginView: View {
     private let store: Store<LoginState, LoginAction>
-    private let settingStore: Store<Bool, Never>
     @ObservedObject private var viewStore: ViewStore<LoginState, LoginAction>
-    @ObservedObject private var settingViewStore: ViewStore<Bool, Never>
+    private let bypassesSNIFiltering: Bool
+
     @FocusState private var focusedField: LoginFocusedField?
 
-    init(
-        store: Store<LoginState, LoginAction>,
-        settingStore: Store<Bool, Never>
-    ) {
+    init(store: Store<LoginState, LoginAction>, bypassesSNIFiltering: Bool) {
         self.store = store
-        self.settingStore = settingStore
         viewStore = ViewStore(store)
-        settingViewStore = ViewStore(settingStore)
+        self.bypassesSNIFiltering = bypassesSNIFiltering
     }
 
     // MARK: LoginView
@@ -92,7 +88,7 @@ struct LoginView: View {
             } label: {
                 Image(systemSymbol: .globe)
             }
-            .disabled(settingViewStore.state)
+            .disabled(bypassesSNIFiltering)
         }
     }
 }
@@ -150,13 +146,12 @@ struct LoginView_Previews: PreviewProvider {
                 store: Store<LoginState, LoginAction>(
                     initialState: LoginState(),
                     reducer: loginReducer,
-                    environment: AnyEnvironment()
+                    environment: LoginEnvironment(
+                        hapticClient: .live,
+                        cookiesClient: .live
+                    )
                 ),
-                settingStore: Store<Bool, Never>(
-                    initialState: false,
-                    reducer: .empty,
-                    environment: AnyEnvironment()
-                )
+                bypassesSNIFiltering: false
             )
         }
     }

@@ -31,40 +31,42 @@ enum LoginAction: BindableAction {
     case loginDone(Result<Any, AppError>)
 }
 
-let loginReducer = Reducer<LoginState, LoginAction, AnyEnvironment> { state, action, _ in
+struct LoginEnvironment {
+    let hapticClient: HapticClient
+    let cookiesClient: CookiesClient
+}
+
+let loginReducer = Reducer<LoginState, LoginAction, LoginEnvironment> { state, action, environment in
     switch action {
     case .binding:
         return .none
 
     case .setWebViewSheet(let presented):
         state.webViewSheetPresented = presented
-        return .none
+        return environment.hapticClient.generateFeedback(.light).fireAndForget()
 
     case .login:
         guard !state.loginButtonDisabled
                 || state.loginState == .loading
         else { return .none }
 
-        withAnimation { state.loginState = .loading }
-        HapticUtil.generateFeedback(style: .soft)
+        withAnimation {
+            state.loginState = .loading
+        }
 
-        return LoginRequest(username: state.username, password: state.password)
-            .effect.map(LoginAction.loginDone)
+        return .merge(
+            LoginRequest(username: state.username, password: state.password)
+                .effect.map(LoginAction.loginDone),
+            environment.hapticClient.generateFeedback(.soft).fireAndForget()
+        )
 
     case .loginDone(let result):
-        if case .success(let value) = result,
-           let (_, response) = value as? (Data, HTTPURLResponse)
-        {
-            CookiesUtil.setIgneous(for: response)
-        }
-        guard AuthorizationUtil.didLogin else {
-            HapticUtil.generateNotificationFeedback(style: .error)
+        guard environment.cookiesClient.didLogin() else {
             state.loginState = .failed(.unknown)
-            return .none
+            return environment.hapticClient.generateNotificationFeedback(.error).fireAndForget()
         }
-        HapticUtil.generateNotificationFeedback(style: .success)
         state.loginState = .idle
-        return .none
+        return environment.hapticClient.generateNotificationFeedback(.success).fireAndForget()
     }
 }
 .binding()
