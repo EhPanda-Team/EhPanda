@@ -73,9 +73,18 @@ private extension SettingView {
                             summaryRowTagsMaximum: viewStore.binding(\.setting.$summaryRowTagsMaximum)
                         )
                     case .reading:
-                        ReadingSettingView()
+                        ReadingSettingView(
+                            readingDirection: viewStore.binding(\.setting.$readingDirection),
+                            prefetchLimit: viewStore.binding(\.setting.$prefetchLimit),
+                            prefersLandscape: viewStore.binding(\.setting.$prefersLandscape),
+                            contentDividerHeight: viewStore.binding(\.setting.$contentDividerHeight),
+                            maximumScaleFactor: viewStore.binding(\.setting.$maximumScaleFactor),
+                            doubleTapScaleFactor: viewStore.binding(\.setting.$doubleTapScaleFactor)
+                        )
                     case .laboratory:
-                        LaboratorySettingView()
+                        LaboratorySettingView(
+                            bypassesSNIFiltering: viewStore.binding(\.setting.$bypassesSNIFiltering)
+                        )
                     case .ehpanda:
                         EhPandaView()
                     }
@@ -162,6 +171,7 @@ struct SettingView_Previews: PreviewProvider {
                 initialState: SettingState(),
                 reducer: settingReducer,
                 environment: SettingEnvironment(
+                    dfClient: .live,
                     fileClient: .live,
                     loggerClient: .live,
                     hapticClient: .live,

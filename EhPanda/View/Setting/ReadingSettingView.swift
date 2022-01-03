@@ -6,12 +6,27 @@
 //
 
 import SwiftUI
+import ComposableArchitecture
 
-struct ReadingSettingView: View, StoreAccessor {
-    @EnvironmentObject var store: DeprecatedStore
+struct ReadingSettingView: View {
+    @Binding private var readingDirection: ReadingDirection
+    @Binding private var prefetchLimit: Int
+    @Binding private var prefersLandscape: Bool
+    @Binding private var contentDividerHeight: Double
+    @Binding private var maximumScaleFactor: Double
+    @Binding private var doubleTapScaleFactor: Double
 
-    private var settingBinding: Binding<Setting> {
-        $store.appState.settings.setting
+    init(
+        readingDirection: Binding<ReadingDirection>, prefetchLimit: Binding<Int>,
+        prefersLandscape: Binding<Bool>, contentDividerHeight: Binding<Double>,
+        maximumScaleFactor: Binding<Double>, doubleTapScaleFactor: Binding<Double>
+    ) {
+        _readingDirection = readingDirection
+        _prefetchLimit = prefetchLimit
+        _prefersLandscape = prefersLandscape
+        _contentDividerHeight = contentDividerHeight
+        _maximumScaleFactor = maximumScaleFactor
+        _doubleTapScaleFactor = doubleTapScaleFactor
     }
 
     var body: some View {
@@ -21,8 +36,8 @@ struct ReadingSettingView: View, StoreAccessor {
                     Text("Direction")
                     Spacer()
                     Picker(
-                        selection: settingBinding.readingDirection,
-                        label: Text(setting.readingDirection.rawValue),
+                        selection: $readingDirection,
+                        label: Text(readingDirection.rawValue),
                         content: {
                             ForEach(ReadingDirection.allCases) {
                                 Text($0.rawValue.localized).tag($0)
@@ -35,8 +50,8 @@ struct ReadingSettingView: View, StoreAccessor {
                     Text("Preload limit")
                     Spacer()
                     Picker(
-                        selection: settingBinding.prefetchLimit,
-                        label: Text("\(setting.prefetchLimit) pages"),
+                        selection: $prefetchLimit,
+                        label: Text("\(prefetchLimit) pages"),
                         content: {
                             ForEach(Array(stride(from: 6, through: 18, by: 4)), id: \.self) { value in
                                 Text("\(value) pages").tag(value)
@@ -46,7 +61,7 @@ struct ReadingSettingView: View, StoreAccessor {
                     .pickerStyle(.menu)
                 }
                 if !DeviceUtil.isPad {
-                    Toggle("Prefers landscape", isOn: settingBinding.prefersLandscape)
+                    Toggle("Prefers landscape", isOn: $prefersLandscape)
                 }
             }
             Section("Appearance".localized) {
@@ -54,8 +69,8 @@ struct ReadingSettingView: View, StoreAccessor {
                     Text("Separator height")
                     Spacer()
                     Picker(
-                        selection: settingBinding.contentDividerHeight,
-                        label: Text("\(Int(setting.contentDividerHeight))pt"),
+                        selection: $contentDividerHeight,
+                        label: Text("\(Int(contentDividerHeight))pt"),
                         content: {
                             ForEach(Array(stride(from: 0, through: 20, by: 5)), id: \.self) { value in
                                 Text("\(value)" + "pt").tag(Double(value))
@@ -64,14 +79,14 @@ struct ReadingSettingView: View, StoreAccessor {
                     )
                     .pickerStyle(.menu)
                 }
-                .disabled(setting.readingDirection != .vertical)
+                .disabled(readingDirection != .vertical)
                 ScaleFactorRow(
-                    scaleFactor: settingBinding.maximumScaleFactor,
+                    scaleFactor: $maximumScaleFactor,
                     labelContent: "Maximum scale factor",
                     minFactor: 1.5, maxFactor: 10
                 )
                 ScaleFactorRow(
-                    scaleFactor: settingBinding.doubleTapScaleFactor,
+                    scaleFactor: $doubleTapScaleFactor,
                     labelContent: "Double tap scale factor",
                     minFactor: 1.5, maxFactor: 5
                 )
@@ -81,7 +96,6 @@ struct ReadingSettingView: View, StoreAccessor {
     }
 }
 
-// MARK: ScaleFactorRow
 private struct ScaleFactorRow: View {
     @Binding private var scaleFactor: Double
     private let labelContent: String
@@ -118,18 +132,6 @@ private struct ScaleFactorRow: View {
     }
 }
 
-struct ReadingSettingView_Previews: PreviewProvider {
-    static var previews: some View {
-        let store = DeprecatedStore.preview
-        store.appState.settings.setting = Setting()
-
-        return ReadingSettingView()
-            .environmentObject(store)
-            .preferredColorScheme(.dark)
-    }
-}
-
-// MARK: Definition
 private extension Double {
     func roundedString() -> String {
         roundedString(with: 1)

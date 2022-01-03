@@ -66,6 +66,7 @@ let appReducer = Reducer<AppState, AppAction, AppEnvironment>.combine(
         action: /AppAction.setting,
         environment: {
             .init(
+                dfClient: $0.dfClient,
                 fileClient: $0.fileClient,
                 loggerClient: $0.loggerClient,
                 hapticClient: $0.hapticClient,

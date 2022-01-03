@@ -53,6 +53,7 @@ enum SettingAction: BindableAction {
 }
 
 struct SettingEnvironment {
+    let dfClient: DFClient
     let fileClient: FileClient
     let loggerClient: LoggerClient
     let hapticClient: HapticClient
@@ -83,6 +84,12 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
         case .binding(\.setting.$appIconType):
             return environment.uiApplicationClient.setAlternateIconName(state.setting.appIconType.iconName)
                 .map { _ in SettingAction.syncAppIconType }
+
+        case .binding(\.setting.$bypassesSNIFiltering):
+            return .merge(
+                environment.hapticClient.generateFeedback(.soft).fireAndForget(),
+                environment.dfClient.setActive(state.setting.bypassesSNIFiltering).fireAndForget()
+            )
 
         case .binding:
             return .none

@@ -234,18 +234,18 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
             switch item {
             case .setting:
                 NavigationView {
-                    ReadingSettingView().tint(accentColor)
-                        .toolbar {
-                            ToolbarItem(placement: .cancellationAction) {
-                                if !DeviceUtil.isPad && DeviceUtil.isLandscape {
-                                    Button {
-                                        sheetState = nil
-                                    } label: {
-                                        Image(systemName: "chevron.down")
-                                    }
-                                }
-                            }
-                        }
+//                    ReadingSettingView().tint(accentColor)
+//                        .toolbar {
+//                            ToolbarItem(placement: .cancellationAction) {
+//                                if !DeviceUtil.isPad && DeviceUtil.isLandscape {
+//                                    Button {
+//                                        sheetState = nil
+//                                    } label: {
+//                                        Image(systemName: "chevron.down")
+//                                    }
+//                                }
+//                            }
+//                        }
                 }
             }
         }

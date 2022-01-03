@@ -50,7 +50,6 @@
 		AB3E9E7326D210B1008FE518 /* ParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB3E9E6B26D210B1008FE518 /* ParserTests.swift */; };
 		AB3E9E7426D210B1008FE518 /* TestHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB3E9E6D26D210B1008FE518 /* TestHelper.swift */; };
 		AB4FD2C1268AB83300A95968 /* GalleryDetailMO+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB4FD2C0268AB83300A95968 /* GalleryDetailMO+CoreDataProperties.swift */; };
-		AB58A5A32776078F00C0D285 /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = AB58A5A22776078F00C0D285 /* ComposableArchitecture */; };
 		AB58A5AC2776B2BC00C0D285 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB58A5AB2776B2BC00C0D285 /* AppDelegate.swift */; };
 		AB58A5B22776B99000C0D285 /* AppStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB58A5B12776B99000C0D285 /* AppStore.swift */; };
 		AB5BE67926B95FDD007D4A55 /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB5BE67826B95FDD007D4A55 /* ShareViewController.swift */; };
@@ -76,6 +75,7 @@
 		AB86AC072782F76000E61E6A /* AppIcon_Default@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = AB86AC012782F76000E61E6A /* AppIcon_Default@2x.png */; };
 		AB86AC082782F76000E61E6A /* AppIcon_Weird@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = AB86AC022782F76000E61E6A /* AppIcon_Weird@2x.png */; };
 		AB86AC0A2782FAFA00E61E6A /* AppearanceSettingStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB86AC092782FAFA00E61E6A /* AppearanceSettingStore.swift */; };
+		AB86AC1027831AD100E61E6A /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = AB86AC0F27831AD100E61E6A /* ComposableArchitecture */; };
 		AB8C821926BF801700E8C5E6 /* EhSetting.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB8C821826BF801700E8C5E6 /* EhSetting.swift */; };
 		ABA732D925A8018A00B3D9AB /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABA732D825A8018A00B3D9AB /* Extensions.swift */; };
 		ABA732DF25A852D800B3D9AB /* Filter.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABA732DE25A852D800B3D9AB /* Filter.swift */; };
@@ -356,7 +356,7 @@
 				AB21CCA0274B4F0C00C115B1 /* SwiftyBeaver in Frameworks */,
 				ABD49D5D277C6C9D003D1A07 /* SFSafeSymbols in Frameworks */,
 				ABAC82FE26BC4A96009F5026 /* OpenCC in Frameworks */,
-				AB58A5A32776078F00C0D285 /* ComposableArchitecture in Frameworks */,
+				AB86AC1027831AD100E61E6A /* ComposableArchitecture in Frameworks */,
 				AB17573D27675B1E00FD64E2 /* Colorful in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -855,8 +855,8 @@
 				ABC4A0782751B40E00968A4F /* Kingfisher */,
 				AB17573C27675B1E00FD64E2 /* Colorful */,
 				AB17573F27678B3400FD64E2 /* UIImageColors */,
-				AB58A5A22776078F00C0D285 /* ComposableArchitecture */,
 				ABD49D5C277C6C9D003D1A07 /* SFSafeSymbols */,
+				AB86AC0F27831AD100E61E6A /* ComposableArchitecture */,
 			);
 			productName = EhPanda;
 			productReference = ABC3C7542593696C00E0C11B /* EhPanda.app */;
@@ -927,8 +927,8 @@
 				ABC4A0772751B40E00968A4F /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				AB17573B27675B1E00FD64E2 /* XCRemoteSwiftPackageReference "Colorful" */,
 				AB17573E27678B3400FD64E2 /* XCRemoteSwiftPackageReference "UIImageColors" */,
-				AB58A5A12776078F00C0D285 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */,
 				ABD49D5B277C6C9D003D1A07 /* XCRemoteSwiftPackageReference "SFSafeSymbols" */,
+				AB86AC0E27831AD100E61E6A /* XCRemoteSwiftPackageReference "swift-composable-architecture" */,
 			);
 			productRefGroup = ABC3C7552593696C00E0C11B /* Products */;
 			projectDirPath = "";
@@ -1547,14 +1547,6 @@
 				kind = branch;
 			};
 		};
-		AB58A5A12776078F00C0D285 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/pointfreeco/swift-composable-architecture.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.31.0;
-			};
-		};
 		AB60D0E7274C7ECE00F899AB /* XCRemoteSwiftPackageReference "WaterfallGrid" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/paololeonardi/WaterfallGrid.git";
@@ -1569,6 +1561,14 @@
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 2.0.0;
+			};
+		};
+		AB86AC0E27831AD100E61E6A /* XCRemoteSwiftPackageReference "swift-composable-architecture" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/pointfreeco/swift-composable-architecture.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.31.0;
 			};
 		};
 		ABAC82FC26BC4866009F5026 /* XCRemoteSwiftPackageReference "SwiftyOpenCC" */ = {
@@ -1639,11 +1639,6 @@
 			package = AB21CC9E274B4F0C00C115B1 /* XCRemoteSwiftPackageReference "SwiftyBeaver" */;
 			productName = SwiftyBeaver;
 		};
-		AB58A5A22776078F00C0D285 /* ComposableArchitecture */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = AB58A5A12776078F00C0D285 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */;
-			productName = ComposableArchitecture;
-		};
 		AB60D0E8274C7ECE00F899AB /* WaterfallGrid */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = AB60D0E7274C7ECE00F899AB /* XCRemoteSwiftPackageReference "WaterfallGrid" */;
@@ -1653,6 +1648,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = AB65059E26B0027800F91E9D /* XCRemoteSwiftPackageReference "SwiftUIPager" */;
 			productName = SwiftUIPager;
+		};
+		AB86AC0F27831AD100E61E6A /* ComposableArchitecture */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AB86AC0E27831AD100E61E6A /* XCRemoteSwiftPackageReference "swift-composable-architecture" */;
+			productName = ComposableArchitecture;
 		};
 		ABAC82FD26BC4A96009F5026 /* OpenCC */ = {
 			isa = XCSwiftPackageProductDependency;

@@ -6,21 +6,22 @@
 //
 
 import SwiftUI
+import SFSafeSymbols
 
-struct LaboratorySettingView: View, StoreAccessor {
-    @EnvironmentObject var store: DeprecatedStore
+struct LaboratorySettingView: View {
+    @Binding private var bypassesSNIFiltering: Bool
 
-    private var settingBinding: Binding<Setting> {
-        $store.appState.settings.setting
+    init(bypassesSNIFiltering: Binding<Bool>) {
+        _bypassesSNIFiltering = bypassesSNIFiltering
     }
 
     var body: some View {
         ScrollView {
             VStack {
                 LaboratoryCell(
-                    isOn: settingBinding.bypassesSNIFiltering,
+                    isOn: $bypassesSNIFiltering,
                     title: "Bypass SNI Filtering",
-                    symbol: "theatermasks.fill",
+                    symbol: .theatermasksFill,
                     tintColor: .purple
                 )
             }
@@ -33,12 +34,12 @@ struct LaboratorySettingView: View, StoreAccessor {
 struct LaboratoryCell: View {
     @Binding private var isOn: Bool
     private let title: String
-    private let symbol: String
+    private let symbol: SFSymbol
     private let tintColor: Color
 
     init(
         isOn: Binding<Bool>, title: String,
-        symbol: String, tintColor: Color
+        symbol: SFSymbol, tintColor: Color
     ) {
         _isOn = isOn
         self.title = title
@@ -57,16 +58,13 @@ struct LaboratoryCell: View {
         HStack {
             Spacer()
             Group {
-                Image(systemName: symbol)
+                Image(systemSymbol: symbol)
                 Text(title.localized).bold()
             }
             .foregroundColor(contentColor).font(.title2)
             Spacer()
         }
-        .contentShape(Rectangle()).onTapGesture {
-            withAnimation { isOn.toggle() }
-            HapticUtil.generateFeedback(style: .soft)
-        }
+        .contentShape(Rectangle()).onTapGesture { isOn.toggle() }
         .minimumScaleFactor(0.75).padding(.vertical, 20)
         .background(bgColor).cornerRadius(15).lineLimit(1)
     }
