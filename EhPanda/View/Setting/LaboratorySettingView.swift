@@ -33,6 +33,11 @@ struct LaboratorySettingView: View {
 
 struct LaboratoryCell: View {
     @Binding private var isOn: Bool
+
+    // workaround: `withAnimation` doesn't work with @BindableState
+    @State private var bgColor: Color
+    @State private var contentColor: Color
+
     private let title: String
     private let symbol: SFSymbol
     private let tintColor: Color
@@ -45,13 +50,9 @@ struct LaboratoryCell: View {
         self.title = title
         self.symbol = symbol
         self.tintColor = tintColor
-    }
 
-    private var bgColor: Color {
-        isOn ? tintColor.opacity(0.2) : Color(.systemGray5)
-    }
-    private var contentColor: Color {
-        isOn ? tintColor : .secondary
+        bgColor = isOn.wrappedValue ? tintColor.opacity(0.2) : Color(.systemGray5)
+        contentColor = isOn.wrappedValue ? tintColor : .secondary
     }
 
     var body: some View {
@@ -67,5 +68,11 @@ struct LaboratoryCell: View {
         .contentShape(Rectangle()).onTapGesture { isOn.toggle() }
         .minimumScaleFactor(0.75).padding(.vertical, 20)
         .background(bgColor).cornerRadius(15).lineLimit(1)
+        .onChange(of: isOn) { newValue in
+            withAnimation {
+                bgColor = newValue ? tintColor.opacity(0.2) : Color(.systemGray5)
+                contentColor = newValue ? tintColor : .secondary
+            }
+        }
     }
 }
