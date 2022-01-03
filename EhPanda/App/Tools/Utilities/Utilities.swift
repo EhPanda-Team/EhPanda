@@ -276,12 +276,6 @@ struct CookiesUtil {
         let exUID = CookiesUtil.get(for: Defaults.URL.exhentai, key: Defaults.Cookie.ipbMemberId).rawValue
         if !ehUID.isEmpty && !exUID.isEmpty { return ehUID == exUID } else { return true }
     }
-    static var shouldFetchIgneous: Bool {
-        let url = Defaults.URL.exhentai
-        return !CookiesUtil.get(for: url, key: Defaults.Cookie.ipbMemberId).rawValue.isEmpty
-        && !CookiesUtil.get(for: url, key: Defaults.Cookie.ipbPassHash).rawValue.isEmpty
-        && CookiesUtil.get(for: url, key: Defaults.Cookie.igneous).rawValue.isEmpty
-    }
     static func initializeCookie(from cookie: HTTPCookie, value: String) -> HTTPCookie {
         var properties = cookie.properties
         properties?[.value] = value
@@ -313,27 +307,6 @@ struct CookiesUtil {
         if let cookie = HTTPCookie(properties: properties) {
             HTTPCookieStorage.shared.setCookie(cookie)
         }
-    }
-
-    static func setIgneous(for response: HTTPURLResponse) {
-        guard let setString = response.allHeaderFields["Set-Cookie"] as? String else { return }
-        setString.components(separatedBy: ", ")
-            .flatMap { $0.components(separatedBy: "; ") }.forEach { value in
-                [Defaults.URL.ehentai, Defaults.URL.exhentai].forEach { url in
-                    [Defaults.Cookie.ipbMemberId, Defaults.Cookie.ipbPassHash, Defaults.Cookie.igneous].forEach { key in
-                        guard !(url == Defaults.URL.ehentai && key == Defaults.Cookie.igneous),
-                              let range = value.range(of: "\(key)=") else { return }
-                        set(for: url, key: key, value: String(value[range.upperBound...]) )
-                    }
-                }
-            }
-    }
-    static func removeYay() {
-        remove(for: Defaults.URL.exhentai, key: "yay")
-    }
-    static func ignoreOffensive() {
-        set(for: Defaults.URL.ehentai, key: "nw", value: "1")
-        set(for: Defaults.URL.exhentai, key: "nw", value: "1")
     }
 
     static func remove(for url: URL, key: String) {
@@ -417,6 +390,20 @@ struct CookiesUtil {
         } else {
             return memberID != nil && passHash != nil
         }
+    }
+
+    static func setIgneous(for response: HTTPURLResponse) {
+        guard let setString = response.allHeaderFields["Set-Cookie"] as? String else { return }
+        setString.components(separatedBy: ", ")
+            .flatMap { $0.components(separatedBy: "; ") }.forEach { value in
+                [Defaults.URL.ehentai, Defaults.URL.exhentai].forEach { url in
+                    [Defaults.Cookie.ipbMemberId, Defaults.Cookie.ipbPassHash, Defaults.Cookie.igneous].forEach { key in
+                        guard !(url == Defaults.URL.ehentai && key == Defaults.Cookie.igneous),
+                              let range = value.range(of: "\(key)=") else { return }
+                        set(for: url, key: key, value: String(value[range.upperBound...]) )
+                    }
+                }
+            }
     }
 }
 

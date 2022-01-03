@@ -48,34 +48,21 @@ struct LoginView: View {
                     } label: {
                         Image(systemSymbol: .chevronForwardCircleFill)
                     }
-                    .overlay {
-                        ProgressView().tint(nil).opacity(
-                            viewStore.loginState == .loading ? 1 : 0
-                        )
-                    }
-                    .imageScale(.large).font(.largeTitle)
-                    .foregroundColor(viewStore.loginButtonColor)
+                    .overlay { ProgressView().tint(nil).opacity(viewStore.loginState == .loading ? 1 : 0) }
+                    .imageScale(.large).font(.largeTitle).foregroundColor(viewStore.loginButtonColor)
                     .disabled(viewStore.loginButtonDisabled).padding(.top, 30)
                 }
             }
         }
         .synchronize(viewStore.binding(\.$focusedField), $focusedField)
         .sheet(isPresented: viewStore.binding(\.$webViewSheetPresented)) {
-            WebView(url: Defaults.URL.login)
+            WebView(url: Defaults.URL.webLogin) {
+                viewStore.send(.loginDone)
+            }
 //                    .blur(radius: environment.blurRadius)
 //                    .allowsHitTesting(environment.isAppUnlocked)
         }
-        .onSubmit {
-            switch focusedField {
-            case .username:
-                focusedField = .password
-            case .password:
-                focusedField = nil
-                viewStore.send(.login)
-            default:
-                break
-            }
-        }
+        .onSubmit { viewStore.send(.textFieldSubmitted) }
         .toolbar(content: toolbar)
         .navigationTitle("Login")
         .ignoresSafeArea()

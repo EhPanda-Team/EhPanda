@@ -53,12 +53,12 @@ let ehSettingReducer = Reducer<EhSettingState, EhSettingAction, EhSettingEnviron
     case .setKeyboardHidden:
         return environment.uiApplicationClient.hideKeyboard().fireAndForget()
 
-    case .setWebViewSheet(let presented):
-        state.webViewSheetPresented = presented
+    case .setWebViewSheet(let isPresented):
+        state.webViewSheetPresented = isPresented
         return environment.hapticClient.generateFeedback(.light).fireAndForget()
 
-    case .setDeleteDialog(let presented):
-        state.deleteDialogPresented = presented
+    case .setDeleteDialog(let isPresented):
+        state.deleteDialogPresented = isPresented
         return .none
 
     case .setDefaultProfile(let profileSet):

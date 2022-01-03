@@ -33,9 +33,11 @@ struct Defaults {
         static let previewAvgW: CGFloat = (previewMinW + previewMaxW) / 2
     }
     struct Cookie {
+        static let yay = "yay"
         static let null = "null"
         static let expired = "expired"
         static let mystery = "mystery"
+        static let ignoreOffensive = "nw"
         static let selectedProfile = "sp"
         static let skipServer = "skipserver"
 

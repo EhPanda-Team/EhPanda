@@ -52,6 +52,7 @@ struct AccountSettingView: View {
                 CookieSection { (presented, config) in
                     viewStore.send(.setHUD(presented, config))
                 }
+                .id(viewStore.cookiesSectionIdentifier)
             }
             TTProgressHUD(viewStore.binding(\.$hudVisible), config: viewStore.hudConfig)
         }

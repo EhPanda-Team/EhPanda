@@ -9,13 +9,12 @@ import WebKit
 import SwiftUI
 
 struct WebView: UIViewControllerRepresentable {
-    static let loginURLString = "https://forums.e-hentai.org/index.php?act=Login"
-
-    @EnvironmentObject private var store: DeprecatedStore
     private let url: URL
+    private let loginDoneAction: (() -> Void)?
 
-    init(url: URL) {
+    init(url: URL, loginDoneAction: (() -> Void)? = nil) {
         self.url = url
+        self.loginDoneAction = loginDoneAction
     }
 
     final class Coodinator: NSObject, WKNavigationDelegate, WKUIDelegate {
@@ -26,8 +25,12 @@ struct WebView: UIViewControllerRepresentable {
         }
 
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-            guard parent.url.absoluteString == WebView.loginURLString,
-                  webView.url?.absoluteString.contains("CODE=01") == true
+            guard parent.url.absoluteString == Defaults.URL.webLogin.absoluteString, let webViewURL = webView.url,
+                  let queryItems = URLComponents(url: webViewURL, resolvingAgainstBaseURL: false)?.queryItems,
+                  queryItems.contains(where: { queryItem in
+                      queryItem.name == Defaults.URL.Component.Key.code.rawValue
+                      && queryItem.value == Defaults.URL.Component.Value.zeroOne.rawValue
+                  })
             else { return }
 
             webView.configuration.websiteDataStore.httpCookieStore.getAllCookies { cookies in
@@ -35,9 +38,7 @@ struct WebView: UIViewControllerRepresentable {
             }
 
             DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [weak self] in
-                guard CookiesUtil.didLogin else { return }
-                let store = self?.parent.store
-                store?.dispatch(.setSettingViewSheetState(nil))
+                self?.parent.loginDoneAction?()
             }
         }
 

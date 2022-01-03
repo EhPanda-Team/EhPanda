@@ -62,7 +62,8 @@ let appDelegateReducer = Reducer<Bool, AppDelegateAction, AppDelegateEnvironment
             environment.libraryClient.initializeWebImage().fireAndForget(),
             environment.dfClient.setActive(state).fireAndForget(),
             environment.cookiesClient.removeYay().fireAndForget(),
-            environment.cookiesClient.ignoreOffensive().fireAndForget()
+            environment.cookiesClient.ignoreOffensive().fireAndForget(),
+            environment.cookiesClient.fulfillAnotherHostField().fireAndForget()
         )
     }
 }

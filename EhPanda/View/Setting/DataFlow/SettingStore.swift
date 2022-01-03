@@ -172,11 +172,12 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
             return .none
 
         case .account(.login(.loginDone)):
-            var effects = [Effect<SettingAction, Never>]()
+            var effects: [Effect<SettingAction, Never>] = [
+                environment.cookiesClient.removeYay().fireAndForget(),
+                environment.cookiesClient.fulfillAnotherHostField().fireAndForget()
+            ]
 
-            if environment.cookiesClient.shouldFetchIgneous() {
-                effects.append(.init(value: .fetchIgneous))
-            }
+            effects.append(.init(value: .fetchIgneous))
             if environment.cookiesClient.didLogin() {
                 effects.append(contentsOf: [
                     .init(value: .fetchUserInfo),

@@ -27,8 +27,9 @@ struct LoginState: Equatable {
 enum LoginAction: BindableAction {
     case binding(BindingAction<LoginState>)
     case setWebViewSheet(Bool)
+    case textFieldSubmitted
     case login
-    case loginDone(Result<Any, AppError>)
+    case loginDone
 }
 
 struct LoginEnvironment {
@@ -41,9 +42,21 @@ let loginReducer = Reducer<LoginState, LoginAction, LoginEnvironment> { state, a
     case .binding:
         return .none
 
-    case .setWebViewSheet(let presented):
-        state.webViewSheetPresented = presented
+    case .setWebViewSheet(let isPresented):
+        state.webViewSheetPresented = isPresented
         return environment.hapticClient.generateFeedback(.light).fireAndForget()
+
+    case .textFieldSubmitted:
+        switch state.focusedField {
+        case .username:
+            state.focusedField = .password
+        case .password:
+            state.focusedField = nil
+            return .init(value: .login)
+        default:
+            break
+        }
+        return .none
 
     case .login:
         guard !state.loginButtonDisabled
@@ -56,16 +69,17 @@ let loginReducer = Reducer<LoginState, LoginAction, LoginEnvironment> { state, a
 
         return .merge(
             LoginRequest(username: state.username, password: state.password)
-                .effect.map(LoginAction.loginDone),
+                .effect.map({ _ in LoginAction.loginDone }),
             environment.hapticClient.generateFeedback(.soft).fireAndForget()
         )
 
-    case .loginDone(let result):
+    case .loginDone:
         guard environment.cookiesClient.didLogin() else {
             state.loginState = .failed(.unknown)
             return environment.hapticClient.generateNotificationFeedback(.error).fireAndForget()
         }
         state.loginState = .idle
+        state.webViewSheetPresented = false
         return environment.hapticClient.generateNotificationFeedback(.success).fireAndForget()
     }
 }

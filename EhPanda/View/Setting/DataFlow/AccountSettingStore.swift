@@ -14,6 +14,7 @@ struct AccountSettingState: Equatable {
     @BindableState var webViewSheetPresented = false
     @BindableState var hudVisible = false
     var hudConfig = TTProgressHUDConfig()
+    var cookiesSectionIdentifier = ""
 
     var loginState = LoginState()
     var ehSettingState = EhSettingState()
@@ -25,6 +26,7 @@ enum AccountSettingAction: BindableAction {
     case setWebViewSheet(Bool)
     case setLogoutDialog(Bool)
     case setHUD(Bool, TTProgressHUDConfig)
+    case refreshCookiesSection
 
     case login(LoginAction)
     case logoutConfirmButtonTapped
@@ -47,12 +49,12 @@ let accountSettingReducer = Reducer<AccountSettingState, AccountSettingAction, A
             state.route = route
             return .none
 
-        case .setWebViewSheet(let presented):
-            state.webViewSheetPresented = presented
+        case .setWebViewSheet(let isPresented):
+            state.webViewSheetPresented = isPresented
             return environment.hapticClient.generateFeedback(.light).fireAndForget()
 
-        case .setLogoutDialog(let presented):
-            state.logoutDialogPresented = presented
+        case .setLogoutDialog(let isPresented):
+            state.logoutDialogPresented = isPresented
             return .none
 
         case .setHUD(let visible, let config):
@@ -60,14 +62,23 @@ let accountSettingReducer = Reducer<AccountSettingState, AccountSettingAction, A
             state.hudConfig = config
             return .none
 
+        case .refreshCookiesSection:
+            state.cookiesSectionIdentifier = UUID().uuidString
+            return .none
+
         case .login(.loginDone):
-            return environment.cookiesClient.didLogin() ? .init(value: .setRoute(nil)) : .none
+            return environment.cookiesClient.didLogin()
+            ? .merge(
+                .init(value: .refreshCookiesSection),
+                .init(value: .setRoute(nil))
+            )
+            : .none
 
         case .login:
             return .none
 
         case .logoutConfirmButtonTapped:
-            return .none
+            return .init(value: .refreshCookiesSection)
 
         case .ehSetting:
             return .none
