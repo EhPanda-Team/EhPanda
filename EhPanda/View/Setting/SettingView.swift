@@ -154,6 +154,7 @@ struct SettingView_Previews: PreviewProvider {
                 initialState: SettingState(),
                 reducer: settingReducer,
                 environment: SettingEnvironment(
+                    fileClient: .live,
                     loggerClient: .live,
                     hapticClient: .live,
                     libraryClient: .live,

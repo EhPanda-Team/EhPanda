@@ -76,6 +76,8 @@
 		AB7B29F226AC471E00EE1F14 /* MigrationPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB7B29F126AC471E00EE1F14 /* MigrationPolicy.swift */; };
 		AB7B29F626AC741600EE1F14 /* GenericList.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB7B29F526AC741600EE1F14 /* GenericList.swift */; };
 		AB7E6B3025D24FE00035CC68 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = AB7E6B3225D24FE00035CC68 /* InfoPlist.strings */; };
+		AB86ABF52782DAB300E61E6A /* LogsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB86ABF42782DAB300E61E6A /* LogsStore.swift */; };
+		AB86ABF72782DDE600E61E6A /* FileClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB86ABF62782DDE600E61E6A /* FileClient.swift */; };
 		AB8C821926BF801700E8C5E6 /* EhSetting.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB8C821826BF801700E8C5E6 /* EhSetting.swift */; };
 		ABA732D925A8018A00B3D9AB /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABA732D825A8018A00B3D9AB /* Extensions.swift */; };
 		ABA732DF25A852D800B3D9AB /* Filter.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABA732DE25A852D800B3D9AB /* Filter.swift */; };
@@ -252,6 +254,8 @@
 		AB7E6B3125D24FE00035CC68 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		AB7E6B3425D24FE40035CC68 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
 		AB7E6B3525D24FE50035CC68 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		AB86ABF42782DAB300E61E6A /* LogsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogsStore.swift; sourceTree = "<group>"; };
+		AB86ABF62782DDE600E61E6A /* FileClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileClient.swift; sourceTree = "<group>"; };
 		AB8C821826BF801700E8C5E6 /* EhSetting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EhSetting.swift; sourceTree = "<group>"; };
 		AB994DBB25986F7A00E9A367 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
 		ABA732D825A8018A00B3D9AB /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
@@ -381,6 +385,7 @@
 				AB0929D52782A65F00F107CA /* GeneralSettingStore.swift */,
 				AB0929BD2780032400F107CA /* EhSettingStore.swift */,
 				AB0929BF27805A8200F107CA /* LoginStore.swift */,
+				AB86ABF42782DAB300E61E6A /* LogsStore.swift */,
 			);
 			path = DataFlow;
 			sourceTree = "<group>";
@@ -389,6 +394,7 @@
 			isa = PBXGroup;
 			children = (
 				AB0929C72781938A00F107CA /* DFClient.swift */,
+				AB86ABF62782DDE600E61E6A /* FileClient.swift */,
 				AB0929D12781E7D500F107CA /* LoggerClient.swift */,
 				AB0929CB2781A0B000F107CA /* HapticClient.swift */,
 				AB0929C5278160AE00F107CA /* LibraryClient.swift */,
@@ -1067,6 +1073,7 @@
 				ABF45ADF25F3313D00ECB568 /* FilterView.swift in Sources */,
 				ABE2AE752699F238001D47AA /* AppEnvStorage.swift in Sources */,
 				ABC3C78F2593699B00E0C11B /* ViewModifiers.swift in Sources */,
+				AB86ABF52782DAB300E61E6A /* LogsStore.swift in Sources */,
 				ABF45AF825F3313D00ECB568 /* EhPandaView.swift in Sources */,
 				ABCA93C42692A0BF00A98BC6 /* PersistenceAccessor.swift in Sources */,
 				ABD49D60277C7722003D1A07 /* TabBarView.swift in Sources */,
@@ -1085,6 +1092,7 @@
 				ABAFFE4026A86E3000EE8661 /* MeasureTool.swift in Sources */,
 				AB0929CE2781AADA00F107CA /* DatabaseClient.swift in Sources */,
 				AB6DE897268822390087C579 /* LogsView.swift in Sources */,
+				AB86ABF72782DDE600E61E6A /* FileClient.swift in Sources */,
 				AB7B29F226AC471E00EE1F14 /* MigrationPolicy.swift in Sources */,
 				ABE9401526FF158D0085E158 /* QuickSearchView.swift in Sources */,
 				ABD49D64277C7AD5003D1A07 /* TabBarStore.swift in Sources */,

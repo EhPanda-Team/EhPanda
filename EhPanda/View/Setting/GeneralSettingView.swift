@@ -68,6 +68,7 @@ struct GeneralSettingView: View {
                 Button("Logs") {
                     viewStore.send(.setRoute(.logs))
                 }
+                .foregroundColor(.primary).withArrow()
             }
             Section("Navigation".localized) {
                 Toggle("Redirects links to the selected host", isOn: $redirectsLinksToSelectedHost)
@@ -131,7 +132,7 @@ private extension GeneralSettingView {
             NavigationLink("", tag: route, selection: viewStore.binding(\.$route)) {
                 switch route {
                 case .logs:
-                    LogsView()
+                    LogsView(store: store.scope(state: \.logsState, action: GeneralSettingAction.logs))
                 }
             }
         }

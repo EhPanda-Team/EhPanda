@@ -23,6 +23,7 @@ enum AltAppAction {
 struct AnyEnvironment {}
 struct AppEnvironment {
     let dfClient: DFClient
+    let fileClient: FileClient
     let loggerClient: LoggerClient
     let hapticClient: HapticClient
     let libraryClient: LibraryClient
@@ -65,6 +66,7 @@ let appReducer = Reducer<AltAppState, AltAppAction, AppEnvironment>.combine(
         action: /AltAppAction.setting,
         environment: {
             .init(
+                fileClient: $0.fileClient,
                 loggerClient: $0.loggerClient,
                 hapticClient: $0.hapticClient,
                 libraryClient: $0.libraryClient,

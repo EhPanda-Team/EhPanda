@@ -6,87 +6,54 @@
 //
 
 import SwiftUI
+import SFSafeSymbols
+import ComposableArchitecture
 
-struct LogsView: View, StoreAccessor {
-    @EnvironmentObject var store: DeprecatedStore
-    @State private var logs = [Log]()
+struct LogsView: View {
+    private let store: Store<LogsState, LogsAction>
+    @ObservedObject private var viewStore: ViewStore<LogsState, LogsAction>
+
+    init(store: Store<LogsState, LogsAction>) {
+        self.store = store
+        viewStore = ViewStore(store)
+    }
 
     var body: some View {
         ZStack {
-            List(logs) { log in
+            List(viewStore.logs) { log in
                 NavigationLink(destination: LogView(log: log)) {
-                    LogCell(log: log, isLatest: log == logs.first)
+                    LogCell(log: log, isLatest: log == viewStore.logs.first)
                 }
                 .swipeActions { swipeActions(log: log) }
             }
             ErrorView(error: .notFound, retryAction: nil)
-                .opacity(logs.isEmpty ? 1 : 0)
+                .opacity(viewStore.logs.isEmpty ? 1 : 0)
         }
-        .onAppear(perform: fetchLogsIfNeeded)
-        .navigationBarTitle("Logs")
+        .onAppear {
+            if viewStore.logs.isEmpty {
+                viewStore.send(.fetchLogs)
+            }
+        }
         .toolbar(content: toolbar)
+        .navigationBarTitle("Logs")
     }
 
     private func swipeActions(log: Log) -> some View {
         Button {
-            tryDeleteLog(name: log.fileName)
+            viewStore.send(.deleteLog(log.fileName))
         } label: {
-            Image(systemName: "trash")
+            Image(systemSymbol: .trash)
         }
         .tint(.red)
     }
     private func toolbar() -> some ToolbarContent {
         ToolbarItem(placement: .navigationBarTrailing) {
-            Button(action: tryExportLog) {
-                Image(systemName: "folder.badge.gearshape")
+            Button {
+                viewStore.send(.navigateToFileApp)
+            } label: {
+                Image(systemSymbol: .folderBadgeGearshape)
             }
         }
-    }
-}
-
-// MARK: Private Methods
-private extension LogsView {
-    func tryDeleteLog(name: String) {
-        guard let fileURL = FileUtil.logsDirectoryURL?.appendingPathComponent(name) else { return }
-
-        try? FileManager.default.removeItem(at: fileURL)
-        if !FileManager.default.fileExists(atPath: fileURL.path) {
-            logs = logs.filter({ $0.fileName != name })
-        }
-    }
-
-    func tryExportLog() {
-        guard let dirPath = FileUtil.logsDirectoryURL?.path,
-              let dirURL = URL(string: "shareddocuments://" + dirPath)
-        else { return }
-
-        UIApplication.shared.open(dirURL, options: [:], completionHandler: nil)
-    }
-
-    func fetchLogs() {
-        guard let path = FileUtil.logsDirectoryURL?.path,
-              let enumerator = FileManager.default.enumerator(atPath: path),
-              let fileNames = (enumerator.allObjects as? [String])?
-                .filter({ $0.contains(Defaults.FilePath.ehpandaLog) })
-        else { return }
-
-        let logs: [Log] = fileNames.compactMap { name in
-            guard let fileURL = FileUtil.logsDirectoryURL?.appendingPathComponent(name),
-                  let content = try? String(contentsOf: fileURL)
-            else { return nil }
-
-            return Log(
-                fileName: name, contents: content
-                    .components(separatedBy: "\n")
-                    .filter({ !$0.isEmpty })
-            )
-        }
-        .sorted()
-        self.logs = logs
-    }
-    func fetchLogsIfNeeded() {
-        guard logs.isEmpty else { return }
-        fetchLogs()
     }
 }
 
@@ -111,7 +78,7 @@ private struct LogCell: View {
                 Text(log.fileName).font(.callout)
                 Spacer()
                 HStack(spacing: 2) {
-                    Image(systemName: "checkmark.circle").foregroundColor(.green)
+                    Image(systemSymbol: .checkmarkCircle).foregroundColor(.green)
                     Text("Latest").foregroundColor(.secondary)
                 }
                 .opacity(isLatest ? 1 : 0)
@@ -167,6 +134,15 @@ private struct LogView: View {
 
 struct LogsView_Previews: PreviewProvider {
     static var previews: some View {
-        LogsView()
+        LogsView(
+            store: Store<LogsState, LogsAction>(
+                initialState: LogsState(),
+                reducer: logsReducer,
+                environment: .init(
+                    fileClient: .live,
+                    uiApplicationClient: .live
+                )
+            )
+        )
     }
 }

@@ -20,7 +20,7 @@ struct SettingState: Equatable {
     var tagTranslator: TagTranslator
 
     @BindableState var route: SettingRoute?
-    var tagTranslatorLoadingState: LoadingState = .loading
+    var tagTranslatorLoadingState: LoadingState = .idle
 
     var accountSettingState = AccountSettingState()
     var generalSettingState = GeneralSettingState()
@@ -48,6 +48,7 @@ enum SettingAction: BindableAction {
 }
 
 struct SettingEnvironment {
+    let fileClient: FileClient
     let loggerClient: LoggerClient
     let hapticClient: HapticClient
     let libraryClient: LibraryClient
@@ -237,6 +238,7 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
         action: /SettingAction.general,
         environment: {
             .init(
+                fileClient: $0.fileClient,
                 loggerClient: $0.loggerClient,
                 libraryClient: $0.libraryClient,
                 databaseClient: $0.databaseClient,

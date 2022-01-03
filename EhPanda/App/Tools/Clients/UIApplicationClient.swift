@@ -32,4 +32,12 @@ extension UIApplicationClient {
         }
         return .none
     }
+    func openFileApp() -> Effect<Never, Never> {
+        if let dirPath = FileUtil.logsDirectoryURL?.path,
+           let dirURL = URL(string: "shareddocuments://" + dirPath)
+        {
+            return openURL(dirURL)
+        }
+        return .none
+    }
 }

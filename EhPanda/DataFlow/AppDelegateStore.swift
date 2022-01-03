@@ -16,6 +16,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         reducer: appReducer,
         environment: AppEnvironment(
             dfClient: .live,
+            fileClient: .live,
             loggerClient: .live,
             hapticClient: .live,
             libraryClient: .live,
