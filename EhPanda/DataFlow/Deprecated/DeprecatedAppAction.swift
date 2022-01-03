@@ -9,7 +9,7 @@ import UIKit
 import Kanna
 import Foundation
 
-enum AppAction {
+enum DeprecatedAppAction {
     // swiftlint:disable line_length
     case resetUser
     case resetHomeInfo

@@ -12,7 +12,7 @@ import ComposableArchitecture
 // MARK: AppDelegate
 class AppDelegate: UIResponder, UIApplicationDelegate {
     let store = Store(
-        initialState: AltAppState(),
+        initialState: AppState(),
         reducer: appReducer,
         environment: AppEnvironment(
             dfClient: .live,

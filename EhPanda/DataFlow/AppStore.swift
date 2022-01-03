@@ -7,13 +7,13 @@
 
 import ComposableArchitecture
 
-struct AltAppState: Equatable {
+struct AppState: Equatable {
     var tabBarState = TabBarState()
     var favoritesState = FavoritesState()
     var settingState = SettingState()
 }
 
-enum AltAppAction {
+enum AppAction {
     case appDelegate(AppDelegateAction)
     case tabBar(TabBarAction)
     case favorites(FavoritesAction)
@@ -34,10 +34,10 @@ struct AppEnvironment {
     let authorizationClient: AuthorizationClient
 }
 
-let appReducer = Reducer<AltAppState, AltAppAction, AppEnvironment>.combine(
+let appReducer = Reducer<AppState, AppAction, AppEnvironment>.combine(
     appDelegateReducer.pullback(
         state: \.settingState.setting.bypassesSNIFiltering,
-        action: /AltAppAction.appDelegate,
+        action: /AppAction.appDelegate,
         environment: {
             .init(
                 dfClient: $0.dfClient,
@@ -48,12 +48,12 @@ let appReducer = Reducer<AltAppState, AltAppAction, AppEnvironment>.combine(
     ),
     tabBarReducer.pullback(
         state: \.tabBarState,
-        action: /AltAppAction.tabBar,
+        action: /AppAction.tabBar,
         environment: { _ in AnyEnvironment() }
     ),
     favoritesReducer.pullback(
         state: \.favoritesState,
-        action: /AltAppAction.favorites,
+        action: /AppAction.favorites,
         environment: {
             .init(
                 hapticClient: $0.hapticClient,
@@ -63,7 +63,7 @@ let appReducer = Reducer<AltAppState, AltAppAction, AppEnvironment>.combine(
     ),
     settingReducer.pullback(
         state: \.settingState,
-        action: /AltAppAction.setting,
+        action: /AppAction.setting,
         environment: {
             .init(
                 fileClient: $0.fileClient,

@@ -16,7 +16,7 @@ final class DeprecatedStore: ObservableObject {
         return store
     }()
 
-    func dispatch(_ action: AppAction) {
+    func dispatch(_ action: DeprecatedAppAction) {
         #if DEBUG
         guard !AppUtil.isUnitTesting else { return }
         #endif
@@ -30,7 +30,7 @@ final class DeprecatedStore: ObservableObject {
         }
     }
 
-    private func privateDispatch(_ action: AppAction) {
+    private func privateDispatch(_ action: DeprecatedAppAction) {
         let description = String(describing: action)
         if description.contains("error") {
             Logger.error("[ACTION]: " + description)
@@ -87,7 +87,7 @@ final class DeprecatedStore: ObservableObject {
         command.execute(in: self)
     }
 
-    func reduce(state: DeprecatedAppState, action: AppAction) -> (DeprecatedAppState, AppCommand?) {
+    func reduce(state: DeprecatedAppState, action: DeprecatedAppAction) -> (DeprecatedAppState, AppCommand?) {
         var appState = state
         var appCommand: AppCommand?
 

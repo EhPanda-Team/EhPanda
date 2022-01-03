@@ -11,14 +11,14 @@ import ComposableArchitecture
 
 struct TabBarView: View {
     @Environment(\.scenePhase) private var scenePhase
-    private let store: Store<AltAppState, AltAppAction>
-    @ObservedObject private var viewStore: ViewStore<AltAppState, Never>
+    private let store: Store<AppState, AppAction>
+    @ObservedObject private var viewStore: ViewStore<AppState, Never>
     @ObservedObject private var tabStore: ViewStore<TabBarState, TabBarAction>
 
-    init(store: Store<AltAppState, AltAppAction>) {
+    init(store: Store<AppState, AppAction>) {
         self.store = store
         viewStore = ViewStore(store.actionless)
-        tabStore = ViewStore(store.scope(state: \.tabBarState, action: AltAppAction.tabBar))
+        tabStore = ViewStore(store.scope(state: \.tabBarState, action: AppAction.tabBar))
     }
 
     var body: some View {
@@ -28,12 +28,12 @@ struct TabBarView: View {
                     switch type {
                     case .favorites:
                         FavoritesView(
-                            store: store.scope(state: \.favoritesState, action: AltAppAction.favorites),
+                            store: store.scope(state: \.favoritesState, action: AppAction.favorites),
                             user: viewStore.settingState.user, setting: viewStore.settingState.setting,
                             tagTranslator: viewStore.settingState.tagTranslator
                         )
                     case .setting:
-                        SettingView(store: store.scope(state: \.settingState, action: AltAppAction.setting))
+                        SettingView(store: store.scope(state: \.settingState, action: AppAction.setting))
                     }
                 }
                 .tabItem(type.label).tag(type)
