@@ -118,6 +118,7 @@ struct EhSettingView: View {
                 HStack {
                     Spacer()
                     Button("Done") {
+                        viewStore.send(.setKeyboardHidden)
                     }
                 }
             }

@@ -429,7 +429,6 @@
 			children = (
 				AB24C55927674EDF0085C33A /* FavoritesView.swift */,
 				ABD49D59277C5356003D1A07 /* FavoritesStore.swift */,
-				AB24C563276757C30085C33A /* Support */,
 			);
 			path = Favorites;
 			sourceTree = "<group>";
@@ -623,6 +622,14 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		AB86AC112783226100E61E6A /* Search */ = {
+			isa = PBXGroup;
+			children = (
+				AB24C563276757C30085C33A /* Support */,
+			);
+			path = Search;
+			sourceTree = "<group>";
+		};
 		ABC3C74B2593696C00E0C11B = {
 			isa = PBXGroup;
 			children = (
@@ -737,6 +744,7 @@
 				ABD49D5E277C7715003D1A07 /* TabBar */,
 				ABF45AC025F3313D00ECB568 /* Home */,
 				AB24C55F276757240085C33A /* Favorites */,
+				AB86AC112783226100E61E6A /* Search */,
 				ABF45AD125F3313D00ECB568 /* Detail */,
 				ABF45ACF25F3313D00ECB568 /* Reading */,
 				ABF45AD725F3313D00ECB568 /* Setting */,

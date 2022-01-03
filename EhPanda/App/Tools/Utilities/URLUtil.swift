@@ -97,21 +97,22 @@ extension URLUtil {
     static func moreWatchedList(filter: Filter, pageNum: Int, lastID: String) -> URL {
         Defaults.URL.watched.appending(queryItems: [.page: String(pageNum), .from: lastID]).applyingFilter(filter)
     }
-    static func favoritesList(favIndex: Int, pageNum: Int? = nil, sortOrder: FavoritesSortOrder? = nil) -> URL {
+    static func favoritesList(
+        favIndex: Int, pageNum: Int? = nil, keyword: String = "",
+        sortOrder: FavoritesSortOrder? = nil
+    ) -> URL {
         var url = Defaults.URL.favorites
-        if favIndex == -1 {
-            if pageNum == nil {
-                guard let sortOrder = sortOrder else { return url }
-                return url.appending(queryItems: [
-                    .inlineSet: sortOrder == .favoritedTime
-                    ? .sortOrderByFavoritedTime : .sortOrderByUpdateTime
-                ])
-            }
-        } else {
+        if favIndex != -1 {
             url.append(queryItems: [.favcat: String(favIndex)])
+        } else {
+            url.append(queryItems: [.favcat: .all])
         }
         if let pageNum = pageNum {
             url.append(queryItems: [.page: String(pageNum)])
+        }
+        if !keyword.isEmpty {
+            url.append(queryItems: [.fSearch: keyword])
+            url.append(queryItems: [.sn: .filterOn, .st: .filterOn, .sf: .filterOn])
         }
         if let sortOrder = sortOrder {
             url.append(queryItems: [
@@ -121,10 +122,16 @@ extension URLUtil {
         }
         return url
     }
-    static func moreFavoritesList(favIndex: Int, pageNum: Int, lastID: String) -> URL {
+    static func moreFavoritesList(favIndex: Int, pageNum: Int, lastID: String, keyword: String = "") -> URL {
         var url = Defaults.URL.favorites.appending(queryItems: [.page: String(pageNum), .from: lastID])
         if favIndex != -1 {
             url.append(queryItems: [.favcat: String(favIndex)])
+        } else {
+            url.append(queryItems: [.favcat: .all])
+        }
+        if !keyword.isEmpty {
+            url.append(queryItems: [.fSearch: keyword])
+            url.append(queryItems: [.sn: .filterOn, .st: .filterOn, .sf: .filterOn])
         }
         return url
     }

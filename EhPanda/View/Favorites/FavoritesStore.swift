@@ -120,8 +120,10 @@ let favoritesReducer = Reducer<FavoritesState, FavoritesAction, FavoritesEnviron
         } else {
             state.pageNumber?.current = 0
         }
-        return FavoritesGalleriesRequest(favIndex: state.index, pageNum: pageNum, sortOrder: sortOrder)
-            .effect.map { [index = state.index] result in FavoritesAction.fetchGalleriesDone(index, result) }
+        return FavoritesGalleriesRequest(
+            favIndex: state.index, pageNum: pageNum, keyword: state.keyword, sortOrder: sortOrder
+        )
+        .effect.map { [index = state.index] result in FavoritesAction.fetchGalleriesDone(index, result) }
 
     case .fetchGalleriesDone(let targetFavIndex, let result):
         state.rawLoadingState[targetFavIndex] = .idle
@@ -153,8 +155,10 @@ let favoritesReducer = Reducer<FavoritesState, FavoritesAction, FavoritesEnviron
         state.footerLoadingState = .loading
         let pageNum = pageNumber.current + 1
         let lastID = state.galleries?.last?.id ?? ""
-        return MoreFavoritesGalleriesRequest(favIndex: state.index, lastID: lastID, pageNum: pageNum)
-            .effect.map { [index = state.index] result in FavoritesAction.fetchMoreGalleriesDone(index, result) }
+        return MoreFavoritesGalleriesRequest(
+            favIndex: state.index, lastID: lastID, pageNum: pageNum, keyword: state.keyword
+        )
+        .effect.map { [index = state.index] result in FavoritesAction.fetchMoreGalleriesDone(index, result) }
 
     case .fetchMoreGalleriesDone(let targetFavIndex, let result):
         state.rawFooterLoadingState[targetFavIndex] = .idle

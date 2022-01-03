@@ -34,9 +34,8 @@ struct FavoritesView: View {
     }
 
     private var navigationTitle: String {
-        (viewStore.index == -1 ? "Favorites" : User.getFavNameFrom(
-            index: viewStore.index, names: user.favoriteNames
-        )).localized
+        let favName = User.getFavNameFrom(index: viewStore.index, names: user.favoriteNames)
+        return (viewStore.index == -1 ? "Favorites" : favName).localized
     }
 
     // MARK: FavoritesView
@@ -72,6 +71,9 @@ struct FavoritesView: View {
                 ]
             )
             .searchable(text: viewStore.binding(\.$keyword))
+            .onSubmit(of: .search) {
+                viewStore.send(.fetchGalleries())
+            }
             .onChange(of: alertManager.isPresented) { _ in
                 viewStore.send(.setJumpPageAlertFocused(false))
             }

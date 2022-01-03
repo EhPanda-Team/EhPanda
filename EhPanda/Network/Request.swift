@@ -285,11 +285,12 @@ struct MoreWatchedItemsRequest: Request {
 struct FavoritesGalleriesRequest: Request {
     let favIndex: Int
     var pageNum: Int?
+    var keyword: String
     var sortOrder: FavoritesSortOrder?
 
     var publisher: AnyPublisher<(PageNumber, FavoritesSortOrder?, [Gallery]), AppError> {
         URLSession.shared.dataTaskPublisher(
-            for: URLUtil.favoritesList(favIndex: favIndex, pageNum: pageNum, sortOrder: sortOrder)
+            for: URLUtil.favoritesList(favIndex: favIndex, pageNum: pageNum, keyword: keyword, sortOrder: sortOrder)
         )
         .genericRetry().tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
         .tryMap { (
@@ -305,10 +306,11 @@ struct MoreFavoritesGalleriesRequest: Request {
     let favIndex: Int
     let lastID: String
     let pageNum: Int
+    var keyword: String
 
     var publisher: AnyPublisher<(PageNumber, FavoritesSortOrder?, [Gallery]), AppError> {
         URLSession.shared.dataTaskPublisher(for: URLUtil.moreFavoritesList(
-            favIndex: favIndex, pageNum: pageNum, lastID: lastID
+            favIndex: favIndex, pageNum: pageNum, lastID: lastID, keyword: keyword
         ))
         .genericRetry().tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
         .tryMap { (

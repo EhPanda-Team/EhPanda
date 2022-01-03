@@ -90,7 +90,7 @@ struct Defaults {
         static let github: Foundation.URL = .init(string: "https://github.com/").forceUnwrapped
         static let githubAPI: Foundation.URL = .init(string: "https://api.github.com/repos/").forceUnwrapped
 
-        // swiftlint:disable nesting
+        // swiftlint:disable nesting identifier_name
         enum Component {
             enum Key: String {
                 // Functional Pages
@@ -108,6 +108,11 @@ struct Defaults {
                 case act = "act"
                 case showComments = "hc"
                 case inlineSet = "inline_set"
+
+                // Search favorites
+                case sn = "sn"
+                case st = "st"
+                case sf = "sf"
 
                 // Filter
                 case fCats = "f_cats"
@@ -136,6 +141,7 @@ struct Defaults {
             }
             enum Value: String {
                 case one = "1"
+                case all = "all"
                 case zeroOne = "01"
                 case filterOn = "on"
                 case loginAct = "Login"
@@ -144,6 +150,6 @@ struct Defaults {
                 case sortOrderByFavoritedTime = "fs_f"
             }
         }
-        // swiftlint:enable nesting
+        // swiftlint:enable nesting identifier_name
     }
 }
