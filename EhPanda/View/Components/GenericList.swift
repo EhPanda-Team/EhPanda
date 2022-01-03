@@ -58,7 +58,11 @@ struct GenericList: View {
                 }
             }
             .transition(AppUtil.opacityTransition)
-            .refreshable { fetchAction?() }
+            .refreshable {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    fetchAction?()
+                }
+            }
         }
     }
 }
