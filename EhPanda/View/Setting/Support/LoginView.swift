@@ -71,7 +71,7 @@ struct LoginView: View {
     private func toolbar() -> some ToolbarContent {
         ToolbarItem(placement: .navigationBarTrailing) {
             Button {
-                viewStore.send(.setWebViewSheet(true))
+                viewStore.send(.setWebViewSheetPresented(true))
             } label: {
                 Image(systemSymbol: .globe)
             }

@@ -30,6 +30,7 @@ struct AppEnvironment {
     let databaseClient: DatabaseClient
     let userDefaultsClient: UserDefaultsClient
     let uiApplicationClient: UIApplicationClient
+    let authorizationClient: AuthorizationClient
 }
 
 let appReducer = Reducer<AltAppState, AltAppAction, AppEnvironment>.combine(
@@ -70,7 +71,8 @@ let appReducer = Reducer<AltAppState, AltAppAction, AppEnvironment>.combine(
                 cookiesClient: $0.cookiesClient,
                 databaseClient: $0.databaseClient,
                 userDefaultsClient: $0.userDefaultsClient,
-                uiApplicationClient: $0.uiApplicationClient
+                uiApplicationClient: $0.uiApplicationClient,
+                authorizationClient: $0.authorizationClient
             )
         }
     )

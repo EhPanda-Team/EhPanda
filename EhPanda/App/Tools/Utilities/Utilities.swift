@@ -13,10 +13,14 @@ import LocalAuthentication
 
 // MARK: Authorization
 struct AuthorizationUtil {
+    static var passcodeNotSet: Bool {
+        var error: NSError?
+        return !LAContext().canEvaluatePolicy(.deviceOwnerAuthentication, error: &error)
+    }
     static func localAuth(
         reason: String, successAction: (() -> Void)? = nil,
         failureAction: (() -> Void)? = nil,
-        passcodeNotFoundAction: (() -> Void)? = nil
+        passcodeNotSetAction: (() -> Void)? = nil
     ) {
         let context = LAContext()
         var error: NSError?
@@ -28,7 +32,7 @@ struct AuthorizationUtil {
                 }
             }
         } else {
-            passcodeNotFoundAction?()
+            passcodeNotSetAction?()
         }
     }
 }

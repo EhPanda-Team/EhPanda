@@ -26,7 +26,7 @@ struct LoginState: Equatable {
 
 enum LoginAction: BindableAction {
     case binding(BindingAction<LoginState>)
-    case setWebViewSheet(Bool)
+    case setWebViewSheetPresented(Bool)
     case textFieldSubmitted
     case login
     case loginDone
@@ -42,7 +42,7 @@ let loginReducer = Reducer<LoginState, LoginAction, LoginEnvironment> { state, a
     case .binding:
         return .none
 
-    case .setWebViewSheet(let isPresented):
+    case .setWebViewSheetPresented(let isPresented):
         state.webViewSheetPresented = isPresented
         return environment.hapticClient.generateFeedback(.light).fireAndForget()
 

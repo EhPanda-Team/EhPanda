@@ -44,9 +44,9 @@ struct AccountSettingView: View {
                         showNewDawnGreeting: $showNewDawnGreeting,
                         bypassesSNIFiltering: bypassesSNIFiltering,
                         loginAction: { viewStore.send(.setRoute(.login)) },
-                        logoutAction: { viewStore.send(.setLogoutDialog(true)) },
+                        logoutAction: { viewStore.send(.setLogoutDialogPresented(true)) },
                         configureAccountAction: { viewStore.send(.setRoute(.ehSetting)) },
-                        manageTagsAction: { viewStore.send(.setWebViewSheet(true)) }
+                        manageTagsAction: { viewStore.send(.setWebViewSheetPresented(true)) }
                     )
                 }
                 CookieSection { (presented, config) in

@@ -20,8 +20,10 @@ struct SettingState: Equatable {
     var tagTranslator: TagTranslator
 
     @BindableState var route: SettingRoute?
+    var tagTranslatorLoadingState: LoadingState = .loading
 
     var accountSettingState = AccountSettingState()
+    var generalSettingState = GeneralSettingState()
 }
 
 enum SettingAction: BindableAction {
@@ -32,7 +34,7 @@ enum SettingAction: BindableAction {
     case fetchIgneous
     case fetchUserInfo
     case fetchUserInfoDone(Result<User, AppError>)
-    case fetchTagTranslator(String)
+    case fetchTagTranslator
     case fetchTagTranslatorDone(Result<TagTranslator, AppError>)
     case fetchEhProfileIndex
     case fetchEhProfileIndexDone(Result<(Int?, Bool), AppError>)
@@ -42,6 +44,7 @@ enum SettingAction: BindableAction {
     case setRoute(SettingRoute?)
 
     case account(AccountSettingAction)
+    case general(GeneralSettingAction)
 }
 
 struct SettingEnvironment {
@@ -52,6 +55,7 @@ struct SettingEnvironment {
     let databaseClient: DatabaseClient
     let userDefaultsClient: UserDefaultsClient
     let uiApplicationClient: UIApplicationClient
+    let authorizationClient: AuthorizationClient
 }
 
 let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.combine(
@@ -63,6 +67,9 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
                 AppUserDefaults.galleryHost.rawValue
             )
             .fireAndForget()
+
+        case .binding(\.setting.$translatesTags):
+            return state.setting.translatesTags ? .init(value: .fetchTagTranslator) : .none
 
         case .binding:
             return .none
@@ -86,8 +93,8 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
                     .init(value: .fetchEhProfileIndex)
                 ])
             }
-            if let preferredLanguage = Locale.preferredLanguages.first {
-                effects.append(.init(value: .fetchTagTranslator(preferredLanguage)))
+            if state.setting.translatesTags {
+                effects.append(.init(value: .fetchTagTranslator))
             }
 
             return effects.isEmpty ? .none : .merge(effects)
@@ -109,14 +116,17 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
             }
             return .none
 
-        case .fetchTagTranslator(let preferredLanguage):
-            guard let language = TranslatableLanguage.allCases.compactMap({ lang in
-                preferredLanguage.contains(lang.languageCode) ? lang : nil
-            }).first else {
+        case .fetchTagTranslator:
+            guard state.tagTranslatorLoadingState != .loading,
+                  let preferredLanguage = Locale.preferredLanguages.first,
+                  let language = TranslatableLanguage.allCases.compactMap({ lang in
+                      preferredLanguage.contains(lang.languageCode) ? lang : nil
+                  }).first
+            else {
                 state.tagTranslator = TagTranslator()
-                state.setting.translatesTags = false
                 return .none
             }
+            state.tagTranslatorLoadingState = .loading
             if state.tagTranslator.language != language {
                 state.tagTranslator = TagTranslator()
             }
@@ -126,6 +136,13 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
                 .effect.map(SettingAction.fetchTagTranslatorDone)
 
         case .fetchTagTranslatorDone(let result):
+            state.tagTranslatorLoadingState = .idle
+            switch result {
+            case .success(let tagTranslator):
+                state.tagTranslator = tagTranslator
+            case .failure(let error):
+                state.tagTranslatorLoadingState = .failed(error)
+            }
             return .none
 
         case .fetchEhProfileIndex:
@@ -198,6 +215,9 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
 
         case .account:
             return .none
+
+        case .general:
+            return .none
         }
     }
     .binding(),
@@ -209,6 +229,19 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
                 hapticClient: $0.hapticClient,
                 cookiesClient: $0.cookiesClient,
                 uiApplicationClient: $0.uiApplicationClient
+            )
+        }
+    ),
+    generalSettingReducer.pullback(
+        state: \.generalSettingState,
+        action: /SettingAction.general,
+        environment: {
+            .init(
+                loggerClient: $0.loggerClient,
+                libraryClient: $0.libraryClient,
+                databaseClient: $0.databaseClient,
+                uiApplicationClient: $0.uiApplicationClient,
+                authorizationClient: $0.authorizationClient
             )
         }
     )

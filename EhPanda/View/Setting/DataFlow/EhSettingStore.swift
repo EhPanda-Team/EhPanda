@@ -28,8 +28,8 @@ struct EhSettingState: Equatable {
 enum EhSettingAction: BindableAction {
     case binding(BindingAction<EhSettingState>)
     case setKeyboardHidden
-    case setWebViewSheet(Bool)
-    case setDeleteDialog(Bool)
+    case setWebViewSheetPresented(Bool)
+    case setDeleteDialogPresented(Bool)
     case setDefaultProfile(Int)
     case fetchEhSetting
     case fetchEhSettingDone(Result<EhSetting, AppError>)
@@ -53,11 +53,11 @@ let ehSettingReducer = Reducer<EhSettingState, EhSettingAction, EhSettingEnviron
     case .setKeyboardHidden:
         return environment.uiApplicationClient.hideKeyboard().fireAndForget()
 
-    case .setWebViewSheet(let isPresented):
+    case .setWebViewSheetPresented(let isPresented):
         state.webViewSheetPresented = isPresented
         return environment.hapticClient.generateFeedback(.light).fireAndForget()
 
-    case .setDeleteDialog(let isPresented):
+    case .setDeleteDialogPresented(let isPresented):
         state.deleteDialogPresented = isPresented
         return .none
 

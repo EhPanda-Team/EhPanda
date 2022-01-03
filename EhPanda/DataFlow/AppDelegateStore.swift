@@ -22,7 +22,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             cookiesClient: .live,
             databaseClient: .live,
             userDefaultsClient: .live,
-            uiApplicationClient: .live
+            uiApplicationClient: .live,
+            authorizationClient: .live
         )
     )
     lazy var viewStore = ViewStore(store.stateless)

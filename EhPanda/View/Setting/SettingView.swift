@@ -42,25 +42,37 @@ private extension SettingView {
     var navigationLinks: some View {
         ForEach(SettingRoute.allCases) { route in
             NavigationLink("", tag: route, selection: viewStore.binding(\.$route), destination: {
-                switch route {
-                case .account:
-                    AccountSettingView(
-                        store: store.scope(state: \.accountSettingState, action: SettingAction.account),
-                        galleryHost: viewStore.binding(\.setting.$galleryHost),
-                        showNewDawnGreeting: viewStore.binding(\.setting.$showNewDawnGreeting),
-                        bypassesSNIFiltering: viewStore.setting.bypassesSNIFiltering
-                    )
-                case .general:
-                    GeneralSettingView()
-                case .appearance:
-                    AppearanceSettingView()
-                case .reading:
-                    ReadingSettingView()
-                case .laboratory:
-                    LaboratorySettingView()
-                case .ehpanda:
-                    EhPandaView()
+                Group {
+                    switch route {
+                    case .account:
+                        AccountSettingView(
+                            store: store.scope(state: \.accountSettingState, action: SettingAction.account),
+                            galleryHost: viewStore.binding(\.setting.$galleryHost),
+                            showNewDawnGreeting: viewStore.binding(\.setting.$showNewDawnGreeting),
+                            bypassesSNIFiltering: viewStore.setting.bypassesSNIFiltering
+                        )
+                    case .general:
+                        GeneralSettingView(
+                            store: store.scope(state: \.generalSettingState, action: SettingAction.general),
+                            tagTranslatorLoadingState: viewStore.tagTranslatorLoadingState,
+                            tagTranslatorEmpty: viewStore.tagTranslator.contents.isEmpty,
+                            translatesTags: viewStore.binding(\.setting.$translatesTags),
+                            redirectsLinksToSelectedHost: viewStore.binding(\.setting.$redirectsLinksToSelectedHost),
+                            detectsLinksFromPasteboard: viewStore.binding(\.setting.$detectsLinksFromPasteboard),
+                            backgroundBlurRadius: viewStore.binding(\.setting.$backgroundBlurRadius),
+                            autoLockPolicy: viewStore.binding(\.setting.$autoLockPolicy)
+                        )
+                    case .appearance:
+                        AppearanceSettingView()
+                    case .reading:
+                        ReadingSettingView()
+                    case .laboratory:
+                        LaboratorySettingView()
+                    case .ehpanda:
+                        EhPandaView()
+                    }
                 }
+                .tint(viewStore.setting.accentColor)
             })
         }
     }
@@ -148,7 +160,8 @@ struct SettingView_Previews: PreviewProvider {
                     cookiesClient: .live,
                     databaseClient: .live,
                     userDefaultsClient: .live,
-                    uiApplicationClient: .live
+                    uiApplicationClient: .live,
+                    authorizationClient: .live
                 )
             )
         )

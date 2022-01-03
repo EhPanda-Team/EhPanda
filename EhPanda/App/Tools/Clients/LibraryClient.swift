@@ -5,6 +5,7 @@
 //  Created by 荒木辰造 on R 4/01/02.
 //
 
+import Combine
 import Foundation
 import Kingfisher
 import SwiftyBeaver
@@ -14,6 +15,7 @@ struct LibraryClient {
     let initializeLogger: () -> Effect<Never, Never>
     let initializeWebImage: () -> Effect<Never, Never>
     let clearWebImageDiskCache: () -> Effect<Never, Never>
+    let calculateWebImageDiskCacheSize: () -> Effect<Result<UInt, KingfisherError>, Never>
 }
 
 extension LibraryClient {
@@ -60,6 +62,10 @@ extension LibraryClient {
             .fireAndForget {
                 KingfisherManager.shared.cache.clearDiskCache()
             }
+        },
+        calculateWebImageDiskCacheSize: {
+            Future(KingfisherManager.shared.cache.calculateDiskStorageSize)
+                .eraseToAnyPublisher().catchToEffect()
         }
     )
 }

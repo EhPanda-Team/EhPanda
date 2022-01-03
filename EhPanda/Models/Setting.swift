@@ -15,10 +15,10 @@ struct Setting: Codable, Equatable {
     @BindableState var showNewDawnGreeting = false
 
     // General
-    var redirectsLinksToSelectedHost = false
-    var detectsLinksFromPasteboard = false
-    var backgroundBlurRadius: Double = 10
-    var autoLockPolicy: AutoLockPolicy = .never
+    @BindableState var redirectsLinksToSelectedHost = false
+    @BindableState var detectsLinksFromPasteboard = false
+    @BindableState var backgroundBlurRadius: Double = 10
+    @BindableState var autoLockPolicy: AutoLockPolicy = .never
 
     // Appearance
     var colorScheme: ColorScheme? {
@@ -31,18 +31,18 @@ struct Setting: Codable, Equatable {
             return nil
         }
     }
-    var listMode: ListMode = DeviceUtil.isPadWidth ? .thumbnail : .detail
-    var preferredColorScheme = PreferredColorScheme.automatic
-    var accentColor: Color = .blue
-    var appIconType: IconType = .default
-    var translatesTags = false
-    var showsSummaryRowTags = false
-    var summaryRowTagsMaximum = 0
+    @BindableState var listMode: ListMode = DeviceUtil.isPadWidth ? .thumbnail : .detail
+    @BindableState var preferredColorScheme = PreferredColorScheme.automatic
+    @BindableState var accentColor: Color = .blue
+    @BindableState var appIconType: IconType = .default
+    @BindableState var translatesTags = false
+    @BindableState var showsSummaryRowTags = false
+    @BindableState var summaryRowTagsMaximum = 0
 
     // Reading
-    var readingDirection: ReadingDirection = .vertical
-    var prefetchLimit = 10
-    var prefersLandscape = false {
+    @BindableState var readingDirection: ReadingDirection = .vertical
+    @BindableState var prefetchLimit = 10
+    @BindableState var prefersLandscape = false {
         didSet {
             if !prefersLandscape && !DeviceUtil.isPad {
                 AppDelegate.orientationLock = [
@@ -51,17 +51,17 @@ struct Setting: Codable, Equatable {
             }
         }
     }
-    var enablesDualPageMode = false
-    var exceptCover = false
-    var contentDividerHeight: Double = 0
-    var maximumScaleFactor: Double = 3 {
+    @BindableState var enablesDualPageMode = false
+    @BindableState var exceptCover = false
+    @BindableState var contentDividerHeight: Double = 0
+    @BindableState var maximumScaleFactor: Double = 3 {
         didSet {
             if doubleTapScaleFactor > maximumScaleFactor {
                 doubleTapScaleFactor = maximumScaleFactor
             }
         }
     }
-    var doubleTapScaleFactor: Double = 2 {
+    @BindableState var doubleTapScaleFactor: Double = 2 {
         didSet {
             if maximumScaleFactor < doubleTapScaleFactor {
                 maximumScaleFactor = doubleTapScaleFactor
@@ -70,7 +70,7 @@ struct Setting: Codable, Equatable {
     }
 
     // Laboratory
-    var bypassesSNIFiltering = false {
+    @BindableState var bypassesSNIFiltering = false {
         didSet {
             if bypassesSNIFiltering {
                 URLProtocol.registerClass(DFURLProtocol.self)

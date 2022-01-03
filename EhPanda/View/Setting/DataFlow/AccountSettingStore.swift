@@ -23,8 +23,8 @@ struct AccountSettingState: Equatable {
 enum AccountSettingAction: BindableAction {
     case binding(BindingAction<AccountSettingState>)
     case setRoute(AccountSettingRoute?)
-    case setWebViewSheet(Bool)
-    case setLogoutDialog(Bool)
+    case setWebViewSheetPresented(Bool)
+    case setLogoutDialogPresented(Bool)
     case setHUD(Bool, TTProgressHUDConfig)
     case refreshCookiesSection
 
@@ -49,11 +49,11 @@ let accountSettingReducer = Reducer<AccountSettingState, AccountSettingAction, A
             state.route = route
             return .none
 
-        case .setWebViewSheet(let isPresented):
+        case .setWebViewSheetPresented(let isPresented):
             state.webViewSheetPresented = isPresented
             return environment.hapticClient.generateFeedback(.light).fireAndForget()
 
-        case .setLogoutDialog(let isPresented):
+        case .setLogoutDialogPresented(let isPresented):
             state.logoutDialogPresented = isPresented
             return .none
 

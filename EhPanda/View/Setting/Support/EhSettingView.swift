@@ -62,7 +62,7 @@ struct EhSettingView: View {
                     ehSetting: ehSetting, ehProfile: ehProfile,
                     editingProfileName: viewStore.binding(\.$editingProfileName),
                     deleteDialogPresented: viewStore.binding(\.$deleteDialogPresented),
-                    deleteAction: { viewStore.send(.setDeleteDialog(true)) },
+                    deleteAction: { viewStore.send(.setDeleteDialogPresented(true)) },
                     performEhProfileAction: { viewStore.send(.performAction($0, $1, $2)) }
                 )
                 ImageLoadSettingsSection(ehSetting: ehSetting)
@@ -100,7 +100,7 @@ struct EhSettingView: View {
         Group {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button {
-                    viewStore.send(.setWebViewSheet(true))
+                    viewStore.send(.setWebViewSheetPresented(true))
                 } label: {
                     Image(systemSymbol: .globe)
                 }

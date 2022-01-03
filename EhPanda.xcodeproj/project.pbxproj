@@ -18,6 +18,8 @@
 		AB0929D02781E1CC00F107CA /* UIApplicationClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0929CF2781E1CC00F107CA /* UIApplicationClient.swift */; };
 		AB0929D22781E7D500F107CA /* LoggerClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0929D12781E7D500F107CA /* LoggerClient.swift */; };
 		AB0929D42781EDDC00F107CA /* UserDefaultsClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0929D32781EDDC00F107CA /* UserDefaultsClient.swift */; };
+		AB0929D62782A65F00F107CA /* GeneralSettingStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0929D52782A65F00F107CA /* GeneralSettingStore.swift */; };
+		AB0929D82782A83A00F107CA /* AuthorizationClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0929D72782A83A00F107CA /* AuthorizationClient.swift */; };
 		AB0ABCB526C5406400AD970F /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0ABCB426C5406400AD970F /* LoginView.swift */; };
 		AB0ABCB726C541A400AD970F /* WaveForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0ABCB626C541A400AD970F /* WaveForm.swift */; };
 		AB0F68AF26A6D92F00AC3A54 /* DeprecatedAPI in Frameworks */ = {isa = PBXBuildFile; productRef = AB0F68AE26A6D92F00AC3A54 /* DeprecatedAPI */; };
@@ -193,6 +195,8 @@
 		AB0929CF2781E1CC00F107CA /* UIApplicationClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIApplicationClient.swift; sourceTree = "<group>"; };
 		AB0929D12781E7D500F107CA /* LoggerClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoggerClient.swift; sourceTree = "<group>"; };
 		AB0929D32781EDDC00F107CA /* UserDefaultsClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsClient.swift; sourceTree = "<group>"; };
+		AB0929D52782A65F00F107CA /* GeneralSettingStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneralSettingStore.swift; sourceTree = "<group>"; };
+		AB0929D72782A83A00F107CA /* AuthorizationClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthorizationClient.swift; sourceTree = "<group>"; };
 		AB0ABCB426C5406400AD970F /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		AB0ABCB626C541A400AD970F /* WaveForm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaveForm.swift; sourceTree = "<group>"; };
 		AB10117D26986B7D00C2C1A9 /* GalleryStateMO+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GalleryStateMO+CoreDataProperties.swift"; sourceTree = "<group>"; };
@@ -374,6 +378,7 @@
 			children = (
 				ABD49D69277EEF73003D1A07 /* SettingStore.swift */,
 				AB0929B5277F043D00F107CA /* AccountSettingStore.swift */,
+				AB0929D52782A65F00F107CA /* GeneralSettingStore.swift */,
 				AB0929BD2780032400F107CA /* EhSettingStore.swift */,
 				AB0929BF27805A8200F107CA /* LoginStore.swift */,
 			);
@@ -391,6 +396,7 @@
 				AB0929CD2781AADA00F107CA /* DatabaseClient.swift */,
 				AB0929D32781EDDC00F107CA /* UserDefaultsClient.swift */,
 				AB0929CF2781E1CC00F107CA /* UIApplicationClient.swift */,
+				AB0929D72782A83A00F107CA /* AuthorizationClient.swift */,
 			);
 			path = Clients;
 			sourceTree = "<group>";
@@ -1038,6 +1044,7 @@
 				ABCA93BE26918DE100A98BC6 /* Persistence.swift in Sources */,
 				AB0929BE2780032400F107CA /* EhSettingStore.swift in Sources */,
 				AB0929D42781EDDC00F107CA /* UserDefaultsClient.swift in Sources */,
+				AB0929D82782A83A00F107CA /* AuthorizationClient.swift in Sources */,
 				ABF45AEF25F3313D00ECB568 /* TorrentsView.swift in Sources */,
 				AB60D0EB274CFB6D00F899AB /* SuggestionProvider.swift in Sources */,
 				AB3072D4276E19AA00EFF242 /* FrontpageView.swift in Sources */,
@@ -1086,6 +1093,7 @@
 				ABF45AE225F3313D00ECB568 /* AuthView.swift in Sources */,
 				ABF45ABC25F3312F00ECB568 /* AppAction.swift in Sources */,
 				AB0ABCB726C541A400AD970F /* WaveForm.swift in Sources */,
+				AB0929D62782A65F00F107CA /* GeneralSettingStore.swift in Sources */,
 				ABBCCC9026C95F6E007D8A36 /* GalleryInfosView.swift in Sources */,
 				ABF45AF525F3313D00ECB568 /* ReadingSettingView.swift in Sources */,
 				AB38A0CB25CA993D00764D64 /* ColorCodable.swift in Sources */,
