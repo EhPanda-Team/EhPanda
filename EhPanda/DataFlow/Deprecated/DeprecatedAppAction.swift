@@ -15,7 +15,7 @@ enum DeprecatedAppAction {
     case resetHomeInfo
     case resetFilter(range: FilterRange)
     case setReadingProgress(gid: String, tag: Int)
-    case setAppIconType(_ iconType: IconType)
+    case setAppIconType(_ iconType: AppIconType)
     case appendHistoryKeywords(texts: [String])
     case removeHistoryKeyword(text: String)
     case clearHistoryKeywords

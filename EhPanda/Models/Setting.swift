@@ -21,20 +21,10 @@ struct Setting: Codable, Equatable {
     @BindableState var autoLockPolicy: AutoLockPolicy = .never
 
     // Appearance
-    var colorScheme: ColorScheme? {
-        switch preferredColorScheme {
-        case .light:
-            return .light
-        case .dark:
-            return .dark
-        default:
-            return nil
-        }
-    }
     @BindableState var listMode: ListMode = DeviceUtil.isPadWidth ? .thumbnail : .detail
     @BindableState var preferredColorScheme = PreferredColorScheme.automatic
     @BindableState var accentColor: Color = .blue
-    @BindableState var appIconType: IconType = .default
+    @BindableState var appIconType: AppIconType = .default
     @BindableState var translatesTags = false
     @BindableState var showsSummaryRowTags = false
     @BindableState var summaryRowTagsMaximum = 0
@@ -136,6 +126,17 @@ enum PreferredColorScheme: String, Codable, CaseIterable, Identifiable {
     case automatic = "Automatic"
     case light = "Light"
     case dark = "Dark"
+
+    var userInterfaceStyle: UIUserInterfaceStyle {
+        switch self {
+        case .automatic:
+            return .unspecified
+        case .light:
+            return .light
+        case .dark:
+            return .dark
+        }
+    }
 }
 
 enum ReadingDirection: String, Codable, CaseIterable, Identifiable {
@@ -170,7 +171,7 @@ extension Setting {
         listMode = try container.decodeIfPresent(ListMode.self, forKey: .listMode) ?? (DeviceUtil.isPadWidth ? .thumbnail : .detail)
         preferredColorScheme = try container.decodeIfPresent(PreferredColorScheme.self, forKey: .preferredColorScheme) ?? .automatic
         accentColor = try container.decodeIfPresent(Color.self, forKey: .accentColor) ?? .blue
-        appIconType = try container.decodeIfPresent(IconType.self, forKey: .appIconType) ?? .default
+        appIconType = try container.decodeIfPresent(AppIconType.self, forKey: .appIconType) ?? .default
         translatesTags = try container.decodeIfPresent(Bool.self, forKey: .translatesTags) ?? false
         showsSummaryRowTags = try container.decodeIfPresent(Bool.self, forKey: .showsSummaryRowTags) ?? false
         summaryRowTagsMaximum = try container.decodeIfPresent(Int.self, forKey: .summaryRowTagsMaximum) ?? 0

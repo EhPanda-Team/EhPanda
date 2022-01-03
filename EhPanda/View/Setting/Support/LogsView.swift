@@ -59,11 +59,7 @@ struct LogsView: View {
             }
         }
     }
-}
-
-// MARK: NavigationLinks
-private extension LogsView {
-    var navigationLinks: some View {
+    private var navigationLinks: some View {
         ForEach(viewStore.logs) { log in
             NavigationLink("", tag: log.id, selection: viewStore.binding(\.$logIdentifier)) {
                 LogView(log: log)

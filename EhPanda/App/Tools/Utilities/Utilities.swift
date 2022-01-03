@@ -122,6 +122,11 @@ struct DeviceUtil {
             .compactMap({ $0 as? UIWindowScene }).last?
             .windows.filter({ $0.isKeyWindow }).last
     }
+    static var anyWindow: UIWindow? {
+        UIApplication.shared.connectedScenes
+            .compactMap({ $0 as? UIWindowScene }).last?
+            .windows.last
+    }
 
     static var isLandscape: Bool {
         [.landscapeLeft, .landscapeRight]

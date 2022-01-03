@@ -69,7 +69,7 @@ extension StoreAccessor {
     var accentColor: Color {
         setting.accentColor
     }
-    var appIconType: IconType {
+    var appIconType: AppIconType {
         setting.appIconType
     }
     var backgroundBlurRadius: Double {

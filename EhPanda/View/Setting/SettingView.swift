@@ -63,7 +63,15 @@ private extension SettingView {
                             autoLockPolicy: viewStore.binding(\.setting.$autoLockPolicy)
                         )
                     case .appearance:
-                        AppearanceSettingView()
+                        AppearanceSettingView(
+                            store: store.scope(state: \.appearanceSettingState, action: SettingAction.appearance),
+                            preferredColorScheme: viewStore.binding(\.setting.$preferredColorScheme),
+                            accentColor: viewStore.binding(\.setting.$accentColor),
+                            appIconType: viewStore.binding(\.setting.$appIconType),
+                            listMode: viewStore.binding(\.setting.$listMode),
+                            showsSummaryRowTags: viewStore.binding(\.setting.$showsSummaryRowTags),
+                            summaryRowTagsMaximum: viewStore.binding(\.setting.$summaryRowTagsMaximum)
+                        )
                     case .reading:
                         ReadingSettingView()
                     case .laboratory:

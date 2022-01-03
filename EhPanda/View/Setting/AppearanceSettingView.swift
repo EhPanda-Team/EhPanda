@@ -6,28 +6,33 @@
 //
 
 import SwiftUI
+import SFSafeSymbols
+import ComposableArchitecture
 
-struct AppearanceSettingView: View, StoreAccessor {
-    @EnvironmentObject var store: DeprecatedStore
-    @State private var isNavLinkActive = false
+struct AppearanceSettingView: View {
+    private let store: Store<AppearanceSettingState, AppearanceSettingAction>
+    @ObservedObject private var viewStore: ViewStore<AppearanceSettingState, AppearanceSettingAction>
+    @Binding private var preferredColorScheme: PreferredColorScheme
+    @Binding private var accentColor: Color
+    @Binding private var appIconType: AppIconType
+    @Binding private var listMode: ListMode
+    @Binding private var showsSummaryRowTags: Bool
+    @Binding private var summaryRowTagsMaximum: Int
 
-    private var settingBinding: Binding<Setting> {
-        $store.appState.settings.setting
-    }
-    private var selectedIcon: IconType {
-        store.appState.settings.setting.appIconType
-    }
-    private var iconType: IconType {
-        var alterName: String?
-        AppUtil.dispatchMainSync {
-            alterName = UIApplication.shared.alternateIconName
-        }
-
-        guard let iconName = alterName,
-              let selection = IconType.allCases.filter({
-                  iconName.contains($0.fileName ?? "")
-              }).first else { return .default }
-        return selection
+    init(
+        store: Store<AppearanceSettingState, AppearanceSettingAction>,
+        preferredColorScheme: Binding<PreferredColorScheme>, accentColor: Binding<Color>,
+        appIconType: Binding<AppIconType>, listMode: Binding<ListMode>,
+        showsSummaryRowTags: Binding<Bool>, summaryRowTagsMaximum: Binding<Int>
+    ) {
+        self.store = store
+        viewStore = ViewStore(store)
+        _preferredColorScheme = preferredColorScheme
+        _accentColor = accentColor
+        _appIconType = appIconType
+        _listMode = listMode
+        _showsSummaryRowTags = showsSummaryRowTags
+        _summaryRowTagsMaximum = summaryRowTagsMaximum
     }
 
     var body: some View {
@@ -37,8 +42,8 @@ struct AppearanceSettingView: View, StoreAccessor {
                     Text("Theme")
                     Spacer()
                     Picker(
-                        selection: settingBinding.preferredColorScheme,
-                        label: Text(setting.preferredColorScheme.rawValue.localized),
+                        selection: $preferredColorScheme,
+                        label: Text(preferredColorScheme.rawValue.localized),
                         content: {
                             ForEach(PreferredColorScheme.allCases) { colorScheme in
                                 Text(colorScheme.rawValue.localized).tag(colorScheme)
@@ -47,9 +52,9 @@ struct AppearanceSettingView: View, StoreAccessor {
                     )
                 }
                 .pickerStyle(.menu)
-                ColorPicker("Tint Color", selection: settingBinding.accentColor)
+                ColorPicker("Tint Color", selection: $accentColor)
                 Button("App Icon") {
-                    isNavLinkActive.toggle()
+                    viewStore.send(.setRoute(.appIcon))
                 }
                 .foregroundStyle(.primary).withArrow()
             }
@@ -58,8 +63,8 @@ struct AppearanceSettingView: View, StoreAccessor {
                     Text("Display mode")
                     Spacer()
                     Picker(
-                        selection: settingBinding.listMode,
-                        label: Text(setting.listMode.rawValue.localized),
+                        selection: $listMode,
+                        label: Text(listMode.rawValue.localized),
                         content: {
                             ForEach(ListMode.allCases) { listMode in
                                 Text(listMode.rawValue.localized).tag(listMode)
@@ -68,15 +73,15 @@ struct AppearanceSettingView: View, StoreAccessor {
                     )
                 }
                 .pickerStyle(.menu)
-                Toggle(isOn: settingBinding.showsSummaryRowTags) {
+                Toggle(isOn: $showsSummaryRowTags) {
                     Text("Shows tags in list")
                 }
                 HStack {
                     Text("Maximum number of tags")
                     Spacer()
                     Picker(
-                        selection: settingBinding.summaryRowTagsMaximum,
-                        label: Text("\(setting.summaryRowTagsMaximum)")
+                        selection: $summaryRowTagsMaximum,
+                        label: Text("\(summaryRowTagsMaximum)")
                     ) {
                         Text("Infinity").tag(0)
                         ForEach(Array(stride(from: 5, through: 20, by: 5)), id: \.self) { num in
@@ -85,56 +90,47 @@ struct AppearanceSettingView: View, StoreAccessor {
                     }
                     .pickerStyle(.menu)
                 }
-                .disabled(!setting.showsSummaryRowTags)
+                .disabled(!showsSummaryRowTags)
             }
         }
-        .background {
-            NavigationLink(
-                destination: SelectAppIconView(selectedIcon: selectedIcon) {
-                    store.dispatch(.setAppIconType(iconType))
-                },
-                isActive: $isNavLinkActive, label: {}
-            )
-        }
+        .background(navigationLinks)
         .navigationBarTitle("Appearance")
+    }
+    private var navigationLinks: some View {
+        ForEach(AppearanceSettingRoute.allCases) { route in
+            NavigationLink("", tag: route, selection: viewStore.binding(\.$route)) {
+                switch route {
+                case .appIcon:
+                    AppIconView(appIconType: $appIconType)
+                }
+            }
+        }
     }
 }
 
 // MARK: SelectAppIconView
-private struct SelectAppIconView: View {
-    private let selectedIcon: IconType
-    private let selectAction: () -> Void
+private struct AppIconView: View {
+    @Binding private var appIconType: AppIconType
 
-    init(selectedIcon: IconType, selectAction: @escaping () -> Void) {
-        self.selectedIcon = selectedIcon
-        self.selectAction = selectAction
+    init(appIconType: Binding<AppIconType>) {
+        _appIconType = appIconType
     }
 
     var body: some View {
         Form {
             Section {
-                ForEach(IconType.allCases) { icon in
+                ForEach(AppIconType.allCases) { icon in
                     AppIconRow(
                         iconName: icon.iconName,
                         iconDesc: icon.rawValue,
-                        isSelected: icon == selectedIcon
+                        isSelected: icon == appIconType
                     )
                     .contentShape(Rectangle())
-                    .onTapGesture { setIcon(icon) }
+                    .onTapGesture { appIconType = icon }
                 }
             }
         }
-        .onAppear(perform: selectAction)
-    }
-
-    private func setIcon(_ icon: IconType) {
-        UIApplication.shared.setAlternateIconName(icon.fileName) { error in
-            if let error = error {
-                HapticUtil.generateNotificationFeedback(style: .error)
-                Logger.error(error)
-            }
-            selectAction()
-        }
+        .navigationTitle("App Icon")
     }
 }
 
@@ -152,19 +148,25 @@ private struct AppIconRow: View {
 
     var body: some View {
         HStack {
-            Image(iconName).resizable().scaledToFit()
-                .frame(width: 60, height: 60).cornerRadius(12)
+            Image(uiImage: .init(named: iconName, in: .main, with: nil) ?? .init())
+                .resizable().scaledToFit().frame(width: 60, height: 60).cornerRadius(12)
                 .padding(.vertical, 10).padding(.trailing, 20)
             Text(iconDesc.localized)
             Spacer()
-            Image(systemName: "checkmark.circle.fill")
+            Image(systemSymbol: .checkmarkCircleFill)
                 .opacity(isSelected ? 1 : 0).foregroundStyle(.tint).imageScale(.large)
         }
     }
 }
 
 // MARK: Definition
-enum IconType: String, Codable, Identifiable, CaseIterable {
+enum AppearanceSettingRoute: Int, Hashable, Identifiable, CaseIterable {
+    var id: Int { rawValue }
+
+    case appIcon
+}
+
+enum AppIconType: String, Codable, Identifiable, CaseIterable {
     var id: Int { hashValue }
 
     case normal = "Normal"
@@ -172,7 +174,7 @@ enum IconType: String, Codable, Identifiable, CaseIterable {
     case weird = "Weird"
 }
 
-extension IconType {
+extension AppIconType {
     var iconName: String {
         switch self {
         case .normal:
@@ -181,14 +183,6 @@ extension IconType {
             return "AppIcon_Default"
         case .weird:
             return "AppIcon_Weird"
-        }
-    }
-    var fileName: String? {
-        switch self {
-        case .default:
-            return nil
-        default:
-            return rawValue
         }
     }
 }

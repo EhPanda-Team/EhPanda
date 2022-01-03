@@ -24,10 +24,14 @@ struct SettingState: Equatable {
 
     var accountSettingState = AccountSettingState()
     var generalSettingState = GeneralSettingState()
+    var appearanceSettingState = AppearanceSettingState()
 }
 
 enum SettingAction: BindableAction {
     case binding(BindingAction<SettingState>)
+
+    case syncAppIconType
+    case syncUserInterfaceStyle
 
     case didFinishLaunching
     case createDefaultEhProfile
@@ -45,6 +49,7 @@ enum SettingAction: BindableAction {
 
     case account(AccountSettingAction)
     case general(GeneralSettingAction)
+    case appearance(AppearanceSettingAction)
 }
 
 struct SettingEnvironment {
@@ -72,11 +77,34 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
         case .binding(\.setting.$translatesTags):
             return state.setting.translatesTags ? .init(value: .fetchTagTranslator) : .none
 
+        case .binding(\.setting.$preferredColorScheme):
+            return .init(value: .syncUserInterfaceStyle)
+
+        case .binding(\.setting.$appIconType):
+            return environment.uiApplicationClient.setAlternateIconName(state.setting.appIconType.iconName)
+                .map { _ in SettingAction.syncAppIconType }
+
         case .binding:
             return .none
 
+        case .syncAppIconType:
+            if let iconName = environment.uiApplicationClient.alternateIconName() {
+                state.setting.appIconType = AppIconType.allCases.filter({
+                    iconName.contains($0.iconName)
+                }).first ?? .default
+            }
+            return .none
+
+        case .syncUserInterfaceStyle:
+            let style = state.setting.preferredColorScheme.userInterfaceStyle
+            return environment.uiApplicationClient.setUserInterfaceStyle(style)
+                .subscribe(on: DispatchQueue.main).fireAndForget()
+
         case .didFinishLaunching:
-            var effects = [Effect<SettingAction, Never>]()
+            var effects: [Effect<SettingAction, Never>] = [
+                .init(value: .syncAppIconType),
+                .init(value: .syncUserInterfaceStyle)
+            ]
 
             if let value = environment.userDefaultsClient
                 .getString(AppUserDefaults.galleryHost.rawValue),
@@ -98,7 +126,7 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
                 effects.append(.init(value: .fetchTagTranslator))
             }
 
-            return effects.isEmpty ? .none : .merge(effects)
+            return .merge(effects)
 
         case .createDefaultEhProfile:
             return EhProfileRequest(action: .create, name: "EhPanda").effect.fireAndForget()
@@ -219,6 +247,9 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
 
         case .general:
             return .none
+
+        case .appearance:
+            return .none
         }
     }
     .binding(),
@@ -245,6 +276,13 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
                 uiApplicationClient: $0.uiApplicationClient,
                 authorizationClient: $0.authorizationClient
             )
+        }
+    ),
+    appearanceSettingReducer.pullback(
+        state: \.appearanceSettingState,
+        action: /SettingAction.appearance,
+        environment: { _ in
+            .init()
         }
     )
 )

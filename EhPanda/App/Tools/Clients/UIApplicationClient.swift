@@ -6,11 +6,15 @@
 //
 
 import SwiftUI
+import Combine
 import ComposableArchitecture
 
 struct UIApplicationClient {
     let openURL: (URL) -> Effect<Never, Never>
     let hideKeyboard: () -> Effect<Never, Never>
+    let alternateIconName: () -> String?
+    let setAlternateIconName: (String?) -> Effect<Result<Bool, Never>, Never>
+    let setUserInterfaceStyle: (UIUserInterfaceStyle) -> Effect<Never, Never>
 }
 
 extension UIApplicationClient {
@@ -23,6 +27,27 @@ extension UIApplicationClient {
         hideKeyboard: {
             .fireAndForget {
                 UIApplication.shared.endEditing()
+            }
+        },
+        alternateIconName: {
+            UIApplication.shared.alternateIconName
+        },
+        setAlternateIconName: { iconName in
+            Future { promise in
+                UIApplication.shared.setAlternateIconName(iconName) { error in
+                    if let error = error {
+                        promise(.success(false))
+                    } else {
+                        promise(.success(true))
+                    }
+                }
+            }
+            .eraseToAnyPublisher()
+            .catchToEffect()
+        },
+        setUserInterfaceStyle: { userInterfaceStyle in
+            .fireAndForget {
+                DeviceUtil.anyWindow?.overrideUserInterfaceStyle = userInterfaceStyle
             }
         }
     )
