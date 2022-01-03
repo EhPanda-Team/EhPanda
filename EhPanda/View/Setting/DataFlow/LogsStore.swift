@@ -8,10 +8,13 @@
 import ComposableArchitecture
 
 struct LogsState: Equatable {
+    @BindableState var logIdentifier: String?
     var logs = [Log]()
 }
 
-enum LogsAction {
+enum LogsAction: BindableAction {
+    case binding(BindingAction<LogsState>)
+    case navigateToLog(String)
     case fetchLogs
     case fetchLogsDone(Result<[Log], AppError>)
     case deleteLog(String)
@@ -26,6 +29,13 @@ struct LogsEnvironment {
 
 let logsReducer = Reducer<LogsState, LogsAction, LogsEnvironment> { state, action, environment in
     switch action {
+    case .binding:
+        return .none
+
+    case .navigateToLog(let identifier):
+        state.logIdentifier = identifier
+        return .none
+
     case .fetchLogs:
         return environment.fileClient.fetchLogs().map(LogsAction.fetchLogsDone)
 
@@ -48,3 +58,4 @@ let logsReducer = Reducer<LogsState, LogsAction, LogsEnvironment> { state, actio
         return environment.uiApplicationClient.openFileApp().fireAndForget()
     }
 }
+.binding()

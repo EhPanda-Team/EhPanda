@@ -21,10 +21,13 @@ struct LogsView: View {
     var body: some View {
         ZStack {
             List(viewStore.logs) { log in
-                NavigationLink(destination: LogView(log: log)) {
+                Button {
+                    viewStore.send(.navigateToLog(log.id))
+                } label: {
                     LogCell(log: log, isLatest: log == viewStore.logs.first)
                 }
                 .swipeActions { swipeActions(log: log) }
+                .foregroundColor(.primary)
             }
             ErrorView(error: .notFound, retryAction: nil)
                 .opacity(viewStore.logs.isEmpty ? 1 : 0)
@@ -35,6 +38,7 @@ struct LogsView: View {
             }
         }
         .toolbar(content: toolbar)
+        .background(navigationLinks)
         .navigationBarTitle("Logs")
     }
 
@@ -52,6 +56,17 @@ struct LogsView: View {
                 viewStore.send(.navigateToFileApp)
             } label: {
                 Image(systemSymbol: .folderBadgeGearshape)
+            }
+        }
+    }
+}
+
+// MARK: NavigationLinks
+private extension LogsView {
+    var navigationLinks: some View {
+        ForEach(viewStore.logs) { log in
+            NavigationLink("", tag: log.id, selection: viewStore.binding(\.$logIdentifier)) {
+                LogView(log: log)
             }
         }
     }
@@ -130,6 +145,11 @@ private struct LogView: View {
         }
         .navigationBarTitle(log.fileName, displayMode: .inline)
     }
+}
+
+// MARK: Definition
+enum LogsRoute: Equatable {
+    case log(String)
 }
 
 struct LogsView_Previews: PreviewProvider {
