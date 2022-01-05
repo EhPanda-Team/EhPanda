@@ -5,17 +5,21 @@
 //  Created by 荒木辰造 on R 3/12/25.
 //
 
+import SwiftUI
 import ComposableArchitecture
 
 struct AppState: Equatable {
+    var appLockState = AppLockState()
     var tabBarState = TabBarState()
     var favoritesState = FavoritesState()
     var settingState = SettingState()
 }
 
-enum AppAction {
+enum AppAction: BindableAction {
+    case binding(BindingAction<AppState>)
+    case onScenePhaseChange(ScenePhase)
+    case appLock(AppLockAction)
     case appDelegate(AppDelegateAction)
-    case tabBar(TabBarAction)
     case favorites(FavoritesAction)
     case setting(SettingAction)
 }
@@ -35,8 +39,57 @@ struct AppEnvironment {
 }
 
 let appReducer = Reducer<AppState, AppAction, AppEnvironment>.combine(
+    .init { state, action, _ in
+        switch action {
+        case .binding:
+            return .none
+
+        case .onScenePhaseChange(let scenePhase):
+            switch scenePhase {
+            case .active:
+                guard let date = state.appLockState.becomeInactiveDate else { return .none }
+                let threshold: Int = state.settingState.setting.autoLockPolicy.rawValue
+                if threshold >= 0, Date().timeIntervalSince(date) > Double(threshold) {
+                    let radius = state.settingState.setting.backgroundBlurRadius
+                    state.appLockState.setBlurRadius(radius)
+                    state.appLockState.isAppLocked = true
+                    return .init(value: .appLock(.authorize))
+                } else {
+                    state.appLockState.setBlurRadius(0)
+                }
+            case .inactive:
+                let radius = state.settingState.setting.backgroundBlurRadius
+                state.appLockState.setBlurRadius(radius)
+                state.appLockState.becomeInactiveDate = Date()
+            default:
+                break
+            }
+            return .none
+
+        case .appLock:
+            return .none
+
+        case .appDelegate:
+            return .none
+
+        case .favorites:
+            return .none
+
+        case .setting:
+            return .none
+        }
+    }.binding(),
+    appLockReducer.pullback(
+        state: \.appLockState,
+        action: /AppAction.appLock,
+        environment: {
+            .init(
+                authorizationClient: $0.authorizationClient
+            )
+        }
+    ),
     appDelegateReducer.pullback(
-        state: \.settingState.setting.bypassesSNIFiltering,
+        state: \.self,
         action: /AppAction.appDelegate,
         environment: {
             .init(
@@ -45,11 +98,6 @@ let appReducer = Reducer<AppState, AppAction, AppEnvironment>.combine(
                 cookiesClient: $0.cookiesClient
             )
         }
-    ),
-    tabBarReducer.pullback(
-        state: \.tabBarState,
-        action: /AppAction.tabBar,
-        environment: { _ in AnyEnvironment() }
     ),
     favoritesReducer.pullback(
         state: \.favoritesState,

@@ -13,11 +13,13 @@ struct EhSettingView: View {
     private let store: Store<EhSettingState, EhSettingAction>
     @ObservedObject private var viewStore: ViewStore<EhSettingState, EhSettingAction>
     private let bypassesSNIFiltering: Bool
+    private let blurRadius: Double
 
-    init(store: Store<EhSettingState, EhSettingAction>, bypassesSNIFiltering: Bool) {
+    init(store: Store<EhSettingState, EhSettingAction>, bypassesSNIFiltering: Bool, blurRadius: Double) {
         self.store = store
         viewStore = ViewStore(store)
         self.bypassesSNIFiltering = bypassesSNIFiltering
+        self.blurRadius = blurRadius
     }
 
     private var title: String {
@@ -49,8 +51,8 @@ struct EhSettingView: View {
         }
         .sheet(isPresented: viewStore.binding(\.$webViewSheetPresented)) {
             WebView(url: Defaults.URL.uConfig)
-//                    .blur(radius: environment.blurRadius)
-//                    .allowsHitTesting(environment.isAppUnlocked)
+                .blur(radius: blurRadius).allowsHitTesting(blurRadius < 1)
+                .animation(.linear(duration: 0.1), value: blurRadius)
         }
         .toolbar(content: toolbar).navigationTitle(title)
     }
@@ -1077,7 +1079,8 @@ struct EhSettingView_Previews: PreviewProvider {
                         uiApplicationClient: .live
                     )
                 ),
-                bypassesSNIFiltering: false
+                bypassesSNIFiltering: false,
+                blurRadius: 0
             )
         }
         .navigationViewStyle(.stack)

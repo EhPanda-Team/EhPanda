@@ -87,6 +87,12 @@ struct FavoritesEnvironment {
 // MARK: Reducer
 let favoritesReducer = Reducer<FavoritesState, FavoritesAction, FavoritesEnvironment> { state, action, environment in
     switch action {
+    case .binding(\.$jumpPageAlertPresented):
+        if !state.jumpPageAlertPresented {
+            state.jumpPageAlertFocused = false
+        }
+        return .none
+
     case .binding:
         return .none
 

@@ -33,7 +33,7 @@ enum SettingAction: BindableAction {
     case syncAppIconType
     case syncUserInterfaceStyle
 
-    case didFinishLaunching
+    case onLaunchFinish
     case createDefaultEhProfile
     case fetchIgneous
     case fetchUserInfo
@@ -107,7 +107,7 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
             return environment.uiApplicationClient.setUserInterfaceStyle(style)
                 .subscribe(on: DispatchQueue.main).fireAndForget()
 
-        case .didFinishLaunching:
+        case .onLaunchFinish:
             var effects: [Effect<SettingAction, Never>] = [
                 .init(value: .syncAppIconType),
                 .init(value: .syncUserInterfaceStyle)

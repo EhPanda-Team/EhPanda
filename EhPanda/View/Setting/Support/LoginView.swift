@@ -13,13 +13,15 @@ struct LoginView: View {
     private let store: Store<LoginState, LoginAction>
     @ObservedObject private var viewStore: ViewStore<LoginState, LoginAction>
     private let bypassesSNIFiltering: Bool
+    private let blurRadius: Double
 
     @FocusState private var focusedField: LoginFocusedField?
 
-    init(store: Store<LoginState, LoginAction>, bypassesSNIFiltering: Bool) {
+    init(store: Store<LoginState, LoginAction>, bypassesSNIFiltering: Bool, blurRadius: Double) {
         self.store = store
         viewStore = ViewStore(store)
         self.bypassesSNIFiltering = bypassesSNIFiltering
+        self.blurRadius = blurRadius
     }
 
     // MARK: LoginView
@@ -59,8 +61,8 @@ struct LoginView: View {
             WebView(url: Defaults.URL.webLogin) {
                 viewStore.send(.loginDone)
             }
-//                    .blur(radius: environment.blurRadius)
-//                    .allowsHitTesting(environment.isAppUnlocked)
+            .blur(radius: blurRadius).allowsHitTesting(blurRadius < 1)
+            .animation(.linear(duration: 0.1), value: blurRadius)
         }
         .onSubmit { viewStore.send(.textFieldSubmitted) }
         .toolbar(content: toolbar)
@@ -138,7 +140,8 @@ struct LoginView_Previews: PreviewProvider {
                         cookiesClient: .live
                     )
                 ),
-                bypassesSNIFiltering: false
+                bypassesSNIFiltering: false,
+                blurRadius: 0
             )
         }
     }

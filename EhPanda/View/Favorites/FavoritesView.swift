@@ -74,17 +74,15 @@ struct FavoritesView: View {
             .onSubmit(of: .search) {
                 viewStore.send(.fetchGalleries())
             }
-            .onChange(of: alertManager.isPresented) { _ in
-                viewStore.send(.setJumpPageAlertFocused(false))
-            }
             .synchronize(
                 viewStore.binding(\.$jumpPageAlertFocused),
                 $jumpPageAlertFocused
             )
             .synchronize(
                 viewStore.binding(\.$jumpPageAlertPresented),
-                $alertManager.isPresented, animated: true
+                $alertManager.isPresented
             )
+            .animation(.default, value: alertManager.isPresented)
             .onAppear {
                 if viewStore.galleries?.isEmpty != false {
                     viewStore.send(.fetchGalleries())

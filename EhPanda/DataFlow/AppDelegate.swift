@@ -40,14 +40,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         _ application: UIApplication, didFinishLaunchingWithOptions
         launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
-        viewStore.send(.appDelegate(.didFinishLaunching))
-        viewStore.send(.setting(.didFinishLaunching))
+        viewStore.send(.appDelegate(.onLaunchFinish))
+        viewStore.send(.setting(.onLaunchFinish))
         return true
     }
 }
 
 enum AppDelegateAction {
-    case didFinishLaunching
+    case onLaunchFinish
 }
 
 struct AppDelegateEnvironment {
@@ -56,13 +56,15 @@ struct AppDelegateEnvironment {
     let cookiesClient: CookiesClient
 }
 
-let appDelegateReducer = Reducer<Bool, AppDelegateAction, AppDelegateEnvironment> { state, action, environment in
+let appDelegateReducer = Reducer<AppState, AppDelegateAction, AppDelegateEnvironment> { state, action, environment in
     switch action {
-    case .didFinishLaunching:
+    case .onLaunchFinish:
+        let bypassesSNIFiltering = state.settingState.setting.bypassesSNIFiltering
+        state.appLockState.becomeInactiveDate = .distantPast
         return .merge(
             environment.libraryClient.initializeLogger().fireAndForget(),
             environment.libraryClient.initializeWebImage().fireAndForget(),
-            environment.dfClient.setActive(state).fireAndForget(),
+            environment.dfClient.setActive(bypassesSNIFiltering).fireAndForget(),
             environment.cookiesClient.removeYay().fireAndForget(),
             environment.cookiesClient.ignoreOffensive().fireAndForget(),
             environment.cookiesClient.fulfillAnotherHostField().fireAndForget()

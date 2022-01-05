@@ -30,44 +30,24 @@ extension View {
         }
     }
 
-    func synchronize<Value: Equatable>(
-        _ first: Binding<Value>, _ second: Binding<Value>, animated: Bool = false
-    ) -> some View {
-      self
-        .onChange(of: first.wrappedValue) { newValue in
-            if animated {
-                withAnimation { second.wrappedValue = newValue }
-            } else {
+    func synchronize<Value: Equatable>(_ first: Binding<Value>, _ second: Binding<Value>) -> some View {
+        self
+            .onChange(of: first.wrappedValue) { newValue in
                 second.wrappedValue = newValue
             }
-        }
-        .onChange(of: second.wrappedValue) { newValue in
-            if animated {
-                withAnimation { first.wrappedValue = newValue }
-            } else {
+            .onChange(of: second.wrappedValue) { newValue in
                 first.wrappedValue = newValue
             }
-        }
     }
-    func synchronize<Value: Equatable>(
-        _ first: Binding<Value>, _ second: FocusState<Value>.Binding, animated: Bool = false
-    ) -> some View {
+    func synchronize<Value: Equatable>(_ first: Binding<Value>, _ second: FocusState<Value>.Binding) -> some View {
         self
-          .onChange(of: first.wrappedValue) { newValue in
-              if animated {
-                  withAnimation { second.wrappedValue = newValue }
-              } else {
-                  second.wrappedValue = newValue
-              }
-          }
-          .onChange(of: second.wrappedValue) { newValue in
-              if animated {
-                  withAnimation { first.wrappedValue = newValue }
-              } else {
-                  first.wrappedValue = newValue
-              }
-          }
-      }
+            .onChange(of: first.wrappedValue) { newValue in
+                second.wrappedValue = newValue
+            }
+            .onChange(of: second.wrappedValue) { newValue in
+                first.wrappedValue = newValue
+            }
+    }
 }
 
 struct PlainLinearProgressViewStyle: ProgressViewStyle {

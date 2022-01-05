@@ -12,10 +12,12 @@ import ComposableArchitecture
 struct SettingView: View {
     private let store: Store<SettingState, SettingAction>
     @ObservedObject private var viewStore: ViewStore<SettingState, SettingAction>
+    private let blurRadius: Double
 
-    init(store: Store<SettingState, SettingAction>) {
+    init(store: Store<SettingState, SettingAction>, blurRadius: Double) {
         self.store = store
         viewStore = ViewStore(store)
+        self.blurRadius = blurRadius
     }
 
     // MARK: SettingView
@@ -49,7 +51,8 @@ private extension SettingView {
                             store: store.scope(state: \.accountSettingState, action: SettingAction.account),
                             galleryHost: viewStore.binding(\.setting.$galleryHost),
                             showNewDawnGreeting: viewStore.binding(\.setting.$showNewDawnGreeting),
-                            bypassesSNIFiltering: viewStore.setting.bypassesSNIFiltering
+                            bypassesSNIFiltering: viewStore.setting.bypassesSNIFiltering,
+                            blurRadius: blurRadius
                         )
                     case .general:
                         GeneralSettingView(
@@ -182,7 +185,8 @@ struct SettingView_Previews: PreviewProvider {
                     uiApplicationClient: .live,
                     authorizationClient: .live
                 )
-            )
+            ),
+            blurRadius: 0
         )
     }
 }

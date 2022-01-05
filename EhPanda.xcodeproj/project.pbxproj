@@ -76,6 +76,7 @@
 		AB86AC082782F76000E61E6A /* AppIcon_Weird@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = AB86AC022782F76000E61E6A /* AppIcon_Weird@2x.png */; };
 		AB86AC0A2782FAFA00E61E6A /* AppearanceSettingStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB86AC092782FAFA00E61E6A /* AppearanceSettingStore.swift */; };
 		AB86AC1027831AD100E61E6A /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = AB86AC0F27831AD100E61E6A /* ComposableArchitecture */; };
+		AB86AC1327856F2700E61E6A /* AppLockStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB86AC1227856F2700E61E6A /* AppLockStore.swift */; };
 		AB8C821926BF801700E8C5E6 /* EhSetting.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB8C821826BF801700E8C5E6 /* EhSetting.swift */; };
 		ABA732D925A8018A00B3D9AB /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABA732D825A8018A00B3D9AB /* Extensions.swift */; };
 		ABA732DF25A852D800B3D9AB /* Filter.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABA732DE25A852D800B3D9AB /* Filter.swift */; };
@@ -126,7 +127,6 @@
 		ABF45ABD25F3312F00ECB568 /* DeprecatedStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF45AB825F3312F00ECB568 /* DeprecatedStore.swift */; };
 		ABF45ADF25F3313D00ECB568 /* FilterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF45AC125F3313D00ECB568 /* FilterView.swift */; };
 		ABF45AE025F3313D00ECB568 /* DeprecatedHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF45AC225F3313D00ECB568 /* DeprecatedHomeView.swift */; };
-		ABF45AE225F3313D00ECB568 /* AuthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF45AC425F3313D00ECB568 /* AuthView.swift */; };
 		ABF45AE425F3313D00ECB568 /* TagCloudView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF45AC725F3313D00ECB568 /* TagCloudView.swift */; };
 		ABF45AE525F3313D00ECB568 /* Comment.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF45AC825F3313D00ECB568 /* Comment.swift */; };
 		ABF45AE725F3313D00ECB568 /* RatingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF45ACA25F3313D00ECB568 /* RatingView.swift */; };
@@ -251,6 +251,7 @@
 		AB86AC012782F76000E61E6A /* AppIcon_Default@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AppIcon_Default@2x.png"; sourceTree = "<group>"; };
 		AB86AC022782F76000E61E6A /* AppIcon_Weird@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AppIcon_Weird@2x.png"; sourceTree = "<group>"; };
 		AB86AC092782FAFA00E61E6A /* AppearanceSettingStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppearanceSettingStore.swift; sourceTree = "<group>"; };
+		AB86AC1227856F2700E61E6A /* AppLockStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLockStore.swift; sourceTree = "<group>"; };
 		AB8C821826BF801700E8C5E6 /* EhSetting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EhSetting.swift; sourceTree = "<group>"; };
 		AB994DBB25986F7A00E9A367 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
 		ABA732D825A8018A00B3D9AB /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
@@ -307,7 +308,6 @@
 		ABF45AB825F3312F00ECB568 /* DeprecatedStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeprecatedStore.swift; sourceTree = "<group>"; };
 		ABF45AC125F3313D00ECB568 /* FilterView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FilterView.swift; sourceTree = "<group>"; };
 		ABF45AC225F3313D00ECB568 /* DeprecatedHomeView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeprecatedHomeView.swift; sourceTree = "<group>"; };
-		ABF45AC425F3313D00ECB568 /* AuthView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AuthView.swift; sourceTree = "<group>"; };
 		ABF45AC725F3313D00ECB568 /* TagCloudView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TagCloudView.swift; sourceTree = "<group>"; };
 		ABF45AC825F3313D00ECB568 /* Comment.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Comment.swift; sourceTree = "<group>"; };
 		ABF45ACA25F3313D00ECB568 /* RatingView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RatingView.swift; sourceTree = "<group>"; };
@@ -418,7 +418,6 @@
 			isa = PBXGroup;
 			children = (
 				ABC1FAB72642C37D00A9F352 /* NewDawnView.swift */,
-				ABF45AC425F3313D00ECB568 /* AuthView.swift */,
 				ABF45ACC25F3313D00ECB568 /* AlertView.swift */,
 			);
 			path = Support;
@@ -733,6 +732,7 @@
 				AB0929C427815C6000F107CA /* Deprecated */,
 				ABF45AB625F3312F00ECB568 /* AppError.swift */,
 				AB58A5B12776B99000C0D285 /* AppStore.swift */,
+				AB86AC1227856F2700E61E6A /* AppLockStore.swift */,
 				AB58A5AB2776B2BC00C0D285 /* AppDelegate.swift */,
 			);
 			path = DataFlow;
@@ -1061,6 +1061,7 @@
 				ABC3C7892593699B00E0C11B /* Defaults.swift in Sources */,
 				ABD49D6A277EEF73003D1A07 /* SettingStore.swift in Sources */,
 				AB8C821926BF801700E8C5E6 /* EhSetting.swift in Sources */,
+				AB86AC1327856F2700E61E6A /* AppLockStore.swift in Sources */,
 				ABF45AF125F3313D00ECB568 /* AssociatedView.swift in Sources */,
 				AB58A5AC2776B2BC00C0D285 /* AppDelegate.swift in Sources */,
 				ABBC332A26BE7C940084A331 /* SettingTextField.swift in Sources */,
@@ -1093,7 +1094,6 @@
 				ABD49D64277C7AD5003D1A07 /* TabBarStore.swift in Sources */,
 				ABF45AF025F3313D00ECB568 /* CommentView.swift in Sources */,
 				ABBD2B602768D7AD0072AED2 /* GalleryRankingCell.swift in Sources */,
-				ABF45AE225F3313D00ECB568 /* AuthView.swift in Sources */,
 				ABF45ABC25F3312F00ECB568 /* DeprecatedAppAction.swift in Sources */,
 				AB0ABCB726C541A400AD970F /* WaveForm.swift in Sources */,
 				AB0929D62782A65F00F107CA /* GeneralSettingStore.swift in Sources */,

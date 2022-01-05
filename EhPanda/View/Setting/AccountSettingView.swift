@@ -16,17 +16,19 @@ struct AccountSettingView: View {
     @Binding private var galleryHost: GalleryHost
     @Binding private var showNewDawnGreeting: Bool
     private let bypassesSNIFiltering: Bool
+    private let blurRadius: Double
 
     init(
         store: Store<AccountSettingState, AccountSettingAction>,
         galleryHost: Binding<GalleryHost>, showNewDawnGreeting: Binding<Bool>,
-        bypassesSNIFiltering: Bool
+        bypassesSNIFiltering: Bool, blurRadius: Double
     ) {
         self.store = store
         viewStore = ViewStore(store)
         _galleryHost = galleryHost
         _showNewDawnGreeting = showNewDawnGreeting
         self.bypassesSNIFiltering = bypassesSNIFiltering
+        self.blurRadius = blurRadius
     }
 
     // MARK: AccountSettingView
@@ -66,8 +68,8 @@ struct AccountSettingView: View {
         }
         .sheet(isPresented: viewStore.binding(\.$webViewSheetPresented)) {
             WebView(url: Defaults.URL.myTags)
-//                    .blur(radius: environment.blurRadius)
-//                    .allowsHitTesting(environment.isAppUnlocked)
+                .blur(radius: blurRadius).allowsHitTesting(blurRadius < 1)
+                .animation(.linear(duration: 0.1), value: blurRadius)
         }
         .background(navigationLinks)
         .navigationBarTitle("Account")
@@ -83,12 +85,12 @@ private extension AccountSettingView {
                 case .login:
                     LoginView(
                         store: store.scope(state: \.loginState, action: AccountSettingAction.login),
-                        bypassesSNIFiltering: bypassesSNIFiltering
+                        bypassesSNIFiltering: bypassesSNIFiltering, blurRadius: blurRadius
                     )
                 case .ehSetting:
                     EhSettingView(
                         store: store.scope(state: \.ehSettingState, action: AccountSettingAction.ehSetting),
-                        bypassesSNIFiltering: bypassesSNIFiltering
+                        bypassesSNIFiltering: bypassesSNIFiltering, blurRadius: blurRadius
                     )
                 }
             })
