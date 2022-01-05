@@ -5,16 +5,19 @@
 //  Created by 荒木辰造 on R 4/01/02.
 //
 
+import SwiftUI
 import Combine
 import Foundation
 import Kingfisher
 import SwiftyBeaver
+import UIImageColors
 import ComposableArchitecture
 
 struct LibraryClient {
     let initializeLogger: () -> Effect<Never, Never>
     let initializeWebImage: () -> Effect<Never, Never>
     let clearWebImageDiskCache: () -> Effect<Never, Never>
+    let analyzeImageColors: (UIImage) -> UIImageColors?
     let calculateWebImageDiskCacheSize: () -> Effect<Result<UInt, KingfisherError>, Never>
 }
 
@@ -62,6 +65,9 @@ extension LibraryClient {
             .fireAndForget {
                 KingfisherManager.shared.cache.clearDiskCache()
             }
+        },
+        analyzeImageColors: { image in
+            image.getColors(quality: .lowest)
         },
         calculateWebImageDiskCacheSize: {
             Future(KingfisherManager.shared.cache.calculateDiskStorageSize)

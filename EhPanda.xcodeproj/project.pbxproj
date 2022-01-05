@@ -77,6 +77,7 @@
 		AB86AC0A2782FAFA00E61E6A /* AppearanceSettingStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB86AC092782FAFA00E61E6A /* AppearanceSettingStore.swift */; };
 		AB86AC1027831AD100E61E6A /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = AB86AC0F27831AD100E61E6A /* ComposableArchitecture */; };
 		AB86AC1327856F2700E61E6A /* AppLockStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB86AC1227856F2700E61E6A /* AppLockStore.swift */; };
+		AB86AC1A2785C2B300E61E6A /* HomeStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB86AC192785C2B300E61E6A /* HomeStore.swift */; };
 		AB8C821926BF801700E8C5E6 /* EhSetting.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB8C821826BF801700E8C5E6 /* EhSetting.swift */; };
 		ABA732D925A8018A00B3D9AB /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABA732D825A8018A00B3D9AB /* Extensions.swift */; };
 		ABA732DF25A852D800B3D9AB /* Filter.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABA732DE25A852D800B3D9AB /* Filter.swift */; };
@@ -252,6 +253,7 @@
 		AB86AC022782F76000E61E6A /* AppIcon_Weird@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AppIcon_Weird@2x.png"; sourceTree = "<group>"; };
 		AB86AC092782FAFA00E61E6A /* AppearanceSettingStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppearanceSettingStore.swift; sourceTree = "<group>"; };
 		AB86AC1227856F2700E61E6A /* AppLockStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLockStore.swift; sourceTree = "<group>"; };
+		AB86AC192785C2B300E61E6A /* HomeStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeStore.swift; sourceTree = "<group>"; };
 		AB8C821826BF801700E8C5E6 /* EhSetting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EhSetting.swift; sourceTree = "<group>"; };
 		AB994DBB25986F7A00E9A367 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
 		ABA732D825A8018A00B3D9AB /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
@@ -759,6 +761,7 @@
 			children = (
 				ABF45AC225F3313D00ECB568 /* DeprecatedHomeView.swift */,
 				AB24C55B2767565A0085C33A /* HomeView.swift */,
+				AB86AC192785C2B300E61E6A /* HomeStore.swift */,
 				AB3072D3276E19AA00EFF242 /* FrontpageView.swift */,
 			);
 			path = Home;
@@ -1053,6 +1056,7 @@
 				ABF45AB925F3312F00ECB568 /* DeprecatedAppState.swift in Sources */,
 				AB3072D2276D734800EFF242 /* SubSection.swift in Sources */,
 				ABF45AF625F3313D00ECB568 /* AppearanceSettingView.swift in Sources */,
+				AB86AC1A2785C2B300E61E6A /* HomeStore.swift in Sources */,
 				AB69CB8226B3DAF400699359 /* ControlPanel.swift in Sources */,
 				ABD49D5A277C5356003D1A07 /* FavoritesStore.swift in Sources */,
 				ABE1867826A1733000689FDC /* LaboratorySettingView.swift in Sources */,

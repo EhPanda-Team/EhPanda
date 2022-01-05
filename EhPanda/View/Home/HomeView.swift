@@ -8,88 +8,93 @@
 import SwiftUI
 import Kingfisher
 import SwiftUIPager
+import SFSafeSymbols
+import ComposableArchitecture
 
-struct HomeView: View, StoreAccessor {
-    @EnvironmentObject var store: DeprecatedStore
+struct HomeView: View {
+    private let store: Store<HomeState, HomeAction>
+    @ObservedObject private var viewStore: ViewStore<HomeState, HomeAction>
+
+    @StateObject private var page: Page = .withIndex(1)
+
+    init(store: Store<HomeState, HomeAction>) {
+        self.store = store
+        viewStore = ViewStore(store)
+    }
 
     // MARK: HomeView
     var body: some View {
         NavigationView {
             ZStack {
-                if !homeInfo.popularItems.isEmpty {
+                if !viewStore.popularGalleries.isEmpty {
                     ScrollView(showsIndicators: false) {
                         VStack {
-                            CardSlideSection(galleries: homeInfo.popularItems)
+                            CardSlideSection(
+                                galleries: viewStore.popularGalleries, page: page,
+                                currentID: viewStore.currentCardID,
+                                colors: viewStore.cardColors
+                            ) { gid, result in
+                                viewStore.send(.analyzeImageColors(gid, result))
+                            }
                             Group {
-                                CoverWallSection(galleries: homeInfo.frontpageItems)
-                                ToplistsSection(galleries: homeInfo.toplistsItems)
+                                CoverWallSection(galleries: viewStore.frontpageGalleries)
+                                ToplistsSection(galleries: viewStore.toplistsGalleries)
                                 MiscGridSection()
                             }
                             .padding(.vertical)
                         }
                     }
                     .transition(AppUtil.opacityTransition)
-                } else if homeInfo.popularLoading {
+                } else if viewStore.popularLoadingState == .loading {
                     LoadingView()
-                } else if let error = homeInfo.popularLoadError {
-                    ErrorView(error: error, retryAction: fetchPopularItems)
+                } else if case .failed(let error) = viewStore.popularLoadingState {
+                    ErrorView(error: error) {
+                        viewStore.send(.fetchAllGalleries)
+                    }
                 }
             }
-            .onAppear(perform: tryFetchPopularItems)
+            .synchronize(viewStore.binding(\.$cardPageIndex), $page.index)
+            .onAppear {
+                if viewStore.popularGalleries.isEmpty {
+                    viewStore.send(.fetchAllGalleries)
+                }
+            }
             .navigationTitle("Home")
         }
     }
 }
 
-private extension HomeView {
-    func fetchPopularItems() {
-        store.dispatch(.fetchPopularItems)
-        store.dispatch(.fetchFrontpageItems())
-        store.dispatch(.fetchToplistsItems())
-        store.dispatch(.setToplistsType(.pastYear))
-        store.dispatch(.fetchToplistsItems())
-        store.dispatch(.setToplistsType(.pastMonth))
-        store.dispatch(.fetchToplistsItems())
-        store.dispatch(.setToplistsType(.yesterday))
-        store.dispatch(.fetchToplistsItems())
-    }
-    func tryFetchPopularItems() {
-        guard homeInfo.popularItems.isEmpty else { return }
-        fetchPopularItems()
-    }
-}
-
 // MARK: CardSlideSection
 private struct CardSlideSection: View {
-    @State private var currentID: String
-    @StateObject private var page: Page = .withIndex(1)
-
     private let galleries: [Gallery]
+    private let currentID: String
+    private let page: Page
+    @Binding private var colors: [Color]?
+    private let webImageSuccessAction: (String, RetrieveImageResult) -> Void
 
-    init(galleries: [Gallery]) {
-        let sortedGalleries = galleries.sorted { lhs, rhs in
-            lhs.title.count > rhs.title.count
-        }
-        var trimmedGalleries = Array(sortedGalleries.prefix(10)).duplicatesRemoved
-        if trimmedGalleries.count >= 6 {
-            trimmedGalleries = Array(trimmedGalleries.prefix(6))
-        }
-        self.galleries = trimmedGalleries
-        _currentID = State(initialValue: trimmedGalleries[1].gid)
+    init(
+        galleries: [Gallery], page: Page, currentID: String, colors: Binding<[Color]?>,
+        webImageSuccessAction: @escaping (String, RetrieveImageResult) -> Void
+    ) {
+        self.galleries = galleries
+        self.page = page
+        self.currentID = currentID
+        _colors = colors
+        self.webImageSuccessAction = webImageSuccessAction
     }
 
     var body: some View {
         Pager(page: page, data: galleries) { gallery in
             NavigationLink(destination: DetailView(gid: gallery.gid)) {
-                GalleryCardCell(gallery: gallery, currentID: $currentID)
-                    .tint(.primary).multilineTextAlignment(.leading)
+                GalleryCardCell(gallery: gallery, currentID: currentID, colors: $colors) {
+                    webImageSuccessAction(currentID, $0)
+                }
+                .tint(.primary).multilineTextAlignment(.leading)
             }
         }
         .preferredItemSize(CGSize(width: DeviceUtil.windowW * 0.8, height: 100))
         .interactive(opacity: 0.2).itemSpacing(20).loopPages().pagingPriority(.high)
-        .frame(height: 240).onChange(of: page.index) { newValue in
-            currentID = galleries[newValue].gid
-        }
+        .frame(height: 240)
     }
 }
 
@@ -155,7 +160,7 @@ private struct ToplistsSection: View {
     }
 
     private func galleries(type: ToplistsType, range: ClosedRange<Int>) -> [Gallery] {
-        let galleries = galleries[type.rawValue] ?? []
+        let galleries = galleries[type.categoryIndex] ?? []
         guard galleries.count > range.upperBound else { return [] }
         return Array(galleries[range])
     }
@@ -219,7 +224,7 @@ private struct MiscGridSection: View {
                 HStack {
                     ForEach(MiscItemType.allCases) { type in
                         NavigationLink(destination: type.destination) {
-                            MiscGridItem(title: type.rawValue.localized, symbolName: type.symbolName)
+                            MiscGridItem(title: type.rawValue.localized, symbol: type.symbol)
                         }
                         .tint(.primary)
                     }
@@ -233,12 +238,12 @@ private struct MiscGridSection: View {
 private struct MiscGridItem: View {
     private let title: String
     private let subTitle: String?
-    private let symbolName: String
+    private let symbol: SFSymbol
 
-    init(title: String, subTitle: String? = nil, symbolName: String) {
+    init(title: String, subTitle: String? = nil, symbol: SFSymbol) {
         self.title = title
         self.subTitle = subTitle
-        self.symbolName = symbolName
+        self.symbol = symbol
     }
 
     var body: some View {
@@ -249,7 +254,7 @@ private struct MiscGridItem: View {
                     Text(subTitle).font(.subheadline).foregroundColor(.secondary).lineLimit(2)
                 }
             }
-            Image(systemName: symbolName).font(.system(size: 50, weight: .light, design: .default))
+            Image(systemSymbol: symbol).font(.system(size: 50, weight: .light, design: .default))
                 .foregroundColor(.secondary).imageScale(.large).offset(x: 20, y: 20)
         }
         .padding(30).cornerRadius(15).background(Color(.systemGray6).cornerRadius(15))
@@ -257,19 +262,6 @@ private struct MiscGridItem: View {
 }
 
 // MARK: Definition
-private extension Array where Element == Gallery {
-    var duplicatesRemoved: [Element] {
-        var result = [Element]()
-        for value in self {
-            guard result.filter({
-                $0.trimmedTitle == value.trimmedTitle
-            }).isEmpty else { continue }
-            result.append(value)
-        }
-        return result
-    }
-}
-
 private enum MiscItemType: String, CaseIterable, Identifiable {
     var id: String { rawValue }
 
@@ -291,20 +283,29 @@ private extension MiscItemType {
             }
         }
     }
-    var symbolName: String {
+    var symbol: SFSymbol {
         switch self {
         case .popular:
-            return "flame"
+            return .flame
         case .watched:
-            return "tag.circle"
+            return .tagCircle
         case .history:
-            return "clock.arrow.circlepath"
+            return .clockArrowCirclepath
         }
     }
 }
 
 struct HomeView_Previews: PreviewProvider {
     static var previews: some View {
-        HomeView().environmentObject(DeprecatedStore.preview)
+        HomeView(
+            store: Store<HomeState, HomeAction>(
+                initialState: HomeState(),
+                reducer: homeReducer,
+                environment: HomeEnvironment(
+                    libraryClient: .live,
+                    databaseClient: .live
+                )
+            )
+        )
     }
 }

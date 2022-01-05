@@ -25,6 +25,10 @@ struct TabBarView: View {
                 ForEach(TabBarItemType.allCases) { type in
                     Group {
                         switch type {
+                        case .home:
+                            HomeView(
+                                store: store.scope(state: \.homeState, action: AppAction.home)
+                            )
                         case .favorites:
                             FavoritesView(
                                 store: store.scope(state: \.favoritesState, action: AppAction.favorites),
@@ -47,7 +51,7 @@ struct TabBarView: View {
                 .accentColor(viewStore.settingState.setting.accentColor)
             }
             .blur(radius: viewStore.appLockState.blurRadius)
-            .allowsHitTesting(!viewStore.appLockState.isAppLocked)
+            .allowsHitTesting(viewStore.appLockState.blurRadius < 1)
             .animation(.linear(duration: 0.1), value: viewStore.appLockState.blurRadius)
             Image(systemSymbol: .lockFill).font(.system(size: 80))
                 .opacity(viewStore.appLockState.isAppLocked ? 1 : 0)
@@ -62,7 +66,7 @@ struct TabBarView: View {
 enum TabBarItemType: String, CaseIterable, Identifiable {
     var id: String { rawValue }
 
-//    case home = "Home"
+    case home = "Home"
     case favorites = "Favorites"
     case search = "Search"
     case setting = "Setting"
@@ -71,8 +75,8 @@ enum TabBarItemType: String, CaseIterable, Identifiable {
 extension TabBarItemType {
     var symbol: SFSymbol {
         switch self {
-//        case .home:
-//            return .houseCircle
+        case .home:
+            return .houseCircle
         case .favorites:
             return .heartCircle
         case .search:

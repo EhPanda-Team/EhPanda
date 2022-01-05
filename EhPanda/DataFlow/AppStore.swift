@@ -11,6 +11,7 @@ import ComposableArchitecture
 struct AppState: Equatable {
     var appLockState = AppLockState()
     var tabBarState = TabBarState()
+    var homeState = HomeState()
     var favoritesState = FavoritesState()
     var settingState = SettingState()
 }
@@ -20,6 +21,7 @@ enum AppAction: BindableAction {
     case onScenePhaseChange(ScenePhase)
     case appLock(AppLockAction)
     case appDelegate(AppDelegateAction)
+    case home(HomeAction)
     case favorites(FavoritesAction)
     case setting(SettingAction)
 }
@@ -72,6 +74,10 @@ let appReducer = Reducer<AppState, AppAction, AppEnvironment>.combine(
         case .appDelegate:
             return .none
 
+        case .home:
+            state.homeState.rawFilter = state.settingState.globalFilter
+            return .none
+
         case .favorites:
             return .none
 
@@ -96,6 +102,16 @@ let appReducer = Reducer<AppState, AppAction, AppEnvironment>.combine(
                 dfClient: $0.dfClient,
                 libraryClient: $0.libraryClient,
                 cookiesClient: $0.cookiesClient
+            )
+        }
+    ),
+    homeReducer.pullback(
+        state: \.homeState,
+        action: /AppAction.home,
+        environment: {
+            .init(
+                libraryClient: $0.libraryClient,
+                databaseClient: $0.databaseClient
             )
         }
     ),

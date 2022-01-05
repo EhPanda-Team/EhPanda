@@ -133,7 +133,6 @@ let favoritesReducer = Reducer<FavoritesState, FavoritesAction, FavoritesEnviron
 
     case .fetchGalleriesDone(let targetFavIndex, let result):
         state.rawLoadingState[targetFavIndex] = .idle
-
         switch result {
         case .success(let (pageNumber, sortOrder, galleries)):
             guard !galleries.isEmpty else {
@@ -157,7 +156,6 @@ let favoritesReducer = Reducer<FavoritesState, FavoritesAction, FavoritesEnviron
         guard pageNumber.current + 1 <= pageNumber.maximum,
               state.footerLoadingState != .loading
         else { return .none }
-
         state.footerLoadingState = .loading
         let pageNum = pageNumber.current + 1
         let lastID = state.galleries?.last?.id ?? ""
@@ -168,7 +166,6 @@ let favoritesReducer = Reducer<FavoritesState, FavoritesAction, FavoritesEnviron
 
     case .fetchMoreGalleriesDone(let targetFavIndex, let result):
         state.rawFooterLoadingState[targetFavIndex] = .idle
-
         switch result {
         case .success(let (pageNumber, sortOrder, galleries)):
             state.rawPageNumber[targetFavIndex] = pageNumber

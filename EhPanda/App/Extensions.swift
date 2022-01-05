@@ -269,3 +269,17 @@ extension NSNotification.Name {
         NotificationCenter.default.publisher(for: self)
     }
 }
+
+// MARK: [Gallery]
+extension Array where Element == Gallery {
+    var duplicatesRemoved: [Element] {
+        var result = [Element]()
+        for value in self {
+            guard result.filter({
+                $0.trimmedTitle == value.trimmedTitle
+            }).isEmpty else { continue }
+            result.append(value)
+        }
+        return result
+    }
+}

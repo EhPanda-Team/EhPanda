@@ -11,17 +11,23 @@ import Kingfisher
 import UIImageColors
 
 struct GalleryCardCell: View {
-    @Binding private var currentID: String
-    @State private var colors = [Color.clear]
+    private let currentID: String
+    @Binding private var colors: [Color]?
+    private let webImageSuccessAction: (RetrieveImageResult) -> Void
 
     private let gallery: Gallery
 
     private let animation: Animation =
         .interpolatingSpring(stiffness: 50, damping: 1).speed(0.2)
 
-    init(gallery: Gallery, currentID: Binding<String>) {
+    init(
+        gallery: Gallery, currentID: String, colors: Binding<[Color]?>,
+        webImageSuccessAction: @escaping (RetrieveImageResult) -> Void
+    ) {
         self.gallery = gallery
-        _currentID = currentID
+        self.currentID = currentID
+        _colors = colors
+        self.webImageSuccessAction = webImageSuccessAction
     }
 
     private var title: String {
@@ -31,19 +37,16 @@ struct GalleryCardCell: View {
         }
         return trimmedTitle
     }
-    private var animated: Bool {
-        gallery.gid == currentID
-    }
 
     var body: some View {
         ZStack {
             Color.gray.opacity(0.2)
-            ColorfulView(animated: animated, animation: animation, colors: colors)
-                .id(gallery.gid + String(animated))
+            ColorfulView(animated: gallery.gid == currentID, animation: animation, colors: colors ?? [.clear])
+                .id(gallery.gid + currentID + (colors?.description ?? ""))
             HStack {
                 KFImage(URL(string: gallery.coverURL))
                     .placeholder { Placeholder(style: .activity(ratio: Defaults.ImageSize.headerAspect)) }
-                    .onSuccess(updateColors).defaultModifier().scaledToFill()
+                    .onSuccess(webImageSuccessAction).defaultModifier().scaledToFill()
                     .frame(width: Defaults.ImageSize.headerW, height: Defaults.ImageSize.headerH)
                     .cornerRadius(5)
                 VStack(alignment: .leading) {
@@ -58,31 +61,15 @@ struct GalleryCardCell: View {
         }
         .frame(width: DeviceUtil.windowW * 0.8).cornerRadius(15)
     }
-
-    private func updateColors(result: RetrieveImageResult) {
-        result.image.getColors { newColors in
-            guard let newColors = newColors else { return }
-            colors = [
-                newColors.primary, newColors.secondary,
-                newColors.detail, newColors.background
-            ]
-            .map(Color.init)
-        }
-    }
 }
 
 struct GalleryCardCell_Previews: PreviewProvider {
     static var previews: some View {
-        let gallery = Gallery(
-            gid: "", token: "",
-            title: "[水之色] HoPornLive English (バーチャルYouTuber)",
-            rating: 4.59, tags: [], category: .doujinshi, language: .japanese,
-            uploader: "nX7UtWS5", pageCount: 49, postedDate: .now,
-            coverURL: "https://ehgt.org/t/22/83/2283c41077e002cb062f7b4593961ab674d7670a-847854-2110-3016-jpg_250.jpg",
-            galleryURL: "https://e-hentai.org/g/2084129/66b4de10d0/", lastOpenDate: nil
+        GalleryCardCell(
+            gallery: .preview, currentID: Gallery.preview.gid,
+            colors: .constant(ColorfulView.defaultColorList),
+            webImageSuccessAction: { _ in }
         )
-        return GalleryCardCell(gallery: gallery, currentID: .constant(gallery.gid))
-            .previewLayout(.fixed(width: 300, height: 206))
-            .padding()
+        .previewLayout(.fixed(width: 300, height: 206)).padding()
     }
 }

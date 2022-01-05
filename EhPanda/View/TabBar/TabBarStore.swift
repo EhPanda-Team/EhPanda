@@ -8,5 +8,5 @@
 import ComposableArchitecture
 
 struct TabBarState: Equatable {
-    @BindableState var tabBarItemType: TabBarItemType = .favorites
+    @BindableState var tabBarItemType: TabBarItemType = .home
 }
