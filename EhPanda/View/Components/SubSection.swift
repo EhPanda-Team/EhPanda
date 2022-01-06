@@ -40,10 +40,14 @@ struct SubSection<Content: View>: View {
                 } label: {
                     HStack {
                         Text(title).font(.title3.bold())
-                        Image(systemSymbol: .arrowClockwise)
-                            .foregroundColor(.secondary)
-                            .opacity(isLoading == true ? 1 : 0)
-                            .animation(.default, value: isLoading)
+                        TimelineView(.animation) { timeline in
+                            let now = timeline.date.timeIntervalSince1970
+                            Image(systemSymbol: .arrowTriangle2Circlepath)
+                                .font(.body.bold()).foregroundColor(.secondary)
+                                .rotationEffect(Angle.degrees(now * 100))
+                        }
+                        .opacity(isLoading == true ? 1 : 0)
+                        .animation(.default, value: isLoading)
                     }
                 }
                 .allowsHitTesting(reloadAction != nil)

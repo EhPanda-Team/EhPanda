@@ -178,14 +178,14 @@ private struct VerticalCoverStack: View {
 
 // MARK: ToplistsSection
 private struct ToplistsSection: View {
-    private let galleries: [Int: [Gallery]] = [:]
+    private let galleries: [Int: [Gallery]]
     private let isLoading: Bool
     private let reloadAction: () -> Void
 
     init(galleries: [Int: [Gallery]], isLoading: Bool,
          reloadAction: @escaping () -> Void
     ) {
-//        self.galleries = galleries
+        self.galleries = galleries
         self.isLoading = isLoading
         self.reloadAction = reloadAction
     }

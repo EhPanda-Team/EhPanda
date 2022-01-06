@@ -60,7 +60,7 @@
         "repositoryURL": "https://github.com/SFSafeSymbols/SFSafeSymbols.git",
         "state": {
           "branch": "stable",
-          "revision": "7a2310d55391f063e8a31b9d587d593d1dd3af9c",
+          "revision": "846e558cda47e1a2d2cea988a9c18378f830bddf",
           "version": null
         }
       },
@@ -87,8 +87,8 @@
         "repositoryURL": "https://github.com/pointfreeco/swift-composable-architecture.git",
         "state": {
           "branch": null,
-          "revision": "9c162f485bbd4cc09b86163d3c2901aeab6e6288",
-          "version": "0.31.0"
+          "revision": "313dd217dcd1d0478118ec5d15225fd473c1564a",
+          "version": "0.32.0"
         }
       },
       {
