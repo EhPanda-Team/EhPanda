@@ -44,4 +44,4 @@ Der Inhalt der von dieser App verwaltet wird, wird von E-Hentai geladen. Hierbei
 https://ehpanda.app
 
 ## App Icon
-© 2021 荒木辰造. All rights reserved.
+© 2022 荒木辰造. All rights reserved.

@@ -44,4 +44,4 @@ iOS / iPadOS 버전이 15.0 이상인지 확인해주세요.
 https://ehpanda.app
 
 ## 앱 아이콘
-© 2021 荒木辰造. All rights reserved.
+© 2022 荒木辰造. All rights reserved.
