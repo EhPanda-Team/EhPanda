@@ -44,4 +44,4 @@ https://ehpanda.app: [main.js](https://github.com/tatsuz0u/ehpanda-website/blob/
 https://ehpanda.app
 
 ## アプリアイコン
-© 2021 荒木辰造. All rights reserved.
+© 2022 荒木辰造. All rights reserved.
