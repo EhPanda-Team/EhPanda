@@ -12,6 +12,14 @@ struct Defaults {
     struct FrameSize {
         static let archiveGridWidth: CGFloat =
         DeviceUtil.isPadWidth ? 175 : DeviceUtil.isSEWidth ? 125 : 150
+        static var cardCellWidth: CGFloat { DeviceUtil.windowW * 0.8 }
+        static let cardCellHeight: CGFloat = Defaults.ImageSize.headerH + 20 * 2
+        static var cardCellSize: CGSize {
+            .init(width: cardCellWidth, height: cardCellHeight)
+        }
+        static var rankingCellWidth: CGFloat {
+            (DeviceUtil.isPadWidth ? 0.4 : 0.7) * DeviceUtil.windowW
+        }
     }
     struct ImageSize {
         static let rowAspect: CGFloat = 8/11

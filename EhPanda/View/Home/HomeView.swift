@@ -67,34 +67,35 @@ struct HomeView: View {
 // MARK: CardSlideSection
 private struct CardSlideSection: View {
     private let galleries: [Gallery]
-    private let currentID: String
     private let page: Page
-    @Binding private var colors: [Color]?
+    private let currentID: String
+    private let colors: [Color]
     private let webImageSuccessAction: (String, RetrieveImageResult) -> Void
 
     init(
-        galleries: [Gallery], page: Page, currentID: String, colors: Binding<[Color]?>,
+        galleries: [Gallery], page: Page, currentID: String, colors: [Color],
         webImageSuccessAction: @escaping (String, RetrieveImageResult) -> Void
     ) {
         self.galleries = galleries
         self.page = page
         self.currentID = currentID
-        _colors = colors
+        self.colors = colors
         self.webImageSuccessAction = webImageSuccessAction
     }
 
     var body: some View {
         Pager(page: page, data: galleries) { gallery in
             NavigationLink(destination: DetailView(gid: gallery.gid)) {
-                GalleryCardCell(gallery: gallery, currentID: currentID, colors: $colors) {
-                    webImageSuccessAction(currentID, $0)
+                GalleryCardCell(gallery: gallery, currentID: currentID, colors: colors) {
+                    webImageSuccessAction(gallery.gid, $0)
                 }
                 .tint(.primary).multilineTextAlignment(.leading)
             }
         }
-        .preferredItemSize(CGSize(width: DeviceUtil.windowW * 0.8, height: 100))
-        .interactive(opacity: 0.2).itemSpacing(20).loopPages().pagingPriority(.high)
-        .frame(height: 240)
+        .preferredItemSize(Defaults.FrameSize.cardCellSize)
+        .interactive(opacity: 0.2).itemSpacing(20)
+        .loopPages().pagingPriority(.high)
+        .frame(height: Defaults.FrameSize.cardCellHeight)
     }
 }
 
@@ -169,25 +170,26 @@ private struct ToplistsSection: View {
         SubSection(title: "Toplists", tint: .secondary, destination: EmptyView()) {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack {
-                    ForEach(ToplistsType.allCases.reversed()) { type in
-                        VStack(alignment: .leading) {
-                            Text(type.description.localized).font(.subheadline.bold())
-                            HStack {
-                                VerticalToplistStack(
-                                    galleries: galleries(type: type, range: 0...2), startRanking: 1
-                                )
-                                if DeviceUtil.isPad {
-                                    VerticalToplistStack(
-                                        galleries: galleries(type: type, range: 3...5), startRanking: 4
-                                    )
-                                }
-                            }
-                        }
-                        .padding(.horizontal, 20).padding(.vertical, 5)
-                    }
+                    ForEach(ToplistsType.allCases.reversed(), content: verticalStacks)
                 }
             }
         }
+    }
+    private func verticalStacks(type: ToplistsType) -> some View {
+        VStack(alignment: .leading) {
+            Text(type.description.localized).font(.subheadline.bold())
+            HStack {
+                VerticalToplistStack(
+                    galleries: galleries(type: type, range: 0...2), startRanking: 1
+                )
+                if DeviceUtil.isPad {
+                    VerticalToplistStack(
+                        galleries: galleries(type: type, range: 3...5), startRanking: 4
+                    )
+                }
+            }
+        }
+        .padding(.horizontal, 20).padding(.vertical, 5)
     }
 }
 
@@ -212,7 +214,7 @@ private struct VerticalToplistStack: View {
                 }
             }
         }
-        .frame(width: DeviceUtil.windowW * 0.7)
+        .frame(width: Defaults.FrameSize.rankingCellWidth)
     }
 }
 
@@ -222,11 +224,12 @@ private struct MiscGridSection: View {
         SubSection(title: "Other", showAll: false, destination: EmptyView()) {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack {
-                    ForEach(MiscItemType.allCases) { type in
+                    let types = MiscItemType.allCases
+                    ForEach(types) { type in
                         NavigationLink(destination: type.destination) {
                             MiscGridItem(title: type.rawValue.localized, symbol: type.symbol)
                         }
-                        .tint(.primary)
+                        .tint(.primary).padding(.trailing, type == types.last ? 0 : 10)
                     }
                     .withHorizontalSpacing()
                 }

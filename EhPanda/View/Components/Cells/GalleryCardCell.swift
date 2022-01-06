@@ -11,8 +11,10 @@ import Kingfisher
 import UIImageColors
 
 struct GalleryCardCell: View {
+    @Environment(\.colorScheme) private var colorScheme
+
     private let currentID: String
-    @Binding private var colors: [Color]?
+    private let colors: [Color]
     private let webImageSuccessAction: (RetrieveImageResult) -> Void
 
     private let gallery: Gallery
@@ -21,15 +23,19 @@ struct GalleryCardCell: View {
         .interpolatingSpring(stiffness: 50, damping: 1).speed(0.2)
 
     init(
-        gallery: Gallery, currentID: String, colors: Binding<[Color]?>,
+        gallery: Gallery, currentID: String, colors: [Color],
         webImageSuccessAction: @escaping (RetrieveImageResult) -> Void
     ) {
         self.gallery = gallery
         self.currentID = currentID
-        _colors = colors
+        self.colors = colors
         self.webImageSuccessAction = webImageSuccessAction
     }
 
+    private var animated: Bool {
+        guard colorScheme == .dark else { return false }
+        return gallery.gid == currentID
+    }
     private var title: String {
         let trimmedTitle = gallery.trimmedTitle
         guard !DeviceUtil.isPad, trimmedTitle.count > 20 else {
@@ -41,8 +47,8 @@ struct GalleryCardCell: View {
     var body: some View {
         ZStack {
             Color.gray.opacity(0.2)
-            ColorfulView(animated: gallery.gid == currentID, animation: animation, colors: colors ?? [.clear])
-                .id(gallery.gid + currentID + (colors?.description ?? ""))
+            ColorfulView(animated: animated, animation: animation, colors: colors)
+                .id(currentID + animated.description)
             HStack {
                 KFImage(URL(string: gallery.coverURL))
                     .placeholder { Placeholder(style: .activity(ratio: Defaults.ImageSize.headerAspect)) }
@@ -50,24 +56,25 @@ struct GalleryCardCell: View {
                     .frame(width: Defaults.ImageSize.headerW, height: Defaults.ImageSize.headerH)
                     .cornerRadius(5)
                 VStack(alignment: .leading) {
-                    Text(title).font(.title3.bold()).lineLimit(4).shadow(radius: 5)
+                    Text(title).font(.title3.bold()).lineLimit(4)
                     Spacer()
-                    RatingView(rating: gallery.rating).foregroundColor(.yellow).shadow(radius: 2)
+                    RatingView(rating: gallery.rating).foregroundColor(.yellow)
                 }
                 .padding(.leading, 15)
             }
             .padding(.horizontal, 20)
             .padding(.vertical, 20)
         }
-        .frame(width: DeviceUtil.windowW * 0.8).cornerRadius(15)
+        .frame(width: Defaults.FrameSize.cardCellWidth).cornerRadius(15)
     }
 }
 
 struct GalleryCardCell_Previews: PreviewProvider {
     static var previews: some View {
+        let gallery = Gallery.preview
         GalleryCardCell(
-            gallery: .preview, currentID: Gallery.preview.gid,
-            colors: .constant(ColorfulView.defaultColorList),
+            gallery: gallery, currentID: gallery.gid,
+            colors: ColorfulView.defaultColorList,
             webImageSuccessAction: { _ in }
         )
         .previewLayout(.fixed(width: 300, height: 206)).padding()

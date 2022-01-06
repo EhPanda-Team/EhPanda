@@ -49,9 +49,11 @@ let appReducer = Reducer<AppState, AppAction, AppEnvironment>.combine(
         case .onScenePhaseChange(let scenePhase):
             switch scenePhase {
             case .active:
-                guard let date = state.appLockState.becomeInactiveDate else { return .none }
+                // Handle AppLock
                 let threshold: Int = state.settingState.setting.autoLockPolicy.rawValue
-                if threshold >= 0, Date().timeIntervalSince(date) > Double(threshold) {
+                if let date = state.appLockState.becomeInactiveDate,
+                   threshold >= 0, Date().timeIntervalSince(date) > Double(threshold)
+                {
                     let radius = state.settingState.setting.backgroundBlurRadius
                     state.appLockState.setBlurRadius(radius)
                     state.appLockState.isAppLocked = true

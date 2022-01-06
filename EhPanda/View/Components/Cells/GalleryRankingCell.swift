@@ -25,7 +25,7 @@ struct GalleryRankingCell: View {
                 .cornerRadius(2)
             Text(String(ranking)).fontWeight(.medium).font(.title2).padding(.horizontal)
             VStack(alignment: .leading) {
-                Text(gallery.title).bold().lineLimit(2)
+                Text(gallery.trimmedTitle).bold().lineLimit(2).fixedSize(horizontal: false, vertical: true)
                 if let uploader = gallery.uploader {
                     Text(uploader).foregroundColor(.secondary).lineLimit(1)
                 }

@@ -11,6 +11,9 @@ import UIImageColors
 import ComposableArchitecture
 
 struct HomeState: Equatable {
+    @BindableState var cardPageIndex = 1
+    @BindableState var currentCardID = ""
+
     var popularGalleries = [Gallery]()
     var popularLoadingState: LoadingState = .idle
     var frontpageGalleries = [Gallery]()
@@ -18,21 +21,15 @@ struct HomeState: Equatable {
     var toplistsGalleries = [Int: [Gallery]]()
     var toplistsLoadingState = [Int: LoadingState]()
 
+    var rawCardColors = [String: [Color]]()
+    var cardColors: [Color] {
+        rawCardColors[currentCardID] ?? [.clear]
+    }
+
+    // Will be passed over from `appReducer`
     var rawFilter: Filter?
     var filter: Filter {
         rawFilter ?? .init()
-    }
-
-    @BindableState var cardPageIndex = 1
-    @BindableState var currentCardID = ""
-    var rawCardColors = [String: [Color]]()
-    var cardColors: Binding<[Color]?> {
-        .init(
-            get: {
-                rawCardColors[currentCardID]
-            },
-            set: { _ in }
-        )
     }
 
     mutating func setPopularGalleries(_ galleries: [Gallery]) {
@@ -43,6 +40,7 @@ struct HomeState: Equatable {
         if trimmedGalleries.count >= 6 {
             trimmedGalleries = Array(trimmedGalleries.prefix(6))
         }
+        trimmedGalleries.shuffle()
         popularGalleries = trimmedGalleries
         currentCardID = trimmedGalleries[cardPageIndex].gid
     }
@@ -59,6 +57,7 @@ enum HomeAction: BindableAction {
     case fetchToplistsGalleries(Int, Int? = nil)
     case fetchToplistsGalleriesDone(Int, Result<(PageNumber, [Gallery]), AppError>)
     case analyzeImageColors(String, RetrieveImageResult)
+    case analyzeImageColorsDone(String, UIImageColors?)
 }
 
 struct HomeEnvironment {
@@ -155,7 +154,11 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment> { state, actio
 
     case .analyzeImageColors(let gid, let result):
         guard !state.rawCardColors.keys.contains(gid) else { return .none }
-        if let colors = environment.libraryClient.analyzeImageColors(result.image) {
+        return environment.libraryClient.analyzeImageColors(result.image)
+            .map({ HomeAction.analyzeImageColorsDone(gid, $0) })
+
+    case .analyzeImageColorsDone(let gid, let colors):
+        if let colors = colors {
             state.rawCardColors[gid] = [
                 colors.primary, colors.secondary,
                 colors.detail, colors.background

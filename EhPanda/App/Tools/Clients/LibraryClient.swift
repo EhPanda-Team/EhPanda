@@ -17,7 +17,7 @@ struct LibraryClient {
     let initializeLogger: () -> Effect<Never, Never>
     let initializeWebImage: () -> Effect<Never, Never>
     let clearWebImageDiskCache: () -> Effect<Never, Never>
-    let analyzeImageColors: (UIImage) -> UIImageColors?
+    let analyzeImageColors: (UIImage) -> Effect<UIImageColors?, Never>
     let calculateWebImageDiskCacheSize: () -> Effect<Result<UInt, KingfisherError>, Never>
 }
 
@@ -67,7 +67,13 @@ extension LibraryClient {
             }
         },
         analyzeImageColors: { image in
-            image.getColors(quality: .lowest)
+            Future { promise in
+                image.getColors(quality: .highest) { colors in
+                    promise(.success(colors))
+                }
+            }
+            .eraseToAnyPublisher()
+            .eraseToEffect()
         },
         calculateWebImageDiskCacheSize: {
             Future(KingfisherManager.shared.cache.calculateDiskStorageSize)
