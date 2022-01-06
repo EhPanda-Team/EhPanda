@@ -387,7 +387,7 @@ private extension ReadingView {
         HapticUtil.generateFeedback(style: .light)
     }
     func updateSetting(_ setting: Setting) {
-        store.dispatch(.setSetting(setting))
+//        store.dispatch(.setSetting(setting))
     }
     func fetchGalleryContentsIfNeeded() {
         guard galleryContents.isEmpty else { return }
@@ -395,7 +395,7 @@ private extension ReadingView {
     }
     func trySetNavigationBarHidden(_: Any? = nil) {
         guard !environment.navigationBarHidden else { return }
-        store.dispatch(.setNavigationBarHidden(true))
+//        store.dispatch(.setNavigationBarHidden(true))
     }
 
     // MARK: Prefetch

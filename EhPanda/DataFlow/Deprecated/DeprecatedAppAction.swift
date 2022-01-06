@@ -11,16 +11,10 @@ import Foundation
 
 enum DeprecatedAppAction {
     // swiftlint:disable line_length
-    case resetUser
-    case resetHomeInfo
-    case resetFilter(range: FilterRange)
     case setReadingProgress(gid: String, tag: Int)
-    case setAppIconType(_ iconType: AppIconType)
     case appendHistoryKeywords(texts: [String])
     case removeHistoryKeyword(text: String)
     case clearHistoryKeywords
-    case setViewControllersCount
-    case setSetting(_ setting: Setting)
     case setGalleryCommentJumpID(gid: String?)
     case fulfillGalleryPreviews(gid: String)
     case fulfillGalleryContents(gid: String)
@@ -30,16 +24,6 @@ enum DeprecatedAppAction {
     case modifyQuickSearchWord(newWord: QuickSearchWord)
     case moveQuickSearchWord(source: IndexSet, destination: Int)
 
-    case setAppLock(activated: Bool)
-    case setBlurEffect(activated: Bool)
-    case setToplistsType(_ type: ToplistsType)
-    case setNavigationBarHidden(_ hidden: Bool)
-    case setHomeViewSheetState(_ state: HomeViewSheetState?)
-    case setSettingViewSheetState(_ state: SettingViewSheetState?)
-    case setDetailViewSheetState(_ state: DetailViewSheetState?)
-    case setCommentViewSheetState(_ state: CommentViewSheetState?)
-
-    case handleJumpPage(index: Int, keyword: String? = nil)
     case fetchGreeting
     case fetchGreetingDone(result: Result<Greeting, AppError>)
     case fetchGalleryItemReverse(url: String, shouldParseGalleryURL: Bool)
@@ -48,20 +32,10 @@ enum DeprecatedAppAction {
     case fetchSearchItemsDone(result: Result<(PageNumber, [Gallery]), AppError>)
     case fetchMoreSearchItems(keyword: String)
     case fetchMoreSearchItemsDone(result: Result<(PageNumber, [Gallery]), AppError>)
-    case fetchFrontpageItems(pageNum: Int? = nil)
-    case fetchFrontpageItemsDone(result: Result<(PageNumber, [Gallery]), AppError>)
-    case fetchMoreFrontpageItems
-    case fetchMoreFrontpageItemsDone(result: Result<(PageNumber, [Gallery]), AppError>)
-    case fetchPopularItems
-    case fetchPopularItemsDone(result: Result<[Gallery], AppError>)
     case fetchWatchedItems(pageNum: Int? = nil)
     case fetchWatchedItemsDone(result: Result<(PageNumber, [Gallery]), AppError>)
     case fetchMoreWatchedItems
     case fetchMoreWatchedItemsDone(result: Result<(PageNumber, [Gallery]), AppError>)
-    case fetchToplistsItems(pageNum: Int? = nil)
-    case fetchToplistsItemsDone(carriedValue: Int, result: Result<(PageNumber, [Gallery]), AppError>)
-    case fetchMoreToplistsItems
-    case fetchMoreToplistsItemsDone(carriedValue: Int, result: Result<(PageNumber, [Gallery]), AppError>)
     case fetchGalleryDetail(gid: String)
     case fetchGalleryDetailDone(gid: String, result: Result<(GalleryDetail, GalleryState, APIKey, Greeting?), AppError>)
     case fetchGalleryArchiveFunds(gid: String)

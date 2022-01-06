@@ -32,7 +32,7 @@ struct FilterView: View, StoreAccessor {
                 "Are you sure to reset?", isPresented: $resetDialogPresented, titleVisibility: .visible
             ) {
                 Button("Reset", role: .destructive) {
-                    store.dispatch(.resetFilter(range: filterRange))
+//                    store.dispatch(.resetFilter(range: filterRange))
                 }
             }
             .navigationBarTitle("Filters")

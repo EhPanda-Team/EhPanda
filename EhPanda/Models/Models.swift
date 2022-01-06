@@ -28,6 +28,20 @@ struct Gallery: Identifiable, Codable, Equatable {
         lhs.gid == rhs.gid
     }
 
+    static let empty = Gallery(
+        gid: "",
+        token: "",
+        title: "",
+        rating: 0.0,
+        tags: [],
+        category: .doujinshi,
+        language: .japanese,
+        uploader: "",
+        pageCount: 0,
+        postedDate: .now,
+        coverURL: "",
+        galleryURL: ""
+    )
     static let preview = Gallery(
         gid: "",
         token: "",
@@ -63,7 +77,7 @@ struct Gallery: Identifiable, Codable, Equatable {
     var tags: [String]
     let category: Category
     var language: Language?
-    let uploader: String?
+    var uploader: String?
     var pageCount: Int
     let postedDate: Date
     let coverURL: String

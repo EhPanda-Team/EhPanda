@@ -65,7 +65,7 @@ struct AssociatedView: View, StoreAccessor {
         ToolbarItem(placement: .navigationBarTrailing) {
             Menu {
                 Button {
-                    store.dispatch(.setHomeViewSheetState(.filter))
+//                    store.dispatch(.setHomeViewSheetState(.filter))
                 } label: {
                     Image(systemName: "line.3.horizontal.decrease")
                     Text("Filters")

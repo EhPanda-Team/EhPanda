@@ -93,32 +93,14 @@ final class DeprecatedStore: ObservableObject {
 
         switch action {
         // MARK: App Ops
-        case .resetUser:
-            appState.settings.user = User()
-        case .resetHomeInfo:
-            appState.homeInfo = DeprecatedAppState.HomeInfo()
-            dispatch(.fetchFrontpageItems(pageNum: nil))
-        case .resetFilter(let range):
-            switch range {
-            case .search:
-                appState.settings.searchFilter = Filter()
-            case .global:
-                appState.settings.globalFilter = Filter()
-            }
         case .setReadingProgress(let gid, let tag):
             PersistenceController.update(gid: gid, readingProgress: tag)
-        case .setAppIconType(let iconType):
-            appState.settings.setting.appIconType = iconType
         case .appendHistoryKeywords(let texts):
             appState.homeInfo.appendHistoryKeywords(texts: texts)
         case .removeHistoryKeyword(let text):
             appState.homeInfo.removeHistoryKeyword(text: text)
         case .clearHistoryKeywords:
             appState.homeInfo.historyKeywords = []
-        case .setSetting(let setting):
-            appState.settings.setting = setting
-        case .setViewControllersCount:
-            appState.environment.viewControllersCount = DeviceUtil.viewControllersCount
         case .setGalleryCommentJumpID(let gid):
             appState.environment.galleryItemReverseID = gid
         case .fulfillGalleryPreviews(let gid):
@@ -137,35 +119,7 @@ final class DeprecatedStore: ObservableObject {
         case .moveQuickSearchWord(let source, let destination):
             appState.homeInfo.moveQuickSearchWords(source: source, destination: destination)
 
-        // MARK: App Env
-        case .setAppLock(let activated):
-            appState.environment.isAppUnlocked = !activated
-        case .setBlurEffect(let activated):
-            withAnimation(.linear(duration: 0.1)) {
-                appState.environment.blurRadius =
-                    activated ? appState.settings.setting.backgroundBlurRadius : 0
-            }
-        case .setToplistsType(let type):
-            appState.environment.toplistsType = type
-        case .setNavigationBarHidden(let hidden):
-            appState.environment.navigationBarHidden = hidden
-        case .setHomeViewSheetState(let state):
-            if state != nil { HapticUtil.generateFeedback(style: .light) }
-            appState.environment.homeViewSheetState = state
-        case .setSettingViewSheetState(let state):
-            if state != nil { HapticUtil.generateFeedback(style: .light) }
-            appState.environment.settingViewSheetState = state
-        case .setDetailViewSheetState(let state):
-            if state != nil { HapticUtil.generateFeedback(style: .light) }
-            appState.environment.detailViewSheetState = state
-        case .setCommentViewSheetState(let state):
-            if state != nil { HapticUtil.generateFeedback(style: .light) }
-            appState.environment.commentViewSheetState = state
-
         // MARK: Fetch Data
-        case .handleJumpPage:
-            break
-
         case .fetchGreeting:
             if appState.settings.greetingLoading { break }
             appState.settings.greetingLoading = true
@@ -268,69 +222,6 @@ final class DeprecatedStore: ObservableObject {
                 appState.homeInfo.moreSearchLoadFailed = true
             }
 
-        case .fetchFrontpageItems(let pageNum):
-            appState.homeInfo.frontpageLoadError = nil
-
-            if appState.homeInfo.frontpageLoading { break }
-            appState.homeInfo.frontpagePageNumber.current = 0
-            appState.homeInfo.frontpageLoading = true
-            let filter = appState.settings.globalFilter
-            appCommand = FetchFrontpageItemsCommand(filter: filter, pageNum: pageNum)
-        case .fetchFrontpageItemsDone(let result):
-            appState.homeInfo.frontpageLoading = false
-
-            switch result {
-            case .success(let (pageNumber, galleries)):
-                appState.homeInfo.frontpagePageNumber = pageNumber
-                appState.homeInfo.frontpageItems = galleries
-                PersistenceController.add(galleries: galleries)
-            case .failure(let error):
-                appState.homeInfo.frontpageLoadError = error
-            }
-
-        case .fetchMoreFrontpageItems:
-            appState.homeInfo.moreFrontpageLoadFailed = false
-
-            let pageNumber = appState.homeInfo.frontpagePageNumber
-            if pageNumber.current + 1 > pageNumber.maximum { break }
-
-            if appState.homeInfo.moreFrontpageLoading { break }
-            appState.homeInfo.moreFrontpageLoading = true
-
-            let pageNum = pageNumber.current + 1
-            let filter = appState.settings.globalFilter
-            let lastID = appState.homeInfo.frontpageItems.last?.id ?? ""
-            appCommand = FetchMoreFrontpageItemsCommand(filter: filter, lastID: lastID, pageNum: pageNum)
-        case .fetchMoreFrontpageItemsDone(let result):
-            appState.homeInfo.moreFrontpageLoading = false
-
-            switch result {
-            case .success(let (pageNumber, galleries)):
-                appState.homeInfo.frontpagePageNumber = pageNumber
-                appState.homeInfo.insertFrontpageItems(galleries: galleries)
-                PersistenceController.add(galleries: galleries)
-            case .failure:
-                appState.homeInfo.moreFrontpageLoadFailed = true
-            }
-
-        case .fetchPopularItems:
-            appState.homeInfo.popularLoadError = nil
-
-            if appState.homeInfo.popularLoading { break }
-            appState.homeInfo.popularLoading = true
-            let filter = appState.settings.globalFilter
-            appCommand = FetchPopularItemsCommand(filter: filter)
-        case .fetchPopularItemsDone(let result):
-            appState.homeInfo.popularLoading = false
-
-            switch result {
-            case .success(let galleries):
-                appState.homeInfo.popularItems = galleries
-                PersistenceController.add(galleries: galleries)
-            case .failure(let error):
-                appState.homeInfo.popularLoadError = error
-            }
-
         case .fetchWatchedItems(let pageNum):
             appState.homeInfo.watchedLoadError = nil
 
@@ -374,57 +265,6 @@ final class DeprecatedStore: ObservableObject {
                 PersistenceController.add(galleries: galleries)
             case .failure:
                 appState.homeInfo.moreWatchedLoadFailed = true
-            }
-
-        case .fetchToplistsItems(let pageNum):
-            let topType = appState.environment.toplistsType
-            appState.homeInfo.toplistsLoadErrors[topType.rawValue] = nil
-
-            if appState.homeInfo.toplistsLoading[topType.rawValue] == true { break }
-            if appState.homeInfo.toplistsPageNumbers[topType.rawValue] == nil {
-                appState.homeInfo.toplistsPageNumbers[topType.rawValue] = PageNumber()
-            }
-            appState.homeInfo.toplistsPageNumbers[topType.rawValue]?.current = 0
-            appState.homeInfo.toplistsLoading[topType.rawValue] = true
-            appCommand = FetchToplistsItemsCommand(
-                topIndex: topType.rawValue, catIndex: topType.categoryIndex, pageNum: pageNum
-            )
-        case .fetchToplistsItemsDone(let carriedValue, let result):
-            appState.homeInfo.toplistsLoading[carriedValue] = false
-
-            switch result {
-            case .success(let (pageNumber, galleries)):
-                appState.homeInfo.toplistsPageNumbers[carriedValue] = pageNumber
-                appState.homeInfo.toplistsItems[carriedValue] = galleries
-                PersistenceController.add(galleries: galleries)
-            case .failure(let error):
-                appState.homeInfo.toplistsLoadErrors[carriedValue] = error
-            }
-
-        case .fetchMoreToplistsItems:
-            let topType = appState.environment.toplistsType
-            appState.homeInfo.moreToplistsLoadFailed[topType.rawValue] = false
-
-            let pageNumber = appState.homeInfo.toplistsPageNumbers[topType.rawValue]
-            if (pageNumber?.current ?? 0) + 1 > pageNumber?.maximum ?? 0 { break }
-
-            if appState.homeInfo.moreToplistsLoading[topType.rawValue] == true { break }
-            appState.homeInfo.moreToplistsLoading[topType.rawValue] = true
-
-            let pageNum = (pageNumber?.current ?? 0) + 1
-            appCommand = FetchMoreToplistsItemsCommand(
-                topIndex: topType.rawValue, catIndex: topType.categoryIndex, pageNum: pageNum
-            )
-        case .fetchMoreToplistsItemsDone(let carriedValue, let result):
-            appState.homeInfo.moreToplistsLoading[carriedValue] = false
-
-            switch result {
-            case .success(let (pageNumber, galleries)):
-                appState.homeInfo.toplistsPageNumbers[carriedValue] = pageNumber
-                appState.homeInfo.insertToplistsItems(topIndex: carriedValue, galleries: galleries)
-                PersistenceController.add(galleries: galleries)
-            case .failure:
-                appState.homeInfo.moreToplistsLoading[carriedValue] = true
             }
 
         case .fetchGalleryDetail(let gid):

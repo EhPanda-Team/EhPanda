@@ -103,7 +103,7 @@ struct CommentView: View, StoreAccessor {
     private func toolbar() -> some ToolbarContent {
         ToolbarItem(placement: .navigationBarTrailing) {
             Button {
-                store.dispatch(.setCommentViewSheetState(.newComment))
+//                store.dispatch(.setCommentViewSheetState(.newComment))
             } label: {
                 Image(systemName: "square.and.pencil")
             }
@@ -183,7 +183,7 @@ private extension CommentView {
         editCommentContent = comment.contents
             .filter { [.plainText, .linkedText, .singleLink].contains($0.type) }
             .compactMap { $0.type == .singleLink ? $0.link : $0.text }.joined()
-        store.dispatch(.setCommentViewSheetState(.editComment))
+//        store.dispatch(.setCommentViewSheetState(.editComment))
     }
     func postNewComment() {
         store.dispatch(.commentGallery(gid: gid, content: commentContent))
@@ -201,7 +201,7 @@ private extension CommentView {
         store.dispatch(.setGalleryCommentJumpID(gid: gid))
     }
     func toggleCommentViewSheetNil() {
-        store.dispatch(.setCommentViewSheetState(nil))
+//        store.dispatch(.setCommentViewSheetState(nil))
     }
 }
 

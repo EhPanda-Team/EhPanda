@@ -37,8 +37,19 @@ struct HomeView: View {
                                 viewStore.send(.analyzeImageColors(gid, result))
                             }
                             Group {
-                                CoverWallSection(galleries: viewStore.frontpageGalleries)
-                                ToplistsSection(galleries: viewStore.toplistsGalleries)
+                                CoverWallSection(
+                                    galleries: viewStore.frontpageGalleries,
+                                    isLoading: viewStore.frontpageLoadingState == .loading
+                                ) {
+                                    viewStore.send(.fetchFrontpageGalleries())
+                                }
+                                ToplistsSection(
+                                    galleries: viewStore.toplistsGalleries,
+                                    isLoading: !viewStore.toplistsLoadingState
+                                        .values.allSatisfy({ $0 != .loading })
+                                ) {
+                                    viewStore.send(.fetchAllToplistsGalleries)
+                                }
                                 MiscGridSection()
                             }
                             .padding(.vertical)
@@ -102,12 +113,22 @@ private struct CardSlideSection: View {
 // MARK: CoverWallSection
 private struct CoverWallSection: View {
     private let galleries: [Gallery]
+    private let isLoading: Bool
+    private let reloadAction: () -> Void
 
-    init(galleries: [Gallery]) {
+    init(
+        galleries: [Gallery], isLoading: Bool,
+        reloadAction: @escaping () -> Void
+    ) {
         self.galleries = galleries
+        self.isLoading = isLoading
+        self.reloadAction = reloadAction
     }
 
-    private var filteredGalleries: [[Gallery]] {
+    private var dataSource: [[Gallery]] {
+        guard !galleries.isEmpty else {
+            return Array(repeating: [Gallery.empty, Gallery.empty], count: 25)
+        }
         var galleries = Array(galleries.prefix(25)).duplicatesRemoved
         if galleries.count % 2 != 0 { galleries = galleries.dropLast() }
         return stride(from: 0, to: galleries.count, by: 2).map { index in
@@ -116,10 +137,13 @@ private struct CoverWallSection: View {
     }
 
     var body: some View {
-        SubSection(title: "Frontpage", tint: .secondary, destination: FrontpageView()) {
+        SubSection(
+            title: "Frontpage", tint: .secondary,
+            isLoading: isLoading, reloadAction: reloadAction
+        ) {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 20) {
-                    ForEach(filteredGalleries, id: \.description, content: VerticalCoverStack.init)
+                    ForEach(dataSource, id: \.description, content: VerticalCoverStack.init)
                         .withHorizontalSpacing(width: 0)
                 }
             }
@@ -154,20 +178,44 @@ private struct VerticalCoverStack: View {
 
 // MARK: ToplistsSection
 private struct ToplistsSection: View {
-    private let galleries: [Int: [Gallery]]
+    private let galleries: [Int: [Gallery]] = [:]
+    private let isLoading: Bool
+    private let reloadAction: () -> Void
 
-    init(galleries: [Int: [Gallery]]) {
-        self.galleries = galleries
+    init(galleries: [Int: [Gallery]], isLoading: Bool,
+         reloadAction: @escaping () -> Void
+    ) {
+//        self.galleries = galleries
+        self.isLoading = isLoading
+        self.reloadAction = reloadAction
     }
 
+    private var dataSource: [Int: [Gallery]] {
+        guard !galleries.isEmpty else {
+            var dictionary = [Int: [Gallery]]()
+            var gallery: Gallery = .empty
+            gallery.title = "......"
+            gallery.uploader = "......"
+            let galleries = Array(repeating: gallery, count: 6)
+
+            ToplistsType.allCases.forEach { type in
+                dictionary[type.categoryIndex] = galleries
+            }
+            return dictionary
+        }
+        return galleries
+    }
     private func galleries(type: ToplistsType, range: ClosedRange<Int>) -> [Gallery] {
-        let galleries = galleries[type.categoryIndex] ?? []
+        let galleries = dataSource[type.categoryIndex] ?? []
         guard galleries.count > range.upperBound else { return [] }
         return Array(galleries[range])
     }
 
     var body: some View {
-        SubSection(title: "Toplists", tint: .secondary, destination: EmptyView()) {
+        SubSection(
+            title: "Toplists", tint: .secondary,
+            isLoading: isLoading, reloadAction: reloadAction
+        ) {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack {
                     ForEach(ToplistsType.allCases.reversed(), content: verticalStacks)
@@ -221,7 +269,7 @@ private struct VerticalToplistStack: View {
 // MARK: MiscGridSection
 private struct MiscGridSection: View {
     var body: some View {
-        SubSection(title: "Other", showAll: false, destination: EmptyView()) {
+        SubSection(title: "Other", showAll: false) {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack {
                     let types = MiscItemType.allCases

@@ -32,10 +32,10 @@ struct FrontpageView: View, StoreAccessor {
 
 private extension FrontpageView {
     func fetchFrontpageItems() {
-        store.dispatch(.fetchFrontpageItems())
+//        store.dispatch(.fetchFrontpageItems())
     }
     func fetchMoreFrontpageItems() {
-        store.dispatch(.fetchMoreFrontpageItems)
+//        store.dispatch(.fetchMoreFrontpageItems)
     }
 }
 

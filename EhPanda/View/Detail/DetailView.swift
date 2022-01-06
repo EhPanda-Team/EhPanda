@@ -161,7 +161,7 @@ private extension DetailView {
     // MARK: Life Cycle
     func onStartTasks() {
         if environment.navigationBarHidden {
-            store.dispatch(.setNavigationBarHidden(false))
+//            store.dispatch(.setNavigationBarHidden(false))
         }
         store.dispatch(.fulfillGalleryPreviews(gid: gid))
         store.dispatch(.fulfillGalleryContents(gid: gid))
@@ -225,10 +225,10 @@ private extension DetailView {
         commentContent = ""
     }
     func presentSheet(state: DetailViewSheetState?) {
-        store.dispatch(.setDetailViewSheetState(state))
+//        store.dispatch(.setDetailViewSheetState(state))
     }
     func updateViewControllersCount() {
-        store.dispatch(.setViewControllersCount)
+//        store.dispatch(.setViewControllersCount)
     }
     func fetchGalleryDetail() {
         store.dispatch(.fetchGalleryDetail(gid: gid))
@@ -635,37 +635,38 @@ private struct PreviewView: View {
     }
 
     var body: some View {
-        SubSection(
-            title: "Preview", showAll: pageCount > 20,
-            destination: MorePreviewView(
-                gid: gid, previews: previews, pageCount: pageCount,
-                tapAction: tapAction, fetchAction: fetchAction
-            )
-        ) {
-            ScrollView(.horizontal, showsIndicators: false) {
-                LazyHStack {
-                    ForEach(1..<min(pageCount + 1, 21)) { index in
-                        let (url, modifier) =
-                        PreviewResolver.getPreviewConfigs(
-                            originalURL: previews[index] ?? ""
-                        )
-                        KFImage.url(URL(string: url), cacheKey: previews[index])
-                            .placeholder {
-                                Placeholder(style: .activity(
-                                    ratio: Defaults.ImageSize
-                                        .previewAspect
-                                ))
-                            }
-                            .imageModifier(modifier)
-                            .fade(duration: 0.25)
-                            .resizable().scaledToFit()
-                            .frame(width: width, height: height)
-                            .onTapGesture { tapAction(index, true) }
-                    }
-                    .withHorizontalSpacing(height: height)
-                }
-            }
-        }
+        EmptyView()
+//        SubSection(
+//            title: "Preview", showAll: pageCount > 20,
+//            destination: MorePreviewView(
+//                gid: gid, previews: previews, pageCount: pageCount,
+//                tapAction: tapAction, fetchAction: fetchAction
+//            )
+//        ) {
+//            ScrollView(.horizontal, showsIndicators: false) {
+//                LazyHStack {
+//                    ForEach(1..<min(pageCount + 1, 21)) { index in
+//                        let (url, modifier) =
+//                        PreviewResolver.getPreviewConfigs(
+//                            originalURL: previews[index] ?? ""
+//                        )
+//                        KFImage.url(URL(string: url), cacheKey: previews[index])
+//                            .placeholder {
+//                                Placeholder(style: .activity(
+//                                    ratio: Defaults.ImageSize
+//                                        .previewAspect
+//                                ))
+//                            }
+//                            .imageModifier(modifier)
+//                            .fade(duration: 0.25)
+//                            .resizable().scaledToFit()
+//                            .frame(width: width, height: height)
+//                            .onTapGesture { tapAction(index, true) }
+//                    }
+//                    .withHorizontalSpacing(height: height)
+//                }
+//            }
+//        }
     }
 }
 
@@ -768,22 +769,23 @@ private struct CommentScrollView: View {
     }
 
     var body: some View {
-        SubSection(
-            title: "Comment", showAll: !comments.isEmpty,
-            destination: CommentView(gid: gid, comments: comments)
-        ) {
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack {
-                    ForEach(comments.prefix(6)) { comment in
-                        CommentScrollCell(comment: comment)
-                    }
-                    .withHorizontalSpacing()
-                }
-                .drawingGroup()
-            }
-            CommentButton(action: toggleCommentAction).padding(.horizontal)
-                .disabled(!CookiesUtil.didLogin)
-        }
+        EmptyView()
+//        SubSection(
+//            title: "Comment", showAll: !comments.isEmpty,
+//            destination: CommentView(gid: gid, comments: comments)
+//        ) {
+//            ScrollView(.horizontal, showsIndicators: false) {
+//                HStack {
+//                    ForEach(comments.prefix(6)) { comment in
+//                        CommentScrollCell(comment: comment)
+//                    }
+//                    .withHorizontalSpacing()
+//                }
+//                .drawingGroup()
+//            }
+//            CommentButton(action: toggleCommentAction).padding(.horizontal)
+//                .disabled(!CookiesUtil.didLogin)
+//        }
     }
 }
 

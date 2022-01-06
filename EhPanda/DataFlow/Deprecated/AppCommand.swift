@@ -129,18 +129,18 @@ struct FetchFrontpageItemsCommand: AppCommand {
         FrontpageItemsRequest(filter: filter, pageNum: pageNum).publisher
             .receive(on: DispatchQueue.main)
             .sink { completion in
-                if case .failure(let error)  = completion {
-                    store.dispatch(.fetchFrontpageItemsDone(result: .failure(error)))
+                if case .failure = completion {
+//                    store.dispatch(.fetchFrontpageItemsDone(result: .failure(error)))
                 }
                 token.unseal()
             } receiveValue: { (pageNumber, galleries) in
                 if !galleries.isEmpty {
-                    store.dispatch(.fetchFrontpageItemsDone(result: .success((pageNumber, galleries))))
+//                    store.dispatch(.fetchFrontpageItemsDone(result: .success((pageNumber, galleries))))
                 } else {
-                    store.dispatch(.fetchFrontpageItemsDone(result: .failure(.notFound)))
+//                    store.dispatch(.fetchFrontpageItemsDone(result: .failure(.notFound)))
                     guard pageNumber.current < pageNumber.maximum else { return }
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                        store.dispatch(.fetchMoreFrontpageItems)
+//                        store.dispatch(.fetchMoreFrontpageItems)
                     }
                 }
             }
@@ -158,16 +158,16 @@ struct FetchMoreFrontpageItemsCommand: AppCommand {
         MoreFrontpageItemsRequest(filter: filter, lastID: lastID, pageNum: pageNum)
             .publisher.receive(on: DispatchQueue.main)
             .sink { completion in
-                if case .failure(let error)  = completion {
-                    store.dispatch(.fetchMoreFrontpageItemsDone(result: .failure(error)))
+                if case .failure = completion {
+//                    store.dispatch(.fetchMoreFrontpageItemsDone(result: .failure(error)))
                 }
                 token.unseal()
             } receiveValue: { (pageNumber, galleries) in
-                store.dispatch(.fetchMoreFrontpageItemsDone(result: .success((pageNumber, galleries))))
+//                store.dispatch(.fetchMoreFrontpageItemsDone(result: .success((pageNumber, galleries))))
 
                 guard galleries.isEmpty, pageNumber.current < pageNumber.maximum else { return }
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                    store.dispatch(.fetchMoreFrontpageItems)
+//                    store.dispatch(.fetchMoreFrontpageItems)
                 }
             }
             .seal(in: token)
@@ -183,15 +183,15 @@ struct FetchPopularItemsCommand: AppCommand {
         PopularItemsRequest(filter: filter).publisher
             .receive(on: DispatchQueue.main)
             .sink { completion in
-                if case .failure(let error)  = completion {
-                    store.dispatch(.fetchPopularItemsDone(result: .failure(error)))
+                if case .failure = completion {
+//                    store.dispatch(.fetchPopularItemsDone(result: .failure(error)))
                 }
                 token.unseal()
             } receiveValue: { galleries in
                 if !galleries.isEmpty {
-                    store.dispatch(.fetchPopularItemsDone(result: .success(galleries)))
+//                    store.dispatch(.fetchPopularItemsDone(result: .success(galleries)))
                 } else {
-                    store.dispatch(.fetchPopularItemsDone(result: .failure(.notFound)))
+//                    store.dispatch(.fetchPopularItemsDone(result: .failure(.notFound)))
                 }
             }
             .seal(in: token)
@@ -262,20 +262,20 @@ struct FetchToplistsItemsCommand: AppCommand {
         ToplistsItemsRequest(catIndex: catIndex, pageNum: pageNum)
             .publisher.receive(on: DispatchQueue.main)
             .sink { completion in
-                if case .failure(let error)  = completion {
-                    store.dispatch(.fetchToplistsItemsDone(carriedValue: topIndex, result: .failure(error)))
+                if case .failure = completion {
+//                    store.dispatch(.fetchToplistsItemsDone(carriedValue: topIndex, result: .failure(error)))
                 }
                 token.unseal()
             } receiveValue: { (pageNumber, galleries) in
                 if !galleries.isEmpty {
-                    store.dispatch(.fetchToplistsItemsDone(
-                        carriedValue: topIndex, result: .success((pageNumber, galleries)))
-                    )
+//                    store.dispatch(.fetchToplistsItemsDone(
+//                        carriedValue: topIndex, result: .success((pageNumber, galleries)))
+//                    )
                 } else {
-                    store.dispatch(.fetchToplistsItemsDone(carriedValue: topIndex, result: .failure(.notFound)))
+//                    store.dispatch(.fetchToplistsItemsDone(carriedValue: topIndex, result: .failure(.notFound)))
                     guard pageNumber.current < pageNumber.maximum else { return }
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                        store.dispatch(.fetchMoreToplistsItems)
+//                        store.dispatch(.fetchMoreToplistsItems)
                     }
                 }
             }
@@ -293,17 +293,17 @@ struct FetchMoreToplistsItemsCommand: AppCommand {
         MoreToplistsItemsRequest(catIndex: catIndex, pageNum: pageNum)
             .publisher.receive(on: DispatchQueue.main)
             .sink { completion in
-                if case .failure(let error)  = completion {
-                    store.dispatch(.fetchMoreToplistsItemsDone(carriedValue: topIndex, result: .failure(error)))
+                if case .failure = completion {
+//                    store.dispatch(.fetchMoreToplistsItemsDone(carriedValue: topIndex, result: .failure(error)))
                 }
                 token.unseal()
             } receiveValue: { (pageNumber, galleries) in
-                store.dispatch(.fetchMoreToplistsItemsDone(
-                    carriedValue: topIndex, result: .success((pageNumber, galleries)))
-                )
+//                store.dispatch(.fetchMoreToplistsItemsDone(
+//                    carriedValue: topIndex, result: .success((pageNumber, galleries)))
+//                )
                 guard galleries.isEmpty, pageNumber.current < pageNumber.maximum else { return }
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                    store.dispatch(.fetchMoreToplistsItems)
+//                    store.dispatch(.fetchMoreToplistsItems)
                 }
             }
             .seal(in: token)
