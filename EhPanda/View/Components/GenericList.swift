@@ -7,6 +7,7 @@
 
 import SwiftUI
 import WaterfallGrid
+import ComposableArchitecture
 
 struct GenericList: View {
     private let galleries: [Gallery]
@@ -36,11 +37,7 @@ struct GenericList: View {
     }
 
     var body: some View {
-        if loadingState == .loading {
-            LoadingView()
-        } else if case .failed(let error) = loadingState {
-            ErrorView(error: error, retryAction: fetchAction)
-        } else {
+        ZStack {
             VStack(spacing: 0) {
                 switch setting.listMode {
                 case .detail:
@@ -57,13 +54,15 @@ struct GenericList: View {
                     )
                 }
             }
-            .transition(AppUtil.opacityTransition)
-            .refreshable {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    fetchAction?()
-                }
-            }
+            .opacity(loadingState == .idle ? 1 : 0).zIndex(2)
+            LoadingView().opacity(loadingState == .loading ? 1 : 0).zIndex(0)
+            let error = (/LoadingState.failed).extract(from: loadingState)
+            ErrorView(error: error ?? .unknown, retryAction: fetchAction)
+                .opacity([.idle, .loading].contains(loadingState) ? 0 : 1).zIndex(1)
         }
+        .animation(.default, value: loadingState)
+        .animation(.default, value: galleries)
+        .refreshable { fetchAction?() }
     }
 }
 

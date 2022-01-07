@@ -54,7 +54,7 @@ struct AppearanceSettingView: View {
                 .pickerStyle(.menu)
                 ColorPicker("Tint Color", selection: $accentColor)
                 Button("App Icon") {
-                    viewStore.send(.setRoute(.appIcon))
+                    viewStore.send(.setNavigation(.appIcon))
                 }
                 .foregroundStyle(.primary).withArrow()
             }

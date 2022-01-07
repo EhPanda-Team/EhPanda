@@ -8,13 +8,13 @@
 import ComposableArchitecture
 
 struct LogsState: Equatable {
-    @BindableState var logIdentifier: String?
+    var route: LoginViewRoute?
     var logs = [Log]()
 }
 
 enum LogsAction: BindableAction {
     case binding(BindingAction<LogsState>)
-    case navigateToLog(String)
+    case setNavigation(LoginViewRoute?)
     case fetchLogs
     case fetchLogsDone(Result<[Log], AppError>)
     case deleteLog(String)
@@ -32,8 +32,8 @@ let logsReducer = Reducer<LogsState, LogsAction, LogsEnvironment> { state, actio
     case .binding:
         return .none
 
-    case .navigateToLog(let identifier):
-        state.logIdentifier = identifier
+    case .setNavigation(let route):
+        state.route = route
         return .none
 
     case .fetchLogs:

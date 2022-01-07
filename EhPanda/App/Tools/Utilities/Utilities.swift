@@ -39,9 +39,6 @@ struct AuthorizationUtil {
 
 // MARK: App
 struct AppUtil {
-    static var opacityTransition: AnyTransition {
-        AnyTransition.opacity.animation(.default)
-    }
     static var version: String {
         Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "(null)"
     }

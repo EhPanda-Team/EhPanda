@@ -7,6 +7,10 @@
 
 // MARK: EhSetting
 struct EhSetting: Equatable {
+    // swiftlint:disable line_length
+    static let empty: Self = .init(ehProfiles: [.empty], capableLoadThroughHathSetting: .anyClient, capableImageResolution: .auto, capableSearchResultCount: .fifty, capableThumbnailConfigSize: .normal, capableThumbnailConfigRows: .forty, loadThroughHathSetting: .anyClient, browsingCountry: .autoDetect, literalBrowsingCountry: "", imageResolution: .auto, imageSizeWidth: 0, imageSizeHeight: 0, galleryName: .default, archiverBehavior: .autoSelectOriginalAutoStart, displayMode: .compact, disabledCategories: Array(repeating: false, count: 10), favoriteNames: Array(repeating: "", count: 10), favoritesSortOrder: .favoritedTime, ratingsColor: "", excludedNamespaces: Array(repeating: false, count: 11), tagFilteringThreshold: 0, tagWatchingThreshold: 0, excludedLanguages: Array(repeating: false, count: 50), excludedUploaders: "", searchResultCount: .fifty, thumbnailLoadTiming: .onPageLoad, thumbnailConfigSize: .normal, thumbnailConfigRows: .ten, thumbnailScaleFactor: 0, viewportVirtualWidth: 0, commentsSortOrder: .recent, commentVotesShowTiming: .always, tagsSortOrder: .alphabetical, galleryShowPageNumbers: true, hathLocalNetworkHost: "")
+    // swiftlint:enable line_length
+
     static let categoryNames = Category.allCases.map(\.rawValue).map { value in
         value.lowercased().replacingOccurrences(of: " ", with: "")
     }
@@ -64,6 +68,9 @@ struct EhSetting: Equatable {
 
 // MARK: EhProfile
 struct EhProfile: Comparable, Identifiable, Hashable {
+    static let empty: Self = .init(
+        value: 0, name: "", isSelected: true
+    )
     static func < (lhs: EhProfile, rhs: EhProfile) -> Bool {
         lhs.value < rhs.value
     }

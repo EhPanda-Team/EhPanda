@@ -22,7 +22,7 @@ struct AccountSettingState: Equatable {
 
 enum AccountSettingAction: BindableAction {
     case binding(BindingAction<AccountSettingState>)
-    case setRoute(AccountSettingRoute?)
+    case setNavigation(AccountSettingRoute?)
     case setWebViewSheetPresented(Bool)
     case setLogoutDialogPresented(Bool)
     case setHUD(Bool, TTProgressHUDConfig)
@@ -45,7 +45,7 @@ let accountSettingReducer = Reducer<AccountSettingState, AccountSettingAction, A
         case .binding:
             return .none
 
-        case .setRoute(let route):
+        case .setNavigation(let route):
             state.route = route
             return .none
 
@@ -70,7 +70,7 @@ let accountSettingReducer = Reducer<AccountSettingState, AccountSettingAction, A
             return environment.cookiesClient.didLogin()
             ? .merge(
                 .init(value: .refreshCookiesSection),
-                .init(value: .setRoute(nil))
+                .init(value: .setNavigation(nil))
             )
             : .none
 

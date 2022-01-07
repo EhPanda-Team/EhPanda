@@ -85,7 +85,9 @@ struct FavoritesView: View {
             .animation(.default, value: alertManager.isPresented)
             .onAppear {
                 if viewStore.galleries?.isEmpty != false {
-                    viewStore.send(.fetchGalleries())
+                    DispatchQueue.main.async {
+                        viewStore.send(.fetchGalleries())
+                    }
                 }
             }
             .navigationTitle(navigationTitle)

@@ -29,6 +29,7 @@ struct EhSettingView: View {
     // MARK: EhSettingView
     var body: some View {
         ZStack {
+            // workaround: Stay if-else approach
             if viewStore.loadingState == .loading || viewStore.submittingState == .loading {
                 LoadingView().tint(nil)
             } else if case .failed(let error) = viewStore.loadingState {
@@ -37,8 +38,7 @@ struct EhSettingView: View {
                       let ehProfile = Binding(viewStore.binding(\.$ehProfile))
             {
                 form(ehSetting: ehSetting, ehProfile: ehProfile)
-            } else {
-                Circle().frame(width: 1).opacity(0.1)
+                    .transition(.opacity.animation(.default))
             }
         }
         .onAppear { viewStore.send(.fetchEhSetting) }
@@ -95,7 +95,6 @@ struct EhSettingView: View {
                 MultiplePageViewerSection(ehSetting: ehSetting)
             }
         }
-        .transition(AppUtil.opacityTransition)
     }
     // MARK: Toolbar
     private func toolbar() -> some ToolbarContent {

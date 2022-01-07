@@ -26,52 +26,120 @@ struct HomeView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                if !viewStore.popularGalleries.isEmpty {
-                    ScrollView(showsIndicators: false) {
-                        VStack {
-                            CardSlideSection(
-                                galleries: viewStore.popularGalleries, page: page,
-                                currentID: viewStore.currentCardID,
-                                colors: viewStore.cardColors
-                            ) { gid, result in
-                                viewStore.send(.analyzeImageColors(gid, result))
-                            }
-                            Group {
-                                CoverWallSection(
-                                    galleries: viewStore.frontpageGalleries,
-                                    isLoading: viewStore.frontpageLoadingState == .loading
-                                ) {
-                                    viewStore.send(.fetchFrontpageGalleries())
-                                }
-                                ToplistsSection(
-                                    galleries: viewStore.toplistsGalleries,
-                                    isLoading: !viewStore.toplistsLoadingState
-                                        .values.allSatisfy({ $0 != .loading })
-                                ) {
-                                    viewStore.send(.fetchAllToplistsGalleries)
-                                }
-                                MiscGridSection()
-                            }
-                            .padding(.vertical)
+                ScrollView(showsIndicators: false) {
+                    VStack {
+                        CardSlideSection(
+                            galleries: viewStore.popularGalleries, page: page,
+                            currentID: viewStore.currentCardID,
+                            colors: viewStore.cardColors,
+                            navigateAction: navigateTo(gid:)
+                        ) { gid, result in
+                            viewStore.send(.analyzeImageColors(gid, result))
                         }
-                    }
-                    .transition(AppUtil.opacityTransition)
-                } else if viewStore.popularLoadingState == .loading {
-                    LoadingView()
-                } else if case .failed(let error) = viewStore.popularLoadingState {
-                    ErrorView(error: error) {
-                        viewStore.send(.fetchAllGalleries)
+                        Group {
+                            CoverWallSection(
+                                galleries: viewStore.frontpageGalleries,
+                                isLoading: viewStore.frontpageLoadingState == .loading,
+                                navigateAction: navigateTo(gid:)
+                            ) {
+                                viewStore.send(.fetchFrontpageGalleries())
+                            }
+                            ToplistsSection(
+                                galleries: viewStore.toplistsGalleries,
+                                isLoading: !viewStore.toplistsLoadingState
+                                    .values.allSatisfy({ $0 != .loading }),
+                                navigateAction: navigateTo(gid:)
+                            ) {
+                                viewStore.send(.fetchAllToplistsGalleries)
+                            }
+                            MiscGridSection(navigateAction: navigateTo(type:))
+                        }
+                        .padding(.vertical)
                     }
                 }
+                .opacity(viewStore.popularGalleries.isEmpty ? 0 : 1).zIndex(2)
+                LoadingView()
+                    .opacity(
+                        viewStore.popularLoadingState == .loading
+                        && viewStore.popularGalleries.isEmpty ? 1 : 0
+                    )
+                    .zIndex(0)
+                let error = (/LoadingState.failed)
+                    .extract(from: viewStore.popularLoadingState)
+                ErrorView(error: error ?? .unknown) {
+                    viewStore.send(.fetchAllGalleries)
+                }
+                .opacity(
+                    ![.idle, .loading].contains(viewStore.popularLoadingState)
+                    && viewStore.popularGalleries.isEmpty ? 1 : 0
+                )
+                .zIndex(1)
             }
+            .animation(.default, value: viewStore.popularLoadingState)
             .synchronize(viewStore.binding(\.$cardPageIndex), $page.index)
             .onAppear {
                 if viewStore.popularGalleries.isEmpty {
                     viewStore.send(.fetchAllGalleries)
                 }
             }
+            .background(navigationLinks)
             .navigationTitle("Home")
         }
+    }
+}
+
+// MARK: NavigationLinks
+private extension HomeView {
+    var navigationLinks: some View {
+        Group {
+            ForEach(viewStore.frontpageGalleries, content: detailViewLink)
+            ForEach(viewStore.popularGalleries, content: detailViewLink)
+            ForEach(ToplistsType.allCases) { type in
+                let galleries = viewStore.toplistsGalleries[type.categoryIndex]
+                ForEach(galleries ?? [], content: detailViewLink)
+            }
+            miscGridLinks
+        }
+    }
+    var miscGridLinks: some View {
+        ForEach(MiscGridType.allCases) { type in
+            NavigationLink(
+                "", tag: type, selection: .init(
+                    get: { (/HomeViewRoute.misc).extract(from: viewStore.route) },
+                    set: {
+                        var route: HomeViewRoute?
+                        if let type = $0 {
+                            route = .misc(type)
+                        }
+                        viewStore.send(.setNavigation(route))
+                    }
+                )
+            ) {
+                EmptyView()
+            }
+        }
+    }
+    func detailViewLink(gallery: Gallery) -> NavigationLink<Text, DetailView> {
+        NavigationLink(
+            "", tag: gallery.id, selection: .init(
+                get: { (/HomeViewRoute.detail).extract(from: viewStore.route) },
+                set: {
+                    var route: HomeViewRoute?
+                    if let identifier = $0 {
+                        route = .detail(identifier)
+                    }
+                    viewStore.send(.setNavigation(route))
+                }
+            )
+        ) {
+            DetailView(gid: gallery.id)
+        }
+    }
+    func navigateTo(gid: String) {
+        viewStore.send(.setNavigation(.detail(gid)))
+    }
+    func navigateTo(type: MiscGridType) {
+        viewStore.send(.setNavigation(.misc(type)))
     }
 }
 
@@ -81,22 +149,27 @@ private struct CardSlideSection: View {
     private let page: Page
     private let currentID: String
     private let colors: [Color]
+    private let navigateAction: (String) -> Void
     private let webImageSuccessAction: (String, RetrieveImageResult) -> Void
 
     init(
-        galleries: [Gallery], page: Page, currentID: String, colors: [Color],
+        galleries: [Gallery], page: Page, currentID: String,
+        colors: [Color], navigateAction: @escaping (String) -> Void,
         webImageSuccessAction: @escaping (String, RetrieveImageResult) -> Void
     ) {
         self.galleries = galleries
         self.page = page
         self.currentID = currentID
         self.colors = colors
+        self.navigateAction = navigateAction
         self.webImageSuccessAction = webImageSuccessAction
     }
 
     var body: some View {
         Pager(page: page, data: galleries) { gallery in
-            NavigationLink(destination: DetailView(gid: gallery.gid)) {
+            Button {
+                navigateAction(gallery.id)
+            } label: {
                 GalleryCardCell(gallery: gallery, currentID: currentID, colors: colors) {
                     webImageSuccessAction(gallery.gid, $0)
                 }
@@ -114,14 +187,17 @@ private struct CardSlideSection: View {
 private struct CoverWallSection: View {
     private let galleries: [Gallery]
     private let isLoading: Bool
+    private let navigateAction: (String) -> Void
     private let reloadAction: () -> Void
 
     init(
         galleries: [Gallery], isLoading: Bool,
+        navigateAction: @escaping (String) -> Void,
         reloadAction: @escaping () -> Void
     ) {
         self.galleries = galleries
         self.isLoading = isLoading
+        self.navigateAction = navigateAction
         self.reloadAction = reloadAction
     }
 
@@ -129,7 +205,7 @@ private struct CoverWallSection: View {
         guard !galleries.isEmpty else {
             return Array(repeating: [Gallery.empty, Gallery.empty], count: 25)
         }
-        var galleries = Array(galleries.prefix(25)).duplicatesRemoved
+        var galleries = galleries
         if galleries.count % 2 != 0 { galleries = galleries.dropLast() }
         return stride(from: 0, to: galleries.count, by: 2).map { index in
             [galleries[index], galleries[index + 1]]
@@ -143,8 +219,10 @@ private struct CoverWallSection: View {
         ) {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 20) {
-                    ForEach(dataSource, id: \.description, content: VerticalCoverStack.init)
-                        .withHorizontalSpacing(width: 0)
+                    ForEach(dataSource, id: \.description) {
+                        VerticalCoverStack(galleries: $0, navigateAction: navigateAction)
+                    }
+                    .withHorizontalSpacing(width: 0)
                 }
             }
             .frame(height: Defaults.ImageSize.rowH * 2 + 30)
@@ -154,16 +232,20 @@ private struct CoverWallSection: View {
 
 private struct VerticalCoverStack: View {
     private let galleries: [Gallery]
+    private let navigateAction: (String) -> Void
 
-    init(galleries: [Gallery]) {
+    init(galleries: [Gallery], navigateAction: @escaping (String) -> Void) {
         self.galleries = galleries
+        self.navigateAction = navigateAction
     }
 
     private func placeholder() -> some View {
         Placeholder(style: .activity(ratio: Defaults.ImageSize.headerAspect))
     }
     private func imageContainer(gallery: Gallery) -> some View {
-        NavigationLink(destination: DetailView(gid: gallery.gid)) {
+        Button {
+            navigateAction(gallery.id)
+        } label: {
             KFImage(URL(string: gallery.coverURL)).placeholder(placeholder).defaultModifier().scaledToFill()
                 .frame(width: Defaults.ImageSize.rowW, height: Defaults.ImageSize.rowH).cornerRadius(2)
         }
@@ -180,13 +262,17 @@ private struct VerticalCoverStack: View {
 private struct ToplistsSection: View {
     private let galleries: [Int: [Gallery]]
     private let isLoading: Bool
+    private let navigateAction: (String) -> Void
     private let reloadAction: () -> Void
 
-    init(galleries: [Int: [Gallery]], isLoading: Bool,
-         reloadAction: @escaping () -> Void
+    init(
+        galleries: [Int: [Gallery]], isLoading: Bool,
+        navigateAction: @escaping (String) -> Void,
+        reloadAction: @escaping () -> Void
     ) {
         self.galleries = galleries
         self.isLoading = isLoading
+        self.navigateAction = navigateAction
         self.reloadAction = reloadAction
     }
 
@@ -228,11 +314,13 @@ private struct ToplistsSection: View {
             Text(type.description.localized).font(.subheadline.bold())
             HStack {
                 VerticalToplistStack(
-                    galleries: galleries(type: type, range: 0...2), startRanking: 1
+                    galleries: galleries(type: type, range: 0...2), startRanking: 1,
+                    navigateAction: navigateAction
                 )
                 if DeviceUtil.isPad {
                     VerticalToplistStack(
-                        galleries: galleries(type: type, range: 3...5), startRanking: 4
+                        galleries: galleries(type: type, range: 3...5), startRanking: 4,
+                        navigateAction: navigateAction
                     )
                 }
             }
@@ -244,17 +332,21 @@ private struct ToplistsSection: View {
 private struct VerticalToplistStack: View {
     private let galleries: [Gallery]
     private let startRanking: Int
+    private let navigateAction: (String) -> Void
 
-    init(galleries: [Gallery], startRanking: Int) {
+    init(galleries: [Gallery], startRanking: Int, navigateAction: @escaping (String) -> Void) {
         self.galleries = galleries
         self.startRanking = startRanking
+        self.navigateAction = navigateAction
     }
 
     var body: some View {
         VStack(spacing: 10) {
             ForEach(0..<galleries.count, id: \.self) { index in
                 VStack(spacing: 10) {
-                    NavigationLink(destination: DetailView(gid: galleries[index].gid)) {
+                    Button {
+                        navigateAction(galleries[index].id)
+                    } label: {
                         GalleryRankingCell(gallery: galleries[index], ranking: startRanking + index)
                             .tint(.primary).multilineTextAlignment(.leading)
                     }
@@ -268,16 +360,24 @@ private struct VerticalToplistStack: View {
 
 // MARK: MiscGridSection
 private struct MiscGridSection: View {
+    private let navigateAction: (MiscGridType) -> Void
+
+    init(navigateAction: @escaping (MiscGridType) -> Void) {
+        self.navigateAction = navigateAction
+    }
+
     var body: some View {
         SubSection(title: "Other", showAll: false) {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack {
-                    let types = MiscItemType.allCases
+                    let types = MiscGridType.allCases
                     ForEach(types) { type in
-                        NavigationLink(destination: type.destination) {
-                            MiscGridItem(title: type.rawValue.localized, symbol: type.symbol)
+                        Button {
+                            navigateAction(type)
+                        } label: {
+                            MiscGridItem(title: type.rawValue.localized, symbol: type.symbol).tint(.primary)
                         }
-                        .tint(.primary).padding(.trailing, type == types.last ? 0 : 10)
+                        .padding(.trailing, type == types.last ? 0 : 10)
                     }
                     .withHorizontalSpacing()
                 }
@@ -313,7 +413,7 @@ private struct MiscGridItem: View {
 }
 
 // MARK: Definition
-private enum MiscItemType: String, CaseIterable, Identifiable {
+enum MiscGridType: String, CaseIterable, Identifiable {
     var id: String { rawValue }
 
     case popular = "Popular"
@@ -321,18 +421,9 @@ private enum MiscItemType: String, CaseIterable, Identifiable {
     case history = "History"
 }
 
-private extension MiscItemType {
+extension MiscGridType {
     var destination: some View {
-        Group {
-            switch self {
-            case .popular:
-                EmptyView()
-            case .watched:
-                EmptyView()
-            case .history:
-                EmptyView()
-            }
-        }
+        EmptyView()
     }
     var symbol: SFSymbol {
         switch self {
@@ -344,6 +435,11 @@ private extension MiscItemType {
             return .clockArrowCirclepath
         }
     }
+}
+
+enum HomeViewRoute: Equatable {
+    case detail(String)
+    case misc(MiscGridType)
 }
 
 struct HomeView_Previews: PreviewProvider {

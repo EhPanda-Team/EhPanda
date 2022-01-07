@@ -66,7 +66,7 @@ struct GeneralSettingView: View {
                     Toggle("", isOn: $translatesTags).frame(width: 50)
                 }
                 Button("Logs") {
-                    viewStore.send(.setRoute(.logs))
+                    viewStore.send(.setNavigation(.logs))
                 }
                 .foregroundColor(.primary).withArrow()
             }

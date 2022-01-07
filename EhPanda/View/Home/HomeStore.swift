@@ -13,6 +13,7 @@ import ComposableArchitecture
 struct HomeState: Equatable {
     @BindableState var cardPageIndex = 1
     @BindableState var currentCardID = ""
+    var route: HomeViewRoute?
 
     var popularGalleries = [Gallery]()
     var popularLoadingState: LoadingState = .idle
@@ -44,10 +45,14 @@ struct HomeState: Equatable {
         popularGalleries = trimmedGalleries
         currentCardID = trimmedGalleries[cardPageIndex].gid
     }
+    mutating func setFrontpageGalleries(_ galleries: [Gallery]) {
+        frontpageGalleries = Array(galleries.prefix(25)).duplicatesRemoved
+    }
 }
 
 enum HomeAction: BindableAction {
     case binding(BindingAction<HomeState>)
+    case setNavigation(HomeViewRoute?)
     case fetchAllGalleries
     case fetchAllToplistsGalleries
     case fetchPopularGalleries
@@ -73,6 +78,10 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment> { state, actio
         return .none
 
     case .binding:
+        return .none
+
+    case .setNavigation(let route):
+        state.route = route
         return .none
 
     case .fetchAllGalleries:
@@ -124,7 +133,7 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment> { state, actio
                 state.frontpageLoadingState = .failed(.notFound)
                 return .none
             }
-            state.frontpageGalleries = galleries
+            state.setFrontpageGalleries(galleries)
             return environment.databaseClient.cacheGalleries(galleries).fireAndForget()
         case .failure(let error):
             state.frontpageLoadingState = .failed(error)

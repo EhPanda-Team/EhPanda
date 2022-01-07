@@ -27,7 +27,7 @@ struct SettingView: View {
                 VStack(spacing: 0) {
                     ForEach(SettingRoute.allCases) { route in
                         SettingRow(rowType: route) {
-                            viewStore.send(.setRoute($0))
+                            viewStore.send(.setNavigation($0))
                         }
                     }
                 }

@@ -71,7 +71,6 @@ struct DetailView: View, StoreAccessor, PersistenceAccessor {
                     .padding(.bottom, 20)
                     .padding(.top, -25)
                 }
-                .transition(AppUtil.opacityTransition)
             } else if detailInfo.detailLoading[gid] == true {
                 LoadingView()
             } else if let error = detailInfo.detailLoadErrors[gid] {

@@ -45,9 +45,9 @@ struct AccountSettingView: View {
                     AccountSection(
                         showNewDawnGreeting: $showNewDawnGreeting,
                         bypassesSNIFiltering: bypassesSNIFiltering,
-                        loginAction: { viewStore.send(.setRoute(.login)) },
+                        loginAction: { viewStore.send(.setNavigation(.login)) },
                         logoutAction: { viewStore.send(.setLogoutDialogPresented(true)) },
-                        configureAccountAction: { viewStore.send(.setRoute(.ehSetting)) },
+                        configureAccountAction: { viewStore.send(.setNavigation(.ehSetting)) },
                         manageTagsAction: { viewStore.send(.setWebViewSheetPresented(true)) }
                     )
                 }

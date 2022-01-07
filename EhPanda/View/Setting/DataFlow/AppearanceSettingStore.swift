@@ -13,7 +13,7 @@ struct AppearanceSettingState: Equatable {
 
 enum AppearanceSettingAction: BindableAction {
     case binding(BindingAction<AppearanceSettingState>)
-    case setRoute(AppearanceSettingRoute?)
+    case setNavigation(AppearanceSettingRoute?)
 }
 
 struct AppearanceSettingEnvironment {}
@@ -24,7 +24,7 @@ let appearanceSettingReducer = Reducer<AppearanceSettingState, AppearanceSetting
     case .binding:
         return .none
 
-    case .setRoute(let route):
+    case .setNavigation(let route):
         state.route = route
         return .none
     }

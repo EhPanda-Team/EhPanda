@@ -45,7 +45,7 @@ enum SettingAction: BindableAction {
     case fetchFavoriteNames
     case fetchFavoriteNamesDone(Result<[Int: String], AppError>)
 
-    case setRoute(SettingRoute?)
+    case setNavigation(SettingRoute?)
 
     case account(AccountSettingAction)
     case general(GeneralSettingAction)
@@ -220,7 +220,7 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
             }
             return .none
 
-        case .setRoute(let route):
+        case .setNavigation(let route):
             state.route = route
             return .none
 

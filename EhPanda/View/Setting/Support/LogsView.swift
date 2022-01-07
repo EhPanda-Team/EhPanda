@@ -22,7 +22,7 @@ struct LogsView: View {
         ZStack {
             List(viewStore.logs) { log in
                 Button {
-                    viewStore.send(.navigateToLog(log.id))
+                    viewStore.send(.setNavigation(.log(log.id)))
                 } label: {
                     LogCell(log: log, isLatest: log == viewStore.logs.first)
                 }
@@ -61,7 +61,18 @@ struct LogsView: View {
     }
     private var navigationLinks: some View {
         ForEach(viewStore.logs) { log in
-            NavigationLink("", tag: log.id, selection: viewStore.binding(\.$logIdentifier)) {
+            NavigationLink(
+                "", tag: log.id, selection: .init(
+                    get: { (/LoginViewRoute.log).extract(from: viewStore.route) },
+                    set: {
+                        var route: LoginViewRoute?
+                        if let identifier = $0 {
+                            route = .log(identifier)
+                        }
+                        viewStore.send(.setNavigation(route))
+                    }
+                )
+            ) {
                 LogView(log: log)
             }
         }

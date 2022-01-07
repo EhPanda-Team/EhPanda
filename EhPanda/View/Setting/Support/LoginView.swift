@@ -127,6 +127,9 @@ enum LoginFocusedField {
     case username
     case password
 }
+enum LoginViewRoute: Equatable {
+    case log(String)
+}
 
 struct LoginView_Previews: PreviewProvider {
     static var previews: some View {

@@ -62,8 +62,7 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
         ZStack {
             backgroundColor.ignoresSafeArea()
             conditionalList
-                .scaleEffect(scale, anchor: scaleAnchor)
-                .offset(offset).transition(AppUtil.opacityTransition)
+                .scaleEffect(scale, anchor: scaleAnchor).offset(offset)
                 .gesture(tapGesture).gesture(dragGesture)
                 .gesture(magnifyGesture).ignoresSafeArea()
             ControlPanel(

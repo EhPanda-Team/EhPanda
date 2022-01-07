@@ -21,7 +21,7 @@ struct GeneralSettingState: Equatable {
 
 enum GeneralSettingAction: BindableAction {
     case binding(BindingAction<GeneralSettingState>)
-    case setRoute(GeneralSettingRoute?)
+    case setNavigation(GeneralSettingRoute?)
     case setClearDialogPresented(Bool)
     case clearWebImageCache
     case checkPasscodeSetting
@@ -47,7 +47,7 @@ let generalSettingReducer = Reducer<GeneralSettingState, GeneralSettingAction, G
         case .binding:
             return .none
 
-        case .setRoute(let route):
+        case .setNavigation(let route):
             state.route = route
             return .none
 
