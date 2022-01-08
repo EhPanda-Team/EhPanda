@@ -90,3 +90,11 @@ private extension Text {
         foregroundStyle(.gray).font(.caption2.bold())
     }
 }
+
+struct EhPandaView_Previews: PreviewProvider {
+    static var previews: some View {
+        NavigationView {
+            EhPandaView()
+        }
+    }
+}

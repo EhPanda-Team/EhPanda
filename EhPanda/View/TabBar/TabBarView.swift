@@ -97,3 +97,26 @@ extension TabBarItemType {
         Label(rawValue.localized, systemSymbol: symbol)
     }
 }
+
+struct TabBarView_Previews: PreviewProvider {
+    static var previews: some View {
+        TabBarView(
+            store: .init(
+                initialState: .init(),
+                reducer: appReducer,
+                environment: AppEnvironment(
+                    dfClient: .live,
+                    fileClient: .live,
+                    loggerClient: .live,
+                    hapticClient: .live,
+                    libraryClient: .live,
+                    cookiesClient: .live,
+                    databaseClient: .live,
+                    userDefaultsClient: .live,
+                    uiApplicationClient: .live,
+                    authorizationClient: .live
+                )
+            )
+        )
+    }
+}

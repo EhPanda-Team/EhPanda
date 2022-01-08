@@ -185,3 +185,23 @@ extension AppIconType {
         }
     }
 }
+
+struct AppearanceSettingView_Previews: PreviewProvider {
+    static var previews: some View {
+        NavigationView {
+            AppearanceSettingView(
+                store: .init(
+                    initialState: .init(),
+                    reducer: appearanceSettingReducer,
+                    environment: AppearanceSettingEnvironment()
+                ),
+                preferredColorScheme: .constant(.automatic),
+                accentColor: .constant(.blue),
+                appIconType: .constant(.default),
+                listMode: .constant(.detail),
+                showsSummaryRowTags: .constant(false),
+                summaryRowTagsMaximum: .constant(0)
+            )
+        }
+    }
+}

@@ -8,8 +8,7 @@
 import SwiftUI
 import ComposableArchitecture
 
-@main
-struct EhPandaApp: App {
+@main struct EhPandaApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
     var body: some Scene {

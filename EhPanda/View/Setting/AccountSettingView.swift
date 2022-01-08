@@ -298,3 +298,25 @@ enum AccountSettingRoute: Int, Hashable, Identifiable, CaseIterable {
     case login
     case ehSetting
 }
+
+struct AccountSettingView_Previews: PreviewProvider {
+    static var previews: some View {
+        NavigationView {
+            AccountSettingView(
+                store: .init(
+                    initialState: .init(),
+                    reducer: accountSettingReducer,
+                    environment: AccountSettingEnvironment(
+                        hapticClient: .live,
+                        cookiesClient: .live,
+                        uiApplicationClient: .live
+                    )
+                ),
+                galleryHost: .constant(.ehentai),
+                showNewDawnGreeting: .constant(false),
+                bypassesSNIFiltering: false,
+                blurRadius: 0
+            )
+        }
+    }
+}

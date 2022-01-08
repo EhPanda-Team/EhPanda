@@ -75,17 +75,19 @@ struct FrontpageView: View {
 
 struct FrontpageView_Previews: PreviewProvider {
     static var previews: some View {
-        FrontpageView(
-            store: .init(
-                initialState: .init(),
-                reducer: frontpageReducer,
-                environment: FrontpageEnvironment(
-                    hapticClient: .live,
-                    databaseClient: .live
-                )
-            ),
-            setting: .init(),
-            tagTranslator: .init()
-        )
+        NavigationView {
+            FrontpageView(
+                store: .init(
+                    initialState: .init(),
+                    reducer: frontpageReducer,
+                    environment: FrontpageEnvironment(
+                        hapticClient: .live,
+                        databaseClient: .live
+                    )
+                ),
+                setting: .init(),
+                tagTranslator: .init()
+            )
+        }
     }
 }

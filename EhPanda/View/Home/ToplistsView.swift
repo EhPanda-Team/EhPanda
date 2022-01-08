@@ -118,3 +118,22 @@ extension ToplistsType {
         }
     }
 }
+
+struct ToplistsView_Previews: PreviewProvider {
+    static var previews: some View {
+        NavigationView {
+            ToplistsView(
+                store: .init(
+                    initialState: .init(),
+                    reducer: toplistsReducer,
+                    environment: ToplistsEnvironment(
+                        hapticClient: .live,
+                        databaseClient: .live
+                    )
+                ),
+                setting: .init(),
+                tagTranslator: .init()
+            )
+        }
+    }
+}

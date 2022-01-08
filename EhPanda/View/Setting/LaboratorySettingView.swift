@@ -70,3 +70,13 @@ struct LaboratoryCell: View {
         .animation(.default, value: isOn)
     }
 }
+
+struct LaboratorySettingView_Previews: PreviewProvider {
+    static var previews: some View {
+        NavigationView {
+            LaboratorySettingView(
+                bypassesSNIFiltering: .constant(false)
+            )
+        }
+    }
+}

@@ -122,11 +122,8 @@ struct GeneralSettingView: View {
         .background(navigationLinks)
         .navigationBarTitle("General")
     }
-}
 
-// MARK: NavigationLinks
-private extension GeneralSettingView {
-    var navigationLinks: some View {
+    private var navigationLinks: some View {
         ForEach(GeneralSettingRoute.allCases) { route in
             NavigationLink("", tag: route, selection: viewStore.binding(\.$route)) {
                 switch route {
@@ -143,4 +140,32 @@ enum GeneralSettingRoute: Int, Identifiable, CaseIterable {
     var id: Int { rawValue }
 
     case logs
+}
+
+struct GeneralSettingView_Previews: PreviewProvider {
+    static var previews: some View {
+        NavigationView {
+            GeneralSettingView(
+                store: .init(
+                    initialState: .init(),
+                    reducer: generalSettingReducer,
+                    environment: GeneralSettingEnvironment(
+                        fileClient: .live,
+                        loggerClient: .live,
+                        libraryClient: .live,
+                        databaseClient: .live,
+                        uiApplicationClient: .live,
+                        authorizationClient: .live
+                    )
+                ),
+                tagTranslatorLoadingState: .idle,
+                tagTranslatorEmpty: false,
+                translatesTags: .constant(false),
+                redirectsLinksToSelectedHost: .constant(false),
+                detectsLinksFromPasteboard: .constant(false),
+                backgroundBlurRadius: .constant(10),
+                autoLockPolicy: .constant(.never)
+            )
+        }
+    }
 }

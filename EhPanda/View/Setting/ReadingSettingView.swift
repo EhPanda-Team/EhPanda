@@ -141,3 +141,18 @@ private extension Double {
         String(format: "%.\(places)f", self)
     }
 }
+
+struct ReadingSettingView_Previews: PreviewProvider {
+    static var previews: some View {
+        NavigationView {
+            ReadingSettingView(
+                readingDirection: .constant(.vertical),
+                prefetchLimit: .constant(10),
+                prefersLandscape: .constant(false),
+                contentDividerHeight: .constant(0),
+                maximumScaleFactor: .constant(3),
+                doubleTapScaleFactor: .constant(2)
+            )
+        }
+    }
+}

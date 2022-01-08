@@ -44,3 +44,21 @@ struct PopularView: View {
         .navigationTitle("Popular")
     }
 }
+
+struct PopularView_Previews: PreviewProvider {
+    static var previews: some View {
+        NavigationView {
+            PopularView(
+                store: .init(
+                    initialState: .init(),
+                    reducer: popularReducer,
+                    environment: PopularEnvironment(
+                        databaseClient: .live
+                    )
+                ),
+                setting: .init(),
+                tagTranslator: .init()
+            )
+        }
+    }
+}
