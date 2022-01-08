@@ -170,8 +170,8 @@ extension SettingRoute {
 struct SettingView_Previews: PreviewProvider {
     static var previews: some View {
         SettingView(
-            store: Store<SettingState, SettingAction>(
-                initialState: SettingState(),
+            store: .init(
+                initialState: .init(),
                 reducer: settingReducer,
                 environment: SettingEnvironment(
                     dfClient: .live,

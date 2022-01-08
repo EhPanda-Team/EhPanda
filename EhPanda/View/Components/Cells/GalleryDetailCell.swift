@@ -78,6 +78,6 @@ private extension GalleryDetailCell {
 
 struct GalleryDetailCell_Previews: PreviewProvider {
     static var previews: some View {
-        GalleryDetailCell(gallery: .preview, setting: Setting()).preferredColorScheme(.dark)
+        GalleryDetailCell(gallery: .preview, setting: Setting())
     }
 }

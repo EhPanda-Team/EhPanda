@@ -162,8 +162,8 @@ enum LogsRoute: Equatable {
 struct LogsView_Previews: PreviewProvider {
     static var previews: some View {
         LogsView(
-            store: Store<LogsState, LogsAction>(
-                initialState: LogsState(),
+            store: .init(
+                initialState: .init(),
                 reducer: logsReducer,
                 environment: .init(
                     fileClient: .live,

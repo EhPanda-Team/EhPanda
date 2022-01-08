@@ -135,8 +135,8 @@ struct LoginView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
             LoginView(
-                store: Store<LoginState, LoginAction>(
-                    initialState: LoginState(),
+                store: .init(
+                    initialState: .init(),
                     reducer: loginReducer,
                     environment: LoginEnvironment(
                         hapticClient: .live,

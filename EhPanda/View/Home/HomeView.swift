@@ -362,9 +362,9 @@ private struct VerticalToplistStack: View {
 
 // MARK: MiscGridSection
 private struct MiscGridSection: View {
-    private let navigateAction: (MiscGridType) -> Void
+    private let navigateAction: (HomeMiscGridType) -> Void
 
-    init(navigateAction: @escaping (MiscGridType) -> Void) {
+    init(navigateAction: @escaping (HomeMiscGridType) -> Void) {
         self.navigateAction = navigateAction
     }
 
@@ -372,7 +372,7 @@ private struct MiscGridSection: View {
         SubSection(title: "Other", showAll: false) {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack {
-                    let types = MiscGridType.allCases
+                    let types = HomeMiscGridType.allCases
                     ForEach(types) { type in
                         Button {
                             navigateAction(type)
@@ -415,7 +415,7 @@ private struct MiscGridItem: View {
 }
 
 // MARK: Definition
-enum MiscGridType: String, CaseIterable, Identifiable {
+enum HomeMiscGridType: String, CaseIterable, Identifiable {
     var id: String { rawValue }
 
     case popular = "Popular"
@@ -423,7 +423,7 @@ enum MiscGridType: String, CaseIterable, Identifiable {
     case history = "History"
 }
 
-extension MiscGridType {
+extension HomeMiscGridType {
     var destination: some View {
         EmptyView()
     }
@@ -439,22 +439,33 @@ extension MiscGridType {
     }
 }
 
+enum HomeSectionType: String, CaseIterable, Identifiable {
+    var id: String { rawValue }
+
+    case frontpage
+    case toplists
+}
+
 enum HomeViewRoute: Equatable {
     case detail(String)
-    case misc(MiscGridType)
+    case misc(HomeMiscGridType)
+    case section(HomeSectionType)
 }
 
 struct HomeView_Previews: PreviewProvider {
     static var previews: some View {
         HomeView(
-            store: Store<HomeState, HomeAction>(
-                initialState: HomeState(),
+            store: .init(
+                initialState: .init(),
                 reducer: homeReducer,
                 environment: HomeEnvironment(
+                    hapticClient: .live,
                     libraryClient: .live,
                     databaseClient: .live
                 )
-            )
+            ),
+            setting: .init(),
+            tagTranslator: .init()
         )
     }
 }

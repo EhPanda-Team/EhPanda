@@ -1069,8 +1069,8 @@ struct EhSettingView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
             EhSettingView(
-                store: Store<EhSettingState, EhSettingAction>(
-                    initialState: EhSettingState(),
+                store: .init(
+                    initialState: .init(),
                     reducer: ehSettingReducer,
                     environment: EhSettingEnvironment(
                         hapticClient: .live,

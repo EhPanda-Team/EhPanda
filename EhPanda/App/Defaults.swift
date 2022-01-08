@@ -20,6 +20,9 @@ struct Defaults {
         static var rankingCellWidth: CGFloat {
             (DeviceUtil.isPadWidth ? 0.4 : 0.7) * DeviceUtil.windowW
         }
+        static var alertWidthFactor: Double {
+            DeviceUtil.isPadWidth ? 0.5 : 1.0
+        }
     }
     struct ImageSize {
         static let rowAspect: CGFloat = 8/11
