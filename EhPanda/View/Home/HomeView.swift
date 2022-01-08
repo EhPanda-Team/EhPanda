@@ -14,10 +14,17 @@ import ComposableArchitecture
 struct HomeView: View {
     private let store: Store<HomeState, HomeAction>
     @ObservedObject private var viewStore: ViewStore<HomeState, HomeAction>
+    private let setting: Setting
+    private let tagTranslator: TagTranslator
 
-    init(store: Store<HomeState, HomeAction>) {
+    init(
+        store: Store<HomeState, HomeAction>,
+        setting: Setting, tagTranslator: TagTranslator
+    ) {
         self.store = store
         viewStore = ViewStore(store)
+        self.setting = setting
+        self.tagTranslator = tagTranslator
     }
 
     // MARK: HomeView
@@ -31,27 +38,27 @@ struct HomeView: View {
                             pageIndex: viewStore.binding(\.$cardPageIndex),
                             currentID: viewStore.currentCardID,
                             colors: viewStore.cardColors,
-                            navigateAction: navigateTo(gid:)
-                        ) { gid, result in
-                            viewStore.send(.analyzeImageColors(gid, result))
-                        }
+                            navigateAction: navigateTo(gid:),
+                            webImageSuccessAction: { gid, result in
+                                viewStore.send(.analyzeImageColors(gid, result))
+                            }
+                        )
                         .allowsHitTesting(viewStore.allowsCardHitTesting)
                         Group {
                             CoverWallSection(
                                 galleries: viewStore.frontpageGalleries,
                                 isLoading: viewStore.frontpageLoadingState == .loading,
-                                navigateAction: navigateTo(gid:)
-                            ) {
-                                viewStore.send(.fetchFrontpageGalleries())
-                            }
+                                navigateAction: navigateTo(gid:),
+                                showAllAction: { viewStore.send(.setNavigation(.section(.frontpage))) },
+                                reloadAction: { viewStore.send(.fetchFrontpageGalleries()) }
+                            )
                             ToplistsSection(
                                 galleries: viewStore.toplistsGalleries,
                                 isLoading: !viewStore.toplistsLoadingState
                                     .values.allSatisfy({ $0 != .loading }),
-                                navigateAction: navigateTo(gid:)
-                            ) {
-                                viewStore.send(.fetchAllToplistsGalleries)
-                            }
+                                navigateAction: navigateTo(gid:),
+                                reloadAction: { viewStore.send(.fetchAllToplistsGalleries) }
+                            )
                             MiscGridSection(navigateAction: navigateTo(type:))
                         }
                         .padding(.vertical)
@@ -98,10 +105,11 @@ private extension HomeView {
                 ForEach(galleries ?? [], content: detailViewLink)
             }
             miscGridLinks
+            sectionLinks
         }
     }
     var miscGridLinks: some View {
-        ForEach(MiscGridType.allCases) { type in
+        ForEach(HomeMiscGridType.allCases) { type in
             NavigationLink(
                 "", tag: type, selection: .init(
                     get: { (/HomeViewRoute.misc).extract(from: viewStore.route) },
@@ -114,7 +122,40 @@ private extension HomeView {
                     }
                 )
             ) {
-                EmptyView()
+                switch type {
+                case .popular:
+                    EmptyView()
+                case .watched:
+                    EmptyView()
+                case .history:
+                    EmptyView()
+                }
+            }
+        }
+    }
+    var sectionLinks: some View {
+        ForEach(HomeSectionType.allCases) { type in
+            NavigationLink(
+                "", tag: type, selection: .init(
+                    get: { (/HomeViewRoute.section).extract(from: viewStore.route) },
+                    set: {
+                        var route: HomeViewRoute?
+                        if let type = $0 {
+                            route = .section(type)
+                        }
+                        viewStore.send(.setNavigation(route))
+                    }
+                )
+            ) {
+                switch type {
+                case .frontpage:
+                    FrontpageView(
+                        store: store.scope(state: \.frontpageState, action: HomeAction.frontpage),
+                        setting: setting, tagTranslator: tagTranslator
+                    )
+                case .toplists:
+                    EmptyView()
+                }
             }
         }
     }
@@ -137,7 +178,7 @@ private extension HomeView {
     func navigateTo(gid: String) {
         viewStore.send(.setNavigation(.detail(gid)))
     }
-    func navigateTo(type: MiscGridType) {
+    func navigateTo(type: HomeMiscGridType) {
         viewStore.send(.setNavigation(.misc(type)))
     }
 }
@@ -190,16 +231,19 @@ private struct CoverWallSection: View {
     private let galleries: [Gallery]
     private let isLoading: Bool
     private let navigateAction: (String) -> Void
+    private let showAllAction: () -> Void
     private let reloadAction: () -> Void
 
     init(
         galleries: [Gallery], isLoading: Bool,
         navigateAction: @escaping (String) -> Void,
+        showAllAction: @escaping () -> Void,
         reloadAction: @escaping () -> Void
     ) {
         self.galleries = galleries
         self.isLoading = isLoading
         self.navigateAction = navigateAction
+        self.showAllAction = showAllAction
         self.reloadAction = reloadAction
     }
 
@@ -217,7 +261,9 @@ private struct CoverWallSection: View {
     var body: some View {
         SubSection(
             title: "Frontpage", tint: .secondary,
-            isLoading: isLoading, reloadAction: reloadAction
+            isLoading: isLoading,
+            reloadAction: reloadAction,
+            showAllAction: showAllAction
         ) {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 20) {

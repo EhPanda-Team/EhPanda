@@ -120,6 +120,7 @@ let appReducer = Reducer<AppState, AppAction, AppEnvironment>.combine(
         action: /AppAction.home,
         environment: {
             .init(
+                hapticClient: $0.hapticClient,
                 libraryClient: $0.libraryClient,
                 databaseClient: $0.databaseClient
             )

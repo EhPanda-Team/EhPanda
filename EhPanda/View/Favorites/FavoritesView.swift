@@ -11,16 +11,11 @@ import SFSafeSymbols
 import ComposableArchitecture
 
 struct FavoritesView: View {
-    @Environment(\.colorScheme) private var colorScheme
-
     private let store: Store<FavoritesState, FavoritesAction>
     @ObservedObject private var viewStore: ViewStore<FavoritesState, FavoritesAction>
     private let user: User
     private let setting: Setting
     private let tagTranslator: TagTranslator
-
-    @FocusState private var jumpPageAlertFocused: Bool
-    @StateObject private var alertManager = CustomAlertManager()
 
     init(
         store: Store<FavoritesState, FavoritesAction>,
@@ -38,7 +33,6 @@ struct FavoritesView: View {
         return (viewStore.index == -1 ? "Favorites" : favoritesName).localized
     }
 
-    // MARK: FavoritesView
     var body: some View {
         NavigationView {
             GenericList(
@@ -53,36 +47,18 @@ struct FavoritesView: View {
                     text: $0, returnOriginal: setting.translatesTags
                 ) }
             )
-            .customAlert(
-                manager: alertManager, widthFactor: DeviceUtil.isPadWidth ? 0.5 : 1.0,
-                backgroundOpacity: colorScheme == .light ? 0.2 : 0.5,
-                content: {
-                    PageJumpView(
-                        inputText: viewStore.binding(\.$jumpPageIndex),
-                        isFocused: $jumpPageAlertFocused,
-                        pageNumber: viewStore.pageNumber ?? PageNumber()
-                    )
-                },
-                buttons: [
-                    .regular(
-                        content: { Text("Confirm") },
-                        action: { viewStore.send(.performJumpPage) }
-                    )
-                ]
+            .jumpPageAlert(
+                index: viewStore.binding(\.$jumpPageIndex),
+                isPresented: viewStore.binding(\.$jumpPageAlertPresented),
+                isFocused: viewStore.binding(\.$jumpPageAlertFocused),
+                pageNumber: viewStore.pageNumber ?? PageNumber(),
+                jumpAction: { viewStore.send(.performJumpPage) }
             )
+            .animation(.default, value: viewStore.jumpPageAlertPresented)
             .searchable(text: viewStore.binding(\.$keyword))
             .onSubmit(of: .search) {
                 viewStore.send(.fetchGalleries())
             }
-            .synchronize(
-                viewStore.binding(\.$jumpPageAlertFocused),
-                $jumpPageAlertFocused
-            )
-            .synchronize(
-                viewStore.binding(\.$jumpPageAlertPresented),
-                $alertManager.isPresented
-            )
-            .animation(.default, value: alertManager.isPresented)
             .onAppear {
                 if viewStore.galleries?.isEmpty != false {
                     DispatchQueue.main.async {
@@ -95,70 +71,26 @@ struct FavoritesView: View {
         }
     }
 
-    // MARK: Toolbar
     private func toolbar() -> some ToolbarContent {
-        func selectIndexMenu() -> some View {
-            Menu {
-                ForEach(-1..<10) { index in
-                    Button {
-                        if index != viewStore.index {
-                            viewStore.send(.setFavoritesIndex(index))
-                        }
-                    } label: {
-                        Text(user.getFavoritesName(index: index))
-                        if index == viewStore.index {
-                            Image(systemSymbol: .checkmark)
-                        }
-                    }
+        CustomToolbarItem {
+            FavoritesIndexMenu(user: user, index: viewStore.index) { index in
+                if index != viewStore.index {
+                    viewStore.send(.setFavoritesIndex(index))
                 }
-            } label: {
-                Image(systemSymbol: .dialMin)
-                    .symbolRenderingMode(.hierarchical)
             }
-        }
-        func sortOrderMenu() -> some View {
-            Menu {
-                ForEach(FavoritesSortOrder.allCases) { order in
-                    Button {
-                        if order != viewStore.sortOrder {
-                            viewStore.send(.fetchGalleries(nil, order))
-                        }
-                    } label: {
-                        Text(order.value.localized)
-                        if order == viewStore.sortOrder {
-                            Image(systemSymbol: .checkmark)
-                        }
-                    }
+            SortOrderMenu(sortOrder: viewStore.sortOrder) { order in
+                if viewStore.sortOrder != order {
+                    viewStore.send(.fetchGalleries(nil, order))
                 }
-            } label: {
-                Image(systemSymbol: .arrowUpArrowDownCircle)
-                    .symbolRenderingMode(.hierarchical)
             }
-        }
-        func moreFeaturesMenu() -> some View {
-            Menu {
-                Button {
+            ToolbarFeaturesMenu {
+                JumpPageButton(pageNumber: viewStore.pageNumber ?? PageNumber()) {
                     viewStore.send(.presentJumpPageAlert)
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                         viewStore.send(.setJumpPageAlertFocused(true))
                     }
-                } label: {
-                    Image(systemSymbol: .arrowshapeBounceForward)
-                    Text("Jump page")
                 }
-                .disabled(viewStore.pageNumber?.isSinglePage ?? true)
-            } label: {
-                Image(systemSymbol: .ellipsisCircle)
-                    .symbolRenderingMode(.hierarchical)
             }
-        }
-        return ToolbarItem(placement: .navigationBarTrailing) {
-            HStack {
-                selectIndexMenu()
-                sortOrderMenu()
-                moreFeaturesMenu()
-            }
-            .foregroundColor(.primary)
         }
     }
 }
@@ -166,15 +98,17 @@ struct FavoritesView: View {
 struct FavoritesView_Previews: PreviewProvider {
     static var previews: some View {
         FavoritesView(
-            store: Store<FavoritesState, FavoritesAction>(
-                initialState: FavoritesState(),
+            store: .init(
+                initialState: .init(),
                 reducer: favoritesReducer,
                 environment: FavoritesEnvironment(
                     hapticClient: .live,
                     databaseClient: .live
                 )
             ),
-            user: User(), setting: Setting(), tagTranslator: TagTranslator()
+            user: .init(),
+            setting: .init(),
+            tagTranslator: .init()
         )
     }
 }

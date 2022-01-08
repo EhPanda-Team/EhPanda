@@ -27,7 +27,9 @@ struct TabBarView: View {
                         switch type {
                         case .home:
                             HomeView(
-                                store: store.scope(state: \.homeState, action: AppAction.home)
+                                store: store.scope(state: \.homeState, action: AppAction.home),
+                                setting: viewStore.settingState.setting,
+                                tagTranslator: viewStore.settingState.tagTranslator
                             )
                         case .favorites:
                             FavoritesView(
