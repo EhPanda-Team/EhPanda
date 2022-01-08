@@ -23,11 +23,34 @@ extension DateFormattable {
 }
 
 // MARK: Structs
-struct Gallery: Identifiable, Codable, Equatable {
+struct Gallery: Identifiable, Codable, Equatable, Hashable {
     static func == (lhs: Gallery, rhs: Gallery) -> Bool {
         lhs.gid == rhs.gid
     }
 
+    static func mockGalleries(count: Int, randomID: Bool = true) -> [Gallery] {
+        guard randomID, count > 0 else {
+            return Array(repeating: .empty, count: count)
+        }
+        var galleries = [Gallery]()
+        (0...count).forEach { _ in
+            galleries.append(.init(
+                gid: UUID().uuidString,
+                token: "",
+                title: "",
+                rating: 0.0,
+                tags: [],
+                category: .doujinshi,
+                language: .japanese,
+                uploader: "",
+                pageCount: 0,
+                postedDate: .now,
+                coverURL: "",
+                galleryURL: ""
+            ))
+        }
+        return galleries
+    }
     static let empty = Gallery(
         gid: "",
         token: "",

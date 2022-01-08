@@ -202,10 +202,10 @@ private struct CoverWallSection: View {
     }
 
     private var dataSource: [[Gallery]] {
-        guard !galleries.isEmpty else {
-            return Array(repeating: [Gallery.empty, Gallery.empty], count: 25)
-        }
         var galleries = galleries
+        if galleries.isEmpty {
+            galleries = Gallery.mockGalleries(count: 25)
+        }
         if galleries.count % 2 != 0 { galleries = galleries.dropLast() }
         return stride(from: 0, to: galleries.count, by: 2).map { index in
             [galleries[index], galleries[index + 1]]
@@ -219,7 +219,7 @@ private struct CoverWallSection: View {
         ) {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 20) {
-                    ForEach(dataSource, id: \.description) {
+                    ForEach(dataSource, id: \.first) {
                         VerticalCoverStack(galleries: $0, navigateAction: navigateAction)
                     }
                     .withHorizontalSpacing(width: 0)
