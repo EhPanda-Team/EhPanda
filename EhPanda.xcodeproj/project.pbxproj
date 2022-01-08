@@ -66,6 +66,8 @@
 		AB706F7B278937500025A48A /* FrontpageStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB706F7A278937500025A48A /* FrontpageStore.swift */; };
 		AB706F80278981370025A48A /* AlertKit-Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB706F7F278981370025A48A /* AlertKit-Extension.swift */; };
 		AB706F82278986120025A48A /* ToolbarItems.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB706F81278986120025A48A /* ToolbarItems.swift */; };
+		AB706F842789AD2D0025A48A /* ToplistsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB706F832789AD2D0025A48A /* ToplistsView.swift */; };
+		AB706F862789AD490025A48A /* ToplistsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB706F852789AD490025A48A /* ToplistsStore.swift */; };
 		AB7B29F226AC471E00EE1F14 /* MigrationPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB7B29F126AC471E00EE1F14 /* MigrationPolicy.swift */; };
 		AB7B29F626AC741600EE1F14 /* GenericList.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB7B29F526AC741600EE1F14 /* GenericList.swift */; };
 		AB7E6B3025D24FE00035CC68 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = AB7E6B3225D24FE00035CC68 /* InfoPlist.strings */; };
@@ -245,6 +247,8 @@
 		AB706F7A278937500025A48A /* FrontpageStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrontpageStore.swift; sourceTree = "<group>"; };
 		AB706F7F278981370025A48A /* AlertKit-Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AlertKit-Extension.swift"; sourceTree = "<group>"; };
 		AB706F81278986120025A48A /* ToolbarItems.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolbarItems.swift; sourceTree = "<group>"; };
+		AB706F832789AD2D0025A48A /* ToplistsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToplistsView.swift; sourceTree = "<group>"; };
+		AB706F852789AD490025A48A /* ToplistsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToplistsStore.swift; sourceTree = "<group>"; };
 		AB7B29F126AC471E00EE1F14 /* MigrationPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MigrationPolicy.swift; sourceTree = "<group>"; };
 		AB7B29F526AC741600EE1F14 /* GenericList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenericList.swift; sourceTree = "<group>"; };
 		AB7E6B3125D24FE00035CC68 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -603,6 +607,7 @@
 			children = (
 				AB86AC192785C2B300E61E6A /* HomeStore.swift */,
 				AB706F7A278937500025A48A /* FrontpageStore.swift */,
+				AB706F852789AD490025A48A /* ToplistsStore.swift */,
 			);
 			path = DataFlow;
 			sourceTree = "<group>";
@@ -797,6 +802,7 @@
 				AB706F7C2789379A0025A48A /* Deprecated */,
 				AB24C55B2767565A0085C33A /* HomeView.swift */,
 				AB3072D3276E19AA00EFF242 /* FrontpageView.swift */,
+				AB706F832789AD2D0025A48A /* ToplistsView.swift */,
 				AB706F7D278937A70025A48A /* DataFlow */,
 			);
 			path = Home;
@@ -1068,6 +1074,7 @@
 				AB0929D02781E1CC00F107CA /* UIApplicationClient.swift in Sources */,
 				ABF45AF325F3313D00ECB568 /* AccountSettingView.swift in Sources */,
 				ABF45ABD25F3312F00ECB568 /* DeprecatedStore.swift in Sources */,
+				AB706F842789AD2D0025A48A /* ToplistsView.swift in Sources */,
 				ABF45AED25F3313D00ECB568 /* DetailView.swift in Sources */,
 				ABCD2F0A259763FC008E5A20 /* Request.swift in Sources */,
 				ABF45AE925F3313D00ECB568 /* AlertView.swift in Sources */,
@@ -1118,6 +1125,7 @@
 				AB2CED64268AB6AE003130F7 /* GalleryMO+CoreDataProperties.swift in Sources */,
 				ABCD2F0E25976B95008E5A20 /* Parser.swift in Sources */,
 				ABF45AF725F3313D00ECB568 /* SettingView.swift in Sources */,
+				AB706F862789AD490025A48A /* ToplistsStore.swift in Sources */,
 				ABF45AEA25F3313D00ECB568 /* Placeholder.swift in Sources */,
 				ABD4032826B7967F00001B8C /* Category.swift in Sources */,
 				ABC681F326898D46007BBD69 /* Model.xcdatamodeld in Sources */,

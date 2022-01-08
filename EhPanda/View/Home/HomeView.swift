@@ -57,6 +57,7 @@ struct HomeView: View {
                                 isLoading: !viewStore.toplistsLoadingState
                                     .values.allSatisfy({ $0 != .loading }),
                                 navigateAction: navigateTo(gid:),
+                                showAllAction: { viewStore.send(.setNavigation(.section(.toplists))) },
                                 reloadAction: { viewStore.send(.fetchAllToplistsGalleries) }
                             )
                             MiscGridSection(navigateAction: navigateTo(type:))
@@ -154,7 +155,10 @@ private extension HomeView {
                         setting: setting, tagTranslator: tagTranslator
                     )
                 case .toplists:
-                    EmptyView()
+                    ToplistsView(
+                        store: store.scope(state: \.toplistsState, action: HomeAction.toplists),
+                        setting: setting, tagTranslator: tagTranslator
+                    )
                 }
             }
         }
@@ -311,16 +315,19 @@ private struct ToplistsSection: View {
     private let galleries: [Int: [Gallery]]
     private let isLoading: Bool
     private let navigateAction: (String) -> Void
+    private let showAllAction: () -> Void
     private let reloadAction: () -> Void
 
     init(
         galleries: [Int: [Gallery]], isLoading: Bool,
         navigateAction: @escaping (String) -> Void,
+        showAllAction: @escaping () -> Void,
         reloadAction: @escaping () -> Void
     ) {
         self.galleries = galleries
         self.isLoading = isLoading
         self.navigateAction = navigateAction
+        self.showAllAction = showAllAction
         self.reloadAction = reloadAction
     }
 
@@ -348,11 +355,13 @@ private struct ToplistsSection: View {
     var body: some View {
         SubSection(
             title: "Toplists", tint: .secondary,
-            isLoading: isLoading, reloadAction: reloadAction
+            isLoading: isLoading,
+            reloadAction: reloadAction,
+            showAllAction: showAllAction
         ) {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack {
-                    ForEach(ToplistsType.allCases.reversed(), content: verticalStacks)
+                    ForEach(ToplistsType.allCases, content: verticalStacks)
                 }
             }
         }

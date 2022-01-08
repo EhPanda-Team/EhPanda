@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import SFSafeSymbols
 import ComposableArchitecture
 
 struct EhSettingView: View {
@@ -23,7 +22,7 @@ struct EhSettingView: View {
     }
 
     private var title: String {
-        AppUtil.galleryHost.rawValue + " " + "Setting".localized
+        [AppUtil.galleryHost.rawValue, "Setting".localized].joined(separator: " ")
     }
 
     // MARK: EhSettingView

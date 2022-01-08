@@ -63,21 +63,21 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
             backgroundColor.ignoresSafeArea()
             conditionalList
                 .scaleEffect(scale, anchor: scaleAnchor).offset(offset)
-                .gesture(tapGesture).gesture(dragGesture)
+//                .gesture(tapGesture).gesture(dragGesture)
                 .gesture(magnifyGesture).ignoresSafeArea()
-            ControlPanel(
-                showsPanel: $showsPanel,
-                sliderValue: $sliderValue,
-                setting: $store.appState.settings.setting,
-                autoPlayPolicy: $autoPlayPolicy,
-                currentIndex: mapFromPager(index: page.index),
-                range: 1...Float(pageCount),
-                previews: detailInfo.previews[gid] ?? [:],
-                settingAction: presentSettingSheet,
-                fetchAction: fetchGalleryPreivews,
-                sliderChangedAction: tryUpdatePagerIndex,
-                updateSettingAction: updateSetting
-            )
+//            ControlPanel(
+//                showsPanel: $showsPanel,
+//                sliderValue: $sliderValue,
+//                setting: $store.appState.settings.setting,
+//                autoPlayPolicy: $autoPlayPolicy,
+//                currentIndex: mapFromPager(index: page.index),
+//                range: 1...Float(pageCount),
+//                previews: detailInfo.previews[gid] ?? [:],
+//                settingAction: presentSettingSheet,
+//                fetchAction: fetchGalleryPreivews,
+//                sliderChangedAction: tryUpdatePagerIndex,
+//                updateSettingAction: updateSetting
+//            )
             TTProgressHUD($hudVisible, config: hudConfig)
         }
         .statusBar(hidden: !showsPanel)
@@ -88,9 +88,9 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
         .sheet(item: $sheetState, content: sheet)
         .onChange(of: page.index, perform: updateSliderValue)
         .onChange(of: autoPlayPolicy, perform: reconfigureTimer)
-        .onChange(of: setting.exceptCover, perform: tryUpdatePagerIndex)
-        .onChange(of: setting.readingDirection, perform: tryUpdatePagerIndex)
-        .onChange(of: setting.enablesDualPageMode, perform: tryUpdatePagerIndex)
+//        .onChange(of: setting.exceptCover, perform: tryUpdatePagerIndex)
+//        .onChange(of: setting.readingDirection, perform: tryUpdatePagerIndex)
+//        .onChange(of: setting.enablesDualPageMode, perform: tryUpdatePagerIndex)
         .onChange(of: imageSaver.saveSucceeded, perform: { newValue in
             guard let isSuccess = newValue else { return }
             presentHUD(isSuccess: isSuccess, caption: "Saved to photo library")
@@ -112,74 +112,75 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
     }
     // MARK: ImageContainer
     private var containerDataSource: [Int] {
-        let defaultData = Array(1...pageCount)
-        guard DeviceUtil.isLandscape && setting.enablesDualPageMode
-                && setting.readingDirection != .vertical
-        else { return defaultData }
+//        let defaultData = Array(1...pageCount)
+//        guard DeviceUtil.isLandscape && setting.enablesDualPageMode
+//                && setting.readingDirection != .vertical
+//        else { return defaultData }
+//
+//        let data = setting.exceptCover
+//            ? [1] + Array(stride(from: 2, through: pageCount, by: 2))
+//            : Array(stride(from: 1, through: pageCount, by: 2))
 
-        let data = setting.exceptCover
-            ? [1] + Array(stride(from: 2, through: pageCount, by: 2))
-            : Array(stride(from: 1, through: pageCount, by: 2))
-
-        return data
+        return [] // data
     }
     private func getImageContainerConfigs(index: Int) -> (Int, Int, Bool, Bool) {
-        let direction = setting.readingDirection
-        let isReversed = direction == .rightToLeft
-        let isFirstSingle = setting.exceptCover
-        let isFirstPageAndSingle = index == 1 && isFirstSingle
-        let isDualPage = DeviceUtil.isLandscape
-        && setting.enablesDualPageMode
-        && direction != .vertical
-
-        let firstIndex = isDualPage && isReversed &&
-            !isFirstPageAndSingle ? index + 1 : index
-        let secondIndex = firstIndex + (isReversed ? -1 : 1)
-        let isValidFirstRange =
-            firstIndex >= 1 && firstIndex <= pageCount
-        let isValidSecondRange = isFirstSingle
-            ? secondIndex >= 2 && secondIndex <= pageCount
-            : secondIndex >= 1 && secondIndex <= pageCount
-        return (
-            firstIndex, secondIndex, isValidFirstRange,
-            !isFirstPageAndSingle && isValidSecondRange && isDualPage
-        )
+//        let direction = setting.readingDirection
+//        let isReversed = direction == .rightToLeft
+//        let isFirstSingle = setting.exceptCover
+//        let isFirstPageAndSingle = index == 1 && isFirstSingle
+//        let isDualPage = DeviceUtil.isLandscape
+//        && setting.enablesDualPageMode
+//        && direction != .vertical
+//
+//        let firstIndex = isDualPage && isReversed &&
+//            !isFirstPageAndSingle ? index + 1 : index
+//        let secondIndex = firstIndex + (isReversed ? -1 : 1)
+//        let isValidFirstRange =
+//            firstIndex >= 1 && firstIndex <= pageCount
+//        let isValidSecondRange = isFirstSingle
+//            ? secondIndex >= 2 && secondIndex <= pageCount
+//            : secondIndex >= 1 && secondIndex <= pageCount
+//        return (
+//            firstIndex, secondIndex, isValidFirstRange,
+//            !isFirstPageAndSingle && isValidSecondRange && isDualPage
+//        )
+        return (0, 0, false, false)
     }
     private func imageContainer(index: Int) -> some View {
         HStack(spacing: 0) {
-            let (firstIndex, secondIndex, isFirstValid, isSecondValid) =
-                getImageContainerConfigs(index: index)
-            let isDualPage = setting.enablesDualPageMode
-            && setting.readingDirection != .vertical
-            && DeviceUtil.isLandscape
-
-            if isFirstValid {
-                ImageContainer(
-                    index: firstIndex,
-                    imageURL: galleryContents[firstIndex] ?? "",
-                    loadingFlag: galleryLoadingFlags[firstIndex] ?? false,
-                    loadError: galleryLoadErrors[firstIndex],
-                    isDualPage: isDualPage,
-                    retryAction: tryFetchGalleryContents,
-                    reloadAction: refetchGalleryContents
-                )
-                .onAppear { tryFetchGalleryContents(index: firstIndex) }
-                .contextMenu { contextMenuItems(index: firstIndex) }
-            }
-
-            if isSecondValid {
-                ImageContainer(
-                    index: secondIndex,
-                    imageURL: galleryContents[secondIndex] ?? "",
-                    loadingFlag: galleryLoadingFlags[secondIndex] ?? false,
-                    loadError: galleryLoadErrors[secondIndex],
-                    isDualPage: isDualPage,
-                    retryAction: tryFetchGalleryContents,
-                    reloadAction: refetchGalleryContents
-                )
-                .onAppear { tryFetchGalleryContents(index: secondIndex) }
-                .contextMenu { contextMenuItems(index: secondIndex) }
-            }
+//            let (firstIndex, secondIndex, isFirstValid, isSecondValid) =
+//                getImageContainerConfigs(index: index)
+//            let isDualPage = setting.enablesDualPageMode
+//            && setting.readingDirection != .vertical
+//            && DeviceUtil.isLandscape
+//
+//            if isFirstValid {
+//                ImageContainer(
+//                    index: firstIndex,
+//                    imageURL: galleryContents[firstIndex] ?? "",
+//                    loadingFlag: galleryLoadingFlags[firstIndex] ?? false,
+//                    loadError: galleryLoadErrors[firstIndex],
+//                    isDualPage: isDualPage,
+//                    retryAction: tryFetchGalleryContents,
+//                    reloadAction: refetchGalleryContents
+//                )
+//                .onAppear { tryFetchGalleryContents(index: firstIndex) }
+//                .contextMenu { contextMenuItems(index: firstIndex) }
+//            }
+//
+//            if isSecondValid {
+//                ImageContainer(
+//                    index: secondIndex,
+//                    imageURL: galleryContents[secondIndex] ?? "",
+//                    loadingFlag: galleryLoadingFlags[secondIndex] ?? false,
+//                    loadError: galleryLoadErrors[secondIndex],
+//                    isDualPage: isDualPage,
+//                    retryAction: tryFetchGalleryContents,
+//                    reloadAction: refetchGalleryContents
+//                )
+//                .onAppear { tryFetchGalleryContents(index: secondIndex) }
+//                .contextMenu { contextMenuItems(index: secondIndex) }
+//            }
         }
     }
     // MARK: ContextMenu
@@ -206,26 +207,26 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
     }
     // MARK: ConditionalList
     @ViewBuilder private var conditionalList: some View {
-        if setting.readingDirection == .vertical {
-            AdvancedList(
-                page: page, data: containerDataSource,
-                id: \.self, spacing: setting.contentDividerHeight,
-                gesture: SimultaneousGesture(magnifyGesture, tapGesture),
-                content: imageContainer
-            )
-            .disabled(scale != 1)
-        } else {
+//        if setting.readingDirection == .vertical {
+//            AdvancedList(
+//                page: page, data: containerDataSource,
+//                id: \.self, spacing: setting.contentDividerHeight,
+//                gesture: SimultaneousGesture(magnifyGesture, tapGesture),
+//                content: imageContainer
+//            )
+//            .disabled(scale != 1)
+//        } else {
             Pager(
                 page: page, data: containerDataSource,
                 id: \.self, content: imageContainer
             )
-            .horizontal(
-                setting.readingDirection == .rightToLeft
-                ? .rightToLeft : .leftToRight
-            )
+//            .horizontal(
+//                setting.readingDirection == .rightToLeft
+//                ? .rightToLeft : .leftToRight
+//            )
             .swipeInteractionArea(.allAvailable)
             .allowsDragging(scale == 1)
-        }
+//        }
     }
     // MARK: Sheet
     private func sheet(item: ReadingViewSheetState) -> some View {
@@ -248,9 +249,9 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
                 }
             }
         }
-        .accentColor(accentColor)
-        .blur(radius: environment.blurRadius)
-        .allowsHitTesting(environment.isAppUnlocked)
+//        .accentColor(accentColor)
+//        .blur(radius: environment.blurRadius)
+//        .allowsHitTesting(environment.isAppUnlocked)
     }
 }
 
@@ -281,7 +282,7 @@ private extension ReadingView {
         trySetOrientation(allowsLandscape: false)
     }
     func trySetOrientation(allowsLandscape: Bool, shouldChangeOrientation: Bool = false) {
-        guard !DeviceUtil.isPad, setting.prefersLandscape else { return }
+//        guard !DeviceUtil.isPad, setting.prefersLandscape else { return }
         if allowsLandscape {
             AppDelegate.orientationLock = .all
             if shouldChangeOrientation {
@@ -338,26 +339,28 @@ private extension ReadingView {
         store.dispatch(.setReadingProgress(gid: gid, tag: progress))
     }
     func mapToPager(index: Int) -> Int {
-        guard DeviceUtil.isLandscape && setting.enablesDualPageMode
-                && setting.readingDirection != .vertical
-        else { return index - 1 }
-        guard index > 1 else { return 0 }
-
-        return setting.exceptCover ? index / 2 : (index - 1) / 2
+//        guard DeviceUtil.isLandscape && setting.enablesDualPageMode
+//                && setting.readingDirection != .vertical
+//        else { return index - 1 }
+//        guard index > 1 else { return 0 }
+//
+//        return setting.exceptCover ? index / 2 : (index - 1) / 2
+        return 0
     }
     func mapFromPager(index: Int) -> Int {
-        guard DeviceUtil.isLandscape && setting.enablesDualPageMode
-                && setting.readingDirection != .vertical
-        else { return index + 1 }
-        guard index > 0 else { return 1 }
-
-        let result = setting.exceptCover ? index * 2 : index * 2 + 1
-
-        if result + 1 == pageCount {
-            return pageCount
-        } else {
-            return result
-        }
+//        guard DeviceUtil.isLandscape && setting.enablesDualPageMode
+//                && setting.readingDirection != .vertical
+//        else { return index + 1 }
+//        guard index > 0 else { return 1 }
+//
+//        let result = setting.exceptCover ? index * 2 : index * 2 + 1
+//
+//        if result + 1 == pageCount {
+//            return pageCount
+//        } else {
+//            return result
+//        }
+        return 0
     }
 
     // MARK: Dispatch
@@ -399,29 +402,29 @@ private extension ReadingView {
 
     // MARK: Prefetch
     func tryPrefetchImages(index: Int) {
-        var prefetchIndices = [URL]()
-        let prefetchLimit = setting.prefetchLimit / 2
-
-        let previousUpperBound = max(index - 2, 1)
-        let previousLowerBound = max(previousUpperBound - prefetchLimit, 1)
-        if previousUpperBound - previousLowerBound > 0 {
-            appendPrefetchIndices(
-                array: &prefetchIndices,
-                range: previousLowerBound...previousUpperBound
-            )
-        }
-
-        let nextLowerBound = min(index + 2, pageCount)
-        let nextUpperBound = min(nextLowerBound + prefetchLimit, pageCount)
-        if nextUpperBound - nextLowerBound > 0 {
-            appendPrefetchIndices(
-                array: &prefetchIndices,
-                range: nextLowerBound...nextUpperBound
-            )
-        }
-
-        guard !prefetchIndices.isEmpty else { return }
-        ImagePrefetcher(urls: prefetchIndices).start()
+//        var prefetchIndices = [URL]()
+//        let prefetchLimit = setting.prefetchLimit / 2
+//
+//        let previousUpperBound = max(index - 2, 1)
+//        let previousLowerBound = max(previousUpperBound - prefetchLimit, 1)
+//        if previousUpperBound - previousLowerBound > 0 {
+//            appendPrefetchIndices(
+//                array: &prefetchIndices,
+//                range: previousLowerBound...previousUpperBound
+//            )
+//        }
+//
+//        let nextLowerBound = min(index + 2, pageCount)
+//        let nextUpperBound = min(nextLowerBound + prefetchLimit, pageCount)
+//        if nextUpperBound - nextLowerBound > 0 {
+//            appendPrefetchIndices(
+//                array: &prefetchIndices,
+//                range: nextLowerBound...nextUpperBound
+//            )
+//        }
+//
+//        guard !prefetchIndices.isEmpty else { return }
+//        ImagePrefetcher(urls: prefetchIndices).start()
     }
 
     func appendPrefetchIndices(array: inout [URL], range: ClosedRange<Int>) {
@@ -478,31 +481,31 @@ private extension ReadingView {
     }
 
     // MARK: Gesture
-    var tapGesture: some Gesture {
-        let singleTap = TapGesture(count: 1).onEnded { _ in
-            let defaultAction = { withAnimation { showsPanel.toggle() } }
-            guard setting.readingDirection != .vertical,
-                  let pointX = TouchHandler.shared.currentPoint?.x
-            else {
-                defaultAction()
-                return
-            }
-            let rightToLeft = setting.readingDirection == .rightToLeft
-            if pointX < DeviceUtil.absWindowW * 0.2 {
-                page.update(rightToLeft ? .next : .previous)
-            } else if pointX > DeviceUtil.absWindowW * (1 - 0.2) {
-                page.update(rightToLeft ? .previous : .next)
-            } else {
-                defaultAction()
-            }
-        }
-        let doubleTap = TapGesture(count: 2).onEnded { _ in
-            trySyncScaleAnchor()
-            trySetOffset(.zero)
-            trySetScale(scale == 1 ? setting.doubleTapScaleFactor : 1)
-        }
-        return ExclusiveGesture(doubleTap, singleTap)
-    }
+//    var tapGesture: some Gesture {
+//        let singleTap = TapGesture(count: 1).onEnded { _ in
+//            let defaultAction = { withAnimation { showsPanel.toggle() } }
+//            guard setting.readingDirection != .vertical,
+//                  let pointX = TouchHandler.shared.currentPoint?.x
+//            else {
+//                defaultAction()
+//                return
+//            }
+//            let rightToLeft = setting.readingDirection == .rightToLeft
+//            if pointX < DeviceUtil.absWindowW * 0.2 {
+//                page.update(rightToLeft ? .next : .previous)
+//            } else if pointX > DeviceUtil.absWindowW * (1 - 0.2) {
+//                page.update(rightToLeft ? .previous : .next)
+//            } else {
+//                defaultAction()
+//            }
+//        }
+//        let doubleTap = TapGesture(count: 2).onEnded { _ in
+//            trySyncScaleAnchor()
+//            trySetOffset(.zero)
+//            trySetScale(scale == 1 ? setting.doubleTapScaleFactor : 1)
+//        }
+//        return ExclusiveGesture(doubleTap, singleTap)
+//    }
     var magnifyGesture: some Gesture {
         MagnificationGesture()
             .onChanged(onMagnificationGestureChanged)
@@ -556,13 +559,13 @@ private extension ReadingView {
 
     }
     func trySetScale(_ newValue: CGFloat) {
-        let max = setting.maximumScaleFactor
-        guard scale != newValue && newValue >= 1 && newValue <= max else { return }
-
-        withAnimation {
-            scale = newValue
-        }
-        fixOffset()
+//        let max = setting.maximumScaleFactor
+//        guard scale != newValue && newValue >= 1 && newValue <= max else { return }
+//
+//        withAnimation {
+//            scale = newValue
+//        }
+//        fixOffset()
     }
     func trySyncScaleAnchor() {
         guard let point = TouchHandler.shared.currentPoint else { return }

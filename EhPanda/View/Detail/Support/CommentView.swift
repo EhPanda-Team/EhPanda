@@ -126,9 +126,9 @@ struct CommentView: View, StoreAccessor {
                 )
             }
         }
-        .accentColor(accentColor)
-        .blur(radius: environment.blurRadius)
-        .allowsHitTesting(environment.isAppUnlocked)
+//        .accentColor(accentColor)
+//        .blur(radius: environment.blurRadius)
+//        .allowsHitTesting(environment.isAppUnlocked)
     }
 }
 

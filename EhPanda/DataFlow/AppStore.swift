@@ -70,6 +70,10 @@ let appReducerCore = Reducer<AppState, AppAction, AppEnvironment> { state, actio
     case .appDelegate:
         return .none
 
+    case .home(.frontpage):
+        state.homeState.frontpageState.rawFilter = state.settingState.globalFilter
+        return .none
+
     case .home:
         state.homeState.rawFilter = state.settingState.globalFilter
         return .none

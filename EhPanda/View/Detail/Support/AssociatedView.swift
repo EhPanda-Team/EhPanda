@@ -116,113 +116,113 @@ private extension AssociatedView {
         guard !loadingFlag else { return }
         loadingFlag = true
 
-        let token = SubscriptionToken()
-        SearchItemsRequest(
-            keyword: keyword.isEmpty ? title : keyword,
-            filter: searchFilter, pageNum: pageNum
-        )
-        .publisher.receive(on: DispatchQueue.main)
-        .sink { completion in
-            loadingFlag = false
-            if case .failure(let error) = completion {
-                Logger.error(error)
-                loadError = error
-
-                Logger.error(
-                    "SearchItemsRequest failed",
-                    context: [
-                        "Keyword": keyword.isEmpty ? title : keyword,
-                        "Error": error
-                    ]
-                )
-            }
-            token.unseal()
-        } receiveValue: { pageNumber, galleries in
-            self.pageNumber = pageNumber
-            if !galleries.isEmpty {
-                associatedItems = galleries
-
-                Logger.info(
-                    "SearchItemsRequest succeeded",
-                    context: [
-                        "Keyword": keyword.isEmpty ? title : keyword, "PageNumber": pageNumber,
-                        "Galleries count": galleries.count
-                    ]
-                )
-            } else {
-                loadError = .notFound
-
-                Logger.error(
-                    "SearchItemsRequest failed",
-                    context: [
-                        "Keyword": keyword.isEmpty ? title : keyword,
-                        "PageNumber": pageNumber, "Error": loadError as Any
-                    ]
-                )
-            }
-            PersistenceController.add(galleries: galleries)
-
-            if galleries.isEmpty && pageNumber.current < pageNumber.maximum {
-                fetchMoreAssociatedItems()
-            }
-        }
-        .seal(in: token)
+//        let token = SubscriptionToken()
+//        SearchItemsRequest(
+//            keyword: keyword.isEmpty ? title : keyword,
+//            filter: searchFilter, pageNum: pageNum
+//        )
+//        .publisher.receive(on: DispatchQueue.main)
+//        .sink { completion in
+//            loadingFlag = false
+//            if case .failure(let error) = completion {
+//                Logger.error(error)
+//                loadError = error
+//
+//                Logger.error(
+//                    "SearchItemsRequest failed",
+//                    context: [
+//                        "Keyword": keyword.isEmpty ? title : keyword,
+//                        "Error": error
+//                    ]
+//                )
+//            }
+//            token.unseal()
+//        } receiveValue: { pageNumber, galleries in
+//            self.pageNumber = pageNumber
+//            if !galleries.isEmpty {
+//                associatedItems = galleries
+//
+//                Logger.info(
+//                    "SearchItemsRequest succeeded",
+//                    context: [
+//                        "Keyword": keyword.isEmpty ? title : keyword, "PageNumber": pageNumber,
+//                        "Galleries count": galleries.count
+//                    ]
+//                )
+//            } else {
+//                loadError = .notFound
+//
+//                Logger.error(
+//                    "SearchItemsRequest failed",
+//                    context: [
+//                        "Keyword": keyword.isEmpty ? title : keyword,
+//                        "PageNumber": pageNumber, "Error": loadError as Any
+//                    ]
+//                )
+//            }
+//            PersistenceController.add(galleries: galleries)
+//
+//            if galleries.isEmpty && pageNumber.current < pageNumber.maximum {
+//                fetchMoreAssociatedItems()
+//            }
+//        }
+//        .seal(in: token)
     }
     func fetchMoreAssociatedItems() {
-        moreLoadFailedFlag = false
-        guard let lastID = associatedItems.last?.id,
-              pageNumber.current + 1 <= pageNumber.maximum,
-              !moreLoadingFlag else { return }
-        moreLoadingFlag = true
+//        moreLoadFailedFlag = false
+//        guard let lastID = associatedItems.last?.id,
+//              pageNumber.current + 1 <= pageNumber.maximum,
+//              !moreLoadingFlag else { return }
+//        moreLoadingFlag = true
 
-        let token = SubscriptionToken()
-        MoreSearchItemsRequest(
-            keyword: keyword.isEmpty ? title : keyword, filter: searchFilter,
-            lastID: lastID, pageNum: pageNumber.current + 1
-        )
-        .publisher.receive(on: DispatchQueue.main)
-        .sink { completion in
-            moreLoadingFlag = false
-            if case .failure(let error)  = completion {
-                moreLoadFailedFlag = true
-                Logger.error(error)
-
-                Logger.error(
-                    "MoreSearchItemsRequest failed",
-                    context: [
-                        "Keyword": keyword, "LastID": lastID,
-                        "PageNumber": pageNumber, "Error": error
-                    ]
-                )
-            }
-            token.unseal()
-        } receiveValue: { pageNumber, galleries in
-            self.pageNumber = pageNumber
-
-            if associatedItems.isEmpty {
-                associatedItems = galleries
-            } else {
-                associatedItems.append(
-                    contentsOf: galleries.filter({
-                        !associatedItems.contains($0)
-                    })
-                )
-            }
-            PersistenceController.add(galleries: galleries)
-
-            Logger.info(
-                "MoreSearchItemsRequest succeeded",
-                context: [
-                    "Keyword": keyword, "LastID": lastID, "PageNumber": pageNumber,
-                    "Galleries count": galleries.count
-                ]
-            )
-
-            if galleries.isEmpty && pageNumber.current < pageNumber.maximum {
-                fetchMoreAssociatedItems()
-                Logger.warning("MoreSearchItemsRequest result empty, requesting more...")
-            }
-        }
-        .seal(in: token)
+//        let token = SubscriptionToken()
+//        MoreSearchItemsRequest(
+//            keyword: keyword.isEmpty ? title : keyword, filter: searchFilter,
+//            lastID: lastID, pageNum: pageNumber.current + 1
+//        )
+//        .publisher.receive(on: DispatchQueue.main)
+//        .sink { completion in
+//            moreLoadingFlag = false
+//            if case .failure(let error)  = completion {
+//                moreLoadFailedFlag = true
+//                Logger.error(error)
+//
+//                Logger.error(
+//                    "MoreSearchItemsRequest failed",
+//                    context: [
+//                        "Keyword": keyword, "LastID": lastID,
+//                        "PageNumber": pageNumber, "Error": error
+//                    ]
+//                )
+//            }
+//            token.unseal()
+//        } receiveValue: { pageNumber, galleries in
+//            self.pageNumber = pageNumber
+//
+//            if associatedItems.isEmpty {
+//                associatedItems = galleries
+//            } else {
+//                associatedItems.append(
+//                    contentsOf: galleries.filter({
+//                        !associatedItems.contains($0)
+//                    })
+//                )
+//            }
+//            PersistenceController.add(galleries: galleries)
+//
+//            Logger.info(
+//                "MoreSearchItemsRequest succeeded",
+//                context: [
+//                    "Keyword": keyword, "LastID": lastID, "PageNumber": pageNumber,
+//                    "Galleries count": galleries.count
+//                ]
+//            )
+//
+//            if galleries.isEmpty && pageNumber.current < pageNumber.maximum {
+//                fetchMoreAssociatedItems()
+//                Logger.warning("MoreSearchItemsRequest result empty, requesting more...")
+//            }
+//        }
+//        .seal(in: token)
     }
 }

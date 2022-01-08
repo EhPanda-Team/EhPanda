@@ -120,7 +120,7 @@ final class DeprecatedStore: ObservableObject {
             appState.homeInfo.moveQuickSearchWords(source: source, destination: destination)
 
         // MARK: Fetch Data
-        case .fetchGalleryItemReverse(var url, let shouldParseGalleryURL):
+        case .fetchGalleryItemReverse(let url, let shouldParseGalleryURL):
             appState.environment.galleryItemReverseLoadFailed = false
 
             guard let tmpURL = URL(string: url),
@@ -128,16 +128,16 @@ final class DeprecatedStore: ObservableObject {
             if appState.environment.galleryItemReverseLoading { break }
             appState.environment.galleryItemReverseLoading = true
 
-            if appState.settings.setting.redirectsLinksToSelectedHost {
-                url = url.replacingOccurrences(
-                    of: Defaults.URL.ehentai.absoluteString,
-                    with: Defaults.URL.host.absoluteString
-                )
-                .replacingOccurrences(
-                    of: Defaults.URL.exhentai.absoluteString,
-                    with: Defaults.URL.host.absoluteString
-                )
-            }
+//            if appState.settings.setting.redirectsLinksToSelectedHost {
+//                url = url.replacingOccurrences(
+//                    of: Defaults.URL.ehentai.absoluteString,
+//                    with: Defaults.URL.host.absoluteString
+//                )
+//                .replacingOccurrences(
+//                    of: Defaults.URL.exhentai.absoluteString,
+//                    with: Defaults.URL.host.absoluteString
+//                )
+//            }
             appCommand = FetchGalleryItemReverseCommand(
                 gid: URLUtil.parseGID(url: tmpURL, isGalleryURL: shouldParseGalleryURL),
                 url: url, shouldParseGalleryURL: shouldParseGalleryURL
@@ -154,15 +154,15 @@ final class DeprecatedStore: ObservableObject {
                 dispatch(.setPendingJumpInfos(gid: carriedValue, pageIndex: nil, commentID: nil))
             }
 
-        case .fetchSearchItems(let keyword, let pageNum):
+        case .fetchSearchItems:
             appState.homeInfo.searchLoadError = nil
 
             if appState.homeInfo.searchLoading { break }
             appState.homeInfo.searchPageNumber.current = 0
             appState.homeInfo.searchLoading = true
 
-            let filter = appState.settings.searchFilter
-            appCommand = FetchSearchItemsCommand(keyword: keyword, filter: filter, pageNum: pageNum)
+//            let filter = appState.settings.searchFilter
+//            appCommand = FetchSearchItemsCommand(keyword: keyword, filter: filter, pageNum: pageNum)
         case .fetchSearchItemsDone(let result):
             appState.homeInfo.searchLoading = false
 
@@ -175,7 +175,7 @@ final class DeprecatedStore: ObservableObject {
                 appState.homeInfo.searchLoadError = error
             }
 
-        case .fetchMoreSearchItems(let keyword):
+        case .fetchMoreSearchItems:
             appState.homeInfo.moreSearchLoadFailed = false
 
             let pageNumber = appState.homeInfo.searchPageNumber
@@ -184,13 +184,13 @@ final class DeprecatedStore: ObservableObject {
             if appState.homeInfo.moreSearchLoading { break }
             appState.homeInfo.moreSearchLoading = true
 
-            let pageNum = pageNumber.current + 1
-            let filter = appState.settings.searchFilter
-            let lastID = appState.homeInfo.searchItems.last?.id ?? ""
-            appCommand = FetchMoreSearchItemsCommand(
-                keyword: keyword, filter: filter,
-                lastID: lastID, pageNum: pageNum
-            )
+//            let pageNum = pageNumber.current + 1
+//            let filter = appState.settings.searchFilter
+//            let lastID = appState.homeInfo.searchItems.last?.id ?? ""
+//            appCommand = FetchMoreSearchItemsCommand(
+//                keyword: keyword, filter: filter,
+//                lastID: lastID, pageNum: pageNum
+//            )
         case .fetchMoreSearchItemsDone(let result):
             appState.homeInfo.moreSearchLoading = false
 
@@ -203,14 +203,14 @@ final class DeprecatedStore: ObservableObject {
                 appState.homeInfo.moreSearchLoadFailed = true
             }
 
-        case .fetchWatchedItems(let pageNum):
+        case .fetchWatchedItems:
             appState.homeInfo.watchedLoadError = nil
 
             if appState.homeInfo.watchedLoading { break }
             appState.homeInfo.watchedPageNumber.current = 0
             appState.homeInfo.watchedLoading = true
-            let filter = appState.settings.globalFilter
-            appCommand = FetchWatchedItemsCommand(filter: filter, pageNum: pageNum)
+//            let filter = appState.settings.globalFilter
+//            appCommand = FetchWatchedItemsCommand(filter: filter, pageNum: pageNum)
         case .fetchWatchedItemsDone(let result):
             appState.homeInfo.watchedLoading = false
 
@@ -232,10 +232,10 @@ final class DeprecatedStore: ObservableObject {
             if appState.homeInfo.moreWatchedLoading { break }
             appState.homeInfo.moreWatchedLoading = true
 
-            let pageNum = pageNumber.current + 1
-            let filter = appState.settings.globalFilter
-            let lastID = appState.homeInfo.watchedItems.last?.id ?? ""
-            appCommand = FetchMoreWatchedItemsCommand(filter: filter, lastID: lastID, pageNum: pageNum)
+//            let pageNum = pageNumber.current + 1
+//            let filter = appState.settings.globalFilter
+//            let lastID = appState.homeInfo.watchedItems.last?.id ?? ""
+//            appCommand = FetchMoreWatchedItemsCommand(filter: filter, lastID: lastID, pageNum: pageNum)
         case .fetchMoreWatchedItemsDone(let result):
             appState.homeInfo.moreWatchedLoading = false
 
@@ -260,8 +260,8 @@ final class DeprecatedStore: ObservableObject {
             appState.detailInfo.detailLoading[gid] = false
 
             switch result {
-            case .success(let (detail, state, apiKey, _)):
-                appState.settings.user.apikey = apiKey
+            case .success(let (detail, state, _, _)):
+//                appState.settings.user.apikey = apiKey
 //                if let greeting = greeting {
 //                    appState.settings.insert(greeting: greeting)
 //                }
@@ -280,17 +280,17 @@ final class DeprecatedStore: ObservableObject {
             appState.detailInfo.archiveFundsLoading = true
             let galleryURL = PersistenceController.fetchGallery(gid: gid)?.galleryURL ?? ""
             appCommand = FetchGalleryArchiveFundsCommand(gid: gid, galleryURL: galleryURL)
-        case .fetchGalleryArchiveFundsDone(let result):
+        case .fetchGalleryArchiveFundsDone:
             appState.detailInfo.archiveFundsLoading = false
 
-            if case .success(let (currentGP, currentCredits)) = result {
-                appState.settings.update(
-                    user: User(
-                        currentGP: currentGP,
-                        currentCredits: currentCredits
-                    )
-                )
-            }
+//            if case .success(let (currentGP, currentCredits)) = result {
+//                appState.settings.update(
+//                    user: User(
+//                        currentGP: currentGP,
+//                        currentCredits: currentCredits
+//                    )
+//                )
+//            }
 
         case .fetchGalleryPreviews/*(let gid, let index)*/:
             break
@@ -460,22 +460,23 @@ final class DeprecatedStore: ObservableObject {
         case .unfavorGallery(let gid):
             appCommand = DeleteFavoriteCommand(gid: gid)
 
-        case .rateGallery(let gid, let rating):
-            let apiuidString = "" // appState.settings.user.apiuid
-            guard !apiuidString.isEmpty,
-                  let apikey = appState.settings.user.apikey,
-                  let token = PersistenceController.fetchGallery(gid: gid)?.token,
-                  let apiuid = Int(apiuidString),
-                  let gid = Int(gid)
-            else { break }
-
-            appCommand = RateCommand(
-                apiuid: apiuid,
-                apikey: apikey,
-                gid: gid,
-                token: token,
-                rating: rating
-            )
+        case .rateGallery:
+            break
+//            let apiuidString = "" // appState.settings.user.apiuid
+//            guard !apiuidString.isEmpty,
+//                  let apikey = appState.settings.user.apikey,
+//                  let token = PersistenceController.fetchGallery(gid: gid)?.token,
+//                  let apiuid = Int(apiuidString),
+//                  let gid = Int(gid)
+//            else { break }
+//
+//            appCommand = RateCommand(
+//                apiuid: apiuid,
+//                apikey: apikey,
+//                gid: gid,
+//                token: token,
+//                rating: rating
+//            )
 
         case .commentGallery(let gid, let content):
             let galleryURL = PersistenceController.fetchGallery(gid: gid)?.galleryURL ?? ""
@@ -489,24 +490,25 @@ final class DeprecatedStore: ObservableObject {
                 content: content,
                 galleryURL: galleryURL
             )
-        case .voteGalleryComment(let gid, let commentID, let vote):
-            let apiuidString = "" // appState.settings.user.apiuid
-            guard !apiuidString.isEmpty,
-                  let apikey = appState.settings.user.apikey,
-                  let token = PersistenceController.fetchGallery(gid: gid)?.token,
-                  let commentID = Int(commentID),
-                  let apiuid = Int(apiuidString),
-                  let gid = Int(gid)
-            else { break }
-
-            appCommand = VoteCommentCommand(
-                apiuid: apiuid,
-                apikey: apikey,
-                gid: gid,
-                token: token,
-                commentID: commentID,
-                commentVote: vote
-            )
+        case .voteGalleryComment:
+            break
+//            let apiuidString = "" // appState.settings.user.apiuid
+//            guard !apiuidString.isEmpty,
+//                  let apikey = appState.settings.user.apikey,
+//                  let token = PersistenceController.fetchGallery(gid: gid)?.token,
+//                  let commentID = Int(commentID),
+//                  let apiuid = Int(apiuidString),
+//                  let gid = Int(gid)
+//            else { break }
+//
+//            appCommand = VoteCommentCommand(
+//                apiuid: apiuid,
+//                apikey: apikey,
+//                gid: gid,
+//                token: token,
+//                commentID: commentID,
+//                commentVote: vote
+//            )
         }
 
         return (appState, appCommand)

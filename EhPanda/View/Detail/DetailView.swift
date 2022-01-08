@@ -32,32 +32,32 @@ struct DetailView: View, StoreAccessor, PersistenceAccessor {
             if let detail = galleryDetail {
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 30) {
-                        HeaderView(
-                            gallery: gallery, detail: detail,
-                            favoriteNames: user.favoriteNames,
-                            addFavAction: { store.dispatch(.favorGallery(gid: gid, favIndex: $0)) },
-                            deleteFavAction: { store.dispatch(.unfavorGallery(gid: gid)) },
-                            onUploaderTapAction: tryNavigateToUploader
-                        )
-                        .padding(.horizontal)
+//                        HeaderView(
+//                            gallery: gallery, detail: detail,
+//                            favoriteNames: user.favoriteNames,
+//                            addFavAction: { store.dispatch(.favorGallery(gid: gid, favIndex: $0)) },
+//                            deleteFavAction: { store.dispatch(.unfavorGallery(gid: gid)) },
+//                            onUploaderTapAction: tryNavigateToUploader
+//                        )
+//                        .padding(.horizontal)
                         DescScrollView(gallery: gallery, detail: detail)
                         ActionRow(
                             detail: detail,
                             ratingAction: rateGallery,
                             galleryAction: tryNavigateToSimilarGallery
                         )
-                        if !galleryState.tags.isEmpty {
-                            TagsView(
-                                tags: galleryState.tags,
-                                onTapAction: navigateToAssociatedView,
-                                translateAction: {
-                                    settings.tagTranslator.tryTranslate(
-                                        text: $0, returnOriginal: !setting.translatesTags
-                                    )
-                                }
-                            )
-                            .padding(.horizontal)
-                        }
+//                        if !galleryState.tags.isEmpty {
+//                            TagsView(
+//                                tags: galleryState.tags,
+//                                onTapAction: navigateToAssociatedView,
+//                                translateAction: {
+//                                    settings.tagTranslator.tryTranslate(
+//                                        text: $0, returnOriginal: !setting.translatesTags
+//                                    )
+//                                }
+//                            )
+//                            .padding(.horizontal)
+//                        }
                         PreviewView(
                             gid: gid, previews: detailInfo.previews[gid] ?? [:],
                             pageCount: detail.pageCount, tapAction: navigateToReading,
@@ -115,9 +115,9 @@ private extension DetailView {
                 )
             }
         }
-        .accentColor(accentColor)
-        .blur(radius: environment.blurRadius)
-        .allowsHitTesting(environment.isAppUnlocked)
+//        .accentColor(accentColor)
+//        .blur(radius: environment.blurRadius)
+//        .allowsHitTesting(environment.isAppUnlocked)
     }
     // MARK: Toolbar
     func toolbar() -> some ToolbarContent {

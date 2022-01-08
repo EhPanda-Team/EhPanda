@@ -7,7 +7,6 @@
 
 import SwiftUI
 import AlertKit
-import SFSafeSymbols
 import ComposableArchitecture
 
 struct FavoritesView: View {

@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import SFSafeSymbols
 
 struct LoadingView: View {
     var body: some View {

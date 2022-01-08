@@ -46,7 +46,7 @@ struct ArchiveView: View, StoreAccessor, PersistenceAccessor {
                         VStack {
                             gridView
                             Spacer()
-                            balanceView
+//                            balanceView
                             DownloadButton(
                                 isDisabled: selection == nil,
                                 action: sendDownloadCommand
@@ -85,16 +85,16 @@ struct ArchiveView: View, StoreAccessor, PersistenceAccessor {
             .padding(.top, 40)
         }
     }
-    // MARK: BalanceView
-    @ViewBuilder private var balanceView: some View {
-        if let galleryPoints = Int(currentGP ?? ""), let credits = Int(currentCredits ?? "") {
-            HStack(spacing: 20) {
-                Label("\(galleryPoints)", systemImage: "g.circle.fill")
-                Label("\(credits)", systemImage: "c.circle.fill")
-            }
-            .font(.headline).lineLimit(1).padding()
-        }
-    }
+//    // MARK: BalanceView
+//    @ViewBuilder private var balanceView: some View {
+//        if let galleryPoints = Int(currentGP ?? ""), let credits = Int(currentCredits ?? "") {
+//            HStack(spacing: 20) {
+//                Label("\(galleryPoints)", systemImage: "g.circle.fill")
+//                Label("\(credits)", systemImage: "c.circle.fill")
+//            }
+//            .font(.headline).lineLimit(1).padding()
+//        }
+//    }
 }
 
 // MARK: Private Extension
@@ -331,7 +331,7 @@ struct ArchiveView_Previews: PreviewProvider {
 
         user.currentGP = "114"
         user.currentCredits = "514"
-        store.appState.settings.user = user
+//        store.appState.settings.user = user
 
         return ArchiveView(gid: "").environmentObject(store)
     }

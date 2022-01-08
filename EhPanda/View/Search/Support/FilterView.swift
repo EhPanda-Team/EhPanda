@@ -12,21 +12,21 @@ struct FilterView: View, StoreAccessor {
     @State private var resetDialogPresented = false
     @State private var filterRange: FilterRange = .search
 
-    private var filterBinding: Binding<Filter> {
-        filterRange == .search
-            ? $store.appState.settings.searchFilter
-            : $store.appState.settings.globalFilter
-    }
+//    private var filterBinding: Binding<Filter> {
+//        filterRange == .search
+//            ? $store.appState.settings.searchFilter
+//            : $store.appState.settings.globalFilter
+//    }
 
     // MARK: FilterView
     var body: some View {
         NavigationView {
             Form {
-                BasicSection(
-                    filter: filterBinding, filterRange: $filterRange,
-                    resetDialogPresented: $resetDialogPresented
-                )
-                AdvancedSection(filter: filterBinding)
+//                BasicSection(
+//                    filter: filterBinding, filterRange: $filterRange,
+//                    resetDialogPresented: $resetDialogPresented
+//                )
+//                AdvancedSection(filter: filterBinding)
             }
             .confirmationDialog(
                 "Are you sure to reset?", isPresented: $resetDialogPresented, titleVisibility: .visible

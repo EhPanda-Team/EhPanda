@@ -10,7 +10,6 @@ import Foundation
 
 struct DeprecatedAppState {
     var environment = Environment()
-    var settings = Settings()
     var homeInfo = HomeInfo()
     var detailInfo = DetailInfo()
     var contentInfo = ContentInfo()
@@ -20,15 +19,8 @@ extension DeprecatedAppState {
     // MARK: Environment
     struct Environment {
         var isPreview = false
-        var isAppUnlocked = true
-        var blurRadius: CGFloat = 0
         var viewControllersCount = 1
         var navigationBarHidden = false
-        var favoritesIndex = -1
-        var favoritesSortOrder: FavoritesSortOrder?
-        var toplistsType: ToplistsType = .allTime
-        // var homeListType: HomeListType = .frontpage
-        var homeViewSheetState: HomeViewSheetState?
         var settingViewSheetState: SettingViewSheetState?
         var detailViewSheetState: DetailViewSheetState?
         var commentViewSheetState: CommentViewSheetState?
@@ -36,47 +28,6 @@ extension DeprecatedAppState {
         var galleryItemReverseID: String?
         var galleryItemReverseLoading = false
         var galleryItemReverseLoadFailed = false
-    }
-
-    // MARK: Settings
-    struct Settings {
-        var userInfoLoading = false
-        var favoriteNamesLoading = false
-        var greetingLoading = false
-
-        var appEnv: AppEnv {
-            PersistenceController.fetchAppEnvNonNil()
-        }
-
-        @AppEnvStorage(type: User.self)
-        var user: User
-
-        @AppEnvStorage(type: Filter.self, key: "searchFilter")
-        var searchFilter: Filter
-
-        @AppEnvStorage(type: Filter.self, key: "globalFilter")
-        var globalFilter: Filter
-
-        @AppEnvStorage(type: Setting.self)
-        var setting: Setting
-
-        @AppEnvStorage(type: TagTranslator.self, key: "tagTranslator")
-        var tagTranslator: TagTranslator
-
-        mutating func update(user: User) {
-            if let displayName = user.displayName {
-                self.user.displayName = displayName
-            }
-            if let avatarURL = user.avatarURL {
-                self.user.avatarURL = avatarURL
-            }
-            if let currentGP = user.currentGP,
-               let currentCredits = user.currentCredits
-            {
-                self.user.currentGP = currentGP
-                self.user.currentCredits = currentCredits
-            }
-        }
     }
 }
 

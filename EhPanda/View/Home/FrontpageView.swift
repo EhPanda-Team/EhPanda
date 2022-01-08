@@ -47,9 +47,6 @@ struct FrontpageView: View {
         )
         .animation(.default, value: viewStore.jumpPageAlertPresented)
         .searchable(text: viewStore.binding(\.$keyword), prompt: "Filter")
-        .onSubmit(of: .search) {
-            viewStore.send(.fetchGalleries())
-        }
         .onAppear {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                 viewStore.send(.fetchGalleries())

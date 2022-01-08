@@ -91,6 +91,34 @@ struct FavoritesIndexMenu: View {
     }
 }
 
+struct ToplistsTypeMenu: View {
+    private let type: ToplistsType
+    private let action: (ToplistsType) -> Void
+
+    init(type: ToplistsType, action: @escaping (ToplistsType) -> Void) {
+        self.type = type
+        self.action = action
+    }
+
+    var body: some View {
+        Menu {
+            ForEach(ToplistsType.allCases) { type in
+                Button {
+                    action(type)
+                } label: {
+                    Text(type.description.localized)
+                    if type == self.type {
+                        Image(systemSymbol: .checkmark)
+                    }
+                }
+            }
+        } label: {
+            Image(systemSymbol: .dialMin)
+                .symbolRenderingMode(.hierarchical)
+        }
+    }
+}
+
 struct SortOrderMenu: View {
     private let sortOrder: FavoritesSortOrder?
     private let action: (FavoritesSortOrder) -> Void

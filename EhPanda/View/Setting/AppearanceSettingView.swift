@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import SFSafeSymbols
 import ComposableArchitecture
 
 struct AppearanceSettingView: View {

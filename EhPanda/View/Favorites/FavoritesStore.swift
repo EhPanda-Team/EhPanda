@@ -24,36 +24,16 @@ struct FavoritesState: Equatable {
     var rawFooterLoadingState = [Int: LoadingState]()
 
     var galleries: [Gallery]? {
-        get {
-            rawGalleries[index]
-        }
-        set {
-            rawGalleries[index] = newValue
-        }
+        rawGalleries[index]
     }
     var pageNumber: PageNumber? {
-        get {
-            rawPageNumber[index]
-        }
-        set {
-            rawPageNumber[index] = newValue
-        }
+        rawPageNumber[index]
     }
     var loadingState: LoadingState? {
-        get {
-            rawLoadingState[index]
-        }
-        set {
-            rawLoadingState[index] = newValue
-        }
+        rawLoadingState[index]
     }
     var footerLoadingState: LoadingState? {
-        get {
-            rawFooterLoadingState[index]
-        }
-        set {
-            rawFooterLoadingState[index] = newValue
-        }
+        rawFooterLoadingState[index]
     }
 
     mutating func insertGalleries(index: Int, galleries: [Gallery]) {
@@ -120,11 +100,11 @@ let favoritesReducer = Reducer<FavoritesState, FavoritesAction, FavoritesEnviron
 
     case .fetchGalleries(let pageNum, let sortOrder):
         guard state.loadingState != .loading else { return .none }
-        state.loadingState = .loading
+        state.rawLoadingState[state.index] = .loading
         if state.pageNumber == nil {
-            state.pageNumber = PageNumber()
+            state.rawPageNumber[state.index] = PageNumber()
         } else {
-            state.pageNumber?.current = 0
+            state.rawPageNumber[state.index]?.current = 0
         }
         return FavoritesGalleriesRequest(
             favIndex: state.index, pageNum: pageNum, keyword: state.keyword, sortOrder: sortOrder
@@ -156,7 +136,7 @@ let favoritesReducer = Reducer<FavoritesState, FavoritesAction, FavoritesEnviron
         guard pageNumber.current + 1 <= pageNumber.maximum,
               state.footerLoadingState != .loading
         else { return .none }
-        state.footerLoadingState = .loading
+        state.rawFooterLoadingState[state.index] = .loading
         let pageNum = pageNumber.current + 1
         let lastID = state.galleries?.last?.id ?? ""
         return MoreFavoritesGalleriesRequest(
