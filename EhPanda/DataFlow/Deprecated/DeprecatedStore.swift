@@ -461,7 +461,7 @@ final class DeprecatedStore: ObservableObject {
             appCommand = DeleteFavoriteCommand(gid: gid)
 
         case .rateGallery(let gid, let rating):
-            let apiuidString = appState.settings.user.apiuid
+            let apiuidString = "" // appState.settings.user.apiuid
             guard !apiuidString.isEmpty,
                   let apikey = appState.settings.user.apikey,
                   let token = PersistenceController.fetchGallery(gid: gid)?.token,
@@ -490,7 +490,7 @@ final class DeprecatedStore: ObservableObject {
                 galleryURL: galleryURL
             )
         case .voteGalleryComment(let gid, let commentID, let vote):
-            let apiuidString = appState.settings.user.apiuid
+            let apiuidString = "" // appState.settings.user.apiuid
             guard !apiuidString.isEmpty,
                   let apikey = appState.settings.user.apikey,
                   let token = PersistenceController.fetchGallery(gid: gid)?.token,

@@ -282,11 +282,11 @@ private struct HeaderView: View {
                         }
                         .opacity(detail.isFavored ? 1 : 0)
                         Menu {
-                            ForEach(0..<10) { index in
-                                Button(User.getFavNameFrom(index: index, names: favoriteNames)) {
-                                    addFavAction(index)
-                                }
-                            }
+//                            ForEach(0..<10) { index in
+//                                Button(User.getFavNameFrom(index: index, names: favoriteNames)) {
+//                                    addFavAction(index)
+//                                }
+//                            }
                         } label: {
                             Image(systemName: "heart").imageScale(.large).foregroundStyle(.tint)
                         }

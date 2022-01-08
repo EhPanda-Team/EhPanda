@@ -68,7 +68,7 @@ extension LibraryClient {
         },
         analyzeImageColors: { image in
             Future { promise in
-                image.getColors(quality: .highest) { colors in
+                image.getColors(quality: .lowest) { colors in
                     promise(.success(colors))
                 }
             }

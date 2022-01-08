@@ -47,7 +47,7 @@ extension UIApplicationClient {
         },
         setUserInterfaceStyle: { userInterfaceStyle in
             .fireAndForget {
-                DeviceUtil.anyWindow?.overrideUserInterfaceStyle = userInterfaceStyle
+                (DeviceUtil.keyWindow ?? DeviceUtil.anyWindow)?.overrideUserInterfaceStyle = userInterfaceStyle
             }
         }
     )

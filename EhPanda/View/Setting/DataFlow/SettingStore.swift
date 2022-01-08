@@ -158,9 +158,11 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
             return IgneousRequest().effect.fireAndForget()
 
         case .fetchUserInfo:
-            let uid = state.user.apiuid
-            guard !uid.isEmpty else { return .none }
-            return UserInfoRequest(uid: uid).effect.map(SettingAction.fetchUserInfoDone)
+            let uid = environment.cookiesClient.getCookie(Defaults.URL.host, Defaults.Cookie.ipbMemberId).rawValue
+            if !uid.isEmpty {
+                return UserInfoRequest(uid: uid).effect.map(SettingAction.fetchUserInfoDone)
+            }
+            return .none
 
         case .fetchUserInfoDone(let result):
             if case .success(let user) = result {

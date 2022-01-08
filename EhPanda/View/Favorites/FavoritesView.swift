@@ -34,8 +34,8 @@ struct FavoritesView: View {
     }
 
     private var navigationTitle: String {
-        let favName = User.getFavNameFrom(index: viewStore.index, names: user.favoriteNames)
-        return (viewStore.index == -1 ? "Favorites" : favName).localized
+        let favoritesName = user.getFavoritesName(index: viewStore.index)
+        return (viewStore.index == -1 ? "Favorites" : favoritesName).localized
     }
 
     // MARK: FavoritesView
@@ -105,9 +105,7 @@ struct FavoritesView: View {
                             viewStore.send(.setFavoritesIndex(index))
                         }
                     } label: {
-                        Text(User.getFavNameFrom(
-                            index: index, names: user.favoriteNames
-                        ))
+                        Text(user.getFavoritesName(index: index))
                         if index == viewStore.index {
                             Image(systemSymbol: .checkmark)
                         }

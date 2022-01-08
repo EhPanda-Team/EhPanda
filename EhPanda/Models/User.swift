@@ -19,18 +19,10 @@ struct User: Codable, Equatable {
 
     var greeting: Greeting?
 
-    var apiuid: String {
-        CookiesUtil.get(for: Defaults.URL.host, key: Defaults.Cookie.ipbMemberId).rawValue
-    }
-
     var favoriteNames: [Int: String]?
 
-    func getFavNameFrom(index: Int) -> String {
-        User.getFavNameFrom(index: index, names: favoriteNames)
-    }
-
-    static func getFavNameFrom(index: Int, names: [Int: String]?) -> String {
-        var name = names?[index] ?? "Favorites \(index)"
+    func getFavoritesName(index: Int) -> String {
+        var name = favoriteNames?[index] ?? "Favorites \(index)"
         if index == -1 { name = "all_appendedByDev" }
 
         let replacedName = name
@@ -50,20 +42,11 @@ struct User: Codable, Equatable {
 
 enum FavoritesType: String, Codable, CaseIterable {
     static func getTypeFrom(index: Int) -> FavoritesType {
-        FavoritesType.allCases
-            .filter {
-                $0.index == index
-            }
-            .first ?? .all
+        FavoritesType.allCases.filter({ $0.index == index }).first ?? .all
     }
 
     var index: Int {
-        Int(self.rawValue
-            .replacingOccurrences(
-                of: "favorite_",
-                with: ""
-            )
-        ) ?? -1
+        Int(rawValue.replacingOccurrences(of: "favorite_", with: "")) ?? -1
     }
 
     case all = "all"

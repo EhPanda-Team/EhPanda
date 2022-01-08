@@ -15,8 +15,6 @@ struct HomeView: View {
     private let store: Store<HomeState, HomeAction>
     @ObservedObject private var viewStore: ViewStore<HomeState, HomeAction>
 
-    @StateObject private var page: Page = .withIndex(1)
-
     init(store: Store<HomeState, HomeAction>) {
         self.store = store
         viewStore = ViewStore(store)
@@ -29,7 +27,8 @@ struct HomeView: View {
                 ScrollView(showsIndicators: false) {
                     VStack {
                         CardSlideSection(
-                            galleries: viewStore.popularGalleries, page: page,
+                            galleries: viewStore.popularGalleries,
+                            pageIndex: viewStore.binding(\.$cardPageIndex),
                             currentID: viewStore.currentCardID,
                             colors: viewStore.cardColors,
                             navigateAction: navigateTo(gid:)
@@ -76,7 +75,6 @@ struct HomeView: View {
                 .zIndex(1)
             }
             .animation(.default, value: viewStore.popularLoadingState)
-            .synchronize(viewStore.binding(\.$cardPageIndex), $page.index)
             .onAppear {
                 if viewStore.popularGalleries.isEmpty {
                     viewStore.send(.fetchAllGalleries)
@@ -145,20 +143,22 @@ private extension HomeView {
 
 // MARK: CardSlideSection
 private struct CardSlideSection: View {
+    @StateObject private var page: Page = .withIndex(1)
+    @Binding private var pageIndex: Int
+
     private let galleries: [Gallery]
-    private let page: Page
     private let currentID: String
     private let colors: [Color]
     private let navigateAction: (String) -> Void
     private let webImageSuccessAction: (String, RetrieveImageResult) -> Void
 
     init(
-        galleries: [Gallery], page: Page, currentID: String,
+        galleries: [Gallery], pageIndex: Binding<Int>, currentID: String,
         colors: [Color], navigateAction: @escaping (String) -> Void,
         webImageSuccessAction: @escaping (String, RetrieveImageResult) -> Void
     ) {
         self.galleries = galleries
-        self.page = page
+        _pageIndex = pageIndex
         self.currentID = currentID
         self.colors = colors
         self.navigateAction = navigateAction
@@ -179,6 +179,7 @@ private struct CardSlideSection: View {
         .preferredItemSize(Defaults.FrameSize.cardCellSize)
         .interactive(opacity: 0.2).itemSpacing(20)
         .loopPages().pagingPriority(.high)
+        .synchronize($pageIndex, $page.index)
         .frame(height: Defaults.FrameSize.cardCellHeight)
     }
 }
