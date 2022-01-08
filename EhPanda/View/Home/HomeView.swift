@@ -35,6 +35,7 @@ struct HomeView: View {
                         ) { gid, result in
                             viewStore.send(.analyzeImageColors(gid, result))
                         }
+                        .allowsHitTesting(viewStore.allowsCardHitTesting)
                         Group {
                             CoverWallSection(
                                 galleries: viewStore.frontpageGalleries,

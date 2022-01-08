@@ -11,17 +11,11 @@ import UIImageColors
 import ComposableArchitecture
 
 struct HomeState: Equatable {
-    @BindableState var cardPageIndex = 1
-    @BindableState var currentCardID = ""
     var route: HomeViewRoute?
 
-    var popularGalleries = [Gallery]()
-    var popularLoadingState: LoadingState = .idle
-    var frontpageGalleries = [Gallery]()
-    var frontpageLoadingState: LoadingState = .idle
-    var toplistsGalleries = [Int: [Gallery]]()
-    var toplistsLoadingState = [Int: LoadingState]()
-
+    @BindableState var cardPageIndex = 1
+    @BindableState var currentCardID = ""
+    var allowsCardHitTesting = true
     var rawCardColors = [String: [Color]]()
     var cardColors: [Color] {
         rawCardColors[currentCardID] ?? [.clear]
@@ -32,6 +26,13 @@ struct HomeState: Equatable {
     var filter: Filter {
         rawFilter ?? .init()
     }
+
+    var popularGalleries = [Gallery]()
+    var popularLoadingState: LoadingState = .idle
+    var frontpageGalleries = [Gallery]()
+    var frontpageLoadingState: LoadingState = .idle
+    var toplistsGalleries = [Int: [Gallery]]()
+    var toplistsLoadingState = [Int: LoadingState]()
 
     mutating func setPopularGalleries(_ galleries: [Gallery]) {
         let sortedGalleries = galleries.sorted { lhs, rhs in
@@ -53,6 +54,10 @@ struct HomeState: Equatable {
 enum HomeAction: BindableAction {
     case binding(BindingAction<HomeState>)
     case setNavigation(HomeViewRoute?)
+    case setAllowsCardHitTesting(Bool)
+    case analyzeImageColors(String, RetrieveImageResult)
+    case analyzeImageColorsDone(String, UIImageColors?)
+
     case fetchAllGalleries
     case fetchAllToplistsGalleries
     case fetchPopularGalleries
@@ -61,8 +66,6 @@ enum HomeAction: BindableAction {
     case fetchFrontpageGalleriesDone(Result<(PageNumber, [Gallery]), AppError>)
     case fetchToplistsGalleries(Int, Int? = nil)
     case fetchToplistsGalleriesDone(Int, Result<(PageNumber, [Gallery]), AppError>)
-    case analyzeImageColors(String, RetrieveImageResult)
-    case analyzeImageColorsDone(String, UIImageColors?)
 }
 
 struct HomeEnvironment {
@@ -75,13 +78,20 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment> { state, actio
     case .binding(\.$cardPageIndex):
         guard state.cardPageIndex < state.popularGalleries.count else { return .none }
         state.currentCardID = state.popularGalleries[state.cardPageIndex].gid
-        return .none
+        state.allowsCardHitTesting = false
+        return .init(value: .setAllowsCardHitTesting(true))
+            .delay(for: .milliseconds(300), scheduler: DispatchQueue.main)
+            .eraseToEffect()
 
     case .binding:
         return .none
 
     case .setNavigation(let route):
         state.route = route
+        return .none
+
+    case .setAllowsCardHitTesting(let isAllowed):
+        state.allowsCardHitTesting = isAllowed
         return .none
 
     case .fetchAllGalleries:
