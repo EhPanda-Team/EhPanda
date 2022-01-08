@@ -36,6 +36,7 @@ struct HomeState: Equatable {
 
     var frontpageState = FrontpageState()
     var toplistsState = ToplistsState()
+    var popularState = PopularState()
 
     mutating func setPopularGalleries(_ galleries: [Gallery]) {
         let sortedGalleries = galleries.sorted { lhs, rhs in
@@ -72,6 +73,7 @@ enum HomeAction: BindableAction {
 
     case frontpage(FrontpageAction)
     case toplists(ToplistsAction)
+    case popular(PopularAction)
 }
 
 struct HomeEnvironment {
@@ -199,6 +201,9 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
 
         case .toplists:
             return .none
+
+        case .popular:
+            return .none
         }
     }
     .binding(),
@@ -218,6 +223,15 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
         environment: {
             .init(
                 hapticClient: $0.hapticClient,
+                databaseClient: $0.databaseClient
+            )
+        }
+    ),
+    popularReducer.pullback(
+        state: \.popularState,
+        action: /HomeAction.popular,
+        environment: {
+            .init(
                 databaseClient: $0.databaseClient
             )
         }

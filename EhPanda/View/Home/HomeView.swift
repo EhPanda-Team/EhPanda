@@ -125,7 +125,10 @@ private extension HomeView {
             ) {
                 switch type {
                 case .popular:
-                    EmptyView()
+                    PopularView(
+                        store: store.scope(state: \.popularState, action: HomeAction.popular),
+                        setting: setting, tagTranslator: tagTranslator
+                    )
                 case .watched:
                     EmptyView()
                 case .history:

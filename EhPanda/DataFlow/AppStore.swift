@@ -74,6 +74,10 @@ let appReducerCore = Reducer<AppState, AppAction, AppEnvironment> { state, actio
         state.homeState.frontpageState.rawFilter = state.settingState.globalFilter
         return .none
 
+    case .home(.popular):
+        state.homeState.popularState.rawFilter = state.settingState.globalFilter
+        return .none
+
     case .home:
         state.homeState.rawFilter = state.settingState.globalFilter
         return .none
