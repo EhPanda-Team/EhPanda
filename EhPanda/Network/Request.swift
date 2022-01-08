@@ -218,7 +218,7 @@ struct MoreSearchItemsRequest: Request {
     }
 }
 
-struct FrontpageItemsRequest: Request {
+struct FrontpageGalleriesRequest: Request {
     let filter: Filter
     var pageNum: Int?
 
@@ -230,7 +230,7 @@ struct FrontpageItemsRequest: Request {
     }
 }
 
-struct MoreFrontpageItemsRequest: Request {
+struct MoreFrontpageGalleriesRequest: Request {
     let filter: Filter
     let lastID: String
     let pageNum: Int
@@ -245,7 +245,7 @@ struct MoreFrontpageItemsRequest: Request {
     }
 }
 
-struct PopularItemsRequest: Request {
+struct PopularGalleriesRequest: Request {
     let filter: Filter
 
     var publisher: AnyPublisher<[Gallery], AppError> {
@@ -322,7 +322,7 @@ struct MoreFavoritesGalleriesRequest: Request {
     }
 }
 
-struct ToplistsItemsRequest: Request {
+struct ToplistsGalleriesRequest: Request {
     let catIndex: Int
     var pageNum: Int?
 
@@ -336,7 +336,7 @@ struct ToplistsItemsRequest: Request {
     }
 }
 
-struct MoreToplistsItemsRequest: Request {
+struct MoreToplistsGalleriesRequest: Request {
     let catIndex: Int
     let pageNum: Int
 

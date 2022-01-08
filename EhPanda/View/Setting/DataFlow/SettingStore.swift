@@ -25,6 +25,19 @@ struct SettingState: Equatable {
     var accountSettingState = AccountSettingState()
     var generalSettingState = GeneralSettingState()
     var appearanceSettingState = AppearanceSettingState()
+
+    mutating func setGreeting(_ greeting: Greeting) {
+        guard let currDate = greeting.updateTime else { return }
+
+        if let prevGreeting = user.greeting,
+           let prevDate = prevGreeting.updateTime,
+           prevDate < currDate
+        {
+            user.greeting = greeting
+        } else if user.greeting == nil {
+            user.greeting = greeting
+        }
+    }
 }
 
 enum SettingAction: BindableAction {
@@ -38,6 +51,8 @@ enum SettingAction: BindableAction {
     case fetchIgneous
     case fetchUserInfo
     case fetchUserInfoDone(Result<User, AppError>)
+    case fetchGreeting
+    case fetchGreetingDone(Result<Greeting, AppError>)
     case fetchTagTranslator
     case fetchTagTranslatorDone(Result<TagTranslator, AppError>)
     case fetchEhProfileIndex
@@ -125,6 +140,7 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
             if environment.cookiesClient.didLogin() {
                 effects.append(contentsOf: [
                     .init(value: .fetchUserInfo),
+                    .init(value: .fetchGreeting),
                     .init(value: .fetchFavoriteNames),
                     .init(value: .fetchEhProfileIndex)
                 ])
@@ -149,6 +165,49 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
         case .fetchUserInfoDone(let result):
             if case .success(let user) = result {
                 state.user = user
+            }
+            return .none
+
+        case .fetchGreeting:
+            func verifyDate(with updateTime: Date?) -> Bool {
+                guard let updateTime = updateTime else { return true }
+
+                let currentTime = Date()
+                let formatter = DateFormatter()
+                formatter.locale = Locale.current
+                formatter.timeZone = TimeZone(secondsFromGMT: 0)
+                formatter.dateFormat = Defaults.DateFormat.greeting
+
+                let currentTimeString = formatter.string(from: currentTime)
+                if let currentDay = formatter.date(from: currentTimeString) {
+                    return currentTime > currentDay && updateTime < currentDay
+                }
+
+                return false
+            }
+
+            guard state.setting.showNewDawnGreeting else { return .none }
+            let fetchEffect = GreetingRequest().effect
+                .map(SettingAction.fetchGreetingDone)
+            if let greeting = state.user.greeting {
+                if verifyDate(with: greeting.updateTime) {
+                    return fetchEffect
+                }
+            } else {
+                return fetchEffect
+            }
+            return .none
+
+        case .fetchGreetingDone(let result):
+            switch result {
+            case .success(let greeting):
+                state.setGreeting(greeting)
+            case .failure(let error):
+                if case .parseFailed = error {
+                    var greeting = Greeting()
+                    greeting.updateTime = Date()
+                    state.setGreeting(greeting)
+                }
             }
             return .none
 

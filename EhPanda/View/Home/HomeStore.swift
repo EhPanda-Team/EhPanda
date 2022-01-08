@@ -101,7 +101,7 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment> { state, actio
         guard state.popularLoadingState != .loading else { return .none }
         state.popularLoadingState = .loading
         state.rawCardColors = [String: [Color]]()
-        return PopularItemsRequest(filter: state.filter)
+        return PopularGalleriesRequest(filter: state.filter)
             .effect.map(HomeAction.fetchPopularGalleriesDone)
 
     case .fetchPopularGalleriesDone(let result):
@@ -122,7 +122,7 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment> { state, actio
     case .fetchFrontpageGalleries(let pageNum):
         guard state.frontpageLoadingState != .loading else { return .none }
         state.frontpageLoadingState = .loading
-        return FrontpageItemsRequest(filter: state.filter, pageNum: pageNum)
+        return FrontpageGalleriesRequest(filter: state.filter, pageNum: pageNum)
             .effect.map(HomeAction.fetchFrontpageGalleriesDone)
 
     case .fetchFrontpageGalleriesDone(let result):
@@ -143,7 +143,7 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment> { state, actio
     case .fetchToplistsGalleries(let index, let pageNum):
         guard state.toplistsLoadingState[index] != .loading else { return .none }
         state.toplistsLoadingState[index] = .loading
-        return ToplistsItemsRequest(catIndex: index, pageNum: pageNum)
+        return ToplistsGalleriesRequest(catIndex: index, pageNum: pageNum)
             .effect.map({ HomeAction.fetchToplistsGalleriesDone(index, $0) })
 
     case .fetchToplistsGalleriesDone(let index, let result):

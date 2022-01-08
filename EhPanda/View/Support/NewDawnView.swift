@@ -7,14 +7,16 @@
 
 import SwiftUI
 
-private let sunWidth = DeviceUtil.windowW * (DeviceUtil.isPad ? 0.5 : 0.6)
-
 struct NewDawnView: View {
     @Environment(\.colorScheme) private var colorScheme
-    @State private var rotationAngle: Double = 0
-    @State private var greeting: Greeting?
+    private let greeting: Greeting
 
-    private let offset = DeviceUtil.windowW * 0.2
+    private var offset: Double {
+        DeviceUtil.windowW * 0.2
+    }
+    private var sunWidth: Double {
+        DeviceUtil.windowW * (DeviceUtil.isPad ? 0.5 : 0.6)
+    }
 
     private var gradientColors: [Color] {
         if colorScheme == .light {
@@ -24,15 +26,15 @@ struct NewDawnView: View {
         }
     }
 
-    init(greeting: Greeting?) {
-        _greeting = State(initialValue: greeting)
+    init(greeting: Greeting) {
+        self.greeting = greeting
     }
 
     // MARK: NewDawnView
     var body: some View {
-        TimelineView(.animation) { timeline in
-            let now = timeline.date.timeIntervalSince1970
-            let angle = Angle.degrees(now * 50)
+//        TimelineView(.animation) { timeline in
+//            let now = timeline.date.timeIntervalSince1970
+//            let angle = Angle.degrees(now * 15)
 
             ZStack {
                 LinearGradient(
@@ -43,12 +45,9 @@ struct NewDawnView: View {
                     HStack {
                         Spacer()
                         ZStack {
-                            SunView()
-                            SunBeamView()
-                                .rotationEffect(
-                                    colorScheme == .light
-                                    ? angle : Angle(degrees: 0)
-                                )
+                            SunView(width: sunWidth)
+                            SunBeamView(width: sunWidth)
+                                .rotationEffect(Angle(degrees: 0))
                                 .opacity(colorScheme == .light ? 1 : 0)
                         }
                         .offset(x: offset, y: -offset)
@@ -68,7 +67,7 @@ struct NewDawnView: View {
                         )
                     }
                     TextView(
-                        text: greeting?.gainContent ?? "",
+                        text: greeting.gainContent ?? "",
                         font: .title3, fontWeight: .bold
                     )
                 }
@@ -76,7 +75,7 @@ struct NewDawnView: View {
             }
             .drawingGroup()
             .ignoresSafeArea()
-        }
+//        }
     }
 }
 
@@ -110,7 +109,11 @@ private struct TextView: View {
 
 // MARK: SunView
 private struct SunView: View {
-    private let width = sunWidth
+    private let width: Double
+
+    init(width: Double) {
+        self.width = width
+    }
 
     var body: some View {
         ZStack {
@@ -122,7 +125,12 @@ private struct SunView: View {
 
 // MARK: SunBeamView
 private struct SunBeamView: View {
-    private let width = sunWidth
+    private let width: Double
+
+    init(width: Double) {
+        self.width = width
+    }
+
     private var offset: CGFloat { width / 1.2 }
     private var evenOffset: CGFloat { offset / sqrt(2) }
     private var sizes: [CGSize] {
@@ -143,7 +151,7 @@ private struct SunBeamView: View {
 
     var body: some View {
         ForEach(0..<8, id: \.self) { index in
-            SunBeamItem()
+            SunBeamItem(width: width / 10)
                 .rotationEffect(Angle(degrees: degrees[index]))
                 .offset(sizes[index])
         }
@@ -152,7 +160,11 @@ private struct SunBeamView: View {
 
 // MARK: SunBeamItem
 private struct SunBeamItem: View {
-    private let width = sunWidth / 10
+    private let width: Double
+
+    init(width: Double) {
+        self.width = width
+    }
 
     var body: some View {
         Rectangle()
@@ -164,15 +176,9 @@ private struct SunBeamItem: View {
 
 struct NewDawnView_Previews: PreviewProvider {
     static var previews: some View {
-        var greeting = Greeting()
-        greeting.gainedEXP = 10
-        greeting.gainedCredits = 10000
-        greeting.gainedGP = 10000
-        greeting.gainedHath = 10
-
-        return Text("")
-            .sheet(isPresented: .constant(true), content: {
-                NewDawnView(greeting: greeting)
-            })
+        Text("")
+            .sheet(isPresented: .constant(true)) {
+                NewDawnView(greeting: .mock)
+            }
     }
 }

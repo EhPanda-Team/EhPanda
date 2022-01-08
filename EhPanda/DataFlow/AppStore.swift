@@ -9,6 +9,7 @@ import SwiftUI
 import ComposableArchitecture
 
 struct AppState: Equatable {
+    var appSheetState = AppSheetState()
     var appLockState = AppLockState()
     var tabBarState = TabBarState()
     var homeState = HomeState()
@@ -19,6 +20,7 @@ struct AppState: Equatable {
 enum AppAction: BindableAction {
     case binding(BindingAction<AppState>)
     case onScenePhaseChange(ScenePhase)
+    case appSheet(AppSheetAction)
     case appLock(AppLockAction)
     case appDelegate(AppDelegateAction)
     case home(HomeAction)
@@ -40,53 +42,59 @@ struct AppEnvironment {
     let authorizationClient: AuthorizationClient
 }
 
-let appReducer = Reducer<AppState, AppAction, AppEnvironment>.combine(
-    .init { state, action, _ in
-        switch action {
-        case .binding:
-            return .none
+let appReducerCore = Reducer<AppState, AppAction, AppEnvironment> { state, action, _ in
+    switch action {
+    case .binding:
+        return .none
 
-        case .onScenePhaseChange(let scenePhase):
-            switch scenePhase {
-            case .active:
-                // Handle AppLock
-                let threshold: Int = state.settingState.setting.autoLockPolicy.rawValue
-                if let date = state.appLockState.becomeInactiveDate,
-                   threshold >= 0, Date().timeIntervalSince(date) > Double(threshold)
-                {
-                    let radius = state.settingState.setting.backgroundBlurRadius
-                    state.appLockState.setBlurRadius(radius)
-                    state.appLockState.isAppLocked = true
-                    return .init(value: .appLock(.authorize))
-                } else {
-                    state.appLockState.setBlurRadius(0)
-                }
-            case .inactive:
-                let radius = state.settingState.setting.backgroundBlurRadius
-                state.appLockState.setBlurRadius(radius)
-                state.appLockState.becomeInactiveDate = Date()
-            default:
-                break
-            }
-            return .none
-
-        case .appLock:
-            return .none
-
-        case .appDelegate:
-            return .none
-
-        case .home:
-            state.homeState.rawFilter = state.settingState.globalFilter
-            return .none
-
-        case .favorites:
-            return .none
-
-        case .setting:
-            return .none
+    case .onScenePhaseChange(let scenePhase):
+        switch scenePhase {
+        case .active:
+            let threshold = state.settingState.setting.autoLockPolicy.rawValue
+            let blurRadius = state.settingState.setting.backgroundBlurRadius
+            return .init(value: .appLock(.onBecomeActive(threshold, blurRadius)))
+        case .inactive:
+            let blurRadius = state.settingState.setting.backgroundBlurRadius
+            return .init(value: .appLock(.onBecomeInactive(blurRadius)))
+        default:
+            break
         }
-    }.binding(),
+        return .none
+
+    case .appSheet:
+        return .none
+
+    case .appLock:
+        return .none
+
+    case .appDelegate:
+        return .none
+
+    case .home:
+        state.homeState.rawFilter = state.settingState.globalFilter
+        return .none
+
+    case .favorites:
+        return .none
+
+    case .setting(.fetchGreetingDone(let result)):
+        return .init(value: .appSheet(.fetchGreetingDone(result)))
+
+    case .setting:
+        return .none
+    }
+}
+.binding()
+
+let appReducer = Reducer<AppState, AppAction, AppEnvironment>.combine(
+    appReducerCore,
+    appSheetReducer.pullback(
+        state: \.appSheetState,
+        action: /AppAction.appSheet,
+        environment: { _ in
+            .init()
+        }
+    ),
     appLockReducer.pullback(
         state: \.appLockState,
         action: /AppAction.appLock,

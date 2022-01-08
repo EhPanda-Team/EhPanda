@@ -27,7 +27,16 @@ struct PageNumber: Equatable {
     }
 }
 
-struct Greeting: Codable, Equatable {
+struct Greeting: Codable, Equatable, Hashable {
+    static let mock: Self = {
+        var greeting = Greeting()
+        greeting.gainedEXP = 10
+        greeting.gainedCredits = 10000
+        greeting.gainedGP = 10000
+        greeting.gainedHath = 10
+        return greeting
+    }()
+
     var gainedEXP: Int?
     var gainedCredits: Int?
     var gainedGP: Int?

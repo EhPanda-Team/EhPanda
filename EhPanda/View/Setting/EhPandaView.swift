@@ -45,7 +45,7 @@ struct EhPandaView: View {
     var body: some View {
         HStack {
             VStack(alignment: .leading) {
-                Text("Copyright © 2021 荒木辰造").captionTextStyle()
+                Text("Copyright © 2022 荒木辰造").captionTextStyle()
                 Text(version).captionTextStyle()
             }
             Spacer()

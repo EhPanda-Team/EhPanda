@@ -120,25 +120,6 @@ final class DeprecatedStore: ObservableObject {
             appState.homeInfo.moveQuickSearchWords(source: source, destination: destination)
 
         // MARK: Fetch Data
-        case .fetchGreeting:
-            if appState.settings.greetingLoading { break }
-            appState.settings.greetingLoading = true
-
-            appCommand = FetchGreetingCommand()
-        case .fetchGreetingDone(let result):
-            appState.settings.greetingLoading = false
-
-            switch result {
-            case .success(let greeting):
-                appState.settings.insert(greeting: greeting)
-            case .failure(let error):
-                if error == .parseFailed {
-                    var greeting = Greeting()
-                    greeting.updateTime = Date()
-                    appState.settings.insert(greeting: greeting)
-                }
-            }
-
         case .fetchGalleryItemReverse(var url, let shouldParseGalleryURL):
             appState.environment.galleryItemReverseLoadFailed = false
 
@@ -279,11 +260,11 @@ final class DeprecatedStore: ObservableObject {
             appState.detailInfo.detailLoading[gid] = false
 
             switch result {
-            case .success(let (detail, state, apiKey, greeting)):
+            case .success(let (detail, state, apiKey, _)):
                 appState.settings.user.apikey = apiKey
-                if let greeting = greeting {
-                    appState.settings.insert(greeting: greeting)
-                }
+//                if let greeting = greeting {
+//                    appState.settings.insert(greeting: greeting)
+//                }
                 if let previewConfig = state.previewConfig {
                     appState.detailInfo.previewConfig = previewConfig
                 }

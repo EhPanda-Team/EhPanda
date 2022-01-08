@@ -77,20 +77,6 @@ extension DeprecatedAppState {
                 self.user.currentCredits = currentCredits
             }
         }
-
-        mutating func insert(greeting: Greeting) {
-            guard let currDate = greeting.updateTime
-            else { return }
-
-            if let prevGreeting = user.greeting,
-               let prevDate = prevGreeting.updateTime,
-               prevDate < currDate
-            {
-                user.greeting = greeting
-            } else if user.greeting == nil {
-                user.greeting = greeting
-            }
-        }
     }
 }
 
@@ -104,37 +90,12 @@ extension DeprecatedAppState {
         var moreSearchLoading = false
         var moreSearchLoadFailed = false
 
-        var frontpageItems = [Gallery]()
-        var frontpageLoading = false
-        var frontpageLoadError: AppError?
-        var frontpagePageNumber = PageNumber()
-        var moreFrontpageLoading = false
-        var moreFrontpageLoadFailed = false
-
-        var popularItems = [Gallery]()
-        var popularLoading = false
-        var popularLoadError: AppError?
-
         var watchedItems = [Gallery]()
         var watchedLoading = false
         var watchedLoadError: AppError?
         var watchedPageNumber = PageNumber()
         var moreWatchedLoading = false
         var moreWatchedLoadFailed = false
-
-        var favoritesItems = [Int: [Gallery]]()
-        var favoritesLoading = [Int: Bool]()
-        var favoritesLoadErrors = [Int: AppError]()
-        var favoritesPageNumbers = [Int: PageNumber]()
-        var moreFavoritesLoading = [Int: Bool]()
-        var moreFavoritesLoadFailed = [Int: Bool]()
-
-        var toplistsItems = [Int: [Gallery]]()
-        var toplistsLoading = [Int: Bool]()
-        var toplistsLoadErrors = [Int: AppError]()
-        var toplistsPageNumbers = [Int: PageNumber]()
-        var moreToplistsLoading = [Int: Bool]()
-        var moreToplistsLoadFailed = [Int: Bool]()
 
         @AppEnvStorage(type: [String].self, key: "historyKeywords")
         var historyKeywords: [String]
@@ -151,18 +112,8 @@ extension DeprecatedAppState {
         mutating func insertSearchItems(galleries: [Gallery]) {
             insertGalleries(stored: &searchItems, new: galleries)
         }
-        mutating func insertFrontpageItems(galleries: [Gallery]) {
-            insertGalleries(stored: &frontpageItems, new: galleries)
-        }
         mutating func insertWatchedItems(galleries: [Gallery]) {
             insertGalleries(stored: &watchedItems, new: galleries)
-        }
-        mutating func insertToplistsItems(topIndex: Int, galleries: [Gallery]) {
-            galleries.forEach { gallery in
-                if toplistsItems[topIndex]?.contains(gallery) == false {
-                    toplistsItems[topIndex]?.append(gallery)
-                }
-            }
         }
         mutating func appendHistoryKeywords(texts: [String]) {
             guard !texts.isEmpty else { return }

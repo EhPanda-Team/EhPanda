@@ -24,8 +24,6 @@ enum DeprecatedAppAction {
     case modifyQuickSearchWord(newWord: QuickSearchWord)
     case moveQuickSearchWord(source: IndexSet, destination: Int)
 
-    case fetchGreeting
-    case fetchGreetingDone(result: Result<Greeting, AppError>)
     case fetchGalleryItemReverse(url: String, shouldParseGalleryURL: Bool)
     case fetchGalleryItemReverseDone(carriedValue: String, result: Result<Gallery, AppError>)
     case fetchSearchItems(keyword: String, pageNum: Int? = nil)

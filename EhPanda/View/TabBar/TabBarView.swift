@@ -56,6 +56,12 @@ struct TabBarView: View {
             Image(systemSymbol: .lockFill).font(.system(size: 80))
                 .opacity(viewStore.appLockState.isAppLocked ? 1 : 0)
         }
+        .sheet(item: viewStore.binding(\.appSheetState.$sheetState)) { state in
+            switch state {
+            case .newDawn(let greeting):
+                NewDawnView(greeting: greeting)
+            }
+        }
         .onChange(of: scenePhase) { newValue in
             viewStore.send(.onScenePhaseChange(newValue))
         }

@@ -13,23 +13,6 @@ protocol AppCommand {
     func execute(in store: DeprecatedStore)
 }
 
-struct FetchGreetingCommand: AppCommand {
-    func execute(in store: DeprecatedStore) {
-        let token = SubscriptionToken()
-        GreetingRequest().publisher
-            .receive(on: DispatchQueue.main)
-            .sink { completion in
-                if case .failure(let error) = completion {
-                    store.dispatch(.fetchGreetingDone(result: .failure(error)))
-                }
-                token.unseal()
-            } receiveValue: { greeting in
-                store.dispatch(.fetchGreetingDone(result: .success(greeting)))
-            }
-            .seal(in: token)
-    }
-}
-
 struct FetchGalleryItemReverseCommand: AppCommand {
     let gid: String
     let url: String
@@ -126,7 +109,7 @@ struct FetchFrontpageItemsCommand: AppCommand {
 
     func execute(in store: DeprecatedStore) {
         let token = SubscriptionToken()
-        FrontpageItemsRequest(filter: filter, pageNum: pageNum).publisher
+        FrontpageGalleriesRequest(filter: filter, pageNum: pageNum).publisher
             .receive(on: DispatchQueue.main)
             .sink { completion in
                 if case .failure = completion {
@@ -155,7 +138,7 @@ struct FetchMoreFrontpageItemsCommand: AppCommand {
 
     func execute(in store: DeprecatedStore) {
         let token = SubscriptionToken()
-        MoreFrontpageItemsRequest(filter: filter, lastID: lastID, pageNum: pageNum)
+        MoreFrontpageGalleriesRequest(filter: filter, lastID: lastID, pageNum: pageNum)
             .publisher.receive(on: DispatchQueue.main)
             .sink { completion in
                 if case .failure = completion {
@@ -180,7 +163,7 @@ struct FetchPopularItemsCommand: AppCommand {
 
     func execute(in store: DeprecatedStore) {
         let token = SubscriptionToken()
-        PopularItemsRequest(filter: filter).publisher
+        PopularGalleriesRequest(filter: filter).publisher
             .receive(on: DispatchQueue.main)
             .sink { completion in
                 if case .failure = completion {
@@ -259,7 +242,7 @@ struct FetchToplistsItemsCommand: AppCommand {
 
     func execute(in store: DeprecatedStore) {
         let token = SubscriptionToken()
-        ToplistsItemsRequest(catIndex: catIndex, pageNum: pageNum)
+        ToplistsGalleriesRequest(catIndex: catIndex, pageNum: pageNum)
             .publisher.receive(on: DispatchQueue.main)
             .sink { completion in
                 if case .failure = completion {
@@ -290,7 +273,7 @@ struct FetchMoreToplistsItemsCommand: AppCommand {
 
     func execute(in store: DeprecatedStore) {
         let token = SubscriptionToken()
-        MoreToplistsItemsRequest(catIndex: catIndex, pageNum: pageNum)
+        MoreToplistsGalleriesRequest(catIndex: catIndex, pageNum: pageNum)
             .publisher.receive(on: DispatchQueue.main)
             .sink { completion in
                 if case .failure = completion {
