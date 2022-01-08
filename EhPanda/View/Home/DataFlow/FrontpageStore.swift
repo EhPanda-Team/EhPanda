@@ -19,6 +19,10 @@ struct FrontpageState: Equatable {
         rawFilter ?? .init()
     }
 
+    var filteredGalleries: [Gallery] {
+        guard !keyword.isEmpty else { return galleries }
+        return galleries.filter({ $0.title.localizedCaseInsensitiveContains(keyword) })
+    }
     var galleries = [Gallery]()
     var pageNumber = PageNumber()
     var loadingState: LoadingState = .idle

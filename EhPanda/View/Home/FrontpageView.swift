@@ -27,7 +27,7 @@ struct FrontpageView: View {
 
     var body: some View {
         GenericList(
-            galleries: viewStore.galleries,
+            galleries: viewStore.filteredGalleries,
             setting: setting,
             pageNumber: viewStore.pageNumber,
             loadingState: viewStore.loadingState,
@@ -46,12 +46,12 @@ struct FrontpageView: View {
             jumpAction: { viewStore.send(.performJumpPage) }
         )
         .animation(.default, value: viewStore.jumpPageAlertPresented)
-        .searchable(text: viewStore.binding(\.$keyword))
+        .searchable(text: viewStore.binding(\.$keyword), prompt: "Filter")
         .onSubmit(of: .search) {
             viewStore.send(.fetchGalleries())
         }
         .onAppear {
-            DispatchQueue.main.async {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                 viewStore.send(.fetchGalleries())
             }
         }
