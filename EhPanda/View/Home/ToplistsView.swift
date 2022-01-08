@@ -25,8 +25,8 @@ struct ToplistsView: View {
     }
 
     private var navigationTitle: String {
-        let typeDescription = viewStore.type.description.localized
-        return ["Toplists".localized, "(\(typeDescription))"].joined(separator: " ")
+        let typeDescription = viewStore.type.description
+        return ["Toplists", "\(typeDescription)"].map(\.localized).joined(separator: " - ")
     }
 
     var body: some View {

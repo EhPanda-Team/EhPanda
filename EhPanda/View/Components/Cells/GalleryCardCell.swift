@@ -52,8 +52,8 @@ struct GalleryCardCell: View {
             HStack {
                 KFImage(URL(string: gallery.coverURL))
                     .placeholder { Placeholder(style: .activity(ratio: Defaults.ImageSize.headerAspect)) }
-                    .onSuccess({ if colorScheme == .dark { webImageSuccessAction($0) } }).defaultModifier()
-                    .scaledToFill().frame(width: Defaults.ImageSize.headerW, height: Defaults.ImageSize.headerH)
+                    .onSuccess(webImageSuccessAction).defaultModifier().scaledToFill()
+                    .frame(width: Defaults.ImageSize.headerW, height: Defaults.ImageSize.headerH)
                     .cornerRadius(5)
                 VStack(alignment: .leading) {
                     Text(title).font(.title3.bold()).lineLimit(4)

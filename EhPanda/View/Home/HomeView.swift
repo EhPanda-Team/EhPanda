@@ -43,7 +43,7 @@ struct HomeView: View {
                                 viewStore.send(.analyzeImageColors(gid, result))
                             }
                         )
-                        .allowsHitTesting(viewStore.allowsCardHitTesting)
+                        .equatable().allowsHitTesting(viewStore.allowsCardHitTesting)
                         Group {
                             CoverWallSection(
                                 galleries: viewStore.frontpageGalleries,
@@ -188,7 +188,7 @@ private extension HomeView {
 }
 
 // MARK: CardSlideSection
-private struct CardSlideSection: View {
+private struct CardSlideSection: View, Equatable {
     @StateObject private var page: Page = .withIndex(1)
     @Binding private var pageIndex: Int
 
@@ -209,6 +209,12 @@ private struct CardSlideSection: View {
         self.colors = colors
         self.navigateAction = navigateAction
         self.webImageSuccessAction = webImageSuccessAction
+    }
+
+    static func == (lhs: CardSlideSection, rhs: CardSlideSection) -> Bool {
+        lhs.galleries == rhs.galleries
+        && lhs.currentID == rhs.currentID
+        && lhs.colors == rhs.colors
     }
 
     var body: some View {
