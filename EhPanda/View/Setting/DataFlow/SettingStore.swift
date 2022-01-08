@@ -38,6 +38,20 @@ struct SettingState: Equatable {
             user.greeting = greeting
         }
     }
+    mutating func updateUser(_ user: User) {
+        if let displayName = user.displayName {
+            self.user.displayName = displayName
+        }
+        if let avatarURL = user.avatarURL {
+            self.user.avatarURL = avatarURL
+        }
+        if let currentGP = user.currentGP,
+           let currentCredits = user.currentCredits
+        {
+            self.user.currentGP = currentGP
+            self.user.currentCredits = currentCredits
+        }
+    }
 }
 
 enum SettingAction: BindableAction {
@@ -166,7 +180,7 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
 
         case .fetchUserInfoDone(let result):
             if case .success(let user) = result {
-                state.user = user
+                state.updateUser(user)
             }
             return .none
 

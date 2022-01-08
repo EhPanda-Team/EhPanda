@@ -39,7 +39,7 @@ let appSheetReducer = Reducer<AppSheetState, AppSheetAction, AppSheetEnvironment
         return .none
 
     case .fetchGreetingDone(let result):
-        if case .success(let greeting) = result {
+        if case .success(let greeting) = result, !greeting.gainedNothing {
             return .init(value: .setSheetState(.newDawn(greeting)))
         }
         return .none
