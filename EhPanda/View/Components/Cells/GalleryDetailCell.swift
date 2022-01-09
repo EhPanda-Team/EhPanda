@@ -68,8 +68,8 @@ private extension GalleryDetailCell {
         gallery.category.rawValue.localized
     }
     var tags: [String] {
-        guard setting.summaryRowTagsMaximum > 0 else { return gallery.tags }
-        return Array(gallery.tags.prefix(setting.summaryRowTagsMaximum))
+        guard setting.summaryRowTagsMaximum > 0 else { return gallery.tagStrings }
+        return Array(gallery.tagStrings.prefix(setting.summaryRowTagsMaximum))
     }
     var tagColor: Color {
         colorScheme == .light ? Color(.systemGray5) : Color(.systemGray4)

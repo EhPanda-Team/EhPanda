@@ -21,6 +21,7 @@ extension GalleryMO: Identifiable, GalleryIdentifiable {
     @NSManaged public var pageCount: Int64
     @NSManaged public var postedDate: Date
     @NSManaged public var rating: Float
+    @NSManaged public var tagStrings: Data?
     @NSManaged public var title: String
     @NSManaged public var token: String
     @NSManaged public var uploader: String?

@@ -67,7 +67,7 @@ extension PersistenceController {
             findBeforeFetch: false, sortDescriptors: [sortDescriptor]
         ).map({ $0.toEntity() })
     }
-    static func clearGalleryHistory() {
+    static func clearHistoryGalleries() {
         let predicate = NSPredicate(format: "lastOpenDate != nil")
         batchUpdate(entityType: GalleryMO.self, predicate: predicate) { galleryMOs in
             galleryMOs.forEach { galleryMO in
@@ -107,6 +107,7 @@ extension PersistenceController {
                 managedObject?.pageCount = Int64(gallery.pageCount)
                 managedObject?.postedDate = gallery.postedDate
                 managedObject?.rating = gallery.rating
+                managedObject?.tagStrings = gallery.tagStrings.toData()
                 managedObject?.title = gallery.title
                 managedObject?.token = gallery.token
                 if let uploader = gallery.uploader {

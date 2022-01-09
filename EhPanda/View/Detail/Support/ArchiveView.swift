@@ -8,8 +8,8 @@
 import SwiftUI
 import TTProgressHUD
 
-struct ArchiveView: View, StoreAccessor, PersistenceAccessor {
-    @EnvironmentObject var store: DeprecatedStore
+struct ArchiveView: View, PersistenceAccessor {
+//    @EnvironmentObject var store: DeprecatedStore
     @State private var selection: ArchiveRes?
 
     @State private var archive: GalleryArchive?
@@ -135,101 +135,101 @@ private extension ArchiveView {
 
     // MARK: Networking
     func fetchGalleryArchive() {
-        loadError = nil
-        guard let archiveURL = galleryDetail?.archiveURL, !loadingFlag else { return }
-        loadingFlag = true
-
-        let token = SubscriptionToken()
-        GalleryArchiveRequest(archiveURL: archiveURL)
-            .publisher.receive(on: DispatchQueue.main)
-            .sink { completion in
-                if case .failure(let error) = completion {
-                    loadError = error
-
-                    Logger.error(
-                        "GalleryArchiveRequest failed",
-                        context: ["ArchiveURL": archiveURL, "Error": error]
-                    )
-                }
-                loadingFlag = false
-                token.unseal()
-            } receiveValue: { (archive, galleryPoints, credits) in
-                self.archive = archive
-                if let galleryPoints = galleryPoints, let credits = credits {
-                    store.dispatch(.fetchGalleryArchiveFundsDone(
-                        result: .success((galleryPoints, credits)))
-                    )
-                    Logger.info(
-                        "GalleryArchiveRequest succeeded",
-                        context: [
-                            "ArchiveURL": archiveURL, "Archive": archive as Any,
-                            "GalleryPoints": galleryPoints, "Credits": credits
-                        ]
-                    )
-                } else if CookiesUtil.isSameAccount {
-                    store.dispatch(.fetchGalleryArchiveFunds(gid: gid))
-                }
-            }
-            .seal(in: token)
+//        loadError = nil
+//        guard let archiveURL = galleryDetail?.archiveURL, !loadingFlag else { return }
+//        loadingFlag = true
+//
+//        let token = SubscriptionToken()
+//        GalleryArchiveRequest(archiveURL: archiveURL)
+//            .publisher.receive(on: DispatchQueue.main)
+//            .sink { completion in
+//                if case .failure(let error) = completion {
+//                    loadError = error
+//
+//                    Logger.error(
+//                        "GalleryArchiveRequest failed",
+//                        context: ["ArchiveURL": archiveURL, "Error": error]
+//                    )
+//                }
+//                loadingFlag = false
+//                token.unseal()
+//            } receiveValue: { (archive, galleryPoints, credits) in
+//                self.archive = archive
+//                if let galleryPoints = galleryPoints, let credits = credits {
+//                    store.dispatch(.fetchGalleryArchiveFundsDone(
+//                        result: .success((galleryPoints, credits)))
+//                    )
+//                    Logger.info(
+//                        "GalleryArchiveRequest succeeded",
+//                        context: [
+//                            "ArchiveURL": archiveURL, "Archive": archive as Any,
+//                            "GalleryPoints": galleryPoints, "Credits": credits
+//                        ]
+//                    )
+//                } else if CookiesUtil.isSameAccount {
+//                    store.dispatch(.fetchGalleryArchiveFunds(gid: gid))
+//                }
+//            }
+//            .seal(in: token)
     }
     func fetchDownloadResponse() {
-        sendFailedFlag = false
-        guard let archiveURL = galleryDetail?.archiveURL,
-              let resolution = selection, !sendingFlag
-        else { return }
-        sendingFlag = true
-
-        let token = SubscriptionToken()
-        SendDownloadCommandRequest(
-            archiveURL: archiveURL,
-            resolution: resolution.param
-        )
-        .publisher.receive(on: DispatchQueue.main)
-        .sink { completion in
-            if case .failure(let error) = completion {
-                sendFailedFlag = true
-
-                Logger.error(
-                    "SendDownloadCommandRequest failed",
-                    context: [
-                        "ArchiveURL": archiveURL,
-                        "Resolution": resolution.param,
-                        "Error": error
-                    ]
-                )
-            }
-            sendingFlag = false
-            presentHUD()
-            token.unseal()
-        } receiveValue: { resp in
-            switch resp {
-            case Defaults.Response.hathClientNotFound,
-                 Defaults.Response.hathClientNotOnline,
-                 Defaults.Response.invalidResolution, .none:
-                sendFailedFlag = true
-
-                Logger.error(
-                    "SendDownloadCommandRequest failed",
-                    context: [
-                        "ArchiveURL": archiveURL,
-                        "Resolution": resolution.param,
-                        "Response": resp as Any
-                    ]
-                )
-            default:
-                Logger.info(
-                    "SendDownloadCommandRequest succeeded",
-                    context: [
-                        "ArchiveURL": archiveURL,
-                        "Resolution": resolution.param,
-                        "Response": resp as Any
-                    ]
-                )
-            }
-            response = resp
-            store.dispatch(.fetchGalleryArchiveFunds(gid: gid))
-        }
-        .seal(in: token)
+//        sendFailedFlag = false
+//        guard let archiveURL = galleryDetail?.archiveURL,
+//              let resolution = selection, !sendingFlag
+//        else { return }
+//        sendingFlag = true
+//
+//        let token = SubscriptionToken()
+//        SendDownloadCommandRequest(
+//            archiveURL: archiveURL,
+//            resolution: resolution.param
+//        )
+//        .publisher.receive(on: DispatchQueue.main)
+//        .sink { completion in
+//            if case .failure(let error) = completion {
+//                sendFailedFlag = true
+//
+//                Logger.error(
+//                    "SendDownloadCommandRequest failed",
+//                    context: [
+//                        "ArchiveURL": archiveURL,
+//                        "Resolution": resolution.param,
+//                        "Error": error
+//                    ]
+//                )
+//            }
+//            sendingFlag = false
+//            presentHUD()
+//            token.unseal()
+//        } receiveValue: { resp in
+//            switch resp {
+//            case Defaults.Response.hathClientNotFound,
+//                 Defaults.Response.hathClientNotOnline,
+//                 Defaults.Response.invalidResolution, .none:
+//                sendFailedFlag = true
+//
+//                Logger.error(
+//                    "SendDownloadCommandRequest failed",
+//                    context: [
+//                        "ArchiveURL": archiveURL,
+//                        "Resolution": resolution.param,
+//                        "Response": resp as Any
+//                    ]
+//                )
+//            default:
+//                Logger.info(
+//                    "SendDownloadCommandRequest succeeded",
+//                    context: [
+//                        "ArchiveURL": archiveURL,
+//                        "Resolution": resolution.param,
+//                        "Response": resp as Any
+//                    ]
+//                )
+//            }
+//            response = resp
+//            store.dispatch(.fetchGalleryArchiveFunds(gid: gid))
+//        }
+//        .seal(in: token)
     }
 }
 
@@ -326,13 +326,12 @@ private extension DownloadButton {
 
 struct ArchiveView_Previews: PreviewProvider {
     static var previews: some View {
-        let store = DeprecatedStore.preview
         var user = User.empty
 
         user.currentGP = "114"
         user.currentCredits = "514"
 //        store.appState.settings.user = user
 
-        return ArchiveView(gid: "").environmentObject(store)
+        return ArchiveView(gid: "")
     }
 }

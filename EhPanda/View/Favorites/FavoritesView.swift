@@ -82,12 +82,10 @@ struct FavoritesView: View {
                     viewStore.send(.fetchGalleries(nil, order))
                 }
             }
-            ToolbarFeaturesMenu {
-                JumpPageButton(pageNumber: viewStore.pageNumber ?? PageNumber()) {
-                    viewStore.send(.presentJumpPageAlert)
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                        viewStore.send(.setJumpPageAlertFocused(true))
-                    }
+            JumpPageButton(pageNumber: viewStore.pageNumber ?? PageNumber(), hideText: true) {
+                viewStore.send(.presentJumpPageAlert)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                    viewStore.send(.setJumpPageAlertFocused(true))
                 }
             }
         }

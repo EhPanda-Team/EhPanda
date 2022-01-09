@@ -7,8 +7,8 @@
 
 import SwiftUI
 
-struct QuickSearchView: View, StoreAccessor {
-    @EnvironmentObject var store: DeprecatedStore
+struct QuickSearchView: View {
+//    @EnvironmentObject var store: DeprecatedStore
     @State private var isEditting = false
     @State private var refreshTrigger = UUID().uuidString
 
@@ -23,14 +23,14 @@ struct QuickSearchView: View, StoreAccessor {
         NavigationView {
             ZStack {
                 List {
-                    ForEach(words) { word in
-                        QuickSearchWordRow(
-                            word: word, isEditting: $isEditting,
-                            refreshTrigger: $refreshTrigger, searchAction: searchAction,
-                            submitAction: { store.dispatch(.modifyQuickSearchWord(newWord: $0)) }
-                        )
+                    ForEach(words) { _ in
+//                        QuickSearchWordRow(
+//                            word: word, isEditting: $isEditting,
+//                            refreshTrigger: $refreshTrigger, searchAction: searchAction,
+//                            submitAction: { store.dispatch(.modifyQuickSearchWord(newWord: $0)) }
+//                        )
                     }
-                    .onDelete { store.dispatch(.deleteQuickSearchWord(offsets: $0)) }
+//                    .onDelete { store.dispatch(.deleteQuickSearchWord(offsets: $0)) }
                     .onMove(perform: move)
                 }
                 .id(refreshTrigger)
@@ -46,7 +46,7 @@ struct QuickSearchView: View, StoreAccessor {
         ToolbarItem(placement: .navigationBarTrailing) {
             HStack {
                 Button {
-                    store.dispatch(.appendQuickSearchWord)
+//                    store.dispatch(.appendQuickSearchWord)
                 } label: {
                     Image(systemName: "plus")
                 }
@@ -64,11 +64,12 @@ struct QuickSearchView: View, StoreAccessor {
 
 private extension QuickSearchView {
     var words: [QuickSearchWord] {
-        homeInfo.quickSearchWords
+        []
+//        homeInfo.quickSearchWords
     }
     func move(from source: IndexSet, to destination: Int) {
         refreshTrigger = UUID().uuidString
-        store.dispatch(.moveQuickSearchWord(source: source, destination: destination))
+//        store.dispatch(.moveQuickSearchWord(source: source, destination: destination))
     }
 }
 
@@ -154,6 +155,5 @@ private struct QuickSearchWordRow: View {
 struct QuickSearchView_Previews: PreviewProvider {
     static var previews: some View {
         QuickSearchView(searchAction: { _ in })
-            .environmentObject(DeprecatedStore.preview)
     }
 }

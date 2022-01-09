@@ -45,17 +45,21 @@ struct ToolbarFeaturesMenu<Content: View>: View {
 
 struct JumpPageButton: View {
     private let pageNumber: PageNumber
+    private let hideText: Bool
     private let action: () -> Void
 
-    init(pageNumber: PageNumber, action: @escaping () -> Void) {
+    init(pageNumber: PageNumber, hideText: Bool = false, action: @escaping () -> Void) {
         self.pageNumber = pageNumber
+        self.hideText = hideText
         self.action = action
     }
 
     var body: some View {
         Button(action: action) {
             Image(systemSymbol: .arrowshapeBounceForward)
-            Text("Jump page")
+            if !hideText {
+                Text("Jump page")
+            }
         }
         .disabled(pageNumber.isSinglePage)
     }

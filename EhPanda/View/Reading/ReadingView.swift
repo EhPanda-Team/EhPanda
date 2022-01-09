@@ -11,8 +11,8 @@ import Kingfisher
 import SwiftUIPager
 import TTProgressHUD
 
-struct ReadingView: View, StoreAccessor, PersistenceAccessor {
-    @EnvironmentObject var store: DeprecatedStore
+struct ReadingView: View, PersistenceAccessor {
+//    @EnvironmentObject var store: DeprecatedStore
 
     @Environment(\.colorScheme) private var colorScheme
     private var backgroundColor: Color {
@@ -84,7 +84,7 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
         .onAppear(perform: onStartTasks)
         .onDisappear(perform: onEndTasks)
         .navigationBarBackButtonHidden(true)
-        .navigationBarHidden(environment.navigationBarHidden)
+//        .navigationBarHidden(environment.navigationBarHidden)
         .sheet(item: $sheetState, content: sheet)
         .onChange(of: page.index, perform: updateSliderValue)
         .onChange(of: autoPlayPolicy, perform: reconfigureTimer)
@@ -257,16 +257,20 @@ struct ReadingView: View, StoreAccessor, PersistenceAccessor {
 
 private extension ReadingView {
     var galleryContents: [Int: String] {
-        contentInfo.contents[gid] ?? [:]
+//        contentInfo.contents[gid] ??
+        [:]
     }
     var galleryOriginalContents: [Int: String] {
-        contentInfo.originalContents[gid] ?? [:]
+//        contentInfo.originalContents[gid] ??
+        [:]
     }
     var galleryLoadingFlags: [Int: Bool] {
-        contentInfo.contentsLoading[gid] ?? [:]
+//        contentInfo.contentsLoading[gid] ??
+        [:]
     }
     var galleryLoadErrors: [Int: AppError] {
-        contentInfo.contentsLoadErrors[gid] ?? [:]
+//        contentInfo.contentsLoadErrors[gid] ??
+        [:]
     }
 
     // MARK: Life Cycle
@@ -334,9 +338,9 @@ private extension ReadingView {
         page.update(.next)
     }
     func trySaveReadingProgress() {
-        let progress = mapFromPager(index: page.index)
-        guard progress > 0 else { return }
-        store.dispatch(.setReadingProgress(gid: gid, tag: progress))
+//        let progress = mapFromPager(index: page.index)
+//        guard progress > 0 else { return }
+//        store.dispatch(.setReadingProgress(gid: gid, tag: progress))
     }
     func mapToPager(index: Int) -> Int {
 //        guard DeviceUtil.isLandscape && setting.enablesDualPageMode
@@ -365,22 +369,22 @@ private extension ReadingView {
 
     // MARK: Dispatch
     func tryFetchGalleryContents(index: Int = 1) {
-        guard galleryContents[index] == nil else { return }
-        if contentInfo.mpvKeys[gid] != nil {
-            store.dispatch(.fetchGalleryMPVContent(gid: gid, index: index))
-        } else {
-            store.dispatch(.fetchThumbnails(gid: gid, index: index))
-        }
+//        guard galleryContents[index] == nil else { return }
+//        if contentInfo.mpvKeys[gid] != nil {
+//            store.dispatch(.fetchGalleryMPVContent(gid: gid, index: index))
+//        } else {
+//            store.dispatch(.fetchThumbnails(gid: gid, index: index))
+//        }
     }
     func refetchGalleryContents(index: Int) {
-        if contentInfo.mpvKeys[gid] != nil {
-            store.dispatch(.fetchGalleryMPVContent(gid: gid, index: index, isRefetch: true))
-        } else {
-            store.dispatch(.refetchGalleryNormalContent(gid: gid, index: index))
-        }
+//        if contentInfo.mpvKeys[gid] != nil {
+//            store.dispatch(.fetchGalleryMPVContent(gid: gid, index: index, isRefetch: true))
+//        } else {
+//            store.dispatch(.refetchGalleryNormalContent(gid: gid, index: index))
+//        }
     }
     func fetchGalleryPreivews(index: Int) {
-        store.dispatch(.fetchGalleryPreviews(gid: gid, index: index))
+//        store.dispatch(.fetchGalleryPreviews(gid: gid, index: index))
     }
 
     func presentSettingSheet() {
@@ -396,7 +400,7 @@ private extension ReadingView {
         tryFetchGalleryContents()
     }
     func trySetNavigationBarHidden(_: Any? = nil) {
-        guard !environment.navigationBarHidden else { return }
+//        guard !environment.navigationBarHidden else { return }
 //        store.dispatch(.setNavigationBarHidden(true))
     }
 
@@ -712,7 +716,7 @@ enum ReadingViewSheetState: Identifiable {
 struct ReadingView_Previews: PreviewProvider {
     static var previews: some View {
         PersistenceController.prepareForPreviews()
-        return ReadingView(gid: "").environmentObject(DeprecatedStore.preview)
+        return ReadingView(gid: "")
     }
 }
 

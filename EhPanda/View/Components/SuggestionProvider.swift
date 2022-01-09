@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct SuggestionProvider: View {
-    @EnvironmentObject var store: DeprecatedStore
     @Binding private var keyword: String
 
     init(keyword: Binding<String>) {
@@ -16,9 +15,10 @@ struct SuggestionProvider: View {
     }
 
     private var keywords: [String] {
-        store.appState.homeInfo.historyKeywords.reversed().filter({ word in
-            keyword.isEmpty ? true : word.contains(keyword)
-        })
+        []
+//        store.appState.homeInfo.historyKeywords.reversed().filter({ word in
+//            keyword.isEmpty ? true : word.contains(keyword)
+//        })
     }
 
     var body: some View {
@@ -28,7 +28,7 @@ struct SuggestionProvider: View {
                 Spacer()
                 Image(systemName: "xmark").imageScale(.small)
                     .foregroundColor(.secondary).onTapGesture {
-                        store.dispatch(.removeHistoryKeyword(text: word))
+//                        store.dispatch(.removeHistoryKeyword(text: word))
                     }
             }
             .contentShape(Rectangle())

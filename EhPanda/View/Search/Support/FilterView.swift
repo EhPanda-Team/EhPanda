@@ -7,8 +7,8 @@
 
 import SwiftUI
 
-struct FilterView: View, StoreAccessor {
-    @EnvironmentObject var store: DeprecatedStore
+struct FilterView: View {
+//    @EnvironmentObject var store: DeprecatedStore
     @State private var resetDialogPresented = false
     @State private var filterRange: FilterRange = .search
 

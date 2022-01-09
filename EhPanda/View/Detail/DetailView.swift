@@ -8,8 +8,8 @@
 import SwiftUI
 import Kingfisher
 
-struct DetailView: View, StoreAccessor, PersistenceAccessor {
-    @EnvironmentObject var store: DeprecatedStore
+struct DetailView: View, PersistenceAccessor {
+//    @EnvironmentObject var store: DeprecatedStore
     @Environment(\.colorScheme) private var colorScheme
 
     @State private var keyword = ""
@@ -58,11 +58,11 @@ struct DetailView: View, StoreAccessor, PersistenceAccessor {
 //                            )
 //                            .padding(.horizontal)
 //                        }
-                        PreviewView(
-                            gid: gid, previews: detailInfo.previews[gid] ?? [:],
-                            pageCount: detail.pageCount, tapAction: navigateToReading,
-                            fetchAction: { store.dispatch(.fetchGalleryPreviews(gid: gid, index: $0)) }
-                        )
+//                        PreviewView(
+//                            gid: gid, previews: detailInfo.previews[gid] ?? [:],
+//                            pageCount: detail.pageCount, tapAction: navigateToReading,
+//                            fetchAction: { store.dispatch(.fetchGalleryPreviews(gid: gid, index: $0)) }
+//                        )
                         CommentScrollView(
                             gid: gid, comments: galleryState.comments,
                             toggleCommentAction: { presentSheet(state: .comment) }
@@ -71,20 +71,21 @@ struct DetailView: View, StoreAccessor, PersistenceAccessor {
                     .padding(.bottom, 20)
                     .padding(.top, -25)
                 }
-            } else if detailInfo.detailLoading[gid] == true {
-                LoadingView()
-            } else if let error = detailInfo.detailLoadErrors[gid] {
-                switch error {
-                case .copyrightClaim, .expunged:
-                    ErrorView(error: error)
-                default:
-                    ErrorView(error: error, retryAction: fetchGalleryDetail)
-                }
             }
+//            else if detailInfo.detailLoading[gid] == true {
+//                LoadingView()
+//            } else if let error = detailInfo.detailLoadErrors[gid] {
+//                switch error {
+//                case .copyrightClaim, .expunged:
+//                    ErrorView(error: error)
+//                default:
+//                    ErrorView(error: error, retryAction: fetchGalleryDetail)
+//                }
+//            }
         }
         .onAppear(perform: onStartTasks).onDisappear(perform: onEndTasks)
-        .navigationBarHidden(environment.navigationBarHidden)
-        .sheet(item: $store.appState.environment.detailViewSheetState, content: sheet)
+//        .navigationBarHidden(environment.navigationBarHidden)
+//        .sheet(item: $store.appState.environment.detailViewSheetState, content: sheet)
         .background(content: navigationLinks).toolbar(content: toolbar)
     }
 }
@@ -150,7 +151,7 @@ private extension DetailView {
             } label: {
                 Image(systemName: "ellipsis.circle")
             }
-            .disabled(galleryDetail == nil || detailInfo.detailLoading[gid] == true)
+//            .disabled(galleryDetail == nil || detailInfo.detailLoading[gid] == true)
         }
     }
 }
@@ -159,11 +160,11 @@ private extension DetailView {
 private extension DetailView {
     // MARK: Life Cycle
     func onStartTasks() {
-        if environment.navigationBarHidden {
+//        if environment.navigationBarHidden {
 //            store.dispatch(.setNavigationBarHidden(false))
-        }
-        store.dispatch(.fulfillGalleryPreviews(gid: gid))
-        store.dispatch(.fulfillGalleryContents(gid: gid))
+//        }
+//        store.dispatch(.fulfillGalleryPreviews(gid: gid))
+//        store.dispatch(.fulfillGalleryContents(gid: gid))
         PersistenceController.updateLastOpenDate(gid: gid)
 
         fetchGalleryDetail()
@@ -177,20 +178,20 @@ private extension DetailView {
 
     // MARK: Navigation
     func detectNavigations() {
-        if let pageIndex = detailInfo.pendingJumpPageIndices[gid] {
-            store.dispatch(.setPendingJumpInfos(gid: gid, pageIndex: nil, commentID: nil))
-            store.dispatch(.setReadingProgress(gid: gid, tag: pageIndex))
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
-                isReadingLinkActive.toggle()
-            }
-        }
-        if let commentID = detailInfo.pendingJumpCommentIDs[gid] {
-            store.dispatch(.setPendingJumpInfos(gid: gid, pageIndex: nil, commentID: nil))
-            commentViewScrollID = commentID
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
-                isCommentsLinkActive.toggle()
-            }
-        }
+//        if let pageIndex = detailInfo.pendingJumpPageIndices[gid] {
+//            store.dispatch(.setPendingJumpInfos(gid: gid, pageIndex: nil, commentID: nil))
+//            store.dispatch(.setReadingProgress(gid: gid, tag: pageIndex))
+//            DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
+//                isReadingLinkActive.toggle()
+//            }
+//        }
+//        if let commentID = detailInfo.pendingJumpCommentIDs[gid] {
+//            store.dispatch(.setPendingJumpInfos(gid: gid, pageIndex: nil, commentID: nil))
+//            commentViewScrollID = commentID
+//            DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
+//                isCommentsLinkActive.toggle()
+//            }
+//        }
     }
     func navigateToAssociatedView(_ keyword: String) {
         self.keyword = keyword
@@ -205,7 +206,7 @@ private extension DetailView {
         navigateToAssociatedView(title)
     }
     func navigateToReading(index: Int, triggersLink: Bool) {
-        store.dispatch(.setReadingProgress(gid: gid, tag: index))
+//        store.dispatch(.setReadingProgress(gid: gid, tag: index))
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
             NotificationUtil.post(.readingViewShouldHideStatusBar)
         }
@@ -216,10 +217,10 @@ private extension DetailView {
 
     // MARK: Tools
     func rateGallery(value: Int) {
-        store.dispatch(.rateGallery(gid: gid, rating: value))
+//        store.dispatch(.rateGallery(gid: gid, rating: value))
     }
     func postComment() {
-        store.dispatch(.commentGallery(gid: gid, content: commentContent))
+//        store.dispatch(.commentGallery(gid: gid, content: commentContent))
         presentSheet(state: nil)
         commentContent = ""
     }
@@ -230,7 +231,7 @@ private extension DetailView {
 //        store.dispatch(.setViewControllersCount)
     }
     func fetchGalleryDetail() {
-        store.dispatch(.fetchGalleryDetail(gid: gid))
+//        store.dispatch(.fetchGalleryDetail(gid: gid))
     }
 }
 

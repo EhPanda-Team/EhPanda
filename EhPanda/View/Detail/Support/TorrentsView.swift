@@ -8,8 +8,7 @@
 import SwiftUI
 import TTProgressHUD
 
-struct TorrentsView: View, StoreAccessor {
-    @EnvironmentObject var store: DeprecatedStore
+struct TorrentsView: View {
     @Environment(\.colorScheme) private var colorScheme
 
     @State private var hudVisible = false
@@ -91,34 +90,34 @@ private extension TorrentsView {
 
     // MARK: Networking
     func fetchGalleryTorrents() {
-        loadError = nil
-        if loadingFlag { return }
-        loadingFlag = true
-
-        let sToken = SubscriptionToken()
-        GalleryTorrentsRequest(gid: gid, token: token)
-            .publisher.receive(on: DispatchQueue.main)
-            .sink { completion in
-                if case .failure(let error) = completion {
-                    Logger.error(error)
-                    loadError = error
-
-                    Logger.error(
-                        "GalleryTorrentsRequest Failed",
-                        context: ["gid": gid, "Token": token, "Error": error]
-                    )
-                }
-                loadingFlag = false
-                sToken.unseal()
-            } receiveValue: {
-                torrents = $0
-
-                Logger.info(
-                    "GalleryTorrentsRequest succeeded",
-                    context: ["gid": gid, "Token": token, "Torrents count": $0.count]
-                )
-            }
-            .seal(in: sToken)
+//        loadError = nil
+//        if loadingFlag { return }
+//        loadingFlag = true
+//
+//        let sToken = SubscriptionToken()
+//        GalleryTorrentsRequest(gid: gid, token: token)
+//            .publisher.receive(on: DispatchQueue.main)
+//            .sink { completion in
+//                if case .failure(let error) = completion {
+//                    Logger.error(error)
+//                    loadError = error
+//
+//                    Logger.error(
+//                        "GalleryTorrentsRequest Failed",
+//                        context: ["gid": gid, "Token": token, "Error": error]
+//                    )
+//                }
+//                loadingFlag = false
+//                sToken.unseal()
+//            } receiveValue: {
+//                torrents = $0
+//
+//                Logger.info(
+//                    "GalleryTorrentsRequest succeeded",
+//                    context: ["gid": gid, "Token": token, "Torrents count": $0.count]
+//                )
+//            }
+//            .seal(in: sToken)
     }
 }
 

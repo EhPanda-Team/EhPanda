@@ -135,7 +135,10 @@ private extension HomeView {
                         setting: setting, tagTranslator: tagTranslator
                     )
                 case .history:
-                    EmptyView()
+                    HistoryView(
+                        store: store.scope(state: \.historyState, action: HomeAction.history),
+                        setting: setting, tagTranslator: tagTranslator
+                    )
                 }
             }
         }

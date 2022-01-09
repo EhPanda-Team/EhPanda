@@ -8,8 +8,8 @@
 import SwiftUI
 import AlertKit
 
-struct AssociatedView: View, StoreAccessor {
-    @EnvironmentObject var store: DeprecatedStore
+struct AssociatedView: View {
+//    @EnvironmentObject var store: DeprecatedStore
     @Environment(\.colorScheme) private var colorScheme
 
     @State private var title: String

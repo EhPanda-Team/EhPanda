@@ -39,7 +39,7 @@ struct Gallery: Identifiable, Codable, Equatable, Hashable {
                 token: "",
                 title: "",
                 rating: 0.0,
-                tags: [],
+                tagStrings: [],
                 category: .doujinshi,
                 language: .japanese,
                 uploader: "",
@@ -56,7 +56,7 @@ struct Gallery: Identifiable, Codable, Equatable, Hashable {
         token: "",
         title: "",
         rating: 0.0,
-        tags: [],
+        tagStrings: [],
         category: .doujinshi,
         language: .japanese,
         uploader: "",
@@ -70,7 +70,7 @@ struct Gallery: Identifiable, Codable, Equatable, Hashable {
         token: "",
         title: "Preview",
         rating: 3.5,
-        tags: [],
+        tagStrings: [],
         category: .doujinshi,
         language: .japanese,
         uploader: "Anonymous",
@@ -97,7 +97,7 @@ struct Gallery: Identifiable, Codable, Equatable, Hashable {
 
     var title: String
     var rating: Float
-    var tags: [String]
+    var tagStrings: [String]
     let category: Category
     var language: Language?
     var uploader: String?

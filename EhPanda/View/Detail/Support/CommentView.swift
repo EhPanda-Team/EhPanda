@@ -9,8 +9,8 @@ import SwiftUI
 import Kingfisher
 import TTProgressHUD
 
-struct CommentView: View, StoreAccessor {
-    @EnvironmentObject var store: DeprecatedStore
+struct CommentView: View {
+//    @EnvironmentObject var store: DeprecatedStore
 
     @State private var commentContent = ""
     @State private var editCommentContent = ""
@@ -65,9 +65,9 @@ struct CommentView: View, StoreAccessor {
         .background {
             NavigationLink("", destination: DetailView(gid: commentJumpID ?? gid), isActive: $isNavLinkActive)
         }
-        .toolbar(content: toolbar).sheet(item: $store.appState.environment.commentViewSheetState, content: sheet)
-        .onChange(of: environment.galleryItemReverseLoading) { if !$0 { dismissHUD() } }
-        .onChange(of: environment.galleryItemReverseID, perform: tryActivateNavLink)
+//        .toolbar(content: toolbar).sheet(item: $store.appState.environment.commentViewSheetState, content: sheet)
+//        .onChange(of: environment.galleryItemReverseLoading) { if !$0 { dismissHUD() } }
+//        .onChange(of: environment.galleryItemReverseID, perform: tryActivateNavLink)
         .onAppear { replaceGalleryCommentJumpID(gid: nil) }
     }
     // MARK: LeadingSwipeActions
@@ -136,22 +136,22 @@ struct CommentView: View, StoreAccessor {
 private extension CommentView {
     func handleURL(_ url: URL) {
         URLUtil.handleURL(url, handlesOutgoingURL: true)
-        { shouldParseGalleryURL, incomingURL, pageIndex, commentID in
+        { shouldParseGalleryURL, incomingURL, _, _ in
             guard let incomingURL = incomingURL else { return }
 
             let gid = URLUtil.parseGID(url: incomingURL, isGalleryURL: shouldParseGalleryURL)
-            store.dispatch(.setPendingJumpInfos(
-                gid: gid, pageIndex: pageIndex, commentID: commentID
-            ))
+//            store.dispatch(.setPendingJumpInfos(
+//                gid: gid, pageIndex: pageIndex, commentID: commentID
+//            ))
 
             if PersistenceController.galleryCached(gid: gid) {
                 replaceGalleryCommentJumpID(gid: gid)
             } else {
-                store.dispatch(.fetchGalleryItemReverse(
-                    url: incomingURL.absoluteString,
-                    shouldParseGalleryURL: shouldParseGalleryURL
-                ))
-                presentHUD()
+//                store.dispatch(.fetchGalleryItemReverse(
+//                    url: incomingURL.absoluteString,
+//                    shouldParseGalleryURL: shouldParseGalleryURL
+//                ))
+//                presentHUD()
             }
         }
     }
@@ -173,10 +173,10 @@ private extension CommentView {
     }
 
     func voteUpComment(_ comment: GalleryComment) {
-        store.dispatch(.voteGalleryComment(gid: gid, commentID: comment.commentID, vote: 1))
+//        store.dispatch(.voteGalleryComment(gid: gid, commentID: comment.commentID, vote: 1))
     }
     func voteDownComment(_ comment: GalleryComment) {
-        store.dispatch(.voteGalleryComment(gid: gid, commentID: comment.commentID, vote: -1))
+//        store.dispatch(.voteGalleryComment(gid: gid, commentID: comment.commentID, vote: -1))
     }
     func editComment(_ comment: GalleryComment) {
         editCommentID = comment.commentID
@@ -186,19 +186,19 @@ private extension CommentView {
 //        store.dispatch(.setCommentViewSheetState(.editComment))
     }
     func postNewComment() {
-        store.dispatch(.commentGallery(gid: gid, content: commentContent))
+//        store.dispatch(.commentGallery(gid: gid, content: commentContent))
         toggleCommentViewSheetNil()
         commentContent = ""
     }
     func postEditComment() {
-        store.dispatch(.editGalleryComment(gid: gid, commentID: editCommentID, content: editCommentContent))
+//        store.dispatch(.editGalleryComment(gid: gid, commentID: editCommentID, content: editCommentContent))
         editCommentID = ""
         editCommentContent = ""
         toggleCommentViewSheetNil()
     }
 
     func replaceGalleryCommentJumpID(gid: String?) {
-        store.dispatch(.setGalleryCommentJumpID(gid: gid))
+//        store.dispatch(.setGalleryCommentJumpID(gid: gid))
     }
     func toggleCommentViewSheetNil() {
 //        store.dispatch(.setCommentViewSheetState(nil))

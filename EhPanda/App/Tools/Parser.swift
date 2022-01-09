@@ -125,7 +125,7 @@ struct Parser {
                     token: url.pathComponents[3],
                     title: title,
                     rating: rating,
-                    tags: tags,
+                    tagStrings: tags,
                     category: category,
                     language: language,
                     uploader: uploader,

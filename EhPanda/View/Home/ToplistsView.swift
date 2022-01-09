@@ -70,12 +70,10 @@ struct ToplistsView: View {
                     viewStore.send(.setToplistsType(type))
                 }
             }
-            ToolbarFeaturesMenu {
-                JumpPageButton(pageNumber: viewStore.pageNumber ?? PageNumber()) {
-                    viewStore.send(.presentJumpPageAlert)
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                        viewStore.send(.setJumpPageAlertFocused(true))
-                    }
+            JumpPageButton(pageNumber: viewStore.pageNumber ?? PageNumber(), hideText: true) {
+                viewStore.send(.presentJumpPageAlert)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                    viewStore.send(.setJumpPageAlertFocused(true))
                 }
             }
         }

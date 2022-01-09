@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Combine
 import ComposableArchitecture
 
 struct DatabaseClient {
@@ -13,6 +14,8 @@ struct DatabaseClient {
     let updateAppEnv: (String, Data?) -> Void
     let removeImageURLs: () -> Effect<Never, Never>
     let cacheGalleries: ([Gallery]) -> Effect<Never, Never>
+    let fetchHistoryGalleries: () -> Effect<[Gallery], Never>
+    let clearHistoryGalleries: () -> Effect<Never, Never>
 }
 
 extension DatabaseClient {
@@ -33,6 +36,21 @@ extension DatabaseClient {
         cacheGalleries: { galleries in
             .fireAndForget {
                 PersistenceController.add(galleries: galleries)
+            }
+        },
+        fetchHistoryGalleries: {
+            Future { promise in
+                DispatchQueue.global().async {
+                    promise(.success(PersistenceController.fetchGalleryHistory()))
+                }
+            }
+            .eraseToAnyPublisher()
+            .receive(on: DispatchQueue.main)
+            .eraseToEffect()
+        },
+        clearHistoryGalleries: {
+            .fireAndForget {
+                PersistenceController.clearHistoryGalleries()
             }
         }
     )
