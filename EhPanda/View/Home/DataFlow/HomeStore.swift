@@ -22,10 +22,7 @@ struct HomeState: Equatable {
     }
 
     // Will be passed over from `appReducer`
-    var rawFilter: Filter?
-    var filter: Filter {
-        rawFilter ?? .init()
-    }
+    var filter = Filter()
 
     var popularGalleries = [Gallery]()
     var popularLoadingState: LoadingState = .idle
@@ -37,6 +34,7 @@ struct HomeState: Equatable {
     var frontpageState = FrontpageState()
     var toplistsState = ToplistsState()
     var popularState = PopularState()
+    var watchedState = WatchedState()
 
     mutating func setPopularGalleries(_ galleries: [Gallery]) {
         let sortedGalleries = galleries.sorted { lhs, rhs in
@@ -74,6 +72,7 @@ enum HomeAction: BindableAction {
     case frontpage(FrontpageAction)
     case toplists(ToplistsAction)
     case popular(PopularAction)
+    case watched(WatchedAction)
 }
 
 struct HomeEnvironment {
@@ -204,6 +203,9 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
 
         case .popular:
             return .none
+
+        case .watched:
+            return .none
         }
     }
     .binding(),
@@ -232,6 +234,16 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
         action: /HomeAction.popular,
         environment: {
             .init(
+                databaseClient: $0.databaseClient
+            )
+        }
+    ),
+    watchedReducer.pullback(
+        state: \.watchedState,
+        action: /HomeAction.watched,
+        environment: {
+            .init(
+                hapticClient: $0.hapticClient,
                 databaseClient: $0.databaseClient
             )
         }

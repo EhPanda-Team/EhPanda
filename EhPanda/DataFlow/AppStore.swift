@@ -72,16 +72,23 @@ let appReducerCore = Reducer<AppState, AppAction, AppEnvironment> { state, actio
     case .appDelegate:
         return .none
 
-    case .home(.frontpage):
-        state.homeState.frontpageState.rawFilter = state.settingState.globalFilter
+    case .home(.frontpage(.fetchGalleries)), .home(.frontpage(.fetchMoreGalleries)):
+        state.homeState.frontpageState.filter = state.settingState.globalFilter
         return .none
 
-    case .home(.popular):
-        state.homeState.popularState.rawFilter = state.settingState.globalFilter
+    case .home(.popular(.fetchGalleries)):
+        state.homeState.popularState.filter = state.settingState.globalFilter
+        return .none
+
+    case .home(.watched(.fetchGalleries)), .home(.watched(.fetchMoreGalleries)):
+        state.homeState.watchedState.filter = state.settingState.watchedFilter
+        return .none
+
+    case .home(.fetchPopularGalleries), .home(.fetchFrontpageGalleries):
+        state.homeState.filter = state.settingState.globalFilter
         return .none
 
     case .home:
-        state.homeState.rawFilter = state.settingState.globalFilter
         return .none
 
     case .favorites:

@@ -11,10 +11,7 @@ struct PopularState: Equatable {
     @BindableState var keyword = ""
 
     // Will be passed over from `appReducer`
-    var rawFilter: Filter?
-    var filter: Filter {
-        rawFilter ?? .init()
-    }
+    var filter = Filter()
 
     var filteredGalleries: [Gallery] {
         guard !keyword.isEmpty else { return galleries }

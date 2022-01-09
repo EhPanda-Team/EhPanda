@@ -91,7 +91,7 @@ private extension AssociatedView {
     }
     func performJumpPage() {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            guard let index = Int(alertInput), index <= pageNumber.maximum + 1 else { return }
+            guard let index = Int(alertInput), index > 0, index <= pageNumber.maximum + 1 else { return }
             fetchAssociatedItems(pageNum: index - 1)
         }
     }

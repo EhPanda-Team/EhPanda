@@ -85,7 +85,7 @@ let toplistsReducer = Reducer<ToplistsState, ToplistsAction, ToplistsEnvironment
     case .performJumpPage:
         guard let index = Int(state.jumpPageIndex),
               let pageNumber = state.pageNumber,
-              index <= pageNumber.maximum + 1 else {
+              index > 0, index <= pageNumber.maximum + 1 else {
             return environment.hapticClient.generateNotificationFeedback(.error).fireAndForget()
         }
         return .init(value: .fetchGalleries(index - 1))

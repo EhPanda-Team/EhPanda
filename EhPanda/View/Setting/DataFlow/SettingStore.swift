@@ -12,6 +12,7 @@ struct SettingState: Equatable {
     @BindableState var setting = Setting()
     @BindableState var searchFilter = Filter()
     @BindableState var globalFilter = Filter()
+    @BindableState var watchedFilter = Filter()
     var tagTranslator = TagTranslator()
     var user = User()
 
@@ -162,6 +163,9 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
         case .binding(\.$globalFilter):
             return environment.databaseClient.updateGlobalFilter(state.globalFilter).fireAndForget()
 
+        case .binding(\.$watchedFilter):
+            return environment.databaseClient.updateWatchedFilter(state.watchedFilter).fireAndForget()
+
         case .binding:
             return .none
 
@@ -183,6 +187,7 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
             state.setting = appEnv.setting
             state.searchFilter = appEnv.searchFilter
             state.globalFilter = appEnv.globalFilter
+            state.watchedFilter = appEnv.watchedFilter
             state.tagTranslator = appEnv.tagTranslator
             state.user = appEnv.user
             return .init(value: .loadUserSettingsDone)

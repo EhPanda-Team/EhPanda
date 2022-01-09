@@ -255,26 +255,30 @@ struct PopularGalleriesRequest: Request {
     }
 }
 
-struct WatchedItemsRequest: Request {
+struct WatchedGalleriesRequest: Request {
     let filter: Filter
     var pageNum: Int?
+    var keyword: String
 
     var publisher: AnyPublisher<(PageNumber, [Gallery]), AppError> {
-        URLSession.shared.dataTaskPublisher(for: URLUtil.watchedList(filter: filter, pageNum: pageNum))
-            .genericRetry().tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-            .tryMap { (Parser.parsePageNum(doc: $0), try Parser.parseListItems(doc: $0)) }
-            .mapError(mapAppError).eraseToAnyPublisher()
+        URLSession.shared.dataTaskPublisher(for: URLUtil.watchedList(
+            filter: filter, pageNum: pageNum, keyword: keyword
+        ))
+        .genericRetry().tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
+        .tryMap { (Parser.parsePageNum(doc: $0), try Parser.parseListItems(doc: $0)) }
+        .mapError(mapAppError).eraseToAnyPublisher()
     }
 }
 
-struct MoreWatchedItemsRequest: Request {
+struct MoreWatchedGalleriesRequest: Request {
     let filter: Filter
     let lastID: String
     let pageNum: Int
+    var keyword: String
 
     var publisher: AnyPublisher<(PageNumber, [Gallery]), AppError> {
         URLSession.shared.dataTaskPublisher(for: URLUtil.moreWatchedList(
-            filter: filter, pageNum: pageNum, lastID: lastID
+            filter: filter, pageNum: pageNum, lastID: lastID, keyword: keyword
         ))
         .genericRetry().tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
         .tryMap { (Parser.parsePageNum(doc: $0), try Parser.parseListItems(doc: $0)) }

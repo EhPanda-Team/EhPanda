@@ -1,13 +1,13 @@
 //
-//  FrontpageStore.swift
+//  WatchedStore.swift
 //  EhPanda
 //
-//  Created by 荒木辰造 on R 4/01/08.
+//  Created by 荒木辰造 on R 4/01/09.
 //
 
 import ComposableArchitecture
 
-struct FrontpageState: Equatable {
+struct WatchedState: Equatable {
     @BindableState var keyword = ""
     @BindableState var jumpPageIndex = ""
     @BindableState var jumpPageAlertFocused = false
@@ -16,10 +16,6 @@ struct FrontpageState: Equatable {
     // Will be passed over from `appReducer`
     var filter = Filter()
 
-    var filteredGalleries: [Gallery] {
-        guard !keyword.isEmpty else { return galleries }
-        return galleries.filter({ $0.title.localizedCaseInsensitiveContains(keyword) })
-    }
     var galleries = [Gallery]()
     var pageNumber = PageNumber()
     var loadingState: LoadingState = .idle
@@ -34,8 +30,8 @@ struct FrontpageState: Equatable {
     }
 }
 
-enum FrontpageAction: BindableAction {
-    case binding(BindingAction<FrontpageState>)
+enum WatchedAction: BindableAction {
+    case binding(BindingAction<WatchedState>)
     case onDisappear
     case performJumpPage
     case presentJumpPageAlert
@@ -46,12 +42,12 @@ enum FrontpageAction: BindableAction {
     case fetchMoreGalleriesDone(Result<(PageNumber, [Gallery]), AppError>)
 }
 
-struct FrontpageEnvironment {
+struct WatchedEnvironment {
     let hapticClient: HapticClient
     let databaseClient: DatabaseClient
 }
 
-let frontpageReducer = Reducer<FrontpageState, FrontpageAction, FrontpageEnvironment> { state, action, environment in
+let watchedReducer = Reducer<WatchedState, WatchedAction, WatchedEnvironment> { state, action, environment in
     switch action {
     case .binding(\.$jumpPageAlertPresented):
         if !state.jumpPageAlertPresented {
@@ -85,8 +81,8 @@ let frontpageReducer = Reducer<FrontpageState, FrontpageAction, FrontpageEnviron
         guard state.loadingState != .loading else { return .none }
         state.loadingState = .loading
         state.pageNumber.current = 0
-        return FrontpageGalleriesRequest(filter: state.filter, pageNum: pageNum)
-            .effect.map(FrontpageAction.fetchGalleriesDone)
+        return WatchedGalleriesRequest(filter: state.filter, pageNum: pageNum, keyword: state.keyword)
+            .effect.map(WatchedAction.fetchGalleriesDone)
 
     case .fetchGalleriesDone(let result):
         state.loadingState = .idle
@@ -115,8 +111,10 @@ let frontpageReducer = Reducer<FrontpageState, FrontpageAction, FrontpageEnviron
         else { return .none }
         state.footerLoadingState = .loading
         let pageNum = pageNumber.current + 1
-        return MoreFrontpageGalleriesRequest(filter: state.filter, lastID: lastID, pageNum: pageNum)
-            .effect.map(FrontpageAction.fetchMoreGalleriesDone)
+        return MoreWatchedGalleriesRequest(
+            filter: state.filter, lastID: lastID, pageNum: pageNum, keyword: state.keyword
+        )
+        .effect.map(WatchedAction.fetchMoreGalleriesDone)
 
     case .fetchMoreGalleriesDone(let result):
         state.footerLoadingState = .idle
@@ -125,7 +123,7 @@ let frontpageReducer = Reducer<FrontpageState, FrontpageAction, FrontpageEnviron
             state.pageNumber = pageNumber
             state.insertGalleries(galleries)
 
-            var effects: [Effect<FrontpageAction, Never>] = [
+            var effects: [Effect<WatchedAction, Never>] = [
                 environment.databaseClient.cacheGalleries(galleries).fireAndForget()
             ]
             if galleries.isEmpty, pageNumber.current < pageNumber.maximum {

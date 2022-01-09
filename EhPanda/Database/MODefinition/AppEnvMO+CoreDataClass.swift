@@ -16,6 +16,7 @@ extension AppEnvMO: ManagedObjectProtocol {
             setting: setting?.toObject() ?? Setting(),
             searchFilter: searchFilter?.toObject() ?? Filter(),
             globalFilter: globalFilter?.toObject() ?? Filter(),
+            watchedFilter: watchedFilter?.toObject() ?? Filter(),
             tagTranslator: tagTranslator?.toObject() ?? TagTranslator(),
             historyKeywords: historyKeywords?.toObject() ?? [String](),
             quickSearchWords: quickSearchWords?.toObject() ?? [QuickSearchWord]()
@@ -32,6 +33,7 @@ extension AppEnv: ManagedObjectConvertible {
         appEnvMO.setting = setting.toData()
         appEnvMO.searchFilter = searchFilter.toData()
         appEnvMO.globalFilter = globalFilter.toData()
+        appEnvMO.watchedFilter = watchedFilter.toData()
         appEnvMO.tagTranslator = tagTranslator.toData()
         appEnvMO.historyKeywords = historyKeywords.toData()
         appEnvMO.quickSearchWords = quickSearchWords.toData()
@@ -45,6 +47,7 @@ struct AppEnv: Codable {
     let setting: Setting
     let searchFilter: Filter
     let globalFilter: Filter
+    let watchedFilter: Filter
     let tagTranslator: TagTranslator
     let historyKeywords: [String]
     let quickSearchWords: [QuickSearchWord]

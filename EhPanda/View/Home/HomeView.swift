@@ -130,7 +130,10 @@ private extension HomeView {
                         setting: setting, tagTranslator: tagTranslator
                     )
                 case .watched:
-                    EmptyView()
+                    WatchedView(
+                        store: store.scope(state: \.watchedState, action: HomeAction.watched),
+                        setting: setting, tagTranslator: tagTranslator
+                    )
                 case .history:
                     EmptyView()
                 }

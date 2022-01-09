@@ -87,15 +87,22 @@ extension URLUtil {
     static func popularList(filter: Filter) -> URL {
         Defaults.URL.popular.applyingFilter(filter)
     }
-    static func watchedList(filter: Filter, pageNum: Int? = nil) -> URL {
+    static func watchedList(filter: Filter, pageNum: Int? = nil, keyword: String = "") -> URL {
         var url = Defaults.URL.watched
         if let pageNum = pageNum {
             url.append(queryItems: [.page: String(pageNum)])
         }
+        if !keyword.isEmpty {
+            url.append(queryItems: [.fSearch: keyword])
+        }
         return url.applyingFilter(filter)
     }
-    static func moreWatchedList(filter: Filter, pageNum: Int, lastID: String) -> URL {
-        Defaults.URL.watched.appending(queryItems: [.page: String(pageNum), .from: lastID]).applyingFilter(filter)
+    static func moreWatchedList(filter: Filter, pageNum: Int, lastID: String, keyword: String = "") -> URL {
+        var url = Defaults.URL.watched.appending(queryItems: [.page: String(pageNum), .from: lastID])
+        if !keyword.isEmpty {
+            url.append(queryItems: [.fSearch: keyword])
+        }
+        return url.applyingFilter(filter)
     }
     static func favoritesList(
         favIndex: Int, pageNum: Int? = nil, keyword: String = "",

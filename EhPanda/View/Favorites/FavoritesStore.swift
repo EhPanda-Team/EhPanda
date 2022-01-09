@@ -79,7 +79,7 @@ let favoritesReducer = Reducer<FavoritesState, FavoritesAction, FavoritesEnviron
     case .performJumpPage:
         guard let index = Int(state.jumpPageIndex),
               let pageNumber = state.pageNumber,
-              index <= pageNumber.maximum + 1
+              index > 0, index <= pageNumber.maximum + 1
         else {
             return environment.hapticClient.generateNotificationFeedback(.error).fireAndForget()
         }

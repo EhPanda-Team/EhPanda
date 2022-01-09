@@ -52,6 +52,11 @@ extension DatabaseClient {
             updateAppEnv("globalFilter", filter.toData())
         }
     }
+    func updateWatchedFilter(_ filter: Filter) -> Effect<Never, Never> {
+        .fireAndForget {
+            updateAppEnv("watchedFilter", filter.toData())
+        }
+    }
     func updateTagTranslator(_ tagTranslator: TagTranslator) -> Effect<Never, Never> {
         .fireAndForget {
             updateAppEnv("tagTranslator", tagTranslator.toData())
