@@ -33,25 +33,29 @@ struct HomeView: View {
             ZStack {
                 ScrollView(showsIndicators: false) {
                     VStack {
-                        CardSlideSection(
-                            galleries: viewStore.popularGalleries,
-                            pageIndex: viewStore.binding(\.$cardPageIndex),
-                            currentID: viewStore.currentCardID,
-                            colors: viewStore.cardColors,
-                            navigateAction: navigateTo(gid:),
-                            webImageSuccessAction: { gid, result in
-                                viewStore.send(.analyzeImageColors(gid, result))
-                            }
-                        )
-                        .equatable().allowsHitTesting(viewStore.allowsCardHitTesting)
-                        Group {
-                            CoverWallSection(
-                                galleries: viewStore.frontpageGalleries,
-                                isLoading: viewStore.frontpageLoadingState == .loading,
+                        if viewStore.popularLoadingState == .loading || !viewStore.popularGalleries.isEmpty {
+                            CardSlideSection(
+                                galleries: viewStore.popularGalleries,
+                                pageIndex: viewStore.binding(\.$cardPageIndex),
+                                currentID: viewStore.currentCardID,
+                                colors: viewStore.cardColors,
                                 navigateAction: navigateTo(gid:),
-                                showAllAction: { viewStore.send(.setNavigation(.section(.frontpage))) },
-                                reloadAction: { viewStore.send(.fetchFrontpageGalleries()) }
+                                webImageSuccessAction: { gid, result in
+                                    viewStore.send(.analyzeImageColors(gid, result))
+                                }
                             )
+                            .equatable().allowsHitTesting(viewStore.allowsCardHitTesting)
+                        }
+                        Group {
+                            if viewStore.frontpageLoadingState == .loading || viewStore.frontpageGalleries.count > 1 {
+                                CoverWallSection(
+                                    galleries: viewStore.frontpageGalleries,
+                                    isLoading: viewStore.frontpageLoadingState == .loading,
+                                    navigateAction: navigateTo(gid:),
+                                    showAllAction: { viewStore.send(.setNavigation(.section(.frontpage))) },
+                                    reloadAction: { viewStore.send(.fetchFrontpageGalleries()) }
+                                )
+                            }
                             ToplistsSection(
                                 galleries: viewStore.toplistsGalleries,
                                 isLoading: !viewStore.toplistsLoadingState

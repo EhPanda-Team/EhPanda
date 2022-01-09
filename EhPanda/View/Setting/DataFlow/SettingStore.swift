@@ -164,6 +164,9 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
                 environment.dfClient.setActive(state.setting.bypassesSNIFiltering).fireAndForget()
             )
 
+        case .binding(\.$setting):
+            return .init(value: .syncSetting)
+
         case .binding(\.$searchFilter):
             return .init(value: .syncSearchFilter)
 
@@ -173,8 +176,18 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
         case .binding(\.$watchedFilter):
             return .init(value: .syncWatchedFilter)
 
-        case .binding:
+        case .binding(\.$route):
             return .none
+
+        case .binding:
+            return .merge(
+                .init(value: .syncUser),
+                .init(value: .syncSetting),
+                .init(value: .syncSearchFilter),
+                .init(value: .syncGlobalFilter),
+                .init(value: .syncWatchedFilter),
+                .init(value: .syncTagTranslator)
+            )
 
         case .syncAppIconType:
             if let iconName = environment.uiApplicationClient.alternateIconName() {
