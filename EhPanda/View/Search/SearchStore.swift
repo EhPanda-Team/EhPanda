@@ -8,32 +8,15 @@
 import ComposableArchitecture
 
 struct SearchState: Equatable {
-    @BindableState var keyword = ""
-    var lastKeyword = ""
-
     // AppEnvStorage
     var historyKeywords = [String]()
 
-    @BindableState var jumpPageIndex = ""
-    @BindableState var jumpPageAlertFocused = false
-    @BindableState var jumpPageAlertPresented = false
-
-    // Will be passed over from `appReducer`
-    var filter = Filter()
-
-    var galleries = [Gallery]()
+    @BindableState var route: SearchViewRoute?
+    @BindableState var keyword = ""
     var historyGalleries = [Gallery]()
-    var pageNumber = PageNumber()
-    var loadingState: LoadingState = .idle
-    var footerLoadingState: LoadingState = .idle
 
-    mutating func insertGalleries(_ galleries: [Gallery]) {
-        galleries.forEach { gallery in
-            if !self.galleries.contains(gallery) {
-                self.galleries.append(gallery)
-            }
-        }
-    }
+    var searchReqeustState = SearchRequestState()
+
     mutating func appendHistoryKeywords(_ keywords: [String]) {
         guard !keywords.isEmpty else { return }
         var historyKeywords = historyKeywords
@@ -62,21 +45,54 @@ struct SearchState: Equatable {
     }
 }
 
+struct SearchRequestState: Equatable {
+    @BindableState var keyword = ""
+    var lastKeyword = ""
+
+    @BindableState var jumpPageIndex = ""
+    @BindableState var jumpPageAlertFocused = false
+    @BindableState var jumpPageAlertPresented = false
+
+    // Will be passed over from `appReducer`
+    var filter = Filter()
+
+    var galleries = [Gallery]()
+    var pageNumber = PageNumber()
+    var loadingState: LoadingState = .idle
+    var footerLoadingState: LoadingState = .idle
+
+    mutating func insertGalleries(_ galleries: [Gallery]) {
+        galleries.forEach { gallery in
+            if !self.galleries.contains(gallery) {
+                self.galleries.append(gallery)
+            }
+        }
+    }
+}
+
 enum SearchAction: BindableAction {
     case binding(BindingAction<SearchState>)
+    case setNavigation(SearchViewRoute?)
+    case clearSubStates
+    case setKeyword(String)
     case loadUserSettings
     case syncHistoryKeywords
     case fetchHistoryKeywords
     case appendHistoryKeyword(String)
     case removeHistoryKeyword(String)
+    case fetchHistoryGalleries
+    case fetchHistoryGalleriesDone([Gallery])
+
+    case searchRequest(SearchRequestAction)
+}
+
+enum SearchRequestAction: BindableAction {
+    case binding(BindingAction<SearchRequestState>)
     case onDisappear
     case onFiltersButtonTapped
-    case cancelSearching
     case performJumpPage
     case presentJumpPageAlert
     case setJumpPageAlertFocused(Bool)
-    case fetchHistoryGalleries
-    case fetchHistoryGalleriesDone([Gallery])
     case fetchGalleries(Int? = nil, String? = nil)
     case fetchGalleriesDone(Result<(PageNumber, [Gallery]), AppError>)
     case fetchMoreGalleries
@@ -88,14 +104,86 @@ struct SearchEnvironment {
     let databaseClient: DatabaseClient
 }
 
-let searchReducer = Reducer<SearchState, SearchAction, SearchEnvironment> { state, action, environment in
-    switch action {
-    case .binding(\.$jumpPageAlertPresented):
-        if !state.jumpPageAlertPresented {
-            state.jumpPageAlertFocused = false
-        }
-        return .none
+struct SearchRequestEnvironment {
+    let hapticClient: HapticClient
+    let databaseClient: DatabaseClient
+}
 
+let searchReducer = Reducer<SearchState, SearchAction, SearchEnvironment>.combine(
+    .init { state, action, environment in
+        switch action {
+        case .binding(\.$route):
+            return state.route == nil ? .init(value: .clearSubStates) : .none
+
+        case .binding:
+            return .none
+
+        case .setNavigation(let route):
+            state.route = route
+            return route == nil ? .init(value: .clearSubStates) : .none
+
+        case .clearSubStates:
+            state.searchReqeustState = .init()
+            return .none
+
+        case .setKeyword(let keyword):
+            state.keyword = keyword
+            return .none
+
+        case .loadUserSettings:
+            return .init(value: .fetchHistoryKeywords)
+
+        case .syncHistoryKeywords:
+            return environment.databaseClient.updateHistoryKeywords(state.historyKeywords).fireAndForget()
+
+        case .fetchHistoryKeywords:
+            let appEnv = environment.databaseClient.fetchAppEnv()
+            state.historyKeywords = appEnv.historyKeywords
+            return .none
+
+        case .appendHistoryKeyword(let keyword):
+            state.appendHistoryKeywords([keyword])
+            return .init(value: .syncHistoryKeywords)
+
+        case .removeHistoryKeyword(let keyword):
+            state.removeHistoryKeyword(keyword)
+            return .init(value: .syncHistoryKeywords)
+
+        case .fetchHistoryGalleries:
+            return environment.databaseClient.fetchHistoryGalleries(10).map(SearchAction.fetchHistoryGalleriesDone)
+
+        case .fetchHistoryGalleriesDone(let galleries):
+            state.historyGalleries = Array(galleries.prefix(min(galleries.count, 10)))
+            return .none
+
+        case .searchRequest(.fetchGalleries(_, let keyword)):
+            if let keyword = keyword {
+                state.appendHistoryKeywords([keyword])
+            } else {
+                state.appendHistoryKeywords([state.searchReqeustState.lastKeyword])
+            }
+            return .init(value: .syncHistoryKeywords)
+
+        case .searchRequest:
+            return .none
+        }
+    }
+    .binding(),
+    searchRequestReducer.pullback(
+        state: \.searchReqeustState,
+        action: /SearchAction.searchRequest,
+        environment: {
+            .init(
+                hapticClient: $0.hapticClient,
+                databaseClient: $0.databaseClient
+            )
+        }
+    )
+)
+
+let searchRequestReducer = Reducer<SearchRequestState, SearchRequestAction, SearchRequestEnvironment>
+{ state, action, environment in
+    switch action {
     case .binding(\.$keyword):
         if !state.keyword.isEmpty {
             state.lastKeyword = state.keyword
@@ -105,35 +193,12 @@ let searchReducer = Reducer<SearchState, SearchAction, SearchEnvironment> { stat
     case .binding:
         return .none
 
-    case .loadUserSettings:
-        return .init(value: .fetchHistoryKeywords)
-
-    case .syncHistoryKeywords:
-        return environment.databaseClient.updateHistoryKeywords(state.historyKeywords).fireAndForget()
-
-    case .fetchHistoryKeywords:
-        let appEnv = environment.databaseClient.fetchAppEnv()
-        state.historyKeywords = appEnv.historyKeywords
-        return .none
-
-    case .appendHistoryKeyword(let keyword):
-        state.appendHistoryKeywords([keyword])
-        return .init(value: .syncHistoryKeywords)
-
-    case .removeHistoryKeyword(let keyword):
-        state.removeHistoryKeyword(keyword)
-        return .init(value: .syncHistoryKeywords)
-
     case .onDisappear:
         state.jumpPageAlertPresented = false
         state.jumpPageAlertFocused = false
         return .none
 
     case .onFiltersButtonTapped:
-        return .none
-
-    case .cancelSearching:
-        state.lastKeyword = ""
         return .none
 
     case .performJumpPage:
@@ -150,13 +215,6 @@ let searchReducer = Reducer<SearchState, SearchAction, SearchEnvironment> { stat
         state.jumpPageAlertFocused = isFocused
         return .none
 
-    case .fetchHistoryGalleries:
-        return environment.databaseClient.fetchHistoryGalleries(10).map(SearchAction.fetchHistoryGalleriesDone)
-
-    case .fetchHistoryGalleriesDone(let galleries):
-        state.historyGalleries = Array(galleries.prefix(min(galleries.count, 10)))
-        return .none
-
     case .fetchGalleries(let pageNum, let keyword):
         guard state.loadingState != .loading else { return .none }
         if let keyword = keyword {
@@ -164,12 +222,8 @@ let searchReducer = Reducer<SearchState, SearchAction, SearchEnvironment> { stat
         }
         state.loadingState = .loading
         state.pageNumber.current = 0
-        return .merge(
-            .init(value: .fetchHistoryKeywords),
-            .init(value: .appendHistoryKeyword(keyword ?? state.lastKeyword)),
-            SearchGalleriesRequest(keyword: keyword ?? state.lastKeyword, filter: state.filter, pageNum: pageNum)
-                .effect.map(SearchAction.fetchGalleriesDone)
-        )
+        return SearchGalleriesRequest(keyword: keyword ?? state.lastKeyword, filter: state.filter, pageNum: pageNum)
+            .effect.map(SearchRequestAction.fetchGalleriesDone)
 
     case .fetchGalleriesDone(let result):
         state.loadingState = .idle
@@ -201,7 +255,7 @@ let searchReducer = Reducer<SearchState, SearchAction, SearchEnvironment> { stat
         return MoreSearchGalleriesRequest(
             keyword: state.lastKeyword, filter: state.filter, lastID: lastID, pageNum: pageNum
         )
-        .effect.map(SearchAction.fetchMoreGalleriesDone)
+        .effect.map(SearchRequestAction.fetchMoreGalleriesDone)
 
     case .fetchMoreGalleriesDone(let result):
         state.footerLoadingState = .idle
@@ -210,7 +264,7 @@ let searchReducer = Reducer<SearchState, SearchAction, SearchEnvironment> { stat
             state.pageNumber = pageNumber
             state.insertGalleries(galleries)
 
-            var effects: [Effect<SearchAction, Never>] = [
+            var effects: [Effect<SearchRequestAction, Never>] = [
                 environment.databaseClient.cacheGalleries(galleries).fireAndForget()
             ]
             if galleries.isEmpty, pageNumber.current < pageNumber.maximum {

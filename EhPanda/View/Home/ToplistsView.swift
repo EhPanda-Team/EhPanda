@@ -53,8 +53,10 @@ struct ToplistsView: View {
         .navigationBarBackButtonHidden(viewStore.jumpPageAlertPresented)
         .searchable(text: viewStore.binding(\.$keyword), prompt: "Filter")
         .onAppear {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                viewStore.send(.fetchGalleries())
+            if viewStore.galleries?.isEmpty != false {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                    viewStore.send(.fetchGalleries())
+                }
             }
         }
         .onDisappear {

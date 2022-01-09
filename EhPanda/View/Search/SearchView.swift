@@ -24,55 +24,25 @@ struct SearchView: View {
         self.tagTranslator = tagTranslator
     }
 
-    private var navigationTitle: String {
-        viewStore.lastKeyword.isEmpty ? "Search".localized : viewStore.lastKeyword
-    }
-
     var body: some View {
         NavigationView {
-            ZStack {
-                if viewStore.lastKeyword.isEmpty {
-                    ScrollView(showsIndicators: false) {
-                        VStack {
-                            SuggestionsPanel(
-                                historyKeywords: viewStore.historyKeywords.reversed(),
-                                historyGalleries: viewStore.historyGalleries,
-                                searchKeywordAction: { keyword in
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                                        viewStore.send(.fetchGalleries(nil, keyword))
-                                    }
-                                },
-                                removeKeywordAction: { viewStore.send(.removeHistoryKeyword($0)) },
-                                reloadHistoryAction: { viewStore.send(.fetchHistoryGalleries) }
-                            )
-                        }
-                    }
-                } else {
-                    GenericList(
-                        galleries: viewStore.galleries,
-                        setting: setting,
-                        pageNumber: viewStore.pageNumber,
-                        loadingState: viewStore.loadingState,
-                        footerLoadingState: viewStore.footerLoadingState,
-                        fetchAction: { viewStore.send(.fetchGalleries()) },
-                        loadMoreAction: { viewStore.send(.fetchMoreGalleries) },
-                        translateAction: {
-                            tagTranslator.tryTranslate(text: $0, returnOriginal: !setting.translatesTags)
-                        }
+            ScrollView(showsIndicators: false) {
+                VStack {
+                    SuggestionsPanel(
+                        historyKeywords: viewStore.historyKeywords.reversed(),
+                        historyGalleries: viewStore.historyGalleries,
+                        searchKeywordAction: { keyword in
+                            viewStore.send(.setKeyword(keyword))
+                            viewStore.send(.setNavigation(.request))
+                        },
+                        removeKeywordAction: { viewStore.send(.removeHistoryKeyword($0)) },
+                        reloadHistoryAction: { viewStore.send(.fetchHistoryGalleries) }
                     )
                 }
             }
-            .jumpPageAlert(
-                index: viewStore.binding(\.$jumpPageIndex),
-                isPresented: viewStore.binding(\.$jumpPageAlertPresented),
-                isFocused: viewStore.binding(\.$jumpPageAlertFocused),
-                pageNumber: viewStore.pageNumber,
-                jumpAction: { viewStore.send(.performJumpPage) }
-            )
-            .animation(.default, value: viewStore.jumpPageAlertPresented)
             .searchable(text: viewStore.binding(\.$keyword))
             .onSubmit(of: .search) {
-                viewStore.send(.fetchGalleries())
+                viewStore.send(.setNavigation(.request))
             }
             .onAppear {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
@@ -81,22 +51,91 @@ struct SearchView: View {
                     }
                 }
             }
-            .onDisappear {
-                viewStore.send(.onDisappear)
-            }
-            .toolbar(content: toolbar)
-            .navigationTitle(navigationTitle)
+            .background(navigationLinks)
+            .navigationTitle("Search")
         }
+    }
+
+    private var navigationLinks: some View {
+        ForEach(SearchViewRoute.allCases) { route in
+            NavigationLink("", tag: route, selection: viewStore.binding(\.$route)) {
+                switch route {
+                case .request:
+                    SearchRequestView(
+                        store: store.scope(state: \.searchReqeustState, action: SearchAction.searchRequest),
+                        keyword: viewStore.keyword, setting: setting, tagTranslator: tagTranslator
+                    )
+                }
+            }
+        }
+    }
+}
+
+// MARK: SearchRequestView
+private struct SearchRequestView: View {
+    private let store: Store<SearchRequestState, SearchRequestAction>
+    @ObservedObject private var viewStore: ViewStore<SearchRequestState, SearchRequestAction>
+    private let keyword: String
+    private let setting: Setting
+    private let tagTranslator: TagTranslator
+
+    init(
+        store: Store<SearchRequestState, SearchRequestAction>,
+        keyword: String, setting: Setting, tagTranslator: TagTranslator
+    ) {
+        self.store = store
+        viewStore = ViewStore(store)
+        self.keyword = keyword
+        self.setting = setting
+        self.tagTranslator = tagTranslator
+    }
+
+    private var navigationTitle: String {
+        viewStore.lastKeyword.isEmpty ? "Search".localized : viewStore.lastKeyword
+    }
+
+    var body: some View {
+        GenericList(
+            galleries: viewStore.galleries,
+            setting: setting,
+            pageNumber: viewStore.pageNumber,
+            loadingState: viewStore.loadingState,
+            footerLoadingState: viewStore.footerLoadingState,
+            fetchAction: { viewStore.send(.fetchGalleries()) },
+            loadMoreAction: { viewStore.send(.fetchMoreGalleries) },
+            translateAction: {
+                tagTranslator.tryTranslate(text: $0, returnOriginal: !setting.translatesTags)
+            }
+        )
+        .jumpPageAlert(
+            index: viewStore.binding(\.$jumpPageIndex),
+            isPresented: viewStore.binding(\.$jumpPageAlertPresented),
+            isFocused: viewStore.binding(\.$jumpPageAlertFocused),
+            pageNumber: viewStore.pageNumber,
+            jumpAction: { viewStore.send(.performJumpPage) }
+        )
+        .animation(.default, value: viewStore.jumpPageAlertPresented)
+        .searchable(text: viewStore.binding(\.$keyword))
+        .onSubmit(of: .search) {
+            viewStore.send(.fetchGalleries())
+        }
+        .onAppear {
+            if viewStore.galleries.isEmpty {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                    viewStore.send(.fetchGalleries(nil, keyword))
+                }
+            }
+        }
+        .onDisappear {
+            viewStore.send(.onDisappear)
+        }
+        .toolbar(content: toolbar)
+        .navigationTitle(navigationTitle)
+
     }
 
     private func toolbar() -> some ToolbarContent {
         CustomToolbarItem(tint: .primary, disabled: viewStore.jumpPageAlertPresented) {
-            Button {
-                viewStore.send(.cancelSearching)
-            } label: {
-                Image(systemSymbol: .arrowUturnLeft)
-            }
-            .disabled(viewStore.lastKeyword.isEmpty)
             ToolbarFeaturesMenu {
                 FiltersButton {
                     viewStore.send(.onFiltersButtonTapped)
@@ -277,6 +316,13 @@ private struct HistoryKeywordCell: View {
                 .onTapGesture(perform: removeAction)
         }
     }
+}
+
+// MARK: Definition
+enum SearchViewRoute: Int, Identifiable, CaseIterable {
+    var id: Int { rawValue }
+
+    case request
 }
 
 struct SearchView_Previews: PreviewProvider {

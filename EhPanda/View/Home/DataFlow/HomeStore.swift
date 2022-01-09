@@ -57,6 +57,7 @@ struct HomeState: Equatable {
 enum HomeAction: BindableAction {
     case binding(BindingAction<HomeState>)
     case setNavigation(HomeViewRoute?)
+    case clearSubStates
     case setAllowsCardHitTesting(Bool)
     case analyzeImageColors(String, RetrieveImageResult)
     case analyzeImageColorsDone(String, UIImageColors?)
@@ -99,6 +100,14 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
 
         case .setNavigation(let route):
             state.route = route
+            return route == nil ? .init(value: .clearSubStates) : .none
+
+        case .clearSubStates:
+            state.frontpageState = .init()
+            state.toplistsState = .init()
+            state.popularState = .init()
+            state.watchedState = .init()
+            state.historyState = .init()
             return .none
 
         case .setAllowsCardHitTesting(let isAllowed):
