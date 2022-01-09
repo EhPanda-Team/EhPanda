@@ -17,11 +17,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         environment: AppEnvironment(
             dfClient: .live,
             fileClient: .live,
+            deviceClient: .live,
             loggerClient: .live,
             hapticClient: .live,
             libraryClient: .live,
             cookiesClient: .live,
             databaseClient: .live,
+            appDelegateClient: .live,
             userDefaultsClient: .live,
             uiApplicationClient: .live,
             authorizationClient: .live
@@ -29,19 +31,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     )
     lazy var viewStore = ViewStore(store.stateless)
 
-    static var orientationLock: UIInterfaceOrientationMask =
+    static var orientationMask: UIInterfaceOrientationMask =
         DeviceUtil.isPad ? .all : [.portrait, .portraitUpsideDown]
 
     func application(
         _ application: UIApplication, supportedInterfaceOrientationsFor window: UIWindow?
-    ) -> UIInterfaceOrientationMask { AppDelegate.orientationLock }
+    ) -> UIInterfaceOrientationMask { AppDelegate.orientationMask }
 
     func application(
         _ application: UIApplication, didFinishLaunchingWithOptions
         launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
         viewStore.send(.appDelegate(.onLaunchFinish))
-        viewStore.send(.setting(.onLaunchFinish))
+        viewStore.send(.setting(.loadUserSettings))
         return true
     }
 }

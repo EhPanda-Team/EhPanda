@@ -32,11 +32,13 @@ struct AnyEnvironment {}
 struct AppEnvironment {
     let dfClient: DFClient
     let fileClient: FileClient
+    let deviceClient: DeviceClient
     let loggerClient: LoggerClient
     let hapticClient: HapticClient
     let libraryClient: LibraryClient
     let cookiesClient: CookiesClient
     let databaseClient: DatabaseClient
+    let appDelegateClient: AppDelegateClient
     let userDefaultsClient: UserDefaultsClient
     let uiApplicationClient: UIApplicationClient
     let authorizationClient: AuthorizationClient
@@ -151,11 +153,13 @@ let appReducer = Reducer<AppState, AppAction, AppEnvironment>.combine(
             .init(
                 dfClient: $0.dfClient,
                 fileClient: $0.fileClient,
+                deviceClient: $0.deviceClient,
                 loggerClient: $0.loggerClient,
                 hapticClient: $0.hapticClient,
                 libraryClient: $0.libraryClient,
                 cookiesClient: $0.cookiesClient,
                 databaseClient: $0.databaseClient,
+                appDelegateClient: $0.appDelegateClient,
                 userDefaultsClient: $0.userDefaultsClient,
                 uiApplicationClient: $0.uiApplicationClient,
                 authorizationClient: $0.authorizationClient

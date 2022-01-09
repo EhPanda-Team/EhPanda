@@ -49,8 +49,8 @@ private extension SettingView {
                     case .account:
                         AccountSettingView(
                             store: store.scope(state: \.accountSettingState, action: SettingAction.account),
-                            galleryHost: viewStore.binding(\.setting.$galleryHost),
-                            showNewDawnGreeting: viewStore.binding(\.setting.$showNewDawnGreeting),
+                            galleryHost: viewStore.binding(\.$setting.galleryHost),
+                            showNewDawnGreeting: viewStore.binding(\.$setting.showNewDawnGreeting),
                             bypassesSNIFiltering: viewStore.setting.bypassesSNIFiltering,
                             blurRadius: blurRadius
                         )
@@ -59,34 +59,34 @@ private extension SettingView {
                             store: store.scope(state: \.generalSettingState, action: SettingAction.general),
                             tagTranslatorLoadingState: viewStore.tagTranslatorLoadingState,
                             tagTranslatorEmpty: viewStore.tagTranslator.contents.isEmpty,
-                            translatesTags: viewStore.binding(\.setting.$translatesTags),
-                            redirectsLinksToSelectedHost: viewStore.binding(\.setting.$redirectsLinksToSelectedHost),
-                            detectsLinksFromPasteboard: viewStore.binding(\.setting.$detectsLinksFromPasteboard),
-                            backgroundBlurRadius: viewStore.binding(\.setting.$backgroundBlurRadius),
-                            autoLockPolicy: viewStore.binding(\.setting.$autoLockPolicy)
+                            translatesTags: viewStore.binding(\.$setting.translatesTags),
+                            redirectsLinksToSelectedHost: viewStore.binding(\.$setting.redirectsLinksToSelectedHost),
+                            detectsLinksFromPasteboard: viewStore.binding(\.$setting.detectsLinksFromPasteboard),
+                            backgroundBlurRadius: viewStore.binding(\.$setting.backgroundBlurRadius),
+                            autoLockPolicy: viewStore.binding(\.$setting.autoLockPolicy)
                         )
                     case .appearance:
                         AppearanceSettingView(
                             store: store.scope(state: \.appearanceSettingState, action: SettingAction.appearance),
-                            preferredColorScheme: viewStore.binding(\.setting.$preferredColorScheme),
-                            accentColor: viewStore.binding(\.setting.$accentColor),
-                            appIconType: viewStore.binding(\.setting.$appIconType),
-                            listMode: viewStore.binding(\.setting.$listMode),
-                            showsSummaryRowTags: viewStore.binding(\.setting.$showsSummaryRowTags),
-                            summaryRowTagsMaximum: viewStore.binding(\.setting.$summaryRowTagsMaximum)
+                            preferredColorScheme: viewStore.binding(\.$setting.preferredColorScheme),
+                            accentColor: viewStore.binding(\.$setting.accentColor),
+                            appIconType: viewStore.binding(\.$setting.appIconType),
+                            listMode: viewStore.binding(\.$setting.listMode),
+                            showsSummaryRowTags: viewStore.binding(\.$setting.showsSummaryRowTags),
+                            summaryRowTagsMaximum: viewStore.binding(\.$setting.summaryRowTagsMaximum)
                         )
                     case .reading:
                         ReadingSettingView(
-                            readingDirection: viewStore.binding(\.setting.$readingDirection),
-                            prefetchLimit: viewStore.binding(\.setting.$prefetchLimit),
-                            prefersLandscape: viewStore.binding(\.setting.$prefersLandscape),
-                            contentDividerHeight: viewStore.binding(\.setting.$contentDividerHeight),
-                            maximumScaleFactor: viewStore.binding(\.setting.$maximumScaleFactor),
-                            doubleTapScaleFactor: viewStore.binding(\.setting.$doubleTapScaleFactor)
+                            readingDirection: viewStore.binding(\.$setting.readingDirection),
+                            prefetchLimit: viewStore.binding(\.$setting.prefetchLimit),
+                            prefersLandscape: viewStore.binding(\.$setting.prefersLandscape),
+                            contentDividerHeight: viewStore.binding(\.$setting.contentDividerHeight),
+                            maximumScaleFactor: viewStore.binding(\.$setting.maximumScaleFactor),
+                            doubleTapScaleFactor: viewStore.binding(\.$setting.doubleTapScaleFactor)
                         )
                     case .laboratory:
                         LaboratorySettingView(
-                            bypassesSNIFiltering: viewStore.binding(\.setting.$bypassesSNIFiltering)
+                            bypassesSNIFiltering: viewStore.binding(\.$setting.bypassesSNIFiltering)
                         )
                     case .ehpanda:
                         EhPandaView()
@@ -176,11 +176,13 @@ struct SettingView_Previews: PreviewProvider {
                 environment: SettingEnvironment(
                     dfClient: .live,
                     fileClient: .live,
+                    deviceClient: .live,
                     loggerClient: .live,
                     hapticClient: .live,
                     libraryClient: .live,
                     cookiesClient: .live,
                     databaseClient: .live,
+                    appDelegateClient: .live,
                     userDefaultsClient: .live,
                     uiApplicationClient: .live,
                     authorizationClient: .live

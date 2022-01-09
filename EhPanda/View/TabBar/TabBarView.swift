@@ -107,11 +107,13 @@ struct TabBarView_Previews: PreviewProvider {
                 environment: AppEnvironment(
                     dfClient: .live,
                     fileClient: .live,
+                    deviceClient: .live,
                     loggerClient: .live,
                     hapticClient: .live,
                     libraryClient: .live,
                     cookiesClient: .live,
                     databaseClient: .live,
+                    appDelegateClient: .live,
                     userDefaultsClient: .live,
                     uiApplicationClient: .live,
                     authorizationClient: .live

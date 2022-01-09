@@ -284,12 +284,12 @@ private extension ReadingView {
     func trySetOrientation(allowsLandscape: Bool, shouldChangeOrientation: Bool = false) {
 //        guard !DeviceUtil.isPad, setting.prefersLandscape else { return }
         if allowsLandscape {
-            AppDelegate.orientationLock = .all
+            AppDelegate.orientationMask = .all
             if shouldChangeOrientation {
                 UIDevice.current.setValue(UIInterfaceOrientation.landscapeRight.rawValue, forKey: "orientation")
             }
         } else {
-            AppDelegate.orientationLock = [.portrait, .portraitUpsideDown]
+            AppDelegate.orientationMask = [.portrait, .portraitUpsideDown]
             UIDevice.current.setValue(UIInterfaceOrientation.portrait.rawValue, forKey: "orientation")
         }
         UINavigationController.attemptRotationToDeviceOrientation()

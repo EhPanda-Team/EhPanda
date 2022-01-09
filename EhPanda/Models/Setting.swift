@@ -11,65 +11,36 @@ import ComposableArchitecture
 
 struct Setting: Codable, Equatable {
     // Account
-    @BindableState var galleryHost: GalleryHost = .ehentai
-    @BindableState var showNewDawnGreeting = false
+    var galleryHost: GalleryHost = .ehentai
+    var showNewDawnGreeting = false
 
     // General
-    @BindableState var redirectsLinksToSelectedHost = false
-    @BindableState var detectsLinksFromPasteboard = false
-    @BindableState var backgroundBlurRadius: Double = 10
-    @BindableState var autoLockPolicy: AutoLockPolicy = .never
+    var redirectsLinksToSelectedHost = false
+    var detectsLinksFromPasteboard = false
+    var backgroundBlurRadius: Double = 10
+    var autoLockPolicy: AutoLockPolicy = .never
 
     // Appearance
-    @BindableState var listMode: ListMode = DeviceUtil.isPadWidth ? .thumbnail : .detail
-    @BindableState var preferredColorScheme = PreferredColorScheme.automatic
-    @BindableState var accentColor: Color = .blue
-    @BindableState var appIconType: AppIconType = .default
-    @BindableState var translatesTags = false
-    @BindableState var showsSummaryRowTags = false
-    @BindableState var summaryRowTagsMaximum = 0
+    var listMode: ListMode = DeviceUtil.isPadWidth ? .thumbnail : .detail
+    var preferredColorScheme = PreferredColorScheme.automatic
+    var accentColor: Color = .blue
+    var appIconType: AppIconType = .default
+    var translatesTags = false
+    var showsSummaryRowTags = false
+    var summaryRowTagsMaximum = 0
 
     // Reading
-    @BindableState var readingDirection: ReadingDirection = .vertical
-    @BindableState var prefetchLimit = 10
-    @BindableState var prefersLandscape = false {
-        didSet {
-            if !prefersLandscape && !DeviceUtil.isPad {
-                AppDelegate.orientationLock = [
-                    .portrait, .portraitUpsideDown
-                ]
-            }
-        }
-    }
-    @BindableState var enablesDualPageMode = false
-    @BindableState var exceptCover = false
-    @BindableState var contentDividerHeight: Double = 0
-    @BindableState var maximumScaleFactor: Double = 3 {
-        didSet {
-            if doubleTapScaleFactor > maximumScaleFactor {
-                doubleTapScaleFactor = maximumScaleFactor
-            }
-        }
-    }
-    @BindableState var doubleTapScaleFactor: Double = 2 {
-        didSet {
-            if maximumScaleFactor < doubleTapScaleFactor {
-                maximumScaleFactor = doubleTapScaleFactor
-            }
-        }
-    }
+    var readingDirection: ReadingDirection = .vertical
+    var prefetchLimit = 10
+    var prefersLandscape = false
+    var enablesDualPageMode = false
+    var exceptCover = false
+    var contentDividerHeight: Double = 0
+    var maximumScaleFactor: Double = 3
+    var doubleTapScaleFactor: Double = 2
 
     // Laboratory
-    @BindableState var bypassesSNIFiltering = false {
-        didSet {
-            if bypassesSNIFiltering {
-                URLProtocol.registerClass(DFURLProtocol.self)
-            } else {
-                URLProtocol.unregisterClass(DFURLProtocol.self)
-            }
-            AppUtil.configureKingfisher(bypassesSNIFiltering: bypassesSNIFiltering)
-        }
-    }
+    var bypassesSNIFiltering = false
 }
 
 enum GalleryHost: String, Codable, CaseIterable, Identifiable {

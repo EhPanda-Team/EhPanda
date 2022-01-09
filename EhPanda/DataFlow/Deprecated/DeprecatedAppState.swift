@@ -48,10 +48,10 @@ extension DeprecatedAppState {
         var moreWatchedLoading = false
         var moreWatchedLoadFailed = false
 
-        @AppEnvStorage(type: [String].self, key: "historyKeywords")
-        var historyKeywords: [String]
-        @AppEnvStorage(type: [QuickSearchWord].self, key: "quickSearchWords")
-        var quickSearchWords: [QuickSearchWord]
+//        @AppEnvStorage(type: [String].self, key: "historyKeywords")
+        var historyKeywords = [String]()
+//        @AppEnvStorage(type: [QuickSearchWord].self, key: "quickSearchWords")
+        var quickSearchWords = [QuickSearchWord]()
 
         func insertGalleries(stored: inout [Gallery], new: [Gallery]) {
             new.forEach { gallery in
