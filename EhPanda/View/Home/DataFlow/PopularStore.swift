@@ -23,6 +23,7 @@ struct PopularState: Equatable {
 
 enum PopularAction: BindableAction {
     case binding(BindingAction<PopularState>)
+    case onFiltersButtonTapped
     case fetchGalleries
     case fetchGalleriesDone(Result<[Gallery], AppError>)
 }
@@ -34,6 +35,9 @@ struct PopularEnvironment {
 let popularReducer = Reducer<PopularState, PopularAction, PopularEnvironment> { state, action, environment in
     switch action {
     case .binding:
+        return .none
+
+    case .onFiltersButtonTapped:
         return .none
 
     case .fetchGalleries:

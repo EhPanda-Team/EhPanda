@@ -62,7 +62,7 @@ struct AccountSettingView: View {
             titleVisibility: .visible
         ) {
             Button("Logout", role: .destructive) {
-                viewStore.send(.logoutConfirmButtonTapped)
+                viewStore.send(.onLogoutConfirmButtonTapped)
             }
         }
         .sheet(isPresented: viewStore.binding(\.$webViewSheetPresented)) {

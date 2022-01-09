@@ -37,6 +37,7 @@ struct FrontpageState: Equatable {
 enum FrontpageAction: BindableAction {
     case binding(BindingAction<FrontpageState>)
     case onDisappear
+    case onFiltersButtonTapped
     case performJumpPage
     case presentJumpPageAlert
     case setJumpPageAlertFocused(Bool)
@@ -65,6 +66,9 @@ let frontpageReducer = Reducer<FrontpageState, FrontpageAction, FrontpageEnviron
     case .onDisappear:
         state.jumpPageAlertPresented = false
         state.jumpPageAlertFocused = false
+        return .none
+
+    case .onFiltersButtonTapped:
         return .none
 
     case .performJumpPage:

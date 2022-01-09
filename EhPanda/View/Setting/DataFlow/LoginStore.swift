@@ -27,7 +27,7 @@ struct LoginState: Equatable {
 enum LoginAction: BindableAction {
     case binding(BindingAction<LoginState>)
     case setWebViewSheetPresented(Bool)
-    case textFieldSubmitted
+    case onTextFieldSubmitted
     case login
     case loginDone
 }
@@ -46,7 +46,7 @@ let loginReducer = Reducer<LoginState, LoginAction, LoginEnvironment> { state, a
         state.webViewSheetPresented = isPresented
         return environment.hapticClient.generateFeedback(.light).fireAndForget()
 
-    case .textFieldSubmitted:
+    case .onTextFieldSubmitted:
         switch state.focusedField {
         case .username:
             state.focusedField = .password

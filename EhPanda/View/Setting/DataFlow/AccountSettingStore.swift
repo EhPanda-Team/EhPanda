@@ -29,7 +29,7 @@ enum AccountSettingAction: BindableAction {
     case refreshCookiesSection
 
     case login(LoginAction)
-    case logoutConfirmButtonTapped
+    case onLogoutConfirmButtonTapped
     case ehSetting(EhSettingAction)
 }
 
@@ -77,7 +77,7 @@ let accountSettingReducer = Reducer<AccountSettingState, AccountSettingAction, A
         case .login:
             return .none
 
-        case .logoutConfirmButtonTapped:
+        case .onLogoutConfirmButtonTapped:
             return .init(value: .refreshCookiesSection)
 
         case .ehSetting:

@@ -62,6 +62,20 @@ struct TabBarView: View {
             switch state {
             case .newDawn(let greeting):
                 NewDawnView(greeting: greeting)
+            case .filters:
+                FiltersView(
+                    store: store.scope(
+                        state: \.appSheetState.filtersState, action: { AppAction.appSheet(.filters($0)) }
+                    ),
+                    searchFilter: viewStore.binding(\.settingState.$searchFilter),
+                    globalFilter: viewStore.binding(\.settingState.$globalFilter),
+                    watchedFilter: viewStore.binding(\.settingState.$watchedFilter)
+                )
+                .tint(viewStore.settingState.setting.accentColor)
+                .accentColor(viewStore.settingState.setting.accentColor)
+                .blur(radius: viewStore.appLockState.blurRadius)
+                .allowsHitTesting(viewStore.appLockState.blurRadius < 1)
+                .animation(.linear(duration: 0.1), value: viewStore.appLockState.blurRadius)
             }
         }
         .onChange(of: scenePhase) { newValue in

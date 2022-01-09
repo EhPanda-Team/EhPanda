@@ -41,7 +41,16 @@ struct PopularView: View {
                 viewStore.send(.fetchGalleries)
             }
         }
+        .toolbar(content: toolbar)
         .navigationTitle("Popular")
+    }
+
+    private func toolbar() -> some ToolbarContent {
+        CustomToolbarItem {
+            FiltersButton(hideText: true) {
+                viewStore.send(.onFiltersButtonTapped)
+            }
+        }
     }
 }
 

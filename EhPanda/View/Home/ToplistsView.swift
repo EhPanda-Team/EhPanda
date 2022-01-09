@@ -50,6 +50,7 @@ struct ToplistsView: View {
             jumpAction: { viewStore.send(.performJumpPage) }
         )
         .animation(.default, value: viewStore.jumpPageAlertPresented)
+        .navigationBarBackButtonHidden(viewStore.jumpPageAlertPresented)
         .searchable(text: viewStore.binding(\.$keyword), prompt: "Filter")
         .onAppear {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
@@ -64,7 +65,7 @@ struct ToplistsView: View {
     }
 
     private func toolbar() -> some ToolbarContent {
-        CustomToolbarItem {
+        CustomToolbarItem(disabled: viewStore.jumpPageAlertPresented) {
             ToplistsTypeMenu(type: viewStore.type) { type in
                 if type != viewStore.type {
                     viewStore.send(.setToplistsType(type))

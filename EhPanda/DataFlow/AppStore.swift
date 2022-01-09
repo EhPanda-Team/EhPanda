@@ -46,6 +46,15 @@ struct AppEnvironment {
 
 let appReducerCore = Reducer<AppState, AppAction, AppEnvironment> { state, action, _ in
     switch action {
+    case .binding(\.settingState.$searchFilter):
+        return .init(value: .setting(.syncSearchFilter))
+
+    case .binding(\.settingState.$globalFilter):
+        return .init(value: .setting(.syncGlobalFilter))
+
+    case .binding(\.settingState.$watchedFilter):
+        return .init(value: .setting(.syncWatchedFilter))
+
     case .binding:
         return .none
 
@@ -62,6 +71,9 @@ let appReducerCore = Reducer<AppState, AppAction, AppEnvironment> { state, actio
             break
         }
         return .none
+
+    case .appSheet(.filters(.onResetFilterConfirmed)):
+        return .init(value: .setting(.resetFilter(state.appSheetState.filtersState.filterRange)))
 
     case .appSheet:
         return .none
@@ -86,6 +98,12 @@ let appReducerCore = Reducer<AppState, AppAction, AppEnvironment> { state, actio
 
     case .home(.fetchPopularGalleries), .home(.fetchFrontpageGalleries):
         state.homeState.filter = state.settingState.globalFilter
+        return .none
+
+    case .home(.frontpage(.onFiltersButtonTapped)),
+            .home(.popular(.onFiltersButtonTapped)),
+            .home(.watched(.onFiltersButtonTapped)):
+        state.appSheetState.sheetState = .filters
         return .none
 
     case .home:

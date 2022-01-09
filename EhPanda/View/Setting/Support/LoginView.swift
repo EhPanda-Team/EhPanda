@@ -63,7 +63,7 @@ struct LoginView: View {
             .blur(radius: blurRadius).allowsHitTesting(blurRadius < 1)
             .animation(.linear(duration: 0.1), value: blurRadius)
         }
-        .onSubmit { viewStore.send(.textFieldSubmitted) }
+        .onSubmit { viewStore.send(.onTextFieldSubmitted) }
         .toolbar(content: toolbar)
         .navigationTitle("Login")
         .ignoresSafeArea()

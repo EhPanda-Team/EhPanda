@@ -56,6 +56,12 @@ enum SettingAction: BindableAction {
 
     case syncAppIconType
     case syncUserInterfaceStyle
+    case syncSetting
+    case syncSearchFilter
+    case syncGlobalFilter
+    case syncWatchedFilter
+    case syncTagTranslator
+    case syncUser
 
     case loadUserSettings
     case loadUserSettingsDone
@@ -73,6 +79,7 @@ enum SettingAction: BindableAction {
     case fetchFavoriteNamesDone(Result<[Int: String], AppError>)
 
     case setNavigation(SettingRoute?)
+    case resetFilter(FilterRange)
 
     case account(AccountSettingAction)
     case general(GeneralSettingAction)
@@ -99,17 +106,17 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
         switch action {
         case .binding(\.$setting.galleryHost):
             return .merge(
+                .init(value: .syncSetting),
                 environment.userDefaultsClient.setString(
                     state.setting.galleryHost.rawValue,
                     AppUserDefaults.galleryHost.rawValue
                 )
-                .fireAndForget(),
-                environment.databaseClient.updateSetting(state.setting).fireAndForget()
+                .fireAndForget()
             )
 
         case .binding(\.$setting.translatesTags):
             var effects: [Effect<SettingAction, Never>] = [
-                environment.databaseClient.updateSetting(state.setting).fireAndForget()
+                .init(value: .syncSetting)
             ]
             if state.setting.translatesTags {
                 effects.append(.init(value: .fetchTagTranslator))
@@ -118,20 +125,20 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
 
         case .binding(\.$setting.preferredColorScheme):
             return .merge(
-                .init(value: .syncUserInterfaceStyle),
-                environment.databaseClient.updateSetting(state.setting).fireAndForget()
+                .init(value: .syncSetting),
+                .init(value: .syncUserInterfaceStyle)
             )
 
         case .binding(\.$setting.appIconType):
             return .merge(
-                environment.databaseClient.updateSetting(state.setting).fireAndForget(),
+                .init(value: .syncSetting),
                 environment.uiApplicationClient.setAlternateIconName(state.setting.appIconType.iconName)
                     .map { _ in SettingAction.syncAppIconType }
             )
 
         case .binding(\.$setting.prefersLandscape):
             var effects: [Effect<SettingAction, Never>] = [
-                environment.databaseClient.updateSetting(state.setting).fireAndForget()
+                .init(value: .syncSetting)
             ]
             if !state.setting.prefersLandscape && !environment.deviceClient.isPad() {
                 effects.append(environment.appDelegateClient.setPortraitOrientationMask().fireAndForget())
@@ -142,29 +149,29 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
             if state.setting.doubleTapScaleFactor > state.setting.maximumScaleFactor {
                 state.setting.doubleTapScaleFactor = state.setting.maximumScaleFactor
             }
-            return environment.databaseClient.updateSetting(state.setting).fireAndForget()
+            return .init(value: .syncSetting)
 
         case .binding(\.$setting.doubleTapScaleFactor):
             if state.setting.maximumScaleFactor < state.setting.doubleTapScaleFactor {
                 state.setting.maximumScaleFactor = state.setting.doubleTapScaleFactor
             }
-            return environment.databaseClient.updateSetting(state.setting).fireAndForget()
+            return .init(value: .syncSetting)
 
         case .binding(\.$setting.bypassesSNIFiltering):
             return .merge(
+                .init(value: .syncSetting),
                 environment.hapticClient.generateFeedback(.soft).fireAndForget(),
-                environment.databaseClient.updateSetting(state.setting).fireAndForget(),
                 environment.dfClient.setActive(state.setting.bypassesSNIFiltering).fireAndForget()
             )
 
         case .binding(\.$searchFilter):
-            return environment.databaseClient.updateSearchFilter(state.searchFilter).fireAndForget()
+            return .init(value: .syncSearchFilter)
 
         case .binding(\.$globalFilter):
-            return environment.databaseClient.updateGlobalFilter(state.globalFilter).fireAndForget()
+            return .init(value: .syncGlobalFilter)
 
         case .binding(\.$watchedFilter):
-            return environment.databaseClient.updateWatchedFilter(state.watchedFilter).fireAndForget()
+            return .init(value: .syncWatchedFilter)
 
         case .binding:
             return .none
@@ -181,6 +188,19 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
             let style = state.setting.preferredColorScheme.userInterfaceStyle
             return environment.uiApplicationClient.setUserInterfaceStyle(style)
                 .subscribe(on: DispatchQueue.main).fireAndForget()
+
+        case .syncSetting:
+            return environment.databaseClient.updateSetting(state.setting).fireAndForget()
+        case .syncSearchFilter:
+            return environment.databaseClient.updateSearchFilter(state.searchFilter).fireAndForget()
+        case .syncGlobalFilter:
+            return environment.databaseClient.updateGlobalFilter(state.globalFilter).fireAndForget()
+        case .syncWatchedFilter:
+            return environment.databaseClient.updateWatchedFilter(state.watchedFilter).fireAndForget()
+        case .syncTagTranslator:
+            return environment.databaseClient.updateTagTranslator(state.tagTranslator).fireAndForget()
+        case .syncUser:
+            return environment.databaseClient.updateUser(state.user).fireAndForget()
 
         case .loadUserSettings:
             let appEnv = environment.databaseClient.fetchAppEnv()
@@ -237,7 +257,7 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
         case .fetchUserInfoDone(let result):
             if case .success(let user) = result {
                 state.updateUser(user)
-                return environment.databaseClient.updateUser(user).fireAndForget()
+                return .init(value: .syncUser)
             }
             return .none
 
@@ -275,13 +295,13 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
             switch result {
             case .success(let greeting):
                 state.setGreeting(greeting)
-                return environment.databaseClient.updateUser(state.user).fireAndForget()
+                return .init(value: .syncUser)
             case .failure(let error):
                 if case .parseFailed = error {
                     var greeting = Greeting()
                     greeting.updateTime = Date()
                     state.setGreeting(greeting)
-                    return environment.databaseClient.updateUser(state.user).fireAndForget()
+                    return .init(value: .syncUser)
                 }
             }
             return .none
@@ -294,14 +314,14 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
                   }).first
             else {
                 state.tagTranslator = TagTranslator()
-                return environment.databaseClient.updateTagTranslator(TagTranslator()).fireAndForget()
+                return .init(value: .syncTagTranslator)
             }
             state.tagTranslatorLoadingState = .loading
 
             var databaseEffect: Effect<SettingAction, Never>?
             if state.tagTranslator.language != language {
                 state.tagTranslator = TagTranslator()
-                databaseEffect = environment.databaseClient.updateTagTranslator(TagTranslator()).fireAndForget()
+                databaseEffect = .init(value: .syncTagTranslator)
             }
             let updatedDate = state.tagTranslator.updatedDate
             let requestEffect = TagTranslatorRequest(language: language, updatedDate: updatedDate)
@@ -317,7 +337,7 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
             switch result {
             case .success(let tagTranslator):
                 state.tagTranslator = tagTranslator
-                return environment.databaseClient.updateTagTranslator(tagTranslator).fireAndForget()
+                return .init(value: .syncTagTranslator)
             case .failure(let error):
                 state.tagTranslatorLoadingState = .failed(error)
             }
@@ -366,6 +386,19 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
             state.route = route
             return .none
 
+        case .resetFilter(let range):
+            switch range {
+            case .search:
+                state.searchFilter = Filter()
+                return .init(value: .syncSearchFilter)
+            case .global:
+                state.globalFilter = Filter()
+                return .init(value: .syncGlobalFilter)
+            case .watched:
+                state.watchedFilter = Filter()
+                return .init(value: .syncWatchedFilter)
+            }
+
         case .account(.login(.loginDone)):
             var effects: [Effect<SettingAction, Never>] = [
                 environment.cookiesClient.removeYay().fireAndForget(),
@@ -383,12 +416,12 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
 
             return effects.isEmpty ? .none : .merge(effects)
 
-        case .account(.logoutConfirmButtonTapped):
+        case .account(.onLogoutConfirmButtonTapped):
             state.user = User()
             return .merge(
+                .init(value: .syncUser),
                 environment.cookiesClient.clearAll().fireAndForget(),
                 environment.databaseClient.removeImageURLs().fireAndForget(),
-                environment.databaseClient.updateUser(User()).fireAndForget(),
                 environment.libraryClient.clearWebImageDiskCache().fireAndForget()
             )
 

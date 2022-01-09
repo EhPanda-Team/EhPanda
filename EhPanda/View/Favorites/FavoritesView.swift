@@ -71,7 +71,7 @@ struct FavoritesView: View {
     }
 
     private func toolbar() -> some ToolbarContent {
-        CustomToolbarItem {
+        CustomToolbarItem(tint: .primary, disabled: viewStore.jumpPageAlertPresented) {
             FavoritesIndexMenu(user: user, index: viewStore.index) { index in
                 if index != viewStore.index {
                     viewStore.send(.setFavoritesIndex(index))

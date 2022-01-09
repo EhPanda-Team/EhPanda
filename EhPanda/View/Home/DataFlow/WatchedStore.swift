@@ -33,6 +33,7 @@ struct WatchedState: Equatable {
 enum WatchedAction: BindableAction {
     case binding(BindingAction<WatchedState>)
     case onDisappear
+    case onFiltersButtonTapped
     case performJumpPage
     case presentJumpPageAlert
     case setJumpPageAlertFocused(Bool)
@@ -61,6 +62,9 @@ let watchedReducer = Reducer<WatchedState, WatchedAction, WatchedEnvironment> { 
     case .onDisappear:
         state.jumpPageAlertPresented = false
         state.jumpPageAlertFocused = false
+        return .none
+
+    case .onFiltersButtonTapped:
         return .none
 
     case .performJumpPage:

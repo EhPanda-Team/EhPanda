@@ -46,6 +46,7 @@ struct FrontpageView: View {
             jumpAction: { viewStore.send(.performJumpPage) }
         )
         .animation(.default, value: viewStore.jumpPageAlertPresented)
+        .navigationBarBackButtonHidden(viewStore.jumpPageAlertPresented)
         .searchable(text: viewStore.binding(\.$keyword), prompt: "Filter")
         .onAppear {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
@@ -60,11 +61,16 @@ struct FrontpageView: View {
     }
 
     private func toolbar() -> some ToolbarContent {
-        CustomToolbarItem {
-            JumpPageButton(pageNumber: viewStore.pageNumber, hideText: true) {
-                viewStore.send(.presentJumpPageAlert)
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                    viewStore.send(.setJumpPageAlertFocused(true))
+        CustomToolbarItem(disabled: viewStore.jumpPageAlertPresented) {
+            ToolbarFeaturesMenu {
+                FiltersButton {
+                    viewStore.send(.onFiltersButtonTapped)
+                }
+                JumpPageButton(pageNumber: viewStore.pageNumber) {
+                    viewStore.send(.presentJumpPageAlert)
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                        viewStore.send(.setJumpPageAlertFocused(true))
+                    }
                 }
             }
         }

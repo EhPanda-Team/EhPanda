@@ -1,38 +1,66 @@
 //
-//  FilterView.swift
+//  FiltersView.swift
 //  EhPanda
 //
 //  Created by 荒木辰造 on R 3/01/08.
 //
 
 import SwiftUI
+import ComposableArchitecture
 
-struct FilterView: View {
-//    @EnvironmentObject var store: DeprecatedStore
-    @State private var resetDialogPresented = false
-    @State private var filterRange: FilterRange = .search
+struct FiltersView: View {
+    private let store: Store<FiltersState, FiltersAction>
+    @ObservedObject private var viewStore: ViewStore<FiltersState, FiltersAction>
+    @Binding private var searchFilter: Filter
+    @Binding private var globalFilter: Filter
+    @Binding private var watchedFilter: Filter
 
-//    private var filterBinding: Binding<Filter> {
-//        filterRange == .search
-//            ? $store.appState.settings.searchFilter
-//            : $store.appState.settings.globalFilter
-//    }
+    @FocusState private var focusBound: FocusBound?
+
+    init(
+        store: Store<FiltersState, FiltersAction>,
+        searchFilter: Binding<Filter>,
+        globalFilter: Binding<Filter>,
+        watchedFilter: Binding<Filter>
+    ) {
+        self.store = store
+        viewStore = ViewStore(store)
+        _searchFilter = searchFilter
+        _globalFilter = globalFilter
+        _watchedFilter = watchedFilter
+    }
+
+    private var filter: Binding<Filter> {
+        switch viewStore.filterRange {
+        case .search:
+            return $searchFilter
+        case .global:
+            return $globalFilter
+        case .watched:
+            return $watchedFilter
+        }
+    }
 
     // MARK: FilterView
     var body: some View {
         NavigationView {
             Form {
-//                BasicSection(
-//                    filter: filterBinding, filterRange: $filterRange,
-//                    resetDialogPresented: $resetDialogPresented
-//                )
-//                AdvancedSection(filter: filterBinding)
+                BasicSection(
+                    filter: filter, filterRange: viewStore.binding(\.$filterRange),
+                    resetDialogPresented: viewStore.binding(\.$resetDialogPresented)
+                )
+                AdvancedSection(
+                    filter: filter, focusBound: $focusBound,
+                    submitAction: { viewStore.send(.onTextFieldSubmitted) }
+                )
             }
+            .synchronize(viewStore.binding(\.$focusBound), $focusBound)
             .confirmationDialog(
-                "Are you sure to reset?", isPresented: $resetDialogPresented, titleVisibility: .visible
+                "Are you sure to reset?", isPresented: viewStore.binding(\.$resetDialogPresented),
+                titleVisibility: .visible
             ) {
                 Button("Reset", role: .destructive) {
-//                    store.dispatch(.resetFilter(range: filterRange))
+                    viewStore.send(.onResetFilterConfirmed)
                 }
             }
             .navigationBarTitle("Filters")
@@ -78,9 +106,17 @@ private struct BasicSection: View {
 // MARK: AdvancedSection
 private struct AdvancedSection: View {
     @Binding private var filter: Filter
+    private let focusBound: FocusState<FocusBound?>.Binding
+    private let submitAction: () -> Void
 
-    init(filter: Binding<Filter>) {
+    init(
+        filter: Binding<Filter>,
+        focusBound: FocusState<FocusBound?>.Binding,
+        submitAction: @escaping () -> Void
+    ) {
         _filter = filter
+        self.focusBound = focusBound
+        self.submitAction = submitAction
     }
 
     var body: some View {
@@ -100,9 +136,12 @@ private struct AdvancedSection: View {
                 MinimumRatingSetter(minimum: $filter.minRating)
                     .disabled(!filter.minRatingActivated)
                 Toggle("Set pages range", isOn: $filter.pageRangeActivated)
+                    .disabled(focusBound.wrappedValue != nil)
                 PagesRangeSetter(
                     lowerBound: $filter.pageLowerBound,
-                    upperBound: $filter.pageUpperBound
+                    upperBound: $filter.pageUpperBound,
+                    focusBound: focusBound,
+                    submitAction: submitAction
                 )
                 .disabled(!filter.pageRangeActivated)
             }
@@ -140,18 +179,21 @@ private struct MinimumRatingSetter: View {
 
 // MARK: PagesRangeSetter
 private struct PagesRangeSetter: View {
-    @FocusState private var focusBound: FocusBound?
     @Binding private var lowerBound: String
     @Binding private var upperBound: String
+    private let focusBound: FocusState<FocusBound?>.Binding
+    private let submitAction: () -> Void
 
-    enum FocusBound {
-        case lower
-        case upper
-    }
-
-    init(lowerBound: Binding<String>, upperBound: Binding<String>) {
+    init(
+        lowerBound: Binding<String>,
+        upperBound: Binding<String>,
+        focusBound: FocusState<FocusBound?>.Binding,
+        submitAction: @escaping () -> Void
+    ) {
         _lowerBound = lowerBound
         _upperBound = upperBound
+        self.focusBound = focusBound
+        self.submitAction = submitAction
     }
 
     var body: some View {
@@ -159,23 +201,14 @@ private struct PagesRangeSetter: View {
             Text("Pages range")
             Spacer()
             SettingTextField(text: $lowerBound)
-                .focused($focusBound, equals: .lower)
+                .focused(focusBound, equals: .lower)
                 .submitLabel(.next)
             Text("-")
             SettingTextField(text: $upperBound)
-                .focused($focusBound, equals: .upper)
+                .focused(focusBound, equals: .upper)
                 .submitLabel(.done)
         }
-        .onSubmit {
-            switch focusBound {
-            case .lower:
-                focusBound = .upper
-            case .upper:
-                focusBound = nil
-            default:
-                break
-            }
-        }
+        .onSubmit(submitAction)
     }
 }
 
@@ -192,4 +225,25 @@ enum FilterRange: String, CaseIterable, Identifiable {
 
     case search = "Search"
     case global = "Global"
+    case watched = "Watched"
+}
+
+enum FocusBound {
+    case lower
+    case upper
+}
+
+struct FiltersView_Previews: PreviewProvider {
+    static var previews: some View {
+        FiltersView(
+            store: .init(
+                initialState: .init(),
+                reducer: filtersReducer,
+                environment: FiltersEnvironment()
+            ),
+            searchFilter: .constant(.init()),
+            globalFilter: .constant(.init()),
+            watchedFilter: .constant(.init())
+        )
+    }
 }

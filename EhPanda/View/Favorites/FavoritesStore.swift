@@ -48,6 +48,7 @@ struct FavoritesState: Equatable {
 // MARK: Action
 enum FavoritesAction: BindableAction {
     case binding(BindingAction<FavoritesState>)
+    case onDisappear
     case performJumpPage
     case presentJumpPageAlert
     case setJumpPageAlertFocused(Bool)
@@ -74,6 +75,11 @@ let favoritesReducer = Reducer<FavoritesState, FavoritesAction, FavoritesEnviron
         return .none
 
     case .binding:
+        return .none
+
+    case .onDisappear:
+        state.jumpPageAlertPresented = false
+        state.jumpPageAlertFocused = false
         return .none
 
     case .performJumpPage:

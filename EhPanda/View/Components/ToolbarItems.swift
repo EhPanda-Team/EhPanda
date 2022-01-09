@@ -9,10 +9,17 @@ import SwiftUI
 
 struct CustomToolbarItem<Content: View>: ToolbarContent {
     private let placement: ToolbarItemPlacement
+    private let tint: Color?
+    private let disabled: Bool
     private let content: Content
 
-    init(placement: ToolbarItemPlacement = .navigationBarTrailing, @ViewBuilder content: () -> Content) {
+    init(placement: ToolbarItemPlacement = .navigationBarTrailing,
+         tint: Color? = nil, disabled: Bool = false,
+         @ViewBuilder content: () -> Content
+    ) {
         self.placement = placement
+        self.tint = tint
+        self.disabled = disabled
         self.content = content()
     }
 
@@ -21,7 +28,7 @@ struct CustomToolbarItem<Content: View>: ToolbarContent {
             HStack {
                 content
             }
-            .foregroundColor(.primary)
+            .foregroundColor(tint).disabled(disabled)
         }
     }
 }
@@ -29,7 +36,7 @@ struct CustomToolbarItem<Content: View>: ToolbarContent {
 struct ToolbarFeaturesMenu<Content: View>: View {
     private let content: Content
 
-    init(content: () -> Content) {
+    init(@ViewBuilder content: () -> Content) {
         self.content = content()
     }
 
@@ -39,6 +46,25 @@ struct ToolbarFeaturesMenu<Content: View>: View {
         } label: {
             Image(systemSymbol: .ellipsisCircle)
                 .symbolRenderingMode(.hierarchical)
+        }
+    }
+}
+
+struct FiltersButton: View {
+    private let hideText: Bool
+    private let action: () -> Void
+
+    init(hideText: Bool = false, action: @escaping () -> Void) {
+        self.hideText = hideText
+        self.action = action
+    }
+
+    var body: some View {
+        Button(action: action) {
+            Image(systemSymbol: .line3HorizontalDecrease)
+            if !hideText {
+                Text("Filters")
+            }
         }
     }
 }
