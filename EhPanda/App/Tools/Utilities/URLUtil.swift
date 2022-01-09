@@ -66,7 +66,7 @@ extension URLUtil {
         if let pageNum = pageNum {
             queryItems[.page] = String(pageNum)
         }
-        return Defaults.URL.host.appending(queryItems: queryItems)
+        return Defaults.URL.host.appending(queryItems: queryItems).applyingFilter(filter)
     }
     static func moreSearchList(keyword: String, filter: Filter, pageNum: Int, lastID: String) -> URL {
         Defaults.URL.host.appending(queryItems: [

@@ -38,9 +38,11 @@ struct TabBarView: View {
                                 tagTranslator: viewStore.settingState.tagTranslator
                             )
                         case .search:
-                            NavigationView {
-                                Text(type.rawValue.localized).navigationTitle(type.rawValue.localized)
-                            }
+                            SearchView(
+                                store: store.scope(state: \.searchState, action: AppAction.search),
+                                setting: viewStore.settingState.setting,
+                                tagTranslator: viewStore.settingState.tagTranslator
+                            )
                         case .setting:
                             SettingView(
                                 store: store.scope(state: \.settingState, action: AppAction.setting),

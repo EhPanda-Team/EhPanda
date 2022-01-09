@@ -389,12 +389,12 @@ private struct ToplistsSection: View {
         VStack(alignment: .leading) {
             Text(type.description.localized).font(.subheadline.bold())
             HStack {
-                VerticalToplistStack(
+                VerticalToplistsStack(
                     galleries: galleries(type: type, range: 0...2), startRanking: 1,
                     navigateAction: navigateAction
                 )
                 if DeviceUtil.isPad {
-                    VerticalToplistStack(
+                    VerticalToplistsStack(
                         galleries: galleries(type: type, range: 3...5), startRanking: 4,
                         navigateAction: navigateAction
                     )
@@ -405,7 +405,7 @@ private struct ToplistsSection: View {
     }
 }
 
-private struct VerticalToplistStack: View {
+private struct VerticalToplistsStack: View {
     private let galleries: [Gallery]
     private let startRanking: Int
     private let navigateAction: (String) -> Void

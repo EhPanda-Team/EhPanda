@@ -44,6 +44,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     ) -> Bool {
         viewStore.send(.appDelegate(.onLaunchFinish))
         viewStore.send(.setting(.loadUserSettings))
+        viewStore.send(.search(.loadUserSettings))
         return true
     }
 }

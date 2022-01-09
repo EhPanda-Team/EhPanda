@@ -14,7 +14,7 @@ struct DatabaseClient {
     let updateAppEnv: (String, Data?) -> Void
     let removeImageURLs: () -> Effect<Never, Never>
     let cacheGalleries: ([Gallery]) -> Effect<Never, Never>
-    let fetchHistoryGalleries: () -> Effect<[Gallery], Never>
+    let fetchHistoryGalleries: (Int?) -> Effect<[Gallery], Never>
     let clearHistoryGalleries: () -> Effect<Never, Never>
 }
 
@@ -38,10 +38,10 @@ extension DatabaseClient {
                 PersistenceController.add(galleries: galleries)
             }
         },
-        fetchHistoryGalleries: {
+        fetchHistoryGalleries: { fetchLimit in
             Future { promise in
                 DispatchQueue.global().async {
-                    promise(.success(PersistenceController.fetchGalleryHistory()))
+                    promise(.success(PersistenceController.fetchGalleryHistory(fetchLimit: fetchLimit ?? 0)))
                 }
             }
             .eraseToAnyPublisher()
@@ -83,6 +83,11 @@ extension DatabaseClient {
     func updateUser(_ user: User) -> Effect<Never, Never> {
         .fireAndForget {
             updateAppEnv("user", user.toData())
+        }
+    }
+    func updateHistoryKeywords(_ keywords: [String]) -> Effect<Never, Never> {
+        .fireAndForget {
+            updateAppEnv("historyKeywords", keywords.toData())
         }
     }
 }

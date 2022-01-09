@@ -14,6 +14,7 @@ struct AppState: Equatable {
     var tabBarState = TabBarState()
     var homeState = HomeState()
     var favoritesState = FavoritesState()
+    var searchState = SearchState()
     var settingState = SettingState()
 }
 
@@ -25,6 +26,7 @@ enum AppAction: BindableAction {
     case appDelegate(AppDelegateAction)
     case home(HomeAction)
     case favorites(FavoritesAction)
+    case search(SearchAction)
     case setting(SettingAction)
 }
 
@@ -102,7 +104,8 @@ let appReducerCore = Reducer<AppState, AppAction, AppEnvironment> { state, actio
 
     case .home(.frontpage(.onFiltersButtonTapped)),
             .home(.popular(.onFiltersButtonTapped)),
-            .home(.watched(.onFiltersButtonTapped)):
+            .home(.watched(.onFiltersButtonTapped)),
+            .search(.onFiltersButtonTapped):
         state.appSheetState.sheetState = .filters
         return .none
 
@@ -110,6 +113,13 @@ let appReducerCore = Reducer<AppState, AppAction, AppEnvironment> { state, actio
         return .none
 
     case .favorites:
+        return .none
+
+    case .search(.fetchGalleries):
+        state.searchState.filter = state.settingState.searchFilter
+        return .none
+
+    case .search:
         return .none
 
     case .setting(.fetchGreetingDone(let result)):
@@ -164,6 +174,16 @@ let appReducer = Reducer<AppState, AppAction, AppEnvironment>.combine(
     favoritesReducer.pullback(
         state: \.favoritesState,
         action: /AppAction.favorites,
+        environment: {
+            .init(
+                hapticClient: $0.hapticClient,
+                databaseClient: $0.databaseClient
+            )
+        }
+    ),
+    searchReducer.pullback(
+        state: \.searchState,
+        action: /AppAction.search,
         environment: {
             .init(
                 hapticClient: $0.hapticClient,

@@ -57,13 +57,13 @@ extension PersistenceController {
         }
         return entity.forceUnwrapped
     }
-    static func fetchGalleryHistory() -> [Gallery] {
+    static func fetchGalleryHistory(fetchLimit: Int = 0) -> [Gallery] {
         let predicate = NSPredicate(format: "lastOpenDate != nil")
         let sortDescriptor = NSSortDescriptor(
             keyPath: \GalleryMO.lastOpenDate, ascending: false
         )
         return batchFetch(
-            entityType: GalleryMO.self, predicate: predicate,
+            entityType: GalleryMO.self, fetchLimit: fetchLimit, predicate: predicate,
             findBeforeFetch: false, sortDescriptors: [sortDescriptor]
         ).map({ $0.toEntity() })
     }

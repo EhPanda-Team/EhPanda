@@ -187,7 +187,7 @@ struct TagTranslatorRequest: Request {
 }
 
 // MARK: Fetch ListItems
-struct SearchItemsRequest: Request {
+struct SearchGalleriesRequest: Request {
     let keyword: String
     let filter: Filter
     var pageNum: Int?
@@ -202,7 +202,7 @@ struct SearchItemsRequest: Request {
     }
 }
 
-struct MoreSearchItemsRequest: Request {
+struct MoreSearchGalleriesRequest: Request {
     let keyword: String
     let filter: Filter
     let lastID: String

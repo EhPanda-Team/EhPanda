@@ -42,7 +42,7 @@ let historyReducer = Reducer<HistoryState, HistoryAction, HistoryEnvironment> { 
     case .fetchGalleries:
         guard state.loadingState != .loading else { return .none }
         state.loadingState = .loading
-        return environment.databaseClient.fetchHistoryGalleries().map(HistoryAction.fetchGalleriesDone)
+        return environment.databaseClient.fetchHistoryGalleries(nil).map(HistoryAction.fetchGalleriesDone)
 
     case .fetchGalleriesDone(let galleries):
         state.loadingState = .idle
