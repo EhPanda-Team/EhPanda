@@ -24,6 +24,10 @@ struct SearchView: View {
         self.tagTranslator = tagTranslator
     }
 
+    private var searchFieldPlacement: SearchFieldPlacement {
+        DeviceUtil.isPad ? .automatic : .navigationBarDrawer(displayMode: .always)
+    }
+
     var body: some View {
         NavigationView {
             ScrollView(showsIndicators: false) {
@@ -40,7 +44,7 @@ struct SearchView: View {
                     )
                 }
             }
-            .searchable(text: viewStore.binding(\.$keyword))
+            .searchable(text: viewStore.binding(\.$keyword), placement: searchFieldPlacement)
             .onSubmit(of: .search) {
                 viewStore.send(.setNavigation(.request))
             }
@@ -52,7 +56,16 @@ struct SearchView: View {
                 }
             }
             .background(navigationLinks)
+            .toolbar(content: toolbar)
             .navigationTitle("Search")
+        }
+    }
+
+    private func toolbar() -> some ToolbarContent {
+        CustomToolbarItem(tint: .primary) {
+            FiltersButton(hideText: true) {
+                viewStore.send(.onFiltersButtonTapped)
+            }
         }
     }
 

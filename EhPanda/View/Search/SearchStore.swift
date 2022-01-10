@@ -74,6 +74,7 @@ enum SearchAction: BindableAction {
     case binding(BindingAction<SearchState>)
     case setNavigation(SearchViewRoute?)
     case clearSubStates
+    case onFiltersButtonTapped
     case setKeyword(String)
     case loadUserSettings
     case syncHistoryKeywords
@@ -124,6 +125,9 @@ let searchReducer = Reducer<SearchState, SearchAction, SearchEnvironment>.combin
 
         case .clearSubStates:
             state.searchReqeustState = .init()
+            return .none
+
+        case .onFiltersButtonTapped:
             return .none
 
         case .setKeyword(let keyword):

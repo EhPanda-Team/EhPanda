@@ -103,7 +103,8 @@ let appReducerCore = Reducer<AppState, AppAction, AppEnvironment> { state, actio
         return .none
 
     case .home(.frontpage(.onFiltersButtonTapped)), .home(.popular(.onFiltersButtonTapped)),
-            .home(.watched(.onFiltersButtonTapped)), .search(.searchRequest(.onFiltersButtonTapped)):
+            .home(.watched(.onFiltersButtonTapped)), .search(.onFiltersButtonTapped),
+            .search(.searchRequest(.onFiltersButtonTapped)):
         state.appSheetState.sheetState = .filters
         return .none
 
