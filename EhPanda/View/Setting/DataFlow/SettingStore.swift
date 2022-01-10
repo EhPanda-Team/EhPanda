@@ -64,7 +64,7 @@ enum SettingAction: BindableAction {
     case syncUser
 
     case loadUserSettings
-    case loadUserSettingsDone
+    case loadUserSettingsDone(AppEnv)
     case createDefaultEhProfile
     case fetchIgneous
     case fetchUserInfo
@@ -216,16 +216,16 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
             return environment.databaseClient.updateUser(state.user).fireAndForget()
 
         case .loadUserSettings:
-            let appEnv = environment.databaseClient.fetchAppEnv()
+            return environment.databaseClient.fetchAppEnv().map(SettingAction.loadUserSettingsDone)
+
+        case .loadUserSettingsDone(let appEnv):
             state.setting = appEnv.setting
             state.searchFilter = appEnv.searchFilter
             state.globalFilter = appEnv.globalFilter
             state.watchedFilter = appEnv.watchedFilter
             state.tagTranslator = appEnv.tagTranslator
             state.user = appEnv.user
-            return .init(value: .loadUserSettingsDone)
 
-        case .loadUserSettingsDone:
             var effects: [Effect<SettingAction, Never>] = [
                 .init(value: .syncAppIconType),
                 .init(value: .syncUserInterfaceStyle)
@@ -237,7 +237,7 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
             {
                 state.setting.galleryHost = galleryHost
             }
-            if environment.cookiesClient.shouldFetchIgneous() {
+            if environment.cookiesClient.shouldFetchIgneous {
                 effects.append(.init(value: .fetchIgneous))
             }
             if environment.cookiesClient.didLogin() {

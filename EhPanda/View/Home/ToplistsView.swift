@@ -37,7 +37,7 @@ struct ToplistsView: View {
             loadingState: viewStore.loadingState ?? .idle,
             footerLoadingState: viewStore.footerLoadingState ?? .idle,
             fetchAction: { viewStore.send(.fetchGalleries()) },
-            loadMoreAction: { viewStore.send(.fetchMoreGalleries) },
+            fetchMoreAction: { viewStore.send(.fetchMoreGalleries) },
             translateAction: { tagTranslator.tryTranslate(
                 text: $0, returnOriginal: setting.translatesTags
             ) }

@@ -189,7 +189,7 @@ private extension HomeView {
             }
         }
     }
-    func detailViewLink(gallery: Gallery) -> NavigationLink<Text, DetailView> {
+    func detailViewLink(gallery: Gallery) -> NavigationLink<Text, EmptyView> {
         NavigationLink(
             "", tag: gallery.id, selection: .init(
                 get: { (/HomeViewRoute.detail).extract(from: viewStore.route) },
@@ -202,7 +202,7 @@ private extension HomeView {
                 }
             )
         ) {
-            DetailView(gid: gallery.id)
+            EmptyView()
         }
     }
     func navigateTo(gid: String) {

@@ -155,13 +155,11 @@ extension PersistenceController {
         )
     }
 
-    static func updateLastOpenDate(gid: String) {
-        update(entityType: GalleryMO.self, gid: gid) { galleryMO in
-            galleryMO.lastOpenDate = Date()
-        }
+    static func updateGallery(gid: String, changes: @escaping (GalleryMO) -> Void) {
+        update(entityType: GalleryMO.self, gid: gid, createIfNil: true, commitChanges: changes)
     }
-    static func update(appEnvMO: (AppEnvMO) -> Void) {
-        update(entityType: AppEnvMO.self, createIfNil: true, commitChanges: appEnvMO)
+    static func updateAppEnv(changes: (AppEnvMO) -> Void) {
+        update(entityType: AppEnvMO.self, createIfNil: true, commitChanges: changes)
     }
 
     // MARK: GalleryState

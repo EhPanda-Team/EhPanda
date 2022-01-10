@@ -108,7 +108,17 @@ struct Gallery: Identifiable, Codable, Equatable, Hashable {
     var lastOpenDate: Date?
 }
 
-struct GalleryDetail: Codable {
+struct GalleryDetail: Codable, Equatable {
+    static let empty: Self = .init(
+        gid: "", title: "", isFavored: false,
+        visibility: .yes, rating: 0, userRating: 0,
+        ratingCount: 0, category: .private,
+        language: .japanese, uploader: "",
+        postedDate: .now, coverURL: "",
+        favoredCount: 0, pageCount: 0,
+        sizeCount: 0, sizeType: "",
+        torrentCount: 0
+    )
     static let preview = GalleryDetail(
         gid: "",
         title: "Preview",
@@ -190,7 +200,7 @@ struct GalleryArchive: Codable {
     let hathArchives: [HathArchive]
 }
 
-struct GalleryTag: Codable, Identifiable {
+struct GalleryTag: Codable, Equatable, Identifiable {
     var id: String { namespace }
 
     let namespace: String
@@ -204,7 +214,7 @@ struct GalleryTag: Codable, Identifiable {
     }
 }
 
-struct GalleryComment: Identifiable, Codable {
+struct GalleryComment: Identifiable, Equatable, Codable {
     var id: String { commentID }
 
     var votedUp: Bool
@@ -219,7 +229,7 @@ struct GalleryComment: Identifiable, Codable {
     let commentDate: Date
 }
 
-struct CommentContent: Identifiable, Codable {
+struct CommentContent: Identifiable, Equatable, Codable {
     var id: String {
         [
             "\(type.rawValue)",

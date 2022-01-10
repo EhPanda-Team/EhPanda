@@ -52,6 +52,7 @@
         <attribute name="contents" optional="YES" attributeType="Binary"/>
         <attribute name="gid" attributeType="String" defaultValueString=""/>
         <attribute name="originalContents" optional="YES" attributeType="Binary"/>
+        <attribute name="previewConfig" optional="YES" attributeType="Binary"/>
         <attribute name="previews" optional="YES" attributeType="Binary"/>
         <attribute name="readingProgress" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="tags" optional="YES" attributeType="Binary"/>
@@ -61,6 +62,6 @@
         <element name="AppEnvMO" positionX="-45" positionY="126" width="128" height="149"/>
         <element name="GalleryDetailMO" positionX="-54" positionY="9" width="128" height="329"/>
         <element name="GalleryMO" positionX="-63" positionY="-18" width="128" height="224"/>
-        <element name="GalleryStateMO" positionX="-36" positionY="18" width="128" height="149"/>
+        <element name="GalleryStateMO" positionX="-36" positionY="18" width="128" height="164"/>
     </elements>
 </model>

@@ -62,9 +62,12 @@ struct CommentView: View {
             }
             TTProgressHUD($hudVisible, config: hudConfig)
         }
-        .background {
-            NavigationLink("", destination: DetailView(gid: commentJumpID ?? gid), isActive: $isNavLinkActive)
-        }
+//        .background {
+//            NavigationLink(
+//                "", destination: DeprecatedDetailView(gid: commentJumpID ?? gid),
+//                isActive: $isNavLinkActive
+//            )
+//        }
 //        .toolbar(content: toolbar).sheet(item: $store.appState.environment.commentViewSheetState, content: sheet)
 //        .onChange(of: environment.galleryItemReverseLoading) { if !$0 { dismissHUD() } }
 //        .onChange(of: environment.galleryItemReverseID, perform: tryActivateNavLink)

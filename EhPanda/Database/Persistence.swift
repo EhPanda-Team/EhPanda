@@ -115,15 +115,17 @@ struct PersistenceController {
         entityType: MO.Type, predicate: NSPredicate? = nil,
         createIfNil: Bool = false, commitChanges: (MO) -> Void
     ) {
-        let storedMO: MO?
-        if createIfNil {
-            storedMO = fetchOrCreate(entityType: entityType, predicate: predicate)
-        } else {
-            storedMO = fetch(entityType: entityType, predicate: predicate)
-        }
-        if let storedMO = storedMO {
-            commitChanges(storedMO)
-            saveContext()
+        AppUtil.dispatchMainSync {
+            let storedMO: MO?
+            if createIfNil {
+                storedMO = fetchOrCreate(entityType: entityType, predicate: predicate)
+            } else {
+                storedMO = fetch(entityType: entityType, predicate: predicate)
+            }
+            if let storedMO = storedMO {
+                commitChanges(storedMO)
+                saveContext()
+            }
         }
     }
 

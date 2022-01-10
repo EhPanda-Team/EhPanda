@@ -41,7 +41,8 @@ struct FavoritesView: View {
                 loadingState: viewStore.loadingState ?? .idle,
                 footerLoadingState: viewStore.footerLoadingState ?? .idle,
                 fetchAction: { viewStore.send(.fetchGalleries()) },
-                loadMoreAction: { viewStore.send(.fetchMoreGalleries) },
+                fetchMoreAction: { viewStore.send(.fetchMoreGalleries) },
+                navigateAction: { viewStore.send(.setNavigation(.detail($0))) },
                 translateAction: { tagTranslator.tryTranslate(
                     text: $0, returnOriginal: setting.translatesTags
                 ) }
@@ -65,11 +66,39 @@ struct FavoritesView: View {
                     }
                 }
             }
-            .navigationTitle(navigationTitle)
+            .background(navigationLinks)
             .toolbar(content: toolbar)
+            .navigationTitle(navigationTitle)
         }
     }
 
+    private var navigationLinks: some View {
+        ForEach(viewStore.detailStates) { state in
+            NavigationLink(
+                "", tag: state.galleryID,
+                selection: .init(
+                    get: { (/FavoritesViewRoute.detail).extract(from: viewStore.route) },
+                    set: {
+                        var route: FavoritesViewRoute?
+                        if let gid = $0 {
+                            route = .detail(gid)
+                        }
+                        viewStore.send(.setNavigation(route))
+                    }
+                )
+            ) {
+                let currentGalleryID = (/FavoritesViewRoute.detail).extract(from: viewStore.route)
+                ForEachStore(
+                    store.scope(
+                        state: { $0.detailStates.filter({ $0.galleryID == currentGalleryID }) },
+                        action: FavoritesAction.detail
+                    )
+                ) {
+                    DetailView(store: $0, user: user, setting: setting, tagTranslator: tagTranslator)
+                }
+            }
+        }
+    }
     private func toolbar() -> some ToolbarContent {
         CustomToolbarItem(tint: .primary, disabled: viewStore.jumpPageAlertPresented) {
             FavoritesIndexMenu(user: user, index: viewStore.index) { index in
@@ -92,6 +121,11 @@ struct FavoritesView: View {
     }
 }
 
+// MARK: Definition
+enum FavoritesViewRoute: Equatable {
+    case detail(String)
+}
+
 struct FavoritesView_Previews: PreviewProvider {
     static var previews: some View {
         FavoritesView(
@@ -100,6 +134,7 @@ struct FavoritesView_Previews: PreviewProvider {
                 reducer: favoritesReducer,
                 environment: FavoritesEnvironment(
                     hapticClient: .live,
+                    cookiesClient: .live,
                     databaseClient: .live
                 )
             ),

@@ -33,7 +33,7 @@ struct FrontpageView: View {
             loadingState: viewStore.loadingState,
             footerLoadingState: viewStore.footerLoadingState,
             fetchAction: { viewStore.send(.fetchGalleries()) },
-            loadMoreAction: { viewStore.send(.fetchMoreGalleries) },
+            fetchMoreAction: { viewStore.send(.fetchMoreGalleries) },
             translateAction: {
                 tagTranslator.tryTranslate(text: $0, returnOriginal: !setting.translatesTags)
             }

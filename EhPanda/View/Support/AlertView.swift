@@ -13,7 +13,7 @@ struct LoadingView: View {
     }
 }
 
-struct LoadMoreFooter: View {
+struct FetchMoreFooter: View {
     private let loadingState: LoadingState
     private let retryAction: (() -> Void)?
 

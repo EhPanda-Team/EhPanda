@@ -814,7 +814,7 @@ struct SubmitEhSettingChangesRequest: Request {
     }
 }
 
-struct AddFavoriteRequest: Request {
+struct FavorGalleryRequest: Request {
     let gid: String
     let token: String
     let favIndex: Int
@@ -838,7 +838,7 @@ struct AddFavoriteRequest: Request {
     }
 }
 
-struct DeleteFavoriteRequest: Request {
+struct UnfavorGalleryRequest: Request {
     let gid: String
 
     var publisher: AnyPublisher<Any, AppError> {
@@ -879,7 +879,7 @@ struct SendDownloadCommandRequest: Request {
     }
 }
 
-struct RateRequest: Request {
+struct RateGalleryRequest: Request {
     let apiuid: Int
     let apikey: String
     let gid: Int
@@ -904,7 +904,7 @@ struct RateRequest: Request {
     }
 }
 
-struct CommentRequest: Request {
+struct CommentGalleryRequest: Request {
     let content: String
     let galleryURL: String
 
@@ -924,7 +924,7 @@ struct CommentRequest: Request {
     }
 }
 
-struct EditCommentRequest: Request {
+struct EditGalleryCommentRequest: Request {
     let commentID: String
     let content: String
     let galleryURL: String
@@ -947,7 +947,7 @@ struct EditCommentRequest: Request {
     }
 }
 
-struct VoteCommentRequest: Request {
+struct VoteGalleryCommentRequest: Request {
     let apiuid: Int
     let apikey: String
     let gid: Int

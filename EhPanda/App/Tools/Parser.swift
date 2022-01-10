@@ -1521,19 +1521,30 @@ extension Parser {
 
     // MARK: parsePreviewConfigs
     static func parsePreviewConfigs(string: String) -> (String, CGSize, CGSize)? {
-        guard let rangeA = string.range(of: Defaults.URL.Component.Key.ehpandaWidth.rawValue),
-              let rangeB = string.range(of: Defaults.URL.Component.Key.ehpandaHeight.rawValue),
-              let rangeC = string.range(of: Defaults.URL.Component.Key.ehpandaOffset.rawValue)
+        guard let url = URL(string: string),
+              var components = URLComponents(
+                url: url, resolvingAgainstBaseURL: false
+              ),
+              let queryItems = components.queryItems
         else { return nil }
 
-        let plainURL = String(string[..<rangeA.lowerBound])
-        guard let width = Int(string[rangeA.upperBound..<rangeB.lowerBound]),
-              let height = Int(string[rangeB.upperBound..<rangeC.lowerBound]),
-              let offsetX = Int(string[rangeC.upperBound...])
+        let keys = [
+            Defaults.URL.Component.Key.ehpandaWidth,
+            Defaults.URL.Component.Key.ehpandaHeight,
+            Defaults.URL.Component.Key.ehpandaOffset
+        ]
+        let configs = keys.map(\.rawValue).compactMap { key in
+            queryItems.filter({ $0.name == key }).first?.value
+        }
+        .compactMap(Int.init)
+
+        components.queryItems = nil
+        guard configs.count == keys.count,
+              let plainURL = components.url?.absoluteString
         else { return nil }
 
-        let size = CGSize(width: width, height: height)
-        return (plainURL, size, CGSize(width: offsetX, height: 0))
+        let size = CGSize(width: configs[0], height: configs[1])
+        return (plainURL, size, CGSize(width: configs[2], height: 0))
     }
 
     // MARK: parseWrappedHex

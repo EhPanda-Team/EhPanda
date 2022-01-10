@@ -79,6 +79,7 @@ enum SearchAction: BindableAction {
     case loadUserSettings
     case syncHistoryKeywords
     case fetchHistoryKeywords
+    case fetchHistoryKeywordsDone([String])
     case appendHistoryKeyword(String)
     case removeHistoryKeyword(String)
     case fetchHistoryGalleries
@@ -141,8 +142,10 @@ let searchReducer = Reducer<SearchState, SearchAction, SearchEnvironment>.combin
             return environment.databaseClient.updateHistoryKeywords(state.historyKeywords).fireAndForget()
 
         case .fetchHistoryKeywords:
-            let appEnv = environment.databaseClient.fetchAppEnv()
-            state.historyKeywords = appEnv.historyKeywords
+            return environment.databaseClient.fetchHistoryKeywords().map(SearchAction.fetchHistoryKeywordsDone)
+
+        case .fetchHistoryKeywordsDone(let historyKeywords):
+            state.historyKeywords = historyKeywords
             return .none
 
         case .appendHistoryKeyword(let keyword):
