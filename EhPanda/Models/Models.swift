@@ -344,6 +344,10 @@ extension Category {
             return 128
         case .misc:
             return 1
+        case .private:
+            let message = "Category `Private` shouldn't be used in filters!"
+            Logger.error(message)
+            fatalError(message)
         }
     }
 }
@@ -372,6 +376,9 @@ extension Language {
 enum Category: String, Codable, CaseIterable, Identifiable {
     var id: String { rawValue }
 
+    static let allFavoritesCases: [Category] = [.misc] + allCases.dropLast(2)
+    static let allFiltersCases: [Category] = allCases.dropLast()
+
     case doujinshi = "Doujinshi"
     case manga = "Manga"
     case artistCG = "Artist CG"
@@ -382,6 +389,7 @@ enum Category: String, Codable, CaseIterable, Identifiable {
     case cosplay = "Cosplay"
     case asianPorn = "Asian Porn"
     case misc = "Misc"
+    case `private` = "Private"
 }
 
 enum TagCategory: String, Codable, CaseIterable {

@@ -401,8 +401,7 @@ private struct FavoritesSection: View {
     @FocusState private var isFocused
 
     private var tuples: [(Category, Binding<String>)] {
-        let categories = [Category.misc] + Category.allCases.dropLast()
-        return categories.enumerated().map { index, category in
+        Category.allFavoritesCases.enumerated().map { index, category in
             (category, $ehSetting.favoriteNames[index])
         }
     }
