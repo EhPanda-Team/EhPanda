@@ -94,7 +94,20 @@ struct HomeView: View {
                 }
             }
             .background(navigationLinks)
+            .toolbar(content: toolbar)
             .navigationTitle("Home")
+        }
+    }
+
+    private func toolbar() -> some ToolbarContent {
+        CustomToolbarItem(tint: .primary) {
+            Button {
+                viewStore.send(.fetchAllGalleries)
+            } label: {
+                Image(systemSymbol: .arrowCounterclockwise)
+            }
+            .opacity(viewStore.popularLoadingState == .loading ? 0 : 1)
+            .overlay(ProgressView().opacity(viewStore.popularLoadingState == .loading ? 1 : 0))
         }
     }
 }
