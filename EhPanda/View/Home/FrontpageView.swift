@@ -12,15 +12,17 @@ import ComposableArchitecture
 struct FrontpageView: View {
     private let store: Store<FrontpageState, FrontpageAction>
     @ObservedObject private var viewStore: ViewStore<FrontpageState, FrontpageAction>
+    private let user: User
     private let setting: Setting
     private let tagTranslator: TagTranslator
 
     init(
         store: Store<FrontpageState, FrontpageAction>,
-        setting: Setting, tagTranslator: TagTranslator
+        user: User, setting: Setting, tagTranslator: TagTranslator
     ) {
         self.store = store
         viewStore = ViewStore(store)
+        self.user = user
         self.setting = setting
         self.tagTranslator = tagTranslator
     }
@@ -34,6 +36,7 @@ struct FrontpageView: View {
             footerLoadingState: viewStore.footerLoadingState,
             fetchAction: { viewStore.send(.fetchGalleries()) },
             fetchMoreAction: { viewStore.send(.fetchMoreGalleries) },
+            navigateAction: { viewStore.send(.setNavigation(.detail($0))) },
             translateAction: {
                 tagTranslator.tryTranslate(text: $0, returnOriginal: !setting.translatesTags)
             }
@@ -58,10 +61,33 @@ struct FrontpageView: View {
         .onDisappear {
             viewStore.send(.onDisappear)
         }
+        .background(navigationLinks)
         .toolbar(content: toolbar)
         .navigationTitle("Frontpage")
     }
 
+    private var navigationLinks: some View {
+        ForEach(viewStore.galleries) { gallery in
+            NavigationLink(
+                "", tag: gallery.id,
+                selection: .init(
+                    get: { (/FrontpageRoute.detail).extract(from: viewStore.route) },
+                    set: {
+                        var route: FrontpageRoute?
+                        if let identifier = $0 {
+                            route = .detail(identifier)
+                        }
+                        viewStore.send(.setNavigation(route))
+                    }
+                )
+            ) {
+                DetailView(
+                    store: store.scope(state: \.detailState, action: FrontpageAction.detail),
+                    gid: gallery.id, user: user, setting: setting, tagTranslator: tagTranslator
+                )
+            }
+        }
+    }
     private func toolbar() -> some ToolbarContent {
         CustomToolbarItem(disabled: viewStore.jumpPageAlertPresented) {
             ToolbarFeaturesMenu {
@@ -79,6 +105,10 @@ struct FrontpageView: View {
     }
 }
 
+enum FrontpageRoute: Equatable {
+    case detail(String)
+}
+
 struct FrontpageView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
@@ -88,9 +118,11 @@ struct FrontpageView_Previews: PreviewProvider {
                     reducer: frontpageReducer,
                     environment: FrontpageEnvironment(
                         hapticClient: .live,
+                        cookiesClient: .live,
                         databaseClient: .live
                     )
                 ),
+                user: .init(),
                 setting: .init(),
                 tagTranslator: .init()
             )

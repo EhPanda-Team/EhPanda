@@ -24,6 +24,13 @@ struct HomeState: Equatable {
     // Will be passed over from `appReducer`
     var filter = Filter()
 
+    var allGalleries: [Gallery] {
+        (popularGalleries + frontpageGalleries
+        + ToplistsType.allCases.flatMap { type in
+            toplistsGalleries[type.categoryIndex] ?? []
+        })
+        .removeDuplicates(by: \.id)
+    }
     var popularGalleries = [Gallery]()
     var popularLoadingState: LoadingState = .idle
     var frontpageGalleries = [Gallery]()
@@ -36,12 +43,14 @@ struct HomeState: Equatable {
     var popularState = PopularState()
     var watchedState = WatchedState()
     var historyState = HistoryState()
+    var detailState = DetailState()
 
     mutating func setPopularGalleries(_ galleries: [Gallery]) {
         let sortedGalleries = galleries.sorted { lhs, rhs in
             lhs.title.count > rhs.title.count
         }
-        var trimmedGalleries = Array(sortedGalleries.prefix(10)).duplicatesRemoved
+        var trimmedGalleries = Array(sortedGalleries.prefix(10))
+            .removeDuplicates(by: \.trimmedTitle)
         if trimmedGalleries.count >= 6 {
             trimmedGalleries = Array(trimmedGalleries.prefix(6))
         }
@@ -50,7 +59,8 @@ struct HomeState: Equatable {
         currentCardID = trimmedGalleries[cardPageIndex].gid
     }
     mutating func setFrontpageGalleries(_ galleries: [Gallery]) {
-        frontpageGalleries = Array(galleries.prefix(25)).duplicatesRemoved
+        frontpageGalleries = Array(galleries.prefix(25))
+            .removeDuplicates(by: \.trimmedTitle)
     }
 }
 
@@ -76,11 +86,13 @@ enum HomeAction: BindableAction {
     case popular(PopularAction)
     case watched(WatchedAction)
     case history(HistoryAction)
+    case detail(DetailAction)
 }
 
 struct HomeEnvironment {
     let hapticClient: HapticClient
     let libraryClient: LibraryClient
+    let cookiesClient: CookiesClient
     let databaseClient: DatabaseClient
 }
 
@@ -108,6 +120,7 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
             state.popularState = .init()
             state.watchedState = .init()
             state.historyState = .init()
+            state.detailState = .init()
             return .none
 
         case .setAllowsCardHitTesting(let isAllowed):
@@ -220,6 +233,9 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
 
         case .history:
             return .none
+
+        case .detail:
+            return .none
         }
     }
     .binding(),
@@ -229,6 +245,7 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
         environment: {
             .init(
                 hapticClient: $0.hapticClient,
+                cookiesClient: $0.cookiesClient,
                 databaseClient: $0.databaseClient
             )
         }
@@ -239,6 +256,7 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
         environment: {
             .init(
                 hapticClient: $0.hapticClient,
+                cookiesClient: $0.cookiesClient,
                 databaseClient: $0.databaseClient
             )
         }
@@ -248,6 +266,8 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
         action: /HomeAction.popular,
         environment: {
             .init(
+                hapticClient: $0.hapticClient,
+                cookiesClient: $0.cookiesClient,
                 databaseClient: $0.databaseClient
             )
         }
@@ -258,6 +278,7 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
         environment: {
             .init(
                 hapticClient: $0.hapticClient,
+                cookiesClient: $0.cookiesClient,
                 databaseClient: $0.databaseClient
             )
         }
@@ -267,6 +288,19 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
         action: /HomeAction.history,
         environment: {
             .init(
+                hapticClient: $0.hapticClient,
+                cookiesClient: $0.cookiesClient,
+                databaseClient: $0.databaseClient
+            )
+        }
+    ),
+    detailReducer.pullback(
+        state: \.detailState,
+        action: /HomeAction.detail,
+        environment: {
+            .init(
+                hapticClient: $0.hapticClient,
+                cookiesClient: $0.cookiesClient,
                 databaseClient: $0.databaseClient
             )
         }

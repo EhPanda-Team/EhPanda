@@ -7,18 +7,12 @@
 
 import ComposableArchitecture
 
-struct DetailState: Equatable, Identifiable {
-    let galleryID: String
-    var id: String { galleryID }
-
-    init(galleryID: String) {
-        self.galleryID = galleryID
-    }
-
+struct DetailState: Equatable {
     @BindableState var userRating = 0
     @BindableState var showUserRating = false
 
     var apiKey = ""
+    var galleryID = ""
     var galleryToken = ""
 
     var loadingState: LoadingState = .idle
@@ -39,7 +33,7 @@ enum DetailAction: BindableAction {
     case syncPreviewConfig(PreviewConfig)
     case saveGalleryHistory
 
-    case fetchDatabaseInfos
+    case fetchDatabaseInfos(String)
     case fetchDatabaseInfosDone(GalleryState)
     case fetchGalleryDetail
     case fetchGalleryDetailDone(Result<(GalleryDetail, GalleryState, APIKey, Greeting?), AppError>)
@@ -87,11 +81,12 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment> { stat
     case .saveGalleryHistory:
         return environment.databaseClient.updateLastOpenDate(gid: state.galleryID).fireAndForget()
 
-    case .fetchDatabaseInfos:
-        let gallery = environment.databaseClient.fetchGallery(state.galleryID)
+    case .fetchDatabaseInfos(let gid):
+        let gallery = environment.databaseClient.fetchGallery(gid)
+        state.galleryID = gid
         state.gallery = gallery
         state.galleryToken = gallery.token
-        if let detail = environment.databaseClient.fetchGalleryDetail(state.galleryID) {
+        if let detail = environment.databaseClient.fetchGalleryDetail(gid) {
             state.galleryDetail = detail
         }
         return .merge(

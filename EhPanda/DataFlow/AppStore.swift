@@ -166,6 +166,7 @@ let appReducer = Reducer<AppState, AppAction, AppEnvironment>.combine(
             .init(
                 hapticClient: $0.hapticClient,
                 libraryClient: $0.libraryClient,
+                cookiesClient: $0.cookiesClient,
                 databaseClient: $0.databaseClient
             )
         }
@@ -187,6 +188,7 @@ let appReducer = Reducer<AppState, AppAction, AppEnvironment>.combine(
         environment: {
             .init(
                 hapticClient: $0.hapticClient,
+                cookiesClient: $0.cookiesClient,
                 databaseClient: $0.databaseClient
             )
         }

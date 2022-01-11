@@ -8,6 +8,7 @@
 import ComposableArchitecture
 
 struct PopularState: Equatable {
+    var route: PopularViewRoute?
     @BindableState var keyword = ""
 
     // Will be passed over from `appReducer`
@@ -19,47 +20,79 @@ struct PopularState: Equatable {
     }
     var galleries = [Gallery]()
     var loadingState: LoadingState = .idle
+
+    var detailState = DetailState()
 }
 
 enum PopularAction: BindableAction {
     case binding(BindingAction<PopularState>)
+    case setNavigation(PopularViewRoute?)
+    case clearSubStates
     case onFiltersButtonTapped
     case fetchGalleries
     case fetchGalleriesDone(Result<[Gallery], AppError>)
+
+    case detail(DetailAction)
 }
 
 struct PopularEnvironment {
+    let hapticClient: HapticClient
+    let cookiesClient: CookiesClient
     let databaseClient: DatabaseClient
 }
 
-let popularReducer = Reducer<PopularState, PopularAction, PopularEnvironment> { state, action, environment in
-    switch action {
-    case .binding:
-        return .none
+let popularReducer = Reducer<PopularState, PopularAction, PopularEnvironment>.combine(
+    .init { state, action, environment in
+        switch action {
+        case .binding:
+            return .none
 
-    case .onFiltersButtonTapped:
-        return .none
+        case .setNavigation(let route):
+            state.route = route
+            return route == nil ? .init(value: .clearSubStates) : .none
 
-    case .fetchGalleries:
-        guard state.loadingState != .loading else { return .none }
-        state.loadingState = .loading
-        return PopularGalleriesRequest(filter: state.filter)
-            .effect.map(PopularAction.fetchGalleriesDone)
+        case .clearSubStates:
+            state.detailState = .init()
+            return .none
 
-    case .fetchGalleriesDone(let result):
-        state.loadingState = .idle
-        switch result {
-        case .success(let galleries):
-            guard !galleries.isEmpty else {
-                state.loadingState = .failed(.notFound)
-                return .none
+        case .onFiltersButtonTapped:
+            return .none
+
+        case .fetchGalleries:
+            guard state.loadingState != .loading else { return .none }
+            state.loadingState = .loading
+            return PopularGalleriesRequest(filter: state.filter)
+                .effect.map(PopularAction.fetchGalleriesDone)
+
+        case .fetchGalleriesDone(let result):
+            state.loadingState = .idle
+            switch result {
+            case .success(let galleries):
+                guard !galleries.isEmpty else {
+                    state.loadingState = .failed(.notFound)
+                    return .none
+                }
+                state.galleries = galleries
+                return environment.databaseClient.cacheGalleries(galleries).fireAndForget()
+            case .failure(let error):
+                state.loadingState = .failed(error)
             }
-            state.galleries = galleries
-            return environment.databaseClient.cacheGalleries(galleries).fireAndForget()
-        case .failure(let error):
-            state.loadingState = .failed(error)
+            return .none
+
+        case .detail:
+            return .none
         }
-        return .none
     }
-}
-.binding()
+    .binding(),
+    detailReducer.pullback(
+        state: \.detailState,
+        action: /PopularAction.detail,
+        environment: {
+            .init(
+                hapticClient: $0.hapticClient,
+                cookiesClient: $0.cookiesClient,
+                databaseClient: $0.databaseClient
+            )
+        }
+    )
+)

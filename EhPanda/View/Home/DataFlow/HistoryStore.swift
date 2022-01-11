@@ -8,6 +8,7 @@
 import ComposableArchitecture
 
 struct HistoryState: Equatable {
+    var route: HistoryViewRoute?
     @BindableState var keyword = ""
     @BindableState var clearDialogPresented = false
 
@@ -20,45 +21,78 @@ struct HistoryState: Equatable {
     }
     var galleries = [Gallery]()
     var loadingState: LoadingState = .idle
+
+    var detailState = DetailState()
 }
 
 enum HistoryAction: BindableAction {
     case binding(BindingAction<HistoryState>)
+    case setNavigation(HistoryViewRoute?)
+    case clearSubStates
+
     case fetchGalleries
     case fetchGalleriesDone([Gallery])
     case setClearDialogPresented(Bool)
     case clearHistoryGalleries
+
+    case detail(DetailAction)
 }
 
 struct HistoryEnvironment {
+    let hapticClient: HapticClient
+    let cookiesClient: CookiesClient
     let databaseClient: DatabaseClient
 }
 
-let historyReducer = Reducer<HistoryState, HistoryAction, HistoryEnvironment> { state, action, environment in
-    switch action {
-    case .binding:
-        return .none
+let historyReducer = Reducer<HistoryState, HistoryAction, HistoryEnvironment>.combine(
+    .init { state, action, environment in
+        switch action {
+        case .binding:
+            return .none
 
-    case .fetchGalleries:
-        guard state.loadingState != .loading else { return .none }
-        state.loadingState = .loading
-        return environment.databaseClient.fetchHistoryGalleries(nil).map(HistoryAction.fetchGalleriesDone)
+        case .setNavigation(let route):
+            state.route = route
+            return route == nil ? .init(value: .clearSubStates) : .none
 
-    case .fetchGalleriesDone(let galleries):
-        state.loadingState = .idle
-        if galleries.isEmpty {
-            state.loadingState = .failed(.notFound)
-        } else {
-            state.galleries = galleries
+        case .clearSubStates:
+            state.detailState = .init()
+            return .none
+
+        case .fetchGalleries:
+            guard state.loadingState != .loading else { return .none }
+            state.loadingState = .loading
+            return environment.databaseClient.fetchHistoryGalleries(nil).map(HistoryAction.fetchGalleriesDone)
+
+        case .fetchGalleriesDone(let galleries):
+            state.loadingState = .idle
+            if galleries.isEmpty {
+                state.loadingState = .failed(.notFound)
+            } else {
+                state.galleries = galleries
+            }
+            return .none
+
+        case .setClearDialogPresented(let isPresented):
+            state.clearDialogPresented = isPresented
+            return .none
+
+        case .clearHistoryGalleries:
+            return environment.databaseClient.clearHistoryGalleries().fireAndForget()
+
+        case .detail:
+            return .none
         }
-        return .none
-
-    case .setClearDialogPresented(let isPresented):
-        state.clearDialogPresented = isPresented
-        return .none
-
-    case .clearHistoryGalleries:
-        return environment.databaseClient.clearHistoryGalleries().fireAndForget()
     }
-}
-.binding()
+    .binding(),
+    detailReducer.pullback(
+        state: \.detailState,
+        action: /HistoryAction.detail,
+        environment: {
+            .init(
+                hapticClient: $0.hapticClient,
+                cookiesClient: $0.cookiesClient,
+                databaseClient: $0.databaseClient
+            )
+        }
+    )
+)

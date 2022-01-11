@@ -14,15 +14,17 @@ import ComposableArchitecture
 struct HomeView: View {
     private let store: Store<HomeState, HomeAction>
     @ObservedObject private var viewStore: ViewStore<HomeState, HomeAction>
+    private let user: User
     private let setting: Setting
     private let tagTranslator: TagTranslator
 
     init(
         store: Store<HomeState, HomeAction>,
-        setting: Setting, tagTranslator: TagTranslator
+        user: User, setting: Setting, tagTranslator: TagTranslator
     ) {
         self.store = store
         viewStore = ViewStore(store)
+        self.user = user
         self.setting = setting
         self.tagTranslator = tagTranslator
     }
@@ -76,15 +78,11 @@ struct HomeView: View {
                         && viewStore.popularGalleries.isEmpty ? 1 : 0
                     )
                     .zIndex(0)
-                let error = (/LoadingState.failed)
-                    .extract(from: viewStore.popularLoadingState)
+                let error = (/LoadingState.failed).extract(from: viewStore.popularLoadingState)
                 ErrorView(error: error ?? .unknown) {
                     viewStore.send(.fetchAllGalleries)
                 }
-                .opacity(
-                    ![.idle, .loading].contains(viewStore.popularLoadingState)
-                    && viewStore.popularGalleries.isEmpty ? 1 : 0
-                )
+                .opacity(viewStore.popularGalleries.isEmpty && error != nil ? 1 : 0)
                 .zIndex(1)
             }
             .animation(.default, value: viewStore.popularLoadingState)
@@ -114,16 +112,30 @@ struct HomeView: View {
 
 // MARK: NavigationLinks
 private extension HomeView {
-    var navigationLinks: some View {
-        Group {
-            ForEach(viewStore.frontpageGalleries, content: detailViewLink)
-            ForEach(viewStore.popularGalleries, content: detailViewLink)
-            ForEach(ToplistsType.allCases) { type in
-                let galleries = viewStore.toplistsGalleries[type.categoryIndex]
-                ForEach(galleries ?? [], content: detailViewLink)
+    @ViewBuilder var navigationLinks: some View {
+        detailViewLinks
+        miscGridLinks
+        sectionLinks
+    }
+    var detailViewLinks: some View {
+        ForEach(viewStore.allGalleries) { gallery in
+            NavigationLink(
+                "", tag: gallery.id, selection: .init(
+                    get: { (/HomeViewRoute.detail).extract(from: viewStore.route) },
+                    set: {
+                        var route: HomeViewRoute?
+                        if let identifier = $0 {
+                            route = .detail(identifier)
+                        }
+                        viewStore.send(.setNavigation(route))
+                    }
+                )
+            ) {
+                DetailView(
+                    store: store.scope(state: \.detailState, action: HomeAction.detail),
+                    gid: gallery.id, user: user, setting: setting, tagTranslator: tagTranslator
+                )
             }
-            miscGridLinks
-            sectionLinks
         }
     }
     var miscGridLinks: some View {
@@ -144,17 +156,17 @@ private extension HomeView {
                 case .popular:
                     PopularView(
                         store: store.scope(state: \.popularState, action: HomeAction.popular),
-                        setting: setting, tagTranslator: tagTranslator
+                        user: user, setting: setting, tagTranslator: tagTranslator
                     )
                 case .watched:
                     WatchedView(
                         store: store.scope(state: \.watchedState, action: HomeAction.watched),
-                        setting: setting, tagTranslator: tagTranslator
+                        user: user, setting: setting, tagTranslator: tagTranslator
                     )
                 case .history:
                     HistoryView(
                         store: store.scope(state: \.historyState, action: HomeAction.history),
-                        setting: setting, tagTranslator: tagTranslator
+                        user: user, setting: setting, tagTranslator: tagTranslator
                     )
                 }
             }
@@ -178,31 +190,15 @@ private extension HomeView {
                 case .frontpage:
                     FrontpageView(
                         store: store.scope(state: \.frontpageState, action: HomeAction.frontpage),
-                        setting: setting, tagTranslator: tagTranslator
+                        user: user, setting: setting, tagTranslator: tagTranslator
                     )
                 case .toplists:
                     ToplistsView(
                         store: store.scope(state: \.toplistsState, action: HomeAction.toplists),
-                        setting: setting, tagTranslator: tagTranslator
+                        user: user, setting: setting, tagTranslator: tagTranslator
                     )
                 }
             }
-        }
-    }
-    func detailViewLink(gallery: Gallery) -> NavigationLink<Text, EmptyView> {
-        NavigationLink(
-            "", tag: gallery.id, selection: .init(
-                get: { (/HomeViewRoute.detail).extract(from: viewStore.route) },
-                set: {
-                    var route: HomeViewRoute?
-                    if let identifier = $0 {
-                        route = .detail(identifier)
-                    }
-                    viewStore.send(.setNavigation(route))
-                }
-            )
-        ) {
-            EmptyView()
         }
     }
     func navigateTo(gid: String) {
@@ -548,9 +544,11 @@ struct HomeView_Previews: PreviewProvider {
                 environment: HomeEnvironment(
                     hapticClient: .live,
                     libraryClient: .live,
+                    cookiesClient: .live,
                     databaseClient: .live
                 )
             ),
+            user: .init(),
             setting: .init(),
             tagTranslator: .init()
         )

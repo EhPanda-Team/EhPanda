@@ -73,9 +73,9 @@ struct FavoritesView: View {
     }
 
     private var navigationLinks: some View {
-        ForEach(viewStore.detailStates) { state in
+        ForEach(viewStore.galleries ?? []) { gallery in
             NavigationLink(
-                "", tag: state.galleryID,
+                "", tag: gallery.id,
                 selection: .init(
                     get: { (/FavoritesViewRoute.detail).extract(from: viewStore.route) },
                     set: {
@@ -87,15 +87,10 @@ struct FavoritesView: View {
                     }
                 )
             ) {
-                let currentGalleryID = (/FavoritesViewRoute.detail).extract(from: viewStore.route)
-                ForEachStore(
-                    store.scope(
-                        state: { $0.detailStates.filter({ $0.galleryID == currentGalleryID }) },
-                        action: FavoritesAction.detail
-                    )
-                ) {
-                    DetailView(store: $0, user: user, setting: setting, tagTranslator: tagTranslator)
-                }
+                DetailView(
+                    store: store.scope(state: \.detailState, action: FavoritesAction.detail),
+                    gid: gallery.id, user: user, setting: setting, tagTranslator: tagTranslator
+                )
             }
         }
     }

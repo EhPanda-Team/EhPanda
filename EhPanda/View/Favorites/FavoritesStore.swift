@@ -11,11 +11,11 @@ import ComposableArchitecture
 
 // MARK: State
 struct FavoritesState: Equatable {
+    var route: FavoritesViewRoute?
     @BindableState var keyword = ""
     @BindableState var jumpPageIndex = ""
     @BindableState var jumpPageAlertFocused = false
     @BindableState var jumpPageAlertPresented = false
-    @BindableState var route: FavoritesViewRoute?
 
     var index = -1
     var sortOrder: FavoritesSortOrder?
@@ -38,19 +38,12 @@ struct FavoritesState: Equatable {
         rawFooterLoadingState[index]
     }
 
-    var detailStates = IdentifiedArrayOf<DetailState>()
+    var detailState = DetailState()
 
     mutating func insertGalleries(index: Int, galleries: [Gallery]) {
         galleries.forEach { gallery in
             if rawGalleries[index]?.contains(gallery) == false {
                 rawGalleries[index]?.append(gallery)
-            }
-        }
-    }
-    mutating func insertDetailStates(galleries: [Gallery]) {
-        galleries.forEach { gallery in
-            if !detailStates.contains(where: { $0.galleryID == gallery.id }) {
-                detailStates.append(.init(galleryID: gallery.id))
             }
         }
     }
@@ -60,17 +53,20 @@ struct FavoritesState: Equatable {
 enum FavoritesAction: BindableAction {
     case binding(BindingAction<FavoritesState>)
     case setNavigation(FavoritesViewRoute?)
+    case setFavoritesIndex(Int)
+    case clearSubStates
     case onDisappear
+
     case performJumpPage
     case presentJumpPageAlert
     case setJumpPageAlertFocused(Bool)
-    case setFavoritesIndex(Int)
+
     case fetchGalleries(Int? = nil, FavoritesSortOrder? = nil)
     case fetchGalleriesDone(Int, Result<(PageNumber, FavoritesSortOrder?, [Gallery]), AppError>)
     case fetchMoreGalleries
     case fetchMoreGalleriesDone(Int, Result<(PageNumber, FavoritesSortOrder?, [Gallery]), AppError>)
 
-    case detail(String, DetailAction)
+    case detail(DetailAction)
 }
 
 // MARK: Environment
@@ -95,6 +91,15 @@ let favoritesReducer = Reducer<FavoritesState, FavoritesAction, FavoritesEnviron
 
         case .setNavigation(let route):
             state.route = route
+            return route == nil ? .init(value: .clearSubStates) : .none
+
+        case .setFavoritesIndex(let index):
+            state.index = index
+            guard state.galleries?.isEmpty != false else { return .none }
+            return .init(value: FavoritesAction.fetchGalleries())
+
+        case .clearSubStates:
+            state.detailState = .init()
             return .none
 
         case .onDisappear:
@@ -118,11 +123,6 @@ let favoritesReducer = Reducer<FavoritesState, FavoritesAction, FavoritesEnviron
         case .setJumpPageAlertFocused(let isFocused):
             state.jumpPageAlertFocused = isFocused
             return .none
-
-        case .setFavoritesIndex(let index):
-            state.index = index
-            guard state.galleries?.isEmpty == false else { return .none }
-            return .init(value: FavoritesAction.fetchGalleries())
 
         case .fetchGalleries(let pageNum, let sortOrder):
             guard state.loadingState != .loading else { return .none }
@@ -150,7 +150,6 @@ let favoritesReducer = Reducer<FavoritesState, FavoritesAction, FavoritesEnviron
                 }
                 state.rawPageNumber[targetFavIndex] = pageNumber
                 state.rawGalleries[targetFavIndex] = galleries
-                state.insertDetailStates(galleries: galleries)
                 state.sortOrder = sortOrder
                 return environment.databaseClient.cacheGalleries(galleries).fireAndForget()
             case .failure(let error):
@@ -177,7 +176,6 @@ let favoritesReducer = Reducer<FavoritesState, FavoritesAction, FavoritesEnviron
             case .success(let (pageNumber, sortOrder, galleries)):
                 state.rawPageNumber[targetFavIndex] = pageNumber
                 state.insertGalleries(index: targetFavIndex, galleries: galleries)
-                state.insertDetailStates(galleries: galleries)
                 state.sortOrder = sortOrder
 
                 var effects: [Effect<FavoritesAction, Never>] = [
@@ -198,8 +196,8 @@ let favoritesReducer = Reducer<FavoritesState, FavoritesAction, FavoritesEnviron
         }
     }
     .binding(),
-    detailReducer.forEach(
-        state: \FavoritesState.detailStates,
+    detailReducer.pullback(
+        state: \FavoritesState.detailState,
         action: /FavoritesAction.detail,
         environment: {
             .init(

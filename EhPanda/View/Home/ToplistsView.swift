@@ -11,15 +11,17 @@ import ComposableArchitecture
 struct ToplistsView: View {
     private let store: Store<ToplistsState, ToplistsAction>
     @ObservedObject private var viewStore: ViewStore<ToplistsState, ToplistsAction>
+    private let user: User
     private let setting: Setting
     private let tagTranslator: TagTranslator
 
     init(
         store: Store<ToplistsState, ToplistsAction>,
-        setting: Setting, tagTranslator: TagTranslator
+        user: User, setting: Setting, tagTranslator: TagTranslator
     ) {
         self.store = store
         viewStore = ViewStore(store)
+        self.user = user
         self.setting = setting
         self.tagTranslator = tagTranslator
     }
@@ -38,6 +40,7 @@ struct ToplistsView: View {
             footerLoadingState: viewStore.footerLoadingState ?? .idle,
             fetchAction: { viewStore.send(.fetchGalleries()) },
             fetchMoreAction: { viewStore.send(.fetchMoreGalleries) },
+            navigateAction: { viewStore.send(.setNavigation(.detail($0))) },
             translateAction: { tagTranslator.tryTranslate(
                 text: $0, returnOriginal: setting.translatesTags
             ) }
@@ -62,10 +65,33 @@ struct ToplistsView: View {
         .onDisappear {
             viewStore.send(.onDisappear)
         }
-        .navigationTitle(navigationTitle)
+        .background(navigationLinks)
         .toolbar(content: toolbar)
+        .navigationTitle(navigationTitle)
     }
 
+    private var navigationLinks: some View {
+        ForEach(viewStore.galleries ?? []) { gallery in
+            NavigationLink(
+                "", tag: gallery.id,
+                selection: .init(
+                    get: { (/ToplistsViewRoute.detail).extract(from: viewStore.route) },
+                    set: {
+                        var route: ToplistsViewRoute?
+                        if let identifier = $0 {
+                            route = .detail(identifier)
+                        }
+                        viewStore.send(.setNavigation(route))
+                    }
+                )
+            ) {
+                DetailView(
+                    store: store.scope(state: \.detailState, action: ToplistsAction.detail),
+                    gid: gallery.id, user: user, setting: setting, tagTranslator: tagTranslator
+                )
+            }
+        }
+    }
     private func toolbar() -> some ToolbarContent {
         CustomToolbarItem(disabled: viewStore.jumpPageAlertPresented) {
             ToplistsTypeMenu(type: viewStore.type) { type in
@@ -120,6 +146,10 @@ extension ToplistsType {
     }
 }
 
+enum ToplistsViewRoute: Equatable {
+    case detail(String)
+}
+
 struct ToplistsView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
@@ -129,9 +159,11 @@ struct ToplistsView_Previews: PreviewProvider {
                     reducer: toplistsReducer,
                     environment: ToplistsEnvironment(
                         hapticClient: .live,
+                        cookiesClient: .live,
                         databaseClient: .live
                     )
                 ),
+                user: .init(),
                 setting: .init(),
                 tagTranslator: .init()
             )

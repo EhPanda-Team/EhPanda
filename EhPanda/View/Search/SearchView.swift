@@ -11,15 +11,17 @@ import ComposableArchitecture
 struct SearchView: View {
     private let store: Store<SearchState, SearchAction>
     @ObservedObject private var viewStore: ViewStore<SearchState, SearchAction>
+    private let user: User
     private let setting: Setting
     private let tagTranslator: TagTranslator
 
     init(
         store: Store<SearchState, SearchAction>,
-        setting: Setting, tagTranslator: TagTranslator
+        user: User, setting: Setting, tagTranslator: TagTranslator
     ) {
         self.store = store
         viewStore = ViewStore(store)
+        self.user = user
         self.setting = setting
         self.tagTranslator = tagTranslator
     }
@@ -31,18 +33,16 @@ struct SearchView: View {
     var body: some View {
         NavigationView {
             ScrollView(showsIndicators: false) {
-                VStack {
-                    SuggestionsPanel(
-                        historyKeywords: viewStore.historyKeywords.reversed(),
-                        historyGalleries: viewStore.historyGalleries,
-                        searchKeywordAction: { keyword in
-                            viewStore.send(.setKeyword(keyword))
-                            viewStore.send(.setNavigation(.request))
-                        },
-                        removeKeywordAction: { viewStore.send(.removeHistoryKeyword($0)) },
-                        reloadHistoryAction: { viewStore.send(.fetchHistoryGalleries) }
-                    )
-                }
+                SuggestionsPanel(
+                    historyKeywords: viewStore.historyKeywords.reversed(),
+                    historyGalleries: viewStore.historyGalleries,
+                    navigateGalleryAction: { viewStore.send(.setNavigation(.detail($0))) },
+                    searchKeywordAction: { keyword in
+                        viewStore.send(.setKeyword(keyword))
+                        viewStore.send(.setNavigation(.request))
+                    },
+                    removeKeywordAction: { viewStore.send(.removeHistoryKeyword($0)) }
+                )
             }
             .searchable(text: viewStore.binding(\.$keyword), placement: searchFieldPlacement)
             .onSubmit(of: .search) {
@@ -50,9 +50,8 @@ struct SearchView: View {
             }
             .onAppear {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                    if viewStore.historyGalleries.isEmpty {
-                        viewStore.send(.fetchHistoryGalleries)
-                    }
+                    viewStore.send(.fetchHistoryGalleries)
+                    viewStore.send(.fetchHistoryKeywords)
                 }
             }
             .background(navigationLinks)
@@ -68,18 +67,41 @@ struct SearchView: View {
             }
         }
     }
+}
 
-    private var navigationLinks: some View {
-        ForEach(SearchViewRoute.allCases) { route in
-            NavigationLink("", tag: route, selection: viewStore.binding(\.$route)) {
-                switch route {
-                case .request:
-                    SearchRequestView(
-                        store: store.scope(state: \.searchReqeustState, action: SearchAction.searchRequest),
-                        keyword: viewStore.keyword, setting: setting, tagTranslator: tagTranslator
-                    )
-                }
+private extension SearchView {
+    @ViewBuilder var navigationLinks: some View {
+        detailViewLinks
+        searchRequestLink
+    }
+    var detailViewLinks: some View {
+        ForEach(viewStore.historyGalleries) { gallery in
+            NavigationLink(
+                "", tag: gallery.id,
+                selection: .init(
+                    get: { (/SearchViewRoute.detail).extract(from: viewStore.route) },
+                    set: {
+                        var route: SearchViewRoute?
+                        if let identifier = $0 {
+                            route = .detail(identifier)
+                        }
+                        viewStore.send(.setNavigation(route))
+                    }
+                )
+            ) {
+                DetailView(
+                    store: store.scope(state: \.detailState, action: SearchAction.detail),
+                    gid: gallery.id, user: user, setting: setting, tagTranslator: tagTranslator
+                )
             }
+        }
+    }
+    var searchRequestLink: some View {
+        NavigationLink("", tag: .request, selection: viewStore.binding(\.$route)) {
+            SearchRequestView(
+                store: store.scope(state: \.searchReqeustState, action: SearchAction.searchRequest),
+                keyword: viewStore.keyword, user: user, setting: setting, tagTranslator: tagTranslator
+            )
         }
     }
 }
@@ -89,16 +111,18 @@ private struct SearchRequestView: View {
     private let store: Store<SearchRequestState, SearchRequestAction>
     @ObservedObject private var viewStore: ViewStore<SearchRequestState, SearchRequestAction>
     private let keyword: String
+    private let user: User
     private let setting: Setting
     private let tagTranslator: TagTranslator
 
     init(
         store: Store<SearchRequestState, SearchRequestAction>,
-        keyword: String, setting: Setting, tagTranslator: TagTranslator
+        keyword: String, user: User, setting: Setting, tagTranslator: TagTranslator
     ) {
         self.store = store
         viewStore = ViewStore(store)
         self.keyword = keyword
+        self.user = user
         self.setting = setting
         self.tagTranslator = tagTranslator
     }
@@ -116,6 +140,7 @@ private struct SearchRequestView: View {
             footerLoadingState: viewStore.footerLoadingState,
             fetchAction: { viewStore.send(.fetchGalleries()) },
             fetchMoreAction: { viewStore.send(.fetchMoreGalleries) },
+            navigateAction: { viewStore.send(.setNavigation(.detail($0))) },
             translateAction: {
                 tagTranslator.tryTranslate(text: $0, returnOriginal: !setting.translatesTags)
             }
@@ -142,11 +167,34 @@ private struct SearchRequestView: View {
         .onDisappear {
             viewStore.send(.onDisappear)
         }
+        .background(navigationLinks)
         .toolbar(content: toolbar)
         .navigationTitle(navigationTitle)
 
     }
 
+    private var navigationLinks: some View {
+        ForEach(viewStore.galleries) { gallery in
+            NavigationLink(
+                "", tag: gallery.id,
+                selection: .init(
+                    get: { (/SearchRequestViewRoute.detail).extract(from: viewStore.route) },
+                    set: {
+                        var route: SearchRequestViewRoute?
+                        if let identifier = $0 {
+                            route = .detail(identifier)
+                        }
+                        viewStore.send(.setNavigation(route))
+                    }
+                )
+            ) {
+                DetailView(
+                    store: store.scope(state: \.detailState, action: SearchRequestAction.detail),
+                    gid: gallery.id, user: user, setting: setting, tagTranslator: tagTranslator
+                )
+            }
+        }
+    }
     private func toolbar() -> some ToolbarContent {
         CustomToolbarItem(tint: .primary, disabled: viewStore.jumpPageAlertPresented) {
             ToolbarFeaturesMenu {
@@ -168,61 +216,44 @@ private struct SearchRequestView: View {
 private struct SuggestionsPanel: View {
     private let historyKeywords: [String]
     private let historyGalleries: [Gallery]
+    private let navigateGalleryAction: (String) -> Void
     private let searchKeywordAction: (String) -> Void
     private let removeKeywordAction: (String) -> Void
-    private let reloadHistoryAction: () -> Void
 
     init(
         historyKeywords: [String], historyGalleries: [Gallery],
+        navigateGalleryAction: @escaping (String) -> Void,
         searchKeywordAction: @escaping (String) -> Void,
-        removeKeywordAction: @escaping (String) -> Void,
-        reloadHistoryAction: @escaping () -> Void
+        removeKeywordAction: @escaping (String) -> Void
     ) {
         self.historyKeywords = historyKeywords
         self.historyGalleries = historyGalleries
+        self.navigateGalleryAction = navigateGalleryAction
         self.searchKeywordAction = searchKeywordAction
         self.removeKeywordAction = removeKeywordAction
-        self.reloadHistoryAction = reloadHistoryAction
     }
 
     var body: some View {
-        Group {
-            if !historyKeywords.isEmpty {
-                HistoryKeywordsSection(
-                    keywords: historyKeywords,
-                    searchAction: searchKeywordAction,
-                    removeAction: removeKeywordAction
-                )
-            }
-            if !historyGalleries.isEmpty {
-                HistoryGalleriesSection(galleries: historyGalleries, reloadAction: reloadHistoryAction)
-            }
-        }
-        .padding(.vertical)
-    }
-}
-
-// MARK: HistoryGalleriesSection
-private struct HistoryGalleriesSection: View {
-    private let galleries: [Gallery]
-    private let reloadAction: () -> Void
-
-    init(galleries: [Gallery], reloadAction: @escaping () -> Void) {
-        self.galleries = galleries
-        self.reloadAction = reloadAction
-    }
-
-    var body: some View {
-        SubSection(title: "Recently seen", showAll: false, reloadAction: reloadAction) {
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack {
-                    ForEach(galleries) { gallery in
-                        GalleryHistoryCell(gallery: gallery)
-                    }
-                    .withHorizontalSpacing()
+        ZStack {
+            VStack {
+                if !historyKeywords.isEmpty {
+                    HistoryKeywordsSection(
+                        keywords: historyKeywords,
+                        searchAction: searchKeywordAction,
+                        removeAction: removeKeywordAction
+                    )
+                }
+                if !historyGalleries.isEmpty {
+                    HistoryGalleriesSection(
+                        galleries: historyGalleries,
+                        navigationAction: navigateGalleryAction
+                    )
                 }
             }
         }
+        .animation(.default, value: historyGalleries)
+        .animation(.default, value: historyKeywords)
+        .padding(.vertical)
     }
 }
 
@@ -321,7 +352,7 @@ private struct HistoryKeywordCell: View {
     var body: some View {
         HStack(spacing: 20) {
             Image(systemSymbol: .magnifyingglass)
-            Text(keyword)
+            Text(keyword).lineLimit(1)
             Spacer()
             Image(systemSymbol: .xmark)
                 .imageScale(.small)
@@ -331,11 +362,44 @@ private struct HistoryKeywordCell: View {
     }
 }
 
-// MARK: Definition
-enum SearchViewRoute: Int, Identifiable, CaseIterable {
-    var id: Int { rawValue }
+// MARK: HistoryGalleriesSection
+private struct HistoryGalleriesSection: View {
+    private let galleries: [Gallery]
+    private let navigationAction: (String) -> Void
 
+    init(galleries: [Gallery], navigationAction: @escaping (String) -> Void) {
+        self.galleries = galleries
+        self.navigationAction = navigationAction
+    }
+
+    var body: some View {
+        SubSection(title: "Recently seen", showAll: false) {
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack {
+                    ForEach(galleries) { gallery in
+                        Button {
+                            navigationAction(gallery.id)
+                        } label: {
+                            GalleryHistoryCell(gallery: gallery)
+                                .multilineTextAlignment(.leading)
+                        }
+                        .foregroundColor(.primary)
+                    }
+                    .withHorizontalSpacing()
+                }
+            }
+        }
+    }
+}
+
+// MARK: Definition
+enum SearchViewRoute: Equatable, Hashable {
     case request
+    case detail(String)
+}
+
+enum SearchRequestViewRoute: Equatable {
+    case detail(String)
 }
 
 struct SearchView_Previews: PreviewProvider {
@@ -346,9 +410,11 @@ struct SearchView_Previews: PreviewProvider {
                 reducer: searchReducer,
                 environment: SearchEnvironment(
                     hapticClient: .live,
+                    cookiesClient: .live,
                     databaseClient: .live
                 )
             ),
+            user: .init(),
             setting: .init(),
             tagTranslator: .init()
         )

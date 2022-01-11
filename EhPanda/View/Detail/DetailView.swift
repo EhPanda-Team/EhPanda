@@ -12,16 +12,18 @@ import ComposableArchitecture
 struct DetailView: View {
     private let store: Store<DetailState, DetailAction>
     @ObservedObject private var viewStore: ViewStore<DetailState, DetailAction>
+    private let gid: String
     private let user: User
     private let setting: Setting
     private let tagTranslator: TagTranslator
 
     init(
-        store: Store<DetailState, DetailAction>,
+        store: Store<DetailState, DetailAction>, gid: String,
         user: User, setting: Setting, tagTranslator: TagTranslator
     ) {
         self.store = store
         viewStore = ViewStore(store)
+        self.gid = gid
         self.user = user
         self.setting = setting
         self.tagTranslator = tagTranslator
@@ -95,7 +97,7 @@ struct DetailView: View {
         .animation(.default, value: viewStore.galleryDetail)
         .onAppear {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                viewStore.send(.fetchDatabaseInfos)
+                viewStore.send(.fetchDatabaseInfos(gid))
             }
         }
     }
@@ -582,6 +584,7 @@ struct DetailView_Previews: PreviewProvider {
                         databaseClient: .live
                     )
                 ),
+                gid: .init(),
                 user: .init(),
                 setting: .init(),
                 tagTranslator: .init()

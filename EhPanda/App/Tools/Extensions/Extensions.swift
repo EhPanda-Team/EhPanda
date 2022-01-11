@@ -272,13 +272,14 @@ extension NSNotification.Name {
 
 // MARK: [Gallery]
 extension Array where Element == Gallery {
-    var duplicatesRemoved: [Element] {
+    func removeDuplicates(by keyPath: KeyPath<Element, String>) -> [Element] {
         var result = [Element]()
         for value in self {
-            guard result.filter({
-                $0.trimmedTitle == value.trimmedTitle
-            }).isEmpty else { continue }
-            result.append(value)
+            if result.filter({
+                $0[keyPath: keyPath] == value[keyPath: keyPath]
+            }).isEmpty {
+                result.append(value)
+            }
         }
         return result
     }

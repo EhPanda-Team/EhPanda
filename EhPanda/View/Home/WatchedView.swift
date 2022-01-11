@@ -11,15 +11,17 @@ import ComposableArchitecture
 struct WatchedView: View {
     private let store: Store<WatchedState, WatchedAction>
     @ObservedObject private var viewStore: ViewStore<WatchedState, WatchedAction>
+    private let user: User
     private let setting: Setting
     private let tagTranslator: TagTranslator
 
     init(
         store: Store<WatchedState, WatchedAction>,
-        setting: Setting, tagTranslator: TagTranslator
+        user: User, setting: Setting, tagTranslator: TagTranslator
     ) {
         self.store = store
         viewStore = ViewStore(store)
+        self.user = user
         self.setting = setting
         self.tagTranslator = tagTranslator
     }
@@ -33,6 +35,7 @@ struct WatchedView: View {
             footerLoadingState: viewStore.footerLoadingState,
             fetchAction: { viewStore.send(.fetchGalleries()) },
             fetchMoreAction: { viewStore.send(.fetchMoreGalleries) },
+            navigateAction: { viewStore.send(.setNavigation(.detail($0))) },
             translateAction: {
                 tagTranslator.tryTranslate(text: $0, returnOriginal: !setting.translatesTags)
             }
@@ -60,10 +63,33 @@ struct WatchedView: View {
         .onDisappear {
             viewStore.send(.onDisappear)
         }
+        .background(navigationLinks)
         .toolbar(content: toolbar)
         .navigationTitle("Watched")
     }
 
+    private var navigationLinks: some View {
+        ForEach(viewStore.galleries) { gallery in
+            NavigationLink(
+                "", tag: gallery.id,
+                selection: .init(
+                    get: { (/WatchedViewRoute.detail).extract(from: viewStore.route) },
+                    set: {
+                        var route: WatchedViewRoute?
+                        if let identifier = $0 {
+                            route = .detail(identifier)
+                        }
+                        viewStore.send(.setNavigation(route))
+                    }
+                )
+            ) {
+                DetailView(
+                    store: store.scope(state: \.detailState, action: WatchedAction.detail),
+                    gid: gallery.id, user: user, setting: setting, tagTranslator: tagTranslator
+                )
+            }
+        }
+    }
     private func toolbar() -> some ToolbarContent {
         CustomToolbarItem(disabled: viewStore.jumpPageAlertPresented) {
             ToolbarFeaturesMenu {
@@ -81,6 +107,11 @@ struct WatchedView: View {
     }
 }
 
+// MARK: Definition
+enum WatchedViewRoute: Equatable {
+    case detail(String)
+}
+
 struct WatchedView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
@@ -90,9 +121,11 @@ struct WatchedView_Previews: PreviewProvider {
                     reducer: watchedReducer,
                     environment: WatchedEnvironment(
                         hapticClient: .live,
+                        cookiesClient: .live,
                         databaseClient: .live
                     )
                 ),
+                user: .init(),
                 setting: .init(),
                 tagTranslator: .init()
             )

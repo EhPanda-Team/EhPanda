@@ -28,6 +28,7 @@ struct TabBarView: View {
                         case .home:
                             HomeView(
                                 store: store.scope(state: \.homeState, action: AppAction.home),
+                                user: viewStore.settingState.user,
                                 setting: viewStore.settingState.setting,
                                 tagTranslator: viewStore.settingState.tagTranslator
                             )
@@ -40,6 +41,7 @@ struct TabBarView: View {
                         case .search:
                             SearchView(
                                 store: store.scope(state: \.searchState, action: AppAction.search),
+                                user: viewStore.settingState.user,
                                 setting: viewStore.settingState.setting,
                                 tagTranslator: viewStore.settingState.tagTranslator
                             )
