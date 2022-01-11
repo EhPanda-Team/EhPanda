@@ -62,7 +62,7 @@ struct URLUtil {
 extension URLUtil {
     // Fetch
     static func searchList(keyword: String, filter: Filter, pageNum: Int? = nil) -> URL {
-        var queryItems: OrderedDictionary<Defaults.URL.Component.Key, String> = [.fSearch: keyword.urlEncoded()]
+        var queryItems: OrderedDictionary<Defaults.URL.Component.Key, String> = [.fSearch: keyword]
         if let pageNum = pageNum {
             queryItems[.page] = String(pageNum)
         }
@@ -70,7 +70,7 @@ extension URLUtil {
     }
     static func moreSearchList(keyword: String, filter: Filter, pageNum: Int, lastID: String) -> URL {
         Defaults.URL.host.appending(queryItems: [
-            .fSearch: keyword.urlEncoded(), .page: String(pageNum), .from: lastID
+            .fSearch: keyword, .page: String(pageNum), .from: lastID
         ])
         .applyingFilter(filter)
     }
