@@ -45,7 +45,7 @@ struct CategoryView: View {
         GridItem(.adaptive(minimum: DeviceUtil.isPadWidth ? 100 : 80, maximum: 100))
     ]
     private var tuples: [(Binding<Bool>, Category)] {
-        Category.allCases.enumerated().map { value in
+        Category.allFiltersCases.enumerated().map { value in
             (bindings[value.offset], value.element)
         }
     }
