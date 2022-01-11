@@ -104,7 +104,7 @@ struct TagTranslatorRequest {
                     .tryMap { data, _ in
                         guard let dict = try? JSONSerialization
                                 .jsonObject(with: data) as? [String: Any],
-                              isChinese ? dict["version"] as? Int == 5 : true
+                              isChinese ? dict["version"] as? Int == 6 : true
                         else { throw AppError.parseFailed }
                         let translations = parseTranslations(dict: dict)
                         guard !translations.isEmpty else { throw AppError.parseFailed }
