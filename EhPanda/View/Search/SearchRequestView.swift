@@ -1,35 +1,40 @@
 //
-//  FrontpageView.swift
+//  SearchRequestView.swift
 //  EhPanda
 //
-//  Created by 荒木辰造 on R 3/12/18.
+//  Created by 荒木辰造 on R 4/01/12.
 //
 
 import SwiftUI
-import AlertKit
 import ComposableArchitecture
 
-struct FrontpageView: View {
-    private let store: Store<FrontpageState, FrontpageAction>
-    @ObservedObject private var viewStore: ViewStore<FrontpageState, FrontpageAction>
+struct SearchRequestView: View {
+    private let store: Store<SearchRequestState, SearchRequestAction>
+    @ObservedObject private var viewStore: ViewStore<SearchRequestState, SearchRequestAction>
+    private let keyword: String
     private let user: User
     private let setting: Setting
     private let tagTranslator: TagTranslator
 
     init(
-        store: Store<FrontpageState, FrontpageAction>,
-        user: User, setting: Setting, tagTranslator: TagTranslator
+        store: Store<SearchRequestState, SearchRequestAction>,
+        keyword: String, user: User, setting: Setting, tagTranslator: TagTranslator
     ) {
         self.store = store
         viewStore = ViewStore(store)
+        self.keyword = keyword
         self.user = user
         self.setting = setting
         self.tagTranslator = tagTranslator
     }
 
+    private var navigationTitle: String {
+        viewStore.lastKeyword.isEmpty ? "Search".localized : viewStore.lastKeyword
+    }
+
     var body: some View {
         GenericList(
-            galleries: viewStore.filteredGalleries,
+            galleries: viewStore.galleries,
             setting: setting,
             pageNumber: viewStore.pageNumber,
             loadingState: viewStore.loadingState,
@@ -52,12 +57,14 @@ struct FrontpageView: View {
             jumpAction: { viewStore.send(.performJumpPage) }
         )
         .animation(.default, value: viewStore.jumpPageAlertPresented)
-        .navigationBarBackButtonHidden(viewStore.jumpPageAlertPresented)
-        .searchable(text: viewStore.binding(\.$keyword), prompt: "Filter")
+        .searchable(text: viewStore.binding(\.$keyword))
+        .onSubmit(of: .search) {
+            viewStore.send(.fetchGalleries())
+        }
         .onAppear {
             if viewStore.galleries.isEmpty {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                    viewStore.send(.fetchGalleries())
+                    viewStore.send(.fetchGalleries(nil, keyword))
                 }
             }
         }
@@ -66,19 +73,19 @@ struct FrontpageView: View {
         }
         .background(navigationLink)
         .toolbar(content: toolbar)
-        .navigationTitle("Frontpage")
+        .navigationTitle(navigationTitle)
     }
 
     private var navigationLink: some View {
         NavigationLink("", tag: .detail, selection: viewStore.binding(\.$route)) {
             DetailView(
-                store: store.scope(state: \.detailState, action: FrontpageAction.detail),
+                store: store.scope(state: \.detailState, action: SearchRequestAction.detail),
                 gid: viewStore.currentRouteGalleryID, user: user, setting: setting, tagTranslator: tagTranslator
             )
         }
     }
     private func toolbar() -> some ToolbarContent {
-        CustomToolbarItem(disabled: viewStore.jumpPageAlertPresented) {
+        CustomToolbarItem(tint: .primary, disabled: viewStore.jumpPageAlertPresented) {
             ToolbarFeaturesMenu {
                 FiltersButton {
                     viewStore.send(.onFiltersButtonTapped)
@@ -94,27 +101,27 @@ struct FrontpageView: View {
     }
 }
 
-enum FrontpageRoute: Equatable {
+// MARK: Definition
+enum SearchRequestViewRoute: Equatable {
     case detail
 }
 
-struct FrontpageView_Previews: PreviewProvider {
+struct SearchRequestView_Previews: PreviewProvider {
     static var previews: some View {
-        NavigationView {
-            FrontpageView(
-                store: .init(
-                    initialState: .init(),
-                    reducer: frontpageReducer,
-                    environment: FrontpageEnvironment(
-                        hapticClient: .live,
-                        cookiesClient: .live,
-                        databaseClient: .live
-                    )
-                ),
-                user: .init(),
-                setting: .init(),
-                tagTranslator: .init()
-            )
-        }
+        SearchRequestView(
+            store: .init(
+                initialState: .init(),
+                reducer: searchRequestReducer,
+                environment: SearchRequestEnvironment(
+                    hapticClient: .live,
+                    cookiesClient: .live,
+                    databaseClient: .live
+                )
+            ),
+            keyword: .init(),
+            user: .init(),
+            setting: .init(),
+            tagTranslator: .init()
+        )
     }
 }

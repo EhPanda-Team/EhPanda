@@ -8,7 +8,9 @@
 import ComposableArchitecture
 
 struct FrontpageState: Equatable {
-    var route: FrontpageRoute?
+    @BindableState var route: FrontpageRoute?
+    var currentRouteGalleryID = ""
+
     @BindableState var keyword = ""
     @BindableState var jumpPageIndex = ""
     @BindableState var jumpPageAlertFocused = false
@@ -40,6 +42,7 @@ struct FrontpageState: Equatable {
 enum FrontpageAction: BindableAction {
     case binding(BindingAction<FrontpageState>)
     case setNavigation(FrontpageRoute?)
+    case setCurrentRouteGalleryID(String)
     case clearSubStates
     case onDisappear
     case onFiltersButtonTapped
@@ -65,6 +68,9 @@ struct FrontpageEnvironment {
 let frontpageReducer = Reducer<FrontpageState, FrontpageAction, FrontpageEnvironment>.combine(
     .init { state, action, environment in
         switch action {
+        case .binding(\.$route):
+            return state.route == nil ? .init(value: .clearSubStates) : .none
+
         case .binding(\.$jumpPageAlertPresented):
             if !state.jumpPageAlertPresented {
                 state.jumpPageAlertFocused = false
@@ -77,6 +83,10 @@ let frontpageReducer = Reducer<FrontpageState, FrontpageAction, FrontpageEnviron
         case .setNavigation(let route):
             state.route = route
             return route == nil ? .init(value: .clearSubStates) : .none
+
+        case .setCurrentRouteGalleryID(let gid):
+            state.currentRouteGalleryID = gid
+            return .none
 
         case .clearSubStates:
             state.detailState = .init()

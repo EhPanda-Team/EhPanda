@@ -8,7 +8,9 @@
 import ComposableArchitecture
 
 struct HistoryState: Equatable {
-    var route: HistoryViewRoute?
+    @BindableState var route: HistoryViewRoute?
+    var currentRouteGalleryID = ""
+
     @BindableState var keyword = ""
     @BindableState var clearDialogPresented = false
 
@@ -28,6 +30,7 @@ struct HistoryState: Equatable {
 enum HistoryAction: BindableAction {
     case binding(BindingAction<HistoryState>)
     case setNavigation(HistoryViewRoute?)
+    case setCurrentRouteGalleryID(String)
     case clearSubStates
 
     case fetchGalleries
@@ -47,12 +50,19 @@ struct HistoryEnvironment {
 let historyReducer = Reducer<HistoryState, HistoryAction, HistoryEnvironment>.combine(
     .init { state, action, environment in
         switch action {
+        case .binding(\.$route):
+            return state.route == nil ? .init(value: .clearSubStates) : .none
+
         case .binding:
             return .none
 
         case .setNavigation(let route):
             state.route = route
             return route == nil ? .init(value: .clearSubStates) : .none
+
+        case .setCurrentRouteGalleryID(let gid):
+            state.currentRouteGalleryID = gid
+            return .none
 
         case .clearSubStates:
             state.detailState = .init()

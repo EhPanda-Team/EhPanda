@@ -113,29 +113,16 @@ struct HomeView: View {
 // MARK: NavigationLinks
 private extension HomeView {
     @ViewBuilder var navigationLinks: some View {
-        detailViewLinks
+        detailViewLink
         miscGridLinks
         sectionLinks
     }
-    var detailViewLinks: some View {
-        ForEach(viewStore.allGalleries) { gallery in
-            NavigationLink(
-                "", tag: gallery.id, selection: .init(
-                    get: { (/HomeViewRoute.detail).extract(from: viewStore.route) },
-                    set: {
-                        var route: HomeViewRoute?
-                        if let identifier = $0 {
-                            route = .detail(identifier)
-                        }
-                        viewStore.send(.setNavigation(route))
-                    }
-                )
-            ) {
-                DetailView(
-                    store: store.scope(state: \.detailState, action: HomeAction.detail),
-                    gid: gallery.id, user: user, setting: setting, tagTranslator: tagTranslator
-                )
-            }
+    var detailViewLink: some View {
+        NavigationLink("", tag: .detail, selection: viewStore.binding(\.$route)) {
+            DetailView(
+                store: store.scope(state: \.detailState, action: HomeAction.detail),
+                gid: viewStore.currentRouteGalleryID, user: user, setting: setting, tagTranslator: tagTranslator
+            )
         }
     }
     var miscGridLinks: some View {
@@ -202,7 +189,8 @@ private extension HomeView {
         }
     }
     func navigateTo(gid: String) {
-        viewStore.send(.setNavigation(.detail(gid)))
+        viewStore.send(.setCurrentRouteGalleryID(gid))
+        viewStore.send(.setNavigation(.detail))
     }
     func navigateTo(type: HomeMiscGridType) {
         viewStore.send(.setNavigation(.misc(type)))
@@ -529,8 +517,8 @@ enum HomeSectionType: String, CaseIterable, Identifiable {
     case toplists
 }
 
-enum HomeViewRoute: Equatable {
-    case detail(String)
+enum HomeViewRoute: Equatable, Hashable {
+    case detail
     case misc(HomeMiscGridType)
     case section(HomeSectionType)
 }

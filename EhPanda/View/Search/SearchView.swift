@@ -36,7 +36,10 @@ struct SearchView: View {
                 SuggestionsPanel(
                     historyKeywords: viewStore.historyKeywords.reversed(),
                     historyGalleries: viewStore.historyGalleries,
-                    navigateGalleryAction: { viewStore.send(.setNavigation(.detail($0))) },
+                    navigateGalleryAction: {
+                        viewStore.send(.setCurrentRouteGalleryID($0))
+                        viewStore.send(.setNavigation(.detail))
+                    },
                     searchKeywordAction: { keyword in
                         viewStore.send(.setKeyword(keyword))
                         viewStore.send(.setNavigation(.request))
@@ -71,29 +74,15 @@ struct SearchView: View {
 
 private extension SearchView {
     @ViewBuilder var navigationLinks: some View {
-        detailViewLinks
+        detailViewLink
         searchRequestLink
     }
-    var detailViewLinks: some View {
-        ForEach(viewStore.historyGalleries) { gallery in
-            NavigationLink(
-                "", tag: gallery.id,
-                selection: .init(
-                    get: { (/SearchViewRoute.detail).extract(from: viewStore.route) },
-                    set: {
-                        var route: SearchViewRoute?
-                        if let identifier = $0 {
-                            route = .detail(identifier)
-                        }
-                        viewStore.send(.setNavigation(route))
-                    }
-                )
-            ) {
-                DetailView(
-                    store: store.scope(state: \.detailState, action: SearchAction.detail),
-                    gid: gallery.id, user: user, setting: setting, tagTranslator: tagTranslator
-                )
-            }
+    var detailViewLink: some View {
+        NavigationLink("", tag: .detail, selection: viewStore.binding(\.$route)) {
+            DetailView(
+                store: store.scope(state: \.detailState, action: SearchAction.detail),
+                gid: viewStore.currentRouteGalleryID, user: user, setting: setting, tagTranslator: tagTranslator
+            )
         }
     }
     var searchRequestLink: some View {
@@ -102,112 +91,6 @@ private extension SearchView {
                 store: store.scope(state: \.searchReqeustState, action: SearchAction.searchRequest),
                 keyword: viewStore.keyword, user: user, setting: setting, tagTranslator: tagTranslator
             )
-        }
-    }
-}
-
-// MARK: SearchRequestView
-private struct SearchRequestView: View {
-    private let store: Store<SearchRequestState, SearchRequestAction>
-    @ObservedObject private var viewStore: ViewStore<SearchRequestState, SearchRequestAction>
-    private let keyword: String
-    private let user: User
-    private let setting: Setting
-    private let tagTranslator: TagTranslator
-
-    init(
-        store: Store<SearchRequestState, SearchRequestAction>,
-        keyword: String, user: User, setting: Setting, tagTranslator: TagTranslator
-    ) {
-        self.store = store
-        viewStore = ViewStore(store)
-        self.keyword = keyword
-        self.user = user
-        self.setting = setting
-        self.tagTranslator = tagTranslator
-    }
-
-    private var navigationTitle: String {
-        viewStore.lastKeyword.isEmpty ? "Search".localized : viewStore.lastKeyword
-    }
-
-    var body: some View {
-        GenericList(
-            galleries: viewStore.galleries,
-            setting: setting,
-            pageNumber: viewStore.pageNumber,
-            loadingState: viewStore.loadingState,
-            footerLoadingState: viewStore.footerLoadingState,
-            fetchAction: { viewStore.send(.fetchGalleries()) },
-            fetchMoreAction: { viewStore.send(.fetchMoreGalleries) },
-            navigateAction: { viewStore.send(.setNavigation(.detail($0))) },
-            translateAction: {
-                tagTranslator.tryTranslate(text: $0, returnOriginal: !setting.translatesTags)
-            }
-        )
-        .jumpPageAlert(
-            index: viewStore.binding(\.$jumpPageIndex),
-            isPresented: viewStore.binding(\.$jumpPageAlertPresented),
-            isFocused: viewStore.binding(\.$jumpPageAlertFocused),
-            pageNumber: viewStore.pageNumber,
-            jumpAction: { viewStore.send(.performJumpPage) }
-        )
-        .animation(.default, value: viewStore.jumpPageAlertPresented)
-        .searchable(text: viewStore.binding(\.$keyword))
-        .onSubmit(of: .search) {
-            viewStore.send(.fetchGalleries())
-        }
-        .onAppear {
-            if viewStore.galleries.isEmpty {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                    viewStore.send(.fetchGalleries(nil, keyword))
-                }
-            }
-        }
-        .onDisappear {
-            viewStore.send(.onDisappear)
-        }
-        .background(navigationLinks)
-        .toolbar(content: toolbar)
-        .navigationTitle(navigationTitle)
-
-    }
-
-    private var navigationLinks: some View {
-        ForEach(viewStore.galleries) { gallery in
-            NavigationLink(
-                "", tag: gallery.id,
-                selection: .init(
-                    get: { (/SearchRequestViewRoute.detail).extract(from: viewStore.route) },
-                    set: {
-                        var route: SearchRequestViewRoute?
-                        if let identifier = $0 {
-                            route = .detail(identifier)
-                        }
-                        viewStore.send(.setNavigation(route))
-                    }
-                )
-            ) {
-                DetailView(
-                    store: store.scope(state: \.detailState, action: SearchRequestAction.detail),
-                    gid: gallery.id, user: user, setting: setting, tagTranslator: tagTranslator
-                )
-            }
-        }
-    }
-    private func toolbar() -> some ToolbarContent {
-        CustomToolbarItem(tint: .primary, disabled: viewStore.jumpPageAlertPresented) {
-            ToolbarFeaturesMenu {
-                FiltersButton {
-                    viewStore.send(.onFiltersButtonTapped)
-                }
-                JumpPageButton(pageNumber: viewStore.pageNumber) {
-                    viewStore.send(.presentJumpPageAlert)
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                        viewStore.send(.setJumpPageAlertFocused(true))
-                    }
-                }
-            }
         }
     }
 }
@@ -393,13 +276,9 @@ private struct HistoryGalleriesSection: View {
 }
 
 // MARK: Definition
-enum SearchViewRoute: Equatable, Hashable {
+enum SearchViewRoute: Equatable {
     case request
-    case detail(String)
-}
-
-enum SearchRequestViewRoute: Equatable {
-    case detail(String)
+    case detail
 }
 
 struct SearchView_Previews: PreviewProvider {

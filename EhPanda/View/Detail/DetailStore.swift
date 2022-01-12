@@ -59,26 +59,31 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment> { stat
         return .none
 
     case .syncGalleryTags:
+        guard !state.galleryID.isEmpty else { return .none }
         return environment.databaseClient
             .updateGalleryTags(gid: state.galleryID, tags: state.galleryTags).fireAndForget()
 
     case .syncGalleryDetail:
-        guard let detail = state.galleryDetail else { return .none }
+        guard !state.galleryID.isEmpty, let detail = state.galleryDetail else { return .none }
         return environment.databaseClient.cacheGalleryDetail(detail).fireAndForget()
 
     case .syncGalleryPreviews:
+        guard !state.galleryID.isEmpty else { return .none }
         return environment.databaseClient
             .updateGalleryPreviews(gid: state.galleryID, previews: state.galleryPreviews).fireAndForget()
 
     case .syncGalleryComments:
+        guard !state.galleryID.isEmpty else { return .none }
         return environment.databaseClient
             .updateGalleryComments(gid: state.galleryID, comments: state.galleryComments).fireAndForget()
 
     case .syncPreviewConfig(let config):
+        guard !state.galleryID.isEmpty else { return .none }
         return environment.databaseClient
             .updatePreviewConfig(gid: state.galleryID, config: config).fireAndForget()
 
     case .saveGalleryHistory:
+        guard !state.galleryID.isEmpty else { return .none }
         return environment.databaseClient.updateLastOpenDate(gid: state.galleryID).fireAndForget()
 
     case .fetchDatabaseInfos(let gid):

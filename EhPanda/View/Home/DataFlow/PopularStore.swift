@@ -8,7 +8,9 @@
 import ComposableArchitecture
 
 struct PopularState: Equatable {
-    var route: PopularViewRoute?
+    @BindableState var route: PopularViewRoute?
+    var currentRouteGalleryID = ""
+
     @BindableState var keyword = ""
 
     // Will be passed over from `appReducer`
@@ -27,8 +29,10 @@ struct PopularState: Equatable {
 enum PopularAction: BindableAction {
     case binding(BindingAction<PopularState>)
     case setNavigation(PopularViewRoute?)
+    case setCurrentRouteGalleryID(String)
     case clearSubStates
     case onFiltersButtonTapped
+
     case fetchGalleries
     case fetchGalleriesDone(Result<[Gallery], AppError>)
 
@@ -44,12 +48,19 @@ struct PopularEnvironment {
 let popularReducer = Reducer<PopularState, PopularAction, PopularEnvironment>.combine(
     .init { state, action, environment in
         switch action {
+        case .binding(\.$route):
+            return state.route == nil ? .init(value: .clearSubStates) : .none
+
         case .binding:
             return .none
 
         case .setNavigation(let route):
             state.route = route
             return route == nil ? .init(value: .clearSubStates) : .none
+
+        case .setCurrentRouteGalleryID(let gid):
+            state.currentRouteGalleryID = gid
+            return .none
 
         case .clearSubStates:
             state.detailState = .init()

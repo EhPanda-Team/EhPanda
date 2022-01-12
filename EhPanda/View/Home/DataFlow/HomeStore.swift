@@ -11,7 +11,8 @@ import UIImageColors
 import ComposableArchitecture
 
 struct HomeState: Equatable {
-    var route: HomeViewRoute?
+    @BindableState var route: HomeViewRoute?
+    var currentRouteGalleryID = ""
 
     @BindableState var cardPageIndex = 1
     @BindableState var currentCardID = ""
@@ -24,13 +25,6 @@ struct HomeState: Equatable {
     // Will be passed over from `appReducer`
     var filter = Filter()
 
-    var allGalleries: [Gallery] {
-        (popularGalleries + frontpageGalleries
-        + ToplistsType.allCases.flatMap { type in
-            toplistsGalleries[type.categoryIndex] ?? []
-        })
-        .removeDuplicates(by: \.id)
-    }
     var popularGalleries = [Gallery]()
     var popularLoadingState: LoadingState = .idle
     var frontpageGalleries = [Gallery]()
@@ -67,6 +61,7 @@ struct HomeState: Equatable {
 enum HomeAction: BindableAction {
     case binding(BindingAction<HomeState>)
     case setNavigation(HomeViewRoute?)
+    case setCurrentRouteGalleryID(String)
     case clearSubStates
     case setAllowsCardHitTesting(Bool)
     case analyzeImageColors(String, RetrieveImageResult)
@@ -99,6 +94,9 @@ struct HomeEnvironment {
 let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
     .init { state, action, environment in
         switch action {
+        case .binding(\.$route):
+            return state.route == nil ? .init(value: .clearSubStates) : .none
+
         case .binding(\.$cardPageIndex):
             guard state.cardPageIndex < state.popularGalleries.count else { return .none }
             state.currentCardID = state.popularGalleries[state.cardPageIndex].gid
@@ -113,6 +111,10 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
         case .setNavigation(let route):
             state.route = route
             return route == nil ? .init(value: .clearSubStates) : .none
+
+        case .setCurrentRouteGalleryID(let gid):
+            state.currentRouteGalleryID = gid
+            return .none
 
         case .clearSubStates:
             state.frontpageState = .init()

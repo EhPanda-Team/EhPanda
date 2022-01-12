@@ -35,7 +35,10 @@ struct WatchedView: View {
             footerLoadingState: viewStore.footerLoadingState,
             fetchAction: { viewStore.send(.fetchGalleries()) },
             fetchMoreAction: { viewStore.send(.fetchMoreGalleries) },
-            navigateAction: { viewStore.send(.setNavigation(.detail($0))) },
+            navigateAction: {
+                viewStore.send(.setCurrentRouteGalleryID($0))
+                viewStore.send(.setNavigation(.detail))
+            },
             translateAction: {
                 tagTranslator.tryTranslate(text: $0, returnOriginal: !setting.translatesTags)
             }
@@ -63,31 +66,17 @@ struct WatchedView: View {
         .onDisappear {
             viewStore.send(.onDisappear)
         }
-        .background(navigationLinks)
+        .background(navigationLink)
         .toolbar(content: toolbar)
         .navigationTitle("Watched")
     }
 
-    private var navigationLinks: some View {
-        ForEach(viewStore.galleries) { gallery in
-            NavigationLink(
-                "", tag: gallery.id,
-                selection: .init(
-                    get: { (/WatchedViewRoute.detail).extract(from: viewStore.route) },
-                    set: {
-                        var route: WatchedViewRoute?
-                        if let identifier = $0 {
-                            route = .detail(identifier)
-                        }
-                        viewStore.send(.setNavigation(route))
-                    }
-                )
-            ) {
-                DetailView(
-                    store: store.scope(state: \.detailState, action: WatchedAction.detail),
-                    gid: gallery.id, user: user, setting: setting, tagTranslator: tagTranslator
-                )
-            }
+    private var navigationLink: some View {
+        NavigationLink("", tag: .detail, selection: viewStore.binding(\.$route)) {
+            DetailView(
+                store: store.scope(state: \.detailState, action: WatchedAction.detail),
+                gid: viewStore.currentRouteGalleryID, user: user, setting: setting, tagTranslator: tagTranslator
+            )
         }
     }
     private func toolbar() -> some ToolbarContent {
@@ -109,7 +98,7 @@ struct WatchedView: View {
 
 // MARK: Definition
 enum WatchedViewRoute: Equatable {
-    case detail(String)
+    case detail
 }
 
 struct WatchedView_Previews: PreviewProvider {

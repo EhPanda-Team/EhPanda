@@ -1,5 +1,5 @@
 //
-//  AlertKit-Extension.swift
+//  AlertKit_Extension.swift
 //  EhPanda
 //
 //  Created by 荒木辰造 on R 4/01/08.
@@ -13,14 +13,14 @@ extension View {
         index: Binding<String>, isPresented: Binding<Bool>, isFocused: Binding<Bool>,
         pageNumber: PageNumber, jumpAction: @escaping () -> Void
     ) -> some View {
-        CustomAlert(
+        JumpPageAlert(
             content: self, index: index, isPresented: isPresented,
             isFocused: isFocused, pageNumber: pageNumber, jumpAction: jumpAction
         )
     }
 }
 
-struct CustomAlert<Content: View>: View {
+private struct JumpPageAlert<Content: View>: View {
     @Environment(\.colorScheme) private var colorScheme
 
     private let content: Content

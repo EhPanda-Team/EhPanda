@@ -8,7 +8,9 @@
 import ComposableArchitecture
 
 struct ToplistsState: Equatable {
-    var route: ToplistsViewRoute?
+    @BindableState var route: ToplistsViewRoute?
+    var currentRouteGalleryID = ""
+
     @BindableState var keyword = ""
     @BindableState var jumpPageIndex = ""
     @BindableState var jumpPageAlertFocused = false
@@ -53,6 +55,7 @@ struct ToplistsState: Equatable {
 enum ToplistsAction: BindableAction {
     case binding(BindingAction<ToplistsState>)
     case setNavigation(ToplistsViewRoute?)
+    case setCurrentRouteGalleryID(String)
     case setToplistsType(ToplistsType)
     case clearSubStates
     case onDisappear
@@ -78,6 +81,9 @@ struct ToplistsEnvironment {
 let toplistsReducer = Reducer<ToplistsState, ToplistsAction, ToplistsEnvironment>.combine(
     .init { state, action, environment in
         switch action {
+        case .binding(\.$route):
+            return state.route == nil ? .init(value: .clearSubStates) : .none
+
         case .binding(\.$jumpPageAlertPresented):
             if !state.jumpPageAlertPresented {
                 state.jumpPageAlertFocused = false
@@ -90,6 +96,10 @@ let toplistsReducer = Reducer<ToplistsState, ToplistsAction, ToplistsEnvironment
         case .setNavigation(let route):
             state.route = route
             return route == nil ? .init(value: .clearSubStates) : .none
+
+        case .setCurrentRouteGalleryID(let gid):
+            state.currentRouteGalleryID = gid
+            return .none
 
         case .setToplistsType(let type):
             state.type = type

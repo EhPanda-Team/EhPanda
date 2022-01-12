@@ -34,7 +34,10 @@ struct HistoryView: View {
             loadingState: viewStore.loadingState,
             footerLoadingState: .idle,
             fetchAction: { viewStore.send(.fetchGalleries) },
-            navigateAction: { viewStore.send(.setNavigation(.detail($0))) },
+            navigateAction: {
+                viewStore.send(.setCurrentRouteGalleryID($0))
+                viewStore.send(.setNavigation(.detail))
+            },
             translateAction: {
                 tagTranslator.tryTranslate(text: $0, returnOriginal: !setting.translatesTags)
             }
@@ -55,31 +58,17 @@ struct HistoryView: View {
                 }
             }
         }
-        .background(navigationLinks)
+        .background(navigationLink)
         .toolbar(content: toolbar)
         .navigationTitle("History")
     }
 
-    private var navigationLinks: some View {
-        ForEach(viewStore.galleries) { gallery in
-            NavigationLink(
-                "", tag: gallery.id,
-                selection: .init(
-                    get: { (/HistoryViewRoute.detail).extract(from: viewStore.route) },
-                    set: {
-                        var route: HistoryViewRoute?
-                        if let identifier = $0 {
-                            route = .detail(identifier)
-                        }
-                        viewStore.send(.setNavigation(route))
-                    }
-                )
-            ) {
-                DetailView(
-                    store: store.scope(state: \.detailState, action: HistoryAction.detail),
-                    gid: gallery.id, user: user, setting: setting, tagTranslator: tagTranslator
-                )
-            }
+    private var navigationLink: some View {
+        NavigationLink("", tag: .detail, selection: viewStore.binding(\.$route)) {
+            DetailView(
+                store: store.scope(state: \.detailState, action: HistoryAction.detail),
+                gid: viewStore.currentRouteGalleryID, user: user, setting: setting, tagTranslator: tagTranslator
+            )
         }
     }
     private func toolbar() -> some ToolbarContent {
@@ -96,7 +85,7 @@ struct HistoryView: View {
 
 // MARK: Definition
 enum HistoryViewRoute: Equatable {
-    case detail(String)
+    case detail
 }
 
 struct HistoryView_Previews: PreviewProvider {
