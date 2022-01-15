@@ -8,9 +8,14 @@
 import ComposableArchitecture
 
 struct FiltersState: Equatable {
+    enum FocusedBound {
+        case lower
+        case upper
+    }
+
     @BindableState var resetDialogPresented = false
     @BindableState var filterRange: FilterRange = .search
-    @BindableState var focusBound: FocusBound?
+    @BindableState var focusedBound: FocusedBound?
 }
 
 enum FiltersAction: BindableAction {
@@ -35,11 +40,11 @@ let filtersReducer = Reducer<FiltersState, FiltersAction, FiltersEnvironment> { 
         return .none
 
     case .onTextFieldSubmitted:
-        switch state.focusBound {
+        switch state.focusedBound {
         case .lower:
-            state.focusBound = .upper
+            state.focusedBound = .upper
         case .upper:
-            state.focusBound = nil
+            state.focusedBound = nil
         default:
             break
         }

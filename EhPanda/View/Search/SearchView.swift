@@ -36,10 +36,7 @@ struct SearchView: View {
                 SuggestionsPanel(
                     historyKeywords: viewStore.historyKeywords.reversed(),
                     historyGalleries: viewStore.historyGalleries,
-                    navigateGalleryAction: {
-                        viewStore.send(.setCurrentRouteGalleryID($0))
-                        viewStore.send(.setNavigation(.detail))
-                    },
+                    navigateGalleryAction: { viewStore.send(.setNavigation(.detail($0))) },
                     searchKeywordAction: { keyword in
                         viewStore.send(.setKeyword(keyword))
                         viewStore.send(.setNavigation(.request))
@@ -78,15 +75,15 @@ private extension SearchView {
         searchRequestLink
     }
     var detailViewLink: some View {
-        NavigationLink("", tag: .detail, selection: viewStore.binding(\.$route)) {
+        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /SearchState.Route.detail) { route in
             DetailView(
                 store: store.scope(state: \.detailState, action: SearchAction.detail),
-                gid: viewStore.currentRouteGalleryID, user: user, setting: setting, tagTranslator: tagTranslator
+                gid: route.wrappedValue, user: user, setting: setting, tagTranslator: tagTranslator
             )
         }
     }
     var searchRequestLink: some View {
-        NavigationLink("", tag: .request, selection: viewStore.binding(\.$route)) {
+        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /SearchState.Route.request) { _ in
             SearchRequestView(
                 store: store.scope(state: \.searchReqeustState, action: SearchAction.searchRequest),
                 keyword: viewStore.keyword, user: user, setting: setting, tagTranslator: tagTranslator
@@ -273,12 +270,6 @@ private struct HistoryGalleriesSection: View {
             }
         }
     }
-}
-
-// MARK: Definition
-enum SearchViewRoute: Equatable {
-    case request
-    case detail
 }
 
 struct SearchView_Previews: PreviewProvider {

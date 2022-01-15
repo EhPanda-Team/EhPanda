@@ -36,10 +36,7 @@ struct FrontpageView: View {
             footerLoadingState: viewStore.footerLoadingState,
             fetchAction: { viewStore.send(.fetchGalleries()) },
             fetchMoreAction: { viewStore.send(.fetchMoreGalleries) },
-            navigateAction: {
-                viewStore.send(.setCurrentRouteGalleryID($0))
-                viewStore.send(.setNavigation(.detail))
-            },
+            navigateAction: { viewStore.send(.setNavigation(.detail($0))) },
             translateAction: {
                 tagTranslator.tryTranslate(text: $0, returnOriginal: !setting.translatesTags)
             }
@@ -70,10 +67,10 @@ struct FrontpageView: View {
     }
 
     private var navigationLink: some View {
-        NavigationLink("", tag: .detail, selection: viewStore.binding(\.$route)) {
+        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /FrontpageState.Route.detail) { route in
             DetailView(
                 store: store.scope(state: \.detailState, action: FrontpageAction.detail),
-                gid: viewStore.currentRouteGalleryID, user: user, setting: setting, tagTranslator: tagTranslator
+                gid: route.wrappedValue, user: user, setting: setting, tagTranslator: tagTranslator
             )
         }
     }
@@ -92,10 +89,6 @@ struct FrontpageView: View {
             }
         }
     }
-}
-
-enum FrontpageRoute: Equatable {
-    case detail
 }
 
 struct FrontpageView_Previews: PreviewProvider {

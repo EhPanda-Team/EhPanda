@@ -10,8 +10,13 @@ import LocalAuthentication
 import ComposableArchitecture
 
 struct GeneralSettingState: Equatable {
-    @BindableState var route: GeneralSettingRoute?
-    @BindableState var clearDialogPresented = false
+    enum Route {
+        case logs
+        case clearCache
+    }
+
+    @BindableState var route: Route?
+
     var loadingState: LoadingState = .idle
     var diskImageCacheSize = "0 KB"
     var passcodeNotSet = false
@@ -21,8 +26,7 @@ struct GeneralSettingState: Equatable {
 
 enum GeneralSettingAction: BindableAction {
     case binding(BindingAction<GeneralSettingState>)
-    case setNavigation(GeneralSettingRoute?)
-    case setClearDialogPresented(Bool)
+    case setNavigation(GeneralSettingState.Route?)
     case clearWebImageCache
     case checkPasscodeSetting
     case navigateToSystemSetting
@@ -49,10 +53,6 @@ let generalSettingReducer = Reducer<GeneralSettingState, GeneralSettingAction, G
 
         case .setNavigation(let route):
             state.route = route
-            return .none
-
-        case .setClearDialogPresented(let isPresented):
-            state.clearDialogPresented = isPresented
             return .none
 
         case .clearWebImageCache:

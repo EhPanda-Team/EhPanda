@@ -11,9 +11,11 @@ import ComposableArchitecture
 
 // MARK: State
 struct FavoritesState: Equatable {
-    @BindableState var route: FavoritesViewRoute?
-    var currentRouteGalleryID = ""
+    enum Route: Equatable {
+        case detail(String)
+    }
 
+    @BindableState var route: Route?
     @BindableState var keyword = ""
     @BindableState var jumpPageIndex = ""
     @BindableState var jumpPageAlertFocused = false
@@ -54,8 +56,7 @@ struct FavoritesState: Equatable {
 // MARK: Action
 enum FavoritesAction: BindableAction {
     case binding(BindingAction<FavoritesState>)
-    case setNavigation(FavoritesViewRoute?)
-    case setCurrentRouteGalleryID(String)
+    case setNavigation(FavoritesState.Route?)
     case setFavoritesIndex(Int)
     case clearSubStates
     case onDisappear
@@ -98,10 +99,6 @@ let favoritesReducer = Reducer<FavoritesState, FavoritesAction, FavoritesEnviron
         case .setNavigation(let route):
             state.route = route
             return route == nil ? .init(value: .clearSubStates) : .none
-
-        case .setCurrentRouteGalleryID(let gid):
-            state.currentRouteGalleryID = gid
-            return .none
 
         case .setFavoritesIndex(let index):
             state.index = index

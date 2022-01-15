@@ -35,10 +35,7 @@ struct WatchedView: View {
             footerLoadingState: viewStore.footerLoadingState,
             fetchAction: { viewStore.send(.fetchGalleries()) },
             fetchMoreAction: { viewStore.send(.fetchMoreGalleries) },
-            navigateAction: {
-                viewStore.send(.setCurrentRouteGalleryID($0))
-                viewStore.send(.setNavigation(.detail))
-            },
+            navigateAction: { viewStore.send(.setNavigation(.detail($0))) },
             translateAction: {
                 tagTranslator.tryTranslate(text: $0, returnOriginal: !setting.translatesTags)
             }
@@ -72,10 +69,10 @@ struct WatchedView: View {
     }
 
     private var navigationLink: some View {
-        NavigationLink("", tag: .detail, selection: viewStore.binding(\.$route)) {
+        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /WatchedState.Route.detail) { route in
             DetailView(
                 store: store.scope(state: \.detailState, action: WatchedAction.detail),
-                gid: viewStore.currentRouteGalleryID, user: user, setting: setting, tagTranslator: tagTranslator
+                gid: route.wrappedValue, user: user, setting: setting, tagTranslator: tagTranslator
             )
         }
     }
@@ -94,11 +91,6 @@ struct WatchedView: View {
             }
         }
     }
-}
-
-// MARK: Definition
-enum WatchedViewRoute: Equatable {
-    case detail
 }
 
 struct WatchedView_Previews: PreviewProvider {

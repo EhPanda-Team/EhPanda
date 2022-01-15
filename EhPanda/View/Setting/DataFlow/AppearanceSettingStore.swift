@@ -8,12 +8,16 @@
 import ComposableArchitecture
 
 struct AppearanceSettingState: Equatable {
-    @BindableState var route: AppearanceSettingRoute?
+    enum Route {
+        case appIcon
+    }
+
+    @BindableState var route: Route?
 }
 
 enum AppearanceSettingAction: BindableAction {
     case binding(BindingAction<AppearanceSettingState>)
-    case setNavigation(AppearanceSettingRoute?)
+    case setNavigation(AppearanceSettingState.Route?)
 }
 
 struct AppearanceSettingEnvironment {}

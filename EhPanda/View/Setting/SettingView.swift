@@ -25,7 +25,7 @@ struct SettingView: View {
         NavigationView {
             ScrollView {
                 VStack(spacing: 0) {
-                    ForEach(SettingRoute.allCases) { route in
+                    ForEach(SettingState.Route.allCases) { route in
                         SettingRow(rowType: route) {
                             viewStore.send(.setNavigation($0))
                         }
@@ -41,59 +41,61 @@ struct SettingView: View {
 
 // MARK: NavigationLinks
 private extension SettingView {
-    var navigationLinks: some View {
-        ForEach(SettingRoute.allCases) { route in
-            NavigationLink("", tag: route, selection: viewStore.binding(\.$route), destination: {
-                Group {
-                    switch route {
-                    case .account:
-                        AccountSettingView(
-                            store: store.scope(state: \.accountSettingState, action: SettingAction.account),
-                            galleryHost: viewStore.binding(\.$setting.galleryHost),
-                            showNewDawnGreeting: viewStore.binding(\.$setting.showNewDawnGreeting),
-                            bypassesSNIFiltering: viewStore.setting.bypassesSNIFiltering,
-                            blurRadius: blurRadius
-                        )
-                    case .general:
-                        GeneralSettingView(
-                            store: store.scope(state: \.generalSettingState, action: SettingAction.general),
-                            tagTranslatorLoadingState: viewStore.tagTranslatorLoadingState,
-                            tagTranslatorEmpty: viewStore.tagTranslator.contents.isEmpty,
-                            translatesTags: viewStore.binding(\.$setting.translatesTags),
-                            redirectsLinksToSelectedHost: viewStore.binding(\.$setting.redirectsLinksToSelectedHost),
-                            detectsLinksFromPasteboard: viewStore.binding(\.$setting.detectsLinksFromPasteboard),
-                            backgroundBlurRadius: viewStore.binding(\.$setting.backgroundBlurRadius),
-                            autoLockPolicy: viewStore.binding(\.$setting.autoLockPolicy)
-                        )
-                    case .appearance:
-                        AppearanceSettingView(
-                            store: store.scope(state: \.appearanceSettingState, action: SettingAction.appearance),
-                            preferredColorScheme: viewStore.binding(\.$setting.preferredColorScheme),
-                            accentColor: viewStore.binding(\.$setting.accentColor),
-                            appIconType: viewStore.binding(\.$setting.appIconType),
-                            listMode: viewStore.binding(\.$setting.listMode),
-                            showsSummaryRowTags: viewStore.binding(\.$setting.showsSummaryRowTags),
-                            summaryRowTagsMaximum: viewStore.binding(\.$setting.summaryRowTagsMaximum)
-                        )
-                    case .reading:
-                        ReadingSettingView(
-                            readingDirection: viewStore.binding(\.$setting.readingDirection),
-                            prefetchLimit: viewStore.binding(\.$setting.prefetchLimit),
-                            prefersLandscape: viewStore.binding(\.$setting.prefersLandscape),
-                            contentDividerHeight: viewStore.binding(\.$setting.contentDividerHeight),
-                            maximumScaleFactor: viewStore.binding(\.$setting.maximumScaleFactor),
-                            doubleTapScaleFactor: viewStore.binding(\.$setting.doubleTapScaleFactor)
-                        )
-                    case .laboratory:
-                        LaboratorySettingView(
-                            bypassesSNIFiltering: viewStore.binding(\.$setting.bypassesSNIFiltering)
-                        )
-                    case .ehpanda:
-                        EhPandaView()
-                    }
-                }
-                .tint(viewStore.setting.accentColor)
-            })
+    @ViewBuilder var navigationLinks: some View {
+        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /SettingState.Route.account) { _ in
+            AccountSettingView(
+                store: store.scope(state: \.accountSettingState, action: SettingAction.account),
+                galleryHost: viewStore.binding(\.$setting.galleryHost),
+                showNewDawnGreeting: viewStore.binding(\.$setting.showNewDawnGreeting),
+                bypassesSNIFiltering: viewStore.setting.bypassesSNIFiltering,
+                blurRadius: blurRadius
+            )
+            .tint(viewStore.setting.accentColor)
+        }
+        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /SettingState.Route.general) { _ in
+            GeneralSettingView(
+                store: store.scope(state: \.generalSettingState, action: SettingAction.general),
+                tagTranslatorLoadingState: viewStore.tagTranslatorLoadingState,
+                tagTranslatorEmpty: viewStore.tagTranslator.contents.isEmpty,
+                translatesTags: viewStore.binding(\.$setting.translatesTags),
+                redirectsLinksToSelectedHost: viewStore.binding(\.$setting.redirectsLinksToSelectedHost),
+                detectsLinksFromPasteboard: viewStore.binding(\.$setting.detectsLinksFromPasteboard),
+                backgroundBlurRadius: viewStore.binding(\.$setting.backgroundBlurRadius),
+                autoLockPolicy: viewStore.binding(\.$setting.autoLockPolicy)
+            )
+            .tint(viewStore.setting.accentColor)
+        }
+        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /SettingState.Route.appearance) { _ in
+            AppearanceSettingView(
+                store: store.scope(state: \.appearanceSettingState, action: SettingAction.appearance),
+                preferredColorScheme: viewStore.binding(\.$setting.preferredColorScheme),
+                accentColor: viewStore.binding(\.$setting.accentColor),
+                appIconType: viewStore.binding(\.$setting.appIconType),
+                listMode: viewStore.binding(\.$setting.listMode),
+                showsSummaryRowTags: viewStore.binding(\.$setting.showsSummaryRowTags),
+                summaryRowTagsMaximum: viewStore.binding(\.$setting.summaryRowTagsMaximum)
+            )
+            .tint(viewStore.setting.accentColor)
+        }
+        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /SettingState.Route.reading) { _ in
+            ReadingSettingView(
+                readingDirection: viewStore.binding(\.$setting.readingDirection),
+                prefetchLimit: viewStore.binding(\.$setting.prefetchLimit),
+                prefersLandscape: viewStore.binding(\.$setting.prefersLandscape),
+                contentDividerHeight: viewStore.binding(\.$setting.contentDividerHeight),
+                maximumScaleFactor: viewStore.binding(\.$setting.maximumScaleFactor),
+                doubleTapScaleFactor: viewStore.binding(\.$setting.doubleTapScaleFactor)
+            )
+            .tint(viewStore.setting.accentColor)
+        }
+        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /SettingState.Route.laboratory) { _ in
+            LaboratorySettingView(
+                bypassesSNIFiltering: viewStore.binding(\.$setting.bypassesSNIFiltering)
+            )
+            .tint(viewStore.setting.accentColor)
+        }
+        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /SettingState.Route.ehpanda) { _ in
+            EhPandaView().tint(viewStore.setting.accentColor)
         }
     }
 }
@@ -103,8 +105,8 @@ private struct SettingRow: View {
     @Environment(\.colorScheme) private var colorScheme
     @State private var isPressing = false
 
-    private let rowType: SettingRoute
-    private let tapAction: (SettingRoute) -> Void
+    private let rowType: SettingState.Route
+    private let tapAction: (SettingState.Route) -> Void
 
     private var color: Color {
         colorScheme == .light ? Color(.darkGray) : Color(.lightGray)
@@ -113,7 +115,7 @@ private struct SettingRow: View {
         isPressing ? color.opacity(0.1) : .clear
     }
 
-    init(rowType: SettingRoute, tapAction: @escaping (SettingRoute) -> Void) {
+    init(rowType: SettingState.Route, tapAction: @escaping (SettingState.Route) -> Void) {
         self.rowType = rowType
         self.tapAction = tapAction
     }
@@ -138,17 +140,7 @@ private struct SettingRow: View {
 }
 
 // MARK: Definition
-enum SettingRoute: String, Hashable, Identifiable, CaseIterable {
-    var id: String { rawValue }
-
-    case account = "Account"
-    case general = "General"
-    case appearance = "Appearance"
-    case reading = "Reading"
-    case laboratory = "Laboratory"
-    case ehpanda = "About EhPanda"
-}
-extension SettingRoute {
+extension SettingState.Route {
     var symbol: SFSymbol {
         switch self {
         case .account:

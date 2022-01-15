@@ -8,12 +8,13 @@
 import ComposableArchitecture
 
 struct SearchRequestState: Equatable {
-    @BindableState var route: SearchRequestViewRoute?
-    var currentRouteGalleryID = ""
+    enum Route: Equatable {
+        case detail(String)
+    }
 
+    @BindableState var route: Route?
     @BindableState var keyword = ""
     var lastKeyword = ""
-
     @BindableState var jumpPageIndex = ""
     @BindableState var jumpPageAlertFocused = false
     @BindableState var jumpPageAlertPresented = false
@@ -39,8 +40,7 @@ struct SearchRequestState: Equatable {
 
 enum SearchRequestAction: BindableAction {
     case binding(BindingAction<SearchRequestState>)
-    case setNavigation(SearchRequestViewRoute?)
-    case setCurrentRouteGalleryID(String)
+    case setNavigation(SearchRequestState.Route?)
     case clearSubStates
     case onDisappear
     case onFiltersButtonTapped
@@ -81,10 +81,6 @@ let searchRequestReducer = Reducer<SearchRequestState, SearchRequestAction, Sear
         case .setNavigation(let route):
             state.route = route
             return route == nil ? .init(value: .clearSubStates) : .none
-
-        case .setCurrentRouteGalleryID(let gid):
-            state.currentRouteGalleryID = gid
-            return .none
 
         case .clearSubStates:
             state.detailState = .init()

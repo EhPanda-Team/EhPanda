@@ -8,9 +8,11 @@
 import ComposableArchitecture
 
 struct FrontpageState: Equatable {
-    @BindableState var route: FrontpageRoute?
-    var currentRouteGalleryID = ""
+    enum Route: Equatable {
+        case detail(String)
+    }
 
+    @BindableState var route: Route?
     @BindableState var keyword = ""
     @BindableState var jumpPageIndex = ""
     @BindableState var jumpPageAlertFocused = false
@@ -41,8 +43,7 @@ struct FrontpageState: Equatable {
 
 enum FrontpageAction: BindableAction {
     case binding(BindingAction<FrontpageState>)
-    case setNavigation(FrontpageRoute?)
-    case setCurrentRouteGalleryID(String)
+    case setNavigation(FrontpageState.Route?)
     case clearSubStates
     case onDisappear
     case onFiltersButtonTapped
@@ -83,10 +84,6 @@ let frontpageReducer = Reducer<FrontpageState, FrontpageAction, FrontpageEnviron
         case .setNavigation(let route):
             state.route = route
             return route == nil ? .init(value: .clearSubStates) : .none
-
-        case .setCurrentRouteGalleryID(let gid):
-            state.currentRouteGalleryID = gid
-            return .none
 
         case .clearSubStates:
             state.detailState = .init()

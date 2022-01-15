@@ -8,9 +8,11 @@
 import ComposableArchitecture
 
 struct PopularState: Equatable {
-    @BindableState var route: PopularViewRoute?
-    var currentRouteGalleryID = ""
+    enum Route: Equatable {
+        case detail(String)
+    }
 
+    @BindableState var route: Route?
     @BindableState var keyword = ""
 
     // Will be passed over from `appReducer`
@@ -28,8 +30,7 @@ struct PopularState: Equatable {
 
 enum PopularAction: BindableAction {
     case binding(BindingAction<PopularState>)
-    case setNavigation(PopularViewRoute?)
-    case setCurrentRouteGalleryID(String)
+    case setNavigation(PopularState.Route?)
     case clearSubStates
     case onFiltersButtonTapped
 
@@ -57,10 +58,6 @@ let popularReducer = Reducer<PopularState, PopularAction, PopularEnvironment>.co
         case .setNavigation(let route):
             state.route = route
             return route == nil ? .init(value: .clearSubStates) : .none
-
-        case .setCurrentRouteGalleryID(let gid):
-            state.currentRouteGalleryID = gid
-            return .none
 
         case .clearSubStates:
             state.detailState = .init()

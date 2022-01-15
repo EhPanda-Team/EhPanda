@@ -92,17 +92,12 @@ struct AppearanceSettingView: View {
                 .disabled(!showsSummaryRowTags)
             }
         }
-        .background(navigationLinks)
+        .background(navigationLink)
         .navigationBarTitle("Appearance")
     }
-    private var navigationLinks: some View {
-        ForEach(AppearanceSettingRoute.allCases) { route in
-            NavigationLink("", tag: route, selection: viewStore.binding(\.$route)) {
-                switch route {
-                case .appIcon:
-                    AppIconView(appIconType: $appIconType)
-                }
-            }
+    private var navigationLink: some View {
+        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /AppearanceSettingState.Route.appIcon) { _ in
+            AppIconView(appIconType: $appIconType)
         }
     }
 }
@@ -159,12 +154,6 @@ private struct AppIconRow: View {
 }
 
 // MARK: Definition
-enum AppearanceSettingRoute: Int, Hashable, Identifiable, CaseIterable {
-    var id: Int { rawValue }
-
-    case appIcon
-}
-
 enum AppIconType: String, Codable, Identifiable, CaseIterable {
     var id: Int { hashValue }
 

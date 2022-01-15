@@ -21,7 +21,7 @@ struct LogsView: View {
         ZStack {
             List(viewStore.logs) { log in
                 Button {
-                    viewStore.send(.setNavigation(.log(log.id)))
+                    viewStore.send(.setNavigation(.log(log)))
                 } label: {
                     LogCell(log: log, isLatest: log == viewStore.logs.first)
                 }
@@ -37,7 +37,7 @@ struct LogsView: View {
             }
         }
         .toolbar(content: toolbar)
-        .background(navigationLinks)
+        .background(navigationLink)
         .navigationBarTitle("Logs")
     }
 
@@ -49,30 +49,17 @@ struct LogsView: View {
         }
         .tint(.red)
     }
+    private var navigationLink: some View {
+        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /LogsState.Route.log) { route in
+            LogView(log: route.wrappedValue)
+        }
+    }
     private func toolbar() -> some ToolbarContent {
         ToolbarItem(placement: .navigationBarTrailing) {
             Button {
                 viewStore.send(.navigateToFileApp)
             } label: {
                 Image(systemSymbol: .folderBadgeGearshape)
-            }
-        }
-    }
-    private var navigationLinks: some View {
-        ForEach(viewStore.logs) { log in
-            NavigationLink(
-                "", tag: log.id, selection: .init(
-                    get: { (/LoginViewRoute.log).extract(from: viewStore.route) },
-                    set: {
-                        var route: LoginViewRoute?
-                        if let identifier = $0 {
-                            route = .log(identifier)
-                        }
-                        viewStore.send(.setNavigation(route))
-                    }
-                )
-            ) {
-                LogView(log: log)
             }
         }
     }

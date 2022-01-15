@@ -8,9 +8,12 @@
 import ComposableArchitecture
 
 struct SearchState: Equatable {
-    @BindableState var route: SearchViewRoute?
-    var currentRouteGalleryID = ""
+    enum Route: Equatable {
+        case request
+        case detail(String)
+    }
 
+    @BindableState var route: Route?
     @BindableState var keyword = ""
     var historyGalleries = [Gallery]()
 
@@ -50,8 +53,7 @@ struct SearchState: Equatable {
 
 enum SearchAction: BindableAction {
     case binding(BindingAction<SearchState>)
-    case setNavigation(SearchViewRoute?)
-    case setCurrentRouteGalleryID(String)
+    case setNavigation(SearchState.Route?)
     case setKeyword(String)
     case clearSubStates
     case onFiltersButtonTapped
@@ -86,10 +88,6 @@ let searchReducer = Reducer<SearchState, SearchAction, SearchEnvironment>.combin
         case .setNavigation(let route):
             state.route = route
             return route == nil ? .init(value: .clearSubStates) : .none
-
-        case .setCurrentRouteGalleryID(let gid):
-            state.currentRouteGalleryID = gid
-            return .none
 
         case .setKeyword(let keyword):
             state.keyword = keyword

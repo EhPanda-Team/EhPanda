@@ -42,14 +42,23 @@ struct EhSettingView: View {
         }
         .onAppear { viewStore.send(.fetchEhSetting) }
         .onDisappear {
-            if let profileSet = viewStore.ehSetting?.ehProfiles.filter({
-                AppUtil.verifyEhPandaProfileName(with: $0.name)
-            }).first?.value {
+            if let profileSet = viewStore.ehSetting?.ehpandaProfile?.value {
                 viewStore.send(.setDefaultProfile(profileSet))
             }
         }
-        .sheet(isPresented: viewStore.binding(\.$webViewSheetPresented)) {
-            WebView(url: Defaults.URL.uConfig)
+        .confirmationDialog(
+            message: "Are you sure to delete this profile?",
+            unwrapping: viewStore.binding(\.$route),
+            case: /EhSettingState.Route.deleteProfile
+        ) {
+            Button("Delete", role: .destructive) {
+                if let value = viewStore.ehProfile?.value {
+                    viewStore.send(.performAction(.delete, nil, value))
+                }
+            }
+        }
+        .sheet(unwrapping: viewStore.binding(\.$route), case: /EhSettingState.Route.webView) { route in
+            WebView(url: route.wrappedValue)
                 .blur(radius: blurRadius).allowsHitTesting(blurRadius < 1)
                 .animation(.linear(duration: 0.1), value: blurRadius)
         }
@@ -62,8 +71,7 @@ struct EhSettingView: View {
                 EhProfileSection(
                     ehSetting: ehSetting, ehProfile: ehProfile,
                     editingProfileName: viewStore.binding(\.$editingProfileName),
-                    deleteDialogPresented: viewStore.binding(\.$deleteDialogPresented),
-                    deleteAction: { viewStore.send(.setDeleteDialogPresented(true)) },
+                    deleteAction: { viewStore.send(.setNavigation(.deleteProfile)) },
                     performEhProfileAction: { viewStore.send(.performAction($0, $1, $2)) }
                 )
                 ImageLoadSettingsSection(ehSetting: ehSetting)
@@ -100,7 +108,7 @@ struct EhSettingView: View {
         Group {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button {
-                    viewStore.send(.setWebViewSheetPresented(true))
+                    viewStore.send(.setNavigation(.webView(Defaults.URL.uConfig)))
                 } label: {
                     Image(systemSymbol: .globe)
                 }
@@ -131,7 +139,6 @@ private struct EhProfileSection: View {
     @Binding private var ehSetting: EhSetting
     @Binding private var ehProfile: EhProfile
     @Binding private var editingProfileName: String
-    @Binding private var deleteDialogPresented: Bool
     private let deleteAction: () -> Void
     private let performEhProfileAction: (EhProfileAction?, String?, Int) -> Void
 
@@ -139,14 +146,12 @@ private struct EhProfileSection: View {
 
     init(
         ehSetting: Binding<EhSetting>, ehProfile: Binding<EhProfile>,
-        editingProfileName: Binding<String>, deleteDialogPresented: Binding<Bool>,
-        deleteAction: @escaping () -> Void, performEhProfileAction:
-        @escaping (EhProfileAction?, String?, Int) -> Void
+        editingProfileName: Binding<String>, deleteAction: @escaping () -> Void,
+        performEhProfileAction: @escaping (EhProfileAction?, String?, Int) -> Void
     ) {
         _ehSetting = ehSetting
         _ehProfile = ehProfile
         _editingProfileName = editingProfileName
-        _deleteDialogPresented = deleteDialogPresented
         self.deleteAction = deleteAction
         self.performEhProfileAction = performEhProfileAction
     }
@@ -170,14 +175,6 @@ private struct EhProfileSection: View {
                     performEhProfileAction(.default, nil, ehProfile.value)
                 }
                 Button("Delete profile", role: .destructive, action: deleteAction)
-            }
-        }
-        .confirmationDialog(
-            "Are you sure to delete this profile?",
-            isPresented: $deleteDialogPresented, titleVisibility: .visible
-        ) {
-            Button("Delete", role: .destructive) {
-                performEhProfileAction(.delete, nil, ehProfile.value)
             }
         }
         .onChange(of: ehProfile) {

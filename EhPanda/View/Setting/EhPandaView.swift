@@ -34,6 +34,7 @@ struct EhPandaView: View {
         Info(url: "https://github.com/jathu/UIImageColors", text: "UIImageColors"),
         Info(url: "https://github.com/SFSafeSymbols/SFSafeSymbols", text: "SFSafeSymbols"),
         Info(url: "https://github.com/honkmaster/TTProgressHUD", text: "TTProgressHUD"),
+        Info(url: "https://github.com/pointfreeco/swiftui-navigation", text: "SwiftUI Navigation"),
         Info(url: "https://github.com/EhTagTranslation/Database", text: "EhTagTranslation/Database"),
         Info(url: "https://github.com/pointfreeco/swift-composable-architecture", text: "The Composable Architecture")
     ]}

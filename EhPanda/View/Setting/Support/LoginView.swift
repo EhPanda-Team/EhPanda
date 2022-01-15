@@ -14,7 +14,7 @@ struct LoginView: View {
     private let bypassesSNIFiltering: Bool
     private let blurRadius: Double
 
-    @FocusState private var focusedField: LoginFocusedField?
+    @FocusState private var focusedField: LoginState.FocusedField?
 
     init(store: Store<LoginState, LoginAction>, bypassesSNIFiltering: Bool, blurRadius: Double) {
         self.store = store
@@ -56,8 +56,8 @@ struct LoginView: View {
             }
         }
         .synchronize(viewStore.binding(\.$focusedField), $focusedField)
-        .sheet(isPresented: viewStore.binding(\.$webViewSheetPresented)) {
-            WebView(url: Defaults.URL.webLogin) {
+        .sheet(unwrapping: viewStore.binding(\.$route), case: /LoginState.Route.webView) { route in
+            WebView(url: route.wrappedValue) {
                 viewStore.send(.loginDone)
             }
             .blur(radius: blurRadius).allowsHitTesting(blurRadius < 1)
@@ -72,7 +72,7 @@ struct LoginView: View {
     private func toolbar() -> some ToolbarContent {
         ToolbarItem(placement: .navigationBarTrailing) {
             Button {
-                viewStore.send(.setWebViewSheetPresented(true))
+                viewStore.send(.setNavigation(.webView(Defaults.URL.webLogin)))
             } label: {
                 Image(systemSymbol: .globe)
             }
@@ -84,7 +84,7 @@ struct LoginView: View {
 // MARK: LoginTextField
 private struct LoginTextField: View {
     @Environment(\.colorScheme) private var colorScheme
-    private let focusedField: FocusState<LoginFocusedField?>.Binding
+    private let focusedField: FocusState<LoginState.FocusedField?>.Binding
     @Binding private var text: String
     private let description: String
     private let isPassword: Bool
@@ -94,7 +94,7 @@ private struct LoginTextField: View {
     }
 
     init(
-        focusedField: FocusState<LoginFocusedField?>.Binding,
+        focusedField: FocusState<LoginState.FocusedField?>.Binding,
         text: Binding<String>, description: String, isPassword: Bool
     ) {
         self.focusedField = focusedField
@@ -119,15 +119,6 @@ private struct LoginTextField: View {
             .padding(10).background(backgroundColor.opacity(0.75).cornerRadius(8))
         }
     }
-}
-
-// MARK: Definition
-enum LoginFocusedField {
-    case username
-    case password
-}
-enum LoginViewRoute: Equatable {
-    case log(String)
 }
 
 struct LoginView_Previews: PreviewProvider {

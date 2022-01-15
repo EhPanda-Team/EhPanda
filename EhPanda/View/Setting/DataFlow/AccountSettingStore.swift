@@ -9,10 +9,16 @@ import TTProgressHUD
 import ComposableArchitecture
 
 struct AccountSettingState: Equatable {
-    @BindableState var route: AccountSettingRoute?
-    @BindableState var logoutDialogPresented = false
-    @BindableState var webViewSheetPresented = false
-    @BindableState var hudVisible = false
+    enum Route: Equatable {
+        case hud
+        case login
+        case logout
+        case ehSetting
+        case webView(URL)
+    }
+
+    @BindableState var route: Route?
+
     var hudConfig = TTProgressHUDConfig()
     var cookiesSectionIdentifier = ""
 
@@ -22,10 +28,8 @@ struct AccountSettingState: Equatable {
 
 enum AccountSettingAction: BindableAction {
     case binding(BindingAction<AccountSettingState>)
-    case setNavigation(AccountSettingRoute?)
-    case setWebViewSheetPresented(Bool)
-    case setLogoutDialogPresented(Bool)
-    case setHUD(Bool, TTProgressHUDConfig)
+    case setNavigation(AccountSettingState.Route?)
+    case setHUDConfig(TTProgressHUDConfig)
     case refreshCookiesSection
 
     case login(LoginAction)
@@ -49,16 +53,7 @@ let accountSettingReducer = Reducer<AccountSettingState, AccountSettingAction, A
             state.route = route
             return .none
 
-        case .setWebViewSheetPresented(let isPresented):
-            state.webViewSheetPresented = isPresented
-            return environment.hapticClient.generateFeedback(.light).fireAndForget()
-
-        case .setLogoutDialogPresented(let isPresented):
-            state.logoutDialogPresented = isPresented
-            return .none
-
-        case .setHUD(let visible, let config):
-            state.hudVisible = visible
+        case .setHUDConfig(let config):
             state.hudConfig = config
             return .none
 

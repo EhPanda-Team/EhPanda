@@ -97,7 +97,7 @@ struct GeneralSettingView: View {
             }
             Section("Cache".localized) {
                 Button {
-                    viewStore.send(.setClearDialogPresented(true))
+                    viewStore.send(.setNavigation(.clearCache))
                 } label: {
                     HStack {
                         Text("Clear image caches")
@@ -109,7 +109,9 @@ struct GeneralSettingView: View {
             }
         }
         .confirmationDialog(
-            "Are you sure to clear?", isPresented: viewStore.binding(\.$clearDialogPresented), titleVisibility: .visible
+            message: "Are you sure to clear?",
+            unwrapping: viewStore.binding(\.$route),
+            case: /GeneralSettingState.Route.clearCache
         ) {
             Button("Clear", role: .destructive) {
                 viewStore.send(.clearWebImageCache)
@@ -119,27 +121,15 @@ struct GeneralSettingView: View {
             viewStore.send(.checkPasscodeSetting)
             viewStore.send(.calculateWebImageDiskCache)
         }
-        .background(navigationLinks)
+        .background(navigationLink)
         .navigationBarTitle("General")
     }
 
-    private var navigationLinks: some View {
-        ForEach(GeneralSettingRoute.allCases) { route in
-            NavigationLink("", tag: route, selection: viewStore.binding(\.$route)) {
-                switch route {
-                case .logs:
-                    LogsView(store: store.scope(state: \.logsState, action: GeneralSettingAction.logs))
-                }
-            }
+    private var navigationLink: some View {
+        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /GeneralSettingState.Route.logs) { _ in
+            LogsView(store: store.scope(state: \.logsState, action: GeneralSettingAction.logs))
         }
     }
-}
-
-// MARK: Definition
-enum GeneralSettingRoute: Int, Identifiable, CaseIterable {
-    var id: Int { rawValue }
-
-    case logs
 }
 
 struct GeneralSettingView_Previews: PreviewProvider {

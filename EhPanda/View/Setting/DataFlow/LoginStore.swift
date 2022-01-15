@@ -9,8 +9,16 @@ import SwiftUI
 import ComposableArchitecture
 
 struct LoginState: Equatable {
-    @BindableState var focusedField: LoginFocusedField?
-    @BindableState var webViewSheetPresented = false
+    enum Route: Equatable {
+        case webView(URL)
+    }
+    enum FocusedField {
+        case username
+        case password
+    }
+
+    @BindableState var route: Route?
+    @BindableState var focusedField: FocusedField?
     @BindableState var username = ""
     @BindableState var password = ""
     var loginState: LoadingState = .idle
@@ -26,7 +34,7 @@ struct LoginState: Equatable {
 
 enum LoginAction: BindableAction {
     case binding(BindingAction<LoginState>)
-    case setWebViewSheetPresented(Bool)
+    case setNavigation(LoginState.Route?)
     case onTextFieldSubmitted
     case login
     case loginDone
@@ -42,9 +50,9 @@ let loginReducer = Reducer<LoginState, LoginAction, LoginEnvironment> { state, a
     case .binding:
         return .none
 
-    case .setWebViewSheetPresented(let isPresented):
-        state.webViewSheetPresented = isPresented
-        return environment.hapticClient.generateFeedback(.light).fireAndForget()
+    case .setNavigation(let route):
+        state.route = route
+        return .none
 
     case .onTextFieldSubmitted:
         switch state.focusedField {
@@ -78,8 +86,8 @@ let loginReducer = Reducer<LoginState, LoginAction, LoginEnvironment> { state, a
             state.loginState = .failed(.unknown)
             return environment.hapticClient.generateNotificationFeedback(.error).fireAndForget()
         }
+        state.route = nil
         state.loginState = .idle
-        state.webViewSheetPresented = false
         return environment.hapticClient.generateNotificationFeedback(.success).fireAndForget()
     }
 }

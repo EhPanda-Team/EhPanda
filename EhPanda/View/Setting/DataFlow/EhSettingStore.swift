@@ -8,8 +8,12 @@
 import ComposableArchitecture
 
 struct EhSettingState: Equatable {
-    @BindableState var webViewSheetPresented = false
-    @BindableState var deleteDialogPresented = false
+    enum Route: Equatable {
+        case webView(URL)
+        case deleteProfile
+    }
+
+    @BindableState var route: Route?
     @BindableState var editingProfileName = ""
     @BindableState var ehSetting: EhSetting?
     @BindableState var ehProfile: EhProfile?
@@ -27,10 +31,10 @@ struct EhSettingState: Equatable {
 
 enum EhSettingAction: BindableAction {
     case binding(BindingAction<EhSettingState>)
+    case setNavigation(EhSettingState.Route?)
     case setKeyboardHidden
-    case setWebViewSheetPresented(Bool)
-    case setDeleteDialogPresented(Bool)
     case setDefaultProfile(Int)
+
     case fetchEhSetting
     case fetchEhSettingDone(Result<EhSetting, AppError>)
     case submitChanges
@@ -50,16 +54,12 @@ let ehSettingReducer = Reducer<EhSettingState, EhSettingAction, EhSettingEnviron
     case .binding:
         return .none
 
+    case .setNavigation(let route):
+        state.route = route
+        return .none
+
     case .setKeyboardHidden:
         return environment.uiApplicationClient.hideKeyboard().fireAndForget()
-
-    case .setWebViewSheetPresented(let isPresented):
-        state.webViewSheetPresented = isPresented
-        return environment.hapticClient.generateFeedback(.light).fireAndForget()
-
-    case .setDeleteDialogPresented(let isPresented):
-        state.deleteDialogPresented = isPresented
-        return .none
 
     case .setDefaultProfile(let profileSet):
         return environment.cookiesClient.setCookie(

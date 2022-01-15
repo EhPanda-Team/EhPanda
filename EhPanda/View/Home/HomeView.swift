@@ -114,83 +114,56 @@ struct HomeView: View {
 private extension HomeView {
     @ViewBuilder var navigationLinks: some View {
         detailViewLink
-        miscGridLinks
-        sectionLinks
+        miscGridLink
+        sectionLink
     }
     var detailViewLink: some View {
-        NavigationLink("", tag: .detail, selection: viewStore.binding(\.$route)) {
+        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /HomeState.Route.detail) { route in
             DetailView(
                 store: store.scope(state: \.detailState, action: HomeAction.detail),
-                gid: viewStore.currentRouteGalleryID, user: user, setting: setting, tagTranslator: tagTranslator
+                gid: route.wrappedValue, user: user, setting: setting, tagTranslator: tagTranslator
             )
         }
     }
-    var miscGridLinks: some View {
-        ForEach(HomeMiscGridType.allCases) { type in
-            NavigationLink(
-                "", tag: type, selection: .init(
-                    get: { (/HomeViewRoute.misc).extract(from: viewStore.route) },
-                    set: {
-                        var route: HomeViewRoute?
-                        if let type = $0 {
-                            route = .misc(type)
-                        }
-                        viewStore.send(.setNavigation(route))
-                    }
+    var miscGridLink: some View {
+        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /HomeState.Route.misc) { route in
+            switch route.wrappedValue {
+            case .popular:
+                PopularView(
+                    store: store.scope(state: \.popularState, action: HomeAction.popular),
+                    user: user, setting: setting, tagTranslator: tagTranslator
                 )
-            ) {
-                switch type {
-                case .popular:
-                    PopularView(
-                        store: store.scope(state: \.popularState, action: HomeAction.popular),
-                        user: user, setting: setting, tagTranslator: tagTranslator
-                    )
-                case .watched:
-                    WatchedView(
-                        store: store.scope(state: \.watchedState, action: HomeAction.watched),
-                        user: user, setting: setting, tagTranslator: tagTranslator
-                    )
-                case .history:
-                    HistoryView(
-                        store: store.scope(state: \.historyState, action: HomeAction.history),
-                        user: user, setting: setting, tagTranslator: tagTranslator
-                    )
-                }
+            case .watched:
+                WatchedView(
+                    store: store.scope(state: \.watchedState, action: HomeAction.watched),
+                    user: user, setting: setting, tagTranslator: tagTranslator
+                )
+            case .history:
+                HistoryView(
+                    store: store.scope(state: \.historyState, action: HomeAction.history),
+                    user: user, setting: setting, tagTranslator: tagTranslator
+                )
             }
         }
     }
-    var sectionLinks: some View {
-        ForEach(HomeSectionType.allCases) { type in
-            NavigationLink(
-                "", tag: type, selection: .init(
-                    get: { (/HomeViewRoute.section).extract(from: viewStore.route) },
-                    set: {
-                        var route: HomeViewRoute?
-                        if let type = $0 {
-                            route = .section(type)
-                        }
-                        viewStore.send(.setNavigation(route))
-                    }
+    var sectionLink: some View {
+        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /HomeState.Route.section) { route in
+            switch route.wrappedValue {
+            case .frontpage:
+                FrontpageView(
+                    store: store.scope(state: \.frontpageState, action: HomeAction.frontpage),
+                    user: user, setting: setting, tagTranslator: tagTranslator
                 )
-            ) {
-                switch type {
-                case .frontpage:
-                    FrontpageView(
-                        store: store.scope(state: \.frontpageState, action: HomeAction.frontpage),
-                        user: user, setting: setting, tagTranslator: tagTranslator
-                    )
-                case .toplists:
-                    ToplistsView(
-                        store: store.scope(state: \.toplistsState, action: HomeAction.toplists),
-                        user: user, setting: setting, tagTranslator: tagTranslator
-                    )
-                }
+            case .toplists:
+                ToplistsView(
+                    store: store.scope(state: \.toplistsState, action: HomeAction.toplists),
+                    user: user, setting: setting, tagTranslator: tagTranslator
+                )
             }
         }
     }
     func navigateTo(gid: String) {
-        viewStore.send(.setCurrentRouteGalleryID(gid))
-        viewStore.send(.setNavigation(.detail))
+        viewStore.send(.setNavigation(.detail(gid)))
     }
     func navigateTo(type: HomeMiscGridType) {
         viewStore.send(.setNavigation(.misc(type)))
@@ -515,12 +488,6 @@ enum HomeSectionType: String, CaseIterable, Identifiable {
 
     case frontpage
     case toplists
-}
-
-enum HomeViewRoute: Equatable, Hashable {
-    case detail
-    case misc(HomeMiscGridType)
-    case section(HomeSectionType)
 }
 
 struct HomeView_Previews: PreviewProvider {

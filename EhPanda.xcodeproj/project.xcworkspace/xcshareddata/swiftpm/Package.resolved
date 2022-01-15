@@ -110,6 +110,15 @@
         }
       },
       {
+        "package": "swiftui-navigation",
+        "repositoryURL": "https://github.com/pointfreeco/swiftui-navigation.git",
+        "state": {
+          "branch": null,
+          "revision": "2694c03284a368168b3e0b8d7ab52626802d2246",
+          "version": "0.1.0"
+        }
+      },
+      {
         "package": "SwiftUIPager",
         "repositoryURL": "https://github.com/fermoya/SwiftUIPager.git",
         "state": {

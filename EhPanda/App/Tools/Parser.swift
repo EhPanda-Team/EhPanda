@@ -1327,7 +1327,7 @@ extension Parser {
         guard let options = options, options.count >= 1
         else { throw AppError.parseFailed }
 
-        for link in options where AppUtil.verifyEhPandaProfileName(with: link.text) {
+        for link in options where EhSetting.verifyEhPandaProfileName(with: link.text) {
             profileNotFound = false
             profileValue = Int(link["value"] ?? "")
         }

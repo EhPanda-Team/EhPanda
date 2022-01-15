@@ -24,6 +24,12 @@ struct EhSetting: Equatable {
     ]
 
     let ehProfiles: [EhProfile]
+    var ehpandaProfile: EhProfile? {
+        ehProfiles.filter({ EhSetting.verifyEhPandaProfileName(with: $0.name) }).first
+    }
+    static func verifyEhPandaProfileName(with name: String?) -> Bool {
+        ["EhPanda", "EhPanda (Default)"].contains(name ?? "")
+    }
 
     var capableLoadThroughHathSetting: EhSettingLoadThroughHathSetting
     var capableImageResolution: EhSettingImageResolution

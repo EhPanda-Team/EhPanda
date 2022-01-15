@@ -8,9 +8,12 @@
 import ComposableArchitecture
 
 struct HistoryState: Equatable {
-    @BindableState var route: HistoryViewRoute?
-    var currentRouteGalleryID = ""
+    enum Route: Equatable {
+        case detail(String)
+        case clearHistory
+    }
 
+    @BindableState var route: Route?
     @BindableState var keyword = ""
     @BindableState var clearDialogPresented = false
 
@@ -29,14 +32,12 @@ struct HistoryState: Equatable {
 
 enum HistoryAction: BindableAction {
     case binding(BindingAction<HistoryState>)
-    case setNavigation(HistoryViewRoute?)
-    case setCurrentRouteGalleryID(String)
+    case setNavigation(HistoryState.Route?)
     case clearSubStates
+    case clearHistoryGalleries
 
     case fetchGalleries
     case fetchGalleriesDone([Gallery])
-    case setClearDialogPresented(Bool)
-    case clearHistoryGalleries
 
     case detail(DetailAction)
 }
@@ -60,13 +61,12 @@ let historyReducer = Reducer<HistoryState, HistoryAction, HistoryEnvironment>.co
             state.route = route
             return route == nil ? .init(value: .clearSubStates) : .none
 
-        case .setCurrentRouteGalleryID(let gid):
-            state.currentRouteGalleryID = gid
-            return .none
-
         case .clearSubStates:
             state.detailState = .init()
             return .none
+
+        case .clearHistoryGalleries:
+            return environment.databaseClient.clearHistoryGalleries().fireAndForget()
 
         case .fetchGalleries:
             guard state.loadingState != .loading else { return .none }
@@ -81,13 +81,6 @@ let historyReducer = Reducer<HistoryState, HistoryAction, HistoryEnvironment>.co
                 state.galleries = galleries
             }
             return .none
-
-        case .setClearDialogPresented(let isPresented):
-            state.clearDialogPresented = isPresented
-            return .none
-
-        case .clearHistoryGalleries:
-            return environment.databaseClient.clearHistoryGalleries().fireAndForget()
 
         case .detail:
             return .none

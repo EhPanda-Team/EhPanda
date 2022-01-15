@@ -11,9 +11,13 @@ import UIImageColors
 import ComposableArchitecture
 
 struct HomeState: Equatable {
-    @BindableState var route: HomeViewRoute?
-    var currentRouteGalleryID = ""
+    enum Route: Equatable, Hashable {
+        case detail(String)
+        case misc(HomeMiscGridType)
+        case section(HomeSectionType)
+    }
 
+    @BindableState var route: Route?
     @BindableState var cardPageIndex = 1
     @BindableState var currentCardID = ""
     var allowsCardHitTesting = true
@@ -60,8 +64,7 @@ struct HomeState: Equatable {
 
 enum HomeAction: BindableAction {
     case binding(BindingAction<HomeState>)
-    case setNavigation(HomeViewRoute?)
-    case setCurrentRouteGalleryID(String)
+    case setNavigation(HomeState.Route?)
     case clearSubStates
     case setAllowsCardHitTesting(Bool)
     case analyzeImageColors(String, RetrieveImageResult)
@@ -111,10 +114,6 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
         case .setNavigation(let route):
             state.route = route
             return route == nil ? .init(value: .clearSubStates) : .none
-
-        case .setCurrentRouteGalleryID(let gid):
-            state.currentRouteGalleryID = gid
-            return .none
 
         case .clearSubStates:
             state.frontpageState = .init()

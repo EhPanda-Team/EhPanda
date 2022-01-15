@@ -8,9 +8,11 @@
 import ComposableArchitecture
 
 struct WatchedState: Equatable {
-    @BindableState var route: WatchedViewRoute?
-    var currentRouteGalleryID = ""
+    enum Route: Equatable {
+        case detail(String)
+    }
 
+    @BindableState var route: Route?
     @BindableState var keyword = ""
     @BindableState var jumpPageIndex = ""
     @BindableState var jumpPageAlertFocused = false
@@ -37,8 +39,7 @@ struct WatchedState: Equatable {
 
 enum WatchedAction: BindableAction {
     case binding(BindingAction<WatchedState>)
-    case setNavigation(WatchedViewRoute?)
-    case setCurrentRouteGalleryID(String)
+    case setNavigation(WatchedState.Route?)
     case clearSubStates
     case onDisappear
     case onFiltersButtonTapped
@@ -79,10 +80,6 @@ let watchedReducer = Reducer<WatchedState, WatchedAction, WatchedEnvironment>.co
         case .setNavigation(let route):
             state.route = route
             return route == nil ? .init(value: .clearSubStates) : .none
-
-        case .setCurrentRouteGalleryID(let gid):
-            state.currentRouteGalleryID = gid
-            return .none
 
         case .clearSubStates:
             state.detailState = .init()

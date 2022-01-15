@@ -34,17 +34,15 @@ struct HistoryView: View {
             loadingState: viewStore.loadingState,
             footerLoadingState: .idle,
             fetchAction: { viewStore.send(.fetchGalleries) },
-            navigateAction: {
-                viewStore.send(.setCurrentRouteGalleryID($0))
-                viewStore.send(.setNavigation(.detail))
-            },
+            navigateAction: { viewStore.send(.setNavigation(.detail($0))) },
             translateAction: {
                 tagTranslator.tryTranslate(text: $0, returnOriginal: !setting.translatesTags)
             }
         )
         .confirmationDialog(
-            "Are you sure to clear?", isPresented: viewStore.binding(\.$clearDialogPresented),
-            titleVisibility: .visible
+            message: "Are you sure to clear?",
+            unwrapping: viewStore.binding(\.$route),
+            case: /HistoryState.Route.clearHistory
         ) {
             Button("Clear", role: .destructive) {
                 viewStore.send(.clearHistoryGalleries)
@@ -64,28 +62,23 @@ struct HistoryView: View {
     }
 
     private var navigationLink: some View {
-        NavigationLink("", tag: .detail, selection: viewStore.binding(\.$route)) {
+        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /HistoryState.Route.detail) { route in
             DetailView(
                 store: store.scope(state: \.detailState, action: HistoryAction.detail),
-                gid: viewStore.currentRouteGalleryID, user: user, setting: setting, tagTranslator: tagTranslator
+                gid: route.wrappedValue, user: user, setting: setting, tagTranslator: tagTranslator
             )
         }
     }
     private func toolbar() -> some ToolbarContent {
         CustomToolbarItem {
             Button {
-                viewStore.send(.setClearDialogPresented(true))
+                viewStore.send(.setNavigation(.clearHistory))
             } label: {
                 Image(systemSymbol: .trashCircle)
             }
             .disabled(viewStore.galleries.isEmpty)
         }
     }
-}
-
-// MARK: Definition
-enum HistoryViewRoute: Equatable {
-    case detail
 }
 
 struct HistoryView_Previews: PreviewProvider {

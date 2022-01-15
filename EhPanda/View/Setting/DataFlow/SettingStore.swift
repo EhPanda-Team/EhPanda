@@ -8,6 +8,17 @@
 import ComposableArchitecture
 
 struct SettingState: Equatable {
+    enum Route: String, Hashable, Identifiable, CaseIterable {
+        var id: String { rawValue }
+
+        case account = "Account"
+        case general = "General"
+        case appearance = "Appearance"
+        case reading = "Reading"
+        case laboratory = "Laboratory"
+        case ehpanda = "About EhPanda"
+    }
+
     // AppEnvStorage
     @BindableState var setting = Setting()
     @BindableState var searchFilter = Filter()
@@ -16,7 +27,7 @@ struct SettingState: Equatable {
     var tagTranslator = TagTranslator()
     var user = User()
 
-    @BindableState var route: SettingRoute?
+    @BindableState var route: Route?
     var tagTranslatorLoadingState: LoadingState = .idle
 
     var accountSettingState = AccountSettingState()
@@ -78,7 +89,7 @@ enum SettingAction: BindableAction {
     case fetchFavoriteNames
     case fetchFavoriteNamesDone(Result<[Int: String], AppError>)
 
-    case setNavigation(SettingRoute?)
+    case setNavigation(SettingState.Route?)
     case resetFilter(FilterRange)
 
     case account(AccountSettingAction)

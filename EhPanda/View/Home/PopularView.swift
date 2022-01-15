@@ -33,10 +33,7 @@ struct PopularView: View {
             loadingState: viewStore.loadingState,
             footerLoadingState: .idle,
             fetchAction: { viewStore.send(.fetchGalleries) },
-            navigateAction: {
-                viewStore.send(.setCurrentRouteGalleryID($0))
-                viewStore.send(.setNavigation(.detail))
-            },
+            navigateAction: { viewStore.send(.setNavigation(.detail($0))) },
             translateAction: {
                 tagTranslator.tryTranslate(text: $0, returnOriginal: !setting.translatesTags)
             }
@@ -55,10 +52,10 @@ struct PopularView: View {
     }
 
     private var navigationLink: some View {
-        NavigationLink("", tag: .detail, selection: viewStore.binding(\.$route)) {
+        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /PopularState.Route.detail) { route in
             DetailView(
                 store: store.scope(state: \.detailState, action: PopularAction.detail),
-                gid: viewStore.currentRouteGalleryID, user: user, setting: setting, tagTranslator: tagTranslator
+                gid: route.wrappedValue, user: user, setting: setting, tagTranslator: tagTranslator
             )
         }
     }
@@ -69,11 +66,6 @@ struct PopularView: View {
             }
         }
     }
-}
-
-// MARK: Definition
-enum PopularViewRoute: Equatable {
-    case detail
 }
 
 struct PopularView_Previews: PreviewProvider {

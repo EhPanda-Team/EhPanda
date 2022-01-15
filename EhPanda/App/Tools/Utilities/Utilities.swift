@@ -57,10 +57,6 @@ struct AppUtil {
         return GalleryHost(rawValue: rawValue ?? "") ?? .ehentai
     }
 
-    static func verifyEhPandaProfileName(with name: String?) -> Bool {
-        ["EhPanda", "EhPanda (Default)"].contains(name ?? "")
-    }
-
     static func configureKingfisher(bypassesSNIFiltering: Bool, handlesCookies: Bool = true) {
         let config = KingfisherManager.shared.downloader.sessionConfiguration
         if handlesCookies { config.httpCookieStorage = HTTPCookieStorage.shared }

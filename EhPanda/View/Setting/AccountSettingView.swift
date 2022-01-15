@@ -32,41 +32,45 @@ struct AccountSettingView: View {
 
     // MARK: AccountSettingView
     var body: some View {
-        ZStack {
-            Form {
-                Section {
-                    Picker("Gallery", selection: $galleryHost) {
-                        ForEach(GalleryHost.allCases) {
-                            Text($0.rawValue.localized).tag($0)
-                        }
+        Form {
+            Section {
+                Picker("Gallery", selection: $galleryHost) {
+                    ForEach(GalleryHost.allCases) {
+                        Text($0.rawValue.localized).tag($0)
                     }
-                    .pickerStyle(.segmented)
-                    AccountSection(
-                        showNewDawnGreeting: $showNewDawnGreeting,
-                        bypassesSNIFiltering: bypassesSNIFiltering,
-                        loginAction: { viewStore.send(.setNavigation(.login)) },
-                        logoutAction: { viewStore.send(.setLogoutDialogPresented(true)) },
-                        configureAccountAction: { viewStore.send(.setNavigation(.ehSetting)) },
-                        manageTagsAction: { viewStore.send(.setWebViewSheetPresented(true)) }
-                    )
                 }
-                CookieSection { (presented, config) in
-                    viewStore.send(.setHUD(presented, config))
-                }
-                .id(viewStore.cookiesSectionIdentifier)
+                .pickerStyle(.segmented)
+                AccountSection(
+                    showNewDawnGreeting: $showNewDawnGreeting,
+                    bypassesSNIFiltering: bypassesSNIFiltering,
+                    loginAction: { viewStore.send(.setNavigation(.login)) },
+                    logoutAction: { viewStore.send(.setNavigation(.logout)) },
+                    configureAccountAction: { viewStore.send(.setNavigation(.ehSetting)) },
+                    manageTagsAction: { viewStore.send(.setNavigation(.webView(Defaults.URL.myTags))) }
+                )
             }
-            TTProgressHUD(viewStore.binding(\.$hudVisible), config: viewStore.hudConfig)
+            CookieSection { (isPresented, config) in
+                viewStore.send(.setHUDConfig(config))
+                viewStore.send(.setNavigation(isPresented ? .hud : .none))
+            }
+            .id(viewStore.cookiesSectionIdentifier)
         }
+        .progressHUD(
+            config: viewStore.hudConfig,
+            unwrapping: viewStore.binding(\.$route),
+            case: /AccountSettingState.Route.hud
+        )
         .confirmationDialog(
-            "Are you sure to logout?", isPresented: viewStore.binding(\.$logoutDialogPresented),
-            titleVisibility: .visible
+            message: "Are you sure to logout?",
+            unwrapping: viewStore.binding(\.$route),
+            case: /AccountSettingState.Route.logout
         ) {
             Button("Logout", role: .destructive) {
                 viewStore.send(.onLogoutConfirmButtonTapped)
             }
         }
-        .sheet(isPresented: viewStore.binding(\.$webViewSheetPresented)) {
-            WebView(url: Defaults.URL.myTags)
+        .sheet(unwrapping: viewStore.binding(\.$route), case: /AccountSettingState.Route.webView) { route in
+            WebView(url: route.wrappedValue)
                 .blur(radius: blurRadius).allowsHitTesting(blurRadius < 1)
                 .animation(.linear(duration: 0.1), value: blurRadius)
         }
@@ -77,22 +81,18 @@ struct AccountSettingView: View {
 
 // MARK: NavigationLinks
 private extension AccountSettingView {
-    var navigationLinks: some View {
-        ForEach(AccountSettingRoute.allCases) { route in
-            NavigationLink("", tag: route, selection: viewStore.binding(\.$route), destination: {
-                switch route {
-                case .login:
-                    LoginView(
-                        store: store.scope(state: \.loginState, action: AccountSettingAction.login),
-                        bypassesSNIFiltering: bypassesSNIFiltering, blurRadius: blurRadius
-                    )
-                case .ehSetting:
-                    EhSettingView(
-                        store: store.scope(state: \.ehSettingState, action: AccountSettingAction.ehSetting),
-                        bypassesSNIFiltering: bypassesSNIFiltering, blurRadius: blurRadius
-                    )
-                }
-            })
+    @ViewBuilder var navigationLinks: some View {
+        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /AccountSettingState.Route.login) { _ in
+            LoginView(
+                store: store.scope(state: \.loginState, action: AccountSettingAction.login),
+                bypassesSNIFiltering: bypassesSNIFiltering, blurRadius: blurRadius
+            )
+        }
+        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /AccountSettingState.Route.ehSetting) { _ in
+            EhSettingView(
+                store: store.scope(state: \.ehSettingState, action: AccountSettingAction.ehSetting),
+                bypassesSNIFiltering: bypassesSNIFiltering, blurRadius: blurRadius
+            )
         }
     }
 }
@@ -270,33 +270,6 @@ private struct CookieRow: View {
 struct CookieValue {
     let rawValue: String
     let localizedString: String
-}
-
-enum SettingViewSheetState: Identifiable {
-    var id: Int { hashValue }
-
-    case webviewLogin
-    case webviewConfig
-    case webviewMyTags
-}
-extension SettingViewSheetState {
-    var url: URL {
-        switch self {
-        case .webviewLogin:
-            return Defaults.URL.webLogin
-        case .webviewConfig:
-            return Defaults.URL.uConfig
-        case .webviewMyTags:
-            return Defaults.URL.myTags
-        }
-    }
-}
-
-enum AccountSettingRoute: Int, Hashable, Identifiable, CaseIterable {
-    var id: Int { rawValue }
-
-    case login
-    case ehSetting
 }
 
 struct AccountSettingView_Previews: PreviewProvider {

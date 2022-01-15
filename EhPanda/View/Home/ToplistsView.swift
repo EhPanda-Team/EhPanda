@@ -40,10 +40,7 @@ struct ToplistsView: View {
             footerLoadingState: viewStore.footerLoadingState ?? .idle,
             fetchAction: { viewStore.send(.fetchGalleries()) },
             fetchMoreAction: { viewStore.send(.fetchMoreGalleries) },
-            navigateAction: {
-                viewStore.send(.setCurrentRouteGalleryID($0))
-                viewStore.send(.setNavigation(.detail))
-            },
+            navigateAction: { viewStore.send(.setNavigation(.detail($0))) },
             translateAction: { tagTranslator.tryTranslate(
                 text: $0, returnOriginal: setting.translatesTags
             ) }
@@ -74,10 +71,10 @@ struct ToplistsView: View {
     }
 
     private var navigationLink: some View {
-        NavigationLink("", tag: .detail, selection: viewStore.binding(\.$route)) {
+        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /ToplistsState.Route.detail) { route in
             DetailView(
                 store: store.scope(state: \.detailState, action: ToplistsAction.detail),
-                gid: viewStore.currentRouteGalleryID, user: user, setting: setting, tagTranslator: tagTranslator
+                gid: route.wrappedValue, user: user, setting: setting, tagTranslator: tagTranslator
             )
         }
     }
@@ -133,10 +130,6 @@ extension ToplistsType {
             return 11
         }
     }
-}
-
-enum ToplistsViewRoute: Equatable {
-    case detail
 }
 
 struct ToplistsView_Previews: PreviewProvider {

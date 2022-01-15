@@ -15,7 +15,7 @@ struct FiltersView: View {
     @Binding private var globalFilter: Filter
     @Binding private var watchedFilter: Filter
 
-    @FocusState private var focusBound: FocusBound?
+    @FocusState private var focusedBound: FiltersState.FocusedBound?
 
     init(
         store: Store<FiltersState, FiltersAction>,
@@ -50,11 +50,11 @@ struct FiltersView: View {
                     resetDialogPresented: viewStore.binding(\.$resetDialogPresented)
                 )
                 AdvancedSection(
-                    filter: filter, focusBound: $focusBound,
+                    filter: filter, focusedBound: $focusedBound,
                     submitAction: { viewStore.send(.onTextFieldSubmitted) }
                 )
             }
-            .synchronize(viewStore.binding(\.$focusBound), $focusBound)
+            .synchronize(viewStore.binding(\.$focusedBound), $focusedBound)
             .confirmationDialog(
                 "Are you sure to reset?", isPresented: viewStore.binding(\.$resetDialogPresented),
                 titleVisibility: .visible
@@ -106,16 +106,16 @@ private struct BasicSection: View {
 // MARK: AdvancedSection
 private struct AdvancedSection: View {
     @Binding private var filter: Filter
-    private let focusBound: FocusState<FocusBound?>.Binding
+    private let focusedBound: FocusState<FiltersState.FocusedBound?>.Binding
     private let submitAction: () -> Void
 
     init(
         filter: Binding<Filter>,
-        focusBound: FocusState<FocusBound?>.Binding,
+        focusedBound: FocusState<FiltersState.FocusedBound?>.Binding,
         submitAction: @escaping () -> Void
     ) {
         _filter = filter
-        self.focusBound = focusBound
+        self.focusedBound = focusedBound
         self.submitAction = submitAction
     }
 
@@ -136,11 +136,11 @@ private struct AdvancedSection: View {
                 MinimumRatingSetter(minimum: $filter.minRating)
                     .disabled(!filter.minRatingActivated)
                 Toggle("Set pages range", isOn: $filter.pageRangeActivated)
-                    .disabled(focusBound.wrappedValue != nil)
+                    .disabled(focusedBound.wrappedValue != nil)
                 PagesRangeSetter(
                     lowerBound: $filter.pageLowerBound,
                     upperBound: $filter.pageUpperBound,
-                    focusBound: focusBound,
+                    focusedBound: focusedBound,
                     submitAction: submitAction
                 )
                 .disabled(!filter.pageRangeActivated)
@@ -181,18 +181,18 @@ private struct MinimumRatingSetter: View {
 private struct PagesRangeSetter: View {
     @Binding private var lowerBound: String
     @Binding private var upperBound: String
-    private let focusBound: FocusState<FocusBound?>.Binding
+    private let focusedBound: FocusState<FiltersState.FocusedBound?>.Binding
     private let submitAction: () -> Void
 
     init(
         lowerBound: Binding<String>,
         upperBound: Binding<String>,
-        focusBound: FocusState<FocusBound?>.Binding,
+        focusedBound: FocusState<FiltersState.FocusedBound?>.Binding,
         submitAction: @escaping () -> Void
     ) {
         _lowerBound = lowerBound
         _upperBound = upperBound
-        self.focusBound = focusBound
+        self.focusedBound = focusedBound
         self.submitAction = submitAction
     }
 
@@ -201,11 +201,11 @@ private struct PagesRangeSetter: View {
             Text("Pages range")
             Spacer()
             SettingTextField(text: $lowerBound)
-                .focused(focusBound, equals: .lower)
+                .focused(focusedBound, equals: .lower)
                 .submitLabel(.next)
             Text("-")
             SettingTextField(text: $upperBound)
-                .focused(focusBound, equals: .upper)
+                .focused(focusedBound, equals: .upper)
                 .submitLabel(.done)
         }
         .onSubmit(submitAction)
@@ -226,11 +226,6 @@ enum FilterRange: String, CaseIterable, Identifiable {
     case search = "Search"
     case global = "Global"
     case watched = "Watched"
-}
-
-enum FocusBound {
-    case lower
-    case upper
 }
 
 struct FiltersView_Previews: PreviewProvider {
