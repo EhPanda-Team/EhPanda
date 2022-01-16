@@ -496,10 +496,10 @@ struct GalleryTorrentsRequest: Request {
 }
 
 struct GalleryPreviewsRequest: Request {
-    let url: String
+    let url: URL
 
     var publisher: AnyPublisher<[Int: String], AppError> {
-        URLSession.shared.dataTaskPublisher(for: url.safeURL())
+        URLSession.shared.dataTaskPublisher(for: url)
             .genericRetry().tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .tryMap(Parser.parsePreviews).mapError(mapAppError).eraseToAnyPublisher()
     }

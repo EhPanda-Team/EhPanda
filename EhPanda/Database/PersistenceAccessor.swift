@@ -208,23 +208,4 @@ extension PersistenceController {
             storedData = new.toData()
         }
     }
-    static func update(fetchedState: GalleryState) {
-        update(gid: fetchedState.gid) { galleryStateMO in
-            if !fetchedState.tags.isEmpty {
-                galleryStateMO.tags = fetchedState.tags.toData()
-            }
-            if !fetchedState.comments.isEmpty {
-                galleryStateMO.comments = fetchedState.comments.toData()
-            }
-            if !fetchedState.previews.isEmpty {
-                if let storedPreviews = galleryStateMO.previews?.toObject() as [Int: String]? {
-                    galleryStateMO.previews = storedPreviews.merging(
-                        fetchedState.previews, uniquingKeysWith: { stored, _ in stored }
-                    ).toData()
-                } else {
-                    galleryStateMO.previews = fetchedState.previews.toData()
-                }
-            }
-        }
-    }
 }

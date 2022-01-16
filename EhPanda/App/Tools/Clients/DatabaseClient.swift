@@ -148,9 +148,6 @@ extension DatabaseClient {
         updateAppEnv("historyKeywords", keywords.toData())
     }
 
-    func updateReadingProgress(gid: String, progress: Int) -> Effect<Never, Never> {
-        updateGallery(gid, "readingProgress", Int64(progress))
-    }
     func updateLastOpenDate(gid: String, date: Date = .now) -> Effect<Never, Never> {
         updateGallery(gid, "lastOpenDate", date)
     }
@@ -161,8 +158,21 @@ extension DatabaseClient {
     func updatePreviewConfig(gid: String, config: PreviewConfig) -> Effect<Never, Never> {
         updateGalleryState(gid, "previewConfig", config.toData())
     }
+    func updateReadingProgress(gid: String, progress: Int) -> Effect<Never, Never> {
+        updateGalleryState(gid, "readingProgress", Int64(progress))
+    }
     func updateGalleryPreviews(gid: String, previews: [Int: String]) -> Effect<Never, Never> {
-        updateGalleryState(gid, "previews", previews.toData())
+        .fireAndForget {
+            PersistenceController.update(gid: gid) { galleryStateMO in
+                if let storedPreviews = galleryStateMO.previews?.toObject() as [Int: String]? {
+                    galleryStateMO.previews = storedPreviews.merging(
+                        previews, uniquingKeysWith: { stored, _ in stored }
+                    ).toData()
+                } else {
+                    galleryStateMO.previews = previews.toData()
+                }
+            }
+        }
     }
     func updateGalleryComments(gid: String, comments: [GalleryComment]) -> Effect<Never, Never> {
         updateGalleryState(gid, "comments", comments.toData())

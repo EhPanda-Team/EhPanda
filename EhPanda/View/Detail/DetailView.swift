@@ -130,6 +130,12 @@ struct DetailView: View {
 // MARK: NavigationLinks
 private extension DetailView {
     @ViewBuilder var navigationLinks: some View {
+        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /DetailState.Route.previews) { _ in
+            PreviewsView(
+                store: store.scope(state: \.previewsState, action: DetailAction.previews),
+                gid: gid, pageCount: viewStore.gallery?.pageCount ?? 1
+            )
+        }
         NavigationLink(unwrapping: viewStore.binding(\.$route), case: /DetailState.Route.galleryInfos) { route in
             let (gallery, galleryDetail) = route.wrappedValue
             GalleryInfosView(gallery: gallery, galleryDetail: galleryDetail)
@@ -539,20 +545,21 @@ private struct PreviewsSection: View {
     private var height: CGFloat {
         width / Defaults.ImageSize.previewAspect
     }
-    private var previewsWithIndies: [(Int, String)] {
-        previews.map({ ($0.key, $0.value) }).sorted(by: { $0.0 < $1.0 })
-    }
 
     var body: some View {
-        SubSection(title: "Preview", showAll: pageCount > 20, showAllAction: navigatePreviewsAction) {
+        SubSection(title: "Previews", showAll: pageCount > 20, showAllAction: navigatePreviewsAction) {
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHStack {
-                    ForEach(previewsWithIndies, id: \.0) { index, previewURL in
+                    ForEach(previews.tuples.sorted(by: { $0.0 < $1.0 }), id: \.0) { index, previewURL in
                         let (url, modifier) = PreviewResolver.getPreviewConfigs(originalURL: previewURL)
-                        KFImage.url(URL(string: url), cacheKey: previewURL)
-                            .placeholder { Placeholder(style: .activity(ratio: Defaults.ImageSize.previewAspect)) }
-                            .imageModifier(modifier).fade(duration: 0.25).resizable().scaledToFit()
-                            .frame(width: width, height: height).onTapGesture { navigateReadingAction(index) }
+                        Button {
+                            navigateReadingAction(index)
+                        } label: {
+                            KFImage.url(URL(string: url), cacheKey: previewURL)
+                                .placeholder { Placeholder(style: .activity(ratio: Defaults.ImageSize.previewAspect)) }
+                                .imageModifier(modifier).fade(duration: 0.25).resizable().scaledToFit()
+                                .frame(width: width, height: height)
+                        }
                     }
                     .withHorizontalSpacing(height: height)
                 }
@@ -578,7 +585,7 @@ private struct CommentsSection: View {
     }
 
     var body: some View {
-        SubSection(title: "Comment", showAll: !comments.isEmpty, showAllAction: navigateCommentAction) {
+        SubSection(title: "Comments", showAll: !comments.isEmpty, showAllAction: navigateCommentAction) {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack {
                     ForEach(comments.prefix(min(comments.count, 6))) { comment in

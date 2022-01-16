@@ -23,7 +23,7 @@ struct PersistenceController {
     static func prepareForPreviews() {
         PersistenceController.add(galleries: [Gallery.preview])
         PersistenceController.add(detail: GalleryDetail.preview)
-        PersistenceController.update(fetchedState: GalleryState.preview)
+//        PersistenceController.update(fetchedState: GalleryState.preview)
     }
     static func saveContext() {
         let context = shared.container.viewContext
