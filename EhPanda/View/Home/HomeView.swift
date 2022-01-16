@@ -468,9 +468,6 @@ enum HomeMiscGridType: String, CaseIterable, Identifiable {
 }
 
 extension HomeMiscGridType {
-    var destination: some View {
-        EmptyView()
-    }
     var symbol: SFSymbol {
         switch self {
         case .popular:

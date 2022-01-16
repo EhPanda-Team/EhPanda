@@ -261,9 +261,8 @@ private struct HistoryGalleriesSection: View {
                             navigationAction(gallery.id)
                         } label: {
                             GalleryHistoryCell(gallery: gallery)
-                                .multilineTextAlignment(.leading)
+                                .tint(.primary).multilineTextAlignment(.leading)
                         }
-                        .foregroundColor(.primary)
                     }
                     .withHorizontalSpacing()
                 }

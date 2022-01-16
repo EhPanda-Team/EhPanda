@@ -148,6 +148,9 @@ extension DatabaseClient {
         updateAppEnv("historyKeywords", keywords.toData())
     }
 
+    func updateReadingProgress(gid: String, progress: Int) -> Effect<Never, Never> {
+        updateGallery(gid, "readingProgress", Int64(progress))
+    }
     func updateLastOpenDate(gid: String, date: Date = .now) -> Effect<Never, Never> {
         updateGallery(gid, "lastOpenDate", date)
     }

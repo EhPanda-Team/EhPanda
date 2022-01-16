@@ -175,11 +175,6 @@ extension PersistenceController {
     static func update(gid: String, galleryStateMO: @escaping ((GalleryStateMO) -> Void)) {
         update(entityType: GalleryStateMO.self, gid: gid, createIfNil: true, commitChanges: galleryStateMO)
     }
-    static func update(gid: String, readingProgress: Int) {
-        update(gid: gid) { galleryStateMO in
-            galleryStateMO.readingProgress = Int64(readingProgress)
-        }
-    }
     static func update(gid: String, thumbnails: [Int: String]) {
         update(gid: gid) { galleryStateMO in
             guard !thumbnails.isEmpty else { return }

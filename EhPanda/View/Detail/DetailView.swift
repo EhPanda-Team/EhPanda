@@ -37,28 +37,45 @@ struct DetailView: View {
                         gallery: viewStore.gallery ?? .empty,
                         galleryDetail: viewStore.galleryDetail ?? .empty,
                         user: user,
+                        showFullTitle: viewStore.showFullTitle,
+                        showFullTitleAction: { viewStore.send(.toggleShowFullTitle) },
                         favorAction: { viewStore.send(.favorGallery($0)) },
                         unfavorAction: { viewStore.send(.unfavorGallery) },
-                        navigateReadingAction: {},
-                        navigateUploaderAction: {}
+                        navigateReadingAction: { viewStore.send(.setNavigation(.reading)) },
+                        navigateUploaderAction: {
+                            if let uploader = viewStore.galleryDetail?.uploader {
+                                viewStore.send(.setNavigation(.searchRequest("uploader:" + "\"\(uploader)\"")))
+                            }
+
+                        }
                     )
                     .padding(.horizontal)
                     DescriptionSection(
                         gallery: viewStore.gallery ?? .empty,
-                        detail: viewStore.galleryDetail ?? .empty,
-                        navigateGalleryInfosAction: {}
+                        galleryDetail: viewStore.galleryDetail ?? .empty,
+                        navigateGalleryInfosAction: {
+                            if let gallery = viewStore.gallery, let galleryDetail = viewStore.galleryDetail {
+                                viewStore.send(.setNavigation(.galleryInfos(gallery, galleryDetail)))
+                            }
+                        }
                     )
                     ActionSection(
                         galleryDetail: viewStore.galleryDetail ?? .empty,
-                        userRating: viewStore.binding(\.$userRating),
-                        showUserRating: viewStore.binding(\.$showUserRating),
-                        rateAction: { viewStore.send(.rateGallery($0)) },
-                        navigateSimilarGalleryAction: {}
+                        userRating: viewStore.userRating,
+                        showUserRating: viewStore.showUserRating,
+                        showUserRatingAction: { viewStore.send(.toggleShowUserRating) },
+                        updateRatingAction: { viewStore.send(.updateRating($0)) },
+                        confirmRatingAction: { viewStore.send(.confirmRating($0)) },
+                        navigateSimilarGalleryAction: {
+                            if let trimmedTitle = viewStore.galleryDetail?.trimmedTitle {
+                                viewStore.send(.setNavigation(.searchRequest(trimmedTitle)))
+                            }
+                        }
                     )
                     if !viewStore.galleryTags.isEmpty {
                         TagsSection(
                             tags: viewStore.galleryTags,
-                            navigateAction: { _ in },
+                            navigateAction: { viewStore.send(.setNavigation(.searchRequest($0))) },
                             translateAction: {
                                 tagTranslator.tryTranslate(
                                     text: $0, returnOriginal: !setting.translatesTags
@@ -70,13 +87,16 @@ struct DetailView: View {
                     PreviewsSection(
                         pageCount: viewStore.galleryDetail?.pageCount ?? 0,
                         previews: viewStore.galleryPreviews,
-                        navigatePreviewsAction: {},
-                        navigateReadingAction: { _ in }
+                        navigatePreviewsAction: { viewStore.send(.setNavigation(.previews)) },
+                        navigateReadingAction: {
+                            viewStore.send(.updateReadingProgress($0))
+                            viewStore.send(.setNavigation(.reading))
+                        }
                     )
                     CommentsSection(
                         comments: viewStore.galleryComments,
-                        navigateCommentAction: {},
-                        navigateDraftCommentAction: {}
+                        navigateCommentAction: { viewStore.send(.setNavigation(.comments)) },
+                        navigateDraftCommentAction: { viewStore.send(.setNavigation(.draftComment)) }
                     )
                 }
                 .padding(.bottom, 20)
@@ -95,10 +115,57 @@ struct DetailView: View {
             .opacity(viewStore.galleryDetail == nil && error != nil ? 1 : 0)
         }
         .animation(.default, value: viewStore.galleryDetail)
+        .animation(.default, value: viewStore.showFullTitle)
+        .animation(.default, value: viewStore.showUserRating)
         .onAppear {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                 viewStore.send(.fetchDatabaseInfos(gid))
             }
+        }
+        .background(navigationLinks)
+        .toolbar(content: toolbar)
+    }
+}
+
+// MARK: NavigationLinks
+private extension DetailView {
+    @ViewBuilder var navigationLinks: some View {
+        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /DetailState.Route.galleryInfos) { route in
+            let (gallery, galleryDetail) = route.wrappedValue
+            GalleryInfosView(gallery: gallery, galleryDetail: galleryDetail)
+        }
+    }
+}
+
+// MARK: ToolBar
+private extension DetailView {
+    func toolbar() -> some ToolbarContent {
+        CustomToolbarItem {
+            Menu {
+                Button {
+                    viewStore.send(.setNavigation(.archive))
+                } label: {
+                    Label("Archive", systemImage: "doc.zipper")
+                }
+                .disabled(viewStore.galleryDetail?.archiveURL == nil || !CookiesUtil.didLogin)
+                Button {
+                    viewStore.send(.setNavigation(.torrents))
+                } label: {
+                    let base = "Torrents".localized
+                    let torrentCount = viewStore.galleryDetail?.torrentCount ?? 0
+                    let baseWithCount = [base, "(\(torrentCount))"].joined(separator: " ")
+                    Label(torrentCount > 0 ? baseWithCount : base, systemImage: "leaf" )
+                }
+                .disabled((viewStore.galleryDetail?.torrentCount ?? 0 > 0) != true)
+                Button {
+//                    viewStore.send(.setNavigation(.share))
+                } label: {
+                    Label("Share", systemImage: "square.and.arrow.up")
+                }
+            } label: {
+                Image(systemName: "ellipsis.circle")
+            }
+            .disabled(viewStore.galleryDetail == nil || viewStore.loadingState == .loading)
         }
     }
 }
@@ -108,6 +175,8 @@ private struct HeaderSection: View {
     private let gallery: Gallery
     private let galleryDetail: GalleryDetail
     private let user: User
+    private let showFullTitle: Bool
+    private let showFullTitleAction: () -> Void
     private let favorAction: (Int) -> Void
     private let unfavorAction: () -> Void
     private let navigateReadingAction: () -> Void
@@ -116,7 +185,8 @@ private struct HeaderSection: View {
     init(
         gallery: Gallery,
         galleryDetail: GalleryDetail,
-        user: User,
+        user: User, showFullTitle: Bool,
+        showFullTitleAction: @escaping () -> Void,
         favorAction: @escaping (Int) -> Void,
         unfavorAction: @escaping () -> Void,
         navigateReadingAction: @escaping () -> Void,
@@ -125,6 +195,8 @@ private struct HeaderSection: View {
         self.gallery = gallery
         self.galleryDetail = galleryDetail
         self.user = user
+        self.showFullTitle = showFullTitle
+        self.showFullTitleAction = showFullTitleAction
         self.favorAction = favorAction
         self.unfavorAction = unfavorAction
         self.navigateReadingAction = navigateReadingAction
@@ -141,7 +213,12 @@ private struct HeaderSection: View {
                     height: Defaults.ImageSize.headerH
                 )
             VStack(alignment: .leading) {
-                Text(galleryDetail.jpnTitle ?? galleryDetail.title).font(.title3.bold()).lineLimit(3)
+                Button(action: showFullTitleAction) {
+                    Text(galleryDetail.jpnTitle ?? galleryDetail.title)
+                        .font(.title3.bold()).multilineTextAlignment(.leading)
+                        .tint(.primary).lineLimit(showFullTitle ? nil : 3)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
                 Button(gallery.uploader ?? "", action: navigateUploaderAction)
                     .lineLimit(1).font(.callout).foregroundStyle(.secondary)
                 Spacer()
@@ -181,7 +258,7 @@ private struct HeaderSection: View {
                 .minimumScaleFactor(0.5)
             }
             .padding(.horizontal, 10)
-            .frame(height: Defaults.ImageSize.headerH)
+            .frame(minHeight: Defaults.ImageSize.headerH)
         }
     }
 }
@@ -189,43 +266,43 @@ private struct HeaderSection: View {
 // MARK: DescriptionSection
 private struct DescriptionSection: View {
     private let gallery: Gallery
-    private let detail: GalleryDetail
+    private let galleryDetail: GalleryDetail
     private let navigateGalleryInfosAction: () -> Void
 
     init(
-        gallery: Gallery, detail: GalleryDetail,
+        gallery: Gallery, galleryDetail: GalleryDetail,
         navigateGalleryInfosAction: @escaping () -> Void
     ) {
         self.gallery = gallery
-        self.detail = detail
+        self.galleryDetail = galleryDetail
         self.navigateGalleryInfosAction = navigateGalleryInfosAction
     }
 
     private var infos: [DescScrollInfo] {[
         DescScrollInfo(
             title: "DESC_SCROLL_ITEM_FAVORITED", numeral: "Times",
-            value: String(detail.favoredCount)
+            value: String(galleryDetail.favoredCount)
         ),
         DescScrollInfo(
             title: "Language",
-            numeral: detail.language.name,
-            value: detail.languageAbbr
+            numeral: galleryDetail.language.name,
+            value: galleryDetail.languageAbbr
         ),
         DescScrollInfo(
             title: "",
             titleKey: LocalizedStringKey(
-                "\(detail.ratingCount) Ratings"
+                "\(galleryDetail.ratingCount) Ratings"
             ),
             numeral: "", value: "",
-            rating: detail.rating, isRating: true
+            rating: galleryDetail.rating, isRating: true
         ),
         DescScrollInfo(
             title: "Page Count", numeral: "Pages",
-            value: String(detail.pageCount)
+            value: String(galleryDetail.pageCount)
         ),
         DescScrollInfo(
-            title: "File Size", numeral: detail.sizeType,
-            value: String(detail.sizeCount)
+            title: "File Size", numeral: galleryDetail.sizeType,
+            value: String(galleryDetail.sizeCount)
         )
     ]}
     private var itemWidth: Double {
@@ -312,22 +389,27 @@ private extension DescriptionSection {
 // MARK: ActionSection
 private struct ActionSection: View {
     private let galleryDetail: GalleryDetail
-    @Binding private var userRating: Int
-    @Binding private var showUserRating: Bool
-    private let rateAction: (Int) -> Void
+    private let userRating: Int
+    private let showUserRating: Bool
+    private let showUserRatingAction: () -> Void
+    private let updateRatingAction: (DragGesture.Value) -> Void
+    private let confirmRatingAction: (DragGesture.Value) -> Void
     private let navigateSimilarGalleryAction: () -> Void
 
     init(
         galleryDetail: GalleryDetail,
-        userRating: Binding<Int>,
-        showUserRating: Binding<Bool>,
-        rateAction: @escaping (Int) -> Void,
+        userRating: Int, showUserRating: Bool,
+        showUserRatingAction: @escaping () -> Void,
+        updateRatingAction: @escaping (DragGesture.Value) -> Void,
+        confirmRatingAction: @escaping (DragGesture.Value) -> Void,
         navigateSimilarGalleryAction: @escaping () -> Void
     ) {
         self.galleryDetail = galleryDetail
-        _userRating = userRating
-        _showUserRating = showUserRating
-        self.rateAction = rateAction
+        self.userRating = userRating
+        self.showUserRating = showUserRating
+        self.showUserRatingAction = showUserRatingAction
+        self.updateRatingAction = updateRatingAction
+        self.confirmRatingAction = confirmRatingAction
         self.navigateSimilarGalleryAction = navigateSimilarGalleryAction
     }
 
@@ -335,9 +417,7 @@ private struct ActionSection: View {
         VStack {
             HStack {
                 Group {
-                    Button {
-                        withAnimation { showUserRating.toggle() }
-                    } label: {
+                    Button(action: showUserRatingAction) {
                         Spacer()
                         Image(systemSymbol: .squareAndPencil)
                         Text("Give a Rating").bold()
@@ -360,27 +440,14 @@ private struct ActionSection: View {
                         .foregroundStyle(.yellow)
                         .gesture(
                             DragGesture(minimumDistance: 0)
-                                .onChanged(updateRating)
-                                .onEnded(confirmRating)
+                                .onChanged(updateRatingAction)
+                                .onEnded(confirmRatingAction)
                         )
                 }
                 .padding(.top, 10)
             }
         }
         .padding(.horizontal)
-    }
-
-    private func updateRating(value: DragGesture.Value) {
-        let rating = Int(value.location.x / 31 * 2) + 1
-        userRating = min(max(rating, 1), 10)
-    }
-    private func confirmRating(value: DragGesture.Value) {
-        updateRating(value: value)
-        rateAction(userRating)
-        HapticUtil.generateFeedback(style: .soft)
-        withAnimation(Animation.default.delay(1)) {
-            showUserRating.toggle()
-        }
     }
 }
 
@@ -473,9 +540,7 @@ private struct PreviewsSection: View {
         width / Defaults.ImageSize.previewAspect
     }
     private var previewsWithIndies: [(Int, String)] {
-        previews
-            .map({ ($0.key, $0.value) })
-            .sorted { lhs, rhs in lhs.0 < rhs.0 }
+        previews.map({ ($0.key, $0.value) }).sorted(by: { $0.0 < $1.0 })
     }
 
     var body: some View {

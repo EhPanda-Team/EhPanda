@@ -13,40 +13,40 @@ struct GalleryInfosView: View {
     @State private var hudConfig = TTProgressHUDConfig()
 
     private let gallery: Gallery
-    private let detail: GalleryDetail
+    private let galleryDetail: GalleryDetail
+
+    init(gallery: Gallery, galleryDetail: GalleryDetail) {
+        self.gallery = gallery
+        self.galleryDetail = galleryDetail
+    }
 
     private var infos: [Info] {
         [
-            Info(title: "ID", value: detail.gid),
+            Info(title: "ID", value: galleryDetail.gid),
             Info(title: "Token", value: gallery.token),
-            Info(title: "Title", value: detail.title),
-            Info(title: "Japanese title", value: detail.jpnTitle),
+            Info(title: "Title", value: galleryDetail.title),
+            Info(title: "Japanese title", value: galleryDetail.jpnTitle),
             Info(title: "Gallery URL", value: gallery.galleryURL),
-            Info(title: "Cover URL", value: detail.coverURL),
-            Info(title: "Archive URL", value: detail.archiveURL),
+            Info(title: "Cover URL", value: galleryDetail.coverURL),
+            Info(title: "Archive URL", value: galleryDetail.archiveURL),
             Info(title: "Torrent URL", value: URLUtil.galleryTorrents(
                 gid: gallery.gid, token: gallery.token).absoluteString),
-            Info(title: "Parent URL", value: detail.parentURL),
-            Info(title: "Category", value: detail.category.rawValue.localized),
-            Info(title: "Uploader", value: detail.uploader),
-            Info(title: "Posted date", value: detail.formattedDateString),
-            Info(title: "Visible", value: detail.visibility.value.localized),
-            Info(title: "Language", value: detail.language.name.localized),
-            Info(title: "Page count", value: String(detail.pageCount)),
-            Info(title: "File size", value: String(Int(detail.sizeCount)) + detail.sizeType),
-            Info(title: "Favorited times", value: String(detail.favoredCount)),
-            Info(title: "Favorited", value: (detail.isFavored ? "Yes" : "No").localized),
-            Info(title: "Rating count", value: String(detail.ratingCount)),
-            Info(title: "Average rating", value: String(Int(detail.rating))),
+            Info(title: "Parent URL", value: galleryDetail.parentURL),
+            Info(title: "Category", value: galleryDetail.category.rawValue.localized),
+            Info(title: "Uploader", value: galleryDetail.uploader),
+            Info(title: "Posted date", value: galleryDetail.formattedDateString),
+            Info(title: "Visible", value: galleryDetail.visibility.value.localized),
+            Info(title: "Language", value: galleryDetail.language.name.localized),
+            Info(title: "Page count", value: String(galleryDetail.pageCount)),
+            Info(title: "File size", value: String(Int(galleryDetail.sizeCount)) + galleryDetail.sizeType),
+            Info(title: "Favorited times", value: String(galleryDetail.favoredCount)),
+            Info(title: "Favorited", value: (galleryDetail.isFavored ? "Yes" : "No").localized),
+            Info(title: "Rating count", value: String(galleryDetail.ratingCount)),
+            Info(title: "Average rating", value: String(Int(galleryDetail.rating))),
             Info(title: "User rating", value:
-                detail.userRating == 0 ? nil : String(Int(detail.userRating))),
-            Info(title: "Torrent count", value: String(detail.torrentCount))
+                galleryDetail.userRating == 0 ? nil : String(Int(galleryDetail.userRating))),
+            Info(title: "Torrent count", value: String(galleryDetail.torrentCount))
         ]
-    }
-
-    init(gallery: Gallery, detail: GalleryDetail) {
-        self.gallery = gallery
-        self.detail = detail
     }
 
     var body: some View {
@@ -100,8 +100,7 @@ private struct Info: Identifiable {
 struct GalleryInfosView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
-            GalleryInfosView(gallery: .preview, detail: .preview)
-                .preferredColorScheme(.dark)
+            GalleryInfosView(gallery: .preview, galleryDetail: .preview)
         }
     }
 }
