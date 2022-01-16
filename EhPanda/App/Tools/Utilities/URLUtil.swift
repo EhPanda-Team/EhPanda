@@ -5,61 +5,10 @@
 //  Created by 荒木辰造 on R 3/12/31.
 //
 
-import UIKit
 import Foundation
 import OrderedCollections
 
 struct URLUtil {
-    private static func checkIfHandleable(url: URL) -> Bool {
-        (url.absoluteString.contains(Defaults.URL.ehentai.absoluteString)
-         || url.absoluteString.contains(Defaults.URL.exhentai.absoluteString))
-            && url.pathComponents.count >= 4 && ["g", "s"].contains(url.pathComponents[1])
-            && !url.pathComponents[2].isEmpty && !url.pathComponents[3].isEmpty
-    }
-
-    static func parseGID(url: URL, isGalleryURL: Bool) -> String {
-        var gid = url.pathComponents[2]
-        let token = url.pathComponents[3]
-        if let range = token.range(of: "-"), isGalleryURL {
-            gid = String(token[..<range.lowerBound])
-        }
-        return gid
-    }
-
-    static func handleURL(
-        _ url: URL, handlesOutgoingURL: Bool = false,
-        completion: (Bool, URL?, Int?, String?) -> Void
-    ) {
-        guard checkIfHandleable(url: url) else {
-            if handlesOutgoingURL {
-                UIApplication.shared.open(url, options: [:])
-            }
-            completion(false, nil, nil, nil)
-            return
-        }
-
-        let token = url.pathComponents[3]
-        if let range = token.range(of: "-") {
-            let pageIndex = Int(token[range.upperBound...])
-            completion(true, url, pageIndex, nil)
-            return
-        }
-
-        if let range = url.absoluteString.range(of: url.pathComponents[3] + "/") {
-            let commentField = String(url.absoluteString[range.upperBound...])
-            if let range = commentField.range(of: "#c") {
-                let commentID = String(commentField[range.upperBound...])
-                completion(false, url, nil, commentID)
-                return
-            }
-        }
-
-        completion(false, url, nil, nil)
-    }
-}
-
-// MARK: Combining
-extension URLUtil {
     // Fetch
     static func searchList(keyword: String, filter: Filter, pageNum: Int? = nil) -> URL {
         var queryItems: OrderedDictionary<Defaults.URL.Component.Key, String> = [.fSearch: keyword]

@@ -57,9 +57,11 @@ enum WatchedAction: BindableAction {
 }
 
 struct WatchedEnvironment {
+    let urlClient: URLClient
     let hapticClient: HapticClient
     let cookiesClient: CookiesClient
     let databaseClient: DatabaseClient
+    let uiApplicationClient: UIApplicationClient
 }
 
 let watchedReducer = Reducer<WatchedState, WatchedAction, WatchedEnvironment>.combine(
@@ -176,9 +178,11 @@ let watchedReducer = Reducer<WatchedState, WatchedAction, WatchedEnvironment>.co
         action: /WatchedAction.detail,
         environment: {
             .init(
+                urlClient: $0.urlClient,
                 hapticClient: $0.hapticClient,
                 cookiesClient: $0.cookiesClient,
-                databaseClient: $0.databaseClient
+                databaseClient: $0.databaseClient,
+                uiApplicationClient: $0.uiApplicationClient
             )
         }
     )

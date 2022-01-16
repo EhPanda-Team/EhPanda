@@ -88,10 +88,12 @@ enum HomeAction: BindableAction {
 }
 
 struct HomeEnvironment {
+    let urlClient: URLClient
     let hapticClient: HapticClient
     let libraryClient: LibraryClient
     let cookiesClient: CookiesClient
     let databaseClient: DatabaseClient
+    let uiApplicationClient: UIApplicationClient
 }
 
 let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
@@ -245,9 +247,11 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
         action: /HomeAction.frontpage,
         environment: {
             .init(
+                urlClient: $0.urlClient,
                 hapticClient: $0.hapticClient,
                 cookiesClient: $0.cookiesClient,
-                databaseClient: $0.databaseClient
+                databaseClient: $0.databaseClient,
+                uiApplicationClient: $0.uiApplicationClient
             )
         }
     ),
@@ -256,9 +260,11 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
         action: /HomeAction.toplists,
         environment: {
             .init(
+                urlClient: $0.urlClient,
                 hapticClient: $0.hapticClient,
                 cookiesClient: $0.cookiesClient,
-                databaseClient: $0.databaseClient
+                databaseClient: $0.databaseClient,
+                uiApplicationClient: $0.uiApplicationClient
             )
         }
     ),
@@ -267,9 +273,11 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
         action: /HomeAction.popular,
         environment: {
             .init(
+                urlClient: $0.urlClient,
                 hapticClient: $0.hapticClient,
                 cookiesClient: $0.cookiesClient,
-                databaseClient: $0.databaseClient
+                databaseClient: $0.databaseClient,
+                uiApplicationClient: $0.uiApplicationClient
             )
         }
     ),
@@ -278,9 +286,11 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
         action: /HomeAction.watched,
         environment: {
             .init(
+                urlClient: $0.urlClient,
                 hapticClient: $0.hapticClient,
                 cookiesClient: $0.cookiesClient,
-                databaseClient: $0.databaseClient
+                databaseClient: $0.databaseClient,
+                uiApplicationClient: $0.uiApplicationClient
             )
         }
     ),
@@ -289,9 +299,11 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
         action: /HomeAction.history,
         environment: {
             .init(
+                urlClient: $0.urlClient,
                 hapticClient: $0.hapticClient,
                 cookiesClient: $0.cookiesClient,
-                databaseClient: $0.databaseClient
+                databaseClient: $0.databaseClient,
+                uiApplicationClient: $0.uiApplicationClient
             )
         }
     ),
@@ -300,9 +312,11 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
         action: /HomeAction.detail,
         environment: {
             .init(
+                urlClient: $0.urlClient,
                 hapticClient: $0.hapticClient,
                 cookiesClient: $0.cookiesClient,
-                databaseClient: $0.databaseClient
+                databaseClient: $0.databaseClient,
+                uiApplicationClient: $0.uiApplicationClient
             )
         }
     )

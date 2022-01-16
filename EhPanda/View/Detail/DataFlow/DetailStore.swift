@@ -8,7 +8,7 @@
 import SwiftUI
 import ComposableArchitecture
 
-struct DetailState: Equatable {
+struct DetailState: Equatable, Identifiable {
     enum Route: Equatable {
         case archive
         case reading
@@ -18,6 +18,12 @@ struct DetailState: Equatable {
         case draftComment
         case searchRequest(String)
         case galleryInfos(Gallery, GalleryDetail)
+    }
+
+    // IdentifiedArray requirement
+    let id: String
+    init(id: String = UUID().uuidString) {
+        self.id = id
     }
 
     @BindableState var route: Route?
@@ -37,6 +43,7 @@ struct DetailState: Equatable {
     var galleryComments = [GalleryComment]()
 
     var previewsState = PreviewsState()
+    var commentsState = CommentsState()
 
     mutating func updateRating(value: DragGesture.Value) {
         let rating = Int(value.location.x / 31 * 2) + 1
@@ -73,12 +80,15 @@ enum DetailAction: BindableAction {
     case anyGalleryOpsDone(Result<Any, AppError>)
 
     case previews(PreviewsAction)
+    case comments(CommentsAction)
 }
 
 struct DetailEnvironment {
+    let urlClient: URLClient
     let hapticClient: HapticClient
     let cookiesClient: CookiesClient
     let databaseClient: DatabaseClient
+    let uiApplicationClient: UIApplicationClient
 }
 
 let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combine(
@@ -228,6 +238,9 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
 
         case .previews:
             return .none
+
+        case .comments:
+            return .none
         }
     }
     .binding(),
@@ -237,6 +250,19 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
         environment: {
             .init(
                 databaseClient: $0.databaseClient
+            )
+        }
+    ),
+    commentsReducer.pullback(
+        state: \.commentsState,
+        action: /DetailAction.comments,
+        environment: {
+            .init(
+                urlClient: $0.urlClient,
+                hapticClient: $0.hapticClient,
+                cookiesClient: $0.cookiesClient,
+                databaseClient: $0.databaseClient,
+                uiApplicationClient: $0.uiApplicationClient
             )
         }
     )

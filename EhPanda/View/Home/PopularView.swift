@@ -76,9 +76,11 @@ struct PopularView_Previews: PreviewProvider {
                     initialState: .init(),
                     reducer: popularReducer,
                     environment: PopularEnvironment(
+                        urlClient: .live,
                         hapticClient: .live,
                         cookiesClient: .live,
-                        databaseClient: .live
+                        databaseClient: .live,
+                        uiApplicationClient: .live
                     )
                 ),
                 user: .init(),

@@ -149,12 +149,6 @@ extension PersistenceController {
         saveContext()
     }
 
-    static func galleryCached(gid: String) -> Bool {
-        PersistenceController.checkExistence(
-            entityType: GalleryMO.self, predicate: NSPredicate(format: "gid == %@", gid)
-        )
-    }
-
     static func updateGallery(gid: String, changes: @escaping (GalleryMO) -> Void) {
         update(entityType: GalleryMO.self, gid: gid, createIfNil: true, commitChanges: changes)
     }

@@ -41,9 +41,11 @@ enum PopularAction: BindableAction {
 }
 
 struct PopularEnvironment {
+    let urlClient: URLClient
     let hapticClient: HapticClient
     let cookiesClient: CookiesClient
     let databaseClient: DatabaseClient
+    let uiApplicationClient: UIApplicationClient
 }
 
 let popularReducer = Reducer<PopularState, PopularAction, PopularEnvironment>.combine(
@@ -97,9 +99,11 @@ let popularReducer = Reducer<PopularState, PopularAction, PopularEnvironment>.co
         action: /PopularAction.detail,
         environment: {
             .init(
+                urlClient: $0.urlClient,
                 hapticClient: $0.hapticClient,
                 cookiesClient: $0.cookiesClient,
-                databaseClient: $0.databaseClient
+                databaseClient: $0.databaseClient,
+                uiApplicationClient: $0.uiApplicationClient
             )
         }
     )

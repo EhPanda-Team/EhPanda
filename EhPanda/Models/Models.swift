@@ -227,6 +227,12 @@ struct GalleryComment: Identifiable, Equatable, Codable {
     let contents: [CommentContent]
     let commentID: String
     let commentDate: Date
+
+    var plainTextContent: String {
+        contents
+            .filter { [.plainText, .linkedText, .singleLink].contains($0.type) }
+            .compactMap { $0.type == .singleLink ? $0.link : $0.text }.joined()
+    }
 }
 
 struct CommentContent: Identifiable, Equatable, Codable {

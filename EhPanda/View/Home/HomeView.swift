@@ -494,10 +494,12 @@ struct HomeView_Previews: PreviewProvider {
                 initialState: .init(),
                 reducer: homeReducer,
                 environment: HomeEnvironment(
+                    urlClient: .live,
                     hapticClient: .live,
                     libraryClient: .live,
                     cookiesClient: .live,
-                    databaseClient: .live
+                    databaseClient: .live,
+                    uiApplicationClient: .live
                 )
             ),
             user: .init(),

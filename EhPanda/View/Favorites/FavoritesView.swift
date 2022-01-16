@@ -109,9 +109,11 @@ struct FavoritesView_Previews: PreviewProvider {
                 initialState: .init(),
                 reducer: favoritesReducer,
                 environment: FavoritesEnvironment(
+                    urlClient: .live,
                     hapticClient: .live,
                     cookiesClient: .live,
-                    databaseClient: .live
+                    databaseClient: .live,
+                    uiApplicationClient: .live
                 )
             ),
             user: .init(),

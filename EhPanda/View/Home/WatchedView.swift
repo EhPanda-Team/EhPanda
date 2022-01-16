@@ -101,9 +101,11 @@ struct WatchedView_Previews: PreviewProvider {
                     initialState: .init(),
                     reducer: watchedReducer,
                     environment: WatchedEnvironment(
+                        urlClient: .live,
                         hapticClient: .live,
                         cookiesClient: .live,
-                        databaseClient: .live
+                        databaseClient: .live,
+                        uiApplicationClient: .live
                     )
                 ),
                 user: .init(),

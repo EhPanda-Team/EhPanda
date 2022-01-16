@@ -33,6 +33,7 @@ enum AppAction: BindableAction {
 struct AnyEnvironment {}
 struct AppEnvironment {
     let dfClient: DFClient
+    let urlClient: URLClient
     let fileClient: FileClient
     let deviceClient: DeviceClient
     let loggerClient: LoggerClient
@@ -164,10 +165,12 @@ let appReducer = Reducer<AppState, AppAction, AppEnvironment>.combine(
         action: /AppAction.home,
         environment: {
             .init(
+                urlClient: $0.urlClient,
                 hapticClient: $0.hapticClient,
                 libraryClient: $0.libraryClient,
                 cookiesClient: $0.cookiesClient,
-                databaseClient: $0.databaseClient
+                databaseClient: $0.databaseClient,
+                uiApplicationClient: $0.uiApplicationClient
             )
         }
     ),
@@ -176,9 +179,11 @@ let appReducer = Reducer<AppState, AppAction, AppEnvironment>.combine(
         action: /AppAction.favorites,
         environment: {
             .init(
+                urlClient: $0.urlClient,
                 hapticClient: $0.hapticClient,
                 cookiesClient: $0.cookiesClient,
-                databaseClient: $0.databaseClient
+                databaseClient: $0.databaseClient,
+                uiApplicationClient: $0.uiApplicationClient
             )
         }
     ),
@@ -187,9 +192,11 @@ let appReducer = Reducer<AppState, AppAction, AppEnvironment>.combine(
         action: /AppAction.search,
         environment: {
             .init(
+                urlClient: $0.urlClient,
                 hapticClient: $0.hapticClient,
                 cookiesClient: $0.cookiesClient,
-                databaseClient: $0.databaseClient
+                databaseClient: $0.databaseClient,
+                uiApplicationClient: $0.uiApplicationClient
             )
         }
     ),

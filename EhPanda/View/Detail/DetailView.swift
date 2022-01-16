@@ -136,6 +136,13 @@ private extension DetailView {
                 gid: gid, pageCount: viewStore.gallery?.pageCount ?? 1
             )
         }
+        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /DetailState.Route.comments) { _ in
+            CommentsView(
+                store: store.scope(state: \.commentsState, action: DetailAction.comments),
+                gid: gid, token: viewStore.galleryToken, apiKey: viewStore.apiKey, comments: viewStore.galleryComments,
+                user: user, setting: setting, tagTranslator: tagTranslator
+            )
+        }
         NavigationLink(unwrapping: viewStore.binding(\.$route), case: /DetailState.Route.galleryInfos) { route in
             let (gallery, galleryDetail) = route.wrappedValue
             GalleryInfosView(gallery: gallery, galleryDetail: galleryDetail)
@@ -648,12 +655,14 @@ struct DetailView_Previews: PreviewProvider {
         NavigationView {
             DetailView(
                 store: .init(
-                    initialState: .init(galleryID: .init()),
+                    initialState: .init(),
                     reducer: detailReducer,
                     environment: DetailEnvironment(
+                        urlClient: .live,
                         hapticClient: .live,
                         cookiesClient: .live,
-                        databaseClient: .live
+                        databaseClient: .live,
+                        uiApplicationClient: .live
                     )
                 ),
                 gid: .init(),

@@ -99,9 +99,11 @@ struct FrontpageView_Previews: PreviewProvider {
                     initialState: .init(),
                     reducer: frontpageReducer,
                     environment: FrontpageEnvironment(
+                        urlClient: .live,
                         hapticClient: .live,
                         cookiesClient: .live,
-                        databaseClient: .live
+                        databaseClient: .live,
+                        uiApplicationClient: .live
                     )
                 ),
                 user: .init(),

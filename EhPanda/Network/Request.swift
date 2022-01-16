@@ -383,9 +383,9 @@ struct GalleryDetailRequest: Request {
     }
 }
 
-struct GalleryItemReverseRequest: Request {
-    let url: String
-    let shouldParseGalleryURL: Bool
+struct GalleryReverseRequest: Request {
+    let url: URL
+    let isGalleryImageURL: Bool
 
     func getGallery(from detail: GalleryDetail?, and url: URL) -> Gallery? {
         if let detail = detail {
@@ -402,14 +402,14 @@ struct GalleryItemReverseRequest: Request {
         }
     }
 
-    var publisher: AnyPublisher<Gallery?, AppError> {
+    var publisher: AnyPublisher<Gallery, AppError> {
         galleryURL(url: url).genericRetry().flatMap(gallery).eraseToAnyPublisher()
     }
 
-    func galleryURL(url: String) -> AnyPublisher<String, AppError> {
-        switch shouldParseGalleryURL {
+    func galleryURL(url: URL) -> AnyPublisher<URL, AppError> {
+        switch isGalleryImageURL {
         case true:
-            return URLSession.shared.dataTaskPublisher(for: url.safeURL())
+            return URLSession.shared.dataTaskPublisher(for: url)
                 .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
                 .tryMap(Parser.parseGalleryURL).mapError(mapAppError)
                 .eraseToAnyPublisher()
@@ -418,12 +418,11 @@ struct GalleryItemReverseRequest: Request {
         }
     }
 
-    func gallery(url: String) -> AnyPublisher<Gallery?, AppError> {
-        URLSession.shared.dataTaskPublisher(for: url.safeURL())
+    func gallery(url: URL) -> AnyPublisher<Gallery, AppError> {
+        URLSession.shared.dataTaskPublisher(for: url)
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .compactMap {
-                guard url.isValidURL, let url = URL(string: url),
-                      let (detail, _) = try? Parser.parseGalleryDetail(
+                guard let (detail, _) = try? Parser.parseGalleryDetail(
                         doc: $0, gid: url.pathComponents[2]
                       )
                 else { return nil }

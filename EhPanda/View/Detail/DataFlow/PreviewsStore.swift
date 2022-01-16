@@ -107,3 +107,4 @@ let previewsReducer = Reducer<PreviewsState, PreviewsAction, PreviewsEnvironment
         return .none
     }
 }
+.binding()

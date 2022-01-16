@@ -104,7 +104,7 @@ let accountSettingReducer = Reducer<AccountSettingState, AccountSettingAction, A
             return .none
 
         case .onLogoutConfirmButtonTapped:
-            return .none
+            return .init(value: .loadCookies)
 
         case .loadCookies:
             state.ehCookiesState = environment.cookiesClient.loadCookiesState(host: .ehentai)

@@ -124,6 +124,7 @@ struct TabBarView_Previews: PreviewProvider {
                 reducer: appReducer,
                 environment: AppEnvironment(
                     dfClient: .live,
+                    urlClient: .live,
                     fileClient: .live,
                     deviceClient: .live,
                     loggerClient: .live,

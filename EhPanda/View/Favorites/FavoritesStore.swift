@@ -75,9 +75,11 @@ enum FavoritesAction: BindableAction {
 
 // MARK: Environment
 struct FavoritesEnvironment {
+    let urlClient: URLClient
     let hapticClient: HapticClient
     let cookiesClient: CookiesClient
     let databaseClient: DatabaseClient
+    let uiApplicationClient: UIApplicationClient
 }
 
 // MARK: Reducer
@@ -208,9 +210,11 @@ let favoritesReducer = Reducer<FavoritesState, FavoritesAction, FavoritesEnviron
         action: /FavoritesAction.detail,
         environment: {
             .init(
+                urlClient: $0.urlClient,
                 hapticClient: $0.hapticClient,
                 cookiesClient: $0.cookiesClient,
-                databaseClient: $0.databaseClient
+                databaseClient: $0.databaseClient,
+                uiApplicationClient: $0.uiApplicationClient
             )
         }
     )

@@ -69,16 +69,18 @@ struct PreviewsView: View {
 
 struct PreviewsView_Previews: PreviewProvider {
     static var previews: some View {
-        PreviewsView(
-            store: .init(
-                initialState: .init(),
-                reducer: previewsReducer,
-                environment: PreviewsEnvironment(
-                    databaseClient: .live
-                )
-            ),
-            gid: .init(),
-            pageCount: 1
-        )
+        NavigationView {
+            PreviewsView(
+                store: .init(
+                    initialState: .init(),
+                    reducer: previewsReducer,
+                    environment: PreviewsEnvironment(
+                        databaseClient: .live
+                    )
+                ),
+                gid: .init(),
+                pageCount: 1
+            )
+        }
     }
 }

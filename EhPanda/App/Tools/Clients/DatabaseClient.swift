@@ -14,12 +14,14 @@ struct DatabaseClient {
     let fetchGalleryDetail: (String) -> GalleryDetail?
     let fetchAppEnv: () -> Effect<AppEnv, Never>
     let fetchGalleryState: (String) -> Effect<GalleryState, Never>
+
     let updateAppEnv: (String, Any?) -> Effect<Never, Never>
     let updateGallery: (String, String, Any?) -> Effect<Never, Never>
     let updateGalleryState: (String, String, Any?) -> Effect<Never, Never>
-    let removeImageURLs: () -> Effect<Never, Never>
     let cacheGalleries: ([Gallery]) -> Effect<Never, Never>
     let cacheGalleryDetail: (GalleryDetail) -> Effect<Never, Never>
+
+    let removeImageURLs: () -> Effect<Never, Never>
     let fetchHistoryGalleries: (Int?) -> Effect<[Gallery], Never>
     let clearHistoryGalleries: () -> Effect<Never, Never>
 }
@@ -79,13 +81,6 @@ extension DatabaseClient {
                 }
             }
         },
-        removeImageURLs: {
-            .fireAndForget {
-                DispatchQueue.main.async {
-                    PersistenceController.removeImageURLs()
-                }
-            }
-        },
         cacheGalleries: { galleries in
             .fireAndForget {
                 DispatchQueue.main.async {
@@ -97,6 +92,13 @@ extension DatabaseClient {
             .fireAndForget {
                 DispatchQueue.main.async {
                     PersistenceController.add(detail: detail)
+                }
+            }
+        },
+        removeImageURLs: {
+            .fireAndForget {
+                DispatchQueue.main.async {
+                    PersistenceController.removeImageURLs()
                 }
             }
         },
@@ -118,6 +120,12 @@ extension DatabaseClient {
             }
         }
     )
+
+    func checkGalleryExistence(gid: String) -> Bool {
+        PersistenceController.checkExistence(
+            entityType: GalleryMO.self, predicate: NSPredicate(format: "gid == %@", gid)
+        )
+    }
 
     func fetchHistoryKeywords() -> Effect<[String], Never> {
         fetchAppEnv().map(\.historyKeywords)

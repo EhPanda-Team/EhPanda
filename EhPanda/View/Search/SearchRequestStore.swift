@@ -58,9 +58,11 @@ enum SearchRequestAction: BindableAction {
 }
 
 struct SearchRequestEnvironment {
+    let urlClient: URLClient
     let hapticClient: HapticClient
     let cookiesClient: CookiesClient
     let databaseClient: DatabaseClient
+    let uiApplicationClient: UIApplicationClient
 }
 
 let searchRequestReducer = Reducer<SearchRequestState, SearchRequestAction, SearchRequestEnvironment>.combine(
@@ -180,9 +182,11 @@ let searchRequestReducer = Reducer<SearchRequestState, SearchRequestAction, Sear
         action: /SearchRequestAction.detail,
         environment: {
             .init(
+                urlClient: $0.urlClient,
                 hapticClient: $0.hapticClient,
                 cookiesClient: $0.cookiesClient,
-                databaseClient: $0.databaseClient
+                databaseClient: $0.databaseClient,
+                uiApplicationClient: $0.uiApplicationClient
             )
         }
     )

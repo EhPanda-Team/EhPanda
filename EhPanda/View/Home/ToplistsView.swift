@@ -140,9 +140,11 @@ struct ToplistsView_Previews: PreviewProvider {
                     initialState: .init(),
                     reducer: toplistsReducer,
                     environment: ToplistsEnvironment(
+                        urlClient: .live,
                         hapticClient: .live,
                         cookiesClient: .live,
-                        databaseClient: .live
+                        databaseClient: .live,
+                        uiApplicationClient: .live
                     )
                 ),
                 user: .init(),
