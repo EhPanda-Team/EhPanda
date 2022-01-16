@@ -28,7 +28,11 @@ extension CookiesClient {
         },
         setCookie: { url, key, value in
             .fireAndForget {
-                CookiesUtil.set(for: url, key: key, value: value)
+                if CookiesUtil.checkExistence(for: url, key: key) {
+                    CookiesUtil.edit(for: url, key: key, value: value)
+                } else {
+                    CookiesUtil.set(for: url, key: key, value: value)
+                }
             }
         },
         getCookie: { url, key in
@@ -64,10 +68,10 @@ extension CookiesClient {
         let exURL = Defaults.URL.exhentai
         let memberIdKey = Defaults.Cookie.ipbMemberId
         let passHashKey = Defaults.Cookie.ipbPassHash
-        let ehMemberId = CookiesUtil.get(for: ehURL, key: memberIdKey).rawValue
-        let ehPassHash = CookiesUtil.get(for: ehURL, key: passHashKey).rawValue
-        let exMemberId = CookiesUtil.get(for: exURL, key: memberIdKey).rawValue
-        let exPassHash = CookiesUtil.get(for: exURL, key: passHashKey).rawValue
+        let ehMemberId = getCookie(ehURL, memberIdKey).rawValue
+        let ehPassHash = getCookie(ehURL, passHashKey).rawValue
+        let exMemberId = getCookie(exURL, memberIdKey).rawValue
+        let exPassHash = getCookie(exURL, passHashKey).rawValue
 
         if !ehMemberId.isEmpty && !ehPassHash.isEmpty && (exMemberId.isEmpty || exPassHash.isEmpty) {
             return .merge(
@@ -81,6 +85,38 @@ extension CookiesClient {
             )
         } else {
             return .none
+        }
+    }
+    func loadCookiesState(host: GalleryHost) -> CookiesState {
+        let igneousKey = Defaults.Cookie.igneous
+        let memberIDKey = Defaults.Cookie.ipbMemberId
+        let passHashKey = Defaults.Cookie.ipbPassHash
+        let igneous = getCookie(host.url, igneousKey)
+        let memberID = getCookie(host.url, memberIDKey)
+        let passHash = getCookie(host.url, passHashKey)
+        return .init(
+            host: host,
+            igneous: .init(key: igneousKey, value: igneous, editingText: igneous.rawValue),
+            memberID: .init(key: memberIDKey, value: memberID, editingText: memberID.rawValue),
+            passHash: .init(key: passHashKey, value: passHash, editingText: passHash.rawValue)
+        )
+    }
+    func setCookies(state: CookiesState) -> Effect<Never, Never> {
+        let effects: [Effect<Never, Never>] = state.allCases.map { subState in
+            setCookie(state.host.url, subState.key, subState.editingText)
+        }
+        return effects.isEmpty ? .none : .merge(effects)
+    }
+    func copyCookies(host: GalleryHost) -> Effect<Never, Never> {
+        .fireAndForget {
+            var dictionary = [String: String]()
+            [Defaults.Cookie.igneous, Defaults.Cookie.ipbMemberId, Defaults.Cookie.ipbPassHash].forEach { key in
+                let cookieValue = getCookie(host.url, key)
+                if !cookieValue.rawValue.isEmpty {
+                    dictionary[key] = cookieValue.rawValue
+                }
+            }
+            PasteboardUtil.save(value: dictionary.description)
         }
     }
 }

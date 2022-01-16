@@ -48,6 +48,14 @@ enum GalleryHost: String, Codable, CaseIterable, Identifiable {
     case exhentai = "ExHentai"
 
     var id: Int { hashValue }
+    var url: URL {
+        switch self {
+        case .ehentai:
+            return Defaults.URL.ehentai
+        case .exhentai:
+            return Defaults.URL.exhentai
+        }
+    }
     var abbr: String {
         switch self {
         case .ehentai:

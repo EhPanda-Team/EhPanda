@@ -8,6 +8,49 @@
 import TTProgressHUD
 import ComposableArchitecture
 
+struct CookieValue: Equatable {
+    let rawValue: String
+    let localizedString: String
+
+    var isInvalid: Bool {
+        !localizedString.isEmpty && !rawValue.isEmpty
+    }
+    var placeholder: String {
+        localizedString.isEmpty ? rawValue : localizedString
+    }
+}
+
+struct CookiesState: Equatable {
+    static func empty(_ host: GalleryHost) -> Self {
+        .init(
+            host: host,
+            igneous: .empty,
+            memberID: .empty,
+            passHash: .empty
+        )
+    }
+    var allCases: [CookieState] {[
+        igneous, memberID, passHash
+    ]}
+
+    let host: GalleryHost
+    var igneous: CookieState
+    var memberID: CookieState
+    var passHash: CookieState
+}
+
+struct CookieState: Equatable {
+    static let empty: Self = .init(
+        key: "", value: .init(
+            rawValue: "", localizedString: ""
+        )
+    )
+
+    let key: String
+    var value: CookieValue
+    var editingText = ""
+}
+
 struct AccountSettingState: Equatable {
     enum Route: Equatable {
         case hud
@@ -18,9 +61,9 @@ struct AccountSettingState: Equatable {
     }
 
     @BindableState var route: Route?
-
-    var hudConfig = TTProgressHUDConfig()
-    var cookiesSectionIdentifier = ""
+    @BindableState var ehCookiesState: CookiesState = .empty(.ehentai)
+    @BindableState var exCookiesState: CookiesState = .empty(.exhentai)
+    var hudConfig: TTProgressHUDConfig = .copiedToClipboardSucceeded
 
     var loginState = LoginState()
     var ehSettingState = EhSettingState()
@@ -29,11 +72,12 @@ struct AccountSettingState: Equatable {
 enum AccountSettingAction: BindableAction {
     case binding(BindingAction<AccountSettingState>)
     case setNavigation(AccountSettingState.Route?)
-    case setHUDConfig(TTProgressHUDConfig)
-    case refreshCookiesSection
+    case onLogoutConfirmButtonTapped
+
+    case loadCookies
+    case copyCookies(GalleryHost)
 
     case login(LoginAction)
-    case onLogoutConfirmButtonTapped
     case ehSetting(EhSettingAction)
 }
 
@@ -46,6 +90,12 @@ struct AccountSettingEnvironment {
 let accountSettingReducer = Reducer<AccountSettingState, AccountSettingAction, AccountSettingEnvironment>.combine(
     .init { state, action, environment in
         switch action {
+        case .binding(\.$ehCookiesState):
+            return environment.cookiesClient.setCookies(state: state.ehCookiesState).fireAndForget()
+
+        case .binding(\.$exCookiesState):
+            return environment.cookiesClient.setCookies(state: state.exCookiesState).fireAndForget()
+
         case .binding:
             return .none
 
@@ -53,27 +103,25 @@ let accountSettingReducer = Reducer<AccountSettingState, AccountSettingAction, A
             state.route = route
             return .none
 
-        case .setHUDConfig(let config):
-            state.hudConfig = config
+        case .onLogoutConfirmButtonTapped:
             return .none
 
-        case .refreshCookiesSection:
-            state.cookiesSectionIdentifier = UUID().uuidString
+        case .loadCookies:
+            state.ehCookiesState = environment.cookiesClient.loadCookiesState(host: .ehentai)
+            state.exCookiesState = environment.cookiesClient.loadCookiesState(host: .exhentai)
             return .none
+
+        case .copyCookies(let host):
+            return .merge(
+                .init(value: .setNavigation(.hud)),
+                environment.cookiesClient.copyCookies(host: host).fireAndForget()
+            )
 
         case .login(.loginDone):
-            return environment.cookiesClient.didLogin()
-            ? .merge(
-                .init(value: .refreshCookiesSection),
-                .init(value: .setNavigation(nil))
-            )
-            : .none
+            return environment.cookiesClient.didLogin() ? .init(value: .setNavigation(nil)) : .none
 
         case .login:
             return .none
-
-        case .onLogoutConfirmButtonTapped:
-            return .init(value: .refreshCookiesSection)
 
         case .ehSetting:
             return .none
