@@ -2,7 +2,7 @@ name: Test
 on: [push]
 env:
    SCHEME_NAME: 'EhPanda'
-   DEVELOPER_DIR: /Applications/Xcode_13.0.app
+   DEVELOPER_DIR: /Applications/Xcode_13.2.1.app
 jobs:
   Test:
     runs-on: macos-11

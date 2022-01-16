@@ -108,6 +108,7 @@
 		ABBB2633278E6F3B007B6149 /* SearchRequestStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABBB2632278E6F3B007B6149 /* SearchRequestStore.swift */; };
 		ABBB2636278FB888007B6149 /* SwiftUINavigation in Frameworks */ = {isa = PBXBuildFile; productRef = ABBB2635278FB888007B6149 /* SwiftUINavigation */; };
 		ABBB2638278FBD2F007B6149 /* SwiftUINavigation_Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABBB2637278FBD2F007B6149 /* SwiftUINavigation_Extension.swift */; };
+		ABBB263A2792588F007B6149 /* TTProgressHUD_Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABBB26392792588F007B6149 /* TTProgressHUD_Extension.swift */; };
 		ABBC332826BE31AE0084A331 /* EhSettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABBC332726BE31AE0084A331 /* EhSettingView.swift */; };
 		ABBC332A26BE7C940084A331 /* SettingTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABBC332926BE7C940084A331 /* SettingTextField.swift */; };
 		ABBCCC9026C95F6E007D8A36 /* GalleryInfosView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABBCCC8F26C95F6E007D8A36 /* GalleryInfosView.swift */; };
@@ -303,6 +304,7 @@
 		ABBB2630278E6EF3007B6149 /* SearchRequestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchRequestView.swift; sourceTree = "<group>"; };
 		ABBB2632278E6F3B007B6149 /* SearchRequestStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchRequestStore.swift; sourceTree = "<group>"; };
 		ABBB2637278FBD2F007B6149 /* SwiftUINavigation_Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUINavigation_Extension.swift; sourceTree = "<group>"; };
+		ABBB26392792588F007B6149 /* TTProgressHUD_Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TTProgressHUD_Extension.swift; sourceTree = "<group>"; };
 		ABBC332726BE31AE0084A331 /* EhSettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EhSettingView.swift; sourceTree = "<group>"; };
 		ABBC332926BE7C940084A331 /* SettingTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingTextField.swift; sourceTree = "<group>"; };
 		ABBCCC8F26C95F6E007D8A36 /* GalleryInfosView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryInfosView.swift; sourceTree = "<group>"; };
@@ -626,6 +628,7 @@
 			children = (
 				ABA732D825A8018A00B3D9AB /* Extensions.swift */,
 				AB706F7F278981370025A48A /* AlertKit_Extension.swift */,
+				ABBB26392792588F007B6149 /* TTProgressHUD_Extension.swift */,
 				ABBB2637278FBD2F007B6149 /* SwiftUINavigation_Extension.swift */,
 			);
 			path = Extensions;
@@ -1171,6 +1174,7 @@
 				ABD49D64277C7AD5003D1A07 /* TabBarStore.swift in Sources */,
 				ABF45AF025F3313D00ECB568 /* CommentView.swift in Sources */,
 				ABBD2B602768D7AD0072AED2 /* GalleryRankingCell.swift in Sources */,
+				ABBB263A2792588F007B6149 /* TTProgressHUD_Extension.swift in Sources */,
 				AB0ABCB726C541A400AD970F /* WaveForm.swift in Sources */,
 				AB0929D62782A65F00F107CA /* GeneralSettingStore.swift in Sources */,
 				AB706FA3278BCF2F0025A48A /* DetailStore.swift in Sources */,
