@@ -54,6 +54,7 @@ struct DetailState: Equatable, Identifiable {
 enum DetailAction: BindableAction {
     case binding(BindingAction<DetailState>)
     case setNavigation(DetailState.Route?)
+    case clearSubStates
 
     case toggleShowFullTitle
     case toggleShowUserRating
@@ -94,12 +95,19 @@ struct DetailEnvironment {
 let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combine(
     .init { state, action, environment in
         switch action {
+        case .binding(\.$route):
+            return state.route == nil ? .init(value: .clearSubStates) : .none
 
         case .binding:
             return .none
 
         case .setNavigation(let route):
             state.route = route
+            return route == nil ? .init(value: .clearSubStates) : .none
+
+        case .clearSubStates:
+            state.previewsState = .init()
+            state.commentsState = .init()
             return .none
 
         case .toggleShowFullTitle:
@@ -238,6 +246,9 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
 
         case .previews:
             return .none
+
+        case .comments(.performCommentActionDone):
+            return .init(value: .fetchGalleryDetail)
 
         case .comments:
             return .none

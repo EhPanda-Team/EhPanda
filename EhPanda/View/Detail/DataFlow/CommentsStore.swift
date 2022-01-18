@@ -9,24 +9,29 @@ import TTProgressHUD
 import ComposableArchitecture
 
 struct CommentsState: Equatable {
-    static func == (lhs: CommentsState, rhs: CommentsState) -> Bool {
-        lhs.route == rhs.route
-        && lhs.hudConfig == rhs.hudConfig
-        && lhs.scrollGalleryID == rhs.scrollGalleryID
-        && lhs.scrollRowOpacity == rhs.scrollRowOpacity
-        && lhs.detailStates == rhs.detailStates
-        && (lhs.detailReducer == nil) == (rhs.detailReducer == nil)
-    }
-
     enum Route: Equatable {
         case hud
         case detail(String)
         case postComment(String)
     }
 
+    static func == (lhs: CommentsState, rhs: CommentsState) -> Bool {
+        lhs.route == rhs.route
+        && lhs.commentContent == rhs.commentContent
+        && lhs.draftCommentFocused == rhs.draftCommentFocused
+        && lhs.hudConfig == rhs.hudConfig
+        && lhs.scrollCommentID == rhs.scrollCommentID
+        && lhs.scrollRowOpacity == rhs.scrollRowOpacity
+        && lhs.detailStates == rhs.detailStates
+        && (lhs.detailReducer == nil) == (rhs.detailReducer == nil)
+    }
+
     @BindableState var route: Route?
+    @BindableState var commentContent = ""
+    @BindableState var draftCommentFocused = false
+
     var hudConfig: TTProgressHUDConfig = .loading
-    var scrollGalleryID: String?
+    var scrollCommentID: String?
     var scrollRowOpacity: Double = 1
 
     var detailStates = IdentifiedArrayOf<DetailState>()
@@ -36,17 +41,26 @@ struct CommentsState: Equatable {
 enum CommentsAction: BindableAction {
     case binding(BindingAction<CommentsState>)
     case setNavigation(CommentsState.Route?)
-    case initializeRecursiveStates(String)
+    case setDetailState(DetailState)
+    case clearSubStates
+
     case setHUDConfig(TTProgressHUDConfig)
-    case performScrollOpacityEffect
+    case setDraftCommentFocused(Bool)
     case setScrollRowOpacity(Double)
+    case setCommentContent(String)
+    case performScrollOpacityEffect
     case handleCommentLink(URL)
+    case handleDeepLink(URL)
+    case onDraftCommentAppear
     case onAppear
 
+    case updateReadingProgress(String, Int)
+
+    case postComment(String, String? = nil)
     case voteComment(String, String, String, String, Int)
-    case voteCommentDone(Result<Any, AppError>)
+    case performCommentActionDone(Result<Any, AppError>)
     case fetchGallery(URL, Bool)
-    case fetchGalleryDone(Result<Gallery, AppError>)
+    case fetchGalleryDone(URL, Result<Gallery, AppError>)
 
     indirect case detail(id: String, action: DetailAction)
 }
@@ -62,103 +76,158 @@ struct CommentsEnvironment {
 var anyDetailReducer: Reducer<DetailState, DetailAction, DetailEnvironment> {
     detailReducer
 }
-let commentsReducer = Reducer<CommentsState, CommentsAction, CommentsEnvironment>.combine(
-    .init { state, action, environment in
-        switch action {
-        case .binding:
-            return .none
+let commentsReducer = Reducer<CommentsState, CommentsAction, CommentsEnvironment> { state, action, environment in
+    switch action {
+    case .binding(\.$route):
+        return state.route == nil ? .init(value: .clearSubStates) : .none
 
-        case .setNavigation(let route):
-            state.route = route
-            return .none
+    case .binding:
+        return .none
 
-        case .initializeRecursiveStates(let gid):
-            state.detailReducer = anyDetailReducer
-            state.detailStates = .init(uniqueElements: [.init(id: gid)])
-            return .none
+    case .setNavigation(let route):
+        state.route = route
+        return route == nil ? .init(value: .clearSubStates) : .none
 
-        case .setHUDConfig(let config):
-            state.hudConfig = config
-            return .none
+    case .setDetailState(let detailState):
+        state.detailStates = [detailState]
+        return .none
 
-        case .performScrollOpacityEffect:
-            return .merge(
-                .init(value: .setScrollRowOpacity(0.25))
-                    .delay(for: .milliseconds(750), scheduler: DispatchQueue.main).eraseToEffect(),
-                .init(value: .setScrollRowOpacity(1))
-                    .delay(for: .milliseconds(1250), scheduler: DispatchQueue.main).eraseToEffect()
-            )
+    case .clearSubStates:
+        state.detailStates = .init()
+        state.commentContent = .init()
+        state.draftCommentFocused = false
+        return .none
 
-        case .setScrollRowOpacity(let opacity):
-            state.scrollRowOpacity = opacity
-            return .none
+    case .setHUDConfig(let config):
+        state.hudConfig = config
+        return .none
 
-        case .handleCommentLink(let url):
-            guard environment.urlClient.checkIfHandleable(url) else {
-                return environment.uiApplicationClient.openURL(url).fireAndForget()
-            }
-            let (isGalleryImageURL, pageIndex, commentID) = environment.urlClient.analyzeURL(url)
-            let gid = environment.urlClient.parseGalleryID(url)
-            guard !environment.databaseClient.checkGalleryExistence(gid: gid) else {
-                return .merge(
-                    .init(value: .initializeRecursiveStates(gid)),
-                    .init(value: .setNavigation(.detail(gid)))
-                )
-            }
-            return .init(value: .fetchGallery(url, isGalleryImageURL))
+    case .setDraftCommentFocused(let isFocused):
+        state.draftCommentFocused = isFocused
+        return .none
 
-        case .onAppear:
-            return state.scrollGalleryID != nil ? .init(value: .performScrollOpacityEffect) : .none
+    case .setScrollRowOpacity(let opacity):
+        state.scrollRowOpacity = opacity
+        return .none
 
-        case .voteComment(let gid, let token, let apiKey, let commentID, let vote):
-            guard let gid = Int(gid), let commentID = Int(commentID),
-                  let apiuid = Int(environment.cookiesClient.apiuid)
-            else { return .none }
-            return VoteGalleryCommentRequest(
-                apiuid: apiuid, apikey: apiKey, gid: gid, token: token,
-                commentID: commentID, commentVote: vote
-            )
-            .effect.map(CommentsAction.voteCommentDone)
+    case .setCommentContent(let content):
+        state.commentContent = content
+        return .none
 
-        case .voteCommentDone:
-            return .none
+    case .performScrollOpacityEffect:
+        return .merge(
+            .init(value: .setScrollRowOpacity(0.25))
+                .delay(for: .milliseconds(750), scheduler: DispatchQueue.main).eraseToEffect(),
+            .init(value: .setScrollRowOpacity(1))
+                .delay(for: .milliseconds(1250), scheduler: DispatchQueue.main).eraseToEffect()
+        )
 
-        case .fetchGallery(let url, let isGalleryImageURL):
-            state.route = .hud
-            return GalleryReverseRequest(url: url, isGalleryImageURL: isGalleryImageURL)
-                .effect.map(CommentsAction.fetchGalleryDone)
-
-        case .fetchGalleryDone(let result):
-            state.route = nil
-            switch result {
-            case .success(let gallery):
-                return .merge(
-                    environment.databaseClient.cacheGalleries([gallery]).fireAndForget(),
-                    .init(value: .initializeRecursiveStates(gallery.id)),
-                    .init(value: .setNavigation(.detail(gallery.id)))
-                )
-            case .failure:
-                return .init(value: .setHUDConfig(.error))
-                    .delay(for: .milliseconds(500), scheduler: DispatchQueue.main).eraseToEffect()
-            }
-
-        case .detail:
-            guard let detailReducer = state.detailReducer else { return .none }
-            return detailReducer.forEach(
-                state: \CommentsState.detailStates,
-                action: /CommentsAction.detail(id:action:),
-                environment: { (environment: CommentsEnvironment) in
-                    .init(
-                        urlClient: environment.urlClient,
-                        hapticClient: environment.hapticClient,
-                        cookiesClient: environment.cookiesClient,
-                        databaseClient: environment.databaseClient,
-                        uiApplicationClient: environment.uiApplicationClient
-                    )
-                }
-            )
-            .run(&state, action, environment)
+    case .handleCommentLink(let url):
+        guard environment.urlClient.checkIfHandleable(url) else {
+            return environment.uiApplicationClient.openURL(url).fireAndForget()
         }
+        let (isGalleryImageURL, _, _) = environment.urlClient.analyzeURL(url)
+        let gid = environment.urlClient.parseGalleryID(url)
+        guard !environment.databaseClient.checkGalleryExistence(gid: gid) else {
+            return .init(value: .handleDeepLink(url))
+        }
+        return .init(value: .fetchGallery(url, isGalleryImageURL))
+
+    case .handleDeepLink(let url):
+        let (isGalleryImageURL, pageIndex, commentID) = environment.urlClient.analyzeURL(url)
+        let gid = environment.urlClient.parseGalleryID(url)
+        var effects = [Effect<CommentsAction, Never>]()
+        if let pageIndex = pageIndex {
+            effects.append(.init(value: .setDetailState(.init(id: gid))))
+            effects.append(.init(value: .updateReadingProgress(gid, pageIndex)))
+            effects.append(
+                .init(value: .detail(id: gid, action: .setNavigation(.reading)))
+                    .delay(for: .milliseconds(750), scheduler: DispatchQueue.main).eraseToEffect()
+            )
+        } else if let commentID = commentID {
+            var detailState = DetailState(id: gid)
+            detailState.commentsState.scrollCommentID = commentID
+            effects.append(.init(value: .setDetailState(detailState)))
+            effects.append(
+                .init(value: .detail(id: gid, action: .setNavigation(.comments)))
+                    .delay(for: .milliseconds(750), scheduler: DispatchQueue.main).eraseToEffect()
+            )
+        }
+        effects.append(.init(value: .setNavigation(.detail(gid))))
+        return .merge(effects)
+
+    case .onDraftCommentAppear:
+        return .init(value: .setDraftCommentFocused(true))
+            .delay(for: .milliseconds(750), scheduler: DispatchQueue.main).eraseToEffect()
+
+    case .onAppear:
+        state.detailReducer = anyDetailReducer
+        return state.scrollCommentID != nil ? .init(value: .performScrollOpacityEffect) : .none
+
+    case .updateReadingProgress(let gid, let progress):
+        guard !gid.isEmpty else { return .none }
+        return environment.databaseClient
+            .updateReadingProgress(gid: gid, progress: progress).fireAndForget()
+
+    case .postComment(let galleryURL, let commentID):
+        guard !state.commentContent.isEmpty else { return .none }
+        if let commentID = commentID {
+            return EditGalleryCommentRequest(
+                commentID: commentID, content: state.commentContent, galleryURL: galleryURL
+            )
+            .effect.map(CommentsAction.performCommentActionDone)
+        } else {
+            return CommentGalleryRequest(content: state.commentContent, galleryURL: galleryURL)
+                .effect.map(CommentsAction.performCommentActionDone)
+        }
+
+    case .voteComment(let gid, let token, let apiKey, let commentID, let vote):
+        guard let gid = Int(gid), let commentID = Int(commentID),
+              let apiuid = Int(environment.cookiesClient.apiuid)
+        else { return .none }
+        return VoteGalleryCommentRequest(
+            apiuid: apiuid, apikey: apiKey, gid: gid, token: token,
+            commentID: commentID, commentVote: vote
+        )
+        .effect.map(CommentsAction.performCommentActionDone)
+
+    case .performCommentActionDone:
+        return .none
+
+    case .fetchGallery(let url, let isGalleryImageURL):
+        state.route = .hud
+        return GalleryReverseRequest(url: url, isGalleryImageURL: isGalleryImageURL)
+            .effect.map({ CommentsAction.fetchGalleryDone(url, $0) })
+
+    case .fetchGalleryDone(let url, let result):
+        state.route = nil
+        switch result {
+        case .success(let gallery):
+            return .merge(
+                environment.databaseClient.cacheGalleries([gallery]).fireAndForget(),
+                .init(value: .handleDeepLink(url))
+            )
+        case .failure:
+            return .init(value: .setHUDConfig(.error))
+                .delay(for: .milliseconds(500), scheduler: DispatchQueue.main).eraseToEffect()
+        }
+
+    case .detail:
+        guard let detailReducer = state.detailReducer else { return .none }
+        return detailReducer.forEach(
+            state: \CommentsState.detailStates,
+            action: /CommentsAction.detail(id:action:),
+            environment: { (environment: CommentsEnvironment) in
+                .init(
+                    urlClient: environment.urlClient,
+                    hapticClient: environment.hapticClient,
+                    cookiesClient: environment.cookiesClient,
+                    databaseClient: environment.databaseClient,
+                    uiApplicationClient: environment.uiApplicationClient
+                )
+            }
+        )
+        .run(&state, action, environment)
     }
-    .binding()
-)
+}
+.binding()

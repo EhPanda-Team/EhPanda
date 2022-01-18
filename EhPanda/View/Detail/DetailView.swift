@@ -130,16 +130,22 @@ struct DetailView: View {
 // MARK: NavigationLinks
 private extension DetailView {
     @ViewBuilder var navigationLinks: some View {
+        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /DetailState.Route.reading) { _ in
+            EmptyView()
+        }
         NavigationLink(unwrapping: viewStore.binding(\.$route), case: /DetailState.Route.previews) { _ in
             PreviewsView(
                 store: store.scope(state: \.previewsState, action: DetailAction.previews),
-                gid: gid, pageCount: viewStore.gallery?.pageCount ?? 1
+                gid: gid, pageCount: viewStore.gallery?.pageCount ?? 1,
+                galleryURL: viewStore.gallery?.galleryURL ?? ""
             )
         }
         NavigationLink(unwrapping: viewStore.binding(\.$route), case: /DetailState.Route.comments) { _ in
             CommentsView(
                 store: store.scope(state: \.commentsState, action: DetailAction.comments),
-                gid: gid, token: viewStore.galleryToken, apiKey: viewStore.apiKey, comments: viewStore.galleryComments,
+                gid: gid, token: viewStore.galleryToken, apiKey: viewStore.apiKey,
+                galleryURL: viewStore.gallery?.galleryURL ?? "",
+                comments: viewStore.galleryComments,
                 user: user, setting: setting, tagTranslator: tagTranslator
             )
         }
@@ -646,6 +652,26 @@ private extension CommentsSection {
             .padding().background(Color(.systemGray6))
             .frame(width: 300, height: 120)
             .cornerRadius(15)
+        }
+    }
+
+    struct CommentButton: View {
+        private let action: () -> Void
+
+        init(action: @escaping () -> Void) {
+            self.action = action
+        }
+
+        var body: some View {
+            Button(action: action) {
+                HStack {
+                    Spacer()
+                    Image(systemSymbol: .squareAndPencil)
+                    Text("Post Comment").bold()
+                    Spacer()
+                }
+                .padding().background(Color(.systemGray6)).cornerRadius(15)
+            }
         }
     }
 }

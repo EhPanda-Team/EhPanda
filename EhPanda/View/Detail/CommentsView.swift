@@ -15,6 +15,7 @@ struct CommentsView: View {
     private let gid: String
     private let token: String
     private let apiKey: String
+    private let galleryURL: String
     private let comments: [GalleryComment]
     private let user: User
     private let setting: Setting
@@ -22,14 +23,15 @@ struct CommentsView: View {
 
     init(
         store: Store<CommentsState, CommentsAction>,
-        gid: String, token: String, apiKey: String, comments: [GalleryComment],
-        user: User, setting: Setting, tagTranslator: TagTranslator
+        gid: String, token: String, apiKey: String, galleryURL: String,
+        comments: [GalleryComment], user: User, setting: Setting, tagTranslator: TagTranslator
     ) {
         self.store = store
         viewStore = ViewStore(store)
         self.gid = gid
         self.token = token
         self.apiKey = apiKey
+        self.galleryURL = galleryURL
         self.comments = comments
         self.user = user
         self.setting = setting
@@ -45,7 +47,7 @@ struct CommentsView: View {
                     linkAction: { viewStore.send(.handleCommentLink($0)) }
                 )
                 .opacity(
-                    comment.commentID == viewStore.scrollGalleryID
+                    comment.commentID == viewStore.scrollCommentID
                     ? viewStore.scrollRowOpacity : 1
                 )
                 .swipeActions(edge: .leading) {
@@ -69,7 +71,8 @@ struct CommentsView: View {
                     }
                     if comment.editable {
                         Button {
-                            viewStore.send(.setNavigation(.postComment(comment.plainTextContent)))
+                            viewStore.send(.setCommentContent(comment.plainTextContent))
+                            viewStore.send(.setNavigation(.postComment(comment.commentID)))
                         } label: {
                             Image(systemSymbol: .squareAndPencil)
                         }
@@ -77,9 +80,9 @@ struct CommentsView: View {
                 }
             }
             .onAppear {
-                if let scrollGalleryID = viewStore.scrollGalleryID {
+                if let scrollCommentID = viewStore.scrollCommentID {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
-                        proxy.scrollTo(scrollGalleryID)
+                        proxy.scrollTo(scrollCommentID)
                     }
                 }
             }
@@ -89,9 +92,23 @@ struct CommentsView: View {
             unwrapping: viewStore.binding(\.$route),
             case: /CommentsState.Route.hud
         )
-        .sheet(unwrapping: viewStore.binding(\.$route), case: /CommentsState.Route.postComment) { _ in
-//            DraftCommentView()
-//            route.wrappedValue
+        .sheet(unwrapping: viewStore.binding(\.$route), case: /CommentsState.Route.postComment) { route in
+            let hasCommentID = !route.wrappedValue.isEmpty
+            DraftCommentView(
+                title: hasCommentID ? "Edit Comment" : "Post Comment",
+                content: viewStore.binding(\.$commentContent),
+                isFocused: viewStore.binding(\.$draftCommentFocused),
+                postAction: {
+                    if hasCommentID {
+                        viewStore.send(.postComment(galleryURL, route.wrappedValue))
+                    } else {
+                        viewStore.send(.postComment(galleryURL))
+                    }
+                    viewStore.send(.setNavigation(nil))
+                },
+                cancelAction: { viewStore.send(.setNavigation(nil)) },
+                onAppearAction: { viewStore.send(.onDraftCommentAppear) }
+            )
         }
         .animation(.default, value: viewStore.scrollRowOpacity)
         .onAppear {
@@ -261,6 +278,7 @@ struct CommentsView_Previews: PreviewProvider {
                 gid: .init(),
                 token: .init(),
                 apiKey: .init(),
+                galleryURL: .init(),
                 comments: [],
                 user: .init(),
                 setting: .init(),

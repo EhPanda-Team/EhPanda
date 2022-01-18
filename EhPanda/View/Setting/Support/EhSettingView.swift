@@ -1077,6 +1077,5 @@ struct EhSettingView_Previews: PreviewProvider {
                 blurRadius: 0
             )
         }
-        .navigationViewStyle(.stack)
     }
 }

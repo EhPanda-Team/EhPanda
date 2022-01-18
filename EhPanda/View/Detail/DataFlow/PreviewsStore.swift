@@ -13,7 +13,6 @@ struct PreviewsState: Equatable {
     }
 
     @BindableState var route: Route?
-    var gallery: Gallery?
     var galleryID = ""
 
     var previewConfig: PreviewConfig = .normal(rows: 4)
@@ -30,14 +29,14 @@ struct PreviewsState: Equatable {
 enum PreviewsAction: BindableAction {
     case binding(BindingAction<PreviewsState>)
     case setNavigation(PreviewsState.Route?)
+    case clearSubStates
 
     case syncGalleryPreviews
-    case syncPreviewConfig(PreviewConfig)
     case updateReadingProgress(Int)
 
     case fetchDatabaseInfos(String)
     case fetchDatabaseInfosDone(GalleryState)
-    case fetchPreviews(Int)
+    case fetchPreviews(String, Int)
     case fetchPreviewsDone(Result<[Int: String], AppError>)
 }
 
@@ -47,11 +46,17 @@ struct PreviewsEnvironment {
 
 let previewsReducer = Reducer<PreviewsState, PreviewsAction, PreviewsEnvironment> { state, action, environment in
     switch action {
+    case .binding(\.$route):
+        return state.route == nil ? .init(value: .clearSubStates) : .none
+
     case .binding:
         return .none
 
     case .setNavigation(let route):
         state.route = route
+        return route == nil ? .init(value: .clearSubStates) : .none
+
+    case .clearSubStates:
         return .none
 
     case .syncGalleryPreviews:
@@ -59,20 +64,15 @@ let previewsReducer = Reducer<PreviewsState, PreviewsAction, PreviewsEnvironment
         return environment.databaseClient
             .updateGalleryPreviews(gid: state.galleryID, previews: state.previews).fireAndForget()
 
-    case .syncPreviewConfig:
-        guard !state.galleryID.isEmpty else { return .none }
-        return environment.databaseClient
-            .updatePreviewConfig(gid: state.galleryID, config: state.previewConfig).fireAndForget()
-
     case .updateReadingProgress(let progress):
+        guard !state.galleryID.isEmpty else { return .none }
         return environment.databaseClient
             .updateReadingProgress(gid: state.galleryID, progress: progress).fireAndForget()
 
     case .fetchDatabaseInfos(let gid):
         let gallery = environment.databaseClient.fetchGallery(gid)
         state.galleryID = gid
-        state.gallery = gallery
-        return environment.databaseClient.fetchGalleryState(state.galleryID)
+        return environment.databaseClient.fetchGalleryState(gid)
                 .map(PreviewsAction.fetchDatabaseInfosDone)
 
     case .fetchDatabaseInfosDone(let galleryState):
@@ -82,8 +82,8 @@ let previewsReducer = Reducer<PreviewsState, PreviewsAction, PreviewsEnvironment
         state.previews = galleryState.previews
         return .none
 
-    case .fetchPreviews(let index):
-        guard let galleryURL = state.gallery?.galleryURL, state.loadingState != .loading else { return .none }
+    case .fetchPreviews(let galleryURL, let index):
+        guard state.loadingState != .loading else { return .none }
         state.loadingState = .loading
 
         let pageNumber = state.previewConfig.pageNumber(index: index)

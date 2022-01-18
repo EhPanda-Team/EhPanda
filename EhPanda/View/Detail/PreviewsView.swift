@@ -14,12 +14,14 @@ struct PreviewsView: View {
     @ObservedObject private var viewStore: ViewStore<PreviewsState, PreviewsAction>
     private let gid: String
     private let pageCount: Int
+    private let galleryURL: String
 
-    init(store: Store<PreviewsState, PreviewsAction>, gid: String, pageCount: Int) {
+    init(store: Store<PreviewsState, PreviewsAction>, gid: String, pageCount: Int, galleryURL: String) {
         self.store = store
         viewStore = ViewStore(store)
         self.gid = gid
         self.pageCount = pageCount
+        self.galleryURL = galleryURL
     }
 
     private var gridItems: [GridItem] {
@@ -52,7 +54,7 @@ struct PreviewsView: View {
                     }
                     .onAppear {
                         if viewStore.previews[index] == nil && (index - 1) % 20 == 0 {
-                            viewStore.send(.fetchPreviews(index))
+                            viewStore.send(.fetchPreviews(galleryURL, index))
                         }
                     }
                 }
@@ -79,7 +81,8 @@ struct PreviewsView_Previews: PreviewProvider {
                     )
                 ),
                 gid: .init(),
-                pageCount: 1
+                pageCount: 1,
+                galleryURL: .init()
             )
         }
     }

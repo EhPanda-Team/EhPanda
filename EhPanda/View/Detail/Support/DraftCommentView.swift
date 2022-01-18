@@ -1,5 +1,5 @@
 //
-//  Comment.swift
+//  DraftCommentView.swift
 //  EhPanda
 //
 //  Created by 荒木辰造 on R 3/01/03.
@@ -7,43 +7,30 @@
 
 import SwiftUI
 
-struct CommentButton: View {
-    private let action: () -> Void
-
-    init(action: @escaping () -> Void) {
-        self.action = action
-    }
-
-    var body: some View {
-        Button(action: action) {
-            HStack {
-                Spacer()
-                Image(systemName: "square.and.pencil")
-                Text("Post Comment").bold()
-                Spacer()
-            }
-            .padding().background(Color(.systemGray6)).cornerRadius(15)
-        }
-    }
-}
-
 struct DraftCommentView: View {
-    @Binding private var content: String
-    @FocusState private var isTextEditorFocused: Bool
-
     private let title: String
+    @Binding private var content: String
+    @Binding private var isFocused: Bool
     private let postAction: () -> Void
     private let cancelAction: () -> Void
+    private let onAppearAction: () -> Void
+
+    @FocusState private var isTextEditorFocused: Bool
 
     init(
-        content: Binding<String>, title: String,
+        title: String,
+        content: Binding<String>,
+        isFocused: Binding<Bool>,
         postAction: @escaping () -> Void,
-        cancelAction: @escaping () -> Void
+        cancelAction: @escaping () -> Void,
+        onAppearAction: @escaping () -> Void
     ) {
-        _content = content
         self.title = title
+        _content = content
+        _isFocused = isFocused
         self.postAction = postAction
         self.cancelAction = cancelAction
+        self.onAppearAction = onAppearAction
     }
 
     var body: some View {
@@ -52,7 +39,6 @@ struct DraftCommentView: View {
                 TextEditor(text: $content).focused($isTextEditorFocused).padding()
                 Spacer()
             }
-            .navigationBarTitle(title.localized, displayMode: .inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel", action: cancelAction)
@@ -61,11 +47,10 @@ struct DraftCommentView: View {
                     Button("Post", action: postAction).disabled(content.isEmpty)
                 }
             }
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationTitle(title.localized)
         }
-        .onAppear {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
-                isTextEditorFocused = true
-            }
-        }
+        .synchronize($isFocused, $isTextEditorFocused)
+        .onAppear(perform: onAppearAction)
     }
 }
