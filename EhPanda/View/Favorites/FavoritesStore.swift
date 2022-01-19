@@ -111,7 +111,7 @@ let favoritesReducer = Reducer<FavoritesState, FavoritesAction, FavoritesEnviron
 
         case .clearSubStates:
             state.detailState = .init()
-            return .none
+            return .init(value: .detail(.cancelFetching))
 
         case .onDisappear:
             state.jumpPageAlertPresented = false

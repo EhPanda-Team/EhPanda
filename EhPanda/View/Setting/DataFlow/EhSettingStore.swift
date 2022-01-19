@@ -12,6 +12,9 @@ struct EhSettingState: Equatable {
         case webView(URL)
         case deleteProfile
     }
+    struct CancelID: Hashable {
+        let id = String(describing: EhSettingState.self)
+    }
 
     @BindableState var route: Route?
     @BindableState var editingProfileName = ""
@@ -35,6 +38,7 @@ enum EhSettingAction: BindableAction {
     case setKeyboardHidden
     case setDefaultProfile(Int)
 
+    case cancelFetching
     case fetchEhSetting
     case fetchEhSettingDone(Result<EhSetting, AppError>)
     case submitChanges
@@ -67,10 +71,14 @@ let ehSettingReducer = Reducer<EhSettingState, EhSettingAction, EhSettingEnviron
         )
         .fireAndForget()
 
+    case .cancelFetching:
+        return .cancel(id: EhSettingState.CancelID())
+
     case .fetchEhSetting:
         guard state.loadingState != .loading else { return .none }
         state.loadingState = .loading
         return EhSettingRequest().effect.map(EhSettingAction.fetchEhSettingDone)
+            .cancellable(id: EhSettingState.CancelID())
 
     case .fetchEhSettingDone(let result):
         state.loadingState = .idle
@@ -90,7 +98,7 @@ let ehSettingReducer = Reducer<EhSettingState, EhSettingAction, EhSettingEnviron
 
         state.submittingState = .loading
         return SubmitEhSettingChangesRequest(ehSetting: ehSetting)
-            .effect.map(EhSettingAction.submitChangesDone)
+            .effect.map(EhSettingAction.submitChangesDone).cancellable(id: EhSettingState.CancelID())
 
     case .submitChangesDone(let result):
         state.submittingState = .idle
@@ -107,7 +115,7 @@ let ehSettingReducer = Reducer<EhSettingState, EhSettingAction, EhSettingEnviron
         guard state.submittingState != .loading else { return .none }
         state.submittingState = .loading
         return EhProfileRequest(action: action, name: name, set: set)
-            .effect.map(EhSettingAction.performActionDone)
+            .effect.map(EhSettingAction.performActionDone).cancellable(id: EhSettingState.CancelID())
 
     case .performActionDone(let result):
         state.submittingState = .idle

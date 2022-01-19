@@ -11,6 +11,9 @@ struct WatchedState: Equatable {
     enum Route: Equatable {
         case detail(String)
     }
+    struct CancelID: Hashable {
+        let id = String(describing: WatchedState.self)
+    }
 
     @BindableState var route: Route?
     @BindableState var keyword = ""
@@ -48,6 +51,7 @@ enum WatchedAction: BindableAction {
     case presentJumpPageAlert
     case setJumpPageAlertFocused(Bool)
 
+    case cancelFetching
     case fetchGalleries(Int? = nil)
     case fetchGalleriesDone(Result<(PageNumber, [Gallery]), AppError>)
     case fetchMoreGalleries
@@ -87,7 +91,7 @@ let watchedReducer = Reducer<WatchedState, WatchedAction, WatchedEnvironment>.co
 
         case .clearSubStates:
             state.detailState = .init()
-            return .none
+            return .init(value: .detail(.cancelFetching))
 
         case .onDisappear:
             state.jumpPageAlertPresented = false
@@ -111,12 +115,15 @@ let watchedReducer = Reducer<WatchedState, WatchedAction, WatchedEnvironment>.co
             state.jumpPageAlertFocused = isFocused
             return .none
 
+        case .cancelFetching:
+            return .cancel(id: WatchedState.CancelID())
+
         case .fetchGalleries(let pageNum):
             guard state.loadingState != .loading else { return .none }
             state.loadingState = .loading
             state.pageNumber.current = 0
             return WatchedGalleriesRequest(filter: state.filter, pageNum: pageNum, keyword: state.keyword)
-                .effect.map(WatchedAction.fetchGalleriesDone)
+                .effect.map(WatchedAction.fetchGalleriesDone).cancellable(id: WatchedState.CancelID())
 
         case .fetchGalleriesDone(let result):
             state.loadingState = .idle
@@ -148,7 +155,7 @@ let watchedReducer = Reducer<WatchedState, WatchedAction, WatchedEnvironment>.co
             return MoreWatchedGalleriesRequest(
                 filter: state.filter, lastID: lastID, pageNum: pageNum, keyword: state.keyword
             )
-            .effect.map(WatchedAction.fetchMoreGalleriesDone)
+            .effect.map(WatchedAction.fetchMoreGalleriesDone).cancellable(id: WatchedState.CancelID())
 
         case .fetchMoreGalleriesDone(let result):
             state.footerLoadingState = .idle

@@ -100,7 +100,10 @@ let searchReducer = Reducer<SearchState, SearchAction, SearchEnvironment>.combin
         case .clearSubStates:
             state.searchReqeustState = .init()
             state.detailState = .init()
-            return .none
+            return .merge(
+                .init(value: .searchRequest(.cancelFetching)),
+                .init(value: .detail(.cancelFetching))
+            )
 
         case .onFiltersButtonTapped:
             return .none

@@ -126,7 +126,13 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
             state.watchedState = .init()
             state.historyState = .init()
             state.detailState = .init()
-            return .none
+            return .merge(
+                .init(value: .frontpage(.cancelFetching)),
+                .init(value: .toplists(.cancelFetching)),
+                .init(value: .popular(.cancelFetching)),
+                .init(value: .watched(.cancelFetching)),
+                .init(value: .detail(.cancelFetching))
+            )
 
         case .setAllowsCardHitTesting(let isAllowed):
             state.allowsCardHitTesting = isAllowed

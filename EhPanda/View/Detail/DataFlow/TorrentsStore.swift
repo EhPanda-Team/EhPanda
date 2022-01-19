@@ -14,6 +14,9 @@ struct TorrentsState: Equatable {
         case hud
         case share(URL)
     }
+    struct CancelID: Hashable {
+        let id = String(describing: TorrentsState.self)
+    }
 
     @BindableState var route: Route?
     var torrents = [GalleryTorrent]()
@@ -28,6 +31,7 @@ enum TorrentsAction: BindableAction {
     case copyMagnetURL(String)
     case presentTorrentActivity(String, Data)
 
+    case cancelFetching
     case fetchTorrent(String, URL)
     case fetchTorrentDone(String, Result<Data, AppError>)
     case fetchGalleryTorrents(String, String)
@@ -64,6 +68,10 @@ let torrentsReducer = Reducer<TorrentsState, TorrentsAction, TorrentsEnvironment
 
     case .fetchTorrent(let hash, let torrentURL):
         return DataRequest(url: torrentURL).effect.map({ TorrentsAction.fetchTorrentDone(hash, $0) })
+            .cancellable(id: TorrentsState.CancelID())
+
+    case .cancelFetching:
+        return .cancel(id: TorrentsState.CancelID())
 
     case .fetchTorrentDone(let hash, let result):
         if case .success(let data) = result, !data.isEmpty {
@@ -75,7 +83,7 @@ let torrentsReducer = Reducer<TorrentsState, TorrentsAction, TorrentsEnvironment
         guard state.loadingState != .loading else { return .none }
         state.loadingState = .loading
         return GalleryTorrentsRequest(gid: gid, token: token)
-            .effect.map(TorrentsAction.fetchGalleryTorrentsDone)
+            .effect.map(TorrentsAction.fetchGalleryTorrentsDone).cancellable(id: TorrentsState.CancelID())
 
     case .fetchGalleryTorrentsDone(let result):
         state.loadingState = .idle

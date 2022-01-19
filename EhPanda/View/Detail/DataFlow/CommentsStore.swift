@@ -14,6 +14,9 @@ struct CommentsState: Equatable {
         case detail(String)
         case postComment(String)
     }
+    struct CancelID: Hashable {
+        let id = String(describing: CommentsState.self)
+    }
 
     static func == (lhs: CommentsState, rhs: CommentsState) -> Bool {
         lhs.route == rhs.route
@@ -56,6 +59,7 @@ enum CommentsAction: BindableAction {
 
     case updateReadingProgress(String, Int)
 
+    case cancelFetching
     case postComment(String, String? = nil)
     case voteComment(String, String, String, String, Int)
     case performCommentActionDone(Result<Any, AppError>)
@@ -98,6 +102,9 @@ let commentsReducer = Reducer<CommentsState, CommentsAction, CommentsEnvironment
         state.detailStates = .init()
         state.commentContent = .init()
         state.draftCommentFocused = false
+        if let id = state.detailStates.first?.id {
+            return .init(value: .detail(id: id, action: .cancelFetching))
+        }
         return .none
 
     case .setHUDConfig(let config):
@@ -176,16 +183,19 @@ let commentsReducer = Reducer<CommentsState, CommentsAction, CommentsEnvironment
         return environment.databaseClient
             .updateReadingProgress(gid: gid, progress: progress).fireAndForget()
 
+    case .cancelFetching:
+        return .cancel(id: CommentsState.CancelID())
+
     case .postComment(let galleryURL, let commentID):
         guard !state.commentContent.isEmpty else { return .none }
         if let commentID = commentID {
             return EditGalleryCommentRequest(
                 commentID: commentID, content: state.commentContent, galleryURL: galleryURL
             )
-            .effect.map(CommentsAction.performCommentActionDone)
+            .effect.map(CommentsAction.performCommentActionDone).cancellable(id: CommentsState.CancelID())
         } else {
             return CommentGalleryRequest(content: state.commentContent, galleryURL: galleryURL)
-                .effect.map(CommentsAction.performCommentActionDone)
+                .effect.map(CommentsAction.performCommentActionDone).cancellable(id: CommentsState.CancelID())
         }
 
     case .voteComment(let gid, let token, let apiKey, let commentID, let vote):
@@ -196,7 +206,7 @@ let commentsReducer = Reducer<CommentsState, CommentsAction, CommentsEnvironment
             apiuid: apiuid, apikey: apiKey, gid: gid, token: token,
             commentID: commentID, commentVote: vote
         )
-        .effect.map(CommentsAction.performCommentActionDone)
+        .effect.map(CommentsAction.performCommentActionDone).cancellable(id: CommentsState.CancelID())
 
     case .performCommentActionDone:
         return .none
@@ -204,7 +214,7 @@ let commentsReducer = Reducer<CommentsState, CommentsAction, CommentsEnvironment
     case .fetchGallery(let url, let isGalleryImageURL):
         state.route = .hud
         return GalleryReverseRequest(url: url, isGalleryImageURL: isGalleryImageURL)
-            .effect.map({ CommentsAction.fetchGalleryDone(url, $0) })
+            .effect.map({ CommentsAction.fetchGalleryDone(url, $0) }).cancellable(id: CommentsState.CancelID())
 
     case .fetchGalleryDone(let url, let result):
         state.route = nil

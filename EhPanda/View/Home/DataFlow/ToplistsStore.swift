@@ -11,6 +11,9 @@ struct ToplistsState: Equatable {
     enum Route: Equatable {
         case detail(String)
     }
+    struct CancelID: Hashable {
+        let id = String(describing: ToplistsState.self)
+    }
 
     @BindableState var route: Route?
     @BindableState var keyword = ""
@@ -65,6 +68,7 @@ enum ToplistsAction: BindableAction {
     case presentJumpPageAlert
     case setJumpPageAlertFocused(Bool)
 
+    case cancelFetching
     case fetchGalleries(Int? = nil)
     case fetchGalleriesDone(ToplistsType, Result<(PageNumber, [Gallery]), AppError>)
     case fetchMoreGalleries
@@ -109,7 +113,7 @@ let toplistsReducer = Reducer<ToplistsState, ToplistsAction, ToplistsEnvironment
 
         case .clearSubStates:
             state.detailState = .init()
-            return .none
+            return .init(value: .detail(.cancelFetching))
 
         case .onDisappear:
             state.jumpPageAlertPresented = false
@@ -132,6 +136,9 @@ let toplistsReducer = Reducer<ToplistsState, ToplistsAction, ToplistsEnvironment
             state.jumpPageAlertFocused = isFocused
             return .none
 
+        case .cancelFetching:
+            return .cancel(id: ToplistsState.CancelID())
+
         case .fetchGalleries(let pageNum):
             guard state.loadingState != .loading else { return .none }
             state.rawLoadingState[state.type] = .loading
@@ -142,6 +149,7 @@ let toplistsReducer = Reducer<ToplistsState, ToplistsAction, ToplistsEnvironment
             }
             return ToplistsGalleriesRequest(catIndex: state.type.categoryIndex, pageNum: pageNum)
                 .effect.map({ [type = state.type] in ToplistsAction.fetchGalleriesDone(type, $0) })
+                .cancellable(id: ToplistsState.CancelID())
 
         case .fetchGalleriesDone(let type, let result):
             state.rawLoadingState[type] = .idle
@@ -172,6 +180,7 @@ let toplistsReducer = Reducer<ToplistsState, ToplistsAction, ToplistsEnvironment
             let lastID = state.rawGalleries[state.type]?.last?.id ?? ""
             return MoreToplistsGalleriesRequest(catIndex: state.type.categoryIndex, pageNum: pageNum)
                 .effect.map({ [type = state.type] in ToplistsAction.fetchMoreGalleriesDone(type, $0) })
+                .cancellable(id: ToplistsState.CancelID())
 
         case .fetchMoreGalleriesDone(let type, let result):
             state.rawFooterLoadingState[type] = .idle

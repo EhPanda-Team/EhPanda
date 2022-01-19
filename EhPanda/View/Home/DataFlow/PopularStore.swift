@@ -11,6 +11,9 @@ struct PopularState: Equatable {
     enum Route: Equatable {
         case detail(String)
     }
+    struct CancelID: Hashable {
+        let id = String(describing: PopularState.self)
+    }
 
     @BindableState var route: Route?
     @BindableState var keyword = ""
@@ -34,6 +37,7 @@ enum PopularAction: BindableAction {
     case clearSubStates
     case onFiltersButtonTapped
 
+    case cancelFetching
     case fetchGalleries
     case fetchGalleriesDone(Result<[Gallery], AppError>)
 
@@ -65,16 +69,19 @@ let popularReducer = Reducer<PopularState, PopularAction, PopularEnvironment>.co
 
         case .clearSubStates:
             state.detailState = .init()
-            return .none
+            return .init(value: .detail(.cancelFetching))
 
         case .onFiltersButtonTapped:
             return .none
+
+        case .cancelFetching:
+            return .cancel(id: PopularState.CancelID())
 
         case .fetchGalleries:
             guard state.loadingState != .loading else { return .none }
             state.loadingState = .loading
             return PopularGalleriesRequest(filter: state.filter)
-                .effect.map(PopularAction.fetchGalleriesDone)
+                .effect.map(PopularAction.fetchGalleriesDone).cancellable(id: PopularState.CancelID())
 
         case .fetchGalleriesDone(let result):
             state.loadingState = .idle

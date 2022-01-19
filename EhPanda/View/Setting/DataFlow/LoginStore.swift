@@ -16,6 +16,9 @@ struct LoginState: Equatable {
         case username
         case password
     }
+    struct CancelID: Hashable {
+        let id = String(describing: LoginState.self)
+    }
 
     @BindableState var route: Route?
     @BindableState var focusedField: FocusedField?
@@ -36,6 +39,8 @@ enum LoginAction: BindableAction {
     case binding(BindingAction<LoginState>)
     case setNavigation(LoginState.Route?)
     case onTextFieldSubmitted
+
+    case cancelFetching
     case login
     case loginDone
 }
@@ -66,6 +71,9 @@ let loginReducer = Reducer<LoginState, LoginAction, LoginEnvironment> { state, a
         }
         return .none
 
+    case .cancelFetching:
+        return .cancel(id: LoginState.CancelID())
+
     case .login:
         guard !state.loginButtonDisabled
                 || state.loginState == .loading
@@ -77,7 +85,7 @@ let loginReducer = Reducer<LoginState, LoginAction, LoginEnvironment> { state, a
 
         return .merge(
             LoginRequest(username: state.username, password: state.password)
-                .effect.map({ _ in LoginAction.loginDone }),
+                .effect.map({ _ in LoginAction.loginDone }).cancellable(id: LoginState.CancelID()),
             environment.hapticClient.generateFeedback(.soft).fireAndForget()
         )
 

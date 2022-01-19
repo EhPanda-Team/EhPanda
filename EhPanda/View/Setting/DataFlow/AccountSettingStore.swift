@@ -73,6 +73,7 @@ enum AccountSettingAction: BindableAction {
     case binding(BindingAction<AccountSettingState>)
     case setNavigation(AccountSettingState.Route?)
     case onLogoutConfirmButtonTapped
+    case clearSubStates
 
     case loadCookies
     case copyCookies(GalleryHost)
@@ -91,6 +92,9 @@ struct AccountSettingEnvironment {
 let accountSettingReducer = Reducer<AccountSettingState, AccountSettingAction, AccountSettingEnvironment>.combine(
     .init { state, action, environment in
         switch action {
+        case .binding(\.$route):
+            return state.route == nil ? .init(value: .clearSubStates) : .none
+
         case .binding(\.$ehCookiesState):
             return environment.cookiesClient.setCookies(state: state.ehCookiesState).fireAndForget()
 
@@ -102,10 +106,18 @@ let accountSettingReducer = Reducer<AccountSettingState, AccountSettingAction, A
 
         case .setNavigation(let route):
             state.route = route
-            return .none
+            return route == nil ? .init(value: .clearSubStates) : .none
 
         case .onLogoutConfirmButtonTapped:
             return .init(value: .loadCookies)
+
+        case .clearSubStates:
+            state.loginState = .init()
+            state.ehSettingState = .init()
+            return .merge(
+                .init(value: .login(.cancelFetching)),
+                .init(value: .ehSetting(.cancelFetching))
+            )
 
         case .loadCookies:
             state.ehCookiesState = environment.cookiesClient.loadCookiesState(host: .ehentai)

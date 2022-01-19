@@ -11,6 +11,9 @@ struct PreviewsState: Equatable {
     enum Route {
         case reading
     }
+    struct CancelID: Hashable {
+        let id = String(describing: PreviewsState.self)
+    }
 
     @BindableState var route: Route?
     var galleryID = ""
@@ -34,6 +37,7 @@ enum PreviewsAction: BindableAction {
     case syncGalleryPreviews
     case updateReadingProgress(Int)
 
+    case cancelFetching
     case fetchDatabaseInfos(String)
     case fetchDatabaseInfosDone(GalleryState)
     case fetchPreviews(String, Int)
@@ -69,11 +73,14 @@ let previewsReducer = Reducer<PreviewsState, PreviewsAction, PreviewsEnvironment
         return environment.databaseClient
             .updateReadingProgress(gid: state.galleryID, progress: progress).fireAndForget()
 
+    case .cancelFetching:
+        return .cancel(id: PreviewsState.CancelID())
+
     case .fetchDatabaseInfos(let gid):
         let gallery = environment.databaseClient.fetchGallery(gid)
         state.galleryID = gid
         return environment.databaseClient.fetchGalleryState(gid)
-                .map(PreviewsAction.fetchDatabaseInfosDone)
+                .map(PreviewsAction.fetchDatabaseInfosDone).cancellable(id: PreviewsState.CancelID())
 
     case .fetchDatabaseInfosDone(let galleryState):
         if let previewConfig = galleryState.previewConfig {
@@ -89,6 +96,7 @@ let previewsReducer = Reducer<PreviewsState, PreviewsAction, PreviewsEnvironment
         let pageNumber = state.previewConfig.pageNumber(index: index)
         let url = URLUtil.detailPage(url: galleryURL, pageNum: pageNumber)
         return GalleryPreviewsRequest(url: url).effect.map(PreviewsAction.fetchPreviewsDone)
+            .cancellable(id: PreviewsState.CancelID())
 
     case .fetchPreviewsDone(let result):
         state.loadingState = .idle

@@ -21,6 +21,9 @@ struct DetailState: Equatable, Identifiable {
         case searchRequest(String)
         case galleryInfos(Gallery, GalleryDetail)
     }
+    struct CancelID: Hashable {
+        let id = String(describing: DetailState.self)
+    }
 
     // IdentifiedArray requirement
     let id: String
@@ -83,6 +86,7 @@ enum DetailAction: BindableAction {
     case saveGalleryHistory
     case updateReadingProgress(Int)
 
+    case cancelFetching
     case fetchDatabaseInfos(String)
     case fetchDatabaseInfosDone(GalleryState)
     case fetchGalleryDetail
@@ -131,7 +135,12 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
 
             state.commentContent = .init()
             state.draftCommentFocused = false
-            return .none
+            return .merge(
+                .init(value: .archives(.cancelFetching)),
+                .init(value: .torrents(.cancelFetching)),
+                .init(value: .previews(.cancelFetching)),
+                .init(value: .comments(.cancelFetching))
+            )
 
         case .onDraftCommentAppear:
             return .init(value: .setDraftCommentFocused(true))
@@ -208,6 +217,9 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
             return environment.databaseClient
                 .updateReadingProgress(gid: state.galleryID, progress: progress).fireAndForget()
 
+        case .cancelFetching:
+            return .cancel(id: DetailState.CancelID())
+
         case .fetchDatabaseInfos(let gid):
             let gallery = environment.databaseClient.fetchGallery(gid)
             state.galleryID = gid
@@ -219,7 +231,7 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
             return .merge(
                 .init(value: .saveGalleryHistory),
                 environment.databaseClient.fetchGalleryState(state.galleryID)
-                    .map(DetailAction.fetchDatabaseInfosDone)
+                    .map(DetailAction.fetchDatabaseInfosDone).cancellable(id: DetailState.CancelID())
             )
 
         case .fetchDatabaseInfosDone(let galleryState):
@@ -232,14 +244,12 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
             guard let galleryURL = state.gallery?.galleryURL, state.loadingState != .loading else { return .none }
             state.loadingState = .loading
             return GalleryDetailRequest(gid: state.galleryID, galleryURL: galleryURL)
-                .effect.map(DetailAction.fetchGalleryDetailDone)
+                .effect.map(DetailAction.fetchGalleryDetailDone).cancellable(id: DetailState.CancelID())
 
         case .fetchGalleryDetailDone(let result):
             state.loadingState = .idle
             switch result {
             case .success(let (galleryDetail, galleryState, apiKey, greeting)):
-                // workaround: avoid accepting previous gallery results
-                guard galleryDetail.gid == state.galleryID else { return .none }
                 var effects: [Effect<DetailAction, Never>] = [
                     .init(value: .syncGalleryTags),
                     .init(value: .syncGalleryDetail),
@@ -275,19 +285,20 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
                 apiuid: apiuid, apikey: state.apiKey, gid: gid,
                 token: state.galleryToken, rating: state.userRating
             )
-            .effect.map(DetailAction.anyGalleryOpsDone)
+            .effect.map(DetailAction.anyGalleryOpsDone).cancellable(id: DetailState.CancelID())
 
         case .favorGallery(let favIndex):
             return FavorGalleryRequest(gid: state.galleryID, token: state.galleryToken, favIndex: favIndex)
-                .effect.map(DetailAction.anyGalleryOpsDone)
+                .effect.map(DetailAction.anyGalleryOpsDone).cancellable(id: DetailState.CancelID())
 
         case .unfavorGallery:
             return UnfavorGalleryRequest(gid: state.galleryID).effect.map(DetailAction.anyGalleryOpsDone)
+                .cancellable(id: DetailState.CancelID())
 
         case .postComment(let galleryURL):
             guard !state.commentContent.isEmpty else { return .none }
             return CommentGalleryRequest(content: state.commentContent, galleryURL: galleryURL)
-                .effect.map(DetailAction.anyGalleryOpsDone)
+                .effect.map(DetailAction.anyGalleryOpsDone).cancellable(id: DetailState.CancelID())
 
         case .anyGalleryOpsDone(let result):
             if case .success = result {

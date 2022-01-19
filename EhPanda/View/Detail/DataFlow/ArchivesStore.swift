@@ -13,6 +13,9 @@ struct ArchivesState: Equatable {
         case messageHUD
         case communicatingHUD
     }
+    struct CancelID: Hashable {
+        let id = String(describing: ArchivesState.self)
+    }
 
     @BindableState var route: Route?
     @BindableState var selectedArchive: GalleryArchive.HathArchive?
@@ -30,6 +33,7 @@ enum ArchivesAction: BindableAction {
 
     case syncGalleryFunds(GalleryPoints, Credits)
 
+    case cancelFetching
     case fetchArchive(String, String, String)
     case fetchArchiveDone(String, String, Result<(GalleryArchive, GalleryPoints?, Credits?), AppError>)
     case fetchArchiveFunds(String, String)
@@ -57,11 +61,15 @@ let archivesReducer = Reducer<ArchivesState, ArchivesAction, ArchivesEnvironment
         return environment.databaseClient
             .updateGalleryFunds(galleryPoints: galleryPoints, credits: credits).fireAndForget()
 
+    case .cancelFetching:
+        return .cancel(id: ArchivesState.CancelID())
+
     case .fetchArchive(let gid, let galleryURL, let archiveURL):
         guard state.loadingState != .loading else { return .none }
         state.loadingState = .loading
         return GalleryArchiveRequest(archiveURL: archiveURL)
             .effect.map({ ArchivesAction.fetchArchiveDone(gid, galleryURL, $0) })
+            .cancellable(id: ArchivesState.CancelID())
 
     case .fetchArchiveDone(let gid, let galleryURL, let result):
         state.loadingState = .idle
@@ -86,7 +94,7 @@ let archivesReducer = Reducer<ArchivesState, ArchivesAction, ArchivesEnvironment
 
     case .fetchArchiveFunds(let gid, let galleryURL):
         return GalleryArchiveFundsRequest(gid: gid, galleryURL: galleryURL)
-            .effect.map(ArchivesAction.fetchArchiveFundsDone)
+            .effect.map(ArchivesAction.fetchArchiveFundsDone).cancellable(id: ArchivesState.CancelID())
 
     case .fetchArchiveFundsDone(let result):
         if case .success(let (galleryPoints, credits)) = result {
@@ -98,7 +106,7 @@ let archivesReducer = Reducer<ArchivesState, ArchivesAction, ArchivesEnvironment
         guard let selectedArchive = state.selectedArchive, state.route != .communicatingHUD else { return .none }
         state.route = .communicatingHUD
         return SendDownloadCommandRequest(archiveURL: archiveURL, resolution: selectedArchive.resolution.parameter)
-            .effect.map(ArchivesAction.fetchDownloadResponseDone)
+            .effect.map(ArchivesAction.fetchDownloadResponseDone).cancellable(id: ArchivesState.CancelID())
 
     case .fetchDownloadResponseDone(let result):
         state.route = .messageHUD

@@ -11,6 +11,9 @@ struct FrontpageState: Equatable {
     enum Route: Equatable {
         case detail(String)
     }
+    struct CancelID: Hashable {
+        let id = String(describing: FrontpageState.self)
+    }
 
     @BindableState var route: Route?
     @BindableState var keyword = ""
@@ -52,6 +55,7 @@ enum FrontpageAction: BindableAction {
     case presentJumpPageAlert
     case setJumpPageAlertFocused(Bool)
 
+    case cancelFetching
     case fetchGalleries(Int? = nil)
     case fetchGalleriesDone(Result<(PageNumber, [Gallery]), AppError>)
     case fetchMoreGalleries
@@ -91,7 +95,7 @@ let frontpageReducer = Reducer<FrontpageState, FrontpageAction, FrontpageEnviron
 
         case .clearSubStates:
             state.detailState = .init()
-            return .none
+            return .init(value: .detail(.cancelFetching))
 
         case .onDisappear:
             state.jumpPageAlertPresented = false
@@ -115,12 +119,15 @@ let frontpageReducer = Reducer<FrontpageState, FrontpageAction, FrontpageEnviron
             state.jumpPageAlertFocused = isFocused
             return .none
 
+        case .cancelFetching:
+            return .cancel(id: FrontpageState.CancelID())
+
         case .fetchGalleries(let pageNum):
             guard state.loadingState != .loading else { return .none }
             state.loadingState = .loading
             state.pageNumber.current = 0
             return FrontpageGalleriesRequest(filter: state.filter, pageNum: pageNum)
-                .effect.map(FrontpageAction.fetchGalleriesDone)
+                .effect.map(FrontpageAction.fetchGalleriesDone).cancellable(id: FrontpageState.CancelID())
 
         case .fetchGalleriesDone(let result):
             state.loadingState = .idle
@@ -150,7 +157,7 @@ let frontpageReducer = Reducer<FrontpageState, FrontpageAction, FrontpageEnviron
             state.footerLoadingState = .loading
             let pageNum = pageNumber.current + 1
             return MoreFrontpageGalleriesRequest(filter: state.filter, lastID: lastID, pageNum: pageNum)
-                .effect.map(FrontpageAction.fetchMoreGalleriesDone)
+                .effect.map(FrontpageAction.fetchMoreGalleriesDone).cancellable(id: FrontpageState.CancelID())
 
         case .fetchMoreGalleriesDone(let result):
             state.footerLoadingState = .idle

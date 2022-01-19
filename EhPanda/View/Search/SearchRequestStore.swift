@@ -11,6 +11,9 @@ struct SearchRequestState: Equatable {
     enum Route: Equatable {
         case detail(String)
     }
+    struct CancelID: Hashable {
+        let id = String(describing: SearchRequestState.self)
+    }
 
     @BindableState var route: Route?
     @BindableState var keyword = ""
@@ -49,6 +52,7 @@ enum SearchRequestAction: BindableAction {
     case presentJumpPageAlert
     case setJumpPageAlertFocused(Bool)
 
+    case cancelFetching
     case fetchGalleries(Int? = nil, String? = nil)
     case fetchGalleriesDone(Result<(PageNumber, [Gallery]), AppError>)
     case fetchMoreGalleries
@@ -88,7 +92,7 @@ let searchRequestReducer = Reducer<SearchRequestState, SearchRequestAction, Sear
 
         case .clearSubStates:
             state.detailState = .init()
-            return .none
+            return .init(value: .detail(.cancelFetching))
 
         case .onDisappear:
             state.jumpPageAlertPresented = false
@@ -112,6 +116,9 @@ let searchRequestReducer = Reducer<SearchRequestState, SearchRequestAction, Sear
             state.jumpPageAlertFocused = isFocused
             return .none
 
+        case .cancelFetching:
+            return .cancel(id: SearchRequestState.CancelID())
+
         case .fetchGalleries(let pageNum, let keyword):
             guard state.loadingState != .loading else { return .none }
             if let keyword = keyword {
@@ -120,7 +127,7 @@ let searchRequestReducer = Reducer<SearchRequestState, SearchRequestAction, Sear
             state.loadingState = .loading
             state.pageNumber.current = 0
             return SearchGalleriesRequest(keyword: keyword ?? state.lastKeyword, filter: state.filter, pageNum: pageNum)
-                .effect.map(SearchRequestAction.fetchGalleriesDone)
+                .effect.map(SearchRequestAction.fetchGalleriesDone).cancellable(id: SearchRequestState.CancelID())
 
         case .fetchGalleriesDone(let result):
             state.loadingState = .idle
@@ -152,7 +159,7 @@ let searchRequestReducer = Reducer<SearchRequestState, SearchRequestAction, Sear
             return MoreSearchGalleriesRequest(
                 keyword: state.lastKeyword, filter: state.filter, lastID: lastID, pageNum: pageNum
             )
-            .effect.map(SearchRequestAction.fetchMoreGalleriesDone)
+            .effect.map(SearchRequestAction.fetchMoreGalleriesDone).cancellable(id: SearchRequestState.CancelID())
 
         case .fetchMoreGalleriesDone(let result):
             state.footerLoadingState = .idle

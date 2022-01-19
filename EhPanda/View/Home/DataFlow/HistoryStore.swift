@@ -67,7 +67,7 @@ let historyReducer = Reducer<HistoryState, HistoryAction, HistoryEnvironment>.co
 
         case .clearSubStates:
             state.detailState = .init()
-            return .none
+            return .init(value: .detail(.cancelFetching))
 
         case .clearHistoryGalleries:
             return environment.databaseClient.clearHistoryGalleries().fireAndForget()
