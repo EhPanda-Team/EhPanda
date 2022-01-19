@@ -100,9 +100,11 @@ struct FrontpageView_Previews: PreviewProvider {
                     reducer: frontpageReducer,
                     environment: FrontpageEnvironment(
                         urlClient: .live,
+                        fileClient: .live,
                         hapticClient: .live,
                         cookiesClient: .live,
                         databaseClient: .live,
+                        clipboardClient: .live,
                         uiApplicationClient: .live
                     )
                 ),

@@ -64,7 +64,7 @@ struct EhPandaView: View {
                 }
             }
         }
-        .navigationBarTitle("EhPanda")
+        .navigationTitle("EhPanda")
     }
 }
 

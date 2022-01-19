@@ -122,7 +122,7 @@ struct GeneralSettingView: View {
             viewStore.send(.calculateWebImageDiskCache)
         }
         .background(navigationLink)
-        .navigationBarTitle("General")
+        .navigationTitle("General")
     }
 
     private var navigationLink: some View {

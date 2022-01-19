@@ -54,7 +54,7 @@
 "Clear history" = "清空歷史";
 
 // MARK: DetailView
-"Archive" = "封存";
+"Archives" = "封存";
 "Torrents" = "種子";
 "Share" = "分享";
 "Read" = "閱讀";

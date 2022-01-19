@@ -15,7 +15,9 @@ struct DetailState: Equatable, Identifiable {
         case torrents
         case previews
         case comments
-        case draftComment
+        case share(URL)
+        case postComment
+        case newDawn(Greeting)
         case searchRequest(String)
         case galleryInfos(Gallery, GalleryDetail)
     }
@@ -27,6 +29,9 @@ struct DetailState: Equatable, Identifiable {
     }
 
     @BindableState var route: Route?
+    @BindableState var commentContent = ""
+    @BindableState var draftCommentFocused = false
+
     var showFullTitle = false
     var showUserRating = false
     var userRating = 0
@@ -42,6 +47,8 @@ struct DetailState: Equatable, Identifiable {
     var galleryPreviews = [Int: String]()
     var galleryComments = [GalleryComment]()
 
+    var archivesState = ArchivesState()
+    var torrentsState = TorrentsState()
     var previewsState = PreviewsState()
     var commentsState = CommentsState()
 
@@ -55,9 +62,12 @@ enum DetailAction: BindableAction {
     case binding(BindingAction<DetailState>)
     case setNavigation(DetailState.Route?)
     case clearSubStates
+    case onDraftCommentAppear
 
     case toggleShowFullTitle
     case toggleShowUserRating
+    case setCommentContent(String)
+    case setDraftCommentFocused(Bool)
     case updateRating(DragGesture.Value)
     case confirmRating(DragGesture.Value)
     case confirmRatingDone
@@ -66,6 +76,7 @@ enum DetailAction: BindableAction {
     case syncGalleryDetail
     case syncGalleryPreviews
     case syncGalleryComments
+    case syncGreeting(Greeting)
     case syncPreviewConfig(PreviewConfig)
     case saveGalleryHistory
     case updateReadingProgress(Int)
@@ -78,17 +89,22 @@ enum DetailAction: BindableAction {
     case rateGallery
     case favorGallery(Int)
     case unfavorGallery
+    case postComment(String)
     case anyGalleryOpsDone(Result<Any, AppError>)
 
+    case archives(ArchivesAction)
+    case torrents(TorrentsAction)
     case previews(PreviewsAction)
     case comments(CommentsAction)
 }
 
 struct DetailEnvironment {
     let urlClient: URLClient
+    let fileClient: FileClient
     let hapticClient: HapticClient
     let cookiesClient: CookiesClient
     let databaseClient: DatabaseClient
+    let clipboardClient: ClipboardClient
     let uiApplicationClient: UIApplicationClient
 }
 
@@ -106,9 +122,18 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
             return route == nil ? .init(value: .clearSubStates) : .none
 
         case .clearSubStates:
+            state.archivesState = .init()
+            state.torrentsState = .init()
             state.previewsState = .init()
             state.commentsState = .init()
+
+            state.commentContent = .init()
+            state.draftCommentFocused = false
             return .none
+
+        case .onDraftCommentAppear:
+            return .init(value: .setDraftCommentFocused(true))
+                .delay(for: .milliseconds(750), scheduler: DispatchQueue.main).eraseToEffect()
 
         case .toggleShowFullTitle:
             state.showFullTitle.toggle()
@@ -117,6 +142,14 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
         case .toggleShowUserRating:
             state.showUserRating.toggle()
             return environment.hapticClient.generateFeedback(.soft).fireAndForget()
+
+        case .setCommentContent(let content):
+            state.commentContent = content
+            return .none
+
+        case .setDraftCommentFocused(let isFocused):
+            state.draftCommentFocused = isFocused
+            return .none
 
         case .updateRating(let value):
             state.updateRating(value: value)
@@ -152,6 +185,9 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
             guard !state.galleryID.isEmpty else { return .none }
             return environment.databaseClient
                 .updateGalleryComments(gid: state.galleryID, comments: state.galleryComments).fireAndForget()
+
+        case .syncGreeting(let greeting):
+            return environment.databaseClient.updateGreeting(greeting).fireAndForget()
 
         case .syncPreviewConfig(let config):
             guard !state.galleryID.isEmpty else { return .none }
@@ -196,7 +232,8 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
             state.loadingState = .idle
             switch result {
             case .success(let (galleryDetail, galleryState, apiKey, greeting)):
-                // `greeting` should be handled somewhere!
+                // workaround: avoid accepting previous gallery results
+                guard galleryDetail.gid == state.galleryID else { return .none }
                 var effects: [Effect<DetailAction, Never>] = [
                     .init(value: .syncGalleryTags),
                     .init(value: .syncGalleryDetail),
@@ -209,6 +246,12 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
                 state.galleryPreviews = galleryState.previews
                 state.galleryComments = galleryState.comments
                 state.userRating = Int(galleryDetail.userRating) * 2
+                if let greeting = greeting {
+                    effects.append(.init(value: .syncGreeting(greeting)))
+                    if !greeting.gainedNothing {
+                        effects.append(.init(value: .setNavigation(.newDawn(greeting))))
+                    }
+                }
                 if let config = galleryState.previewConfig {
                     effects.append(.init(value: .syncPreviewConfig(config)))
                 }
@@ -235,6 +278,11 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
         case .unfavorGallery:
             return UnfavorGalleryRequest(gid: state.galleryID).effect.map(DetailAction.anyGalleryOpsDone)
 
+        case .postComment(let galleryURL):
+            guard !state.commentContent.isEmpty else { return .none }
+            return CommentGalleryRequest(content: state.commentContent, galleryURL: galleryURL)
+                .effect.map(DetailAction.anyGalleryOpsDone)
+
         case .anyGalleryOpsDone(let result):
             if case .success = result {
                 return .merge(
@@ -244,17 +292,45 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
             }
             return environment.hapticClient.generateNotificationFeedback(.error).fireAndForget()
 
+        case .archives:
+            return .none
+
+        case .torrents:
+            return .none
+
         case .previews:
             return .none
 
-        case .comments(.performCommentActionDone):
-            return .init(value: .fetchGalleryDetail)
+        case .comments(.performCommentActionDone(let result)):
+            return .init(value: .anyGalleryOpsDone(result))
 
         case .comments:
             return .none
         }
     }
     .binding(),
+    archivesReducer.pullback(
+        state: \.archivesState,
+        action: /DetailAction.archives,
+        environment: {
+            .init(
+                hapticClient: $0.hapticClient,
+                cookiesClient: $0.cookiesClient,
+                databaseClient: $0.databaseClient
+            )
+        }
+    ),
+    torrentsReducer.pullback(
+        state: \.torrentsState,
+        action: /DetailAction.torrents,
+        environment: {
+            .init(
+                fileClient: $0.fileClient,
+                hapticClient: $0.hapticClient,
+                clipboardClient: $0.clipboardClient
+            )
+        }
+    ),
     previewsReducer.pullback(
         state: \.previewsState,
         action: /DetailAction.previews,
@@ -270,9 +346,11 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
         environment: {
             .init(
                 urlClient: $0.urlClient,
+                fileClient: $0.fileClient,
                 hapticClient: $0.hapticClient,
                 cookiesClient: $0.cookiesClient,
                 databaseClient: $0.databaseClient,
+                clipboardClient: $0.clipboardClient,
                 uiApplicationClient: $0.uiApplicationClient
             )
         }

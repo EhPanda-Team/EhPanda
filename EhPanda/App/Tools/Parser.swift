@@ -665,13 +665,13 @@ struct Parser {
 
         var hathArchives = [GalleryArchive.HathArchive]()
         for link in node.xpath("//td") {
-            var tmpResolution: ArchiveRes?
+            var tmpResolution: ArchiveResolution?
             var tmpFileSize: String?
             var tmpGPPrice: String?
 
             for pLink in link.xpath("//p") {
                 if let pText = pLink.text {
-                    if let res = ArchiveRes(rawValue: pText) {
+                    if let res = ArchiveResolution(rawValue: pText) {
                         tmpResolution = res
                     }
                     if pText.contains("N/A") {
@@ -1215,7 +1215,7 @@ extension Parser {
     }
 
     // MARK: Balance
-    static func parseCurrentFunds(doc: HTMLDocument) throws -> (String, String)? {
+    static func parseCurrentFunds(doc: HTMLDocument) throws -> (String, String) {
         var tmpGP: String?
         var tmpCredits: String?
 
@@ -1264,7 +1264,7 @@ extension Parser {
                 .trimmingCharacters(in: .whitespacesAndNewlines)
                 .firstLetterCapitalized
 
-            if ArchiveRes(rawValue: resp) != nil {
+            if ArchiveResolution(rawValue: resp) != nil {
                 let clientName = String(respString[rangeC.upperBound..<rangeD.lowerBound])
                     .trimmingCharacters(in: .whitespacesAndNewlines)
 

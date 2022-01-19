@@ -132,6 +132,7 @@ struct TabBarView_Previews: PreviewProvider {
                     libraryClient: .live,
                     cookiesClient: .live,
                     databaseClient: .live,
+                    clipboardClient: .live,
                     appDelegateClient: .live,
                     userDefaultsClient: .live,
                     uiApplicationClient: .live,

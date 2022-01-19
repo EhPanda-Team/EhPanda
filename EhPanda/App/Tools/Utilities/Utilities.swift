@@ -64,22 +64,6 @@ struct AppUtil {
         KingfisherManager.shared.downloader.sessionConfiguration = config
     }
 
-    static func presentActivity(items: [Any]) {
-        let activityVC = UIActivityViewController(
-            activityItems: items, applicationActivities: nil
-        )
-        if DeviceUtil.isPad {
-            activityVC.popoverPresentationController?.sourceView = DeviceUtil.keyWindow
-            activityVC.popoverPresentationController?.sourceRect = CGRect(
-                x: DeviceUtil.screenW, y: 0, width: 200, height: 200
-            )
-        }
-        activityVC.modalPresentationStyle = .overFullScreen
-        DeviceUtil.keyWindow?.rootViewController?
-            .present(activityVC, animated: true, completion: nil)
-        HapticUtil.generateFeedback(style: .light)
-    }
-
     static func dispatchMainSync(execute work: () -> Void) {
         if Thread.isMainThread {
             work()
@@ -201,8 +185,8 @@ struct HapticUtil {
     }
 }
 
-// MARK: Pasteboard
-struct PasteboardUtil {
+// MARK: Clipboard
+struct ClipboardUtil {
     static var url: URL? {
         if UIPasteboard.general.hasURLs {
             return UIPasteboard.general.url
@@ -225,7 +209,6 @@ struct PasteboardUtil {
 
     static func save(value: String) {
         UIPasteboard.general.string = value
-        HapticUtil.generateNotificationFeedback(style: .success)
     }
 }
 
@@ -412,14 +395,16 @@ struct CookiesUtil {
 // MARK: File
 struct FileUtil {
     static var documentDirectory: URL? {
-        try? FileManager.default.url(
-            for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true
-        )
+        url(for: .documentDirectory)
+    }
+    static var cachesDirectory: URL? {
+        url(for: .cachesDirectory)
+    }
+    static var logsDirectoryURL: URL? {
+        documentDirectory?.appendingPathComponent(Defaults.FilePath.logs)
     }
 
-    static var logsDirectoryURL: URL? {
-        documentDirectory?.appendingPathComponent(
-            Defaults.FilePath.logs
-        )
+    static func url(for searchPathDirectory: FileManager.SearchPathDirectory) -> URL? {
+        try? FileManager.default.url(for: searchPathDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
     }
 }

@@ -24,6 +24,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             libraryClient: .live,
             cookiesClient: .live,
             databaseClient: .live,
+            clipboardClient: .live,
             appDelegateClient: .live,
             userDefaultsClient: .live,
             uiApplicationClient: .live,

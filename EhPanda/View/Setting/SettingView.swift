@@ -34,7 +34,7 @@ struct SettingView: View {
                 .padding(.vertical, 40).padding(.horizontal)
             }
             .background(navigationLinks)
-            .navigationBarTitle("Setting")
+            .navigationTitle("Setting")
         }
     }
 }
@@ -174,6 +174,7 @@ struct SettingView_Previews: PreviewProvider {
                     libraryClient: .live,
                     cookiesClient: .live,
                     databaseClient: .live,
+                    clipboardClient: .live,
                     appDelegateClient: .live,
                     userDefaultsClient: .live,
                     uiApplicationClient: .live,

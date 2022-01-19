@@ -279,9 +279,11 @@ struct SearchView_Previews: PreviewProvider {
                 reducer: searchReducer,
                 environment: SearchEnvironment(
                     urlClient: .live,
+                    fileClient: .live,
                     hapticClient: .live,
                     cookiesClient: .live,
                     databaseClient: .live,
+                    clipboardClient: .live,
                     uiApplicationClient: .live
                 )
             ),

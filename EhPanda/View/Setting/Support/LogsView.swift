@@ -38,7 +38,7 @@ struct LogsView: View {
         }
         .toolbar(content: toolbar)
         .background(navigationLink)
-        .navigationBarTitle("Logs")
+        .navigationTitle("Logs")
     }
 
     private func swipeActions(log: Log) -> some View {
@@ -136,7 +136,8 @@ private struct LogView: View {
             Text("\(log.id + 1). " + log.content)
                 .fontWeight(.medium).font(.caption).padding()
         }
-        .navigationBarTitle(log.fileName, displayMode: .inline)
+        .navigationBarTitleDisplayMode(.inline)
+        .navigationTitle(log.fileName)
     }
 }
 

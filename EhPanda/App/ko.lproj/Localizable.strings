@@ -54,7 +54,7 @@
 //"Clear history" = "";
 
 // MARK: DetailView
-"Archive" = "아카이브";
+"Archives" = "아카이브";
 "Torrents" = "토렌트";
 "Share" = "공유";
 "Read" = "읽기";

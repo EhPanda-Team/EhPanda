@@ -90,9 +90,11 @@ struct HistoryView_Previews: PreviewProvider {
                     reducer: historyReducer,
                     environment: HistoryEnvironment(
                         urlClient: .live,
+                        fileClient: .live,
                         hapticClient: .live,
                         cookiesClient: .live,
                         databaseClient: .live,
+                        clipboardClient: .live,
                         uiApplicationClient: .live
                     )
                 ),

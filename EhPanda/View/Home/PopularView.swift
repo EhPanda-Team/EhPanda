@@ -77,9 +77,11 @@ struct PopularView_Previews: PreviewProvider {
                     reducer: popularReducer,
                     environment: PopularEnvironment(
                         urlClient: .live,
+                        fileClient: .live,
                         hapticClient: .live,
                         cookiesClient: .live,
                         databaseClient: .live,
+                        clipboardClient: .live,
                         uiApplicationClient: .live
                     )
                 ),

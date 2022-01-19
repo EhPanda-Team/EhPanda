@@ -78,7 +78,7 @@ struct AccountSettingView: View {
             viewStore.send(.loadCookies)
         }
         .background(navigationLinks)
-        .navigationBarTitle("Account")
+        .navigationTitle("Account")
     }
 }
 
@@ -208,6 +208,7 @@ struct AccountSettingView_Previews: PreviewProvider {
                     environment: AccountSettingEnvironment(
                         hapticClient: .live,
                         cookiesClient: .live,
+                        clipboardClient: .live,
                         uiApplicationClient: .live
                     )
                 ),

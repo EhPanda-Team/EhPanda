@@ -456,11 +456,11 @@ private extension ReadingView {
         imageSaver.saveImage(image)
     }
     func shareImage(url: String) async {
-        guard let image = try? await imageSaver.retrieveImage(url: url.safeURL()) else {
-            presentHUD(isSuccess: false)
-            return
-        }
-        AppUtil.presentActivity(items: [image])
+//        guard let image = try? await imageSaver.retrieveImage(url: url.safeURL()) else {
+//            presentHUD(isSuccess: false)
+//            return
+//        }
+//        AppUtil.presentActivity(items: [image])
     }
     func presentHUD(isSuccess: Bool, caption: String? = nil) {
         let type: TTProgressHUDType = isSuccess ? .success : .error

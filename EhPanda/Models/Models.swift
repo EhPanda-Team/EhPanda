@@ -188,13 +188,17 @@ struct GalleryState: Codable {
     var thumbnails = [Int: String]()
 }
 
-struct GalleryArchive: Codable {
-    struct HathArchive: Codable, Identifiable {
+struct GalleryArchive: Codable, Equatable {
+    struct HathArchive: Codable, Identifiable, Equatable {
         var id: String { resolution.rawValue }
 
-        let resolution: ArchiveRes
+        let resolution: ArchiveResolution
         let fileSize: String
         let gpPrice: String
+
+        var isValid: Bool {
+            fileSize != "N/A" && gpPrice != "N/A"
+        }
     }
 
     let hathArchives: [HathArchive]
@@ -236,15 +240,7 @@ struct GalleryComment: Identifiable, Equatable, Codable {
 }
 
 struct CommentContent: Identifiable, Equatable, Codable {
-    var id: String {
-        [
-            "\(type.rawValue)",
-            text, link, imgURL,
-            secondLink, secondImgURL
-        ]
-        .compactMap({$0}).joined()
-    }
-
+    var id: UUID = .init()
     let type: CommentContentType
     var text: String?
     var link: String?
@@ -254,9 +250,8 @@ struct CommentContent: Identifiable, Equatable, Codable {
     var secondImgURL: String?
 }
 
-struct GalleryTorrent: Identifiable, Codable {
-    var id: String { uploader + formattedDateString }
-
+struct GalleryTorrent: Identifiable, Codable, Equatable {
+    var id: UUID = .init()
     let postedDate: Date
     let fileSize: String
     let seedCount: Int
@@ -440,7 +435,7 @@ extension GalleryVisibility {
     }
 }
 
-enum ArchiveRes: String, Codable, CaseIterable {
+enum ArchiveResolution: String, Codable, CaseIterable, Equatable {
     case x780 = "780x"
     case x980 = "980x"
     case x1280 = "1280x"
@@ -449,7 +444,7 @@ enum ArchiveRes: String, Codable, CaseIterable {
     case original = "Original"
 }
 
-extension ArchiveRes {
+extension ArchiveResolution {
     var name: String {
         switch self {
         case .x780, .x980, .x1280, .x1600, .x2400:
@@ -458,7 +453,7 @@ extension ArchiveRes {
             return "ARCHIVE_RESOLUTION_ORIGINAL"
         }
     }
-    var param: String {
+    var parameter: String {
         switch self {
         case .original:
             return "org"

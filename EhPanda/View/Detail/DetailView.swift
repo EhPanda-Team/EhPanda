@@ -46,7 +46,6 @@ struct DetailView: View {
                             if let uploader = viewStore.galleryDetail?.uploader {
                                 viewStore.send(.setNavigation(.searchRequest("uploader:" + "\"\(uploader)\"")))
                             }
-
                         }
                     )
                     .padding(.horizontal)
@@ -77,9 +76,7 @@ struct DetailView: View {
                             tags: viewStore.galleryTags,
                             navigateAction: { viewStore.send(.setNavigation(.searchRequest($0))) },
                             translateAction: {
-                                tagTranslator.tryTranslate(
-                                    text: $0, returnOriginal: !setting.translatesTags
-                                )
+                                tagTranslator.tryTranslate(text: $0, returnOriginal: !setting.translatesTags)
                             }
                         )
                         .padding(.horizontal)
@@ -96,7 +93,7 @@ struct DetailView: View {
                     CommentsSection(
                         comments: viewStore.galleryComments,
                         navigateCommentAction: { viewStore.send(.setNavigation(.comments)) },
-                        navigateDraftCommentAction: { viewStore.send(.setNavigation(.draftComment)) }
+                        navigateDraftCommentAction: { viewStore.send(.setNavigation(.postComment)) }
                     )
                 }
                 .padding(.bottom, 20)
@@ -117,6 +114,40 @@ struct DetailView: View {
         .animation(.default, value: viewStore.galleryDetail)
         .animation(.default, value: viewStore.showFullTitle)
         .animation(.default, value: viewStore.showUserRating)
+        .sheet(unwrapping: viewStore.binding(\.$route), case: /DetailState.Route.archive) { _ in
+            ArchivesView(
+                store: store.scope(state: \.archivesState, action: DetailAction.archives),
+                gid: gid, user: user, galleryURL: viewStore.gallery?.galleryURL ?? "",
+                archiveURL: viewStore.galleryDetail?.archiveURL ?? ""
+            )
+        }
+        .sheet(unwrapping: viewStore.binding(\.$route), case: /DetailState.Route.torrents) { _ in
+            TorrentsView(
+                store: store.scope(state: \.torrentsState, action: DetailAction.torrents),
+                gid: gid, token: viewStore.galleryToken
+            )
+        }
+        .sheet(unwrapping: viewStore.binding(\.$route), case: /DetailState.Route.share) { route in
+            ActivityView(activityItems: [route.wrappedValue])
+        }
+        .sheet(unwrapping: viewStore.binding(\.$route), case: /DetailState.Route.postComment) { _ in
+            DraftCommentView(
+                title: "Post Comment",
+                content: viewStore.binding(\.$commentContent),
+                isFocused: viewStore.binding(\.$draftCommentFocused),
+                postAction: {
+                    if let galleryURL = viewStore.gallery?.galleryURL {
+                        viewStore.send(.postComment(galleryURL))
+                    }
+                    viewStore.send(.setNavigation(nil))
+                },
+                cancelAction: { viewStore.send(.setNavigation(nil)) },
+                onAppearAction: { viewStore.send(.onDraftCommentAppear) }
+            )
+        }
+        .sheet(unwrapping: viewStore.binding(\.$route), case: /DetailState.Route.newDawn) { route in
+            NewDawnView(greeting: route.wrappedValue)
+        }
         .onAppear {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                 viewStore.send(.fetchDatabaseInfos(gid))
@@ -160,11 +191,11 @@ private extension DetailView {
 private extension DetailView {
     func toolbar() -> some ToolbarContent {
         CustomToolbarItem {
-            Menu {
+            ToolbarFeaturesMenu {
                 Button {
                     viewStore.send(.setNavigation(.archive))
                 } label: {
-                    Label("Archive", systemImage: "doc.zipper")
+                    Label("Archives", systemSymbol: .docZipper)
                 }
                 .disabled(viewStore.galleryDetail?.archiveURL == nil || !CookiesUtil.didLogin)
                 Button {
@@ -173,16 +204,18 @@ private extension DetailView {
                     let base = "Torrents".localized
                     let torrentCount = viewStore.galleryDetail?.torrentCount ?? 0
                     let baseWithCount = [base, "(\(torrentCount))"].joined(separator: " ")
-                    Label(torrentCount > 0 ? baseWithCount : base, systemImage: "leaf" )
+                    Label(torrentCount > 0 ? baseWithCount : base, systemSymbol: .leaf)
                 }
                 .disabled((viewStore.galleryDetail?.torrentCount ?? 0 > 0) != true)
                 Button {
-//                    viewStore.send(.setNavigation(.share))
+                    if let galleryURLString = viewStore.gallery?.galleryURL,
+                       let galleryURL = URL(string: galleryURLString)
+                    {
+                        viewStore.send(.setNavigation(.share(galleryURL)))
+                    }
                 } label: {
-                    Label("Share", systemImage: "square.and.arrow.up")
+                    Label("Share", systemSymbol: .squareAndArrowUp)
                 }
-            } label: {
-                Image(systemName: "ellipsis.circle")
             }
             .disabled(viewStore.galleryDetail == nil || viewStore.loadingState == .loading)
         }
@@ -685,9 +718,11 @@ struct DetailView_Previews: PreviewProvider {
                     reducer: detailReducer,
                     environment: DetailEnvironment(
                         urlClient: .live,
+                        fileClient: .live,
                         hapticClient: .live,
                         cookiesClient: .live,
                         databaseClient: .live,
+                        clipboardClient: .live,
                         uiApplicationClient: .live
                     )
                 ),

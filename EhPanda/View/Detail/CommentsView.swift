@@ -82,7 +82,7 @@ struct CommentsView: View {
             .onAppear {
                 if let scrollCommentID = viewStore.scrollCommentID {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
-                        proxy.scrollTo(scrollCommentID)
+                        proxy.scrollTo(scrollCommentID, anchor: .top)
                     }
                 }
             }
@@ -269,9 +269,11 @@ struct CommentsView_Previews: PreviewProvider {
                     reducer: commentsReducer,
                     environment: CommentsEnvironment(
                         urlClient: .live,
+                        fileClient: .live,
                         hapticClient: .live,
                         cookiesClient: .live,
                         databaseClient: .live,
+                        clipboardClient: .live,
                         uiApplicationClient: .live
                     )
                 ),

@@ -102,9 +102,11 @@ struct WatchedView_Previews: PreviewProvider {
                     reducer: watchedReducer,
                     environment: WatchedEnvironment(
                         urlClient: .live,
+                        fileClient: .live,
                         hapticClient: .live,
                         cookiesClient: .live,
                         databaseClient: .live,
+                        clipboardClient: .live,
                         uiApplicationClient: .live
                     )
                 ),

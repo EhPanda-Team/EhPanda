@@ -35,9 +35,11 @@ struct CustomToolbarItem<Content: View>: ToolbarContent {
 
 struct ToolbarFeaturesMenu<Content: View>: View {
     private let content: Content
+    private let symbolRenderingMode: SymbolRenderingMode
 
-    init(@ViewBuilder content: () -> Content) {
+    init(symbolRenderingMode: SymbolRenderingMode = .monochrome, @ViewBuilder content: () -> Content) {
         self.content = content()
+        self.symbolRenderingMode = symbolRenderingMode
     }
 
     var body: some View {
@@ -45,7 +47,7 @@ struct ToolbarFeaturesMenu<Content: View>: View {
             content
         } label: {
             Image(systemSymbol: .ellipsisCircle)
-                .symbolRenderingMode(.hierarchical)
+                .symbolRenderingMode(symbolRenderingMode)
         }
     }
 }

@@ -53,11 +53,11 @@ struct SettingState: Equatable {
         if let avatarURL = user.avatarURL {
             self.user.avatarURL = avatarURL
         }
-        if let currentGP = user.currentGP,
-           let currentCredits = user.currentCredits
+        if let galleryPoints = user.galleryPoints,
+           let credits = user.credits
         {
-            self.user.currentGP = currentGP
-            self.user.currentCredits = currentCredits
+            self.user.galleryPoints = galleryPoints
+            self.user.credits = credits
         }
     }
 }
@@ -106,6 +106,7 @@ struct SettingEnvironment {
     let libraryClient: LibraryClient
     let cookiesClient: CookiesClient
     let databaseClient: DatabaseClient
+    let clipboardClient: ClipboardClient
     let appDelegateClient: AppDelegateClient
     let userDefaultsClient: UserDefaultsClient
     let uiApplicationClient: UIApplicationClient
@@ -467,6 +468,7 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
             .init(
                 hapticClient: $0.hapticClient,
                 cookiesClient: $0.cookiesClient,
+                clipboardClient: $0.clipboardClient,
                 uiApplicationClient: $0.uiApplicationClient
             )
         }

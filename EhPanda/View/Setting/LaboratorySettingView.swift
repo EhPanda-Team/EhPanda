@@ -27,7 +27,7 @@ struct LaboratorySettingView: View {
             }
             .padding()
         }
-        .navigationBarTitle("Laboratory")
+        .navigationTitle("Laboratory")
     }
 }
 

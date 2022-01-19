@@ -20,6 +20,23 @@ extension Request {
     var effect: Effect<Result<Response, AppError>, Never> {
         publisher.receive(on: DispatchQueue.main).catchToEffect()
     }
+//    func cancellableEffect(
+//        storeIn cancellableSet: inout Set<AnyCancellable>
+//    ) -> Effect<Result<Response, AppError>, Never> {
+//        Future { promise in
+//            publisher.receive(on: DispatchQueue.main)
+//                .sink { completion in
+//                    if case .failure(let error) = completion {
+//                        promise(.failure(error))
+//                    }
+//                } receiveValue: { response in
+//                    promise(.success(response))
+//                }
+//                .store(in: &cancellableSet)
+//        }
+//        .eraseToAnyPublisher()
+//        .catchToEffect()
+//    }
     func mapAppError(error: Error) -> AppError {
         Logger.error(error)
 
@@ -354,6 +371,7 @@ struct MoreToplistsGalleriesRequest: Request {
     }
 }
 
+// MARK: Fetch others
 struct GalleryDetailRequest: Request {
     let gid: String
     let galleryURL: String
@@ -436,14 +454,16 @@ struct GalleryReverseRequest: Request {
 struct GalleryArchiveRequest: Request {
     let archiveURL: String
 
-    var publisher: AnyPublisher<(GalleryArchive?, CurrentGP?, CurrentCredits?), AppError> {
+    var publisher: AnyPublisher<(GalleryArchive, GalleryPoints?, Credits?), AppError> {
         URLSession.shared.dataTaskPublisher(for: archiveURL.safeURL()).genericRetry()
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-            .map {
-                let archive = try? Parser.parseGalleryArchive(doc: $0)
-
+            .tryMap { (html: HTMLDocument) -> (HTMLDocument, GalleryArchive) in
+                let archive = try Parser.parseGalleryArchive(doc: html)
+                return (html, archive)
+            }
+            .map { html, archive in
                 guard let (currentGP, currentCredits) =
-                        try? Parser.parseCurrentFunds(doc: $0)
+                        try? Parser.parseCurrentFunds(doc: html)
                 else { return (archive, nil, nil) }
                 return (archive, currentGP, currentCredits)
             }
@@ -457,11 +477,12 @@ struct GalleryArchiveFundsRequest: Request {
 
     var alterGalleryURL: String {
         galleryURL.replacingOccurrences(
-            of: Defaults.URL.exhentai.absoluteString, with: Defaults.URL.ehentai.absoluteString
+            of: Defaults.URL.exhentai.absoluteString,
+            with: Defaults.URL.ehentai.absoluteString
         )
     }
 
-    var publisher: AnyPublisher<(CurrentGP, CurrentCredits)?, AppError> {
+    var publisher: AnyPublisher<(GalleryPoints, Credits), AppError> {
         archiveURL(url: alterGalleryURL).genericRetry()
             .flatMap(funds).eraseToAnyPublisher()
     }
@@ -473,7 +494,7 @@ struct GalleryArchiveFundsRequest: Request {
             .mapError(mapAppError).eraseToAnyPublisher()
     }
 
-    func funds(url: String) -> AnyPublisher<(CurrentGP, CurrentCredits)?, AppError> {
+    func funds(url: String) -> AnyPublisher<(GalleryPoints, Credits), AppError> {
         URLSession.shared.dataTaskPublisher(for: url.safeURL())
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .tryMap(Parser.parseCurrentFunds).mapError(mapAppError)
@@ -650,6 +671,16 @@ struct GalleryMPVContentRequest: Request {
                 }
             }
             .mapError(mapAppError).eraseToAnyPublisher()
+    }
+}
+
+// MARK: Tool
+struct DataRequest: Request {
+    let url: URL
+
+    var publisher: AnyPublisher<Data, AppError> {
+        URLSession.shared.dataTaskPublisher(for: url)
+            .genericRetry().map(\.data).mapError(mapAppError).eraseToAnyPublisher()
     }
 }
 
@@ -861,7 +892,7 @@ struct SendDownloadCommandRequest: Request {
     let archiveURL: String
     let resolution: String
 
-    var publisher: AnyPublisher<String?, AppError> {
+    var publisher: AnyPublisher<String, AppError> {
         let params: [String: String] = [
             "hathdl_xres": resolution
         ]

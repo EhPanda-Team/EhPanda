@@ -54,7 +54,7 @@
 //"Clear history" = "";
 
 // MARK: DetailView
-"Archive" = "Archiv";
+"Archives" = "Archiv";
 "Torrents" = "Torrents";
 "Share" = "Teilen";
 "Read" = "Lesen";

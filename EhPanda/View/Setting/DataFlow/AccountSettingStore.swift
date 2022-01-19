@@ -84,6 +84,7 @@ enum AccountSettingAction: BindableAction {
 struct AccountSettingEnvironment {
     let hapticClient: HapticClient
     let cookiesClient: CookiesClient
+    let clipboardClient: ClipboardClient
     let uiApplicationClient: UIApplicationClient
 }
 
@@ -112,9 +113,11 @@ let accountSettingReducer = Reducer<AccountSettingState, AccountSettingAction, A
             return .none
 
         case .copyCookies(let host):
+            let cookiesDescription = environment.cookiesClient.getCookiesDescription(host: host)
             return .merge(
                 .init(value: .setNavigation(.hud)),
-                environment.cookiesClient.copyCookies(host: host).fireAndForget()
+                environment.clipboardClient.save(cookiesDescription).fireAndForget(),
+                environment.hapticClient.generateNotificationFeedback(.success).fireAndForget()
             )
 
         case .login(.loginDone):

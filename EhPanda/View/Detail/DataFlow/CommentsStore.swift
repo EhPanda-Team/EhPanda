@@ -67,9 +67,11 @@ enum CommentsAction: BindableAction {
 
 struct CommentsEnvironment {
     let urlClient: URLClient
+    let fileClient: FileClient
     let hapticClient: HapticClient
     let cookiesClient: CookiesClient
     let databaseClient: DatabaseClient
+    let clipboardClient: ClipboardClient
     let uiApplicationClient: UIApplicationClient
 }
 
@@ -134,7 +136,7 @@ let commentsReducer = Reducer<CommentsState, CommentsAction, CommentsEnvironment
         return .init(value: .fetchGallery(url, isGalleryImageURL))
 
     case .handleDeepLink(let url):
-        let (isGalleryImageURL, pageIndex, commentID) = environment.urlClient.analyzeURL(url)
+        let (_, pageIndex, commentID) = environment.urlClient.analyzeURL(url)
         let gid = environment.urlClient.parseGalleryID(url)
         var effects = [Effect<CommentsAction, Never>]()
         if let pageIndex = pageIndex {
@@ -152,6 +154,8 @@ let commentsReducer = Reducer<CommentsState, CommentsAction, CommentsEnvironment
                 .init(value: .detail(id: gid, action: .setNavigation(.comments)))
                     .delay(for: .milliseconds(750), scheduler: DispatchQueue.main).eraseToEffect()
             )
+        } else {
+            effects.append(.init(value: .setDetailState(.init(id: gid))))
         }
         effects.append(.init(value: .setNavigation(.detail(gid))))
         return .merge(effects)
@@ -220,9 +224,11 @@ let commentsReducer = Reducer<CommentsState, CommentsAction, CommentsEnvironment
             environment: { (environment: CommentsEnvironment) in
                 .init(
                     urlClient: environment.urlClient,
+                    fileClient: environment.fileClient,
                     hapticClient: environment.hapticClient,
                     cookiesClient: environment.cookiesClient,
                     databaseClient: environment.databaseClient,
+                    clipboardClient: environment.clipboardClient,
                     uiApplicationClient: environment.uiApplicationClient
                 )
             }

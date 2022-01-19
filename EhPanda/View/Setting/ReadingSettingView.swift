@@ -92,7 +92,7 @@ struct ReadingSettingView: View {
                 )
             }
         }
-        .navigationBarTitle("Reading")
+        .navigationTitle("Reading")
     }
 }
 

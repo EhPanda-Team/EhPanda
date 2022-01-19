@@ -41,9 +41,9 @@ struct ToplistsView: View {
             fetchAction: { viewStore.send(.fetchGalleries()) },
             fetchMoreAction: { viewStore.send(.fetchMoreGalleries) },
             navigateAction: { viewStore.send(.setNavigation(.detail($0))) },
-            translateAction: { tagTranslator.tryTranslate(
-                text: $0, returnOriginal: setting.translatesTags
-            ) }
+            translateAction: {
+                tagTranslator.tryTranslate(text: $0, returnOriginal: setting.translatesTags)
+            }
         )
         .jumpPageAlert(
             index: viewStore.binding(\.$jumpPageIndex),
@@ -141,9 +141,11 @@ struct ToplistsView_Previews: PreviewProvider {
                     reducer: toplistsReducer,
                     environment: ToplistsEnvironment(
                         urlClient: .live,
+                        fileClient: .live,
                         hapticClient: .live,
                         cookiesClient: .live,
                         databaseClient: .live,
+                        clipboardClient: .live,
                         uiApplicationClient: .live
                     )
                 ),

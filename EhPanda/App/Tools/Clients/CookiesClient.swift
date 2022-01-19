@@ -10,6 +10,7 @@ import ComposableArchitecture
 
 struct CookiesClient {
     let didLogin: () -> Bool
+    let isSameAccount: () -> Bool
     let clearAll: () -> Effect<Never, Never>
     let setCookie: (URL, String, String) -> Effect<Never, Never>
     let getCookie: (URL, String) -> CookieValue
@@ -20,6 +21,9 @@ extension CookiesClient {
     static let live: Self = .init(
         didLogin: {
             CookiesUtil.didLogin
+        },
+        isSameAccount: {
+            CookiesUtil.isSameAccount
         },
         clearAll: {
             .fireAndForget {
@@ -107,16 +111,14 @@ extension CookiesClient {
         }
         return effects.isEmpty ? .none : .merge(effects)
     }
-    func copyCookies(host: GalleryHost) -> Effect<Never, Never> {
-        .fireAndForget {
-            var dictionary = [String: String]()
-            [Defaults.Cookie.igneous, Defaults.Cookie.ipbMemberId, Defaults.Cookie.ipbPassHash].forEach { key in
-                let cookieValue = getCookie(host.url, key)
-                if !cookieValue.rawValue.isEmpty {
-                    dictionary[key] = cookieValue.rawValue
-                }
+    func getCookiesDescription(host: GalleryHost) -> String {
+        var dictionary = [String: String]()
+        [Defaults.Cookie.igneous, Defaults.Cookie.ipbMemberId, Defaults.Cookie.ipbPassHash].forEach { key in
+            let cookieValue = getCookie(host.url, key)
+            if !cookieValue.rawValue.isEmpty {
+                dictionary[key] = cookieValue.rawValue
             }
-            PasteboardUtil.save(value: dictionary.description)
         }
+        return dictionary.description
     }
 }

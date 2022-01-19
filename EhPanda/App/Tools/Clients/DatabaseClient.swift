@@ -127,6 +127,27 @@ extension DatabaseClient {
         )
     }
 
+    func updateGreeting(_ greeting: Greeting) -> Effect<Never, Never> {
+        fetchAppEnv().map(\.user)
+            .map { (user: User) -> User in
+                var user = user
+                user.greeting = greeting
+                return user
+            }
+            .flatMap(updateUser)
+            .eraseToEffect()
+    }
+    func updateGalleryFunds(galleryPoints: String, credits: String) -> Effect<Never, Never> {
+        fetchAppEnv().map(\.user)
+            .map { (user: User) -> User in
+                var user = user
+                user.credits = credits
+                user.galleryPoints = galleryPoints
+                return user
+            }
+            .flatMap(updateUser)
+            .eraseToEffect()
+    }
     func fetchHistoryKeywords() -> Effect<[String], Never> {
         fetchAppEnv().map(\.historyKeywords)
     }
@@ -174,7 +195,7 @@ extension DatabaseClient {
             PersistenceController.update(gid: gid) { galleryStateMO in
                 if let storedPreviews = galleryStateMO.previews?.toObject() as [Int: String]? {
                     galleryStateMO.previews = storedPreviews.merging(
-                        previews, uniquingKeysWith: { stored, _ in stored }
+                        previews, uniquingKeysWith: { _, new in new }
                     ).toData()
                 } else {
                     galleryStateMO.previews = previews.toData()

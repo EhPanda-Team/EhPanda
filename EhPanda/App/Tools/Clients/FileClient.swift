@@ -5,16 +5,20 @@
 //  Created by 荒木辰造 on R 4/01/03.
 //
 
-import ComposableArchitecture
 import Combine
+import ComposableArchitecture
 
 struct FileClient {
+    let createFile: (String, Data?) -> Bool
     let fetchLogs: () -> Effect<Result<[Log], AppError>, Never>
     let deleteLog: (String) -> Effect<Result<String, AppError>, Never>
 }
 
 extension FileClient {
     static let live: Self = .init(
+        createFile: { path, data in
+            FileManager.default.createFile(atPath: path, contents: data, attributes: nil)
+        },
         fetchLogs: {
             Future { promise in
                 guard let path = FileUtil.logsDirectoryURL?.path,
@@ -66,4 +70,13 @@ extension FileClient {
             .catchToEffect()
         }
     )
+
+    func saveTorrent(hash: String, data: Data) -> URL? {
+        if let cachesDirectory = FileUtil.cachesDirectory {
+            let torrentDirectory = cachesDirectory.appendingPathComponent("\(hash).torrent")
+            return createFile(torrentDirectory.path, data) ? torrentDirectory : nil
+        } else {
+            return nil
+        }
+    }
 }

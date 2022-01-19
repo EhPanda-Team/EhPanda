@@ -93,7 +93,7 @@ struct AppearanceSettingView: View {
             }
         }
         .background(navigationLink)
-        .navigationBarTitle("Appearance")
+        .navigationTitle("Appearance")
     }
     private var navigationLink: some View {
         NavigationLink(unwrapping: viewStore.binding(\.$route), case: /AppearanceSettingState.Route.appIcon) { _ in

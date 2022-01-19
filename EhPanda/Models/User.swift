@@ -14,8 +14,8 @@ struct User: Codable, Equatable {
     var avatarURL: String?
     var apikey: String?
 
-    var currentGP: String?
-    var currentCredits: String?
+    var credits: String?
+    var galleryPoints: String?
 
     var greeting: Greeting?
 

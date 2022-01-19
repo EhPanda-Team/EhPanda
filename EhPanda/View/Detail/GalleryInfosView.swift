@@ -78,7 +78,7 @@ struct GalleryInfosView: View {
     private func tryCopy(value: String?) {
         guard let value = value else { return }
 
-        PasteboardUtil.save(value: value)
+        ClipboardUtil.save(value: value)
         presentHUD()
     }
     private func presentHUD() {
