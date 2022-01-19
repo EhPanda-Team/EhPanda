@@ -46,7 +46,9 @@ struct DetailView: View {
                         navigateReadingAction: { viewStore.send(.setNavigation(.reading)) },
                         navigateUploaderAction: {
                             if let uploader = viewStore.galleryDetail?.uploader {
-                                viewStore.send(.setNavigation(.searchRequest("uploader:" + "\"\(uploader)\"")))
+                                let keyword = "uploader:" + "\"\(uploader)\""
+                                viewStore.send(.setSearchRequestState(.init(id: keyword)))
+                                viewStore.send(.setNavigation(.searchRequest(keyword)))
                             }
                         }
                     )
@@ -69,6 +71,7 @@ struct DetailView: View {
                         confirmRatingAction: { viewStore.send(.confirmRating($0)) },
                         navigateSimilarGalleryAction: {
                             if let trimmedTitle = viewStore.galleryDetail?.trimmedTitle {
+                                viewStore.send(.setSearchRequestState(.init(id: trimmedTitle)))
                                 viewStore.send(.setNavigation(.searchRequest(trimmedTitle)))
                             }
                         }
@@ -76,7 +79,10 @@ struct DetailView: View {
                     if !viewStore.galleryTags.isEmpty {
                         TagsSection(
                             tags: viewStore.galleryTags,
-                            navigateAction: { viewStore.send(.setNavigation(.searchRequest($0))) },
+                            navigateAction: {
+                                viewStore.send(.setSearchRequestState(.init(id: $0)))
+                                viewStore.send(.setNavigation(.searchRequest($0)))
+                            },
                             translateAction: {
                                 tagTranslator.tryTranslate(text: $0, returnOriginal: !setting.translatesTags)
                             }
@@ -190,6 +196,16 @@ private extension DetailView {
                 setting: setting, blurRadius: blurRadius,
                 tagTranslator: tagTranslator
             )
+        }
+        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /DetailState.Route.searchRequest) { route in
+            ForEachStore(
+                store.scope(state: \.searchRequestStates, action: DetailAction.searchRequest(id:action:))
+            ) { subStore in
+                SearchRequestView(
+                    store: subStore, keyword: route.wrappedValue, user: user,
+                    setting: setting, blurRadius: blurRadius, tagTranslator: tagTranslator
+                )
+            }
         }
         NavigationLink(unwrapping: viewStore.binding(\.$route), case: /DetailState.Route.galleryInfos) { route in
             let (gallery, galleryDetail) = route.wrappedValue

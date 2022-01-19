@@ -30,10 +30,6 @@ struct SearchRequestView: View {
         self.tagTranslator = tagTranslator
     }
 
-    private var navigationTitle: String {
-        viewStore.lastKeyword.isEmpty ? "Search".localized : viewStore.lastKeyword
-    }
-
     var body: some View {
         GenericList(
             galleries: viewStore.galleries,
@@ -72,7 +68,7 @@ struct SearchRequestView: View {
         }
         .background(navigationLink)
         .toolbar(content: toolbar)
-        .navigationTitle(navigationTitle)
+        .navigationTitle(viewStore.lastKeyword)
     }
 
     private var navigationLink: some View {
@@ -85,7 +81,7 @@ struct SearchRequestView: View {
         }
     }
     private func toolbar() -> some ToolbarContent {
-        CustomToolbarItem(tint: .primary, disabled: viewStore.jumpPageAlertPresented) {
+        CustomToolbarItem(disabled: viewStore.jumpPageAlertPresented) {
             ToolbarFeaturesMenu {
                 FiltersButton {
                     viewStore.send(.onFiltersButtonTapped)

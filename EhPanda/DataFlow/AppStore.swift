@@ -228,3 +228,13 @@ let appReducer = Reducer<AppState, AppAction, AppEnvironment>.combine(
         }
     )
 )
+.logging()
+
+extension Reducer {
+    func logging() -> Self {
+        .init { state, action, environment in
+            Logger.info(action)
+            return run(&state, action, environment)
+        }
+    }
+}

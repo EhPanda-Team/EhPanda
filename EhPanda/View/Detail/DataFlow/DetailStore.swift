@@ -31,6 +31,37 @@ struct DetailState: Equatable, Identifiable {
         self.id = id
     }
 
+    static func == (lhs: DetailState, rhs: DetailState) -> Bool {
+        lhs.id == rhs.id
+
+        && lhs.route == rhs.route
+        && lhs.commentContent == rhs.commentContent
+        && lhs.draftCommentFocused == rhs.draftCommentFocused
+
+        && lhs.showsNewDawnGreeting == rhs.showsNewDawnGreeting
+        && lhs.showsUserRating == rhs.showsUserRating
+        && lhs.showsFullTitle == rhs.showsFullTitle
+        && lhs.userRating == rhs.userRating
+
+        && lhs.apiKey == rhs.apiKey
+        && lhs.galleryID == rhs.galleryID
+        && lhs.galleryToken == rhs.galleryToken
+
+        && lhs.loadingState == rhs.loadingState
+        && lhs.gallery == rhs.gallery
+        && lhs.galleryDetail == rhs.galleryDetail
+        && lhs.galleryTags == rhs.galleryTags
+        && lhs.galleryPreviews == rhs.galleryPreviews
+        && lhs.galleryComments == rhs.galleryComments
+
+        && lhs.archivesState == rhs.archivesState
+        && lhs.torrentsState == rhs.torrentsState
+        && lhs.previewsState == rhs.previewsState
+        && lhs.commentsState == rhs.commentsState
+        && lhs.searchRequestStates == rhs.searchRequestStates
+        && (lhs.searchRequestReducer == nil) == (rhs.searchRequestReducer == nil)
+    }
+
     @BindableState var route: Route?
     @BindableState var commentContent = ""
     @BindableState var draftCommentFocused = false
@@ -55,6 +86,8 @@ struct DetailState: Equatable, Identifiable {
     var torrentsState = TorrentsState()
     var previewsState = PreviewsState()
     var commentsState = CommentsState()
+    var searchRequestStates = IdentifiedArrayOf<SearchRequestState>()
+    var searchRequestReducer: Reducer<SearchRequestState, SearchRequestAction, SearchRequestEnvironment>?
 
     mutating func updateRating(value: DragGesture.Value) {
         let rating = Int(value.location.x / 31 * 2) + 1
@@ -65,6 +98,7 @@ struct DetailState: Equatable, Identifiable {
 enum DetailAction: BindableAction {
     case binding(BindingAction<DetailState>)
     case setNavigation(DetailState.Route?)
+    case setSearchRequestState(SearchRequestState)
     case clearSubStates
     case onDraftCommentAppear
     case onAppear(String, Bool)
@@ -102,6 +136,7 @@ enum DetailAction: BindableAction {
     case torrents(TorrentsAction)
     case previews(PreviewsAction)
     case comments(CommentsAction)
+    indirect case searchRequest(id: String, action: SearchRequestAction)
 }
 
 struct DetailEnvironment {
@@ -114,6 +149,9 @@ struct DetailEnvironment {
     let uiApplicationClient: UIApplicationClient
 }
 
+var anySearchRequestReducer: Reducer<SearchRequestState, SearchRequestAction, SearchRequestEnvironment> {
+    searchRequestReducer
+}
 let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combine(
     .init { state, action, environment in
         switch action {
@@ -126,6 +164,10 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
         case .setNavigation(let route):
             state.route = route
             return route == nil ? .init(value: .clearSubStates) : .none
+
+        case .setSearchRequestState(let searchRequestState):
+            state.searchRequestStates = [searchRequestState]
+            return .none
 
         case .clearSubStates:
             state.archivesState = .init()
@@ -148,6 +190,9 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
 
         case .onAppear(let gid, let showsNewDawnGreeting):
             state.showsNewDawnGreeting = showsNewDawnGreeting
+            if state.searchRequestReducer == nil {
+                state.searchRequestReducer = anySearchRequestReducer
+            }
             return .init(value: .fetchDatabaseInfos(gid))
 
         case .toggleShowFullTitle:
@@ -323,6 +368,25 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
 
         case .comments:
             return .none
+
+        case .searchRequest:
+            guard let searchRequestReducer = state.searchRequestReducer else { return .none }
+            return searchRequestReducer.forEach(
+                state: \DetailState.searchRequestStates,
+                action: /DetailAction.searchRequest(id:action:),
+                environment: { (environment: DetailEnvironment) in
+                    .init(
+                        urlClient: environment.urlClient,
+                        fileClient: environment.fileClient,
+                        hapticClient: environment.hapticClient,
+                        cookiesClient: environment.cookiesClient,
+                        databaseClient: environment.databaseClient,
+                        clipboardClient: environment.clipboardClient,
+                        uiApplicationClient: environment.uiApplicationClient
+                    )
+                }
+            )
+            .run(&state, action, environment)
         }
     }
     .binding(),
