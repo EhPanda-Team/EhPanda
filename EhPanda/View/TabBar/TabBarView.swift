@@ -30,12 +30,14 @@ struct TabBarView: View {
                                 store: store.scope(state: \.homeState, action: AppAction.home),
                                 user: viewStore.settingState.user,
                                 setting: viewStore.settingState.setting,
+                                blurRadius: viewStore.appLockState.blurRadius,
                                 tagTranslator: viewStore.settingState.tagTranslator
                             )
                         case .favorites:
                             FavoritesView(
                                 store: store.scope(state: \.favoritesState, action: AppAction.favorites),
                                 user: viewStore.settingState.user, setting: viewStore.settingState.setting,
+                                blurRadius: viewStore.appLockState.blurRadius,
                                 tagTranslator: viewStore.settingState.tagTranslator
                             )
                         case .search:
@@ -43,6 +45,7 @@ struct TabBarView: View {
                                 store: store.scope(state: \.searchState, action: AppAction.search),
                                 user: viewStore.settingState.user,
                                 setting: viewStore.settingState.setting,
+                                blurRadius: viewStore.appLockState.blurRadius,
                                 tagTranslator: viewStore.settingState.tagTranslator
                             )
                         case .setting:
@@ -56,9 +59,7 @@ struct TabBarView: View {
                 }
                 .accentColor(viewStore.settingState.setting.accentColor)
             }
-            .blur(radius: viewStore.appLockState.blurRadius)
-            .allowsHitTesting(viewStore.appLockState.blurRadius < 1)
-            .animation(.linear(duration: 0.1), value: viewStore.appLockState.blurRadius)
+            .autoBlur(radius: viewStore.appLockState.blurRadius)
             Image(systemSymbol: .lockFill).font(.system(size: 80))
                 .opacity(viewStore.appLockState.isAppLocked ? 1 : 0)
         }
@@ -66,6 +67,7 @@ struct TabBarView: View {
             switch state {
             case .newDawn(let greeting):
                 NewDawnView(greeting: greeting)
+                    .autoBlur(radius: viewStore.appLockState.blurRadius)
             case .filters:
                 FiltersView(
                     store: store.scope(
@@ -77,9 +79,7 @@ struct TabBarView: View {
                 )
                 .tint(viewStore.settingState.setting.accentColor)
                 .accentColor(viewStore.settingState.setting.accentColor)
-                .blur(radius: viewStore.appLockState.blurRadius)
-                .allowsHitTesting(viewStore.appLockState.blurRadius < 1)
-                .animation(.linear(duration: 0.1), value: viewStore.appLockState.blurRadius)
+                .autoBlur(radius: viewStore.appLockState.blurRadius)
             }
         }
         .onChange(of: scenePhase) { newValue in

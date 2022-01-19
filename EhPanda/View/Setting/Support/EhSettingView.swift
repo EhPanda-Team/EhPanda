@@ -59,8 +59,7 @@ struct EhSettingView: View {
         }
         .sheet(unwrapping: viewStore.binding(\.$route), case: /EhSettingState.Route.webView) { route in
             WebView(url: route.wrappedValue)
-                .blur(radius: blurRadius).allowsHitTesting(blurRadius < 1)
-                .animation(.linear(duration: 0.1), value: blurRadius)
+                .autoBlur(radius: blurRadius)
         }
         .toolbar(content: toolbar).navigationTitle(title)
     }

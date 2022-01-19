@@ -14,16 +14,18 @@ struct FrontpageView: View {
     @ObservedObject private var viewStore: ViewStore<FrontpageState, FrontpageAction>
     private let user: User
     private let setting: Setting
+    private let blurRadius: Double
     private let tagTranslator: TagTranslator
 
     init(
         store: Store<FrontpageState, FrontpageAction>,
-        user: User, setting: Setting, tagTranslator: TagTranslator
+        user: User, setting: Setting, blurRadius: Double, tagTranslator: TagTranslator
     ) {
         self.store = store
         viewStore = ViewStore(store)
         self.user = user
         self.setting = setting
+        self.blurRadius = blurRadius
         self.tagTranslator = tagTranslator
     }
 
@@ -70,7 +72,8 @@ struct FrontpageView: View {
         NavigationLink(unwrapping: viewStore.binding(\.$route), case: /FrontpageState.Route.detail) { route in
             DetailView(
                 store: store.scope(state: \.detailState, action: FrontpageAction.detail),
-                gid: route.wrappedValue, user: user, setting: setting, tagTranslator: tagTranslator
+                gid: route.wrappedValue, user: user, setting: setting,
+                blurRadius: blurRadius, tagTranslator: tagTranslator
             )
         }
     }
@@ -110,6 +113,7 @@ struct FrontpageView_Previews: PreviewProvider {
                 ),
                 user: .init(),
                 setting: .init(),
+                blurRadius: 0,
                 tagTranslator: .init()
             )
         }

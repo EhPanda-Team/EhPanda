@@ -109,6 +109,7 @@ let commentsReducer = Reducer<CommentsState, CommentsAction, CommentsEnvironment
         return .none
 
     case .setScrollRowOpacity(let opacity):
+        state.scrollCommentID = nil
         state.scrollRowOpacity = opacity
         return .none
 
@@ -165,7 +166,9 @@ let commentsReducer = Reducer<CommentsState, CommentsAction, CommentsEnvironment
             .delay(for: .milliseconds(750), scheduler: DispatchQueue.main).eraseToEffect()
 
     case .onAppear:
-        state.detailReducer = anyDetailReducer
+        if state.detailReducer == nil {
+            state.detailReducer = anyDetailReducer
+        }
         return state.scrollCommentID != nil ? .init(value: .performScrollOpacityEffect) : .none
 
     case .updateReadingProgress(let gid, let progress):

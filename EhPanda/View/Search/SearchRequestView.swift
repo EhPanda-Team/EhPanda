@@ -14,17 +14,19 @@ struct SearchRequestView: View {
     private let keyword: String
     private let user: User
     private let setting: Setting
+    private let blurRadius: Double
     private let tagTranslator: TagTranslator
 
     init(
         store: Store<SearchRequestState, SearchRequestAction>,
-        keyword: String, user: User, setting: Setting, tagTranslator: TagTranslator
+        keyword: String, user: User, setting: Setting, blurRadius: Double, tagTranslator: TagTranslator
     ) {
         self.store = store
         viewStore = ViewStore(store)
         self.keyword = keyword
         self.user = user
         self.setting = setting
+        self.blurRadius = blurRadius
         self.tagTranslator = tagTranslator
     }
 
@@ -77,7 +79,8 @@ struct SearchRequestView: View {
         NavigationLink(unwrapping: viewStore.binding(\.$route), case: /SearchRequestState.Route.detail) { route in
             DetailView(
                 store: store.scope(state: \.detailState, action: SearchRequestAction.detail),
-                gid: route.wrappedValue, user: user, setting: setting, tagTranslator: tagTranslator
+                gid: route.wrappedValue, user: user, setting: setting,
+                blurRadius: blurRadius, tagTranslator: tagTranslator
             )
         }
     }
@@ -117,6 +120,7 @@ struct SearchRequestView_Previews: PreviewProvider {
             keyword: .init(),
             user: .init(),
             setting: .init(),
+            blurRadius: 0,
             tagTranslator: .init()
         )
     }

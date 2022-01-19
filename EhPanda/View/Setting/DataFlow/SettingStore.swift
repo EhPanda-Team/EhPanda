@@ -304,7 +304,7 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
                 return false
             }
 
-            guard state.setting.showNewDawnGreeting else { return .none }
+            guard state.setting.showsNewDawnGreeting else { return .none }
             let requestEffect = GreetingRequest().effect
                 .map(SettingAction.fetchGreetingDone)
             if let greeting = state.user.greeting {

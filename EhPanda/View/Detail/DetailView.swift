@@ -15,17 +15,19 @@ struct DetailView: View {
     private let gid: String
     private let user: User
     private let setting: Setting
+    private let blurRadius: Double
     private let tagTranslator: TagTranslator
 
     init(
         store: Store<DetailState, DetailAction>, gid: String,
-        user: User, setting: Setting, tagTranslator: TagTranslator
+        user: User, setting: Setting, blurRadius: Double, tagTranslator: TagTranslator
     ) {
         self.store = store
         viewStore = ViewStore(store)
         self.gid = gid
         self.user = user
         self.setting = setting
+        self.blurRadius = blurRadius
         self.tagTranslator = tagTranslator
     }
 
@@ -37,7 +39,7 @@ struct DetailView: View {
                         gallery: viewStore.gallery ?? .empty,
                         galleryDetail: viewStore.galleryDetail ?? .empty,
                         user: user,
-                        showFullTitle: viewStore.showFullTitle,
+                        showFullTitle: viewStore.showsFullTitle,
                         showFullTitleAction: { viewStore.send(.toggleShowFullTitle) },
                         favorAction: { viewStore.send(.favorGallery($0)) },
                         unfavorAction: { viewStore.send(.unfavorGallery) },
@@ -61,7 +63,7 @@ struct DetailView: View {
                     ActionSection(
                         galleryDetail: viewStore.galleryDetail ?? .empty,
                         userRating: viewStore.userRating,
-                        showUserRating: viewStore.showUserRating,
+                        showUserRating: viewStore.showsUserRating,
                         showUserRatingAction: { viewStore.send(.toggleShowUserRating) },
                         updateRatingAction: { viewStore.send(.updateRating($0)) },
                         confirmRatingAction: { viewStore.send(.confirmRating($0)) },
@@ -112,23 +114,26 @@ struct DetailView: View {
             .opacity(viewStore.galleryDetail == nil && error != nil ? 1 : 0)
         }
         .animation(.default, value: viewStore.galleryDetail)
-        .animation(.default, value: viewStore.showFullTitle)
-        .animation(.default, value: viewStore.showUserRating)
+        .animation(.default, value: viewStore.showsFullTitle)
+        .animation(.default, value: viewStore.showsUserRating)
         .sheet(unwrapping: viewStore.binding(\.$route), case: /DetailState.Route.archive) { _ in
             ArchivesView(
                 store: store.scope(state: \.archivesState, action: DetailAction.archives),
                 gid: gid, user: user, galleryURL: viewStore.gallery?.galleryURL ?? "",
                 archiveURL: viewStore.galleryDetail?.archiveURL ?? ""
             )
+            .autoBlur(radius: blurRadius)
         }
         .sheet(unwrapping: viewStore.binding(\.$route), case: /DetailState.Route.torrents) { _ in
             TorrentsView(
                 store: store.scope(state: \.torrentsState, action: DetailAction.torrents),
-                gid: gid, token: viewStore.galleryToken
+                gid: gid, token: viewStore.galleryToken, blurRadius: blurRadius
             )
+            .autoBlur(radius: blurRadius)
         }
         .sheet(unwrapping: viewStore.binding(\.$route), case: /DetailState.Route.share) { route in
             ActivityView(activityItems: [route.wrappedValue])
+                .autoBlur(radius: blurRadius)
         }
         .sheet(unwrapping: viewStore.binding(\.$route), case: /DetailState.Route.postComment) { _ in
             DraftCommentView(
@@ -144,13 +149,15 @@ struct DetailView: View {
                 cancelAction: { viewStore.send(.setNavigation(nil)) },
                 onAppearAction: { viewStore.send(.onDraftCommentAppear) }
             )
+            .autoBlur(radius: blurRadius)
         }
         .sheet(unwrapping: viewStore.binding(\.$route), case: /DetailState.Route.newDawn) { route in
             NewDawnView(greeting: route.wrappedValue)
+                .autoBlur(radius: blurRadius)
         }
         .onAppear {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                viewStore.send(.fetchDatabaseInfos(gid))
+                viewStore.send(.onAppear(gid, setting.showsNewDawnGreeting))
             }
         }
         .background(navigationLinks)
@@ -176,8 +183,9 @@ private extension DetailView {
                 store: store.scope(state: \.commentsState, action: DetailAction.comments),
                 gid: gid, token: viewStore.galleryToken, apiKey: viewStore.apiKey,
                 galleryURL: viewStore.gallery?.galleryURL ?? "",
-                comments: viewStore.galleryComments,
-                user: user, setting: setting, tagTranslator: tagTranslator
+                comments: viewStore.galleryComments, user: user,
+                setting: setting, blurRadius: blurRadius,
+                tagTranslator: tagTranslator
             )
         }
         NavigationLink(unwrapping: viewStore.binding(\.$route), case: /DetailState.Route.galleryInfos) { route in
@@ -729,6 +737,7 @@ struct DetailView_Previews: PreviewProvider {
                 gid: .init(),
                 user: .init(),
                 setting: .init(),
+                blurRadius: 0,
                 tagTranslator: .init()
             )
         }

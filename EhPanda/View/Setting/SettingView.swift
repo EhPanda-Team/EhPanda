@@ -46,7 +46,7 @@ private extension SettingView {
             AccountSettingView(
                 store: store.scope(state: \.accountSettingState, action: SettingAction.account),
                 galleryHost: viewStore.binding(\.$setting.galleryHost),
-                showNewDawnGreeting: viewStore.binding(\.$setting.showNewDawnGreeting),
+                showNewDawnGreeting: viewStore.binding(\.$setting.showsNewDawnGreeting),
                 bypassesSNIFiltering: viewStore.setting.bypassesSNIFiltering,
                 blurRadius: blurRadius
             )

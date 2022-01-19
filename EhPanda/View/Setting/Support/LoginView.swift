@@ -60,8 +60,7 @@ struct LoginView: View {
             WebView(url: route.wrappedValue) {
                 viewStore.send(.loginDone)
             }
-            .blur(radius: blurRadius).allowsHitTesting(blurRadius < 1)
-            .animation(.linear(duration: 0.1), value: blurRadius)
+            .autoBlur(radius: blurRadius)
         }
         .onSubmit { viewStore.send(.onTextFieldSubmitted) }
         .toolbar(content: toolbar)

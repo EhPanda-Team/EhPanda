@@ -13,12 +13,14 @@ struct TorrentsView: View {
     @ObservedObject private var viewStore: ViewStore<TorrentsState, TorrentsAction>
     private let gid: String
     private let token: String
+    private let blurRadius: Double
 
-    init(store: Store<TorrentsState, TorrentsAction>, gid: String, token: String) {
+    init(store: Store<TorrentsState, TorrentsAction>, gid: String, token: String, blurRadius: Double) {
         self.store = store
         viewStore = ViewStore(store)
         self.gid = gid
         self.token = token
+        self.blurRadius = blurRadius
     }
 
     var body: some View {
@@ -53,6 +55,7 @@ struct TorrentsView: View {
             )
             .sheet(unwrapping: viewStore.binding(\.$route), case: /TorrentsState.Route.share) { route in
                 ActivityView(activityItems: [route.wrappedValue])
+                    .autoBlur(radius: blurRadius)
             }
             .onAppear {
                 viewStore.send(.fetchGalleryTorrents(gid, token))

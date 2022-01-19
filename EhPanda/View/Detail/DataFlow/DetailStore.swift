@@ -32,8 +32,9 @@ struct DetailState: Equatable, Identifiable {
     @BindableState var commentContent = ""
     @BindableState var draftCommentFocused = false
 
-    var showFullTitle = false
-    var showUserRating = false
+    var showsNewDawnGreeting = false
+    var showsUserRating = false
+    var showsFullTitle = false
     var userRating = 0
 
     var apiKey = ""
@@ -63,6 +64,7 @@ enum DetailAction: BindableAction {
     case setNavigation(DetailState.Route?)
     case clearSubStates
     case onDraftCommentAppear
+    case onAppear(String, Bool)
 
     case toggleShowFullTitle
     case toggleShowUserRating
@@ -135,12 +137,16 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
             return .init(value: .setDraftCommentFocused(true))
                 .delay(for: .milliseconds(750), scheduler: DispatchQueue.main).eraseToEffect()
 
+        case .onAppear(let gid, let showsNewDawnGreeting):
+            state.showsNewDawnGreeting = showsNewDawnGreeting
+            return .init(value: .fetchDatabaseInfos(gid))
+
         case .toggleShowFullTitle:
-            state.showFullTitle.toggle()
+            state.showsFullTitle.toggle()
             return environment.hapticClient.generateFeedback(.soft).fireAndForget()
 
         case .toggleShowUserRating:
-            state.showUserRating.toggle()
+            state.showsUserRating.toggle()
             return environment.hapticClient.generateFeedback(.soft).fireAndForget()
 
         case .setCommentContent(let content):
@@ -164,7 +170,7 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
             )
 
         case .confirmRatingDone:
-            state.showUserRating = false
+            state.showsUserRating = false
             return .none
 
         case .syncGalleryTags:
@@ -248,7 +254,7 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
                 state.userRating = Int(galleryDetail.userRating) * 2
                 if let greeting = greeting {
                     effects.append(.init(value: .syncGreeting(greeting)))
-                    if !greeting.gainedNothing {
+                    if !greeting.gainedNothing && state.showsNewDawnGreeting {
                         effects.append(.init(value: .setNavigation(.newDawn(greeting))))
                     }
                 }

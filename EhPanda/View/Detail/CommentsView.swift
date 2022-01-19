@@ -19,12 +19,14 @@ struct CommentsView: View {
     private let comments: [GalleryComment]
     private let user: User
     private let setting: Setting
+    private let blurRadius: Double
     private let tagTranslator: TagTranslator
 
     init(
         store: Store<CommentsState, CommentsAction>,
         gid: String, token: String, apiKey: String, galleryURL: String,
-        comments: [GalleryComment], user: User, setting: Setting, tagTranslator: TagTranslator
+        comments: [GalleryComment], user: User, setting: Setting,
+        blurRadius: Double, tagTranslator: TagTranslator
     ) {
         self.store = store
         viewStore = ViewStore(store)
@@ -35,6 +37,7 @@ struct CommentsView: View {
         self.comments = comments
         self.user = user
         self.setting = setting
+        self.blurRadius = blurRadius
         self.tagTranslator = tagTranslator
     }
 
@@ -109,6 +112,7 @@ struct CommentsView: View {
                 cancelAction: { viewStore.send(.setNavigation(nil)) },
                 onAppearAction: { viewStore.send(.onDraftCommentAppear) }
             )
+            .autoBlur(radius: blurRadius)
         }
         .animation(.default, value: viewStore.scrollRowOpacity)
         .onAppear {
@@ -138,7 +142,7 @@ private extension CommentsView {
             ForEachStore(store.scope(state: \.detailStates, action: CommentsAction.detail)) { subStore in
                 DetailView(
                     store: subStore, gid: route.wrappedValue, user: user,
-                    setting: setting, tagTranslator: tagTranslator
+                    setting: setting, blurRadius: blurRadius, tagTranslator: tagTranslator
                 )
             }
         }
@@ -284,6 +288,7 @@ struct CommentsView_Previews: PreviewProvider {
                 comments: [],
                 user: .init(),
                 setting: .init(),
+                blurRadius: 0,
                 tagTranslator: .init()
             )
         }

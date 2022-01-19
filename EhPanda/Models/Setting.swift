@@ -12,7 +12,7 @@ import ComposableArchitecture
 struct Setting: Codable, Equatable {
     // Account
     var galleryHost: GalleryHost = .ehentai
-    var showNewDawnGreeting = false
+    var showsNewDawnGreeting = false
 
     // General
     var redirectsLinksToSelectedHost = false
@@ -140,7 +140,7 @@ extension Setting {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         // Account
         galleryHost = try container.decodeIfPresent(GalleryHost.self, forKey: .galleryHost) ?? .ehentai
-        showNewDawnGreeting = try container.decodeIfPresent(Bool.self, forKey: .showNewDawnGreeting) ?? false
+        showsNewDawnGreeting = try container.decodeIfPresent(Bool.self, forKey: .showsNewDawnGreeting) ?? false
         // General
         redirectsLinksToSelectedHost = try container.decodeIfPresent(Bool.self, forKey: .redirectsLinksToSelectedHost) ?? false
         detectsLinksFromPasteboard = try container.decodeIfPresent(Bool.self, forKey: .detectsLinksFromPasteboard) ?? false
