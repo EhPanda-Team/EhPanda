@@ -63,24 +63,22 @@ struct TabBarView: View {
             Image(systemSymbol: .lockFill).font(.system(size: 80))
                 .opacity(viewStore.appLockState.isAppLocked ? 1 : 0)
         }
-        .sheet(item: viewStore.binding(\.appSheetState.$sheetState)) { state in
-            switch state {
-            case .newDawn(let greeting):
-                NewDawnView(greeting: greeting)
-                    .autoBlur(radius: viewStore.appLockState.blurRadius)
-            case .filters:
-                FiltersView(
-                    store: store.scope(
-                        state: \.appSheetState.filtersState, action: { AppAction.appSheet(.filters($0)) }
-                    ),
-                    searchFilter: viewStore.binding(\.settingState.$searchFilter),
-                    globalFilter: viewStore.binding(\.settingState.$globalFilter),
-                    watchedFilter: viewStore.binding(\.settingState.$watchedFilter)
-                )
-                .tint(viewStore.settingState.setting.accentColor)
-                .accentColor(viewStore.settingState.setting.accentColor)
+        .sheet(unwrapping: viewStore.binding(\.appRouteState.$route), case: /AppRouteState.Route.newDawn) { route in
+            NewDawnView(greeting: route.wrappedValue)
                 .autoBlur(radius: viewStore.appLockState.blurRadius)
-            }
+        }
+        .sheet(unwrapping: viewStore.binding(\.appRouteState.$route), case: /AppRouteState.Route.filters) { _ in
+            FiltersView(
+                store: store.scope(
+                    state: \.appRouteState.filtersState, action: { AppAction.appRoute(.filters($0)) }
+                ),
+                searchFilter: viewStore.binding(\.settingState.$searchFilter),
+                globalFilter: viewStore.binding(\.settingState.$globalFilter),
+                watchedFilter: viewStore.binding(\.settingState.$watchedFilter)
+            )
+            .tint(viewStore.settingState.setting.accentColor)
+            .accentColor(viewStore.settingState.setting.accentColor)
+            .autoBlur(radius: viewStore.appLockState.blurRadius)
         }
         .onChange(of: scenePhase) { newValue in
             viewStore.send(.onScenePhaseChange(newValue))

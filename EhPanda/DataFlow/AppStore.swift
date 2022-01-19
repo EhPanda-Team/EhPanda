@@ -9,7 +9,7 @@ import SwiftUI
 import ComposableArchitecture
 
 struct AppState: Equatable {
-    var appSheetState = AppSheetState()
+    var appRouteState = AppRouteState()
     var appLockState = AppLockState()
     var tabBarState = TabBarState()
     var homeState = HomeState()
@@ -21,7 +21,7 @@ struct AppState: Equatable {
 enum AppAction: BindableAction {
     case binding(BindingAction<AppState>)
     case onScenePhaseChange(ScenePhase)
-    case appSheet(AppSheetAction)
+    case appRoute(AppRouteAction)
     case appLock(AppLockAction)
     case appDelegate(AppDelegateAction)
     case home(HomeAction)
@@ -76,10 +76,10 @@ let appReducerCore = Reducer<AppState, AppAction, AppEnvironment> { state, actio
         }
         return .none
 
-    case .appSheet(.filters(.onResetFilterConfirmed)):
-        return .init(value: .setting(.resetFilter(state.appSheetState.filtersState.filterRange)))
+    case .appRoute(.filters(.onResetFilterConfirmed)):
+        return .init(value: .setting(.resetFilter(state.appRouteState.filtersState.filterRange)))
 
-    case .appSheet:
+    case .appRoute:
         return .none
 
     case .appLock:
@@ -107,8 +107,7 @@ let appReducerCore = Reducer<AppState, AppAction, AppEnvironment> { state, actio
     case .home(.frontpage(.onFiltersButtonTapped)), .home(.popular(.onFiltersButtonTapped)),
             .home(.watched(.onFiltersButtonTapped)), .search(.onFiltersButtonTapped),
             .search(.searchRequest(.onFiltersButtonTapped)):
-        state.appSheetState.sheetState = .filters
-        return .none
+        return .init(value: .appRoute(.setNavigation(.filters)))
 
     case .home:
         return .none
@@ -124,7 +123,7 @@ let appReducerCore = Reducer<AppState, AppAction, AppEnvironment> { state, actio
         return .none
 
     case .setting(.fetchGreetingDone(let result)):
-        return .init(value: .appSheet(.fetchGreetingDone(result)))
+        return .init(value: .appRoute(.fetchGreetingDone(result)))
 
     case .setting:
         return .none
@@ -134,9 +133,9 @@ let appReducerCore = Reducer<AppState, AppAction, AppEnvironment> { state, actio
 
 let appReducer = Reducer<AppState, AppAction, AppEnvironment>.combine(
     appReducerCore,
-    appSheetReducer.pullback(
-        state: \.appSheetState,
-        action: /AppAction.appSheet,
+    appRouteReducer.pullback(
+        state: \.appRouteState,
+        action: /AppAction.appRoute,
         environment: { _ in
             .init()
         }

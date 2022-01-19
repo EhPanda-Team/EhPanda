@@ -122,6 +122,7 @@ struct DetailView: View {
                 gid: gid, user: user, galleryURL: viewStore.gallery?.galleryURL ?? "",
                 archiveURL: viewStore.galleryDetail?.archiveURL ?? ""
             )
+            .accentColor(setting.accentColor)
             .autoBlur(radius: blurRadius)
         }
         .sheet(unwrapping: viewStore.binding(\.$route), case: /DetailState.Route.torrents) { _ in
@@ -129,6 +130,7 @@ struct DetailView: View {
                 store: store.scope(state: \.torrentsState, action: DetailAction.torrents),
                 gid: gid, token: viewStore.galleryToken, blurRadius: blurRadius
             )
+            .accentColor(setting.accentColor)
             .autoBlur(radius: blurRadius)
         }
         .sheet(unwrapping: viewStore.binding(\.$route), case: /DetailState.Route.share) { route in
@@ -149,6 +151,7 @@ struct DetailView: View {
                 cancelAction: { viewStore.send(.setNavigation(nil)) },
                 onAppearAction: { viewStore.send(.onDraftCommentAppear) }
             )
+            .accentColor(setting.accentColor)
             .autoBlur(radius: blurRadius)
         }
         .sheet(unwrapping: viewStore.binding(\.$route), case: /DetailState.Route.newDawn) { route in

@@ -112,6 +112,7 @@ struct CommentsView: View {
                 cancelAction: { viewStore.send(.setNavigation(nil)) },
                 onAppearAction: { viewStore.send(.onDraftCommentAppear) }
             )
+            .accentColor(setting.accentColor)
             .autoBlur(radius: blurRadius)
         }
         .animation(.default, value: viewStore.scrollRowOpacity)

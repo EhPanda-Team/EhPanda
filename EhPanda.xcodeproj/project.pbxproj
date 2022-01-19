@@ -62,7 +62,7 @@
 		AB69CB8026B3DABC00699359 /* AdvancedList.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB69CB7F26B3DABC00699359 /* AdvancedList.swift */; };
 		AB69CB8226B3DAF400699359 /* ControlPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB69CB8126B3DAF400699359 /* ControlPanel.swift */; };
 		AB6DE897268822390087C579 /* LogsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB6DE896268822390087C579 /* LogsView.swift */; };
-		AB706F7927890A6C0025A48A /* AppSheetStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB706F7827890A6C0025A48A /* AppSheetStore.swift */; };
+		AB706F7927890A6C0025A48A /* AppRouteStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB706F7827890A6C0025A48A /* AppRouteStore.swift */; };
 		AB706F7B278937500025A48A /* FrontpageStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB706F7A278937500025A48A /* FrontpageStore.swift */; };
 		AB706F80278981370025A48A /* AlertKit_Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB706F7F278981370025A48A /* AlertKit_Extension.swift */; };
 		AB706F82278986120025A48A /* ToolbarItems.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB706F81278986120025A48A /* ToolbarItems.swift */; };
@@ -261,7 +261,7 @@
 		AB69CB7F26B3DABC00699359 /* AdvancedList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdvancedList.swift; sourceTree = "<group>"; };
 		AB69CB8126B3DAF400699359 /* ControlPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlPanel.swift; sourceTree = "<group>"; };
 		AB6DE896268822390087C579 /* LogsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogsView.swift; sourceTree = "<group>"; };
-		AB706F7827890A6C0025A48A /* AppSheetStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSheetStore.swift; sourceTree = "<group>"; };
+		AB706F7827890A6C0025A48A /* AppRouteStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRouteStore.swift; sourceTree = "<group>"; };
 		AB706F7A278937500025A48A /* FrontpageStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrontpageStore.swift; sourceTree = "<group>"; };
 		AB706F7F278981370025A48A /* AlertKit_Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertKit_Extension.swift; sourceTree = "<group>"; };
 		AB706F81278986120025A48A /* ToolbarItems.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolbarItems.swift; sourceTree = "<group>"; };
@@ -811,7 +811,7 @@
 			isa = PBXGroup;
 			children = (
 				AB58A5B12776B99000C0D285 /* AppStore.swift */,
-				AB706F7827890A6C0025A48A /* AppSheetStore.swift */,
+				AB706F7827890A6C0025A48A /* AppRouteStore.swift */,
 				AB86AC1227856F2700E61E6A /* AppLockStore.swift */,
 				AB58A5AB2776B2BC00C0D285 /* AppDelegateStore.swift */,
 			);
@@ -1195,7 +1195,7 @@
 				AB706F7B278937500025A48A /* FrontpageStore.swift in Sources */,
 				AB86ABF72782DDE600E61E6A /* FileClient.swift in Sources */,
 				AB7B29F226AC471E00EE1F14 /* MigrationPolicy.swift in Sources */,
-				AB706F7927890A6C0025A48A /* AppSheetStore.swift in Sources */,
+				AB706F7927890A6C0025A48A /* AppRouteStore.swift in Sources */,
 				AB706F88278A4C8A0025A48A /* PopularView.swift in Sources */,
 				AB706FA1278BCEC60025A48A /* DetailView.swift in Sources */,
 				ABE9401526FF158D0085E158 /* QuickSearchView.swift in Sources */,
