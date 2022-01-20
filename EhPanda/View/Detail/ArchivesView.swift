@@ -219,24 +219,22 @@ private extension ArchivesView {
     }
 }
 
-struct ArchiveView_Previews: PreviewProvider {
+struct ArchivesView_Previews: PreviewProvider {
     static var previews: some View {
-        NavigationView {
-            ArchivesView(
-                store: .init(
-                    initialState: .init(),
-                    reducer: archivesReducer,
-                    environment: ArchivesEnvironment(
-                        hapticClient: .live,
-                        cookiesClient: .live,
-                        databaseClient: .live
-                    )
-                ),
-                gid: .init(),
-                user: .init(),
-                galleryURL: .init(),
-                archiveURL: .init()
-            )
-        }
+        ArchivesView(
+            store: .init(
+                initialState: .init(),
+                reducer: archivesReducer,
+                environment: ArchivesEnvironment(
+                    hapticClient: .live,
+                    cookiesClient: .live,
+                    databaseClient: .live
+                )
+            ),
+            gid: .init(),
+            user: .init(),
+            galleryURL: .init(),
+            archiveURL: .init()
+        )
     }
 }

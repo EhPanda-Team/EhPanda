@@ -148,8 +148,12 @@ extension DatabaseClient {
             .flatMap(updateUser)
             .eraseToEffect()
     }
+
     func fetchHistoryKeywords() -> Effect<[String], Never> {
         fetchAppEnv().map(\.historyKeywords)
+    }
+    func fetchQuickSearchWords() -> Effect<[QuickSearchWord], Never> {
+        fetchAppEnv().map(\.quickSearchWords)
     }
     func fetchGalleryPreviews(gid: String) -> Effect<[Int: String], Never> {
         fetchGalleryState(gid).map(\.previews)
@@ -175,6 +179,9 @@ extension DatabaseClient {
     }
     func updateHistoryKeywords(_ keywords: [String]) -> Effect<Never, Never> {
         updateAppEnv("historyKeywords", keywords.toData())
+    }
+    func updateQuickSearchWords(_ words: [QuickSearchWord]) -> Effect<Never, Never> {
+        updateAppEnv("quickSearchWords", words.toData())
     }
 
     func updateLastOpenDate(gid: String, date: Date = .now) -> Effect<Never, Never> {

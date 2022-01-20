@@ -71,6 +71,21 @@ struct FiltersButton: View {
     }
 }
 
+struct QuickSearchButton: View {
+    private let action: () -> Void
+
+    init(action: @escaping () -> Void) {
+        self.action = action
+    }
+
+    var body: some View {
+        Button(action: action) {
+            Image(systemSymbol: .magnifyingglass)
+            Text("Quick search")
+        }
+    }
+}
+
 struct JumpPageButton: View {
     private let pageNumber: PageNumber
     private let hideText: Bool

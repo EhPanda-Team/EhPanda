@@ -10,6 +10,7 @@ import ComposableArchitecture
 struct SearchState: Equatable {
     enum Route: Equatable {
         case request
+        case quickSearch
         case detail(String)
     }
 
@@ -21,6 +22,7 @@ struct SearchState: Equatable {
     var historyKeywords = [String]()
 
     var searchReqeustState = SearchRequestState()
+    var quickSearchState = QuickSearchState()
     var detailState = DetailState()
 
     mutating func appendHistoryKeywords(_ keywords: [String]) {
@@ -67,6 +69,7 @@ enum SearchAction: BindableAction {
     case fetchHistoryGalleriesDone([Gallery])
 
     case searchRequest(SearchRequestAction)
+    case quickSearch(QuickSearchAction)
     case detail(DetailAction)
 }
 
@@ -99,9 +102,11 @@ let searchReducer = Reducer<SearchState, SearchAction, SearchEnvironment>.combin
 
         case .clearSubStates:
             state.searchReqeustState = .init()
+            state.quickSearchState = .init()
             state.detailState = .init()
             return .merge(
                 .init(value: .searchRequest(.cancelFetching)),
+                .init(value: .quickSearch(.cancelFetching)),
                 .init(value: .detail(.cancelFetching))
             )
 
@@ -144,6 +149,9 @@ let searchReducer = Reducer<SearchState, SearchAction, SearchEnvironment>.combin
         case .searchRequest:
             return .none
 
+        case .quickSearch:
+            return .none
+
         case .detail:
             return .none
         }
@@ -161,6 +169,15 @@ let searchReducer = Reducer<SearchState, SearchAction, SearchEnvironment>.combin
                 databaseClient: $0.databaseClient,
                 clipboardClient: $0.clipboardClient,
                 uiApplicationClient: $0.uiApplicationClient
+            )
+        }
+    ),
+    quickSearchReducer.pullback(
+        state: \.quickSearchState,
+        action: /SearchAction.quickSearch,
+        environment: {
+            .init(
+                databaseClient: $0.databaseClient
             )
         }
     ),

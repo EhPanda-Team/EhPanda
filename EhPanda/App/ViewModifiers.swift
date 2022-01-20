@@ -19,14 +19,14 @@ extension View {
         Color.clear.frame(width: width, height: height)
     }
 
-    func withArrow() -> some View {
+    func withArrow(isVisible: Bool = true) -> some View {
         HStack {
             self
             Spacer()
-            Image(systemName: "chevron.right")
+            Image(systemSymbol: .chevronRight)
                 .foregroundColor(.secondary)
                 .imageScale(.small)
-                .opacity(0.5)
+                .opacity(isVisible ? 0.5 : 0)
         }
     }
 

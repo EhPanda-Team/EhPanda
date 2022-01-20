@@ -47,6 +47,17 @@ struct SearchView: View {
                 )
             }
             .searchable(text: viewStore.binding(\.$keyword), placement: searchFieldPlacement)
+            .sheet(unwrapping: viewStore.binding(\.$route), case: /SearchState.Route.quickSearch) { _ in
+                QuickSearchView(
+                    store: store.scope(state: \.quickSearchState, action: SearchAction.quickSearch)
+                ) { keyword in
+                    viewStore.send(.setNavigation(nil))
+                    viewStore.send(.setKeyword(keyword))
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        viewStore.send(.setNavigation(.request))
+                    }
+                }
+            }
             .onSubmit(of: .search) {
                 viewStore.send(.setNavigation(.request))
             }
@@ -64,8 +75,13 @@ struct SearchView: View {
 
     private func toolbar() -> some ToolbarContent {
         CustomToolbarItem(tint: .primary) {
-            FiltersButton(hideText: true) {
-                viewStore.send(.onFiltersButtonTapped)
+            ToolbarFeaturesMenu {
+                FiltersButton {
+                    viewStore.send(.onFiltersButtonTapped)
+                }
+                QuickSearchButton {
+                    viewStore.send(.setNavigation(.quickSearch))
+                }
             }
         }
     }

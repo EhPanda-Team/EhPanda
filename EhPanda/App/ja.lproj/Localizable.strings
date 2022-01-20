@@ -123,7 +123,7 @@
 "Username" = "ユーザー名";
 "Password" = "パスワード";
 "Logout" = "ログアウト";
-"Are you sure to logout?" = "本当にログアウトしますか？";
+"Are you sure to logout?" = "本当にログアウトしてもよろしいですか？";
 "Account configuration" = "アカウント設定";
 "Manage tags subscription" = "タグの購読を管理";
 "Copy cookies" = "クッキーをコピー";
@@ -138,7 +138,7 @@
 "Cache" = "キャッシュ";
 "Clear" = "削除";
 "Clear image caches" = "画像キャッシュを削除";
-"Are you sure to clear?" = "本当に削除しますか？";
+"Are you sure to clear?" = "本当に削除してもよろしいですか？";
 
 "Appearance" = "外観";
 "Global" = "全般";
@@ -183,7 +183,7 @@
 "Selected profile" = "選択されたプロファイル";
 "Set as default" = "デフォルトに設定";
 "Delete profile" = "プロファイルを削除";
-"Are you sure to delete this profile?" = "本当にこのプロファイルを削除しますか？";
+"Are you sure to delete this item?" = "本当に削除してもよろしいですか？";
 "Delete" = "削除";
 "Rename" = "名前を変更";
 "Create new" = "新規作成";
@@ -326,7 +326,7 @@
 "Filters" = "フィルター";
 "Basic" = "基本";
 "Reset filters" = "既定値に戻す";
-"Are you sure to reset?" = "本当に戻しますか？";
+"Are you sure to reset?" = "本当に戻してもよろしいですか？";
 "Reset" = "戻す";
 "Advanced settings" = "高度な設定";
 "Advanced" = "高度";

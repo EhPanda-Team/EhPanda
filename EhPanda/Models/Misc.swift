@@ -70,15 +70,8 @@ struct Greeting: Codable, Equatable, Hashable {
         if strings.count == 1 {
             base += strings[0]
         } else {
-            let stringsToJoin = strings.count > 2
-                ? strings.dropLast() : strings
-
-            base += stringsToJoin
-                .joined(
-                    separator:
-                        "GAINCONTENT_SEPARATOR"
-                        .localized
-                )
+            let stringsToJoin = strings.count > 2 ? strings.dropLast() : strings
+            base += stringsToJoin.joined(separator: "GAINCONTENT_SEPARATOR".localized)
             if strings.count > 2 {
                 base += "GAINCONTENT_AND".localized
                 base += strings[strings.count - 1]
@@ -91,19 +84,15 @@ struct Greeting: Codable, Equatable, Hashable {
     }
 
     var gainedNothing: Bool {
-        [
-            gainedEXP,
-            gainedCredits,
-            gainedGP,
-            gainedHath
-        ]
-        .compactMap({ $0 })
-        .isEmpty
+        [gainedEXP, gainedCredits, gainedGP, gainedHath]
+            .compactMap({ $0 }).isEmpty
     }
 }
 
 struct QuickSearchWord: Codable, Equatable, Identifiable {
+    static let empty: Self = .init(name: "", content: "")
+
     var id = UUID().uuidString
-    var alias: String?
-    let content: String
+    var name: String
+    var content: String
 }

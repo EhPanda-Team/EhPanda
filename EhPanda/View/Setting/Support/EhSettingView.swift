@@ -47,7 +47,7 @@ struct EhSettingView: View {
             }
         }
         .confirmationDialog(
-            message: "Are you sure to delete this profile?",
+            message: "Are you sure to delete this item?",
             unwrapping: viewStore.binding(\.$route),
             case: /EhSettingState.Route.deleteProfile
         ) {

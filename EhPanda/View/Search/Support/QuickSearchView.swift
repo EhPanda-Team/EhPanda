@@ -6,154 +6,199 @@
 //
 
 import SwiftUI
+import ComposableArchitecture
 
 struct QuickSearchView: View {
-//    @EnvironmentObject var store: DeprecatedStore
-    @State private var isEditting = false
-    @State private var refreshTrigger = UUID().uuidString
-
+    private let store: Store<QuickSearchState, QuickSearchAction>
+    @ObservedObject private var viewStore: ViewStore<QuickSearchState, QuickSearchAction>
     private let searchAction: (String) -> Void
 
-    init(searchAction: @escaping (String) -> Void) {
+    @FocusState private var focusedField: QuickSearchState.FocusField?
+
+    init(store: Store<QuickSearchState, QuickSearchAction>, searchAction: @escaping (String) -> Void) {
+        self.store = store
+        viewStore = ViewStore(store)
         self.searchAction = searchAction
     }
 
-    // MARK: QuickSearchView
     var body: some View {
         NavigationView {
             ZStack {
                 List {
-                    ForEach(words) { _ in
-//                        QuickSearchWordRow(
-//                            word: word, isEditting: $isEditting,
-//                            refreshTrigger: $refreshTrigger, searchAction: searchAction,
-//                            submitAction: { store.dispatch(.modifyQuickSearchWord(newWord: $0)) }
-//                        )
+                    ForEach(viewStore.quickSearchWords) { word in
+                        Button {
+                            searchAction(word.content)
+                        } label: {
+                            VStack(alignment: .leading, spacing: 5) {
+                                if !word.name.isEmpty {
+                                    Text(word.name).font(.subheadline).foregroundColor(.secondary).lineLimit(1)
+                                }
+                                Text(word.content).fontWeight(.medium).font(.title3).lineLimit(2)
+                            }
+                            .tint(.primary)
+                        }
+                        .swipeActions(edge: .trailing) {
+                            Button {
+                                viewStore.send(.setNavigation(.deleteWord(word)))
+                            } label: {
+                                Image(systemSymbol: .trash)
+                            }
+                            .tint(.red)
+                            Button {
+                                viewStore.send(.setEditingWord(word))
+                                viewStore.send(.setNavigation(.editWord))
+                            } label: {
+                                Image(systemSymbol: .squareAndPencil)
+                            }
+                        }
+                        .withArrow(isVisible: !viewStore.isListEditing).padding(5)
                     }
-//                    .onDelete { store.dispatch(.deleteQuickSearchWord(offsets: $0)) }
-                    .onMove(perform: move)
+                    .onDelete { offsets in
+                        viewStore.send(.deleteWordWithOffsets(offsets))
+                    }
+                    .onMove { source, destination in
+                        viewStore.send(.moveWord(source, destination))
+                    }
                 }
-                .id(refreshTrigger)
-                ErrorView(error: .notFound, retryAction: nil).opacity(words.isEmpty ? 1 : 0)
+                LoadingView().opacity(
+                    viewStore.loadingState == .loading
+                    && viewStore.quickSearchWords.isEmpty ? 1 : 0
+                )
+                ErrorView(error: .notFound) {
+                    viewStore.send(.fetchQuickSearchWords)
+                }
+                .opacity(
+                    viewStore.loadingState != .loading
+                    && viewStore.quickSearchWords.isEmpty ? 1 : 0
+                )
             }
-            .environment(\.editMode, .constant(isEditting ? .active : .inactive))
-            .toolbar(content: toolbar).navigationTitle("Quick search")
+            .synchronize(viewStore.binding(\.$focusedField), $focusedField)
+            .environment(\.editMode, viewStore.binding(\.$listEditMode))
+            .animation(.default, value: viewStore.quickSearchWords)
+            .animation(.default, value: viewStore.listEditMode)
+            .onAppear {
+                if viewStore.quickSearchWords.isEmpty {
+                    viewStore.send(.fetchQuickSearchWords)
+                }
+            }
+            .confirmationDialog(
+                message: "Are you sure to delete this item?",
+                unwrapping: viewStore.binding(\.$route),
+                case: /QuickSearchState.Route.deleteWord
+            ) { route in
+                Button("Delete", role: .destructive) {
+                    viewStore.send(.deleteWord(route))
+                }
+            }
+            .toolbar(content: toolbar)
+            .background(navigationLinks)
+            .navigationTitle("Quick search")
         }
     }
 
-    // MARK: Toolbar
     private func toolbar() -> some ToolbarContent {
-        ToolbarItem(placement: .navigationBarTrailing) {
-            HStack {
-                Button {
-//                    store.dispatch(.appendQuickSearchWord)
-                } label: {
-                    Image(systemName: "plus")
-                }
-                .opacity(isEditting ? 1 : 0)
-                Button {
-                    isEditting.toggle()
-                } label: {
-                    Image(systemName: "pencil.circle")
-                        .symbolVariant(isEditting ? .fill : .none)
-                }
+        CustomToolbarItem {
+            Button {
+                viewStore.send(.setEditingWord(.empty))
+                viewStore.send(.setNavigation(.newWord))
+            } label: {
+                Image(systemSymbol: .plus)
             }
+            Button {
+                viewStore.send(.toggleListEditing)
+            } label: {
+                Image(systemSymbol: .pencilCircle)
+                    .symbolVariant(viewStore.isListEditing ? .fill : .none)
+            }
+        }
+    }
+    @ViewBuilder private var navigationLinks: some View {
+        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /QuickSearchState.Route.newWord) { _ in
+            EditWordView(
+                title: "New word",
+                word: viewStore.binding(\.$editingWord),
+                focusedField: $focusedField,
+                submitAction: { viewStore.send(.onTextFieldSubmitted) },
+                confirmAction: {
+                    viewStore.send(.appendWord)
+                    viewStore.send(.setNavigation(nil))
+                }
+            )
+        }
+        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /QuickSearchState.Route.editWord) { _ in
+            EditWordView(
+                title: "Edit word",
+                word: viewStore.binding(\.$editingWord),
+                focusedField: $focusedField,
+                submitAction: { viewStore.send(.onTextFieldSubmitted) },
+                confirmAction: {
+                    viewStore.send(.editWord)
+                    viewStore.send(.setNavigation(nil))
+                }
+            )
         }
     }
 }
 
-private extension QuickSearchView {
-    var words: [QuickSearchWord] {
-        []
-//        homeInfo.quickSearchWords
-    }
-    func move(from source: IndexSet, to destination: Int) {
-        refreshTrigger = UUID().uuidString
-//        store.dispatch(.moveQuickSearchWord(source: source, destination: destination))
-    }
-}
+extension QuickSearchView {
+    struct EditWordView: View {
+        private let title: String
+        @Binding private var word: QuickSearchWord
+        private let focusedField: FocusState<QuickSearchState.FocusField?>.Binding
+        private let submitAction: () -> Void
+        private let confirmAction: () -> Void
 
-// MARK: QuickSearchWordRow
-private struct QuickSearchWordRow: View {
-    @FocusState private var focusField: FocusField?
-    @State private var editableAlias: String
-    @State private var editableContent: String
-    private var plainWord: QuickSearchWord
-    @Binding private var isEditting: Bool
-    @Binding private var refreshTrigger: String
-    private var searchAction: (String) -> Void
-    private var submitAction: (QuickSearchWord) -> Void
-
-    enum FocusField {
-        case alias
-        case content
-    }
-
-    init(
-        word: QuickSearchWord,
-        isEditting: Binding<Bool>,
-        refreshTrigger: Binding<String>,
-        searchAction: @escaping (String) -> Void,
-        submitAction: @escaping (QuickSearchWord) -> Void
-    ) {
-        _editableAlias = State(initialValue: word.alias ?? "")
-        _editableContent = State(initialValue: word.content)
-
-        plainWord = word
-        _isEditting = isEditting
-        _refreshTrigger = refreshTrigger
-        self.searchAction = searchAction
-        self.submitAction = submitAction
-    }
-
-    private var title: String {
-        if let alias = plainWord.alias, !alias.isEmpty {
-            return alias
-        } else {
-            return plainWord.content
+        init(
+            title: String, word: Binding<QuickSearchWord>,
+            focusedField: FocusState<QuickSearchState.FocusField?>.Binding,
+            submitAction: @escaping () -> Void, confirmAction: @escaping () -> Void
+        ) {
+            self.title = title
+            _word = word
+            self.focusedField = focusedField
+            self.submitAction = submitAction
+            self.confirmAction = confirmAction
         }
-    }
 
-    var body: some View {
-        ZStack {
-            if isEditting {
-                VStack {
-                    TextField(editableAlias, text: $editableAlias, prompt: Text("Alias"))
-                        .submitLabel(.next).lineLimit(1).focused($focusField, equals: .alias)
-                    Divider().foregroundColor(.secondary.opacity(0.2))
-                    TextEditor(text: $editableContent).textInputAutocapitalization(.none)
-                        .disableAutocorrection(true).focused($focusField, equals: .content)
+        var body: some View {
+            Form {
+                Section("Name") {
+                    TextField("Optional", text: $word.name)
+                        .focused(focusedField, equals: .name)
                 }
-            } else {
-                Button(title) {
-                    searchAction(plainWord.content)
+                Section("Content") {
+                    TextEditor(text: $word.content)
+                        .disableAutocorrection(true)
+                        .textInputAutocapitalization(.never)
+                        .focused(focusedField, equals: .content)
                 }
-                .withArrow().foregroundColor(.primary)
+            }
+            .toolbar(content: toolbar)
+            .onSubmit(of: .text, submitAction)
+            .navigationTitle(title)
+        }
+
+        private func toolbar() -> some ToolbarContent {
+            CustomToolbarItem {
+                Button(action: confirmAction) {
+                    Text("Confirm").bold()
+                }
             }
         }
-        .onChange(of: isEditting) { _ in focusField = nil }
-        .onChange(of: refreshTrigger, perform: trySubmit)
-        .onChange(of: focusField, perform: trySubmit)
-        .onSubmit {
-            switch focusField {
-            case .alias:
-                focusField = .content
-            default:
-                focusField = nil
-            }
-        }
-    }
-
-    private func trySubmit(_: Any? = nil) {
-        var newWord = QuickSearchWord(id: plainWord.id, content: editableContent)
-        if !editableAlias.isEmpty { newWord.alias = editableAlias }
-        guard newWord != plainWord else { return }
-        submitAction(newWord)
     }
 }
 
 struct QuickSearchView_Previews: PreviewProvider {
     static var previews: some View {
-        QuickSearchView(searchAction: { _ in })
+        QuickSearchView(
+            store: .init(
+                initialState: .init(),
+                reducer: quickSearchReducer,
+                environment: QuickSearchEnvironment(
+                    databaseClient: .live
+                )
+            ),
+            searchAction: { _ in }
+        )
     }
 }

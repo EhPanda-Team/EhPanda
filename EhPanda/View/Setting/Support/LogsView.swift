@@ -25,7 +25,14 @@ struct LogsView: View {
                 } label: {
                     LogCell(log: log, isLatest: log == viewStore.logs.first)
                 }
-                .swipeActions { swipeActions(log: log) }
+                .swipeActions {
+                    Button {
+                        viewStore.send(.deleteLog(log.fileName))
+                    } label: {
+                        Image(systemSymbol: .trash)
+                    }
+                    .tint(.red)
+                }
                 .foregroundColor(.primary)
             }
             ErrorView(error: .notFound, retryAction: nil)
@@ -41,14 +48,6 @@ struct LogsView: View {
         .navigationTitle("Logs")
     }
 
-    private func swipeActions(log: Log) -> some View {
-        Button {
-            viewStore.send(.deleteLog(log.fileName))
-        } label: {
-            Image(systemSymbol: .trash)
-        }
-        .tint(.red)
-    }
     private var navigationLink: some View {
         NavigationLink(unwrapping: viewStore.binding(\.$route), case: /LogsState.Route.log) { route in
             LogView(log: route.wrappedValue)

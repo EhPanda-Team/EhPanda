@@ -183,7 +183,7 @@
 "Selected profile" = "当前选定档案";
 "Set as default" = "设置为默认";
 "Delete profile" = "删除档案";
-"Are you sure to delete this profile?" = "确定要删除这个档案吗？";
+"Are you sure to delete this item?" = "确定要删除它吗？";
 "Delete" = "删除";
 "Rename" = "重命名";
 "Create new" = "创建新档案";

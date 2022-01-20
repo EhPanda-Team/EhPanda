@@ -20,26 +20,7 @@ extension Request {
     var effect: Effect<Result<Response, AppError>, Never> {
         publisher.receive(on: DispatchQueue.main).catchToEffect()
     }
-//    func cancellableEffect(
-//        storeIn cancellableSet: inout Set<AnyCancellable>
-//    ) -> Effect<Result<Response, AppError>, Never> {
-//        Future { promise in
-//            publisher.receive(on: DispatchQueue.main)
-//                .sink { completion in
-//                    if case .failure(let error) = completion {
-//                        promise(.failure(error))
-//                    }
-//                } receiveValue: { response in
-//                    promise(.success(response))
-//                }
-//                .store(in: &cancellableSet)
-//        }
-//        .eraseToAnyPublisher()
-//        .catchToEffect()
-//    }
     func mapAppError(error: Error) -> AppError {
-        Logger.error(error)
-
         switch error {
         case is ParseError:
             return .parseFailed

@@ -183,7 +183,7 @@
 "Selected profile" = "선택한 프로필";
 "Set as default" = "기본으로 설정";
 "Delete profile" = "프로필 삭제";
-"Are you sure to delete this profile?" = "정말 이 프로필을 삭제하시겠어요?";
+//"Are you sure to delete this item?" = "";
 "Delete" = "삭제";
 "Rename" = "이름 변경";
 "Create new" = "추가";

@@ -9,6 +9,7 @@ import ComposableArchitecture
 
 struct SearchRequestState: Equatable, Identifiable {
     enum Route: Equatable {
+        case quickSearch
         case detail(String)
     }
     struct CancelID: Hashable {
@@ -37,6 +38,7 @@ struct SearchRequestState: Equatable, Identifiable {
     var footerLoadingState: LoadingState = .idle
 
     var detailState = DetailState()
+    var quickSearchState = QuickSearchState()
 
     mutating func insertGalleries(_ galleries: [Gallery]) {
         galleries.forEach { gallery in
@@ -65,6 +67,7 @@ enum SearchRequestAction: BindableAction {
     case fetchMoreGalleriesDone(Result<(PageNumber, [Gallery]), AppError>)
 
     case detail(DetailAction)
+    case quickSearch(QuickSearchAction)
 }
 
 struct SearchRequestEnvironment {
@@ -98,7 +101,11 @@ let searchRequestReducer = Reducer<SearchRequestState, SearchRequestAction, Sear
 
         case .clearSubStates:
             state.detailState = .init()
-            return .init(value: .detail(.cancelFetching))
+            state.quickSearchState = .init()
+            return .merge(
+                .init(value: .detail(.cancelFetching)),
+                .init(value: .quickSearch(.cancelFetching))
+            )
 
         case .onDisappear:
             state.jumpPageAlertPresented = false
@@ -128,6 +135,7 @@ let searchRequestReducer = Reducer<SearchRequestState, SearchRequestAction, Sear
         case .fetchGalleries(let pageNum, let keyword):
             guard state.loadingState != .loading else { return .none }
             if let keyword = keyword {
+                state.keyword = keyword
                 state.lastKeyword = keyword
             }
             state.loadingState = .loading
@@ -189,6 +197,9 @@ let searchRequestReducer = Reducer<SearchRequestState, SearchRequestAction, Sear
 
         case .detail:
             return .none
+
+        case .quickSearch:
+            return .none
         }
     }
     .binding(),
@@ -204,6 +215,15 @@ let searchRequestReducer = Reducer<SearchRequestState, SearchRequestAction, Sear
                 databaseClient: $0.databaseClient,
                 clipboardClient: $0.clipboardClient,
                 uiApplicationClient: $0.uiApplicationClient
+            )
+        }
+    ),
+    quickSearchReducer.pullback(
+        state: \.quickSearchState,
+        action: /SearchRequestAction.quickSearch,
+        environment: {
+            .init(
+                databaseClient: $0.databaseClient
             )
         }
     )

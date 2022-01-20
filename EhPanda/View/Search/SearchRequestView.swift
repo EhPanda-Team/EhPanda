@@ -53,6 +53,14 @@ struct SearchRequestView: View {
         )
         .animation(.default, value: viewStore.jumpPageAlertPresented)
         .searchable(text: viewStore.binding(\.$keyword))
+        .sheet(unwrapping: viewStore.binding(\.$route), case: /SearchRequestState.Route.quickSearch) { _ in
+            QuickSearchView(
+                store: store.scope(state: \.quickSearchState, action: SearchRequestAction.quickSearch)
+            ) { keyword in
+                viewStore.send(.setNavigation(nil))
+                viewStore.send(.fetchGalleries(nil, keyword))
+            }
+        }
         .onSubmit(of: .search) {
             viewStore.send(.fetchGalleries())
         }
@@ -85,6 +93,9 @@ struct SearchRequestView: View {
             ToolbarFeaturesMenu {
                 FiltersButton {
                     viewStore.send(.onFiltersButtonTapped)
+                }
+                QuickSearchButton {
+                    viewStore.send(.setNavigation(.quickSearch))
                 }
                 JumpPageButton(pageNumber: viewStore.pageNumber) {
                     viewStore.send(.presentJumpPageAlert)

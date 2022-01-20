@@ -116,6 +116,7 @@
 		ABBB26682797BFAA007B6149 /* ActivityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABBB26672797BFAA007B6149 /* ActivityView.swift */; };
 		ABBB266A2797C61F007B6149 /* TorrentsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABBB26692797C61F007B6149 /* TorrentsStore.swift */; };
 		ABBB266C2797E882007B6149 /* ClipboardClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABBB266B2797E882007B6149 /* ClipboardClient.swift */; };
+		ABBB266E27998479007B6149 /* QuickSearchStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABBB266D27998479007B6149 /* QuickSearchStore.swift */; };
 		ABBC332826BE31AE0084A331 /* EhSettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABBC332726BE31AE0084A331 /* EhSettingView.swift */; };
 		ABBC332A26BE7C940084A331 /* SettingTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABBC332926BE7C940084A331 /* SettingTextField.swift */; };
 		ABBCCC9026C95F6E007D8A36 /* GalleryInfosView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABBCCC8F26C95F6E007D8A36 /* GalleryInfosView.swift */; };
@@ -318,6 +319,7 @@
 		ABBB26672797BFAA007B6149 /* ActivityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityView.swift; sourceTree = "<group>"; };
 		ABBB26692797C61F007B6149 /* TorrentsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TorrentsStore.swift; sourceTree = "<group>"; };
 		ABBB266B2797E882007B6149 /* ClipboardClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardClient.swift; sourceTree = "<group>"; };
+		ABBB266D27998479007B6149 /* QuickSearchStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickSearchStore.swift; sourceTree = "<group>"; };
 		ABBC332726BE31AE0084A331 /* EhSettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EhSettingView.swift; sourceTree = "<group>"; };
 		ABBC332926BE7C940084A331 /* SettingTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingTextField.swift; sourceTree = "<group>"; };
 		ABBCCC8F26C95F6E007D8A36 /* GalleryInfosView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryInfosView.swift; sourceTree = "<group>"; };
@@ -512,6 +514,7 @@
 			isa = PBXGroup;
 			children = (
 				ABE9401426FF158D0085E158 /* QuickSearchView.swift */,
+				ABBB266D27998479007B6149 /* QuickSearchStore.swift */,
 			);
 			path = Support;
 			sourceTree = "<group>";
@@ -1215,6 +1218,7 @@
 				ABF45AF425F3313D00ECB568 /* WebView.swift in Sources */,
 				AB7B29F626AC741600EE1F14 /* GenericList.swift in Sources */,
 				AB706F82278986120025A48A /* ToolbarItems.swift in Sources */,
+				ABBB266E27998479007B6149 /* QuickSearchStore.swift in Sources */,
 				AB0ABCB526C5406400AD970F /* LoginView.swift in Sources */,
 				AB24C55C2767565A0085C33A /* HomeView.swift in Sources */,
 				ABF45AF225F3313D00ECB568 /* GeneralSettingView.swift in Sources */,
