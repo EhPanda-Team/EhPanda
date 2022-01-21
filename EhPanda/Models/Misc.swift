@@ -90,9 +90,9 @@ struct Greeting: Codable, Equatable, Hashable {
 }
 
 struct QuickSearchWord: Codable, Equatable, Identifiable {
-    static let empty: Self = .init(name: "", content: "")
+    static var empty: Self { .init(name: "", content: "") }
 
-    var id = UUID().uuidString
+    var id: UUID = .init()
     var name: String
     var content: String
 }

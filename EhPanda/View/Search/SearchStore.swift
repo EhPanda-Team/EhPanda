@@ -18,8 +18,8 @@ struct SearchState: Equatable {
     @BindableState var keyword = ""
     var historyGalleries = [Gallery]()
 
-    // AppEnvStorage
     var historyKeywords = [String]()
+    var quickSearchWords = [QuickSearchWord]()
 
     var searchReqeustState = SearchRequestState()
     var quickSearchState = QuickSearchState()
@@ -31,7 +31,9 @@ struct SearchState: Equatable {
 
         keywords.forEach { keyword in
             guard !keyword.isEmpty else { return }
-            if let index = historyKeywords.firstIndex(of: keyword) {
+            if let index = historyKeywords.firstIndex(where: {
+                $0.caseInsensitiveEqualsTo(keyword)
+            }) {
                 if historyKeywords.last != keyword {
                     historyKeywords.remove(at: index)
                     historyKeywords.append(keyword)
@@ -61,8 +63,8 @@ enum SearchAction: BindableAction {
     case onFiltersButtonTapped
 
     case syncHistoryKeywords
-    case fetchHistoryKeywords
-    case fetchHistoryKeywordsDone([String])
+    case fetchDatabaseInfos
+    case fetchDatabaseInfosDone(AppEnv)
     case appendHistoryKeyword(String)
     case removeHistoryKeyword(String)
     case fetchHistoryGalleries
@@ -87,14 +89,24 @@ let searchReducer = Reducer<SearchState, SearchAction, SearchEnvironment>.combin
     .init { state, action, environment in
         switch action {
         case .binding(\.$route):
-            return state.route == nil ? .init(value: .clearSubStates) : .none
+            return state.route == nil
+            ? .merge(
+                .init(value: .clearSubStates),
+                .init(value: .fetchDatabaseInfos)
+            )
+            : .none
 
         case .binding:
             return .none
 
         case .setNavigation(let route):
             state.route = route
-            return route == nil ? .init(value: .clearSubStates) : .none
+            return route == nil
+            ? .merge(
+                .init(value: .clearSubStates),
+                .init(value: .fetchDatabaseInfos)
+            )
+            : .none
 
         case .setKeyword(let keyword):
             state.keyword = keyword
@@ -116,11 +128,12 @@ let searchReducer = Reducer<SearchState, SearchAction, SearchEnvironment>.combin
         case .syncHistoryKeywords:
             return environment.databaseClient.updateHistoryKeywords(state.historyKeywords).fireAndForget()
 
-        case .fetchHistoryKeywords:
-            return environment.databaseClient.fetchHistoryKeywords().map(SearchAction.fetchHistoryKeywordsDone)
+        case .fetchDatabaseInfos:
+            return environment.databaseClient.fetchAppEnv().map(SearchAction.fetchDatabaseInfosDone)
 
-        case .fetchHistoryKeywordsDone(let historyKeywords):
-            state.historyKeywords = historyKeywords
+        case .fetchDatabaseInfosDone(let appEnv):
+            state.historyKeywords = appEnv.historyKeywords
+            state.quickSearchWords = appEnv.quickSearchWords
             return .none
 
         case .appendHistoryKeyword(let keyword):

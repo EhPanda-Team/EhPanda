@@ -680,7 +680,7 @@ struct LoginRequest: Request {
         var request = URLRequest(url: Defaults.URL.login)
         request.httpMethod = "POST"
         request.httpBody = params.dictString()
-            .urlEncoded().data(using: .utf8)
+            .urlEncoded.data(using: .utf8)
         request.setURLEncodedContentType()
 
         return URLSession.shared.dataTaskPublisher(for: request).genericRetry()
@@ -736,7 +736,7 @@ struct EhProfileRequest: Request {
         var request = URLRequest(url: Defaults.URL.uConfig)
         request.httpMethod = "POST"
         request.httpBody = params.dictString()
-            .urlEncoded().data(using: .utf8)
+            .urlEncoded.data(using: .utf8)
         request.setURLEncodedContentType()
 
         return URLSession.shared.dataTaskPublisher(for: request)
@@ -816,7 +816,7 @@ struct SubmitEhSettingChangesRequest: Request {
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.httpBody = params.dictString()
-            .urlEncoded().data(using: .utf8)
+            .urlEncoded.data(using: .utf8)
         request.setURLEncodedContentType()
 
         return URLSession.shared.dataTaskPublisher(for: request)
@@ -840,7 +840,7 @@ struct FavorGalleryRequest: Request {
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.httpBody = params.dictString()
-            .urlEncoded().data(using: .utf8)
+            .urlEncoded.data(using: .utf8)
         request.setURLEncodedContentType()
 
         return URLSession.shared.dataTaskPublisher(for: request)
@@ -860,7 +860,7 @@ struct UnfavorGalleryRequest: Request {
         var request = URLRequest(url: Defaults.URL.favorites)
         request.httpMethod = "POST"
         request.httpBody = params.dictString()
-            .urlEncoded().data(using: .utf8)
+            .urlEncoded.data(using: .utf8)
         request.setURLEncodedContentType()
 
         return URLSession.shared.dataTaskPublisher(for: request)
@@ -881,7 +881,7 @@ struct SendDownloadCommandRequest: Request {
         var request = URLRequest(url: archiveURL.safeURL())
         request.httpMethod = "POST"
         request.httpBody = params.dictString()
-            .urlEncoded().data(using: .utf8)
+            .urlEncoded.data(using: .utf8)
         request.setURLEncodedContentType()
 
         return URLSession.shared.dataTaskPublisher(for: request)
@@ -926,7 +926,7 @@ struct CommentGalleryRequest: Request {
         var request = URLRequest(url: galleryURL.safeURL())
         request.httpMethod = "POST"
         request.httpBody = params.dictString()
-            .urlEncoded().data(using: .utf8)
+            .urlEncoded.data(using: .utf8)
         request.setURLEncodedContentType()
 
         return URLSession.shared.dataTaskPublisher(for: request)
@@ -949,7 +949,7 @@ struct EditGalleryCommentRequest: Request {
         var request = URLRequest(url: galleryURL.safeURL())
         request.httpMethod = "POST"
         request.httpBody = params.dictString()
-            .urlEncoded().data(using: .utf8)
+            .urlEncoded.data(using: .utf8)
         request.setURLEncodedContentType()
 
         return URLSession.shared.dataTaskPublisher(for: request)

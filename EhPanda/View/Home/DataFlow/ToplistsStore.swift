@@ -25,7 +25,7 @@ struct ToplistsState: Equatable {
 
     var filteredGalleries: [Gallery]? {
         guard !keyword.isEmpty else { return galleries }
-        return galleries?.filter({ $0.title.range(of: keyword, options: .caseInsensitive) != nil })
+        return galleries?.filter({ $0.title.caseInsensitiveContains(keyword) })
     }
 
     var rawGalleries = [ToplistsType: [Gallery]]()

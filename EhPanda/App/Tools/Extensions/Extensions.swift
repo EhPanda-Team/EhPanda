@@ -122,7 +122,7 @@ extension String {
         String(localized: String.LocalizationValue(self))
     }
 
-    func urlEncoded() -> String {
+    var urlEncoded: String {
         addingPercentEncoding(
             withAllowedCharacters: .urlQueryAllowed
         ) ?? ""
@@ -130,6 +130,18 @@ extension String {
 
     var firstLetterCapitalized: String {
         prefix(1).capitalized + dropFirst()
+    }
+
+    var isValidURL: Bool {
+        if let detector = try? NSDataDetector(
+            types: NSTextCheckingResult.CheckingType.link.rawValue
+        ) {
+            if let match = detector.firstMatch(in: self, options: [],
+                range: NSRange(location: 0, length: utf16.count)
+            ) {
+                return match.range.length == utf16.count
+            } else { return false }
+        } else { return false }
     }
 
     var barcesAndSpacesRemoved: String {
@@ -166,16 +178,11 @@ extension String {
         }
     }
 
-    var isValidURL: Bool {
-        if let detector = try? NSDataDetector(
-            types: NSTextCheckingResult.CheckingType.link.rawValue
-        ) {
-            if let match = detector.firstMatch(in: self, options: [],
-                range: NSRange(location: 0, length: utf16.count)
-            ) {
-                return match.range.length == utf16.count
-            } else { return false }
-        } else { return false }
+    func caseInsensitiveContains(_ other: String) -> Bool {
+        range(of: other, options: .caseInsensitive) != nil
+    }
+    func caseInsensitiveEqualsTo(_ other: String) -> Bool {
+        caseInsensitiveContains(other) && count == other.count
     }
 }
 
@@ -270,18 +277,22 @@ extension NSNotification.Name {
     }
 }
 
-// MARK: [Gallery]
-extension Array where Element == Gallery {
-    func removeDuplicates(by keyPath: KeyPath<Element, String>) -> [Element] {
+// MARK: Array
+extension Array {
+    func removeDuplicates(by predicate: (Element, Element) -> Bool) -> Self {
         var result = [Element]()
         for value in self {
-            if result.filter({
-                $0[keyPath: keyPath] == value[keyPath: keyPath]
-            }).isEmpty {
+            if result.filter({ predicate($0, value) }).isEmpty {
                 result.append(value)
             }
         }
         return result
+    }
+    func removeDuplicates(by keyPath: KeyPath<Element, String>) -> Self {
+        removeDuplicates(by: { $0[keyPath: keyPath] == $1[keyPath: keyPath] })
+    }
+    func removeDuplicates() -> Self where Element: Hashable {
+        removeDuplicates(by: ==)
     }
 }
 

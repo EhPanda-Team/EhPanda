@@ -64,9 +64,7 @@ struct QuickSearchView: View {
                     viewStore.loadingState == .loading
                     && viewStore.quickSearchWords.isEmpty ? 1 : 0
                 )
-                ErrorView(error: .notFound) {
-                    viewStore.send(.fetchQuickSearchWords)
-                }
+                ErrorView(error: .notFound)
                 .opacity(
                     viewStore.loadingState != .loading
                     && viewStore.quickSearchWords.isEmpty ? 1 : 0
