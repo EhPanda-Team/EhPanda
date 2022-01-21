@@ -12,6 +12,7 @@ import ComposableArchitecture
 // MARK: State
 struct FavoritesState: Equatable {
     enum Route: Equatable {
+        case quickSearch
         case detail(String)
     }
 
@@ -43,6 +44,7 @@ struct FavoritesState: Equatable {
     }
 
     var detailState = DetailState()
+    var quickSearchState = QuickSearchState()
 
     mutating func insertGalleries(index: Int, galleries: [Gallery]) {
         galleries.forEach { gallery in
@@ -65,12 +67,13 @@ enum FavoritesAction: BindableAction {
     case presentJumpPageAlert
     case setJumpPageAlertFocused(Bool)
 
-    case fetchGalleries(Int? = nil, FavoritesSortOrder? = nil)
+    case fetchGalleries(Int? = nil, String? = nil, FavoritesSortOrder? = nil)
     case fetchGalleriesDone(Int, Result<(PageNumber, FavoritesSortOrder?, [Gallery]), AppError>)
     case fetchMoreGalleries
     case fetchMoreGalleriesDone(Int, Result<(PageNumber, FavoritesSortOrder?, [Gallery]), AppError>)
 
     case detail(DetailAction)
+    case quickSearch(QuickSearchAction)
 }
 
 // MARK: Environment
@@ -135,9 +138,12 @@ let favoritesReducer = Reducer<FavoritesState, FavoritesAction, FavoritesEnviron
             state.jumpPageAlertFocused = isFocused
             return .none
 
-        case .fetchGalleries(let pageNum, let sortOrder):
+        case .fetchGalleries(let pageNum, let keyword, let sortOrder):
             guard state.loadingState != .loading else { return .none }
             state.rawLoadingState[state.index] = .loading
+            if let keyword = keyword {
+                state.keyword = keyword
+            }
             if state.pageNumber == nil {
                 state.rawPageNumber[state.index] = PageNumber()
             } else {
@@ -169,7 +175,7 @@ let favoritesReducer = Reducer<FavoritesState, FavoritesAction, FavoritesEnviron
             return .none
 
         case .fetchMoreGalleries:
-            let pageNumber = state.pageNumber ?? PageNumber()
+            let pageNumber = state.pageNumber ?? .init()
             guard pageNumber.current + 1 <= pageNumber.maximum,
                   state.footerLoadingState != .loading
             else { return .none }
@@ -204,6 +210,9 @@ let favoritesReducer = Reducer<FavoritesState, FavoritesAction, FavoritesEnviron
 
         case .detail:
             return .none
+
+        case .quickSearch:
+            return .none
         }
     }
     .binding(),
@@ -219,6 +228,15 @@ let favoritesReducer = Reducer<FavoritesState, FavoritesAction, FavoritesEnviron
                 databaseClient: $0.databaseClient,
                 clipboardClient: $0.clipboardClient,
                 uiApplicationClient: $0.uiApplicationClient
+            )
+        }
+    ),
+    quickSearchReducer.pullback(
+        state: \.quickSearchState,
+        action: /FavoritesAction.quickSearch,
+        environment: {
+            .init(
+                databaseClient: $0.databaseClient
             )
         }
     )

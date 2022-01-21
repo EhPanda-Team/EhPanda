@@ -49,11 +49,19 @@ struct FavoritesView: View {
                     tagTranslator.tryTranslate(text: $0, returnOriginal: setting.translatesTags)
                 }
             )
+            .sheet(unwrapping: viewStore.binding(\.$route), case: /FavoritesState.Route.quickSearch) { _ in
+                QuickSearchView(
+                    store: store.scope(state: \.quickSearchState, action: FavoritesAction.quickSearch)
+                ) { keyword in
+                    viewStore.send(.setNavigation(nil))
+                    viewStore.send(.fetchGalleries(nil, keyword))
+                }
+            }
             .jumpPageAlert(
                 index: viewStore.binding(\.$jumpPageIndex),
                 isPresented: viewStore.binding(\.$jumpPageAlertPresented),
                 isFocused: viewStore.binding(\.$jumpPageAlertFocused),
-                pageNumber: viewStore.pageNumber ?? PageNumber(),
+                pageNumber: viewStore.pageNumber ?? .init(),
                 jumpAction: { viewStore.send(.performJumpPage) }
             )
             .animation(.default, value: viewStore.jumpPageAlertPresented)
@@ -92,13 +100,18 @@ struct FavoritesView: View {
             }
             SortOrderMenu(sortOrder: viewStore.sortOrder) { order in
                 if viewStore.sortOrder != order {
-                    viewStore.send(.fetchGalleries(nil, order))
+                    viewStore.send(.fetchGalleries(nil, nil, order))
                 }
             }
-            JumpPageButton(pageNumber: viewStore.pageNumber ?? PageNumber(), hideText: true) {
-                viewStore.send(.presentJumpPageAlert)
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                    viewStore.send(.setJumpPageAlertFocused(true))
+            ToolbarFeaturesMenu(symbolRenderingMode: .hierarchical) {
+                QuickSearchButton {
+                    viewStore.send(.setNavigation(.quickSearch))
+                }
+                JumpPageButton(pageNumber: viewStore.pageNumber ?? .init()) {
+                    viewStore.send(.presentJumpPageAlert)
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                        viewStore.send(.setJumpPageAlertFocused(true))
+                    }
                 }
             }
         }

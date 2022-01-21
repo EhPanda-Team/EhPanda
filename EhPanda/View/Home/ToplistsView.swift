@@ -51,7 +51,7 @@ struct ToplistsView: View {
             index: viewStore.binding(\.$jumpPageIndex),
             isPresented: viewStore.binding(\.$jumpPageAlertPresented),
             isFocused: viewStore.binding(\.$jumpPageAlertFocused),
-            pageNumber: viewStore.pageNumber ?? PageNumber(),
+            pageNumber: viewStore.pageNumber ?? .init(),
             jumpAction: { viewStore.send(.performJumpPage) }
         )
         .animation(.default, value: viewStore.jumpPageAlertPresented)
@@ -88,7 +88,7 @@ struct ToplistsView: View {
                     viewStore.send(.setToplistsType(type))
                 }
             }
-            JumpPageButton(pageNumber: viewStore.pageNumber ?? PageNumber(), hideText: true) {
+            JumpPageButton(pageNumber: viewStore.pageNumber ?? .init(), hideText: true) {
                 viewStore.send(.presentJumpPageAlert)
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                     viewStore.send(.setJumpPageAlertFocused(true))

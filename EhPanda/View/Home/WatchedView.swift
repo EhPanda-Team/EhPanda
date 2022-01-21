@@ -42,6 +42,14 @@ struct WatchedView: View {
                 tagTranslator.tryTranslate(text: $0, returnOriginal: !setting.translatesTags)
             }
         )
+        .sheet(unwrapping: viewStore.binding(\.$route), case: /WatchedState.Route.quickSearch) { _ in
+            QuickSearchView(
+                store: store.scope(state: \.quickSearchState, action: WatchedAction.quickSearch)
+            ) { keyword in
+                viewStore.send(.setNavigation(nil))
+                viewStore.send(.fetchGalleries(nil, keyword))
+            }
+        }
         .jumpPageAlert(
             index: viewStore.binding(\.$jumpPageIndex),
             isPresented: viewStore.binding(\.$jumpPageAlertPresented),
@@ -84,6 +92,9 @@ struct WatchedView: View {
             ToolbarFeaturesMenu {
                 FiltersButton {
                     viewStore.send(.onFiltersButtonTapped)
+                }
+                QuickSearchButton {
+                    viewStore.send(.setNavigation(.quickSearch))
                 }
                 JumpPageButton(pageNumber: viewStore.pageNumber) {
                     viewStore.send(.presentJumpPageAlert)

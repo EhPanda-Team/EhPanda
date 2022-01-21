@@ -44,6 +44,14 @@ struct SearchRequestView: View {
                 tagTranslator.tryTranslate(text: $0, returnOriginal: !setting.translatesTags)
             }
         )
+        .sheet(unwrapping: viewStore.binding(\.$route), case: /SearchRequestState.Route.quickSearch) { _ in
+            QuickSearchView(
+                store: store.scope(state: \.quickSearchState, action: SearchRequestAction.quickSearch)
+            ) { keyword in
+                viewStore.send(.setNavigation(nil))
+                viewStore.send(.fetchGalleries(nil, keyword))
+            }
+        }
         .jumpPageAlert(
             index: viewStore.binding(\.$jumpPageIndex),
             isPresented: viewStore.binding(\.$jumpPageAlertPresented),
@@ -53,14 +61,6 @@ struct SearchRequestView: View {
         )
         .animation(.default, value: viewStore.jumpPageAlertPresented)
         .searchable(text: viewStore.binding(\.$keyword))
-        .sheet(unwrapping: viewStore.binding(\.$route), case: /SearchRequestState.Route.quickSearch) { _ in
-            QuickSearchView(
-                store: store.scope(state: \.quickSearchState, action: SearchRequestAction.quickSearch)
-            ) { keyword in
-                viewStore.send(.setNavigation(nil))
-                viewStore.send(.fetchGalleries(nil, keyword))
-            }
-        }
         .onSubmit(of: .search) {
             viewStore.send(.fetchGalleries())
         }

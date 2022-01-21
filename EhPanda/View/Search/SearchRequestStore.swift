@@ -140,7 +140,7 @@ let searchRequestReducer = Reducer<SearchRequestState, SearchRequestAction, Sear
             }
             state.loadingState = .loading
             state.pageNumber.current = 0
-            return SearchGalleriesRequest(keyword: keyword ?? state.lastKeyword, filter: state.filter, pageNum: pageNum)
+            return SearchGalleriesRequest(keyword: state.lastKeyword, filter: state.filter, pageNum: pageNum)
                 .effect.map(SearchRequestAction.fetchGalleriesDone).cancellable(id: SearchRequestState.CancelID())
 
         case .fetchGalleriesDone(let result):

@@ -141,6 +141,7 @@ struct QuickSearchView: View {
 }
 
 extension QuickSearchView {
+    // MARK: EditWordView
     struct EditWordView: View {
         private let title: String
         @Binding private var word: QuickSearchWord

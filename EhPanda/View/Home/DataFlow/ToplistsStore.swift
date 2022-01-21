@@ -171,7 +171,7 @@ let toplistsReducer = Reducer<ToplistsState, ToplistsAction, ToplistsEnvironment
             return .none
 
         case .fetchMoreGalleries:
-            let pageNumber = state.pageNumber ?? PageNumber()
+            let pageNumber = state.pageNumber ?? .init()
             guard pageNumber.current + 1 <= pageNumber.maximum,
                   state.footerLoadingState != .loading
             else { return .none }

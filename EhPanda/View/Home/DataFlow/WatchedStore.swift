@@ -9,6 +9,7 @@ import ComposableArchitecture
 
 struct WatchedState: Equatable {
     enum Route: Equatable {
+        case quickSearch
         case detail(String)
     }
     struct CancelID: Hashable {
@@ -30,6 +31,7 @@ struct WatchedState: Equatable {
     var footerLoadingState: LoadingState = .idle
 
     var detailState = DetailState()
+    var quickSearchState = QuickSearchState()
 
     mutating func insertGalleries(_ galleries: [Gallery]) {
         galleries.forEach { gallery in
@@ -52,12 +54,13 @@ enum WatchedAction: BindableAction {
     case setJumpPageAlertFocused(Bool)
 
     case cancelFetching
-    case fetchGalleries(Int? = nil)
+    case fetchGalleries(Int? = nil, String? = nil)
     case fetchGalleriesDone(Result<(PageNumber, [Gallery]), AppError>)
     case fetchMoreGalleries
     case fetchMoreGalleriesDone(Result<(PageNumber, [Gallery]), AppError>)
 
     case detail(DetailAction)
+    case quickSearch(QuickSearchAction)
 }
 
 struct WatchedEnvironment {
@@ -91,7 +94,11 @@ let watchedReducer = Reducer<WatchedState, WatchedAction, WatchedEnvironment>.co
 
         case .clearSubStates:
             state.detailState = .init()
-            return .init(value: .detail(.cancelFetching))
+            state.quickSearchState = .init()
+            return .merge(
+                .init(value: .detail(.cancelFetching)),
+                .init(value: .quickSearch(.cancelFetching))
+            )
 
         case .onDisappear:
             state.jumpPageAlertPresented = false
@@ -118,8 +125,11 @@ let watchedReducer = Reducer<WatchedState, WatchedAction, WatchedEnvironment>.co
         case .cancelFetching:
             return .cancel(id: WatchedState.CancelID())
 
-        case .fetchGalleries(let pageNum):
+        case .fetchGalleries(let pageNum, let keyword):
             guard state.loadingState != .loading else { return .none }
+            if let keyword = keyword {
+                state.keyword = keyword
+            }
             state.loadingState = .loading
             state.pageNumber.current = 0
             return WatchedGalleriesRequest(filter: state.filter, pageNum: pageNum, keyword: state.keyword)
@@ -179,6 +189,9 @@ let watchedReducer = Reducer<WatchedState, WatchedAction, WatchedEnvironment>.co
 
         case .detail:
             return .none
+
+        case .quickSearch:
+            return .none
         }
     }
     .binding(),
@@ -194,6 +207,15 @@ let watchedReducer = Reducer<WatchedState, WatchedAction, WatchedEnvironment>.co
                 databaseClient: $0.databaseClient,
                 clipboardClient: $0.clipboardClient,
                 uiApplicationClient: $0.uiApplicationClient
+            )
+        }
+    ),
+    quickSearchReducer.pullback(
+        state: \.quickSearchState,
+        action: /WatchedAction.quickSearch,
+        environment: {
+            .init(
+                databaseClient: $0.databaseClient
             )
         }
     )

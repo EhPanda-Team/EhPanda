@@ -46,7 +46,6 @@ struct SearchView: View {
                     removeKeywordAction: { viewStore.send(.removeHistoryKeyword($0)) }
                 )
             }
-            .searchable(text: viewStore.binding(\.$keyword), placement: searchFieldPlacement)
             .sheet(unwrapping: viewStore.binding(\.$route), case: /SearchState.Route.quickSearch) { _ in
                 QuickSearchView(
                     store: store.scope(state: \.quickSearchState, action: SearchAction.quickSearch)
@@ -58,6 +57,7 @@ struct SearchView: View {
                     }
                 }
             }
+            .searchable(text: viewStore.binding(\.$keyword), placement: searchFieldPlacement)
             .onSubmit(of: .search) {
                 viewStore.send(.setNavigation(.request))
             }
