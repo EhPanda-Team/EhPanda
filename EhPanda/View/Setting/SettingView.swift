@@ -59,7 +59,7 @@ private extension SettingView {
                 tagTranslatorEmpty: viewStore.tagTranslator.contents.isEmpty,
                 translatesTags: viewStore.binding(\.$setting.translatesTags),
                 redirectsLinksToSelectedHost: viewStore.binding(\.$setting.redirectsLinksToSelectedHost),
-                detectsLinksFromPasteboard: viewStore.binding(\.$setting.detectsLinksFromPasteboard),
+                detectsLinksFromClipboard: viewStore.binding(\.$setting.detectsLinksFromClipboard),
                 backgroundBlurRadius: viewStore.binding(\.$setting.backgroundBlurRadius),
                 autoLockPolicy: viewStore.binding(\.$setting.autoLockPolicy)
             )

@@ -47,16 +47,16 @@ struct TorrentsView: View {
                 }
                 .opacity(error != nil && viewStore.torrents.isEmpty ? 1 : 0)
             }
-            .animation(.default, value: viewStore.torrents)
+            .sheet(unwrapping: viewStore.binding(\.$route), case: /TorrentsState.Route.share) { route in
+                ActivityView(activityItems: [route.wrappedValue])
+                    .autoBlur(radius: blurRadius)
+            }
             .progressHUD(
                 config: viewStore.hudConfig,
                 unwrapping: viewStore.binding(\.$route),
                 case: /TorrentsState.Route.hud
             )
-            .sheet(unwrapping: viewStore.binding(\.$route), case: /TorrentsState.Route.share) { route in
-                ActivityView(activityItems: [route.wrappedValue])
-                    .autoBlur(radius: blurRadius)
-            }
+            .animation(.default, value: viewStore.torrents)
             .onAppear {
                 viewStore.send(.fetchGalleryTorrents(gid, token))
             }

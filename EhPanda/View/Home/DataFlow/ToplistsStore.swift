@@ -62,7 +62,6 @@ enum ToplistsAction: BindableAction {
     case setNavigation(ToplistsState.Route?)
     case setToplistsType(ToplistsType)
     case clearSubStates
-    case onDisappear
 
     case performJumpPage
     case presentJumpPageAlert
@@ -114,11 +113,6 @@ let toplistsReducer = Reducer<ToplistsState, ToplistsAction, ToplistsEnvironment
         case .clearSubStates:
             state.detailState = .init()
             return .init(value: .detail(.cancelFetching))
-
-        case .onDisappear:
-            state.jumpPageAlertPresented = false
-            state.jumpPageAlertFocused = false
-            return .none
 
         case .performJumpPage:
             guard let index = Int(state.jumpPageIndex),

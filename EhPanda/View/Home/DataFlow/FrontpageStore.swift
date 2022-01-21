@@ -48,7 +48,6 @@ enum FrontpageAction: BindableAction {
     case binding(BindingAction<FrontpageState>)
     case setNavigation(FrontpageState.Route?)
     case clearSubStates
-    case onDisappear
     case onFiltersButtonTapped
 
     case performJumpPage
@@ -96,11 +95,6 @@ let frontpageReducer = Reducer<FrontpageState, FrontpageAction, FrontpageEnviron
         case .clearSubStates:
             state.detailState = .init()
             return .init(value: .detail(.cancelFetching))
-
-        case .onDisappear:
-            state.jumpPageAlertPresented = false
-            state.jumpPageAlertFocused = false
-            return .none
 
         case .onFiltersButtonTapped:
             return .none

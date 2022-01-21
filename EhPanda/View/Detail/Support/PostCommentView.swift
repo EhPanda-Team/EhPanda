@@ -1,5 +1,5 @@
 //
-//  DraftCommentView.swift
+//  PostCommentView.swift
 //  EhPanda
 //
 //  Created by 荒木辰造 on R 3/01/03.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct DraftCommentView: View {
+struct PostCommentView: View {
     private let title: String
     @Binding private var content: String
     @Binding private var isFocused: Bool

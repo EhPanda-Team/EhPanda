@@ -60,9 +60,6 @@ struct FrontpageView: View {
                 }
             }
         }
-        .onDisappear {
-            viewStore.send(.onDisappear)
-        }
         .background(navigationLink)
         .toolbar(content: toolbar)
         .navigationTitle("Frontpage")

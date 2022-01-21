@@ -15,14 +15,14 @@ struct GeneralSettingView: View {
     private let tagTranslatorEmpty: Bool
     @Binding private var translatesTags: Bool
     @Binding private var redirectsLinksToSelectedHost: Bool
-    @Binding private var detectsLinksFromPasteboard: Bool
+    @Binding private var detectsLinksFromClipboard: Bool
     @Binding private var backgroundBlurRadius: Double
     @Binding private var autoLockPolicy: AutoLockPolicy
 
     init(
         store: Store<GeneralSettingState, GeneralSettingAction>,
         tagTranslatorLoadingState: LoadingState, tagTranslatorEmpty: Bool, translatesTags: Binding<Bool>,
-        redirectsLinksToSelectedHost: Binding<Bool>, detectsLinksFromPasteboard: Binding<Bool>,
+        redirectsLinksToSelectedHost: Binding<Bool>, detectsLinksFromClipboard: Binding<Bool>,
         backgroundBlurRadius: Binding<Double>, autoLockPolicy: Binding<AutoLockPolicy>
     ) {
         self.store = store
@@ -31,7 +31,7 @@ struct GeneralSettingView: View {
         self.tagTranslatorEmpty = tagTranslatorEmpty
         _translatesTags = translatesTags
         _redirectsLinksToSelectedHost = redirectsLinksToSelectedHost
-        _detectsLinksFromPasteboard = detectsLinksFromPasteboard
+        _detectsLinksFromClipboard = detectsLinksFromClipboard
         _backgroundBlurRadius = backgroundBlurRadius
         _autoLockPolicy = autoLockPolicy
     }
@@ -71,7 +71,7 @@ struct GeneralSettingView: View {
             }
             Section("Navigation".localized) {
                 Toggle("Redirects links to the selected host", isOn: $redirectsLinksToSelectedHost)
-                Toggle("Detects links from the clipboard", isOn: $detectsLinksFromPasteboard)
+                Toggle("Detects links from the clipboard", isOn: $detectsLinksFromClipboard)
             }
             Section("Security".localized) {
                 HStack {
@@ -152,7 +152,7 @@ struct GeneralSettingView_Previews: PreviewProvider {
                 tagTranslatorEmpty: false,
                 translatesTags: .constant(false),
                 redirectsLinksToSelectedHost: .constant(false),
-                detectsLinksFromPasteboard: .constant(false),
+                detectsLinksFromClipboard: .constant(false),
                 backgroundBlurRadius: .constant(10),
                 autoLockPolicy: .constant(.never)
             )

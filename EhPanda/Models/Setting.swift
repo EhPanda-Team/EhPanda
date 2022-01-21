@@ -16,7 +16,7 @@ struct Setting: Codable, Equatable {
 
     // General
     var redirectsLinksToSelectedHost = false
-    var detectsLinksFromPasteboard = false
+    var detectsLinksFromClipboard = false
     var backgroundBlurRadius: Double = 10
     var autoLockPolicy: AutoLockPolicy = .never
 
@@ -143,7 +143,7 @@ extension Setting {
         showsNewDawnGreeting = try container.decodeIfPresent(Bool.self, forKey: .showsNewDawnGreeting) ?? false
         // General
         redirectsLinksToSelectedHost = try container.decodeIfPresent(Bool.self, forKey: .redirectsLinksToSelectedHost) ?? false
-        detectsLinksFromPasteboard = try container.decodeIfPresent(Bool.self, forKey: .detectsLinksFromPasteboard) ?? false
+        detectsLinksFromClipboard = try container.decodeIfPresent(Bool.self, forKey: .detectsLinksFromClipboard) ?? false
         backgroundBlurRadius = try container.decodeIfPresent(Double.self, forKey: .backgroundBlurRadius) ?? 10
         autoLockPolicy = try container.decodeIfPresent(AutoLockPolicy.self, forKey: .autoLockPolicy) ?? .never
         // Appearance

@@ -119,11 +119,8 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
         case .binding(\.$setting.galleryHost):
             return .merge(
                 .init(value: .syncSetting),
-                environment.userDefaultsClient.setString(
-                    state.setting.galleryHost.rawValue,
-                    AppUserDefaults.galleryHost.rawValue
-                )
-                .fireAndForget()
+                environment.userDefaultsClient
+                    .setValue(state.setting.galleryHost.rawValue, .galleryHost).fireAndForget()
             )
 
         case .binding(\.$setting.translatesTags):
@@ -243,8 +240,7 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
                 .init(value: .syncUserInterfaceStyle)
             ]
 
-            if let value = environment.userDefaultsClient
-                .getString(AppUserDefaults.galleryHost.rawValue),
+            if let value: String = environment.userDefaultsClient.getValue(.galleryHost),
                let galleryHost = GalleryHost(rawValue: value)
             {
                 state.setting.galleryHost = galleryHost

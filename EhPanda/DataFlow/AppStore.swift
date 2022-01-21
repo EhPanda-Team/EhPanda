@@ -65,9 +65,14 @@ let appReducerCore = Reducer<AppState, AppAction, AppEnvironment> { state, actio
     case .onScenePhaseChange(let scenePhase):
         switch scenePhase {
         case .active:
+            var effects = [Effect<AppAction, Never>]()
             let threshold = state.settingState.setting.autoLockPolicy.rawValue
             let blurRadius = state.settingState.setting.backgroundBlurRadius
-            return .init(value: .appLock(.onBecomeActive(threshold, blurRadius)))
+            effects.append(.init(value: .appLock(.onBecomeActive(threshold, blurRadius))))
+            if threshold < 0, state.settingState.setting.detectsLinksFromClipboard {
+                effects.append(.init(value: .appRoute(.detectClipboardURL)))
+            }
+            return .merge(effects)
         case .inactive:
             let blurRadius = state.settingState.setting.backgroundBlurRadius
             return .init(value: .appLock(.onBecomeInactive(blurRadius)))
@@ -81,6 +86,10 @@ let appReducerCore = Reducer<AppState, AppAction, AppEnvironment> { state, actio
 
     case .appRoute:
         return .none
+
+    case .appLock(.authorizeDone(let isSucceeded)):
+        return isSucceeded && state.settingState.setting.detectsLinksFromClipboard
+        ? .init(value: .appRoute(.detectClipboardURL)) : .none
 
     case .appLock:
         return .none
@@ -136,8 +145,17 @@ let appReducer = Reducer<AppState, AppAction, AppEnvironment>.combine(
     appRouteReducer.pullback(
         state: \.appRouteState,
         action: /AppAction.appRoute,
-        environment: { _ in
-            .init()
+        environment: {
+            .init(
+                urlClient: $0.urlClient,
+                fileClient: $0.fileClient,
+                hapticClient: $0.hapticClient,
+                cookiesClient: $0.cookiesClient,
+                databaseClient: $0.databaseClient,
+                clipboardClient: $0.clipboardClient,
+                userDefaultsClient: $0.userDefaultsClient,
+                uiApplicationClient: $0.uiApplicationClient
+            )
         }
     ),
     appLockReducer.pullback(

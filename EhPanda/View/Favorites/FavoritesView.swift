@@ -56,6 +56,8 @@ struct FavoritesView: View {
                     viewStore.send(.setNavigation(nil))
                     viewStore.send(.fetchGalleries(nil, keyword))
                 }
+                .accentColor(setting.accentColor)
+                .autoBlur(radius: blurRadius)
             }
             .jumpPageAlert(
                 index: viewStore.binding(\.$jumpPageIndex),

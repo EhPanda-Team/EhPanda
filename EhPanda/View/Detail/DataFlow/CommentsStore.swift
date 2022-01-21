@@ -21,7 +21,7 @@ struct CommentsState: Equatable {
     static func == (lhs: CommentsState, rhs: CommentsState) -> Bool {
         lhs.route == rhs.route
         && lhs.commentContent == rhs.commentContent
-        && lhs.draftCommentFocused == rhs.draftCommentFocused
+        && lhs.postCommentFocused == rhs.postCommentFocused
         && lhs.hudConfig == rhs.hudConfig
         && lhs.scrollCommentID == rhs.scrollCommentID
         && lhs.scrollRowOpacity == rhs.scrollRowOpacity
@@ -31,7 +31,7 @@ struct CommentsState: Equatable {
 
     @BindableState var route: Route?
     @BindableState var commentContent = ""
-    @BindableState var draftCommentFocused = false
+    @BindableState var postCommentFocused = false
 
     var hudConfig: TTProgressHUDConfig = .loading
     var scrollCommentID: String?
@@ -46,15 +46,16 @@ enum CommentsAction: BindableAction {
     case setNavigation(CommentsState.Route?)
     case setDetailState(DetailState)
     case clearSubStates
+    case clearScrollCommentID
 
     case setHUDConfig(TTProgressHUDConfig)
-    case setDraftCommentFocused(Bool)
+    case setPostCommentFocused(Bool)
     case setScrollRowOpacity(Double)
     case setCommentContent(String)
     case performScrollOpacityEffect
     case handleCommentLink(URL)
-    case handleDeepLink(URL)
-    case onDraftCommentAppear
+    case handleGalleryLink(URL)
+    case onPostCommentAppear
     case onAppear
 
     case updateReadingProgress(String, Int)
@@ -101,22 +102,25 @@ let commentsReducer = Reducer<CommentsState, CommentsAction, CommentsEnvironment
     case .clearSubStates:
         state.detailStates = .init()
         state.commentContent = .init()
-        state.draftCommentFocused = false
+        state.postCommentFocused = false
         if let id = state.detailStates.first?.id {
             return .init(value: .detail(id: id, action: .cancelFetching))
         }
+        return .none
+
+    case .clearScrollCommentID:
+        state.scrollCommentID = nil
         return .none
 
     case .setHUDConfig(let config):
         state.hudConfig = config
         return .none
 
-    case .setDraftCommentFocused(let isFocused):
-        state.draftCommentFocused = isFocused
+    case .setPostCommentFocused(let isFocused):
+        state.postCommentFocused = isFocused
         return .none
 
     case .setScrollRowOpacity(let opacity):
-        state.scrollCommentID = nil
         state.scrollRowOpacity = opacity
         return .none
 
@@ -129,7 +133,9 @@ let commentsReducer = Reducer<CommentsState, CommentsAction, CommentsEnvironment
             .init(value: .setScrollRowOpacity(0.25))
                 .delay(for: .milliseconds(750), scheduler: DispatchQueue.main).eraseToEffect(),
             .init(value: .setScrollRowOpacity(1))
-                .delay(for: .milliseconds(1250), scheduler: DispatchQueue.main).eraseToEffect()
+                .delay(for: .milliseconds(1250), scheduler: DispatchQueue.main).eraseToEffect(),
+            .init(value: .clearScrollCommentID)
+                .delay(for: .milliseconds(2000), scheduler: DispatchQueue.main).eraseToEffect()
         )
 
     case .handleCommentLink(let url):
@@ -139,11 +145,11 @@ let commentsReducer = Reducer<CommentsState, CommentsAction, CommentsEnvironment
         let (isGalleryImageURL, _, _) = environment.urlClient.analyzeURL(url)
         let gid = environment.urlClient.parseGalleryID(url)
         guard !environment.databaseClient.checkGalleryExistence(gid: gid) else {
-            return .init(value: .handleDeepLink(url))
+            return .init(value: .handleGalleryLink(url))
         }
         return .init(value: .fetchGallery(url, isGalleryImageURL))
 
-    case .handleDeepLink(let url):
+    case .handleGalleryLink(let url):
         let (_, pageIndex, commentID) = environment.urlClient.analyzeURL(url)
         let gid = environment.urlClient.parseGalleryID(url)
         var effects = [Effect<CommentsAction, Never>]()
@@ -168,8 +174,8 @@ let commentsReducer = Reducer<CommentsState, CommentsAction, CommentsEnvironment
         effects.append(.init(value: .setNavigation(.detail(gid))))
         return .merge(effects)
 
-    case .onDraftCommentAppear:
-        return .init(value: .setDraftCommentFocused(true))
+    case .onPostCommentAppear:
+        return .init(value: .setPostCommentFocused(true))
             .delay(for: .milliseconds(750), scheduler: DispatchQueue.main).eraseToEffect()
 
     case .onAppear:
@@ -222,7 +228,7 @@ let commentsReducer = Reducer<CommentsState, CommentsAction, CommentsEnvironment
         case .success(let gallery):
             return .merge(
                 environment.databaseClient.cacheGalleries([gallery]).fireAndForget(),
-                .init(value: .handleDeepLink(url))
+                .init(value: .handleGalleryLink(url))
             )
         case .failure:
             return .init(value: .setHUDConfig(.error))

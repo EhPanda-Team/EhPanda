@@ -79,8 +79,7 @@ private extension TagCloudView {
         .background(viewHeightReader(binding: $totalHeight))
     }
 
-    @ViewBuilder
-    func item(for text: String) -> some View {
+    @ViewBuilder func item(for text: String) -> some View {
         let (rippedText, wrappedHex) = Parser.parseWrappedHex(string: text)
         let containsHex = wrappedHex != nil
         let textColor = containsHex ? .white : textColor

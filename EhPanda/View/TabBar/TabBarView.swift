@@ -80,9 +80,25 @@ struct TabBarView: View {
             .accentColor(viewStore.settingState.setting.accentColor)
             .autoBlur(radius: viewStore.appLockState.blurRadius)
         }
-        .onChange(of: scenePhase) { newValue in
-            viewStore.send(.onScenePhaseChange(newValue))
+        .sheet(unwrapping: viewStore.binding(\.appRouteState.$route), case: /AppRouteState.Route.detail) { route in
+            NavigationView {
+                DetailView(
+                    store: store.scope(state: \.appRouteState.detailState, action: { AppAction.appRoute(.detail($0)) }),
+                    gid: route.wrappedValue, user: viewStore.settingState.user, setting: viewStore.settingState.setting,
+                    blurRadius: viewStore.appLockState.blurRadius, tagTranslator: viewStore.settingState.tagTranslator
+                )
+            }
+            .accentColor(viewStore.settingState.setting.accentColor)
+            .autoBlur(radius: viewStore.appLockState.blurRadius)
+            .environment(\.isSheet, true)
         }
+        .progressHUD(
+            config: viewStore.appRouteState.hudConfig,
+            unwrapping: viewStore.binding(\.appRouteState.$route),
+            case: /AppRouteState.Route.hud
+        )
+        .onChange(of: scenePhase) { viewStore.send(.onScenePhaseChange($0)) }
+        .onOpenURL { viewStore.send(.appRoute(.handleDeepLink($0))) }
     }
 }
 

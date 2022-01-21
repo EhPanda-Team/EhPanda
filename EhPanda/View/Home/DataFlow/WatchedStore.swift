@@ -46,7 +46,6 @@ enum WatchedAction: BindableAction {
     case binding(BindingAction<WatchedState>)
     case setNavigation(WatchedState.Route?)
     case clearSubStates
-    case onDisappear
     case onFiltersButtonTapped
 
     case performJumpPage
@@ -99,11 +98,6 @@ let watchedReducer = Reducer<WatchedState, WatchedAction, WatchedEnvironment>.co
                 .init(value: .detail(.cancelFetching)),
                 .init(value: .quickSearch(.cancelFetching))
             )
-
-        case .onDisappear:
-            state.jumpPageAlertPresented = false
-            state.jumpPageAlertFocused = false
-            return .none
 
         case .onFiltersButtonTapped:
             return .none

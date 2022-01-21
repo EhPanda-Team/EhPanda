@@ -291,7 +291,7 @@ extension Array {
     func removeDuplicates(by keyPath: KeyPath<Element, String>) -> Self {
         removeDuplicates(by: { $0[keyPath: keyPath] == $1[keyPath: keyPath] })
     }
-    func removeDuplicates() -> Self where Element: Hashable {
+    func removeDuplicates() -> Self where Element: Equatable {
         removeDuplicates(by: ==)
     }
 }

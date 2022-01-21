@@ -85,22 +85,19 @@ struct CommentsView: View {
             .onAppear {
                 if let scrollCommentID = viewStore.scrollCommentID {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
-                        proxy.scrollTo(scrollCommentID, anchor: .top)
+                        withAnimation {
+                            proxy.scrollTo(scrollCommentID, anchor: .top)
+                        }
                     }
                 }
             }
         }
-        .progressHUD(
-            config: viewStore.hudConfig,
-            unwrapping: viewStore.binding(\.$route),
-            case: /CommentsState.Route.hud
-        )
         .sheet(unwrapping: viewStore.binding(\.$route), case: /CommentsState.Route.postComment) { route in
             let hasCommentID = !route.wrappedValue.isEmpty
-            DraftCommentView(
+            PostCommentView(
                 title: hasCommentID ? "Edit Comment" : "Post Comment",
                 content: viewStore.binding(\.$commentContent),
-                isFocused: viewStore.binding(\.$draftCommentFocused),
+                isFocused: viewStore.binding(\.$postCommentFocused),
                 postAction: {
                     if hasCommentID {
                         viewStore.send(.postComment(galleryURL, route.wrappedValue))
@@ -110,11 +107,16 @@ struct CommentsView: View {
                     viewStore.send(.setNavigation(nil))
                 },
                 cancelAction: { viewStore.send(.setNavigation(nil)) },
-                onAppearAction: { viewStore.send(.onDraftCommentAppear) }
+                onAppearAction: { viewStore.send(.onPostCommentAppear) }
             )
             .accentColor(setting.accentColor)
             .autoBlur(radius: blurRadius)
         }
+        .progressHUD(
+            config: viewStore.hudConfig,
+            unwrapping: viewStore.binding(\.$route),
+            case: /CommentsState.Route.hud
+        )
         .animation(.default, value: viewStore.scrollRowOpacity)
         .onAppear {
             viewStore.send(.onAppear)

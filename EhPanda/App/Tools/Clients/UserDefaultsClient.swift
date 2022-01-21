@@ -8,19 +8,19 @@
 import ComposableArchitecture
 
 struct UserDefaultsClient {
-    let getString: (String) -> String?
-    let setString: (String, String) -> Effect<Never, Never>
+    let setValue: (Any, AppUserDefaults) -> Effect<Never, Never>
 }
 
 extension UserDefaultsClient {
     static let live: Self = .init(
-        getString: { key in
-            UserDefaults.standard.string(forKey: key)
-        },
-        setString: { value, key in
+        setValue: { value, key in
             .fireAndForget {
-                UserDefaults.standard.set(value, forKey: key)
+                UserDefaultsUtil.set(value: value, forKey: key)
             }
         }
     )
+
+    func getValue<T: Codable>(_ key: AppUserDefaults) -> T? {
+        UserDefaultsUtil.value(forKey: key)
+    }
 }

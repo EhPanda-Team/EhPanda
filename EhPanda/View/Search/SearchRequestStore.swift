@@ -53,7 +53,6 @@ enum SearchRequestAction: BindableAction {
     case binding(BindingAction<SearchRequestState>)
     case setNavigation(SearchRequestState.Route?)
     case clearSubStates
-    case onDisappear
     case onFiltersButtonTapped
 
     case performJumpPage
@@ -86,6 +85,12 @@ let searchRequestReducer = Reducer<SearchRequestState, SearchRequestAction, Sear
         case .binding(\.$route):
             return state.route == nil ? .init(value: .clearSubStates) : .none
 
+        case .binding(\.$jumpPageAlertPresented):
+            if !state.jumpPageAlertPresented {
+                state.jumpPageAlertFocused = false
+            }
+            return .none
+
         case .binding(\.$keyword):
             if !state.keyword.isEmpty {
                 state.lastKeyword = state.keyword
@@ -106,11 +111,6 @@ let searchRequestReducer = Reducer<SearchRequestState, SearchRequestAction, Sear
                 .init(value: .detail(.cancelFetching)),
                 .init(value: .quickSearch(.cancelFetching))
             )
-
-        case .onDisappear:
-            state.jumpPageAlertPresented = false
-            state.jumpPageAlertFocused = false
-            return .none
 
         case .onFiltersButtonTapped:
             return .none

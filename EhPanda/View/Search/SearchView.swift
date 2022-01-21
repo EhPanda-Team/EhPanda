@@ -58,6 +58,8 @@ struct SearchView: View {
                         viewStore.send(.setNavigation(.request))
                     }
                 }
+                .accentColor(setting.accentColor)
+                .autoBlur(radius: blurRadius)
             }
             .searchable(text: viewStore.binding(\.$keyword), placement: searchFieldPlacement)
             .onSubmit(of: .search) {

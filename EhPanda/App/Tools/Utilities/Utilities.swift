@@ -191,16 +191,8 @@ struct ClipboardUtil {
         if UIPasteboard.general.hasURLs {
             return UIPasteboard.general.url
         } else {
-            return nil
+            return URL(string: UIPasteboard.general.string ?? "")
         }
-    }
-
-    static var changeCount: Int? {
-        UserDefaultsUtil.value(forKey: .pasteboardChangeCount)
-    }
-
-    static func setChangeCount(value: Int) {
-        UserDefaultsUtil.set(value: value, forKey: .pasteboardChangeCount)
     }
 
     static func clear() {
@@ -225,7 +217,7 @@ struct UserDefaultsUtil {
 
 enum AppUserDefaults: String {
     case galleryHost
-    case pasteboardChangeCount
+    case clipboardChangeCount
 }
 
 // MARK: Notification

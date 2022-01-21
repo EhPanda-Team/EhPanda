@@ -51,6 +51,8 @@ struct SearchRequestView: View {
                 viewStore.send(.setNavigation(nil))
                 viewStore.send(.fetchGalleries(nil, keyword))
             }
+            .accentColor(setting.accentColor)
+            .autoBlur(radius: blurRadius)
         }
         .jumpPageAlert(
             index: viewStore.binding(\.$jumpPageIndex),
@@ -70,9 +72,6 @@ struct SearchRequestView: View {
                     viewStore.send(.fetchGalleries(nil, keyword))
                 }
             }
-        }
-        .onDisappear {
-            viewStore.send(.onDisappear)
         }
         .background(navigationLink)
         .toolbar(content: toolbar)

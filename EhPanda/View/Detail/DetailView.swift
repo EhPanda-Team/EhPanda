@@ -10,6 +10,9 @@ import Kingfisher
 import ComposableArchitecture
 
 struct DetailView: View {
+    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.isSheet) private var isSheet
+
     private let store: Store<DetailState, DetailAction>
     @ObservedObject private var viewStore: ViewStore<DetailState, DetailAction>
     private let gid: String
@@ -29,6 +32,10 @@ struct DetailView: View {
         self.setting = setting
         self.blurRadius = blurRadius
         self.tagTranslator = tagTranslator
+    }
+
+    private var commentsBackgroundColor: Color {
+        isSheet && colorScheme == .dark ? Color(.systemGray5) : Color(.systemGray6)
     }
 
     var body: some View {
@@ -89,20 +96,24 @@ struct DetailView: View {
                         )
                         .padding(.horizontal)
                     }
-                    PreviewsSection(
-                        pageCount: viewStore.galleryDetail?.pageCount ?? 0,
-                        previews: viewStore.galleryPreviews,
-                        navigatePreviewsAction: { viewStore.send(.setNavigation(.previews)) },
-                        navigateReadingAction: {
-                            viewStore.send(.updateReadingProgress($0))
-                            viewStore.send(.setNavigation(.reading))
-                        }
-                    )
-                    CommentsSection(
-                        comments: viewStore.galleryComments,
-                        navigateCommentAction: { viewStore.send(.setNavigation(.comments)) },
-                        navigateDraftCommentAction: { viewStore.send(.setNavigation(.postComment)) }
-                    )
+                    if !viewStore.galleryPreviews.isEmpty {
+                        PreviewsSection(
+                            pageCount: viewStore.galleryDetail?.pageCount ?? 0,
+                            previews: viewStore.galleryPreviews,
+                            navigatePreviewsAction: { viewStore.send(.setNavigation(.previews)) },
+                            navigateReadingAction: {
+                                viewStore.send(.updateReadingProgress($0))
+                                viewStore.send(.setNavigation(.reading))
+                            }
+                        )
+                    }
+                    if !viewStore.galleryComments.isEmpty {
+                        CommentsSection(
+                            comments: viewStore.galleryComments, backgroundColor: commentsBackgroundColor,
+                            navigateCommentAction: { viewStore.send(.setNavigation(.comments)) },
+                            navigatePostCommentAction: { viewStore.send(.setNavigation(.postComment)) }
+                        )
+                    }
                 }
                 .padding(.bottom, 20)
                 .padding(.top, -25)
@@ -119,9 +130,6 @@ struct DetailView: View {
             }
             .opacity(viewStore.galleryDetail == nil && error != nil ? 1 : 0)
         }
-        .animation(.default, value: viewStore.galleryDetail)
-        .animation(.default, value: viewStore.showsFullTitle)
-        .animation(.default, value: viewStore.showsUserRating)
         .sheet(unwrapping: viewStore.binding(\.$route), case: /DetailState.Route.archive) { _ in
             ArchivesView(
                 store: store.scope(state: \.archivesState, action: DetailAction.archives),
@@ -144,10 +152,10 @@ struct DetailView: View {
                 .autoBlur(radius: blurRadius)
         }
         .sheet(unwrapping: viewStore.binding(\.$route), case: /DetailState.Route.postComment) { _ in
-            DraftCommentView(
+            PostCommentView(
                 title: "Post Comment",
                 content: viewStore.binding(\.$commentContent),
-                isFocused: viewStore.binding(\.$draftCommentFocused),
+                isFocused: viewStore.binding(\.$postCommentFocused),
                 postAction: {
                     if let galleryURL = viewStore.gallery?.galleryURL {
                         viewStore.send(.postComment(galleryURL))
@@ -155,7 +163,7 @@ struct DetailView: View {
                     viewStore.send(.setNavigation(nil))
                 },
                 cancelAction: { viewStore.send(.setNavigation(nil)) },
-                onAppearAction: { viewStore.send(.onDraftCommentAppear) }
+                onAppearAction: { viewStore.send(.onPostCommentAppear) }
             )
             .accentColor(setting.accentColor)
             .autoBlur(radius: blurRadius)
@@ -164,6 +172,9 @@ struct DetailView: View {
             NewDawnView(greeting: route.wrappedValue)
                 .autoBlur(radius: blurRadius)
         }
+        .animation(.default, value: viewStore.showsUserRating)
+        .animation(.default, value: viewStore.showsFullTitle)
+        .animation(.default, value: viewStore.galleryDetail)
         .onAppear {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                 viewStore.send(.onAppear(gid, setting.showsNewDawnGreeting))
@@ -644,17 +655,19 @@ private struct PreviewsSection: View {
 // MARK: CommentsSection
 private struct CommentsSection: View {
     private let comments: [GalleryComment]
+    private let backgroundColor: Color
     private let navigateCommentAction: () -> Void
-    private let navigateDraftCommentAction: () -> Void
+    private let navigatePostCommentAction: () -> Void
 
     init(
-        comments: [GalleryComment],
+        comments: [GalleryComment], backgroundColor: Color,
         navigateCommentAction: @escaping () -> Void,
-        navigateDraftCommentAction: @escaping () -> Void
+        navigatePostCommentAction: @escaping () -> Void
     ) {
         self.comments = comments
+        self.backgroundColor = backgroundColor
         self.navigateCommentAction = navigateCommentAction
-        self.navigateDraftCommentAction = navigateDraftCommentAction
+        self.navigatePostCommentAction = navigatePostCommentAction
     }
 
     var body: some View {
@@ -662,76 +675,78 @@ private struct CommentsSection: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack {
                     ForEach(comments.prefix(min(comments.count, 6))) { comment in
-                        CommentCell(comment: comment)
+                        CommentCell(comment: comment, backgroundColor: backgroundColor)
                     }
                     .withHorizontalSpacing()
                 }
                 .drawingGroup()
             }
-            CommentButton(action: navigateDraftCommentAction)
+            CommentButton(backgroundColor: backgroundColor, action: navigatePostCommentAction)
                 .padding(.horizontal).disabled(!CookiesUtil.didLogin)
         }
     }
 }
 
-private extension CommentsSection {
-    struct CommentCell: View {
-        private let comment: GalleryComment
+private struct CommentCell: View {
+    private let comment: GalleryComment
+    private let backgroundColor: Color
 
-        init(comment: GalleryComment) {
-            self.comment = comment
-        }
-
-        private var content: String {
-            comment.contents
-                .filter({ [.plainText, .linkedText].contains($0.type) })
-                .compactMap(\.text).joined()
-        }
-
-        var body: some View {
-            VStack(alignment: .leading) {
-                HStack {
-                    Text(comment.author).font(.subheadline.bold())
-                    Spacer()
-                    Group {
-                        ZStack {
-                            Image(systemSymbol: .handThumbsupFill)
-                                .opacity(comment.votedUp ? 1 : 0)
-                            Image(systemSymbol: .handThumbsdownFill)
-                                .opacity(comment.votedDown ? 1 : 0)
-                        }
-                        Text(comment.score ?? "")
-                        Text(comment.formattedDateString).lineLimit(1)
-                    }
-                    .font(.footnote).foregroundStyle(.secondary)
-                }
-                .minimumScaleFactor(0.75).lineLimit(1)
-                Text(content).padding(.top, 1)
-                Spacer()
-            }
-            .padding().background(Color(.systemGray6))
-            .frame(width: 300, height: 120)
-            .cornerRadius(15)
-        }
+    init(comment: GalleryComment, backgroundColor: Color) {
+        self.comment = comment
+        self.backgroundColor = backgroundColor
     }
 
-    struct CommentButton: View {
-        private let action: () -> Void
+    private var content: String {
+        comment.contents
+            .filter({ [.plainText, .linkedText].contains($0.type) })
+            .compactMap(\.text).joined()
+    }
 
-        init(action: @escaping () -> Void) {
-            self.action = action
-        }
-
-        var body: some View {
-            Button(action: action) {
-                HStack {
-                    Spacer()
-                    Image(systemSymbol: .squareAndPencil)
-                    Text("Post Comment").bold()
-                    Spacer()
+    var body: some View {
+        VStack(alignment: .leading) {
+            HStack {
+                Text(comment.author).font(.subheadline.bold())
+                Spacer()
+                Group {
+                    ZStack {
+                        Image(systemSymbol: .handThumbsupFill)
+                            .opacity(comment.votedUp ? 1 : 0)
+                        Image(systemSymbol: .handThumbsdownFill)
+                            .opacity(comment.votedDown ? 1 : 0)
+                    }
+                    Text(comment.score ?? "")
+                    Text(comment.formattedDateString).lineLimit(1)
                 }
-                .padding().background(Color(.systemGray6)).cornerRadius(15)
+                .font(.footnote).foregroundStyle(.secondary)
             }
+            .minimumScaleFactor(0.75).lineLimit(1)
+            Text(content).padding(.top, 1)
+            Spacer()
+        }
+        .padding().background(backgroundColor)
+        .frame(width: 300, height: 120)
+        .cornerRadius(15)
+    }
+}
+
+private struct CommentButton: View {
+    private let backgroundColor: Color
+    private let action: () -> Void
+
+    init(backgroundColor: Color, action: @escaping () -> Void) {
+        self.backgroundColor = backgroundColor
+        self.action = action
+    }
+
+    var body: some View {
+        Button(action: action) {
+            HStack {
+                Spacer()
+                Image(systemSymbol: .squareAndPencil)
+                Text("Post Comment").bold()
+                Spacer()
+            }
+            .padding().background(backgroundColor).cornerRadius(15)
         }
     }
 }

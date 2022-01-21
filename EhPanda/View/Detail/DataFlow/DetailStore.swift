@@ -36,7 +36,7 @@ struct DetailState: Equatable, Identifiable {
 
         && lhs.route == rhs.route
         && lhs.commentContent == rhs.commentContent
-        && lhs.draftCommentFocused == rhs.draftCommentFocused
+        && lhs.postCommentFocused == rhs.postCommentFocused
 
         && lhs.showsNewDawnGreeting == rhs.showsNewDawnGreeting
         && lhs.showsUserRating == rhs.showsUserRating
@@ -64,7 +64,7 @@ struct DetailState: Equatable, Identifiable {
 
     @BindableState var route: Route?
     @BindableState var commentContent = ""
-    @BindableState var draftCommentFocused = false
+    @BindableState var postCommentFocused = false
 
     var showsNewDawnGreeting = false
     var showsUserRating = false
@@ -100,13 +100,13 @@ enum DetailAction: BindableAction {
     case setNavigation(DetailState.Route?)
     case setSearchRequestState(SearchRequestState)
     case clearSubStates
-    case onDraftCommentAppear
+    case onPostCommentAppear
     case onAppear(String, Bool)
 
     case toggleShowFullTitle
     case toggleShowUserRating
     case setCommentContent(String)
-    case setDraftCommentFocused(Bool)
+    case setPostCommentFocused(Bool)
     case updateRating(DragGesture.Value)
     case confirmRating(DragGesture.Value)
     case confirmRatingDone
@@ -176,7 +176,7 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
             state.commentsState = .init()
 
             state.commentContent = .init()
-            state.draftCommentFocused = false
+            state.postCommentFocused = false
             return .merge(
                 .init(value: .archives(.cancelFetching)),
                 .init(value: .torrents(.cancelFetching)),
@@ -184,8 +184,8 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
                 .init(value: .comments(.cancelFetching))
             )
 
-        case .onDraftCommentAppear:
-            return .init(value: .setDraftCommentFocused(true))
+        case .onPostCommentAppear:
+            return .init(value: .setPostCommentFocused(true))
                 .delay(for: .milliseconds(750), scheduler: DispatchQueue.main).eraseToEffect()
 
         case .onAppear(let gid, let showsNewDawnGreeting):
@@ -207,8 +207,8 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
             state.commentContent = content
             return .none
 
-        case .setDraftCommentFocused(let isFocused):
-            state.draftCommentFocused = isFocused
+        case .setPostCommentFocused(let isFocused):
+            state.postCommentFocused = isFocused
             return .none
 
         case .updateRating(let value):

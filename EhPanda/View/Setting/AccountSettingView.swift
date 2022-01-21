@@ -73,9 +73,7 @@ struct AccountSettingView: View {
             WebView(url: route.wrappedValue)
                 .autoBlur(radius: blurRadius)
         }
-        .onAppear {
-            viewStore.send(.loadCookies)
-        }
+        .onAppear { viewStore.send(.loadCookies) }
         .background(navigationLinks)
         .navigationTitle("Account")
     }

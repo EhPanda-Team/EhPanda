@@ -31,6 +31,14 @@ extension URLClient {
         }
     )
 
+    func restoreAppSchemeURL(_ url: URL) -> URL? {
+        guard url.scheme == "ehpanda", var components = URLComponents(
+            url: url, resolvingAgainstBaseURL: false
+        )
+        else { return url }
+        components.scheme = "https"
+        return components.url
+    }
     func analyzeURL(_ url: URL) -> (Bool, Int?, String?) {
         guard checkIfHandleable(url) else {
             return (false, nil, nil)
