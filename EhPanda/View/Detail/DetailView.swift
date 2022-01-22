@@ -43,7 +43,7 @@ struct DetailView: View {
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 30) {
                     HeaderSection(
-                        gallery: viewStore.gallery ?? .empty,
+                        gallery: viewStore.gallery,
                         galleryDetail: viewStore.galleryDetail ?? .empty,
                         user: user,
                         showFullTitle: viewStore.showsFullTitle,
@@ -61,11 +61,11 @@ struct DetailView: View {
                     )
                     .padding(.horizontal)
                     DescriptionSection(
-                        gallery: viewStore.gallery ?? .empty,
+                        gallery: viewStore.gallery,
                         galleryDetail: viewStore.galleryDetail ?? .empty,
                         navigateGalleryInfosAction: {
-                            if let gallery = viewStore.gallery, let galleryDetail = viewStore.galleryDetail {
-                                viewStore.send(.setNavigation(.galleryInfos(gallery, galleryDetail)))
+                            if let galleryDetail = viewStore.galleryDetail {
+                                viewStore.send(.setNavigation(.galleryInfos(viewStore.gallery, galleryDetail)))
                             }
                         }
                     )
@@ -133,7 +133,7 @@ struct DetailView: View {
         .sheet(unwrapping: viewStore.binding(\.$route), case: /DetailState.Route.archive) { _ in
             ArchivesView(
                 store: store.scope(state: \.archivesState, action: DetailAction.archives),
-                gid: gid, user: user, galleryURL: viewStore.gallery?.galleryURL ?? "",
+                gid: gid, user: user, galleryURL: viewStore.gallery.galleryURL,
                 archiveURL: viewStore.galleryDetail?.archiveURL ?? ""
             )
             .accentColor(setting.accentColor)
@@ -157,9 +157,7 @@ struct DetailView: View {
                 content: viewStore.binding(\.$commentContent),
                 isFocused: viewStore.binding(\.$postCommentFocused),
                 postAction: {
-                    if let galleryURL = viewStore.gallery?.galleryURL {
-                        viewStore.send(.postComment(galleryURL))
-                    }
+                    viewStore.send(.postComment(viewStore.gallery.galleryURL))
                     viewStore.send(.setNavigation(nil))
                 },
                 cancelAction: { viewStore.send(.setNavigation(nil)) },
@@ -194,15 +192,15 @@ private extension DetailView {
         NavigationLink(unwrapping: viewStore.binding(\.$route), case: /DetailState.Route.previews) { _ in
             PreviewsView(
                 store: store.scope(state: \.previewsState, action: DetailAction.previews),
-                gid: gid, pageCount: viewStore.gallery?.pageCount ?? 1,
-                galleryURL: viewStore.gallery?.galleryURL ?? ""
+                gid: gid, pageCount: viewStore.gallery.pageCount,
+                galleryURL: viewStore.gallery.galleryURL
             )
         }
         NavigationLink(unwrapping: viewStore.binding(\.$route), case: /DetailState.Route.comments) { _ in
             CommentsView(
                 store: store.scope(state: \.commentsState, action: DetailAction.comments),
                 gid: gid, token: viewStore.galleryToken, apiKey: viewStore.apiKey,
-                galleryURL: viewStore.gallery?.galleryURL ?? "",
+                galleryURL: viewStore.gallery.galleryURL,
                 comments: viewStore.galleryComments, user: user,
                 setting: setting, blurRadius: blurRadius,
                 tagTranslator: tagTranslator
@@ -246,8 +244,7 @@ private extension DetailView {
                 }
                 .disabled((viewStore.galleryDetail?.torrentCount ?? 0 > 0) != true)
                 Button {
-                    if let galleryURLString = viewStore.gallery?.galleryURL,
-                       let galleryURL = URL(string: galleryURLString)
+                    if let galleryURL = URL(string: viewStore.gallery.galleryURL)
                     {
                         viewStore.send(.setNavigation(.share(galleryURL)))
                     }

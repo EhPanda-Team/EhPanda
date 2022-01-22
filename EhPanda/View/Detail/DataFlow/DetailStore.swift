@@ -76,7 +76,7 @@ struct DetailState: Equatable, Identifiable {
     var galleryToken = ""
 
     var loadingState: LoadingState = .idle
-    var gallery: Gallery?
+    var gallery: Gallery = .empty
     var galleryDetail: GalleryDetail?
     var galleryTags = [GalleryTag]()
     var galleryPreviews = [Int: String]()
@@ -239,12 +239,12 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
         case .syncGalleryPreviews:
             guard !state.galleryID.isEmpty else { return .none }
             return environment.databaseClient
-                .updateGalleryPreviews(gid: state.galleryID, previews: state.galleryPreviews).fireAndForget()
+                .updatePreviews(gid: state.galleryID, previews: state.galleryPreviews).fireAndForget()
 
         case .syncGalleryComments:
             guard !state.galleryID.isEmpty else { return .none }
             return environment.databaseClient
-                .updateGalleryComments(gid: state.galleryID, comments: state.galleryComments).fireAndForget()
+                .updateComments(gid: state.galleryID, comments: state.galleryComments).fireAndForget()
 
         case .syncGreeting(let greeting):
             return environment.databaseClient.updateGreeting(greeting).fireAndForget()
@@ -286,9 +286,9 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
             return .init(value: .fetchGalleryDetail)
 
         case .fetchGalleryDetail:
-            guard let galleryURL = state.gallery?.galleryURL, state.loadingState != .loading else { return .none }
+            guard state.loadingState != .loading else { return .none }
             state.loadingState = .loading
-            return GalleryDetailRequest(gid: state.galleryID, galleryURL: galleryURL)
+            return GalleryDetailRequest(gid: state.galleryID, galleryURL: state.gallery.galleryURL)
                 .effect.map(DetailAction.fetchGalleryDetailDone).cancellable(id: DetailState.CancelID())
 
         case .fetchGalleryDetailDone(let result):

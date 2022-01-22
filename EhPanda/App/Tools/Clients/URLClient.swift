@@ -10,6 +10,7 @@ import ComposableArchitecture
 
 struct URLClient {
     let checkIfHandleable: (URL) -> Bool
+    let checkIfMPVURL: (URL?) -> Bool
     let parseGalleryID: (URL) -> String
 }
 
@@ -21,6 +22,10 @@ extension URLClient {
                 && url.pathComponents.count >= 4 && ["g", "s"].contains(url.pathComponents[1])
                 && !url.pathComponents[2].isEmpty && !url.pathComponents[3].isEmpty
         },
+        checkIfMPVURL: {
+            guard let url = $0 else { return false }
+            return url.pathComponents.count >= 1 && url.pathComponents[1] == "mpv"
+        },
         parseGalleryID: { url in
             var gid = url.pathComponents[2]
             let token = url.pathComponents[3]
@@ -31,7 +36,7 @@ extension URLClient {
         }
     )
 
-    func restoreAppSchemeURL(_ url: URL) -> URL? {
+    func resolveAppSchemeURL(_ url: URL) -> URL? {
         guard url.scheme == "ehpanda", var components = URLComponents(
             url: url, resolvingAgainstBaseURL: false
         )

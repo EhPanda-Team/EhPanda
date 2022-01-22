@@ -57,12 +57,15 @@ struct AppRouteEnvironment {
 let appRouteReducer = Reducer<AppRouteState, AppRouteAction, AppRouteEnvironment>.combine(
     .init { state, action, environment in
         switch action {
+        case .binding(\.$route):
+            return state.route == nil ? .init(value: .clearSubStates) : .none
+
         case .binding:
             return .none
 
         case .setNavigation(let route):
             state.route = route
-            return .none
+            return route == nil ? .init(value: .clearSubStates) : .none
 
         case .setHUDConfig(let config):
             state.hudConfig = config
@@ -87,7 +90,7 @@ let appRouteReducer = Reducer<AppRouteState, AppRouteAction, AppRouteEnvironment
             return .merge(effects)
 
         case .handleDeepLink(let url):
-            var url = environment.urlClient.restoreAppSchemeURL(url) ?? url
+            var url = environment.urlClient.resolveAppSchemeURL(url) ?? url
             guard environment.urlClient.checkIfHandleable(url) else { return .none }
             let (isGalleryImageURL, _, _) = environment.urlClient.analyzeURL(url)
             let gid = environment.urlClient.parseGalleryID(url)

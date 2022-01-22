@@ -22,7 +22,7 @@ struct PreviewsState: Equatable {
     var loadingState: LoadingState = .idle
     var previews = [Int: String]()
 
-    mutating func insertPreviews(_ previews: [Int: String]) {
+    mutating func updatePreviews(_ previews: [Int: String]) {
         self.previews = self.previews.merging(
             previews, uniquingKeysWith: { stored, _ in stored }
         )
@@ -34,7 +34,7 @@ enum PreviewsAction: BindableAction {
     case setNavigation(PreviewsState.Route?)
     case clearSubStates
 
-    case syncGalleryPreviews
+    case syncPreviews([Int: String])
     case updateReadingProgress(Int)
 
     case cancelFetching
@@ -63,10 +63,10 @@ let previewsReducer = Reducer<PreviewsState, PreviewsAction, PreviewsEnvironment
     case .clearSubStates:
         return .none
 
-    case .syncGalleryPreviews:
+    case .syncPreviews(let previews):
         guard !state.galleryID.isEmpty else { return .none }
         return environment.databaseClient
-            .updateGalleryPreviews(gid: state.galleryID, previews: state.previews).fireAndForget()
+            .updatePreviews(gid: state.galleryID, previews: previews).fireAndForget()
 
     case .updateReadingProgress(let progress):
         guard !state.galleryID.isEmpty else { return .none }
@@ -92,11 +92,9 @@ let previewsReducer = Reducer<PreviewsState, PreviewsAction, PreviewsEnvironment
     case .fetchPreviews(let galleryURL, let index):
         guard state.loadingState != .loading else { return .none }
         state.loadingState = .loading
-
-        let pageNumber = state.previewConfig.pageNumber(index: index)
-        let url = URLUtil.detailPage(url: galleryURL, pageNum: pageNumber)
-        return GalleryPreviewsRequest(url: url).effect.map(PreviewsAction.fetchPreviewsDone)
-            .cancellable(id: PreviewsState.CancelID())
+        let pageNum = state.previewConfig.pageNumber(index: index)
+        return GalleryPreviewsRequest(galleryURL: galleryURL, pageNum: pageNum)
+            .effect.map(PreviewsAction.fetchPreviewsDone).cancellable(id: PreviewsState.CancelID())
 
     case .fetchPreviewsDone(let result):
         state.loadingState = .idle
@@ -107,8 +105,8 @@ let previewsReducer = Reducer<PreviewsState, PreviewsAction, PreviewsEnvironment
                 state.loadingState = .failed(.notFound)
                 return .none
             }
-            state.insertPreviews(previews)
-            return .init(value: .syncGalleryPreviews)
+            state.updatePreviews(previews)
+            return .init(value: .syncPreviews(previews))
         case .failure(let error):
             state.loadingState = .failed(error)
         }

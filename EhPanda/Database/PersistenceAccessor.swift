@@ -169,23 +169,19 @@ extension PersistenceController {
     static func update(gid: String, galleryStateMO: @escaping ((GalleryStateMO) -> Void)) {
         update(entityType: GalleryStateMO.self, gid: gid, createIfNil: true, commitChanges: galleryStateMO)
     }
+    static func update(gid: String, previews: [Int: String]) {
+        update(gid: gid) { galleryStateMO in
+            update(gid: gid, storedData: &galleryStateMO.previews, new: previews)
+        }
+    }
     static func update(gid: String, thumbnails: [Int: String]) {
         update(gid: gid) { galleryStateMO in
-            guard !thumbnails.isEmpty else { return }
-            if let storedThumbnails = galleryStateMO.thumbnails?.toObject() as [Int: String]? {
-                galleryStateMO.thumbnails = storedThumbnails.merging(
-                    thumbnails, uniquingKeysWith: { _, new in new }
-                ).toData()
-            } else {
-                galleryStateMO.thumbnails = thumbnails.toData()
-            }
+            update(gid: gid, storedData: &galleryStateMO.thumbnails, new: thumbnails)
         }
     }
     static func update(gid: String, contents: [Int: String], originalContents: [Int: String]) {
         update(gid: gid) { galleryStateMO in
-            guard !contents.isEmpty else { return }
             update(gid: gid, storedData: &galleryStateMO.contents, new: contents)
-            guard !originalContents.isEmpty else { return }
             update(gid: gid, storedData: &galleryStateMO.originalContents, new: originalContents)
         }
     }

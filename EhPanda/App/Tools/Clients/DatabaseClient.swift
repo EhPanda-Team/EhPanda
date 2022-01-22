@@ -120,35 +120,19 @@ extension DatabaseClient {
             }
         }
     )
+}
 
+// MARK: Tool
+extension DatabaseClient {
     func checkGalleryExistence(gid: String) -> Bool {
         PersistenceController.checkExistence(
             entityType: GalleryMO.self, predicate: NSPredicate(format: "gid == %@", gid)
         )
     }
+}
 
-    func updateGreeting(_ greeting: Greeting) -> Effect<Never, Never> {
-        fetchAppEnv().map(\.user)
-            .map { (user: User) -> User in
-                var user = user
-                user.greeting = greeting
-                return user
-            }
-            .flatMap(updateUser)
-            .eraseToEffect()
-    }
-    func updateGalleryFunds(galleryPoints: String, credits: String) -> Effect<Never, Never> {
-        fetchAppEnv().map(\.user)
-            .map { (user: User) -> User in
-                var user = user
-                user.credits = credits
-                user.galleryPoints = galleryPoints
-                return user
-            }
-            .flatMap(updateUser)
-            .eraseToEffect()
-    }
-
+// MARK: Fetch
+extension DatabaseClient {
     func fetchHistoryKeywords() -> Effect<[String], Never> {
         fetchAppEnv().map(\.historyKeywords)
     }
@@ -157,6 +141,31 @@ extension DatabaseClient {
     }
     func fetchGalleryPreviews(gid: String) -> Effect<[Int: String], Never> {
         fetchGalleryState(gid).map(\.previews)
+    }
+}
+
+// MARK: Update
+extension DatabaseClient {
+    func updateUserProperty(_ commitChanges: @escaping (inout User) -> Void) -> Effect<Never, Never> {
+        fetchAppEnv().map(\.user)
+            .map { (user: User) -> User in
+                var user = user
+                commitChanges(&user)
+                return user
+            }
+            .flatMap(updateUser)
+            .eraseToEffect()
+    }
+    func updateGreeting(_ greeting: Greeting) -> Effect<Never, Never> {
+        updateUserProperty { user in
+            user.greeting = greeting
+        }
+    }
+    func updateGalleryFunds(galleryPoints: String, credits: String) -> Effect<Never, Never> {
+        updateUserProperty { user in
+            user.credits = credits
+            user.galleryPoints = galleryPoints
+        }
     }
 
     func updateSetting(_ setting: Setting) -> Effect<Never, Never> {
@@ -197,20 +206,25 @@ extension DatabaseClient {
     func updateReadingProgress(gid: String, progress: Int) -> Effect<Never, Never> {
         updateGalleryState(gid, "readingProgress", Int64(progress))
     }
-    func updateGalleryPreviews(gid: String, previews: [Int: String]) -> Effect<Never, Never> {
+    func updateComments(gid: String, comments: [GalleryComment]) -> Effect<Never, Never> {
+        updateGalleryState(gid, "comments", comments.toData())
+    }
+
+    func updateThumbnails(gid: String, thumbnails: [Int: String]) -> Effect<Never, Never> {
         .fireAndForget {
-            PersistenceController.update(gid: gid) { galleryStateMO in
-                if let storedPreviews = galleryStateMO.previews?.toObject() as [Int: String]? {
-                    galleryStateMO.previews = storedPreviews.merging(
-                        previews, uniquingKeysWith: { _, new in new }
-                    ).toData()
-                } else {
-                    galleryStateMO.previews = previews.toData()
-                }
-            }
+            PersistenceController.update(gid: gid, thumbnails: thumbnails)
         }
     }
-    func updateGalleryComments(gid: String, comments: [GalleryComment]) -> Effect<Never, Never> {
-        updateGalleryState(gid, "comments", comments.toData())
+    func updateContents(
+        gid: String, contents: [Int: String], originalContents: [Int: String]
+    ) -> Effect<Never, Never> {
+        .fireAndForget {
+            PersistenceController.update(gid: gid, contents: contents, originalContents: originalContents)
+        }
+    }
+    func updatePreviews(gid: String, previews: [Int: String]) -> Effect<Never, Never> {
+        .fireAndForget {
+            PersistenceController.update(gid: gid, previews: previews)
+        }
     }
 }

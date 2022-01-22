@@ -497,10 +497,11 @@ struct GalleryTorrentsRequest: Request {
 }
 
 struct GalleryPreviewsRequest: Request {
-    let url: URL
+    let galleryURL: String
+    let pageNum: Int
 
     var publisher: AnyPublisher<[Int: String], AppError> {
-        URLSession.shared.dataTaskPublisher(for: url)
+        URLSession.shared.dataTaskPublisher(for: URLUtil.detailPage(url: galleryURL, pageNum: pageNum))
             .genericRetry().tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .tryMap(Parser.parsePreviews).mapError(mapAppError).eraseToAnyPublisher()
     }
@@ -518,9 +519,10 @@ struct MPVKeysRequest: Request {
 
 struct ThumbnailsRequest: Request {
     let url: String
+    let pageNum: Int
 
     var publisher: AnyPublisher<[Int: String], AppError> {
-        URLSession.shared.dataTaskPublisher(for: url.safeURL())
+        URLSession.shared.dataTaskPublisher(for: URLUtil.detailPage(url: url, pageNum: pageNum))
             .genericRetry().tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .tryMap(Parser.parseThumbnails).mapError(mapAppError).eraseToAnyPublisher()
     }
@@ -551,10 +553,10 @@ struct GalleryNormalContentsRequest: Request {
 
 struct GalleryNormalContentRefetchRequest: Request {
     let index: Int
+    let pageNum: Int
     let galleryURL: String
     let thumbnailURL: String?
     let storedImageURL: String
-    let bypassesSNIFiltering: Bool
 
     var publisher: AnyPublisher<[Int: String], AppError> {
         storedThumbnail().flatMap(renewThumbnail).flatMap(content)
@@ -568,7 +570,7 @@ struct GalleryNormalContentRefetchRequest: Request {
         if let thumbnailURL = thumbnailURL {
             return Just(thumbnailURL).compactMap(URL.init).setFailureType(to: AppError.self).eraseToAnyPublisher()
         } else {
-            return URLSession.shared.dataTaskPublisher(for: galleryURL.safeURL())
+            return URLSession.shared.dataTaskPublisher(for: URLUtil.detailPage(url: galleryURL, pageNum: pageNum))
                 .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }.tryMap(Parser.parseThumbnails)
                 .compactMap({ thumbnails in URL(string: thumbnails[index] ?? "") })
                 .mapError(mapAppError).eraseToAnyPublisher()
@@ -588,7 +590,7 @@ struct GalleryNormalContentRefetchRequest: Request {
     func content(thumbnailURL: URL, anotherImageURL: String) -> AnyPublisher<(String, String), AppError> {
         URLSession.shared.dataTaskPublisher(for: thumbnailURL)
             .tryMap {
-                if bypassesSNIFiltering, let (_, resp) = $0 as? (Data, HTTPURLResponse),
+                if let (_, resp) = $0 as? (Data, HTTPURLResponse),
                     let setString = resp.allHeaderFields["Set-Cookie"] as? String
                 {
                     setString.components(separatedBy: ", ")
@@ -615,20 +617,16 @@ struct GalleryMPVContentRequest: Request {
     let gid: Int
     let index: Int
     let mpvKey: String
-    let imgKey: String
-    let reloadToken: ReloadToken?
+    let mpvImageKey: String
+    let reloadToken: String?
 
-    var publisher: AnyPublisher<(String, String?, ReloadToken), AppError> {
+    var publisher: AnyPublisher<(String, String?, String), AppError> {
         var params: [String: Any] = [
             "method": "imagedispatch", "gid": gid,
-            "page": index, "imgkey": imgKey, "mpvkey": mpvKey
+            "page": index, "imgkey": mpvImageKey, "mpvkey": mpvKey
         ]
         if let reloadToken = reloadToken {
-            if let reloadToken = reloadToken as? Int {
-                params["nl"] = reloadToken
-            } else if let reloadToken = reloadToken as? String {
-                params["nl"] = reloadToken
-            }
+            params["nl"] = reloadToken
         }
 
         var request = URLRequest(url: Defaults.URL.api)
@@ -641,7 +639,7 @@ struct GalleryMPVContentRequest: Request {
                 guard let dict = try JSONSerialization
                         .jsonObject(with: data) as? [String: Any],
                       let imageURL = dict["i"] as? String,
-                      let reloadToken = dict["s"]
+                      let reloadToken = dict["s"] as? String
                 else { throw AppError.parseFailed }
 
                 if let originalImageURL = dict["lf"] as? String {

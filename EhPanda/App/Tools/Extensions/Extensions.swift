@@ -9,24 +9,6 @@ import SwiftUI
 import Foundation
 import OrderedCollections
 
-// MARK: UINavigationController
-extension UINavigationController: UIGestureRecognizerDelegate {
-    // Enables the swipe-back gesture in fullscreen
-    override open func viewDidLoad() {
-        super.viewDidLoad()
-        interactivePopGestureRecognizer?.delegate = self
-    }
-    // Prevents above codes from blocking the slide menu
-    public func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
-        viewControllers.count > 1
-    }
-    // Gives the swipe-back gesture a higher priority
-    public func gestureRecognizer(
-        _ gestureRecognizer: UIGestureRecognizer,
-        shouldBeRequiredToFailBy otherGestureRecognizer: UIGestureRecognizer
-    ) -> Bool { gestureRecognizer.isKind(of: UIScreenEdgePanGestureRecognizer.self) }
-}
-
 // MARK: Encodable
 extension Encodable {
     func toData() -> Data? {

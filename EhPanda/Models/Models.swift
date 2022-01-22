@@ -32,41 +32,26 @@ struct Gallery: Identifiable, Codable, Equatable, Hashable {
         guard randomID, count > 0 else {
             return Array(repeating: .empty, count: count)
         }
-        var galleries = [Gallery]()
-        (0...count).forEach { _ in
-            galleries.append(.init(
-                gid: UUID().uuidString,
-                token: "",
-                title: "",
-                rating: 0.0,
-                tagStrings: [],
-                category: .doujinshi,
-                language: .japanese,
-                uploader: "",
-                pageCount: 0,
-                postedDate: .now,
-                coverURL: "",
-                galleryURL: ""
-            ))
-        }
-        return galleries
+        return (0...count).map { _ in .empty }
     }
-    static let empty = Gallery(
-        gid: "",
-        token: "",
-        title: "",
-        rating: 0.0,
-        tagStrings: [],
-        category: .doujinshi,
-        language: .japanese,
-        uploader: "",
-        pageCount: 0,
-        postedDate: .now,
-        coverURL: "",
-        galleryURL: ""
-    )
+    static var empty: Gallery {
+        .init(
+            gid: UUID().uuidString,
+            token: "",
+            title: "",
+            rating: 0.0,
+            tagStrings: [],
+            category: .doujinshi,
+            language: .japanese,
+            uploader: "",
+            pageCount: 1,
+            postedDate: .now,
+            coverURL: "",
+            galleryURL: ""
+        )
+    }
     static let preview = Gallery(
-        gid: "",
+        gid: UUID().uuidString,
         token: "",
         title: "Preview",
         rating: 3.5,
@@ -74,7 +59,7 @@ struct Gallery: Identifiable, Codable, Equatable, Hashable {
         category: .doujinshi,
         language: .japanese,
         uploader: "Anonymous",
-        pageCount: 0,
+        pageCount: 1,
         postedDate: .now,
         coverURL: "https://github.com/"
             + "tatsuz0u/Imageset/blob/"
