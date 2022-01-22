@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import Foundation
 import ComposableArchitecture
 
 struct ReadingState: Equatable {
@@ -40,11 +39,12 @@ struct ReadingState: Equatable {
     @BindableState var autoPlayPolicy: AutoPlayPolicy = .never
 
     var scaleAnchor: UnitPoint = .center
-    var scale: CGFloat = 1
-    var baseScale: CGFloat = 1
+    var scale: Double = 1
+    var baseScale: Double = 1
     var offset: CGSize = .zero
     var newOffset: CGSize = .zero
 
+    // Fetch
     func update<T>(stored: inout [Int: T], new: [Int: T], replaceExisting: Bool = true) {
         guard !new.isEmpty else { return }
         stored = stored.merging(new, uniquingKeysWith: { stored, new in replaceExisting ? new : stored })
@@ -60,6 +60,7 @@ struct ReadingState: Equatable {
         update(stored: &self.originalContents, new: originalContents)
     }
 
+    // Page
     func mapFromPager(setting: Setting, isLandscape: Bool) -> Int {
         guard isLandscape && setting.enablesDualPageMode
                 && setting.readingDirection != .vertical
@@ -74,6 +75,8 @@ struct ReadingState: Equatable {
             return result
         }
     }
+
+    // Image
     func containerDataSource(setting: Setting, isLandscape: Bool) -> [Int] {
         let defaultData = Array(1...gallery.pageCount)
         guard isLandscape && setting.enablesDualPageMode
@@ -108,6 +111,58 @@ struct ReadingState: Equatable {
             !isFirstPageAndSingle && isValidSecondRange && isDualPage
         )
     }
+
+    // Gesture
+    func edgeWidth(x: Double, absWindowW: Double) -> Double {
+        let marginW = absWindowW * (scale - 1) / 2
+        let leadingMargin = scaleAnchor.x / 0.5 * marginW
+        let trailingMargin = (1 - scaleAnchor.x) / 0.5 * marginW
+        return min(max(x, -trailingMargin), leadingMargin)
+    }
+    func edgeHeight(y: Double, absWindowH: Double) -> Double {
+        let marginH = absWindowH * (scale - 1) / 2
+        let topMargin = scaleAnchor.y / 0.5 * marginH
+        let bottomMargin = (1 - scaleAnchor.y) / 0.5 * marginH
+        return min(max(y, -bottomMargin), topMargin)
+    }
+    mutating func correctOffset(absWindowW: Double, absWindowH: Double) {
+        offset.width = edgeWidth(x: offset.width, absWindowW: absWindowW)
+        offset.height = edgeHeight(y: offset.height, absWindowH: absWindowH)
+    }
+    mutating func correctScaleAnchor(point: CGPoint, absWindowW: Double, absWindowH: Double) {
+        let x = min(1, max(0, point.x / absWindowW))
+        let y = min(1, max(0, point.y / absWindowH))
+        scaleAnchor = .init(x: x, y: y)
+    }
+    mutating func setOffset(_ offset: CGSize, absWindowW: Double, absWindowH: Double) {
+        self.offset = offset
+        correctOffset(absWindowW: absWindowW, absWindowH: absWindowH)
+    }
+    mutating func setScale(scale: Double, maximum: Double, absWindowW: Double, absWindowH: Double) {
+        guard scale >= 1 && scale <= maximum else { return }
+        self.scale = scale
+        correctOffset(absWindowW: absWindowW, absWindowH: absWindowH)
+    }
+    mutating func onDragGestureChanged(_ value: DragGesture.Value, absWindowW: Double, absWindowH: Double) {
+        guard scale > 1 else { return }
+        let newX = value.translation.width + newOffset.width
+        let newY = value.translation.height + newOffset.height
+        let newOffsetW = edgeWidth(x: newX, absWindowW: absWindowW)
+        let newOffsetH = edgeHeight(y: newY, absWindowH: absWindowH)
+        setOffset(.init(width: newOffsetW, height: newOffsetH), absWindowW: absWindowW, absWindowH: absWindowH)
+    }
+    mutating func onMagnificationGestureChanged(
+        _ value: Double, point: CGPoint?, scaleMaximum: Double,
+        absWindowW: Double, absWindowH: Double
+    ) {
+        if value == 1 {
+            baseScale = scale
+        }
+        if let point = point {
+            correctScaleAnchor(point: point, absWindowW: absWindowW, absWindowH: absWindowH)
+        }
+        setScale(scale: value * baseScale, maximum: scaleMaximum, absWindowW: absWindowW, absWindowH: absWindowH)
+    }
 }
 
 enum ReadingAction: BindableAction {
@@ -120,10 +175,10 @@ enum ReadingAction: BindableAction {
     case saveImage(String)
     case shareImage(String)
 
-    case onSingleTapGestureEnded
-    case onDoubleTapGestureEnded
-    case onMagnificationGestureChanged(CGFloat)
-    case onMagnificationGestureEnded(CGFloat)
+    case onSingleTapGestureEnded(Setting)
+    case onDoubleTapGestureEnded(Setting)
+    case onMagnificationGestureChanged(Double, Setting)
+    case onMagnificationGestureEnded(Double, Setting)
     case onDragGestureChanged(DragGesture.Value)
     case onDragGestureEnded(DragGesture.Value)
 
@@ -155,6 +210,7 @@ enum ReadingAction: BindableAction {
 
 struct ReadingEnvironment {
     let urlClient: URLClient
+    let deviceClient: DeviceClient
     let databaseClient: DatabaseClient
 }
 
@@ -180,22 +236,73 @@ let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { 
     case .shareImage(let imageURL):
         return .none
 
-    case .onSingleTapGestureEnded:
+    case .onSingleTapGestureEnded(let setting):
+        guard setting.readingDirection != .vertical,
+              let pointX = environment.deviceClient.touchPoint()?.x
+        else { return .init(value: .toggleShowsPanel) }
+        let rightToLeft = setting.readingDirection == .rightToLeft
+        if pointX < environment.deviceClient.absWindowW() * 0.2 {
+            state.pageIndex += rightToLeft ? 1 : -1
+        } else if pointX > environment.deviceClient.absWindowW() * (1 - 0.2) {
+            state.pageIndex += rightToLeft ? -1 : 1
+        }
+        return .init(value: .toggleShowsPanel)
+
+    case .onDoubleTapGestureEnded(let setting):
+        let newScale = state.scale == 1
+        ? setting.doubleTapScaleFactor : 1
+        let maximum = setting.maximumScaleFactor
+        let absWindowW = environment.deviceClient.absWindowW()
+        let absWindowH = environment.deviceClient.absWindowH()
+        if let point = environment.deviceClient.touchPoint() {
+            state.correctScaleAnchor(point: point, absWindowW: absWindowW, absWindowH: absWindowH)
+        }
+        state.setOffset(.zero, absWindowW: absWindowW, absWindowH: absWindowH)
+        state.setScale(scale: newScale, maximum: maximum, absWindowW: absWindowW, absWindowH: absWindowH)
         return .none
 
-    case .onDoubleTapGestureEnded:
+    case .onMagnificationGestureChanged(let value, let setting):
+        let point = environment.deviceClient.touchPoint()
+        let absWindowW = environment.deviceClient.absWindowW()
+        let absWindowH = environment.deviceClient.absWindowH()
+        state.onMagnificationGestureChanged(
+            value, point: point, scaleMaximum: setting.maximumScaleFactor,
+            absWindowW: absWindowW, absWindowH: absWindowH
+        )
         return .none
 
-    case .onMagnificationGestureChanged(let value):
-        return .none
-
-    case .onMagnificationGestureEnded(let value):
+    case .onMagnificationGestureEnded(let value, let setting):
+        let scaleMaximum = setting.maximumScaleFactor
+        let point = environment.deviceClient.touchPoint()
+        let absWindowW = environment.deviceClient.absWindowW()
+        let absWindowH = environment.deviceClient.absWindowH()
+        state.onMagnificationGestureChanged(
+            value, point: point, scaleMaximum: scaleMaximum,
+            absWindowW: absWindowW, absWindowH: absWindowH
+        )
+        if value * state.baseScale - 1 < 0.01 {
+            state.setScale(
+                scale: 1, maximum: scaleMaximum,
+                absWindowW: absWindowW, absWindowH: absWindowH
+            )
+        }
+        state.baseScale = state.scale
         return .none
 
     case .onDragGestureChanged(let value):
+        let absWindowW = environment.deviceClient.absWindowW()
+        let absWindowH = environment.deviceClient.absWindowH()
+        state.onDragGestureChanged(value, absWindowW: absWindowW, absWindowH: absWindowH)
         return .none
 
     case .onDragGestureEnded(let value):
+        let absWindowW = environment.deviceClient.absWindowW()
+        let absWindowH = environment.deviceClient.absWindowH()
+        state.onDragGestureChanged(value, absWindowW: absWindowW, absWindowH: absWindowH)
+        if state.scale > 1 {
+            state.newOffset.width = state.offset.width
+            state.newOffset.height = state.offset.height
+        }
         return .none
 
     case .syncPreviews(let previews):

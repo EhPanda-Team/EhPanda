@@ -73,6 +73,7 @@ enum CommentsAction: BindableAction {
 struct CommentsEnvironment {
     let urlClient: URLClient
     let fileClient: FileClient
+    let deviceClient: DeviceClient
     let hapticClient: HapticClient
     let cookiesClient: CookiesClient
     let databaseClient: DatabaseClient
@@ -244,6 +245,7 @@ let commentsReducer = Reducer<CommentsState, CommentsAction, CommentsEnvironment
                 .init(
                     urlClient: environment.urlClient,
                     fileClient: environment.fileClient,
+                    deviceClient: environment.deviceClient,
                     hapticClient: environment.hapticClient,
                     cookiesClient: environment.cookiesClient,
                     databaseClient: environment.databaseClient,

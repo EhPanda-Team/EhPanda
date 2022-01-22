@@ -130,6 +130,12 @@ struct DetailView: View {
             }
             .opacity(viewStore.galleryDetail == nil && error != nil ? 1 : 0)
         }
+        .fullScreenCover(unwrapping: viewStore.binding(\.$route), case: /DetailState.Route.reading) { _ in
+            ReadingView(
+                store: store.scope(state: \.readingState, action: DetailAction.reading),
+                gid: gid, setting: .constant(setting), blurRadius: blurRadius
+            )
+        }
         .sheet(unwrapping: viewStore.binding(\.$route), case: /DetailState.Route.archive) { _ in
             ArchivesView(
                 store: store.scope(state: \.archivesState, action: DetailAction.archives),
@@ -758,6 +764,7 @@ struct DetailView_Previews: PreviewProvider {
                     environment: DetailEnvironment(
                         urlClient: .live,
                         fileClient: .live,
+                        deviceClient: .live,
                         hapticClient: .live,
                         cookiesClient: .live,
                         databaseClient: .live,

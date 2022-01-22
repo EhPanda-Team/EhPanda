@@ -116,6 +116,7 @@ struct WatchedView_Previews: PreviewProvider {
                     environment: WatchedEnvironment(
                         urlClient: .live,
                         fileClient: .live,
+                        deviceClient: .live,
                         hapticClient: .live,
                         cookiesClient: .live,
                         databaseClient: .live,

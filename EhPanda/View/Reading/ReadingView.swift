@@ -69,13 +69,12 @@ struct ReadingView: View {
                     doubleTapScaleFactor: $setting.doubleTapScaleFactor
                 )
             }
+//            .toolbar(content: { /* landscape */ })
             .accentColor(setting.accentColor)
             .autoBlur(radius: blurRadius)
         }
         .synchronize(viewStore.binding(\.$pageIndex), $page.index)
-        .onAppear {
-            viewStore.send(.fetchDatabaseInfos(gid))
-        }
+        .onAppear { viewStore.send(.fetchDatabaseInfos(gid)) }
     }
 
     // MARK: ConditionalList
@@ -193,15 +192,15 @@ extension ReadingView {
     // MARK: Gesture
     var tapGesture: some Gesture {
         let singleTap = TapGesture(count: 1)
-            .onEnded { viewStore.send(.onSingleTapGestureEnded) }
+            .onEnded { viewStore.send(.onSingleTapGestureEnded(setting)) }
         let doubleTap = TapGesture(count: 2)
-            .onEnded { viewStore.send(.onDoubleTapGestureEnded) }
+            .onEnded { viewStore.send(.onDoubleTapGestureEnded(setting)) }
         return ExclusiveGesture(doubleTap, singleTap)
     }
     var magnificationGesture: some Gesture {
         MagnificationGesture()
-            .onChanged { viewStore.send(.onMagnificationGestureChanged($0)) }
-            .onEnded { viewStore.send(.onMagnificationGestureEnded($0)) }
+            .onChanged { viewStore.send(.onMagnificationGestureChanged($0, setting)) }
+            .onEnded { viewStore.send(.onMagnificationGestureEnded($0, setting)) }
     }
     var dragGesture: some Gesture {
         DragGesture(minimumDistance: 0.0, coordinateSpace: .local)

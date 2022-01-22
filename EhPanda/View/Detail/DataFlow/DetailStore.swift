@@ -82,6 +82,7 @@ struct DetailState: Equatable, Identifiable {
     var galleryPreviews = [Int: String]()
     var galleryComments = [GalleryComment]()
 
+    var readingState = ReadingState()
     var archivesState = ArchivesState()
     var torrentsState = TorrentsState()
     var previewsState = PreviewsState()
@@ -132,6 +133,7 @@ enum DetailAction: BindableAction {
     case postComment(String)
     case anyGalleryOpsDone(Result<Any, AppError>)
 
+    case reading(ReadingAction)
     case archives(ArchivesAction)
     case torrents(TorrentsAction)
     case previews(PreviewsAction)
@@ -142,6 +144,7 @@ enum DetailAction: BindableAction {
 struct DetailEnvironment {
     let urlClient: URLClient
     let fileClient: FileClient
+    let deviceClient: DeviceClient
     let hapticClient: HapticClient
     let cookiesClient: CookiesClient
     let databaseClient: DatabaseClient
@@ -354,6 +357,9 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
             }
             return environment.hapticClient.generateNotificationFeedback(.error).fireAndForget()
 
+        case .reading:
+            return .none
+
         case .archives:
             return .none
 
@@ -378,6 +384,7 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
                     .init(
                         urlClient: environment.urlClient,
                         fileClient: environment.fileClient,
+                        deviceClient: environment.deviceClient,
                         hapticClient: environment.hapticClient,
                         cookiesClient: environment.cookiesClient,
                         databaseClient: environment.databaseClient,
@@ -390,6 +397,17 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
         }
     }
     .binding(),
+    readingReducer.pullback(
+        state: \.readingState,
+        action: /DetailAction.reading,
+        environment: {
+            .init(
+                urlClient: $0.urlClient,
+                deviceClient: $0.deviceClient,
+                databaseClient: $0.databaseClient
+            )
+        }
+    ),
     archivesReducer.pullback(
         state: \.archivesState,
         action: /DetailAction.archives,
@@ -428,6 +446,7 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
             .init(
                 urlClient: $0.urlClient,
                 fileClient: $0.fileClient,
+                deviceClient: $0.deviceClient,
                 hapticClient: $0.hapticClient,
                 cookiesClient: $0.cookiesClient,
                 databaseClient: $0.databaseClient,

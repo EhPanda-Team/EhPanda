@@ -129,6 +129,7 @@ struct FavoritesView_Previews: PreviewProvider {
                 environment: FavoritesEnvironment(
                     urlClient: .live,
                     fileClient: .live,
+                    deviceClient: .live,
                     hapticClient: .live,
                     cookiesClient: .live,
                     databaseClient: .live,

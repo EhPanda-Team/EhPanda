@@ -79,6 +79,7 @@ enum ToplistsAction: BindableAction {
 struct ToplistsEnvironment {
     let urlClient: URLClient
     let fileClient: FileClient
+    let deviceClient: DeviceClient
     let hapticClient: HapticClient
     let cookiesClient: CookiesClient
     let databaseClient: DatabaseClient
@@ -208,6 +209,7 @@ let toplistsReducer = Reducer<ToplistsState, ToplistsAction, ToplistsEnvironment
             .init(
                 urlClient: $0.urlClient,
                 fileClient: $0.fileClient,
+                deviceClient: $0.deviceClient,
                 hapticClient: $0.hapticClient,
                 cookiesClient: $0.cookiesClient,
                 databaseClient: $0.databaseClient,

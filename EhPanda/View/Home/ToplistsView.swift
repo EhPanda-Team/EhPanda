@@ -142,6 +142,7 @@ struct ToplistsView_Previews: PreviewProvider {
                     environment: ToplistsEnvironment(
                         urlClient: .live,
                         fileClient: .live,
+                        deviceClient: .live,
                         hapticClient: .live,
                         cookiesClient: .live,
                         databaseClient: .live,

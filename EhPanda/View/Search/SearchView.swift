@@ -383,6 +383,7 @@ struct SearchView_Previews: PreviewProvider {
                 environment: SearchEnvironment(
                     urlClient: .live,
                     fileClient: .live,
+                    deviceClient: .live,
                     hapticClient: .live,
                     cookiesClient: .live,
                     databaseClient: .live,

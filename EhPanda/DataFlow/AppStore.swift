@@ -149,6 +149,7 @@ let appReducer = Reducer<AppState, AppAction, AppEnvironment>.combine(
             .init(
                 urlClient: $0.urlClient,
                 fileClient: $0.fileClient,
+                deviceClient: $0.deviceClient,
                 hapticClient: $0.hapticClient,
                 cookiesClient: $0.cookiesClient,
                 databaseClient: $0.databaseClient,
@@ -185,6 +186,7 @@ let appReducer = Reducer<AppState, AppAction, AppEnvironment>.combine(
             .init(
                 urlClient: $0.urlClient,
                 fileClient: $0.fileClient,
+                deviceClient: $0.deviceClient,
                 hapticClient: $0.hapticClient,
                 libraryClient: $0.libraryClient,
                 cookiesClient: $0.cookiesClient,
@@ -201,6 +203,7 @@ let appReducer = Reducer<AppState, AppAction, AppEnvironment>.combine(
             .init(
                 urlClient: $0.urlClient,
                 fileClient: $0.fileClient,
+                deviceClient: $0.deviceClient,
                 hapticClient: $0.hapticClient,
                 cookiesClient: $0.cookiesClient,
                 databaseClient: $0.databaseClient,
@@ -216,6 +219,7 @@ let appReducer = Reducer<AppState, AppAction, AppEnvironment>.combine(
             .init(
                 urlClient: $0.urlClient,
                 fileClient: $0.fileClient,
+                deviceClient: $0.deviceClient,
                 hapticClient: $0.hapticClient,
                 cookiesClient: $0.cookiesClient,
                 databaseClient: $0.databaseClient,
