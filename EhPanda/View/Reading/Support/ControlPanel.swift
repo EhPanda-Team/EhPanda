@@ -10,7 +10,7 @@ import Kingfisher
 
 // MARK: ControlPanel
 struct ControlPanel: View {
-    @State private var refreshTrigger = UUID().uuidString
+    @State private var refreshID: UUID = .init()
 
     @Binding private var showsPanel: Bool
     @Binding private var sliderValue: Float
@@ -19,18 +19,16 @@ struct ControlPanel: View {
     private let currentIndex: Int
     private let range: ClosedRange<Float>
     private let previews: [Int: String]
-    private let settingAction: () -> Void
-    private let fetchAction: (Int) -> Void
-    private let sliderChangedAction: (Int) -> Void
-    private let updateSettingAction: (Setting) -> Void
+    private let dismissAction: () -> Void
+    private let navigateSettingAction: () -> Void
+    private let fetchPreviewsAction: (Int) -> Void
 
     init(
         showsPanel: Binding<Bool>, sliderValue: Binding<Float>,
         setting: Binding<Setting>, autoPlayPolicy: Binding<AutoPlayPolicy>,
         currentIndex: Int, range: ClosedRange<Float>, previews: [Int: String],
-        settingAction: @escaping () -> Void, fetchAction: @escaping (Int) -> Void,
-        sliderChangedAction: @escaping (Int) -> Void,
-        updateSettingAction: @escaping (Setting) -> Void
+        dismissAction: @escaping () -> Void, navigateSettingAction: @escaping () -> Void,
+        fetchPreviewsAction: @escaping (Int) -> Void
     ) {
         _showsPanel = showsPanel
         _sliderValue = sliderValue
@@ -39,20 +37,19 @@ struct ControlPanel: View {
         self.currentIndex = currentIndex
         self.range = range
         self.previews = previews
-        self.settingAction = settingAction
-        self.fetchAction = fetchAction
-        self.sliderChangedAction = sliderChangedAction
-        self.updateSettingAction = updateSettingAction
+        self.dismissAction = dismissAction
+        self.navigateSettingAction = navigateSettingAction
+        self.fetchPreviewsAction = fetchPreviewsAction
     }
 
     var body: some View {
         VStack {
             UpperPanel(
                 title: "\(currentIndex) / " + "\(Int(range.upperBound))",
-                setting: $setting, refreshTrigger: $refreshTrigger,
+                setting: $setting, refreshID: $refreshID,
                 autoPlayPolicy: $autoPlayPolicy,
-                settingAction: settingAction,
-                updateSettingAction: updateSettingAction
+                dismissAction: dismissAction,
+                navigateSettingAction: navigateSettingAction
             )
             .offset(y: showsPanel ? 0 : -50)
             Spacer()
@@ -60,16 +57,16 @@ struct ControlPanel: View {
                 LowerPanel(
                     sliderValue: $sliderValue, previews: previews, range: range,
                     isReversed: setting.readingDirection == .rightToLeft,
-                    fetchAction: fetchAction, sliderChangedAction: sliderChangedAction
+                    fetchPreviewsAction: fetchPreviewsAction
                 )
                 .offset(y: showsPanel ? 0 : 50)
             }
         }
         .opacity(showsPanel ? 1 : 0).disabled(!showsPanel)
         .onChange(of: showsPanel) { newValue in
-            guard newValue else { return } // workaround
+            // workaround
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                refreshTrigger = UUID().uuidString
+                if newValue { refreshID = .init() }
             }
         }
     }
@@ -77,33 +74,32 @@ struct ControlPanel: View {
 
 // MARK: UpperPanel
 private struct UpperPanel: View {
-    @Environment(\.dismiss) var dismissAction
     @Binding private var setting: Setting
-    @Binding private var refreshTrigger: String
+    @Binding private var refreshID: UUID
     @Binding private var autoPlayPolicy: AutoPlayPolicy
 
     private let title: String
-    private let settingAction: () -> Void
-    private let updateSettingAction: (Setting) -> Void
+    private let dismissAction: () -> Void
+    private let navigateSettingAction: () -> Void
 
     init(
         title: String, setting: Binding<Setting>,
-        refreshTrigger: Binding<String>, autoPlayPolicy: Binding<AutoPlayPolicy>,
-        settingAction: @escaping () -> Void, updateSettingAction: @escaping (Setting) -> Void
+        refreshID: Binding<UUID>, autoPlayPolicy: Binding<AutoPlayPolicy>,
+        dismissAction: @escaping () -> Void, navigateSettingAction: @escaping () -> Void
     ) {
         self.title = title
         _setting = setting
-        _refreshTrigger = refreshTrigger
+        _refreshID = refreshID
         _autoPlayPolicy = autoPlayPolicy
-        self.settingAction = settingAction
-        self.updateSettingAction = updateSettingAction
+        self.dismissAction = dismissAction
+        self.navigateSettingAction = navigateSettingAction
     }
 
     var body: some View {
         ZStack {
             HStack {
-                Button(action: dismissAction.callAsFunction) {
-                    Image(systemName: "chevron.backward")
+                Button(action: dismissAction) {
+                    Image(systemSymbol: .chevronDown)
                 }
                 .font(.title2).padding(.leading, 20)
                 Spacer()
@@ -113,32 +109,28 @@ private struct UpperPanel: View {
                     if DeviceUtil.isLandscape && setting.readingDirection != .vertical {
                         Menu {
                             Button {
-                                var setting = setting
                                 setting.enablesDualPageMode.toggle()
-                                updateSettingAction(setting)
                             } label: {
                                 Text("Dual-page mode")
                                 if setting.enablesDualPageMode {
-                                    Image(systemName: "checkmark")
+                                    Image(systemSymbol: .checkmark)
                                 }
                             }
                             Button {
-                                var setting = setting
                                 setting.exceptCover.toggle()
-                                updateSettingAction(setting)
                             } label: {
                                 Text("Except the cover")
                                 if setting.exceptCover {
-                                    Image(systemName: "checkmark")
+                                    Image(systemSymbol: .checkmark)
                                 }
                             }
                             .disabled(!setting.enablesDualPageMode)
                         } label: {
-                            Image(systemName: "rectangle.split.2x1")
+                            Image(systemSymbol: .rectangleSplit2x1)
                                 .symbolVariant(setting.enablesDualPageMode ? .fill : .none)
                         }
                     }
-                    Image(systemName: "timer").opacity(0.01)
+                    Image(systemSymbol: .timer).opacity(0.01)
                         .overlay {
                             Menu {
                                 Text("AutoPlay").foregroundColor(.secondary)
@@ -148,17 +140,17 @@ private struct UpperPanel: View {
                                     } label: {
                                         Text(policy.descriptionKey)
                                         if autoPlayPolicy == policy {
-                                            Image(systemName: "checkmark")
+                                            Image(systemSymbol: .checkmark)
                                         }
                                     }
                                 }
                             } label: {
-                                Image(systemName: "timer")
+                                Image(systemSymbol: .timer)
                             }
                         }
-                        .id(refreshTrigger)
-                    Button(action: settingAction) {
-                        Image(systemName: "gear")
+                        .id(refreshID)
+                    Button(action: navigateSettingAction) {
+                        Image(systemSymbol: .gear)
                     }
                     .padding(.trailing, 20)
                 }
@@ -177,21 +169,18 @@ private struct LowerPanel: View {
     private let previews: [Int: String]
     private let range: ClosedRange<Float>
     private let isReversed: Bool
-    private let fetchAction: (Int) -> Void
-    private let sliderChangedAction: (Int) -> Void
+    private let fetchPreviewsAction: (Int) -> Void
 
     init(
         sliderValue: Binding<Float>, previews: [Int: String],
         range: ClosedRange<Float>, isReversed: Bool,
-        fetchAction: @escaping (Int) -> Void,
-        sliderChangedAction: @escaping (Int) -> Void
+        fetchPreviewsAction: @escaping (Int) -> Void
     ) {
         _sliderValue = sliderValue
         self.previews = previews
         self.range = range
         self.isReversed = isReversed
-        self.fetchAction = fetchAction
-        self.sliderChangedAction = sliderChangedAction
+        self.fetchPreviewsAction = fetchPreviewsAction
     }
 
     var body: some View {
@@ -199,7 +188,7 @@ private struct LowerPanel: View {
             SliderPreivew(
                 isSliderDragging: $isSliderDragging,
                 sliderValue: $sliderValue, previews: previews, range: range,
-                isReversed: isReversed, fetchAction: fetchAction
+                isReversed: isReversed, fetchPreviewsAction: fetchPreviewsAction
             )
             VStack {
                 HStack {
@@ -207,7 +196,6 @@ private struct LowerPanel: View {
                     Slider(
                         value: $sliderValue, in: range, step: 1,
                         onEditingChanged: { isDragging in
-                            sliderChangedAction(Int(sliderValue))
                             HapticUtil.generateFeedback(style: .soft)
                             withAnimation {
                                 isSliderDragging = isDragging
@@ -243,19 +231,19 @@ private struct SliderPreivew: View {
     private let previews: [Int: String]
     private let range: ClosedRange<Float>
     private let isReversed: Bool
-    private let fetchAction: (Int) -> Void
+    private let fetchPreviewsAction: (Int) -> Void
 
     init(
         isSliderDragging: Binding<Bool>, sliderValue: Binding<Float>,
         previews: [Int: String], range: ClosedRange<Float>,
-        isReversed: Bool, fetchAction: @escaping (Int) -> Void
+        isReversed: Bool, fetchPreviewsAction: @escaping (Int) -> Void
     ) {
         _isSliderDragging = isSliderDragging
         _sliderValue = sliderValue
         self.previews = previews
         self.range = range
         self.isReversed = isReversed
-        self.fetchAction = fetchAction
+        self.fetchPreviewsAction = fetchPreviewsAction
     }
 
     var body: some View {
@@ -279,8 +267,9 @@ private struct SliderPreivew: View {
                         .foregroundColor(index == Int(sliderValue) ? .accentColor : .secondary)
                 }
                 .onAppear {
-                    guard previews[index] == nil && checkIndex(index) else { return }
-                    fetchAction(index)
+                    if previews[index] == nil && checkIndex(index) {
+                        fetchPreviewsAction(index)
+                    }
                 }
                 .opacity(checkIndex(index) ? 1 : 0)
             }

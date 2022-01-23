@@ -17,17 +17,20 @@ struct ReadingView: View {
     @ObservedObject private var viewStore: ViewStore<ReadingState, ReadingAction>
     @Binding private var setting: Setting
     private let blurRadius: Double
+    private let dismissAction: () -> Void
 
     @StateObject private var page: Page = .first()
 
     init(
         store: Store<ReadingState, ReadingAction>,
-        setting: Binding<Setting>, blurRadius: Double
+        setting: Binding<Setting>, blurRadius: Double,
+        dismissAction: @escaping () -> Void
     ) {
         self.store = store
         viewStore = ViewStore(store)
         _setting = setting
         self.blurRadius = blurRadius
+        self.dismissAction = dismissAction
     }
 
     private var backgroundColor: Color {
@@ -50,11 +53,9 @@ struct ReadingView: View {
                     index: viewStore.pageIndex, setting: setting
                 ),
                 range: 1...Float(viewStore.gallery.pageCount),
-                previews: viewStore.previews,
-                settingAction: { viewStore.send(.setNavigation(.readingSetting)) },
-                fetchAction: { viewStore.send(.fetchPreviews($0)) },
-                sliderChangedAction: { _ in },
-                updateSettingAction: { _ in }
+                previews: viewStore.previews, dismissAction: dismissAction,
+                navigateSettingAction: { viewStore.send(.setNavigation(.readingSetting)) },
+                fetchPreviewsAction: { viewStore.send(.fetchPreviews($0)) }
             )
         }
         .sheet(unwrapping: viewStore.binding(\.$route), case: /ReadingState.Route.readingSetting) { _ in
@@ -68,7 +69,17 @@ struct ReadingView: View {
                     doubleTapScaleFactor: $setting.doubleTapScaleFactor
                 )
             }
-//            .toolbar(content: { /* landscape */ })
+            .toolbar {
+                CustomToolbarItem(placement: .cancellationAction) {
+                    if !DeviceUtil.isPad && DeviceUtil.isLandscape {
+                        Button {
+                            viewStore.send(.setNavigation(nil))
+                        } label: {
+                            Image(systemSymbol: .chevronDown)
+                        }
+                    }
+                }
+            }
             .accentColor(setting.accentColor).tint(setting.accentColor)
             .autoBlur(radius: blurRadius)
         }

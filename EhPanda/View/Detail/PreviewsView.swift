@@ -69,7 +69,8 @@ struct PreviewsView: View {
         .fullScreenCover(unwrapping: viewStore.binding(\.$route), case: /PreviewsState.Route.reading) { _ in
             ReadingView(
                 store: store.scope(state: \.readingState, action: PreviewsAction.reading),
-                setting: $setting, blurRadius: blurRadius
+                setting: $setting, blurRadius: blurRadius,
+                dismissAction: { viewStore.send(.setNavigation(nil)) }
             )
             .accentColor(setting.accentColor)
             .autoBlur(radius: blurRadius)
