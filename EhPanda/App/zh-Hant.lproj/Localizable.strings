@@ -162,7 +162,7 @@
 "Preload limit" = "預先載入數量上限";
 "%lld pages" = "%lld 頁";
 "%lld times" = "%lld 次";
-//"Prefers landscape" = "";
+//"Enables landscape" = "";
 "Separator height" = "分隔線高度";
 "Maximum scale factor" = "縮放上限";
 "Double tap scale factor" = "雙擊縮放值";

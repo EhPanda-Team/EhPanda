@@ -156,6 +156,7 @@ let appReducer = Reducer<AppState, AppAction, AppEnvironment>.combine(
                 cookiesClient: $0.cookiesClient,
                 databaseClient: $0.databaseClient,
                 clipboardClient: $0.clipboardClient,
+                appDelegateClient: $0.appDelegateClient,
                 userDefaultsClient: $0.userDefaultsClient,
                 uiApplicationClient: $0.uiApplicationClient
             )
@@ -195,6 +196,7 @@ let appReducer = Reducer<AppState, AppAction, AppEnvironment>.combine(
                 cookiesClient: $0.cookiesClient,
                 databaseClient: $0.databaseClient,
                 clipboardClient: $0.clipboardClient,
+                appDelegateClient: $0.appDelegateClient,
                 uiApplicationClient: $0.uiApplicationClient
             )
         }
@@ -212,6 +214,7 @@ let appReducer = Reducer<AppState, AppAction, AppEnvironment>.combine(
                 cookiesClient: $0.cookiesClient,
                 databaseClient: $0.databaseClient,
                 clipboardClient: $0.clipboardClient,
+                appDelegateClient: $0.appDelegateClient,
                 uiApplicationClient: $0.uiApplicationClient
             )
         }
@@ -229,6 +232,7 @@ let appReducer = Reducer<AppState, AppAction, AppEnvironment>.combine(
                 cookiesClient: $0.cookiesClient,
                 databaseClient: $0.databaseClient,
                 clipboardClient: $0.clipboardClient,
+                appDelegateClient: $0.appDelegateClient,
                 uiApplicationClient: $0.uiApplicationClient
             )
         }

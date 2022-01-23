@@ -196,7 +196,9 @@ enum ReadingAction: BindableAction {
     case toggleShowsPanel
     case setPageIndex(Int)
     case setSliderValue(Float)
+    case setOrientationPortrait(Bool)
     case onTimerFired
+    case onAppear(Bool)
 
     case copyImage(URL)
     case saveImage(URL)
@@ -247,6 +249,7 @@ struct ReadingEnvironment {
     let deviceClient: DeviceClient
     let databaseClient: DatabaseClient
     let clipboardClient: ClipboardClient
+    let appDelegateClient: AppDelegateClient
 }
 
 let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { state, action, environment in
@@ -288,9 +291,28 @@ let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { 
         state.sliderValue = value
         return .none
 
+    case .setOrientationPortrait(let isPortrait):
+        var effects = [Effect<ReadingAction, Never>]()
+        if isPortrait {
+            effects.append(environment.appDelegateClient.setPortraitOrientationMask().fireAndForget())
+            effects.append(environment.appDelegateClient.setPortraitOrientation().fireAndForget())
+        } else {
+            effects.append(environment.appDelegateClient.setAllOrientationMask().fireAndForget())
+        }
+        return .merge(effects)
+
     case .onTimerFired:
         state.pageIndex += 1
         return .none
+
+    case .onAppear(let enablesLandscape):
+        var effects: [Effect<ReadingAction, Never>] = [
+            .init(value: .fetchDatabaseInfos)
+        ]
+        if enablesLandscape {
+            effects.append(.init(value: .setOrientationPortrait(false)))
+        }
+        return .merge(effects)
 
     case .copyImage(let imageURL):
         return .init(value: .fetchImage(.copy, imageURL))
@@ -420,10 +442,14 @@ let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { 
             .fireAndForget()
 
     case .teardown:
-        return .merge(
+        var effects: [Effect<ReadingAction, Never>] = [
             .cancel(id: ReadingState.CancelID()),
             .cancel(id: ReadingState.TimerID())
-        )
+        ]
+        if !environment.deviceClient.isPad() {
+            effects.append(.init(value: .setOrientationPortrait(true)))
+        }
+        return .merge(effects)
 
     case .fetchDatabaseInfos:
         return environment.databaseClient.fetchGalleryState(state.gallery.id)

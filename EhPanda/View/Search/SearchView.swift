@@ -389,6 +389,7 @@ struct SearchView_Previews: PreviewProvider {
                     cookiesClient: .live,
                     databaseClient: .live,
                     clipboardClient: .live,
+                    appDelegateClient: .live,
                     uiApplicationClient: .live
                 )
             ),

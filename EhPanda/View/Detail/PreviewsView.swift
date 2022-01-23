@@ -93,7 +93,8 @@ struct PreviewsView_Previews: PreviewProvider {
                         imageClient: .live,
                         deviceClient: .live,
                         databaseClient: .live,
-                        clipboardClient: .live
+                        clipboardClient: .live,
+                        appDelegateClient: .live
                     )
                 ),
                 setting: .constant(.init()),

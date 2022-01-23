@@ -85,6 +85,7 @@ struct FavoritesEnvironment {
     let cookiesClient: CookiesClient
     let databaseClient: DatabaseClient
     let clipboardClient: ClipboardClient
+    let appDelegateClient: AppDelegateClient
     let uiApplicationClient: UIApplicationClient
 }
 
@@ -225,6 +226,7 @@ let favoritesReducer = Reducer<FavoritesState, FavoritesAction, FavoritesEnviron
                 cookiesClient: $0.cookiesClient,
                 databaseClient: $0.databaseClient,
                 clipboardClient: $0.clipboardClient,
+                appDelegateClient: $0.appDelegateClient,
                 uiApplicationClient: $0.uiApplicationClient
             )
         }

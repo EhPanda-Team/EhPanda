@@ -154,6 +154,7 @@ struct DetailEnvironment {
     let cookiesClient: CookiesClient
     let databaseClient: DatabaseClient
     let clipboardClient: ClipboardClient
+    let appDelegateClient: AppDelegateClient
     let uiApplicationClient: UIApplicationClient
 }
 
@@ -412,6 +413,7 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
                         cookiesClient: environment.cookiesClient,
                         databaseClient: environment.databaseClient,
                         clipboardClient: environment.clipboardClient,
+                        appDelegateClient: environment.appDelegateClient,
                         uiApplicationClient: environment.uiApplicationClient
                     )
                 }
@@ -429,7 +431,8 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
                 imageClient: $0.imageClient,
                 deviceClient: $0.deviceClient,
                 databaseClient: $0.databaseClient,
-                clipboardClient: $0.clipboardClient
+                clipboardClient: $0.clipboardClient,
+                appDelegateClient: $0.appDelegateClient
             )
         }
     ),
@@ -464,7 +467,8 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
                 imageClient: $0.imageClient,
                 deviceClient: $0.deviceClient,
                 databaseClient: $0.databaseClient,
-                clipboardClient: $0.clipboardClient
+                clipboardClient: $0.clipboardClient,
+                appDelegateClient: $0.appDelegateClient
             )
         }
     ),
@@ -491,6 +495,7 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
                 cookiesClient: $0.cookiesClient,
                 databaseClient: $0.databaseClient,
                 clipboardClient: $0.clipboardClient,
+                appDelegateClient: $0.appDelegateClient,
                 uiApplicationClient: $0.uiApplicationClient
             )
         }

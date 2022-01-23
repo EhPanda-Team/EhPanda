@@ -81,7 +81,7 @@ private extension SettingView {
             ReadingSettingView(
                 readingDirection: viewStore.binding(\.$setting.readingDirection),
                 prefetchLimit: viewStore.binding(\.$setting.prefetchLimit),
-                prefersLandscape: viewStore.binding(\.$setting.prefersLandscape),
+                enablesLandscape: viewStore.binding(\.$setting.enablesLandscape),
                 contentDividerHeight: viewStore.binding(\.$setting.contentDividerHeight),
                 maximumScaleFactor: viewStore.binding(\.$setting.maximumScaleFactor),
                 doubleTapScaleFactor: viewStore.binding(\.$setting.doubleTapScaleFactor)

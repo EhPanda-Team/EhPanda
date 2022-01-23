@@ -85,6 +85,7 @@ struct ToplistsEnvironment {
     let cookiesClient: CookiesClient
     let databaseClient: DatabaseClient
     let clipboardClient: ClipboardClient
+    let appDelegateClient: AppDelegateClient
     let uiApplicationClient: UIApplicationClient
 }
 
@@ -216,6 +217,7 @@ let toplistsReducer = Reducer<ToplistsState, ToplistsAction, ToplistsEnvironment
                 cookiesClient: $0.cookiesClient,
                 databaseClient: $0.databaseClient,
                 clipboardClient: $0.clipboardClient,
+                appDelegateClient: $0.appDelegateClient,
                 uiApplicationClient: $0.uiApplicationClient
             )
         }

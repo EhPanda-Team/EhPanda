@@ -79,6 +79,7 @@ struct CommentsEnvironment {
     let cookiesClient: CookiesClient
     let databaseClient: DatabaseClient
     let clipboardClient: ClipboardClient
+    let appDelegateClient: AppDelegateClient
     let uiApplicationClient: UIApplicationClient
 }
 
@@ -252,6 +253,7 @@ let commentsReducer = Reducer<CommentsState, CommentsAction, CommentsEnvironment
                     cookiesClient: environment.cookiesClient,
                     databaseClient: environment.databaseClient,
                     clipboardClient: environment.clipboardClient,
+                    appDelegateClient: environment.appDelegateClient,
                     uiApplicationClient: environment.uiApplicationClient
                 )
             }

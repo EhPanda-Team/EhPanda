@@ -162,7 +162,7 @@
 "Preload limit" = "プリロード上限数";
 "%lld pages" = "%lld ページ";
 "%lld times" = "%lld 回";
-"Prefers landscape" = "横向きを好む";
+"Enables landscape" = "横向きを有効";
 "Separator height" = "仕切りの厚さ";
 "Maximum scale factor" = "最大スケール係数";
 "Double tap scale factor" = "ダブルタップスケール係数";

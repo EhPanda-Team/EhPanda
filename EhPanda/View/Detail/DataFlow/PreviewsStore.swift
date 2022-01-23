@@ -57,6 +57,7 @@ struct PreviewsEnvironment {
     let deviceClient: DeviceClient
     let databaseClient: DatabaseClient
     let clipboardClient: ClipboardClient
+    let appDelegateClient: AppDelegateClient
 }
 
 let previewsReducer = Reducer<PreviewsState, PreviewsAction, PreviewsEnvironment>.combine(
@@ -144,7 +145,8 @@ let previewsReducer = Reducer<PreviewsState, PreviewsAction, PreviewsEnvironment
                 imageClient: $0.imageClient,
                 deviceClient: $0.deviceClient,
                 databaseClient: $0.databaseClient,
-                clipboardClient: $0.clipboardClient
+                clipboardClient: $0.clipboardClient,
+                appDelegateClient: $0.appDelegateClient
             )
         }
     )

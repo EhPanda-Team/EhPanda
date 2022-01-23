@@ -145,11 +145,11 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
                     .map { _ in SettingAction.syncAppIconType }
             )
 
-        case .binding(\.$setting.prefersLandscape):
+        case .binding(\.$setting.enablesLandscape):
             var effects: [Effect<SettingAction, Never>] = [
                 .init(value: .syncSetting)
             ]
-            if !state.setting.prefersLandscape && !environment.deviceClient.isPad() {
+            if !state.setting.enablesLandscape && !environment.deviceClient.isPad() {
                 effects.append(environment.appDelegateClient.setPortraitOrientationMask().fireAndForget())
             }
             return .merge(effects)

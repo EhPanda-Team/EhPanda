@@ -52,6 +52,7 @@ struct AppRouteEnvironment {
     let cookiesClient: CookiesClient
     let databaseClient: DatabaseClient
     let clipboardClient: ClipboardClient
+    let appDelegateClient: AppDelegateClient
     let userDefaultsClient: UserDefaultsClient
     let uiApplicationClient: UIApplicationClient
 }
@@ -180,6 +181,7 @@ let appRouteReducer = Reducer<AppRouteState, AppRouteAction, AppRouteEnvironment
                 cookiesClient: $0.cookiesClient,
                 databaseClient: $0.databaseClient,
                 clipboardClient: $0.clipboardClient,
+                appDelegateClient: $0.appDelegateClient,
                 uiApplicationClient: $0.uiApplicationClient
             )
         }

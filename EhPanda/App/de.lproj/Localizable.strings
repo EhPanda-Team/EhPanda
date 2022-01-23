@@ -161,7 +161,7 @@
 "Left-to-right" = "Von links nach rechts";
 //"Preload limit" = "";
 //"%lld pages" = "%lld ";
-//"Prefers landscape" = "";
+//"Enables landscape" = "";
 "%lld times" = "%lld mal";
 "Separator height" = "Höhe der Teilung";
 "Maximum scale factor" = "Maximaler Skalierungsfaktor";

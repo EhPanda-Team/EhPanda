@@ -62,14 +62,14 @@ struct ReadingView: View {
                 ReadingSettingView(
                     readingDirection: $setting.readingDirection,
                     prefetchLimit: $setting.prefetchLimit,
-                    prefersLandscape: $setting.prefersLandscape,
+                    enablesLandscape: $setting.enablesLandscape,
                     contentDividerHeight: $setting.contentDividerHeight,
                     maximumScaleFactor: $setting.maximumScaleFactor,
                     doubleTapScaleFactor: $setting.doubleTapScaleFactor
                 )
             }
 //            .toolbar(content: { /* landscape */ })
-            .accentColor(setting.accentColor)
+            .accentColor(setting.accentColor).tint(setting.accentColor)
             .autoBlur(radius: blurRadius)
         }
         .sheet(unwrapping: viewStore.binding(\.$route), case: /ReadingState.Route.share) { route in
@@ -99,11 +99,14 @@ struct ReadingView: View {
             )
             page.update(.new(index: newValue))
         }
+        .onChange(of: setting.enablesLandscape) {
+            viewStore.send(.setOrientationPortrait(!$0))
+        }
         .animation(.default, value: viewStore.showsPanel)
         .animation(.default, value: viewStore.pageIndex)
         .animation(.default, value: viewStore.scale)
         .statusBar(hidden: !viewStore.showsPanel)
-        .onAppear { viewStore.send(.fetchDatabaseInfos) }
+        .onAppear { viewStore.send(.onAppear(setting.enablesLandscape)) }
     }
 
     // MARK: ConditionalList

@@ -162,7 +162,7 @@
 "Preload limit" = "预加载数量上限";
 "%lld pages" = "%lld 页";
 "%lld times" = "%lld 次";
-"Prefers landscape" = "偏好横屏";
+"Enables landscape" = "启用横屏";
 "Separator height" = "分隔线厚度";
 "Maximum scale factor" = "最大缩放系数";
 "Double tap scale factor" = "双击缩放系数";
