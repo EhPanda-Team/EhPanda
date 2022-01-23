@@ -189,7 +189,7 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
             state.postCommentFocused = false
             return .merge(
                 .init(value: .setupReadingState),
-                .init(value: .reading(.cancelFetching)),
+                .init(value: .reading(.teardown)),
                 .init(value: .archives(.cancelFetching)),
                 .init(value: .torrents(.cancelFetching)),
                 .init(value: .previews(.cancelFetching)),

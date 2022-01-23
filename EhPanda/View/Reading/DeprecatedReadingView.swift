@@ -11,62 +11,18 @@ import Kingfisher
 import SwiftUIPager
 import TTProgressHUD
 
-struct DeprecatedReadingView: View, PersistenceAccessor {
-//    @EnvironmentObject var store: DeprecatedStore
-
-    @Environment(\.colorScheme) private var colorScheme
-    private var backgroundColor: Color {
-        colorScheme == .light
-        ? Color(.systemGray4)
-        : Color(.systemGray6)
-    }
-
-    @StateObject private var page: Page = .first()
-
-    @State private var showsPanel = false
-    @State private var sliderValue: Float = 1
-    @State private var sheetState: ReadingViewSheetState?
-
-    @State private var autoPlayTimer: Timer?
-    @State private var autoPlayPolicy: AutoPlayPolicy = .never
-
-    @State private var scaleAnchor: UnitPoint = .center
-    @State private var scale: CGFloat = 1
-    @State private var baseScale: CGFloat = 1
-    @State private var offset: CGSize = .zero
-    @State private var newOffset: CGSize = .zero
-
-    @State private var pageCount = 1
-
+struct DeprecatedReadingView: View {
     @StateObject private var imageSaver = ImageSaver()
-    @State private var hudVisible = false
-    @State private var hudConfig = TTProgressHUDConfig()
 
     let gid: String
 
     init(gid: String) {
         self.gid = gid
-        initializeParams()
-    }
-
-    mutating func initializeParams() {
-        AppUtil.dispatchMainSync {
-            _pageCount = State(
-                initialValue: galleryDetail?.pageCount ?? 1
-            )
-        }
     }
 
     // MARK: ReadingView
     var body: some View {
         Text("")
-//        .onAppear(perform: onStartTasks)
-//        .onDisappear(perform: onEndTasks)
-//        .onChange(of: page.index, perform: updateSliderValue)
-//        .onChange(of: autoPlayPolicy, perform: reconfigureTimer)
-//        .onChange(of: setting.exceptCover, perform: tryUpdatePagerIndex)
-//        .onChange(of: setting.readingDirection, perform: tryUpdatePagerIndex)
-//        .onChange(of: setting.enablesDualPageMode, perform: tryUpdatePagerIndex)
 //        .onChange(of: imageSaver.saveSucceeded, perform: { newValue in
 //            guard let isSuccess = newValue else { return }
 //            presentHUD(isSuccess: isSuccess, caption: "Saved to photo library")
@@ -82,9 +38,6 @@ struct DeprecatedReadingView: View, PersistenceAccessor {
 //        .onReceive(UIApplication.didBecomeActiveNotification.publisher) { _ in
 //            trySetOrientation(allowsLandscape: true, shouldChangeOrientation: true)
 //        }
-//        .onReceive(UIApplication.willTerminateNotification.publisher) { _ in onEndTasks() }
-//        .onReceive(UIApplication.willResignActiveNotification.publisher) { _ in onEndTasks() }
-//        .onReceive(AppNotification.readingViewShouldHideStatusBar.publisher, perform: trySetNavigationBarHidden)
     }
 }
 
@@ -92,13 +45,8 @@ private extension DeprecatedReadingView {
     // MARK: Life Cycle
     func onStartTasks() {
         trySetOrientation(allowsLandscape: true, shouldChangeOrientation: true)
-        restoreReadingProgress()
-//        trySetNavigationBarHidden()
-//        fetchGalleryContentsIfNeeded()
     }
     func onEndTasks() {
-        trySaveReadingProgress()
-        autoPlayPolicy = .never
         trySetOrientation(allowsLandscape: false)
     }
     func trySetOrientation(allowsLandscape: Bool, shouldChangeOrientation: Bool = false) {
@@ -113,49 +61,6 @@ private extension DeprecatedReadingView {
             UIDevice.current.setValue(UIInterfaceOrientation.portrait.rawValue, forKey: "orientation")
         }
         UINavigationController.attemptRotationToDeviceOrientation()
-    }
-    func restoreReadingProgress() {
-//        AppUtil.dispatchMainSync {
-//            let index = mapToPager(index: galleryState.readingProgress)
-//            page.update(.new(index: index))
-//        }
-    }
-
-    // MARK: Progress
-    func tryUpdatePagerIndex(_: Any? = nil) {
-//        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-//            let newIndex = mapToPager(index: Int(sliderValue))
-//            guard page.index != newIndex else { return }
-//            page.update(.new(index: newIndex))
-//        }
-    }
-    func updateSliderValue(newIndex: Int) {
-//        let newValue = Float(mapFromPager(index: newIndex))
-//        withAnimation {
-//            if sliderValue != newValue {
-//                sliderValue = newValue
-//            }
-//        }
-    }
-    func reconfigureTimer(newPolicy: AutoPlayPolicy) {
-        autoPlayTimer?.invalidate()
-        guard newPolicy != .never else { return }
-        autoPlayTimer = Timer.scheduledTimer(
-            withTimeInterval: TimeInterval(newPolicy.rawValue),
-            repeats: true, block: tryUpdatePagerIndexByTimer
-        )
-    }
-    func tryUpdatePagerIndexByTimer(_: Timer) {
-        guard Int(sliderValue) < pageCount else {
-            autoPlayPolicy = .never
-            return
-        }
-        page.update(.next)
-    }
-    func trySaveReadingProgress() {
-//        let progress = mapFromPager(index: page.index)
-//        guard progress > 0 else { return }
-//        store.dispatch(.setReadingProgress(gid: gid, tag: progress))
     }
 
     // MARK: ContextMenu
@@ -180,33 +85,5 @@ private extension DeprecatedReadingView {
 //            return
 //        }
 //        AppUtil.presentActivity(items: [image])
-    }
-}
-
-// MARK: Definition
-enum ReadingViewSheetState: Identifiable {
-    var id: Int { hashValue }
-    case setting
-}
-
-enum AutoPlayPolicy: Int, CaseIterable, Identifiable {
-    var id: Int { rawValue }
-
-    case never = -1
-    case sec1 = 1
-    case sec2 = 2
-    case sec3 = 3
-    case sec4 = 4
-    case sec5 = 5
-}
-
-extension AutoPlayPolicy {
-    var descriptionKey: LocalizedStringKey {
-        switch self {
-        case .never:
-            return "Never"
-        default:
-            return "\(rawValue) seconds"
-        }
     }
 }

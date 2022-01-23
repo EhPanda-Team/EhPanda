@@ -14,7 +14,10 @@ struct ReadingState: Equatable {
         case readingSetting
     }
     struct CancelID: Hashable {
-        let id = String(describing: ReadingState.self)
+        let id = String(describing: ReadingState.CancelID.self)
+    }
+    struct TimerID: Hashable {
+        let id = String(describing: ReadingState.TimerID.self)
     }
 
     @BindableState var route: Route?
@@ -47,7 +50,7 @@ struct ReadingState: Equatable {
     var offset: CGSize = .zero
     var newOffset: CGSize = .zero
 
-    // Fetch
+    // Update
     func update<T>(stored: inout [Int: T], new: [Int: T], replaceExisting: Bool = true) {
         guard !new.isEmpty else { return }
         stored = stored.merging(new, uniquingKeysWith: { stored, new in replaceExisting ? new : stored })
@@ -183,6 +186,7 @@ enum ReadingAction: BindableAction {
     case toggleShowsPanel
     case setPageIndex(Int)
     case setSliderValue(Float)
+    case onTimerFired
 
     case copyImage(String)
     case saveImage(String)
@@ -200,7 +204,7 @@ enum ReadingAction: BindableAction {
     case syncThumbnails([Int: String])
     case syncContents([Int: String], [Int: String])
 
-    case cancelFetching
+    case teardown
     case fetchDatabaseInfos(String)
     case fetchDatabaseInfosDone(GalleryState)
 
@@ -233,6 +237,23 @@ struct ReadingEnvironment {
 
 let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { state, action, environment in
     switch action {
+    case .binding(\.$autoPlayPolicy):
+        var effects: [Effect<ReadingAction, Never>] = [
+            .cancel(id: ReadingState.TimerID())
+        ]
+        let interval = TimeInterval(state.autoPlayPolicy.rawValue)
+        if interval > 0 {
+            let timerEffect = Effect<RunLoop.SchedulerTimeType, Never>
+                .timer(
+                    id: ReadingState.TimerID(),
+                    every: .init(interval),
+                    on: AnySchedulerOf<RunLoop>.main
+                )
+                .map({ _ in ReadingAction.onTimerFired })
+            effects.append(timerEffect)
+        }
+        return .merge(effects)
+
     case .binding:
         return .none
 
@@ -250,6 +271,10 @@ let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { 
 
     case .setSliderValue(let value):
         state.sliderValue = value
+        return .none
+
+    case .onTimerFired:
+        state.pageIndex += 1
         return .none
 
     case .copyImage(let imageURL):
@@ -350,8 +375,11 @@ let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { 
             .updateContents(gid: state.galleryID, contents: contents, originalContents: originalContents)
             .fireAndForget()
 
-    case .cancelFetching:
-        return .cancel(id: ReadingState.CancelID())
+    case .teardown:
+        return .merge(
+            .cancel(id: ReadingState.CancelID()),
+            .cancel(id: ReadingState.TimerID())
+        )
 
     case .fetchDatabaseInfos(let gid):
         return environment.databaseClient.fetchGalleryState(gid)
@@ -365,9 +393,8 @@ let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { 
         state.contents = galleryState.contents
         state.thumbnails = galleryState.thumbnails
         state.originalContents =  galleryState.originalContents
-        state.sliderValue = .init(galleryState.readingProgress)
         state.databaseLoadingState = .idle
-        return .none
+        return .init(value: .setSliderValue(.init(galleryState.readingProgress)))
 
     case .fetchPreviews(let index):
         guard state.previewLoadingStates[index] != .loading else { return .none }

@@ -41,7 +41,8 @@ struct ReadingView: View {
             backgroundColor.ignoresSafeArea()
             conditionalList.scaleEffect(viewStore.scale, anchor: viewStore.scaleAnchor)
                 .offset(viewStore.offset).gesture(tapGesture).gesture(dragGesture)
-                .gesture(magnificationGesture).ignoresSafeArea().id(viewStore.databaseLoadingState)
+                .gesture(magnificationGesture).ignoresSafeArea()
+                .id(viewStore.databaseLoadingState)
             ControlPanel(
                 showsPanel: viewStore.binding(\.$showsPanel),
                 sliderValue: viewStore.binding(\.$sliderValue),
@@ -75,6 +76,8 @@ struct ReadingView: View {
             .autoBlur(radius: blurRadius)
         }
         .synchronize(viewStore.binding(\.$pageIndex), $page.index)
+
+        // This binding couldn't be done in Store since It doesn't have enough infos
         .onChange(of: viewStore.pageIndex) { pageIndex in
             let newValue = viewStore.state.mapFromPager(
                 index: pageIndex, setting: setting,
@@ -92,6 +95,7 @@ struct ReadingView: View {
             )
             page.update(.new(index: newValue))
         }
+
         .animation(.default, value: viewStore.showsPanel)
         .animation(.default, value: viewStore.pageIndex)
         .animation(.default, value: viewStore.scale)
@@ -146,10 +150,12 @@ struct ReadingView: View {
                     reloadAction: { viewStore.send(.refetchContents($0)) }
                 )
                 .onAppear {
-                    if viewStore.databaseLoadingState != .loading && viewStore.contents[firstIndex] == nil {
-                        viewStore.send(.fetchContents(firstIndex))
+                    if viewStore.databaseLoadingState != .loading {
+                        if viewStore.contents[firstIndex] == nil {
+                            viewStore.send(.fetchContents(firstIndex))
+                        }
+                        viewStore.send(.prefetchImages(firstIndex, setting.prefetchLimit))
                     }
-                    viewStore.send(.prefetchImages(firstIndex, setting.prefetchLimit))
                 }
                 .contextMenu { contextMenuItems(index: firstIndex) }
             }
@@ -169,10 +175,12 @@ struct ReadingView: View {
                     reloadAction: { viewStore.send(.refetchContents($0)) }
                 )
                 .onAppear {
-                    if viewStore.databaseLoadingState != .loading && viewStore.contents[secondIndex] == nil {
-                        viewStore.send(.fetchContents(secondIndex))
+                    if viewStore.databaseLoadingState != .loading {
+                        if viewStore.contents[secondIndex] == nil {
+                            viewStore.send(.fetchContents(secondIndex))
+                        }
+                        viewStore.send(.prefetchImages(secondIndex, setting.prefetchLimit))
                     }
-                    viewStore.send(.prefetchImages(secondIndex, setting.prefetchLimit))
                 }
                 .contextMenu { contextMenuItems(index: secondIndex) }
             }
@@ -340,5 +348,28 @@ private struct ImageContainer: View {
     private func onFailure(_: KingfisherError) {
         guard !imageURL.isEmpty else { return }
         webImageLoadFailed = true
+    }
+}
+
+// MARK: Definition
+enum AutoPlayPolicy: Int, CaseIterable, Identifiable {
+    var id: Int { rawValue }
+
+    case never = -1
+    case sec1 = 1
+    case sec2 = 2
+    case sec3 = 3
+    case sec4 = 4
+    case sec5 = 5
+}
+
+extension AutoPlayPolicy {
+    var descriptionKey: LocalizedStringKey {
+        switch self {
+        case .never:
+            return "Never"
+        default:
+            return "\(rawValue) seconds"
+        }
     }
 }
