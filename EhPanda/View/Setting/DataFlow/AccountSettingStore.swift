@@ -128,7 +128,7 @@ let accountSettingReducer = Reducer<AccountSettingState, AccountSettingAction, A
             let cookiesDescription = environment.cookiesClient.getCookiesDescription(host: host)
             return .merge(
                 .init(value: .setNavigation(.hud)),
-                environment.clipboardClient.save(cookiesDescription).fireAndForget(),
+                environment.clipboardClient.saveText(cookiesDescription).fireAndForget(),
                 environment.hapticClient.generateNotificationFeedback(.success).fireAndForget()
             )
 

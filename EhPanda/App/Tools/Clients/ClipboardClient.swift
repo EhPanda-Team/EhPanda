@@ -11,20 +11,30 @@ import ComposableArchitecture
 struct ClipboardClient {
     let url: () -> URL?
     let changeCount: () -> Int
-    let save: (String) -> Effect<Never, Never>
+    let saveText: (String) -> Effect<Never, Never>
+    let saveImage: (UIImage) -> Effect<Never, Never>
 }
 
 extension ClipboardClient {
     static let live: Self = .init(
         url: {
-            ClipboardUtil.url
+            if UIPasteboard.general.hasURLs {
+                return UIPasteboard.general.url
+            } else {
+                return URL(string: UIPasteboard.general.string ?? "")
+            }
         },
         changeCount: {
             UIPasteboard.general.changeCount
         },
-        save: { value in
+        saveText: { value in
             .fireAndForget {
-                ClipboardUtil.save(value: value)
+                UIPasteboard.general.string = value
+            }
+        },
+        saveImage: { value in
+            .fireAndForget {
+                UIPasteboard.general.image = value
             }
         }
     )

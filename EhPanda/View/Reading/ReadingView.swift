@@ -49,8 +49,7 @@ struct ReadingView: View {
                 setting: $setting,
                 autoPlayPolicy: viewStore.binding(\.$autoPlayPolicy),
                 currentIndex: viewStore.state.mapFromPager(
-                    index: viewStore.pageIndex, setting: setting,
-                    isLandscape: DeviceUtil.isLandscape
+                    index: viewStore.pageIndex, setting: setting
                 ),
                 range: 1...Float(viewStore.gallery.pageCount),
                 previews: viewStore.previews,
@@ -75,13 +74,21 @@ struct ReadingView: View {
             .accentColor(setting.accentColor)
             .autoBlur(radius: blurRadius)
         }
+        .sheet(unwrapping: viewStore.binding(\.$route), case: /ReadingState.Route.share) { route in
+            ActivityView(activityItems: [route.wrappedValue])
+                .accentColor(setting.accentColor)
+                .autoBlur(radius: blurRadius)
+        }
+        .progressHUD(
+            config: viewStore.hudConfig,
+            unwrapping: viewStore.binding(\.$route),
+            case: /ReadingState.Route.hud
+        )
+        // These bindings couldn't be done in Store since It doesn't have enough infos
         .synchronize(viewStore.binding(\.$pageIndex), $page.index)
-
-        // This binding couldn't be done in Store since It doesn't have enough infos
         .onChange(of: viewStore.pageIndex) { pageIndex in
             let newValue = viewStore.state.mapFromPager(
-                index: pageIndex, setting: setting,
-                isLandscape: DeviceUtil.isLandscape
+                index: pageIndex, setting: setting
             )
             viewStore.send(.setSliderValue(.init(newValue)))
             if pageIndex != 0 {
@@ -90,12 +97,10 @@ struct ReadingView: View {
         }
         .onChange(of: viewStore.sliderValue) { sliderValue in
             let newValue = viewStore.state.mapToPager(
-                index: .init(sliderValue), setting: setting,
-                isLandscape: DeviceUtil.isLandscape
+                index: .init(sliderValue), setting: setting
             )
             page.update(.new(index: newValue))
         }
-
         .animation(.default, value: viewStore.showsPanel)
         .animation(.default, value: viewStore.pageIndex)
         .animation(.default, value: viewStore.scale)
@@ -107,9 +112,7 @@ struct ReadingView: View {
     @ViewBuilder private var conditionalList: some View {
         if setting.readingDirection == .vertical {
             AdvancedList(
-                page: page, data: viewStore.state.containerDataSource(
-                    setting: setting, isLandscape: DeviceUtil.isLandscape
-                ),
+                page: page, data: viewStore.state.containerDataSource(setting: setting),
                 id: \.self, spacing: setting.contentDividerHeight,
                 gesture: SimultaneousGesture(magnificationGesture, tapGesture),
                 content: imageContainer
@@ -117,9 +120,7 @@ struct ReadingView: View {
             .disabled(viewStore.scale != 1)
         } else {
             Pager(
-                page: page, data: viewStore.state.containerDataSource(
-                    setting: setting, isLandscape: DeviceUtil.isLandscape
-                ),
+                page: page, data: viewStore.state.containerDataSource(setting: setting),
                 id: \.self, content: imageContainer
             )
             .horizontal(setting.readingDirection == .rightToLeft ? .rightToLeft : .leftToRight)
@@ -128,9 +129,8 @@ struct ReadingView: View {
     }
     private func imageContainer(index: Int) -> some View {
         HStack(spacing: 0) {
-            let (firstIndex, secondIndex, isFirstValid, isSecondValid) = viewStore.state.imageContainerConfigs(
-                index: index, setting: setting, isLandscape: DeviceUtil.isLandscape
-            )
+            let (firstIndex, secondIndex, isFirstValid, isSecondValid) =
+            viewStore.state.imageContainerConfigs(index: index, setting: setting)
             let isDualPage = setting.enablesDualPageMode
             && setting.readingDirection != .vertical
             && DeviceUtil.isLandscape
@@ -195,24 +195,32 @@ struct ReadingView: View {
         }
         if let content = viewStore.contents[index], !content.isEmpty {
             Button {
-                viewStore.send(.copyImage(content))
+                if let url = URL(string: content) {
+                    viewStore.send(.copyImage(url))
+                }
             } label: {
                 Label("Copy", systemSymbol: .plusSquareOnSquare)
             }
             Button {
-                viewStore.send(.saveImage(content))
+                if let url = URL(string: content) {
+                    viewStore.send(.saveImage(url))
+                }
             } label: {
                 Label("Save", systemSymbol: .squareAndArrowDown)
             }
             if let originalContent = viewStore.originalContents[index], !originalContent.isEmpty {
                 Button {
-                    viewStore.send(.saveImage(originalContent))
+                    if let url = URL(string: originalContent) {
+                        viewStore.send(.saveImage(url))
+                    }
                 } label: {
                     Label("Save original", systemSymbol: .squareAndArrowDownOnSquare)
                 }
             }
             Button {
-                viewStore.send(.shareImage(content))
+                if let url = URL(string: content) {
+                    viewStore.send(.shareImage(url))
+                }
             } label: {
                 Label("Share", systemSymbol: .squareAndArrowUp)
             }

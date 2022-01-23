@@ -56,7 +56,7 @@ let torrentsReducer = Reducer<TorrentsState, TorrentsAction, TorrentsEnvironment
     case .copyMagnetURL(let magnetURL):
         state.route = .hud
         return .merge(
-            environment.clipboardClient.save(magnetURL).fireAndForget(),
+            environment.clipboardClient.saveText(magnetURL).fireAndForget(),
             environment.hapticClient.generateNotificationFeedback(.success).fireAndForget()
         )
 

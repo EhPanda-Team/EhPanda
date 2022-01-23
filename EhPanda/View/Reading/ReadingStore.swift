@@ -6,12 +6,19 @@
 //
 
 import SwiftUI
+import TTProgressHUD
 import ComposableArchitecture
 
 struct ReadingState: Equatable {
-    enum Route {
+    enum Route: Equatable {
         case hud
+        case share(UIImage)
         case readingSetting
+    }
+    enum ImageAction {
+        case copy
+        case save
+        case share
     }
     struct CancelID: Hashable {
         let id = String(describing: ReadingState.CancelID.self)
@@ -23,6 +30,8 @@ struct ReadingState: Equatable {
     @BindableState var route: Route?
     let gallery: Gallery
     let galleryID: String
+
+    var hudConfig: TTProgressHUDConfig = .loading
 
     var contentLoadingStates = [Int: LoadingState]()
     var previewLoadingStates = [Int: LoadingState]()
@@ -67,7 +76,7 @@ struct ReadingState: Equatable {
     }
 
     // Page
-    func mapFromPager(index: Int, setting: Setting, isLandscape: Bool) -> Int {
+    func mapFromPager(index: Int, setting: Setting, isLandscape: Bool = DeviceUtil.isLandscape) -> Int {
         guard isLandscape && setting.enablesDualPageMode
                 && setting.readingDirection != .vertical
         else { return index + 1 }
@@ -81,7 +90,7 @@ struct ReadingState: Equatable {
             return result
         }
     }
-    func mapToPager(index: Int, setting: Setting, isLandscape: Bool) -> Int {
+    func mapToPager(index: Int, setting: Setting, isLandscape: Bool = DeviceUtil.isLandscape) -> Int {
         guard isLandscape && setting.enablesDualPageMode
                 && setting.readingDirection != .vertical
         else { return index - 1 }
@@ -91,7 +100,7 @@ struct ReadingState: Equatable {
     }
 
     // Image
-    func containerDataSource(setting: Setting, isLandscape: Bool) -> [Int] {
+    func containerDataSource(setting: Setting, isLandscape: Bool = DeviceUtil.isLandscape) -> [Int] {
         let defaultData = Array(1...gallery.pageCount)
         guard isLandscape && setting.enablesDualPageMode
                 && setting.readingDirection != .vertical
@@ -103,7 +112,9 @@ struct ReadingState: Equatable {
 
         return data
     }
-    func imageContainerConfigs(index: Int, setting: Setting, isLandscape: Bool) -> (Int, Int, Bool, Bool) {
+    func imageContainerConfigs(
+        index: Int, setting: Setting, isLandscape: Bool = DeviceUtil.isLandscape
+    ) -> (Int, Int, Bool, Bool) {
         let direction = setting.readingDirection
         let isReversed = direction == .rightToLeft
         let isFirstSingle = setting.exceptCover
@@ -188,9 +199,12 @@ enum ReadingAction: BindableAction {
     case setSliderValue(Float)
     case onTimerFired
 
-    case copyImage(String)
-    case saveImage(String)
-    case shareImage(String)
+    case copyImage(URL)
+    case saveImage(URL)
+    case saveImageDone(Bool)
+    case shareImage(URL)
+    case fetchImage(ReadingState.ImageAction, URL)
+    case fetchImageDone(ReadingState.ImageAction, Result<UIImage, Error>)
 
     case onSingleTapGestureEnded(ReadingDirection)
     case onDoubleTapGestureEnded(Double, Double)
@@ -233,6 +247,7 @@ struct ReadingEnvironment {
     let imageClient: ImageClient
     let deviceClient: DeviceClient
     let databaseClient: DatabaseClient
+    let clipboardClient: ClipboardClient
 }
 
 let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { state, action, environment in
@@ -241,16 +256,17 @@ let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { 
         var effects: [Effect<ReadingAction, Never>] = [
             .cancel(id: ReadingState.TimerID())
         ]
-        let interval = TimeInterval(state.autoPlayPolicy.rawValue)
-        if interval > 0 {
-            let timerEffect = Effect<RunLoop.SchedulerTimeType, Never>
-                .timer(
-                    id: ReadingState.TimerID(),
-                    every: .init(interval),
-                    on: AnySchedulerOf<RunLoop>.main
-                )
-                .map({ _ in ReadingAction.onTimerFired })
-            effects.append(timerEffect)
+        let timeInterval = TimeInterval(state.autoPlayPolicy.rawValue)
+        if timeInterval > 0 {
+            effects.append(
+                Effect<RunLoop.SchedulerTimeType, Never>
+                    .timer(
+                        id: ReadingState.TimerID(),
+                        every: .init(timeInterval),
+                        on: AnySchedulerOf<RunLoop>.main
+                    )
+                    .map({ _ in ReadingAction.onTimerFired })
+            )
         }
         return .merge(effects)
 
@@ -278,13 +294,42 @@ let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { 
         return .none
 
     case .copyImage(let imageURL):
-        return .none
+        return .init(value: .fetchImage(.copy, imageURL))
 
     case .saveImage(let imageURL):
-        return .none
+        return .init(value: .fetchImage(.save, imageURL))
+
+    case .saveImageDone(let isSucceeded):
+        state.hudConfig = isSucceeded ? .savedToPhotoLibrary : .error
+        return .init(value: .setNavigation(.hud))
 
     case .shareImage(let imageURL):
-        return .none
+        return .init(value: .fetchImage(.share, imageURL))
+
+    case .fetchImage(let action, let imageURL):
+        return environment.imageClient.fetchImage(url: imageURL)
+            .map({ ReadingAction.fetchImageDone(action, $0) })
+            .cancellable(id: ReadingState.CancelID())
+
+    case .fetchImageDone(let action, let result):
+        if case .success(let image) = result {
+            switch action {
+            case .copy:
+                state.hudConfig = .copiedToClipboardSucceeded
+                return .merge(
+                    .init(value: .setNavigation(.hud)),
+                    environment.clipboardClient.saveImage(image).fireAndForget()
+                )
+            case .save:
+                return environment.imageClient
+                    .saveImageToPhotoLibrary(image).map(ReadingAction.saveImageDone)
+            case .share:
+                return .init(value: .setNavigation(.share(image)))
+            }
+        } else {
+            state.hudConfig = .error
+            return .init(value: .setNavigation(.hud))
+        }
 
     case .onSingleTapGestureEnded(let readingDirection):
         guard readingDirection != .vertical,

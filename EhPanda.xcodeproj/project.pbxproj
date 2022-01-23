@@ -177,7 +177,6 @@
 		ABF45AF625F3313D00ECB568 /* AppearanceSettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF45ADC25F3313D00ECB568 /* AppearanceSettingView.swift */; };
 		ABF45AF725F3313D00ECB568 /* SettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF45ADD25F3313D00ECB568 /* SettingView.swift */; };
 		ABF75F3F25A19CD200544D29 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF75F3E25A19CD200544D29 /* User.swift */; };
-		ABF971FF26DD394200118887 /* ImageSaver.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF971FE26DD394200118887 /* ImageSaver.swift */; };
 		ABF9720A26DE6E1300118887 /* GalleryDetailWithGreeting.html in Resources */ = {isa = PBXBuildFile; fileRef = ABF9720926DE6E1300118887 /* GalleryDetailWithGreeting.html */; };
 /* End PBXBuildFile section */
 
@@ -389,7 +388,6 @@
 		ABF45ADD25F3313D00ECB568 /* SettingView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingView.swift; sourceTree = "<group>"; };
 		ABF53F4725A306D200AB5918 /* EhPanda.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = EhPanda.entitlements; sourceTree = "<group>"; };
 		ABF75F3E25A19CD200544D29 /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
-		ABF971FE26DD394200118887 /* ImageSaver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageSaver.swift; sourceTree = "<group>"; };
 		ABF9720926DE6E1300118887 /* GalleryDetailWithGreeting.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = GalleryDetailWithGreeting.html; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -605,7 +603,6 @@
 				ABD49D65277EAC7E003D1A07 /* Utilities */,
 				ABCD2F0D25976B95008E5A20 /* Parser.swift */,
 				AB38A0CA25CA993D00764D64 /* ColorCodable.swift */,
-				ABF971FE26DD394200118887 /* ImageSaver.swift */,
 				ABBB2670279AFA61007B6149 /* EnvironmentKeys.swift */,
 			);
 			path = Tools;
@@ -1263,7 +1260,6 @@
 				ABD49D67277EAC90003D1A07 /* URLUtil.swift in Sources */,
 				ABBB2638278FBD2F007B6149 /* SwiftUINavigation_Extension.swift in Sources */,
 				AB10117E26986B7D00C2C1A9 /* GalleryStateMO+CoreDataProperties.swift in Sources */,
-				ABF971FF26DD394200118887 /* ImageSaver.swift in Sources */,
 				ABF45AE525F3313D00ECB568 /* PostCommentView.swift in Sources */,
 				AB358313269D7E89009466A5 /* DFRequest.swift in Sources */,
 				AB706F90278A5F680025A48A /* AppDelegateClient.swift in Sources */,

@@ -185,25 +185,6 @@ struct HapticUtil {
     }
 }
 
-// MARK: Clipboard
-struct ClipboardUtil {
-    static var url: URL? {
-        if UIPasteboard.general.hasURLs {
-            return UIPasteboard.general.url
-        } else {
-            return URL(string: UIPasteboard.general.string ?? "")
-        }
-    }
-
-    static func clear() {
-        UIPasteboard.general.string = ""
-    }
-
-    static func save(value: String) {
-        UIPasteboard.general.string = value
-    }
-}
-
 // MARK: UserDefaults
 struct UserDefaultsUtil {
     static func value<T: Codable>(forKey key: AppUserDefaults) -> T? {

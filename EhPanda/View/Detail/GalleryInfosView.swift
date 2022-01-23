@@ -75,10 +75,11 @@ struct GalleryInfosView: View {
         .navigationTitle("Gallery infos")
     }
 
+    #warning("This view needs refactoring!!!")
     private func tryCopy(value: String?) {
-        guard let value = value else { return }
+//        guard let value = value else { return }
 
-        ClipboardUtil.save(value: value)
+//        ClipboardUtil.save(value: value)
         presentHUD()
     }
     private func presentHUD() {
