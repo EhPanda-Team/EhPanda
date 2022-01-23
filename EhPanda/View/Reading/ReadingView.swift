@@ -49,9 +49,6 @@ struct ReadingView: View {
                 sliderValue: viewStore.binding(\.$sliderValue),
                 setting: $setting,
                 autoPlayPolicy: viewStore.binding(\.$autoPlayPolicy),
-                currentIndex: viewStore.state.mapFromPager(
-                    index: viewStore.pageIndex, setting: setting
-                ),
                 range: 1...Float(viewStore.gallery.pageCount),
                 previews: viewStore.previews, dismissAction: dismissAction,
                 navigateSettingAction: { viewStore.send(.setNavigation(.readingSetting)) },
@@ -68,14 +65,14 @@ struct ReadingView: View {
                     maximumScaleFactor: $setting.maximumScaleFactor,
                     doubleTapScaleFactor: $setting.doubleTapScaleFactor
                 )
-            }
-            .toolbar {
-                CustomToolbarItem(placement: .cancellationAction) {
-                    if !DeviceUtil.isPad && DeviceUtil.isLandscape {
-                        Button {
-                            viewStore.send(.setNavigation(nil))
-                        } label: {
-                            Image(systemSymbol: .chevronDown)
+                .toolbar {
+                    CustomToolbarItem(placement: .cancellationAction) {
+                        if !DeviceUtil.isPad && DeviceUtil.isLandscape {
+                            Button {
+                                viewStore.send(.setNavigation(nil))
+                            } label: {
+                                Image(systemSymbol: .chevronDown)
+                            }
                         }
                     }
                 }

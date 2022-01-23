@@ -51,6 +51,9 @@ struct AppEnvironment {
 
 let appReducerCore = Reducer<AppState, AppAction, AppEnvironment> { state, action, _ in
     switch action {
+    case .binding(\.settingState.$setting):
+        return .init(value: .setting(.syncSetting))
+
     case .binding(\.settingState.$searchFilter):
         return .init(value: .setting(.syncSearchFilter))
 

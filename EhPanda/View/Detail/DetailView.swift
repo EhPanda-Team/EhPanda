@@ -151,7 +151,7 @@ struct DetailView: View {
         .sheet(unwrapping: viewStore.binding(\.$route), case: /DetailState.Route.torrents) { _ in
             TorrentsView(
                 store: store.scope(state: \.torrentsState, action: DetailAction.torrents),
-                gid: gid, token: viewStore.galleryToken, blurRadius: blurRadius
+                gid: gid, token: viewStore.gallery.token, blurRadius: blurRadius
             )
             .accentColor(setting.accentColor)
             .autoBlur(radius: blurRadius)
@@ -204,7 +204,7 @@ private extension DetailView {
         NavigationLink(unwrapping: viewStore.binding(\.$route), case: /DetailState.Route.comments) { _ in
             CommentsView(
                 store: store.scope(state: \.commentsState, action: DetailAction.comments),
-                gid: gid, token: viewStore.galleryToken, apiKey: viewStore.apiKey,
+                gid: gid, token: viewStore.gallery.token, apiKey: viewStore.apiKey,
                 galleryURL: viewStore.gallery.galleryURL,
                 comments: viewStore.galleryComments, user: user,
                 setting: $setting, blurRadius: blurRadius,

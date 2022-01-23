@@ -10,13 +10,10 @@ import Kingfisher
 
 // MARK: ControlPanel
 struct ControlPanel: View {
-    @State private var refreshID: UUID = .init()
-
     @Binding private var showsPanel: Bool
     @Binding private var sliderValue: Float
     @Binding private var setting: Setting
     @Binding private var autoPlayPolicy: AutoPlayPolicy
-    private let currentIndex: Int
     private let range: ClosedRange<Float>
     private let previews: [Int: String]
     private let dismissAction: () -> Void
@@ -26,7 +23,7 @@ struct ControlPanel: View {
     init(
         showsPanel: Binding<Bool>, sliderValue: Binding<Float>,
         setting: Binding<Setting>, autoPlayPolicy: Binding<AutoPlayPolicy>,
-        currentIndex: Int, range: ClosedRange<Float>, previews: [Int: String],
+        range: ClosedRange<Float>, previews: [Int: String],
         dismissAction: @escaping () -> Void, navigateSettingAction: @escaping () -> Void,
         fetchPreviewsAction: @escaping (Int) -> Void
     ) {
@@ -34,7 +31,6 @@ struct ControlPanel: View {
         _sliderValue = sliderValue
         _setting = setting
         _autoPlayPolicy = autoPlayPolicy
-        self.currentIndex = currentIndex
         self.range = range
         self.previews = previews
         self.dismissAction = dismissAction
@@ -42,11 +38,15 @@ struct ControlPanel: View {
         self.fetchPreviewsAction = fetchPreviewsAction
     }
 
+    private var title: String {
+        ["\(max(Int(sliderValue), 1))", "\(Int(range.upperBound))"].joined(separator: " / ")
+    }
+
     var body: some View {
         VStack {
             UpperPanel(
-                title: "\(currentIndex) / " + "\(Int(range.upperBound))",
-                setting: $setting, refreshID: $refreshID,
+                title: title,
+                setting: $setting,
                 autoPlayPolicy: $autoPlayPolicy,
                 dismissAction: dismissAction,
                 navigateSettingAction: navigateSettingAction
@@ -63,19 +63,12 @@ struct ControlPanel: View {
             }
         }
         .opacity(showsPanel ? 1 : 0).disabled(!showsPanel)
-        .onChange(of: showsPanel) { newValue in
-            // workaround
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                if newValue { refreshID = .init() }
-            }
-        }
     }
 }
 
 // MARK: UpperPanel
 private struct UpperPanel: View {
     @Binding private var setting: Setting
-    @Binding private var refreshID: UUID
     @Binding private var autoPlayPolicy: AutoPlayPolicy
 
     private let title: String
@@ -84,12 +77,12 @@ private struct UpperPanel: View {
 
     init(
         title: String, setting: Binding<Setting>,
-        refreshID: Binding<UUID>, autoPlayPolicy: Binding<AutoPlayPolicy>,
-        dismissAction: @escaping () -> Void, navigateSettingAction: @escaping () -> Void
+        autoPlayPolicy: Binding<AutoPlayPolicy>,
+        dismissAction: @escaping () -> Void,
+        navigateSettingAction: @escaping () -> Void
     ) {
         self.title = title
         _setting = setting
-        _refreshID = refreshID
         _autoPlayPolicy = autoPlayPolicy
         self.dismissAction = dismissAction
         self.navigateSettingAction = navigateSettingAction
@@ -130,25 +123,21 @@ private struct UpperPanel: View {
                                 .symbolVariant(setting.enablesDualPageMode ? .fill : .none)
                         }
                     }
-                    Image(systemSymbol: .timer).opacity(0.01)
-                        .overlay {
-                            Menu {
-                                Text("AutoPlay").foregroundColor(.secondary)
-                                ForEach(AutoPlayPolicy.allCases) { policy in
-                                    Button {
-                                        autoPlayPolicy = policy
-                                    } label: {
-                                        Text(policy.descriptionKey)
-                                        if autoPlayPolicy == policy {
-                                            Image(systemSymbol: .checkmark)
-                                        }
-                                    }
-                                }
+                    Menu {
+                        Text("AutoPlay").foregroundColor(.secondary)
+                        ForEach(AutoPlayPolicy.allCases) { policy in
+                            Button {
+                                autoPlayPolicy = policy
                             } label: {
-                                Image(systemSymbol: .timer)
+                                Text(policy.descriptionKey)
+                                if autoPlayPolicy == policy {
+                                    Image(systemSymbol: .checkmark)
+                                }
                             }
                         }
-                        .id(refreshID)
+                    } label: {
+                        Image(systemSymbol: .timer)
+                    }
                     Button(action: navigateSettingAction) {
                         Image(systemSymbol: .gear)
                     }

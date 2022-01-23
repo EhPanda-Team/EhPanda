@@ -44,8 +44,6 @@ struct DetailState: Equatable, Identifiable {
         && lhs.userRating == rhs.userRating
 
         && lhs.apiKey == rhs.apiKey
-        && lhs.galleryID == rhs.galleryID
-        && lhs.galleryToken == rhs.galleryToken
 
         && lhs.loadingState == rhs.loadingState
         && lhs.gallery == rhs.gallery
@@ -72,9 +70,6 @@ struct DetailState: Equatable, Identifiable {
     var userRating = 0
 
     var apiKey = ""
-    var galleryID = ""
-    var galleryToken = ""
-
     var loadingState: LoadingState = .idle
     var gallery: Gallery = .empty
     var galleryDetail: GalleryDetail?
@@ -247,54 +242,51 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
             return .none
 
         case .syncGalleryTags:
-            guard !state.galleryID.isEmpty else { return .none }
+            guard !state.gallery.id.isEmpty else { return .none }
             return environment.databaseClient
-                .updateGalleryTags(gid: state.galleryID, tags: state.galleryTags).fireAndForget()
+                .updateGalleryTags(gid: state.gallery.id, tags: state.galleryTags).fireAndForget()
 
         case .syncGalleryDetail:
-            guard !state.galleryID.isEmpty, let detail = state.galleryDetail else { return .none }
+            guard !state.gallery.id.isEmpty, let detail = state.galleryDetail else { return .none }
             return environment.databaseClient.cacheGalleryDetail(detail).fireAndForget()
 
         case .syncGalleryPreviews:
-            guard !state.galleryID.isEmpty else { return .none }
+            guard !state.gallery.id.isEmpty else { return .none }
             return environment.databaseClient
-                .updatePreviews(gid: state.galleryID, previews: state.galleryPreviews).fireAndForget()
+                .updatePreviews(gid: state.gallery.id, previews: state.galleryPreviews).fireAndForget()
 
         case .syncGalleryComments:
-            guard !state.galleryID.isEmpty else { return .none }
+            guard !state.gallery.id.isEmpty else { return .none }
             return environment.databaseClient
-                .updateComments(gid: state.galleryID, comments: state.galleryComments).fireAndForget()
+                .updateComments(gid: state.gallery.id, comments: state.galleryComments).fireAndForget()
 
         case .syncGreeting(let greeting):
             return environment.databaseClient.updateGreeting(greeting).fireAndForget()
 
         case .syncPreviewConfig(let config):
-            guard !state.galleryID.isEmpty else { return .none }
+            guard !state.gallery.id.isEmpty else { return .none }
             return environment.databaseClient
-                .updatePreviewConfig(gid: state.galleryID, config: config).fireAndForget()
+                .updatePreviewConfig(gid: state.gallery.id, config: config).fireAndForget()
 
         case .saveGalleryHistory:
-            guard !state.galleryID.isEmpty else { return .none }
-            return environment.databaseClient.updateLastOpenDate(gid: state.galleryID).fireAndForget()
+            guard !state.gallery.id.isEmpty else { return .none }
+            return environment.databaseClient.updateLastOpenDate(gid: state.gallery.id).fireAndForget()
 
         case .updateReadingProgress(let progress):
             return environment.databaseClient
-                .updateReadingProgress(gid: state.galleryID, progress: progress).fireAndForget()
+                .updateReadingProgress(gid: state.gallery.id, progress: progress).fireAndForget()
 
         case .cancelFetching:
             return .cancel(id: DetailState.CancelID())
 
         case .fetchDatabaseInfos(let gid):
-            let gallery = environment.databaseClient.fetchGallery(gid)
-            state.galleryID = gid
-            state.gallery = gallery
-            state.galleryToken = gallery.token
+            state.gallery = environment.databaseClient.fetchGallery(gid)
             if let detail = environment.databaseClient.fetchGalleryDetail(gid) {
                 state.galleryDetail = detail
             }
             return .merge(
                 .init(value: .saveGalleryHistory),
-                environment.databaseClient.fetchGalleryState(state.galleryID)
+                environment.databaseClient.fetchGalleryState(state.gallery.id)
                     .map(DetailAction.fetchDatabaseInfosDone).cancellable(id: DetailState.CancelID())
             )
 
@@ -311,7 +303,7 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
         case .fetchGalleryDetail:
             guard state.loadingState != .loading else { return .none }
             state.loadingState = .loading
-            return GalleryDetailRequest(gid: state.galleryID, galleryURL: state.gallery.galleryURL)
+            return GalleryDetailRequest(gid: state.gallery.id, galleryURL: state.gallery.galleryURL)
                 .effect.map(DetailAction.fetchGalleryDetailDone).cancellable(id: DetailState.CancelID())
 
         case .fetchGalleryDetailDone(let result):
@@ -347,20 +339,20 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
 
         case .rateGallery:
             guard let apiuid = Int(environment.cookiesClient.apiuid),
-                  let gid = Int(state.galleryID)
+                  let gid = Int(state.gallery.id)
             else { return .none }
             return RateGalleryRequest(
                 apiuid: apiuid, apikey: state.apiKey, gid: gid,
-                token: state.galleryToken, rating: state.userRating
+                token: state.gallery.token, rating: state.userRating
             )
             .effect.map(DetailAction.anyGalleryOpsDone).cancellable(id: DetailState.CancelID())
 
         case .favorGallery(let favIndex):
-            return FavorGalleryRequest(gid: state.galleryID, token: state.galleryToken, favIndex: favIndex)
+            return FavorGalleryRequest(gid: state.gallery.id, token: state.gallery.token, favIndex: favIndex)
                 .effect.map(DetailAction.anyGalleryOpsDone).cancellable(id: DetailState.CancelID())
 
         case .unfavorGallery:
-            return UnfavorGalleryRequest(gid: state.galleryID).effect.map(DetailAction.anyGalleryOpsDone)
+            return UnfavorGalleryRequest(gid: state.gallery.id).effect.map(DetailAction.anyGalleryOpsDone)
                 .cancellable(id: DetailState.CancelID())
 
         case .postComment(let galleryURL):
