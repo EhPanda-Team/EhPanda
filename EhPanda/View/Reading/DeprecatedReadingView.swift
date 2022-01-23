@@ -60,12 +60,8 @@ struct DeprecatedReadingView: View, PersistenceAccessor {
     // MARK: ReadingView
     var body: some View {
         Text("")
-//        .statusBar(hidden: !showsPanel)
 //        .onAppear(perform: onStartTasks)
 //        .onDisappear(perform: onEndTasks)
-//        .navigationBarBackButtonHidden(true)
-//        .navigationBarHidden(environment.navigationBarHidden)
-//        .sheet(item: $sheetState, content: sheet)
 //        .onChange(of: page.index, perform: updateSliderValue)
 //        .onChange(of: autoPlayPolicy, perform: reconfigureTimer)
 //        .onChange(of: setting.exceptCover, perform: tryUpdatePagerIndex)
@@ -119,28 +115,27 @@ private extension DeprecatedReadingView {
         UINavigationController.attemptRotationToDeviceOrientation()
     }
     func restoreReadingProgress() {
-        AppUtil.dispatchMainSync {
-            let index = mapToPager(index: galleryState.readingProgress)
-            page.update(.new(index: index))
-        }
+//        AppUtil.dispatchMainSync {
+//            let index = mapToPager(index: galleryState.readingProgress)
+//            page.update(.new(index: index))
+//        }
     }
 
     // MARK: Progress
     func tryUpdatePagerIndex(_: Any? = nil) {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            let newIndex = mapToPager(index: Int(sliderValue))
-            guard page.index != newIndex else { return }
-            page.update(.new(index: newIndex))
-        }
+//        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+//            let newIndex = mapToPager(index: Int(sliderValue))
+//            guard page.index != newIndex else { return }
+//            page.update(.new(index: newIndex))
+//        }
     }
     func updateSliderValue(newIndex: Int) {
-        tryPrefetchImages(index: newIndex)
-        let newValue = Float(mapFromPager(index: newIndex))
-        withAnimation {
-            if sliderValue != newValue {
-                sliderValue = newValue
-            }
-        }
+//        let newValue = Float(mapFromPager(index: newIndex))
+//        withAnimation {
+//            if sliderValue != newValue {
+//                sliderValue = newValue
+//            }
+//        }
     }
     func reconfigureTimer(newPolicy: AutoPlayPolicy) {
         autoPlayTimer?.invalidate()
@@ -161,65 +156,6 @@ private extension DeprecatedReadingView {
 //        let progress = mapFromPager(index: page.index)
 //        guard progress > 0 else { return }
 //        store.dispatch(.setReadingProgress(gid: gid, tag: progress))
-    }
-    func mapToPager(index: Int) -> Int {
-//        guard DeviceUtil.isLandscape && setting.enablesDualPageMode
-//                && setting.readingDirection != .vertical
-//        else { return index - 1 }
-//        guard index > 1 else { return 0 }
-//
-//        return setting.exceptCover ? index / 2 : (index - 1) / 2
-        return 0
-    }
-    func mapFromPager(index: Int) -> Int {
-//        guard DeviceUtil.isLandscape && setting.enablesDualPageMode
-//                && setting.readingDirection != .vertical
-//        else { return index + 1 }
-//        guard index > 0 else { return 1 }
-//
-//        let result = setting.exceptCover ? index * 2 : index * 2 + 1
-//
-//        if result + 1 == pageCount {
-//            return pageCount
-//        } else {
-//            return result
-//        }
-        return 0
-    }
-
-    // MARK: Prefetch
-    func tryPrefetchImages(index: Int) {
-//        var prefetchIndices = [URL]()
-//        let prefetchLimit = setting.prefetchLimit / 2
-//
-//        let previousUpperBound = max(index - 2, 1)
-//        let previousLowerBound = max(previousUpperBound - prefetchLimit, 1)
-//        if previousUpperBound - previousLowerBound > 0 {
-//            appendPrefetchIndices(
-//                array: &prefetchIndices,
-//                range: previousLowerBound...previousUpperBound
-//            )
-//        }
-//
-//        let nextLowerBound = min(index + 2, pageCount)
-//        let nextUpperBound = min(nextLowerBound + prefetchLimit, pageCount)
-//        if nextUpperBound - nextLowerBound > 0 {
-//            appendPrefetchIndices(
-//                array: &prefetchIndices,
-//                range: nextLowerBound...nextUpperBound
-//            )
-//        }
-//
-//        guard !prefetchIndices.isEmpty else { return }
-//        ImagePrefetcher(urls: prefetchIndices).start()
-    }
-
-    func appendPrefetchIndices(array: inout [URL], range: ClosedRange<Int>) {
-//        let indices = Array(range.lowerBound...range.upperBound)
-//        array.append(contentsOf: indices.compactMap { index in
-//            tryFetchGalleryContents(index: index)
-//            return URL(string: galleryContents[index] ?? "")
-//        })
     }
 
     // MARK: ContextMenu

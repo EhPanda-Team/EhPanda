@@ -499,6 +499,7 @@ struct HomeView_Previews: PreviewProvider {
                 environment: HomeEnvironment(
                     urlClient: .live,
                     fileClient: .live,
+                    imageClient: .live,
                     deviceClient: .live,
                     hapticClient: .live,
                     libraryClient: .live,

@@ -72,6 +72,7 @@ enum SearchRequestAction: BindableAction {
 struct SearchRequestEnvironment {
     let urlClient: URLClient
     let fileClient: FileClient
+    let imageClient: ImageClient
     let deviceClient: DeviceClient
     let hapticClient: HapticClient
     let cookiesClient: CookiesClient
@@ -211,6 +212,7 @@ let searchRequestReducer = Reducer<SearchRequestState, SearchRequestAction, Sear
             .init(
                 urlClient: $0.urlClient,
                 fileClient: $0.fileClient,
+                imageClient: $0.imageClient,
                 deviceClient: $0.deviceClient,
                 hapticClient: $0.hapticClient,
                 cookiesClient: $0.cookiesClient,

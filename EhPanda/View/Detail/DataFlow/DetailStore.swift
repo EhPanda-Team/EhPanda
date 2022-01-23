@@ -82,7 +82,9 @@ struct DetailState: Equatable, Identifiable {
     var galleryPreviews = [Int: String]()
     var galleryComments = [GalleryComment]()
 
-    var readingState = ReadingState()
+    var readingState = ReadingState(
+        gallery: .empty, galleryID: .init()
+    )
     var archivesState = ArchivesState()
     var torrentsState = TorrentsState()
     var previewsState = PreviewsState()
@@ -100,6 +102,7 @@ enum DetailAction: BindableAction {
     case binding(BindingAction<DetailState>)
     case setNavigation(DetailState.Route?)
     case setSearchRequestState(SearchRequestState)
+    case setupReadingState
     case clearSubStates
     case onPostCommentAppear
     case onAppear(String, Bool)
@@ -144,6 +147,7 @@ enum DetailAction: BindableAction {
 struct DetailEnvironment {
     let urlClient: URLClient
     let fileClient: FileClient
+    let imageClient: ImageClient
     let deviceClient: DeviceClient
     let hapticClient: HapticClient
     let cookiesClient: CookiesClient
@@ -172,15 +176,20 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
             state.searchRequestStates = [searchRequestState]
             return .none
 
+        case .setupReadingState:
+            state.readingState = .init(gallery: state.gallery, galleryID: state.galleryID)
+            return .none
+
         case .clearSubStates:
             state.archivesState = .init()
             state.torrentsState = .init()
             state.previewsState = .init()
             state.commentsState = .init()
-
             state.commentContent = .init()
             state.postCommentFocused = false
             return .merge(
+                .init(value: .setupReadingState),
+                .init(value: .reading(.cancelFetching)),
                 .init(value: .archives(.cancelFetching)),
                 .init(value: .torrents(.cancelFetching)),
                 .init(value: .previews(.cancelFetching)),
@@ -286,7 +295,10 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
             state.galleryTags = galleryState.tags
             state.galleryPreviews = galleryState.previews
             state.galleryComments = galleryState.comments
-            return .init(value: .fetchGalleryDetail)
+            return .merge(
+                .init(value: .fetchGalleryDetail),
+                .init(value: .setupReadingState)
+            )
 
         case .fetchGalleryDetail:
             guard state.loadingState != .loading else { return .none }
@@ -384,6 +396,7 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
                     .init(
                         urlClient: environment.urlClient,
                         fileClient: environment.fileClient,
+                        imageClient: environment.imageClient,
                         deviceClient: environment.deviceClient,
                         hapticClient: environment.hapticClient,
                         cookiesClient: environment.cookiesClient,
@@ -403,6 +416,7 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
         environment: {
             .init(
                 urlClient: $0.urlClient,
+                imageClient: $0.imageClient,
                 deviceClient: $0.deviceClient,
                 databaseClient: $0.databaseClient
             )
@@ -446,6 +460,7 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
             .init(
                 urlClient: $0.urlClient,
                 fileClient: $0.fileClient,
+                imageClient: $0.imageClient,
                 deviceClient: $0.deviceClient,
                 hapticClient: $0.hapticClient,
                 cookiesClient: $0.cookiesClient,

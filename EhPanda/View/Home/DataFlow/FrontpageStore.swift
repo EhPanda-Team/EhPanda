@@ -66,6 +66,7 @@ enum FrontpageAction: BindableAction {
 struct FrontpageEnvironment {
     let urlClient: URLClient
     let fileClient: FileClient
+    let imageClient: ImageClient
     let deviceClient: DeviceClient
     let hapticClient: HapticClient
     let cookiesClient: CookiesClient
@@ -186,6 +187,7 @@ let frontpageReducer = Reducer<FrontpageState, FrontpageAction, FrontpageEnviron
             .init(
                 urlClient: $0.urlClient,
                 fileClient: $0.fileClient,
+                imageClient: $0.imageClient,
                 deviceClient: $0.deviceClient,
                 hapticClient: $0.hapticClient,
                 cookiesClient: $0.cookiesClient,

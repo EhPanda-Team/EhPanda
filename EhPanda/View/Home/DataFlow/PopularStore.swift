@@ -47,6 +47,7 @@ enum PopularAction: BindableAction {
 struct PopularEnvironment {
     let urlClient: URLClient
     let fileClient: FileClient
+    let imageClient: ImageClient
     let deviceClient: DeviceClient
     let hapticClient: HapticClient
     let cookiesClient: CookiesClient
@@ -111,6 +112,7 @@ let popularReducer = Reducer<PopularState, PopularAction, PopularEnvironment>.co
             .init(
                 urlClient: $0.urlClient,
                 fileClient: $0.fileClient,
+                imageClient: $0.imageClient,
                 deviceClient: $0.deviceClient,
                 hapticClient: $0.hapticClient,
                 cookiesClient: $0.cookiesClient,

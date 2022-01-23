@@ -192,9 +192,6 @@ struct DetailView: View {
 // MARK: NavigationLinks
 private extension DetailView {
     @ViewBuilder var navigationLinks: some View {
-        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /DetailState.Route.reading) { _ in
-            EmptyView()
-        }
         NavigationLink(unwrapping: viewStore.binding(\.$route), case: /DetailState.Route.previews) { _ in
             PreviewsView(
                 store: store.scope(state: \.previewsState, action: DetailAction.previews),
@@ -764,6 +761,7 @@ struct DetailView_Previews: PreviewProvider {
                     environment: DetailEnvironment(
                         urlClient: .live,
                         fileClient: .live,
+                        imageClient: .live,
                         deviceClient: .live,
                         hapticClient: .live,
                         cookiesClient: .live,

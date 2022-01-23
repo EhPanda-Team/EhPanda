@@ -277,6 +277,7 @@ struct CommentsView_Previews: PreviewProvider {
                     environment: CommentsEnvironment(
                         urlClient: .live,
                         fileClient: .live,
+                        imageClient: .live,
                         deviceClient: .live,
                         hapticClient: .live,
                         cookiesClient: .live,

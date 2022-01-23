@@ -101,6 +101,7 @@ struct FrontpageView_Previews: PreviewProvider {
                     environment: FrontpageEnvironment(
                         urlClient: .live,
                         fileClient: .live,
+                        imageClient: .live,
                         deviceClient: .live,
                         hapticClient: .live,
                         cookiesClient: .live,

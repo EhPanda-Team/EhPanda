@@ -116,6 +116,7 @@ struct SearchRequestView_Previews: PreviewProvider {
                 environment: SearchRequestEnvironment(
                     urlClient: .live,
                     fileClient: .live,
+                    imageClient: .live,
                     deviceClient: .live,
                     hapticClient: .live,
                     cookiesClient: .live,

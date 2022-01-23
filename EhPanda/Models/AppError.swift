@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum AppError: Error, Identifiable, Equatable {
+enum AppError: Error, Identifiable, Equatable, Hashable {
     var id: String { localizedDescription }
 
     case ipBanned(interval: BanInterval)
@@ -87,7 +87,7 @@ extension AppError: LocalizedError {
     // swiftlint:enable line_length
 }
 
-enum BanInterval: Equatable {
+enum BanInterval: Equatable, Hashable {
     case days(_: Int, hours: Int?)
     case hours(_: Int, minutes: Int?)
     case minutes(_: Int, seconds: Int?)

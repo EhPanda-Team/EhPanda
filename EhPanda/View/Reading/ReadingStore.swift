@@ -13,14 +13,17 @@ struct ReadingState: Equatable {
         case hud
         case readingSetting
     }
+    struct CancelID: Hashable {
+        let id = String(describing: ReadingState.self)
+    }
 
     @BindableState var route: Route?
-    var galleryID = ""
-    var readingProgress = 0
-    var gallery: Gallery = .empty
+    let gallery: Gallery
+    let galleryID: String
 
     var contentLoadingStates = [Int: LoadingState]()
     var previewLoadingStates = [Int: LoadingState]()
+    var databaseLoadingState: LoadingState = .loading
     var previewConfig: PreviewConfig = .normal(rows: 4)
 
     var previews = [Int: String]()
@@ -61,19 +64,27 @@ struct ReadingState: Equatable {
     }
 
     // Page
-    func mapFromPager(setting: Setting, isLandscape: Bool) -> Int {
+    func mapFromPager(index: Int, setting: Setting, isLandscape: Bool) -> Int {
         guard isLandscape && setting.enablesDualPageMode
                 && setting.readingDirection != .vertical
-        else { return pageIndex + 1 }
-        guard pageIndex > 0 else { return 1 }
+        else { return index + 1 }
+        guard index > 0 else { return 1 }
 
-        let result = setting.exceptCover ? pageIndex * 2 : pageIndex * 2 + 1
+        let result = setting.exceptCover ? index * 2 : index * 2 + 1
 
         if result + 1 == gallery.pageCount {
             return gallery.pageCount
         } else {
             return result
         }
+    }
+    func mapToPager(index: Int, setting: Setting, isLandscape: Bool) -> Int {
+        guard isLandscape && setting.enablesDualPageMode
+                && setting.readingDirection != .vertical
+        else { return index - 1 }
+        guard index > 1 else { return 0 }
+
+        return setting.exceptCover ? index / 2 : (index - 1) / 2
     }
 
     // Image
@@ -170,22 +181,26 @@ enum ReadingAction: BindableAction {
     case setNavigation(ReadingState.Route?)
 
     case toggleShowsPanel
+    case setPageIndex(Int)
+    case setSliderValue(Float)
 
     case copyImage(String)
     case saveImage(String)
     case shareImage(String)
 
-    case onSingleTapGestureEnded(Setting)
-    case onDoubleTapGestureEnded(Setting)
-    case onMagnificationGestureChanged(Double, Setting)
-    case onMagnificationGestureEnded(Double, Setting)
+    case onSingleTapGestureEnded(ReadingDirection)
+    case onDoubleTapGestureEnded(Double, Double)
+    case onMagnificationGestureChanged(Double, Double)
+    case onMagnificationGestureEnded(Double, Double)
     case onDragGestureChanged(DragGesture.Value)
     case onDragGestureEnded(DragGesture.Value)
 
+    case syncReadingProgress
     case syncPreviews([Int: String])
     case syncThumbnails([Int: String])
     case syncContents([Int: String], [Int: String])
 
+    case cancelFetching
     case fetchDatabaseInfos(String)
     case fetchDatabaseInfosDone(GalleryState)
 
@@ -194,6 +209,7 @@ enum ReadingAction: BindableAction {
 
     case fetchContents(Int)
     case refetchContents(Int)
+    case prefetchImages(Int, Int)
 
     case fetchThumbnails(Int)
     case fetchThumbnailsDone(Int, Result<[Int: String], AppError>)
@@ -210,6 +226,7 @@ enum ReadingAction: BindableAction {
 
 struct ReadingEnvironment {
     let urlClient: URLClient
+    let imageClient: ImageClient
     let deviceClient: DeviceClient
     let databaseClient: DatabaseClient
 }
@@ -227,6 +244,14 @@ let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { 
         state.showsPanel.toggle()
         return .none
 
+    case .setPageIndex(let index):
+        state.pageIndex = index
+        return .none
+
+    case .setSliderValue(let value):
+        state.sliderValue = value
+        return .none
+
     case .copyImage(let imageURL):
         return .none
 
@@ -236,43 +261,42 @@ let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { 
     case .shareImage(let imageURL):
         return .none
 
-    case .onSingleTapGestureEnded(let setting):
-        guard setting.readingDirection != .vertical,
+    case .onSingleTapGestureEnded(let readingDirection):
+        guard readingDirection != .vertical,
               let pointX = environment.deviceClient.touchPoint()?.x
         else { return .init(value: .toggleShowsPanel) }
-        let rightToLeft = setting.readingDirection == .rightToLeft
+        let rightToLeft = readingDirection == .rightToLeft
         if pointX < environment.deviceClient.absWindowW() * 0.2 {
             state.pageIndex += rightToLeft ? 1 : -1
         } else if pointX > environment.deviceClient.absWindowW() * (1 - 0.2) {
             state.pageIndex += rightToLeft ? -1 : 1
+        } else {
+            return .init(value: .toggleShowsPanel)
         }
-        return .init(value: .toggleShowsPanel)
+        return .none
 
-    case .onDoubleTapGestureEnded(let setting):
-        let newScale = state.scale == 1
-        ? setting.doubleTapScaleFactor : 1
-        let maximum = setting.maximumScaleFactor
+    case .onDoubleTapGestureEnded(let scaleMaximum, let doubleTapScale):
+        let newScale = state.scale == 1 ? doubleTapScale : 1
         let absWindowW = environment.deviceClient.absWindowW()
         let absWindowH = environment.deviceClient.absWindowH()
         if let point = environment.deviceClient.touchPoint() {
             state.correctScaleAnchor(point: point, absWindowW: absWindowW, absWindowH: absWindowH)
         }
         state.setOffset(.zero, absWindowW: absWindowW, absWindowH: absWindowH)
-        state.setScale(scale: newScale, maximum: maximum, absWindowW: absWindowW, absWindowH: absWindowH)
+        state.setScale(scale: newScale, maximum: scaleMaximum, absWindowW: absWindowW, absWindowH: absWindowH)
         return .none
 
-    case .onMagnificationGestureChanged(let value, let setting):
+    case .onMagnificationGestureChanged(let value, let scaleMaximum):
         let point = environment.deviceClient.touchPoint()
         let absWindowW = environment.deviceClient.absWindowW()
         let absWindowH = environment.deviceClient.absWindowH()
         state.onMagnificationGestureChanged(
-            value, point: point, scaleMaximum: setting.maximumScaleFactor,
+            value, point: point, scaleMaximum: scaleMaximum,
             absWindowW: absWindowW, absWindowH: absWindowH
         )
         return .none
 
-    case .onMagnificationGestureEnded(let value, let setting):
-        let scaleMaximum = setting.maximumScaleFactor
+    case .onMagnificationGestureEnded(let value, let scaleMaximum):
         let point = environment.deviceClient.touchPoint()
         let absWindowW = environment.deviceClient.absWindowW()
         let absWindowH = environment.deviceClient.absWindowH()
@@ -305,6 +329,11 @@ let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { 
         }
         return .none
 
+    case .syncReadingProgress:
+        guard !state.galleryID.isEmpty else { return .none }
+        return environment.databaseClient
+            .updateReadingProgress(gid: state.galleryID, progress: .init(state.sliderValue)).fireAndForget()
+
     case .syncPreviews(let previews):
         guard !state.galleryID.isEmpty else { return .none }
         return environment.databaseClient
@@ -321,10 +350,12 @@ let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { 
             .updateContents(gid: state.galleryID, contents: contents, originalContents: originalContents)
             .fireAndForget()
 
+    case .cancelFetching:
+        return .cancel(id: ReadingState.CancelID())
+
     case .fetchDatabaseInfos(let gid):
-        state.galleryID = gid
-        state.gallery = environment.databaseClient.fetchGallery(gid)
-        return environment.databaseClient.fetchGalleryState(gid).map(ReadingAction.fetchDatabaseInfosDone)
+        return environment.databaseClient.fetchGalleryState(gid)
+            .map(ReadingAction.fetchDatabaseInfosDone).cancellable(id: ReadingState.CancelID())
 
     case .fetchDatabaseInfosDone(let galleryState):
         if let previewConfig = galleryState.previewConfig {
@@ -333,8 +364,9 @@ let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { 
         state.previews = galleryState.previews
         state.contents = galleryState.contents
         state.thumbnails = galleryState.thumbnails
-        state.readingProgress = galleryState.readingProgress
         state.originalContents =  galleryState.originalContents
+        state.sliderValue = .init(galleryState.readingProgress)
+        state.databaseLoadingState = .idle
         return .none
 
     case .fetchPreviews(let index):
@@ -342,7 +374,7 @@ let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { 
         state.previewLoadingStates[index] = .loading
         let pageNum = state.previewConfig.pageNumber(index: index)
         return GalleryPreviewsRequest(galleryURL: state.gallery.galleryURL, pageNum: pageNum)
-            .effect.map({ ReadingAction.fetchPreviewsDone(index, $0) })
+            .effect.map({ ReadingAction.fetchPreviewsDone(index, $0) }).cancellable(id: ReadingState.CancelID())
 
     case .fetchPreviewsDone(let index, let result):
         switch result {
@@ -373,6 +405,29 @@ let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { 
             return .init(value: .refetchNormalContents(index))
         }
 
+    case .prefetchImages(let index, let prefetchLimit):
+        func imageURLs(range: ClosedRange<Int>) -> [URL] {
+            (range.lowerBound...range.upperBound).compactMap { index in
+                if let urlString = state.contents[index], let url = URL(string: urlString) {
+                    return url
+                }
+                return nil
+            }
+        }
+        var prefetchImageURLs = [URL]()
+        var effects = [Effect<ReadingAction, Never>]()
+        let previousUpperBound = max(index - 2, 1)
+        let previousLowerBound = max(previousUpperBound - prefetchLimit / 2, 1)
+        if previousUpperBound - previousLowerBound > 0 {
+            prefetchImageURLs += imageURLs(range: previousLowerBound...previousUpperBound)
+        }
+        let nextLowerBound = min(index + 2, state.gallery.pageCount)
+        let nextUpperBound = min(nextLowerBound + prefetchLimit / 2, state.gallery.pageCount)
+        if nextUpperBound - nextLowerBound > 0 {
+            prefetchImageURLs += imageURLs(range: nextLowerBound...nextUpperBound)
+        }
+        return environment.imageClient.prefetchImages(prefetchImageURLs).fireAndForget()
+
     case .fetchThumbnails(let index):
         guard state.contentLoadingStates[index] != .loading else { return .none }
         state.previewConfig.batchRange(index: index).forEach {
@@ -380,7 +435,7 @@ let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { 
         }
         let pageNum = state.previewConfig.pageNumber(index: index)
         return ThumbnailsRequest(url: state.gallery.galleryURL, pageNum: pageNum)
-            .effect.map({ ReadingAction.fetchThumbnailsDone(index, $0) })
+            .effect.map({ ReadingAction.fetchThumbnailsDone(index, $0) }).cancellable(id: ReadingState.CancelID())
 
     case .fetchThumbnailsDone(let index, let result):
         let batchRange = state.previewConfig.batchRange(index: index)
@@ -410,7 +465,7 @@ let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { 
 
     case .fetchNormalContents(let index, let thumbnails):
         return GalleryNormalContentsRequest(thumbnails: thumbnails)
-            .effect.map({ ReadingAction.fetchNormalContentsDone(index, $0) })
+            .effect.map({ ReadingAction.fetchNormalContentsDone(index, $0) }).cancellable(id: ReadingState.CancelID())
 
     case .fetchNormalContentsDone(let index, let result):
         let batchRange = state.previewConfig.batchRange(index: index)
@@ -444,7 +499,7 @@ let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { 
             thumbnailURL: state.thumbnails[index],
             storedImageURL: state.contents[index] ?? ""
         )
-        .effect.map({ ReadingAction.refetchNormalContentsDone(index, $0) })
+        .effect.map({ ReadingAction.refetchNormalContentsDone(index, $0) }).cancellable(id: ReadingState.CancelID())
 
     case .refetchNormalContentsDone(let index, let result):
         switch result {
@@ -463,7 +518,7 @@ let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { 
 
     case .fetchMPVKeys(let index, let mpvURL):
         return MPVKeysRequest(mpvURL: mpvURL)
-            .effect.map({ ReadingAction.fetchMPVKeysDone(index, $0) })
+            .effect.map({ ReadingAction.fetchMPVKeysDone(index, $0) }).cancellable(id: ReadingState.CancelID())
 
     case .fetchMPVKeysDone(let index, let result):
         let batchRange = state.previewConfig.batchRange(index: index)
@@ -504,7 +559,7 @@ let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { 
             gid: gidInteger, index: index, mpvKey: mpvKey,
             mpvImageKey: mpvImageKey, reloadToken: reloadToken
         )
-        .effect.map({ ReadingAction.fetchMPVContentDone(index, $0) })
+        .effect.map({ ReadingAction.fetchMPVContentDone(index, $0) }).cancellable(id: ReadingState.CancelID())
 
     case .fetchMPVContentDone(let index, let result):
         switch result {

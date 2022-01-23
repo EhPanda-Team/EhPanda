@@ -94,6 +94,7 @@ struct HistoryView_Previews: PreviewProvider {
                     environment: HistoryEnvironment(
                         urlClient: .live,
                         fileClient: .live,
+                        imageClient: .live,
                         deviceClient: .live,
                         hapticClient: .live,
                         cookiesClient: .live,

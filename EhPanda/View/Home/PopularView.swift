@@ -81,6 +81,7 @@ struct PopularView_Previews: PreviewProvider {
                     environment: PopularEnvironment(
                         urlClient: .live,
                         fileClient: .live,
+                        imageClient: .live,
                         deviceClient: .live,
                         hapticClient: .live,
                         cookiesClient: .live,

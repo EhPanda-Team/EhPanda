@@ -120,6 +120,7 @@
 		ABBB2671279AFA61007B6149 /* EnvironmentKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABBB2670279AFA61007B6149 /* EnvironmentKeys.swift */; };
 		ABBB2673279B9332007B6149 /* ReadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABBB2672279B9332007B6149 /* ReadingView.swift */; };
 		ABBB2675279B933D007B6149 /* ReadingStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABBB2674279B933D007B6149 /* ReadingStore.swift */; };
+		ABBB2677279CDBB0007B6149 /* ImageClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABBB2676279CDBB0007B6149 /* ImageClient.swift */; };
 		ABBC332826BE31AE0084A331 /* EhSettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABBC332726BE31AE0084A331 /* EhSettingView.swift */; };
 		ABBC332A26BE7C940084A331 /* SettingTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABBC332926BE7C940084A331 /* SettingTextField.swift */; };
 		ABBCCC9026C95F6E007D8A36 /* GalleryInfosView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABBCCC8F26C95F6E007D8A36 /* GalleryInfosView.swift */; };
@@ -326,6 +327,7 @@
 		ABBB2670279AFA61007B6149 /* EnvironmentKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentKeys.swift; sourceTree = "<group>"; };
 		ABBB2672279B9332007B6149 /* ReadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingView.swift; sourceTree = "<group>"; };
 		ABBB2674279B933D007B6149 /* ReadingStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingStore.swift; sourceTree = "<group>"; };
+		ABBB2676279CDBB0007B6149 /* ImageClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageClient.swift; sourceTree = "<group>"; };
 		ABBC332726BE31AE0084A331 /* EhSettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EhSettingView.swift; sourceTree = "<group>"; };
 		ABBC332926BE7C940084A331 /* SettingTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingTextField.swift; sourceTree = "<group>"; };
 		ABBCCC8F26C95F6E007D8A36 /* GalleryInfosView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryInfosView.swift; sourceTree = "<group>"; };
@@ -450,6 +452,7 @@
 				AB0929C72781938A00F107CA /* DFClient.swift */,
 				AB86ABF62782DDE600E61E6A /* FileClient.swift */,
 				ABBB264127942B74007B6149 /* URLClient.swift */,
+				ABBB2676279CDBB0007B6149 /* ImageClient.swift */,
 				AB706F8D278A5DCF0025A48A /* DeviceClient.swift */,
 				AB0929D12781E7D500F107CA /* LoggerClient.swift */,
 				AB0929CB2781A0B000F107CA /* HapticClient.swift */,
@@ -1240,6 +1243,7 @@
 				ABF45AE425F3313D00ECB568 /* TagCloudView.swift in Sources */,
 				ABCA93C22691929D00A98BC6 /* GalleryDetailMO+CoreDataClass.swift in Sources */,
 				ABF45AEE25F3313D00ECB568 /* ArchivesView.swift in Sources */,
+				ABBB2677279CDBB0007B6149 /* ImageClient.swift in Sources */,
 				AB706F95278A75D30025A48A /* HistoryView.swift in Sources */,
 				ABF45AEC25F3313D00ECB568 /* DeprecatedReadingView.swift in Sources */,
 				ABEA1FE625A9B40B002966B9 /* Setting.swift in Sources */,

@@ -18,6 +18,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             dfClient: .live,
             urlClient: .live,
             fileClient: .live,
+            imageClient: .live,
             deviceClient: .live,
             loggerClient: .live,
             hapticClient: .live,

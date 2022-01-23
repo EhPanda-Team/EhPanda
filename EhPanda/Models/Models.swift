@@ -526,7 +526,7 @@ extension TranslatableLanguage {
     }
 }
 
-enum LoadingState: Equatable {
+enum LoadingState: Equatable, Hashable {
     case idle
     case loading
     case failed(AppError)

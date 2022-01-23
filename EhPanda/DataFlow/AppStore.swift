@@ -35,6 +35,7 @@ struct AppEnvironment {
     let dfClient: DFClient
     let urlClient: URLClient
     let fileClient: FileClient
+    let imageClient: ImageClient
     let deviceClient: DeviceClient
     let loggerClient: LoggerClient
     let hapticClient: HapticClient
@@ -149,6 +150,7 @@ let appReducer = Reducer<AppState, AppAction, AppEnvironment>.combine(
             .init(
                 urlClient: $0.urlClient,
                 fileClient: $0.fileClient,
+                imageClient: $0.imageClient,
                 deviceClient: $0.deviceClient,
                 hapticClient: $0.hapticClient,
                 cookiesClient: $0.cookiesClient,
@@ -186,6 +188,7 @@ let appReducer = Reducer<AppState, AppAction, AppEnvironment>.combine(
             .init(
                 urlClient: $0.urlClient,
                 fileClient: $0.fileClient,
+                imageClient: $0.imageClient,
                 deviceClient: $0.deviceClient,
                 hapticClient: $0.hapticClient,
                 libraryClient: $0.libraryClient,
@@ -203,6 +206,7 @@ let appReducer = Reducer<AppState, AppAction, AppEnvironment>.combine(
             .init(
                 urlClient: $0.urlClient,
                 fileClient: $0.fileClient,
+                imageClient: $0.imageClient,
                 deviceClient: $0.deviceClient,
                 hapticClient: $0.hapticClient,
                 cookiesClient: $0.cookiesClient,
@@ -219,6 +223,7 @@ let appReducer = Reducer<AppState, AppAction, AppEnvironment>.combine(
             .init(
                 urlClient: $0.urlClient,
                 fileClient: $0.fileClient,
+                imageClient: $0.imageClient,
                 deviceClient: $0.deviceClient,
                 hapticClient: $0.hapticClient,
                 cookiesClient: $0.cookiesClient,

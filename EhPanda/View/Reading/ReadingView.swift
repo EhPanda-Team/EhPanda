@@ -41,14 +41,15 @@ struct ReadingView: View {
             backgroundColor.ignoresSafeArea()
             conditionalList.scaleEffect(viewStore.scale, anchor: viewStore.scaleAnchor)
                 .offset(viewStore.offset).gesture(tapGesture).gesture(dragGesture)
-                .gesture(magnificationGesture).ignoresSafeArea()
+                .gesture(magnificationGesture).ignoresSafeArea().id(viewStore.databaseLoadingState)
             ControlPanel(
                 showsPanel: viewStore.binding(\.$showsPanel),
                 sliderValue: viewStore.binding(\.$sliderValue),
                 setting: $setting,
                 autoPlayPolicy: viewStore.binding(\.$autoPlayPolicy),
                 currentIndex: viewStore.state.mapFromPager(
-                    setting: setting, isLandscape: DeviceUtil.isLandscape
+                    index: viewStore.pageIndex, setting: setting,
+                    isLandscape: DeviceUtil.isLandscape
                 ),
                 range: 1...Float(viewStore.gallery.pageCount),
                 previews: viewStore.previews,
@@ -74,6 +75,27 @@ struct ReadingView: View {
             .autoBlur(radius: blurRadius)
         }
         .synchronize(viewStore.binding(\.$pageIndex), $page.index)
+        .onChange(of: viewStore.pageIndex) { pageIndex in
+            let newValue = viewStore.state.mapFromPager(
+                index: pageIndex, setting: setting,
+                isLandscape: DeviceUtil.isLandscape
+            )
+            viewStore.send(.setSliderValue(.init(newValue)))
+            if pageIndex != 0 {
+                viewStore.send(.syncReadingProgress)
+            }
+        }
+        .onChange(of: viewStore.sliderValue) { sliderValue in
+            let newValue = viewStore.state.mapToPager(
+                index: .init(sliderValue), setting: setting,
+                isLandscape: DeviceUtil.isLandscape
+            )
+            page.update(.new(index: newValue))
+        }
+        .animation(.default, value: viewStore.showsPanel)
+        .animation(.default, value: viewStore.pageIndex)
+        .animation(.default, value: viewStore.scale)
+        .statusBar(hidden: !viewStore.showsPanel)
         .onAppear { viewStore.send(.fetchDatabaseInfos(gid)) }
     }
 
@@ -124,9 +146,10 @@ struct ReadingView: View {
                     reloadAction: { viewStore.send(.refetchContents($0)) }
                 )
                 .onAppear {
-                    if viewStore.contents[firstIndex] == nil {
+                    if viewStore.databaseLoadingState != .loading && viewStore.contents[firstIndex] == nil {
                         viewStore.send(.fetchContents(firstIndex))
                     }
+                    viewStore.send(.prefetchImages(firstIndex, setting.prefetchLimit))
                 }
                 .contextMenu { contextMenuItems(index: firstIndex) }
             }
@@ -146,9 +169,10 @@ struct ReadingView: View {
                     reloadAction: { viewStore.send(.refetchContents($0)) }
                 )
                 .onAppear {
-                    if viewStore.contents[secondIndex] == nil {
+                    if viewStore.databaseLoadingState != .loading && viewStore.contents[secondIndex] == nil {
                         viewStore.send(.fetchContents(secondIndex))
                     }
+                    viewStore.send(.prefetchImages(secondIndex, setting.prefetchLimit))
                 }
                 .contextMenu { contextMenuItems(index: secondIndex) }
             }
@@ -192,15 +216,19 @@ extension ReadingView {
     // MARK: Gesture
     var tapGesture: some Gesture {
         let singleTap = TapGesture(count: 1)
-            .onEnded { viewStore.send(.onSingleTapGestureEnded(setting)) }
+            .onEnded { viewStore.send(.onSingleTapGestureEnded(setting.readingDirection)) }
         let doubleTap = TapGesture(count: 2)
-            .onEnded { viewStore.send(.onDoubleTapGestureEnded(setting)) }
+            .onEnded {
+                viewStore.send(.onDoubleTapGestureEnded(
+                    setting.maximumScaleFactor, setting.doubleTapScaleFactor
+                ))
+            }
         return ExclusiveGesture(doubleTap, singleTap)
     }
     var magnificationGesture: some Gesture {
         MagnificationGesture()
-            .onChanged { viewStore.send(.onMagnificationGestureChanged($0, setting)) }
-            .onEnded { viewStore.send(.onMagnificationGestureEnded($0, setting)) }
+            .onChanged { viewStore.send(.onMagnificationGestureChanged($0, setting.maximumScaleFactor)) }
+            .onEnded { viewStore.send(.onMagnificationGestureEnded($0, setting.maximumScaleFactor)) }
     }
     var dragGesture: some Gesture {
         DragGesture(minimumDistance: 0.0, coordinateSpace: .local)
