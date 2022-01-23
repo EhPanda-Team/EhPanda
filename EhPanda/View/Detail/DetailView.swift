@@ -17,19 +17,19 @@ struct DetailView: View {
     @ObservedObject private var viewStore: ViewStore<DetailState, DetailAction>
     private let gid: String
     private let user: User
-    private let setting: Setting
+    @Binding private var setting: Setting
     private let blurRadius: Double
     private let tagTranslator: TagTranslator
 
     init(
         store: Store<DetailState, DetailAction>, gid: String,
-        user: User, setting: Setting, blurRadius: Double, tagTranslator: TagTranslator
+        user: User, setting: Binding<Setting>, blurRadius: Double, tagTranslator: TagTranslator
     ) {
         self.store = store
         viewStore = ViewStore(store)
         self.gid = gid
         self.user = user
-        self.setting = setting
+        _setting = setting
         self.blurRadius = blurRadius
         self.tagTranslator = tagTranslator
     }
@@ -133,8 +133,10 @@ struct DetailView: View {
         .fullScreenCover(unwrapping: viewStore.binding(\.$route), case: /DetailState.Route.reading) { _ in
             ReadingView(
                 store: store.scope(state: \.readingState, action: DetailAction.reading),
-                gid: gid, setting: .constant(setting), blurRadius: blurRadius
+                setting: $setting, blurRadius: blurRadius
             )
+            .accentColor(setting.accentColor)
+            .autoBlur(radius: blurRadius)
         }
         .sheet(unwrapping: viewStore.binding(\.$route), case: /DetailState.Route.archive) { _ in
             ArchivesView(
@@ -195,8 +197,7 @@ private extension DetailView {
         NavigationLink(unwrapping: viewStore.binding(\.$route), case: /DetailState.Route.previews) { _ in
             PreviewsView(
                 store: store.scope(state: \.previewsState, action: DetailAction.previews),
-                gid: gid, pageCount: viewStore.gallery.pageCount,
-                galleryURL: viewStore.gallery.galleryURL
+                setting: $setting, blurRadius: blurRadius
             )
         }
         NavigationLink(unwrapping: viewStore.binding(\.$route), case: /DetailState.Route.comments) { _ in
@@ -205,7 +206,7 @@ private extension DetailView {
                 gid: gid, token: viewStore.galleryToken, apiKey: viewStore.apiKey,
                 galleryURL: viewStore.gallery.galleryURL,
                 comments: viewStore.galleryComments, user: user,
-                setting: setting, blurRadius: blurRadius,
+                setting: $setting, blurRadius: blurRadius,
                 tagTranslator: tagTranslator
             )
         }
@@ -215,13 +216,16 @@ private extension DetailView {
             ) { subStore in
                 SearchRequestView(
                     store: subStore, keyword: route.wrappedValue, user: user,
-                    setting: setting, blurRadius: blurRadius, tagTranslator: tagTranslator
+                    setting: $setting, blurRadius: blurRadius, tagTranslator: tagTranslator
                 )
             }
         }
         NavigationLink(unwrapping: viewStore.binding(\.$route), case: /DetailState.Route.galleryInfos) { route in
             let (gallery, galleryDetail) = route.wrappedValue
-            GalleryInfosView(gallery: gallery, galleryDetail: galleryDetail)
+            GalleryInfosView(
+                store: store.scope(state: \.galleryInfosState, action: DetailAction.galleryInfos),
+                gallery: gallery, galleryDetail: galleryDetail
+            )
         }
     }
 }
@@ -772,7 +776,7 @@ struct DetailView_Previews: PreviewProvider {
                 ),
                 gid: .init(),
                 user: .init(),
-                setting: .init(),
+                setting: .constant(.init()),
                 blurRadius: 0,
                 tagTranslator: .init()
             )

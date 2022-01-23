@@ -15,7 +15,6 @@ struct ReadingView: View {
 
     let store: Store<ReadingState, ReadingAction>
     @ObservedObject private var viewStore: ViewStore<ReadingState, ReadingAction>
-    private let gid: String
     @Binding private var setting: Setting
     private let blurRadius: Double
 
@@ -23,11 +22,10 @@ struct ReadingView: View {
 
     init(
         store: Store<ReadingState, ReadingAction>,
-        gid: String, setting: Binding<Setting>, blurRadius: Double
+        setting: Binding<Setting>, blurRadius: Double
     ) {
         self.store = store
         viewStore = ViewStore(store)
-        self.gid = gid
         _setting = setting
         self.blurRadius = blurRadius
     }
@@ -105,7 +103,7 @@ struct ReadingView: View {
         .animation(.default, value: viewStore.pageIndex)
         .animation(.default, value: viewStore.scale)
         .statusBar(hidden: !viewStore.showsPanel)
-        .onAppear { viewStore.send(.fetchDatabaseInfos(gid)) }
+        .onAppear { viewStore.send(.fetchDatabaseInfos) }
     }
 
     // MARK: ConditionalList

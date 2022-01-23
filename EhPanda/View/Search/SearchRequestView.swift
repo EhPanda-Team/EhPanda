@@ -13,19 +13,19 @@ struct SearchRequestView: View {
     @ObservedObject private var viewStore: ViewStore<SearchRequestState, SearchRequestAction>
     private let keyword: String
     private let user: User
-    private let setting: Setting
+    @Binding private var setting: Setting
     private let blurRadius: Double
     private let tagTranslator: TagTranslator
 
     init(
         store: Store<SearchRequestState, SearchRequestAction>,
-        keyword: String, user: User, setting: Setting, blurRadius: Double, tagTranslator: TagTranslator
+        keyword: String, user: User, setting: Binding<Setting>, blurRadius: Double, tagTranslator: TagTranslator
     ) {
         self.store = store
         viewStore = ViewStore(store)
         self.keyword = keyword
         self.user = user
-        self.setting = setting
+        _setting = setting
         self.blurRadius = blurRadius
         self.tagTranslator = tagTranslator
     }
@@ -82,7 +82,7 @@ struct SearchRequestView: View {
         NavigationLink(unwrapping: viewStore.binding(\.$route), case: /SearchRequestState.Route.detail) { route in
             DetailView(
                 store: store.scope(state: \.detailState, action: SearchRequestAction.detail),
-                gid: route.wrappedValue, user: user, setting: setting,
+                gid: route.wrappedValue, user: user, setting: $setting,
                 blurRadius: blurRadius, tagTranslator: tagTranslator
             )
         }
@@ -127,7 +127,7 @@ struct SearchRequestView_Previews: PreviewProvider {
             ),
             keyword: .init(),
             user: .init(),
-            setting: .init(),
+            setting: .constant(.init()),
             blurRadius: 0,
             tagTranslator: .init()
         )

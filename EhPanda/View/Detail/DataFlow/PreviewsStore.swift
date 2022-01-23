@@ -16,11 +16,15 @@ struct PreviewsState: Equatable {
     }
 
     @BindableState var route: Route?
-    var galleryID = ""
+    let gallery: Gallery
 
-    var previewConfig: PreviewConfig = .normal(rows: 4)
     var loadingState: LoadingState = .idle
+    var databaseLoadingState: LoadingState = .loading
+
     var previews = [Int: String]()
+    var previewConfig: PreviewConfig = .normal(rows: 4)
+
+    var readingState = ReadingState(gallery: .empty)
 
     mutating func updatePreviews(_ previews: [Int: String]) {
         self.previews = self.previews.merging(
@@ -33,84 +37,115 @@ enum PreviewsAction: BindableAction {
     case binding(BindingAction<PreviewsState>)
     case setNavigation(PreviewsState.Route?)
     case clearSubStates
+    case setupReadingState
 
     case syncPreviews([Int: String])
     case updateReadingProgress(Int)
 
     case cancelFetching
-    case fetchDatabaseInfos(String)
+    case fetchDatabaseInfos
     case fetchDatabaseInfosDone(GalleryState)
-    case fetchPreviews(String, Int)
+    case fetchPreviews(Int)
     case fetchPreviewsDone(Result<[Int: String], AppError>)
+
+    case reading(ReadingAction)
 }
 
 struct PreviewsEnvironment {
+    let urlClient: URLClient
+    let imageClient: ImageClient
+    let deviceClient: DeviceClient
     let databaseClient: DatabaseClient
+    let clipboardClient: ClipboardClient
 }
 
-let previewsReducer = Reducer<PreviewsState, PreviewsAction, PreviewsEnvironment> { state, action, environment in
-    switch action {
-    case .binding(\.$route):
-        return state.route == nil ? .init(value: .clearSubStates) : .none
+let previewsReducer = Reducer<PreviewsState, PreviewsAction, PreviewsEnvironment>.combine(
+    .init { state, action, environment in
+        switch action {
+        case .binding(\.$route):
+            return state.route == nil ? .init(value: .clearSubStates) : .none
 
-    case .binding:
-        return .none
+        case .binding:
+            return .none
 
-    case .setNavigation(let route):
-        state.route = route
-        return route == nil ? .init(value: .clearSubStates) : .none
+        case .setNavigation(let route):
+            state.route = route
+            return route == nil ? .init(value: .clearSubStates) : .none
 
-    case .clearSubStates:
-        return .none
+        case .clearSubStates:
+            return .merge(
+                .init(value: .setupReadingState),
+                .init(value: .reading(.teardown))
+            )
 
-    case .syncPreviews(let previews):
-        guard !state.galleryID.isEmpty else { return .none }
-        return environment.databaseClient
-            .updatePreviews(gid: state.galleryID, previews: previews).fireAndForget()
+        case .setupReadingState:
+            state.readingState = .init(gallery: state.gallery)
+            return .none
 
-    case .updateReadingProgress(let progress):
-        guard !state.galleryID.isEmpty else { return .none }
-        return environment.databaseClient
-            .updateReadingProgress(gid: state.galleryID, progress: progress).fireAndForget()
+        case .syncPreviews(let previews):
+            guard !state.gallery.id.isEmpty else { return .none }
+            return environment.databaseClient
+                .updatePreviews(gid: state.gallery.id, previews: previews).fireAndForget()
 
-    case .cancelFetching:
-        return .cancel(id: PreviewsState.CancelID())
+        case .updateReadingProgress(let progress):
+            guard !state.gallery.id.isEmpty else { return .none }
+            return environment.databaseClient
+                .updateReadingProgress(gid: state.gallery.id, progress: progress).fireAndForget()
 
-    case .fetchDatabaseInfos(let gid):
-        let gallery = environment.databaseClient.fetchGallery(gid)
-        state.galleryID = gid
-        return environment.databaseClient.fetchGalleryState(gid)
-                .map(PreviewsAction.fetchDatabaseInfosDone).cancellable(id: PreviewsState.CancelID())
+        case .cancelFetching:
+            return .cancel(id: PreviewsState.CancelID())
 
-    case .fetchDatabaseInfosDone(let galleryState):
-        if let previewConfig = galleryState.previewConfig {
-            state.previewConfig = previewConfig
-        }
-        state.previews = galleryState.previews
-        return .none
+        case .fetchDatabaseInfos:
+            return environment.databaseClient.fetchGalleryState(state.gallery.id)
+                    .map(PreviewsAction.fetchDatabaseInfosDone).cancellable(id: PreviewsState.CancelID())
 
-    case .fetchPreviews(let galleryURL, let index):
-        guard state.loadingState != .loading else { return .none }
-        state.loadingState = .loading
-        let pageNum = state.previewConfig.pageNumber(index: index)
-        return GalleryPreviewsRequest(galleryURL: galleryURL, pageNum: pageNum)
-            .effect.map(PreviewsAction.fetchPreviewsDone).cancellable(id: PreviewsState.CancelID())
-
-    case .fetchPreviewsDone(let result):
-        state.loadingState = .idle
-
-        switch result {
-        case .success(let previews):
-            guard !previews.isEmpty else {
-                state.loadingState = .failed(.notFound)
-                return .none
+        case .fetchDatabaseInfosDone(let galleryState):
+            if let previewConfig = galleryState.previewConfig {
+                state.previewConfig = previewConfig
             }
-            state.updatePreviews(previews)
-            return .init(value: .syncPreviews(previews))
-        case .failure(let error):
-            state.loadingState = .failed(error)
+            state.previews = galleryState.previews
+            state.databaseLoadingState = .idle
+            return .init(value: .setupReadingState)
+
+        case .fetchPreviews(let index):
+            guard state.loadingState != .loading else { return .none }
+            state.loadingState = .loading
+            let pageNum = state.previewConfig.pageNumber(index: index)
+            return GalleryPreviewsRequest(galleryURL: state.gallery.galleryURL, pageNum: pageNum)
+                .effect.map(PreviewsAction.fetchPreviewsDone).cancellable(id: PreviewsState.CancelID())
+
+        case .fetchPreviewsDone(let result):
+            state.loadingState = .idle
+
+            switch result {
+            case .success(let previews):
+                guard !previews.isEmpty else {
+                    state.loadingState = .failed(.notFound)
+                    return .none
+                }
+                state.updatePreviews(previews)
+                return .init(value: .syncPreviews(previews))
+            case .failure(let error):
+                state.loadingState = .failed(error)
+            }
+            return .none
+
+        case .reading:
+            return .none
         }
-        return .none
     }
-}
-.binding()
+    .binding(),
+    readingReducer.pullback(
+        state: \.readingState,
+        action: /PreviewsAction.reading,
+        environment: {
+            .init(
+                urlClient: $0.urlClient,
+                imageClient: $0.imageClient,
+                deviceClient: $0.deviceClient,
+                databaseClient: $0.databaseClient,
+                clipboardClient: $0.clipboardClient
+            )
+        }
+    )
+)

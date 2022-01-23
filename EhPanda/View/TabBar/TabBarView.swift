@@ -29,14 +29,15 @@ struct TabBarView: View {
                             HomeView(
                                 store: store.scope(state: \.homeState, action: AppAction.home),
                                 user: viewStore.settingState.user,
-                                setting: viewStore.settingState.setting,
+                                setting: viewStore.binding(\.settingState.$setting),
                                 blurRadius: viewStore.appLockState.blurRadius,
                                 tagTranslator: viewStore.settingState.tagTranslator
                             )
                         case .favorites:
                             FavoritesView(
                                 store: store.scope(state: \.favoritesState, action: AppAction.favorites),
-                                user: viewStore.settingState.user, setting: viewStore.settingState.setting,
+                                user: viewStore.settingState.user,
+                                setting: viewStore.binding(\.settingState.$setting),
                                 blurRadius: viewStore.appLockState.blurRadius,
                                 tagTranslator: viewStore.settingState.tagTranslator
                             )
@@ -44,7 +45,7 @@ struct TabBarView: View {
                             SearchView(
                                 store: store.scope(state: \.searchState, action: AppAction.search),
                                 user: viewStore.settingState.user,
-                                setting: viewStore.settingState.setting,
+                                setting: viewStore.binding(\.settingState.$setting),
                                 blurRadius: viewStore.appLockState.blurRadius,
                                 tagTranslator: viewStore.settingState.tagTranslator
                             )
@@ -84,8 +85,10 @@ struct TabBarView: View {
             NavigationView {
                 DetailView(
                     store: store.scope(state: \.appRouteState.detailState, action: { AppAction.appRoute(.detail($0)) }),
-                    gid: route.wrappedValue, user: viewStore.settingState.user, setting: viewStore.settingState.setting,
-                    blurRadius: viewStore.appLockState.blurRadius, tagTranslator: viewStore.settingState.tagTranslator
+                    gid: route.wrappedValue, user: viewStore.settingState.user,
+                    setting: viewStore.binding(\.settingState.$setting),
+                    blurRadius: viewStore.appLockState.blurRadius,
+                    tagTranslator: viewStore.settingState.tagTranslator
                 )
             }
             .accentColor(viewStore.settingState.setting.accentColor)

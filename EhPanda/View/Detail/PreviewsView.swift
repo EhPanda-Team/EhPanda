@@ -12,16 +12,17 @@ import ComposableArchitecture
 struct PreviewsView: View {
     private let store: Store<PreviewsState, PreviewsAction>
     @ObservedObject private var viewStore: ViewStore<PreviewsState, PreviewsAction>
-    private let gid: String
-    private let pageCount: Int
-    private let galleryURL: String
+    @Binding private var setting: Setting
+    private let blurRadius: Double
 
-    init(store: Store<PreviewsState, PreviewsAction>, gid: String, pageCount: Int, galleryURL: String) {
+    init(
+        store: Store<PreviewsState, PreviewsAction>,
+        setting: Binding<Setting>, blurRadius: Double
+    ) {
         self.store = store
         viewStore = ViewStore(store)
-        self.gid = gid
-        self.pageCount = pageCount
-        self.galleryURL = galleryURL
+        _setting = setting
+        self.blurRadius = blurRadius
     }
 
     private var gridItems: [GridItem] {
@@ -37,7 +38,7 @@ struct PreviewsView: View {
     var body: some View {
         ScrollView {
             LazyVGrid(columns: gridItems) {
-                ForEach(1..<pageCount + 1) { index in
+                ForEach(1..<viewStore.gallery.pageCount + 1) { index in
                     VStack {
                         let (url, modifier) = PreviewResolver.getPreviewConfigs(
                             originalURL: viewStore.previews[index] ?? ""
@@ -53,17 +54,28 @@ struct PreviewsView: View {
                         Text("\(index)").font(DeviceUtil.isPadWidth ? .callout : .caption).foregroundColor(.secondary)
                     }
                     .onAppear {
-                        if viewStore.previews[index] == nil && (index - 1) % 20 == 0 {
-                            viewStore.send(.fetchPreviews(galleryURL, index))
+                        if viewStore.databaseLoadingState != .loading
+                            && viewStore.previews[index] == nil && (index - 1) % 20 == 0
+                        {
+                            viewStore.send(.fetchPreviews(index))
                         }
                     }
                 }
+                .id(viewStore.databaseLoadingState)
             }
             .padding(.horizontal)
             .padding(.bottom)
         }
+        .fullScreenCover(unwrapping: viewStore.binding(\.$route), case: /PreviewsState.Route.reading) { _ in
+            ReadingView(
+                store: store.scope(state: \.readingState, action: PreviewsAction.reading),
+                setting: $setting, blurRadius: blurRadius
+            )
+            .accentColor(setting.accentColor)
+            .autoBlur(radius: blurRadius)
+        }
         .onAppear {
-            viewStore.send(.fetchDatabaseInfos(gid))
+            viewStore.send(.fetchDatabaseInfos)
         }
         .navigationTitle("Previews")
     }
@@ -74,15 +86,18 @@ struct PreviewsView_Previews: PreviewProvider {
         NavigationView {
             PreviewsView(
                 store: .init(
-                    initialState: .init(),
+                    initialState: .init(gallery: .preview),
                     reducer: previewsReducer,
                     environment: PreviewsEnvironment(
-                        databaseClient: .live
+                        urlClient: .live,
+                        imageClient: .live,
+                        deviceClient: .live,
+                        databaseClient: .live,
+                        clipboardClient: .live
                     )
                 ),
-                gid: .init(),
-                pageCount: 1,
-                galleryURL: .init()
+                setting: .constant(.init()),
+                blurRadius: 0
             )
         }
     }

@@ -28,7 +28,7 @@ enum TorrentsAction: BindableAction {
     case binding(BindingAction<TorrentsState>)
     case setNavigation(TorrentsState.Route)
 
-    case copyMagnetURL(String)
+    case copyText(String)
     case presentTorrentActivity(String, Data)
 
     case cancelFetching
@@ -53,7 +53,7 @@ let torrentsReducer = Reducer<TorrentsState, TorrentsAction, TorrentsEnvironment
         state.route = route
         return .none
 
-    case .copyMagnetURL(let magnetURL):
+    case .copyText(let magnetURL):
         state.route = .hud
         return .merge(
             environment.clipboardClient.saveText(magnetURL).fireAndForget(),

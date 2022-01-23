@@ -15,18 +15,18 @@ struct HomeView: View {
     private let store: Store<HomeState, HomeAction>
     @ObservedObject private var viewStore: ViewStore<HomeState, HomeAction>
     private let user: User
-    private let setting: Setting
+    @Binding private var setting: Setting
     private let blurRadius: Double
     private let tagTranslator: TagTranslator
 
     init(
         store: Store<HomeState, HomeAction>,
-        user: User, setting: Setting, blurRadius: Double, tagTranslator: TagTranslator
+        user: User, setting: Binding<Setting>, blurRadius: Double, tagTranslator: TagTranslator
     ) {
         self.store = store
         viewStore = ViewStore(store)
         self.user = user
-        self.setting = setting
+        _setting = setting
         self.blurRadius = blurRadius
         self.tagTranslator = tagTranslator
     }
@@ -123,7 +123,7 @@ private extension HomeView {
         NavigationLink(unwrapping: viewStore.binding(\.$route), case: /HomeState.Route.detail) { route in
             DetailView(
                 store: store.scope(state: \.detailState, action: HomeAction.detail),
-                gid: route.wrappedValue, user: user, setting: setting,
+                gid: route.wrappedValue, user: user, setting: $setting,
                 blurRadius: blurRadius, tagTranslator: tagTranslator
             )
         }
@@ -134,17 +134,17 @@ private extension HomeView {
             case .popular:
                 PopularView(
                     store: store.scope(state: \.popularState, action: HomeAction.popular),
-                    user: user, setting: setting, blurRadius: blurRadius, tagTranslator: tagTranslator
+                    user: user, setting: $setting, blurRadius: blurRadius, tagTranslator: tagTranslator
                 )
             case .watched:
                 WatchedView(
                     store: store.scope(state: \.watchedState, action: HomeAction.watched),
-                    user: user, setting: setting, blurRadius: blurRadius, tagTranslator: tagTranslator
+                    user: user, setting: $setting, blurRadius: blurRadius, tagTranslator: tagTranslator
                 )
             case .history:
                 HistoryView(
                     store: store.scope(state: \.historyState, action: HomeAction.history),
-                    user: user, setting: setting, blurRadius: blurRadius, tagTranslator: tagTranslator
+                    user: user, setting: $setting, blurRadius: blurRadius, tagTranslator: tagTranslator
                 )
             }
         }
@@ -155,12 +155,12 @@ private extension HomeView {
             case .frontpage:
                 FrontpageView(
                     store: store.scope(state: \.frontpageState, action: HomeAction.frontpage),
-                    user: user, setting: setting, blurRadius: blurRadius, tagTranslator: tagTranslator
+                    user: user, setting: $setting, blurRadius: blurRadius, tagTranslator: tagTranslator
                 )
             case .toplists:
                 ToplistsView(
                     store: store.scope(state: \.toplistsState, action: HomeAction.toplists),
-                    user: user, setting: setting, blurRadius: blurRadius, tagTranslator: tagTranslator
+                    user: user, setting: $setting, blurRadius: blurRadius, tagTranslator: tagTranslator
                 )
             }
         }
@@ -510,7 +510,7 @@ struct HomeView_Previews: PreviewProvider {
                 )
             ),
             user: .init(),
-            setting: .init(),
+            setting: .constant(.init()),
             blurRadius: 0,
             tagTranslator: .init()
         )

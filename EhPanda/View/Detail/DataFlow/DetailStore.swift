@@ -82,13 +82,12 @@ struct DetailState: Equatable, Identifiable {
     var galleryPreviews = [Int: String]()
     var galleryComments = [GalleryComment]()
 
-    var readingState = ReadingState(
-        gallery: .empty, galleryID: .init()
-    )
+    var readingState = ReadingState(gallery: .empty)
     var archivesState = ArchivesState()
     var torrentsState = TorrentsState()
-    var previewsState = PreviewsState()
+    var previewsState = PreviewsState(gallery: .empty)
     var commentsState = CommentsState()
+    var galleryInfosState = GalleryInfosState()
     var searchRequestStates = IdentifiedArrayOf<SearchRequestState>()
     var searchRequestReducer: Reducer<SearchRequestState, SearchRequestAction, SearchRequestEnvironment>?
 
@@ -102,6 +101,7 @@ enum DetailAction: BindableAction {
     case binding(BindingAction<DetailState>)
     case setNavigation(DetailState.Route?)
     case setSearchRequestState(SearchRequestState)
+    case setupPreviewsState
     case setupReadingState
     case clearSubStates
     case onPostCommentAppear
@@ -141,6 +141,7 @@ enum DetailAction: BindableAction {
     case torrents(TorrentsAction)
     case previews(PreviewsAction)
     case comments(CommentsAction)
+    case galleryInfos(GalleryInfosAction)
     indirect case searchRequest(id: String, action: SearchRequestAction)
 }
 
@@ -176,18 +177,23 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
             state.searchRequestStates = [searchRequestState]
             return .none
 
+        case .setupPreviewsState:
+            state.previewsState = .init(gallery: state.gallery)
+            return .none
+
         case .setupReadingState:
-            state.readingState = .init(gallery: state.gallery, galleryID: state.galleryID)
+            state.readingState = .init(gallery: state.gallery)
             return .none
 
         case .clearSubStates:
             state.archivesState = .init()
             state.torrentsState = .init()
-            state.previewsState = .init()
             state.commentsState = .init()
             state.commentContent = .init()
             state.postCommentFocused = false
+            state.galleryInfosState = .init()
             return .merge(
+                .init(value: .setupPreviewsState),
                 .init(value: .setupReadingState),
                 .init(value: .reading(.teardown)),
                 .init(value: .archives(.cancelFetching)),
@@ -297,6 +303,7 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
             state.galleryComments = galleryState.comments
             return .merge(
                 .init(value: .fetchGalleryDetail),
+                .init(value: .setupPreviewsState),
                 .init(value: .setupReadingState)
             )
 
@@ -387,6 +394,9 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
         case .comments:
             return .none
 
+        case .galleryInfos:
+            return .none
+
         case .searchRequest:
             guard let searchRequestReducer = state.searchRequestReducer else { return .none }
             return searchRequestReducer.forEach(
@@ -450,7 +460,21 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
         action: /DetailAction.previews,
         environment: {
             .init(
-                databaseClient: $0.databaseClient
+                urlClient: $0.urlClient,
+                imageClient: $0.imageClient,
+                deviceClient: $0.deviceClient,
+                databaseClient: $0.databaseClient,
+                clipboardClient: $0.clipboardClient
+            )
+        }
+    ),
+    galleryInfosReducer.pullback(
+        state: \.galleryInfosState,
+        action: /DetailAction.galleryInfos,
+        environment: {
+            .init(
+                hapticClient: $0.hapticClient,
+                clipboardClient: $0.clipboardClient
             )
         }
     ),

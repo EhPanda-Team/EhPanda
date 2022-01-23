@@ -28,7 +28,7 @@ struct TorrentsView: View {
             ZStack {
                 List(viewStore.torrents) { torrent in
                     TorrentRow(torrent: torrent) { magnetURL in
-                        viewStore.send(.copyMagnetURL(magnetURL))
+                        viewStore.send(.copyText(magnetURL))
                     }
                     .swipeActions {
                         Button {

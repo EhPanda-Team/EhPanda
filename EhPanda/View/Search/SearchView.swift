@@ -12,18 +12,18 @@ struct SearchView: View {
     private let store: Store<SearchState, SearchAction>
     @ObservedObject private var viewStore: ViewStore<SearchState, SearchAction>
     private let user: User
-    private let setting: Setting
+    @Binding private var setting: Setting
     private let blurRadius: Double
     private let tagTranslator: TagTranslator
 
     init(
         store: Store<SearchState, SearchAction>,
-        user: User, setting: Setting, blurRadius: Double, tagTranslator: TagTranslator
+        user: User, setting: Binding<Setting>, blurRadius: Double, tagTranslator: TagTranslator
     ) {
         self.store = store
         viewStore = ViewStore(store)
         self.user = user
-        self.setting = setting
+        _setting = setting
         self.blurRadius = blurRadius
         self.tagTranslator = tagTranslator
     }
@@ -100,7 +100,7 @@ private extension SearchView {
         NavigationLink(unwrapping: viewStore.binding(\.$route), case: /SearchState.Route.detail) { route in
             DetailView(
                 store: store.scope(state: \.detailState, action: SearchAction.detail),
-                gid: route.wrappedValue, user: user, setting: setting,
+                gid: route.wrappedValue, user: user, setting: $setting,
                 blurRadius: blurRadius, tagTranslator: tagTranslator
             )
         }
@@ -109,7 +109,7 @@ private extension SearchView {
         NavigationLink(unwrapping: viewStore.binding(\.$route), case: /SearchState.Route.request) { _ in
             SearchRequestView(
                 store: store.scope(state: \.searchReqeustState, action: SearchAction.searchRequest),
-                keyword: viewStore.keyword, user: user, setting: setting,
+                keyword: viewStore.keyword, user: user, setting: $setting,
                 blurRadius: blurRadius, tagTranslator: tagTranslator
             )
         }
@@ -393,7 +393,7 @@ struct SearchView_Previews: PreviewProvider {
                 )
             ),
             user: .init(),
-            setting: .init(),
+            setting: .constant(.init()),
             blurRadius: 0,
             tagTranslator: .init()
         )

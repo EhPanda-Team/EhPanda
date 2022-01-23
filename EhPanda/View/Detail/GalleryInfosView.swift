@@ -7,15 +7,17 @@
 
 import SwiftUI
 import TTProgressHUD
+import ComposableArchitecture
 
 struct GalleryInfosView: View {
-    @State private var hudVisible = false
-    @State private var hudConfig = TTProgressHUDConfig()
-
+    private let store: Store<GalleryInfosState, GalleryInfosAction>
+    @ObservedObject private var viewStore: ViewStore<GalleryInfosState, GalleryInfosAction>
     private let gallery: Gallery
     private let galleryDetail: GalleryDetail
 
-    init(gallery: Gallery, galleryDetail: GalleryDetail) {
+    init(store: Store<GalleryInfosState, GalleryInfosAction>, gallery: Gallery, galleryDetail: GalleryDetail) {
+        self.store = store
+        viewStore = ViewStore(store)
         self.gallery = gallery
         self.galleryDetail = galleryDetail
     }
@@ -50,45 +52,33 @@ struct GalleryInfosView: View {
     }
 
     var body: some View {
-        ZStack {
-            GeometryReader { proxy in
-                List(infos) { info in
+        GeometryReader { proxy in
+            List(infos) { info in
+                HStack {
                     HStack {
-                        HStack {
-                            Text(info.title.localized)
-                            Spacer()
-                        }
-                        .frame(width: proxy.size.width / 3)
+                        Text(info.title.localized)
                         Spacer()
-                        Button {
-                            tryCopy(value: info.value)
-                        } label: {
-                            Text(info.value ?? "null".localized)
-                                .lineLimit(3).font(.caption)
-                                .foregroundStyle(.tint)
+                    }
+                    .frame(width: proxy.size.width / 3)
+                    Spacer()
+                    Button {
+                        if let text = info.value {
+                            viewStore.send(.copyText(text))
                         }
+                    } label: {
+                        Text(info.value ?? "null".localized)
+                            .lineLimit(3).font(.caption)
+                            .foregroundStyle(.tint)
                     }
                 }
             }
-            TTProgressHUD($hudVisible, config: hudConfig)
         }
-        .navigationTitle("Gallery infos")
-    }
-
-    #warning("This view needs refactoring!!!")
-    private func tryCopy(value: String?) {
-//        guard let value = value else { return }
-
-//        ClipboardUtil.save(value: value)
-        presentHUD()
-    }
-    private func presentHUD() {
-        hudConfig = TTProgressHUDConfig(
-            type: .success, title: "Success".localized,
-            caption: "Copied to clipboard".localized,
-            shouldAutoHide: true, autoHideInterval: 1
+        .progressHUD(
+            config: viewStore.hudConfig,
+            unwrapping: viewStore.binding(\.$route),
+            case: /GalleryInfosState.Route.hud
         )
-        hudVisible.toggle()
+        .navigationTitle("Gallery infos")
     }
 }
 
@@ -101,7 +91,18 @@ private struct Info: Identifiable {
 struct GalleryInfosView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
-            GalleryInfosView(gallery: .preview, galleryDetail: .preview)
+            GalleryInfosView(
+                store: .init(
+                    initialState: .init(),
+                    reducer: galleryInfosReducer,
+                    environment: GalleryInfosEnvironment(
+                        hapticClient: .live,
+                        clipboardClient: .live
+                    )
+                ),
+                gallery: .preview,
+                galleryDetail: .preview
+            )
         }
     }
 }

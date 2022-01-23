@@ -29,7 +29,6 @@ struct ReadingState: Equatable {
 
     @BindableState var route: Route?
     let gallery: Gallery
-    let galleryID: String
 
     var hudConfig: TTProgressHUDConfig = .loading
 
@@ -219,7 +218,7 @@ enum ReadingAction: BindableAction {
     case syncContents([Int: String], [Int: String])
 
     case teardown
-    case fetchDatabaseInfos(String)
+    case fetchDatabaseInfos
     case fetchDatabaseInfosDone(GalleryState)
 
     case fetchPreviews(Int)
@@ -400,24 +399,24 @@ let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { 
         return .none
 
     case .syncReadingProgress:
-        guard !state.galleryID.isEmpty else { return .none }
+        guard !state.gallery.id.isEmpty else { return .none }
         return environment.databaseClient
-            .updateReadingProgress(gid: state.galleryID, progress: .init(state.sliderValue)).fireAndForget()
+            .updateReadingProgress(gid: state.gallery.id, progress: .init(state.sliderValue)).fireAndForget()
 
     case .syncPreviews(let previews):
-        guard !state.galleryID.isEmpty else { return .none }
+        guard !state.gallery.id.isEmpty else { return .none }
         return environment.databaseClient
-            .updatePreviews(gid: state.galleryID, previews: previews).fireAndForget()
+            .updatePreviews(gid: state.gallery.id, previews: previews).fireAndForget()
 
     case .syncThumbnails(let thumbnails):
-        guard !state.galleryID.isEmpty else { return .none }
+        guard !state.gallery.id.isEmpty else { return .none }
         return environment.databaseClient
-            .updateThumbnails(gid: state.galleryID, thumbnails: thumbnails).fireAndForget()
+            .updateThumbnails(gid: state.gallery.id, thumbnails: thumbnails).fireAndForget()
 
     case .syncContents(let contents, let originalContents):
-        guard !state.galleryID.isEmpty else { return .none }
+        guard !state.gallery.id.isEmpty else { return .none }
         return environment.databaseClient
-            .updateContents(gid: state.galleryID, contents: contents, originalContents: originalContents)
+            .updateContents(gid: state.gallery.id, contents: contents, originalContents: originalContents)
             .fireAndForget()
 
     case .teardown:
@@ -426,8 +425,8 @@ let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { 
             .cancel(id: ReadingState.TimerID())
         )
 
-    case .fetchDatabaseInfos(let gid):
-        return environment.databaseClient.fetchGalleryState(gid)
+    case .fetchDatabaseInfos:
+        return environment.databaseClient.fetchGalleryState(state.gallery.id)
             .map(ReadingAction.fetchDatabaseInfosDone).cancellable(id: ReadingState.CancelID())
 
     case .fetchDatabaseInfosDone(let galleryState):
@@ -621,7 +620,7 @@ let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { 
         return .none
 
     case .fetchMPVContent(let index, let isRefresh):
-        guard let gidInteger = Int(state.galleryID), let mpvKey = state.mpvKey,
+        guard let gidInteger = Int(state.gallery.id), let mpvKey = state.mpvKey,
               let mpvImageKey = state.mpvImageKeys[index],
               state.contentLoadingStates[index] != .loading
         else { return .none }
