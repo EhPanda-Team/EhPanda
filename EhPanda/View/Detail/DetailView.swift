@@ -107,13 +107,11 @@ struct DetailView: View {
                             }
                         )
                     }
-                    if !viewStore.galleryComments.isEmpty {
-                        CommentsSection(
-                            comments: viewStore.galleryComments, backgroundColor: commentsBackgroundColor,
-                            navigateCommentAction: { viewStore.send(.setNavigation(.comments)) },
-                            navigatePostCommentAction: { viewStore.send(.setNavigation(.postComment)) }
-                        )
-                    }
+                    CommentsSection(
+                        comments: viewStore.galleryComments, backgroundColor: commentsBackgroundColor,
+                        navigateCommentAction: { viewStore.send(.setNavigation(.comments)) },
+                        navigatePostCommentAction: { viewStore.send(.setNavigation(.postComment)) }
+                    )
                 }
                 .padding(.bottom, 20)
                 .padding(.top, -25)
