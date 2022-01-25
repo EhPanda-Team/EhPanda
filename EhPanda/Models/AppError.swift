@@ -21,6 +21,15 @@ enum AppError: Error, Identifiable, Equatable, Hashable {
 }
 
 extension AppError: LocalizedError {
+    var isRetryable: Bool {
+        switch self {
+        case .ipBanned, .networkingFailed, .parseFailed,
+                .noUpdates, .notFound, .unknown:
+            return true
+        case .copyrightClaim, .expunged:
+            return false
+        }
+    }
     var localizedDescription: String {
         switch self {
         case .ipBanned:

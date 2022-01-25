@@ -93,6 +93,7 @@ struct PreviewsView_Previews: PreviewProvider {
                         urlClient: .live,
                         imageClient: .live,
                         deviceClient: .live,
+                        hapticClient: .live,
                         databaseClient: .live,
                         clipboardClient: .live,
                         appDelegateClient: .live

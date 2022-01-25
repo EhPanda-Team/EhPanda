@@ -73,9 +73,7 @@ struct FavoritesView: View {
             }
             .onAppear {
                 if viewStore.galleries?.isEmpty != false {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                        viewStore.send(.fetchGalleries())
-                    }
+                    viewStore.send(.fetchGalleries())
                 }
             }
             .background(navigationLink)

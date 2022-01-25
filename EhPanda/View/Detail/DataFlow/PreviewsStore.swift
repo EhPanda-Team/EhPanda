@@ -55,6 +55,7 @@ struct PreviewsEnvironment {
     let urlClient: URLClient
     let imageClient: ImageClient
     let deviceClient: DeviceClient
+    let hapticClient: HapticClient
     let databaseClient: DatabaseClient
     let clipboardClient: ClipboardClient
     let appDelegateClient: AppDelegateClient
@@ -144,6 +145,7 @@ let previewsReducer = Reducer<PreviewsState, PreviewsAction, PreviewsEnvironment
                 urlClient: $0.urlClient,
                 imageClient: $0.imageClient,
                 deviceClient: $0.deviceClient,
+                hapticClient: $0.hapticClient,
                 databaseClient: $0.databaseClient,
                 clipboardClient: $0.clipboardClient,
                 appDelegateClient: $0.appDelegateClient

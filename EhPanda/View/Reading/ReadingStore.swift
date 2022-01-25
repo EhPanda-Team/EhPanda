@@ -50,6 +50,7 @@ struct ReadingState: Equatable {
     @BindableState var pageIndex = 0
     @BindableState var showsPanel = false
     @BindableState var sliderValue: Float = 1
+    @BindableState var showsSliderPreview = false
     @BindableState var autoPlayPolicy: AutoPlayPolicy = .never
 
     var scaleAnchor: UnitPoint = .center
@@ -247,6 +248,7 @@ struct ReadingEnvironment {
     let urlClient: URLClient
     let imageClient: ImageClient
     let deviceClient: DeviceClient
+    let hapticClient: HapticClient
     let databaseClient: DatabaseClient
     let clipboardClient: ClipboardClient
     let appDelegateClient: AppDelegateClient
@@ -254,6 +256,9 @@ struct ReadingEnvironment {
 
 let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { state, action, environment in
     switch action {
+    case .binding(\.$showsSliderPreview):
+        return environment.hapticClient.generateFeedback(.soft).fireAndForget()
+
     case .binding(\.$autoPlayPolicy):
         var effects: [Effect<ReadingAction, Never>] = [
             .cancel(id: ReadingState.TimerID())

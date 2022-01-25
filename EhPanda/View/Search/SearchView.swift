@@ -66,10 +66,8 @@ struct SearchView: View {
                 viewStore.send(.setNavigation(.request))
             }
             .onAppear {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                    viewStore.send(.fetchHistoryGalleries)
-                    viewStore.send(.fetchDatabaseInfos)
-                }
+                viewStore.send(.fetchHistoryGalleries)
+                viewStore.send(.fetchDatabaseInfos)
             }
             .background(navigationLinks)
             .toolbar(content: toolbar)

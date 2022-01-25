@@ -123,10 +123,9 @@ struct DetailView: View {
                     && viewStore.loadingState == .loading ? 1 : 0
                 )
             let error = (/LoadingState.failed).extract(from: viewStore.loadingState)
-            ErrorView(error: error ?? .unknown) {
-                viewStore.send(.fetchGalleryDetail)
-            }
-            .opacity(viewStore.galleryDetail == nil && error != nil ? 1 : 0)
+            let retryAction = { viewStore.send(.fetchGalleryDetail) }
+            ErrorView(error: error ?? .unknown, retryAction: error?.isRetryable != false ? retryAction : nil)
+                .opacity(viewStore.galleryDetail == nil && error != nil ? 1 : 0)
         }
         .fullScreenCover(unwrapping: viewStore.binding(\.$route), case: /DetailState.Route.reading) { _ in
             ReadingView(
@@ -181,7 +180,7 @@ struct DetailView: View {
         .animation(.default, value: viewStore.showsFullTitle)
         .animation(.default, value: viewStore.galleryDetail)
         .onAppear {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+            DispatchQueue.main.async {
                 viewStore.send(.onAppear(gid, setting.showsNewDawnGreeting))
             }
         }

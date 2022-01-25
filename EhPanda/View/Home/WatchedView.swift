@@ -67,7 +67,7 @@ struct WatchedView: View {
         }
         .onAppear {
             if viewStore.galleries.isEmpty {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                DispatchQueue.main.async {
                     viewStore.send(.fetchGalleries())
                 }
             }

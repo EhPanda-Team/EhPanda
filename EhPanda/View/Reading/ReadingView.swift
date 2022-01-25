@@ -46,6 +46,7 @@ struct ReadingView: View {
                 .id(viewStore.databaseLoadingState)
             ControlPanel(
                 showsPanel: viewStore.binding(\.$showsPanel),
+                showsSliderPreview: viewStore.binding(\.$showsSliderPreview),
                 sliderValue: viewStore.binding(\.$sliderValue),
                 setting: $setting,
                 autoPlayPolicy: viewStore.binding(\.$autoPlayPolicy),
@@ -156,7 +157,7 @@ struct ReadingView: View {
                             viewStore.send(.fetchContents($0))
                         }
                     },
-                    reloadAction: { viewStore.send(.refetchContents($0)) }
+                    refetchAction: { viewStore.send(.refetchContents($0)) }
                 )
                 .onAppear {
                     if viewStore.databaseLoadingState != .loading {
@@ -181,7 +182,7 @@ struct ReadingView: View {
                             viewStore.send(.fetchContents($0))
                         }
                     },
-                    reloadAction: { viewStore.send(.refetchContents($0)) }
+                    refetchAction: { viewStore.send(.refetchContents($0)) }
                 )
                 .onAppear {
                     if viewStore.databaseLoadingState != .loading {
@@ -285,14 +286,14 @@ private struct ImageContainer: View {
     private let isDualPage: Bool
     private let backgroundColor: Color
     private let retryAction: (Int) -> Void
-    private let reloadAction: (Int) -> Void
+    private let refetchAction: (Int) -> Void
 
     init(
         index: Int, imageURL: String,
         loadingState: LoadingState,
         isDualPage: Bool, backgroundColor: Color,
         retryAction: @escaping (Int) -> Void,
-        reloadAction: @escaping (Int) -> Void
+        refetchAction: @escaping (Int) -> Void
     ) {
         self.index = index
         self.imageURL = imageURL
@@ -300,7 +301,7 @@ private struct ImageContainer: View {
         self.isDualPage = isDualPage
         self.backgroundColor = backgroundColor
         self.retryAction = retryAction
-        self.reloadAction = reloadAction
+        self.refetchAction = refetchAction
     }
 
     private func placeholder(_ progress: Progress) -> some View {
@@ -354,7 +355,7 @@ private struct ImageContainer: View {
     }
     private func reloadImage() {
         if webImageLoadFailed {
-            reloadAction(index)
+            refetchAction(index)
         } else if loadError != nil {
             retryAction(index)
         }
@@ -363,8 +364,9 @@ private struct ImageContainer: View {
         webImageLoadFailed = false
     }
     private func onFailure(_: KingfisherError) {
-        guard !imageURL.isEmpty else { return }
-        webImageLoadFailed = true
+        if !imageURL.isEmpty {
+            webImageLoadFailed = true
+        }
     }
 }
 
@@ -387,6 +389,34 @@ extension AutoPlayPolicy {
             return "Never"
         default:
             return "\(rawValue) seconds"
+        }
+    }
+}
+
+struct ReadingView_Previews: PreviewProvider {
+    static var previews: some View {
+        NavigationView {
+            Text("")
+                .fullScreenCover(isPresented: .constant(true)) {
+                    ReadingView(
+                        store: .init(
+                            initialState: .init(gallery: .empty),
+                            reducer: readingReducer,
+                            environment: ReadingEnvironment(
+                                urlClient: .live,
+                                imageClient: .live,
+                                deviceClient: .live,
+                                hapticClient: .live,
+                                databaseClient: .live,
+                                clipboardClient: .live,
+                                appDelegateClient: .live
+                            )
+                        ),
+                        setting: .constant(.init()),
+                        blurRadius: 0,
+                        dismissAction: {}
+                    )
+                }
         }
     }
 }

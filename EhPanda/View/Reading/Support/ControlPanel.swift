@@ -11,6 +11,7 @@ import Kingfisher
 // MARK: ControlPanel
 struct ControlPanel: View {
     @Binding private var showsPanel: Bool
+    @Binding private var showsSliderPreview: Bool
     @Binding private var sliderValue: Float
     @Binding private var setting: Setting
     @Binding private var autoPlayPolicy: AutoPlayPolicy
@@ -21,13 +22,14 @@ struct ControlPanel: View {
     private let fetchPreviewsAction: (Int) -> Void
 
     init(
-        showsPanel: Binding<Bool>, sliderValue: Binding<Float>,
-        setting: Binding<Setting>, autoPlayPolicy: Binding<AutoPlayPolicy>,
-        range: ClosedRange<Float>, previews: [Int: String],
-        dismissAction: @escaping () -> Void, navigateSettingAction: @escaping () -> Void,
+        showsPanel: Binding<Bool>, showsSliderPreview: Binding<Bool>, sliderValue: Binding<Float>,
+        setting: Binding<Setting>, autoPlayPolicy: Binding<AutoPlayPolicy>, range: ClosedRange<Float>,
+        previews: [Int: String], dismissAction: @escaping () -> Void,
+        navigateSettingAction: @escaping () -> Void,
         fetchPreviewsAction: @escaping (Int) -> Void
     ) {
         _showsPanel = showsPanel
+        _showsSliderPreview = showsSliderPreview
         _sliderValue = sliderValue
         _setting = setting
         _autoPlayPolicy = autoPlayPolicy
@@ -55,6 +57,7 @@ struct ControlPanel: View {
             Spacer()
             if range.upperBound > range.lowerBound {
                 LowerPanel(
+                    showsSliderPreview: $showsSliderPreview,
                     sliderValue: $sliderValue, previews: previews, range: range,
                     isReversed: setting.readingDirection == .rightToLeft,
                     fetchPreviewsAction: fetchPreviewsAction
@@ -153,18 +156,19 @@ private struct UpperPanel: View {
 
 // MARK: LowerPanel
 private struct LowerPanel: View {
-    @State private var isSliderDragging = false
-    @Binding var sliderValue: Float
+    @Binding private var showsSliderPreview: Bool
+    @Binding private var sliderValue: Float
     private let previews: [Int: String]
     private let range: ClosedRange<Float>
     private let isReversed: Bool
     private let fetchPreviewsAction: (Int) -> Void
 
     init(
-        sliderValue: Binding<Float>, previews: [Int: String],
-        range: ClosedRange<Float>, isReversed: Bool,
+        showsSliderPreview: Binding<Bool>, sliderValue: Binding<Float>,
+        previews: [Int: String], range: ClosedRange<Float>, isReversed: Bool,
         fetchPreviewsAction: @escaping (Int) -> Void
     ) {
+        _showsSliderPreview = showsSliderPreview
         _sliderValue = sliderValue
         self.previews = previews
         self.range = range
@@ -175,24 +179,21 @@ private struct LowerPanel: View {
     var body: some View {
         VStack(spacing: 0) {
             SliderPreivew(
-                isSliderDragging: $isSliderDragging,
+                showsSliderPreview: $showsSliderPreview,
                 sliderValue: $sliderValue, previews: previews, range: range,
                 isReversed: isReversed, fetchPreviewsAction: fetchPreviewsAction
             )
             VStack {
                 HStack {
-                    Text(lowerBoundText).boundTextModifier()
+                    Text(isReversed ? "\(Int(range.upperBound))" : "\(Int(range.lowerBound))")
+                        .fontWeight(.medium).font(.caption).padding()
                     Slider(
                         value: $sliderValue, in: range, step: 1,
-                        onEditingChanged: { isDragging in
-                            HapticUtil.generateFeedback(style: .soft)
-                            withAnimation {
-                                isSliderDragging = isDragging
-                            }
-                        }
+                        onEditingChanged: { showsSliderPreview = $0 }
                     )
-                    .rotationEffect(sliderAngle)
-                    Text(upperBoundText).boundTextModifier()
+                    .rotationEffect(.init(degrees: isReversed ? 180 : 0))
+                    Text(isReversed ? "\(Int(range.lowerBound))" : "\(Int(range.upperBound))")
+                        .fontWeight(.medium).font(.caption).padding()
                 }
                 .padding(.horizontal).padding(.bottom)
             }
@@ -201,21 +202,9 @@ private struct LowerPanel: View {
     }
 }
 
-private extension LowerPanel {
-    var lowerBoundText: String {
-        isReversed ? "\(Int(range.upperBound))" : "\(Int(range.lowerBound))"
-    }
-    var upperBoundText: String {
-        isReversed ? "\(Int(range.lowerBound))" : "\(Int(range.upperBound))"
-    }
-    var sliderAngle: Angle {
-        Angle(degrees: isReversed ? 180 : 0)
-    }
-}
-
 // MARK: SliderPreview
 private struct SliderPreivew: View {
-    @Binding private var isSliderDragging: Bool
+    @Binding private var showsSliderPreview: Bool
     @Binding var sliderValue: Float
     private let previews: [Int: String]
     private let range: ClosedRange<Float>
@@ -223,11 +212,11 @@ private struct SliderPreivew: View {
     private let fetchPreviewsAction: (Int) -> Void
 
     init(
-        isSliderDragging: Binding<Bool>, sliderValue: Binding<Float>,
+        showsSliderPreview: Binding<Bool>, sliderValue: Binding<Float>,
         previews: [Int: String], range: ClosedRange<Float>,
         isReversed: Bool, fetchPreviewsAction: @escaping (Int) -> Void
     ) {
-        _isSliderDragging = isSliderDragging
+        _showsSliderPreview = showsSliderPreview
         _sliderValue = sliderValue
         self.previews = previews
         self.range = range
@@ -251,7 +240,7 @@ private struct SliderPreivew: View {
                         }
                         .fade(duration: 0.25)
                         .imageModifier(modifier).resizable().scaledToFit()
-                        .frame(width: previewWidth, height: isSliderDragging ? previewHeight : 0)
+                        .frame(width: previewWidth, height: showsSliderPreview ? previewHeight : 0)
                     Text("\(index)").font(DeviceUtil.isPadWidth ? .callout : .caption)
                         .foregroundColor(index == Int(sliderValue) ? .accentColor : .secondary)
                 }
@@ -263,8 +252,8 @@ private struct SliderPreivew: View {
                 .opacity(checkIndex(index) ? 1 : 0)
             }
         }
-        .opacity(isSliderDragging ? 1 : 0).padding(.vertical, verticalPadding)
-        .frame(height: isSliderDragging ? previewHeight + verticalPadding * 2 : 0)
+        .opacity(showsSliderPreview ? 1 : 0).padding(.vertical, verticalPadding)
+        .frame(height: showsSliderPreview ? previewHeight + verticalPadding * 2 : 0)
     }
 }
 
@@ -297,11 +286,5 @@ private extension SliderPreivew {
     }
     func checkIndex(_ index: Int) -> Bool {
         index >= Int(range.lowerBound) && index <= Int(range.upperBound)
-    }
-}
-
-private extension Text {
-    func boundTextModifier() -> some View {
-        self.fontWeight(.medium).font(.caption).padding()
     }
 }
