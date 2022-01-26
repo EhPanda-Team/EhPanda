@@ -10,10 +10,11 @@ import Foundation
 enum AppError: Error, Identifiable, Equatable, Hashable {
     var id: String { localizedDescription }
 
-    case ipBanned(interval: BanInterval)
-    case copyrightClaim(owner: String)
-    case expunged(reason: String)
+    case copyrightClaim(String)
+    case ipBanned(BanInterval)
+    case expunged(String)
     case networkingFailed
+    case webImageFailed
     case parseFailed
     case noUpdates
     case notFound
@@ -24,7 +25,7 @@ extension AppError: LocalizedError {
     var isRetryable: Bool {
         switch self {
         case .ipBanned, .networkingFailed, .parseFailed,
-                .noUpdates, .notFound, .unknown:
+                .noUpdates, .notFound, .unknown, .webImageFailed:
             return true
         case .copyrightClaim, .expunged:
             return false
@@ -32,14 +33,16 @@ extension AppError: LocalizedError {
     }
     var localizedDescription: String {
         switch self {
-        case .ipBanned:
-            return "IP Banned"
         case .copyrightClaim:
             return "Copyright Claim"
+        case .ipBanned:
+            return "IP Banned"
         case .expunged:
             return "Gallery Expunged"
         case .networkingFailed:
             return "Network Error"
+        case .webImageFailed:
+            return "Web image loading error"
         case .parseFailed:
             return "Parse Error"
         case .noUpdates:
@@ -60,7 +63,7 @@ extension AppError: LocalizedError {
             return "wifi.exclamationmark"
         case .parseFailed:
             return "rectangle.and.text.magnifyingglass"
-        case .noUpdates:
+        case .noUpdates, .webImageFailed:
             return ""
         case .notFound, .unknown:
             return "questionmark.circle.fill"
@@ -71,11 +74,11 @@ extension AppError: LocalizedError {
         let tryLater = "Please try again later."
 
         switch self {
-        case .ipBanned(let interval):
-            return "Your IP address has been temporarily banned for excessive pageloads which indicates that you are using automated mirroring / harvesting software.".localized + " " + interval.description
         case .copyrightClaim(let owner):
             return "This gallery is unavailable due to a copyright claim by PLACEHOLDER. Sorry about that."
                 .localized.replacingOccurrences(of: "PLACEHOLDER", with: owner)
+        case .ipBanned(let interval):
+            return "Your IP address has been temporarily banned for excessive pageloads which indicates that you are using automated mirroring / harvesting software.".localized + " " + interval.description
         case .expunged(let reason):
             return reason.localized
         case .networkingFailed:
@@ -84,7 +87,7 @@ extension AppError: LocalizedError {
         case .parseFailed:
             return ["A parsing error occurred.", tryLater]
                 .map(\.localized).joined(separator: "\n")
-        case .noUpdates:
+        case .noUpdates, .webImageFailed:
             return ""
         case .notFound:
             return "There seems to be nothing here."

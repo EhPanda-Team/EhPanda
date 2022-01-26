@@ -114,26 +114,21 @@ struct ReadingState: Equatable {
     }
     func imageContainerConfigs(
         index: Int, setting: Setting, isLandscape: Bool = DeviceUtil.isLandscape
-    ) -> (Int, Int, Bool, Bool) {
+    ) -> ImageStackConfig {
         let direction = setting.readingDirection
         let isReversed = direction == .rightToLeft
         let isFirstSingle = setting.exceptCover
         let isFirstPageAndSingle = index == 1 && isFirstSingle
-        let isDualPage = isLandscape
-        && setting.enablesDualPageMode
-        && direction != .vertical
-
-        let firstIndex = isDualPage && isReversed &&
-            !isFirstPageAndSingle ? index + 1 : index
+        let isDualPage = isLandscape && setting.enablesDualPageMode && direction != .vertical
+        let firstIndex = isDualPage && isReversed && !isFirstPageAndSingle ? index + 1 : index
         let secondIndex = firstIndex + (isReversed ? -1 : 1)
-        let isValidFirstRange =
-            firstIndex >= 1 && firstIndex <= gallery.pageCount
+        let isValidFirstRange = firstIndex >= 1 && firstIndex <= gallery.pageCount
         let isValidSecondRange = isFirstSingle
             ? secondIndex >= 2 && secondIndex <= gallery.pageCount
             : secondIndex >= 1 && secondIndex <= gallery.pageCount
-        return (
-            firstIndex, secondIndex, isValidFirstRange,
-            !isFirstPageAndSingle && isValidSecondRange && isDualPage
+        return .init(
+            firstIndex: firstIndex, secondIndex: secondIndex, isFirstAvailable: isValidFirstRange,
+            isSecondAvailable: !isFirstPageAndSingle && isValidSecondRange && isDualPage
         )
     }
 
@@ -200,6 +195,10 @@ enum ReadingAction: BindableAction {
     case setOrientationPortrait(Bool)
     case onTimerFired
     case onAppear(Bool)
+
+    case onWebImageRetry(Int)
+    case onWebImageSucceeded(Int)
+    case onWebImageFailed(Int)
 
     case copyImage(URL)
     case saveImage(URL)
@@ -318,6 +317,18 @@ let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { 
             effects.append(.init(value: .setOrientationPortrait(false)))
         }
         return .merge(effects)
+
+    case .onWebImageRetry(let index):
+        state.contentLoadingStates[index] = .idle
+        return .none
+
+    case .onWebImageSucceeded(let index):
+        state.contentLoadingStates[index] = .idle
+        return .none
+
+    case .onWebImageFailed(let index):
+        state.contentLoadingStates[index] = .failed(.webImageFailed)
+        return .none
 
     case .copyImage(let imageURL):
         return .init(value: .fetchImage(.copy, imageURL))
@@ -516,19 +527,34 @@ let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { 
                 return nil
             }
         }
+        func contentIndices(range: ClosedRange<Int>) -> [Int] {
+            (range.lowerBound...range.upperBound).compactMap { index in
+                if state.contents[index] == nil, state.contentLoadingStates[index] != .loading {
+                    return index
+                }
+                return nil
+            }
+        }
         var prefetchImageURLs = [URL]()
+        var errorContentIndices = [Int]()
         var effects = [Effect<ReadingAction, Never>]()
         let previousUpperBound = max(index - 2, 1)
         let previousLowerBound = max(previousUpperBound - prefetchLimit / 2, 1)
         if previousUpperBound - previousLowerBound > 0 {
             prefetchImageURLs += imageURLs(range: previousLowerBound...previousUpperBound)
+            errorContentIndices += contentIndices(range: previousLowerBound...previousUpperBound)
         }
         let nextLowerBound = min(index + 2, state.gallery.pageCount)
         let nextUpperBound = min(nextLowerBound + prefetchLimit / 2, state.gallery.pageCount)
         if nextUpperBound - nextLowerBound > 0 {
             prefetchImageURLs += imageURLs(range: nextLowerBound...nextUpperBound)
+            errorContentIndices += contentIndices(range: nextLowerBound...nextUpperBound)
         }
-        return environment.imageClient.prefetchImages(prefetchImageURLs).fireAndForget()
+        errorContentIndices.forEach {
+            effects.append(.init(value: .fetchContents($0)))
+        }
+        effects.append(environment.imageClient.prefetchImages(prefetchImageURLs).fireAndForget())
+        return .merge(effects)
 
     case .fetchThumbnails(let index):
         guard state.contentLoadingStates[index] != .loading else { return .none }

@@ -138,7 +138,7 @@ struct Parser {
         }
 
         if galleryItems.isEmpty, let banInterval = parseBanInterval(doc: doc) {
-            throw AppError.ipBanned(interval: banInterval)
+            throw AppError.ipBanned(banInterval)
         }
 
         return galleryItems
@@ -398,12 +398,12 @@ struct Parser {
                    let rangeB = reason.range(of: ".Sorry about that.")
                 {
                     let owner = String(reason[rangeA.upperBound..<rangeB.lowerBound])
-                    throw AppError.copyrightClaim(owner: owner)
+                    throw AppError.copyrightClaim(owner)
                 } else {
-                    throw AppError.expunged(reason: reason)
+                    throw AppError.expunged(reason)
                 }
             } else if let banInterval = parseBanInterval(doc: doc) {
-                throw AppError.ipBanned(interval: banInterval)
+                throw AppError.ipBanned(banInterval)
             } else {
                 throw AppError.parseFailed
             }

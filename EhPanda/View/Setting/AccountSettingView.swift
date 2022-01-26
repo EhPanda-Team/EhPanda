@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import TTProgressHUD
 import ComposableArchitecture
 
 struct AccountSettingView: View {

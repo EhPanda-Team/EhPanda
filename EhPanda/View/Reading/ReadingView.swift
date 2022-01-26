@@ -40,10 +40,28 @@ struct ReadingView: View {
     var body: some View {
         ZStack {
             backgroundColor.ignoresSafeArea()
-            conditionalList.scaleEffect(viewStore.scale, anchor: viewStore.scaleAnchor)
-                .offset(viewStore.offset).gesture(tapGesture).gesture(dragGesture)
-                .gesture(magnificationGesture).ignoresSafeArea()
-                .id(viewStore.databaseLoadingState)
+            ZStack {
+                if setting.readingDirection == .vertical {
+                    AdvancedList(
+                        page: page, data: viewStore.state.containerDataSource(setting: setting),
+                        id: \.self, spacing: setting.contentDividerHeight,
+                        gesture: SimultaneousGesture(magnificationGesture, tapGesture),
+                        content: imageStack
+                    )
+                    .disabled(viewStore.scale != 1)
+                } else {
+                    Pager(
+                        page: page, data: viewStore.state.containerDataSource(setting: setting),
+                        id: \.self, content: imageStack
+                    )
+                    .horizontal(setting.readingDirection == .rightToLeft ? .rightToLeft : .leftToRight)
+                    .swipeInteractionArea(.allAvailable).allowsDragging(viewStore.scale == 1)
+                }
+            }
+            .scaleEffect(viewStore.scale, anchor: viewStore.scaleAnchor)
+            .offset(viewStore.offset).gesture(tapGesture).gesture(dragGesture)
+            .gesture(magnificationGesture).ignoresSafeArea()
+            .id(viewStore.databaseLoadingState)
             ControlPanel(
                 showsPanel: viewStore.binding(\.$showsPanel),
                 showsSliderPreview: viewStore.binding(\.$showsSliderPreview),
@@ -118,128 +136,28 @@ struct ReadingView: View {
         .onAppear { viewStore.send(.onAppear(setting.enablesLandscape)) }
     }
 
-    // MARK: ConditionalList
-    @ViewBuilder private var conditionalList: some View {
-        if setting.readingDirection == .vertical {
-            AdvancedList(
-                page: page, data: viewStore.state.containerDataSource(setting: setting),
-                id: \.self, spacing: setting.contentDividerHeight,
-                gesture: SimultaneousGesture(magnificationGesture, tapGesture),
-                content: imageContainer
-            )
-            .disabled(viewStore.scale != 1)
-        } else {
-            Pager(
-                page: page, data: viewStore.state.containerDataSource(setting: setting),
-                id: \.self, content: imageContainer
-            )
-            .horizontal(setting.readingDirection == .rightToLeft ? .rightToLeft : .leftToRight)
-            .swipeInteractionArea(.allAvailable).allowsDragging(viewStore.scale == 1)
-        }
-    }
-    private func imageContainer(index: Int) -> some View {
-        HStack(spacing: 0) {
-            let (firstIndex, secondIndex, isFirstValid, isSecondValid) =
-            viewStore.state.imageContainerConfigs(index: index, setting: setting)
-            let isDualPage = setting.enablesDualPageMode
-            && setting.readingDirection != .vertical
-            && DeviceUtil.isLandscape
-
-            if isFirstValid {
-                ImageContainer(
-                    index: firstIndex,
-                    imageURL: viewStore.contents[firstIndex] ?? "",
-                    loadingState: viewStore.contentLoadingStates[firstIndex] ?? .idle,
-                    isDualPage: isDualPage,
-                    backgroundColor: backgroundColor,
-                    retryAction: {
-                        if viewStore.contents[$0] == nil {
-                            viewStore.send(.fetchContents($0))
-                        }
-                    },
-                    refetchAction: { viewStore.send(.refetchContents($0)) }
-                )
-                .onAppear {
-                    if viewStore.databaseLoadingState != .loading {
-                        if viewStore.contents[firstIndex] == nil {
-                            viewStore.send(.fetchContents(firstIndex))
-                        }
-                        viewStore.send(.prefetchImages(firstIndex, setting.prefetchLimit))
-                    }
-                }
-                .contextMenu { contextMenuItems(index: firstIndex) }
-            }
-
-            if isSecondValid {
-                ImageContainer(
-                    index: secondIndex,
-                    imageURL: viewStore.contents[secondIndex] ?? "",
-                    loadingState: viewStore.contentLoadingStates[secondIndex] ?? .idle,
-                    isDualPage: isDualPage,
-                    backgroundColor: backgroundColor,
-                    retryAction: {
-                        if viewStore.contents[$0] == nil {
-                            viewStore.send(.fetchContents($0))
-                        }
-                    },
-                    refetchAction: { viewStore.send(.refetchContents($0)) }
-                )
-                .onAppear {
-                    if viewStore.databaseLoadingState != .loading {
-                        if viewStore.contents[secondIndex] == nil {
-                            viewStore.send(.fetchContents(secondIndex))
-                        }
-                        viewStore.send(.prefetchImages(secondIndex, setting.prefetchLimit))
-                    }
-                }
-                .contextMenu { contextMenuItems(index: secondIndex) }
-            }
-        }
-    }
-    // MARK: ContextMenu
-    @ViewBuilder private func contextMenuItems(index: Int) -> some View {
-        Button {
-            viewStore.send(.refetchContents(index))
-        } label: {
-            Label("Reload", systemSymbol: .arrowCounterclockwise)
-        }
-        if let content = viewStore.contents[index], !content.isEmpty {
-            Button {
-                if let url = URL(string: content) {
-                    viewStore.send(.copyImage(url))
-                }
-            } label: {
-                Label("Copy", systemSymbol: .plusSquareOnSquare)
-            }
-            Button {
-                if let url = URL(string: content) {
-                    viewStore.send(.saveImage(url))
-                }
-            } label: {
-                Label("Save", systemSymbol: .squareAndArrowDown)
-            }
-            if let originalContent = viewStore.originalContents[index], !originalContent.isEmpty {
-                Button {
-                    if let url = URL(string: originalContent) {
-                        viewStore.send(.saveImage(url))
-                    }
-                } label: {
-                    Label("Save original", systemSymbol: .squareAndArrowDownOnSquare)
-                }
-            }
-            Button {
-                if let url = URL(string: content) {
-                    viewStore.send(.shareImage(url))
-                }
-            } label: {
-                Label("Share", systemSymbol: .squareAndArrowUp)
-            }
-        }
+    @ViewBuilder private func imageStack(index: Int) -> some View {
+        let imageStackConfig = viewStore.state.imageContainerConfigs(index: index, setting: setting)
+        let isDualPage = setting.enablesDualPageMode && setting.readingDirection != .vertical && DeviceUtil.isLandscape
+        HorizontalImageStack(
+            index: index, isDualPage: isDualPage, isDatabaseLoading: viewStore.databaseLoadingState != .idle,
+            backgroundColor: backgroundColor, config: imageStackConfig, contents: viewStore.contents,
+            originalContents: viewStore.originalContents, loadingStates: viewStore.contentLoadingStates,
+            fetchAction: { viewStore.send(.fetchContents($0)) },
+            refetchAction: { viewStore.send(.refetchContents($0)) },
+            prefetchAction: { viewStore.send(.prefetchImages($0, setting.prefetchLimit)) },
+            loadRetryAction: { viewStore.send(.onWebImageRetry($0)) },
+            loadSucceededAction: { viewStore.send(.onWebImageSucceeded($0)) },
+            loadFailedAction: { viewStore.send(.onWebImageFailed($0)) },
+            copyImageAction: { viewStore.send(.copyImage($0)) },
+            saveImageAction: { viewStore.send(.saveImage($0)) },
+            shareImageAction: { viewStore.send(.shareImage($0)) }
+        )
     }
 }
 
+// MARK: Gesture
 extension ReadingView {
-    // MARK: Gesture
     var tapGesture: some Gesture {
         let singleTap = TapGesture(count: 1)
             .onEnded { viewStore.send(.onSingleTapGestureEnded(setting.readingDirection)) }
@@ -263,21 +181,135 @@ extension ReadingView {
     }
 }
 
+// MARK: HorizontalImageStack
+private struct HorizontalImageStack: View {
+    private let index: Int
+    private let isDualPage: Bool
+    private let isDatabaseLoading: Bool
+    private let backgroundColor: Color
+    private let config: ImageStackConfig
+    private let contents: [Int: String]
+    private let originalContents: [Int: String]
+    private let loadingStates: [Int: LoadingState]
+    private let fetchAction: (Int) -> Void
+    private let refetchAction: (Int) -> Void
+    private let prefetchAction: (Int) -> Void
+    private let loadRetryAction: (Int) -> Void
+    private let loadSucceededAction: (Int) -> Void
+    private let loadFailedAction: (Int) -> Void
+    private let copyImageAction: (URL) -> Void
+    private let saveImageAction: (URL) -> Void
+    private let shareImageAction: (URL) -> Void
+
+    init(
+        index: Int, isDualPage: Bool, isDatabaseLoading: Bool, backgroundColor: Color,
+        config: ImageStackConfig, contents: [Int: String], originalContents: [Int: String],
+        loadingStates: [Int: LoadingState], fetchAction: @escaping (Int) -> Void,
+        refetchAction: @escaping (Int) -> Void, prefetchAction: @escaping (Int) -> Void,
+        loadRetryAction: @escaping (Int) -> Void, loadSucceededAction: @escaping (Int) -> Void,
+        loadFailedAction: @escaping (Int) -> Void, copyImageAction: @escaping (URL) -> Void,
+        saveImageAction: @escaping (URL) -> Void, shareImageAction: @escaping (URL) -> Void
+    ) {
+        self.index = index
+        self.isDualPage = isDualPage
+        self.isDatabaseLoading = isDatabaseLoading
+        self.backgroundColor = backgroundColor
+        self.config = config
+        self.contents = contents
+        self.originalContents = originalContents
+        self.loadingStates = loadingStates
+        self.fetchAction = fetchAction
+        self.refetchAction = refetchAction
+        self.prefetchAction = prefetchAction
+        self.loadRetryAction = loadRetryAction
+        self.loadSucceededAction = loadSucceededAction
+        self.loadFailedAction = loadFailedAction
+        self.copyImageAction = copyImageAction
+        self.saveImageAction = saveImageAction
+        self.shareImageAction = shareImageAction
+    }
+
+    var body: some View {
+        HStack(spacing: 0) {
+            if config.isFirstAvailable {
+                imageContainer(index: config.firstIndex)
+            }
+            if config.isSecondAvailable {
+                imageContainer(index: config.secondIndex)
+            }
+        }
+    }
+
+    func imageContainer(index: Int) -> some View {
+        ImageContainer(
+            index: index,
+            imageURL: contents[index] ?? "",
+            loadingState: loadingStates[index] ?? .idle,
+            isDualPage: isDualPage,
+            backgroundColor: backgroundColor,
+            refetchAction: refetchAction,
+            loadRetryAction: loadRetryAction,
+            loadSucceededAction: loadSucceededAction,
+            loadFailedAction: loadFailedAction
+        )
+        .onAppear {
+            if !isDatabaseLoading {
+                if contents[index] == nil {
+                    fetchAction(index)
+                }
+                prefetchAction(index)
+            }
+        }
+        .contextMenu { contextMenuItems(index: index) }
+    }
+    @ViewBuilder private func contextMenuItems(index: Int) -> some View {
+        Button {
+            refetchAction(index)
+        } label: {
+            Label("Reload", systemSymbol: .arrowCounterclockwise)
+        }
+        if let content = contents[index], !content.isEmpty {
+            Button {
+                if let url = URL(string: content) {
+                    copyImageAction(url)
+                }
+            } label: {
+                Label("Copy", systemSymbol: .plusSquareOnSquare)
+            }
+            Button {
+                if let url = URL(string: content) {
+                    saveImageAction(url)
+                }
+            } label: {
+                Label("Save", systemSymbol: .squareAndArrowDown)
+            }
+            if let originalContent = originalContents[index], !originalContent.isEmpty {
+                Button {
+                    if let url = URL(string: originalContent) {
+                        saveImageAction(url)
+                    }
+                } label: {
+                    Label("Save original", systemSymbol: .squareAndArrowDownOnSquare)
+                }
+            }
+            Button {
+                if let url = URL(string: content) {
+                    shareImageAction(url)
+                }
+            } label: {
+                Label("Share", systemSymbol: .squareAndArrowUp)
+            }
+        }
+    }
+}
+
 // MARK: ImageContainer
 private struct ImageContainer: View {
-    @State private var webImageLoadFailed = false
-
     private var width: CGFloat {
         DeviceUtil.windowW / (isDualPage ? 2 : 1)
     }
     private var height: CGFloat {
         width / Defaults.ImageSize.contentAspect
-    }
-    private var loadFailedFlag: Bool {
-        loadError != nil || webImageLoadFailed
-    }
-    private var loadError: AppError? {
-        (/LoadingState.failed).extract(from: loadingState)
     }
 
     private let index: Int
@@ -285,23 +317,29 @@ private struct ImageContainer: View {
     private let loadingState: LoadingState
     private let isDualPage: Bool
     private let backgroundColor: Color
-    private let retryAction: (Int) -> Void
     private let refetchAction: (Int) -> Void
+    private let loadRetryAction: (Int) -> Void
+    private let loadSucceededAction: (Int) -> Void
+    private let loadFailedAction: (Int) -> Void
 
     init(
         index: Int, imageURL: String,
         loadingState: LoadingState,
         isDualPage: Bool, backgroundColor: Color,
-        retryAction: @escaping (Int) -> Void,
-        refetchAction: @escaping (Int) -> Void
+        refetchAction: @escaping (Int) -> Void,
+        loadRetryAction: @escaping (Int) -> Void,
+        loadSucceededAction: @escaping (Int) -> Void,
+        loadFailedAction: @escaping (Int) -> Void
     ) {
         self.index = index
         self.imageURL = imageURL
         self.loadingState = loadingState
         self.isDualPage = isDualPage
         self.backgroundColor = backgroundColor
-        self.retryAction = retryAction
         self.refetchAction = refetchAction
+        self.loadRetryAction = loadRetryAction
+        self.loadSucceededAction = loadSucceededAction
+        self.loadFailedAction = loadFailedAction
     }
 
     private func placeholder(_ progress: Progress) -> some View {
@@ -309,25 +347,6 @@ private struct ImageContainer: View {
             pageNumber: index, progress: progress,
             isDualPage: isDualPage, backgroundColor: backgroundColor
         ))
-        .frame(width: width, height: height)
-    }
-    private func retryView() -> some View {
-        ZStack {
-            backgroundColor
-            VStack {
-                Text(String(index)).font(.largeTitle.bold())
-                    .foregroundColor(.gray).padding(.bottom, 30)
-                if loadFailedFlag {
-                    Button(action: reloadImage) {
-                        Image(systemSymbol: .exclamationmarkArrowTriangle2Circlepath)
-                    }
-                    .font(.system(size: 30, weight: .medium))
-                    .foregroundColor(.gray)
-                } else {
-                    ProgressView()
-                }
-            }
-        }
         .frame(width: width, height: height)
     }
     @ViewBuilder private func image(url: String) -> some View {
@@ -344,33 +363,54 @@ private struct ImageContainer: View {
     }
 
     var body: some View {
-        if loadingState == .loading || loadFailedFlag {
-            retryView()
-                .onChange(of: imageURL) { _ in
-                    webImageLoadFailed = false
-                }
-        } else {
+        if loadingState == .idle, !imageURL.isEmpty {
             image(url: imageURL).scaledToFit()
+        } else {
+            ZStack {
+                backgroundColor
+                VStack {
+                    Text(String(index)).font(.largeTitle.bold())
+                        .foregroundColor(.gray).padding(.bottom, 30)
+                    ZStack {
+                        Button(action: reloadImage) {
+                            Image(systemSymbol: .exclamationmarkArrowTriangle2Circlepath)
+                        }
+                        .font(.system(size: 30, weight: .medium)).foregroundColor(.gray)
+                        .opacity(loadingState == .loading ? 0 : 1)
+                        ProgressView().opacity(loadingState == .loading ? 1 : 0)
+                    }
+                }
+            }
+            .frame(width: width, height: height)
         }
     }
     private func reloadImage() {
-        if webImageLoadFailed {
-            refetchAction(index)
-        } else if loadError != nil {
-            retryAction(index)
+        if let error = (/LoadingState.failed).extract(from: loadingState) {
+            if case .webImageFailed = error {
+                loadRetryAction(index)
+            } else {
+                refetchAction(index)
+            }
         }
     }
     private func onSuccess(_: RetrieveImageResult) {
-        webImageLoadFailed = false
+        loadSucceededAction(index)
     }
     private func onFailure(_: KingfisherError) {
         if !imageURL.isEmpty {
-            webImageLoadFailed = true
+            loadFailedAction(index)
         }
     }
 }
 
 // MARK: Definition
+struct ImageStackConfig {
+    let firstIndex: Int
+    let secondIndex: Int
+    let isFirstAvailable: Bool
+    let isSecondAvailable: Bool
+}
+
 enum AutoPlayPolicy: Int, CaseIterable, Identifiable {
     var id: Int { rawValue }
 

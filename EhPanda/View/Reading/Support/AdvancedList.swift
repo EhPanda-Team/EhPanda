@@ -53,20 +53,21 @@ where PageView: View, Element: Equatable, ID: Hashable, G: Gesture {
     private func longPressGesture(index: Element) -> some Gesture {
         LongPressGesture(minimumDuration: 0, maximumDistance: .infinity)
             .onEnded { _ in
-                guard let index = index as? Int else { return }
-
-                performingChanges = true
-                pagerModel.update(.new(index: index - 1))
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                    performingChanges = false
+                if let index = index as? Int {
+                    performingChanges = true
+                    pagerModel.update(.new(index: index - 1))
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                        performingChanges = false
+                    }
                 }
             }
     }
 
     private func tryScrollTo(id: Int, proxy: ScrollViewProxy) {
-        guard !performingChanges else { return }
-        AppUtil.dispatchMainSync {
-            proxy.scrollTo(id, anchor: .center)
+        if !performingChanges {
+            AppUtil.dispatchMainSync {
+                proxy.scrollTo(id, anchor: .center)
+            }
         }
     }
 }
