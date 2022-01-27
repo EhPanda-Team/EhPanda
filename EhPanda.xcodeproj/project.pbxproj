@@ -152,6 +152,8 @@
 		ABD49D6A277EEF73003D1A07 /* SettingStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABD49D69277EEF73003D1A07 /* SettingStore.swift */; };
 		ABD5FDD4263D05110021A4C6 /* .swiftlint.yml in Resources */ = {isa = PBXBuildFile; fileRef = ABD5FDD3263D05110021A4C6 /* .swiftlint.yml */; };
 		ABD7005926B1C31500DC59C9 /* Kanna in Frameworks */ = {isa = PBXBuildFile; productRef = ABD7005826B1C31500DC59C9 /* Kanna */; };
+		ABD970B427A2A39E001693B0 /* R.generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABD970B327A2A39E001693B0 /* R.generated.swift */; };
+		ABD970B727A2A6BD001693B0 /* Rswift in Frameworks */ = {isa = PBXBuildFile; productRef = ABD970B627A2A6BD001693B0 /* Rswift */; };
 		ABE1867826A1733000689FDC /* LaboratorySettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABE1867726A1733000689FDC /* LaboratorySettingView.swift */; };
 		ABE9401526FF158D0085E158 /* QuickSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABE9401426FF158D0085E158 /* QuickSearchView.swift */; };
 		ABE9402D26FF89220085E158 /* AlertKit in Frameworks */ = {isa = PBXBuildFile; productRef = ABE9402C26FF89220085E158 /* AlertKit */; };
@@ -358,6 +360,7 @@
 		ABD49D66277EAC90003D1A07 /* URLUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLUtil.swift; sourceTree = "<group>"; };
 		ABD49D69277EEF73003D1A07 /* SettingStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingStore.swift; sourceTree = "<group>"; };
 		ABD5FDD3263D05110021A4C6 /* .swiftlint.yml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.yaml; path = .swiftlint.yml; sourceTree = SOURCE_ROOT; };
+		ABD970B327A2A39E001693B0 /* R.generated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = R.generated.swift; path = App/R.generated.swift; sourceTree = "<group>"; };
 		ABE1867726A1733000689FDC /* LaboratorySettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaboratorySettingView.swift; sourceTree = "<group>"; };
 		ABE9376C265DCD9400EA8B30 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		ABE9376D265DCD9400EA8B30 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
@@ -403,6 +406,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				ABD970B727A2A6BD001693B0 /* Rswift in Frameworks */,
 				AB17574027678B3400FD64E2 /* UIImageColors in Frameworks */,
 				ABD7005926B1C31500DC59C9 /* Kanna in Frameworks */,
 				AB19D619266E5C6700BA752A /* TTProgressHUD in Frameworks */,
@@ -746,6 +750,7 @@
 			isa = PBXGroup;
 			children = (
 				ABC3C7682593699A00E0C11B /* App */,
+				ABD970B327A2A39E001693B0 /* R.generated.swift */,
 				ABF45AB325F3312F00ECB568 /* DataFlow */,
 				ABC3C77B2593699A00E0C11B /* Network */,
 				ABC3C77F2593699A00E0C11B /* Models */,
@@ -942,11 +947,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = ABC3C7632593696E00E0C11B /* Build configuration list for PBXNativeTarget "EhPanda" */;
 			buildPhases = (
+				AB2E936227A24E0A00EA99F1 /* R.Swift */,
+				AB69FE41263C328400716FBD /* SwiftLint */,
 				ABC3C7502593696C00E0C11B /* Sources */,
 				ABC3C7512593696C00E0C11B /* Frameworks */,
 				ABC3C7522593696C00E0C11B /* Resources */,
 				AB5BE68126B95FDD007D4A55 /* Embed App Extensions */,
-				AB69FE41263C328400716FBD /* SwiftLint */,
 			);
 			buildRules = (
 			);
@@ -969,6 +975,7 @@
 				ABD49D5C277C6C9D003D1A07 /* SFSafeSymbols */,
 				AB86AC0F27831AD100E61E6A /* ComposableArchitecture */,
 				ABBB2635278FB888007B6149 /* SwiftUINavigation */,
+				ABD970B627A2A6BD001693B0 /* Rswift */,
 			);
 			productName = EhPanda;
 			productReference = ABC3C7542593696C00E0C11B /* EhPanda.app */;
@@ -1042,6 +1049,7 @@
 				ABD49D5B277C6C9D003D1A07 /* XCRemoteSwiftPackageReference "SFSafeSymbols" */,
 				AB86AC0E27831AD100E61E6A /* XCRemoteSwiftPackageReference "swift-composable-architecture" */,
 				ABBB2634278FB888007B6149 /* XCRemoteSwiftPackageReference "swiftui-navigation" */,
+				ABD970B527A2A6BD001693B0 /* XCRemoteSwiftPackageReference "R.swift.Library" */,
 			);
 			productRefGroup = ABC3C7552593696C00E0C11B /* Products */;
 			projectDirPath = "";
@@ -1097,6 +1105,26 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		AB2E936227A24E0A00EA99F1 /* R.Swift */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$TEMP_DIR/rswift-lastrun",
+			);
+			name = R.Swift;
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				$SRCROOT/EhPanda/App/R.generated.swift,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if test -d \"/opt/homebrew/bin/\"; then\n  PATH=\"/opt/homebrew/bin/:${PATH}\"\nfi\n\nexport PATH\n\nif which rswift >/dev/null; then\n  rswift generate --generators string \"$SRCROOT/EhPanda/App/R.generated.swift\"\nelse\n  echo \"warning: R.Swift not installed, download from https://github.com/mac-cain13/R.swift\"\nfi\n";
+		};
 		AB69FE41263C328400716FBD /* SwiftLint */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -1189,6 +1217,7 @@
 				ABF45AF725F3313D00ECB568 /* SettingView.swift in Sources */,
 				AB706F862789AD490025A48A /* ToplistsStore.swift in Sources */,
 				ABF45AEA25F3313D00ECB568 /* Placeholder.swift in Sources */,
+				ABD970B427A2A39E001693B0 /* R.generated.swift in Sources */,
 				ABD4032826B7967F00001B8C /* Category.swift in Sources */,
 				ABC681F326898D46007BBD69 /* Model.xcdatamodeld in Sources */,
 				ABBB266627977C2A007B6149 /* ArchivesStore.swift in Sources */,
@@ -1752,6 +1781,14 @@
 				minimumVersion = 5.0.0;
 			};
 		};
+		ABD970B527A2A6BD001693B0 /* XCRemoteSwiftPackageReference "R.swift.Library" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/mac-cain13/R.swift.Library.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.4.0;
+			};
+		};
 		ABE9402B26FF89220085E158 /* XCRemoteSwiftPackageReference "AlertKit" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/tatsuz0u/AlertKit.git";
@@ -1827,6 +1864,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = ABD7005726B1C31500DC59C9 /* XCRemoteSwiftPackageReference "Kanna" */;
 			productName = Kanna;
+		};
+		ABD970B627A2A6BD001693B0 /* Rswift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = ABD970B527A2A6BD001693B0 /* XCRemoteSwiftPackageReference "R.swift.Library" */;
+			productName = Rswift;
 		};
 		ABE9402C26FF89220085E158 /* AlertKit */ = {
 			isa = XCSwiftPackageProductDependency;

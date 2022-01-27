@@ -14,24 +14,24 @@ struct AppearanceSettingView: View {
     @Binding private var preferredColorScheme: PreferredColorScheme
     @Binding private var accentColor: Color
     @Binding private var appIconType: AppIconType
-    @Binding private var listMode: ListMode
-    @Binding private var showsSummaryRowTags: Bool
-    @Binding private var summaryRowTagsMaximum: Int
+    @Binding private var listDisplayMode: ListDisplayMode
+    @Binding private var showsTagsInList: Bool
+    @Binding private var listTagsNumberMaximum: Int
 
     init(
         store: Store<AppearanceSettingState, AppearanceSettingAction>,
         preferredColorScheme: Binding<PreferredColorScheme>, accentColor: Binding<Color>,
-        appIconType: Binding<AppIconType>, listMode: Binding<ListMode>,
-        showsSummaryRowTags: Binding<Bool>, summaryRowTagsMaximum: Binding<Int>
+        appIconType: Binding<AppIconType>, listDisplayMode: Binding<ListDisplayMode>,
+        showsTagsInList: Binding<Bool>, listTagsNumberMaximum: Binding<Int>
     ) {
         self.store = store
         viewStore = ViewStore(store)
         _preferredColorScheme = preferredColorScheme
         _accentColor = accentColor
         _appIconType = appIconType
-        _listMode = listMode
-        _showsSummaryRowTags = showsSummaryRowTags
-        _summaryRowTagsMaximum = summaryRowTagsMaximum
+        _listDisplayMode = listDisplayMode
+        _showsTagsInList = showsTagsInList
+        _listTagsNumberMaximum = listTagsNumberMaximum
     }
 
     var body: some View {
@@ -62,25 +62,25 @@ struct AppearanceSettingView: View {
                     Text("Display mode")
                     Spacer()
                     Picker(
-                        selection: $listMode,
-                        label: Text(listMode.rawValue.localized),
+                        selection: $listDisplayMode,
+                        label: Text(listDisplayMode.rawValue.localized),
                         content: {
-                            ForEach(ListMode.allCases) { listMode in
+                            ForEach(ListDisplayMode.allCases) { listMode in
                                 Text(listMode.rawValue.localized).tag(listMode)
                             }
                         }
                     )
                 }
                 .pickerStyle(.menu)
-                Toggle(isOn: $showsSummaryRowTags) {
+                Toggle(isOn: $showsTagsInList) {
                     Text("Shows tags in list")
                 }
                 HStack {
                     Text("Maximum number of tags")
                     Spacer()
                     Picker(
-                        selection: $summaryRowTagsMaximum,
-                        label: Text("\(summaryRowTagsMaximum)")
+                        selection: $listTagsNumberMaximum,
+                        label: Text("\(listTagsNumberMaximum)")
                     ) {
                         Text("Infinity").tag(0)
                         ForEach(Array(stride(from: 5, through: 20, by: 5)), id: \.self) { num in
@@ -89,7 +89,7 @@ struct AppearanceSettingView: View {
                     }
                     .pickerStyle(.menu)
                 }
-                .disabled(!showsSummaryRowTags)
+                .disabled(!showsTagsInList)
             }
         }
         .background(navigationLink)
@@ -187,9 +187,9 @@ struct AppearanceSettingView_Previews: PreviewProvider {
                 preferredColorScheme: .constant(.automatic),
                 accentColor: .constant(.blue),
                 appIconType: .constant(.default),
-                listMode: .constant(.detail),
-                showsSummaryRowTags: .constant(false),
-                summaryRowTagsMaximum: .constant(0)
+                listDisplayMode: .constant(.detail),
+                showsTagsInList: .constant(false),
+                listTagsNumberMaximum: .constant(0)
             )
         }
     }

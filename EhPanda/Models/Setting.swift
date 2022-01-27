@@ -21,13 +21,13 @@ struct Setting: Codable, Equatable {
     var autoLockPolicy: AutoLockPolicy = .never
 
     // Appearance
-    var listMode: ListMode = DeviceUtil.isPadWidth ? .thumbnail : .detail
+    var listDisplayMode: ListDisplayMode = DeviceUtil.isPadWidth ? .thumbnail : .detail
     var preferredColorScheme = PreferredColorScheme.automatic
     var accentColor: Color = .blue
     var appIconType: AppIconType = .default
     var translatesTags = false
-    var showsSummaryRowTags = false
-    var summaryRowTagsMaximum = 0
+    var showsTagsInList = false
+    var listTagsNumberMaximum = 0
 
     // Reading
     var readingDirection: ReadingDirection = .vertical
@@ -126,7 +126,7 @@ enum ReadingDirection: String, Codable, CaseIterable, Identifiable {
     case leftToRight = "Left-to-right"
 }
 
-enum ListMode: String, Codable, CaseIterable, Identifiable {
+enum ListDisplayMode: String, Codable, CaseIterable, Identifiable {
     var id: Int { hashValue }
 
     case detail = "LIST_DISPLAY_MODE_DETAIL"
@@ -147,13 +147,13 @@ extension Setting {
         backgroundBlurRadius = try container.decodeIfPresent(Double.self, forKey: .backgroundBlurRadius) ?? 10
         autoLockPolicy = try container.decodeIfPresent(AutoLockPolicy.self, forKey: .autoLockPolicy) ?? .never
         // Appearance
-        listMode = try container.decodeIfPresent(ListMode.self, forKey: .listMode) ?? (DeviceUtil.isPadWidth ? .thumbnail : .detail)
+        listDisplayMode = try container.decodeIfPresent(ListDisplayMode.self, forKey: .listDisplayMode) ?? (DeviceUtil.isPadWidth ? .thumbnail : .detail)
         preferredColorScheme = try container.decodeIfPresent(PreferredColorScheme.self, forKey: .preferredColorScheme) ?? .automatic
         accentColor = try container.decodeIfPresent(Color.self, forKey: .accentColor) ?? .blue
         appIconType = try container.decodeIfPresent(AppIconType.self, forKey: .appIconType) ?? .default
         translatesTags = try container.decodeIfPresent(Bool.self, forKey: .translatesTags) ?? false
-        showsSummaryRowTags = try container.decodeIfPresent(Bool.self, forKey: .showsSummaryRowTags) ?? false
-        summaryRowTagsMaximum = try container.decodeIfPresent(Int.self, forKey: .summaryRowTagsMaximum) ?? 0
+        showsTagsInList = try container.decodeIfPresent(Bool.self, forKey: .showsTagsInList) ?? false
+        listTagsNumberMaximum = try container.decodeIfPresent(Int.self, forKey: .listTagsNumberMaximum) ?? 0
         // Reading
         readingDirection = try container.decodeIfPresent(ReadingDirection.self, forKey: .readingDirection) ?? .vertical
         prefetchLimit = try container.decodeIfPresent(Int.self, forKey: .prefetchLimit) ?? 10

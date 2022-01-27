@@ -71,9 +71,9 @@ private extension SettingView {
                 preferredColorScheme: viewStore.binding(\.$setting.preferredColorScheme),
                 accentColor: viewStore.binding(\.$setting.accentColor),
                 appIconType: viewStore.binding(\.$setting.appIconType),
-                listMode: viewStore.binding(\.$setting.listMode),
-                showsSummaryRowTags: viewStore.binding(\.$setting.showsSummaryRowTags),
-                summaryRowTagsMaximum: viewStore.binding(\.$setting.summaryRowTagsMaximum)
+                listDisplayMode: viewStore.binding(\.$setting.listDisplayMode),
+                showsTagsInList: viewStore.binding(\.$setting.showsTagsInList),
+                listTagsNumberMaximum: viewStore.binding(\.$setting.listTagsNumberMaximum)
             )
             .tint(viewStore.setting.accentColor)
         }

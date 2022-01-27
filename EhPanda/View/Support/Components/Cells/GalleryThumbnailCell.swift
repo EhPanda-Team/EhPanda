@@ -44,7 +44,7 @@ struct GalleryThumbnailCell: View {
                 }
             VStack(alignment: .leading) {
                 Text(gallery.title).font(.callout.bold()).lineLimit(3)
-                if setting.showsSummaryRowTags, !gallery.tagStrings.isEmpty {
+                if setting.showsTagsInList, !gallery.tagStrings.isEmpty {
                     TagCloudView(
                         tag: GalleryTag(content: tags), font: .caption2,
                         textColor: .secondary, backgroundColor: tagColor,
@@ -84,8 +84,8 @@ private extension GalleryThumbnailCell {
         colorScheme == .light ? Color(.systemGray5) : Color(.systemGray4)
     }
     var tags: [String] {
-        guard setting.summaryRowTagsMaximum > 0 else { return gallery.tagStrings }
-        return Array(gallery.tagStrings.prefix(setting.summaryRowTagsMaximum))
+        guard setting.listTagsNumberMaximum > 0 else { return gallery.tagStrings }
+        return Array(gallery.tagStrings.prefix(setting.listTagsNumberMaximum))
     }
 }
 

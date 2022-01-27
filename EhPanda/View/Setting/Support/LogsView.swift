@@ -85,10 +85,11 @@ private struct LogCell: View {
                 Text(log.fileName).font(.callout)
                 Spacer()
                 HStack(spacing: 2) {
-                    Image(systemSymbol: .checkmarkCircle).foregroundColor(.green)
-                    Text("Latest").foregroundColor(.secondary)
+                    Image(systemSymbol: .checkmarkCircle)
+                        .foregroundColor(.green)
+                    Text("Latest")
                 }
-                .opacity(isLatest ? 1 : 0)
+                .opacity(isLatest ? 0.6 : 0)
                 .font(.caption)
             }
             HStack {
@@ -147,15 +148,17 @@ enum LogsRoute: Equatable {
 
 struct LogsView_Previews: PreviewProvider {
     static var previews: some View {
-        LogsView(
-            store: .init(
-                initialState: .init(),
-                reducer: logsReducer,
-                environment: .init(
-                    fileClient: .live,
-                    uiApplicationClient: .live
+        NavigationView {
+            LogsView(
+                store: .init(
+                    initialState: .init(),
+                    reducer: logsReducer,
+                    environment: .init(
+                        fileClient: .live,
+                        uiApplicationClient: .live
+                    )
                 )
             )
-        )
+        }
     }
 }

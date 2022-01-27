@@ -42,7 +42,7 @@ struct GenericList: View {
     var body: some View {
         ZStack {
             VStack(spacing: 0) {
-                switch setting.listMode {
+                switch setting.listDisplayMode {
                 case .detail:
                     DetailList(
                         galleries: galleries, setting: setting, pageNumber: pageNumber,

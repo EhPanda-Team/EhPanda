@@ -29,7 +29,7 @@ struct GalleryDetailCell: View {
             VStack(alignment: .leading) {
                 Text(gallery.title).lineLimit(1).font(.headline).foregroundStyle(.primary)
                 Text(gallery.uploader ?? "").lineLimit(1).font(.subheadline).foregroundStyle(.secondary)
-                if setting.showsSummaryRowTags, !tags.isEmpty {
+                if setting.showsTagsInList, !tags.isEmpty {
                     TagCloudView(
                         tag: GalleryTag(content: tags), font: .caption2,
                         textColor: .secondary, backgroundColor: tagColor,
@@ -59,7 +59,7 @@ struct GalleryDetailCell: View {
             }
             .drawingGroup()
         }
-        .padding(.vertical, setting.showsSummaryRowTags ? 5 : 0).padding(.leading, -10).padding(.trailing, -5)
+        .padding(.vertical, setting.showsTagsInList ? 5 : 0).padding(.leading, -10).padding(.trailing, -5)
     }
 }
 
@@ -68,8 +68,8 @@ private extension GalleryDetailCell {
         gallery.category.rawValue.localized
     }
     var tags: [String] {
-        guard setting.summaryRowTagsMaximum > 0 else { return gallery.tagStrings }
-        return Array(gallery.tagStrings.prefix(setting.summaryRowTagsMaximum))
+        guard setting.listTagsNumberMaximum > 0 else { return gallery.tagStrings }
+        return Array(gallery.tagStrings.prefix(setting.listTagsNumberMaximum))
     }
     var tagColor: Color {
         colorScheme == .light ? Color(.systemGray5) : Color(.systemGray4)
