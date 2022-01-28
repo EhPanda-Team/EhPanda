@@ -78,6 +78,7 @@ enum SettingAction: BindableAction {
     case loadUserSettingsDone(AppEnv)
     case createDefaultEhProfile
     case fetchIgneous
+    case fetchIgneousDone(Result<HTTPURLResponse, AppError>)
     case fetchUserInfo
     case fetchUserInfoDone(Result<User, AppError>)
     case fetchGreeting
@@ -266,10 +267,21 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
             return EhProfileRequest(action: .create, name: "EhPanda").effect.fireAndForget()
 
         case .fetchIgneous:
-            return IgneousRequest().effect.fireAndForget()
+            guard environment.cookiesClient.didLogin() else { return .none }
+            return IgneousRequest().effect.map(SettingAction.fetchIgneousDone)
+
+        case .fetchIgneousDone(let result):
+            var effects = [Effect<SettingAction, Never>]()
+            if case .success(let response) = result {
+                effects.append(environment.cookiesClient.setCookies(response).fireAndForget())
+            }
+            effects.append(.init(value: .account(.loadCookies)))
+            return .merge(effects)
 
         case .fetchUserInfo:
-            let uid = environment.cookiesClient.getCookie(Defaults.URL.host, Defaults.Cookie.ipbMemberId).rawValue
+            guard environment.cookiesClient.didLogin() else { return .none }
+            let uid = environment.cookiesClient
+                .getCookie(Defaults.URL.host, Defaults.Cookie.ipbMemberId).rawValue
             if !uid.isEmpty {
                 return UserInfoRequest(uid: uid).effect.map(SettingAction.fetchUserInfoDone)
             }
@@ -300,7 +312,9 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
                 return false
             }
 
-            guard state.setting.showsNewDawnGreeting else { return .none }
+            guard environment.cookiesClient.didLogin(),
+                  state.setting.showsNewDawnGreeting
+            else { return .none }
             let requestEffect = GreetingRequest().effect
                 .map(SettingAction.fetchGreetingDone)
             if let greeting = state.user.greeting {
@@ -365,6 +379,7 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
             return .none
 
         case .fetchEhProfileIndex:
+            guard environment.cookiesClient.didLogin() else { return .none }
             return VerifyEhProfileRequest().effect.map(SettingAction.fetchEhProfileIndexDone)
 
         case .fetchEhProfileIndexDone(let result):
@@ -395,6 +410,7 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
             return effects.isEmpty ? .none : .merge(effects)
 
         case .fetchFavoriteNames:
+            guard environment.cookiesClient.didLogin() else { return .none }
             return FavoriteNamesRequest().effect.map(SettingAction.fetchFavoriteNamesDone)
 
         case .fetchFavoriteNamesDone(let result):
@@ -421,21 +437,14 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
             }
 
         case .account(.login(.loginDone)):
-            var effects: [Effect<SettingAction, Never>] = [
+            return .merge(
                 environment.cookiesClient.removeYay().fireAndForget(),
-                environment.cookiesClient.fulfillAnotherHostField().fireAndForget()
-            ]
-
-            effects.append(.init(value: .fetchIgneous))
-            if environment.cookiesClient.didLogin() {
-                effects.append(contentsOf: [
-                    .init(value: .fetchUserInfo),
-                    .init(value: .fetchFavoriteNames),
-                    .init(value: .fetchEhProfileIndex)
-                ])
-            }
-
-            return effects.isEmpty ? .none : .merge(effects)
+                environment.cookiesClient.fulfillAnotherHostField().fireAndForget(),
+                .init(value: .fetchIgneous),
+                .init(value: .fetchUserInfo),
+                .init(value: .fetchFavoriteNames),
+                .init(value: .fetchEhProfileIndex)
+            )
 
         case .account(.onLogoutConfirmButtonTapped):
             state.user = User()

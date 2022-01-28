@@ -42,7 +42,7 @@ enum LoginAction: BindableAction {
 
     case cancelFetching
     case login
-    case loginDone
+    case loginDone(Result<HTTPURLResponse?, AppError>)
 }
 
 struct LoginEnvironment {
@@ -84,19 +84,25 @@ let loginReducer = Reducer<LoginState, LoginAction, LoginEnvironment> { state, a
         }
 
         return .merge(
+            environment.hapticClient.generateFeedback(.soft).fireAndForget(),
             LoginRequest(username: state.username, password: state.password)
-                .effect.map({ _ in LoginAction.loginDone }).cancellable(id: LoginState.CancelID()),
-            environment.hapticClient.generateFeedback(.soft).fireAndForget()
+                .effect.map(LoginAction.loginDone).cancellable(id: LoginState.CancelID())
         )
 
-    case .loginDone:
-        guard environment.cookiesClient.didLogin() else {
-            state.loginState = .failed(.unknown)
-            return environment.hapticClient.generateNotificationFeedback(.error).fireAndForget()
-        }
+    case .loginDone(let result):
         state.route = nil
-        state.loginState = .idle
-        return environment.hapticClient.generateNotificationFeedback(.success).fireAndForget()
+        var effects = [Effect<LoginAction, Never>]()
+        if environment.cookiesClient.didLogin() {
+            state.loginState = .idle
+            effects.append(environment.hapticClient.generateNotificationFeedback(.success).fireAndForget())
+        } else {
+            state.loginState = .failed(.unknown)
+            effects.append(environment.hapticClient.generateNotificationFeedback(.error).fireAndForget())
+        }
+        if case .success(let response) = result, let response = response {
+            effects.append(environment.cookiesClient.setCookies(response).fireAndForget())
+        }
+        return .merge(effects)
     }
 }
 .binding()

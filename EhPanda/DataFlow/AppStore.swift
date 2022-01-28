@@ -69,10 +69,12 @@ let appReducerCore = Reducer<AppState, AppAction, AppEnvironment> { state, actio
     case .onScenePhaseChange(let scenePhase):
         switch scenePhase {
         case .active:
-            var effects = [Effect<AppAction, Never>]()
             let threshold = state.settingState.setting.autoLockPolicy.rawValue
             let blurRadius = state.settingState.setting.backgroundBlurRadius
-            effects.append(.init(value: .appLock(.onBecomeActive(threshold, blurRadius))))
+            var effects: [Effect<AppAction, Never>] = [
+                .init(value: .setting(.fetchGreeting)),
+                .init(value: .appLock(.onBecomeActive(threshold, blurRadius)))
+            ]
             if threshold < 0, state.settingState.setting.detectsLinksFromClipboard {
                 effects.append(.init(value: .appRoute(.detectClipboardURL)))
             }

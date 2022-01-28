@@ -6,46 +6,476 @@
   
 */
 
+// MARK: Category
+"enum.category.value.doujinshi" = "";
+"enum.category.value.manga" = "";
+"enum.category.value.artistCG" = "";
+"enum.category.value.gameCG" = "";
+"enum.category.value.western" = "";
+"enum.category.value.nonH" = "";
+"enum.category.value.imageSet" = "";
+"enum.category.value.cosplay" = "";
+"enum.category.value.asianPorn" = "";
+"enum.category.value.misc" = "";
+"enum.category.value.private" = "";
+
+// MARK: TagCategory
+"enum.tag.category.value.reclass" = "";
+"enum.tag.category.value.language" = "";
+"enum.tag.category.value.parody" = "";
+"enum.tag.category.value.character" = "";
+"enum.tag.category.value.group" = "";
+"enum.tag.category.value.artist" = "";
+"enum.tag.category.value.male" = "";
+"enum.tag.category.value.female" = "";
+"enum.tag.category.value.mixed" = "";
+"enum.tag.category.value.cosplayer" = "";
+"enum.tag.category.value.other" = "";
+"enum.tag.category.value.temp" = "";
+
+// MARK: BanInterval
+"enum.ban.interval.description.and" = "";
+"enum.ban.interval.description.days" = "";
+"enum.ban.interval.description.hours" = "";
+"enum.ban.interval.description.minutes" = "";
+"enum.ban.interval.description.seconds" = "";
+
+// MARK: ToplistsType
+"enum.toplists.type.value.yesterday" = "";
+"enum.toplists.type.value.lastMonth" = "";
+"enum.toplists.type.value.lastYear" = "";
+"enum.toplists.type.value.allTime" = "";
+
 // MARK: Response
-"You must have a H@H client assigned to your account to use this feature." = "You must have a Hath client assigned to your account to use this feature.";
-"Your H@H client appears to be offline. Turn it on, then try again." = "Your Hath client appears to be offline. Turn it on, then try again.";
+"hath.download.response.hathClientNotFound" = "";
+"hath.download.response.hathClientNotOnline" = "";
+"hath.download.response.invalidResolution" = "";
+
+// MARK: HUD
+"hud.title.success" = "";
+"hud.title.error" = "";
+"hud.title.communicating" = "";
+"hud.caption.copiedToClipboard" = "";
+"hud.caption.savedToPhotoLibrary" = "";
+
+// MARK: AutoLock
+"local.authorization.reason" = "";
+
+// MARK: Cookie
+"cookie.value.null" = "";
+"cookie.value.expired" = "";
+"cookie.value.mystery" = "";
 
 // MARK: Common
-"null" = "None";
-"expired" = "Expired";
-"mystery" = "Rejected";
+"common.no" = "";
+"common.yes" = "";
+"common.clear" = "";
+"common.reset" = "";
+"common.login" = "";
+"common.share" = "";
+"common.logout" = "";
+"common.filter" = "";
+"common.cancel" = "";
+"common.delete" = "";
+"common.confirm" = "";
+"common.language" = "";
+"common.value.stars" = "";
+"common.value.pages" = "";
+"common.value.times" = "";
+"common.value.minute" = "";
+"common.value.minutes" = "";
+"common.value.seconds" = "";
+"common.value.records" = "";
 
-// MARK: User
-"favoriteNameByDev" = "Favorite";
-"all_appendedByDev" = "All";
+// MARK: TabItem
+"tab.item.title.home" = "";
+"tab.item.title.favorites" = "";
+"tab.item.title.search" = "";
+"tab.item.title.setting" = "";
 
-// MARK: DetailView
-"DESC_SCROLL_ITEM_FAVORITED" = "Favorited";
+// MARK: ListType
+"list.type.frontpage" = "";
+"list.type.favorites" = "";
+"list.type.toplists" = "";
+"list.type.popular" = "";
+"list.type.watched" = "";
+"list.type.history" = "";
 
-// MARK: ArchiveView
-"ARCHIVE_RESOLUTION_ORIGINAL" = "Original";
-
-// MARK: NewDawnView
-"GAINCONTENT_START" = "You gain ";
-"GAINCONTENT_SEPARATOR" = ", ";
-"GAINCONTENT_AND" = " and ";
-"GAINCONTENT_END" = "!";
-
-// MARK: Setting
-"LIST_DISPLAY_MODE_DETAIL" = "Detail";
-"LIST_DISPLAY_MODE_THUMBNAIL" = "Thumbnail";
-"READING_DIRECTION_VERTICAL" = "Vertical";
-
-// MARK: EhSettingView
-"LOAD_THROUGH_HATH_NO" = "No";
+// MARK: JumpPage
+"jump.page.view.title.jumpPage" = "";
+"jump.page.view.button.confirm" = "";
 
 // MARK: AlertView
-"BAN_INTERVAL_AND" = " and ";
-"BAN_INTERVAL_DAYS" = " days";
-"BAN_INTERVAL_HOURS" = " hours";
-"BAN_INTERVAL_MINUTES" = " minutes";
-"BAN_INTERVAL_SECONDS" = " seconds";
+"loading.view.title.loading" = "";
+"login.view.title.login" = "";
+"error.view.title.tryLater" = "";
+"error.view.title.network" = "";
+"error.view.title.parsing" = "";
+"error.view.title.unknown" = "";
+"error.view.title.notFound" = "";
+"error.view.title.expunged" = "";
+"error.view.title.ipBanned" = "";
+"error.view.title.copyrightClaim" = "";
+"error.view.button.retry" = "";
+
+// MARK: ConfirmationDialog
+"confirmation.dialog.title.areYouSureTo" = "";
+
+// MARK: SubSection
+"sub.section.button.showAll" = "";
+
+// MARK: NewDawnView
+"new.dawn.view.title.first" = "";
+"new.dawn.view.title.second" = "";
+// Greeting
+"struct.greeting.mark.start" = "";
+"struct.greeting.mark.separator" = "";
+"struct.greeting.mark.and" = "";
+"struct.greeting.mark.end" = "";
+
+// MARK: HomeView
+"home.view.section.title.other" = "";
+
+// MARK: FavoritesView
+// FavoritesName
+"favorite.name.default" = "";
+"favorite.name.all" = "";
+
+// MARK: SearchView
+"search.view.section.title.recentlySearched" = "";
+"search.view.section.title.recentlySeen" = "";
+"search.view.section.title.quickSearch" = "";
+
+// MARK: QuickSearchView
+"quick.search.view.title.quickSearch" = "";
+"quick.search.view.title.editWord" = "";
+"quick.search.view.title.newWord" = "";
+"quick.search.view.title.content" = "";
+"quick.search.view.title.name" = "";
+"quick.search.view.placeholder.optional" = "";
+
+// MARK: SettingView
+// SettingStateRoute
+"enum.setting.state.route.value.account" = "";
+"enum.setting.state.route.value.general" = "";
+"enum.setting.state.route.value.appearance" = "";
+"enum.setting.state.route.value.reading" = "";
+"enum.setting.state.route.value.laboratory" = "";
+"enum.setting.state.route.value.ehpanda" = "";
+
+// MARK: AccountSettingView
+"account.setting.view.title.showNewDawnGreeting" = "";
+"account.setting.view.button.ehSetting" = "";
+"account.setting.view.button.manageTags" = "";
+"account.setting.view.button.copyCookies" = "";
+
+// MARK: LoginView
+"login.view.title.username" = "";
+"login.view.title.password" = "";
+
+// MARK: GeneralSettingView
+"general.setting.view.title.autoLock" = "";
+"general.setting.view.title.translatesTags" = "";
+"general.setting.view.title.redirectsLinksToSelectedHost" = "";
+"general.setting.view.title.detectsLinksFromClipboard" = "";
+"general.setting.view.title.appSwitcherBlurRadius" = "";
+"general.setting.view.button.clearImageCaches" = "";
+"general.setting.view.section.title.navigation" = "";
+"general.setting.view.section.title.security" = "";
+"general.setting.view.section.title.caches" = "";
+// AutoLockPolicy
+"enum.auto.lock.policy.value.never" = "";
+"enum.auto.lock.policy.value.instantly" = "";
+
+// MARK: LogsView
+"logs.view.title.logs" = "";
+"logs.view.title.latest" = "";
+
+// MARK: AppearanceSettingView
+"appearance.setting.view.title.theme" = "";
+"appearance.setting.view.title.tintColor" = "";
+"appearance.setting.view.title.displayMode" = "";
+"appearance.setting.view.title.showsTagsInList" = "";
+"appearance.setting.view.title.listTagsNumberMaximum" = "";
+"appearance.setting.view.menu.title.infite" = "";
+"appearance.setting.view.section.title.list" = "";
+// PerferredColorScheme
+"enum.perferred.color.scheme.value.automatic" = "";
+"enum.perferred.color.scheme.value.light" = "";
+"enum.perferred.color.scheme.value.dark" = "";
+// AppIconType
+"enum.app.icon.type.value.default" = "";
+"enum.app.icon.type.value.ukiyoe" = "";
+// ListDisplayMode
+"enum.display.mode.value.detail" = "";
+"enum.display.mode.value.thumbnail" = "";
+
+// MARK: AppIconView
+"app.icon.view.title.appIcon" = "";
+
+// MARK: ReadingSettingView
+"reading.setting.view.title.direction" = "";
+"reading.setting.view.title.prefetchLimit" = "";
+"reading.setting.view.title.enablesLandscape" = "";
+"reading.setting.view.title.contentDividerHeight" = "";
+"reading.setting.view.title.maximumScaleFactor" = "";
+"reading.setting.view.title.doubleTapScaleFactor" = "";
+// ReadingDirection
+"enum.reading.direction.value.vertical" = "";
+"enum.reading.direction.value.rightToLeft" = "";
+"enum.reading.direction.value.leftToRight" = "";
+
+// MARK: LaboratorySettingView
+"laboratory.setting.view.title.bypassesSNIFiltering" = "";
+
+// MARK: EhPandaView
+"ehpanda.view.button.website" = "";
+"ehpanda.view.button.altStoreSource" = "";
+"ehpanda.view.description.version" = "";
+"ehpanda.view.section.title.specialThanks" = "";
+"ehpanda.view.section.title.acknowledgements" = "";
+
+// MARK: DetailView
+"detail.view.button.read" = "";
+"detail.view.section.title.previews" = "";
+"detail.view.section.title.comments" = "";
+"detail.view.toolbar.item.torrents" = "";
+"detail.view.scroll.section.title.favored" = "";
+"detail.view.scroll.section.title.ratings" = "";
+"detail.view.scroll.section.title.pageCount" = "";
+"detail.view.scroll.section.title.fileSize" = "";
+"detail.view.scroll.section.description.favored" = "";
+"detail.view.scroll.section.description.pageCount" = "";
+"detail.view.action.section.button.giveARating" = "";
+"detail.view.action.section.button.similarGallery" = "";
+
+// MARK: ArchivesView
+"archives.view.title.archives" = "";
+"archives.view.button.downloadToHathClient" = "";
+// HathArchive
+"struct.hath.archive.price.free" = "";
+"struct.hath.archive.price.notAvailable" = "";
+"struct.hath.archive.resolution.original" = "";
+
+// MARK: TorrentsView
+"torrents.view.title.torrents" = "";
+
+// MARK: GalleryInfosView
+"gallery.infos.view.title.galleryInfos" = "";
+"gallery.infos.view.title.title" = "";
+"gallery.infos.view.title.japaneseTitle" = "";
+"gallery.infos.view.title.galleryLink" = "";
+"gallery.infos.view.title.coverLink" = "";
+"gallery.infos.view.title.archiveLink" = "";
+"gallery.infos.view.title.torrentLink" = "";
+"gallery.infos.view.title.parentLink" = "";
+"gallery.infos.view.title.category" = "";
+"gallery.infos.view.title.uploader" = "";
+"gallery.infos.view.title.postedDate" = "";
+"gallery.infos.view.title.visibility" = "";
+"gallery.infos.view.title.pageCount" = "";
+"gallery.infos.view.title.fileSize" = "";
+"gallery.infos.view.title.favoredTimes" = "";
+"gallery.infos.view.title.favored" = "";
+"gallery.infos.view.title.ratingCount" = "";
+"gallery.infos.view.title.averageRating" = "";
+"gallery.infos.view.title.myRating" = "";
+"gallery.infos.view.title.torrentCount" = "";
+"gallery.infos.view.value.expunged" = "";
+
+// MARK: CommentsView
+"comments.view.title.comments" = "";
+
+// MARK: PostCommentView
+"post.comment.view.title.postComment" = "";
+"post.comment.view.title.editComment" = "";
+"post.comment.view.button.post" = "";
+
+// MARK: ReadingView
+"reading.view.button.reload" = "";
+"reading.view.button.copy" = "";
+"reading.view.button.save" = "";
+"reading.view.button.saveOriginal" = "";
+"reading.view.toolbar.item.title.autoPlay" = "";
+// AutoPlayPolicy
+"enum.auto.play.policy.value.never" = "";
+
+// MARK: FiltersView
+"filters.view.title.filters" = "";
+"filters.view.title.advancedSettings" = "";
+"filters.view.title.searchGalleryName" = "";
+"filters.view.title.searchGalleryTags" = "";
+"filters.view.title.searchGalleryDescription" = "";
+"filters.view.title.searchTorrentFilenames" = "";
+"filters.view.title.onlyShowGalleriesWithTorrents" = "";
+"filters.view.title.searchLowPowerTags" = "";
+"filters.view.title.searchDownvotedTags" = "";
+"filters.view.title.showExpungedGalleries" = "";
+"filters.view.title.setMinimumRating" = "";
+"filters.view.title.minimumRating" = "";
+"filters.view.title.setPagesRange" = "";
+"filters.view.title.pagesRange" = "";
+"filters.view.title.disableLanguageFilter" = "";
+"filters.view.title.disableUploaderFilter" = "";
+"filters.view.title.disableTagsFilter" = "";
+"filters.view.button.resetFilters" = "";
+"filters.view.section.title.advanced" = "";
+"filters.view.section.title.defaultFilter" = "";
+
+// MARK: EhSettingView
+"eh.setting.view.title.hostSetting" = "";
+"eh.setting.view.section.title.profileSettings" = "";
+"eh.setting.view.title.selectedProfile" = "";
+"eh.setting.view.button.setAsDefault" = "";
+"eh.setting.view.button.deleteProfile" = "";
+"eh.setting.view.button.rename" = "";
+"eh.setting.view.button.createNew" = "";
+
+"eh.setting.view.section.title.imageLoadSettings" = "";
+"eh.setting.view.title.loadImagesThroughTheHathNetwork" = "";
+"eh.setting.view.title.browsingCountry" = "";
+"eh.setting.view.description.browsingCountry" = "";
+// EhSettingLoadThroughHathSetting
+"enum.eh.setting.load.through.hath.setting.value.anyClient" = "";
+"enum.eh.setting.load.through.hath.setting.value.defaultPortOnly" = "";
+"enum.eh.setting.load.through.hath.setting.value.no" = "";
+"enum.eh.setting.load.through.hath.setting.description.anyClient" = "";
+"enum.eh.setting.load.through.hath.setting.description.defaultPortOnly" = "";
+"enum.eh.setting.load.through.hath.setting.description.no" = "";
+
+"eh.setting.view.section.title.imageSizeSettings" = "";
+"eh.setting.view.title.imageResolution" = "";
+"eh.setting.view.description.imageResolution" = "";
+"eh.setting.view.title.imageSize" = "";
+"eh.setting.view.description.imageSize" = "";
+"eh.setting.view.title.horizontal" = "";
+"eh.setting.view.title.vertical" = "";
+// EhSettingImageResolution
+"enum.eh.setting.image.resolution.value.auto" = "";
+
+"eh.setting.view.section.title.galleryNameDisplay" = "";
+"eh.setting.view.title.galleryName" = "";
+"eh.setting.view.description.galleryName" = "";
+// EhSettingGalleryName
+"enum.eh.setting.value.default" = "";
+"enum.eh.setting.value.japanese" = "";
+
+"eh.setting.view.section.title.archiverSettings" = "";
+"eh.setting.view.title.archiverBehavior" = "";
+"eh.setting.view.description.archiverBehavior" = "";
+// EhSettingArchiverBehavior
+"enum.eh.setting.archiver.behavior.value.manualSelectManualStart" = "";
+"enum.eh.setting.archiver.behavior.value.manualSelectAutoStart" = "";
+"enum.eh.setting.archiver.behavior.value.autoSelectOriginalManualStart" = "";
+"enum.eh.setting.archiver.behavior.value.autoSelectOriginalAutoStart" = "";
+"enum.eh.setting.archiver.behavior.value.autoSelectResampleManualStart" = "";
+"enum.eh.setting.archiver.behavior.value.autoSelectResampleAutoStart" = "";
+
+"eh.setting.view.section.title.frontPageSettings" = "";
+"eh.setting.view.title.displayMode" = "";
+"eh.setting.view.description.displayMode" = "";
+"eh.setting.view.description.galleryCategory" = "";
+// EhSettingDisplayMode
+"enum.eh.setting.display.mode.value.compact" = "";
+"enum.eh.setting.display.mode.value.thumbnail" = "";
+"enum.eh.setting.display.mode.value.extended" = "";
+"enum.eh.setting.display.mode.value.minimal" = "";
+"enum.eh.setting.display.mode.value.minimalPlus" = "";
+
+"eh.setting.view.section.title.favorites" = "";
+"eh.setting.view.description.favorites" = "";
+"eh.setting.view.title.favoritesSortOrder" = "";
+"eh.setting.view.description.favoritesSortOrder" = "";
+// EhSettingFavoritesSortOrder
+"enum.eh.setting.favorites.sort.order.value.lastUpdateTime" = "";
+"enum.eh.setting.favorites.sort.order.value.favoritedTime" = "";
+
+"eh.setting.view.section.title.ratings" = "";
+"eh.setting.view.title.ratingsColor" = "";
+"eh.setting.view.description.ratingsColor" = "";
+
+"eh.setting.view.section.title.tagsNamespaces" = "";
+"eh.setting.view.description.tagsNamespaces" = "";
+
+"eh.setting.view.title.tagFilteringThreshold" = "";
+"eh.setting.view.description.tagFilteringThreshold" = "";
+
+"eh.setting.view.title.tagWatchingThreshold" = "";
+"eh.setting.view.description.tagWatchingThreshold" = "";
+
+"eh.setting.view.section.title.excludedLanguages" = "";
+"eh.setting.view.description.excludedLanguages" = "";
+"eh.setting.view.title.excludedLanguagesOriginal" = "";
+"eh.setting.view.title.excludedLanguagesTranslated" = "";
+"eh.setting.view.title.excludedLanguagesRewrite" = "";
+
+"eh.setting.view.section.title.excludedUploaders" = "";
+"eh.setting.view.description.excludedUploaders" = "";
+"eh.setting.view.description.excludedUploadersCount" = "";
+
+"eh.setting.view.section.title.searchResultCount" = "";
+"eh.setting.view.title.resultCount" = "";
+"eh.setting.view.description.resultCount" = "";
+
+"eh.setting.view.section.title.thumbnailSettings" = "";
+"eh.setting.view.title.thumbnailLoadTiming" = "";
+"eh.setting.view.description.thumbnailLoadTiming" = "";
+"eh.setting.view.description.thumbnailConfiguration" = "";
+"eh.setting.view.title.thumbnailSize" = "";
+"eh.setting.view.title.thumbnailRows" = "";
+// EhSettingThumbnailLoadTiming
+"enum.eh.setting.thumbnail.load.timing.value.onMouseOver" = "";
+"enum.eh.setting.thumbnail.load.timing.value.onPageLoad" = "";
+"enum.eh.setting.thumbnail.load.timing.description.onMouseOver" = "";
+"enum.eh.setting.thumbnail.load.timing.description.onPageLoad" = "";
+// EhSettingThumbnailSize
+"enum.eh.setting.thumbnail.size.value.normal" = "";
+"enum.eh.setting.thumbnail.size.value.large" = "";
+
+"eh.setting.view.section.title.thumbnailScaling" = "";
+"eh.setting.view.title.scaleFactor" = "";
+"eh.setting.view.description.scaleFactor" = "";
+
+"eh.setting.view.section.title.viewportOverride" = "";
+"eh.setting.view.title.virtualWidth" = "";
+"eh.setting.view.description.virtualWidth" = "";
+
+"eh.setting.view.section.title.galleryComments" = "";
+"eh.setting.view.title.commentsSortOrder" = "";
+"eh.setting.view.title.commentsVotesShowTiming" = "";
+// EhSettingCommentsSortOrder
+"enum.eh.setting.comments.sort.order.value.oldest" = "";
+"enum.eh.setting.comments.sort.order.value.recent" = "";
+"enum.eh.setting.comments.sort.order.value.highestScore" = "";
+// EhSettingCommentVotesShowTiming
+"enum.eh.setting.comments.votes.show.timing.value.onHoverOrClick" = "";
+"enum.eh.setting.comments.votes.show.timing.value.always" = "";
+
+"eh.setting.view.section.title.galleryTags" = "";
+"eh.setting.view.title.tagsSortOrder" = "";
+// EhSettingTagsSortOrder
+"enum.eh.setting.tags.sort.order.value.alphabetical" = "";
+"enum.eh.setting.tags.sort.order.value.tagPower" = "";
+
+"eh.setting.view.section.title.galleryPageNumbering" = "";
+"eh.setting.view.title.showGalleryPageNumbers" = "";
+
+"eh.setting.view.section.title.hathLocalNetworkHost" = "";
+"eh.setting.view.title.ipAddressPort" = "";
+"eh.setting.view.description.ipAddressPort" = "";
+
+"eh.setting.view.section.title.originalImages" = "";
+"eh.setting.view.title.useOriginalImages" = "";
+
+"eh.setting.view.section.title.multiPageViewer" = "";
+"eh.setting.view.title.useMultiPageViewer" = "";
+"eh.setting.view.title.displayStyle" = "";
+"eh.setting.view.title.showThumbnailPane" = "";
+// EhSettingMultiplePageViewerStyle
+"enum.eh.setting.multiple.page.viewer.style.value.alignLeftScaleIfOverWidth" = "";
+"enum.eh.setting.multiple.page.viewer.style.value.alignCenterScaleIfOverWidth" = "";
+"enum.eh.setting.multiple.page.viewer.style.value.alignCenterAlwaysScale" = "";
 
 // MARK: Language
-"LANGUAGE_OTHER" = "Other";
-"LANGUAGE_INVALID" = "N/A";
+"enum.language.other" = "";
+"enum.language.invalid" = "";

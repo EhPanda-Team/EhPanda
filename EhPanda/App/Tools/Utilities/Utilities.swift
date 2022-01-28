@@ -350,7 +350,7 @@ struct CookiesUtil {
         }
     }
 
-    static func setIgneous(for response: HTTPURLResponse) {
+    static func setCookies(for response: HTTPURLResponse) {
         guard let setString = response.allHeaderFields["Set-Cookie"] as? String else { return }
         setString.components(separatedBy: ", ")
             .flatMap { $0.components(separatedBy: "; ") }.forEach { value in

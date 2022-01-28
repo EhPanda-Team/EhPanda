@@ -668,7 +668,7 @@ struct LoginRequest: Request {
     let username: String
     let password: String
 
-    var publisher: AnyPublisher<Any, AppError> {
+    var publisher: AnyPublisher<HTTPURLResponse?, AppError> {
         let params: [String: String] = [
             "b": "d", "bt": "1-1", "CookieDate": "1",
             "UserName": username, "PassWord": password,
@@ -681,25 +681,19 @@ struct LoginRequest: Request {
             .urlEncoded.data(using: .utf8)
         request.setURLEncodedContentType()
 
-        return URLSession.shared.dataTaskPublisher(for: request).genericRetry()
-            .map { value in
-                if let (_, resp) = value as? (Data, HTTPURLResponse) {
-                    CookiesUtil.setIgneous(for: resp)
-                }
-                return value
+        return URLSession.shared.dataTaskPublisher(for: request)
+            .genericRetry().map {
+                $0.response as? HTTPURLResponse
             }
             .mapError(mapAppError).eraseToAnyPublisher()
     }
 }
 
 struct IgneousRequest: Request {
-    var publisher: AnyPublisher<Any, AppError> {
+    var publisher: AnyPublisher<HTTPURLResponse, AppError> {
         URLSession.shared.dataTaskPublisher(for: Defaults.URL.exhentai)
-            .genericRetry().map { value in
-                if let (_, resp) = value as? (Data, HTTPURLResponse) {
-                    CookiesUtil.setIgneous(for: resp)
-                }
-                return value
+            .genericRetry().compactMap {
+                $0.response as? HTTPURLResponse
             }
             .mapError(mapAppError).eraseToAnyPublisher()
     }

@@ -12,6 +12,7 @@ struct CookiesClient {
     let didLogin: () -> Bool
     let isSameAccount: () -> Bool
     let clearAll: () -> Effect<Never, Never>
+    let setCookies: (HTTPURLResponse) -> Effect<Never, Never>
     let setCookie: (URL, String, String) -> Effect<Never, Never>
     let getCookie: (URL, String) -> CookieValue
     let removeCookie: (URL, String) -> Effect<Never, Never>
@@ -28,6 +29,11 @@ extension CookiesClient {
         clearAll: {
             .fireAndForget {
                 CookiesUtil.clearAll()
+            }
+        },
+        setCookies: { response in
+            .fireAndForget {
+                CookiesUtil.setCookies(for: response)
             }
         },
         setCookie: { url, key, value in

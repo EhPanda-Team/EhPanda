@@ -58,7 +58,7 @@ struct LoginView: View {
         .synchronize(viewStore.binding(\.$focusedField), $focusedField)
         .sheet(unwrapping: viewStore.binding(\.$route), case: /LoginState.Route.webView) { route in
             WebView(url: route.wrappedValue) {
-                viewStore.send(.loginDone)
+                viewStore.send(.loginDone(.success(nil)))
             }
             .autoBlur(radius: blurRadius)
         }
