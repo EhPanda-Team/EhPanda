@@ -65,7 +65,7 @@ struct FiltersButton: View {
         Button(action: action) {
             Image(systemSymbol: .line3HorizontalDecrease)
             if !hideText {
-                Text("Filters")
+                Text(R.string.localizable.filtersViewTitleFilters())
             }
         }
     }
@@ -81,7 +81,7 @@ struct QuickSearchButton: View {
     var body: some View {
         Button(action: action) {
             Image(systemSymbol: .magnifyingglass)
-            Text("Quick search")
+            Text(R.string.localizable.quickSearchViewTitleQuickSearch())
         }
     }
 }
@@ -101,7 +101,7 @@ struct JumpPageButton: View {
         Button(action: action) {
             Image(systemSymbol: .arrowshapeBounceForward)
             if !hideText {
-                Text("Jump page")
+                Text(R.string.localizable.jumpPageViewTitleJumpPage())
             }
         }
         .disabled(pageNumber.isSinglePage)

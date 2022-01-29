@@ -56,10 +56,13 @@ struct FiltersView: View {
             }
             .synchronize(viewStore.binding(\.$focusedBound), $focusedBound)
             .confirmationDialog(
-                "Are you sure to reset?", isPresented: viewStore.binding(\.$resetDialogPresented),
+                R.string.localizable.confirmationDialogTitleAreYouSureTo(
+                    R.string.localizable.commonReset().lowercased()
+                ),
+                isPresented: viewStore.binding(\.$resetDialogPresented),
                 titleVisibility: .visible
             ) {
-                Button("Reset", role: .destructive) {
+                Button(R.string.localizable.commonReset(), role: .destructive) {
                     viewStore.send(.onResetFilterConfirmed)
                 }
             }
@@ -86,9 +89,9 @@ private struct BasicSection: View {
 
     var body: some View {
         Section {
-            Picker("Range", selection: $filterRange) {
+            Picker("", selection: $filterRange) {
                 ForEach(FilterRange.allCases) { range in
-                    Text(range.rawValue.localized).tag(range)
+                    Text(range.value).tag(range)
                 }
             }
             .pickerStyle(.segmented)
@@ -96,9 +99,9 @@ private struct BasicSection: View {
             Button {
                 resetDialogPresented = true
             } label: {
-                Text("Reset filters").foregroundStyle(.red)
+                Text(R.string.localizable.filtersViewButtonResetFilters()).foregroundStyle(.red)
             }
-            Toggle("Advanced settings", isOn: $filter.advanced)
+            Toggle(R.string.localizable.filtersViewTitleAdvancedSettings(), isOn: $filter.advanced)
         }
     }
 }
@@ -121,21 +124,24 @@ private struct AdvancedSection: View {
 
     var body: some View {
         Group {
-            Section("Advanced".localized) {
-                Toggle("Search gallery name", isOn: $filter.galleryName)
-                Toggle("Search gallery tags", isOn: $filter.galleryTags)
-                Toggle("Search gallery description", isOn: $filter.galleryDesc)
-                Toggle("Search torrent filenames", isOn: $filter.torrentFilenames)
-                Toggle("Only show galleries with torrents", isOn: $filter.onlyWithTorrents)
-                Toggle("Search Low-Power tags", isOn: $filter.lowPowerTags)
-                Toggle("Search downvoted tags", isOn: $filter.downvotedTags)
-                Toggle("Show expunged galleries", isOn: $filter.expungedGalleries)
+            Section(R.string.localizable.filtersViewSectionTitleAdvanced()) {
+                Toggle(R.string.localizable.filtersViewTitleSearchGalleryName(), isOn: $filter.galleryName)
+                Toggle(R.string.localizable.filtersViewTitleSearchGalleryTags(), isOn: $filter.galleryTags)
+                Toggle(R.string.localizable.filtersViewTitleSearchGalleryDescription(), isOn: $filter.galleryDesc)
+                Toggle(R.string.localizable.filtersViewTitleSearchTorrentFilenames(), isOn: $filter.torrentFilenames)
+                Toggle(
+                    R.string.localizable.filtersViewTitleOnlyShowGalleriesWithTorrents(),
+                    isOn: $filter.onlyWithTorrents
+                )
+                Toggle(R.string.localizable.filtersViewTitleSearchLowPowerTags(), isOn: $filter.lowPowerTags)
+                Toggle(R.string.localizable.filtersViewTitleSearchLowPowerTags(), isOn: $filter.downvotedTags)
+                Toggle(R.string.localizable.filtersViewTitleShowExpungedGalleries(), isOn: $filter.expungedGalleries)
             }
             Section {
-                Toggle("Set minimum rating", isOn: $filter.minRatingActivated)
+                Toggle(R.string.localizable.filtersViewTitleSetMinimumRating(), isOn: $filter.minRatingActivated)
                 MinimumRatingSetter(minimum: $filter.minRating)
                     .disabled(!filter.minRatingActivated)
-                Toggle("Set pages range", isOn: $filter.pageRangeActivated)
+                Toggle(R.string.localizable.filtersViewTitleSetPagesRange(), isOn: $filter.pageRangeActivated)
                     .disabled(focusedBound.wrappedValue != nil)
                 PagesRangeSetter(
                     lowerBound: $filter.pageLowerBound,
@@ -145,10 +151,10 @@ private struct AdvancedSection: View {
                 )
                 .disabled(!filter.pageRangeActivated)
             }
-            Section("Default Filter".localized) {
-                Toggle("Disable language filter", isOn: $filter.disableLanguage)
-                Toggle("Disable uploader filter", isOn: $filter.disableUploader)
-                Toggle("Disable tags filter", isOn: $filter.disableTags)
+            Section(R.string.localizable.filtersViewSectionTitleDefaultFilter()) {
+                Toggle(R.string.localizable.filtersViewTitleDisableLanguageFilter(), isOn: $filter.disableLanguage)
+                Toggle(R.string.localizable.filtersViewTitleDisableUploaderFilter(), isOn: $filter.disableUploader)
+                Toggle(R.string.localizable.filtersViewTitleDisableTagsFilter(), isOn: $filter.disableTags)
             }
         }
         .disabled(!filter.advanced)
@@ -165,11 +171,11 @@ private struct MinimumRatingSetter: View {
 
     var body: some View {
         HStack {
-            Text("Minimum rating")
+            Text(R.string.localizable.filtersViewTitleMinimumRating())
             Spacer()
-            Picker(selection: $minimum, label: Text("\(minimum) stars")) {
+            Picker(selection: $minimum, label: Text(R.string.localizable.commonValueStars("\(minimum)"))) {
                 ForEach(Array(2...5), id: \.self) { num in
-                    Text("\(num) stars").tag(num)
+                    Text(R.string.localizable.commonValueStars("\(minimum)")).tag(num)
                 }
             }
             .pickerStyle(.menu)
@@ -198,7 +204,7 @@ private struct PagesRangeSetter: View {
 
     var body: some View {
         HStack {
-            Text("Pages range")
+            Text(R.string.localizable.filtersViewTitlePagesRange())
             Spacer()
             SettingTextField(text: $lowerBound)
                 .focused(focusedBound, equals: .lower)
@@ -220,12 +226,24 @@ private struct TupleCategory: Identifiable {
     let category: Category
 }
 
-enum FilterRange: String, CaseIterable, Identifiable {
-    var id: String { rawValue }
+enum FilterRange: Int, CaseIterable, Identifiable {
+    var id: Int { rawValue }
 
-    case search = "Search"
-    case global = "Global"
-    case watched = "Watched"
+    case search
+    case global
+    case watched
+}
+extension FilterRange {
+    var value: String {
+        switch self {
+        case .search:
+            return R.string.localizable.tabItemTitleSearch()
+        case .global:
+            return R.string.localizable.enumFilterRangeValueGlobal()
+        case .watched:
+            return R.string.localizable.listTypeWatched()
+        }
+    }
 }
 
 struct FiltersView_Previews: PreviewProvider {

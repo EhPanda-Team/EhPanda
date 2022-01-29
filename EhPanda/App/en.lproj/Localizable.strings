@@ -323,6 +323,8 @@
 "filters.view.button.resetFilters" = "";
 "filters.view.section.title.advanced" = "";
 "filters.view.section.title.defaultFilter" = "";
+// FilterRange
+"enum.filter.range.value.global" = "";
 
 // MARK: EhSettingView
 "eh.setting.view.title.hostSetting" = "%@";

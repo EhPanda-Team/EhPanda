@@ -51,7 +51,7 @@ let appLockReducer = Reducer<AppLockState, AppLockAction, AppLockEnvironment> { 
 
     case .authorize:
         return environment.authorizationClient
-            .localAuth("The App has been locked due to the auto-lock expiration.")
+            .localAuth(R.string.localizable.localAuthorizationReason())
             .map(AppLockAction.authorizeDone)
 
     case .authorizeDone(let isSucceeded):
