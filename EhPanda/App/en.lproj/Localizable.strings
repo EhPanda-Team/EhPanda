@@ -337,7 +337,7 @@
 "eh.setting.view.title.loadImagesThroughTheHathNetwork" = "";
 "eh.setting.view.title.browsingCountry" = "";
 "eh.setting.view.description.browsingCountry" = "%@";
-// EhSettingLoadThroughHathSetting
+// EhSetting.LoadThroughHathSetting
 "enum.eh.setting.load.through.hath.setting.value.anyClient" = "";
 "enum.eh.setting.load.through.hath.setting.value.defaultPortOnly" = "";
 "enum.eh.setting.load.through.hath.setting.value.no" = "";
@@ -352,20 +352,20 @@
 "eh.setting.view.description.imageSize" = "";
 "eh.setting.view.title.horizontal" = "";
 "eh.setting.view.title.vertical" = "";
-// EhSettingImageResolution
+// EhSetting.ImageResolution
 "enum.eh.setting.image.resolution.value.auto" = "";
 
 "eh.setting.view.section.title.galleryNameDisplay" = "";
 "eh.setting.view.title.galleryName" = "";
 "eh.setting.view.description.galleryName" = "";
-// EhSettingGalleryName
+// EhSetting.GalleryName
 "enum.eh.setting.gallery.name.value.default" = "";
 "enum.eh.setting.gallery.name.value.japanese" = "";
 
 "eh.setting.view.section.title.archiverSettings" = "";
 "eh.setting.view.title.archiverBehavior" = "";
 "eh.setting.view.description.archiverBehavior" = "";
-// EhSettingArchiverBehavior
+// EhSetting.ArchiverBehavior
 "enum.eh.setting.archiver.behavior.value.manualSelectManualStart" = "";
 "enum.eh.setting.archiver.behavior.value.manualSelectAutoStart" = "";
 "enum.eh.setting.archiver.behavior.value.autoSelectOriginalManualStart" = "";
@@ -377,7 +377,7 @@
 "eh.setting.view.title.displayMode" = "";
 "eh.setting.view.description.displayMode" = "";
 "eh.setting.view.description.galleryCategory" = "";
-// EhSettingDisplayMode
+// EhSetting.DisplayMode
 "enum.eh.setting.display.mode.value.compact" = "";
 "enum.eh.setting.display.mode.value.thumbnail" = "";
 "enum.eh.setting.display.mode.value.extended" = "";
@@ -388,7 +388,7 @@
 "eh.setting.view.description.favoritesName" = "";
 "eh.setting.view.title.favoritesSortOrder" = "";
 "eh.setting.view.description.favoritesSortOrder" = "";
-// EhSettingFavoritesSortOrder
+// EhSetting.FavoritesSortOrder
 "enum.eh.setting.favorites.sort.order.value.lastUpdateTime" = "";
 "enum.eh.setting.favorites.sort.order.value.favoritedTime" = "";
 
@@ -408,7 +408,7 @@
 
 "eh.setting.view.section.title.excludedLanguages" = "";
 "eh.setting.view.description.excludedLanguages" = "";
-// EhSettingExcludedLanguagesCategory
+// EhSetting.ExcludedLanguagesCategory
 "enum.eh.setting.excluded.languages.category.value.original" = "";
 "enum.eh.setting.excluded.languages.category.value.translated" = "";
 "enum.eh.setting.excluded.languages.category.value.rewrite" = "";
@@ -427,12 +427,12 @@
 "eh.setting.view.description.thumbnailConfiguration" = "";
 "eh.setting.view.title.thumbnailSize" = "";
 "eh.setting.view.title.thumbnailRows" = "";
-// EhSettingThumbnailLoadTiming
+// EhSetting.ThumbnailLoadTiming
 "enum.eh.setting.thumbnail.load.timing.value.onMouseOver" = "";
 "enum.eh.setting.thumbnail.load.timing.value.onPageLoad" = "";
 "enum.eh.setting.thumbnail.load.timing.description.onMouseOver" = "";
 "enum.eh.setting.thumbnail.load.timing.description.onPageLoad" = "";
-// EhSettingThumbnailSize
+// EhSetting.ThumbnailSize
 "enum.eh.setting.thumbnail.size.value.normal" = "";
 "enum.eh.setting.thumbnail.size.value.large" = "";
 
@@ -447,17 +447,17 @@
 "eh.setting.view.section.title.galleryComments" = "";
 "eh.setting.view.title.commentsSortOrder" = "";
 "eh.setting.view.title.commentsVotesShowTiming" = "";
-// EhSettingCommentsSortOrder
+// EhSetting.CommentsSortOrder
 "enum.eh.setting.comments.sort.order.value.oldest" = "";
 "enum.eh.setting.comments.sort.order.value.recent" = "";
 "enum.eh.setting.comments.sort.order.value.highestScore" = "";
-// EhSettingCommentVotesShowTiming
+// EhSetting.CommentVotesShowTiming
 "enum.eh.setting.comments.votes.show.timing.value.onHoverOrClick" = "";
 "enum.eh.setting.comments.votes.show.timing.value.always" = "";
 
 "eh.setting.view.section.title.galleryTags" = "";
 "eh.setting.view.title.tagsSortOrder" = "";
-// EhSettingTagsSortOrder
+// EhSetting.TagsSortOrder
 "enum.eh.setting.tags.sort.order.value.alphabetical" = "";
 "enum.eh.setting.tags.sort.order.value.tagPower" = "";
 
@@ -475,7 +475,7 @@
 "eh.setting.view.title.useMultiPageViewer" = "";
 "eh.setting.view.title.displayStyle" = "";
 "eh.setting.view.title.showThumbnailPane" = "";
-// EhSettingMultiplePageViewerStyle
+// EhSetting.MultiplePageViewerStyle
 "enum.eh.setting.multiple.page.viewer.style.value.alignLeftScaleIfOverWidth" = "";
 "enum.eh.setting.multiple.page.viewer.style.value.alignCenterScaleIfOverWidth" = "";
 "enum.eh.setting.multiple.page.viewer.style.value.alignCenterAlwaysScale" = "";

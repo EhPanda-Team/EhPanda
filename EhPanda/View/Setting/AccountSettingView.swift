@@ -126,9 +126,17 @@ private struct AccountSection: View {
         } else {
             Button(R.string.localizable.commonLogout(), role: .destructive, action: logoutAction)
             Group {
-                Button(R.string.localizable.accountSettingViewButtonAccountConfiguration(), action: configureAccountAction).withArrow()
+                Button(
+                    R.string.localizable.accountSettingViewButtonAccountConfiguration(),
+                    action: configureAccountAction
+                )
+                .withArrow()
                 if !bypassesSNIFiltering {
-                    Button(R.string.localizable.accountSettingViewButtonTagsManagement(), action: manageTagsAction).withArrow()
+                    Button(
+                        R.string.localizable.accountSettingViewButtonTagsManagement(),
+                        action: manageTagsAction
+                    )
+                    .withArrow()
                 }
                 Toggle(R.string.localizable.accountSettingViewTitleShowNewDawnGreeting(), isOn: $showNewDawnGreeting)
             }

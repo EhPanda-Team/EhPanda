@@ -16,7 +16,7 @@ typealias GalleryPoints = String
 typealias Credits = String
 typealias ReloadToken = Any
 typealias Logger = SwiftyBeaver
-typealias FavoritesSortOrder = EhSettingFavoritesSortOrder
+typealias FavoritesSortOrder = EhSetting.FavoritesSortOrder
 
 struct PageNumber: Equatable {
     var current = 0

@@ -31,44 +31,44 @@ struct EhSetting: Equatable {
         ["EhPanda", "EhPanda (Default)"].contains(name ?? "")
     }
 
-    var capableLoadThroughHathSetting: EhSettingLoadThroughHathSetting
-    var capableImageResolution: EhSettingImageResolution
-    var capableSearchResultCount: EhSettingSearchResultCount
-    var capableThumbnailConfigSize: EhSettingThumbnailSize
-    var capableThumbnailConfigRows: EhSettingThumbnailRows
+    var capableLoadThroughHathSetting: EhSetting.LoadThroughHathSetting
+    var capableImageResolution: EhSetting.ImageResolution
+    var capableSearchResultCount: EhSetting.SearchResultCount
+    var capableThumbnailConfigSize: EhSetting.ThumbnailSize
+    var capableThumbnailConfigRows: EhSetting.ThumbnailRows
 
-    var loadThroughHathSetting: EhSettingLoadThroughHathSetting
-    var browsingCountry: EhSettingBrowsingCountry
+    var loadThroughHathSetting: EhSetting.LoadThroughHathSetting
+    var browsingCountry: EhSetting.BrowsingCountry
     let literalBrowsingCountry: String
-    var imageResolution: EhSettingImageResolution
+    var imageResolution: EhSetting.ImageResolution
     var imageSizeWidth: Float
     var imageSizeHeight: Float
-    var galleryName: EhSettingGalleryName
-    var archiverBehavior: EhSettingArchiverBehavior
-    var displayMode: EhSettingDisplayMode
+    var galleryName: EhSetting.GalleryName
+    var archiverBehavior: EhSetting.ArchiverBehavior
+    var displayMode: EhSetting.DisplayMode
     var disabledCategories: [Bool]
     var favoriteNames: [String]
-    var favoritesSortOrder: EhSettingFavoritesSortOrder
+    var favoritesSortOrder: EhSetting.FavoritesSortOrder
     var ratingsColor: String
     var excludedNamespaces: [Bool]
     var tagFilteringThreshold: Float
     var tagWatchingThreshold: Float
     var excludedLanguages: [Bool]
     var excludedUploaders: String
-    var searchResultCount: EhSettingSearchResultCount
-    var thumbnailLoadTiming: EhSettingThumbnailLoadTiming
-    var thumbnailConfigSize: EhSettingThumbnailSize
-    var thumbnailConfigRows: EhSettingThumbnailRows
+    var searchResultCount: EhSetting.SearchResultCount
+    var thumbnailLoadTiming: EhSetting.ThumbnailLoadTiming
+    var thumbnailConfigSize: EhSetting.ThumbnailSize
+    var thumbnailConfigRows: EhSetting.ThumbnailRows
     var thumbnailScaleFactor: Float
     var viewportVirtualWidth: Float
-    var commentsSortOrder: EhSettingCommentsSortOrder
-    var commentVotesShowTiming: EhSettingCommentVotesShowTiming
-    var tagsSortOrder: EhSettingTagsSortOrder
+    var commentsSortOrder: EhSetting.CommentsSortOrder
+    var commentVotesShowTiming: EhSetting.CommentVotesShowTiming
+    var tagsSortOrder: EhSetting.TagsSortOrder
     var galleryShowPageNumbers: Bool
     var hathLocalNetworkHost: String
     var useOriginalImages: Bool?
     var useMultiplePageViewer: Bool?
-    var multiplePageViewerStyle: EhSettingMultiplePageViewerStyle?
+    var multiplePageViewerStyle: EhSetting.MultiplePageViewerStyle?
     var multiplePageViewerShowThumbnailPane: Bool?
 }
 
@@ -97,16 +97,18 @@ enum EhProfileAction: String {
 }
 
 // MARK: LoadThroughHathSetting
-enum EhSettingLoadThroughHathSetting: Int, CaseIterable, Identifiable, Comparable {
-    case anyClient
-    case defaultPortOnly
-    case no
+extension EhSetting {
+    enum LoadThroughHathSetting: Int, CaseIterable, Identifiable, Comparable {
+        case anyClient
+        case defaultPortOnly
+        case no
+    }
 }
-extension EhSettingLoadThroughHathSetting {
+extension EhSetting.LoadThroughHathSetting {
     var id: Int { rawValue }
     static func < (
-        lhs: EhSettingLoadThroughHathSetting,
-        rhs: EhSettingLoadThroughHathSetting
+        lhs: EhSetting.LoadThroughHathSetting,
+        rhs: EhSetting.LoadThroughHathSetting
     ) -> Bool {
         lhs.rawValue < rhs.rawValue
     }
@@ -134,19 +136,21 @@ extension EhSettingLoadThroughHathSetting {
 }
 
 // MARK: ImageResolution
-enum EhSettingImageResolution: Int, CaseIterable, Identifiable, Comparable {
-    case auto
-    case x780
-    case x980
-    case x1280
-    case x1600
-    case x2400
+extension EhSetting {
+    enum ImageResolution: Int, CaseIterable, Identifiable, Comparable {
+        case auto
+        case x780
+        case x980
+        case x1280
+        case x1600
+        case x2400
+    }
 }
-extension EhSettingImageResolution {
+extension EhSetting.ImageResolution {
     var id: Int { rawValue }
     static func < (
-        lhs: EhSettingImageResolution,
-        rhs: EhSettingImageResolution
+        lhs: EhSetting.ImageResolution,
+        rhs: EhSetting.ImageResolution
     ) -> Bool {
         lhs.rawValue < rhs.rawValue
     }
@@ -170,11 +174,13 @@ extension EhSettingImageResolution {
 }
 
 // MARK: GalleryName
-enum EhSettingGalleryName: Int, CaseIterable, Identifiable {
-    case `default`
-    case japanese
+extension EhSetting {
+    enum GalleryName: Int, CaseIterable, Identifiable {
+        case `default`
+        case japanese
+    }
 }
-extension EhSettingGalleryName {
+extension EhSetting.GalleryName {
     var id: Int { rawValue }
 
     var value: String {
@@ -188,15 +194,17 @@ extension EhSettingGalleryName {
 }
 
 // MARK: ArchiverBehavior
-enum EhSettingArchiverBehavior: Int, CaseIterable, Identifiable {
-    case manualSelectManualStart
-    case manualSelectAutoStart
-    case autoSelectOriginalManualStart
-    case autoSelectOriginalAutoStart
-    case autoSelectResampleManualStart
-    case autoSelectResampleAutoStart
+extension EhSetting {
+    enum ArchiverBehavior: Int, CaseIterable, Identifiable {
+        case manualSelectManualStart
+        case manualSelectAutoStart
+        case autoSelectOriginalManualStart
+        case autoSelectOriginalAutoStart
+        case autoSelectResampleManualStart
+        case autoSelectResampleAutoStart
+    }
 }
-extension EhSettingArchiverBehavior {
+extension EhSetting.ArchiverBehavior {
     var id: Int { rawValue }
 
     var value: String {
@@ -218,14 +226,16 @@ extension EhSettingArchiverBehavior {
 }
 
 // MARK: DisplayMode
-enum EhSettingDisplayMode: Int, CaseIterable, Identifiable {
-    case compact
-    case thumbnail
-    case extended
-    case minimal
-    case minimalPlus
+extension EhSetting {
+    enum DisplayMode: Int, CaseIterable, Identifiable {
+        case compact
+        case thumbnail
+        case extended
+        case minimal
+        case minimalPlus
+    }
 }
-extension EhSettingDisplayMode {
+extension EhSetting.DisplayMode {
     var id: Int { rawValue }
 
     var value: String {
@@ -245,11 +255,13 @@ extension EhSettingDisplayMode {
 }
 
 // MARK: FavoritesSortOrder
-enum EhSettingFavoritesSortOrder: Int, CaseIterable, Identifiable {
-    case lastUpdateTime
-    case favoritedTime
+extension EhSetting {
+    enum FavoritesSortOrder: Int, CaseIterable, Identifiable {
+        case lastUpdateTime
+        case favoritedTime
+    }
 }
-extension EhSettingFavoritesSortOrder {
+extension EhSetting.FavoritesSortOrder {
     var id: Int { rawValue }
 
     var value: String {
@@ -263,12 +275,14 @@ extension EhSettingFavoritesSortOrder {
 }
 
 // MARK: ExcludedLanguagesCategory
-enum EhSettingExcludedLanguagesCategory: Int, Identifiable, CaseIterable {
-    case original
-    case translated
-    case rewrite
+extension EhSetting {
+    enum ExcludedLanguagesCategory: Int, Identifiable, CaseIterable {
+        case original
+        case translated
+        case rewrite
+    }
 }
-extension EhSettingExcludedLanguagesCategory {
+extension EhSetting.ExcludedLanguagesCategory {
     var id: Int { rawValue }
 
     var value: String {
@@ -284,17 +298,19 @@ extension EhSettingExcludedLanguagesCategory {
 }
 
 // MARK: SearchResultCount
-enum EhSettingSearchResultCount: Int, CaseIterable, Identifiable, Comparable {
-    case twentyFive
-    case fifty
-    case oneHundred
-    case twoHundred
+extension EhSetting {
+    enum SearchResultCount: Int, CaseIterable, Identifiable, Comparable {
+        case twentyFive
+        case fifty
+        case oneHundred
+        case twoHundred
+    }
 }
-extension EhSettingSearchResultCount {
+extension EhSetting.SearchResultCount {
     var id: Int { rawValue }
     static func < (
-        lhs: EhSettingSearchResultCount,
-        rhs: EhSettingSearchResultCount
+        lhs: EhSetting.SearchResultCount,
+        rhs: EhSetting.SearchResultCount
     ) -> Bool {
         lhs.rawValue < rhs.rawValue
     }
@@ -314,11 +330,13 @@ extension EhSettingSearchResultCount {
 }
 
 // MARK: ThumbnailLoadTiming
-enum EhSettingThumbnailLoadTiming: Int, CaseIterable, Identifiable {
-    case onMouseOver
-    case onPageLoad
+extension EhSetting {
+    enum ThumbnailLoadTiming: Int, CaseIterable, Identifiable {
+        case onMouseOver
+        case onPageLoad
+    }
 }
-extension EhSettingThumbnailLoadTiming {
+extension EhSetting.ThumbnailLoadTiming {
     var id: Int { rawValue }
 
     var value: String {
@@ -340,15 +358,17 @@ extension EhSettingThumbnailLoadTiming {
 }
 
 // MARK: ThumbnailSize
-enum EhSettingThumbnailSize: Int, CaseIterable, Identifiable, Comparable {
-    case normal
-    case large
+extension EhSetting {
+    enum ThumbnailSize: Int, CaseIterable, Identifiable, Comparable {
+        case normal
+        case large
+    }
 }
-extension EhSettingThumbnailSize {
+extension EhSetting.ThumbnailSize {
     var id: Int { rawValue }
     static func < (
-        lhs: EhSettingThumbnailSize,
-        rhs: EhSettingThumbnailSize
+        lhs: EhSetting.ThumbnailSize,
+        rhs: EhSetting.ThumbnailSize
     ) -> Bool {
         lhs.rawValue < rhs.rawValue
     }
@@ -364,17 +384,19 @@ extension EhSettingThumbnailSize {
 }
 
 // MARK: ThumbnailRows
-enum EhSettingThumbnailRows: Int, CaseIterable, Identifiable, Comparable {
-    case four
-    case ten
-    case twenty
-    case forty
+extension EhSetting {
+    enum ThumbnailRows: Int, CaseIterable, Identifiable, Comparable {
+        case four
+        case ten
+        case twenty
+        case forty
+    }
 }
-extension EhSettingThumbnailRows {
+extension EhSetting.ThumbnailRows {
     var id: Int { rawValue }
     static func < (
-        lhs: EhSettingThumbnailRows,
-        rhs: EhSettingThumbnailRows
+        lhs: EhSetting.ThumbnailRows,
+        rhs: EhSetting.ThumbnailRows
     ) -> Bool {
         lhs.rawValue < rhs.rawValue
     }
@@ -394,12 +416,14 @@ extension EhSettingThumbnailRows {
 }
 
 // MARK: CommentsSortOrder
-enum EhSettingCommentsSortOrder: Int, CaseIterable, Identifiable {
-    case oldest
-    case recent
-    case highestScore
+extension EhSetting {
+    enum CommentsSortOrder: Int, CaseIterable, Identifiable {
+        case oldest
+        case recent
+        case highestScore
+    }
 }
-extension EhSettingCommentsSortOrder {
+extension EhSetting.CommentsSortOrder {
     var id: Int { rawValue }
 
     var value: String {
@@ -415,11 +439,13 @@ extension EhSettingCommentsSortOrder {
 }
 
 // MARK: CommentVotesShowTiming
-enum EhSettingCommentVotesShowTiming: Int, CaseIterable, Identifiable {
-    case onHoverOrClick
-    case always
+extension EhSetting {
+    enum CommentVotesShowTiming: Int, CaseIterable, Identifiable {
+        case onHoverOrClick
+        case always
+    }
 }
-extension EhSettingCommentVotesShowTiming {
+extension EhSetting.CommentVotesShowTiming {
     var id: Int { rawValue }
 
     var value: String {
@@ -433,11 +459,13 @@ extension EhSettingCommentVotesShowTiming {
 }
 
 // MARK: TagsSortOrder
-enum EhSettingTagsSortOrder: Int, CaseIterable, Identifiable {
-    case alphabetical
-    case tagPower
+extension EhSetting {
+    enum TagsSortOrder: Int, CaseIterable, Identifiable {
+        case alphabetical
+        case tagPower
+    }
 }
-extension EhSettingTagsSortOrder {
+extension EhSetting.TagsSortOrder {
     var id: Int { rawValue }
 
     var value: String {
@@ -451,12 +479,14 @@ extension EhSettingTagsSortOrder {
 }
 
 // MARK: MultiplePageViewerStyle
-enum EhSettingMultiplePageViewerStyle: Int, CaseIterable, Identifiable {
-    case alignLeftScaleIfOverWidth
-    case alignCenterScaleIfOverWidth
-    case alignCenterAlwaysScale
+extension EhSetting {
+    enum MultiplePageViewerStyle: Int, CaseIterable, Identifiable {
+        case alignLeftScaleIfOverWidth
+        case alignCenterScaleIfOverWidth
+        case alignCenterAlwaysScale
+    }
 }
-extension EhSettingMultiplePageViewerStyle {
+extension EhSetting.MultiplePageViewerStyle {
     var id: Int { rawValue }
 
     var value: String {
@@ -471,12 +501,14 @@ extension EhSettingMultiplePageViewerStyle {
     }
 }
 
-// MARK: EhSettingBrowsingCountry
+// MARK: BrowsingCountry
 // swiftlint:disable line_length switch_case_alignment
-enum EhSettingBrowsingCountry: String, CaseIterable, Identifiable, Equatable {
-    case autoDetect = "-"; case afghanistan = "AF"; case alandIslands = "AX"; case albania = "AL"; case algeria = "DZ"; case americanSamoa = "AS"; case andorra = "AD"; case angola = "AO"; case anguilla = "AI"; case antarctica = "AQ"; case antiguaandBarbuda = "AG"; case argentina = "AR"; case armenia = "AM"; case aruba = "AW"; case asiaPacificRegion = "AP"; case australia = "AU"; case austria = "AT"; case azerbaijan = "AZ"; case bahamas = "BS"; case bahrain = "BH"; case bangladesh = "BD"; case barbados = "BB"; case belarus = "BY"; case belgium = "BE"; case belize = "BZ"; case benin = "BJ"; case bermuda = "BM"; case bhutan = "BT"; case bolivia = "BO"; case bonaireSaintEustatiusandSaba = "BQ"; case bosniaandHerzegovina = "BA"; case botswana = "BW"; case bouvetIsland = "BV"; case brazil = "BR"; case britishIndianOceanTerritory = "IO"; case bruneiDarussalam = "BN"; case bulgaria = "BG"; case burkinaFaso = "BF"; case burundi = "BI"; case cambodia = "KH"; case cameroon = "CM"; case canada = "CA"; case capeVerde = "CV"; case caymanIslands = "KY"; case centralAfricanRepublic = "CF"; case chad = "TD"; case chile = "CL"; case china = "CN"; case christmasIsland = "CX"; case cocosIslands = "CC"; case colombia = "CO"; case comoros = "KM"; case congo = "CG"; case congoTheDemocraticRepublicofthe = "CD"; case cookIslands = "CK"; case costaRica = "CR"; case coteDIvoire = "CI"; case croatia = "HR"; case cuba = "CU"; case curacao = "CW"; case cyprus = "CY"; case czechRepublic = "CZ"; case denmark = "DK"; case djibouti = "DJ"; case dominica = "DM"; case dominicanRepublic = "DO"; case ecuador = "EC"; case egypt = "EG"; case elSalvador = "SV"; case equatorialGuinea = "GQ"; case eritrea = "ER"; case estonia = "EE"; case ethiopia = "ET"; case europe = "EU"; case falklandIslands = "FK"; case faroeIslands = "FO"; case fiji = "FJ"; case finland = "FI"; case france = "FR"; case frenchGuiana = "GF"; case frenchPolynesia = "PF"; case frenchSouthernTerritories = "TF"; case gabon = "GA"; case gambia = "GM"; case georgia = "GE"; case germany = "DE"; case ghana = "GH"; case gibraltar = "GI"; case greece = "GR"; case greenland = "GL"; case grenada = "GD"; case guadeloupe = "GP"; case guam = "GU"; case guatemala = "GT"; case guernsey = "GG"; case guinea = "GN"; case guineaBissau = "GW"; case guyana = "GY"; case haiti = "HT"; case heardIslandandMcDonaldIslands = "HM"; case holySeeVaticanCityState = "VA"; case honduras = "HN"; case hongKong = "HK"; case hungary = "HU"; case iceland = "IS"; case india = "IN"; case indonesia = "ID"; case iran = "IR"; case iraq = "IQ"; case ireland = "IE"; case isleofMan = "IM"; case israel = "IL"; case italy = "IT"; case jamaica = "JM"; case japan = "JP"; case jersey = "JE"; case jordan = "JO"; case kazakhstan = "KZ"; case kenya = "KE"; case kiribati = "KI"; case kuwait = "KW"; case kyrgyzstan = "KG"; case laoPeoplesDemocraticRepublic = "LA"; case latvia = "LV"; case lebanon = "LB"; case lesotho = "LS"; case liberia = "LR"; case libya = "LY"; case liechtenstein = "LI"; case lithuania = "LT"; case luxembourg = "LU"; case macau = "MO"; case macedonia = "MK"; case madagascar = "MG"; case malawi = "MW"; case malaysia = "MY"; case maldives = "MV"; case mali = "ML"; case malta = "MT"; case marshallIslands = "MH"; case martinique = "MQ"; case mauritania = "MR"; case mauritius = "MU"; case mayotte = "YT"; case mexico = "MX"; case micronesia = "FM"; case moldova = "MD"; case monaco = "MC"; case mongolia = "MN"; case montenegro = "ME"; case montserrat = "MS"; case morocco = "MA"; case mozambique = "MZ"; case myanmar = "MM"; case namibia = "NA"; case nauru = "NR"; case nepal = "NP"; case netherlands = "NL"; case newCaledonia = "NC"; case newZealand = "NZ"; case nicaragua = "NI"; case niger = "NE"; case nigeria = "NG"; case niue = "NU"; case norfolkIsland = "NF"; case northKorea = "KP"; case northernMarianaIslands = "MP"; case norway = "NO"; case oman = "OM"; case pakistan = "PK"; case palau = "PW"; case palestinianTerritory = "PS"; case panama = "PA"; case papuaNewGuinea = "PG"; case paraguay = "PY"; case peru = "PE"; case philippines = "PH"; case pitcairnIslands = "PN"; case poland = "PL"; case portugal = "PT"; case puertoRico = "PR"; case qatar = "QA"; case reunion = "RE"; case romania = "RO"; case russianFederation = "RU"; case rwanda = "RW"; case saintBarthelemy = "BL"; case saintHelena = "SH"; case saintKittsandNevis = "KN"; case saintLucia = "LC"; case saintMartin = "MF"; case saintPierreandMiquelon = "PM"; case saintVincentandtheGrenadines = "VC"; case samoa = "WS"; case sanMarino = "SM"; case saoTomeandPrincipe = "ST"; case saudiArabia = "SA"; case senegal = "SN"; case serbia = "RS"; case seychelles = "SC"; case sierraLeone = "SL"; case singapore = "SG"; case sintMaarten = "SX"; case slovakia = "SK"; case slovenia = "SI"; case solomonIslands = "SB"; case somalia = "SO"; case southAfrica = "ZA"; case southGeorgiaandtheSouthSandwichIslands = "GS"; case southKorea = "KR"; case southSudan = "SS"; case spain = "ES"; case sriLanka = "LK"; case sudan = "SD"; case suriname = "SR"; case svalbardandJanMayen = "SJ"; case swaziland = "SZ"; case sweden = "SE"; case switzerland = "CH"; case syrianArabRepublic = "SY"; case taiwan = "TW"; case tajikistan = "TJ"; case tanzania = "TZ"; case thailand = "TH"; case timorLeste = "TL"; case togo = "TG"; case tokelau = "TK"; case tonga = "TO"; case trinidadandTobago = "TT"; case tunisia = "TN"; case turkey = "TR"; case turkmenistan = "TM"; case turksandCaicosIslands = "TC"; case tuvalu = "TV"; case uganda = "UG"; case ukraine = "UA"; case unitedArabEmirates = "AE"; case unitedKingdom = "GB"; case unitedStates = "US"; case unitedStatesMinorOutlyingIslands = "UM"; case uruguay = "UY"; case uzbekistan = "UZ"; case vanuatu = "VU"; case venezuela = "VE"; case vietnam = "VN"; case virginIslandsBritish = "VG"; case virginIslandsUS = "VI"; case wallisandFutuna = "WF"; case westernSahara = "EH"; case yemen = "YE"; case zambia = "ZM"; case zimbabwe = "ZW"
+extension EhSetting {
+    enum BrowsingCountry: String, CaseIterable, Identifiable, Equatable {
+        case autoDetect = "-"; case afghanistan = "AF"; case alandIslands = "AX"; case albania = "AL"; case algeria = "DZ"; case americanSamoa = "AS"; case andorra = "AD"; case angola = "AO"; case anguilla = "AI"; case antarctica = "AQ"; case antiguaandBarbuda = "AG"; case argentina = "AR"; case armenia = "AM"; case aruba = "AW"; case asiaPacificRegion = "AP"; case australia = "AU"; case austria = "AT"; case azerbaijan = "AZ"; case bahamas = "BS"; case bahrain = "BH"; case bangladesh = "BD"; case barbados = "BB"; case belarus = "BY"; case belgium = "BE"; case belize = "BZ"; case benin = "BJ"; case bermuda = "BM"; case bhutan = "BT"; case bolivia = "BO"; case bonaireSaintEustatiusandSaba = "BQ"; case bosniaandHerzegovina = "BA"; case botswana = "BW"; case bouvetIsland = "BV"; case brazil = "BR"; case britishIndianOceanTerritory = "IO"; case bruneiDarussalam = "BN"; case bulgaria = "BG"; case burkinaFaso = "BF"; case burundi = "BI"; case cambodia = "KH"; case cameroon = "CM"; case canada = "CA"; case capeVerde = "CV"; case caymanIslands = "KY"; case centralAfricanRepublic = "CF"; case chad = "TD"; case chile = "CL"; case china = "CN"; case christmasIsland = "CX"; case cocosIslands = "CC"; case colombia = "CO"; case comoros = "KM"; case congo = "CG"; case congoTheDemocraticRepublicofthe = "CD"; case cookIslands = "CK"; case costaRica = "CR"; case coteDIvoire = "CI"; case croatia = "HR"; case cuba = "CU"; case curacao = "CW"; case cyprus = "CY"; case czechRepublic = "CZ"; case denmark = "DK"; case djibouti = "DJ"; case dominica = "DM"; case dominicanRepublic = "DO"; case ecuador = "EC"; case egypt = "EG"; case elSalvador = "SV"; case equatorialGuinea = "GQ"; case eritrea = "ER"; case estonia = "EE"; case ethiopia = "ET"; case europe = "EU"; case falklandIslands = "FK"; case faroeIslands = "FO"; case fiji = "FJ"; case finland = "FI"; case france = "FR"; case frenchGuiana = "GF"; case frenchPolynesia = "PF"; case frenchSouthernTerritories = "TF"; case gabon = "GA"; case gambia = "GM"; case georgia = "GE"; case germany = "DE"; case ghana = "GH"; case gibraltar = "GI"; case greece = "GR"; case greenland = "GL"; case grenada = "GD"; case guadeloupe = "GP"; case guam = "GU"; case guatemala = "GT"; case guernsey = "GG"; case guinea = "GN"; case guineaBissau = "GW"; case guyana = "GY"; case haiti = "HT"; case heardIslandandMcDonaldIslands = "HM"; case holySeeVaticanCityState = "VA"; case honduras = "HN"; case hongKong = "HK"; case hungary = "HU"; case iceland = "IS"; case india = "IN"; case indonesia = "ID"; case iran = "IR"; case iraq = "IQ"; case ireland = "IE"; case isleofMan = "IM"; case israel = "IL"; case italy = "IT"; case jamaica = "JM"; case japan = "JP"; case jersey = "JE"; case jordan = "JO"; case kazakhstan = "KZ"; case kenya = "KE"; case kiribati = "KI"; case kuwait = "KW"; case kyrgyzstan = "KG"; case laoPeoplesDemocraticRepublic = "LA"; case latvia = "LV"; case lebanon = "LB"; case lesotho = "LS"; case liberia = "LR"; case libya = "LY"; case liechtenstein = "LI"; case lithuania = "LT"; case luxembourg = "LU"; case macau = "MO"; case macedonia = "MK"; case madagascar = "MG"; case malawi = "MW"; case malaysia = "MY"; case maldives = "MV"; case mali = "ML"; case malta = "MT"; case marshallIslands = "MH"; case martinique = "MQ"; case mauritania = "MR"; case mauritius = "MU"; case mayotte = "YT"; case mexico = "MX"; case micronesia = "FM"; case moldova = "MD"; case monaco = "MC"; case mongolia = "MN"; case montenegro = "ME"; case montserrat = "MS"; case morocco = "MA"; case mozambique = "MZ"; case myanmar = "MM"; case namibia = "NA"; case nauru = "NR"; case nepal = "NP"; case netherlands = "NL"; case newCaledonia = "NC"; case newZealand = "NZ"; case nicaragua = "NI"; case niger = "NE"; case nigeria = "NG"; case niue = "NU"; case norfolkIsland = "NF"; case northKorea = "KP"; case northernMarianaIslands = "MP"; case norway = "NO"; case oman = "OM"; case pakistan = "PK"; case palau = "PW"; case palestinianTerritory = "PS"; case panama = "PA"; case papuaNewGuinea = "PG"; case paraguay = "PY"; case peru = "PE"; case philippines = "PH"; case pitcairnIslands = "PN"; case poland = "PL"; case portugal = "PT"; case puertoRico = "PR"; case qatar = "QA"; case reunion = "RE"; case romania = "RO"; case russianFederation = "RU"; case rwanda = "RW"; case saintBarthelemy = "BL"; case saintHelena = "SH"; case saintKittsandNevis = "KN"; case saintLucia = "LC"; case saintMartin = "MF"; case saintPierreandMiquelon = "PM"; case saintVincentandtheGrenadines = "VC"; case samoa = "WS"; case sanMarino = "SM"; case saoTomeandPrincipe = "ST"; case saudiArabia = "SA"; case senegal = "SN"; case serbia = "RS"; case seychelles = "SC"; case sierraLeone = "SL"; case singapore = "SG"; case sintMaarten = "SX"; case slovakia = "SK"; case slovenia = "SI"; case solomonIslands = "SB"; case somalia = "SO"; case southAfrica = "ZA"; case southGeorgiaandtheSouthSandwichIslands = "GS"; case southKorea = "KR"; case southSudan = "SS"; case spain = "ES"; case sriLanka = "LK"; case sudan = "SD"; case suriname = "SR"; case svalbardandJanMayen = "SJ"; case swaziland = "SZ"; case sweden = "SE"; case switzerland = "CH"; case syrianArabRepublic = "SY"; case taiwan = "TW"; case tajikistan = "TJ"; case tanzania = "TZ"; case thailand = "TH"; case timorLeste = "TL"; case togo = "TG"; case tokelau = "TK"; case tonga = "TO"; case trinidadandTobago = "TT"; case tunisia = "TN"; case turkey = "TR"; case turkmenistan = "TM"; case turksandCaicosIslands = "TC"; case tuvalu = "TV"; case uganda = "UG"; case ukraine = "UA"; case unitedArabEmirates = "AE"; case unitedKingdom = "GB"; case unitedStates = "US"; case unitedStatesMinorOutlyingIslands = "UM"; case uruguay = "UY"; case uzbekistan = "UZ"; case vanuatu = "VU"; case venezuela = "VE"; case vietnam = "VN"; case virginIslandsBritish = "VG"; case virginIslandsUS = "VI"; case wallisandFutuna = "WF"; case westernSahara = "EH"; case yemen = "YE"; case zambia = "ZM"; case zimbabwe = "ZW"
+    }
 }
-extension EhSettingBrowsingCountry {
+extension EhSetting.BrowsingCountry {
     var id: Int { hashValue }
     var name: String {
         switch self {

@@ -209,8 +209,8 @@ private struct ImageLoadSettingsSection: View {
         _ehSetting = ehSetting
     }
 
-    private var capableSettings: [EhSettingLoadThroughHathSetting] {
-        EhSettingLoadThroughHathSetting.allCases.filter { setting in
+    private var capableSettings: [EhSetting.LoadThroughHathSetting] {
+        EhSetting.LoadThroughHathSetting.allCases.filter { setting in
             setting <= ehSetting.capableLoadThroughHathSetting
         }
     }
@@ -233,7 +233,7 @@ private struct ImageLoadSettingsSection: View {
         .textCase(nil)
         Section(R.string.localizable.ehSettingViewDescriptionBrowsingCountry(ehSetting.browsingCountry.name)) {
             Picker(R.string.localizable.ehSettingViewTitleBrowsingCountry(), selection: $ehSetting.browsingCountry) {
-                ForEach(EhSettingBrowsingCountry.allCases) { country in
+                ForEach(EhSetting.BrowsingCountry.allCases) { country in
                     Text(country.name).tag(country)
                         .foregroundColor(country == ehSetting.browsingCountry ? .accentColor : .primary)
                 }
@@ -251,8 +251,8 @@ private struct ImageSizeSettingsSection: View {
         _ehSetting = ehSetting
     }
 
-    private var capableResolutions: [EhSettingImageResolution] {
-        EhSettingImageResolution.allCases.filter { resolution in
+    private var capableResolutions: [EhSetting.ImageResolution] {
+        EhSetting.ImageResolution.allCases.filter { resolution in
             resolution <= ehSetting.capableImageResolution
         }
     }
@@ -308,7 +308,7 @@ private struct GalleryNameDisplaySection: View {
                 Text(R.string.localizable.ehSettingViewTitleGalleryName())
                 Spacer()
                 Picker(selection: $ehSetting.galleryName) {
-                    ForEach(EhSettingGalleryName.allCases) { name in
+                    ForEach(EhSetting.GalleryName.allCases) { name in
                         Text(name.value).tag(name)
                     }
                 } label: {
@@ -336,7 +336,7 @@ private struct ArchiverSettingsSection: View {
         ) {
             Text(R.string.localizable.ehSettingViewTitleArchiverBehavior())
             Picker(selection: $ehSetting.archiverBehavior) {
-                ForEach(EhSettingArchiverBehavior.allCases) { behavior in
+                ForEach(EhSetting.ArchiverBehavior.allCases) { behavior in
                     Text(behavior.value).tag(behavior)
                 }
             } label: {
@@ -369,7 +369,7 @@ private struct FrontPageSettingsSection: View {
                 Text(R.string.localizable.ehSettingViewTitleDisplayMode())
                 Spacer()
                 Picker(selection: $ehSetting.displayMode) {
-                    ForEach(EhSettingDisplayMode.allCases) { mode in
+                    ForEach(EhSetting.DisplayMode.allCases) { mode in
                         Text(mode.value).tag(mode)
                     }
                 } label: {
@@ -423,7 +423,7 @@ private struct FavoritesSection: View {
                 Text(R.string.localizable.ehSettingViewTitleFavoritesSortOrder())
                 Spacer()
                 Picker(selection: $ehSetting.favoritesSortOrder) {
-                    ForEach(EhSettingFavoritesSortOrder.allCases) { order in
+                    ForEach(EhSetting.FavoritesSortOrder.allCases) { order in
                         Text(order.value).tag(order)
                     }
                 } label: {
@@ -602,7 +602,7 @@ private struct ExcludedLanguagesSection: View {
         ) {
             HStack {
                 Text("").frame(width: DeviceUtil.windowW * 0.25)
-                ForEach(EhSettingExcludedLanguagesCategory.allCases) { category in
+                ForEach(EhSetting.ExcludedLanguagesCategory.allCases) { category in
                     Color.clear.overlay {
                         Text(category.value).lineLimit(1).font(.subheadline).fixedSize()
                     }
@@ -696,8 +696,8 @@ private struct SearchResultCountSection: View {
         _ehSetting = ehSetting
     }
 
-    private var capableCounts: [EhSettingSearchResultCount] {
-        EhSettingSearchResultCount.allCases.filter { count in
+    private var capableCounts: [EhSetting.SearchResultCount] {
+        EhSetting.SearchResultCount.allCases.filter { count in
             count <= ehSetting.capableSearchResultCount
         }
     }
@@ -732,13 +732,13 @@ private struct ThumbnailSettingsSection: View {
         _ehSetting = ehSetting
     }
 
-    private var capableSizes: [EhSettingThumbnailSize] {
-        EhSettingThumbnailSize.allCases.filter { size in
+    private var capableSizes: [EhSetting.ThumbnailSize] {
+        EhSetting.ThumbnailSize.allCases.filter { size in
             size <= ehSetting.capableThumbnailConfigSize
         }
     }
-    private var capableRows: [EhSettingThumbnailRows] {
-        EhSettingThumbnailRows.allCases.filter { row in
+    private var capableRows: [EhSetting.ThumbnailRows] {
+        EhSetting.ThumbnailRows.allCases.filter { row in
             row <= ehSetting.capableThumbnailConfigRows
         }
     }
@@ -753,7 +753,7 @@ private struct ThumbnailSettingsSection: View {
                 Text(R.string.localizable.ehSettingViewTitleThumbnailLoadTiming())
                 Spacer()
                 Picker(selection: $ehSetting.thumbnailLoadTiming) {
-                    ForEach(EhSettingThumbnailLoadTiming.allCases) { timing in
+                    ForEach(EhSetting.ThumbnailLoadTiming.allCases) { timing in
                         Text(timing.value).tag(timing)
                     }
                 } label: {
@@ -881,7 +881,7 @@ private struct GalleryCommentsSection: View {
                 Text(R.string.localizable.ehSettingViewTitleCommentsSortOrder())
                 Spacer()
                 Picker(selection: $ehSetting.commentsSortOrder) {
-                    ForEach(EhSettingCommentsSortOrder.allCases) { order in
+                    ForEach(EhSetting.CommentsSortOrder.allCases) { order in
                         Text(order.value).tag(order)
                     }
                 } label: {
@@ -893,7 +893,7 @@ private struct GalleryCommentsSection: View {
                 Text(R.string.localizable.ehSettingViewTitleCommentsVotesShowTiming())
                 Spacer()
                 Picker(selection: $ehSetting.commentVotesShowTiming) {
-                    ForEach(EhSettingCommentVotesShowTiming.allCases) { timing in
+                    ForEach(EhSetting.CommentVotesShowTiming.allCases) { timing in
                         Text(timing.value).tag(timing)
                     }
                 } label: {
@@ -920,7 +920,7 @@ private struct GalleryTagsSection: View {
                 Text(R.string.localizable.ehSettingViewTitleTagsSortOrder())
                 Spacer()
                 Picker(selection: $ehSetting.tagsSortOrder) {
-                    ForEach(EhSettingTagsSortOrder.allCases) { order in
+                    ForEach(EhSetting.TagsSortOrder.allCases) { order in
                         Text(order.value).tag(order)
                     }
                 } label: {
@@ -1022,7 +1022,7 @@ private struct MultiplePageViewerSection: View {
                         Text(R.string.localizable.ehSettingViewTitleDisplayStyle())
                         Spacer()
                         Picker(selection: multiplePageViewerStyleBinding) {
-                            ForEach(EhSettingMultiplePageViewerStyle.allCases) { style in
+                            ForEach(EhSetting.MultiplePageViewerStyle.allCases) { style in
                                 Text(style.value).tag(style)
                             }
                         } label: {

@@ -289,7 +289,10 @@ private struct HorizontalImageStack: View {
                         saveImageAction(url)
                     }
                 } label: {
-                    Label(R.string.localizable.readingViewButtonSaveOriginal(), systemSymbol: .squareAndArrowDownOnSquare)
+                    Label(
+                        R.string.localizable.readingViewButtonSaveOriginal(),
+                        systemSymbol: .squareAndArrowDownOnSquare
+                    )
                 }
             }
             Button {
