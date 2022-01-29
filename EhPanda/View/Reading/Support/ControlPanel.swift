@@ -107,7 +107,7 @@ private struct UpperPanel: View {
                             Button {
                                 setting.enablesDualPageMode.toggle()
                             } label: {
-                                Text("Dual-page mode")
+                                Text(R.string.localizable.readingViewToolbarItemTitleDualPageMode())
                                 if setting.enablesDualPageMode {
                                     Image(systemSymbol: .checkmark)
                                 }
@@ -115,7 +115,7 @@ private struct UpperPanel: View {
                             Button {
                                 setting.exceptCover.toggle()
                             } label: {
-                                Text("Except the cover")
+                                Text(R.string.localizable.readingViewToolbarItemTitleExceptTheCover())
                                 if setting.exceptCover {
                                     Image(systemSymbol: .checkmark)
                                 }
@@ -127,7 +127,7 @@ private struct UpperPanel: View {
                         }
                     }
                     Menu {
-                        Text("AutoPlay").foregroundColor(.secondary)
+                        Text(R.string.localizable.readingViewToolbarItemTitleAutoPlay()).foregroundColor(.secondary)
                         ForEach(AutoPlayPolicy.allCases) { policy in
                             Button {
                                 autoPlayPolicy = policy

@@ -80,17 +80,19 @@ struct QuickSearchView: View {
                 }
             }
             .confirmationDialog(
-                message: "Are you sure to delete this item?",
+                message: R.string.localizable.confirmationDialogTitleAreYouSureTo(
+                    R.string.localizable.confirmationDialogTitleDeleteThisItem()
+                ),
                 unwrapping: viewStore.binding(\.$route),
                 case: /QuickSearchState.Route.deleteWord
             ) { route in
-                Button("Delete", role: .destructive) {
+                Button(R.string.localizable.commonDelete(), role: .destructive) {
                     viewStore.send(.deleteWord(route))
                 }
             }
             .toolbar(content: toolbar)
             .background(navigationLinks)
-            .navigationTitle("Quick search")
+            .navigationTitle(R.string.localizable.quickSearchViewTitleQuickSearch())
         }
     }
 
@@ -113,7 +115,7 @@ struct QuickSearchView: View {
     @ViewBuilder private var navigationLinks: some View {
         NavigationLink(unwrapping: viewStore.binding(\.$route), case: /QuickSearchState.Route.newWord) { _ in
             EditWordView(
-                title: "New word",
+                title: R.string.localizable.quickSearchViewTitleNewWord(),
                 word: viewStore.binding(\.$editingWord),
                 focusedField: $focusedField,
                 submitAction: { viewStore.send(.onTextFieldSubmitted) },
@@ -125,7 +127,7 @@ struct QuickSearchView: View {
         }
         NavigationLink(unwrapping: viewStore.binding(\.$route), case: /QuickSearchState.Route.editWord) { _ in
             EditWordView(
-                title: "Edit word",
+                title: R.string.localizable.quickSearchViewTitleEditWord(),
                 word: viewStore.binding(\.$editingWord),
                 focusedField: $focusedField,
                 submitAction: { viewStore.send(.onTextFieldSubmitted) },
@@ -161,11 +163,11 @@ extension QuickSearchView {
 
         var body: some View {
             Form {
-                Section("Name") {
-                    TextField("Optional", text: $word.name)
+                Section(R.string.localizable.quickSearchViewTitleName()) {
+                    TextField(R.string.localizable.quickSearchViewPlaceholderOptional(), text: $word.name)
                         .focused(focusedField, equals: .name)
                 }
-                Section("Content") {
+                Section(R.string.localizable.quickSearchViewTitleContent()) {
                     TextEditor(text: $word.content)
                         .disableAutocorrection(true)
                         .textInputAutocapitalization(.never)
@@ -180,7 +182,7 @@ extension QuickSearchView {
         private func toolbar() -> some ToolbarContent {
             CustomToolbarItem {
                 Button(action: confirmAction) {
-                    Text("Confirm").bold()
+                    Text(R.string.localizable.commonConfirm()).bold()
                 }
             }
         }

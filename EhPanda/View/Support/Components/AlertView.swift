@@ -9,7 +9,7 @@ import SwiftUI
 
 struct LoadingView: View {
     var body: some View {
-        ProgressView("Loading...")
+        ProgressView(R.string.localizable.loadingViewTitleLoading())
     }
 }
 
@@ -53,7 +53,8 @@ struct ErrorView: View {
     var body: some View {
         GenericRetryView(
             symbolName: error.symbolName, message: error.alertText,
-            buttonText: "Retry", retryAction: retryAction
+            buttonText: R.string.localizable.errorViewButtonRetry(),
+            retryAction: retryAction
         )
     }
 }
@@ -102,7 +103,7 @@ struct PageJumpView: View {
 
     var body: some View {
         VStack {
-            Text("Jump page").bold()
+            Text(R.string.localizable.jumpPageViewTitleJumpPage()).bold()
             HStack {
                 let opacity = colorScheme == .light ? 0.15 : 0.1
                 TextField(inputText, text: $inputText).multilineTextAlignment(.center).keyboardType(.numberPad)

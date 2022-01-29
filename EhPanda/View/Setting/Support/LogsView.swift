@@ -45,7 +45,7 @@ struct LogsView: View {
         }
         .toolbar(content: toolbar)
         .background(navigationLink)
-        .navigationTitle("Logs")
+        .navigationTitle(R.string.localizable.logsViewTitleLogs())
     }
 
     private var navigationLink: some View {
@@ -87,7 +87,7 @@ private struct LogCell: View {
                 HStack(spacing: 2) {
                     Image(systemSymbol: .checkmarkCircle)
                         .foregroundColor(.green)
-                    Text("Latest")
+                    Text(R.string.localizable.logsViewTitleLatest())
                 }
                 .opacity(isLatest ? 0.6 : 0)
                 .font(.caption)
@@ -95,7 +95,7 @@ private struct LogCell: View {
             HStack {
                 Text(dateRangeString).bold()
                 Spacer()
-                Text("\(log.contents.count) records")
+                Text(R.string.localizable.commonValueRecords("\(log.contents.count)"))
             }
             .foregroundColor(.secondary)
             .font(.caption2).lineLimit(1)
@@ -133,7 +133,7 @@ private struct LogView: View {
 
     var body: some View {
         List(logs) { log in
-            Text("\(log.id + 1). " + log.content)
+            Text("\(log.id + 1). \(log.content)")
                 .fontWeight(.medium).font(.caption).padding()
         }
         .navigationBarTitleDisplayMode(.inline)

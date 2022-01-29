@@ -159,7 +159,7 @@ struct DetailView: View {
         }
         .sheet(unwrapping: viewStore.binding(\.$route), case: /DetailState.Route.postComment) { _ in
             PostCommentView(
-                title: "Post Comment",
+                title: R.string.localizable.postCommentViewTitlePostComment(),
                 content: viewStore.binding(\.$commentContent),
                 isFocused: viewStore.binding(\.$postCommentFocused),
                 postAction: {
@@ -236,13 +236,13 @@ private extension DetailView {
                 Button {
                     viewStore.send(.setNavigation(.archive))
                 } label: {
-                    Label("Archives", systemSymbol: .docZipper)
+                    Label(R.string.localizable.archivesViewTitleArchives(), systemSymbol: .docZipper)
                 }
                 .disabled(viewStore.galleryDetail?.archiveURL == nil || !CookiesUtil.didLogin)
                 Button {
                     viewStore.send(.setNavigation(.torrents))
                 } label: {
-                    let base = "Torrents".localized
+                    let base = R.string.localizable.torrentsViewTitleTorrents()
                     let torrentCount = viewStore.galleryDetail?.torrentCount ?? 0
                     let baseWithCount = [base, "(\(torrentCount))"].joined(separator: " ")
                     Label(torrentCount > 0 ? baseWithCount : base, systemSymbol: .leaf)
@@ -254,7 +254,7 @@ private extension DetailView {
                         viewStore.send(.setNavigation(.share(galleryURL)))
                     }
                 } label: {
-                    Label("Share", systemSymbol: .squareAndArrowUp)
+                    Label(R.string.localizable.commonShare(), systemSymbol: .squareAndArrowUp)
                 }
             }
             .disabled(viewStore.galleryDetail == nil || viewStore.loadingState == .loading)
@@ -340,10 +340,10 @@ private struct HeaderSection: View {
                     .imageScale(.large).foregroundStyle(.tint)
                     .disabled(!CookiesUtil.didLogin)
                     Button(action: navigateReadingAction) {
-                        Text("Read".localized).bold().textCase(.uppercase)
-                            .font(.headline).foregroundColor(.white)
-                            .padding(.vertical, -2).padding(.horizontal, 2)
-                            .lineLimit(1)
+                        Text(R.string.localizable.detailViewButtonRead())
+                            .bold().textCase(.uppercase).font(.headline)
+                            .foregroundColor(.white).padding(.vertical, -2)
+                            .padding(.horizontal, 2).lineLimit(1)
                     }
                     .buttonStyle(.borderedProminent).buttonBorderShape(.capsule)
                 }
@@ -372,29 +372,27 @@ private struct DescriptionSection: View {
 
     private var infos: [DescScrollInfo] {[
         DescScrollInfo(
-            title: "DESC_SCROLL_ITEM_FAVORITED", numeral: "Times",
-            value: String(galleryDetail.favoredCount)
+            title: R.string.localizable.detailViewScrollSectionTitleFavored(),
+            description: R.string.localizable.detailViewScrollSectionDescriptionFavored(),
+            value: .init(galleryDetail.favoredCount)
         ),
         DescScrollInfo(
-            title: "Language",
-            numeral: galleryDetail.language.name,
+            title: R.string.localizable.commonLanguage(),
+            description: galleryDetail.language.name,
             value: galleryDetail.languageAbbr
         ),
         DescScrollInfo(
-            title: "",
-            titleKey: LocalizedStringKey(
-                "\(galleryDetail.ratingCount) Ratings"
-            ),
-            numeral: "", value: "",
-            rating: galleryDetail.rating, isRating: true
+            title: R.string.localizable.detailViewScrollSectionTitleRatings(),
+            description: .init(), value: .init(), rating: galleryDetail.rating, isRating: true
         ),
         DescScrollInfo(
-            title: "Page Count", numeral: "Pages",
-            value: String(galleryDetail.pageCount)
+            title: R.string.localizable.detailViewScrollSectionTitlePageCount(),
+            description: R.string.localizable.detailViewScrollSectionDescriptionPageCount(),
+            value: .init(galleryDetail.pageCount)
         ),
         DescScrollInfo(
-            title: "File Size", numeral: galleryDetail.sizeType,
-            value: String(galleryDetail.sizeCount)
+            title: R.string.localizable.detailViewScrollSectionTitleFileSize(),
+            description: galleryDetail.sizeType, value: .init(galleryDetail.sizeCount)
         )
     ]}
     private var itemWidth: Double {
@@ -407,9 +405,9 @@ private struct DescriptionSection: View {
                 ForEach(infos) { info in
                     Group {
                         if info.isRating {
-                            DescScrollRatingItem(titleKey: info.titleKey, rating: info.rating)
+                            DescScrollRatingItem(title: info.title, rating: info.rating)
                         } else {
-                            DescScrollItem(title: info.title, value: info.value, numeral: info.numeral)
+                            DescScrollItem(title: info.title, value: info.value, description: info.description)
                         }
                     }
                     .frame(width: itemWidth).drawingGroup()
@@ -431,11 +429,10 @@ private struct DescriptionSection: View {
 
 private extension DescriptionSection {
     struct DescScrollInfo: Identifiable, Equatable {
-        var id: Int { title.hashValue }
+        var id: String { title }
 
         let title: String
-        var titleKey: LocalizedStringKey = ""
-        let numeral: String
+        let description: String
         let value: String
         var rating: Float = 0
         var isRating = false
@@ -443,34 +440,34 @@ private extension DescriptionSection {
     struct DescScrollItem: View {
         private let title: String
         private let value: String
-        private let numeral: String
+        private let description: String
 
-        init(title: String, value: String, numeral: String) {
+        init(title: String, value: String, description: String) {
             self.title = title
             self.value = value
-            self.numeral = numeral
+            self.description = description
         }
 
         var body: some View {
             VStack(spacing: 3) {
                 Text(title.localized).textCase(.uppercase).font(.caption)
                 Text(value).fontWeight(.medium).font(.title3).lineLimit(1)
-                Text(numeral.localized).font(.caption)
+                Text(description).font(.caption)
             }
         }
     }
     struct DescScrollRatingItem: View {
-        private let titleKey: LocalizedStringKey
+        private let title: String
         private let rating: Float
 
-        init(titleKey: LocalizedStringKey, rating: Float) {
-            self.titleKey = titleKey
+        init(title: String, rating: Float) {
+            self.title = title
             self.rating = rating
         }
 
         var body: some View {
             VStack(spacing: 3) {
-                Text(titleKey).textCase(.uppercase).font(.caption).lineLimit(1)
+                Text(title).textCase(.uppercase).font(.caption).lineLimit(1)
                 Text(String(format: "%.2f", rating)).fontWeight(.medium).font(.title3)
                 RatingView(rating: rating).font(.system(size: 12)).foregroundStyle(.primary)
             }
@@ -512,14 +509,14 @@ private struct ActionSection: View {
                     Button(action: showUserRatingAction) {
                         Spacer()
                         Image(systemSymbol: .squareAndPencil)
-                        Text("Give a Rating").bold()
+                        Text(R.string.localizable.detailViewActionSectionButtonGiveARating()).bold()
                         Spacer()
                     }
                     .disabled(!CookiesUtil.didLogin)
                     Button(action: navigateSimilarGalleryAction) {
                         Spacer()
                         Image(systemSymbol: .photoOnRectangleAngled)
-                        Text("Similar Gallery").bold()
+                        Text(R.string.localizable.detailViewActionSectionButtonSimilarGallery()).bold()
                         Spacer()
                     }
                 }
@@ -633,7 +630,10 @@ private struct PreviewsSection: View {
     }
 
     var body: some View {
-        SubSection(title: "Previews", showAll: pageCount > 20, showAllAction: navigatePreviewsAction) {
+        SubSection(
+            title: R.string.localizable.commentsViewTitlePreviews(),
+            showAll: pageCount > 20, showAllAction: navigatePreviewsAction
+        ) {
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHStack {
                     ForEach(previews.tuples.sorted(by: { $0.0 < $1.0 }), id: \.0) { index, previewURL in
@@ -673,7 +673,10 @@ private struct CommentsSection: View {
     }
 
     var body: some View {
-        SubSection(title: "Comments", showAll: !comments.isEmpty, showAllAction: navigateCommentAction) {
+        SubSection(
+            title: R.string.localizable.commentsViewTitleComments(),
+            showAll: !comments.isEmpty, showAllAction: navigateCommentAction
+        ) {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack {
                     ForEach(comments.prefix(min(comments.count, 6))) { comment in
@@ -745,7 +748,7 @@ private struct CommentButton: View {
             HStack {
                 Spacer()
                 Image(systemSymbol: .squareAndPencil)
-                Text("Post Comment").bold()
+                Text(R.string.localizable.postCommentViewTitlePostComment()).bold()
                 Spacer()
             }
             .padding().background(backgroundColor).cornerRadius(15)

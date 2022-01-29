@@ -70,7 +70,7 @@ private struct JumpPageAlert<Content: View>: View {
             },
             buttons: [
                 .regular(
-                    content: { Text("Confirm") },
+                    content: { Text(R.string.localizable.commonConfirm()) },
                     action: jumpAction
                 )
             ]

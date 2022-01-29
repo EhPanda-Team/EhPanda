@@ -95,7 +95,7 @@ struct HomeView: View {
             }
             .background(navigationLinks)
             .toolbar(content: toolbar)
-            .navigationTitle("Home")
+            .navigationTitle(R.string.localizable.tabItemTitleHome())
         }
     }
 
@@ -256,8 +256,8 @@ private struct CoverWallSection: View {
 
     var body: some View {
         SubSection(
-            title: "Frontpage", tint: .secondary,
-            isLoading: isLoading,
+            title: R.string.localizable.listTypeFrontpage(),
+            tint: .secondary, isLoading: isLoading,
             reloadAction: reloadAction,
             showAllAction: showAllAction
         ) {
@@ -346,8 +346,8 @@ private struct ToplistsSection: View {
 
     var body: some View {
         SubSection(
-            title: "Toplists", tint: .secondary,
-            isLoading: isLoading,
+            title: R.string.localizable.listTypeToplists(),
+            tint: .secondary, isLoading: isLoading,
             reloadAction: reloadAction,
             showAllAction: showAllAction
         ) {
@@ -360,7 +360,7 @@ private struct ToplistsSection: View {
     }
     private func verticalStacks(type: ToplistsType) -> some View {
         VStack(alignment: .leading) {
-            Text(type.description.localized).font(.subheadline.bold())
+            Text(type.value).font(.subheadline.bold())
             HStack {
                 VerticalToplistsStack(
                     galleries: galleries(type: type, range: 0...2), startRanking: 1,
@@ -416,7 +416,7 @@ private struct MiscGridSection: View {
     }
 
     var body: some View {
-        SubSection(title: "Other", showAll: false) {
+        SubSection(title: R.string.localizable.homeViewSectionTitleOther(), showAll: false) {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack {
                     let types = HomeMiscGridType.allCases
@@ -424,7 +424,7 @@ private struct MiscGridSection: View {
                         Button {
                             navigateAction(type)
                         } label: {
-                            MiscGridItem(title: type.rawValue.localized, symbol: type.symbol).tint(.primary)
+                            MiscGridItem(title: type.title, symbol: type.symbol).tint(.primary)
                         }
                         .padding(.trailing, type == types.last ? 0 : 10)
                     }
@@ -462,15 +462,25 @@ private struct MiscGridItem: View {
 }
 
 // MARK: Definition
-enum HomeMiscGridType: String, CaseIterable, Identifiable {
-    var id: String { rawValue }
+enum HomeMiscGridType: CaseIterable, Identifiable {
+    var id: String { title }
 
-    case popular = "Popular"
-    case watched = "Watched"
-    case history = "History"
+    case popular
+    case watched
+    case history
 }
 
 extension HomeMiscGridType {
+    var title: String {
+        switch self {
+        case .popular:
+            return R.string.localizable.listTypePopular()
+        case .watched:
+            return R.string.localizable.listTypeWatched()
+        case .history:
+            return R.string.localizable.listTypeHistory()
+        }
+    }
     var symbol: SFSymbol {
         switch self {
         case .popular:

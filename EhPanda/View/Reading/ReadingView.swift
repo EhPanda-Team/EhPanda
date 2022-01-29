@@ -266,7 +266,7 @@ private struct HorizontalImageStack: View {
         Button {
             refetchAction(index)
         } label: {
-            Label("Reload", systemSymbol: .arrowCounterclockwise)
+            Label(R.string.localizable.readingViewButtonReload(), systemSymbol: .arrowCounterclockwise)
         }
         if let content = contents[index], !content.isEmpty {
             Button {
@@ -274,14 +274,14 @@ private struct HorizontalImageStack: View {
                     copyImageAction(url)
                 }
             } label: {
-                Label("Copy", systemSymbol: .plusSquareOnSquare)
+                Label(R.string.localizable.readingViewButtonCopy(), systemSymbol: .plusSquareOnSquare)
             }
             Button {
                 if let url = URL(string: content) {
                     saveImageAction(url)
                 }
             } label: {
-                Label("Save", systemSymbol: .squareAndArrowDown)
+                Label(R.string.localizable.readingViewButtonSave(), systemSymbol: .squareAndArrowDown)
             }
             if let originalContent = originalContents[index], !originalContent.isEmpty {
                 Button {
@@ -289,7 +289,7 @@ private struct HorizontalImageStack: View {
                         saveImageAction(url)
                     }
                 } label: {
-                    Label("Save original", systemSymbol: .squareAndArrowDownOnSquare)
+                    Label(R.string.localizable.readingViewButtonSaveOriginal(), systemSymbol: .squareAndArrowDownOnSquare)
                 }
             }
             Button {
@@ -297,7 +297,7 @@ private struct HorizontalImageStack: View {
                     shareImageAction(url)
                 }
             } label: {
-                Label("Share", systemSymbol: .squareAndArrowUp)
+                Label(R.string.localizable.commonShare(), systemSymbol: .squareAndArrowUp)
             }
         }
     }

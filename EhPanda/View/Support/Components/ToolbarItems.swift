@@ -153,7 +153,7 @@ struct ToplistsTypeMenu: View {
                 Button {
                     action(type)
                 } label: {
-                    Text(type.description.localized)
+                    Text(type.value)
                     if type == self.type {
                         Image(systemSymbol: .checkmark)
                     }

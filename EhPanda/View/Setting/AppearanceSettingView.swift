@@ -38,7 +38,7 @@ struct AppearanceSettingView: View {
         Form {
             Section {
                 HStack {
-                    Text("Theme")
+                    Text(R.string.localizable.appearanceSettingViewTitleTheme())
                     Spacer()
                     Picker(
                         selection: $preferredColorScheme,
@@ -51,38 +51,38 @@ struct AppearanceSettingView: View {
                     )
                 }
                 .pickerStyle(.menu)
-                ColorPicker("Tint Color", selection: $accentColor)
-                Button("App Icon") {
+                ColorPicker(R.string.localizable.appearanceSettingViewTitleTintColor(), selection: $accentColor)
+                Button(R.string.localizable.appIconViewTitleAppIcon()) {
                     viewStore.send(.setNavigation(.appIcon))
                 }
                 .foregroundStyle(.primary).withArrow()
             }
-            Section("List".localized) {
+            Section(R.string.localizable.appearanceSettingViewSectionTitleList()) {
                 HStack {
-                    Text("Display mode")
+                    Text(R.string.localizable.appearanceSettingViewTitleDisplayMode())
                     Spacer()
                     Picker(
                         selection: $listDisplayMode,
-                        label: Text(listDisplayMode.rawValue.localized),
+                        label: Text(listDisplayMode.value),
                         content: {
                             ForEach(ListDisplayMode.allCases) { listMode in
-                                Text(listMode.rawValue.localized).tag(listMode)
+                                Text(listMode.value).tag(listMode)
                             }
                         }
                     )
                 }
                 .pickerStyle(.menu)
                 Toggle(isOn: $showsTagsInList) {
-                    Text("Shows tags in list")
+                    Text(R.string.localizable.appearanceSettingViewTitleShowsTagsInList())
                 }
                 HStack {
-                    Text("Maximum number of tags")
+                    Text(R.string.localizable.appearanceSettingViewTitleMaximumNumberOfTags())
                     Spacer()
                     Picker(
                         selection: $listTagsNumberMaximum,
                         label: Text("\(listTagsNumberMaximum)")
                     ) {
-                        Text("Infinity").tag(0)
+                        Text(R.string.localizable.appearanceSettingViewMenuTitleInfite()).tag(0)
                         ForEach(Array(stride(from: 5, through: 20, by: 5)), id: \.self) { num in
                             Text("\(num)").tag(num)
                         }
@@ -93,7 +93,7 @@ struct AppearanceSettingView: View {
             }
         }
         .background(navigationLink)
-        .navigationTitle("Appearance")
+        .navigationTitle(R.string.localizable.commonAppearance())
     }
     private var navigationLink: some View {
         NavigationLink(unwrapping: viewStore.binding(\.$route), case: /AppearanceSettingState.Route.appIcon) { _ in
@@ -124,7 +124,7 @@ private struct AppIconView: View {
                 }
             }
         }
-        .navigationTitle("App Icon")
+        .navigationTitle(R.string.localizable.appIconViewTitleAppIcon())
     }
 }
 

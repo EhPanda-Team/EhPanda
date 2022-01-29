@@ -44,7 +44,7 @@ struct GeneralSettingView: View {
         Form {
             Section {
                 HStack {
-                    Text("Language")
+                    Text(R.string.localizable.commonLanguage())
                     Spacer()
                     Button(language) {
                         viewStore.send(.navigateToSystemSetting)
@@ -52,7 +52,7 @@ struct GeneralSettingView: View {
                     .foregroundStyle(.tint)
                 }
                 HStack {
-                    Text("Translates tags")
+                    Text(R.string.localizable.generalSettingViewTitleTranslatesTags())
                     Spacer()
                     ZStack {
                         Image(systemSymbol: .exclamationmarkTriangleFill).foregroundStyle(.yellow)
@@ -64,18 +64,24 @@ struct GeneralSettingView: View {
                     }
                     Toggle("", isOn: $translatesTags).frame(width: 50)
                 }
-                Button("Logs") {
+                Button(R.string.localizable.logsViewTitleLogs()) {
                     viewStore.send(.setNavigation(.logs))
                 }
                 .foregroundColor(.primary).withArrow()
             }
-            Section("Navigation".localized) {
-                Toggle("Redirects links to the selected host", isOn: $redirectsLinksToSelectedHost)
-                Toggle("Detects links from the clipboard", isOn: $detectsLinksFromClipboard)
+            Section(R.string.localizable.generalSettingViewSectionTitleNavigation()) {
+                Toggle(
+                    R.string.localizable.generalSettingViewTitleRedirectsLinksToSelectedHost(),
+                    isOn: $redirectsLinksToSelectedHost
+                )
+                Toggle(
+                    R.string.localizable.generalSettingViewTitleDetectsLinksFromClipboard(),
+                    isOn: $detectsLinksFromClipboard
+                )
             }
-            Section("Security".localized) {
+            Section(R.string.localizable.generalSettingViewSectionTitleSecurity()) {
                 HStack {
-                    Text("Auto-Lock")
+                    Text(R.string.localizable.generalSettingViewTitleAutoLock())
                     Spacer()
                     Image(systemSymbol: .exclamationmarkTriangleFill).foregroundStyle(.yellow)
                         .opacity((viewStore.passcodeNotSet && autoLockPolicy != .never) ? 1 : 0)
@@ -87,7 +93,7 @@ struct GeneralSettingView: View {
                     .pickerStyle(.menu)
                 }
                 VStack(alignment: .leading) {
-                    Text("App switcher blur")
+                    Text(R.string.localizable.generalSettingViewTitleAppSwitcherBlurRadius())
                     HStack {
                         Image(systemSymbol: .eye)
                         Slider(value: $backgroundBlurRadius, in: 0...100, step: 10)
@@ -95,12 +101,12 @@ struct GeneralSettingView: View {
                     }
                 }
             }
-            Section("Cache".localized) {
+            Section(R.string.localizable.generalSettingViewSectionTitleCaches()) {
                 Button {
                     viewStore.send(.setNavigation(.clearCache))
                 } label: {
                     HStack {
-                        Text("Clear image caches")
+                        Text(R.string.localizable.generalSettingViewButtonClearImageCaches())
                         Spacer()
                         Text(viewStore.diskImageCacheSize).foregroundStyle(.tint)
                     }
@@ -109,11 +115,13 @@ struct GeneralSettingView: View {
             }
         }
         .confirmationDialog(
-            message: "Are you sure to clear?",
+            message: R.string.localizable.confirmationDialogTitleAreYouSureTo(
+                R.string.localizable.commonClear().lowercased()
+            ),
             unwrapping: viewStore.binding(\.$route),
             case: /GeneralSettingState.Route.clearCache
         ) {
-            Button("Clear", role: .destructive) {
+            Button(R.string.localizable.commonClear(), role: .destructive) {
                 viewStore.send(.clearWebImageCache)
             }
         }
@@ -122,7 +130,7 @@ struct GeneralSettingView: View {
             viewStore.send(.calculateWebImageDiskCache)
         }
         .background(navigationLink)
-        .navigationTitle("General")
+        .navigationTitle(R.string.localizable.enumSettingStateRouteValueGeneral())
     }
 
     private var navigationLink: some View {

@@ -63,7 +63,7 @@ struct FiltersView: View {
                     viewStore.send(.onResetFilterConfirmed)
                 }
             }
-            .navigationTitle("Filters")
+            .navigationTitle(R.string.localizable.filtersViewTitleFilters())
         }
     }
 }

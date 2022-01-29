@@ -42,15 +42,17 @@ struct HistoryView: View {
             }
         )
         .confirmationDialog(
-            message: "Are you sure to clear?",
+            message: R.string.localizable.confirmationDialogTitleAreYouSureTo(
+                R.string.localizable.commonClear().lowercased()
+            ),
             unwrapping: viewStore.binding(\.$route),
             case: /HistoryState.Route.clearHistory
         ) {
-            Button("Clear", role: .destructive) {
+            Button(R.string.localizable.commonClear(), role: .destructive) {
                 viewStore.send(.clearHistoryGalleries)
             }
         }
-        .searchable(text: viewStore.binding(\.$keyword), prompt: "Filter")
+        .searchable(text: viewStore.binding(\.$keyword), prompt: R.string.localizable.commonFilter())
         .onAppear {
             if viewStore.galleries.isEmpty {
                 DispatchQueue.main.async {
@@ -60,7 +62,7 @@ struct HistoryView: View {
         }
         .background(navigationLink)
         .toolbar(content: toolbar)
-        .navigationTitle("History")
+        .navigationTitle(R.string.localizable.listTypeHistory())
     }
 
     private var navigationLink: some View {

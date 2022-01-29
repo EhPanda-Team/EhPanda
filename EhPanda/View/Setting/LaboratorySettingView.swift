@@ -27,7 +27,7 @@ struct LaboratorySettingView: View {
             }
             .padding()
         }
-        .navigationTitle("Laboratory")
+        .navigationTitle(R.string.localizable.enumSettingStateRouteValueLaboratory())
     }
 }
 

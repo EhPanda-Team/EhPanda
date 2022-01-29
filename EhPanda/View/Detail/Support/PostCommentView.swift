@@ -41,10 +41,10 @@ struct PostCommentView: View {
             }
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel", action: cancelAction)
+                    Button(R.string.localizable.commonCancel(), action: cancelAction)
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Post", action: postAction).disabled(content.isEmpty)
+                    Button(R.string.localizable.postCommentViewButtonPost(), action: postAction).disabled(content.isEmpty)
                 }
             }
             .navigationBarTitleDisplayMode(.inline)

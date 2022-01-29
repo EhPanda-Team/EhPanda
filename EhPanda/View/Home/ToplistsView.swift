@@ -29,8 +29,7 @@ struct ToplistsView: View {
     }
 
     private var navigationTitle: String {
-        let typeDescription = viewStore.type.description
-        return ["Toplists", "\(typeDescription)"].map(\.localized).joined(separator: " - ")
+        [R.string.localizable.listTypeToplists(), viewStore.type.value].map(\.localized).joined(separator: " - ")
     }
 
     var body: some View {
@@ -54,9 +53,9 @@ struct ToplistsView: View {
             pageNumber: viewStore.pageNumber ?? .init(),
             jumpAction: { viewStore.send(.performJumpPage) }
         )
-        .animation(.default, value: viewStore.jumpPageAlertPresented)
+        .searchable(text: viewStore.binding(\.$keyword), prompt: R.string.localizable.commonFilter())
         .navigationBarBackButtonHidden(viewStore.jumpPageAlertPresented)
-        .searchable(text: viewStore.binding(\.$keyword), prompt: "Filter")
+        .animation(.default, value: viewStore.jumpPageAlertPresented)
         .onAppear {
             if viewStore.galleries?.isEmpty != false {
                 DispatchQueue.main.async {
@@ -97,6 +96,8 @@ struct ToplistsView: View {
 
 // MARK: Definition
 enum ToplistsType: Int, Codable, CaseIterable, Identifiable {
+    var id: Int { rawValue }
+
     case yesterday
     case pastMonth
     case pastYear
@@ -104,18 +105,16 @@ enum ToplistsType: Int, Codable, CaseIterable, Identifiable {
 }
 
 extension ToplistsType {
-    var id: Int { description.hashValue }
-
-    var description: String {
+    var value: String {
         switch self {
         case .yesterday:
-            return "Yesterday"
+            return R.string.localizable.enumToplistsTypeValueYesterday()
         case .pastMonth:
-            return "Past month"
+            return R.string.localizable.enumToplistsTypeValuePastMonth()
         case .pastYear:
-            return "Past year"
+            return R.string.localizable.enumToplistsTypeValuePastYear()
         case .allTime:
-            return "All time"
+            return R.string.localizable.enumToplistsTypeValueAllTime()
         }
     }
     var categoryIndex: Int {

@@ -34,7 +34,7 @@ struct SettingView: View {
                 .padding(.vertical, 40).padding(.horizontal)
             }
             .background(navigationLinks)
-            .navigationTitle("Setting")
+            .navigationTitle(R.string.localizable.tabItemTitleSetting())
         }
     }
 }
@@ -125,7 +125,7 @@ private struct SettingRow: View {
             Image(systemSymbol: rowType.symbol)
                 .font(.largeTitle).foregroundColor(color)
                 .padding(.trailing, 20).frame(width: 45)
-            Text(rowType.rawValue.localized).fontWeight(.medium)
+            Text(rowType.value).fontWeight(.medium)
                 .font(.title3).foregroundColor(color)
             Spacer()
         }
@@ -141,6 +141,22 @@ private struct SettingRow: View {
 
 // MARK: Definition
 extension SettingState.Route {
+    var value: String {
+        switch self {
+        case .account:
+            return R.string.localizable.enumSettingStateRouteValueAccount()
+        case .general:
+            return R.string.localizable.enumSettingStateRouteValueGeneral()
+        case .appearance:
+            return R.string.localizable.commonAppearance()
+        case .reading:
+            return R.string.localizable.enumSettingStateRouteValueReading()
+        case .laboratory:
+            return R.string.localizable.enumSettingStateRouteValueLaboratory()
+        case .ehpanda:
+            return R.string.localizable.enumSettingStateRouteValueEhPanda()
+        }
+    }
     var symbol: SFSymbol {
         switch self {
         case .account:

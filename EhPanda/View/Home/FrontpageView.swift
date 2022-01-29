@@ -50,9 +50,9 @@ struct FrontpageView: View {
             pageNumber: viewStore.pageNumber,
             jumpAction: { viewStore.send(.performJumpPage) }
         )
-        .animation(.default, value: viewStore.jumpPageAlertPresented)
+        .searchable(text: viewStore.binding(\.$keyword), prompt: R.string.localizable.commonFilter())
         .navigationBarBackButtonHidden(viewStore.jumpPageAlertPresented)
-        .searchable(text: viewStore.binding(\.$keyword), prompt: "Filter")
+        .animation(.default, value: viewStore.jumpPageAlertPresented)
         .onAppear {
             if viewStore.galleries.isEmpty {
                 DispatchQueue.main.async {
@@ -62,7 +62,7 @@ struct FrontpageView: View {
         }
         .background(navigationLink)
         .toolbar(content: toolbar)
-        .navigationTitle("Frontpage")
+        .navigationTitle(R.string.localizable.listTypeFrontpage())
     }
 
     private var navigationLink: some View {

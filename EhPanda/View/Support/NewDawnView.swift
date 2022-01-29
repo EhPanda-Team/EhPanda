@@ -32,50 +32,44 @@ struct NewDawnView: View {
 
     // MARK: NewDawnView
     var body: some View {
-//        TimelineView(.animation) { timeline in
-//            let now = timeline.date.timeIntervalSince1970
-//            let angle = Angle.degrees(now * 15)
-
-            ZStack {
-                LinearGradient(
-                    gradient: Gradient(colors: gradientColors),
-                    startPoint: .top, endPoint: .bottom
-                )
-                VStack {
-                    HStack {
-                        Spacer()
-                        ZStack {
-                            SunView(width: sunWidth)
-                            SunBeamView(width: sunWidth)
-                                .rotationEffect(Angle(degrees: 0))
-                                .opacity(colorScheme == .light ? 1 : 0)
-                        }
-                        .offset(x: offset, y: -offset)
-                    }
+        ZStack {
+            LinearGradient(
+                gradient: Gradient(colors: gradientColors),
+                startPoint: .top, endPoint: .bottom
+            )
+            VStack {
+                HStack {
                     Spacer()
-                }
-                VStack(spacing: 50) {
-                    VStack(spacing: 10) {
-                        TextView(
-                            text: "It is the dawn of a new day!",
-                            font: .largeTitle
-                        )
-                        TextView(
-                            text: "Reflecting on your journey so far, "
-                                + "you find that you are a little wiser.",
-                            font: .title2
-                        )
+                    ZStack {
+                        SunView(width: sunWidth)
+                        SunBeamView(width: sunWidth)
+                            .opacity(colorScheme == .light ? 1 : 0)
                     }
+                    .offset(x: offset, y: -offset)
+                }
+                Spacer()
+            }
+            VStack(spacing: 50) {
+                VStack(spacing: 10) {
                     TextView(
-                        text: greeting.gainContent ?? "",
-                        font: .title3, fontWeight: .bold
+                        text: "It is the dawn of a new day!",
+                        font: .largeTitle
+                    )
+                    TextView(
+                        text: "Reflecting on your journey so far, "
+                            + "you find that you are a little wiser.",
+                        font: .title2
                     )
                 }
-                .padding()
+                TextView(
+                    text: greeting.gainContent ?? "",
+                    font: .title3, fontWeight: .bold
+                )
             }
-            .drawingGroup()
-            .ignoresSafeArea()
-//        }
+            .padding()
+        }
+        .drawingGroup()
+        .ignoresSafeArea()
     }
 }
 

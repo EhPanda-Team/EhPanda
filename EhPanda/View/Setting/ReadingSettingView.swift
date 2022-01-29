@@ -33,47 +33,47 @@ struct ReadingSettingView: View {
         Form {
             Section {
                 HStack {
-                    Text("Direction")
+                    Text(R.string.localizable.readingSettingViewTitleDirection())
                     Spacer()
                     Picker(
                         selection: $readingDirection,
-                        label: Text(readingDirection.rawValue),
+                        label: Text(readingDirection.value),
                         content: {
                             ForEach(ReadingDirection.allCases) {
-                                Text($0.rawValue.localized).tag($0)
+                                Text($0.value).tag($0)
                             }
                         }
                     )
                     .pickerStyle(.menu)
                 }
                 HStack {
-                    Text("Preload limit")
+                    Text(R.string.localizable.readingSettingViewTitlePreloadLimit())
                     Spacer()
                     Picker(
                         selection: $prefetchLimit,
-                        label: Text("\(prefetchLimit) pages"),
+                        label: Text(R.string.localizable.commonValuePages("\(prefetchLimit)")),
                         content: {
                             ForEach(Array(stride(from: 6, through: 18, by: 4)), id: \.self) { value in
-                                Text("\(value) pages").tag(value)
+                                Text(R.string.localizable.commonValuePages("\(value)")).tag(value)
                             }
                         }
                     )
                     .pickerStyle(.menu)
                 }
                 if !DeviceUtil.isPad {
-                    Toggle("Enables landscape", isOn: $enablesLandscape)
+                    Toggle(R.string.localizable.readingSettingViewTitleEnablesLandscape(), isOn: $enablesLandscape)
                 }
             }
-            Section("Appearance".localized) {
+            Section(R.string.localizable.commonAppearance()) {
                 HStack {
-                    Text("Separator height")
+                    Text(R.string.localizable.readingSettingViewTitleSeparatorHeight())
                     Spacer()
                     Picker(
                         selection: $contentDividerHeight,
                         label: Text("\(Int(contentDividerHeight))pt"),
                         content: {
                             ForEach(Array(stride(from: 0, through: 20, by: 5)), id: \.self) { value in
-                                Text("\(value)" + "pt").tag(Double(value))
+                                Text("\(value)pt").tag(Double(value))
                             }
                         }
                     )
@@ -82,17 +82,17 @@ struct ReadingSettingView: View {
                 .disabled(readingDirection != .vertical)
                 ScaleFactorRow(
                     scaleFactor: $maximumScaleFactor,
-                    labelContent: "Maximum scale factor",
+                    labelContent: R.string.localizable.readingSettingViewTitleMaximumScaleFactor(),
                     minFactor: 1.5, maxFactor: 10
                 )
                 ScaleFactorRow(
                     scaleFactor: $doubleTapScaleFactor,
-                    labelContent: "Double tap scale factor",
+                    labelContent: R.string.localizable.readingSettingViewTitleDoubleTapScaleFactor(),
                     minFactor: 1.5, maxFactor: 5
                 )
             }
         }
-        .navigationTitle("Reading")
+        .navigationTitle(R.string.localizable.enumSettingStateRouteValueReading())
     }
 }
 
@@ -117,13 +117,13 @@ private struct ScaleFactorRow: View {
             HStack {
                 Text(labelContent.localized)
                 Spacer()
-                Text(scaleFactor.roundedString() + "x").foregroundStyle(.tint)
+                Text("\(scaleFactor.roundedString())x").foregroundStyle(.tint)
             }
             Slider(
                 value: $scaleFactor, in: minFactor...maxFactor, step: 0.5,
-                minimumValueLabel: Text(minFactor.roundedString() + "x")
+                minimumValueLabel: Text("\(minFactor.roundedString())x")
                     .fontWeight(.medium).font(.callout),
-                maximumValueLabel: Text(maxFactor.roundedString() + "x")
+                maximumValueLabel: Text("\(maxFactor.roundedString())x")
                     .fontWeight(.medium).font(.callout),
                 label: EmptyView.init
             )

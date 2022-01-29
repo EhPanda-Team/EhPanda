@@ -123,7 +123,7 @@ struct CommentsView: View {
         }
         .background(navigationLink)
         .toolbar(content: toolbar)
-        .navigationTitle("Comments")
+        .navigationTitle(R.string.localizable.commentsViewTitlePreviews())
     }
 
     private func toolbar() -> some ToolbarContent {

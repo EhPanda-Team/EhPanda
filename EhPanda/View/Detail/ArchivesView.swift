@@ -69,7 +69,7 @@ struct ArchivesView: View {
             .onAppear {
                 viewStore.send(.fetchArchive(gid, galleryURL, archiveURL))
             }
-            .navigationTitle("Archives")
+            .navigationTitle(R.string.localizable.archivesViewTitleArchives())
         }
     }
 }
@@ -163,8 +163,8 @@ private struct HathArchiveGrid: View {
         VStack(spacing: 10) {
             Text(archive.resolution.name.localized).font(.title3.bold())
             VStack {
-                Text(archive.fileSize.localized).fontWeight(.medium).font(.caption)
-                Text(archive.gpPrice.localized).foregroundColor(fileSizeColor).font(.caption2)
+                Text(archive.fileSize).fontWeight(.medium).font(.caption)
+                Text(archive.price).foregroundColor(fileSizeColor).font(.caption2)
             }
             .lineLimit(1)
         }
@@ -204,7 +204,8 @@ private struct DownloadButton: View {
     var body: some View {
         HStack {
             Spacer()
-            Text("Download To Hath Client").font(.headline).foregroundColor(textColor)
+            Text(R.string.localizable.archivesViewButtonDownloadToHathClient())
+                .font(.headline).foregroundColor(textColor)
             Spacer()
         }
         .frame(height: 50).background(backgroundColor)

@@ -33,7 +33,7 @@ struct AccountSettingView: View {
     var body: some View {
         Form {
             Section {
-                Picker("Gallery", selection: $galleryHost) {
+                Picker("", selection: $galleryHost) {
                     ForEach(GalleryHost.allCases) {
                         Text($0.rawValue.localized).tag($0)
                     }
@@ -60,11 +60,13 @@ struct AccountSettingView: View {
             case: /AccountSettingState.Route.hud
         )
         .confirmationDialog(
-            message: "Are you sure to logout?",
+            message: R.string.localizable.confirmationDialogTitleAreYouSureTo(
+                R.string.localizable.commonLogout().lowercased()
+            ),
             unwrapping: viewStore.binding(\.$route),
             case: /AccountSettingState.Route.logout
         ) {
-            Button("Logout", role: .destructive) {
+            Button(R.string.localizable.commonLogout(), role: .destructive) {
                 viewStore.send(.onLogoutConfirmButtonTapped)
             }
         }
@@ -74,7 +76,7 @@ struct AccountSettingView: View {
         }
         .onAppear { viewStore.send(.loadCookies) }
         .background(navigationLinks)
-        .navigationTitle("Account")
+        .navigationTitle(R.string.localizable.enumSettingStateRouteValueAccount())
     }
 }
 
@@ -120,15 +122,15 @@ private struct AccountSection: View {
 
     var body: some View {
         if !CookiesUtil.didLogin {
-            Button("Login", action: loginAction)
+            Button(R.string.localizable.commonLogin(), action: loginAction)
         } else {
-            Button("Logout", role: .destructive, action: logoutAction)
+            Button(R.string.localizable.commonLogout(), role: .destructive, action: logoutAction)
             Group {
-                Button("Account configuration", action: configureAccountAction).withArrow()
+                Button(R.string.localizable.accountSettingViewButtonAccountConfiguration(), action: configureAccountAction).withArrow()
                 if !bypassesSNIFiltering {
-                    Button("Manage tags subscription", action: manageTagsAction).withArrow()
+                    Button(R.string.localizable.accountSettingViewButtonTagsManagement(), action: manageTagsAction).withArrow()
                 }
-                Toggle("Show new dawn greeting", isOn: $showNewDawnGreeting)
+                Toggle(R.string.localizable.accountSettingViewTitleShowNewDawnGreeting(), isOn: $showNewDawnGreeting)
             }
             .foregroundColor(.primary)
         }
@@ -152,19 +154,19 @@ private struct CookieSection: View {
     }
 
     var body: some View {
-        Section("E-Hentai") {
+        Section(GalleryHost.ehentai.rawValue) {
             CookieRow(cookieState: $ehCookiesState.memberID)
             CookieRow(cookieState: $ehCookiesState.passHash)
-            Button("Copy cookies") {
+            Button(R.string.localizable.accountSettingViewButtonCopyCookies()) {
                 copyAction(.ehentai)
             }
             .foregroundStyle(.tint).font(.subheadline)
         }
-        Section("ExHentai") {
+        Section(GalleryHost.exhentai.rawValue) {
             CookieRow(cookieState: $exCookiesState.igneous)
             CookieRow(cookieState: $exCookiesState.memberID)
             CookieRow(cookieState: $exCookiesState.passHash)
-            Button("Copy cookies") {
+            Button(R.string.localizable.accountSettingViewButtonCopyCookies()) {
                 copyAction(.exhentai)
             }
             .foregroundStyle(.tint).font(.subheadline)

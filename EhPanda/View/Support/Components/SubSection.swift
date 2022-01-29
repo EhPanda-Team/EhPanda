@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct SubSection<Content: View>: View {
-    private let title: LocalizedStringKey
+    private let title: String
     private let showAll: Bool
     private let tint: Color?
     private let isLoading: Bool?
@@ -17,7 +17,7 @@ struct SubSection<Content: View>: View {
     private let content: Content
 
     init(
-        title: LocalizedStringKey, showAll: Bool = true,
+        title: String, showAll: Bool = true,
         tint: Color? = nil, isLoading: Bool? = nil,
         reloadAction: (() -> Void)? = nil,
         showAllAction: @escaping () -> Void = {},
@@ -50,7 +50,7 @@ struct SubSection<Content: View>: View {
                 .foregroundColor(.primary)
                 Spacer()
                 Button(action: showAllAction) {
-                    Text("Show All").font(.subheadline)
+                    Text(R.string.localizable.subSectionButtonShowAll()).font(.subheadline)
                 }
                 .tint(tint).opacity(showAll ? 1 : 0)
             }

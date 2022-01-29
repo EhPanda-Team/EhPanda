@@ -8,15 +8,15 @@
 import ComposableArchitecture
 
 struct SettingState: Equatable {
-    enum Route: String, Hashable, Identifiable, CaseIterable {
-        var id: String { rawValue }
+    enum Route: Int, Hashable, Identifiable, CaseIterable {
+        var id: Int { rawValue }
 
-        case account = "Account"
-        case general = "General"
-        case appearance = "Appearance"
-        case reading = "Reading"
-        case laboratory = "Laboratory"
-        case ehpanda = "About EhPanda"
+        case account
+        case general
+        case appearance
+        case reading
+        case laboratory
+        case ehpanda
     }
 
     // AppEnvStorage

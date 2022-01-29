@@ -74,7 +74,7 @@ struct WatchedView: View {
         }
         .background(navigationLink)
         .toolbar(content: toolbar)
-        .navigationTitle("Watched")
+        .navigationTitle(R.string.localizable.listTypeWatched())
     }
 
     private var navigationLink: some View {

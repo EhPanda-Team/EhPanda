@@ -35,7 +35,7 @@ extension NavigationLink {
 
 extension View {
     func confirmationDialog<Enum, Case, A: View>(
-        message: LocalizedStringKey,
+        message: String,
         unwrapping enum: Binding<Enum?>,
         case casePath: CasePath<Enum, Case>,
         @ViewBuilder actions: @escaping (Case) -> A

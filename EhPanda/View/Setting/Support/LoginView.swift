@@ -64,7 +64,7 @@ struct LoginView: View {
         }
         .onSubmit { viewStore.send(.onTextFieldSubmitted) }
         .toolbar(content: toolbar)
-        .navigationTitle("Login")
+        .navigationTitle(R.string.localizable.loginViewTitleLogin())
         .ignoresSafeArea()
     }
     // MARK: Toolbar

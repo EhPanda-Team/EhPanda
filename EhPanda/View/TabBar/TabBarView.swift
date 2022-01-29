@@ -106,16 +106,28 @@ struct TabBarView: View {
 }
 
 // MARK: TabType
-enum TabBarItemType: String, CaseIterable, Identifiable {
-    var id: String { rawValue }
+enum TabBarItemType: Int, CaseIterable, Identifiable {
+    var id: Int { rawValue }
 
-    case home = "Home"
-    case favorites = "Favorites"
-    case search = "Search"
-    case setting = "Setting"
+    case home
+    case favorites
+    case search
+    case setting
 }
 
 extension TabBarItemType {
+    var title: String {
+        switch self {
+        case .home:
+            return R.string.localizable.tabItemTitleHome()
+        case .favorites:
+            return R.string.localizable.tabItemTitleFavorites()
+        case .search:
+            return R.string.localizable.tabItemTitleSearch()
+        case .setting:
+            return R.string.localizable.tabItemTitleSetting()
+        }
+    }
     var symbol: SFSymbol {
         switch self {
         case .home:
@@ -129,7 +141,7 @@ extension TabBarItemType {
         }
     }
     func label() -> Label<Text, Image> {
-        Label(rawValue.localized, systemSymbol: symbol)
+        Label(title, systemSymbol: symbol)
     }
 }
 

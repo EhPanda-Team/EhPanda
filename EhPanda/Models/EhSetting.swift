@@ -114,21 +114,21 @@ extension EhSettingLoadThroughHathSetting {
     var value: String {
         switch self {
         case .anyClient:
-            return "Any client"
+            return R.string.localizable.enumEhSettingLoadThroughHathSettingValueAnyClient()
         case .defaultPortOnly:
-            return "Default port clients only"
+            return R.string.localizable.enumEhSettingLoadThroughHathSettingValueDefaultPortOnly()
         case .no:
-            return "LOAD_THROUGH_HATH_NO"
+            return R.string.localizable.enumEhSettingLoadThroughHathSettingValueNo()
         }
     }
     var description: String {
         switch self {
         case .anyClient:
-            return "Recommended."
+            return R.string.localizable.enumEhSettingLoadThroughHathSettingDescriptionAnyClient()
         case .defaultPortOnly:
-            return "Can be slower. Enable if behind firewall/proxy that blocks outgoing non-standard ports."
+            return R.string.localizable.enumEhSettingLoadThroughHathSettingDescriptionDefaultPortOnly()
         case .no:
-            return "Donator only. You will not be able to browse as many pages, enable only if having severe problems."
+            return R.string.localizable.enumEhSettingLoadThroughHathSettingDescriptionNo()
         }
     }
 }
@@ -154,7 +154,7 @@ extension EhSettingImageResolution {
     var value: String {
         switch self {
         case .auto:
-            return "Auto"
+            return R.string.localizable.enumEhSettingImageResolutionValueAuto()
         case .x780:
             return "780x"
         case .x980:
@@ -180,9 +180,9 @@ extension EhSettingGalleryName {
     var value: String {
         switch self {
         case .default:
-            return "Default Title"
+            return R.string.localizable.enumEhSettingGalleryNameValueDefault()
         case .japanese:
-            return "Japanese Title (if available)"
+            return R.string.localizable.enumEhSettingGalleryNameValueJapanese()
         }
     }
 }
@@ -202,17 +202,17 @@ extension EhSettingArchiverBehavior {
     var value: String {
         switch self {
         case .manualSelectManualStart:
-            return "Manual Select, Manual Start (Default)"
+            return R.string.localizable.enumEhSettingArchiverBehaviorValueManualSelectManualStart()
         case .manualSelectAutoStart:
-            return "Manual Select, Auto Start"
+            return R.string.localizable.enumEhSettingArchiverBehaviorValueManualSelectAutoStart()
         case .autoSelectOriginalManualStart:
-            return "Auto Select Original, Manual Start"
+            return R.string.localizable.enumEhSettingArchiverBehaviorValueAutoSelectOriginalManualStart()
         case .autoSelectOriginalAutoStart:
-            return "Auto Select Original, Auto Start"
+            return R.string.localizable.enumEhSettingArchiverBehaviorValueAutoSelectOriginalAutoStart()
         case .autoSelectResampleManualStart:
-            return "Auto Select Resample, Manual Start"
+            return R.string.localizable.enumEhSettingArchiverBehaviorValueAutoSelectResampleManualStart()
         case .autoSelectResampleAutoStart:
-            return "Auto Select Resample, Auto Start"
+            return R.string.localizable.enumEhSettingArchiverBehaviorValueAutoSelectResampleAutoStart()
         }
     }
 }
@@ -231,15 +231,15 @@ extension EhSettingDisplayMode {
     var value: String {
         switch self {
         case .compact:
-            return "Compact"
+            return R.string.localizable.enumEhSettingDisplayModeValueCompact()
         case .thumbnail:
-            return "Thumbnail"
+            return R.string.localizable.enumEhSettingDisplayModeValueThumbnail()
         case .extended:
-            return "Extended"
+            return R.string.localizable.enumEhSettingDisplayModeValueExtended()
         case .minimal:
-            return "Minimal"
+            return R.string.localizable.enumEhSettingDisplayModeValueMinimal()
         case .minimalPlus:
-            return "Minimal+"
+            return R.string.localizable.enumEhSettingDisplayModeValueMinimalPlus()
         }
     }
 }
@@ -255,9 +255,30 @@ extension EhSettingFavoritesSortOrder {
     var value: String {
         switch self {
         case .lastUpdateTime:
-            return "By last gallery update time"
+            return R.string.localizable.enumEhSettingFavoritesSortOrderValueLastUpdateTime()
         case .favoritedTime:
-            return "By favorited time"
+            return R.string.localizable.enumEhSettingFavoritesSortOrderValueFavoritedTime()
+        }
+    }
+}
+
+// MARK: ExcludedLanguagesCategory
+enum EhSettingExcludedLanguagesCategory: Int, Identifiable, CaseIterable {
+    case original
+    case translated
+    case rewrite
+}
+extension EhSettingExcludedLanguagesCategory {
+    var id: Int { rawValue }
+
+    var value: String {
+        switch self {
+        case .original:
+            return R.string.localizable.enumEhSettingExcludedLanguagesCategoryValueOriginal()
+        case .translated:
+            return R.string.localizable.enumEhSettingExcludedLanguagesCategoryValueTranslated()
+        case .rewrite:
+            return R.string.localizable.enumEhSettingExcludedLanguagesCategoryValueRewrite()
         }
     }
 }
@@ -303,17 +324,17 @@ extension EhSettingThumbnailLoadTiming {
     var value: String {
         switch self {
         case .onMouseOver:
-            return "On mouse-over"
+            return R.string.localizable.enumEhSettingThumbnailLoadTimingValueOnMouseOver()
         case .onPageLoad:
-            return "On page load"
+            return R.string.localizable.enumEhSettingThumbnailLoadTimingValueOnPageLoad()
         }
     }
     var description: String {
         switch self {
         case .onMouseOver:
-            return "Pages load faster, but there may be a slight delay before a thumb appears."
+            return R.string.localizable.enumEhSettingThumbnailLoadTimingDescriptionOnMouseOver()
         case .onPageLoad:
-            return "Pages take longer to load, but there is no delay for loading a thumb after the page has loaded."
+            return R.string.localizable.enumEhSettingThumbnailLoadTimingDescriptionOnPageLoad()
         }
     }
 }
@@ -335,9 +356,9 @@ extension EhSettingThumbnailSize {
     var value: String {
         switch self {
         case .normal:
-            return "Normal"
+            return R.string.localizable.enumEhSettingThumbnailSizeValueNormal()
         case .large:
-            return "Large"
+            return R.string.localizable.enumEhSettingThumbnailSizeValueLarge()
         }
     }
 }
@@ -384,11 +405,11 @@ extension EhSettingCommentsSortOrder {
     var value: String {
         switch self {
         case .oldest:
-            return "Oldest comments first"
+            return R.string.localizable.enumEhSettingCommentsSortOrderValueOldest()
         case .recent:
-            return "Recent comments first"
+            return R.string.localizable.enumEhSettingCommentsSortOrderValueRecent()
         case .highestScore:
-            return "By highest score"
+            return R.string.localizable.enumEhSettingCommentsSortOrderValueHighestScore()
         }
     }
 }
@@ -404,9 +425,9 @@ extension EhSettingCommentVotesShowTiming {
     var value: String {
         switch self {
         case .onHoverOrClick:
-            return "On score hover or click"
+            return R.string.localizable.enumEhSettingCommentsVotesShowTimingValueOnHoverOrClick()
         case .always:
-            return "Always"
+            return R.string.localizable.enumEhSettingCommentsVotesShowTimingValueAlways()
         }
     }
 }
@@ -422,9 +443,9 @@ extension EhSettingTagsSortOrder {
     var value: String {
         switch self {
         case .alphabetical:
-            return "Alphabetical"
+            return R.string.localizable.enumEhSettingTagsSortOrderValueAlphabetical()
         case .tagPower:
-            return "By tag power"
+            return R.string.localizable.enumEhSettingTagsSortOrderValueTagPower()
         }
     }
 }
@@ -441,11 +462,11 @@ extension EhSettingMultiplePageViewerStyle {
     var value: String {
         switch self {
         case .alignLeftScaleIfOverWidth:
-            return "Align left, scale if overwidth"
+            return R.string.localizable.enumEhSettingMultiplePageViewerStyleValueAlignLeftScaleIfOverWidth()
         case .alignCenterScaleIfOverWidth:
-            return "Align center, scale if overwidth"
+            return R.string.localizable.enumEhSettingMultiplePageViewerStyleValueAlignCenterScaleIfOverWidth()
         case .alignCenterAlwaysScale:
-            return "Align center, always scale"
+            return R.string.localizable.enumEhSettingMultiplePageViewerStyleValueAlignCenterAlwaysScale()
         }
     }
 }

@@ -118,19 +118,41 @@ enum PreferredColorScheme: String, Codable, CaseIterable, Identifiable {
     }
 }
 
-enum ReadingDirection: String, Codable, CaseIterable, Identifiable {
-    var id: Int { hashValue }
+enum ReadingDirection: Int, Codable, CaseIterable, Identifiable {
+    var id: Int { rawValue }
 
-    case vertical = "READING_DIRECTION_VERTICAL"
-    case rightToLeft = "Right-to-left"
-    case leftToRight = "Left-to-right"
+    case vertical
+    case rightToLeft
+    case leftToRight
+}
+extension ReadingDirection {
+    var value: String {
+        switch self {
+        case .vertical:
+            return R.string.localizable.enumReadingDirectionValueVertical()
+        case .rightToLeft:
+            return R.string.localizable.enumReadingDirectionValueRightToLeft()
+        case .leftToRight:
+            return R.string.localizable.enumReadingDirectionValueLeftToRight()
+        }
+    }
 }
 
-enum ListDisplayMode: String, Codable, CaseIterable, Identifiable {
-    var id: Int { hashValue }
+enum ListDisplayMode: Int, Codable, CaseIterable, Identifiable {
+    var id: Int { rawValue }
 
-    case detail = "LIST_DISPLAY_MODE_DETAIL"
-    case thumbnail = "LIST_DISPLAY_MODE_THUMBNAIL"
+    case detail
+    case thumbnail
+}
+extension ListDisplayMode {
+    var value: String {
+        switch self {
+        case .detail:
+            return R.string.localizable.enumDisplayModeValueDetail()
+        case .thumbnail:
+            return R.string.localizable.enumDisplayModeValueThumbnail()
+        }
+    }
 }
 
 // swiftlint:disable line_length

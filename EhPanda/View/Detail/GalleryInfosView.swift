@@ -77,7 +77,7 @@ struct GalleryInfosView: View {
             unwrapping: viewStore.binding(\.$route),
             case: /GalleryInfosState.Route.hud
         )
-        .navigationTitle("Gallery infos")
+        .navigationTitle(R.string.localizable.galleryInfosViewTitleGalleryInfos())
     }
 }
 

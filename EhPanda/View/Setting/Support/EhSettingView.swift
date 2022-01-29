@@ -21,10 +21,6 @@ struct EhSettingView: View {
         self.blurRadius = blurRadius
     }
 
-    private var title: String {
-        [AppUtil.galleryHost.rawValue, "Setting".localized].joined(separator: " ")
-    }
-
     // MARK: EhSettingView
     var body: some View {
         ZStack {
@@ -47,11 +43,13 @@ struct EhSettingView: View {
             }
         }
         .confirmationDialog(
-            message: "Are you sure to delete this item?",
+            message: R.string.localizable.confirmationDialogTitleAreYouSureTo(
+                R.string.localizable.confirmationDialogTitleDeleteThisItem()
+            ),
             unwrapping: viewStore.binding(\.$route),
             case: /EhSettingState.Route.deleteProfile
         ) {
-            Button("Delete", role: .destructive) {
+            Button(R.string.localizable.commonDelete(), role: .destructive) {
                 if let value = viewStore.ehProfile?.value {
                     viewStore.send(.performAction(.delete, nil, value))
                 }
@@ -61,7 +59,8 @@ struct EhSettingView: View {
             WebView(url: route.wrappedValue)
                 .autoBlur(radius: blurRadius)
         }
-        .toolbar(content: toolbar).navigationTitle(title)
+        .toolbar(content: toolbar)
+        .navigationTitle(R.string.localizable.ehSettingViewTitleHostSetting(AppUtil.galleryHost.rawValue))
     }
     // MARK: Form
     private func form(ehSetting: Binding<EhSetting>, ehProfile: Binding<EhProfile>) -> some View {
@@ -124,7 +123,7 @@ struct EhSettingView: View {
             ToolbarItem(placement: .keyboard) {
                 HStack {
                     Spacer()
-                    Button("Done") {
+                    Button(R.string.localizable.commonDone()) {
                         viewStore.send(.setKeyboardHidden)
                     }
                 }
@@ -156,9 +155,9 @@ private struct EhProfileSection: View {
     }
 
     var body: some View {
-        Section("Profile Settings".localized) {
+        Section(R.string.localizable.ehSettingViewSectionTitleProfileSettings()) {
             HStack {
-                Text("Selected profile")
+                Text(R.string.localizable.ehSettingViewTitleSelectedProfile())
                 Spacer()
                 Picker(selection: $ehProfile) {
                     ForEach(ehSetting.ehProfiles) { ehProfile in
@@ -170,10 +169,13 @@ private struct EhProfileSection: View {
                 .pickerStyle(.menu)
             }
             if !ehProfile.isDefault {
-                Button("Set as default") {
+                Button(R.string.localizable.ehSettingViewButtonSetAsDefault()) {
                     performEhProfileAction(.default, nil, ehProfile.value)
                 }
-                Button("Delete profile", role: .destructive, action: deleteAction)
+                Button(
+                    R.string.localizable.ehSettingViewButtonDeleteProfile(),
+                    role: .destructive, action: deleteAction
+                )
             }
         }
         .onChange(of: ehProfile) {
@@ -185,12 +187,12 @@ private struct EhProfileSection: View {
                 text: $editingProfileName, width: nil, alignment: .leading, background: .clear
             )
             .focused($isFocused)
-            Button("Rename") {
+            Button(R.string.localizable.ehSettingViewButtonRename()) {
                 performEhProfileAction(.rename, editingProfileName, ehProfile.value)
             }
             .disabled(isFocused)
             if ehSetting.ehProfiles.count < 10 {
-                Button("Create new") {
+                Button(R.string.localizable.ehSettingViewButtonCreateNew()) {
                     performEhProfileAction(.create, editingProfileName, ehProfile.value)
                 }
                 .disabled(isFocused)
@@ -203,43 +205,36 @@ private struct EhProfileSection: View {
 private struct ImageLoadSettingsSection: View {
     @Binding private var ehSetting: EhSetting
 
+    init(ehSetting: Binding<EhSetting>) {
+        _ehSetting = ehSetting
+    }
+
     private var capableSettings: [EhSettingLoadThroughHathSetting] {
         EhSettingLoadThroughHathSetting.allCases.filter { setting in
             setting <= ehSetting.capableLoadThroughHathSetting
         }
     }
-    // swiftlint:disable line_length
-    private var browsingCountryKey: LocalizedStringKey {
-        LocalizedStringKey(
-            "You appear to be browsing the site from **PLACEHOLDER** or use a VPN or proxy in this country, which means the site will try to load images from Hath clients in this general geographic region. If this is incorrect, or if you want to use a different region for any reason (like if you are using a split tunneling VPN), you can select a different country below.".localized
-                .replacingOccurrences(of: "PLACEHOLDER", with: ehSetting.literalBrowsingCountry.localized)
-        )
-    }
-    // swiftlint:enable line_length
-
-    init(ehSetting: Binding<EhSetting>) {
-        _ehSetting = ehSetting
-    }
 
     var body: some View {
         Section(
-            header: Text("Image Load Settings"), footer: Text(ehSetting.loadThroughHathSetting.description.localized)
+            header: Text(R.string.localizable.ehSettingViewSectionTitleImageLoadSettings()),
+            footer: Text(ehSetting.loadThroughHathSetting.description)
         ) {
-            Text("Load images through the Hath network")
+            Text(R.string.localizable.ehSettingViewTitleLoadImagesThroughTheHathNetwork())
             Picker(selection: $ehSetting.loadThroughHathSetting) {
                 ForEach(capableSettings) { setting in
-                    Text(setting.value.localized).tag(setting)
+                    Text(setting.value).tag(setting)
                 }
             } label: {
-                Text(ehSetting.loadThroughHathSetting.value.localized)
+                Text(ehSetting.loadThroughHathSetting.value)
             }
             .pickerStyle(.menu)
         }
         .textCase(nil)
-        Section(browsingCountryKey) {
-            Picker("Browsing country", selection: $ehSetting.browsingCountry) {
+        Section(R.string.localizable.ehSettingViewDescriptionBrowsingCountry(ehSetting.browsingCountry.name)) {
+            Picker(R.string.localizable.ehSettingViewTitleBrowsingCountry(), selection: $ehSetting.browsingCountry) {
                 ForEach(EhSettingBrowsingCountry.allCases) { country in
-                    Text(country.name.localized).tag(country)
+                    Text(country.name).tag(country)
                         .foregroundColor(country == ehSetting.browsingCountry ? .accentColor : .primary)
                 }
             }
@@ -252,41 +247,45 @@ private struct ImageLoadSettingsSection: View {
 private struct ImageSizeSettingsSection: View {
     @Binding private var ehSetting: EhSetting
 
+    init(ehSetting: Binding<EhSetting>) {
+        _ehSetting = ehSetting
+    }
+
     private var capableResolutions: [EhSettingImageResolution] {
         EhSettingImageResolution.allCases.filter { resolution in
             resolution <= ehSetting.capableImageResolution
         }
     }
 
-    // swiftlint:disable line_length
-    private let imageResolutionDescription = "Normally, images are resampled to 1280 pixels of horizontal resolution for online viewing. You can alternatively select one of the following resample resolutions. To avoid murdering the staging servers, resolutions above 1280x are temporarily restricted to donators, people with any hath perk, and people with a UID below 3,000,000."
-    private let imageSizeDescription = "While the site will automatically scale down images to fit your screen width, you can also manually restrict the maximum display size of an image. Like the automatic scaling, this does not resample the image, as the resizing is done browser-side. (0 = no limit)"
-    // swiftlint:enable line_length
-
-    init(ehSetting: Binding<EhSetting>) {
-        _ehSetting = ehSetting
-    }
-
     var body: some View {
-        Section(header: Text("Image Size Settings").newlineBold() + Text(imageResolutionDescription.localized)) {
+        Section(
+            header: Text(R.string.localizable.ehSettingViewSectionTitleImageSizeSettings()).newlineBold()
+            + Text(R.string.localizable.ehSettingViewDescriptionImageResolution())
+        ) {
             HStack {
-                Text("Image resolution")
+                Text(R.string.localizable.ehSettingViewTitleImageResolution())
                 Spacer()
                 Picker(selection: $ehSetting.imageResolution) {
                     ForEach(capableResolutions) { setting in
-                        Text(setting.value.localized).tag(setting)
+                        Text(setting.value).tag(setting)
                     }
                 } label: {
-                    Text(ehSetting.imageResolution.value.localized)
+                    Text(ehSetting.imageResolution.value)
                 }
                 .pickerStyle(.menu)
             }
         }
         .textCase(nil)
-        Section(imageSizeDescription.localized) {
-            Text("Image size")
-            ValuePicker(title: "Horizontal", value: $ehSetting.imageSizeWidth, range: 0...65535, unit: "px")
-            ValuePicker(title: "Vertical", value: $ehSetting.imageSizeHeight, range: 0...65535, unit: "px")
+        Section(R.string.localizable.ehSettingViewDescriptionImageSize()) {
+            Text(R.string.localizable.ehSettingViewTitleImageSize())
+            ValuePicker(
+                title: R.string.localizable.ehSettingViewTitleHorizontal(),
+                value: $ehSetting.imageSizeWidth, range: 0...65535, unit: "px"
+            )
+            ValuePicker(
+                title: R.string.localizable.ehSettingViewTitleVertical(),
+                value: $ehSetting.imageSizeHeight, range: 0...65535, unit: "px"
+            )
         }
         .textCase(nil)
     }
@@ -296,25 +295,24 @@ private struct ImageSizeSettingsSection: View {
 private struct GalleryNameDisplaySection: View {
     @Binding private var ehSetting: EhSetting
 
-    // swiftlint:disable line_length
-    private let galleryNameDescription = "Many galleries have both an English/Romanized title and a title in Japanese script. Which gallery name would you like as default?"
-    // swiftlint:enable line_length
-
     init(ehSetting: Binding<EhSetting>) {
         _ehSetting = ehSetting
     }
 
     var body: some View {
-        Section(header: Text("Gallery Name Display").newlineBold() + Text(galleryNameDescription.localized)) {
+        Section(
+            header: Text(R.string.localizable.ehSettingViewSectionTitleGalleryNameDisplay()).newlineBold()
+            + Text(R.string.localizable.ehSettingViewDescriptionGalleryName())
+        ) {
             HStack {
-                Text("Gallery name")
+                Text(R.string.localizable.ehSettingViewTitleGalleryName())
                 Spacer()
                 Picker(selection: $ehSetting.galleryName) {
                     ForEach(EhSettingGalleryName.allCases) { name in
-                        Text(name.value.localized).tag(name)
+                        Text(name.value).tag(name)
                     }
                 } label: {
-                    Text(ehSetting.galleryName.value.localized)
+                    Text(ehSetting.galleryName.value)
                 }
                 .pickerStyle(.menu)
             }
@@ -327,23 +325,22 @@ private struct GalleryNameDisplaySection: View {
 private struct ArchiverSettingsSection: View {
     @Binding private var ehSetting: EhSetting
 
-    // swiftlint:disable line_length
-    private let archiverSettingsDescription = "The default behavior for the Archiver is to confirm the cost and selection for original or resampled archive, then present a link that can be clicked or copied elsewhere. You can change this behavior here."
-    // swiftlint:enable line_length
-
     init(ehSetting: Binding<EhSetting>) {
         _ehSetting = ehSetting
     }
 
     var body: some View {
-        Section(header: Text("Archiver Settings").newlineBold() + Text(archiverSettingsDescription.localized)) {
-            Text("Archiver behavior")
+        Section(
+            header: Text(R.string.localizable.ehSettingViewSectionTitleArchiverSettings()).newlineBold()
+            + Text(R.string.localizable.ehSettingViewDescriptionArchiverBehavior())
+        ) {
+            Text(R.string.localizable.ehSettingViewTitleArchiverBehavior())
             Picker(selection: $ehSetting.archiverBehavior) {
                 ForEach(EhSettingArchiverBehavior.allCases) { behavior in
-                    Text(behavior.value.localized).tag(behavior)
+                    Text(behavior.value).tag(behavior)
                 }
             } label: {
-                Text(ehSetting.archiverBehavior.value.localized)
+                Text(ehSetting.archiverBehavior.value)
             }
             .pickerStyle(.menu)
         }
@@ -355,36 +352,34 @@ private struct ArchiverSettingsSection: View {
 private struct FrontPageSettingsSection: View {
     @Binding private var ehSetting: EhSetting
 
-    private var categoryBindings: [Binding<Bool>] {
-        $ehSetting.disabledCategories.map({ $0 })
-    }
-
-    // swiftlint:disable line_length
-    private let displayModeDescription = "Which display mode would you like to use on the front and search pages?"
-    private let categoriesDescription = "What categories would you like to show by default on the front page and in searches?"
-    // swiftlint:enable line_length
-
     init(ehSetting: Binding<EhSetting>) {
         _ehSetting = ehSetting
     }
 
+    private var categoryBindings: [Binding<Bool>] {
+        $ehSetting.disabledCategories.map({ $0 })
+    }
+
     var body: some View {
-        Section(header: Text("Front Page Settings").newlineBold() + Text(displayModeDescription.localized)) {
+        Section(
+            header: Text(R.string.localizable.ehSettingViewSectionTitleFrontPageSettings()).newlineBold()
+            + Text(R.string.localizable.ehSettingViewDescriptionDisplayMode())
+        ) {
             HStack {
-                Text("Display mode")
+                Text(R.string.localizable.ehSettingViewTitleDisplayMode())
                 Spacer()
                 Picker(selection: $ehSetting.displayMode) {
                     ForEach(EhSettingDisplayMode.allCases) { mode in
-                        Text(mode.value.localized).tag(mode)
+                        Text(mode.value).tag(mode)
                     }
                 } label: {
-                    Text(ehSetting.displayMode.value.localized)
+                    Text(ehSetting.displayMode.value)
                 }
                 .pickerStyle(.menu)
             }
         }
         .textCase(nil)
-        Section(categoriesDescription.localized) {
+        Section(R.string.localizable.ehSettingViewDescriptionGalleryCategory()) {
             CategoryView(bindings: categoryBindings)
         }
         .textCase(nil)
@@ -396,23 +391,21 @@ private struct FavoritesSection: View {
     @Binding private var ehSetting: EhSetting
     @FocusState private var isFocused
 
+    init(ehSetting: Binding<EhSetting>) {
+        _ehSetting = ehSetting
+    }
+
     private var tuples: [(Category, Binding<String>)] {
         Category.allFavoritesCases.enumerated().map { index, category in
             (category, $ehSetting.favoriteNames[index])
         }
     }
 
-    // swiftlint:disable line_length
-    private let favoriteNamesDescription = "Here you can choose and rename your favorite categories."
-    private let sortOrderDescription = "You can also select your default sort order for galleries on your favorites page. Note that favorites added prior to the March 2016 revamp did not store a timestamp, and will use the gallery posted time regardless of this setting."
-    // swiftlint:enable line_length
-
-    init(ehSetting: Binding<EhSetting>) {
-        _ehSetting = ehSetting
-    }
-
     var body: some View {
-        Section(header: Text("Favorites").newlineBold() + Text(favoriteNamesDescription.localized)) {
+        Section(
+            header: Text(R.string.localizable.ehSettingViewSectionTitleFavorites()).newlineBold()
+            + Text(R.string.localizable.ehSettingViewDescriptionFavoritesName())
+        ) {
             ForEach(tuples, id: \.0) { category, nameBinding in
                 HStack(spacing: 30) {
                     Circle().foregroundColor(category.color).frame(width: 10)
@@ -425,16 +418,16 @@ private struct FavoritesSection: View {
             }
         }
         .textCase(nil)
-        Section(sortOrderDescription.localized) {
+        Section(R.string.localizable.ehSettingViewDescriptionFavoritesSortOrder()) {
             HStack {
-                Text("Favorites sort order")
+                Text(R.string.localizable.ehSettingViewTitleFavoritesSortOrder())
                 Spacer()
                 Picker(selection: $ehSetting.favoritesSortOrder) {
                     ForEach(EhSettingFavoritesSortOrder.allCases) { order in
-                        Text(order.value.localized).tag(order)
+                        Text(order.value).tag(order)
                     }
                 } label: {
-                    Text(ehSetting.favoritesSortOrder.value.localized)
+                    Text(ehSetting.favoritesSortOrder.value)
                 }
                 .pickerStyle(.menu)
             }
@@ -448,20 +441,23 @@ private struct RatingsSection: View {
     @Binding private var ehSetting: EhSetting
     @FocusState var isFocused
 
-    // swiftlint:disable line_length
-    private let ratingsDescription = "By default, galleries that you have rated will appear with red stars for ratings of 2 stars and below, green for ratings between 2.5 and 4 stars, and blue for ratings of 4.5 or 5 stars. You can customize this by entering your desired color combination below. Each letter represents one star. The default RRGGB means R(ed) for the first and second star, G(reen) for the third and fourth, and B(lue) for the fifth. You can also use (Y)ellow for the normal stars. Any five-letter R/G/B/Y combo works."
-    // swiftlint:enable line_length
-
     init(ehSetting: Binding<EhSetting>) {
         _ehSetting = ehSetting
     }
 
     var body: some View {
-        Section(header: Text("Ratings").newlineBold() + Text(ratingsDescription.localized)) {
+        Section(
+            header: Text(R.string.localizable.ehSettingViewSectionTitleRatings()).newlineBold()
+            + Text(R.string.localizable.ehSettingViewDescriptionRatingsColor())
+        ) {
             HStack {
-                Text("Ratings color")
+                Text(R.string.localizable.ehSettingViewTitleRatingsColor())
                 Spacer()
-                SettingTextField(text: $ehSetting.ratingsColor, promptText: "RRGGB", width: 80).focused($isFocused)
+                SettingTextField(
+                    text: $ehSetting.ratingsColor, promptText: R.string.localizable
+                        .ehSettingViewPromtRatingsColor(), width: 80
+                )
+                .focused($isFocused)
             }
         }
         .textCase(nil)
@@ -472,22 +468,21 @@ private struct RatingsSection: View {
 private struct TagNamespacesSection: View {
     @Binding private var ehSetting: EhSetting
 
-    private var tuples: [(String, Binding<Bool>)] {
-        TagCategory.allCases.dropLast().enumerated().map { index, value in
-            (value.rawValue.firstLetterCapitalized, $ehSetting.excludedNamespaces[index])
-        }
-    }
-
-    // swiftlint:disable line_length
-    private let tagNamespacesDescription = "If you want to exclude certain namespaces from a default tag search, you can check those below. Note that this does not prevent galleries with tags in these namespaces from appearing, it just makes it so that when searching tags, it will forego those namespaces."
-    // swiftlint:enable line_length
-
     init(ehSetting: Binding<EhSetting>) {
         _ehSetting = ehSetting
     }
 
+    private var tuples: [(String, Binding<Bool>)] {
+        TagCategory.allCases.dropLast().enumerated().map { index, category in
+            (category.value, $ehSetting.excludedNamespaces[index])
+        }
+    }
+
     var body: some View {
-        Section(header: Text("Tag Namespaces").newlineBold() + Text(tagNamespacesDescription.localized)) {
+        Section(
+            header: Text(R.string.localizable.ehSettingViewSectionTitleTagsNamespaces()).newlineBold()
+            + Text(R.string.localizable.ehSettingViewDescriptionTagsNamespaces())
+        ) {
             ExcludeView(tuples: tuples)
         }
         .textCase(nil)
@@ -497,23 +492,23 @@ private struct TagNamespacesSection: View {
 private struct ExcludeView: View {
     private let tuples: [(String, Binding<Bool>)]
 
+    init(tuples: [(String, Binding<Bool>)]) {
+        self.tuples = tuples
+    }
+
     private let gridItems = [
         GridItem(.adaptive(
             minimum: DeviceUtil.isPadWidth ? 100 : 80, maximum: 100
         ))
     ]
 
-    init(tuples: [(String, Binding<Bool>)]) {
-        self.tuples = tuples
-    }
-
     var body: some View {
         LazyVGrid(columns: gridItems) {
             ForEach(tuples, id: \.0) { text, isExcluded in
                 ZStack {
-                    Text(text.localized).bold().opacity(isExcluded.wrappedValue ? 0 : 1)
+                    Text(text).bold().opacity(isExcluded.wrappedValue ? 0 : 1)
                     ZStack {
-                        Text(text.localized)
+                        Text(text)
                         let width = (CGFloat(text.count) * 8) + 8
                         let line = Rectangle().frame(width: width, height: 1)
                         VStack(spacing: 2) {
@@ -537,19 +532,19 @@ private struct ExcludeView: View {
 private struct TagFilteringThresholdSection: View {
     @Binding private var ehSetting: EhSetting
 
-    // swiftlint:disable line_length
-    private let tagFilteringThresholdDescription = "You can soft filter tags by adding them to My Tags with a negative weight. If a gallery has tags that add up to weight below this value, it is filtered from view. This threshold can be set between 0 and -9999."
-    // swiftlint:enable line_length
-
     init(ehSetting: Binding<EhSetting>) {
         _ehSetting = ehSetting
     }
 
     var body: some View {
         Section(
-            header: Text("Tag Filtering Threshold").newlineBold() + Text(tagFilteringThresholdDescription.localized)
+            header: Text(R.string.localizable.ehSettingViewTitleTagFilteringThreshold()).newlineBold()
+            + Text(R.string.localizable.ehSettingViewDescriptionTagFilteringThreshold())
         ) {
-            ValuePicker(title: "Tag Filtering Threshold", value: $ehSetting.tagFilteringThreshold, range: -9999...0)
+            ValuePicker(
+                title: R.string.localizable.ehSettingViewTitleTagFilteringThreshold(),
+                value: $ehSetting.tagFilteringThreshold, range: -9999...0
+            )
         }
         .textCase(nil)
     }
@@ -559,19 +554,19 @@ private struct TagFilteringThresholdSection: View {
 private struct TagWatchingThresholdSection: View {
     @Binding private var ehSetting: EhSetting
 
-    // swiftlint:disable line_length
-    private let tagWatchingThresholdDescription = "Recently uploaded galleries will be included on the watched screen if it has at least one watched tag with positive weight, and the sum of weights on its watched tags add up to this value or higher. This threshold can be set between 0 and 9999."
-    // swiftlint:enable line_length
-
     init(ehSetting: Binding<EhSetting>) {
         _ehSetting = ehSetting
     }
 
     var body: some View {
         Section(
-            header: Text("Tag Watching Threshold").newlineBold() + Text(tagWatchingThresholdDescription.localized
-                                                                       )) {
-            ValuePicker(title: "Tag Watching Threshold", value: $ehSetting.tagWatchingThreshold, range: 0...9999)
+            header: Text(R.string.localizable.ehSettingViewTitleTagWatchingThreshold()).newlineBold()
+            + Text(R.string.localizable.ehSettingViewDescriptionTagWatchingThreshold())
+        ) {
+            ValuePicker(
+                title: R.string.localizable.ehSettingViewTitleTagWatchingThreshold(),
+                value: $ehSetting.tagWatchingThreshold, range: 0...9999
+            )
         }
         .textCase(nil)
     }
@@ -581,44 +576,42 @@ private struct TagWatchingThresholdSection: View {
 private struct ExcludedLanguagesSection: View {
     @Binding private var ehSetting: EhSetting
 
-    private var languageBindings: [Binding<Bool>] {
-        $ehSetting.excludedLanguages.map( { $0 })
-    }
-    private let languages = [
-        "Japanese", "English", "Chinese", "Dutch",
-        "French", "German", "Hungarian", "Italian",
-        "Korean", "Polish", "Portuguese", "Russian",
-        "Spanish", "Thai", "Vietnamese", "N/A", "Other"
-    ]
-
-    // swiftlint:disable line_length
-    private let excludedLanguagesDescription = "If you wish to hide galleries in certain languages from the gallery list and searches, select them from the list below. Note that matching galleries will never appear regardless of your search query."
-    // swiftlint:enable line_length
-
     init(ehSetting: Binding<EhSetting>) {
         _ehSetting = ehSetting
     }
 
+    private let languages = Language.allExcludedCases.map(\.rawValue)
+    private var languageBindings: [Binding<Bool>] {
+        $ehSetting.excludedLanguages.map({ $0 })
+    }
+    private func rowBindings(index: Int) -> [Binding<Bool>] {
+        [-1, 0, 1].map { num in
+            let index = index * 3 + num
+            if index != -1 {
+                return languageBindings[index]
+            } else {
+                return .constant(false)
+            }
+        }
+    }
+
     var body: some View {
-        Section(header: Text("Excluded Languages").newlineBold() + Text(excludedLanguagesDescription.localized)) {
+        Section(
+            header: Text(R.string.localizable.ehSettingViewSectionTitleExcludedLanguages()).newlineBold()
+            + Text(R.string.localizable.ehSettingViewDescriptionExcludedLanguages())
+        ) {
             HStack {
                 Text("").frame(width: DeviceUtil.windowW * 0.25)
-                ForEach(["Original", "Translated", "Rewrite"], id: \.self) { category in
+                ForEach(EhSettingExcludedLanguagesCategory.allCases) { category in
                     Color.clear.overlay {
-                        Text(category.localized).lineLimit(1).font(.subheadline).fixedSize()
+                        Text(category.value).lineLimit(1).font(.subheadline).fixedSize()
                     }
                 }
             }
             ForEach(0..<(languageBindings.count / 3) + 1) { index in
                 ExcludeRow(
                     title: languages[index],
-                    bindings: [-1, 0, 1].map { num in
-                        let index = index * 3 + num
-
-                        guard index != -1
-                        else { return .constant(false) }
-                        return languageBindings[index]
-                    },
+                    bindings: rowBindings(index: index),
                     isFirstRow: index == 0
                 )
             }
@@ -641,7 +634,7 @@ private struct ExcludeRow: View {
     var body: some View {
         HStack {
             HStack {
-                Text(title.localized).lineLimit(1).font(.subheadline).fixedSize()
+                Text(title).lineLimit(1).font(.subheadline).fixedSize()
                 Spacer()
             }
             .frame(width: DeviceUtil.windowW * 0.25)
@@ -676,21 +669,17 @@ private struct ExcludedUploadersSection: View {
     @Binding private var ehSetting: EhSetting
     @FocusState var isFocused
 
-    // swiftlint:disable line_length
-    private let excludedUploadersDescription = "If you wish to hide galleries from certain uploaders from the gallery list and searches, add them below. Put one username per line. Note that galleries from these uploaders will never appear regardless of your search query."
-    private var exclusionSlotsKey: LocalizedStringKey {
-        LocalizedStringKey("You are currently using **\(ehSetting.excludedUploaders.lineCount) / 1000** exclusion slots.")
-    }
-    // swiftlint:enable line_length
-
     init(ehSetting: Binding<EhSetting>) {
         _ehSetting = ehSetting
     }
 
     var body: some View {
         Section(
-            header: Text("Excluded Uploaders").newlineBold() + Text(excludedUploadersDescription.localized),
-            footer: Text(exclusionSlotsKey)
+            header: Text(R.string.localizable.ehSettingViewSectionTitleExcludedUploaders()).newlineBold()
+            + Text(R.string.localizable.ehSettingViewDescriptionExcludedUploaders()),
+            footer: Text(R.string.localizable.ehSettingViewDescriptionExcludedUploadersCount(
+                "\(ehSetting.excludedUploaders.lineCount)"
+            ))
         ) {
             TextEditor(text: $ehSetting.excludedUploaders).textInputAutocapitalization(.none)
                 .frame(maxHeight: DeviceUtil.windowH * 0.3).disableAutocorrection(true).focused($isFocused)
@@ -703,24 +692,23 @@ private struct ExcludedUploadersSection: View {
 private struct SearchResultCountSection: View {
     @Binding private var ehSetting: EhSetting
 
+    init(ehSetting: Binding<EhSetting>) {
+        _ehSetting = ehSetting
+    }
+
     private var capableCounts: [EhSettingSearchResultCount] {
         EhSettingSearchResultCount.allCases.filter { count in
             count <= ehSetting.capableSearchResultCount
         }
     }
 
-    // swiftlint:disable line_length
-    private let searchResultCountDescription = "How many results would you like per page for the index/search page and torrent search pages?\n(Hath Perk: Paging Enlargement Required)"
-    // swiftlint:enable line_length
-
-    init(ehSetting: Binding<EhSetting>) {
-        _ehSetting = ehSetting
-    }
-
     var body: some View {
-        Section(header: Text("Search Result Count").newlineBold() + Text(searchResultCountDescription.localized)) {
+        Section(
+            header: Text(R.string.localizable.ehSettingViewSectionTitleSearchResultCount()).newlineBold()
+            + Text(R.string.localizable.ehSettingViewDescriptionResultCount())
+        ) {
             HStack {
-                Text("Result count")
+                Text(R.string.localizable.ehSettingViewTitleResultCount())
                 Spacer()
                 Picker(selection: $ehSetting.searchResultCount) {
                     ForEach(capableCounts) { count in
@@ -740,6 +728,10 @@ private struct SearchResultCountSection: View {
 private struct ThumbnailSettingsSection: View {
     @Binding private var ehSetting: EhSetting
 
+    init(ehSetting: Binding<EhSetting>) {
+        _ehSetting = ehSetting
+    }
+
     private var capableSizes: [EhSettingThumbnailSize] {
         EhSettingThumbnailSize.allCases.filter { size in
             size <= ehSetting.capableThumbnailConfigSize
@@ -751,37 +743,29 @@ private struct ThumbnailSettingsSection: View {
         }
     }
 
-    // swiftlint:disable line_length
-    private let thumbnailLoadTimingDescription = "How would you like the mouse-over thumbnails on the front page to load when using List Mode?"
-    private let thumbnailConfigurationDescription = "You can set a default thumbnail configuration for all galleries you visit."
-    // swiftlint:enable line_length
-
-    init(ehSetting: Binding<EhSetting>) {
-        _ehSetting = ehSetting
-    }
-
     var body: some View {
         Section(
-            header: Text("Thumbnail Settings").newlineBold() + Text(thumbnailLoadTimingDescription.localized),
-            footer: Text(ehSetting.thumbnailLoadTiming.description.localized)
+            header: Text(R.string.localizable.ehSettingViewSectionTitleThumbnailSettings()).newlineBold()
+            + Text(R.string.localizable.ehSettingViewDescriptionThumbnailLoadTiming()),
+            footer: Text(ehSetting.thumbnailLoadTiming.description)
         ) {
             HStack {
-                Text("Thumbnail load timing")
+                Text(R.string.localizable.ehSettingViewTitleThumbnailLoadTiming())
                 Spacer()
                 Picker(selection: $ehSetting.thumbnailLoadTiming) {
                     ForEach(EhSettingThumbnailLoadTiming.allCases) { timing in
-                        Text(timing.value.localized).tag(timing)
+                        Text(timing.value).tag(timing)
                     }
                 } label: {
-                    Text(ehSetting.thumbnailLoadTiming.value.localized)
+                    Text(ehSetting.thumbnailLoadTiming.value)
                 }
                 .pickerStyle(.menu)
             }
         }
         .textCase(nil)
-        Section(thumbnailConfigurationDescription.localized) {
+        Section(R.string.localizable.ehSettingViewDescriptionThumbnailConfiguration()) {
             HStack {
-                Text("Size")
+                Text(R.string.localizable.ehSettingViewTitleThumbnailSize())
                 Spacer()
                 Picker(selection: $ehSetting.thumbnailConfigSize) {
                     ForEach(capableSizes) { size in
@@ -793,7 +777,7 @@ private struct ThumbnailSettingsSection: View {
                 .pickerStyle(.segmented).frame(width: 200)
             }
             HStack {
-                Text("Rows")
+                Text(R.string.localizable.ehSettingViewTitleThumbnailRows())
                 Spacer()
                 Picker(selection: $ehSetting.thumbnailConfigRows) {
                     ForEach(capableRows) { row in
@@ -813,17 +797,19 @@ private struct ThumbnailSettingsSection: View {
 private struct ThumbnailScalingSection: View {
     @Binding private var ehSetting: EhSetting
 
-    // swiftlint:disable line_length
-    private let thumbnailScalingDescription = "Thumbnails on the thumbnail and extended gallery list views can be scaled to a custom value between 75% and 150%."
-    // swiftlint:enable line_length
-
     init(ehSetting: Binding<EhSetting>) {
         _ehSetting = ehSetting
     }
 
     var body: some View {
-        Section(header: Text("Thumbnail Scaling").newlineBold() + Text(thumbnailScalingDescription.localized)) {
-            ValuePicker(title: "Scale factor", value: $ehSetting.thumbnailScaleFactor, range: 75...150, unit: "%")
+        Section(
+            header: Text(R.string.localizable.ehSettingViewSectionTitleThumbnailScaling()).newlineBold()
+            + Text(R.string.localizable.ehSettingViewDescriptionScaleFactor())
+        ) {
+            ValuePicker(
+                title: R.string.localizable.ehSettingViewTitleScaleFactor(),
+                value: $ehSetting.thumbnailScaleFactor, range: 75...150, unit: "%"
+            )
         }
         .textCase(nil)
     }
@@ -833,17 +819,19 @@ private struct ThumbnailScalingSection: View {
 private struct ViewportOverrideSection: View {
     @Binding private var ehSetting: EhSetting
 
-    // swiftlint:disable line_length
-    private let viewportOverrideDescription = "Allows you to override the virtual width of the site for mobile devices. This is normally determined automatically by your device based on its DPI. Sensible values at 100% thumbnail scale are between 640 and 1400."
-    // swiftlint:enable line_length
-
     init(ehSetting: Binding<EhSetting>) {
         _ehSetting = ehSetting
     }
 
     var body: some View {
-        Section(header: Text("Viewport Override").newlineBold() + Text(viewportOverrideDescription.localized)) {
-            ValuePicker(title: "Virtual width", value: $ehSetting.viewportVirtualWidth, range: 0...9999, unit: "px")
+        Section(
+            header: Text(R.string.localizable.ehSettingViewSectionTitleViewportOverride()).newlineBold()
+            + Text(R.string.localizable.ehSettingViewDescriptionVirtualWidth())
+        ) {
+            ValuePicker(
+                title: R.string.localizable.ehSettingViewTitleVirtualWidth(),
+                value: $ehSetting.viewportVirtualWidth, range: 0...9999, unit: "px"
+            )
         }
         .textCase(nil)
     }
@@ -865,7 +853,7 @@ private struct ValuePicker: View {
     var body: some View {
         VStack {
             HStack {
-                Text(title.localized)
+                Text(title)
                 Spacer()
                 Text(String(Int(value)) + unit).foregroundStyle(.tint)
             }
@@ -888,28 +876,28 @@ private struct GalleryCommentsSection: View {
     }
 
     var body: some View {
-        Section("Gallery Comments".localized) {
+        Section(R.string.localizable.ehSettingViewSectionTitleGalleryComments()) {
             HStack {
-                Text("Comments sort order")
+                Text(R.string.localizable.ehSettingViewTitleCommentsSortOrder())
                 Spacer()
                 Picker(selection: $ehSetting.commentsSortOrder) {
                     ForEach(EhSettingCommentsSortOrder.allCases) { order in
-                        Text(order.value.localized).tag(order)
+                        Text(order.value).tag(order)
                     }
                 } label: {
-                    Text(ehSetting.commentsSortOrder.value.localized)
+                    Text(ehSetting.commentsSortOrder.value)
                 }
                 .pickerStyle(.menu)
             }
             HStack {
-                Text("Comment votes show timing")
+                Text(R.string.localizable.ehSettingViewTitleCommentsVotesShowTiming())
                 Spacer()
                 Picker(selection: $ehSetting.commentVotesShowTiming) {
                     ForEach(EhSettingCommentVotesShowTiming.allCases) { timing in
-                        Text(timing.value.localized).tag(timing)
+                        Text(timing.value).tag(timing)
                     }
                 } label: {
-                    Text(ehSetting.commentVotesShowTiming.value.localized)
+                    Text(ehSetting.commentVotesShowTiming.value)
                 }
                 .pickerStyle(.menu)
             }
@@ -927,16 +915,16 @@ private struct GalleryTagsSection: View {
     }
 
     var body: some View {
-        Section("Gallery Tags".localized) {
+        Section(R.string.localizable.ehSettingViewSectionTitleGalleryTags()) {
             HStack {
-                Text("Tags sort order")
+                Text(R.string.localizable.ehSettingViewTitleTagsSortOrder())
                 Spacer()
                 Picker(selection: $ehSetting.tagsSortOrder) {
                     ForEach(EhSettingTagsSortOrder.allCases) { order in
-                        Text(order.value.localized).tag(order)
+                        Text(order.value).tag(order)
                     }
                 } label: {
-                    Text(ehSetting.tagsSortOrder.value.localized)
+                    Text(ehSetting.tagsSortOrder.value)
                 }
                 .pickerStyle(.menu)
             }
@@ -954,8 +942,11 @@ private struct GalleryPageNumberingSection: View {
     }
 
     var body: some View {
-        Section("Gallery Page Numbering".localized) {
-            Toggle("Show gallery page numbers", isOn: $ehSetting.galleryShowPageNumbers)
+        Section(R.string.localizable.ehSettingViewSectionTitleGalleryPageNumbering()) {
+            Toggle(
+                R.string.localizable.ehSettingViewTitleShowGalleryPageNumbers(),
+                isOn: $ehSetting.galleryShowPageNumbers
+            )
         }
         .textCase(nil)
     }
@@ -966,20 +957,17 @@ private struct HathLocalNetworkHostSection: View {
     @Binding private var ehSetting: EhSetting
     @FocusState var isFocused
 
-    // swiftlint:disable line_length
-    private let hathLocalNetworkHostDescription = "This setting can be used if you have a Hath client running on your local network with the same public IP you browse the site with. Some routers are buggy and cannot route requests back to its own IP; this allows you to work around this problem.\nIf you are running the client on the same device you browse from, use the loopback address (127.0.0.1:port). If the client is running on another device on your network, use its local network IP. Some browser configurations prevent external web sites from accessing URLs with local network IPs, the site must then be whitelisted for this to work."
-    // swiftlint:enable line_length
-
     init(ehSetting: Binding<EhSetting>) {
         _ehSetting = ehSetting
     }
 
     var body: some View {
         Section(
-            header: Text("Hath Local Network Host").newlineBold() + Text(hathLocalNetworkHostDescription.localized)
+            header: Text(R.string.localizable.ehSettingViewSectionTitleHathLocalNetworkHost()).newlineBold()
+            + Text(R.string.localizable.ehSettingViewDescriptionIpAddressPort())
         ) {
             HStack {
-                Text("IP address:Port")
+                Text(R.string.localizable.ehSettingViewTitleIpAddressPort())
                 Spacer()
                 SettingTextField(text: $ehSetting.hathLocalNetworkHost, width: 150).focused($isFocused)
             }
@@ -999,8 +987,11 @@ private struct OriginalImagesSection: View {
     var body: some View {
         Group {
             if let useOriginalImagesBinding = Binding($ehSetting.useOriginalImages) {
-                Section("Original Images".localized) {
-                    Toggle("Use original images", isOn: useOriginalImagesBinding)
+                Section(R.string.localizable.ehSettingViewSectionTitleOriginalImages()) {
+                    Toggle(
+                        R.string.localizable.ehSettingViewTitleUseOriginalImages(),
+                        isOn: useOriginalImagesBinding
+                    )
                 }
                 .textCase(nil)
             }
@@ -1022,21 +1013,27 @@ private struct MultiplePageViewerSection: View {
                let multiplePageViewerStyleBinding = Binding($ehSetting.multiplePageViewerStyle),
                let multiplePageViewerShowPaneBinding = Binding($ehSetting.multiplePageViewerShowThumbnailPane)
             {
-                Section("Multi-Page Viewer".localized) {
-                    Toggle("Use Multi-Page Viewer", isOn: useMultiplePageViewerBinding)
+                Section(R.string.localizable.ehSettingViewSectionTitleMultiPageViewer()) {
+                    Toggle(
+                        R.string.localizable.ehSettingViewTitleUseMultiPageViewer(),
+                        isOn: useMultiplePageViewerBinding
+                    )
                     HStack {
-                        Text("Display style")
+                        Text(R.string.localizable.ehSettingViewTitleDisplayStyle())
                         Spacer()
                         Picker(selection: multiplePageViewerStyleBinding) {
                             ForEach(EhSettingMultiplePageViewerStyle.allCases) { style in
-                                Text(style.value.localized).tag(style)
+                                Text(style.value).tag(style)
                             }
                         } label: {
-                            Text(ehSetting.multiplePageViewerStyle?.value.localized ?? "")
+                            Text(ehSetting.multiplePageViewerStyle?.value ?? "")
                         }
                         .pickerStyle(.menu)
                     }
-                    Toggle("Show thumbnail pane", isOn: multiplePageViewerShowPaneBinding)
+                    Toggle(
+                        R.string.localizable.ehSettingViewTitleShowThumbnailPane(),
+                        isOn: multiplePageViewerShowPaneBinding
+                    )
                 }
                 .textCase(nil)
             }

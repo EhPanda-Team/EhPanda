@@ -42,8 +42,8 @@
 
 // MARK: ToplistsType
 "enum.toplists.type.value.yesterday" = "";
-"enum.toplists.type.value.lastMonth" = "";
-"enum.toplists.type.value.lastYear" = "";
+"enum.toplists.type.value.pastMonth" = "";
+"enum.toplists.type.value.pastYear" = "";
 "enum.toplists.type.value.allTime" = "";
 
 // MARK: Response
@@ -69,6 +69,7 @@
 // MARK: Common
 "common.no" = "";
 "common.yes" = "";
+"common.done" = "";
 "common.clear" = "";
 "common.reset" = "";
 "common.login" = "";
@@ -79,13 +80,14 @@
 "common.delete" = "";
 "common.confirm" = "";
 "common.language" = "";
-"common.value.stars" = "";
-"common.value.pages" = "";
-"common.value.times" = "";
-"common.value.minute" = "";
-"common.value.minutes" = "";
-"common.value.seconds" = "";
-"common.value.records" = "";
+"common.appearance" = "";
+"common.value.stars" = "%@";
+"common.value.pages" = "%@";
+"common.value.times" = "%@";
+"common.value.minute" = "%@";
+"common.value.minutes" = "%@";
+"common.value.seconds" = "%@";
+"common.value.records" = "%@";
 
 // MARK: TabItem
 "tab.item.title.home" = "";
@@ -95,7 +97,6 @@
 
 // MARK: ListType
 "list.type.frontpage" = "";
-"list.type.favorites" = "";
 "list.type.toplists" = "";
 "list.type.popular" = "";
 "list.type.watched" = "";
@@ -119,10 +120,11 @@
 "error.view.button.retry" = "";
 
 // MARK: ConfirmationDialog
-"confirmation.dialog.title.areYouSureTo" = "";
+"confirmation.dialog.title.areYouSureTo" = "%@";
+"confirmation.dialog.title.deleteThisItem" = "";
 
 // MARK: SubSection
-"sub.section.button.showAll" = "";
+"sub.section.button.showAll" = "Show all";
 
 // MARK: NewDawnView
 "new.dawn.view.title.first" = "";
@@ -144,7 +146,6 @@
 // MARK: SearchView
 "search.view.section.title.recentlySearched" = "";
 "search.view.section.title.recentlySeen" = "";
-"search.view.section.title.quickSearch" = "";
 
 // MARK: QuickSearchView
 "quick.search.view.title.quickSearch" = "";
@@ -158,15 +159,14 @@
 // SettingStateRoute
 "enum.setting.state.route.value.account" = "";
 "enum.setting.state.route.value.general" = "";
-"enum.setting.state.route.value.appearance" = "";
 "enum.setting.state.route.value.reading" = "";
 "enum.setting.state.route.value.laboratory" = "";
-"enum.setting.state.route.value.ehpanda" = "";
+"enum.setting.state.route.value.ehPanda" = "";
 
 // MARK: AccountSettingView
 "account.setting.view.title.showNewDawnGreeting" = "";
-"account.setting.view.button.ehSetting" = "";
-"account.setting.view.button.manageTags" = "";
+"account.setting.view.button.accountConfiguration" = "";
+"account.setting.view.button.tagsManagement" = "";
 "account.setting.view.button.copyCookies" = "";
 
 // MARK: LoginView
@@ -196,7 +196,7 @@
 "appearance.setting.view.title.tintColor" = "";
 "appearance.setting.view.title.displayMode" = "";
 "appearance.setting.view.title.showsTagsInList" = "";
-"appearance.setting.view.title.listTagsNumberMaximum" = "";
+"appearance.setting.view.title.maximumNumberOfTags" = "";
 "appearance.setting.view.menu.title.infite" = "";
 "appearance.setting.view.section.title.list" = "";
 // PerferredColorScheme
@@ -215,9 +215,9 @@
 
 // MARK: ReadingSettingView
 "reading.setting.view.title.direction" = "";
-"reading.setting.view.title.prefetchLimit" = "";
+"reading.setting.view.title.preloadLimit" = "";
 "reading.setting.view.title.enablesLandscape" = "";
-"reading.setting.view.title.contentDividerHeight" = "";
+"reading.setting.view.title.separatorHeight" = "";
 "reading.setting.view.title.maximumScaleFactor" = "";
 "reading.setting.view.title.doubleTapScaleFactor" = "";
 // ReadingDirection
@@ -237,9 +237,6 @@
 
 // MARK: DetailView
 "detail.view.button.read" = "";
-"detail.view.section.title.previews" = "";
-"detail.view.section.title.comments" = "";
-"detail.view.toolbar.item.torrents" = "";
 "detail.view.scroll.section.title.favored" = "";
 "detail.view.scroll.section.title.ratings" = "";
 "detail.view.scroll.section.title.pageCount" = "";
@@ -291,12 +288,17 @@
 "post.comment.view.title.editComment" = "";
 "post.comment.view.button.post" = "";
 
+// MARK: PreviewsView
+"comments.view.title.previews" = "";
+
 // MARK: ReadingView
 "reading.view.button.reload" = "";
 "reading.view.button.copy" = "";
 "reading.view.button.save" = "";
 "reading.view.button.saveOriginal" = "";
 "reading.view.toolbar.item.title.autoPlay" = "";
+"reading.view.toolbar.item.title.dualPageMode" = "";
+"reading.view.toolbar.item.title.exceptTheCover" = "";
 // AutoPlayPolicy
 "enum.auto.play.policy.value.never" = "";
 
@@ -323,7 +325,7 @@
 "filters.view.section.title.defaultFilter" = "";
 
 // MARK: EhSettingView
-"eh.setting.view.title.hostSetting" = "";
+"eh.setting.view.title.hostSetting" = "%@";
 "eh.setting.view.section.title.profileSettings" = "";
 "eh.setting.view.title.selectedProfile" = "";
 "eh.setting.view.button.setAsDefault" = "";
@@ -334,7 +336,7 @@
 "eh.setting.view.section.title.imageLoadSettings" = "";
 "eh.setting.view.title.loadImagesThroughTheHathNetwork" = "";
 "eh.setting.view.title.browsingCountry" = "";
-"eh.setting.view.description.browsingCountry" = "";
+"eh.setting.view.description.browsingCountry" = "%@";
 // EhSettingLoadThroughHathSetting
 "enum.eh.setting.load.through.hath.setting.value.anyClient" = "";
 "enum.eh.setting.load.through.hath.setting.value.defaultPortOnly" = "";
@@ -357,8 +359,8 @@
 "eh.setting.view.title.galleryName" = "";
 "eh.setting.view.description.galleryName" = "";
 // EhSettingGalleryName
-"enum.eh.setting.value.default" = "";
-"enum.eh.setting.value.japanese" = "";
+"enum.eh.setting.gallery.name.value.default" = "";
+"enum.eh.setting.gallery.name.value.japanese" = "";
 
 "eh.setting.view.section.title.archiverSettings" = "";
 "eh.setting.view.title.archiverBehavior" = "";
@@ -383,7 +385,7 @@
 "enum.eh.setting.display.mode.value.minimalPlus" = "";
 
 "eh.setting.view.section.title.favorites" = "";
-"eh.setting.view.description.favorites" = "";
+"eh.setting.view.description.favoritesName" = "";
 "eh.setting.view.title.favoritesSortOrder" = "";
 "eh.setting.view.description.favoritesSortOrder" = "";
 // EhSettingFavoritesSortOrder
@@ -392,6 +394,7 @@
 
 "eh.setting.view.section.title.ratings" = "";
 "eh.setting.view.title.ratingsColor" = "";
+"eh.setting.view.promt.ratingsColor" = "";
 "eh.setting.view.description.ratingsColor" = "";
 
 "eh.setting.view.section.title.tagsNamespaces" = "";
@@ -405,13 +408,14 @@
 
 "eh.setting.view.section.title.excludedLanguages" = "";
 "eh.setting.view.description.excludedLanguages" = "";
-"eh.setting.view.title.excludedLanguagesOriginal" = "";
-"eh.setting.view.title.excludedLanguagesTranslated" = "";
-"eh.setting.view.title.excludedLanguagesRewrite" = "";
+// EhSettingExcludedLanguagesCategory
+"enum.eh.setting.excluded.languages.category.value.original" = "";
+"enum.eh.setting.excluded.languages.category.value.translated" = "";
+"enum.eh.setting.excluded.languages.category.value.rewrite" = "";
 
 "eh.setting.view.section.title.excludedUploaders" = "";
 "eh.setting.view.description.excludedUploaders" = "";
-"eh.setting.view.description.excludedUploadersCount" = "";
+"eh.setting.view.description.excludedUploadersCount" = "%@";
 
 "eh.setting.view.section.title.searchResultCount" = "";
 "eh.setting.view.title.resultCount" = "";

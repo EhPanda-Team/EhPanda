@@ -179,10 +179,24 @@ struct GalleryArchive: Codable, Equatable {
 
         let resolution: ArchiveResolution
         let fileSize: String
-        let gpPrice: String
+        private let gpPrice: String
+
+        init(resolution: ArchiveResolution, fileSize: String, gpPrice: String) {
+            self.resolution = resolution
+            self.fileSize = fileSize
+            self.gpPrice = gpPrice
+        }
 
         var isValid: Bool {
             fileSize != "N/A" && gpPrice != "N/A"
+        }
+        var price: String {
+            switch gpPrice {
+            case "Free":
+                return R.string.localizable.structHathArchivePriceFree()
+            default:
+                return gpPrice
+            }
         }
     }
 
@@ -372,8 +386,8 @@ extension Language {
 enum Category: String, Codable, CaseIterable, Identifiable {
     var id: String { rawValue }
 
-    static let allFavoritesCases: [Category] = [.misc] + allCases.dropLast(2)
-    static let allFiltersCases: [Category] = allCases.dropLast()
+    static let allFavoritesCases: [Self] = [.misc] + allCases.dropLast(2)
+    static let allFiltersCases: [Self] = allCases.dropLast()
 
     case doujinshi = "Doujinshi"
     case manga = "Manga"
@@ -401,6 +415,36 @@ enum TagCategory: String, Codable, CaseIterable {
     case cosplayer
     case other
     case temp
+}
+extension TagCategory {
+    var value: String {
+        switch self {
+        case .reclass:
+            return R.string.localizable.enumTagCategoryValueReclass()
+        case .language:
+            return R.string.localizable.enumTagCategoryValueLanguage()
+        case .parody:
+            return R.string.localizable.enumTagCategoryValueParody()
+        case .character:
+            return R.string.localizable.enumTagCategoryValueCharacter()
+        case .group:
+            return R.string.localizable.enumTagCategoryValueGroup()
+        case .artist:
+            return R.string.localizable.enumTagCategoryValueArtist()
+        case .male:
+            return R.string.localizable.enumTagCategoryValueMale()
+        case .female:
+            return R.string.localizable.enumTagCategoryValueFemale()
+        case .mixed:
+            return R.string.localizable.enumTagCategoryValueMixed()
+        case .cosplayer:
+            return R.string.localizable.enumTagCategoryValueCosplayer()
+        case .other:
+            return R.string.localizable.enumTagCategoryValueOther()
+        case .temp:
+            return R.string.localizable.enumTagCategoryValueTemp()
+        }
+    }
 }
 
 enum GalleryVisibility: Codable, Equatable {
@@ -435,7 +479,7 @@ extension ArchiveResolution {
         case .x780, .x980, .x1280, .x1600, .x2400:
             return rawValue
         case .original:
-            return "ARCHIVE_RESOLUTION_ORIGINAL"
+            return R.string.localizable.structHathArchiveResolutionOriginal()
         }
     }
     var parameter: String {
@@ -443,7 +487,7 @@ extension ArchiveResolution {
         case .original:
             return "org"
         default:
-            return String(rawValue.dropLast())
+            return .init(rawValue.dropLast())
         }
     }
 }
@@ -533,6 +577,10 @@ enum LoadingState: Equatable, Hashable {
 }
 
 enum Language: String, Codable {
+    static let allExcludedCases: [Self] = [
+        .japanese, .english, .chinese, .dutch, .french, .german, .hungarian, .italian,
+        .korean, .polish, .portuguese, .russian, .spanish, .thai, .vietnamese, .invalid, .other
+    ]
     // swiftlint:disable line_length
     case invalid = "N/A"; case other = "Other"; case afrikaans = "Afrikaans"; case albanian = "Albanian"; case arabic = "Arabic"; case bengali = "Bengali"; case bosnian = "Bosnian"; case bulgarian = "Bulgarian"; case burmese = "Burmese"; case catalan = "Catalan"; case cebuano = "Cebuano"; case chinese = "Chinese"; case croatian = "Croatian"; case czech = "Czech"; case danish = "Danish"; case dutch = "Dutch"; case english = "English"; case esperanto = "Esperanto"; case estonian = "Estonian"; case finnish = "Finnish"; case french = "French"; case georgian = "Georgian"; case german = "German"; case greek = "Greek"; case hebrew = "Hebrew"; case hindi = "Hindi"; case hmong = "Hmong"; case hungarian = "Hungarian"; case indonesian = "Indonesian"; case italian = "Italian"; case japanese = "Japanese"; case kazakh = "Kazakh"; case khmer = "Khmer"; case korean = "Korean"; case kurdish = "Kurdish"; case lao = "Lao"; case latin = "Latin"; case mongolian = "Mongolian"; case ndebele = "Ndebele"; case nepali = "Nepali"; case norwegian = "Norwegian"; case oromo = "Oromo"; case pashto = "Pashto"; case persian = "Persian"; case polish = "Polish"; case portuguese = "Portuguese"; case punjabi = "Punjabi"; case romanian = "Romanian"; case russian = "Russian"; case sango = "Sango"; case serbian = "Serbian"; case shona = "Shona"; case slovak = "Slovak"; case slovenian = "Slovenian"; case somali = "Somali"; case spanish = "Spanish"; case swahili = "Swahili"; case swedish = "Swedish"; case tagalog = "Tagalog"; case thai = "Thai"; case tigrinya = "Tigrinya"; case turkish = "Turkish"; case ukrainian = "Ukrainian"; case urdu = "Urdu"; case vietnamese = "Vietnamese"; case zulu = "Zulu"
     // swiftlint:enable line_length
