@@ -41,7 +41,7 @@ struct GalleryDetailCell: View {
                     RatingView(rating: gallery.rating).font(.caption).foregroundStyle(.yellow)
                     Spacer()
                     HStack(spacing: 10) {
-                        Text(gallery.language?.name ?? "")
+                        Text(gallery.language?.value ?? "")
                         HStack(spacing: 2) {
                             Image(systemSymbol: .photoOnRectangleAngled)
                             Text(String(gallery.pageCount))

@@ -48,7 +48,7 @@ struct GalleryInfosView: View {
                 title: R.string.localizable.galleryInfosViewTitleVisibility(),
                 value: galleryDetail.visibility.value
             ),
-            Info(title: R.string.localizable.commonLanguage(), value: galleryDetail.language.name),
+            Info(title: R.string.localizable.commonLanguage(), value: galleryDetail.language.value),
             Info(title: R.string.localizable.galleryInfosViewTitlePageCount(), value: String(galleryDetail.pageCount)),
             Info(
                 title: R.string.localizable.galleryInfosViewTitleFileSize(),

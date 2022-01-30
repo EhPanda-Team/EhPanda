@@ -378,8 +378,8 @@ private struct DescriptionSection: View {
         ),
         DescScrollInfo(
             title: R.string.localizable.commonLanguage(),
-            description: galleryDetail.language.name,
-            value: galleryDetail.languageAbbr
+            description: galleryDetail.language.value,
+            value: galleryDetail.language.abbreviation
         ),
         DescScrollInfo(
             title: R.string.localizable.detailViewScrollSectionTitleRatings(),
