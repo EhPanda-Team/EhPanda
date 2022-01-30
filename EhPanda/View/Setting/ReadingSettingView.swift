@@ -115,7 +115,7 @@ private struct ScaleFactorRow: View {
     var body: some View {
         VStack {
             HStack {
-                Text(labelContent.localized)
+                Text(labelContent)
                 Spacer()
                 Text("\(scaleFactor.roundedString())x").foregroundStyle(.tint)
             }

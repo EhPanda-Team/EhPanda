@@ -132,7 +132,7 @@ private struct UpperPanel: View {
                             Button {
                                 autoPlayPolicy = policy
                             } label: {
-                                Text(policy.descriptionKey)
+                                Text(policy.value)
                                 if autoPlayPolicy == policy {
                                     Image(systemSymbol: .checkmark)
                                 }

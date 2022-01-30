@@ -19,18 +19,11 @@
                     <string>AppIcon_Default</string>
                 </array>
             </dict>
-            <key>AppIcon_Normal</key>
+            <key>AppIcon_Ukiyoe</key>
             <dict>
                 <key>CFBundleIconFiles</key>
                 <array>
-                    <string>AppIcon_Normal</string>
-                </array>
-            </dict>
-            <key>AppIcon_Weird</key>
-            <dict>
-                <key>CFBundleIconFiles</key>
-                <array>
-                    <string>AppIcon_Weird</string>
+                    <string>AppIcon_Ukiyoe</string>
                 </array>
             </dict>
         </dict>
@@ -53,18 +46,11 @@
                     <string>AppIcon_Default</string>
                 </array>
             </dict>
-            <key>AppIcon_Normal</key>
+            <key>AppIcon_Ukiyoe</key>
             <dict>
                 <key>CFBundleIconFiles</key>
                 <array>
-                    <string>AppIcon_Normal</string>
-                </array>
-            </dict>
-            <key>AppIcon_Weird</key>
-            <dict>
-                <key>CFBundleIconFiles</key>
-                <array>
-                    <string>AppIcon_Weird</string>
+                    <string>AppIcon_Ukiyoe</string>
                 </array>
             </dict>
         </dict>

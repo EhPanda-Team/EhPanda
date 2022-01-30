@@ -29,7 +29,7 @@ struct ToplistsView: View {
     }
 
     private var navigationTitle: String {
-        [R.string.localizable.listTypeToplists(), viewStore.type.value].map(\.localized).joined(separator: " - ")
+        [R.string.localizable.listTypeToplists(), viewStore.type.value].joined(separator: " - ")
     }
 
     var body: some View {

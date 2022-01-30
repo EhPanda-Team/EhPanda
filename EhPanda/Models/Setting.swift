@@ -79,33 +79,40 @@ enum AutoLockPolicy: Int, Codable, CaseIterable, Identifiable {
 }
 
 extension AutoLockPolicy {
-    var descriptionKey: LocalizedStringKey {
+    var value: String {
         switch self {
         case .never:
-            return "Never"
+            return R.string.localizable.enumAutoPlayPolicyValueNever()
         case .instantly:
-            return "Instantly"
+            return R.string.localizable.enumAutoLockPolicyValueInstantly()
         case .sec15:
-            return "\(15) seconds"
+            return R.string.localizable.commonValueSeconds("\(rawValue)")
         case .min1:
-            return "\(1) minute"
-        case .min5:
-            return "\(5) minutes"
-        case .min10:
-            return "\(10) minute"
-        case .min30:
-            return "\(30) minute"
+            return R.string.localizable.commonValueMinute("\(rawValue / 60)")
+        case .min5, .min10, .min30:
+            return R.string.localizable.commonValueMinutes("\(rawValue / 60)")
         }
     }
 }
 
-enum PreferredColorScheme: String, Codable, CaseIterable, Identifiable {
-    var id: Int { hashValue }
+enum PreferredColorScheme: Int, Codable, CaseIterable, Identifiable {
+    var id: Int { rawValue }
 
-    case automatic = "Automatic"
-    case light = "Light"
-    case dark = "Dark"
-
+    case automatic
+    case light
+    case dark
+}
+extension PreferredColorScheme {
+    var value: String {
+        switch self {
+        case .automatic:
+            return R.string.localizable.enumPerferredColorSchemeValueAutomatic()
+        case .light:
+            return R.string.localizable.enumPerferredColorSchemeValueLight()
+        case .dark:
+            return R.string.localizable.enumPerferredColorSchemeValueDark()
+        }
+    }
     var userInterfaceStyle: UIUserInterfaceStyle {
         switch self {
         case .automatic:

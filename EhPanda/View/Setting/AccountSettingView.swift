@@ -35,7 +35,7 @@ struct AccountSettingView: View {
             Section {
                 Picker("", selection: $galleryHost) {
                     ForEach(GalleryHost.allCases) {
-                        Text($0.rawValue.localized).tag($0)
+                        Text($0.rawValue).tag($0)
                     }
                 }
                 .pickerStyle(.segmented)

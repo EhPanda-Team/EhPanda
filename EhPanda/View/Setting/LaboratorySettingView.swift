@@ -20,9 +20,8 @@ struct LaboratorySettingView: View {
             VStack {
                 LaboratoryCell(
                     isOn: $bypassesSNIFiltering,
-                    title: "Bypass SNI Filtering",
-                    symbol: .theatermasksFill,
-                    tintColor: .purple
+                    title: R.string.localizable.laboratorySettingViewTitleBypassesSNIFiltering(),
+                    symbol: .theatermasksFill, tintColor: .purple
                 )
             }
             .padding()
@@ -59,7 +58,7 @@ struct LaboratoryCell: View {
             Spacer()
             Group {
                 Image(systemSymbol: symbol)
-                Text(title.localized).bold()
+                Text(title).bold()
             }
             .foregroundColor(contentColor).font(.title2)
             Spacer()

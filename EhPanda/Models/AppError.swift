@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SFSafeSymbols
 
 enum AppError: Error, Identifiable, Equatable, Hashable {
     var id: String { localizedDescription }
@@ -53,50 +54,46 @@ extension AppError: LocalizedError {
             return "Unknown Error"
         }
     }
-    var symbolName: String {
+    var symbol: SFSymbol {
         switch self {
         case .ipBanned:
-            return "network.badge.shield.half.filled"
+            return .networkBadgeShieldHalfFilled
         case .copyrightClaim, .expunged:
-            return "trash.circle.fill"
+            return .trashCircleFill
         case .networkingFailed:
-            return "wifi.exclamationmark"
+            return .wifiExclamationmark
         case .parseFailed:
-            return "rectangle.and.text.magnifyingglass"
-        case .noUpdates, .webImageFailed:
-            return ""
-        case .notFound, .unknown:
-            return "questionmark.circle.fill"
+            return .rectangleAndTextMagnifyingglass
+        case .notFound, .unknown, .noUpdates, .webImageFailed:
+            return .questionmarkCircleFill
         }
     }
-    // swiftlint:disable line_length
     var alertText: String {
-        let tryLater = "Please try again later."
-
+        let tryLater = R.string.localizable.errorViewTitleTryLater()
         switch self {
         case .copyrightClaim(let owner):
-            return "This gallery is unavailable due to a copyright claim by PLACEHOLDER. Sorry about that."
-                .localized.replacingOccurrences(of: "PLACEHOLDER", with: owner)
+            return R.string.localizable.errorViewTitleCopyrightClaim(owner)
         case .ipBanned(let interval):
-            return "Your IP address has been temporarily banned for excessive pageloads which indicates that you are using automated mirroring / harvesting software.".localized + " " + interval.description
+            return R.string.localizable.errorViewTitleIpBanned(interval.description)
         case .expunged(let reason):
-            return reason.localized
+            switch reason {
+            case Defaults.Response.galleryUnavailable:
+                return R.string.localizable.errorViewTitleGalleryUnavailable()
+            default:
+                return reason
+            }
         case .networkingFailed:
-            return ["A network error occurred.", tryLater]
-                .map(\.localized).joined(separator: "\n")
+            return [R.string.localizable.errorViewTitleNetwork(), tryLater].joined(separator: "\n")
         case .parseFailed:
-            return ["A parsing error occurred.", tryLater]
-                .map(\.localized).joined(separator: "\n")
+            return [R.string.localizable.errorViewTitleParsing(), tryLater].joined(separator: "\n")
         case .noUpdates, .webImageFailed:
             return ""
         case .notFound:
-            return "There seems to be nothing here."
+            return R.string.localizable.errorViewTitleNotFound()
         case .unknown:
-            return ["An unknown error occurred.", tryLater]
-                .map(\.localized).joined(separator: "\n")
+            return [R.string.localizable.errorViewTitleUnknown(), tryLater].joined(separator: "\n")
         }
     }
-    // swiftlint:enable line_length
 }
 
 enum BanInterval: Equatable, Hashable {
@@ -108,38 +105,50 @@ enum BanInterval: Equatable, Hashable {
 
 extension BanInterval {
     var description: String {
-        let base = "The ban expires in PLACEHOLDER.".localized
-        var placeholder = ""
-
+        var params: [String]
         switch self {
         case .days(let days, let hours):
-            var params = [String(days), "BAN_INTERVAL_DAYS"]
+            params = [
+                String(days), days > 1
+                ? R.string.localizable.enumBanIntervalDescriptionDays()
+                : R.string.localizable.enumBanIntervalDescriptionDay()
+            ]
             if let hours = hours {
                 params += [
-                    "BAN_INTERVAL_AND", String(hours), "BAN_INTERVAL_HOURS"
+                    R.string.localizable.enumBanIntervalDescriptionAnd(), String(hours), hours > 1
+                    ? R.string.localizable.enumBanIntervalDescriptionHours()
+                    : R.string.localizable.enumBanIntervalDescriptionHour()
                 ]
             }
-            placeholder = params.map{ $0.localized }.joined(separator: "")
         case .hours(let hours, let minutes):
-            var params = [String(hours), "BAN_INTERVAL_HOURS"]
+            params = [
+                String(hours), hours > 1
+                ? R.string.localizable.enumBanIntervalDescriptionHours()
+                : R.string.localizable.enumBanIntervalDescriptionHour()
+            ]
             if let minutes = minutes {
                 params += [
-                    "BAN_INTERVAL_AND", String(minutes), "BAN_INTERVAL_MINUTES"
+                    R.string.localizable.enumBanIntervalDescriptionAnd(), String(minutes), minutes > 1
+                    ? R.string.localizable.enumBanIntervalDescriptionMinutes()
+                    : R.string.localizable.enumBanIntervalDescriptionMinute()
                 ]
             }
-            placeholder = params.map{ $0.localized }.joined(separator: "")
         case .minutes(let minutes, let seconds):
-            var params = [String(minutes), "BAN_INTERVAL_MINUTES"]
+            params = [
+                String(minutes), minutes > 1
+                ? R.string.localizable.enumBanIntervalDescriptionMinutes()
+                : R.string.localizable.enumBanIntervalDescriptionMinute()
+            ]
             if let seconds = seconds {
                 params += [
-                    "BAN_INTERVAL_AND", String(seconds), "BAN_INTERVAL_SECONDS"
+                    R.string.localizable.enumBanIntervalDescriptionAnd(), String(seconds), seconds > 1
+                    ? R.string.localizable.enumBanIntervalDescriptionSeconds()
+                    : R.string.localizable.enumBanIntervalDescriptionSecond()
                 ]
             }
-            placeholder = params.map{ $0.localized }.joined(separator: "")
         case .unrecognized(let content):
-            placeholder = content
+            params = [content]
         }
-
-        return base.replacingOccurrences(of: "PLACEHOLDER", with: placeholder)
+        return params.joined()
     }
 }

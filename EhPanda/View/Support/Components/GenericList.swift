@@ -187,7 +187,7 @@ private struct WaterfallList: View {
                 } label: {
                     HStack {
                         Spacer()
-                        Image(systemName: "chevron.down")
+                        Image(systemSymbol: .chevronDown)
                         Spacer()
                     }
                 }

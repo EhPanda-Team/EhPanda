@@ -8,7 +8,7 @@
 // MARK: EhSetting
 struct EhSetting: Equatable {
     // swiftlint:disable line_length
-    static let empty: Self = .init(ehProfiles: [.empty], capableLoadThroughHathSetting: .anyClient, capableImageResolution: .auto, capableSearchResultCount: .fifty, capableThumbnailConfigSize: .normal, capableThumbnailConfigRows: .forty, loadThroughHathSetting: .anyClient, browsingCountry: .autoDetect, literalBrowsingCountry: "", imageResolution: .auto, imageSizeWidth: 0, imageSizeHeight: 0, galleryName: .default, archiverBehavior: .autoSelectOriginalAutoStart, displayMode: .compact, disabledCategories: Array(repeating: false, count: 10), favoriteNames: Array(repeating: "", count: 10), favoritesSortOrder: .favoritedTime, ratingsColor: "", excludedNamespaces: Array(repeating: false, count: 11), tagFilteringThreshold: 0, tagWatchingThreshold: 0, excludedLanguages: Array(repeating: false, count: 50), excludedUploaders: "", searchResultCount: .fifty, thumbnailLoadTiming: .onPageLoad, thumbnailConfigSize: .normal, thumbnailConfigRows: .ten, thumbnailScaleFactor: 0, viewportVirtualWidth: 0, commentsSortOrder: .recent, commentVotesShowTiming: .always, tagsSortOrder: .alphabetical, galleryShowPageNumbers: true, hathLocalNetworkHost: "")
+    static let empty: Self = .init(ehProfiles: [.empty], capableLoadThroughHathSetting: .anyClient, capableImageResolution: .auto, capableSearchResultCount: .fifty, capableThumbnailConfigSize: .normal, capableThumbnailConfigRowCount: .forty, loadThroughHathSetting: .anyClient, browsingCountry: .autoDetect, literalBrowsingCountry: "", imageResolution: .auto, imageSizeWidth: 0, imageSizeHeight: 0, galleryName: .default, archiverBehavior: .autoSelectOriginalAutoStart, displayMode: .compact, disabledCategories: Array(repeating: false, count: 10), favoriteNames: Array(repeating: "", count: 10), favoritesSortOrder: .favoritedTime, ratingsColor: "", excludedNamespaces: Array(repeating: false, count: 11), tagFilteringThreshold: 0, tagWatchingThreshold: 0, excludedLanguages: Array(repeating: false, count: 50), excludedUploaders: "", searchResultCount: .fifty, thumbnailLoadTiming: .onPageLoad, thumbnailConfigSize: .normal, thumbnailConfigRows: .ten, thumbnailScaleFactor: 0, viewportVirtualWidth: 0, commentsSortOrder: .recent, commentVotesShowTiming: .always, tagsSortOrder: .alphabetical, galleryShowPageNumbers: true, hathLocalNetworkHost: "")
     // swiftlint:enable line_length
 
     static let categoryNames = Category.allFiltersCases.map(\.rawValue).map { value in
@@ -31,44 +31,70 @@ struct EhSetting: Equatable {
         ["EhPanda", "EhPanda (Default)"].contains(name ?? "")
     }
 
-    var capableLoadThroughHathSetting: EhSetting.LoadThroughHathSetting
-    var capableImageResolution: EhSetting.ImageResolution
-    var capableSearchResultCount: EhSetting.SearchResultCount
-    var capableThumbnailConfigSize: EhSetting.ThumbnailSize
-    var capableThumbnailConfigRows: EhSetting.ThumbnailRows
+    var capableLoadThroughHathSetting: LoadThroughHathSetting
+    var capableImageResolution: ImageResolution
+    var capableSearchResultCount: SearchResultCount
+    var capableThumbnailConfigSize: ThumbnailSize
+    var capableThumbnailConfigRowCount: ThumbnailRowCount
 
-    var loadThroughHathSetting: EhSetting.LoadThroughHathSetting
-    var browsingCountry: EhSetting.BrowsingCountry
+    var capableLoadThroughHathSettings: [LoadThroughHathSetting] {
+        LoadThroughHathSetting.allCases.filter { setting in
+            setting <= capableLoadThroughHathSetting
+        }
+    }
+    var capableImageResolutions: [ImageResolution] {
+        ImageResolution.allCases.filter { resolution in
+            resolution <= capableImageResolution
+        }
+    }
+    var capableSearchResultCounts: [SearchResultCount] {
+        SearchResultCount.allCases.filter { count in
+            count <= capableSearchResultCount
+        }
+    }
+    var capableThumbnailConfigSizes: [ThumbnailSize] {
+        ThumbnailSize.allCases.filter { size in
+            size <= capableThumbnailConfigSize
+        }
+    }
+    var capableThumbnailConfigRowCounts: [ThumbnailRowCount] {
+        ThumbnailRowCount.allCases.filter { row in
+            row <= capableThumbnailConfigRowCount
+        }
+    }
+
+    var loadThroughHathSetting: LoadThroughHathSetting
+    var browsingCountry: BrowsingCountry
     let literalBrowsingCountry: String
-    var imageResolution: EhSetting.ImageResolution
+    var imageResolution: ImageResolution
     var imageSizeWidth: Float
     var imageSizeHeight: Float
-    var galleryName: EhSetting.GalleryName
-    var archiverBehavior: EhSetting.ArchiverBehavior
-    var displayMode: EhSetting.DisplayMode
+    var galleryName: GalleryName
+    var archiverBehavior: ArchiverBehavior
+    var displayMode: DisplayMode
     var disabledCategories: [Bool]
     var favoriteNames: [String]
-    var favoritesSortOrder: EhSetting.FavoritesSortOrder
+    var favoritesSortOrder: FavoritesSortOrder
     var ratingsColor: String
     var excludedNamespaces: [Bool]
     var tagFilteringThreshold: Float
     var tagWatchingThreshold: Float
     var excludedLanguages: [Bool]
     var excludedUploaders: String
-    var searchResultCount: EhSetting.SearchResultCount
-    var thumbnailLoadTiming: EhSetting.ThumbnailLoadTiming
-    var thumbnailConfigSize: EhSetting.ThumbnailSize
-    var thumbnailConfigRows: EhSetting.ThumbnailRows
+    var searchResultCount: SearchResultCount
+    var thumbnailLoadTiming: ThumbnailLoadTiming
+    var thumbnailConfigSize: ThumbnailSize
+    var thumbnailConfigRows: ThumbnailRowCount
     var thumbnailScaleFactor: Float
     var viewportVirtualWidth: Float
-    var commentsSortOrder: EhSetting.CommentsSortOrder
-    var commentVotesShowTiming: EhSetting.CommentVotesShowTiming
-    var tagsSortOrder: EhSetting.TagsSortOrder
+    var commentsSortOrder: CommentsSortOrder
+    var commentVotesShowTiming: CommentVotesShowTiming
+    var tagsSortOrder: TagsSortOrder
     var galleryShowPageNumbers: Bool
     var hathLocalNetworkHost: String
     var useOriginalImages: Bool?
     var useMultiplePageViewer: Bool?
-    var multiplePageViewerStyle: EhSetting.MultiplePageViewerStyle?
+    var multiplePageViewerStyle: MultiplePageViewerStyle?
     var multiplePageViewerShowThumbnailPane: Bool?
 }
 
@@ -148,10 +174,7 @@ extension EhSetting {
 }
 extension EhSetting.ImageResolution {
     var id: Int { rawValue }
-    static func < (
-        lhs: EhSetting.ImageResolution,
-        rhs: EhSetting.ImageResolution
-    ) -> Bool {
+    static func < (lhs: Self, rhs: Self) -> Bool {
         lhs.rawValue < rhs.rawValue
     }
 
@@ -308,10 +331,7 @@ extension EhSetting {
 }
 extension EhSetting.SearchResultCount {
     var id: Int { rawValue }
-    static func < (
-        lhs: EhSetting.SearchResultCount,
-        rhs: EhSetting.SearchResultCount
-    ) -> Bool {
+    static func < (lhs: Self, rhs: Self) -> Bool {
         lhs.rawValue < rhs.rawValue
     }
 
@@ -366,10 +386,7 @@ extension EhSetting {
 }
 extension EhSetting.ThumbnailSize {
     var id: Int { rawValue }
-    static func < (
-        lhs: EhSetting.ThumbnailSize,
-        rhs: EhSetting.ThumbnailSize
-    ) -> Bool {
+    static func < (lhs: Self, rhs: Self) -> Bool {
         lhs.rawValue < rhs.rawValue
     }
 
@@ -383,21 +400,18 @@ extension EhSetting.ThumbnailSize {
     }
 }
 
-// MARK: ThumbnailRows
+// MARK: ThumbnailRowCount
 extension EhSetting {
-    enum ThumbnailRows: Int, CaseIterable, Identifiable, Comparable {
+    enum ThumbnailRowCount: Int, CaseIterable, Identifiable, Comparable {
         case four
         case ten
         case twenty
         case forty
     }
 }
-extension EhSetting.ThumbnailRows {
+extension EhSetting.ThumbnailRowCount {
     var id: Int { rawValue }
-    static func < (
-        lhs: EhSetting.ThumbnailRows,
-        rhs: EhSetting.ThumbnailRows
-    ) -> Bool {
+    static func < (lhs: Self, rhs: Self) -> Bool {
         lhs.rawValue < rhs.rawValue
     }
 

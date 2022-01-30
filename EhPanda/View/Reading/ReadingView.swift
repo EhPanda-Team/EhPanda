@@ -426,12 +426,12 @@ enum AutoPlayPolicy: Int, CaseIterable, Identifiable {
 }
 
 extension AutoPlayPolicy {
-    var descriptionKey: LocalizedStringKey {
+    var value: String {
         switch self {
         case .never:
-            return "Never"
+            return R.string.localizable.enumAutoPlayPolicyValueNever()
         default:
-            return "\(rawValue) seconds"
+            return R.string.localizable.commonValueSeconds("\(rawValue)")
         }
     }
 }

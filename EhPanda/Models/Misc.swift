@@ -64,23 +64,19 @@ struct Greeting: Codable, Equatable, Hashable {
 
     var gainContent: String? {
         guard !strings.isEmpty else { return nil }
-
-        var base = "GAINCONTENT_START".localized
+        var base = R.string.localizable.structGreetingMarkStart()
 
         if strings.count == 1 {
             base += strings[0]
         } else {
             let stringsToJoin = strings.count > 2 ? strings.dropLast() : strings
-            base += stringsToJoin.joined(separator: "GAINCONTENT_SEPARATOR".localized)
+            base += stringsToJoin.joined(separator: R.string.localizable.structGreetingMarkSeparator())
             if strings.count > 2 {
-                base += "GAINCONTENT_AND".localized
+                base += R.string.localizable.structGreetingMarkAnd()
                 base += strings[strings.count - 1]
             }
         }
-
-        base += "GAINCONTENT_END".localized
-
-        return base
+        return base + R.string.localizable.structGreetingMarkEnd()
     }
 
     var gainedNothing: Bool {

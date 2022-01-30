@@ -26,7 +26,7 @@ struct AuthorizationUtil {
         var error: NSError?
 
         if context.canEvaluatePolicy(.deviceOwnerAuthentication, error: &error) {
-            context.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: reason.localized) { success, _ in
+            context.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: reason) { success, _ in
                 DispatchQueue.main.async {
                     if success { successAction?() } else { failureAction?() }
                 }
@@ -298,7 +298,7 @@ struct CookiesUtil {
     }
 
     static func get(for url: URL, key: String) -> CookieValue {
-        var value = CookieValue(rawValue: "", localizedString: Defaults.Cookie.null.localized)
+        var value = CookieValue(rawValue: "", localizedString: R.string.localizable.commonNull())
 
         guard let cookies = HTTPCookieStorage.shared.cookies(for: url), !cookies.isEmpty else { return value }
 
@@ -306,12 +306,12 @@ struct CookiesUtil {
             guard let expiresDate = cookie.expiresDate, cookie.name == key && !cookie.value.isEmpty else { return }
 
             guard expiresDate > .now else {
-                value = CookieValue(rawValue: "", localizedString: Defaults.Cookie.expired.localized)
+                value = CookieValue(rawValue: "", localizedString: R.string.localizable.cookieValueExpired())
                 return
             }
 
             guard cookie.value != Defaults.Cookie.mystery else {
-                value = CookieValue(rawValue: cookie.value, localizedString: Defaults.Cookie.mystery.localized)
+                value = CookieValue(rawValue: cookie.value, localizedString: R.string.localizable.cookieValueMystery())
                 return
             }
 

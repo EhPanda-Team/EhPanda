@@ -41,16 +41,16 @@ struct GalleryDetailCell: View {
                     RatingView(rating: gallery.rating).font(.caption).foregroundStyle(.yellow)
                     Spacer()
                     HStack(spacing: 10) {
-                        Text(gallery.language?.rawValue.localized ?? "")
+                        Text(gallery.language?.name ?? "")
                         HStack(spacing: 2) {
-                            Image(systemName: "photo.on.rectangle.angled")
+                            Image(systemSymbol: .photoOnRectangleAngled)
                             Text(String(gallery.pageCount))
                         }
                     }
                     .lineLimit(1).font(.footnote).foregroundStyle(.secondary).minimumScaleFactor(0.75)
                 }
                 HStack(alignment: .bottom) {
-                    CategoryLabel(text: category, color: gallery.color)
+                    CategoryLabel(text: gallery.category.value, color: gallery.color)
                     Spacer()
                     Text(gallery.formattedDateString).lineLimit(1).font(.footnote)
                         .foregroundStyle(.secondary).minimumScaleFactor(0.75)
@@ -64,12 +64,10 @@ struct GalleryDetailCell: View {
 }
 
 private extension GalleryDetailCell {
-    var category: String {
-        gallery.category.rawValue.localized
-    }
     var tags: [String] {
-        guard setting.listTagsNumberMaximum > 0 else { return gallery.tagStrings }
-        return Array(gallery.tagStrings.prefix(setting.listTagsNumberMaximum))
+        let maximum = setting.listTagsNumberMaximum
+        guard maximum > 0 else { return gallery.tagStrings }
+        return Array(gallery.tagStrings.prefix(min(gallery.tagStrings.count, maximum)))
     }
     var tagColor: Color {
         colorScheme == .light ? Color(.systemGray5) : Color(.systemGray4)

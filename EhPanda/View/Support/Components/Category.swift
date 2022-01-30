@@ -79,7 +79,7 @@ private struct CategoryCell: View {
         ZStack {
             Rectangle()
                 .foregroundColor(isFiltered ? category.color.opacity(0.3) : category.color)
-            Text(category.rawValue.localized).bold().foregroundStyle(.white)
+            Text(category.value).bold().foregroundStyle(.white)
                 .padding(.vertical, 5).lineLimit(1)
         }
         .onTapGesture {

@@ -85,9 +85,9 @@ struct GeneralSettingView: View {
                     Spacer()
                     Image(systemSymbol: .exclamationmarkTriangleFill).foregroundStyle(.yellow)
                         .opacity((viewStore.passcodeNotSet && autoLockPolicy != .never) ? 1 : 0)
-                    Picker(selection: $autoLockPolicy, label: Text(autoLockPolicy.descriptionKey)) {
+                    Picker(selection: $autoLockPolicy, label: Text(autoLockPolicy.value)) {
                         ForEach(AutoLockPolicy.allCases) { policy in
-                            Text(policy.descriptionKey).tag(policy)
+                            Text(policy.value).tag(policy)
                         }
                     }
                     .pickerStyle(.menu)

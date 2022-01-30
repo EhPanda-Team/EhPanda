@@ -62,17 +62,17 @@ private extension RatingView {
 
     struct FilledStar: View {
         var body: some View {
-            Image(systemName: "star.fill")
+            Image(systemSymbol: .starFill)
         }
     }
     struct HalfFilledStar: View {
         var body: some View {
-            Image(systemName: "star.lefthalf.fill")
+            Image(systemSymbol: .starLeadinghalfFilled)
         }
     }
     struct NotFilledStar: View {
         var body: some View {
-            Image(systemName: "star")
+            Image(systemSymbol: .star)
         }
     }
 }

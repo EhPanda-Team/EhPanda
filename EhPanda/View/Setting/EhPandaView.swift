@@ -9,13 +9,13 @@ import SwiftUI
 
 struct EhPandaView: View {
     private let contacts: [Info] = {[
-        .init(urlString: "https://ehpanda.app", text: "Website".localized),
+        .init(urlString: "https://ehpanda.app", text: R.string.localizable.ehpandaViewButtonWebsite()),
         .init(urlString: "https://github.com/tatsuz0u/EhPanda", text: "GitHub"),
         .init(urlString: "https://discord.gg/BSBE9FCBTq", text: "Discord"),
         .init(urlString: "https://t.me/ehpanda", text: "Telegram"),
         .init(
             urlString: "altstore://source?url=https://github.com/tatsuz0u/EhPanda/raw/main/AltStore.json",
-            text: "AltStore Source".localized
+            text: R.string.localizable.ehpandaViewButtonAltStoreSource()
         )
     ]}()
 

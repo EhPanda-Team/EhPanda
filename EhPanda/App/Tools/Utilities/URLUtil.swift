@@ -142,16 +142,16 @@ private extension URL {
         var queryItems2 = OrderedDictionary<Defaults.URL.Component.Key, Defaults.URL.Component.Value>()
 
         var categoryValue = 0
-        categoryValue += filter.doujinshi ? Category.doujinshi.value : 0
-        categoryValue += filter.manga ? Category.manga.value : 0
-        categoryValue += filter.artistCG ? Category.artistCG.value : 0
-        categoryValue += filter.gameCG ? Category.gameCG.value : 0
-        categoryValue += filter.western ? Category.western.value : 0
-        categoryValue += filter.nonH ? Category.nonH.value : 0
-        categoryValue += filter.imageSet ? Category.imageSet.value : 0
-        categoryValue += filter.cosplay ? Category.cosplay.value : 0
-        categoryValue += filter.asianPorn ? Category.asianPorn.value : 0
-        categoryValue += filter.misc ? Category.misc.value : 0
+        categoryValue += filter.doujinshi ? Category.doujinshi.filterValue : 0
+        categoryValue += filter.manga ? Category.manga.filterValue : 0
+        categoryValue += filter.artistCG ? Category.artistCG.filterValue : 0
+        categoryValue += filter.gameCG ? Category.gameCG.filterValue : 0
+        categoryValue += filter.western ? Category.western.filterValue : 0
+        categoryValue += filter.nonH ? Category.nonH.filterValue : 0
+        categoryValue += filter.imageSet ? Category.imageSet.filterValue : 0
+        categoryValue += filter.cosplay ? Category.cosplay.filterValue : 0
+        categoryValue += filter.asianPorn ? Category.asianPorn.filterValue : 0
+        categoryValue += filter.misc ? Category.misc.filterValue : 0
 
         if ![0, 1023].contains(categoryValue) {
             queryItems1[.fCats] = String(categoryValue)

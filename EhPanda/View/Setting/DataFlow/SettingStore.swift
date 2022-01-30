@@ -142,7 +142,7 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
         case .binding(\.$setting.appIconType):
             return .merge(
                 .init(value: .syncSetting),
-                environment.uiApplicationClient.setAlternateIconName(state.setting.appIconType.iconName)
+                environment.uiApplicationClient.setAlternateIconName(state.setting.appIconType.filename)
                     .map { _ in SettingAction.syncAppIconType }
             )
 
@@ -202,7 +202,7 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
         case .syncAppIconType:
             if let iconName = environment.uiApplicationClient.alternateIconName() {
                 state.setting.appIconType = AppIconType.allCases.filter({
-                    iconName.contains($0.iconName)
+                    iconName.contains($0.filename)
                 }).first ?? .default
             }
             return .none

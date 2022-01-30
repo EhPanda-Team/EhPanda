@@ -25,28 +25,56 @@ struct GalleryInfosView: View {
         [
             Info(title: "ID", value: galleryDetail.gid),
             Info(title: "Token", value: gallery.token),
-            Info(title: "Title", value: galleryDetail.title),
-            Info(title: "Japanese title", value: galleryDetail.jpnTitle),
-            Info(title: "Gallery URL", value: gallery.galleryURL),
-            Info(title: "Cover URL", value: galleryDetail.coverURL),
-            Info(title: "Archive URL", value: galleryDetail.archiveURL),
-            Info(title: "Torrent URL", value: URLUtil.galleryTorrents(
-                gid: gallery.gid, token: gallery.token).absoluteString),
-            Info(title: "Parent URL", value: galleryDetail.parentURL),
-            Info(title: "Category", value: galleryDetail.category.rawValue.localized),
-            Info(title: "Uploader", value: galleryDetail.uploader),
-            Info(title: "Posted date", value: galleryDetail.formattedDateString),
-            Info(title: "Visible", value: galleryDetail.visibility.value.localized),
-            Info(title: "Language", value: galleryDetail.language.name.localized),
-            Info(title: "Page count", value: String(galleryDetail.pageCount)),
-            Info(title: "File size", value: String(Int(galleryDetail.sizeCount)) + galleryDetail.sizeType),
-            Info(title: "Favorited times", value: String(galleryDetail.favoredCount)),
-            Info(title: "Favorited", value: (galleryDetail.isFavored ? "Yes" : "No").localized),
-            Info(title: "Rating count", value: String(galleryDetail.ratingCount)),
-            Info(title: "Average rating", value: String(Int(galleryDetail.rating))),
-            Info(title: "User rating", value:
-                galleryDetail.userRating == 0 ? nil : String(Int(galleryDetail.userRating))),
-            Info(title: "Torrent count", value: String(galleryDetail.torrentCount))
+            Info(title: R.string.localizable.galleryInfosViewTitleTitle(), value: galleryDetail.title),
+            Info(title: R.string.localizable.galleryInfosViewTitleJapaneseTitle(), value: galleryDetail.jpnTitle),
+            Info(title: R.string.localizable.galleryInfosViewTitleGalleryLink(), value: gallery.galleryURL),
+            Info(title: R.string.localizable.galleryInfosViewTitleCoverLink(), value: galleryDetail.coverURL),
+            Info(title: R.string.localizable.galleryInfosViewTitleArchiveLink(), value: galleryDetail.archiveURL),
+            Info(
+                title: R.string.localizable.galleryInfosViewTitleTorrentLink(),
+                value: URLUtil.galleryTorrents(gid: gallery.gid, token: gallery.token).absoluteString
+            ),
+            Info(title: R.string.localizable.galleryInfosViewTitleParentLink(), value: galleryDetail.parentURL),
+            Info(
+                title: R.string.localizable.galleryInfosViewTitleCategory(),
+                value: galleryDetail.category.value
+            ),
+            Info(title: R.string.localizable.galleryInfosViewTitleUploader(), value: galleryDetail.uploader),
+            Info(
+                title: R.string.localizable.galleryInfosViewTitlePostedDate(),
+                value: galleryDetail.formattedDateString
+            ),
+            Info(
+                title: R.string.localizable.galleryInfosViewTitleVisibility(),
+                value: galleryDetail.visibility.value
+            ),
+            Info(title: R.string.localizable.commonLanguage(), value: galleryDetail.language.name),
+            Info(title: R.string.localizable.galleryInfosViewTitlePageCount(), value: String(galleryDetail.pageCount)),
+            Info(
+                title: R.string.localizable.galleryInfosViewTitleFileSize(),
+                value: String(Int(galleryDetail.sizeCount)) + galleryDetail.sizeType
+            ),
+            Info(
+                title: R.string.localizable.galleryInfosViewTitleFavoredTimes(),
+                value: String(galleryDetail.favoredCount)
+            ),
+            Info(title: R.string.localizable.galleryInfosViewTitleFavored(), value: galleryDetail.isFavoredDescription),
+            Info(
+                title: R.string.localizable.galleryInfosViewTitleRatingCount(),
+                value: String(galleryDetail.ratingCount)
+            ),
+            Info(
+                title: R.string.localizable.galleryInfosViewTitleAverageRating(),
+                value: String(Int(galleryDetail.rating))
+            ),
+            Info(
+                title: R.string.localizable.galleryInfosViewTitleMyRating(),
+                value: galleryDetail.userRating == 0 ? nil : String(Int(galleryDetail.userRating))
+            ),
+            Info(
+                title: R.string.localizable.galleryInfosViewTitleTorrentCount(),
+                value: String(galleryDetail.torrentCount)
+            )
         ]
     }
 
@@ -55,7 +83,7 @@ struct GalleryInfosView: View {
             List(infos) { info in
                 HStack {
                     HStack {
-                        Text(info.title.localized)
+                        Text(info.title)
                         Spacer()
                     }
                     .frame(width: proxy.size.width / 3)
@@ -65,7 +93,7 @@ struct GalleryInfosView: View {
                             viewStore.send(.copyText(text))
                         }
                     } label: {
-                        Text(info.value ?? "null".localized)
+                        Text(info.value ?? R.string.localizable.commonNull())
                             .lineLimit(3).font(.caption)
                             .foregroundStyle(.tint)
                     }

@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SFSafeSymbols
 
 struct LoadingView: View {
     var body: some View {
@@ -52,8 +53,8 @@ struct ErrorView: View {
 
     var body: some View {
         GenericRetryView(
-            symbolName: error.symbolName, message: error.alertText,
-            buttonText: R.string.localizable.errorViewButtonRetry(),
+            symbol: error.symbol, message: error.alertText,
+            buttonTitle: R.string.localizable.errorViewButtonRetry(),
             retryAction: retryAction
         )
     }
@@ -61,26 +62,26 @@ struct ErrorView: View {
 
 struct GenericRetryView: View {
     @Environment(\.colorScheme) private var colorScheme
-    private let symbolName: String
+    private let symbol: SFSymbol
     private let message: String
-    private let buttonText: String
+    private let buttonTitle: String
     private let retryAction: (() -> Void)?
 
-    init(symbolName: String, message: String, buttonText: String, retryAction: (() -> Void)?) {
-        self.symbolName = symbolName
+    init(symbol: SFSymbol, message: String, buttonTitle: String, retryAction: (() -> Void)?) {
+        self.symbol = symbol
         self.message = message
-        self.buttonText = buttonText
+        self.buttonTitle = buttonTitle
         self.retryAction = retryAction
     }
 
     var body: some View {
         VStack {
-            Image(systemName: symbolName).font(.system(size: 50)).padding(.bottom, 15)
-            Text(message.localized).multilineTextAlignment(.center).foregroundStyle(.gray)
+            Image(systemSymbol: symbol).font(.system(size: 50)).padding(.bottom, 15)
+            Text(message).multilineTextAlignment(.center).foregroundStyle(.gray)
                 .font(.headline).padding(.bottom, 5)
             if let action = retryAction {
                 Button(action: action) {
-                    Text(buttonText.localized).foregroundColor(.primary.opacity(0.7)).textCase(.uppercase)
+                    Text(buttonTitle).foregroundColor(.primary.opacity(0.7)).textCase(.uppercase)
                 }
                 .buttonStyle(.bordered).buttonBorderShape(.capsule)
             }

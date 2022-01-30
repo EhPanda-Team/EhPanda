@@ -181,7 +181,7 @@ struct SortOrderMenu: View {
                 Button {
                     action(order)
                 } label: {
-                    Text(order.value.localized)
+                    Text(order.value)
                     if order == sortOrder {
                         Image(systemSymbol: .checkmark)
                     }

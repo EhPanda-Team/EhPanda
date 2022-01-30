@@ -22,21 +22,11 @@ struct User: Codable, Equatable {
     var favoriteNames: [Int: String]?
 
     func getFavoritesName(index: Int) -> String {
-        var name = favoriteNames?[index] ?? "Favorites \(index)"
-        if index == -1 { name = "all_appendedByDev" }
-
-        let replacedName = name
-            .dropLast()
-            .replacingOccurrences(
-                of: "Favorites ",
-                with: "favoriteNameByDev"
-            )
-
-        if replacedName.hasLocalizedString {
-            return replacedName.localized + " \(index)"
-        } else {
-            return name.localized
-        }
+        guard index != -1 else { return R.string.localizable.favoritesNameAll() }
+        let defaultName = R.string.localizable.favoritesNameDefault("\(index)")
+        let name = favoriteNames?[index] ?? defaultName
+        let isDefault = name == "Favorites \(index)"
+        return isDefault ? defaultName : name
     }
 }
 

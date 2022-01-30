@@ -31,7 +31,7 @@ struct FavoritesView: View {
 
     private var navigationTitle: String {
         let favoritesName = user.getFavoritesName(index: viewStore.index)
-        return (viewStore.index == -1 ? R.string.localizable.tabItemTitleFavorites() : favoritesName).localized
+        return (viewStore.index == -1 ? R.string.localizable.tabItemTitleFavorites() : favoritesName)
     }
 
     var body: some View {

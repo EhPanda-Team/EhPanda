@@ -42,10 +42,10 @@ struct AppearanceSettingView: View {
                     Spacer()
                     Picker(
                         selection: $preferredColorScheme,
-                        label: Text(preferredColorScheme.rawValue.localized),
+                        label: Text(preferredColorScheme.value),
                         content: {
                             ForEach(PreferredColorScheme.allCases) { colorScheme in
-                                Text(colorScheme.rawValue.localized).tag(colorScheme)
+                                Text(colorScheme.value).tag(colorScheme)
                             }
                         }
                     )
@@ -115,8 +115,8 @@ private struct AppIconView: View {
             Section {
                 ForEach(AppIconType.allCases) { icon in
                     AppIconRow(
-                        iconName: icon.iconName,
-                        iconDesc: icon.rawValue,
+                        iconName: icon.name,
+                        filename: icon.filename,
                         isSelected: icon == appIconType
                     )
                     .contentShape(Rectangle())
@@ -131,21 +131,21 @@ private struct AppIconView: View {
 // MARK: AppIconRow
 private struct AppIconRow: View {
     private let iconName: String
-    private let iconDesc: String
+    private let filename: String
     private let isSelected: Bool
 
-    init(iconName: String, iconDesc: String, isSelected: Bool) {
+    init(iconName: String, filename: String, isSelected: Bool) {
         self.iconName = iconName
-        self.iconDesc = iconDesc
+        self.filename = filename
         self.isSelected = isSelected
     }
 
     var body: some View {
         HStack {
-            Image(uiImage: .init(named: iconName, in: .main, with: nil) ?? .init())
+            Image(uiImage: .init(named: filename, in: .main, with: nil) ?? .init())
                 .resizable().scaledToFit().frame(width: 60, height: 60).cornerRadius(12)
                 .padding(.vertical, 10).padding(.trailing, 20)
-            Text(iconDesc.localized)
+            Text(iconName)
             Spacer()
             Image(systemSymbol: .checkmarkCircleFill)
                 .opacity(isSelected ? 1 : 0).foregroundStyle(.tint).imageScale(.large)
@@ -154,23 +154,28 @@ private struct AppIconRow: View {
 }
 
 // MARK: Definition
-enum AppIconType: String, Codable, Identifiable, CaseIterable {
-    var id: Int { hashValue }
+enum AppIconType: Int, Codable, Identifiable, CaseIterable {
+    var id: Int { rawValue }
 
-    case normal = "Normal"
-    case `default` = "Default"
-    case weird = "Weird"
+    case `default`
+    case ukiyoe
 }
 
 extension AppIconType {
-    var iconName: String {
+    var name: String {
         switch self {
-        case .normal:
-            return "AppIcon_Normal"
+        case .default:
+            return R.string.localizable.enumAppIconTypeValueDefault()
+        case .ukiyoe:
+            return R.string.localizable.enumAppIconTypeValueUkiyoe()
+        }
+    }
+    var filename: String {
+        switch self {
         case .default:
             return "AppIcon_Default"
-        case .weird:
-            return "AppIcon_Weird"
+        case .ukiyoe:
+            return "AppIcon_Ukiyoe"
         }
     }
 }

@@ -209,12 +209,6 @@ private struct ImageLoadSettingsSection: View {
         _ehSetting = ehSetting
     }
 
-    private var capableSettings: [EhSetting.LoadThroughHathSetting] {
-        EhSetting.LoadThroughHathSetting.allCases.filter { setting in
-            setting <= ehSetting.capableLoadThroughHathSetting
-        }
-    }
-
     var body: some View {
         Section(
             header: Text(R.string.localizable.ehSettingViewSectionTitleImageLoadSettings()),
@@ -222,7 +216,7 @@ private struct ImageLoadSettingsSection: View {
         ) {
             Text(R.string.localizable.ehSettingViewTitleLoadImagesThroughTheHathNetwork())
             Picker(selection: $ehSetting.loadThroughHathSetting) {
-                ForEach(capableSettings) { setting in
+                ForEach(ehSetting.capableLoadThroughHathSettings) { setting in
                     Text(setting.value).tag(setting)
                 }
             } label: {
@@ -251,12 +245,6 @@ private struct ImageSizeSettingsSection: View {
         _ehSetting = ehSetting
     }
 
-    private var capableResolutions: [EhSetting.ImageResolution] {
-        EhSetting.ImageResolution.allCases.filter { resolution in
-            resolution <= ehSetting.capableImageResolution
-        }
-    }
-
     var body: some View {
         Section(
             header: Text(R.string.localizable.ehSettingViewSectionTitleImageSizeSettings()).newlineBold()
@@ -266,7 +254,7 @@ private struct ImageSizeSettingsSection: View {
                 Text(R.string.localizable.ehSettingViewTitleImageResolution())
                 Spacer()
                 Picker(selection: $ehSetting.imageResolution) {
-                    ForEach(capableResolutions) { setting in
+                    ForEach(ehSetting.capableImageResolutions) { setting in
                         Text(setting.value).tag(setting)
                     }
                 } label: {
@@ -696,12 +684,6 @@ private struct SearchResultCountSection: View {
         _ehSetting = ehSetting
     }
 
-    private var capableCounts: [EhSetting.SearchResultCount] {
-        EhSetting.SearchResultCount.allCases.filter { count in
-            count <= ehSetting.capableSearchResultCount
-        }
-    }
-
     var body: some View {
         Section(
             header: Text(R.string.localizable.ehSettingViewSectionTitleSearchResultCount()).newlineBold()
@@ -711,7 +693,7 @@ private struct SearchResultCountSection: View {
                 Text(R.string.localizable.ehSettingViewTitleResultCount())
                 Spacer()
                 Picker(selection: $ehSetting.searchResultCount) {
-                    ForEach(capableCounts) { count in
+                    ForEach(ehSetting.capableSearchResultCounts) { count in
                         Text(String(count.value)).tag(count)
                     }
                 } label: {
@@ -730,17 +712,6 @@ private struct ThumbnailSettingsSection: View {
 
     init(ehSetting: Binding<EhSetting>) {
         _ehSetting = ehSetting
-    }
-
-    private var capableSizes: [EhSetting.ThumbnailSize] {
-        EhSetting.ThumbnailSize.allCases.filter { size in
-            size <= ehSetting.capableThumbnailConfigSize
-        }
-    }
-    private var capableRows: [EhSetting.ThumbnailRows] {
-        EhSetting.ThumbnailRows.allCases.filter { row in
-            row <= ehSetting.capableThumbnailConfigRows
-        }
     }
 
     var body: some View {
@@ -768,23 +739,23 @@ private struct ThumbnailSettingsSection: View {
                 Text(R.string.localizable.ehSettingViewTitleThumbnailSize())
                 Spacer()
                 Picker(selection: $ehSetting.thumbnailConfigSize) {
-                    ForEach(capableSizes) { size in
-                        Text(size.value.localized).tag(size)
+                    ForEach(ehSetting.capableThumbnailConfigSizes) { size in
+                        Text(size.value).tag(size)
                     }
                 } label: {
-                    Text(ehSetting.thumbnailConfigSize.value.localized)
+                    Text(ehSetting.thumbnailConfigSize.value)
                 }
                 .pickerStyle(.segmented).frame(width: 200)
             }
             HStack {
-                Text(R.string.localizable.ehSettingViewTitleThumbnailRows())
+                Text(R.string.localizable.ehSettingViewTitleThumbnailRowCount())
                 Spacer()
                 Picker(selection: $ehSetting.thumbnailConfigRows) {
-                    ForEach(capableRows) { row in
+                    ForEach(ehSetting.capableThumbnailConfigRowCounts) { row in
                         Text(row.value).tag(row)
                     }
                 } label: {
-                    Text(ehSetting.thumbnailConfigRows.value)
+                    Text(ehSetting.capableThumbnailConfigRowCount.value)
                 }
                 .pickerStyle(.segmented).frame(width: 200)
             }
@@ -1044,8 +1015,10 @@ private struct MultiplePageViewerSection: View {
 private extension String {
     var lineCount: Int {
         var count = 0
-        enumerateLines { _, _ in
-            count += 1
+        enumerateLines { line, _ in
+            if !line.isEmpty {
+                count += 1
+            }
         }
         return count
     }

@@ -96,14 +96,6 @@ extension URL {
 
 // MARK: String
 extension String {
-    var hasLocalizedString: Bool {
-        localized != self
-    }
-
-    var localized: String {
-        String(localized: String.LocalizationValue(self))
-    }
-
     var urlEncoded: String {
         addingPercentEncoding(
             withAllowedCharacters: .urlQueryAllowed

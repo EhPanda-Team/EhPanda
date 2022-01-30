@@ -135,6 +135,9 @@ struct GalleryDetail: Codable, Equatable {
         title = title.barcesAndSpacesRemoved
         return title
     }
+    var isFavoredDescription: String {
+        isFavored ? R.string.localizable.commonYes() : R.string.localizable.commonNo()
+    }
 
     let gid: String
     var title: String
@@ -193,7 +196,7 @@ struct GalleryArchive: Codable, Equatable {
         var price: String {
             switch gpPrice {
             case "Free":
-                return R.string.localizable.structHathArchivePriceFree()
+                return R.string.localizable.structHathArchivePriceValueFree()
             default:
                 return gpPrice
             }
@@ -332,7 +335,7 @@ extension Category {
     var color: Color {
         Color(AppUtil.galleryHost.rawValue + "/" + rawValue)
     }
-    var value: Int {
+    var filterValue: Int {
         switch self {
         case .doujinshi:
             return 2
@@ -376,7 +379,7 @@ extension Language {
     var abbreviation: String {
         switch self {
         // swiftlint:disable switch_case_alignment line_length
-        case .invalid: return "N/A" case .other: return "N/A"; case .afrikaans: return "AF"; case .albanian: return "SQ"; case .arabic: return "AR"; case .bengali: return "BN"; case .bosnian: return "BS"; case .bulgarian: return "BG"; case .burmese: return "MY"; case .catalan: return "CA"; case .cebuano: return "CEB"; case .chinese: return "ZH"; case .croatian: return "HR"; case .czech: return "CS"; case .danish: return "DA"; case .dutch: return "NL"; case .english: return "EN"; case .esperanto: return "EO"; case .estonian: return "ET"; case .finnish: return "FI"; case .french: return "FR"; case .georgian: return "KA"; case .german: return "DE"; case .greek: return "EL"; case .hebrew: return "HE"; case .hindi: return "HI"; case .hmong: return "HMN"; case .hungarian: return "HU"; case .indonesian: return "ID"; case .italian: return "IT"; case .japanese: return "JA"; case .kazakh: return "KK"; case .khmer: return "KM"; case .korean: return "KO"; case .kurdish: return "KU"; case .lao: return "LO"; case .latin: return "LA"; case .mongolian: return "MN"; case .ndebele: return "ND"; case .nepali: return "NE"; case .norwegian: return "NO"; case .oromo: return "OM"; case .pashto: return "PS"; case .persian: return "FA"; case .polish: return "PL"; case .portuguese: return "PT"; case .punjabi: return "PA"; case .romanian: return "RO"; case .russian: return "RU"; case .sango: return "SG"; case .serbian: return "SR"; case .shona: return "SN"; case .slovak: return "SK"; case .slovenian: return "SL"; case .somali: return "SO"; case .spanish: return "ES"; case .swahili: return "SW"; case .swedish: return "SV"; case .tagalog: return "TL"; case .thai: return "TH"; case .tigrinya: return "TI"; case .turkish: return "TR"; case .ukrainian: return "UK"; case .urdu: return "UR"; case .vietnamese: return "VI"; case .zulu: return "ZU"
+        case .invalid, .other: return "N/A"; case .afrikaans: return "AF"; case .albanian: return "SQ"; case .arabic: return "AR"; case .bengali: return "BN"; case .bosnian: return "BS"; case .bulgarian: return "BG"; case .burmese: return "MY"; case .catalan: return "CA"; case .cebuano: return "CEB"; case .chinese: return "ZH"; case .croatian: return "HR"; case .czech: return "CS"; case .danish: return "DA"; case .dutch: return "NL"; case .english: return "EN"; case .esperanto: return "EO"; case .estonian: return "ET"; case .finnish: return "FI"; case .french: return "FR"; case .georgian: return "KA"; case .german: return "DE"; case .greek: return "EL"; case .hebrew: return "HE"; case .hindi: return "HI"; case .hmong: return "HMN"; case .hungarian: return "HU"; case .indonesian: return "ID"; case .italian: return "IT"; case .japanese: return "JA"; case .kazakh: return "KK"; case .khmer: return "KM"; case .korean: return "KO"; case .kurdish: return "KU"; case .lao: return "LO"; case .latin: return "LA"; case .mongolian: return "MN"; case .ndebele: return "ND"; case .nepali: return "NE"; case .norwegian: return "NO"; case .oromo: return "OM"; case .pashto: return "PS"; case .persian: return "FA"; case .polish: return "PL"; case .portuguese: return "PT"; case .punjabi: return "PA"; case .romanian: return "RO"; case .russian: return "RU"; case .sango: return "SG"; case .serbian: return "SR"; case .shona: return "SN"; case .slovak: return "SK"; case .slovenian: return "SL"; case .somali: return "SO"; case .spanish: return "ES"; case .swahili: return "SW"; case .swedish: return "SV"; case .tagalog: return "TL"; case .thai: return "TH"; case .tigrinya: return "TI"; case .turkish: return "TR"; case .ukrainian: return "UK"; case .urdu: return "UR"; case .vietnamese: return "VI"; case .zulu: return "ZU"
         // swiftlint:enable switch_case_alignment line_length
         }
     }
@@ -400,6 +403,34 @@ enum Category: String, Codable, CaseIterable, Identifiable {
     case asianPorn = "Asian Porn"
     case misc = "Misc"
     case `private` = "Private"
+}
+extension Category {
+    var value: String {
+        switch self {
+        case .doujinshi:
+            return R.string.localizable.enumCategoryValueDoujinshi()
+        case .manga:
+            return R.string.localizable.enumCategoryValueManga()
+        case .artistCG:
+            return R.string.localizable.enumCategoryValueArtistCG()
+        case .gameCG:
+            return R.string.localizable.enumCategoryValueGameCG()
+        case .western:
+            return R.string.localizable.enumCategoryValueWestern()
+        case .nonH:
+            return R.string.localizable.enumCategoryValueNonH()
+        case .imageSet:
+            return R.string.localizable.enumCategoryValueImageSet()
+        case .cosplay:
+            return R.string.localizable.enumCategoryValueCosplay()
+        case .asianPorn:
+            return R.string.localizable.enumCategoryValueAsianPorn()
+        case .misc:
+            return R.string.localizable.enumCategoryValueMisc()
+        case .private:
+            return R.string.localizable.enumCategoryValuePrivate()
+        }
+    }
 }
 
 enum TagCategory: String, Codable, CaseIterable {
@@ -456,10 +487,16 @@ extension GalleryVisibility {
     var value: String {
         switch self {
         case .yes:
-            return "Yes"
+            return R.string.localizable.commonYes()
         case .no(let reason):
-            return "No".localized
-            + " (\(reason.localized))"
+            let localizedReason: String
+            switch reason {
+            case "Expunged":
+                localizedReason = R.string.localizable.enumGalleryVisibilityValueNoReasonExpunged()
+            default:
+                localizedReason = reason
+            }
+            return "\(R.string.localizable.commonNo()) (\(localizedReason))"
         }
     }
 }
@@ -474,12 +511,12 @@ enum ArchiveResolution: String, Codable, CaseIterable, Equatable {
 }
 
 extension ArchiveResolution {
-    var name: String {
+    var value: String {
         switch self {
         case .x780, .x980, .x1280, .x1600, .x2400:
             return rawValue
         case .original:
-            return R.string.localizable.structHathArchiveResolutionOriginal()
+            return R.string.localizable.structHathArchiveResolutionValueOriginal()
         }
     }
     var parameter: String {

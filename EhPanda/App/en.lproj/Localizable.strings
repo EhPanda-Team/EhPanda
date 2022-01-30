@@ -35,9 +35,13 @@
 
 // MARK: BanInterval
 "enum.ban.interval.description.and" = "";
+"enum.ban.interval.description.day" = "";
 "enum.ban.interval.description.days" = "";
+"enum.ban.interval.description.hour" = "";
 "enum.ban.interval.description.hours" = "";
+"enum.ban.interval.description.minute" = "";
 "enum.ban.interval.description.minutes" = "";
+"enum.ban.interval.description.second" = "";
 "enum.ban.interval.description.seconds" = "";
 
 // MARK: ToplistsType
@@ -45,6 +49,9 @@
 "enum.toplists.type.value.pastMonth" = "";
 "enum.toplists.type.value.pastYear" = "";
 "enum.toplists.type.value.allTime" = "";
+
+// MARK: GalleryVisibility
+"enum.gallery.visibility.value.no.reason.expunged" = "";
 
 // MARK: Response
 "hath.download.response.hathClientNotFound" = "";
@@ -62,7 +69,6 @@
 "local.authorization.reason" = "";
 
 // MARK: Cookie
-"cookie.value.null" = "";
 "cookie.value.expired" = "";
 "cookie.value.mystery" = "";
 
@@ -70,14 +76,17 @@
 "common.no" = "";
 "common.yes" = "";
 "common.done" = "";
+"common.null" = "";
 "common.clear" = "";
 "common.reset" = "";
 "common.login" = "";
 "common.share" = "";
+"common.error" = "";
 "common.logout" = "";
 "common.filter" = "";
 "common.cancel" = "";
 "common.delete" = "";
+"common.success" = "";
 "common.confirm" = "";
 "common.language" = "";
 "common.appearance" = "";
@@ -114,9 +123,9 @@
 "error.view.title.parsing" = "";
 "error.view.title.unknown" = "";
 "error.view.title.notFound" = "";
-"error.view.title.expunged" = "";
-"error.view.title.ipBanned" = "";
-"error.view.title.copyrightClaim" = "";
+"error.view.title.ipBanned" = "%@";
+"error.view.title.copyrightClaim" = "%@";
+"error.view.title.galleryUnavailable" = "";
 "error.view.button.retry" = "";
 
 // MARK: ConfirmationDialog
@@ -140,8 +149,8 @@
 
 // MARK: FavoritesView
 // FavoritesName
-"favorite.name.default" = "";
-"favorite.name.all" = "";
+"favorites.name.default" = "%@";
+"favorites.name.all" = "";
 
 // MARK: SearchView
 "search.view.section.title.recentlySearched" = "";
@@ -250,9 +259,9 @@
 "archives.view.title.archives" = "";
 "archives.view.button.downloadToHathClient" = "";
 // HathArchive
-"struct.hath.archive.price.free" = "";
-"struct.hath.archive.price.notAvailable" = "";
-"struct.hath.archive.resolution.original" = "";
+"struct.hath.archive.price.value.free" = "";
+"struct.hath.archive.price.value.notAvailable" = "";
+"struct.hath.archive.resolution.value.original" = "";
 
 // MARK: TorrentsView
 "torrents.view.title.torrents" = "";
@@ -428,7 +437,7 @@
 "eh.setting.view.description.thumbnailLoadTiming" = "";
 "eh.setting.view.description.thumbnailConfiguration" = "";
 "eh.setting.view.title.thumbnailSize" = "";
-"eh.setting.view.title.thumbnailRows" = "";
+"eh.setting.view.title.thumbnailRowCount" = "";
 // EhSetting.ThumbnailLoadTiming
 "enum.eh.setting.thumbnail.load.timing.value.onMouseOver" = "";
 "enum.eh.setting.thumbnail.load.timing.value.onPageLoad" = "";

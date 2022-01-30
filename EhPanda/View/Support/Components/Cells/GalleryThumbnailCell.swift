@@ -34,7 +34,7 @@ struct GalleryThumbnailCell: View {
                         HStack {
                             Spacer()
                             CategoryLabel(
-                                text: category, color: gallery.color,
+                                text: gallery.category.value, color: gallery.color,
                                 insets: .init(top: 3, leading: 6, bottom: 3, trailing: 6),
                                 cornerRadius: 15, corners: .bottomLeft
                             )
@@ -58,7 +58,7 @@ struct GalleryThumbnailCell: View {
                     HStack(spacing: 10) {
                         if !DeviceUtil.isSEWidth {
                             HStack(spacing: 2) {
-                                Image(systemName: "photo.on.rectangle.angled")
+                                Image(systemSymbol: .photoOnRectangleAngled)
                                 Text(String(gallery.pageCount))
                             }
                         }
@@ -74,9 +74,6 @@ struct GalleryThumbnailCell: View {
 }
 
 private extension GalleryThumbnailCell {
-    var category: String {
-        gallery.category.rawValue.localized
-    }
     var backgroundColor: Color {
         colorScheme == .light ? Color(.systemGray6) : Color(.systemGray5)
     }
@@ -84,8 +81,9 @@ private extension GalleryThumbnailCell {
         colorScheme == .light ? Color(.systemGray5) : Color(.systemGray4)
     }
     var tags: [String] {
-        guard setting.listTagsNumberMaximum > 0 else { return gallery.tagStrings }
-        return Array(gallery.tagStrings.prefix(setting.listTagsNumberMaximum))
+        let maximum = setting.listTagsNumberMaximum
+        guard maximum > 0 else { return gallery.tagStrings }
+        return Array(gallery.tagStrings.prefix(min(gallery.tagStrings.count, maximum)))
     }
 }
 

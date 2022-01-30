@@ -161,7 +161,7 @@ private struct HathArchiveGrid: View {
 
     var body: some View {
         VStack(spacing: 10) {
-            Text(archive.resolution.name.localized).font(.title3.bold())
+            Text(archive.resolution.value).font(.title3.bold())
             VStack {
                 Text(archive.fileSize).fontWeight(.medium).font(.caption)
                 Text(archive.price).foregroundColor(fileSizeColor).font(.caption2)

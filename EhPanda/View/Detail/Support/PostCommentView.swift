@@ -52,7 +52,7 @@ struct PostCommentView: View {
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
-            .navigationTitle(title.localized)
+            .navigationTitle(title)
         }
         .synchronize($isFocused, $isTextEditorFocused)
         .onAppear(perform: onAppearAction)

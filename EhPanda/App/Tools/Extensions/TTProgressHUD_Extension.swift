@@ -9,19 +9,19 @@ import TTProgressHUD
 
 extension TTProgressHUDConfig {
     static let error: Self = error(caption: nil)
-    static let loading: Self = loading(title: "Loading...".localized)
-    static let communicating: Self = loading(title: "Communicating...".localized)
-    static let savedToPhotoLibrary: Self = success(caption: "Saved to photo library".localized)
-    static let copiedToClipboardSucceeded: Self = success(caption: "Copied to clipboard".localized)
+    static let loading: Self = loading(title: R.string.localizable.loadingViewTitleLoading())
+    static let communicating: Self = loading(title: R.string.localizable.hudTitleCommunicating())
+    static let savedToPhotoLibrary: Self = success(caption: R.string.localizable.hudCaptionSavedToPhotoLibrary())
+    static let copiedToClipboardSucceeded: Self = success(caption: R.string.localizable.hudCaptionCopiedToClipboard())
 
     static func loading(title: String? = nil) -> Self {
         .init(type: .loading, title: title)
     }
     static func error(caption: String? = nil) -> Self {
-        autoHide(type: .error, title: "Error".localized, caption: caption)
+        autoHide(type: .error, title: R.string.localizable.commonError(), caption: caption)
     }
     static func success(caption: String? = nil) -> Self {
-        autoHide(type: .success, title: "Success".localized, caption: caption)
+        autoHide(type: .success, title: R.string.localizable.commonSuccess(), caption: caption)
     }
     static func autoHide(type: TTProgressHUDType, title: String? = nil, caption: String? = nil) -> Self {
         .init(type: type, title: title, caption: caption, shouldAutoHide: true, autoHideInterval: 1)

@@ -104,7 +104,7 @@ private struct LoginTextField: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(description.localized).font(.caption).foregroundStyle(.secondary)
+            Text(description).font(.caption).foregroundStyle(.secondary)
             Group {
                 if isPassword {
                     SecureField("", text: $text)

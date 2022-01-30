@@ -316,7 +316,7 @@ private struct HeaderSection: View {
                 Spacer()
                 HStack {
                     CategoryLabel(
-                        text: gallery.category.rawValue.localized, color: gallery.color,
+                        text: gallery.category.value, color: gallery.color,
                         font: .headline, insets: .init(top: 2, leading: 4, bottom: 2, trailing: 4),
                         cornerRadius: 3
                     )
@@ -450,7 +450,7 @@ private extension DescriptionSection {
 
         var body: some View {
             VStack(spacing: 3) {
-                Text(title.localized).textCase(.uppercase).font(.caption)
+                Text(title).textCase(.uppercase).font(.caption)
                 Text(value).fontWeight(.medium).font(.title3).lineLimit(1)
                 Text(description).font(.caption)
             }
@@ -592,7 +592,7 @@ private extension TagsSection {
 
         var body: some View {
             HStack(alignment: .top) {
-                Text(tag.namespace.firstLetterCapitalized.localized).font(.subheadline.bold())
+                Text(tag.category?.value ?? "").font(.subheadline.bold())
                     .foregroundColor(reversePrimary).padding(.vertical, 5).padding(.horizontal, 14)
                     .background(Rectangle().foregroundColor(Color(.systemGray))).cornerRadius(5)
                 TagCloudView(

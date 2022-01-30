@@ -71,6 +71,7 @@ struct Defaults {
         static let hathClientNotFound = "You must have a H@H client assigned to your account to use this feature."
         static let hathClientNotOnline = "Your H@H client appears to be offline. Turn it on, then try again."
         static let invalidResolution = "The requested gallery cannot be downloaded with the selected resolution."
+        static let galleryUnavailable = "This gallery has been removed or is unavailable."
     }
     struct ParsingMark {
         static let hexStart = "hexStart<"
