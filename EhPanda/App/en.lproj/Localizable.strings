@@ -238,6 +238,7 @@
 "laboratory.setting.view.title.bypassesSNIFiltering" = "";
 
 // MARK: EhPandaView
+"ehpanda.view.title.ehPanda" = "";
 "ehpanda.view.button.website" = "";
 "ehpanda.view.button.altStoreSource" = "";
 "ehpanda.view.description.version" = "";

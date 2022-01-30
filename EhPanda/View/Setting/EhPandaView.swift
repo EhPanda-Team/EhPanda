@@ -81,7 +81,7 @@ struct EhPandaView: View {
                 }
             }
         }
-        .navigationTitle(R.string.localizable.enumSettingStateRouteValueEhPanda())
+        .navigationTitle(R.string.localizable.ehpandaViewTitleEhPanda())
     }
 }
 
