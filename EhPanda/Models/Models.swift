@@ -95,12 +95,12 @@ struct Gallery: Identifiable, Codable, Equatable, Hashable {
 
 struct GalleryDetail: Codable, Equatable {
     static let empty: Self = .init(
-        gid: "", title: "", isFavored: false,
+        gid: "", title: "", isFavorited: false,
         visibility: .yes, rating: 0, userRating: 0,
         ratingCount: 0, category: .private,
         language: .japanese, uploader: "",
         postedDate: .now, coverURL: "",
-        favoredCount: 0, pageCount: 0,
+        favoritedCount: 0, pageCount: 0,
         sizeCount: 0, sizeType: "",
         torrentCount: 0
     )
@@ -108,7 +108,7 @@ struct GalleryDetail: Codable, Equatable {
         gid: "",
         title: "Preview",
         jpnTitle: "プレビュー",
-        isFavored: true,
+        isFavorited: true,
         visibility: .yes,
         rating: 3.5,
         userRating: 4.0,
@@ -120,7 +120,7 @@ struct GalleryDetail: Codable, Equatable {
         coverURL: "https://github.com/"
         + "tatsuz0u/Imageset/blob/"
         + "main/JPGs/2.jpg?raw=true",
-        favoredCount: 514,
+        favoritedCount: 514,
         pageCount: 114,
         sizeCount: 514,
         sizeType: "MB",
@@ -135,14 +135,11 @@ struct GalleryDetail: Codable, Equatable {
         title = title.barcesAndSpacesRemoved
         return title
     }
-    var isFavoredDescription: String {
-        isFavored ? R.string.localizable.commonYes() : R.string.localizable.commonNo()
-    }
 
     let gid: String
     var title: String
     var jpnTitle: String?
-    var isFavored: Bool
+    var isFavorited: Bool
     var visibility: GalleryVisibility
     var rating: Float
     var userRating: Float
@@ -154,7 +151,7 @@ struct GalleryDetail: Codable, Equatable {
     let coverURL: String
     var archiveURL: String?
     var parentURL: String?
-    var favoredCount: Int
+    var favoritedCount: Int
     var pageCount: Int
     var sizeCount: Float
     var sizeType: String
@@ -463,16 +460,16 @@ extension GalleryVisibility {
     var value: String {
         switch self {
         case .yes:
-            return R.string.localizable.commonYes()
+            return R.string.localizable.galleryVisibilityValueYes()
         case .no(let reason):
             let localizedReason: String
             switch reason {
             case "Expunged":
-                localizedReason = R.string.localizable.enumGalleryVisibilityValueNoReasonExpunged()
+                localizedReason = R.string.localizable.galleryVisibilityValueNoReasonExpunged()
             default:
                 localizedReason = reason
             }
-            return "\(R.string.localizable.commonNo()) (\(localizedReason))"
+            return R.string.localizable.galleryVisibilityValueNo(localizedReason)
         }
     }
 }

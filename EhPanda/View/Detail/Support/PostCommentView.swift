@@ -41,7 +41,7 @@ struct PostCommentView: View {
             }
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button(R.string.localizable.commonCancel(), action: cancelAction)
+                    Button(R.string.localizable.postCommentViewButtonCancel(), action: cancelAction)
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button(

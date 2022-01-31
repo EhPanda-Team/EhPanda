@@ -49,7 +49,7 @@ struct EhSettingView: View {
             unwrapping: viewStore.binding(\.$route),
             case: /EhSettingState.Route.deleteProfile
         ) {
-            Button(R.string.localizable.commonDelete(), role: .destructive) {
+            Button(R.string.localizable.confirmationDialogButtonDelete(), role: .destructive) {
                 if let value = viewStore.ehProfile?.value {
                     viewStore.send(.performAction(.delete, nil, value))
                 }
@@ -123,7 +123,7 @@ struct EhSettingView: View {
             ToolbarItem(placement: .keyboard) {
                 HStack {
                     Spacer()
-                    Button(R.string.localizable.commonDone()) {
+                    Button(R.string.localizable.ehSettingViewToolbarItemButtonDone()) {
                         viewStore.send(.setKeyboardHidden)
                     }
                 }
@@ -385,14 +385,14 @@ private struct FavoritesSection: View {
 
     private var tuples: [(Category, Binding<String>)] {
         Category.allFavoritesCases.enumerated().map { index, category in
-            (category, $ehSetting.favoriteNames[index])
+            (category, $ehSetting.favoriteCategories[index])
         }
     }
 
     var body: some View {
         Section(
             header: Text(R.string.localizable.ehSettingViewSectionTitleFavorites()).newlineBold()
-            + Text(R.string.localizable.ehSettingViewDescriptionFavoritesName())
+            + Text(R.string.localizable.ehSettingViewDescriptionFavoriteCategories())
         ) {
             ForEach(tuples, id: \.0) { category, nameBinding in
                 HStack(spacing: 30) {
@@ -526,7 +526,7 @@ private struct TagFilteringThresholdSection: View {
 
     var body: some View {
         Section(
-            header: Text(R.string.localizable.ehSettingViewTitleTagFilteringThreshold()).newlineBold()
+            header: Text(R.string.localizable.ehSettingViewSectionTitleTagFilteringThreshold()).newlineBold()
             + Text(R.string.localizable.ehSettingViewDescriptionTagFilteringThreshold())
         ) {
             ValuePicker(
@@ -548,7 +548,7 @@ private struct TagWatchingThresholdSection: View {
 
     var body: some View {
         Section(
-            header: Text(R.string.localizable.ehSettingViewTitleTagWatchingThreshold()).newlineBold()
+            header: Text(R.string.localizable.ehSettingViewSectionTitleTagWatchingThreshold()).newlineBold()
             + Text(R.string.localizable.ehSettingViewDescriptionTagWatchingThreshold())
         ) {
             ValuePicker(
@@ -666,7 +666,7 @@ private struct ExcludedUploadersSection: View {
             header: Text(R.string.localizable.ehSettingViewSectionTitleExcludedUploaders()).newlineBold()
             + Text(R.string.localizable.ehSettingViewDescriptionExcludedUploaders()),
             footer: Text(R.string.localizable.ehSettingViewDescriptionExcludedUploadersCount(
-                "\(ehSetting.excludedUploaders.lineCount)"
+                "\(ehSetting.excludedUploaders.lineCount)", "\(1000)"
             ))
         ) {
             TextEditor(text: $ehSetting.excludedUploaders).textInputAutocapitalization(.none)

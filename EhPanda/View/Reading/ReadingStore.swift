@@ -51,7 +51,7 @@ struct ReadingState: Equatable {
     @BindableState var showsPanel = false
     @BindableState var sliderValue: Float = 1
     @BindableState var showsSliderPreview = false
-    @BindableState var autoPlayPolicy: AutoPlayPolicy = .never
+    @BindableState var autoPlayPolicy: AutoPlayPolicy = .off
 
     var scaleAnchor: UnitPoint = .center
     var scale: Double = 1

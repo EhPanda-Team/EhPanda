@@ -36,11 +36,11 @@ struct LoginView: View {
                     Group {
                         LoginTextField(
                             focusedField: $focusedField, text: viewStore.binding(\.$username),
-                            description: "Username", isPassword: false
+                            description: R.string.localizable.loginViewTitleUsername(), isPassword: false
                         )
                         LoginTextField(
                             focusedField: $focusedField, text: viewStore.binding(\.$password),
-                            description: "Password", isPassword: true
+                            description: R.string.localizable.loginViewTitlePassword(), isPassword: true
                         )
                     }
                     .padding(.horizontal, proxy.size.width * 0.2)

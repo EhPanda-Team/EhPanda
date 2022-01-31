@@ -86,7 +86,7 @@ struct QuickSearchView: View {
                 unwrapping: viewStore.binding(\.$route),
                 case: /QuickSearchState.Route.deleteWord
             ) { route in
-                Button(R.string.localizable.commonDelete(), role: .destructive) {
+                Button(R.string.localizable.confirmationDialogButtonDelete(), role: .destructive) {
                     viewStore.send(.deleteWord(route))
                 }
             }
@@ -182,7 +182,7 @@ extension QuickSearchView {
         private func toolbar() -> some ToolbarContent {
             CustomToolbarItem {
                 Button(action: confirmAction) {
-                    Text(R.string.localizable.commonConfirm()).bold()
+                    Text(R.string.localizable.quickSearchViewToolbarItemButtonConfirm()).bold()
                 }
             }
         }

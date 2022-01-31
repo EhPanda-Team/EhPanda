@@ -10,8 +10,8 @@ import ComposableArchitecture
 
 struct DetailState: Equatable, Identifiable {
     enum Route: Equatable {
-        case archive
         case reading
+        case archives
         case torrents
         case previews
         case comments

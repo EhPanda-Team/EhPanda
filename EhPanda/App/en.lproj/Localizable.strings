@@ -7,490 +7,533 @@
 */
 
 // MARK: Category
-"enum.category.value.doujinshi" = "";
-"enum.category.value.manga" = "";
-"enum.category.value.artistCG" = "";
-"enum.category.value.gameCG" = "";
-"enum.category.value.western" = "";
-"enum.category.value.nonH" = "";
-"enum.category.value.imageSet" = "";
-"enum.category.value.cosplay" = "";
-"enum.category.value.asianPorn" = "";
-"enum.category.value.misc" = "";
-"enum.category.value.private" = "";
+"enum.category.value.doujinshi" = "Doujinshi";
+"enum.category.value.manga" = "Manga";
+"enum.category.value.artistCG" = "Artist CG";
+"enum.category.value.gameCG" = "Game CG";
+"enum.category.value.western" = "Western";
+"enum.category.value.nonH" = "Non-H";
+"enum.category.value.imageSet" = "Image Set";
+"enum.category.value.cosplay" = "Cosplay";
+"enum.category.value.asianPorn" = "Asian Porn";
+"enum.category.value.misc" = "Misc";
+"enum.category.value.private" = "Private";
 
 // MARK: TagCategory
-"enum.tag.category.value.reclass" = "";
-"enum.tag.category.value.language" = "";
-"enum.tag.category.value.parody" = "";
-"enum.tag.category.value.character" = "";
-"enum.tag.category.value.group" = "";
-"enum.tag.category.value.artist" = "";
-"enum.tag.category.value.male" = "";
-"enum.tag.category.value.female" = "";
-"enum.tag.category.value.mixed" = "";
-"enum.tag.category.value.cosplayer" = "";
-"enum.tag.category.value.other" = "";
-"enum.tag.category.value.temp" = "";
+"enum.tag.category.value.reclass" = "Reclass";
+"enum.tag.category.value.language" = "Language";
+"enum.tag.category.value.parody" = "Parody";
+"enum.tag.category.value.character" = "Character";
+"enum.tag.category.value.group" = "Group";
+"enum.tag.category.value.artist" = "Artist";
+"enum.tag.category.value.male" = "Male";
+"enum.tag.category.value.female" = "Female";
+"enum.tag.category.value.mixed" = "Mixed";
+"enum.tag.category.value.cosplayer" = "Cosplayer";
+"enum.tag.category.value.other" = "Other";
+"enum.tag.category.value.temp" = "Temp";
 
 // MARK: BanInterval
-"enum.ban.interval.description.and" = "";
-"enum.ban.interval.description.day" = "";
-"enum.ban.interval.description.days" = "";
-"enum.ban.interval.description.hour" = "";
-"enum.ban.interval.description.hours" = "";
-"enum.ban.interval.description.minute" = "";
-"enum.ban.interval.description.minutes" = "";
-"enum.ban.interval.description.second" = "";
-"enum.ban.interval.description.seconds" = "";
+"enum.ban.interval.description.and" = "and";
 
 // MARK: ToplistsType
-"enum.toplists.type.value.yesterday" = "";
-"enum.toplists.type.value.pastMonth" = "";
-"enum.toplists.type.value.pastYear" = "";
-"enum.toplists.type.value.allTime" = "";
-
-// MARK: GalleryVisibility
-"enum.gallery.visibility.value.no.reason.expunged" = "";
+"enum.toplists.type.value.yesterday" = "Yesterday";
+"enum.toplists.type.value.pastMonth" = "Past month";
+"enum.toplists.type.value.pastYear" = "Past year";
+"enum.toplists.type.value.allTime" = "All time";
 
 // MARK: Response
-"hath.download.response.hathClientNotFound" = "";
-"hath.download.response.hathClientNotOnline" = "";
-"hath.download.response.invalidResolution" = "";
+"hath.download.response.hathClientNotFound" = "You must have a H@H client assigned to your account to use this feature.";
+"hath.download.response.hathClientNotOnline" = "Your H@H client appears to be offline. Turn it on, then try again.";
+"hath.download.response.invalidResolution" = "The requested gallery cannot be downloaded with the selected resolution.";
 
 // MARK: HUD
-"hud.title.success" = "";
-"hud.title.error" = "";
-"hud.title.communicating" = "";
-"hud.caption.copiedToClipboard" = "";
-"hud.caption.savedToPhotoLibrary" = "";
+"hud.title.error" = "Error";
+"hud.title.success" = "Success";
+"hud.title.loading" = "Loading...";
+"hud.title.communicating" = "Communicating...";
+"hud.caption.copiedToClipboard" = "Copied to clipboard";
+"hud.caption.savedToPhotoLibrary" = "Saved to photo library";
 
 // MARK: AutoLock
-"local.authorization.reason" = "";
+"local.authorization.reason" = "The App has been locked due to the Auto-Lock expiration.";
 
-// MARK: Cookie
-"cookie.value.expired" = "";
-"cookie.value.mystery" = "";
-
-// MARK: Common
-"common.no" = "";
-"common.yes" = "";
-"common.done" = "";
-"common.null" = "";
-"common.clear" = "";
-"common.reset" = "";
-"common.login" = "";
-"common.share" = "";
-"common.error" = "";
-"common.logout" = "";
-"common.filter" = "";
-"common.cancel" = "";
-"common.delete" = "";
-"common.success" = "";
-"common.confirm" = "";
-"common.language" = "";
-"common.appearance" = "";
-"common.value.stars" = "%@";
-"common.value.pages" = "%@";
-"common.value.times" = "%@";
-"common.value.minute" = "%@";
-"common.value.minutes" = "%@";
-"common.value.seconds" = "%@";
-"common.value.records" = "%@";
+// MARK: Common value
+"common.value.stars" = "%@ stars";
+"common.value.pages" = "%@ pages";
+"common.value.times" = "%@ times";
+"common.value.day" = "%@ day";
+"common.value.days" = "%@ days";
+"common.value.hour" = "%@ hour";
+"common.value.hours" = "%@ hours";
+"common.value.minute" = "%@ minute";
+"common.value.minutes" = "%@ minutes";
+"common.value.second" = "%@ second";
+"common.value.seconds" = "%@ seconds";
+"common.value.records" = "%@ records";
 
 // MARK: TabItem
-"tab.item.title.home" = "";
-"tab.item.title.favorites" = "";
-"tab.item.title.search" = "";
-"tab.item.title.setting" = "";
+"tab.item.title.home" = "Home";
+"tab.item.title.favorites" = "Favorites";
+"tab.item.title.search" = "Search";
+"tab.item.title.setting" = "Setting";
 
-// MARK: ListType
-"list.type.frontpage" = "";
-"list.type.toplists" = "";
-"list.type.popular" = "";
-"list.type.watched" = "";
-"list.type.history" = "";
+// MARK: ToolbarItem
+"toolbar.item.button.filters" = "Filters";
+"toolbar.item.button.jumpPage" = "Jump page";
+"toolbar.item.button.quickSearch" = "Quick search";
 
 // MARK: JumpPage
-"jump.page.view.title.jumpPage" = "";
-"jump.page.view.button.confirm" = "";
+"jump.page.view.title.jumpPage" = "Jump page";
+"jump.page.view.button.confirm" = "Confirm";
 
 // MARK: AlertView
-"loading.view.title.loading" = "";
-"login.view.title.login" = "";
-"error.view.title.tryLater" = "";
-"error.view.title.network" = "";
-"error.view.title.parsing" = "";
-"error.view.title.unknown" = "";
-"error.view.title.notFound" = "";
-"error.view.title.ipBanned" = "%@";
-"error.view.title.copyrightClaim" = "%@";
-"error.view.title.galleryUnavailable" = "";
-"error.view.button.retry" = "";
+"loading.view.title.loading" = "Loading...";
+"error.view.button.retry" = "Retry";
+"error.view.title.tryLater" = "Please try again later.";
+"error.view.title.network" = "A network error occurred.";
+"error.view.title.parsing" = "A parsing error occurred.";
+"error.view.title.unknown" = "An unknown error occurred.";
+"error.view.title.notFound" = "There seems to be nothing here.";
+"error.view.title.ipBanned" = "Your IP address has been temporarily banned for excessive pageloads which indicates that you are using automated mirroring / harvesting software. The ban expires in %@.";
+"error.view.title.copyrightClaim" = "This gallery is unavailable due to a copyright claim by %@. Sorry about that.";
+"error.view.title.galleryUnavailable" = "This gallery has been removed or is unavailable.";
 
 // MARK: ConfirmationDialog
-"confirmation.dialog.title.areYouSureTo" = "%@";
-"confirmation.dialog.title.deleteThisItem" = "";
+"confirmation.dialog.title.areYouSureTo" = "Are you sure to %@?";
+"confirmation.dialog.title.deleteThisItem" = "delete this item";
+"confirmation.dialog.button.logout" = "Logout";
+"confirmation.dialog.button.delete" = "Delete";
+"confirmation.dialog.button.clear" = "Clear";
+"confirmation.dialog.button.reset" = "Reset";
 
 // MARK: SubSection
 "sub.section.button.showAll" = "Show all";
 
 // MARK: NewDawnView
-"new.dawn.view.title.first" = "";
-"new.dawn.view.title.second" = "";
+"new.dawn.view.title.first" = "It is the dawn of a new day!";
+"new.dawn.view.title.second" = "Reflecting on your journey so far, you find that you are a little wiser.";
 // Greeting
-"struct.greeting.mark.start" = "";
-"struct.greeting.mark.separator" = "";
-"struct.greeting.mark.and" = "";
-"struct.greeting.mark.end" = "";
+"struct.greeting.mark.start" = "You gain ";
+"struct.greeting.mark.separator" = ", ";
+"struct.greeting.mark.and" = " and ";
+"struct.greeting.mark.end" = "!";
 
 // MARK: HomeView
-"home.view.section.title.other" = "";
+"home.view.title.home" = "Home";
+"home.view.section.title.frontpage" = "Frontpage";
+"home.view.section.title.toplists" = "Toplists";
+"home.view.section.title.Other" = "Other";
+// HomeMiscGridType
+"home.misc.grid.type.title.popular" = "Popular";
+"home.misc.grid.type.title.watched" = "Watched";
+"home.misc.grid.type.title.history" = "History";
+
+// MARK: FrontpageView
+"frontpage.view.title.frontpage" = "Frontpage";
+
+// MARK: ToplistsView
+"toplists.view.title.toplists" = "Toplists";
+
+// MARK: PopularView
+"popular.view.title.popular" = "Popular";
+
+// MARK: WatchedView
+"watched.view.title.watched" = "Watched";
+
+// MARK: HistoryView
+"history.view.title.history" = "History";
 
 // MARK: FavoritesView
-// FavoritesName
-"favorites.name.default" = "%@";
-"favorites.name.all" = "";
+"favorites.view.title.favorites" = "Favorites";
+// FavoriteCategory
+"favorite.category.default" = "Favorites %@";
+"favorite.category.all" = "All";
 
 // MARK: SearchView
-"search.view.section.title.recentlySearched" = "";
-"search.view.section.title.recentlySeen" = "";
+"search.view.title.search" = "Search";
+"search.view.section.title.recentlySearched" = "Recently searched";
+"search.view.section.title.recentlySeen" = "Recently seen";
+"search.view.section.title.quickSearch" = "Quick search";
+// Searchable prompt
+"searchable.prompt.filter" = "Filter";
 
 // MARK: QuickSearchView
-"quick.search.view.title.quickSearch" = "";
-"quick.search.view.title.editWord" = "";
-"quick.search.view.title.newWord" = "";
-"quick.search.view.title.content" = "";
-"quick.search.view.title.name" = "";
-"quick.search.view.placeholder.optional" = "";
+"quick.search.view.title.quickSearch" = "Quick search";
+"quick.search.view.title.editWord" = "Edit word";
+"quick.search.view.title.newWord" = "New word";
+"quick.search.view.title.content" = "Content";
+"quick.search.view.title.name" = "Name";
+"quick.search.view.placeholder.optional" = "Optional";
+"quick.search.view.toolbar.item.button.confirm" = "Confirm";
 
 // MARK: SettingView
+"setting.view.title.setting" = "Setting";
 // SettingStateRoute
-"enum.setting.state.route.value.account" = "";
-"enum.setting.state.route.value.general" = "";
-"enum.setting.state.route.value.reading" = "";
-"enum.setting.state.route.value.laboratory" = "";
-"enum.setting.state.route.value.ehPanda" = "";
+"enum.setting.state.route.value.account" = "Account";
+"enum.setting.state.route.value.general" = "General";
+"enum.setting.state.route.value.appearance" = "Appearance";
+"enum.setting.state.route.value.reading" = "Reading";
+"enum.setting.state.route.value.laboratory" = "Laboratory";
+"enum.setting.state.route.value.ehPanda" = "About EhPanda";
 
 // MARK: AccountSettingView
-"account.setting.view.title.showNewDawnGreeting" = "";
-"account.setting.view.button.accountConfiguration" = "";
-"account.setting.view.button.tagsManagement" = "";
-"account.setting.view.button.copyCookies" = "";
+"account.setting.view.title.account" = "Account";
+"account.setting.view.title.showsNewDawnGreeting" = "Shows new dawn greeting";
+"account.setting.view.button.login" = "Login";
+"account.setting.view.button.logout" = "Logout";
+"account.setting.view.button.accountConfiguration" = "Account configuration";
+"account.setting.view.button.tagsManagement" = "Manage tags subscription";
+"account.setting.view.button.copyCookies" = "Copy cookies";
+// CookieValue
+"struct.cookie.value.localized.string.expired" = "expired";
+"struct.cookie.value.localized.string.mystery" = "mystery";
+"struct.cookie.value.localized.string.none" = "None";
 
 // MARK: LoginView
-"login.view.title.username" = "";
-"login.view.title.password" = "";
+"login.view.title.login" = "Login";
+"login.view.title.username" = "Username";
+"login.view.title.password" = "Password";
 
 // MARK: GeneralSettingView
-"general.setting.view.title.autoLock" = "";
-"general.setting.view.title.translatesTags" = "";
-"general.setting.view.title.redirectsLinksToSelectedHost" = "";
-"general.setting.view.title.detectsLinksFromClipboard" = "";
-"general.setting.view.title.appSwitcherBlurRadius" = "";
-"general.setting.view.button.clearImageCaches" = "";
-"general.setting.view.section.title.navigation" = "";
-"general.setting.view.section.title.security" = "";
-"general.setting.view.section.title.caches" = "";
+"general.setting.view.title.general" = "General";
+"general.setting.view.title.language" = "Language";
+"general.setting.view.title.autoLock" = "Auto-Lock";
+"general.setting.view.title.translatesTags" = "Translates tags";
+"general.setting.view.title.redirectsLinksToTheSelectedHost" = "Redirects links to the selected host";
+"general.setting.view.title.detectsLinksFromClipboard" = "Detects links from the clipboard";
+"general.setting.view.title.appSwitcherBlurRadius" = "App switcher blur radius";
+"general.setting.view.button.logs" = "Logs";
+"general.setting.view.button.clearImageCaches" = "Clear image caches";
+"general.setting.view.value.defaultLanguageDescription" = "None";
+"general.setting.view.section.title.navigation" = "Navigation";
+"general.setting.view.section.title.security" = "Security";
+"general.setting.view.section.title.caches" = "Caches";
 // AutoLockPolicy
-"enum.auto.lock.policy.value.never" = "";
-"enum.auto.lock.policy.value.instantly" = "";
+"enum.auto.lock.policy.value.never" = "Never";
+"enum.auto.lock.policy.value.instantly" = "Instantly";
 
 // MARK: LogsView
-"logs.view.title.logs" = "";
-"logs.view.title.latest" = "";
+"logs.view.title.logs" = "Logs";
+"logs.view.title.latest" = "Latest";
 
 // MARK: AppearanceSettingView
-"appearance.setting.view.title.theme" = "";
-"appearance.setting.view.title.tintColor" = "";
-"appearance.setting.view.title.displayMode" = "";
-"appearance.setting.view.title.showsTagsInList" = "";
-"appearance.setting.view.title.maximumNumberOfTags" = "";
-"appearance.setting.view.menu.title.infite" = "";
-"appearance.setting.view.section.title.list" = "";
+"appearance.setting.view.title.appearance" = "Appearance";
+"appearance.setting.view.title.theme" = "Theme";
+"appearance.setting.view.title.tintColor" = "Tint color";
+"appearance.setting.view.title.displayMode" = "Display mode";
+"appearance.setting.view.title.showsTagsInList" = "Shows tags in list";
+"appearance.setting.view.title.maximumNumberOfTags" = "Maximum number of tags";
+"appearance.setting.view.button.appIcon" = "App icon";
+"appearance.setting.view.menu.title.infite" = "Infite";
+"appearance.setting.view.section.title.list" = "List";
 // PerferredColorScheme
-"enum.perferred.color.scheme.value.automatic" = "";
-"enum.perferred.color.scheme.value.light" = "";
-"enum.perferred.color.scheme.value.dark" = "";
+"enum.perferred.color.scheme.value.automatic" = "Automatic";
+"enum.perferred.color.scheme.value.light" = "Light";
+"enum.perferred.color.scheme.value.dark" = "Dark";
 // AppIconType
-"enum.app.icon.type.value.default" = "";
-"enum.app.icon.type.value.ukiyoe" = "";
+"enum.app.icon.type.value.default" = "Default";
+"enum.app.icon.type.value.ukiyoe" = "Ukiyo-e";
 // ListDisplayMode
-"enum.display.mode.value.detail" = "";
-"enum.display.mode.value.thumbnail" = "";
+"enum.display.mode.value.detail" = "Detail";
+"enum.display.mode.value.thumbnail" = "Thumbnail";
 
 // MARK: AppIconView
-"app.icon.view.title.appIcon" = "";
+"app.icon.view.title.appIcon" = "App icon";
 
 // MARK: ReadingSettingView
-"reading.setting.view.title.direction" = "";
-"reading.setting.view.title.preloadLimit" = "";
-"reading.setting.view.title.enablesLandscape" = "";
-"reading.setting.view.title.separatorHeight" = "";
-"reading.setting.view.title.maximumScaleFactor" = "";
-"reading.setting.view.title.doubleTapScaleFactor" = "";
+"reading.setting.view.title.reading" = "Reading";
+"reading.setting.view.title.direction" = "Direction";
+"reading.setting.view.title.preloadLimit" = "Preload limit";
+"reading.setting.view.title.enablesLandscape" = "Enables landscape";
+"reading.setting.view.title.separatorHeight" = "Separator height";
+"reading.setting.view.title.maximumScaleFactor" = "Maximum scale factor";
+"reading.setting.view.title.doubleTapScaleFactor" = "Double tap scale factor";
+"reading.setting.view.section.title.appearance" = "Appearance";
 // ReadingDirection
-"enum.reading.direction.value.vertical" = "";
-"enum.reading.direction.value.rightToLeft" = "";
-"enum.reading.direction.value.leftToRight" = "";
+"enum.reading.direction.value.vertical" = "Vertical";
+"enum.reading.direction.value.rightToLeft" = "Right-to-left";
+"enum.reading.direction.value.leftToRight" = "Left-to-right";
 
 // MARK: LaboratorySettingView
-"laboratory.setting.view.title.bypassesSNIFiltering" = "";
+"laboratory.setting.view.title.laboratory" = "Laboratory";
+"laboratory.setting.view.title.bypassesSNIFiltering" = "Bypasses SNI Filtering";
 
 // MARK: EhPandaView
-"ehpanda.view.title.ehPanda" = "";
-"ehpanda.view.button.website" = "";
-"ehpanda.view.button.altStoreSource" = "";
-"ehpanda.view.description.version" = "";
-"ehpanda.view.section.title.specialThanks" = "";
-"ehpanda.view.section.title.acknowledgements" = "";
+"ehpanda.view.title.ehPanda" = "EhPanda";
+"ehpanda.view.button.website" = "Website";
+"ehpanda.view.button.altStoreSource" = "AltStore source";
+"ehpanda.view.description.version" = "Version";
+"ehpanda.view.section.title.specialThanks" = "Special thanks";
+"ehpanda.view.section.title.acknowledgements" = "Acknowledgements";
 
 // MARK: DetailView
-"detail.view.button.read" = "";
-"detail.view.scroll.section.title.favored" = "";
-"detail.view.scroll.section.title.ratings" = "";
-"detail.view.scroll.section.title.pageCount" = "";
-"detail.view.scroll.section.title.fileSize" = "";
-"detail.view.scroll.section.description.favored" = "";
-"detail.view.scroll.section.description.pageCount" = "";
-"detail.view.action.section.button.giveARating" = "";
-"detail.view.action.section.button.similarGallery" = "";
+"detail.view.button.read" = "Read";
+"detail.view.button.postComment" = "Post comment";
+"detail.view.toolbar.item.button.archives" = "Archives";
+"detail.view.toolbar.item.button.torrents" = "Torrents";
+"detail.view.toolbar.item.button.share" = "Share";
+"detail.view.scroll.section.title.favorited" = "Favorited";
+"detail.view.scroll.section.title.language" = "Language";
+"detail.view.scroll.section.title.ratings" = "Ratings";
+"detail.view.scroll.section.title.pageCount" = "Page Count";
+"detail.view.scroll.section.title.fileSize" = "File Size";
+"detail.view.scroll.section.description.favorited" = "Times";
+"detail.view.scroll.section.description.pageCount" = "Pages";
+"detail.view.action.section.button.giveARating" = "Give a Rating";
+"detail.view.action.section.button.similarGallery" = "Similar Gallery";
+"detail.view.section.title.previews" = "Previews";
+"detail.view.section.title.comments" = "Comments";
 
 // MARK: ArchivesView
-"archives.view.title.archives" = "";
-"archives.view.button.downloadToHathClient" = "";
+"archives.view.title.archives" = "Archives";
+"archives.view.button.downloadToHathClient" = "Download To Hath Client";
 // HathArchive
-"struct.hath.archive.price.value.free" = "";
-"struct.hath.archive.price.value.notAvailable" = "";
-"struct.hath.archive.resolution.value.original" = "";
+"struct.hath.archive.price.value.free" = "Free";
+"struct.hath.archive.price.value.notAvailable" = "N/A";
+"struct.hath.archive.resolution.value.original" = "Original";
 
 // MARK: TorrentsView
-"torrents.view.title.torrents" = "";
+"torrents.view.title.torrents" = "Torrents";
 
 // MARK: GalleryInfosView
-"gallery.infos.view.title.galleryInfos" = "";
-"gallery.infos.view.title.title" = "";
-"gallery.infos.view.title.japaneseTitle" = "";
-"gallery.infos.view.title.galleryLink" = "";
-"gallery.infos.view.title.coverLink" = "";
-"gallery.infos.view.title.archiveLink" = "";
-"gallery.infos.view.title.torrentLink" = "";
-"gallery.infos.view.title.parentLink" = "";
-"gallery.infos.view.title.category" = "";
-"gallery.infos.view.title.uploader" = "";
-"gallery.infos.view.title.postedDate" = "";
-"gallery.infos.view.title.visibility" = "";
-"gallery.infos.view.title.pageCount" = "";
-"gallery.infos.view.title.fileSize" = "";
-"gallery.infos.view.title.favoredTimes" = "";
-"gallery.infos.view.title.favored" = "";
-"gallery.infos.view.title.ratingCount" = "";
-"gallery.infos.view.title.averageRating" = "";
-"gallery.infos.view.title.myRating" = "";
-"gallery.infos.view.title.torrentCount" = "";
-"gallery.infos.view.value.expunged" = "";
+"gallery.infos.view.title.galleryInfos" = "Gallery infos";
+"gallery.infos.view.title.title" = "Title";
+"gallery.infos.view.title.japaneseTitle" = "Japanese title";
+"gallery.infos.view.title.galleryURL" = "Gallery URL";
+"gallery.infos.view.title.coverURL" = "Cover URL";
+"gallery.infos.view.title.archiveURL" = "Archive URL";
+"gallery.infos.view.title.torrentURL" = "Torrent URL";
+"gallery.infos.view.title.parentURL" = "Parent URL";
+"gallery.infos.view.title.category" = "Category";
+"gallery.infos.view.title.uploader" = "Uploader";
+"gallery.infos.view.title.postedDate" = "Posted date";
+"gallery.infos.view.title.visibility" = "Visibility";
+"gallery.infos.view.title.language" = "Language";
+"gallery.infos.view.title.pageCount" = "Page count";
+"gallery.infos.view.title.fileSize" = "File size";
+"gallery.infos.view.title.favoritedTimes" = "Favorited times";
+"gallery.infos.view.title.favorited" = "Favorited";
+"gallery.infos.view.title.ratingCount" = "Rating count";
+"gallery.infos.view.title.averageRating" = "Average rating";
+"gallery.infos.view.title.myRating" = "My rating";
+"gallery.infos.view.title.torrentCount" = "Torrent count";
+"gallery.infos.view.value.none" = "None";
+"gallery.infos.view.value.yes" = "Yes";
+"gallery.infos.view.value.no" = "No";
+// GalleryVisibility
+"gallery.visibility.value.yes" = "Yes";
+"gallery.visibility.value.no" = "No (%@)";
+"gallery.visibility.value.no.reason.expunged" = "Expunged";
 
 // MARK: CommentsView
-"comments.view.title.comments" = "";
+"comments.view.title.comments" = "Comments";
 
 // MARK: PostCommentView
-"post.comment.view.title.postComment" = "";
-"post.comment.view.title.editComment" = "";
-"post.comment.view.button.post" = "";
+"post.comment.view.title.postComment" = "Post comment";
+"post.comment.view.title.editComment" = "Edit comment";
+"post.comment.view.button.cancel" = "Cancel";
+"post.comment.view.button.post" = "Post";
 
 // MARK: PreviewsView
-"comments.view.title.previews" = "";
+"previews.view.title.previews" = "Previews";
 
 // MARK: ReadingView
-"reading.view.button.reload" = "";
-"reading.view.button.copy" = "";
-"reading.view.button.save" = "";
-"reading.view.button.saveOriginal" = "";
-"reading.view.toolbar.item.title.autoPlay" = "";
-"reading.view.toolbar.item.title.dualPageMode" = "";
-"reading.view.toolbar.item.title.exceptTheCover" = "";
+"reading.view.context.menu.button.reload" = "Reload";
+"reading.view.context.menu.button.copy" = "Copy";
+"reading.view.context.menu.button.save" = "Save";
+"reading.view.context.menu.button.saveOriginal" = "Save original";
+"reading.view.context.menu.button.share" = "Share";
+"reading.view.toolbar.item.title.autoPlay" = "Auto-Play";
+"reading.view.toolbar.item.title.dualPageMode" = "Dual-Page mode";
+"reading.view.toolbar.item.title.exceptTheCover" = "Except the cover";
 // AutoPlayPolicy
-"enum.auto.play.policy.value.never" = "";
+"enum.auto.play.policy.value.off" = "Off";
 
 // MARK: FiltersView
-"filters.view.title.filters" = "";
-"filters.view.title.advancedSettings" = "";
-"filters.view.title.searchGalleryName" = "";
-"filters.view.title.searchGalleryTags" = "";
-"filters.view.title.searchGalleryDescription" = "";
-"filters.view.title.searchTorrentFilenames" = "";
-"filters.view.title.onlyShowGalleriesWithTorrents" = "";
-"filters.view.title.searchLowPowerTags" = "";
-"filters.view.title.searchDownvotedTags" = "";
-"filters.view.title.showExpungedGalleries" = "";
-"filters.view.title.setMinimumRating" = "";
-"filters.view.title.minimumRating" = "";
-"filters.view.title.setPagesRange" = "";
-"filters.view.title.pagesRange" = "";
-"filters.view.title.disableLanguageFilter" = "";
-"filters.view.title.disableUploaderFilter" = "";
-"filters.view.title.disableTagsFilter" = "";
-"filters.view.button.resetFilters" = "";
-"filters.view.section.title.advanced" = "";
-"filters.view.section.title.defaultFilter" = "";
+"filters.view.title.filters" = "Filters";
+"filters.view.title.advancedSettings" = "Advanced settings";
+"filters.view.title.searchGalleryName" = "Search gallery name";
+"filters.view.title.searchGalleryTags" = "Search gallery tags";
+"filters.view.title.searchGalleryDescription" = "Search gallery description";
+"filters.view.title.searchTorrentFilenames" = "Search gallery filenames";
+"filters.view.title.onlyShowGalleriesWithTorrents" = "Only show galleries with torrents";
+"filters.view.title.searchLowPowerTags" = "Search Low-Power tags";
+"filters.view.title.searchDownvotedTags" = "Search downvoted tags";
+"filters.view.title.showExpungedGalleries" = "Search expunged galleries";
+"filters.view.title.setMinimumRating" = "Set minimum rating";
+"filters.view.title.minimumRating" = "Minimum rating";
+"filters.view.title.setPagesRange" = "Set pages range";
+"filters.view.title.pagesRange" = "Pages range";
+"filters.view.title.disableLanguageFilter" = "Disable language filter";
+"filters.view.title.disableUploaderFilter" = "Disable uploader filter";
+"filters.view.title.disableTagsFilter" = "Disable tags filter";
+"filters.view.button.resetFilters" = "Reset filters";
+"filters.view.section.title.advanced" = "Advanced";
+"filters.view.section.title.defaultFilter" = "Default filter";
 // FilterRange
-"enum.filter.range.value.global" = "";
+"enum.filter.range.value.search" = "Search";
+"enum.filter.range.value.global" = "Global";
+"enum.filter.range.value.watched" = "Watched";
 
 // MARK: EhSettingView
-"eh.setting.view.title.hostSetting" = "%@";
-"eh.setting.view.section.title.profileSettings" = "";
-"eh.setting.view.title.selectedProfile" = "";
-"eh.setting.view.button.setAsDefault" = "";
-"eh.setting.view.button.deleteProfile" = "";
-"eh.setting.view.button.rename" = "";
-"eh.setting.view.button.createNew" = "";
+"eh.setting.view.title.hostSetting" = "%@ settings";
+"eh.setting.view.section.title.profileSettings" = "Profile Settings";
+"eh.setting.view.title.selectedProfile" = "Selected profile";
+"eh.setting.view.button.setAsDefault" = "Set as default";
+"eh.setting.view.button.deleteProfile" = "Delete profile";
+"eh.setting.view.button.rename" = "Rename";
+"eh.setting.view.button.createNew" = "Create new";
+"eh.setting.view.toolbar.item.button.done" = "Done";
 
-"eh.setting.view.section.title.imageLoadSettings" = "";
-"eh.setting.view.title.loadImagesThroughTheHathNetwork" = "";
-"eh.setting.view.title.browsingCountry" = "";
-"eh.setting.view.description.browsingCountry" = "%@";
+"eh.setting.view.section.title.imageLoadSettings" = "Image Load Settings";
+"eh.setting.view.title.loadImagesThroughTheHathNetwork" = "Load images through the Hath network";
+"eh.setting.view.title.browsingCountry" = "Browsing country";
+"eh.setting.view.description.browsingCountry" = "You appear to be browsing the site from **%@** or use a VPN or proxy in this country, which means the site will try to load images from Hath clients in this general geographic region. If this is incorrect, or if you want to use a different region for any reason (like if you are using a split tunneling VPN), you can select a different country below.";
 // EhSetting.LoadThroughHathSetting
-"enum.eh.setting.load.through.hath.setting.value.anyClient" = "";
-"enum.eh.setting.load.through.hath.setting.value.defaultPortOnly" = "";
-"enum.eh.setting.load.through.hath.setting.value.no" = "";
-"enum.eh.setting.load.through.hath.setting.description.anyClient" = "";
-"enum.eh.setting.load.through.hath.setting.description.defaultPortOnly" = "";
-"enum.eh.setting.load.through.hath.setting.description.no" = "";
+"enum.eh.setting.load.through.hath.setting.value.anyClient" = "Any client";
+"enum.eh.setting.load.through.hath.setting.value.defaultPortOnly" = "Default port clients only";
+"enum.eh.setting.load.through.hath.setting.value.no" = "No";
+"enum.eh.setting.load.through.hath.setting.description.anyClient" = "Recommended.";
+"enum.eh.setting.load.through.hath.setting.description.defaultPortOnly" = "Can be slower. Enable if behind firewall/proxy that blocks outgoing non-standard ports.";
+"enum.eh.setting.load.through.hath.setting.description.no" = "Donator only. You will not be able to browse as many pages, enable only if having severe problems.";
 
-"eh.setting.view.section.title.imageSizeSettings" = "";
-"eh.setting.view.title.imageResolution" = "";
-"eh.setting.view.description.imageResolution" = "";
-"eh.setting.view.title.imageSize" = "";
-"eh.setting.view.description.imageSize" = "";
-"eh.setting.view.title.horizontal" = "";
-"eh.setting.view.title.vertical" = "";
+"eh.setting.view.section.title.imageSizeSettings" = "Image Size Settings";
+"eh.setting.view.title.imageResolution" = "Image resolution";
+"eh.setting.view.description.imageResolution" = "Normally, images are resampled to 1280 pixels of horizontal resolution for online viewing. You can alternatively select one of the following resample resolutions. To avoid murdering the staging servers, resolutions above 1280x are temporarily restricted to donators, people with any hath perk, and people with a UID below 3,000,000.";
+"eh.setting.view.title.imageSize" = "Image size";
+"eh.setting.view.description.imageSize" = "While the site will automatically scale down images to fit your screen width, you can also manually restrict the maximum display size of an image. Like the automatic scaling, this does not resample the image, as the resizing is done browser-side. (0 = no limit)";
+"eh.setting.view.title.horizontal" = "Horizontal";
+"eh.setting.view.title.vertical" = "Vertical";
 // EhSetting.ImageResolution
-"enum.eh.setting.image.resolution.value.auto" = "";
+"enum.eh.setting.image.resolution.value.auto" = "Auto";
 
-"eh.setting.view.section.title.galleryNameDisplay" = "";
-"eh.setting.view.title.galleryName" = "";
-"eh.setting.view.description.galleryName" = "";
+"eh.setting.view.section.title.galleryNameDisplay" = "Gallery Name Display";
+"eh.setting.view.title.galleryName" = "Gallery name";
+"eh.setting.view.description.galleryName" = "Many galleries have both an English/Romanized title and a title in Japanese script. Which gallery name would you like as default?";
 // EhSetting.GalleryName
-"enum.eh.setting.gallery.name.value.default" = "";
-"enum.eh.setting.gallery.name.value.japanese" = "";
+"enum.eh.setting.gallery.name.value.default" = "Default Title";
+"enum.eh.setting.gallery.name.value.japanese" = "Japanese Title (if available)";
 
-"eh.setting.view.section.title.archiverSettings" = "";
-"eh.setting.view.title.archiverBehavior" = "";
-"eh.setting.view.description.archiverBehavior" = "";
+"eh.setting.view.section.title.archiverSettings" = "Archiver Settings";
+"eh.setting.view.title.archiverBehavior" = "Archiver behavior";
+"eh.setting.view.description.archiverBehavior" = "The default behavior for the Archiver is to confirm the cost and selection for original or resampled archive, then present a link that can be clicked or copied elsewhere. You can change this behavior here.";
 // EhSetting.ArchiverBehavior
-"enum.eh.setting.archiver.behavior.value.manualSelectManualStart" = "";
-"enum.eh.setting.archiver.behavior.value.manualSelectAutoStart" = "";
-"enum.eh.setting.archiver.behavior.value.autoSelectOriginalManualStart" = "";
-"enum.eh.setting.archiver.behavior.value.autoSelectOriginalAutoStart" = "";
-"enum.eh.setting.archiver.behavior.value.autoSelectResampleManualStart" = "";
-"enum.eh.setting.archiver.behavior.value.autoSelectResampleAutoStart" = "";
+"enum.eh.setting.archiver.behavior.value.manualSelectManualStart" = "Manual Select, Manual Start (Default)";
+"enum.eh.setting.archiver.behavior.value.manualSelectAutoStart" = "Manual Select, Auto Start";
+"enum.eh.setting.archiver.behavior.value.autoSelectOriginalManualStart" = "Auto Select Original, Manual Start";
+"enum.eh.setting.archiver.behavior.value.autoSelectOriginalAutoStart" = "Auto Select Original, Auto Start";
+"enum.eh.setting.archiver.behavior.value.autoSelectResampleManualStart" = "Auto Select Resample, Manual Start";
+"enum.eh.setting.archiver.behavior.value.autoSelectResampleAutoStart" = "Auto Select Resample, Auto Start";
 
-"eh.setting.view.section.title.frontPageSettings" = "";
-"eh.setting.view.title.displayMode" = "";
-"eh.setting.view.description.displayMode" = "";
-"eh.setting.view.description.galleryCategory" = "";
+"eh.setting.view.section.title.frontPageSettings" = "Front Page Settings";
+"eh.setting.view.title.displayMode" = "Display mode";
+"eh.setting.view.description.displayMode" = "Which display mode would you like to use on the front and search pages?";
+"eh.setting.view.description.galleryCategory" = "What categories would you like to show by default on the front page and in searches?";
 // EhSetting.DisplayMode
-"enum.eh.setting.display.mode.value.compact" = "";
-"enum.eh.setting.display.mode.value.thumbnail" = "";
-"enum.eh.setting.display.mode.value.extended" = "";
-"enum.eh.setting.display.mode.value.minimal" = "";
-"enum.eh.setting.display.mode.value.minimalPlus" = "";
+"enum.eh.setting.display.mode.value.compact" = "Compact";
+"enum.eh.setting.display.mode.value.thumbnail" = "Thumbnail";
+"enum.eh.setting.display.mode.value.extended" = "Extended";
+"enum.eh.setting.display.mode.value.minimal" = "Minimal";
+"enum.eh.setting.display.mode.value.minimalPlus" = "Minimal+";
 
-"eh.setting.view.section.title.favorites" = "";
-"eh.setting.view.description.favoritesName" = "";
-"eh.setting.view.title.favoritesSortOrder" = "";
-"eh.setting.view.description.favoritesSortOrder" = "";
+"eh.setting.view.section.title.favorites" = "Favorites";
+"eh.setting.view.description.favoriteCategories" = "Here you can choose and rename your favorite categories.";
+"eh.setting.view.title.favoritesSortOrder" = "Favorites sort order";
+"eh.setting.view.description.favoritesSortOrder" = "You can also select your default sort order for galleries on your favorites page. Note that favorites added prior to the March 2016 revamp did not store a timestamp, and will use the gallery posted time regardless of this setting.";
 // EhSetting.FavoritesSortOrder
-"enum.eh.setting.favorites.sort.order.value.lastUpdateTime" = "";
-"enum.eh.setting.favorites.sort.order.value.favoritedTime" = "";
+"enum.eh.setting.favorites.sort.order.value.lastUpdateTime" = "By last gallery update time";
+"enum.eh.setting.favorites.sort.order.value.favoritedTime" = "By favorited time";
 
-"eh.setting.view.section.title.ratings" = "";
-"eh.setting.view.title.ratingsColor" = "";
-"eh.setting.view.promt.ratingsColor" = "";
-"eh.setting.view.description.ratingsColor" = "";
+"eh.setting.view.section.title.ratings" = "Ratings";
+"eh.setting.view.title.ratingsColor" = "Ratings color";
+"eh.setting.view.promt.ratingsColor" = "RRGGB";
+"eh.setting.view.description.ratingsColor" = "By default, galleries that you have rated will appear with red stars for ratings of 2 stars and below, green for ratings between 2.5 and 4 stars, and blue for ratings of 4.5 or 5 stars. You can customize this by entering your desired color combination below. Each letter represents one star. The default RRGGB means R(ed) for the first and second star, G(reen) for the third and fourth, and B(lue) for the fifth. You can also use (Y)ellow for the normal stars. Any five-letter R/G/B/Y combo works.";
 
-"eh.setting.view.section.title.tagsNamespaces" = "";
-"eh.setting.view.description.tagsNamespaces" = "";
+"eh.setting.view.section.title.tagsNamespaces" = "Tag Namespaces";
+"eh.setting.view.description.tagsNamespaces" = "If you want to exclude certain namespaces from a default tag search, you can check those below. Note that this does not prevent galleries with tags in these namespaces from appearing, it just makes it so that when searching tags, it will forego those namespaces.";
 
-"eh.setting.view.title.tagFilteringThreshold" = "";
-"eh.setting.view.description.tagFilteringThreshold" = "";
+"eh.setting.view.section.title.tagFilteringThreshold" = "Tag Filtering Threshold";
+"eh.setting.view.title.tagFilteringThreshold" = "Tag Filtering Threshold";
+"eh.setting.view.description.tagFilteringThreshold" = "You can soft filter tags by adding them to My Tags with a negative weight. If a gallery has tags that add up to weight below this value, it is filtered from view. This threshold can be set between 0 and -9999.";
 
-"eh.setting.view.title.tagWatchingThreshold" = "";
-"eh.setting.view.description.tagWatchingThreshold" = "";
+"eh.setting.view.section.title.tagWatchingThreshold" = "Tag Watching Threshold";
+"eh.setting.view.title.tagWatchingThreshold" = "Tag Watching Threshold";
+"eh.setting.view.description.tagWatchingThreshold" = "Recently uploaded galleries will be included on the watched screen if it has at least one watched tag with positive weight, and the sum of weights on its watched tags add up to this value or higher. This threshold can be set between 0 and 9999.";
 
-"eh.setting.view.section.title.excludedLanguages" = "";
-"eh.setting.view.description.excludedLanguages" = "";
+"eh.setting.view.section.title.excludedLanguages" = "Excluded Languages";
+"eh.setting.view.description.excludedLanguages" = "If you wish to hide galleries in certain languages from the gallery list and searches, select them from the list below. Note that matching galleries will never appear regardless of your search query.";
 // EhSetting.ExcludedLanguagesCategory
-"enum.eh.setting.excluded.languages.category.value.original" = "";
-"enum.eh.setting.excluded.languages.category.value.translated" = "";
-"enum.eh.setting.excluded.languages.category.value.rewrite" = "";
+"enum.eh.setting.excluded.languages.category.value.original" = "Original";
+"enum.eh.setting.excluded.languages.category.value.translated" = "Translated";
+"enum.eh.setting.excluded.languages.category.value.rewrite" = "Rewrite";
 
-"eh.setting.view.section.title.excludedUploaders" = "";
-"eh.setting.view.description.excludedUploaders" = "";
-"eh.setting.view.description.excludedUploadersCount" = "%@";
+"eh.setting.view.section.title.excludedUploaders" = "Excluded Uploaders";
+"eh.setting.view.description.excludedUploaders" = "If you wish to hide galleries from certain uploaders from the gallery list and searches, add them below. Put one username per line. Note that galleries from these uploaders will never appear regardless of your search query.";
+"eh.setting.view.description.excludedUploadersCount" = "You are currently using **%@ / %@** exclusion slots.";
 
-"eh.setting.view.section.title.searchResultCount" = "";
-"eh.setting.view.title.resultCount" = "";
-"eh.setting.view.description.resultCount" = "";
+"eh.setting.view.section.title.searchResultCount" = "Search Result Count";
+"eh.setting.view.title.resultCount" = "Result count";
+"eh.setting.view.description.resultCount" = "How many results would you like per page for the index/search page and torrent search pages?\n(Hath Perk: Paging Enlargement Required)";
 
-"eh.setting.view.section.title.thumbnailSettings" = "";
-"eh.setting.view.title.thumbnailLoadTiming" = "";
-"eh.setting.view.description.thumbnailLoadTiming" = "";
-"eh.setting.view.description.thumbnailConfiguration" = "";
-"eh.setting.view.title.thumbnailSize" = "";
-"eh.setting.view.title.thumbnailRowCount" = "";
+"eh.setting.view.section.title.thumbnailSettings" = "Thumbnail Settings";
+"eh.setting.view.title.thumbnailLoadTiming" = "Thumbnail load timing";
+"eh.setting.view.description.thumbnailLoadTiming" = "How would you like the mouse-over thumbnails on the front page to load when using List Mode?";
+"eh.setting.view.description.thumbnailConfiguration" = "You can set a default thumbnail configuration for all galleries you visit.";
+"eh.setting.view.title.thumbnailSize" = "Size";
+"eh.setting.view.title.thumbnailRowCount" = "Rows";
 // EhSetting.ThumbnailLoadTiming
-"enum.eh.setting.thumbnail.load.timing.value.onMouseOver" = "";
-"enum.eh.setting.thumbnail.load.timing.value.onPageLoad" = "";
-"enum.eh.setting.thumbnail.load.timing.description.onMouseOver" = "";
-"enum.eh.setting.thumbnail.load.timing.description.onPageLoad" = "";
+"enum.eh.setting.thumbnail.load.timing.value.onMouseOver" = "On mouse-over";
+"enum.eh.setting.thumbnail.load.timing.value.onPageLoad" = "On page load";
+"enum.eh.setting.thumbnail.load.timing.description.onMouseOver" = "Pages load faster, but there may be a slight delay before a thumb appears.";
+"enum.eh.setting.thumbnail.load.timing.description.onPageLoad" = "Pages take longer to load, but there is no delay for loading a thumb after the page has loaded.";
 // EhSetting.ThumbnailSize
-"enum.eh.setting.thumbnail.size.value.normal" = "";
-"enum.eh.setting.thumbnail.size.value.large" = "";
+"enum.eh.setting.thumbnail.size.value.normal" = "Normal";
+"enum.eh.setting.thumbnail.size.value.large" = "Large";
 
-"eh.setting.view.section.title.thumbnailScaling" = "";
-"eh.setting.view.title.scaleFactor" = "";
-"eh.setting.view.description.scaleFactor" = "";
+"eh.setting.view.section.title.thumbnailScaling" = "Thumbnail Scaling";
+"eh.setting.view.title.scaleFactor" = "Scale factor";
+"eh.setting.view.description.scaleFactor" = "Thumbnails on the thumbnail and extended gallery list views can be scaled to a custom value between 75% and 150%.";
 
-"eh.setting.view.section.title.viewportOverride" = "";
-"eh.setting.view.title.virtualWidth" = "";
-"eh.setting.view.description.virtualWidth" = "";
+"eh.setting.view.section.title.viewportOverride" = "Viewport Override";
+"eh.setting.view.title.virtualWidth" = "Virtual width";
+"eh.setting.view.description.virtualWidth" = "Allows you to override the virtual width of the site for mobile devices. This is normally determined automatically by your device based on its DPI. Sensible values at 100% thumbnail scale are between 640 and 1400.";
 
-"eh.setting.view.section.title.galleryComments" = "";
-"eh.setting.view.title.commentsSortOrder" = "";
-"eh.setting.view.title.commentsVotesShowTiming" = "";
+"eh.setting.view.section.title.galleryComments" = "Gallery Comments";
+"eh.setting.view.title.commentsSortOrder" = "Comments sort order";
+"eh.setting.view.title.commentsVotesShowTiming" = "Comment votes show timing";
 // EhSetting.CommentsSortOrder
-"enum.eh.setting.comments.sort.order.value.oldest" = "";
-"enum.eh.setting.comments.sort.order.value.recent" = "";
-"enum.eh.setting.comments.sort.order.value.highestScore" = "";
+"enum.eh.setting.comments.sort.order.value.oldest" = "Oldest comments first";
+"enum.eh.setting.comments.sort.order.value.recent" = "Recent comments first";
+"enum.eh.setting.comments.sort.order.value.highestScore" = "By highest score";
 // EhSetting.CommentVotesShowTiming
-"enum.eh.setting.comments.votes.show.timing.value.onHoverOrClick" = "";
-"enum.eh.setting.comments.votes.show.timing.value.always" = "";
+"enum.eh.setting.comments.votes.show.timing.value.onHoverOrClick" = "On score hover or click";
+"enum.eh.setting.comments.votes.show.timing.value.always" = "Always";
 
-"eh.setting.view.section.title.galleryTags" = "";
-"eh.setting.view.title.tagsSortOrder" = "";
+"eh.setting.view.section.title.galleryTags" = "Gallery Tags";
+"eh.setting.view.title.tagsSortOrder" = "Tags sort order";
 // EhSetting.TagsSortOrder
-"enum.eh.setting.tags.sort.order.value.alphabetical" = "";
-"enum.eh.setting.tags.sort.order.value.tagPower" = "";
+"enum.eh.setting.tags.sort.order.value.alphabetical" = "Alphabetical";
+"enum.eh.setting.tags.sort.order.value.tagPower" = "By tag power";
 
-"eh.setting.view.section.title.galleryPageNumbering" = "";
-"eh.setting.view.title.showGalleryPageNumbers" = "";
+"eh.setting.view.section.title.galleryPageNumbering" = "Gallery Page Numbering";
+"eh.setting.view.title.showGalleryPageNumbers" = "Show gallery page numbers";
 
-"eh.setting.view.section.title.hathLocalNetworkHost" = "";
-"eh.setting.view.title.ipAddressPort" = "";
-"eh.setting.view.description.ipAddressPort" = "";
+"eh.setting.view.section.title.hathLocalNetworkHost" = "Hath Local Network Host";
+"eh.setting.view.title.ipAddressPort" = "IP address:Port";
+"eh.setting.view.description.ipAddressPort" = "This setting can be used if you have a Hath client running on your local network with the same public IP you browse the site with. Some routers are buggy and cannot route requests back to its own IP; this allows you to work around this problem.\nIf you are running the client on the same device you browse from, use the loopback address (127.0.0.1:port). If the client is running on another device on your network, use its local network IP. Some browser configurations prevent external web sites from accessing URLs with local network IPs, the site must then be whitelisted for this to work.";
 
-"eh.setting.view.section.title.originalImages" = "";
-"eh.setting.view.title.useOriginalImages" = "";
+"eh.setting.view.section.title.originalImages" = "Original Images";
+"eh.setting.view.title.useOriginalImages" = "Use original images";
 
-"eh.setting.view.section.title.multiPageViewer" = "";
-"eh.setting.view.title.useMultiPageViewer" = "";
-"eh.setting.view.title.displayStyle" = "";
-"eh.setting.view.title.showThumbnailPane" = "";
+"eh.setting.view.section.title.multiPageViewer" = "Multi-Page Viewer";
+"eh.setting.view.title.useMultiPageViewer" = "Use Multi-Page Viewer";
+"eh.setting.view.title.displayStyle" = "Display style";
+"eh.setting.view.title.showThumbnailPane" = "Show thumbnail pane";
 // EhSetting.MultiplePageViewerStyle
-"enum.eh.setting.multiple.page.viewer.style.value.alignLeftScaleIfOverWidth" = "";
-"enum.eh.setting.multiple.page.viewer.style.value.alignCenterScaleIfOverWidth" = "";
-"enum.eh.setting.multiple.page.viewer.style.value.alignCenterAlwaysScale" = "";
+"enum.eh.setting.multiple.page.viewer.style.value.alignLeftScaleIfOverWidth" = "Align left, scale if overwidth";
+"enum.eh.setting.multiple.page.viewer.style.value.alignCenterScaleIfOverWidth" = "Align center, scale if overwidth";
+"enum.eh.setting.multiple.page.viewer.style.value.alignCenterAlwaysScale" = "Align center, always scale";
 
 // MARK: Language
 "enum.language.value.invalid" = "N/A";

@@ -136,7 +136,7 @@ struct DetailView: View {
             .accentColor(setting.accentColor)
             .autoBlur(radius: blurRadius)
         }
-        .sheet(unwrapping: viewStore.binding(\.$route), case: /DetailState.Route.archive) { _ in
+        .sheet(unwrapping: viewStore.binding(\.$route), case: /DetailState.Route.archives) { _ in
             ArchivesView(
                 store: store.scope(state: \.archivesState, action: DetailAction.archives),
                 gid: gid, user: user, galleryURL: viewStore.gallery.galleryURL,
@@ -234,15 +234,15 @@ private extension DetailView {
         CustomToolbarItem {
             ToolbarFeaturesMenu {
                 Button {
-                    viewStore.send(.setNavigation(.archive))
+                    viewStore.send(.setNavigation(.archives))
                 } label: {
-                    Label(R.string.localizable.archivesViewTitleArchives(), systemSymbol: .docZipper)
+                    Label(R.string.localizable.detailViewToolbarItemButtonArchives(), systemSymbol: .docZipper)
                 }
                 .disabled(viewStore.galleryDetail?.archiveURL == nil || !CookiesUtil.didLogin)
                 Button {
                     viewStore.send(.setNavigation(.torrents))
                 } label: {
-                    let base = R.string.localizable.torrentsViewTitleTorrents()
+                    let base = R.string.localizable.detailViewToolbarItemButtonTorrents()
                     let torrentCount = viewStore.galleryDetail?.torrentCount ?? 0
                     let baseWithCount = [base, "(\(torrentCount))"].joined(separator: " ")
                     Label(torrentCount > 0 ? baseWithCount : base, systemSymbol: .leaf)
@@ -254,7 +254,7 @@ private extension DetailView {
                         viewStore.send(.setNavigation(.share(galleryURL)))
                     }
                 } label: {
-                    Label(R.string.localizable.commonShare(), systemSymbol: .squareAndArrowUp)
+                    Label(R.string.localizable.detailViewToolbarItemButtonShare(), systemSymbol: .squareAndArrowUp)
                 }
             }
             .disabled(viewStore.galleryDetail == nil || viewStore.loadingState == .loading)
@@ -325,17 +325,17 @@ private struct HeaderSection: View {
                         Button(action: unfavorAction) {
                             Image(systemSymbol: .heartFill)
                         }
-                        .opacity(galleryDetail.isFavored ? 1 : 0)
+                        .opacity(galleryDetail.isFavorited ? 1 : 0)
                         Menu {
                             ForEach(0..<10) { index in
-                                Button(user.getFavoritesName(index: index)) {
+                                Button(user.getFavoriteCategory(index: index)) {
                                     favorAction(index)
                                 }
                             }
                         } label: {
                             Image(systemSymbol: .heart)
                         }
-                        .opacity(galleryDetail.isFavored ? 0 : 1)
+                        .opacity(galleryDetail.isFavorited ? 0 : 1)
                     }
                     .imageScale(.large).foregroundStyle(.tint)
                     .disabled(!CookiesUtil.didLogin)
@@ -372,12 +372,12 @@ private struct DescriptionSection: View {
 
     private var infos: [DescScrollInfo] {[
         DescScrollInfo(
-            title: R.string.localizable.detailViewScrollSectionTitleFavored(),
-            description: R.string.localizable.detailViewScrollSectionDescriptionFavored(),
-            value: .init(galleryDetail.favoredCount)
+            title: R.string.localizable.detailViewScrollSectionTitleFavorited(),
+            description: R.string.localizable.detailViewScrollSectionDescriptionFavorited(),
+            value: .init(galleryDetail.favoritedCount)
         ),
         DescScrollInfo(
-            title: R.string.localizable.commonLanguage(),
+            title: R.string.localizable.detailViewScrollSectionTitleLanguage(),
             description: galleryDetail.language.value,
             value: galleryDetail.language.abbreviation
         ),
@@ -631,7 +631,7 @@ private struct PreviewsSection: View {
 
     var body: some View {
         SubSection(
-            title: R.string.localizable.commentsViewTitlePreviews(),
+            title: R.string.localizable.detailViewSectionTitlePreviews(),
             showAll: pageCount > 20, showAllAction: navigatePreviewsAction
         ) {
             ScrollView(.horizontal, showsIndicators: false) {
@@ -674,7 +674,7 @@ private struct CommentsSection: View {
 
     var body: some View {
         SubSection(
-            title: R.string.localizable.commentsViewTitleComments(),
+            title: R.string.localizable.detailViewSectionTitleComments(),
             showAll: !comments.isEmpty, showAllAction: navigateCommentAction
         ) {
             ScrollView(.horizontal, showsIndicators: false) {
@@ -748,7 +748,7 @@ private struct CommentButton: View {
             HStack {
                 Spacer()
                 Image(systemSymbol: .squareAndPencil)
-                Text(R.string.localizable.postCommentViewTitlePostComment()).bold()
+                Text(R.string.localizable.detailViewButtonPostComment()).bold()
                 Spacer()
             }
             .padding().background(backgroundColor).cornerRadius(15)

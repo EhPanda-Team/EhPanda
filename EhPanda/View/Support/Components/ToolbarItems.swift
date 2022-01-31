@@ -65,7 +65,7 @@ struct FiltersButton: View {
         Button(action: action) {
             Image(systemSymbol: .line3HorizontalDecrease)
             if !hideText {
-                Text(R.string.localizable.filtersViewTitleFilters())
+                Text(R.string.localizable.toolbarItemButtonFilters())
             }
         }
     }
@@ -81,7 +81,7 @@ struct QuickSearchButton: View {
     var body: some View {
         Button(action: action) {
             Image(systemSymbol: .magnifyingglass)
-            Text(R.string.localizable.quickSearchViewTitleQuickSearch())
+            Text(R.string.localizable.toolbarItemButtonQuickSearch())
         }
     }
 }
@@ -101,7 +101,7 @@ struct JumpPageButton: View {
         Button(action: action) {
             Image(systemSymbol: .arrowshapeBounceForward)
             if !hideText {
-                Text(R.string.localizable.jumpPageViewTitleJumpPage())
+                Text(R.string.localizable.toolbarItemButtonJumpPage())
             }
         }
         .disabled(pageNumber.isSinglePage)
@@ -125,7 +125,7 @@ struct FavoritesIndexMenu: View {
                 Button {
                     action(index)
                 } label: {
-                    Text(user.getFavoritesName(index: index))
+                    Text(user.getFavoriteCategory(index: index))
                     if index == self.index {
                         Image(systemSymbol: .checkmark)
                     }

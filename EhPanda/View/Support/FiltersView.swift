@@ -57,12 +57,12 @@ struct FiltersView: View {
             .synchronize(viewStore.binding(\.$focusedBound), $focusedBound)
             .confirmationDialog(
                 R.string.localizable.confirmationDialogTitleAreYouSureTo(
-                    R.string.localizable.commonReset().lowercased()
+                    R.string.localizable.confirmationDialogButtonReset().lowercased()
                 ),
                 isPresented: viewStore.binding(\.$resetDialogPresented),
                 titleVisibility: .visible
             ) {
-                Button(R.string.localizable.commonReset(), role: .destructive) {
+                Button(R.string.localizable.confirmationDialogButtonReset(), role: .destructive) {
                     viewStore.send(.onResetFilterConfirmed)
                 }
             }
@@ -237,11 +237,11 @@ extension FilterRange {
     var value: String {
         switch self {
         case .search:
-            return R.string.localizable.tabItemTitleSearch()
+            return R.string.localizable.enumFilterRangeValueSearch()
         case .global:
             return R.string.localizable.enumFilterRangeValueGlobal()
         case .watched:
-            return R.string.localizable.listTypeWatched()
+            return R.string.localizable.enumFilterRangeValueWatched()
         }
     }
 }

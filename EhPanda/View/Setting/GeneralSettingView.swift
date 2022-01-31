@@ -16,14 +16,14 @@ struct GeneralSettingView: View {
     @Binding private var translatesTags: Bool
     @Binding private var redirectsLinksToSelectedHost: Bool
     @Binding private var detectsLinksFromClipboard: Bool
-    @Binding private var backgroundBlurRadius: Double
+    @Binding private var appSwitcherBlurRadius: Double
     @Binding private var autoLockPolicy: AutoLockPolicy
 
     init(
         store: Store<GeneralSettingState, GeneralSettingAction>,
         tagTranslatorLoadingState: LoadingState, tagTranslatorEmpty: Bool, translatesTags: Binding<Bool>,
         redirectsLinksToSelectedHost: Binding<Bool>, detectsLinksFromClipboard: Binding<Bool>,
-        backgroundBlurRadius: Binding<Double>, autoLockPolicy: Binding<AutoLockPolicy>
+        appSwitcherBlurRadius: Binding<Double>, autoLockPolicy: Binding<AutoLockPolicy>
     ) {
         self.store = store
         viewStore = ViewStore(store)
@@ -32,19 +32,20 @@ struct GeneralSettingView: View {
         _translatesTags = translatesTags
         _redirectsLinksToSelectedHost = redirectsLinksToSelectedHost
         _detectsLinksFromClipboard = detectsLinksFromClipboard
-        _backgroundBlurRadius = backgroundBlurRadius
+        _appSwitcherBlurRadius = appSwitcherBlurRadius
         _autoLockPolicy = autoLockPolicy
     }
 
     private var language: String {
-        Locale.current.localizedString(forLanguageCode: Locale.current.languageCode ?? "") ?? "(null)"
+        Locale.current.localizedString(forLanguageCode: Locale.current.languageCode ?? "")
+        ?? R.string.localizable.generalSettingViewValueDefaultLanguageDescription()
     }
 
     var body: some View {
         Form {
             Section {
                 HStack {
-                    Text(R.string.localizable.commonLanguage())
+                    Text(R.string.localizable.generalSettingViewTitleLanguage())
                     Spacer()
                     Button(language) {
                         viewStore.send(.navigateToSystemSetting)
@@ -64,14 +65,14 @@ struct GeneralSettingView: View {
                     }
                     Toggle("", isOn: $translatesTags).frame(width: 50)
                 }
-                Button(R.string.localizable.logsViewTitleLogs()) {
+                Button(R.string.localizable.generalSettingViewButtonLogs()) {
                     viewStore.send(.setNavigation(.logs))
                 }
                 .foregroundColor(.primary).withArrow()
             }
             Section(R.string.localizable.generalSettingViewSectionTitleNavigation()) {
                 Toggle(
-                    R.string.localizable.generalSettingViewTitleRedirectsLinksToSelectedHost(),
+                    R.string.localizable.generalSettingViewTitleRedirectsLinksToTheSelectedHost(),
                     isOn: $redirectsLinksToSelectedHost
                 )
                 Toggle(
@@ -96,7 +97,7 @@ struct GeneralSettingView: View {
                     Text(R.string.localizable.generalSettingViewTitleAppSwitcherBlurRadius())
                     HStack {
                         Image(systemSymbol: .eye)
-                        Slider(value: $backgroundBlurRadius, in: 0...100, step: 10)
+                        Slider(value: $appSwitcherBlurRadius, in: 0...100, step: 10)
                         Image(systemSymbol: .eyeSlash)
                     }
                 }
@@ -116,12 +117,12 @@ struct GeneralSettingView: View {
         }
         .confirmationDialog(
             message: R.string.localizable.confirmationDialogTitleAreYouSureTo(
-                R.string.localizable.commonClear().lowercased()
+                R.string.localizable.confirmationDialogButtonClear().lowercased()
             ),
             unwrapping: viewStore.binding(\.$route),
             case: /GeneralSettingState.Route.clearCache
         ) {
-            Button(R.string.localizable.commonClear(), role: .destructive) {
+            Button(R.string.localizable.confirmationDialogButtonClear(), role: .destructive) {
                 viewStore.send(.clearWebImageCache)
             }
         }
@@ -130,7 +131,7 @@ struct GeneralSettingView: View {
             viewStore.send(.calculateWebImageDiskCache)
         }
         .background(navigationLink)
-        .navigationTitle(R.string.localizable.enumSettingStateRouteValueGeneral())
+        .navigationTitle(R.string.localizable.generalSettingViewTitleGeneral())
     }
 
     private var navigationLink: some View {
@@ -161,7 +162,7 @@ struct GeneralSettingView_Previews: PreviewProvider {
                 translatesTags: .constant(false),
                 redirectsLinksToSelectedHost: .constant(false),
                 detectsLinksFromClipboard: .constant(false),
-                backgroundBlurRadius: .constant(10),
+                appSwitcherBlurRadius: .constant(10),
                 autoLockPolicy: .constant(.never)
             )
         }

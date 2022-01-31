@@ -16,10 +16,10 @@ extension GalleryDetailMO: Identifiable {
     @NSManaged public var category: String
     @NSManaged public var coverURL: String
     @NSManaged public var gid: String
-    @NSManaged public var isFavored: Bool
+    @NSManaged public var isFavorited: Bool
     @NSManaged public var jpnTitle: String?
     @NSManaged public var language: String
-    @NSManaged public var favoredCount: Int64
+    @NSManaged public var favoritedCount: Int64
     @NSManaged public var pageCount: Int64
     @NSManaged public var parentURL: String?
     @NSManaged public var postedDate: Date

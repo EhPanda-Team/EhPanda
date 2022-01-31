@@ -29,7 +29,7 @@ struct ToplistsView: View {
     }
 
     private var navigationTitle: String {
-        [R.string.localizable.listTypeToplists(), viewStore.type.value].joined(separator: " - ")
+        [R.string.localizable.toplistsViewTitleToplists(), viewStore.type.value].joined(separator: " - ")
     }
 
     var body: some View {
@@ -53,7 +53,7 @@ struct ToplistsView: View {
             pageNumber: viewStore.pageNumber ?? .init(),
             jumpAction: { viewStore.send(.performJumpPage) }
         )
-        .searchable(text: viewStore.binding(\.$keyword), prompt: R.string.localizable.commonFilter())
+        .searchable(text: viewStore.binding(\.$keyword), prompt: R.string.localizable.searchablePromptFilter())
         .navigationBarBackButtonHidden(viewStore.jumpPageAlertPresented)
         .animation(.default, value: viewStore.jumpPageAlertPresented)
         .onAppear {

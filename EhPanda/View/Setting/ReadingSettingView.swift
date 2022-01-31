@@ -64,7 +64,7 @@ struct ReadingSettingView: View {
                     Toggle(R.string.localizable.readingSettingViewTitleEnablesLandscape(), isOn: $enablesLandscape)
                 }
             }
-            Section(R.string.localizable.commonAppearance()) {
+            Section(R.string.localizable.readingSettingViewSectionTitleAppearance()) {
                 HStack {
                     Text(R.string.localizable.readingSettingViewTitleSeparatorHeight())
                     Spacer()
@@ -92,7 +92,7 @@ struct ReadingSettingView: View {
                 )
             }
         }
-        .navigationTitle(R.string.localizable.enumSettingStateRouteValueReading())
+        .navigationTitle(R.string.localizable.readingSettingViewTitleReading())
     }
 }
 

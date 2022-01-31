@@ -71,7 +71,7 @@ struct SearchView: View {
             }
             .background(navigationLinks)
             .toolbar(content: toolbar)
-            .navigationTitle(R.string.localizable.tabItemTitleSearch())
+            .navigationTitle(R.string.localizable.searchViewTitleSearch())
         }
     }
 
@@ -198,7 +198,7 @@ private struct QuickSearchWordsSection: View {
 
     var body: some View {
         SubSection(
-            title: R.string.localizable.quickSearchViewTitleQuickSearch(),
+            title: R.string.localizable.searchViewSectionTitleQuickSearch(),
             showAll: true, tint: .primary, showAllAction: showAllAction
         ) {
             DoubleVerticalKeywordsStack(keywords: keywords, searchAction: searchAction)

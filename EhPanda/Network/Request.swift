@@ -74,11 +74,11 @@ struct UserInfoRequest: Request {
     }
 }
 
-struct FavoriteNamesRequest: Request {
+struct FavoriteCategoriesRequest: Request {
     var publisher: AnyPublisher<[Int: String], AppError> {
         URLSession.shared.dataTaskPublisher(for: Defaults.URL.uConfig)
             .genericRetry().tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-            .tryMap(Parser.parseFavoriteNames).mapError(mapAppError).eraseToAnyPublisher()
+            .tryMap(Parser.parseFavoriteCategories).mapError(mapAppError).eraseToAnyPublisher()
     }
 }
 
@@ -782,7 +782,7 @@ struct SubmitEhSettingChangesRequest: Request {
             params["ct_\(name)"] = ehSetting.disabledCategories[index] ? "1" : "0"
         }
         Array(0...9).forEach { index in
-            params["favorite_\(index)"] = ehSetting.favoriteNames[index]
+            params["favorite_\(index)"] = ehSetting.favoriteCategories[index]
         }
         Array(0...10).forEach { index in
             params["xn_\(index + 1)"] = ehSetting.excludedNamespaces[index] ? "1" : "0"

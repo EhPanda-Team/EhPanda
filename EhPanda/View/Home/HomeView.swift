@@ -95,7 +95,7 @@ struct HomeView: View {
             }
             .background(navigationLinks)
             .toolbar(content: toolbar)
-            .navigationTitle(R.string.localizable.tabItemTitleHome())
+            .navigationTitle(R.string.localizable.homeViewTitleHome())
         }
     }
 
@@ -256,7 +256,7 @@ private struct CoverWallSection: View {
 
     var body: some View {
         SubSection(
-            title: R.string.localizable.listTypeFrontpage(),
+            title: R.string.localizable.homeViewSectionTitleFrontpage(),
             tint: .secondary, isLoading: isLoading,
             reloadAction: reloadAction,
             showAllAction: showAllAction
@@ -346,7 +346,7 @@ private struct ToplistsSection: View {
 
     var body: some View {
         SubSection(
-            title: R.string.localizable.listTypeToplists(),
+            title: R.string.localizable.homeViewSectionTitleToplists(),
             tint: .secondary, isLoading: isLoading,
             reloadAction: reloadAction,
             showAllAction: showAllAction
@@ -474,11 +474,11 @@ extension HomeMiscGridType {
     var title: String {
         switch self {
         case .popular:
-            return R.string.localizable.listTypePopular()
+            return R.string.localizable.homeMiscGridTypeTitlePopular()
         case .watched:
-            return R.string.localizable.listTypeWatched()
+            return R.string.localizable.homeMiscGridTypeTitleWatched()
         case .history:
-            return R.string.localizable.listTypeHistory()
+            return R.string.localizable.homeMiscGridTypeTitleHistory()
         }
     }
     var symbol: SFSymbol {

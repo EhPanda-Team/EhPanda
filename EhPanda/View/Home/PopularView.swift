@@ -40,7 +40,7 @@ struct PopularView: View {
                 tagTranslator.tryTranslate(text: $0, returnOriginal: !setting.translatesTags)
             }
         )
-        .searchable(text: viewStore.binding(\.$keyword), prompt: R.string.localizable.commonFilter())
+        .searchable(text: viewStore.binding(\.$keyword), prompt: R.string.localizable.searchablePromptFilter())
         .onAppear {
             if viewStore.galleries.isEmpty {
                 DispatchQueue.main.async {
@@ -50,7 +50,7 @@ struct PopularView: View {
         }
         .background(navigationLink)
         .toolbar(content: toolbar)
-        .navigationTitle(R.string.localizable.listTypePopular())
+        .navigationTitle(R.string.localizable.popularViewTitlePopular())
     }
 
     private var navigationLink: some View {

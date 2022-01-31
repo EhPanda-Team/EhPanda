@@ -70,7 +70,7 @@ let appReducerCore = Reducer<AppState, AppAction, AppEnvironment> { state, actio
         switch scenePhase {
         case .active:
             let threshold = state.settingState.setting.autoLockPolicy.rawValue
-            let blurRadius = state.settingState.setting.backgroundBlurRadius
+            let blurRadius = state.settingState.setting.appSwitcherBlurRadius
             var effects: [Effect<AppAction, Never>] = [
                 .init(value: .setting(.fetchGreeting)),
                 .init(value: .appLock(.onBecomeActive(threshold, blurRadius)))
@@ -80,7 +80,7 @@ let appReducerCore = Reducer<AppState, AppAction, AppEnvironment> { state, actio
             }
             return .merge(effects)
         case .inactive:
-            let blurRadius = state.settingState.setting.backgroundBlurRadius
+            let blurRadius = state.settingState.setting.appSwitcherBlurRadius
             return .init(value: .appLock(.onBecomeInactive(blurRadius)))
         default:
             break

@@ -50,7 +50,7 @@ struct FrontpageView: View {
             pageNumber: viewStore.pageNumber,
             jumpAction: { viewStore.send(.performJumpPage) }
         )
-        .searchable(text: viewStore.binding(\.$keyword), prompt: R.string.localizable.commonFilter())
+        .searchable(text: viewStore.binding(\.$keyword), prompt: R.string.localizable.searchablePromptFilter())
         .navigationBarBackButtonHidden(viewStore.jumpPageAlertPresented)
         .animation(.default, value: viewStore.jumpPageAlertPresented)
         .onAppear {
@@ -62,7 +62,7 @@ struct FrontpageView: View {
         }
         .background(navigationLink)
         .toolbar(content: toolbar)
-        .navigationTitle(R.string.localizable.listTypeFrontpage())
+        .navigationTitle(R.string.localizable.frontpageViewTitleFrontpage())
     }
 
     private var navigationLink: some View {

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="19574" systemVersion="21C52" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithCloudKit="YES" userDefinedModelVersionIdentifier="">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="19574" systemVersion="21D49" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithCloudKit="YES" userDefinedModelVersionIdentifier="">
     <entity name="AppEnvMO" representedClassName=".AppEnvMO" syncable="YES">
         <attribute name="globalFilter" optional="YES" attributeType="Binary"/>
         <attribute name="historyKeywords" optional="YES" attributeType="Binary" customClassName=".[String]"/>
@@ -14,9 +14,9 @@
         <attribute name="archiveURL" optional="YES" attributeType="String"/>
         <attribute name="category" attributeType="String" defaultValueString=""/>
         <attribute name="coverURL" attributeType="String" defaultValueString=""/>
-        <attribute name="favoredCount" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="favoritedCount" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="gid" attributeType="String" defaultValueString=""/>
-        <attribute name="isFavored" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="isFavorited" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="jpnTitle" optional="YES" attributeType="String"/>
         <attribute name="language" attributeType="String" defaultValueString=""/>
         <attribute name="pageCount" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>

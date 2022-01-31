@@ -34,7 +34,7 @@ struct SettingView: View {
                 .padding(.vertical, 40).padding(.horizontal)
             }
             .background(navigationLinks)
-            .navigationTitle(R.string.localizable.tabItemTitleSetting())
+            .navigationTitle(R.string.localizable.settingViewTitleSetting())
         }
     }
 }
@@ -46,7 +46,7 @@ private extension SettingView {
             AccountSettingView(
                 store: store.scope(state: \.accountSettingState, action: SettingAction.account),
                 galleryHost: viewStore.binding(\.$setting.galleryHost),
-                showNewDawnGreeting: viewStore.binding(\.$setting.showsNewDawnGreeting),
+                showsNewDawnGreeting: viewStore.binding(\.$setting.showsNewDawnGreeting),
                 bypassesSNIFiltering: viewStore.setting.bypassesSNIFiltering,
                 blurRadius: blurRadius
             )
@@ -60,7 +60,7 @@ private extension SettingView {
                 translatesTags: viewStore.binding(\.$setting.translatesTags),
                 redirectsLinksToSelectedHost: viewStore.binding(\.$setting.redirectsLinksToSelectedHost),
                 detectsLinksFromClipboard: viewStore.binding(\.$setting.detectsLinksFromClipboard),
-                backgroundBlurRadius: viewStore.binding(\.$setting.backgroundBlurRadius),
+                appSwitcherBlurRadius: viewStore.binding(\.$setting.appSwitcherBlurRadius),
                 autoLockPolicy: viewStore.binding(\.$setting.autoLockPolicy)
             )
             .tint(viewStore.setting.accentColor)
@@ -148,7 +148,7 @@ extension SettingState.Route {
         case .general:
             return R.string.localizable.enumSettingStateRouteValueGeneral()
         case .appearance:
-            return R.string.localizable.commonAppearance()
+            return R.string.localizable.enumSettingStateRouteValueAppearance()
         case .reading:
             return R.string.localizable.enumSettingStateRouteValueReading()
         case .laboratory:

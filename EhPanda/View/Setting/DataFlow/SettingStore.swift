@@ -87,8 +87,8 @@ enum SettingAction: BindableAction {
     case fetchTagTranslatorDone(Result<TagTranslator, AppError>)
     case fetchEhProfileIndex
     case fetchEhProfileIndexDone(Result<(Int?, Bool), AppError>)
-    case fetchFavoriteNames
-    case fetchFavoriteNamesDone(Result<[Int: String], AppError>)
+    case fetchFavoriteCategories
+    case fetchFavoriteCategoriesDone(Result<[Int: String], AppError>)
 
     case setNavigation(SettingState.Route?)
     case resetFilter(FilterRange)
@@ -253,7 +253,7 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
                 effects.append(contentsOf: [
                     .init(value: .fetchUserInfo),
                     .init(value: .fetchGreeting),
-                    .init(value: .fetchFavoriteNames),
+                    .init(value: .fetchFavoriteCategories),
                     .init(value: .fetchEhProfileIndex)
                 ])
             }
@@ -409,13 +409,13 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
             }
             return effects.isEmpty ? .none : .merge(effects)
 
-        case .fetchFavoriteNames:
+        case .fetchFavoriteCategories:
             guard environment.cookiesClient.didLogin() else { return .none }
-            return FavoriteNamesRequest().effect.map(SettingAction.fetchFavoriteNamesDone)
+            return FavoriteCategoriesRequest().effect.map(SettingAction.fetchFavoriteCategoriesDone)
 
-        case .fetchFavoriteNamesDone(let result):
-            if case .success(let names) = result {
-                state.user.favoriteNames = names
+        case .fetchFavoriteCategoriesDone(let result):
+            if case .success(let categories) = result {
+                state.user.favoriteCategories = categories
             }
             return .none
 
@@ -442,7 +442,7 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
                 environment.cookiesClient.fulfillAnotherHostField().fireAndForget(),
                 .init(value: .fetchIgneous),
                 .init(value: .fetchUserInfo),
-                .init(value: .fetchFavoriteNames),
+                .init(value: .fetchFavoriteCategories),
                 .init(value: .fetchEhProfileIndex)
             )
 

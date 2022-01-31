@@ -43,16 +43,16 @@ struct HistoryView: View {
         )
         .confirmationDialog(
             message: R.string.localizable.confirmationDialogTitleAreYouSureTo(
-                R.string.localizable.commonClear().lowercased()
+                R.string.localizable.confirmationDialogButtonClear().lowercased()
             ),
             unwrapping: viewStore.binding(\.$route),
             case: /HistoryState.Route.clearHistory
         ) {
-            Button(R.string.localizable.commonClear(), role: .destructive) {
+            Button(R.string.localizable.confirmationDialogButtonClear(), role: .destructive) {
                 viewStore.send(.clearHistoryGalleries)
             }
         }
-        .searchable(text: viewStore.binding(\.$keyword), prompt: R.string.localizable.commonFilter())
+        .searchable(text: viewStore.binding(\.$keyword), prompt: R.string.localizable.searchablePromptFilter())
         .onAppear {
             if viewStore.galleries.isEmpty {
                 DispatchQueue.main.async {
@@ -62,7 +62,7 @@ struct HistoryView: View {
         }
         .background(navigationLink)
         .toolbar(content: toolbar)
-        .navigationTitle(R.string.localizable.listTypeHistory())
+        .navigationTitle(R.string.localizable.historyViewTitleHistory())
     }
 
     private var navigationLink: some View {

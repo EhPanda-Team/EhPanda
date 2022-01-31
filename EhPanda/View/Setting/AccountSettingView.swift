@@ -12,19 +12,19 @@ struct AccountSettingView: View {
     private let store: Store<AccountSettingState, AccountSettingAction>
     @ObservedObject private var viewStore: ViewStore<AccountSettingState, AccountSettingAction>
     @Binding private var galleryHost: GalleryHost
-    @Binding private var showNewDawnGreeting: Bool
+    @Binding private var showsNewDawnGreeting: Bool
     private let bypassesSNIFiltering: Bool
     private let blurRadius: Double
 
     init(
         store: Store<AccountSettingState, AccountSettingAction>,
-        galleryHost: Binding<GalleryHost>, showNewDawnGreeting: Binding<Bool>,
+        galleryHost: Binding<GalleryHost>, showsNewDawnGreeting: Binding<Bool>,
         bypassesSNIFiltering: Bool, blurRadius: Double
     ) {
         self.store = store
         viewStore = ViewStore(store)
         _galleryHost = galleryHost
-        _showNewDawnGreeting = showNewDawnGreeting
+        _showsNewDawnGreeting = showsNewDawnGreeting
         self.bypassesSNIFiltering = bypassesSNIFiltering
         self.blurRadius = blurRadius
     }
@@ -40,7 +40,7 @@ struct AccountSettingView: View {
                 }
                 .pickerStyle(.segmented)
                 AccountSection(
-                    showNewDawnGreeting: $showNewDawnGreeting,
+                    showsNewDawnGreeting: $showsNewDawnGreeting,
                     bypassesSNIFiltering: bypassesSNIFiltering,
                     loginAction: { viewStore.send(.setNavigation(.login)) },
                     logoutAction: { viewStore.send(.setNavigation(.logout)) },
@@ -61,12 +61,12 @@ struct AccountSettingView: View {
         )
         .confirmationDialog(
             message: R.string.localizable.confirmationDialogTitleAreYouSureTo(
-                R.string.localizable.commonLogout().lowercased()
+                R.string.localizable.confirmationDialogButtonLogout().lowercased()
             ),
             unwrapping: viewStore.binding(\.$route),
             case: /AccountSettingState.Route.logout
         ) {
-            Button(R.string.localizable.commonLogout(), role: .destructive) {
+            Button(R.string.localizable.confirmationDialogButtonLogout(), role: .destructive) {
                 viewStore.send(.onLogoutConfirmButtonTapped)
             }
         }
@@ -76,7 +76,7 @@ struct AccountSettingView: View {
         }
         .onAppear { viewStore.send(.loadCookies) }
         .background(navigationLinks)
-        .navigationTitle(R.string.localizable.enumSettingStateRouteValueAccount())
+        .navigationTitle(R.string.localizable.accountSettingViewTitleAccount())
     }
 }
 
@@ -100,7 +100,7 @@ private extension AccountSettingView {
 
 // MARK: AccountSection
 private struct AccountSection: View {
-    @Binding private var showNewDawnGreeting: Bool
+    @Binding private var showsNewDawnGreeting: Bool
     private let bypassesSNIFiltering: Bool
     private let loginAction: () -> Void
     private let logoutAction: () -> Void
@@ -108,11 +108,11 @@ private struct AccountSection: View {
     private let manageTagsAction: () -> Void
 
     init(
-        showNewDawnGreeting: Binding<Bool>, bypassesSNIFiltering: Bool,
+        showsNewDawnGreeting: Binding<Bool>, bypassesSNIFiltering: Bool,
         loginAction: @escaping () -> Void, logoutAction: @escaping () -> Void,
         configureAccountAction: @escaping () -> Void, manageTagsAction: @escaping () -> Void
     ) {
-        _showNewDawnGreeting = showNewDawnGreeting
+        _showsNewDawnGreeting = showsNewDawnGreeting
         self.bypassesSNIFiltering = bypassesSNIFiltering
         self.loginAction = loginAction
         self.logoutAction = logoutAction
@@ -122,9 +122,9 @@ private struct AccountSection: View {
 
     var body: some View {
         if !CookiesUtil.didLogin {
-            Button(R.string.localizable.commonLogin(), action: loginAction)
+            Button(R.string.localizable.accountSettingViewButtonLogin(), action: loginAction)
         } else {
-            Button(R.string.localizable.commonLogout(), role: .destructive, action: logoutAction)
+            Button(R.string.localizable.confirmationDialogButtonLogout(), role: .destructive, action: logoutAction)
             Group {
                 Button(
                     R.string.localizable.accountSettingViewButtonAccountConfiguration(),
@@ -138,7 +138,7 @@ private struct AccountSection: View {
                     )
                     .withArrow()
                 }
-                Toggle(R.string.localizable.accountSettingViewTitleShowNewDawnGreeting(), isOn: $showNewDawnGreeting)
+                Toggle(R.string.localizable.accountSettingViewTitleShowsNewDawnGreeting(), isOn: $showsNewDawnGreeting)
             }
             .foregroundColor(.primary)
         }
@@ -219,7 +219,7 @@ struct AccountSettingView_Previews: PreviewProvider {
                     )
                 ),
                 galleryHost: .constant(.ehentai),
-                showNewDawnGreeting: .constant(false),
+                showsNewDawnGreeting: .constant(false),
                 bypassesSNIFiltering: false,
                 blurRadius: 0
             )

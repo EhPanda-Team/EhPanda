@@ -19,14 +19,14 @@ struct User: Codable, Equatable {
 
     var greeting: Greeting?
 
-    var favoriteNames: [Int: String]?
+    var favoriteCategories: [Int: String]?
 
-    func getFavoritesName(index: Int) -> String {
-        guard index != -1 else { return R.string.localizable.favoritesNameAll() }
-        let defaultName = R.string.localizable.favoritesNameDefault("\(index)")
-        let name = favoriteNames?[index] ?? defaultName
-        let isDefault = name == "Favorites \(index)"
-        return isDefault ? defaultName : name
+    func getFavoriteCategory(index: Int) -> String {
+        guard index != -1 else { return R.string.localizable.favoriteCategoryAll() }
+        let defaultCategory = R.string.localizable.favoriteCategoryDefault("\(index)")
+        let category = favoriteCategories?[index] ?? defaultCategory
+        let isDefault = category == "Favorites \(index)"
+        return isDefault ? defaultCategory : category
     }
 }
 

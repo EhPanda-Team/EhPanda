@@ -126,11 +126,11 @@ extension PersistenceController {
             managedObject?.archiveURL = detail.archiveURL
             managedObject?.category = detail.category.rawValue
             managedObject?.coverURL = detail.coverURL
-            managedObject?.isFavored = detail.isFavored
+            managedObject?.isFavorited = detail.isFavorited
             managedObject?.visibility = detail.visibility.toData()
             managedObject?.jpnTitle = detail.jpnTitle
             managedObject?.language = detail.language.rawValue
-            managedObject?.favoredCount = Int64(detail.favoredCount)
+            managedObject?.favoritedCount = Int64(detail.favoritedCount)
             managedObject?.pageCount = Int64(detail.pageCount)
             managedObject?.parentURL = detail.parentURL
             managedObject?.postedDate = detail.postedDate

@@ -52,7 +52,7 @@ struct AppearanceSettingView: View {
                 }
                 .pickerStyle(.menu)
                 ColorPicker(R.string.localizable.appearanceSettingViewTitleTintColor(), selection: $accentColor)
-                Button(R.string.localizable.appIconViewTitleAppIcon()) {
+                Button(R.string.localizable.appearanceSettingViewButtonAppIcon()) {
                     viewStore.send(.setNavigation(.appIcon))
                 }
                 .foregroundStyle(.primary).withArrow()
@@ -93,7 +93,7 @@ struct AppearanceSettingView: View {
             }
         }
         .background(navigationLink)
-        .navigationTitle(R.string.localizable.commonAppearance())
+        .navigationTitle(R.string.localizable.appearanceSettingViewTitleAppearance())
     }
     private var navigationLink: some View {
         NavigationLink(unwrapping: viewStore.binding(\.$route), case: /AppearanceSettingState.Route.appIcon) { _ in

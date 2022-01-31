@@ -64,7 +64,8 @@ extension URL {
     func appending(queryItems: [URLQueryItem]) -> URL {
         var components: URLComponents = .init(
             url: self, resolvingAgainstBaseURL: false
-        ).forceUnwrapped
+        )
+        .forceUnwrapped
         if components.queryItems == nil {
             components.queryItems = []
         }
@@ -96,6 +97,10 @@ extension URL {
 
 // MARK: String
 extension String {
+    var notEmpty: Bool {
+        !isEmpty
+    }
+
     var urlEncoded: String {
         addingPercentEncoding(
             withAllowedCharacters: .urlQueryAllowed

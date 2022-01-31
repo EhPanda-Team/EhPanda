@@ -266,7 +266,7 @@ private struct HorizontalImageStack: View {
         Button {
             refetchAction(index)
         } label: {
-            Label(R.string.localizable.readingViewButtonReload(), systemSymbol: .arrowCounterclockwise)
+            Label(R.string.localizable.readingViewContextMenuButtonReload(), systemSymbol: .arrowCounterclockwise)
         }
         if let content = contents[index], !content.isEmpty {
             Button {
@@ -274,14 +274,14 @@ private struct HorizontalImageStack: View {
                     copyImageAction(url)
                 }
             } label: {
-                Label(R.string.localizable.readingViewButtonCopy(), systemSymbol: .plusSquareOnSquare)
+                Label(R.string.localizable.readingViewContextMenuButtonCopy(), systemSymbol: .plusSquareOnSquare)
             }
             Button {
                 if let url = URL(string: content) {
                     saveImageAction(url)
                 }
             } label: {
-                Label(R.string.localizable.readingViewButtonSave(), systemSymbol: .squareAndArrowDown)
+                Label(R.string.localizable.readingViewContextMenuButtonSave(), systemSymbol: .squareAndArrowDown)
             }
             if let originalContent = originalContents[index], !originalContent.isEmpty {
                 Button {
@@ -290,7 +290,7 @@ private struct HorizontalImageStack: View {
                     }
                 } label: {
                     Label(
-                        R.string.localizable.readingViewButtonSaveOriginal(),
+                        R.string.localizable.readingViewContextMenuButtonSaveOriginal(),
                         systemSymbol: .squareAndArrowDownOnSquare
                     )
                 }
@@ -300,7 +300,7 @@ private struct HorizontalImageStack: View {
                     shareImageAction(url)
                 }
             } label: {
-                Label(R.string.localizable.commonShare(), systemSymbol: .squareAndArrowUp)
+                Label(R.string.localizable.readingViewContextMenuButtonShare(), systemSymbol: .squareAndArrowUp)
             }
         }
     }
@@ -417,7 +417,7 @@ struct ImageStackConfig {
 enum AutoPlayPolicy: Int, CaseIterable, Identifiable {
     var id: Int { rawValue }
 
-    case never = -1
+    case off = -1
     case sec1 = 1
     case sec2 = 2
     case sec3 = 3
@@ -428,8 +428,8 @@ enum AutoPlayPolicy: Int, CaseIterable, Identifiable {
 extension AutoPlayPolicy {
     var value: String {
         switch self {
-        case .never:
-            return R.string.localizable.enumAutoPlayPolicyValueNever()
+        case .off:
+            return R.string.localizable.enumAutoPlayPolicyValueOff()
         default:
             return R.string.localizable.commonValueSeconds("\(rawValue)")
         }

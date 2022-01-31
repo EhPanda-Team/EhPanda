@@ -17,7 +17,7 @@ struct Setting: Codable, Equatable {
     // General
     var redirectsLinksToSelectedHost = false
     var detectsLinksFromClipboard = false
-    var backgroundBlurRadius: Double = 10
+    var appSwitcherBlurRadius: Double = 10
     var autoLockPolicy: AutoLockPolicy = .never
 
     // Appearance
@@ -82,7 +82,7 @@ extension AutoLockPolicy {
     var value: String {
         switch self {
         case .never:
-            return R.string.localizable.enumAutoPlayPolicyValueNever()
+            return R.string.localizable.enumAutoLockPolicyValueNever()
         case .instantly:
             return R.string.localizable.enumAutoLockPolicyValueInstantly()
         case .sec15:
@@ -165,35 +165,35 @@ extension ListDisplayMode {
 // swiftlint:disable line_length
 // MARK: Manually decode
 extension Setting {
-    init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
+    init(from decoder: Decoder) {
+        let container = try? decoder.container(keyedBy: CodingKeys.self)
         // Account
-        galleryHost = try container.decodeIfPresent(GalleryHost.self, forKey: .galleryHost) ?? .ehentai
-        showsNewDawnGreeting = try container.decodeIfPresent(Bool.self, forKey: .showsNewDawnGreeting) ?? false
+        galleryHost = (try? container?.decodeIfPresent(GalleryHost.self, forKey: .galleryHost)) ?? .ehentai
+        showsNewDawnGreeting = (try? container?.decodeIfPresent(Bool.self, forKey: .showsNewDawnGreeting)) ?? false
         // General
-        redirectsLinksToSelectedHost = try container.decodeIfPresent(Bool.self, forKey: .redirectsLinksToSelectedHost) ?? false
-        detectsLinksFromClipboard = try container.decodeIfPresent(Bool.self, forKey: .detectsLinksFromClipboard) ?? false
-        backgroundBlurRadius = try container.decodeIfPresent(Double.self, forKey: .backgroundBlurRadius) ?? 10
-        autoLockPolicy = try container.decodeIfPresent(AutoLockPolicy.self, forKey: .autoLockPolicy) ?? .never
+        redirectsLinksToSelectedHost = (try? container?.decodeIfPresent(Bool.self, forKey: .redirectsLinksToSelectedHost)) ?? false
+        detectsLinksFromClipboard = (try? container?.decodeIfPresent(Bool.self, forKey: .detectsLinksFromClipboard)) ?? false
+        appSwitcherBlurRadius = (try? container?.decodeIfPresent(Double.self, forKey: .appSwitcherBlurRadius)) ?? 10
+        autoLockPolicy = (try? container?.decodeIfPresent(AutoLockPolicy.self, forKey: .autoLockPolicy)) ?? .never
         // Appearance
-        listDisplayMode = try container.decodeIfPresent(ListDisplayMode.self, forKey: .listDisplayMode) ?? (DeviceUtil.isPadWidth ? .thumbnail : .detail)
-        preferredColorScheme = try container.decodeIfPresent(PreferredColorScheme.self, forKey: .preferredColorScheme) ?? .automatic
-        accentColor = try container.decodeIfPresent(Color.self, forKey: .accentColor) ?? .blue
-        appIconType = try container.decodeIfPresent(AppIconType.self, forKey: .appIconType) ?? .default
-        translatesTags = try container.decodeIfPresent(Bool.self, forKey: .translatesTags) ?? false
-        showsTagsInList = try container.decodeIfPresent(Bool.self, forKey: .showsTagsInList) ?? false
-        listTagsNumberMaximum = try container.decodeIfPresent(Int.self, forKey: .listTagsNumberMaximum) ?? 0
+        listDisplayMode = (try? container?.decodeIfPresent(ListDisplayMode.self, forKey: .listDisplayMode)) ?? (DeviceUtil.isPadWidth ? .thumbnail : .detail)
+        preferredColorScheme = (try? container?.decodeIfPresent(PreferredColorScheme.self, forKey: .preferredColorScheme)) ?? .automatic
+        accentColor = (try? container?.decodeIfPresent(Color.self, forKey: .accentColor)) ?? .blue
+        appIconType = (try? container?.decodeIfPresent(AppIconType.self, forKey: .appIconType)) ?? .default
+        translatesTags = (try? container?.decodeIfPresent(Bool.self, forKey: .translatesTags)) ?? false
+        showsTagsInList = (try? container?.decodeIfPresent(Bool.self, forKey: .showsTagsInList)) ?? false
+        listTagsNumberMaximum = (try? container?.decodeIfPresent(Int.self, forKey: .listTagsNumberMaximum)) ?? 0
         // Reading
-        readingDirection = try container.decodeIfPresent(ReadingDirection.self, forKey: .readingDirection) ?? .vertical
-        prefetchLimit = try container.decodeIfPresent(Int.self, forKey: .prefetchLimit) ?? 10
-        enablesLandscape = try container.decodeIfPresent(Bool.self, forKey: .enablesLandscape) ?? false
-        enablesDualPageMode = try container.decodeIfPresent(Bool.self, forKey: .enablesDualPageMode) ?? false
-        exceptCover = try container.decodeIfPresent(Bool.self, forKey: .exceptCover) ?? false
-        contentDividerHeight = try container.decodeIfPresent(Double.self, forKey: .contentDividerHeight) ?? 0
-        maximumScaleFactor = try container.decodeIfPresent(Double.self, forKey: .maximumScaleFactor) ?? 3
-        doubleTapScaleFactor = try container.decodeIfPresent(Double.self, forKey: .doubleTapScaleFactor) ?? 2
+        readingDirection = (try? container?.decodeIfPresent(ReadingDirection.self, forKey: .readingDirection)) ?? .vertical
+        prefetchLimit = (try? container?.decodeIfPresent(Int.self, forKey: .prefetchLimit)) ?? 10
+        enablesLandscape = (try? container?.decodeIfPresent(Bool.self, forKey: .enablesLandscape)) ?? false
+        enablesDualPageMode = (try? container?.decodeIfPresent(Bool.self, forKey: .enablesDualPageMode)) ?? false
+        exceptCover = (try? container?.decodeIfPresent(Bool.self, forKey: .exceptCover)) ?? false
+        contentDividerHeight = (try? container?.decodeIfPresent(Double.self, forKey: .contentDividerHeight)) ?? 0
+        maximumScaleFactor = (try? container?.decodeIfPresent(Double.self, forKey: .maximumScaleFactor)) ?? 3
+        doubleTapScaleFactor = (try? container?.decodeIfPresent(Double.self, forKey: .doubleTapScaleFactor)) ?? 2
         // Laboratory
-        bypassesSNIFiltering = try container.decodeIfPresent(Bool.self, forKey: .bypassesSNIFiltering) ?? false
+        bypassesSNIFiltering = (try? container?.decodeIfPresent(Bool.self, forKey: .bypassesSNIFiltering)) ?? false
     }
 }
 // swiftlint:enable line_length

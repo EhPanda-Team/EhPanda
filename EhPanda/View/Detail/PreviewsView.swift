@@ -78,7 +78,7 @@ struct PreviewsView: View {
         .onAppear {
             viewStore.send(.fetchDatabaseInfos)
         }
-        .navigationTitle(R.string.localizable.commentsViewTitlePreviews())
+        .navigationTitle(R.string.localizable.previewsViewTitlePreviews())
     }
 }
 

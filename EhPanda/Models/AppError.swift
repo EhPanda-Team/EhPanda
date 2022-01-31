@@ -106,49 +106,44 @@ enum BanInterval: Equatable, Hashable {
 extension BanInterval {
     var description: String {
         var params: [String]
+        let and = R.string.localizable.enumBanIntervalDescriptionAnd()
+
         switch self {
         case .days(let days, let hours):
-            params = [
-                String(days), days > 1
-                ? R.string.localizable.enumBanIntervalDescriptionDays()
-                : R.string.localizable.enumBanIntervalDescriptionDay()
-            ]
+            params = [daysWithUnit(days)]
             if let hours = hours {
-                params += [
-                    R.string.localizable.enumBanIntervalDescriptionAnd(), String(hours), hours > 1
-                    ? R.string.localizable.enumBanIntervalDescriptionHours()
-                    : R.string.localizable.enumBanIntervalDescriptionHour()
-                ]
+                params += [and, hoursWithUnit(hours)]
             }
         case .hours(let hours, let minutes):
-            params = [
-                String(hours), hours > 1
-                ? R.string.localizable.enumBanIntervalDescriptionHours()
-                : R.string.localizable.enumBanIntervalDescriptionHour()
-            ]
+            params = [hoursWithUnit(hours)]
             if let minutes = minutes {
-                params += [
-                    R.string.localizable.enumBanIntervalDescriptionAnd(), String(minutes), minutes > 1
-                    ? R.string.localizable.enumBanIntervalDescriptionMinutes()
-                    : R.string.localizable.enumBanIntervalDescriptionMinute()
-                ]
+                params += [and, minutesWithUnit(minutes)]
             }
         case .minutes(let minutes, let seconds):
-            params = [
-                String(minutes), minutes > 1
-                ? R.string.localizable.enumBanIntervalDescriptionMinutes()
-                : R.string.localizable.enumBanIntervalDescriptionMinute()
-            ]
+            params = [minutesWithUnit(minutes)]
             if let seconds = seconds {
-                params += [
-                    R.string.localizable.enumBanIntervalDescriptionAnd(), String(seconds), seconds > 1
-                    ? R.string.localizable.enumBanIntervalDescriptionSeconds()
-                    : R.string.localizable.enumBanIntervalDescriptionSecond()
-                ]
+                params += [and, secondsWithUnit(seconds)]
             }
         case .unrecognized(let content):
             params = [content]
         }
-        return params.joined()
+        return params.filter(\.notEmpty).joined(separator: " ")
+    }
+
+    private func daysWithUnit(_ days: Int) -> String {
+        days > 1 ? R.string.localizable.commonValueDays("\(days)")
+        : R.string.localizable.commonValueDay("\(days)")
+    }
+    private func hoursWithUnit(_ hours: Int) -> String {
+        hours > 1 ? R.string.localizable.commonValueHours("\(hours)")
+        : R.string.localizable.commonValueHour("\(hours)")
+    }
+    private func minutesWithUnit(_ minutes: Int) -> String {
+        minutes > 1 ? R.string.localizable.commonValueMinutes("\(minutes)")
+        : R.string.localizable.commonValueMinute("\(minutes)")
+    }
+    private func secondsWithUnit(_ seconds: Int) -> String {
+        seconds > 1 ? R.string.localizable.commonValueSeconds("\(seconds)")
+        : R.string.localizable.commonValueSecond("\(seconds)")
     }
 }

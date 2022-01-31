@@ -27,14 +27,14 @@ struct GalleryInfosView: View {
             Info(title: "Token", value: gallery.token),
             Info(title: R.string.localizable.galleryInfosViewTitleTitle(), value: galleryDetail.title),
             Info(title: R.string.localizable.galleryInfosViewTitleJapaneseTitle(), value: galleryDetail.jpnTitle),
-            Info(title: R.string.localizable.galleryInfosViewTitleGalleryLink(), value: gallery.galleryURL),
-            Info(title: R.string.localizable.galleryInfosViewTitleCoverLink(), value: galleryDetail.coverURL),
-            Info(title: R.string.localizable.galleryInfosViewTitleArchiveLink(), value: galleryDetail.archiveURL),
+            Info(title: R.string.localizable.galleryInfosViewTitleGalleryURL(), value: gallery.galleryURL),
+            Info(title: R.string.localizable.galleryInfosViewTitleCoverURL(), value: galleryDetail.coverURL),
+            Info(title: R.string.localizable.galleryInfosViewTitleArchiveURL(), value: galleryDetail.archiveURL),
             Info(
-                title: R.string.localizable.galleryInfosViewTitleTorrentLink(),
+                title: R.string.localizable.galleryInfosViewTitleTorrentURL(),
                 value: URLUtil.galleryTorrents(gid: gallery.gid, token: gallery.token).absoluteString
             ),
-            Info(title: R.string.localizable.galleryInfosViewTitleParentLink(), value: galleryDetail.parentURL),
+            Info(title: R.string.localizable.galleryInfosViewTitleParentURL(), value: galleryDetail.parentURL),
             Info(
                 title: R.string.localizable.galleryInfosViewTitleCategory(),
                 value: galleryDetail.category.value
@@ -48,17 +48,21 @@ struct GalleryInfosView: View {
                 title: R.string.localizable.galleryInfosViewTitleVisibility(),
                 value: galleryDetail.visibility.value
             ),
-            Info(title: R.string.localizable.commonLanguage(), value: galleryDetail.language.value),
+            Info(title: R.string.localizable.galleryInfosViewTitleLanguage(), value: galleryDetail.language.value),
             Info(title: R.string.localizable.galleryInfosViewTitlePageCount(), value: String(galleryDetail.pageCount)),
             Info(
                 title: R.string.localizable.galleryInfosViewTitleFileSize(),
                 value: String(Int(galleryDetail.sizeCount)) + galleryDetail.sizeType
             ),
             Info(
-                title: R.string.localizable.galleryInfosViewTitleFavoredTimes(),
-                value: String(galleryDetail.favoredCount)
+                title: R.string.localizable.galleryInfosViewTitleFavoritedTimes(),
+                value: String(galleryDetail.favoritedCount)
             ),
-            Info(title: R.string.localizable.galleryInfosViewTitleFavored(), value: galleryDetail.isFavoredDescription),
+            Info(
+                title: R.string.localizable.galleryInfosViewTitleFavorited(),
+                value: galleryDetail.isFavorited ? R.string.localizable.galleryInfosViewValueYes()
+                : R.string.localizable.galleryInfosViewValueNo()
+            ),
             Info(
                 title: R.string.localizable.galleryInfosViewTitleRatingCount(),
                 value: String(galleryDetail.ratingCount)
@@ -93,7 +97,7 @@ struct GalleryInfosView: View {
                             viewStore.send(.copyText(text))
                         }
                     } label: {
-                        Text(info.value ?? R.string.localizable.commonNull())
+                        Text(info.value ?? R.string.localizable.galleryInfosViewValueNone())
                             .lineLimit(3).font(.caption)
                             .foregroundStyle(.tint)
                     }

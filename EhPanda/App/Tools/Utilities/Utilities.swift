@@ -298,7 +298,9 @@ struct CookiesUtil {
     }
 
     static func get(for url: URL, key: String) -> CookieValue {
-        var value = CookieValue(rawValue: "", localizedString: R.string.localizable.commonNull())
+        var value = CookieValue(
+            rawValue: "", localizedString: R.string.localizable.structCookieValueLocalizedStringNone()
+        )
 
         guard let cookies = HTTPCookieStorage.shared.cookies(for: url), !cookies.isEmpty else { return value }
 
@@ -306,12 +308,17 @@ struct CookiesUtil {
             guard let expiresDate = cookie.expiresDate, cookie.name == key && !cookie.value.isEmpty else { return }
 
             guard expiresDate > .now else {
-                value = CookieValue(rawValue: "", localizedString: R.string.localizable.cookieValueExpired())
+                value = CookieValue(
+                    rawValue: "", localizedString: R.string.localizable.structCookieValueLocalizedStringExpired()
+                )
                 return
             }
 
             guard cookie.value != Defaults.Cookie.mystery else {
-                value = CookieValue(rawValue: cookie.value, localizedString: R.string.localizable.cookieValueMystery())
+                value = CookieValue(
+                    rawValue: cookie.value, localizedString:
+                        R.string.localizable.structCookieValueLocalizedStringMystery()
+                )
                 return
             }
 
