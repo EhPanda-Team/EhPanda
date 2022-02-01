@@ -592,7 +592,7 @@ private extension TagsSection {
 
         var body: some View {
             HStack(alignment: .top) {
-                Text(tag.category?.value ?? "").font(.subheadline.bold())
+                Text(tag.category?.value ?? tag.namespace).font(.subheadline.bold())
                     .foregroundColor(reversePrimary).padding(.vertical, 5).padding(.horizontal, 14)
                     .background(Rectangle().foregroundColor(Color(.systemGray))).cornerRadius(5)
                 TagCloudView(

@@ -223,7 +223,12 @@ private struct ImageLoadSettingsSection: View {
             .pickerStyle(.menu)
         }
         .textCase(nil)
-        Section(R.string.localizable.ehSettingViewDescriptionBrowsingCountry(ehSetting.browsingCountry.name)) {
+        Section(
+            R.string.localizable.ehSettingViewDescriptionBrowsingCountry(
+                ehSetting.literalBrowsingCountry
+            )
+            .localizedKey
+        ) {
             Picker(R.string.localizable.ehSettingViewTitleBrowsingCountry(), selection: $ehSetting.browsingCountry) {
                 ForEach(EhSetting.BrowsingCountry.allCases) { country in
                     Text(country.name).tag(country)
@@ -566,7 +571,7 @@ private struct ExcludedLanguagesSection: View {
         _ehSetting = ehSetting
     }
 
-    private let languages = Language.allExcludedCases.map(\.rawValue)
+    private let languages = Language.allExcludedCases.map(\.value)
     private var languageBindings: [Binding<Bool>] {
         $ehSetting.excludedLanguages.map({ $0 })
     }
@@ -663,9 +668,12 @@ private struct ExcludedUploadersSection: View {
         Section(
             header: Text(R.string.localizable.ehSettingViewSectionTitleExcludedUploaders()).newlineBold()
             + Text(R.string.localizable.ehSettingViewDescriptionExcludedUploaders()),
-            footer: Text(R.string.localizable.ehSettingViewDescriptionExcludedUploadersCount(
-                "\(ehSetting.excludedUploaders.lineCount)", "\(1000)"
-            ))
+            footer: Text(
+                R.string.localizable.ehSettingViewDescriptionExcludedUploadersCount(
+                    "\(ehSetting.excludedUploaders.lineCount)", "\(1000)"
+                )
+                .localizedKey
+            )
         ) {
             TextEditor(text: $ehSetting.excludedUploaders).textInputAutocapitalization(.none)
                 .frame(maxHeight: DeviceUtil.windowH * 0.3).disableAutocorrection(true).focused($isFocused)

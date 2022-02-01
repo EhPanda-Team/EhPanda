@@ -100,6 +100,9 @@ extension String {
     var notEmpty: Bool {
         !isEmpty
     }
+    var localizedKey: LocalizedStringKey {
+        .init(self)
+    }
 
     var urlEncoded: String {
         addingPercentEncoding(
