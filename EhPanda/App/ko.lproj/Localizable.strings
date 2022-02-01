@@ -82,13 +82,6 @@
 "confirmation.dialog.button.clear" = "삭제";
 "confirmation.dialog.button.reset" = "초기화";
 
-"confirmation.dialog.title.areYouSureTo" = "Are you sure to %@?";
-"confirmation.dialog.title.deleteThisItem" = "delete this item";
-"confirmation.dialog.title.logout" = "로그아웃";
-"confirmation.dialog.title.delete" = "삭제";
-"confirmation.dialog.title.clear" = "삭제";
-"confirmation.dialog.title.reset" = "초기화";
-
 // MARK: SubSection
 "sub.section.button.showAll" = "모두　보기";
 
@@ -269,7 +262,7 @@
 
 // MARK: ArchivesView
 "archives.view.title.archives" = "아카이브";
-"archives.view.button.downloadToHathClient" = "Hath 클라이언트로 저장";
+"archives.view.button.downloadToHathClient" = "H@H 클라이언트로 저장";
 // HathArchive
 "struct.hath.archive.price.value.free" = "무료";
 "struct.hath.archive.price.value.notAvailable" = "무효";
@@ -371,7 +364,7 @@
 "eh.setting.view.section.title.imageLoadSettings" = "이미지 로드 설정";
 "eh.setting.view.title.loadImagesThroughTheHathNetwork" = "Hath 네트워크를 통하여 이미지 로드";
 "eh.setting.view.title.browsingCountry" = "브라우징하는 나라";
-"eh.setting.view.description.browsingCountry" = "**%@**에서 사이트를 탐색하거나 이 나라에서 VPN이나 프록시를 사용하려고 하는 것 같네요. 이런 경우엔 사이트에서 이 지역의 Hath 클라이언트의 이미지를 로드하려고 시도할 거에요. 만약에 이 나라가 잘못되었거나 분할 터널링 VPN을 사용하는 경우와 같이 어떤 이유로든 다른 지역을 사용하려는 경우라면, 아래에서 다른 나라를 선택할 수 있어요.";
+"eh.setting.view.description.browsingCountry" = "**%@**에서 사이트를 탐색하거나 이 나라에서 VPN이나 프록시를 사용하려고 하는 것 같네요. 이런 경우엔 사이트에서 이 지역의 H@H 클라이언트의 이미지를 로드하려고 시도할 거에요. 만약에 이 나라가 잘못되었거나 분할 터널링 VPN을 사용하는 경우와 같이 어떤 이유로든 다른 지역을 사용하려는 경우라면, 아래에서 다른 나라를 선택할 수 있어요.";
 // EhSetting.LoadThroughHathSetting
 "enum.eh.setting.load.through.hath.setting.value.anyClient" = "어떤 클라이언트에서든";
 "enum.eh.setting.load.through.hath.setting.value.defaultPortOnly" = "기본 포트 클라이언트만";
@@ -503,7 +496,7 @@
 
 "eh.setting.view.section.title.hathLocalNetworkHost" = "Hath 로컬 네트워크 호스트";
 "eh.setting.view.title.ipAddressPort" = "IP주소:포트";
-"eh.setting.view.description.ipAddressPort" = "이 설정은 사이트를 검색하는 것과 동일한 공용 IP로 로컬 네트워크에서 Hath 클라이언트를 실행하는 경우 사용할 수 있습니다. 일부 라우터는 버그가 있어 요청을 자신의 IP로 다시 라우팅할 수 없기에, 아래를 따라서 이 문제를 해결할 수 있습니다.\n찾아보는 동일한 장치에서 클라이언트를 실행하는 경우 루프백 주소(127.0.0.1:port)를 사용할 수 있습니다. 클라이언트가 네트워크의 다른 장치에서 실행 중인 경우 로컬 네트워크 IP를 사용할 수 있습니다. 일부 브라우저 구성에서는 외부 웹 사이트가 로컬 네트워크 IP가 있는 URL에 액세스할 수 없도록 합니다. 그런 다음 사이트가 작동하려면 사이트를 화이트리스트에 추가해야 합니다.";
+"eh.setting.view.description.ipAddressPort" = "이 설정은 사이트를 검색하는 것과 동일한 공용 IP로 로컬 네트워크에서 H@H 클라이언트를 실행하는 경우 사용할 수 있습니다. 일부 라우터는 버그가 있어 요청을 자신의 IP로 다시 라우팅할 수 없기에, 아래를 따라서 이 문제를 해결할 수 있습니다.\n찾아보는 동일한 장치에서 클라이언트를 실행하는 경우 루프백 주소(127.0.0.1:port)를 사용할 수 있습니다. 클라이언트가 네트워크의 다른 장치에서 실행 중인 경우 로컬 네트워크 IP를 사용할 수 있습니다. 일부 브라우저 구성에서는 외부 웹 사이트가 로컬 네트워크 IP가 있는 URL에 액세스할 수 없도록 합니다. 그런 다음 사이트가 작동하려면 사이트를 화이트리스트에 추가해야 합니다.";
 
 "eh.setting.view.section.title.originalImages" = "원본 이미지";
 "eh.setting.view.title.useOriginalImages" = "원본 뷰어 적용";

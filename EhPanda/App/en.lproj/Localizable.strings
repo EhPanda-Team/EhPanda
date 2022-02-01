@@ -262,7 +262,7 @@
 
 // MARK: ArchivesView
 "archives.view.title.archives" = "Archives";
-"archives.view.button.downloadToHathClient" = "Download To Hath Client";
+"archives.view.button.downloadToHathClient" = "Download To H@H Client";
 // HathArchive
 "struct.hath.archive.price.value.free" = "Free";
 "struct.hath.archive.price.value.notAvailable" = "N/A";
@@ -331,7 +331,7 @@
 "filters.view.title.searchGalleryName" = "Search gallery name";
 "filters.view.title.searchGalleryTags" = "Search gallery tags";
 "filters.view.title.searchGalleryDescription" = "Search gallery description";
-"filters.view.title.searchTorrentFilenames" = "Search gallery filenames";
+"filters.view.title.searchTorrentFilenames" = "Search torrent filenames";
 "filters.view.title.onlyShowGalleriesWithTorrents" = "Only show galleries with torrents";
 "filters.view.title.searchLowPowerTags" = "Search Low-Power tags";
 "filters.view.title.searchDownvotedTags" = "Search downvoted tags";
@@ -364,7 +364,7 @@
 "eh.setting.view.section.title.imageLoadSettings" = "Image Load Settings";
 "eh.setting.view.title.loadImagesThroughTheHathNetwork" = "Load images through the Hath network";
 "eh.setting.view.title.browsingCountry" = "Browsing country";
-"eh.setting.view.description.browsingCountry" = "You appear to be browsing the site from **%@** or use a VPN or proxy in this country, which means the site will try to load images from Hath clients in this general geographic region. If this is incorrect, or if you want to use a different region for any reason (like if you are using a split tunneling VPN), you can select a different country below.";
+"eh.setting.view.description.browsingCountry" = "You appear to be browsing the site from **%@** or use a VPN or proxy in this country, which means the site will try to load images from H@H clients in this general geographic region. If this is incorrect, or if you want to use a different region for any reason (like if you are using a split tunneling VPN), you can select a different country below.";
 // EhSetting.LoadThroughHathSetting
 "enum.eh.setting.load.through.hath.setting.value.anyClient" = "Any client";
 "enum.eh.setting.load.through.hath.setting.value.defaultPortOnly" = "Default port clients only";
@@ -496,7 +496,7 @@
 
 "eh.setting.view.section.title.hathLocalNetworkHost" = "Hath Local Network Host";
 "eh.setting.view.title.ipAddressPort" = "IP address:Port";
-"eh.setting.view.description.ipAddressPort" = "This setting can be used if you have a Hath client running on your local network with the same public IP you browse the site with. Some routers are buggy and cannot route requests back to its own IP; this allows you to work around this problem.\nIf you are running the client on the same device you browse from, use the loopback address (127.0.0.1:port). If the client is running on another device on your network, use its local network IP. Some browser configurations prevent external web sites from accessing URLs with local network IPs, the site must then be whitelisted for this to work.";
+"eh.setting.view.description.ipAddressPort" = "This setting can be used if you have a H@H client running on your local network with the same public IP you browse the site with. Some routers are buggy and cannot route requests back to its own IP; this allows you to work around this problem.\nIf you are running the client on the same device you browse from, use the loopback address (127.0.0.1:port). If the client is running on another device on your network, use its local network IP. Some browser configurations prevent external web sites from accessing URLs with local network IPs, the site must then be whitelisted for this to work.";
 
 "eh.setting.view.section.title.originalImages" = "Original Images";
 "eh.setting.view.title.useOriginalImages" = "Use original images";

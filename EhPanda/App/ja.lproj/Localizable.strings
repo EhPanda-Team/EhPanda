@@ -16,8 +16,8 @@
 "enum.toplists.type.value.allTime" = "すべて";
 
 // MARK: Response
-"hath.download.response.hathClientNotFound" = "この機能を使うには、アカウントに関連付けられている Hath クライアントが必要です";
-"hath.download.response.hathClientNotOnline" = "Hath クライアントは現在オフラインのようです、起動してからもう一度お試しください";
+"hath.download.response.hathClientNotFound" = "この機能を使うには、アカウントに関連付けられている H@H クライアントが必要です";
+"hath.download.response.hathClientNotOnline" = "H@H クライアントは現在オフラインのようです、起動してからもう一度お試しください";
 "hath.download.response.invalidResolution" = "このギャラリーは選択された解像度ではダウンロードできません";
 
 // MARK: HUD
@@ -262,7 +262,7 @@
 
 // MARK: ArchivesView
 "archives.view.title.archives" = "アーカイブ";
-"archives.view.button.downloadToHathClient" = "Hath クライアントにダウンロード";
+"archives.view.button.downloadToHathClient" = "H@H クライアントにダウンロード";
 // HathArchive
 "struct.hath.archive.price.value.free" = "無料";
 "struct.hath.archive.price.value.notAvailable" = "無効";
@@ -364,7 +364,7 @@
 "eh.setting.view.section.title.imageLoadSettings" = "画像読み込み設定";
 "eh.setting.view.title.loadImagesThroughTheHathNetwork" = "Hath ネットワーク経由で画像を読み込む";
 "eh.setting.view.title.browsingCountry" = "閲覧国";
-"eh.setting.view.description.browsingCountry" = "**%@** から本サイトを閲覧している、またはその国の VPN・プロキシを使用しているようです。本サイトはその地域の Hath クライアントから画像を読み込もうとしますが、もし自動検知の結果が誤っている、または特別な事情でほかの地域のクライアントを希望する場合（例えばスプリットトンネル VPN を使用している）は下に手動選択できます。";
+"eh.setting.view.description.browsingCountry" = "**%@** から本サイトを閲覧している、またはその国の VPN・プロキシを使用しているようです。本サイトはその地域の H@H クライアントから画像を読み込もうとしますが、もし自動検知の結果が誤っている、または特別な事情でほかの地域のクライアントを希望する場合（例えばスプリットトンネル VPN を使用している）は下に手動選択できます。";
 // EhSetting.LoadThroughHathSetting
 "enum.eh.setting.load.through.hath.setting.value.anyClient" = "任意のクライアント";
 "enum.eh.setting.load.through.hath.setting.value.defaultPortOnly" = "デフォルトポートのクライアントのみ";
@@ -496,7 +496,7 @@
 
 "eh.setting.view.section.title.hathLocalNetworkHost" = "Hath ローカルネットワークホスト";
 "eh.setting.view.title.ipAddressPort" = "IP アドレス:ポート";
-"eh.setting.view.description.ipAddressPort" = "ローカルネットワークで今と同じパブリック IP を使う Hath クライアントがお持ちの場合、この設定が役立ちます。ルーターがバグが多くてリクエストを自分の IP にルートすることができないこともあります、それをこの設定で回避できます。\nHath クライアントが今と同じデバイスで運行している場合はループバックアドレス（127.0.0.1:ポート）を使ってください。別のデバイスの場合はそのローカル IP を使ってください。かなりのブラウザの構成では外部サイトがローカル IP にアクセスすることをブロックしています、この設定を有効にするには本サイトをホワイトリストに入れてください。";
+"eh.setting.view.description.ipAddressPort" = "ローカルネットワークで今と同じパブリック IP を使う H@H クライアントがお持ちの場合、この設定が役立ちます。ルーターがバグが多くてリクエストを自分の IP にルートすることができないこともあります、それをこの設定で回避できます。\nH@H クライアントが今と同じデバイスで運行している場合はループバックアドレス（127.0.0.1:ポート）を使ってください。別のデバイスの場合はそのローカル IP を使ってください。かなりのブラウザの構成では外部サイトがローカル IP にアクセスすることをブロックしています、この設定を有効にするには本サイトをホワイトリストに入れてください。";
 
 "eh.setting.view.section.title.originalImages" = "オリジナル画像";
 "eh.setting.view.title.useOriginalImages" = "オリジナル画像を使う";

@@ -16,8 +16,8 @@
 "enum.toplists.type.value.allTime" = "全部";
 
 // MARK: Response
-"hath.download.response.hathClientNotFound" = "你需要一个关联到账户的 Hath 客户端才能使用这个功能";
-"hath.download.response.hathClientNotOnline" = "你的 Hath 客户端似乎处于离线状态，请启动它后再试";
+"hath.download.response.hathClientNotFound" = "你需要一个关联到账户的 H@H 客户端才能使用这个功能";
+"hath.download.response.hathClientNotOnline" = "你的 H@H 客户端似乎处于离线状态，请启动它后再试";
 "hath.download.response.invalidResolution" = "该画廊不能以选中的分辨率下载";
 
 // MARK: HUD
@@ -262,7 +262,7 @@
 
 // MARK: ArchivesView
 "archives.view.title.archives" = "归档";
-"archives.view.button.downloadToHathClient" = "下载到 Hath 客户端";
+"archives.view.button.downloadToHathClient" = "下载到 H@H 客户端";
 // HathArchive
 "struct.hath.archive.price.value.free" = "免费";
 "struct.hath.archive.price.value.notAvailable" = "无效";
@@ -364,7 +364,7 @@
 "eh.setting.view.section.title.imageLoadSettings" = "图片加载设置";
 "eh.setting.view.title.loadImagesThroughTheHathNetwork" = "通过 Hath 网络加载图像";
 "eh.setting.view.title.browsingCountry" = "浏览国家";
-"eh.setting.view.description.browsingCountry" = "你似乎正在 **%@** 浏览此网页，或是使用了一个来自这个国家的 VPN 或代理，这意味着网站将尝试通过在此区域的 Hath 客户端加载图片。如果该结果不正确，或你想通过其它地区的 Hath 客户端加载图片（例如你正在使用分割隧道 VPN），你可以在下方选择另一个国家。";
+"eh.setting.view.description.browsingCountry" = "你似乎正在 **%@** 浏览此网页，或是使用了一个来自这个国家的 VPN 或代理，这意味着网站将尝试通过在此区域的 H@H 客户端加载图片。如果该结果不正确，或你想通过其它地区的 H@H 客户端加载图片（例如你正在使用分割隧道 VPN），你可以在下方选择另一个国家。";
 // EhSetting.LoadThroughHathSetting
 "enum.eh.setting.load.through.hath.setting.value.anyClient" = "所有客户端";
 "enum.eh.setting.load.through.hath.setting.value.defaultPortOnly" = "仅使用默认端口的客户端";
@@ -496,7 +496,7 @@
 
 "eh.setting.view.section.title.hathLocalNetworkHost" = "Hath 本地网络服务器";
 "eh.setting.view.title.ipAddressPort" = "IP 地址:端口";
-"eh.setting.view.description.ipAddressPort" = "如果你本地安装了 Hath 客户端，本地 IP 与浏览网站的公共 IP 相同，一些路由器不支持回流导致无法访问到自己，你可以设置这里来解决。\n如果在同一台设备上访问网站和运行客户端，请使用本地回环地址 (127.0.0.1:端口号)。如果客户端在网络上的其它设备运行，请使用那台机器的内网 IP。某些浏览器的配置可能阻止外部网站访问本地网络，你必须将网站列入白名单才能工作。";
+"eh.setting.view.description.ipAddressPort" = "如果你本地安装了 H@H 客户端，本地 IP 与浏览网站的公共 IP 相同，一些路由器不支持回流导致无法访问到自己，你可以设置这里来解决。\n如果在同一台设备上访问网站和运行客户端，请使用本地回环地址 (127.0.0.1:端口号)。如果客户端在网络上的其它设备运行，请使用那台机器的内网 IP。某些浏览器的配置可能阻止外部网站访问本地网络，你必须将网站列入白名单才能工作。";
 
 "eh.setting.view.section.title.originalImages" = "原始图像";
 "eh.setting.view.title.useOriginalImages" = "显示原图";
