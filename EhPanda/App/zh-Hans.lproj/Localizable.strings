@@ -73,12 +73,14 @@
 "error.view.title.galleryUnavailable" = "该画廊已被移除或不可用。";
 
 // MARK: ConfirmationDialog
-"confirmation.dialog.title.areYouSureTo" = "确定要%@吗？";
-"confirmation.dialog.title.deleteThisItem" = "删除它";
-"confirmation.dialog.title.logout" = "退出登录";
-"confirmation.dialog.title.delete" = "删除";
-"confirmation.dialog.title.clear" = "清空";
-"confirmation.dialog.title.reset" = "重置";
+"confirmation.dialog.title.logout" = "确定要退出登录吗？";
+"confirmation.dialog.title.delete" = "确定要删除吗？";
+"confirmation.dialog.title.clear" = "确定要清空吗？";
+"confirmation.dialog.title.reset" = "确定要重置吗？";
+"confirmation.dialog.button.logout" = "退出登录";
+"confirmation.dialog.button.delete" = "删除";
+"confirmation.dialog.button.clear" = "清空";
+"confirmation.dialog.button.reset" = "重置";
 
 // MARK: SubSection
 "sub.section.button.showAll" = "显示全部";

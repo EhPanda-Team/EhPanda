@@ -73,12 +73,14 @@
 "error.view.title.galleryUnavailable" = "This gallery has been removed or is unavailable.";
 
 // MARK: ConfirmationDialog
-"confirmation.dialog.title.areYouSureTo" = "Are you sure to %@?";
-"confirmation.dialog.title.deleteThisItem" = "delete this item";
-"confirmation.dialog.title.logout" = "Logout";
-"confirmation.dialog.title.delete" = "Delete";
-"confirmation.dialog.title.clear" = "Clear";
-"confirmation.dialog.title.reset" = "Reset";
+"confirmation.dialog.title.logout" = "Are you sure to logout?";
+"confirmation.dialog.title.delete" = "Are you sure to delete this item?";
+"confirmation.dialog.title.clear" = "Are you sure to clear?";
+"confirmation.dialog.title.reset" = "Are you sure to reset?";
+"confirmation.dialog.button.logout" = "Logout";
+"confirmation.dialog.button.delete" = "Delete";
+"confirmation.dialog.button.clear" = "Clear";
+"confirmation.dialog.button.reset" = "Reset";
 
 // MARK: SubSection
 "sub.section.button.showAll" = "Show all";

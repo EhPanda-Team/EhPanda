@@ -43,13 +43,11 @@ struct EhSettingView: View {
             }
         }
         .confirmationDialog(
-            message: R.string.localizable.confirmationDialogTitleAreYouSureTo(
-                R.string.localizable.confirmationDialogTitleDeleteThisItem()
-            ),
+            message: R.string.localizable.confirmationDialogTitleDelete(),
             unwrapping: viewStore.binding(\.$route),
             case: /EhSettingState.Route.deleteProfile
         ) {
-            Button(R.string.localizable.confirmationDialogTitleDelete(), role: .destructive) {
+            Button(R.string.localizable.confirmationDialogButtonDelete(), role: .destructive) {
                 if let value = viewStore.ehProfile?.value {
                     viewStore.send(.performAction(.delete, nil, value))
                 }

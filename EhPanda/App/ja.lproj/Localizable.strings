@@ -73,12 +73,14 @@
 "error.view.title.galleryUnavailable" = "このギャラリーはすでに削除済みまたは無効です。";
 
 // MARK: ConfirmationDialog
-"confirmation.dialog.title.areYouSureTo" = "本当に%@してもよろしいですか？";
-"confirmation.dialog.title.deleteThisItem" = "これを削除";
-"confirmation.dialog.title.logout" = "ログアウト";
-"confirmation.dialog.title.delete" = "削除";
-"confirmation.dialog.title.clear" = "削除";
-"confirmation.dialog.title.reset" = "戻す";
+"confirmation.dialog.title.logout" = "本当にログアウトしてもよろしいですか？";
+"confirmation.dialog.title.delete" = "本当にこれを削除してもよろしいですか？";
+"confirmation.dialog.title.clear" = "本当に削除してもよろしいですか？";
+"confirmation.dialog.title.reset" = "本当に戻してもよろしいですか？";
+"confirmation.dialog.button.logout" = "ログアウト";
+"confirmation.dialog.button.delete" = "削除";
+"confirmation.dialog.button.clear" = "削除";
+"confirmation.dialog.button.reset" = "戻す";
 
 // MARK: SubSection
 "sub.section.button.showAll" = "すべて表示";

@@ -60,13 +60,11 @@ struct AccountSettingView: View {
             case: /AccountSettingState.Route.hud
         )
         .confirmationDialog(
-            message: R.string.localizable.confirmationDialogTitleAreYouSureTo(
-                R.string.localizable.confirmationDialogTitleLogout().lowercased()
-            ),
+            message: R.string.localizable.confirmationDialogTitleLogout(),
             unwrapping: viewStore.binding(\.$route),
             case: /AccountSettingState.Route.logout
         ) {
-            Button(R.string.localizable.confirmationDialogTitleLogout(), role: .destructive) {
+            Button(R.string.localizable.confirmationDialogButtonLogout(), role: .destructive) {
                 viewStore.send(.onLogoutConfirmButtonTapped)
             }
         }
@@ -124,7 +122,7 @@ private struct AccountSection: View {
         if !CookiesUtil.didLogin {
             Button(R.string.localizable.accountSettingViewButtonLogin(), action: loginAction)
         } else {
-            Button(R.string.localizable.confirmationDialogTitleLogout(), role: .destructive, action: logoutAction)
+            Button(R.string.localizable.confirmationDialogButtonLogout(), role: .destructive, action: logoutAction)
             Group {
                 Button(
                     R.string.localizable.accountSettingViewButtonAccountConfiguration(),

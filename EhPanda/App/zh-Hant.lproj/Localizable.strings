@@ -73,12 +73,14 @@
 "error.view.title.galleryUnavailable" = "This gallery has been removed or is unavailable.";
 
 // MARK: ConfirmationDialog
-"confirmation.dialog.title.areYouSureTo" = "確定要%@嗎？";
-"confirmation.dialog.title.deleteThisItem" = "delete this item";
-"confirmation.dialog.title.logout" = "登出";
-"confirmation.dialog.title.delete" = "Delete";
-"confirmation.dialog.title.clear" = "清空";
-"confirmation.dialog.title.reset" = "重置";
+"confirmation.dialog.title.logout" = "確定要登出嗎？";
+"confirmation.dialog.title.delete" = "Are you sure to delete this item?";
+"confirmation.dialog.title.clear" = "確定要清空嗎？";
+"confirmation.dialog.title.reset" = "確定要重置嗎？";
+"confirmation.dialog.button.logout" = "登出";
+"confirmation.dialog.button.delete" = "Delete";
+"confirmation.dialog.button.clear" = "清空";
+"confirmation.dialog.button.reset" = "重置";
 
 // MARK: SubSection
 "sub.section.button.showAll" = "顯示全部";

@@ -116,13 +116,11 @@ struct GeneralSettingView: View {
             }
         }
         .confirmationDialog(
-            message: R.string.localizable.confirmationDialogTitleAreYouSureTo(
-                R.string.localizable.confirmationDialogTitleClear().lowercased()
-            ),
+            message: R.string.localizable.confirmationDialogTitleClear(),
             unwrapping: viewStore.binding(\.$route),
             case: /GeneralSettingState.Route.clearCache
         ) {
-            Button(R.string.localizable.confirmationDialogTitleClear(), role: .destructive) {
+            Button(R.string.localizable.confirmationDialogButtonClear(), role: .destructive) {
                 viewStore.send(.clearWebImageCache)
             }
         }

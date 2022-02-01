@@ -80,13 +80,11 @@ struct QuickSearchView: View {
                 }
             }
             .confirmationDialog(
-                message: R.string.localizable.confirmationDialogTitleAreYouSureTo(
-                    R.string.localizable.confirmationDialogTitleDeleteThisItem()
-                ),
+                message: R.string.localizable.confirmationDialogTitleDelete(),
                 unwrapping: viewStore.binding(\.$route),
                 case: /QuickSearchState.Route.deleteWord
             ) { route in
-                Button(R.string.localizable.confirmationDialogTitleDelete(), role: .destructive) {
+                Button(R.string.localizable.confirmationDialogButtonDelete(), role: .destructive) {
                     viewStore.send(.deleteWord(route))
                 }
             }

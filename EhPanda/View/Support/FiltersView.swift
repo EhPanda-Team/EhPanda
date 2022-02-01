@@ -56,13 +56,11 @@ struct FiltersView: View {
             }
             .synchronize(viewStore.binding(\.$focusedBound), $focusedBound)
             .confirmationDialog(
-                R.string.localizable.confirmationDialogTitleAreYouSureTo(
-                    R.string.localizable.confirmationDialogTitleReset().lowercased()
-                ),
+                R.string.localizable.confirmationDialogTitleReset(),
                 isPresented: viewStore.binding(\.$resetDialogPresented),
                 titleVisibility: .visible
             ) {
-                Button(R.string.localizable.confirmationDialogTitleReset(), role: .destructive) {
+                Button(R.string.localizable.confirmationDialogButtonReset(), role: .destructive) {
                     viewStore.send(.onResetFilterConfirmed)
                 }
             }
