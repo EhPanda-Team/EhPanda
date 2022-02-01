@@ -196,21 +196,21 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
             return .none
 
         case .syncGalleryTags:
-            guard !state.gallery.id.isValidGID else { return .none }
+            guard state.gallery.id.isValidGID else { return .none }
             return environment.databaseClient
                 .updateGalleryTags(gid: state.gallery.id, tags: state.galleryTags).fireAndForget()
 
         case .syncGalleryDetail:
-            guard !state.gallery.id.isValidGID, let detail = state.galleryDetail else { return .none }
+            guard state.gallery.id.isValidGID, let detail = state.galleryDetail else { return .none }
             return environment.databaseClient.cacheGalleryDetail(detail).fireAndForget()
 
         case .syncGalleryPreviews:
-            guard !state.gallery.id.isValidGID else { return .none }
+            guard state.gallery.id.isValidGID else { return .none }
             return environment.databaseClient
                 .updatePreviews(gid: state.gallery.id, previews: state.galleryPreviews).fireAndForget()
 
         case .syncGalleryComments:
-            guard !state.gallery.id.isValidGID else { return .none }
+            guard state.gallery.id.isValidGID else { return .none }
             return environment.databaseClient
                 .updateComments(gid: state.gallery.id, comments: state.galleryComments).fireAndForget()
 
@@ -218,12 +218,12 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
             return environment.databaseClient.updateGreeting(greeting).fireAndForget()
 
         case .syncPreviewConfig(let config):
-            guard !state.gallery.id.isValidGID else { return .none }
+            guard state.gallery.id.isValidGID else { return .none }
             return environment.databaseClient
                 .updatePreviewConfig(gid: state.gallery.id, config: config).fireAndForget()
 
         case .saveGalleryHistory:
-            guard !state.gallery.id.isValidGID else { return .none }
+            guard state.gallery.id.isValidGID else { return .none }
             return environment.databaseClient.updateLastOpenDate(gid: state.gallery.id).fireAndForget()
 
         case .updateReadingProgress(let progress):
