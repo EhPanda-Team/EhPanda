@@ -106,7 +106,7 @@ private extension SearchView {
     var searchRequestLink: some View {
         NavigationLink(unwrapping: viewStore.binding(\.$route), case: /SearchState.Route.request) { _ in
             SearchRequestView(
-                store: store.scope(state: \.searchReqeustState, action: SearchAction.searchRequest),
+                store: store.scope(state: \.searchRequestState, action: SearchAction.searchRequest),
                 keyword: viewStore.keyword, user: user, setting: $setting,
                 blurRadius: blurRadius, tagTranslator: tagTranslator
             )

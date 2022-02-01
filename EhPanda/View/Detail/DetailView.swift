@@ -11,7 +11,7 @@ import ComposableArchitecture
 
 struct DetailView: View {
     @Environment(\.colorScheme) private var colorScheme
-    @Environment(\.isSheet) private var isSheet
+    @Environment(\.inSheet) private var inSheet
 
     private let store: Store<DetailState, DetailAction>
     @ObservedObject private var viewStore: ViewStore<DetailState, DetailAction>
@@ -35,7 +35,7 @@ struct DetailView: View {
     }
 
     private var commentsBackgroundColor: Color {
-        isSheet && colorScheme == .dark ? Color(.systemGray5) : Color(.systemGray6)
+        inSheet && colorScheme == .dark ? Color(.systemGray5) : Color(.systemGray6)
     }
 
     var body: some View {
@@ -54,8 +54,7 @@ struct DetailView: View {
                         navigateUploaderAction: {
                             if let uploader = viewStore.galleryDetail?.uploader {
                                 let keyword = "uploader:" + "\"\(uploader)\""
-                                viewStore.send(.setSearchRequestState(.init(id: keyword)))
-                                viewStore.send(.setNavigation(.searchRequest(keyword)))
+                                viewStore.send(.onNavigateSearchRequest(keyword))
                             }
                         }
                     )
@@ -78,8 +77,7 @@ struct DetailView: View {
                         confirmRatingAction: { viewStore.send(.confirmRating($0)) },
                         navigateSimilarGalleryAction: {
                             if let trimmedTitle = viewStore.galleryDetail?.trimmedTitle {
-                                viewStore.send(.setSearchRequestState(.init(id: trimmedTitle)))
-                                viewStore.send(.setNavigation(.searchRequest(trimmedTitle)))
+                                viewStore.send(.onNavigateSearchRequest(trimmedTitle))
                             }
                         }
                     )
@@ -87,8 +85,7 @@ struct DetailView: View {
                         TagsSection(
                             tags: viewStore.galleryTags,
                             navigateAction: {
-                                viewStore.send(.setSearchRequestState(.init(id: $0)))
-                                viewStore.send(.setNavigation(.searchRequest($0)))
+                                viewStore.send(.onNavigateSearchRequest($0))
                             },
                             translateAction: {
                                 tagTranslator.tryTranslate(text: $0, returnOriginal: !setting.translatesTags)
@@ -207,16 +204,6 @@ private extension DetailView {
                 setting: $setting, blurRadius: blurRadius,
                 tagTranslator: tagTranslator
             )
-        }
-        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /DetailState.Route.searchRequest) { route in
-            ForEachStore(
-                store.scope(state: \.searchRequestStates, action: DetailAction.searchRequest(id:action:))
-            ) { subStore in
-                SearchRequestView(
-                    store: subStore, keyword: route.wrappedValue, user: user,
-                    setting: $setting, blurRadius: blurRadius, tagTranslator: tagTranslator
-                )
-            }
         }
         NavigationLink(unwrapping: viewStore.binding(\.$route), case: /DetailState.Route.galleryInfos) { route in
             let (gallery, galleryDetail) = route.wrappedValue

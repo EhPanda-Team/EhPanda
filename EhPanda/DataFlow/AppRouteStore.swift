@@ -14,6 +14,7 @@ struct AppRouteState: Equatable {
         case filters
         case detail(String)
         case newDawn(Greeting)
+        case searchRequest(String)
     }
 
     @BindableState var route: Route?
@@ -21,6 +22,7 @@ struct AppRouteState: Equatable {
 
     var filtersState = FiltersState()
     var detailState = DetailState()
+    var searchRequestState = SearchRequestState()
 }
 
 enum AppRouteAction: BindableAction {
@@ -41,6 +43,7 @@ enum AppRouteAction: BindableAction {
 
     case filters(FiltersAction)
     case detail(DetailAction)
+    case searchRequest(SearchRequestAction)
 }
 
 struct AppRouteEnvironment {
@@ -77,7 +80,11 @@ let appRouteReducer = Reducer<AppRouteState, AppRouteAction, AppRouteEnvironment
         case .clearSubStates:
             state.detailState = .init()
             state.filtersState = .init()
-            return .init(value: .detail(.cancelFetching))
+            state.searchRequestState = .init()
+            return .merge(
+                .init(value: .detail(.cancelFetching)),
+                .init(value: .searchRequest(.cancelFetching))
+            )
 
         case .detectClipboardURL:
             let currentChangeCount = environment.clipboardClient.changeCount()
@@ -158,6 +165,9 @@ let appRouteReducer = Reducer<AppRouteState, AppRouteAction, AppRouteEnvironment
 
         case .detail:
             return .none
+
+        case .searchRequest:
+            return .none
         }
     }
     .binding(),
@@ -171,6 +181,24 @@ let appRouteReducer = Reducer<AppRouteState, AppRouteAction, AppRouteEnvironment
     detailReducer.pullback(
         state: \.detailState,
         action: /AppRouteAction.detail,
+        environment: {
+            .init(
+                urlClient: $0.urlClient,
+                fileClient: $0.fileClient,
+                imageClient: $0.imageClient,
+                deviceClient: $0.deviceClient,
+                hapticClient: $0.hapticClient,
+                cookiesClient: $0.cookiesClient,
+                databaseClient: $0.databaseClient,
+                clipboardClient: $0.clipboardClient,
+                appDelegateClient: $0.appDelegateClient,
+                uiApplicationClient: $0.uiApplicationClient
+            )
+        }
+    ),
+    searchRequestReducer.pullback(
+        state: \.searchRequestState,
+        action: /AppRouteAction.searchRequest,
         environment: {
             .init(
                 urlClient: $0.urlClient,

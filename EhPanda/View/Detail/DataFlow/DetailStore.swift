@@ -8,7 +8,7 @@
 import SwiftUI
 import ComposableArchitecture
 
-struct DetailState: Equatable, Identifiable {
+struct DetailState: Equatable {
     enum Route: Equatable {
         case reading
         case archives
@@ -18,46 +18,10 @@ struct DetailState: Equatable, Identifiable {
         case share(URL)
         case postComment
         case newDawn(Greeting)
-        case searchRequest(String)
         case galleryInfos(Gallery, GalleryDetail)
     }
     struct CancelID: Hashable {
         let id = String(describing: DetailState.self)
-    }
-
-    // IdentifiedArray requirement
-    let id: String
-    init(id: String = UUID().uuidString) {
-        self.id = id
-    }
-
-    static func == (lhs: DetailState, rhs: DetailState) -> Bool {
-        lhs.id == rhs.id
-
-        && lhs.route == rhs.route
-        && lhs.commentContent == rhs.commentContent
-        && lhs.postCommentFocused == rhs.postCommentFocused
-
-        && lhs.showsNewDawnGreeting == rhs.showsNewDawnGreeting
-        && lhs.showsUserRating == rhs.showsUserRating
-        && lhs.showsFullTitle == rhs.showsFullTitle
-        && lhs.userRating == rhs.userRating
-
-        && lhs.apiKey == rhs.apiKey
-
-        && lhs.loadingState == rhs.loadingState
-        && lhs.gallery == rhs.gallery
-        && lhs.galleryDetail == rhs.galleryDetail
-        && lhs.galleryTags == rhs.galleryTags
-        && lhs.galleryPreviews == rhs.galleryPreviews
-        && lhs.galleryComments == rhs.galleryComments
-
-        && lhs.archivesState == rhs.archivesState
-        && lhs.torrentsState == rhs.torrentsState
-        && lhs.previewsState == rhs.previewsState
-        && lhs.commentsState == rhs.commentsState
-        && lhs.searchRequestStates == rhs.searchRequestStates
-        && (lhs.searchRequestReducer == nil) == (rhs.searchRequestReducer == nil)
     }
 
     @BindableState var route: Route?
@@ -83,8 +47,6 @@ struct DetailState: Equatable, Identifiable {
     var previewsState = PreviewsState(gallery: .empty)
     var commentsState = CommentsState()
     var galleryInfosState = GalleryInfosState()
-    var searchRequestStates = IdentifiedArrayOf<SearchRequestState>()
-    var searchRequestReducer: Reducer<SearchRequestState, SearchRequestAction, SearchRequestEnvironment>?
 
     mutating func updateRating(value: DragGesture.Value) {
         let rating = Int(value.location.x / 31 * 2) + 1
@@ -95,12 +57,12 @@ struct DetailState: Equatable, Identifiable {
 enum DetailAction: BindableAction {
     case binding(BindingAction<DetailState>)
     case setNavigation(DetailState.Route?)
-    case setSearchRequestState(SearchRequestState)
     case setupPreviewsState
     case setupReadingState
     case clearSubStates
     case onPostCommentAppear
     case onAppear(String, Bool)
+    case onNavigateSearchRequest(String)
 
     case toggleShowFullTitle
     case toggleShowUserRating
@@ -137,7 +99,6 @@ enum DetailAction: BindableAction {
     case previews(PreviewsAction)
     case comments(CommentsAction)
     case galleryInfos(GalleryInfosAction)
-    indirect case searchRequest(id: String, action: SearchRequestAction)
 }
 
 struct DetailEnvironment {
@@ -153,9 +114,6 @@ struct DetailEnvironment {
     let uiApplicationClient: UIApplicationClient
 }
 
-var anySearchRequestReducer: Reducer<SearchRequestState, SearchRequestAction, SearchRequestEnvironment> {
-    searchRequestReducer
-}
 let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combine(
     .init { state, action, environment in
         switch action {
@@ -168,10 +126,6 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
         case .setNavigation(let route):
             state.route = route
             return route == nil ? .init(value: .clearSubStates) : .none
-
-        case .setSearchRequestState(let searchRequestState):
-            state.searchRequestStates = [searchRequestState]
-            return .none
 
         case .setupPreviewsState:
             state.previewsState = .init(gallery: state.gallery)
@@ -204,10 +158,10 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
 
         case .onAppear(let gid, let showsNewDawnGreeting):
             state.showsNewDawnGreeting = showsNewDawnGreeting
-            if state.searchRequestReducer == nil {
-                state.searchRequestReducer = anySearchRequestReducer
-            }
             return .init(value: .fetchDatabaseInfos(gid))
+
+        case .onNavigateSearchRequest:
+            return .none
 
         case .toggleShowFullTitle:
             state.showsFullTitle.toggle()
@@ -242,21 +196,21 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
             return .none
 
         case .syncGalleryTags:
-            guard !state.gallery.id.isEmpty else { return .none }
+            guard !state.gallery.id.isValidGID else { return .none }
             return environment.databaseClient
                 .updateGalleryTags(gid: state.gallery.id, tags: state.galleryTags).fireAndForget()
 
         case .syncGalleryDetail:
-            guard !state.gallery.id.isEmpty, let detail = state.galleryDetail else { return .none }
+            guard !state.gallery.id.isValidGID, let detail = state.galleryDetail else { return .none }
             return environment.databaseClient.cacheGalleryDetail(detail).fireAndForget()
 
         case .syncGalleryPreviews:
-            guard !state.gallery.id.isEmpty else { return .none }
+            guard !state.gallery.id.isValidGID else { return .none }
             return environment.databaseClient
                 .updatePreviews(gid: state.gallery.id, previews: state.galleryPreviews).fireAndForget()
 
         case .syncGalleryComments:
-            guard !state.gallery.id.isEmpty else { return .none }
+            guard !state.gallery.id.isValidGID else { return .none }
             return environment.databaseClient
                 .updateComments(gid: state.gallery.id, comments: state.galleryComments).fireAndForget()
 
@@ -264,12 +218,12 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
             return environment.databaseClient.updateGreeting(greeting).fireAndForget()
 
         case .syncPreviewConfig(let config):
-            guard !state.gallery.id.isEmpty else { return .none }
+            guard !state.gallery.id.isValidGID else { return .none }
             return environment.databaseClient
                 .updatePreviewConfig(gid: state.gallery.id, config: config).fireAndForget()
 
         case .saveGalleryHistory:
-            guard !state.gallery.id.isEmpty else { return .none }
+            guard !state.gallery.id.isValidGID else { return .none }
             return environment.databaseClient.updateLastOpenDate(gid: state.gallery.id).fireAndForget()
 
         case .updateReadingProgress(let progress):
@@ -280,7 +234,8 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
             return .cancel(id: DetailState.CancelID())
 
         case .fetchDatabaseInfos(let gid):
-            state.gallery = environment.databaseClient.fetchGallery(gid)
+            guard let gallery = environment.databaseClient.fetchGallery(gid) else { return .none }
+            state.gallery = gallery
             if let detail = environment.databaseClient.fetchGalleryDetail(gid) {
                 state.galleryDetail = detail
             }
@@ -389,28 +344,6 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
 
         case .galleryInfos:
             return .none
-
-        case .searchRequest:
-            guard let searchRequestReducer = state.searchRequestReducer else { return .none }
-            return searchRequestReducer.forEach(
-                state: \DetailState.searchRequestStates,
-                action: /DetailAction.searchRequest(id:action:),
-                environment: { (environment: DetailEnvironment) in
-                    .init(
-                        urlClient: environment.urlClient,
-                        fileClient: environment.fileClient,
-                        imageClient: environment.imageClient,
-                        deviceClient: environment.deviceClient,
-                        hapticClient: environment.hapticClient,
-                        cookiesClient: environment.cookiesClient,
-                        databaseClient: environment.databaseClient,
-                        clipboardClient: environment.clipboardClient,
-                        appDelegateClient: environment.appDelegateClient,
-                        uiApplicationClient: environment.uiApplicationClient
-                    )
-                }
-            )
-            .run(&state, action, environment)
         }
     }
     .binding(),
@@ -466,16 +399,6 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
             )
         }
     ),
-    galleryInfosReducer.pullback(
-        state: \.galleryInfosState,
-        action: /DetailAction.galleryInfos,
-        environment: {
-            .init(
-                hapticClient: $0.hapticClient,
-                clipboardClient: $0.clipboardClient
-            )
-        }
-    ),
     commentsReducer.pullback(
         state: \.commentsState,
         action: /DetailAction.comments,
@@ -491,6 +414,16 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
                 clipboardClient: $0.clipboardClient,
                 appDelegateClient: $0.appDelegateClient,
                 uiApplicationClient: $0.uiApplicationClient
+            )
+        }
+    ),
+    galleryInfosReducer.pullback(
+        state: \.galleryInfosState,
+        action: /DetailAction.galleryInfos,
+        environment: {
+            .init(
+                hapticClient: $0.hapticClient,
+                clipboardClient: $0.clipboardClient
             )
         }
     )

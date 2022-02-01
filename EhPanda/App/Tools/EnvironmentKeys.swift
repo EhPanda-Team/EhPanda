@@ -7,13 +7,13 @@
 
 import SwiftUI
 
-struct IsSheetKey: EnvironmentKey {
+struct InSheetKey: EnvironmentKey {
     static let defaultValue = false
 }
 
 extension EnvironmentValues {
-    var isSheet: Bool {
-        get { self[IsSheetKey.self] }
-        set { self[IsSheetKey.self] = newValue }
+    var inSheet: Bool {
+        get { self[InSheetKey.self] }
+        set { self[InSheetKey.self] = newValue }
     }
 }

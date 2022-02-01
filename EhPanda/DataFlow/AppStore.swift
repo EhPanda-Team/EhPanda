@@ -90,6 +90,37 @@ let appReducerCore = Reducer<AppState, AppAction, AppEnvironment> { state, actio
     case .appRoute(.filters(.onResetFilterConfirmed)):
         return .init(value: .setting(.resetFilter(state.appRouteState.filtersState.filterRange)))
 
+    case .appRoute(.searchRequest(.fetchGalleries)):
+        state.appRouteState.searchRequestState.filter = state.settingState.searchFilter
+        return .none
+
+    case .appRoute(.detail(.onNavigateSearchRequest(let keyword))),
+            .appRoute(.searchRequest(.detail(.onNavigateSearchRequest(let keyword)))),
+            .home(.detail(.onNavigateSearchRequest(let keyword))),
+            .home(.frontpage(.detail(.onNavigateSearchRequest(let keyword)))),
+            .home(.toplists(.detail(.onNavigateSearchRequest(let keyword)))),
+            .home(.popular(.detail(.onNavigateSearchRequest(let keyword)))),
+            .home(.watched(.detail(.onNavigateSearchRequest(let keyword)))),
+            .home(.history(.detail(.onNavigateSearchRequest(let keyword)))),
+            .favorites(.detail(.onNavigateSearchRequest(let keyword))),
+            .search(.detail(.onNavigateSearchRequest(let keyword))),
+            .search(.searchRequest(.detail(.onNavigateSearchRequest(let keyword)))):
+        state.appRouteState.searchRequestState = .init()
+        return .init(value: .appRoute(.setNavigation(.searchRequest(keyword))))
+
+    case .appRoute(.detail(.comments(.handleCommentLink(let url)))),
+            .appRoute(.searchRequest(.detail(.comments(.handleCommentLink(let url))))),
+            .home(.detail(.comments(.handleCommentLink(let url)))),
+            .home(.frontpage(.detail(.comments(.handleCommentLink(let url))))),
+            .home(.toplists(.detail(.comments(.handleCommentLink(let url))))),
+            .home(.popular(.detail(.comments(.handleCommentLink(let url))))),
+            .home(.watched(.detail(.comments(.handleCommentLink(let url))))),
+            .home(.history(.detail(.comments(.handleCommentLink(let url))))),
+            .favorites(.detail(.comments(.handleCommentLink(let url)))),
+            .search(.detail(.comments(.handleCommentLink(let url)))),
+            .search(.searchRequest(.detail(.comments(.handleCommentLink(let url))))):
+        return .init(value: .appRoute(.handleDeepLink(url)))
+
     case .appRoute:
         return .none
 
@@ -131,7 +162,7 @@ let appReducerCore = Reducer<AppState, AppAction, AppEnvironment> { state, actio
         return .none
 
     case .search(.searchRequest(.fetchGalleries)):
-        state.searchState.searchReqeustState.filter = state.settingState.searchFilter
+        state.searchState.searchRequestState.filter = state.settingState.searchFilter
         return .none
 
     case .search:

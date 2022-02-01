@@ -7,19 +7,13 @@
 
 import ComposableArchitecture
 
-struct SearchRequestState: Equatable, Identifiable {
+struct SearchRequestState: Equatable {
     enum Route: Equatable {
         case quickSearch
         case detail(String)
     }
     struct CancelID: Hashable {
         let id = String(describing: SearchRequestState.self)
-    }
-
-    // IdentifiedArray requirement
-    let id: String
-    init(id: String = UUID().uuidString) {
-        self.id = id
     }
 
     @BindableState var route: Route?

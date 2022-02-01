@@ -21,7 +21,7 @@ struct SearchState: Equatable {
     var historyKeywords = [String]()
     var quickSearchWords = [QuickSearchWord]()
 
-    var searchReqeustState = SearchRequestState()
+    var searchRequestState = SearchRequestState()
     var quickSearchState = QuickSearchState()
     var detailState = DetailState()
 
@@ -116,7 +116,7 @@ let searchReducer = Reducer<SearchState, SearchAction, SearchEnvironment>.combin
             return .none
 
         case .clearSubStates:
-            state.searchReqeustState = .init()
+            state.searchRequestState = .init()
             state.quickSearchState = .init()
             state.detailState = .init()
             return .merge(
@@ -158,7 +158,7 @@ let searchReducer = Reducer<SearchState, SearchAction, SearchEnvironment>.combin
             if let keyword = keyword {
                 state.appendHistoryKeywords([keyword])
             } else {
-                state.appendHistoryKeywords([state.searchReqeustState.lastKeyword])
+                state.appendHistoryKeywords([state.searchRequestState.lastKeyword])
             }
             return .init(value: .syncHistoryKeywords)
 
@@ -174,7 +174,7 @@ let searchReducer = Reducer<SearchState, SearchAction, SearchEnvironment>.combin
     }
     .binding(),
     searchRequestReducer.pullback(
-        state: \.searchReqeustState,
+        state: \.searchRequestState,
         action: /SearchAction.searchRequest,
         environment: {
             .init(

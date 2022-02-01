@@ -100,6 +100,12 @@ extension String {
     var notEmpty: Bool {
         !isEmpty
     }
+    var isInteger: Bool {
+        Int(self) != nil
+    }
+    var isValidGID: Bool {
+        notEmpty && isInteger
+    }
     var localizedKey: LocalizedStringKey {
         .init(self)
     }

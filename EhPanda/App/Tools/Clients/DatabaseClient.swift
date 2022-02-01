@@ -10,7 +10,7 @@ import Combine
 import ComposableArchitecture
 
 struct DatabaseClient {
-    let fetchGallery: (String) -> Gallery
+    let fetchGallery: (String) -> Gallery?
     let fetchGalleryDetail: (String) -> GalleryDetail?
     let fetchAppEnv: () -> Effect<AppEnv, Never>
     let fetchGalleryState: (String) -> Effect<GalleryState, Never>
@@ -29,7 +29,7 @@ struct DatabaseClient {
 extension DatabaseClient {
     static let live: Self = .init(
         fetchGallery: { gid in
-            PersistenceController.fetchGalleryNonNil(gid: gid)
+            PersistenceController.fetchGallery(gid: gid)
         },
         fetchGalleryDetail: { gid in
             PersistenceController.fetchGalleryDetail(gid: gid)

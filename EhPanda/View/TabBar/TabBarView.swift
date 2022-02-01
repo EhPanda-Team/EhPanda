@@ -93,7 +93,27 @@ struct TabBarView: View {
             }
             .accentColor(viewStore.settingState.setting.accentColor)
             .autoBlur(radius: viewStore.appLockState.blurRadius)
-            .environment(\.isSheet, true)
+            .environment(\.inSheet, true)
+        }
+        .sheet(
+            unwrapping: viewStore.binding(\.appRouteState.$route),
+            case: /AppRouteState.Route.searchRequest
+        ) { route in
+            NavigationView {
+                SearchRequestView(
+                    store: store.scope(
+                        state: \.appRouteState.searchRequestState,
+                        action: { AppAction.appRoute(.searchRequest($0)) }
+                    ),
+                    keyword: route.wrappedValue, user: viewStore.settingState.user,
+                    setting: viewStore.binding(\.settingState.$setting),
+                    blurRadius: viewStore.appLockState.blurRadius,
+                    tagTranslator: viewStore.settingState.tagTranslator
+                )
+            }
+            .accentColor(viewStore.settingState.setting.accentColor)
+            .autoBlur(radius: viewStore.appLockState.blurRadius)
+            .environment(\.inSheet, true)
         }
         .progressHUD(
             config: viewStore.appRouteState.hudConfig,

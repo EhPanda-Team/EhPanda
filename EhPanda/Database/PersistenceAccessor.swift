@@ -34,7 +34,7 @@ extension PersistenceController {
         return entity.forceUnwrapped
     }
     static func fetchGalleryNonNil(gid: String) -> Gallery {
-        fetchGallery(gid: gid) ?? Gallery.preview
+        fetchGallery(gid: gid) ?? .empty
     }
     static func fetchGalleryDetail(gid: String) -> GalleryDetail? {
         var entity: GalleryDetail?

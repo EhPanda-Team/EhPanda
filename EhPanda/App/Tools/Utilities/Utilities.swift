@@ -173,7 +173,7 @@ struct HapticUtil {
         AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)
     }
 
-    private static var isLegacyTapticEngine: Bool {
+    private static let isLegacyTapticEngine: Bool = {
         var systemInfo = utsname()
         uname(&systemInfo)
         let machineMirror = Mirror(reflecting: systemInfo.machine)
@@ -182,7 +182,7 @@ struct HapticUtil {
             return identifier + String(UnicodeScalar(UInt8(value)))
         }
         return ["iPhone8,1", "iPhone8,2"].contains(identifier)
-    }
+    }()
 }
 
 // MARK: UserDefaults
