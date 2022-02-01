@@ -219,7 +219,7 @@
 "reading.setting.view.title.direction" = "方向";
 "reading.setting.view.title.preloadLimit" = "プリロード上限数";
 "reading.setting.view.title.enablesLandscape" = "横向きを有効";
-"reading.setting.view.title.separatorHeight" = "仕切りの厚さ";
+"reading.setting.view.title.separatorHeight" = "仕切りの高さ";
 "reading.setting.view.title.maximumScaleFactor" = "最大スケール係数";
 "reading.setting.view.title.doubleTapScaleFactor" = "ダブルタップスケール係数";
 "reading.setting.view.section.title.appearance" = "外観";

@@ -84,7 +84,7 @@
 "sub.section.button.showAll" = "显示全部";
 
 // MARK: NewDawnView
-"new.dawn.view.title.first" = "又是新一天的黎明！";
+"new.dawn.view.title.first" = "又是全新的一天！";
 "new.dawn.view.title.second" = "回顾至今的历程，发觉自己更睿智了一些。";
 // Greeting
 "struct.greeting.mark.start" = "你获得了 ";
@@ -219,7 +219,7 @@
 "reading.setting.view.title.direction" = "方向";
 "reading.setting.view.title.preloadLimit" = "预加载数量上限";
 "reading.setting.view.title.enablesLandscape" = "启用横屏";
-"reading.setting.view.title.separatorHeight" = "分隔线厚度";
+"reading.setting.view.title.separatorHeight" = "分隔线高度";
 "reading.setting.view.title.maximumScaleFactor" = "最大缩放系数";
 "reading.setting.view.title.doubleTapScaleFactor" = "双击缩放系数";
 "reading.setting.view.section.title.appearance" = "外观";
@@ -253,7 +253,7 @@
 "detail.view.scroll.section.title.fileSize" = "文件大小";
 "detail.view.scroll.section.description.favorited" = "次";
 "detail.view.scroll.section.description.pageCount" = "页";
-"detail.view.action.section.button.giveARating" = "给画廊评分";
+"detail.view.action.section.button.giveARating" = "给予评分";
 "detail.view.action.section.button.similarGallery" = "相似画廊";
 "detail.view.section.title.previews" = "预览";
 "detail.view.section.title.comments" = "评论";
