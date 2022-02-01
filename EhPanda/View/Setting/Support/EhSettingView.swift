@@ -49,7 +49,7 @@ struct EhSettingView: View {
             unwrapping: viewStore.binding(\.$route),
             case: /EhSettingState.Route.deleteProfile
         ) {
-            Button(R.string.localizable.confirmationDialogButtonDelete(), role: .destructive) {
+            Button(R.string.localizable.confirmationDialogTitleDelete(), role: .destructive) {
                 if let value = viewStore.ehProfile?.value {
                     viewStore.send(.performAction(.delete, nil, value))
                 }

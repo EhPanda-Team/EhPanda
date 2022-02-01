@@ -16,14 +16,14 @@ struct GeneralSettingView: View {
     @Binding private var translatesTags: Bool
     @Binding private var redirectsLinksToSelectedHost: Bool
     @Binding private var detectsLinksFromClipboard: Bool
-    @Binding private var appSwitcherBlurRadius: Double
+    @Binding private var backgroundBlurRadius: Double
     @Binding private var autoLockPolicy: AutoLockPolicy
 
     init(
         store: Store<GeneralSettingState, GeneralSettingAction>,
         tagTranslatorLoadingState: LoadingState, tagTranslatorEmpty: Bool, translatesTags: Binding<Bool>,
         redirectsLinksToSelectedHost: Binding<Bool>, detectsLinksFromClipboard: Binding<Bool>,
-        appSwitcherBlurRadius: Binding<Double>, autoLockPolicy: Binding<AutoLockPolicy>
+        backgroundBlurRadius: Binding<Double>, autoLockPolicy: Binding<AutoLockPolicy>
     ) {
         self.store = store
         viewStore = ViewStore(store)
@@ -32,7 +32,7 @@ struct GeneralSettingView: View {
         _translatesTags = translatesTags
         _redirectsLinksToSelectedHost = redirectsLinksToSelectedHost
         _detectsLinksFromClipboard = detectsLinksFromClipboard
-        _appSwitcherBlurRadius = appSwitcherBlurRadius
+        _backgroundBlurRadius = backgroundBlurRadius
         _autoLockPolicy = autoLockPolicy
     }
 
@@ -94,10 +94,10 @@ struct GeneralSettingView: View {
                     .pickerStyle(.menu)
                 }
                 VStack(alignment: .leading) {
-                    Text(R.string.localizable.generalSettingViewTitleAppSwitcherBlurRadius())
+                    Text(R.string.localizable.generalSettingViewTitleBackgroundBlurRadius())
                     HStack {
                         Image(systemSymbol: .eye)
-                        Slider(value: $appSwitcherBlurRadius, in: 0...100, step: 10)
+                        Slider(value: $backgroundBlurRadius, in: 0...100, step: 10)
                         Image(systemSymbol: .eyeSlash)
                     }
                 }
@@ -117,12 +117,12 @@ struct GeneralSettingView: View {
         }
         .confirmationDialog(
             message: R.string.localizable.confirmationDialogTitleAreYouSureTo(
-                R.string.localizable.confirmationDialogButtonClear().lowercased()
+                R.string.localizable.confirmationDialogTitleClear().lowercased()
             ),
             unwrapping: viewStore.binding(\.$route),
             case: /GeneralSettingState.Route.clearCache
         ) {
-            Button(R.string.localizable.confirmationDialogButtonClear(), role: .destructive) {
+            Button(R.string.localizable.confirmationDialogTitleClear(), role: .destructive) {
                 viewStore.send(.clearWebImageCache)
             }
         }
@@ -162,7 +162,7 @@ struct GeneralSettingView_Previews: PreviewProvider {
                 translatesTags: .constant(false),
                 redirectsLinksToSelectedHost: .constant(false),
                 detectsLinksFromClipboard: .constant(false),
-                appSwitcherBlurRadius: .constant(10),
+                backgroundBlurRadius: .constant(10),
                 autoLockPolicy: .constant(.never)
             )
         }

@@ -15,7 +15,7 @@ extension GalleryMO: ManagedObjectProtocol {
             gid: gid, token: token,
             title: title, rating: rating,
             tagStrings: tagStrings?.toObject() ?? [String](),
-            category: Category(rawValue: category).forceUnwrapped,
+            category: Category(rawValue: category) ?? .private,
             language: Language(rawValue: language ?? ""),
             uploader: uploader, pageCount: Int(pageCount),
             postedDate: postedDate,

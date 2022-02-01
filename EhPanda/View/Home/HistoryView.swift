@@ -43,12 +43,12 @@ struct HistoryView: View {
         )
         .confirmationDialog(
             message: R.string.localizable.confirmationDialogTitleAreYouSureTo(
-                R.string.localizable.confirmationDialogButtonClear().lowercased()
+                R.string.localizable.confirmationDialogTitleClear().lowercased()
             ),
             unwrapping: viewStore.binding(\.$route),
             case: /HistoryState.Route.clearHistory
         ) {
-            Button(R.string.localizable.confirmationDialogButtonClear(), role: .destructive) {
+            Button(R.string.localizable.confirmationDialogTitleClear(), role: .destructive) {
                 viewStore.send(.clearHistoryGalleries)
             }
         }
@@ -81,7 +81,7 @@ struct HistoryView: View {
             } label: {
                 Image(systemSymbol: .trashCircle)
             }
-            .disabled(viewStore.galleries.isEmpty)
+            .disabled(viewStore.loadingState != .idle || viewStore.galleries.isEmpty)
         }
     }
 }

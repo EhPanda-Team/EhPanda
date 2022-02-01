@@ -73,7 +73,11 @@ let historyReducer = Reducer<HistoryState, HistoryAction, HistoryEnvironment>.co
             return .init(value: .detail(.cancelFetching))
 
         case .clearHistoryGalleries:
-            return environment.databaseClient.clearHistoryGalleries().fireAndForget()
+            return .merge(
+                environment.databaseClient.clearHistoryGalleries().fireAndForget(),
+                .init(value: .fetchGalleries)
+                    .delay(for: .milliseconds(200), scheduler: DispatchQueue.main).eraseToEffect()
+            )
 
         case .fetchGalleries:
             guard state.loadingState != .loading else { return .none }

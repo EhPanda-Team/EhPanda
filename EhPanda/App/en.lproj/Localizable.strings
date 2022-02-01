@@ -6,33 +6,6 @@
   
 */
 
-// MARK: Category
-"enum.category.value.doujinshi" = "Doujinshi";
-"enum.category.value.manga" = "Manga";
-"enum.category.value.artistCG" = "Artist CG";
-"enum.category.value.gameCG" = "Game CG";
-"enum.category.value.western" = "Western";
-"enum.category.value.nonH" = "Non-H";
-"enum.category.value.imageSet" = "Image Set";
-"enum.category.value.cosplay" = "Cosplay";
-"enum.category.value.asianPorn" = "Asian Porn";
-"enum.category.value.misc" = "Misc";
-"enum.category.value.private" = "Private";
-
-// MARK: TagCategory
-"enum.tag.category.value.reclass" = "Reclass";
-"enum.tag.category.value.language" = "Language";
-"enum.tag.category.value.parody" = "Parody";
-"enum.tag.category.value.character" = "Character";
-"enum.tag.category.value.group" = "Group";
-"enum.tag.category.value.artist" = "Artist";
-"enum.tag.category.value.male" = "Male";
-"enum.tag.category.value.female" = "Female";
-"enum.tag.category.value.mixed" = "Mixed";
-"enum.tag.category.value.cosplayer" = "Cosplayer";
-"enum.tag.category.value.other" = "Other";
-"enum.tag.category.value.temp" = "Temp";
-
 // MARK: BanInterval
 "enum.ban.interval.description.and" = "and";
 
@@ -102,10 +75,10 @@
 // MARK: ConfirmationDialog
 "confirmation.dialog.title.areYouSureTo" = "Are you sure to %@?";
 "confirmation.dialog.title.deleteThisItem" = "delete this item";
-"confirmation.dialog.button.logout" = "Logout";
-"confirmation.dialog.button.delete" = "Delete";
-"confirmation.dialog.button.clear" = "Clear";
-"confirmation.dialog.button.reset" = "Reset";
+"confirmation.dialog.title.logout" = "Logout";
+"confirmation.dialog.title.delete" = "Delete";
+"confirmation.dialog.title.clear" = "Clear";
+"confirmation.dialog.title.reset" = "Reset";
 
 // MARK: SubSection
 "sub.section.button.showAll" = "Show all";
@@ -123,7 +96,7 @@
 "home.view.title.home" = "Home";
 "home.view.section.title.frontpage" = "Frontpage";
 "home.view.section.title.toplists" = "Toplists";
-"home.view.section.title.Other" = "Other";
+"home.view.section.title.other" = "Other";
 // HomeMiscGridType
 "home.misc.grid.type.title.popular" = "Popular";
 "home.misc.grid.type.title.watched" = "Watched";
@@ -186,8 +159,8 @@
 "account.setting.view.button.tagsManagement" = "Manage tags subscription";
 "account.setting.view.button.copyCookies" = "Copy cookies";
 // CookieValue
-"struct.cookie.value.localized.string.expired" = "expired";
-"struct.cookie.value.localized.string.mystery" = "mystery";
+"struct.cookie.value.localized.string.expired" = "Expired";
+"struct.cookie.value.localized.string.mystery" = "Rejected";
 "struct.cookie.value.localized.string.none" = "None";
 
 // MARK: LoginView
@@ -202,10 +175,10 @@
 "general.setting.view.title.translatesTags" = "Translates tags";
 "general.setting.view.title.redirectsLinksToTheSelectedHost" = "Redirects links to the selected host";
 "general.setting.view.title.detectsLinksFromClipboard" = "Detects links from the clipboard";
-"general.setting.view.title.appSwitcherBlurRadius" = "App switcher blur radius";
+"general.setting.view.title.backgroundBlurRadius" = "Background blur radius";
 "general.setting.view.button.logs" = "Logs";
 "general.setting.view.button.clearImageCaches" = "Clear image caches";
-"general.setting.view.value.defaultLanguageDescription" = "None";
+"general.setting.view.value.defaultLanguageDescription" = "N/A";
 "general.setting.view.section.title.navigation" = "Navigation";
 "general.setting.view.section.title.security" = "Security";
 "general.setting.view.section.title.caches" = "Caches";
@@ -534,6 +507,33 @@
 "enum.eh.setting.multiple.page.viewer.style.value.alignLeftScaleIfOverWidth" = "Align left, scale if overwidth";
 "enum.eh.setting.multiple.page.viewer.style.value.alignCenterScaleIfOverWidth" = "Align center, scale if overwidth";
 "enum.eh.setting.multiple.page.viewer.style.value.alignCenterAlwaysScale" = "Align center, always scale";
+
+// MARK: Category
+"enum.category.value.doujinshi" = "Doujinshi";
+"enum.category.value.manga" = "Manga";
+"enum.category.value.artistCG" = "Artist CG";
+"enum.category.value.gameCG" = "Game CG";
+"enum.category.value.western" = "Western";
+"enum.category.value.nonH" = "Non-H";
+"enum.category.value.imageSet" = "Image Set";
+"enum.category.value.cosplay" = "Cosplay";
+"enum.category.value.asianPorn" = "Asian Porn";
+"enum.category.value.misc" = "Misc";
+"enum.category.value.private" = "Private";
+
+// MARK: TagCategory
+"enum.tag.category.value.reclass" = "Reclass";
+"enum.tag.category.value.language" = "Language";
+"enum.tag.category.value.parody" = "Parody";
+"enum.tag.category.value.character" = "Character";
+"enum.tag.category.value.group" = "Group";
+"enum.tag.category.value.artist" = "Artist";
+"enum.tag.category.value.male" = "Male";
+"enum.tag.category.value.female" = "Female";
+"enum.tag.category.value.mixed" = "Mixed";
+"enum.tag.category.value.cosplayer" = "Cosplayer";
+"enum.tag.category.value.other" = "Other";
+"enum.tag.category.value.temp" = "Temp";
 
 // MARK: Language
 "enum.language.value.invalid" = "N/A";

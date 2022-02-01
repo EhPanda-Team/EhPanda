@@ -86,7 +86,7 @@ struct QuickSearchView: View {
                 unwrapping: viewStore.binding(\.$route),
                 case: /QuickSearchState.Route.deleteWord
             ) { route in
-                Button(R.string.localizable.confirmationDialogButtonDelete(), role: .destructive) {
+                Button(R.string.localizable.confirmationDialogTitleDelete(), role: .destructive) {
                     viewStore.send(.deleteWord(route))
                 }
             }

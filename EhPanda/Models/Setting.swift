@@ -17,7 +17,7 @@ struct Setting: Codable, Equatable {
     // General
     var redirectsLinksToSelectedHost = false
     var detectsLinksFromClipboard = false
-    var appSwitcherBlurRadius: Double = 10
+    var backgroundBlurRadius: Double = 10
     var autoLockPolicy: AutoLockPolicy = .never
 
     // Appearance
@@ -173,7 +173,7 @@ extension Setting {
         // General
         redirectsLinksToSelectedHost = (try? container?.decodeIfPresent(Bool.self, forKey: .redirectsLinksToSelectedHost)) ?? false
         detectsLinksFromClipboard = (try? container?.decodeIfPresent(Bool.self, forKey: .detectsLinksFromClipboard)) ?? false
-        appSwitcherBlurRadius = (try? container?.decodeIfPresent(Double.self, forKey: .appSwitcherBlurRadius)) ?? 10
+        backgroundBlurRadius = (try? container?.decodeIfPresent(Double.self, forKey: .backgroundBlurRadius)) ?? 10
         autoLockPolicy = (try? container?.decodeIfPresent(AutoLockPolicy.self, forKey: .autoLockPolicy)) ?? .never
         // Appearance
         listDisplayMode = (try? container?.decodeIfPresent(ListDisplayMode.self, forKey: .listDisplayMode)) ?? (DeviceUtil.isPadWidth ? .thumbnail : .detail)

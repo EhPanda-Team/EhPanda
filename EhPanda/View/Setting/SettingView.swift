@@ -60,7 +60,7 @@ private extension SettingView {
                 translatesTags: viewStore.binding(\.$setting.translatesTags),
                 redirectsLinksToSelectedHost: viewStore.binding(\.$setting.redirectsLinksToSelectedHost),
                 detectsLinksFromClipboard: viewStore.binding(\.$setting.detectsLinksFromClipboard),
-                appSwitcherBlurRadius: viewStore.binding(\.$setting.appSwitcherBlurRadius),
+                backgroundBlurRadius: viewStore.binding(\.$setting.backgroundBlurRadius),
                 autoLockPolicy: viewStore.binding(\.$setting.autoLockPolicy)
             )
             .tint(viewStore.setting.accentColor)
