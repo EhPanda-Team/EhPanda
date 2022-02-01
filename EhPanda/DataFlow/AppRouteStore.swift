@@ -102,12 +102,22 @@ let appRouteReducer = Reducer<AppRouteState, AppRouteAction, AppRouteEnvironment
         case .handleDeepLink(let url):
             var url = environment.urlClient.resolveAppSchemeURL(url) ?? url
             guard environment.urlClient.checkIfHandleable(url) else { return .none }
+            let delay: Int
+            if case .detail = state.route {
+                state.detailState.route = nil
+                state.route = nil
+                delay = 1000
+            } else {
+                delay = 0
+            }
             let (isGalleryImageURL, _, _) = environment.urlClient.analyzeURL(url)
             let gid = environment.urlClient.parseGalleryID(url)
             guard !environment.databaseClient.checkGalleryExistence(gid: gid) else {
                 return .init(value: .handleGalleryLink(url))
+                    .delay(for: .milliseconds(delay), scheduler: DispatchQueue.main).eraseToEffect()
             }
             return .init(value: .fetchGallery(url, isGalleryImageURL))
+                .delay(for: .milliseconds(delay - 250), scheduler: DispatchQueue.main).eraseToEffect()
 
         case .handleGalleryLink(let url):
             let (_, pageIndex, commentID) = environment.urlClient.analyzeURL(url)

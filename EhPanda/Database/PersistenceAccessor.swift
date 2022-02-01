@@ -31,7 +31,7 @@ extension PersistenceController {
         AppUtil.dispatchMainSync {
             entity = fetch(entityType: GalleryMO.self, gid: gid)?.toEntity()
         }
-        return entity.forceUnwrapped
+        return entity
     }
     static func fetchGalleryNonNil(gid: String) -> Gallery {
         fetchGallery(gid: gid) ?? .empty
