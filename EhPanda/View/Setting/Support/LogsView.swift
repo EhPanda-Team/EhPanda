@@ -142,8 +142,14 @@ private struct LogView: View {
 }
 
 // MARK: Definition
-enum LogsRoute: Equatable {
-    case log(String)
+struct Log: Identifiable, Comparable {
+    static func < (lhs: Log, rhs: Log) -> Bool {
+        lhs.fileName < rhs.fileName
+    }
+
+    var id: String { fileName }
+    let fileName: String
+    let contents: [String]
 }
 
 struct LogsView_Previews: PreviewProvider {

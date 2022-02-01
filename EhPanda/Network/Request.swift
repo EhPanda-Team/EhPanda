@@ -357,7 +357,7 @@ struct GalleryDetailRequest: Request {
     let gid: String
     let galleryURL: String
 
-    var publisher: AnyPublisher<(GalleryDetail, GalleryState, APIKey, Greeting?), AppError> {
+    var publisher: AnyPublisher<(GalleryDetail, GalleryState, String, Greeting?), AppError> {
         URLSession.shared.dataTaskPublisher(for: URLUtil.galleryDetail(url: galleryURL))
             .genericRetry().compactMap { resp -> HTMLDocument? in
                 var htmlDocument: HTMLDocument?
@@ -435,7 +435,7 @@ struct GalleryReverseRequest: Request {
 struct GalleryArchiveRequest: Request {
     let archiveURL: String
 
-    var publisher: AnyPublisher<(GalleryArchive, GalleryPoints?, Credits?), AppError> {
+    var publisher: AnyPublisher<(GalleryArchive, String?, String?), AppError> {
         URLSession.shared.dataTaskPublisher(for: archiveURL.safeURL()).genericRetry()
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .tryMap { (html: HTMLDocument) -> (HTMLDocument, GalleryArchive) in
@@ -463,7 +463,7 @@ struct GalleryArchiveFundsRequest: Request {
         )
     }
 
-    var publisher: AnyPublisher<(GalleryPoints, Credits), AppError> {
+    var publisher: AnyPublisher<(String, String), AppError> {
         archiveURL(url: alterGalleryURL).genericRetry()
             .flatMap(funds).eraseToAnyPublisher()
     }
@@ -475,7 +475,7 @@ struct GalleryArchiveFundsRequest: Request {
             .mapError(mapAppError).eraseToAnyPublisher()
     }
 
-    func funds(url: String) -> AnyPublisher<(GalleryPoints, Credits), AppError> {
+    func funds(url: String) -> AnyPublisher<(String, String), AppError> {
         URLSession.shared.dataTaskPublisher(for: url.safeURL())
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .tryMap(Parser.parseCurrentFunds).mapError(mapAppError)

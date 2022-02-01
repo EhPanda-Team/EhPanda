@@ -25,44 +25,33 @@ struct Filter: Codable, Equatable {
     var galleryDesc = false
     var torrentFilenames = false
     var onlyWithTorrents = false
-    var lowPowerTags = false {
-        didSet {
-            if lowPowerTags {
-                downvotedTags = false
-            }
-        }
-    }
-    var downvotedTags = false {
-        didSet {
-            if downvotedTags {
-                lowPowerTags = false
-            }
-        }
-    }
+    var lowPowerTags = false
+    var downvotedTags = false
     var expungedGalleries = false
 
     var minRatingActivated = false
     var minRating = 2
 
     var pageRangeActivated = false
-    var pageLowerBound = "" {
-        didSet {
-            if Int(pageLowerBound) == nil && !pageLowerBound.isEmpty {
-                pageLowerBound = ""
-            }
-        }
-    }
-    var pageUpperBound = "" {
-        didSet {
-            if Int(pageUpperBound) == nil && !pageUpperBound.isEmpty {
-                pageUpperBound = ""
-            }
-        }
-    }
+    var pageLowerBound = ""
+    var pageUpperBound = ""
 
     var disableLanguage = false
     var disableUploader = false
     var disableTags = false
+
+    mutating func fixInvalidData() {
+        if lowPowerTags && downvotedTags {
+            lowPowerTags = false
+            downvotedTags = false
+        }
+        if !pageLowerBound.isEmpty && Int(pageLowerBound) == nil {
+            pageLowerBound = ""
+        }
+        if !pageUpperBound.isEmpty && Int(pageUpperBound) == nil {
+            pageUpperBound = ""
+        }
+    }
 }
 
 // MARK: Manually decode

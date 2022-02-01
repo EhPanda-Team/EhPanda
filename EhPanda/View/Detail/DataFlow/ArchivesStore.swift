@@ -31,13 +31,13 @@ enum ArchivesAction: BindableAction {
     case binding(BindingAction<ArchivesState>)
     case setNavigation(ArchivesState.Route?)
 
-    case syncGalleryFunds(GalleryPoints, Credits)
+    case syncGalleryFunds(String, String)
 
     case cancelFetching
     case fetchArchive(String, String, String)
-    case fetchArchiveDone(String, String, Result<(GalleryArchive, GalleryPoints?, Credits?), AppError>)
+    case fetchArchiveDone(String, String, Result<(GalleryArchive, String?, String?), AppError>)
     case fetchArchiveFunds(String, String)
-    case fetchArchiveFundsDone(Result<(GalleryPoints, Credits), AppError>)
+    case fetchArchiveFundsDone(Result<(String, String), AppError>)
     case fetchDownloadResponse(String)
     case fetchDownloadResponseDone(Result<String, AppError>)
 }

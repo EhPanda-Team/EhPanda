@@ -801,8 +801,8 @@ extension Parser {
         func trim(string: String) -> String? {
             if string.contains("EXP") {
                 return "EXP"
-            } else if string.contains("Credits") {
-                return "Credits"
+            } else if string.contains("String") {
+                return "String"
             } else if string.contains("GP") {
                 return "GP"
             } else if string.contains("Hath") {
@@ -862,7 +862,7 @@ extension Parser {
                 switch type {
                 case "EXP":
                     greeting.gainedEXP = value
-                case "Credits":
+                case "String":
                     greeting.gainedCredits = value
                 case "GP":
                     greeting.gainedGP = value
@@ -1104,8 +1104,8 @@ extension Parser {
     }
 
     // MARK: APIKey
-    static func parseAPIKey(doc: HTMLDocument) throws -> APIKey {
-        var tmpKey: APIKey?
+    static func parseAPIKey(doc: HTMLDocument) throws -> String {
+        var tmpKey: String?
 
         for link in doc.xpath("//script [@type='text/javascript']") {
             guard let script = link.text, script.contains("apikey"),
@@ -1223,7 +1223,7 @@ extension Parser {
             if let text = element.text,
                let rangeA = text.range(of: "GP"),
                let rangeB = text.range(of: "[?]"),
-               let rangeC = text.range(of: "Credits")
+               let rangeC = text.range(of: "String")
             {
                 tmpGP = String(text[..<rangeA.lowerBound])
                     .trimmingCharacters(in: .whitespaces)

@@ -1,31 +1,11 @@
 //
-//  Misc.swift
+//  Greeting.swift
 //  EhPanda
 //
-//  Created by 荒木辰造 on R 3/01/15.
+//  Created by 荒木辰造 on R 4/02/01.
 //
 
 import Foundation
-import SwiftyBeaver
-
-typealias Percentage = Int
-typealias Keyword = String
-typealias Identity = String
-typealias APIKey = String
-typealias GalleryPoints = String
-typealias Credits = String
-typealias ReloadToken = Any
-typealias Logger = SwiftyBeaver
-typealias FavoritesSortOrder = EhSetting.FavoritesSortOrder
-
-struct PageNumber: Equatable {
-    var current = 0
-    var maximum = 0
-
-    var isSinglePage: Bool {
-        current == 0 && maximum == 0
-    }
-}
 
 struct Greeting: Codable, Equatable, Hashable {
     static let mock: Self = {
@@ -49,7 +29,7 @@ struct Greeting: Codable, Equatable, Hashable {
             rewards.append("\(exp) EXP")
         }
         if let credits = gainedCredits {
-            rewards.append("\(credits) Credits")
+            rewards.append("\(credits) String")
         }
         if let galleryPoint = gainedGP {
             rewards.append("\(galleryPoint) GP")
@@ -84,12 +64,4 @@ struct Greeting: Codable, Equatable, Hashable {
         [gainedEXP, gainedCredits, gainedGP, gainedHath]
             .compactMap({ $0 }).isEmpty
     }
-}
-
-struct QuickSearchWord: Codable, Equatable, Identifiable {
-    static var empty: Self { .init(name: "", content: "") }
-
-    var id: UUID = .init()
-    var name: String
-    var content: String
 }

@@ -5,8 +5,6 @@
 //  Created by 荒木辰造 on R 4/01/30.
 //
 
-import Foundation
-
 enum Language: String, Codable {
     static let allExcludedCases: [Self] = [
         .japanese, .english, .chinese, .dutch, .french, .german, .hungarian, .italian,

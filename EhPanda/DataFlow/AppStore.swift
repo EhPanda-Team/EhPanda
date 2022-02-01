@@ -55,12 +55,15 @@ let appReducerCore = Reducer<AppState, AppAction, AppEnvironment> { state, actio
         return .init(value: .setting(.syncSetting))
 
     case .binding(\.settingState.$searchFilter):
+        state.settingState.searchFilter.fixInvalidData()
         return .init(value: .setting(.syncSearchFilter))
 
     case .binding(\.settingState.$globalFilter):
+        state.settingState.globalFilter.fixInvalidData()
         return .init(value: .setting(.syncGlobalFilter))
 
     case .binding(\.settingState.$watchedFilter):
+        state.settingState.watchedFilter.fixInvalidData()
         return .init(value: .setting(.syncWatchedFilter))
 
     case .binding:

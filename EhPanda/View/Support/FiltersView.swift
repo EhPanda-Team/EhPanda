@@ -132,7 +132,7 @@ private struct AdvancedSection: View {
                     isOn: $filter.onlyWithTorrents
                 )
                 Toggle(R.string.localizable.filtersViewTitleSearchLowPowerTags(), isOn: $filter.lowPowerTags)
-                Toggle(R.string.localizable.filtersViewTitleSearchLowPowerTags(), isOn: $filter.downvotedTags)
+                Toggle(R.string.localizable.filtersViewTitleSearchDownvotedTags(), isOn: $filter.downvotedTags)
                 Toggle(R.string.localizable.filtersViewTitleShowExpungedGalleries(), isOn: $filter.expungedGalleries)
             }
             Section {

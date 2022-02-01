@@ -85,7 +85,7 @@ enum DetailAction: BindableAction {
     case fetchDatabaseInfos(String)
     case fetchDatabaseInfosDone(GalleryState)
     case fetchGalleryDetail
-    case fetchGalleryDetailDone(Result<(GalleryDetail, GalleryState, APIKey, Greeting?), AppError>)
+    case fetchGalleryDetailDone(Result<(GalleryDetail, GalleryState, String, Greeting?), AppError>)
 
     case rateGallery
     case favorGallery(Int)
