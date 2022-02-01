@@ -382,7 +382,7 @@ private struct DescriptionSection: View {
             value: galleryDetail.language.abbreviation
         ),
         DescScrollInfo(
-            title: R.string.localizable.detailViewScrollSectionTitleRatings(),
+            title: R.string.localizable.detailViewScrollSectionTitleRatings("\(galleryDetail.ratingCount)"),
             description: .init(), value: .init(), rating: galleryDetail.rating, isRating: true
         ),
         DescScrollInfo(

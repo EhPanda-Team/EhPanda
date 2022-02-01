@@ -248,12 +248,12 @@
 "detail.view.toolbar.item.button.share" = "分享";
 "detail.view.scroll.section.title.favorited" = "收藏";
 "detail.view.scroll.section.title.language" = "语言";
-"detail.view.scroll.section.title.ratings" = "评分";
+"detail.view.scroll.section.title.ratings" = "%@ 个评分";
 "detail.view.scroll.section.title.pageCount" = "页数";
 "detail.view.scroll.section.title.fileSize" = "文件大小";
 "detail.view.scroll.section.description.favorited" = "次";
 "detail.view.scroll.section.description.pageCount" = "页";
-"detail.view.action.section.button.giveARating" = "给它评分";
+"detail.view.action.section.button.giveARating" = "给画廊评分";
 "detail.view.action.section.button.similarGallery" = "相似画廊";
 "detail.view.section.title.previews" = "预览";
 "detail.view.section.title.comments" = "评论";
@@ -451,7 +451,7 @@
 
 "eh.setting.view.section.title.thumbnailSettings" = "缩略图设置";
 "eh.setting.view.title.thumbnailLoadTiming" = "缩略图加载时机";
-"eh.setting.view.description.thumbnailLoadTiming" = "你希望鼠标悬停缩略图何时加载？";
+"eh.setting.view.description.thumbnailLoadTiming" = "你希望列表中的鼠标悬停缩略图何时加载？";
 "eh.setting.view.description.thumbnailConfiguration" = "你可以设定一个对所有画廊生效的默认缩略图配置。";
 "eh.setting.view.title.thumbnailSize" = "尺寸";
 "eh.setting.view.title.thumbnailRowCount" = "行数";

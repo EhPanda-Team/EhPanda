@@ -248,7 +248,7 @@
 "detail.view.toolbar.item.button.share" = "Share";
 "detail.view.scroll.section.title.favorited" = "Favorited";
 "detail.view.scroll.section.title.language" = "Language";
-"detail.view.scroll.section.title.ratings" = "Ratings";
+"detail.view.scroll.section.title.ratings" = "%@ Ratings";
 "detail.view.scroll.section.title.pageCount" = "Page Count";
 "detail.view.scroll.section.title.fileSize" = "File Size";
 "detail.view.scroll.section.description.favorited" = "Times";
