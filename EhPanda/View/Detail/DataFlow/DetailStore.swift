@@ -346,7 +346,31 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
             return .none
         }
     }
-    .binding(),
+    .haptics(
+        unwrapping: \.route,
+        case: /DetailState.Route.postComment,
+        hapticClient: \.hapticClient
+    )
+    .haptics(
+        unwrapping: \.route,
+        case: /DetailState.Route.torrents,
+        hapticClient: \.hapticClient
+    )
+    .haptics(
+        unwrapping: \.route,
+        case: /DetailState.Route.archives,
+        hapticClient: \.hapticClient
+    )
+    .haptics(
+        unwrapping: \.route,
+        case: /DetailState.Route.reading,
+        hapticClient: \.hapticClient
+    )
+    .haptics(
+        unwrapping: \.route,
+        case: /DetailState.Route.share,
+        hapticClient: \.hapticClient
+    ),
     readingReducer.pullback(
         state: \.readingState,
         action: /DetailAction.reading,
@@ -384,7 +408,8 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
                 clipboardClient: $0.clipboardClient
             )
         }
-    ),
+    )
+    .binding(),
     previewsReducer.pullback(
         state: \.previewsState,
         action: /DetailAction.previews,

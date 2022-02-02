@@ -77,7 +77,7 @@ struct SearchView: View {
 
     private func toolbar() -> some ToolbarContent {
         CustomToolbarItem(tint: .primary) {
-            ToolbarFeaturesMenu {
+            ToolbarFeaturesMenu(symbolRenderingMode: .hierarchical) {
                 FiltersButton {
                     viewStore.send(.onFiltersButtonTapped)
                 }

@@ -173,6 +173,11 @@ let searchReducer = Reducer<SearchState, SearchAction, SearchEnvironment>.combin
             return .none
         }
     }
+    .haptics(
+        unwrapping: \.route,
+        case: /SearchState.Route.quickSearch,
+        hapticClient: \.hapticClient
+    )
     .binding(),
     searchRequestReducer.pullback(
         state: \.searchRequestState,

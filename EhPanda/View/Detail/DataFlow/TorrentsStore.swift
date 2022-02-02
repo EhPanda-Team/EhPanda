@@ -100,4 +100,9 @@ let torrentsReducer = Reducer<TorrentsState, TorrentsAction, TorrentsEnvironment
         return .none
     }
 }
+.haptics(
+    unwrapping: \.route,
+    case: /TorrentsState.Route.share,
+    hapticClient: \.hapticClient
+)
 .binding()

@@ -156,4 +156,9 @@ let commentsReducer = Reducer<CommentsState, CommentsAction, CommentsEnvironment
         return .none
     }
 }
+.haptics(
+    unwrapping: \.route,
+    case: /CommentsState.Route.postComment,
+    hapticClient: \.hapticClient
+)
 .binding()

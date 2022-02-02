@@ -129,4 +129,9 @@ let ehSettingReducer = Reducer<EhSettingState, EhSettingAction, EhSettingEnviron
         return .none
     }
 }
+.haptics(
+    unwrapping: \.route,
+    case: /EhSettingState.Route.webView,
+    hapticClient: \.hapticClient
+)
 .binding()

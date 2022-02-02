@@ -212,6 +212,11 @@ let favoritesReducer = Reducer<FavoritesState, FavoritesAction, FavoritesEnviron
             return .none
         }
     }
+    .haptics(
+        unwrapping: \.route,
+        case: /FavoritesState.Route.quickSearch,
+        hapticClient: \.hapticClient
+    )
     .binding(),
     detailReducer.pullback(
         state: \FavoritesState.detailState,

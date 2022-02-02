@@ -105,4 +105,9 @@ let loginReducer = Reducer<LoginState, LoginAction, LoginEnvironment> { state, a
         return .merge(effects)
     }
 }
+.haptics(
+    unwrapping: \.route,
+    case: /LoginState.Route.webView,
+    hapticClient: \.hapticClient
+)
 .binding()

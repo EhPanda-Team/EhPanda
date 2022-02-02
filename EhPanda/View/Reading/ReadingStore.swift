@@ -713,4 +713,14 @@ let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { 
         return .none
     }
 }
+.haptics(
+    unwrapping: \.route,
+    case: /ReadingState.Route.readingSetting,
+    hapticClient: \.hapticClient
+)
+.haptics(
+    unwrapping: \.route,
+    case: /ReadingState.Route.share,
+    hapticClient: \.hapticClient
+)
 .binding()

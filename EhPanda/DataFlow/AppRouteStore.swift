@@ -5,11 +5,12 @@
 //  Created by 荒木辰造 on R 4/01/08.
 //
 
-import ComposableArchitecture
+import SwiftUI
 import TTProgressHUD
+import ComposableArchitecture
 
 struct AppRouteState: Equatable {
-    enum Route: Equatable {
+    enum Route: Equatable, Hashable {
         case hud
         case filters
         case detail(String)
@@ -178,14 +179,34 @@ let appRouteReducer = Reducer<AppRouteState, AppRouteAction, AppRouteEnvironment
             return .none
         }
     }
-    .binding(),
+    .haptics(
+        unwrapping: \.route,
+        case: /AppRouteState.Route.searchRequest,
+        hapticClient: \.hapticClient
+    )
+    .haptics(
+        unwrapping: \.route,
+        case: /AppRouteState.Route.newDawn,
+        hapticClient: \.hapticClient
+    )
+    .haptics(
+        unwrapping: \.route,
+        case: /AppRouteState.Route.filters,
+        hapticClient: \.hapticClient
+    )
+    .haptics(
+        unwrapping: \.route,
+        case: /AppRouteState.Route.detail,
+        hapticClient: \.hapticClient
+    ),
     filtersReducer.pullback(
         state: \.filtersState,
         action: /AppRouteAction.filters,
         environment: { _ in
             .init()
         }
-    ),
+    )
+    .binding(),
     detailReducer.pullback(
         state: \.detailState,
         action: /AppRouteAction.detail,

@@ -142,6 +142,11 @@ let accountSettingReducer = Reducer<AccountSettingState, AccountSettingAction, A
             return .none
         }
     }
+    .haptics(
+        unwrapping: \.route,
+        case: /AccountSettingState.Route.webView,
+        hapticClient: \.hapticClient
+    )
     .binding(),
     loginReducer.pullback(
         state: \.loginState,

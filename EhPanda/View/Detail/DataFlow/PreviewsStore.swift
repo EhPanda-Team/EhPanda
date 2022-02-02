@@ -137,6 +137,11 @@ let previewsReducer = Reducer<PreviewsState, PreviewsAction, PreviewsEnvironment
             return .none
         }
     }
+    .haptics(
+        unwrapping: \.route,
+        case: /PreviewsState.Route.reading,
+        hapticClient: \.hapticClient
+    )
     .binding(),
     readingReducer.pullback(
         state: \.readingState,
