@@ -8,5 +8,23 @@
 import ComposableArchitecture
 
 struct TabBarState: Equatable {
-    @BindableState var tabBarItemType: TabBarItemType = .home
+    var tabBarItemType: TabBarItemType = .home
+}
+
+enum TabBarAction {
+    case setTabBarItemType(TabBarItemType)
+}
+
+struct TabBarEnvironment {
+    let deviceClient: DeviceClient
+}
+
+let tabBarReducer = Reducer<TabBarState, TabBarAction, TabBarEnvironment> { state, action, environment in
+    switch action {
+    case .setTabBarItemType(let type):
+        if !environment.deviceClient.isPad() || type != .setting {
+            state.tabBarItemType = type
+        }
+        return .none
+    }
 }

@@ -21,7 +21,12 @@ struct TabBarView: View {
 
     var body: some View {
         ZStack {
-            TabView(selection: viewStore.binding(\.tabBarState.$tabBarItemType)) {
+            TabView(
+                selection: .init(
+                    get: { viewStore.tabBarState.tabBarItemType },
+                    set: { viewStore.send(.tabBar(.setTabBarItemType($0))) }
+                )
+            ) {
                 ForEach(TabBarItemType.allCases) { type in
                     Group {
                         switch type {
@@ -78,6 +83,14 @@ struct TabBarView: View {
                 watchedFilter: viewStore.binding(\.settingState.$watchedFilter)
             )
             .tint(viewStore.settingState.setting.accentColor)
+            .accentColor(viewStore.settingState.setting.accentColor)
+            .autoBlur(radius: viewStore.appLockState.blurRadius)
+        }
+        .sheet(unwrapping: viewStore.binding(\.appRouteState.$route), case: /AppRouteState.Route.setting) { _ in
+            SettingView(
+                store: store.scope(state: \.appRouteState.settingState, action: { AppAction.appRoute(.setting($0)) }),
+                blurRadius: viewStore.appLockState.blurRadius
+            )
             .accentColor(viewStore.settingState.setting.accentColor)
             .autoBlur(radius: viewStore.appLockState.blurRadius)
         }

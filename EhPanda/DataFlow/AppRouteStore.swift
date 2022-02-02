@@ -13,6 +13,7 @@ struct AppRouteState: Equatable {
     enum Route: Equatable, Hashable {
         case hud
         case filters
+        case setting
         case detail(String)
         case newDawn(Greeting)
         case searchRequest(String)
@@ -22,6 +23,7 @@ struct AppRouteState: Equatable {
     var hudConfig: TTProgressHUDConfig = .loading
 
     var filtersState = FiltersState()
+    var settingState = SettingState()
     var detailState = DetailState()
     var searchRequestState = SearchRequestState()
 }
@@ -43,22 +45,27 @@ enum AppRouteAction: BindableAction {
     case fetchGreetingDone(Result<Greeting, AppError>)
 
     case filters(FiltersAction)
+    case setting(SettingAction)
     case detail(DetailAction)
     case searchRequest(SearchRequestAction)
 }
 
 struct AppRouteEnvironment {
+    let dfClient: DFClient
     let urlClient: URLClient
     let fileClient: FileClient
     let imageClient: ImageClient
     let deviceClient: DeviceClient
+    let loggerClient: LoggerClient
     let hapticClient: HapticClient
+    let libraryClient: LibraryClient
     let cookiesClient: CookiesClient
     let databaseClient: DatabaseClient
     let clipboardClient: ClipboardClient
     let appDelegateClient: AppDelegateClient
     let userDefaultsClient: UserDefaultsClient
     let uiApplicationClient: UIApplicationClient
+    let authorizationClient: AuthorizationClient
 }
 
 let appRouteReducer = Reducer<AppRouteState, AppRouteAction, AppRouteEnvironment>.combine(
@@ -80,6 +87,7 @@ let appRouteReducer = Reducer<AppRouteState, AppRouteAction, AppRouteEnvironment
 
         case .clearSubStates:
             state.detailState = .init()
+            state.settingState = .init()
             state.filtersState = .init()
             state.searchRequestState = .init()
             return .merge(
@@ -172,6 +180,9 @@ let appRouteReducer = Reducer<AppRouteState, AppRouteAction, AppRouteEnvironment
         case .filters:
             return .none
 
+        case .setting:
+            return .none
+
         case .detail:
             return .none
 
@@ -207,6 +218,27 @@ let appRouteReducer = Reducer<AppRouteState, AppRouteAction, AppRouteEnvironment
         }
     )
     .binding(),
+    settingReducer.pullback(
+        state: \.settingState,
+        action: /AppRouteAction.setting,
+        environment: {
+            .init(
+                dfClient: $0.dfClient,
+                fileClient: $0.fileClient,
+                deviceClient: $0.deviceClient,
+                loggerClient: $0.loggerClient,
+                hapticClient: $0.hapticClient,
+                libraryClient: $0.libraryClient,
+                cookiesClient: $0.cookiesClient,
+                databaseClient: $0.databaseClient,
+                clipboardClient: $0.clipboardClient,
+                appDelegateClient: $0.appDelegateClient,
+                userDefaultsClient: $0.userDefaultsClient,
+                uiApplicationClient: $0.uiApplicationClient,
+                authorizationClient: $0.authorizationClient
+            )
+        }
+    ),
     detailReducer.pullback(
         state: \.detailState,
         action: /AppRouteAction.detail,

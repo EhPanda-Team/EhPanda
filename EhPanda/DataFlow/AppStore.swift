@@ -24,6 +24,7 @@ enum AppAction: BindableAction {
     case appRoute(AppRouteAction)
     case appLock(AppLockAction)
     case appDelegate(AppDelegateAction)
+    case tabBar(TabBarAction)
     case home(HomeAction)
     case favorites(FavoritesAction)
     case search(SearchAction)
@@ -49,8 +50,11 @@ struct AppEnvironment {
     let authorizationClient: AuthorizationClient
 }
 
-let appReducerCore = Reducer<AppState, AppAction, AppEnvironment> { state, action, _ in
+let appReducerCore = Reducer<AppState, AppAction, AppEnvironment> { state, action, environment in
     switch action {
+    case .binding(\.appRouteState.$route):
+        return state.appRouteState.route == nil ? .init(value: .appRoute(.clearSubStates)) : .none
+
     case .binding(\.settingState.$setting):
         return .init(value: .setting(.syncSetting))
 
@@ -137,6 +141,28 @@ let appReducerCore = Reducer<AppState, AppAction, AppEnvironment> { state, actio
     case .appDelegate:
         return .none
 
+    case .tabBar(.setTabBarItemType(let type)):
+        var effects = [Effect<AppAction, Never>]()
+        switch type {
+        case .home:
+            effects.append(.init(value: .home(.fetchAllGalleries)))
+        case .favorites:
+            effects.append(.init(value: .favorites(.fetchGalleries())))
+        case .search:
+            effects.append(.init(value: .search(.fetchDatabaseInfos)))
+        case .setting:
+            if environment.deviceClient.isPad() {
+                effects.append(.init(value: .appRoute(.setNavigation(.setting))))
+            }
+        }
+        if [.home, .favorites, .search].contains(type) {
+            effects.append(environment.hapticClient.generateFeedback(.soft).fireAndForget())
+        }
+        return effects.isEmpty ? .none : .merge(effects)
+
+    case .tabBar:
+        return .none
+
     case .home(.frontpage(.fetchGalleries)), .home(.frontpage(.fetchMoreGalleries)):
         state.homeState.frontpageState.filter = state.settingState.globalFilter
         return .none
@@ -187,17 +213,21 @@ let appReducer = Reducer<AppState, AppAction, AppEnvironment>.combine(
         action: /AppAction.appRoute,
         environment: {
             .init(
+                dfClient: $0.dfClient,
                 urlClient: $0.urlClient,
                 fileClient: $0.fileClient,
                 imageClient: $0.imageClient,
                 deviceClient: $0.deviceClient,
+                loggerClient: $0.loggerClient,
                 hapticClient: $0.hapticClient,
+                libraryClient: $0.libraryClient,
                 cookiesClient: $0.cookiesClient,
                 databaseClient: $0.databaseClient,
                 clipboardClient: $0.clipboardClient,
                 appDelegateClient: $0.appDelegateClient,
                 userDefaultsClient: $0.userDefaultsClient,
-                uiApplicationClient: $0.uiApplicationClient
+                uiApplicationClient: $0.uiApplicationClient,
+                authorizationClient: $0.authorizationClient
             )
         }
     ),
@@ -218,6 +248,15 @@ let appReducer = Reducer<AppState, AppAction, AppEnvironment>.combine(
                 dfClient: $0.dfClient,
                 libraryClient: $0.libraryClient,
                 cookiesClient: $0.cookiesClient
+            )
+        }
+    ),
+    tabBarReducer.pullback(
+        state: \.tabBarState,
+        action: /AppAction.tabBar,
+        environment: {
+            .init(
+                deviceClient: $0.deviceClient
             )
         }
     ),
