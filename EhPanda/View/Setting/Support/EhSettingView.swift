@@ -29,8 +29,10 @@ struct EhSettingView: View {
                 LoadingView().tint(nil)
             } else if case .failed(let error) = viewStore.loadingState {
                 ErrorView(error: error, retryAction: { viewStore.send(.fetchEhSetting) }).tint(nil)
-            } else if let ehSetting = Binding(viewStore.binding(\.$ehSetting)),
-                      let ehProfile = Binding(viewStore.binding(\.$ehProfile))
+            }
+            // Using `Binding.init` will crash the app
+            else if let ehSetting = Binding(unwrapping: viewStore.binding(\.$ehSetting)),
+                    let ehProfile = Binding(unwrapping: viewStore.binding(\.$ehProfile))
             {
                 form(ehSetting: ehSetting, ehProfile: ehProfile)
                     .transition(.opacity.animation(.default))

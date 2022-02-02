@@ -20,30 +20,6 @@ extension Reducer {
 
 // MARK: Haptic
 extension Reducer {
-    public func onChange<LocalState>(
-        of toLocalState: @escaping (State) -> LocalState,
-        perform additionalEffects: @escaping (LocalState, inout State, Action, Environment)
-        -> Effect<Action, Never>
-    ) -> Self where LocalState: Equatable {
-        .init { state, action, environment in
-            let previousLocalState = toLocalState(state)
-            let effects = self.run(&state, action, environment)
-            let localState = toLocalState(state)
-
-            return previousLocalState != localState
-            ? .merge(effects, additionalEffects(localState, &state, action, environment))
-            : effects
-        }
-    }
-    func haptics(
-        hapticClient: @escaping (Environment) -> HapticClient,
-        style: UIImpactFeedbackGenerator.FeedbackStyle = .soft,
-        triggerOnChangeOf trigger: @escaping (State) -> AnyHashable
-    ) -> Self {
-        onChange(of: trigger) {
-            hapticClient($3).generateFeedback(style).fireAndForget()
-        }
-    }
     func onBecomeNonNil<Enum, Case>(
         unwrapping enum: @escaping (State) -> Enum?,
         case casePath: CasePath<Enum, Case>,
