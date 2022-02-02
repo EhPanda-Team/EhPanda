@@ -235,7 +235,7 @@ enum ReadingAction: BindableAction {
     case fetchNormalContents(Int, [Int: String])
     case fetchNormalContentsDone(Int, Result<([Int: String], [Int: String]), AppError>)
     case refetchNormalContents(Int)
-    case refetchNormalContentsDone(Int, Result<[Int: String], AppError>)
+    case refetchNormalContentsDone(Int, Result<([Int: String], HTTPURLResponse?), AppError>)
 
     case fetchMPVKeys(Int, String)
     case fetchMPVKeysDone(Int, Result<(String, [Int: String]), AppError>)
@@ -248,6 +248,7 @@ struct ReadingEnvironment {
     let imageClient: ImageClient
     let deviceClient: DeviceClient
     let hapticClient: HapticClient
+    let cookiesClient: CookiesClient
     let databaseClient: DatabaseClient
     let clipboardClient: ClipboardClient
     let appDelegateClient: AppDelegateClient
@@ -631,14 +632,19 @@ let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { 
 
     case .refetchNormalContentsDone(let index, let result):
         switch result {
-        case .success(let contents):
+        case .success(let (contents, response)):
+            var effects = [Effect<ReadingAction, Never>]()
+            if let response = response {
+                effects.append(environment.cookiesClient.setSkipServer(response: response).fireAndForget())
+            }
             guard !contents.isEmpty else {
                 state.contentLoadingStates[index] = .failed(.notFound)
-                return .none
+                return effects.isEmpty ? .none : .merge(effects)
             }
             state.contentLoadingStates[index] = .idle
             state.updateContents(contents, [:])
-            return .init(value: .syncContents(contents, [:]))
+            effects.append(.init(value: .syncContents(contents, [:])))
+            return .merge(effects)
         case .failure(let error):
             state.contentLoadingStates[index] = .failed(error)
         }

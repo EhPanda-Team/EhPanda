@@ -356,6 +356,7 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
                 imageClient: $0.imageClient,
                 deviceClient: $0.deviceClient,
                 hapticClient: $0.hapticClient,
+                cookiesClient: $0.cookiesClient,
                 databaseClient: $0.databaseClient,
                 clipboardClient: $0.clipboardClient,
                 appDelegateClient: $0.appDelegateClient
@@ -393,6 +394,7 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
                 imageClient: $0.imageClient,
                 deviceClient: $0.deviceClient,
                 hapticClient: $0.hapticClient,
+                cookiesClient: $0.cookiesClient,
                 databaseClient: $0.databaseClient,
                 clipboardClient: $0.clipboardClient,
                 appDelegateClient: $0.appDelegateClient

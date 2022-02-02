@@ -801,8 +801,8 @@ extension Parser {
         func trim(string: String) -> String? {
             if string.contains("EXP") {
                 return "EXP"
-            } else if string.contains("String") {
-                return "String"
+            } else if string.contains("Credits") {
+                return "Credits"
             } else if string.contains("GP") {
                 return "GP"
             } else if string.contains("Hath") {
@@ -862,7 +862,7 @@ extension Parser {
                 switch type {
                 case "EXP":
                     greeting.gainedEXP = value
-                case "String":
+                case "Credits":
                     greeting.gainedCredits = value
                 case "GP":
                     greeting.gainedGP = value
@@ -1223,7 +1223,7 @@ extension Parser {
             if let text = element.text,
                let rangeA = text.range(of: "GP"),
                let rangeB = text.range(of: "[?]"),
-               let rangeC = text.range(of: "String")
+               let rangeC = text.range(of: "Credits")
             {
                 tmpGP = String(text[..<rangeA.lowerBound])
                     .trimmingCharacters(in: .whitespaces)

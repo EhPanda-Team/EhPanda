@@ -11,7 +11,6 @@ import ComposableArchitecture
 struct CookiesClient {
     let clearAll: () -> Effect<Never, Never>
     let getCookie: (URL, String) -> CookieValue
-    private let setCookie: (URL, String, String, String, TimeInterval) -> Void
     private let removeCookie: (URL, String) -> Void
     private let checkExistence: (URL, String) -> Bool
     private let initializeCookie: (HTTPCookie, String) -> HTTPCookie
@@ -54,16 +53,6 @@ extension CookiesClient {
 
             return value
         },
-        setCookie: { url, key, value, path, expiresTime in
-            let expiredDate = Date(timeIntervalSinceNow: expiresTime)
-            let properties: [HTTPCookiePropertyKey: Any] = [
-                .path: path, .name: key, .value: value,
-                .originURL: url, .expires: expiredDate
-            ]
-            if let cookie = HTTPCookie(properties: properties) {
-                HTTPCookieStorage.shared.setCookie(cookie)
-            }
-        },
         removeCookie: { url, key in
             if let cookies = HTTPCookieStorage.shared.cookies(for: url) {
                 cookies.forEach { cookie in
@@ -94,8 +83,18 @@ extension CookiesClient {
 
 // MARK: Foundation
 extension CookiesClient {
-    private func setCookie(for url: URL, key: String, value: String) {
-        setCookie(url, key, value, "/", .init(60 * 60 * 24 * 365))
+    private func setCookie(
+        for url: URL, key: String, value: String, path: String = "/",
+        expiresTime: TimeInterval = .init(60 * 60 * 24 * 365)
+    ) {
+        let expiredDate = Date(timeIntervalSinceNow: expiresTime)
+        let properties: [HTTPCookiePropertyKey: Any] = [
+            .path: path, .name: key, .value: value,
+            .originURL: url, .expires: expiredDate
+        ]
+        if let cookie = HTTPCookie(properties: properties) {
+            HTTPCookieStorage.shared.setCookie(cookie)
+        }
     }
     func editCookie(for url: URL, key: String, value: String) {
         var newCookie: HTTPCookie?
@@ -208,7 +207,7 @@ extension CookiesClient {
         }
         return effects.isEmpty ? .none : .merge(effects)
     }
-    func setCookies(response: HTTPURLResponse) -> Effect<Never, Never> {
+    func setCredentials(response: HTTPURLResponse) -> Effect<Never, Never> {
         .fireAndForget {
             guard let setString = response.allHeaderFields["Set-Cookie"] as? String else { return }
             setString.components(separatedBy: ", ")
@@ -223,6 +222,22 @@ extension CookiesClient {
                                   let range = value.range(of: "\(key)=") else { return }
                             setCookie(for: url, key: key, value: String(value[range.upperBound...]))
                         }
+                    }
+                }
+        }
+    }
+    func setSkipServer(response: HTTPURLResponse) -> Effect<Never, Never> {
+        .fireAndForget {
+            guard let setString = response.allHeaderFields["Set-Cookie"] as? String else { return }
+            setString.components(separatedBy: ", ")
+                .flatMap { $0.components(separatedBy: "; ") }
+                .forEach { value in
+                    let key = Defaults.Cookie.skipServer
+                    if let range = value.range(of: "\(key)=") {
+                        setCookie(
+                            for: Defaults.URL.host, key: key,
+                            value: String(value[range.upperBound...]), path: "/s/"
+                        )
                     }
                 }
         }

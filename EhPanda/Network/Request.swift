@@ -558,11 +558,11 @@ struct GalleryNormalContentRefetchRequest: Request {
     let thumbnailURL: String?
     let storedImageURL: String
 
-    var publisher: AnyPublisher<[Int: String], AppError> {
+    var publisher: AnyPublisher<([Int: String], HTTPURLResponse?), AppError> {
         storedThumbnail().flatMap(renewThumbnail).flatMap(content)
-            .genericRetry().map({ imageURL1, imageURL2 in
-                imageURL1 != storedImageURL ? imageURL1 : imageURL2
-            }).map({ imageURL in [index: imageURL] })
+            .genericRetry().map { imageURL1, imageURL2, response in
+                ([index: imageURL1 != storedImageURL ? imageURL1 : imageURL2], response)
+            }
             .eraseToAnyPublisher()
     }
 
@@ -587,29 +587,19 @@ struct GalleryNormalContentRefetchRequest: Request {
             .mapError(mapAppError).eraseToAnyPublisher()
     }
 
-    func content(thumbnailURL: URL, anotherImageURL: String) -> AnyPublisher<(String, String), AppError> {
+    func content(thumbnailURL: URL, anotherImageURL: String)
+    -> AnyPublisher<(String, String, HTTPURLResponse?), AppError> {
         URLSession.shared.dataTaskPublisher(for: thumbnailURL)
             .tryMap {
-//                if let (_, resp) = $0 as? (Data, HTTPURLResponse),
-//                    let setString = resp.allHeaderFields["Set-Cookie"] as? String
-//                {
-//                    setString.components(separatedBy: ", ")
-//                        .flatMap { $0.components(separatedBy: "; ") }
-//                        .forEach { value in
-//                            let key = Defaults.Cookie.skipServer
-//                            if let range = value.range(of: "\(key)=") {
-//                                CookiesUtil.set(
-//                                    for: Defaults.URL.host, key: key,
-//                                    value: String(value[range.upperBound...]), path: "/s/",
-//                                    expiresTime: TimeInterval(60 * 60 * 24 * 30)
-//                                )
-//                            }
-//                        }
-//                }
-                return try Kanna.HTML(html: $0.data, encoding: .utf8)
+                (try Kanna.HTML(html: $0.data, encoding: .utf8), $0.response as? HTTPURLResponse)
             }
-            .tryMap { try Parser.parseGalleryNormalContent(doc: $0, index: index) }
-            .map(\.1).map({ (anotherImageURL, $0) }).mapError(mapAppError).eraseToAnyPublisher()
+            .tryMap { html, response in
+                (try Parser.parseGalleryNormalContent(doc: html, index: index), response)
+            }
+            .map { content, response in
+                (anotherImageURL, content.1, response)
+            }
+            .mapError(mapAppError).eraseToAnyPublisher()
     }
 }
 

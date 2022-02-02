@@ -100,7 +100,7 @@ let loginReducer = Reducer<LoginState, LoginAction, LoginEnvironment> { state, a
             effects.append(environment.hapticClient.generateNotificationFeedback(.error).fireAndForget())
         }
         if case .success(let response) = result, let response = response {
-            effects.append(environment.cookiesClient.setCookies(response: response).fireAndForget())
+            effects.append(environment.cookiesClient.setCredentials(response: response).fireAndForget())
         }
         return .merge(effects)
     }

@@ -273,7 +273,7 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
         case .fetchIgneousDone(let result):
             var effects = [Effect<SettingAction, Never>]()
             if case .success(let response) = result {
-                effects.append(environment.cookiesClient.setCookies(response: response).fireAndForget())
+                effects.append(environment.cookiesClient.setCredentials(response: response).fireAndForget())
             }
             effects.append(.init(value: .account(.loadCookies)))
             return .merge(effects)
