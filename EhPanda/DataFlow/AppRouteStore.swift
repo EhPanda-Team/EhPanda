@@ -110,7 +110,7 @@ let appRouteReducer = Reducer<AppRouteState, AppRouteAction, AppRouteEnvironment
             }
             let (isGalleryImageURL, _, _) = environment.urlClient.analyzeURL(url)
             let gid = environment.urlClient.parseGalleryID(url)
-            guard !environment.databaseClient.checkGalleryExistence(gid: gid) else {
+            guard environment.databaseClient.fetchGallery(gid: gid) == nil else {
                 return .init(value: .handleGalleryLink(url))
                     .delay(for: .milliseconds(delay + 250), scheduler: DispatchQueue.main).eraseToEffect()
             }

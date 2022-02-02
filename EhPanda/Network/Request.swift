@@ -590,22 +590,22 @@ struct GalleryNormalContentRefetchRequest: Request {
     func content(thumbnailURL: URL, anotherImageURL: String) -> AnyPublisher<(String, String), AppError> {
         URLSession.shared.dataTaskPublisher(for: thumbnailURL)
             .tryMap {
-                if let (_, resp) = $0 as? (Data, HTTPURLResponse),
-                    let setString = resp.allHeaderFields["Set-Cookie"] as? String
-                {
-                    setString.components(separatedBy: ", ")
-                        .flatMap { $0.components(separatedBy: "; ") }
-                        .forEach { value in
-                            let key = Defaults.Cookie.skipServer
-                            if let range = value.range(of: "\(key)=") {
-                                CookiesUtil.set(
-                                    for: Defaults.URL.host, key: key,
-                                    value: String(value[range.upperBound...]), path: "/s/",
-                                    expiresTime: TimeInterval(60 * 60 * 24 * 30)
-                                )
-                            }
-                        }
-                }
+//                if let (_, resp) = $0 as? (Data, HTTPURLResponse),
+//                    let setString = resp.allHeaderFields["Set-Cookie"] as? String
+//                {
+//                    setString.components(separatedBy: ", ")
+//                        .flatMap { $0.components(separatedBy: "; ") }
+//                        .forEach { value in
+//                            let key = Defaults.Cookie.skipServer
+//                            if let range = value.range(of: "\(key)=") {
+//                                CookiesUtil.set(
+//                                    for: Defaults.URL.host, key: key,
+//                                    value: String(value[range.upperBound...]), path: "/s/",
+//                                    expiresTime: TimeInterval(60 * 60 * 24 * 30)
+//                                )
+//                            }
+//                        }
+//                }
                 return try Kanna.HTML(html: $0.data, encoding: .utf8)
             }
             .tryMap { try Parser.parseGalleryNormalContent(doc: $0, index: index) }

@@ -468,7 +468,7 @@ let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { 
         return .merge(effects)
 
     case .fetchDatabaseInfos:
-        return environment.databaseClient.fetchGalleryState(state.gallery.id)
+        return environment.databaseClient.fetchGalleryState(gid: state.gallery.id)
             .map(ReadingAction.fetchDatabaseInfosDone).cancellable(id: ReadingState.CancelID())
 
     case .fetchDatabaseInfosDone(let galleryState):

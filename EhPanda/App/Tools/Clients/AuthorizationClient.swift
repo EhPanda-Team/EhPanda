@@ -6,26 +6,32 @@
 //
 
 import Combine
+import LocalAuthentication
 import ComposableArchitecture
 
 struct AuthorizationClient {
     let passcodeNotSet: () -> Bool
-    let localAuth: (String) -> Effect<Bool, Never>
+    let localAuthroize: (String) -> Effect<Bool, Never>
 }
 
 extension AuthorizationClient {
     static let live: Self = .init(
         passcodeNotSet: {
-            AuthorizationUtil.passcodeNotSet
+            var error: NSError?
+            return !LAContext().canEvaluatePolicy(.deviceOwnerAuthentication, error: &error)
         },
-        localAuth: { reason in
+        localAuthroize: { reason in
             Future { promise in
-                AuthorizationUtil.localAuth(
-                    reason: reason,
-                    successAction: { promise(.success(true)) },
-                    failureAction: { promise(.success(false)) },
-                    passcodeNotSetAction: { promise(.success(false)) }
-                )
+                let context = LAContext()
+                var error: NSError?
+
+                if context.canEvaluatePolicy(.deviceOwnerAuthentication, error: &error) {
+                    context.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: reason) { isSuccess, _ in
+                        promise(.success(isSuccess))
+                    }
+                } else {
+                    promise(.success(false))
+                }
             }
             .eraseToAnyPublisher()
             .eraseToEffect()

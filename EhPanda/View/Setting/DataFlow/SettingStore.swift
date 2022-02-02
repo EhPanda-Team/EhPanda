@@ -249,7 +249,7 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
             if environment.cookiesClient.shouldFetchIgneous {
                 effects.append(.init(value: .fetchIgneous))
             }
-            if environment.cookiesClient.didLogin() {
+            if environment.cookiesClient.didLogin {
                 effects.append(contentsOf: [
                     .init(value: .fetchUserInfo),
                     .init(value: .fetchGreeting),
@@ -267,19 +267,19 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
             return EhProfileRequest(action: .create, name: "EhPanda").effect.fireAndForget()
 
         case .fetchIgneous:
-            guard environment.cookiesClient.didLogin() else { return .none }
+            guard environment.cookiesClient.didLogin else { return .none }
             return IgneousRequest().effect.map(SettingAction.fetchIgneousDone)
 
         case .fetchIgneousDone(let result):
             var effects = [Effect<SettingAction, Never>]()
             if case .success(let response) = result {
-                effects.append(environment.cookiesClient.setCookies(response).fireAndForget())
+                effects.append(environment.cookiesClient.setCookies(response: response).fireAndForget())
             }
             effects.append(.init(value: .account(.loadCookies)))
             return .merge(effects)
 
         case .fetchUserInfo:
-            guard environment.cookiesClient.didLogin() else { return .none }
+            guard environment.cookiesClient.didLogin else { return .none }
             let uid = environment.cookiesClient
                 .getCookie(Defaults.URL.host, Defaults.Cookie.ipbMemberId).rawValue
             if !uid.isEmpty {
@@ -312,7 +312,7 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
                 return false
             }
 
-            guard environment.cookiesClient.didLogin(),
+            guard environment.cookiesClient.didLogin,
                   state.setting.showsNewDawnGreeting
             else { return .none }
             let requestEffect = GreetingRequest().effect
@@ -379,7 +379,7 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
             return .none
 
         case .fetchEhProfileIndex:
-            guard environment.cookiesClient.didLogin() else { return .none }
+            guard environment.cookiesClient.didLogin else { return .none }
             return VerifyEhProfileRequest().effect.map(SettingAction.fetchEhProfileIndexDone)
 
         case .fetchEhProfileIndexDone(let result):
@@ -394,8 +394,8 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
                     let cookieValue =  environment.cookiesClient.getCookie(hostURL, selectedProfileKey)
                     if cookieValue.rawValue != profileValueString {
                         effects.append(
-                            environment.cookiesClient.setCookie(
-                                hostURL, selectedProfileKey, profileValueString
+                            environment.cookiesClient.setOrEditCookie(
+                                for: hostURL, key: selectedProfileKey, value: profileValueString
                             )
                             .fireAndForget()
                         )
@@ -410,7 +410,7 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
             return effects.isEmpty ? .none : .merge(effects)
 
         case .fetchFavoriteCategories:
-            guard environment.cookiesClient.didLogin() else { return .none }
+            guard environment.cookiesClient.didLogin else { return .none }
             return FavoriteCategoriesRequest().effect.map(SettingAction.fetchFavoriteCategoriesDone)
 
         case .fetchFavoriteCategoriesDone(let result):

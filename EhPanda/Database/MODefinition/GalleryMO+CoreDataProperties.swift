@@ -7,7 +7,7 @@
 
 import CoreData
 
-extension GalleryMO: Identifiable, GalleryIdentifiable {
+extension GalleryMO: GalleryIdentifiable {
     @nonobjc public class func fetchRequest() -> NSFetchRequest<GalleryMO> {
         NSFetchRequest<GalleryMO>(entityName: "GalleryMO")
     }

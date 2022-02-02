@@ -66,8 +66,8 @@ let ehSettingReducer = Reducer<EhSettingState, EhSettingAction, EhSettingEnviron
         return environment.uiApplicationClient.hideKeyboard().fireAndForget()
 
     case .setDefaultProfile(let profileSet):
-        return environment.cookiesClient.setCookie(
-            Defaults.URL.host, Defaults.Cookie.selectedProfile, String(profileSet)
+        return environment.cookiesClient.setOrEditCookie(
+            for: Defaults.URL.host, key: Defaults.Cookie.selectedProfile, value: String(profileSet)
         )
         .fireAndForget()
 

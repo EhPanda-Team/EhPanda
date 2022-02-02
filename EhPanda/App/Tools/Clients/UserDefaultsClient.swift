@@ -15,7 +15,7 @@ extension UserDefaultsClient {
     static let live: Self = .init(
         setValue: { value, key in
             .fireAndForget {
-                UserDefaultsUtil.set(value: value, forKey: key)
+                UserDefaults.standard.set(value, forKey: key.rawValue)
             }
         }
     )

@@ -133,7 +133,7 @@ let accountSettingReducer = Reducer<AccountSettingState, AccountSettingAction, A
             )
 
         case .login(.loginDone):
-            return environment.cookiesClient.didLogin() ? .init(value: .setNavigation(nil)) : .none
+            return environment.cookiesClient.didLogin ? .init(value: .setNavigation(nil)) : .none
 
         case .login:
             return .none

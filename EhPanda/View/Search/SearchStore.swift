@@ -148,7 +148,8 @@ let searchReducer = Reducer<SearchState, SearchAction, SearchEnvironment>.combin
             return .init(value: .syncHistoryKeywords)
 
         case .fetchHistoryGalleries:
-            return environment.databaseClient.fetchHistoryGalleries(10).map(SearchAction.fetchHistoryGalleriesDone)
+            return environment.databaseClient
+                .fetchHistoryGalleries(fetchLimit: 10).map(SearchAction.fetchHistoryGalleriesDone)
 
         case .fetchHistoryGalleriesDone(let galleries):
             state.historyGalleries = Array(galleries.prefix(min(galleries.count, 10)))

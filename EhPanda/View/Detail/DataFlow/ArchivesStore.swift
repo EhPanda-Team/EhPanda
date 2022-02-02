@@ -82,7 +82,7 @@ let archivesReducer = Reducer<ArchivesState, ArchivesAction, ArchivesEnvironment
             state.hathArchives = archive.hathArchives
             if let galleryPoints = galleryPoints, let credits = credits {
                 return .init(value: .syncGalleryFunds(galleryPoints, credits))
-            } else if environment.cookiesClient.isSameAccount() {
+            } else if environment.cookiesClient.isSameAccount {
                 return .init(value: .fetchArchiveFunds(gid, galleryURL))
             } else {
                 return .none

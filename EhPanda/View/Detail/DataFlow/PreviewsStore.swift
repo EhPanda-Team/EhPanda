@@ -98,7 +98,7 @@ let previewsReducer = Reducer<PreviewsState, PreviewsAction, PreviewsEnvironment
             return .cancel(id: PreviewsState.CancelID())
 
         case .fetchDatabaseInfos:
-            return environment.databaseClient.fetchGalleryState(state.gallery.id)
+            return environment.databaseClient.fetchGalleryState(gid: state.gallery.id)
                     .map(PreviewsAction.fetchDatabaseInfosDone).cancellable(id: PreviewsState.CancelID())
 
         case .fetchDatabaseInfosDone(let galleryState):

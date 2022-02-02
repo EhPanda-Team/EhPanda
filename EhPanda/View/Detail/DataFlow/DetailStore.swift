@@ -234,14 +234,14 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
             return .cancel(id: DetailState.CancelID())
 
         case .fetchDatabaseInfos(let gid):
-            guard let gallery = environment.databaseClient.fetchGallery(gid) else { return .none }
+            guard let gallery = environment.databaseClient.fetchGallery(gid: gid) else { return .none }
             state.gallery = gallery
-            if let detail = environment.databaseClient.fetchGalleryDetail(gid) {
+            if let detail = environment.databaseClient.fetchGalleryDetail(gid: gid) {
                 state.galleryDetail = detail
             }
             return .merge(
                 .init(value: .saveGalleryHistory),
-                environment.databaseClient.fetchGalleryState(state.gallery.id)
+                environment.databaseClient.fetchGalleryState(gid: state.gallery.id)
                     .map(DetailAction.fetchDatabaseInfosDone).cancellable(id: DetailState.CancelID())
             )
 
