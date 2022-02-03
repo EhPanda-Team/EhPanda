@@ -16,7 +16,7 @@ struct ControlPanel: View {
     @Binding private var setting: Setting
     @Binding private var autoPlayPolicy: AutoPlayPolicy
     private let range: ClosedRange<Float>
-    private let previewURLs: [Int: String]
+    private let previewURLs: [Int: URL]
     private let dismissAction: () -> Void
     private let navigateSettingAction: () -> Void
     private let fetchPreviewURLsAction: (Int) -> Void
@@ -24,7 +24,7 @@ struct ControlPanel: View {
     init(
         showsPanel: Binding<Bool>, showsSliderPreview: Binding<Bool>, sliderValue: Binding<Float>,
         setting: Binding<Setting>, autoPlayPolicy: Binding<AutoPlayPolicy>, range: ClosedRange<Float>,
-        previewURLs: [Int: String], dismissAction: @escaping () -> Void,
+        previewURLs: [Int: URL], dismissAction: @escaping () -> Void,
         navigateSettingAction: @escaping () -> Void,
         fetchPreviewURLsAction: @escaping (Int) -> Void
     ) {
@@ -158,14 +158,14 @@ private struct UpperPanel: View {
 private struct LowerPanel: View {
     @Binding private var showsSliderPreview: Bool
     @Binding private var sliderValue: Float
-    private let previewURLs: [Int: String]
+    private let previewURLs: [Int: URL]
     private let range: ClosedRange<Float>
     private let isReversed: Bool
     private let fetchPreviewURLsAction: (Int) -> Void
 
     init(
         showsSliderPreview: Binding<Bool>, sliderValue: Binding<Float>,
-        previewURLs: [Int: String], range: ClosedRange<Float>, isReversed: Bool,
+        previewURLs: [Int: URL], range: ClosedRange<Float>, isReversed: Bool,
         fetchPreviewURLsAction: @escaping (Int) -> Void
     ) {
         _showsSliderPreview = showsSliderPreview
@@ -206,14 +206,14 @@ private struct LowerPanel: View {
 private struct SliderPreivew: View {
     @Binding private var showsSliderPreview: Bool
     @Binding var sliderValue: Float
-    private let previewURLs: [Int: String]
+    private let previewURLs: [Int: URL]
     private let range: ClosedRange<Float>
     private let isReversed: Bool
     private let fetchPreviewURLsAction: (Int) -> Void
 
     init(
         showsSliderPreview: Binding<Bool>, sliderValue: Binding<Float>,
-        previewURLs: [Int: String], range: ClosedRange<Float>,
+        previewURLs: [Int: URL], range: ClosedRange<Float>,
         isReversed: Bool, fetchPreviewURLsAction: @escaping (Int) -> Void
     ) {
         _showsSliderPreview = showsSliderPreview
@@ -227,12 +227,9 @@ private struct SliderPreivew: View {
     var body: some View {
         HStack(spacing: previewSpacing) {
             ForEach(previewsIndices, id: \.self) { index in
-                let (url, modifier) =
-                PreviewResolver.getPreviewConfigs(
-                    originalURL: previewURLs[index] ?? ""
-                )
+                let (url, modifier) = PreviewResolver.getPreviewConfigs(originalURL: previewURLs[index])
                 VStack {
-                    KFImage.url(URL(string: url), cacheKey: previewURLs[index])
+                    KFImage.url(url, cacheKey: previewURLs[index]?.absoluteString)
                         .placeholder {
                             Placeholder(style: .activity(
                                 ratio: Defaults.ImageSize.previewAspect

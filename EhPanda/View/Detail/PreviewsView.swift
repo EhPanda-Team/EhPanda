@@ -41,13 +41,13 @@ struct PreviewsView: View {
                 ForEach(1..<viewStore.gallery.pageCount + 1) { index in
                     VStack {
                         let (url, modifier) = PreviewResolver.getPreviewConfigs(
-                            originalURL: viewStore.previewURLs[index] ?? ""
+                            originalURL: viewStore.previewURLs[index]
                         )
                         Button {
                             viewStore.send(.updateReadingProgress(index))
                             viewStore.send(.setNavigation(.reading))
                         } label: {
-                            KFImage.url(URL(string: url), cacheKey: viewStore.previewURLs[index])
+                            KFImage.url(url, cacheKey: viewStore.previewURLs[index]?.absoluteString)
                                 .placeholder { Placeholder(style: .activity(ratio: Defaults.ImageSize.previewAspect)) }
                                 .imageModifier(modifier).fade(duration: 0.25).resizable().scaledToFit()
                         }

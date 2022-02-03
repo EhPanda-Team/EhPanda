@@ -61,6 +61,8 @@ extension Float {
 
 // MARK: URL
 extension URL {
+    static let mock = Defaults.URL.ehentai
+
     func appending(queryItems: [URLQueryItem]) -> URL {
         var components: URLComponents = .init(
             url: self, resolvingAgainstBaseURL: false

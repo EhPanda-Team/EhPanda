@@ -39,10 +39,10 @@ struct CommentContent: Identifiable, Equatable, Codable {
     let type: CommentContentType
     var text: String?
     var link: String?
-    var imgURL: String?
+    var imgURL: URL?
 
     var secondLink: String?
-    var secondImgURL: String?
+    var secondImgURL: URL?
 }
 
 enum CommentContentType: Int, Codable {

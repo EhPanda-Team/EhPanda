@@ -106,7 +106,11 @@ struct DetailView: View {
                     }
                     CommentsSection(
                         comments: viewStore.galleryComments, backgroundColor: commentsBackgroundColor,
-                        navigateCommentAction: { viewStore.send(.setNavigation(.comments)) },
+                        navigateCommentAction: {
+                            if let galleryURL = viewStore.gallery.galleryURL {
+                                viewStore.send(.setNavigation(.comments(galleryURL)))
+                            }
+                        },
                         navigatePostCommentAction: { viewStore.send(.setNavigation(.postComment)) }
                     )
                 }
@@ -133,11 +137,11 @@ struct DetailView: View {
             .accentColor(setting.accentColor)
             .autoBlur(radius: blurRadius)
         }
-        .sheet(unwrapping: viewStore.binding(\.$route), case: /DetailState.Route.archives) { _ in
+        .sheet(unwrapping: viewStore.binding(\.$route), case: /DetailState.Route.archives) { route in
+            let (galleryURL, archiveURL) = route.wrappedValue
             ArchivesView(
                 store: store.scope(state: \.archivesState, action: DetailAction.archives),
-                gid: gid, user: user, galleryURL: viewStore.gallery.galleryURL,
-                archiveURL: viewStore.galleryDetail?.archiveURL ?? ""
+                gid: gid, user: user, galleryURL: galleryURL, archiveURL: archiveURL
             )
             .accentColor(setting.accentColor)
             .autoBlur(radius: blurRadius)
@@ -160,7 +164,9 @@ struct DetailView: View {
                 content: viewStore.binding(\.$commentContent),
                 isFocused: viewStore.binding(\.$postCommentFocused),
                 postAction: {
-                    viewStore.send(.postComment(viewStore.gallery.galleryURL))
+                    if let galleryURL = viewStore.gallery.galleryURL {
+                        viewStore.send(.postComment(galleryURL))
+                    }
                     viewStore.send(.setNavigation(nil))
                 },
                 cancelAction: { viewStore.send(.setNavigation(nil)) },
@@ -195,12 +201,11 @@ private extension DetailView {
                 setting: $setting, blurRadius: blurRadius
             )
         }
-        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /DetailState.Route.comments) { _ in
+        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /DetailState.Route.comments) { route in
             CommentsView(
                 store: store.scope(state: \.commentsState, action: DetailAction.comments),
                 gid: gid, token: viewStore.gallery.token, apiKey: viewStore.apiKey,
-                galleryURL: viewStore.gallery.galleryURL,
-                comments: viewStore.galleryComments, user: user,
+                galleryURL: route.wrappedValue, comments: viewStore.galleryComments, user: user,
                 setting: $setting, blurRadius: blurRadius,
                 tagTranslator: tagTranslator
             )
@@ -221,7 +226,11 @@ private extension DetailView {
         CustomToolbarItem {
             ToolbarFeaturesMenu {
                 Button {
-                    viewStore.send(.setNavigation(.archives))
+                    if let galleryURL = viewStore.gallery.galleryURL,
+                       let archiveURL = viewStore.galleryDetail?.archiveURL
+                    {
+                        viewStore.send(.setNavigation(.archives(galleryURL, archiveURL)))
+                    }
                 } label: {
                     Label(R.string.localizable.detailViewToolbarItemButtonArchives(), systemSymbol: .docZipper)
                 }
@@ -236,8 +245,7 @@ private extension DetailView {
                 }
                 .disabled((viewStore.galleryDetail?.torrentCount ?? 0 > 0) != true)
                 Button {
-                    if let galleryURL = URL(string: viewStore.gallery.galleryURL)
-                    {
+                    if let galleryURL = viewStore.gallery.galleryURL {
                         viewStore.send(.setNavigation(.share(galleryURL)))
                     }
                 } label: {
@@ -284,7 +292,7 @@ private struct HeaderSection: View {
 
     var body: some View {
         HStack {
-            KFImage(URL(string: gallery.coverURL))
+            KFImage(gallery.coverURL)
                 .placeholder { Placeholder(style: .activity(ratio: Defaults.ImageSize.headerAspect)) }
                 .defaultModifier().scaledToFit()
                 .frame(
@@ -594,12 +602,12 @@ private extension TagsSection {
 // MARK: PreviewSection
 private struct PreviewsSection: View {
     private let pageCount: Int
-    private let previewURLs: [Int: String]
+    private let previewURLs: [Int: URL]
     private let navigatePreviewsAction: () -> Void
     private let navigateReadingAction: (Int) -> Void
 
     init(
-        pageCount: Int, previewURLs: [Int: String],
+        pageCount: Int, previewURLs: [Int: URL],
         navigatePreviewsAction: @escaping () -> Void,
         navigateReadingAction: @escaping (Int) -> Void
     ) {
@@ -628,7 +636,7 @@ private struct PreviewsSection: View {
                         Button {
                             navigateReadingAction(index)
                         } label: {
-                            KFImage.url(URL(string: url), cacheKey: previewURL)
+                            KFImage.url(url, cacheKey: previewURL.absoluteString)
                                 .placeholder { Placeholder(style: .activity(ratio: Defaults.ImageSize.previewAspect)) }
                                 .imageModifier(modifier).fade(duration: 0.25).resizable().scaledToFit()
                                 .frame(width: width, height: height)

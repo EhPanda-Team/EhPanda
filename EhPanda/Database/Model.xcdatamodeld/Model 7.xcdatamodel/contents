@@ -11,16 +11,16 @@
         <attribute name="watchedFilter" optional="YES" attributeType="Binary"/>
     </entity>
     <entity name="GalleryDetailMO" representedClassName=".GalleryDetailMO" syncable="YES">
-        <attribute name="archiveURL" optional="YES" attributeType="String"/>
+        <attribute name="archiveURL" optional="YES" attributeType="URI"/>
         <attribute name="category" attributeType="String" defaultValueString=""/>
-        <attribute name="coverURL" attributeType="String" defaultValueString=""/>
+        <attribute name="coverURL" optional="YES" attributeType="URI" defaultValueString=""/>
         <attribute name="favoritedCount" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="gid" attributeType="String" defaultValueString=""/>
         <attribute name="isFavorited" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="jpnTitle" optional="YES" attributeType="String"/>
         <attribute name="language" attributeType="String" defaultValueString=""/>
         <attribute name="pageCount" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
-        <attribute name="parentURL" optional="YES" attributeType="String"/>
+        <attribute name="parentURL" optional="YES" attributeType="URI"/>
         <attribute name="postedDate" attributeType="Date" defaultDateTimeInterval="646585800" usesScalarValueType="NO"/>
         <attribute name="rating" attributeType="Float" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="ratingCount" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
@@ -34,8 +34,8 @@
     </entity>
     <entity name="GalleryMO" representedClassName=".GalleryMO" syncable="YES">
         <attribute name="category" attributeType="String" defaultValueString=""/>
-        <attribute name="coverURL" attributeType="String" defaultValueString=""/>
-        <attribute name="galleryURL" attributeType="String" defaultValueString=""/>
+        <attribute name="coverURL" optional="YES" attributeType="URI" defaultValueString=""/>
+        <attribute name="galleryURL" optional="YES" attributeType="URI" defaultValueString=""/>
         <attribute name="gid" attributeType="String" defaultValueString=""/>
         <attribute name="language" optional="YES" attributeType="String"/>
         <attribute name="lastOpenDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
@@ -49,14 +49,14 @@
     </entity>
     <entity name="GalleryStateMO" representedClassName=".GalleryStateMO" syncable="YES">
         <attribute name="comments" optional="YES" attributeType="Binary"/>
-        <attribute name="contents" optional="YES" attributeType="Binary"/>
         <attribute name="gid" attributeType="String" defaultValueString=""/>
-        <attribute name="originalContents" optional="YES" attributeType="Binary"/>
+        <attribute name="imageURLs" optional="YES" attributeType="Binary"/>
+        <attribute name="originalImageURLs" optional="YES" attributeType="Binary"/>
         <attribute name="previewConfig" optional="YES" attributeType="Binary"/>
-        <attribute name="previews" optional="YES" attributeType="Binary"/>
+        <attribute name="previewURLs" optional="YES" attributeType="Binary"/>
         <attribute name="readingProgress" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="tags" optional="YES" attributeType="Binary"/>
-        <attribute name="thumbnails" optional="YES" attributeType="Binary"/>
+        <attribute name="thumbnailURLs" optional="YES" attributeType="Binary"/>
     </entity>
     <elements>
         <element name="AppEnvMO" positionX="-45" positionY="126" width="128" height="149"/>

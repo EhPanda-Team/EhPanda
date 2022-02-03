@@ -34,11 +34,11 @@ enum ArchivesAction: BindableAction {
     case syncGalleryFunds(String, String)
 
     case cancelFetching
-    case fetchArchive(String, String, String)
-    case fetchArchiveDone(String, String, Result<(GalleryArchive, String?, String?), AppError>)
-    case fetchArchiveFunds(String, String)
+    case fetchArchive(String, URL, URL)
+    case fetchArchiveDone(String, URL, Result<(GalleryArchive, String?, String?), AppError>)
+    case fetchArchiveFunds(String, URL)
     case fetchArchiveFundsDone(Result<(String, String), AppError>)
-    case fetchDownloadResponse(String)
+    case fetchDownloadResponse(URL)
     case fetchDownloadResponseDone(Result<String, AppError>)
 }
 
@@ -93,6 +93,7 @@ let archivesReducer = Reducer<ArchivesState, ArchivesAction, ArchivesEnvironment
         return .none
 
     case .fetchArchiveFunds(let gid, let galleryURL):
+        guard let galleryURL = galleryURL.replaceHost(to: Defaults.URL.ehentai.host) else { return .none }
         return GalleryArchiveFundsRequest(gid: gid, galleryURL: galleryURL)
             .effect.map(ArchivesAction.fetchArchiveFundsDone).cancellable(id: ArchivesState.CancelID())
 

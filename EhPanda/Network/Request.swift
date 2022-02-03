@@ -355,7 +355,7 @@ struct MoreToplistsGalleriesRequest: Request {
 // MARK: Fetch others
 struct GalleryDetailRequest: Request {
     let gid: String
-    let galleryURL: String
+    let galleryURL: URL
 
     var publisher: AnyPublisher<(GalleryDetail, GalleryState, String, Greeting?), AppError> {
         URLSession.shared.dataTaskPublisher(for: URLUtil.galleryDetail(url: galleryURL))
@@ -394,7 +394,7 @@ struct GalleryReverseRequest: Request {
                 category: detail.category, language: detail.language,
                 uploader: detail.uploader, pageCount: detail.pageCount,
                 postedDate: detail.postedDate, coverURL: detail.coverURL,
-                galleryURL: url.absoluteString
+                galleryURL: url
             )
         } else {
             return nil
@@ -433,10 +433,10 @@ struct GalleryReverseRequest: Request {
 }
 
 struct GalleryArchiveRequest: Request {
-    let archiveURL: String
+    let archiveURL: URL
 
     var publisher: AnyPublisher<(GalleryArchive, String?, String?), AppError> {
-        URLSession.shared.dataTaskPublisher(for: archiveURL.safeURL()).genericRetry()
+        URLSession.shared.dataTaskPublisher(for: archiveURL).genericRetry()
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .tryMap { (html: HTMLDocument) -> (HTMLDocument, GalleryArchive) in
                 let archive = try Parser.parseGalleryArchive(doc: html)
@@ -454,29 +454,22 @@ struct GalleryArchiveRequest: Request {
 
 struct GalleryArchiveFundsRequest: Request {
     let gid: String
-    let galleryURL: String
-
-    var alterGalleryURL: String {
-        galleryURL.replacingOccurrences(
-            of: Defaults.URL.exhentai.absoluteString,
-            with: Defaults.URL.ehentai.absoluteString
-        )
-    }
+    let galleryURL: URL
 
     var publisher: AnyPublisher<(String, String), AppError> {
-        archiveURL(url: alterGalleryURL).genericRetry()
+        archiveURL(url: galleryURL).genericRetry()
             .flatMap(funds).eraseToAnyPublisher()
     }
 
-    func archiveURL(url: String) -> AnyPublisher<String, AppError> {
-        URLSession.shared.dataTaskPublisher(for: url.safeURL())
+    func archiveURL(url: URL) -> AnyPublisher<URL, AppError> {
+        URLSession.shared.dataTaskPublisher(for: url)
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .compactMap { try? Parser.parseGalleryDetail(doc: $0, gid: gid).0.archiveURL }
             .mapError(mapAppError).eraseToAnyPublisher()
     }
 
-    func funds(url: String) -> AnyPublisher<(String, String), AppError> {
-        URLSession.shared.dataTaskPublisher(for: url.safeURL())
+    func funds(url: URL) -> AnyPublisher<(String, String), AppError> {
+        URLSession.shared.dataTaskPublisher(for: url)
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .tryMap(Parser.parseCurrentFunds).mapError(mapAppError)
             .eraseToAnyPublisher()
@@ -497,10 +490,10 @@ struct GalleryTorrentsRequest: Request {
 }
 
 struct GalleryPreviewURLsRequest: Request {
-    let galleryURL: String
+    let galleryURL: URL
     let pageNum: Int
 
-    var publisher: AnyPublisher<[Int: String], AppError> {
+    var publisher: AnyPublisher<[Int: URL], AppError> {
         URLSession.shared.dataTaskPublisher(for: URLUtil.detailPage(url: galleryURL, pageNum: pageNum))
             .genericRetry().tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .tryMap(Parser.parsePreviewURLs).mapError(mapAppError).eraseToAnyPublisher()
@@ -508,39 +501,39 @@ struct GalleryPreviewURLsRequest: Request {
 }
 
 struct MPVKeysRequest: Request {
-    let mpvURL: String
+    let mpvURL: URL
 
     var publisher: AnyPublisher<(String, [Int: String]), AppError> {
-        URLSession.shared.dataTaskPublisher(for: mpvURL.safeURL())
+        URLSession.shared.dataTaskPublisher(for: mpvURL)
             .genericRetry().tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .tryMap(Parser.parseMPVKeys).mapError(mapAppError).eraseToAnyPublisher()
     }
 }
 
 struct ThumbnailURLsRequest: Request {
-    let url: String
+    let galleryURL: URL
     let pageNum: Int
 
-    var publisher: AnyPublisher<[Int: String], AppError> {
-        URLSession.shared.dataTaskPublisher(for: URLUtil.detailPage(url: url, pageNum: pageNum))
+    var publisher: AnyPublisher<[Int: URL], AppError> {
+        URLSession.shared.dataTaskPublisher(for: URLUtil.detailPage(url: galleryURL, pageNum: pageNum))
             .genericRetry().tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .tryMap(Parser.parseThumbnailURLs).mapError(mapAppError).eraseToAnyPublisher()
     }
 }
 
 struct GalleryNormalImageURLsRequest: Request {
-    let thumbnailURLs: [Int: String]
+    let thumbnailURLs: [Int: URL]
 
-    var publisher: AnyPublisher<([Int: String], [Int: String]), AppError> {
+    var publisher: AnyPublisher<([Int: URL], [Int: URL]), AppError> {
         thumbnailURLs.publisher
             .flatMap { index, url in
-                URLSession.shared.dataTaskPublisher(for: url.safeURL()).genericRetry()
+                URLSession.shared.dataTaskPublisher(for: url).genericRetry()
                     .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
                     .tryMap { try Parser.parseGalleryNormalImageURL(doc: $0, index: index) }
             }
             .collect().map { tuples in
-                var imageURLs = [Int: String]()
-                var originalImageURLs = [Int: String]()
+                var imageURLs = [Int: URL]()
+                var originalImageURLs = [Int: URL]()
                 for (index, imageURL, originalImageURL) in tuples {
                     imageURLs[index] = imageURL
                     originalImageURLs[index] = originalImageURL
@@ -554,11 +547,11 @@ struct GalleryNormalImageURLsRequest: Request {
 struct GalleryNormalImageURLRefetchRequest: Request {
     let index: Int
     let pageNum: Int
-    let galleryURL: String
-    let thumbnailURL: String?
-    let storedImageURL: String
+    let galleryURL: URL
+    let thumbnailURL: URL?
+    let storedImageURL: URL
 
-    var publisher: AnyPublisher<([Int: String], HTTPURLResponse?), AppError> {
+    var publisher: AnyPublisher<([Int: URL], HTTPURLResponse?), AppError> {
         storedThumbnailURL().flatMap(renewThumbnailURL).flatMap(imageURL)
             .genericRetry().map { imageURL1, imageURL2, response in
                 ([index: imageURL1 != storedImageURL ? imageURL1 : imageURL2], response)
@@ -568,16 +561,16 @@ struct GalleryNormalImageURLRefetchRequest: Request {
 
     func storedThumbnailURL() -> AnyPublisher<URL, AppError> {
         if let thumbnailURL = thumbnailURL {
-            return Just(thumbnailURL).compactMap(URL.init).setFailureType(to: AppError.self).eraseToAnyPublisher()
+            return Just(thumbnailURL).setFailureType(to: AppError.self).eraseToAnyPublisher()
         } else {
             return URLSession.shared.dataTaskPublisher(for: URLUtil.detailPage(url: galleryURL, pageNum: pageNum))
                 .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }.tryMap(Parser.parseThumbnailURLs)
-                .compactMap({ thumbnailURLs in URL(string: thumbnailURLs[index] ?? "") })
+                .compactMap({ thumbnailURLs in thumbnailURLs[index] })
                 .mapError(mapAppError).eraseToAnyPublisher()
         }
     }
 
-    func renewThumbnailURL(stored: URL) -> AnyPublisher<(URL, String), AppError> {
+    func renewThumbnailURL(stored: URL) -> AnyPublisher<(URL, URL), AppError> {
         URLSession.shared.dataTaskPublisher(for: stored)
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .tryMap {
@@ -587,8 +580,8 @@ struct GalleryNormalImageURLRefetchRequest: Request {
             .mapError(mapAppError).eraseToAnyPublisher()
     }
 
-    func imageURL(thumbnailURL: URL, anotherImageURL: String)
-    -> AnyPublisher<(String, String, HTTPURLResponse?), AppError> {
+    func imageURL(thumbnailURL: URL, anotherImageURL: URL)
+    -> AnyPublisher<(URL, URL, HTTPURLResponse?), AppError> {
         URLSession.shared.dataTaskPublisher(for: thumbnailURL)
             .tryMap {
                 (try Kanna.HTML(html: $0.data, encoding: .utf8), $0.response as? HTTPURLResponse)
@@ -610,7 +603,7 @@ struct GalleryMPVImageURLRequest: Request {
     let mpvImageKey: String
     let reloadToken: String?
 
-    var publisher: AnyPublisher<(String, String?, String), AppError> {
+    var publisher: AnyPublisher<(URL, URL?, String), AppError> {
         var params: [String: Any] = [
             "method": "imagedispatch", "gid": gid,
             "page": index, "imgkey": mpvImageKey, "mpvkey": mpvKey
@@ -628,13 +621,16 @@ struct GalleryMPVImageURLRequest: Request {
             .genericRetry().map(\.data).tryMap { data in
                 guard let dict = try JSONSerialization
                         .jsonObject(with: data) as? [String: Any],
-                      let imageURL = dict["i"] as? String,
+                      let imageURLString = dict["i"] as? String,
+                      let imageURL = URL(string: imageURLString),
                       let reloadToken = dict["s"] as? String
                 else { throw AppError.parseFailed }
 
-                if let originalImageURL = dict["lf"] as? String {
-                    return (imageURL, Defaults.URL.host.appendingPathComponent(
-                        originalImageURL).absoluteString, reloadToken)
+                if let originalImageURLStringSlice = dict["lf"] as? String {
+                    let originalImageURL = Defaults.URL.host.appendingPathComponent(
+                        originalImageURLStringSlice
+                    )
+                    return (imageURL, originalImageURL, reloadToken)
                 } else {
                     return (imageURL, nil, reloadToken)
                 }
@@ -853,7 +849,7 @@ struct UnfavorGalleryRequest: Request {
 }
 
 struct SendDownloadCommandRequest: Request {
-    let archiveURL: String
+    let archiveURL: URL
     let resolution: String
 
     var publisher: AnyPublisher<String, AppError> {
@@ -861,7 +857,7 @@ struct SendDownloadCommandRequest: Request {
             "hathdl_xres": resolution
         ]
 
-        var request = URLRequest(url: archiveURL.safeURL())
+        var request = URLRequest(url: archiveURL)
         request.httpMethod = "POST"
         request.httpBody = params.dictString()
             .urlEncoded.data(using: .utf8)
@@ -900,13 +896,13 @@ struct RateGalleryRequest: Request {
 
 struct CommentGalleryRequest: Request {
     let content: String
-    let galleryURL: String
+    let galleryURL: URL
 
     var publisher: AnyPublisher<Any, AppError> {
         let fixedContent = content.replacingOccurrences(of: "\n", with: "%0A")
         let params: [String: String] = ["commenttext_new": fixedContent]
 
-        var request = URLRequest(url: galleryURL.safeURL())
+        var request = URLRequest(url: galleryURL)
         request.httpMethod = "POST"
         request.httpBody = params.dictString()
             .urlEncoded.data(using: .utf8)
@@ -921,7 +917,7 @@ struct CommentGalleryRequest: Request {
 struct EditGalleryCommentRequest: Request {
     let commentID: String
     let content: String
-    let galleryURL: String
+    let galleryURL: URL
 
     var publisher: AnyPublisher<Any, AppError> {
         let fixedContent = content.replacingOccurrences(of: "\n", with: "%0A")
@@ -929,7 +925,7 @@ struct EditGalleryCommentRequest: Request {
             "edit_comment": commentID, "commenttext_edit": fixedContent
         ]
 
-        var request = URLRequest(url: galleryURL.safeURL())
+        var request = URLRequest(url: galleryURL)
         request.httpMethod = "POST"
         request.httpBody = params.dictString()
             .urlEncoded.data(using: .utf8)

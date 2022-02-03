@@ -37,11 +37,11 @@ struct ReadingState: Equatable {
     var databaseLoadingState: LoadingState = .loading
     var previewConfig: PreviewConfig = .normal(rows: 4)
 
-    var previewURLs = [Int: String]()
+    var previewURLs = [Int: URL]()
 
-    var thumbnailURLs = [Int: String]()
-    var imageURLs = [Int: String]()
-    var originalImageURLs = [Int: String]()
+    var thumbnailURLs = [Int: URL]()
+    var imageURLs = [Int: URL]()
+    var originalImageURLs = [Int: URL]()
 
     var mpvKey: String?
     var mpvImageKeys = [Int: String]()
@@ -64,13 +64,13 @@ struct ReadingState: Equatable {
         guard !new.isEmpty else { return }
         stored = stored.merging(new, uniquingKeysWith: { stored, new in replaceExisting ? new : stored })
     }
-    mutating func updatePreviewURLs(_ previewURLs: [Int: String]) {
+    mutating func updatePreviewURLs(_ previewURLs: [Int: URL]) {
         update(stored: &self.previewURLs, new: previewURLs)
     }
-    mutating func updateThumbnailURLs(_ thumbnailURLs: [Int: String]) {
+    mutating func updateThumbnailURLs(_ thumbnailURLs: [Int: URL]) {
         update(stored: &self.thumbnailURLs, new: thumbnailURLs)
     }
-    mutating func updateImageURLs(_ imageURLs: [Int: String], _ originalImageURLs: [Int: String]) {
+    mutating func updateImageURLs(_ imageURLs: [Int: URL], _ originalImageURLs: [Int: URL]) {
         update(stored: &self.imageURLs, new: imageURLs)
         update(stored: &self.originalImageURLs, new: originalImageURLs)
     }
@@ -215,32 +215,32 @@ enum ReadingAction: BindableAction {
     case onDragGestureEnded(DragGesture.Value)
 
     case syncReadingProgress
-    case syncPreviewURLs([Int: String])
-    case syncThumbnailURLs([Int: String])
-    case syncImageURLs([Int: String], [Int: String])
+    case syncPreviewURLs([Int: URL])
+    case syncThumbnailURLs([Int: URL])
+    case syncImageURLs([Int: URL], [Int: URL])
 
     case teardown
     case fetchDatabaseInfos
     case fetchDatabaseInfosDone(GalleryState)
 
     case fetchPreviewURLs(Int)
-    case fetchPreviewURLsDone(Int, Result<[Int: String], AppError>)
+    case fetchPreviewURLsDone(Int, Result<[Int: URL], AppError>)
 
     case fetchImageURLs(Int)
     case refetchImageURLs(Int)
     case prefetchImages(Int, Int)
 
     case fetchThumbnailURLs(Int)
-    case fetchThumbnailURLsDone(Int, Result<[Int: String], AppError>)
-    case fetchNormalImageURLs(Int, [Int: String])
-    case fetchNormalImageURLsDone(Int, Result<([Int: String], [Int: String]), AppError>)
+    case fetchThumbnailURLsDone(Int, Result<[Int: URL], AppError>)
+    case fetchNormalImageURLs(Int, [Int: URL])
+    case fetchNormalImageURLsDone(Int, Result<([Int: URL], [Int: URL]), AppError>)
     case refetchNormalImageURLs(Int)
-    case refetchNormalImageURLsDone(Int, Result<([Int: String], HTTPURLResponse?), AppError>)
+    case refetchNormalImageURLsDone(Int, Result<([Int: URL], HTTPURLResponse?), AppError>)
 
-    case fetchMPVKeys(Int, String)
+    case fetchMPVKeys(Int, URL)
     case fetchMPVKeysDone(Int, Result<(String, [Int: String]), AppError>)
     case fetchMPVImageURL(Int, Bool)
-    case fetchMPVImageURLDone(Int, Result<(String, String?, String), AppError>)
+    case fetchMPVImageURLDone(Int, Result<(URL, URL?, String), AppError>)
 }
 
 struct ReadingEnvironment {
@@ -484,10 +484,12 @@ let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { 
         return .init(value: .setSliderValue(.init(galleryState.readingProgress)))
 
     case .fetchPreviewURLs(let index):
-        guard state.previewLoadingStates[index] != .loading else { return .none }
+        guard state.previewLoadingStates[index] != .loading,
+              let galleryURL = state.gallery.galleryURL
+        else { return .none }
         state.previewLoadingStates[index] = .loading
         let pageNum = state.previewConfig.pageNumber(index: index)
-        return GalleryPreviewURLsRequest(galleryURL: state.gallery.galleryURL, pageNum: pageNum)
+        return GalleryPreviewURLsRequest(galleryURL: galleryURL, pageNum: pageNum)
             .effect.map({ ReadingAction.fetchPreviewURLsDone(index, $0) }).cancellable(id: ReadingState.CancelID())
 
     case .fetchPreviewURLsDone(let index, let result):
@@ -522,7 +524,7 @@ let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { 
     case .prefetchImages(let index, let prefetchLimit):
         func getPrefetchImageURLs(range: ClosedRange<Int>) -> [URL] {
             (range.lowerBound...range.upperBound).compactMap { index in
-                if let urlString = state.imageURLs[index], let url = URL(string: urlString) {
+                if let url = state.imageURLs[index] {
                     return url
                 }
                 return nil
@@ -558,12 +560,14 @@ let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { 
         return .merge(effects)
 
     case .fetchThumbnailURLs(let index):
-        guard state.imageURLLoadingStates[index] != .loading else { return .none }
+        guard state.imageURLLoadingStates[index] != .loading,
+              let galleryURL = state.gallery.galleryURL
+        else { return .none }
         state.previewConfig.batchRange(index: index).forEach {
             state.imageURLLoadingStates[$0] = .loading
         }
         let pageNum = state.previewConfig.pageNumber(index: index)
-        return ThumbnailURLsRequest(url: state.gallery.galleryURL, pageNum: pageNum)
+        return ThumbnailURLsRequest(galleryURL: galleryURL, pageNum: pageNum)
             .effect.map({ ReadingAction.fetchThumbnailURLsDone(index, $0) }).cancellable(id: ReadingState.CancelID())
 
     case .fetchThumbnailURLsDone(let index, let result):
@@ -576,8 +580,8 @@ let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { 
                 }
                 return .none
             }
-            if let urlString = thumbnailURLs[index], environment.urlClient.checkIfMPVURL(URL(string: urlString)) {
-                return .init(value: .fetchMPVKeys(index, urlString))
+            if let url = thumbnailURLs[index], environment.urlClient.checkIfMPVURL(url) {
+                return .init(value: .fetchMPVKeys(index, url))
             } else {
                 state.updateThumbnailURLs(thumbnailURLs)
                 return .merge(
@@ -619,14 +623,17 @@ let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { 
         return .none
 
     case .refetchNormalImageURLs(let index):
-        guard state.imageURLLoadingStates[index] != .loading else { return .none }
+        guard state.imageURLLoadingStates[index] != .loading,
+              let galleryURL = state.gallery.galleryURL,
+              let imageURL = state.imageURLs[index]
+        else { return .none }
         state.imageURLLoadingStates[index] = .loading
         let pageNum = state.previewConfig.pageNumber(index: index)
         return GalleryNormalImageURLRefetchRequest(
             index: index, pageNum: pageNum,
-            galleryURL: state.gallery.galleryURL,
+            galleryURL: galleryURL,
             thumbnailURL: state.thumbnailURLs[index],
-            storedImageURL: state.imageURLs[index] ?? ""
+            storedImageURL: imageURL
         )
         .effect.map({ ReadingAction.refetchNormalImageURLsDone(index, $0) }).cancellable(id: ReadingState.CancelID())
 
@@ -698,8 +705,8 @@ let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { 
     case .fetchMPVImageURLDone(let index, let result):
         switch result {
         case .success(let (imageURL, originalImageURL, reloadToken)):
-            let imageURLs: [Int: String] = [index: imageURL]
-            var originalImageURLs = [Int: String]()
+            let imageURLs: [Int: URL] = [index: imageURL]
+            var originalImageURLs = [Int: URL]()
             if let originalImageURL = originalImageURL {
                 originalImageURLs[index] = originalImageURL
             }

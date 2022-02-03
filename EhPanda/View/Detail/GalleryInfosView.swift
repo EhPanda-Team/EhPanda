@@ -27,14 +27,26 @@ struct GalleryInfosView: View {
             Info(title: "Token", value: gallery.token),
             Info(title: R.string.localizable.galleryInfosViewTitleTitle(), value: galleryDetail.title),
             Info(title: R.string.localizable.galleryInfosViewTitleJapaneseTitle(), value: galleryDetail.jpnTitle),
-            Info(title: R.string.localizable.galleryInfosViewTitleGalleryURL(), value: gallery.galleryURL),
-            Info(title: R.string.localizable.galleryInfosViewTitleCoverURL(), value: galleryDetail.coverURL),
-            Info(title: R.string.localizable.galleryInfosViewTitleArchiveURL(), value: galleryDetail.archiveURL),
+            Info(
+                title: R.string.localizable.galleryInfosViewTitleGalleryURL(),
+                value: gallery.galleryURL?.absoluteString
+            ),
+            Info(
+                title: R.string.localizable.galleryInfosViewTitleCoverURL(),
+                value: galleryDetail.coverURL?.absoluteString
+            ),
+            Info(
+                title: R.string.localizable.galleryInfosViewTitleArchiveURL(),
+                value: galleryDetail.archiveURL?.absoluteString
+            ),
             Info(
                 title: R.string.localizable.galleryInfosViewTitleTorrentURL(),
                 value: URLUtil.galleryTorrents(gid: gallery.gid, token: gallery.token).absoluteString
             ),
-            Info(title: R.string.localizable.galleryInfosViewTitleParentURL(), value: galleryDetail.parentURL),
+            Info(
+                title: R.string.localizable.galleryInfosViewTitleParentURL(),
+                value: galleryDetail.parentURL?.absoluteString
+            ),
             Info(
                 title: R.string.localizable.galleryInfosViewTitleCategory(),
                 value: galleryDetail.category.value

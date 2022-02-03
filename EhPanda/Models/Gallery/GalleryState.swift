@@ -14,12 +14,12 @@ struct GalleryState: Codable {
     let gid: String
     var tags = [GalleryTag]()
     var readingProgress = 0
-    var previewURLs = [Int: String]()
+    var previewURLs = [Int: URL]()
     var previewConfig: PreviewConfig?
     var comments = [GalleryComment]()
-    var imageURLs = [Int: String]()
-    var originalImageURLs = [Int: String]()
-    var thumbnailURLs = [Int: String]()
+    var imageURLs = [Int: URL]()
+    var originalImageURLs = [Int: URL]()
+    var thumbnailURLs = [Int: URL]()
 }
 
 struct GalleryTag: Codable, Equatable, Identifiable {

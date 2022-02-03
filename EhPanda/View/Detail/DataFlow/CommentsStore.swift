@@ -44,7 +44,7 @@ enum CommentsAction: BindableAction {
     case updateReadingProgress(String, Int)
 
     case cancelFetching
-    case postComment(String, String? = nil)
+    case postComment(URL, String? = nil)
     case voteComment(String, String, String, String, Int)
     case performCommentActionDone(Result<Any, AppError>)
 }

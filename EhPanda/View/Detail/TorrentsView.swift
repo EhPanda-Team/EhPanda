@@ -32,9 +32,7 @@ struct TorrentsView: View {
                     }
                     .swipeActions {
                         Button {
-                            if let torrentURL = URL(string: torrent.torrentURL) {
-                                viewStore.send(.fetchTorrent(torrent.hash, torrentURL))
-                            }
+                            viewStore.send(.fetchTorrent(torrent.hash, torrent.torrentURL))
                         } label: {
                             Image(systemSymbol: .arrowDownDocFill)
                         }

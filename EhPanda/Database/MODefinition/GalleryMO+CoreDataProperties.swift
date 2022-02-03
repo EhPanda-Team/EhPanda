@@ -13,8 +13,8 @@ extension GalleryMO: GalleryIdentifiable {
     }
 
     @NSManaged public var category: String
-    @NSManaged public var coverURL: String
-    @NSManaged public var galleryURL: String
+    @NSManaged public var coverURL: URL?
+    @NSManaged public var galleryURL: URL?
     @NSManaged public var gid: String
     @NSManaged public var language: String?
     @NSManaged public var lastOpenDate: Date?

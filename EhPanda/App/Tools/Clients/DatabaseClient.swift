@@ -230,7 +230,7 @@ extension DatabaseClient {
     func fetchQuickSearchWords() -> Effect<[QuickSearchWord], Never> {
         fetchAppEnv().map(\.quickSearchWords)
     }
-    func fetchGalleryPreviewURLs(gid: String) -> Effect<[Int: String], Never> {
+    func fetchGalleryPreviewURLs(gid: String) -> Effect<[Int: URL], Never> {
         fetchGalleryState(gid: gid).map(\.previewURLs)
     }
 }
@@ -377,20 +377,20 @@ extension DatabaseClient {
             }
         }
     }
-    func updateThumbnailURLs(gid: String, thumbnailURLs: [Int: String]) -> Effect<Never, Never> {
+    func updateThumbnailURLs(gid: String, thumbnailURLs: [Int: URL]) -> Effect<Never, Never> {
         updateGalleryState(gid: gid) { galleryStateMO in
             update(gid: gid, storedData: &galleryStateMO.thumbnailURLs, new: thumbnailURLs)
         }
     }
     func updateImageURLs(
-        gid: String, imageURLs: [Int: String], originalImageURLs: [Int: String]
+        gid: String, imageURLs: [Int: URL], originalImageURLs: [Int: URL]
     ) -> Effect<Never, Never> {
         updateGalleryState(gid: gid) { galleryStateMO in
             update(gid: gid, storedData: &galleryStateMO.imageURLs, new: imageURLs)
             update(gid: gid, storedData: &galleryStateMO.originalImageURLs, new: originalImageURLs)
         }
     }
-    func updatePreviewURLs(gid: String, previewURLs: [Int: String]) -> Effect<Never, Never> {
+    func updatePreviewURLs(gid: String, previewURLs: [Int: URL]) -> Effect<Never, Never> {
         updateGalleryState(gid: gid) { galleryStateMO in
             update(gid: gid, storedData: &galleryStateMO.previewURLs, new: previewURLs)
         }

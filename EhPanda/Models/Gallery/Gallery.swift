@@ -30,8 +30,8 @@ struct Gallery: Identifiable, Codable, Equatable, Hashable {
             uploader: "",
             pageCount: 1,
             postedDate: .now,
-            coverURL: "",
-            galleryURL: ""
+            coverURL: nil,
+            galleryURL: nil
         )
     }
     static let preview = Gallery(
@@ -45,10 +45,12 @@ struct Gallery: Identifiable, Codable, Equatable, Hashable {
         uploader: "Anonymous",
         pageCount: 1,
         postedDate: .now,
-        coverURL: "https://github.com/"
+        coverURL: URL(
+            string: "https://github.com/"
             + "tatsuz0u/Imageset/blob/"
-            + "main/JPGs/2.jpg?raw=true",
-        galleryURL: ""
+            + "main/JPGs/2.jpg?raw=true"
+        ),
+        galleryURL: nil
     )
 
     var trimmedTitle: String {
@@ -72,8 +74,8 @@ struct Gallery: Identifiable, Codable, Equatable, Hashable {
     var uploader: String?
     var pageCount: Int
     let postedDate: Date
-    let coverURL: String
-    let galleryURL: String
+    let coverURL: URL?
+    let galleryURL: URL?
     var lastOpenDate: Date?
 }
 

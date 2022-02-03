@@ -13,12 +13,12 @@ struct ArchivesView: View {
     @ObservedObject private var viewStore: ViewStore<ArchivesState, ArchivesAction>
     private let gid: String
     private let user: User
-    private let galleryURL: String
-    private let archiveURL: String
+    private let galleryURL: URL
+    private let archiveURL: URL
 
     init(
         store: Store<ArchivesState, ArchivesAction>,
-        gid: String, user: User, galleryURL: String, archiveURL: String
+        gid: String, user: User, galleryURL: URL, archiveURL: URL
     ) {
         self.store = store
         viewStore = ViewStore(store)
@@ -232,8 +232,8 @@ struct ArchivesView_Previews: PreviewProvider {
             ),
             gid: .init(),
             user: .init(),
-            galleryURL: .init(),
-            archiveURL: .init()
+            galleryURL: .mock,
+            archiveURL: .mock
         )
     }
 }

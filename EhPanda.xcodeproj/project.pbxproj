@@ -324,6 +324,7 @@
 		AB7BF2D527AA3F4C001865A3 /* FileUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileUtil.swift; sourceTree = "<group>"; };
 		AB7BF2D727AA3F61001865A3 /* UserDefaultsUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaultsUtil.swift; sourceTree = "<group>"; };
 		AB7BF2D927AA78CF001865A3 /* Reducer_Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Reducer_Extension.swift; sourceTree = "<group>"; };
+		AB7BF2F827ABB56E001865A3 /* Model 7.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Model 7.xcdatamodel"; sourceTree = "<group>"; };
 		AB7E6B3125D24FE00035CC68 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		AB7E6B3425D24FE40035CC68 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
 		AB7E6B3525D24FE50035CC68 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -1957,6 +1958,7 @@
 		ABC681F126898D46007BBD69 /* Model.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
+				AB7BF2F827ABB56E001865A3 /* Model 7.xcdatamodel */,
 				AB706F93278A6F2B0025A48A /* Model 6.xcdatamodel */,
 				ABC4A07A2753084100968A4F /* Model 5.xcdatamodel */,
 				ABE9401626FF2E610085E158 /* Model 4.xcdatamodel */,
@@ -1964,7 +1966,7 @@
 				AB48BCF626D2539B0021A06C /* Model 2.xcdatamodel */,
 				ABC681F226898D46007BBD69 /* Model.xcdatamodel */,
 			);
-			currentVersion = AB706F93278A6F2B0025A48A /* Model 6.xcdatamodel */;
+			currentVersion = AB7BF2F827ABB56E001865A3 /* Model 7.xcdatamodel */;
 			path = Model.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;

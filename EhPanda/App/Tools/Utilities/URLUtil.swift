@@ -101,8 +101,8 @@ struct URLUtil {
     static func moreToplistsList(catIndex: Int, pageNum: Int) -> URL {
         Defaults.URL.toplist.appending(queryItems: [.topcat: String(catIndex), .letterP: String(pageNum)])
     }
-    static func galleryDetail(url: String) -> URL {
-        url.safeURL().appending(queryItems: [.showComments: .one])
+    static func galleryDetail(url: URL) -> URL {
+        url.appending(queryItems: [.showComments: .one])
     }
     static func galleryTorrents(gid: String, token: String) -> URL {
         Defaults.URL.galleryTorrents.appending(queryItems: [.gid: gid, .token: token])
@@ -119,11 +119,11 @@ struct URLUtil {
     }
 
     // Misc
-    static func detailPage(url: String, pageNum: Int) -> URL {
-        url.safeURL().appending(queryItems: [.letterP: String(pageNum)])
+    static func detailPage(url: URL, pageNum: Int) -> URL {
+        url.appending(queryItems: [.letterP: String(pageNum)])
     }
-    static func normalPreviewURL(plainURL: String, width: String, height: String, offset: String) -> URL {
-        plainURL.safeURL().appending(queryItems: [.ehpandaWidth: width, .ehpandaHeight: height, .ehpandaOffset: offset])
+    static func normalPreviewURL(plainURL: URL, width: String, height: String, offset: String) -> URL {
+        plainURL.appending(queryItems: [.ehpandaWidth: width, .ehpandaHeight: height, .ehpandaOffset: offset])
     }
 
     // GitHub

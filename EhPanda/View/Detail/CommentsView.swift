@@ -15,7 +15,7 @@ struct CommentsView: View {
     private let gid: String
     private let token: String
     private let apiKey: String
-    private let galleryURL: String
+    private let galleryURL: URL
     private let comments: [GalleryComment]
     private let user: User
     @Binding private var setting: Setting
@@ -24,7 +24,7 @@ struct CommentsView: View {
 
     init(
         store: Store<CommentsState, CommentsAction>,
-        gid: String, token: String, apiKey: String, galleryURL: String,
+        gid: String, token: String, apiKey: String, galleryURL: URL,
         comments: [GalleryComment], user: User, setting: Binding<Setting>,
         blurRadius: Double, tagTranslator: TagTranslator
     ) {
@@ -196,7 +196,7 @@ private struct CommentCell: View {
     }
 
     @ViewBuilder private func generateWebImages(
-        imgURL: String?, secondImgURL: String?,
+        imgURL: URL?, secondImgURL: URL?,
         link: String?, secondLink: String?
     ) -> some View {
         // Double
@@ -227,9 +227,9 @@ private struct CommentCell: View {
         }
     }
     @ViewBuilder func imageContainer(
-        url: String, widthFactor: Double, action: (() -> Void)? = nil
+        url: URL, widthFactor: Double, action: (() -> Void)? = nil
     ) -> some View {
-        let image = KFImage(URL(string: url))
+        let image = KFImage(url)
             .commentDefaultModifier().scaledToFit()
             .frame(width: DeviceUtil.windowW / widthFactor)
         if let action = action {
@@ -275,7 +275,7 @@ struct CommentsView_Previews: PreviewProvider {
                 gid: .init(),
                 token: .init(),
                 apiKey: .init(),
-                galleryURL: .init(),
+                galleryURL: .mock,
                 comments: [],
                 user: .init(),
                 setting: .constant(.init()),

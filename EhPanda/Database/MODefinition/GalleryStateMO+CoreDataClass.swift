@@ -15,12 +15,12 @@ extension GalleryStateMO: ManagedObjectProtocol {
         GalleryState(
             gid: gid, tags: tags?.toObject() ?? [GalleryTag](),
             readingProgress: Int(readingProgress),
-            previewURLs: previewURLs?.toObject() ?? [Int: String](),
+            previewURLs: previewURLs?.toObject() ?? [Int: URL](),
             previewConfig: previewConfig?.toObject() ?? PreviewConfig.normal(rows: 4),
             comments: comments?.toObject() ?? [GalleryComment](),
-            imageURLs: imageURLs?.toObject() ?? [Int: String](),
-            originalImageURLs: originalImageURLs?.toObject() ?? [Int: String](),
-            thumbnailURLs: thumbnailURLs?.toObject() ?? [Int: String]()
+            imageURLs: imageURLs?.toObject() ?? [Int: URL](),
+            originalImageURLs: originalImageURLs?.toObject() ?? [Int: URL](),
+            thumbnailURLs: thumbnailURLs?.toObject() ?? [Int: URL]()
         )
     }
 }

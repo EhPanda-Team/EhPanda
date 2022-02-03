@@ -12,16 +12,16 @@ extension GalleryDetailMO: GalleryIdentifiable {
         NSFetchRequest<GalleryDetailMO>(entityName: "GalleryDetailMO")
     }
 
-    @NSManaged public var archiveURL: String?
+    @NSManaged public var archiveURL: URL?
     @NSManaged public var category: String
-    @NSManaged public var coverURL: String
+    @NSManaged public var coverURL: URL?
     @NSManaged public var gid: String
     @NSManaged public var isFavorited: Bool
     @NSManaged public var jpnTitle: String?
     @NSManaged public var language: String
     @NSManaged public var favoritedCount: Int64
     @NSManaged public var pageCount: Int64
-    @NSManaged public var parentURL: String?
+    @NSManaged public var parentURL: URL?
     @NSManaged public var postedDate: Date
     @NSManaged public var rating: Float
     @NSManaged public var userRating: Float

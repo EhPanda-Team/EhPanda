@@ -17,7 +17,7 @@ struct GalleryTorrent: Identifiable, Codable, Equatable {
     let uploader: String
     let fileName: String
     let hash: String
-    let torrentURL: String
+    let torrentURL: URL
 }
 
 extension GalleryTorrent: DateFormattable {

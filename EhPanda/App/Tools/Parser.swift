@@ -11,17 +11,18 @@ import UIKit
 struct Parser {
     // MARK: List
     static func parseListItems(doc: HTMLDocument) throws -> [Gallery] {
-        func parseCoverURL(node: XMLElement?) throws -> String {
+        func parseCoverURL(node: XMLElement?) throws -> URL {
             guard let node = node?.at_xpath("//div [@class='glthumb']")?.at_css("img")
             else { throw AppError.parseFailed }
 
-            var coverURL = node["data-src"]
-            if coverURL == nil { coverURL = node["src"] }
+            var urlString = node["data-src"]
+            if urlString == nil { urlString = node["src"] }
 
-            guard let url = coverURL
+            guard let coverURLString = urlString,
+                  let coverURL = URL(string: coverURLString)
             else { throw AppError.parseFailed }
 
-            return url
+            return coverURL
         }
 
         func parsePublishedTime(node: XMLElement?) throws -> String {
@@ -113,16 +114,16 @@ struct Parser {
                   let (tags, language) = try? parseTagsAndLang(node: gl3cNode),
                   let publishedTime = try? parsePublishedTime(node: gl2cNode),
                   let title = link.at_xpath("//div [@class='glink']")?.text,
-                  let galleryURL = link.at_xpath("//td [@class='gl3c glname'] //a")?["href"],
+                  let galleryURLString = link.at_xpath("//td [@class='gl3c glname'] //a")?["href"],
+                  let galleryURL = URL(string: galleryURLString), galleryURL.pathComponents.count >= 4,
                   let postedDate = try? parseDate(time: publishedTime, format: Defaults.DateFormat.publish),
-                  let category = Category(rawValue: link.at_xpath("//td [@class='gl1c glcat'] //div")?.text ?? ""),
-                  let url = URL(string: galleryURL), url.pathComponents.count >= 4
+                  let category = Category(rawValue: link.at_xpath("//td [@class='gl1c glcat'] //div")?.text ?? "")
             else { continue }
 
             galleryItems.append(
                 Gallery(
-                    gid: url.pathComponents[2],
-                    token: url.pathComponents[3],
+                    gid: galleryURL.pathComponents[2],
+                    token: galleryURL.pathComponents[3],
                     title: title,
                     rating: rating,
                     tagStrings: tags,
@@ -172,13 +173,13 @@ struct Parser {
             throw AppError.parseFailed
         }
 
-        func parseCoverURL(node: XMLElement?) throws -> String {
+        func parseCoverURL(node: XMLElement?) throws -> URL {
             guard let coverHTML = node?.at_xpath("//div [@id='gd1']")?.innerHTML,
-            let rangeA = coverHTML.range(of: "url("),
-            let rangeB = coverHTML.range(of: ")")
+                  let rangeA = coverHTML.range(of: "url("), let rangeB = coverHTML.range(of: ")"),
+                  let url = URL(string: .init(coverHTML[rangeA.upperBound..<rangeB.lowerBound]))
             else { throw AppError.parseFailed }
 
-            return String(coverHTML[rangeA.upperBound..<rangeB.lowerBound])
+            return url
         }
 
         func parseTags(node: XMLElement?) throws -> [GalleryTag] {
@@ -210,10 +211,10 @@ struct Parser {
             return tags
         }
 
-        func parseArcAndTor(node: XMLElement?) throws -> (String?, Int) {
+        func parseArcAndTor(node: XMLElement?) throws -> (URL?, Int) {
             guard let node = node else { throw AppError.parseFailed }
 
-            var archiveURL: String?
+            var archiveURL: URL?
             for g2gspLink in node.xpath("//p [@class='g2 gsp']") {
                 if archiveURL == nil {
                     archiveURL = try? parseArchiveURL(node: g2gspLink)
@@ -362,10 +363,8 @@ struct Parser {
                 jpnTitle: jpnTitle,
                 isFavorited: isFavorited,
                 visibility: visibility,
-                rating: containsUserRating ?
-                    textRating ?? 0.0 : imgRating,
-                userRating: containsUserRating
-                    ? imgRating : 0.0,
+                rating: containsUserRating ? textRating ?? 0.0 : imgRating,
+                userRating: containsUserRating ? imgRating : 0.0,
                 ratingCount: ratingCount,
                 category: category,
                 language: language,
@@ -373,8 +372,7 @@ struct Parser {
                 postedDate: postedDate,
                 coverURL: coverURL,
                 archiveURL: arcAndTor.0,
-                parentURL: infoPanel[1] == "None"
-                    ? nil : infoPanel[1],
+                parentURL: URL(string: infoPanel[1]),
                 favoritedCount: favoritedCount,
                 pageCount: pageCount,
                 sizeCount: sizeCount,
@@ -413,9 +411,9 @@ struct Parser {
     }
 
     // MARK: Preview
-    static func parsePreviewURLs(doc: HTMLDocument) throws -> [Int: String] {
-        func parseNormalPreviewURLs(node: XMLElement) -> [Int: String] {
-            var previewURLs = [Int: String]()
+    static func parsePreviewURLs(doc: HTMLDocument) throws -> [Int: URL] {
+        func parseNormalPreviewURLs(node: XMLElement) -> [Int: URL] {
+            var previewURLs = [Int: URL]()
 
             for link in node.xpath("//div") where link.className == nil {
                 guard let imgLink = link.at_xpath("//img"),
@@ -434,24 +432,25 @@ struct Parser {
 
                 let width = linkStyle[rangeA.upperBound..<rangeB.lowerBound]
                 let height = linkStyle[rangeB.upperBound..<rangeC.lowerBound]
-                let plainURL = linkStyle[rangeD.upperBound..<rangeE.lowerBound]
                 let offset = remainingText[rangeE.upperBound..<rangeF.lowerBound]
+                guard let plainURL = URL(string: .init(linkStyle[rangeD.upperBound..<rangeE.lowerBound]))
+                else { continue }
 
                 previewURLs[index] = URLUtil.normalPreviewURL(
-                    plainURL: String(plainURL), width: String(width),
+                    plainURL: plainURL, width: String(width),
                     height: String(height), offset: String(offset)
                 )
-                .absoluteString
             }
 
             return previewURLs
         }
-        func parseLargePreviewURLs(node: XMLElement) -> [Int: String] {
-            var previewURLs = [Int: String]()
+        func parseLargePreviewURLs(node: XMLElement) -> [Int: URL] {
+            var previewURLs = [Int: URL]()
 
             for link in node.xpath("//img") {
                 guard let index = Int(link["alt"] ?? ""),
-                      let url = link["src"], !url.contains("blank.gif")
+                      let urlString = link["src"], !urlString.contains("blank.gif"),
+                      let url = URL(string: urlString)
                 else { continue }
 
                 previewURLs[index] = url
@@ -542,8 +541,8 @@ struct Parser {
     }
 
     // MARK: ImageURL
-    static func parseThumbnailURLs(doc: HTMLDocument) throws -> [Int: String] {
-        var thumbnailURLs = [Int: String]()
+    static func parseThumbnailURLs(doc: HTMLDocument) throws -> [Int: URL] {
+        var thumbnailURLs = [Int: URL]()
 
         guard let gdtNode = doc.at_xpath("//div [@id='gdt']"),
               let previewMode = try? parsePreviewMode(doc: doc)
@@ -551,7 +550,8 @@ struct Parser {
 
         for link in gdtNode.xpath("//div [@class='\(previewMode)']") {
             guard let aLink = link.at_xpath("//a"),
-                  let thumbnailURL = aLink["href"],
+                  let thumbnailURLString = aLink["href"],
+                  let thumbnailURL = URL(string: thumbnailURLString),
                   let index = Int(aLink.at_xpath("//img")?["alt"] ?? "")
             else { continue }
 
@@ -574,13 +574,15 @@ struct Parser {
         return renewedThumbnailURL
     }
 
-    static func parseGalleryNormalImageURL(doc: HTMLDocument, index: Int) throws -> (Int, String, String?) {
+    static func parseGalleryNormalImageURL(doc: HTMLDocument, index: Int) throws -> (Int, URL, URL?) {
         guard let i3Node = doc.at_xpath("//div [@id='i3']"),
-              let imageURL = i3Node.at_css("img")?["src"]
+              let imageURLString = i3Node.at_css("img")?["src"],
+              let imageURL = URL(string: imageURLString)
         else { throw AppError.parseFailed }
 
         guard let i7Node = doc.at_xpath("//div [@id='i7']"),
-              let originalImageURL = i7Node.at_xpath("//a")?["href"]
+              let originalImageURLString = i7Node.at_xpath("//a")?["href"],
+              let originalImageURL = URL(string: originalImageURLString)
         else { return (index, imageURL, nil) }
 
         return (index, imageURL, originalImageURL)
@@ -635,7 +637,7 @@ struct Parser {
     // MARK: User
     static func parseUserInfo(doc: HTMLDocument) throws -> User {
         var displayName: String?
-        var avatarURL: String?
+        var avatarURL: URL?
 
         for ipbLink in doc.xpath("//table [@class='ipbtable']") {
             guard let profileName = ipbLink.at_xpath("//div [@id='profilename']")?.text
@@ -644,8 +646,9 @@ struct Parser {
             displayName = profileName
 
             for imgLink in ipbLink.xpath("//img") {
-                guard let imgURL = imgLink["src"],
-                      imgURL.contains("forums.e-hentai.org/uploads")
+                guard let imgURLString = imgLink["src"],
+                      imgURLString.contains("forums.e-hentai.org/uploads"),
+                      let imgURL = URL(string: imgURLString)
                 else { continue }
 
                 avatarURL = imgURL
@@ -724,7 +727,7 @@ struct Parser {
             var tmpUploader: String?
             var tmpFileName: String?
             var tmpHash: String?
-            var tmpTorrentURL: String?
+            var tmpTorrentURL: URL?
 
             for trLink in link.xpath("//tr") {
                 for tdLink in trLink.xpath("//td") {
@@ -755,7 +758,7 @@ struct Parser {
                        let range = aURL.lastPathComponent.range(of: ".torrent")
                     {
                         tmpHash = String(aURL.lastPathComponent[..<range.lowerBound])
-                        tmpTorrentURL = aHref
+                        tmpTorrentURL = aURL
                         tmpFileName = aText
                     }
                 }
@@ -1279,15 +1282,13 @@ extension Parser {
     }
 
     // MARK: ArchiveURL
-    static func parseArchiveURL(node: XMLElement) throws -> String {
-        var archiveURL: String?
+    static func parseArchiveURL(node: XMLElement) throws -> URL {
+        var archiveURL: URL?
         if let aLink = node.at_xpath("//a"),
-           aLink.text?.contains("Archive Download") == true,
-           let onClick = aLink["onclick"],
-           let rangeA = onClick.range(of: "popUp('"),
-           let rangeB = onClick.range(of: "',")
+            aLink.text?.contains("Archive Download") == true, let onClick = aLink["onclick"],
+            let rangeA = onClick.range(of: "popUp('"), let rangeB = onClick.range(of: "',")
         {
-            archiveURL = String(onClick[rangeA.upperBound..<rangeB.lowerBound])
+            archiveURL = URL(string: .init(onClick[rangeA.upperBound..<rangeB.lowerBound]))
         }
 
         if let url = archiveURL {
@@ -1403,7 +1404,9 @@ extension Parser {
             }
 
             if let href = link["href"] {
-                if let imgSrc = link.at_xpath("//img")?["src"] {
+                if let imgSrc = link.at_xpath("//img")?["src"],
+                   let imgURL = URL(string: imgSrc)
+                {
                     if let content = contents.last,
                        content.type == .linkedImg
                     {
@@ -1414,7 +1417,7 @@ extension Parser {
                                 link: content.link,
                                 imgURL: content.imgURL,
                                 secondLink: href,
-                                secondImgURL: imgSrc
+                                secondImgURL: imgURL
                             )
                         )
                     } else {
@@ -1422,7 +1425,7 @@ extension Parser {
                             CommentContent(
                                 type: .linkedImg,
                                 link: href,
-                                imgURL: imgSrc
+                                imgURL: imgURL
                             )
                         )
                     }
@@ -1452,7 +1455,7 @@ extension Parser {
                         )
                     )
                 }
-            } else if let src = link["src"] {
+            } else if let src = link["src"], let url = URL(string: src) {
                 if let content = contents.last,
                    content.type == .singleImg
                 {
@@ -1461,14 +1464,14 @@ extension Parser {
                         CommentContent(
                             type: .doubleImg,
                             imgURL: content.imgURL,
-                            secondImgURL: src
+                            secondImgURL: url
                         )
                     )
                 } else {
                     contents.append(
                         CommentContent(
                             type: .singleImg,
-                            imgURL: src
+                            imgURL: url
                         )
                     )
                 }
@@ -1523,9 +1526,8 @@ extension Parser {
     }
 
     // MARK: parsePreviewConfigs
-    static func parsePreviewConfigs(string: String) -> (String, CGSize, CGSize)? {
-        guard let url = URL(string: string),
-              var components = URLComponents(
+    static func parsePreviewConfigs(url: URL) -> (URL, CGSize, CGSize)? {
+        guard var components = URLComponents(
                 url: url, resolvingAgainstBaseURL: false
               ),
               let queryItems = components.queryItems
@@ -1543,7 +1545,7 @@ extension Parser {
 
         components.queryItems = nil
         guard configs.count == keys.count,
-              let plainURL = components.url?.absoluteString
+              let plainURL = components.url
         else { return nil }
 
         let size = CGSize(width: configs[0], height: configs[1])

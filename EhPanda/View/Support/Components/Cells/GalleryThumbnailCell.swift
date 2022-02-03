@@ -23,7 +23,7 @@ struct GalleryThumbnailCell: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            KFImage(URL(string: gallery.coverURL))
+            KFImage(gallery.coverURL)
                 .placeholder { Placeholder(style: .activity(ratio: Defaults.ImageSize.rowAspect)) }
                 .imageModifier(WebtoonModifier(
                     minAspect: Defaults.ImageSize.webtoonMinAspect,

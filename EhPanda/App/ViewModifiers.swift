@@ -167,19 +167,12 @@ struct RoundedCorner: Shape {
 }
 
 struct PreviewResolver {
-    static func getPreviewConfigs(
-        originalURL: String
-    ) -> (String, ImageModifier) {
-        guard let (plainURL, size, offset) =
-        Parser.parsePreviewConfigs(
-            string: originalURL
-        ) else {
-            return (originalURL, RoundedOffsetModifier(
-                size: nil, offset: nil
-            ))
+    static func getPreviewConfigs(originalURL: URL?) -> (URL?, ImageModifier) {
+        guard let url = originalURL,
+              let (plainURL, size, offset) = Parser.parsePreviewConfigs(url: url)
+        else {
+            return (originalURL, RoundedOffsetModifier(size: nil, offset: nil))
         }
-        return (plainURL, RoundedOffsetModifier(
-            size: size, offset: offset
-        ))
+        return (plainURL, RoundedOffsetModifier(size: size, offset: offset))
     }
 }

@@ -13,7 +13,7 @@ struct GalleryDetail: Codable, Equatable {
         visibility: .yes, rating: 0, userRating: 0,
         ratingCount: 0, category: .private,
         language: .japanese, uploader: "",
-        postedDate: .now, coverURL: "",
+        postedDate: .now, coverURL: nil,
         favoritedCount: 0, pageCount: 0,
         sizeCount: 0, sizeType: "",
         torrentCount: 0
@@ -31,9 +31,11 @@ struct GalleryDetail: Codable, Equatable {
         language: .japanese,
         uploader: "Anonymous",
         postedDate: .distantPast,
-        coverURL: "https://github.com/"
-        + "tatsuz0u/Imageset/blob/"
-        + "main/JPGs/2.jpg?raw=true",
+        coverURL: URL(
+            string: "https://github.com/"
+            + "tatsuz0u/Imageset/blob/"
+            + "main/JPGs/2.jpg?raw=true"
+        ),
         favoritedCount: 514,
         pageCount: 114,
         sizeCount: 514,
@@ -62,9 +64,9 @@ struct GalleryDetail: Codable, Equatable {
     let language: Language
     let uploader: String
     let postedDate: Date
-    let coverURL: String
-    var archiveURL: String?
-    var parentURL: String?
+    let coverURL: URL?
+    var archiveURL: URL?
+    var parentURL: URL?
     var favoritedCount: Int
     var pageCount: Int
     var sizeCount: Float

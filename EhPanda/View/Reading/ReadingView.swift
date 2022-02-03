@@ -188,8 +188,8 @@ private struct HorizontalImageStack: View {
     private let isDatabaseLoading: Bool
     private let backgroundColor: Color
     private let config: ImageStackConfig
-    private let imageURLs: [Int: String]
-    private let originalImageURLs: [Int: String]
+    private let imageURLs: [Int: URL]
+    private let originalImageURLs: [Int: URL]
     private let loadingStates: [Int: LoadingState]
     private let fetchAction: (Int) -> Void
     private let refetchAction: (Int) -> Void
@@ -203,7 +203,7 @@ private struct HorizontalImageStack: View {
 
     init(
         index: Int, isDualPage: Bool, isDatabaseLoading: Bool, backgroundColor: Color,
-        config: ImageStackConfig, imageURLs: [Int: String], originalImageURLs: [Int: String],
+        config: ImageStackConfig, imageURLs: [Int: URL], originalImageURLs: [Int: URL],
         loadingStates: [Int: LoadingState], fetchAction: @escaping (Int) -> Void,
         refetchAction: @escaping (Int) -> Void, prefetchAction: @escaping (Int) -> Void,
         loadRetryAction: @escaping (Int) -> Void, loadSucceededAction: @escaping (Int) -> Void,
@@ -243,7 +243,7 @@ private struct HorizontalImageStack: View {
     func imageContainer(index: Int) -> some View {
         ImageContainer(
             index: index,
-            imageURL: imageURLs[index] ?? "",
+            imageURL: imageURLs[index],
             loadingState: loadingStates[index] ?? .idle,
             isDualPage: isDualPage,
             backgroundColor: backgroundColor,
@@ -268,26 +268,20 @@ private struct HorizontalImageStack: View {
         } label: {
             Label(R.string.localizable.readingViewContextMenuButtonReload(), systemSymbol: .arrowCounterclockwise)
         }
-        if let imageURL = imageURLs[index], !imageURL.isEmpty {
+        if let imageURL = imageURLs[index] {
             Button {
-                if let url = URL(string: imageURL) {
-                    copyImageAction(url)
-                }
+                copyImageAction(imageURL)
             } label: {
                 Label(R.string.localizable.readingViewContextMenuButtonCopy(), systemSymbol: .plusSquareOnSquare)
             }
             Button {
-                if let url = URL(string: imageURL) {
-                    saveImageAction(url)
-                }
+                saveImageAction(imageURL)
             } label: {
                 Label(R.string.localizable.readingViewContextMenuButtonSave(), systemSymbol: .squareAndArrowDown)
             }
-            if let originalImageURL = originalImageURLs[index], !originalImageURL.isEmpty {
+            if let originalImageURL = originalImageURLs[index] {
                 Button {
-                    if let url = URL(string: originalImageURL) {
-                        saveImageAction(url)
-                    }
+                    saveImageAction(originalImageURL)
                 } label: {
                     Label(
                         R.string.localizable.readingViewContextMenuButtonSaveOriginal(),
@@ -296,9 +290,7 @@ private struct HorizontalImageStack: View {
                 }
             }
             Button {
-                if let url = URL(string: imageURL) {
-                    shareImageAction(url)
-                }
+                shareImageAction(imageURL)
             } label: {
                 Label(R.string.localizable.readingViewContextMenuButtonShare(), systemSymbol: .squareAndArrowUp)
             }
@@ -316,7 +308,7 @@ private struct ImageContainer: View {
     }
 
     private let index: Int
-    private let imageURL: String
+    private let imageURL: URL?
     private let loadingState: LoadingState
     private let isDualPage: Bool
     private let backgroundColor: Color
@@ -326,7 +318,7 @@ private struct ImageContainer: View {
     private let loadFailedAction: (Int) -> Void
 
     init(
-        index: Int, imageURL: String,
+        index: Int, imageURL: URL?,
         loadingState: LoadingState,
         isDualPage: Bool, backgroundColor: Color,
         refetchAction: @escaping (Int) -> Void,
@@ -352,21 +344,21 @@ private struct ImageContainer: View {
         ))
         .frame(width: width, height: height)
     }
-    @ViewBuilder private func image(url: String) -> some View {
-        if !imageURL.contains(".gif") {
-            KFImage(URL(string: imageURL))
+    @ViewBuilder private func image(url: URL?) -> some View {
+        if url?.absoluteString.contains(".gif") != true {
+            KFImage(url)
                 .placeholder(placeholder)
                 .defaultModifier(withRoundedCorners: false)
                 .onSuccess(onSuccess).onFailure(onFailure)
         } else {
-            KFAnimatedImage(URL(string: imageURL))
+            KFAnimatedImage(url)
                 .placeholder(placeholder).fade(duration: 0.25)
                 .onSuccess(onSuccess).onFailure(onFailure)
         }
     }
 
     var body: some View {
-        if loadingState == .idle, !imageURL.isEmpty {
+        if loadingState == .idle {
             image(url: imageURL).scaledToFit()
         } else {
             ZStack {
@@ -400,7 +392,7 @@ private struct ImageContainer: View {
         loadSucceededAction(index)
     }
     private func onFailure(_: KingfisherError) {
-        if !imageURL.isEmpty {
+        if imageURL != nil {
             loadFailedAction(index)
         }
     }

@@ -11,10 +11,10 @@ import ComposableArchitecture
 struct DetailState: Equatable {
     enum Route: Equatable {
         case reading
-        case archives
+        case archives(URL, URL)
         case torrents
         case previews
-        case comments
+        case comments(URL)
         case share(URL)
         case postComment
         case newDawn(Greeting)
@@ -38,7 +38,7 @@ struct DetailState: Equatable {
     var gallery: Gallery = .empty
     var galleryDetail: GalleryDetail?
     var galleryTags = [GalleryTag]()
-    var galleryPreviewURLs = [Int: String]()
+    var galleryPreviewURLs = [Int: URL]()
     var galleryComments = [GalleryComment]()
 
     var readingState = ReadingState(gallery: .empty)
@@ -90,7 +90,7 @@ enum DetailAction: BindableAction {
     case rateGallery
     case favorGallery(Int)
     case unfavorGallery
-    case postComment(String)
+    case postComment(URL)
     case anyGalleryOpsDone(Result<Any, AppError>)
 
     case reading(ReadingAction)
@@ -256,9 +256,11 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
             )
 
         case .fetchGalleryDetail:
-            guard state.loadingState != .loading else { return .none }
+            guard state.loadingState != .loading,
+                  let galleryURL = state.gallery.galleryURL
+            else { return .none }
             state.loadingState = .loading
-            return GalleryDetailRequest(gid: state.gallery.id, galleryURL: state.gallery.galleryURL)
+            return GalleryDetailRequest(gid: state.gallery.id, galleryURL: galleryURL)
                 .effect.map(DetailAction.fetchGalleryDetailDone).cancellable(id: DetailState.CancelID())
 
         case .fetchGalleryDetailDone(let result):

@@ -11,7 +11,7 @@ struct User: Codable, Equatable {
     static let empty = User()
 
     var displayName: String?
-    var avatarURL: String?
+    var avatarURL: URL?
     var apikey: String?
 
     var credits: String?

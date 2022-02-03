@@ -50,7 +50,7 @@ struct GalleryCardCell: View {
             ColorfulView(animated: animated, animation: animation, colors: colors)
                 .id(currentID + animated.description)
             HStack {
-                KFImage(URL(string: gallery.coverURL))
+                KFImage(gallery.coverURL)
                     .placeholder { Placeholder(style: .activity(ratio: Defaults.ImageSize.headerAspect)) }
                     .onSuccess(webImageSuccessAction).defaultModifier().scaledToFill()
                     .frame(width: Defaults.ImageSize.headerW, height: Defaults.ImageSize.headerH)
