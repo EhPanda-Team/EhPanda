@@ -517,22 +517,22 @@ struct MPVKeysRequest: Request {
     }
 }
 
-struct ThumbnailsRequest: Request {
+struct ThumbnailURLsRequest: Request {
     let url: String
     let pageNum: Int
 
     var publisher: AnyPublisher<[Int: String], AppError> {
         URLSession.shared.dataTaskPublisher(for: URLUtil.detailPage(url: url, pageNum: pageNum))
             .genericRetry().tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-            .tryMap(Parser.parseThumbnails).mapError(mapAppError).eraseToAnyPublisher()
+            .tryMap(Parser.parseThumbnailURLs).mapError(mapAppError).eraseToAnyPublisher()
     }
 }
 
 struct GalleryNormalImageURLsRequest: Request {
-    let thumbnails: [Int: String]
+    let thumbnailURLs: [Int: String]
 
     var publisher: AnyPublisher<([Int: String], [Int: String]), AppError> {
-        thumbnails.publisher
+        thumbnailURLs.publisher
             .flatMap { index, url in
                 URLSession.shared.dataTaskPublisher(for: url.safeURL()).genericRetry()
                     .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
@@ -571,8 +571,8 @@ struct GalleryNormalImageURLRefetchRequest: Request {
             return Just(thumbnailURL).compactMap(URL.init).setFailureType(to: AppError.self).eraseToAnyPublisher()
         } else {
             return URLSession.shared.dataTaskPublisher(for: URLUtil.detailPage(url: galleryURL, pageNum: pageNum))
-                .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }.tryMap(Parser.parseThumbnails)
-                .compactMap({ thumbnails in URL(string: thumbnails[index] ?? "") })
+                .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }.tryMap(Parser.parseThumbnailURLs)
+                .compactMap({ thumbnailURLs in URL(string: thumbnailURLs[index] ?? "") })
                 .mapError(mapAppError).eraseToAnyPublisher()
         }
     }

@@ -20,7 +20,7 @@ extension GalleryStateMO: ManagedObjectProtocol {
             comments: comments?.toObject() ?? [GalleryComment](),
             imageURLs: imageURLs?.toObject() ?? [Int: String](),
             originalImageURLs: originalImageURLs?.toObject() ?? [Int: String](),
-            thumbnails: thumbnails?.toObject() ?? [Int: String]()
+            thumbnailURLs: thumbnailURLs?.toObject() ?? [Int: String]()
         )
     }
 }
@@ -38,7 +38,7 @@ extension GalleryState: ManagedObjectConvertible {
         galleryStateMO.comments = comments.toData()
         galleryStateMO.imageURLs = imageURLs.toData()
         galleryStateMO.originalImageURLs = originalImageURLs.toData()
-        galleryStateMO.thumbnails = thumbnails.toData()
+        galleryStateMO.thumbnailURLs = thumbnailURLs.toData()
 
         return galleryStateMO
     }

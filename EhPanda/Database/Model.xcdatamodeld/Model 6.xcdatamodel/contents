@@ -51,12 +51,12 @@
         <attribute name="comments" optional="YES" attributeType="Binary"/>
         <attribute name="gid" attributeType="String" defaultValueString=""/>
         <attribute name="imageURLs" optional="YES" attributeType="Binary"/>
-        <attribute name="originalContents" optional="YES" attributeType="Binary"/>
+        <attribute name="originalImageURLs" optional="YES" attributeType="Binary"/>
         <attribute name="previewConfig" optional="YES" attributeType="Binary"/>
         <attribute name="previews" optional="YES" attributeType="Binary"/>
         <attribute name="readingProgress" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="tags" optional="YES" attributeType="Binary"/>
-        <attribute name="thumbnails" optional="YES" attributeType="Binary"/>
+        <attribute name="thumbnailURLs" optional="YES" attributeType="Binary"/>
     </entity>
     <elements>
         <element name="AppEnvMO" positionX="-45" positionY="126" width="128" height="149"/>

@@ -370,16 +370,16 @@ extension DatabaseClient {
                     galleryStateMOs.forEach { galleryStateMO in
                         galleryStateMO.imageURLs = nil
                         galleryStateMO.previews = nil
-                        galleryStateMO.thumbnails = nil
+                        galleryStateMO.thumbnailURLs = nil
                         galleryStateMO.originalImageURLs = nil
                     }
                 }
             }
         }
     }
-    func updateThumbnails(gid: String, thumbnails: [Int: String]) -> Effect<Never, Never> {
+    func updateThumbnailURLs(gid: String, thumbnailURLs: [Int: String]) -> Effect<Never, Never> {
         updateGalleryState(gid: gid) { galleryStateMO in
-            update(gid: gid, storedData: &galleryStateMO.thumbnails, new: thumbnails)
+            update(gid: gid, storedData: &galleryStateMO.thumbnailURLs, new: thumbnailURLs)
         }
     }
     func updateImageURLs(

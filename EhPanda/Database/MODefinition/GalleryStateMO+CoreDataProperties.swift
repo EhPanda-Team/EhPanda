@@ -20,5 +20,5 @@ extension GalleryStateMO: GalleryIdentifiable {
     @NSManaged public var previews: Data?
     @NSManaged public var readingProgress: Int64
     @NSManaged public var tags: Data?
-    @NSManaged public var thumbnails: Data?
+    @NSManaged public var thumbnailURLs: Data?
 }

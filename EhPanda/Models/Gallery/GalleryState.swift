@@ -19,7 +19,7 @@ struct GalleryState: Codable {
     var comments = [GalleryComment]()
     var imageURLs = [Int: String]()
     var originalImageURLs = [Int: String]()
-    var thumbnails = [Int: String]()
+    var thumbnailURLs = [Int: String]()
 }
 
 struct GalleryTag: Codable, Equatable, Identifiable {
