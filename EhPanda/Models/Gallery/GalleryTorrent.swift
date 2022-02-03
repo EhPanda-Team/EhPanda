@@ -20,10 +20,7 @@ struct GalleryTorrent: Identifiable, Codable, Equatable {
     let torrentURL: String
 }
 
-extension GalleryTorrent: DateFormattable, CustomStringConvertible {
-    var description: String {
-        "GalleryTorrent(\(fileName))"
-    }
+extension GalleryTorrent: DateFormattable {
     var originalDate: Date {
         postedDate
     }

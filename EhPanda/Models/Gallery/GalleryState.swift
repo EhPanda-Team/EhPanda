@@ -17,16 +17,9 @@ struct GalleryState: Codable {
     var previews = [Int: String]()
     var previewConfig: PreviewConfig?
     var comments = [GalleryComment]()
-    var contents = [Int: String]()
+    var imageURLs = [Int: String]()
     var originalContents = [Int: String]()
     var thumbnails = [Int: String]()
-}
-
-extension GalleryState: CustomStringConvertible {
-    var description: String {
-        "GalleryState(gid: \(gid), tags: \(tags.count), "
-        + "previews: \(previews.count), comments: \(comments.count))"
-    }
 }
 
 struct GalleryTag: Codable, Equatable, Identifiable {

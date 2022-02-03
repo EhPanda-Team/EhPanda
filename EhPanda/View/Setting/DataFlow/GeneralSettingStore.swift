@@ -27,6 +27,8 @@ struct GeneralSettingState: Equatable {
 enum GeneralSettingAction: BindableAction {
     case binding(BindingAction<GeneralSettingState>)
     case setNavigation(GeneralSettingState.Route?)
+    case clearSubStates
+
     case clearWebImageCache
     case checkPasscodeSetting
     case navigateToSystemSetting
@@ -48,12 +50,19 @@ struct GeneralSettingEnvironment {
 let generalSettingReducer = Reducer<GeneralSettingState, GeneralSettingAction, GeneralSettingEnvironment>.combine(
     .init { state, action, environment in
         switch action {
+        case .binding(\.$route):
+            return state.route == nil ? .init(value: .clearSubStates) : .none
+
         case .binding:
             return .none
 
         case .setNavigation(let route):
             state.route = route
-            return .none
+            return route == nil ? .init(value: .clearSubStates) : .none
+
+        case .clearSubStates:
+            state.logsState = .init()
+            return .init(value: .logs(.teardown))
 
         case .clearWebImageCache:
             return .merge(

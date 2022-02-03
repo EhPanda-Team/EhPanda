@@ -72,10 +72,7 @@ struct GalleryDetail: Codable, Equatable {
     var torrentCount: Int
 }
 
-extension GalleryDetail: DateFormattable, CustomStringConvertible {
-    var description: String {
-        "GalleryDetail(gid: \(gid), \(jpnTitle ?? title))"
-    }
+extension GalleryDetail: DateFormattable {
     var originalDate: Date {
         postedDate
     }

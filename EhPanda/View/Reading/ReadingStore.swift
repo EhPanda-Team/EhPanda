@@ -477,7 +477,7 @@ let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { 
             state.previewConfig = previewConfig
         }
         state.previews = galleryState.previews
-        state.contents = galleryState.contents
+        state.contents = galleryState.imageURLs
         state.thumbnails = galleryState.thumbnails
         state.originalContents =  galleryState.originalContents
         state.databaseLoadingState = .idle

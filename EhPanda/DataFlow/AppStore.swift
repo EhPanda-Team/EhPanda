@@ -143,20 +143,23 @@ let appReducerCore = Reducer<AppState, AppAction, AppEnvironment> { state, actio
 
     case .tabBar(.setTabBarItemType(let type)):
         var effects = [Effect<AppAction, Never>]()
-        switch type {
-        case .home:
-            effects.append(.init(value: .home(.fetchAllGalleries)))
-        case .favorites:
-            effects.append(.init(value: .favorites(.fetchGalleries())))
-        case .search:
-            effects.append(.init(value: .search(.fetchDatabaseInfos)))
-        case .setting:
-            if environment.deviceClient.isPad() {
-                effects.append(.init(value: .appRoute(.setNavigation(.setting))))
+        if type == state.tabBarState.tabBarItemType {
+            switch type {
+            case .home:
+                effects.append(.init(value: .home(.fetchAllGalleries)))
+            case .favorites:
+                effects.append(.init(value: .favorites(.fetchGalleries())))
+            case .search:
+                effects.append(.init(value: .search(.fetchDatabaseInfos)))
+            case .setting:
+                break
+            }
+            if [.home, .favorites, .search].contains(type) {
+                effects.append(environment.hapticClient.generateFeedback(.soft).fireAndForget())
             }
         }
-        if [.home, .favorites, .search].contains(type) {
-            effects.append(environment.hapticClient.generateFeedback(.soft).fireAndForget())
+        if type == .setting && environment.deviceClient.isPad() {
+            effects.append(.init(value: .appRoute(.setNavigation(.setting))))
         }
         return effects.isEmpty ? .none : .merge(effects)
 

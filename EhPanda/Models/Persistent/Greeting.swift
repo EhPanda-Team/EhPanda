@@ -29,7 +29,7 @@ struct Greeting: Codable, Equatable, Hashable {
             rewards.append("\(exp) EXP")
         }
         if let credits = gainedCredits {
-            rewards.append("\(credits) String")
+            rewards.append("\(credits) Credits")
         }
         if let galleryPoint = gainedGP {
             rewards.append("\(galleryPoint) GP")

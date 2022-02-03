@@ -77,11 +77,7 @@ struct Gallery: Identifiable, Codable, Equatable, Hashable {
     var lastOpenDate: Date?
 }
 
-extension Gallery: DateFormattable, CustomStringConvertible {
-    var description: String {
-        "Gallery(\(gid))"
-    }
-
+extension Gallery: DateFormattable {
     var filledCount: Int { Int(rating) }
     var halfFilledCount: Int { Int(rating - 0.5) == filledCount ? 1 : 0 }
     var notFilledCount: Int { 5 - filledCount - halfFilledCount }

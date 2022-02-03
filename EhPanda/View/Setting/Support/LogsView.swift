@@ -35,12 +35,19 @@ struct LogsView: View {
                 }
                 .foregroundColor(.primary)
             }
-            ErrorView(error: .notFound, retryAction: nil)
-                .opacity(viewStore.logs.isEmpty ? 1 : 0)
+            .opacity(viewStore.logs.isEmpty ? 0 : 1)
+            LoadingView().opacity(viewStore.loadingState == .loading && viewStore.logs.isEmpty ? 1 : 0)
+            let error = (/LoadingState.failed).extract(from: viewStore.loadingState)
+            ErrorView(error: error ?? .notFound) {
+                viewStore.send(.fetchLogs)
+            }
+            .opacity(error != nil && viewStore.logs.isEmpty ? 1 : 0)
         }
         .onAppear {
             if viewStore.logs.isEmpty {
-                viewStore.send(.fetchLogs)
+                DispatchQueue.main.async {
+                    viewStore.send(.fetchLogs)
+                }
             }
         }
         .toolbar(content: toolbar)

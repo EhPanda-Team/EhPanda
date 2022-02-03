@@ -11,8 +11,12 @@ struct LogsState: Equatable {
     enum Route: Equatable {
         case log(Log)
     }
+    struct CancelID: Hashable {
+        let id = String(describing: LogsState.self)
+    }
 
     @BindableState var route: Route?
+    var loadingState: LoadingState = .idle
     var logs = [Log]()
 }
 
@@ -21,6 +25,7 @@ enum LogsAction: BindableAction {
     case setNavigation(LogsState.Route?)
     case navigateToFileApp
 
+    case teardown
     case fetchLogs
     case fetchLogsDone(Result<[Log], AppError>)
     case deleteLog(String)
@@ -44,12 +49,21 @@ let logsReducer = Reducer<LogsState, LogsAction, LogsEnvironment> { state, actio
     case .navigateToFileApp:
         return environment.uiApplicationClient.openFileApp().fireAndForget()
 
+    case .teardown:
+        return .cancel(id: LogsState.CancelID())
+
     case .fetchLogs:
-        return environment.fileClient.fetchLogs().map(LogsAction.fetchLogsDone)
+        guard state.loadingState != .loading else { return .none }
+        state.loadingState = .loading
+        return environment.fileClient.fetchLogs().map(LogsAction.fetchLogsDone).cancellable(id: LogsState.CancelID())
 
     case .fetchLogsDone(let result):
-        if case .success(let logs) = result {
+        switch result {
+        case .success(let logs):
             state.logs = logs
+            state.loadingState = .idle
+        case .failure(let error):
+            state.loadingState = .failed(error)
         }
         return .none
 

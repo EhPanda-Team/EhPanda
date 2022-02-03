@@ -76,11 +76,3 @@ struct TagTranslator: Codable, Equatable {
         return lookup(text: text)
     }
 }
-
-extension TagTranslator: CustomStringConvertible {
-    var description: String {
-        "TagTranslator(language: \(language), "
-        + "updatedDate: \(updatedDate), "
-        + "contents: \(contents.count))"
-    }
-}
