@@ -13,8 +13,24 @@ import ComposableArchitecture
 
     var body: some Scene {
         WindowGroup {
-            TabBarView(store: appDelegate.store).onAppear(perform: addTouchHandler)
-                .navigationViewStyle(.stack).accentColor(.primary)
+            WithViewStore(
+                appDelegate.store.scope(state: \.appDelegateState.migrationState.databaseState)
+            ) { viewStore in
+                ZStack {
+                    if viewStore.state == .idle {
+                        TabBarView(store: appDelegate.store).onAppear(perform: addTouchHandler)
+                            .navigationViewStyle(.stack).accentColor(.primary)
+                    }
+                    MigrationView(
+                        store: appDelegate.store.scope(
+                            state: \.appDelegateState.migrationState,
+                            action: { AppAction.appDelegate(.migration($0)) }
+                        )
+                    )
+                    .opacity(viewStore.state != .idle ? 1 : 0)
+                    .animation(.linear(duration: 0.5), value: viewStore.state)
+                }
+            }
         }
     }
 }

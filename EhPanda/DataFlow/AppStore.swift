@@ -9,6 +9,7 @@ import SwiftUI
 import ComposableArchitecture
 
 struct AppState: Equatable {
+    var appDelegateState = AppDelegateState()
     var appRouteState = AppRouteState()
     var appLockState = AppLockState()
     var tabBarState = TabBarState()
@@ -21,10 +22,13 @@ struct AppState: Equatable {
 enum AppAction: BindableAction {
     case binding(BindingAction<AppState>)
     case onScenePhaseChange(ScenePhase)
+
+    case appDelegate(AppDelegateAction)
     case appRoute(AppRouteAction)
     case appLock(AppLockAction)
-    case appDelegate(AppDelegateAction)
+
     case tabBar(TabBarAction)
+
     case home(HomeAction)
     case favorites(FavoritesAction)
     case search(SearchAction)
@@ -94,6 +98,12 @@ let appReducerCore = Reducer<AppState, AppAction, AppEnvironment> { state, actio
         }
         return .none
 
+    case .appDelegate(.migration(.onDatabasePreparationSuccess)):
+        return .init(value: .setting(.loadUserSettings))
+
+    case .appDelegate:
+        return .none
+
     case .appRoute(.filters(.onResetFilterConfirmed)):
         return .init(value: .setting(.resetFilter(state.appRouteState.filtersState.filterRange)))
 
@@ -136,9 +146,6 @@ let appReducerCore = Reducer<AppState, AppAction, AppEnvironment> { state, actio
         ? .init(value: .appRoute(.detectClipboardURL)) : .none
 
     case .appLock:
-        return .none
-
-    case .appDelegate:
         return .none
 
     case .tabBar(.setTabBarItemType(let type)):
@@ -250,7 +257,8 @@ let appReducer = Reducer<AppState, AppAction, AppEnvironment>.combine(
             .init(
                 dfClient: $0.dfClient,
                 libraryClient: $0.libraryClient,
-                cookiesClient: $0.cookiesClient
+                cookiesClient: $0.cookiesClient,
+                databaseClient: $0.databaseClient
             )
         }
     ),

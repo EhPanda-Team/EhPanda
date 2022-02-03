@@ -32,7 +32,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             authorizationClient: .live
         )
     )
-    lazy var viewStore = ViewStore(store.stateless)
+    lazy var viewStore = ViewStore(store)
 
     static var orientationMask: UIInterfaceOrientationMask =
         DeviceUtil.isPad ? .all : [.portrait, .portraitUpsideDown]
@@ -46,33 +46,54 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
         viewStore.send(.appDelegate(.onLaunchFinish))
-        viewStore.send(.setting(.loadUserSettings))
         return true
     }
 }
 
+struct AppDelegateState: Equatable {
+    var migrationState = MigrationState()
+}
+
 enum AppDelegateAction {
     case onLaunchFinish
+
+    case migration(MigrationAction)
 }
 
 struct AppDelegateEnvironment {
     let dfClient: DFClient
     let libraryClient: LibraryClient
     let cookiesClient: CookiesClient
+    let databaseClient: DatabaseClient
 }
 
-let appDelegateReducer = Reducer<AppState, AppDelegateAction, AppDelegateEnvironment> { state, action, environment in
-    switch action {
-    case .onLaunchFinish:
-        let bypassesSNIFiltering = state.settingState.setting.bypassesSNIFiltering
-        state.appLockState.becomeInactiveDate = .distantPast
-        return .merge(
-            environment.libraryClient.initializeLogger().fireAndForget(),
-            environment.libraryClient.initializeWebImage().fireAndForget(),
-            environment.dfClient.setActive(bypassesSNIFiltering).fireAndForget(),
-            environment.cookiesClient.removeYay().fireAndForget(),
-            environment.cookiesClient.ignoreOffensive().fireAndForget(),
-            environment.cookiesClient.fulfillAnotherHostField().fireAndForget()
-        )
-    }
-}
+let appDelegateReducer = Reducer<AppState, AppDelegateAction, AppDelegateEnvironment>.combine(
+    .init { state, action, environment in
+        switch action {
+        case .onLaunchFinish:
+            let bypassesSNIFiltering = state.settingState.setting.bypassesSNIFiltering
+            state.appLockState.becomeInactiveDate = .distantPast
+            return .merge(
+                environment.libraryClient.initializeLogger().fireAndForget(),
+                environment.libraryClient.initializeWebImage().fireAndForget(),
+                environment.dfClient.setActive(bypassesSNIFiltering).fireAndForget(),
+                environment.cookiesClient.removeYay().fireAndForget(),
+                environment.cookiesClient.ignoreOffensive().fireAndForget(),
+                environment.cookiesClient.fulfillAnotherHostField().fireAndForget(),
+                .init(value: .migration(.prepareDatabase))
+            )
+
+        case .migration:
+            return .none
+        }
+    },
+    migrationReducer.pullback(
+        state: \.appDelegateState.migrationState,
+        action: /AppDelegateAction.migration,
+        environment: {
+            .init(
+                databaseClient: $0.databaseClient
+            )
+        }
+    )
+)

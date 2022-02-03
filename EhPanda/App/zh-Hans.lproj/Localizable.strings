@@ -62,21 +62,26 @@
 
 // MARK: AlertView
 "loading.view.title.loading" = "加载中...";
+"loading.view.title.preparingDatabase" = "正在准备数据库...";
 "error.view.button.retry" = "重试";
+"error.view.button.dropDatabase" = "丢弃数据库";
 "error.view.title.tryLater" = "请稍后再试";
 "error.view.title.network" = "发生了网络故障";
 "error.view.title.parsing" = "发生了解析错误";
 "error.view.title.unknown" = "发生了未知错误";
 "error.view.title.notFound" = "这里似乎什么也没有";
+"error.view.title.databaseCorrupted" = "数据库已损毁。\n请到 GitHub 提起 Issue 反馈。";
 "error.view.title.ipBanned" = "当前的 IP 地址发生了过量的页面加载，因有使用爬虫程序的嫌疑已被暂时封禁。封禁将在 %@后解除。";
 "error.view.title.copyrightClaim" = "抱歉，该画廊因 %@ 的版权主张已无法访问。";
 "error.view.title.galleryUnavailable" = "该画廊已被移除或不可用。";
 
 // MARK: ConfirmationDialog
+"confirmation.dialog.title.dropDatabase" = "你将失去这个 App 中所有的数据。\n确定要丢弃数据库吗？";
 "confirmation.dialog.title.logout" = "确定要退出登录吗？";
 "confirmation.dialog.title.delete" = "确定要删除吗？";
 "confirmation.dialog.title.clear" = "确定要清空吗？";
 "confirmation.dialog.title.reset" = "确定要重置吗？";
+"confirmation.dialog.button.dropDatabase" = "丢弃数据库";
 "confirmation.dialog.button.logout" = "退出登录";
 "confirmation.dialog.button.delete" = "删除";
 "confirmation.dialog.button.clear" = "清空";

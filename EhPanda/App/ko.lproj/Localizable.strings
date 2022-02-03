@@ -62,21 +62,26 @@
 
 // MARK: AlertView
 "loading.view.title.loading" = "로딩 중...";
+"loading.view.title.preparingDatabase" = "Preparing the database...";
 "error.view.button.retry" = "재시도";
+"error.view.button.dropDatabase" = "Drop the database";
 "error.view.title.tryLater" = "잠시 후 다시 시도해 주세요.";
 "error.view.title.network" = "인터넷 접속 오류가 발생했어요.";
 "error.view.title.parsing" = "구분 분석 오류가 발생했어요.";
 "error.view.title.unknown" = "알 수 없는 오류가 발생했어요.";
 "error.view.title.notFound" = "여기가 아무도 없는 것 같습니다.";
+"error.view.title.databaseCorrupted" = "The database is corrupted.\nPlease submit an issue on GitHub.";
 "error.view.title.ipBanned" = "자동화된 미러링/수집 소프트웨어를 사용 중임을 나타내는 과도한 페이지 로드로 인해 IP 주소가 일시적으로 금지되었습니다. 금지효과는 %@ 에서 만료되었습니다.";
 "error.view.title.copyrightClaim" = "%@의 저작권 요청으로 인하여 이 갤러리를 사용할 수 없어요.";
 "error.view.title.galleryUnavailable" = "이 갤러리는 제거되었거나 사용할 수 없어요.";
 
 // MARK: ConfirmationDialog
+"confirmation.dialog.title.dropDatabase" = "You will lose all your data in this app.\nAre you sure to drop the database?";
 "confirmation.dialog.title.logout" = "로그아웃 하시겠어요?";
 "confirmation.dialog.title.delete" = "Are you sure to delete this item?";
 "confirmation.dialog.title.clear" = "삭제하시겠어요?";
 "confirmation.dialog.title.reset" = "초기화하시겠어요?";
+"confirmation.dialog.button.dropDatabase" = "Drop the database";
 "confirmation.dialog.button.logout" = "로그아웃";
 "confirmation.dialog.button.delete" = "삭제";
 "confirmation.dialog.button.clear" = "삭제";

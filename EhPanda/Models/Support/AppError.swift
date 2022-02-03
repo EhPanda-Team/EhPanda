@@ -13,6 +13,7 @@ enum AppError: Error, Identifiable, Equatable, Hashable {
 
     case copyrightClaim(String)
     case ipBanned(BanInterval)
+    case databaseCorrupted
     case expunged(String)
     case networkingFailed
     case webImageFailed
@@ -25,7 +26,7 @@ enum AppError: Error, Identifiable, Equatable, Hashable {
 extension AppError: LocalizedError {
     var isRetryable: Bool {
         switch self {
-        case .ipBanned, .networkingFailed, .parseFailed,
+        case .ipBanned, .databaseCorrupted, .networkingFailed, .parseFailed,
                 .noUpdates, .notFound, .unknown, .webImageFailed:
             return true
         case .copyrightClaim, .expunged:
@@ -38,6 +39,8 @@ extension AppError: LocalizedError {
             return "Copyright Claim"
         case .ipBanned:
             return "IP Banned"
+        case .databaseCorrupted:
+            return "Database Corrupted"
         case .expunged:
             return "Gallery Expunged"
         case .networkingFailed:
@@ -58,6 +61,8 @@ extension AppError: LocalizedError {
         switch self {
         case .ipBanned:
             return .networkBadgeShieldHalfFilled
+        case .databaseCorrupted:
+            return .exclamationmarkTriangleFill
         case .copyrightClaim, .expunged:
             return .trashCircleFill
         case .networkingFailed:
@@ -73,6 +78,8 @@ extension AppError: LocalizedError {
         switch self {
         case .copyrightClaim(let owner):
             return R.string.localizable.errorViewTitleCopyrightClaim(owner)
+        case .databaseCorrupted:
+            return R.string.localizable.errorViewTitleDatabaseCorrupted()
         case .ipBanned(let interval):
             return R.string.localizable.errorViewTitleIpBanned(interval.description)
         case .expunged(let reason):

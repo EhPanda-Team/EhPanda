@@ -62,21 +62,26 @@
 
 // MARK: AlertView
 "loading.view.title.loading" = "載入中...";
+"loading.view.title.preparingDatabase" = "Preparing the database...";
 "error.view.button.retry" = "重試";
+"error.view.button.dropDatabase" = "Drop the database";
 "error.view.title.tryLater" = "請稍後再試";
 "error.view.title.network" = "網絡發生故障";
 "error.view.title.parsing" = "A parsing error occurred.";
 "error.view.title.unknown" = "An unknown error occurred.";
 "error.view.title.notFound" = "There seems to be nothing here.";
+"error.view.title.databaseCorrupted" = "The database is corrupted.\nPlease submit an issue on GitHub.";
 "error.view.title.ipBanned" = "Your IP address has been temporarily banned for excessive pageloads which indicates that you are using automated mirroring / harvesting software. The ban expires in %@.";
 "error.view.title.copyrightClaim" = "This gallery is unavailable due to a copyright claim by %@. Sorry about that.";
 "error.view.title.galleryUnavailable" = "This gallery has been removed or is unavailable.";
 
 // MARK: ConfirmationDialog
+"confirmation.dialog.title.dropDatabase" = "You will lose all your data in this app.\nAre you sure to drop the database?";
 "confirmation.dialog.title.logout" = "確定要登出嗎？";
 "confirmation.dialog.title.delete" = "Are you sure to delete this item?";
 "confirmation.dialog.title.clear" = "確定要清空嗎？";
 "confirmation.dialog.title.reset" = "確定要重置嗎？";
+"confirmation.dialog.button.dropDatabase" = "Drop the database";
 "confirmation.dialog.button.logout" = "登出";
 "confirmation.dialog.button.delete" = "Delete";
 "confirmation.dialog.button.clear" = "清空";

@@ -62,21 +62,26 @@
 
 // MARK: AlertView
 "loading.view.title.loading" = "読み込み中...";
+"loading.view.title.preparingDatabase" = "データベース準備中...";
 "error.view.button.retry" = "やり直す";
+"error.view.button.dropDatabase" = "データベースを削除";
 "error.view.title.tryLater" = "しばらくしてからもう一度お試しください";
 "error.view.title.network" = "ネットワーク障害が発生しました";
 "error.view.title.parsing" = "解析中に問題が発生しました";
 "error.view.title.unknown" = "不明なエラーが発生しました";
 "error.view.title.notFound" = "ここには何もないようです";
+"error.view.title.databaseCorrupted" = "データベースが破損しています。\nGitHub で Issue を作成していただくようお願いいたします。";
 "error.view.title.ipBanned" = "この IP アドレスを経由して過剰なページロードが行われました。クローラの疑いがあるため、この IP アドレスは一時的にブロックされました。ブロックは %@後に解除されます。";
 "error.view.title.copyrightClaim" = "申し訳ありませんが、このギャラリーは %@ の著作権主張によってアクセス不可になっています。";
 "error.view.title.galleryUnavailable" = "このギャラリーはすでに削除済みまたは無効です。";
 
 // MARK: ConfirmationDialog
+"confirmation.dialog.title.dropDatabase" = "本アプリでのすべてのデータを失うことになります。\n本当にデータベースを削除してもよろしいですか？";
 "confirmation.dialog.title.logout" = "本当にログアウトしてもよろしいですか？";
 "confirmation.dialog.title.delete" = "本当にこれを削除してもよろしいですか？";
 "confirmation.dialog.title.clear" = "本当に削除してもよろしいですか？";
 "confirmation.dialog.title.reset" = "本当に戻してもよろしいですか？";
+"confirmation.dialog.button.dropDatabase" = "削除";
 "confirmation.dialog.button.logout" = "ログアウト";
 "confirmation.dialog.button.delete" = "削除";
 "confirmation.dialog.button.clear" = "削除";

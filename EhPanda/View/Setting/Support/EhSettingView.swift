@@ -28,7 +28,7 @@ struct EhSettingView: View {
             if viewStore.loadingState == .loading || viewStore.submittingState == .loading {
                 LoadingView().tint(nil)
             } else if case .failed(let error) = viewStore.loadingState {
-                ErrorView(error: error, retryAction: { viewStore.send(.fetchEhSetting) }).tint(nil)
+                ErrorView(error: error, action: { viewStore.send(.fetchEhSetting) }).tint(nil)
             }
             // Using `Binding.init` will crash the app
             else if let ehSetting = Binding(unwrapping: viewStore.binding(\.$ehSetting)),

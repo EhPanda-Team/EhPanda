@@ -11,12 +11,23 @@ import CoreData
 import ComposableArchitecture
 
 struct DatabaseClient {
+    let prepareDatabase: () -> Effect<Result<Void, AppError>, Never>
     private let saveContext: () -> Void
     private let materializedObjects: (NSManagedObjectContext, NSPredicate) -> [NSManagedObject]
 }
 
 extension DatabaseClient {
     static let live: Self = .init(
+        prepareDatabase: {
+            Future { promise in
+                PersistenceController.shared.setup {
+                    promise(.success(()))
+                }
+            }
+            .eraseToAnyPublisher()
+            .receive(on: DispatchQueue.main)
+            .catchToEffect()
+        },
         saveContext: {
             let context = PersistenceController.shared.container.viewContext
             AppUtil.dispatchMainSync {

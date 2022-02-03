@@ -62,21 +62,26 @@
 
 // MARK: AlertView
 "loading.view.title.loading" = "Loading...";
+"loading.view.title.preparingDatabase" = "Preparing the database...";
 "error.view.button.retry" = "Retry";
+"error.view.button.dropDatabase" = "Drop the database";
 "error.view.title.tryLater" = "Please try again later.";
 "error.view.title.network" = "A network error occurred.";
 "error.view.title.parsing" = "A parsing error occurred.";
 "error.view.title.unknown" = "An unknown error occurred.";
 "error.view.title.notFound" = "There seems to be nothing here.";
+"error.view.title.databaseCorrupted" = "The database is corrupted.\nPlease submit an issue on GitHub.";
 "error.view.title.ipBanned" = "Your IP address has been temporarily banned for excessive pageloads which indicates that you are using automated mirroring / harvesting software. The ban expires in %@.";
 "error.view.title.copyrightClaim" = "This gallery is unavailable due to a copyright claim by %@. Sorry about that.";
 "error.view.title.galleryUnavailable" = "This gallery has been removed or is unavailable.";
 
 // MARK: ConfirmationDialog
+"confirmation.dialog.title.dropDatabase" = "You will lose all your data in this app.\nAre you sure to drop the database?";
 "confirmation.dialog.title.logout" = "Are you sure to logout?";
 "confirmation.dialog.title.delete" = "Are you sure to delete this item?";
 "confirmation.dialog.title.clear" = "Are you sure to clear?";
 "confirmation.dialog.title.reset" = "Are you sure to reset?";
+"confirmation.dialog.button.dropDatabase" = "Drop the database";
 "confirmation.dialog.button.logout" = "Logout";
 "confirmation.dialog.button.delete" = "Delete";
 "confirmation.dialog.button.clear" = "Clear";

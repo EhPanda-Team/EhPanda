@@ -9,8 +9,14 @@ import SwiftUI
 import SFSafeSymbols
 
 struct LoadingView: View {
+    private let title: String
+
+    init(title: String = R.string.localizable.loadingViewTitleLoading()) {
+        self.title = title
+    }
+
     var body: some View {
-        ProgressView(R.string.localizable.loadingViewTitleLoading())
+        ProgressView(title)
     }
 }
 
@@ -44,34 +50,39 @@ struct FetchMoreFooter: View {
 
 struct ErrorView: View {
     private let error: AppError
-    private let retryAction: (() -> Void)?
+    private let buttonTitle: String
+    private let action: (() -> Void)?
 
-    init(error: AppError, retryAction: (() -> Void)? = nil) {
+    init(
+        error: AppError, buttonTitle: String =
+        R.string.localizable.errorViewButtonRetry(),
+        action: (() -> Void)? = nil
+    ) {
         self.error = error
-        self.retryAction = retryAction
+        self.buttonTitle = buttonTitle
+        self.action = action
     }
 
     var body: some View {
-        GenericRetryView(
+        AlertView(
             symbol: error.symbol, message: error.alertText,
-            buttonTitle: R.string.localizable.errorViewButtonRetry(),
-            retryAction: retryAction
+            buttonTitle: buttonTitle, action: action
         )
     }
 }
 
-struct GenericRetryView: View {
+struct AlertView: View {
     @Environment(\.colorScheme) private var colorScheme
     private let symbol: SFSymbol
     private let message: String
     private let buttonTitle: String
-    private let retryAction: (() -> Void)?
+    private let action: (() -> Void)?
 
-    init(symbol: SFSymbol, message: String, buttonTitle: String, retryAction: (() -> Void)?) {
+    init(symbol: SFSymbol, message: String, buttonTitle: String, action: (() -> Void)?) {
         self.symbol = symbol
         self.message = message
         self.buttonTitle = buttonTitle
-        self.retryAction = retryAction
+        self.action = action
     }
 
     var body: some View {
@@ -79,7 +90,7 @@ struct GenericRetryView: View {
             Image(systemSymbol: symbol).font(.system(size: 50)).padding(.bottom, 15)
             Text(message).multilineTextAlignment(.center).foregroundStyle(.gray)
                 .font(.headline).padding(.bottom, 5)
-            if let action = retryAction {
+            if let action = action {
                 Button(action: action) {
                     Text(buttonTitle).foregroundColor(.primary.opacity(0.7)).textCase(.uppercase)
                 }

@@ -125,7 +125,7 @@ struct DetailView: View {
                 )
             let error = (/LoadingState.failed).extract(from: viewStore.loadingState)
             let retryAction = { viewStore.send(.fetchGalleryDetail) }
-            ErrorView(error: error ?? .unknown, retryAction: error?.isRetryable != false ? retryAction : nil)
+            ErrorView(error: error ?? .unknown, action: error?.isRetryable != false ? retryAction : nil)
                 .opacity(viewStore.galleryDetail == nil && error != nil ? 1 : 0)
         }
         .fullScreenCover(unwrapping: viewStore.binding(\.$route), case: /DetailState.Route.reading) { _ in
@@ -571,7 +571,7 @@ private extension TagsSection {
         private let tag: GalleryTag
         private let navigateAction: (String) -> Void
         private let translateAction: (String) -> String
-        private var reversePrimary: Color {
+        private var reversedPrimary: Color {
             colorScheme == .light ? .white : .black
         }
 
@@ -588,7 +588,7 @@ private extension TagsSection {
         var body: some View {
             HStack(alignment: .top) {
                 Text(tag.category?.value ?? tag.namespace).font(.subheadline.bold())
-                    .foregroundColor(reversePrimary).padding(.vertical, 5).padding(.horizontal, 14)
+                    .foregroundColor(reversedPrimary).padding(.vertical, 5).padding(.horizontal, 14)
                     .background(Rectangle().foregroundColor(Color(.systemGray))).cornerRadius(5)
                 TagCloudView(
                     tag: tag, font: .subheadline, textColor: .primary, backgroundColor: Color(.systemGray5),
