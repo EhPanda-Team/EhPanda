@@ -38,7 +38,11 @@ struct EhSettingView: View {
                     .transition(.opacity.animation(.default))
             }
         }
-        .onAppear { viewStore.send(.fetchEhSetting) }
+        .onAppear {
+            if viewStore.ehSetting == nil {
+                viewStore.send(.fetchEhSetting)
+            }
+        }
         .onDisappear {
             if let profileSet = viewStore.ehSetting?.ehpandaProfile?.value {
                 viewStore.send(.setDefaultProfile(profileSet))

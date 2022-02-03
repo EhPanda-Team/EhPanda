@@ -778,8 +778,9 @@ struct SubmitEhSettingChangesRequest: Request {
             params["xn_\(index + 1)"] = ehSetting.excludedNamespaces[index] ? "1" : "0"
         }
         ehSetting.excludedLanguages.enumerated().forEach { index, value in
-            guard value else { return }
-            params["xl_\(EhSetting.languageValues[index])"] = "on"
+            if value {
+                params["xl_\(EhSetting.languageValues[index])"] = "on"
+            }
         }
 
         if let useOriginalImages = ehSetting.useOriginalImages {
