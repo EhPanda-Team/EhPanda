@@ -559,14 +559,14 @@ struct GalleryNormalImageURLRefetchRequest: Request {
     let storedImageURL: String
 
     var publisher: AnyPublisher<([Int: String], HTTPURLResponse?), AppError> {
-        storedThumbnail().flatMap(renewThumbnail).flatMap(imageURL)
+        storedThumbnailURL().flatMap(renewThumbnailURL).flatMap(imageURL)
             .genericRetry().map { imageURL1, imageURL2, response in
                 ([index: imageURL1 != storedImageURL ? imageURL1 : imageURL2], response)
             }
             .eraseToAnyPublisher()
     }
 
-    func storedThumbnail() -> AnyPublisher<URL, AppError> {
+    func storedThumbnailURL() -> AnyPublisher<URL, AppError> {
         if let thumbnailURL = thumbnailURL {
             return Just(thumbnailURL).compactMap(URL.init).setFailureType(to: AppError.self).eraseToAnyPublisher()
         } else {
@@ -577,11 +577,11 @@ struct GalleryNormalImageURLRefetchRequest: Request {
         }
     }
 
-    func renewThumbnail(stored: URL) -> AnyPublisher<(URL, String), AppError> {
+    func renewThumbnailURL(stored: URL) -> AnyPublisher<(URL, String), AppError> {
         URLSession.shared.dataTaskPublisher(for: stored)
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .tryMap {
-                try (Parser.parseRenewedThumbnail(doc: $0, stored: stored),
+                try (Parser.parseRenewedThumbnailURL(doc: $0, storedThumbnailURL: stored),
                      Parser.parseGalleryNormalImageURL(doc: $0, index: index).1)
             }
             .mapError(mapAppError).eraseToAnyPublisher()
