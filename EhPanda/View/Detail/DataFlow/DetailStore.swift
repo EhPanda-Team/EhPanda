@@ -38,7 +38,7 @@ struct DetailState: Equatable {
     var gallery: Gallery = .empty
     var galleryDetail: GalleryDetail?
     var galleryTags = [GalleryTag]()
-    var galleryPreviews = [Int: String]()
+    var galleryPreviewURLs = [Int: String]()
     var galleryComments = [GalleryComment]()
 
     var readingState = ReadingState(gallery: .empty)
@@ -74,7 +74,7 @@ enum DetailAction: BindableAction {
 
     case syncGalleryTags
     case syncGalleryDetail
-    case syncGalleryPreviews
+    case syncGalleryPreviewURLs
     case syncGalleryComments
     case syncGreeting(Greeting)
     case syncPreviewConfig(PreviewConfig)
@@ -204,10 +204,10 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
             guard state.gallery.id.isValidGID, let detail = state.galleryDetail else { return .none }
             return environment.databaseClient.cacheGalleryDetail(detail).fireAndForget()
 
-        case .syncGalleryPreviews:
+        case .syncGalleryPreviewURLs:
             guard state.gallery.id.isValidGID else { return .none }
             return environment.databaseClient
-                .updatePreviews(gid: state.gallery.id, previews: state.galleryPreviews).fireAndForget()
+                .updatePreviewURLs(gid: state.gallery.id, previewURLs: state.galleryPreviewURLs).fireAndForget()
 
         case .syncGalleryComments:
             guard state.gallery.id.isValidGID else { return .none }
@@ -247,7 +247,7 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
 
         case .fetchDatabaseInfosDone(let galleryState):
             state.galleryTags = galleryState.tags
-            state.galleryPreviews = galleryState.previews
+            state.galleryPreviewURLs = galleryState.previewURLs
             state.galleryComments = galleryState.comments
             return .merge(
                 .init(value: .fetchGalleryDetail),
@@ -268,13 +268,13 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
                 var effects: [Effect<DetailAction, Never>] = [
                     .init(value: .syncGalleryTags),
                     .init(value: .syncGalleryDetail),
-                    .init(value: .syncGalleryPreviews),
+                    .init(value: .syncGalleryPreviewURLs),
                     .init(value: .syncGalleryComments)
                 ]
                 state.apiKey = apiKey
                 state.galleryDetail = galleryDetail
                 state.galleryTags = galleryState.tags
-                state.galleryPreviews = galleryState.previews
+                state.galleryPreviewURLs = galleryState.previewURLs
                 state.galleryComments = galleryState.comments
                 state.userRating = Int(galleryDetail.userRating) * 2
                 if let greeting = greeting {

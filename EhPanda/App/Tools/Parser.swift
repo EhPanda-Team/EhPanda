@@ -334,7 +334,7 @@ struct Parser {
                   let gdfNode = gd3Node.at_xpath("//div [@id='gdf']"),
                   let coverURL = try? parseCoverURL(node: link),
                   let tags = try? parseTags(node: gd4Node),
-                  let previews = try? parsePreviews(doc: doc),
+                  let previewURLs = try? parsePreviewURLs(doc: doc),
                   let arcAndTor = try? parseArcAndTor(node: gd5Node),
                   let infoPanel = try? parseInfoPanel(node: gddNode),
                   let visibility = try? parseVisibility(value: infoPanel[2]),
@@ -383,7 +383,7 @@ struct Parser {
             )
             tmpGalleryState = GalleryState(
                 gid: gid, tags: tags,
-                previews: previews,
+                previewURLs: previewURLs,
                 previewConfig: try? parsePreviewConfig(doc: doc),
                 comments: parseComments(doc: doc)
             )
@@ -413,9 +413,9 @@ struct Parser {
     }
 
     // MARK: Preview
-    static func parsePreviews(doc: HTMLDocument) throws -> [Int: String] {
-        func parseNormalPreviews(node: XMLElement) -> [Int: String] {
-            var previews = [Int: String]()
+    static func parsePreviewURLs(doc: HTMLDocument) throws -> [Int: String] {
+        func parseNormalPreviewURLs(node: XMLElement) -> [Int: String] {
+            var previewURLs = [Int: String]()
 
             for link in node.xpath("//div") where link.className == nil {
                 guard let imgLink = link.at_xpath("//img"),
@@ -437,27 +437,27 @@ struct Parser {
                 let plainURL = linkStyle[rangeD.upperBound..<rangeE.lowerBound]
                 let offset = remainingText[rangeE.upperBound..<rangeF.lowerBound]
 
-                previews[index] = URLUtil.normalPreview(
+                previewURLs[index] = URLUtil.normalPreviewURL(
                     plainURL: String(plainURL), width: String(width),
                     height: String(height), offset: String(offset)
                 )
                 .absoluteString
             }
 
-            return previews
+            return previewURLs
         }
-        func parseLargePreviews(node: XMLElement) -> [Int: String] {
-            var previews = [Int: String]()
+        func parseLargePreviewURLs(node: XMLElement) -> [Int: String] {
+            var previewURLs = [Int: String]()
 
             for link in node.xpath("//img") {
                 guard let index = Int(link["alt"] ?? ""),
                       let url = link["src"], !url.contains("blank.gif")
                 else { continue }
 
-                previews[index] = url
+                previewURLs[index] = url
             }
 
-            return previews
+            return previewURLs
         }
 
         guard let gdtNode = doc.at_xpath("//div [@id='gdt']"),
@@ -465,8 +465,8 @@ struct Parser {
         else { throw AppError.parseFailed }
 
         return previewMode == "gdtl"
-            ? parseLargePreviews(node: gdtNode)
-            : parseNormalPreviews(node: gdtNode)
+            ? parseLargePreviewURLs(node: gdtNode)
+            : parseNormalPreviewURLs(node: gdtNode)
     }
 
     // MARK: Comment

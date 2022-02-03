@@ -230,8 +230,8 @@ extension DatabaseClient {
     func fetchQuickSearchWords() -> Effect<[QuickSearchWord], Never> {
         fetchAppEnv().map(\.quickSearchWords)
     }
-    func fetchGalleryPreviews(gid: String) -> Effect<[Int: String], Never> {
-        fetchGalleryState(gid: gid).map(\.previews)
+    func fetchGalleryPreviewURLs(gid: String) -> Effect<[Int: String], Never> {
+        fetchGalleryState(gid: gid).map(\.previewURLs)
     }
 }
 
@@ -369,7 +369,7 @@ extension DatabaseClient {
                 batchUpdate(entityType: GalleryStateMO.self) { galleryStateMOs in
                     galleryStateMOs.forEach { galleryStateMO in
                         galleryStateMO.imageURLs = nil
-                        galleryStateMO.previews = nil
+                        galleryStateMO.previewURLs = nil
                         galleryStateMO.thumbnailURLs = nil
                         galleryStateMO.originalImageURLs = nil
                     }
@@ -390,9 +390,9 @@ extension DatabaseClient {
             update(gid: gid, storedData: &galleryStateMO.originalImageURLs, new: originalImageURLs)
         }
     }
-    func updatePreviews(gid: String, previews: [Int: String]) -> Effect<Never, Never> {
+    func updatePreviewURLs(gid: String, previewURLs: [Int: String]) -> Effect<Never, Never> {
         updateGalleryState(gid: gid) { galleryStateMO in
-            update(gid: gid, storedData: &galleryStateMO.previews, new: previews)
+            update(gid: gid, storedData: &galleryStateMO.previewURLs, new: previewURLs)
         }
     }
 

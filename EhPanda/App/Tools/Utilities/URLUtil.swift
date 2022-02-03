@@ -122,7 +122,7 @@ struct URLUtil {
     static func detailPage(url: String, pageNum: Int) -> URL {
         url.safeURL().appending(queryItems: [.letterP: String(pageNum)])
     }
-    static func normalPreview(plainURL: String, width: String, height: String, offset: String) -> URL {
+    static func normalPreviewURL(plainURL: String, width: String, height: String, offset: String) -> URL {
         plainURL.safeURL().appending(queryItems: [.ehpandaWidth: width, .ehpandaHeight: height, .ehpandaOffset: offset])
     }
 

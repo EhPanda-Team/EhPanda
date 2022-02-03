@@ -16,17 +16,17 @@ struct ControlPanel: View {
     @Binding private var setting: Setting
     @Binding private var autoPlayPolicy: AutoPlayPolicy
     private let range: ClosedRange<Float>
-    private let previews: [Int: String]
+    private let previewURLs: [Int: String]
     private let dismissAction: () -> Void
     private let navigateSettingAction: () -> Void
-    private let fetchPreviewsAction: (Int) -> Void
+    private let fetchPreviewURLsAction: (Int) -> Void
 
     init(
         showsPanel: Binding<Bool>, showsSliderPreview: Binding<Bool>, sliderValue: Binding<Float>,
         setting: Binding<Setting>, autoPlayPolicy: Binding<AutoPlayPolicy>, range: ClosedRange<Float>,
-        previews: [Int: String], dismissAction: @escaping () -> Void,
+        previewURLs: [Int: String], dismissAction: @escaping () -> Void,
         navigateSettingAction: @escaping () -> Void,
-        fetchPreviewsAction: @escaping (Int) -> Void
+        fetchPreviewURLsAction: @escaping (Int) -> Void
     ) {
         _showsPanel = showsPanel
         _showsSliderPreview = showsSliderPreview
@@ -34,10 +34,10 @@ struct ControlPanel: View {
         _setting = setting
         _autoPlayPolicy = autoPlayPolicy
         self.range = range
-        self.previews = previews
+        self.previewURLs = previewURLs
         self.dismissAction = dismissAction
         self.navigateSettingAction = navigateSettingAction
-        self.fetchPreviewsAction = fetchPreviewsAction
+        self.fetchPreviewURLsAction = fetchPreviewURLsAction
     }
 
     private var title: String {
@@ -58,9 +58,9 @@ struct ControlPanel: View {
             if range.upperBound > range.lowerBound {
                 LowerPanel(
                     showsSliderPreview: $showsSliderPreview,
-                    sliderValue: $sliderValue, previews: previews, range: range,
+                    sliderValue: $sliderValue, previewURLs: previewURLs, range: range,
                     isReversed: setting.readingDirection == .rightToLeft,
-                    fetchPreviewsAction: fetchPreviewsAction
+                    fetchPreviewURLsAction: fetchPreviewURLsAction
                 )
                 .offset(y: showsPanel ? 0 : 50)
             }
@@ -158,30 +158,30 @@ private struct UpperPanel: View {
 private struct LowerPanel: View {
     @Binding private var showsSliderPreview: Bool
     @Binding private var sliderValue: Float
-    private let previews: [Int: String]
+    private let previewURLs: [Int: String]
     private let range: ClosedRange<Float>
     private let isReversed: Bool
-    private let fetchPreviewsAction: (Int) -> Void
+    private let fetchPreviewURLsAction: (Int) -> Void
 
     init(
         showsSliderPreview: Binding<Bool>, sliderValue: Binding<Float>,
-        previews: [Int: String], range: ClosedRange<Float>, isReversed: Bool,
-        fetchPreviewsAction: @escaping (Int) -> Void
+        previewURLs: [Int: String], range: ClosedRange<Float>, isReversed: Bool,
+        fetchPreviewURLsAction: @escaping (Int) -> Void
     ) {
         _showsSliderPreview = showsSliderPreview
         _sliderValue = sliderValue
-        self.previews = previews
+        self.previewURLs = previewURLs
         self.range = range
         self.isReversed = isReversed
-        self.fetchPreviewsAction = fetchPreviewsAction
+        self.fetchPreviewURLsAction = fetchPreviewURLsAction
     }
 
     var body: some View {
         VStack(spacing: 0) {
             SliderPreivew(
                 showsSliderPreview: $showsSliderPreview,
-                sliderValue: $sliderValue, previews: previews, range: range,
-                isReversed: isReversed, fetchPreviewsAction: fetchPreviewsAction
+                sliderValue: $sliderValue, previewURLs: previewURLs, range: range,
+                isReversed: isReversed, fetchPreviewURLsAction: fetchPreviewURLsAction
             )
             VStack {
                 HStack {
@@ -206,22 +206,22 @@ private struct LowerPanel: View {
 private struct SliderPreivew: View {
     @Binding private var showsSliderPreview: Bool
     @Binding var sliderValue: Float
-    private let previews: [Int: String]
+    private let previewURLs: [Int: String]
     private let range: ClosedRange<Float>
     private let isReversed: Bool
-    private let fetchPreviewsAction: (Int) -> Void
+    private let fetchPreviewURLsAction: (Int) -> Void
 
     init(
         showsSliderPreview: Binding<Bool>, sliderValue: Binding<Float>,
-        previews: [Int: String], range: ClosedRange<Float>,
-        isReversed: Bool, fetchPreviewsAction: @escaping (Int) -> Void
+        previewURLs: [Int: String], range: ClosedRange<Float>,
+        isReversed: Bool, fetchPreviewURLsAction: @escaping (Int) -> Void
     ) {
         _showsSliderPreview = showsSliderPreview
         _sliderValue = sliderValue
-        self.previews = previews
+        self.previewURLs = previewURLs
         self.range = range
         self.isReversed = isReversed
-        self.fetchPreviewsAction = fetchPreviewsAction
+        self.fetchPreviewURLsAction = fetchPreviewURLsAction
     }
 
     var body: some View {
@@ -229,10 +229,10 @@ private struct SliderPreivew: View {
             ForEach(previewsIndices, id: \.self) { index in
                 let (url, modifier) =
                 PreviewResolver.getPreviewConfigs(
-                    originalURL: previews[index] ?? ""
+                    originalURL: previewURLs[index] ?? ""
                 )
                 VStack {
-                    KFImage.url(URL(string: url), cacheKey: previews[index])
+                    KFImage.url(URL(string: url), cacheKey: previewURLs[index])
                         .placeholder {
                             Placeholder(style: .activity(
                                 ratio: Defaults.ImageSize.previewAspect
@@ -245,8 +245,8 @@ private struct SliderPreivew: View {
                         .foregroundColor(index == Int(sliderValue) ? .accentColor : .secondary)
                 }
                 .onAppear {
-                    if previews[index] == nil && checkIndex(index) {
-                        fetchPreviewsAction(index)
+                    if previewURLs[index] == nil && checkIndex(index) {
+                        fetchPreviewURLsAction(index)
                     }
                 }
                 .opacity(checkIndex(index) ? 1 : 0)
@@ -265,7 +265,7 @@ private extension SliderPreivew {
         DeviceUtil.isPadWidth ? DeviceUtil.isLandscape ? 7 : 5 : 3
     }
     var previewsIndices: [Int] {
-        guard !previews.isEmpty else { return [] }
+        guard !previewURLs.isEmpty else { return [] }
         let currentIndex = Int(sliderValue)
         let distance = (previewsCount - 1) / 2
         let lowerBound = currentIndex - distance

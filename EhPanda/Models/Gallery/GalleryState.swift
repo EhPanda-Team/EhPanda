@@ -14,7 +14,7 @@ struct GalleryState: Codable {
     let gid: String
     var tags = [GalleryTag]()
     var readingProgress = 0
-    var previews = [Int: String]()
+    var previewURLs = [Int: String]()
     var previewConfig: PreviewConfig?
     var comments = [GalleryComment]()
     var imageURLs = [Int: String]()

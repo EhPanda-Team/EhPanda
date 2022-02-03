@@ -93,10 +93,10 @@ struct DetailView: View {
                         )
                         .padding(.horizontal)
                     }
-                    if !viewStore.galleryPreviews.isEmpty {
+                    if !viewStore.galleryPreviewURLs.isEmpty {
                         PreviewsSection(
                             pageCount: viewStore.galleryDetail?.pageCount ?? 0,
-                            previews: viewStore.galleryPreviews,
+                            previewURLs: viewStore.galleryPreviewURLs,
                             navigatePreviewsAction: { viewStore.send(.setNavigation(.previews)) },
                             navigateReadingAction: {
                                 viewStore.send(.updateReadingProgress($0))
@@ -594,17 +594,17 @@ private extension TagsSection {
 // MARK: PreviewSection
 private struct PreviewsSection: View {
     private let pageCount: Int
-    private let previews: [Int: String]
+    private let previewURLs: [Int: String]
     private let navigatePreviewsAction: () -> Void
     private let navigateReadingAction: (Int) -> Void
 
     init(
-        pageCount: Int, previews: [Int: String],
+        pageCount: Int, previewURLs: [Int: String],
         navigatePreviewsAction: @escaping () -> Void,
         navigateReadingAction: @escaping (Int) -> Void
     ) {
         self.pageCount = pageCount
-        self.previews = previews
+        self.previewURLs = previewURLs
         self.navigatePreviewsAction = navigatePreviewsAction
         self.navigateReadingAction = navigateReadingAction
     }
@@ -623,7 +623,7 @@ private struct PreviewsSection: View {
         ) {
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHStack {
-                    ForEach(previews.tuples.sorted(by: { $0.0 < $1.0 }), id: \.0) { index, previewURL in
+                    ForEach(previewURLs.tuples.sorted(by: { $0.0 < $1.0 }), id: \.0) { index, previewURL in
                         let (url, modifier) = PreviewResolver.getPreviewConfigs(originalURL: previewURL)
                         Button {
                             navigateReadingAction(index)

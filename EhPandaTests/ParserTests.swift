@@ -78,7 +78,7 @@ class GalleryParserTests: XCTestCase, TestHelper {
         XCTAssertEqual(detail.sizeType, "MB")
         XCTAssertEqual(detail.torrentCount, 1)
         XCTAssertEqual(state.tags.count, 4)
-        XCTAssertEqual(state.previews.count, 20)
+        XCTAssertEqual(state.previewURLs.count, 20)
         XCTAssertEqual(state.previewConfig, .large(rows: 4))
         XCTAssertEqual(state.comments.count, 4)
     }

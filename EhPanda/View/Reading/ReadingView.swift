@@ -69,9 +69,9 @@ struct ReadingView: View {
                 setting: $setting,
                 autoPlayPolicy: viewStore.binding(\.$autoPlayPolicy),
                 range: 1...Float(viewStore.gallery.pageCount),
-                previews: viewStore.previews, dismissAction: dismissAction,
+                previewURLs: viewStore.previewURLs, dismissAction: dismissAction,
                 navigateSettingAction: { viewStore.send(.setNavigation(.readingSetting)) },
-                fetchPreviewsAction: { viewStore.send(.fetchPreviews($0)) }
+                fetchPreviewURLsAction: { viewStore.send(.fetchPreviewURLs($0)) }
             )
         }
         .sheet(unwrapping: viewStore.binding(\.$route), case: /ReadingState.Route.readingSetting) { _ in
