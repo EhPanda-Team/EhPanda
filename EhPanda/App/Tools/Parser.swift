@@ -541,7 +541,7 @@ struct Parser {
         return comments
     }
 
-    // MARK: Content
+    // MARK: ImageURL
     static func parseThumbnails(doc: HTMLDocument) throws -> [Int: String] {
         var thumbnails = [Int: String]()
 
@@ -574,7 +574,7 @@ struct Parser {
         return renewedThumbnail
     }
 
-    static func parseGalleryNormalContent(doc: HTMLDocument, index: Int) throws -> (Int, String, String?) {
+    static func parseGalleryNormalImageURL(doc: HTMLDocument, index: Int) throws -> (Int, String, String?) {
         guard let i3Node = doc.at_xpath("//div [@id='i3']"),
               let imageURL = i3Node.at_css("img")?["src"]
         else { throw AppError.parseFailed }

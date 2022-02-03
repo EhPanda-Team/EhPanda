@@ -141,10 +141,10 @@ struct ReadingView: View {
         let isDualPage = setting.enablesDualPageMode && setting.readingDirection != .vertical && DeviceUtil.isLandscape
         HorizontalImageStack(
             index: index, isDualPage: isDualPage, isDatabaseLoading: viewStore.databaseLoadingState != .idle,
-            backgroundColor: backgroundColor, config: imageStackConfig, contents: viewStore.contents,
-            originalContents: viewStore.originalContents, loadingStates: viewStore.contentLoadingStates,
-            fetchAction: { viewStore.send(.fetchContents($0)) },
-            refetchAction: { viewStore.send(.refetchContents($0)) },
+            backgroundColor: backgroundColor, config: imageStackConfig, imageURLs: viewStore.imageURLs,
+            originalImageURLs: viewStore.originalImageURLs, loadingStates: viewStore.imageURLLoadingStates,
+            fetchAction: { viewStore.send(.fetchImageURLs($0)) },
+            refetchAction: { viewStore.send(.refetchImageURLs($0)) },
             prefetchAction: { viewStore.send(.prefetchImages($0, setting.prefetchLimit)) },
             loadRetryAction: { viewStore.send(.onWebImageRetry($0)) },
             loadSucceededAction: { viewStore.send(.onWebImageSucceeded($0)) },
@@ -188,8 +188,8 @@ private struct HorizontalImageStack: View {
     private let isDatabaseLoading: Bool
     private let backgroundColor: Color
     private let config: ImageStackConfig
-    private let contents: [Int: String]
-    private let originalContents: [Int: String]
+    private let imageURLs: [Int: String]
+    private let originalImageURLs: [Int: String]
     private let loadingStates: [Int: LoadingState]
     private let fetchAction: (Int) -> Void
     private let refetchAction: (Int) -> Void
@@ -203,7 +203,7 @@ private struct HorizontalImageStack: View {
 
     init(
         index: Int, isDualPage: Bool, isDatabaseLoading: Bool, backgroundColor: Color,
-        config: ImageStackConfig, contents: [Int: String], originalContents: [Int: String],
+        config: ImageStackConfig, imageURLs: [Int: String], originalImageURLs: [Int: String],
         loadingStates: [Int: LoadingState], fetchAction: @escaping (Int) -> Void,
         refetchAction: @escaping (Int) -> Void, prefetchAction: @escaping (Int) -> Void,
         loadRetryAction: @escaping (Int) -> Void, loadSucceededAction: @escaping (Int) -> Void,
@@ -215,8 +215,8 @@ private struct HorizontalImageStack: View {
         self.isDatabaseLoading = isDatabaseLoading
         self.backgroundColor = backgroundColor
         self.config = config
-        self.contents = contents
-        self.originalContents = originalContents
+        self.imageURLs = imageURLs
+        self.originalImageURLs = originalImageURLs
         self.loadingStates = loadingStates
         self.fetchAction = fetchAction
         self.refetchAction = refetchAction
@@ -243,7 +243,7 @@ private struct HorizontalImageStack: View {
     func imageContainer(index: Int) -> some View {
         ImageContainer(
             index: index,
-            imageURL: contents[index] ?? "",
+            imageURL: imageURLs[index] ?? "",
             loadingState: loadingStates[index] ?? .idle,
             isDualPage: isDualPage,
             backgroundColor: backgroundColor,
@@ -254,7 +254,7 @@ private struct HorizontalImageStack: View {
         )
         .onAppear {
             if !isDatabaseLoading {
-                if contents[index] == nil {
+                if imageURLs[index] == nil {
                     fetchAction(index)
                 }
                 prefetchAction(index)
@@ -268,24 +268,24 @@ private struct HorizontalImageStack: View {
         } label: {
             Label(R.string.localizable.readingViewContextMenuButtonReload(), systemSymbol: .arrowCounterclockwise)
         }
-        if let content = contents[index], !content.isEmpty {
+        if let imageURL = imageURLs[index], !imageURL.isEmpty {
             Button {
-                if let url = URL(string: content) {
+                if let url = URL(string: imageURL) {
                     copyImageAction(url)
                 }
             } label: {
                 Label(R.string.localizable.readingViewContextMenuButtonCopy(), systemSymbol: .plusSquareOnSquare)
             }
             Button {
-                if let url = URL(string: content) {
+                if let url = URL(string: imageURL) {
                     saveImageAction(url)
                 }
             } label: {
                 Label(R.string.localizable.readingViewContextMenuButtonSave(), systemSymbol: .squareAndArrowDown)
             }
-            if let originalContent = originalContents[index], !originalContent.isEmpty {
+            if let originalImageURL = originalImageURLs[index], !originalImageURL.isEmpty {
                 Button {
-                    if let url = URL(string: originalContent) {
+                    if let url = URL(string: originalImageURL) {
                         saveImageAction(url)
                     }
                 } label: {
@@ -296,7 +296,7 @@ private struct HorizontalImageStack: View {
                 }
             }
             Button {
-                if let url = URL(string: content) {
+                if let url = URL(string: imageURL) {
                     shareImageAction(url)
                 }
             } label: {

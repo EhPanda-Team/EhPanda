@@ -368,10 +368,10 @@ extension DatabaseClient {
             DispatchQueue.main.async {
                 batchUpdate(entityType: GalleryStateMO.self) { galleryStateMOs in
                     galleryStateMOs.forEach { galleryStateMO in
-                        galleryStateMO.contents = nil
+                        galleryStateMO.imageURLs = nil
                         galleryStateMO.previews = nil
                         galleryStateMO.thumbnails = nil
-                        galleryStateMO.originalContents = nil
+                        galleryStateMO.originalImageURLs = nil
                     }
                 }
             }
@@ -382,12 +382,12 @@ extension DatabaseClient {
             update(gid: gid, storedData: &galleryStateMO.thumbnails, new: thumbnails)
         }
     }
-    func updateContents(
-        gid: String, contents: [Int: String], originalContents: [Int: String]
+    func updateImageURLs(
+        gid: String, imageURLs: [Int: String], originalImageURLs: [Int: String]
     ) -> Effect<Never, Never> {
         updateGalleryState(gid: gid) { galleryStateMO in
-            update(gid: gid, storedData: &galleryStateMO.contents, new: contents)
-            update(gid: gid, storedData: &galleryStateMO.originalContents, new: originalContents)
+            update(gid: gid, storedData: &galleryStateMO.imageURLs, new: imageURLs)
+            update(gid: gid, storedData: &galleryStateMO.originalImageURLs, new: originalImageURLs)
         }
     }
     func updatePreviews(gid: String, previews: [Int: String]) -> Effect<Never, Never> {

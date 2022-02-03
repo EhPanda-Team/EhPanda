@@ -49,8 +49,8 @@
     </entity>
     <entity name="GalleryStateMO" representedClassName=".GalleryStateMO" syncable="YES">
         <attribute name="comments" optional="YES" attributeType="Binary"/>
-        <attribute name="contents" optional="YES" attributeType="Binary"/>
         <attribute name="gid" attributeType="String" defaultValueString=""/>
+        <attribute name="imageURLs" optional="YES" attributeType="Binary"/>
         <attribute name="originalContents" optional="YES" attributeType="Binary"/>
         <attribute name="previewConfig" optional="YES" attributeType="Binary"/>
         <attribute name="previews" optional="YES" attributeType="Binary"/>

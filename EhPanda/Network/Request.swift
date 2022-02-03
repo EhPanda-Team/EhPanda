@@ -528,7 +528,7 @@ struct ThumbnailsRequest: Request {
     }
 }
 
-struct GalleryNormalContentsRequest: Request {
+struct GalleryNormalImageURLsRequest: Request {
     let thumbnails: [Int: String]
 
     var publisher: AnyPublisher<([Int: String], [Int: String]), AppError> {
@@ -536,22 +536,22 @@ struct GalleryNormalContentsRequest: Request {
             .flatMap { index, url in
                 URLSession.shared.dataTaskPublisher(for: url.safeURL()).genericRetry()
                     .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
-                    .tryMap { try Parser.parseGalleryNormalContent(doc: $0, index: index) }
+                    .tryMap { try Parser.parseGalleryNormalImageURL(doc: $0, index: index) }
             }
             .collect().map { tuples in
-                var contents = [Int: String]()
-                var originalContents = [Int: String]()
+                var imageURLs = [Int: String]()
+                var originalImageURLs = [Int: String]()
                 for (index, imageURL, originalImageURL) in tuples {
-                    contents[index] = imageURL
-                    originalContents[index] = originalImageURL
+                    imageURLs[index] = imageURL
+                    originalImageURLs[index] = originalImageURL
                 }
-                return (contents, originalContents)
+                return (imageURLs, originalImageURLs)
             }
             .mapError(mapAppError).eraseToAnyPublisher()
     }
 }
 
-struct GalleryNormalContentRefetchRequest: Request {
+struct GalleryNormalImageURLRefetchRequest: Request {
     let index: Int
     let pageNum: Int
     let galleryURL: String
@@ -559,7 +559,7 @@ struct GalleryNormalContentRefetchRequest: Request {
     let storedImageURL: String
 
     var publisher: AnyPublisher<([Int: String], HTTPURLResponse?), AppError> {
-        storedThumbnail().flatMap(renewThumbnail).flatMap(content)
+        storedThumbnail().flatMap(renewThumbnail).flatMap(imageURL)
             .genericRetry().map { imageURL1, imageURL2, response in
                 ([index: imageURL1 != storedImageURL ? imageURL1 : imageURL2], response)
             }
@@ -582,28 +582,28 @@ struct GalleryNormalContentRefetchRequest: Request {
             .tryMap { try Kanna.HTML(html: $0.data, encoding: .utf8) }
             .tryMap {
                 try (Parser.parseRenewedThumbnail(doc: $0, stored: stored),
-                     Parser.parseGalleryNormalContent(doc: $0, index: index).1)
+                     Parser.parseGalleryNormalImageURL(doc: $0, index: index).1)
             }
             .mapError(mapAppError).eraseToAnyPublisher()
     }
 
-    func content(thumbnailURL: URL, anotherImageURL: String)
+    func imageURL(thumbnailURL: URL, anotherImageURL: String)
     -> AnyPublisher<(String, String, HTTPURLResponse?), AppError> {
         URLSession.shared.dataTaskPublisher(for: thumbnailURL)
             .tryMap {
                 (try Kanna.HTML(html: $0.data, encoding: .utf8), $0.response as? HTTPURLResponse)
             }
             .tryMap { html, response in
-                (try Parser.parseGalleryNormalContent(doc: html, index: index), response)
+                (try Parser.parseGalleryNormalImageURL(doc: html, index: index), response)
             }
-            .map { content, response in
-                (anotherImageURL, content.1, response)
+            .map { imageURL, response in
+                (anotherImageURL, imageURL.1, response)
             }
             .mapError(mapAppError).eraseToAnyPublisher()
     }
 }
 
-struct GalleryMPVContentRequest: Request {
+struct GalleryMPVImageURLRequest: Request {
     let gid: Int
     let index: Int
     let mpvKey: String
