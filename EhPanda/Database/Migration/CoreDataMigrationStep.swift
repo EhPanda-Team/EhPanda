@@ -13,16 +13,14 @@ struct CoreDataMigrationStep {
     let destinationModel: NSManagedObjectModel
     let mappingModel: NSMappingModel
 
-    init(sourceVersion: CoreDataMigrationVersion, destinationVersion: CoreDataMigrationVersion) {
-        let sourceModel = NSManagedObjectModel.managedObjectModel(forResource: sourceVersion.rawValue)
-        let destinationModel = NSManagedObjectModel.managedObjectModel(forResource: destinationVersion.rawValue)
+    init(sourceVersion: CoreDataMigrationVersion, destinationVersion: CoreDataMigrationVersion) throws {
+        let sourceModel = try NSManagedObjectModel.managedObjectModel(forResource: sourceVersion.rawValue)
+        let destinationModel = try NSManagedObjectModel.managedObjectModel(forResource: destinationVersion.rawValue)
 
         guard let mappingModel = CoreDataMigrationStep.mappingModel(
             fromSourceModel: sourceModel, toDestinationModel: destinationModel
         ) else {
-            let message = "Expected modal mapping not present."
-            Logger.error(message)
-            fatalError(message)
+            throw AppError.databaseCorrupted("Expected modal mapping not present.")
         }
 
         self.sourceModel = sourceModel

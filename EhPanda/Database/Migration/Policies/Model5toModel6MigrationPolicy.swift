@@ -16,14 +16,12 @@ final class GalleryMO5toGalleryMO6MigrationPolicy: NSEntityMigrationPolicy {
         guard let destinationGalleryMO = manager.destinationInstances(
             forEntityMappingName: mapping.name, sourceInstances: [sourceInstance]
         ).first else {
-            let message = "Was expected a GalleryMO."
-            Logger.error(message)
-            fatalError(message)
+            throw AppError.databaseCorrupted("Was expected a GalleryMO.")
         }
         guard let coverURLString = sourceInstance.value(forKey: "coverURL") as? String,
               let galleryURLString = sourceInstance.value(forKey: "galleryURL") as? String,
               let coverURL = URL(string: coverURLString), let galleryURL = URL(string: galleryURLString)
-        else { return }
+        else { throw AppError.databaseCorrupted("Failed in resolving coverURL, galleryURL.") }
         destinationGalleryMO.setValue(coverURL, forKey: "coverURL")
         destinationGalleryMO.setValue(galleryURL, forKey: "galleryURL")
     }
@@ -37,15 +35,13 @@ final class GalleryDetailMO5toGalleryDetailMO6MigrationPolicy: NSEntityMigration
         guard let destinationGalleryDetailMO = manager.destinationInstances(
             forEntityMappingName: mapping.name, sourceInstances: [sourceInstance]
         ).first else {
-            let message = "Was expected a GalleryDetailMO."
-            Logger.error(message)
-            fatalError(message)
+            throw AppError.databaseCorrupted("Was expected a GalleryDetailMO.")
         }
         let parentURLString = sourceInstance.value(forKey: "parentURL") as? String
         let archiveURLString = sourceInstance.value(forKey: "archiveURL") as? String
         guard let coverURLString = sourceInstance.value(forKey: "coverURL") as? String,
               let coverURL = URL(string: coverURLString)
-        else { return }
+        else { throw AppError.databaseCorrupted("Failed in resolving coverURL.") }
         destinationGalleryDetailMO.setValue(URL(string: parentURLString ?? ""), forKey: "parentURL")
         destinationGalleryDetailMO.setValue(URL(string: archiveURLString ?? ""), forKey: "archiveURL")
         destinationGalleryDetailMO.setValue(coverURL, forKey: "coverURL")
@@ -60,9 +56,7 @@ final class GalleryStateMO5toGalleryStateMO6MigrationPolicy: NSEntityMigrationPo
         guard let destinationGalleryStateMO = manager.destinationInstances(
             forEntityMappingName: mapping.name, sourceInstances: [sourceInstance]
         ).first else {
-            let message = "Was expected a GalleryStateMO."
-            Logger.error(message)
-            fatalError(message)
+            throw AppError.databaseCorrupted("Was expected a GalleryStateMO.")
         }
         let previews = sourceInstance.value(forKey: "previews") as? [Int: String]
         let thumbnails = sourceInstance.value(forKey: "thumbnails") as? [Int: String]

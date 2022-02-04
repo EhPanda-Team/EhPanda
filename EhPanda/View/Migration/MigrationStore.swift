@@ -58,8 +58,7 @@ let migrationReducer = Reducer<MigrationState, MigrationAction, MigrationEnviron
 
     case .dropDatabase:
         state.databaseState = .loading
-        return .init(value: .dropDatabaseDone(.failure(.databaseCorrupted)))
-            .deferred(for: 1, scheduler: DispatchQueue.main).eraseToEffect()
+        return .none
 
     case .dropDatabaseDone(let result):
         switch result {

@@ -438,22 +438,18 @@ let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { 
         return .none
 
     case .syncReadingProgress:
-        guard state.gallery.id.isValidGID else { return .none }
         return environment.databaseClient
             .updateReadingProgress(gid: state.gallery.id, progress: .init(state.sliderValue)).fireAndForget()
 
     case .syncPreviewURLs(let previewURLs):
-        guard state.gallery.id.isValidGID else { return .none }
         return environment.databaseClient
             .updatePreviewURLs(gid: state.gallery.id, previewURLs: previewURLs).fireAndForget()
 
     case .syncThumbnailURLs(let thumbnailURLs):
-        guard state.gallery.id.isValidGID else { return .none }
         return environment.databaseClient
             .updateThumbnailURLs(gid: state.gallery.id, thumbnailURLs: thumbnailURLs).fireAndForget()
 
     case .syncImageURLs(let imageURLs, let originalImageURLs):
-        guard state.gallery.id.isValidGID else { return .none }
         return environment.databaseClient
             .updateImageURLs(gid: state.gallery.id, imageURLs: imageURLs, originalImageURLs: originalImageURLs)
             .fireAndForget()

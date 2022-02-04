@@ -9,17 +9,16 @@
 import CoreData
 
 extension NSPersistentStoreCoordinator {
-    static func destroyStore(at storeURL: URL) {
+    static func destroyStore(at storeURL: URL) throws {
         do {
             let persistentStoreCoordinator = NSPersistentStoreCoordinator(managedObjectModel: NSManagedObjectModel())
             try persistentStoreCoordinator.destroyPersistentStore(at: storeURL, ofType: NSSQLiteStoreType, options: nil)
         } catch let error {
             let message = ("Failed to destroy persistent store at \(storeURL), error: \(error).")
-            Logger.error(message)
-            fatalError(message)
+            throw AppError.databaseCorrupted(message)
         }
     }
-    static func replaceStore(at targetURL: URL, withStoreAt sourceURL: URL) {
+    static func replaceStore(at targetURL: URL, withStoreAt sourceURL: URL) throws {
         do {
             let persistentStoreCoordinator = NSPersistentStoreCoordinator(managedObjectModel: NSManagedObjectModel())
             try persistentStoreCoordinator.replacePersistentStore(
@@ -29,8 +28,7 @@ extension NSPersistentStoreCoordinator {
             )
         } catch let error {
             let message = "Failed to replace persistent store at \(targetURL) with \(sourceURL), error: \(error)."
-            Logger.error(message)
-            fatalError(message)
+            throw AppError.databaseCorrupted(message)
         }
     }
 
@@ -40,15 +38,14 @@ extension NSPersistentStoreCoordinator {
         )
     }
 
-    func addPersistentStore(at storeURL: URL, options: [AnyHashable: Any]) -> NSPersistentStore {
+    func addPersistentStore(at storeURL: URL, options: [AnyHashable: Any]) throws -> NSPersistentStore {
         do {
             return try addPersistentStore(
                 ofType: NSSQLiteStoreType, configurationName: nil, at: storeURL, options: options
             )
         } catch {
             let message = ("Failed to add persistent store to coordinator, error: \(error).")
-            Logger.error(message)
-            fatalError(message)
+            throw AppError.databaseCorrupted(message)
         }
     }
 }

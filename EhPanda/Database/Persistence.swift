@@ -22,41 +22,49 @@ struct PersistenceController {
 
 // MARK: Preparation
 extension PersistenceController {
-    func setup(completion: @escaping () -> Void) {
-        loadPersistentStore {
-            completion()
+    func prepare(completion: @escaping (Result<Void, AppError>) -> Void) {
+        do {
+           try loadPersistentStore(completion: completion)
+        } catch {
+            completion(.failure(error as? AppError ?? .databaseCorrupted(nil)))
         }
     }
-    private func loadPersistentStore(completion: @escaping () -> Void) {
-        migrateStoreIfNeeded {
-            container.loadPersistentStores { _, error in
-                guard error == nil else {
-                    let message = "Was unable to load store \(String(describing: error))."
-                    Logger.error(message)
-                    fatalError(message)
+    private func loadPersistentStore(completion: @escaping (Result<Void, AppError>) -> Void) throws {
+        try migrateStoreIfNeeded { result in
+            switch result {
+            case .success:
+                container.loadPersistentStores { _, error in
+                    guard error == nil else {
+                        let message = "Was unable to load store \(String(describing: error))."
+                        completion(.failure(.databaseCorrupted(message)))
+                        return
+                    }
+                    completion(.success(()))
                 }
-
-                completion()
+            case .failure(let error):
+                completion(.failure(error))
             }
         }
     }
-    private func migrateStoreIfNeeded(completion: @escaping () -> Void) {
+    private func migrateStoreIfNeeded(completion: @escaping (Result<Void, AppError>) -> Void) throws {
         guard let storeURL = container.persistentStoreDescriptions.first?.url else {
-            let message = "PersistentContainer was not set up properly."
-            Logger.error(message)
-            fatalError(message)
+            throw AppError.databaseCorrupted("PersistentContainer was not set up properly.")
         }
 
-        if migrator.requiresMigration(at: storeURL, toVersion: CoreDataMigrationVersion.current) {
+        if try migrator.requiresMigration(at: storeURL, toVersion: try CoreDataMigrationVersion.current()) {
             DispatchQueue.global(qos: .userInitiated).async {
-                migrator.migrateStore(at: storeURL, toVersion: CoreDataMigrationVersion.current)
+                do {
+                    try migrator.migrateStore(at: storeURL, toVersion: try CoreDataMigrationVersion.current())
+                } catch {
+                    completion(.failure(error as? AppError ?? .databaseCorrupted(nil)))
+                }
 
                 DispatchQueue.main.async {
-                    completion()
+                    completion(.success(()))
                 }
             }
         } else {
-            completion()
+            completion(.success(()))
         }
     }
 }

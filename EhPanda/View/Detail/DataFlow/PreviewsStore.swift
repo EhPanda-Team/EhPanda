@@ -86,12 +86,10 @@ let previewsReducer = Reducer<PreviewsState, PreviewsAction, PreviewsEnvironment
             return .none
 
         case .syncPreviewURLs(let previewURLs):
-            guard state.gallery.id.isValidGID else { return .none }
             return environment.databaseClient
                 .updatePreviewURLs(gid: state.gallery.id, previewURLs: previewURLs).fireAndForget()
 
         case .updateReadingProgress(let progress):
-            guard state.gallery.id.isValidGID else { return .none }
             return environment.databaseClient
                 .updateReadingProgress(gid: state.gallery.id, progress: progress).fireAndForget()
 

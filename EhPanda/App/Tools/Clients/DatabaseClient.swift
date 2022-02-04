@@ -20,9 +20,7 @@ extension DatabaseClient {
     static let live: Self = .init(
         prepareDatabase: {
             Future { promise in
-                PersistenceController.shared.setup {
-                    promise(.success(()))
-                }
+                PersistenceController.shared.prepare(completion: promise)
             }
             .eraseToAnyPublisher()
             .receive(on: DispatchQueue.main)
@@ -178,6 +176,7 @@ extension DatabaseClient {
 // MARK: Fetch
 extension DatabaseClient {
     func fetchGallery(gid: String) -> Gallery? {
+        guard gid.isValidGID else { return nil }
         var entity: Gallery?
         AppUtil.dispatchMainSync {
             entity = fetch(entityType: GalleryMO.self, gid: gid)?.toEntity()
@@ -185,6 +184,7 @@ extension DatabaseClient {
         return entity
     }
     func fetchGalleryDetail(gid: String) -> GalleryDetail? {
+        guard gid.isValidGID else { return nil }
         var entity: GalleryDetail?
         AppUtil.dispatchMainSync {
             entity = fetch(entityType: GalleryDetailMO.self, gid: gid)?.toEntity()
@@ -202,7 +202,8 @@ extension DatabaseClient {
         .eraseToEffect()
     }
     func fetchGalleryState(gid: String) -> Effect<GalleryState, Never> {
-        Future { promise in
+        guard gid.isValidGID else { return .none }
+        return Future { promise in
             DispatchQueue.main.async {
                 promise(.success(
                     fetchOrCreate(entityType: GalleryStateMO.self, gid: gid).toEntity()
@@ -242,14 +243,16 @@ extension DatabaseClient {
         fetchAppEnv().map(\.quickSearchWords)
     }
     func fetchGalleryPreviewURLs(gid: String) -> Effect<[Int: URL], Never> {
-        fetchGalleryState(gid: gid).map(\.previewURLs)
+        guard gid.isValidGID else { return .none }
+        return fetchGalleryState(gid: gid).map(\.previewURLs)
     }
 }
 
 // MARK: UpdateGallery
 extension DatabaseClient {
     func updateGallery(gid: String, key: String, value: Any?) -> Effect<Never, Never> {
-        .fireAndForget {
+        guard gid.isValidGID else { return .none }
+        return .fireAndForget {
             DispatchQueue.main.async {
                 update(
                     entityType: GalleryMO.self, gid: gid, createIfNil: true,
@@ -259,7 +262,8 @@ extension DatabaseClient {
         }
     }
     func updateLastOpenDate(gid: String, date: Date = .now) -> Effect<Never, Never> {
-        updateGallery(gid: gid, key: "lastOpenDate", value: date)
+        guard gid.isValidGID else { return .none }
+        return updateGallery(gid: gid, key: "lastOpenDate", value: date)
     }
     func clearHistoryGalleries() -> Effect<Never, Never> {
         .fireAndForget {
@@ -276,7 +280,7 @@ extension DatabaseClient {
     func cacheGalleries(_ galleries: [Gallery]) -> Effect<Never, Never> {
         .fireAndForget {
             DispatchQueue.main.async {
-                for gallery in galleries {
+                for gallery in galleries.filter({ $0.id.isValidGID }) {
                     let storedMO = fetch(
                         entityType: GalleryMO.self, gid: gallery.gid
                     ) { managedObject in
@@ -310,7 +314,8 @@ extension DatabaseClient {
 // MARK: UpdateGalleryDetail
 extension DatabaseClient {
     func cacheGalleryDetail(_ detail: GalleryDetail) -> Effect<Never, Never> {
-        .fireAndForget {
+        guard detail.gid.isValidGID else { return .none }
+        return .fireAndForget {
             DispatchQueue.main.async {
                 let storedMO = fetch(
                     entityType: GalleryDetailMO.self, gid: detail.gid
@@ -347,7 +352,8 @@ extension DatabaseClient {
 // MARK: UpdateGalleryState
 extension DatabaseClient {
     func updateGalleryState(gid: String, commitChanges: @escaping (GalleryStateMO) -> Void) -> Effect<Never, Never> {
-        .fireAndForget {
+        guard gid.isValidGID else { return .none }
+        return .fireAndForget {
             DispatchQueue.main.async {
                 update(
                     entityType: GalleryStateMO.self, gid: gid, createIfNil: true,
@@ -357,21 +363,26 @@ extension DatabaseClient {
         }
     }
     func updateGalleryState(gid: String, key: String, value: Any?) -> Effect<Never, Never> {
-        updateGalleryState(gid: gid) { stateMO in
+        guard gid.isValidGID else { return .none }
+        return updateGalleryState(gid: gid) { stateMO in
             stateMO.setValue(value, forKeyPath: key)
         }
     }
     func updateGalleryTags(gid: String, tags: [GalleryTag]) -> Effect<Never, Never> {
-        updateGalleryState(gid: gid, key: "tags", value: tags.toData())
+        guard gid.isValidGID else { return .none }
+        return updateGalleryState(gid: gid, key: "tags", value: tags.toData())
     }
     func updatePreviewConfig(gid: String, config: PreviewConfig) -> Effect<Never, Never> {
-        updateGalleryState(gid: gid, key: "previewConfig", value: config.toData())
+        guard gid.isValidGID else { return .none }
+        return updateGalleryState(gid: gid, key: "previewConfig", value: config.toData())
     }
     func updateReadingProgress(gid: String, progress: Int) -> Effect<Never, Never> {
-        updateGalleryState(gid: gid, key: "readingProgress", value: Int64(progress))
+        guard gid.isValidGID else { return .none }
+        return updateGalleryState(gid: gid, key: "readingProgress", value: Int64(progress))
     }
     func updateComments(gid: String, comments: [GalleryComment]) -> Effect<Never, Never> {
-        updateGalleryState(gid: gid, key: "comments", value: comments.toData())
+        guard gid.isValidGID else { return .none }
+        return updateGalleryState(gid: gid, key: "comments", value: comments.toData())
     }
 
     func removeImageURLs() -> Effect<Never, Never> {
@@ -389,20 +400,23 @@ extension DatabaseClient {
         }
     }
     func updateThumbnailURLs(gid: String, thumbnailURLs: [Int: URL]) -> Effect<Never, Never> {
-        updateGalleryState(gid: gid) { galleryStateMO in
+        guard gid.isValidGID else { return .none }
+        return updateGalleryState(gid: gid) { galleryStateMO in
             update(gid: gid, storedData: &galleryStateMO.thumbnailURLs, new: thumbnailURLs)
         }
     }
     func updateImageURLs(
         gid: String, imageURLs: [Int: URL], originalImageURLs: [Int: URL]
     ) -> Effect<Never, Never> {
-        updateGalleryState(gid: gid) { galleryStateMO in
+        guard gid.isValidGID else { return .none }
+        return updateGalleryState(gid: gid) { galleryStateMO in
             update(gid: gid, storedData: &galleryStateMO.imageURLs, new: imageURLs)
             update(gid: gid, storedData: &galleryStateMO.originalImageURLs, new: originalImageURLs)
         }
     }
     func updatePreviewURLs(gid: String, previewURLs: [Int: URL]) -> Effect<Never, Never> {
-        updateGalleryState(gid: gid) { galleryStateMO in
+        guard gid.isValidGID else { return .none }
+        return updateGalleryState(gid: gid) { galleryStateMO in
             update(gid: gid, storedData: &galleryStateMO.previewURLs, new: previewURLs)
         }
     }
@@ -410,7 +424,7 @@ extension DatabaseClient {
     private func update<T: Codable>(
         gid: String, storedData: inout Data?, new: [Int: T]
     ) {
-        guard !new.isEmpty else { return }
+        guard !new.isEmpty, gid.isValidGID else { return }
 
         if let storedDictionary = storedData?.toObject() as [Int: T]? {
             storedData = storedDictionary.merging(
