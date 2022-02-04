@@ -343,19 +343,14 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
 
         case .fetchTagTranslator:
             guard state.tagTranslatorLoadingState != .loading,
-                  let preferredLanguage = Locale.preferredLanguages.first,
-                  let language = TranslatableLanguage.allCases.compactMap({ lang in
-                      preferredLanguage.contains(lang.languageCode) ? lang : nil
-                  }).first
-            else {
-                state.tagTranslator = TagTranslator()
-                return .init(value: .syncTagTranslator)
-            }
+                  !state.tagTranslator.hasCustomTranslations,
+                  let language = TranslatableLanguage.current
+            else { return .none }
             state.tagTranslatorLoadingState = .loading
 
             var databaseEffect: Effect<SettingAction, Never>?
             if state.tagTranslator.language != language {
-                state.tagTranslator = TagTranslator()
+                state.tagTranslator = TagTranslator(language: language)
                 databaseEffect = .init(value: .syncTagTranslator)
             }
             let updatedDate = state.tagTranslator.updatedDate
@@ -457,6 +452,14 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
 
         case .account:
             return .none
+
+        case .general(.onTranslationsFilePicked(let url)):
+            return environment.fileClient.importTagTranslator(url).map(SettingAction.fetchTagTranslatorDone)
+
+        case .general(.onRemoveCustomTranslations):
+            state.tagTranslator.hasCustomTranslations = false
+            state.tagTranslator.contents = .init()
+            return .init(value: .syncTagTranslator)
 
         case .general:
             return .none

@@ -77,11 +77,13 @@
 
 // MARK: ConfirmationDialog
 "confirmation.dialog.title.dropDatabase" = "You will lose all your data in this app.\nAre you sure to drop the database?";
+"confirmation.dialog.title.removeCustomTranslations" = "Are you sure to remove your custom translations?";
 "confirmation.dialog.title.logout" = "確定要登出嗎？";
 "confirmation.dialog.title.delete" = "Are you sure to delete this item?";
 "confirmation.dialog.title.clear" = "確定要清空嗎？";
 "confirmation.dialog.title.reset" = "確定要重置嗎？";
 "confirmation.dialog.button.dropDatabase" = "Drop the database";
+"confirmation.dialog.button.remove" = "Remove";
 "confirmation.dialog.button.logout" = "登出";
 "confirmation.dialog.button.delete" = "Delete";
 "confirmation.dialog.button.clear" = "清空";
@@ -184,8 +186,11 @@
 "general.setting.view.title.detectsLinksFromClipboard" = "偵測剪貼簿中的連結";
 "general.setting.view.title.backgroundBlurRadius" = "Background blur radius";
 "general.setting.view.button.logs" = "日誌";
+"general.setting.view.button.importCustomTranslations" = "Import custom translations";
+"general.setting.view.button.removeCustomTranslations" = "Remove custom translations";
 "general.setting.view.button.clearImageCaches" = "清空圖片快取";
 "general.setting.view.value.defaultLanguageDescription" = "N/A";
+"general.setting.view.section.title.tagsTranslation" = "Tags translation";
 "general.setting.view.section.title.navigation" = "導航";
 "general.setting.view.section.title.security" = "安全";
 "general.setting.view.section.title.caches" = "快取";

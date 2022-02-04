@@ -77,11 +77,13 @@
 
 // MARK: ConfirmationDialog
 "confirmation.dialog.title.dropDatabase" = "本アプリでのすべてのデータを失うことになります。\n本当にデータベースを削除してもよろしいですか？";
+"confirmation.dialog.title.removeCustomTranslations" = "本当にカスタム翻訳を削除してもよろしいですか？";
 "confirmation.dialog.title.logout" = "本当にログアウトしてもよろしいですか？";
 "confirmation.dialog.title.delete" = "本当にこれを削除してもよろしいですか？";
 "confirmation.dialog.title.clear" = "本当に削除してもよろしいですか？";
 "confirmation.dialog.title.reset" = "本当に戻してもよろしいですか？";
-"confirmation.dialog.button.dropDatabase" = "削除";
+"confirmation.dialog.button.dropDatabase" = "データベースを削除";
+"confirmation.dialog.button.remove" = "削除";
 "confirmation.dialog.button.logout" = "ログアウト";
 "confirmation.dialog.button.delete" = "削除";
 "confirmation.dialog.button.clear" = "削除";
@@ -184,8 +186,11 @@
 "general.setting.view.title.detectsLinksFromClipboard" = "クリップボードからリンクを探知";
 "general.setting.view.title.backgroundBlurRadius" = "バッググラウンドぼかし度";
 "general.setting.view.button.logs" = "ログ";
+"general.setting.view.button.importCustomTranslations" = "カスタム翻訳を取り込む";
+"general.setting.view.button.removeCustomTranslations" = "カスタム翻訳を削除";
 "general.setting.view.button.clearImageCaches" = "画像キャッシュを削除";
 "general.setting.view.value.defaultLanguageDescription" = "無効";
+"general.setting.view.section.title.tagsTranslation" = "タグの翻訳";
 "general.setting.view.section.title.navigation" = "ナビゲーション";
 "general.setting.view.section.title.security" = "セキュリティ";
 "general.setting.view.section.title.caches" = "キャッシュ";

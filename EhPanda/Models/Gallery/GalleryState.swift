@@ -21,6 +21,21 @@ struct GalleryState: Codable {
     var originalImageURLs = [Int: URL]()
     var thumbnailURLs = [Int: URL]()
 }
+extension GalleryState: CustomStringConvertible {
+    var description: String {
+        .init(describing: [
+            "gid": gid,
+            "tagsCount": tags.count,
+            "readingProgress": readingProgress,
+            "previewURLsCount": previewURLs.count,
+            "previewConfig": String(describing: previewConfig),
+            "commentsCount": comments.count,
+            "imageURLsCount": imageURLs.count,
+            "originalImageURLsCount": originalImageURLs.count,
+            "thumbnailURLsCount": thumbnailURLs.count
+        ])
+    }
+}
 
 struct GalleryTag: Codable, Equatable, Identifiable {
     var id: String { namespace }

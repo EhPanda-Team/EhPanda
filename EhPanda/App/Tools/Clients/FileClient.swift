@@ -12,6 +12,7 @@ struct FileClient {
     let createFile: (String, Data?) -> Bool
     let fetchLogs: () -> Effect<Result<[Log], AppError>, Never>
     let deleteLog: (String) -> Effect<Result<String, AppError>, Never>
+    let importTagTranslator: (URL) -> Effect<Result<TagTranslator, AppError>, Never>
 }
 
 extension FileClient {
@@ -66,7 +67,27 @@ extension FileClient {
                 promise(.success(fileName))
             }
             .eraseToAnyPublisher()
-            .subscribe(on: DispatchQueue.global())
+            .receive(on: DispatchQueue.main)
+            .catchToEffect()
+        },
+        importTagTranslator: { url in
+            Future { promise in
+                DispatchQueue.global().async {
+                    guard let data = try? Data(contentsOf: url),
+                          let dict = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
+                    else {
+                        promise(.failure(.parseFailed))
+                        return
+                    }
+                    let translations = Parser.parseTranslations(dict: dict)
+                    guard !translations.isEmpty else {
+                        promise(.failure(.parseFailed))
+                        return
+                    }
+                    promise(.success(.init(hasCustomTranslations: true, contents: translations)))
+                }
+            }
+            .eraseToAnyPublisher()
             .receive(on: DispatchQueue.main)
             .catchToEffect()
         }

@@ -38,6 +38,15 @@
         }
       },
       {
+        "package": "FilePicker",
+        "repositoryURL": "https://github.com/markrenaud/FilePicker.git",
+        "state": {
+          "branch": null,
+          "revision": "720f8cb5ca0c0efc982ed381afc84ba3e8b3214e",
+          "version": "1.0.1"
+        }
+      },
+      {
         "package": "Kanna",
         "repositoryURL": "https://github.com/tid-kijyun/Kanna.git",
         "state": {

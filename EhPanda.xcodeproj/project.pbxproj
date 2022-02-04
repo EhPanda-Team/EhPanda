@@ -33,6 +33,9 @@
 		AB24C55C2767565A0085C33A /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB24C55B2767565A0085C33A /* HomeView.swift */; };
 		AB24C566276758E30085C33A /* GalleryCardCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB24C565276758E30085C33A /* GalleryCardCell.swift */; };
 		AB26F59027ABF21000AB3468 /* Model5toModel6.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = AB26F58F27ABF21000AB3468 /* Model5toModel6.xcmappingmodel */; };
+		AB26F59427ACC6CD00AB3468 /* TagTranslator.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB26F59327ACC6CD00AB3468 /* TagTranslator.swift */; };
+		AB26F59627ACCA1800AB3468 /* AppEnv.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB26F59527ACCA1800AB3468 /* AppEnv.swift */; };
+		AB26F59927ACDB4200AB3468 /* FilePicker in Frameworks */ = {isa = PBXBuildFile; productRef = AB26F59827ACDB4200AB3468 /* FilePicker */; };
 		AB2CED64268AB6AE003130F7 /* GalleryMO+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB2CED63268AB6AE003130F7 /* GalleryMO+CoreDataProperties.swift */; };
 		AB3072D2276D734800EFF242 /* SubSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB3072D1276D734800EFF242 /* SubSection.swift */; };
 		AB3072D4276E19AA00EFF242 /* FrontpageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB3072D3276E19AA00EFF242 /* FrontpageView.swift */; };
@@ -260,6 +263,8 @@
 		AB253B4726AB08B500F95275 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Localizable.strings; sourceTree = "<group>"; };
 		AB253B4826AB08B500F95275 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		AB26F58F27ABF21000AB3468 /* Model5toModel6.xcmappingmodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcmappingmodel; path = Model5toModel6.xcmappingmodel; sourceTree = "<group>"; };
+		AB26F59327ACC6CD00AB3468 /* TagTranslator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagTranslator.swift; sourceTree = "<group>"; };
+		AB26F59527ACCA1800AB3468 /* AppEnv.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppEnv.swift; sourceTree = "<group>"; };
 		AB2CED63268AB6AE003130F7 /* GalleryMO+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GalleryMO+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		AB3072D1276D734800EFF242 /* SubSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubSection.swift; sourceTree = "<group>"; };
 		AB3072D3276E19AA00EFF242 /* FrontpageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrontpageView.swift; sourceTree = "<group>"; };
@@ -460,6 +465,7 @@
 				AB60D0E9274C7ECE00F899AB /* WaterfallGrid in Frameworks */,
 				ABC4A0792751B40E00968A4F /* Kingfisher in Frameworks */,
 				AB0F68AF26A6D92F00AC3A54 /* DeprecatedAPI in Frameworks */,
+				AB26F59927ACDB4200AB3468 /* FilePicker in Frameworks */,
 				AB6505A026B0027800F91E9D /* SwiftUIPager in Frameworks */,
 				AB21CCA0274B4F0C00C115B1 /* SwiftyBeaver in Frameworks */,
 				ABD49D5D277C6C9D003D1A07 /* SFSafeSymbols in Frameworks */,
@@ -752,7 +758,9 @@
 				ABF75F3E25A19CD200544D29 /* User.swift */,
 				ABA732DE25A852D800B3D9AB /* Filter.swift */,
 				ABEA1FE525A9B40B002966B9 /* Setting.swift */,
+				AB26F59527ACCA1800AB3468 /* AppEnv.swift */,
 				AB7BF2B627A9652F001865A3 /* Greeting.swift */,
+				AB26F59327ACC6CD00AB3468 /* TagTranslator.swift */,
 			);
 			path = Persistent;
 			sourceTree = "<group>";
@@ -1125,6 +1133,7 @@
 				AB86AC0F27831AD100E61E6A /* ComposableArchitecture */,
 				ABBB2635278FB888007B6149 /* SwiftUINavigation */,
 				ABD970B627A2A6BD001693B0 /* Rswift */,
+				AB26F59827ACDB4200AB3468 /* FilePicker */,
 			);
 			productName = EhPanda;
 			productReference = ABC3C7542593696C00E0C11B /* EhPanda.app */;
@@ -1199,6 +1208,7 @@
 				AB86AC0E27831AD100E61E6A /* XCRemoteSwiftPackageReference "swift-composable-architecture" */,
 				ABBB2634278FB888007B6149 /* XCRemoteSwiftPackageReference "swiftui-navigation" */,
 				ABD970B527A2A6BD001693B0 /* XCRemoteSwiftPackageReference "R.swift.Library" */,
+				AB26F59727ACDB4200AB3468 /* XCRemoteSwiftPackageReference "FilePicker" */,
 			);
 			productRefGroup = ABC3C7552593696C00E0C11B /* Products */;
 			projectDirPath = "";
@@ -1395,6 +1405,7 @@
 				AB7BF2B727A9652F001865A3 /* Greeting.swift in Sources */,
 				AB4FD2C1268AB83300A95968 /* GalleryDetailMO+CoreDataProperties.swift in Sources */,
 				ABAFFE4026A86E3000EE8661 /* MeasureTool.swift in Sources */,
+				AB26F59427ACC6CD00AB3468 /* TagTranslator.swift in Sources */,
 				AB0929CE2781AADA00F107CA /* DatabaseClient.swift in Sources */,
 				AB6DE897268822390087C579 /* LogsView.swift in Sources */,
 				AB7BF31D27ABE028001865A3 /* FileManager+ApplicationSupport.swift in Sources */,
@@ -1461,6 +1472,7 @@
 				ABD49D67277EAC90003D1A07 /* URLUtil.swift in Sources */,
 				ABBB2638278FBD2F007B6149 /* SwiftUINavigation_Extension.swift in Sources */,
 				AB10117E26986B7D00C2C1A9 /* GalleryStateMO+CoreDataProperties.swift in Sources */,
+				AB26F59627ACCA1800AB3468 /* AppEnv.swift in Sources */,
 				ABF45AE525F3313D00ECB568 /* PostCommentView.swift in Sources */,
 				AB358313269D7E89009466A5 /* DFRequest.swift in Sources */,
 				AB706F90278A5F680025A48A /* AppDelegateClient.swift in Sources */,
@@ -1889,6 +1901,14 @@
 				kind = branch;
 			};
 		};
+		AB26F59727ACDB4200AB3468 /* XCRemoteSwiftPackageReference "FilePicker" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/markrenaud/FilePicker.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
 		AB60D0E7274C7ECE00F899AB /* XCRemoteSwiftPackageReference "WaterfallGrid" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/paololeonardi/WaterfallGrid.git";
@@ -1996,6 +2016,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = AB21CC9E274B4F0C00C115B1 /* XCRemoteSwiftPackageReference "SwiftyBeaver" */;
 			productName = SwiftyBeaver;
+		};
+		AB26F59827ACDB4200AB3468 /* FilePicker */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AB26F59727ACDB4200AB3468 /* XCRemoteSwiftPackageReference "FilePicker" */;
+			productName = FilePicker;
 		};
 		AB60D0E8274C7ECE00F899AB /* WaterfallGrid */ = {
 			isa = XCSwiftPackageProductDependency;

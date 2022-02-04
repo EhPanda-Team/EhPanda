@@ -41,38 +41,3 @@ extension AppEnv: ManagedObjectConvertible {
         return appEnvMO
     }
 }
-
-struct AppEnv: Codable {
-    let user: User
-    let setting: Setting
-    let searchFilter: Filter
-    let globalFilter: Filter
-    let watchedFilter: Filter
-    let tagTranslator: TagTranslator
-    let historyKeywords: [String]
-    let quickSearchWords: [QuickSearchWord]
-}
-
-struct TagTranslator: Codable, Equatable {
-    var language: TranslatableLanguage = .japanese
-    var updatedDate: Date = .distantPast
-    var contents = [String: String]()
-
-    private func lookup(text: String) -> String {
-        guard let translatedText = contents[text],
-              !translatedText.isEmpty
-        else { return text }
-
-        return translatedText
-    }
-    func tryTranslate(text: String, returnOriginal: Bool) -> String {
-        guard !returnOriginal else { return text }
-        if let range = text.range(of: ":") {
-            let before = text[...range.lowerBound]
-            let after = String(text[range.upperBound...])
-            let result = before + lookup(text: after)
-            return String(result)
-        }
-        return lookup(text: text)
-    }
-}

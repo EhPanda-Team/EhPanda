@@ -13,6 +13,7 @@ struct GeneralSettingState: Equatable {
     enum Route {
         case logs
         case clearCache
+        case removeCustomTranslations
     }
 
     @BindableState var route: Route?
@@ -28,6 +29,8 @@ enum GeneralSettingAction: BindableAction {
     case binding(BindingAction<GeneralSettingState>)
     case setNavigation(GeneralSettingState.Route?)
     case clearSubStates
+    case onTranslationsFilePicked(URL)
+    case onRemoveCustomTranslations
 
     case clearWebImageCache
     case checkPasscodeSetting
@@ -63,6 +66,12 @@ let generalSettingReducer = Reducer<GeneralSettingState, GeneralSettingAction, G
         case .clearSubStates:
             state.logsState = .init()
             return .init(value: .logs(.teardown))
+
+        case .onTranslationsFilePicked:
+            return .none
+
+        case .onRemoveCustomTranslations:
+            return .none
 
         case .clearWebImageCache:
             return .merge(

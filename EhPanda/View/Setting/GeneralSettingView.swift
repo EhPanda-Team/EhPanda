@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import FilePicker
 import ComposableArchitecture
 
 struct GeneralSettingView: View {
@@ -13,6 +14,7 @@ struct GeneralSettingView: View {
     @ObservedObject private var viewStore: ViewStore<GeneralSettingState, GeneralSettingAction>
     private let tagTranslatorLoadingState: LoadingState
     private let tagTranslatorEmpty: Bool
+    private let tagTranslatorHasCustomTranslations: Bool
     @Binding private var translatesTags: Bool
     @Binding private var redirectsLinksToSelectedHost: Bool
     @Binding private var detectsLinksFromClipboard: Bool
@@ -21,7 +23,8 @@ struct GeneralSettingView: View {
 
     init(
         store: Store<GeneralSettingState, GeneralSettingAction>,
-        tagTranslatorLoadingState: LoadingState, tagTranslatorEmpty: Bool, translatesTags: Binding<Bool>,
+        tagTranslatorLoadingState: LoadingState, tagTranslatorEmpty: Bool,
+        tagTranslatorHasCustomTranslations: Bool, translatesTags: Binding<Bool>,
         redirectsLinksToSelectedHost: Binding<Bool>, detectsLinksFromClipboard: Binding<Bool>,
         backgroundBlurRadius: Binding<Double>, autoLockPolicy: Binding<AutoLockPolicy>
     ) {
@@ -29,6 +32,7 @@ struct GeneralSettingView: View {
         viewStore = ViewStore(store)
         self.tagTranslatorLoadingState = tagTranslatorLoadingState
         self.tagTranslatorEmpty = tagTranslatorEmpty
+        self.tagTranslatorHasCustomTranslations = tagTranslatorHasCustomTranslations
         _translatesTags = translatesTags
         _redirectsLinksToSelectedHost = redirectsLinksToSelectedHost
         _detectsLinksFromClipboard = detectsLinksFromClipboard
@@ -52,6 +56,12 @@ struct GeneralSettingView: View {
                     }
                     .foregroundStyle(.tint)
                 }
+                Button(R.string.localizable.generalSettingViewButtonLogs()) {
+                    viewStore.send(.setNavigation(.logs))
+                }
+                .foregroundColor(.primary).withArrow()
+            }
+            Section(R.string.localizable.generalSettingViewSectionTitleTagsTranslation()) {
                 HStack {
                     Text(R.string.localizable.generalSettingViewTitleTranslatesTags())
                     Spacer()
@@ -65,10 +75,20 @@ struct GeneralSettingView: View {
                     }
                     Toggle("", isOn: $translatesTags).frame(width: 50)
                 }
-                Button(R.string.localizable.generalSettingViewButtonLogs()) {
-                    viewStore.send(.setNavigation(.logs))
+                FilePicker(
+                    types: [.json], allowMultiple: false,
+                    title: R.string.localizable.generalSettingViewButtonImportCustomTranslations()
+                ) { urls in
+                    if let url = urls.first {
+                        viewStore.send(.onTranslationsFilePicked(url))
+                    }
                 }
-                .foregroundColor(.primary).withArrow()
+                if tagTranslatorHasCustomTranslations {
+                    Button(
+                        R.string.localizable.generalSettingViewButtonRemoveCustomTranslations(),
+                        role: .destructive, action: { viewStore.send(.setNavigation(.removeCustomTranslations)) }
+                    )
+                }
             }
             Section(R.string.localizable.generalSettingViewSectionTitleNavigation()) {
                 Toggle(
@@ -116,6 +136,15 @@ struct GeneralSettingView: View {
             }
         }
         .confirmationDialog(
+            message: R.string.localizable.confirmationDialogTitleRemoveCustomTranslations(),
+            unwrapping: viewStore.binding(\.$route),
+            case: /GeneralSettingState.Route.removeCustomTranslations
+        ) {
+            Button(R.string.localizable.confirmationDialogButtonRemove(), role: .destructive) {
+                viewStore.send(.onRemoveCustomTranslations)
+            }
+        }
+        .confirmationDialog(
             message: R.string.localizable.confirmationDialogTitleClear(),
             unwrapping: viewStore.binding(\.$route),
             case: /GeneralSettingState.Route.clearCache
@@ -124,6 +153,9 @@ struct GeneralSettingView: View {
                 viewStore.send(.clearWebImageCache)
             }
         }
+        .animation(.default, value: tagTranslatorHasCustomTranslations)
+        .animation(.default, value: tagTranslatorLoadingState)
+        .animation(.default, value: tagTranslatorEmpty)
         .onAppear {
             viewStore.send(.checkPasscodeSetting)
             viewStore.send(.calculateWebImageDiskCache)
@@ -157,6 +189,7 @@ struct GeneralSettingView_Previews: PreviewProvider {
                 ),
                 tagTranslatorLoadingState: .idle,
                 tagTranslatorEmpty: false,
+                tagTranslatorHasCustomTranslations: false,
                 translatesTags: .constant(false),
                 redirectsLinksToSelectedHost: .constant(false),
                 detectsLinksFromClipboard: .constant(false),

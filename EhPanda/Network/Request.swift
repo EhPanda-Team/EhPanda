@@ -6,7 +6,6 @@
 //
 
 import Kanna
-import OpenCC
 import Combine
 import Foundation
 import ComposableArchitecture
@@ -93,9 +92,6 @@ struct TagTranslatorRequest: Request {
         formatter.locale = Locale(identifier: "en_US_POSIX")
         return formatter
     }
-    var isChinese: Bool {
-        [.simplifiedChinese, .traditionalChinese].contains(language)
-    }
 
     var publisher: AnyPublisher<TagTranslator, AppError> {
         URLSession.shared.dataTaskPublisher(for: language.checkUpdateURL)
@@ -112,75 +108,14 @@ struct TagTranslatorRequest: Request {
             .flatMap { date in
                 URLSession.shared.dataTaskPublisher(for: language.downloadURL)
                     .tryMap { data, _ in
-                        guard let dict = try? JSONSerialization
-                                .jsonObject(with: data) as? [String: Any],
-                              isChinese ? dict["version"] as? Int == 5 : true
+                        guard let dict = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
                         else { throw AppError.parseFailed }
-                        let translations = parseTranslations(dict: dict)
+                        let translations = Parser.parseTranslations(dict: dict, language: language)
                         guard !translations.isEmpty else { throw AppError.parseFailed }
-
-                        return TagTranslator(
-                            language: language,
-                            updatedDate: date,
-                            contents: translations
-                        )
+                        return TagTranslator(language: language, updatedDate: date, contents: translations)
                     }
             }
             .mapError(mapAppError).eraseToAnyPublisher()
-    }
-
-    func parseTranslations(dict: [String: Any]) -> [String: String] {
-        if isChinese {
-            let result = parseChineseTranslations(dict: dict)
-            return language != .traditionalChinese ? result
-            : convertToTraditionalChinese(dict: result)
-        } else {
-            return dict as? [String: String] ?? [:]
-        }
-    }
-    func parseChineseTranslations(dict: [String: Any]) -> [String: String] {
-        let categories = dict["data"] as? [[String: Any]] ?? []
-        let translationsBeforeMapping = categories.compactMap {
-            $0["data"] as? [String: Any]
-        }.reduce([], +)
-
-        var translations = [String: String]()
-        translationsBeforeMapping.forEach { translation in
-            let originalText = translation.key
-            let dict = translation.value as? [String: Any]
-
-            if let translatedText = dict?["name"] as? String {
-                translations[originalText] = translatedText
-            }
-        }
-        return translations
-    }
-    func convertToTraditionalChinese(dict: [String: String]) -> [String: String] {
-        guard let preferredLanguage = Locale.preferredLanguages.first else { return [:] }
-
-        var translations = [String: String]()
-
-        var options: ChineseConverter.Options = [.traditionalize]
-        if preferredLanguage.contains("HK") {
-            options = [.traditionalize, .hkStandard]
-        } else if preferredLanguage.contains("TW") {
-            options = [.traditionalize, .twStandard, .twIdiom]
-        }
-
-        guard let converter = try? ChineseConverter(options: options)
-        else { return [:] }
-
-        dict.forEach { key, value in
-            translations[key] = converter.convert(value)
-        }
-        customConversion(dict: &translations)
-
-        return translations
-    }
-    func customConversion(dict: inout [String: String]) {
-        if dict["full color"] != nil {
-            dict["full color"] = "全彩"
-        }
     }
 }
 

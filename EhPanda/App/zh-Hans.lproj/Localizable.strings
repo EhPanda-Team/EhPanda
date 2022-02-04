@@ -77,11 +77,13 @@
 
 // MARK: ConfirmationDialog
 "confirmation.dialog.title.dropDatabase" = "你将失去这个 App 中所有的数据。\n确定要丢弃数据库吗？";
+"confirmation.dialog.title.removeCustomTranslations" = "确定要移除自定义翻译吗？";
 "confirmation.dialog.title.logout" = "确定要退出登录吗？";
 "confirmation.dialog.title.delete" = "确定要删除吗？";
 "confirmation.dialog.title.clear" = "确定要清空吗？";
 "confirmation.dialog.title.reset" = "确定要重置吗？";
 "confirmation.dialog.button.dropDatabase" = "丢弃数据库";
+"confirmation.dialog.button.remove" = "移除";
 "confirmation.dialog.button.logout" = "退出登录";
 "confirmation.dialog.button.delete" = "删除";
 "confirmation.dialog.button.clear" = "清空";
@@ -182,10 +184,13 @@
 "general.setting.view.title.translatesTags" = "翻译标签";
 "general.setting.view.title.redirectsLinksToTheSelectedHost" = "重定向链接到选定的站点";
 "general.setting.view.title.detectsLinksFromClipboard" = "从剪切板检测链接";
-"general.setting.view.title.backgroundBlurRadius" = "进入后台模糊处理度数";
+"general.setting.view.title.backgroundBlurRadius" = "后台模糊处理度";
 "general.setting.view.button.logs" = "日志";
+"general.setting.view.button.importCustomTranslations" = "导入自定义翻译";
+"general.setting.view.button.removeCustomTranslations" = "移除自定义翻译";
 "general.setting.view.button.clearImageCaches" = "清空图片缓存";
 "general.setting.view.value.defaultLanguageDescription" = "无效";
+"general.setting.view.section.title.tagsTranslation" = "标签翻译";
 "general.setting.view.section.title.navigation" = "导航";
 "general.setting.view.section.title.security" = "安全";
 "general.setting.view.section.title.caches" = "缓存";

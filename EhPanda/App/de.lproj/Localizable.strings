@@ -77,11 +77,13 @@
 
 // MARK: ConfirmationDialog
 "confirmation.dialog.title.dropDatabase" = "You will lose all your data in this app.\nAre you sure to drop the database?";
+"confirmation.dialog.title.removeCustomTranslations" = "Are you sure to remove your custom translations?";
 "confirmation.dialog.title.logout" = "Bist du sicher das du dich ausloggen möchtest?";
 "confirmation.dialog.title.delete" = "Are you sure to delete this item?";
 "confirmation.dialog.title.clear" = "Bist du sicher das du das löschen möchtest?";
 "confirmation.dialog.title.reset" = "Bist du sicher?";
 "confirmation.dialog.button.dropDatabase" = "Drop the database";
+"confirmation.dialog.button.remove" = "Remove";
 "confirmation.dialog.button.logout" = "Ausloggen";
 "confirmation.dialog.button.delete" = "Delete";
 "confirmation.dialog.button.clear" = "Löschen";
@@ -184,8 +186,11 @@
 "general.setting.view.title.detectsLinksFromClipboard" = "Übernimmt automatisch Links aus der Zwischenablage";
 "general.setting.view.title.backgroundBlurRadius" = "Background blur radius";
 "general.setting.view.button.logs" = "Logs";
+"general.setting.view.button.importCustomTranslations" = "Import custom translations";
+"general.setting.view.button.removeCustomTranslations" = "Remove custom translations";
 "general.setting.view.button.clearImageCaches" = "Zwischengespeicherte Bilder (Cache) löschen";
 "general.setting.view.value.defaultLanguageDescription" = "N/A";
+"general.setting.view.section.title.tagsTranslation" = "Tags translation";
 "general.setting.view.section.title.navigation" = "Navigation";
 "general.setting.view.section.title.security" = "Sicherheit";
 "general.setting.view.section.title.caches" = "Caches";
