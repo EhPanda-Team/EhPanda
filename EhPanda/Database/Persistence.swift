@@ -29,6 +29,27 @@ extension PersistenceController {
             completion(.failure(error as? AppError ?? .databaseCorrupted(nil)))
         }
     }
+    func rebuild(completion: @escaping (Result<Void, AppError>) -> Void) {
+        guard let storeURL = container.persistentStoreDescriptions.first?.url else {
+            completion(.failure(.databaseCorrupted("PersistentContainer was not set up properly.")))
+            return
+        }
+        DispatchQueue.global().async {
+            do {
+                try NSPersistentStoreCoordinator.destroyStore(at: storeURL)
+            } catch {
+                completion(.failure(error as? AppError ?? .databaseCorrupted(nil)))
+            }
+            container.loadPersistentStores { _, error in
+                guard error == nil else {
+                    let message = "Was unable to load store \(String(describing: error))."
+                    completion(.failure(.databaseCorrupted(message)))
+                    return
+                }
+                completion(.success(()))
+            }
+        }
+    }
     private func loadPersistentStore(completion: @escaping (Result<Void, AppError>) -> Void) throws {
         try migrateStoreIfNeeded { result in
             switch result {
@@ -52,16 +73,13 @@ extension PersistenceController {
         }
 
         if try migrator.requiresMigration(at: storeURL, toVersion: try CoreDataMigrationVersion.current()) {
-            DispatchQueue.global(qos: .userInitiated).async {
+            DispatchQueue.global().async {
                 do {
                     try migrator.migrateStore(at: storeURL, toVersion: try CoreDataMigrationVersion.current())
                 } catch {
                     completion(.failure(error as? AppError ?? .databaseCorrupted(nil)))
                 }
-
-                DispatchQueue.main.async {
-                    completion(.success(()))
-                }
+                completion(.success(()))
             }
         } else {
             completion(.success(()))

@@ -58,7 +58,9 @@ let migrationReducer = Reducer<MigrationState, MigrationAction, MigrationEnviron
 
     case .dropDatabase:
         state.databaseState = .loading
-        return .none
+        return environment.databaseClient.dropDatabase()
+            .delay(for: .milliseconds(500), scheduler: DispatchQueue.main)
+            .eraseToEffect().map(MigrationAction.dropDatabaseDone)
 
     case .dropDatabaseDone(let result):
         switch result {

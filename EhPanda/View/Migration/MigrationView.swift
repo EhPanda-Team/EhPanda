@@ -33,6 +33,7 @@ struct MigrationView: View {
             }
             .opacity(error != nil ? 1 : 0)
         }
+        .animation(.default, value: viewStore.databaseState)
         .confirmationDialog(
             message: R.string.localizable.confirmationDialogTitleDropDatabase(),
             unwrapping: viewStore.binding(\.$route),
