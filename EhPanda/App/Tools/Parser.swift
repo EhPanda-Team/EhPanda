@@ -357,6 +357,7 @@ struct Parser {
                 .text?.contains("Add to Favorites") == false
             let gjText = link.at_xpath("//h1 [@id='gj']")?.text
             let jpnTitle = gjText?.isEmpty != false ? nil : gjText
+            let parentURLString = infoPanel[1].isValidURL ? infoPanel[1] : ""
 
             tmpGalleryDetail = GalleryDetail(
                 gid: gid,
@@ -373,7 +374,7 @@ struct Parser {
                 postedDate: postedDate,
                 coverURL: coverURL,
                 archiveURL: arcAndTor.0,
-                parentURL: URL(string: infoPanel[1]),
+                parentURL: URL(string: parentURLString),
                 favoritedCount: favoritedCount,
                 pageCount: pageCount,
                 sizeCount: sizeCount,

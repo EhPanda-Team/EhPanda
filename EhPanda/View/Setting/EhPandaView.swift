@@ -31,6 +31,7 @@ struct EhPandaView: View {
         .init(urlString: "https://github.com/mac-cain13/R.swift", text: "R.swift"),
         .init(urlString: "https://github.com/rebeloper/AlertKit", text: "AlertKit"),
         .init(urlString: "https://github.com/Co2333/Colorful", text: "Colorful"),
+        .init(urlString: "https://github.com/markrenaud/FilePicker", text: "FilePicker"),
         .init(urlString: "https://github.com/onevcat/Kingfisher", text: "Kingfisher"),
         .init(urlString: "https://github.com/fermoya/SwiftUIPager", text: "SwiftUIPager"),
         .init(urlString: "https://github.com/SwiftyBeaver/SwiftyBeaver", text: "SwiftyBeaver"),
