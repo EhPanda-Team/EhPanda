@@ -61,6 +61,7 @@ enum FavoritesAction: BindableAction {
     case setNavigation(FavoritesState.Route?)
     case setFavoritesIndex(Int)
     case clearSubStates
+    case onNotLoginViewButtonTapped
 
     case performJumpPage
     case presentJumpPageAlert
@@ -116,7 +117,10 @@ let favoritesReducer = Reducer<FavoritesState, FavoritesAction, FavoritesEnviron
 
         case .clearSubStates:
             state.detailState = .init()
-            return .init(value: .detail(.cancelFetching))
+            return .init(value: .detail(.teardown))
+
+        case .onNotLoginViewButtonTapped:
+            return .none
 
         case .performJumpPage:
             guard let index = Int(state.jumpPageIndex),

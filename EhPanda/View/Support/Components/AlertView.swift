@@ -48,6 +48,22 @@ struct FetchMoreFooter: View {
     }
 }
 
+struct NotLoginView: View {
+    private let action: () -> Void
+
+    init(action: @escaping () -> Void) {
+        self.action = action
+    }
+
+    var body: some View {
+        AlertView(
+            symbol: .personCropCircleBadgeQuestionmarkFill,
+            message: R.string.localizable.notLoginViewTitleNeedLogin(),
+            buttonTitle: R.string.localizable.notLoginViewButtonLogin(), action: action
+        )
+    }
+}
+
 struct ErrorView: View {
     private let error: AppError
     private let buttonTitle: String

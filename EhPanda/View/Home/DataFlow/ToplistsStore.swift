@@ -67,7 +67,7 @@ enum ToplistsAction: BindableAction {
     case presentJumpPageAlert
     case setJumpPageAlertFocused(Bool)
 
-    case cancelFetching
+    case teardown
     case fetchGalleries(Int? = nil)
     case fetchGalleriesDone(ToplistsType, Result<(PageNumber, [Gallery]), AppError>)
     case fetchMoreGalleries
@@ -115,7 +115,7 @@ let toplistsReducer = Reducer<ToplistsState, ToplistsAction, ToplistsEnvironment
 
         case .clearSubStates:
             state.detailState = .init()
-            return .init(value: .detail(.cancelFetching))
+            return .init(value: .detail(.teardown))
 
         case .performJumpPage:
             guard let index = Int(state.jumpPageIndex),
@@ -133,7 +133,7 @@ let toplistsReducer = Reducer<ToplistsState, ToplistsAction, ToplistsEnvironment
             state.jumpPageAlertFocused = isFocused
             return .none
 
-        case .cancelFetching:
+        case .teardown:
             return .cancel(id: ToplistsState.CancelID())
 
         case .fetchGalleries(let pageNum):

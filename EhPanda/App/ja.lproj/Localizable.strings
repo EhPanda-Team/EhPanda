@@ -63,6 +63,8 @@
 // MARK: AlertView
 "loading.view.title.loading" = "読み込み中...";
 "loading.view.title.preparingDatabase" = "データベース準備中...";
+"not.login.view.title.needLogin" = "本機能をご利用になるにはログインが必要です";
+"not.login.view.button.login" = "ログイン";
 "error.view.button.retry" = "やり直す";
 "error.view.button.dropDatabase" = "データベースを削除";
 "error.view.title.tryLater" = "しばらくしてからもう一度お試しください";

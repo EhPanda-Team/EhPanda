@@ -63,6 +63,8 @@
 // MARK: AlertView
 "loading.view.title.loading" = "Loading...";
 "loading.view.title.preparingDatabase" = "Preparing the database...";
+"not.login.view.title.needLogin" = "You need to login to access this feature.";
+"not.login.view.button.login" = "Login";
 "error.view.button.retry" = "Retry";
 "error.view.button.dropDatabase" = "Drop the database";
 "error.view.title.tryLater" = "Please try again later.";

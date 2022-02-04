@@ -33,7 +33,7 @@ enum ArchivesAction: BindableAction {
 
     case syncGalleryFunds(String, String)
 
-    case cancelFetching
+    case teardown
     case fetchArchive(String, URL, URL)
     case fetchArchiveDone(String, URL, Result<(GalleryArchive, String?, String?), AppError>)
     case fetchArchiveFunds(String, URL)
@@ -61,7 +61,7 @@ let archivesReducer = Reducer<ArchivesState, ArchivesAction, ArchivesEnvironment
         return environment.databaseClient
             .updateGalleryFunds(galleryPoints: galleryPoints, credits: credits).fireAndForget()
 
-    case .cancelFetching:
+    case .teardown:
         return .cancel(id: ArchivesState.CancelID())
 
     case .fetchArchive(let gid, let galleryURL, let archiveURL):

@@ -63,6 +63,8 @@
 // MARK: AlertView
 "loading.view.title.loading" = "加载中...";
 "loading.view.title.preparingDatabase" = "正在准备数据库...";
+"not.login.view.title.needLogin" = "你需要登录才能使用该功能";
+"not.login.view.button.login" = "登录";
 "error.view.button.retry" = "重试";
 "error.view.button.dropDatabase" = "丢弃数据库";
 "error.view.title.tryLater" = "请稍后再试";

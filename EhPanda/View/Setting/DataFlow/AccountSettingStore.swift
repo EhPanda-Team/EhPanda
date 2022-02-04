@@ -115,8 +115,8 @@ let accountSettingReducer = Reducer<AccountSettingState, AccountSettingAction, A
             state.loginState = .init()
             state.ehSettingState = .init()
             return .merge(
-                .init(value: .login(.cancelFetching)),
-                .init(value: .ehSetting(.cancelFetching))
+                .init(value: .login(.teardown)),
+                .init(value: .ehSetting(.teardown))
             )
 
         case .loadCookies:

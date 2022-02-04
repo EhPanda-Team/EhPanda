@@ -31,7 +31,7 @@ enum TorrentsAction: BindableAction {
     case copyText(String)
     case presentTorrentActivity(String, Data)
 
-    case cancelFetching
+    case teardown
     case fetchTorrent(String, URL)
     case fetchTorrentDone(String, Result<Data, AppError>)
     case fetchGalleryTorrents(String, String)
@@ -70,7 +70,7 @@ let torrentsReducer = Reducer<TorrentsState, TorrentsAction, TorrentsEnvironment
         return DataRequest(url: torrentURL).effect.map({ TorrentsAction.fetchTorrentDone(hash, $0) })
             .cancellable(id: TorrentsState.CancelID())
 
-    case .cancelFetching:
+    case .teardown:
         return .cancel(id: TorrentsState.CancelID())
 
     case .fetchTorrentDone(let hash, let result):

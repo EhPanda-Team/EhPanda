@@ -52,7 +52,7 @@ enum QuickSearchAction: BindableAction {
     case deleteWordWithOffsets(IndexSet)
     case moveWord(IndexSet, Int)
 
-    case cancelFetching
+    case teardown
     case fetchQuickSearchWords
     case fetchQuickSearchWordsDone([QuickSearchWord])
 }
@@ -122,7 +122,7 @@ let quickSearchReducer = Reducer<QuickSearchState, QuickSearchAction, QuickSearc
         state.quickSearchWords.move(fromOffsets: source, toOffset: destination)
         return .init(value: .syncQuickSearchWords)
 
-    case .cancelFetching:
+    case .teardown:
         return .cancel(id: QuickSearchState.CancelID())
 
     case .fetchQuickSearchWords:

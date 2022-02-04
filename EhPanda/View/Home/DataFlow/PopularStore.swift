@@ -37,7 +37,7 @@ enum PopularAction: BindableAction {
     case clearSubStates
     case onFiltersButtonTapped
 
-    case cancelFetching
+    case teardown
     case fetchGalleries
     case fetchGalleriesDone(Result<[Gallery], AppError>)
 
@@ -72,12 +72,12 @@ let popularReducer = Reducer<PopularState, PopularAction, PopularEnvironment>.co
 
         case .clearSubStates:
             state.detailState = .init()
-            return .init(value: .detail(.cancelFetching))
+            return .init(value: .detail(.teardown))
 
         case .onFiltersButtonTapped:
             return .none
 
-        case .cancelFetching:
+        case .teardown:
             return .cancel(id: PopularState.CancelID())
 
         case .fetchGalleries:

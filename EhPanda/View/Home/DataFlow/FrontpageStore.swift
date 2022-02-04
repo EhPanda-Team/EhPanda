@@ -54,7 +54,7 @@ enum FrontpageAction: BindableAction {
     case presentJumpPageAlert
     case setJumpPageAlertFocused(Bool)
 
-    case cancelFetching
+    case teardown
     case fetchGalleries(Int? = nil)
     case fetchGalleriesDone(Result<(PageNumber, [Gallery]), AppError>)
     case fetchMoreGalleries
@@ -97,7 +97,7 @@ let frontpageReducer = Reducer<FrontpageState, FrontpageAction, FrontpageEnviron
 
         case .clearSubStates:
             state.detailState = .init()
-            return .init(value: .detail(.cancelFetching))
+            return .init(value: .detail(.teardown))
 
         case .onFiltersButtonTapped:
             return .none
@@ -116,7 +116,7 @@ let frontpageReducer = Reducer<FrontpageState, FrontpageAction, FrontpageEnviron
             state.jumpPageAlertFocused = isFocused
             return .none
 
-        case .cancelFetching:
+        case .teardown:
             return .cancel(id: FrontpageState.CancelID())
 
         case .fetchGalleries(let pageNum):

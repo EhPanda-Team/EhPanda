@@ -91,8 +91,8 @@ let appRouteReducer = Reducer<AppRouteState, AppRouteAction, AppRouteEnvironment
             state.filtersState = .init()
             state.searchRequestState = .init()
             return .merge(
-                .init(value: .detail(.cancelFetching)),
-                .init(value: .searchRequest(.cancelFetching))
+                .init(value: .detail(.teardown)),
+                .init(value: .searchRequest(.teardown))
             )
 
         case .detectClipboardURL:

@@ -36,19 +36,25 @@ struct FavoritesView: View {
 
     var body: some View {
         NavigationView {
-            GenericList(
-                galleries: viewStore.galleries ?? [],
-                setting: setting,
-                pageNumber: viewStore.pageNumber,
-                loadingState: viewStore.loadingState ?? .idle,
-                footerLoadingState: viewStore.footerLoadingState ?? .idle,
-                fetchAction: { viewStore.send(.fetchGalleries()) },
-                fetchMoreAction: { viewStore.send(.fetchMoreGalleries) },
-                navigateAction: { viewStore.send(.setNavigation(.detail($0))) },
-                translateAction: {
-                    tagTranslator.tryTranslate(text: $0, returnOriginal: setting.translatesTags)
+            ZStack {
+                if CookiesUtil.didLogin {
+                    GenericList(
+                        galleries: viewStore.galleries ?? [],
+                        setting: setting,
+                        pageNumber: viewStore.pageNumber,
+                        loadingState: viewStore.loadingState ?? .idle,
+                        footerLoadingState: viewStore.footerLoadingState ?? .idle,
+                        fetchAction: { viewStore.send(.fetchGalleries()) },
+                        fetchMoreAction: { viewStore.send(.fetchMoreGalleries) },
+                        navigateAction: { viewStore.send(.setNavigation(.detail($0))) },
+                        translateAction: {
+                            tagTranslator.tryTranslate(text: $0, returnOriginal: setting.translatesTags)
+                        }
+                    )
+                } else {
+                    NotLoginView(action: { viewStore.send(.onNotLoginViewButtonTapped) })
                 }
-            )
+            }
             .sheet(unwrapping: viewStore.binding(\.$route), case: /FavoritesState.Route.quickSearch) { _ in
                 QuickSearchView(
                     store: store.scope(state: \.quickSearchState, action: FavoritesAction.quickSearch)
@@ -72,7 +78,7 @@ struct FavoritesView: View {
                 viewStore.send(.fetchGalleries())
             }
             .onAppear {
-                if viewStore.galleries?.isEmpty != false {
+                if viewStore.galleries?.isEmpty != false && CookiesUtil.didLogin {
                     DispatchQueue.main.async {
                         viewStore.send(.fetchGalleries())
                     }

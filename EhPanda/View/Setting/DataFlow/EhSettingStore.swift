@@ -38,7 +38,7 @@ enum EhSettingAction: BindableAction {
     case setKeyboardHidden
     case setDefaultProfile(Int)
 
-    case cancelFetching
+    case teardown
     case fetchEhSetting
     case fetchEhSettingDone(Result<EhSetting, AppError>)
     case submitChanges
@@ -71,7 +71,7 @@ let ehSettingReducer = Reducer<EhSettingState, EhSettingAction, EhSettingEnviron
         )
         .fireAndForget()
 
-    case .cancelFetching:
+    case .teardown:
         return .cancel(id: EhSettingState.CancelID())
 
     case .fetchEhSetting:

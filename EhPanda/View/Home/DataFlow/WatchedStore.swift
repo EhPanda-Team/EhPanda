@@ -47,12 +47,13 @@ enum WatchedAction: BindableAction {
     case setNavigation(WatchedState.Route?)
     case clearSubStates
     case onFiltersButtonTapped
+    case onNotLoginViewButtonTapped
 
     case performJumpPage
     case presentJumpPageAlert
     case setJumpPageAlertFocused(Bool)
 
-    case cancelFetching
+    case teardown
     case fetchGalleries(Int? = nil, String? = nil)
     case fetchGalleriesDone(Result<(PageNumber, [Gallery]), AppError>)
     case fetchMoreGalleries
@@ -98,11 +99,14 @@ let watchedReducer = Reducer<WatchedState, WatchedAction, WatchedEnvironment>.co
             state.detailState = .init()
             state.quickSearchState = .init()
             return .merge(
-                .init(value: .detail(.cancelFetching)),
-                .init(value: .quickSearch(.cancelFetching))
+                .init(value: .detail(.teardown)),
+                .init(value: .quickSearch(.teardown))
             )
 
         case .onFiltersButtonTapped:
+            return .none
+
+        case .onNotLoginViewButtonTapped:
             return .none
 
         case .performJumpPage:
@@ -119,7 +123,7 @@ let watchedReducer = Reducer<WatchedState, WatchedAction, WatchedEnvironment>.co
             state.jumpPageAlertFocused = isFocused
             return .none
 
-        case .cancelFetching:
+        case .teardown:
             return .cancel(id: WatchedState.CancelID())
 
         case .fetchGalleries(let pageNum, let keyword):

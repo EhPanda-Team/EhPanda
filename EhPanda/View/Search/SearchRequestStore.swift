@@ -53,7 +53,7 @@ enum SearchRequestAction: BindableAction {
     case presentJumpPageAlert
     case setJumpPageAlertFocused(Bool)
 
-    case cancelFetching
+    case teardown
     case fetchGalleries(Int? = nil, String? = nil)
     case fetchGalleriesDone(Result<(PageNumber, [Gallery]), AppError>)
     case fetchMoreGalleries
@@ -105,8 +105,8 @@ let searchRequestReducer = Reducer<SearchRequestState, SearchRequestAction, Sear
             state.detailState = .init()
             state.quickSearchState = .init()
             return .merge(
-                .init(value: .detail(.cancelFetching)),
-                .init(value: .quickSearch(.cancelFetching))
+                .init(value: .detail(.teardown)),
+                .init(value: .quickSearch(.teardown))
             )
 
         case .onFiltersButtonTapped:
@@ -126,7 +126,7 @@ let searchRequestReducer = Reducer<SearchRequestState, SearchRequestAction, Sear
             state.jumpPageAlertFocused = isFocused
             return .none
 
-        case .cancelFetching:
+        case .teardown:
             return .cancel(id: SearchRequestState.CancelID())
 
         case .fetchGalleries(let pageNum, let keyword):

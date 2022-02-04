@@ -70,7 +70,7 @@ let historyReducer = Reducer<HistoryState, HistoryAction, HistoryEnvironment>.co
 
         case .clearSubStates:
             state.detailState = .init()
-            return .init(value: .detail(.cancelFetching))
+            return .init(value: .detail(.teardown))
 
         case .clearHistoryGalleries:
             return .merge(

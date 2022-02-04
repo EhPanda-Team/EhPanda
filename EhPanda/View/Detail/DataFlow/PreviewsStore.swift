@@ -42,7 +42,7 @@ enum PreviewsAction: BindableAction {
     case syncPreviewURLs([Int: URL])
     case updateReadingProgress(Int)
 
-    case cancelFetching
+    case teardown
     case fetchDatabaseInfos
     case fetchDatabaseInfosDone(GalleryState)
     case fetchPreviewURLs(Int)
@@ -93,7 +93,7 @@ let previewsReducer = Reducer<PreviewsState, PreviewsAction, PreviewsEnvironment
             return environment.databaseClient
                 .updateReadingProgress(gid: state.gallery.id, progress: progress).fireAndForget()
 
-        case .cancelFetching:
+        case .teardown:
             return .cancel(id: PreviewsState.CancelID())
 
         case .fetchDatabaseInfos:

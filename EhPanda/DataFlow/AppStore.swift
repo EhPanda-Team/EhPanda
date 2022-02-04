@@ -194,6 +194,20 @@ let appReducerCore = Reducer<AppState, AppAction, AppEnvironment> { state, actio
             .search(.searchRequest(.onFiltersButtonTapped)):
         return .init(value: .appRoute(.setNavigation(.filters)))
 
+    case .home(.watched(.onNotLoginViewButtonTapped)), .favorites(.onNotLoginViewButtonTapped):
+        var effects: [Effect<AppAction, Never>] = [
+            environment.hapticClient.generateFeedback(.soft).fireAndForget(),
+            .init(value: .tabBar(.setTabBarItemType(.setting)))
+        ]
+        effects.append(.init(value: .setting(.setNavigation(.account))))
+        if !environment.cookiesClient.didLogin {
+            effects.append(
+                .init(value: .setting(.account(.setNavigation(.login))))
+                    .delay(for: .milliseconds(200), scheduler: DispatchQueue.main).eraseToEffect()
+            )
+        }
+        return .merge(effects)
+
     case .home:
         return .none
 

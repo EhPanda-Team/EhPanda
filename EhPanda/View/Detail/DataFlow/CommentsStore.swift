@@ -43,7 +43,7 @@ enum CommentsAction: BindableAction {
 
     case updateReadingProgress(String, Int)
 
-    case cancelFetching
+    case teardown
     case postComment(URL, String? = nil)
     case voteComment(String, String, String, String, Int)
     case performCommentActionDone(Result<Any, AppError>)
@@ -127,7 +127,7 @@ let commentsReducer = Reducer<CommentsState, CommentsAction, CommentsEnvironment
         return environment.databaseClient
             .updateReadingProgress(gid: gid, progress: progress).fireAndForget()
 
-    case .cancelFetching:
+    case .teardown:
         return .cancel(id: CommentsState.CancelID())
 
     case .postComment(let galleryURL, let commentID):

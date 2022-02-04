@@ -81,7 +81,7 @@ enum DetailAction: BindableAction {
     case saveGalleryHistory
     case updateReadingProgress(Int)
 
-    case cancelFetching
+    case teardown
     case fetchDatabaseInfos(String)
     case fetchDatabaseInfosDone(GalleryState)
     case fetchGalleryDetail
@@ -146,10 +146,10 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
                 .init(value: .setupPreviewsState),
                 .init(value: .setupReadingState),
                 .init(value: .reading(.teardown)),
-                .init(value: .archives(.cancelFetching)),
-                .init(value: .torrents(.cancelFetching)),
-                .init(value: .previews(.cancelFetching)),
-                .init(value: .comments(.cancelFetching))
+                .init(value: .archives(.teardown)),
+                .init(value: .torrents(.teardown)),
+                .init(value: .previews(.teardown)),
+                .init(value: .comments(.teardown))
             )
 
         case .onPostCommentAppear:
@@ -225,7 +225,7 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
             return environment.databaseClient
                 .updateReadingProgress(gid: state.gallery.id, progress: progress).fireAndForget()
 
-        case .cancelFetching:
+        case .teardown:
             return .cancel(id: DetailState.CancelID())
 
         case .fetchDatabaseInfos(let gid):

@@ -29,19 +29,25 @@ struct WatchedView: View {
     }
 
     var body: some View {
-        GenericList(
-            galleries: viewStore.galleries,
-            setting: setting,
-            pageNumber: viewStore.pageNumber,
-            loadingState: viewStore.loadingState,
-            footerLoadingState: viewStore.footerLoadingState,
-            fetchAction: { viewStore.send(.fetchGalleries()) },
-            fetchMoreAction: { viewStore.send(.fetchMoreGalleries) },
-            navigateAction: { viewStore.send(.setNavigation(.detail($0))) },
-            translateAction: {
-                tagTranslator.tryTranslate(text: $0, returnOriginal: !setting.translatesTags)
+        ZStack {
+            if CookiesUtil.didLogin {
+                GenericList(
+                    galleries: viewStore.galleries,
+                    setting: setting,
+                    pageNumber: viewStore.pageNumber,
+                    loadingState: viewStore.loadingState,
+                    footerLoadingState: viewStore.footerLoadingState,
+                    fetchAction: { viewStore.send(.fetchGalleries()) },
+                    fetchMoreAction: { viewStore.send(.fetchMoreGalleries) },
+                    navigateAction: { viewStore.send(.setNavigation(.detail($0))) },
+                    translateAction: {
+                        tagTranslator.tryTranslate(text: $0, returnOriginal: !setting.translatesTags)
+                    }
+                )
+            } else {
+                NotLoginView(action: { viewStore.send(.onNotLoginViewButtonTapped) })
             }
-        )
+        }
         .sheet(unwrapping: viewStore.binding(\.$route), case: /WatchedState.Route.quickSearch) { _ in
             QuickSearchView(
                 store: store.scope(state: \.quickSearchState, action: WatchedAction.quickSearch)
@@ -66,7 +72,7 @@ struct WatchedView: View {
             viewStore.send(.fetchGalleries())
         }
         .onAppear {
-            if viewStore.galleries.isEmpty {
+            if viewStore.galleries.isEmpty && CookiesUtil.didLogin {
                 DispatchQueue.main.async {
                     viewStore.send(.fetchGalleries())
                 }

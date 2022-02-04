@@ -40,7 +40,7 @@ enum LoginAction: BindableAction {
     case setNavigation(LoginState.Route?)
     case onTextFieldSubmitted
 
-    case cancelFetching
+    case teardown
     case login
     case loginDone(Result<HTTPURLResponse?, AppError>)
 }
@@ -71,7 +71,7 @@ let loginReducer = Reducer<LoginState, LoginAction, LoginEnvironment> { state, a
         }
         return .none
 
-    case .cancelFetching:
+    case .teardown:
         return .cancel(id: LoginState.CancelID())
 
     case .login:

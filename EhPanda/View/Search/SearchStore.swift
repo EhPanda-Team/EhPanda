@@ -120,9 +120,9 @@ let searchReducer = Reducer<SearchState, SearchAction, SearchEnvironment>.combin
             state.quickSearchState = .init()
             state.detailState = .init()
             return .merge(
-                .init(value: .searchRequest(.cancelFetching)),
-                .init(value: .quickSearch(.cancelFetching)),
-                .init(value: .detail(.cancelFetching))
+                .init(value: .searchRequest(.teardown)),
+                .init(value: .quickSearch(.teardown)),
+                .init(value: .detail(.teardown))
             )
 
         case .onFiltersButtonTapped:
