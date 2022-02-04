@@ -62,6 +62,7 @@ struct ControlPanel: View {
                     isReversed: setting.readingDirection == .rightToLeft,
                     fetchPreviewURLsAction: fetchPreviewURLsAction
                 )
+                .animation(.default, value: showsSliderPreview)
                 .offset(y: showsPanel ? 0 : 50)
             }
         }

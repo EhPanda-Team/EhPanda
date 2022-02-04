@@ -88,7 +88,7 @@ extension AppError: LocalizedError {
             return R.string.localizable.errorViewTitleIpBanned(interval.description)
         case .expunged(let reason):
             switch reason {
-            case Defaults.Response.galleryUnavailable:
+            case R.string.constant.websiteResponseGalleryUnavailable():
                 return R.string.localizable.errorViewTitleGalleryUnavailable()
             default:
                 return reason

@@ -36,6 +36,7 @@
 		AB26F59427ACC6CD00AB3468 /* TagTranslator.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB26F59327ACC6CD00AB3468 /* TagTranslator.swift */; };
 		AB26F59627ACCA1800AB3468 /* AppEnv.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB26F59527ACCA1800AB3468 /* AppEnv.swift */; };
 		AB26F59927ACDB4200AB3468 /* FilePicker in Frameworks */ = {isa = PBXBuildFile; productRef = AB26F59827ACDB4200AB3468 /* FilePicker */; };
+		AB26F59B27AD125A00AB3468 /* Constant.strings in Resources */ = {isa = PBXBuildFile; fileRef = AB26F59A27AD125A00AB3468 /* Constant.strings */; };
 		AB2CED64268AB6AE003130F7 /* GalleryMO+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB2CED63268AB6AE003130F7 /* GalleryMO+CoreDataProperties.swift */; };
 		AB3072D2276D734800EFF242 /* SubSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB3072D1276D734800EFF242 /* SubSection.swift */; };
 		AB3072D4276E19AA00EFF242 /* FrontpageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB3072D3276E19AA00EFF242 /* FrontpageView.swift */; };
@@ -265,6 +266,7 @@
 		AB26F58F27ABF21000AB3468 /* Model5toModel6.xcmappingmodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcmappingmodel; path = Model5toModel6.xcmappingmodel; sourceTree = "<group>"; };
 		AB26F59327ACC6CD00AB3468 /* TagTranslator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagTranslator.swift; sourceTree = "<group>"; };
 		AB26F59527ACCA1800AB3468 /* AppEnv.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppEnv.swift; sourceTree = "<group>"; };
+		AB26F59A27AD125A00AB3468 /* Constant.strings */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; path = Constant.strings; sourceTree = "<group>"; };
 		AB2CED63268AB6AE003130F7 /* GalleryMO+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GalleryMO+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		AB3072D1276D734800EFF242 /* SubSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubSection.swift; sourceTree = "<group>"; };
 		AB3072D3276E19AA00EFF242 /* FrontpageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrontpageView.swift; sourceTree = "<group>"; };
@@ -658,6 +660,7 @@
 				AB0929C12781589000F107CA /* Clients */,
 				ABD49D65277EAC7E003D1A07 /* Utilities */,
 				ABCD2F0D25976B95008E5A20 /* Parser.swift */,
+				ABC3C76D2593699A00E0C11B /* Defaults.swift */,
 				AB38A0CA25CA993D00764D64 /* ColorCodable.swift */,
 				ABBB2670279AFA61007B6149 /* EnvironmentKeys.swift */,
 			);
@@ -701,6 +704,7 @@
 			isa = PBXGroup;
 			children = (
 				ABA732D825A8018A00B3D9AB /* Extensions.swift */,
+				ABC3C7762593699A00E0C11B /* ViewModifiers.swift */,
 				AB706F7F278981370025A48A /* AlertKit_Extension.swift */,
 				AB7BF2D927AA78CF001865A3 /* Reducer_Extension.swift */,
 				ABBB26392792588F007B6149 /* TTProgressHUD_Extension.swift */,
@@ -922,14 +926,13 @@
 			isa = PBXGroup;
 			children = (
 				ABC3C76B2593699A00E0C11B /* EhPandaApp.swift */,
-				ABC3C76D2593699A00E0C11B /* Defaults.swift */,
-				ABC3C7762593699A00E0C11B /* ViewModifiers.swift */,
 				AB40CFE52598423E00D1DC9A /* Tools */,
 				ABEE0AFC2595C6F800C997AE /* Localizable.strings */,
 				ABC3C7692593699A00E0C11B /* Assets.xcassets */,
 				AB47FDA625BC823F0007765D /* Icons */,
 				ABC3C76E2593699A00E0C11B /* Info.plist */,
 				AB7E6B3225D24FE00035CC68 /* InfoPlist.strings */,
+				AB26F59A27AD125A00AB3468 /* Constant.strings */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -1241,6 +1244,7 @@
 				AB86AC072782F76000E61E6A /* AppIcon_Default@2x.png in Resources */,
 				ABD5FDD4263D05110021A4C6 /* .swiftlint.yml in Resources */,
 				AB86AC032782F76000E61E6A /* AppIcon_Default@3x.png in Resources */,
+				AB26F59B27AD125A00AB3468 /* Constant.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

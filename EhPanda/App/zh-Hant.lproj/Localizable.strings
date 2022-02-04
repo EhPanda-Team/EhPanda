@@ -250,6 +250,8 @@
 "ehpanda.view.button.altStoreSource" = "AltStore 源";
 "ehpanda.view.description.version" = "版本";
 "ehpanda.view.section.title.specialThanks" = "Special thanks";
+"ehpanda.view.section.title.codeLevelContributors" = "Code-level contributors";
+"ehpanda.view.section.title.translationContributors" = "Translation contributors";
 "ehpanda.view.section.title.acknowledgements" = "致謝";
 
 // MARK: DetailView

@@ -1405,7 +1405,7 @@ extension Parser {
                 )
             }
 
-            if let href = link["href"] {
+            if let href = link["href"], let url = URL(string: href) {
                 if let imgSrc = link.at_xpath("//img")?["src"],
                    let imgURL = URL(string: imgSrc)
                 {
@@ -1418,7 +1418,7 @@ extension Parser {
                                 type: .doubleLinkedImg,
                                 link: content.link,
                                 imgURL: content.imgURL,
-                                secondLink: href,
+                                secondLink: url,
                                 secondImgURL: imgURL
                             )
                         )
@@ -1426,7 +1426,7 @@ extension Parser {
                         contents.append(
                             CommentContent(
                                 type: .linkedImg,
-                                link: href,
+                                link: url,
                                 imgURL: imgURL
                             )
                         )
@@ -1445,7 +1445,7 @@ extension Parser {
                                     .trimmingCharacters(
                                         in: .whitespacesAndNewlines
                                     ),
-                                link: href
+                                link: url
                             )
                         )
                     }
@@ -1453,7 +1453,7 @@ extension Parser {
                     contents.append(
                         CommentContent(
                             type: .singleLink,
-                            link: href
+                            link: url
                         )
                     )
                 }

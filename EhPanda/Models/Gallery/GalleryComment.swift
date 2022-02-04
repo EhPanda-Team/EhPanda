@@ -24,7 +24,7 @@ struct GalleryComment: Identifiable, Equatable, Codable {
     var plainTextContent: String {
         contents
             .filter { [.plainText, .linkedText, .singleLink].contains($0.type) }
-            .compactMap { $0.type == .singleLink ? $0.link : $0.text }.joined()
+            .compactMap { $0.type == .singleLink ? $0.link?.absoluteString : $0.text }.joined()
     }
 }
 
@@ -38,10 +38,10 @@ struct CommentContent: Identifiable, Equatable, Codable {
     var id: UUID = .init()
     let type: CommentContentType
     var text: String?
-    var link: String?
+    var link: URL?
     var imgURL: URL?
 
-    var secondLink: String?
+    var secondLink: URL?
     var secondImgURL: URL?
 }
 

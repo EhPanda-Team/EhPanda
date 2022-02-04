@@ -8,46 +8,6 @@
 import SwiftUI
 
 struct EhPandaView: View {
-    private let contacts: [Info] = {[
-        .init(urlString: "https://ehpanda.app", text: R.string.localizable.ehpandaViewButtonWebsite()),
-        .init(urlString: "https://github.com/tatsuz0u/EhPanda", text: "GitHub"),
-        .init(urlString: "https://discord.gg/BSBE9FCBTq", text: "Discord"),
-        .init(urlString: "https://t.me/ehpanda", text: "Telegram"),
-        .init(
-            urlString: "altstore://source?url=https://github.com/tatsuz0u/EhPanda/raw/main/AltStore.json",
-            text: R.string.localizable.ehpandaViewButtonAltStoreSource()
-        )
-    ]}()
-
-    private let specialThanks: [Info] = {[
-        .init(urlString: "https://github.com/taylorlannister", text: "taylorlannister"),
-        .init(urlString: "", text: "Luminescent_yq"),
-        .init(urlString: "https://github.com/caxerx", text: "caxerx"),
-        .init(urlString: "https://github.com/honjow", text: "honjow")
-    ]}()
-
-    private let acknowledgements: [Info] = {[
-        .init(urlString: "https://github.com/tid-kijyun/Kanna", text: "Kanna"),
-        .init(urlString: "https://github.com/mac-cain13/R.swift", text: "R.swift"),
-        .init(urlString: "https://github.com/rebeloper/AlertKit", text: "AlertKit"),
-        .init(urlString: "https://github.com/Co2333/Colorful", text: "Colorful"),
-        .init(urlString: "https://github.com/markrenaud/FilePicker", text: "FilePicker"),
-        .init(urlString: "https://github.com/onevcat/Kingfisher", text: "Kingfisher"),
-        .init(urlString: "https://github.com/fermoya/SwiftUIPager", text: "SwiftUIPager"),
-        .init(urlString: "https://github.com/SwiftyBeaver/SwiftyBeaver", text: "SwiftyBeaver"),
-        .init(urlString: "https://github.com/paololeonardi/WaterfallGrid", text: "WaterfallGrid"),
-        .init(urlString: "https://github.com/ddddxxx/SwiftyOpenCC", text: "SwiftyOpenCC"),
-        .init(urlString: "https://github.com/jathu/UIImageColors", text: "UIImageColors"),
-        .init(urlString: "https://github.com/SFSafeSymbols/SFSafeSymbols", text: "SFSafeSymbols"),
-        .init(urlString: "https://github.com/honkmaster/TTProgressHUD", text: "TTProgressHUD"),
-        .init(urlString: "https://github.com/pointfreeco/swiftui-navigation", text: "SwiftUI Navigation"),
-        .init(urlString: "https://github.com/EhTagTranslation/Database", text: "EhTagTranslation/Database"),
-        .init(
-            urlString: "https://github.com/pointfreeco/swift-composable-architecture",
-            text: "The Composable Architecture"
-        )
-    ]}()
-
     private var version: String {
         [
             R.string.localizable.ehpandaViewDescriptionVersion(),
@@ -59,9 +19,10 @@ struct EhPandaView: View {
     var body: some View {
         HStack {
             VStack(alignment: .leading) {
-                Text("Copyright © 2022 荒木辰造").captionTextStyle()
-                Text(version).captionTextStyle()
+                Text(R.string.constant.ehpandaCopyright())
+                Text(version)
             }
+            .foregroundStyle(.gray).font(.caption2.bold())
             Spacer()
         }
         .padding(.horizontal)
@@ -76,6 +37,16 @@ struct EhPandaView: View {
                     LinkRow(urlString: specialThank.urlString, text: specialThank.text)
                 }
             }
+            Section(R.string.localizable.ehpandaViewSectionTitleCodeLevelContributors()) {
+                ForEach(codeLevelContributors) { codeLevelContributor in
+                    LinkRow(urlString: codeLevelContributor.urlString, text: codeLevelContributor.text)
+                }
+            }
+            Section(R.string.localizable.ehpandaViewSectionTitleTranslationContributors()) {
+                ForEach(translationContributors) { translationContributor in
+                    LinkRow(urlString: translationContributor.urlString, text: translationContributor.text)
+                }
+            }
             Section(R.string.localizable.ehpandaViewSectionTitleAcknowledgements()) {
                 ForEach(acknowledgements) { acknowledgement in
                     LinkRow(urlString: acknowledgement.urlString, text: acknowledgement.text)
@@ -84,15 +55,153 @@ struct EhPandaView: View {
         }
         .navigationTitle(R.string.localizable.ehpandaViewTitleEhPanda())
     }
+
+    // MARK: Contacts
+    private let contacts: [Info] = {[
+        .init(
+            urlString: R.string.constant.ehpandaContactsLinkWebsite(),
+            text: R.string.localizable.ehpandaViewButtonWebsite()
+        ),
+        .init(
+            urlString: R.string.constant.ehpandaContactsLinkGitHub(),
+            text: R.string.constant.ehpandaContactsTextGitHub()
+        ),
+        .init(
+            urlString: R.string.constant.ehpandaContactsLinkDiscord(),
+            text: R.string.constant.ehpandaContactsTextDiscord()
+        ),
+        .init(
+            urlString: R.string.constant.ehpandaContactsLinkTelegram(),
+            text: R.string.constant.ehpandaContactsTextTelegram()
+        ),
+        .init(
+            urlString: R.string.constant.ehpandaContactsLinkAltStore(),
+            text: R.string.localizable.ehpandaViewButtonAltStoreSource()
+        )
+    ]}()
+
+    // MARK: Special thanks
+    private let specialThanks: [Info] = {[
+        .init(
+            urlString: R.string.constant.ehpandaSpecialThanksLinkTaylorlannister(),
+            text: R.string.constant.ehpandaSpecialThanksTextTaylorlannister()
+        ),
+        .init(
+            urlString: R.string.constant.ehpandaSpecialThanksLinkLuminescent_yq(),
+            text: R.string.constant.ehpandaSpecialThanksTextLuminescent_yq()
+        ),
+        .init(
+            urlString: R.string.constant.ehpandaSpecialThanksLinkCaxerx(),
+            text: R.string.constant.ehpandaSpecialThanksTextCaxerx()
+        ),
+        .init(
+            urlString: R.string.constant.ehpandaSpecialThanksLinkHonjow(),
+            text: R.string.constant.ehpandaSpecialThanksTextHonjow()
+        )
+    ]}()
+
+    // MARK: Code level contributors
+    private let codeLevelContributors: [Info] = {[
+        .init(
+            urlString: R.string.constant.ehpandaCodeLevelContributorsLinkTatsuz0u(),
+            text: R.string.constant.ehpandaCodeLevelContributorsTextTatsuz0u()
+        ),
+        .init(
+            urlString: R.string.constant.ehpandaCodeLevelContributorsLinkLengYue(),
+            text: R.string.constant.ehpandaCodeLevelContributorsTextLengYue()
+        )
+    ]}()
+
+    // MARK: Translation contributors
+    private let translationContributors: [Info] = {[
+        .init(
+            urlString: R.string.constant.ehpandaTranslationContributorsLinkTatsuz0u(),
+            text: R.string.constant.ehpandaTranslationContributorsTextTatsuz0u()
+        ),
+        .init(
+            urlString: R.string.constant.ehpandaTranslationContributorsLinkPaulHaeussler(),
+            text: R.string.constant.ehpandaTranslationContributorsTextPaulHaeussler()
+        ),
+        .init(
+            urlString: R.string.constant.ehpandaTranslationContributorsLinkCaxerx(),
+            text: R.string.constant.ehpandaTranslationContributorsTextCaxerx()
+        ),
+        .init(
+            urlString: R.string.constant.ehpandaTranslationContributorsLinkNyaanim(),
+            text: R.string.constant.ehpandaTranslationContributorsTextNyaanim()
+        )
+    ]}()
+
+    // MARK: Acknowledgements
+    private let acknowledgements: [Info] = {[
+        .init(
+            urlString: R.string.constant.ehpandaAcknowledgementsLinkKanna(),
+            text: R.string.constant.ehpandaAcknowledgementsTextKanna()
+        ),
+        .init(
+            urlString: R.string.constant.ehpandaAcknowledgementsLinkRswift(),
+            text: R.string.constant.ehpandaAcknowledgementsTextRswift()
+        ),
+        .init(
+            urlString: R.string.constant.ehpandaAcknowledgementsLinkAlertKit(),
+            text: R.string.constant.ehpandaAcknowledgementsTextAlertKit()
+        ),
+        .init(
+            urlString: R.string.constant.ehpandaAcknowledgementsLinkColorful(),
+            text: R.string.constant.ehpandaAcknowledgementsTextColorful()
+        ),
+        .init(
+            urlString: R.string.constant.ehpandaAcknowledgementsLinkFilePicker(),
+            text: R.string.constant.ehpandaAcknowledgementsTextFilePicker()
+        ),
+        .init(
+            urlString: R.string.constant.ehpandaAcknowledgementsLinkKingfisher(),
+            text: R.string.constant.ehpandaAcknowledgementsTextKingfisher()
+        ),
+        .init(
+            urlString: R.string.constant.ehpandaAcknowledgementsLinkSwiftUIPager(),
+            text: R.string.constant.ehpandaAcknowledgementsTextSwiftUIPager()
+        ),
+        .init(
+            urlString: R.string.constant.ehpandaAcknowledgementsLinkSwiftyBeaver(),
+            text: R.string.constant.ehpandaAcknowledgementsTextSwiftyBeaver()
+        ),
+        .init(
+            urlString: R.string.constant.ehpandaAcknowledgementsLinkWaterfallGrid(),
+            text: R.string.constant.ehpandaAcknowledgementsTextWaterfallGrid()
+        ),
+        .init(
+            urlString: R.string.constant.ehpandaAcknowledgementsLinkSwiftyOpenCC(),
+            text: R.string.constant.ehpandaAcknowledgementsTextSwiftyOpenCC()
+        ),
+        .init(
+            urlString: R.string.constant.ehpandaAcknowledgementsLinkUIImageColors(),
+            text: R.string.constant.ehpandaAcknowledgementsTextUIImageColors()
+        ),
+        .init(
+            urlString: R.string.constant.ehpandaAcknowledgementsLinkSFSafeSymbols(),
+            text: R.string.constant.ehpandaAcknowledgementsTextSFSafeSymbols()
+        ),
+        .init(
+            urlString: R.string.constant.ehpandaAcknowledgementsLinkTTProgressHUD(),
+            text: R.string.constant.ehpandaAcknowledgementsTextTTProgressHUD()
+        ),
+        .init(
+            urlString: R.string.constant.ehpandaAcknowledgementsLinkSwiftUINavigation(),
+            text: R.string.constant.ehpandaAcknowledgementsTextSwiftUINavigation()
+        ),
+        .init(
+            urlString: R.string.constant.ehpandaAcknowledgementsLinkEhTagTranslationDatabase(),
+            text: R.string.constant.ehpandaAcknowledgementsTextEhTagTranslationDatabase()
+        ),
+        .init(
+            urlString: R.string.constant.ehpandaAcknowledgementsLinkTCA(),
+            text: R.string.constant.ehpandaAcknowledgementsTextTCA()
+        )
+    ]}()
 }
 
-private struct Info: Identifiable {
-    var id: String { urlString }
-
-    let urlString: String
-    let text: String
-}
-
+// MARK: LinkRow
 private struct LinkRow: View {
     private let urlString: String
     private let text: String
@@ -117,10 +226,12 @@ private struct LinkRow: View {
     }
 }
 
-private extension Text {
-    func captionTextStyle() -> some View {
-        foregroundStyle(.gray).font(.caption2.bold())
-    }
+// MARK: Definition
+private struct Info: Identifiable {
+    var id: String { urlString }
+
+    let urlString: String
+    let text: String
 }
 
 struct EhPandaView_Previews: PreviewProvider {

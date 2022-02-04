@@ -159,15 +159,6 @@ extension String {
         return result
     }
 
-    func safeURL() -> URL {
-        if isValidURL {
-            return URL(string: self).forceUnwrapped
-        } else {
-            Logger.error("Invalid URL, redirect to default host...")
-            return Defaults.URL.ehentai
-        }
-    }
-
     func caseInsensitiveContains(_ other: String) -> Bool {
         range(of: other, options: .caseInsensitive) != nil
     }
@@ -257,13 +248,6 @@ extension Color {
             .sRGB, red: Double(red) / 255.0, green: Double(green) / 255.0,
             blue: Double(blue) / 255.0, opacity: Double(alpha) / 255.0
         )
-    }
-}
-
-// MARK: NSNotification.Name
-extension NSNotification.Name {
-    var publisher: NotificationCenter.Publisher {
-        NotificationCenter.default.publisher(for: self)
     }
 }
 

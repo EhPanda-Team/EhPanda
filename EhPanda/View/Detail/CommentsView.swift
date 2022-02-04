@@ -176,12 +176,12 @@ private struct CommentCell: View {
                 case .linkedText:
                     if let text = content.text, let link = content.link {
                         Text(text).foregroundStyle(.tint)
-                            .onTapGesture { linkAction(link.safeURL()) }
+                            .onTapGesture { linkAction(link) }
                     }
                 case .singleLink:
                     if let link = content.link {
-                        Text(link).foregroundStyle(.tint)
-                            .onTapGesture { linkAction(link.safeURL()) }
+                        Text(link.absoluteString).foregroundStyle(.tint)
+                            .onTapGesture { linkAction(link) }
                     }
                 case .singleImg, .doubleImg, .linkedImg, .doubleLinkedImg:
                     generateWebImages(
@@ -197,17 +197,17 @@ private struct CommentCell: View {
 
     @ViewBuilder private func generateWebImages(
         imgURL: URL?, secondImgURL: URL?,
-        link: String?, secondLink: String?
+        link: URL?, secondLink: URL?
     ) -> some View {
         // Double
         if let imgURL = imgURL, let secondImgURL = secondImgURL {
             HStack(spacing: 0) {
                 if let link = link, let secondLink = secondLink {
                     imageContainer(url: imgURL, widthFactor: 4) {
-                        linkAction(link.safeURL())
+                        linkAction(link)
                     }
                     imageContainer(url: secondImgURL, widthFactor: 4) {
-                        linkAction(secondLink.safeURL())
+                        linkAction(secondLink)
                     }
                 } else {
                     imageContainer(url: imgURL, widthFactor: 4)
@@ -219,7 +219,7 @@ private struct CommentCell: View {
         else if let imgURL = imgURL {
             if let link = link {
                 imageContainer(url: imgURL, widthFactor: 2) {
-                    linkAction(link.safeURL())
+                    linkAction(link)
                 }
             } else {
                 imageContainer(url: imgURL, widthFactor: 2)

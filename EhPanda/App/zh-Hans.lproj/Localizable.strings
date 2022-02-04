@@ -184,7 +184,7 @@
 "general.setting.view.title.translatesTags" = "翻译标签";
 "general.setting.view.title.redirectsLinksToTheSelectedHost" = "重定向链接到选定的站点";
 "general.setting.view.title.detectsLinksFromClipboard" = "从剪切板检测链接";
-"general.setting.view.title.backgroundBlurRadius" = "后台模糊处理度";
+"general.setting.view.title.backgroundBlurRadius" = "后台模糊效果";
 "general.setting.view.button.logs" = "日志";
 "general.setting.view.button.importCustomTranslations" = "导入自定义翻译";
 "general.setting.view.button.removeCustomTranslations" = "移除自定义翻译";
@@ -250,6 +250,8 @@
 "ehpanda.view.button.altStoreSource" = "AltStore 源";
 "ehpanda.view.description.version" = "版本";
 "ehpanda.view.section.title.specialThanks" = "特别致谢";
+"ehpanda.view.section.title.codeLevelContributors" = "代码级贡献者";
+"ehpanda.view.section.title.translationContributors" = "翻译贡献者";
 "ehpanda.view.section.title.acknowledgements" = "致谢";
 
 // MARK: DetailView

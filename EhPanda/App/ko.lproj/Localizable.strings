@@ -250,6 +250,8 @@
 "ehpanda.view.button.altStoreSource" = "AltStore 소스";
 "ehpanda.view.description.version" = "버전";
 "ehpanda.view.section.title.specialThanks" = "Special thanks";
+"ehpanda.view.section.title.codeLevelContributors" = "Code-level contributors";
+"ehpanda.view.section.title.translationContributors" = "Translation contributors";
 "ehpanda.view.section.title.acknowledgements" = "도움을 주신 분들";
 
 // MARK: DetailView
