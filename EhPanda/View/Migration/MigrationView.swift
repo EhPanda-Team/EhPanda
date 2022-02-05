@@ -28,9 +28,11 @@ struct MigrationView: View {
             LoadingView(title: R.string.localizable.loadingViewTitlePreparingDatabase())
                 .opacity(viewStore.databaseState == .loading ? 1 : 0)
             let error = (/LoadingState.failed).extract(from: viewStore.databaseState)
-            ErrorView(error: error ?? .unknown, buttonTitle: R.string.localizable.errorViewButtonDropDatabase()) {
-                viewStore.send(.setNavigation(.dropDialog))
-            }
+            ErrorView(
+                error: error ?? .databaseCorrupted(nil),
+                buttonTitle: R.string.localizable.errorViewButtonDropDatabase(),
+                action: { viewStore.send(.setNavigation(.dropDialog)) }
+            )
             .opacity(error != nil ? 1 : 0)
         }
         .animation(.default, value: viewStore.databaseState)

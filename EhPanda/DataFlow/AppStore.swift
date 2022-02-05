@@ -138,6 +138,11 @@ let appReducerCore = Reducer<AppState, AppAction, AppEnvironment> { state, actio
             .search(.searchRequest(.detail(.comments(.handleCommentLink(let url))))):
         return .init(value: .appRoute(.handleDeepLink(url)))
 
+    case .appRoute(.searchRequest(.onFiltersButtonTapped)), .home(.frontpage(.onFiltersButtonTapped)),
+            .home(.popular(.onFiltersButtonTapped)), .home(.watched(.onFiltersButtonTapped)),
+            .search(.onFiltersButtonTapped), .search(.searchRequest(.onFiltersButtonTapped)):
+        return .init(value: .appRoute(.setNavigation(.filters)))
+
     case .appRoute:
         return .none
 
@@ -188,11 +193,6 @@ let appReducerCore = Reducer<AppState, AppAction, AppEnvironment> { state, actio
     case .home(.fetchPopularGalleries), .home(.fetchFrontpageGalleries):
         state.homeState.filter = state.settingState.globalFilter
         return .none
-
-    case .home(.frontpage(.onFiltersButtonTapped)), .home(.popular(.onFiltersButtonTapped)),
-            .home(.watched(.onFiltersButtonTapped)), .search(.onFiltersButtonTapped),
-            .search(.searchRequest(.onFiltersButtonTapped)):
-        return .init(value: .appRoute(.setNavigation(.filters)))
 
     case .home(.watched(.onNotLoginViewButtonTapped)), .favorites(.onNotLoginViewButtonTapped):
         var effects: [Effect<AppAction, Never>] = [
