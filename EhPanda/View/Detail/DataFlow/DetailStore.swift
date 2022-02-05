@@ -92,7 +92,7 @@ struct DetailState: Equatable, Identifiable {
     }
 }
 
-enum DetailAction: BindableAction {
+indirect enum DetailAction: BindableAction {
     case binding(BindingAction<DetailState>)
     case setNavigation(DetailState.Route?)
     case setSearchRequestState(SearchRequestState)
@@ -137,7 +137,7 @@ enum DetailAction: BindableAction {
     case previews(PreviewsAction)
     case comments(CommentsAction)
     case galleryInfos(GalleryInfosAction)
-    indirect case searchRequest(id: String, action: SearchRequestAction)
+    case searchRequest(id: String, action: SearchRequestAction)
 }
 
 struct DetailEnvironment {

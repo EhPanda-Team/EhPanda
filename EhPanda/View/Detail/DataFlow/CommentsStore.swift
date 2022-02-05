@@ -41,7 +41,7 @@ struct CommentsState: Equatable {
     var detailReducer: Reducer<DetailState, DetailAction, DetailEnvironment>?
 }
 
-enum CommentsAction: BindableAction {
+indirect enum CommentsAction: BindableAction {
     case binding(BindingAction<CommentsState>)
     case setNavigation(CommentsState.Route?)
     case setDetailState(DetailState)
@@ -67,7 +67,7 @@ enum CommentsAction: BindableAction {
     case fetchGallery(URL, Bool)
     case fetchGalleryDone(URL, Result<Gallery, AppError>)
 
-    indirect case detail(id: String, action: DetailAction)
+    case detail(id: String, action: DetailAction)
 }
 
 struct CommentsEnvironment {
