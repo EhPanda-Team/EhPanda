@@ -7,7 +7,7 @@
 */
 
 // MARK: BanInterval
-"enum.ban.interval.description.and" = " ";
+"enum.ban.interval.description.and" = "";
 
 // MARK: ToplistsType
 "enum.toplists.type.value.yesterday" = "昨日";
