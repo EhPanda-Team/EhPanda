@@ -48,8 +48,8 @@ struct FiltersView: View {
                 BasicSection(
                     route: viewStore.binding(\.$route),
                     filter: filter, filterRange: viewStore.binding(\.$filterRange),
-                    resetFiltersAction: { viewStore.send(.setNavigation(.resetFilters)) },
-                    resetFiltersDialogAction: { viewStore.send(.onResetFilterConfirmed) }
+                    resetFiltersAction: { viewStore.send(.onResetFilterConfirmed) },
+                    resetFiltersDialogAction: { viewStore.send(.setNavigation(.resetFilters)) }
                 )
                 AdvancedSection(
                     filter: filter, focusedBound: $focusedBound,

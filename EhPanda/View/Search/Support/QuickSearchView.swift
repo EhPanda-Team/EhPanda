@@ -52,21 +52,22 @@ struct QuickSearchView: View {
                             }
                         }
                         .withArrow(isVisible: !viewStore.isListEditing).padding(5)
+                        .confirmationDialog(
+                            message: R.string.localizable.confirmationDialogTitleDelete(),
+                            unwrapping: viewStore.binding(\.$route),
+                            case: /QuickSearchState.Route.deleteWord,
+                            matching: word
+                        ) { route in
+                            Button(R.string.localizable.confirmationDialogButtonDelete(), role: .destructive) {
+                                viewStore.send(.deleteWord(route))
+                            }
+                        }
                     }
                     .onDelete { offsets in
                         viewStore.send(.deleteWordWithOffsets(offsets))
                     }
                     .onMove { source, destination in
                         viewStore.send(.moveWord(source, destination))
-                    }
-                    .confirmationDialog(
-                        message: R.string.localizable.confirmationDialogTitleDelete(),
-                        unwrapping: viewStore.binding(\.$route),
-                        case: /QuickSearchState.Route.deleteWord
-                    ) { route in
-                        Button(R.string.localizable.confirmationDialogButtonDelete(), role: .destructive) {
-                            viewStore.send(.deleteWord(route))
-                        }
                     }
                 }
                 LoadingView().opacity(

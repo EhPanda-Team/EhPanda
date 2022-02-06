@@ -62,6 +62,25 @@ extension View {
             message: { _ in Text(message) }
         )
     }
+    func confirmationDialog<Enum, Case: Equatable, A: View>(
+        message: String,
+        unwrapping enum: Binding<Enum?>,
+        case casePath: CasePath<Enum, Case>,
+        matching case: Case,
+        @ViewBuilder actions: @escaping (Case) -> A
+    ) -> some View {
+        self.confirmationDialog(
+            title: { _ in Text("") },
+            titleVisibility: .hidden,
+            unwrapping: {
+                let unwrapping = `enum`.case(casePath)
+                let isMatched = `case` == unwrapping.wrappedValue
+                return isMatched ? unwrapping : .constant(nil)
+            }(),
+            actions: actions,
+            message: { _ in Text(message) }
+        )
+    }
 
     func progressHUD<Enum: Equatable, Case>(
         config: TTProgressHUDConfig,
