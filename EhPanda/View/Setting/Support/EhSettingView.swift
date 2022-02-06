@@ -48,17 +48,6 @@ struct EhSettingView: View {
                 viewStore.send(.setDefaultProfile(profileSet))
             }
         }
-        .confirmationDialog(
-            message: R.string.localizable.confirmationDialogTitleDelete(),
-            unwrapping: viewStore.binding(\.$route),
-            case: /EhSettingState.Route.deleteProfile
-        ) {
-            Button(R.string.localizable.confirmationDialogButtonDelete(), role: .destructive) {
-                if let value = viewStore.ehProfile?.value {
-                    viewStore.send(.performAction(.delete, nil, value))
-                }
-            }
-        }
         .sheet(unwrapping: viewStore.binding(\.$route), case: /EhSettingState.Route.webView) { route in
             WebView(url: route.wrappedValue)
                 .autoBlur(radius: blurRadius)
@@ -71,9 +60,15 @@ struct EhSettingView: View {
         Form {
             Group {
                 EhProfileSection(
+                    route: viewStore.binding(\.$route),
                     ehSetting: ehSetting, ehProfile: ehProfile,
                     editingProfileName: viewStore.binding(\.$editingProfileName),
-                    deleteAction: { viewStore.send(.setNavigation(.deleteProfile)) },
+                    deleteAction: {
+                        if let value = viewStore.ehProfile?.value {
+                            viewStore.send(.performAction(.delete, nil, value))
+                        }
+                    },
+                    deleteDialogAction: { viewStore.send(.setNavigation(.deleteProfile)) },
                     performEhProfileAction: { viewStore.send(.performAction($0, $1, $2)) }
                 )
                 ImageLoadSettingsSection(ehSetting: ehSetting)
@@ -99,7 +94,7 @@ struct EhSettingView: View {
                 GalleryPageNumberingSection(ehSetting: ehSetting)
             }
             Group {
-                HathLocalNetworkHostSection(ehSetting: ehSetting)
+//                HathLocalNetworkHostSection(ehSetting: ehSetting)
                 OriginalImagesSection(ehSetting: ehSetting)
                 MultiplePageViewerSection(ehSetting: ehSetting)
             }
@@ -138,23 +133,28 @@ struct EhSettingView: View {
 
 // MARK: EhProfileSection
 private struct EhProfileSection: View {
+    @Binding private var route: EhSettingState.Route?
     @Binding private var ehSetting: EhSetting
     @Binding private var ehProfile: EhProfile
     @Binding private var editingProfileName: String
     private let deleteAction: () -> Void
+    private let deleteDialogAction: () -> Void
     private let performEhProfileAction: (EhProfileAction?, String?, Int) -> Void
 
     @FocusState private var isFocused
 
     init(
-        ehSetting: Binding<EhSetting>, ehProfile: Binding<EhProfile>,
-        editingProfileName: Binding<String>, deleteAction: @escaping () -> Void,
+        route: Binding<EhSettingState.Route?>, ehSetting: Binding<EhSetting>,
+        ehProfile: Binding<EhProfile>, editingProfileName: Binding<String>,
+        deleteAction: @escaping () -> Void, deleteDialogAction: @escaping () -> Void,
         performEhProfileAction: @escaping (EhProfileAction?, String?, Int) -> Void
     ) {
+        _route = route
         _ehSetting = ehSetting
         _ehProfile = ehProfile
         _editingProfileName = editingProfileName
         self.deleteAction = deleteAction
+        self.deleteDialogAction = deleteDialogAction
         self.performEhProfileAction = performEhProfileAction
     }
 
@@ -178,8 +178,17 @@ private struct EhProfileSection: View {
                 }
                 Button(
                     R.string.localizable.ehSettingViewButtonDeleteProfile(),
-                    role: .destructive, action: deleteAction
+                    role: .destructive, action: deleteDialogAction
                 )
+                .confirmationDialog(
+                    message: R.string.localizable.confirmationDialogTitleDelete(),
+                    unwrapping: $route, case: /EhSettingState.Route.deleteProfile
+                ) {
+                    Button(
+                        R.string.localizable.confirmationDialogButtonDelete(),
+                        role: .destructive, action: deleteAction
+                    )
+                }
             }
         }
         .onChange(of: ehProfile) {
@@ -935,6 +944,7 @@ private struct GalleryPageNumberingSection: View {
     }
 }
 
+/*
 // MARK: HathLocalNetworkHostSection
 private struct HathLocalNetworkHostSection: View {
     @Binding private var ehSetting: EhSetting
@@ -958,6 +968,7 @@ private struct HathLocalNetworkHostSection: View {
         .textCase(nil)
     }
 }
+ */
 
 // MARK: OriginalImagesSection
 private struct OriginalImagesSection: View {

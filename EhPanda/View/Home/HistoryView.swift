@@ -56,15 +56,6 @@ struct HistoryView: View {
             .autoBlur(radius: blurRadius)
             .environment(\.inSheet, true)
         }
-        .confirmationDialog(
-            message: R.string.localizable.confirmationDialogTitleClear(),
-            unwrapping: viewStore.binding(\.$route),
-            case: /HistoryState.Route.clearHistory
-        ) {
-            Button(R.string.localizable.confirmationDialogButtonClear(), role: .destructive) {
-                viewStore.send(.clearHistoryGalleries)
-            }
-        }
         .searchable(text: viewStore.binding(\.$keyword), prompt: R.string.localizable.searchablePromptFilter())
         .onAppear {
             if viewStore.galleries.isEmpty {
@@ -97,6 +88,15 @@ struct HistoryView: View {
                 Image(systemSymbol: .trashCircle)
             }
             .disabled(viewStore.loadingState != .idle || viewStore.galleries.isEmpty)
+            .confirmationDialog(
+                message: R.string.localizable.confirmationDialogTitleClear(),
+                unwrapping: viewStore.binding(\.$route),
+                case: /HistoryState.Route.clearHistory
+            ) {
+                Button(R.string.localizable.confirmationDialogButtonClear(), role: .destructive) {
+                    viewStore.send(.clearHistoryGalleries)
+                }
+            }
         }
     }
 }

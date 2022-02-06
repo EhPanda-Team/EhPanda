@@ -58,9 +58,10 @@ struct NotLoginView: View {
     var body: some View {
         AlertView(
             symbol: .personCropCircleBadgeQuestionmarkFill,
-            message: R.string.localizable.notLoginViewTitleNeedLogin(),
-            buttonTitle: R.string.localizable.notLoginViewButtonLogin(), action: action
-        )
+            message: R.string.localizable.notLoginViewTitleNeedLogin()
+        ) {
+            AlertViewButton(title: R.string.localizable.notLoginViewButtonLogin(), action: action)
+        }
     }
 }
 
@@ -80,25 +81,24 @@ struct ErrorView: View {
     }
 
     var body: some View {
-        AlertView(
-            symbol: error.symbol, message: error.alertText,
-            buttonTitle: buttonTitle, action: action
-        )
+        AlertView(symbol: error.symbol, message: error.alertText) {
+            AlertViewButton(title: buttonTitle) {
+                action?()
+            }
+        }
     }
 }
 
-struct AlertView: View {
+struct AlertView<Content: View>: View {
     @Environment(\.colorScheme) private var colorScheme
     private let symbol: SFSymbol
     private let message: String
-    private let buttonTitle: String
-    private let action: (() -> Void)?
+    private let actions: Content
 
-    init(symbol: SFSymbol, message: String, buttonTitle: String, action: (() -> Void)?) {
+    init(symbol: SFSymbol, message: String, @ViewBuilder actions: () -> Content) {
         self.symbol = symbol
         self.message = message
-        self.buttonTitle = buttonTitle
-        self.action = action
+        self.actions = actions()
     }
 
     var body: some View {
@@ -106,14 +106,26 @@ struct AlertView: View {
             Image(systemSymbol: symbol).font(.system(size: 50)).padding(.bottom, 15)
             Text(message).multilineTextAlignment(.center).foregroundStyle(.gray)
                 .font(.headline).padding(.bottom, 5)
-            if let action = action {
-                Button(action: action) {
-                    Text(buttonTitle).foregroundColor(.primary.opacity(0.7)).textCase(.uppercase)
-                }
-                .buttonStyle(.bordered).buttonBorderShape(.capsule)
-            }
+            actions
         }
         .frame(maxWidth: DeviceUtil.windowW * 0.8)
+    }
+}
+
+struct AlertViewButton: View {
+    private let title: String
+    private let action: () -> Void
+
+    init(title: String, action: @escaping () -> Void) {
+        self.title = title
+        self.action = action
+    }
+
+    var body: some View {
+        Button(action: action) {
+            Text(title).foregroundColor(.primary.opacity(0.7)).textCase(.uppercase)
+        }
+        .buttonStyle(.bordered).buttonBorderShape(.capsule)
     }
 }
 

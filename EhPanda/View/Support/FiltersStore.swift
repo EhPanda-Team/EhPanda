@@ -8,19 +8,22 @@
 import ComposableArchitecture
 
 struct FiltersState: Equatable {
+    enum Route {
+        case resetFilters
+    }
     enum FocusedBound {
         case lower
         case upper
     }
 
-    @BindableState var resetDialogPresented = false
+    @BindableState var route: Route?
     @BindableState var filterRange: FilterRange = .search
     @BindableState var focusedBound: FocusedBound?
 }
 
 enum FiltersAction: BindableAction {
     case binding(BindingAction<FiltersState>)
-    case setResetDialogPresented(Bool)
+    case setNavigation(FiltersState.Route?)
     case onResetFilterConfirmed
     case onTextFieldSubmitted
 }
@@ -32,8 +35,8 @@ let filtersReducer = Reducer<FiltersState, FiltersAction, FiltersEnvironment> { 
     case .binding:
         return .none
 
-    case .setResetDialogPresented(let isPresented):
-        state.resetDialogPresented = isPresented
+    case .setNavigation(let route):
+        state.route = route
         return .none
 
     case .onResetFilterConfirmed:

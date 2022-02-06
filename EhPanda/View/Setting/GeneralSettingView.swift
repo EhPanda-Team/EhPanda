@@ -88,6 +88,15 @@ struct GeneralSettingView: View {
                         R.string.localizable.generalSettingViewButtonRemoveCustomTranslations(),
                         role: .destructive, action: { viewStore.send(.setNavigation(.removeCustomTranslations)) }
                     )
+                    .confirmationDialog(
+                        message: R.string.localizable.confirmationDialogTitleRemoveCustomTranslations(),
+                        unwrapping: viewStore.binding(\.$route),
+                        case: /GeneralSettingState.Route.removeCustomTranslations
+                    ) {
+                        Button(R.string.localizable.confirmationDialogButtonRemove(), role: .destructive) {
+                            viewStore.send(.onRemoveCustomTranslations)
+                        }
+                    }
                 }
             }
             Section(R.string.localizable.generalSettingViewSectionTitleNavigation()) {
@@ -133,24 +142,15 @@ struct GeneralSettingView: View {
                     }
                     .foregroundColor(.primary)
                 }
-            }
-        }
-        .confirmationDialog(
-            message: R.string.localizable.confirmationDialogTitleRemoveCustomTranslations(),
-            unwrapping: viewStore.binding(\.$route),
-            case: /GeneralSettingState.Route.removeCustomTranslations
-        ) {
-            Button(R.string.localizable.confirmationDialogButtonRemove(), role: .destructive) {
-                viewStore.send(.onRemoveCustomTranslations)
-            }
-        }
-        .confirmationDialog(
-            message: R.string.localizable.confirmationDialogTitleClear(),
-            unwrapping: viewStore.binding(\.$route),
-            case: /GeneralSettingState.Route.clearCache
-        ) {
-            Button(R.string.localizable.confirmationDialogButtonClear(), role: .destructive) {
-                viewStore.send(.clearWebImageCache)
+                .confirmationDialog(
+                    message: R.string.localizable.confirmationDialogTitleClear(),
+                    unwrapping: viewStore.binding(\.$route),
+                    case: /GeneralSettingState.Route.clearCache
+                ) {
+                    Button(R.string.localizable.confirmationDialogButtonClear(), role: .destructive) {
+                        viewStore.send(.clearWebImageCache)
+                    }
+                }
             }
         }
         .animation(.default, value: tagTranslatorHasCustomTranslations)

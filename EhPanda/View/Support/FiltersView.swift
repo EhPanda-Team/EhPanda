@@ -46,8 +46,10 @@ struct FiltersView: View {
         NavigationView {
             Form {
                 BasicSection(
+                    route: viewStore.binding(\.$route),
                     filter: filter, filterRange: viewStore.binding(\.$filterRange),
-                    resetDialogPresented: viewStore.binding(\.$resetDialogPresented)
+                    resetFiltersAction: { viewStore.send(.setNavigation(.resetFilters)) },
+                    resetFiltersDialogAction: { viewStore.send(.onResetFilterConfirmed) }
                 )
                 AdvancedSection(
                     filter: filter, focusedBound: $focusedBound,
@@ -55,15 +57,6 @@ struct FiltersView: View {
                 )
             }
             .synchronize(viewStore.binding(\.$focusedBound), $focusedBound)
-            .confirmationDialog(
-                R.string.localizable.confirmationDialogTitleReset(),
-                isPresented: viewStore.binding(\.$resetDialogPresented),
-                titleVisibility: .visible
-            ) {
-                Button(R.string.localizable.confirmationDialogButtonReset(), role: .destructive) {
-                    viewStore.send(.onResetFilterConfirmed)
-                }
-            }
             .navigationTitle(R.string.localizable.filtersViewTitleFilters())
         }
     }
@@ -71,18 +64,25 @@ struct FiltersView: View {
 
 // MARK: BasicSection
 private struct BasicSection: View {
+    @Binding private var route: FiltersState.Route?
     @Binding private var filter: Filter
     @Binding private var filterRange: FilterRange
-    @Binding private var resetDialogPresented: Bool
+    private let resetFiltersAction: () -> Void
+    private let resetFiltersDialogAction: () -> Void
     private var categoryBindings: [Binding<Bool>] { [
         $filter.doujinshi, $filter.manga, $filter.artistCG, $filter.gameCG, $filter.western,
         $filter.nonH, $filter.imageSet, $filter.cosplay, $filter.asianPorn, $filter.misc
     ] }
 
-    init(filter: Binding<Filter>, filterRange: Binding<FilterRange>, resetDialogPresented: Binding<Bool>) {
+    init(
+        route: Binding<FiltersState.Route?>, filter: Binding<Filter>, filterRange: Binding<FilterRange>,
+        resetFiltersAction: @escaping () -> Void, resetFiltersDialogAction: @escaping () -> Void
+    ) {
+        _route = route
         _filter = filter
         _filterRange = filterRange
-        _resetDialogPresented = resetDialogPresented
+        self.resetFiltersAction = resetFiltersAction
+        self.resetFiltersDialogAction = resetFiltersDialogAction
     }
 
     var body: some View {
@@ -94,10 +94,17 @@ private struct BasicSection: View {
             }
             .pickerStyle(.segmented)
             CategoryView(bindings: categoryBindings)
-            Button {
-                resetDialogPresented = true
-            } label: {
+            Button(action: resetFiltersDialogAction) {
                 Text(R.string.localizable.filtersViewButtonResetFilters()).foregroundStyle(.red)
+            }
+            .confirmationDialog(
+                message: R.string.localizable.confirmationDialogTitleReset(),
+                unwrapping: $route, case: /FiltersState.Route.resetFilters
+            ) {
+                Button(
+                    R.string.localizable.confirmationDialogButtonReset(),
+                    role: .destructive, action: resetFiltersAction
+                )
             }
             Toggle(R.string.localizable.filtersViewTitleAdvancedSettings(), isOn: $filter.advanced)
         }

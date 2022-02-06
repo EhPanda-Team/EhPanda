@@ -59,6 +59,15 @@ struct QuickSearchView: View {
                     .onMove { source, destination in
                         viewStore.send(.moveWord(source, destination))
                     }
+                    .confirmationDialog(
+                        message: R.string.localizable.confirmationDialogTitleDelete(),
+                        unwrapping: viewStore.binding(\.$route),
+                        case: /QuickSearchState.Route.deleteWord
+                    ) { route in
+                        Button(R.string.localizable.confirmationDialogButtonDelete(), role: .destructive) {
+                            viewStore.send(.deleteWord(route))
+                        }
+                    }
                 }
                 LoadingView().opacity(
                     viewStore.loadingState == .loading
@@ -77,15 +86,6 @@ struct QuickSearchView: View {
             .onAppear {
                 if viewStore.quickSearchWords.isEmpty {
                     viewStore.send(.fetchQuickSearchWords)
-                }
-            }
-            .confirmationDialog(
-                message: R.string.localizable.confirmationDialogTitleDelete(),
-                unwrapping: viewStore.binding(\.$route),
-                case: /QuickSearchState.Route.deleteWord
-            ) { route in
-                Button(R.string.localizable.confirmationDialogButtonDelete(), role: .destructive) {
-                    viewStore.send(.deleteWord(route))
                 }
             }
             .toolbar(content: toolbar)
