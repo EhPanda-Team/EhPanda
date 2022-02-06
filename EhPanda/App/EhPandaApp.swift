@@ -18,8 +18,7 @@ import ComposableArchitecture
             ) { viewStore in
                 ZStack {
                     if viewStore.state == .idle {
-                        TabBarView(store: appDelegate.store).onAppear(perform: addTouchHandler)
-                            .navigationViewStyle(.stack).accentColor(.primary)
+                        TabBarView(store: appDelegate.store).onAppear(perform: addTouchHandler).accentColor(.primary)
                     }
                     MigrationView(
                         store: appDelegate.store.scope(
@@ -30,6 +29,7 @@ import ComposableArchitecture
                     .opacity(viewStore.state != .idle ? 1 : 0)
                     .animation(.linear(duration: 0.5), value: viewStore.state)
                 }
+                .navigationViewStyle(.stack)
             }
         }
     }

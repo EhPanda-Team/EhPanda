@@ -105,10 +105,12 @@ let appReducerCore = Reducer<AppState, AppAction, AppEnvironment> { state, actio
         return .none
 
     case .appRoute(.clearSubStates):
+        var effects = [Effect<AppAction, Never>]()
         if environment.deviceClient.isPad() {
-            state.settingState = .init()
+            state.settingState.route = nil
+            effects.append(.init(value: .setting(.clearSubStates)))
         }
-        return .none
+        return effects.isEmpty ? .none : .merge(effects)
 
     case .appRoute(.filters(.onResetFilterConfirmed)):
         return .init(value: .setting(.resetFilter(state.appRouteState.filtersState.filterRange)))

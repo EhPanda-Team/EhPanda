@@ -64,6 +64,7 @@ struct SettingState: Equatable {
 
 enum SettingAction: BindableAction {
     case binding(BindingAction<SettingState>)
+    case clearSubStates
 
     case syncAppIconType
     case syncUserInterfaceStyle
@@ -198,6 +199,12 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
                 .init(value: .syncWatchedFilter),
                 .init(value: .syncTagTranslator)
             )
+
+        case .clearSubStates:
+            state.accountSettingState = .init()
+            state.generalSettingState = .init()
+            state.appearanceSettingState = .init()
+            return .none
 
         case .syncAppIconType:
             if let iconName = environment.uiApplicationClient.alternateIconName() {

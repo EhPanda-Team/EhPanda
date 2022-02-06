@@ -23,26 +23,28 @@ struct MigrationView: View {
     }
 
     var body: some View {
-        ZStack {
-            reversedPrimary.ignoresSafeArea()
-            LoadingView(title: R.string.localizable.loadingViewTitlePreparingDatabase())
-                .opacity(viewStore.databaseState == .loading ? 1 : 0)
-            let error = (/LoadingState.failed).extract(from: viewStore.databaseState)
-            ErrorView(
-                error: error ?? .databaseCorrupted(nil),
-                buttonTitle: R.string.localizable.errorViewButtonDropDatabase(),
-                action: { viewStore.send(.setNavigation(.dropDialog)) }
-            )
-            .opacity(error != nil ? 1 : 0)
-        }
-        .animation(.default, value: viewStore.databaseState)
-        .confirmationDialog(
-            message: R.string.localizable.confirmationDialogTitleDropDatabase(),
-            unwrapping: viewStore.binding(\.$route),
-            case: /MigrationState.Route.dropDialog
-        ) {
-            Button(R.string.localizable.confirmationDialogButtonDropDatabase(), role: .destructive) {
-                viewStore.send(.dropDatabase)
+        NavigationView {
+            ZStack {
+                reversedPrimary.ignoresSafeArea()
+                LoadingView(title: R.string.localizable.loadingViewTitlePreparingDatabase())
+                    .opacity(viewStore.databaseState == .loading ? 1 : 0)
+                let error = (/LoadingState.failed).extract(from: viewStore.databaseState)
+                ErrorView(
+                    error: error ?? .databaseCorrupted(nil),
+                    buttonTitle: R.string.localizable.errorViewButtonDropDatabase(),
+                    action: { viewStore.send(.setNavigation(.dropDialog)) }
+                )
+                .opacity(error != nil ? 1 : 0)
+            }
+            .animation(.default, value: viewStore.databaseState)
+            .confirmationDialog(
+                message: R.string.localizable.confirmationDialogTitleDropDatabase(),
+                unwrapping: viewStore.binding(\.$route),
+                case: /MigrationState.Route.dropDialog
+            ) {
+                Button(R.string.localizable.confirmationDialogButtonDropDatabase(), role: .destructive) {
+                    viewStore.send(.dropDatabase)
+                }
             }
         }
     }
