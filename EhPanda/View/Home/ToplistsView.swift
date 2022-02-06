@@ -46,6 +46,21 @@ struct ToplistsView: View {
                 tagTranslator.tryTranslate(text: $0, returnOriginal: setting.translatesTags)
             }
         )
+        .sheet(
+            unwrapping: viewStore.binding(\.$route),
+            case: /ToplistsState.Route.detail,
+            isEnabled: DeviceUtil.isPad
+        ) { route in
+            NavigationView {
+                DetailView(
+                    store: store.scope(state: \.detailState, action: ToplistsAction.detail),
+                    gid: route.wrappedValue, user: user, setting: $setting,
+                    blurRadius: blurRadius, tagTranslator: tagTranslator
+                )
+            }
+            .autoBlur(radius: blurRadius)
+            .environment(\.inSheet, true)
+        }
         .jumpPageAlert(
             index: viewStore.binding(\.$jumpPageIndex),
             isPresented: viewStore.binding(\.$jumpPageAlertPresented),
@@ -68,13 +83,15 @@ struct ToplistsView: View {
         .navigationTitle(navigationTitle)
     }
 
-    private var navigationLink: some View {
-        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /ToplistsState.Route.detail) { route in
-            DetailView(
-                store: store.scope(state: \.detailState, action: ToplistsAction.detail),
-                gid: route.wrappedValue, user: user, setting: $setting,
-                blurRadius: blurRadius, tagTranslator: tagTranslator
-            )
+    @ViewBuilder private var navigationLink: some View {
+        if DeviceUtil.isPhone {
+            NavigationLink(unwrapping: viewStore.binding(\.$route), case: /ToplistsState.Route.detail) { route in
+                DetailView(
+                    store: store.scope(state: \.detailState, action: ToplistsAction.detail),
+                    gid: route.wrappedValue, user: user, setting: $setting,
+                    blurRadius: blurRadius, tagTranslator: tagTranslator
+                )
+            }
         }
     }
     private func toolbar() -> some ToolbarContent {

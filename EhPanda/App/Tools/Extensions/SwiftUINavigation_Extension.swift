@@ -34,6 +34,20 @@ extension NavigationLink {
 }
 
 extension View {
+    @ViewBuilder func sheet<Enum, Case, Content>(
+        unwrapping enum: Binding<Enum?>,
+        case casePath: CasePath<Enum, Case>,
+        onDismiss: (() -> Void)? = nil,
+        isEnabled: Bool,
+        @ViewBuilder content: @escaping (Binding<Case>) -> Content
+    ) -> some View
+    where Content: View {
+        if isEnabled {
+            sheet(unwrapping: `enum`, case: casePath, onDismiss: onDismiss, content: content)
+        } else {
+            self
+        }
+    }
     func confirmationDialog<Enum, Case, A: View>(
         message: String,
         unwrapping enum: Binding<Enum?>,

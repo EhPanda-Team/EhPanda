@@ -41,6 +41,21 @@ struct HistoryView: View {
                 tagTranslator.tryTranslate(text: $0, returnOriginal: !setting.translatesTags)
             }
         )
+        .sheet(
+            unwrapping: viewStore.binding(\.$route),
+            case: /HistoryState.Route.detail,
+            isEnabled: DeviceUtil.isPad
+        ) { route in
+            NavigationView {
+                DetailView(
+                    store: store.scope(state: \.detailState, action: HistoryAction.detail),
+                    gid: route.wrappedValue, user: user, setting: $setting,
+                    blurRadius: blurRadius, tagTranslator: tagTranslator
+                )
+            }
+            .autoBlur(radius: blurRadius)
+            .environment(\.inSheet, true)
+        }
         .confirmationDialog(
             message: R.string.localizable.confirmationDialogTitleClear(),
             unwrapping: viewStore.binding(\.$route),
@@ -63,13 +78,15 @@ struct HistoryView: View {
         .navigationTitle(R.string.localizable.historyViewTitleHistory())
     }
 
-    private var navigationLink: some View {
-        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /HistoryState.Route.detail) { route in
-            DetailView(
-                store: store.scope(state: \.detailState, action: HistoryAction.detail),
-                gid: route.wrappedValue, user: user, setting: $setting,
-                blurRadius: blurRadius, tagTranslator: tagTranslator
-            )
+    @ViewBuilder private var navigationLink: some View {
+        if DeviceUtil.isPhone {
+            NavigationLink(unwrapping: viewStore.binding(\.$route), case: /HistoryState.Route.detail) { route in
+                DetailView(
+                    store: store.scope(state: \.detailState, action: HistoryAction.detail),
+                    gid: route.wrappedValue, user: user, setting: $setting,
+                    blurRadius: blurRadius, tagTranslator: tagTranslator
+                )
+            }
         }
     }
     private func toolbar() -> some ToolbarContent {

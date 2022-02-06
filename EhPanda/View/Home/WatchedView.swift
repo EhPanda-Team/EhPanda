@@ -48,6 +48,21 @@ struct WatchedView: View {
                 NotLoginView(action: { viewStore.send(.onNotLoginViewButtonTapped) })
             }
         }
+        .sheet(
+            unwrapping: viewStore.binding(\.$route),
+            case: /WatchedState.Route.detail,
+            isEnabled: DeviceUtil.isPad
+        ) { route in
+            NavigationView {
+                DetailView(
+                    store: store.scope(state: \.detailState, action: WatchedAction.detail),
+                    gid: route.wrappedValue, user: user, setting: $setting,
+                    blurRadius: blurRadius, tagTranslator: tagTranslator
+                )
+            }
+            .autoBlur(radius: blurRadius)
+            .environment(\.inSheet, true)
+        }
         .sheet(unwrapping: viewStore.binding(\.$route), case: /WatchedState.Route.quickSearch) { _ in
             QuickSearchView(
                 store: store.scope(state: \.quickSearchState, action: WatchedAction.quickSearch)
@@ -83,13 +98,15 @@ struct WatchedView: View {
         .navigationTitle(R.string.localizable.watchedViewTitleWatched())
     }
 
-    private var navigationLink: some View {
-        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /WatchedState.Route.detail) { route in
-            DetailView(
-                store: store.scope(state: \.detailState, action: WatchedAction.detail),
-                gid: route.wrappedValue, user: user, setting: $setting,
-                blurRadius: blurRadius, tagTranslator: tagTranslator
-            )
+    @ViewBuilder private var navigationLink: some View {
+        if DeviceUtil.isPhone {
+            NavigationLink(unwrapping: viewStore.binding(\.$route), case: /WatchedState.Route.detail) { route in
+                DetailView(
+                    store: store.scope(state: \.detailState, action: WatchedAction.detail),
+                    gid: route.wrappedValue, user: user, setting: $setting,
+                    blurRadius: blurRadius, tagTranslator: tagTranslator
+                )
+            }
         }
     }
     private func toolbar() -> some ToolbarContent {

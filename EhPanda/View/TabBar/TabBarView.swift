@@ -88,7 +88,7 @@ struct TabBarView: View {
         }
         .sheet(unwrapping: viewStore.binding(\.appRouteState.$route), case: /AppRouteState.Route.setting) { _ in
             SettingView(
-                store: store.scope(state: \.appRouteState.settingState, action: { AppAction.appRoute(.setting($0)) }),
+                store: store.scope(state: \.settingState, action: AppAction.setting),
                 blurRadius: viewStore.appLockState.blurRadius
             )
             .accentColor(viewStore.settingState.setting.accentColor)

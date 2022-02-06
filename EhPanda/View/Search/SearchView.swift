@@ -48,6 +48,21 @@ struct SearchView: View {
                     removeKeywordAction: { viewStore.send(.removeHistoryKeyword($0)) }
                 )
             }
+            .sheet(
+                unwrapping: viewStore.binding(\.$route),
+                case: /SearchState.Route.detail,
+                isEnabled: DeviceUtil.isPad
+            ) { route in
+                NavigationView {
+                    DetailView(
+                        store: store.scope(state: \.detailState, action: SearchAction.detail),
+                        gid: route.wrappedValue, user: user, setting: $setting,
+                        blurRadius: blurRadius, tagTranslator: tagTranslator
+                    )
+                }
+                .autoBlur(radius: blurRadius)
+                .environment(\.inSheet, true)
+            }
             .sheet(unwrapping: viewStore.binding(\.$route), case: /SearchState.Route.quickSearch) { _ in
                 QuickSearchView(
                     store: store.scope(state: \.quickSearchState, action: SearchAction.quickSearch)
@@ -91,7 +106,9 @@ struct SearchView: View {
 
 private extension SearchView {
     @ViewBuilder var navigationLinks: some View {
-        detailViewLink
+        if DeviceUtil.isPhone {
+            detailViewLink
+        }
         searchRequestLink
     }
     var detailViewLink: some View {

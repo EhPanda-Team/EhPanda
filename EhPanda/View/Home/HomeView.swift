@@ -87,6 +87,21 @@ struct HomeView: View {
                 .opacity(viewStore.popularGalleries.isEmpty && error != nil ? 1 : 0)
                 .zIndex(1)
             }
+            .sheet(
+                unwrapping: viewStore.binding(\.$route),
+                case: /HomeState.Route.detail,
+                isEnabled: DeviceUtil.isPad
+            ) { route in
+                NavigationView {
+                    DetailView(
+                        store: store.scope(state: \.detailState, action: HomeAction.detail),
+                        gid: route.wrappedValue, user: user, setting: $setting,
+                        blurRadius: blurRadius, tagTranslator: tagTranslator
+                    )
+                }
+                .autoBlur(radius: blurRadius)
+                .environment(\.inSheet, true)
+            }
             .animation(.default, value: viewStore.popularLoadingState)
             .onAppear {
                 if viewStore.popularGalleries.isEmpty {
@@ -115,7 +130,9 @@ struct HomeView: View {
 // MARK: NavigationLinks
 private extension HomeView {
     @ViewBuilder var navigationLinks: some View {
-        detailViewLink
+        if DeviceUtil.isPhone {
+            detailViewLink
+        }
         miscGridLink
         sectionLink
     }

@@ -26,7 +26,6 @@ struct AppRouteState: Equatable {
     var hudConfig: TTProgressHUDConfig = .loading
 
     var filtersState = FiltersState()
-    var settingState = SettingState()
     @Heap var detailState: DetailState!
     var searchRequestState = SearchRequestState()
 }
@@ -48,7 +47,6 @@ enum AppRouteAction: BindableAction {
     case fetchGreetingDone(Result<Greeting, AppError>)
 
     case filters(FiltersAction)
-    case setting(SettingAction)
     case detail(DetailAction)
     case searchRequest(SearchRequestAction)
 }
@@ -90,7 +88,6 @@ let appRouteReducer = Reducer<AppRouteState, AppRouteAction, AppRouteEnvironment
 
         case .clearSubStates:
             state.detailState = .init()
-            state.settingState = .init()
             state.filtersState = .init()
             state.searchRequestState = .init()
             return .merge(
@@ -183,9 +180,6 @@ let appRouteReducer = Reducer<AppRouteState, AppRouteAction, AppRouteEnvironment
         case .filters:
             return .none
 
-        case .setting:
-            return .none
-
         case .detail:
             return .none
 
@@ -216,27 +210,6 @@ let appRouteReducer = Reducer<AppRouteState, AppRouteAction, AppRouteEnvironment
         }
     )
     .binding(),
-    settingReducer.pullback(
-        state: \.settingState,
-        action: /AppRouteAction.setting,
-        environment: {
-            .init(
-                dfClient: $0.dfClient,
-                fileClient: $0.fileClient,
-                deviceClient: $0.deviceClient,
-                loggerClient: $0.loggerClient,
-                hapticClient: $0.hapticClient,
-                libraryClient: $0.libraryClient,
-                cookiesClient: $0.cookiesClient,
-                databaseClient: $0.databaseClient,
-                clipboardClient: $0.clipboardClient,
-                appDelegateClient: $0.appDelegateClient,
-                userDefaultsClient: $0.userDefaultsClient,
-                uiApplicationClient: $0.uiApplicationClient,
-                authorizationClient: $0.authorizationClient
-            )
-        }
-    ),
     detailReducer.pullback(
         state: \.detailState,
         action: /AppRouteAction.detail,

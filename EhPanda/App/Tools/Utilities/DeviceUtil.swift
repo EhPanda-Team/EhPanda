@@ -12,6 +12,9 @@ struct DeviceUtil {
     static var isPad: Bool {
         UIDevice.current.userInterfaceIdiom == .pad
     }
+    static var isPhone: Bool {
+        UIDevice.current.userInterfaceIdiom == .phone
+    }
 
     static var isPadWidth: Bool {
         windowW >= 744

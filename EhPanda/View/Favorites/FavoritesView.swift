@@ -55,6 +55,22 @@ struct FavoritesView: View {
                     NotLoginView(action: { viewStore.send(.onNotLoginViewButtonTapped) })
                 }
             }
+            .sheet(
+                unwrapping: viewStore.binding(\.$route),
+                case: /FavoritesState.Route.detail,
+                isEnabled: DeviceUtil.isPad
+            ) { route in
+                NavigationView {
+                    DetailView(
+                        store: store.scope(state: \.detailState, action: FavoritesAction.detail),
+                        gid: route.wrappedValue, user: user, setting: $setting,
+                        blurRadius: blurRadius, tagTranslator: tagTranslator
+                    )
+                }
+                .autoBlur(radius: blurRadius)
+                .environment(\.inSheet, true)
+                .navigationViewStyle(.stack)
+            }
             .sheet(unwrapping: viewStore.binding(\.$route), case: /FavoritesState.Route.quickSearch) { _ in
                 QuickSearchView(
                     store: store.scope(state: \.quickSearchState, action: FavoritesAction.quickSearch)
@@ -90,13 +106,15 @@ struct FavoritesView: View {
         }
     }
 
-    private var navigationLink: some View {
-        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /FavoritesState.Route.detail) { route in
-            DetailView(
-                store: store.scope(state: \.detailState, action: FavoritesAction.detail),
-                gid: route.wrappedValue, user: user, setting: $setting,
-                blurRadius: blurRadius, tagTranslator: tagTranslator
-            )
+    @ViewBuilder private var navigationLink: some View {
+        if DeviceUtil.isPhone {
+            NavigationLink(unwrapping: viewStore.binding(\.$route), case: /FavoritesState.Route.detail) { route in
+                DetailView(
+                    store: store.scope(state: \.detailState, action: FavoritesAction.detail),
+                    gid: route.wrappedValue, user: user, setting: $setting,
+                    blurRadius: blurRadius, tagTranslator: tagTranslator
+                )
+            }
         }
     }
     private func toolbar() -> some ToolbarContent {
