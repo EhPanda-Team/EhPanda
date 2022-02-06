@@ -13,6 +13,10 @@ struct HistoryState: Equatable {
         case clearHistory
     }
 
+    init() {
+        _detailState = .init(.init())
+    }
+
     @BindableState var route: Route?
     @BindableState var keyword = ""
     @BindableState var clearDialogPresented = false
@@ -27,7 +31,7 @@ struct HistoryState: Equatable {
     var galleries = [Gallery]()
     var loadingState: LoadingState = .idle
 
-    var detailState = DetailState()
+    @Heap var detailState: DetailState!
 }
 
 enum HistoryAction: BindableAction {

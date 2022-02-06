@@ -16,6 +16,10 @@ struct FavoritesState: Equatable {
         case detail(String)
     }
 
+    init() {
+        _detailState = .init(.init())
+    }
+
     @BindableState var route: Route?
     @BindableState var keyword = ""
     @BindableState var jumpPageIndex = ""
@@ -43,7 +47,7 @@ struct FavoritesState: Equatable {
         rawFooterLoadingState[index]
     }
 
-    var detailState = DetailState()
+    @Heap var detailState: DetailState!
     var quickSearchState = QuickSearchState()
 
     mutating func insertGalleries(index: Int, galleries: [Gallery]) {

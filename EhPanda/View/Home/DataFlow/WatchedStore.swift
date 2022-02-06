@@ -16,6 +16,10 @@ struct WatchedState: Equatable {
         let id = String(describing: WatchedState.self)
     }
 
+    init() {
+        _detailState = .init(.init())
+    }
+
     @BindableState var route: Route?
     @BindableState var keyword = ""
     @BindableState var jumpPageIndex = ""
@@ -30,7 +34,7 @@ struct WatchedState: Equatable {
     var loadingState: LoadingState = .idle
     var footerLoadingState: LoadingState = .idle
 
-    var detailState = DetailState()
+    @Heap var detailState: DetailState!
     var quickSearchState = QuickSearchState()
 
     mutating func insertGalleries(_ galleries: [Gallery]) {

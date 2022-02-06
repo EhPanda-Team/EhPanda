@@ -15,6 +15,10 @@ struct FrontpageState: Equatable {
         let id = String(describing: FrontpageState.self)
     }
 
+    init() {
+        _detailState = .init(.init())
+    }
+
     @BindableState var route: Route?
     @BindableState var keyword = ""
     @BindableState var jumpPageIndex = ""
@@ -33,7 +37,7 @@ struct FrontpageState: Equatable {
     var loadingState: LoadingState = .idle
     var footerLoadingState: LoadingState = .idle
 
-    var detailState = DetailState()
+    @Heap var detailState: DetailState!
 
     mutating func insertGalleries(_ galleries: [Gallery]) {
         galleries.forEach { gallery in

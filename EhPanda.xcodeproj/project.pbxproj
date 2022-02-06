@@ -28,6 +28,7 @@
 		AB17573D27675B1E00FD64E2 /* Colorful in Frameworks */ = {isa = PBXBuildFile; productRef = AB17573C27675B1E00FD64E2 /* Colorful */; };
 		AB17574027678B3400FD64E2 /* UIImageColors in Frameworks */ = {isa = PBXBuildFile; productRef = AB17573F27678B3400FD64E2 /* UIImageColors */; };
 		AB19D619266E5C6700BA752A /* TTProgressHUD in Frameworks */ = {isa = PBXBuildFile; productRef = AB19D618266E5C6700BA752A /* TTProgressHUD */; };
+		AB1EF25427AFA19200F507D6 /* Heap.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB1EF25327AFA19200F507D6 /* Heap.swift */; };
 		AB21CCA0274B4F0C00C115B1 /* SwiftyBeaver in Frameworks */ = {isa = PBXBuildFile; productRef = AB21CC9F274B4F0C00C115B1 /* SwiftyBeaver */; };
 		AB24C55A27674EDF0085C33A /* FavoritesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB24C55927674EDF0085C33A /* FavoritesView.swift */; };
 		AB24C55C2767565A0085C33A /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB24C55B2767565A0085C33A /* HomeView.swift */; };
@@ -258,6 +259,7 @@
 		AB0ABCB626C541A400AD970F /* WaveForm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaveForm.swift; sourceTree = "<group>"; };
 		AB10117D26986B7D00C2C1A9 /* GalleryStateMO+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GalleryStateMO+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		AB10117F26986C1100C2C1A9 /* GalleryStateMO+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GalleryStateMO+CoreDataClass.swift"; sourceTree = "<group>"; };
+		AB1EF25327AFA19200F507D6 /* Heap.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Heap.swift; sourceTree = "<group>"; };
 		AB24C55927674EDF0085C33A /* FavoritesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoritesView.swift; sourceTree = "<group>"; };
 		AB24C55B2767565A0085C33A /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		AB24C565276758E30085C33A /* GalleryCardCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryCardCell.swift; sourceTree = "<group>"; };
@@ -986,6 +988,7 @@
 		ABF45AB325F3312F00ECB568 /* DataFlow */ = {
 			isa = PBXGroup;
 			children = (
+				AB1EF25327AFA19200F507D6 /* Heap.swift */,
 				AB58A5B12776B99000C0D285 /* AppStore.swift */,
 				AB86AC1227856F2700E61E6A /* AppLockStore.swift */,
 				AB706F7827890A6C0025A48A /* AppRouteStore.swift */,
@@ -1362,6 +1365,7 @@
 				AB69CB8226B3DAF400699359 /* ControlPanel.swift in Sources */,
 				AB7BF2D227AA3EDC001865A3 /* HapticUtil.swift in Sources */,
 				ABD49D5A277C5356003D1A07 /* FavoritesStore.swift in Sources */,
+				AB1EF25427AFA19200F507D6 /* Heap.swift in Sources */,
 				AB7BF2C227A96760001865A3 /* GalleryDetail.swift in Sources */,
 				ABE1867826A1733000689FDC /* LaboratorySettingView.swift in Sources */,
 				ABF45AEB25F3313D00ECB568 /* GalleryDetailCell.swift in Sources */,

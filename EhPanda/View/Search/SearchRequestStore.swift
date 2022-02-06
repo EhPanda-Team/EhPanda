@@ -16,6 +16,10 @@ struct SearchRequestState: Equatable {
         let id = String(describing: SearchRequestState.self)
     }
 
+    init() {
+        _detailState = .init(.init())
+    }
+
     @BindableState var route: Route?
     @BindableState var keyword = ""
     var lastKeyword = ""
@@ -31,7 +35,7 @@ struct SearchRequestState: Equatable {
     var loadingState: LoadingState = .idle
     var footerLoadingState: LoadingState = .idle
 
-    var detailState = DetailState()
+    @Heap var detailState: DetailState!
     var quickSearchState = QuickSearchState()
 
     mutating func insertGalleries(_ galleries: [Gallery]) {

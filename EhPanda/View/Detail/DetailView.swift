@@ -54,7 +54,7 @@ struct DetailView: View {
                         navigateUploaderAction: {
                             if let uploader = viewStore.galleryDetail?.uploader {
                                 let keyword = "uploader:" + "\"\(uploader)\""
-                                viewStore.send(.onNavigateSearchRequest(keyword))
+                                viewStore.send(.setNavigation(.searchRequest(keyword)))
                             }
                         }
                     )
@@ -77,7 +77,7 @@ struct DetailView: View {
                         confirmRatingAction: { viewStore.send(.confirmRating($0)) },
                         navigateSimilarGalleryAction: {
                             if let trimmedTitle = viewStore.galleryDetail?.trimmedTitle {
-                                viewStore.send(.onNavigateSearchRequest(trimmedTitle))
+                                viewStore.send(.setNavigation(.searchRequest(trimmedTitle)))
                             }
                         }
                     )
@@ -85,7 +85,7 @@ struct DetailView: View {
                         TagsSection(
                             tags: viewStore.galleryTags,
                             navigateAction: {
-                                viewStore.send(.onNavigateSearchRequest($0))
+                                viewStore.send(.setNavigation(.searchRequest($0)))
                             },
                             translateAction: {
                                 tagTranslator.tryTranslate(text: $0, returnOriginal: !setting.translatesTags)
@@ -216,6 +216,14 @@ private extension DetailView {
                 store: store.scope(state: \.galleryInfosState, action: DetailAction.galleryInfos),
                 gallery: gallery, galleryDetail: galleryDetail
             )
+        }
+        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /DetailState.Route.searchRequest) { route in
+            IfLetStore(store.scope(state: \.searchRequestState, action: DetailAction.searchRequest)) { store in
+                SearchRequestView(
+                    store: store, keyword: route.wrappedValue, user: user, setting: $setting,
+                    blurRadius: blurRadius, tagTranslator: tagTranslator
+                )
+            }
         }
     }
 }

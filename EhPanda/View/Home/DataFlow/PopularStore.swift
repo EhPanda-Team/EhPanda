@@ -15,6 +15,10 @@ struct PopularState: Equatable {
         let id = String(describing: PopularState.self)
     }
 
+    init() {
+        _detailState = .init(.init())
+    }
+
     @BindableState var route: Route?
     @BindableState var keyword = ""
 
@@ -28,7 +32,7 @@ struct PopularState: Equatable {
     var galleries = [Gallery]()
     var loadingState: LoadingState = .idle
 
-    var detailState = DetailState()
+    @Heap var detailState: DetailState!
 }
 
 enum PopularAction: BindableAction {

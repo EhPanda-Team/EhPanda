@@ -17,6 +17,10 @@ struct HomeState: Equatable {
         case section(HomeSectionType)
     }
 
+    init() {
+        _detailState = .init(.init())
+    }
+
     @BindableState var route: Route?
     @BindableState var cardPageIndex = 1
     @BindableState var currentCardID = ""
@@ -41,7 +45,7 @@ struct HomeState: Equatable {
     var popularState = PopularState()
     var watchedState = WatchedState()
     var historyState = HistoryState()
-    var detailState = DetailState()
+    @Heap var detailState: DetailState!
 
     mutating func setPopularGalleries(_ galleries: [Gallery]) {
         let sortedGalleries = galleries.sorted { lhs, rhs in

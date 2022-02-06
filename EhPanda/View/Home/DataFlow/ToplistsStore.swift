@@ -15,6 +15,10 @@ struct ToplistsState: Equatable {
         let id = String(describing: ToplistsState.self)
     }
 
+    init() {
+        _detailState = .init(.init())
+    }
+
     @BindableState var route: Route?
     @BindableState var keyword = ""
     @BindableState var jumpPageIndex = ""
@@ -46,7 +50,7 @@ struct ToplistsState: Equatable {
         rawFooterLoadingState[type]
     }
 
-    var detailState = DetailState()
+    @Heap var detailState: DetailState!
 
     mutating func insertGalleries(type: ToplistsType, galleries: [Gallery]) {
         galleries.forEach { gallery in

@@ -14,6 +14,10 @@ struct SearchState: Equatable {
         case detail(String)
     }
 
+    init() {
+        _detailState = .init(.init())
+    }
+
     @BindableState var route: Route?
     @BindableState var keyword = ""
     var historyGalleries = [Gallery]()
@@ -23,7 +27,7 @@ struct SearchState: Equatable {
 
     var searchRequestState = SearchRequestState()
     var quickSearchState = QuickSearchState()
-    var detailState = DetailState()
+    @Heap var detailState: DetailState!
 
     mutating func appendHistoryKeywords(_ keywords: [String]) {
         guard !keywords.isEmpty else { return }

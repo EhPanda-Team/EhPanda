@@ -18,10 +18,41 @@ struct DetailState: Equatable {
         case share(URL)
         case postComment
         case newDawn(Greeting)
+        case searchRequest(String)
         case galleryInfos(Gallery, GalleryDetail)
     }
     struct CancelID: Hashable {
         let id = String(describing: DetailState.self)
+    }
+
+    init() {
+        _searchRequestState = .init(nil)
+    }
+
+    static func == (lhs: DetailState, rhs: DetailState) -> Bool {
+        lhs.route == rhs.route
+        && lhs.commentContent == rhs.commentContent
+        && lhs.postCommentFocused == rhs.postCommentFocused
+
+        && lhs.showsNewDawnGreeting == rhs.showsNewDawnGreeting
+        && lhs.showsUserRating == rhs.showsUserRating
+        && lhs.showsFullTitle == rhs.showsFullTitle
+        && lhs.userRating == rhs.userRating
+
+        && lhs.apiKey == rhs.apiKey
+
+        && lhs.loadingState == rhs.loadingState
+        && lhs.gallery == rhs.gallery
+        && lhs.galleryDetail == rhs.galleryDetail
+        && lhs.galleryTags == rhs.galleryTags
+        && lhs.galleryPreviewURLs == rhs.galleryPreviewURLs
+        && lhs.galleryComments == rhs.galleryComments
+
+        && lhs.archivesState == rhs.archivesState
+        && lhs.torrentsState == rhs.torrentsState
+        && lhs.previewsState == rhs.previewsState
+        && lhs.commentsState == rhs.commentsState
+        && lhs.searchRequestState == rhs.searchRequestState
     }
 
     @BindableState var route: Route?
@@ -47,6 +78,8 @@ struct DetailState: Equatable {
     var previewsState = PreviewsState(gallery: .empty)
     var commentsState = CommentsState()
     var galleryInfosState = GalleryInfosState()
+    @Heap var searchRequestState: SearchRequestState?
+    var searchRequestReducer: Reducer<SearchRequestState, SearchRequestAction, SearchRequestEnvironment>?
 
     mutating func updateRating(value: DragGesture.Value) {
         let rating = Int(value.location.x / 31 * 2) + 1
@@ -54,7 +87,7 @@ struct DetailState: Equatable {
     }
 }
 
-enum DetailAction: BindableAction {
+indirect enum DetailAction: BindableAction {
     case binding(BindingAction<DetailState>)
     case setNavigation(DetailState.Route?)
     case setupPreviewsState
@@ -62,7 +95,6 @@ enum DetailAction: BindableAction {
     case clearSubStates
     case onPostCommentAppear
     case onAppear(String, Bool)
-    case onNavigateSearchRequest(String)
 
     case toggleShowFullTitle
     case toggleShowUserRating
@@ -99,6 +131,7 @@ enum DetailAction: BindableAction {
     case previews(PreviewsAction)
     case comments(CommentsAction)
     case galleryInfos(GalleryInfosAction)
+    case searchRequest(SearchRequestAction)
 }
 
 struct DetailEnvironment {
@@ -114,6 +147,9 @@ struct DetailEnvironment {
     let uiApplicationClient: UIApplicationClient
 }
 
+var anySearchRequestReducer: Reducer<SearchRequestState, SearchRequestAction, SearchRequestEnvironment> {
+    searchRequestReducer
+}
 let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combine(
     .init { state, action, environment in
         switch action {
@@ -142,6 +178,7 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
             state.commentContent = .init()
             state.postCommentFocused = false
             state.galleryInfosState = .init()
+            state.searchRequestState = .init()
             return .merge(
                 .init(value: .setupPreviewsState),
                 .init(value: .setupReadingState),
@@ -149,7 +186,8 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
                 .init(value: .archives(.teardown)),
                 .init(value: .torrents(.teardown)),
                 .init(value: .previews(.teardown)),
-                .init(value: .comments(.teardown))
+                .init(value: .comments(.teardown)),
+                .init(value: .searchRequest(.teardown))
             )
 
         case .onPostCommentAppear:
@@ -158,10 +196,13 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
 
         case .onAppear(let gid, let showsNewDawnGreeting):
             state.showsNewDawnGreeting = showsNewDawnGreeting
+            if state.searchRequestReducer == nil {
+                state.searchRequestReducer = anySearchRequestReducer
+            }
+            if state.searchRequestState == nil {
+                state.searchRequestState = .init()
+            }
             return .init(value: .fetchDatabaseInfos(gid))
-
-        case .onNavigateSearchRequest:
-            return .none
 
         case .toggleShowFullTitle:
             state.showsFullTitle.toggle()
@@ -341,6 +382,28 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
 
         case .galleryInfos:
             return .none
+
+        case .searchRequest:
+            guard let searchRequestReducer = state.searchRequestReducer else { return .none }
+            return searchRequestReducer.optional().pullback(
+                state: \.searchRequestState,
+                action: /DetailAction.searchRequest,
+                environment: {
+                    .init(
+                        urlClient: $0.urlClient,
+                        fileClient: $0.fileClient,
+                        imageClient: $0.imageClient,
+                        deviceClient: $0.deviceClient,
+                        hapticClient: $0.hapticClient,
+                        cookiesClient: $0.cookiesClient,
+                        databaseClient: $0.databaseClient,
+                        clipboardClient: $0.clipboardClient,
+                        appDelegateClient: $0.appDelegateClient,
+                        uiApplicationClient: $0.uiApplicationClient
+                    )
+                }
+            )
+            .run(&state, action, environment)
         }
     }
     .haptics(
@@ -448,6 +511,24 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.combin
             .init(
                 hapticClient: $0.hapticClient,
                 clipboardClient: $0.clipboardClient
+            )
+        }
+    ),
+    commentsReducer.pullback(
+        state: \.commentsState,
+        action: /DetailAction.comments,
+        environment: {
+            .init(
+                urlClient: $0.urlClient,
+                fileClient: $0.fileClient,
+                imageClient: $0.imageClient,
+                deviceClient: $0.deviceClient,
+                hapticClient: $0.hapticClient,
+                cookiesClient: $0.cookiesClient,
+                databaseClient: $0.databaseClient,
+                clipboardClient: $0.clipboardClient,
+                appDelegateClient: $0.appDelegateClient,
+                uiApplicationClient: $0.uiApplicationClient
             )
         }
     )

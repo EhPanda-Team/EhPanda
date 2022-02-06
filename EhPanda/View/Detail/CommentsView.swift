@@ -121,6 +121,7 @@ struct CommentsView: View {
         .onAppear {
             viewStore.send(.onAppear)
         }
+        .background(navigationLink)
         .toolbar(content: toolbar)
         .navigationTitle(R.string.localizable.commentsViewTitleComments())
     }
@@ -133,6 +134,20 @@ struct CommentsView: View {
                 Image(systemSymbol: .squareAndPencil)
             }
             .disabled(!CookiesUtil.didLogin)
+        }
+    }
+}
+
+// MARK: NavigationLinks
+private extension CommentsView {
+    @ViewBuilder var navigationLink: some View {
+        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /CommentsState.Route.detail) { route in
+            IfLetStore(store.scope(state: \.detailState, action: CommentsAction.detail)) { store in
+                DetailView(
+                    store: store, gid: route.wrappedValue, user: user, setting: $setting,
+                    blurRadius: blurRadius, tagTranslator: tagTranslator
+                )
+            }
         }
     }
 }

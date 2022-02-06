@@ -16,7 +16,10 @@ struct AppRouteState: Equatable {
         case setting
         case detail(String)
         case newDawn(Greeting)
-        case searchRequest(String)
+    }
+
+    init() {
+        _detailState = .init(.init())
     }
 
     @BindableState var route: Route?
@@ -24,7 +27,7 @@ struct AppRouteState: Equatable {
 
     var filtersState = FiltersState()
     var settingState = SettingState()
-    var detailState = DetailState()
+    @Heap var detailState: DetailState!
     var searchRequestState = SearchRequestState()
 }
 
@@ -190,11 +193,6 @@ let appRouteReducer = Reducer<AppRouteState, AppRouteAction, AppRouteEnvironment
             return .none
         }
     }
-    .haptics(
-        unwrapping: \.route,
-        case: /AppRouteState.Route.searchRequest,
-        hapticClient: \.hapticClient
-    )
     .haptics(
         unwrapping: \.route,
         case: /AppRouteState.Route.newDawn,
