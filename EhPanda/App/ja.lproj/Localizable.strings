@@ -382,10 +382,12 @@
 // EhSetting.LoadThroughHathSetting
 "enum.eh.setting.load.through.hath.setting.value.anyClient" = "任意のクライアント";
 "enum.eh.setting.load.through.hath.setting.value.defaultPortOnly" = "デフォルトポートのクライアントのみ";
-"enum.eh.setting.load.through.hath.setting.value.no" = "使わない";
+"enum.eh.setting.load.through.hath.setting.value.modernNo" = "使わない [モダン / HTTPS]";
+"enum.eh.setting.load.through.hath.setting.value.legacyNo" = "使わない [レガシー / HTTP]";
 "enum.eh.setting.load.through.hath.setting.description.anyClient" = "推奨。";
 "enum.eh.setting.load.through.hath.setting.description.defaultPortOnly" = "遅くなることがあります。非標準発信ポートがファイヤーウォール・プロキシにブロックされた場合のみ有効にしてください。";
-"enum.eh.setting.load.through.hath.setting.description.no" = "寄付者独占オプション。閲覧による割当額の消耗は激しくなります、厳重な問題が起こった場合のみ有効にしてください。";
+"enum.eh.setting.load.through.hath.setting.description.modernNo" = "寄付者独占オプション。閲覧による割当額の消耗は激しくなります。厳重な問題が起こった場合以外おすすめしません。";
+"enum.eh.setting.load.through.hath.setting.description.legacyNo" = "寄付者独占オプション。モダンブラウザでは機能しないこともあります。レガシー・旧型ブラウザの場合以外おすすめしません。";
 
 "eh.setting.view.section.title.imageSizeSettings" = "画像サイズ設定";
 "eh.setting.view.title.imageResolution" = "画像解像度";

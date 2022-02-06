@@ -695,7 +695,7 @@ struct SubmitEhSettingChangesRequest: Request {
             "sc": String(ehSetting.commentVotesShowTiming.rawValue),
             "tb": String(ehSetting.tagsSortOrder.rawValue),
             "pn": ehSetting.galleryShowPageNumbers ? "1" : "0",
-            "hh": ehSetting.hathLocalNetworkHost,
+            /* "hh": ehSetting.hathLocalNetworkHost, */
             "apply": "Apply"
         ]
 

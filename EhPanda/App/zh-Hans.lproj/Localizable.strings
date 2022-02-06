@@ -382,10 +382,12 @@
 // EhSetting.LoadThroughHathSetting
 "enum.eh.setting.load.through.hath.setting.value.anyClient" = "所有客户端";
 "enum.eh.setting.load.through.hath.setting.value.defaultPortOnly" = "仅使用默认端口的客户端";
-"enum.eh.setting.load.through.hath.setting.value.no" = "不通过";
+"enum.eh.setting.load.through.hath.setting.value.modernNo" = "不通过 [现代 / HTTPS]";
+"enum.eh.setting.load.through.hath.setting.value.legacyNo" = "不通过 [旧式 / HTTP]";
 "enum.eh.setting.load.through.hath.setting.description.anyClient" = "推荐。";
 "enum.eh.setting.load.through.hath.setting.description.defaultPortOnly" = "可能稍慢。当防火墙或代理阻止非标准接口的流量时启用此项。";
-"enum.eh.setting.load.through.hath.setting.description.no" = "仅限赞助者。配额消耗会加快，请只在遇到问题时启用此项。";
+"enum.eh.setting.load.through.hath.setting.description.modernNo" = "仅限赞助者。配额消耗会加快。只建议在遇到严重问题时使用。";
+"enum.eh.setting.load.through.hath.setting.description.legacyNo" = "仅限赞助者。在现代浏览器可能不可用。只建议在旧式 / 过时的浏览器使用。";
 
 "eh.setting.view.section.title.imageSizeSettings" = "图像尺寸设置";
 "eh.setting.view.title.imageResolution" = "图像分辨率";

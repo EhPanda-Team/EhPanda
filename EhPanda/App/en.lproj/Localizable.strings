@@ -382,10 +382,12 @@
 // EhSetting.LoadThroughHathSetting
 "enum.eh.setting.load.through.hath.setting.value.anyClient" = "Any client";
 "enum.eh.setting.load.through.hath.setting.value.defaultPortOnly" = "Default port clients only";
-"enum.eh.setting.load.through.hath.setting.value.no" = "No";
+"enum.eh.setting.load.through.hath.setting.value.modernNo" = "No [Modern/HTTPS]";
+"enum.eh.setting.load.through.hath.setting.value.legacyNo" = "No [Legacy/HTTP]";
 "enum.eh.setting.load.through.hath.setting.description.anyClient" = "Recommended.";
 "enum.eh.setting.load.through.hath.setting.description.defaultPortOnly" = "Can be slower. Enable if behind firewall/proxy that blocks outgoing non-standard ports.";
-"enum.eh.setting.load.through.hath.setting.description.no" = "Donator only. You will not be able to browse as many pages, enable only if having severe problems.";
+"enum.eh.setting.load.through.hath.setting.description.modernNo" = "Donator only. You will not be able to browse as many pages. Recommended only if having severe problems.";
+"enum.eh.setting.load.through.hath.setting.description.legacyNo" = "Donator only. May not work by default in modern browsers. Recommended for legacy/outdated browsers only.";
 
 "eh.setting.view.section.title.imageSizeSettings" = "Image Size Settings";
 "eh.setting.view.title.imageResolution" = "Image resolution";

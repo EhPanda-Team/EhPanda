@@ -382,10 +382,12 @@
 // EhSetting.LoadThroughHathSetting
 "enum.eh.setting.load.through.hath.setting.value.anyClient" = "어떤 클라이언트에서든";
 "enum.eh.setting.load.through.hath.setting.value.defaultPortOnly" = "기본 포트 클라이언트만";
-"enum.eh.setting.load.through.hath.setting.value.no" = "아닙니다";
+"enum.eh.setting.load.through.hath.setting.value.modernNo" = "아닙니다 [Modern/HTTPS]";
+"enum.eh.setting.load.through.hath.setting.value.legacyNo" = "아닙니다 [Legacy/HTTP]";
 "enum.eh.setting.load.through.hath.setting.description.anyClient" = "추천.";
 "enum.eh.setting.load.through.hath.setting.description.defaultPortOnly" = "더 느려질 수 있어요. 나가는 비표준 포트를 차단하는 방화벽/프록시가 있는 경우 사용하세요.";
-"enum.eh.setting.load.through.hath.setting.description.no" = "기부자 전용 기능이에요. 심각한 문제가 있는 경우를 제외하고는 사용하지 말아주세요.";
+"enum.eh.setting.load.through.hath.setting.description.modernNo" = "기부자 전용 기능이에요. 심각한 문제가 있는 경우를 제외하고는 사용하지 말아주세요.";
+"enum.eh.setting.load.through.hath.setting.description.legacyNo" = "Donator only. May not work by default in modern browsers. Recommended for legacy/outdated browsers only.";
 
 "eh.setting.view.section.title.imageSizeSettings" = "이미지 사이즈 설정";
 "eh.setting.view.title.imageResolution" = "이미지 해상도";
