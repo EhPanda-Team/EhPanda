@@ -185,6 +185,11 @@ let searchRootReducer = Reducer<SearchRootState, SearchRootAction, SearchRootEnv
         case: /SearchRootState.Route.quickSearch,
         hapticClient: \.hapticClient
     )
+    .haptics(
+        unwrapping: \.route,
+        case: /SearchRootState.Route.filters,
+        hapticClient: \.hapticClient
+    )
     .binding(),
     searchReducer.pullback(
         state: \.searchState,

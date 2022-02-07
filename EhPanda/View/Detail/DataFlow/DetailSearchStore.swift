@@ -210,6 +210,11 @@ let detailSearchReducer = Reducer<DetailSearchState, DetailSearchAction, DetailS
         case: /DetailSearchState.Route.quickSearch,
         hapticClient: \.hapticClient
     )
+    .haptics(
+        unwrapping: \.route,
+        case: /DetailSearchState.Route.filters,
+        hapticClient: \.hapticClient
+    )
     .binding(),
     filtersReducer.pullback(
         state: \.filtersState,

@@ -186,6 +186,11 @@ let frontpageReducer = Reducer<FrontpageState, FrontpageAction, FrontpageEnviron
             return .none
         }
     }
+    .haptics(
+        unwrapping: \.route,
+        case: /FrontpageState.Route.filters,
+        hapticClient: \.hapticClient
+    )
     .binding(),
     filtersReducer.pullback(
         state: \.filtersState,

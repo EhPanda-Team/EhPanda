@@ -210,6 +210,11 @@ let searchReducer = Reducer<SearchState, SearchAction, SearchEnvironment>.combin
         case: /SearchState.Route.quickSearch,
         hapticClient: \.hapticClient
     )
+    .haptics(
+        unwrapping: \.route,
+        case: /SearchState.Route.filters,
+        hapticClient: \.hapticClient
+    )
     .binding(),
     filtersReducer.pullback(
         state: \.filtersState,

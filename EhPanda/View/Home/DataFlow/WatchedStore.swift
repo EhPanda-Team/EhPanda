@@ -206,6 +206,11 @@ let watchedReducer = Reducer<WatchedState, WatchedAction, WatchedEnvironment>.co
         case: /WatchedState.Route.quickSearch,
         hapticClient: \.hapticClient
     )
+    .haptics(
+        unwrapping: \.route,
+        case: /WatchedState.Route.filters,
+        hapticClient: \.hapticClient
+    )
     .binding(),
     filtersReducer.pullback(
         state: \.filtersState,

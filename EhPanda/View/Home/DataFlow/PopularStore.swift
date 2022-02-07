@@ -110,6 +110,11 @@ let popularReducer = Reducer<PopularState, PopularAction, PopularEnvironment>.co
             return .none
         }
     }
+    .haptics(
+        unwrapping: \.route,
+        case: /PopularState.Route.filters,
+        hapticClient: \.hapticClient
+    )
     .binding(),
     filtersReducer.pullback(
         state: \.filtersState,
