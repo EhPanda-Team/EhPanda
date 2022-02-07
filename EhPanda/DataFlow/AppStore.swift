@@ -71,11 +71,13 @@ let appReducerCore = Reducer<AppState, AppAction, AppEnvironment> { state, actio
             let threshold = state.settingState.setting.autoLockPolicy.rawValue
             let blurRadius = state.settingState.setting.backgroundBlurRadius
             var effects: [Effect<AppAction, Never>] = [
-                .init(value: .setting(.fetchGreeting)),
                 .init(value: .appLock(.onBecomeActive(threshold, blurRadius)))
             ]
-            if threshold < 0, state.settingState.setting.detectsLinksFromClipboard {
-                effects.append(.init(value: .appRoute(.detectClipboardURL)))
+            if threshold < 0 {
+                effects.append(.init(value: .setting(.fetchGreeting)))
+                if state.settingState.setting.detectsLinksFromClipboard {
+                    effects.append(.init(value: .appRoute(.detectClipboardURL)))
+                }
             }
             return .merge(effects)
         case .inactive:
@@ -104,8 +106,14 @@ let appReducerCore = Reducer<AppState, AppAction, AppEnvironment> { state, actio
         return .none
 
     case .appLock(.authorizeDone(let isSucceeded)):
-        return isSucceeded && state.settingState.setting.detectsLinksFromClipboard
-        ? .init(value: .appRoute(.detectClipboardURL)) : .none
+        var effects = [Effect<AppAction, Never>]()
+        if isSucceeded {
+            effects.append(.init(value: .setting(.fetchGreeting)))
+            if state.settingState.setting.detectsLinksFromClipboard {
+                effects.append(.init(value: .appRoute(.detectClipboardURL)))
+            }
+        }
+        return effects.isEmpty ? .none : .merge(effects)
 
     case .appLock:
         return .none
