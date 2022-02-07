@@ -117,7 +117,7 @@ let appReducerCore = Reducer<AppState, AppAction, AppEnvironment> { state, actio
 
     case .home(.frontpage(.onFiltersButtonTapped)), .home(.popular(.onFiltersButtonTapped)),
             .home(.watched(.onFiltersButtonTapped)), .searchRoot(.onFiltersButtonTapped),
-            .searchRoot(.searchRequest(.onFiltersButtonTapped)):
+            .searchRoot(.search(.onFiltersButtonTapped)):
         return .init(value: .appRoute(.setNavigation(.filters)))
 
     case .appRoute:
@@ -191,8 +191,8 @@ let appReducerCore = Reducer<AppState, AppAction, AppEnvironment> { state, actio
     case .favorites:
         return .none
 
-    case .searchRoot(.searchRequest(.fetchGalleries)):
-        state.searchRootState.searchRequestState.filter = state.settingState.searchFilter
+    case .searchRoot(.search(.fetchGalleries)):
+        state.searchRootState.searchState.filter = state.settingState.searchFilter
         return .none
 
     case .searchRoot:

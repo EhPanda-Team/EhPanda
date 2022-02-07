@@ -1,5 +1,5 @@
 //
-//  SearchRequestView.swift
+//  DetailSearchView.swift
 //  EhPanda
 //
 //  Created by 荒木辰造 on R 4/01/12.
@@ -8,9 +8,9 @@
 import SwiftUI
 import ComposableArchitecture
 
-struct SearchRequestView: View {
-    private let store: Store<SearchRequestState, SearchRequestAction>
-    @ObservedObject private var viewStore: ViewStore<SearchRequestState, SearchRequestAction>
+struct DetailSearchView: View {
+    private let store: Store<DetailSearchState, DetailSearchAction>
+    @ObservedObject private var viewStore: ViewStore<DetailSearchState, DetailSearchAction>
     private let keyword: String
     private let user: User
     @Binding private var setting: Setting
@@ -18,7 +18,7 @@ struct SearchRequestView: View {
     private let tagTranslator: TagTranslator
 
     init(
-        store: Store<SearchRequestState, SearchRequestAction>,
+        store: Store<DetailSearchState, DetailSearchAction>,
         keyword: String, user: User, setting: Binding<Setting>, blurRadius: Double, tagTranslator: TagTranslator
     ) {
         self.store = store
@@ -46,12 +46,12 @@ struct SearchRequestView: View {
         )
         .sheet(
             unwrapping: viewStore.binding(\.$route),
-            case: /SearchRequestState.Route.detail,
+            case: /DetailSearchState.Route.detail,
             isEnabled: DeviceUtil.isPad
         ) { route in
             NavigationView {
                 DetailView(
-                    store: store.scope(state: \.detailState, action: SearchRequestAction.detail),
+                    store: store.scope(state: \.detailState, action: DetailSearchAction.detail),
                     gid: route.wrappedValue, user: user, setting: $setting,
                     blurRadius: blurRadius, tagTranslator: tagTranslator
                 )
@@ -59,9 +59,9 @@ struct SearchRequestView: View {
             .autoBlur(radius: blurRadius)
             .environment(\.inSheet, true)
         }
-        .sheet(unwrapping: viewStore.binding(\.$route), case: /SearchRequestState.Route.quickSearch) { _ in
+        .sheet(unwrapping: viewStore.binding(\.$route), case: /DetailSearchState.Route.quickSearch) { _ in
             QuickSearchView(
-                store: store.scope(state: \.quickSearchState, action: SearchRequestAction.quickSearch)
+                store: store.scope(state: \.quickDetailSearchState, action: DetailSearchAction.quickSearch)
             ) { keyword in
                 viewStore.send(.setNavigation(nil))
                 viewStore.send(.fetchGalleries(nil, keyword))
@@ -95,9 +95,9 @@ struct SearchRequestView: View {
 
     @ViewBuilder private var navigationLink: some View {
         if DeviceUtil.isPhone {
-            NavigationLink(unwrapping: viewStore.binding(\.$route), case: /SearchRequestState.Route.detail) { route in
+            NavigationLink(unwrapping: viewStore.binding(\.$route), case: /DetailSearchState.Route.detail) { route in
                 DetailView(
-                    store: store.scope(state: \.detailState, action: SearchRequestAction.detail),
+                    store: store.scope(state: \.detailState, action: DetailSearchAction.detail),
                     gid: route.wrappedValue, user: user, setting: $setting,
                     blurRadius: blurRadius, tagTranslator: tagTranslator
                 )
@@ -124,13 +124,13 @@ struct SearchRequestView: View {
     }
 }
 
-struct SearchRequestView_Previews: PreviewProvider {
+struct DetailSearchView_Previews: PreviewProvider {
     static var previews: some View {
-        SearchRequestView(
+        DetailSearchView(
             store: .init(
                 initialState: .init(),
-                reducer: searchRequestReducer,
-                environment: SearchRequestEnvironment(
+                reducer: detailSearchReducer,
+                environment: DetailSearchEnvironment(
                     urlClient: .live,
                     fileClient: .live,
                     imageClient: .live,

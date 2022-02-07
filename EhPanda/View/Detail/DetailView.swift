@@ -54,7 +54,7 @@ struct DetailView: View {
                         navigateUploaderAction: {
                             if let uploader = viewStore.galleryDetail?.uploader {
                                 let keyword = "uploader:" + "\"\(uploader)\""
-                                viewStore.send(.setNavigation(.searchRequest(keyword)))
+                                viewStore.send(.setNavigation(.detailSearch(keyword)))
                             }
                         }
                     )
@@ -77,7 +77,7 @@ struct DetailView: View {
                         confirmRatingAction: { viewStore.send(.confirmRating($0)) },
                         navigateSimilarGalleryAction: {
                             if let trimmedTitle = viewStore.galleryDetail?.trimmedTitle {
-                                viewStore.send(.setNavigation(.searchRequest(trimmedTitle)))
+                                viewStore.send(.setNavigation(.detailSearch(trimmedTitle)))
                             }
                         }
                     )
@@ -85,7 +85,7 @@ struct DetailView: View {
                         TagsSection(
                             tags: viewStore.galleryTags,
                             navigateAction: {
-                                viewStore.send(.setNavigation(.searchRequest($0)))
+                                viewStore.send(.setNavigation(.detailSearch($0)))
                             },
                             translateAction: {
                                 tagTranslator.tryTranslate(text: $0, returnOriginal: !setting.translatesTags)
@@ -211,9 +211,9 @@ private extension DetailView {
                 )
             }
         }
-        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /DetailState.Route.searchRequest) { route in
-            IfLetStore(store.scope(state: \.searchRequestState, action: DetailAction.searchRequest)) { store in
-                SearchRequestView(
+        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /DetailState.Route.detailSearch) { route in
+            IfLetStore(store.scope(state: \.detailSearchState, action: DetailAction.detailSearch)) { store in
+                DetailSearchView(
                     store: store, keyword: route.wrappedValue, user: user, setting: $setting,
                     blurRadius: blurRadius, tagTranslator: tagTranslator
                 )

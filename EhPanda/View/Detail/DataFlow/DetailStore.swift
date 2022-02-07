@@ -18,7 +18,7 @@ struct DetailState: Equatable {
         case share(URL)
         case postComment
         case newDawn(Greeting)
-        case searchRequest(String)
+        case detailSearch(String)
         case galleryInfos(Gallery, GalleryDetail)
     }
     struct CancelID: Hashable {
@@ -27,7 +27,7 @@ struct DetailState: Equatable {
 
     init() {
         _commentsState = .init(nil)
-        _searchRequestState = .init(nil)
+        _detailSearchState = .init(nil)
     }
 
     @BindableState var route: Route?
@@ -53,7 +53,7 @@ struct DetailState: Equatable {
     var previewsState = PreviewsState(gallery: .empty)
     @Heap var commentsState: CommentsState?
     var galleryInfosState = GalleryInfosState()
-    @Heap var searchRequestState: SearchRequestState?
+    @Heap var detailSearchState: DetailSearchState?
 
     mutating func updateRating(value: DragGesture.Value) {
         let rating = Int(value.location.x / 31 * 2) + 1
@@ -105,7 +105,7 @@ indirect enum DetailAction: BindableAction {
     case previews(PreviewsAction)
     case comments(CommentsAction)
     case galleryInfos(GalleryInfosAction)
-    case searchRequest(SearchRequestAction)
+    case detailSearch(DetailSearchAction)
 }
 
 struct DetailEnvironment {
@@ -150,7 +150,7 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.recurs
                 state.commentContent = .init()
                 state.postCommentFocused = false
                 state.galleryInfosState = .init()
-                state.searchRequestState = .init()
+                state.detailSearchState = .init()
                 return .merge(
                     .init(value: .setupPreviewsState),
                     .init(value: .setupReadingState),
@@ -159,7 +159,7 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.recurs
                     .init(value: .torrents(.teardown)),
                     .init(value: .previews(.teardown)),
                     .init(value: .comments(.teardown)),
-                    .init(value: .searchRequest(.teardown))
+                    .init(value: .detailSearch(.teardown))
                 )
 
             case .onPostCommentAppear:
@@ -168,8 +168,8 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.recurs
 
             case .onAppear(let gid, let showsNewDawnGreeting):
                 state.showsNewDawnGreeting = showsNewDawnGreeting
-                if state.searchRequestState == nil {
-                    state.searchRequestState = .init()
+                if state.detailSearchState == nil {
+                    state.detailSearchState = .init()
                 }
                 if state.commentsState == nil {
                     state.commentsState = .init()
@@ -360,12 +360,12 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.recurs
             case .galleryInfos:
                 return .none
 
-            case .searchRequest(.detail(let recursiveAction)):
-                guard state.searchRequestState != nil else { return .none }
-                return self.run(&state.searchRequestState!.detailState, recursiveAction, environment)
-                    .map({ DetailAction.searchRequest(.detail($0)) })
+            case .detailSearch(.detail(let recursiveAction)):
+                guard state.detailSearchState != nil else { return .none }
+                return self.run(&state.detailSearchState!.detailState, recursiveAction, environment)
+                    .map({ DetailAction.detailSearch(.detail($0)) })
 
-            case .searchRequest:
+            case .detailSearch:
                 return .none
             }
         }
@@ -467,9 +467,9 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.recurs
                 )
             }
         ),
-        searchRequestReducer.optional().pullback(
-            state: \.searchRequestState,
-            action: /DetailAction.searchRequest,
+        detailSearchReducer.optional().pullback(
+            state: \.detailSearchState,
+            action: /DetailAction.detailSearch,
             environment: {
                 .init(
                     urlClient: $0.urlClient,

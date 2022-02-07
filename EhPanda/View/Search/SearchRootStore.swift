@@ -25,7 +25,7 @@ struct SearchRootState: Equatable {
     var historyKeywords = [String]()
     var quickSearchWords = [QuickSearchWord]()
 
-    var searchRequestState = SearchRequestState()
+    var searchState = SearchState()
     var quickSearchState = QuickSearchState()
     @Heap var detailState: DetailState!
 
@@ -74,7 +74,7 @@ enum SearchRootAction: BindableAction {
     case fetchHistoryGalleries
     case fetchHistoryGalleriesDone([Gallery])
 
-    case searchRequest(SearchRequestAction)
+    case search(SearchAction)
     case quickSearch(QuickSearchAction)
     case detail(DetailAction)
 }
@@ -120,11 +120,11 @@ let searchRootReducer = Reducer<SearchRootState, SearchRootAction, SearchRootEnv
             return .none
 
         case .clearSubStates:
-            state.searchRequestState = .init()
+            state.searchState = .init()
             state.quickSearchState = .init()
             state.detailState = .init()
             return .merge(
-                .init(value: .searchRequest(.teardown)),
+                .init(value: .search(.teardown)),
                 .init(value: .quickSearch(.teardown)),
                 .init(value: .detail(.teardown))
             )
@@ -159,15 +159,15 @@ let searchRootReducer = Reducer<SearchRootState, SearchRootAction, SearchRootEnv
             state.historyGalleries = Array(galleries.prefix(min(galleries.count, 10)))
             return .none
 
-        case .searchRequest(.fetchGalleries(_, let keyword)):
+        case .search(.fetchGalleries(_, let keyword)):
             if let keyword = keyword {
                 state.appendHistoryKeywords([keyword])
             } else {
-                state.appendHistoryKeywords([state.searchRequestState.lastKeyword])
+                state.appendHistoryKeywords([state.searchState.lastKeyword])
             }
             return .init(value: .syncHistoryKeywords)
 
-        case .searchRequest:
+        case .search:
             return .none
 
         case .quickSearch:
@@ -183,9 +183,9 @@ let searchRootReducer = Reducer<SearchRootState, SearchRootAction, SearchRootEnv
         hapticClient: \.hapticClient
     )
     .binding(),
-    searchRequestReducer.pullback(
-        state: \.searchRequestState,
-        action: /SearchRootAction.searchRequest,
+    searchReducer.pullback(
+        state: \.searchState,
+        action: /SearchRootAction.search,
         environment: {
             .init(
                 urlClient: $0.urlClient,

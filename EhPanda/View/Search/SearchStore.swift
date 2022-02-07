@@ -1,5 +1,5 @@
 //
-//  SearchRequestStore.swift
+//  SearchStore.swift
 //  EhPanda
 //
 //  Created by 荒木辰造 on R 4/01/12.
@@ -7,13 +7,13 @@
 
 import ComposableArchitecture
 
-struct SearchRequestState: Equatable {
+struct SearchState: Equatable {
     enum Route: Equatable {
         case quickSearch
         case detail(String)
     }
     struct CancelID: Hashable {
-        let id = String(describing: SearchRequestState.self)
+        let id = String(describing: SearchState.self)
     }
 
     init() {
@@ -47,9 +47,9 @@ struct SearchRequestState: Equatable {
     }
 }
 
-enum SearchRequestAction: BindableAction {
-    case binding(BindingAction<SearchRequestState>)
-    case setNavigation(SearchRequestState.Route?)
+enum SearchAction: BindableAction {
+    case binding(BindingAction<SearchState>)
+    case setNavigation(SearchState.Route?)
     case clearSubStates
     case onFiltersButtonTapped
 
@@ -67,7 +67,7 @@ enum SearchRequestAction: BindableAction {
     case quickSearch(QuickSearchAction)
 }
 
-struct SearchRequestEnvironment {
+struct SearchEnvironment {
     let urlClient: URLClient
     let fileClient: FileClient
     let imageClient: ImageClient
@@ -80,7 +80,7 @@ struct SearchRequestEnvironment {
     let uiApplicationClient: UIApplicationClient
 }
 
-let searchRequestReducer = Reducer<SearchRequestState, SearchRequestAction, SearchRequestEnvironment>.combine(
+let searchReducer = Reducer<SearchState, SearchAction, SearchEnvironment>.combine(
     .init { state, action, environment in
         switch action {
         case .binding(\.$route):
@@ -131,7 +131,7 @@ let searchRequestReducer = Reducer<SearchRequestState, SearchRequestAction, Sear
             return .none
 
         case .teardown:
-            return .cancel(id: SearchRequestState.CancelID())
+            return .cancel(id: SearchState.CancelID())
 
         case .fetchGalleries(let pageNum, let keyword):
             guard state.loadingState != .loading else { return .none }
@@ -142,7 +142,7 @@ let searchRequestReducer = Reducer<SearchRequestState, SearchRequestAction, Sear
             state.loadingState = .loading
             state.pageNumber.current = 0
             return SearchGalleriesRequest(keyword: state.lastKeyword, filter: state.filter, pageNum: pageNum)
-                .effect.map(SearchRequestAction.fetchGalleriesDone).cancellable(id: SearchRequestState.CancelID())
+                .effect.map(SearchAction.fetchGalleriesDone).cancellable(id: SearchState.CancelID())
 
         case .fetchGalleriesDone(let result):
             state.loadingState = .idle
@@ -174,7 +174,7 @@ let searchRequestReducer = Reducer<SearchRequestState, SearchRequestAction, Sear
             return MoreSearchGalleriesRequest(
                 keyword: state.lastKeyword, filter: state.filter, lastID: lastID, pageNum: pageNum
             )
-            .effect.map(SearchRequestAction.fetchMoreGalleriesDone).cancellable(id: SearchRequestState.CancelID())
+            .effect.map(SearchAction.fetchMoreGalleriesDone).cancellable(id: SearchState.CancelID())
 
         case .fetchMoreGalleriesDone(let result):
             state.footerLoadingState = .idle
@@ -183,7 +183,7 @@ let searchRequestReducer = Reducer<SearchRequestState, SearchRequestAction, Sear
                 state.pageNumber = pageNumber
                 state.insertGalleries(galleries)
 
-                var effects: [Effect<SearchRequestAction, Never>] = [
+                var effects: [Effect<SearchAction, Never>] = [
                     environment.databaseClient.cacheGalleries(galleries).fireAndForget()
                 ]
                 if galleries.isEmpty, pageNumber.current < pageNumber.maximum {
@@ -205,16 +205,34 @@ let searchRequestReducer = Reducer<SearchRequestState, SearchRequestAction, Sear
     }
     .haptics(
         unwrapping: \.route,
-        case: /SearchRequestState.Route.quickSearch,
+        case: /SearchState.Route.quickSearch,
         hapticClient: \.hapticClient
     )
     .binding(),
     quickSearchReducer.pullback(
         state: \.quickSearchState,
-        action: /SearchRequestAction.quickSearch,
+        action: /SearchAction.quickSearch,
         environment: {
             .init(
                 databaseClient: $0.databaseClient
+            )
+        }
+    ),
+    detailReducer.pullback(
+        state: \.detailState,
+        action: /SearchAction.detail,
+        environment: {
+            .init(
+                urlClient: $0.urlClient,
+                fileClient: $0.fileClient,
+                imageClient: $0.imageClient,
+                deviceClient: $0.deviceClient,
+                hapticClient: $0.hapticClient,
+                cookiesClient: $0.cookiesClient,
+                databaseClient: $0.databaseClient,
+                clipboardClient: $0.clipboardClient,
+                appDelegateClient: $0.appDelegateClient,
+                uiApplicationClient: $0.uiApplicationClient
             )
         }
     )

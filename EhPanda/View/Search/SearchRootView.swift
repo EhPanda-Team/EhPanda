@@ -109,7 +109,7 @@ private extension SearchRootView {
         if DeviceUtil.isPhone {
             detailViewLink
         }
-        searchRequestLink
+        searchViewLink
     }
     var detailViewLink: some View {
         NavigationLink(unwrapping: viewStore.binding(\.$route), case: /SearchRootState.Route.detail) { route in
@@ -120,10 +120,10 @@ private extension SearchRootView {
             )
         }
     }
-    var searchRequestLink: some View {
+    var searchViewLink: some View {
         NavigationLink(unwrapping: viewStore.binding(\.$route), case: /SearchRootState.Route.request) { _ in
-            SearchRequestView(
-                store: store.scope(state: \.searchRequestState, action: SearchRootAction.searchRequest),
+            SearchView(
+                store: store.scope(state: \.searchState, action: SearchRootAction.search),
                 keyword: viewStore.keyword, user: user, setting: $setting,
                 blurRadius: blurRadius, tagTranslator: tagTranslator
             )
@@ -392,7 +392,7 @@ private struct WrappedKeyword: Hashable {
     var displayText: String?
 }
 
-struct SearchView_Previews: PreviewProvider {
+struct SearchRootView_Previews: PreviewProvider {
     static var previews: some View {
         SearchRootView(
             store: .init(
