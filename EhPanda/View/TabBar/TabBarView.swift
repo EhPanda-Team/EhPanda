@@ -73,19 +73,6 @@ struct TabBarView: View {
             NewDawnView(greeting: route.wrappedValue)
                 .autoBlur(radius: viewStore.appLockState.blurRadius)
         }
-        .sheet(unwrapping: viewStore.binding(\.appRouteState.$route), case: /AppRouteState.Route.filters) { _ in
-            FiltersView(
-                store: store.scope(
-                    state: \.appRouteState.filtersState, action: { AppAction.appRoute(.filters($0)) }
-                ),
-                searchFilter: viewStore.binding(\.settingState.$searchFilter),
-                globalFilter: viewStore.binding(\.settingState.$globalFilter),
-                watchedFilter: viewStore.binding(\.settingState.$watchedFilter)
-            )
-            .tint(viewStore.settingState.setting.accentColor)
-            .accentColor(viewStore.settingState.setting.accentColor)
-            .autoBlur(radius: viewStore.appLockState.blurRadius)
-        }
         .sheet(unwrapping: viewStore.binding(\.appRouteState.$route), case: /AppRouteState.Route.setting) { _ in
             SettingView(
                 store: store.scope(state: \.settingState, action: AppAction.setting),

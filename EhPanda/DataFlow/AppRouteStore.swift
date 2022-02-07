@@ -12,7 +12,6 @@ import ComposableArchitecture
 struct AppRouteState: Equatable {
     enum Route: Equatable, Hashable {
         case hud
-        case filters
         case setting
         case detail(String)
         case newDawn(Greeting)
@@ -25,7 +24,6 @@ struct AppRouteState: Equatable {
     @BindableState var route: Route?
     var hudConfig: TTProgressHUDConfig = .loading
 
-    var filtersState = FiltersState()
     @Heap var detailState: DetailState!
 }
 
@@ -45,7 +43,6 @@ enum AppRouteAction: BindableAction {
     case fetchGalleryDone(URL, Result<Gallery, AppError>)
     case fetchGreetingDone(Result<Greeting, AppError>)
 
-    case filters(FiltersAction)
     case detail(DetailAction)
 }
 
@@ -86,10 +83,7 @@ let appRouteReducer = Reducer<AppRouteState, AppRouteAction, AppRouteEnvironment
 
         case .clearSubStates:
             state.detailState = .init()
-            state.filtersState = .init()
-            return .merge(
-                .init(value: .detail(.teardown))
-            )
+            return .init(value: .detail(.teardown))
 
         case .detectClipboardURL:
             let currentChangeCount = environment.clipboardClient.changeCount()
@@ -173,9 +167,6 @@ let appRouteReducer = Reducer<AppRouteState, AppRouteAction, AppRouteEnvironment
             }
             return .none
 
-        case .filters:
-            return .none
-
         case .detail:
             return .none
         }
@@ -187,20 +178,8 @@ let appRouteReducer = Reducer<AppRouteState, AppRouteAction, AppRouteEnvironment
     )
     .haptics(
         unwrapping: \.route,
-        case: /AppRouteState.Route.filters,
-        hapticClient: \.hapticClient
-    )
-    .haptics(
-        unwrapping: \.route,
         case: /AppRouteState.Route.detail,
         hapticClient: \.hapticClient
-    ),
-    filtersReducer.pullback(
-        state: \.filtersState,
-        action: /AppRouteAction.filters,
-        environment: { _ in
-            .init()
-        }
     )
     .binding(),
     detailReducer.pullback(

@@ -473,14 +473,17 @@ extension DatabaseClient {
     func updateSetting(_ setting: Setting) -> Effect<Never, Never> {
         updateAppEnv(key: "setting", value: setting.toData())
     }
-    func updateSearchFilter(_ filter: Filter) -> Effect<Never, Never> {
-        updateAppEnv(key: "searchFilter", value: filter.toData())
-    }
-    func updateGlobalFilter(_ filter: Filter) -> Effect<Never, Never> {
-        updateAppEnv(key: "globalFilter", value: filter.toData())
-    }
-    func updateWatchedFilter(_ filter: Filter) -> Effect<Never, Never> {
-        updateAppEnv(key: "watchedFilter", value: filter.toData())
+    func updateFilter(_ filter: Filter, range: FilterRange) -> Effect<Never, Never> {
+        let key: String
+        switch range {
+        case .search:
+            key = "searchFilter"
+        case .global:
+            key = "watchedFilter"
+        case .watched:
+            key = "globalFilter"
+        }
+        return updateAppEnv(key: key, value: filter.toData())
     }
     func updateTagTranslator(_ tagTranslator: TagTranslator) -> Effect<Never, Never> {
         updateAppEnv(key: "tagTranslator", value: tagTranslator.toData())

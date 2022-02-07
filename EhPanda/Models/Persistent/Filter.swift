@@ -25,8 +25,20 @@ struct Filter: Codable, Equatable {
     var galleryDesc = false
     var torrentFilenames = false
     var onlyWithTorrents = false
-    var lowPowerTags = false
-    var downvotedTags = false
+    var lowPowerTags = false {
+        didSet {
+            if lowPowerTags {
+                downvotedTags = false
+            }
+        }
+    }
+    var downvotedTags = false {
+        didSet {
+            if downvotedTags {
+                lowPowerTags = false
+            }
+        }
+    }
     var expungedGalleries = false
 
     var minRatingActivated = false
@@ -41,10 +53,6 @@ struct Filter: Codable, Equatable {
     var disableTags = false
 
     mutating func fixInvalidData() {
-        if lowPowerTags && downvotedTags {
-            lowPowerTags = false
-            downvotedTags = false
-        }
         if !pageLowerBound.isEmpty && Int(pageLowerBound) == nil {
             pageLowerBound = ""
         }

@@ -62,18 +62,6 @@ let appReducerCore = Reducer<AppState, AppAction, AppEnvironment> { state, actio
     case .binding(\.settingState.$setting):
         return .init(value: .setting(.syncSetting))
 
-    case .binding(\.settingState.$searchFilter):
-        state.settingState.searchFilter.fixInvalidData()
-        return .init(value: .setting(.syncSearchFilter))
-
-    case .binding(\.settingState.$globalFilter):
-        state.settingState.globalFilter.fixInvalidData()
-        return .init(value: .setting(.syncGlobalFilter))
-
-    case .binding(\.settingState.$watchedFilter):
-        state.settingState.watchedFilter.fixInvalidData()
-        return .init(value: .setting(.syncWatchedFilter))
-
     case .binding:
         return .none
 
@@ -111,14 +99,6 @@ let appReducerCore = Reducer<AppState, AppAction, AppEnvironment> { state, actio
             effects.append(.init(value: .setting(.clearSubStates)))
         }
         return effects.isEmpty ? .none : .merge(effects)
-
-    case .appRoute(.filters(.onResetFilterConfirmed)):
-        return .init(value: .setting(.resetFilter(state.appRouteState.filtersState.filterRange)))
-
-    case .home(.frontpage(.onFiltersButtonTapped)), .home(.popular(.onFiltersButtonTapped)),
-            .home(.watched(.onFiltersButtonTapped)), .searchRoot(.onFiltersButtonTapped),
-            .searchRoot(.search(.onFiltersButtonTapped)):
-        return .init(value: .appRoute(.setNavigation(.filters)))
 
     case .appRoute:
         return .none

@@ -9,6 +9,7 @@ import ComposableArchitecture
 
 struct SearchState: Equatable {
     enum Route: Equatable {
+        case filters
         case quickSearch
         case detail(String)
     }
@@ -32,6 +33,7 @@ struct SearchState: Equatable {
     var loadingState: LoadingState = .idle
     var footerLoadingState: LoadingState = .idle
 
+    var filtersState = FiltersState()
     @Heap var detailState: DetailState!
     var quickSearchState = QuickSearchState()
 
@@ -48,7 +50,6 @@ enum SearchAction: BindableAction {
     case binding(BindingAction<SearchState>)
     case setNavigation(SearchState.Route?)
     case clearSubStates
-    case onFiltersButtonTapped
 
     case performJumpPage
     case presentJumpPageAlert
@@ -61,6 +62,7 @@ enum SearchAction: BindableAction {
     case fetchMoreGalleriesDone(Result<(PageNumber, [Gallery]), AppError>)
 
     case detail(DetailAction)
+    case filters(FiltersAction)
     case quickSearch(QuickSearchAction)
 }
 
@@ -104,14 +106,12 @@ let searchReducer = Reducer<SearchState, SearchAction, SearchEnvironment>.combin
 
         case .clearSubStates:
             state.detailState = .init()
+            state.filtersState = .init()
             state.quickSearchState = .init()
             return .merge(
                 .init(value: .detail(.teardown)),
                 .init(value: .quickSearch(.teardown))
             )
-
-        case .onFiltersButtonTapped:
-            return .none
 
         case .performJumpPage:
             guard let index = Int(state.jumpPageIndex), index > 0, index <= state.pageNumber.maximum + 1 else {
@@ -198,6 +198,9 @@ let searchReducer = Reducer<SearchState, SearchAction, SearchEnvironment>.combin
         case .detail:
             return .none
 
+        case .filters:
+            return .none
+
         case .quickSearch:
             return .none
         }
@@ -208,6 +211,15 @@ let searchReducer = Reducer<SearchState, SearchAction, SearchEnvironment>.combin
         hapticClient: \.hapticClient
     )
     .binding(),
+    filtersReducer.pullback(
+        state: \.filtersState,
+        action: /SearchAction.filters,
+        environment: {
+            .init(
+                databaseClient: $0.databaseClient
+            )
+        }
+    ),
     quickSearchReducer.pullback(
         state: \.quickSearchState,
         action: /SearchAction.quickSearch,

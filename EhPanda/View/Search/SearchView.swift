@@ -69,6 +69,10 @@ struct SearchView: View {
             .accentColor(setting.accentColor)
             .autoBlur(radius: blurRadius)
         }
+        .sheet(unwrapping: viewStore.binding(\.$route), case: /SearchState.Route.filters) { _ in
+            FiltersView(store: store.scope(state: \.filtersState, action: SearchAction.filters))
+                .accentColor(setting.accentColor).autoBlur(radius: blurRadius)
+        }
         .jumpPageAlert(
             index: viewStore.binding(\.$jumpPageIndex),
             isPresented: viewStore.binding(\.$jumpPageAlertPresented),
@@ -108,7 +112,7 @@ struct SearchView: View {
         CustomToolbarItem(disabled: viewStore.jumpPageAlertPresented) {
             ToolbarFeaturesMenu {
                 FiltersButton {
-                    viewStore.send(.onFiltersButtonTapped)
+                    viewStore.send(.setNavigation(.filters))
                 }
                 QuickSearchButton {
                     viewStore.send(.setNavigation(.quickSearch))

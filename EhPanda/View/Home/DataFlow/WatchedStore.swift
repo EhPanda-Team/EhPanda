@@ -9,6 +9,7 @@ import ComposableArchitecture
 
 struct WatchedState: Equatable {
     enum Route: Equatable {
+        case filters
         case quickSearch
         case detail(String)
     }
@@ -31,8 +32,9 @@ struct WatchedState: Equatable {
     var loadingState: LoadingState = .idle
     var footerLoadingState: LoadingState = .idle
 
-    @Heap var detailState: DetailState!
+    var filtersState = FiltersState()
     var quickSearchState = QuickSearchState()
+    @Heap var detailState: DetailState!
 
     mutating func insertGalleries(_ galleries: [Gallery]) {
         galleries.forEach { gallery in
@@ -47,7 +49,6 @@ enum WatchedAction: BindableAction {
     case binding(BindingAction<WatchedState>)
     case setNavigation(WatchedState.Route?)
     case clearSubStates
-    case onFiltersButtonTapped
     case onNotLoginViewButtonTapped
 
     case performJumpPage
@@ -60,6 +61,7 @@ enum WatchedAction: BindableAction {
     case fetchMoreGalleries
     case fetchMoreGalleriesDone(Result<(PageNumber, [Gallery]), AppError>)
 
+    case filters(FiltersAction)
     case detail(DetailAction)
     case quickSearch(QuickSearchAction)
 }
@@ -98,14 +100,12 @@ let watchedReducer = Reducer<WatchedState, WatchedAction, WatchedEnvironment>.co
 
         case .clearSubStates:
             state.detailState = .init()
+            state.filtersState = .init()
             state.quickSearchState = .init()
             return .merge(
                 .init(value: .detail(.teardown)),
                 .init(value: .quickSearch(.teardown))
             )
-
-        case .onFiltersButtonTapped:
-            return .none
 
         case .onNotLoginViewButtonTapped:
             return .none
@@ -191,10 +191,13 @@ let watchedReducer = Reducer<WatchedState, WatchedAction, WatchedEnvironment>.co
             }
             return .none
 
-        case .detail:
+        case .quickSearch:
             return .none
 
-        case .quickSearch:
+        case .filters:
+            return .none
+
+        case .detail:
             return .none
         }
     }
@@ -204,6 +207,24 @@ let watchedReducer = Reducer<WatchedState, WatchedAction, WatchedEnvironment>.co
         hapticClient: \.hapticClient
     )
     .binding(),
+    filtersReducer.pullback(
+        state: \.filtersState,
+        action: /WatchedAction.filters,
+        environment: {
+            .init(
+                databaseClient: $0.databaseClient
+            )
+        }
+    ),
+    quickSearchReducer.pullback(
+        state: \.quickSearchState,
+        action: /WatchedAction.quickSearch,
+        environment: {
+            .init(
+                databaseClient: $0.databaseClient
+            )
+        }
+    ),
     detailReducer.pullback(
         state: \.detailState,
         action: /WatchedAction.detail,
@@ -219,15 +240,6 @@ let watchedReducer = Reducer<WatchedState, WatchedAction, WatchedEnvironment>.co
                 clipboardClient: $0.clipboardClient,
                 appDelegateClient: $0.appDelegateClient,
                 uiApplicationClient: $0.uiApplicationClient
-            )
-        }
-    ),
-    quickSearchReducer.pullback(
-        state: \.quickSearchState,
-        action: /WatchedAction.quickSearch,
-        environment: {
-            .init(
-                databaseClient: $0.databaseClient
             )
         }
     )

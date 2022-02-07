@@ -9,6 +9,7 @@ import ComposableArchitecture
 
 struct DetailSearchState: Equatable {
     enum Route: Equatable {
+        case filters
         case quickSearch
         case detail(String)
     }
@@ -33,6 +34,7 @@ struct DetailSearchState: Equatable {
     var footerLoadingState: LoadingState = .idle
 
     @Heap var detailState: DetailState!
+    var filtersState = FiltersState()
     var quickDetailSearchState = QuickSearchState()
 
     mutating func insertGalleries(_ galleries: [Gallery]) {
@@ -48,7 +50,6 @@ enum DetailSearchAction: BindableAction {
     case binding(BindingAction<DetailSearchState>)
     case setNavigation(DetailSearchState.Route?)
     case clearSubStates
-    case onFiltersButtonTapped
 
     case performJumpPage
     case presentJumpPageAlert
@@ -61,6 +62,7 @@ enum DetailSearchAction: BindableAction {
     case fetchMoreGalleriesDone(Result<(PageNumber, [Gallery]), AppError>)
 
     case detail(DetailAction)
+    case filters(FiltersAction)
     case quickSearch(QuickSearchAction)
 }
 
@@ -104,14 +106,12 @@ let detailSearchReducer = Reducer<DetailSearchState, DetailSearchAction, DetailS
 
         case .clearSubStates:
             state.detailState = .init()
+            state.filtersState = .init()
             state.quickDetailSearchState = .init()
             return .merge(
                 .init(value: .detail(.teardown)),
                 .init(value: .quickSearch(.teardown))
             )
-
-        case .onFiltersButtonTapped:
-            return .none
 
         case .performJumpPage:
             guard let index = Int(state.jumpPageIndex), index > 0, index <= state.pageNumber.maximum + 1 else {
@@ -198,6 +198,9 @@ let detailSearchReducer = Reducer<DetailSearchState, DetailSearchAction, DetailS
         case .detail:
             return .none
 
+        case .filters:
+            return .none
+
         case .quickSearch:
             return .none
         }
@@ -208,6 +211,15 @@ let detailSearchReducer = Reducer<DetailSearchState, DetailSearchAction, DetailS
         hapticClient: \.hapticClient
     )
     .binding(),
+    filtersReducer.pullback(
+        state: \.filtersState,
+        action: /DetailSearchAction.filters,
+        environment: {
+            .init(
+                databaseClient: $0.databaseClient
+            )
+        }
+    ),
     quickSearchReducer.pullback(
         state: \.quickDetailSearchState,
         action: /DetailSearchAction.quickSearch,

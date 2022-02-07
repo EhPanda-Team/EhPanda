@@ -9,7 +9,8 @@ import ComposableArchitecture
 
 struct SearchRootState: Equatable {
     enum Route: Equatable {
-        case request
+        case search
+        case filters
         case quickSearch
         case detail(String)
     }
@@ -26,6 +27,7 @@ struct SearchRootState: Equatable {
     var quickSearchWords = [QuickSearchWord]()
 
     var searchState = SearchState()
+    var filtersState = FiltersState()
     var quickSearchState = QuickSearchState()
     @Heap var detailState: DetailState!
 
@@ -64,7 +66,6 @@ enum SearchRootAction: BindableAction {
     case setNavigation(SearchRootState.Route?)
     case setKeyword(String)
     case clearSubStates
-    case onFiltersButtonTapped
 
     case syncHistoryKeywords
     case fetchDatabaseInfos
@@ -75,6 +76,7 @@ enum SearchRootAction: BindableAction {
     case fetchHistoryGalleriesDone([Gallery])
 
     case search(SearchAction)
+    case filters(FiltersAction)
     case quickSearch(QuickSearchAction)
     case detail(DetailAction)
 }
@@ -121,16 +123,14 @@ let searchRootReducer = Reducer<SearchRootState, SearchRootAction, SearchRootEnv
 
         case .clearSubStates:
             state.searchState = .init()
-            state.quickSearchState = .init()
             state.detailState = .init()
+            state.filtersState = .init()
+            state.quickSearchState = .init()
             return .merge(
                 .init(value: .search(.teardown)),
                 .init(value: .quickSearch(.teardown)),
                 .init(value: .detail(.teardown))
             )
-
-        case .onFiltersButtonTapped:
-            return .none
 
         case .syncHistoryKeywords:
             return environment.databaseClient.updateHistoryKeywords(state.historyKeywords).fireAndForget()
@@ -170,6 +170,9 @@ let searchRootReducer = Reducer<SearchRootState, SearchRootAction, SearchRootEnv
         case .search:
             return .none
 
+        case .filters:
+            return .none
+
         case .quickSearch:
             return .none
 
@@ -198,6 +201,15 @@ let searchRootReducer = Reducer<SearchRootState, SearchRootAction, SearchRootEnv
                 clipboardClient: $0.clipboardClient,
                 appDelegateClient: $0.appDelegateClient,
                 uiApplicationClient: $0.uiApplicationClient
+            )
+        }
+    ),
+    filtersReducer.pullback(
+        state: \.filtersState,
+        action: /SearchRootAction.filters,
+        environment: {
+            .init(
+                databaseClient: $0.databaseClient
             )
         }
     ),

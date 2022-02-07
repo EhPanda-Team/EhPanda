@@ -11,33 +11,22 @@ import ComposableArchitecture
 struct FiltersView: View {
     private let store: Store<FiltersState, FiltersAction>
     @ObservedObject private var viewStore: ViewStore<FiltersState, FiltersAction>
-    @Binding private var searchFilter: Filter
-    @Binding private var globalFilter: Filter
-    @Binding private var watchedFilter: Filter
 
     @FocusState private var focusedBound: FiltersState.FocusedBound?
 
-    init(
-        store: Store<FiltersState, FiltersAction>,
-        searchFilter: Binding<Filter>,
-        globalFilter: Binding<Filter>,
-        watchedFilter: Binding<Filter>
-    ) {
+    init(store: Store<FiltersState, FiltersAction>) {
         self.store = store
         viewStore = ViewStore(store)
-        _searchFilter = searchFilter
-        _globalFilter = globalFilter
-        _watchedFilter = watchedFilter
     }
 
     private var filter: Binding<Filter> {
         switch viewStore.filterRange {
         case .search:
-            return $searchFilter
+            return viewStore.binding(\.$searchFilter)
         case .global:
-            return $globalFilter
+            return viewStore.binding(\.$globalFilter)
         case .watched:
-            return $watchedFilter
+            return viewStore.binding(\.$watchedFilter)
         }
     }
 
@@ -48,7 +37,7 @@ struct FiltersView: View {
                 BasicSection(
                     route: viewStore.binding(\.$route),
                     filter: filter, filterRange: viewStore.binding(\.$filterRange),
-                    resetFiltersAction: { viewStore.send(.onResetFilterConfirmed) },
+                    resetFiltersAction: { viewStore.send(.resetFilters) },
                     resetFiltersDialogAction: { viewStore.send(.setNavigation(.resetFilters)) }
                 )
                 AdvancedSection(
@@ -58,6 +47,7 @@ struct FiltersView: View {
             }
             .synchronize(viewStore.binding(\.$focusedBound), $focusedBound)
             .navigationTitle(R.string.localizable.filtersViewTitleFilters())
+            .onAppear { viewStore.send(.fetchFilters) }
         }
     }
 }
@@ -257,11 +247,10 @@ struct FiltersView_Previews: PreviewProvider {
             store: .init(
                 initialState: .init(),
                 reducer: filtersReducer,
-                environment: FiltersEnvironment()
-            ),
-            searchFilter: .constant(.init()),
-            globalFilter: .constant(.init()),
-            watchedFilter: .constant(.init())
+                environment: FiltersEnvironment(
+                    databaseClient: .live
+                )
+            )
         )
     }
 }

@@ -9,6 +9,7 @@ import ComposableArchitecture
 
 struct FrontpageState: Equatable {
     enum Route: Equatable {
+        case filters
         case detail(String)
     }
     struct CancelID: Hashable {
@@ -34,6 +35,7 @@ struct FrontpageState: Equatable {
     var loadingState: LoadingState = .idle
     var footerLoadingState: LoadingState = .idle
 
+    var filtersState = FiltersState()
     @Heap var detailState: DetailState!
 
     mutating func insertGalleries(_ galleries: [Gallery]) {
@@ -49,7 +51,6 @@ enum FrontpageAction: BindableAction {
     case binding(BindingAction<FrontpageState>)
     case setNavigation(FrontpageState.Route?)
     case clearSubStates
-    case onFiltersButtonTapped
 
     case performJumpPage
     case presentJumpPageAlert
@@ -61,6 +62,7 @@ enum FrontpageAction: BindableAction {
     case fetchMoreGalleries
     case fetchMoreGalleriesDone(Result<(PageNumber, [Gallery]), AppError>)
 
+    case filters(FiltersAction)
     case detail(DetailAction)
 }
 
@@ -98,10 +100,8 @@ let frontpageReducer = Reducer<FrontpageState, FrontpageAction, FrontpageEnviron
 
         case .clearSubStates:
             state.detailState = .init()
+            state.filtersState = .init()
             return .init(value: .detail(.teardown))
-
-        case .onFiltersButtonTapped:
-            return .none
 
         case .performJumpPage:
             guard let index = Int(state.jumpPageIndex), index > 0, index <= state.pageNumber.maximum + 1 else {
@@ -179,11 +179,23 @@ let frontpageReducer = Reducer<FrontpageState, FrontpageAction, FrontpageEnviron
             }
             return .none
 
+        case .filters:
+            return .none
+
         case .detail:
             return .none
         }
     }
     .binding(),
+    filtersReducer.pullback(
+        state: \.filtersState,
+        action: /FrontpageAction.filters,
+        environment: {
+            .init(
+                databaseClient: $0.databaseClient
+            )
+        }
+    ),
     detailReducer.pullback(
         state: \.detailState,
         action: /FrontpageAction.detail,

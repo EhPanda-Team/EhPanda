@@ -21,9 +21,6 @@ struct SettingState: Equatable {
 
     // AppEnvStorage
     @BindableState var setting = Setting()
-    @BindableState var searchFilter = Filter()
-    @BindableState var globalFilter = Filter()
-    @BindableState var watchedFilter = Filter()
     var tagTranslator = TagTranslator()
     var user = User()
 
@@ -64,14 +61,12 @@ struct SettingState: Equatable {
 
 enum SettingAction: BindableAction {
     case binding(BindingAction<SettingState>)
+    case setNavigation(SettingState.Route?)
     case clearSubStates
 
     case syncAppIconType
     case syncUserInterfaceStyle
     case syncSetting
-    case syncSearchFilter
-    case syncGlobalFilter
-    case syncWatchedFilter
     case syncTagTranslator
     case syncUser
 
@@ -90,9 +85,6 @@ enum SettingAction: BindableAction {
     case fetchEhProfileIndexDone(Result<(Int?, Bool), AppError>)
     case fetchFavoriteCategories
     case fetchFavoriteCategoriesDone(Result<[Int: String], AppError>)
-
-    case setNavigation(SettingState.Route?)
-    case resetFilter(FilterRange)
 
     case account(AccountSettingAction)
     case general(GeneralSettingAction)
@@ -178,15 +170,6 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
         case .binding(\.$setting):
             return .init(value: .syncSetting)
 
-        case .binding(\.$searchFilter):
-            return .init(value: .syncSearchFilter)
-
-        case .binding(\.$globalFilter):
-            return .init(value: .syncGlobalFilter)
-
-        case .binding(\.$watchedFilter):
-            return .init(value: .syncWatchedFilter)
-
         case .binding(\.$route):
             return .none
 
@@ -194,11 +177,12 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
             return .merge(
                 .init(value: .syncUser),
                 .init(value: .syncSetting),
-                .init(value: .syncSearchFilter),
-                .init(value: .syncGlobalFilter),
-                .init(value: .syncWatchedFilter),
                 .init(value: .syncTagTranslator)
             )
+
+        case .setNavigation(let route):
+            state.route = route
+            return .none
 
         case .clearSubStates:
             state.accountSettingState = .init()
@@ -221,12 +205,6 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
 
         case .syncSetting:
             return environment.databaseClient.updateSetting(state.setting).fireAndForget()
-        case .syncSearchFilter:
-            return environment.databaseClient.updateSearchFilter(state.searchFilter).fireAndForget()
-        case .syncGlobalFilter:
-            return environment.databaseClient.updateGlobalFilter(state.globalFilter).fireAndForget()
-        case .syncWatchedFilter:
-            return environment.databaseClient.updateWatchedFilter(state.watchedFilter).fireAndForget()
         case .syncTagTranslator:
             return environment.databaseClient.updateTagTranslator(state.tagTranslator).fireAndForget()
         case .syncUser:
@@ -237,9 +215,6 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
 
         case .loadUserSettingsDone(let appEnv):
             state.setting = appEnv.setting
-            state.searchFilter = appEnv.searchFilter
-            state.globalFilter = appEnv.globalFilter
-            state.watchedFilter = appEnv.watchedFilter
             state.tagTranslator = appEnv.tagTranslator
             state.user = appEnv.user
 
@@ -420,23 +395,6 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
                 state.user.favoriteCategories = categories
             }
             return .none
-
-        case .setNavigation(let route):
-            state.route = route
-            return .none
-
-        case .resetFilter(let range):
-            switch range {
-            case .search:
-                state.searchFilter = Filter()
-                return .init(value: .syncSearchFilter)
-            case .global:
-                state.globalFilter = Filter()
-                return .init(value: .syncGlobalFilter)
-            case .watched:
-                state.watchedFilter = Filter()
-                return .init(value: .syncWatchedFilter)
-            }
 
         case .account(.login(.loginDone)):
             return .merge(

@@ -9,6 +9,7 @@ import ComposableArchitecture
 
 struct PopularState: Equatable {
     enum Route: Equatable {
+        case filters
         case detail(String)
     }
     struct CancelID: Hashable {
@@ -29,6 +30,7 @@ struct PopularState: Equatable {
     var galleries = [Gallery]()
     var loadingState: LoadingState = .idle
 
+    var filtersState = FiltersState()
     @Heap var detailState: DetailState!
 }
 
@@ -36,12 +38,12 @@ enum PopularAction: BindableAction {
     case binding(BindingAction<PopularState>)
     case setNavigation(PopularState.Route?)
     case clearSubStates
-    case onFiltersButtonTapped
 
     case teardown
     case fetchGalleries
     case fetchGalleriesDone(Result<[Gallery], AppError>)
 
+    case filters(FiltersAction)
     case detail(DetailAction)
 }
 
@@ -73,10 +75,8 @@ let popularReducer = Reducer<PopularState, PopularAction, PopularEnvironment>.co
 
         case .clearSubStates:
             state.detailState = .init()
+            state.filtersState = .init()
             return .init(value: .detail(.teardown))
-
-        case .onFiltersButtonTapped:
-            return .none
 
         case .teardown:
             return .cancel(id: PopularState.CancelID())
@@ -103,11 +103,23 @@ let popularReducer = Reducer<PopularState, PopularAction, PopularEnvironment>.co
             }
             return .none
 
+        case .filters:
+            return .none
+
         case .detail:
             return .none
         }
     }
     .binding(),
+    filtersReducer.pullback(
+        state: \.filtersState,
+        action: /PopularAction.filters,
+        environment: {
+            .init(
+                databaseClient: $0.databaseClient
+            )
+        }
+    ),
     detailReducer.pullback(
         state: \.detailState,
         action: /PopularAction.detail,

@@ -43,7 +43,7 @@ struct SearchRootView: View {
                     navigateQuickSearchAction: { viewStore.send(.setNavigation(.quickSearch)) },
                     searchKeywordAction: { keyword in
                         viewStore.send(.setKeyword(keyword))
-                        viewStore.send(.setNavigation(.request))
+                        viewStore.send(.setNavigation(.search))
                     },
                     removeKeywordAction: { viewStore.send(.removeHistoryKeyword($0)) }
                 )
@@ -63,6 +63,10 @@ struct SearchRootView: View {
                 .autoBlur(radius: blurRadius)
                 .environment(\.inSheet, true)
             }
+            .sheet(unwrapping: viewStore.binding(\.$route), case: /SearchRootState.Route.filters) { _ in
+                FiltersView(store: store.scope(state: \.filtersState, action: SearchRootAction.filters))
+                    .autoBlur(radius: blurRadius).environment(\.inSheet, true)
+            }
             .sheet(unwrapping: viewStore.binding(\.$route), case: /SearchRootState.Route.quickSearch) { _ in
                 QuickSearchView(
                     store: store.scope(state: \.quickSearchState, action: SearchRootAction.quickSearch)
@@ -70,7 +74,7 @@ struct SearchRootView: View {
                     viewStore.send(.setNavigation(nil))
                     viewStore.send(.setKeyword(keyword))
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        viewStore.send(.setNavigation(.request))
+                        viewStore.send(.setNavigation(.search))
                     }
                 }
                 .accentColor(setting.accentColor)
@@ -78,7 +82,7 @@ struct SearchRootView: View {
             }
             .searchable(text: viewStore.binding(\.$keyword), placement: searchFieldPlacement)
             .onSubmit(of: .search) {
-                viewStore.send(.setNavigation(.request))
+                viewStore.send(.setNavigation(.search))
             }
             .onAppear {
                 viewStore.send(.fetchHistoryGalleries)
@@ -94,7 +98,7 @@ struct SearchRootView: View {
         CustomToolbarItem(tint: .primary) {
             ToolbarFeaturesMenu(symbolRenderingMode: .hierarchical) {
                 FiltersButton {
-                    viewStore.send(.onFiltersButtonTapped)
+                    viewStore.send(.setNavigation(.filters))
                 }
                 QuickSearchButton {
                     viewStore.send(.setNavigation(.quickSearch))
@@ -121,7 +125,7 @@ private extension SearchRootView {
         }
     }
     var searchViewLink: some View {
-        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /SearchRootState.Route.request) { _ in
+        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /SearchRootState.Route.search) { _ in
             SearchView(
                 store: store.scope(state: \.searchState, action: SearchRootAction.search),
                 keyword: viewStore.keyword, user: user, setting: $setting,

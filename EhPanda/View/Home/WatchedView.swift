@@ -73,6 +73,10 @@ struct WatchedView: View {
             .accentColor(setting.accentColor)
             .autoBlur(radius: blurRadius)
         }
+        .sheet(unwrapping: viewStore.binding(\.$route), case: /WatchedState.Route.filters) { _ in
+            FiltersView(store: store.scope(state: \.filtersState, action: WatchedAction.filters))
+                .autoBlur(radius: blurRadius).environment(\.inSheet, true)
+        }
         .jumpPageAlert(
             index: viewStore.binding(\.$jumpPageIndex),
             isPresented: viewStore.binding(\.$jumpPageAlertPresented),
@@ -113,7 +117,7 @@ struct WatchedView: View {
         CustomToolbarItem(disabled: viewStore.jumpPageAlertPresented) {
             ToolbarFeaturesMenu {
                 FiltersButton {
-                    viewStore.send(.onFiltersButtonTapped)
+                    viewStore.send(.setNavigation(.filters))
                 }
                 QuickSearchButton {
                     viewStore.send(.setNavigation(.quickSearch))

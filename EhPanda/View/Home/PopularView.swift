@@ -55,6 +55,10 @@ struct PopularView: View {
             .autoBlur(radius: blurRadius)
             .environment(\.inSheet, true)
         }
+        .sheet(unwrapping: viewStore.binding(\.$route), case: /PopularState.Route.filters) { _ in
+            FiltersView(store: store.scope(state: \.filtersState, action: PopularAction.filters))
+                .autoBlur(radius: blurRadius).environment(\.inSheet, true)
+        }
         .searchable(text: viewStore.binding(\.$keyword), prompt: R.string.localizable.searchablePromptFilter())
         .onAppear {
             if viewStore.galleries.isEmpty {
@@ -82,7 +86,7 @@ struct PopularView: View {
     private func toolbar() -> some ToolbarContent {
         CustomToolbarItem {
             FiltersButton(hideText: true) {
-                viewStore.send(.onFiltersButtonTapped)
+                viewStore.send(.setNavigation(.filters))
             }
         }
     }
