@@ -17,20 +17,17 @@ struct ReadingView: View {
     @ObservedObject private var viewStore: ViewStore<ReadingState, ReadingAction>
     @Binding private var setting: Setting
     private let blurRadius: Double
-    private let dismissAction: () -> Void
 
     @StateObject private var page: Page = .first()
 
     init(
         store: Store<ReadingState, ReadingAction>,
-        setting: Binding<Setting>, blurRadius: Double,
-        dismissAction: @escaping () -> Void
+        setting: Binding<Setting>, blurRadius: Double
     ) {
         self.store = store
         viewStore = ViewStore(store)
         _setting = setting
         self.blurRadius = blurRadius
-        self.dismissAction = dismissAction
     }
 
     private var backgroundColor: Color {
@@ -62,6 +59,7 @@ struct ReadingView: View {
             .offset(viewStore.offset).gesture(tapGesture).gesture(dragGesture)
             .gesture(magnificationGesture).ignoresSafeArea()
             .id(viewStore.databaseLoadingState)
+            .id(viewStore.forceRefreshID)
             ControlPanel(
                 showsPanel: viewStore.binding(\.$showsPanel),
                 showsSliderPreview: viewStore.binding(\.$showsSliderPreview),
@@ -69,8 +67,12 @@ struct ReadingView: View {
                 setting: $setting,
                 autoPlayPolicy: viewStore.binding(\.$autoPlayPolicy),
                 range: 1...Float(viewStore.gallery.pageCount),
-                previewURLs: viewStore.previewURLs, dismissAction: dismissAction,
+                previewURLs: viewStore.previewURLs,
+                dismissGesture: controlPanelDismissGesture,
+                dismissAction: { viewStore.send(.onPerformDismiss) },
                 navigateSettingAction: { viewStore.send(.setNavigation(.readingSetting)) },
+                reloadAllImagesAction: { viewStore.send(.reloadAllWebImages) },
+                retryAllFailedImagesAction: { viewStore.send(.retryAllFailedWebImages) },
                 fetchPreviewURLsAction: { viewStore.send(.fetchPreviewURLs($0)) }
             )
         }
@@ -175,9 +177,12 @@ extension ReadingView {
             .onEnded { viewStore.send(.onMagnificationGestureEnded($0, setting.maximumScaleFactor)) }
     }
     var dragGesture: some Gesture {
-        DragGesture(minimumDistance: 0.0, coordinateSpace: .local)
+        DragGesture(minimumDistance: .zero, coordinateSpace: .local)
             .onChanged { viewStore.send(.onDragGestureChanged($0)) }
             .onEnded { viewStore.send(.onDragGestureEnded($0)) }
+    }
+    var controlPanelDismissGesture: some Gesture {
+        DragGesture().onEnded { viewStore.send(.onControlPanelDismissGestureEnded($0)) }
     }
 }
 
@@ -449,8 +454,7 @@ struct ReadingView_Previews: PreviewProvider {
                             )
                         ),
                         setting: .constant(.init()),
-                        blurRadius: 0,
-                        dismissAction: {}
+                        blurRadius: 0
                     )
                 }
         }

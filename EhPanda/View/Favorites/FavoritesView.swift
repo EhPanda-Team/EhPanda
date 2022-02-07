@@ -48,7 +48,7 @@ struct FavoritesView: View {
                         fetchMoreAction: { viewStore.send(.fetchMoreGalleries) },
                         navigateAction: { viewStore.send(.setNavigation(.detail($0))) },
                         translateAction: {
-                            tagTranslator.tryTranslate(text: $0, returnOriginal: setting.translatesTags)
+                            tagTranslator.tryTranslate(text: $0, returnOriginal: !setting.translatesTags)
                         }
                     )
                 } else {

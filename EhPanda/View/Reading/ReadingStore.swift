@@ -30,6 +30,7 @@ struct ReadingState: Equatable {
     @BindableState var route: Route?
     let gallery: Gallery
 
+    var forceRefreshID: UUID = .init()
     var hudConfig: TTProgressHUDConfig = .loading
 
     var imageURLLoadingStates = [Int: LoadingState]()
@@ -194,11 +195,14 @@ enum ReadingAction: BindableAction {
     case setSliderValue(Float)
     case setOrientationPortrait(Bool)
     case onTimerFired
+    case onPerformDismiss
     case onAppear(Bool)
 
     case onWebImageRetry(Int)
     case onWebImageSucceeded(Int)
     case onWebImageFailed(Int)
+    case reloadAllWebImages
+    case retryAllFailedWebImages
 
     case copyImage(URL)
     case saveImage(URL)
@@ -213,6 +217,7 @@ enum ReadingAction: BindableAction {
     case onMagnificationGestureEnded(Double, Double)
     case onDragGestureChanged(DragGesture.Value)
     case onDragGestureEnded(DragGesture.Value)
+    case onControlPanelDismissGestureEnded(DragGesture.Value)
 
     case syncReadingProgress
     case syncPreviewURLs([Int: URL])
@@ -310,6 +315,9 @@ let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { 
         state.pageIndex += 1
         return .none
 
+    case .onPerformDismiss:
+        return .none
+
     case .onAppear(let enablesLandscape):
         var effects: [Effect<ReadingAction, Never>] = [
             .init(value: .fetchDatabaseInfos)
@@ -329,6 +337,30 @@ let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { 
 
     case .onWebImageFailed(let index):
         state.imageURLLoadingStates[index] = .failed(.webImageFailed)
+        return .none
+
+    case .reloadAllWebImages:
+        state.previewURLs = .init()
+        state.thumbnailURLs = .init()
+        state.imageURLs = .init()
+        state.originalImageURLs = .init()
+        state.mpvKey = nil
+        state.mpvImageKeys = .init()
+        state.mpvReloadTokens = .init()
+        state.forceRefreshID = .init()
+        return environment.databaseClient.removeImageURLs(gid: state.gallery.id).fireAndForget()
+
+    case .retryAllFailedWebImages:
+        state.imageURLLoadingStates.forEach { (index, loadingState) in
+            if case .failed = loadingState {
+                state.imageURLLoadingStates[index] = .idle
+            }
+        }
+        state.previewLoadingStates.forEach { (index, loadingState) in
+            if case .failed = loadingState {
+                state.previewLoadingStates[index] = .idle
+            }
+        }
         return .none
 
     case .copyImage(let imageURL):
@@ -436,6 +468,12 @@ let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { 
             state.newOffset.height = state.offset.height
         }
         return .none
+
+    case .onControlPanelDismissGestureEnded(let value):
+        return value.predictedEndTranslation.height > 30 ? .merge(
+            environment.hapticClient.generateFeedback(.light).fireAndForget(),
+            .init(value: .onPerformDismiss)
+        ) : .none
 
     case .syncReadingProgress:
         return environment.databaseClient

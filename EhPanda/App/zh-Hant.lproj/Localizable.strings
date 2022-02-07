@@ -338,6 +338,9 @@
 "reading.view.toolbar.item.title.autoPlay" = "Auto-Play";
 "reading.view.toolbar.item.title.dualPageMode" = "雙頁模式";
 "reading.view.toolbar.item.title.exceptTheCover" = "封面除外";
+"reading.view.toolbar.item.button.retryAllFailedImages" = "Retry failed images";
+"reading.view.toolbar.item.button.reloadAllImages" = "Reload all images";
+"reading.view.toolbar.item.button.readingSetting" = "Reading setting";
 // AutoPlayPolicy
 "enum.auto.play.policy.value.off" = "Off";
 

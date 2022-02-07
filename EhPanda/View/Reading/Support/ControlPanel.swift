@@ -9,7 +9,7 @@ import SwiftUI
 import Kingfisher
 
 // MARK: ControlPanel
-struct ControlPanel: View {
+struct ControlPanel<G: Gesture>: View {
     @Binding private var showsPanel: Bool
     @Binding private var showsSliderPreview: Bool
     @Binding private var sliderValue: Float
@@ -17,15 +17,20 @@ struct ControlPanel: View {
     @Binding private var autoPlayPolicy: AutoPlayPolicy
     private let range: ClosedRange<Float>
     private let previewURLs: [Int: URL]
+    private let dismissGesture: G
     private let dismissAction: () -> Void
     private let navigateSettingAction: () -> Void
+    private let reloadAllImagesAction: () -> Void
+    private let retryAllFailedImagesAction: () -> Void
     private let fetchPreviewURLsAction: (Int) -> Void
 
     init(
         showsPanel: Binding<Bool>, showsSliderPreview: Binding<Bool>, sliderValue: Binding<Float>,
         setting: Binding<Setting>, autoPlayPolicy: Binding<AutoPlayPolicy>, range: ClosedRange<Float>,
-        previewURLs: [Int: URL], dismissAction: @escaping () -> Void,
+        previewURLs: [Int: URL], dismissGesture: G, dismissAction: @escaping () -> Void,
         navigateSettingAction: @escaping () -> Void,
+        reloadAllImagesAction: @escaping () -> Void,
+        retryAllFailedImagesAction: @escaping () -> Void,
         fetchPreviewURLsAction: @escaping (Int) -> Void
     ) {
         _showsPanel = showsPanel
@@ -35,8 +40,11 @@ struct ControlPanel: View {
         _autoPlayPolicy = autoPlayPolicy
         self.range = range
         self.previewURLs = previewURLs
+        self.dismissGesture = dismissGesture
         self.dismissAction = dismissAction
         self.navigateSettingAction = navigateSettingAction
+        self.reloadAllImagesAction = reloadAllImagesAction
+        self.retryAllFailedImagesAction = retryAllFailedImagesAction
         self.fetchPreviewURLsAction = fetchPreviewURLsAction
     }
 
@@ -51,7 +59,9 @@ struct ControlPanel: View {
                 setting: $setting,
                 autoPlayPolicy: $autoPlayPolicy,
                 dismissAction: dismissAction,
-                navigateSettingAction: navigateSettingAction
+                navigateSettingAction: navigateSettingAction,
+                reloadAllImagesAction: reloadAllImagesAction,
+                retryAllFailedImagesAction: retryAllFailedImagesAction
             )
             .offset(y: showsPanel ? 0 : -50)
             Spacer()
@@ -60,6 +70,7 @@ struct ControlPanel: View {
                     showsSliderPreview: $showsSliderPreview,
                     sliderValue: $sliderValue, previewURLs: previewURLs, range: range,
                     isReversed: setting.readingDirection == .rightToLeft,
+                    dismissGesture: dismissGesture,
                     fetchPreviewURLsAction: fetchPreviewURLsAction
                 )
                 .animation(.default, value: showsSliderPreview)
@@ -78,18 +89,24 @@ private struct UpperPanel: View {
     private let title: String
     private let dismissAction: () -> Void
     private let navigateSettingAction: () -> Void
+    private let reloadAllImagesAction: () -> Void
+    private let retryAllFailedImagesAction: () -> Void
 
     init(
         title: String, setting: Binding<Setting>,
         autoPlayPolicy: Binding<AutoPlayPolicy>,
         dismissAction: @escaping () -> Void,
-        navigateSettingAction: @escaping () -> Void
+        navigateSettingAction: @escaping () -> Void,
+        reloadAllImagesAction: @escaping () -> Void,
+        retryAllFailedImagesAction: @escaping () -> Void
     ) {
         self.title = title
         _setting = setting
         _autoPlayPolicy = autoPlayPolicy
         self.dismissAction = dismissAction
         self.navigateSettingAction = navigateSettingAction
+        self.reloadAllImagesAction = reloadAllImagesAction
+        self.retryAllFailedImagesAction = retryAllFailedImagesAction
     }
 
     var body: some View {
@@ -142,8 +159,19 @@ private struct UpperPanel: View {
                     } label: {
                         Image(systemSymbol: .timer)
                     }
-                    Button(action: navigateSettingAction) {
-                        Image(systemSymbol: .gear)
+                    ToolbarFeaturesMenu {
+                        Button(action: retryAllFailedImagesAction) {
+                            Image(systemSymbol: .exclamationmarkArrowTriangle2Circlepath)
+                            Text(R.string.localizable.readingViewToolbarItemButtonRetryAllFailedImages())
+                        }
+                        Button(action: reloadAllImagesAction) {
+                            Image(systemSymbol: .arrowCounterclockwise)
+                            Text(R.string.localizable.readingViewToolbarItemButtonReloadAllImages())
+                        }
+                        Button(action: navigateSettingAction) {
+                            Image(systemSymbol: .gear)
+                            Text(R.string.localizable.readingViewToolbarItemButtonReadingSetting())
+                        }
                     }
                     .padding(.trailing, 20)
                 }
@@ -156,24 +184,26 @@ private struct UpperPanel: View {
 }
 
 // MARK: LowerPanel
-private struct LowerPanel: View {
+private struct LowerPanel<G: Gesture>: View {
     @Binding private var showsSliderPreview: Bool
     @Binding private var sliderValue: Float
     private let previewURLs: [Int: URL]
     private let range: ClosedRange<Float>
     private let isReversed: Bool
+    private let dismissGesture: G
     private let fetchPreviewURLsAction: (Int) -> Void
 
     init(
         showsSliderPreview: Binding<Bool>, sliderValue: Binding<Float>,
         previewURLs: [Int: URL], range: ClosedRange<Float>, isReversed: Bool,
-        fetchPreviewURLsAction: @escaping (Int) -> Void
+        dismissGesture: G, fetchPreviewURLsAction: @escaping (Int) -> Void
     ) {
         _showsSliderPreview = showsSliderPreview
         _sliderValue = sliderValue
         self.previewURLs = previewURLs
         self.range = range
         self.isReversed = isReversed
+        self.dismissGesture = dismissGesture
         self.fetchPreviewURLsAction = fetchPreviewURLsAction
     }
 
@@ -200,6 +230,7 @@ private struct LowerPanel: View {
             }
         }
         .background(.thinMaterial)
+        .gesture(dismissGesture)
     }
 }
 
