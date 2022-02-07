@@ -6,130 +6,196 @@
 //
 
 import SwiftUI
-import Kingfisher
-import LocalAuthentication
+import FilePicker
+import ComposableArchitecture
 
-struct GeneralSettingView: View, StoreAccessor {
-    @EnvironmentObject var store: Store
-    @State private var passcodeNotSet = false
-    @State private var diskImageCacheSize = "0 KB"
-    @State private var clearDialogPresented = false
+struct GeneralSettingView: View {
+    private let store: Store<GeneralSettingState, GeneralSettingAction>
+    @ObservedObject private var viewStore: ViewStore<GeneralSettingState, GeneralSettingAction>
+    private let tagTranslatorLoadingState: LoadingState
+    private let tagTranslatorEmpty: Bool
+    private let tagTranslatorHasCustomTranslations: Bool
+    @Binding private var translatesTags: Bool
+    @Binding private var redirectsLinksToSelectedHost: Bool
+    @Binding private var detectsLinksFromClipboard: Bool
+    @Binding private var backgroundBlurRadius: Double
+    @Binding private var autoLockPolicy: AutoLockPolicy
 
-    private var isTranslatesTagsVisible: Bool {
-        guard let preferredLanguage = Locale.preferredLanguages.first else { return false }
-        let isLanguageSupported = TranslatableLanguage.allCases.map(\.languageCode).contains(
-            where: preferredLanguage.contains
-        )
-        return isLanguageSupported && !settings.tagTranslator.contents.isEmpty
+    init(
+        store: Store<GeneralSettingState, GeneralSettingAction>,
+        tagTranslatorLoadingState: LoadingState, tagTranslatorEmpty: Bool,
+        tagTranslatorHasCustomTranslations: Bool, translatesTags: Binding<Bool>,
+        redirectsLinksToSelectedHost: Binding<Bool>, detectsLinksFromClipboard: Binding<Bool>,
+        backgroundBlurRadius: Binding<Double>, autoLockPolicy: Binding<AutoLockPolicy>
+    ) {
+        self.store = store
+        viewStore = ViewStore(store)
+        self.tagTranslatorLoadingState = tagTranslatorLoadingState
+        self.tagTranslatorEmpty = tagTranslatorEmpty
+        self.tagTranslatorHasCustomTranslations = tagTranslatorHasCustomTranslations
+        _translatesTags = translatesTags
+        _redirectsLinksToSelectedHost = redirectsLinksToSelectedHost
+        _detectsLinksFromClipboard = detectsLinksFromClipboard
+        _backgroundBlurRadius = backgroundBlurRadius
+        _autoLockPolicy = autoLockPolicy
+    }
+
+    private var language: String {
+        Locale.current.localizedString(forLanguageCode: Locale.current.languageCode ?? "")
+        ?? R.string.localizable.generalSettingViewValueDefaultLanguageDescription()
     }
 
     var body: some View {
         Form {
             Section {
                 HStack {
-                    Text("Language")
+                    Text(R.string.localizable.generalSettingViewTitleLanguage())
                     Spacer()
-                    Button(language, action: tryNavigateToSystemSetting).foregroundStyle(.tint)
+                    Button(language) {
+                        viewStore.send(.navigateToSystemSetting)
+                    }
+                    .foregroundStyle(.tint)
                 }
-                if isTranslatesTagsVisible {
-                    Toggle(isOn: settingBinding.translatesTags) {
-                        Text("Translates tags")
+                Button(R.string.localizable.generalSettingViewButtonLogs()) {
+                    viewStore.send(.setNavigation(.logs))
+                }
+                .foregroundColor(.primary).withArrow()
+            }
+            Section(R.string.localizable.generalSettingViewSectionTitleTagsTranslation()) {
+                HStack {
+                    Text(R.string.localizable.generalSettingViewTitleTranslatesTags())
+                    Spacer()
+                    ZStack {
+                        Image(systemSymbol: .exclamationmarkTriangleFill).foregroundStyle(.yellow)
+                            .opacity(
+                                translatesTags && tagTranslatorEmpty
+                                && tagTranslatorLoadingState != .loading ? 1 : 0
+                            )
+                        ProgressView().tint(nil).opacity(tagTranslatorLoadingState == .loading ? 1 : 0)
+                    }
+                    Toggle("", isOn: $translatesTags).frame(width: 50)
+                }
+                FilePicker(
+                    types: [.json], allowMultiple: false,
+                    title: R.string.localizable.generalSettingViewButtonImportCustomTranslations()
+                ) { urls in
+                    if let url = urls.first {
+                        viewStore.send(.onTranslationsFilePicked(url))
                     }
                 }
-                NavigationLink("Logs", destination: LogsView())
-            }
-            Section("Navigation".localized) {
-                Toggle("Redirects links to the selected host", isOn: settingBinding.redirectsLinksToSelectedHost)
-                Toggle("Detects links from the clipboard", isOn: settingBinding.detectsLinksFromPasteboard)
-            }
-            Section("Security".localized) {
-                HStack {
-                    Text("Auto-Lock")
-                    Spacer()
-                    Image(systemName: "exclamationmark.triangle.fill").foregroundStyle(.yellow)
-                        .opacity((passcodeNotSet && setting.autoLockPolicy != .never) ? 1 : 0)
-                    Picker(
-                        selection: settingBinding.autoLockPolicy,
-                        label: Text(setting.autoLockPolicy.descriptionKey)
+                if tagTranslatorHasCustomTranslations {
+                    Button(
+                        R.string.localizable.generalSettingViewButtonRemoveCustomTranslations(),
+                        role: .destructive, action: { viewStore.send(.setNavigation(.removeCustomTranslations)) }
+                    )
+                    .confirmationDialog(
+                        message: R.string.localizable.confirmationDialogTitleRemoveCustomTranslations(),
+                        unwrapping: viewStore.binding(\.$route),
+                        case: /GeneralSettingState.Route.removeCustomTranslations
                     ) {
+                        Button(R.string.localizable.confirmationDialogButtonRemove(), role: .destructive) {
+                            viewStore.send(.onRemoveCustomTranslations)
+                        }
+                    }
+                }
+            }
+            Section(R.string.localizable.generalSettingViewSectionTitleNavigation()) {
+                Toggle(
+                    R.string.localizable.generalSettingViewTitleRedirectsLinksToTheSelectedHost(),
+                    isOn: $redirectsLinksToSelectedHost
+                )
+                Toggle(
+                    R.string.localizable.generalSettingViewTitleDetectsLinksFromClipboard(),
+                    isOn: $detectsLinksFromClipboard
+                )
+            }
+            Section(R.string.localizable.generalSettingViewSectionTitleSecurity()) {
+                HStack {
+                    Text(R.string.localizable.generalSettingViewTitleAutoLock())
+                    Spacer()
+                    Image(systemSymbol: .exclamationmarkTriangleFill).foregroundStyle(.yellow)
+                        .opacity((viewStore.passcodeNotSet && autoLockPolicy != .never) ? 1 : 0)
+                    Picker(selection: $autoLockPolicy, label: Text(autoLockPolicy.value)) {
                         ForEach(AutoLockPolicy.allCases) { policy in
-                            Text(policy.descriptionKey).tag(policy)
+                            Text(policy.value).tag(policy)
                         }
                     }
                     .pickerStyle(.menu)
                 }
                 VStack(alignment: .leading) {
-                    Text("App switcher blur")
+                    Text(R.string.localizable.generalSettingViewTitleBackgroundBlurRadius())
                     HStack {
-                        Image(systemName: "eye")
-                        Slider(value: settingBinding.backgroundBlurRadius, in: 0...100, step: 10)
-                        Image(systemName: "eye.slash")
+                        Image(systemSymbol: .eye)
+                        Slider(value: $backgroundBlurRadius, in: 0...100, step: 10)
+                        Image(systemSymbol: .eyeSlash)
                     }
                 }
             }
-            Section("Cache".localized) {
+            Section(R.string.localizable.generalSettingViewSectionTitleCaches()) {
                 Button {
-                    clearDialogPresented = true
+                    viewStore.send(.setNavigation(.clearCache))
                 } label: {
                     HStack {
-                        Text("Clear image caches")
+                        Text(R.string.localizable.generalSettingViewButtonClearImageCaches())
                         Spacer()
-                        Text(diskImageCacheSize).foregroundStyle(.tint)
+                        Text(viewStore.diskImageCacheSize).foregroundStyle(.tint)
                     }
                     .foregroundColor(.primary)
                 }
+                .confirmationDialog(
+                    message: R.string.localizable.confirmationDialogTitleClear(),
+                    unwrapping: viewStore.binding(\.$route),
+                    case: /GeneralSettingState.Route.clearCache
+                ) {
+                    Button(R.string.localizable.confirmationDialogButtonClear(), role: .destructive) {
+                        viewStore.send(.clearWebImageCache)
+                    }
+                }
             }
         }
-        .confirmationDialog(
-            "Are you sure to clear?", isPresented: $clearDialogPresented, titleVisibility: .visible
-        ) {
-            Button("Clear", role: .destructive, action: clearImageCaches)
+        .animation(.default, value: tagTranslatorHasCustomTranslations)
+        .animation(.default, value: tagTranslatorLoadingState)
+        .animation(.default, value: tagTranslatorEmpty)
+        .onAppear {
+            viewStore.send(.checkPasscodeSetting)
+            viewStore.send(.calculateWebImageDiskCache)
         }
-        .onAppear(perform: onStartTasks).navigationBarTitle("General")
+        .background(navigationLink)
+        .navigationTitle(R.string.localizable.generalSettingViewTitleGeneral())
+    }
+
+    private var navigationLink: some View {
+        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /GeneralSettingState.Route.logs) { _ in
+            LogsView(store: store.scope(state: \.logsState, action: GeneralSettingAction.logs))
+        }
     }
 }
-private extension GeneralSettingView {
-    var settingBinding: Binding<Setting> {
-        $store.appState.settings.setting
-    }
-    var language: String {
-        Locale.current.localizedString(forLanguageCode: Locale.current.languageCode ?? "") ?? "(null)"
-    }
 
-    func onStartTasks() {
-        checkPasscodeExistence()
-        calculateDiskCachesSize()
-    }
-    func checkPasscodeExistence() {
-        var error: NSError?
-
-        guard !LAContext().canEvaluatePolicy(.deviceOwnerAuthentication, error: &error) else { return }
-        passcodeNotSet = true
-    }
-
-    func tryNavigateToSystemSetting() {
-        guard let settingURL = URL(string: UIApplication.openSettingsURLString) else { return }
-        UIApplication.shared.open(settingURL, options: [:])
-    }
-
-    func readableUnit<I: BinaryInteger>(bytes: I) -> String {
-        let formatter = ByteCountFormatter()
-        formatter.allowedUnits = [.useAll]
-        return formatter.string(fromByteCount: Int64(bytes))
-    }
-    func calculateDiskCachesSize() {
-        KingfisherManager.shared.cache.calculateDiskStorageSize { result in
-            switch result {
-            case .success(let size):
-                diskImageCacheSize = readableUnit(bytes: size)
-            case .failure(let error):
-                Logger.error(error)
-            }
+struct GeneralSettingView_Previews: PreviewProvider {
+    static var previews: some View {
+        NavigationView {
+            GeneralSettingView(
+                store: .init(
+                    initialState: .init(),
+                    reducer: generalSettingReducer,
+                    environment: GeneralSettingEnvironment(
+                        fileClient: .live,
+                        loggerClient: .live,
+                        libraryClient: .live,
+                        databaseClient: .live,
+                        uiApplicationClient: .live,
+                        authorizationClient: .live
+                    )
+                ),
+                tagTranslatorLoadingState: .idle,
+                tagTranslatorEmpty: false,
+                tagTranslatorHasCustomTranslations: false,
+                translatesTags: .constant(false),
+                redirectsLinksToSelectedHost: .constant(false),
+                detectsLinksFromClipboard: .constant(false),
+                backgroundBlurRadius: .constant(10),
+                autoLockPolicy: .constant(.never)
+            )
         }
-    }
-    func clearImageCaches() {
-        KingfisherManager.shared.cache.clearDiskCache()
-        PersistenceController.removeImageURLs()
-        calculateDiskCachesSize()
     }
 }

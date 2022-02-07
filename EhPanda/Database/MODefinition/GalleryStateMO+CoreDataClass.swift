@@ -15,11 +15,12 @@ extension GalleryStateMO: ManagedObjectProtocol {
         GalleryState(
             gid: gid, tags: tags?.toObject() ?? [GalleryTag](),
             readingProgress: Int(readingProgress),
-            previews: previews?.toObject() ?? [Int: String](),
+            previewURLs: previewURLs?.toObject() ?? [Int: URL](),
+            previewConfig: previewConfig?.toObject() ?? PreviewConfig.normal(rows: 4),
             comments: comments?.toObject() ?? [GalleryComment](),
-            contents: contents?.toObject() ?? [Int: String](),
-            originalContents: originalContents?.toObject() ?? [Int: String](),
-            thumbnails: thumbnails?.toObject() ?? [Int: String]()
+            imageURLs: imageURLs?.toObject() ?? [Int: URL](),
+            originalImageURLs: originalImageURLs?.toObject() ?? [Int: URL](),
+            thumbnailURLs: thumbnailURLs?.toObject() ?? [Int: URL]()
         )
     }
 }
@@ -32,11 +33,12 @@ extension GalleryState: ManagedObjectConvertible {
         galleryStateMO.gid = gid
         galleryStateMO.tags = tags.toData()
         galleryStateMO.readingProgress = Int64(readingProgress)
-        galleryStateMO.previews = previews.toData()
+        galleryStateMO.previewConfig = previewConfig?.toData()
+        galleryStateMO.previewURLs = previewURLs.toData()
         galleryStateMO.comments = comments.toData()
-        galleryStateMO.contents = contents.toData()
-        galleryStateMO.originalContents = originalContents.toData()
-        galleryStateMO.thumbnails = thumbnails.toData()
+        galleryStateMO.imageURLs = imageURLs.toData()
+        galleryStateMO.originalImageURLs = originalImageURLs.toData()
+        galleryStateMO.thumbnailURLs = thumbnailURLs.toData()
 
         return galleryStateMO
     }

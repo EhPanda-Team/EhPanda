@@ -13,8 +13,9 @@ extension GalleryMO: ManagedObjectProtocol {
     func toEntity() -> Gallery {
         Gallery(
             gid: gid, token: token,
-            title: title, rating: rating, tags: [],
-            category: Category(rawValue: category).forceUnwrapped,
+            title: title, rating: rating,
+            tagStrings: tagStrings?.toObject() ?? [String](),
+            category: Category(rawValue: category) ?? .private,
             language: Language(rawValue: language ?? ""),
             uploader: uploader, pageCount: Int(pageCount),
             postedDate: postedDate,
@@ -37,6 +38,7 @@ extension Gallery: ManagedObjectConvertible {
         galleryMO.pageCount = Int64(pageCount)
         galleryMO.postedDate = postedDate
         galleryMO.rating = rating
+        galleryMO.tagStrings = tagStrings.toData()
         galleryMO.title = title
         galleryMO.token = token
         galleryMO.uploader = uploader

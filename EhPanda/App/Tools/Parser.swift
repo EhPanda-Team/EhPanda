@@ -7,21 +7,23 @@
 
 import Kanna
 import UIKit
+import OpenCC
 
 struct Parser {
     // MARK: List
     static func parseListItems(doc: HTMLDocument) throws -> [Gallery] {
-        func parseCoverURL(node: XMLElement?) throws -> String {
+        func parseCoverURL(node: XMLElement?) throws -> URL {
             guard let node = node?.at_xpath("//div [@class='glthumb']")?.at_css("img")
             else { throw AppError.parseFailed }
 
-            var coverURL = node["data-src"]
-            if coverURL == nil { coverURL = node["src"] }
+            var urlString = node["data-src"]
+            if urlString == nil { urlString = node["src"] }
 
-            guard let url = coverURL
+            guard let coverURLString = urlString,
+                  let coverURL = URL(string: coverURLString)
             else { throw AppError.parseFailed }
 
-            return url
+            return coverURL
         }
 
         func parsePublishedTime(node: XMLElement?) throws -> String {
@@ -113,19 +115,19 @@ struct Parser {
                   let (tags, language) = try? parseTagsAndLang(node: gl3cNode),
                   let publishedTime = try? parsePublishedTime(node: gl2cNode),
                   let title = link.at_xpath("//div [@class='glink']")?.text,
-                  let galleryURL = link.at_xpath("//td [@class='gl3c glname'] //a")?["href"],
+                  let galleryURLString = link.at_xpath("//td [@class='gl3c glname'] //a")?["href"],
+                  let galleryURL = URL(string: galleryURLString), galleryURL.pathComponents.count >= 4,
                   let postedDate = try? parseDate(time: publishedTime, format: Defaults.DateFormat.publish),
-                  let category = Category(rawValue: link.at_xpath("//td [@class='gl1c glcat'] //div")?.text ?? ""),
-                  let url = URL(string: galleryURL), url.pathComponents.count >= 4
+                  let category = Category(rawValue: link.at_xpath("//td [@class='gl1c glcat'] //div")?.text ?? "")
             else { continue }
 
             galleryItems.append(
                 Gallery(
-                    gid: url.pathComponents[2],
-                    token: url.pathComponents[3],
+                    gid: galleryURL.pathComponents[2],
+                    token: galleryURL.pathComponents[3],
                     title: title,
                     rating: rating,
-                    tags: tags,
+                    tagStrings: tags,
                     category: category,
                     language: language,
                     uploader: uploader,
@@ -138,16 +140,16 @@ struct Parser {
         }
 
         if galleryItems.isEmpty, let banInterval = parseBanInterval(doc: doc) {
-            throw AppError.ipBanned(interval: banInterval)
+            throw AppError.ipBanned(banInterval)
         }
 
         return galleryItems
     }
 
     // MARK: Detail
-    static func parseGalleryURL(doc: HTMLDocument) throws -> String {
-        guard let galleryURL = doc.at_xpath("//div [@class='sb']")?
-                .at_xpath("//a")?["href"] else { throw AppError.parseFailed }
+    static func parseGalleryURL(doc: HTMLDocument) throws -> URL {
+        guard let galleryURLString = doc.at_xpath("//div [@class='sb']")?.at_xpath("//a")?["href"],
+              let galleryURL = URL(string: galleryURLString) else { throw AppError.parseFailed }
         return galleryURL
     }
     static func parseGalleryDetail(doc: HTMLDocument, gid: String) throws -> (GalleryDetail, GalleryState) {
@@ -172,13 +174,13 @@ struct Parser {
             throw AppError.parseFailed
         }
 
-        func parseCoverURL(node: XMLElement?) throws -> String {
+        func parseCoverURL(node: XMLElement?) throws -> URL {
             guard let coverHTML = node?.at_xpath("//div [@id='gd1']")?.innerHTML,
-            let rangeA = coverHTML.range(of: "url("),
-            let rangeB = coverHTML.range(of: ")")
+                  let rangeA = coverHTML.range(of: "url("), let rangeB = coverHTML.range(of: ")"),
+                  let url = URL(string: .init(coverHTML[rangeA.upperBound..<rangeB.lowerBound]))
             else { throw AppError.parseFailed }
 
-            return String(coverHTML[rangeA.upperBound..<rangeB.lowerBound])
+            return url
         }
 
         func parseTags(node: XMLElement?) throws -> [GalleryTag] {
@@ -210,10 +212,10 @@ struct Parser {
             return tags
         }
 
-        func parseArcAndTor(node: XMLElement?) throws -> (String?, Int) {
+        func parseArcAndTor(node: XMLElement?) throws -> (URL?, Int) {
             guard let node = node else { throw AppError.parseFailed }
 
-            var archiveURL: String?
+            var archiveURL: URL?
             for g2gspLink in node.xpath("//p [@class='g2 gsp']") {
                 if archiveURL == nil {
                     archiveURL = try? parseArchiveURL(node: g2gspLink)
@@ -334,13 +336,13 @@ struct Parser {
                   let gdfNode = gd3Node.at_xpath("//div [@id='gdf']"),
                   let coverURL = try? parseCoverURL(node: link),
                   let tags = try? parseTags(node: gd4Node),
-                  let previews = try? parsePreviews(doc: doc),
+                  let previewURLs = try? parsePreviewURLs(doc: doc),
                   let arcAndTor = try? parseArcAndTor(node: gd5Node),
                   let infoPanel = try? parseInfoPanel(node: gddNode),
                   let visibility = try? parseVisibility(value: infoPanel[2]),
                   let sizeCount = Float(infoPanel[4]),
                   let pageCount = Int(infoPanel[6]),
-                  let favoredCount = Int(infoPanel[7]),
+                  let favoritedCount = Int(infoPanel[7]),
                   let language = Language(rawValue: infoPanel[3]),
                   let engTitle = link.at_xpath("//h1 [@id='gn']")?.text,
                   let uploader = try? parseUploader(node: gd3Node),
@@ -350,22 +352,21 @@ struct Parser {
                   let postedDate = try? parseDate(time: infoPanel[0], format: Defaults.DateFormat.publish)
             else { continue }
 
-            let isFavored = gdfNode
+            let isFavorited = gdfNode
                 .at_xpath("//a [@id='favoritelink']")?
                 .text?.contains("Add to Favorites") == false
             let gjText = link.at_xpath("//h1 [@id='gj']")?.text
             let jpnTitle = gjText?.isEmpty != false ? nil : gjText
+            let parentURLString = infoPanel[1].isValidURL ? infoPanel[1] : ""
 
             tmpGalleryDetail = GalleryDetail(
                 gid: gid,
                 title: engTitle,
                 jpnTitle: jpnTitle,
-                isFavored: isFavored,
+                isFavorited: isFavorited,
                 visibility: visibility,
-                rating: containsUserRating ?
-                    textRating ?? 0.0 : imgRating,
-                userRating: containsUserRating
-                    ? imgRating : 0.0,
+                rating: containsUserRating ? textRating ?? 0.0 : imgRating,
+                userRating: containsUserRating ? imgRating : 0.0,
                 ratingCount: ratingCount,
                 category: category,
                 language: language,
@@ -373,9 +374,8 @@ struct Parser {
                 postedDate: postedDate,
                 coverURL: coverURL,
                 archiveURL: arcAndTor.0,
-                parentURL: infoPanel[1] == "None"
-                    ? nil : infoPanel[1],
-                favoredCount: favoredCount,
+                parentURL: URL(string: parentURLString),
+                favoritedCount: favoritedCount,
                 pageCount: pageCount,
                 sizeCount: sizeCount,
                 sizeType: infoPanel[5],
@@ -383,7 +383,7 @@ struct Parser {
             )
             tmpGalleryState = GalleryState(
                 gid: gid, tags: tags,
-                previews: previews,
+                previewURLs: previewURLs,
                 previewConfig: try? parsePreviewConfig(doc: doc),
                 comments: parseComments(doc: doc)
             )
@@ -398,12 +398,12 @@ struct Parser {
                    let rangeB = reason.range(of: ".Sorry about that.")
                 {
                     let owner = String(reason[rangeA.upperBound..<rangeB.lowerBound])
-                    throw AppError.copyrightClaim(owner: owner)
+                    throw AppError.copyrightClaim(owner)
                 } else {
-                    throw AppError.expunged(reason: reason)
+                    throw AppError.expunged(reason)
                 }
             } else if let banInterval = parseBanInterval(doc: doc) {
-                throw AppError.ipBanned(interval: banInterval)
+                throw AppError.ipBanned(banInterval)
             } else {
                 throw AppError.parseFailed
             }
@@ -413,9 +413,9 @@ struct Parser {
     }
 
     // MARK: Preview
-    static func parsePreviews(doc: HTMLDocument) throws -> [Int: String] {
-        func parseNormalPreviews(node: XMLElement) -> [Int: String] {
-            var previews = [Int: String]()
+    static func parsePreviewURLs(doc: HTMLDocument) throws -> [Int: URL] {
+        func parseNormalPreviewURLs(node: XMLElement) -> [Int: URL] {
+            var previewURLs = [Int: URL]()
 
             for link in node.xpath("//div") where link.className == nil {
                 guard let imgLink = link.at_xpath("//img"),
@@ -434,29 +434,31 @@ struct Parser {
 
                 let width = linkStyle[rangeA.upperBound..<rangeB.lowerBound]
                 let height = linkStyle[rangeB.upperBound..<rangeC.lowerBound]
-                let plainURL = linkStyle[rangeD.upperBound..<rangeE.lowerBound]
                 let offset = remainingText[rangeE.upperBound..<rangeF.lowerBound]
+                guard let plainURL = URL(string: .init(linkStyle[rangeD.upperBound..<rangeE.lowerBound]))
+                else { continue }
 
-                previews[index] = Defaults.URL.normalPreview(
-                    plainURL: plainURL, width: width,
-                    height: height, offset: offset
+                previewURLs[index] = URLUtil.normalPreviewURL(
+                    plainURL: plainURL, width: String(width),
+                    height: String(height), offset: String(offset)
                 )
             }
 
-            return previews
+            return previewURLs
         }
-        func parseLargePreviews(node: XMLElement) -> [Int: String] {
-            var previews = [Int: String]()
+        func parseLargePreviewURLs(node: XMLElement) -> [Int: URL] {
+            var previewURLs = [Int: URL]()
 
             for link in node.xpath("//img") {
                 guard let index = Int(link["alt"] ?? ""),
-                      let url = link["src"], !url.contains("blank.gif")
+                      let urlString = link["src"], !urlString.contains("blank.gif"),
+                      let url = URL(string: urlString)
                 else { continue }
 
-                previews[index] = url
+                previewURLs[index] = url
             }
 
-            return previews
+            return previewURLs
         }
 
         guard let gdtNode = doc.at_xpath("//div [@id='gdt']"),
@@ -464,8 +466,8 @@ struct Parser {
         else { throw AppError.parseFailed }
 
         return previewMode == "gdtl"
-            ? parseLargePreviews(node: gdtNode)
-            : parseNormalPreviews(node: gdtNode)
+            ? parseLargePreviewURLs(node: gdtNode)
+            : parseNormalPreviewURLs(node: gdtNode)
     }
 
     // MARK: Comment
@@ -540,9 +542,9 @@ struct Parser {
         return comments
     }
 
-    // MARK: Content
-    static func parseThumbnails(doc: HTMLDocument) throws -> [Int: String] {
-        var thumbnails = [Int: String]()
+    // MARK: ImageURL
+    static func parseThumbnailURLs(doc: HTMLDocument) throws -> [Int: URL] {
+        var thumbnailURLs = [Int: URL]()
 
         guard let gdtNode = doc.at_xpath("//div [@id='gdt']"),
               let previewMode = try? parsePreviewMode(doc: doc)
@@ -550,36 +552,39 @@ struct Parser {
 
         for link in gdtNode.xpath("//div [@class='\(previewMode)']") {
             guard let aLink = link.at_xpath("//a"),
-                  let thumbnail = aLink["href"],
+                  let thumbnailURLString = aLink["href"],
+                  let thumbnailURL = URL(string: thumbnailURLString),
                   let index = Int(aLink.at_xpath("//img")?["alt"] ?? "")
             else { continue }
 
-            thumbnails[index] = thumbnail
+            thumbnailURLs[index] = thumbnailURL
         }
 
-        return thumbnails
+        return thumbnailURLs
     }
 
-    static func parseRenewedThumbnail(doc: HTMLDocument, stored: URL) throws -> URL {
+    static func parseRenewedThumbnailURL(doc: HTMLDocument, storedThumbnailURL: URL) throws -> URL {
         guard let text = doc.at_xpath("//div [@id='i6']")?.at_xpath("//a [@id='loadfail']")?["onclick"],
               let rangeA = text.range(of: "nl('"), let rangeB = text.range(of: "')")
         else { throw AppError.parseFailed }
 
         let reloadToken = String(text[rangeA.upperBound..<rangeB.lowerBound])
-        let renewedString = stored.absoluteString + "?nl=" + reloadToken
-        guard let renewedThumbnail = URL(string: renewedString)
+        let renewedString = storedThumbnailURL.absoluteString + "?nl=" + reloadToken
+        guard let renewedThumbnailURL = URL(string: renewedString)
         else { throw AppError.parseFailed }
 
-        return renewedThumbnail
+        return renewedThumbnailURL
     }
 
-    static func parseGalleryNormalContent(doc: HTMLDocument, index: Int) throws -> (Int, String, String?) {
+    static func parseGalleryNormalImageURL(doc: HTMLDocument, index: Int) throws -> (Int, URL, URL?) {
         guard let i3Node = doc.at_xpath("//div [@id='i3']"),
-              let imageURL = i3Node.at_css("img")?["src"]
+              let imageURLString = i3Node.at_css("img")?["src"],
+              let imageURL = URL(string: imageURLString)
         else { throw AppError.parseFailed }
 
         guard let i7Node = doc.at_xpath("//div [@id='i7']"),
-              let originalImageURL = i7Node.at_xpath("//a")?["href"]
+              let originalImageURLString = i7Node.at_xpath("//a")?["href"],
+              let originalImageURL = URL(string: originalImageURLString)
         else { return (index, imageURL, nil) }
 
         return (index, imageURL, originalImageURL)
@@ -634,7 +639,7 @@ struct Parser {
     // MARK: User
     static func parseUserInfo(doc: HTMLDocument) throws -> User {
         var displayName: String?
-        var avatarURL: String?
+        var avatarURL: URL?
 
         for ipbLink in doc.xpath("//table [@class='ipbtable']") {
             guard let profileName = ipbLink.at_xpath("//div [@id='profilename']")?.text
@@ -643,8 +648,9 @@ struct Parser {
             displayName = profileName
 
             for imgLink in ipbLink.xpath("//img") {
-                guard let imgURL = imgLink["src"],
-                      imgURL.contains("forums.e-hentai.org/uploads")
+                guard let imgURLString = imgLink["src"],
+                      imgURLString.contains("forums.e-hentai.org/uploads"),
+                      let imgURL = URL(string: imgURLString)
                 else { continue }
 
                 avatarURL = imgURL
@@ -664,13 +670,13 @@ struct Parser {
 
         var hathArchives = [GalleryArchive.HathArchive]()
         for link in node.xpath("//td") {
-            var tmpResolution: ArchiveRes?
+            var tmpResolution: ArchiveResolution?
             var tmpFileSize: String?
             var tmpGPPrice: String?
 
             for pLink in link.xpath("//p") {
                 if let pText = pLink.text {
-                    if let res = ArchiveRes(rawValue: pText) {
+                    if let res = ArchiveResolution(rawValue: pText) {
                         tmpResolution = res
                     }
                     if pText.contains("N/A") {
@@ -723,7 +729,7 @@ struct Parser {
             var tmpUploader: String?
             var tmpFileName: String?
             var tmpHash: String?
-            var tmpTorrentURL: String?
+            var tmpTorrentURL: URL?
 
             for trLink in link.xpath("//tr") {
                 for tdLink in trLink.xpath("//td") {
@@ -754,7 +760,7 @@ struct Parser {
                        let range = aURL.lastPathComponent.range(of: ".torrent")
                     {
                         tmpHash = String(aURL.lastPathComponent[..<range.lowerBound])
-                        tmpTorrentURL = aHref
+                        tmpTorrentURL = aURL
                         tmpFileName = aText
                     }
                 }
@@ -953,18 +959,13 @@ extension Parser {
               let form = tmpForm else { throw AppError.parseFailed }
 
         // swiftlint:disable line_length
-        var tmpEhProfiles = [EhProfile](); var tmpCapableLoadThroughHathSetting: EhSettingLoadThroughHathSetting?; var tmpCapableImageResolution: EhSettingImageResolution?; var tmpCapableSearchResultCount: EhSettingSearchResultCount?; var tmpCapableThumbnailConfigSize: EhSettingThumbnailSize?; var tmpCapableThumbnailConfigRows: EhSettingThumbnailRows?; var tmpLoadThroughHathSetting: EhSettingLoadThroughHathSetting?; var tmpBrowsingCountry: EhSettingBrowsingCountry?; var tmpImageResolution: EhSettingImageResolution?; var tmpImageSizeWidth: Float?; var tmpImageSizeHeight: Float?; var tmpGalleryName: EhSettingGalleryName?; var tmpLiteralBrowsingCountry: String?; var tmpArchiverBehavior: EhSettingArchiverBehavior?; var tmpDisplayMode: EhSettingDisplayMode?; var tmpDisabledCategories = [Bool](); var tmpFavoritesNames = [String](); var tmpFavoritesSortOrder: EhSettingFavoritesSortOrder?; var tmpRatingsColor: String?; var tmpExcludedNamespaces = [Bool](); var tmpTagFilteringThreshold: Float?; var tmpTagWatchingThreshold: Float?; var tmpExcludedLanguages = [Bool](); var tmpExcludedUploaders: String?; var tmpSearchResultCount: EhSettingSearchResultCount?; var tmpThumbnailLoadTiming: EhSettingThumbnailLoadTiming?; var tmpThumbnailConfigSize: EhSettingThumbnailSize?; var tmpThumbnailConfigRows: EhSettingThumbnailRows?; var tmpThumbnailScaleFactor: Float?; var tmpViewportVirtualWidth: Float?; var tmpCommentsSortOrder: EhSettingCommentsSortOrder?; var tmpCommentVotesShowTiming: EhSettingCommentVotesShowTiming?; var tmpTagsSortOrder: EhSettingTagsSortOrder?; var tmpGalleryShowPageNumbers: Bool?; var tmpHathLocalNetworkHost: String?; var tmpUseOriginalImages: Bool?; var tmpUseMultiplePageViewer: Bool?; var tmpMultiplePageViewerStyle: EhSettingMultiplePageViewerStyle?; var tmpMultiplePageViewerShowThumbnailPane: Bool?
+        var tmpEhProfiles = [EhProfile](); var tmpCapableLoadThroughHathSetting: EhSetting.LoadThroughHathSetting?; var tmpCapableImageResolution: EhSetting.ImageResolution?; var tmpCapableSearchResultCount: EhSetting.SearchResultCount?; var tmpCapableThumbnailConfigSize: EhSetting.ThumbnailSize?; var tmpCapableThumbnailConfigRowCount: EhSetting.ThumbnailRowCount?; var tmpLoadThroughHathSetting: EhSetting.LoadThroughHathSetting?; var tmpBrowsingCountry: EhSetting.BrowsingCountry?; var tmpImageResolution: EhSetting.ImageResolution?; var tmpImageSizeWidth: Float?; var tmpImageSizeHeight: Float?; var tmpGalleryName: EhSetting.GalleryName?; var tmpLiteralBrowsingCountry: String?; var tmpArchiverBehavior: EhSetting.ArchiverBehavior?; var tmpDisplayMode: EhSetting.DisplayMode?; var tmpDisabledCategories = [Bool](); var tmpFavoriteCategories = [String](); var tmpFavoritesSortOrder: EhSetting.FavoritesSortOrder?; var tmpRatingsColor: String?; var tmpExcludedNamespaces = [Bool](); var tmpTagFilteringThreshold: Float?; var tmpTagWatchingThreshold: Float?; var tmpExcludedLanguages = [Bool](); var tmpExcludedUploaders: String?; var tmpSearchResultCount: EhSetting.SearchResultCount?; var tmpThumbnailLoadTiming: EhSetting.ThumbnailLoadTiming?; var tmpThumbnailConfigSize: EhSetting.ThumbnailSize?; var tmpThumbnailConfigRows: EhSetting.ThumbnailRowCount?; var tmpThumbnailScaleFactor: Float?; var tmpViewportVirtualWidth: Float?; var tmpCommentsSortOrder: EhSetting.CommentsSortOrder?; var tmpCommentVotesShowTiming: EhSetting.CommentVotesShowTiming?; var tmpTagsSortOrder: EhSetting.TagsSortOrder?; var tmpGalleryShowPageNumbers: Bool?; /* var tmpHathLocalNetworkHost: String?; */ var tmpUseOriginalImages: Bool?; var tmpUseMultiplePageViewer: Bool?; var tmpMultiplePageViewerStyle: EhSetting.MultiplePageViewerStyle?; var tmpMultiplePageViewerShowThumbnailPane: Bool?
         // swiftlint:enable line_length
 
         tmpEhProfiles = parseSelections(node: profileOuter, name: "profile_set")
             .compactMap { (name, value, isSelected) in
-                guard let value = Int(value)
-                else { return nil }
-
-                return EhProfile(
-                    value: value, name: name,
-                    isSelected: isSelected
-                )
+                guard let value = Int(value) else { return nil }
+                return EhProfile(value: value, name: name, isSelected: isSelected)
             }
 
         for optouter in form.xpath("//div [@class='optouter']") {
@@ -976,7 +977,7 @@ extension Parser {
                 var value = parseSelections(node: optouter, name: "co").filter(\.2).first?.1
 
                 if value == "" { value = "-" }
-                tmpBrowsingCountry = EhSettingBrowsingCountry(rawValue: value ?? "")
+                tmpBrowsingCountry = EhSetting.BrowsingCountry(rawValue: value ?? "")
 
                 if let pText = optouter.at_xpath("//p")?.text,
                    let rangeA = pText.range(of: "You appear to be browsing the site from "),
@@ -1012,7 +1013,7 @@ extension Parser {
                     .compactMap { parseBool(node: optouter, name: $0) }
             }
             if optouter.at_xpath("//div [@id='favsel']") != nil {
-                tmpFavoritesNames = Array(0...9).map { "favorite_\($0)" }
+                tmpFavoriteCategories = Array(0...9).map { "favorite_\($0)" }
                     .compactMap { parseString(node: optouter, name: $0) }
             }
             if optouter.at_xpath("//input [@name='fs']") != nil {
@@ -1054,7 +1055,7 @@ extension Parser {
             }
             if optouter.at_xpath("//input [@name='tr']") != nil {
                 tmpThumbnailConfigRows = parseEnum(node: optouter, name: "tr")
-                tmpCapableThumbnailConfigRows = parseCapability(node: optouter, name: "tr")
+                tmpCapableThumbnailConfigRowCount = parseCapability(node: optouter, name: "tr")
             }
             if optouter.at_xpath("//input [@name='tp']") != nil {
                 tmpThumbnailScaleFactor = Float(parseString(node: optouter, name: "tp") ?? "100")
@@ -1076,9 +1077,9 @@ extension Parser {
             if optouter.at_xpath("//input [@name='pn']") != nil {
                 tmpGalleryShowPageNumbers = parseInt(node: optouter, name: "pn") == 1
             }
-            if optouter.at_xpath("//input [@name='hh']") != nil {
-                tmpHathLocalNetworkHost = parseString(node: optouter, name: "hh")
-            }
+//            if optouter.at_xpath("//input [@name='hh']") != nil {
+//                tmpHathLocalNetworkHost = parseString(node: optouter, name: "hh")
+//            }
             if optouter.at_xpath("//input [@name='oi']") != nil {
                 tmpUseOriginalImages = parseInt(node: optouter, name: "oi") == 1
             }
@@ -1094,17 +1095,17 @@ extension Parser {
         }
 
         // swiftlint:disable line_length
-        guard !tmpEhProfiles.filter(\.isSelected).isEmpty, let capableLoadThroughHathSetting = tmpCapableLoadThroughHathSetting, let capableImageResolution = tmpCapableImageResolution, let capableSearchResultCount = tmpCapableSearchResultCount, let capableThumbnailConfigSize = tmpCapableThumbnailConfigSize, let capableThumbnailConfigRows = tmpCapableThumbnailConfigRows, let loadThroughHathSetting = tmpLoadThroughHathSetting, let browsingCountry = tmpBrowsingCountry, let literalBrowsingCountry = tmpLiteralBrowsingCountry, let imageResolution = tmpImageResolution, let imageSizeWidth = tmpImageSizeWidth, let imageSizeHeight = tmpImageSizeHeight, let galleryName = tmpGalleryName, let archiverBehavior = tmpArchiverBehavior, let displayMode = tmpDisplayMode, tmpDisabledCategories.count == 10, tmpFavoritesNames.count == 10, let favoritesSortOrder = tmpFavoritesSortOrder, let ratingsColor = tmpRatingsColor, tmpExcludedNamespaces.count == 11, let tagFilteringThreshold = tmpTagFilteringThreshold, let tagWatchingThreshold = tmpTagWatchingThreshold, tmpExcludedLanguages.count == 50, let excludedUploaders = tmpExcludedUploaders, let searchResultCount = tmpSearchResultCount, let thumbnailLoadTiming = tmpThumbnailLoadTiming, let thumbnailConfigSize = tmpThumbnailConfigSize, let thumbnailConfigRows = tmpThumbnailConfigRows, let thumbnailScaleFactor = tmpThumbnailScaleFactor, let viewportVirtualWidth = tmpViewportVirtualWidth, let commentsSortOrder = tmpCommentsSortOrder, let commentVotesShowTiming = tmpCommentVotesShowTiming, let tagsSortOrder = tmpTagsSortOrder, let galleryShowPageNumbers = tmpGalleryShowPageNumbers, let hathLocalNetworkHost = tmpHathLocalNetworkHost
+        guard !tmpEhProfiles.filter(\.isSelected).isEmpty, let capableLoadThroughHathSetting = tmpCapableLoadThroughHathSetting, let capableImageResolution = tmpCapableImageResolution, let capableSearchResultCount = tmpCapableSearchResultCount, let capableThumbnailConfigSize = tmpCapableThumbnailConfigSize, let capableThumbnailConfigRowCount = tmpCapableThumbnailConfigRowCount, let loadThroughHathSetting = tmpLoadThroughHathSetting, let browsingCountry = tmpBrowsingCountry, let literalBrowsingCountry = tmpLiteralBrowsingCountry, let imageResolution = tmpImageResolution, let imageSizeWidth = tmpImageSizeWidth, let imageSizeHeight = tmpImageSizeHeight, let galleryName = tmpGalleryName, let archiverBehavior = tmpArchiverBehavior, let displayMode = tmpDisplayMode, tmpDisabledCategories.count == 10, tmpFavoriteCategories.count == 10, let favoritesSortOrder = tmpFavoritesSortOrder, let ratingsColor = tmpRatingsColor, tmpExcludedNamespaces.count == 11, let tagFilteringThreshold = tmpTagFilteringThreshold, let tagWatchingThreshold = tmpTagWatchingThreshold, tmpExcludedLanguages.count == 50, let excludedUploaders = tmpExcludedUploaders, let searchResultCount = tmpSearchResultCount, let thumbnailLoadTiming = tmpThumbnailLoadTiming, let thumbnailConfigSize = tmpThumbnailConfigSize, let thumbnailConfigRows = tmpThumbnailConfigRows, let thumbnailScaleFactor = tmpThumbnailScaleFactor, let viewportVirtualWidth = tmpViewportVirtualWidth, let commentsSortOrder = tmpCommentsSortOrder, let commentVotesShowTiming = tmpCommentVotesShowTiming, let tagsSortOrder = tmpTagsSortOrder, let galleryShowPageNumbers = tmpGalleryShowPageNumbers /*, let hathLocalNetworkHost = tmpHathLocalNetworkHost */
         else { throw AppError.parseFailed }
 
-        return EhSetting(ehProfiles: tmpEhProfiles.sorted(), capableLoadThroughHathSetting: capableLoadThroughHathSetting, capableImageResolution: capableImageResolution, capableSearchResultCount: capableSearchResultCount, capableThumbnailConfigSize: capableThumbnailConfigSize, capableThumbnailConfigRows: capableThumbnailConfigRows, loadThroughHathSetting: loadThroughHathSetting, browsingCountry: browsingCountry, literalBrowsingCountry: literalBrowsingCountry, imageResolution: imageResolution, imageSizeWidth: imageSizeWidth, imageSizeHeight: imageSizeHeight, galleryName: galleryName, archiverBehavior: archiverBehavior, displayMode: displayMode, disabledCategories: tmpDisabledCategories, favoriteNames: tmpFavoritesNames, favoritesSortOrder: favoritesSortOrder, ratingsColor: ratingsColor, excludedNamespaces: tmpExcludedNamespaces, tagFilteringThreshold: tagFilteringThreshold, tagWatchingThreshold: tagWatchingThreshold, excludedLanguages: tmpExcludedLanguages, excludedUploaders: excludedUploaders, searchResultCount: searchResultCount, thumbnailLoadTiming: thumbnailLoadTiming, thumbnailConfigSize: thumbnailConfigSize, thumbnailConfigRows: thumbnailConfigRows, thumbnailScaleFactor: thumbnailScaleFactor, viewportVirtualWidth: viewportVirtualWidth, commentsSortOrder: commentsSortOrder, commentVotesShowTiming: commentVotesShowTiming, tagsSortOrder: tagsSortOrder, galleryShowPageNumbers: galleryShowPageNumbers, hathLocalNetworkHost: hathLocalNetworkHost, useOriginalImages: tmpUseOriginalImages, useMultiplePageViewer: tmpUseMultiplePageViewer, multiplePageViewerStyle: tmpMultiplePageViewerStyle, multiplePageViewerShowThumbnailPane: tmpMultiplePageViewerShowThumbnailPane
+        return EhSetting(ehProfiles: tmpEhProfiles.sorted(), capableLoadThroughHathSetting: capableLoadThroughHathSetting, capableImageResolution: capableImageResolution, capableSearchResultCount: capableSearchResultCount, capableThumbnailConfigSize: capableThumbnailConfigSize, capableThumbnailConfigRowCount: capableThumbnailConfigRowCount, loadThroughHathSetting: loadThroughHathSetting, browsingCountry: browsingCountry, literalBrowsingCountry: literalBrowsingCountry, imageResolution: imageResolution, imageSizeWidth: imageSizeWidth, imageSizeHeight: imageSizeHeight, galleryName: galleryName, archiverBehavior: archiverBehavior, displayMode: displayMode, disabledCategories: tmpDisabledCategories, favoriteCategories: tmpFavoriteCategories, favoritesSortOrder: favoritesSortOrder, ratingsColor: ratingsColor, excludedNamespaces: tmpExcludedNamespaces, tagFilteringThreshold: tagFilteringThreshold, tagWatchingThreshold: tagWatchingThreshold, excludedLanguages: tmpExcludedLanguages, excludedUploaders: excludedUploaders, searchResultCount: searchResultCount, thumbnailLoadTiming: thumbnailLoadTiming, thumbnailConfigSize: thumbnailConfigSize, thumbnailConfigRows: thumbnailConfigRows, thumbnailScaleFactor: thumbnailScaleFactor, viewportVirtualWidth: viewportVirtualWidth, commentsSortOrder: commentsSortOrder, commentVotesShowTiming: commentVotesShowTiming, tagsSortOrder: tagsSortOrder, galleryShowPageNumbers: galleryShowPageNumbers, /* hathLocalNetworkHost: hathLocalNetworkHost, */ useOriginalImages: tmpUseOriginalImages, useMultiplePageViewer: tmpUseMultiplePageViewer, multiplePageViewerStyle: tmpMultiplePageViewerStyle, multiplePageViewerShowThumbnailPane: tmpMultiplePageViewerShowThumbnailPane
         )
         // swiftlint:enable line_length
     }
 
     // MARK: APIKey
-    static func parseAPIKey(doc: HTMLDocument) throws -> APIKey {
-        var tmpKey: APIKey?
+    static func parseAPIKey(doc: HTMLDocument) throws -> String {
+        var tmpKey: String?
 
         for link in doc.xpath("//script [@type='text/javascript']") {
             guard let script = link.text, script.contains("apikey"),
@@ -1214,7 +1215,7 @@ extension Parser {
     }
 
     // MARK: Balance
-    static func parseCurrentFunds(doc: HTMLDocument) throws -> (String, String)? {
+    static func parseCurrentFunds(doc: HTMLDocument) throws -> (String, String) {
         var tmpGP: String?
         var tmpCredits: String?
 
@@ -1253,8 +1254,7 @@ extension Parser {
 
         var respString = response.joined(separator: " ")
 
-        if let rangeA =
-            respString.range(of: "A ") ?? respString.range(of: "An "),
+        if let rangeA = respString.range(of: "A ") ?? respString.range(of: "An "),
            let rangeB = respString.range(of: "resolution"),
            let rangeC = respString.range(of: "client"),
            let rangeD = respString.range(of: "Downloads")
@@ -1263,11 +1263,15 @@ extension Parser {
                 .trimmingCharacters(in: .whitespacesAndNewlines)
                 .firstLetterCapitalized
 
-            if ArchiveRes(rawValue: resp) != nil {
+            if ArchiveResolution(rawValue: resp) != nil {
                 let clientName = String(respString[rangeC.upperBound..<rangeD.lowerBound])
                     .trimmingCharacters(in: .whitespacesAndNewlines)
 
-                respString = resp.localized + " -> " + clientName
+                if !clientName.isEmpty {
+                    respString = resp + " -> " + clientName
+                } else {
+                    respString = resp
+                }
             }
         }
 
@@ -1275,15 +1279,13 @@ extension Parser {
     }
 
     // MARK: ArchiveURL
-    static func parseArchiveURL(node: XMLElement) throws -> String {
-        var archiveURL: String?
+    static func parseArchiveURL(node: XMLElement) throws -> URL {
+        var archiveURL: URL?
         if let aLink = node.at_xpath("//a"),
-           aLink.text?.contains("Archive Download") == true,
-           let onClick = aLink["onclick"],
-           let rangeA = onClick.range(of: "popUp('"),
-           let rangeB = onClick.range(of: "',")
+            aLink.text?.contains("Archive Download") == true, let onClick = aLink["onclick"],
+            let rangeA = onClick.range(of: "popUp('"), let rangeB = onClick.range(of: "',")
         {
-            archiveURL = String(onClick[rangeA.upperBound..<rangeB.lowerBound])
+            archiveURL = URL(string: .init(onClick[rangeA.upperBound..<rangeB.lowerBound]))
         }
 
         if let url = archiveURL {
@@ -1293,9 +1295,9 @@ extension Parser {
         }
     }
 
-    // MARK: FavoriteNames
-    static func parseFavoriteNames(doc: HTMLDocument) throws -> [Int: String] {
-        var favoriteNames = [Int: String]()
+    // MARK: FavoriteCategories
+    static func parseFavoriteCategories(doc: HTMLDocument) throws -> [Int: String] {
+        var favoriteCategories = [Int: String]()
 
         for link in doc.xpath("//div [@id='favsel']") {
             for inputLink in link.xpath("//input") {
@@ -1304,12 +1306,12 @@ extension Parser {
                       let type = FavoritesType(rawValue: name)
                 else { continue }
 
-                favoriteNames[type.index] = value
+                favoriteCategories[type.index] = value
             }
         }
 
-        if !favoriteNames.isEmpty {
-            return favoriteNames
+        if !favoriteCategories.isEmpty {
+            return favoriteCategories
         } else {
             throw AppError.parseFailed
         }
@@ -1326,7 +1328,7 @@ extension Parser {
         guard let options = options, options.count >= 1
         else { throw AppError.parseFailed }
 
-        for link in options where AppUtil.verifyEhPandaProfileName(with: link.text) {
+        for link in options where EhSetting.verifyEhPandaProfileName(with: link.text) {
             profileNotFound = false
             profileValue = Int(link["value"] ?? "")
         }
@@ -1398,8 +1400,10 @@ extension Parser {
                 )
             }
 
-            if let href = link["href"] {
-                if let imgSrc = link.at_xpath("//img")?["src"] {
+            if let href = link["href"], let url = URL(string: href) {
+                if let imgSrc = link.at_xpath("//img")?["src"],
+                   let imgURL = URL(string: imgSrc)
+                {
                     if let content = contents.last,
                        content.type == .linkedImg
                     {
@@ -1409,16 +1413,16 @@ extension Parser {
                                 type: .doubleLinkedImg,
                                 link: content.link,
                                 imgURL: content.imgURL,
-                                secondLink: href,
-                                secondImgURL: imgSrc
+                                secondLink: url,
+                                secondImgURL: imgURL
                             )
                         )
                     } else {
                         contents.append(
                             CommentContent(
                                 type: .linkedImg,
-                                link: href,
-                                imgURL: imgSrc
+                                link: url,
+                                imgURL: imgURL
                             )
                         )
                     }
@@ -1436,7 +1440,7 @@ extension Parser {
                                     .trimmingCharacters(
                                         in: .whitespacesAndNewlines
                                     ),
-                                link: href
+                                link: url
                             )
                         )
                     }
@@ -1444,11 +1448,11 @@ extension Parser {
                     contents.append(
                         CommentContent(
                             type: .singleLink,
-                            link: href
+                            link: url
                         )
                     )
                 }
-            } else if let src = link["src"] {
+            } else if let src = link["src"], let url = URL(string: src) {
                 if let content = contents.last,
                    content.type == .singleImg
                 {
@@ -1457,14 +1461,14 @@ extension Parser {
                         CommentContent(
                             type: .doubleImg,
                             imgURL: content.imgURL,
-                            secondImgURL: src
+                            secondImgURL: url
                         )
                     )
                 } else {
                     contents.append(
                         CommentContent(
                             type: .singleImg,
-                            imgURL: src
+                            imgURL: url
                         )
                     )
                 }
@@ -1519,20 +1523,30 @@ extension Parser {
     }
 
     // MARK: parsePreviewConfigs
-    static func parsePreviewConfigs(string: String) -> (String, CGSize, CGSize)? {
-        guard let rangeA = string.range(of: Defaults.PreviewIdentifier.width),
-              let rangeB = string.range(of: Defaults.PreviewIdentifier.height),
-              let rangeC = string.range(of: Defaults.PreviewIdentifier.offset)
+    static func parsePreviewConfigs(url: URL) -> (URL, CGSize, CGSize)? {
+        guard var components = URLComponents(
+                url: url, resolvingAgainstBaseURL: false
+              ),
+              let queryItems = components.queryItems
         else { return nil }
 
-        let plainURL = String(string[..<rangeA.lowerBound])
-        guard let width = Int(string[rangeA.upperBound..<rangeB.lowerBound]),
-              let height = Int(string[rangeB.upperBound..<rangeC.lowerBound]),
-              let offsetX = Int(string[rangeC.upperBound...])
+        let keys = [
+            Defaults.URL.Component.Key.ehpandaWidth,
+            Defaults.URL.Component.Key.ehpandaHeight,
+            Defaults.URL.Component.Key.ehpandaOffset
+        ]
+        let configs = keys.map(\.rawValue).compactMap { key in
+            queryItems.filter({ $0.name == key }).first?.value
+        }
+        .compactMap(Int.init)
+
+        components.queryItems = nil
+        guard configs.count == keys.count,
+              let plainURL = components.url
         else { return nil }
 
-        let size = CGSize(width: width, height: height)
-        return (plainURL, size, CGSize(width: offsetX, height: 0))
+        let size = CGSize(width: configs[0], height: configs[1])
+        return (plainURL, size, CGSize(width: configs[2], height: 0))
     }
 
     // MARK: parseWrappedHex
@@ -1602,6 +1616,69 @@ extension Parser {
                 ]
             )
             return .unrecognized(content: expireDescription)
+        }
+    }
+
+    // MARK: Translation
+    static func parseTranslations(dict: [String: Any], language: TranslatableLanguage? = nil) -> [String: String] {
+        func parseCHSTranslations(dict: [String: Any]) -> [String: String] {
+            let categories = dict["data"] as? [[String: Any]] ?? []
+            let translationsBeforeMapping = categories.compactMap {
+                $0["data"] as? [String: Any]
+            }.reduce([], +)
+
+            var translations = [String: String]()
+            translationsBeforeMapping.forEach { translation in
+                let originalText = translation.key
+                let dict = translation.value as? [String: Any]
+
+                if let translatedText = dict?["name"] as? String {
+                    translations[originalText] = translatedText
+                }
+            }
+            return translations
+        }
+        func convertToCHT(dict: [String: String]) -> [String: String] {
+            func customConversion(dict: inout [String: String]) {
+                if dict["full color"] != nil {
+                    dict["full color"] = "全彩"
+                }
+            }
+            guard let preferredLanguage = Locale.preferredLanguages.first else { return [:] }
+
+            var translations = [String: String]()
+
+            var options: ChineseConverter.Options = [.traditionalize]
+            if preferredLanguage.contains("HK") {
+                options = [.traditionalize, .hkStandard]
+            } else if preferredLanguage.contains("TW") {
+                options = [.traditionalize, .twStandard, .twIdiom]
+            }
+
+            guard let converter = try? ChineseConverter(options: options)
+            else { return [:] }
+
+            dict.forEach { key, value in
+                translations[key] = converter.convert(value)
+            }
+            customConversion(dict: &translations)
+
+            return translations
+        }
+        func tryParseAnyTranslations(dict: [String: Any]) -> [String: String] {
+            dict as? [String: String] ?? [:]
+        }
+
+        let chsTranslations = parseCHSTranslations(dict: dict)
+        switch language {
+        case .japanese:
+            return tryParseAnyTranslations(dict: dict)
+        case .simplifiedChinese:
+            return chsTranslations
+        case .traditionalChinese:
+            return convertToCHT(dict: chsTranslations)
+        default:
+            return chsTranslations.isEmpty ? tryParseAnyTranslations(dict: dict) : chsTranslations
         }
     }
 }

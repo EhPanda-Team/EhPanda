@@ -6,39 +6,39 @@
 //
 
 import SwiftUI
+import SFSafeSymbols
 
-struct LaboratorySettingView: View, StoreAccessor {
-    @EnvironmentObject var store: Store
+struct LaboratorySettingView: View {
+    @Binding private var bypassesSNIFiltering: Bool
 
-    private var settingBinding: Binding<Setting> {
-        $store.appState.settings.setting
+    init(bypassesSNIFiltering: Binding<Bool>) {
+        _bypassesSNIFiltering = bypassesSNIFiltering
     }
 
     var body: some View {
         ScrollView {
             VStack {
                 LaboratoryCell(
-                    isOn: settingBinding.bypassesSNIFiltering,
-                    title: "Bypass SNI Filtering",
-                    symbol: "theatermasks.fill",
-                    tintColor: .purple
+                    isOn: $bypassesSNIFiltering,
+                    title: R.string.localizable.laboratorySettingViewTitleBypassesSNIFiltering(),
+                    symbol: .theatermasksFill, tintColor: .purple
                 )
             }
             .padding()
         }
-        .navigationBarTitle("Laboratory")
+        .navigationTitle(R.string.localizable.laboratorySettingViewTitleLaboratory())
     }
 }
 
 struct LaboratoryCell: View {
     @Binding private var isOn: Bool
     private let title: String
-    private let symbol: String
+    private let symbol: SFSymbol
     private let tintColor: Color
 
     init(
         isOn: Binding<Bool>, title: String,
-        symbol: String, tintColor: Color
+        symbol: SFSymbol, tintColor: Color
     ) {
         _isOn = isOn
         self.title = title
@@ -57,17 +57,25 @@ struct LaboratoryCell: View {
         HStack {
             Spacer()
             Group {
-                Image(systemName: symbol)
-                Text(title.localized).fontWeight(.bold)
+                Image(systemSymbol: symbol)
+                Text(title).bold()
             }
             .foregroundColor(contentColor).font(.title2)
             Spacer()
         }
-        .contentShape(Rectangle()).onTapGesture {
-            withAnimation { isOn.toggle() }
-            HapticUtil.generateFeedback(style: .soft)
-        }
+        .contentShape(Rectangle()).onTapGesture { isOn.toggle() }
         .minimumScaleFactor(0.75).padding(.vertical, 20)
         .background(bgColor).cornerRadius(15).lineLimit(1)
+        .animation(.default, value: isOn)
+    }
+}
+
+struct LaboratorySettingView_Previews: PreviewProvider {
+    static var previews: some View {
+        NavigationView {
+            LaboratorySettingView(
+                bypassesSNIFiltering: .constant(false)
+            )
+        }
     }
 }

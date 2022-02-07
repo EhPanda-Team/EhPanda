@@ -6,71 +6,108 @@
 //
 
 import SwiftUI
+import SFSafeSymbols
+import ComposableArchitecture
 
-struct SettingView: View, StoreAccessor {
-    @EnvironmentObject var store: Store
+struct SettingView: View {
+    private let store: Store<SettingState, SettingAction>
+    @ObservedObject private var viewStore: ViewStore<SettingState, SettingAction>
+    private let blurRadius: Double
+
+    init(store: Store<SettingState, SettingAction>, blurRadius: Double) {
+        self.store = store
+        viewStore = ViewStore(store)
+        self.blurRadius = blurRadius
+    }
 
     // MARK: SettingView
     var body: some View {
         NavigationView {
             ScrollView {
                 VStack(spacing: 0) {
-                    SettingRow(
-                        symbolName: "person.fill", text: "Account",
-                        destination: AccountSettingView()
-                    )
-                    SettingRow(
-                        symbolName: "switch.2", text: "General",
-                        destination: GeneralSettingView()
-                    )
-                    SettingRow(
-                        symbolName: "circle.righthalf.fill", text: "Appearance",
-                        destination: AppearanceSettingView()
-                    )
-                    SettingRow(
-                        symbolName: "newspaper.fill", text: "Reading",
-                        destination: ReadingSettingView()
-                    )
-                    SettingRow(
-                        symbolName: "testtube.2", text: "Laboratory",
-                        destination: LaboratorySettingView()
-                    )
-                    SettingRow(
-                        symbolName: "p.circle.fill", text: "About EhPanda",
-                        destination: EhPandaView()
-                    )
+                    ForEach(SettingState.Route.allCases) { route in
+                        SettingRow(rowType: route) {
+                            viewStore.send(.setNavigation($0))
+                        }
+                    }
                 }
                 .padding(.vertical, 40).padding(.horizontal)
             }
-            .navigationBarTitle("Setting")
-            .sheet(item: $store.appState.environment.settingViewSheetState, content: sheet)
+            .background(navigationLinks)
+            .navigationTitle(R.string.localizable.settingViewTitleSetting())
         }
     }
-    private func sheet(item: SettingViewSheetState) -> some View {
-        Group {
-            switch item {
-            case .webviewLogin:
-                WebView(url: Defaults.URL.webLogin.safeURL())
-            case .webviewConfig:
-                WebView(url: Defaults.URL.ehConfig().safeURL())
-            case .webviewMyTags:
-                WebView(url: Defaults.URL.ehMyTags().safeURL())
-            }
+}
+
+// MARK: NavigationLinks
+private extension SettingView {
+    @ViewBuilder var navigationLinks: some View {
+        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /SettingState.Route.account) { _ in
+            AccountSettingView(
+                store: store.scope(state: \.accountSettingState, action: SettingAction.account),
+                galleryHost: viewStore.binding(\.$setting.galleryHost),
+                showsNewDawnGreeting: viewStore.binding(\.$setting.showsNewDawnGreeting),
+                bypassesSNIFiltering: viewStore.setting.bypassesSNIFiltering,
+                blurRadius: blurRadius
+            )
+            .tint(viewStore.setting.accentColor)
         }
-        .blur(radius: environment.blurRadius)
-        .allowsHitTesting(environment.isAppUnlocked)
+        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /SettingState.Route.general) { _ in
+            GeneralSettingView(
+                store: store.scope(state: \.generalSettingState, action: SettingAction.general),
+                tagTranslatorLoadingState: viewStore.tagTranslatorLoadingState,
+                tagTranslatorEmpty: viewStore.tagTranslator.contents.isEmpty,
+                tagTranslatorHasCustomTranslations: viewStore.tagTranslator.hasCustomTranslations,
+                translatesTags: viewStore.binding(\.$setting.translatesTags),
+                redirectsLinksToSelectedHost: viewStore.binding(\.$setting.redirectsLinksToSelectedHost),
+                detectsLinksFromClipboard: viewStore.binding(\.$setting.detectsLinksFromClipboard),
+                backgroundBlurRadius: viewStore.binding(\.$setting.backgroundBlurRadius),
+                autoLockPolicy: viewStore.binding(\.$setting.autoLockPolicy)
+            )
+            .tint(viewStore.setting.accentColor)
+        }
+        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /SettingState.Route.appearance) { _ in
+            AppearanceSettingView(
+                store: store.scope(state: \.appearanceSettingState, action: SettingAction.appearance),
+                preferredColorScheme: viewStore.binding(\.$setting.preferredColorScheme),
+                accentColor: viewStore.binding(\.$setting.accentColor),
+                appIconType: viewStore.binding(\.$setting.appIconType),
+                listDisplayMode: viewStore.binding(\.$setting.listDisplayMode),
+                showsTagsInList: viewStore.binding(\.$setting.showsTagsInList),
+                listTagsNumberMaximum: viewStore.binding(\.$setting.listTagsNumberMaximum)
+            )
+            .tint(viewStore.setting.accentColor)
+        }
+        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /SettingState.Route.reading) { _ in
+            ReadingSettingView(
+                readingDirection: viewStore.binding(\.$setting.readingDirection),
+                prefetchLimit: viewStore.binding(\.$setting.prefetchLimit),
+                enablesLandscape: viewStore.binding(\.$setting.enablesLandscape),
+                contentDividerHeight: viewStore.binding(\.$setting.contentDividerHeight),
+                maximumScaleFactor: viewStore.binding(\.$setting.maximumScaleFactor),
+                doubleTapScaleFactor: viewStore.binding(\.$setting.doubleTapScaleFactor)
+            )
+            .tint(viewStore.setting.accentColor)
+        }
+        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /SettingState.Route.laboratory) { _ in
+            LaboratorySettingView(
+                bypassesSNIFiltering: viewStore.binding(\.$setting.bypassesSNIFiltering)
+            )
+            .tint(viewStore.setting.accentColor)
+        }
+        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /SettingState.Route.ehpanda) { _ in
+            EhPandaView().tint(viewStore.setting.accentColor)
+        }
     }
 }
 
 // MARK: SettingRow
-private struct SettingRow<Destination: View>: View {
+private struct SettingRow: View {
     @Environment(\.colorScheme) private var colorScheme
     @State private var isPressing = false
-    @State private var isActive = false
 
-    private let symbolName: String
-    private let text: String
-    private let destination: Destination
+    private let rowType: SettingState.Route
+    private let tapAction: (SettingState.Route) -> Void
 
     private var color: Color {
         colorScheme == .light ? Color(.darkGray) : Color(.lightGray)
@@ -79,27 +116,23 @@ private struct SettingRow<Destination: View>: View {
         isPressing ? color.opacity(0.1) : .clear
     }
 
-    init(symbolName: String, text: String, destination: Destination) {
-        self.symbolName = symbolName
-        self.text = text
-        self.destination = destination
+    init(rowType: SettingState.Route, tapAction: @escaping (SettingState.Route) -> Void) {
+        self.rowType = rowType
+        self.tapAction = tapAction
     }
 
     var body: some View {
         HStack {
-            Image(systemName: symbolName)
+            Image(systemSymbol: rowType.symbol)
                 .font(.largeTitle).foregroundColor(color)
                 .padding(.trailing, 20).frame(width: 45)
-            Text(text.localized).fontWeight(.medium)
+            Text(rowType.value).fontWeight(.medium)
                 .font(.title3).foregroundColor(color)
             Spacer()
         }
-        .background {
-            NavigationLink("", destination: destination, isActive: $isActive)
-        }
         .contentShape(Rectangle()).padding(.vertical, 10)
         .padding(.horizontal, 20).background(backgroundColor)
-        .cornerRadius(10).onTapGesture { isActive.toggle() }
+        .cornerRadius(10).onTapGesture { tapAction(rowType) }
         .onLongPressGesture(
             minimumDuration: .infinity, maximumDistance: 50,
             pressing: { isPressing = $0 }, perform: {}
@@ -108,16 +141,64 @@ private struct SettingRow<Destination: View>: View {
 }
 
 // MARK: Definition
-enum SettingViewSheetState: Identifiable {
-    var id: Int { hashValue }
-
-    case webviewLogin
-    case webviewConfig
-    case webviewMyTags
+extension SettingState.Route {
+    var value: String {
+        switch self {
+        case .account:
+            return R.string.localizable.enumSettingStateRouteValueAccount()
+        case .general:
+            return R.string.localizable.enumSettingStateRouteValueGeneral()
+        case .appearance:
+            return R.string.localizable.enumSettingStateRouteValueAppearance()
+        case .reading:
+            return R.string.localizable.enumSettingStateRouteValueReading()
+        case .laboratory:
+            return R.string.localizable.enumSettingStateRouteValueLaboratory()
+        case .ehpanda:
+            return R.string.localizable.enumSettingStateRouteValueEhPanda()
+        }
+    }
+    var symbol: SFSymbol {
+        switch self {
+        case .account:
+            return .personFill
+        case .general:
+            return .switch2
+        case .appearance:
+            return .circleRighthalfFilled
+        case .reading:
+            return .newspaperFill
+        case .laboratory:
+            return .testtube2
+        case .ehpanda:
+            return .pCircleFill
+        }
+    }
 }
 
 struct SettingView_Previews: PreviewProvider {
     static var previews: some View {
-        SettingView().environmentObject(Store.preview)
+        SettingView(
+            store: .init(
+                initialState: .init(),
+                reducer: settingReducer,
+                environment: SettingEnvironment(
+                    dfClient: .live,
+                    fileClient: .live,
+                    deviceClient: .live,
+                    loggerClient: .live,
+                    hapticClient: .live,
+                    libraryClient: .live,
+                    cookiesClient: .live,
+                    databaseClient: .live,
+                    clipboardClient: .live,
+                    appDelegateClient: .live,
+                    userDefaultsClient: .live,
+                    uiApplicationClient: .live,
+                    authorizationClient: .live
+                )
+            ),
+            blurRadius: 0
+        )
     }
 }

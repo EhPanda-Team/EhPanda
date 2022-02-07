@@ -9,153 +9,85 @@ import CoreData
 
 struct PersistenceController {
     static let shared = PersistenceController()
+    let migrator = CoreDataMigrator()
 
     let container: NSPersistentCloudKitContainer = {
         let container = NSPersistentCloudKitContainer(name: "Model")
-
-        container.loadPersistentStores {
-            guard let error = $1 else { return }
-            Logger.error(error as Any)
-        }
+        let description = container.persistentStoreDescriptions.first
+        description?.shouldInferMappingModelAutomatically = false
+        description?.shouldMigrateStoreAutomatically = false
         return container
     }()
+}
 
-    static func prepareForPreviews() {
-        PersistenceController.add(galleries: [Gallery.preview])
-        PersistenceController.add(detail: GalleryDetail.preview)
-        PersistenceController.update(fetchedState: GalleryState.preview)
+// MARK: Preparation
+extension PersistenceController {
+    func prepare(completion: @escaping (Result<Void, AppError>) -> Void) {
+        do {
+           try loadPersistentStore(completion: completion)
+        } catch {
+            completion(.failure(error as? AppError ?? .databaseCorrupted(nil)))
+        }
     }
-    static func saveContext() {
-        let context = shared.container.viewContext
-        AppUtil.dispatchMainSync {
-            guard context.hasChanges else { return }
+    func rebuild(completion: @escaping (Result<Void, AppError>) -> Void) {
+        guard let storeURL = container.persistentStoreDescriptions.first?.url else {
+            completion(.failure(.databaseCorrupted("PersistentContainer was not set up properly.")))
+            return
+        }
+        DispatchQueue.global().async {
             do {
-                try context.save()
+                try NSPersistentStoreCoordinator.destroyStore(at: storeURL)
             } catch {
-                Logger.error(error)
-                fatalError("Unresolved error \(error)")
+                completion(.failure(error as? AppError ?? .databaseCorrupted(nil)))
             }
-        }
-    }
-
-    static func checkExistence<MO: NSManagedObject>(
-        entityType: MO.Type, predicate: NSPredicate
-    ) -> Bool {
-        fetch(entityType: entityType, predicate: predicate) != nil
-    }
-
-    static func materializedObjects(
-        in context: NSManagedObjectContext, matching predicate: NSPredicate
-    ) -> [NSManagedObject] {
-        var objects = [NSManagedObject]()
-        for object in context.registeredObjects where !object.isFault {
-            guard object.entity.attributesByName.keys.contains("gid"),
-                  predicate.evaluate(with: object)
-            else { continue }
-            objects.append(object)
-        }
-        return objects
-    }
-
-    static func fetch<MO: NSManagedObject>(
-        entityType: MO.Type, predicate: NSPredicate? = nil,
-        findBeforeFetch: Bool = true, commitChanges: ((MO?) -> Void)? = nil
-    ) -> MO? {
-        let managedObject = batchFetch(
-            entityType: entityType, fetchLimit: 1,
-            predicate: predicate, findBeforeFetch: findBeforeFetch
-        ).first
-        commitChanges?(managedObject)
-        return managedObject
-    }
-
-    static func batchFetch<MO: NSManagedObject>(
-        entityType: MO.Type, fetchLimit: Int = 0, predicate: NSPredicate? = nil,
-        findBeforeFetch: Bool = true, sortDescriptors: [NSSortDescriptor]? = nil
-    ) -> [MO] {
-        var results = [MO]()
-        let context = shared.container.viewContext
-        AppUtil.dispatchMainSync {
-            if findBeforeFetch, let predicate = predicate {
-                if let objects = materializedObjects(
-                    in: context, matching: predicate
-                ) as? [MO], !objects.isEmpty {
-                    results = objects
+            container.loadPersistentStores { _, error in
+                guard error == nil else {
+                    let message = "Was unable to load store \(String(describing: error))."
+                    completion(.failure(.databaseCorrupted(message)))
                     return
                 }
+                completion(.success(()))
             }
-            let request = NSFetchRequest<MO>(
-                entityName: String(describing: entityType)
-            )
-            request.predicate = predicate
-            request.fetchLimit = fetchLimit
-            request.sortDescriptors = sortDescriptors
-            results = (try? context.fetch(request)) ?? []
         }
-        return results
     }
+    private func loadPersistentStore(completion: @escaping (Result<Void, AppError>) -> Void) throws {
+        try migrateStoreIfNeeded { result in
+            switch result {
+            case .success:
+                container.loadPersistentStores { _, error in
+                    guard error == nil else {
+                        let message = "Was unable to load store \(String(describing: error))."
+                        completion(.failure(.databaseCorrupted(message)))
+                        return
+                    }
+                    completion(.success(()))
+                }
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+    private func migrateStoreIfNeeded(completion: @escaping (Result<Void, AppError>) -> Void) throws {
+        guard let storeURL = container.persistentStoreDescriptions.first?.url else {
+            throw AppError.databaseCorrupted("PersistentContainer was not set up properly.")
+        }
 
-    static func fetchOrCreate<MO: NSManagedObject>(
-        entityType: MO.Type, predicate: NSPredicate? = nil,
-        commitChanges: ((MO?) -> Void)? = nil
-    ) -> MO {
-        if let storedMO = fetch(
-            entityType: entityType, predicate: predicate, commitChanges: commitChanges
-        ) {
-            return storedMO
+        if try migrator.requiresMigration(at: storeURL, toVersion: try CoreDataMigrationVersion.current()) {
+            DispatchQueue.global().async {
+                do {
+                    try migrator.migrateStore(at: storeURL, toVersion: try CoreDataMigrationVersion.current())
+                } catch {
+                    completion(.failure(error as? AppError ?? .databaseCorrupted(nil)))
+                }
+                completion(.success(()))
+            }
         } else {
-            let newMO = MO(context: shared.container.viewContext)
-            commitChanges?(newMO)
-            saveContext()
-            return newMO
-        }
-    }
-
-    static func update<MO: NSManagedObject>(
-        entityType: MO.Type, predicate: NSPredicate? = nil,
-        createIfNil: Bool = false, commitChanges: (MO) -> Void
-    ) {
-        let storedMO: MO?
-        if createIfNil {
-            storedMO = fetchOrCreate(entityType: entityType, predicate: predicate)
-        } else {
-            storedMO = fetch(entityType: entityType, predicate: predicate)
-        }
-        if let storedMO = storedMO {
-            commitChanges(storedMO)
-            saveContext()
-        }
-    }
-
-    static func batchUpdate<MO: NSManagedObject>(
-        entityType: MO.Type, predicate: NSPredicate? = nil, commitChanges: ([MO]) -> Void
-    ) {
-        let storedMOs = batchFetch(entityType: entityType, predicate: predicate, findBeforeFetch: false)
-        commitChanges(storedMOs)
-        saveContext()
-    }
-
-    static func update<MO: GalleryIdentifiable>(
-        entityType: MO.Type, gid: String,
-        createIfNil: Bool = false,
-        commitChanges: @escaping ((MO) -> Void)
-    ) {
-        AppUtil.dispatchMainSync {
-            let storedMO: MO?
-            if createIfNil {
-                storedMO = fetchOrCreate(entityType: entityType, gid: gid)
-            } else {
-                storedMO = fetch(entityType: entityType, gid: gid)
-            }
-            if let storedMO = storedMO {
-                commitChanges(storedMO)
-                saveContext()
-            }
+            completion(.success(()))
         }
     }
 }
 
-// MARK: Protocol Definition
+// MARK: Definition
 protocol ManagedObjectProtocol {
     associatedtype Entity
     func toEntity() -> Entity
