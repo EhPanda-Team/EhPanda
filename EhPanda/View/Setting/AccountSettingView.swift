@@ -6,193 +6,233 @@
 //
 
 import SwiftUI
-import Kingfisher
-import TTProgressHUD
+import ComposableArchitecture
 
-struct AccountSettingView: View, StoreAccessor {
-    @AppStorage(wrappedValue: .ehentai, AppUserDefaults.galleryHost.rawValue)
-    var galleryHost: GalleryHost
-    @EnvironmentObject var store: Store
-    @State private var logoutDialogPresented = false
+struct AccountSettingView: View {
+    private let store: Store<AccountSettingState, AccountSettingAction>
+    @ObservedObject private var viewStore: ViewStore<AccountSettingState, AccountSettingAction>
+    @Binding private var galleryHost: GalleryHost
+    @Binding private var showsNewDawnGreeting: Bool
+    private let bypassesSNIFiltering: Bool
+    private let blurRadius: Double
 
-    @State private var hudVisible = false
-    @State private var hudConfig = TTProgressHUDConfig()
-
-    private let ehURL = Defaults.URL.ehentai.safeURL()
-    private let exURL = Defaults.URL.exhentai.safeURL()
-    private let igneousKey = Defaults.Cookie.igneous
-    private let memberIDKey = Defaults.Cookie.ipbMemberId
-    private let passHashKey = Defaults.Cookie.ipbPassHash
+    init(
+        store: Store<AccountSettingState, AccountSettingAction>,
+        galleryHost: Binding<GalleryHost>, showsNewDawnGreeting: Binding<Bool>,
+        bypassesSNIFiltering: Bool, blurRadius: Double
+    ) {
+        self.store = store
+        viewStore = ViewStore(store)
+        _galleryHost = galleryHost
+        _showsNewDawnGreeting = showsNewDawnGreeting
+        self.bypassesSNIFiltering = bypassesSNIFiltering
+        self.blurRadius = blurRadius
+    }
 
     // MARK: AccountSettingView
     var body: some View {
-        ZStack {
-            Form {
-                Section {
-                    Picker("Gallery", selection: $galleryHost) {
-                        ForEach(GalleryHost.allCases) {
-                            Text($0.rawValue.localized).tag($0)
-                        }
-                    }
-                    .pickerStyle(.segmented)
-                    if !AuthorizationUtil.didLogin {
-                        NavigationLink("Login", destination: LoginView()).foregroundStyle(.tint)
-                    } else {
-                        Button("Logout", role: .destructive) {
-                            logoutDialogPresented = true
-                        }
-                    }
-                    if AuthorizationUtil.didLogin {
-                        Group {
-                            NavigationLink("Account configuration", destination: EhSettingView())
-                            if !setting.bypassesSNIFiltering {
-                                Button("Manage tags subscription") {
-                                    store.dispatch(.setSettingViewSheetState(.webviewMyTags))
-                                }
-                                .withArrow()
-                            }
-                            Toggle(
-                                "Show new dawn greeting", isOn: $store.appState.settings.setting.showNewDawnGreeting
-                            )
-                        }
-                        .foregroundColor(.primary)
+        Form {
+            Section {
+                Picker("", selection: $galleryHost) {
+                    ForEach(GalleryHost.allCases) {
+                        Text($0.rawValue).tag($0)
                     }
                 }
-                Section("E-Hentai") {
-                    CookieRow(key: memberIDKey, value: ehMemberID, submitAction: setEhCookieValue)
-                    CookieRow(key: passHashKey, value: ehPassHash, submitAction: setEhCookieValue)
-                    Button("Copy cookies", action: copyEhCookies).foregroundStyle(.tint).font(.subheadline)
-                }
-                Section("ExHentai") {
-                    CookieRow(key: igneousKey, value: igneous, submitAction: setExCookieValue)
-                    CookieRow(key: memberIDKey, value: exMemberID, submitAction: setExCookieValue)
-                    CookieRow(key: passHashKey, value: exPassHash, submitAction: setExCookieValue)
-                    Button("Copy cookies", action: copyExCookies).foregroundStyle(.tint).font(.subheadline)
-                }
+                .pickerStyle(.segmented)
+                AccountSection(
+                    route: viewStore.binding(\.$route),
+                    showsNewDawnGreeting: $showsNewDawnGreeting,
+                    bypassesSNIFiltering: bypassesSNIFiltering,
+                    loginAction: { viewStore.send(.setNavigation(.login)) },
+                    logoutAction: { viewStore.send(.onLogoutConfirmButtonTapped) },
+                    logoutDialogAction: { viewStore.send(.setNavigation(.logout)) },
+                    configureAccountAction: { viewStore.send(.setNavigation(.ehSetting)) },
+                    manageTagsAction: { viewStore.send(.setNavigation(.webView(Defaults.URL.myTags))) }
+                )
             }
-            TTProgressHUD($hudVisible, config: hudConfig)
+            CookieSection(
+                ehCookiesState: viewStore.binding(\.$ehCookiesState),
+                exCookiesState: viewStore.binding(\.$exCookiesState),
+                copyAction: { viewStore.send(.copyCookies($0)) }
+            )
         }
-        .confirmationDialog(
-            "Are you sure to logout?", isPresented: $logoutDialogPresented, titleVisibility: .visible
-        ) {
-            Button("Logout", role: .destructive, action: logout)
+        .progressHUD(
+            config: viewStore.hudConfig,
+            unwrapping: viewStore.binding(\.$route),
+            case: /AccountSettingState.Route.hud
+        )
+        .sheet(unwrapping: viewStore.binding(\.$route), case: /AccountSettingState.Route.webView) { route in
+            WebView(url: route.wrappedValue)
+                .autoBlur(radius: blurRadius)
         }
-        .navigationBarTitle("Account")
+        .onAppear { viewStore.send(.loadCookies) }
+        .background(navigationLinks)
+        .navigationTitle(R.string.localizable.accountSettingViewTitleAccount())
     }
 }
 
+// MARK: NavigationLinks
 private extension AccountSettingView {
-    // MARK: Logout
-    func logout() {
-        CookiesUtil.clearAll()
-        store.dispatch(.resetUser)
-        PersistenceController.removeImageURLs()
-        KingfisherManager.shared.cache.clearDiskCache()
-    }
-
-    // MARK: Cookies
-    var igneous: CookieValue {
-        CookiesUtil.get(for: exURL, key: igneousKey)
-    }
-    var ehMemberID: CookieValue {
-        CookiesUtil.get(for: ehURL, key: memberIDKey)
-    }
-    var exMemberID: CookieValue {
-        CookiesUtil.get(for: exURL, key: memberIDKey)
-    }
-    var ehPassHash: CookieValue {
-        CookiesUtil.get(for: ehURL, key: passHashKey)
-    }
-    var exPassHash: CookieValue {
-        CookiesUtil.get(for: exURL, key: passHashKey)
-    }
-    func setEhCookieValue(key: String, value: String) {
-        setCookieValue(url: ehURL, key: key, value: value)
-    }
-    func setExCookieValue(key: String, value: String) {
-        setCookieValue(url: exURL, key: key, value: value)
-    }
-    func setCookieValue(url: URL, key: String, value: String) {
-        if CookiesUtil.checkExistence(for: url, key: key) {
-            CookiesUtil.edit(for: url, key: key, value: value)
-        } else {
-            CookiesUtil.set(for: url, key: key, value: value)
+    @ViewBuilder var navigationLinks: some View {
+        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /AccountSettingState.Route.login) { _ in
+            LoginView(
+                store: store.scope(state: \.loginState, action: AccountSettingAction.login),
+                bypassesSNIFiltering: bypassesSNIFiltering, blurRadius: blurRadius
+            )
+        }
+        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /AccountSettingState.Route.ehSetting) { _ in
+            EhSettingView(
+                store: store.scope(state: \.ehSettingState, action: AccountSettingAction.ehSetting),
+                bypassesSNIFiltering: bypassesSNIFiltering, blurRadius: blurRadius
+            )
         }
     }
-    func copyEhCookies() {
-        let cookies = "\(memberIDKey): \(ehMemberID.rawValue)"
-            + "\n\(passHashKey): \(ehPassHash.rawValue)"
-        PasteboardUtil.save(value: cookies)
-        presentHUD()
+}
+
+// MARK: AccountSection
+private struct AccountSection: View {
+    @Binding private var route: AccountSettingState.Route?
+    @Binding private var showsNewDawnGreeting: Bool
+    private let bypassesSNIFiltering: Bool
+    private let loginAction: () -> Void
+    private let logoutAction: () -> Void
+    private let logoutDialogAction: () -> Void
+    private let configureAccountAction: () -> Void
+    private let manageTagsAction: () -> Void
+
+    init(
+        route: Binding<AccountSettingState.Route?>,
+        showsNewDawnGreeting: Binding<Bool>, bypassesSNIFiltering: Bool,
+        loginAction: @escaping () -> Void, logoutAction: @escaping () -> Void,
+        logoutDialogAction: @escaping () -> Void,
+        configureAccountAction: @escaping () -> Void,
+        manageTagsAction: @escaping () -> Void
+    ) {
+        _route = route
+        _showsNewDawnGreeting = showsNewDawnGreeting
+        self.bypassesSNIFiltering = bypassesSNIFiltering
+        self.loginAction = loginAction
+        self.logoutAction = logoutAction
+        self.logoutDialogAction = logoutDialogAction
+        self.configureAccountAction = configureAccountAction
+        self.manageTagsAction = manageTagsAction
     }
-    func copyExCookies() {
-        let cookies = "\(igneousKey): \(igneous.rawValue)"
-            + "\n\(memberIDKey): \(exMemberID.rawValue)"
-            + "\n\(passHashKey): \(exPassHash.rawValue)"
-        PasteboardUtil.save(value: cookies)
-        presentHUD()
+
+    var body: some View {
+        if !CookiesUtil.didLogin {
+            Button(R.string.localizable.accountSettingViewButtonLogin(), action: loginAction)
+        } else {
+            Button(
+                R.string.localizable.confirmationDialogButtonLogout(),
+                role: .destructive, action: logoutDialogAction
+            )
+            .confirmationDialog(
+                message: R.string.localizable.confirmationDialogTitleLogout(),
+                unwrapping: $route, case: /AccountSettingState.Route.logout
+            ) {
+                Button(
+                    R.string.localizable.confirmationDialogButtonLogout(),
+                    role: .destructive, action: logoutAction
+                )
+            }
+            Group {
+                Button(
+                    R.string.localizable.accountSettingViewButtonAccountConfiguration(),
+                    action: configureAccountAction
+                )
+                .withArrow()
+                if !bypassesSNIFiltering {
+                    Button(
+                        R.string.localizable.accountSettingViewButtonTagsManagement(),
+                        action: manageTagsAction
+                    )
+                    .withArrow()
+                }
+                Toggle(R.string.localizable.accountSettingViewTitleShowsNewDawnGreeting(), isOn: $showsNewDawnGreeting)
+            }
+            .foregroundColor(.primary)
+        }
     }
-    func presentHUD() {
-        hudConfig = TTProgressHUDConfig(
-            type: .success, title: "Success".localized,
-            caption: "Copied to clipboard".localized,
-            shouldAutoHide: true, autoHideInterval: 1
-        )
-        hudVisible.toggle()
+}
+
+// MARK: CookieSection
+private struct CookieSection: View {
+    @Binding private var ehCookiesState: CookiesState
+    @Binding private var exCookiesState: CookiesState
+    private let copyAction: (GalleryHost) -> Void
+
+    init(
+        ehCookiesState: Binding<CookiesState>,
+        exCookiesState: Binding<CookiesState>,
+        copyAction: @escaping (GalleryHost) -> Void
+    ) {
+        _ehCookiesState = ehCookiesState
+        _exCookiesState = exCookiesState
+        self.copyAction = copyAction
+    }
+
+    var body: some View {
+        Section(GalleryHost.ehentai.rawValue) {
+            CookieRow(cookieState: $ehCookiesState.memberID)
+            CookieRow(cookieState: $ehCookiesState.passHash)
+            Button(R.string.localizable.accountSettingViewButtonCopyCookies()) {
+                copyAction(.ehentai)
+            }
+            .foregroundStyle(.tint).font(.subheadline)
+        }
+        Section(GalleryHost.exhentai.rawValue) {
+            CookieRow(cookieState: $exCookiesState.igneous)
+            CookieRow(cookieState: $exCookiesState.memberID)
+            CookieRow(cookieState: $exCookiesState.passHash)
+            Button(R.string.localizable.accountSettingViewButtonCopyCookies()) {
+                copyAction(.exhentai)
+            }
+            .foregroundStyle(.tint).font(.subheadline)
+        }
     }
 }
 
 // MARK: CookieRow
 private struct CookieRow: View {
-    @State private var content: String
+    @Binding private var cookieState: CookieState
 
-    private let key: String
-    private let value: String
-    private let cookieValue: CookieValue
-    private let submitAction: (String, String) -> Void
-    private var notVerified: Bool {
-        !cookieValue.localizedString.isEmpty && !cookieValue.rawValue.isEmpty
-    }
-
-    init(
-        key: String, value: CookieValue,
-        submitAction: @escaping (String, String) -> Void
-    ) {
-        _content = State(initialValue: value.rawValue)
-
-        self.key = key
-        self.value = value.localizedString.isEmpty
-            ? value.rawValue : value.localizedString
-        self.cookieValue = value
-        self.submitAction = submitAction
+    init(cookieState: Binding<CookieState>) {
+        _cookieState = cookieState
     }
 
     var body: some View {
         HStack {
-            Text(key)
+            Text(cookieState.key)
             Spacer()
-            ZStack {
-                TextField(value, text: $content)
-                    .submitLabel(.done)
-                    .disableAutocorrection(true)
-                    .multilineTextAlignment(.trailing)
-                    .textInputAutocapitalization(.none)
-                    .onChange(of: content) {
-                        submitAction(key, $0)
-                    }
-            }
-            ZStack {
-                Image(systemName: "checkmark.circle")
-                    .foregroundStyle(.green).opacity(notVerified ? 0 : 1)
-                Image(systemName: "xmark.circle")
-                    .foregroundStyle(.red).opacity(notVerified ? 1 : 0)
-            }
+            TextField(cookieState.value.placeholder, text: $cookieState.editingText)
+                .submitLabel(.done).disableAutocorrection(true)
+                .multilineTextAlignment(.trailing)
+                .textInputAutocapitalization(.none)
+            Image(systemSymbol: cookieState.value.isInvalid ? .xmarkCircle : .checkmarkCircle)
+                .foregroundStyle(cookieState.value.isInvalid ? .red : .green)
         }
     }
 }
 
-// MARK: Definition
-struct CookieValue {
-    let rawValue: String
-    let localizedString: String
+struct AccountSettingView_Previews: PreviewProvider {
+    static var previews: some View {
+        NavigationView {
+            AccountSettingView(
+                store: .init(
+                    initialState: .init(),
+                    reducer: accountSettingReducer,
+                    environment: AccountSettingEnvironment(
+                        hapticClient: .live,
+                        cookiesClient: .live,
+                        clipboardClient: .live,
+                        uiApplicationClient: .live
+                    )
+                ),
+                galleryHost: .constant(.ehentai),
+                showsNewDawnGreeting: .constant(false),
+                bypassesSNIFiltering: false,
+                blurRadius: 0
+            )
+        }
+    }
 }

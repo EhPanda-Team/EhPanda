@@ -24,11 +24,23 @@ private func forceDowncast<T>(object: Any) -> T! {
 
 // MARK: URL
 extension URL {
-    func replaceHost(to newHost: String) -> URL? {
-        guard let originalHost = host else { return nil }
-        return URL(string: absoluteString.replacingOccurrences(
-            of: originalHost, with: newHost
-        ))
+    func modifyComponent(for url: URL, commitChanges: (inout URLComponents) -> Void) -> URL? {
+        guard var components = URLComponents(
+            url: self, resolvingAgainstBaseURL: false
+        )
+        else { return nil }
+        commitChanges(&components)
+        return components.url
+    }
+    func replaceHost(to newHost: String?) -> URL? {
+        modifyComponent(for: self) { components in
+            components.host = newHost
+        }
+    }
+    func replaceScheme(to newScheme: String?) -> URL? {
+        modifyComponent(for: self) { components in
+            components.scheme = newScheme
+        }
     }
 }
 

@@ -2,13 +2,15 @@ name: Test
 on: [push]
 env:
    SCHEME_NAME: 'EhPanda'
-   DEVELOPER_DIR: /Applications/Xcode_13.0.app
+   DEVELOPER_DIR: /Applications/Xcode_13.2.1.app
 jobs:
   Test:
     runs-on: macos-11
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+      - name: Install dependencies
+        run: brew install rswift
       - name: Show Xcode version
         run: xcodebuild -version
       - name: Run tests

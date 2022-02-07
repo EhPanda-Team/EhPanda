@@ -6,189 +6,196 @@
 //
 
 import SwiftUI
+import ComposableArchitecture
 
-struct AppearanceSettingView: View, StoreAccessor {
-    @EnvironmentObject var store: Store
-    @State private var isNavLinkActive = false
+struct AppearanceSettingView: View {
+    private let store: Store<AppearanceSettingState, AppearanceSettingAction>
+    @ObservedObject private var viewStore: ViewStore<AppearanceSettingState, AppearanceSettingAction>
+    @Binding private var preferredColorScheme: PreferredColorScheme
+    @Binding private var accentColor: Color
+    @Binding private var appIconType: AppIconType
+    @Binding private var listDisplayMode: ListDisplayMode
+    @Binding private var showsTagsInList: Bool
+    @Binding private var listTagsNumberMaximum: Int
 
-    private var settingBinding: Binding<Setting> {
-        $store.appState.settings.setting
-    }
-    private var selectedIcon: IconType {
-        store.appState.settings.setting.appIconType
-    }
-    private var iconType: IconType {
-        var alterName: String?
-        AppUtil.dispatchMainSync {
-            alterName = UIApplication.shared.alternateIconName
-        }
-
-        guard let iconName = alterName,
-              let selection = IconType.allCases.filter({
-                  iconName.contains($0.fileName ?? "")
-              }).first else { return .default }
-        return selection
+    init(
+        store: Store<AppearanceSettingState, AppearanceSettingAction>,
+        preferredColorScheme: Binding<PreferredColorScheme>, accentColor: Binding<Color>,
+        appIconType: Binding<AppIconType>, listDisplayMode: Binding<ListDisplayMode>,
+        showsTagsInList: Binding<Bool>, listTagsNumberMaximum: Binding<Int>
+    ) {
+        self.store = store
+        viewStore = ViewStore(store)
+        _preferredColorScheme = preferredColorScheme
+        _accentColor = accentColor
+        _appIconType = appIconType
+        _listDisplayMode = listDisplayMode
+        _showsTagsInList = showsTagsInList
+        _listTagsNumberMaximum = listTagsNumberMaximum
     }
 
     var body: some View {
         Form {
             Section {
                 HStack {
-                    Text("Theme")
+                    Text(R.string.localizable.appearanceSettingViewTitleTheme())
                     Spacer()
                     Picker(
-                        selection: settingBinding.preferredColorScheme,
-                        label: Text(setting.preferredColorScheme.rawValue.localized),
+                        selection: $preferredColorScheme,
+                        label: Text(preferredColorScheme.value),
                         content: {
                             ForEach(PreferredColorScheme.allCases) { colorScheme in
-                                Text(colorScheme.rawValue.localized).tag(colorScheme)
+                                Text(colorScheme.value).tag(colorScheme)
                             }
                         }
                     )
                 }
                 .pickerStyle(.menu)
-                ColorPicker("Tint Color", selection: settingBinding.accentColor)
-                Button("App Icon") {
-                    isNavLinkActive.toggle()
+                ColorPicker(R.string.localizable.appearanceSettingViewTitleTintColor(), selection: $accentColor)
+                Button(R.string.localizable.appearanceSettingViewButtonAppIcon()) {
+                    viewStore.send(.setNavigation(.appIcon))
                 }
                 .foregroundStyle(.primary).withArrow()
             }
-            Section("List".localized) {
+            Section(R.string.localizable.appearanceSettingViewSectionTitleList()) {
                 HStack {
-                    Text("Display mode")
+                    Text(R.string.localizable.appearanceSettingViewTitleDisplayMode())
                     Spacer()
                     Picker(
-                        selection: settingBinding.listMode,
-                        label: Text(setting.listMode.rawValue.localized),
+                        selection: $listDisplayMode,
+                        label: Text(listDisplayMode.value),
                         content: {
-                            ForEach(ListMode.allCases) { listMode in
-                                Text(listMode.rawValue.localized).tag(listMode)
+                            ForEach(ListDisplayMode.allCases) { listMode in
+                                Text(listMode.value).tag(listMode)
                             }
                         }
                     )
                 }
                 .pickerStyle(.menu)
-                Toggle(isOn: settingBinding.showsSummaryRowTags) {
-                    Text("Shows tags in list")
+                Toggle(isOn: $showsTagsInList) {
+                    Text(R.string.localizable.appearanceSettingViewTitleShowsTagsInList())
                 }
                 HStack {
-                    Text("Maximum number of tags")
+                    Text(R.string.localizable.appearanceSettingViewTitleMaximumNumberOfTags())
                     Spacer()
                     Picker(
-                        selection: settingBinding.summaryRowTagsMaximum,
-                        label: Text("\(setting.summaryRowTagsMaximum)")
+                        selection: $listTagsNumberMaximum,
+                        label: Text("\(listTagsNumberMaximum)")
                     ) {
-                        Text("Infinity").tag(0)
+                        Text(R.string.localizable.appearanceSettingViewMenuTitleInfite()).tag(0)
                         ForEach(Array(stride(from: 5, through: 20, by: 5)), id: \.self) { num in
                             Text("\(num)").tag(num)
                         }
                     }
                     .pickerStyle(.menu)
                 }
-                .disabled(!setting.showsSummaryRowTags)
+                .disabled(!showsTagsInList)
             }
         }
-        .background {
-            NavigationLink(
-                destination: SelectAppIconView(selectedIcon: selectedIcon) {
-                    store.dispatch(.setAppIconType(iconType))
-                },
-                isActive: $isNavLinkActive, label: {}
-            )
+        .background(navigationLink)
+        .navigationTitle(R.string.localizable.appearanceSettingViewTitleAppearance())
+    }
+    private var navigationLink: some View {
+        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /AppearanceSettingState.Route.appIcon) { _ in
+            AppIconView(appIconType: $appIconType)
         }
-        .navigationBarTitle("Appearance")
     }
 }
 
 // MARK: SelectAppIconView
-private struct SelectAppIconView: View {
-    private let selectedIcon: IconType
-    private let selectAction: () -> Void
+private struct AppIconView: View {
+    @Binding private var appIconType: AppIconType
 
-    init(selectedIcon: IconType, selectAction: @escaping () -> Void) {
-        self.selectedIcon = selectedIcon
-        self.selectAction = selectAction
+    init(appIconType: Binding<AppIconType>) {
+        _appIconType = appIconType
     }
 
     var body: some View {
         Form {
             Section {
-                ForEach(IconType.allCases) { icon in
+                ForEach(AppIconType.allCases) { icon in
                     AppIconRow(
-                        iconName: icon.iconName,
-                        iconDesc: icon.rawValue,
-                        isSelected: icon == selectedIcon
+                        iconName: icon.name,
+                        filename: icon.filename,
+                        isSelected: icon == appIconType
                     )
                     .contentShape(Rectangle())
-                    .onTapGesture { setIcon(icon) }
+                    .onTapGesture { appIconType = icon }
                 }
             }
         }
-        .onAppear(perform: selectAction)
-    }
-
-    private func setIcon(_ icon: IconType) {
-        UIApplication.shared.setAlternateIconName(icon.fileName) { error in
-            if let error = error {
-                HapticUtil.generateNotificationFeedback(style: .error)
-                Logger.error(error)
-            }
-            selectAction()
-        }
+        .navigationTitle(R.string.localizable.appIconViewTitleAppIcon())
     }
 }
 
 // MARK: AppIconRow
 private struct AppIconRow: View {
     private let iconName: String
-    private let iconDesc: String
+    private let filename: String
     private let isSelected: Bool
 
-    init(iconName: String, iconDesc: String, isSelected: Bool) {
+    init(iconName: String, filename: String, isSelected: Bool) {
         self.iconName = iconName
-        self.iconDesc = iconDesc
+        self.filename = filename
         self.isSelected = isSelected
     }
 
     var body: some View {
         HStack {
-            Image(iconName).resizable().scaledToFit()
-                .frame(width: 60, height: 60).cornerRadius(12)
+            Image(uiImage: .init(named: filename, in: .main, with: nil) ?? .init())
+                .resizable().scaledToFit().frame(width: 60, height: 60).cornerRadius(12)
                 .padding(.vertical, 10).padding(.trailing, 20)
-            Text(iconDesc.localized)
+            Text(iconName)
             Spacer()
-            Image(systemName: "checkmark.circle.fill")
+            Image(systemSymbol: .checkmarkCircleFill)
                 .opacity(isSelected ? 1 : 0).foregroundStyle(.tint).imageScale(.large)
         }
     }
 }
 
 // MARK: Definition
-enum IconType: String, Codable, Identifiable, CaseIterable {
-    var id: Int { hashValue }
+enum AppIconType: Int, Codable, Identifiable, CaseIterable {
+    var id: Int { rawValue }
 
-    case normal = "Normal"
-    case `default` = "Default"
-    case weird = "Weird"
+    case `default`
+    case ukiyoe
 }
 
-extension IconType {
-    var iconName: String {
+extension AppIconType {
+    var name: String {
         switch self {
-        case .normal:
-            return "AppIcon_Normal"
         case .default:
-            return "AppIcon_Default"
-        case .weird:
-            return "AppIcon_Weird"
+            return R.string.localizable.enumAppIconTypeValueDefault()
+        case .ukiyoe:
+            return R.string.localizable.enumAppIconTypeValueUkiyoe()
         }
     }
-    var fileName: String? {
+    var filename: String {
         switch self {
         case .default:
-            return nil
-        default:
-            return rawValue
+            return "AppIcon_Default"
+        case .ukiyoe:
+            return "AppIcon_Ukiyoe"
+        }
+    }
+}
+
+struct AppearanceSettingView_Previews: PreviewProvider {
+    static var previews: some View {
+        NavigationView {
+            AppearanceSettingView(
+                store: .init(
+                    initialState: .init(),
+                    reducer: appearanceSettingReducer,
+                    environment: AppearanceSettingEnvironment()
+                ),
+                preferredColorScheme: .constant(.automatic),
+                accentColor: .constant(.blue),
+                appIconType: .constant(.default),
+                listDisplayMode: .constant(.detail),
+                showsTagsInList: .constant(false),
+                listTagsNumberMaximum: .constant(0)
+            )
         }
     }
 }

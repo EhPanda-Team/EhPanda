@@ -5,8 +5,8 @@ on:
       - main
     types: [closed]
 env:
-  DEVELOPER_DIR: /Applications/Xcode_13.1.app
-  APP_VERSION: '1.5.4'
+  DEVELOPER_DIR: /Applications/Xcode_13.2.1.app
+  APP_VERSION: '2.0.0'
   SCHEME_NAME: 'EhPanda'
   ALTSTORE_JSON_PATH: './AltStore.json'
   BUILDS_PATH: '/tmp/action-builds'
@@ -31,6 +31,8 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+      - name: Install dependencies
+        run: brew install rswift
       - name: Show Xcode version
         run: xcodebuild -version
       - name: Run tests
