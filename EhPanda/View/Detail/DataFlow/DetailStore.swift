@@ -334,6 +334,9 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.recurs
                 }
                 return environment.hapticClient.generateNotificationFeedback(.error).fireAndForget()
 
+            case .reading(.onPerformDismiss):
+                return .init(value: .setNavigation(nil))
+
             case .reading:
                 return .none
 

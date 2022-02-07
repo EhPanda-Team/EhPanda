@@ -133,6 +133,9 @@ let previewsReducer = Reducer<PreviewsState, PreviewsAction, PreviewsEnvironment
             }
             return .none
 
+        case .reading(.onPerformDismiss):
+            return .init(value: .setNavigation(nil))
+
         case .reading:
             return .none
         }

@@ -194,6 +194,7 @@ enum ReadingAction: BindableAction {
     case setSliderValue(Float)
     case setOrientationPortrait(Bool)
     case onTimerFired
+    case onPerformDismiss
     case onAppear(Bool)
 
     case onWebImageRetry(Int)
@@ -213,6 +214,7 @@ enum ReadingAction: BindableAction {
     case onMagnificationGestureEnded(Double, Double)
     case onDragGestureChanged(DragGesture.Value)
     case onDragGestureEnded(DragGesture.Value)
+    case onControlPanelDismissGestureEnded(DragGesture.Value)
 
     case syncReadingProgress
     case syncPreviewURLs([Int: URL])
@@ -308,6 +310,9 @@ let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { 
 
     case .onTimerFired:
         state.pageIndex += 1
+        return .none
+
+    case .onPerformDismiss:
         return .none
 
     case .onAppear(let enablesLandscape):
@@ -436,6 +441,12 @@ let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { 
             state.newOffset.height = state.offset.height
         }
         return .none
+
+    case .onControlPanelDismissGestureEnded(let value):
+        return value.predictedEndTranslation.height > 30 ? .merge(
+            environment.hapticClient.generateFeedback(.light).fireAndForget(),
+            .init(value: .onPerformDismiss)
+        ) : .none
 
     case .syncReadingProgress:
         return environment.databaseClient
