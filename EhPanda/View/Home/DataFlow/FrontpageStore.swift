@@ -25,9 +25,6 @@ struct FrontpageState: Equatable {
     @BindableState var jumpPageAlertFocused = false
     @BindableState var jumpPageAlertPresented = false
 
-    // Will be passed over from `appReducer`
-    var filter = Filter()
-
     var filteredGalleries: [Gallery] {
         guard !keyword.isEmpty else { return galleries }
         return galleries.filter({ $0.title.caseInsensitiveContains(keyword) })
@@ -127,7 +124,8 @@ let frontpageReducer = Reducer<FrontpageState, FrontpageAction, FrontpageEnviron
             guard state.loadingState != .loading else { return .none }
             state.loadingState = .loading
             state.pageNumber.current = 0
-            return FrontpageGalleriesRequest(filter: state.filter, pageNum: pageNum)
+            let filter = environment.databaseClient.fetchFilterSynchronously(range: .global)
+            return FrontpageGalleriesRequest(filter: filter, pageNum: pageNum)
                 .effect.map(FrontpageAction.fetchGalleriesDone).cancellable(id: FrontpageState.CancelID())
 
         case .fetchGalleriesDone(let result):
@@ -157,7 +155,8 @@ let frontpageReducer = Reducer<FrontpageState, FrontpageAction, FrontpageEnviron
             else { return .none }
             state.footerLoadingState = .loading
             let pageNum = pageNumber.current + 1
-            return MoreFrontpageGalleriesRequest(filter: state.filter, lastID: lastID, pageNum: pageNum)
+            let filter = environment.databaseClient.fetchFilterSynchronously(range: .global)
+            return MoreFrontpageGalleriesRequest(filter: filter, lastID: lastID, pageNum: pageNum)
                 .effect.map(FrontpageAction.fetchMoreGalleriesDone).cancellable(id: FrontpageState.CancelID())
 
         case .fetchMoreGalleriesDone(let result):

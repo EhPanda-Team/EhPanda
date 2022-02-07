@@ -30,9 +30,6 @@ struct HomeState: Equatable {
         rawCardColors[currentCardID] ?? [.clear]
     }
 
-    // Will be passed over from `appReducer`
-    var filter = Filter()
-
     var popularGalleries = [Gallery]()
     var popularLoadingState: LoadingState = .idle
     var frontpageGalleries = [Gallery]()
@@ -162,7 +159,8 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
             guard state.popularLoadingState != .loading else { return .none }
             state.popularLoadingState = .loading
             state.rawCardColors = [String: [Color]]()
-            return PopularGalleriesRequest(filter: state.filter)
+            let filter = environment.databaseClient.fetchFilterSynchronously(range: .global)
+            return PopularGalleriesRequest(filter: filter)
                 .effect.map(HomeAction.fetchPopularGalleriesDone)
 
         case .fetchPopularGalleriesDone(let result):
@@ -183,7 +181,8 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
         case .fetchFrontpageGalleries(let pageNum):
             guard state.frontpageLoadingState != .loading else { return .none }
             state.frontpageLoadingState = .loading
-            return FrontpageGalleriesRequest(filter: state.filter, pageNum: pageNum)
+            let filter = environment.databaseClient.fetchFilterSynchronously(range: .global)
+            return FrontpageGalleriesRequest(filter: filter, pageNum: pageNum)
                 .effect.map(HomeAction.fetchFrontpageGalleriesDone)
 
         case .fetchFrontpageGalleriesDone(let result):

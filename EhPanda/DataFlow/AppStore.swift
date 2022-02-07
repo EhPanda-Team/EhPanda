@@ -155,22 +155,6 @@ let appReducerCore = Reducer<AppState, AppAction, AppEnvironment> { state, actio
     case .tabBar:
         return .none
 
-    case .home(.frontpage(.fetchGalleries)), .home(.frontpage(.fetchMoreGalleries)):
-        state.homeState.frontpageState.filter = state.settingState.globalFilter
-        return .none
-
-    case .home(.popular(.fetchGalleries)):
-        state.homeState.popularState.filter = state.settingState.globalFilter
-        return .none
-
-    case .home(.watched(.fetchGalleries)), .home(.watched(.fetchMoreGalleries)):
-        state.homeState.watchedState.filter = state.settingState.watchedFilter
-        return .none
-
-    case .home(.fetchPopularGalleries), .home(.fetchFrontpageGalleries):
-        state.homeState.filter = state.settingState.globalFilter
-        return .none
-
     case .home(.watched(.onNotLoginViewButtonTapped)), .favorites(.onNotLoginViewButtonTapped):
         var effects: [Effect<AppAction, Never>] = [
             environment.hapticClient.generateFeedback(.soft).fireAndForget(),
@@ -189,10 +173,6 @@ let appReducerCore = Reducer<AppState, AppAction, AppEnvironment> { state, actio
         return .none
 
     case .favorites:
-        return .none
-
-    case .searchRoot(.search(.fetchGalleries)):
-        state.searchRootState.searchState.filter = state.settingState.searchFilter
         return .none
 
     case .searchRoot:

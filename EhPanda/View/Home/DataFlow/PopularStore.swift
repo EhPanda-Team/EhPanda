@@ -22,9 +22,6 @@ struct PopularState: Equatable {
     @BindableState var route: Route?
     @BindableState var keyword = ""
 
-    // Will be passed over from `appReducer`
-    var filter = Filter()
-
     var filteredGalleries: [Gallery] {
         guard !keyword.isEmpty else { return galleries }
         return galleries.filter({ $0.title.caseInsensitiveContains(keyword) })
@@ -87,7 +84,8 @@ let popularReducer = Reducer<PopularState, PopularAction, PopularEnvironment>.co
         case .fetchGalleries:
             guard state.loadingState != .loading else { return .none }
             state.loadingState = .loading
-            return PopularGalleriesRequest(filter: state.filter)
+            let filter = environment.databaseClient.fetchFilterSynchronously(range: .global)
+            return PopularGalleriesRequest(filter: filter)
                 .effect.map(PopularAction.fetchGalleriesDone).cancellable(id: PopularState.CancelID())
 
         case .fetchGalleriesDone(let result):

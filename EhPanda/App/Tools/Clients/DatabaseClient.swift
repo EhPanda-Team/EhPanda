@@ -210,6 +210,9 @@ extension DatabaseClient {
         .receive(on: DispatchQueue.main)
         .eraseToEffect()
     }
+    func fetchAppEnvSynchronously() -> AppEnv {
+        fetchOrCreate(entityType: AppEnvMO.self).toEntity()
+    }
     func fetchGalleryState(gid: String) -> Effect<GalleryState, Never> {
         guard gid.isValidGID else { return .none }
         return Future { promise in
@@ -245,6 +248,16 @@ extension DatabaseClient {
 }
 // MARK: FetchAccessor
 extension DatabaseClient {
+    func fetchFilterSynchronously(range: FilterRange) -> Filter {
+        switch range {
+        case .search:
+            return fetchAppEnvSynchronously().searchFilter
+        case .global:
+            return fetchAppEnvSynchronously().globalFilter
+        case .watched:
+            return fetchAppEnvSynchronously().watchedFilter
+        }
+    }
     func fetchHistoryKeywords() -> Effect<[String], Never> {
         fetchAppEnv().map(\.historyKeywords)
     }

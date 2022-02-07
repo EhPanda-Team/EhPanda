@@ -26,9 +26,6 @@ struct WatchedState: Equatable {
     @BindableState var jumpPageAlertFocused = false
     @BindableState var jumpPageAlertPresented = false
 
-    // Will be passed over from `appReducer`
-    var filter = Filter()
-
     var galleries = [Gallery]()
     var pageNumber = PageNumber()
     var loadingState: LoadingState = .idle
@@ -137,7 +134,8 @@ let watchedReducer = Reducer<WatchedState, WatchedAction, WatchedEnvironment>.co
             }
             state.loadingState = .loading
             state.pageNumber.current = 0
-            return WatchedGalleriesRequest(filter: state.filter, pageNum: pageNum, keyword: state.keyword)
+            let filter = environment.databaseClient.fetchFilterSynchronously(range: .watched)
+            return WatchedGalleriesRequest(filter: filter, pageNum: pageNum, keyword: state.keyword)
                 .effect.map(WatchedAction.fetchGalleriesDone).cancellable(id: WatchedState.CancelID())
 
         case .fetchGalleriesDone(let result):
@@ -167,8 +165,9 @@ let watchedReducer = Reducer<WatchedState, WatchedAction, WatchedEnvironment>.co
             else { return .none }
             state.footerLoadingState = .loading
             let pageNum = pageNumber.current + 1
+            let filter = environment.databaseClient.fetchFilterSynchronously(range: .watched)
             return MoreWatchedGalleriesRequest(
-                filter: state.filter, lastID: lastID, pageNum: pageNum, keyword: state.keyword
+                filter: filter, lastID: lastID, pageNum: pageNum, keyword: state.keyword
             )
             .effect.map(WatchedAction.fetchMoreGalleriesDone).cancellable(id: WatchedState.CancelID())
 

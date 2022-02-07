@@ -27,9 +27,6 @@ struct SearchState: Equatable {
     @BindableState var jumpPageAlertFocused = false
     @BindableState var jumpPageAlertPresented = false
 
-    // Will be passed over from `appReducer`
-    var filter = Filter()
-
     var galleries = [Gallery]()
     var pageNumber = PageNumber()
     var loadingState: LoadingState = .idle
@@ -141,7 +138,8 @@ let searchReducer = Reducer<SearchState, SearchAction, SearchEnvironment>.combin
             }
             state.loadingState = .loading
             state.pageNumber.current = 0
-            return SearchGalleriesRequest(keyword: state.lastKeyword, filter: state.filter, pageNum: pageNum)
+            let filter = environment.databaseClient.fetchFilterSynchronously(range: .search)
+            return SearchGalleriesRequest(keyword: state.lastKeyword, filter: filter, pageNum: pageNum)
                 .effect.map(SearchAction.fetchGalleriesDone).cancellable(id: SearchState.CancelID())
 
         case .fetchGalleriesDone(let result):
@@ -171,8 +169,9 @@ let searchReducer = Reducer<SearchState, SearchAction, SearchEnvironment>.combin
             else { return .none }
             state.footerLoadingState = .loading
             let pageNum = pageNumber.current + 1
+            let filter = environment.databaseClient.fetchFilterSynchronously(range: .search)
             return MoreSearchGalleriesRequest(
-                keyword: state.lastKeyword, filter: state.filter, lastID: lastID, pageNum: pageNum
+                keyword: state.lastKeyword, filter: filter, lastID: lastID, pageNum: pageNum
             )
             .effect.map(SearchAction.fetchMoreGalleriesDone).cancellable(id: SearchState.CancelID())
 

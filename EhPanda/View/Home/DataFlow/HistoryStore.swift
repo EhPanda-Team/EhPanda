@@ -21,9 +21,6 @@ struct HistoryState: Equatable {
     @BindableState var keyword = ""
     @BindableState var clearDialogPresented = false
 
-    // Will be passed over from `appReducer`
-    var filter = Filter()
-
     var filteredGalleries: [Gallery] {
         guard !keyword.isEmpty else { return galleries }
         return galleries.filter({ $0.title.caseInsensitiveContains(keyword) })
