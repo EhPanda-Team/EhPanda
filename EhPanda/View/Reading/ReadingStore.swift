@@ -200,6 +200,7 @@ enum ReadingAction: BindableAction {
     case onWebImageRetry(Int)
     case onWebImageSucceeded(Int)
     case onWebImageFailed(Int)
+    case retryAllFailedWebImage
 
     case copyImage(URL)
     case saveImage(URL)
@@ -334,6 +335,14 @@ let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { 
 
     case .onWebImageFailed(let index):
         state.imageURLLoadingStates[index] = .failed(.webImageFailed)
+        return .none
+
+    case .retryAllFailedWebImage:
+        state.imageURLLoadingStates.forEach { (index, loadingState) in
+            if case .failed = loadingState {
+                state.imageURLLoadingStates[index] = .idle
+            }
+        }
         return .none
 
     case .copyImage(let imageURL):

@@ -65,7 +65,7 @@
 "loading.view.title.preparingDatabase" = "データベース準備中...";
 "not.login.view.title.needLogin" = "本機能をご利用になるにはログインが必要です";
 "not.login.view.button.login" = "ログイン";
-"error.view.button.retry" = "やり直す";
+"error.view.button.retry" = "リトライ";
 "error.view.button.dropDatabase" = "データベースを削除";
 "error.view.title.tryLater" = "しばらくしてからもう一度お試しください";
 "error.view.title.network" = "ネットワーク障害が発生しました";
@@ -338,6 +338,8 @@
 "reading.view.toolbar.item.title.autoPlay" = "自動再生";
 "reading.view.toolbar.item.title.dualPageMode" = "デュアルページモード";
 "reading.view.toolbar.item.title.exceptTheCover" = "カバーを除く";
+"reading.view.toolbar.item.button.retryAllFailedImages" = "読み込み失敗した画像をすべてリトライ";
+"reading.view.toolbar.item.button.readingSetting" = "閲覧設定";
 // AutoPlayPolicy
 "enum.auto.play.policy.value.off" = "オフ";
 

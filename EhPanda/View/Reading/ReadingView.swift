@@ -70,6 +70,7 @@ struct ReadingView: View {
                 dismissGesture: controlPanelDismissGesture,
                 dismissAction: { viewStore.send(.onPerformDismiss) },
                 navigateSettingAction: { viewStore.send(.setNavigation(.readingSetting)) },
+                retryAllFailedImagesAction: { viewStore.send(.retryAllFailedWebImage) },
                 fetchPreviewURLsAction: { viewStore.send(.fetchPreviewURLs($0)) }
             )
         }
@@ -130,6 +131,7 @@ struct ReadingView: View {
         }
         .animation(.default, value: viewStore.showsPanel)
         .animation(.default, value: viewStore.pageIndex)
+        .animation(.default, value: viewStore.offset)
         .animation(.default, value: viewStore.scale)
         .statusBar(hidden: !viewStore.showsPanel)
         .onAppear { viewStore.send(.onAppear(setting.enablesLandscape)) }
