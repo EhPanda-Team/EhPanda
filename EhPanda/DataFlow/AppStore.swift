@@ -120,19 +120,36 @@ let appReducerCore = Reducer<AppState, AppAction, AppEnvironment> { state, actio
 
     case .tabBar(.setTabBarItemType(let type)):
         var effects = [Effect<AppAction, Never>]()
+        let hapticEffect: Effect<AppAction, Never> = environment.hapticClient
+            .generateFeedback(.soft).fireAndForget()
         if type == state.tabBarState.tabBarItemType {
             switch type {
             case .home:
-                effects.append(.init(value: .home(.fetchAllGalleries)))
+                if state.homeState.route != nil {
+                    effects.append(.init(value: .home(.setNavigation(nil))))
+                } else {
+                    effects.append(.init(value: .home(.fetchAllGalleries)))
+                }
             case .favorites:
-                effects.append(.init(value: .favorites(.fetchGalleries())))
+                if state.favoritesState.route != nil {
+                    effects.append(.init(value: .favorites(.setNavigation(nil))))
+                } else {
+                    effects.append(.init(value: .favorites(.fetchGalleries())))
+                }
             case .search:
-                effects.append(.init(value: .searchRoot(.fetchDatabaseInfos)))
+                if state.searchRootState.route != nil {
+                    effects.append(.init(value: .searchRoot(.setNavigation(nil))))
+                } else {
+                    effects.append(.init(value: .searchRoot(.fetchDatabaseInfos)))
+                }
             case .setting:
-                break
+                if state.settingState.route != nil {
+                    effects.append(.init(value: .setting(.setNavigation(nil))))
+                    effects.append(hapticEffect)
+                }
             }
             if [.home, .favorites, .search].contains(type) {
-                effects.append(environment.hapticClient.generateFeedback(.soft).fireAndForget())
+                effects.append(hapticEffect)
             }
         }
         if type == .setting && environment.deviceClient.isPad() {
