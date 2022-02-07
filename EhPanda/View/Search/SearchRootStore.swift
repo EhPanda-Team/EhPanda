@@ -1,5 +1,5 @@
 //
-//  SearchStore.swift
+//  SearchRootStore.swift
 //  EhPanda
 //
 //  Created by 荒木辰造 on R 4/01/09.
@@ -7,7 +7,7 @@
 
 import ComposableArchitecture
 
-struct SearchState: Equatable {
+struct SearchRootState: Equatable {
     enum Route: Equatable {
         case request
         case quickSearch
@@ -59,9 +59,9 @@ struct SearchState: Equatable {
     }
 }
 
-enum SearchAction: BindableAction {
-    case binding(BindingAction<SearchState>)
-    case setNavigation(SearchState.Route?)
+enum SearchRootAction: BindableAction {
+    case binding(BindingAction<SearchRootState>)
+    case setNavigation(SearchRootState.Route?)
     case setKeyword(String)
     case clearSubStates
     case onFiltersButtonTapped
@@ -79,7 +79,7 @@ enum SearchAction: BindableAction {
     case detail(DetailAction)
 }
 
-struct SearchEnvironment {
+struct SearchRootEnvironment {
     let urlClient: URLClient
     let fileClient: FileClient
     let imageClient: ImageClient
@@ -92,7 +92,7 @@ struct SearchEnvironment {
     let uiApplicationClient: UIApplicationClient
 }
 
-let searchReducer = Reducer<SearchState, SearchAction, SearchEnvironment>.combine(
+let searchRootReducer = Reducer<SearchRootState, SearchRootAction, SearchRootEnvironment>.combine(
     .init { state, action, environment in
         switch action {
         case .binding(\.$route):
@@ -136,7 +136,7 @@ let searchReducer = Reducer<SearchState, SearchAction, SearchEnvironment>.combin
             return environment.databaseClient.updateHistoryKeywords(state.historyKeywords).fireAndForget()
 
         case .fetchDatabaseInfos:
-            return environment.databaseClient.fetchAppEnv().map(SearchAction.fetchDatabaseInfosDone)
+            return environment.databaseClient.fetchAppEnv().map(SearchRootAction.fetchDatabaseInfosDone)
 
         case .fetchDatabaseInfosDone(let appEnv):
             state.historyKeywords = appEnv.historyKeywords
@@ -153,7 +153,7 @@ let searchReducer = Reducer<SearchState, SearchAction, SearchEnvironment>.combin
 
         case .fetchHistoryGalleries:
             return environment.databaseClient
-                .fetchHistoryGalleries(fetchLimit: 10).map(SearchAction.fetchHistoryGalleriesDone)
+                .fetchHistoryGalleries(fetchLimit: 10).map(SearchRootAction.fetchHistoryGalleriesDone)
 
         case .fetchHistoryGalleriesDone(let galleries):
             state.historyGalleries = Array(galleries.prefix(min(galleries.count, 10)))
@@ -179,13 +179,13 @@ let searchReducer = Reducer<SearchState, SearchAction, SearchEnvironment>.combin
     }
     .haptics(
         unwrapping: \.route,
-        case: /SearchState.Route.quickSearch,
+        case: /SearchRootState.Route.quickSearch,
         hapticClient: \.hapticClient
     )
     .binding(),
     searchRequestReducer.pullback(
         state: \.searchRequestState,
-        action: /SearchAction.searchRequest,
+        action: /SearchRootAction.searchRequest,
         environment: {
             .init(
                 urlClient: $0.urlClient,
@@ -203,7 +203,7 @@ let searchReducer = Reducer<SearchState, SearchAction, SearchEnvironment>.combin
     ),
     quickSearchReducer.pullback(
         state: \.quickSearchState,
-        action: /SearchAction.quickSearch,
+        action: /SearchRootAction.quickSearch,
         environment: {
             .init(
                 databaseClient: $0.databaseClient
@@ -212,7 +212,7 @@ let searchReducer = Reducer<SearchState, SearchAction, SearchEnvironment>.combin
     ),
     detailReducer.pullback(
         state: \.detailState,
-        action: /SearchAction.detail,
+        action: /SearchRootAction.detail,
         environment: {
             .init(
                 urlClient: $0.urlClient,

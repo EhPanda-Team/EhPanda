@@ -1,5 +1,5 @@
 //
-//  SearchView.swift
+//  SearchRootView.swift
 //  EhPanda
 //
 //  Created by 荒木辰造 on R 4/01/09.
@@ -8,16 +8,16 @@
 import SwiftUI
 import ComposableArchitecture
 
-struct SearchView: View {
-    private let store: Store<SearchState, SearchAction>
-    @ObservedObject private var viewStore: ViewStore<SearchState, SearchAction>
+struct SearchRootView: View {
+    private let store: Store<SearchRootState, SearchRootAction>
+    @ObservedObject private var viewStore: ViewStore<SearchRootState, SearchRootAction>
     private let user: User
     @Binding private var setting: Setting
     private let blurRadius: Double
     private let tagTranslator: TagTranslator
 
     init(
-        store: Store<SearchState, SearchAction>,
+        store: Store<SearchRootState, SearchRootAction>,
         user: User, setting: Binding<Setting>, blurRadius: Double, tagTranslator: TagTranslator
     ) {
         self.store = store
@@ -50,12 +50,12 @@ struct SearchView: View {
             }
             .sheet(
                 unwrapping: viewStore.binding(\.$route),
-                case: /SearchState.Route.detail,
+                case: /SearchRootState.Route.detail,
                 isEnabled: DeviceUtil.isPad
             ) { route in
                 NavigationView {
                     DetailView(
-                        store: store.scope(state: \.detailState, action: SearchAction.detail),
+                        store: store.scope(state: \.detailState, action: SearchRootAction.detail),
                         gid: route.wrappedValue, user: user, setting: $setting,
                         blurRadius: blurRadius, tagTranslator: tagTranslator
                     )
@@ -63,9 +63,9 @@ struct SearchView: View {
                 .autoBlur(radius: blurRadius)
                 .environment(\.inSheet, true)
             }
-            .sheet(unwrapping: viewStore.binding(\.$route), case: /SearchState.Route.quickSearch) { _ in
+            .sheet(unwrapping: viewStore.binding(\.$route), case: /SearchRootState.Route.quickSearch) { _ in
                 QuickSearchView(
-                    store: store.scope(state: \.quickSearchState, action: SearchAction.quickSearch)
+                    store: store.scope(state: \.quickSearchState, action: SearchRootAction.quickSearch)
                 ) { keyword in
                     viewStore.send(.setNavigation(nil))
                     viewStore.send(.setKeyword(keyword))
@@ -104,7 +104,7 @@ struct SearchView: View {
     }
 }
 
-private extension SearchView {
+private extension SearchRootView {
     @ViewBuilder var navigationLinks: some View {
         if DeviceUtil.isPhone {
             detailViewLink
@@ -112,18 +112,18 @@ private extension SearchView {
         searchRequestLink
     }
     var detailViewLink: some View {
-        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /SearchState.Route.detail) { route in
+        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /SearchRootState.Route.detail) { route in
             DetailView(
-                store: store.scope(state: \.detailState, action: SearchAction.detail),
+                store: store.scope(state: \.detailState, action: SearchRootAction.detail),
                 gid: route.wrappedValue, user: user, setting: $setting,
                 blurRadius: blurRadius, tagTranslator: tagTranslator
             )
         }
     }
     var searchRequestLink: some View {
-        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /SearchState.Route.request) { _ in
+        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /SearchRootState.Route.request) { _ in
             SearchRequestView(
-                store: store.scope(state: \.searchRequestState, action: SearchAction.searchRequest),
+                store: store.scope(state: \.searchRequestState, action: SearchRootAction.searchRequest),
                 keyword: viewStore.keyword, user: user, setting: $setting,
                 blurRadius: blurRadius, tagTranslator: tagTranslator
             )
@@ -394,11 +394,11 @@ private struct WrappedKeyword: Hashable {
 
 struct SearchView_Previews: PreviewProvider {
     static var previews: some View {
-        SearchView(
+        SearchRootView(
             store: .init(
                 initialState: .init(),
-                reducer: searchReducer,
-                environment: SearchEnvironment(
+                reducer: searchRootReducer,
+                environment: SearchRootEnvironment(
                     urlClient: .live,
                     fileClient: .live,
                     imageClient: .live,

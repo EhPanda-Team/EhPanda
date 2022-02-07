@@ -48,7 +48,6 @@ enum AppRouteAction: BindableAction {
 
     case filters(FiltersAction)
     case detail(DetailAction)
-    case searchRequest(SearchRequestAction)
 }
 
 struct AppRouteEnvironment {
@@ -213,24 +212,6 @@ let appRouteReducer = Reducer<AppRouteState, AppRouteAction, AppRouteEnvironment
     detailReducer.pullback(
         state: \.detailState,
         action: /AppRouteAction.detail,
-        environment: {
-            .init(
-                urlClient: $0.urlClient,
-                fileClient: $0.fileClient,
-                imageClient: $0.imageClient,
-                deviceClient: $0.deviceClient,
-                hapticClient: $0.hapticClient,
-                cookiesClient: $0.cookiesClient,
-                databaseClient: $0.databaseClient,
-                clipboardClient: $0.clipboardClient,
-                appDelegateClient: $0.appDelegateClient,
-                uiApplicationClient: $0.uiApplicationClient
-            )
-        }
-    ),
-    searchRequestReducer.pullback(
-        state: \.searchRequestState,
-        action: /AppRouteAction.searchRequest,
         environment: {
             .init(
                 urlClient: $0.urlClient,

@@ -15,7 +15,7 @@ struct AppState: Equatable {
     var tabBarState = TabBarState()
     var homeState = HomeState()
     var favoritesState = FavoritesState()
-    var searchState = SearchState()
+    var searchRootState = SearchRootState()
     var settingState = SettingState()
 }
 
@@ -31,7 +31,7 @@ enum AppAction: BindableAction {
 
     case home(HomeAction)
     case favorites(FavoritesAction)
-    case search(SearchAction)
+    case searchRoot(SearchRootAction)
     case setting(SettingAction)
 }
 
@@ -121,7 +121,7 @@ let appReducerCore = Reducer<AppState, AppAction, AppEnvironment> { state, actio
 
     case .appRoute(.searchRequest(.onFiltersButtonTapped)), .home(.frontpage(.onFiltersButtonTapped)),
             .home(.popular(.onFiltersButtonTapped)), .home(.watched(.onFiltersButtonTapped)),
-            .search(.onFiltersButtonTapped), .search(.searchRequest(.onFiltersButtonTapped)):
+            .searchRoot(.onFiltersButtonTapped), .searchRoot(.searchRequest(.onFiltersButtonTapped)):
         return .init(value: .appRoute(.setNavigation(.filters)))
 
     case .appRoute:
@@ -143,7 +143,7 @@ let appReducerCore = Reducer<AppState, AppAction, AppEnvironment> { state, actio
             case .favorites:
                 effects.append(.init(value: .favorites(.fetchGalleries())))
             case .search:
-                effects.append(.init(value: .search(.fetchDatabaseInfos)))
+                effects.append(.init(value: .searchRoot(.fetchDatabaseInfos)))
             case .setting:
                 break
             }
@@ -195,11 +195,11 @@ let appReducerCore = Reducer<AppState, AppAction, AppEnvironment> { state, actio
     case .favorites:
         return .none
 
-    case .search(.searchRequest(.fetchGalleries)):
-        state.searchState.searchRequestState.filter = state.settingState.searchFilter
+    case .searchRoot(.searchRequest(.fetchGalleries)):
+        state.searchRootState.searchRequestState.filter = state.settingState.searchFilter
         return .none
 
-    case .search:
+    case .searchRoot:
         return .none
 
     case .setting(.fetchGreetingDone(let result)):
@@ -303,9 +303,9 @@ let appReducer = Reducer<AppState, AppAction, AppEnvironment>.combine(
             )
         }
     ),
-    searchReducer.pullback(
-        state: \.searchState,
-        action: /AppAction.search,
+    searchRootReducer.pullback(
+        state: \.searchRootState,
+        action: /AppAction.searchRoot,
         environment: {
             .init(
                 urlClient: $0.urlClient,

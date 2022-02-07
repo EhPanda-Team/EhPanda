@@ -47,8 +47,8 @@ struct TabBarView: View {
                                 tagTranslator: viewStore.settingState.tagTranslator
                             )
                         case .search:
-                            SearchView(
-                                store: store.scope(state: \.searchState, action: AppAction.search),
+                            SearchRootView(
+                                store: store.scope(state: \.searchRootState, action: AppAction.searchRoot),
                                 user: viewStore.settingState.user,
                                 setting: viewStore.binding(\.settingState.$setting),
                                 blurRadius: viewStore.appLockState.blurRadius,
