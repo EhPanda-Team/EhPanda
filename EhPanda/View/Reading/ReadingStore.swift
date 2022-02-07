@@ -30,6 +30,7 @@ struct ReadingState: Equatable {
     @BindableState var route: Route?
     let gallery: Gallery
 
+    var forceRefreshID: UUID = .init()
     var hudConfig: TTProgressHUDConfig = .loading
 
     var imageURLLoadingStates = [Int: LoadingState]()
@@ -200,7 +201,8 @@ enum ReadingAction: BindableAction {
     case onWebImageRetry(Int)
     case onWebImageSucceeded(Int)
     case onWebImageFailed(Int)
-    case retryAllFailedWebImage
+    case reloadAllWebImages
+    case retryAllFailedWebImages
 
     case copyImage(URL)
     case saveImage(URL)
@@ -337,10 +339,26 @@ let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { 
         state.imageURLLoadingStates[index] = .failed(.webImageFailed)
         return .none
 
-    case .retryAllFailedWebImage:
+    case .reloadAllWebImages:
+        state.previewURLs = .init()
+        state.thumbnailURLs = .init()
+        state.imageURLs = .init()
+        state.originalImageURLs = .init()
+        state.mpvKey = nil
+        state.mpvImageKeys = .init()
+        state.mpvReloadTokens = .init()
+        state.forceRefreshID = .init()
+        return environment.databaseClient.removeImageURLs(gid: state.gallery.id).fireAndForget()
+
+    case .retryAllFailedWebImages:
         state.imageURLLoadingStates.forEach { (index, loadingState) in
             if case .failed = loadingState {
                 state.imageURLLoadingStates[index] = .idle
+            }
+        }
+        state.previewLoadingStates.forEach { (index, loadingState) in
+            if case .failed = loadingState {
+                state.previewLoadingStates[index] = .idle
             }
         }
         return .none

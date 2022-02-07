@@ -59,6 +59,7 @@ struct ReadingView: View {
             .offset(viewStore.offset).gesture(tapGesture).gesture(dragGesture)
             .gesture(magnificationGesture).ignoresSafeArea()
             .id(viewStore.databaseLoadingState)
+            .id(viewStore.forceRefreshID)
             ControlPanel(
                 showsPanel: viewStore.binding(\.$showsPanel),
                 showsSliderPreview: viewStore.binding(\.$showsSliderPreview),
@@ -70,7 +71,8 @@ struct ReadingView: View {
                 dismissGesture: controlPanelDismissGesture,
                 dismissAction: { viewStore.send(.onPerformDismiss) },
                 navigateSettingAction: { viewStore.send(.setNavigation(.readingSetting)) },
-                retryAllFailedImagesAction: { viewStore.send(.retryAllFailedWebImage) },
+                reloadAllImagesAction: { viewStore.send(.reloadAllWebImages) },
+                retryAllFailedImagesAction: { viewStore.send(.retryAllFailedWebImages) },
                 fetchPreviewURLsAction: { viewStore.send(.fetchPreviewURLs($0)) }
             )
         }
@@ -131,7 +133,6 @@ struct ReadingView: View {
         }
         .animation(.default, value: viewStore.showsPanel)
         .animation(.default, value: viewStore.pageIndex)
-        .animation(.default, value: viewStore.offset)
         .animation(.default, value: viewStore.scale)
         .statusBar(hidden: !viewStore.showsPanel)
         .onAppear { viewStore.send(.onAppear(setting.enablesLandscape)) }
@@ -181,8 +182,7 @@ extension ReadingView {
             .onEnded { viewStore.send(.onDragGestureEnded($0)) }
     }
     var controlPanelDismissGesture: some Gesture {
-        DragGesture(minimumDistance: .zero, coordinateSpace: .local)
-            .onEnded { viewStore.send(.onControlPanelDismissGestureEnded($0)) }
+        DragGesture().onEnded { viewStore.send(.onControlPanelDismissGestureEnded($0)) }
     }
 }
 

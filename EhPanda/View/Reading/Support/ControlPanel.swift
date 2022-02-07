@@ -20,6 +20,7 @@ struct ControlPanel<G: Gesture>: View {
     private let dismissGesture: G
     private let dismissAction: () -> Void
     private let navigateSettingAction: () -> Void
+    private let reloadAllImagesAction: () -> Void
     private let retryAllFailedImagesAction: () -> Void
     private let fetchPreviewURLsAction: (Int) -> Void
 
@@ -28,6 +29,7 @@ struct ControlPanel<G: Gesture>: View {
         setting: Binding<Setting>, autoPlayPolicy: Binding<AutoPlayPolicy>, range: ClosedRange<Float>,
         previewURLs: [Int: URL], dismissGesture: G, dismissAction: @escaping () -> Void,
         navigateSettingAction: @escaping () -> Void,
+        reloadAllImagesAction: @escaping () -> Void,
         retryAllFailedImagesAction: @escaping () -> Void,
         fetchPreviewURLsAction: @escaping (Int) -> Void
     ) {
@@ -41,6 +43,7 @@ struct ControlPanel<G: Gesture>: View {
         self.dismissGesture = dismissGesture
         self.dismissAction = dismissAction
         self.navigateSettingAction = navigateSettingAction
+        self.reloadAllImagesAction = reloadAllImagesAction
         self.retryAllFailedImagesAction = retryAllFailedImagesAction
         self.fetchPreviewURLsAction = fetchPreviewURLsAction
     }
@@ -57,6 +60,7 @@ struct ControlPanel<G: Gesture>: View {
                 autoPlayPolicy: $autoPlayPolicy,
                 dismissAction: dismissAction,
                 navigateSettingAction: navigateSettingAction,
+                reloadAllImagesAction: reloadAllImagesAction,
                 retryAllFailedImagesAction: retryAllFailedImagesAction
             )
             .offset(y: showsPanel ? 0 : -50)
@@ -85,6 +89,7 @@ private struct UpperPanel: View {
     private let title: String
     private let dismissAction: () -> Void
     private let navigateSettingAction: () -> Void
+    private let reloadAllImagesAction: () -> Void
     private let retryAllFailedImagesAction: () -> Void
 
     init(
@@ -92,6 +97,7 @@ private struct UpperPanel: View {
         autoPlayPolicy: Binding<AutoPlayPolicy>,
         dismissAction: @escaping () -> Void,
         navigateSettingAction: @escaping () -> Void,
+        reloadAllImagesAction: @escaping () -> Void,
         retryAllFailedImagesAction: @escaping () -> Void
     ) {
         self.title = title
@@ -99,6 +105,7 @@ private struct UpperPanel: View {
         _autoPlayPolicy = autoPlayPolicy
         self.dismissAction = dismissAction
         self.navigateSettingAction = navigateSettingAction
+        self.reloadAllImagesAction = reloadAllImagesAction
         self.retryAllFailedImagesAction = retryAllFailedImagesAction
     }
 
@@ -156,6 +163,10 @@ private struct UpperPanel: View {
                         Button(action: retryAllFailedImagesAction) {
                             Image(systemSymbol: .exclamationmarkArrowTriangle2Circlepath)
                             Text(R.string.localizable.readingViewToolbarItemButtonRetryAllFailedImages())
+                        }
+                        Button(action: reloadAllImagesAction) {
+                            Image(systemSymbol: .arrowCounterclockwise)
+                            Text(R.string.localizable.readingViewToolbarItemButtonReloadAllImages())
                         }
                         Button(action: navigateSettingAction) {
                             Image(systemSymbol: .gear)

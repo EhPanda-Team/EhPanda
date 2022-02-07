@@ -339,6 +339,7 @@
 "reading.view.toolbar.item.title.dualPageMode" = "Dual-Page mode";
 "reading.view.toolbar.item.title.exceptTheCover" = "Except the cover";
 "reading.view.toolbar.item.button.retryAllFailedImages" = "Retry failed images";
+"reading.view.toolbar.item.button.reloadAllImages" = "Reload all images";
 "reading.view.toolbar.item.button.readingSetting" = "Reading setting";
 // AutoPlayPolicy
 "enum.auto.play.policy.value.off" = "Off";

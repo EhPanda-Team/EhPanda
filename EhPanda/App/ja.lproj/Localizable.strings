@@ -339,6 +339,7 @@
 "reading.view.toolbar.item.title.dualPageMode" = "デュアルページモード";
 "reading.view.toolbar.item.title.exceptTheCover" = "カバーを除く";
 "reading.view.toolbar.item.button.retryAllFailedImages" = "読み込み失敗した画像をすべてリトライ";
+"reading.view.toolbar.item.button.reloadAllImages" = "画像をすべて再読み込み";
 "reading.view.toolbar.item.button.readingSetting" = "閲覧設定";
 // AutoPlayPolicy
 "enum.auto.play.policy.value.off" = "オフ";

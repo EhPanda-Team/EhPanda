@@ -407,6 +407,15 @@ extension DatabaseClient {
         return updateGalleryState(gid: gid, key: "comments", value: comments.toData())
     }
 
+    func removeImageURLs(gid: String) -> Effect<Never, Never> {
+        guard gid.isValidGID else { return .none }
+        return updateGalleryState(gid: gid) { galleryStateMO in
+            galleryStateMO.imageURLs = nil
+            galleryStateMO.previewURLs = nil
+            galleryStateMO.thumbnailURLs = nil
+            galleryStateMO.originalImageURLs = nil
+        }
+    }
     func removeImageURLs() -> Effect<Never, Never> {
         .fireAndForget {
             DispatchQueue.main.async {
