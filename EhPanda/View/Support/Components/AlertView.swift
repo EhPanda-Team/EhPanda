@@ -82,8 +82,8 @@ struct ErrorView: View {
 
     var body: some View {
         AlertView(symbol: error.symbol, message: error.alertText) {
-            AlertViewButton(title: buttonTitle) {
-                action?()
+            if let action = action {
+                AlertViewButton(title: buttonTitle, action: action)
             }
         }
     }

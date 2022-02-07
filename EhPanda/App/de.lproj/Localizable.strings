@@ -287,6 +287,8 @@
 
 // MARK: GalleryInfosView
 "gallery.infos.view.title.galleryInfos" = "Gallery infos";
+"gallery.infos.view.title.ID" = "ID";
+"gallery.infos.view.title.token" = "Token";
 "gallery.infos.view.title.title" = "Title";
 "gallery.infos.view.title.japaneseTitle" = "Japanese title";
 "gallery.infos.view.title.galleryURL" = "Gallery URL";

@@ -139,7 +139,7 @@ let appRouteReducer = Reducer<AppRouteState, AppRouteAction, AppRouteEnvironment
                         .delay(for: .milliseconds(500), scheduler: DispatchQueue.main).eraseToEffect()
                 )
             } else if let commentID = commentID {
-                state.detailState.commentsState.scrollCommentID = commentID
+                state.detailState.commentsState?.scrollCommentID = commentID
                 effects.append(
                     .init(value: .detail(.setNavigation(.comments(url))))
                         .delay(for: .milliseconds(500), scheduler: DispatchQueue.main).eraseToEffect()

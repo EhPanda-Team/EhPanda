@@ -202,20 +202,14 @@ private extension DetailView {
             )
         }
         NavigationLink(unwrapping: viewStore.binding(\.$route), case: /DetailState.Route.comments) { route in
-            CommentsView(
-                store: store.scope(state: \.commentsState, action: DetailAction.comments),
-                gid: gid, token: viewStore.gallery.token, apiKey: viewStore.apiKey,
-                galleryURL: route.wrappedValue, comments: viewStore.galleryComments, user: user,
-                setting: $setting, blurRadius: blurRadius,
-                tagTranslator: tagTranslator
-            )
-        }
-        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /DetailState.Route.galleryInfos) { route in
-            let (gallery, galleryDetail) = route.wrappedValue
-            GalleryInfosView(
-                store: store.scope(state: \.galleryInfosState, action: DetailAction.galleryInfos),
-                gallery: gallery, galleryDetail: galleryDetail
-            )
+            IfLetStore(store.scope(state: \.commentsState, action: DetailAction.comments)) { store in
+                CommentsView(
+                    store: store, gid: gid, token: viewStore.gallery.token, apiKey: viewStore.apiKey,
+                    galleryURL: route.wrappedValue, comments: viewStore.galleryComments, user: user,
+                    setting: $setting, blurRadius: blurRadius,
+                    tagTranslator: tagTranslator
+                )
+            }
         }
         NavigationLink(unwrapping: viewStore.binding(\.$route), case: /DetailState.Route.searchRequest) { route in
             IfLetStore(store.scope(state: \.searchRequestState, action: DetailAction.searchRequest)) { store in
@@ -224,6 +218,13 @@ private extension DetailView {
                     blurRadius: blurRadius, tagTranslator: tagTranslator
                 )
             }
+        }
+        NavigationLink(unwrapping: viewStore.binding(\.$route), case: /DetailState.Route.galleryInfos) { route in
+            let (gallery, galleryDetail) = route.wrappedValue
+            GalleryInfosView(
+                store: store.scope(state: \.galleryInfosState, action: DetailAction.galleryInfos),
+                gallery: gallery, galleryDetail: galleryDetail
+            )
         }
     }
 }

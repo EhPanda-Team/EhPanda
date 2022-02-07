@@ -51,20 +51,10 @@ struct NewDawnView: View {
             }
             VStack(spacing: 50) {
                 VStack(spacing: 10) {
-                    TextView(
-                        text: "It is the dawn of a new day!",
-                        font: .largeTitle
-                    )
-                    TextView(
-                        text: "Reflecting on your journey so far, "
-                            + "you find that you are a little wiser.",
-                        font: .title2
-                    )
+                    TextView(text: R.string.localizable.newDawnViewTitleFirst(), font: .largeTitle)
+                    TextView(text: R.string.localizable.newDawnViewTitleSecond(), font: .title2)
                 }
-                TextView(
-                    text: greeting.gainContent ?? "",
-                    font: .title3, fontWeight: .bold
-                )
+                TextView(text: greeting.gainContent ?? "", font: .title3, fontWeight: .bold)
             }
             .padding()
         }

@@ -95,7 +95,9 @@ struct CommentsView: View {
         .sheet(unwrapping: viewStore.binding(\.$route), case: /CommentsState.Route.postComment) { route in
             let hasCommentID = !route.wrappedValue.isEmpty
             PostCommentView(
-                title: hasCommentID ? "Edit Comment" : "Post Comment",
+                title: hasCommentID
+                ? R.string.localizable.postCommentViewTitleEditComment()
+                : R.string.localizable.postCommentViewTitlePostComment(),
                 content: viewStore.binding(\.$commentContent),
                 isFocused: viewStore.binding(\.$postCommentFocused),
                 postAction: {
@@ -142,12 +144,11 @@ struct CommentsView: View {
 private extension CommentsView {
     @ViewBuilder var navigationLink: some View {
         NavigationLink(unwrapping: viewStore.binding(\.$route), case: /CommentsState.Route.detail) { route in
-            IfLetStore(store.scope(state: \.detailState, action: CommentsAction.detail)) { store in
-                DetailView(
-                    store: store, gid: route.wrappedValue, user: user, setting: $setting,
-                    blurRadius: blurRadius, tagTranslator: tagTranslator
-                )
-            }
+            DetailView(
+                store: store.scope(state: \.detailState, action: CommentsAction.detail),
+                gid: route.wrappedValue, user: user, setting: $setting,
+                blurRadius: blurRadius, tagTranslator: tagTranslator
+            )
         }
     }
 }

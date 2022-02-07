@@ -19,17 +19,7 @@ struct CommentsState: Equatable {
     }
 
     init() {
-        _detailState = .init(nil)
-    }
-
-    static func == (lhs: CommentsState, rhs: CommentsState) -> Bool {
-        lhs.route == rhs.route
-        && lhs.commentContent == rhs.commentContent
-        && lhs.postCommentFocused == rhs.postCommentFocused
-        && lhs.hudConfig == rhs.hudConfig
-        && lhs.scrollCommentID == rhs.scrollCommentID
-        && lhs.scrollRowOpacity == rhs.scrollRowOpacity
-        && lhs.detailState == rhs.detailState
+        _detailState = .init(.init())
     }
 
     @BindableState var route: Route?
@@ -40,8 +30,7 @@ struct CommentsState: Equatable {
     var scrollCommentID: String?
     var scrollRowOpacity: Double = 1
 
-    @Heap var detailState: DetailState?
-    var detailReducer: Reducer<DetailState, DetailAction, DetailEnvironment>?
+    @Heap var detailState: DetailState!
 }
 
 enum CommentsAction: BindableAction {
@@ -85,9 +74,6 @@ struct CommentsEnvironment {
     let uiApplicationClient: UIApplicationClient
 }
 
-var anyDetailReducer: Reducer<DetailState, DetailAction, DetailEnvironment> {
-    detailReducer
-}
 let commentsReducer = Reducer<CommentsState, CommentsAction, CommentsEnvironment> { state, action, environment in
     switch action {
     case .binding(\.$route):
@@ -158,7 +144,7 @@ let commentsReducer = Reducer<CommentsState, CommentsAction, CommentsEnvironment
                     .delay(for: .milliseconds(750), scheduler: DispatchQueue.main).eraseToEffect()
             )
         } else if let commentID = commentID {
-            state.detailState?.commentsState.scrollCommentID = commentID
+            state.detailState.commentsState?.scrollCommentID = commentID
             effects.append(
                 .init(value: .detail(.setNavigation(.comments(url))))
                     .delay(for: .milliseconds(750), scheduler: DispatchQueue.main).eraseToEffect()
@@ -174,9 +160,6 @@ let commentsReducer = Reducer<CommentsState, CommentsAction, CommentsEnvironment
     case .onAppear:
         if state.detailState == nil {
             state.detailState = .init()
-        }
-        if state.detailReducer == nil {
-            state.detailReducer = anyDetailReducer
         }
         return state.scrollCommentID != nil ? .init(value: .performScrollOpacityEffect) : .none
 
@@ -232,26 +215,7 @@ let commentsReducer = Reducer<CommentsState, CommentsAction, CommentsEnvironment
         }
 
     case .detail:
-        guard let detailReducer = state.detailReducer else { return .none }
-        return detailReducer.optional().pullback(
-            state: \.detailState,
-            action: /CommentsAction.detail,
-            environment: {
-                .init(
-                    urlClient: $0.urlClient,
-                    fileClient: $0.fileClient,
-                    imageClient: $0.imageClient,
-                    deviceClient: $0.deviceClient,
-                    hapticClient: $0.hapticClient,
-                    cookiesClient: $0.cookiesClient,
-                    databaseClient: $0.databaseClient,
-                    clipboardClient: $0.clipboardClient,
-                    appDelegateClient: $0.appDelegateClient,
-                    uiApplicationClient: $0.uiApplicationClient
-                )
-            }
-        )
-        .run(&state, action, environment)
+        return .none
     }
 }
 .haptics(

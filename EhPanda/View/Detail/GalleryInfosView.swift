@@ -23,8 +23,8 @@ struct GalleryInfosView: View {
 
     private var infos: [Info] {
         [
-            Info(title: "ID", value: galleryDetail.gid),
-            Info(title: "Token", value: gallery.token),
+            Info(title: R.string.localizable.galleryInfosViewTitleID(), value: galleryDetail.gid),
+            Info(title: R.string.localizable.galleryInfosViewTitleToken(), value: gallery.token),
             Info(title: R.string.localizable.galleryInfosViewTitleTitle(), value: galleryDetail.title),
             Info(title: R.string.localizable.galleryInfosViewTitleJapaneseTitle(), value: galleryDetail.jpnTitle),
             Info(
