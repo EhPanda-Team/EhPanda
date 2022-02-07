@@ -115,13 +115,9 @@ let appReducerCore = Reducer<AppState, AppAction, AppEnvironment> { state, actio
     case .appRoute(.filters(.onResetFilterConfirmed)):
         return .init(value: .setting(.resetFilter(state.appRouteState.filtersState.filterRange)))
 
-    case .appRoute(.searchRequest(.fetchGalleries)):
-        state.appRouteState.searchRequestState.filter = state.settingState.searchFilter
-        return .none
-
-    case .appRoute(.searchRequest(.onFiltersButtonTapped)), .home(.frontpage(.onFiltersButtonTapped)),
-            .home(.popular(.onFiltersButtonTapped)), .home(.watched(.onFiltersButtonTapped)),
-            .searchRoot(.onFiltersButtonTapped), .searchRoot(.searchRequest(.onFiltersButtonTapped)):
+    case .home(.frontpage(.onFiltersButtonTapped)), .home(.popular(.onFiltersButtonTapped)),
+            .home(.watched(.onFiltersButtonTapped)), .searchRoot(.onFiltersButtonTapped),
+            .searchRoot(.searchRequest(.onFiltersButtonTapped)):
         return .init(value: .appRoute(.setNavigation(.filters)))
 
     case .appRoute:

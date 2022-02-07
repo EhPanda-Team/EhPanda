@@ -27,7 +27,6 @@ struct AppRouteState: Equatable {
 
     var filtersState = FiltersState()
     @Heap var detailState: DetailState!
-    var searchRequestState = SearchRequestState()
 }
 
 enum AppRouteAction: BindableAction {
@@ -88,10 +87,8 @@ let appRouteReducer = Reducer<AppRouteState, AppRouteAction, AppRouteEnvironment
         case .clearSubStates:
             state.detailState = .init()
             state.filtersState = .init()
-            state.searchRequestState = .init()
             return .merge(
-                .init(value: .detail(.teardown)),
-                .init(value: .searchRequest(.teardown))
+                .init(value: .detail(.teardown))
             )
 
         case .detectClipboardURL:
@@ -180,9 +177,6 @@ let appRouteReducer = Reducer<AppRouteState, AppRouteAction, AppRouteEnvironment
             return .none
 
         case .detail:
-            return .none
-
-        case .searchRequest:
             return .none
         }
     }
