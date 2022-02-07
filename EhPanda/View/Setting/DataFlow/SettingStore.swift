@@ -217,12 +217,10 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
             state.setting = appEnv.setting
             state.tagTranslator = appEnv.tagTranslator
             state.user = appEnv.user
-
             var effects: [Effect<SettingAction, Never>] = [
                 .init(value: .syncAppIconType),
                 .init(value: .syncUserInterfaceStyle)
             ]
-
             if let value: String = environment.userDefaultsClient.getValue(.galleryHost),
                let galleryHost = GalleryHost(rawValue: value)
             {
@@ -242,7 +240,7 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
             if state.setting.translatesTags {
                 effects.append(.init(value: .fetchTagTranslator))
             }
-
+            effects.append(environment.dfClient.setActive(state.setting.bypassesSNIFiltering).fireAndForget())
             return .merge(effects)
 
         case .createDefaultEhProfile:

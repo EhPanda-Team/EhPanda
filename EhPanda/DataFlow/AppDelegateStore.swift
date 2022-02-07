@@ -71,12 +71,10 @@ let appDelegateReducer = Reducer<AppState, AppDelegateAction, AppDelegateEnviron
     .init { state, action, environment in
         switch action {
         case .onLaunchFinish:
-            let bypassesSNIFiltering = state.settingState.setting.bypassesSNIFiltering
             state.appLockState.becomeInactiveDate = .distantPast
             return .merge(
                 environment.libraryClient.initializeLogger().fireAndForget(),
                 environment.libraryClient.initializeWebImage().fireAndForget(),
-                environment.dfClient.setActive(bypassesSNIFiltering).fireAndForget(),
                 environment.cookiesClient.removeYay().fireAndForget(),
                 environment.cookiesClient.ignoreOffensive().fireAndForget(),
                 environment.cookiesClient.fulfillAnotherHostField().fireAndForget(),
