@@ -316,7 +316,7 @@ let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { 
         return .none
 
     case .onPerformDismiss:
-        return .none
+        return environment.hapticClient.generateFeedback(.light).fireAndForget()
 
     case .onAppear(let enablesLandscape):
         var effects: [Effect<ReadingAction, Never>] = [
@@ -470,10 +470,7 @@ let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { 
         return .none
 
     case .onControlPanelDismissGestureEnded(let value):
-        return value.predictedEndTranslation.height > 30 ? .merge(
-            environment.hapticClient.generateFeedback(.light).fireAndForget(),
-            .init(value: .onPerformDismiss)
-        ) : .none
+        return value.predictedEndTranslation.height > 30 ? .init(value: .onPerformDismiss) : .none
 
     case .syncReadingProgress:
         return environment.databaseClient

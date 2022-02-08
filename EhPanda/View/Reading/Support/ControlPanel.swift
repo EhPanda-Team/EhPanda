@@ -70,7 +70,7 @@ struct ControlPanel<G: Gesture>: View {
                     showsSliderPreview: $showsSliderPreview,
                     sliderValue: $sliderValue, previewURLs: previewURLs, range: range,
                     isReversed: setting.readingDirection == .rightToLeft,
-                    dismissGesture: dismissGesture,
+                    dismissGesture: dismissGesture, dismissAction: dismissAction,
                     fetchPreviewURLsAction: fetchPreviewURLsAction
                 )
                 .animation(.default, value: showsSliderPreview)
@@ -113,7 +113,7 @@ private struct UpperPanel: View {
         ZStack {
             HStack {
                 Button(action: dismissAction) {
-                    Image(systemSymbol: .chevronDown)
+                    Image(systemSymbol: .xmark)
                 }
                 .font(.title2).padding(.leading, 20)
                 Spacer()
@@ -191,12 +191,14 @@ private struct LowerPanel<G: Gesture>: View {
     private let range: ClosedRange<Float>
     private let isReversed: Bool
     private let dismissGesture: G
+    private let dismissAction: () -> Void
     private let fetchPreviewURLsAction: (Int) -> Void
 
     init(
         showsSliderPreview: Binding<Bool>, sliderValue: Binding<Float>,
         previewURLs: [Int: URL], range: ClosedRange<Float>, isReversed: Bool,
-        dismissGesture: G, fetchPreviewURLsAction: @escaping (Int) -> Void
+        dismissGesture: G, dismissAction: @escaping () -> Void,
+        fetchPreviewURLsAction: @escaping (Int) -> Void
     ) {
         _showsSliderPreview = showsSliderPreview
         _sliderValue = sliderValue
@@ -204,33 +206,40 @@ private struct LowerPanel<G: Gesture>: View {
         self.range = range
         self.isReversed = isReversed
         self.dismissGesture = dismissGesture
+        self.dismissAction = dismissAction
         self.fetchPreviewURLsAction = fetchPreviewURLsAction
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            SliderPreivew(
-                showsSliderPreview: $showsSliderPreview,
-                sliderValue: $sliderValue, previewURLs: previewURLs, range: range,
-                isReversed: isReversed, fetchPreviewURLsAction: fetchPreviewURLsAction
-            )
-            VStack {
-                HStack {
-                    Text(isReversed ? "\(Int(range.upperBound))" : "\(Int(range.lowerBound))")
-                        .fontWeight(.medium).font(.caption).padding()
-                    Slider(
-                        value: $sliderValue, in: range, step: 1,
-                        onEditingChanged: { showsSliderPreview = $0 }
-                    )
-                    .rotationEffect(.init(degrees: isReversed ? 180 : 0))
-                    Text(isReversed ? "\(Int(range.lowerBound))" : "\(Int(range.upperBound))")
-                        .fontWeight(.medium).font(.caption).padding()
-                }
-                .padding(.horizontal).padding(.bottom)
+        VStack(spacing: 30) {
+            Button(action: dismissAction) {
+                Image(systemSymbol: .xmark).foregroundColor(.primary).padding()
+                    .background(.ultraThinMaterial).cornerRadius(.infinity)
             }
+            .gesture(dismissGesture).opacity(showsSliderPreview ? 0 : 1)
+            VStack(spacing: 0) {
+                SliderPreivew(
+                    showsSliderPreview: $showsSliderPreview,
+                    sliderValue: $sliderValue, previewURLs: previewURLs, range: range,
+                    isReversed: isReversed, fetchPreviewURLsAction: fetchPreviewURLsAction
+                )
+                VStack {
+                    HStack {
+                        Text(isReversed ? "\(Int(range.upperBound))" : "\(Int(range.lowerBound))")
+                            .fontWeight(.medium).font(.caption).padding()
+                        Slider(
+                            value: $sliderValue, in: range, step: 1,
+                            onEditingChanged: { showsSliderPreview = $0 }
+                        )
+                        .rotationEffect(.init(degrees: isReversed ? 180 : 0))
+                        Text(isReversed ? "\(Int(range.lowerBound))" : "\(Int(range.upperBound))")
+                            .fontWeight(.medium).font(.caption).padding()
+                    }
+                    .padding(.horizontal).padding(.bottom)
+                }
+            }
+            .background(.thinMaterial)
         }
-        .background(.thinMaterial)
-        .gesture(dismissGesture)
     }
 }
 
