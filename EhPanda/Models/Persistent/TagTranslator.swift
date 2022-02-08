@@ -34,11 +34,12 @@ struct TagTranslator: Codable, Equatable {
 
 extension TagTranslator: CustomStringConvertible {
     var description: String {
-        .init(describing: [
+        let params = String(describing: [
             "language": language as Any,
             "updatedDate": updatedDate,
             "contentsCount": contents.count,
             "hasCustomTranslations": hasCustomTranslations
         ])
+        return "TagTranslator(\(params))"
     }
 }

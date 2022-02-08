@@ -23,7 +23,7 @@ struct GalleryState: Codable {
 }
 extension GalleryState: CustomStringConvertible {
     var description: String {
-        .init(describing: [
+        let params = String(describing: [
             "gid": gid,
             "tagsCount": tags.count,
             "readingProgress": readingProgress,
@@ -34,6 +34,7 @@ extension GalleryState: CustomStringConvertible {
             "originalImageURLsCount": originalImageURLs.count,
             "thumbnailURLsCount": thumbnailURLs.count
         ])
+        return "GalleryState(\(params))"
     }
 }
 
