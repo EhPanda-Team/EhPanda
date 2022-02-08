@@ -169,8 +169,8 @@ private struct MinimumRatingSetter: View {
             Text(R.string.localizable.filtersViewTitleMinimumRating())
             Spacer()
             Picker(selection: $minimum, label: Text(R.string.localizable.commonValueStars("\(minimum)"))) {
-                ForEach(Array(2...5), id: \.self) { num in
-                    Text(R.string.localizable.commonValueStars("\(minimum)")).tag(num)
+                ForEach(Array(2...5), id: \.self) { number in
+                    Text(R.string.localizable.commonValueStars("\(number)")).tag(number)
                 }
             }
             .pickerStyle(.menu)
