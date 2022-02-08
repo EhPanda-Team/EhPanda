@@ -53,8 +53,7 @@ struct HistoryView: View {
                     blurRadius: blurRadius, tagTranslator: tagTranslator
                 )
             }
-            .autoBlur(radius: blurRadius)
-            .environment(\.inSheet, true)
+            .autoBlur(radius: blurRadius).environment(\.inSheet, true).navigationViewStyle(.stack)
         }
         .searchable(text: viewStore.binding(\.$keyword), prompt: R.string.localizable.searchablePromptFilter())
         .onAppear {

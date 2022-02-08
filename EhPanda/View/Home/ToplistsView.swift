@@ -58,8 +58,7 @@ struct ToplistsView: View {
                     blurRadius: blurRadius, tagTranslator: tagTranslator
                 )
             }
-            .autoBlur(radius: blurRadius)
-            .environment(\.inSheet, true)
+            .autoBlur(radius: blurRadius).environment(\.inSheet, true).navigationViewStyle(.stack)
         }
         .jumpPageAlert(
             index: viewStore.binding(\.$jumpPageIndex),

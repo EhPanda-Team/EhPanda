@@ -94,6 +94,7 @@ struct TabBarView: View {
             .accentColor(viewStore.settingState.setting.accentColor)
             .autoBlur(radius: viewStore.appLockState.blurRadius)
             .environment(\.inSheet, true)
+            .navigationViewStyle(.stack)
         }
         .progressHUD(
             config: viewStore.appRouteState.hudConfig,

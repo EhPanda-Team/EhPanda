@@ -60,8 +60,7 @@ struct SearchRootView: View {
                         blurRadius: blurRadius, tagTranslator: tagTranslator
                     )
                 }
-                .autoBlur(radius: blurRadius)
-                .environment(\.inSheet, true)
+                .autoBlur(radius: blurRadius).environment(\.inSheet, true).navigationViewStyle(.stack)
             }
             .sheet(unwrapping: viewStore.binding(\.$route), case: /SearchRootState.Route.filters) { _ in
                 FiltersView(store: store.scope(state: \.filtersState, action: SearchRootAction.filters))

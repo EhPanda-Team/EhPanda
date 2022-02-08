@@ -99,7 +99,7 @@ struct ReadingView: View {
                 }
             }
             .accentColor(setting.accentColor).tint(setting.accentColor)
-            .autoBlur(radius: blurRadius)
+            .autoBlur(radius: blurRadius).navigationViewStyle(.stack)
         }
         .sheet(unwrapping: viewStore.binding(\.$route), case: /ReadingState.Route.share) { route in
             ActivityView(activityItems: [route.wrappedValue])
