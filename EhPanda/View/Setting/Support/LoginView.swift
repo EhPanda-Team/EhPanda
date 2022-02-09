@@ -114,8 +114,9 @@ private struct LoginTextField: View {
             }
             .focused(focusedField.projectedValue, equals: isPassword ? .password : .username)
             .textContentType(isPassword ? .password : .username).submitLabel(isPassword ? .done : .next)
-            .textInputAutocapitalization(.none).disableAutocorrection(true).keyboardType(.asciiCapable)
-            .padding(10).background(backgroundColor.opacity(0.75).cornerRadius(8))
+            .textInputAutocapitalization(.none).disableAutocorrection(true)
+            .keyboardType(isPassword ? .asciiCapable : .default).padding(10)
+            .background(backgroundColor.opacity(0.75).cornerRadius(8))
         }
     }
 }
