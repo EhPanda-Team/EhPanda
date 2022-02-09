@@ -158,6 +158,15 @@ struct Log: Identifiable, Comparable {
     let fileName: String
     let contents: [String]
 }
+extension Log: CustomStringConvertible {
+    var description: String {
+        let params = String(describing: [
+            "fileName": fileName,
+            "contentsCount": contents.count
+        ])
+        return "Log(\(params))"
+    }
+}
 
 struct LogsView_Previews: PreviewProvider {
     static var previews: some View {

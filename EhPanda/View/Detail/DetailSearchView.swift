@@ -56,8 +56,7 @@ struct DetailSearchView: View {
                     blurRadius: blurRadius, tagTranslator: tagTranslator
                 )
             }
-            .autoBlur(radius: blurRadius)
-            .environment(\.inSheet, true)
+            .autoBlur(radius: blurRadius).environment(\.inSheet, true).navigationViewStyle(.stack)
         }
         .sheet(unwrapping: viewStore.binding(\.$route), case: /DetailSearchState.Route.quickSearch) { _ in
             QuickSearchView(
