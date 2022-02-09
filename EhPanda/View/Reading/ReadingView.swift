@@ -18,6 +18,9 @@ struct ReadingView: View {
     @Binding private var setting: Setting
     private let blurRadius: Double
 
+    @StateObject private var autoPlayHandler = AutoPlayHandler()
+    @StateObject private var gestureHandler = GestureHandler()
+    @StateObject private var pageHandler = PageHandler()
     @StateObject private var page: Page = .first()
 
     init(
@@ -45,27 +48,26 @@ struct ReadingView: View {
                         gesture: SimultaneousGesture(magnificationGesture, tapGesture),
                         content: imageStack
                     )
-                    .disabled(viewStore.scale != 1)
+                    .disabled(gestureHandler.scale != 1)
                 } else {
                     Pager(
                         page: page, data: viewStore.state.containerDataSource(setting: setting),
                         id: \.self, content: imageStack
                     )
                     .horizontal(setting.readingDirection == .rightToLeft ? .rightToLeft : .leftToRight)
-                    .swipeInteractionArea(.allAvailable).allowsDragging(viewStore.scale == 1)
+                    .swipeInteractionArea(.allAvailable).allowsDragging(gestureHandler.scale == 1)
                 }
             }
-            .scaleEffect(viewStore.scale, anchor: viewStore.scaleAnchor)
-            .offset(viewStore.offset).gesture(tapGesture).gesture(dragGesture)
+            .scaleEffect(gestureHandler.scale, anchor: gestureHandler.scaleAnchor)
+            .offset(gestureHandler.offset).gesture(tapGesture).gesture(dragGesture)
             .gesture(magnificationGesture).ignoresSafeArea()
             .id(viewStore.databaseLoadingState)
             .id(viewStore.forceRefreshID)
             ControlPanel(
                 showsPanel: viewStore.binding(\.$showsPanel),
                 showsSliderPreview: viewStore.binding(\.$showsSliderPreview),
-                sliderValue: viewStore.binding(\.$sliderValue),
-                setting: $setting,
-                autoPlayPolicy: viewStore.binding(\.$autoPlayPolicy),
+                sliderValue: $pageHandler.sliderValue, setting: $setting,
+                autoPlayPolicy: .init(get: { autoPlayHandler.policy }, set: setAutoPlayPolocy),
                 range: 1...Float(viewStore.gallery.pageCount),
                 previewURLs: viewStore.previewURLs,
                 dismissGesture: controlPanelDismissGesture,
@@ -111,30 +113,56 @@ struct ReadingView: View {
             unwrapping: viewStore.binding(\.$route),
             case: /ReadingState.Route.hud
         )
-        // These bindings couldn't be done in Store since It doesn't have enough infos
-        .synchronize(viewStore.binding(\.$pageIndex), $page.index)
-        .onChange(of: viewStore.pageIndex) { pageIndex in
-            let newValue = viewStore.state.mapFromPager(
-                index: pageIndex, setting: setting
+
+        // Page
+        .onChange(of: page.index) { pageIndex in
+            Logger.info("page.index changed", context: ["pageIndex": pageIndex])
+            let newValue = pageHandler.mapFromPager(
+                index: pageIndex, pageCount: viewStore.gallery.pageCount, setting: setting
             )
-            viewStore.send(.setSliderValue(.init(newValue)))
+            pageHandler.sliderValue = .init(newValue)
             if pageIndex != 0 {
-                viewStore.send(.syncReadingProgress)
+                viewStore.send(.syncReadingProgress(.init(newValue)))
             }
         }
-        .onChange(of: viewStore.sliderValue) { sliderValue in
-            let newValue = viewStore.state.mapToPager(
+        .onChange(of: pageHandler.sliderValue) { sliderValue in
+            Logger.info("pageHandler.sliderValue changed", context: ["sliderValue": sliderValue])
+            let newValue = pageHandler.mapToPager(
                 index: .init(sliderValue), setting: setting
             )
-            page.update(.new(index: newValue))
+            if page.index != newValue {
+                page.update(.new(index: newValue))
+                Logger.info("Pager.update", context: ["update": newValue])
+            }
         }
-        .onChange(of: setting.enablesLandscape) {
-            viewStore.send(.setOrientationPortrait(!$0))
+        .onChange(of: viewStore.readingProgress) { readingProgress in
+            Logger.info("viewStore.readingProgress changed", context: ["readingProgress": readingProgress])
+            pageHandler.sliderValue = .init(readingProgress)
         }
+
+        // AutoPlay
+        .onChange(of: viewStore.route) { route in
+            Logger.info("viewStore.route changed", context: ["route": route])
+            if ![.hud, .none].contains(route) {
+                setAutoPlayPolocy(.off)
+            }
+        }
+        .onChange(of: viewStore.showsSliderPreview) { newValue in
+            Logger.info("viewStore.showsSliderPreview changed", context: ["newValue": newValue])
+            setAutoPlayPolocy(.off)
+        }
+
+        // Orientation
+        .onChange(of: setting.enablesLandscape) { newValue in
+            Logger.info("setting.enablesLandscape changed", context: ["newValue": newValue])
+            viewStore.send(.setOrientationPortrait(!newValue))
+        }
+
+        .animation(.linear(duration: 0.1), value: gestureHandler.offset)
+        .animation(.default, value: gestureHandler.scale)
         .animation(.default, value: viewStore.showsPanel)
-        .animation(.default, value: viewStore.pageIndex)
-        .animation(.default, value: viewStore.scale)
         .statusBar(hidden: !viewStore.showsPanel)
+        .onDisappear { setAutoPlayPolocy(.off) }
         .onAppear { viewStore.send(.onAppear(setting.enablesLandscape)) }
     }
 
@@ -158,31 +186,64 @@ struct ReadingView: View {
     }
 }
 
+// MARK: AutoPlay
+extension ReadingView {
+    func setAutoPlayPolocy(_ policy: AutoPlayPolicy) {
+        autoPlayHandler.setPolicy(policy, updatePageAction: {
+            page.update(.next)
+            Logger.info("Pager.update", context: ["update": "next"])
+        })
+    }
+}
+
 // MARK: Gesture
 extension ReadingView {
     var tapGesture: some Gesture {
         let singleTap = TapGesture(count: 1)
-            .onEnded { viewStore.send(.onSingleTapGestureEnded(setting.readingDirection)) }
+            .onEnded {
+                gestureHandler.onSingleTapGestureEnded(
+                    readingDirection: setting.readingDirection,
+                    setPageIndexOffsetAction: {
+                        let newValue = page.index + $0
+                        page.update(.new(index: newValue))
+                        Logger.info("Pager.update", context: ["update": newValue])
+                    },
+                    toggleShowsPanelAction: { viewStore.send(.toggleShowsPanel) }
+                )
+            }
         let doubleTap = TapGesture(count: 2)
             .onEnded {
-                viewStore.send(.onDoubleTapGestureEnded(
-                    setting.maximumScaleFactor, setting.doubleTapScaleFactor
-                ))
+                gestureHandler.onDoubleTapGestureEnded(
+                    scaleMaximum: setting.maximumScaleFactor,
+                    doubleTapScale: setting.doubleTapScaleFactor
+                )
             }
         return ExclusiveGesture(doubleTap, singleTap)
     }
     var magnificationGesture: some Gesture {
         MagnificationGesture()
-            .onChanged { viewStore.send(.onMagnificationGestureChanged($0, setting.maximumScaleFactor)) }
-            .onEnded { viewStore.send(.onMagnificationGestureEnded($0, setting.maximumScaleFactor)) }
+            .onChanged {
+                gestureHandler.onMagnificationGestureChanged(
+                    value: $0, scaleMaximum: setting.maximumScaleFactor
+                )
+            }
+            .onEnded {
+                gestureHandler.onMagnificationGestureEnded(
+                    value: $0, scaleMaximum: setting.maximumScaleFactor
+                )
+            }
     }
     var dragGesture: some Gesture {
         DragGesture(minimumDistance: .zero, coordinateSpace: .local)
-            .onChanged { viewStore.send(.onDragGestureChanged($0)) }
-            .onEnded { viewStore.send(.onDragGestureEnded($0)) }
+            .onChanged(gestureHandler.onDragGestureChanged)
+            .onEnded(gestureHandler.onDragGestureEnded)
     }
     var controlPanelDismissGesture: some Gesture {
-        DragGesture().onEnded { viewStore.send(.onControlPanelDismissGestureEnded($0)) }
+        DragGesture().onEnded {
+            gestureHandler.onControlPanelDismissGestureEnded(
+                value: $0, dismissAction: { viewStore.send(.onPerformDismiss) }
+            )
+        }
     }
 }
 

@@ -23,13 +23,11 @@ struct ReadingState: Equatable {
     struct CancelID: Hashable {
         let id = String(describing: ReadingState.CancelID.self)
     }
-    struct TimerID: Hashable {
-        let id = String(describing: ReadingState.TimerID.self)
-    }
 
     @BindableState var route: Route?
     let gallery: Gallery
 
+    var readingProgress: Int = .zero
     var forceRefreshID: UUID = .init()
     var hudConfig: TTProgressHUDConfig = .loading
 
@@ -48,17 +46,8 @@ struct ReadingState: Equatable {
     var mpvImageKeys = [Int: String]()
     var mpvReloadTokens = [Int: String]()
 
-    @BindableState var pageIndex = 0
     @BindableState var showsPanel = false
-    @BindableState var sliderValue: Float = 1
     @BindableState var showsSliderPreview = false
-    @BindableState var autoPlayPolicy: AutoPlayPolicy = .off
-
-    var scaleAnchor: UnitPoint = .center
-    var scale: Double = 1
-    var baseScale: Double = 1
-    var offset: CGSize = .zero
-    var newOffset: CGSize = .zero
 
     // Update
     func update<T>(stored: inout [Int: T], new: [Int: T], replaceExisting: Bool = true) {
@@ -74,30 +63,6 @@ struct ReadingState: Equatable {
     mutating func updateImageURLs(_ imageURLs: [Int: URL], _ originalImageURLs: [Int: URL]) {
         update(stored: &self.imageURLs, new: imageURLs)
         update(stored: &self.originalImageURLs, new: originalImageURLs)
-    }
-
-    // Page
-    func mapFromPager(index: Int, setting: Setting, isLandscape: Bool = DeviceUtil.isLandscape) -> Int {
-        guard isLandscape && setting.enablesDualPageMode
-                && setting.readingDirection != .vertical
-        else { return index + 1 }
-        guard index > 0 else { return 1 }
-
-        let result = setting.exceptCover ? index * 2 : index * 2 + 1
-
-        if result + 1 == gallery.pageCount {
-            return gallery.pageCount
-        } else {
-            return result
-        }
-    }
-    func mapToPager(index: Int, setting: Setting, isLandscape: Bool = DeviceUtil.isLandscape) -> Int {
-        guard isLandscape && setting.enablesDualPageMode
-                && setting.readingDirection != .vertical
-        else { return index - 1 }
-        guard index > 1 else { return 0 }
-
-        return setting.exceptCover ? index / 2 : (index - 1) / 2
     }
 
     // Image
@@ -132,58 +97,6 @@ struct ReadingState: Equatable {
             isSecondAvailable: !isFirstPageAndSingle && isValidSecondRange && isDualPage
         )
     }
-
-    // Gesture
-    func edgeWidth(x: Double, absWindowW: Double) -> Double {
-        let marginW = absWindowW * (scale - 1) / 2
-        let leadingMargin = scaleAnchor.x / 0.5 * marginW
-        let trailingMargin = (1 - scaleAnchor.x) / 0.5 * marginW
-        return min(max(x, -trailingMargin), leadingMargin)
-    }
-    func edgeHeight(y: Double, absWindowH: Double) -> Double {
-        let marginH = absWindowH * (scale - 1) / 2
-        let topMargin = scaleAnchor.y / 0.5 * marginH
-        let bottomMargin = (1 - scaleAnchor.y) / 0.5 * marginH
-        return min(max(y, -bottomMargin), topMargin)
-    }
-    mutating func correctOffset(absWindowW: Double, absWindowH: Double) {
-        offset.width = edgeWidth(x: offset.width, absWindowW: absWindowW)
-        offset.height = edgeHeight(y: offset.height, absWindowH: absWindowH)
-    }
-    mutating func correctScaleAnchor(point: CGPoint, absWindowW: Double, absWindowH: Double) {
-        let x = min(1, max(0, point.x / absWindowW))
-        let y = min(1, max(0, point.y / absWindowH))
-        scaleAnchor = .init(x: x, y: y)
-    }
-    mutating func setOffset(_ offset: CGSize, absWindowW: Double, absWindowH: Double) {
-        self.offset = offset
-        correctOffset(absWindowW: absWindowW, absWindowH: absWindowH)
-    }
-    mutating func setScale(scale: Double, maximum: Double, absWindowW: Double, absWindowH: Double) {
-        guard scale >= 1 && scale <= maximum else { return }
-        self.scale = scale
-        correctOffset(absWindowW: absWindowW, absWindowH: absWindowH)
-    }
-    mutating func onDragGestureChanged(_ value: DragGesture.Value, absWindowW: Double, absWindowH: Double) {
-        guard scale > 1 else { return }
-        let newX = value.translation.width + newOffset.width
-        let newY = value.translation.height + newOffset.height
-        let newOffsetW = edgeWidth(x: newX, absWindowW: absWindowW)
-        let newOffsetH = edgeHeight(y: newY, absWindowH: absWindowH)
-        setOffset(.init(width: newOffsetW, height: newOffsetH), absWindowW: absWindowW, absWindowH: absWindowH)
-    }
-    mutating func onMagnificationGestureChanged(
-        _ value: Double, point: CGPoint?, scaleMaximum: Double,
-        absWindowW: Double, absWindowH: Double
-    ) {
-        if value == 1 {
-            baseScale = scale
-        }
-        if let point = point {
-            correctScaleAnchor(point: point, absWindowW: absWindowW, absWindowH: absWindowH)
-        }
-        setScale(scale: value * baseScale, maximum: scaleMaximum, absWindowW: absWindowW, absWindowH: absWindowH)
-    }
 }
 
 enum ReadingAction: BindableAction {
@@ -191,10 +104,7 @@ enum ReadingAction: BindableAction {
     case setNavigation(ReadingState.Route?)
 
     case toggleShowsPanel
-    case setPageIndex(Int)
-    case setSliderValue(Float)
     case setOrientationPortrait(Bool)
-    case onTimerFired
     case onPerformDismiss
     case onAppear(Bool)
 
@@ -211,15 +121,7 @@ enum ReadingAction: BindableAction {
     case fetchImage(ReadingState.ImageAction, URL)
     case fetchImageDone(ReadingState.ImageAction, Result<UIImage, Error>)
 
-    case onSingleTapGestureEnded(ReadingDirection)
-    case onDoubleTapGestureEnded(Double, Double)
-    case onMagnificationGestureChanged(Double, Double)
-    case onMagnificationGestureEnded(Double, Double)
-    case onDragGestureChanged(DragGesture.Value)
-    case onDragGestureEnded(DragGesture.Value)
-    case onControlPanelDismissGestureEnded(DragGesture.Value)
-
-    case syncReadingProgress
+    case syncReadingProgress(Int)
     case syncPreviewURLs([Int: URL])
     case syncThumbnailURLs([Int: URL])
     case syncImageURLs([Int: URL], [Int: URL])
@@ -264,24 +166,6 @@ let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { 
     case .binding(\.$showsSliderPreview):
         return environment.hapticClient.generateFeedback(.soft).fireAndForget()
 
-    case .binding(\.$autoPlayPolicy):
-        var effects: [Effect<ReadingAction, Never>] = [
-            .cancel(id: ReadingState.TimerID())
-        ]
-        let timeInterval = TimeInterval(state.autoPlayPolicy.rawValue)
-        if timeInterval > 0 {
-            effects.append(
-                Effect<RunLoop.SchedulerTimeType, Never>
-                    .timer(
-                        id: ReadingState.TimerID(),
-                        every: .init(timeInterval),
-                        on: AnySchedulerOf<RunLoop>.main
-                    )
-                    .map({ _ in ReadingAction.onTimerFired })
-            )
-        }
-        return .merge(effects)
-
     case .binding:
         return .none
 
@@ -293,14 +177,6 @@ let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { 
         state.showsPanel.toggle()
         return .none
 
-    case .setPageIndex(let index):
-        state.pageIndex = index
-        return .none
-
-    case .setSliderValue(let value):
-        state.sliderValue = value
-        return .none
-
     case .setOrientationPortrait(let isPortrait):
         var effects = [Effect<ReadingAction, Never>]()
         if isPortrait {
@@ -310,10 +186,6 @@ let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { 
             effects.append(environment.appDelegateClient.setAllOrientationMask().fireAndForget())
         }
         return .merge(effects)
-
-    case .onTimerFired:
-        state.pageIndex += 1
-        return .none
 
     case .onPerformDismiss:
         return environment.hapticClient.generateFeedback(.light).fireAndForget()
@@ -401,80 +273,9 @@ let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { 
             return .init(value: .setNavigation(.hud))
         }
 
-    case .onSingleTapGestureEnded(let readingDirection):
-        guard readingDirection != .vertical,
-              let pointX = environment.deviceClient.touchPoint()?.x
-        else { return .init(value: .toggleShowsPanel) }
-        let rightToLeft = readingDirection == .rightToLeft
-        if pointX < environment.deviceClient.absWindowW() * 0.2 {
-            state.pageIndex += rightToLeft ? 1 : -1
-        } else if pointX > environment.deviceClient.absWindowW() * (1 - 0.2) {
-            state.pageIndex += rightToLeft ? -1 : 1
-        } else {
-            return .init(value: .toggleShowsPanel)
-        }
-        return .none
-
-    case .onDoubleTapGestureEnded(let scaleMaximum, let doubleTapScale):
-        let newScale = state.scale == 1 ? doubleTapScale : 1
-        let absWindowW = environment.deviceClient.absWindowW()
-        let absWindowH = environment.deviceClient.absWindowH()
-        if let point = environment.deviceClient.touchPoint() {
-            state.correctScaleAnchor(point: point, absWindowW: absWindowW, absWindowH: absWindowH)
-        }
-        state.setOffset(.zero, absWindowW: absWindowW, absWindowH: absWindowH)
-        state.setScale(scale: newScale, maximum: scaleMaximum, absWindowW: absWindowW, absWindowH: absWindowH)
-        return .none
-
-    case .onMagnificationGestureChanged(let value, let scaleMaximum):
-        let point = environment.deviceClient.touchPoint()
-        let absWindowW = environment.deviceClient.absWindowW()
-        let absWindowH = environment.deviceClient.absWindowH()
-        state.onMagnificationGestureChanged(
-            value, point: point, scaleMaximum: scaleMaximum,
-            absWindowW: absWindowW, absWindowH: absWindowH
-        )
-        return .none
-
-    case .onMagnificationGestureEnded(let value, let scaleMaximum):
-        let point = environment.deviceClient.touchPoint()
-        let absWindowW = environment.deviceClient.absWindowW()
-        let absWindowH = environment.deviceClient.absWindowH()
-        state.onMagnificationGestureChanged(
-            value, point: point, scaleMaximum: scaleMaximum,
-            absWindowW: absWindowW, absWindowH: absWindowH
-        )
-        if value * state.baseScale - 1 < 0.01 {
-            state.setScale(
-                scale: 1, maximum: scaleMaximum,
-                absWindowW: absWindowW, absWindowH: absWindowH
-            )
-        }
-        state.baseScale = state.scale
-        return .none
-
-    case .onDragGestureChanged(let value):
-        let absWindowW = environment.deviceClient.absWindowW()
-        let absWindowH = environment.deviceClient.absWindowH()
-        state.onDragGestureChanged(value, absWindowW: absWindowW, absWindowH: absWindowH)
-        return .none
-
-    case .onDragGestureEnded(let value):
-        let absWindowW = environment.deviceClient.absWindowW()
-        let absWindowH = environment.deviceClient.absWindowH()
-        state.onDragGestureChanged(value, absWindowW: absWindowW, absWindowH: absWindowH)
-        if state.scale > 1 {
-            state.newOffset.width = state.offset.width
-            state.newOffset.height = state.offset.height
-        }
-        return .none
-
-    case .onControlPanelDismissGestureEnded(let value):
-        return value.predictedEndTranslation.height > 30 ? .init(value: .onPerformDismiss) : .none
-
-    case .syncReadingProgress:
+    case .syncReadingProgress(let progress):
         return environment.databaseClient
-            .updateReadingProgress(gid: state.gallery.id, progress: .init(state.sliderValue)).fireAndForget()
+            .updateReadingProgress(gid: state.gallery.id, progress: progress).fireAndForget()
 
     case .syncPreviewURLs(let previewURLs):
         return environment.databaseClient
@@ -491,8 +292,7 @@ let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { 
 
     case .teardown:
         var effects: [Effect<ReadingAction, Never>] = [
-            .cancel(id: ReadingState.CancelID()),
-            .cancel(id: ReadingState.TimerID())
+            .cancel(id: ReadingState.CancelID())
         ]
         if !environment.deviceClient.isPad() {
             effects.append(.init(value: .setOrientationPortrait(true)))
@@ -511,8 +311,9 @@ let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { 
         state.imageURLs = galleryState.imageURLs
         state.thumbnailURLs = galleryState.thumbnailURLs
         state.originalImageURLs =  galleryState.originalImageURLs
+        state.readingProgress = galleryState.readingProgress
         state.databaseLoadingState = .idle
-        return .init(value: .setSliderValue(.init(galleryState.readingProgress)))
+        return .none
 
     case .fetchPreviewURLs(let index):
         guard state.previewLoadingStates[index] != .loading,
