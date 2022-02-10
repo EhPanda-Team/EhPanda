@@ -10,7 +10,7 @@ import ComposableArchitecture
 
 struct AppLockState: Equatable {
     @BindableState var blurRadius: Double = 0
-    var becomeInactiveDate: Date?
+    var becameInactiveDate: Date?
     var isAppLocked = false
 
     // Setting `blurRadius` to zero causes the NavigationBar to collapse
@@ -22,6 +22,7 @@ struct AppLockState: Equatable {
 enum AppLockAction {
     case onBecomeActive(Int, Double)
     case onBecomeInactive(Double)
+    case unlockApp
     case authorize
     case authorizeDone(Bool)
 }
@@ -33,20 +34,25 @@ struct AppLockEnvironment {
 let appLockReducer = Reducer<AppLockState, AppLockAction, AppLockEnvironment> { state, action, environment in
     switch action {
     case .onBecomeActive(let threshold, let blurRadius):
-        if let date = state.becomeInactiveDate, threshold >= 0,
+        if let date = state.becameInactiveDate, threshold >= 0,
            Date().timeIntervalSince(date) > Double(threshold)
         {
             state.setBlurRadius(blurRadius)
             state.isAppLocked = true
             return .init(value: .authorize)
         } else {
-            state.setBlurRadius(0)
+            return .init(value: .unlockApp)
         }
-        return .none
 
     case .onBecomeInactive(let blurRadius):
         state.setBlurRadius(blurRadius)
-        state.becomeInactiveDate = Date()
+        state.becameInactiveDate = .now
+        return .none
+
+    case .unlockApp:
+        state.setBlurRadius(0)
+        state.isAppLocked = false
+        state.becameInactiveDate = nil
         return .none
 
     case .authorize:
@@ -55,11 +61,6 @@ let appLockReducer = Reducer<AppLockState, AppLockAction, AppLockEnvironment> { 
             .map(AppLockAction.authorizeDone)
 
     case .authorizeDone(let isSucceeded):
-        if isSucceeded {
-            state.setBlurRadius(0)
-            state.isAppLocked = false
-            state.becomeInactiveDate = nil
-        }
-        return .none
+        return isSucceeded ? .init(value: .unlockApp) : .none
     }
 }
