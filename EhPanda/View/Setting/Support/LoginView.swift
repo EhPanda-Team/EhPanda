@@ -63,6 +63,7 @@ struct LoginView: View {
             .autoBlur(radius: blurRadius)
         }
         .onSubmit { viewStore.send(.onTextFieldSubmitted) }
+        .animation(.default, value: viewStore.loginState)
         .toolbar(content: toolbar)
         .navigationTitle(R.string.localizable.loginViewTitleLogin())
         .ignoresSafeArea()
