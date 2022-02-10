@@ -241,7 +241,7 @@ private struct ImageLoadSettingsSection: View {
         .textCase(nil)
         Section(
             R.string.localizable.ehSettingViewDescriptionBrowsingCountry(
-                ehSetting.literalBrowsingCountry
+                ehSetting.localizedLiteralBrowsingCountry ?? ehSetting.literalBrowsingCountry
             )
             .localizedKey
         ) {
