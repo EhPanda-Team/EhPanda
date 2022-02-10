@@ -371,7 +371,7 @@
 "enum.filter.range.value.watched" = "标签";
 
 // MARK: EhSettingView
-"eh.setting.view.title.hostSetting" = "%@ 设置";
+"eh.setting.view.title.hostSettings" = "%@ 设置";
 "eh.setting.view.section.title.profileSettings" = "档案设置";
 "eh.setting.view.title.selectedProfile" = "当前选定档案";
 "eh.setting.view.button.setAsDefault" = "设为默认";

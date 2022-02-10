@@ -371,7 +371,7 @@
 "enum.filter.range.value.watched" = "주시 태그";
 
 // MARK: EhSettingView
-"eh.setting.view.title.hostSetting" = "%@ 설정";
+"eh.setting.view.title.hostSettings" = "%@ 설정";
 "eh.setting.view.section.title.profileSettings" = "프로필 설정";
 "eh.setting.view.title.selectedProfile" = "선택한 프로필";
 "eh.setting.view.button.setAsDefault" = "기본으로 설정";
