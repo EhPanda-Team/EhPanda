@@ -143,10 +143,8 @@ let watchedReducer = Reducer<WatchedState, WatchedAction, WatchedEnvironment>.co
             switch result {
             case .success(let (pageNumber, galleries)):
                 guard !galleries.isEmpty else {
-                    guard pageNumber.current < pageNumber.maximum else {
-                        state.loadingState = .failed(.notFound)
-                        return .none
-                    }
+                    state.loadingState = .failed(.notFound)
+                    guard pageNumber.current < pageNumber.maximum else { return .none }
                     return .init(value: .fetchMoreGalleries)
                 }
                 state.pageNumber = pageNumber
@@ -183,6 +181,8 @@ let watchedReducer = Reducer<WatchedState, WatchedAction, WatchedEnvironment>.co
                 ]
                 if galleries.isEmpty, pageNumber.current < pageNumber.maximum {
                     effects.append(.init(value: .fetchMoreGalleries))
+                } else if !galleries.isEmpty {
+                    state.loadingState = .idle
                 }
                 return .merge(effects)
 

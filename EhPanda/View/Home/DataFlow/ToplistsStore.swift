@@ -157,10 +157,8 @@ let toplistsReducer = Reducer<ToplistsState, ToplistsAction, ToplistsEnvironment
             switch result {
             case .success(let (pageNumber, galleries)):
                 guard !galleries.isEmpty else {
-                    guard pageNumber.current < pageNumber.maximum else {
-                        state.rawLoadingState[type] = .failed(.notFound)
-                        return .none
-                    }
+                    state.rawLoadingState[type] = .failed(.notFound)
+                    guard pageNumber.current < pageNumber.maximum else { return .none }
                     return .init(value: .fetchMoreGalleries)
                 }
                 state.rawPageNumber[type] = pageNumber
@@ -195,6 +193,8 @@ let toplistsReducer = Reducer<ToplistsState, ToplistsAction, ToplistsEnvironment
                 ]
                 if galleries.isEmpty, pageNumber.current < pageNumber.maximum {
                     effects.append(.init(value: .fetchMoreGalleries))
+                } else if !galleries.isEmpty {
+                    state.rawLoadingState[type] = .idle
                 }
                 return .merge(effects)
 
