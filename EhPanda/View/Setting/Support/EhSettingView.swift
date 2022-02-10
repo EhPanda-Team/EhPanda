@@ -49,11 +49,10 @@ struct EhSettingView: View {
             }
         }
         .sheet(unwrapping: viewStore.binding(\.$route), case: /EhSettingState.Route.webView) { route in
-            WebView(url: route.wrappedValue)
-                .autoBlur(radius: blurRadius)
+            WebView(url: route.wrappedValue).autoBlur(radius: blurRadius)
         }
         .toolbar(content: toolbar)
-        .navigationTitle(R.string.localizable.ehSettingViewTitleHostSetting(AppUtil.galleryHost.rawValue))
+        .navigationTitle(R.string.localizable.ehSettingViewTitleHostSettings(AppUtil.galleryHost.rawValue))
     }
     // MARK: Form
     private func form(ehSetting: Binding<EhSetting>, ehProfile: Binding<EhProfile>) -> some View {
@@ -65,7 +64,9 @@ struct EhSettingView: View {
                     editingProfileName: viewStore.binding(\.$editingProfileName),
                     deleteAction: {
                         if let value = viewStore.ehProfile?.value {
-                            viewStore.send(.performAction(.delete, nil, value))
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                                viewStore.send(.performAction(.delete, nil, value))
+                            }
                         }
                     },
                     deleteDialogAction: { viewStore.send(.setNavigation(.deleteProfile)) },

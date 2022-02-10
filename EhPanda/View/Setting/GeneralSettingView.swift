@@ -94,7 +94,9 @@ struct GeneralSettingView: View {
                         case: /GeneralSettingState.Route.removeCustomTranslations
                     ) {
                         Button(R.string.localizable.confirmationDialogButtonRemove(), role: .destructive) {
-                            viewStore.send(.onRemoveCustomTranslations)
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                                viewStore.send(.onRemoveCustomTranslations)
+                            }
                         }
                     }
                 }
