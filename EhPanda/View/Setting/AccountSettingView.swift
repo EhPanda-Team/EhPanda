@@ -44,7 +44,11 @@ struct AccountSettingView: View {
                     showsNewDawnGreeting: $showsNewDawnGreeting,
                     bypassesSNIFiltering: bypassesSNIFiltering,
                     loginAction: { viewStore.send(.setNavigation(.login)) },
-                    logoutAction: { viewStore.send(.onLogoutConfirmButtonTapped) },
+                    logoutAction: {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                            viewStore.send(.onLogoutConfirmButtonTapped)
+                        }
+                    },
                     logoutDialogAction: { viewStore.send(.setNavigation(.logout)) },
                     configureAccountAction: { viewStore.send(.setNavigation(.ehSetting)) },
                     manageTagsAction: { viewStore.send(.setNavigation(.webView(Defaults.URL.myTags))) }

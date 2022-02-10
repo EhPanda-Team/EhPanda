@@ -164,10 +164,8 @@ let favoritesReducer = Reducer<FavoritesState, FavoritesAction, FavoritesEnviron
             switch result {
             case .success(let (pageNumber, sortOrder, galleries)):
                 guard !galleries.isEmpty else {
-                    guard pageNumber.current < pageNumber.maximum else {
-                        state.rawLoadingState[targetFavIndex] = .failed(.notFound)
-                        return .none
-                    }
+                    state.rawLoadingState[targetFavIndex] = .failed(.notFound)
+                    guard pageNumber.current < pageNumber.maximum else { return .none }
                     return .init(value: .fetchMoreGalleries)
                 }
                 state.rawPageNumber[targetFavIndex] = pageNumber
@@ -205,6 +203,8 @@ let favoritesReducer = Reducer<FavoritesState, FavoritesAction, FavoritesEnviron
                 ]
                 if galleries.isEmpty, pageNumber.current < pageNumber.maximum {
                     effects.append(.init(value: .fetchMoreGalleries))
+                } else if !galleries.isEmpty {
+                    state.rawLoadingState[targetFavIndex] = .idle
                 }
                 return .merge(effects)
 

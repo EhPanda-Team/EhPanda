@@ -59,7 +59,9 @@ struct QuickSearchView: View {
                             matching: word
                         ) { route in
                             Button(R.string.localizable.confirmationDialogButtonDelete(), role: .destructive) {
-                                viewStore.send(.deleteWord(route))
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                                    viewStore.send(.deleteWord(route))
+                                }
                             }
                         }
                     }

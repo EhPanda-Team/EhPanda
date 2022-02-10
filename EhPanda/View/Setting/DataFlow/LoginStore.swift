@@ -75,14 +75,9 @@ let loginReducer = Reducer<LoginState, LoginAction, LoginEnvironment> { state, a
         return .cancel(id: LoginState.CancelID())
 
     case .login:
-        guard !state.loginButtonDisabled
-                || state.loginState == .loading
-        else { return .none }
-
-        withAnimation {
-            state.loginState = .loading
-        }
-
+        guard !state.loginButtonDisabled || state.loginState == .loading else { return .none }
+        state.focusedField = nil
+        state.loginState = .loading
         return .merge(
             environment.hapticClient.generateFeedback(.soft).fireAndForget(),
             LoginRequest(username: state.username, password: state.password)

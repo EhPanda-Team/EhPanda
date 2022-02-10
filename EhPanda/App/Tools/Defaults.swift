@@ -26,7 +26,6 @@ struct Defaults {
     }
     struct ImageSize {
         static let rowAspect: CGFloat = 8/11
-        static let avatarAspect: CGFloat = 1/1
         static let headerAspect: CGFloat = 8/11
         static let previewAspect: CGFloat = 8/11
         static let contentAspect: CGFloat = 7/10
@@ -34,9 +33,7 @@ struct Defaults {
         static let webtoonIdealAspect: CGFloat = 2/3
 
         static let rowW: CGFloat = rowH * rowAspect
-        static let rowH: CGFloat = 110
-        static let avatarW: CGFloat = 100
-        static let avatarH: CGFloat = 100
+        static let rowH: CGFloat = 120
         static let headerW: CGFloat = headerH * headerAspect
         static let headerH: CGFloat = 150
         static let previewMinW: CGFloat = DeviceUtil.isPadWidth ? 180 : 100

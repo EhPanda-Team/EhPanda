@@ -71,7 +71,7 @@ let appDelegateReducer = Reducer<AppState, AppDelegateAction, AppDelegateEnviron
     .init { state, action, environment in
         switch action {
         case .onLaunchFinish:
-            state.appLockState.becomeInactiveDate = .distantPast
+            state.appLockState.becameInactiveDate = .distantPast
             return .merge(
                 environment.libraryClient.initializeLogger().fireAndForget(),
                 environment.libraryClient.initializeWebImage().fireAndForget(),

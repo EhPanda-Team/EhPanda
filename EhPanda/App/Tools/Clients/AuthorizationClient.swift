@@ -34,6 +34,7 @@ extension AuthorizationClient {
                 }
             }
             .eraseToAnyPublisher()
+            .receive(on: DispatchQueue.main)
             .eraseToEffect()
         }
     )

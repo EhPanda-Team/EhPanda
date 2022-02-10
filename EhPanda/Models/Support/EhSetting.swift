@@ -62,6 +62,9 @@ struct EhSetting: Equatable {
             row <= capableThumbnailConfigRowCount
         }
     }
+    var localizedLiteralBrowsingCountry: String? {
+        BrowsingCountry.allCases.first(where: { $0.englishName == literalBrowsingCountry })?.name
+    }
 
     var loadThroughHathSetting: LoadThroughHathSetting
     var browsingCountry: BrowsingCountry
