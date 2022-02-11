@@ -495,9 +495,9 @@ extension DatabaseClient {
         case .search:
             key = "searchFilter"
         case .global:
-            key = "watchedFilter"
-        case .watched:
             key = "globalFilter"
+        case .watched:
+            key = "watchedFilter"
         }
         return updateAppEnv(key: key, value: filter.toData())
     }
