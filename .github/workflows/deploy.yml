@@ -52,3 +52,4 @@ jobs:
 
          curl ${{ secrets.DISCORD_WEBHOOK_TEST }} \
          -F "payload_json={\"content\": \"**v${{ steps.bump-version.outputs.version }}_b${{ steps.bump-version.outputs.build-number }} Release Notes:**\n${{ steps.retrieve-data.outputs.notes }}\"}"
+
