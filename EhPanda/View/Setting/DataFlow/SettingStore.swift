@@ -139,6 +139,22 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
                     .map { _ in SettingAction.syncAppIconType }
             )
 
+        case .binding(\.$setting.autoLockPolicy):
+            if state.setting.autoLockPolicy != .never
+                && state.setting.backgroundBlurRadius == 0
+            {
+                state.setting.backgroundBlurRadius = 10
+            }
+            return .none
+
+        case .binding(\.$setting.backgroundBlurRadius):
+            if state.setting.autoLockPolicy != .never
+                && state.setting.backgroundBlurRadius == 0
+            {
+                state.setting.autoLockPolicy = .never
+            }
+            return .none
+
         case .binding(\.$setting.enablesLandscape):
             var effects: [Effect<SettingAction, Never>] = [
                 .init(value: .syncSetting)
