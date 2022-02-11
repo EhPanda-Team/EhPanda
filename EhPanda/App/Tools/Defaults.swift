@@ -111,6 +111,7 @@ struct Defaults {
                 case act = "act"
                 case showComments = "hc"
                 case inlineSet = "inline_set"
+                case skipServerIdentifier = "nl"
 
                 // Search favorites
                 case sn = "sn"
