@@ -159,7 +159,11 @@ let appReducerCore = Reducer<AppState, AppAction, AppEnvironment> { state, actio
         if !environment.cookiesClient.didLogin {
             effects.append(
                 .init(value: .setting(.account(.setNavigation(.login))))
-                    .delay(for: .milliseconds(200), scheduler: DispatchQueue.main).eraseToEffect()
+                    .delay(
+                        for: .milliseconds(environment.deviceClient.isPad() ? 1200 : 200),
+                        scheduler: DispatchQueue.main
+                    )
+                    .eraseToEffect()
             )
         }
         return .merge(effects)
