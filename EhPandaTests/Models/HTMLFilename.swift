@@ -15,6 +15,8 @@ enum HTMLFilename: String {
 
     // Gallery
     case galleryDetail = "GalleryDetail"
+    case galleryMPVKeys = "GalleryMPVKeys"
+    case galleryNormalImageURL = "GalleryNormalImageURL"
 
     // Other
     case ipBanned = "IPBanned"

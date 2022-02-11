@@ -563,17 +563,11 @@ struct Parser {
         return thumbnailURLs
     }
 
-    static func parseRenewedThumbnailURL(doc: HTMLDocument, storedThumbnailURL: URL) throws -> URL {
+    static func parseSkipServerIdentifier(doc: HTMLDocument) throws -> String {
         guard let text = doc.at_xpath("//div [@id='i6']")?.at_xpath("//a [@id='loadfail']")?["onclick"],
               let rangeA = text.range(of: "nl('"), let rangeB = text.range(of: "')")
         else { throw AppError.parseFailed }
-
-        let reloadToken = String(text[rangeA.upperBound..<rangeB.lowerBound])
-        let renewedString = storedThumbnailURL.absoluteString + "?nl=" + reloadToken
-        guard let renewedThumbnailURL = URL(string: renewedString)
-        else { throw AppError.parseFailed }
-
-        return renewedThumbnailURL
+        return .init(text[rangeA.upperBound..<rangeB.lowerBound])
     }
 
     static func parseGalleryNormalImageURL(doc: HTMLDocument, index: Int) throws -> (Int, URL, URL?) {

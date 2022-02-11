@@ -5,8 +5,6 @@
 //  Created by 荒木辰造 on R 4/02/11.
 //
 
-import Foundation
-
 enum TestError: Error {
     case htmlDocumentNotFound(HTMLFilename)
     case parsingFailed(String)

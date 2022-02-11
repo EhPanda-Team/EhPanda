@@ -44,7 +44,7 @@ struct ReadingState: Equatable {
 
     var mpvKey: String?
     var mpvImageKeys = [Int: String]()
-    var mpvReloadTokens = [Int: String]()
+    var mpvSkipServerIdentifiers = [Int: String]()
 
     @BindableState var showsPanel = false
     @BindableState var showsSliderPreview = false
@@ -218,7 +218,7 @@ let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { 
         state.originalImageURLs = .init()
         state.mpvKey = nil
         state.mpvImageKeys = .init()
-        state.mpvReloadTokens = .init()
+        state.mpvSkipServerIdentifiers = .init()
         state.forceRefreshID = .init()
         return environment.databaseClient.removeImageURLs(gid: state.gallery.id).fireAndForget()
 
@@ -527,23 +527,23 @@ let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { 
               state.imageURLLoadingStates[index] != .loading
         else { return .none }
         state.imageURLLoadingStates[index] = .loading
-        let reloadToken = isRefresh ? state.mpvReloadTokens[index] : nil
+        let skipServerIdentifier = isRefresh ? state.mpvSkipServerIdentifiers[index] : nil
         return GalleryMPVImageURLRequest(
             gid: gidInteger, index: index, mpvKey: mpvKey,
-            mpvImageKey: mpvImageKey, reloadToken: reloadToken
+            mpvImageKey: mpvImageKey, skipServerIdentifier: skipServerIdentifier
         )
         .effect.map({ ReadingAction.fetchMPVImageURLDone(index, $0) }).cancellable(id: ReadingState.CancelID())
 
     case .fetchMPVImageURLDone(let index, let result):
         switch result {
-        case .success(let (imageURL, originalImageURL, reloadToken)):
+        case .success(let (imageURL, originalImageURL, skipServerIdentifier)):
             let imageURLs: [Int: URL] = [index: imageURL]
             var originalImageURLs = [Int: URL]()
             if let originalImageURL = originalImageURL {
                 originalImageURLs[index] = originalImageURL
             }
             state.imageURLLoadingStates[index] = .idle
-            state.mpvReloadTokens[index] = reloadToken
+            state.mpvSkipServerIdentifiers[index] = skipServerIdentifier
             state.updateImageURLs(imageURLs, originalImageURLs)
             return .init(value: .syncImageURLs(imageURLs, originalImageURLs))
         case .failure(let error):

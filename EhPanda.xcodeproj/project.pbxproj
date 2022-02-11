@@ -46,6 +46,10 @@
 		AB31CD3227B6671400F40E0A /* BanIntervalParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB31CD3127B6671400F40E0A /* BanIntervalParserTests.swift */; };
 		AB31CD3727B6695800F40E0A /* HTMLFilename.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB31CD3627B6695800F40E0A /* HTMLFilename.swift */; };
 		AB31CD3B27B66E0300F40E0A /* ListParserTestType.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB31CD3A27B66E0300F40E0A /* ListParserTestType.swift */; };
+		AB31CD3D27B66F7D00F40E0A /* GalleryImageURLParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB31CD3C27B66F7D00F40E0A /* GalleryImageURLParserTests.swift */; };
+		AB31CD3F27B670FD00F40E0A /* GalleryNormalImageURL.html in Resources */ = {isa = PBXBuildFile; fileRef = AB31CD3E27B670FD00F40E0A /* GalleryNormalImageURL.html */; };
+		AB31CD4127B6769F00F40E0A /* GalleryMPVKeys.html in Resources */ = {isa = PBXBuildFile; fileRef = AB31CD4027B6769F00F40E0A /* GalleryMPVKeys.html */; };
+		AB31CD4327B676C300F40E0A /* GalleryMPVKeysParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB31CD4227B676C300F40E0A /* GalleryMPVKeysParserTests.swift */; };
 		AB358311269D7B63009466A5 /* DFURLProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB358310269D7B63009466A5 /* DFURLProtocol.swift */; };
 		AB358313269D7E89009466A5 /* DFRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB358312269D7E89009466A5 /* DFRequest.swift */; };
 		AB358315269D821D009466A5 /* DFExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB358314269D821D009466A5 /* DFExtensions.swift */; };
@@ -287,6 +291,10 @@
 		AB31CD3127B6671400F40E0A /* BanIntervalParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BanIntervalParserTests.swift; sourceTree = "<group>"; };
 		AB31CD3627B6695800F40E0A /* HTMLFilename.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTMLFilename.swift; sourceTree = "<group>"; };
 		AB31CD3A27B66E0300F40E0A /* ListParserTestType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListParserTestType.swift; sourceTree = "<group>"; };
+		AB31CD3C27B66F7D00F40E0A /* GalleryImageURLParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryImageURLParserTests.swift; sourceTree = "<group>"; };
+		AB31CD3E27B670FD00F40E0A /* GalleryNormalImageURL.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = GalleryNormalImageURL.html; sourceTree = "<group>"; };
+		AB31CD4027B6769F00F40E0A /* GalleryMPVKeys.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = GalleryMPVKeys.html; sourceTree = "<group>"; };
+		AB31CD4227B676C300F40E0A /* GalleryMPVKeysParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryMPVKeysParserTests.swift; sourceTree = "<group>"; };
 		AB358310269D7B63009466A5 /* DFURLProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DFURLProtocol.swift; sourceTree = "<group>"; };
 		AB358312269D7E89009466A5 /* DFRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DFRequest.swift; sourceTree = "<group>"; };
 		AB358314269D821D009466A5 /* DFExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DFExtensions.swift; sourceTree = "<group>"; };
@@ -642,6 +650,8 @@
 			isa = PBXGroup;
 			children = (
 				ABD9770F27B65E3400983DE7 /* GalleryDetailParserTests.swift */,
+				AB31CD4227B676C300F40E0A /* GalleryMPVKeysParserTests.swift */,
+				AB31CD3C27B66F7D00F40E0A /* GalleryImageURLParserTests.swift */,
 			);
 			path = Gallery;
 			sourceTree = "<group>";
@@ -688,6 +698,8 @@
 			isa = PBXGroup;
 			children = (
 				AB3E9E6526D210B1008FE518 /* GalleryDetail.html */,
+				AB31CD4027B6769F00F40E0A /* GalleryMPVKeys.html */,
+				AB31CD3E27B670FD00F40E0A /* GalleryNormalImageURL.html */,
 			);
 			path = Gallery;
 			sourceTree = "<group>";
@@ -1334,12 +1346,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				AB3E9E6F26D210B1008FE518 /* Favorites.html in Resources */,
+				AB31CD4127B6769F00F40E0A /* GalleryMPVKeys.html in Resources */,
 				ABC0A8D126F7037F008EC24C /* IPBanned.html in Resources */,
 				ABF9720A26DE6E1300118887 /* GalleryDetailWithGreeting.html in Resources */,
 				AB3E9E6E26D210B1008FE518 /* GalleryDetail.html in Resources */,
 				AB30E34826D277F7007420BC /* Toplists.html in Resources */,
 				AB3E9E7026D210B1008FE518 /* Watched.html in Resources */,
 				AB3E9E7226D210B1008FE518 /* Popular.html in Resources */,
+				AB31CD3F27B670FD00F40E0A /* GalleryNormalImageURL.html in Resources */,
 				AB3E9E7126D210B1008FE518 /* FrontPage.html in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1575,6 +1589,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AB31CD3D27B66F7D00F40E0A /* GalleryImageURLParserTests.swift in Sources */,
+				AB31CD4327B676C300F40E0A /* GalleryMPVKeysParserTests.swift in Sources */,
 				AB31CD3027B666E200F40E0A /* TestError.swift in Sources */,
 				ABD9771027B65E3400983DE7 /* GalleryDetailParserTests.swift in Sources */,
 				AB31CD3227B6671400F40E0A /* BanIntervalParserTests.swift in Sources */,
