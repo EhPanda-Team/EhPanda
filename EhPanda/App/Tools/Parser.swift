@@ -11,7 +11,7 @@ import OpenCC
 
 struct Parser {
     // MARK: List
-    static func parseListItems(doc: HTMLDocument) throws -> [Gallery] {
+    static func parseGalleries(doc: HTMLDocument) throws -> [Gallery] {
         func parseCoverURL(node: XMLElement?) throws -> URL {
             guard let node = node?.at_xpath("//div [@class='glthumb']")?.at_css("img")
             else { throw AppError.parseFailed }

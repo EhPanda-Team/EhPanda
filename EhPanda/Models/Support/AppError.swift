@@ -23,7 +23,7 @@ enum AppError: Error, Identifiable, Equatable, Hashable {
     case unknown
 }
 
-extension AppError: LocalizedError {
+extension AppError {
     var isRetryable: Bool {
         switch self {
         case .databaseCorrupted, .ipBanned, .networkingFailed, .parseFailed,
