@@ -85,7 +85,7 @@ extension CookiesClient {
 extension CookiesClient {
     private func setCookie(
         for url: URL, key: String, value: String, path: String = "/",
-        expiresTime: TimeInterval = .init(60 * 60 * 24 * 365)
+        expiresTime: TimeInterval = .oneYear
     ) {
         let expiredDate = Date(timeIntervalSinceNow: expiresTime)
         let properties: [HTTPCookiePropertyKey: Any] = [

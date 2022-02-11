@@ -56,6 +56,7 @@ struct AppDelegateState: Equatable {
 
 enum AppDelegateAction {
     case onLaunchFinish
+    case removeExpiredImageURLs
 
     case migration(MigrationAction)
 }
@@ -80,6 +81,9 @@ let appDelegateReducer = Reducer<AppState, AppDelegateAction, AppDelegateEnviron
                 environment.cookiesClient.fulfillAnotherHostField().fireAndForget(),
                 .init(value: .migration(.prepareDatabase))
             )
+
+        case .removeExpiredImageURLs:
+            return environment.databaseClient.removeExpiredImageURLs().fireAndForget()
 
         case .migration:
             return .none
