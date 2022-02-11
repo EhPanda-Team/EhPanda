@@ -80,7 +80,10 @@ let appReducerCore = Reducer<AppState, AppAction, AppEnvironment> { state, actio
         return .none
 
     case .appDelegate(.migration(.onDatabasePreparationSuccess)):
-        return .init(value: .setting(.loadUserSettings))
+        return .merge(
+            .init(value: .appDelegate(.removeExpiredImageURLs)),
+            .init(value: .setting(.loadUserSettings))
+        )
 
     case .appDelegate:
         return .none

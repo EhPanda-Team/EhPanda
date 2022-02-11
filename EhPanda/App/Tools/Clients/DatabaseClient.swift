@@ -430,6 +430,13 @@ extension DatabaseClient {
             }
         }
     }
+    func removeExpiredImageURLs() -> Effect<Never, Never> {
+        fetchHistoryGalleries()
+            .map { $0.filter { Date().timeIntervalSince($0.lastOpenDate ?? .distantPast) > .oneWeek } }
+            .map { $0.map { removeImageURLs(gid: $0.id) } }
+            .map(Effect<Never, Never>.merge)
+            .fireAndForget()
+    }
     func updateThumbnailURLs(gid: String, thumbnailURLs: [Int: URL]) -> Effect<Never, Never> {
         guard gid.isValidGID else { return .none }
         return updateGalleryState(gid: gid) { galleryStateMO in
