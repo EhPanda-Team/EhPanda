@@ -11,6 +11,7 @@ env:
   ALTSTORE_JSON_PATH: './AltStore.json'
   BUILDS_PATH: '/tmp/action-builds'
   ASC_KEY_PATH: '/Users/runner/private_keys'
+  FILTER_SWIFT_PATH: './actions-tool/ReleaseNotesFilter.swift'
   FILTER_PATH: './actions-tool/ReleaseNotesFilter'
   ARCHIVE_PATH: '/tmp/action-builds/EhPanda.xcarchive'
   IPA_OUTPUT_PATH: '/tmp/action-builds/EhPanda.ipa'
@@ -88,6 +89,7 @@ jobs:
       - name: Retrieve data
         id: retrieve-data
         run: |
+          swiftc -o $FILTER_PATH $FILTER_SWIFT_PATH
           sudo chmod 777 $FILTER_PATH
           echo "::set-output name=size::$(stat -f%z $IPA_OUTPUT_PATH)"
           echo "::set-output name=version_date::$(date -u +"%Y-%m-%dT%T")"
