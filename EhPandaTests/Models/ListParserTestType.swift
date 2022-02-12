@@ -6,14 +6,6 @@
 //
 
 enum ListParserTestType: CaseIterable {
-    static let availableCases: [Self] = [
-        .frontPageMinimalList, .frontPageMinimalPlusList, .frontPageCompactList, // .frontPageExtendedList, .frontPageThumbnailList,
-        .watchedMinimalList, .watchedMinimalPlusList, .watchedCompactList, // .watchedExtendedList, .watchedThumbnailList,
-        .popularMinimalList, .popularMinimalPlusList, .popularCompactList, // .popularExtendedList, .popularThumbnailList,
-        .favoritesMinimalList, .favoritesMinimalPlusList, .favoritesCompactList, // .favoritesExtendedList, .favoritesThumbnailList,
-        .toplistsCompactList
-    ]
-
     // FrontPage
     case frontPageMinimalList
     case frontPageMinimalPlusList
@@ -105,6 +97,18 @@ extension ListParserTestType {
             return 107
         case .toplistsCompactList:
             return 50
+        }
+    }
+    var hasUploader: Bool {
+        switch self {
+        case .frontPageMinimalList, .frontPageMinimalPlusList, .frontPageCompactList, .frontPageExtendedList,
+                .watchedMinimalList, .watchedMinimalPlusList, .watchedCompactList, .watchedExtendedList,
+                .popularMinimalList, .popularMinimalPlusList, .popularCompactList, .popularExtendedList,
+                .toplistsCompactList:
+            return true
+        case .frontPageThumbnailList, .watchedThumbnailList, .popularThumbnailList, .favoritesThumbnailList,
+                .favoritesMinimalList, .favoritesMinimalPlusList, .favoritesCompactList, .favoritesExtendedList:
+            return false
         }
     }
 }

@@ -24,15 +24,14 @@ struct Parser {
             }
             throw AppError.parseFailed
         }
-        func parseThumbnailPanel(node: XMLElement) throws -> (URL, Category, Float, Date, Int) {
+        func parseThumbnailPanel(node: XMLElement) throws -> (URL, Category, Float, Date, Int, String?) {
             var tmpCoverURL: URL?
             var tmpCategory: Category?
             var tmpPublishedDate: Date?
             var tmpPageCount: Int?
+            var uploader: String?
 
-            guard let glthumbNode = node.at_xpath("//div [@class='glthumb']") else { throw AppError.parseFailed }
-
-            for div in glthumbNode.xpath("//div") {
+            for div in node.xpath("//div") {
                 if let imgNode = div.at_css("img"),
                    let urlString = imgNode["data-src"] ?? imgNode["src"],
                    let url = URL(string: urlString)
@@ -54,6 +53,12 @@ struct Parser {
                 {
                     tmpPageCount = pageCount
                 }
+                // Extended display mode uses this
+                if let aLink = div.at_xpath("//a"), aLink["href"]?.contains("uploader") == true {
+                    uploader = aLink.text
+                } else if div.text == "(Disowned)" {
+                    uploader = div.text
+                }
             }
 
             guard let coverURL = tmpCoverURL,
@@ -62,26 +67,45 @@ struct Parser {
                   let publishedDate = tmpPublishedDate,
                   let pageCount = tmpPageCount
             else { throw AppError.parseFailed }
-            return (coverURL, category, rating, publishedDate, pageCount)
+            return (coverURL, category, rating, publishedDate, pageCount, uploader)
         }
         func parseGalleryTitle(node: XMLElement) throws -> (String, URL) {
-            guard let glinkNode = node.at_xpath("//div [@class='glink']"),
-                  let glinkParentNode = glinkNode.parent,
-                  let title = glinkNode.text,
-                  let urlString = glinkParentNode["href"],
-                  let url = URL(string: urlString),
-                  url.pathComponents.count >= 4
-            else { throw AppError.parseFailed }
-            return (title, url)
+            func findTitle(glink: XMLElement) throws -> (String, URL) {
+                guard let glinkParentNode = glink.parent,
+                      let glinkGrandParentNode = glinkParentNode.parent,
+                      let title = glink.text,
+                      let urlString = glinkParentNode["href"] ?? glinkGrandParentNode["href"],
+                      let url = URL(string: urlString),
+                      url.pathComponents.count >= 4
+                else { throw AppError.parseFailed }
+                return (title, url)
+            }
+
+            for glink in node.xpath("//div") where glink.className?.contains("glink") == true {
+                if let result = try? findTitle(glink: glink) {
+                    return result
+                }
+            }
+            for glink in node.xpath("//span") where glink.className?.contains("glink") == true {
+                if let result = try? findTitle(glink: glink) {
+                    return result
+                }
+            }
+            throw AppError.parseFailed
         }
         func parseUploader(node: XMLElement) throws -> String {
             var tmpUploader: String?
             for link in node.xpath("//td") where link.className?.contains("glhide") == true {
-                if let aLink = link.at_xpath("//div")?.at_xpath("//a"),
-                   aLink["href"]?.contains("uploader") == true,
-                   let aText = aLink.text
-                {
-                    tmpUploader = aText
+                for divLink in link.xpath("//div")
+                where ["page", "pages"].contains(where: { divLink.text?.contains($0) != false }) == false {
+                    if let aLink = divLink.at_xpath("//a"),
+                       aLink["href"]?.contains("uploader") == true,
+                       let aText = aLink.text
+                    {
+                        tmpUploader = aText
+                    } else if divLink.text == "(Disowned)" {
+                        tmpUploader = divLink.text
+                    }
                 }
             }
             guard let uploader = tmpUploader else { throw AppError.parseFailed }
@@ -95,7 +119,7 @@ struct Parser {
                 let uploader = try? parseUploader(node: link)
                 guard let gl2mNode = link.at_xpath("//td [@class='gl2m']"),
                       let gl3mNode = link.at_xpath("//td [@class='gl3m glname']"),
-                      let (coverURL, category, rating, publishedDate, pageCount) =
+                      let (coverURL, category, rating, publishedDate, pageCount, _) =
                         try? parseThumbnailPanel(node: gl2mNode),
                       let (galleryTitle, galleryURL) = try? parseGalleryTitle(node: gl3mNode)
                 else { continue }
@@ -155,7 +179,7 @@ struct Parser {
                 let uploader = try? parseUploader(node: link)
                 guard let gl2cNode = link.at_xpath("//td [@class='gl2c']"),
                       let gl3cNode = link.at_xpath("//td [@class='gl3c glname']"),
-                      let (coverURL, category, rating, publishedDate, pageCount) =
+                      let (coverURL, category, rating, publishedDate, pageCount, _) =
                         try? parseThumbnailPanel(node: gl2cNode),
                       let (tags, language) = try? parseTagsAndLang(node: gl3cNode),
                       let (galleryTitle, galleryURL) = try? parseGalleryTitle(node: gl3cNode)
@@ -183,11 +207,56 @@ struct Parser {
         }
         // MARK: Galleries (Extended)
         func parseExtendedModeGalleries(doc: HTMLDocument) throws -> [Gallery] {
-            []
+            var galleries = [Gallery]()
+            for link in doc.xpath("//tr") {
+                guard let gl3eNode = link.at_xpath("//div [@class='gl3e']"),
+                      let gl3eSiblingNode = gl3eNode.nextSibling,
+                      let (coverURL, category, rating, publishedDate, pageCount, uploader) =
+                        try? parseThumbnailPanel(node: gl3eNode),
+                      let (galleryTitle, galleryURL) = try? parseGalleryTitle(node: gl3eSiblingNode)
+                else { continue }
+                galleries.append(
+                    .init(
+                        gid: galleryURL.pathComponents[2],
+                        token: galleryURL.pathComponents[3],
+                        title: galleryTitle,
+                        rating: rating,
+                        tagStrings: .init(),
+                        category: category,
+                        uploader: uploader,
+                        pageCount: pageCount,
+                        postedDate: publishedDate,
+                        coverURL: coverURL,
+                        galleryURL: galleryURL
+                    )
+                )
+            }
+            return galleries
         }
         // MARK: Galleries (Thumbnail)
         func parseThumbnailModeGalleries(doc: HTMLDocument) throws -> [Gallery] {
-            []
+            var galleries = [Gallery]()
+            for link in doc.xpath("//div [@class='gl1t']") {
+                guard let (coverURL, category, rating, publishedDate, pageCount, _) =
+                        try? parseThumbnailPanel(node: link),
+                      let (galleryTitle, galleryURL) = try? parseGalleryTitle(node: link)
+                else { continue }
+                galleries.append(
+                    .init(
+                        gid: galleryURL.pathComponents[2],
+                        token: galleryURL.pathComponents[3],
+                        title: galleryTitle,
+                        rating: rating,
+                        tagStrings: .init(),
+                        category: category,
+                        pageCount: pageCount,
+                        postedDate: publishedDate,
+                        coverURL: coverURL,
+                        galleryURL: galleryURL
+                    )
+                )
+            }
+            return galleries
         }
 
         let galleries: [Gallery]
@@ -201,6 +270,7 @@ struct Parser {
         case "Thumbnail":
             galleries = (try? parseThumbnailModeGalleries(doc: doc)) ?? []
         default:
+            // Toplists doesn't have a display mode selector and it's compact mode
             galleries = (try? parseCompactModeGalleries(doc: doc)) ?? []
         }
 

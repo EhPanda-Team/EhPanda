@@ -11,13 +11,18 @@ import XCTest
 
 class ListParserTests: XCTestCase, TestHelper {
     func testExample() throws {
-        let tuples: [(ListParserTestType, HTMLDocument)] = try ListParserTestType.availableCases.compactMap { type in
+        let tuples: [(ListParserTestType, HTMLDocument)] = try ListParserTestType.allCases.compactMap { type in
             (type, try htmlDocument(filename: type.filename))
         }
-        XCTAssertEqual(tuples.count, ListParserTestType.availableCases.count)
+        XCTAssertEqual(tuples.count, ListParserTestType.allCases.count)
 
         try tuples.forEach { type, document in
-            XCTAssertEqual(try Parser.parseGalleries(doc: document).count, type.assertCount, .init(describing: type))
+            let galleries = try Parser.parseGalleries(doc: document)
+            let uploaders = galleries.compactMap(\.uploader).filter(\.notEmpty)
+            XCTAssertEqual(galleries.count, type.assertCount, .init(describing: type))
+            if type.hasUploader {
+                XCTAssertEqual(uploaders.count, type.assertCount, .init(describing: type))
+            }
         }
     }
 }
