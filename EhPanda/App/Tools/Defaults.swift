@@ -64,14 +64,13 @@ struct Defaults {
         static let logs = "logs"
         static let ehpandaLog = "EhPanda.log"
     }
-    struct ParsingMark {
-        static let hexStart = "hexStart<"
-        static let hexEnd = ">hexEnd"
-    }
     struct URL {
         static var host: Foundation.URL { AppUtil.galleryHost == .exhentai ? exhentai : ehentai }
         static let ehentai: Foundation.URL = .init(string: "https://e-hentai.org/").forceUnwrapped
         static let exhentai: Foundation.URL = .init(string: "https://exhentai.org/").forceUnwrapped
+
+        static let torrentDownload: Foundation.URL = .init(string: "https://ehgt.org/g/t.png").forceUnwrapped
+        static let torrentDownloadInvalid: Foundation.URL = .init(string: "https://ehgt.org/g/td.png").forceUnwrapped
 
         static let forum: Foundation.URL = .init(string: "https://forums.e-hentai.org/index.php").forceUnwrapped
         static let login = forum.appending(queryItems: [.act: .loginAct, .code: .zeroOne])

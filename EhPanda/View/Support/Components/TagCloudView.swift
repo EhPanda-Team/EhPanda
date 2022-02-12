@@ -8,32 +8,23 @@
 
 import SwiftUI
 
-struct TagCloudView: View {
-    private let tag: GalleryTag
-    private let font: Font
-    private let textColor: Color
-    private let backgroundColor: Color
-    private let paddingV: CGFloat
-    private let paddingH: CGFloat
-    private let onTapAction: (String) -> Void
-    private let translateAction: ((String) -> String)?
+struct TagCloudView<Element, ID, TagCell>: View
+where TagCell: View, Element: Equatable & Identifiable, ID == Element.ID {
+    private let data: [Element]
+    private let id: KeyPath<Element, ID>
+    private let spacing: Double
+    private let content: (Element) -> TagCell
 
     @State private var totalHeight = CGFloat.zero
 
-    init(
-        tag: GalleryTag, font: Font, textColor: Color,
-        backgroundColor: Color, paddingV: CGFloat, paddingH: CGFloat,
-        onTapAction: @escaping (String) -> Void = { _ in },
-        translateAction: ((String) -> String)? = nil
-    ) {
-        self.tag = tag
-        self.font = font
-        self.textColor = textColor
-        self.backgroundColor = backgroundColor
-        self.paddingV = paddingV
-        self.paddingH = paddingH
-        self.onTapAction = onTapAction
-        self.translateAction = translateAction
+    init<Data: RandomAccessCollection>(
+        data: Data, id: KeyPath<Element, ID> = \Element.id, spacing: Double = 4,
+        @ViewBuilder content: @escaping (Element) -> TagCell
+    ) where Data.Index == Int, Data.Element == Element {
+        self.data = .init(data)
+        self.id = id
+        self.spacing = spacing
+        self.content = content
     }
 
     var body: some View {
@@ -51,16 +42,16 @@ private extension TagCloudView {
         ZStack(alignment: .topLeading) {
             var width = CGFloat.zero
             var height = CGFloat.zero
-            ForEach(tag.content, id: \.self) { tag in
-                item(for: tag)
-                    .padding([.trailing, .bottom], 4)
+            ForEach(data, id: id) { content in
+                self.content(content)
+                    .padding([.trailing, .bottom], spacing)
                     .alignmentGuide(.leading, computeValue: { dimensions in
                         if abs(width - dimensions.width) > proxy.size.width {
                             width = 0
                             height -= dimensions.height
                         }
                         let result = width
-                        if tag == self.tag.content.last {
+                        if content == data.last {
                             width = 0 // last item
                         } else {
                             width -= dimensions.width
@@ -69,7 +60,7 @@ private extension TagCloudView {
                     })
                     .alignmentGuide(.top, computeValue: { _ in
                         let result = height
-                        if tag == self.tag.content.last {
+                        if content == data.last {
                             height = 0 // last item
                         }
                         return result
@@ -77,24 +68,6 @@ private extension TagCloudView {
             }
         }
         .background(viewHeightReader(binding: $totalHeight))
-    }
-
-    @ViewBuilder func item(for text: String) -> some View {
-        let (rippedText, wrappedHex) = Parser.parseWrappedHex(string: text)
-        let containsHex = wrappedHex != nil
-        let textColor = containsHex ? .white : textColor
-        let translatedText = translateAction?(rippedText)
-        let displayText: String = translatedText == nil ? rippedText : translatedText.forceUnwrapped
-        let backgroundColor = containsHex ? Color(hex: wrappedHex.forceUnwrapped) : backgroundColor
-
-        Text(displayText).font(font.bold()).lineLimit(1).foregroundColor(textColor)
-            .padding(.vertical, paddingV).padding(.horizontal, paddingH).background(backgroundColor)
-            .cornerRadius(5).onTapGesture {
-                onTapAction(
-                    tag.category == .temp ? "\"\(text)$\"" : tag.namespace.lowercased()
-                    + ":" + "\"\(text)$\""
-                )
-            }
     }
 
     func viewHeightReader(binding: Binding<CGFloat>) -> some View {
@@ -105,5 +78,26 @@ private extension TagCloudView {
             }
             return .clear
         }
+    }
+}
+
+struct TagCloudCell: View {
+    private let text: String
+    private let font: Font
+    private let padding: EdgeInsets
+    private let textColor: Color
+    private let backgroundColor: Color
+
+    init(text: String, font: Font, padding: EdgeInsets, textColor: Color, backgroundColor: Color) {
+        self.text = text
+        self.font = font
+        self.padding = padding
+        self.textColor = textColor
+        self.backgroundColor = backgroundColor
+    }
+
+    var body: some View {
+        Text(text).font(font.bold()).lineLimit(1).foregroundColor(textColor)
+            .padding(padding).background(backgroundColor).cornerRadius(5)
     }
 }

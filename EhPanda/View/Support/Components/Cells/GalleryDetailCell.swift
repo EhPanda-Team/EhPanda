@@ -21,6 +21,10 @@ struct GalleryDetailCell: View {
         self.translateAction = translateAction
     }
 
+    private var tagColor: Color {
+        colorScheme == .light ? Color(.systemGray5) : Color(.systemGray4)
+    }
+
     var body: some View {
         HStack(spacing: 10) {
             KFImage(gallery.coverURL)
@@ -30,13 +34,16 @@ struct GalleryDetailCell: View {
                 Text(gallery.title).lineLimit(3).font(.headline).foregroundStyle(.primary)
                     .fixedSize(horizontal: false, vertical: true)
                 Text(gallery.uploader ?? "").lineLimit(1).font(.subheadline).foregroundStyle(.secondary)
-                if setting.showsTagsInList, !tags.isEmpty {
-                    TagCloudView(
-                        tag: GalleryTag(content: tags), font: .caption2,
-                        textColor: .secondary, backgroundColor: tagColor,
-                        paddingV: 2, paddingH: 4, translateAction: translateAction
-                    )
-                    .allowsHitTesting(false)
+                let tagContents = gallery.tagContents(maximum: setting.listTagsNumberMaximum)
+                if setting.showsTagsInList, !tagContents.isEmpty {
+                    TagCloudView(data: gallery.tagContents(maximum: setting.listTagsNumberMaximum)) { content in
+                        TagCloudCell(
+                            text: content.localizedDisplayText(translateAction: translateAction),
+                            font: .caption2, padding: .init(top: 2, leading: 4, bottom: 2, trailing: 4),
+                            textColor: content.backgroundColor != nil ? .white : .secondary,
+                            backgroundColor: content.backgroundColor ?? tagColor
+                        )
+                    }
                 }
                 HStack {
                     RatingView(rating: gallery.rating).font(.caption).foregroundStyle(.yellow)
@@ -61,17 +68,6 @@ struct GalleryDetailCell: View {
             .drawingGroup()
         }
         .padding(.vertical, 5).padding(.leading, -10).padding(.trailing, -5)
-    }
-}
-
-private extension GalleryDetailCell {
-    var tags: [String] {
-        let maximum = setting.listTagsNumberMaximum
-        guard maximum > 0 else { return gallery.tagStrings }
-        return Array(gallery.tagStrings.prefix(min(gallery.tagStrings.count, maximum)))
-    }
-    var tagColor: Color {
-        colorScheme == .light ? Color(.systemGray5) : Color(.systemGray4)
     }
 }
 

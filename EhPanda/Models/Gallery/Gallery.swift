@@ -24,9 +24,8 @@ struct Gallery: Identifiable, Codable, Equatable, Hashable {
             token: "",
             title: "",
             rating: 0.0,
-            tagStrings: [],
+            tags: [],
             category: .doujinshi,
-            language: .japanese,
             uploader: "",
             pageCount: 1,
             postedDate: .now,
@@ -39,9 +38,8 @@ struct Gallery: Identifiable, Codable, Equatable, Hashable {
         token: "",
         title: "Preview",
         rating: 3.5,
-        tagStrings: [],
+        tags: [],
         category: .doujinshi,
-        language: .japanese,
         uploader: "Anonymous",
         pageCount: 1,
         postedDate: .now,
@@ -61,6 +59,18 @@ struct Gallery: Identifiable, Codable, Equatable, Hashable {
         title = title.barcesAndSpacesRemoved
         return title
     }
+    var language: Language? {
+        let rawValue = tags
+            .first(where: { $0.category == .language })?.contents
+            .first(where: { Language(rawValue: $0.firstLetterCapitalizedText) != nil })
+            .map(\.firstLetterCapitalizedText) ?? ""
+        return .init(rawValue: rawValue)
+    }
+    func tagContents(maximum: Int) -> [GalleryTag.Content] {
+        let tagContents = tags.flatMap(\.contents)
+        guard maximum > 0 else { return tagContents }
+        return .init(tagContents.prefix(min(tagContents.count, maximum)))
+    }
 
     var id: String { gid }
     let gid: String
@@ -68,9 +78,8 @@ struct Gallery: Identifiable, Codable, Equatable, Hashable {
 
     var title: String
     var rating: Float
-    var tagStrings: [String]
+    var tags: [GalleryTag]
     let category: Category
-    var language: Language?
     var uploader: String?
     var pageCount: Int
     let postedDate: Date

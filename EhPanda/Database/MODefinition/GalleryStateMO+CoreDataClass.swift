@@ -26,8 +26,7 @@ extension GalleryStateMO: ManagedObjectProtocol {
 }
 
 extension GalleryState: ManagedObjectConvertible {
-    @discardableResult
-    func toManagedObject(in context: NSManagedObjectContext) -> GalleryStateMO {
+    @discardableResult func toManagedObject(in context: NSManagedObjectContext) -> GalleryStateMO {
         let galleryStateMO = GalleryStateMO(context: context)
 
         galleryStateMO.gid = gid

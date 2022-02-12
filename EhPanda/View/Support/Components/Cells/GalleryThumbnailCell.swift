@@ -21,6 +21,13 @@ struct GalleryThumbnailCell: View {
         self.translateAction = translateAction
     }
 
+    private var backgroundColor: Color {
+        colorScheme == .light ? Color(.systemGray6) : Color(.systemGray5)
+    }
+    private var tagColor: Color {
+        colorScheme == .light ? Color(.systemGray5) : Color(.systemGray4)
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             KFImage(gallery.coverURL)
@@ -44,13 +51,16 @@ struct GalleryThumbnailCell: View {
                 }
             VStack(alignment: .leading) {
                 Text(gallery.title).font(.callout.bold()).lineLimit(3)
-                if setting.showsTagsInList, !gallery.tagStrings.isEmpty {
-                    TagCloudView(
-                        tag: GalleryTag(content: tags), font: .caption2,
-                        textColor: .secondary, backgroundColor: tagColor,
-                        paddingV: 2, paddingH: 4, translateAction: translateAction
-                    )
-                    .allowsHitTesting(false)
+                let tagContents = gallery.tagContents(maximum: setting.listTagsNumberMaximum)
+                if setting.showsTagsInList, !tagContents.isEmpty {
+                    TagCloudView(data: gallery.tagContents(maximum: setting.listTagsNumberMaximum)) { content in
+                        TagCloudCell(
+                            text: content.localizedDisplayText(translateAction: translateAction),
+                            font: .caption2, padding: .init(top: 2, leading: 4, bottom: 2, trailing: 4),
+                            textColor: content.backgroundColor != nil ? .white : .secondary,
+                            backgroundColor: content.backgroundColor ?? tagColor
+                        )
+                    }
                 }
                 HStack {
                     RatingView(rating: gallery.rating).foregroundColor(.yellow).font(.caption)
@@ -70,20 +80,6 @@ struct GalleryThumbnailCell: View {
             .padding()
         }
         .background(backgroundColor).cornerRadius(15)
-    }
-}
-
-private extension GalleryThumbnailCell {
-    var backgroundColor: Color {
-        colorScheme == .light ? Color(.systemGray6) : Color(.systemGray5)
-    }
-    var tagColor: Color {
-        colorScheme == .light ? Color(.systemGray5) : Color(.systemGray4)
-    }
-    var tags: [String] {
-        let maximum = setting.listTagsNumberMaximum
-        guard maximum > 0 else { return gallery.tagStrings }
-        return Array(gallery.tagStrings.prefix(min(gallery.tagStrings.count, maximum)))
     }
 }
 
