@@ -13,7 +13,7 @@ where PageView: View, Element: Equatable, ID: Hashable, G: Gesture {
     @State var performingChanges = false
 
     private let pagerModel: Page
-    private var data: [Element]
+    private let data: [Element]
     private let id: KeyPath<Element, ID>
     private let spacing: CGFloat
     private let gesture: G
@@ -25,7 +25,7 @@ where PageView: View, Element: Equatable, ID: Hashable, G: Gesture {
         @ViewBuilder content: @escaping (Element) -> PageView
     ) where Data.Index == Int, Data.Element == Element {
         self.pagerModel = page
-        self.data = Array(data)
+        self.data = .init(data)
         self.id = id
         self.spacing = spacing
         self.gesture = gesture

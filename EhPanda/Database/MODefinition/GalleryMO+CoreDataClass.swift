@@ -14,9 +14,8 @@ extension GalleryMO: ManagedObjectProtocol {
         Gallery(
             gid: gid, token: token,
             title: title, rating: rating,
-            tagStrings: tagStrings?.toObject() ?? [String](),
+            tags: tags?.toObject() ?? [GalleryTag](),
             category: Category(rawValue: category) ?? .private,
-            language: Language(rawValue: language ?? ""),
             uploader: uploader, pageCount: Int(pageCount),
             postedDate: postedDate,
             coverURL: coverURL, galleryURL: galleryURL,
@@ -25,20 +24,18 @@ extension GalleryMO: ManagedObjectProtocol {
     }
 }
 extension Gallery: ManagedObjectConvertible {
-    @discardableResult
-    func toManagedObject(in context: NSManagedObjectContext) -> GalleryMO {
+    @discardableResult func toManagedObject(in context: NSManagedObjectContext) -> GalleryMO {
         let galleryMO = GalleryMO(context: context)
 
         galleryMO.gid = gid
         galleryMO.category = category.rawValue
         galleryMO.coverURL = coverURL
         galleryMO.galleryURL = galleryURL
-        galleryMO.language = language?.rawValue
         galleryMO.lastOpenDate = lastOpenDate
         galleryMO.pageCount = Int64(pageCount)
         galleryMO.postedDate = postedDate
         galleryMO.rating = rating
-        galleryMO.tagStrings = tagStrings.toData()
+        galleryMO.tags = tags.toData()
         galleryMO.title = title
         galleryMO.token = token
         galleryMO.uploader = uploader

@@ -7,11 +7,36 @@
 
 enum HTMLFilename: String {
     // List
-    case frontpage = "FrontPage"
-    case watched = "Watched"
-    case popular = "Popular"
-    case favorites = "Favorites"
-    case toplists = "Toplists"
+    // FrontPage
+    case frontPageMinimalList = "FrontPageMinimalList"
+    case frontPageMinimalPlusList = "FrontPageMinimalPlusList"
+    case frontPageCompactList = "FrontPageCompactList"
+    case frontPageExtendedList = "FrontPageExtendedList"
+    case frontPageThumbnailList = "FrontPageThumbnailList"
+
+    // Watched
+    case watchedMinimalList = "WatchedMinimalList"
+    case watchedMinimalPlusList = "WatchedMinimalPlusList"
+    case watchedCompactList = "WatchedCompactList"
+    case watchedExtendedList = "WatchedExtendedList"
+    case watchedThumbnailList = "WatchedThumbnailList"
+
+    // Popular
+    case popularMinimalList = "PopularMinimalList"
+    case popularMinimalPlusList = "PopularMinimalPlusList"
+    case popularCompactList = "PopularCompactList"
+    case popularExtendedList = "PopularExtendedList"
+    case popularThumbnailList = "PopularThumbnailList"
+
+    // Favorites
+    case favoritesMinimalList = "FavoritesMinimalList"
+    case favoritesMinimalPlusList = "FavoritesMinimalPlusList"
+    case favoritesCompactList = "FavoritesCompactList"
+    case favoritesExtendedList = "FavoritesExtendedList"
+    case favoritesThumbnailList = "FavoritesThumbnailList"
+
+    // Toplists
+    case toplistsCompactList = "ToplistsCompactList"
 
     // Gallery
     case galleryDetail = "GalleryDetail"
