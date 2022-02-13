@@ -70,8 +70,8 @@ struct ReadingView: View {
                 sliderValue: $pageHandler.sliderValue, setting: $setting,
                 enablesLiveText: $liveTextHandler.enablesLiveText,
                 autoPlayPolicy: .init(get: { autoPlayHandler.policy }, set: setAutoPlayPolocy),
-                range: 1...Float(viewStore.gallery.pageCount),
-                previewURLs: viewStore.previewURLs,
+                range: 1...Float(viewStore.gallery.pageCount), previewURLs: viewStore.previewURLs,
+                isLiveTextAvailable: viewStore.galleryDetail?.language.isLiveTextAvailable ?? false,
                 dismissGesture: controlPanelDismissGesture,
                 dismissAction: { viewStore.send(.onPerformDismiss) },
                 navigateSettingAction: { viewStore.send(.setNavigation(.readingSetting)) },
@@ -122,8 +122,12 @@ struct ReadingView: View {
                 index: pageIndex, pageCount: viewStore.gallery.pageCount, setting: setting
             )
             pageHandler.sliderValue = .init(newValue)
-            if pageIndex != 0 {
+            if viewStore.databaseLoadingState == .idle {
                 viewStore.send(.syncReadingProgress(.init(newValue)))
+            }
+            if liveTextHandler.enablesLiveText {
+                liveTextHandler.cancelRequests()
+                analyzeImageForLiveText(index: newValue)
             }
         }
         .onChange(of: pageHandler.sliderValue) { sliderValue in
@@ -134,9 +138,6 @@ struct ReadingView: View {
             if page.index != newValue {
                 page.update(.new(index: newValue))
                 Logger.info("Pager.update", context: ["update": newValue])
-            }
-            if liveTextHandler.enablesLiveText {
-                analyzeImageForLiveText(index: .init(sliderValue))
             }
         }
         .onChange(of: viewStore.readingProgress) { readingProgress in
@@ -214,8 +215,7 @@ extension ReadingView {
     }
     func analyzeImageForLiveText(index: Int) {
         Logger.info("analyzeImageForLiveText", context: ["index": index])
-        let liveTextGroups = liveTextHandler.liveTextGroups[index]
-        guard liveTextGroups == nil || liveTextGroups?.isEmpty == true else {
+        guard liveTextHandler.liveTextGroups[index] == nil else {
             Logger.info("analyzeImageForLiveText duplicated", context: ["index": index])
             return
         }
@@ -488,7 +488,6 @@ private struct ImageContainer: View {
                 LiveTextView(liveTextGroups: liveTextGroups)
                     .opacity(enablesLiveText ? 1 : 0)
             )
-            .animation(.default, value: enablesLiveText)
         } else {
             ZStack {
                 backgroundColor

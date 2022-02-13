@@ -16,6 +16,9 @@ enum Language: String, Codable {
 }
 
 extension Language {
+    var isLiveTextAvailable: Bool {
+        !codes.isEmpty
+    }
     var codes: [String] {
         switch self {
         case .english:

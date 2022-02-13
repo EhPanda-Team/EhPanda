@@ -19,6 +19,7 @@ struct ControlPanel<G: Gesture>: View {
 
     private let range: ClosedRange<Float>
     private let previewURLs: [Int: URL]
+    private let isLiveTextAvailable: Bool
     private let dismissGesture: G
     private let dismissAction: () -> Void
     private let navigateSettingAction: () -> Void
@@ -29,7 +30,7 @@ struct ControlPanel<G: Gesture>: View {
     init(
         showsPanel: Binding<Bool>, showsSliderPreview: Binding<Bool>, sliderValue: Binding<Float>,
         setting: Binding<Setting>, enablesLiveText: Binding<Bool>, autoPlayPolicy: Binding<AutoPlayPolicy>,
-        range: ClosedRange<Float>, previewURLs: [Int: URL], dismissGesture: G,
+        range: ClosedRange<Float>, previewURLs: [Int: URL], isLiveTextAvailable: Bool, dismissGesture: G,
         dismissAction: @escaping () -> Void,
         navigateSettingAction: @escaping () -> Void,
         reloadAllImagesAction: @escaping () -> Void,
@@ -44,6 +45,7 @@ struct ControlPanel<G: Gesture>: View {
         _autoPlayPolicy = autoPlayPolicy
         self.range = range
         self.previewURLs = previewURLs
+        self.isLiveTextAvailable = isLiveTextAvailable
         self.dismissGesture = dismissGesture
         self.dismissAction = dismissAction
         self.navigateSettingAction = navigateSettingAction
@@ -60,6 +62,7 @@ struct ControlPanel<G: Gesture>: View {
         VStack {
             UpperPanel(
                 title: title,
+                isLiveTextAvailable: isLiveTextAvailable,
                 setting: $setting,
                 enablesLiveText: $enablesLiveText,
                 autoPlayPolicy: $autoPlayPolicy,
@@ -93,13 +96,16 @@ private struct UpperPanel: View {
     @Binding private var autoPlayPolicy: AutoPlayPolicy
 
     private let title: String
+    private let isLiveTextAvailable: Bool
     private let dismissAction: () -> Void
     private let navigateSettingAction: () -> Void
     private let reloadAllImagesAction: () -> Void
     private let retryAllFailedImagesAction: () -> Void
 
     init(
-        title: String, setting: Binding<Setting>,
+        title: String,
+        isLiveTextAvailable: Bool,
+        setting: Binding<Setting>,
         enablesLiveText: Binding<Bool>,
         autoPlayPolicy: Binding<AutoPlayPolicy>,
         dismissAction: @escaping () -> Void,
@@ -108,6 +114,7 @@ private struct UpperPanel: View {
         retryAllFailedImagesAction: @escaping () -> Void
     ) {
         self.title = title
+        self.isLiveTextAvailable = isLiveTextAvailable
         _setting = setting
         _enablesLiveText = enablesLiveText
         _autoPlayPolicy = autoPlayPolicy
@@ -128,6 +135,14 @@ private struct UpperPanel: View {
                 Slider(value: .constant(0)).opacity(0)
                 Spacer()
                 HStack(spacing: 20) {
+                    if isLiveTextAvailable {
+                        Button {
+                            enablesLiveText.toggle()
+                        } label: {
+                            Image(systemSymbol: .viewfinderCircle)
+                                .symbolVariant(enablesLiveText ? .fill : .none)
+                        }
+                    }
                     if DeviceUtil.isLandscape && setting.readingDirection != .vertical {
                         Menu {
                             Button {
@@ -166,12 +181,6 @@ private struct UpperPanel: View {
                         }
                     } label: {
                         Image(systemSymbol: .timer)
-                    }
-                    Button {
-                        enablesLiveText.toggle()
-                    } label: {
-                        Image(systemSymbol: .viewfinderCircle)
-                            .symbolVariant(enablesLiveText ? .fill : .none)
                     }
                     ToolbarFeaturesMenu {
                         Button(action: retryAllFailedImagesAction) {

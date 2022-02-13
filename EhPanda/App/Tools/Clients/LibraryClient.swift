@@ -78,7 +78,6 @@ extension LibraryClient {
         calculateWebImageDiskCacheSize: {
             Future(KingfisherManager.shared.cache.calculateDiskStorageSize)
                 .eraseToAnyPublisher()
-                .subscribe(on: DispatchQueue.global())
                 .receive(on: DispatchQueue.main)
                 .catchToEffect()
         }

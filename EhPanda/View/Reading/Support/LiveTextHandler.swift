@@ -28,6 +28,9 @@ final class LiveTextHandler: ObservableObject {
     }
 
     func cancelRequests() {
+        Logger.info("cancelRequests", context: [
+            "processingRequestsCount": processingRequests.count
+        ])
         processingRequests.forEach { request in
             request.cancel()
         }
@@ -52,7 +55,14 @@ final class LiveTextHandler: ObservableObject {
         do {
             try requestHandler.perform([textRecognitionRequest])
         } catch {
+            removeRequest(textRecognitionRequest)
             Logger.info("Unable to perform the requests.", context: ["error": error])
+        }
+    }
+
+    private func removeRequest(_ request: VNRequest) {
+        if let index = processingRequests.firstIndex(of: request) {
+            processingRequests.remove(at: index)
         }
     }
 
@@ -60,55 +70,57 @@ final class LiveTextHandler: ObservableObject {
         Logger.info("textRecognitionHandler", context: [
             "request": request, "error": error as Any, "index": index
         ])
-        if let index = processingRequests.firstIndex(of: request) {
-            processingRequests.remove(at: index)
-        }
+        removeRequest(request)
+        liveTextGroups[index] = .init()
 
         guard let observations = request.results as? [VNRecognizedTextObservation] else { return }
 
-        let blocks: [LiveTextBlock] = observations.compactMap { observation in
-            guard let recognizedText = observation.topCandidates(1).first?.string else { return nil }
-            return .init(
-                text: recognizedText,
-                bounds: .init(
-                    topLeft: observation.topLeft,
-                    topRight: observation.topRight,
-                    bottomLeft: observation.bottomLeft,
-                    bottomRight: observation.bottomRight
-                )
-            )
-        }
-
-        var groupData = [[LiveTextBlock]]()
-        blocks.forEach { newItem in
-            if let groupIndex = groupData.firstIndex(where: { items in
-                items.first { item in
-                    let angle = abs(item.bounds.angle - newItem.bounds.angle).truncatingRemainder(dividingBy: 360.0)
-                    let isAngleValid = angle < 10 || angle > (360 - 10)
-
-                    let isHeightValid = abs(item.bounds.height - newItem.bounds.height)
-                    < (min(item.bounds.height, newItem.bounds.height) / 2)
-
-                    guard isAngleValid && isHeightValid else { return false }
-                    return polygonsIntersecting(
-                        lhs: item.bounds.halfHeightExpanded.edges,
-                        rhs: newItem.bounds.halfHeightExpanded.edges
+        DispatchQueue.global(qos: .userInteractive).async { [weak self] in
+            guard let self = self else { return }
+            let blocks: [LiveTextBlock] = observations.compactMap { observation in
+                guard let recognizedText = observation.topCandidates(1).first?.string else { return nil }
+                return .init(
+                    text: recognizedText,
+                    bounds: .init(
+                        topLeft: observation.topLeft,
+                        topRight: observation.topRight,
+                        bottomLeft: observation.bottomLeft,
+                        bottomRight: observation.bottomRight
                     )
-                } != nil
-            }) {
-                groupData[groupIndex].append(newItem)
-            } else {
-                groupData.append([newItem])
+                )
             }
-        }
 
-        DispatchQueue.main.async { [weak self] in
-            self?.liveTextGroups[index] = groupData.compactMap(LiveTextGroup.init)
+            var groupData = [[LiveTextBlock]]()
+            blocks.forEach { newItem in
+                if let groupIndex = groupData.firstIndex(where: { items in
+                    items.first { item in
+                        let angle = abs(item.bounds.angle - newItem.bounds.angle).truncatingRemainder(dividingBy: 360.0)
+                        let isAngleValid = angle < 10 || angle > (360 - 10)
+
+                        let isHeightValid = abs(item.bounds.height - newItem.bounds.height)
+                        < (min(item.bounds.height, newItem.bounds.height) / 2)
+
+                        guard isAngleValid && isHeightValid else { return false }
+                        return self.polygonsIntersecting(
+                            lhs: item.bounds.halfHeightExpanded.edges,
+                            rhs: newItem.bounds.halfHeightExpanded.edges
+                        )
+                    } != nil
+                }) {
+                    groupData[groupIndex].append(newItem)
+                } else {
+                    groupData.append([newItem])
+                }
+            }
+
+            let groups = groupData.compactMap(LiveTextGroup.init)
+            DispatchQueue.main.async {
+                self.liveTextGroups[index] = groups
+            }
         }
     }
 
     private func polygonsIntersecting(lhs: [CGPoint], rhs: [CGPoint]) -> Bool {
-        Logger.info("polygonsIntersecting", context: ["lhs": lhs, "rhs": rhs])
         guard !lhs.isEmpty, !rhs.isEmpty, lhs.count == rhs.count else { return false }
         for points in [lhs, rhs] {
             for index1 in 0..<points.count {

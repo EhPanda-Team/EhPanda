@@ -76,8 +76,8 @@ private struct HighlightView: UIViewRepresentable {
             self.highLightView = highLightView
         }
 
-        @objc func tapClick(sender: UIView) {
-            print(textView?.text ?? "")
+        @objc func onTap(sender: UIView) {
+            Logger.info("onTap", context: ["tappedText": textView?.text])
             textView?.selectAll(nil)
             textView?.perform(NSSelectorFromString("_translate:"), with: nil)
         }
@@ -105,11 +105,11 @@ private struct HighlightView: UIViewRepresentable {
         textView.textColor = .clear
         textView.backgroundColor = .clear
         textView.autocapitalizationType = .sentences
-        textView.isSelectable = false
+        textView.isSelectable = true
         textView.isUserInteractionEnabled = true
         let tap = UITapGestureRecognizer(
             target: context.coordinator,
-            action: #selector(Coordinator.tapClick(sender:))
+            action: #selector(Coordinator.onTap(sender:))
         )
         textView.addGestureRecognizer(tap)
         return textView
