@@ -132,12 +132,14 @@ struct ReadingView: View {
         }
         .onChange(of: pageHandler.sliderValue) { sliderValue in
             Logger.info("pageHandler.sliderValue changed", context: ["sliderValue": sliderValue])
-            let newValue = pageHandler.mapToPager(
-                index: .init(sliderValue), setting: setting
-            )
-            if page.index != newValue {
-                page.update(.new(index: newValue))
-                Logger.info("Pager.update", context: ["update": newValue])
+            if !viewStore.showsSliderPreview {
+                setPageIndex(sliderValue: sliderValue)
+            }
+        }
+        .onChange(of: viewStore.showsSliderPreview) { newValue in
+            Logger.info("viewStore.showsSliderPreview changed", context: ["newValue": newValue])
+            if !newValue {
+                setPageIndex(sliderValue: pageHandler.sliderValue)
             }
         }
         .onChange(of: viewStore.readingProgress) { readingProgress in
@@ -207,6 +209,15 @@ struct ReadingView: View {
 
 // MARK: Handler methods
 extension ReadingView {
+    func setPageIndex(sliderValue: Float) {
+        let newValue = pageHandler.mapToPager(
+            index: .init(sliderValue), setting: setting
+        )
+        if page.index != newValue {
+            page.update(.new(index: newValue))
+            Logger.info("Pager.update", context: ["update": newValue])
+        }
+    }
     func setAutoPlayPolocy(_ policy: AutoPlayPolicy) {
         autoPlayHandler.setPolicy(policy, updatePageAction: {
             page.update(.next)
