@@ -38,6 +38,7 @@ final class LiveTextHandler: ObservableObject {
     }
 
     func setFocusedLiveTextGroup(_ group: LiveTextGroup) {
+        Logger.info("setFocusedLiveTextGroup", context: ["group": group])
         focusedLiveTextGroup = group
     }
 
@@ -79,9 +80,6 @@ final class LiveTextHandler: ObservableObject {
             "request": request, "error": error as Any, "index": index
         ])
         removeRequest(request)
-        DispatchQueue.main.async { [weak self] in
-            self?.liveTextGroups[index] = .init()
-        }
 
         guard let observations = request.results as? [VNRecognizedTextObservation] else { return }
 
