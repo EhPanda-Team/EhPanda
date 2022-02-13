@@ -187,7 +187,9 @@
 		ABC3C78F2593699B00E0C11B /* ViewModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC3C7762593699A00E0C11B /* ViewModifiers.swift */; };
 		ABC4A0792751B40E00968A4F /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = ABC4A0782751B40E00968A4F /* Kingfisher */; };
 		ABC681F326898D46007BBD69 /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = ABC681F126898D46007BBD69 /* Model.xcdatamodeld */; };
-		ABC732C127B8962000D47DA9 /* TextRecognitionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC732C027B8962000D47DA9 /* TextRecognitionHandler.swift */; };
+		ABC732C127B8962000D47DA9 /* LiveTextHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC732C027B8962000D47DA9 /* LiveTextHandler.swift */; };
+		ABC732C527B9024500D47DA9 /* LiveText.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC732C427B9024500D47DA9 /* LiveText.swift */; };
+		ABC732C727B90F0900D47DA9 /* LiveTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC732C627B90F0900D47DA9 /* LiveTextView.swift */; };
 		ABC8355D27B118330091DCDB /* DetailSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC8355C27B118330091DCDB /* DetailSearchView.swift */; };
 		ABC8355F27B118370091DCDB /* DetailSearchStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC8355E27B118370091DCDB /* DetailSearchStore.swift */; };
 		ABC8356127B357C50091DCDB /* GestureHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC8356027B357C50091DCDB /* GestureHandler.swift */; };
@@ -456,7 +458,9 @@
 		ABC3C7762593699A00E0C11B /* ViewModifiers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewModifiers.swift; sourceTree = "<group>"; };
 		ABC4A07A2753084100968A4F /* Model 5.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Model 5.xcdatamodel"; sourceTree = "<group>"; };
 		ABC681F226898D46007BBD69 /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
-		ABC732C027B8962000D47DA9 /* TextRecognitionHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextRecognitionHandler.swift; sourceTree = "<group>"; };
+		ABC732C027B8962000D47DA9 /* LiveTextHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LiveTextHandler.swift; sourceTree = "<group>"; };
+		ABC732C427B9024500D47DA9 /* LiveText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveText.swift; sourceTree = "<group>"; };
+		ABC732C627B90F0900D47DA9 /* LiveTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveTextView.swift; sourceTree = "<group>"; };
 		ABC8355C27B118330091DCDB /* DetailSearchView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DetailSearchView.swift; sourceTree = "<group>"; };
 		ABC8355E27B118370091DCDB /* DetailSearchStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DetailSearchStore.swift; sourceTree = "<group>"; };
 		ABC8356027B357C50091DCDB /* GestureHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GestureHandler.swift; sourceTree = "<group>"; };
@@ -623,12 +627,13 @@
 		AB24C561276757A30085C33A /* Support */ = {
 			isa = PBXGroup;
 			children = (
+				ABC732C627B90F0900D47DA9 /* LiveTextView.swift */,
 				AB69CB8126B3DAF400699359 /* ControlPanel.swift */,
 				AB69CB7F26B3DABC00699359 /* AdvancedList.swift */,
 				ABC8356227B366760091DCDB /* PageHandler.swift */,
 				ABC8356027B357C50091DCDB /* GestureHandler.swift */,
+				ABC732C027B8962000D47DA9 /* LiveTextHandler.swift */,
 				ABC8356427B36E550091DCDB /* AutoPlayHandler.swift */,
-				ABC732C027B8962000D47DA9 /* TextRecognitionHandler.swift */,
 			);
 			path = Support;
 			sourceTree = "<group>";
@@ -896,6 +901,7 @@
 			isa = PBXGroup;
 			children = (
 				ABF313A425B1AB6600D47A2F /* Misc.swift */,
+				ABC732C427B9024500D47DA9 /* LiveText.swift */,
 				ABF45AB625F3312F00ECB568 /* AppError.swift */,
 				AB8C821826BF801700E8C5E6 /* EhSetting.swift */,
 				AB7BF2AA27A642FB001865A3 /* BrowsingCountry.swift */,
@@ -1606,7 +1612,7 @@
 				AB7BF2C427A9683F001865A3 /* GalleryArchive.swift in Sources */,
 				ABF45AF525F3313D00ECB568 /* ReadingSettingView.swift in Sources */,
 				AB38A0CB25CA993D00764D64 /* ColorCodable.swift in Sources */,
-				ABC732C127B8962000D47DA9 /* TextRecognitionHandler.swift in Sources */,
+				ABC732C127B8962000D47DA9 /* LiveTextHandler.swift in Sources */,
 				ABBB2675279B933D007B6149 /* ReadingStore.swift in Sources */,
 				ABF45AF425F3313D00ECB568 /* WebView.swift in Sources */,
 				AB7B29F626AC741600EE1F14 /* GenericList.swift in Sources */,
@@ -1640,7 +1646,9 @@
 				ABA732DF25A852D800B3D9AB /* Filter.swift in Sources */,
 				AB7BF31E27ABE028001865A3 /* NSPersistentStoreCoordinator+SQLite.swift in Sources */,
 				ABC1FAB82642C37D00A9F352 /* NewDawnView.swift in Sources */,
+				ABC732C527B9024500D47DA9 /* LiveText.swift in Sources */,
 				ABF45AE825F3313D00ECB568 /* LinkedText.swift in Sources */,
+				ABC732C727B90F0900D47DA9 /* LiveTextView.swift in Sources */,
 				AB0929B6277F043D00F107CA /* AccountSettingStore.swift in Sources */,
 				ABD49D67277EAC90003D1A07 /* URLUtil.swift in Sources */,
 				ABBB2638278FBD2F007B6149 /* SwiftUINavigation_Extension.swift in Sources */,

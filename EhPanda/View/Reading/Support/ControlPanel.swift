@@ -14,7 +14,9 @@ struct ControlPanel<G: Gesture>: View {
     @Binding private var showsSliderPreview: Bool
     @Binding private var sliderValue: Float
     @Binding private var setting: Setting
+    @Binding private var enablesLiveText: Bool
     @Binding private var autoPlayPolicy: AutoPlayPolicy
+
     private let range: ClosedRange<Float>
     private let previewURLs: [Int: URL]
     private let dismissGesture: G
@@ -26,8 +28,9 @@ struct ControlPanel<G: Gesture>: View {
 
     init(
         showsPanel: Binding<Bool>, showsSliderPreview: Binding<Bool>, sliderValue: Binding<Float>,
-        setting: Binding<Setting>, autoPlayPolicy: Binding<AutoPlayPolicy>, range: ClosedRange<Float>,
-        previewURLs: [Int: URL], dismissGesture: G, dismissAction: @escaping () -> Void,
+        setting: Binding<Setting>, enablesLiveText: Binding<Bool>, autoPlayPolicy: Binding<AutoPlayPolicy>,
+        range: ClosedRange<Float>, previewURLs: [Int: URL], dismissGesture: G,
+        dismissAction: @escaping () -> Void,
         navigateSettingAction: @escaping () -> Void,
         reloadAllImagesAction: @escaping () -> Void,
         retryAllFailedImagesAction: @escaping () -> Void,
@@ -37,6 +40,7 @@ struct ControlPanel<G: Gesture>: View {
         _showsSliderPreview = showsSliderPreview
         _sliderValue = sliderValue
         _setting = setting
+        _enablesLiveText = enablesLiveText
         _autoPlayPolicy = autoPlayPolicy
         self.range = range
         self.previewURLs = previewURLs
@@ -57,6 +61,7 @@ struct ControlPanel<G: Gesture>: View {
             UpperPanel(
                 title: title,
                 setting: $setting,
+                enablesLiveText: $enablesLiveText,
                 autoPlayPolicy: $autoPlayPolicy,
                 dismissAction: dismissAction,
                 navigateSettingAction: navigateSettingAction,
@@ -84,6 +89,7 @@ struct ControlPanel<G: Gesture>: View {
 // MARK: UpperPanel
 private struct UpperPanel: View {
     @Binding private var setting: Setting
+    @Binding private var enablesLiveText: Bool
     @Binding private var autoPlayPolicy: AutoPlayPolicy
 
     private let title: String
@@ -94,6 +100,7 @@ private struct UpperPanel: View {
 
     init(
         title: String, setting: Binding<Setting>,
+        enablesLiveText: Binding<Bool>,
         autoPlayPolicy: Binding<AutoPlayPolicy>,
         dismissAction: @escaping () -> Void,
         navigateSettingAction: @escaping () -> Void,
@@ -102,6 +109,7 @@ private struct UpperPanel: View {
     ) {
         self.title = title
         _setting = setting
+        _enablesLiveText = enablesLiveText
         _autoPlayPolicy = autoPlayPolicy
         self.dismissAction = dismissAction
         self.navigateSettingAction = navigateSettingAction
@@ -158,6 +166,12 @@ private struct UpperPanel: View {
                         }
                     } label: {
                         Image(systemSymbol: .timer)
+                    }
+                    Button {
+                        enablesLiveText.toggle()
+                    } label: {
+                        Image(systemSymbol: .viewfinderCircle)
+                            .symbolVariant(enablesLiveText ? .fill : .none)
                     }
                     ToolbarFeaturesMenu {
                         Button(action: retryAllFailedImagesAction) {
