@@ -52,11 +52,14 @@ final class LiveTextHandler: ObservableObject {
         }
 
         processingRequests.append(textRecognitionRequest)
-        do {
-            try requestHandler.perform([textRecognitionRequest])
-        } catch {
-            removeRequest(textRecognitionRequest)
-            Logger.info("Unable to perform the requests.", context: ["error": error])
+        DispatchQueue.global(qos: .utility).async { [weak self] in
+            guard let self = self else { return }
+            do {
+                try requestHandler.perform([textRecognitionRequest])
+            } catch {
+                self.removeRequest(textRecognitionRequest)
+                Logger.info("Unable to perform the requests.", context: ["error": error])
+            }
         }
     }
 
@@ -71,7 +74,9 @@ final class LiveTextHandler: ObservableObject {
             "request": request, "error": error as Any, "index": index
         ])
         removeRequest(request)
-        liveTextGroups[index] = .init()
+        DispatchQueue.main.async { [weak self] in
+            self?.liveTextGroups[index] = .init()
+        }
 
         guard let observations = request.results as? [VNRecognizedTextObservation] else { return }
 

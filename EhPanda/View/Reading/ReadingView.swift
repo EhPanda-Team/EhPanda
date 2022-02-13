@@ -176,6 +176,8 @@ struct ReadingView: View {
         }
 
         .animation(.linear(duration: 0.1), value: gestureHandler.offset)
+        .animation(.default, value: liveTextHandler.enablesLiveText)
+        .animation(.default, value: liveTextHandler.liveTextGroups)
         .animation(.default, value: gestureHandler.scale)
         .animation(.default, value: viewStore.showsPanel)
         .statusBar(hidden: !viewStore.showsPanel)

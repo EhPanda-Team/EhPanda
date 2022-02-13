@@ -328,7 +328,7 @@ struct Parser {
                 for divLink in link.xpath("//div") {
                     guard var text = divLink.text else { continue }
                     let displayText = text
-                    if let range = text.range(of: "|") {
+                    if let range = text.range(of: " | ") {
                         text = .init(text[..<range.lowerBound])
                     }
                     contents.append(.init(text: text, displayText: displayText, backgroundColor: nil))
