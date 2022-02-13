@@ -34,7 +34,7 @@ extension PersistenceController {
             completion(.failure(.databaseCorrupted("PersistentContainer was not set up properly.")))
             return
         }
-        DispatchQueue.global().async {
+        DispatchQueue.global(qos: .userInitiated).async {
             do {
                 try NSPersistentStoreCoordinator.destroyStore(at: storeURL)
             } catch {
@@ -73,7 +73,7 @@ extension PersistenceController {
         }
 
         if try migrator.requiresMigration(at: storeURL, toVersion: try CoreDataMigrationVersion.current()) {
-            DispatchQueue.global().async {
+            DispatchQueue.global(qos: .userInitiated).async {
                 do {
                     try migrator.migrateStore(at: storeURL, toVersion: try CoreDataMigrationVersion.current())
                 } catch {

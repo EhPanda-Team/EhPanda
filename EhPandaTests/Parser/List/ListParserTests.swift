@@ -17,7 +17,12 @@ class ListParserTests: XCTestCase, TestHelper {
         XCTAssertEqual(tuples.count, ListParserTestType.allCases.count)
 
         try tuples.forEach { type, document in
-            XCTAssertEqual(try Parser.parseGalleries(doc: document).count, type.assertCount, .init(describing: type))
+            let galleries = try Parser.parseGalleries(doc: document)
+            let uploaders = galleries.compactMap(\.uploader).filter(\.notEmpty)
+            XCTAssertEqual(galleries.count, type.assertCount, .init(describing: type))
+            if type.hasUploader {
+                XCTAssertEqual(uploaders.count, type.assertCount, .init(describing: type))
+            }
         }
     }
 }

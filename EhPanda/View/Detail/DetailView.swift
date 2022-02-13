@@ -10,9 +10,6 @@ import Kingfisher
 import ComposableArchitecture
 
 struct DetailView: View {
-    @Environment(\.colorScheme) private var colorScheme
-    @Environment(\.inSheet) private var inSheet
-
     private let store: Store<DetailState, DetailAction>
     @ObservedObject private var viewStore: ViewStore<DetailState, DetailAction>
     private let gid: String
@@ -32,10 +29,6 @@ struct DetailView: View {
         _setting = setting
         self.blurRadius = blurRadius
         self.tagTranslator = tagTranslator
-    }
-
-    private var commentsBackgroundColor: Color {
-        inSheet && colorScheme == .dark ? Color(.systemGray5) : Color(.systemGray6)
     }
 
     var body: some View {
@@ -105,7 +98,7 @@ struct DetailView: View {
                         )
                     }
                     CommentsSection(
-                        comments: viewStore.galleryComments, backgroundColor: commentsBackgroundColor,
+                        comments: viewStore.galleryComments,
                         navigateCommentAction: {
                             if let galleryURL = viewStore.gallery.galleryURL {
                                 viewStore.send(.setNavigation(.comments(galleryURL)))
@@ -562,10 +555,7 @@ private struct TagsSection: View {
     var body: some View {
         VStack(alignment: .leading) {
             ForEach(tags) { tag in
-                TagRow(
-                    tag: tag, navigateAction: navigateAction,
-                    translateAction: translateAction
-                )
+                TagRow(tag: tag, navigateAction: navigateAction, translateAction: translateAction)
             }
         }
         .padding(.horizontal)
@@ -575,13 +565,11 @@ private struct TagsSection: View {
 private extension TagsSection {
     struct TagRow: View {
         @Environment(\.colorScheme) private var colorScheme
+        @Environment(\.inSheet) private var inSheet
 
         private let tag: GalleryTag
         private let navigateAction: (String) -> Void
         private let translateAction: (String) -> String
-        private var reversedPrimary: Color {
-            colorScheme == .light ? .white : .black
-        }
 
         init(
             tag: GalleryTag,
@@ -593,15 +581,32 @@ private extension TagsSection {
             self.translateAction = translateAction
         }
 
+        private var reversedPrimary: Color {
+            colorScheme == .light ? .white : .black
+        }
+        private var backgroundColor: Color {
+            inSheet && colorScheme == .dark ? Color(.systemGray4) : Color(.systemGray5)
+        }
+        private var padding: EdgeInsets {
+            .init(top: 5, leading: 14, bottom: 5, trailing: 14)
+        }
+
         var body: some View {
             HStack(alignment: .top) {
                 Text(tag.category?.value ?? tag.namespace).font(.subheadline.bold())
-                    .foregroundColor(reversedPrimary).padding(.vertical, 5).padding(.horizontal, 14)
-                    .background(Rectangle().foregroundColor(Color(.systemGray))).cornerRadius(5)
-                TagCloudView(
-                    tag: tag, font: .subheadline, textColor: .primary, backgroundColor: Color(.systemGray5),
-                    paddingV: 5, paddingH: 14, onTapAction: navigateAction, translateAction: translateAction
-                )
+                    .foregroundColor(reversedPrimary).padding(padding)
+                    .background(Color(.systemGray)).cornerRadius(5)
+                TagCloudView(data: tag.contents) { content in
+                    Button {
+                        navigateAction(content.serachKeyword(tag: tag))
+                    } label: {
+                        TagCloudCell(
+                            text: content.localizedDisplayText(translateAction: translateAction),
+                            font: .subheadline, padding: padding, textColor: .primary,
+                            backgroundColor: backgroundColor
+                        )
+                    }
+                }
             }
         }
     }
@@ -659,20 +664,25 @@ private struct PreviewsSection: View {
 
 // MARK: CommentsSection
 private struct CommentsSection: View {
+    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.inSheet) private var inSheet
+
     private let comments: [GalleryComment]
-    private let backgroundColor: Color
     private let navigateCommentAction: () -> Void
     private let navigatePostCommentAction: () -> Void
 
     init(
-        comments: [GalleryComment], backgroundColor: Color,
+        comments: [GalleryComment],
         navigateCommentAction: @escaping () -> Void,
         navigatePostCommentAction: @escaping () -> Void
     ) {
         self.comments = comments
-        self.backgroundColor = backgroundColor
         self.navigateCommentAction = navigateCommentAction
         self.navigatePostCommentAction = navigatePostCommentAction
+    }
+
+    private var backgroundColor: Color {
+        inSheet && colorScheme == .dark ? Color(.systemGray5) : Color(.systemGray6)
     }
 
     var body: some View {

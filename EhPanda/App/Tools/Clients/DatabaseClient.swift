@@ -309,14 +309,11 @@ extension DatabaseClient {
                         managedObject?.category = gallery.category.rawValue
                         managedObject?.coverURL = gallery.coverURL
                         managedObject?.galleryURL = gallery.galleryURL
-                        if let language = gallery.language {
-                            managedObject?.language = language.rawValue
-                        }
                         // managedObject?.lastOpenDate = gallery.lastOpenDate
                         managedObject?.pageCount = Int64(gallery.pageCount)
                         managedObject?.postedDate = gallery.postedDate
                         managedObject?.rating = gallery.rating
-                        managedObject?.tagStrings = gallery.tagStrings.toData()
+                        managedObject?.tags = gallery.tags.toData()
                         managedObject?.title = gallery.title
                         managedObject?.token = gallery.token
                         if let uploader = gallery.uploader {
@@ -495,9 +492,9 @@ extension DatabaseClient {
         case .search:
             key = "searchFilter"
         case .global:
-            key = "watchedFilter"
-        case .watched:
             key = "globalFilter"
+        case .watched:
+            key = "watchedFilter"
         }
         return updateAppEnv(key: key, value: filter.toData())
     }

@@ -16,6 +16,29 @@ enum Language: String, Codable {
 }
 
 extension Language {
+    var isLiveTextAvailable: Bool {
+        !codes.isEmpty
+    }
+    var codes: [String] {
+        switch self {
+        case .english:
+            return ["en-US"]
+        case .french:
+            return ["fr-FR"]
+        case .italian:
+            return ["it-IT"]
+        case .german:
+            return ["de-DE"]
+        case .spanish:
+            return ["es-ES"]
+        case .portuguese:
+            return ["pt-BR"]
+        case .chinese:
+            return ["zh-Hans", "zh-Hant"]
+        default:
+            return []
+        }
+    }
     var abbreviation: String {
         switch self {
             // swiftlint:disable switch_case_alignment line_length

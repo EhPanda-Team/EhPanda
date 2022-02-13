@@ -325,11 +325,10 @@ struct GalleryReverseRequest: Request {
         if let detail = detail {
             return Gallery(
                 gid: url.pathComponents[2], token: url.pathComponents[3],
-                title: detail.title, rating: detail.rating, tagStrings: [],
-                category: detail.category, language: detail.language,
-                uploader: detail.uploader, pageCount: detail.pageCount,
-                postedDate: detail.postedDate, coverURL: detail.coverURL,
-                galleryURL: url
+                title: detail.title, rating: detail.rating, tags: [],
+                category: detail.category, uploader: detail.uploader,
+                pageCount: detail.pageCount, postedDate: detail.postedDate,
+                coverURL: detail.coverURL, galleryURL: url
             )
         } else {
             return nil

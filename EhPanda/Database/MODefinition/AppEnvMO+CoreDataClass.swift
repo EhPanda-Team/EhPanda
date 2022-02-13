@@ -25,8 +25,7 @@ extension AppEnvMO: ManagedObjectProtocol {
 }
 
 extension AppEnv: ManagedObjectConvertible {
-    @discardableResult
-    func toManagedObject(in context: NSManagedObjectContext) -> AppEnvMO {
+    @discardableResult func toManagedObject(in context: NSManagedObjectContext) -> AppEnvMO {
         let appEnvMO = AppEnvMO(context: context)
 
         appEnvMO.user = user.toData()

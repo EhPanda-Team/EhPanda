@@ -18,6 +18,7 @@ struct ReadingView: View {
     @Binding private var setting: Setting
     private let blurRadius: Double
 
+    @StateObject private var liveTextHandler = LiveTextHandler()
     @StateObject private var autoPlayHandler = AutoPlayHandler()
     @StateObject private var gestureHandler = GestureHandler()
     @StateObject private var pageHandler = PageHandler()
@@ -67,9 +68,10 @@ struct ReadingView: View {
                 showsPanel: viewStore.binding(\.$showsPanel),
                 showsSliderPreview: viewStore.binding(\.$showsSliderPreview),
                 sliderValue: $pageHandler.sliderValue, setting: $setting,
+                enablesLiveText: $liveTextHandler.enablesLiveText,
                 autoPlayPolicy: .init(get: { autoPlayHandler.policy }, set: setAutoPlayPolocy),
-                range: 1...Float(viewStore.gallery.pageCount),
-                previewURLs: viewStore.previewURLs,
+                range: 1...Float(viewStore.gallery.pageCount), previewURLs: viewStore.previewURLs,
+                isLiveTextAvailable: viewStore.galleryDetail?.language.isLiveTextAvailable ?? false,
                 dismissGesture: controlPanelDismissGesture,
                 dismissAction: { viewStore.send(.onPerformDismiss) },
                 navigateSettingAction: { viewStore.send(.setNavigation(.readingSetting)) },
@@ -105,8 +107,7 @@ struct ReadingView: View {
         }
         .sheet(unwrapping: viewStore.binding(\.$route), case: /ReadingState.Route.share) { route in
             ActivityView(activityItems: [route.wrappedValue])
-                .accentColor(setting.accentColor)
-                .autoBlur(radius: blurRadius)
+                .accentColor(setting.accentColor).autoBlur(radius: blurRadius)
         }
         .progressHUD(
             config: viewStore.hudConfig,
@@ -121,18 +122,24 @@ struct ReadingView: View {
                 index: pageIndex, pageCount: viewStore.gallery.pageCount, setting: setting
             )
             pageHandler.sliderValue = .init(newValue)
-            if pageIndex != 0 {
+            if viewStore.databaseLoadingState == .idle {
                 viewStore.send(.syncReadingProgress(.init(newValue)))
+            }
+            if liveTextHandler.enablesLiveText {
+                liveTextHandler.cancelRequests()
+                analyzeImageForLiveText(index: newValue)
             }
         }
         .onChange(of: pageHandler.sliderValue) { sliderValue in
             Logger.info("pageHandler.sliderValue changed", context: ["sliderValue": sliderValue])
-            let newValue = pageHandler.mapToPager(
-                index: .init(sliderValue), setting: setting
-            )
-            if page.index != newValue {
-                page.update(.new(index: newValue))
-                Logger.info("Pager.update", context: ["update": newValue])
+            if !viewStore.showsSliderPreview {
+                setPageIndex(sliderValue: sliderValue)
+            }
+        }
+        .onChange(of: viewStore.showsSliderPreview) { newValue in
+            Logger.info("viewStore.showsSliderPreview changed", context: ["newValue": newValue])
+            if !newValue {
+                setPageIndex(sliderValue: pageHandler.sliderValue)
             }
         }
         .onChange(of: viewStore.readingProgress) { readingProgress in
@@ -152,6 +159,16 @@ struct ReadingView: View {
             setAutoPlayPolocy(.off)
         }
 
+        // LiveText
+        .onChange(of: liveTextHandler.enablesLiveText) { newValue in
+            Logger.info("liveTextHandler.enablesLiveText changed", context: ["newValue": newValue])
+            if newValue {
+                analyzeImageForLiveText(index: .init(pageHandler.sliderValue))
+            } else {
+                liveTextHandler.cancelRequests()
+            }
+        }
+
         // Orientation
         .onChange(of: setting.enablesLandscape) { newValue in
             Logger.info("setting.enablesLandscape changed", context: ["newValue": newValue])
@@ -159,10 +176,15 @@ struct ReadingView: View {
         }
 
         .animation(.linear(duration: 0.1), value: gestureHandler.offset)
+        .animation(.default, value: liveTextHandler.enablesLiveText)
+        .animation(.default, value: liveTextHandler.liveTextGroups)
         .animation(.default, value: gestureHandler.scale)
         .animation(.default, value: viewStore.showsPanel)
         .statusBar(hidden: !viewStore.showsPanel)
-        .onDisappear { setAutoPlayPolocy(.off) }
+        .onDisappear {
+            liveTextHandler.cancelRequests()
+            setAutoPlayPolocy(.off)
+        }
         .onAppear { viewStore.send(.onAppear(setting.enablesLandscape)) }
     }
 
@@ -173,6 +195,9 @@ struct ReadingView: View {
             index: index, isDualPage: isDualPage, isDatabaseLoading: viewStore.databaseLoadingState != .idle,
             backgroundColor: backgroundColor, config: imageStackConfig, imageURLs: viewStore.imageURLs,
             originalImageURLs: viewStore.originalImageURLs, loadingStates: viewStore.imageURLLoadingStates,
+            enablesLiveText: liveTextHandler.enablesLiveText, liveTextGroups: liveTextHandler.liveTextGroups,
+            focusedLiveTextGroup: liveTextHandler.focusedLiveTextGroup,
+            liveTextTapAction: liveTextHandler.setFocusedLiveTextGroup,
             fetchAction: { viewStore.send(.fetchImageURLs($0)) },
             refetchAction: { viewStore.send(.refetchImageURLs($0)) },
             prefetchAction: { viewStore.send(.prefetchImages($0, setting.prefetchLimit)) },
@@ -186,13 +211,48 @@ struct ReadingView: View {
     }
 }
 
-// MARK: AutoPlay
+// MARK: Handler methods
 extension ReadingView {
+    func setPageIndex(sliderValue: Float) {
+        let newValue = pageHandler.mapToPager(
+            index: .init(sliderValue), setting: setting
+        )
+        if page.index != newValue {
+            page.update(.new(index: newValue))
+            Logger.info("Pager.update", context: ["update": newValue])
+        }
+    }
     func setAutoPlayPolocy(_ policy: AutoPlayPolicy) {
         autoPlayHandler.setPolicy(policy, updatePageAction: {
             page.update(.next)
             Logger.info("Pager.update", context: ["update": "next"])
         })
+    }
+    func analyzeImageForLiveText(index: Int) {
+        Logger.info("analyzeImageForLiveText", context: ["index": index])
+        guard liveTextHandler.liveTextGroups[index] == nil else {
+            Logger.info("analyzeImageForLiveText duplicated", context: ["index": index])
+            return
+        }
+        guard let key = viewStore.imageURLs[index]?.absoluteString else {
+            Logger.info("analyzeImageForLiveText URL not found", context: ["index": index])
+            return
+        }
+        KingfisherManager.shared.cache.retrieveImage(forKey: key) { result in
+            switch result {
+            case .success(let result):
+                if let image = result.image, let cgImage = image.cgImage {
+                    liveTextHandler.analyzeImage(
+                        cgImage, size: image.size, index: index, recognitionLanguages:
+                            viewStore.galleryDetail?.language.codes ?? []
+                    )
+                } else {
+                    Logger.info("analyzeImageForLiveText image not found", context: ["index": index])
+                }
+            case .failure(let error):
+                Logger.info("analyzeImageForLiveText failed", context: ["index": index, "error": error])
+            }
+        }
     }
 }
 
@@ -257,6 +317,10 @@ private struct HorizontalImageStack: View {
     private let imageURLs: [Int: URL]
     private let originalImageURLs: [Int: URL]
     private let loadingStates: [Int: LoadingState]
+    private let enablesLiveText: Bool
+    private let liveTextGroups: [Int: [LiveTextGroup]]
+    private let focusedLiveTextGroup: LiveTextGroup?
+    private let liveTextTapAction: (LiveTextGroup) -> Void
     private let fetchAction: (Int) -> Void
     private let refetchAction: (Int) -> Void
     private let prefetchAction: (Int) -> Void
@@ -270,7 +334,10 @@ private struct HorizontalImageStack: View {
     init(
         index: Int, isDualPage: Bool, isDatabaseLoading: Bool, backgroundColor: Color,
         config: ImageStackConfig, imageURLs: [Int: URL], originalImageURLs: [Int: URL],
-        loadingStates: [Int: LoadingState], fetchAction: @escaping (Int) -> Void,
+        loadingStates: [Int: LoadingState], enablesLiveText: Bool,
+        liveTextGroups: [Int: [LiveTextGroup]], focusedLiveTextGroup: LiveTextGroup?,
+        liveTextTapAction: @escaping (LiveTextGroup) -> Void,
+        fetchAction: @escaping (Int) -> Void,
         refetchAction: @escaping (Int) -> Void, prefetchAction: @escaping (Int) -> Void,
         loadRetryAction: @escaping (Int) -> Void, loadSucceededAction: @escaping (Int) -> Void,
         loadFailedAction: @escaping (Int) -> Void, copyImageAction: @escaping (URL) -> Void,
@@ -284,6 +351,10 @@ private struct HorizontalImageStack: View {
         self.imageURLs = imageURLs
         self.originalImageURLs = originalImageURLs
         self.loadingStates = loadingStates
+        self.enablesLiveText = enablesLiveText
+        self.liveTextGroups = liveTextGroups
+        self.focusedLiveTextGroup = focusedLiveTextGroup
+        self.liveTextTapAction = liveTextTapAction
         self.fetchAction = fetchAction
         self.refetchAction = refetchAction
         self.prefetchAction = prefetchAction
@@ -313,6 +384,10 @@ private struct HorizontalImageStack: View {
             loadingState: loadingStates[index] ?? .idle,
             isDualPage: isDualPage,
             backgroundColor: backgroundColor,
+            enablesLiveText: enablesLiveText,
+            liveTextGroups: liveTextGroups[index] ?? [],
+            focusedLiveTextGroup: focusedLiveTextGroup,
+            liveTextTapAction: liveTextTapAction,
             refetchAction: refetchAction,
             loadRetryAction: loadRetryAction,
             loadSucceededAction: loadSucceededAction,
@@ -378,6 +453,10 @@ private struct ImageContainer: View {
     private let loadingState: LoadingState
     private let isDualPage: Bool
     private let backgroundColor: Color
+    private let enablesLiveText: Bool
+    private let liveTextGroups: [LiveTextGroup]
+    private let focusedLiveTextGroup: LiveTextGroup?
+    private let liveTextTapAction: (LiveTextGroup) -> Void
     private let refetchAction: (Int) -> Void
     private let loadRetryAction: (Int) -> Void
     private let loadSucceededAction: (Int) -> Void
@@ -386,7 +465,12 @@ private struct ImageContainer: View {
     init(
         index: Int, imageURL: URL?,
         loadingState: LoadingState,
-        isDualPage: Bool, backgroundColor: Color,
+        isDualPage: Bool,
+        backgroundColor: Color,
+        enablesLiveText: Bool,
+        liveTextGroups: [LiveTextGroup],
+        focusedLiveTextGroup: LiveTextGroup?,
+        liveTextTapAction: @escaping (LiveTextGroup) -> Void,
         refetchAction: @escaping (Int) -> Void,
         loadRetryAction: @escaping (Int) -> Void,
         loadSucceededAction: @escaping (Int) -> Void,
@@ -397,6 +481,10 @@ private struct ImageContainer: View {
         self.loadingState = loadingState
         self.isDualPage = isDualPage
         self.backgroundColor = backgroundColor
+        self.enablesLiveText = enablesLiveText
+        self.liveTextGroups = liveTextGroups
+        self.focusedLiveTextGroup = focusedLiveTextGroup
+        self.liveTextTapAction = liveTextTapAction
         self.refetchAction = refetchAction
         self.loadRetryAction = loadRetryAction
         self.loadSucceededAction = loadSucceededAction
@@ -425,7 +513,14 @@ private struct ImageContainer: View {
 
     var body: some View {
         if loadingState == .idle {
-            image(url: imageURL).scaledToFit()
+            image(url: imageURL).scaledToFit().overlay(
+                LiveTextView(
+                    liveTextGroups: liveTextGroups,
+                    focusedLiveTextGroup: focusedLiveTextGroup,
+                    tapAction: liveTextTapAction
+                )
+                .opacity(enablesLiveText ? 1 : 0)
+            )
         } else {
             ZStack {
                 backgroundColor

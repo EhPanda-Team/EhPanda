@@ -26,6 +26,7 @@ struct ReadingState: Equatable {
 
     @BindableState var route: Route?
     let gallery: Gallery
+    var galleryDetail: GalleryDetail?
 
     var readingProgress: Int = .zero
     var forceRefreshID: UUID = .init()
@@ -300,6 +301,7 @@ let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { 
         return .merge(effects)
 
     case .fetchDatabaseInfos:
+        state.galleryDetail = environment.databaseClient.fetchGalleryDetail(gid: state.gallery.id)
         return environment.databaseClient.fetchGalleryState(gid: state.gallery.id)
             .map(ReadingAction.fetchDatabaseInfosDone).cancellable(id: ReadingState.CancelID())
 

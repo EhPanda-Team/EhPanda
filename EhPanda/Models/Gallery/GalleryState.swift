@@ -5,6 +5,7 @@
 //  Created by 荒木辰造 on R 4/02/01.
 //
 
+import SwiftUI
 import Foundation
 
 struct GalleryState: Codable {
@@ -38,18 +39,47 @@ extension GalleryState: CustomStringConvertible {
     }
 }
 
-struct GalleryTag: Codable, Equatable, Identifiable {
+struct GalleryTag: Codable, Equatable, Hashable, Identifiable {
+    struct Content: Codable, Equatable, Hashable, Identifiable {
+        var id: String { text + displayText }
+        var firstLetterCapitalizedText: String {
+            text.firstLetterCapitalized
+        }
+        func serachKeyword(tag: GalleryTag) -> String {
+            let base = "\"\(text)$\""
+            return tag.category == .temp ? base
+            : [tag.namespace.lowercased(), base].joined(separator: ":")
+        }
+        func localizedDisplayText(translateAction: ((String) -> String)?) -> String {
+            guard let action = translateAction else { return displayText }
+            let components = displayText.split(separator: "|")
+                .map { $0.trimmingCharacters(in: .whitespaces) }
+                .filter(\.notEmpty)
+            if components.count == 2 {
+                return components.map(action).joined(separator: " | ")
+            } else {
+                return action(displayText)
+            }
+        }
+
+        private let text: String
+        private let displayText: String
+        let backgroundColor: Color?
+
+        init(text: String, displayText: String, backgroundColor: Color?) {
+            self.text = text
+            self.displayText = displayText
+            self.backgroundColor = backgroundColor
+        }
+    }
+
     var id: String { namespace }
+    var category: TagCategory? {
+        .init(rawValue: namespace)
+    }
 
     let namespace: String
-    let content: [String]
-    let category: TagCategory?
-
-    init(namespace: String = "other", content: [String]) {
-        self.namespace = namespace
-        self.content = content
-        self.category = TagCategory(rawValue: namespace)
-    }
+    let contents: [Content]
 }
 
 enum PreviewConfig: Codable, Equatable {

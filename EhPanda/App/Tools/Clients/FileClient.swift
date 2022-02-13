@@ -22,7 +22,7 @@ extension FileClient {
         },
         fetchLogs: {
             Future { promise in
-                DispatchQueue.global().async {
+                DispatchQueue.global(qos: .userInitiated).async {
                     guard let path = FileUtil.logsDirectoryURL?.path,
                           let enumerator = FileManager.default.enumerator(atPath: path),
                           let fileNames = (enumerator.allObjects as? [String])?
@@ -72,7 +72,7 @@ extension FileClient {
         },
         importTagTranslator: { url in
             Future { promise in
-                DispatchQueue.global().async {
+                DispatchQueue.global(qos: .userInitiated).async {
                     guard let data = try? Data(contentsOf: url),
                           let dict = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
                     else {
