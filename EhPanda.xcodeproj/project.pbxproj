@@ -187,6 +187,7 @@
 		ABC3C78F2593699B00E0C11B /* ViewModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC3C7762593699A00E0C11B /* ViewModifiers.swift */; };
 		ABC4A0792751B40E00968A4F /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = ABC4A0782751B40E00968A4F /* Kingfisher */; };
 		ABC681F326898D46007BBD69 /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = ABC681F126898D46007BBD69 /* Model.xcdatamodeld */; };
+		ABC732C127B8962000D47DA9 /* TextRecognitionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC732C027B8962000D47DA9 /* TextRecognitionHandler.swift */; };
 		ABC8355D27B118330091DCDB /* DetailSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC8355C27B118330091DCDB /* DetailSearchView.swift */; };
 		ABC8355F27B118370091DCDB /* DetailSearchStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC8355E27B118370091DCDB /* DetailSearchStore.swift */; };
 		ABC8356127B357C50091DCDB /* GestureHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABC8356027B357C50091DCDB /* GestureHandler.swift */; };
@@ -455,6 +456,7 @@
 		ABC3C7762593699A00E0C11B /* ViewModifiers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewModifiers.swift; sourceTree = "<group>"; };
 		ABC4A07A2753084100968A4F /* Model 5.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Model 5.xcdatamodel"; sourceTree = "<group>"; };
 		ABC681F226898D46007BBD69 /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
+		ABC732C027B8962000D47DA9 /* TextRecognitionHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextRecognitionHandler.swift; sourceTree = "<group>"; };
 		ABC8355C27B118330091DCDB /* DetailSearchView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DetailSearchView.swift; sourceTree = "<group>"; };
 		ABC8355E27B118370091DCDB /* DetailSearchStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DetailSearchStore.swift; sourceTree = "<group>"; };
 		ABC8356027B357C50091DCDB /* GestureHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GestureHandler.swift; sourceTree = "<group>"; };
@@ -626,6 +628,7 @@
 				ABC8356227B366760091DCDB /* PageHandler.swift */,
 				ABC8356027B357C50091DCDB /* GestureHandler.swift */,
 				ABC8356427B36E550091DCDB /* AutoPlayHandler.swift */,
+				ABC732C027B8962000D47DA9 /* TextRecognitionHandler.swift */,
 			);
 			path = Support;
 			sourceTree = "<group>";
@@ -1603,6 +1606,7 @@
 				AB7BF2C427A9683F001865A3 /* GalleryArchive.swift in Sources */,
 				ABF45AF525F3313D00ECB568 /* ReadingSettingView.swift in Sources */,
 				AB38A0CB25CA993D00764D64 /* ColorCodable.swift in Sources */,
+				ABC732C127B8962000D47DA9 /* TextRecognitionHandler.swift in Sources */,
 				ABBB2675279B933D007B6149 /* ReadingStore.swift in Sources */,
 				ABF45AF425F3313D00ECB568 /* WebView.swift in Sources */,
 				AB7B29F626AC741600EE1F14 /* GenericList.swift in Sources */,
