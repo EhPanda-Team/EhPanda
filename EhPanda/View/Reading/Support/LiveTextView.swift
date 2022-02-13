@@ -9,33 +9,46 @@ import SwiftUI
 
 struct LiveTextView: View {
     private let liveTextGroups: [LiveTextGroup]
+    private let focusedLiveTextGroup: LiveTextGroup?
+    private let tapAction: (LiveTextGroup) -> Void
 
-    init(liveTextGroups: [LiveTextGroup]) {
+    init(
+        liveTextGroups: [LiveTextGroup],
+        focusedLiveTextGroup: LiveTextGroup?,
+        tapAction: @escaping (LiveTextGroup) -> Void
+    ) {
         self.liveTextGroups = liveTextGroups
+        self.focusedLiveTextGroup = focusedLiveTextGroup
+        self.tapAction = tapAction
     }
 
     var body: some View {
         GeometryReader { proxy in
-            let width = proxy.size.width
-            let height = proxy.size.height
+            let size = proxy.size
+            let width = size.width
+            let height = size.height
             ZStack {
                 Canvas { context, _ in
                     context.fill(
                         Path(CGRect(x: 0, y: 0, width: width, height: height)),
                         with: .color(.black.opacity(0.1))
                     )
-                    let paths: [Path] = liveTextGroups.flatMap(\.blocks).map { block in
-                        // let bounds = item.bounds
-                        let bounds = block.bounds.halfHeightExpanded
-                        let rect = CGRect(
-                            x: 0, y: 0, width: bounds.width * width, height: bounds.height * height
-                        )
-                        return .init(roundedRect: rect, cornerRadius: bounds.height * height / 5)
-                            .applying(CGAffineTransform(rotationAngle: (0 - block.bounds.radian)))
-                            .offsetBy(dx: bounds.topLeft.x * width, dy: height - bounds.topLeft.y * height)
-                    }
+                    let tuples: [(UUID, Path)] = liveTextGroups
+                        .flatMap { group in
+                            group.blocks.map { block in
+                                (group.id, block)
+                            }
+                        }
+                        .map { (id, block) in
+                            let bounds = block.bounds.expandingHalfHeight(size)
+                            let rect = CGRect(x: 0, y: 0, width: bounds.getWidth(size), height: bounds.getHeight(size))
+                            let path = Path(roundedRect: rect, cornerRadius: bounds.getHeight(size) / 5)
+                                .applying(CGAffineTransform(rotationAngle: block.bounds.getRadian(size)))
+                                .offsetBy(dx: bounds.topLeft.x * width, dy: bounds.topLeft.y * height)
+                            return (id, path)
+                        }
                     context.withCGContext { cgContext in
-                        paths.forEach { path in
+                        tuples.forEach { (_, path) in
                             cgContext.setFillColor(.init(red: 255, green: 255, blue: 255, alpha: 1))
                             cgContext.setShadow(
                                 offset: .zero, blur: 15,
@@ -46,20 +59,39 @@ struct LiveTextView: View {
                         }
                     }
                     context.blendMode = .destinationOut
-                    paths.forEach { path in
+                    tuples.forEach { (_, path) in
                         context.fill(path, with: .color(.red))
                         context.stroke(path, with: .color(.red))
+                    }
+
+                    if let focusedLiveTextGroup = focusedLiveTextGroup {
+                        context.blendMode = .normal
+                        tuples.forEach { (groupUUID, path) in
+                            if groupUUID == focusedLiveTextGroup.id {
+                                context.stroke(
+                                    path, with: .color(.accentColor.opacity(0.6)),
+                                    style: .init(lineWidth: 10)
+                                )
+                            }
+                        }
+                        context.blendMode = .destinationOut
+                        tuples.forEach { (groupUUID, path) in
+                            if groupUUID == focusedLiveTextGroup.id {
+                                context.fill(path, with: .color(.accentColor))
+                            }
+                        }
                     }
                 }
 
                 ForEach(liveTextGroups) { textGroup in
-                    HighlightView(text: textGroup.text)
-                        .frame(width: textGroup.width * width, height: textGroup.height * height)
-                        .rotationEffect(Angle(degrees: 360 - (textGroup.blocks[0].bounds.angle)))
-                        .position(
-                            x: (textGroup.minX + textGroup.width / 2) * width,
-                            y: (textGroup.minY + textGroup.height / 2) * height
-                        )
+                    HighlightView(text: textGroup.text) {
+                        tapAction(textGroup)
+                    }
+                    .frame(width: textGroup.width * width, height: textGroup.height * height)
+                    .position(
+                        x: (textGroup.minX + textGroup.width / 2) * width,
+                        y: (textGroup.minY + textGroup.height / 2) * height
+                    )
                 }
             }
         }
@@ -78,15 +110,26 @@ private struct HighlightView: UIViewRepresentable {
 
         @objc func onTap(sender: UIView) {
             Logger.info("onTap", context: ["tappedText": textView?.text])
-            textView?.selectAll(nil)
-            textView?.perform(NSSelectorFromString("_translate:"), with: nil)
+            guard let textView = textView else { return }
+
+            let height = textView.contentSize.height
+            textView.contentInset = .init(
+                top: textView.frame.height / 2 - height / 2,
+                left: textView.frame.width / 2 ,
+                bottom: 0, right: 0
+            )
+            highLightView.tapAction()
+            textView.selectAll(nil)
+            textView.perform(NSSelectorFromString("_translate:"), with: nil)
         }
     }
 
     private let text: String
+    private let tapAction: () -> Void
 
-    init(text: String) {
+    init(text: String, tapAction: @escaping () -> Void) {
         self.text = text
+        self.tapAction = tapAction
     }
 
     func makeCoordinator() -> Coordinator {
@@ -104,6 +147,8 @@ private struct HighlightView: UIViewRepresentable {
         textView.tintColor = .clear
         textView.textColor = .clear
         textView.backgroundColor = .clear
+        textView.font = .systemFont(ofSize: 0)
+        textView.isSelectable = false
         textView.autocapitalizationType = .sentences
         textView.isSelectable = true
         textView.isUserInteractionEnabled = true
@@ -111,12 +156,12 @@ private struct HighlightView: UIViewRepresentable {
             target: context.coordinator,
             action: #selector(Coordinator.onTap(sender:))
         )
+        textView.isUserInteractionEnabled = true
         textView.addGestureRecognizer(tap)
         return textView
     }
 
     func updateUIView(_ uiView: UITextView, context: Context) {
         uiView.text = text
-        // uiView.font = UIFont.preferredFont(forTextStyle: textStyle)
     }
 }

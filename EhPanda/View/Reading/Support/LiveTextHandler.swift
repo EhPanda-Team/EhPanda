@@ -20,6 +20,7 @@ import Foundation
 final class LiveTextHandler: ObservableObject {
     @Published var enablesLiveText = false
     @Published var liveTextGroups = [Int: [LiveTextGroup]]()
+    @Published private(set) var focusedLiveTextGroup: LiveTextGroup?
 
     private var processingRequests = [VNRequest]()
 
@@ -36,14 +37,18 @@ final class LiveTextHandler: ObservableObject {
         }
     }
 
-    func analyzeImage(_ cgImage: CGImage, index: Int, recognitionLanguages: [String]) {
+    func setFocusedLiveTextGroup(_ group: LiveTextGroup) {
+        focusedLiveTextGroup = group
+    }
+
+    func analyzeImage(_ cgImage: CGImage, size: CGSize, index: Int, recognitionLanguages: [String]) {
         Logger.info("analyzeImage", context: [
             "index": index, "recognitionLanguages": recognitionLanguages
         ])
 
         let requestHandler = VNImageRequestHandler(cgImage: cgImage)
         let textRecognitionRequest = VNRecognizeTextRequest { [weak self] in
-            self?.textRecognitionHandler(request: $0, error: $1, index: index)
+            self?.textRecognitionHandler(request: $0, error: $1, size: size, index: index)
         }
         textRecognitionRequest.usesLanguageCorrection = true
         textRecognitionRequest.preferBackgroundProcessing = true
@@ -69,7 +74,7 @@ final class LiveTextHandler: ObservableObject {
         }
     }
 
-    private func textRecognitionHandler(request: VNRequest, error: Error?, index: Int) {
+    private func textRecognitionHandler(request: VNRequest, error: Error?, size: CGSize, index: Int) {
         Logger.info("textRecognitionHandler", context: [
             "request": request, "error": error as Any, "index": index
         ])
@@ -87,10 +92,10 @@ final class LiveTextHandler: ObservableObject {
                 return .init(
                     text: recognizedText,
                     bounds: .init(
-                        topLeft: observation.topLeft,
-                        topRight: observation.topRight,
-                        bottomLeft: observation.bottomLeft,
-                        bottomRight: observation.bottomRight
+                        topLeft: observation.topLeft.verticalReversed,
+                        topRight: observation.topRight.verticalReversed,
+                        bottomLeft: observation.bottomLeft.verticalReversed,
+                        bottomRight: observation.bottomRight.verticalReversed
                     )
                 )
             }
@@ -99,16 +104,17 @@ final class LiveTextHandler: ObservableObject {
             blocks.forEach { newItem in
                 if let groupIndex = groupData.firstIndex(where: { items in
                     items.first { item in
-                        let angle = abs(item.bounds.angle - newItem.bounds.angle).truncatingRemainder(dividingBy: 360.0)
-                        let isAngleValid = angle < 10 || angle > (360 - 10)
-
-                        let isHeightValid = abs(item.bounds.height - newItem.bounds.height)
-                        < (min(item.bounds.height, newItem.bounds.height) / 2)
+                        let angle = abs(item.bounds.getAngle(size) - newItem.bounds.getAngle(size))
+                            .truncatingRemainder(dividingBy: 360.0)
+                        let isAngleValid = angle < 5 || angle > (360 - 5)
+                        let aHeight = item.bounds.getHeight(size)
+                        let bHeight = newItem.bounds.getHeight(size)
+                        let isHeightValid = abs(aHeight - bHeight) < (min(aHeight, bHeight))
 
                         guard isAngleValid && isHeightValid else { return false }
                         return self.polygonsIntersecting(
-                            lhs: item.bounds.halfHeightExpanded.edges,
-                            rhs: newItem.bounds.halfHeightExpanded.edges
+                            lhs: item.bounds.expandingHalfHeight(size).edges,
+                            rhs: newItem.bounds.expandingHalfHeight(size).edges
                         )
                     } != nil
                 }) {
@@ -177,5 +183,11 @@ final class LiveTextHandler: ObservableObject {
             }
         }
         return true
+    }
+}
+
+private extension CGPoint {
+    var verticalReversed: CGPoint {
+        .init(x: x, y: 1 - y)
     }
 }

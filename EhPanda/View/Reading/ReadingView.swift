@@ -196,6 +196,8 @@ struct ReadingView: View {
             backgroundColor: backgroundColor, config: imageStackConfig, imageURLs: viewStore.imageURLs,
             originalImageURLs: viewStore.originalImageURLs, loadingStates: viewStore.imageURLLoadingStates,
             enablesLiveText: liveTextHandler.enablesLiveText, liveTextGroups: liveTextHandler.liveTextGroups,
+            focusedLiveTextGroup: liveTextHandler.focusedLiveTextGroup,
+            liveTextTapAction: liveTextHandler.setFocusedLiveTextGroup,
             fetchAction: { viewStore.send(.fetchImageURLs($0)) },
             refetchAction: { viewStore.send(.refetchImageURLs($0)) },
             prefetchAction: { viewStore.send(.prefetchImages($0, setting.prefetchLimit)) },
@@ -239,9 +241,9 @@ extension ReadingView {
         KingfisherManager.shared.cache.retrieveImage(forKey: key) { result in
             switch result {
             case .success(let result):
-                if let image = result.image?.cgImage {
+                if let image = result.image, let cgImage = image.cgImage {
                     liveTextHandler.analyzeImage(
-                        image, index: index, recognitionLanguages:
+                        cgImage, size: image.size, index: index, recognitionLanguages:
                             viewStore.galleryDetail?.language.codes ?? []
                     )
                 } else {
@@ -317,6 +319,8 @@ private struct HorizontalImageStack: View {
     private let loadingStates: [Int: LoadingState]
     private let enablesLiveText: Bool
     private let liveTextGroups: [Int: [LiveTextGroup]]
+    private let focusedLiveTextGroup: LiveTextGroup?
+    private let liveTextTapAction: (LiveTextGroup) -> Void
     private let fetchAction: (Int) -> Void
     private let refetchAction: (Int) -> Void
     private let prefetchAction: (Int) -> Void
@@ -331,7 +335,9 @@ private struct HorizontalImageStack: View {
         index: Int, isDualPage: Bool, isDatabaseLoading: Bool, backgroundColor: Color,
         config: ImageStackConfig, imageURLs: [Int: URL], originalImageURLs: [Int: URL],
         loadingStates: [Int: LoadingState], enablesLiveText: Bool,
-        liveTextGroups: [Int: [LiveTextGroup]], fetchAction: @escaping (Int) -> Void,
+        liveTextGroups: [Int: [LiveTextGroup]], focusedLiveTextGroup: LiveTextGroup?,
+        liveTextTapAction: @escaping (LiveTextGroup) -> Void,
+        fetchAction: @escaping (Int) -> Void,
         refetchAction: @escaping (Int) -> Void, prefetchAction: @escaping (Int) -> Void,
         loadRetryAction: @escaping (Int) -> Void, loadSucceededAction: @escaping (Int) -> Void,
         loadFailedAction: @escaping (Int) -> Void, copyImageAction: @escaping (URL) -> Void,
@@ -347,6 +353,8 @@ private struct HorizontalImageStack: View {
         self.loadingStates = loadingStates
         self.enablesLiveText = enablesLiveText
         self.liveTextGroups = liveTextGroups
+        self.focusedLiveTextGroup = focusedLiveTextGroup
+        self.liveTextTapAction = liveTextTapAction
         self.fetchAction = fetchAction
         self.refetchAction = refetchAction
         self.prefetchAction = prefetchAction
@@ -378,6 +386,8 @@ private struct HorizontalImageStack: View {
             backgroundColor: backgroundColor,
             enablesLiveText: enablesLiveText,
             liveTextGroups: liveTextGroups[index] ?? [],
+            focusedLiveTextGroup: focusedLiveTextGroup,
+            liveTextTapAction: liveTextTapAction,
             refetchAction: refetchAction,
             loadRetryAction: loadRetryAction,
             loadSucceededAction: loadSucceededAction,
@@ -445,6 +455,8 @@ private struct ImageContainer: View {
     private let backgroundColor: Color
     private let enablesLiveText: Bool
     private let liveTextGroups: [LiveTextGroup]
+    private let focusedLiveTextGroup: LiveTextGroup?
+    private let liveTextTapAction: (LiveTextGroup) -> Void
     private let refetchAction: (Int) -> Void
     private let loadRetryAction: (Int) -> Void
     private let loadSucceededAction: (Int) -> Void
@@ -457,6 +469,8 @@ private struct ImageContainer: View {
         backgroundColor: Color,
         enablesLiveText: Bool,
         liveTextGroups: [LiveTextGroup],
+        focusedLiveTextGroup: LiveTextGroup?,
+        liveTextTapAction: @escaping (LiveTextGroup) -> Void,
         refetchAction: @escaping (Int) -> Void,
         loadRetryAction: @escaping (Int) -> Void,
         loadSucceededAction: @escaping (Int) -> Void,
@@ -469,6 +483,8 @@ private struct ImageContainer: View {
         self.backgroundColor = backgroundColor
         self.enablesLiveText = enablesLiveText
         self.liveTextGroups = liveTextGroups
+        self.focusedLiveTextGroup = focusedLiveTextGroup
+        self.liveTextTapAction = liveTextTapAction
         self.refetchAction = refetchAction
         self.loadRetryAction = loadRetryAction
         self.loadSucceededAction = loadSucceededAction
@@ -498,8 +514,12 @@ private struct ImageContainer: View {
     var body: some View {
         if loadingState == .idle {
             image(url: imageURL).scaledToFit().overlay(
-                LiveTextView(liveTextGroups: liveTextGroups)
-                    .opacity(enablesLiveText ? 1 : 0)
+                LiveTextView(
+                    liveTextGroups: liveTextGroups,
+                    focusedLiveTextGroup: focusedLiveTextGroup,
+                    tapAction: liveTextTapAction
+                )
+                .opacity(enablesLiveText ? 1 : 0)
             )
         } else {
             ZStack {

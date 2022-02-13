@@ -15,16 +15,8 @@ struct LiveTextBounds: Equatable {
     let bottomLeft: CGPoint
     let bottomRight: CGPoint
 
-    private(set) var height: Double!
-    private(set) var width: Double!
-    private(set) var radian: Double!
-    private(set) var angle: Double!
-
     var edges: [CGPoint] {
         [topLeft, topRight, bottomRight, bottomLeft]
-    }
-    var halfHeightExpanded: Self {
-        expanding(radius: height / 2)
     }
 
     init(topLeft: CGPoint, topRight: CGPoint, bottomLeft: CGPoint, bottomRight: CGPoint) {
@@ -32,53 +24,63 @@ struct LiveTextBounds: Equatable {
         self.topRight = topRight
         self.bottomLeft = bottomLeft
         self.bottomRight = bottomRight
-        height = calculateHeight()
-        width = calculateWidth()
-        radian = calculateRadian()
-        angle = 180.0 / .pi * radian
     }
 
-    private func calculateHeight() -> Double {
-        let left = abs(sqrt(pow(topLeft.x - bottomLeft.x, 2) + pow(topLeft.y - bottomLeft.y, 2)))
-        let right = abs(sqrt(pow(topRight.x - bottomRight.x, 2) + pow(topRight.y - bottomRight.y, 2)))
-        return max(left, right)
+    func expandingHalfHeight(_ size: CGSize) -> Self {
+        expanding(size, radius: getHeight(size) / 2)
     }
-    private func calculateWidth() -> Double {
-        let top = abs(sqrt(pow(topLeft.x - topRight.x, 2) + pow(topLeft.y - topRight.y, 2)))
-        let bottom = abs(sqrt(pow(bottomLeft.x - bottomRight.x, 2) + pow(bottomLeft.y - bottomRight.y, 2)))
-        return max(top, bottom)
+    func getHeight(_ size: CGSize) -> Double {
+        let topLeft = topLeft * size
+        let bottomLeft = bottomLeft * size
+        return abs(sqrt(pow(topLeft.x - bottomLeft.x, 2) + pow(topLeft.y - bottomLeft.y, 2)))
     }
-    private func calculateRadian() -> Double {
+    func getWidth(_ size: CGSize) -> Double {
+        let topLeft = topLeft * size
+        let topRight = topRight * size
+        return abs(sqrt(pow(topLeft.x - topRight.x, 2) + pow(topLeft.y - topRight.y, 2)))
+    }
+    func getRadian(_ size: CGSize) -> Double {
+        let topLeft = topLeft * size
+        let topRight = topRight * size
         let radian = atan2(topRight.y - topLeft.y, topRight.x - topLeft.x)
         return radian < 0 ? radian + .pi * 2 : radian
     }
+    func getAngle(_ size: CGSize) -> Double {
+        180.0 / .pi * getRadian(size)
+    }
 
     // Returns a expanded version with a specific radius
-    private func expanding(radius: Double) -> Self {
-        let angle = 360 - angle
-        let topPoint = hypotenuse(radius: radius, angle: angle)
-        let rightPoint = hypotenuse(radius: radius, angle: angle + 90)
-        let bottomPoint = hypotenuse(radius: radius, angle: angle + 90 * 2)
-        let leftPoint = hypotenuse(radius: radius, angle: angle + 90 * 3)
+    private func expanding(_ size: CGSize, radius: Double) -> Self {
+        let angle = 360 - getAngle(size)
+        let projectedBottom = hypotenuse(radius: radius, angle: angle)
+        let projectedRight = hypotenuse(radius: radius, angle: angle + 90)
+        let projectedTop = hypotenuse(radius: radius, angle: angle + 90 * 2)
+        let projectedLeft = hypotenuse(radius: radius, angle: angle + 90 * 3)
+
+        let multipliedTopLeft = topLeft * size
+        let multipliedTopRight = topRight * size
+        let multipliedBottomLeft = bottomLeft * size
+        let multipliedBottomRight = bottomRight * size
+
         let topLeft = CGPoint(
-            x: topLeft.x + topPoint.x + leftPoint.x,
-            y: topLeft.y + topPoint.y + leftPoint.y
+            x: multipliedTopLeft.x + projectedTop.x + projectedLeft.x,
+            y: multipliedTopLeft.y + projectedTop.y + projectedLeft.y
         )
         let topRight = CGPoint(
-            x: topRight.x + topPoint.x + rightPoint.x,
-            y: topRight.y + topPoint.y + rightPoint.y
+            x: multipliedTopRight.x + projectedTop.x + projectedRight.x,
+            y: multipliedTopRight.y + projectedTop.y + projectedRight.y
         )
         let bottomLeft = CGPoint(
-            x: bottomLeft.x + bottomPoint.x + leftPoint.x,
-            y: bottomLeft.y + bottomPoint.y + leftPoint.y
+            x: multipliedBottomLeft.x + projectedBottom.x + projectedLeft.x,
+            y: multipliedBottomLeft.y + projectedBottom.y + projectedLeft.y
         )
         let bottomRight = CGPoint(
-            x: bottomRight.x + bottomPoint.x + rightPoint.x,
-            y: bottomRight.y + bottomPoint.y + rightPoint.y
+            x: multipliedBottomRight.x + projectedBottom.x + projectedRight.x,
+            y: multipliedBottomRight.y + projectedBottom.y + projectedRight.y
         )
         return .init(
-            topLeft: topLeft, topRight: topRight,
-            bottomLeft: bottomLeft, bottomRight: bottomRight
+            topLeft: topLeft / size, topRight: topRight / size,
+            bottomLeft: bottomLeft / size, bottomRight: bottomRight / size
         )
     }
     private func hypotenuse(radius: Double, angle: Double) -> CGPoint {
@@ -106,14 +108,14 @@ struct LiveTextGroup: Equatable, Identifiable {
         self.text = blocks.map(\.text).joined(separator: " ")
         self.minX = firstBlock.bounds.topLeft.x
         self.maxX = firstBlock.bounds.topLeft.x
-        self.minY = 1.0 - firstBlock.bounds.topLeft.y
-        self.maxY = 1.0 - firstBlock.bounds.topLeft.y
+        self.minY = firstBlock.bounds.topLeft.y
+        self.maxY = firstBlock.bounds.topLeft.y
         blocks.forEach { block in
             block.bounds.edges.forEach { point in
                 minX = min(minX, point.x)
                 maxX = max(maxX, point.x)
-                minY = min(minY, 1 - point.y)
-                maxY = max(maxY, 1 - point.y)
+                minY = min(minY, point.y)
+                maxY = max(maxY, point.y)
             }
         }
         width = maxX - minX
@@ -137,4 +139,12 @@ struct LiveTextBlock: Equatable, Identifiable {
 
     let text: String
     let bounds: LiveTextBounds
+}
+
+// MARK: Definition
+private func * (lhs: CGPoint, rhs: CGSize) -> CGPoint {
+    .init(x: lhs.x * rhs.width, y: lhs.y * rhs.height)
+}
+private func / (lhs: CGPoint, rhs: CGSize) -> CGPoint {
+    .init(x: lhs.x / rhs.width, y: lhs.y / rhs.height)
 }
