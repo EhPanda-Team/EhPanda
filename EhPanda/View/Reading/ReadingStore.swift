@@ -14,11 +14,13 @@ struct ReadingState: Equatable {
         case hud
         case share(UIImage)
         case readingSetting
+        case textRecognition(UIImage)
     }
     enum ImageAction {
         case copy
         case save
         case share
+        case textRecognition
     }
     struct CancelID: Hashable {
         let id = String(describing: ReadingState.CancelID.self)
@@ -118,6 +120,7 @@ enum ReadingAction: BindableAction {
     case saveImage(URL)
     case saveImageDone(Bool)
     case shareImage(URL)
+    case recognizeTextFromImage(URL)
     case fetchImage(ReadingState.ImageAction, URL)
     case fetchImageDone(ReadingState.ImageAction, Result<UIImage, Error>)
 
@@ -248,6 +251,9 @@ let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { 
     case .shareImage(let imageURL):
         return .init(value: .fetchImage(.share, imageURL))
 
+    case .recognizeTextFromImage(let imageURL):
+        return .init(value: .fetchImage(.textRecognition, imageURL))
+
     case .fetchImage(let action, let imageURL):
         return environment.imageClient.fetchImage(url: imageURL)
             .map({ ReadingAction.fetchImageDone(action, $0) })
@@ -267,6 +273,9 @@ let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { 
                     .saveImageToPhotoLibrary(image).map(ReadingAction.saveImageDone)
             case .share:
                 return .init(value: .setNavigation(.share(image)))
+
+            case .textRecognition:
+                return .init(value: .setNavigation(.textRecognition(image)))
             }
         } else {
             state.hudConfig = .error
@@ -552,6 +561,11 @@ let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { 
         return .none
     }
 }
+.haptics(
+    unwrapping: \.route,
+    case: /ReadingState.Route.textRecognition,
+    hapticClient: \.hapticClient
+)
 .haptics(
     unwrapping: \.route,
     case: /ReadingState.Route.readingSetting,

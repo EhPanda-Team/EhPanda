@@ -17,89 +17,73 @@ import Vision
 import SwiftUI
 import Foundation
 
-struct TextRecognitionDemoView: View {
+struct TextRecognitionView: View {
     @State private var textGroupList = [TextGroup]()
-    @State private var showImagePicker = false
-    @State private var image: UIImage?
+    private let image: UIImage
+
+    init(image: UIImage) {
+        self.image = image
+    }
 
     // 我没有找到如何获取图片实际大小的方法，所有现在全部固定大小。
     private let frameW = 400.0
     private let frameH = 600.0
 
     var body: some View {
-        VStack {
-            if let image = image {
-                ZStack {
-                    Image(uiImage: image)
-                        .resizable()
-                        .frame(width: frameW, height: frameH)
+        ZStack {
+            Image(uiImage: image).resizable()
 
-                    // 黑色蒙版效果
-                    Canvas { context, _ in
-                        // 底色
-                        context.fill(
-                            Path(CGRect(x: 0, y: 0, width: frameW, height: frameH)),
-                            with: .color(.black.opacity(0.1))
+            // 黑色蒙版效果
+            Canvas { context, _ in
+                // 底色
+                context.fill(
+                    Path(CGRect(x: 0, y: 0, width: frameW, height: frameH)),
+                    with: .color(.black.opacity(0.1))
+                )
+                let paths: [Path] = textGroupList.flatMap(\.blocks).map { block in
+                    // let bounds = item.bounds
+                    let bounds = block.bounds.halfHeightExpanded
+                    // TODO: 为了实现圆角，把路径转换为圆角矩形，配合旋转大概效果还行，大角度有一定的偏移，肯定哪里还是有问题。但是没找到。
+                    let rect = CGRect(
+                        x: 0, y: 0, width: bounds.width * frameW, height: bounds.height * frameH
+                    )
+                    return .init(roundedRect: rect, cornerRadius: bounds.height * frameH / 5)
+                        // TODO: 先旋转，再设置 x, y，因为原点在左上角，并不知道如何手动设置原点。
+                        .applying(CGAffineTransform(rotationAngle: (0 - block.bounds.radian)))
+                        .offsetBy(dx: bounds.topLeft.x * frameW, dy: frameH - bounds.topLeft.y * frameH)
+                }
+                context.withCGContext { cgContext in
+                    paths.forEach { path in
+                        cgContext.setFillColor(.init(red: 255, green: 255, blue: 255, alpha: 1))
+                        cgContext.setShadow(
+                            offset: .zero, blur: 15,
+                            color: .init(red: 0, green: 0, blue: 0, alpha: 0.3)
                         )
-                        let paths: [Path] = textGroupList.flatMap(\.blocks).map { block in
-                            // let bounds = item.bounds
-                            let bounds = block.bounds.halfHeightExpanded
-                            // TODO: 为了实现圆角，把路径转换为圆角矩形，配合旋转大概效果还行，大角度有一定的偏移，肯定哪里还是有问题。但是没找到。
-                            let rect = CGRect(
-                                x: 0, y: 0, width: bounds.width * frameW, height: bounds.height * frameH
-                            )
-                            return .init(roundedRect: rect, cornerRadius: bounds.height * frameH / 5)
-                                // TODO: 先旋转，再设置 x, y，因为原点在左上角，并不知道如何手动设置原点。
-                                .applying(CGAffineTransform(rotationAngle: (0 - block.bounds.radian)))
-                                .offsetBy(dx: bounds.topLeft.x * frameW, dy: frameH - bounds.topLeft.y * frameH)
-                        }
-                        context.withCGContext { cgContext in
-                            paths.forEach { path in
-                                cgContext.setFillColor(.init(red: 255, green: 255, blue: 255, alpha: 1))
-                                cgContext.setShadow(
-                                    offset: .zero, blur: 15,
-                                    color: .init(red: 0, green: 0, blue: 0, alpha: 0.3)
-                                )
-                                cgContext.addPath(path.cgPath)
-                                cgContext.drawPath(using: .fill)
-                            }
-                        }
-                        context.blendMode = .destinationOut
-                        paths.forEach { path in
-                            context.fill(path, with: .color(.red))
-                            context.stroke(path, with: .color(.red))
-                        }
+                        cgContext.addPath(path.cgPath)
+                        cgContext.drawPath(using: .fill)
                     }
+                }
+                context.blendMode = .destinationOut
+                paths.forEach { path in
+                    context.fill(path, with: .color(.red))
+                    context.stroke(path, with: .color(.red))
+                }
+            }
 
-                    // 点击区域
-                    ForEach(textGroupList) { textGroup in
-                         TranslateButtonView(text: textGroup.text)
-                            .frame(width: textGroup.width * frameW, height: textGroup.height * frameH)
-                            .rotationEffect(Angle(degrees: 360 - (textGroup.blocks[0].bounds.angle)))
-                            .position(
-                                x: (textGroup.minX + textGroup.width / 2) * frameW,
-                                y: (textGroup.minY + textGroup.height / 2) * frameH
-                            )
-                    }
-                }
-                .frame(width: frameW, height: frameH)
-            }
-            Button("Select a photo from library") {
-                showImagePicker = true
+            // 点击区域
+            ForEach(textGroupList) { textGroup in
+                 TranslateButtonView(text: textGroup.text)
+                    .frame(width: textGroup.width * frameW, height: textGroup.height * frameH)
+                    .rotationEffect(Angle(degrees: 360 - (textGroup.blocks[0].bounds.angle)))
+                    .position(
+                        x: (textGroup.minX + textGroup.width / 2) * frameW,
+                        y: (textGroup.minY + textGroup.height / 2) * frameH
+                    )
             }
         }
-        .sheet(isPresented: $showImagePicker) {
-            ImagePicker(sourceType: .photoLibrary) { image in
-                print(image)
-                self.image = image
-                showImagePicker = false
-                if let cgImage = image.cgImage {
-                    recognizeText(cgImage: cgImage)
-                }
-            }
-        }
+        .frame(width: frameW, height: frameH)
         .onAppear {
-            if let cgImage = image?.cgImage {
+            if let cgImage = image.cgImage {
                 recognizeText(cgImage: cgImage)
             }
         }
@@ -107,7 +91,7 @@ struct TextRecognitionDemoView: View {
 }
 
 // MARK: Recognition methods
-private extension TextRecognitionDemoView {
+private extension TextRecognitionView {
     // 识别文本
     func recognizeText(cgImage: CGImage) {
         // Create a new image-request handler.
@@ -179,6 +163,7 @@ private extension TextRecognitionDemoView {
 
     // 检测两个多边形是否重叠
     func polygonsIntersecting(lhs: [CGPoint], rhs: [CGPoint]) -> Bool {
+        guard !lhs.isEmpty, !rhs.isEmpty, lhs.count == rhs.count else { return false }
         for points in [lhs, rhs] {
             for index1 in 0..<points.count {
                 let index2 = (index1 + 1) % points.count
@@ -221,7 +206,7 @@ private extension TextRecognitionDemoView {
 
                 guard let minA = minA, let maxA = maxA,
                       let minB = minB, let maxB = maxB
-                else { return true }
+                else { return false }
 
                 if maxA < minB || maxB < minA {
                     return false
@@ -367,68 +352,6 @@ private struct TextBlock: Identifiable {
     let bounds: TextBounds
 }
 
-// MARK: ImagePicker
-// 图片选择器
-private struct ImagePicker: UIViewControllerRepresentable {
-    final class Coordinator: NSObject, UINavigationControllerDelegate, UIImagePickerControllerDelegate {
-        @Binding private var presentationMode: PresentationMode
-        private let sourceType: UIImagePickerController.SourceType
-        private let imagePickedAction: (UIImage) -> Void
-
-        init(
-            presentationMode: Binding<PresentationMode>,
-            sourceType: UIImagePickerController.SourceType,
-            imagePickedAction: @escaping (UIImage) -> Void
-        ) {
-            _presentationMode = presentationMode
-            self.sourceType = sourceType
-            self.imagePickedAction = imagePickedAction
-        }
-
-        func imagePickerController(
-            _ picker: UIImagePickerController,
-            didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]
-        ) {
-            if let uiImage = info[UIImagePickerController.InfoKey.originalImage] as? UIImage {
-                imagePickedAction(uiImage)
-            }
-            presentationMode.dismiss()
-        }
-
-        func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
-            presentationMode.dismiss()
-        }
-    }
-
-    @Environment(\.presentationMode) private var presentationMode
-    private let sourceType: UIImagePickerController.SourceType
-    private let imagePickedAction: (UIImage) -> Void
-
-    init(sourceType: UIImagePickerController.SourceType, imagePickedAction: @escaping (UIImage) -> Void) {
-        self.sourceType = sourceType
-        self.imagePickedAction = imagePickedAction
-    }
-
-    func makeCoordinator() -> Coordinator {
-        .init(
-            presentationMode: presentationMode,
-            sourceType: sourceType, imagePickedAction: imagePickedAction
-        )
-    }
-
-    func makeUIViewController(context: UIViewControllerRepresentableContext<ImagePicker>) -> UIImagePickerController {
-        let picker = UIImagePickerController()
-        picker.sourceType = sourceType
-        picker.delegate = context.coordinator
-        return picker
-    }
-
-    func updateUIViewController(
-        _ uiViewController: UIImagePickerController,
-        context: UIViewControllerRepresentableContext<ImagePicker>
-    ) {}
-}
-
 // MARK: TranslateButtonView
 private struct TranslateButtonView: UIViewRepresentable {
     final class Coordinator: NSObject {
@@ -459,17 +382,21 @@ private struct TranslateButtonView: UIViewRepresentable {
     func makeUIView(context: Context) -> UITextView {
         let textView = UITextView()
         context.coordinator.textView = textView
-        let text = text.unicodeScalars.filter { !$0.properties.isEmojiPresentation }.reduce("") { $0 + String($1)}
+        let text = text.unicodeScalars
+            .filter { !$0.properties.isEmojiPresentation }
+            .reduce("") { $0 + String($1)}
         textView.text = text
         textView.isEditable = false
-        textView.tintColor = UIColor.clear
-        textView.textColor = UIColor.clear
-        textView.backgroundColor = UIColor.clear
+        textView.tintColor = .clear
+        textView.textColor = .clear
+        textView.backgroundColor = .clear
         textView.autocapitalizationType = .sentences
-        textView.isSelectable = true
+        textView.isSelectable = false
         textView.isUserInteractionEnabled = true
-        let tap = UITapGestureRecognizer(target: context.coordinator, action: #selector(Coordinator.tapClick(sender:)))
-        textView.isUserInteractionEnabled = true
+        let tap = UITapGestureRecognizer(
+            target: context.coordinator,
+            action: #selector(Coordinator.tapClick(sender:))
+        )
         textView.addGestureRecognizer(tap)
         return textView
     }

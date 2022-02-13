@@ -103,10 +103,13 @@ struct ReadingView: View {
             .accentColor(setting.accentColor).tint(setting.accentColor)
             .autoBlur(radius: blurRadius).navigationViewStyle(.stack)
         }
+        .sheet(unwrapping: viewStore.binding(\.$route), case: /ReadingState.Route.textRecognition) { route in
+            TextRecognitionView(image: route.wrappedValue)
+                .accentColor(setting.accentColor).autoBlur(radius: blurRadius)
+        }
         .sheet(unwrapping: viewStore.binding(\.$route), case: /ReadingState.Route.share) { route in
             ActivityView(activityItems: [route.wrappedValue])
-                .accentColor(setting.accentColor)
-                .autoBlur(radius: blurRadius)
+                .accentColor(setting.accentColor).autoBlur(radius: blurRadius)
         }
         .progressHUD(
             config: viewStore.hudConfig,
@@ -181,7 +184,8 @@ struct ReadingView: View {
             loadFailedAction: { viewStore.send(.onWebImageFailed($0)) },
             copyImageAction: { viewStore.send(.copyImage($0)) },
             saveImageAction: { viewStore.send(.saveImage($0)) },
-            shareImageAction: { viewStore.send(.shareImage($0)) }
+            shareImageAction: { viewStore.send(.shareImage($0)) },
+            recognizeTextFromImageAction: { viewStore.send(.recognizeTextFromImage($0)) }
         )
     }
 }
@@ -266,6 +270,7 @@ private struct HorizontalImageStack: View {
     private let copyImageAction: (URL) -> Void
     private let saveImageAction: (URL) -> Void
     private let shareImageAction: (URL) -> Void
+    private let recognizeTextFromImageAction: (URL) -> Void
 
     init(
         index: Int, isDualPage: Bool, isDatabaseLoading: Bool, backgroundColor: Color,
@@ -274,7 +279,8 @@ private struct HorizontalImageStack: View {
         refetchAction: @escaping (Int) -> Void, prefetchAction: @escaping (Int) -> Void,
         loadRetryAction: @escaping (Int) -> Void, loadSucceededAction: @escaping (Int) -> Void,
         loadFailedAction: @escaping (Int) -> Void, copyImageAction: @escaping (URL) -> Void,
-        saveImageAction: @escaping (URL) -> Void, shareImageAction: @escaping (URL) -> Void
+        saveImageAction: @escaping (URL) -> Void, shareImageAction: @escaping (URL) -> Void,
+        recognizeTextFromImageAction: @escaping (URL) -> Void
     ) {
         self.index = index
         self.isDualPage = isDualPage
@@ -293,6 +299,7 @@ private struct HorizontalImageStack: View {
         self.copyImageAction = copyImageAction
         self.saveImageAction = saveImageAction
         self.shareImageAction = shareImageAction
+        self.recognizeTextFromImageAction = recognizeTextFromImageAction
     }
 
     var body: some View {
@@ -359,6 +366,11 @@ private struct HorizontalImageStack: View {
                 shareImageAction(imageURL)
             } label: {
                 Label(R.string.localizable.readingViewContextMenuButtonShare(), systemSymbol: .squareAndArrowUp)
+            }
+            Button {
+                recognizeTextFromImageAction(imageURL)
+            } label: {
+                Label("Text recognition", systemSymbol: .aMagnify)
             }
         }
     }
