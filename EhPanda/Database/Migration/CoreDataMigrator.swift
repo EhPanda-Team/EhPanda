@@ -29,8 +29,7 @@ class CoreDataMigrator: CoreDataMigratorProtocol {
             let manager = NSMigrationManager(
                 sourceModel: migrationStep.sourceModel, destinationModel: migrationStep.destinationModel
             )
-            let destinationURL = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
-                .appendingPathComponent(UUID().uuidString)
+            let destinationURL = FileUtil.temporaryDirectory.appendingPathComponent(UUID().uuidString)
 
             do {
                 try manager.migrateStore(

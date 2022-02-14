@@ -105,7 +105,7 @@ struct ReadingView: View {
             .autoBlur(radius: blurRadius).navigationViewStyle(.stack)
         }
         .sheet(unwrapping: viewStore.binding(\.$route), case: /ReadingState.Route.share) { route in
-            ActivityView(activityItems: [route.wrappedValue])
+            ActivityView(activityItems: [route.wrappedValue.associatedValue])
                 .accentColor(setting.accentColor).autoBlur(radius: blurRadius)
         }
         .progressHUD(
@@ -493,7 +493,7 @@ private struct ImageContainer: View {
         .frame(width: width, height: height)
     }
     @ViewBuilder private func image(url: URL?) -> some View {
-        if url?.absoluteString.contains(".gif") != true {
+        if url?.isGIF != true {
             KFImage(url)
                 .placeholder(placeholder)
                 .defaultModifier(withRoundedCorners: false)

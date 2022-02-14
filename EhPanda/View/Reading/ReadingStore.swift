@@ -12,13 +12,25 @@ import ComposableArchitecture
 struct ReadingState: Equatable {
     enum Route: Equatable {
         case hud
-        case share(UIImage)
+        case share(ShareItem)
         case readingSetting
     }
+    enum ShareItem: Equatable {
+        var associatedValue: Any {
+            switch self {
+            case .data(let data):
+                return data
+            case .image(let image):
+                return image
+            }
+        }
+        case data(Data)
+        case image(UIImage)
+    }
     enum ImageAction {
-        case copy
-        case save
-        case share
+        case copy(Bool)
+        case save(Bool)
+        case share(Bool)
     }
     struct CancelID: Hashable {
         let id = String(describing: ReadingState.CancelID.self)
@@ -239,17 +251,17 @@ let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { 
         return .none
 
     case .copyImage(let imageURL):
-        return .init(value: .fetchImage(.copy, imageURL))
+        return .init(value: .fetchImage(.copy(imageURL.isGIF), imageURL))
 
     case .saveImage(let imageURL):
-        return .init(value: .fetchImage(.save, imageURL))
+        return .init(value: .fetchImage(.save(imageURL.isGIF), imageURL))
 
     case .saveImageDone(let isSucceeded):
         state.hudConfig = isSucceeded ? .savedToPhotoLibrary : .error
         return .init(value: .setNavigation(.hud))
 
     case .shareImage(let imageURL):
-        return .init(value: .fetchImage(.share, imageURL))
+        return .init(value: .fetchImage(.share(imageURL.isGIF), imageURL))
 
     case .fetchImage(let action, let imageURL):
         return environment.imageClient.fetchImage(url: imageURL)
@@ -259,17 +271,21 @@ let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { 
     case .fetchImageDone(let action, let result):
         if case .success(let image) = result {
             switch action {
-            case .copy:
+            case .copy(let isAnimated):
                 state.hudConfig = .copiedToClipboardSucceeded
                 return .merge(
                     .init(value: .setNavigation(.hud)),
-                    environment.clipboardClient.saveImage(image).fireAndForget()
+                    environment.clipboardClient.saveImage(image, isAnimated).fireAndForget()
                 )
-            case .save:
+            case .save(let isAnimated):
                 return environment.imageClient
-                    .saveImageToPhotoLibrary(image).map(ReadingAction.saveImageDone)
-            case .share:
-                return .init(value: .setNavigation(.share(image)))
+                    .saveImageToPhotoLibrary(image, isAnimated).map(ReadingAction.saveImageDone)
+            case .share(let isAnimated):
+                if isAnimated, let data = image.kf.data(format: .GIF) {
+                    return .init(value: .setNavigation(.share(.data(data))))
+                } else {
+                    return .init(value: .setNavigation(.share(.image(image))))
+                }
             }
         } else {
             state.hudConfig = .error
