@@ -42,9 +42,9 @@ final class LiveTextHandler: ObservableObject {
         focusedLiveTextGroup = group
     }
 
-    func analyzeImage(_ cgImage: CGImage, size: CGSize, index: Int, recognitionLanguages: [String]) {
+    func analyzeImage(_ cgImage: CGImage, size: CGSize, index: Int, recognitionLanguages: [String]?) {
         Logger.info("analyzeImage", context: [
-            "index": index, "recognitionLanguages": recognitionLanguages
+            "index": index, "recognitionLanguages": recognitionLanguages as Any
         ])
 
         let requestHandler = VNImageRequestHandler(cgImage: cgImage)
@@ -53,8 +53,8 @@ final class LiveTextHandler: ObservableObject {
         }
         textRecognitionRequest.usesLanguageCorrection = true
         textRecognitionRequest.preferBackgroundProcessing = true
-        if !recognitionLanguages.isEmpty {
-            textRecognitionRequest.recognitionLanguages = recognitionLanguages
+        if let languages = recognitionLanguages {
+            textRecognitionRequest.recognitionLanguages = languages
         }
 
         processingRequests.append(textRecognitionRequest)
