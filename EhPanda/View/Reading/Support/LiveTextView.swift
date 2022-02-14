@@ -58,6 +58,12 @@ struct LiveTextView: View {
                             cgContext.drawPath(using: .fill)
                         }
                     }
+                    context.blendMode = .destinationOut
+                    tuples.forEach { (_, path) in
+                        context.fill(path, with: .color(.red))
+                        context.stroke(path, with: .color(.red))
+                    }
+
                     if let focusedLiveTextGroup = focusedLiveTextGroup {
                         context.blendMode = .normal
                         tuples.forEach { (groupUUID, path) in
@@ -68,11 +74,12 @@ struct LiveTextView: View {
                                 )
                             }
                         }
-                    }
-                    context.blendMode = .destinationOut
-                    tuples.forEach { (_, path) in
-                        context.fill(path, with: .color(.white))
-                        context.stroke(path, with: .color(.white))
+                        context.blendMode = .destinationOut
+                        tuples.forEach { (groupUUID, path) in
+                            if groupUUID == focusedLiveTextGroup.id {
+                                context.fill(path, with: .color(.accentColor))
+                            }
+                        }
                     }
                 }
 
