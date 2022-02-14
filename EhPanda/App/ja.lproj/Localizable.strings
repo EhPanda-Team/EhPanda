@@ -221,6 +221,7 @@
 // AppIconType
 "enum.app.icon.type.value.default" = "デフォルト";
 "enum.app.icon.type.value.ukiyoe" = "浮世絵";
+"enum.app.icon.type.value.developer" = "デベロッパー";
 // ListDisplayMode
 "enum.display.mode.value.detail" = "デフォルト";
 "enum.display.mode.value.thumbnail" = "サムネイル";

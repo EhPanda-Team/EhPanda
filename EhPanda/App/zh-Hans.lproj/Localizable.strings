@@ -221,6 +221,7 @@
 // AppIconType
 "enum.app.icon.type.value.default" = "默认";
 "enum.app.icon.type.value.ukiyoe" = "浮世绘";
+"enum.app.icon.type.value.developer" = "开发者";
 // ListDisplayMode
 "enum.display.mode.value.detail" = "详情";
 "enum.display.mode.value.thumbnail" = "缩略图";

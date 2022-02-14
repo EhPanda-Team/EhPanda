@@ -5,6 +5,7 @@
 //  Created by 荒木辰造 on R 4/01/23.
 //
 
+import Photos
 import SwiftUI
 import Combine
 import Kingfisher
@@ -12,7 +13,7 @@ import ComposableArchitecture
 
 struct ImageClient {
     let prefetchImages: ([URL]) -> Effect<Never, Never>
-    let saveImageToPhotoLibrary: (UIImage) -> Effect<Bool, Never>
+    let saveImageToPhotoLibrary: (UIImage, Bool) -> Effect<Bool, Never>
     let downloadImage: (URL) -> Effect<Result<UIImage, Error>, Never>
     let retrieveImage: (String) -> Effect<Result<UIImage, Error>, Never>
 }
@@ -24,14 +25,23 @@ extension ImageClient {
                 ImagePrefetcher(urls: urls).start()
             }
         },
-        saveImageToPhotoLibrary: { image in
+        saveImageToPhotoLibrary: { (image, isAnimated) in
             Future { promise in
-                let imageSaver = ImageSaver { isSuccess in
-                    promise(.success(isSuccess))
+                DispatchQueue.global(qos: .utility).async {
+                    if let data = image.kf.data(format: isAnimated ? .GIF : .unknown) {
+                        PHPhotoLibrary.shared().performChanges {
+                            let request = PHAssetCreationRequest.forAsset()
+                            request.addResource(with: .photo, data: data, options: nil)
+                        } completionHandler: { (isSuccess, _) in
+                            promise(.success(isSuccess))
+                        }
+                    } else {
+                        promise(.success(false))
+                    }
                 }
-                imageSaver.saveImage(image)
             }
             .eraseToAnyPublisher()
+            .receive(on: DispatchQueue.main)
             .eraseToEffect()
         },
         downloadImage: { url in

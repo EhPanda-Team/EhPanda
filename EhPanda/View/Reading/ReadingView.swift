@@ -71,7 +71,6 @@ struct ReadingView: View {
                 enablesLiveText: $liveTextHandler.enablesLiveText,
                 autoPlayPolicy: .init(get: { autoPlayHandler.policy }, set: setAutoPlayPolocy),
                 range: 1...Float(viewStore.gallery.pageCount), previewURLs: viewStore.previewURLs,
-                isLiveTextAvailable: viewStore.galleryDetail?.language.isLiveTextAvailable ?? false,
                 dismissGesture: controlPanelDismissGesture,
                 dismissAction: { viewStore.send(.onPerformDismiss) },
                 navigateSettingAction: { viewStore.send(.setNavigation(.readingSetting)) },
@@ -106,7 +105,7 @@ struct ReadingView: View {
             .autoBlur(radius: blurRadius).navigationViewStyle(.stack)
         }
         .sheet(unwrapping: viewStore.binding(\.$route), case: /ReadingState.Route.share) { route in
-            ActivityView(activityItems: [route.wrappedValue])
+            ActivityView(activityItems: [route.wrappedValue.associatedValue])
                 .accentColor(setting.accentColor).autoBlur(radius: blurRadius)
         }
         .progressHUD(
@@ -125,10 +124,6 @@ struct ReadingView: View {
             if viewStore.databaseLoadingState == .idle {
                 viewStore.send(.syncReadingProgress(.init(newValue)))
             }
-            if liveTextHandler.enablesLiveText {
-                liveTextHandler.cancelRequests()
-                analyzeImageForLiveText(index: newValue)
-            }
         }
         .onChange(of: pageHandler.sliderValue) { sliderValue in
             Logger.info("pageHandler.sliderValue changed", context: ["sliderValue": sliderValue])
@@ -136,11 +131,10 @@ struct ReadingView: View {
                 setPageIndex(sliderValue: sliderValue)
             }
         }
-        .onChange(of: viewStore.showsSliderPreview) { newValue in
-            Logger.info("viewStore.showsSliderPreview changed", context: ["newValue": newValue])
-            if !newValue {
-                setPageIndex(sliderValue: pageHandler.sliderValue)
-            }
+        .onChange(of: viewStore.showsSliderPreview) { isShown in
+            Logger.info("viewStore.showsSliderPreview changed", context: ["isShown": isShown])
+            if !isShown { setPageIndex(sliderValue: pageHandler.sliderValue) }
+            setAutoPlayPolocy(.off)
         }
         .onChange(of: viewStore.readingProgress) { readingProgress in
             Logger.info("viewStore.readingProgress changed", context: ["readingProgress": readingProgress])
@@ -154,18 +148,18 @@ struct ReadingView: View {
                 setAutoPlayPolocy(.off)
             }
         }
-        .onChange(of: viewStore.showsSliderPreview) { newValue in
-            Logger.info("viewStore.showsSliderPreview changed", context: ["newValue": newValue])
-            setAutoPlayPolocy(.off)
-        }
 
         // LiveText
-        .onChange(of: liveTextHandler.enablesLiveText) { newValue in
-            Logger.info("liveTextHandler.enablesLiveText changed", context: ["newValue": newValue])
-            if newValue {
-                analyzeImageForLiveText(index: .init(pageHandler.sliderValue))
-            } else {
-                liveTextHandler.cancelRequests()
+        .onChange(of: liveTextHandler.enablesLiveText) { isEnabled in
+            Logger.info("liveTextHandler.enablesLiveText changed", context: ["isEnabled": isEnabled])
+            if isEnabled { viewStore.webImageLoadSuccessIndices.forEach(analyzeImageForLiveText) }
+        }
+        .onChange(of: viewStore.webImageLoadSuccessIndices) { indices in
+            Logger.info("viewStore.webImageLoadSuccessIndices changed", context: [
+                "count": viewStore.webImageLoadSuccessIndices.count
+            ])
+            if liveTextHandler.enablesLiveText {
+                indices.forEach(analyzeImageForLiveText)
             }
         }
 
@@ -244,7 +238,7 @@ extension ReadingView {
                 if let image = result.image, let cgImage = image.cgImage {
                     liveTextHandler.analyzeImage(
                         cgImage, size: image.size, index: index, recognitionLanguages:
-                            viewStore.galleryDetail?.language.codes ?? []
+                            viewStore.galleryDetail?.language.codes
                     )
                 } else {
                     Logger.info("analyzeImageForLiveText image not found", context: ["index": index])
@@ -499,7 +493,7 @@ private struct ImageContainer: View {
         .frame(width: width, height: height)
     }
     @ViewBuilder private func image(url: URL?) -> some View {
-        if url?.absoluteString.contains(".gif") != true {
+        if url?.isGIF != true {
             KFImage(url)
                 .placeholder(placeholder)
                 .defaultModifier(withRoundedCorners: false)
