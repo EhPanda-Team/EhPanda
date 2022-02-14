@@ -159,6 +159,7 @@ enum AppIconType: Int, Codable, Identifiable, CaseIterable {
 
     case `default`
     case ukiyoe
+    case developer
 }
 
 extension AppIconType {
@@ -168,6 +169,8 @@ extension AppIconType {
             return R.string.localizable.enumAppIconTypeValueDefault()
         case .ukiyoe:
             return R.string.localizable.enumAppIconTypeValueUkiyoe()
+        case .developer:
+            return R.string.localizable.enumAppIconTypeValueDeveloper()
         }
     }
     var filename: String {
@@ -176,6 +179,8 @@ extension AppIconType {
             return "AppIcon_Default"
         case .ukiyoe:
             return "AppIcon_Ukiyoe"
+        case .developer:
+            return "AppIcon_Developer"
         }
     }
 }

@@ -221,6 +221,7 @@
 // AppIconType
 "enum.app.icon.type.value.default" = "預設";
 "enum.app.icon.type.value.ukiyoe" = "Ukiyo-e";
+"enum.app.icon.type.value.developer" = "Developer";
 // ListDisplayMode
 "enum.display.mode.value.detail" = "詳情";
 "enum.display.mode.value.thumbnail" = "縮略圖";

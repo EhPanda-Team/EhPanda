@@ -221,6 +221,7 @@
 // AppIconType
 "enum.app.icon.type.value.default" = "기본";
 "enum.app.icon.type.value.ukiyoe" = "Ukiyo-e";
+"enum.app.icon.type.value.developer" = "Developer";
 // ListDisplayMode
 "enum.display.mode.value.detail" = "자세히";
 "enum.display.mode.value.thumbnail" = "썸네일";
