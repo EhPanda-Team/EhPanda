@@ -32,6 +32,7 @@ struct ReadingState: Equatable {
     var forceRefreshID: UUID = .init()
     var hudConfig: TTProgressHUDConfig = .loading
 
+    var webImageLoadSuccessIndices = Set<Int>()
     var imageURLLoadingStates = [Int: LoadingState]()
     var previewLoadingStates = [Int: LoadingState]()
     var databaseLoadingState: LoadingState = .loading
@@ -206,6 +207,7 @@ let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { 
 
     case .onWebImageSucceeded(let index):
         state.imageURLLoadingStates[index] = .idle
+        state.webImageLoadSuccessIndices.insert(index)
         return .none
 
     case .onWebImageFailed(let index):

@@ -16,10 +16,7 @@ enum Language: String, Codable {
 }
 
 extension Language {
-    var isLiveTextAvailable: Bool {
-        !codes.isEmpty
-    }
-    var codes: [String] {
+    var codes: [String]? {
         switch self {
         case .english:
             return ["en-US"]
@@ -36,7 +33,7 @@ extension Language {
         case .chinese:
             return ["zh-Hans", "zh-Hant"]
         default:
-            return []
+            return nil
         }
     }
     var abbreviation: String {

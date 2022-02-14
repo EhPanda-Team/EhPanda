@@ -65,7 +65,7 @@ struct LiveTextView: View {
                     }
 
                     if let focusedLiveTextGroup = focusedLiveTextGroup {
-                        context.blendMode = .normal
+                        context.blendMode = .copy
                         tuples.forEach { (groupUUID, path) in
                             if groupUUID == focusedLiveTextGroup.id {
                                 context.stroke(
