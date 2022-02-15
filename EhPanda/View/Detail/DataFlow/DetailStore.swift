@@ -374,14 +374,14 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.recurs
         }
         .haptics(
             unwrapping: \.route,
-            case: /DetailState.Route.postComment,
-            hapticClient: \.hapticClient
-        )
-        .haptics(
-            unwrapping: \.route,
             case: /DetailState.Route.detailSearch,
             hapticClient: \.hapticClient,
             style: .soft
+        )
+        .haptics(
+            unwrapping: \.route,
+            case: /DetailState.Route.postComment,
+            hapticClient: \.hapticClient
         )
         .haptics(
             unwrapping: \.route,

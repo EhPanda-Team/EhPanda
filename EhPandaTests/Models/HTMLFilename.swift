@@ -45,5 +45,6 @@ enum HTMLFilename: String {
 
     // Other
     case ipBanned = "IPBanned"
+    case ehSetting = "EhSetting"
     case galleryDetailWithGreeting = "GalleryDetailWithGreeting"
 }
