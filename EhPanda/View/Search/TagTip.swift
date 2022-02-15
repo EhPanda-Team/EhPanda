@@ -1,13 +1,11 @@
 //
 //  TagTip.swift
-//  Shared
+//  EhPanda
 //
 //  Created by xioxin on 2022/2/15.
 //
 
 import SwiftUI
-
-
 
 let shortNsDic: [String: String] = [
     "reclass": "r",
@@ -21,8 +19,9 @@ let shortNsDic: [String: String] = [
     "female": "f",
     "mixed": "x",
     "other": "o",
-    "temp": "",
+    "temp": ""
 ]
+
 let namespaceScore: [String: Double] = [
     "other": 10,
     "female": 9,
@@ -35,50 +34,49 @@ let namespaceScore: [String: Double] = [
     "parody": 3.3,
     "character": 2.8,
     "reclass": 1,
-    "temp": 0.1,
+    "temp": 0.1
 ]
-
 
 struct TagItem: Identifiable {
     var id: UUID = UUID()
     var namespace: String
     var key: String
     var name: String
-    
+
     var shortNamespace: String {
-        get { shortNsDic[namespace] ?? namespace }
+        shortNsDic[namespace] ?? namespace
     }
-    
+
     var searchTerm: String {
-        get {
-            let ns = shortNamespace
-            let nsP = ns != "" ? "\(ns):" : ""
-            let search = key.contains(" ") ? "\"\(key)$\"" : "\(key)$"
-            return nsP + search
-        }
+        let namespace = shortNamespace.isEmpty ? "" : "\(shortNamespace):"
+        let keyword = key.contains(" ") ? "\"\(key)$\"" : "\(key)$"
+        return namespace + keyword
     }
-    
-    func markTag(search: String) {
-        
-    }
-    
-    func getMatchScore(search: String) -> TagSuggestion {
-        let nsScore = namespaceScore[namespace] ?? 0.0
+
+    func markTag(search: String) {}
+
+    func getMatchScore(keyword: String) -> TagSuggestion {
+        let namespaceScore = namespaceScore[namespace] ?? 0.0
         var score: Double = 0.0
         let key = key.lowercased()
-        let keyRange = key.range(of: search)
+        let keyRange = key.range(of: keyword)
         if let range = keyRange {
-            score += nsScore * Double(search.count + 1) / Double(key.count) * (range.contains(key.startIndex) ? 2.0 : 1.0)
+            score += namespaceScore
+            * Double(search.count + 1)
+            / Double(key.count)
+            * (range.contains(key.startIndex) ? 2.0 : 1.0)
         }
-        
-        let cn = name.lowercased()
-        let nameRange = cn.range(of: search);
+
+        let name = name.lowercased()
+        let nameRange = name.range(of: keyword)
         if let range = nameRange {
-            score += nsScore *  Double(search.count + 1) / Double(cn.count) * (range.contains(cn.startIndex) ? 2.0 : 1.0)
+            score += namespaceScore
+            * Double(search.count + 1)
+            / Double(name.count)
+            * (range.contains(name.startIndex) ? 2.0 : 1.0)
         }
         return TagSuggestion(tag: self, score: score, keyRange: keyRange, nameRange: nameRange)
     }
-    
 }
 
 struct TagSuggestion: Identifiable {
@@ -87,50 +85,46 @@ struct TagSuggestion: Identifiable {
     var score: Double
     var keyRange: Range<String.Index>?
     var nameRange: Range<String.Index>?
-    
-    var keyMatchLeft: String {
-        get { _rangeTextL(tag.key, keyRange) }
-    }
-    
-    var keyMatchFocal: String {
-        get { _rangeTextC(tag.key, keyRange) }
-    }
-    
-    var keyMatchRight: String {
-        get { _rangeTextR(tag.key, keyRange) }
-    }
-    
-    var nameMatchLeft: String {
-        get { _rangeTextL(tag.name, nameRange) }
-    }
-    
-    var nameMatchFocal: String {
-        get { _rangeTextC(tag.name, nameRange) }
-    }
-    
-    var nameMatchRight: String {
-        get { _rangeTextR(tag.name, nameRange) }
-    }
-    
-    
-    func _rangeTextL(_ str: String,_ range: Range<String.Index>?) -> String {
-        guard let range = range else { return str }
-        return String(str[str.startIndex..<range.lowerBound])
-    }
-    
-    func _rangeTextC(_ str: String, _ range: Range<String.Index>?) -> String {
-        guard let range = range else { return "" }
-        return String(str[range])
-    }
-    
-    func _rangeTextR(_ str: String, _ range: Range<String.Index>?) -> String {
-        guard let range = range else { return "" }
-        return String(str[range.upperBound..<str.endIndex])
-    }
-    
-    
-}
 
+    var keyMatchLeft: String {
+        leftSideString(of: keyRange, string: tag.key)
+    }
+
+    var keyMatchFocal: String {
+        middleString(of: keyRange, string: tag.key)
+    }
+
+    var keyMatchRight: String {
+        rightSideString(of: keyRange, string: tag.key)
+    }
+
+    var nameMatchLeft: String {
+        leftSideString(of: nameRange, string: tag.name)
+    }
+
+    var nameMatchFocal: String {
+        middleString(of: nameRange, string: tag.name)
+    }
+
+    var nameMatchRight: String {
+        rightSideString(of: nameRange, string: tag.name)
+    }
+
+    func leftSideString(of range: Range<String.Index>?, string: String) -> String {
+        guard let range = range else { return string }
+        return .init(string[string.startIndex..<range.lowerBound])
+    }
+
+    func middleString(of range: Range<String.Index>?, string: String) -> String {
+        guard let range = range else { return "" }
+        return .init(string[range])
+    }
+
+    func rightSideString(of range: Range<String.Index>?, string: String) -> String {
+        guard let range = range else { return "" }
+        return .init(string[range.upperBound..<string.endIndex])
+    }
+}
 
 extension Array where Element == TagItem {
     func getSuggests(_ term: String) -> [TagSuggestion] {
@@ -138,37 +132,35 @@ extension Array where Element == TagItem {
         var sTerm = term
         var onlyNs: String?
         if let col = term.firstIndex(of: ":") {
-            // 冒号前至少有一个字符
+            // Requires at least one character before the colon
             if col >= term.index(term.startIndex, offsetBy: 1) {
-                let ns = String(term[term.startIndex ..< col])
-                if let index = shortNsDic.index(forKey: ns) {
+                let namespace = String(term[term.startIndex ..< col])
+                if let index = shortNsDic.index(forKey: namespace) {
                     onlyNs = shortNsDic[index].key
                 }
                 if let index = shortNsDic.firstIndex(where: {
-                    $0 == ns || $1 == ns
+                    $0 == namespace || $1 == namespace
                 }) {
                     onlyNs = shortNsDic[index].key
                     sTerm = String(term[term.index(col, offsetBy: 1) ..< term.endIndex])
                 }
             }
         }
-        
+
         var tagList = self
         if onlyNs != nil {
             tagList = tagList.filter { $0.namespace == onlyNs}
         }
-        
+
         let suggestions = tagList
-            .compactMap { $0.getMatchScore(search: sTerm) }
+            .compactMap { $0.getMatchScore(keyword: sTerm) }
             .filter{$0.score > 0}
             .sorted { $1.score > $0.score }
-        
-        print(suggestions);
-    
+
+        print(suggestions)
         return suggestions
     }
 }
-
 
 let allTagList: [TagItem] = [
     TagItem(namespace: "language", key: "chinese", name: "中文"),
@@ -176,25 +168,23 @@ let allTagList: [TagItem] = [
     TagItem(namespace: "female", key: "loli", name: "萝莉")
 ]
 
-func pregReplace(_ text: String, pattern: String, with: String, options: NSRegularExpression.Options = []) -> String {
-    let regex = try! NSRegularExpression(pattern: pattern, options: options)
-    return regex.stringByReplacingMatches(in: text, options: [],
-                                          range: NSMakeRange(0, text.count),
-                                          withTemplate: with)
+func pregReplace(_ text: String, pattern: String, with: String, options: NSRegularExpression.Options = []) -> String? {
+    let regex = try? NSRegularExpression(pattern: pattern, options: options)
+    return regex?.stringByReplacingMatches(
+        in: text, options: [], range: .init(location: 0, length: text.count), withTemplate: with
+    )
 }
 
-
-struct TagTip : View {
+struct TagTip: View {
     @State var input = ""
     @State var suggests: [TagSuggestion] = []
     @State var term: String = ""
-    
-    
+
     func search(_ value: String) {
-        let value = pregReplace(value, pattern: "  +", with: " ")
+        guard let value = pregReplace(value, pattern: "  +", with: " ") else { return }
         input = value
-        let regex = try! NSRegularExpression(pattern: "(\\S+:\".+?\"|\".+?\"|\\S+:\\S+|\\S+)")
-        let matchs = regex.matches(in: value, options: [], range: NSMakeRange(0, value.count))
+        guard let regex = try? NSRegularExpression(pattern: "(\\S+:\".+?\"|\".+?\"|\\S+:\\S+|\\S+)") else { return }
+        let matchs = regex.matches(in: value, options: [], range: .init(location: 0, length: value.count))
         let values: [String] = matchs.compactMap {
             String(value[Range($0.range, in: value)!])
         }
@@ -206,9 +196,8 @@ struct TagTip : View {
             suggests = []
             term = ""
         }
-        
     }
-    
+
     var body: some View {
         VStack {
             HStack {
@@ -222,14 +211,10 @@ struct TagTip : View {
                     .toolbar {
                         ToolbarItem(placement: .keyboard) {
                             HStack {
-                                Button("-/+") {
-                                    
-                                }
+                                Button("-/+") {}
                                 .buttonStyle(.bordered)
                                 Spacer()
-                                Button("Finish") {
-                                   
-                                }
+                                Button("Finish") {}
                                 .buttonStyle(.bordered)
                             }
                             .padding(.horizontal, 30)
@@ -238,21 +223,19 @@ struct TagTip : View {
                     .onSubmit{
                         print(input)
                     }
-                
-                Button("搜索"){
+                Button("Search"){
                     print(input)
-                }.keyboardShortcut(.defaultAction)
+                }
+                .keyboardShortcut(.defaultAction)
             }
             List(suggests) { suggestion in
                 HStack {
                     VStack {
-             
                         HStack(spacing: 0.0) {
                             Text(suggestion.nameMatchLeft).font(.body)
                             Text(suggestion.nameMatchFocal).background(Color.red).font(.body)
                             Text(suggestion.nameMatchRight).font(.body)
                         }
-       
                         Spacer()
                         HStack(spacing: 0.0) {
                             Text(suggestion.tag.namespace).font(.caption)
@@ -261,21 +244,24 @@ struct TagTip : View {
                             Text(suggestion.keyMatchFocal).background(Color.red).font(.caption)
                             Text(suggestion.keyMatchRight).font(.caption)
                         }
-                        
-                    }.onTapGesture {
-                        input = String(input[input.startIndex..<input.index(input.endIndex, offsetBy: 0 - term.count)]) + suggestion.tag.searchTerm + " "
+                    }
+                    .onTapGesture {
+                        input = String(
+                            input[input.startIndex..<input.index(input.endIndex, offsetBy: 0 - term.count)]
+                        )
+                        + suggestion.tag.searchTerm + " "
                     }
                     Spacer()
-                    Text("排除")
+                    Text("Exclude")
                         .onTapGesture {
-                            input = String(input[input.startIndex..<input.index(input.endIndex, offsetBy: 0 - term.count)]) + "-" + suggestion.tag.searchTerm + " "
+                            input = String(
+                                input[input.startIndex..<input.index(input.endIndex, offsetBy: 0 - term.count)]
+                            )
+                            + "-" + suggestion.tag.searchTerm + " "
                         }
                 }
-                
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-                
             }
         }
     }
-    
 }
