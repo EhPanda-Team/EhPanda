@@ -37,6 +37,8 @@
 		AB0CFB7C27BAB9D0004BD372 /* AppIcon_Developer_iPad@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = AB0CFB6D27BAB9CF004BD372 /* AppIcon_Developer_iPad@2x.png */; };
 		AB0CFB7D27BAB9D0004BD372 /* AppIcon_Developer_iPad_Pro@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = AB0CFB6E27BAB9CF004BD372 /* AppIcon_Developer_iPad_Pro@2x.png */; };
 		AB0CFB7E27BAB9D0004BD372 /* AppIcon_Ukiyoe_iPad@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = AB0CFB6F27BAB9CF004BD372 /* AppIcon_Ukiyoe_iPad@2x.png */; };
+		AB0CFB8027BBBFA0004BD372 /* EhSetting.html in Resources */ = {isa = PBXBuildFile; fileRef = AB0CFB7F27BBBFA0004BD372 /* EhSetting.html */; };
+		AB0CFB8227BBBFCE004BD372 /* EhSettingParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0CFB8127BBBFCE004BD372 /* EhSettingParserTests.swift */; };
 		AB0F68AF26A6D92F00AC3A54 /* DeprecatedAPI in Frameworks */ = {isa = PBXBuildFile; productRef = AB0F68AE26A6D92F00AC3A54 /* DeprecatedAPI */; };
 		AB10117E26986B7D00C2C1A9 /* GalleryStateMO+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB10117D26986B7D00C2C1A9 /* GalleryStateMO+CoreDataProperties.swift */; };
 		AB10118026986C1100C2C1A9 /* GalleryStateMO+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB10117F26986C1100C2C1A9 /* GalleryStateMO+CoreDataClass.swift */; };
@@ -316,6 +318,8 @@
 		AB0CFB6D27BAB9CF004BD372 /* AppIcon_Developer_iPad@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AppIcon_Developer_iPad@2x.png"; sourceTree = "<group>"; };
 		AB0CFB6E27BAB9CF004BD372 /* AppIcon_Developer_iPad_Pro@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AppIcon_Developer_iPad_Pro@2x.png"; sourceTree = "<group>"; };
 		AB0CFB6F27BAB9CF004BD372 /* AppIcon_Ukiyoe_iPad@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AppIcon_Ukiyoe_iPad@2x.png"; sourceTree = "<group>"; };
+		AB0CFB7F27BBBFA0004BD372 /* EhSetting.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = EhSetting.html; sourceTree = "<group>"; };
+		AB0CFB8127BBBFCE004BD372 /* EhSettingParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EhSettingParserTests.swift; sourceTree = "<group>"; };
 		AB10117D26986B7D00C2C1A9 /* GalleryStateMO+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GalleryStateMO+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		AB10117F26986C1100C2C1A9 /* GalleryStateMO+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GalleryStateMO+CoreDataClass.swift"; sourceTree = "<group>"; };
 		AB1EF25327AFA19200F507D6 /* Heap.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Heap.swift; sourceTree = "<group>"; };
@@ -723,6 +727,7 @@
 			isa = PBXGroup;
 			children = (
 				ABD9771227B6612400983DE7 /* GreetingParserTests.swift */,
+				AB0CFB8127BBBFCE004BD372 /* EhSettingParserTests.swift */,
 				AB31CD3127B6671400F40E0A /* BanIntervalParserTests.swift */,
 			);
 			path = Other;
@@ -1159,8 +1164,9 @@
 		ABD9771127B65F9D00983DE7 /* Other */ = {
 			isa = PBXGroup;
 			children = (
-				ABF9720926DE6E1300118887 /* GalleryDetailWithGreeting.html */,
+				AB0CFB7F27BBBFA0004BD372 /* EhSetting.html */,
 				ABC0A8D026F7037F008EC24C /* IPBanned.html */,
+				ABF9720926DE6E1300118887 /* GalleryDetailWithGreeting.html */,
 			);
 			path = Other;
 			sourceTree = "<group>";
@@ -1465,6 +1471,7 @@
 				AB41DB5027B760D700DD3604 /* PopularCompactList.html in Resources */,
 				AB41DB4B27B760D700DD3604 /* FrontPageThumbnailList.html in Resources */,
 				AB41DB4327B760D700DD3604 /* ToplistsCompactList.html in Resources */,
+				AB0CFB8027BBBFA0004BD372 /* EhSetting.html in Resources */,
 				AB41DB5127B760D700DD3604 /* PopularMinimalList.html in Resources */,
 				AB41DB4627B760D700DD3604 /* FrontPageCompactList.html in Resources */,
 				AB41DB4127B760D700DD3604 /* PopularExtendedList.html in Resources */,
@@ -1711,6 +1718,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				AB31CD3D27B66F7D00F40E0A /* GalleryImageURLParserTests.swift in Sources */,
+				AB0CFB8227BBBFCE004BD372 /* EhSettingParserTests.swift in Sources */,
 				AB31CD4327B676C300F40E0A /* GalleryMPVKeysParserTests.swift in Sources */,
 				AB31CD3027B666E200F40E0A /* TestError.swift in Sources */,
 				ABD9771027B65E3400983DE7 /* GalleryDetailParserTests.swift in Sources */,
