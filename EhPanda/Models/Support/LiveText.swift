@@ -27,7 +27,7 @@ struct LiveTextBounds: Equatable {
     }
 
     func expandingHalfHeight(_ size: CGSize) -> Self {
-        expanding(size, radius: getHeight(size) / 2)
+        expanding(size: size, width: 0, height: getHeight(size) / 2)
     }
     func getHeight(_ size: CGSize) -> Double {
         let topLeft = topLeft * size
@@ -50,12 +50,12 @@ struct LiveTextBounds: Equatable {
     }
 
     // Returns a expanded version with a specific radius
-    private func expanding(_ size: CGSize, radius: Double) -> Self {
+    private func expanding(size: CGSize, width: Double, height: Double) -> Self {
         let angle = 360 - getAngle(size)
-        let projectedBottom = hypotenuse(radius: radius, angle: angle)
-        let projectedRight = hypotenuse(radius: radius, angle: angle + 90)
-        let projectedTop = hypotenuse(radius: radius, angle: angle + 90 * 2)
-        let projectedLeft = hypotenuse(radius: radius, angle: angle + 90 * 3)
+        let projectedBottom = hypotenuse(longestSideLength: height, angle: angle)
+        let projectedRight = hypotenuse(longestSideLength: width, angle: angle + 90)
+        let projectedTop = hypotenuse(longestSideLength: height, angle: angle + 90 * 2)
+        let projectedLeft = hypotenuse(longestSideLength: width, angle: angle + 90 * 3)
 
         let multipliedTopLeft = topLeft * size
         let multipliedTopRight = topRight * size
@@ -83,9 +83,9 @@ struct LiveTextBounds: Equatable {
             bottomLeft: bottomLeft / size, bottomRight: bottomRight / size
         )
     }
-    private func hypotenuse(radius: Double, angle: Double) -> CGPoint {
+    private func hypotenuse(longestSideLength: Double, angle: Double) -> CGPoint {
         let radian = 2 * .pi / 360 * angle
-        return .init(x: sin(radian) * radius, y: cos(radian) * radius)
+        return .init(x: sin(radian) * longestSideLength, y: cos(radian) * longestSideLength)
     }
 }
 

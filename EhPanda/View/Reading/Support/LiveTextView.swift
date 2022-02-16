@@ -40,11 +40,17 @@ struct LiveTextView: View {
                             }
                         }
                         .map { (id, block) in
-                            let bounds = block.bounds.expandingHalfHeight(size)
-                            let rect = CGRect(x: 0, y: 0, width: bounds.getWidth(size), height: bounds.getHeight(size))
+                            let expandingSize = 4.0
+                            let bounds = block.bounds
+                            let topLeft = bounds.topLeft * size
+                            let rect = CGRect(
+                                x: 0, y: 0,
+                                width: bounds.getWidth(size) + expandingSize * 2,
+                                height: bounds.getHeight(size) + expandingSize * 2)
+
                             let path = Path(roundedRect: rect, cornerRadius: bounds.getHeight(size) / 5)
                                 .applying(CGAffineTransform(rotationAngle: block.bounds.getRadian(size)))
-                                .offsetBy(dx: bounds.topLeft.x * width, dy: bounds.topLeft.y * height)
+                                .offsetBy(dx: topLeft.x - expandingSize, dy: topLeft.y - expandingSize)
                             return (id, path)
                         }
                     context.withCGContext { cgContext in
@@ -164,4 +170,9 @@ private struct HighlightView: UIViewRepresentable {
     func updateUIView(_ uiView: UITextView, context: Context) {
         uiView.text = text
     }
+}
+
+// MARK: Definition
+private func * (lhs: CGPoint, rhs: CGSize) -> CGPoint {
+    .init(x: lhs.x * rhs.width, y: lhs.y * rhs.height)
 }

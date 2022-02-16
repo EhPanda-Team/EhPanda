@@ -107,7 +107,7 @@ final class LiveTextHandler: ObservableObject {
                         let isAngleValid = angle < 5 || angle > (360 - 5)
                         let aHeight = item.bounds.getHeight(size)
                         let bHeight = newItem.bounds.getHeight(size)
-                        let isHeightValid = abs(aHeight - bHeight) < (min(aHeight, bHeight))
+                        let isHeightValid = abs(aHeight - bHeight) < (min(aHeight, bHeight) / 2)
 
                         guard isAngleValid && isHeightValid else { return false }
                         return self.polygonsIntersecting(
