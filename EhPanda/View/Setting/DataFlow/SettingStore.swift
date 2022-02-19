@@ -63,6 +63,7 @@ enum SettingAction: BindableAction {
     case binding(BindingAction<SettingState>)
     case setNavigation(SettingState.Route?)
     case clearSubStates
+    case onDetectClipboardURL
 
     case syncAppIconType
     case syncUserInterfaceStyle
@@ -206,6 +207,9 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
             state.appearanceSettingState = .init()
             return .none
 
+        case .onDetectClipboardURL:
+            return .none
+
         case .syncAppIconType:
             if let iconName = environment.uiApplicationClient.alternateIconName() {
                 state.setting.appIconType = AppIconType.allCases.filter({
@@ -255,6 +259,9 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
             }
             if state.setting.translatesTags {
                 effects.append(.init(value: .fetchTagTranslator))
+            }
+            if state.setting.detectsLinksFromClipboard {
+                effects.append(.init(value: .onDetectClipboardURL))
             }
             effects.append(environment.dfClient.setActive(state.setting.bypassesSNIFiltering).fireAndForget())
             return .merge(effects)

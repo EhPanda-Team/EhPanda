@@ -180,6 +180,9 @@ let appReducerCore = Reducer<AppState, AppAction, AppEnvironment> { state, actio
     case .searchRoot:
         return .none
 
+    case .setting(.onDetectClipboardURL):
+        return .init(value: .appRoute(.detectClipboardURL))
+
     case .setting(.fetchGreetingDone(let result)):
         return .init(value: .appRoute(.fetchGreetingDone(result)))
 
