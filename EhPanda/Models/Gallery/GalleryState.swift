@@ -47,8 +47,8 @@ struct GalleryTag: Codable, Equatable, Hashable, Identifiable {
         }
         func serachKeyword(tag: GalleryTag) -> String {
             let base = "\"\(text)$\""
-            return tag.category == .temp ? base
-            : [tag.namespace.lowercased(), base].joined(separator: ":")
+            return tag.namespace == .temp ? base
+            : [tag.rawNamespace.lowercased(), base].joined(separator: ":")
         }
         func localizedDisplayText(translateAction: ((String) -> String)?) -> String {
             guard let action = translateAction else { return displayText }
@@ -73,12 +73,12 @@ struct GalleryTag: Codable, Equatable, Hashable, Identifiable {
         }
     }
 
-    var id: String { namespace }
-    var category: TagCategory? {
-        .init(rawValue: namespace)
+    var id: String { rawNamespace }
+    var namespace: TagNamespace? {
+        .init(rawValue: rawNamespace)
     }
 
-    let namespace: String
+    let rawNamespace: String
     let contents: [Content]
 }
 

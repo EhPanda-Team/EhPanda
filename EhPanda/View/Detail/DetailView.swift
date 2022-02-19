@@ -593,7 +593,7 @@ private extension TagsSection {
 
         var body: some View {
             HStack(alignment: .top) {
-                Text(tag.category?.value ?? tag.namespace).font(.subheadline.bold())
+                Text(tag.namespace?.value ?? tag.rawNamespace).font(.subheadline.bold())
                     .foregroundColor(reversedPrimary).padding(padding)
                     .background(Color(.systemGray)).cornerRadius(5)
                 TagCloudView(data: tag.contents) { content in

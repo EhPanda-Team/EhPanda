@@ -546,18 +546,18 @@
 "enum.category.value.private" = "プライベート";
 
 // MARK: TagCategory
-"enum.tag.category.value.reclass" = "再分類";
-"enum.tag.category.value.language" = "言語";
-"enum.tag.category.value.parody" = "原作";
-"enum.tag.category.value.character" = "キャラ";
-"enum.tag.category.value.group" = "団体";
-"enum.tag.category.value.artist" = "作者";
-"enum.tag.category.value.male" = "男性";
-"enum.tag.category.value.female" = "女性";
-"enum.tag.category.value.mixed" = "混在性別";
-"enum.tag.category.value.cosplayer" = "レイヤー";
-"enum.tag.category.value.other" = "その他";
-"enum.tag.category.value.temp" = "一時的";
+"enum.tag.namespace.value.reclass" = "再分類";
+"enum.tag.namespace.value.language" = "言語";
+"enum.tag.namespace.value.parody" = "原作";
+"enum.tag.namespace.value.character" = "キャラ";
+"enum.tag.namespace.value.group" = "団体";
+"enum.tag.namespace.value.artist" = "作者";
+"enum.tag.namespace.value.male" = "男性";
+"enum.tag.namespace.value.female" = "女性";
+"enum.tag.namespace.value.mixed" = "混在性別";
+"enum.tag.namespace.value.cosplayer" = "レイヤー";
+"enum.tag.namespace.value.other" = "その他";
+"enum.tag.namespace.value.temp" = "一時的";
 
 // MARK: Language
 "enum.language.value.invalid" = "無効";

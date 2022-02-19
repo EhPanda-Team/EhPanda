@@ -546,18 +546,18 @@
 "enum.category.value.private" = "非公开";
 
 // MARK: TagCategory
-"enum.tag.category.value.reclass" = "重归类";
-"enum.tag.category.value.language" = "语言";
-"enum.tag.category.value.parody" = "原作";
-"enum.tag.category.value.character" = "角色";
-"enum.tag.category.value.group" = "团体";
-"enum.tag.category.value.artist" = "作者";
-"enum.tag.category.value.male" = "男性";
-"enum.tag.category.value.female" = "女性";
-"enum.tag.category.value.mixed" = "混合性别";
-"enum.tag.category.value.cosplayer" = "扮装者";
-"enum.tag.category.value.other" = "其它";
-"enum.tag.category.value.temp" = "临时";
+"enum.tag.namespace.value.reclass" = "重归类";
+"enum.tag.namespace.value.language" = "语言";
+"enum.tag.namespace.value.parody" = "原作";
+"enum.tag.namespace.value.character" = "角色";
+"enum.tag.namespace.value.group" = "团体";
+"enum.tag.namespace.value.artist" = "作者";
+"enum.tag.namespace.value.male" = "男性";
+"enum.tag.namespace.value.female" = "女性";
+"enum.tag.namespace.value.mixed" = "混合性别";
+"enum.tag.namespace.value.cosplayer" = "扮装者";
+"enum.tag.namespace.value.other" = "其它";
+"enum.tag.namespace.value.temp" = "临时";
 
 // MARK: Language
 "enum.language.value.invalid" = "无效";

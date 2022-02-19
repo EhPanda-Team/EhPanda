@@ -43,3 +43,30 @@ extension TagTranslator: CustomStringConvertible {
         return "TagTranslator(\(params))"
     }
 }
+
+struct TagTranslation: Identifiable {
+    let id: UUID = .init()
+    let namespace: TagNamespace
+    let key: String
+    let value: String
+    var description: String?
+
+    var searchKeyword: String {
+        [namespace.abbreviation ?? namespace.rawValue, ":",
+         key.contains(" ") ? "\"\(key)$\"" : "\(key)$"].joined()
+    }
+
+    func getSuggestion(keyword: String) -> TagSuggestion {
+        func getWeight(value: String, range: Range<String.Index>) -> Float {
+            namespace.weight * .init(keyword.count + 1) / .init(value.count)
+            * (range.contains(value.startIndex) ? 2.0 : 1.0)
+        }
+
+        var weight: Float = .zero
+        let keyRange = key.range(of: keyword, options: .caseInsensitive)
+        let valueRange = value.range(of: keyword, options: .caseInsensitive)
+        if let range = keyRange { weight += getWeight(value: key, range: range) }
+        if let range = valueRange { weight += getWeight(value: value, range: range) }
+        return TagSuggestion(tag: self, weight: weight, keyRange: keyRange, valueRange: valueRange)
+    }
+}

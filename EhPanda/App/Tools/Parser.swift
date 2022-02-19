@@ -109,20 +109,20 @@ struct Parser {
                     let hex = style[rangeA.upperBound..<rangeB.lowerBound]
                     contentBackgroundColor = .init(hex: .init(hex))
                 }
-                if let index = tags.firstIndex(where: { $0.namespace == namespace }) {
+                if let index = tags.firstIndex(where: { $0.rawNamespace == namespace }) {
                     let contents = tags[index].contents
                     let galleryTagContent = GalleryTag.Content(
                         text: contentText, displayText: contentText,
                         backgroundColor: contentBackgroundColor
                     )
                     let newContents = contents + [galleryTagContent]
-                    tags[index] = .init(namespace: namespace, contents: newContents)
+                    tags[index] = .init(rawNamespace: namespace, contents: newContents)
                 } else {
                     let galleryTagContent = GalleryTag.Content(
                         text: contentText, displayText: contentText,
                         backgroundColor: contentBackgroundColor
                     )
-                    tags.append(.init(namespace: namespace, contents: [galleryTagContent]))
+                    tags.append(.init(rawNamespace: namespace, contents: [galleryTagContent]))
                 }
             }
             return tags
@@ -334,7 +334,7 @@ struct Parser {
                     contents.append(.init(text: text, displayText: displayText, backgroundColor: nil))
                 }
 
-                tags.append(.init(namespace: namespace, contents: contents))
+                tags.append(.init(rawNamespace: namespace, contents: contents))
             }
 
             return tags

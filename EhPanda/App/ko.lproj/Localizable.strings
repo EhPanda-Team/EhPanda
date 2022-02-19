@@ -546,18 +546,18 @@
 "enum.category.value.private" = "Private";
 
 // MARK: TagCategory
-"enum.tag.category.value.reclass" = "재분류";
-"enum.tag.category.value.language" = "언어";
-"enum.tag.category.value.parody" = "원작";
-"enum.tag.category.value.character" = "캐릭터";
-"enum.tag.category.value.group" = "그룹";
-"enum.tag.category.value.artist" = "작가";
-"enum.tag.category.value.male" = "남성";
-"enum.tag.category.value.female" = "여성";
-"enum.tag.category.value.mixed" = "Mixed";
-"enum.tag.category.value.cosplayer" = "Cosplayer";
-"enum.tag.category.value.other" = "Other";
-"enum.tag.category.value.temp" = "Temp";
+"enum.tag.namespace.value.reclass" = "재분류";
+"enum.tag.namespace.value.language" = "언어";
+"enum.tag.namespace.value.parody" = "원작";
+"enum.tag.namespace.value.character" = "캐릭터";
+"enum.tag.namespace.value.group" = "그룹";
+"enum.tag.namespace.value.artist" = "작가";
+"enum.tag.namespace.value.male" = "남성";
+"enum.tag.namespace.value.female" = "여성";
+"enum.tag.namespace.value.mixed" = "Mixed";
+"enum.tag.namespace.value.cosplayer" = "Cosplayer";
+"enum.tag.namespace.value.other" = "Other";
+"enum.tag.namespace.value.temp" = "Temp";
 
 // MARK: Language
 "enum.language.value.invalid" = "무효";

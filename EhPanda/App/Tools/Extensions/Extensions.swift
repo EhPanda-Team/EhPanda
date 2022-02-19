@@ -115,6 +115,9 @@ extension String {
     var localizedKey: LocalizedStringKey {
         .init(self)
     }
+    var bold: String {
+        ["`", self, "`"].joined()
+    }
 
     var urlEncoded: String {
         addingPercentEncoding(

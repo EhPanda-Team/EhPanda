@@ -61,7 +61,7 @@ struct Gallery: Identifiable, Codable, Equatable, Hashable {
     }
     var language: Language? {
         let rawValue = tags
-            .first(where: { $0.category == .language })?.contents
+            .first(where: { $0.namespace == .language })?.contents
             .first(where: { Language(rawValue: $0.firstLetterCapitalizedText) != nil })
             .map(\.firstLetterCapitalizedText) ?? ""
         return .init(rawValue: rawValue)
