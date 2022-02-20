@@ -49,7 +49,7 @@ struct GalleryThumbnailCell: View {
                         Spacer()
                     }
                 }
-            VStack(alignment: .leading) {
+            VStack(alignment: .leading, spacing: 5) {
                 Text(gallery.title).font(.callout.bold()).lineLimit(3)
                 let tagContents = gallery.tagContents(maximum: setting.listTagsNumberMaximum)
                 if setting.showsTagsInList, !tagContents.isEmpty {
@@ -62,20 +62,17 @@ struct GalleryThumbnailCell: View {
                         )
                     }
                 }
-                HStack {
-                    RatingView(rating: gallery.rating).foregroundColor(.yellow).font(.caption)
-                    Spacer()
-                    HStack(spacing: 10) {
-                        if !DeviceUtil.isSEWidth {
-                            HStack(spacing: 2) {
-                                Image(systemSymbol: .photoOnRectangleAngled)
-                                Text(String(gallery.pageCount))
-                            }
-                        }
+                HStack(spacing: 10) {
+                    if let language = gallery.language {
+                        Text(language.value)
                     }
-                    .lineLimit(1).font(.footnote).foregroundStyle(.secondary)
+                    HStack(spacing: 2) {
+                        Image(systemSymbol: .photoOnRectangleAngled)
+                        Text(String(gallery.pageCount))
+                    }
                 }
-                .padding(.top, 1)
+                .lineLimit(1).font(.footnote).foregroundStyle(.secondary)
+                RatingView(rating: gallery.rating).foregroundColor(.yellow).font(.caption)
             }
             .padding()
         }
