@@ -76,12 +76,12 @@ struct DetailView: View {
                     )
                     if !viewStore.galleryTags.isEmpty {
                         TagsSection(
-                            tags: viewStore.galleryTags,
+                            tags: viewStore.galleryTags, showsImages: setting.showsImagesInTags,
                             navigateAction: {
                                 viewStore.send(.setNavigation(.detailSearch($0)))
                             },
                             translateAction: {
-                                tagTranslator.lookup(word: $0, returnOriginal: !setting.translatesTags).0
+                                tagTranslator.lookup(word: $0, returnOriginal: !setting.translatesTags)
                             }
                         )
                         .padding(.horizontal)
@@ -539,15 +539,17 @@ private struct ActionSection: View {
 // MARK: TagsSection
 private struct TagsSection: View {
     private let tags: [GalleryTag]
+    private let showsImages: Bool
     private let navigateAction: (String) -> Void
-    private let translateAction: (String) -> String
+    private let translateAction: (String) -> (String, TagTranslation?)
 
     init(
-        tags: [GalleryTag],
+        tags: [GalleryTag], showsImages: Bool,
         navigateAction: @escaping (String) -> Void,
-        translateAction: @escaping (String) -> String
+        translateAction: @escaping (String) -> (String, TagTranslation?)
     ) {
         self.tags = tags
+        self.showsImages = showsImages
         self.navigateAction = navigateAction
         self.translateAction = translateAction
     }
@@ -555,7 +557,11 @@ private struct TagsSection: View {
     var body: some View {
         VStack(alignment: .leading) {
             ForEach(tags) { tag in
-                TagRow(tag: tag, navigateAction: navigateAction, translateAction: translateAction)
+                TagRow(
+                    tag: tag, showsImages: showsImages,
+                    navigateAction: navigateAction,
+                    translateAction: translateAction
+                )
             }
         }
         .padding(.horizontal)
@@ -568,15 +574,17 @@ private extension TagsSection {
         @Environment(\.inSheet) private var inSheet
 
         private let tag: GalleryTag
+        private let showsImages: Bool
         private let navigateAction: (String) -> Void
-        private let translateAction: (String) -> String
+        private let translateAction: (String) -> (String, TagTranslation?)
 
         init(
-            tag: GalleryTag,
+            tag: GalleryTag, showsImages: Bool,
             navigateAction: @escaping (String) -> Void,
-            translateAction: @escaping (String) -> String
+            translateAction: @escaping (String) -> (String, TagTranslation?)
         ) {
             self.tag = tag
+            self.showsImages = showsImages
             self.navigateAction = navigateAction
             self.translateAction = translateAction
         }
@@ -602,6 +610,8 @@ private extension TagsSection {
                     } label: {
                         TagCloudCell(
                             text: content.localizedDisplayText(translateAction: translateAction),
+                            imageURL: translateAction(content.text).1?.valueImageURL,
+                            showsImages: showsImages,
                             font: .subheadline, padding: padding, textColor: .primary,
                             backgroundColor: backgroundColor
                         )

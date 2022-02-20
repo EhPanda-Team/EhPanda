@@ -183,7 +183,10 @@
 "general.setting.view.title.general" = "일반";
 "general.setting.view.title.language" = "언어";
 "general.setting.view.title.autoLock" = "앱 자동 잠금";
+"general.setting.view.title.enablesTagsExtension" = "Enables tags extension";
 "general.setting.view.title.translatesTags" = "태그 번역하기";
+"general.setting.view.title.showsTagsSearchSuggestions" = "Shows tags search suggestions";
+"general.setting.view.title.showsImagesInTags" = "Shows images in tags";
 "general.setting.view.title.redirectsLinksToTheSelectedHost" = "선택한 서버로 이동하기";
 "general.setting.view.title.detectsLinksFromClipboard" = "클립보드의 링크 인식하기";
 "general.setting.view.title.backgroundBlurRadius" = "Background blur radius";
@@ -192,7 +195,7 @@
 "general.setting.view.button.removeCustomTranslations" = "Remove custom translations";
 "general.setting.view.button.clearImageCaches" = "이미지 캐시 지우기";
 "general.setting.view.value.defaultLanguageDescription" = "N/A";
-"general.setting.view.section.title.tagsTranslation" = "Tags translation";
+"general.setting.view.section.title.tags" = "Tags";
 "general.setting.view.section.title.navigation" = "내비게이션";
 "general.setting.view.section.title.security" = "개인 정보 보호";
 "general.setting.view.section.title.caches" = "캐시";

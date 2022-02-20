@@ -50,19 +50,19 @@ struct GalleryTag: Codable, Equatable, Hashable, Identifiable {
             return tag.namespace == .temp ? base
             : [tag.rawNamespace.lowercased(), base].joined(separator: ":")
         }
-        func localizedDisplayText(translateAction: ((String) -> String)?) -> String {
+        func localizedDisplayText(translateAction: ((String) -> (String, TagTranslation?))?) -> String {
             guard let action = translateAction else { return displayText }
             let components = displayText.split(separator: "|")
                 .map { $0.trimmingCharacters(in: .whitespaces) }
                 .filter(\.notEmpty)
             if components.count == 2 {
-                return components.map(action).joined(separator: " | ")
+                return components.map(action).map(\.0).joined(separator: " | ")
             } else {
-                return action(displayText)
+                return action(displayText).0
             }
         }
 
-        private let text: String
+        let text: String
         private let displayText: String
         let backgroundColor: Color?
 

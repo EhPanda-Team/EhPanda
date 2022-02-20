@@ -38,7 +38,7 @@ struct HistoryView: View {
             fetchAction: { viewStore.send(.fetchGalleries) },
             navigateAction: { viewStore.send(.setNavigation(.detail($0))) },
             translateAction: {
-                tagTranslator.lookup(word: $0, returnOriginal: !setting.translatesTags).0
+                tagTranslator.lookup(word: $0, returnOriginal: !setting.translatesTags)
             }
         )
         .sheet(

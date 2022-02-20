@@ -13,9 +13,9 @@ struct GalleryDetailCell: View {
 
     private let gallery: Gallery
     private let setting: Setting
-    private let translateAction: ((String) -> String)?
+    private let translateAction: ((String) -> (String, TagTranslation?))?
 
-    init(gallery: Gallery, setting: Setting, translateAction: ((String) -> String)? = nil) {
+    init(gallery: Gallery, setting: Setting, translateAction: ((String) -> (String, TagTranslation?))? = nil) {
         self.gallery = gallery
         self.setting = setting
         self.translateAction = translateAction
@@ -39,6 +39,8 @@ struct GalleryDetailCell: View {
                     TagCloudView(data: gallery.tagContents(maximum: setting.listTagsNumberMaximum)) { content in
                         TagCloudCell(
                             text: content.localizedDisplayText(translateAction: translateAction),
+                            imageURL: translateAction?(content.text).1?.valueImageURL,
+                            showsImages: setting.showsImagesInTags,
                             font: .caption2, padding: .init(top: 2, leading: 4, bottom: 2, trailing: 4),
                             textColor: content.backgroundColor != nil ? .white : .secondary,
                             backgroundColor: content.backgroundColor ?? tagColor

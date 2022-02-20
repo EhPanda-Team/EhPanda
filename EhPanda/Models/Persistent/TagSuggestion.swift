@@ -23,23 +23,27 @@ struct TagSuggestion: Equatable, Hashable, Identifiable {
         return [namespace, ":", leftSideString, middleString, rightSideString].joined()
     }
     var displayValue: String {
-        let leftSideString = leftSideString(of: valueRange, string: tag.value)
-        var middleString = middleString(of: valueRange, string: tag.value)
-        let rightSideString = rightSideString(of: valueRange, string: tag.value)
+        let text = tag.displayValue
+        let leftSideString = leftSideString(of: valueRange, string: text)
+        var middleString = middleString(of: valueRange, string: text)
+        let rightSideString = rightSideString(of: valueRange, string: text)
         middleString = middleString.isEmpty ? middleString : middleString.linkStyled
         return [leftSideString, middleString, rightSideString].joined()
     }
 
     private func leftSideString(of range: Range<String.Index>?, string: String) -> String {
-        guard let range = range else { return string }
+        guard let range = range, string.endIndex >= range.lowerBound else { return string }
         return .init(string[string.startIndex..<range.lowerBound])
     }
     private func middleString(of range: Range<String.Index>?, string: String) -> String {
-        guard let range = range else { return "" }
+        guard let range = range,
+              range.upperBound <= string.endIndex,
+              range.lowerBound >= string.startIndex
+        else { return .init() }
         return .init(string[range])
     }
     private func rightSideString(of range: Range<String.Index>?, string: String) -> String {
-        guard let range = range else { return "" }
+        guard let range = range, range.upperBound < string.endIndex else { return .init() }
         return .init(string[range.upperBound..<string.endIndex])
     }
 }

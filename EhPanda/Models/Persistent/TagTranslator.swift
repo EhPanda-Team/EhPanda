@@ -22,7 +22,7 @@ struct TagTranslator: Codable, Equatable {
             $0.key.caseInsensitiveEqualsTo(rhs)
         }) else { return (word, nil) }
 
-        var result = translation.value
+        var result = translation.displayValue
         if let lhs = lhs {
             result = [lhs, ":", result].joined()
         }
@@ -48,6 +48,20 @@ struct TagTranslation: Codable, Equatable, Hashable, Identifiable {
     let key: String
     let value: String
     var description: String?
+
+    var displayValue: String {
+        valuePlainText ?? value
+    }
+
+    var valuePlainText: String? {
+        MarkdownUtil.ripImage(string: value)
+    }
+    var valueImageURL: URL? {
+        if let imageURLString = MarkdownUtil.parseImage(string: value) {
+            return .init(string: imageURLString)
+        }
+        return nil
+    }
 
     var searchKeyword: String {
         [namespace.abbreviation ?? namespace.rawValue, ":",

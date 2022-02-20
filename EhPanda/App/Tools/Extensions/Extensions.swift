@@ -125,6 +125,11 @@ extension String {
         }
         return (nil, self)
     }
+    var emojisRipped: String {
+        unicodeScalars
+            .filter { !$0.properties.isEmojiPresentation }
+            .reduce("") { $0 + .init($1) }
+    }
 
     var urlEncoded: String {
         addingPercentEncoding(

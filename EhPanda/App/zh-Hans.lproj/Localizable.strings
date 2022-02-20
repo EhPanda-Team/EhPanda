@@ -183,7 +183,10 @@
 "general.setting.view.title.general" = "一般";
 "general.setting.view.title.language" = "语言";
 "general.setting.view.title.autoLock" = "自动锁定";
+"general.setting.view.title.enablesTagsExtension" = "启用标签扩展";
 "general.setting.view.title.translatesTags" = "翻译标签";
+"general.setting.view.title.showsTagsSearchSuggestions" = "显示标签搜索建议";
+"general.setting.view.title.showsImagesInTags" = "显示标签中的图像";
 "general.setting.view.title.redirectsLinksToTheSelectedHost" = "重定向链接到选定的站点";
 "general.setting.view.title.detectsLinksFromClipboard" = "从剪切板检测链接";
 "general.setting.view.title.backgroundBlurRadius" = "后台模糊效果";
@@ -192,7 +195,7 @@
 "general.setting.view.button.removeCustomTranslations" = "移除自定义翻译";
 "general.setting.view.button.clearImageCaches" = "清空图片缓存";
 "general.setting.view.value.defaultLanguageDescription" = "无效";
-"general.setting.view.section.title.tagsTranslation" = "标签翻译";
+"general.setting.view.section.title.tags" = "标签";
 "general.setting.view.section.title.navigation" = "导航";
 "general.setting.view.section.title.security" = "安全";
 "general.setting.view.section.title.caches" = "缓存";

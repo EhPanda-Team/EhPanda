@@ -11,28 +11,37 @@ import Kingfisher
 struct TagSuggestionView: View {
     @Binding private var keyword: String
     private let translations: [TagTranslation]
+    private let showsImages: Bool
+    private let isEnabled: Bool
 
     @StateObject private var translationHandler = TagTranslationHandler()
 
-    init(keyword: Binding<String>, translations: [TagTranslation]) {
+    init(keyword: Binding<String>, translations: [TagTranslation], showsImages: Bool, isEnabled: Bool) {
         _keyword = keyword
         self.translations = translations
+        self.showsImages = showsImages
+        self.isEnabled = isEnabled
     }
 
     var body: some View {
-        DoubleHorizontalSuggestionsStack(suggestions: translationHandler.suggestions) { suggestion in
-            translationHandler.autoComplete(suggestion: suggestion, keyword: &keyword)
+        if isEnabled {
+            DoubleHorizontalSuggestionsStack(
+                suggestions: translationHandler.suggestions, showsImages: showsImages,
+                action: { translationHandler.autoComplete(suggestion: $0, keyword: &keyword) }
+            )
+            .onChange(of: keyword) { _ in translationHandler.analyze(text: &keyword, translations: translations) }
         }
-        .onChange(of: keyword) { _ in translationHandler.analyze(text: &keyword, translations: translations) }
     }
 }
 
 private struct DoubleHorizontalSuggestionsStack: View {
     private let suggestions: [TagSuggestion]
+    private let showsImages: Bool
     private let action: (TagSuggestion) -> Void
 
-    init(suggestions: [TagSuggestion], action: @escaping (TagSuggestion) -> Void) {
+    init(suggestions: [TagSuggestion], showsImages: Bool, action: @escaping (TagSuggestion) -> Void) {
         self.suggestions = suggestions
+        self.showsImages = showsImages
         self.action = action
     }
 
@@ -56,18 +65,18 @@ private struct DoubleHorizontalSuggestionsStack: View {
     var body: some View {
         if !DeviceUtil.isPad {
             ForEach(singleSuggestions) { suggestion in
-                SuggestionCell(suggestion: suggestion) {
+                SuggestionCell(suggestion: suggestion, showsImages: showsImages) {
                     action(suggestion)
                 }
             }
         } else {
             ForEach(doubleSuggestions, id: \.0) { leadingSuggestion, trailingSuggestion in
                 HStack(spacing: 30) {
-                    SuggestionCell(suggestion: leadingSuggestion) {
+                    SuggestionCell(suggestion: leadingSuggestion, showsImages: showsImages) {
                         action(leadingSuggestion)
                     }
                     if let trailingSuggestion = trailingSuggestion {
-                        SuggestionCell(suggestion: trailingSuggestion) {
+                        SuggestionCell(suggestion: trailingSuggestion, showsImages: showsImages) {
                             action(trailingSuggestion)
                         }
                     }
@@ -79,23 +88,18 @@ private struct DoubleHorizontalSuggestionsStack: View {
 
 private struct SuggestionCell: View {
     private let suggestion: TagSuggestion
+    private let showsImages: Bool
     private let action: () -> Void
 
-    init(suggestion: TagSuggestion, action: @escaping () -> Void) {
+    init(suggestion: TagSuggestion, showsImages: Bool, action: @escaping () -> Void) {
         self.suggestion = suggestion
+        self.showsImages = showsImages
         self.action = action
     }
 
-    private var plainText: LocalizedStringKey {
-        let text = suggestion.displayValue
-        return (MarkdownUtil.ripImage(string: text) ?? text).localizedKey
-    }
-    private var markdownImageURL: URL? {
-        let text = suggestion.displayValue
-        if let imageURLString = MarkdownUtil.parseImage(string: text) {
-            return .init(string: imageURLString)
-        }
-        return nil
+    private var displayValue: String {
+        let value = suggestion.displayValue
+        return showsImages ? value : value.emojisRipped
     }
 
     var body: some View {
@@ -103,10 +107,10 @@ private struct SuggestionCell: View {
             Image(systemSymbol: .magnifyingglass)
             VStack(alignment: .leading) {
                 HStack(spacing: 2) {
-                    Text(plainText)
-                    if let markdownImageURL = markdownImageURL {
+                    Text(displayValue.localizedKey)
+                    if let imageURL = suggestion.tag.valueImageURL, showsImages {
                         Image(systemSymbol: .photo).opacity(0)
-                            .overlay(KFImage(markdownImageURL).resizable().scaledToFit())
+                            .overlay(KFImage(imageURL).resizable().scaledToFit())
                     }
                 }
                 .font(.callout).lineLimit(1)
@@ -158,12 +162,12 @@ final class TagTranslationHandler: ObservableObject {
         if let colon = keyword.firstIndex(of: ":") {
             // Requires at least one character before the colon
             if colon >= keyword.index(keyword.startIndex, offsetBy: 1) {
-                let key = String(keyword[keyword.startIndex ..< colon])
+                let key = String(keyword[keyword.startIndex..<colon])
                 if let index = namespaceAbbreviations.firstIndex(where: {
                     $0.caseInsensitiveEqualsTo(key) || $1.caseInsensitiveEqualsTo(key)
                 }) {
                     namespace = namespaceAbbreviations[index].key
-                    keyword = .init(keyword[keyword.index(colon, offsetBy: 1) ..< keyword.endIndex])
+                    keyword = .init(keyword[keyword.index(colon, offsetBy: 1)..<keyword.endIndex])
                 }
             }
         }

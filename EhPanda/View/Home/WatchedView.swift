@@ -41,7 +41,7 @@ struct WatchedView: View {
                     fetchMoreAction: { viewStore.send(.fetchMoreGalleries) },
                     navigateAction: { viewStore.send(.setNavigation(.detail($0))) },
                     translateAction: {
-                        tagTranslator.lookup(word: $0, returnOriginal: !setting.translatesTags).0
+                        tagTranslator.lookup(word: $0, returnOriginal: !setting.translatesTags)
                     }
                 )
             } else {
@@ -86,7 +86,10 @@ struct WatchedView: View {
         .animation(.default, value: viewStore.jumpPageAlertPresented)
         .navigationBarBackButtonHidden(viewStore.jumpPageAlertPresented)
         .searchable(text: viewStore.binding(\.$keyword)) {
-            TagSuggestionView(keyword: viewStore.binding(\.$keyword), translations: tagTranslator.translations)
+            TagSuggestionView(
+                keyword: viewStore.binding(\.$keyword), translations: tagTranslator.translations,
+                showsImages: setting.showsImagesInTags, isEnabled: setting.showsTagsSearchSuggestions
+            )
         }
         .onSubmit(of: .search) {
             viewStore.send(.fetchGalleries())

@@ -183,7 +183,10 @@
 "general.setting.view.title.general" = "Allgemein";
 "general.setting.view.title.language" = "Sprache";
 "general.setting.view.title.autoLock" = "Auto-Lock";
+"general.setting.view.title.enablesTagsExtension" = "Enables tags extension";
 "general.setting.view.title.translatesTags" = "Translates tags";
+"general.setting.view.title.showsTagsSearchSuggestions" = "Shows tags search suggestions";
+"general.setting.view.title.showsImagesInTags" = "Shows images in tags";
 "general.setting.view.title.redirectsLinksToTheSelectedHost" = "Links zum ausgewählten Host umleiten";
 "general.setting.view.title.detectsLinksFromClipboard" = "Übernimmt automatisch Links aus der Zwischenablage";
 "general.setting.view.title.backgroundBlurRadius" = "Background blur radius";
@@ -192,7 +195,7 @@
 "general.setting.view.button.removeCustomTranslations" = "Remove custom translations";
 "general.setting.view.button.clearImageCaches" = "Zwischengespeicherte Bilder (Cache) löschen";
 "general.setting.view.value.defaultLanguageDescription" = "N/A";
-"general.setting.view.section.title.tagsTranslation" = "Tags translation";
+"general.setting.view.section.title.tags" = "Tags";
 "general.setting.view.section.title.navigation" = "Navigation";
 "general.setting.view.section.title.security" = "Sicherheit";
 "general.setting.view.section.title.caches" = "Caches";

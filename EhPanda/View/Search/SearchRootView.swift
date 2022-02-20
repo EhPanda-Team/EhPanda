@@ -80,7 +80,10 @@ struct SearchRootView: View {
                 .autoBlur(radius: blurRadius)
             }
             .searchable(text: viewStore.binding(\.$keyword), placement: searchFieldPlacement) {
-                TagSuggestionView(keyword: viewStore.binding(\.$keyword), translations: tagTranslator.translations)
+                TagSuggestionView(
+                    keyword: viewStore.binding(\.$keyword), translations: tagTranslator.translations,
+                    showsImages: setting.showsImagesInTags, isEnabled: setting.showsTagsSearchSuggestions
+                )
             }
             .onSubmit(of: .search) {
                 viewStore.send(.setNavigation(.search))

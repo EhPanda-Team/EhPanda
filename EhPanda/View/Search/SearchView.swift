@@ -41,7 +41,7 @@ struct SearchView: View {
             fetchMoreAction: { viewStore.send(.fetchMoreGalleries) },
             navigateAction: { viewStore.send(.setNavigation(.detail($0))) },
             translateAction: {
-                tagTranslator.lookup(word: $0, returnOriginal: !setting.translatesTags).0
+                tagTranslator.lookup(word: $0, returnOriginal: !setting.translatesTags)
             }
         )
         .sheet(
@@ -81,7 +81,10 @@ struct SearchView: View {
         )
         .animation(.default, value: viewStore.jumpPageAlertPresented)
         .searchable(text: viewStore.binding(\.$keyword)) {
-            TagSuggestionView(keyword: viewStore.binding(\.$keyword), translations: tagTranslator.translations)
+            TagSuggestionView(
+                keyword: viewStore.binding(\.$keyword), translations: tagTranslator.translations,
+                showsImages: setting.showsImagesInTags, isEnabled: setting.showsTagsSearchSuggestions
+            )
         }
         .onSubmit(of: .search) {
             viewStore.send(.fetchGalleries())

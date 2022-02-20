@@ -118,11 +118,11 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
                     .setValue(state.setting.galleryHost.rawValue, .galleryHost).fireAndForget()
             )
 
-        case .binding(\.$setting.translatesTags):
+        case .binding(\.$setting.enablesTagsExtension):
             var effects: [Effect<SettingAction, Never>] = [
                 .init(value: .syncSetting)
             ]
-            if state.setting.translatesTags {
+            if state.setting.enablesTagsExtension {
                 effects.append(.init(value: .fetchTagTranslator))
             }
             return .merge(effects)
@@ -256,7 +256,7 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
                     .init(value: .fetchEhProfileIndex)
                 ])
             }
-            if state.setting.translatesTags {
+            if state.setting.enablesTagsExtension {
                 effects.append(.init(value: .fetchTagTranslator))
             }
             return .merge(effects)

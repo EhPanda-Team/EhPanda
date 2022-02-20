@@ -183,7 +183,10 @@
 "general.setting.view.title.general" = "一般";
 "general.setting.view.title.language" = "言語";
 "general.setting.view.title.autoLock" = "自動ロック";
+"general.setting.view.title.enablesTagsExtension" = "タグの拡張機能を有効";
 "general.setting.view.title.translatesTags" = "タグを訳す";
+"general.setting.view.title.showsTagsSearchSuggestions" = "タグの検索提案を表示";
+"general.setting.view.title.showsImagesInTags" = "タグの画像を表示";
 "general.setting.view.title.redirectsLinksToTheSelectedHost" = "リンクを選択されたホストへリダイレクト";
 "general.setting.view.title.detectsLinksFromClipboard" = "クリップボードからリンクを探知";
 "general.setting.view.title.backgroundBlurRadius" = "バッググラウンドぼかし度";
@@ -192,7 +195,7 @@
 "general.setting.view.button.removeCustomTranslations" = "カスタム翻訳を削除";
 "general.setting.view.button.clearImageCaches" = "画像キャッシュを削除";
 "general.setting.view.value.defaultLanguageDescription" = "無効";
-"general.setting.view.section.title.tagsTranslation" = "タグの翻訳";
+"general.setting.view.section.title.tags" = "タグ";
 "general.setting.view.section.title.navigation" = "ナビゲーション";
 "general.setting.view.section.title.security" = "セキュリティ";
 "general.setting.view.section.title.caches" = "キャッシュ";
