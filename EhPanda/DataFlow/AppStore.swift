@@ -186,8 +186,7 @@ let appReducerCore = Reducer<AppState, AppAction, AppEnvironment> { state, actio
         let blurRadius = state.settingState.setting.backgroundBlurRadius
         if threshold >= 0 {
             state.appLockState.becameInactiveDate = .distantPast
-            effects.append(.init(value: .appLock(.lockApp(blurRadius))))
-            effects.append(.init(value: .appLock(.authorize)))
+            effects.append(.init(value: .appLock(.onBecomeActive(threshold, blurRadius))))
         }
         if state.settingState.setting.detectsLinksFromClipboard {
             effects.append(.init(value: .appRoute(.detectClipboardURL)))

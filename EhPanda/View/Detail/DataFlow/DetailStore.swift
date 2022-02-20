@@ -47,10 +47,10 @@ struct DetailState: Equatable {
     var galleryPreviewURLs = [Int: URL]()
     var galleryComments = [GalleryComment]()
 
-    var readingState = ReadingState(gallery: .empty)
+    var readingState = ReadingState()
     var archivesState = ArchivesState()
     var torrentsState = TorrentsState()
-    var previewsState = PreviewsState(gallery: .empty)
+    var previewsState = PreviewsState()
     @Heap var commentsState: CommentsState?
     var galleryInfosState = GalleryInfosState()
     @Heap var detailSearchState: DetailSearchState?
@@ -64,8 +64,6 @@ struct DetailState: Equatable {
 indirect enum DetailAction: BindableAction {
     case binding(BindingAction<DetailState>)
     case setNavigation(DetailState.Route?)
-    case setupPreviewsState
-    case setupReadingState
     case clearSubStates
     case onPostCommentAppear
     case onAppear(String, Bool)
@@ -135,25 +133,17 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.recurs
                 state.route = route
                 return route == nil ? .init(value: .clearSubStates) : .none
 
-            case .setupPreviewsState:
-                state.previewsState = .init(gallery: state.gallery)
-                return .none
-
-            case .setupReadingState:
-                state.readingState = .init(gallery: state.gallery)
-                return .none
-
             case .clearSubStates:
+                state.readingState = .init()
                 state.archivesState = .init()
                 state.torrentsState = .init()
+                state.previewsState = .init()
                 state.commentsState = .init()
                 state.commentContent = .init()
                 state.postCommentFocused = false
                 state.galleryInfosState = .init()
                 state.detailSearchState = .init()
                 return .merge(
-                    .init(value: .setupPreviewsState),
-                    .init(value: .setupReadingState),
                     .init(value: .reading(.teardown)),
                     .init(value: .archives(.teardown)),
                     .init(value: .torrents(.teardown)),
@@ -257,11 +247,7 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.recurs
                 state.galleryTags = galleryState.tags
                 state.galleryPreviewURLs = galleryState.previewURLs
                 state.galleryComments = galleryState.comments
-                return .merge(
-                    .init(value: .fetchGalleryDetail),
-                    .init(value: .setupPreviewsState),
-                    .init(value: .setupReadingState)
-                )
+                return .init(value: .fetchGalleryDetail)
 
             case .fetchGalleryDetail:
                 guard state.loadingState != .loading,

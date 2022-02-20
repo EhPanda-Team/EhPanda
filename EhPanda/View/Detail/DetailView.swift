@@ -124,7 +124,7 @@ struct DetailView: View {
         .fullScreenCover(unwrapping: viewStore.binding(\.$route), case: /DetailState.Route.reading) { _ in
             ReadingView(
                 store: store.scope(state: \.readingState, action: DetailAction.reading),
-                setting: $setting, blurRadius: blurRadius
+                gid: gid, setting: $setting, blurRadius: blurRadius
             )
             .accentColor(setting.accentColor)
             .autoBlur(radius: blurRadius)
@@ -190,7 +190,7 @@ private extension DetailView {
         NavigationLink(unwrapping: viewStore.binding(\.$route), case: /DetailState.Route.previews) { _ in
             PreviewsView(
                 store: store.scope(state: \.previewsState, action: DetailAction.previews),
-                setting: $setting, blurRadius: blurRadius
+                gid: gid, setting: $setting, blurRadius: blurRadius
             )
         }
         NavigationLink(unwrapping: viewStore.binding(\.$route), case: /DetailState.Route.comments) { route in

@@ -37,7 +37,7 @@ struct ReadingState: Equatable {
     }
 
     @BindableState var route: Route?
-    let gallery: Gallery
+    var gallery: Gallery = .empty
     var galleryDetail: GalleryDetail?
 
     var readingProgress: Int = .zero
@@ -120,7 +120,7 @@ enum ReadingAction: BindableAction {
     case toggleShowsPanel
     case setOrientationPortrait(Bool)
     case onPerformDismiss
-    case onAppear(Bool)
+    case onAppear(String, Bool)
 
     case onWebImageRetry(Int)
     case onWebImageSucceeded(Int)
@@ -141,7 +141,7 @@ enum ReadingAction: BindableAction {
     case syncImageURLs([Int: URL], [Int: URL])
 
     case teardown
-    case fetchDatabaseInfos
+    case fetchDatabaseInfos(String)
     case fetchDatabaseInfosDone(GalleryState)
 
     case fetchPreviewURLs(Int)
@@ -204,9 +204,9 @@ let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { 
     case .onPerformDismiss:
         return environment.hapticClient.generateFeedback(.light).fireAndForget()
 
-    case .onAppear(let enablesLandscape):
+    case .onAppear(let gid, let enablesLandscape):
         var effects: [Effect<ReadingAction, Never>] = [
-            .init(value: .fetchDatabaseInfos)
+            .init(value: .fetchDatabaseInfos(gid))
         ]
         if enablesLandscape {
             effects.append(.init(value: .setOrientationPortrait(false)))
@@ -318,7 +318,9 @@ let readingReducer = Reducer<ReadingState, ReadingAction, ReadingEnvironment> { 
         }
         return .merge(effects)
 
-    case .fetchDatabaseInfos:
+    case .fetchDatabaseInfos(let gid):
+        guard let gallery = environment.databaseClient.fetchGallery(gid: gid) else { return .none }
+        state.gallery = gallery
         state.galleryDetail = environment.databaseClient.fetchGalleryDetail(gid: state.gallery.id)
         return environment.databaseClient.fetchGalleryState(gid: state.gallery.id)
             .map(ReadingAction.fetchDatabaseInfosDone).cancellable(id: ReadingState.CancelID())
