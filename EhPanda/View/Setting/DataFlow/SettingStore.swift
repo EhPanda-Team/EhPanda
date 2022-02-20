@@ -444,7 +444,7 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
 
         case .general(.onRemoveCustomTranslations):
             state.tagTranslator.hasCustomTranslations = false
-            state.tagTranslator.contents = .init()
+            state.tagTranslator.translations = .init()
             return .init(value: .syncTagTranslator)
 
         case .general:

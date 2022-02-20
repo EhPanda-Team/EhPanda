@@ -84,7 +84,7 @@ extension FileClient {
                         promise(.failure(.parseFailed))
                         return
                     }
-                    promise(.success(.init(hasCustomTranslations: true, contents: translations)))
+                    promise(.success(.init(hasCustomTranslations: true, translations: translations)))
                 }
             }
             .eraseToAnyPublisher()

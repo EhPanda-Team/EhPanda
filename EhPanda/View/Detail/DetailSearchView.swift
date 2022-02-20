@@ -41,7 +41,7 @@ struct DetailSearchView: View {
             fetchMoreAction: { viewStore.send(.fetchMoreGalleries) },
             navigateAction: { viewStore.send(.setNavigation(.detail($0))) },
             translateAction: {
-                tagTranslator.tryTranslate(text: $0, returnOriginal: !setting.translatesTags)
+                tagTranslator.lookup(word: $0, returnOriginal: !setting.translatesTags).0
             }
         )
         .sheet(

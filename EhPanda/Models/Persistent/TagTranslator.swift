@@ -11,24 +11,21 @@ struct TagTranslator: Codable, Equatable {
     var language: TranslatableLanguage?
     var hasCustomTranslations: Bool = false
     var updatedDate: Date = .distantPast
-    var contents = [String: String]()
+    var translations = [TagTranslation]()
 
-    private func lookup(text: String) -> String {
-        guard let translatedText = contents[text],
-              !translatedText.isEmpty
-        else { return text }
+    func lookup(word: String, returnOriginal: Bool) -> (String, TagTranslation?) {
+        guard !returnOriginal else { return (word, nil) }
+        let (lhs, rhs) = word.stringsBesideColon
 
-        return translatedText
-    }
-    func tryTranslate(text: String, returnOriginal: Bool) -> String {
-        guard !returnOriginal else { return text }
-        if let range = text.range(of: ":") {
-            let before = text[...range.lowerBound]
-            let after = String(text[range.upperBound...])
-            let result = before + lookup(text: after)
-            return String(result)
+        guard let translation = translations.first(where: {
+            $0.key.caseInsensitiveEqualsTo(rhs)
+        }) else { return (word, nil) }
+
+        var result = translation.value
+        if let lhs = lhs {
+            result = [lhs, ":", result].joined()
         }
-        return lookup(text: text)
+        return (result, translation)
     }
 }
 
@@ -37,15 +34,15 @@ extension TagTranslator: CustomStringConvertible {
         let params = String(describing: [
             "language": language as Any,
             "updatedDate": updatedDate,
-            "contentsCount": contents.count,
+            "translationsCount": translations.count,
             "hasCustomTranslations": hasCustomTranslations
         ])
         return "TagTranslator(\(params))"
     }
 }
 
-struct TagTranslation: Identifiable {
-    let id: UUID = .init()
+struct TagTranslation: Codable, Equatable, Identifiable {
+    var id: UUID = .init()
     let namespace: TagNamespace
     let key: String
     let value: String
@@ -67,6 +64,6 @@ struct TagTranslation: Identifiable {
         let valueRange = value.range(of: keyword, options: .caseInsensitive)
         if let range = keyRange { weight += getWeight(value: key, range: range) }
         if let range = valueRange { weight += getWeight(value: value, range: range) }
-        return TagSuggestion(tag: self, weight: weight, keyRange: keyRange, valueRange: valueRange)
+        return .init(tag: self, weight: weight, keyRange: keyRange, valueRange: valueRange)
     }
 }

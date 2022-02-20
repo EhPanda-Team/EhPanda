@@ -112,7 +112,7 @@ struct TagTranslatorRequest: Request {
                         else { throw AppError.parseFailed }
                         let translations = Parser.parseTranslations(dict: dict, language: language)
                         guard !translations.isEmpty else { throw AppError.parseFailed }
-                        return TagTranslator(language: language, updatedDate: date, contents: translations)
+                        return TagTranslator(language: language, updatedDate: date, translations: translations)
                     }
             }
             .mapError(mapAppError).eraseToAnyPublisher()

@@ -56,7 +56,7 @@ private extension SettingView {
             GeneralSettingView(
                 store: store.scope(state: \.generalSettingState, action: SettingAction.general),
                 tagTranslatorLoadingState: viewStore.tagTranslatorLoadingState,
-                tagTranslatorEmpty: viewStore.tagTranslator.contents.isEmpty,
+                tagTranslatorEmpty: viewStore.tagTranslator.translations.isEmpty,
                 tagTranslatorHasCustomTranslations: viewStore.tagTranslator.hasCustomTranslations,
                 translatesTags: viewStore.binding(\.$setting.translatesTags),
                 redirectsLinksToSelectedHost: viewStore.binding(\.$setting.redirectsLinksToSelectedHost),

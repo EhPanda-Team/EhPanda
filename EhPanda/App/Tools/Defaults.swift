@@ -64,6 +64,9 @@ struct Defaults {
         static let logs = "logs"
         static let ehpandaLog = "EhPanda.log"
     }
+    struct Regex {
+        static let tagSuggestion: NSRegularExpression? = try? .init(pattern: "(\\S+:\".+?\"|\".+?\"|\\S+:\\S+|\\S+)")
+    }
     struct URL {
         static var host: Foundation.URL { AppUtil.galleryHost == .exhentai ? exhentai : ehentai }
         static let ehentai: Foundation.URL = .init(string: "https://e-hentai.org/").forceUnwrapped

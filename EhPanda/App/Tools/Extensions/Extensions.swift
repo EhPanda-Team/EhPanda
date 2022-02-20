@@ -118,6 +118,13 @@ extension String {
     var bold: String {
         ["`", self, "`"].joined()
     }
+    var stringsBesideColon: (String?, String) {
+        let strings = split(separator: ":").map(String.init)
+        if strings.count == 2, strings[0].notEmpty {
+            return (strings[0], strings[1])
+        }
+        return (nil, self)
+    }
 
     var urlEncoded: String {
         addingPercentEncoding(
