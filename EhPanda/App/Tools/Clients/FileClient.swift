@@ -74,12 +74,13 @@ extension FileClient {
             Future { promise in
                 DispatchQueue.global(qos: .userInitiated).async {
                     guard let data = try? Data(contentsOf: url),
-                          let dict = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
+                          let translations = try? JSONDecoder().decode(
+                            [EhTagTranslationDatabaseModel].self, from: data
+                          ).tagTranslations
                     else {
                         promise(.failure(.parseFailed))
                         return
                     }
-                    let translations = Parser.parseTranslations(dict: dict)
                     guard !translations.isEmpty else {
                         promise(.failure(.parseFailed))
                         return

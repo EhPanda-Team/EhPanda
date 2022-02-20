@@ -41,6 +41,7 @@
 		AB0CFB9627BBD323004BD372 /* AppIcon_Ukiyoe@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = AB0CFB9127BBD323004BD372 /* AppIcon_Ukiyoe@2x.png */; };
 		AB0CFBC927C07F95004BD372 /* TagSuggestionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0CFBC827C07F95004BD372 /* TagSuggestionView.swift */; };
 		AB0CFBCB27C0B07F004BD372 /* TagSuggestion.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0CFBCA27C0B07F004BD372 /* TagSuggestion.swift */; };
+		AB0CFBCD27C1CC67004BD372 /* EhTagTranslationDatabaseModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0CFBCC27C1CC67004BD372 /* EhTagTranslationDatabaseModel.swift */; };
 		AB0F68AF26A6D92F00AC3A54 /* DeprecatedAPI in Frameworks */ = {isa = PBXBuildFile; productRef = AB0F68AE26A6D92F00AC3A54 /* DeprecatedAPI */; };
 		AB10117E26986B7D00C2C1A9 /* GalleryStateMO+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB10117D26986B7D00C2C1A9 /* GalleryStateMO+CoreDataProperties.swift */; };
 		AB10118026986C1100C2C1A9 /* GalleryStateMO+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB10117F26986C1100C2C1A9 /* GalleryStateMO+CoreDataClass.swift */; };
@@ -324,6 +325,7 @@
 		AB0CFB9127BBD323004BD372 /* AppIcon_Ukiyoe@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AppIcon_Ukiyoe@2x.png"; sourceTree = "<group>"; };
 		AB0CFBC827C07F95004BD372 /* TagSuggestionView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TagSuggestionView.swift; sourceTree = "<group>"; };
 		AB0CFBCA27C0B07F004BD372 /* TagSuggestion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagSuggestion.swift; sourceTree = "<group>"; };
+		AB0CFBCC27C1CC67004BD372 /* EhTagTranslationDatabaseModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EhTagTranslationDatabaseModel.swift; sourceTree = "<group>"; };
 		AB10117D26986B7D00C2C1A9 /* GalleryStateMO+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GalleryStateMO+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		AB10117F26986C1100C2C1A9 /* GalleryStateMO+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GalleryStateMO+CoreDataClass.swift"; sourceTree = "<group>"; };
 		AB1EF25327AFA19200F507D6 /* Heap.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Heap.swift; sourceTree = "<group>"; };
@@ -949,6 +951,7 @@
 				AB8C821826BF801700E8C5E6 /* EhSetting.swift */,
 				AB7BF2AA27A642FB001865A3 /* BrowsingCountry.swift */,
 				AB7BF2C527A968AB001865A3 /* TranslatableLanguage.swift */,
+				AB0CFBCC27C1CC67004BD372 /* EhTagTranslationDatabaseModel.swift */,
 			);
 			path = Support;
 			sourceTree = "<group>";
@@ -1565,6 +1568,7 @@
 				AB706F97278A77E20025A48A /* HistoryStore.swift in Sources */,
 				AB0929CC2781A0B000F107CA /* HapticClient.swift in Sources */,
 				ABD4032626B78E5A00001B8C /* GalleryThumbnailCell.swift in Sources */,
+				AB0CFBCD27C1CC67004BD372 /* EhTagTranslationDatabaseModel.swift in Sources */,
 				AB358319269D9996009466A5 /* DomainResolver.swift in Sources */,
 				AB63EADD2699AC9100090535 /* AppEnvMO+CoreDataClass.swift in Sources */,
 				AB7BF2C027A9669A001865A3 /* TagNamespace.swift in Sources */,
