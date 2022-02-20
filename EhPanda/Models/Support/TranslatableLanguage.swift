@@ -44,7 +44,7 @@ extension TranslatableLanguage {
         case .japanese:
             return "jpn_text.json"
         case .simplifiedChinese, .traditionalChinese:
-            return "db.text.json"
+            return "db.raw.json"
         }
     }
     var checkUpdateURL: URL {

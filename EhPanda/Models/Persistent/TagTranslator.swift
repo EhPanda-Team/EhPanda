@@ -5,11 +5,12 @@
 //  Created by 荒木辰造 on R 4/02/04.
 //
 
+import OpenCC
 import Foundation
 
 struct TagTranslator: Codable, Equatable {
     var language: TranslatableLanguage?
-    var hasCustomTranslations: Bool = false
+    var hasCustomTranslations = false
     var updatedDate: Date = .distantPast
     var translations = [TagTranslation]()
 
@@ -41,7 +42,7 @@ extension TagTranslator: CustomStringConvertible {
     }
 }
 
-struct TagTranslation: Codable, Equatable, Identifiable {
+struct TagTranslation: Codable, Equatable, Hashable, Identifiable {
     var id: UUID = .init()
     let namespace: TagNamespace
     let key: String
@@ -65,5 +66,36 @@ struct TagTranslation: Codable, Equatable, Identifiable {
         if let range = keyRange { weight += getWeight(value: key, range: range) }
         if let range = valueRange { weight += getWeight(value: value, range: range) }
         return .init(tag: self, weight: weight, keyRange: keyRange, valueRange: valueRange)
+    }
+}
+
+extension Array where Element == TagTranslation {
+    var chtConverted: Self {
+        func customConversion(text: String) -> String {
+            switch text {
+            case "full color":
+                return "全彩"
+            default:
+                return text
+            }
+        }
+
+        guard let preferredLanguage = Locale.preferredLanguages.first else { return self }
+
+        var options: ChineseConverter.Options = [.traditionalize]
+        if preferredLanguage.contains("HK") {
+            options = [.traditionalize, .hkStandard]
+        } else if preferredLanguage.contains("TW") {
+            options = [.traditionalize, .twStandard, .twIdiom]
+        }
+
+        guard let converter = try? ChineseConverter(options: options) else { return self }
+        return map {
+            .init(
+                id: $0.id, namespace: $0.namespace, key: $0.key,
+                value: customConversion(text: converter.convert($0.value)),
+                description: $0.description
+            )
+        }
     }
 }

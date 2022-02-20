@@ -108,10 +108,13 @@ struct TagTranslatorRequest: Request {
             .flatMap { date in
                 URLSession.shared.dataTaskPublisher(for: language.downloadURL)
                     .tryMap { data, _ in
-                        guard let dict = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
+                        guard var translations = try? JSONDecoder().decode(
+                            EhTagTranslationDatabaseResponse.self, from: data
+                        ).tagTranslations, !translations.isEmpty
                         else { throw AppError.parseFailed }
-                        let translations = Parser.parseTranslations(dict: dict, language: language)
-                        guard !translations.isEmpty else { throw AppError.parseFailed }
+                        if language == .traditionalChinese {
+                            translations = translations.chtConverted
+                        }
                         return TagTranslator(language: language, updatedDate: date, translations: translations)
                     }
             }

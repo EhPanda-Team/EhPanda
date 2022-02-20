@@ -87,7 +87,9 @@ struct FavoritesView: View {
                 jumpAction: { viewStore.send(.performJumpPage) }
             )
             .animation(.default, value: viewStore.jumpPageAlertPresented)
-            .searchable(text: viewStore.binding(\.$keyword))
+            .searchable(text: viewStore.binding(\.$keyword)) {
+                TagSuggestionView(keyword: viewStore.binding(\.$keyword), translations: tagTranslator.translations)
+            }
             .onSubmit(of: .search) {
                 viewStore.send(.fetchGalleries())
             }

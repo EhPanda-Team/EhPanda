@@ -75,7 +75,7 @@ extension FileClient {
                 DispatchQueue.global(qos: .userInitiated).async {
                     guard let data = try? Data(contentsOf: url),
                           let translations = try? JSONDecoder().decode(
-                            [EhTagTranslationDatabaseModel].self, from: data
+                            EhTagTranslationDatabaseResponse.self, from: data
                           ).tagTranslations
                     else {
                         promise(.failure(.parseFailed))

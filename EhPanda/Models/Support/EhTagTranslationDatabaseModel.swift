@@ -7,26 +7,26 @@
 
 import Foundation
 
-struct EhTagTranslationDatabaseModel: Codable {
+struct EhTagTranslationDatabaseResponse: Codable {
     struct Item: Codable {
         let name: String
         let intro: String
         let links: String
     }
 
-    let namespace: String
-    let data: [String: Item]
-}
+    struct Model: Codable {
+        let namespace: String
+        let data: [String: Item]
 
-extension EhTagTranslationDatabaseModel {
-    var tagTranslations: [TagTranslation] {
-        guard let namespace = TagNamespace(rawValue: namespace) else { return .init() }
-        return data.map { .init(namespace: namespace, key: $0, value: $1.name, description: $1.intro) }
+        var tagTranslations: [TagTranslation] {
+            guard let namespace = TagNamespace(rawValue: namespace) else { return .init() }
+            return data.map { .init(namespace: namespace, key: $0, value: $1.name, description: $1.intro) }
+        }
     }
-}
 
-extension Array where Element == EhTagTranslationDatabaseModel {
+    let data: [Model]
+
     var tagTranslations: [TagTranslation] {
-        flatMap(\.tagTranslations)
+        data.flatMap(\.tagTranslations)
     }
 }

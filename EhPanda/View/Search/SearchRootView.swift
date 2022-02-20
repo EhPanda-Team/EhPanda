@@ -79,7 +79,9 @@ struct SearchRootView: View {
                 .accentColor(setting.accentColor)
                 .autoBlur(radius: blurRadius)
             }
-            .searchable(text: viewStore.binding(\.$keyword), placement: searchFieldPlacement)
+            .searchable(text: viewStore.binding(\.$keyword), placement: searchFieldPlacement) {
+                TagSuggestionView(keyword: viewStore.binding(\.$keyword), translations: tagTranslator.translations)
+            }
             .onSubmit(of: .search) {
                 viewStore.send(.setNavigation(.search))
             }
@@ -265,15 +267,19 @@ private struct DoubleVerticalKeywordsStack: View {
     }
 
     var singleKeywords: [WrappedKeyword] {
-        Array(keywords.prefix(min(keywords.count, 10)))
+        .init(keywords.prefix(min(keywords.count, 10)))
     }
     var doubleKeywords: ([WrappedKeyword], [WrappedKeyword]) {
-        let isEven = keywords.count % 2 == 0
-        let halfCount = keywords.count / 2
-        let trailingKeywords = Array(keywords.suffix(halfCount))
-        let leadingKeywords = Array(
-            keywords.prefix(isEven ? halfCount : halfCount + 1)
-        )
+        var leadingKeywords = [WrappedKeyword]()
+        var trailingKeywords = [WrappedKeyword]()
+        keywords.enumerated().forEach { (index, keyword) in
+            guard index < 20 else { return }
+            if index % 2 == 0 {
+                leadingKeywords.append(keyword)
+            } else {
+                trailingKeywords.append(keyword)
+            }
+        }
         return (leadingKeywords, trailingKeywords)
     }
 
@@ -317,7 +323,7 @@ private struct VerticalKeywordsStack: View {
     var body: some View {
         VStack(spacing: 10) {
             ForEach(keywords, id: \.self) { keyword in
-                VStack(spacing: 10) {
+                VStack(alignment: .leading, spacing: 10) {
                     KeywordCell(wrappedKeyword: keyword, searchAction: searchAction, removeAction: removeAction)
                     Divider().opacity(keyword == keywords.last ? 0 : 1)
                 }
@@ -339,10 +345,10 @@ private struct KeywordCell: View {
 
     var body: some View {
         HStack(spacing: 20) {
-            Image(systemSymbol: .magnifyingglass)
             Button {
                 searchAction(wrappedKeyword.keyword)
             } label: {
+                Image(systemSymbol: .magnifyingglass)
                 Text(wrappedKeyword.displayText ?? wrappedKeyword.keyword).lineLimit(1)
                 Spacer()
             }

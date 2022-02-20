@@ -9,24 +9,94 @@ import SwiftUI
 
 struct TagSuggestionView: View {
     @Binding private var keyword: String
+    private let translations: [TagTranslation]
+
     @StateObject private var translationHandler = TagTranslationHandler()
 
-    init(keyword: Binding<String>) {
+    init(keyword: Binding<String>, translations: [TagTranslation]) {
         _keyword = keyword
+        self.translations = translations
     }
 
     var body: some View {
-        ForEach(translationHandler.suggestions) { suggestion in
-            HStack {
-                Image(systemSymbol: .magnifyingglass)
-                VStack {
-                    Text(suggestion.displayValue)
-                    Text(suggestion.displayKey)
+        DoubleHorizontalSuggestionsStack(suggestions: translationHandler.suggestions) { suggestion in
+            translationHandler.autoComplete(suggestion: suggestion, keyword: &keyword)
+        }
+        .onChange(of: keyword) { _ in translationHandler.analyze(text: &keyword, translations: translations) }
+    }
+}
+
+private struct DoubleHorizontalSuggestionsStack: View {
+    private let suggestions: [TagSuggestion]
+    private let action: (TagSuggestion) -> Void
+
+    init(suggestions: [TagSuggestion], action: @escaping (TagSuggestion) -> Void) {
+        self.suggestions = suggestions
+        self.action = action
+    }
+
+    var singleSuggestions: [TagSuggestion] {
+        .init(suggestions.prefix(min(suggestions.count, 10)))
+    }
+    var doubleSuggestions: [(TagSuggestion, TagSuggestion?)] {
+        suggestions.enumerated().compactMap { (index, suggestion) in
+            if index < 20, index % 2 == 0 {
+                if index + 1 < suggestions.count {
+                    return (suggestion, suggestions[index + 1])
+                } else {
+                    return (suggestion, nil)
+                }
+            } else {
+                return nil
+            }
+        }
+    }
+
+    var body: some View {
+        if !DeviceUtil.isPad {
+            ForEach(singleSuggestions) { suggestion in
+                SuggestionCell(suggestion: suggestion) {
+                    action(suggestion)
                 }
             }
-            .onTapGesture { translationHandler.autoComplete(suggestion: suggestion, keyword: &keyword) }
+        } else {
+            ForEach(doubleSuggestions, id: \.0) { leadingSuggestion, trailingSuggestion in
+                HStack(spacing: 30) {
+                    SuggestionCell(suggestion: leadingSuggestion) {
+                        action(leadingSuggestion)
+                    }
+                    if let trailingSuggestion = trailingSuggestion {
+                        SuggestionCell(suggestion: trailingSuggestion) {
+                            action(trailingSuggestion)
+                        }
+                    }
+                }
+            }
         }
-        .onChange(of: keyword, perform: translationHandler.analyzeKeyword)
+    }
+}
+
+private struct SuggestionCell: View {
+    private let suggestion: TagSuggestion
+    private let action: () -> Void
+
+    init(suggestion: TagSuggestion, action: @escaping () -> Void) {
+        self.suggestion = suggestion
+        self.action = action
+    }
+
+    var body: some View {
+        HStack(spacing: 20) {
+            Image(systemSymbol: .magnifyingglass)
+            VStack(alignment: .leading) {
+                Text(suggestion.displayValue).font(.callout).lineLimit(1)
+                Text(suggestion.displayKey).font(.caption).foregroundColor(.secondary).lineLimit(1)
+            }
+            .allowsHitTesting(false)
+            Spacer()
+        }
+        .contentShape(Rectangle())
+        .onTapGesture(perform: action)
     }
 }
 
@@ -34,9 +104,9 @@ final class TagTranslationHandler: ObservableObject {
     @Published var suggestions = [TagSuggestion]()
     private var autoCompletionOffset = 0
 
-    func analyzeKeyword(_ keyword: String) {
-        let keyword = keyword.replacingOccurrences(of: "  +", with: " ", options: .regularExpression)
-//        self.keyword = keyword
+    func analyze(text: inout String, translations: [TagTranslation]) {
+        let keyword = text.replacingOccurrences(of: "  +", with: " ", options: .regularExpression)
+        text = keyword
 
         guard let regex = Defaults.Regex.tagSuggestion else { return }
         let values: [String] = regex.matches(in: keyword, range: .init(location: 0, length: keyword.count))
@@ -49,7 +119,7 @@ final class TagTranslationHandler: ObservableObject {
             }
         if let last = values.last {
             autoCompletionOffset = 0 - last.count
-            suggestions = getSuggestions(translations: [], keyword: last)
+            suggestions = getSuggestions(translations: translations, keyword: last)
         } else {
             suggestions = []
             autoCompletionOffset = .zero
@@ -85,6 +155,6 @@ final class TagTranslationHandler: ObservableObject {
         return translations
             .map { $0.getSuggestion(keyword: keyword) }
             .filter { $0.weight > 0 }
-            .sorted { $1.weight > $0.weight }
+            .sorted { $0.weight > $1.weight }
     }
 }

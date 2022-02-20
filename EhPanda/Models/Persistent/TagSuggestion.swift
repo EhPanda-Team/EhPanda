@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct TagSuggestion: Identifiable {
+struct TagSuggestion: Equatable, Hashable, Identifiable {
     let id: UUID = .init()
     let tag: TagTranslation
     let weight: Float
@@ -17,15 +17,17 @@ struct TagSuggestion: Identifiable {
     var displayKey: LocalizedStringKey {
         let namespace = tag.namespace.rawValue
         let leftSideString = leftSideString(of: keyRange, string: tag.key)
-        let middleString = middleString(of: keyRange, string: tag.key)
+        var middleString = middleString(of: keyRange, string: tag.key)
         let rightSideString = rightSideString(of: keyRange, string: tag.key)
-        return [namespace, ":", leftSideString, middleString.bold, rightSideString].joined().localizedKey
+        middleString = middleString.isEmpty ? middleString : middleString.linkStyled
+        return [namespace, ":", leftSideString, middleString, rightSideString].joined().localizedKey
     }
     var displayValue: LocalizedStringKey {
         let leftSideString = leftSideString(of: valueRange, string: tag.value)
-        let middleString = middleString(of: valueRange, string: tag.value)
+        var middleString = middleString(of: valueRange, string: tag.value)
         let rightSideString = rightSideString(of: valueRange, string: tag.value)
-        return [leftSideString, middleString.bold, rightSideString].joined().localizedKey
+        middleString = middleString.isEmpty ? middleString : middleString.linkStyled
+        return [leftSideString, middleString, rightSideString].joined().localizedKey
     }
 
     private func leftSideString(of range: Range<String.Index>?, string: String) -> String {

@@ -85,7 +85,9 @@ struct WatchedView: View {
         )
         .animation(.default, value: viewStore.jumpPageAlertPresented)
         .navigationBarBackButtonHidden(viewStore.jumpPageAlertPresented)
-        .searchable(text: viewStore.binding(\.$keyword))
+        .searchable(text: viewStore.binding(\.$keyword)) {
+            TagSuggestionView(keyword: viewStore.binding(\.$keyword), translations: tagTranslator.translations)
+        }
         .onSubmit(of: .search) {
             viewStore.send(.fetchGalleries())
         }

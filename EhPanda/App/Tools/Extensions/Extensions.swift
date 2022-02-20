@@ -115,8 +115,8 @@ extension String {
     var localizedKey: LocalizedStringKey {
         .init(self)
     }
-    var bold: String {
-        ["`", self, "`"].joined()
+    var linkStyled: String {
+        "[\(self)](\(Defaults.URL.ehentai.absoluteString))"
     }
     var stringsBesideColon: (String?, String) {
         let strings = split(separator: ":").map(String.init)
