@@ -64,11 +64,15 @@ struct GalleryTag: Codable, Equatable, Hashable, Identifiable {
 
         let text: String
         private let displayText: String
+        let isVotedUp: Bool
+        let isVotedDown: Bool
         let backgroundColor: Color?
 
-        init(text: String, displayText: String, backgroundColor: Color?) {
+        init(text: String, displayText: String, isVotedUp: Bool, isVotedDown: Bool, backgroundColor: Color?) {
             self.text = text
             self.displayText = displayText
+            self.isVotedUp = isVotedUp
+            self.isVotedDown = isVotedDown
             self.backgroundColor = backgroundColor
         }
     }

@@ -113,6 +113,7 @@ struct Parser {
                     let contents = tags[index].contents
                     let galleryTagContent = GalleryTag.Content(
                         text: contentText, displayText: contentText,
+                        isVotedUp: false, isVotedDown: false,
                         backgroundColor: contentBackgroundColor
                     )
                     let newContents = contents + [galleryTagContent]
@@ -120,6 +121,7 @@ struct Parser {
                 } else {
                     let galleryTagContent = GalleryTag.Content(
                         text: contentText, displayText: contentText,
+                        isVotedUp: false, isVotedDown: false,
                         backgroundColor: contentBackgroundColor
                     )
                     tags.append(.init(rawNamespace: namespace, contents: [galleryTagContent]))
@@ -326,12 +328,19 @@ struct Parser {
                 let namespace = String(tcText.dropLast())
                 var contents = [GalleryTag.Content]()
                 for divLink in link.xpath("//div") {
-                    guard var text = divLink.text else { continue }
+                    guard var text = divLink.text, let aClass = divLink.at_xpath("//a")?.className else { continue }
                     let displayText = text
                     if let range = text.range(of: " | ") {
                         text = .init(text[..<range.lowerBound])
                     }
-                    contents.append(.init(text: text, displayText: displayText, backgroundColor: nil))
+                    contents.append(
+                        .init(
+                            text: text, displayText: displayText,
+                            isVotedUp: aClass == "tup",
+                            isVotedDown: aClass == "tdn",
+                            backgroundColor: nil
+                        )
+                    )
                 }
 
                 tags.append(.init(rawNamespace: namespace, contents: contents))

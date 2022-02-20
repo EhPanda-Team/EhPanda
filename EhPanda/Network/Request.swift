@@ -900,3 +900,29 @@ struct VoteGalleryCommentRequest: Request {
             .eraseToAnyPublisher()
     }
 }
+
+struct VoteGalleryTagRequest: Request {
+    let apiuid: Int
+    let apikey: String
+    let gid: Int
+    let token: String
+    let tag: String
+    let vote: Int
+
+    var publisher: AnyPublisher<Any, AppError> {
+        let params: [String: Any] = [
+            "method": "taggallery", "apiuid": apiuid,
+            "apikey": apikey, "gid": gid, "token": token,
+            "tags": tag, "vote": vote
+        ]
+
+        var request = URLRequest(url: Defaults.URL.api)
+        request.httpMethod = "POST"
+        request.httpBody = try? JSONSerialization
+            .data(withJSONObject: params, options: [])
+
+        return URLSession.shared.dataTaskPublisher(for: request)
+            .genericRetry().map { $0 }.mapError(mapAppError)
+            .eraseToAnyPublisher()
+    }
+}

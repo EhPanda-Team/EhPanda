@@ -42,8 +42,7 @@ extension TagTranslator: CustomStringConvertible {
     }
 }
 
-struct TagTranslation: Codable, Equatable, Hashable, Identifiable {
-    var id: UUID = .init()
+struct TagTranslation: Codable, Equatable, Hashable {
     let namespace: TagNamespace
     let key: String
     let value: String
@@ -106,7 +105,7 @@ extension Array where Element == TagTranslation {
         guard let converter = try? ChineseConverter(options: options) else { return self }
         return map {
             .init(
-                id: $0.id, namespace: $0.namespace, key: $0.key,
+                namespace: $0.namespace, key: $0.key,
                 value: customConversion(text: converter.convert($0.value)),
                 description: $0.description
             )
