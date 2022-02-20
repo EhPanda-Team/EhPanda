@@ -63,7 +63,6 @@ enum SettingAction: BindableAction {
     case binding(BindingAction<SettingState>)
     case setNavigation(SettingState.Route?)
     case clearSubStates
-    case onDetectClipboardURL
 
     case syncAppIconType
     case syncUserInterfaceStyle
@@ -72,7 +71,8 @@ enum SettingAction: BindableAction {
     case syncUser
 
     case loadUserSettings
-    case loadUserSettingsDone(AppEnv)
+    case onLoadUserSettings(AppEnv)
+    case loadUserSettingsDone
     case createDefaultEhProfile
     case fetchIgneous
     case fetchIgneousDone(Result<HTTPURLResponse, AppError>)
@@ -146,7 +146,7 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
             {
                 state.setting.backgroundBlurRadius = 10
             }
-            return .none
+            return .init(value: .syncSetting)
 
         case .binding(\.$setting.backgroundBlurRadius):
             if state.setting.autoLockPolicy != .never
@@ -154,7 +154,7 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
             {
                 state.setting.autoLockPolicy = .never
             }
-            return .none
+            return .init(value: .syncSetting)
 
         case .binding(\.$setting.enablesLandscape):
             var effects: [Effect<SettingAction, Never>] = [
@@ -207,9 +207,6 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
             state.appearanceSettingState = .init()
             return .none
 
-        case .onDetectClipboardURL:
-            return .none
-
         case .syncAppIconType:
             if let iconName = environment.uiApplicationClient.alternateIconName() {
                 state.setting.appIconType = AppIconType.allCases.filter({
@@ -231,15 +228,17 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
             return environment.databaseClient.updateUser(state.user).fireAndForget()
 
         case .loadUserSettings:
-            return environment.databaseClient.fetchAppEnv().map(SettingAction.loadUserSettingsDone)
+            return environment.databaseClient.fetchAppEnv().map(SettingAction.onLoadUserSettings)
 
-        case .loadUserSettingsDone(let appEnv):
+        case .onLoadUserSettings(let appEnv):
             state.setting = appEnv.setting
             state.tagTranslator = appEnv.tagTranslator
             state.user = appEnv.user
             var effects: [Effect<SettingAction, Never>] = [
                 .init(value: .syncAppIconType),
-                .init(value: .syncUserInterfaceStyle)
+                .init(value: .loadUserSettingsDone),
+                .init(value: .syncUserInterfaceStyle),
+                environment.dfClient.setActive(state.setting.bypassesSNIFiltering).fireAndForget()
             ]
             if let value: String = environment.userDefaultsClient.getValue(.galleryHost),
                let galleryHost = GalleryHost(rawValue: value)
@@ -260,11 +259,10 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
             if state.setting.translatesTags {
                 effects.append(.init(value: .fetchTagTranslator))
             }
-            if state.setting.detectsLinksFromClipboard {
-                effects.append(.init(value: .onDetectClipboardURL))
-            }
-            effects.append(environment.dfClient.setActive(state.setting.bypassesSNIFiltering).fireAndForget())
             return .merge(effects)
+
+        case .loadUserSettingsDone:
+            return .none
 
         case .createDefaultEhProfile:
             return EhProfileRequest(action: .create, name: "EhPanda").effect.fireAndForget()

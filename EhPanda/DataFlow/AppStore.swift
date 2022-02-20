@@ -180,8 +180,19 @@ let appReducerCore = Reducer<AppState, AppAction, AppEnvironment> { state, actio
     case .searchRoot:
         return .none
 
-    case .setting(.onDetectClipboardURL):
-        return .init(value: .appRoute(.detectClipboardURL))
+    case .setting(.loadUserSettingsDone):
+        var effects = [Effect<AppAction, Never>]()
+        let threshold = state.settingState.setting.autoLockPolicy.rawValue
+        let blurRadius = state.settingState.setting.backgroundBlurRadius
+        if threshold >= 0 {
+            state.appLockState.becameInactiveDate = .distantPast
+            effects.append(.init(value: .appLock(.lockApp(blurRadius))))
+            effects.append(.init(value: .appLock(.authorize)))
+        }
+        if state.settingState.setting.detectsLinksFromClipboard {
+            effects.append(.init(value: .appRoute(.detectClipboardURL)))
+        }
+        return effects.isEmpty ? .none : .merge(effects)
 
     case .setting(.fetchGreetingDone(let result)):
         return .init(value: .appRoute(.fetchGreetingDone(result)))
@@ -227,7 +238,7 @@ let appReducer = Reducer<AppState, AppAction, AppEnvironment>.combine(
         }
     ),
     appDelegateReducer.pullback(
-        state: \.self,
+        state: \.appDelegateState,
         action: /AppAction.appDelegate,
         environment: {
             .init(

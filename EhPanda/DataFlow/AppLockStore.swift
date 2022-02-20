@@ -22,6 +22,7 @@ struct AppLockState: Equatable {
 enum AppLockAction {
     case onBecomeActive(Int, Double)
     case onBecomeInactive(Double)
+    case lockApp(Double)
     case unlockApp
     case authorize
     case authorizeDone(Bool)
@@ -37,9 +38,10 @@ let appLockReducer = Reducer<AppLockState, AppLockAction, AppLockEnvironment> { 
         if let date = state.becameInactiveDate, threshold >= 0,
            Date().timeIntervalSince(date) > Double(threshold)
         {
-            state.setBlurRadius(blurRadius)
-            state.isAppLocked = true
-            return .init(value: .authorize)
+            return .merge(
+                .init(value: .authorize),
+                .init(value: .lockApp(blurRadius))
+            )
         } else {
             return .init(value: .unlockApp)
         }
@@ -47,6 +49,11 @@ let appLockReducer = Reducer<AppLockState, AppLockAction, AppLockEnvironment> { 
     case .onBecomeInactive(let blurRadius):
         state.setBlurRadius(blurRadius)
         state.becameInactiveDate = .now
+        return .none
+
+    case .lockApp(let blurRadius):
+        state.setBlurRadius(blurRadius)
+        state.isAppLocked = true
         return .none
 
     case .unlockApp:
