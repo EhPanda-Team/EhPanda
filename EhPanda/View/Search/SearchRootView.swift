@@ -29,7 +29,7 @@ struct SearchRootView: View {
     }
 
     private var searchFieldPlacement: SearchFieldPlacement {
-        DeviceUtil.isPad ? .automatic : .navigationBarDrawer(displayMode: .always)
+        DeviceUtil.isPad ? .toolbar : .navigationBarDrawer(displayMode: .always)
     }
 
     var body: some View {

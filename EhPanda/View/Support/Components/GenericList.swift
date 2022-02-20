@@ -170,8 +170,13 @@ private struct WaterfallList: View {
     var body: some View {
         List {
             WaterfallGrid(galleries) { gallery in
-                GalleryThumbnailCell(gallery: gallery, setting: setting, translateAction: translateAction)
-                    .onTapGesture { navigateAction?(gallery.id) }.foregroundColor(.primary)
+                Button {
+                    navigateAction?(gallery.id)
+                } label: {
+                    GalleryThumbnailCell(gallery: gallery, setting: setting, translateAction: translateAction)
+                        .tint(.primary).multilineTextAlignment(.leading)
+                }
+                .buttonStyle(.borderless)
             }
             .gridStyle(
                 columnsInPortrait: columnsInPortrait, columnsInLandscape: columnsInLandscape,
