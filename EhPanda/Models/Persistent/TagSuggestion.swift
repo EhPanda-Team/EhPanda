@@ -14,20 +14,20 @@ struct TagSuggestion: Equatable, Hashable, Identifiable {
     let keyRange: Range<String.Index>?
     let valueRange: Range<String.Index>?
 
-    var displayKey: LocalizedStringKey {
+    var displayKey: String {
         let namespace = tag.namespace.rawValue
         let leftSideString = leftSideString(of: keyRange, string: tag.key)
         var middleString = middleString(of: keyRange, string: tag.key)
         let rightSideString = rightSideString(of: keyRange, string: tag.key)
         middleString = middleString.isEmpty ? middleString : middleString.linkStyled
-        return [namespace, ":", leftSideString, middleString, rightSideString].joined().localizedKey
+        return [namespace, ":", leftSideString, middleString, rightSideString].joined()
     }
-    var displayValue: LocalizedStringKey {
+    var displayValue: String {
         let leftSideString = leftSideString(of: valueRange, string: tag.value)
         var middleString = middleString(of: valueRange, string: tag.value)
         let rightSideString = rightSideString(of: valueRange, string: tag.value)
         middleString = middleString.isEmpty ? middleString : middleString.linkStyled
-        return [leftSideString, middleString, rightSideString].joined().localizedKey
+        return [leftSideString, middleString, rightSideString].joined()
     }
 
     private func leftSideString(of range: Range<String.Index>?, string: String) -> String {

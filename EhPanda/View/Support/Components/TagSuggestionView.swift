@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 struct TagSuggestionView: View {
     @Binding private var keyword: String
@@ -85,12 +86,31 @@ private struct SuggestionCell: View {
         self.action = action
     }
 
+    private var plainText: LocalizedStringKey {
+        let text = suggestion.displayValue
+        return (MarkdownUtil.ripImage(string: text) ?? text).localizedKey
+    }
+    private var markdownImageURL: URL? {
+        let text = suggestion.displayValue
+        if let imageURLString = MarkdownUtil.parseImage(string: text) {
+            return .init(string: imageURLString)
+        }
+        return nil
+    }
+
     var body: some View {
         HStack(spacing: 20) {
             Image(systemSymbol: .magnifyingglass)
             VStack(alignment: .leading) {
-                Text(suggestion.displayValue).font(.callout).lineLimit(1)
-                Text(suggestion.displayKey).font(.caption).foregroundColor(.secondary).lineLimit(1)
+                HStack(spacing: 2) {
+                    Text(plainText)
+                    if let markdownImageURL = markdownImageURL {
+                        Image(systemSymbol: .photo).opacity(0)
+                            .overlay(KFImage(markdownImageURL).resizable().scaledToFit())
+                    }
+                }
+                .font(.callout).lineLimit(1)
+                Text(suggestion.displayKey.localizedKey).font(.caption).foregroundColor(.secondary).lineLimit(1)
             }
             .allowsHitTesting(false)
             Spacer()

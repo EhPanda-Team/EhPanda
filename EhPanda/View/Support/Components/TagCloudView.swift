@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 struct TagCloudView<Element, ID, TagCell>: View
 where TagCell: View, Element: Equatable & Identifiable, ID == Element.ID {
@@ -96,8 +97,25 @@ struct TagCloudCell: View {
         self.backgroundColor = backgroundColor
     }
 
+    private var plainText: String {
+        MarkdownUtil.ripImage(string: text) ?? text
+    }
+    private var markdownImageURL: URL? {
+        if let imageURLString = MarkdownUtil.parseImage(string: text) {
+            return .init(string: imageURLString)
+        }
+        return nil
+    }
+
     var body: some View {
-        Text(text).font(font.bold()).lineLimit(1).foregroundColor(textColor)
-            .padding(padding).background(backgroundColor).cornerRadius(5)
+        HStack(spacing: 2) {
+            Text(plainText)
+            if let markdownImageURL = markdownImageURL {
+                Image(systemSymbol: .photo).opacity(0)
+                    .overlay(KFImage(markdownImageURL).resizable().scaledToFit())
+            }
+        }
+        .font(font.bold()).lineLimit(1).foregroundColor(textColor)
+        .padding(padding).background(backgroundColor).cornerRadius(5)
     }
 }

@@ -195,6 +195,10 @@ struct EhPandaView: View {
             text: R.string.constant.ehpandaAcknowledgementsTextTTProgressHUD()
         ),
         .init(
+            urlString: R.string.constant.ehpandaAcknowledgementsLinkSwiftMarkdown(),
+            text: R.string.constant.ehpandaAcknowledgementsTextSwiftMarkdown()
+        ),
+        .init(
             urlString: R.string.constant.ehpandaAcknowledgementsLinkSwiftUINavigation(),
             text: R.string.constant.ehpandaAcknowledgementsTextSwiftUINavigation()
         ),

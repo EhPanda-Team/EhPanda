@@ -42,6 +42,8 @@
 		AB0CFBC927C07F95004BD372 /* TagSuggestionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0CFBC827C07F95004BD372 /* TagSuggestionView.swift */; };
 		AB0CFBCB27C0B07F004BD372 /* TagSuggestion.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0CFBCA27C0B07F004BD372 /* TagSuggestion.swift */; };
 		AB0CFBCD27C1CC67004BD372 /* EhTagTranslationDatabaseModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0CFBCC27C1CC67004BD372 /* EhTagTranslationDatabaseModel.swift */; };
+		AB0CFBD327C242D3004BD372 /* Markdown in Frameworks */ = {isa = PBXBuildFile; productRef = AB0CFBD227C242D3004BD372 /* Markdown */; };
+		AB0CFBD527C24B3B004BD372 /* MarkdownUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0CFBD427C24B3B004BD372 /* MarkdownUtil.swift */; };
 		AB0F68AF26A6D92F00AC3A54 /* DeprecatedAPI in Frameworks */ = {isa = PBXBuildFile; productRef = AB0F68AE26A6D92F00AC3A54 /* DeprecatedAPI */; };
 		AB10117E26986B7D00C2C1A9 /* GalleryStateMO+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB10117D26986B7D00C2C1A9 /* GalleryStateMO+CoreDataProperties.swift */; };
 		AB10118026986C1100C2C1A9 /* GalleryStateMO+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB10117F26986C1100C2C1A9 /* GalleryStateMO+CoreDataClass.swift */; };
@@ -326,6 +328,7 @@
 		AB0CFBC827C07F95004BD372 /* TagSuggestionView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TagSuggestionView.swift; sourceTree = "<group>"; };
 		AB0CFBCA27C0B07F004BD372 /* TagSuggestion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagSuggestion.swift; sourceTree = "<group>"; };
 		AB0CFBCC27C1CC67004BD372 /* EhTagTranslationDatabaseModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EhTagTranslationDatabaseModel.swift; sourceTree = "<group>"; };
+		AB0CFBD427C24B3B004BD372 /* MarkdownUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownUtil.swift; sourceTree = "<group>"; };
 		AB10117D26986B7D00C2C1A9 /* GalleryStateMO+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GalleryStateMO+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		AB10117F26986C1100C2C1A9 /* GalleryStateMO+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GalleryStateMO+CoreDataClass.swift"; sourceTree = "<group>"; };
 		AB1EF25327AFA19200F507D6 /* Heap.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Heap.swift; sourceTree = "<group>"; };
@@ -576,6 +579,7 @@
 				AB86AC1027831AD100E61E6A /* ComposableArchitecture in Frameworks */,
 				ABBB2636278FB888007B6149 /* SwiftUINavigation in Frameworks */,
 				AB17573D27675B1E00FD64E2 /* Colorful in Frameworks */,
+				AB0CFBD327C242D3004BD372 /* Markdown in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1154,6 +1158,7 @@
 				AB7BF2CF27AA3E75001865A3 /* DeviceUtil.swift */,
 				AB7BF2D127AA3EDC001865A3 /* HapticUtil.swift */,
 				AB7BF2D327AA3F12001865A3 /* CookiesUtil.swift */,
+				AB0CFBD427C24B3B004BD372 /* MarkdownUtil.swift */,
 				AB7BF2D727AA3F61001865A3 /* UserDefaultsUtil.swift */,
 			);
 			path = Utilities;
@@ -1336,6 +1341,7 @@
 				ABBB2635278FB888007B6149 /* SwiftUINavigation */,
 				ABD970B627A2A6BD001693B0 /* Rswift */,
 				AB26F59827ACDB4200AB3468 /* FilePicker */,
+				AB0CFBD227C242D3004BD372 /* Markdown */,
 			);
 			productName = EhPanda;
 			productReference = ABC3C7542593696C00E0C11B /* EhPanda.app */;
@@ -1411,6 +1417,7 @@
 				ABBB2634278FB888007B6149 /* XCRemoteSwiftPackageReference "swiftui-navigation" */,
 				ABD970B527A2A6BD001693B0 /* XCRemoteSwiftPackageReference "R.swift.Library" */,
 				AB26F59727ACDB4200AB3468 /* XCRemoteSwiftPackageReference "FilePicker" */,
+				AB0CFBD127C242D3004BD372 /* XCRemoteSwiftPackageReference "swift-markdown" */,
 			);
 			productRefGroup = ABC3C7552593696C00E0C11B /* Products */;
 			projectDirPath = "";
@@ -1586,6 +1593,7 @@
 				ABBB26682797BFAA007B6149 /* ActivityView.swift in Sources */,
 				ABC8355D27B118330091DCDB /* DetailSearchView.swift in Sources */,
 				ABBB264227942B74007B6149 /* URLClient.swift in Sources */,
+				AB0CFBD527C24B3B004BD372 /* MarkdownUtil.swift in Sources */,
 				ABF45AF625F3313D00ECB568 /* AppearanceSettingView.swift in Sources */,
 				AB7BF2CE27AA3E58001865A3 /* AppUtil.swift in Sources */,
 				AB86AC1A2785C2B300E61E6A /* HomeStore.swift in Sources */,
@@ -2114,6 +2122,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		AB0CFBD127C242D3004BD372 /* XCRemoteSwiftPackageReference "swift-markdown" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-markdown.git";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
 		AB0F68AD26A6D92F00AC3A54 /* XCRemoteSwiftPackageReference "DeprecatedAPI" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/tatsuz0u/DeprecatedAPI.git";
@@ -2245,6 +2261,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		AB0CFBD227C242D3004BD372 /* Markdown */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AB0CFBD127C242D3004BD372 /* XCRemoteSwiftPackageReference "swift-markdown" */;
+			productName = Markdown;
+		};
 		AB0F68AE26A6D92F00AC3A54 /* DeprecatedAPI */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = AB0F68AD26A6D92F00AC3A54 /* XCRemoteSwiftPackageReference "DeprecatedAPI" */;
