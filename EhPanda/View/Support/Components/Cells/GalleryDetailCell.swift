@@ -36,10 +36,11 @@ struct GalleryDetailCell: View {
                 Text(gallery.uploader ?? "").lineLimit(1).font(.subheadline).foregroundStyle(.secondary)
                 let tagContents = gallery.tagContents(maximum: setting.listTagsNumberMaximum)
                 if setting.showsTagsInList, !tagContents.isEmpty {
-                    TagCloudView(data: gallery.tagContents(maximum: setting.listTagsNumberMaximum)) { content in
+                    TagCloudView(data: tagContents) { content in
+                        let translation = translateAction?(content.text).1
                         TagCloudCell(
-                            text: content.localizedDisplayText(translateAction: translateAction),
-                            imageURL: translateAction?(content.text).1?.valueImageURL,
+                            text: translation?.displayValue ?? content.text,
+                            imageURL: translation?.valueImageURL,
                             showsImages: setting.showsImagesInTags,
                             font: .caption2, padding: .init(top: 2, leading: 4, bottom: 2, trailing: 4),
                             textColor: content.backgroundColor != nil ? .white : .secondary,

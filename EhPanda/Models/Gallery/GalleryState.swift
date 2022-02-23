@@ -46,22 +46,13 @@ struct GalleryTag: Codable, Equatable, Hashable, Identifiable {
             text.firstLetterCapitalized
         }
         func voteKeyword(tag: GalleryTag) -> String {
-            tag.namespace == .temp ? text : [tag.rawNamespace.lowercased(), text].joined(separator: ":")
+            let namespace = tag.namespace?.abbreviation ?? tag.namespace?.rawValue ?? tag.rawNamespace.lowercased()
+            return tag.namespace == .temp ? text : [namespace, text].joined(separator: ":")
         }
         func serachKeyword(tag: GalleryTag) -> String {
-            let base = "\"\(text)$\""
-            return tag.namespace == .temp ? base : [tag.rawNamespace.lowercased(), base].joined(separator: ":")
-        }
-        func localizedDisplayText(translateAction: ((String) -> (String, TagTranslation?))?) -> String {
-            guard let action = translateAction else { return displayText }
-            let components = displayText.split(separator: "|")
-                .map { $0.trimmingCharacters(in: .whitespaces) }
-                .filter(\.notEmpty)
-            if components.count == 2 {
-                return components.map(action).map(\.0).joined(separator: " | ")
-            } else {
-                return action(displayText).0
-            }
+            let keyword = text.contains(" ") ? "\"\(text)$\"" : "\(text)$"
+            let namespace = tag.namespace?.abbreviation ?? tag.namespace?.rawValue ?? tag.rawNamespace.lowercased()
+            return tag.namespace == .temp ? keyword : [namespace, keyword].joined(separator: ":")
         }
 
         let text: String

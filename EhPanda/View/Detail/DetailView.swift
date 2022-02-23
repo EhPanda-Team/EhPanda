@@ -620,13 +620,12 @@ private extension TagsSection {
                     .foregroundColor(reversedPrimary).padding(padding)
                     .background(Color(.systemGray)).cornerRadius(5)
                 TagCloudView(data: tag.contents) { content in
-                    let displayText = content.localizedDisplayText(translateAction: translateAction)
                     let (_, translation) = translateAction(content.text)
                     Button {
                         navigateSearchAction(content.serachKeyword(tag: tag))
                     } label: {
                         TagCloudCell(
-                            text: displayText,
+                            text: translation?.displayValue ?? content.text,
                             imageURL: translation?.valueImageURL,
                             showsImages: showsImages,
                             font: .subheadline, padding: padding, textColor: .primary,
@@ -640,7 +639,7 @@ private extension TagsSection {
                         {
                             Button {
                                 navigateTagDetailAction(.init(
-                                    title: displayText, description: description,
+                                    title: translation.displayValue, description: description,
                                     imageURLs: translation.descriptionImageURLs,
                                     links: translation.links
                                 ))
