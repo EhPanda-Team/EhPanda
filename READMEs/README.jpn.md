@@ -32,7 +32,7 @@ https://ehpanda.app: [main.js](https://github.com/tatsuz0u/ehpanda-website/blob/
 デバイスのシステムが iOS・iPadOS 15.0 以上であることが必要です。
 
 ## コンテンツとその著作権
-本アプリの内容はすべて E-Hentai 由来のものです、E-Hentai の内容もまたすべてユーザー生成コンテンツです。
+本アプリの内容はすべて E-Hentai 由来のもので、E-Hentai の内容もまたすべてユーザー生成コンテンツです。
 
 **E-Hentai の内容へのアクセス行為により生じるいかなる問題について、本アプリのユーザー自身の責任でこれを解決するものとします 。**
 
