@@ -266,6 +266,7 @@
 "detail.view.toolbar.item.button.archives" = "Archiv";
 "detail.view.toolbar.item.button.torrents" = "Torrents";
 "detail.view.toolbar.item.button.share" = "Teilen";
+"detail.view.context.menu.button.detail" = "Detail";
 "detail.view.scroll.section.title.favorited" = "Favorisiert";
 "detail.view.scroll.section.title.language" = "Sprache";
 "detail.view.scroll.section.title.ratings" = "%@ Bewertungen";
@@ -320,6 +321,10 @@
 "gallery.visibility.value.yes" = "Yes";
 "gallery.visibility.value.no" = "No (%@)";
 "gallery.visibility.value.no.reason.expunged" = "Expunged";
+
+// MARK: TagDetailView
+"tag.detail.view.section.title.images" = "Images";
+"tag.detail.view.section.title.links" = "Links";
 
 // MARK: CommentsView
 "comments.view.title.comments" = "Kommentar";

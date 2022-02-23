@@ -266,6 +266,7 @@
 "detail.view.toolbar.item.button.archives" = "아카이브";
 "detail.view.toolbar.item.button.torrents" = "토렌트";
 "detail.view.toolbar.item.button.share" = "공유";
+"detail.view.context.menu.button.detail" = "Detail";
 "detail.view.scroll.section.title.favorited" = "즐겨찾기";
 "detail.view.scroll.section.title.language" = "언어";
 "detail.view.scroll.section.title.ratings" = "%@명의 별점";
@@ -320,6 +321,10 @@
 "gallery.visibility.value.yes" = "네";
 "gallery.visibility.value.no" = "아니요 (%@)";
 "gallery.visibility.value.no.reason.expunged" = "삭제됨";
+
+// MARK: TagDetailView
+"tag.detail.view.section.title.images" = "Images";
+"tag.detail.view.section.title.links" = "Links";
 
 // MARK: CommentsView
 "comments.view.title.comments" = "댓글";

@@ -21,7 +21,7 @@ struct TagDetailView: View {
                 VStack {
                     DescriptionSection(description: detail.description)
                     ImagesSection(imageURLs: detail.imageURLs).padding(.vertical)
-                    LinksSection(links: detail.externalLinks).padding(.vertical)
+                    LinksSection(links: detail.links).padding(.vertical)
                 }
             }
             .navigationTitle(detail.title.emojisRipped)
@@ -38,7 +38,7 @@ private struct DescriptionSection: View {
 
     var body: some View {
         HStack {
-            Text(description)
+            Text(description).foregroundColor(.secondary).font(.headline)
             Spacer()
         }
         .padding(.horizontal)
@@ -60,7 +60,7 @@ private struct ImagesSection: View {
     }
 
     var body: some View {
-        SubSection(title: "Images", showAll: false) {
+        SubSection(title: R.string.localizable.tagDetailViewSectionTitleImages(), showAll: false) {
             VStack {
                 if !imageURLs.isEmpty {
                     ScrollView(.horizontal, showsIndicators: false) {
@@ -88,19 +88,25 @@ private struct ImagesSection: View {
 }
 
 private struct LinksSection: View {
-    private let links: [ExternalLink]
+    private let links: [URL]
 
-    init(links: [ExternalLink]) {
+    init(links: [URL]) {
         self.links = links
     }
 
     var body: some View {
-        SubSection(title: "Links", showAll: false) {
+        SubSection(title: R.string.localizable.tagDetailViewSectionTitleLinks(), showAll: false) {
             HStack {
                 if !links.isEmpty {
                     VStack(alignment: .leading) {
-                        ForEach(links) { link in
-                            Link(link.url.absoluteString, destination: link.url)
+                        ForEach(links, id: \.self) { url in
+                            Button {
+                                UIApplication.shared.open(url, options: [:])
+                            } label: {
+                                Text(url.absoluteString)
+                                    .multilineTextAlignment(.leading)
+                                    .font(.callout.bold()).tint(.secondary)
+                            }
                         }
                     }
                     .padding(.vertical)
@@ -117,11 +123,16 @@ private struct LinksSection: View {
 
 struct TagDescriptionView_Previews: PreviewProvider {
     static var previews: some View {
-        TagDetailView(
-            detail: .init(
-                title: .init(), description: .init(),
-                imageURLs: .init(), links: .init()
-            )
-        )
+        Color.clear
+            .sheet(isPresented: .constant(true)) {
+                TagDetailView(
+                    detail: .init(
+                        title: "Some name",
+                        description: "blablablablablablablablablablablablablablablablablablablablablablablabla~",
+                        imageURLs: .init(), links: [Defaults.URL.ehentai, Defaults.URL.exhentai]
+                    )
+                )
+                .preferredColorScheme(.dark)
+            }
     }
 }

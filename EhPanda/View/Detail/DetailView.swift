@@ -643,7 +643,7 @@ private extension TagsSection {
                                 ))
                             } label: {
                                 Image(systemSymbol: .docRichtext)
-                                Text("Description")
+                                Text(R.string.localizable.detailViewContextMenuButtonDetail())
                             }
                         }
                     }

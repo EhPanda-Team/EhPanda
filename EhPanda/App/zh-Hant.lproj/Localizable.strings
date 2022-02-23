@@ -266,6 +266,7 @@
 "detail.view.toolbar.item.button.archives" = "封存";
 "detail.view.toolbar.item.button.torrents" = "種子";
 "detail.view.toolbar.item.button.share" = "分享";
+"detail.view.context.menu.button.detail" = "Detail";
 "detail.view.scroll.section.title.favorited" = "收藏";
 "detail.view.scroll.section.title.language" = "語言";
 "detail.view.scroll.section.title.ratings" = "%@ 個評分";
@@ -320,6 +321,10 @@
 "gallery.visibility.value.yes" = "Yes";
 "gallery.visibility.value.no" = "No (%@)";
 "gallery.visibility.value.no.reason.expunged" = "Expunged";
+
+// MARK: TagDetailView
+"tag.detail.view.section.title.images" = "Images";
+"tag.detail.view.section.title.links" = "Links";
 
 // MARK: CommentsView
 "comments.view.title.comments" = "評論";
