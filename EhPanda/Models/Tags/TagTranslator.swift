@@ -46,20 +46,27 @@ struct TagTranslation: Codable, Equatable, Hashable {
     let namespace: TagNamespace
     let key: String
     let value: String
-    var description: String?
+    let description: String
+    let linksString: String
 
     var displayValue: String {
         valuePlainText ?? value
     }
 
     var valuePlainText: String? {
-        MarkdownUtil.ripImage(string: value)
+        MarkdownUtil.parseTexts(markdown: value).first
     }
     var valueImageURL: URL? {
-        if let imageURLString = MarkdownUtil.parseImage(string: value) {
-            return .init(string: imageURLString)
-        }
-        return nil
+        MarkdownUtil.parseImages(markdown: value).first
+    }
+    var descriptionPlainText: String? {
+        MarkdownUtil.parseTexts(markdown: description.replacingOccurrences(of: "`", with: " ")).joined()
+    }
+    var descriptionImageURLs: [URL] {
+        MarkdownUtil.parseImages(markdown: description)
+    }
+    var links: [URL] {
+        MarkdownUtil.parseLinks(markdown: linksString)
     }
 
     var searchKeyword: String {
@@ -107,7 +114,7 @@ extension Array where Element == TagTranslation {
             .init(
                 namespace: $0.namespace, key: $0.key,
                 value: customConversion(text: converter.convert($0.value)),
-                description: $0.description
+                description: $0.description, linksString: $0.linksString
             )
         }
     }

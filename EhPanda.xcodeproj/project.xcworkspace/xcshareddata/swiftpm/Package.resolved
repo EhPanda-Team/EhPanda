@@ -92,15 +92,6 @@
         }
       },
       {
-        "package": "cmark-gfm",
-        "repositoryURL": "https://github.com/apple/swift-cmark.git",
-        "state": {
-          "branch": "gfm",
-          "revision": "7fc530e5f12432db9768326ff74dc46de72a24e2",
-          "version": null
-        }
-      },
-      {
         "package": "swift-collections",
         "repositoryURL": "https://github.com/apple/swift-collections",
         "state": {
@@ -137,12 +128,12 @@
         }
       },
       {
-        "package": "swift-markdown",
-        "repositoryURL": "https://github.com/apple/swift-markdown.git",
+        "package": "SwiftCommonMark",
+        "repositoryURL": "https://github.com/gonzalezreal/SwiftCommonMark.git",
         "state": {
-          "branch": "main",
-          "revision": "16ebb0ccea68c0009f550bd48cca1df8675685dc",
-          "version": null
+          "branch": null,
+          "revision": "ed252beaddecce28ea6363f800c773d6169011b8",
+          "version": "1.0.0"
         }
       },
       {

@@ -20,7 +20,12 @@ struct EhTagTranslationDatabaseResponse: Codable {
 
         var tagTranslations: [TagTranslation] {
             guard let namespace = TagNamespace(rawValue: namespace) else { return .init() }
-            return data.map { .init(namespace: namespace, key: $0, value: $1.name, description: $1.intro) }
+            return data.map {
+                .init(
+                    namespace: namespace, key: $0, value: $1.name,
+                    description: $1.intro, linksString: $1.links
+                )
+            }
         }
     }
 

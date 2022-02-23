@@ -19,6 +19,7 @@ struct DetailState: Equatable {
         case postComment
         case newDawn(Greeting)
         case detailSearch(String)
+        case tagDetail(TagDetail)
         case galleryInfos(Gallery, GalleryDetail)
     }
     struct CancelID: Hashable {
@@ -367,6 +368,11 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.recurs
         .haptics(
             unwrapping: \.route,
             case: /DetailState.Route.postComment,
+            hapticClient: \.hapticClient
+        )
+        .haptics(
+            unwrapping: \.route,
+            case: /DetailState.Route.tagDetail,
             hapticClient: \.hapticClient
         )
         .haptics(

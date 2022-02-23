@@ -77,8 +77,11 @@ struct DetailView: View {
                     if !viewStore.galleryTags.isEmpty {
                         TagsSection(
                             tags: viewStore.galleryTags, showsImages: setting.showsImagesInTags,
-                            navigateAction: {
+                            navigateSearchAction: {
                                 viewStore.send(.setNavigation(.detailSearch($0)))
+                            },
+                            navigateTagDetailAction: {
+                                viewStore.send(.setNavigation(.tagDetail($0)))
                             },
                             translateAction: {
                                 tagTranslator.lookup(word: $0, returnOriginal: !setting.translatesTags)
@@ -168,8 +171,10 @@ struct DetailView: View {
             .autoBlur(radius: blurRadius)
         }
         .sheet(unwrapping: viewStore.binding(\.$route), case: /DetailState.Route.newDawn) { route in
-            NewDawnView(greeting: route.wrappedValue)
-                .autoBlur(radius: blurRadius)
+            NewDawnView(greeting: route.wrappedValue).autoBlur(radius: blurRadius)
+        }
+        .sheet(unwrapping: viewStore.binding(\.$route), case: /DetailState.Route.tagDetail) { route in
+            TagDetailView(detail: route.wrappedValue).autoBlur(radius: blurRadius)
         }
         .animation(.default, value: viewStore.showsUserRating)
         .animation(.default, value: viewStore.showsFullTitle)
@@ -540,17 +545,20 @@ private struct ActionSection: View {
 private struct TagsSection: View {
     private let tags: [GalleryTag]
     private let showsImages: Bool
-    private let navigateAction: (String) -> Void
+    private let navigateSearchAction: (String) -> Void
+    private let navigateTagDetailAction: (TagDetail) -> Void
     private let translateAction: (String) -> (String, TagTranslation?)
 
     init(
         tags: [GalleryTag], showsImages: Bool,
-        navigateAction: @escaping (String) -> Void,
+        navigateSearchAction: @escaping (String) -> Void,
+        navigateTagDetailAction: @escaping (TagDetail) -> Void,
         translateAction: @escaping (String) -> (String, TagTranslation?)
     ) {
         self.tags = tags
         self.showsImages = showsImages
-        self.navigateAction = navigateAction
+        self.navigateSearchAction = navigateSearchAction
+        self.navigateTagDetailAction = navigateTagDetailAction
         self.translateAction = translateAction
     }
 
@@ -559,7 +567,8 @@ private struct TagsSection: View {
             ForEach(tags) { tag in
                 TagRow(
                     tag: tag, showsImages: showsImages,
-                    navigateAction: navigateAction,
+                    navigateSearchAction: navigateSearchAction,
+                    navigateTagDetailAction: navigateTagDetailAction,
                     translateAction: translateAction
                 )
             }
@@ -575,17 +584,20 @@ private extension TagsSection {
 
         private let tag: GalleryTag
         private let showsImages: Bool
-        private let navigateAction: (String) -> Void
+        private let navigateSearchAction: (String) -> Void
+        private let navigateTagDetailAction: (TagDetail) -> Void
         private let translateAction: (String) -> (String, TagTranslation?)
 
         init(
             tag: GalleryTag, showsImages: Bool,
-            navigateAction: @escaping (String) -> Void,
+            navigateSearchAction: @escaping (String) -> Void,
+            navigateTagDetailAction: @escaping (TagDetail) -> Void,
             translateAction: @escaping (String) -> (String, TagTranslation?)
         ) {
             self.tag = tag
             self.showsImages = showsImages
-            self.navigateAction = navigateAction
+            self.navigateSearchAction = navigateSearchAction
+            self.navigateTagDetailAction = navigateTagDetailAction
             self.translateAction = translateAction
         }
 
@@ -605,16 +617,35 @@ private extension TagsSection {
                     .foregroundColor(reversedPrimary).padding(padding)
                     .background(Color(.systemGray)).cornerRadius(5)
                 TagCloudView(data: tag.contents) { content in
+                    let displayText = content.localizedDisplayText(translateAction: translateAction)
+                    let (_, translation) = translateAction(content.text)
                     Button {
-                        navigateAction(content.serachKeyword(tag: tag))
+                        navigateSearchAction(content.serachKeyword(tag: tag))
                     } label: {
                         TagCloudCell(
-                            text: content.localizedDisplayText(translateAction: translateAction),
-                            imageURL: translateAction(content.text).1?.valueImageURL,
+                            text: displayText,
+                            imageURL: translation?.valueImageURL,
                             showsImages: showsImages,
                             font: .subheadline, padding: padding, textColor: .primary,
                             backgroundColor: backgroundColor
                         )
+                    }
+                    .contextMenu {
+                        if let translation = translation,
+                            let description = translation.descriptionPlainText,
+                            !description.isEmpty
+                        {
+                            Button {
+                                navigateTagDetailAction(.init(
+                                    title: displayText, description: description,
+                                    imageURLs: translation.descriptionImageURLs,
+                                    links: translation.links
+                                ))
+                            } label: {
+                                Image(systemSymbol: .docRichtext)
+                                Text("Description")
+                            }
+                        }
                     }
                 }
             }

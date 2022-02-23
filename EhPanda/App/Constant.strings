@@ -69,8 +69,8 @@
 "ehpanda.acknowledgements.link.UIImageColors" = "https://github.com/jathu/UIImageColors";
 "ehpanda.acknowledgements.link.SFSafeSymbols" = "https://github.com/SFSafeSymbols/SFSafeSymbols";
 "ehpanda.acknowledgements.link.TTProgressHUD" = "https://github.com/honkmaster/TTProgressHUD";
-"ehpanda.acknowledgements.link.swiftMarkdown" = "https://github.com/apple/swift-markdown";
 "ehpanda.acknowledgements.link.swiftUINavigation" = "https://github.com/pointfreeco/swiftui-navigation";
+"ehpanda.acknowledgements.link.swiftCommonMark" = "https://github.com/gonzalezreal/SwiftCommonMark";
 "ehpanda.acknowledgements.link.ehTagTranslationDatabase" = "https://github.com/EhTagTranslation/Database";
 "ehpanda.acknowledgements.link.TCA" = "https://github.com/pointfreeco/swift-composable-architecture";
 
@@ -88,7 +88,7 @@
 "ehpanda.acknowledgements.text.UIImageColors" = "UIImageColors";
 "ehpanda.acknowledgements.text.SFSafeSymbols" = "SFSafeSymbols";
 "ehpanda.acknowledgements.text.TTProgressHUD" = "TTProgressHUD";
-"ehpanda.acknowledgements.text.swiftMarkdown" = "Swift Markdown";
 "ehpanda.acknowledgements.text.swiftUINavigation" = "SwiftUI Navigation";
+"ehpanda.acknowledgements.text.swiftCommonMark" = "SwiftCommonMark";
 "ehpanda.acknowledgements.text.ehTagTranslationDatabase" = "EhTagTranslation/Database";
 "ehpanda.acknowledgements.text.TCA" = "The Composable Architecture";

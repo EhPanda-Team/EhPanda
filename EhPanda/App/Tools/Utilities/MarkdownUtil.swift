@@ -5,31 +5,39 @@
 //  Created by 荒木辰造 on R 4/02/20.
 //
 
-import Markdown
+import CasePaths
+import CommonMark
+import Foundation
 
 struct MarkdownUtil {
-    static func ripImage(string: String) -> String? {
-        var imageDeleter = ImageDeleter()
-        if let document = imageDeleter.visit(Document(parsing: string)) as? Document {
-            return document.format()
-        }
-        return nil
+    static func parseTexts(markdown: String) -> [String] {
+        (try? Document(markdown: markdown))?.blocks
+            .compactMap((/Block.paragraph).extract)
+            .flatMap(\.text)
+            .compactMap((/Inline.text))
+        ?? []
     }
-    static func parseImage(string: String) -> String? {
-        var imageParser = ImageParser()
-        imageParser.visit(Document(parsing: string))
-        return imageParser.images.first?.source
+    static func parseLinks(markdown: String) -> [URL] {
+        (try? Document(markdown: markdown))?.blocks
+            .compactMap((/Block.paragraph).extract)
+            .flatMap(\.text)
+            .compactMap((/Inline.link))
+            .compactMap(\.url)
+        ?? []
     }
-}
-
-private struct ImageDeleter: MarkupRewriter {
-    mutating func visitImage(_ image: Image) -> Markup? { nil }
-}
-private struct ImageParser: MarkupWalker {
-    var images = [Image]()
-
-    mutating func visitImage(_ image: Image) {
-        images.append(image)
-        descendInto(image)
+    static func parseImages(markdown: String) -> [URL] {
+        (try? Document(markdown: markdown))?.blocks
+            .compactMap((/Block.paragraph).extract)
+            .flatMap(\.text)
+            .compactMap((/Inline.image))
+            .compactMap { image in
+                if image.url?.absoluteString.isValidURL == true {
+                    return image.url
+                } else if let title = image.title, title.isValidURL {
+                    return .init(string: title)
+                }
+                return nil
+            }
+        ?? []
     }
 }
