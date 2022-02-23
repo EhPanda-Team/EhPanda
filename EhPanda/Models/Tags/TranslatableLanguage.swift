@@ -46,9 +46,7 @@ extension TranslatableLanguage {
     }
     var remoteFilename: String {
         switch self {
-        case .japanese:
-            return "jpn_text.json"
-        case .english, .simplifiedChinese, .traditionalChinese:
+        case .english, .japanese, .simplifiedChinese, .traditionalChinese:
             return "db.raw.json"
         }
     }

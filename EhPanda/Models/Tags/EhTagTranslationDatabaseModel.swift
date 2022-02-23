@@ -10,8 +10,8 @@ import Foundation
 struct EhTagTranslationDatabaseResponse: Codable {
     struct Item: Codable {
         let name: String
-        let intro: String
-        let links: String
+        var intro: String?
+        var links: String?
     }
 
     struct Model: Codable {
