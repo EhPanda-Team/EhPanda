@@ -37,7 +37,7 @@ struct PopularView: View {
             fetchAction: { viewStore.send(.fetchGalleries) },
             navigateAction: { viewStore.send(.setNavigation(.detail($0))) },
             translateAction: {
-                tagTranslator.tryTranslate(text: $0, returnOriginal: !setting.translatesTags)
+                tagTranslator.lookup(word: $0, returnOriginal: !setting.translatesTags)
             }
         )
         .sheet(

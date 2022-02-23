@@ -109,20 +109,22 @@ struct Parser {
                     let hex = style[rangeA.upperBound..<rangeB.lowerBound]
                     contentBackgroundColor = .init(hex: .init(hex))
                 }
-                if let index = tags.firstIndex(where: { $0.namespace == namespace }) {
+                if let index = tags.firstIndex(where: { $0.rawNamespace == namespace }) {
                     let contents = tags[index].contents
                     let galleryTagContent = GalleryTag.Content(
                         text: contentText, displayText: contentText,
+                        isVotedUp: false, isVotedDown: false,
                         backgroundColor: contentBackgroundColor
                     )
                     let newContents = contents + [galleryTagContent]
-                    tags[index] = .init(namespace: namespace, contents: newContents)
+                    tags[index] = .init(rawNamespace: namespace, contents: newContents)
                 } else {
                     let galleryTagContent = GalleryTag.Content(
                         text: contentText, displayText: contentText,
+                        isVotedUp: false, isVotedDown: false,
                         backgroundColor: contentBackgroundColor
                     )
-                    tags.append(.init(namespace: namespace, contents: [galleryTagContent]))
+                    tags.append(.init(rawNamespace: namespace, contents: [galleryTagContent]))
                 }
             }
             return tags
@@ -326,15 +328,22 @@ struct Parser {
                 let namespace = String(tcText.dropLast())
                 var contents = [GalleryTag.Content]()
                 for divLink in link.xpath("//div") {
-                    guard var text = divLink.text else { continue }
+                    guard var text = divLink.text, let aClass = divLink.at_xpath("//a")?.className else { continue }
                     let displayText = text
                     if let range = text.range(of: " | ") {
                         text = .init(text[..<range.lowerBound])
                     }
-                    contents.append(.init(text: text, displayText: displayText, backgroundColor: nil))
+                    contents.append(
+                        .init(
+                            text: text, displayText: displayText,
+                            isVotedUp: aClass == "tup",
+                            isVotedDown: aClass == "tdn",
+                            backgroundColor: nil
+                        )
+                    )
                 }
 
-                tags.append(.init(namespace: namespace, contents: contents))
+                tags.append(.init(rawNamespace: namespace, contents: contents))
             }
 
             return tags
@@ -1724,69 +1733,6 @@ extension Parser {
                 ]
             )
             return .unrecognized(content: expireDescription)
-        }
-    }
-
-    // MARK: Translation
-    static func parseTranslations(dict: [String: Any], language: TranslatableLanguage? = nil) -> [String: String] {
-        func parseCHSTranslations(dict: [String: Any]) -> [String: String] {
-            let categories = dict["data"] as? [[String: Any]] ?? []
-            let translationsBeforeMapping = categories.compactMap {
-                $0["data"] as? [String: Any]
-            }.reduce([], +)
-
-            var translations = [String: String]()
-            translationsBeforeMapping.forEach { translation in
-                let originalText = translation.key
-                let dict = translation.value as? [String: Any]
-
-                if let translatedText = dict?["name"] as? String {
-                    translations[originalText] = translatedText
-                }
-            }
-            return translations
-        }
-        func convertToCHT(dict: [String: String]) -> [String: String] {
-            func customConversion(dict: inout [String: String]) {
-                if dict["full color"] != nil {
-                    dict["full color"] = "全彩"
-                }
-            }
-            guard let preferredLanguage = Locale.preferredLanguages.first else { return [:] }
-
-            var translations = [String: String]()
-
-            var options: ChineseConverter.Options = [.traditionalize]
-            if preferredLanguage.contains("HK") {
-                options = [.traditionalize, .hkStandard]
-            } else if preferredLanguage.contains("TW") {
-                options = [.traditionalize, .twStandard, .twIdiom]
-            }
-
-            guard let converter = try? ChineseConverter(options: options)
-            else { return [:] }
-
-            dict.forEach { key, value in
-                translations[key] = converter.convert(value)
-            }
-            customConversion(dict: &translations)
-
-            return translations
-        }
-        func tryParseAnyTranslations(dict: [String: Any]) -> [String: String] {
-            dict as? [String: String] ?? [:]
-        }
-
-        let chsTranslations = parseCHSTranslations(dict: dict)
-        switch language {
-        case .japanese:
-            return tryParseAnyTranslations(dict: dict)
-        case .simplifiedChinese:
-            return chsTranslations
-        case .traditionalChinese:
-            return convertToCHT(dict: chsTranslations)
-        default:
-            return chsTranslations.isEmpty ? tryParseAnyTranslations(dict: dict) : chsTranslations
         }
     }
 }

@@ -12,15 +12,17 @@ import ComposableArchitecture
 struct PreviewsView: View {
     private let store: Store<PreviewsState, PreviewsAction>
     @ObservedObject private var viewStore: ViewStore<PreviewsState, PreviewsAction>
+    private let gid: String
     @Binding private var setting: Setting
     private let blurRadius: Double
 
     init(
         store: Store<PreviewsState, PreviewsAction>,
-        setting: Binding<Setting>, blurRadius: Double
+        gid: String, setting: Binding<Setting>, blurRadius: Double
     ) {
         self.store = store
         viewStore = ViewStore(store)
+        self.gid = gid
         _setting = setting
         self.blurRadius = blurRadius
     }
@@ -69,13 +71,13 @@ struct PreviewsView: View {
         .fullScreenCover(unwrapping: viewStore.binding(\.$route), case: /PreviewsState.Route.reading) { _ in
             ReadingView(
                 store: store.scope(state: \.readingState, action: PreviewsAction.reading),
-                setting: $setting, blurRadius: blurRadius
+                gid: gid, setting: $setting, blurRadius: blurRadius
             )
             .accentColor(setting.accentColor)
             .autoBlur(radius: blurRadius)
         }
         .onAppear {
-            viewStore.send(.fetchDatabaseInfos)
+            viewStore.send(.fetchDatabaseInfos(gid))
         }
         .navigationTitle(R.string.localizable.previewsViewTitlePreviews())
     }
@@ -99,6 +101,7 @@ struct PreviewsView_Previews: PreviewProvider {
                         appDelegateClient: .live
                     )
                 ),
+                gid: .init(),
                 setting: .constant(.init()),
                 blurRadius: 0
             )

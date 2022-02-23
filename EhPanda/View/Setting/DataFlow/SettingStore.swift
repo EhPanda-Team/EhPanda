@@ -71,7 +71,8 @@ enum SettingAction: BindableAction {
     case syncUser
 
     case loadUserSettings
-    case loadUserSettingsDone(AppEnv)
+    case onLoadUserSettings(AppEnv)
+    case loadUserSettingsDone
     case createDefaultEhProfile
     case fetchIgneous
     case fetchIgneousDone(Result<HTTPURLResponse, AppError>)
@@ -117,11 +118,11 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
                     .setValue(state.setting.galleryHost.rawValue, .galleryHost).fireAndForget()
             )
 
-        case .binding(\.$setting.translatesTags):
+        case .binding(\.$setting.enablesTagsExtension):
             var effects: [Effect<SettingAction, Never>] = [
                 .init(value: .syncSetting)
             ]
-            if state.setting.translatesTags {
+            if state.setting.enablesTagsExtension {
                 effects.append(.init(value: .fetchTagTranslator))
             }
             return .merge(effects)
@@ -145,7 +146,7 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
             {
                 state.setting.backgroundBlurRadius = 10
             }
-            return .none
+            return .init(value: .syncSetting)
 
         case .binding(\.$setting.backgroundBlurRadius):
             if state.setting.autoLockPolicy != .never
@@ -153,7 +154,7 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
             {
                 state.setting.autoLockPolicy = .never
             }
-            return .none
+            return .init(value: .syncSetting)
 
         case .binding(\.$setting.enablesLandscape):
             var effects: [Effect<SettingAction, Never>] = [
@@ -227,15 +228,17 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
             return environment.databaseClient.updateUser(state.user).fireAndForget()
 
         case .loadUserSettings:
-            return environment.databaseClient.fetchAppEnv().map(SettingAction.loadUserSettingsDone)
+            return environment.databaseClient.fetchAppEnv().map(SettingAction.onLoadUserSettings)
 
-        case .loadUserSettingsDone(let appEnv):
+        case .onLoadUserSettings(let appEnv):
             state.setting = appEnv.setting
             state.tagTranslator = appEnv.tagTranslator
             state.user = appEnv.user
             var effects: [Effect<SettingAction, Never>] = [
                 .init(value: .syncAppIconType),
-                .init(value: .syncUserInterfaceStyle)
+                .init(value: .loadUserSettingsDone),
+                .init(value: .syncUserInterfaceStyle),
+                environment.dfClient.setActive(state.setting.bypassesSNIFiltering).fireAndForget()
             ]
             if let value: String = environment.userDefaultsClient.getValue(.galleryHost),
                let galleryHost = GalleryHost(rawValue: value)
@@ -253,11 +256,13 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
                     .init(value: .fetchEhProfileIndex)
                 ])
             }
-            if state.setting.translatesTags {
+            if state.setting.enablesTagsExtension {
                 effects.append(.init(value: .fetchTagTranslator))
             }
-            effects.append(environment.dfClient.setActive(state.setting.bypassesSNIFiltering).fireAndForget())
             return .merge(effects)
+
+        case .loadUserSettingsDone:
+            return .none
 
         case .createDefaultEhProfile:
             return EhProfileRequest(action: .create, name: "EhPanda").effect.fireAndForget()
@@ -437,7 +442,7 @@ let settingReducer = Reducer<SettingState, SettingAction, SettingEnvironment>.co
 
         case .general(.onRemoveCustomTranslations):
             state.tagTranslator.hasCustomTranslations = false
-            state.tagTranslator.contents = .init()
+            state.tagTranslator.translations = .init()
             return .init(value: .syncTagTranslator)
 
         case .general:

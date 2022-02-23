@@ -56,9 +56,12 @@ private extension SettingView {
             GeneralSettingView(
                 store: store.scope(state: \.generalSettingState, action: SettingAction.general),
                 tagTranslatorLoadingState: viewStore.tagTranslatorLoadingState,
-                tagTranslatorEmpty: viewStore.tagTranslator.contents.isEmpty,
+                tagTranslatorEmpty: viewStore.tagTranslator.translations.isEmpty,
                 tagTranslatorHasCustomTranslations: viewStore.tagTranslator.hasCustomTranslations,
+                enablesTagsExtension: viewStore.binding(\.$setting.enablesTagsExtension),
                 translatesTags: viewStore.binding(\.$setting.translatesTags),
+                showsTagsSearchSuggestions: viewStore.binding(\.$setting.showsTagsSearchSuggestions),
+                showsImagesInTags: viewStore.binding(\.$setting.showsImagesInTags),
                 redirectsLinksToSelectedHost: viewStore.binding(\.$setting.redirectsLinksToSelectedHost),
                 detectsLinksFromClipboard: viewStore.binding(\.$setting.detectsLinksFromClipboard),
                 backgroundBlurRadius: viewStore.binding(\.$setting.backgroundBlurRadius),

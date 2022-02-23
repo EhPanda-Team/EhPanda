@@ -68,11 +68,10 @@ struct AppDelegateEnvironment {
     let databaseClient: DatabaseClient
 }
 
-let appDelegateReducer = Reducer<AppState, AppDelegateAction, AppDelegateEnvironment>.combine(
-    .init { state, action, environment in
+let appDelegateReducer = Reducer<AppDelegateState, AppDelegateAction, AppDelegateEnvironment>.combine(
+    .init { _, action, environment in
         switch action {
         case .onLaunchFinish:
-            state.appLockState.becameInactiveDate = .distantPast
             return .merge(
                 environment.libraryClient.initializeLogger().fireAndForget(),
                 environment.libraryClient.initializeWebImage().fireAndForget(),
@@ -90,7 +89,7 @@ let appDelegateReducer = Reducer<AppState, AppDelegateAction, AppDelegateEnviron
         }
     },
     migrationReducer.pullback(
-        state: \.appDelegateState.migrationState,
+        state: \.migrationState,
         action: /AppDelegateAction.migration,
         environment: {
             .init(

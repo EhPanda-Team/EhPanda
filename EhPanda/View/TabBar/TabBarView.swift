@@ -66,8 +66,12 @@ struct TabBarView: View {
                 .accentColor(viewStore.settingState.setting.accentColor)
             }
             .autoBlur(radius: viewStore.appLockState.blurRadius)
-            Image(systemSymbol: .lockFill).font(.system(size: 80))
-                .opacity(viewStore.appLockState.isAppLocked ? 1 : 0)
+            Button {
+                viewStore.send(.appLock(.authorize))
+            } label: {
+                Image(systemSymbol: .lockFill)
+            }
+            .font(.system(size: 80)).opacity(viewStore.appLockState.isAppLocked ? 1 : 0)
         }
         .sheet(unwrapping: viewStore.binding(\.appRouteState.$route), case: /AppRouteState.Route.newDawn) { route in
             NewDawnView(greeting: route.wrappedValue)

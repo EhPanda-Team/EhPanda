@@ -8,6 +8,7 @@
 import Foundation
 
 enum TranslatableLanguage: Codable, CaseIterable {
+    case english
     case japanese
     case simplifiedChinese
     case traditionalChinese
@@ -23,6 +24,8 @@ extension TranslatableLanguage {
     }
     var languageCode: String {
         switch self {
+        case .english:
+            return "en"
         case .japanese:
             return "ja"
         case .simplifiedChinese:
@@ -33,6 +36,8 @@ extension TranslatableLanguage {
     }
     var repoName: String {
         switch self {
+        case .english:
+            return "tatsuz0u/EhTagTranslation_Database_EN"
         case .japanese:
             return "tatsuz0u/EhTagTranslation_Database_JPN"
         case .simplifiedChinese, .traditionalChinese:
@@ -41,10 +46,8 @@ extension TranslatableLanguage {
     }
     var remoteFilename: String {
         switch self {
-        case .japanese:
-            return "jpn_text.json"
-        case .simplifiedChinese, .traditionalChinese:
-            return "db.text.json"
+        case .english, .japanese, .simplifiedChinese, .traditionalChinese:
+            return "db.raw.json"
         }
     }
     var checkUpdateURL: URL {

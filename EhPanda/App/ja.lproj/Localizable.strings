@@ -183,7 +183,10 @@
 "general.setting.view.title.general" = "一般";
 "general.setting.view.title.language" = "言語";
 "general.setting.view.title.autoLock" = "自動ロック";
+"general.setting.view.title.enablesTagsExtension" = "タグの拡張機能を有効";
 "general.setting.view.title.translatesTags" = "タグを訳す";
+"general.setting.view.title.showsTagsSearchSuggestions" = "タグの検索提案を表示";
+"general.setting.view.title.showsImagesInTags" = "タグの画像を表示";
 "general.setting.view.title.redirectsLinksToTheSelectedHost" = "リンクを選択されたホストへリダイレクト";
 "general.setting.view.title.detectsLinksFromClipboard" = "クリップボードからリンクを探知";
 "general.setting.view.title.backgroundBlurRadius" = "バッググラウンドぼかし度";
@@ -192,7 +195,7 @@
 "general.setting.view.button.removeCustomTranslations" = "カスタム翻訳を削除";
 "general.setting.view.button.clearImageCaches" = "画像キャッシュを削除";
 "general.setting.view.value.defaultLanguageDescription" = "無効";
-"general.setting.view.section.title.tagsTranslation" = "タグの翻訳";
+"general.setting.view.section.title.tags" = "タグ";
 "general.setting.view.section.title.navigation" = "ナビゲーション";
 "general.setting.view.section.title.security" = "セキュリティ";
 "general.setting.view.section.title.caches" = "キャッシュ";
@@ -263,6 +266,10 @@
 "detail.view.toolbar.item.button.archives" = "アーカイブ";
 "detail.view.toolbar.item.button.torrents" = "トレント";
 "detail.view.toolbar.item.button.share" = "共有";
+"detail.view.context.menu.button.detail" = "詳細";
+"detail.view.context.menu.button.withdrawVote" = "投票を取り消す";
+"detail.view.context.menu.button.voteUp" = "賛成票を投じる";
+"detail.view.context.menu.button.voteDown" = "反対票を投じる";
 "detail.view.scroll.section.title.favorited" = "気に入り";
 "detail.view.scroll.section.title.language" = "言語";
 "detail.view.scroll.section.title.ratings" = "%@ 件の評価";
@@ -317,6 +324,10 @@
 "gallery.visibility.value.yes" = "はい";
 "gallery.visibility.value.no" = "いいえ (%@)";
 "gallery.visibility.value.no.reason.expunged" = "削除済み";
+
+// MARK: TagDetailView
+"tag.detail.view.section.title.images" = "画像";
+"tag.detail.view.section.title.links" = "リンク";
 
 // MARK: CommentsView
 "comments.view.title.comments" = "コメント";
@@ -546,18 +557,18 @@
 "enum.category.value.private" = "プライベート";
 
 // MARK: TagCategory
-"enum.tag.category.value.reclass" = "再分類";
-"enum.tag.category.value.language" = "言語";
-"enum.tag.category.value.parody" = "原作";
-"enum.tag.category.value.character" = "キャラ";
-"enum.tag.category.value.group" = "団体";
-"enum.tag.category.value.artist" = "作者";
-"enum.tag.category.value.male" = "男性";
-"enum.tag.category.value.female" = "女性";
-"enum.tag.category.value.mixed" = "混在性別";
-"enum.tag.category.value.cosplayer" = "レイヤー";
-"enum.tag.category.value.other" = "その他";
-"enum.tag.category.value.temp" = "一時的";
+"enum.tag.namespace.value.reclass" = "再分類";
+"enum.tag.namespace.value.language" = "言語";
+"enum.tag.namespace.value.parody" = "原作";
+"enum.tag.namespace.value.character" = "キャラ";
+"enum.tag.namespace.value.group" = "団体";
+"enum.tag.namespace.value.artist" = "作者";
+"enum.tag.namespace.value.male" = "男性";
+"enum.tag.namespace.value.female" = "女性";
+"enum.tag.namespace.value.mixed" = "混在性別";
+"enum.tag.namespace.value.cosplayer" = "レイヤー";
+"enum.tag.namespace.value.other" = "その他";
+"enum.tag.namespace.value.temp" = "一時的";
 
 // MARK: Language
 "enum.language.value.invalid" = "無効";

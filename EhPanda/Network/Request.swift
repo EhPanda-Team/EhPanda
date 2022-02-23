@@ -25,6 +25,8 @@ extension Request {
             return .parseFailed
         case is URLError:
             return .networkingFailed
+        case is DecodingError:
+            return .parseFailed
         default:
             return error as? AppError ?? .unknown
         }
@@ -108,11 +110,15 @@ struct TagTranslatorRequest: Request {
             .flatMap { date in
                 URLSession.shared.dataTaskPublisher(for: language.downloadURL)
                     .tryMap { data, _ in
-                        guard let dict = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
-                        else { throw AppError.parseFailed }
-                        let translations = Parser.parseTranslations(dict: dict, language: language)
+                        let response = try JSONDecoder().decode(
+                            EhTagTranslationDatabaseResponse.self, from: data
+                        )
+                        var translations = response.tagTranslations
                         guard !translations.isEmpty else { throw AppError.parseFailed }
-                        return TagTranslator(language: language, updatedDate: date, contents: translations)
+                        if language == .traditionalChinese {
+                            translations = translations.chtConverted
+                        }
+                        return TagTranslator(language: language, updatedDate: date, translations: translations)
                     }
             }
             .mapError(mapAppError).eraseToAnyPublisher()
@@ -885,6 +891,32 @@ struct VoteGalleryCommentRequest: Request {
             "method": "votecomment", "apiuid": apiuid,
             "apikey": apikey, "gid": gid, "token": token,
             "comment_id": commentID, "comment_vote": commentVote
+        ]
+
+        var request = URLRequest(url: Defaults.URL.api)
+        request.httpMethod = "POST"
+        request.httpBody = try? JSONSerialization
+            .data(withJSONObject: params, options: [])
+
+        return URLSession.shared.dataTaskPublisher(for: request)
+            .genericRetry().map { $0 }.mapError(mapAppError)
+            .eraseToAnyPublisher()
+    }
+}
+
+struct VoteGalleryTagRequest: Request {
+    let apiuid: Int
+    let apikey: String
+    let gid: Int
+    let token: String
+    let tag: String
+    let vote: Int
+
+    var publisher: AnyPublisher<Any, AppError> {
+        let params: [String: Any] = [
+            "method": "taggallery", "apiuid": apiuid,
+            "apikey": apikey, "gid": gid, "token": token,
+            "tags": tag, "vote": vote
         ]
 
         var request = URLRequest(url: Defaults.URL.api)

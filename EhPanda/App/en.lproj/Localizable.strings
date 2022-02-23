@@ -183,7 +183,10 @@
 "general.setting.view.title.general" = "General";
 "general.setting.view.title.language" = "Language";
 "general.setting.view.title.autoLock" = "Auto-Lock";
+"general.setting.view.title.enablesTagsExtension" = "Enables tags extension";
 "general.setting.view.title.translatesTags" = "Translates tags";
+"general.setting.view.title.showsTagsSearchSuggestions" = "Shows tags search suggestions";
+"general.setting.view.title.showsImagesInTags" = "Shows images in tags";
 "general.setting.view.title.redirectsLinksToTheSelectedHost" = "Redirects links to the selected host";
 "general.setting.view.title.detectsLinksFromClipboard" = "Detects links from the clipboard";
 "general.setting.view.title.backgroundBlurRadius" = "Background blur radius";
@@ -192,7 +195,7 @@
 "general.setting.view.button.removeCustomTranslations" = "Remove custom translations";
 "general.setting.view.button.clearImageCaches" = "Clear image caches";
 "general.setting.view.value.defaultLanguageDescription" = "N/A";
-"general.setting.view.section.title.tagsTranslation" = "Tags translation";
+"general.setting.view.section.title.tags" = "Tags";
 "general.setting.view.section.title.navigation" = "Navigation";
 "general.setting.view.section.title.security" = "Security";
 "general.setting.view.section.title.caches" = "Caches";
@@ -263,6 +266,10 @@
 "detail.view.toolbar.item.button.archives" = "Archives";
 "detail.view.toolbar.item.button.torrents" = "Torrents";
 "detail.view.toolbar.item.button.share" = "Share";
+"detail.view.context.menu.button.detail" = "Detail";
+"detail.view.context.menu.button.withdrawVote" = "Withdraw vote";
+"detail.view.context.menu.button.voteUp" = "Vote up";
+"detail.view.context.menu.button.voteDown" = "Vote down";
 "detail.view.scroll.section.title.favorited" = "Favorited";
 "detail.view.scroll.section.title.language" = "Language";
 "detail.view.scroll.section.title.ratings" = "%@ Ratings";
@@ -317,6 +324,10 @@
 "gallery.visibility.value.yes" = "Yes";
 "gallery.visibility.value.no" = "No (%@)";
 "gallery.visibility.value.no.reason.expunged" = "Expunged";
+
+// MARK: TagDetailView
+"tag.detail.view.section.title.images" = "Images";
+"tag.detail.view.section.title.links" = "Links";
 
 // MARK: CommentsView
 "comments.view.title.comments" = "Comments";
@@ -546,18 +557,18 @@
 "enum.category.value.private" = "Private";
 
 // MARK: TagCategory
-"enum.tag.category.value.reclass" = "Reclass";
-"enum.tag.category.value.language" = "Language";
-"enum.tag.category.value.parody" = "Parody";
-"enum.tag.category.value.character" = "Character";
-"enum.tag.category.value.group" = "Group";
-"enum.tag.category.value.artist" = "Artist";
-"enum.tag.category.value.male" = "Male";
-"enum.tag.category.value.female" = "Female";
-"enum.tag.category.value.mixed" = "Mixed";
-"enum.tag.category.value.cosplayer" = "Cosplayer";
-"enum.tag.category.value.other" = "Other";
-"enum.tag.category.value.temp" = "Temp";
+"enum.tag.namespace.value.reclass" = "Reclass";
+"enum.tag.namespace.value.language" = "Language";
+"enum.tag.namespace.value.parody" = "Parody";
+"enum.tag.namespace.value.character" = "Character";
+"enum.tag.namespace.value.group" = "Group";
+"enum.tag.namespace.value.artist" = "Artist";
+"enum.tag.namespace.value.male" = "Male";
+"enum.tag.namespace.value.female" = "Female";
+"enum.tag.namespace.value.mixed" = "Mixed";
+"enum.tag.namespace.value.cosplayer" = "Cosplayer";
+"enum.tag.namespace.value.other" = "Other";
+"enum.tag.namespace.value.temp" = "Temp";
 
 // MARK: Language
 "enum.language.value.invalid" = "N/A";

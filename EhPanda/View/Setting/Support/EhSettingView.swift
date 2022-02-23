@@ -480,8 +480,8 @@ private struct TagNamespacesSection: View {
     }
 
     private var tuples: [(String, Binding<Bool>)] {
-        TagCategory.allCases.dropLast().enumerated().map { index, category in
-            (category.value, $ehSetting.excludedNamespaces[index])
+        TagNamespace.allCases.dropLast().enumerated().map { index, namespace in
+            (namespace.value, $ehSetting.excludedNamespaces[index])
         }
     }
 

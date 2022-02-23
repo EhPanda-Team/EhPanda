@@ -53,7 +53,7 @@ extension Category {
         case .misc:
             return 1
         case .private:
-            let message = "Category `Private` shouldn't be used in filters!"
+            let message = "`Private` doesn't have a `filterValue`!"
             Logger.error(message)
             fatalError(message)
         }

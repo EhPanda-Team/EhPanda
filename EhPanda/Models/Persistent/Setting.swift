@@ -15,6 +15,18 @@ struct Setting: Codable, Equatable {
     var showsNewDawnGreeting = false
 
     // General
+    var enablesTagsExtension = false {
+        didSet {
+            if !enablesTagsExtension {
+                translatesTags = false
+                showsTagsSearchSuggestions = false
+                showsImagesInTags = false
+            }
+        }
+    }
+    var translatesTags = false
+    var showsTagsSearchSuggestions = false
+    var showsImagesInTags = false
     var redirectsLinksToSelectedHost = false
     var detectsLinksFromClipboard = false
     var backgroundBlurRadius: Double = 10
@@ -25,7 +37,6 @@ struct Setting: Codable, Equatable {
     var preferredColorScheme = PreferredColorScheme.automatic
     var accentColor: Color = .blue
     var appIconType: AppIconType = .default
-    var translatesTags = false
     var showsTagsInList = false
     var listTagsNumberMaximum = 0
 
@@ -171,6 +182,10 @@ extension Setting {
         galleryHost = (try? container?.decodeIfPresent(GalleryHost.self, forKey: .galleryHost)) ?? .ehentai
         showsNewDawnGreeting = (try? container?.decodeIfPresent(Bool.self, forKey: .showsNewDawnGreeting)) ?? false
         // General
+        enablesTagsExtension = (try? container?.decodeIfPresent(Bool.self, forKey: .enablesTagsExtension)) ?? false
+        translatesTags = (try? container?.decodeIfPresent(Bool.self, forKey: .translatesTags)) ?? false
+        showsTagsSearchSuggestions = (try? container?.decodeIfPresent(Bool.self, forKey: .showsTagsSearchSuggestions)) ?? false
+        showsImagesInTags = (try? container?.decodeIfPresent(Bool.self, forKey: .showsImagesInTags)) ?? false
         redirectsLinksToSelectedHost = (try? container?.decodeIfPresent(Bool.self, forKey: .redirectsLinksToSelectedHost)) ?? false
         detectsLinksFromClipboard = (try? container?.decodeIfPresent(Bool.self, forKey: .detectsLinksFromClipboard)) ?? false
         backgroundBlurRadius = (try? container?.decodeIfPresent(Double.self, forKey: .backgroundBlurRadius)) ?? 10
@@ -180,7 +195,6 @@ extension Setting {
         preferredColorScheme = (try? container?.decodeIfPresent(PreferredColorScheme.self, forKey: .preferredColorScheme)) ?? .automatic
         accentColor = (try? container?.decodeIfPresent(Color.self, forKey: .accentColor)) ?? .blue
         appIconType = (try? container?.decodeIfPresent(AppIconType.self, forKey: .appIconType)) ?? .default
-        translatesTags = (try? container?.decodeIfPresent(Bool.self, forKey: .translatesTags)) ?? false
         showsTagsInList = (try? container?.decodeIfPresent(Bool.self, forKey: .showsTagsInList)) ?? false
         listTagsNumberMaximum = (try? container?.decodeIfPresent(Int.self, forKey: .listTagsNumberMaximum)) ?? 0
         // Reading

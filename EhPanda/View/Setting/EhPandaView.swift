@@ -199,6 +199,10 @@ struct EhPandaView: View {
             text: R.string.constant.ehpandaAcknowledgementsTextSwiftUINavigation()
         ),
         .init(
+            urlString: R.string.constant.ehpandaAcknowledgementsLinkSwiftCommonMark(),
+            text: R.string.constant.ehpandaAcknowledgementsTextSwiftCommonMark()
+        ),
+        .init(
             urlString: R.string.constant.ehpandaAcknowledgementsLinkEhTagTranslationDatabase(),
             text: R.string.constant.ehpandaAcknowledgementsTextEhTagTranslationDatabase()
         ),

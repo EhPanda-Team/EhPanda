@@ -128,6 +128,15 @@
         }
       },
       {
+        "package": "SwiftCommonMark",
+        "repositoryURL": "https://github.com/gonzalezreal/SwiftCommonMark.git",
+        "state": {
+          "branch": null,
+          "revision": "ed252beaddecce28ea6363f800c773d6169011b8",
+          "version": "1.0.0"
+        }
+      },
+      {
         "package": "swiftui-navigation",
         "repositoryURL": "https://github.com/pointfreeco/swiftui-navigation.git",
         "state": {

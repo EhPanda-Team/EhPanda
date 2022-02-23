@@ -45,40 +45,37 @@ struct GalleryTag: Codable, Equatable, Hashable, Identifiable {
         var firstLetterCapitalizedText: String {
             text.firstLetterCapitalized
         }
-        func serachKeyword(tag: GalleryTag) -> String {
-            let base = "\"\(text)$\""
-            return tag.category == .temp ? base
-            : [tag.namespace.lowercased(), base].joined(separator: ":")
+        func voteKeyword(tag: GalleryTag) -> String {
+            let namespace = tag.namespace?.abbreviation ?? tag.namespace?.rawValue ?? tag.rawNamespace.lowercased()
+            return tag.namespace == .temp ? text : [namespace, text].joined(separator: ":")
         }
-        func localizedDisplayText(translateAction: ((String) -> String)?) -> String {
-            guard let action = translateAction else { return displayText }
-            let components = displayText.split(separator: "|")
-                .map { $0.trimmingCharacters(in: .whitespaces) }
-                .filter(\.notEmpty)
-            if components.count == 2 {
-                return components.map(action).joined(separator: " | ")
-            } else {
-                return action(displayText)
-            }
+        func serachKeyword(tag: GalleryTag) -> String {
+            let keyword = text.contains(" ") ? "\"\(text)$\"" : "\(text)$"
+            let namespace = tag.namespace?.abbreviation ?? tag.namespace?.rawValue ?? tag.rawNamespace.lowercased()
+            return tag.namespace == .temp ? keyword : [namespace, keyword].joined(separator: ":")
         }
 
-        private let text: String
+        let text: String
         private let displayText: String
+        let isVotedUp: Bool
+        let isVotedDown: Bool
         let backgroundColor: Color?
 
-        init(text: String, displayText: String, backgroundColor: Color?) {
+        init(text: String, displayText: String, isVotedUp: Bool, isVotedDown: Bool, backgroundColor: Color?) {
             self.text = text
             self.displayText = displayText
+            self.isVotedUp = isVotedUp
+            self.isVotedDown = isVotedDown
             self.backgroundColor = backgroundColor
         }
     }
 
-    var id: String { namespace }
-    var category: TagCategory? {
-        .init(rawValue: namespace)
+    var id: String { rawNamespace }
+    var namespace: TagNamespace? {
+        .init(rawValue: rawNamespace)
     }
 
-    let namespace: String
+    let rawNamespace: String
     let contents: [Content]
 }
 

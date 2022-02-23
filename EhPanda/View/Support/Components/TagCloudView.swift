@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 struct TagCloudView<Element, ID, TagCell>: View
 where TagCell: View, Element: Equatable & Identifiable, ID == Element.ID {
@@ -83,13 +84,20 @@ private extension TagCloudView {
 
 struct TagCloudCell: View {
     private let text: String
+    private let imageURL: URL?
+    private let showsImages: Bool
     private let font: Font
     private let padding: EdgeInsets
     private let textColor: Color
     private let backgroundColor: Color
 
-    init(text: String, font: Font, padding: EdgeInsets, textColor: Color, backgroundColor: Color) {
+    init(
+        text: String, imageURL: URL?, showsImages: Bool, font: Font,
+        padding: EdgeInsets, textColor: Color, backgroundColor: Color
+    ) {
         self.text = text
+        self.imageURL = imageURL
+        self.showsImages = showsImages
         self.font = font
         self.padding = padding
         self.textColor = textColor
@@ -97,7 +105,14 @@ struct TagCloudCell: View {
     }
 
     var body: some View {
-        Text(text).font(font.bold()).lineLimit(1).foregroundColor(textColor)
-            .padding(padding).background(backgroundColor).cornerRadius(5)
+        HStack(spacing: 2) {
+            Text(showsImages ? text : text.emojisRipped)
+            if let imageURL = imageURL, showsImages {
+                Image(systemSymbol: .photo).opacity(0)
+                    .overlay(KFImage(imageURL).resizable().scaledToFit())
+            }
+        }
+        .font(font.bold()).lineLimit(1).foregroundColor(textColor)
+        .padding(padding).background(backgroundColor).cornerRadius(5)
     }
 }

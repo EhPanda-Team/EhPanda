@@ -183,7 +183,10 @@
 "general.setting.view.title.general" = "Allgemein";
 "general.setting.view.title.language" = "Sprache";
 "general.setting.view.title.autoLock" = "Auto-Lock";
+"general.setting.view.title.enablesTagsExtension" = "Enables tags extension";
 "general.setting.view.title.translatesTags" = "Translates tags";
+"general.setting.view.title.showsTagsSearchSuggestions" = "Shows tags search suggestions";
+"general.setting.view.title.showsImagesInTags" = "Shows images in tags";
 "general.setting.view.title.redirectsLinksToTheSelectedHost" = "Links zum ausgewählten Host umleiten";
 "general.setting.view.title.detectsLinksFromClipboard" = "Übernimmt automatisch Links aus der Zwischenablage";
 "general.setting.view.title.backgroundBlurRadius" = "Background blur radius";
@@ -192,7 +195,7 @@
 "general.setting.view.button.removeCustomTranslations" = "Remove custom translations";
 "general.setting.view.button.clearImageCaches" = "Zwischengespeicherte Bilder (Cache) löschen";
 "general.setting.view.value.defaultLanguageDescription" = "N/A";
-"general.setting.view.section.title.tagsTranslation" = "Tags translation";
+"general.setting.view.section.title.tags" = "Tags";
 "general.setting.view.section.title.navigation" = "Navigation";
 "general.setting.view.section.title.security" = "Sicherheit";
 "general.setting.view.section.title.caches" = "Caches";
@@ -263,6 +266,10 @@
 "detail.view.toolbar.item.button.archives" = "Archiv";
 "detail.view.toolbar.item.button.torrents" = "Torrents";
 "detail.view.toolbar.item.button.share" = "Teilen";
+"detail.view.context.menu.button.detail" = "Detail";
+"detail.view.context.menu.button.withdrawVote" = "Withdraw vote";
+"detail.view.context.menu.button.voteUp" = "Vote up";
+"detail.view.context.menu.button.voteDown" = "Vote down";
 "detail.view.scroll.section.title.favorited" = "Favorisiert";
 "detail.view.scroll.section.title.language" = "Sprache";
 "detail.view.scroll.section.title.ratings" = "%@ Bewertungen";
@@ -317,6 +324,10 @@
 "gallery.visibility.value.yes" = "Yes";
 "gallery.visibility.value.no" = "No (%@)";
 "gallery.visibility.value.no.reason.expunged" = "Expunged";
+
+// MARK: TagDetailView
+"tag.detail.view.section.title.images" = "Images";
+"tag.detail.view.section.title.links" = "Links";
 
 // MARK: CommentsView
 "comments.view.title.comments" = "Kommentar";
@@ -546,18 +557,18 @@
 "enum.category.value.private" = "Private";
 
 // MARK: TagCategory
-"enum.tag.category.value.reclass" = "Reclass";
-"enum.tag.category.value.language" = "Sprache";
-"enum.tag.category.value.parody" = "Parodie";
-"enum.tag.category.value.character" = "Charakter";
-"enum.tag.category.value.group" = "Gruppe";
-"enum.tag.category.value.artist" = "Künstler";
-"enum.tag.category.value.male" = "Männlich";
-"enum.tag.category.value.female" = "Weiblich";
-"enum.tag.category.value.mixed" = "Mixed";
-"enum.tag.category.value.cosplayer" = "Cosplayer";
-"enum.tag.category.value.other" = "Other";
-"enum.tag.category.value.temp" = "Temp";
+"enum.tag.namespace.value.reclass" = "Reclass";
+"enum.tag.namespace.value.language" = "Sprache";
+"enum.tag.namespace.value.parody" = "Parodie";
+"enum.tag.namespace.value.character" = "Charakter";
+"enum.tag.namespace.value.group" = "Gruppe";
+"enum.tag.namespace.value.artist" = "Künstler";
+"enum.tag.namespace.value.male" = "Männlich";
+"enum.tag.namespace.value.female" = "Weiblich";
+"enum.tag.namespace.value.mixed" = "Mixed";
+"enum.tag.namespace.value.cosplayer" = "Cosplayer";
+"enum.tag.namespace.value.other" = "Other";
+"enum.tag.namespace.value.temp" = "Temp";
 
 // MARK: Language
 "enum.language.value.invalid" = "./.";

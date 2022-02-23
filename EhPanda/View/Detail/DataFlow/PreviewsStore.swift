@@ -16,15 +16,15 @@ struct PreviewsState: Equatable {
     }
 
     @BindableState var route: Route?
-    let gallery: Gallery
 
+    var gallery: Gallery = .empty
     var loadingState: LoadingState = .idle
     var databaseLoadingState: LoadingState = .loading
 
     var previewURLs = [Int: URL]()
     var previewConfig: PreviewConfig = .normal(rows: 4)
 
-    var readingState = ReadingState(gallery: .empty)
+    var readingState = ReadingState()
 
     mutating func updatePreviewURLs(_ previewURLs: [Int: URL]) {
         self.previewURLs = self.previewURLs.merging(
@@ -37,13 +37,12 @@ enum PreviewsAction: BindableAction {
     case binding(BindingAction<PreviewsState>)
     case setNavigation(PreviewsState.Route?)
     case clearSubStates
-    case setupReadingState
 
     case syncPreviewURLs([Int: URL])
     case updateReadingProgress(Int)
 
     case teardown
-    case fetchDatabaseInfos
+    case fetchDatabaseInfos(String)
     case fetchDatabaseInfosDone(GalleryState)
     case fetchPreviewURLs(Int)
     case fetchPreviewURLsDone(Result<[Int: URL], AppError>)
@@ -76,14 +75,7 @@ let previewsReducer = Reducer<PreviewsState, PreviewsAction, PreviewsEnvironment
             return route == nil ? .init(value: .clearSubStates) : .none
 
         case .clearSubStates:
-            return .merge(
-                .init(value: .setupReadingState),
-                .init(value: .reading(.teardown))
-            )
-
-        case .setupReadingState:
-            state.readingState = .init(gallery: state.gallery)
-            return .none
+            return .init(value: .reading(.teardown))
 
         case .syncPreviewURLs(let previewURLs):
             return environment.databaseClient
@@ -96,7 +88,9 @@ let previewsReducer = Reducer<PreviewsState, PreviewsAction, PreviewsEnvironment
         case .teardown:
             return .cancel(id: PreviewsState.CancelID())
 
-        case .fetchDatabaseInfos:
+        case .fetchDatabaseInfos(let gid):
+            guard let gallery = environment.databaseClient.fetchGallery(gid: gid) else { return .none }
+            state.gallery = gallery
             return environment.databaseClient.fetchGalleryState(gid: state.gallery.id)
                     .map(PreviewsAction.fetchDatabaseInfosDone).cancellable(id: PreviewsState.CancelID())
 
@@ -106,7 +100,7 @@ let previewsReducer = Reducer<PreviewsState, PreviewsAction, PreviewsEnvironment
             }
             state.previewURLs = galleryState.previewURLs
             state.databaseLoadingState = .idle
-            return .init(value: .setupReadingState)
+            return .none
 
         case .fetchPreviewURLs(let index):
             guard state.loadingState != .loading,

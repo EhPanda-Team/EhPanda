@@ -115,6 +115,21 @@ extension String {
     var localizedKey: LocalizedStringKey {
         .init(self)
     }
+    var linkStyled: String {
+        "[\(self)](\(Defaults.URL.ehentai.absoluteString))"
+    }
+    var stringsBesideColon: (String?, String) {
+        let strings = split(separator: ":").map(String.init)
+        if strings.count == 2, strings[0].notEmpty {
+            return (strings[0], strings[1])
+        }
+        return (nil, self)
+    }
+    var emojisRipped: String {
+        unicodeScalars
+            .filter { !$0.properties.isEmojiPresentation }
+            .reduce("") { $0 + .init($1) }
+    }
 
     var urlEncoded: String {
         addingPercentEncoding(

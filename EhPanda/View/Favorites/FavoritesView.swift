@@ -48,7 +48,7 @@ struct FavoritesView: View {
                         fetchMoreAction: { viewStore.send(.fetchMoreGalleries) },
                         navigateAction: { viewStore.send(.setNavigation(.detail($0))) },
                         translateAction: {
-                            tagTranslator.tryTranslate(text: $0, returnOriginal: !setting.translatesTags)
+                            tagTranslator.lookup(word: $0, returnOriginal: !setting.translatesTags)
                         }
                     )
                 } else {
@@ -87,7 +87,12 @@ struct FavoritesView: View {
                 jumpAction: { viewStore.send(.performJumpPage) }
             )
             .animation(.default, value: viewStore.jumpPageAlertPresented)
-            .searchable(text: viewStore.binding(\.$keyword))
+            .searchable(text: viewStore.binding(\.$keyword)) {
+                TagSuggestionView(
+                    keyword: viewStore.binding(\.$keyword), translations: tagTranslator.translations,
+                    showsImages: setting.showsImagesInTags, isEnabled: setting.showsTagsSearchSuggestions
+                )
+            }
             .onSubmit(of: .search) {
                 viewStore.send(.fetchGalleries())
             }

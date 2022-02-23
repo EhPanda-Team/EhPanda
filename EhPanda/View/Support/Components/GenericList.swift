@@ -18,7 +18,7 @@ struct GenericList: View {
     private let fetchAction: (() -> Void)?
     private let fetchMoreAction: (() -> Void)?
     private let navigateAction: ((String) -> Void)?
-    private let translateAction: ((String) -> String)?
+    private let translateAction: ((String) -> (String, TagTranslation?))?
 
     init(
         galleries: [Gallery], setting: Setting, pageNumber: PageNumber?,
@@ -26,7 +26,7 @@ struct GenericList: View {
         fetchAction: (() -> Void)? = nil,
         fetchMoreAction: (() -> Void)? = nil,
         navigateAction: ((String) -> Void)? = nil,
-        translateAction: ((String) -> String)? = nil
+        translateAction: ((String) -> (String, TagTranslation?))? = nil
     ) {
         self.galleries = galleries
         self.setting = setting
@@ -77,14 +77,14 @@ private struct DetailList: View {
     private let footerLoadingState: LoadingState
     private let fetchMoreAction: (() -> Void)?
     private let navigateAction: ((String) -> Void)?
-    private let translateAction: ((String) -> String)?
+    private let translateAction: ((String) -> (String, TagTranslation?))?
 
     init(
         galleries: [Gallery], setting: Setting, pageNumber: PageNumber?,
         footerLoadingState: LoadingState,
         fetchMoreAction: (() -> Void)?,
         navigateAction: ((String) -> Void)? = nil,
-        translateAction: ((String) -> String)? = nil
+        translateAction: ((String) -> (String, TagTranslation?))? = nil
     ) {
         self.galleries = galleries
         self.setting = setting
@@ -133,7 +133,7 @@ private struct WaterfallList: View {
     private let footerLoadingState: LoadingState
     private let fetchMoreAction: (() -> Void)?
     private let navigateAction: ((String) -> Void)?
-    private let translateAction: ((String) -> String)?
+    private let translateAction: ((String) -> (String, TagTranslation?))?
 
     private var columnsInPortrait: Int {
         DeviceUtil.isPadWidth ? 4 : 2
@@ -156,7 +156,7 @@ private struct WaterfallList: View {
         footerLoadingState: LoadingState,
         fetchMoreAction: (() -> Void)?,
         navigateAction: ((String) -> Void)? = nil,
-        translateAction: ((String) -> String)? = nil
+        translateAction: ((String) -> (String, TagTranslation?))? = nil
     ) {
         self.galleries = galleries
         self.setting = setting
@@ -170,8 +170,13 @@ private struct WaterfallList: View {
     var body: some View {
         List {
             WaterfallGrid(galleries) { gallery in
-                GalleryThumbnailCell(gallery: gallery, setting: setting, translateAction: translateAction)
-                    .onTapGesture { navigateAction?(gallery.id) }.foregroundColor(.primary)
+                Button {
+                    navigateAction?(gallery.id)
+                } label: {
+                    GalleryThumbnailCell(gallery: gallery, setting: setting, translateAction: translateAction)
+                        .tint(.primary).multilineTextAlignment(.leading)
+                }
+                .buttonStyle(.borderless)
             }
             .gridStyle(
                 columnsInPortrait: columnsInPortrait, columnsInLandscape: columnsInLandscape,

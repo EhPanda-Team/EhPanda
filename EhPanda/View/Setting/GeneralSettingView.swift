@@ -15,7 +15,10 @@ struct GeneralSettingView: View {
     private let tagTranslatorLoadingState: LoadingState
     private let tagTranslatorEmpty: Bool
     private let tagTranslatorHasCustomTranslations: Bool
+    @Binding private var enablesTagsExtension: Bool
     @Binding private var translatesTags: Bool
+    @Binding private var showsTagsSearchSuggestions: Bool
+    @Binding private var showsImagesInTags: Bool
     @Binding private var redirectsLinksToSelectedHost: Bool
     @Binding private var detectsLinksFromClipboard: Bool
     @Binding private var backgroundBlurRadius: Double
@@ -24,16 +27,21 @@ struct GeneralSettingView: View {
     init(
         store: Store<GeneralSettingState, GeneralSettingAction>,
         tagTranslatorLoadingState: LoadingState, tagTranslatorEmpty: Bool,
-        tagTranslatorHasCustomTranslations: Bool, translatesTags: Binding<Bool>,
-        redirectsLinksToSelectedHost: Binding<Bool>, detectsLinksFromClipboard: Binding<Bool>,
-        backgroundBlurRadius: Binding<Double>, autoLockPolicy: Binding<AutoLockPolicy>
+        tagTranslatorHasCustomTranslations: Bool, enablesTagsExtension: Binding<Bool>,
+        translatesTags: Binding<Bool>, showsTagsSearchSuggestions: Binding<Bool>,
+        showsImagesInTags: Binding<Bool>, redirectsLinksToSelectedHost: Binding<Bool>,
+        detectsLinksFromClipboard: Binding<Bool>, backgroundBlurRadius: Binding<Double>,
+        autoLockPolicy: Binding<AutoLockPolicy>
     ) {
         self.store = store
         viewStore = ViewStore(store)
         self.tagTranslatorLoadingState = tagTranslatorLoadingState
         self.tagTranslatorEmpty = tagTranslatorEmpty
         self.tagTranslatorHasCustomTranslations = tagTranslatorHasCustomTranslations
+        _enablesTagsExtension = enablesTagsExtension
         _translatesTags = translatesTags
+        _showsTagsSearchSuggestions = showsTagsSearchSuggestions
+        _showsImagesInTags = showsImagesInTags
         _redirectsLinksToSelectedHost = redirectsLinksToSelectedHost
         _detectsLinksFromClipboard = detectsLinksFromClipboard
         _backgroundBlurRadius = backgroundBlurRadius
@@ -61,9 +69,9 @@ struct GeneralSettingView: View {
                 }
                 .foregroundColor(.primary).withArrow()
             }
-            Section(R.string.localizable.generalSettingViewSectionTitleTagsTranslation()) {
+            Section(R.string.localizable.generalSettingViewSectionTitleTags()) {
                 HStack {
-                    Text(R.string.localizable.generalSettingViewTitleTranslatesTags())
+                    Text(R.string.localizable.generalSettingViewTitleEnablesTagsExtension())
                     Spacer()
                     ZStack {
                         Image(systemSymbol: .exclamationmarkTriangleFill).foregroundStyle(.yellow)
@@ -73,7 +81,15 @@ struct GeneralSettingView: View {
                             )
                         ProgressView().tint(nil).opacity(tagTranslatorLoadingState == .loading ? 1 : 0)
                     }
-                    Toggle("", isOn: $translatesTags).frame(width: 50)
+                    Toggle("", isOn: $enablesTagsExtension).frame(width: 50)
+                }
+                if enablesTagsExtension && !tagTranslatorEmpty {
+                    Toggle(R.string.localizable.generalSettingViewTitleTranslatesTags(), isOn: $translatesTags)
+                    Toggle(
+                        R.string.localizable.generalSettingViewTitleShowsTagsSearchSuggestions(),
+                        isOn: $showsTagsSearchSuggestions
+                    )
+                    Toggle(R.string.localizable.generalSettingViewTitleShowsImagesInTags(), isOn: $showsImagesInTags)
                 }
                 FilePicker(
                     types: [.json], allowMultiple: false,
@@ -157,6 +173,7 @@ struct GeneralSettingView: View {
         }
         .animation(.default, value: tagTranslatorHasCustomTranslations)
         .animation(.default, value: tagTranslatorLoadingState)
+        .animation(.default, value: enablesTagsExtension)
         .animation(.default, value: tagTranslatorEmpty)
         .onAppear {
             viewStore.send(.checkPasscodeSetting)
@@ -192,7 +209,10 @@ struct GeneralSettingView_Previews: PreviewProvider {
                 tagTranslatorLoadingState: .idle,
                 tagTranslatorEmpty: false,
                 tagTranslatorHasCustomTranslations: false,
+                enablesTagsExtension: .constant(false),
                 translatesTags: .constant(false),
+                showsTagsSearchSuggestions: .constant(false),
+                showsImagesInTags: .constant(false),
                 redirectsLinksToSelectedHost: .constant(false),
                 detectsLinksFromClipboard: .constant(false),
                 backgroundBlurRadius: .constant(10),

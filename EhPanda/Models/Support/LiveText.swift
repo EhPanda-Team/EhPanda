@@ -95,28 +95,26 @@ struct LiveTextGroup: Equatable, Identifiable {
     let blocks: [LiveTextBlock]
     let text: String
 
-    var minX: Double!
-    var maxX: Double!
-    var minY: Double!
-    var maxY: Double!
+    var minX: Double
+    var maxX: Double
+    var minY: Double
+    var maxY: Double
     var width: Double!
     var height: Double!
 
     init?(blocks: [LiveTextBlock]) {
         guard let firstBlock = blocks.first else { return nil }
         self.blocks = blocks
-        self.text = blocks.map(\.text).joined(separator: " ")
-        self.minX = firstBlock.bounds.topLeft.x
-        self.maxX = firstBlock.bounds.topLeft.x
-        self.minY = firstBlock.bounds.topLeft.y
-        self.maxY = firstBlock.bounds.topLeft.y
-        blocks.forEach { block in
-            block.bounds.edges.forEach { point in
-                minX = min(minX, point.x)
-                maxX = max(maxX, point.x)
-                minY = min(minY, point.y)
-                maxY = max(maxY, point.y)
-            }
+        text = blocks.map(\.text).joined(separator: " ")
+        minX = firstBlock.bounds.topLeft.x
+        maxX = firstBlock.bounds.topLeft.x
+        minY = firstBlock.bounds.topLeft.y
+        maxY = firstBlock.bounds.topLeft.y
+        blocks.flatMap(\.bounds.edges).forEach { point in
+            minX = min(minX, point.x)
+            maxX = max(maxX, point.x)
+            minY = min(minY, point.y)
+            maxY = max(maxY, point.y)
         }
         width = maxX - minX
         height = maxY - minY
