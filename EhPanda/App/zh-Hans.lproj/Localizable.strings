@@ -266,7 +266,10 @@
 "detail.view.toolbar.item.button.archives" = "归档";
 "detail.view.toolbar.item.button.torrents" = "种子";
 "detail.view.toolbar.item.button.share" = "分享";
-"detail.view.context.menu.button.detail" = "Detail";
+"detail.view.context.menu.button.detail" = "详情";
+"detail.view.context.menu.button.withdrawVote" = "撤销投票";
+"detail.view.context.menu.button.voteUp" = "投票赞成";
+"detail.view.context.menu.button.voteDown" = "投票反对";
 "detail.view.scroll.section.title.favorited" = "收藏";
 "detail.view.scroll.section.title.language" = "语言";
 "detail.view.scroll.section.title.ratings" = "%@ 个评分";
@@ -323,8 +326,8 @@
 "gallery.visibility.value.no.reason.expunged" = "已删除";
 
 // MARK: TagDetailView
-"tag.detail.view.section.title.images" = "Images";
-"tag.detail.view.section.title.links" = "Links";
+"tag.detail.view.section.title.images" = "图片";
+"tag.detail.view.section.title.links" = "链接";
 
 // MARK: CommentsView
 "comments.view.title.comments" = "评论";

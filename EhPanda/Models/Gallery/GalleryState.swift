@@ -45,10 +45,12 @@ struct GalleryTag: Codable, Equatable, Hashable, Identifiable {
         var firstLetterCapitalizedText: String {
             text.firstLetterCapitalized
         }
+        func voteKeyword(tag: GalleryTag) -> String {
+            tag.namespace == .temp ? text : [tag.rawNamespace.lowercased(), text].joined(separator: ":")
+        }
         func serachKeyword(tag: GalleryTag) -> String {
             let base = "\"\(text)$\""
-            return tag.namespace == .temp ? base
-            : [tag.rawNamespace.lowercased(), base].joined(separator: ":")
+            return tag.namespace == .temp ? base : [tag.rawNamespace.lowercased(), base].joined(separator: ":")
         }
         func localizedDisplayText(translateAction: ((String) -> (String, TagTranslation?))?) -> String {
             guard let action = translateAction else { return displayText }

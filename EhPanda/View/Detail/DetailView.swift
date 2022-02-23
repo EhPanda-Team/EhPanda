@@ -8,6 +8,7 @@
 import SwiftUI
 import Kingfisher
 import ComposableArchitecture
+import CommonMark
 
 struct DetailView: View {
     private let store: Store<DetailState, DetailAction>
@@ -77,15 +78,10 @@ struct DetailView: View {
                     if !viewStore.galleryTags.isEmpty {
                         TagsSection(
                             tags: viewStore.galleryTags, showsImages: setting.showsImagesInTags,
-                            navigateSearchAction: {
-                                viewStore.send(.setNavigation(.detailSearch($0)))
-                            },
-                            navigateTagDetailAction: {
-                                viewStore.send(.setNavigation(.tagDetail($0)))
-                            },
-                            translateAction: {
-                                tagTranslator.lookup(word: $0, returnOriginal: !setting.translatesTags)
-                            }
+                            voteTagAction: { viewStore.send(.voteTag($0, $1)) },
+                            navigateSearchAction: { viewStore.send(.setNavigation(.detailSearch($0))) },
+                            navigateTagDetailAction: { viewStore.send(.setNavigation(.tagDetail($0))) },
+                            translateAction: { tagTranslator.lookup(word: $0, returnOriginal: !setting.translatesTags) }
                         )
                         .padding(.horizontal)
                     }
@@ -545,18 +541,21 @@ private struct ActionSection: View {
 private struct TagsSection: View {
     private let tags: [GalleryTag]
     private let showsImages: Bool
+    private let voteTagAction: (String, Int) -> Void
     private let navigateSearchAction: (String) -> Void
     private let navigateTagDetailAction: (TagDetail) -> Void
     private let translateAction: (String) -> (String, TagTranslation?)
 
     init(
         tags: [GalleryTag], showsImages: Bool,
+        voteTagAction: @escaping (String, Int) -> Void,
         navigateSearchAction: @escaping (String) -> Void,
         navigateTagDetailAction: @escaping (TagDetail) -> Void,
         translateAction: @escaping (String) -> (String, TagTranslation?)
     ) {
         self.tags = tags
         self.showsImages = showsImages
+        self.voteTagAction = voteTagAction
         self.navigateSearchAction = navigateSearchAction
         self.navigateTagDetailAction = navigateTagDetailAction
         self.translateAction = translateAction
@@ -567,6 +566,7 @@ private struct TagsSection: View {
             ForEach(tags) { tag in
                 TagRow(
                     tag: tag, showsImages: showsImages,
+                    voteTagAction: voteTagAction,
                     navigateSearchAction: navigateSearchAction,
                     navigateTagDetailAction: navigateTagDetailAction,
                     translateAction: translateAction
@@ -584,18 +584,21 @@ private extension TagsSection {
 
         private let tag: GalleryTag
         private let showsImages: Bool
+        private let voteTagAction: (String, Int) -> Void
         private let navigateSearchAction: (String) -> Void
         private let navigateTagDetailAction: (TagDetail) -> Void
         private let translateAction: (String) -> (String, TagTranslation?)
 
         init(
             tag: GalleryTag, showsImages: Bool,
+            voteTagAction: @escaping (String, Int) -> Void,
             navigateSearchAction: @escaping (String) -> Void,
             navigateTagDetailAction: @escaping (TagDetail) -> Void,
             translateAction: @escaping (String) -> (String, TagTranslation?)
         ) {
             self.tag = tag
             self.showsImages = showsImages
+            self.voteTagAction = voteTagAction
             self.navigateSearchAction = navigateSearchAction
             self.navigateTagDetailAction = navigateTagDetailAction
             self.translateAction = translateAction
@@ -644,6 +647,30 @@ private extension TagsSection {
                             } label: {
                                 Image(systemSymbol: .docRichtext)
                                 Text(R.string.localizable.detailViewContextMenuButtonDetail())
+                            }
+                        }
+                        if CookiesUtil.didLogin {
+                            if content.isVotedUp || content.isVotedDown {
+                                Button {
+                                    voteTagAction(content.voteKeyword(tag: tag), content.isVotedUp ? -1 : 1)
+                                } label: {
+                                    Image(systemSymbol: content.isVotedUp ? .handThumbsup : .handThumbsdown)
+                                        .symbolVariant(.fill)
+                                    Text(R.string.localizable.detailViewContextMenuButtonWithdrawVote())
+                                }
+                            } else {
+                                Button {
+                                    voteTagAction(content.voteKeyword(tag: tag), 1)
+                                } label: {
+                                    Image(systemSymbol: .handThumbsup)
+                                    Text(R.string.localizable.detailViewContextMenuButtonVoteUp())
+                                }
+                                Button {
+                                    voteTagAction(content.voteKeyword(tag: tag), -1)
+                                } label: {
+                                    Image(systemSymbol: .handThumbsdown)
+                                    Text(R.string.localizable.detailViewContextMenuButtonVoteDown())
+                                }
                             }
                         }
                     }

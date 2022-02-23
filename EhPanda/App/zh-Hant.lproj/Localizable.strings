@@ -267,6 +267,9 @@
 "detail.view.toolbar.item.button.torrents" = "種子";
 "detail.view.toolbar.item.button.share" = "分享";
 "detail.view.context.menu.button.detail" = "Detail";
+"detail.view.context.menu.button.withdrawVote" = "Withdraw vote";
+"detail.view.context.menu.button.voteUp" = "Vote up";
+"detail.view.context.menu.button.voteDown" = "Vote down";
 "detail.view.scroll.section.title.favorited" = "收藏";
 "detail.view.scroll.section.title.language" = "語言";
 "detail.view.scroll.section.title.ratings" = "%@ 個評分";

@@ -266,7 +266,10 @@
 "detail.view.toolbar.item.button.archives" = "アーカイブ";
 "detail.view.toolbar.item.button.torrents" = "トレント";
 "detail.view.toolbar.item.button.share" = "共有";
-"detail.view.context.menu.button.detail" = "Detail";
+"detail.view.context.menu.button.detail" = "詳細";
+"detail.view.context.menu.button.withdrawVote" = "投票を取り消す";
+"detail.view.context.menu.button.voteUp" = "賛成票を投じる";
+"detail.view.context.menu.button.voteDown" = "反対票を投じる";
 "detail.view.scroll.section.title.favorited" = "気に入り";
 "detail.view.scroll.section.title.language" = "言語";
 "detail.view.scroll.section.title.ratings" = "%@ 件の評価";
@@ -323,8 +326,8 @@
 "gallery.visibility.value.no.reason.expunged" = "削除済み";
 
 // MARK: TagDetailView
-"tag.detail.view.section.title.images" = "Images";
-"tag.detail.view.section.title.links" = "Links";
+"tag.detail.view.section.title.images" = "画像";
+"tag.detail.view.section.title.links" = "リンク";
 
 // MARK: CommentsView
 "comments.view.title.comments" = "コメント";

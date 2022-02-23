@@ -96,6 +96,7 @@ indirect enum DetailAction: BindableAction {
     case favorGallery(Int)
     case unfavorGallery
     case postComment(URL)
+    case voteTag(String, Int)
     case anyGalleryOpsDone(Result<Any, AppError>)
 
     case reading(ReadingAction)
@@ -290,8 +291,7 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.recurs
                 return .none
 
             case .rateGallery:
-                guard let apiuid = Int(environment.cookiesClient.apiuid),
-                      let gid = Int(state.gallery.id)
+                guard let apiuid = Int(environment.cookiesClient.apiuid), let gid = Int(state.gallery.id)
                 else { return .none }
                 return RateGalleryRequest(
                     apiuid: apiuid, apikey: state.apiKey, gid: gid,
@@ -311,6 +311,14 @@ let detailReducer = Reducer<DetailState, DetailAction, DetailEnvironment>.recurs
                 guard !state.commentContent.isEmpty else { return .none }
                 return CommentGalleryRequest(content: state.commentContent, galleryURL: galleryURL)
                     .effect.map(DetailAction.anyGalleryOpsDone).cancellable(id: DetailState.CancelID())
+
+            case .voteTag(let tag, let vote):
+                guard let apiuid = Int(environment.cookiesClient.apiuid), let gid = Int(state.gallery.id)
+                else { return .none }
+                return VoteGalleryTagRequest(
+                    apiuid: apiuid, apikey: state.apiKey, gid: gid, token: state.gallery.token, tag: tag, vote: vote
+                )
+                .effect.map(DetailAction.anyGalleryOpsDone).cancellable(id: DetailState.CancelID())
 
             case .anyGalleryOpsDone(let result):
                 if case .success = result {
