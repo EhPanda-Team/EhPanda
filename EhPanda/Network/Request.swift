@@ -25,6 +25,8 @@ extension Request {
             return .parseFailed
         case is URLError:
             return .networkingFailed
+        case is DecodingError:
+            return .parseFailed
         default:
             return error as? AppError ?? .unknown
         }
@@ -108,10 +110,11 @@ struct TagTranslatorRequest: Request {
             .flatMap { date in
                 URLSession.shared.dataTaskPublisher(for: language.downloadURL)
                     .tryMap { data, _ in
-                        guard var translations = try? JSONDecoder().decode(
+                        let response = try JSONDecoder().decode(
                             EhTagTranslationDatabaseResponse.self, from: data
-                        ).tagTranslations, !translations.isEmpty
-                        else { throw AppError.parseFailed }
+                        )
+                        var translations = response.tagTranslations
+                        guard !translations.isEmpty else { throw AppError.parseFailed }
                         if language == .traditionalChinese {
                             translations = translations.chtConverted
                         }
