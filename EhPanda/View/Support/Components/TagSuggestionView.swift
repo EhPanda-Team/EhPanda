@@ -140,16 +140,16 @@ final class TagTranslationHandler: ObservableObject {
                     return nil
                 }
             }
-        
         var result: [TagSuggestion] = []
         var used: Set<String> = []
-        for i in 0..<values.count {
-            let keywordList = values[0...i]
+        let lastFillTagIndex = values.lastIndex {
+            let endChar = $0[$0.index(before: $0.endIndex)]
+            return endChar == "\"" || endChar == "$"
+        } ?? -1
+        for index in (lastFillTagIndex + 1)..<values.count {
+            let keywordList = values[index...]
             if !keywordList.isEmpty {
                 let keyword = keywordList.joined(separator: " ")
-                if keyword.isEmpty || keyword.replacingOccurrences(of: "\\s+", with: "", options: .regularExpression).isEmpty {
-                    continue
-                }
                 let subSuggestions = getSuggestions(translations: translations, keyword: keyword)
                 subSuggestions.forEach{
                     if used.contains($0.tag.searchKeyword) {
