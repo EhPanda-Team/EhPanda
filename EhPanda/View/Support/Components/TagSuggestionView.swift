@@ -141,21 +141,21 @@ final class TagTranslationHandler: ObservableObject {
                 }
             }
         
-        let result: [TagSuggestion] = []
-        let used: Set<String> = []
+        var result: [TagSuggestion] = []
+        var used: Set<String> = []
         for i in 0..<values.count {
             let keywordList = values[0...i]
             if !keywordList.isEmpty {
                 let keyword = keywordList.joined(separator: " ")
-                if keyword.isEmpty || keyword.replacingOccurrences(of: "\s+", with: "", options: .regularExpression).isEmpty {
+                if keyword.isEmpty || keyword.replacingOccurrences(of: "\\s+", with: "", options: .regularExpression).isEmpty {
                     continue
                 }
                 let subSuggestions = getSuggestions(translations: translations, keyword: keyword)
                 subSuggestions.forEach{
-                    if used.has($0.tag.searchKeyword) {
+                    if used.contains($0.tag.searchKeyword) {
                         return
                     }
-                    used.add($0.tag.searchKeyword)
+                    used.insert($0.tag.searchKeyword)
                     result.append($0)
                 }
             }
@@ -163,7 +163,7 @@ final class TagTranslationHandler: ObservableObject {
         suggestions = result
     }
     func autoComplete(suggestion: TagSuggestion, keyword: inout String) {
-        let endIndex = keyword.index(keyword.endIndex, offsetBy: suggestion.keyword.count)
+        let endIndex = keyword.index(keyword.endIndex, offsetBy: 0 - suggestion.keyword.count)
         keyword = .init(keyword[keyword.startIndex..<endIndex])
         + suggestion.tag.searchKeyword + " "
     }
