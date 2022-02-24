@@ -83,7 +83,7 @@ struct TagTranslation: Codable, Equatable, Hashable {
          key.contains(" ") ? "\"\(key)$\"" : "\(key)$"].joined()
     }
 
-    func getSuggestion(keyword: String) -> TagSuggestion {
+    func getSuggestion(keyword: String, term: String, matchNamespace: Bool) -> TagSuggestion {
         func getWeight(value: String, range: Range<String.Index>) -> Float {
             namespace.weight * .init(keyword.count + 1) / .init(value.count)
             * (range.lowerBound == value.startIndex ? 2.0 : 1.0)
@@ -94,7 +94,7 @@ struct TagTranslation: Codable, Equatable, Hashable {
         let valueRange = value.range(of: keyword, options: .caseInsensitive)
         if let range = keyRange { weight += getWeight(value: key, range: range) }
         if let range = valueRange { weight += getWeight(value: value, range: range) }
-        return .init(tag: self, weight: weight, keyRange: keyRange, valueRange: valueRange, keyword: keyword)
+        return .init(tag: self, weight: weight, keyRange: keyRange, valueRange: valueRange, term: term, matchNamespace: matchNamespace)
     }
 }
 

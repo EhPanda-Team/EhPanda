@@ -128,9 +128,9 @@ final class TagTranslationHandler: ObservableObject {
     @Published var suggestions = [TagSuggestion]()
 
     func analyze(text: inout String, translations: [TagTranslation]) {
-        let keyword = text.replacingOccurrences(of: "  +", with: " ", options: .regularExpression)
-        text = keyword
-
+        text = text.replacingOccurrences(of: "  +", with: " ", options: .regularExpression)
+            .replacingOccurrences(of: "：", with: ":", options: .regularExpression)
+        let keyword = text
         guard let regex = Defaults.Regex.tagSuggestion else { return }
         let values: [String] = regex.matches(in: keyword, range: .init(location: 0, length: keyword.count))
             .compactMap {
@@ -163,25 +163,23 @@ final class TagTranslationHandler: ObservableObject {
         suggestions = result
     }
     func autoComplete(suggestion: TagSuggestion, keyword: inout String) {
-        let endIndex = keyword.index(keyword.endIndex, offsetBy: 0 - suggestion.keyword.count)
+        let endIndex = keyword.index(keyword.endIndex, offsetBy: 0 - suggestion.term.count)
         keyword = .init(keyword[keyword.startIndex..<endIndex])
         + suggestion.tag.searchKeyword + " "
     }
     private func getSuggestions(translations: [TagTranslation], keyword: String) -> [TagSuggestion] {
+        let term = keyword
         var keyword = keyword
         var namespace: String?
         let namespaceAbbreviations = TagNamespace.abbreviations
 
         if let colon = keyword.firstIndex(of: ":") {
-            // Requires at least one character before the colon
-            if colon >= keyword.index(keyword.startIndex, offsetBy: 1) {
-                let key = String(keyword[keyword.startIndex..<colon])
-                if let index = namespaceAbbreviations.firstIndex(where: {
-                    $0.caseInsensitiveEqualsTo(key) || $1.caseInsensitiveEqualsTo(key)
-                }) {
-                    namespace = namespaceAbbreviations[index].key
-                    keyword = .init(keyword[keyword.index(colon, offsetBy: 1)..<keyword.endIndex])
-                }
+            let key = String(keyword[keyword.startIndex..<colon])
+            if let index = namespaceAbbreviations.firstIndex(where: {
+                $0.caseInsensitiveEqualsTo(key) || $1.caseInsensitiveEqualsTo(key)
+            }) {
+                namespace = namespaceAbbreviations[index].key
+                keyword = .init(keyword[keyword.index(colon, offsetBy: 1)..<keyword.endIndex])
             }
         }
 
@@ -189,9 +187,51 @@ final class TagTranslationHandler: ObservableObject {
         if let namespace = namespace {
             translations = translations.filter { $0.namespace.rawValue == namespace }
         }
+        if namespace != nil && keyword.isEmpty {
+            return translations
+                .map {
+                    .init(tag: $0, weight: 0, keyRange: nil, valueRange: nil, term: term, matchNamespace: true)
+                }
+        }
         return translations
-            .map { $0.getSuggestion(keyword: keyword) }
+            .map { $0.getSuggestion(keyword: keyword, term: term, matchNamespace: namespace != nil) }
             .filter { $0.weight > 0 }
             .sorted { $0.weight > $1.weight }
+    }
+}
+
+
+struct KeyboardToolbar<ToolbarView: View>: ViewModifier {
+    @Environment(\.isSearching) var isSearching
+    
+    let height: CGFloat
+    let toolbarView: ToolbarView
+    
+    init(height: CGFloat, @ViewBuilder toolbar: () -> ToolbarView) {
+        self.height = height
+        self.toolbarView = toolbar()
+    }
+    
+    func body(content: Content) -> some View {
+        ZStack(alignment: .bottom) {
+            GeometryReader { geometry in
+                VStack {
+                    content
+                }
+                .frame(width: geometry.size.width, height: geometry.size.height)
+            }
+            if isSearching {
+                toolbarView
+                    .frame(height: self.height)
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+}
+
+
+extension View {
+    func keyboardToolbar<ToolbarView>(height: CGFloat, view: @escaping () -> ToolbarView) -> some View where ToolbarView: View {
+        modifier(KeyboardToolbar(height: height, toolbar: view))
     }
 }
