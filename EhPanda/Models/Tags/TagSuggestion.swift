@@ -13,6 +13,7 @@ struct TagSuggestion: Equatable, Hashable, Identifiable {
     let weight: Float
     let keyRange: Range<String.Index>?
     let valueRange: Range<String.Index>?
+    let keyword: String
 
     var displayKey: String {
         let namespace = tag.namespace.rawValue

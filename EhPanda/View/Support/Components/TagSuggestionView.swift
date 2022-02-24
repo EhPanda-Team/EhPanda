@@ -126,7 +126,6 @@ private struct SuggestionCell: View {
 
 final class TagTranslationHandler: ObservableObject {
     @Published var suggestions = [TagSuggestion]()
-    private var autoCompletionOffset = 0
 
     func analyze(text: inout String, translations: [TagTranslation]) {
         let keyword = text.replacingOccurrences(of: "  +", with: " ", options: .regularExpression)
@@ -141,16 +140,30 @@ final class TagTranslationHandler: ObservableObject {
                     return nil
                 }
             }
-        if let last = values.last {
-            autoCompletionOffset = 0 - last.count
-            suggestions = getSuggestions(translations: translations, keyword: last)
-        } else {
-            suggestions = []
-            autoCompletionOffset = .zero
+        
+        let result: [TagSuggestion] = []
+        let used: Set<String> = []
+        for i in 0..<values.count {
+            let keywordList = values[0...i]
+            if !keywordList.isEmpty {
+                let keyword = keywordList.joined(separator: " ")
+                if keyword.isEmpty || keyword.replacingOccurrences(of: "\s+", with: "", options: .regularExpression).isEmpty {
+                    continue
+                }
+                let subSuggestions = getSuggestions(translations: translations, keyword: keyword)
+                subSuggestions.forEach{
+                    if used.has($0.tag.searchKeyword) {
+                        return
+                    }
+                    used.add($0.tag.searchKeyword)
+                    result.append($0)
+                }
+            }
         }
+        suggestions = result
     }
     func autoComplete(suggestion: TagSuggestion, keyword: inout String) {
-        let endIndex = keyword.index(keyword.endIndex, offsetBy: autoCompletionOffset)
+        let endIndex = keyword.index(keyword.endIndex, offsetBy: suggestion.keyword.count)
         keyword = .init(keyword[keyword.startIndex..<endIndex])
         + suggestion.tag.searchKeyword + " "
     }
