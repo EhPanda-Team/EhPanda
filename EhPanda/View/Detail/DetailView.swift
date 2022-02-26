@@ -620,7 +620,7 @@ private extension TagsSection {
                     .foregroundColor(reversedPrimary).padding(padding)
                     .background(Color(.systemGray)).cornerRadius(5)
                 TagCloudView(data: tag.contents) { content in
-                    let (_, translation) = translateAction(content.text)
+                    let (_, translation) = translateAction(content.rawNamespace + content.text)
                     Button {
                         navigateSearchAction(content.serachKeyword(tag: tag))
                     } label: {

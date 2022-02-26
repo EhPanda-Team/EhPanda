@@ -10,13 +10,13 @@ import Kingfisher
 
 struct TagSuggestionView: View {
     @Binding private var keyword: String
-    private let translations: [TagTranslation]
+    private let translations: [String: TagTranslation]
     private let showsImages: Bool
     private let isEnabled: Bool
 
     @StateObject private var translationHandler = TagTranslationHandler()
 
-    init(keyword: Binding<String>, translations: [TagTranslation], showsImages: Bool, isEnabled: Bool) {
+    init(keyword: Binding<String>, translations: [String: TagTranslation], showsImages: Bool, isEnabled: Bool) {
         _keyword = keyword
         self.translations = translations
         self.showsImages = showsImages
@@ -128,7 +128,7 @@ final class TagTranslationHandler: ObservableObject {
     @Published var suggestions = [TagSuggestion]()
     private var autoCompletionOffset = 0
 
-    func analyze(text: inout String, translations: [TagTranslation]) {
+    func analyze(text: inout String, translations: [String: TagTranslation]) {
         let keyword = text.replacingOccurrences(of: "  +", with: " ", options: .regularExpression)
         text = keyword
 
@@ -154,7 +154,7 @@ final class TagTranslationHandler: ObservableObject {
         keyword = .init(keyword[keyword.startIndex..<endIndex])
         + suggestion.tag.searchKeyword + " "
     }
-    private func getSuggestions(translations: [TagTranslation], keyword: String) -> [TagSuggestion] {
+    private func getSuggestions(translations: [String: TagTranslation], keyword: String) -> [TagSuggestion] {
         var keyword = keyword
         var namespace: String?
         let namespaceAbbreviations = TagNamespace.abbreviations
@@ -174,10 +174,10 @@ final class TagTranslationHandler: ObservableObject {
 
         var translations = translations
         if let namespace = namespace {
-            translations = translations.filter { $0.namespace.rawValue == namespace }
+            translations = translations.filter { $0.value.namespace.rawValue == namespace }
         }
         return translations
-            .map { $0.getSuggestion(keyword: keyword) }
+            .map { $0.value.getSuggestion(keyword: keyword) }
             .filter { $0.weight > 0 }
             .sorted { $0.weight > $1.weight }
     }

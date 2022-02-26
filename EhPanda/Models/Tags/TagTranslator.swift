@@ -12,15 +12,17 @@ struct TagTranslator: Codable, Equatable {
     var language: TranslatableLanguage?
     var hasCustomTranslations = false
     var updatedDate: Date = .distantPast
-    var translations = [TagTranslation]()
+    var translations = [String: TagTranslation]()
 
     func lookup(word: String, returnOriginal: Bool) -> (String, TagTranslation?) {
         guard !returnOriginal else { return (word, nil) }
         let (lhs, rhs) = word.stringsBesideColon
 
-        guard let translation = translations.first(where: {
-            $0.key.caseInsensitiveEqualsTo(rhs)
-        }) else { return (word, nil) }
+        var key = rhs
+        if let lhs = lhs {
+            key = lhs + rhs
+        }
+        guard let translation = translations[key] else { return (word, nil) }
 
         var result = translation.displayValue
         if let lhs = lhs {
@@ -98,7 +100,7 @@ struct TagTranslation: Codable, Equatable, Hashable {
     }
 }
 
-extension Array where Element == TagTranslation {
+extension Dictionary where Value == TagTranslation {
     var chtConverted: Self {
         func customConversion(text: String) -> String {
             switch text {
@@ -119,12 +121,14 @@ extension Array where Element == TagTranslation {
         }
 
         guard let converter = try? ChineseConverter(options: options) else { return self }
-        return map {
-            .init(
-                namespace: $0.namespace, key: $0.key,
-                value: customConversion(text: converter.convert($0.value)),
-                description: $0.description, linksString: $0.linksString
+        var dictionary = self
+        dictionary.forEach { (key, value) in
+            dictionary[key] = TagTranslation(
+                namespace: value.namespace, key: value.key,
+                value: customConversion(text: converter.convert(value.value)),
+                description: value.description, linksString: value.linksString
             )
         }
+        return dictionary
     }
 }

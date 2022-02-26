@@ -185,7 +185,7 @@
 "general.setting.view.title.autoLock" = "앱 자동 잠금";
 "general.setting.view.title.enablesTagsExtension" = "Enables tags extension";
 "general.setting.view.title.translatesTags" = "태그 번역하기";
-"general.setting.view.title.showsTagsSearchSuggestions" = "Shows tags search suggestions";
+"general.setting.view.title.showsTagsSearchSuggestion" = "Shows tags search suggestion";
 "general.setting.view.title.showsImagesInTags" = "Shows images in tags";
 "general.setting.view.title.redirectsLinksToTheSelectedHost" = "선택한 서버로 이동하기";
 "general.setting.view.title.detectsLinksFromClipboard" = "클립보드의 링크 인식하기";

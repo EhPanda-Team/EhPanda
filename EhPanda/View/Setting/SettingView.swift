@@ -60,7 +60,7 @@ private extension SettingView {
                 tagTranslatorHasCustomTranslations: viewStore.tagTranslator.hasCustomTranslations,
                 enablesTagsExtension: viewStore.binding(\.$setting.enablesTagsExtension),
                 translatesTags: viewStore.binding(\.$setting.translatesTags),
-                showsTagsSearchSuggestions: viewStore.binding(\.$setting.showsTagsSearchSuggestions),
+                showsTagsSearchSuggestion: viewStore.binding(\.$setting.showsTagsSearchSuggestion),
                 showsImagesInTags: viewStore.binding(\.$setting.showsImagesInTags),
                 redirectsLinksToSelectedHost: viewStore.binding(\.$setting.redirectsLinksToSelectedHost),
                 detectsLinksFromClipboard: viewStore.binding(\.$setting.detectsLinksFromClipboard),
