@@ -295,8 +295,8 @@ private struct HeaderSection: View {
     }
 
     private var title: String {
-        let originalTitle = galleryDetail.title
-        return displaysJapaneseTitle ? galleryDetail.jpnTitle ?? originalTitle : originalTitle
+        let normalTitle = galleryDetail.title
+        return displaysJapaneseTitle ? galleryDetail.jpnTitle ?? normalTitle : normalTitle
     }
 
     var body: some View {
