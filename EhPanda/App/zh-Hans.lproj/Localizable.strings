@@ -185,7 +185,7 @@
 "general.setting.view.title.autoLock" = "自动锁定";
 "general.setting.view.title.enablesTagsExtension" = "启用标签扩展";
 "general.setting.view.title.translatesTags" = "翻译标签";
-"general.setting.view.title.showsTagsSearchSuggestions" = "显示标签搜索建议";
+"general.setting.view.title.showsTagsSearchSuggestion" = "显示标签搜索建议";
 "general.setting.view.title.showsImagesInTags" = "显示标签中的图像";
 "general.setting.view.title.redirectsLinksToTheSelectedHost" = "重定向链接到选定的站点";
 "general.setting.view.title.detectsLinksFromClipboard" = "从剪切板检测链接";

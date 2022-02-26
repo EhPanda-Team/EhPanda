@@ -185,7 +185,7 @@
 "general.setting.view.title.autoLock" = "Auto-Lock";
 "general.setting.view.title.enablesTagsExtension" = "Enables tags extension";
 "general.setting.view.title.translatesTags" = "Translates tags";
-"general.setting.view.title.showsTagsSearchSuggestions" = "Shows tags search suggestions";
+"general.setting.view.title.showsTagsSearchSuggestion" = "Shows tags search suggestion";
 "general.setting.view.title.showsImagesInTags" = "Shows images in tags";
 "general.setting.view.title.redirectsLinksToTheSelectedHost" = "Links zum ausgewählten Host umleiten";
 "general.setting.view.title.detectsLinksFromClipboard" = "Übernimmt automatisch Links aus der Zwischenablage";

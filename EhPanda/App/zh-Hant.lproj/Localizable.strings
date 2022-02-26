@@ -185,7 +185,7 @@
 "general.setting.view.title.autoLock" = "自動鎖定";
 "general.setting.view.title.enablesTagsExtension" = "Enables tags extension";
 "general.setting.view.title.translatesTags" = "翻譯標籤";
-"general.setting.view.title.showsTagsSearchSuggestions" = "Shows tags search suggestions";
+"general.setting.view.title.showsTagsSearchSuggestion" = "Shows tags search suggestion";
 "general.setting.view.title.showsImagesInTags" = "Shows images in tags";
 "general.setting.view.title.redirectsLinksToTheSelectedHost" = "重定向連結到選定的站點";
 "general.setting.view.title.detectsLinksFromClipboard" = "偵測剪貼簿中的連結";

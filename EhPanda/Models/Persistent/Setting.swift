@@ -19,13 +19,13 @@ struct Setting: Codable, Equatable {
         didSet {
             if !enablesTagsExtension {
                 translatesTags = false
-                showsTagsSearchSuggestions = false
+                showsTagsSearchSuggestion = false
                 showsImagesInTags = false
             }
         }
     }
     var translatesTags = false
-    var showsTagsSearchSuggestions = false
+    var showsTagsSearchSuggestion = false
     var showsImagesInTags = false
     var redirectsLinksToSelectedHost = false
     var detectsLinksFromClipboard = false
@@ -184,7 +184,7 @@ extension Setting {
         // General
         enablesTagsExtension = (try? container?.decodeIfPresent(Bool.self, forKey: .enablesTagsExtension)) ?? false
         translatesTags = (try? container?.decodeIfPresent(Bool.self, forKey: .translatesTags)) ?? false
-        showsTagsSearchSuggestions = (try? container?.decodeIfPresent(Bool.self, forKey: .showsTagsSearchSuggestions)) ?? false
+        showsTagsSearchSuggestion = (try? container?.decodeIfPresent(Bool.self, forKey: .showsTagsSearchSuggestion)) ?? false
         showsImagesInTags = (try? container?.decodeIfPresent(Bool.self, forKey: .showsImagesInTags)) ?? false
         redirectsLinksToSelectedHost = (try? container?.decodeIfPresent(Bool.self, forKey: .redirectsLinksToSelectedHost)) ?? false
         detectsLinksFromClipboard = (try? container?.decodeIfPresent(Bool.self, forKey: .detectsLinksFromClipboard)) ?? false

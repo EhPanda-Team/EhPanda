@@ -10,13 +10,13 @@ import Kingfisher
 
 struct TagSuggestionView: View {
     @Binding private var keyword: String
-    private let translations: [TagTranslation]
+    private let translations: [String: TagTranslation]
     private let showsImages: Bool
     private let isEnabled: Bool
 
     @StateObject private var translationHandler = TagTranslationHandler()
 
-    init(keyword: Binding<String>, translations: [TagTranslation], showsImages: Bool, isEnabled: Bool) {
+    init(keyword: Binding<String>, translations: [String: TagTranslation], showsImages: Bool, isEnabled: Bool) {
         _keyword = keyword
         self.translations = translations
         self.showsImages = showsImages
@@ -127,7 +127,7 @@ private struct SuggestionCell: View {
 final class TagTranslationHandler: ObservableObject {
     @Published var suggestions = [TagSuggestion]()
 
-    func analyze(text: inout String, translations: [TagTranslation]) {
+    func analyze(text: inout String, translations: [String: TagTranslation]) {
         text = text.replacingOccurrences(of: "  +", with: " ", options: .regularExpression)
             .replacingOccurrences(of: "：", with: ":", options: .regularExpression)
         let keyword = text
@@ -167,7 +167,7 @@ final class TagTranslationHandler: ObservableObject {
         keyword = .init(keyword[keyword.startIndex..<endIndex])
         + suggestion.tag.searchKeyword + " "
     }
-    private func getSuggestions(translations: [TagTranslation], keyword: String) -> [TagSuggestion] {
+    private func getSuggestions(translations: [String: TagTranslation], keyword: String) -> [TagSuggestion] {
         let term = keyword
         var keyword = keyword
         var namespace: String?
@@ -185,7 +185,7 @@ final class TagTranslationHandler: ObservableObject {
 
         var translations = translations
         if let namespace = namespace {
-            translations = translations.filter { $0.namespace.rawValue == namespace }
+            translations = translations.filter { $0.value.namespace.rawValue == namespace }
         }
         if namespace != nil && keyword.isEmpty {
             return translations
@@ -197,41 +197,5 @@ final class TagTranslationHandler: ObservableObject {
             .map { $0.getSuggestion(keyword: keyword, term: term, matchNamespace: namespace != nil) }
             .filter { $0.weight > 0 }
             .sorted { $0.weight > $1.weight }
-    }
-}
-
-
-struct KeyboardToolbar<ToolbarView: View>: ViewModifier {
-    @Environment(\.isSearching) var isSearching
-    
-    let height: CGFloat
-    let toolbarView: ToolbarView
-    
-    init(height: CGFloat, @ViewBuilder toolbar: () -> ToolbarView) {
-        self.height = height
-        self.toolbarView = toolbar()
-    }
-    
-    func body(content: Content) -> some View {
-        ZStack(alignment: .bottom) {
-            GeometryReader { geometry in
-                VStack {
-                    content
-                }
-                .frame(width: geometry.size.width, height: geometry.size.height)
-            }
-            if isSearching {
-                toolbarView
-                    .frame(height: self.height)
-            }
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-    }
-}
-
-
-extension View {
-    func keyboardToolbar<ToolbarView>(height: CGFloat, view: @escaping () -> ToolbarView) -> some View where ToolbarView: View {
-        modifier(KeyboardToolbar(height: height, toolbar: view))
     }
 }

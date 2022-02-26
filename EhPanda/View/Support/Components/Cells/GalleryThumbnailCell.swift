@@ -54,7 +54,7 @@ struct GalleryThumbnailCell: View {
                 let tagContents = gallery.tagContents(maximum: setting.listTagsNumberMaximum)
                 if setting.showsTagsInList, !tagContents.isEmpty {
                     TagCloudView(data: tagContents) { content in
-                        let translation = translateAction?(content.text).1
+                        let translation = translateAction?(content.rawNamespace + content.text).1
                         TagCloudCell(
                             text: translation?.displayValue ?? content.text,
                             imageURL: translation?.valueImageURL,

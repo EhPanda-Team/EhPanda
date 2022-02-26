@@ -83,7 +83,7 @@ struct DetailSearchView: View {
         .searchable(text: viewStore.binding(\.$keyword)) {
             TagSuggestionView(
                 keyword: viewStore.binding(\.$keyword), translations: tagTranslator.translations,
-                showsImages: setting.showsImagesInTags, isEnabled: setting.showsTagsSearchSuggestions
+                showsImages: setting.showsImagesInTags, isEnabled: setting.showsTagsSearchSuggestion
             )
         }
         .onSubmit(of: .search) {

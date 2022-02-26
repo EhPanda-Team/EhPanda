@@ -185,7 +185,7 @@
 "general.setting.view.title.autoLock" = "自動ロック";
 "general.setting.view.title.enablesTagsExtension" = "タグの拡張機能を有効";
 "general.setting.view.title.translatesTags" = "タグを訳す";
-"general.setting.view.title.showsTagsSearchSuggestions" = "タグの検索提案を表示";
+"general.setting.view.title.showsTagsSearchSuggestion" = "タグの検索提案を表示";
 "general.setting.view.title.showsImagesInTags" = "タグの画像を表示";
 "general.setting.view.title.redirectsLinksToTheSelectedHost" = "リンクを選択されたホストへリダイレクト";
 "general.setting.view.title.detectsLinksFromClipboard" = "クリップボードからリンクを探知";
