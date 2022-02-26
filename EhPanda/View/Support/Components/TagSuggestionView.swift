@@ -34,6 +34,7 @@ struct TagSuggestionView: View {
     }
 }
 
+// MARK: DoubleHorizontalSuggestionsStack
 private struct DoubleHorizontalSuggestionsStack: View {
     private let suggestions: [TagSuggestion]
     private let showsImages: Bool
@@ -86,6 +87,7 @@ private struct DoubleHorizontalSuggestionsStack: View {
     }
 }
 
+// MARK: SuggestionCell
 private struct SuggestionCell: View {
     private let suggestion: TagSuggestion
     private let showsImages: Bool
@@ -124,6 +126,7 @@ private struct SuggestionCell: View {
     }
 }
 
+// MARK: TagTranslationHandler
 final class TagTranslationHandler: ObservableObject {
     @Published var suggestions = [TagSuggestion]()
 
