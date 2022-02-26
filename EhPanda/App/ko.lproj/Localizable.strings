@@ -214,9 +214,11 @@
 "appearance.setting.view.title.displayMode" = "표시방식";
 "appearance.setting.view.title.showsTagsInList" = "리스트에서 태그 보여주기";
 "appearance.setting.view.title.maximumNumberOfTags" = "태그 갯수";
+"appearance.setting.view.title.displaysJapaneseTitle" = "Displays Japanese title";
 "appearance.setting.view.button.appIcon" = "앱 아이콘";
 "appearance.setting.view.menu.title.infite" = "제한 없음";
 "appearance.setting.view.section.title.list" = "리스트";
+"appearance.setting.view.section.title.gallery" = "Gallery";
 // PerferredColorScheme
 "enum.perferred.color.scheme.value.automatic" = "자동";
 "enum.perferred.color.scheme.value.light" = "라이트";

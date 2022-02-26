@@ -39,6 +39,7 @@ struct Setting: Codable, Equatable {
     var appIconType: AppIconType = .default
     var showsTagsInList = false
     var listTagsNumberMaximum = 0
+    var displaysJapaneseTitle = true
 
     // Reading
     var readingDirection: ReadingDirection = .vertical
@@ -197,6 +198,7 @@ extension Setting {
         appIconType = (try? container?.decodeIfPresent(AppIconType.self, forKey: .appIconType)) ?? .default
         showsTagsInList = (try? container?.decodeIfPresent(Bool.self, forKey: .showsTagsInList)) ?? false
         listTagsNumberMaximum = (try? container?.decodeIfPresent(Int.self, forKey: .listTagsNumberMaximum)) ?? 0
+        displaysJapaneseTitle = (try? container?.decodeIfPresent(Bool.self, forKey: .displaysJapaneseTitle)) ?? true
         // Reading
         readingDirection = (try? container?.decodeIfPresent(ReadingDirection.self, forKey: .readingDirection)) ?? .vertical
         prefetchLimit = (try? container?.decodeIfPresent(Int.self, forKey: .prefetchLimit)) ?? 10

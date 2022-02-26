@@ -214,9 +214,11 @@
 "appearance.setting.view.title.displayMode" = "顯示模式";
 "appearance.setting.view.title.showsTagsInList" = "在列表中顯示標籤";
 "appearance.setting.view.title.maximumNumberOfTags" = "標籤數量上限";
+"appearance.setting.view.title.displaysJapaneseTitle" = "Displays Japanese title";
 "appearance.setting.view.button.appIcon" = "應用圖標";
 "appearance.setting.view.menu.title.infite" = "無限";
 "appearance.setting.view.section.title.list" = "列表";
+"appearance.setting.view.section.title.gallery" = "Gallery";
 // PerferredColorScheme
 "enum.perferred.color.scheme.value.automatic" = "自動";
 "enum.perferred.color.scheme.value.light" = "淺色";

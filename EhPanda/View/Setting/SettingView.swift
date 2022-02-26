@@ -77,7 +77,8 @@ private extension SettingView {
                 appIconType: viewStore.binding(\.$setting.appIconType),
                 listDisplayMode: viewStore.binding(\.$setting.listDisplayMode),
                 showsTagsInList: viewStore.binding(\.$setting.showsTagsInList),
-                listTagsNumberMaximum: viewStore.binding(\.$setting.listTagsNumberMaximum)
+                listTagsNumberMaximum: viewStore.binding(\.$setting.listTagsNumberMaximum),
+                displaysJapaneseTitle: viewStore.binding(\.$setting.displaysJapaneseTitle)
             )
             .tint(viewStore.setting.accentColor)
         }
