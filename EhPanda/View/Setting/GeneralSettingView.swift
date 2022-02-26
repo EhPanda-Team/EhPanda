@@ -17,7 +17,7 @@ struct GeneralSettingView: View {
     private let tagTranslatorHasCustomTranslations: Bool
     @Binding private var enablesTagsExtension: Bool
     @Binding private var translatesTags: Bool
-    @Binding private var showsTagsSearchSuggestions: Bool
+    @Binding private var showsTagsSearchSuggestion: Bool
     @Binding private var showsImagesInTags: Bool
     @Binding private var redirectsLinksToSelectedHost: Bool
     @Binding private var detectsLinksFromClipboard: Bool
@@ -28,7 +28,7 @@ struct GeneralSettingView: View {
         store: Store<GeneralSettingState, GeneralSettingAction>,
         tagTranslatorLoadingState: LoadingState, tagTranslatorEmpty: Bool,
         tagTranslatorHasCustomTranslations: Bool, enablesTagsExtension: Binding<Bool>,
-        translatesTags: Binding<Bool>, showsTagsSearchSuggestions: Binding<Bool>,
+        translatesTags: Binding<Bool>, showsTagsSearchSuggestion: Binding<Bool>,
         showsImagesInTags: Binding<Bool>, redirectsLinksToSelectedHost: Binding<Bool>,
         detectsLinksFromClipboard: Binding<Bool>, backgroundBlurRadius: Binding<Double>,
         autoLockPolicy: Binding<AutoLockPolicy>
@@ -40,7 +40,7 @@ struct GeneralSettingView: View {
         self.tagTranslatorHasCustomTranslations = tagTranslatorHasCustomTranslations
         _enablesTagsExtension = enablesTagsExtension
         _translatesTags = translatesTags
-        _showsTagsSearchSuggestions = showsTagsSearchSuggestions
+        _showsTagsSearchSuggestion = showsTagsSearchSuggestion
         _showsImagesInTags = showsImagesInTags
         _redirectsLinksToSelectedHost = redirectsLinksToSelectedHost
         _detectsLinksFromClipboard = detectsLinksFromClipboard
@@ -86,8 +86,8 @@ struct GeneralSettingView: View {
                 if enablesTagsExtension && !tagTranslatorEmpty {
                     Toggle(R.string.localizable.generalSettingViewTitleTranslatesTags(), isOn: $translatesTags)
                     Toggle(
-                        R.string.localizable.generalSettingViewTitleShowsTagsSearchSuggestions(),
-                        isOn: $showsTagsSearchSuggestions
+                        R.string.localizable.generalSettingViewTitleShowsTagsSearchSuggestion(),
+                        isOn: $showsTagsSearchSuggestion
                     )
                     Toggle(R.string.localizable.generalSettingViewTitleShowsImagesInTags(), isOn: $showsImagesInTags)
                 }
@@ -211,7 +211,7 @@ struct GeneralSettingView_Previews: PreviewProvider {
                 tagTranslatorHasCustomTranslations: false,
                 enablesTagsExtension: .constant(false),
                 translatesTags: .constant(false),
-                showsTagsSearchSuggestions: .constant(false),
+                showsTagsSearchSuggestion: .constant(false),
                 showsImagesInTags: .constant(false),
                 redirectsLinksToSelectedHost: .constant(false),
                 detectsLinksFromClipboard: .constant(false),

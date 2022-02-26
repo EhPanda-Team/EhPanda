@@ -185,7 +185,7 @@
 "general.setting.view.title.autoLock" = "自动锁定";
 "general.setting.view.title.enablesTagsExtension" = "启用标签扩展";
 "general.setting.view.title.translatesTags" = "翻译标签";
-"general.setting.view.title.showsTagsSearchSuggestions" = "显示标签搜索建议";
+"general.setting.view.title.showsTagsSearchSuggestion" = "显示标签搜索建议";
 "general.setting.view.title.showsImagesInTags" = "显示标签中的图像";
 "general.setting.view.title.redirectsLinksToTheSelectedHost" = "重定向链接到选定的站点";
 "general.setting.view.title.detectsLinksFromClipboard" = "从剪切板检测链接";
@@ -214,9 +214,11 @@
 "appearance.setting.view.title.displayMode" = "显示样式";
 "appearance.setting.view.title.showsTagsInList" = "在列表中显示标签";
 "appearance.setting.view.title.maximumNumberOfTags" = "标签数量上限";
+"appearance.setting.view.title.displaysJapaneseTitle" = "显示日文标题";
 "appearance.setting.view.button.appIcon" = "应用图标";
 "appearance.setting.view.menu.title.infite" = "无限";
 "appearance.setting.view.section.title.list" = "列表";
+"appearance.setting.view.section.title.gallery" = "画廊";
 // PerferredColorScheme
 "enum.perferred.color.scheme.value.automatic" = "自动";
 "enum.perferred.color.scheme.value.light" = "浅色";

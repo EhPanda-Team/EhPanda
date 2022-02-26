@@ -185,7 +185,7 @@
 "general.setting.view.title.autoLock" = "自動ロック";
 "general.setting.view.title.enablesTagsExtension" = "タグの拡張機能を有効";
 "general.setting.view.title.translatesTags" = "タグを訳す";
-"general.setting.view.title.showsTagsSearchSuggestions" = "タグの検索提案を表示";
+"general.setting.view.title.showsTagsSearchSuggestion" = "タグの検索提案を表示";
 "general.setting.view.title.showsImagesInTags" = "タグの画像を表示";
 "general.setting.view.title.redirectsLinksToTheSelectedHost" = "リンクを選択されたホストへリダイレクト";
 "general.setting.view.title.detectsLinksFromClipboard" = "クリップボードからリンクを探知";
@@ -214,9 +214,11 @@
 "appearance.setting.view.title.displayMode" = "表示モード";
 "appearance.setting.view.title.showsTagsInList" = "リストでタグを表示";
 "appearance.setting.view.title.maximumNumberOfTags" = "タグ数上限";
+"appearance.setting.view.title.displaysJapaneseTitle" = "日本語タイトルを表示";
 "appearance.setting.view.button.appIcon" = "アプリアイコン";
 "appearance.setting.view.menu.title.infite" = "無制限";
 "appearance.setting.view.section.title.list" = "リスト";
+"appearance.setting.view.section.title.gallery" = "ギャラリー";
 // PerferredColorScheme
 "enum.perferred.color.scheme.value.automatic" = "自動";
 "enum.perferred.color.scheme.value.light" = "ライト";

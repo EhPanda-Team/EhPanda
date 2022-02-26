@@ -17,12 +17,14 @@ struct AppearanceSettingView: View {
     @Binding private var listDisplayMode: ListDisplayMode
     @Binding private var showsTagsInList: Bool
     @Binding private var listTagsNumberMaximum: Int
+    @Binding private var displaysJapaneseTitle: Bool
 
     init(
         store: Store<AppearanceSettingState, AppearanceSettingAction>,
         preferredColorScheme: Binding<PreferredColorScheme>, accentColor: Binding<Color>,
         appIconType: Binding<AppIconType>, listDisplayMode: Binding<ListDisplayMode>,
-        showsTagsInList: Binding<Bool>, listTagsNumberMaximum: Binding<Int>
+        showsTagsInList: Binding<Bool>, listTagsNumberMaximum: Binding<Int>,
+        displaysJapaneseTitle: Binding<Bool>
     ) {
         self.store = store
         viewStore = ViewStore(store)
@@ -32,6 +34,7 @@ struct AppearanceSettingView: View {
         _listDisplayMode = listDisplayMode
         _showsTagsInList = showsTagsInList
         _listTagsNumberMaximum = listTagsNumberMaximum
+        _displaysJapaneseTitle = displaysJapaneseTitle
     }
 
     var body: some View {
@@ -90,6 +93,12 @@ struct AppearanceSettingView: View {
                     .pickerStyle(.menu)
                 }
                 .disabled(!showsTagsInList)
+            }
+            Section(R.string.localizable.appearanceSettingViewSectionTitleGallery()) {
+                Toggle(
+                    R.string.localizable.appearanceSettingViewTitleDisplaysJapaneseTitle(),
+                    isOn: $displaysJapaneseTitle
+                )
             }
         }
         .background(navigationLink)
@@ -199,7 +208,8 @@ struct AppearanceSettingView_Previews: PreviewProvider {
                 appIconType: .constant(.default),
                 listDisplayMode: .constant(.detail),
                 showsTagsInList: .constant(false),
-                listTagsNumberMaximum: .constant(0)
+                listTagsNumberMaximum: .constant(0),
+                displaysJapaneseTitle: .constant(true)
             )
         }
     }

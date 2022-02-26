@@ -40,6 +40,7 @@ struct DetailView: View {
                         gallery: viewStore.gallery,
                         galleryDetail: viewStore.galleryDetail ?? .empty,
                         user: user,
+                        displaysJapaneseTitle: setting.displaysJapaneseTitle,
                         showFullTitle: viewStore.showsFullTitle,
                         showFullTitleAction: { viewStore.send(.toggleShowFullTitle) },
                         favorAction: { viewStore.send(.favorGallery($0)) },
@@ -264,6 +265,7 @@ private struct HeaderSection: View {
     private let gallery: Gallery
     private let galleryDetail: GalleryDetail
     private let user: User
+    private let displaysJapaneseTitle: Bool
     private let showFullTitle: Bool
     private let showFullTitleAction: () -> Void
     private let favorAction: (Int) -> Void
@@ -272,9 +274,8 @@ private struct HeaderSection: View {
     private let navigateUploaderAction: () -> Void
 
     init(
-        gallery: Gallery,
-        galleryDetail: GalleryDetail,
-        user: User, showFullTitle: Bool,
+        gallery: Gallery, galleryDetail: GalleryDetail,
+        user: User, displaysJapaneseTitle: Bool, showFullTitle: Bool,
         showFullTitleAction: @escaping () -> Void,
         favorAction: @escaping (Int) -> Void,
         unfavorAction: @escaping () -> Void,
@@ -284,12 +285,18 @@ private struct HeaderSection: View {
         self.gallery = gallery
         self.galleryDetail = galleryDetail
         self.user = user
+        self.displaysJapaneseTitle = displaysJapaneseTitle
         self.showFullTitle = showFullTitle
         self.showFullTitleAction = showFullTitleAction
         self.favorAction = favorAction
         self.unfavorAction = unfavorAction
         self.navigateReadingAction = navigateReadingAction
         self.navigateUploaderAction = navigateUploaderAction
+    }
+
+    private var title: String {
+        let normalTitle = galleryDetail.title
+        return displaysJapaneseTitle ? galleryDetail.jpnTitle ?? normalTitle : normalTitle
     }
 
     var body: some View {
@@ -303,7 +310,7 @@ private struct HeaderSection: View {
                 )
             VStack(alignment: .leading) {
                 Button(action: showFullTitleAction) {
-                    Text(galleryDetail.jpnTitle ?? galleryDetail.title)
+                    Text(title)
                         .font(.title3.bold()).multilineTextAlignment(.leading)
                         .tint(.primary).lineLimit(showFullTitle ? nil : 3)
                         .fixedSize(horizontal: false, vertical: true)
@@ -620,7 +627,7 @@ private extension TagsSection {
                     .foregroundColor(reversedPrimary).padding(padding)
                     .background(Color(.systemGray)).cornerRadius(5)
                 TagCloudView(data: tag.contents) { content in
-                    let (_, translation) = translateAction(content.text)
+                    let (_, translation) = translateAction(content.rawNamespace + content.text)
                     Button {
                         navigateSearchAction(content.serachKeyword(tag: tag))
                     } label: {

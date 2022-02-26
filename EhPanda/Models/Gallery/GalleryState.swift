@@ -41,7 +41,7 @@ extension GalleryState: CustomStringConvertible {
 
 struct GalleryTag: Codable, Equatable, Hashable, Identifiable {
     struct Content: Codable, Equatable, Hashable, Identifiable {
-        var id: String { text + displayText }
+        var id: String { rawNamespace + text }
         var firstLetterCapitalizedText: String {
             text.firstLetterCapitalized
         }
@@ -55,19 +55,11 @@ struct GalleryTag: Codable, Equatable, Hashable, Identifiable {
             return tag.namespace == .temp ? keyword : [namespace, keyword].joined(separator: ":")
         }
 
+        let rawNamespace: String
         let text: String
-        private let displayText: String
         let isVotedUp: Bool
         let isVotedDown: Bool
         let backgroundColor: Color?
-
-        init(text: String, displayText: String, isVotedUp: Bool, isVotedDown: Bool, backgroundColor: Color?) {
-            self.text = text
-            self.displayText = displayText
-            self.isVotedUp = isVotedUp
-            self.isVotedDown = isVotedDown
-            self.backgroundColor = backgroundColor
-        }
     }
 
     var id: String { rawNamespace }

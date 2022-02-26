@@ -60,7 +60,7 @@ private extension SettingView {
                 tagTranslatorHasCustomTranslations: viewStore.tagTranslator.hasCustomTranslations,
                 enablesTagsExtension: viewStore.binding(\.$setting.enablesTagsExtension),
                 translatesTags: viewStore.binding(\.$setting.translatesTags),
-                showsTagsSearchSuggestions: viewStore.binding(\.$setting.showsTagsSearchSuggestions),
+                showsTagsSearchSuggestion: viewStore.binding(\.$setting.showsTagsSearchSuggestion),
                 showsImagesInTags: viewStore.binding(\.$setting.showsImagesInTags),
                 redirectsLinksToSelectedHost: viewStore.binding(\.$setting.redirectsLinksToSelectedHost),
                 detectsLinksFromClipboard: viewStore.binding(\.$setting.detectsLinksFromClipboard),
@@ -77,7 +77,8 @@ private extension SettingView {
                 appIconType: viewStore.binding(\.$setting.appIconType),
                 listDisplayMode: viewStore.binding(\.$setting.listDisplayMode),
                 showsTagsInList: viewStore.binding(\.$setting.showsTagsInList),
-                listTagsNumberMaximum: viewStore.binding(\.$setting.listTagsNumberMaximum)
+                listTagsNumberMaximum: viewStore.binding(\.$setting.listTagsNumberMaximum),
+                displaysJapaneseTitle: viewStore.binding(\.$setting.displaysJapaneseTitle)
             )
             .tint(viewStore.setting.accentColor)
         }

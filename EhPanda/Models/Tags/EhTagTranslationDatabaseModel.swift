@@ -31,7 +31,9 @@ struct EhTagTranslationDatabaseResponse: Codable {
 
     let data: [Model]
 
-    var tagTranslations: [TagTranslation] {
-        data.flatMap(\.tagTranslations)
+    var tagTranslations: [String: TagTranslation] {
+        .init(uniqueKeysWithValues: data.flatMap(\.tagTranslations).map({
+            ($0.namespace.rawValue + $0.key, $0)
+        }))
     }
 }

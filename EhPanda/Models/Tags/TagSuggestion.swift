@@ -13,13 +13,16 @@ struct TagSuggestion: Equatable, Hashable, Identifiable {
     let weight: Float
     let keyRange: Range<String.Index>?
     let valueRange: Range<String.Index>?
+    let originalKeyword: String
+    let matchesNamespace: Bool
 
     var displayKey: String {
-        let namespace = tag.namespace.rawValue
+        var namespace = tag.namespace.rawValue
         let leftSideString = leftSideString(of: keyRange, string: tag.key)
         var middleString = middleString(of: keyRange, string: tag.key)
         let rightSideString = rightSideString(of: keyRange, string: tag.key)
         middleString = middleString.isEmpty ? middleString : middleString.linkStyled
+        namespace = matchesNamespace ? namespace.linkStyled : namespace
         return [namespace, ":", leftSideString, middleString, rightSideString].joined()
     }
     var displayValue: String {

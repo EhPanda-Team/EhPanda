@@ -19,13 +19,13 @@ struct Setting: Codable, Equatable {
         didSet {
             if !enablesTagsExtension {
                 translatesTags = false
-                showsTagsSearchSuggestions = false
+                showsTagsSearchSuggestion = false
                 showsImagesInTags = false
             }
         }
     }
     var translatesTags = false
-    var showsTagsSearchSuggestions = false
+    var showsTagsSearchSuggestion = false
     var showsImagesInTags = false
     var redirectsLinksToSelectedHost = false
     var detectsLinksFromClipboard = false
@@ -39,6 +39,7 @@ struct Setting: Codable, Equatable {
     var appIconType: AppIconType = .default
     var showsTagsInList = false
     var listTagsNumberMaximum = 0
+    var displaysJapaneseTitle = true
 
     // Reading
     var readingDirection: ReadingDirection = .vertical
@@ -184,7 +185,7 @@ extension Setting {
         // General
         enablesTagsExtension = (try? container?.decodeIfPresent(Bool.self, forKey: .enablesTagsExtension)) ?? false
         translatesTags = (try? container?.decodeIfPresent(Bool.self, forKey: .translatesTags)) ?? false
-        showsTagsSearchSuggestions = (try? container?.decodeIfPresent(Bool.self, forKey: .showsTagsSearchSuggestions)) ?? false
+        showsTagsSearchSuggestion = (try? container?.decodeIfPresent(Bool.self, forKey: .showsTagsSearchSuggestion)) ?? false
         showsImagesInTags = (try? container?.decodeIfPresent(Bool.self, forKey: .showsImagesInTags)) ?? false
         redirectsLinksToSelectedHost = (try? container?.decodeIfPresent(Bool.self, forKey: .redirectsLinksToSelectedHost)) ?? false
         detectsLinksFromClipboard = (try? container?.decodeIfPresent(Bool.self, forKey: .detectsLinksFromClipboard)) ?? false
@@ -197,6 +198,7 @@ extension Setting {
         appIconType = (try? container?.decodeIfPresent(AppIconType.self, forKey: .appIconType)) ?? .default
         showsTagsInList = (try? container?.decodeIfPresent(Bool.self, forKey: .showsTagsInList)) ?? false
         listTagsNumberMaximum = (try? container?.decodeIfPresent(Int.self, forKey: .listTagsNumberMaximum)) ?? 0
+        displaysJapaneseTitle = (try? container?.decodeIfPresent(Bool.self, forKey: .displaysJapaneseTitle)) ?? true
         // Reading
         readingDirection = (try? container?.decodeIfPresent(ReadingDirection.self, forKey: .readingDirection)) ?? .vertical
         prefetchLimit = (try? container?.decodeIfPresent(Int.self, forKey: .prefetchLimit)) ?? 10
