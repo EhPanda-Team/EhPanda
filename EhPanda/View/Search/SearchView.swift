@@ -98,7 +98,7 @@ struct SearchView: View {
         }
         .background(navigationLink)
         .toolbar(content: toolbar)
-        .navigationTitle(tagTranslator.lookupMultiple(text: viewStore.lastKeyword).map{ $0.0 }.joined(separator: " "))
+        .navigationTitle(viewStore.lastKeyword)
     }
 
     @ViewBuilder private var navigationLink: some View {
