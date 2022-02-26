@@ -126,12 +126,11 @@ private struct SuggestionCell: View {
 
 final class TagTranslationHandler: ObservableObject {
     @Published var suggestions = [TagSuggestion]()
-    private var autoCompletionOffset = 0
 
     func analyze(text: inout String, translations: [String: TagTranslation]) {
-        let keyword = text.replacingOccurrences(of: "  +", with: " ", options: .regularExpression)
-        text = keyword
-
+        text = text.replacingOccurrences(of: "  +", with: " ", options: .regularExpression)
+            .replacingOccurrences(of: "：", with: ":", options: .regularExpression)
+        let keyword = text
         guard let regex = Defaults.Regex.tagSuggestion else { return }
         let values: [String] = regex.matches(in: keyword, range: .init(location: 0, length: keyword.count))
             .compactMap {
@@ -141,34 +140,46 @@ final class TagTranslationHandler: ObservableObject {
                     return nil
                 }
             }
-        if let last = values.last {
-            autoCompletionOffset = 0 - last.count
-            suggestions = getSuggestions(translations: translations, keyword: last)
-        } else {
-            suggestions = []
-            autoCompletionOffset = .zero
+        var result: [TagSuggestion] = []
+        var used: Set<String> = []
+        let lastFillTagIndex = values.lastIndex {
+            let endChar = $0[$0.index(before: $0.endIndex)]
+            return endChar == "\"" || endChar == "$"
+        } ?? -1
+        for index in (lastFillTagIndex + 1)..<values.count {
+            let keywordList = values[index...]
+            if !keywordList.isEmpty {
+                let keyword = keywordList.joined(separator: " ")
+                let subSuggestions = getSuggestions(translations: translations, keyword: keyword)
+                subSuggestions.forEach{
+                    if used.contains($0.tag.searchKeyword) {
+                        return
+                    }
+                    used.insert($0.tag.searchKeyword)
+                    result.append($0)
+                }
+            }
         }
+        suggestions = result
     }
     func autoComplete(suggestion: TagSuggestion, keyword: inout String) {
-        let endIndex = keyword.index(keyword.endIndex, offsetBy: autoCompletionOffset)
+        let endIndex = keyword.index(keyword.endIndex, offsetBy: 0 - suggestion.term.count)
         keyword = .init(keyword[keyword.startIndex..<endIndex])
         + suggestion.tag.searchKeyword + " "
     }
     private func getSuggestions(translations: [String: TagTranslation], keyword: String) -> [TagSuggestion] {
+        let term = keyword
         var keyword = keyword
         var namespace: String?
         let namespaceAbbreviations = TagNamespace.abbreviations
 
         if let colon = keyword.firstIndex(of: ":") {
-            // Requires at least one character before the colon
-            if colon >= keyword.index(keyword.startIndex, offsetBy: 1) {
-                let key = String(keyword[keyword.startIndex..<colon])
-                if let index = namespaceAbbreviations.firstIndex(where: {
-                    $0.caseInsensitiveEqualsTo(key) || $1.caseInsensitiveEqualsTo(key)
-                }) {
-                    namespace = namespaceAbbreviations[index].key
-                    keyword = .init(keyword[keyword.index(colon, offsetBy: 1)..<keyword.endIndex])
-                }
+            let key = String(keyword[keyword.startIndex..<colon])
+            if let index = namespaceAbbreviations.firstIndex(where: {
+                $0.caseInsensitiveEqualsTo(key) || $1.caseInsensitiveEqualsTo(key)
+            }) {
+                namespace = namespaceAbbreviations[index].key
+                keyword = .init(keyword[keyword.index(colon, offsetBy: 1)..<keyword.endIndex])
             }
         }
 
@@ -176,8 +187,14 @@ final class TagTranslationHandler: ObservableObject {
         if let namespace = namespace {
             translations = translations.filter { $0.value.namespace.rawValue == namespace }
         }
+        if namespace != nil && keyword.isEmpty {
+            return translations
+                .map {
+                    .init(tag: $0, weight: 0, keyRange: nil, valueRange: nil, term: term, matchNamespace: true)
+                }
+        }
         return translations
-            .map { $0.value.getSuggestion(keyword: keyword) }
+            .map { $0.getSuggestion(keyword: keyword, term: term, matchNamespace: namespace != nil) }
             .filter { $0.weight > 0 }
             .sorted { $0.weight > $1.weight }
     }
