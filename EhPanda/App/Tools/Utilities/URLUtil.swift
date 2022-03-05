@@ -6,12 +6,11 @@
 //
 
 import Foundation
-import OrderedCollections
 
 struct URLUtil {
     // Fetch
     static func searchList(keyword: String, filter: Filter, pageNum: Int? = nil) -> URL {
-        var queryItems: OrderedDictionary<Defaults.URL.Component.Key, String> = [.fSearch: keyword]
+        var queryItems: [Defaults.URL.Component.Key: String] = [.fSearch: keyword]
         if let pageNum = pageNum {
             queryItems[.page] = String(pageNum)
         }
@@ -138,8 +137,8 @@ struct URLUtil {
 // MARK: Combining (Filter)
 private extension URL {
     func applyingFilter(_ filter: Filter) -> URL {
-        var queryItems1 = OrderedDictionary<Defaults.URL.Component.Key, String>()
-        var queryItems2 = OrderedDictionary<Defaults.URL.Component.Key, Defaults.URL.Component.Value>()
+        var queryItems1 = [Defaults.URL.Component.Key: String]()
+        var queryItems2 = [Defaults.URL.Component.Key: Defaults.URL.Component.Value]()
 
         var categoryValue = 0
         categoryValue += filter.doujinshi ? Category.doujinshi.filterValue : 0
