@@ -43,7 +43,7 @@ struct GalleryDetailCell: View {
                             imageURL: translation?.valueImageURL,
                             showsImages: setting.showsImagesInTags,
                             font: .caption2, padding: .init(top: 2, leading: 4, bottom: 2, trailing: 4),
-                            textColor: content.backgroundColor != nil ? .white : .secondary,
+                            textColor: content.backgroundColor != nil ? content.textColor ?? .secondary : .secondary,
                             backgroundColor: content.backgroundColor ?? tagColor
                         )
                     }

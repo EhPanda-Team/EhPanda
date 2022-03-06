@@ -59,6 +59,7 @@ struct GalleryTag: Codable, Equatable, Hashable, Identifiable {
         let text: String
         let isVotedUp: Bool
         let isVotedDown: Bool
+        let textColor: Color?
         let backgroundColor: Color?
     }
 
