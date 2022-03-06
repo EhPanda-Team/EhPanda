@@ -27,3 +27,18 @@ extension HapticClient {
         }
     )
 }
+// MARK: Test
+#if DEBUG
+extension HapticClient {
+    static let failing: Self = .init(
+        generateFeedback: { .failing("\(Self.self).generateFeedback(\($0)) is unimplemented") },
+        generateNotificationFeedback: { .failing("\(Self.self).generateNotificationFeedback(\($0)) is unimplemented") }
+    )
+}
+#endif
+extension HapticClient {
+    static let noop: Self = .init(
+        generateFeedback: { _ in .none },
+        generateNotificationFeedback: { _ in .none }
+    )
+}

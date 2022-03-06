@@ -243,3 +243,38 @@ extension CookiesClient {
         }
     }
 }
+
+// MARK: Test
+#if DEBUG
+import XCTestDynamicOverlay
+
+extension CookiesClient {
+    static let failing: Self = .init(
+        clearAll: { .failing("\(Self.self).clearAll is unimplemented") },
+        getCookie: {
+            XCTFail("\(Self.self).getCookie(\($0), \($1)) is unimplemented")
+            return .empty
+        },
+        removeCookie: {
+            XCTFail("\(Self.self).removeCookie(\($0), \($1)) is unimplemented")
+        },
+        checkExistence: {
+            XCTFail("\(Self.self).checkExistence(\($0), \($1)) is unimplemented")
+            return false
+        },
+        initializeCookie: {
+            XCTFail("\(Self.self).initializeCookie(\($0), \($1)) is unimplemented")
+            return .init()
+        }
+    )
+}
+#endif
+extension CookiesClient {
+    static let noop: Self = .init(
+        clearAll: { .none },
+        getCookie: { _, _ in .empty },
+        removeCookie: { _, _ in },
+        checkExistence: { _, _ in false },
+        initializeCookie: { _, _ in .init() }
+    )
+}

@@ -9,6 +9,10 @@ import TTProgressHUD
 import ComposableArchitecture
 
 struct CookieValue: Equatable {
+    static let empty: Self = .init(
+        rawValue: .init(), localizedString: .init()
+    )
+
     let rawValue: String
     let localizedString: String
 
@@ -69,7 +73,7 @@ struct AccountSettingState: Equatable {
     var ehSettingState = EhSettingState()
 }
 
-enum AccountSettingAction: BindableAction {
+enum AccountSettingAction: BindableAction, Equatable {
     case binding(BindingAction<AccountSettingState>)
     case setNavigation(AccountSettingState.Route?)
     case onLogoutConfirmButtonTapped
