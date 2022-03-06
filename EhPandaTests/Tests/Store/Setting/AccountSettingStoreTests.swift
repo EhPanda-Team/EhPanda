@@ -10,7 +10,7 @@ import XCTest
 import ComposableArchitecture
 
 class AccountSettingStoreTests: XCTestCase {
-    private var environment: AccountSettingEnvironment {
+    private var noopEnvironment: AccountSettingEnvironment {
         .init(
             hapticClient: .noop,
             cookiesClient: .noop,
@@ -18,20 +18,24 @@ class AccountSettingStoreTests: XCTestCase {
             uiApplicationClient: .noop
         )
     }
-    private var store: TestStore<
-        AccountSettingState, AccountSettingState,
-        AccountSettingAction, AccountSettingAction,
-        AccountSettingEnvironment
-    > {
-        .init(
-            initialState: .init(),
-            reducer: accountSettingReducer,
-            environment: environment
-        )
-    }
 
     func testBinding() throws {
-        let store = store
+        let store = TestStore(
+            initialState: AccountSettingState(
+                route: .ehSetting,
+                ehCookiesState: .empty(.exhentai),
+                exCookiesState: .empty(.ehentai),
+                loginState: .init(route: .webView(.mock)),
+                ehSettingState: .init(route: .deleteProfile)
+            ),
+            reducer: accountSettingReducer,
+            environment: AccountSettingEnvironment(
+                hapticClient: .noop,
+                cookiesClient: .live,
+                clipboardClient: .noop,
+                uiApplicationClient: .noop
+            )
+        )
 
         store.send(.set(\.$route, nil)) {
             $0.route = nil
@@ -45,16 +49,42 @@ class AccountSettingStoreTests: XCTestCase {
         store.send(.set(\.$route, .login)) {
             $0.route = .login
         }
-        store.send(.set(\.$ehCookiesState, .empty(.ehentai))) {
-            $0.ehCookiesState = .empty(.ehentai)
+        let value = "test"
+        let ehCookiesState = CookiesState(
+            host: .ehentai,
+            igneous: .init(key: Defaults.Cookie.igneous, value: .empty, editingText: value),
+            memberID: .init(key: Defaults.Cookie.ipbMemberId, value: .empty, editingText: value),
+            passHash: .init(key: Defaults.Cookie.ipbPassHash, value: .empty, editingText: value)
+        )
+        let exCookiesState = CookiesState(
+            host: .exhentai,
+            igneous: .init(key: Defaults.Cookie.igneous, value: .empty, editingText: value),
+            memberID: .init(key: Defaults.Cookie.ipbMemberId, value: .empty, editingText: value),
+            passHash: .init(key: Defaults.Cookie.ipbPassHash, value: .empty, editingText: value)
+        )
+        store.send(.set(\.$ehCookiesState, ehCookiesState)) {
+            $0.ehCookiesState = ehCookiesState
         }
-        store.send(.set(\.$exCookiesState, .empty(.exhentai))) {
-            $0.exCookiesState = .empty(.exhentai)
+        store.send(.set(\.$exCookiesState, exCookiesState)) {
+            $0.exCookiesState = exCookiesState
         }
+
+        [Defaults.Cookie.igneous, Defaults.Cookie.ipbMemberId, Defaults.Cookie.ipbPassHash]
+            .flatMap({ key in [Defaults.URL.ehentai, Defaults.URL.exhentai].map({ ($0, key) }) })
+            .map(CookiesClient.live.getCookie)
+            .forEach({ XCTAssertEqual($0, .init(rawValue: value, localizedString: .init())) })
     }
 
     func testSetNavigation() throws {
-        let store = store
+        let store = TestStore(
+            initialState: AccountSettingState(
+                route: .ehSetting,
+                loginState: .init(route: .webView(.mock)),
+                ehSettingState: .init(route: .deleteProfile)
+            ),
+            reducer: accountSettingReducer,
+            environment: noopEnvironment
+        )
 
         store.send(.setNavigation(nil)) {
             $0.route = nil
@@ -71,7 +101,14 @@ class AccountSettingStoreTests: XCTestCase {
     }
 
     func testOnLogoutConfirmButtonTapped() throws {
-        let store = store
+        let store = TestStore(
+            initialState: AccountSettingState(
+                ehCookiesState: .empty(.exhentai),
+                exCookiesState: .empty(.ehentai)
+            ),
+            reducer: accountSettingReducer,
+            environment: noopEnvironment
+        )
 
         store.send(.onLogoutConfirmButtonTapped)
         store.receive(.loadCookies) {
@@ -91,7 +128,14 @@ class AccountSettingStoreTests: XCTestCase {
     }
 
     func testClearSubStates() throws {
-        let store = store
+        let store = TestStore(
+            initialState: AccountSettingState(
+                loginState: .init(route: .webView(.mock)),
+                ehSettingState: .init(route: .deleteProfile)
+            ),
+            reducer: accountSettingReducer,
+            environment: noopEnvironment
+        )
 
         store.send(.clearSubStates) {
             $0.loginState = .init()
@@ -102,7 +146,14 @@ class AccountSettingStoreTests: XCTestCase {
     }
 
     func testLoadCookies() throws {
-        let store = store
+        let store = TestStore(
+            initialState: AccountSettingState(
+                ehCookiesState: .empty(.exhentai),
+                exCookiesState: .empty(.ehentai)
+            ),
+            reducer: accountSettingReducer,
+            environment: noopEnvironment
+        )
 
         store.send(.loadCookies) {
             $0.ehCookiesState = .init(
@@ -121,7 +172,13 @@ class AccountSettingStoreTests: XCTestCase {
     }
 
     func testCopyCookies() throws {
-        let store = store
+        let store = TestStore(
+            initialState: AccountSettingState(
+                route: .ehSetting
+            ),
+            reducer: accountSettingReducer,
+            environment: noopEnvironment
+        )
 
         store.send(.copyCookies(.ehentai))
         store.receive(.setNavigation(.hud)) {
@@ -130,10 +187,20 @@ class AccountSettingStoreTests: XCTestCase {
     }
 
     func testLoginLoginDone() throws {
-        let store = store
+        let store = TestStore(
+            initialState: AccountSettingState(
+                route: .ehSetting,
+                loginState: .init(route: .webView(.mock), loginState: .loading),
+                ehSettingState: .init(route: .deleteProfile)
+            ),
+            reducer: accountSettingReducer,
+            environment: noopEnvironment
+        )
 
-        store.send(.login(.loginDone(.failure(.unknown))))
-        if environment.cookiesClient.didLogin {
+        store.send(.login(.loginDone(.success(nil)))) {
+            $0.loginState = .init(route: nil, loginState: .idle)
+        }
+        if noopEnvironment.cookiesClient.didLogin {
             store.receive(.setNavigation(nil)) {
                 $0.route = nil
             }
