@@ -48,7 +48,7 @@ struct HomeState: Equatable {
         let sortedGalleries = galleries.sorted { lhs, rhs in
             lhs.title.count > rhs.title.count
         }
-        var trimmedGalleries = Array(sortedGalleries.prefix(10))
+        var trimmedGalleries = Array(sortedGalleries.prefix(min(sortedGalleries.count, 10)))
             .removeDuplicates(by: \.trimmedTitle)
         if trimmedGalleries.count >= 6 {
             trimmedGalleries = Array(trimmedGalleries.prefix(6))
@@ -58,7 +58,7 @@ struct HomeState: Equatable {
         currentCardID = trimmedGalleries[cardPageIndex].gid
     }
     mutating func setFrontpageGalleries(_ galleries: [Gallery]) {
-        frontpageGalleries = Array(galleries.prefix(25))
+        frontpageGalleries = Array(galleries.prefix(min(galleries.count, 25)))
             .removeDuplicates(by: \.trimmedTitle)
     }
 }
