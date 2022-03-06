@@ -114,7 +114,7 @@ struct Parser {
                     {
                         contentBackgroundColor = .init(hex: .init(hex))
                         if (.init(red) * 0.299 + .init(green) * 0.587 + .init(blue) * 0.114) > 151 {
-                            contentTextColor = .black
+                            contentTextColor = .secondary
                         } else {
                             contentTextColor = .white
                         }
