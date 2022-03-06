@@ -83,6 +83,15 @@
         }
       },
       {
+        "package": "Snappable",
+        "repositoryURL": "https://github.com/hugehoge/Snappable.git",
+        "state": {
+          "branch": null,
+          "revision": "806de8123c87fdd818f1b8998a56417a1a510007",
+          "version": "0.3.0"
+        }
+      },
+      {
         "package": "swift-case-paths",
         "repositoryURL": "https://github.com/pointfreeco/swift-case-paths",
         "state": {

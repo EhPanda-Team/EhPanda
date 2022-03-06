@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Snappable
 import Kingfisher
 import SwiftUIPager
 import SFSafeSymbols
@@ -59,6 +60,7 @@ struct HomeView: View {
                                     showAllAction: { viewStore.send(.setNavigation(.section(.frontpage))) },
                                     reloadAction: { viewStore.send(.fetchFrontpageGalleries()) }
                                 )
+                                .id(viewStore.frontpageLoadingState)
                             }
                             ToplistsSection(
                                 galleries: viewStore.toplistsGalleries,
@@ -68,7 +70,9 @@ struct HomeView: View {
                                 showAllAction: { viewStore.send(.setNavigation(.section(.toplists))) },
                                 reloadAction: { viewStore.send(.fetchAllToplistsGalleries) }
                             )
+                            .id(viewStore.toplistsLoadingState)
                             MiscGridSection(navigateAction: navigateTo(type:))
+                                .id(viewStore.popularLoadingState)
                         }
                         .padding(.vertical)
                     }
@@ -280,12 +284,12 @@ private struct CoverWallSection: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 20) {
                     ForEach(dataSource, id: \.first) {
-                        VerticalCoverStack(galleries: $0, navigateAction: navigateAction)
+                        VerticalCoverStack(galleries: $0, navigateAction: navigateAction).snapID(UUID())
                     }
                     .withHorizontalSpacing(width: 0)
                 }
             }
-            .frame(height: Defaults.ImageSize.rowH * 2 + 30)
+            .snappable(mode: .afterScrolling).frame(height: Defaults.ImageSize.rowH * 2 + 30)
         }
     }
 }
@@ -372,6 +376,7 @@ private struct ToplistsSection: View {
                     ForEach(ToplistsType.allCases, content: verticalStacks)
                 }
             }
+            .snappable(mode: .afterScrolling)
         }
     }
     private func verticalStacks(type: ToplistsType) -> some View {
@@ -390,7 +395,7 @@ private struct ToplistsSection: View {
                 }
             }
         }
-        .padding(.horizontal, 20).padding(.vertical, 5)
+        .snapID(UUID()).padding(.horizontal, 20).padding(.vertical, 5)
     }
 }
 
@@ -442,11 +447,12 @@ private struct MiscGridSection: View {
                         } label: {
                             MiscGridItem(title: type.title, symbol: type.symbol).tint(.primary)
                         }
-                        .padding(.trailing, type == types.last ? 0 : 10)
+                        .snapID(UUID()).padding(.trailing, type == types.last ? 0 : 10)
                     }
                     .withHorizontalSpacing()
                 }
             }
+            .snappable(mode: .afterScrolling)
         }
     }
 }

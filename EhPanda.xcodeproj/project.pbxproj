@@ -237,6 +237,7 @@
 		ABD9771027B65E3400983DE7 /* GalleryDetailParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABD9770F27B65E3400983DE7 /* GalleryDetailParserTests.swift */; };
 		ABD9771327B6612400983DE7 /* GreetingParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABD9771227B6612400983DE7 /* GreetingParserTests.swift */; };
 		ABE1867826A1733000689FDC /* LaboratorySettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABE1867726A1733000689FDC /* LaboratorySettingView.swift */; };
+		ABE4CBE927D434CF006D351E /* Snappable in Frameworks */ = {isa = PBXBuildFile; productRef = ABE4CBE827D434CF006D351E /* Snappable */; };
 		ABE9401526FF158D0085E158 /* QuickSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABE9401426FF158D0085E158 /* QuickSearchView.swift */; };
 		ABE9402D26FF89220085E158 /* AlertKit in Frameworks */ = {isa = PBXBuildFile; productRef = ABE9402C26FF89220085E158 /* AlertKit */; };
 		ABEA1FE625A9B40B002966B9 /* Setting.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABEA1FE525A9B40B002966B9 /* Setting.swift */; };
@@ -582,6 +583,7 @@
 				AB21CCA0274B4F0C00C115B1 /* SwiftyBeaver in Frameworks */,
 				ABD49D5D277C6C9D003D1A07 /* SFSafeSymbols in Frameworks */,
 				ABAC82FE26BC4A96009F5026 /* OpenCC in Frameworks */,
+				ABE4CBE927D434CF006D351E /* Snappable in Frameworks */,
 				AB86AC1027831AD100E61E6A /* ComposableArchitecture in Frameworks */,
 				ABBB2636278FB888007B6149 /* SwiftUINavigation in Frameworks */,
 				AB1FA94927C62BC80063EF55 /* CommonMark in Frameworks */,
@@ -1359,6 +1361,7 @@
 				ABD970B627A2A6BD001693B0 /* Rswift */,
 				AB26F59827ACDB4200AB3468 /* FilePicker */,
 				AB1FA94827C62BC80063EF55 /* CommonMark */,
+				ABE4CBE827D434CF006D351E /* Snappable */,
 			);
 			productName = EhPanda;
 			productReference = ABC3C7542593696C00E0C11B /* EhPanda.app */;
@@ -1435,6 +1438,7 @@
 				ABD970B527A2A6BD001693B0 /* XCRemoteSwiftPackageReference "R.swift.Library" */,
 				AB26F59727ACDB4200AB3468 /* XCRemoteSwiftPackageReference "FilePicker" */,
 				AB1FA94727C62BC80063EF55 /* XCRemoteSwiftPackageReference "SwiftCommonMark" */,
+				ABE4CBE727D434CF006D351E /* XCRemoteSwiftPackageReference "Snappable" */,
 			);
 			productRefGroup = ABC3C7552593696C00E0C11B /* Products */;
 			projectDirPath = "";
@@ -2270,6 +2274,14 @@
 				minimumVersion = 5.4.0;
 			};
 		};
+		ABE4CBE727D434CF006D351E /* XCRemoteSwiftPackageReference "Snappable" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/hugehoge/Snappable.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.3.0;
+			};
+		};
 		ABE9402B26FF89220085E158 /* XCRemoteSwiftPackageReference "AlertKit" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/tatsuz0u/AlertKit.git";
@@ -2360,6 +2372,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = ABD970B527A2A6BD001693B0 /* XCRemoteSwiftPackageReference "R.swift.Library" */;
 			productName = Rswift;
+		};
+		ABE4CBE827D434CF006D351E /* Snappable */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = ABE4CBE727D434CF006D351E /* XCRemoteSwiftPackageReference "Snappable" */;
+			productName = Snappable;
 		};
 		ABE9402C26FF89220085E158 /* AlertKit */ = {
 			isa = XCSwiftPackageProductDependency;
