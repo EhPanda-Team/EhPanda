@@ -167,10 +167,6 @@ struct EhPandaView: View {
             text: R.string.constant.ehpandaAcknowledgementsTextKingfisher()
         ),
         .init(
-            urlString: R.string.constant.ehpandaAcknowledgementsLinkSnappable(),
-            text: R.string.constant.ehpandaAcknowledgementsTextSnappable()
-        ),
-        .init(
             urlString: R.string.constant.ehpandaAcknowledgementsLinkSwiftUIPager(),
             text: R.string.constant.ehpandaAcknowledgementsTextSwiftUIPager()
         ),

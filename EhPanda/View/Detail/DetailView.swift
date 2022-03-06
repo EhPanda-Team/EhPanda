@@ -7,8 +7,8 @@
 
 import SwiftUI
 import Kingfisher
-import CommonMark
 import ComposableArchitecture
+import CommonMark
 
 struct DetailView: View {
     private let store: Store<DetailState, DetailAction>
@@ -728,12 +728,10 @@ private struct PreviewsSection: View {
                                 .imageModifier(modifier).fade(duration: 0.25).resizable().scaledToFit()
                                 .frame(width: width, height: height)
                         }
-                        .snapID(index)
                     }
                     .withHorizontalSpacing(height: height)
                 }
             }
-            .snappable(mode: .afterScrolling)
         }
     }
 }

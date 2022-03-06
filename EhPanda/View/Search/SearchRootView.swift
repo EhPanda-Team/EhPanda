@@ -188,7 +188,6 @@ private struct SuggestionsPanel: View {
                         galleries: historyGalleries,
                         navigationAction: navigateGalleryAction
                     )
-                    .id(historyGalleries)
                 }
             }
         }
@@ -391,12 +390,10 @@ private struct HistoryGalleriesSection: View {
                             GalleryHistoryCell(gallery: gallery)
                                 .tint(.primary).multilineTextAlignment(.leading)
                         }
-                        .snapID(UUID())
                     }
                     .withHorizontalSpacing()
                 }
             }
-            .snappable(mode: .afterScrolling)
         }
     }
 }
