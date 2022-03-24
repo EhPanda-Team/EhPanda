@@ -18,6 +18,44 @@ class AccountSettingStoreTests: XCTestCase {
             uiApplicationClient: .noop
         )
     }
+    private static func getCookiesState(with value: String) -> (CookiesState, CookiesState) {
+        let ehCookiesState = CookiesState(
+            host: .ehentai,
+            igneous: .init(key: Defaults.Cookie.igneous, value: .init(rawValue: value, localizedString: .init()), editingText: value),
+            memberID: .init(key: Defaults.Cookie.ipbMemberId, value: .init(rawValue: value, localizedString: .init()), editingText: value),
+            passHash: .init(key: Defaults.Cookie.ipbPassHash, value: .init(rawValue: value, localizedString: .init()), editingText: value)
+        )
+        let exCookiesState = CookiesState(
+            host: .exhentai,
+            igneous: .init(key: Defaults.Cookie.igneous, value: .init(rawValue: value, localizedString: .init()), editingText: value),
+            memberID: .init(key: Defaults.Cookie.ipbMemberId, value: .init(rawValue: value, localizedString: .init()), editingText: value),
+            passHash: .init(key: Defaults.Cookie.ipbPassHash, value: .init(rawValue: value, localizedString: .init()), editingText: value)
+        )
+        return (ehCookiesState, exCookiesState)
+    }
+    private static func setCookies(with state: CookiesState) {
+        _ = CookiesClient.live.setCookies(state: state).sink(receiveValue: { _ in })
+    }
+    @discardableResult private static func teardownCookies(value: String? = nil) -> String {
+        let initialValue = UUID().uuidString
+        let (initialEhCookiesState, initialExCookiesState) = getCookiesState(with: value ?? initialValue)
+        setCookies(with: initialEhCookiesState)
+        setCookies(with: initialExCookiesState)
+        return value ?? initialValue
+    }
+
+    override class func tearDown() {
+        super.tearDown()
+
+        teardownCookies(value: .init())
+    }
+
+    func testCookies(with value: String) throws {
+        [Defaults.Cookie.igneous, Defaults.Cookie.ipbMemberId, Defaults.Cookie.ipbPassHash]
+            .flatMap({ key in [Defaults.URL.ehentai, Defaults.URL.exhentai].map({ ($0, key) }) })
+            .map(CookiesClient.live.getCookie)
+            .forEach({ XCTAssertEqual($0, .init(rawValue: value, localizedString: .init())) })
+    }
 
     func testBinding() throws {
         let store = TestStore(
@@ -49,30 +87,18 @@ class AccountSettingStoreTests: XCTestCase {
         store.send(.set(\.$route, .login)) {
             $0.route = .login
         }
-        let value = "test"
-        let ehCookiesState = CookiesState(
-            host: .ehentai,
-            igneous: .init(key: Defaults.Cookie.igneous, value: .empty, editingText: value),
-            memberID: .init(key: Defaults.Cookie.ipbMemberId, value: .empty, editingText: value),
-            passHash: .init(key: Defaults.Cookie.ipbPassHash, value: .empty, editingText: value)
-        )
-        let exCookiesState = CookiesState(
-            host: .exhentai,
-            igneous: .init(key: Defaults.Cookie.igneous, value: .empty, editingText: value),
-            memberID: .init(key: Defaults.Cookie.ipbMemberId, value: .empty, editingText: value),
-            passHash: .init(key: Defaults.Cookie.ipbPassHash, value: .empty, editingText: value)
-        )
+
+        AccountSettingStoreTests.teardownCookies()
+
+        let testValue = UUID().uuidString
+        let (ehCookiesState, exCookiesState) = AccountSettingStoreTests.getCookiesState(with: testValue)
         store.send(.set(\.$ehCookiesState, ehCookiesState)) {
             $0.ehCookiesState = ehCookiesState
         }
         store.send(.set(\.$exCookiesState, exCookiesState)) {
             $0.exCookiesState = exCookiesState
         }
-
-        [Defaults.Cookie.igneous, Defaults.Cookie.ipbMemberId, Defaults.Cookie.ipbPassHash]
-            .flatMap({ key in [Defaults.URL.ehentai, Defaults.URL.exhentai].map({ ($0, key) }) })
-            .map(CookiesClient.live.getCookie)
-            .forEach({ XCTAssertEqual($0, .init(rawValue: value, localizedString: .init())) })
+        try testCookies(with: testValue)
     }
 
     func testSetNavigation() throws {
@@ -107,24 +133,22 @@ class AccountSettingStoreTests: XCTestCase {
                 exCookiesState: .empty(.ehentai)
             ),
             reducer: accountSettingReducer,
-            environment: noopEnvironment
+            environment: AccountSettingEnvironment(
+                hapticClient: .noop,
+                cookiesClient: .live,
+                clipboardClient: .noop,
+                uiApplicationClient: .noop
+            )
         )
 
+        let initialValue = AccountSettingStoreTests.teardownCookies()
+        let (ehCookiesState, exCookiesState) = AccountSettingStoreTests.getCookiesState(with: initialValue)
         store.send(.onLogoutConfirmButtonTapped)
         store.receive(.loadCookies) {
-            $0.ehCookiesState = .init(
-                host: .ehentai,
-                igneous: .init(key: Defaults.Cookie.igneous, value: .empty),
-                memberID: .init(key: Defaults.Cookie.ipbMemberId, value: .empty),
-                passHash: .init(key: Defaults.Cookie.ipbPassHash, value: .empty)
-            )
-            $0.exCookiesState = .init(
-                host: .exhentai,
-                igneous: .init(key: Defaults.Cookie.igneous, value: .empty),
-                memberID: .init(key: Defaults.Cookie.ipbMemberId, value: .empty),
-                passHash: .init(key: Defaults.Cookie.ipbPassHash, value: .empty)
-            )
+            $0.ehCookiesState = ehCookiesState
+            $0.exCookiesState = exCookiesState
         }
+        try testCookies(with: initialValue)
     }
 
     func testClearSubStates() throws {
