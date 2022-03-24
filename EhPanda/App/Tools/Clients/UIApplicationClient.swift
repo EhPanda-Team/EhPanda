@@ -66,3 +66,32 @@ extension UIApplicationClient {
         return .none
     }
 }
+
+// MARK: Test
+// swiftlint:disable line_length
+#if DEBUG
+import XCTestDynamicOverlay
+
+extension UIApplicationClient {
+    static let failing: Self = .init(
+        openURL: { .failing("\(Self.self).openURL(\($0)) is unimplemented") },
+        hideKeyboard: { .failing("\(Self.self).hideKeyboard is unimplemented") },
+        alternateIconName: {
+            XCTFail("\(Self.self).alternateIconName is unimplemented")
+            return nil
+        },
+        setAlternateIconName: { .failing("\(Self.self).setAlternateIconName(\(String(describing: $0))) is unimplemented") },
+        setUserInterfaceStyle: { .failing("\(Self.self).setUserInterfaceStyle(\($0)) is unimplemented") }
+    )
+}
+#endif
+// swiftlint:enable line_length
+extension UIApplicationClient {
+    static let noop: Self = .init(
+        openURL: { _ in .none},
+        hideKeyboard: { .none },
+        alternateIconName: { nil },
+        setAlternateIconName: { _ in .none },
+        setUserInterfaceStyle: { _ in .none }
+    )
+}

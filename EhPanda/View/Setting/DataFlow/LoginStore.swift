@@ -35,7 +35,7 @@ struct LoginState: Equatable {
     }
 }
 
-enum LoginAction: BindableAction {
+enum LoginAction: BindableAction, Equatable {
     case binding(BindingAction<LoginState>)
     case setNavigation(LoginState.Route?)
     case onTextFieldSubmitted

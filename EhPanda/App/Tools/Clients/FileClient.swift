@@ -103,3 +103,28 @@ extension FileClient {
         }
     }
 }
+
+// MARK: Test
+#if DEBUG
+import XCTestDynamicOverlay
+
+extension FileClient {
+    static let failing: Self = .init(
+        createFile: {
+            XCTFail("\(Self.self).createFile(\($0), \(String(describing: $1))) is unimplemented")
+            return false
+        },
+        fetchLogs: { .failing("\(Self.self).fetchLogs is unimplemented") },
+        deleteLog: { .failing("\(Self.self).deleteLog(\($0)) is unimplemented") },
+        importTagTranslator: { .failing("\(Self.self).importTagTranslator(\($0)) is unimplemented") }
+    )
+}
+#endif
+extension FileClient {
+    static let noop: Self = .init(
+        createFile: { _, _ in false },
+        fetchLogs: { .none },
+        deleteLog: { _ in .none },
+        importTagTranslator: { _ in .none }
+    )
+}

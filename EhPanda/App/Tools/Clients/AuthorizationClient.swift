@@ -39,3 +39,24 @@ extension AuthorizationClient {
         }
     )
 }
+
+// MARK: Test
+#if DEBUG
+import XCTestDynamicOverlay
+
+extension AuthorizationClient {
+    static let failing: Self = .init(
+        passcodeNotSet: {
+            XCTFail("\(Self.self).passcodeNotSet is unimplemented")
+            return false
+        },
+        localAuthroize: { .failing("\(Self.self).localAuthroize(\($0)) is unimplemented")}
+    )
+}
+#endif
+extension AuthorizationClient {
+    static let noop: Self = .init(
+        passcodeNotSet: { false },
+        localAuthroize: { _ in .none }
+    )
+}

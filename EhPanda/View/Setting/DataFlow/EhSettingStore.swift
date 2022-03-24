@@ -32,7 +32,7 @@ struct EhSettingState: Equatable {
     }
 }
 
-enum EhSettingAction: BindableAction {
+enum EhSettingAction: BindableAction, Equatable {
     case binding(BindingAction<EhSettingState>)
     case setNavigation(EhSettingState.Route?)
     case setKeyboardHidden

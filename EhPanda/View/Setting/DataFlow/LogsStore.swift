@@ -20,7 +20,7 @@ struct LogsState: Equatable {
     var logs = [Log]()
 }
 
-enum LogsAction: BindableAction {
+enum LogsAction: BindableAction, Equatable {
     case binding(BindingAction<LogsState>)
     case setNavigation(LogsState.Route?)
     case navigateToFileApp

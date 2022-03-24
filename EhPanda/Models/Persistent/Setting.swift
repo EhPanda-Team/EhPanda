@@ -55,7 +55,7 @@ struct Setting: Codable, Equatable {
     var bypassesSNIFiltering = false
 }
 
-enum GalleryHost: String, Codable, CaseIterable, Identifiable {
+enum GalleryHost: String, Codable, Equatable, CaseIterable, Identifiable {
     case ehentai = "E-Hentai"
     case exhentai = "ExHentai"
 
