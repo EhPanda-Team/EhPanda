@@ -126,8 +126,10 @@ let appReducerCore = Reducer<AppState, AppAction, AppEnvironment> { state, actio
             case .favorites:
                 if state.favoritesState.route != nil {
                     effects.append(.init(value: .favorites(.setNavigation(nil))))
-                } else {
+                    effects.append(hapticEffect)
+                } else if environment.cookiesClient.didLogin {
                     effects.append(.init(value: .favorites(.fetchGalleries())))
+                    effects.append(hapticEffect)
                 }
             case .search:
                 if state.searchRootState.route != nil {
@@ -141,7 +143,7 @@ let appReducerCore = Reducer<AppState, AppAction, AppEnvironment> { state, actio
                     effects.append(hapticEffect)
                 }
             }
-            if [.home, .favorites, .search].contains(type) {
+            if [.home, .search].contains(type) {
                 effects.append(hapticEffect)
             }
         }
