@@ -615,7 +615,7 @@ private struct ExcludedLanguagesSection: View {
                     }
                 }
             }
-            ForEach(0..<(languageBindings.count / 3) + 1) { index in
+            ForEach(0..<(languageBindings.count / 3) + 1, id: \.self) { index in
                 ExcludeRow(
                     title: languages[index],
                     bindings: rowBindings(index: index),
@@ -645,7 +645,7 @@ private struct ExcludeRow: View {
                 Spacer()
             }
             .frame(width: DeviceUtil.windowW * 0.25)
-            ForEach(0..<bindings.count) { index in
+            ForEach(0..<bindings.count, id: \.self) { index in
                 let shouldHide = isFirstRow && index == 0
                 ExcludeToggle(isOn: bindings[index]).opacity(shouldHide ? 0 : 1)
             }

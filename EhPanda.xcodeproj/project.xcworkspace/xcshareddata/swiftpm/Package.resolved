@@ -1,214 +1,212 @@
 {
-  "object": {
-    "pins": [
-      {
-        "package": "AlertKit",
-        "repositoryURL": "https://github.com/tatsuz0u/AlertKit.git",
-        "state": {
-          "branch": "custom",
-          "revision": "39b01c53ffadf3dab9871dd4c960cd81af5246b6",
-          "version": null
-        }
-      },
-      {
-        "package": "Colorful",
-        "repositoryURL": "https://github.com/Co2333/Colorful.git",
-        "state": {
-          "branch": null,
-          "revision": "eb5a350aec759bd413615273cb6d64553aead4d5",
-          "version": "1.0.1"
-        }
-      },
-      {
-        "package": "combine-schedulers",
-        "repositoryURL": "https://github.com/pointfreeco/combine-schedulers",
-        "state": {
-          "branch": null,
-          "revision": "4cf088c29a20f52be0f2ca54992b492c54e0076b",
-          "version": "0.5.3"
-        }
-      },
-      {
-        "package": "DeprecatedAPI",
-        "repositoryURL": "https://github.com/tatsuz0u/DeprecatedAPI.git",
-        "state": {
-          "branch": "main",
-          "revision": "021e29675457a9b4b7859a46afbb5d0e37574e84",
-          "version": null
-        }
-      },
-      {
-        "package": "FilePicker",
-        "repositoryURL": "https://github.com/markrenaud/FilePicker.git",
-        "state": {
-          "branch": null,
-          "revision": "720f8cb5ca0c0efc982ed381afc84ba3e8b3214e",
-          "version": "1.0.1"
-        }
-      },
-      {
-        "package": "Kanna",
-        "repositoryURL": "https://github.com/tid-kijyun/Kanna.git",
-        "state": {
-          "branch": null,
-          "revision": "f9e4922223dd0d3dfbf02ca70812cf5531fc0593",
-          "version": "5.2.7"
-        }
-      },
-      {
-        "package": "Kingfisher",
-        "repositoryURL": "https://github.com/onevcat/Kingfisher.git",
-        "state": {
-          "branch": null,
-          "revision": "0c02c46cfdc0656ce74fd0963a75e5000a0b7f23",
-          "version": "7.1.2"
-        }
-      },
-      {
-        "package": "R.swift.Library",
-        "repositoryURL": "https://github.com/mac-cain13/R.swift.Library.git",
-        "state": {
-          "branch": null,
-          "revision": "8998cfe77f4fce79ee6dfab0c88a7d551659d8fb",
-          "version": "5.4.0"
-        }
-      },
-      {
-        "package": "SFSafeSymbols",
-        "repositoryURL": "https://github.com/SFSafeSymbols/SFSafeSymbols.git",
-        "state": {
-          "branch": "stable",
-          "revision": "846e558cda47e1a2d2cea988a9c18378f830bddf",
-          "version": null
-        }
-      },
-      {
-        "package": "swift-case-paths",
-        "repositoryURL": "https://github.com/pointfreeco/swift-case-paths",
-        "state": {
-          "branch": null,
-          "revision": "241301b67d8551c26d8f09bd2c0e52cc49f18007",
-          "version": "0.8.0"
-        }
-      },
-      {
-        "package": "swift-collections",
-        "repositoryURL": "https://github.com/apple/swift-collections",
-        "state": {
-          "branch": null,
-          "revision": "48254824bb4248676bf7ce56014ff57b142b77eb",
-          "version": "1.0.2"
-        }
-      },
-      {
-        "package": "swift-composable-architecture",
-        "repositoryURL": "https://github.com/pointfreeco/swift-composable-architecture.git",
-        "state": {
-          "branch": null,
-          "revision": "ba9c626ab1b2b6af8cf684eebb2ab472fa5b6753",
-          "version": "0.33.1"
-        }
-      },
-      {
-        "package": "swift-custom-dump",
-        "repositoryURL": "https://github.com/pointfreeco/swift-custom-dump",
-        "state": {
-          "branch": null,
-          "revision": "51698ece74ecf31959d3fa81733f0a5363ef1b4e",
-          "version": "0.3.0"
-        }
-      },
-      {
-        "package": "swift-identified-collections",
-        "repositoryURL": "https://github.com/pointfreeco/swift-identified-collections",
-        "state": {
-          "branch": null,
-          "revision": "680bf440178a78a627b1c2c64c0855f6523ad5b9",
-          "version": "0.3.2"
-        }
-      },
-      {
-        "package": "SwiftCommonMark",
-        "repositoryURL": "https://github.com/gonzalezreal/SwiftCommonMark.git",
-        "state": {
-          "branch": null,
-          "revision": "ed252beaddecce28ea6363f800c773d6169011b8",
-          "version": "1.0.0"
-        }
-      },
-      {
-        "package": "swiftui-navigation",
-        "repositoryURL": "https://github.com/pointfreeco/swiftui-navigation.git",
-        "state": {
-          "branch": null,
-          "revision": "2694c03284a368168b3e0b8d7ab52626802d2246",
-          "version": "0.1.0"
-        }
-      },
-      {
-        "package": "SwiftUIPager",
-        "repositoryURL": "https://github.com/fermoya/SwiftUIPager.git",
-        "state": {
-          "branch": null,
-          "revision": "3c0485ffc369f2138477ec508cafc5fffd39f2bf",
-          "version": "2.3.2"
-        }
-      },
-      {
-        "package": "SwiftyBeaver",
-        "repositoryURL": "https://github.com/tatsuz0u/SwiftyBeaver.git",
-        "state": {
-          "branch": "custom",
-          "revision": "2e8a65567ca877a7fdf6a63ab53b2c49a927af87",
-          "version": null
-        }
-      },
-      {
-        "package": "SwiftyOpenCC",
-        "repositoryURL": "https://github.com/ddddxxx/SwiftyOpenCC.git",
-        "state": {
-          "branch": null,
-          "revision": "1d8105a0f7199c90af722bff62728050c858e777",
-          "version": "2.0.0-beta"
-        }
-      },
-      {
-        "package": "TTProgressHUD",
-        "repositoryURL": "https://github.com/tatsuz0u/TTProgressHUD.git",
-        "state": {
-          "branch": "custom",
-          "revision": "349b595c4f0ff86e8d3c8d65be206a02642fd525",
-          "version": null
-        }
-      },
-      {
-        "package": "UIImageColors",
-        "repositoryURL": "https://github.com/jathu/UIImageColors.git",
-        "state": {
-          "branch": null,
-          "revision": "e49e6c32ea556e9fa0109dc79686bea4a10d41a2",
-          "version": "2.2.0"
-        }
-      },
-      {
-        "package": "WaterfallGrid",
-        "repositoryURL": "https://github.com/paololeonardi/WaterfallGrid.git",
-        "state": {
-          "branch": null,
-          "revision": "944aa82832ed5a9eaaf50862cdd53e3c10ab55eb",
-          "version": "1.0.1"
-        }
-      },
-      {
-        "package": "xctest-dynamic-overlay",
-        "repositoryURL": "https://github.com/pointfreeco/xctest-dynamic-overlay",
-        "state": {
-          "branch": null,
-          "revision": "50a70a9d3583fe228ce672e8923010c8df2deddd",
-          "version": "0.2.1"
-        }
+  "pins" : [
+    {
+      "identity" : "alertkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/tatsuz0u/AlertKit.git",
+      "state" : {
+        "branch" : "custom",
+        "revision" : "39b01c53ffadf3dab9871dd4c960cd81af5246b6"
       }
-    ]
-  },
-  "version": 1
+    },
+    {
+      "identity" : "colorful",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Co2333/Colorful.git",
+      "state" : {
+        "revision" : "eb5a350aec759bd413615273cb6d64553aead4d5",
+        "version" : "1.0.1"
+      }
+    },
+    {
+      "identity" : "combine-schedulers",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/pointfreeco/combine-schedulers",
+      "state" : {
+        "revision" : "4cf088c29a20f52be0f2ca54992b492c54e0076b",
+        "version" : "0.5.3"
+      }
+    },
+    {
+      "identity" : "deprecatedapi",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/tatsuz0u/DeprecatedAPI.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "021e29675457a9b4b7859a46afbb5d0e37574e84"
+      }
+    },
+    {
+      "identity" : "filepicker",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/markrenaud/FilePicker.git",
+      "state" : {
+        "revision" : "720f8cb5ca0c0efc982ed381afc84ba3e8b3214e",
+        "version" : "1.0.1"
+      }
+    },
+    {
+      "identity" : "kanna",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/tid-kijyun/Kanna.git",
+      "state" : {
+        "revision" : "f9e4922223dd0d3dfbf02ca70812cf5531fc0593",
+        "version" : "5.2.7"
+      }
+    },
+    {
+      "identity" : "kingfisher",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/onevcat/Kingfisher.git",
+      "state" : {
+        "revision" : "0c02c46cfdc0656ce74fd0963a75e5000a0b7f23",
+        "version" : "7.1.2"
+      }
+    },
+    {
+      "identity" : "r.swift.library",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/mac-cain13/R.swift.Library.git",
+      "state" : {
+        "revision" : "8998cfe77f4fce79ee6dfab0c88a7d551659d8fb",
+        "version" : "5.4.0"
+      }
+    },
+    {
+      "identity" : "sfsafesymbols",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/SFSafeSymbols/SFSafeSymbols.git",
+      "state" : {
+        "branch" : "stable",
+        "revision" : "846e558cda47e1a2d2cea988a9c18378f830bddf"
+      }
+    },
+    {
+      "identity" : "swift-case-paths",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/pointfreeco/swift-case-paths",
+      "state" : {
+        "revision" : "241301b67d8551c26d8f09bd2c0e52cc49f18007",
+        "version" : "0.8.0"
+      }
+    },
+    {
+      "identity" : "swift-collections",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-collections",
+      "state" : {
+        "revision" : "48254824bb4248676bf7ce56014ff57b142b77eb",
+        "version" : "1.0.2"
+      }
+    },
+    {
+      "identity" : "swift-composable-architecture",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/pointfreeco/swift-composable-architecture.git",
+      "state" : {
+        "revision" : "ba9c626ab1b2b6af8cf684eebb2ab472fa5b6753",
+        "version" : "0.33.1"
+      }
+    },
+    {
+      "identity" : "swift-custom-dump",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/pointfreeco/swift-custom-dump",
+      "state" : {
+        "revision" : "51698ece74ecf31959d3fa81733f0a5363ef1b4e",
+        "version" : "0.3.0"
+      }
+    },
+    {
+      "identity" : "swift-identified-collections",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/pointfreeco/swift-identified-collections",
+      "state" : {
+        "revision" : "680bf440178a78a627b1c2c64c0855f6523ad5b9",
+        "version" : "0.3.2"
+      }
+    },
+    {
+      "identity" : "swiftcommonmark",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/gonzalezreal/SwiftCommonMark.git",
+      "state" : {
+        "revision" : "ed252beaddecce28ea6363f800c773d6169011b8",
+        "version" : "1.0.0"
+      }
+    },
+    {
+      "identity" : "swiftui-navigation",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/pointfreeco/swiftui-navigation.git",
+      "state" : {
+        "revision" : "2694c03284a368168b3e0b8d7ab52626802d2246",
+        "version" : "0.1.0"
+      }
+    },
+    {
+      "identity" : "swiftuipager",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/fermoya/SwiftUIPager.git",
+      "state" : {
+        "revision" : "3c0485ffc369f2138477ec508cafc5fffd39f2bf",
+        "version" : "2.3.2"
+      }
+    },
+    {
+      "identity" : "swiftybeaver",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/tatsuz0u/SwiftyBeaver.git",
+      "state" : {
+        "branch" : "custom",
+        "revision" : "2e8a65567ca877a7fdf6a63ab53b2c49a927af87"
+      }
+    },
+    {
+      "identity" : "swiftyopencc",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/ddddxxx/SwiftyOpenCC.git",
+      "state" : {
+        "revision" : "1d8105a0f7199c90af722bff62728050c858e777",
+        "version" : "2.0.0-beta"
+      }
+    },
+    {
+      "identity" : "ttprogresshud",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/tatsuz0u/TTProgressHUD.git",
+      "state" : {
+        "branch" : "custom",
+        "revision" : "349b595c4f0ff86e8d3c8d65be206a02642fd525"
+      }
+    },
+    {
+      "identity" : "uiimagecolors",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/jathu/UIImageColors.git",
+      "state" : {
+        "revision" : "e49e6c32ea556e9fa0109dc79686bea4a10d41a2",
+        "version" : "2.2.0"
+      }
+    },
+    {
+      "identity" : "waterfallgrid",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/paololeonardi/WaterfallGrid.git",
+      "state" : {
+        "revision" : "944aa82832ed5a9eaaf50862cdd53e3c10ab55eb",
+        "version" : "1.0.1"
+      }
+    },
+    {
+      "identity" : "xctest-dynamic-overlay",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/pointfreeco/xctest-dynamic-overlay",
+      "state" : {
+        "revision" : "50a70a9d3583fe228ce672e8923010c8df2deddd",
+        "version" : "0.2.1"
+      }
+    }
+  ],
+  "version" : 2
 }
