@@ -36,7 +36,7 @@ enum GeneralSettingAction: BindableAction, Equatable {
     case checkPasscodeSetting
     case navigateToSystemSetting
     case calculateWebImageDiskCache
-    case calculateWebImageDiskCacheDone(UInt)
+    case calculateWebImageDiskCacheDone(UInt?)
 
     case logs(LogsAction)
 }
@@ -92,6 +92,7 @@ let generalSettingReducer = Reducer<GeneralSettingState, GeneralSettingAction, G
                 .map(GeneralSettingAction.calculateWebImageDiskCacheDone)
 
         case .calculateWebImageDiskCacheDone(let bytes):
+            guard let bytes = bytes else { return .none }
             let formatter = ByteCountFormatter()
             formatter.allowedUnits = [.useAll]
             state.diskImageCacheSize = formatter.string(fromByteCount: Int64(bytes))

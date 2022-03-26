@@ -18,7 +18,7 @@ struct LibraryClient {
     let initializeWebImage: () -> Effect<Never, Never>
     let clearWebImageDiskCache: () -> Effect<Never, Never>
     let analyzeImageColors: (UIImage) -> Effect<UIImageColors?, Never>
-    let calculateWebImageDiskCacheSize: () -> Effect<UInt, Never>
+    let calculateWebImageDiskCacheSize: () -> Effect<UInt?, Never>
 }
 
 extension LibraryClient {
@@ -78,7 +78,7 @@ extension LibraryClient {
         calculateWebImageDiskCacheSize: {
             Future { promise in
                 KingfisherManager.shared.cache.calculateDiskStorageSize {
-                    promise(.success((try? $0.get()) ?? 0))
+                    promise(.success(try? $0.get()))
                 }
             }
             .eraseToAnyPublisher()

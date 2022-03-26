@@ -20,13 +20,11 @@ class GeneralSettingStoreTests: XCTestCase {
             authorizationClient: .noop
         )
     }
+
     func testBinding() throws {
         let store = TestStore(
             initialState: GeneralSettingState(
                 route: .clearCache,
-                loadingState: .idle,
-                diskImageCacheSize: .init(),
-                passcodeNotSet: false,
                 logsState: .init(route: .log(
                     .init(fileName: .init(), contents: .init())
                 ))
@@ -51,9 +49,6 @@ class GeneralSettingStoreTests: XCTestCase {
         let store = TestStore(
             initialState: GeneralSettingState(
                 route: .clearCache,
-                loadingState: .idle,
-                diskImageCacheSize: .init(),
-                passcodeNotSet: false,
                 logsState: .init(route: .log(
                     .init(fileName: .init(), contents: .init())
                 ))
@@ -72,5 +67,41 @@ class GeneralSettingStoreTests: XCTestCase {
         store.send(.set(\.$route, .logs)) {
             $0.route = .logs
         }
+    }
+
+    func testClearSubStates() throws {
+        let store = TestStore(
+            initialState: GeneralSettingState(
+                logsState: .init(route: .log(
+                    .init(fileName: .init(), contents: .init())
+                ))
+            ),
+            reducer: generalSettingReducer,
+            environment: noopEnvironment
+        )
+
+        store.send(.clearSubStates) {
+            $0.logsState = .init()
+        }
+        store.receive(.logs(.teardown))
+    }
+
+    func testClearWebImageCache() throws {
+        let store = TestStore(
+            initialState: GeneralSettingState(),
+            reducer: generalSettingReducer,
+            environment: GeneralSettingEnvironment(
+                fileClient: .noop,
+                loggerClient: .noop,
+                libraryClient: .live,
+                databaseClient: .live,
+                uiApplicationClient: .noop,
+                authorizationClient: .noop
+            )
+        )
+        store.send(.clearWebImageCache)
+        XCTWaiter.wait(timeout: 1)
+        store.receive(.calculateWebImageDiskCache)
+        store.receive(.calculateWebImageDiskCacheDone(0))
     }
 }
