@@ -180,6 +180,7 @@
 		ABA732D925A8018A00B3D9AB /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABA732D825A8018A00B3D9AB /* Extensions.swift */; };
 		ABA732DF25A852D800B3D9AB /* Filter.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABA732DE25A852D800B3D9AB /* Filter.swift */; };
 		ABAB5B9527EF023300198597 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABAB5B9427EF023300198597 /* Extensions.swift */; };
+		ABAB5B9727EF03F600198597 /* AppearanceSettingStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABAB5B9627EF03F600198597 /* AppearanceSettingStoreTests.swift */; };
 		ABAC82FE26BC4A96009F5026 /* OpenCC in Frameworks */ = {isa = PBXBuildFile; productRef = ABAC82FD26BC4A96009F5026 /* OpenCC */; };
 		ABBB2631278E6EF3007B6149 /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABBB2630278E6EF3007B6149 /* SearchView.swift */; };
 		ABBB2633278E6F3B007B6149 /* SearchStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABBB2632278E6F3B007B6149 /* SearchStore.swift */; };
@@ -472,6 +473,7 @@
 		ABA732D825A8018A00B3D9AB /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		ABA732DE25A852D800B3D9AB /* Filter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Filter.swift; sourceTree = "<group>"; };
 		ABAB5B9427EF023300198597 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
+		ABAB5B9627EF03F600198597 /* AppearanceSettingStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppearanceSettingStoreTests.swift; sourceTree = "<group>"; };
 		ABB5013026A41EBA00B542D9 /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/Localizable.strings; sourceTree = "<group>"; };
 		ABB5013126A41EBA00B542D9 /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		ABBB2630278E6EF3007B6149 /* SearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchView.swift; sourceTree = "<group>"; };
@@ -1096,6 +1098,7 @@
 			children = (
 				ABA12F3127D49CEB0021922D /* AccountSettingStoreTests.swift */,
 				AB6D106927EBF890003A2245 /* GeneralSettingStoreTests.swift */,
+				ABAB5B9627EF03F600198597 /* AppearanceSettingStoreTests.swift */,
 			);
 			path = Setting;
 			sourceTree = "<group>";
@@ -1794,6 +1797,7 @@
 				AB0CFB8227BBBFCE004BD372 /* EhSettingParserTests.swift in Sources */,
 				AB31CD4327B676C300F40E0A /* GalleryMPVKeysParserTests.swift in Sources */,
 				AB31CD3027B666E200F40E0A /* TestError.swift in Sources */,
+				ABAB5B9727EF03F600198597 /* AppearanceSettingStoreTests.swift in Sources */,
 				ABD9771027B65E3400983DE7 /* GalleryDetailParserTests.swift in Sources */,
 				AB31CD3227B6671400F40E0A /* BanIntervalParserTests.swift in Sources */,
 				ABD9771327B6612400983DE7 /* GreetingParserTests.swift in Sources */,
