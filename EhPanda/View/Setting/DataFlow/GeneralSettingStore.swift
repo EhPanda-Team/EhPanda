@@ -94,8 +94,8 @@ let generalSettingReducer = Reducer<GeneralSettingState, GeneralSettingAction, G
         case .calculateWebImageDiskCacheDone(let bytes):
             guard let bytes = bytes else { return .none }
             let formatter = ByteCountFormatter()
-            formatter.allowedUnits = [.useAll]
-            state.diskImageCacheSize = formatter.string(fromByteCount: Int64(bytes))
+            formatter.allowedUnits = .useAll
+            state.diskImageCacheSize = formatter.string(fromByteCount: .init(bytes))
             return .none
 
         case .logs:
