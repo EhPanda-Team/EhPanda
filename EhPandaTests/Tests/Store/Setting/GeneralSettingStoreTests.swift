@@ -100,7 +100,7 @@ class GeneralSettingStoreTests: XCTestCase {
             )
         )
         store.send(.clearWebImageCache)
-        XCTWaiter.wait(timeout: 1)
+        XCTWaiter.wait(timeout: 5)
         store.receive(.calculateWebImageDiskCache)
         store.receive(.calculateWebImageDiskCacheDone(0)) {
             let formatter = ByteCountFormatter()
