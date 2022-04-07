@@ -75,6 +75,7 @@ let previewsReducer = Reducer<PreviewsState, PreviewsAction, PreviewsEnvironment
             return route == nil ? .init(value: .clearSubStates) : .none
 
         case .clearSubStates:
+            state.readingState = .init()
             return .init(value: .reading(.teardown))
 
         case .syncPreviewURLs(let previewURLs):
