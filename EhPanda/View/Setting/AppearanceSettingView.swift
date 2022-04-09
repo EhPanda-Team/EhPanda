@@ -169,6 +169,7 @@ enum AppIconType: Int, Codable, Identifiable, CaseIterable {
     case `default`
     case ukiyoe
     case developer
+    case standWithUkraine2022
 }
 
 extension AppIconType {
@@ -180,6 +181,8 @@ extension AppIconType {
             return R.string.localizable.enumAppIconTypeValueUkiyoe()
         case .developer:
             return R.string.localizable.enumAppIconTypeValueDeveloper()
+        case .standWithUkraine2022:
+            return R.string.localizable.enumAppIconTypeValueStandWithUkraine2022()
         }
     }
     var filename: String {
@@ -190,6 +193,8 @@ extension AppIconType {
             return "AppIcon_Ukiyoe"
         case .developer:
             return "AppIcon_Developer"
+        case .standWithUkraine2022:
+            return "AppIcon_StandWithUkraine2022"
         }
     }
 }
