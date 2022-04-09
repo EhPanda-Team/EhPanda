@@ -227,6 +227,7 @@
 "enum.app.icon.type.value.default" = "Default";
 "enum.app.icon.type.value.ukiyoe" = "Ukiyo-e";
 "enum.app.icon.type.value.developer" = "Developer";
+"enum.app.icon.type.value.standWithUkraine2022" = "Stand With Ukraine (2022)";
 // ListDisplayMode
 "enum.display.mode.value.detail" = "Detail";
 "enum.display.mode.value.thumbnail" = "Thumbnail";

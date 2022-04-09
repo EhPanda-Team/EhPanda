@@ -33,6 +33,13 @@
 					<string>AppIcon_Developer</string>
 				</array>
 			</dict>
+			<key>AppIcon_StandWithUkraine2022</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>AppIcon_StandWithUkraine2022</string>
+				</array>
+			</dict>
 		</dict>
 		<key>CFBundlePrimaryIcon</key>
 		<dict>
@@ -68,6 +75,14 @@
 				<array>
 					<string>AppIcon_Developer_iPad</string>
 					<string>AppIcon_Developer_iPad_Pro</string>
+				</array>
+			</dict>
+			<key>AppIcon_StandWithUkraine2022</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>AppIcon_StandWithUkraine2022_iPad</string>
+					<string>AppIcon_StandWithUkraine2022_iPad_Pro</string>
 				</array>
 			</dict>
 		</dict>

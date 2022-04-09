@@ -534,3 +534,28 @@ extension DatabaseClient {
         }
     }
 }
+
+// MARK: Test
+#if DEBUG
+import XCTestDynamicOverlay
+
+extension DatabaseClient {
+    static let failing: Self = .init(
+        prepareDatabase: { .failing("\(Self.self).prepareDatabase is unimplemented") },
+        dropDatabase: { .failing("\(Self.self).dropDatabase is unimplemented") },
+        saveContext: { XCTFail("\(Self.self).saveContext is unimplemented") },
+        materializedObjects: {
+            XCTFail("\(Self.self).materializedObjects(\($0), \($1)) is unimplemented")
+            return .init()
+        }
+    )
+}
+#endif
+extension DatabaseClient {
+    static let noop: Self = .init(
+        prepareDatabase: { .none },
+        dropDatabase: { .none },
+        saveContext: {},
+        materializedObjects: { _, _ in .init() }
+    )
+}

@@ -100,20 +100,32 @@ struct Parser {
                 guard let titleComponents = tagLink["title"]?.split(separator: ":"),
                       titleComponents.count == 2
                 else { continue }
+                var contentTextColor: Color?
                 var contentBackgroundColor: Color?
                 let namespace = String(titleComponents[0])
                 let contentText = String(titleComponents[1])
                 if let style = tagLink["style"], let rangeB = style.range(of: ",#"),
                    let rangeA = style.range(of: "background:radial-gradient(#")
                 {
-                    let hex = style[rangeA.upperBound..<rangeB.lowerBound]
-                    contentBackgroundColor = .init(hex: .init(hex))
+                    let hex = String(style[rangeA.upperBound..<rangeB.lowerBound])
+                    if hex.count == 6, let red = Int(hex.prefix(2), radix: 16),
+                       let green = Int(hex.prefix(4).suffix(2), radix: 16),
+                       let blue = Int(hex.suffix(2), radix: 16)
+                    {
+                        contentBackgroundColor = .init(hex: .init(hex))
+                        if (.init(red) * 0.299 + .init(green) * 0.587 + .init(blue) * 0.114) > 151 {
+                            contentTextColor = .secondary
+                        } else {
+                            contentTextColor = .white
+                        }
+                    }
                 }
                 if let index = tags.firstIndex(where: { $0.rawNamespace == namespace }) {
                     let contents = tags[index].contents
                     let galleryTagContent = GalleryTag.Content(
                         rawNamespace: namespace, text: contentText,
                         isVotedUp: false, isVotedDown: false,
+                        textColor: contentTextColor,
                         backgroundColor: contentBackgroundColor
                     )
                     let newContents = contents + [galleryTagContent]
@@ -122,6 +134,7 @@ struct Parser {
                     let galleryTagContent = GalleryTag.Content(
                         rawNamespace: namespace, text: contentText,
                         isVotedUp: false, isVotedDown: false,
+                        textColor: contentTextColor,
                         backgroundColor: contentBackgroundColor
                     )
                     tags.append(.init(rawNamespace: namespace, contents: [galleryTagContent]))
@@ -337,6 +350,7 @@ struct Parser {
                             rawNamespace: namespace, text: text,
                             isVotedUp: aClass == "tup",
                             isVotedDown: aClass == "tdn",
+                            textColor: nil,
                             backgroundColor: nil
                         )
                     )

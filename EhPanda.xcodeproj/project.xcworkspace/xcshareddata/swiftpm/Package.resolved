@@ -15,8 +15,8 @@
         "repositoryURL": "https://github.com/Co2333/Colorful.git",
         "state": {
           "branch": null,
-          "revision": "eb5a350aec759bd413615273cb6d64553aead4d5",
-          "version": "1.0.1"
+          "revision": "0bcf960c856d9f7cde10a0b464208585736c5e47",
+          "version": "1.1.0"
         }
       },
       {
@@ -60,8 +60,8 @@
         "repositoryURL": "https://github.com/onevcat/Kingfisher.git",
         "state": {
           "branch": null,
-          "revision": "0c02c46cfdc0656ce74fd0963a75e5000a0b7f23",
-          "version": "7.1.2"
+          "revision": "32e4acdf6971f58f5ad552389cf2d7d016334eaf",
+          "version": "7.2.0"
         }
       },
       {
@@ -78,7 +78,7 @@
         "repositoryURL": "https://github.com/SFSafeSymbols/SFSafeSymbols.git",
         "state": {
           "branch": "stable",
-          "revision": "846e558cda47e1a2d2cea988a9c18378f830bddf",
+          "revision": "7bb874408110c6aa80056f81177ee732071195f8",
           "version": null
         }
       },
@@ -105,8 +105,8 @@
         "repositoryURL": "https://github.com/pointfreeco/swift-composable-architecture.git",
         "state": {
           "branch": null,
-          "revision": "ba9c626ab1b2b6af8cf684eebb2ab472fa5b6753",
-          "version": "0.33.1"
+          "revision": "2828dc44f6e3f81d84bcaba72c1ab1c0121d66f6",
+          "version": "0.34.0"
         }
       },
       {

@@ -24,17 +24,24 @@ struct Greeting: Codable, Equatable, Hashable {
     var updateTime: Date?
 
     var rewards: [String] {
+        func formatNumber(_ number: Int?) -> String? {
+            guard let number = number else { return nil }
+            let formatter = NumberFormatter()
+            formatter.numberStyle = .decimal
+            return formatter.string(from: .init(value: number))
+        }
+
         var rewards = [String]()
-        if let exp = gainedEXP {
+        if let exp = formatNumber(gainedEXP) {
             rewards.append("\(exp) EXP")
         }
-        if let credits = gainedCredits {
+        if let credits = formatNumber(gainedCredits) {
             rewards.append("\(credits) Credits")
         }
-        if let galleryPoint = gainedGP {
+        if let galleryPoint = formatNumber(gainedGP) {
             rewards.append("\(galleryPoint) GP")
         }
-        if let hath = gainedHath {
+        if let hath = formatNumber(gainedHath) {
             rewards.append("\(hath) Hath")
         }
         return rewards

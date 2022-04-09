@@ -25,7 +25,7 @@ struct GeneralSettingState: Equatable {
     var logsState = LogsState()
 }
 
-enum GeneralSettingAction: BindableAction {
+enum GeneralSettingAction: BindableAction, Equatable {
     case binding(BindingAction<GeneralSettingState>)
     case setNavigation(GeneralSettingState.Route?)
     case clearSubStates
@@ -36,7 +36,7 @@ enum GeneralSettingAction: BindableAction {
     case checkPasscodeSetting
     case navigateToSystemSetting
     case calculateWebImageDiskCache
-    case calculateWebImageDiskCacheDone(Result<UInt, KingfisherError>)
+    case calculateWebImageDiskCacheDone(UInt?)
 
     case logs(LogsAction)
 }
@@ -91,15 +91,11 @@ let generalSettingReducer = Reducer<GeneralSettingState, GeneralSettingAction, G
             return environment.libraryClient.calculateWebImageDiskCacheSize()
                 .map(GeneralSettingAction.calculateWebImageDiskCacheDone)
 
-        case .calculateWebImageDiskCacheDone(let result):
-            switch result {
-            case .success(let bytes):
-                let formatter = ByteCountFormatter()
-                formatter.allowedUnits = [.useAll]
-                state.diskImageCacheSize = formatter.string(fromByteCount: Int64(bytes))
-            case .failure(let error):
-                return environment.loggerClient.error(error, nil).fireAndForget()
-            }
+        case .calculateWebImageDiskCacheDone(let bytes):
+            guard let bytes = bytes else { return .none }
+            let formatter = ByteCountFormatter()
+            formatter.allowedUnits = .useAll
+            state.diskImageCacheSize = formatter.string(fromByteCount: .init(bytes))
             return .none
 
         case .logs:

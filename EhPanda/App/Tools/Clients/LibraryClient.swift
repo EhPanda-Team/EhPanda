@@ -18,7 +18,7 @@ struct LibraryClient {
     let initializeWebImage: () -> Effect<Never, Never>
     let clearWebImageDiskCache: () -> Effect<Never, Never>
     let analyzeImageColors: (UIImage) -> Effect<UIImageColors?, Never>
-    let calculateWebImageDiskCacheSize: () -> Effect<Result<UInt, KingfisherError>, Never>
+    let calculateWebImageDiskCacheSize: () -> Effect<UInt?, Never>
 }
 
 extension LibraryClient {
@@ -76,10 +76,38 @@ extension LibraryClient {
             .eraseToEffect()
         },
         calculateWebImageDiskCacheSize: {
-            Future(KingfisherManager.shared.cache.calculateDiskStorageSize)
-                .eraseToAnyPublisher()
-                .receive(on: DispatchQueue.main)
-                .catchToEffect()
+            Future { promise in
+                KingfisherManager.shared.cache.calculateDiskStorageSize {
+                    promise(.success(try? $0.get()))
+                }
+            }
+            .eraseToAnyPublisher()
+            .receive(on: DispatchQueue.main)
+            .eraseToEffect()
         }
+    )
+}
+
+// MARK: Test
+#if DEBUG
+import XCTestDynamicOverlay
+
+extension LibraryClient {
+    static let failing: Self = .init(
+        initializeLogger: { .failing("\(Self.self).initializeLogger is unimplemented") },
+        initializeWebImage: { .failing("\(Self.self).initializeWebImage is unimplemented") },
+        clearWebImageDiskCache: { .failing("\(Self.self).clearWebImageDiskCache is unimplemented") },
+        analyzeImageColors: { _ in .failing("\(Self.self).analyzeImageColors is unimplemented") },
+        calculateWebImageDiskCacheSize: { .failing("\(Self.self).calculateWebImageDiskCacheSize is unimplemented") }
+    )
+}
+#endif
+extension LibraryClient {
+    static let noop: Self = .init(
+        initializeLogger: { .none },
+        initializeWebImage: { .none },
+        clearWebImageDiskCache: { .none },
+        analyzeImageColors: { _ in .none },
+        calculateWebImageDiskCacheSize: { .none }
     )
 }

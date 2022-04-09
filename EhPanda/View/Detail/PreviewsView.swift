@@ -40,7 +40,7 @@ struct PreviewsView: View {
     var body: some View {
         ScrollView {
             LazyVGrid(columns: gridItems) {
-                ForEach(1..<viewStore.gallery.pageCount + 1) { index in
+                ForEach(1..<viewStore.gallery.pageCount + 1, id: \.self) { index in
                     VStack {
                         let (url, modifier) = PreviewResolver.getPreviewConfigs(
                             originalURL: viewStore.previewURLs[index]

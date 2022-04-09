@@ -48,3 +48,31 @@ extension ClipboardClient {
         }
     )
 }
+
+// MARK: Test
+#if DEBUG
+import XCTestDynamicOverlay
+
+extension ClipboardClient {
+    static let failing: Self = .init(
+        url: {
+            XCTFail("\(Self.self).url is unimplemented")
+            return nil
+        },
+        changeCount: {
+            XCTFail("\(Self.self).changeCount is unimplemented")
+            return 0
+        },
+        saveText: { .failing("\(Self.self).saveText(\($0)) is unimplemented") },
+        saveImage: { .failing("\(Self.self).saveImage(\($0), \($1)) is unimplemented") }
+    )
+}
+#endif
+extension ClipboardClient {
+    static let noop: Self = .init(
+        url: { nil },
+        changeCount: { 0 },
+        saveText: { _ in .none },
+        saveImage: { _, _ in .none }
+    )
+}
