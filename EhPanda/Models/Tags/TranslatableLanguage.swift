@@ -37,9 +37,9 @@ extension TranslatableLanguage {
     var repoName: String {
         switch self {
         case .english:
-            return "tatsuz0u/EhTagTranslation_Database_EN"
+            return "EhPanda-Team/EhTagTranslation_Database_EN"
         case .japanese:
-            return "tatsuz0u/EhTagTranslation_Database_JPN"
+            return "EhPanda-Team/EhTagTranslation_Database_JPN"
         case .simplifiedChinese, .traditionalChinese:
             return "EhTagTranslation/Database"
         }

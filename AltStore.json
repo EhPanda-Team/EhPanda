@@ -1,31 +1,31 @@
 {
   "name": "EhPanda",
   "identifier": "app.ehpanda",
-  "sourceURL": "https://github.com/tatsuz0u/EhPanda/raw/main/AltStore.json",
+  "sourceURL": "https://github.com/EhPanda-Team/EhPanda/raw/main/AltStore.json",
   "apps": [
     {
       "name": "EhPanda",
       "bundleIdentifier": "app.ehpanda",
-      "developerName": "Araki Tatsuzou",
+      "developerName": "EhPanda Team",
       "version": "v2.4.0b136",
       "versionDate": "2022-04-09T12:44:55",
       "versionDescription": "1. Fixed some bugs.\n2. Added a new icon.",
-      "downloadURL": "https://github.com/tatsuz0u/EhPanda/releases/download/v2.4.0_b136/EhPanda.ipa",
+      "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v2.4.0_b136/EhPanda.ipa",
       "localizedDescription": "An unofficial E-Hentai App for iOS.",
-      "iconURL": "https://github.com/tatsuz0u/ehpanda-website/raw/main/public/img/appicon/appicon-512.png",
+      "iconURL": "https://github.com/EhPanda-Team/ehpanda-website/raw/main/public/img/appicon/appicon-512.png",
       "tintColor": "289979",
       "size": 10076520,
       "screenshotURLs": [
-        "https://github.com/tatsuz0u/ehpanda-website/raw/main/public/img/screenshot/Home_EN_Light.png",
-        "https://github.com/tatsuz0u/ehpanda-website/raw/main/public/img/screenshot/SlideMenu_EN_Light.png",
-        "https://github.com/tatsuz0u/ehpanda-website/raw/main/public/img/screenshot/Detail_EN_Light.png",
-        "https://github.com/tatsuz0u/ehpanda-website/raw/main/public/img/screenshot/Comment_EN_Light.png",
-        "https://github.com/tatsuz0u/ehpanda-website/raw/main/public/img/screenshot/Archive_EN_Light.png",
-        "https://github.com/tatsuz0u/ehpanda-website/raw/main/public/img/screenshot/Torrent_EN_Light.png",
-        "https://github.com/tatsuz0u/ehpanda-website/raw/main/public/img/screenshot/EhSetting_EN_Light.png",
-        "https://github.com/tatsuz0u/ehpanda-website/raw/main/public/img/screenshot/Filter_EN_Light.png",
-        "https://github.com/tatsuz0u/ehpanda-website/raw/main/public/img/screenshot/Setting_EN_Light.png",
-        "https://github.com/tatsuz0u/ehpanda-website/raw/main/public/img/screenshot/DomainFronting_EN_Light.png"
+        "https://github.com/EhPanda-Team/ehpanda-website/raw/main/public/img/screenshot/Home_EN_Light.png",
+        "https://github.com/EhPanda-Team/ehpanda-website/raw/main/public/img/screenshot/SlideMenu_EN_Light.png",
+        "https://github.com/EhPanda-Team/ehpanda-website/raw/main/public/img/screenshot/Detail_EN_Light.png",
+        "https://github.com/EhPanda-Team/ehpanda-website/raw/main/public/img/screenshot/Comment_EN_Light.png",
+        "https://github.com/EhPanda-Team/ehpanda-website/raw/main/public/img/screenshot/Archive_EN_Light.png",
+        "https://github.com/EhPanda-Team/ehpanda-website/raw/main/public/img/screenshot/Torrent_EN_Light.png",
+        "https://github.com/EhPanda-Team/ehpanda-website/raw/main/public/img/screenshot/EhSetting_EN_Light.png",
+        "https://github.com/EhPanda-Team/ehpanda-website/raw/main/public/img/screenshot/Filter_EN_Light.png",
+        "https://github.com/EhPanda-Team/ehpanda-website/raw/main/public/img/screenshot/Setting_EN_Light.png",
+        "https://github.com/EhPanda-Team/ehpanda-website/raw/main/public/img/screenshot/DomainFronting_EN_Light.png"
       ],
       "permissions": [
         {
@@ -43,7 +43,7 @@
     {
       "title": "EhPanda Now Available!",
       "identifier": "ehpanda-now-available",
-      "caption": "An unofficial E-Hentai App for iOS built with SwiftUI.",
+      "caption": "An unofficial E-Hentai App for iOS built with SwiftUI & TCA.",
       "tintColor": "289979",
       "appID": "app.ehpanda",
       "date": "2021-08-19",

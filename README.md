@@ -22,10 +22,10 @@ App Strings: [{lang}.lproj](/EhPanda/App)
 
 GitHub Readme: [README.{lang}.md](/READMEs)
 
-https://ehpanda.app: [main.js](https://github.com/tatsuz0u/ehpanda-website/blob/main/src/main.js)
+https://ehpanda.app: [main.js](https://github.com/EhPanda-Team/ehpanda-website/blob/main/src/main.js)
 
 ## Installation
-1. Get the ipa file from [Releases](https://github.com/arakitatsuzou/EhPanda/releases).
+1. Get the ipa file from [Releases](https://github.com/EhPanda-Team/EhPanda/releases).
 2. Use some software like [AltStore](https://altstore.io) to install the ipa file on your device.
 
 ## System Requirements

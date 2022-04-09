@@ -13,14 +13,14 @@
 "website.response.galleryUnavailable" = "This gallery has been removed or is unavailable.";
 
 // MARK: EhPanda
-"ehpanda.copyright" = "Copyright © 2022 荒木辰造";
+"ehpanda.copyright" = "Copyright © 2022 EhPanda Team";
 
 // Contacts
 "ehpanda.contacts.link.website" = "https://ehpanda.app";
-"ehpanda.contacts.link.gitHub" = "https://github.com/tatsuz0u/EhPanda";
+"ehpanda.contacts.link.gitHub" = "https://github.com/EhPanda-Team/EhPanda";
 "ehpanda.contacts.link.discord" = "https://discord.gg/BSBE9FCBTq";
 "ehpanda.contacts.link.telegram" = "https://t.me/ehpanda";
-"ehpanda.contacts.link.altStore" = "altstore://source?url=https://github.com/tatsuz0u/EhPanda/raw/main/AltStore.json";
+"ehpanda.contacts.link.altStore" = "altstore://source?url=https://github.com/EhPanda-Team/EhPanda/raw/main/AltStore.json";
 "ehpanda.contacts.text.gitHub" = "GitHub";
 "ehpanda.contacts.text.discord" = "Discord";
 "ehpanda.contacts.text.telegram" = "Telegram";

@@ -44,17 +44,14 @@
 		AB0CFBCD27C1CC67004BD372 /* EhTagTranslationDatabaseModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0CFBCC27C1CC67004BD372 /* EhTagTranslationDatabaseModel.swift */; };
 		AB0CFBD527C24B3B004BD372 /* MarkdownUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0CFBD427C24B3B004BD372 /* MarkdownUtil.swift */; };
 		AB0CFBD727C3B2D0004BD372 /* TagDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0CFBD627C3B2D0004BD372 /* TagDetailView.swift */; };
-		AB0F68AF26A6D92F00AC3A54 /* DeprecatedAPI in Frameworks */ = {isa = PBXBuildFile; productRef = AB0F68AE26A6D92F00AC3A54 /* DeprecatedAPI */; };
 		AB10117E26986B7D00C2C1A9 /* GalleryStateMO+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB10117D26986B7D00C2C1A9 /* GalleryStateMO+CoreDataProperties.swift */; };
 		AB10118026986C1100C2C1A9 /* GalleryStateMO+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB10117F26986C1100C2C1A9 /* GalleryStateMO+CoreDataClass.swift */; };
 		AB17573D27675B1E00FD64E2 /* Colorful in Frameworks */ = {isa = PBXBuildFile; productRef = AB17573C27675B1E00FD64E2 /* Colorful */; };
 		AB17574027678B3400FD64E2 /* UIImageColors in Frameworks */ = {isa = PBXBuildFile; productRef = AB17573F27678B3400FD64E2 /* UIImageColors */; };
-		AB19D619266E5C6700BA752A /* TTProgressHUD in Frameworks */ = {isa = PBXBuildFile; productRef = AB19D618266E5C6700BA752A /* TTProgressHUD */; };
 		AB1EF25427AFA19200F507D6 /* Heap.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB1EF25327AFA19200F507D6 /* Heap.swift */; };
 		AB1FA8FC27C5E0E50063EF55 /* TagDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB1FA8FB27C5E0E50063EF55 /* TagDetail.swift */; };
 		AB1FA94927C62BC80063EF55 /* CommonMark in Frameworks */ = {isa = PBXBuildFile; productRef = AB1FA94827C62BC80063EF55 /* CommonMark */; };
 		AB1FA94D27CA1F140063EF55 /* TagTranslation.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB1FA94C27CA1F140063EF55 /* TagTranslation.swift */; };
-		AB21CCA0274B4F0C00C115B1 /* SwiftyBeaver in Frameworks */ = {isa = PBXBuildFile; productRef = AB21CC9F274B4F0C00C115B1 /* SwiftyBeaver */; };
 		AB24C55A27674EDF0085C33A /* FavoritesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB24C55927674EDF0085C33A /* FavoritesView.swift */; };
 		AB24C55C2767565A0085C33A /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB24C55B2767565A0085C33A /* HomeView.swift */; };
 		AB24C566276758E30085C33A /* GalleryCardCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB24C565276758E30085C33A /* GalleryCardCell.swift */; };
@@ -64,6 +61,10 @@
 		AB26F59927ACDB4200AB3468 /* FilePicker in Frameworks */ = {isa = PBXBuildFile; productRef = AB26F59827ACDB4200AB3468 /* FilePicker */; };
 		AB26F59B27AD125A00AB3468 /* Constant.strings in Resources */ = {isa = PBXBuildFile; fileRef = AB26F59A27AD125A00AB3468 /* Constant.strings */; };
 		AB2CED64268AB6AE003130F7 /* GalleryMO+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB2CED63268AB6AE003130F7 /* GalleryMO+CoreDataProperties.swift */; };
+		AB2EB99F280251D600011A8A /* TTProgressHUD in Frameworks */ = {isa = PBXBuildFile; productRef = AB2EB99E280251D600011A8A /* TTProgressHUD */; };
+		AB2EB9A2280251F600011A8A /* AlertKit in Frameworks */ = {isa = PBXBuildFile; productRef = AB2EB9A1280251F600011A8A /* AlertKit */; };
+		AB2EB9A52802521700011A8A /* DeprecatedAPI in Frameworks */ = {isa = PBXBuildFile; productRef = AB2EB9A42802521700011A8A /* DeprecatedAPI */; };
+		AB2EB9AB2802525700011A8A /* SwiftyBeaver in Frameworks */ = {isa = PBXBuildFile; productRef = AB2EB9AA2802525700011A8A /* SwiftyBeaver */; };
 		AB3072D2276D734800EFF242 /* SubSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB3072D1276D734800EFF242 /* SubSection.swift */; };
 		AB3072D4276E19AA00EFF242 /* FrontpageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB3072D3276E19AA00EFF242 /* FrontpageView.swift */; };
 		AB31CD3027B666E200F40E0A /* TestError.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB31CD2F27B666E200F40E0A /* TestError.swift */; };
@@ -247,7 +248,6 @@
 		ABE9012527F722D100F3651D /* AppIcon_StandWithUkraine2022_iPad_Pro@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = ABE9012027F722D100F3651D /* AppIcon_StandWithUkraine2022_iPad_Pro@2x.png */; };
 		ABE9012627F722D100F3651D /* AppIcon_StandWithUkraine2022_iPad@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = ABE9012127F722D100F3651D /* AppIcon_StandWithUkraine2022_iPad@2x.png */; };
 		ABE9401526FF158D0085E158 /* QuickSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABE9401426FF158D0085E158 /* QuickSearchView.swift */; };
-		ABE9402D26FF89220085E158 /* AlertKit in Frameworks */ = {isa = PBXBuildFile; productRef = ABE9402C26FF89220085E158 /* AlertKit */; };
 		ABEA1FE625A9B40B002966B9 /* Setting.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABEA1FE525A9B40B002966B9 /* Setting.swift */; };
 		ABEE0AFA2595C6F800C997AE /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = ABEE0AFC2595C6F800C997AE /* Localizable.strings */; };
 		ABF313A525B1AB6600D47A2F /* Misc.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABF313A425B1AB6600D47A2F /* Misc.swift */; };
@@ -587,18 +587,18 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AB2EB99F280251D600011A8A /* TTProgressHUD in Frameworks */,
 				ABD970B727A2A6BD001693B0 /* Rswift in Frameworks */,
+				AB2EB9A52802521700011A8A /* DeprecatedAPI in Frameworks */,
 				AB17574027678B3400FD64E2 /* UIImageColors in Frameworks */,
+				AB2EB9A2280251F600011A8A /* AlertKit in Frameworks */,
 				ABD7005926B1C31500DC59C9 /* Kanna in Frameworks */,
-				AB19D619266E5C6700BA752A /* TTProgressHUD in Frameworks */,
-				ABE9402D26FF89220085E158 /* AlertKit in Frameworks */,
 				AB60D0E9274C7ECE00F899AB /* WaterfallGrid in Frameworks */,
 				ABC4A0792751B40E00968A4F /* Kingfisher in Frameworks */,
-				AB0F68AF26A6D92F00AC3A54 /* DeprecatedAPI in Frameworks */,
 				AB26F59927ACDB4200AB3468 /* FilePicker in Frameworks */,
 				AB6505A026B0027800F91E9D /* SwiftUIPager in Frameworks */,
-				AB21CCA0274B4F0C00C115B1 /* SwiftyBeaver in Frameworks */,
 				ABD49D5D277C6C9D003D1A07 /* SFSafeSymbols in Frameworks */,
+				AB2EB9AB2802525700011A8A /* SwiftyBeaver in Frameworks */,
 				ABAC82FE26BC4A96009F5026 /* OpenCC in Frameworks */,
 				AB86AC1027831AD100E61E6A /* ComposableArchitecture in Frameworks */,
 				ABBB2636278FB888007B6149 /* SwiftUINavigation in Frameworks */,
@@ -1393,13 +1393,9 @@
 			);
 			name = EhPanda;
 			packageProductDependencies = (
-				AB19D618266E5C6700BA752A /* TTProgressHUD */,
-				AB0F68AE26A6D92F00AC3A54 /* DeprecatedAPI */,
 				AB65059F26B0027800F91E9D /* SwiftUIPager */,
 				ABD7005826B1C31500DC59C9 /* Kanna */,
 				ABAC82FD26BC4A96009F5026 /* OpenCC */,
-				ABE9402C26FF89220085E158 /* AlertKit */,
-				AB21CC9F274B4F0C00C115B1 /* SwiftyBeaver */,
 				AB60D0E8274C7ECE00F899AB /* WaterfallGrid */,
 				ABC4A0782751B40E00968A4F /* Kingfisher */,
 				AB17573C27675B1E00FD64E2 /* Colorful */,
@@ -1410,6 +1406,10 @@
 				ABD970B627A2A6BD001693B0 /* Rswift */,
 				AB26F59827ACDB4200AB3468 /* FilePicker */,
 				AB1FA94827C62BC80063EF55 /* CommonMark */,
+				AB2EB99E280251D600011A8A /* TTProgressHUD */,
+				AB2EB9A1280251F600011A8A /* AlertKit */,
+				AB2EB9A42802521700011A8A /* DeprecatedAPI */,
+				AB2EB9AA2802525700011A8A /* SwiftyBeaver */,
 			);
 			productName = EhPanda;
 			productReference = ABC3C7542593696C00E0C11B /* EhPanda.app */;
@@ -1469,13 +1469,9 @@
 			);
 			mainGroup = ABC3C74B2593696C00E0C11B;
 			packageReferences = (
-				AB19D617266E5C6700BA752A /* XCRemoteSwiftPackageReference "TTProgressHUD" */,
-				AB0F68AD26A6D92F00AC3A54 /* XCRemoteSwiftPackageReference "DeprecatedAPI" */,
 				AB65059E26B0027800F91E9D /* XCRemoteSwiftPackageReference "SwiftUIPager" */,
 				ABD7005726B1C31500DC59C9 /* XCRemoteSwiftPackageReference "Kanna" */,
 				ABAC82FC26BC4866009F5026 /* XCRemoteSwiftPackageReference "SwiftyOpenCC" */,
-				ABE9402B26FF89220085E158 /* XCRemoteSwiftPackageReference "AlertKit" */,
-				AB21CC9E274B4F0C00C115B1 /* XCRemoteSwiftPackageReference "SwiftyBeaver" */,
 				AB60D0E7274C7ECE00F899AB /* XCRemoteSwiftPackageReference "WaterfallGrid" */,
 				ABC4A0772751B40E00968A4F /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				AB17573B27675B1E00FD64E2 /* XCRemoteSwiftPackageReference "Colorful" */,
@@ -1486,6 +1482,10 @@
 				ABD970B527A2A6BD001693B0 /* XCRemoteSwiftPackageReference "R.swift.Library" */,
 				AB26F59727ACDB4200AB3468 /* XCRemoteSwiftPackageReference "FilePicker" */,
 				AB1FA94727C62BC80063EF55 /* XCRemoteSwiftPackageReference "SwiftCommonMark" */,
+				AB2EB99D280251D600011A8A /* XCRemoteSwiftPackageReference "TTProgressHUD" */,
+				AB2EB9A0280251F600011A8A /* XCRemoteSwiftPackageReference "AlertKit" */,
+				AB2EB9A32802521700011A8A /* XCRemoteSwiftPackageReference "DeprecatedAPI" */,
+				AB2EB9A92802525700011A8A /* XCRemoteSwiftPackageReference "SwiftyBeaver" */,
 			);
 			productRefGroup = ABC3C7552593696C00E0C11B /* Products */;
 			projectDirPath = "";
@@ -2202,14 +2202,6 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		AB0F68AD26A6D92F00AC3A54 /* XCRemoteSwiftPackageReference "DeprecatedAPI" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/tatsuz0u/DeprecatedAPI.git";
-			requirement = {
-				branch = main;
-				kind = branch;
-			};
-		};
 		AB17573B27675B1E00FD64E2 /* XCRemoteSwiftPackageReference "Colorful" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Co2333/Colorful.git";
@@ -2226,14 +2218,6 @@
 				minimumVersion = 2.0.0;
 			};
 		};
-		AB19D617266E5C6700BA752A /* XCRemoteSwiftPackageReference "TTProgressHUD" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/tatsuz0u/TTProgressHUD.git";
-			requirement = {
-				branch = custom;
-				kind = branch;
-			};
-		};
 		AB1FA94727C62BC80063EF55 /* XCRemoteSwiftPackageReference "SwiftCommonMark" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/gonzalezreal/SwiftCommonMark.git";
@@ -2242,20 +2226,44 @@
 				minimumVersion = 1.0.0;
 			};
 		};
-		AB21CC9E274B4F0C00C115B1 /* XCRemoteSwiftPackageReference "SwiftyBeaver" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/tatsuz0u/SwiftyBeaver.git";
-			requirement = {
-				branch = custom;
-				kind = branch;
-			};
-		};
 		AB26F59727ACDB4200AB3468 /* XCRemoteSwiftPackageReference "FilePicker" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/markrenaud/FilePicker.git";
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 1.0.0;
+			};
+		};
+		AB2EB99D280251D600011A8A /* XCRemoteSwiftPackageReference "TTProgressHUD" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/EhPanda-Team/TTProgressHUD.git";
+			requirement = {
+				branch = custom;
+				kind = branch;
+			};
+		};
+		AB2EB9A0280251F600011A8A /* XCRemoteSwiftPackageReference "AlertKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/EhPanda-Team/AlertKit.git";
+			requirement = {
+				branch = custom;
+				kind = branch;
+			};
+		};
+		AB2EB9A32802521700011A8A /* XCRemoteSwiftPackageReference "DeprecatedAPI" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/EhPanda-Team/DeprecatedAPI.git";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
+		AB2EB9A92802525700011A8A /* XCRemoteSwiftPackageReference "SwiftyBeaver" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/EhPanda-Team/SwiftyBeaver.git";
+			requirement = {
+				branch = custom;
+				kind = branch;
 			};
 		};
 		AB60D0E7274C7ECE00F899AB /* XCRemoteSwiftPackageReference "WaterfallGrid" */ = {
@@ -2330,22 +2338,9 @@
 				minimumVersion = 5.4.0;
 			};
 		};
-		ABE9402B26FF89220085E158 /* XCRemoteSwiftPackageReference "AlertKit" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/tatsuz0u/AlertKit.git";
-			requirement = {
-				branch = custom;
-				kind = branch;
-			};
-		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		AB0F68AE26A6D92F00AC3A54 /* DeprecatedAPI */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = AB0F68AD26A6D92F00AC3A54 /* XCRemoteSwiftPackageReference "DeprecatedAPI" */;
-			productName = DeprecatedAPI;
-		};
 		AB17573C27675B1E00FD64E2 /* Colorful */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = AB17573B27675B1E00FD64E2 /* XCRemoteSwiftPackageReference "Colorful" */;
@@ -2356,25 +2351,35 @@
 			package = AB17573E27678B3400FD64E2 /* XCRemoteSwiftPackageReference "UIImageColors" */;
 			productName = UIImageColors;
 		};
-		AB19D618266E5C6700BA752A /* TTProgressHUD */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = AB19D617266E5C6700BA752A /* XCRemoteSwiftPackageReference "TTProgressHUD" */;
-			productName = TTProgressHUD;
-		};
 		AB1FA94827C62BC80063EF55 /* CommonMark */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = AB1FA94727C62BC80063EF55 /* XCRemoteSwiftPackageReference "SwiftCommonMark" */;
 			productName = CommonMark;
 		};
-		AB21CC9F274B4F0C00C115B1 /* SwiftyBeaver */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = AB21CC9E274B4F0C00C115B1 /* XCRemoteSwiftPackageReference "SwiftyBeaver" */;
-			productName = SwiftyBeaver;
-		};
 		AB26F59827ACDB4200AB3468 /* FilePicker */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = AB26F59727ACDB4200AB3468 /* XCRemoteSwiftPackageReference "FilePicker" */;
 			productName = FilePicker;
+		};
+		AB2EB99E280251D600011A8A /* TTProgressHUD */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AB2EB99D280251D600011A8A /* XCRemoteSwiftPackageReference "TTProgressHUD" */;
+			productName = TTProgressHUD;
+		};
+		AB2EB9A1280251F600011A8A /* AlertKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AB2EB9A0280251F600011A8A /* XCRemoteSwiftPackageReference "AlertKit" */;
+			productName = AlertKit;
+		};
+		AB2EB9A42802521700011A8A /* DeprecatedAPI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AB2EB9A32802521700011A8A /* XCRemoteSwiftPackageReference "DeprecatedAPI" */;
+			productName = DeprecatedAPI;
+		};
+		AB2EB9AA2802525700011A8A /* SwiftyBeaver */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AB2EB9A92802525700011A8A /* XCRemoteSwiftPackageReference "SwiftyBeaver" */;
+			productName = SwiftyBeaver;
 		};
 		AB60D0E8274C7ECE00F899AB /* WaterfallGrid */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -2420,11 +2425,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = ABD970B527A2A6BD001693B0 /* XCRemoteSwiftPackageReference "R.swift.Library" */;
 			productName = Rswift;
-		};
-		ABE9402C26FF89220085E158 /* AlertKit */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = ABE9402B26FF89220085E158 /* XCRemoteSwiftPackageReference "AlertKit" */;
-			productName = AlertKit;
 		};
 /* End XCSwiftPackageProductDependency section */
 
