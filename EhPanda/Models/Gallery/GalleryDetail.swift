@@ -33,7 +33,7 @@ struct GalleryDetail: Codable, Equatable {
         postedDate: .distantPast,
         coverURL: URL(
             string: "https://github.com/"
-            + "tatsuz0u/Imageset/blob/"
+            + "EhPanda-Team/Imageset/blob/"
             + "main/JPGs/2.jpg?raw=true"
         ),
         favoritedCount: 514,

@@ -45,7 +45,7 @@ struct Gallery: Identifiable, Codable, Equatable, Hashable {
         postedDate: .now,
         coverURL: URL(
             string: "https://github.com/"
-            + "tatsuz0u/Imageset/blob/"
+            + "EhPanda-Team/Imageset/blob/"
             + "main/JPGs/2.jpg?raw=true"
         ),
         galleryURL: nil
