@@ -100,11 +100,11 @@ jobs:
           git add .
           git commit -m "Update AltStore.json"
           git push origin HEAD
-      # - name: Post release notes
-      #   run: |
-      #    curl https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage \
-      #    -d parse_mode=markdown -d chat_id=${{ secrets.TELEGRAM_CHANNEL_ID }} \
-      #    -d text='*v${{ steps.bump-version.outputs.version }}_b${{ steps.bump-version.outputs.build-number }} Release Notes:*%0A${{ github.event.pull_request.body }}'
+      - name: Post release notes
+        run: |
+         curl https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage \
+         -d parse_mode=markdown -d chat_id=${{ secrets.TELEGRAM_CHANNEL_ID }} \
+         -d text='*v${{ steps.bump-version.outputs.version }}_b${{ steps.bump-version.outputs.build-number }} Release Notes:*%0A${{ github.event.pull_request.body }}'
 
-      #    curl ${{ secrets.DISCORD_WEBHOOK }} \
-      #    -F 'payload_json={"content": "**v${{ steps.bump-version.outputs.version }}_b${{ steps.bump-version.outputs.build-number }} Release Notes:**\n${{ steps.retrieve-data.outputs.notes }}"}'
+         curl ${{ secrets.DISCORD_WEBHOOK }} \
+         -F 'payload_json={"content": "**v${{ steps.bump-version.outputs.version }}_b${{ steps.bump-version.outputs.build-number }} Release Notes:**\n${{ steps.retrieve-data.outputs.notes }}"}'
