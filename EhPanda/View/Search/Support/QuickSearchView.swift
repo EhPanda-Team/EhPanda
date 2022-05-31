@@ -97,6 +97,15 @@ struct QuickSearchView: View {
         }
     }
 
+    private func onTextFieldSubmitted() {
+        switch focusedField {
+        case .name:
+            focusedField = .content
+        default:
+            focusedField = nil
+        }
+    }
+    
     private func toolbar() -> some ToolbarContent {
         CustomToolbarItem {
             Button {
@@ -119,7 +128,7 @@ struct QuickSearchView: View {
                 title: R.string.localizable.quickSearchViewTitleNewWord(),
                 word: viewStore.binding(\.$editingWord),
                 focusedField: $focusedField,
-                submitAction: { viewStore.send(.onTextFieldSubmitted) },
+                submitAction: onTextFieldSubmitted,
                 confirmAction: {
                     viewStore.send(.appendWord)
                     viewStore.send(.setNavigation(nil))
@@ -131,7 +140,7 @@ struct QuickSearchView: View {
                 title: R.string.localizable.quickSearchViewTitleEditWord(),
                 word: viewStore.binding(\.$editingWord),
                 focusedField: $focusedField,
-                submitAction: { viewStore.send(.onTextFieldSubmitted) },
+                submitAction: onTextFieldSubmitted,
                 confirmAction: {
                     viewStore.send(.editWord)
                     viewStore.send(.setNavigation(nil))
@@ -166,7 +175,7 @@ extension QuickSearchView {
             Form {
                 Section(R.string.localizable.quickSearchViewTitleName()) {
                     TextField(R.string.localizable.quickSearchViewPlaceholderOptional(), text: $word.name)
-                        .focused(focusedField, equals: .name)
+                        .submitLabel(.next).focused(focusedField, equals: .name)
                 }
                 Section(R.string.localizable.quickSearchViewTitleContent()) {
                     TextEditor(text: $word.content)

@@ -2059,7 +2059,7 @@
 				CODE_SIGN_ENTITLEMENTS = EhPanda/EhPanda.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 136;
+				CURRENT_PROJECT_VERSION = 137;
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = 9SKQ7QTZ74;
 				ENABLE_PREVIEWS = YES;
@@ -2069,6 +2069,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MARKETING_VERSION = 2.4.1;
 				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = app.ehpanda;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2088,7 +2089,7 @@
 				CODE_SIGN_ENTITLEMENTS = EhPanda/EhPanda.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 136;
+				CURRENT_PROJECT_VERSION = 137;
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = 9SKQ7QTZ74;
 				ENABLE_PREVIEWS = YES;
@@ -2098,6 +2099,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MARKETING_VERSION = 2.4.1;
 				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = app.ehpanda;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2206,8 +2208,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Co2333/Colorful.git";
 			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.0.0;
+				kind = exactVersion;
+				version = 1.0.1;
 			};
 		};
 		AB17573E27678B3400FD64E2 /* XCRemoteSwiftPackageReference "UIImageColors" */ = {

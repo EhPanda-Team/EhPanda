@@ -62,7 +62,14 @@ struct LoginView: View {
             }
             .autoBlur(radius: blurRadius)
         }
-        .onSubmit { viewStore.send(.onTextFieldSubmitted) }
+        .onSubmit {
+            switch focusedField {
+            case .username:
+                focusedField = .password
+            default:
+                focusedField = nil
+            }
+        }
         .animation(.default, value: viewStore.loginState)
         .toolbar(content: toolbar)
         .navigationTitle(R.string.localizable.loginViewTitleLogin())
