@@ -2206,8 +2206,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Co2333/Colorful.git";
 			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.0.0;
+				kind = exactVersion;
+				version = 1.0.1;
 			};
 		};
 		AB17573E27678B3400FD64E2 /* XCRemoteSwiftPackageReference "UIImageColors" */ = {

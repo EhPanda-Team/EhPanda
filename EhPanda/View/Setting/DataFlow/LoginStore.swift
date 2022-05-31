@@ -38,7 +38,6 @@ struct LoginState: Equatable {
 enum LoginAction: BindableAction, Equatable {
     case binding(BindingAction<LoginState>)
     case setNavigation(LoginState.Route?)
-    case onTextFieldSubmitted
 
     case teardown
     case login
@@ -57,18 +56,6 @@ let loginReducer = Reducer<LoginState, LoginAction, LoginEnvironment> { state, a
 
     case .setNavigation(let route):
         state.route = route
-        return .none
-
-    case .onTextFieldSubmitted:
-        switch state.focusedField {
-        case .username:
-            state.focusedField = .password
-        case .password:
-            state.focusedField = nil
-            return .init(value: .login)
-        default:
-            break
-        }
         return .none
 
     case .teardown:

@@ -5,25 +5,25 @@ on:
       - main
     types: [closed]
 env:
-  DEVELOPER_DIR: /Applications/Xcode_13.2.1.app
-  APP_VERSION: '2.4.0'
+  DEVELOPER_DIR: /Applications/Xcode_13.4.app
+  APP_VERSION: '2.4.1'
   SCHEME_NAME: 'EhPanda'
   ALTSTORE_JSON_PATH: './AltStore.json'
   BUILDS_PATH: '/tmp/action-builds'
+  PAYLOAD_PATH: '/tmp/action-builds/Payload'
   ASC_KEY_PATH: '/Users/runner/private_keys'
   FILTER_SWIFT_PATH: './actions-tool/ReleaseNotesFilter.swift'
   FILTER_PATH: './actions-tool/ReleaseNotesFilter'
   ARCHIVE_PATH: '/tmp/action-builds/EhPanda.xcarchive'
   IPA_OUTPUT_PATH: '/tmp/action-builds/EhPanda.ipa'
-  DEV_P12_PATH: '/tmp/action-builds/dev.p12'
-  DIS_P12_PATH: '/tmp/action-builds/dis.p12'
   APP_DEV_PROVISION_PATH: '/tmp/action-builds/app_dev.mobileprovision'
   APP_DIS_PROVISION_PATH: '/tmp/action-builds/app_dis.mobileprovision'
   SHARE_EXTENSION_DEV_PROVISION_PATH: '/tmp/action-builds/share_extension_dev.mobileprovision'
   SHARE_EXTENSION_DIS_PROVISION_PATH: '/tmp/action-builds/share_extension_dis.mobileprovision'
+
 jobs:
   Deploy:
-    runs-on: macos-11
+    runs-on: macos-12
     if: github.event.pull_request.merged == true
     steps:
       - name: Checkout
@@ -39,42 +39,6 @@ jobs:
       - name: Run tests
         run: xcodebuild clean test -scheme ${{ env.SCHEME_NAME }} -sdk iphonesimulator
           -destination 'platform=iOS Simulator,name=iPhone 13'
-      - name: Decode certificates & provisioning profiles
-        run: |
-          mkdir $BUILDS_PATH
-          mkdir $ASC_KEY_PATH
-          echo -n ${{ secrets.DEV_P12 }} | base64 -d -o $DEV_P12_PATH
-          echo -n ${{ secrets.DIS_P12 }} | base64 -d -o $DIS_P12_PATH
-          echo -n ${{ secrets.APP_DEV_PROVISION }} | base64 -d -o $APP_DEV_PROVISION_PATH
-          echo -n ${{ secrets.APP_DIS_PROVISION }} | base64 -d -o $APP_DIS_PROVISION_PATH
-          echo -n ${{ secrets.SHARE_EXTENSION_DEV_PROVISION }} | base64 -d -o $SHARE_EXTENSION_DEV_PROVISION_PATH
-          echo -n ${{ secrets.SHARE_EXTENSION_DIS_PROVISION }} | base64 -d -o $SHARE_EXTENSION_DIS_PROVISION_PATH
-          echo -n ${{ secrets.ASC_KEY_P8 }} | base64 -d -o $ASC_KEY_PATH/AuthKey_${{ secrets.ASC_KEY_ID }}.p8
-      - name: Install certificates
-        run: |
-          KEY_CHAIN=action-builds.keychain-db
-          P12_PASSWORD=${{ secrets.P12_PASSWORD }}
-          security create-keychain -p $P12_PASSWORD $KEY_CHAIN
-          security default-keychain -s $KEY_CHAIN
-          security unlock-keychain -p $P12_PASSWORD $KEY_CHAIN
-          security set-keychain-settings -t 3600 -u $KEY_CHAIN
-          security import $DEV_P12_PATH -k $KEY_CHAIN -P $P12_PASSWORD -T /usr/bin/codesign
-          security import $DIS_P12_PATH -k $KEY_CHAIN -P $P12_PASSWORD -T /usr/bin/codesign
-          security set-key-partition-list -S apple-tool:,apple: -s -k $P12_PASSWORD ~/Library/Keychains/$KEY_CHAIN
-          security list-keychains
-          security find-identity -p codesigning ~/Library/Keychains/$KEY_CHAIN
-      - name: Install provisioning profiles
-        run: |
-          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-          app_dev_uuid=`grep UUID -A1 -a $APP_DEV_PROVISION_PATH | grep -io "[-A-F0-9]\{36\}"`
-          app_dis_uuid=`grep UUID -A1 -a $APP_DIS_PROVISION_PATH | grep -io "[-A-F0-9]\{36\}"`
-          share_extension_dev_uuid=`grep UUID -A1 -a $SHARE_EXTENSION_DEV_PROVISION_PATH | grep -io "[-A-F0-9]\{36\}"`
-          share_extension_dis_uuid=`grep UUID -A1 -a $SHARE_EXTENSION_DIS_PROVISION_PATH | grep -io "[-A-F0-9]\{36\}"`
-          cp $APP_DEV_PROVISION_PATH ~/Library/MobileDevice/Provisioning\ Profiles/$app_dev_uuid.mobileprovision
-          cp $APP_DIS_PROVISION_PATH ~/Library/MobileDevice/Provisioning\ Profiles/$app_dis_uuid.mobileprovision
-          cp $SHARE_EXTENSION_DEV_PROVISION_PATH ~/Library/MobileDevice/Provisioning\ Profiles/$share_extension_dev_uuid.mobileprovision
-          cp $SHARE_EXTENSION_DIS_PROVISION_PATH ~/Library/MobileDevice/Provisioning\ Profiles/$share_extension_dis_uuid.mobileprovision
-          ls ~/Library/MobileDevice/Provisioning\ Profiles
       - name: Bump version
         id: bump-version
         uses: yanamura/ios-bump-version@v1
@@ -82,10 +46,14 @@ jobs:
           version: ${{ env.APP_VERSION }}
       - name: Xcode archive
         run: xcodebuild archive -destination 'generic/platform=iOS'
-          -scheme ${{ env.SCHEME_NAME }} -archivePath ${{ env.ARCHIVE_PATH }}
+          -scheme ${{ env.SCHEME_NAME }} -archivePath ${{ env.ARCHIVE_PATH }} CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO CODE_SIGN_IDENTITY= CODE_SIGN_ENTITLEMENTS= GCC_OPTIMIZATION_LEVEL=s SWIFT_OPTIMIZATION_LEVEL=-O
       - name: Export .ipa file
-        run: xcodebuild -exportArchive -archivePath ${{ env.ARCHIVE_PATH }}
-          -exportPath ${{ env.BUILDS_PATH }} -exportOptionsPlist ./actions-tool/ExportOptions.plist
+        run: |
+          mkdir -p ${{env.PAYLOAD_PATH}}
+          mv ${{env.ARCHIVE_PATH}}/Products/Applications/${{env.SCHEME_NAME}}.app ${{env.PAYLOAD_PATH}}/${{env.SCHEME_NAME}}.app
+          pushd ${{env.BUILDS_PATH}}
+          zip -r ${{env.IPA_OUTPUT_PATH}} ./Payload
+          popd
       - name: Retrieve data
         id: retrieve-data
         run: |
@@ -108,13 +76,13 @@ jobs:
         with:
          fail_on_unmatched_files: true
          files: ${{ env.IPA_OUTPUT_PATH }}
-         token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+         token: ${{ secrets.GITHUB_TOKEN }}
          body: ${{ github.event.pull_request.body }}
          name: ${{ github.event.pull_request.title }}
          tag_name: 'v${{ steps.bump-version.outputs.version }}_b${{ steps.bump-version.outputs.build-number }}'
-      - name: Upload to ASC
-        run: xcrun altool --upload-app -t ios -f ${{ env.IPA_OUTPUT_PATH }}
-          --apiKey ${{ secrets.ASC_KEY_ID }} --apiIssuer ${{ secrets.ASC_ISSUER_ID }}
+      # - name: Upload to ASC
+      #   run: xcrun altool --upload-app -t ios -f ${{ env.IPA_OUTPUT_PATH }}
+      #     --apiKey ${{ secrets.ASC_KEY_ID }} --apiIssuer ${{ secrets.ASC_ISSUER_ID }}
       - name: Commit bump version
         run: |
           git add .

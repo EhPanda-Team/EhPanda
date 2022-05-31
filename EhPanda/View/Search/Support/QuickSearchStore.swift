@@ -43,7 +43,6 @@ enum QuickSearchAction: BindableAction {
     case syncQuickSearchWords
 
     case toggleListEditing
-    case onTextFieldSubmitted
     case setEditingWord(QuickSearchWord)
 
     case appendWord
@@ -84,15 +83,6 @@ let quickSearchReducer = Reducer<QuickSearchState, QuickSearchAction, QuickSearc
 
     case .toggleListEditing:
         state.isListEditing.toggle()
-        return .none
-
-    case .onTextFieldSubmitted:
-        switch state.focusedField {
-        case .name:
-            state.focusedField = .content
-        default:
-            state.focusedField = nil
-        }
         return .none
 
     case .setEditingWord(let word):
