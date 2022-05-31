@@ -7,7 +7,7 @@
       "name": "EhPanda",
       "bundleIdentifier": "app.ehpanda",
       "developerName": "EhPanda Team",
-      "version": "v2.4.1",
+      "version": "2.4.1",
       "versionDate": "2022-05-31T06:56:19",
       "versionDescription": "1. fix: The issue that the focus of TextField on login page and search page is abnormal and the keyboard cannot be evoked. resolved #241",
       "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v2.4.1_b137/EhPanda.ipa",
