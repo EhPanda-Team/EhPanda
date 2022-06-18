@@ -56,7 +56,8 @@ struct PreviewsView: View {
                         Text("\(index)").font(DeviceUtil.isPadWidth ? .callout : .caption).foregroundColor(.secondary)
                     }
                     .onAppear {
-                        if viewStore.previewURLs[index] == nil && (index - 1) % 20 == 0
+                        if viewStore.databaseLoadingState == .loading
+                            && viewStore.previewURLs[index] == nil && (index - 1) % 20 == 0
                         {
                             viewStore.send(.fetchPreviewURLs(index))
                         }
@@ -65,8 +66,7 @@ struct PreviewsView: View {
             }
             .padding(.horizontal)
             .padding(.bottom)
-            .opacity(viewStore.databaseLoadingState == .loading ? 0 : 1)
-            LoadingView().opacity(viewStore.databaseLoadingState == .loading ? 1 : 0)
+            .id(viewStore.databaseLoadingState)
         }
         .fullScreenCover(unwrapping: viewStore.binding(\.$route), case: /PreviewsState.Route.reading) { _ in
             ReadingView(
