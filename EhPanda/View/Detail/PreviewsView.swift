@@ -56,17 +56,17 @@ struct PreviewsView: View {
                         Text("\(index)").font(DeviceUtil.isPadWidth ? .callout : .caption).foregroundColor(.secondary)
                     }
                     .onAppear {
-                        if viewStore.databaseLoadingState != .loading
-                            && viewStore.previewURLs[index] == nil && (index - 1) % 20 == 0
+                        if viewStore.previewURLs[index] == nil && (index - 1) % 20 == 0
                         {
                             viewStore.send(.fetchPreviewURLs(index))
                         }
                     }
                 }
-                .id(viewStore.databaseLoadingState)
             }
             .padding(.horizontal)
             .padding(.bottom)
+            .opacity(viewStore.databaseLoadingState == .loading ? 0 : 1)
+            LoadingView().opacity(viewStore.databaseLoadingState == .loading ? 1 : 0)
         }
         .fullScreenCover(unwrapping: viewStore.binding(\.$route), case: /PreviewsState.Route.reading) { _ in
             ReadingView(
