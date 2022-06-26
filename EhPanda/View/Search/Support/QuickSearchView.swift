@@ -158,6 +158,8 @@ extension QuickSearchView {
         private let focusedField: FocusState<QuickSearchState.FocusField?>.Binding
         private let submitAction: () -> Void
         private let confirmAction: () -> Void
+        
+        @State private var name: String = ""
 
         init(
             title: String, word: Binding<QuickSearchWord>,
@@ -169,12 +171,14 @@ extension QuickSearchView {
             self.focusedField = focusedField
             self.submitAction = submitAction
             self.confirmAction = confirmAction
+            _name = State(initialValue: self.word.name)
         }
 
         var body: some View {
             Form {
                 Section(R.string.localizable.quickSearchViewTitleName()) {
-                    TextField(R.string.localizable.quickSearchViewPlaceholderOptional(), text: $word.name)
+                    TextField(R.string.localizable.quickSearchViewPlaceholderOptional(), text: $name)
+                        .onChange(of: name) { word.name = $0 }
                         .submitLabel(.next).focused(focusedField, equals: .name)
                 }
                 Section(R.string.localizable.quickSearchViewTitleContent()) {
