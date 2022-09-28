@@ -5,8 +5,8 @@ on:
       - main
     types: [closed]
 env:
-  DEVELOPER_DIR: /Applications/Xcode_13.4.app
-  APP_VERSION: '2.4.1'
+  DEVELOPER_DIR: /Applications/Xcode_14.0.app
+  APP_VERSION: '2.4.2'
   SCHEME_NAME: 'EhPanda'
   ALTSTORE_JSON_PATH: './AltStore.json'
   BUILDS_PATH: '/tmp/action-builds'
@@ -38,7 +38,7 @@ jobs:
         run: xcodebuild -version
       - name: Run tests
         run: xcodebuild clean test -scheme ${{ env.SCHEME_NAME }} -sdk iphonesimulator
-          -destination 'platform=iOS Simulator,name=iPhone 13'
+          -destination 'platform=iOS Simulator,name=iPhone 14'
       - name: Bump version
         id: bump-version
         uses: yanamura/ios-bump-version@v1
