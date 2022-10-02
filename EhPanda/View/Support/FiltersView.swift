@@ -165,16 +165,12 @@ private struct MinimumRatingSetter: View {
     }
 
     var body: some View {
-        HStack {
-            Text(R.string.localizable.filtersViewTitleMinimumRating())
-            Spacer()
-            Picker(selection: $minimum, label: Text(R.string.localizable.commonValueStars("\(minimum)"))) {
-                ForEach(Array(2...5), id: \.self) { number in
-                    Text(R.string.localizable.commonValueStars("\(number)")).tag(number)
-                }
+        Picker(R.string.localizable.filtersViewTitleMinimumRating(), selection: $minimum) {
+            ForEach(Array(2...5), id: \.self) { number in
+                Text(R.string.localizable.commonValueStars("\(number)")).tag(number)
             }
-            .pickerStyle(.menu)
         }
+        .pickerStyle(.menu)
     }
 }
 

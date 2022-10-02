@@ -161,18 +161,12 @@ private struct EhProfileSection: View {
 
     var body: some View {
         Section(R.string.localizable.ehSettingViewSectionTitleProfileSettings()) {
-            HStack {
-                Text(R.string.localizable.ehSettingViewTitleSelectedProfile())
-                Spacer()
-                Picker(selection: $ehProfile) {
-                    ForEach(ehSetting.ehProfiles) { ehProfile in
-                        Text(ehProfile.name).tag(ehProfile)
-                    }
-                } label: {
-                    Text(ehProfile.name)
+            Picker(R.string.localizable.ehSettingViewTitleSelectedProfile(), selection: $ehProfile) {
+                ForEach(ehSetting.ehProfiles) { ehProfile in
+                    Text(ehProfile.name).tag(ehProfile)
                 }
-                .pickerStyle(.menu)
             }
+            .pickerStyle(.menu)
             if !ehProfile.isDefault {
                 Button(R.string.localizable.ehSettingViewButtonSetAsDefault()) {
                     performEhProfileAction(.default, nil, ehProfile.value)
@@ -228,13 +222,13 @@ private struct ImageLoadSettingsSection: View {
             header: Text(R.string.localizable.ehSettingViewSectionTitleImageLoadSettings()),
             footer: Text(ehSetting.loadThroughHathSetting.description)
         ) {
-            Text(R.string.localizable.ehSettingViewTitleLoadImagesThroughTheHathNetwork())
-            Picker(selection: $ehSetting.loadThroughHathSetting) {
+            Picker(
+                R.string.localizable.ehSettingViewTitleLoadImagesThroughTheHathNetwork(),
+                selection: $ehSetting.loadThroughHathSetting
+            ) {
                 ForEach(ehSetting.capableLoadThroughHathSettings) { setting in
                     Text(setting.value).tag(setting)
                 }
-            } label: {
-                Text(ehSetting.loadThroughHathSetting.value)
             }
             .pickerStyle(.menu)
         }
@@ -269,18 +263,12 @@ private struct ImageSizeSettingsSection: View {
             header: Text(R.string.localizable.ehSettingViewSectionTitleImageSizeSettings()).newlineBold()
             + Text(R.string.localizable.ehSettingViewDescriptionImageResolution())
         ) {
-            HStack {
-                Text(R.string.localizable.ehSettingViewTitleImageResolution())
-                Spacer()
-                Picker(selection: $ehSetting.imageResolution) {
-                    ForEach(ehSetting.capableImageResolutions) { setting in
-                        Text(setting.value).tag(setting)
-                    }
-                } label: {
-                    Text(ehSetting.imageResolution.value)
+            Picker(R.string.localizable.ehSettingViewTitleImageResolution(), selection: $ehSetting.imageResolution) {
+                ForEach(ehSetting.capableImageResolutions) { setting in
+                    Text(setting.value).tag(setting)
                 }
-                .pickerStyle(.menu)
             }
+            .pickerStyle(.menu)
         }
         .textCase(nil)
         Section(R.string.localizable.ehSettingViewDescriptionImageSize()) {
@@ -311,18 +299,12 @@ private struct GalleryNameDisplaySection: View {
             header: Text(R.string.localizable.ehSettingViewSectionTitleGalleryNameDisplay()).newlineBold()
             + Text(R.string.localizable.ehSettingViewDescriptionGalleryName())
         ) {
-            HStack {
-                Text(R.string.localizable.ehSettingViewTitleGalleryName())
-                Spacer()
-                Picker(selection: $ehSetting.galleryName) {
-                    ForEach(EhSetting.GalleryName.allCases) { name in
-                        Text(name.value).tag(name)
-                    }
-                } label: {
-                    Text(ehSetting.galleryName.value)
+            Picker(R.string.localizable.ehSettingViewTitleGalleryName(), selection: $ehSetting.galleryName) {
+                ForEach(EhSetting.GalleryName.allCases) { name in
+                    Text(name.value).tag(name)
                 }
-                .pickerStyle(.menu)
             }
+            .pickerStyle(.menu)
         }
         .textCase(nil)
     }
@@ -341,13 +323,10 @@ private struct ArchiverSettingsSection: View {
             header: Text(R.string.localizable.ehSettingViewSectionTitleArchiverSettings()).newlineBold()
             + Text(R.string.localizable.ehSettingViewDescriptionArchiverBehavior())
         ) {
-            Text(R.string.localizable.ehSettingViewTitleArchiverBehavior())
-            Picker(selection: $ehSetting.archiverBehavior) {
+            Picker(R.string.localizable.ehSettingViewTitleArchiverBehavior(), selection: $ehSetting.archiverBehavior) {
                 ForEach(EhSetting.ArchiverBehavior.allCases) { behavior in
                     Text(behavior.value).tag(behavior)
                 }
-            } label: {
-                Text(ehSetting.archiverBehavior.value)
             }
             .pickerStyle(.menu)
         }
@@ -372,18 +351,12 @@ private struct FrontPageSettingsSection: View {
             header: Text(R.string.localizable.ehSettingViewSectionTitleFrontPageSettings()).newlineBold()
             + Text(R.string.localizable.ehSettingViewDescriptionDisplayMode())
         ) {
-            HStack {
-                Text(R.string.localizable.ehSettingViewTitleDisplayMode())
-                Spacer()
-                Picker(selection: $ehSetting.displayMode) {
-                    ForEach(EhSetting.DisplayMode.allCases) { mode in
-                        Text(mode.value).tag(mode)
-                    }
-                } label: {
-                    Text(ehSetting.displayMode.value)
+            Picker(R.string.localizable.ehSettingViewTitleDisplayMode(), selection: $ehSetting.displayMode) {
+                ForEach(EhSetting.DisplayMode.allCases) { mode in
+                    Text(mode.value).tag(mode)
                 }
-                .pickerStyle(.menu)
             }
+            .pickerStyle(.menu)
         }
         .textCase(nil)
         Section(R.string.localizable.ehSettingViewDescriptionGalleryCategory()) {
@@ -426,18 +399,15 @@ private struct FavoritesSection: View {
         }
         .textCase(nil)
         Section(R.string.localizable.ehSettingViewDescriptionFavoritesSortOrder()) {
-            HStack {
-                Text(R.string.localizable.ehSettingViewTitleFavoritesSortOrder())
-                Spacer()
-                Picker(selection: $ehSetting.favoritesSortOrder) {
-                    ForEach(EhSetting.FavoritesSortOrder.allCases) { order in
-                        Text(order.value).tag(order)
-                    }
-                } label: {
-                    Text(ehSetting.favoritesSortOrder.value)
+            Picker(
+                R.string.localizable.ehSettingViewTitleFavoritesSortOrder(),
+                selection: $ehSetting.favoritesSortOrder
+            ) {
+                ForEach(EhSetting.FavoritesSortOrder.allCases) { order in
+                    Text(order.value).tag(order)
                 }
-                .pickerStyle(.menu)
             }
+            .pickerStyle(.menu)
         }
         .textCase(nil)
     }
@@ -711,18 +681,12 @@ private struct SearchResultCountSection: View {
             header: Text(R.string.localizable.ehSettingViewSectionTitleSearchResultCount()).newlineBold()
             + Text(R.string.localizable.ehSettingViewDescriptionResultCount())
         ) {
-            HStack {
-                Text(R.string.localizable.ehSettingViewTitleResultCount())
-                Spacer()
-                Picker(selection: $ehSetting.searchResultCount) {
-                    ForEach(ehSetting.capableSearchResultCounts) { count in
-                        Text(String(count.value)).tag(count)
-                    }
-                } label: {
-                    Text(String(ehSetting.searchResultCount.value))
+            Picker(R.string.localizable.ehSettingViewTitleResultCount(), selection: $ehSetting.searchResultCount) {
+                ForEach(ehSetting.capableSearchResultCounts) { count in
+                    Text(String(count.value)).tag(count)
                 }
-                .pickerStyle(.menu)
             }
+            .pickerStyle(.menu)
         }
         .textCase(nil)
     }
@@ -742,18 +706,15 @@ private struct ThumbnailSettingsSection: View {
             + Text(R.string.localizable.ehSettingViewDescriptionThumbnailLoadTiming()),
             footer: Text(ehSetting.thumbnailLoadTiming.description)
         ) {
-            HStack {
-                Text(R.string.localizable.ehSettingViewTitleThumbnailLoadTiming())
-                Spacer()
-                Picker(selection: $ehSetting.thumbnailLoadTiming) {
-                    ForEach(EhSetting.ThumbnailLoadTiming.allCases) { timing in
-                        Text(timing.value).tag(timing)
-                    }
-                } label: {
-                    Text(ehSetting.thumbnailLoadTiming.value)
+            Picker(
+                R.string.localizable.ehSettingViewTitleThumbnailLoadTiming(),
+                selection: $ehSetting.thumbnailLoadTiming
+            ) {
+                ForEach(EhSetting.ThumbnailLoadTiming.allCases) { timing in
+                    Text(timing.value).tag(timing)
                 }
-                .pickerStyle(.menu)
             }
+            .pickerStyle(.menu)
         }
         .textCase(nil)
         Section(R.string.localizable.ehSettingViewDescriptionThumbnailConfiguration()) {
@@ -870,30 +831,24 @@ private struct GalleryCommentsSection: View {
 
     var body: some View {
         Section(R.string.localizable.ehSettingViewSectionTitleGalleryComments()) {
-            HStack {
-                Text(R.string.localizable.ehSettingViewTitleCommentsSortOrder())
-                Spacer()
-                Picker(selection: $ehSetting.commentsSortOrder) {
-                    ForEach(EhSetting.CommentsSortOrder.allCases) { order in
-                        Text(order.value).tag(order)
-                    }
-                } label: {
-                    Text(ehSetting.commentsSortOrder.value)
+            Picker(
+                R.string.localizable.ehSettingViewTitleCommentsSortOrder(),
+                selection: $ehSetting.commentsSortOrder
+            ) {
+                ForEach(EhSetting.CommentsSortOrder.allCases) { order in
+                    Text(order.value).tag(order)
                 }
-                .pickerStyle(.menu)
             }
-            HStack {
-                Text(R.string.localizable.ehSettingViewTitleCommentsVotesShowTiming())
-                Spacer()
-                Picker(selection: $ehSetting.commentVotesShowTiming) {
-                    ForEach(EhSetting.CommentVotesShowTiming.allCases) { timing in
-                        Text(timing.value).tag(timing)
-                    }
-                } label: {
-                    Text(ehSetting.commentVotesShowTiming.value)
+            .pickerStyle(.menu)
+            Picker(
+                R.string.localizable.ehSettingViewTitleCommentsVotesShowTiming(),
+                selection: $ehSetting.commentVotesShowTiming
+            ) {
+                ForEach(EhSetting.CommentVotesShowTiming.allCases) { timing in
+                    Text(timing.value).tag(timing)
                 }
-                .pickerStyle(.menu)
             }
+            .pickerStyle(.menu)
         }
         .textCase(nil)
     }
@@ -909,18 +864,12 @@ private struct GalleryTagsSection: View {
 
     var body: some View {
         Section(R.string.localizable.ehSettingViewSectionTitleGalleryTags()) {
-            HStack {
-                Text(R.string.localizable.ehSettingViewTitleTagsSortOrder())
-                Spacer()
-                Picker(selection: $ehSetting.tagsSortOrder) {
-                    ForEach(EhSetting.TagsSortOrder.allCases) { order in
-                        Text(order.value).tag(order)
-                    }
-                } label: {
-                    Text(ehSetting.tagsSortOrder.value)
+            Picker(R.string.localizable.ehSettingViewTitleTagsSortOrder(), selection: $ehSetting.tagsSortOrder) {
+                ForEach(EhSetting.TagsSortOrder.allCases) { order in
+                    Text(order.value).tag(order)
                 }
-                .pickerStyle(.menu)
             }
+            .pickerStyle(.menu)
         }
         .textCase(nil)
     }
@@ -1013,18 +962,15 @@ private struct MultiplePageViewerSection: View {
                         R.string.localizable.ehSettingViewTitleUseMultiPageViewer(),
                         isOn: useMultiplePageViewerBinding
                     )
-                    HStack {
-                        Text(R.string.localizable.ehSettingViewTitleDisplayStyle())
-                        Spacer()
-                        Picker(selection: multiplePageViewerStyleBinding) {
-                            ForEach(EhSetting.MultiplePageViewerStyle.allCases) { style in
-                                Text(style.value).tag(style)
-                            }
-                        } label: {
-                            Text(ehSetting.multiplePageViewerStyle?.value ?? "")
+                    Picker(
+                        R.string.localizable.ehSettingViewTitleDisplayStyle(),
+                        selection: multiplePageViewerStyleBinding
+                    ) {
+                        ForEach(EhSetting.MultiplePageViewerStyle.allCases) { style in
+                            Text(style.value).tag(style)
                         }
-                        .pickerStyle(.menu)
                     }
+                    .pickerStyle(.menu)
                     Toggle(
                         R.string.localizable.ehSettingViewTitleShowThumbnailPane(),
                         isOn: multiplePageViewerShowPaneBinding
@@ -1058,7 +1004,7 @@ struct EhSettingView_Previews: PreviewProvider {
         NavigationView {
             EhSettingView(
                 store: .init(
-                    initialState: .init(),
+                    initialState: .init(ehSetting: .empty, ehProfile: .empty, loadingState: .idle),
                     reducer: ehSettingReducer,
                     environment: EhSettingEnvironment(
                         hapticClient: .live,
