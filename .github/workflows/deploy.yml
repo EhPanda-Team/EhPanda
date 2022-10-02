@@ -5,7 +5,7 @@ on:
       - main
     types: [closed]
 env:
-  DEVELOPER_DIR: /Applications/Xcode_14.0.app
+  DEVELOPER_DIR: /Applications/Xcode_14.0.1.app
   APP_VERSION: '2.4.2'
   SCHEME_NAME: 'EhPanda'
   ALTSTORE_JSON_PATH: './AltStore.json'
@@ -24,7 +24,7 @@ env:
 jobs:
   Deploy:
     runs-on: macos-12
-    if: github.event.pull_request.merged == true
+    if: github.event.pull_request.merged == true && github.event.pull_request.user.login == 'chihchy'
     steps:
       - name: Checkout
         uses: actions/checkout@v2
