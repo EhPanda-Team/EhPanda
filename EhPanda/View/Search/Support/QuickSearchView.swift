@@ -105,7 +105,7 @@ struct QuickSearchView: View {
             focusedField = nil
         }
     }
-    
+
     private func toolbar() -> some ToolbarContent {
         CustomToolbarItem {
             Button {

@@ -121,7 +121,7 @@ private struct HighlightView: UIViewRepresentable {
             let height = textView.contentSize.height
             textView.contentInset = .init(
                 top: textView.frame.height / 2 - height / 2,
-                left: textView.frame.width / 2 ,
+                left: textView.frame.width / 2,
                 bottom: 0, right: 0
             )
             highLightView.tapAction()
