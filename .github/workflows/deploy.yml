@@ -14,6 +14,7 @@ env:
   ASC_KEY_PATH: '/Users/runner/private_keys'
   FILTER_SWIFT_PATH: './actions-tool/ReleaseNotesFilter.swift'
   FILTER_PATH: './actions-tool/ReleaseNotesFilter'
+  THIN_PAYLOAD_SCRIPT_PATH: './actions-tool/thin-payload.sh'
   ARCHIVE_PATH: '/tmp/action-builds/EhPanda.xcarchive'
   IPA_OUTPUT_PATH: '/tmp/action-builds/EhPanda.ipa'
   APP_DEV_PROVISION_PATH: '/tmp/action-builds/app_dev.mobileprovision'
@@ -51,6 +52,7 @@ jobs:
         run: |
           mkdir -p ${{env.PAYLOAD_PATH}}
           mv ${{env.ARCHIVE_PATH}}/Products/Applications/${{env.SCHEME_NAME}}.app ${{env.PAYLOAD_PATH}}/${{env.SCHEME_NAME}}.app
+          sh ${{env.THIN_PAYLOAD_SCRIPT_PATH}} ${{env.PAYLOAD_PATH}}/${{env.SCHEME_NAME}}.app
           pushd ${{env.BUILDS_PATH}}
           zip -r ${{env.IPA_OUTPUT_PATH}} ./Payload
           popd
@@ -80,9 +82,6 @@ jobs:
          body: ${{ github.event.pull_request.body }}
          name: ${{ github.event.pull_request.title }}
          tag_name: 'v${{ steps.bump-version.outputs.version }}_b${{ steps.bump-version.outputs.build-number }}'
-      # - name: Upload to ASC
-      #   run: xcrun altool --upload-app -t ios -f ${{ env.IPA_OUTPUT_PATH }}
-      #     --apiKey ${{ secrets.ASC_KEY_ID }} --apiIssuer ${{ secrets.ASC_ISSUER_ID }}
       - name: Commit bump version
         run: |
           git add .
