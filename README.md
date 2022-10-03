@@ -29,7 +29,7 @@ https://ehpanda.app: [main.js](https://github.com/EhPanda-Team/ehpanda-website/b
 2. Use some software like [AltStore](https://altstore.io) to install the ipa file on your device.
 
 ## System Requirements
-This app requires iOS / iPadOS 15.0 or later.
+This app requires iOS / iPadOS 16.0 or later.
 
 ## Content & Copyright
 The content in this application is derived from E-Hentai, which is user-generated content.
@@ -44,4 +44,4 @@ The content in this application is derived from E-Hentai, which is user-generate
 https://ehpanda.app
 
 ## App Icon
-© 2022 荒木辰造. All rights reserved.
+Copyright © 2022 荒木辰造. All rights reserved.
