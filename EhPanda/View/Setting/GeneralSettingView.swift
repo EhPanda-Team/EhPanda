@@ -129,16 +129,18 @@ struct GeneralSettingView: View {
             }
             Section(R.string.localizable.generalSettingViewSectionTitleSecurity()) {
                 HStack {
-                    Text(R.string.localizable.generalSettingViewTitleAutoLock())
-                    Spacer()
-                    Image(systemSymbol: .exclamationmarkTriangleFill).foregroundStyle(.yellow)
-                        .opacity((viewStore.passcodeNotSet && autoLockPolicy != .never) ? 1 : 0)
-                    Picker(selection: $autoLockPolicy, label: Text(autoLockPolicy.value)) {
+                    Picker(
+                        R.string.localizable.generalSettingViewTitleAutoLock(),
+                        selection: $autoLockPolicy
+                    ) {
                         ForEach(AutoLockPolicy.allCases) { policy in
                             Text(policy.value).tag(policy)
                         }
                     }
                     .pickerStyle(.menu)
+                    if viewStore.passcodeNotSet && autoLockPolicy != .never {
+                        Image(systemSymbol: .exclamationmarkTriangleFill).foregroundStyle(.yellow)
+                    }
                 }
                 VStack(alignment: .leading) {
                     Text(R.string.localizable.generalSettingViewTitleBackgroundBlurRadius())

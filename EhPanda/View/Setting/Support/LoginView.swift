@@ -68,6 +68,7 @@ struct LoginView: View {
                 focusedField = .password
             default:
                 focusedField = nil
+                viewStore.send(.login)
             }
         }
         .animation(.default, value: viewStore.loginState)

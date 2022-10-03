@@ -40,18 +40,13 @@ struct AppearanceSettingView: View {
     var body: some View {
         Form {
             Section {
-                HStack {
-                    Text(R.string.localizable.appearanceSettingViewTitleTheme())
-                    Spacer()
-                    Picker(
-                        selection: $preferredColorScheme,
-                        label: Text(preferredColorScheme.value),
-                        content: {
-                            ForEach(PreferredColorScheme.allCases) { colorScheme in
-                                Text(colorScheme.value).tag(colorScheme)
-                            }
-                        }
-                    )
+                Picker(
+                    R.string.localizable.appearanceSettingViewTitleTheme(),
+                    selection: $preferredColorScheme
+                ) {
+                    ForEach(PreferredColorScheme.allCases) { colorScheme in
+                        Text(colorScheme.value).tag(colorScheme)
+                    }
                 }
                 .pickerStyle(.menu)
                 ColorPicker(R.string.localizable.appearanceSettingViewTitleTintColor(), selection: $accentColor)
@@ -78,20 +73,16 @@ struct AppearanceSettingView: View {
                 Toggle(isOn: $showsTagsInList) {
                     Text(R.string.localizable.appearanceSettingViewTitleShowsTagsInList())
                 }
-                HStack {
-                    Text(R.string.localizable.appearanceSettingViewTitleMaximumNumberOfTags())
-                    Spacer()
-                    Picker(
-                        selection: $listTagsNumberMaximum,
-                        label: Text("\(listTagsNumberMaximum)")
-                    ) {
-                        Text(R.string.localizable.appearanceSettingViewMenuTitleInfite()).tag(0)
-                        ForEach(Array(stride(from: 5, through: 20, by: 5)), id: \.self) { num in
-                            Text("\(num)").tag(num)
-                        }
+                Picker(
+                    R.string.localizable.appearanceSettingViewTitleMaximumNumberOfTags(),
+                    selection: $listTagsNumberMaximum
+                ) {
+                    Text(R.string.localizable.appearanceSettingViewMenuTitleInfite()).tag(0)
+                    ForEach(Array(stride(from: 5, through: 20, by: 5)), id: \.self) { num in
+                        Text("\(num)").tag(num)
                     }
-                    .pickerStyle(.menu)
                 }
+                .pickerStyle(.menu)
                 .disabled(!showsTagsInList)
             }
             Section(R.string.localizable.appearanceSettingViewSectionTitleGallery()) {

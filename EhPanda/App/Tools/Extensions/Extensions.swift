@@ -273,10 +273,8 @@ extension Color {
 extension Array {
     func removeDuplicates(by predicate: (Element, Element) -> Bool) -> Self {
         var result = [Element]()
-        for value in self {
-            if result.filter({ predicate($0, value) }).isEmpty {
-                result.append(value)
-            }
+        for value in self where result.filter({ predicate($0, value) }).isEmpty {
+            result.append(value)
         }
         return result
     }

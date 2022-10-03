@@ -32,53 +32,32 @@ struct ReadingSettingView: View {
     var body: some View {
         Form {
             Section {
-                HStack {
-                    Text(R.string.localizable.readingSettingViewTitleDirection())
-                    Spacer()
-                    Picker(
-                        selection: $readingDirection,
-                        label: Text(readingDirection.value),
-                        content: {
-                            ForEach(ReadingDirection.allCases) {
-                                Text($0.value).tag($0)
-                            }
-                        }
-                    )
-                    .pickerStyle(.menu)
+                Picker(R.string.localizable.readingSettingViewTitleDirection(), selection: $readingDirection) {
+                    ForEach(ReadingDirection.allCases) {
+                        Text($0.value).tag($0)
+                    }
                 }
-                HStack {
-                    Text(R.string.localizable.readingSettingViewTitlePreloadLimit())
-                    Spacer()
-                    Picker(
-                        selection: $prefetchLimit,
-                        label: Text(R.string.localizable.commonValuePages("\(prefetchLimit)")),
-                        content: {
-                            ForEach(Array(stride(from: 6, through: 18, by: 4)), id: \.self) { value in
-                                Text(R.string.localizable.commonValuePages("\(value)")).tag(value)
-                            }
-                        }
-                    )
-                    .pickerStyle(.menu)
+                .pickerStyle(.menu)
+                Picker(R.string.localizable.readingSettingViewTitlePreloadLimit(), selection: $prefetchLimit) {
+                    ForEach(Array(stride(from: 6, through: 18, by: 4)), id: \.self) { value in
+                        Text(R.string.localizable.commonValuePages("\(value)")).tag(value)
+                    }
                 }
+                .pickerStyle(.menu)
                 if !DeviceUtil.isPad {
                     Toggle(R.string.localizable.readingSettingViewTitleEnablesLandscape(), isOn: $enablesLandscape)
                 }
             }
             Section(R.string.localizable.readingSettingViewSectionTitleAppearance()) {
-                HStack {
-                    Text(R.string.localizable.readingSettingViewTitleSeparatorHeight())
-                    Spacer()
-                    Picker(
-                        selection: $contentDividerHeight,
-                        label: Text("\(Int(contentDividerHeight))pt"),
-                        content: {
-                            ForEach(Array(stride(from: 0, through: 20, by: 5)), id: \.self) { value in
-                                Text("\(value)pt").tag(Double(value))
-                            }
-                        }
-                    )
-                    .pickerStyle(.menu)
+                Picker(
+                    R.string.localizable.readingSettingViewTitleSeparatorHeight(),
+                    selection: $contentDividerHeight
+                ) {
+                    ForEach(Array(stride(from: 0, through: 20, by: 5)), id: \.self) { value in
+                        Text("\(value)pt").tag(Double(value))
+                    }
                 }
+                .pickerStyle(.menu)
                 .disabled(readingDirection != .vertical)
                 ScaleFactorRow(
                     scaleFactor: $maximumScaleFactor,
