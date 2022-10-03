@@ -1,1 +1,53 @@
-
+{
+  "name": "EhPanda",
+  "identifier": "app.ehpanda",
+  "sourceURL": "https://github.com/EhPanda-Team/EhPanda/raw/main/AltStore.json",
+  "apps": [
+    {
+      "name": "EhPanda",
+      "bundleIdentifier": "app.ehpanda",
+      "developerName": "EhPanda Team",
+      "version": "2.4.2",
+      "versionDate": "2022-10-03T18:15:13",
+      "versionDescription": "1. fix: Unexpected behaviors on iOS or iPadOS 16 devices.\n2. fix: Won't start loading automatically when navigating to PreviewsView issue.\n3. refactor: Reduce the file size of releases.",
+      "downloadURL": "https://github.com/EhPanda-Team/EhPanda/releases/download/v2.4.2/EhPanda.ipa",
+      "localizedDescription": "An unofficial E-Hentai App for iOS.",
+      "iconURL": "https://github.com/EhPanda-Team/ehpanda-website/raw/main/public/img/appicon/appicon-512.png",
+      "tintColor": "289979",
+      "size": 5963114,
+      "screenshotURLs": [
+        "https://github.com/EhPanda-Team/ehpanda-website/raw/main/public/img/screenshot/Home_EN_Light.png",
+        "https://github.com/EhPanda-Team/ehpanda-website/raw/main/public/img/screenshot/SlideMenu_EN_Light.png",
+        "https://github.com/EhPanda-Team/ehpanda-website/raw/main/public/img/screenshot/Detail_EN_Light.png",
+        "https://github.com/EhPanda-Team/ehpanda-website/raw/main/public/img/screenshot/Comment_EN_Light.png",
+        "https://github.com/EhPanda-Team/ehpanda-website/raw/main/public/img/screenshot/Archive_EN_Light.png",
+        "https://github.com/EhPanda-Team/ehpanda-website/raw/main/public/img/screenshot/Torrent_EN_Light.png",
+        "https://github.com/EhPanda-Team/ehpanda-website/raw/main/public/img/screenshot/EhSetting_EN_Light.png",
+        "https://github.com/EhPanda-Team/ehpanda-website/raw/main/public/img/screenshot/Filter_EN_Light.png",
+        "https://github.com/EhPanda-Team/ehpanda-website/raw/main/public/img/screenshot/Setting_EN_Light.png",
+        "https://github.com/EhPanda-Team/ehpanda-website/raw/main/public/img/screenshot/DomainFronting_EN_Light.png"
+      ],
+      "permissions": [
+        {
+          "type": "network",
+          "usageDescription": "Needs this permission to access the Internet."
+        },
+        {
+          "type": "faceid",
+          "usageDescription": "Allows you to use Face ID to unlock EhPanda."
+        }
+      ]
+    }
+  ],
+  "news": [
+    {
+      "title": "EhPanda Now Available!",
+      "identifier": "ehpanda-now-available",
+      "caption": "An unofficial E-Hentai App for iOS built with SwiftUI & TCA.",
+      "tintColor": "289979",
+      "appID": "app.ehpanda",
+      "date": "2021-08-19",
+      "notify": false
+    }
+  ]
+}
