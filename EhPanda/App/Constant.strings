@@ -37,10 +37,12 @@
 
 // Code level contributors
 "ehpanda.code.level.contributors.link.tatsuz0u" = "https://github.com/tatsuz0u";
+"ehpanda.code.level.contributors.link.chihchy" = "https://github.com/chihchy";
 "ehpanda.code.level.contributors.link.xioxin" = "https://github.com/xioxin";
 "ehpanda.code.level.contributors.link.EthanChinCN" = "https://github.com/EthanChinCN";
 "ehpanda.code.level.contributors.link.leng-yue" = "https://github.com/leng-yue";
 "ehpanda.code.level.contributors.text.tatsuz0u" = "Tatsuzou Araki";
+"ehpanda.code.level.contributors.text.chihchy" = "Chihchy";
 "ehpanda.code.level.contributors.text.xioxin" = "xioxin";
 "ehpanda.code.level.contributors.text.EthanChinCN" = "Ethan Chin";
 "ehpanda.code.level.contributors.text.leng-yue" = "LengYue";

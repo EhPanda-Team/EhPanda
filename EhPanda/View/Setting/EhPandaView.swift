@@ -107,6 +107,10 @@ struct EhPandaView: View {
             text: R.string.constant.ehpandaCodeLevelContributorsTextTatsuz0u()
         ),
         .init(
+            urlString: R.string.constant.ehpandaCodeLevelContributorsLinkChihchy(),
+            text: R.string.constant.ehpandaCodeLevelContributorsTextChihchy()
+        ),
+        .init(
             urlString: R.string.constant.ehpandaCodeLevelContributorsLinkXioxin(),
             text: R.string.constant.ehpandaCodeLevelContributorsTextXioxin()
         ),
