@@ -50,11 +50,11 @@ jobs:
           -scheme ${{ env.SCHEME_NAME }} -archivePath ${{ env.ARCHIVE_PATH }} CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO CODE_SIGN_IDENTITY= CODE_SIGN_ENTITLEMENTS= GCC_OPTIMIZATION_LEVEL=s SWIFT_OPTIMIZATION_LEVEL=-O
       - name: Export .ipa file
         run: |
-          mkdir -p ${{env.PAYLOAD_PATH}}
-          mv ${{env.ARCHIVE_PATH}}/Products/Applications/${{env.SCHEME_NAME}}.app ${{env.PAYLOAD_PATH}}/${{env.SCHEME_NAME}}.app
-          sh ${{env.THIN_PAYLOAD_SCRIPT_PATH}} ${{env.PAYLOAD_PATH}}/${{env.SCHEME_NAME}}.app
-          pushd ${{env.BUILDS_PATH}}
-          zip -r ${{env.IPA_OUTPUT_PATH}} ./Payload
+          mkdir -p ${{ env.PAYLOAD_PATH }}
+          mv ${{ env.ARCHIVE_PATH }}/Products/Applications/${{ env.SCHEME_NAME }}.app ${{ env.PAYLOAD_PATH }}/${{ env.SCHEME_NAME }}.app
+          sh ${{ env.THIN_PAYLOAD_SCRIPT_PATH }} ${{ env.PAYLOAD_PATH }}/${{ env.SCHEME_NAME }}.app
+          pushd ${{ env.BUILDS_PATH }}
+          zip -r ${{ env.IPA_OUTPUT_PATH }} ./Payload
           popd
       - name: Retrieve data
         id: retrieve-data
@@ -71,7 +71,6 @@ jobs:
           [[ ! -z "${{ steps.retrieve-data.outputs.size }}" ]] || exit 1
           [[ ! -z "${{ steps.retrieve-data.outputs.notes }}" ]] || exit 1
           [[ ! -z "${{ steps.bump-version.outputs.version }}" ]] || exit 1
-          [[ ! -z "${{ steps.bump-version.outputs.build-number }}" ]] || exit 1
           [[ ! -z "${{ steps.retrieve-data.outputs.version_date }}" ]] || exit 1
       - name: Release to GitHub
         uses: softprops/action-gh-release@v1
@@ -81,7 +80,7 @@ jobs:
          token: ${{ secrets.GITHUB_TOKEN }}
          body: ${{ github.event.pull_request.body }}
          name: ${{ github.event.pull_request.title }}
-         tag_name: 'v${{ steps.bump-version.outputs.version }}_b${{ steps.bump-version.outputs.build-number }}'
+         tag_name: 'v${{ steps.bump-version.outputs.version }}'
       - name: Commit bump version
         run: |
           git add .
@@ -93,7 +92,7 @@ jobs:
           echo "`jq '.apps[0].versionDescription="${{ steps.retrieve-data.outputs.notes }}"' $ALTSTORE_JSON_PATH`" > $ALTSTORE_JSON_PATH
           echo "`jq '.apps[0].versionDate="${{ steps.retrieve-data.outputs.version_date }}"' $ALTSTORE_JSON_PATH`" > $ALTSTORE_JSON_PATH
           echo "`jq '.apps[0].version="${{ steps.bump-version.outputs.version }}"' $ALTSTORE_JSON_PATH`" > $ALTSTORE_JSON_PATH
-          echo "`jq '.apps[0].downloadURL="https://github.com/EhPanda-Team/EhPanda/releases/download/v${{ steps.bump-version.outputs.version }}_b${{ steps.bump-version.outputs.build-number }}/EhPanda.ipa"' $ALTSTORE_JSON_PATH`" > $ALTSTORE_JSON_PATH
+          echo "`jq '.apps[0].downloadURL="https://github.com/EhPanda-Team/EhPanda/releases/download/v${{ steps.bump-version.outputs.version }}/EhPanda.ipa"' $ALTSTORE_JSON_PATH`" > $ALTSTORE_JSON_PATH
       - name: Commit update AltStore.json
         run: |
           git add .
@@ -103,7 +102,7 @@ jobs:
         run: |
          curl https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage \
          -d parse_mode=markdown -d chat_id=${{ secrets.TELEGRAM_CHANNEL_ID }} \
-         -d text='*v${{ steps.bump-version.outputs.version }}_b${{ steps.bump-version.outputs.build-number }} Release Notes:*%0A${{ github.event.pull_request.body }}'
+         -d text='*v${{ steps.bump-version.outputs.version }} Release Notes:*%0A${{ github.event.pull_request.body }}'
 
          curl ${{ secrets.DISCORD_WEBHOOK }} \
-         -F 'payload_json={"content": "**v${{ steps.bump-version.outputs.version }}_b${{ steps.bump-version.outputs.build-number }} Release Notes:**\n${{ steps.retrieve-data.outputs.notes }}"}'
+         -F 'payload_json={"content": "**v${{ steps.bump-version.outputs.version }} Release Notes:**\n${{ steps.retrieve-data.outputs.notes }}"}'
