@@ -18,7 +18,6 @@ extension AppDelegateClient {
         setOrientation: { orientation in
             .fireAndForget {
                 UIDevice.current.setValue(orientation.rawValue, forKey: "orientation")
-                UINavigationController.attemptRotationToDeviceOrientation()
             }
         },
         setOrientationMask: { mask in
