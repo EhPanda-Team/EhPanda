@@ -108,7 +108,7 @@
 		AB58A5AC2776B2BC00C0D285 /* AppDelegateStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB58A5AB2776B2BC00C0D285 /* AppDelegateStore.swift */; };
 		AB58A5B22776B99000C0D285 /* AppStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB58A5B12776B99000C0D285 /* AppStore.swift */; };
 		AB5BE67926B95FDD007D4A55 /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB5BE67826B95FDD007D4A55 /* ShareViewController.swift */; };
-		AB5BE68026B95FDD007D4A55 /* ShareExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = AB5BE67626B95FDD007D4A55 /* ShareExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		AB5BE68026B95FDD007D4A55 /* ShareExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = AB5BE67626B95FDD007D4A55 /* ShareExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		AB60D0E9274C7ECE00F899AB /* WaterfallGrid in Frameworks */ = {isa = PBXBuildFile; productRef = AB60D0E8274C7ECE00F899AB /* WaterfallGrid */; };
 		AB63EADB2699AC8200090535 /* AppEnvMO+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB63EADA2699AC8200090535 /* AppEnvMO+CoreDataProperties.swift */; };
 		AB63EADD2699AC9100090535 /* AppEnvMO+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB63EADC2699AC9100090535 /* AppEnvMO+CoreDataClass.swift */; };
@@ -291,15 +291,15 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		AB5BE68126B95FDD007D4A55 /* Embed App Extensions */ = {
+		AB5BE68126B95FDD007D4A55 /* Embed Foundation Extensions */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				AB5BE68026B95FDD007D4A55 /* ShareExtension.appex in Embed App Extensions */,
+				AB5BE68026B95FDD007D4A55 /* ShareExtension.appex in Embed Foundation Extensions */,
 			);
-			name = "Embed App Extensions";
+			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -1384,7 +1384,7 @@
 				ABC3C7502593696C00E0C11B /* Sources */,
 				ABC3C7512593696C00E0C11B /* Frameworks */,
 				ABC3C7522593696C00E0C11B /* Resources */,
-				AB5BE68126B95FDD007D4A55 /* Embed App Extensions */,
+				AB5BE68126B95FDD007D4A55 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
@@ -1440,7 +1440,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 1300;
-				LastUpgradeCheck = 1240;
+				LastUpgradeCheck = 1400;
 				TargetAttributes = {
 					AB5BE67526B95FDD007D4A55 = {
 						CreatedOnToolsVersion = 13.0;
