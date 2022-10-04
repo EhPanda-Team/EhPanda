@@ -7,29 +7,29 @@
 */
 
 // MARK: BanInterval
-"enum.ban.interval.description.and" = "";
+"enum.ban_interval.description.and" = "";
 
 // MARK: ToplistsType
-"enum.toplists.type.value.yesterday" = "昨日";
-"enum.toplists.type.value.pastMonth" = "先月";
-"enum.toplists.type.value.pastYear" = "去年";
-"enum.toplists.type.value.allTime" = "すべて";
+"enum.toplists_type.value.yesterday" = "昨日";
+"enum.toplists_type.value.past_month" = "先月";
+"enum.toplists_type.value.past_year" = "去年";
+"enum.toplists_type.value.all_time" = "すべて";
 
 // MARK: Response
-"hath.download.response.hathClientNotFound" = "この機能を使うには、アカウントに関連付けられている H@H クライアントが必要です";
-"hath.download.response.hathClientNotOnline" = "H@H クライアントは現在オフラインのようです、起動してからもう一度お試しください";
-"hath.download.response.invalidResolution" = "このギャラリーは選択された解像度ではダウンロードできません";
+"website.response.hath_client_not_found" = "この機能を使うには、アカウントに関連付けられている H@H クライアントが必要です";
+"website.response.hath_client_not_online" = "H@H クライアントは現在オフラインのようです、起動してからもう一度お試しください";
+"website.response.invalid_resolution" = "このギャラリーは選択された解像度ではダウンロードできません";
 
 // MARK: HUD
 "hud.title.error" = "エラー";
 "hud.title.success" = "成功";
 "hud.title.loading" = "読み込み中...";
 "hud.title.communicating" = "通信中...";
-"hud.caption.copiedToClipboard" = "クリップボードにコピーしました";
-"hud.caption.savedToPhotoLibrary" = "ライブラリに保存しました";
+"hud.caption.copied_to_clipboard" = "クリップボードにコピーしました";
+"hud.caption.saved_to_photo_library" = "ライブラリに保存しました";
 
 // MARK: AutoLock
-"local.authorization.reason" = "自動ロック期限が切れたため、アプリがロックされています";
+"local_authorization.reason" = "自動ロック期限が切れたため、アプリがロックされています";
 
 // MARK: Common value
 "common.value.stars" = "%@ つ星";
@@ -46,57 +46,57 @@
 "common.value.records" = "%@ 件のレコード";
 
 // MARK: TabItem
-"tab.item.title.home" = "ホーム";
-"tab.item.title.favorites" = "お気に入り";
-"tab.item.title.search" = "検索";
-"tab.item.title.setting" = "設定";
+"tab_item.title.home" = "ホーム";
+"tab_item.title.favorites" = "お気に入り";
+"tab_item.title.search" = "検索";
+"tab_item.title.setting" = "設定";
 
 // MARK: ToolbarItem
-"toolbar.item.button.filters" = "フィルター";
-"toolbar.item.button.jumpPage" = "ページジャンプ";
-"toolbar.item.button.quickSearch" = "クイック検索";
+"toolbar_item.button.filters" = "フィルター";
+"toolbar_item.button.jump_page" = "ページジャンプ";
+"toolbar_item.button.quick_search" = "クイック検索";
 
 // MARK: JumpPage
-"jump.page.view.title.jumpPage" = "ページジャンプ";
-"jump.page.view.button.confirm" = "確認";
+"jump_page_view.title.jump_page" = "ページジャンプ";
+"jump_page_view.button.confirm" = "確認";
 
 // MARK: AlertView
-"loading.view.title.loading" = "読み込み中...";
-"loading.view.title.preparingDatabase" = "データベース準備中...";
-"not.login.view.title.needLogin" = "本機能をご利用になるにはログインが必要です";
-"not.login.view.button.login" = "ログイン";
-"error.view.button.retry" = "リトライ";
-"error.view.button.dropDatabase" = "データベースを削除";
-"error.view.title.tryLater" = "しばらくしてからもう一度お試しください";
-"error.view.title.network" = "ネットワーク障害が発生しました";
-"error.view.title.parsing" = "解析中に問題が発生しました";
-"error.view.title.unknown" = "不明なエラーが発生しました";
-"error.view.title.notFound" = "ここには何もないようです";
-"error.view.title.databaseCorrupted" = "データベースが破損しています。\nGitHub で Issue を作成していただくようお願いいたします。";
-"error.view.title.ipBanned" = "この IP アドレスを経由して過剰なページロードが行われました。クローラの疑いがあるため、この IP アドレスは一時的にブロックされました。ブロックは %@後に解除されます。";
-"error.view.title.copyrightClaim" = "申し訳ありませんが、このギャラリーは %@ の著作権主張によってアクセス不可になっています。";
-"error.view.title.galleryUnavailable" = "このギャラリーはすでに削除済みまたは無効です。";
+"loading_view.title.loading" = "読み込み中...";
+"loading_view.title.preparing_database" = "データベース準備中...";
+"not_login_view.title.need_login" = "本機能をご利用になるにはログインが必要です";
+"not_login_view.button.login" = "ログイン";
+"error_view.button.retry" = "リトライ";
+"error_view.button.drop_database" = "データベースを削除";
+"error_view.title.try_later" = "しばらくしてからもう一度お試しください";
+"error_view.title.network" = "ネットワーク障害が発生しました";
+"error_view.title.parsing" = "解析中に問題が発生しました";
+"error_view.title.unknown" = "不明なエラーが発生しました";
+"error_view.title.not_found" = "ここには何もないようです";
+"error_view.title.database_corrupted" = "データベースが破損しています。\nGitHub で Issue を作成していただくようお願いいたします。";
+"error_view.title.ip_banned" = "この IP アドレスを経由して過剰なページロードが行われました。クローラの疑いがあるため、この IP アドレスは一時的にブロックされました。ブロックは %@後に解除されます。";
+"error_view.title.copyright_claim" = "申し訳ありませんが、このギャラリーは %@ の著作権主張によってアクセス不可になっています。";
+"error_view.title.gallery_unavailable" = "このギャラリーはすでに削除済みまたは無効です。";
 
 // MARK: ConfirmationDialog
-"confirmation.dialog.title.dropDatabase" = "本アプリでのすべてのデータを失うことになります。\n本当にデータベースを削除してもよろしいですか？";
-"confirmation.dialog.title.removeCustomTranslations" = "本当にカスタム翻訳を削除してもよろしいですか？";
-"confirmation.dialog.title.logout" = "本当にログアウトしてもよろしいですか？";
-"confirmation.dialog.title.delete" = "本当にこれを削除してもよろしいですか？";
-"confirmation.dialog.title.clear" = "本当に削除してもよろしいですか？";
-"confirmation.dialog.title.reset" = "本当に戻してもよろしいですか？";
-"confirmation.dialog.button.dropDatabase" = "データベースを削除";
-"confirmation.dialog.button.remove" = "削除";
-"confirmation.dialog.button.logout" = "ログアウト";
-"confirmation.dialog.button.delete" = "削除";
-"confirmation.dialog.button.clear" = "削除";
-"confirmation.dialog.button.reset" = "戻す";
+"confirmation_dialog.title.drop_database" = "本アプリでのすべてのデータを失うことになります。\n本当にデータベースを削除してもよろしいですか？";
+"confirmation_dialog.title.remove_custom_translations" = "本当にカスタム翻訳を削除してもよろしいですか？";
+"confirmation_dialog.title.logout" = "本当にログアウトしてもよろしいですか？";
+"confirmation_dialog.title.delete" = "本当にこれを削除してもよろしいですか？";
+"confirmation_dialog.title.clear" = "本当に削除してもよろしいですか？";
+"confirmation_dialog.title.reset" = "本当に戻してもよろしいですか？";
+"confirmation_dialog.button.drop_database" = "データベースを削除";
+"confirmation_dialog.button.remove" = "削除";
+"confirmation_dialog.button.logout" = "ログアウト";
+"confirmation_dialog.button.delete" = "削除";
+"confirmation_dialog.button.clear" = "削除";
+"confirmation_dialog.button.reset" = "戻す";
 
 // MARK: SubSection
-"sub.section.button.showAll" = "すべて表示";
+"sub_section.button.show_all" = "すべて表示";
 
 // MARK: NewDawnView
-"new.dawn.view.title.first" = "新しい一日の夜明けです！";
-"new.dawn.view.title.second" = "今までの歩みを振り返り、少し賢くなった気がする。";
+"new_dawn_view.title.first" = "新しい一日の夜明けです！";
+"new_dawn_view.title.second" = "今までの歩みを振り返り、少し賢くなった気がする。";
 // Greeting
 "struct.greeting.mark.start" = "";
 "struct.greeting.mark.separator" = "、";
@@ -104,474 +104,475 @@
 "struct.greeting.mark.end" = "を手に入れた！";
 
 // MARK: HomeView
-"home.view.title.home" = "ホーム";
-"home.view.section.title.frontpage" = "フロントページ";
-"home.view.section.title.toplists" = "ランキング";
-"home.view.section.title.other" = "その他";
+"home_view.title.home" = "ホーム";
+"home_view.section.title.frontpage" = "フロントページ";
+"home_view.section.title.toplists" = "ランキング";
+"home_view.section.title.other" = "その他";
 // HomeMiscGridType
-"home.misc.grid.type.title.popular" = "人気";
-"home.misc.grid.type.title.watched" = "タグの購読";
-"home.misc.grid.type.title.history" = "閲覧履歴";
+"enum.home_misc_grid_type.title.popular" = "人気";
+"enum.home_misc_grid_type.title.watched" = "タグの購読";
+"enum.home_misc_grid_type.title.history" = "閲覧履歴";
 
 // MARK: FrontpageView
-"frontpage.view.title.frontpage" = "フロントページ";
+"frontpage_view.title.frontpage" = "フロントページ";
 
 // MARK: ToplistsView
-"toplists.view.title.toplists" = "ランキング";
+"toplists_view.title.toplists" = "ランキング";
 
 // MARK: PopularView
-"popular.view.title.popular" = "人気";
+"popular_view.title.popular" = "人気";
 
 // MARK: WatchedView
-"watched.view.title.watched" = "タグの購読";
+"watched_view.title.watched" = "タグの購読";
 
 // MARK: HistoryView
-"history.view.title.history" = "閲覧履歴";
+"history_view.title.history" = "閲覧履歴";
 
 // MARK: FavoritesView
-"favorites.view.title.favorites" = "お気に入り";
+"favorites_view.title.favorites" = "お気に入り";
 // FavoriteCategory
-"favorite.category.default" = "お気に入り %@";
-"favorite.category.all" = "すべて";
+"struct.user.favorite_category.default" = "お気に入り %@";
+"struct.user.favorite_category.all" = "すべて";
 
 // MARK: SearchView
-"search.view.title.search" = "検索";
-"search.view.section.title.recentlySearched" = "最近検索した項目";
-"search.view.section.title.recentlySeen" = "最近閲覧した項目";
-"search.view.section.title.quickSearch" = "クイック検索";
+"search_view.title.search" = "検索";
+"search_view.section.title.recently_searched" = "最近検索した項目";
+"search_view.section.title.recently_seen" = "最近閲覧した項目";
+"search_view.section.title.quick_search" = "クイック検索";
 // Searchable prompt
 "searchable.prompt.filter" = "フィルター";
 
 // MARK: QuickSearchView
-"quick.search.view.title.quickSearch" = "クイック検索";
-"quick.search.view.title.editWord" = "キーワードを編集";
-"quick.search.view.title.newWord" = "キーワードを追加";
-"quick.search.view.title.content" = "内容";
-"quick.search.view.title.name" = "名前";
-"quick.search.view.placeholder.optional" = "任意";
-"quick.search.view.toolbar.item.button.confirm" = "確認";
+"quick_search_view.title.quick_search" = "クイック検索";
+"quick_search_view.title.edit_word" = "キーワードを編集";
+"quick_search_view.title.new_word" = "キーワードを追加";
+"quick_search_view.title.content" = "内容";
+"quick_search_view.title.name" = "名前";
+"quick_search_view.placeholder.optional" = "任意";
+"quick_search_view.toolbar_item.button.confirm" = "確認";
 
 // MARK: SettingView
-"setting.view.title.setting" = "設定";
+"setting_view.title.setting" = "設定";
 // SettingStateRoute
-"enum.setting.state.route.value.account" = "アカウント";
-"enum.setting.state.route.value.general" = "一般";
-"enum.setting.state.route.value.appearance" = "外観";
-"enum.setting.state.route.value.reading" = "閲覧";
-"enum.setting.state.route.value.laboratory" = "ラボ";
-"enum.setting.state.route.value.ehPanda" = "EhPanda について";
+"enum.setting_state_route.value.account" = "アカウント";
+"enum.setting_state_route.value.general" = "一般";
+"enum.setting_state_route.value.appearance" = "外観";
+"enum.setting_state_route.value.reading" = "閲覧";
+"enum.setting_state_route.value.laboratory" = "ラボ";
+"enum.setting_state_route.value.ehPanda" = "EhPanda について";
 
 // MARK: AccountSettingView
-"account.setting.view.title.account" = "アカウント";
-"account.setting.view.title.showsNewDawnGreeting" = "夜明けの挨拶を表示";
-"account.setting.view.button.login" = "ログイン";
-"account.setting.view.button.logout" = "ログアウト";
-"account.setting.view.button.accountConfiguration" = "アカウント設定";
-"account.setting.view.button.tagsManagement" = "タグの購読を管理";
-"account.setting.view.button.copyCookies" = "クッキーをコピー";
+"account_setting_view.title.account" = "アカウント";
+"account_setting_view.title.shows_new_dawn_greeting" = "夜明けの挨拶を表示";
+"account_setting_view.button.login" = "ログイン";
+"account_setting_view.button.logout" = "ログアウト";
+"account_setting_view.button.account_configuration" = "アカウント設定";
+"account_setting_view.button.tags_management" = "タグの購読を管理";
+"account_setting_view.button.copy_cookies" = "クッキーをコピー";
 // CookieValue
-"struct.cookie.value.localized.string.expired" = "期限切れ";
-"struct.cookie.value.localized.string.mystery" = "拒否";
-"struct.cookie.value.localized.string.none" = "なし";
+"struct.cookie_value.localized_string.expired" = "期限切れ";
+"struct.cookie_value.localized_string.mystery" = "拒否";
+"struct.cookie_value.localized_string.none" = "なし";
 
 // MARK: LoginView
-"login.view.title.login" = "ログイン";
-"login.view.title.username" = "ユーザー名";
-"login.view.title.password" = "パスワード";
+"login_view.title.login" = "ログイン";
+"login_view.title.username" = "ユーザー名";
+"login_view.title.password" = "パスワード";
 
 // MARK: GeneralSettingView
-"general.setting.view.title.general" = "一般";
-"general.setting.view.title.language" = "言語";
-"general.setting.view.title.autoLock" = "自動ロック";
-"general.setting.view.title.enablesTagsExtension" = "タグの拡張機能を有効";
-"general.setting.view.title.translatesTags" = "タグを訳す";
-"general.setting.view.title.showsTagsSearchSuggestion" = "タグの検索提案を表示";
-"general.setting.view.title.showsImagesInTags" = "タグの画像を表示";
-"general.setting.view.title.redirectsLinksToTheSelectedHost" = "リンクを選択されたホストへリダイレクト";
-"general.setting.view.title.detectsLinksFromClipboard" = "クリップボードからリンクを探知";
-"general.setting.view.title.backgroundBlurRadius" = "バッググラウンドぼかし度";
-"general.setting.view.button.logs" = "ログ";
-"general.setting.view.button.importCustomTranslations" = "カスタム翻訳を取り込む";
-"general.setting.view.button.removeCustomTranslations" = "カスタム翻訳を削除";
-"general.setting.view.button.clearImageCaches" = "画像キャッシュを削除";
-"general.setting.view.value.defaultLanguageDescription" = "無効";
-"general.setting.view.section.title.tags" = "タグ";
-"general.setting.view.section.title.navigation" = "ナビゲーション";
-"general.setting.view.section.title.security" = "セキュリティ";
-"general.setting.view.section.title.caches" = "キャッシュ";
+"general_setting_view.title.general" = "一般";
+"general_setting_view.title.language" = "言語";
+"general_setting_view.title.auto_lock" = "自動ロック";
+"general_setting_view.title.enables_tags_extension" = "タグの拡張機能を有効";
+"general_setting_view.title.translates_tags" = "タグを訳す";
+"general_setting_view.title.shows_tags_search_suggestion" = "タグの検索提案を表示";
+"general_setting_view.title.shows_images_in_tags" = "タグの画像を表示";
+"general_setting_view.title.redirects_links_to_the_selected_host" = "リンクを選択されたホストへリダイレクト";
+"general_setting_view.title.detects_links_from_clipboard" = "クリップボードからリンクを探知";
+"general_setting_view.title.background_blur_radius" = "バッググラウンドぼかし度";
+"general_setting_view.button.logs" = "ログ";
+"general_setting_view.button.import_custom_translations" = "カスタム翻訳を取り込む";
+"general_setting_view.button.remove_custom_translations" = "カスタム翻訳を削除";
+"general_setting_view.button.clear_image_caches" = "画像キャッシュを削除";
+"general_setting_view.value.default_language_description" = "無効";
+"general_setting_view.section.title.tags" = "タグ";
+"general_setting_view.section.title.navigation" = "ナビゲーション";
+"general_setting_view.section.title.security" = "セキュリティ";
+"general_setting_view.section.title.caches" = "キャッシュ";
 // AutoLockPolicy
-"enum.auto.lock.policy.value.never" = "なし";
-"enum.auto.lock.policy.value.instantly" = "すぐに";
+"enum.auto_lock_policy.value.never" = "なし";
+"enum.auto_lock_policy.value.instantly" = "すぐに";
 
 // MARK: LogsView
-"logs.view.title.logs" = "ログ";
-"logs.view.title.latest" = "最新";
+"logs_view.title.logs" = "ログ";
+"logs_view.title.latest" = "最新";
 
 // MARK: AppearanceSettingView
-"appearance.setting.view.title.appearance" = "外観";
-"appearance.setting.view.title.theme" = "テーマ";
-"appearance.setting.view.title.tintColor" = "テーマの色";
-"appearance.setting.view.title.displayMode" = "表示モード";
-"appearance.setting.view.title.showsTagsInList" = "リストでタグを表示";
-"appearance.setting.view.title.maximumNumberOfTags" = "タグ数上限";
-"appearance.setting.view.title.displaysJapaneseTitle" = "日本語タイトルを表示";
-"appearance.setting.view.button.appIcon" = "アプリアイコン";
-"appearance.setting.view.menu.title.infite" = "無制限";
-"appearance.setting.view.section.title.list" = "リスト";
-"appearance.setting.view.section.title.gallery" = "ギャラリー";
+"appearance_setting_view.title.appearance" = "外観";
+"appearance_setting_view.title.theme" = "テーマ";
+"appearance_setting_view.title.tint_color" = "テーマの色";
+"appearance_setting_view.title.display_mode" = "表示モード";
+"appearance_setting_view.title.shows_tags_in_list" = "リストでタグを表示";
+"appearance_setting_view.title.maximum_number_of_tags" = "タグ数上限";
+"appearance_setting_view.title.displays_japanese_title" = "日本語タイトルを表示";
+"appearance_setting_view.button.app_icon" = "アプリアイコン";
+"appearance_setting_view.menu.title.infite" = "無制限";
+"appearance_setting_view.section.title.list" = "リスト";
+"appearance_setting_view.section.title.gallery" = "ギャラリー";
 // PerferredColorScheme
-"enum.perferred.color.scheme.value.automatic" = "自動";
-"enum.perferred.color.scheme.value.light" = "ライト";
-"enum.perferred.color.scheme.value.dark" = "ダーク";
+"enum.perferred_color_scheme.value.automatic" = "自動";
+"enum.perferred_color_scheme.value.light" = "ライト";
+"enum.perferred_color_scheme.value.dark" = "ダーク";
 // AppIconType
-"enum.app.icon.type.value.default" = "デフォルト";
-"enum.app.icon.type.value.ukiyoe" = "浮世絵";
-"enum.app.icon.type.value.developer" = "デベロッパー";
-"enum.app.icon.type.value.standWithUkraine2022" = "ウクライナと共に (2022)";
+"enum.app_icon_type.value.default" = "デフォルト";
+"enum.app_icon_type.value.ukiyoe" = "浮世絵";
+"enum.app_icon_type.value.developer" = "デベロッパー";
+"enum.app_icon_type.value.stand_with_ukraine_2022" = "ウクライナと共に (2022)";
 // ListDisplayMode
-"enum.display.mode.value.detail" = "デフォルト";
-"enum.display.mode.value.thumbnail" = "サムネイル";
+"enum.list_display_mode.value.detail" = "デフォルト";
+"enum.list_display_mode.value.thumbnail" = "サムネイル";
 
 // MARK: AppIconView
-"app.icon.view.title.appIcon" = "アプリアイコン";
+"app_icon_view.title.app_icon" = "アプリアイコン";
 
-// MARK: ReadingSettingView
-"reading.setting.view.title.reading" = "閲覧";
-"reading.setting.view.title.direction" = "方向";
-"reading.setting.view.title.preloadLimit" = "プリロード上限数";
-"reading.setting.view.title.enablesLandscape" = "横向きを有効";
-"reading.setting.view.title.separatorHeight" = "仕切りの高さ";
-"reading.setting.view.title.maximumScaleFactor" = "最大スケール係数";
-"reading.setting.view.title.doubleTapScaleFactor" = "ダブルタップスケール係数";
-"reading.setting.view.section.title.appearance" = "外観";
+// MARK: reading_settingView
+"reading_setting_view.title.reading" = "閲覧";
+"reading_setting_view.title.direction" = "方向";
+"reading_setting_view.title.preload_limit" = "プリロード上限数";
+"reading_setting_view.title.enables_landscape" = "横向きを有効";
+"reading_setting_view.title.separator_height" = "仕切りの高さ";
+"reading_setting_view.title.maximum_scale_factor" = "最大スケール係数";
+"reading_setting_view.title.double_tap_scale_factor" = "ダブルタップスケール係数";
+"reading_setting_view.section.title.appearance" = "外観";
 // ReadingDirection
-"enum.reading.direction.value.vertical" = "縦読み";
-"enum.reading.direction.value.rightToLeft" = "右開き";
-"enum.reading.direction.value.leftToRight" = "左開き";
+"enum.reading_direction.value.vertical" = "縦読み";
+"enum.reading_direction.value.right_to_left" = "右開き";
+"enum.reading_direction.value.left_to_right" = "左開き";
 
 // MARK: LaboratorySettingView
-"laboratory.setting.view.title.laboratory" = "ラボ";
-"laboratory.setting.view.title.bypassesSNIFiltering" = "SNI フィルタリング回避";
+"laboratory_setting_view.title.laboratory" = "ラボ";
+"laboratory_setting_view.title.bypasses_SNI_filtering" = "SNI フィルタリング回避";
 
 // MARK: EhPandaView
-"ehpanda.view.title.ehPanda" = "EhPanda";
-"ehpanda.view.button.website" = "ウェブサイト";
-"ehpanda.view.button.altStoreSource" = "AltStore ソース";
-"ehpanda.view.description.version" = "バージョン";
-"ehpanda.view.section.title.specialThanks" = "特別な感謝";
-"ehpanda.view.section.title.codeLevelContributors" = "コードレベル貢献者";
-"ehpanda.view.section.title.translationContributors" = "翻訳貢献者";
-"ehpanda.view.section.title.acknowledgements" = "謝辞";
+"ehPanda_view.title.ehPanda" = "EhPanda";
+"ehPanda_view.button.website" = "ウェブサイト";
+"ehPanda_view.button.altStore_source" = "AltStore ソース";
+"ehPanda_view.title.version" = "バージョン";
+"ehPanda_view.section.title.special_thanks" = "特別な感謝";
+"ehPanda_view.section.title.code_level_contributors" = "コードレベル貢献者";
+"ehPanda_view.section.title.translation_contributors" = "翻訳貢献者";
+"ehPanda_view.section.title.acknowledgements" = "謝辞";
 
 // MARK: DetailView
-"detail.view.button.read" = "閲覧";
-"detail.view.button.postComment" = "コメントを書く";
-"detail.view.toolbar.item.button.archives" = "アーカイブ";
-"detail.view.toolbar.item.button.torrents" = "トレント";
-"detail.view.toolbar.item.button.share" = "共有";
-"detail.view.context.menu.button.detail" = "詳細";
-"detail.view.context.menu.button.withdrawVote" = "投票を取り消す";
-"detail.view.context.menu.button.voteUp" = "賛成票を投じる";
-"detail.view.context.menu.button.voteDown" = "反対票を投じる";
-"detail.view.scroll.section.title.favorited" = "気に入り";
-"detail.view.scroll.section.title.language" = "言語";
-"detail.view.scroll.section.title.ratings" = "%@ 件の評価";
-"detail.view.scroll.section.title.pageCount" = "ページ数";
-"detail.view.scroll.section.title.fileSize" = "ファイルサイズ";
-"detail.view.scroll.section.description.favorited" = "回";
-"detail.view.scroll.section.description.pageCount" = "ページ";
-"detail.view.action.section.button.giveARating" = "評価する";
-"detail.view.action.section.button.similarGallery" = "類似ギャラリー";
-"detail.view.section.title.previews" = "プレビュー";
-"detail.view.section.title.comments" = "コメント";
+"detail_view.button.read" = "閲覧";
+"detail_view.button.post_comment" = "コメントを書く";
+"detail_view.toolbar_item.button.archives" = "アーカイブ";
+"detail_view.toolbar_item.button.torrents" = "トレント";
+"detail_view.toolbar_item.button.share" = "共有";
+"detail_view.context_menu.button.detail" = "詳細";
+"detail_view.context_menu.button.withdraw_vote" = "投票を取り消す";
+"detail_view.context_menu.button.vote_up" = "賛成票を投じる";
+"detail_view.context_menu.button.vote_down" = "反対票を投じる";
+"detail_view.description_section.title.favorited" = "気に入り";
+"detail_view.description_section.title.language" = "言語";
+"detail_view.description_section.title.ratings" = "%@ 件の評価";
+"detail_view.description_section.title.page_count" = "ページ数";
+"detail_view.description_section.title.file_size" = "ファイルサイズ";
+"detail_view.description_section.description.favorited" = "回";
+"detail_view.description_section.description.page_count" = "ページ";
+"detail_view.action_section.button.give_a_rating" = "評価する";
+"detail_view.action_section.button.similar_gallery" = "類似ギャラリー";
+"detail_view.section.title.previews" = "プレビュー";
+"detail_view.section.title.comments" = "コメント";
 
 // MARK: ArchivesView
-"archives.view.title.archives" = "アーカイブ";
-"archives.view.button.downloadToHathClient" = "H@H クライアントにダウンロード";
+"archives_view.title.archives" = "アーカイブ";
+"archives_view.button.download_to_hath_client" = "H@H クライアントにダウンロード";
 // HathArchive
-"struct.hath.archive.price.value.free" = "無料";
-"struct.hath.archive.price.value.notAvailable" = "無効";
-"struct.hath.archive.resolution.value.original" = "オリジナル";
+"struct.hath_archive.price.free" = "無料";
+"struct.hath_archive.price.not_available" = "無効";
+// ArchiveResolution
+"enum.archive_resolution.value.original" = "オリジナル";
 
 // MARK: TorrentsView
-"torrents.view.title.torrents" = "トレント";
+"torrents_view.title.torrents" = "トレント";
 
 // MARK: GalleryInfosView
-"gallery.infos.view.title.galleryInfos" = "ギャラリー情報";
-"gallery.infos.view.title.ID" = "ID";
-"gallery.infos.view.title.token" = "Token";
-"gallery.infos.view.title.title" = "タイトル";
-"gallery.infos.view.title.japaneseTitle" = "日本語タイトル";
-"gallery.infos.view.title.galleryURL" = "ギャラリーリンク";
-"gallery.infos.view.title.coverURL" = "カバーリンク";
-"gallery.infos.view.title.archiveURL" = "アーカイブリンク";
-"gallery.infos.view.title.torrentURL" = "トレントリンク";
-"gallery.infos.view.title.parentURL" = "親ギャラリーリンク";
-"gallery.infos.view.title.category" = "カテゴリー";
-"gallery.infos.view.title.uploader" = "アップローダー";
-"gallery.infos.view.title.postedDate" = "投稿日付";
-"gallery.infos.view.title.visibility" = "可視";
-"gallery.infos.view.title.language" = "言語";
-"gallery.infos.view.title.pageCount" = "ページ数";
-"gallery.infos.view.title.fileSize" = "ファイルサイズ";
-"gallery.infos.view.title.favoritedTimes" = "気に入り数";
-"gallery.infos.view.title.favorited" = "お気に入り済み";
-"gallery.infos.view.title.ratingCount" = "評価数";
-"gallery.infos.view.title.averageRating" = "平均評価";
-"gallery.infos.view.title.myRating" = "自分の評価";
-"gallery.infos.view.title.torrentCount" = "トレント数";
-"gallery.infos.view.value.none" = "なし";
-"gallery.infos.view.value.yes" = "はい";
-"gallery.infos.view.value.no" = "いいえ";
+"gallery_infos_view.title.gallery_infos" = "ギャラリー情報";
+"gallery_infos_view.title.id" = "ID";
+"gallery_infos_view.title.token" = "Token";
+"gallery_infos_view.title.title" = "タイトル";
+"gallery_infos_view.title.japanese_title" = "日本語タイトル";
+"gallery_infos_view.title.gallery_URL" = "ギャラリーリンク";
+"gallery_infos_view.title.cover_URL" = "カバーリンク";
+"gallery_infos_view.title.archive_URL" = "アーカイブリンク";
+"gallery_infos_view.title.torrent_URL" = "トレントリンク";
+"gallery_infos_view.title.parent_URL" = "親ギャラリーリンク";
+"gallery_infos_view.title.category" = "カテゴリー";
+"gallery_infos_view.title.uploader" = "アップローダー";
+"gallery_infos_view.title.posted_date" = "投稿日付";
+"gallery_infos_view.title.visibility" = "可視";
+"gallery_infos_view.title.language" = "言語";
+"gallery_infos_view.title.page_count" = "ページ数";
+"gallery_infos_view.title.file_size" = "ファイルサイズ";
+"gallery_infos_view.title.favorited_times" = "気に入り数";
+"gallery_infos_view.title.favorited" = "お気に入り済み";
+"gallery_infos_view.title.rating_count" = "評価数";
+"gallery_infos_view.title.average_rating" = "平均評価";
+"gallery_infos_view.title.my_rating" = "自分の評価";
+"gallery_infos_view.title.torrent_count" = "トレント数";
+"gallery_infos_view.value.none" = "なし";
+"gallery_infos_view.value.yes" = "はい";
+"gallery_infos_view.value.no" = "いいえ";
 // GalleryVisibility
-"gallery.visibility.value.yes" = "はい";
-"gallery.visibility.value.no" = "いいえ (%@)";
-"gallery.visibility.value.no.reason.expunged" = "削除済み";
+"enum.gallery_visibility.value.yes" = "はい";
+"enum.gallery_visibility.value.no" = "いいえ (%@)";
+"enum.gallery_visibility.value.no.reason.expunged" = "削除済み";
 
 // MARK: TagDetailView
-"tag.detail.view.section.title.images" = "画像";
-"tag.detail.view.section.title.links" = "リンク";
+"tag_detail_view.section.title.images" = "画像";
+"tag_detail_view.section.title.links" = "リンク";
 
 // MARK: CommentsView
-"comments.view.title.comments" = "コメント";
+"comments_view.title.comments" = "コメント";
 
 // MARK: PostCommentView
-"post.comment.view.title.postComment" = "コメントを書く";
-"post.comment.view.title.editComment" = "コメントを編集";
-"post.comment.view.button.cancel" = "キャンセル";
-"post.comment.view.button.post" = "投稿";
+"post_comment_view.title.post_comment" = "コメントを書く";
+"post_comment_view.title.edit_comment" = "コメントを編集";
+"post_comment_view.button.cancel" = "キャンセル";
+"post_comment_view.button.post" = "投稿";
 
 // MARK: PreviewsView
-"previews.view.title.previews" = "プレビュー";
+"previews_view.title.previews" = "プレビュー";
 
 // MARK: ReadingView
-"reading.view.context.menu.button.reload" = "再読み込み";
-"reading.view.context.menu.button.copy" = "コピー";
-"reading.view.context.menu.button.save" = "保存";
-"reading.view.context.menu.button.saveOriginal" = "オリジナルを保存";
-"reading.view.context.menu.button.share" = "共有";
-"reading.view.toolbar.item.title.autoPlay" = "自動再生";
-"reading.view.toolbar.item.title.dualPageMode" = "デュアルページモード";
-"reading.view.toolbar.item.title.exceptTheCover" = "カバーを除く";
-"reading.view.toolbar.item.button.retryAllFailedImages" = "読み込み失敗した画像をすべてリトライ";
-"reading.view.toolbar.item.button.reloadAllImages" = "画像をすべて再読み込み";
-"reading.view.toolbar.item.button.readingSetting" = "閲覧設定";
+"reading_view.context_menu.button.reload" = "再読み込み";
+"reading_view.context_menu.button.copy" = "コピー";
+"reading_view.context_menu.button.save" = "保存";
+"reading_view.context_menu.button.save_original" = "オリジナルを保存";
+"reading_view.context_menu.button.share" = "共有";
+"reading_view.toolbar_item.title.auto_play" = "自動再生";
+"reading_view.toolbar_item.title.dual_page_mode" = "デュアルページモード";
+"reading_view.toolbar_item.title.except_the_cover" = "カバーを除く";
+"reading_view.toolbar_item.button.retry_all_failed_images" = "読み込み失敗した画像をすべてリトライ";
+"reading_view.toolbar_item.button.reload_all_images" = "画像をすべて再読み込み";
+"reading_view.toolbar_item.button.reading_setting" = "閲覧設定";
 // AutoPlayPolicy
-"enum.auto.play.policy.value.off" = "オフ";
+"enum.auto_play_policy.value.off" = "オフ";
 
 // MARK: FiltersView
-"filters.view.title.filters" = "フィルター";
-"filters.view.title.advancedSettings" = "高度な設定";
-"filters.view.title.searchGalleryName" = "ギャラリー名を検索";
-"filters.view.title.searchGalleryTags" = "ギャラリータグを検索";
-"filters.view.title.searchGalleryDescription" = "ギャラリー説明を検索";
-"filters.view.title.searchTorrentFilenames" = "トレントファイル名を検索";
-"filters.view.title.onlyShowGalleriesWithTorrents" = "トレントを含むもののみを表示";
-"filters.view.title.searchLowPowerTags" = "低希望タグを検索";
-"filters.view.title.searchDownvotedTags" = "低評価タグを検索";
-"filters.view.title.showExpungedGalleries" = "削除済みのギャラリーを表示";
-"filters.view.title.setMinimumRating" = "評価の下限を指定";
-"filters.view.title.minimumRating" = "評価の下限";
-"filters.view.title.setPagesRange" = "ページ数範囲を指定";
-"filters.view.title.pagesRange" = "ページ数範囲";
-"filters.view.title.disableLanguageFilter" = "言語フィルターを無効化";
-"filters.view.title.disableUploaderFilter" = "アップローダフィルターを無効化";
-"filters.view.title.disableTagsFilter" = "タグフィルターを無効化";
-"filters.view.button.resetFilters" = "既定値に戻す";
-"filters.view.section.title.advanced" = "高度";
-"filters.view.section.title.defaultFilter" = "既定フィルター";
+"filters_view.title.filters" = "フィルター";
+"filters_view.title.advanced_settings" = "高度な設定";
+"filters_view.title.search_gallery_name" = "ギャラリー名を検索";
+"filters_view.title.search_gallery_tags" = "ギャラリータグを検索";
+"filters_view.title.search_gallery_description" = "ギャラリー説明を検索";
+"filters_view.title.search_torrent_filenames" = "トレントファイル名を検索";
+"filters_view.title.only_show_galleries_with_torrents" = "トレントを含むもののみを表示";
+"filters_view.title.search_low_power_tags" = "低希望タグを検索";
+"filters_view.title.search_downvoted_tags" = "低評価タグを検索";
+"filters_view.title.search_expunged_galleries" = "削除済みのギャラリーを表示";
+"filters_view.title.set_minimum_rating" = "評価の下限を指定";
+"filters_view.title.minimum_rating" = "評価の下限";
+"filters_view.title.set_pages_range" = "ページ数範囲を指定";
+"filters_view.title.pages_range" = "ページ数範囲";
+"filters_view.title.disable_language_filter" = "言語フィルターを無効化";
+"filters_view.title.disable_uploader_filter" = "アップローダフィルターを無効化";
+"filters_view.title.disable_tags_filter" = "タグフィルターを無効化";
+"filters_view.button.reset_filters" = "既定値に戻す";
+"filters_view.section.title.advanced" = "高度";
+"filters_view.section.title.default_filter" = "既定フィルター";
 // FilterRange
-"enum.filter.range.value.search" = "検索";
-"enum.filter.range.value.global" = "全般";
-"enum.filter.range.value.watched" = "タグの購読";
+"enum.filter_range.value.search" = "検索";
+"enum.filter_range.value.global" = "全般";
+"enum.filter_range.value.watched" = "タグの購読";
 
 // MARK: EhSettingView
-"eh.setting.view.title.hostSettings" = "%@ 設定";
-"eh.setting.view.section.title.profileSettings" = "プロファイル設定";
-"eh.setting.view.title.selectedProfile" = "選択されたプロファイル";
-"eh.setting.view.button.setAsDefault" = "デフォルトに設定";
-"eh.setting.view.button.deleteProfile" = "プロファイルを削除";
-"eh.setting.view.button.rename" = "名前を変更";
-"eh.setting.view.button.createNew" = "新規作成";
-"eh.setting.view.toolbar.item.button.done" = "完了";
+"eh_setting_view.title.host_settings" = "%@ 設定";
+"eh_setting_view.section.title.profile_settings" = "プロファイル設定";
+"eh_setting_view.title.selected_profile" = "選択されたプロファイル";
+"eh_setting_view.button.set_as_default" = "デフォルトに設定";
+"eh_setting_view.button.delete_profile" = "プロファイルを削除";
+"eh_setting_view.button.rename" = "名前を変更";
+"eh_setting_view.button.create_new" = "新規作成";
+"eh_setting_view.toolbar_item.button.done" = "完了";
 
-"eh.setting.view.section.title.imageLoadSettings" = "画像読み込み設定";
-"eh.setting.view.title.loadImagesThroughTheHathNetwork" = "Hath ネットワーク経由で画像を読み込む";
-"eh.setting.view.title.browsingCountry" = "閲覧国";
-"eh.setting.view.description.browsingCountry" = "**%@** から本サイトを閲覧している、またはその国の VPN・プロキシを使用しているようです。本サイトはその地域の H@H クライアントから画像を読み込もうとしますが、もし自動検知の結果が誤っている、または特別な事情でほかの地域のクライアントを希望する場合（例えばスプリットトンネル VPN を使用している）は下に手動選択できます。";
+"eh_setting_view.section.title.image_load_settings" = "画像読み込み設定";
+"eh_setting_view.title.load_images_through_the_hath_network" = "Hath ネットワーク経由で画像を読み込む";
+"eh_setting_view.title.browsing_country" = "閲覧国";
+"eh_setting_view.description.browsing_country" = "**%@** から本サイトを閲覧している、またはその国の VPN・プロキシを使用しているようです。本サイトはその地域の H@H クライアントから画像を読み込もうとしますが、もし自動検知の結果が誤っている、または特別な事情でほかの地域のクライアントを希望する場合（例えばスプリットトンネル VPN を使用している）は下に手動選択できます。";
 // EhSetting.LoadThroughHathSetting
-"enum.eh.setting.load.through.hath.setting.value.anyClient" = "任意のクライアント";
-"enum.eh.setting.load.through.hath.setting.value.defaultPortOnly" = "デフォルトポートのクライアントのみ";
-"enum.eh.setting.load.through.hath.setting.value.modernNo" = "使わない [モダン / HTTPS]";
-"enum.eh.setting.load.through.hath.setting.value.legacyNo" = "使わない [レガシー / HTTP]";
-"enum.eh.setting.load.through.hath.setting.description.anyClient" = "推奨。";
-"enum.eh.setting.load.through.hath.setting.description.defaultPortOnly" = "遅くなることがあります。非標準発信ポートがファイヤーウォール・プロキシにブロックされた場合のみ有効にしてください。";
-"enum.eh.setting.load.through.hath.setting.description.modernNo" = "寄付者独占オプション。閲覧による割当額の消耗は激しくなります。厳重な問題が起こった場合以外おすすめしません。";
-"enum.eh.setting.load.through.hath.setting.description.legacyNo" = "寄付者独占オプション。モダンブラウザでは機能しないこともあります。レガシー・旧型ブラウザの場合以外おすすめしません。";
+"enum.eh_setting.load_through_hath_setting.value.any_client" = "任意のクライアント";
+"enum.eh_setting.load_through_hath_setting.value.default_port_only" = "デフォルトポートのクライアントのみ";
+"enum.eh_setting.load_through_hath_setting.value.modern_no" = "使わない [モダン / HTTPS]";
+"enum.eh_setting.load_through_hath_setting.value.legacy_no" = "使わない [レガシー / HTTP]";
+"enum.eh_setting.load_through_hath_setting.description.any_client" = "推奨。";
+"enum.eh_setting.load_through_hath_setting.description.default_port_only" = "遅くなることがあります。非標準発信ポートがファイヤーウォール・プロキシにブロックされた場合のみ有効にしてください。";
+"enum.eh_setting.load_through_hath_setting.description.modern_no" = "寄付者独占オプション。閲覧による割当額の消耗は激しくなります。厳重な問題が起こった場合以外おすすめしません。";
+"enum.eh_setting.load_through_hath_setting.description.legacy_no" = "寄付者独占オプション。モダンブラウザでは機能しないこともあります。レガシー・旧型ブラウザの場合以外おすすめしません。";
 
-"eh.setting.view.section.title.imageSizeSettings" = "画像サイズ設定";
-"eh.setting.view.title.imageResolution" = "画像解像度";
-"eh.setting.view.description.imageResolution" = "一般的に、オンライン閲覧の画像は 1280x までにリサンプリングされます。下のいずれかのリサンプリング解像度に変更できます。サーバー負荷軽減のため、1280x 以上の解像度は現時点で寄付者、Hath Perks 利用者または UID が 3,000,000 以下の者に限定されます。";
-"eh.setting.view.title.imageSize" = "画像サイズ";
-"eh.setting.view.description.imageSize" = "サイト側は画像を自動的にスクリーンに適したサイズにスケールしますが、手動的にその画像の表示サイズ最大値を指定することも可能です。ブラウザが処理を実行するため、画像のリサンプリングは行われません。（ゼロは無制限を意味します）";
-"eh.setting.view.title.horizontal" = "幅";
-"eh.setting.view.title.vertical" = "高さ";
+"eh_setting_view.section.title.image_size_settings" = "画像サイズ設定";
+"eh_setting_view.title.image_resolution" = "画像解像度";
+"eh_setting_view.description.image_resolution" = "一般的に、オンライン閲覧の画像は 1280x までにリサンプリングされます。下のいずれかのリサンプリング解像度に変更できます。サーバー負荷軽減のため、1280x 以上の解像度は現時点で寄付者、Hath Perks 利用者または UID が 3,000,000 以下の者に限定されます。";
+"eh_setting_view.title.image_size" = "画像サイズ";
+"eh_setting_view.description.image_size" = "サイト側は画像を自動的にスクリーンに適したサイズにスケールしますが、手動的にその画像の表示サイズ最大値を指定することも可能です。ブラウザが処理を実行するため、画像のリサンプリングは行われません。（ゼロは無制限を意味します）";
+"eh_setting_view.title.horizontal" = "幅";
+"eh_setting_view.title.vertical" = "高さ";
 // EhSetting.ImageResolution
-"enum.eh.setting.image.resolution.value.auto" = "自動";
+"enum.eh_setting.image_resolution.value.auto" = "自動";
 
-"eh.setting.view.section.title.galleryNameDisplay" = "ギャラリー名表示";
-"eh.setting.view.title.galleryName" = "ギャラリー名";
-"eh.setting.view.description.galleryName" = "英語・ローマ字と日本語両方のタイトルを持つギャラリーはたくさんあります。どちらをデフォルトにしますか？";
+"eh_setting_view.section.title.gallery_name_display" = "ギャラリー名表示";
+"eh_setting_view.title.gallery_name" = "ギャラリー名";
+"eh_setting_view.description.gallery_name" = "英語・ローマ字と日本語両方のタイトルを持つギャラリーはたくさんあります。どちらをデフォルトにしますか？";
 // EhSetting.GalleryName
-"enum.eh.setting.gallery.name.value.default" = "デフォルトタイトル";
-"enum.eh.setting.gallery.name.value.japanese" = "日本語タイトル（可能なら）";
+"enum.eh_setting.gallery_name.value.default" = "デフォルトタイトル";
+"enum.eh_setting.gallery_name.value.japanese" = "日本語タイトル（可能なら）";
 
-"eh.setting.view.section.title.archiverSettings" = "アーカイバー設定";
-"eh.setting.view.title.archiverBehavior" = "アーカイバー動作";
-"eh.setting.view.description.archiverBehavior" = "アーカイバーのデフォルト動作はオリジナルとリサンプルのアーカイブのコストと選択を確認してからリンクを提供し、それからそのリンクをクリックしたりどこかにペーストしたりすることも可能です。そのデフォルト動作はここで変更できます。";
+"eh_setting_view.section.title.archiver_settings" = "アーカイバー設定";
+"eh_setting_view.title.archiver_behavior" = "アーカイバー動作";
+"eh_setting_view.description.archiver_behavior" = "アーカイバーのデフォルト動作はオリジナルとリサンプルのアーカイブのコストと選択を確認してからリンクを提供し、それからそのリンクをクリックしたりどこかにペーストしたりすることも可能です。そのデフォルト動作はここで変更できます。";
 // EhSetting.ArchiverBehavior
-"enum.eh.setting.archiver.behavior.value.manualSelectManualStart" = "手動で選択、手動で開始（デフォルト）";
-"enum.eh.setting.archiver.behavior.value.manualSelectAutoStart" = "手動で選択、自動で開始";
-"enum.eh.setting.archiver.behavior.value.autoSelectOriginalManualStart" = "自動でオリジナルを選択、手動で開始";
-"enum.eh.setting.archiver.behavior.value.autoSelectOriginalAutoStart" = "自動でオリジナルを選択、自動で開始";
-"enum.eh.setting.archiver.behavior.value.autoSelectResampleManualStart" = "自動でリサンプルを選択、手動で開始";
-"enum.eh.setting.archiver.behavior.value.autoSelectResampleAutoStart" = "自動でリサンプルを選択、自動で開始";
+"enum.eh_setting.archiver_behavior.value.manual_select_manual_start" = "手動で選択、手動で開始（デフォルト）";
+"enum.eh_setting.archiver_behavior.value.manual_select_auto_start" = "手動で選択、自動で開始";
+"enum.eh_setting.archiver_behavior.value.auto_select_original_manual_start" = "自動でオリジナルを選択、手動で開始";
+"enum.eh_setting.archiver_behavior.value.auto_select_original_auto_start" = "自動でオリジナルを選択、自動で開始";
+"enum.eh_setting.archiver_behavior.value.auto_select_resample_manual_start" = "自動でリサンプルを選択、手動で開始";
+"enum.eh_setting.archiver_behavior.value.auto_select_resample_auto_start" = "自動でリサンプルを選択、自動で開始";
 
-"eh.setting.view.section.title.frontPageSettings" = "フロントページ設定";
-"eh.setting.view.title.displayMode" = "表示モード";
-"eh.setting.view.description.displayMode" = "フロント・検索ページで使う表示モードはどれにしますか？";
-"eh.setting.view.description.galleryCategory" = "フロント・検索ページでどれらのカテゴリーのギャラリーを表示しますか？";
+"eh_setting_view.section.title.front_page_settings" = "フロントページ設定";
+"eh_setting_view.title.display_mode" = "表示モード";
+"eh_setting_view.description.display_mode" = "フロント・検索ページで使う表示モードはどれにしますか？";
+"eh_setting_view.description.gallery_category" = "フロント・検索ページでどれらのカテゴリーのギャラリーを表示しますか？";
 // EhSetting.DisplayMode
-"enum.eh.setting.display.mode.value.compact" = "コンパクト";
-"enum.eh.setting.display.mode.value.thumbnail" = "サムネイル";
-"enum.eh.setting.display.mode.value.extended" = "拡張";
-"enum.eh.setting.display.mode.value.minimal" = "最小化";
-"enum.eh.setting.display.mode.value.minimalPlus" = "最小化＋";
+"enum.eh_setting.display_mode.value.compact" = "コンパクト";
+"enum.eh_setting.display_mode.value.thumbnail" = "サムネイル";
+"enum.eh_setting.display_mode.value.extended" = "拡張";
+"enum.eh_setting.display_mode.value.minimal" = "最小化";
+"enum.eh_setting.display_mode.value.minimalPlus" = "最小化＋";
 
-"eh.setting.view.section.title.favorites" = "お気に入り";
-"eh.setting.view.description.favoriteCategories" = "ここではお気に入りカテゴリー名の変更ができます。";
-"eh.setting.view.title.favoritesSortOrder" = "お気に入りの並び替え";
-"eh.setting.view.description.favoritesSortOrder" = "お気に入りページのデフォルト並び替え順序も変更可能です。注意：平成28年3月の改修前にお気に入りに追加した項目はタイムスタンプが含まれていないため、この設定を無視して代わりにギャラリーの投稿時間を使います。";
+"eh_setting_view.section.title.favorites" = "お気に入り";
+"eh_setting_view.description.favorite_categories" = "ここではお気に入りカテゴリー名の変更ができます。";
+"eh_setting_view.title.favorites_sort_order" = "お気に入りの並び替え";
+"eh_setting_view.description.favorites_sort_order" = "お気に入りページのデフォルト並び替え順序も変更可能です。注意：平成28年3月の改修前にお気に入りに追加した項目はタイムスタンプが含まれていないため、この設定を無視して代わりにギャラリーの投稿時間を使います。";
 // EhSetting.FavoritesSortOrder
-"enum.eh.setting.favorites.sort.order.value.lastUpdateTime" = "更新時間の新しい順";
-"enum.eh.setting.favorites.sort.order.value.favoritedTime" = "気に入った時間の新しい順";
+"enum.eh_setting.favorites_sort_order.value.last_update_time" = "更新時間の新しい順";
+"enum.eh_setting.favorites_sort_order.value.favorited_time" = "気に入った時間の新しい順";
 
-"eh.setting.view.section.title.ratings" = "評価";
-"eh.setting.view.title.ratingsColor" = "評価の色";
-"eh.setting.view.promt.ratingsColor" = "RRGGB";
-"eh.setting.view.description.ratingsColor" = "デフォルトでは、評価済みのギャラリーは 2 以下の評価に赤い星を使う、2.5 ~ 4 には緑、4.5 以上には青。下に色の組み合わせを入れることでこのルールをカスタマイズできます。一つの星の色は一つの文字で指定します。デフォルトの「RRGGB」は「一番目と二番目の星は赤（Red）、三番と四番は緑（Green）、五番は青（Blue）」を意味します。黄色（Yellow）も使用可能です。R・G・B・Yで組み合わせた五文字はどれも機能します。";
+"eh_setting_view.section.title.ratings" = "評価";
+"eh_setting_view.title.ratings_color" = "評価の色";
+"eh_setting_view.promt.ratings_color" = "RRGGB";
+"eh_setting_view.description.ratings_color" = "デフォルトでは、評価済みのギャラリーは 2 以下の評価に赤い星を使う、2.5 ~ 4 には緑、4.5 以上には青。下に色の組み合わせを入れることでこのルールをカスタマイズできます。一つの星の色は一つの文字で指定します。デフォルトの「RRGGB」は「一番目と二番目の星は赤（Red）、三番と四番は緑（Green）、五番は青（Blue）」を意味します。黄色（Yellow）も使用可能です。R・G・B・Yで組み合わせた五文字はどれも機能します。";
 
-"eh.setting.view.section.title.tagsNamespaces" = "タグの名前空間";
-"eh.setting.view.description.tagsNamespaces" = "下にある名前空間を削除仕様にすることで通常のタグ検索結果から排除できます。注意：排除された名前空間のタグを持つギャラリーが表示されなくなることはありません。";
+"eh_setting_view.section.title.tags_namespaces" = "タグの名前空間";
+"eh_setting_view.description.tags_namespaces" = "下にある名前空間を削除仕様にすることで通常のタグ検索結果から排除できます。注意：排除された名前空間のタグを持つギャラリーが表示されなくなることはありません。";
 
-"eh.setting.view.section.title.tagFilteringThreshold" = "タグフィルタリングしきい値";
-"eh.setting.view.title.tagFilteringThreshold" = "タグフィルタリングしきい値";
-"eh.setting.view.description.tagFilteringThreshold" = "負の重み付きでマイタグに追加することでタグをソフトフィルタリングすることができます。もしあるギャラリーが持つタグの重み総和がこのしきい値より低ければ、そのギャラリーはフィルタリングされます。このしきい値はゼロから -9999 まで設定できます。";
+"eh_setting_view.section.title.tag_filtering_threshold" = "タグフィルタリングしきい値";
+"eh_setting_view.title.tag_filtering_threshold" = "タグフィルタリングしきい値";
+"eh_setting_view.description.tag_filtering_threshold" = "負の重み付きでマイタグに追加することでタグをソフトフィルタリングすることができます。もしあるギャラリーが持つタグの重み総和がこのしきい値より低ければ、そのギャラリーはフィルタリングされます。このしきい値はゼロから -9999 まで設定できます。";
 
-"eh.setting.view.section.title.tagWatchingThreshold" = "タグ購読しきい値";
-"eh.setting.view.title.tagWatchingThreshold" = "タグ購読しきい値";
-"eh.setting.view.description.tagWatchingThreshold" = "もしあるギャラリーは最近投稿されたもので、少なくても一つの正の重みの購読タグを持っていて、購読タグの重み総和がこのしきい値と同じまたはより高ければ、そのギャラリーは購読画面で表示されます。このしきい値はゼロから 9999 まで設定できます。";
+"eh_setting_view.section.title.tag_watching_threshold" = "タグ購読しきい値";
+"eh_setting_view.title.tag_watching_threshold" = "タグ購読しきい値";
+"eh_setting_view.description.tag_watching_threshold" = "もしあるギャラリーは最近投稿されたもので、少なくても一つの正の重みの購読タグを持っていて、購読タグの重み総和がこのしきい値と同じまたはより高ければ、そのギャラリーは購読画面で表示されます。このしきい値はゼロから 9999 まで設定できます。";
 
-"eh.setting.view.section.title.excludedLanguages" = "排除された言語";
-"eh.setting.view.description.excludedLanguages" = "特定の言語のギャラリーをリストと検索結果から隠したい場合、下に選択してください。注意：どんな検索クエリーを使ってもこれらの言語のギャラリーは表示されません。";
+"eh_setting_view.section.title.excluded_languages" = "排除された言語";
+"eh_setting_view.description.excluded_languages" = "特定の言語のギャラリーをリストと検索結果から隠したい場合、下に選択してください。注意：どんな検索クエリーを使ってもこれらの言語のギャラリーは表示されません。";
 // EhSetting.ExcludedLanguagesCategory
-"enum.eh.setting.excluded.languages.category.value.original" = "オリジナル";
-"enum.eh.setting.excluded.languages.category.value.translated" = "翻訳版";
-"enum.eh.setting.excluded.languages.category.value.rewrite" = "書き換え版";
+"enum.eh_setting.excluded_languages_category.value.original" = "オリジナル";
+"enum.eh_setting.excluded_languages_category.value.translated" = "翻訳版";
+"enum.eh_setting.excluded_languages_category.value.rewrite" = "書き換え版";
 
-"eh.setting.view.section.title.excludedUploaders" = "排除された投稿者";
-"eh.setting.view.description.excludedUploaders" = "特定の投稿者のギャラリーをリストと検索結果から隠したい場合、下に名前を記入してください。一行に一つのユーザー名で。注意：どんな検索クエリーを使ってもこの投稿者たちのギャラリーは表示されません。";
-"eh.setting.view.description.excludedUploadersCount" = "現時点で **%@ / %@** の排除スロットが使用済みです。";
+"eh_setting_view.section.title.excluded_uploaders" = "排除された投稿者";
+"eh_setting_view.description.excluded_uploaders" = "特定の投稿者のギャラリーをリストと検索結果から隠したい場合、下に名前を記入してください。一行に一つのユーザー名で。注意：どんな検索クエリーを使ってもこの投稿者たちのギャラリーは表示されません。";
+"eh_setting_view.description.excluded_uploaders_count" = "現時点で **%@ / %@** の排除スロットが使用済みです。";
 
-"eh.setting.view.section.title.searchResultCount" = "検索結果数";
-"eh.setting.view.title.resultCount" = "結果数";
-"eh.setting.view.description.resultCount" = "インデックス・トレントの検索ページで、各ページにどれくらいの結果数がお望みですか？\n（「Hath Perk：ページング拡張」が必要）";
+"eh_setting_view.section.title.search_result_count" = "検索結果数";
+"eh_setting_view.title.result_count" = "結果数";
+"eh_setting_view.description.result_count" = "インデックス・トレントの検索ページで、各ページにどれくらいの結果数がお望みですか？\n（「Hath Perk：ページング拡張」が必要）";
 
-"eh.setting.view.section.title.thumbnailSettings" = "サムネイル設定";
-"eh.setting.view.title.thumbnailLoadTiming" = "サムネイル読み込みタイミング";
-"eh.setting.view.description.thumbnailLoadTiming" = "リストでは、どんなタイミングでホームページのマウスオーバーサムネイルを読み込みますか？";
-"eh.setting.view.description.thumbnailConfiguration" = "すべてのギャラリーに適応するデフォルトのサムネイル構成を設定できます。";
-"eh.setting.view.title.thumbnailSize" = "サイズ";
-"eh.setting.view.title.thumbnailRowCount" = "行数";
+"eh_setting_view.section.title.thumbnail_settings" = "サムネイル設定";
+"eh_setting_view.title.thumbnail_load_timing" = "サムネイル読み込みタイミング";
+"eh_setting_view.description.thumbnail_load_timing" = "リストでは、どんなタイミングでホームページのマウスオーバーサムネイルを読み込みますか？";
+"eh_setting_view.description.thumbnail_configuration" = "すべてのギャラリーに適応するデフォルトのサムネイル構成を設定できます。";
+"eh_setting_view.title.thumbnail_size" = "サイズ";
+"eh_setting_view.title.thumbnail_row_count" = "行数";
 // EhSetting.ThumbnailLoadTiming
-"enum.eh.setting.thumbnail.load.timing.value.onMouseOver" = "マウス経過時";
-"enum.eh.setting.thumbnail.load.timing.value.onPageLoad" = "ページ読み込み時";
-"enum.eh.setting.thumbnail.load.timing.description.onMouseOver" = "ページの読み込みが速くなりますが、サムネイルの表示はちょっぴり遅れてきます。";
-"enum.eh.setting.thumbnail.load.timing.description.onPageLoad" = "ページの読み込み時間が増えますが、サムネイルはすぐに表示できます。";
+"enum.eh_setting.thumbnail_load_timing.value.on_mouse_over" = "マウス経過時";
+"enum.eh_setting.thumbnail_load_timing.value.on_page_load" = "ページ読み込み時";
+"enum.eh_setting.thumbnail_load_timing.description.on_mouse_over" = "ページの読み込みが速くなりますが、サムネイルの表示はちょっぴり遅れてきます。";
+"enum.eh_setting.thumbnail_load_timing.description.on_page_load" = "ページの読み込み時間が増えますが、サムネイルはすぐに表示できます。";
 // EhSetting.ThumbnailSize
-"enum.eh.setting.thumbnail.size.value.normal" = "普通";
-"enum.eh.setting.thumbnail.size.value.large" = "大きめ";
+"enum.eh_setting.thumbnail_size.value.normal" = "普通";
+"enum.eh_setting.thumbnail_size.value.large" = "大きめ";
 
-"eh.setting.view.section.title.thumbnailScaling" = "サムネイルスケーリング";
-"eh.setting.view.title.scaleFactor" = "スケール係数";
-"eh.setting.view.description.scaleFactor" = "サムネイル・拡張表示モードでのサムネイルを 75% ~ 150% のカスタム値にスケールすることができます。";
+"eh_setting_view.section.title.thumbnail_scaling" = "サムネイルスケーリング";
+"eh_setting_view.title.scale_factor" = "スケール係数";
+"eh_setting_view.description.scale_factor" = "サムネイル・拡張表示モードでのサムネイルを 75% ~ 150% のカスタム値にスケールすることができます。";
 
-"eh.setting.view.section.title.viewportOverride" = "表示領域オーバーライド";
-"eh.setting.view.title.virtualWidth" = "仮想幅";
-"eh.setting.view.description.virtualWidth" = "モバイルデバイスの仮想幅をオーバーライドすることができます。一般的にはデバイスの DPI に基づいて自動的に決定されます。例えばサムネイルスケール係数が 100% の場合、640 ~ 1400 の幅が合理的です。";
+"eh_setting_view.section.title.viewport_override" = "表示領域オーバーライド";
+"eh_setting_view.title.virtual_width" = "仮想幅";
+"eh_setting_view.description.virtual_width" = "モバイルデバイスの仮想幅をオーバーライドすることができます。一般的にはデバイスの DPI に基づいて自動的に決定されます。例えばサムネイルスケール係数が 100% の場合、640 ~ 1400 の幅が合理的です。";
 
-"eh.setting.view.section.title.galleryComments" = "ギャラリーコメント";
-"eh.setting.view.title.commentsSortOrder" = "コメントの並び替え";
-"eh.setting.view.title.commentsVotesShowTiming" = "コメントスコア表示タイミング";
+"eh_setting_view.section.title.gallery_comments" = "ギャラリーコメント";
+"eh_setting_view.title.comments_sort_order" = "コメントの並び替え";
+"eh_setting_view.title.comments_votes_show_timing" = "コメントスコア表示タイミング";
 // EhSetting.CommentsSortOrder
-"enum.eh.setting.comments.sort.order.value.oldest" = "コメントの古い順";
-"enum.eh.setting.comments.sort.order.value.recent" = "コメントの新しい順";
-"enum.eh.setting.comments.sort.order.value.highestScore" = "スコアの高い順";
+"enum.eh_setting.comments_sort_order.value.oldest" = "コメントの古い順";
+"enum.eh_setting.comments_sort_order.value.recent" = "コメントの新しい順";
+"enum.eh_setting.comments_sort_order.value.highest_score" = "スコアの高い順";
 // EhSetting.CommentVotesShowTiming
-"enum.eh.setting.comments.votes.show.timing.value.onHoverOrClick" = "スコアに経過・クリック時";
-"enum.eh.setting.comments.votes.show.timing.value.always" = "常時";
+"enum.eh_setting.comments_votes_show_timing.value.on_hover_or_click" = "スコアに経過・クリック時";
+"enum.eh_setting.comments_votes_show_timing.value.always" = "常時";
 
-"eh.setting.view.section.title.galleryTags" = "ギャラリータグ";
-"eh.setting.view.title.tagsSortOrder" = "タグの並び替え";
-// EhSetting.TagsSortOrder
-"enum.eh.setting.tags.sort.order.value.alphabetical" = "アルファベット順";
-"enum.eh.setting.tags.sort.order.value.tagPower" = "タグパワーの高い順";
+"eh_setting_view.section.title.gallery_tags" = "ギャラリータグ";
+"eh_setting_view.title.tags_sort_order" = "タグの並び替え";
+// EhSetting.tags_sort_order
+"enum.eh_setting.tags_sort_order.value.alphabetical" = "アルファベット順";
+"enum.eh_setting.tags_sort_order.value.tag_power" = "タグパワーの高い順";
 
-"eh.setting.view.section.title.galleryPageNumbering" = "ギャラリーページ数";
-"eh.setting.view.title.showGalleryPageNumbers" = "ギャラリーページ数を表示";
+"eh_setting_view.section.title.gallery_page_numbering" = "ギャラリーページ数";
+"eh_setting_view.title.show_gallery_page_numbers" = "ギャラリーページ数を表示";
 
-"eh.setting.view.section.title.hathLocalNetworkHost" = "Hath ローカルネットワークホスト";
-"eh.setting.view.title.ipAddressPort" = "IP アドレス:ポート";
-"eh.setting.view.description.ipAddressPort" = "ローカルネットワークで今と同じパブリック IP を使う H@H クライアントがお持ちの場合、この設定が役立ちます。ルーターがバグが多くてリクエストを自分の IP にルートすることができないこともあります、それをこの設定で回避できます。\nH@H クライアントが今と同じデバイスで運行している場合はループバックアドレス（127.0.0.1:ポート）を使ってください。別のデバイスの場合はそのローカル IP を使ってください。かなりのブラウザの構成では外部サイトがローカル IP にアクセスすることをブロックしています、この設定を有効にするには本サイトをホワイトリストに入れてください。";
+"eh_setting_view.section.title.hath_local_network_host" = "Hath ローカルネットワークホスト";
+"eh_setting_view.title.ip_address_port" = "IP アドレス:ポート";
+"eh_setting_view.description.ip_address_port" = "ローカルネットワークで今と同じパブリック IP を使う H@H クライアントがお持ちの場合、この設定が役立ちます。ルーターがバグが多くてリクエストを自分の IP にルートすることができないこともあります、それをこの設定で回避できます。\nH@H クライアントが今と同じデバイスで運行している場合はループバックアドレス（127.0.0.1:ポート）を使ってください。別のデバイスの場合はそのローカル IP を使ってください。かなりのブラウザの構成では外部サイトがローカル IP にアクセスすることをブロックしています、この設定を有効にするには本サイトをホワイトリストに入れてください。";
 
-"eh.setting.view.section.title.originalImages" = "オリジナル画像";
-"eh.setting.view.title.useOriginalImages" = "オリジナル画像を使う";
+"eh_setting_view.section.title.original_images" = "オリジナル画像";
+"eh_setting_view.title.use_original_images" = "オリジナル画像を使う";
 
-"eh.setting.view.section.title.multiPageViewer" = "マルチページビューア";
-"eh.setting.view.title.useMultiPageViewer" = "マルチページビューアを使う";
-"eh.setting.view.title.displayStyle" = "表示仕様";
-"eh.setting.view.title.showThumbnailPane" = "サムネイルパネルを表示";
+"eh_setting_view.section.title.multi_page_viewer" = "マルチページビューア";
+"eh_setting_view.title.use_multi_page_viewer" = "マルチページビューアを使う";
+"eh_setting_view.title.display_style" = "表示仕様";
+"eh_setting_view.title.show_thumbnail_pane" = "サムネイルパネルを表示";
 // EhSetting.MultiplePageViewerStyle
-"enum.eh.setting.multiple.page.viewer.style.value.alignLeftScaleIfOverWidth" = "左寄せ、幅によってスケール";
-"enum.eh.setting.multiple.page.viewer.style.value.alignCenterScaleIfOverWidth" = "中央揃え、幅によってスケール";
-"enum.eh.setting.multiple.page.viewer.style.value.alignCenterAlwaysScale" = "中央揃え、常時スケール";
+"enum.eh_setting.multiple_page_viewer_style.value.align_left_scale_if_over_width" = "左寄せ、幅によってスケール";
+"enum.eh_setting.multiple_page_viewer_style.value.align_center_scale_if_over_width" = "中央揃え、幅によってスケール";
+"enum.eh_setting.multiple_page_viewer_style.value.align_center_always_scale" = "中央揃え、常時スケール";
 
 // MARK: Category
 "enum.category.value.doujinshi" = "同人誌";
 "enum.category.value.manga" = "漫画";
-"enum.category.value.artistCG" = "イラスト";
-"enum.category.value.gameCG" = "ゲーム CG";
+"enum.category.value.artist_CG" = "イラスト";
+"enum.category.value.game_CG" = "ゲーム CG";
 "enum.category.value.western" = "西洋";
-"enum.category.value.nonH" = "健全";
-"enum.category.value.imageSet" = "画像集";
+"enum.category.value.non_h" = "健全";
+"enum.category.value.image_set" = "画像集";
 "enum.category.value.cosplay" = "コスプレ";
-"enum.category.value.asianPorn" = "アジア";
+"enum.category.value.asian_porn" = "アジア";
 "enum.category.value.misc" = "その他";
 "enum.category.value.private" = "プライベート";
 
-// MARK: TagCategory
-"enum.tag.namespace.value.reclass" = "再分類";
-"enum.tag.namespace.value.language" = "言語";
-"enum.tag.namespace.value.parody" = "原作";
-"enum.tag.namespace.value.character" = "キャラ";
-"enum.tag.namespace.value.group" = "団体";
-"enum.tag.namespace.value.artist" = "作者";
-"enum.tag.namespace.value.male" = "男性";
-"enum.tag.namespace.value.female" = "女性";
-"enum.tag.namespace.value.mixed" = "混在性別";
-"enum.tag.namespace.value.cosplayer" = "レイヤー";
-"enum.tag.namespace.value.other" = "その他";
-"enum.tag.namespace.value.temp" = "一時的";
+// MARK: TagNamespace
+"enum.tag_namespace.value.reclass" = "再分類";
+"enum.tag_namespace.value.language" = "言語";
+"enum.tag_namespace.value.parody" = "原作";
+"enum.tag_namespace.value.character" = "キャラ";
+"enum.tag_namespace.value.group" = "団体";
+"enum.tag_namespace.value.artist" = "作者";
+"enum.tag_namespace.value.male" = "男性";
+"enum.tag_namespace.value.female" = "女性";
+"enum.tag_namespace.value.mixed" = "混在性別";
+"enum.tag_namespace.value.cosplayer" = "レイヤー";
+"enum.tag_namespace.value.other" = "その他";
+"enum.tag_namespace.value.temp" = "一時的";
 
 // MARK: Language
 "enum.language.value.invalid" = "無効";
@@ -642,255 +643,255 @@
 "enum.language.value.zulu" = "ズールー語";
 
 // MARK: BrowsingCountry
-"enum.browsing.country.name.autoDetect" = "自動検出";
-"enum.browsing.country.name.afghanistan" = "アフガニスタン";
-"enum.browsing.country.name.alandIslands" = "オーランド諸島";
-"enum.browsing.country.name.albania" = "アルバニア";
-"enum.browsing.country.name.algeria" = "アルジェリア";
-"enum.browsing.country.name.americanSamoa" = "アメリカ領サモア";
-"enum.browsing.country.name.andorra" = "アンドラ";
-"enum.browsing.country.name.angola" = "アンゴラ";
-"enum.browsing.country.name.anguilla" = "アンギラ";
-"enum.browsing.country.name.antarctica" = "南極大陸";
-"enum.browsing.country.name.antiguaAndBarbuda" = "アンティグア・バーブーダ";
-"enum.browsing.country.name.argentina" = "アルゼンチン";
-"enum.browsing.country.name.armenia" = "アルメニア";
-"enum.browsing.country.name.aruba" = "アルバ";
-"enum.browsing.country.name.asiaPacificRegion" = "アジア太平洋地域";
-"enum.browsing.country.name.australia" = "オーストラリア";
-"enum.browsing.country.name.austria" = "オーストリア";
-"enum.browsing.country.name.azerbaijan" = "アゼルバイジャン";
-"enum.browsing.country.name.bahamas" = "バハマ";
-"enum.browsing.country.name.bahrain" = "バーレーン";
-"enum.browsing.country.name.bangladesh" = "バングラデシュ";
-"enum.browsing.country.name.barbados" = "バルバドス";
-"enum.browsing.country.name.belarus" = "ベラルーシ";
-"enum.browsing.country.name.belgium" = "ベルギー";
-"enum.browsing.country.name.belize" = "ベリーズ";
-"enum.browsing.country.name.benin" = "ベナン";
-"enum.browsing.country.name.bermuda" = "バミューダ諸島";
-"enum.browsing.country.name.bhutan" = "ブータン";
-"enum.browsing.country.name.bolivia" = "ボリビア";
-"enum.browsing.country.name.bonaireSaintEustatiusAndSaba" = "ボネール、シント・ユースタティウスおよびサバ";
-"enum.browsing.country.name.bosniaAndHerzegovina" = "ボスニア・ヘルツェゴビナ";
-"enum.browsing.country.name.botswana" = "ボツワナ";
-"enum.browsing.country.name.bouvetIsland" = "ブーベ島";
-"enum.browsing.country.name.brazil" = "ブラジル";
-"enum.browsing.country.name.britishIndianOceanTerritory" = "イギリス領インド洋地域";
-"enum.browsing.country.name.bruneiDarussalam" = "ブルネイ・ダルサラーム";
-"enum.browsing.country.name.bulgaria" = "ブルガリア";
-"enum.browsing.country.name.burkinaFaso" = "ブルキナファソ";
-"enum.browsing.country.name.burundi" = "ブルンジ";
-"enum.browsing.country.name.cambodia" = "カンボジア";
-"enum.browsing.country.name.cameroon" = "カメルーン";
-"enum.browsing.country.name.canada" = "カナダ";
-"enum.browsing.country.name.capeVerde" = "カーボベルデ";
-"enum.browsing.country.name.caymanIslands" = "ケイマン諸島";
-"enum.browsing.country.name.centralAfricanRepublic" = "中央アフリカ共和国";
-"enum.browsing.country.name.chad" = "チャド";
-"enum.browsing.country.name.chile" = "チリ";
-"enum.browsing.country.name.china" = "中華人民共和国";
-"enum.browsing.country.name.christmasIsland" = "クリスマス島";
-"enum.browsing.country.name.cocosIslands" = "ココス諸島";
-"enum.browsing.country.name.colombia" = "コロンビア";
-"enum.browsing.country.name.comoros" = "コモロ";
-"enum.browsing.country.name.congo" = "コンゴ共和国";
-"enum.browsing.country.name.theDemocraticRepublicOfTheCongo" = "コンゴ民主共和国";
-"enum.browsing.country.name.cookIslands" = "クック諸島";
-"enum.browsing.country.name.costaRica" = "コスタリカ";
-"enum.browsing.country.name.coteDIvoire" = "コートジボワール";
-"enum.browsing.country.name.croatia" = "クロアチア";
-"enum.browsing.country.name.cuba" = "キューバ";
-"enum.browsing.country.name.curacao" = "キュラソー島";
-"enum.browsing.country.name.cyprus" = "キプロス";
-"enum.browsing.country.name.czechRepublic" = "チェコ";
-"enum.browsing.country.name.denmark" = "デンマーク";
-"enum.browsing.country.name.djibouti" = "ジブチ";
-"enum.browsing.country.name.dominica" = "ドミニカ";
-"enum.browsing.country.name.dominicanRepublic" = "ドミニカ共和国";
-"enum.browsing.country.name.ecuador" = "エクアドル";
-"enum.browsing.country.name.egypt" = "エジプト";
-"enum.browsing.country.name.elSalvador" = "エルサルバドル";
-"enum.browsing.country.name.equatorialGuinea" = "赤道ギニア";
-"enum.browsing.country.name.eritrea" = "エリトリア";
-"enum.browsing.country.name.estonia" = "エストニア";
-"enum.browsing.country.name.ethiopia" = "エチオピア";
-"enum.browsing.country.name.europe" = "ヨーロッパ";
-"enum.browsing.country.name.falklandIslands" = "フォークランド諸島";
-"enum.browsing.country.name.faroeIslands" = "フェロー諸島";
-"enum.browsing.country.name.fiji" = "フィジー";
-"enum.browsing.country.name.finland" = "フィンランド";
-"enum.browsing.country.name.france" = "フランス";
-"enum.browsing.country.name.frenchGuiana" = "フランス領ギアナ";
-"enum.browsing.country.name.frenchPolynesia" = "フランス領ポリネシア";
-"enum.browsing.country.name.frenchSouthernTerritories" = "フランス領南方・南極地域";
-"enum.browsing.country.name.gabon" = "ガボン";
-"enum.browsing.country.name.gambia" = "ガンビア";
-"enum.browsing.country.name.georgia" = "ジョージア";
-"enum.browsing.country.name.germany" = "ドイツ";
-"enum.browsing.country.name.ghana" = "ガーナ";
-"enum.browsing.country.name.gibraltar" = "ジブラルタル";
-"enum.browsing.country.name.greece" = "ギリシャ";
-"enum.browsing.country.name.greenland" = "グリーンランド";
-"enum.browsing.country.name.grenada" = "グレナダ";
-"enum.browsing.country.name.guadeloupe" = "グアドループ";
-"enum.browsing.country.name.guam" = "グアム";
-"enum.browsing.country.name.guatemala" = "グアテマラ";
-"enum.browsing.country.name.guernsey" = "ガーンジー";
-"enum.browsing.country.name.guinea" = "ギニア";
-"enum.browsing.country.name.guineaBissau" = "ギニアビサウ";
-"enum.browsing.country.name.guyana" = "ガイアナ";
-"enum.browsing.country.name.haiti" = "ハイチ";
-"enum.browsing.country.name.heardIslandAndMcDonaldIslands" = "ハード島とマクドナルド諸島";
-"enum.browsing.country.name.vaticanCityState" = "バチカン市国";
-"enum.browsing.country.name.honduras" = "ホンジュラス";
-"enum.browsing.country.name.hongKong" = "香港";
-"enum.browsing.country.name.hungary" = "ハンガリー";
-"enum.browsing.country.name.iceland" = "アイスランド";
-"enum.browsing.country.name.india" = "インド";
-"enum.browsing.country.name.indonesia" = "インドネシア";
-"enum.browsing.country.name.iran" = "イラン";
-"enum.browsing.country.name.iraq" = "イラク";
-"enum.browsing.country.name.ireland" = "アイルランド";
-"enum.browsing.country.name.isleOfMan" = "マン島";
-"enum.browsing.country.name.israel" = "イスラエル";
-"enum.browsing.country.name.italy" = "イタリア";
-"enum.browsing.country.name.jamaica" = "ジャマイカ";
-"enum.browsing.country.name.japan" = "日本";
-"enum.browsing.country.name.jersey" = "ジャージー";
-"enum.browsing.country.name.jordan" = "ヨルダン";
-"enum.browsing.country.name.kazakhstan" = "カザフスタン";
-"enum.browsing.country.name.kenya" = "ケニア";
-"enum.browsing.country.name.kiribati" = "キリバス";
-"enum.browsing.country.name.kuwait" = "クウェート";
-"enum.browsing.country.name.kyrgyzstan" = "キルギス";
-"enum.browsing.country.name.laoPeoplesDemocraticRepublic" = "ラオス";
-"enum.browsing.country.name.latvia" = "ラトビア";
-"enum.browsing.country.name.lebanon" = "レバノン";
-"enum.browsing.country.name.lesotho" = "レソト";
-"enum.browsing.country.name.liberia" = "リベリア";
-"enum.browsing.country.name.libya" = "リビア";
-"enum.browsing.country.name.liechtenstein" = "リヒテンシュタイン";
-"enum.browsing.country.name.lithuania" = "リトアニア";
-"enum.browsing.country.name.luxembourg" = "ルクセンブルク";
-"enum.browsing.country.name.macau" = "マカオ";
-"enum.browsing.country.name.macedonia" = "マケドニア";
-"enum.browsing.country.name.madagascar" = "マダガスカル";
-"enum.browsing.country.name.malawi" = "マラウイ";
-"enum.browsing.country.name.malaysia" = "マレーシア";
-"enum.browsing.country.name.maldives" = "モルディブ";
-"enum.browsing.country.name.mali" = "マリ";
-"enum.browsing.country.name.malta" = "マルタ";
-"enum.browsing.country.name.marshallIslands" = "マーシャル諸島";
-"enum.browsing.country.name.martinique" = "マルティニーク";
-"enum.browsing.country.name.mauritania" = "モーリタニア";
-"enum.browsing.country.name.mauritius" = "モーリシャス";
-"enum.browsing.country.name.mayotte" = "マヨット";
-"enum.browsing.country.name.mexico" = "メキシコ";
-"enum.browsing.country.name.micronesia" = "ミクロネシア";
-"enum.browsing.country.name.moldova" = "モルドバ";
-"enum.browsing.country.name.monaco" = "モナコ";
-"enum.browsing.country.name.mongolia" = "モンゴル";
-"enum.browsing.country.name.montenegro" = "モンテネグロ";
-"enum.browsing.country.name.montserrat" = "モントセラト";
-"enum.browsing.country.name.morocco" = "モロッコ";
-"enum.browsing.country.name.mozambique" = "モザンビーク";
-"enum.browsing.country.name.myanmar" = "ミャンマー";
-"enum.browsing.country.name.namibia" = "ナミビア";
-"enum.browsing.country.name.nauru" = "ナウル";
-"enum.browsing.country.name.nepal" = "ネパール";
-"enum.browsing.country.name.netherlands" = "オランダ";
-"enum.browsing.country.name.newCaledonia" = "ニューカレドニア";
-"enum.browsing.country.name.newZealand" = "ニュージーランド";
-"enum.browsing.country.name.nicaragua" = "ニカラグア";
-"enum.browsing.country.name.niger" = "ニジェール";
-"enum.browsing.country.name.nigeria" = "ナイジェリア";
-"enum.browsing.country.name.niue" = "ニウエ";
-"enum.browsing.country.name.norfolkIsland" = "ノーフォーク島";
-"enum.browsing.country.name.northKorea" = "朝鮮";
-"enum.browsing.country.name.northernMarianaIslands" = "北マリアナ諸島";
-"enum.browsing.country.name.norway" = "ノルウェー";
-"enum.browsing.country.name.oman" = "オマーン";
-"enum.browsing.country.name.pakistan" = "パキスタン";
-"enum.browsing.country.name.palau" = "パラオ";
-"enum.browsing.country.name.palestinianTerritory" = "パレスチナ";
-"enum.browsing.country.name.panama" = "パナマ";
-"enum.browsing.country.name.papuaNewGuinea" = "パプアニューギニア";
-"enum.browsing.country.name.paraguay" = "パラグアイ";
-"enum.browsing.country.name.peru" = "ペルー";
-"enum.browsing.country.name.philippines" = "フィリピン";
-"enum.browsing.country.name.pitcairnIslands" = "ピトケアン諸島";
-"enum.browsing.country.name.poland" = "ポーランド";
-"enum.browsing.country.name.portugal" = "ポルトガル";
-"enum.browsing.country.name.puertoRico" = "プエルトリコ";
-"enum.browsing.country.name.qatar" = "カタール";
-"enum.browsing.country.name.reunion" = "ユニオン";
-"enum.browsing.country.name.romania" = "ルーマニア";
-"enum.browsing.country.name.russianFederation" = "ロシア";
-"enum.browsing.country.name.rwanda" = "ルワンダ";
-"enum.browsing.country.name.saintBarthelemy" = "サン・バルテルミー島";
-"enum.browsing.country.name.saintHelena" = "セントヘレナ";
-"enum.browsing.country.name.saintKittsAndNevis" = "セントクリストファー・ネービス";
-"enum.browsing.country.name.saintLucia" = "セントルシア";
-"enum.browsing.country.name.saintMartin" = "サン・マルタン島";
-"enum.browsing.country.name.saintPierreAndMiquelon" = "サンピエール島・ミクロン島";
-"enum.browsing.country.name.saintVincentAndTheGrenadines" = "セントビンセントおよびグレナディーン諸島";
-"enum.browsing.country.name.samoa" = "サモア";
-"enum.browsing.country.name.sanMarino" = "サンマリノ";
-"enum.browsing.country.name.saoTomeAndPrincipe" = "サントメ・プリンシペ";
-"enum.browsing.country.name.saudiArabia" = "サウジアラビア";
-"enum.browsing.country.name.senegal" = "セネガル";
-"enum.browsing.country.name.serbia" = "セルビア";
-"enum.browsing.country.name.seychelles" = "セーシェル";
-"enum.browsing.country.name.sierraLeone" = "シエラレオネ";
-"enum.browsing.country.name.singapore" = "シンガポール";
-"enum.browsing.country.name.sintMaarten" = "シント・マールテン";
-"enum.browsing.country.name.slovakia" = "スロバキア";
-"enum.browsing.country.name.slovenia" = "スロベニア";
-"enum.browsing.country.name.solomonIslands" = "ソロモン諸島";
-"enum.browsing.country.name.somalia" = "ソマリア";
-"enum.browsing.country.name.southAfrica" = "南アフリカ";
-"enum.browsing.country.name.southGeorgiaAndTheSouthSandwichIslands" = "サウスジョージア・サウスサンドウィッチ諸島";
-"enum.browsing.country.name.southKorea" = "韓国";
-"enum.browsing.country.name.southSudan" = "南スーダン";
-"enum.browsing.country.name.spain" = "スペイン";
-"enum.browsing.country.name.sriLanka" = "スリランカ";
-"enum.browsing.country.name.sudan" = "スーダン";
-"enum.browsing.country.name.suriname" = "スリナム";
-"enum.browsing.country.name.svalbardAndJanMayen" = "スヴァールバル諸島およびヤンマイエン島";
-"enum.browsing.country.name.swaziland" = "エスワティニ";
-"enum.browsing.country.name.sweden" = "スウェーデン";
-"enum.browsing.country.name.switzerland" = "スイス";
-"enum.browsing.country.name.syrianArabRepublic" = "シリア";
-"enum.browsing.country.name.taiwan" = "台湾";
-"enum.browsing.country.name.tajikistan" = "タジキスタン";
-"enum.browsing.country.name.tanzania" = "タンザニア";
-"enum.browsing.country.name.thailand" = "タイ";
-"enum.browsing.country.name.timorLeste" = "東ティモール";
-"enum.browsing.country.name.togo" = "トーゴ";
-"enum.browsing.country.name.tokelau" = "トケラウ";
-"enum.browsing.country.name.tonga" = "トンガ";
-"enum.browsing.country.name.trinidadAndTobago" = "トリニダード・トバゴ";
-"enum.browsing.country.name.tunisia" = "チュニジア";
-"enum.browsing.country.name.turkey" = "トルコ";
-"enum.browsing.country.name.turkmenistan" = "トルクメニスタン";
-"enum.browsing.country.name.turksAndCaicosIslands" = "タークス・カイコス諸島";
-"enum.browsing.country.name.tuvalu" = "ツバル";
-"enum.browsing.country.name.uganda" = "ウガンダ";
-"enum.browsing.country.name.ukraine" = "ウクライナ";
-"enum.browsing.country.name.unitedArabEmirates" = "アラブ首長国連邦";
-"enum.browsing.country.name.unitedKingdom" = "イギリス";
-"enum.browsing.country.name.unitedStates" = "アメリカ";
-"enum.browsing.country.name.unitedStatesMinorOutlyingIslands" = "合衆国領有小離島";
-"enum.browsing.country.name.uruguay" = "ウルグアイ";
-"enum.browsing.country.name.uzbekistan" = "ウズベキスタン";
-"enum.browsing.country.name.vanuatu" = "バヌアツ";
-"enum.browsing.country.name.venezuela" = "ベネズエラ";
-"enum.browsing.country.name.vietnam" = "ベトナム";
-"enum.browsing.country.name.virginIslandsBritish" = "イギリス領バージン諸島";
-"enum.browsing.country.name.virginIslandsUS" = "アメリカ領ヴァージン諸島";
-"enum.browsing.country.name.wallisAndFutuna" = "ウォリス・フツナ";
-"enum.browsing.country.name.westernSahara" = "西サハラ";
-"enum.browsing.country.name.yemen" = "イエメン";
-"enum.browsing.country.name.zambia" = "ザンビア";
-"enum.browsing.country.name.zimbabwe" = "ジンバブエ";
+"enum.browsing_country.name.auto_detect" = "自動検出";
+"enum.browsing_country.name.afghanistan" = "アフガニスタン";
+"enum.browsing_country.name.aland_islands" = "オーランド諸島";
+"enum.browsing_country.name.albania" = "アルバニア";
+"enum.browsing_country.name.algeria" = "アルジェリア";
+"enum.browsing_country.name.american_samoa" = "アメリカ領サモア";
+"enum.browsing_country.name.andorra" = "アンドラ";
+"enum.browsing_country.name.angola" = "アンゴラ";
+"enum.browsing_country.name.anguilla" = "アンギラ";
+"enum.browsing_country.name.antarctica" = "南極大陸";
+"enum.browsing_country.name.antigua_and_barbuda" = "アンティグア・バーブーダ";
+"enum.browsing_country.name.argentina" = "アルゼンチン";
+"enum.browsing_country.name.armenia" = "アルメニア";
+"enum.browsing_country.name.aruba" = "アルバ";
+"enum.browsing_country.name.asia_pacific_region" = "アジア太平洋地域";
+"enum.browsing_country.name.australia" = "オーストラリア";
+"enum.browsing_country.name.austria" = "オーストリア";
+"enum.browsing_country.name.azerbaijan" = "アゼルバイジャン";
+"enum.browsing_country.name.bahamas" = "バハマ";
+"enum.browsing_country.name.bahrain" = "バーレーン";
+"enum.browsing_country.name.bangladesh" = "バングラデシュ";
+"enum.browsing_country.name.barbados" = "バルバドス";
+"enum.browsing_country.name.belarus" = "ベラルーシ";
+"enum.browsing_country.name.belgium" = "ベルギー";
+"enum.browsing_country.name.belize" = "ベリーズ";
+"enum.browsing_country.name.benin" = "ベナン";
+"enum.browsing_country.name.bermuda" = "バミューダ諸島";
+"enum.browsing_country.name.bhutan" = "ブータン";
+"enum.browsing_country.name.bolivia" = "ボリビア";
+"enum.browsing_country.name.bonaire_saint_eustatius_and_saba" = "ボネール、シント・ユースタティウスおよびサバ";
+"enum.browsing_country.name.bosnia_and_herzegovina" = "ボスニア・ヘルツェゴビナ";
+"enum.browsing_country.name.botswana" = "ボツワナ";
+"enum.browsing_country.name.bouvet_island" = "ブーベ島";
+"enum.browsing_country.name.brazil" = "ブラジル";
+"enum.browsing_country.name.british_indian_ocean_territory" = "イギリス領インド洋地域";
+"enum.browsing_country.name.brunei_darussalam" = "ブルネイ・ダルサラーム";
+"enum.browsing_country.name.bulgaria" = "ブルガリア";
+"enum.browsing_country.name.burkina_faso" = "ブルキナファソ";
+"enum.browsing_country.name.burundi" = "ブルンジ";
+"enum.browsing_country.name.cambodia" = "カンボジア";
+"enum.browsing_country.name.cameroon" = "カメルーン";
+"enum.browsing_country.name.canada" = "カナダ";
+"enum.browsing_country.name.cape_verde" = "カーボベルデ";
+"enum.browsing_country.name.cayman_islands" = "ケイマン諸島";
+"enum.browsing_country.name.central_african_republic" = "中央アフリカ共和国";
+"enum.browsing_country.name.chad" = "チャド";
+"enum.browsing_country.name.chile" = "チリ";
+"enum.browsing_country.name.china" = "中華人民共和国";
+"enum.browsing_country.name.christmas_island" = "クリスマス島";
+"enum.browsing_country.name.cocos_islands" = "ココス諸島";
+"enum.browsing_country.name.colombia" = "コロンビア";
+"enum.browsing_country.name.comoros" = "コモロ";
+"enum.browsing_country.name.congo" = "コンゴ共和国";
+"enum.browsing_country.name.the_democratic_republic_of_the_congo" = "コンゴ民主共和国";
+"enum.browsing_country.name.cook_islands" = "クック諸島";
+"enum.browsing_country.name.costa_rica" = "コスタリカ";
+"enum.browsing_country.name.cote_d_ivoire" = "コートジボワール";
+"enum.browsing_country.name.croatia" = "クロアチア";
+"enum.browsing_country.name.cuba" = "キューバ";
+"enum.browsing_country.name.curacao" = "キュラソー島";
+"enum.browsing_country.name.cyprus" = "キプロス";
+"enum.browsing_country.name.czech_republic" = "チェコ";
+"enum.browsing_country.name.denmark" = "デンマーク";
+"enum.browsing_country.name.djibouti" = "ジブチ";
+"enum.browsing_country.name.dominica" = "ドミニカ";
+"enum.browsing_country.name.dominican_republic" = "ドミニカ共和国";
+"enum.browsing_country.name.ecuador" = "エクアドル";
+"enum.browsing_country.name.egypt" = "エジプト";
+"enum.browsing_country.name.el_salvador" = "エルサルバドル";
+"enum.browsing_country.name.equatorial_guinea" = "赤道ギニア";
+"enum.browsing_country.name.eritrea" = "エリトリア";
+"enum.browsing_country.name.estonia" = "エストニア";
+"enum.browsing_country.name.ethiopia" = "エチオピア";
+"enum.browsing_country.name.europe" = "ヨーロッパ";
+"enum.browsing_country.name.falkland_islands" = "フォークランド諸島";
+"enum.browsing_country.name.faroe_islands" = "フェロー諸島";
+"enum.browsing_country.name.fiji" = "フィジー";
+"enum.browsing_country.name.finland" = "フィンランド";
+"enum.browsing_country.name.france" = "フランス";
+"enum.browsing_country.name.french_guiana" = "フランス領ギアナ";
+"enum.browsing_country.name.french_polynesia" = "フランス領ポリネシア";
+"enum.browsing_country.name.french_southern_territories" = "フランス領南方・南極地域";
+"enum.browsing_country.name.gabon" = "ガボン";
+"enum.browsing_country.name.gambia" = "ガンビア";
+"enum.browsing_country.name.georgia" = "ジョージア";
+"enum.browsing_country.name.germany" = "ドイツ";
+"enum.browsing_country.name.ghana" = "ガーナ";
+"enum.browsing_country.name.gibraltar" = "ジブラルタル";
+"enum.browsing_country.name.greece" = "ギリシャ";
+"enum.browsing_country.name.greenland" = "グリーンランド";
+"enum.browsing_country.name.grenada" = "グレナダ";
+"enum.browsing_country.name.guadeloupe" = "グアドループ";
+"enum.browsing_country.name.guam" = "グアム";
+"enum.browsing_country.name.guatemala" = "グアテマラ";
+"enum.browsing_country.name.guernsey" = "ガーンジー";
+"enum.browsing_country.name.guinea" = "ギニア";
+"enum.browsing_country.name.guinea_bissau" = "ギニアビサウ";
+"enum.browsing_country.name.guyana" = "ガイアナ";
+"enum.browsing_country.name.haiti" = "ハイチ";
+"enum.browsing_country.name.heard_island_and_mc_donald_islands" = "ハード島とマクドナルド諸島";
+"enum.browsing_country.name.vatican_city_state" = "バチカン市国";
+"enum.browsing_country.name.honduras" = "ホンジュラス";
+"enum.browsing_country.name.hong_kong" = "香港";
+"enum.browsing_country.name.hungary" = "ハンガリー";
+"enum.browsing_country.name.iceland" = "アイスランド";
+"enum.browsing_country.name.india" = "インド";
+"enum.browsing_country.name.indonesia" = "インドネシア";
+"enum.browsing_country.name.iran" = "イラン";
+"enum.browsing_country.name.iraq" = "イラク";
+"enum.browsing_country.name.ireland" = "アイルランド";
+"enum.browsing_country.name.isle_of_man" = "マン島";
+"enum.browsing_country.name.israel" = "イスラエル";
+"enum.browsing_country.name.italy" = "イタリア";
+"enum.browsing_country.name.jamaica" = "ジャマイカ";
+"enum.browsing_country.name.japan" = "日本";
+"enum.browsing_country.name.jersey" = "ジャージー";
+"enum.browsing_country.name.jordan" = "ヨルダン";
+"enum.browsing_country.name.kazakhstan" = "カザフスタン";
+"enum.browsing_country.name.kenya" = "ケニア";
+"enum.browsing_country.name.kiribati" = "キリバス";
+"enum.browsing_country.name.kuwait" = "クウェート";
+"enum.browsing_country.name.kyrgyzstan" = "キルギス";
+"enum.browsing_country.name.lao_peoples_democratic_republic" = "ラオス";
+"enum.browsing_country.name.latvia" = "ラトビア";
+"enum.browsing_country.name.lebanon" = "レバノン";
+"enum.browsing_country.name.lesotho" = "レソト";
+"enum.browsing_country.name.liberia" = "リベリア";
+"enum.browsing_country.name.libya" = "リビア";
+"enum.browsing_country.name.liechtenstein" = "リヒテンシュタイン";
+"enum.browsing_country.name.lithuania" = "リトアニア";
+"enum.browsing_country.name.luxembourg" = "ルクセンブルク";
+"enum.browsing_country.name.macau" = "マカオ";
+"enum.browsing_country.name.macedonia" = "マケドニア";
+"enum.browsing_country.name.madagascar" = "マダガスカル";
+"enum.browsing_country.name.malawi" = "マラウイ";
+"enum.browsing_country.name.malaysia" = "マレーシア";
+"enum.browsing_country.name.maldives" = "モルディブ";
+"enum.browsing_country.name.mali" = "マリ";
+"enum.browsing_country.name.malta" = "マルタ";
+"enum.browsing_country.name.marshall_islands" = "マーシャル諸島";
+"enum.browsing_country.name.martinique" = "マルティニーク";
+"enum.browsing_country.name.mauritania" = "モーリタニア";
+"enum.browsing_country.name.mauritius" = "モーリシャス";
+"enum.browsing_country.name.mayotte" = "マヨット";
+"enum.browsing_country.name.mexico" = "メキシコ";
+"enum.browsing_country.name.micronesia" = "ミクロネシア";
+"enum.browsing_country.name.moldova" = "モルドバ";
+"enum.browsing_country.name.monaco" = "モナコ";
+"enum.browsing_country.name.mongolia" = "モンゴル";
+"enum.browsing_country.name.montenegro" = "モンテネグロ";
+"enum.browsing_country.name.montserrat" = "モントセラト";
+"enum.browsing_country.name.morocco" = "モロッコ";
+"enum.browsing_country.name.mozambique" = "モザンビーク";
+"enum.browsing_country.name.myanmar" = "ミャンマー";
+"enum.browsing_country.name.namibia" = "ナミビア";
+"enum.browsing_country.name.nauru" = "ナウル";
+"enum.browsing_country.name.nepal" = "ネパール";
+"enum.browsing_country.name.netherlands" = "オランダ";
+"enum.browsing_country.name.new_caledonia" = "ニューカレドニア";
+"enum.browsing_country.name.new_zealand" = "ニュージーランド";
+"enum.browsing_country.name.nicaragua" = "ニカラグア";
+"enum.browsing_country.name.niger" = "ニジェール";
+"enum.browsing_country.name.nigeria" = "ナイジェリア";
+"enum.browsing_country.name.niue" = "ニウエ";
+"enum.browsing_country.name.norfolk_island" = "ノーフォーク島";
+"enum.browsing_country.name.north_korea" = "朝鮮";
+"enum.browsing_country.name.northern_mariana_islands" = "北マリアナ諸島";
+"enum.browsing_country.name.norway" = "ノルウェー";
+"enum.browsing_country.name.oman" = "オマーン";
+"enum.browsing_country.name.pakistan" = "パキスタン";
+"enum.browsing_country.name.palau" = "パラオ";
+"enum.browsing_country.name.palestinian_territory" = "パレスチナ";
+"enum.browsing_country.name.panama" = "パナマ";
+"enum.browsing_country.name.papua_new_guinea" = "パプアニューギニア";
+"enum.browsing_country.name.paraguay" = "パラグアイ";
+"enum.browsing_country.name.peru" = "ペルー";
+"enum.browsing_country.name.philippines" = "フィリピン";
+"enum.browsing_country.name.pitcairn_islands" = "ピトケアン諸島";
+"enum.browsing_country.name.poland" = "ポーランド";
+"enum.browsing_country.name.portugal" = "ポルトガル";
+"enum.browsing_country.name.puerto_rico" = "プエルトリコ";
+"enum.browsing_country.name.qatar" = "カタール";
+"enum.browsing_country.name.reunion" = "ユニオン";
+"enum.browsing_country.name.romania" = "ルーマニア";
+"enum.browsing_country.name.russian_federation" = "ロシア";
+"enum.browsing_country.name.rwanda" = "ルワンダ";
+"enum.browsing_country.name.saint_barthelemy" = "サン・バルテルミー島";
+"enum.browsing_country.name.saint_helena" = "セントヘレナ";
+"enum.browsing_country.name.saint_kitts_and_nevis" = "セントクリストファー・ネービス";
+"enum.browsing_country.name.saint_lucia" = "セントルシア";
+"enum.browsing_country.name.saint_martin" = "サン・マルタン島";
+"enum.browsing_country.name.saint_pierre_and_miquelon" = "サンピエール島・ミクロン島";
+"enum.browsing_country.name.saint_vincent_and_the_grenadines" = "セントビンセントおよびグレナディーン諸島";
+"enum.browsing_country.name.samoa" = "サモア";
+"enum.browsing_country.name.san_marino" = "サンマリノ";
+"enum.browsing_country.name.sao_tome_and_principe" = "サントメ・プリンシペ";
+"enum.browsing_country.name.saudi_arabia" = "サウジアラビア";
+"enum.browsing_country.name.senegal" = "セネガル";
+"enum.browsing_country.name.serbia" = "セルビア";
+"enum.browsing_country.name.seychelles" = "セーシェル";
+"enum.browsing_country.name.sierra_leone" = "シエラレオネ";
+"enum.browsing_country.name.singapore" = "シンガポール";
+"enum.browsing_country.name.sint_maarten" = "シント・マールテン";
+"enum.browsing_country.name.slovakia" = "スロバキア";
+"enum.browsing_country.name.slovenia" = "スロベニア";
+"enum.browsing_country.name.solomon_islands" = "ソロモン諸島";
+"enum.browsing_country.name.somalia" = "ソマリア";
+"enum.browsing_country.name.south_africa" = "南アフリカ";
+"enum.browsing_country.name.south_georgia_and_the_south_sandwich_islands" = "サウスジョージア・サウスサンドウィッチ諸島";
+"enum.browsing_country.name.south_korea" = "韓国";
+"enum.browsing_country.name.south_sudan" = "南スーダン";
+"enum.browsing_country.name.spain" = "スペイン";
+"enum.browsing_country.name.sri_lanka" = "スリランカ";
+"enum.browsing_country.name.sudan" = "スーダン";
+"enum.browsing_country.name.suriname" = "スリナム";
+"enum.browsing_country.name.svalbard_and_jan_mayen" = "スヴァールバル諸島およびヤンマイエン島";
+"enum.browsing_country.name.swaziland" = "エスワティニ";
+"enum.browsing_country.name.sweden" = "スウェーデン";
+"enum.browsing_country.name.switzerland" = "スイス";
+"enum.browsing_country.name.syrian_arab_republic" = "シリア";
+"enum.browsing_country.name.taiwan" = "台湾";
+"enum.browsing_country.name.tajikistan" = "タジキスタン";
+"enum.browsing_country.name.tanzania" = "タンザニア";
+"enum.browsing_country.name.thailand" = "タイ";
+"enum.browsing_country.name.timor_leste" = "東ティモール";
+"enum.browsing_country.name.togo" = "トーゴ";
+"enum.browsing_country.name.tokelau" = "トケラウ";
+"enum.browsing_country.name.tonga" = "トンガ";
+"enum.browsing_country.name.trinidad_and_tobago" = "トリニダード・トバゴ";
+"enum.browsing_country.name.tunisia" = "チュニジア";
+"enum.browsing_country.name.turkey" = "トルコ";
+"enum.browsing_country.name.turkmenistan" = "トルクメニスタン";
+"enum.browsing_country.name.turks_and_caicos_islands" = "タークス・カイコス諸島";
+"enum.browsing_country.name.tuvalu" = "ツバル";
+"enum.browsing_country.name.uganda" = "ウガンダ";
+"enum.browsing_country.name.ukraine" = "ウクライナ";
+"enum.browsing_country.name.united_arab_emirates" = "アラブ首長国連邦";
+"enum.browsing_country.name.united_kingdom" = "イギリス";
+"enum.browsing_country.name.united_states" = "アメリカ";
+"enum.browsing_country.name.united_states_minor_outlying_islands" = "合衆国領有小離島";
+"enum.browsing_country.name.uruguay" = "ウルグアイ";
+"enum.browsing_country.name.uzbekistan" = "ウズベキスタン";
+"enum.browsing_country.name.vanuatu" = "バヌアツ";
+"enum.browsing_country.name.venezuela" = "ベネズエラ";
+"enum.browsing_country.name.vietnam" = "ベトナム";
+"enum.browsing_country.name.virgin_islands_british" = "イギリス領バージン諸島";
+"enum.browsing_country.name.virgin_islands_US" = "アメリカ領ヴァージン諸島";
+"enum.browsing_country.name.wallis_and_futuna" = "ウォリス・フツナ";
+"enum.browsing_country.name.western_sahara" = "西サハラ";
+"enum.browsing_country.name.yemen" = "イエメン";
+"enum.browsing_country.name.zambia" = "ザンビア";
+"enum.browsing_country.name.zimbabwe" = "ジンバブエ";
