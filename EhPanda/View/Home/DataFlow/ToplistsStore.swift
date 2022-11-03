@@ -146,7 +146,7 @@ let toplistsReducer = Reducer<ToplistsState, ToplistsAction, ToplistsEnvironment
             if state.pageNumber == nil {
                 state.rawPageNumber[state.type] = PageNumber()
             } else {
-                state.rawPageNumber[state.type]?.current = 0
+                state.rawPageNumber[state.type]?.resetPages()
             }
             return ToplistsGalleriesRequest(catIndex: state.type.categoryIndex, pageNum: pageNum)
                 .effect.map({ [type = state.type] in ToplistsAction.fetchGalleriesDone(type, $0) })

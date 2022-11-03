@@ -49,7 +49,7 @@ struct GeneralSettingView: View {
     }
 
     private var language: String {
-        Locale.current.localizedString(forLanguageCode: Locale.current.languageCode ?? "")
+        Locale.current.language.languageCode.map(\.identifier).flatMap(Locale.current.localizedString(forLanguageCode:))
         ?? R.string.localizable.generalSettingViewValueDefaultLanguageDescription()
     }
 

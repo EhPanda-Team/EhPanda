@@ -121,10 +121,12 @@ struct DetailSearchView: View {
                 QuickSearchButton {
                     viewStore.send(.setNavigation(.quickSearch))
                 }
-                JumpPageButton(pageNumber: viewStore.pageNumber) {
-                    viewStore.send(.presentJumpPageAlert)
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                        viewStore.send(.setJumpPageAlertFocused(true))
+                if AppUtil.galleryHost == .ehentai {
+                    JumpPageButton(pageNumber: viewStore.pageNumber) {
+                        viewStore.send(.presentJumpPageAlert)
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                            viewStore.send(.setJumpPageAlertFocused(true))
+                        }
                     }
                 }
             }
