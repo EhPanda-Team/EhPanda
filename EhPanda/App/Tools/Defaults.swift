@@ -104,6 +104,7 @@ struct Defaults {
                 case letterP = "p"
                 case page = "page"
                 case from = "from"
+                case next = "next"
                 case favcat = "favcat"
                 case topcat = "tl"
                 case showUser = "showuser"

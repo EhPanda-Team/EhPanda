@@ -152,7 +152,7 @@ let favoritesReducer = Reducer<FavoritesState, FavoritesAction, FavoritesEnviron
             if state.pageNumber == nil {
                 state.rawPageNumber[state.index] = PageNumber()
             } else {
-                state.rawPageNumber[state.index]?.current = 0
+                state.rawPageNumber[state.index]?.resetPages()
             }
             return FavoritesGalleriesRequest(
                 favIndex: state.index, pageNum: pageNum, keyword: state.keyword, sortOrder: sortOrder
@@ -165,7 +165,7 @@ let favoritesReducer = Reducer<FavoritesState, FavoritesAction, FavoritesEnviron
             case .success(let (pageNumber, sortOrder, galleries)):
                 guard !galleries.isEmpty else {
                     state.rawLoadingState[targetFavIndex] = .failed(.notFound)
-                    guard pageNumber.current < pageNumber.maximum else { return .none }
+                    guard pageNumber.hasNextPage else { return .none }
                     return .init(value: .fetchMoreGalleries)
                 }
                 state.rawPageNumber[targetFavIndex] = pageNumber
@@ -179,7 +179,7 @@ let favoritesReducer = Reducer<FavoritesState, FavoritesAction, FavoritesEnviron
 
         case .fetchMoreGalleries:
             let pageNumber = state.pageNumber ?? .init()
-            guard pageNumber.current + 1 <= pageNumber.maximum,
+            guard pageNumber.hasNextPage,
                   state.footerLoadingState != .loading
             else { return .none }
             state.rawFooterLoadingState[state.index] = .loading
@@ -201,7 +201,7 @@ let favoritesReducer = Reducer<FavoritesState, FavoritesAction, FavoritesEnviron
                 var effects: [Effect<FavoritesAction, Never>] = [
                     environment.databaseClient.cacheGalleries(galleries).fireAndForget()
                 ]
-                if galleries.isEmpty, pageNumber.current < pageNumber.maximum {
+                if galleries.isEmpty, pageNumber.hasNextPage {
                     effects.append(.init(value: .fetchMoreGalleries))
                 } else if !galleries.isEmpty {
                     state.rawLoadingState[targetFavIndex] = .idle
