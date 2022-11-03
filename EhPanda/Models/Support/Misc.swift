@@ -28,9 +28,18 @@ extension DateFormattable {
 struct PageNumber: Equatable {
     var current = 0
     var maximum = 0
+    var isNextButtonEnabled = true
 
     var isSinglePage: Bool {
         current == 0 && maximum == 0
+    }
+    var hasNextPage: Bool {
+        AppUtil.galleryHost == .ehentai
+        ? current < maximum
+        : isNextButtonEnabled
+    }
+    mutating func resetPages() {
+        self = Self()
     }
 }
 

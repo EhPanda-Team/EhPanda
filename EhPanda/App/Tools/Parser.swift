@@ -1329,7 +1329,20 @@ extension Parser {
 
         guard let link = doc.at_xpath("//table [@class='ptt']"),
               let currentStr = link.at_xpath("//td [@class='ptds']")?.text
-        else { return PageNumber() }
+        else {
+            if let link = doc.at_xpath("//div [@class='searchnav']") {
+                var isEnabled = false
+
+                for aLink in link.xpath("//a") where aLink.text?.contains("Next") == true {
+                    isEnabled = true
+                    break
+                }
+
+                return PageNumber(isNextButtonEnabled: isEnabled)
+            } else {
+                return PageNumber(isNextButtonEnabled: false)
+            }
+        }
 
         if let range = currentStr.range(of: "-") {
             current = (Int(currentStr[range.upperBound...]) ?? 1) - 1

@@ -133,7 +133,7 @@ let watchedReducer = Reducer<WatchedState, WatchedAction, WatchedEnvironment>.co
                 state.keyword = keyword
             }
             state.loadingState = .loading
-            state.pageNumber.current = 0
+            state.pageNumber.resetPages()
             let filter = environment.databaseClient.fetchFilterSynchronously(range: .watched)
             return WatchedGalleriesRequest(filter: filter, pageNum: pageNum, keyword: state.keyword)
                 .effect.map(WatchedAction.fetchGalleriesDone).cancellable(id: WatchedState.CancelID())
@@ -144,7 +144,7 @@ let watchedReducer = Reducer<WatchedState, WatchedAction, WatchedEnvironment>.co
             case .success(let (pageNumber, galleries)):
                 guard !galleries.isEmpty else {
                     state.loadingState = .failed(.notFound)
-                    guard pageNumber.current < pageNumber.maximum else { return .none }
+                    guard pageNumber.hasNextPage else { return .none }
                     return .init(value: .fetchMoreGalleries)
                 }
                 state.pageNumber = pageNumber
@@ -157,7 +157,7 @@ let watchedReducer = Reducer<WatchedState, WatchedAction, WatchedEnvironment>.co
 
         case .fetchMoreGalleries:
             let pageNumber = state.pageNumber
-            guard pageNumber.current + 1 <= pageNumber.maximum,
+            guard pageNumber.hasNextPage,
                   state.footerLoadingState != .loading,
                   let lastID = state.galleries.last?.id
             else { return .none }
@@ -179,7 +179,7 @@ let watchedReducer = Reducer<WatchedState, WatchedAction, WatchedEnvironment>.co
                 var effects: [Effect<WatchedAction, Never>] = [
                     environment.databaseClient.cacheGalleries(galleries).fireAndForget()
                 ]
-                if galleries.isEmpty, pageNumber.current < pageNumber.maximum {
+                if galleries.isEmpty, pageNumber.hasNextPage {
                     effects.append(.init(value: .fetchMoreGalleries))
                 } else if !galleries.isEmpty {
                     state.loadingState = .idle
