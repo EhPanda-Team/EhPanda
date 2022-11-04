@@ -56,7 +56,7 @@ struct PreviewsView: View {
                         Text("\(index)").font(DeviceUtil.isPadWidth ? .callout : .caption).foregroundColor(.secondary)
                     }
                     .onAppear {
-                        if viewStore.databaseLoadingState == .loading
+                        if viewStore.databaseLoadingState != .loading
                             && viewStore.previewURLs[index] == nil && (index - 1) % 20 == 0
                         {
                             viewStore.send(.fetchPreviewURLs(index))
