@@ -13,11 +13,17 @@ struct Parser {
     // MARK: List
     static func parseGalleries(doc: HTMLDocument) throws -> [Gallery] {
         func parseDisplayMode(doc: HTMLDocument) throws -> String {
-            guard let dmsNode = doc.at_xpath("//div [@id='dms']"),
-                  let select = dmsNode.at_xpath("//select")
+            guard let containerNode = doc.at_xpath("//div [@id='dms']") ?? doc.at_xpath("//div [@class='searchnav']")
             else { throw AppError.parseFailed }
 
-            for option in select.xpath("//option") where option["selected"] == "selected" {
+            var dmsNode: XMLElement?
+            for select in containerNode.xpath("//select") where select["onchange"]?.contains("inline_set=dm_") == true {
+                dmsNode = select
+                break
+            }
+            guard let dmsNode else { throw AppError.parseFailed }
+
+            for option in dmsNode.xpath("//option") where option["selected"] == "selected" {
                 if let displayMode = option.text {
                     return displayMode
                 }
