@@ -530,10 +530,6 @@
 "eh.setting.view.section.title.galleryPageNumbering" = "ギャラリーページ数";
 "eh.setting.view.title.showGalleryPageNumbers" = "ギャラリーページ数を表示";
 
-"eh.setting.view.section.title.hathLocalNetworkHost" = "Hath ローカルネットワークホスト";
-"eh.setting.view.title.ipAddressPort" = "IP アドレス:ポート";
-"eh.setting.view.description.ipAddressPort" = "ローカルネットワークで今と同じパブリック IP を使う H@H クライアントがお持ちの場合、この設定が役立ちます。ルーターがバグが多くてリクエストを自分の IP にルートすることができないこともあります、それをこの設定で回避できます。\nH@H クライアントが今と同じデバイスで運行している場合はループバックアドレス（127.0.0.1:ポート）を使ってください。別のデバイスの場合はそのローカル IP を使ってください。かなりのブラウザの構成では外部サイトがローカル IP にアクセスすることをブロックしています、この設定を有効にするには本サイトをホワイトリストに入れてください。";
-
 "eh.setting.view.section.title.originalImages" = "オリジナル画像";
 "eh.setting.view.title.useOriginalImages" = "オリジナル画像を使う";
 

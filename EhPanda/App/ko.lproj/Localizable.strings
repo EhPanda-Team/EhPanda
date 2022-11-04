@@ -530,10 +530,6 @@
 "eh.setting.view.section.title.galleryPageNumbering" = "갤러리 페이지 번호 매기기";
 "eh.setting.view.title.showGalleryPageNumbers" = "갤러리 페이지 번호 보이기";
 
-"eh.setting.view.section.title.hathLocalNetworkHost" = "Hath 로컬 네트워크 호스트";
-"eh.setting.view.title.ipAddressPort" = "IP주소:포트";
-"eh.setting.view.description.ipAddressPort" = "이 설정은 사이트를 검색하는 것과 동일한 공용 IP로 로컬 네트워크에서 H@H 클라이언트를 실행하는 경우 사용할 수 있습니다. 일부 라우터는 버그가 있어 요청을 자신의 IP로 다시 라우팅할 수 없기에, 아래를 따라서 이 문제를 해결할 수 있습니다.\n찾아보는 동일한 장치에서 클라이언트를 실행하는 경우 루프백 주소(127.0.0.1:port)를 사용할 수 있습니다. 클라이언트가 네트워크의 다른 장치에서 실행 중인 경우 로컬 네트워크 IP를 사용할 수 있습니다. 일부 브라우저 구성에서는 외부 웹 사이트가 로컬 네트워크 IP가 있는 URL에 액세스할 수 없도록 합니다. 그런 다음 사이트가 작동하려면 사이트를 화이트리스트에 추가해야 합니다.";
-
 "eh.setting.view.section.title.originalImages" = "원본 이미지";
 "eh.setting.view.title.useOriginalImages" = "원본 뷰어 적용";
 

@@ -8,7 +8,7 @@
 // MARK: EhSetting
 struct EhSetting: Equatable {
     // swiftlint:disable line_length
-    static let empty: Self = .init(ehProfiles: [.empty], capableLoadThroughHathSetting: .anyClient, capableImageResolution: .auto, capableSearchResultCount: .fifty, capableThumbnailConfigSize: .normal, capableThumbnailConfigRowCount: .forty, loadThroughHathSetting: .anyClient, browsingCountry: .autoDetect, literalBrowsingCountry: "", imageResolution: .auto, imageSizeWidth: 0, imageSizeHeight: 0, galleryName: .default, archiverBehavior: .autoSelectOriginalAutoStart, displayMode: .compact, disabledCategories: Array(repeating: false, count: 10), favoriteCategories: Array(repeating: "", count: 10), favoritesSortOrder: .favoritedTime, ratingsColor: "", excludedNamespaces: Array(repeating: false, count: 11), tagFilteringThreshold: 0, tagWatchingThreshold: 0, excludedLanguages: Array(repeating: false, count: 50), excludedUploaders: "", searchResultCount: .fifty, thumbnailLoadTiming: .onPageLoad, thumbnailConfigSize: .normal, thumbnailConfigRows: .ten, thumbnailScaleFactor: 0, viewportVirtualWidth: 0, commentsSortOrder: .recent, commentVotesShowTiming: .always, tagsSortOrder: .alphabetical, galleryShowPageNumbers: true /*, hathLocalNetworkHost: "" */)
+    static let empty: Self = .init(ehProfiles: [.empty], isCapableOfCreatingNewProfile: true, capableLoadThroughHathSetting: .anyClient, capableImageResolution: .auto, capableSearchResultCount: .fifty, capableThumbnailConfigSize: .normal, capableThumbnailConfigRowCount: .forty, loadThroughHathSetting: .anyClient, browsingCountry: .autoDetect, literalBrowsingCountry: "", imageResolution: .auto, imageSizeWidth: 0, imageSizeHeight: 0, galleryName: .default, archiverBehavior: .autoSelectOriginalAutoStart, displayMode: .compact, disabledCategories: Array(repeating: false, count: 10), favoriteCategories: Array(repeating: "", count: 10), favoritesSortOrder: .favoritedTime, ratingsColor: "", excludedNamespaces: Array(repeating: false, count: 11), tagFilteringThreshold: 0, tagWatchingThreshold: 0, excludedLanguages: Array(repeating: false, count: 50), excludedUploaders: "", searchResultCount: .fifty, thumbnailLoadTiming: .onPageLoad, thumbnailConfigSize: .normal, thumbnailConfigRows: .ten, thumbnailScaleFactor: 0, viewportVirtualWidth: 0, commentsSortOrder: .recent, commentVotesShowTiming: .always, tagsSortOrder: .alphabetical, galleryShowPageNumbers: true)
     // swiftlint:enable line_length
 
     static let categoryNames = Category.allFiltersCases.map(\.rawValue).map { value in
@@ -31,11 +31,12 @@ struct EhSetting: Equatable {
         ["EhPanda", "EhPanda (Default)"].contains(name ?? "")
     }
 
-    var capableLoadThroughHathSetting: LoadThroughHathSetting
-    var capableImageResolution: ImageResolution
-    var capableSearchResultCount: SearchResultCount
-    var capableThumbnailConfigSize: ThumbnailSize
-    var capableThumbnailConfigRowCount: ThumbnailRowCount
+    let isCapableOfCreatingNewProfile: Bool
+    let capableLoadThroughHathSetting: LoadThroughHathSetting
+    let capableImageResolution: ImageResolution
+    let capableSearchResultCount: SearchResultCount
+    let capableThumbnailConfigSize: ThumbnailSize
+    let capableThumbnailConfigRowCount: ThumbnailRowCount
 
     var capableLoadThroughHathSettings: [LoadThroughHathSetting] {
         LoadThroughHathSetting.allCases.filter { setting in
@@ -94,7 +95,6 @@ struct EhSetting: Equatable {
     var commentVotesShowTiming: CommentVotesShowTiming
     var tagsSortOrder: TagsSortOrder
     var galleryShowPageNumbers: Bool
-//    var hathLocalNetworkHost: String
     var useOriginalImages: Bool?
     var useMultiplePageViewer: Bool?
     var multiplePageViewerStyle: MultiplePageViewerStyle?

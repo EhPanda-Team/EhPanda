@@ -530,10 +530,6 @@
 "eh.setting.view.section.title.galleryPageNumbering" = "画廊页面页码";
 "eh.setting.view.title.showGalleryPageNumbers" = "显示画廊页码";
 
-"eh.setting.view.section.title.hathLocalNetworkHost" = "Hath 本地网络服务器";
-"eh.setting.view.title.ipAddressPort" = "IP 地址:端口";
-"eh.setting.view.description.ipAddressPort" = "如果你本地安装了 H@H 客户端，本地 IP 与浏览网站的公共 IP 相同，一些路由器不支持回流导致无法访问到自己，你可以设置这里来解决。\n如果在同一台设备上访问网站和运行客户端，请使用本地回环地址 (127.0.0.1:端口号)。如果客户端在网络上的其它设备运行，请使用那台机器的内网 IP。某些浏览器的配置可能阻止外部网站访问本地网络，你必须将网站列入白名单才能工作。";
-
 "eh.setting.view.section.title.originalImages" = "原始图像";
 "eh.setting.view.title.useOriginalImages" = "显示原图";
 
