@@ -187,6 +187,7 @@ enum AppIconType: Int, Codable, Identifiable, CaseIterable {
     case ukiyoe
     case developer
     case standWithUkraine2022
+    case notMyPresidnet
 }
 
 extension AppIconType {
@@ -203,6 +204,9 @@ extension AppIconType {
 
         case .standWithUkraine2022:
             return R.string.localizable.enumAppIconTypeValueStandWithUkraine2022()
+
+        case .notMyPresidnet:
+            return R.string.localizable.enumAppIconTypeValueNotMyPresident()
         }
     }
 
@@ -219,6 +223,9 @@ extension AppIconType {
 
         case .standWithUkraine2022:
             return "AppIcon_StandWithUkraine2022"
+
+        case .notMyPresidnet:
+            return "AppIcon_NotMyPresident"
         }
     }
 }
