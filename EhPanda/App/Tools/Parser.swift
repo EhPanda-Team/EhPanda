@@ -13,11 +13,17 @@ struct Parser {
     // MARK: List
     static func parseGalleries(doc: HTMLDocument) throws -> [Gallery] {
         func parseDisplayMode(doc: HTMLDocument) throws -> String {
-            guard let dmsNode = doc.at_xpath("//div [@id='dms']"),
-                  let select = dmsNode.at_xpath("//select")
+            guard let containerNode = doc.at_xpath("//div [@id='dms']") ?? doc.at_xpath("//div [@class='searchnav']")
             else { throw AppError.parseFailed }
 
-            for option in select.xpath("//option") where option["selected"] == "selected" {
+            var dmsNode: XMLElement?
+            for select in containerNode.xpath("//select") where select["onchange"]?.contains("inline_set=dm_") == true {
+                dmsNode = select
+                break
+            }
+            guard let dmsNode else { throw AppError.parseFailed }
+
+            for option in dmsNode.xpath("//option") where option["selected"] == "selected" {
                 if let displayMode = option.text {
                     return displayMode
                 }
@@ -1103,146 +1109,152 @@ extension Parser {
               let form = tmpForm else { throw AppError.parseFailed }
 
         // swiftlint:disable line_length
-        var tmpEhProfiles = [EhProfile](); var tmpCapableLoadThroughHathSetting: EhSetting.LoadThroughHathSetting?; var tmpCapableImageResolution: EhSetting.ImageResolution?; var tmpCapableSearchResultCount: EhSetting.SearchResultCount?; var tmpCapableThumbnailConfigSize: EhSetting.ThumbnailSize?; var tmpCapableThumbnailConfigRowCount: EhSetting.ThumbnailRowCount?; var tmpLoadThroughHathSetting: EhSetting.LoadThroughHathSetting?; var tmpBrowsingCountry: EhSetting.BrowsingCountry?; var tmpImageResolution: EhSetting.ImageResolution?; var tmpImageSizeWidth: Float?; var tmpImageSizeHeight: Float?; var tmpGalleryName: EhSetting.GalleryName?; var tmpLiteralBrowsingCountry: String?; var tmpArchiverBehavior: EhSetting.ArchiverBehavior?; var tmpDisplayMode: EhSetting.DisplayMode?; var tmpDisabledCategories = [Bool](); var tmpFavoriteCategories = [String](); var tmpFavoritesSortOrder: EhSetting.FavoritesSortOrder?; var tmpRatingsColor: String?; var tmpExcludedNamespaces = [Bool](); var tmpTagFilteringThreshold: Float?; var tmpTagWatchingThreshold: Float?; var tmpExcludedLanguages = [Bool](); var tmpExcludedUploaders: String?; var tmpSearchResultCount: EhSetting.SearchResultCount?; var tmpThumbnailLoadTiming: EhSetting.ThumbnailLoadTiming?; var tmpThumbnailConfigSize: EhSetting.ThumbnailSize?; var tmpThumbnailConfigRows: EhSetting.ThumbnailRowCount?; var tmpThumbnailScaleFactor: Float?; var tmpViewportVirtualWidth: Float?; var tmpCommentsSortOrder: EhSetting.CommentsSortOrder?; var tmpCommentVotesShowTiming: EhSetting.CommentVotesShowTiming?; var tmpTagsSortOrder: EhSetting.TagsSortOrder?; var tmpGalleryShowPageNumbers: Bool?; /* var tmpHathLocalNetworkHost: String?; */ var tmpUseOriginalImages: Bool?; var tmpUseMultiplePageViewer: Bool?; var tmpMultiplePageViewerStyle: EhSetting.MultiplePageViewerStyle?; var tmpMultiplePageViewerShowThumbnailPane: Bool?
+        var ehProfiles = [EhProfile](); var isCapableOfCreatingNewProfile: Bool?; var capableLoadThroughHathSetting: EhSetting.LoadThroughHathSetting?; var capableImageResolution: EhSetting.ImageResolution?; var capableSearchResultCount: EhSetting.SearchResultCount?; var capableThumbnailConfigSize: EhSetting.ThumbnailSize?; var capableThumbnailConfigRowCount: EhSetting.ThumbnailRowCount?; var loadThroughHathSetting: EhSetting.LoadThroughHathSetting?; var browsingCountry: EhSetting.BrowsingCountry?; var imageResolution: EhSetting.ImageResolution?; var imageSizeWidth: Float?; var imageSizeHeight: Float?; var galleryName: EhSetting.GalleryName?; var literalBrowsingCountry: String?; var archiverBehavior: EhSetting.ArchiverBehavior?; var displayMode: EhSetting.DisplayMode?; var disabledCategories = [Bool](); var favoriteCategories = [String](); var favoritesSortOrder: EhSetting.FavoritesSortOrder?; var ratingsColor: String?; var excludedNamespaces = [Bool](); var tagFilteringThreshold: Float?; var tagWatchingThreshold: Float?; var excludedLanguages = [Bool](); var excludedUploaders: String?; var searchResultCount: EhSetting.SearchResultCount?; var thumbnailLoadTiming: EhSetting.ThumbnailLoadTiming?; var thumbnailConfigSize: EhSetting.ThumbnailSize?; var thumbnailConfigRows: EhSetting.ThumbnailRowCount?; var thumbnailScaleFactor: Float?; var viewportVirtualWidth: Float?; var commentsSortOrder: EhSetting.CommentsSortOrder?; var commentVotesShowTiming: EhSetting.CommentVotesShowTiming?; var tagsSortOrder: EhSetting.TagsSortOrder?; var galleryShowPageNumbers: Bool?; var useOriginalImages: Bool?; var useMultiplePageViewer: Bool?; var multiplePageViewerStyle: EhSetting.MultiplePageViewerStyle?; var multiplePageViewerShowThumbnailPane: Bool?
         // swiftlint:enable line_length
 
-        tmpEhProfiles = parseSelections(node: profileOuter, name: "profile_set")
+        ehProfiles = parseSelections(node: profileOuter, name: "profile_set")
             .compactMap { (name, value, isSelected) in
                 guard let value = Int(value) else { return nil }
                 return EhProfile(value: value, name: name, isSelected: isSelected)
             }
 
+        for button in profileOuter.xpath("//input [@type='button']") {
+            if button["value"] == "Create New" {
+                isCapableOfCreatingNewProfile = true
+                break
+            } else {
+                isCapableOfCreatingNewProfile = false
+            }
+        }
+
         for optouter in form.xpath("//div [@class='optouter']") {
             if optouter.at_xpath("//input [@name='uh']") != nil {
-                tmpLoadThroughHathSetting = parseEnum(node: optouter, name: "uh")
-                tmpCapableLoadThroughHathSetting = parseCapability(node: optouter, name: "uh")
+                loadThroughHathSetting = parseEnum(node: optouter, name: "uh")
+                capableLoadThroughHathSetting = parseCapability(node: optouter, name: "uh")
             }
             if optouter.at_xpath("//select [@name='co']") != nil {
                 var value = parseSelections(node: optouter, name: "co").filter(\.2).first?.1
 
                 if value == "" { value = "-" }
-                tmpBrowsingCountry = EhSetting.BrowsingCountry(rawValue: value ?? "")
+                browsingCountry = EhSetting.BrowsingCountry(rawValue: value ?? "")
 
                 if let pText = optouter.at_xpath("//p")?.text,
                    let rangeA = pText.range(of: "You appear to be browsing the site from "),
                    let rangeB = pText.range(of: " or use a VPN or proxy in this country")
                 {
-                    tmpLiteralBrowsingCountry = String(pText[rangeA.upperBound..<rangeB.lowerBound])
+                    literalBrowsingCountry = String(pText[rangeA.upperBound..<rangeB.lowerBound])
                 }
             }
             if optouter.at_xpath("//input [@name='xr']") != nil {
-                tmpImageResolution = parseEnum(node: optouter, name: "xr")
-                tmpCapableImageResolution = parseCapability(node: optouter, name: "xr")
+                imageResolution = parseEnum(node: optouter, name: "xr")
+                capableImageResolution = parseCapability(node: optouter, name: "xr")
             }
             if optouter.at_xpath("//input [@name='rx']") != nil {
-                tmpImageSizeWidth = Float(parseString(node: optouter, name: "rx") ?? "0")
-                if tmpImageSizeWidth == nil { tmpImageSizeWidth = 0 }
+                imageSizeWidth = Float(parseString(node: optouter, name: "rx") ?? "0")
+                if imageSizeWidth == nil { imageSizeWidth = 0 }
             }
             if optouter.at_xpath("//input [@name='ry']") != nil {
-                tmpImageSizeHeight = Float(parseString(node: optouter, name: "ry") ?? "0")
-                if tmpImageSizeHeight == nil { tmpImageSizeHeight = 0 }
+                imageSizeHeight = Float(parseString(node: optouter, name: "ry") ?? "0")
+                if imageSizeHeight == nil { imageSizeHeight = 0 }
             }
             if optouter.at_xpath("//input [@name='tl']") != nil {
-                tmpGalleryName = parseEnum(node: optouter, name: "tl")
+                galleryName = parseEnum(node: optouter, name: "tl")
             }
             if optouter.at_xpath("//input [@name='ar']") != nil {
-                tmpArchiverBehavior = parseEnum(node: optouter, name: "ar")
+                archiverBehavior = parseEnum(node: optouter, name: "ar")
             }
             if optouter.at_xpath("//input [@name='dm']") != nil {
-                tmpDisplayMode = parseEnum(node: optouter, name: "dm")
+                displayMode = parseEnum(node: optouter, name: "dm")
             }
             if optouter.at_xpath("//div [@id='catsel']") != nil {
-                tmpDisabledCategories = Array(0...9)
+                disabledCategories = Array(0...9)
                     .map { "ct_\(EhSetting.categoryNames[$0])" }
                     .compactMap { parseBool(node: optouter, name: $0) }
             }
             if optouter.at_xpath("//div [@id='favsel']") != nil {
-                tmpFavoriteCategories = Array(0...9).map { "favorite_\($0)" }
+                favoriteCategories = Array(0...9).map { "favorite_\($0)" }
                     .compactMap { parseString(node: optouter, name: $0) }
             }
             if optouter.at_xpath("//input [@name='fs']") != nil {
-                tmpFavoritesSortOrder = parseEnum(node: optouter, name: "fs")
+                favoritesSortOrder = parseEnum(node: optouter, name: "fs")
             }
             if optouter.at_xpath("//input [@name='ru']") != nil {
-                tmpRatingsColor = parseString(node: optouter, name: "ru") ?? ""
+                ratingsColor = parseString(node: optouter, name: "ru") ?? ""
             }
             if optouter.at_xpath("//div [@id='nssel']") != nil {
-                tmpExcludedNamespaces = Array(1...11).map { "xn_\($0)" }
+                excludedNamespaces = Array(1...11).map { "xn_\($0)" }
                     .compactMap { parseCheckBoxBool(node: optouter, name: $0) }
             }
             if optouter.at_xpath("//input [@name='ft']") != nil {
-                tmpTagFilteringThreshold = Float(parseString(node: optouter, name: "ft") ?? "0")
-                if tmpTagFilteringThreshold == nil { tmpTagFilteringThreshold = 0 }
+                tagFilteringThreshold = Float(parseString(node: optouter, name: "ft") ?? "0")
+                if tagFilteringThreshold == nil { tagFilteringThreshold = 0 }
             }
             if optouter.at_xpath("//input [@name='wt']") != nil {
-                tmpTagWatchingThreshold = Float(parseString(node: optouter, name: "wt") ?? "0")
-                if tmpTagWatchingThreshold == nil { tmpTagWatchingThreshold = 0 }
+                tagWatchingThreshold = Float(parseString(node: optouter, name: "wt") ?? "0")
+                if tagWatchingThreshold == nil { tagWatchingThreshold = 0 }
             }
             if optouter.at_xpath("//div [@id='xlasel']") != nil {
-                tmpExcludedLanguages = Array(0...49)
+                excludedLanguages = Array(0...49)
                     .map { "xl_\(EhSetting.languageValues[$0])" }
                     .compactMap { parseCheckBoxBool(node: optouter, name: $0) }
             }
             if optouter.at_xpath("//textarea [@name='xu']") != nil {
-                tmpExcludedUploaders = parseTextEditorString(node: optouter, name: "xu") ?? ""
+                excludedUploaders = parseTextEditorString(node: optouter, name: "xu") ?? ""
             }
             if optouter.at_xpath("//input [@name='rc']") != nil {
-                tmpSearchResultCount = parseEnum(node: optouter, name: "rc")
-                tmpCapableSearchResultCount = parseCapability(node: optouter, name: "rc")
+                searchResultCount = parseEnum(node: optouter, name: "rc")
+                capableSearchResultCount = parseCapability(node: optouter, name: "rc")
             }
             if optouter.at_xpath("//input [@name='lt']") != nil {
-                tmpThumbnailLoadTiming = parseEnum(node: optouter, name: "lt")
+                thumbnailLoadTiming = parseEnum(node: optouter, name: "lt")
             }
             if optouter.at_xpath("//input [@name='ts']") != nil {
-                tmpThumbnailConfigSize = parseEnum(node: optouter, name: "ts")
-                tmpCapableThumbnailConfigSize = parseCapability(node: optouter, name: "ts")
+                thumbnailConfigSize = parseEnum(node: optouter, name: "ts")
+                capableThumbnailConfigSize = parseCapability(node: optouter, name: "ts")
             }
             if optouter.at_xpath("//input [@name='tr']") != nil {
-                tmpThumbnailConfigRows = parseEnum(node: optouter, name: "tr")
-                tmpCapableThumbnailConfigRowCount = parseCapability(node: optouter, name: "tr")
+                thumbnailConfigRows = parseEnum(node: optouter, name: "tr")
+                capableThumbnailConfigRowCount = parseCapability(node: optouter, name: "tr")
             }
             if optouter.at_xpath("//input [@name='tp']") != nil {
-                tmpThumbnailScaleFactor = Float(parseString(node: optouter, name: "tp") ?? "100")
-                if tmpThumbnailScaleFactor == nil { tmpThumbnailScaleFactor = 100 }
+                thumbnailScaleFactor = Float(parseString(node: optouter, name: "tp") ?? "100")
+                if thumbnailScaleFactor == nil { thumbnailScaleFactor = 100 }
             }
             if optouter.at_xpath("//input [@name='vp']") != nil {
-                tmpViewportVirtualWidth = Float(parseString(node: optouter, name: "vp") ?? "0")
-                if tmpViewportVirtualWidth == nil { tmpViewportVirtualWidth = 0 }
+                viewportVirtualWidth = Float(parseString(node: optouter, name: "vp") ?? "0")
+                if viewportVirtualWidth == nil { viewportVirtualWidth = 0 }
             }
             if optouter.at_xpath("//input [@name='cs']") != nil {
-                tmpCommentsSortOrder = parseEnum(node: optouter, name: "cs")
+                commentsSortOrder = parseEnum(node: optouter, name: "cs")
             }
             if optouter.at_xpath("//input [@name='sc']") != nil {
-                tmpCommentVotesShowTiming = parseEnum(node: optouter, name: "sc")
+                commentVotesShowTiming = parseEnum(node: optouter, name: "sc")
             }
             if optouter.at_xpath("//input [@name='tb']") != nil {
-                tmpTagsSortOrder = parseEnum(node: optouter, name: "tb")
+                tagsSortOrder = parseEnum(node: optouter, name: "tb")
             }
             if optouter.at_xpath("//input [@name='pn']") != nil {
-                tmpGalleryShowPageNumbers = parseInt(node: optouter, name: "pn") == 1
+                galleryShowPageNumbers = parseInt(node: optouter, name: "pn") == 1
             }
-//            if optouter.at_xpath("//input [@name='hh']") != nil {
-//                tmpHathLocalNetworkHost = parseString(node: optouter, name: "hh")
-//            }
             if optouter.at_xpath("//input [@name='oi']") != nil {
-                tmpUseOriginalImages = parseInt(node: optouter, name: "oi") == 1
+                useOriginalImages = parseInt(node: optouter, name: "oi") == 1
             }
             if optouter.at_xpath("//input [@name='qb']") != nil {
-                tmpUseMultiplePageViewer = parseInt(node: optouter, name: "qb") == 1
+                useMultiplePageViewer = parseInt(node: optouter, name: "qb") == 1
             }
             if optouter.at_xpath("//input [@name='ms']") != nil {
-                tmpMultiplePageViewerStyle = parseEnum(node: optouter, name: "ms")
+                multiplePageViewerStyle = parseEnum(node: optouter, name: "ms")
             }
             if optouter.at_xpath("//input [@name='mt']") != nil {
-                tmpMultiplePageViewerShowThumbnailPane = parseInt(node: optouter, name: "mt") == 0
+                multiplePageViewerShowThumbnailPane = parseInt(node: optouter, name: "mt") == 0
             }
         }
 
         // swiftlint:disable line_length
-        guard !tmpEhProfiles.filter(\.isSelected).isEmpty, let capableLoadThroughHathSetting = tmpCapableLoadThroughHathSetting, let capableImageResolution = tmpCapableImageResolution, let capableSearchResultCount = tmpCapableSearchResultCount, let capableThumbnailConfigSize = tmpCapableThumbnailConfigSize, let capableThumbnailConfigRowCount = tmpCapableThumbnailConfigRowCount, let loadThroughHathSetting = tmpLoadThroughHathSetting, let browsingCountry = tmpBrowsingCountry, let literalBrowsingCountry = tmpLiteralBrowsingCountry, let imageResolution = tmpImageResolution, let imageSizeWidth = tmpImageSizeWidth, let imageSizeHeight = tmpImageSizeHeight, let galleryName = tmpGalleryName, let archiverBehavior = tmpArchiverBehavior, let displayMode = tmpDisplayMode, tmpDisabledCategories.count == 10, tmpFavoriteCategories.count == 10, let favoritesSortOrder = tmpFavoritesSortOrder, let ratingsColor = tmpRatingsColor, tmpExcludedNamespaces.count == 11, let tagFilteringThreshold = tmpTagFilteringThreshold, let tagWatchingThreshold = tmpTagWatchingThreshold, tmpExcludedLanguages.count == 50, let excludedUploaders = tmpExcludedUploaders, let searchResultCount = tmpSearchResultCount, let thumbnailLoadTiming = tmpThumbnailLoadTiming, let thumbnailConfigSize = tmpThumbnailConfigSize, let thumbnailConfigRows = tmpThumbnailConfigRows, let thumbnailScaleFactor = tmpThumbnailScaleFactor, let viewportVirtualWidth = tmpViewportVirtualWidth, let commentsSortOrder = tmpCommentsSortOrder, let commentVotesShowTiming = tmpCommentVotesShowTiming, let tagsSortOrder = tmpTagsSortOrder, let galleryShowPageNumbers = tmpGalleryShowPageNumbers /*, let hathLocalNetworkHost = tmpHathLocalNetworkHost */
+        guard !ehProfiles.filter(\.isSelected).isEmpty, let isCapableOfCreatingNewProfile, let capableLoadThroughHathSetting, let capableImageResolution, let capableSearchResultCount, let capableThumbnailConfigSize, let capableThumbnailConfigRowCount, let loadThroughHathSetting, let browsingCountry, let literalBrowsingCountry, let imageResolution, let imageSizeWidth, let imageSizeHeight, let galleryName, let archiverBehavior, let displayMode, disabledCategories.count == 10, favoriteCategories.count == 10, let favoritesSortOrder, let ratingsColor, excludedNamespaces.count == 11, let tagFilteringThreshold, let tagWatchingThreshold, excludedLanguages.count == 50, let excludedUploaders, let searchResultCount, let thumbnailLoadTiming, let thumbnailConfigSize, let thumbnailConfigRows, let thumbnailScaleFactor, let viewportVirtualWidth, let commentsSortOrder, let commentVotesShowTiming, let tagsSortOrder, let galleryShowPageNumbers
         else { throw AppError.parseFailed }
 
-        return EhSetting(ehProfiles: tmpEhProfiles.sorted(), capableLoadThroughHathSetting: capableLoadThroughHathSetting, capableImageResolution: capableImageResolution, capableSearchResultCount: capableSearchResultCount, capableThumbnailConfigSize: capableThumbnailConfigSize, capableThumbnailConfigRowCount: capableThumbnailConfigRowCount, loadThroughHathSetting: loadThroughHathSetting, browsingCountry: browsingCountry, literalBrowsingCountry: literalBrowsingCountry, imageResolution: imageResolution, imageSizeWidth: imageSizeWidth, imageSizeHeight: imageSizeHeight, galleryName: galleryName, archiverBehavior: archiverBehavior, displayMode: displayMode, disabledCategories: tmpDisabledCategories, favoriteCategories: tmpFavoriteCategories, favoritesSortOrder: favoritesSortOrder, ratingsColor: ratingsColor, excludedNamespaces: tmpExcludedNamespaces, tagFilteringThreshold: tagFilteringThreshold, tagWatchingThreshold: tagWatchingThreshold, excludedLanguages: tmpExcludedLanguages, excludedUploaders: excludedUploaders, searchResultCount: searchResultCount, thumbnailLoadTiming: thumbnailLoadTiming, thumbnailConfigSize: thumbnailConfigSize, thumbnailConfigRows: thumbnailConfigRows, thumbnailScaleFactor: thumbnailScaleFactor, viewportVirtualWidth: viewportVirtualWidth, commentsSortOrder: commentsSortOrder, commentVotesShowTiming: commentVotesShowTiming, tagsSortOrder: tagsSortOrder, galleryShowPageNumbers: galleryShowPageNumbers, /* hathLocalNetworkHost: hathLocalNetworkHost, */ useOriginalImages: tmpUseOriginalImages, useMultiplePageViewer: tmpUseMultiplePageViewer, multiplePageViewerStyle: tmpMultiplePageViewerStyle, multiplePageViewerShowThumbnailPane: tmpMultiplePageViewerShowThumbnailPane
+        return EhSetting(ehProfiles: ehProfiles.sorted(), isCapableOfCreatingNewProfile: isCapableOfCreatingNewProfile, capableLoadThroughHathSetting: capableLoadThroughHathSetting, capableImageResolution: capableImageResolution, capableSearchResultCount: capableSearchResultCount, capableThumbnailConfigSize: capableThumbnailConfigSize, capableThumbnailConfigRowCount: capableThumbnailConfigRowCount, loadThroughHathSetting: loadThroughHathSetting, browsingCountry: browsingCountry, literalBrowsingCountry: literalBrowsingCountry, imageResolution: imageResolution, imageSizeWidth: imageSizeWidth, imageSizeHeight: imageSizeHeight, galleryName: galleryName, archiverBehavior: archiverBehavior, displayMode: displayMode, disabledCategories: disabledCategories, favoriteCategories: favoriteCategories, favoritesSortOrder: favoritesSortOrder, ratingsColor: ratingsColor, excludedNamespaces: excludedNamespaces, tagFilteringThreshold: tagFilteringThreshold, tagWatchingThreshold: tagWatchingThreshold, excludedLanguages: excludedLanguages, excludedUploaders: excludedUploaders, searchResultCount: searchResultCount, thumbnailLoadTiming: thumbnailLoadTiming, thumbnailConfigSize: thumbnailConfigSize, thumbnailConfigRows: thumbnailConfigRows, thumbnailScaleFactor: thumbnailScaleFactor, viewportVirtualWidth: viewportVirtualWidth, commentsSortOrder: commentsSortOrder, commentVotesShowTiming: commentVotesShowTiming, tagsSortOrder: tagsSortOrder, galleryShowPageNumbers: galleryShowPageNumbers, useOriginalImages: useOriginalImages, useMultiplePageViewer: useMultiplePageViewer, multiplePageViewerStyle: multiplePageViewerStyle, multiplePageViewerShowThumbnailPane: multiplePageViewerShowThumbnailPane
         )
         // swiftlint:enable line_length
     }

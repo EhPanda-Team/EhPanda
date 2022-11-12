@@ -95,7 +95,6 @@ struct EhSettingView: View {
                 GalleryPageNumberingSection(ehSetting: ehSetting)
             }
             Group {
-//                HathLocalNetworkHostSection(ehSetting: ehSetting)
                 OriginalImagesSection(ehSetting: ehSetting)
                 MultiplePageViewerSection(ehSetting: ehSetting)
             }
@@ -199,7 +198,7 @@ private struct EhProfileSection: View {
                 performEhProfileAction(.rename, editingProfileName, ehProfile.value)
             }
             .disabled(isFocused)
-            if ehSetting.ehProfiles.count < 10 {
+            if ehSetting.isCapableOfCreatingNewProfile {
                 Button(R.string.localizable.ehSettingViewButtonCreateNew()) {
                     performEhProfileAction(.create, editingProfileName, ehProfile.value)
                 }
@@ -893,32 +892,6 @@ private struct GalleryPageNumberingSection: View {
         .textCase(nil)
     }
 }
-
-/*
-// MARK: HathLocalNetworkHostSection
-private struct HathLocalNetworkHostSection: View {
-    @Binding private var ehSetting: EhSetting
-    @FocusState var isFocused
-
-    init(ehSetting: Binding<EhSetting>) {
-        _ehSetting = ehSetting
-    }
-
-    var body: some View {
-        Section(
-            header: Text(R.string.localizable.ehSettingViewSectionTitleHathLocalNetworkHost()).newlineBold()
-            + Text(R.string.localizable.ehSettingViewDescriptionIpAddressPort())
-        ) {
-            HStack {
-                Text(R.string.localizable.ehSettingViewTitleIpAddressPort())
-                Spacer()
-                SettingTextField(text: $ehSetting.hathLocalNetworkHost, width: 150).focused($isFocused)
-            }
-        }
-        .textCase(nil)
-    }
-}
- */
 
 // MARK: OriginalImagesSection
 private struct OriginalImagesSection: View {
