@@ -180,13 +180,17 @@ let favoritesReducer = Reducer<FavoritesState, FavoritesAction, FavoritesEnviron
         case .fetchMoreGalleries:
             let pageNumber = state.pageNumber ?? .init()
             guard pageNumber.hasNextPage,
-                  state.footerLoadingState != .loading
+                  state.footerLoadingState != .loading,
+                  let lastID = state.galleries?.last?.id,
+                  let lastTimestamp = pageNumber.lastItemTimestamp
             else { return .none }
             state.rawFooterLoadingState[state.index] = .loading
-            let pageNum = pageNumber.current + 1
-            let lastID = state.galleries?.last?.id ?? ""
             return MoreFavoritesGalleriesRequest(
-                favIndex: state.index, lastID: lastID, pageNum: pageNum, keyword: state.keyword
+                favIndex: state.index,
+                lastID: lastID,
+                lastTimestamp: lastTimestamp,
+                pageNum: pageNumber.current + 1,
+                keyword: state.keyword
             )
             .effect.map { [index = state.index] result in FavoritesAction.fetchMoreGalleriesDone(index, result) }
 

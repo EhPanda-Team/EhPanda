@@ -1343,14 +1343,24 @@ extension Parser {
               let currentStr = link.at_xpath("//td [@class='ptds']")?.text
         else {
             if let link = doc.at_xpath("//div [@class='searchnav']") {
+                var timestamp: String?
                 var isEnabled = false
 
                 for aLink in link.xpath("//a") where aLink.text?.contains("Next") == true {
+                    timestamp = aLink["href"]
+                        .map(URLComponents.init)??
+                        .queryItems?
+                        .first(where: { $0.name == "next" })?
+                        .value?
+                        .split(separator: "-")
+                        .last
+                        .map(String.init)
+
                     isEnabled = true
                     break
                 }
 
-                return PageNumber(isNextButtonEnabled: isEnabled)
+                return PageNumber(lastItemTimestamp: timestamp, isNextButtonEnabled: isEnabled)
             } else {
                 return PageNumber(isNextButtonEnabled: false)
             }
