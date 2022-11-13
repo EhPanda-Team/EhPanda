@@ -91,6 +91,7 @@ struct FavoritesEnvironment {
     let databaseClient: DatabaseClient
     let clipboardClient: ClipboardClient
     let appDelegateClient: AppDelegateClient
+    let userDefaultsClient: UserDefaultsClient
     let uiApplicationClient: UIApplicationClient
 }
 
@@ -181,14 +182,18 @@ let favoritesReducer = Reducer<FavoritesState, FavoritesAction, FavoritesEnviron
             let pageNumber = state.pageNumber ?? .init()
             guard pageNumber.hasNextPage,
                   state.footerLoadingState != .loading,
-                  let lastID = state.galleries?.last?.id,
-                  let lastTimestamp = pageNumber.lastItemTimestamp
+                  let lastID = state.galleries?.last?.id
             else { return .none }
+
+            let galleryHost: GalleryHost = environment.userDefaultsClient.getValue(.galleryHost) ?? .ehentai
+            guard galleryHost == .ehentai || pageNumber.lastItemTimestamp != nil
+            else { return .none }
+
             state.rawFooterLoadingState[state.index] = .loading
             return MoreFavoritesGalleriesRequest(
                 favIndex: state.index,
                 lastID: lastID,
-                lastTimestamp: lastTimestamp,
+                lastTimestamp: pageNumber.lastItemTimestamp,
                 pageNum: pageNumber.current + 1,
                 keyword: state.keyword
             )

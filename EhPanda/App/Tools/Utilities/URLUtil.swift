@@ -107,14 +107,20 @@ struct URLUtil {
         favIndex: Int,
         pageNum: Int,
         lastID: String,
-        lastTimestamp: String,
+        lastTimestamp: String? = nil,
         keyword: String = ""
     ) -> URL {
         var url: URL
         if AppUtil.galleryHost == .ehentai {
             url = Defaults.URL.favorites.appending(queryItems: [.page: String(pageNum), .from: lastID])
         } else {
-            url = Defaults.URL.favorites.appending(queryItems: [.next: [lastID, lastTimestamp].joined(separator: "-")])
+            var queryItems: [Defaults.URL.Component.Key: String]
+            if let lastTimestamp {
+                queryItems = [.next: [lastID, lastTimestamp].joined(separator: "-")]
+            } else {
+                queryItems = [.next: lastID]
+            }
+            url = Defaults.URL.favorites.appending(queryItems: queryItems)
         }
         if favIndex != -1 {
             url.append(queryItems: [.favcat: String(favIndex)])

@@ -79,17 +79,17 @@ struct Defaults {
         static let login = forum.appending(queryItems: [.act: .loginAct, .code: .zeroOne])
         static let webLogin = forum.appending(queryItems: [.act: .loginAct])
 
-        static let api = host.appendingPathComponent("api.php")
-        static let myTags = host.appendingPathComponent("mytags")
+        static var api: Foundation.URL { host.appendingPathComponent("api.php") }
+        static var myTags: Foundation.URL { host.appendingPathComponent("mytags") }
         static let news = ehentai.appendingPathComponent("news.php")
-        static let uConfig = host.appendingPathComponent("uconfig.php")
-        static let galleryPopups = host.appendingPathComponent("gallerypopups.php")
-        static let galleryTorrents = host.appendingPathComponent("gallerytorrents.php")
+        static var uConfig: Foundation.URL { host.appendingPathComponent("uconfig.php") }
+        static var galleryPopups: Foundation.URL { host.appendingPathComponent("gallerypopups.php") }
+        static var galleryTorrents: Foundation.URL { host.appendingPathComponent("gallerytorrents.php") }
 
-        static let popular = host.appendingPathComponent("popular")
-        static let watched = host.appendingPathComponent("watched")
+        static var popular: Foundation.URL { host.appendingPathComponent("popular") }
+        static var watched: Foundation.URL { host.appendingPathComponent("watched") }
         static let toplist = ehentai.appendingPathComponent("toplist.php")
-        static let favorites = host.appendingPathComponent("favorites.php")
+        static var favorites: Foundation.URL { host.appendingPathComponent("favorites.php") }
 
         // GitHub
         static let github: Foundation.URL = .init(string: "https://github.com/").forceUnwrapped

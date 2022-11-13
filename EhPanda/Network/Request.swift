@@ -284,7 +284,7 @@ struct FavoritesGalleriesRequest: Request {
 struct MoreFavoritesGalleriesRequest: Request {
     let favIndex: Int
     let lastID: String
-    let lastTimestamp: String
+    var lastTimestamp: String?
     let pageNum: Int
     let keyword: String
 
