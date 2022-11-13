@@ -64,22 +64,16 @@ struct AppearanceSettingView: View {
                 .withArrow()
             }
             Section(R.string.localizable.appearanceSettingViewSectionTitleList()) {
-                HStack {
-                    Text(R.string.localizable.appearanceSettingViewTitleDisplayMode())
-
-                    Spacer()
-
-                    Picker(
-                        selection: $listDisplayMode,
-                        label: Text(listDisplayMode.value),
-                        content: {
-                            ForEach(ListDisplayMode.allCases) { listMode in
-                                Text(listMode.value)
-                                    .tag(listMode)
-                            }
+                Picker(
+                    R.string.localizable.appearanceSettingViewTitleDisplayMode(),
+                    selection: $listDisplayMode,
+                    content: {
+                        ForEach(ListDisplayMode.allCases) { listMode in
+                            Text(listMode.value)
+                                .tag(listMode)
                         }
-                    )
-                }
+                    }
+                )
                 .pickerStyle(.menu)
 
                 Toggle(isOn: $showsTagsInList) {
@@ -164,7 +158,7 @@ private struct AppIconRow: View {
                 .resizable()
                 .scaledToFit()
                 .frame(width: 60, height: 60)
-                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                .clipShape(RoundedRectangle(cornerRadius: 15, style: .continuous))
                 .padding(.vertical, 10)
 
             Text(iconName)

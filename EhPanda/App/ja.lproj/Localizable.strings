@@ -230,7 +230,7 @@
 "enum.app.icon.type.value.standWithUkraine2022" = "ウクライナと共に (2022)";
 "enum.app.icon.type.value.notMyPresident" = "私の大統領ではない";
 // ListDisplayMode
-"enum.display.mode.value.detail" = "デフォルト";
+"enum.display.mode.value.detail" = "詳細";
 "enum.display.mode.value.thumbnail" = "サムネイル";
 
 // MARK: AppIconView
