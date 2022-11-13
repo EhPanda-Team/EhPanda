@@ -825,6 +825,9 @@ struct SubmitEhSettingChangesRequest: Request {
             }
         }
 
+        if let showFilteredRemovalCount = ehSetting.showFilteredRemovalCount {
+            params["tf"] = showFilteredRemovalCount ? "0" : "1"
+        }
         if let useOriginalImages = ehSetting.useOriginalImages {
             params["oi"] = useOriginalImages ? "1" : "0"
         }

@@ -473,6 +473,10 @@
 "eh.setting.view.title.tagWatchingThreshold" = "标签订阅阈值";
 "eh.setting.view.description.tagWatchingThreshold" = "你可以通过将标签加入“我的标签”并设置一个正权重来关注它们。如果一个最近上传的作品所有标签的权重之和高于设定值，则它将会被包含在“关注”里。这个值可以设定为 0 ~ 9999。";
 
+"eh.setting.view.section.title.filteredRemovalCount" = "筛选器移除数";
+"eh.setting.view.description.filteredRemovalCount" = "要显示“你的默认筛选器从本页移除了 XX 个画廊”提示吗？";
+"eh.setting.view.title.showFilteredRemovalCount" = "显示筛选器移除数";
+
 "eh.setting.view.section.title.excludedLanguages" = "屏蔽的语言";
 "eh.setting.view.description.excludedLanguages" = "如果你希望以从列表或搜索结果中隐藏特定语言的画廊，请从下面的列表中选择。注意：无论搜索条件为何，这些画廊都不会出现。";
 // EhSetting.ExcludedLanguagesCategory
