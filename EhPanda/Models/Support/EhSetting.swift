@@ -83,6 +83,7 @@ struct EhSetting: Equatable {
     var excludedNamespaces: [Bool]
     var tagFilteringThreshold: Float
     var tagWatchingThreshold: Float
+    var showFilteredRemovalCount: Bool?
     var excludedLanguages: [Bool]
     var excludedUploaders: String
     var searchResultCount: SearchResultCount

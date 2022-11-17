@@ -165,6 +165,7 @@ struct FavoritesView_Previews: PreviewProvider {
                     databaseClient: .live,
                     clipboardClient: .live,
                     appDelegateClient: .live,
+                    userDefaultsClient: .live,
                     uiApplicationClient: .live
                 )
             ),

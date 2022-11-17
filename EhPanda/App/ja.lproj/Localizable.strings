@@ -228,8 +228,9 @@
 "enum.app.icon.type.value.ukiyoe" = "浮世絵";
 "enum.app.icon.type.value.developer" = "デベロッパー";
 "enum.app.icon.type.value.standWithUkraine2022" = "ウクライナと共に (2022)";
+"enum.app.icon.type.value.notMyPresident" = "私の大統領ではない";
 // ListDisplayMode
-"enum.display.mode.value.detail" = "デフォルト";
+"enum.display.mode.value.detail" = "詳細";
 "enum.display.mode.value.thumbnail" = "サムネイル";
 
 // MARK: AppIconView
@@ -471,6 +472,10 @@
 "eh.setting.view.section.title.tagWatchingThreshold" = "タグ購読しきい値";
 "eh.setting.view.title.tagWatchingThreshold" = "タグ購読しきい値";
 "eh.setting.view.description.tagWatchingThreshold" = "もしあるギャラリーは最近投稿されたもので、少なくても一つの正の重みの購読タグを持っていて、購読タグの重み総和がこのしきい値と同じまたはより高ければ、そのギャラリーは購読画面で表示されます。このしきい値はゼロから 9999 まで設定できます。";
+
+"eh.setting.view.section.title.filteredRemovalCount" = "フィルター除去数";
+"eh.setting.view.description.filteredRemovalCount" = "「既定フィルターにより本ページから XX 個のギャラリーが除去されました」を表示しますか？";
+"eh.setting.view.title.showFilteredRemovalCount" = "フィルター除去数を表示";
 
 "eh.setting.view.section.title.excludedLanguages" = "排除された言語";
 "eh.setting.view.description.excludedLanguages" = "特定の言語のギャラリーをリストと検索結果から隠したい場合、下に選択してください。注意：どんな検索クエリーを使ってもこれらの言語のギャラリーは表示されません。";

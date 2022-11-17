@@ -228,6 +228,7 @@
 "enum.app.icon.type.value.ukiyoe" = "Ukiyo-e";
 "enum.app.icon.type.value.developer" = "Developer";
 "enum.app.icon.type.value.standWithUkraine2022" = "Stand With Ukraine (2022)";
+"enum.app.icon.type.value.notMyPresident" = "NOT MY PRESIDENT";
 // ListDisplayMode
 "enum.display.mode.value.detail" = "詳情";
 "enum.display.mode.value.thumbnail" = "縮略圖";
@@ -471,6 +472,10 @@
 "eh.setting.view.section.title.tagWatchingThreshold" = "Tag Watching Threshold";
 "eh.setting.view.title.tagWatchingThreshold" = "Tag Watching Threshold";
 "eh.setting.view.description.tagWatchingThreshold" = "Recently uploaded galleries will be included on the watched screen if it has at least one watched tag with positive weight, and the sum of weights on its watched tags add up to this value or higher. This threshold can be set between 0 and 9999.";
+
+"eh.setting.view.section.title.filteredRemovalCount" = "Show Filtered Removal Count";
+"eh.setting.view.description.filteredRemovalCount" = "Show the \"Your default filters removed XX galleries from this page\" readout?";
+"eh.setting.view.title.showFilteredRemovalCount" = "Show filtered removal count";
 
 "eh.setting.view.section.title.excludedLanguages" = "Excluded Languages";
 "eh.setting.view.description.excludedLanguages" = "If you wish to hide galleries in certain languages from the gallery list and searches, select them from the list below. Note that matching galleries will never appear regardless of your search query.";

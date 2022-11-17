@@ -16,6 +16,7 @@ struct URLUtil {
         }
         return Defaults.URL.host.appending(queryItems: queryItems).applyingFilter(filter)
     }
+
     static func moreSearchList(keyword: String, filter: Filter, pageNum: Int, lastID: String) -> URL {
         var queryItems: [Defaults.URL.Component.Key: String] = [.fSearch: keyword]
         if AppUtil.galleryHost == .ehentai {
@@ -26,6 +27,7 @@ struct URLUtil {
         }
         return Defaults.URL.host.appending(queryItems: queryItems).applyingFilter(filter)
     }
+
     static func frontpageList(filter: Filter, pageNum: Int? = nil) -> URL {
         var url = Defaults.URL.host
         if let pageNum = pageNum {
@@ -33,6 +35,7 @@ struct URLUtil {
         }
         return url.applyingFilter(filter)
     }
+
     static func moreFrontpageList(filter: Filter, pageNum: Int, lastID: String) -> URL {
         var queryItems = [Defaults.URL.Component.Key: String]()
         if AppUtil.galleryHost == .ehentai {
@@ -43,9 +46,11 @@ struct URLUtil {
         }
         return Defaults.URL.host.appending(queryItems: queryItems).applyingFilter(filter)
     }
+
     static func popularList(filter: Filter) -> URL {
         Defaults.URL.popular.applyingFilter(filter)
     }
+
     static func watchedList(filter: Filter, pageNum: Int? = nil, keyword: String = "") -> URL {
         var url = Defaults.URL.watched
         if let pageNum = pageNum {
@@ -56,6 +61,7 @@ struct URLUtil {
         }
         return url.applyingFilter(filter)
     }
+
     static func moreWatchedList(filter: Filter, pageNum: Int, lastID: String, keyword: String = "") -> URL {
         var url: URL
         if AppUtil.galleryHost == .ehentai {
@@ -68,8 +74,11 @@ struct URLUtil {
         }
         return url.applyingFilter(filter)
     }
+
     static func favoritesList(
-        favIndex: Int, pageNum: Int? = nil, keyword: String = "",
+        favIndex: Int,
+        pageNum: Int? = nil,
+        keyword: String = "",
         sortOrder: FavoritesSortOrder? = nil
     ) -> URL {
         var url = Defaults.URL.favorites
@@ -93,12 +102,25 @@ struct URLUtil {
         }
         return url
     }
-    static func moreFavoritesList(favIndex: Int, pageNum: Int, lastID: String, keyword: String = "") -> URL {
+
+    static func moreFavoritesList(
+        favIndex: Int,
+        pageNum: Int,
+        lastID: String,
+        lastTimestamp: String? = nil,
+        keyword: String = ""
+    ) -> URL {
         var url: URL
         if AppUtil.galleryHost == .ehentai {
             url = Defaults.URL.favorites.appending(queryItems: [.page: String(pageNum), .from: lastID])
         } else {
-            url = Defaults.URL.favorites.appending(queryItems: [.next: lastID])
+            var queryItems: [Defaults.URL.Component.Key: String]
+            if let lastTimestamp {
+                queryItems = [.next: [lastID, lastTimestamp].joined(separator: "-")]
+            } else {
+                queryItems = [.next: lastID]
+            }
+            url = Defaults.URL.favorites.appending(queryItems: queryItems)
         }
         if favIndex != -1 {
             url.append(queryItems: [.favcat: String(favIndex)])
@@ -111,6 +133,7 @@ struct URLUtil {
         }
         return url
     }
+
     static func toplistsList(catIndex: Int, pageNum: Int? = nil) -> URL {
         var url = Defaults.URL.toplist.appending(queryItems: [.topcat: String(catIndex)])
         if let pageNum = pageNum {
@@ -118,12 +141,15 @@ struct URLUtil {
         }
         return url
     }
+
     static func moreToplistsList(catIndex: Int, pageNum: Int) -> URL {
         Defaults.URL.toplist.appending(queryItems: [.topcat: String(catIndex), .letterP: String(pageNum)])
     }
+
     static func galleryDetail(url: URL) -> URL {
         url.appending(queryItems: [.showComments: .one])
     }
+
     static func galleryTorrents(gid: String, token: String) -> URL {
         Defaults.URL.galleryTorrents.appending(queryItems: [.gid: gid, .token: token])
     }
@@ -134,6 +160,7 @@ struct URLUtil {
             .appending(queryItems: [.gid: gid, .token: token])
             .appending(queryItems: [.act: .addFavAct])
     }
+
     static func userInfo(uid: String) -> URL {
         Defaults.URL.forum.appending(queryItems: [.showUser: uid])
     }
@@ -142,6 +169,7 @@ struct URLUtil {
     static func detailPage(url: URL, pageNum: Int) -> URL {
         url.appending(queryItems: [.letterP: String(pageNum)])
     }
+
     static func normalPreviewURL(plainURL: URL, width: String, height: String, offset: String) -> URL {
         plainURL.appending(queryItems: [.ehpandaWidth: width, .ehpandaHeight: height, .ehpandaOffset: offset])
     }
@@ -150,6 +178,7 @@ struct URLUtil {
     static func githubAPI(repoName: String) -> URL {
         Defaults.URL.githubAPI.appendingPathComponent("\(repoName)/releases/latest")
     }
+
     static func githubDownload(repoName: String, fileName: String) -> URL {
         Defaults.URL.github.appendingPathComponent("\(repoName)/releases/latest/download/\(fileName)")
     }

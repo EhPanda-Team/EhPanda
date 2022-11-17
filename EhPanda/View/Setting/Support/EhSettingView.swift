@@ -26,9 +26,11 @@ struct EhSettingView: View {
         ZStack {
             // workaround: Stay if-else approach
             if viewStore.loadingState == .loading || viewStore.submittingState == .loading {
-                LoadingView().tint(nil)
+                LoadingView()
+                    .tint(nil)
             } else if case .failed(let error) = viewStore.loadingState {
-                ErrorView(error: error, action: { viewStore.send(.fetchEhSetting) }).tint(nil)
+                ErrorView(error: error, action: { viewStore.send(.fetchEhSetting) })
+                    .tint(nil)
             }
             // Using `Binding.init` will crash the app
             else if let ehSetting = Binding(unwrapping: viewStore.binding(\.$ehSetting)),
@@ -49,7 +51,8 @@ struct EhSettingView: View {
             }
         }
         .sheet(unwrapping: viewStore.binding(\.$route), case: /EhSettingState.Route.webView) { route in
-            WebView(url: route.wrappedValue).autoBlur(radius: blurRadius)
+            WebView(url: route.wrappedValue)
+                .autoBlur(radius: blurRadius)
         }
         .toolbar(content: toolbar)
         .navigationTitle(R.string.localizable.ehSettingViewTitleHostSettings(AppUtil.galleryHost.rawValue))
@@ -60,7 +63,8 @@ struct EhSettingView: View {
             Group {
                 EhProfileSection(
                     route: viewStore.binding(\.$route),
-                    ehSetting: ehSetting, ehProfile: ehProfile,
+                    ehSetting: ehSetting,
+                    ehProfile: ehProfile,
                     editingProfileName: viewStore.binding(\.$editingProfileName),
                     deleteAction: {
                         if let value = viewStore.ehProfile?.value {
@@ -72,6 +76,7 @@ struct EhSettingView: View {
                     deleteDialogAction: { viewStore.send(.setNavigation(.deleteProfile)) },
                     performEhProfileAction: { viewStore.send(.performAction($0, $1, $2)) }
                 )
+
                 ImageLoadSettingsSection(ehSetting: ehSetting)
                 ImageSizeSettingsSection(ehSetting: ehSetting)
                 GalleryNameDisplaySection(ehSetting: ehSetting)
@@ -84,6 +89,7 @@ struct EhSettingView: View {
             }
             Group {
                 TagWatchingThresholdSection(ehSetting: ehSetting)
+                FilteredRemovalCountSection(ehSetting: ehSetting)
                 ExcludedLanguagesSection(ehSetting: ehSetting)
                 ExcludedUploadersSection(ehSetting: ehSetting)
                 SearchResultCountSection(ehSetting: ehSetting)
@@ -92,9 +98,9 @@ struct EhSettingView: View {
                 ViewportOverrideSection(ehSetting: ehSetting)
                 GalleryCommentsSection(ehSetting: ehSetting)
                 GalleryTagsSection(ehSetting: ehSetting)
-                GalleryPageNumberingSection(ehSetting: ehSetting)
             }
             Group {
+                GalleryPageNumberingSection(ehSetting: ehSetting)
                 OriginalImagesSection(ehSetting: ehSetting)
                 MultiplePageViewerSection(ehSetting: ehSetting)
             }
@@ -111,6 +117,7 @@ struct EhSettingView: View {
                 }
                 .disabled(bypassesSNIFiltering)
             }
+
             ToolbarItem(placement: .confirmationAction) {
                 Button {
                     viewStore.send(.submitChanges)
@@ -119,13 +126,12 @@ struct EhSettingView: View {
                 }
                 .disabled(viewStore.ehSetting == nil)
             }
+
             ToolbarItem(placement: .keyboard) {
-                HStack {
-                    Spacer()
-                    Button(R.string.localizable.ehSettingViewToolbarItemButtonDone()) {
-                        viewStore.send(.setKeyboardHidden)
-                    }
+                Button(R.string.localizable.ehSettingViewToolbarItemButtonDone()) {
+                    viewStore.send(.setKeyboardHidden)
                 }
+                .frame(maxWidth: .infinity, alignment: .trailing)
             }
         }
     }
@@ -162,21 +168,26 @@ private struct EhProfileSection: View {
         Section(R.string.localizable.ehSettingViewSectionTitleProfileSettings()) {
             Picker(R.string.localizable.ehSettingViewTitleSelectedProfile(), selection: $ehProfile) {
                 ForEach(ehSetting.ehProfiles) { ehProfile in
-                    Text(ehProfile.name).tag(ehProfile)
+                    Text(ehProfile.name)
+                        .tag(ehProfile)
                 }
             }
             .pickerStyle(.menu)
+
             if !ehProfile.isDefault {
                 Button(R.string.localizable.ehSettingViewButtonSetAsDefault()) {
                     performEhProfileAction(.default, nil, ehProfile.value)
                 }
+
                 Button(
                     R.string.localizable.ehSettingViewButtonDeleteProfile(),
-                    role: .destructive, action: deleteDialogAction
+                    role: .destructive,
+                    action: deleteDialogAction
                 )
                 .confirmationDialog(
                     message: R.string.localizable.confirmationDialogTitleDelete(),
-                    unwrapping: $route, case: /EhSettingState.Route.deleteProfile
+                    unwrapping: $route,
+                    case: /EhSettingState.Route.deleteProfile
                 ) {
                     Button(
                         R.string.localizable.confirmationDialogButtonDelete(),
@@ -189,15 +200,16 @@ private struct EhProfileSection: View {
             performEhProfileAction(nil, nil, $0.value)
         }
         .textCase(nil)
+
         Section {
-            SettingTextField(
-                text: $editingProfileName, width: nil, alignment: .leading, background: .clear
-            )
-            .focused($isFocused)
+            SettingTextField(text: $editingProfileName, width: nil, alignment: .leading, background: .clear)
+                .focused($isFocused)
+
             Button(R.string.localizable.ehSettingViewButtonRename()) {
                 performEhProfileAction(.rename, editingProfileName, ehProfile.value)
             }
             .disabled(isFocused)
+
             if ehSetting.isCapableOfCreatingNewProfile {
                 Button(R.string.localizable.ehSettingViewButtonCreateNew()) {
                     performEhProfileAction(.create, editingProfileName, ehProfile.value)
@@ -217,21 +229,24 @@ private struct ImageLoadSettingsSection: View {
     }
 
     var body: some View {
-        Section(
-            header: Text(R.string.localizable.ehSettingViewSectionTitleImageLoadSettings()),
-            footer: Text(ehSetting.loadThroughHathSetting.description)
-        ) {
+        Section {
             Picker(
                 R.string.localizable.ehSettingViewTitleLoadImagesThroughTheHathNetwork(),
                 selection: $ehSetting.loadThroughHathSetting
             ) {
                 ForEach(ehSetting.capableLoadThroughHathSettings) { setting in
-                    Text(setting.value).tag(setting)
+                    Text(setting.value)
+                        .tag(setting)
                 }
             }
             .pickerStyle(.menu)
+        } header: {
+            Text(R.string.localizable.ehSettingViewSectionTitleImageLoadSettings())
+        } footer: {
+            Text(ehSetting.loadThroughHathSetting.description)
         }
         .textCase(nil)
+
         Section(
             R.string.localizable.ehSettingViewDescriptionBrowsingCountry(
                 ehSetting.localizedLiteralBrowsingCountry ?? ehSetting.literalBrowsingCountry
@@ -240,7 +255,8 @@ private struct ImageLoadSettingsSection: View {
         ) {
             Picker(R.string.localizable.ehSettingViewTitleBrowsingCountry(), selection: $ehSetting.browsingCountry) {
                 ForEach(EhSetting.BrowsingCountry.allCases) { country in
-                    Text(country.name).tag(country)
+                    Text(country.name)
+                        .tag(country)
                         .foregroundColor(country == ehSetting.browsingCountry ? .accentColor : .primary)
                 }
             }
@@ -258,24 +274,29 @@ private struct ImageSizeSettingsSection: View {
     }
 
     var body: some View {
-        Section(
-            header: Text(R.string.localizable.ehSettingViewSectionTitleImageSizeSettings()).newlineBold()
-            + Text(R.string.localizable.ehSettingViewDescriptionImageResolution())
-        ) {
+        Section {
             Picker(R.string.localizable.ehSettingViewTitleImageResolution(), selection: $ehSetting.imageResolution) {
                 ForEach(ehSetting.capableImageResolutions) { setting in
-                    Text(setting.value).tag(setting)
+                    Text(setting.value)
+                        .tag(setting)
                 }
             }
             .pickerStyle(.menu)
+        } header: {
+            Text(R.string.localizable.ehSettingViewSectionTitleImageSizeSettings())
+                .newlineBold()
+                .appending(R.string.localizable.ehSettingViewDescriptionImageResolution())
         }
         .textCase(nil)
+
         Section(R.string.localizable.ehSettingViewDescriptionImageSize()) {
             Text(R.string.localizable.ehSettingViewTitleImageSize())
+
             ValuePicker(
                 title: R.string.localizable.ehSettingViewTitleHorizontal(),
                 value: $ehSetting.imageSizeWidth, range: 0...65535, unit: "px"
             )
+
             ValuePicker(
                 title: R.string.localizable.ehSettingViewTitleVertical(),
                 value: $ehSetting.imageSizeHeight, range: 0...65535, unit: "px"
@@ -294,16 +315,18 @@ private struct GalleryNameDisplaySection: View {
     }
 
     var body: some View {
-        Section(
-            header: Text(R.string.localizable.ehSettingViewSectionTitleGalleryNameDisplay()).newlineBold()
-            + Text(R.string.localizable.ehSettingViewDescriptionGalleryName())
-        ) {
+        Section {
             Picker(R.string.localizable.ehSettingViewTitleGalleryName(), selection: $ehSetting.galleryName) {
                 ForEach(EhSetting.GalleryName.allCases) { name in
-                    Text(name.value).tag(name)
+                    Text(name.value)
+                        .tag(name)
                 }
             }
             .pickerStyle(.menu)
+        } header: {
+            Text(R.string.localizable.ehSettingViewSectionTitleGalleryNameDisplay())
+                .newlineBold()
+                .appending(R.string.localizable.ehSettingViewDescriptionGalleryName())
         }
         .textCase(nil)
     }
@@ -318,16 +341,18 @@ private struct ArchiverSettingsSection: View {
     }
 
     var body: some View {
-        Section(
-            header: Text(R.string.localizable.ehSettingViewSectionTitleArchiverSettings()).newlineBold()
-            + Text(R.string.localizable.ehSettingViewDescriptionArchiverBehavior())
-        ) {
+        Section {
             Picker(R.string.localizable.ehSettingViewTitleArchiverBehavior(), selection: $ehSetting.archiverBehavior) {
                 ForEach(EhSetting.ArchiverBehavior.allCases) { behavior in
-                    Text(behavior.value).tag(behavior)
+                    Text(behavior.value)
+                        .tag(behavior)
                 }
             }
             .pickerStyle(.menu)
+        } header: {
+            Text(R.string.localizable.ehSettingViewSectionTitleArchiverSettings())
+                .newlineBold()
+                .appending(R.string.localizable.ehSettingViewDescriptionArchiverBehavior())
         }
         .textCase(nil)
     }
@@ -346,18 +371,21 @@ private struct FrontPageSettingsSection: View {
     }
 
     var body: some View {
-        Section(
-            header: Text(R.string.localizable.ehSettingViewSectionTitleFrontPageSettings()).newlineBold()
-            + Text(R.string.localizable.ehSettingViewDescriptionDisplayMode())
-        ) {
+        Section {
             Picker(R.string.localizable.ehSettingViewTitleDisplayMode(), selection: $ehSetting.displayMode) {
                 ForEach(EhSetting.DisplayMode.allCases) { mode in
-                    Text(mode.value).tag(mode)
+                    Text(mode.value)
+                        .tag(mode)
                 }
             }
             .pickerStyle(.menu)
+        } header: {
+            Text(R.string.localizable.ehSettingViewSectionTitleFrontPageSettings())
+                .newlineBold()
+                .appending(R.string.localizable.ehSettingViewDescriptionDisplayMode())
         }
         .textCase(nil)
+
         Section(R.string.localizable.ehSettingViewDescriptionGalleryCategory()) {
             CategoryView(bindings: categoryBindings)
         }
@@ -381,29 +409,33 @@ private struct FavoritesSection: View {
     }
 
     var body: some View {
-        Section(
-            header: Text(R.string.localizable.ehSettingViewSectionTitleFavorites()).newlineBold()
-            + Text(R.string.localizable.ehSettingViewDescriptionFavoriteCategories())
-        ) {
+        Section {
             ForEach(tuples, id: \.0) { category, nameBinding in
                 HStack(spacing: 30) {
-                    Circle().foregroundColor(category.color).frame(width: 10)
-                    SettingTextField(
-                        text: nameBinding, width: nil, alignment: .leading, background: .clear
-                    )
-                    .focused($isFocused)
+                    Circle()
+                        .foregroundColor(category.color)
+                        .frame(width: 10)
+
+                    SettingTextField(text: nameBinding, width: nil, alignment: .leading, background: .clear)
+                        .focused($isFocused)
                 }
                 .padding(.leading)
             }
+        } header: {
+            Text(R.string.localizable.ehSettingViewSectionTitleFavorites())
+                .newlineBold()
+                .appending(R.string.localizable.ehSettingViewDescriptionFavoriteCategories())
         }
         .textCase(nil)
+
         Section(R.string.localizable.ehSettingViewDescriptionFavoritesSortOrder()) {
             Picker(
                 R.string.localizable.ehSettingViewTitleFavoritesSortOrder(),
                 selection: $ehSetting.favoritesSortOrder
             ) {
                 ForEach(EhSetting.FavoritesSortOrder.allCases) { order in
-                    Text(order.value).tag(order)
+                    Text(order.value)
+                        .tag(order)
                 }
             }
             .pickerStyle(.menu)
@@ -422,19 +454,19 @@ private struct RatingsSection: View {
     }
 
     var body: some View {
-        Section(
-            header: Text(R.string.localizable.ehSettingViewSectionTitleRatings()).newlineBold()
-            + Text(R.string.localizable.ehSettingViewDescriptionRatingsColor())
-        ) {
-            HStack {
-                Text(R.string.localizable.ehSettingViewTitleRatingsColor())
-                Spacer()
+        Section {
+            LabeledContent(R.string.localizable.ehSettingViewTitleRatingsColor()) {
                 SettingTextField(
-                    text: $ehSetting.ratingsColor, promptText: R.string.localizable
-                        .ehSettingViewPromtRatingsColor(), width: 80
+                    text: $ehSetting.ratingsColor,
+                    promptText: R.string.localizable.ehSettingViewPromtRatingsColor(),
+                    width: 80
                 )
                 .focused($isFocused)
             }
+        } header: {
+            Text(R.string.localizable.ehSettingViewSectionTitleRatings())
+                .newlineBold()
+                .appending(R.string.localizable.ehSettingViewDescriptionRatingsColor())
         }
         .textCase(nil)
     }
@@ -455,11 +487,12 @@ private struct TagNamespacesSection: View {
     }
 
     var body: some View {
-        Section(
-            header: Text(R.string.localizable.ehSettingViewSectionTitleTagsNamespaces()).newlineBold()
-            + Text(R.string.localizable.ehSettingViewDescriptionTagsNamespaces())
-        ) {
+        Section {
             ExcludeView(tuples: tuples)
+        } header: {
+            Text(R.string.localizable.ehSettingViewSectionTitleTagsNamespaces())
+                .newlineBold()
+                .appending(R.string.localizable.ehSettingViewDescriptionTagsNamespaces())
         }
         .textCase(nil)
     }
@@ -473,26 +506,34 @@ private struct ExcludeView: View {
     }
 
     private let gridItems = [
-        GridItem(.adaptive(
-            minimum: DeviceUtil.isPadWidth ? 100 : 80, maximum: 100
-        ))
+        GridItem(
+            .adaptive(
+                minimum: DeviceUtil.isPadWidth ? 100 : 80,
+                maximum: 100
+            )
+        )
     ]
 
     var body: some View {
         LazyVGrid(columns: gridItems) {
             ForEach(tuples, id: \.0) { text, isExcluded in
                 ZStack {
-                    Text(text).bold().opacity(isExcluded.wrappedValue ? 0 : 1)
+                    Text(text)
+                        .bold()
+                        .opacity(isExcluded.wrappedValue ? 0 : 1)
                     ZStack {
                         Text(text)
+
                         let width = (CGFloat(text.count) * 8) + 8
-                        let line = Rectangle().frame(width: width, height: 1)
+                        let line = Rectangle()
+                            .frame(width: width, height: 1)
                         VStack(spacing: 2) {
                             line
                             line
                         }
                     }
-                    .foregroundColor(.red).opacity(isExcluded.wrappedValue ? 1 : 0)
+                    .foregroundColor(.red)
+                    .opacity(isExcluded.wrappedValue ? 1 : 0)
                 }
                 .onTapGesture {
                     HapticUtil.generateFeedback(style: .soft)
@@ -513,14 +554,15 @@ private struct TagFilteringThresholdSection: View {
     }
 
     var body: some View {
-        Section(
-            header: Text(R.string.localizable.ehSettingViewSectionTitleTagFilteringThreshold()).newlineBold()
-            + Text(R.string.localizable.ehSettingViewDescriptionTagFilteringThreshold())
-        ) {
+        Section {
             ValuePicker(
                 title: R.string.localizable.ehSettingViewTitleTagFilteringThreshold(),
                 value: $ehSetting.tagFilteringThreshold, range: -9999...0
             )
+        } header: {
+            Text(R.string.localizable.ehSettingViewSectionTitleTagFilteringThreshold())
+                .newlineBold()
+                .appending(R.string.localizable.ehSettingViewDescriptionTagFilteringThreshold())
         }
         .textCase(nil)
     }
@@ -535,16 +577,40 @@ private struct TagWatchingThresholdSection: View {
     }
 
     var body: some View {
-        Section(
-            header: Text(R.string.localizable.ehSettingViewSectionTitleTagWatchingThreshold()).newlineBold()
-            + Text(R.string.localizable.ehSettingViewDescriptionTagWatchingThreshold())
-        ) {
+        Section {
             ValuePicker(
                 title: R.string.localizable.ehSettingViewTitleTagWatchingThreshold(),
                 value: $ehSetting.tagWatchingThreshold, range: 0...9999
             )
+        } header: {
+            Text(R.string.localizable.ehSettingViewSectionTitleTagWatchingThreshold())
+                .newlineBold()
+                .appending(R.string.localizable.ehSettingViewDescriptionTagWatchingThreshold())
         }
         .textCase(nil)
+    }
+}
+
+// MARK: FilteredRemovalCountSection
+private struct FilteredRemovalCountSection: View {
+    @Binding private var ehSetting: EhSetting
+
+    init(ehSetting: Binding<EhSetting>) {
+        _ehSetting = ehSetting
+    }
+
+    var body: some View {
+        if let showFilteredRemovalCountBinding = Binding($ehSetting.showFilteredRemovalCount) {
+            Section {
+                Toggle(
+                    R.string.localizable.ehSettingViewTitleShowFilteredRemovalCount(),
+                    isOn: showFilteredRemovalCountBinding
+                )
+            } header: {
+                Text(R.string.localizable.ehSettingViewSectionTitleFilteredRemovalCount()).newlineBold()
+                + Text(R.string.localizable.ehSettingViewDescriptionFilteredRemovalCount())
+            }
+        }
     }
 }
 
@@ -572,18 +638,22 @@ private struct ExcludedLanguagesSection: View {
     }
 
     var body: some View {
-        Section(
-            header: Text(R.string.localizable.ehSettingViewSectionTitleExcludedLanguages()).newlineBold()
-            + Text(R.string.localizable.ehSettingViewDescriptionExcludedLanguages())
-        ) {
+        Section {
             HStack {
-                Text("").frame(width: DeviceUtil.windowW * 0.25)
+                Text("")
+                    .frame(width: DeviceUtil.windowW * 0.25)
+
                 ForEach(EhSetting.ExcludedLanguagesCategory.allCases) { category in
-                    Color.clear.overlay {
-                        Text(category.value).lineLimit(1).font(.subheadline).fixedSize()
-                    }
+                    Color.clear
+                        .overlay {
+                            Text(category.value)
+                                .lineLimit(1)
+                                .font(.subheadline)
+                                .fixedSize()
+                        }
                 }
             }
+
             ForEach(0..<(languageBindings.count / 3) + 1, id: \.self) { index in
                 ExcludeRow(
                     title: languages[index],
@@ -591,6 +661,10 @@ private struct ExcludedLanguagesSection: View {
                     isFirstRow: index == 0
                 )
             }
+        } header: {
+            Text(R.string.localizable.ehSettingViewSectionTitleExcludedLanguages())
+                .newlineBold()
+                .appending(R.string.localizable.ehSettingViewDescriptionExcludedLanguages())
         }
         .textCase(nil)
     }
@@ -609,11 +683,13 @@ private struct ExcludeRow: View {
 
     var body: some View {
         HStack {
-            HStack {
-                Text(title).lineLimit(1).font(.subheadline).fixedSize()
-                Spacer()
-            }
-            .frame(width: DeviceUtil.windowW * 0.25)
+            Text(title)
+                .lineLimit(1)
+                .font(.subheadline)
+                .fixedSize()
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .frame(width: DeviceUtil.windowW * 0.25)
+
             ForEach(0..<bindings.count, id: \.self) { index in
                 let shouldHide = isFirstRow && index == 0
                 ExcludeToggle(isOn: bindings[index]).opacity(shouldHide ? 0 : 1)
@@ -630,9 +706,12 @@ private struct ExcludeToggle: View {
     }
 
     var body: some View {
-        Color.clear.overlay {
-            Image(systemSymbol: isOn ? .nosign : .circle).foregroundColor(isOn ? .red : .primary).font(.title)
-        }
+        Color.clear
+            .overlay {
+                Image(systemSymbol: isOn ? .nosign : .circle)
+                    .foregroundColor(isOn ? .red : .primary)
+                    .font(.title)
+            }
         .onTapGesture {
             withAnimation { isOn.toggle() }
             HapticUtil.generateFeedback(style: .soft)
@@ -650,18 +729,23 @@ private struct ExcludedUploadersSection: View {
     }
 
     var body: some View {
-        Section(
-            header: Text(R.string.localizable.ehSettingViewSectionTitleExcludedUploaders()).newlineBold()
-            + Text(R.string.localizable.ehSettingViewDescriptionExcludedUploaders()),
-            footer: Text(
+        Section {
+            TextEditor(text: $ehSetting.excludedUploaders)
+                .textInputAutocapitalization(.none)
+                .frame(maxHeight: DeviceUtil.windowH * 0.3)
+                .disableAutocorrection(true)
+                .focused($isFocused)
+        } header: {
+            Text(R.string.localizable.ehSettingViewSectionTitleExcludedUploaders())
+                .newlineBold()
+                .appending(R.string.localizable.ehSettingViewDescriptionExcludedUploaders())
+        } footer: {
+            Text(
                 R.string.localizable.ehSettingViewDescriptionExcludedUploadersCount(
                     "\(ehSetting.excludedUploaders.lineCount)", "\(1000)"
                 )
                 .localizedKey
             )
-        ) {
-            TextEditor(text: $ehSetting.excludedUploaders).textInputAutocapitalization(.none)
-                .frame(maxHeight: DeviceUtil.windowH * 0.3).disableAutocorrection(true).focused($isFocused)
         }
         .textCase(nil)
     }
@@ -676,16 +760,18 @@ private struct SearchResultCountSection: View {
     }
 
     var body: some View {
-        Section(
-            header: Text(R.string.localizable.ehSettingViewSectionTitleSearchResultCount()).newlineBold()
-            + Text(R.string.localizable.ehSettingViewDescriptionResultCount())
-        ) {
+        Section {
             Picker(R.string.localizable.ehSettingViewTitleResultCount(), selection: $ehSetting.searchResultCount) {
                 ForEach(ehSetting.capableSearchResultCounts) { count in
-                    Text(String(count.value)).tag(count)
+                    Text(String(count.value))
+                        .tag(count)
                 }
             }
             .pickerStyle(.menu)
+        } header: {
+            Text(R.string.localizable.ehSettingViewSectionTitleSearchResultCount())
+                .newlineBold()
+                .appending(R.string.localizable.ehSettingViewDescriptionResultCount())
         }
         .textCase(nil)
     }
@@ -700,46 +786,51 @@ private struct ThumbnailSettingsSection: View {
     }
 
     var body: some View {
-        Section(
-            header: Text(R.string.localizable.ehSettingViewSectionTitleThumbnailSettings()).newlineBold()
-            + Text(R.string.localizable.ehSettingViewDescriptionThumbnailLoadTiming()),
-            footer: Text(ehSetting.thumbnailLoadTiming.description)
-        ) {
+        Section {
             Picker(
                 R.string.localizable.ehSettingViewTitleThumbnailLoadTiming(),
                 selection: $ehSetting.thumbnailLoadTiming
             ) {
                 ForEach(EhSetting.ThumbnailLoadTiming.allCases) { timing in
-                    Text(timing.value).tag(timing)
+                    Text(timing.value)
+                        .tag(timing)
                 }
             }
             .pickerStyle(.menu)
+        } header: {
+            Text(R.string.localizable.ehSettingViewSectionTitleThumbnailSettings())
+                .newlineBold()
+                .appending(R.string.localizable.ehSettingViewDescriptionThumbnailLoadTiming())
+        } footer: {
+            Text(ehSetting.thumbnailLoadTiming.description)
         }
         .textCase(nil)
+
         Section(R.string.localizable.ehSettingViewDescriptionThumbnailConfiguration()) {
-            HStack {
-                Text(R.string.localizable.ehSettingViewTitleThumbnailSize())
-                Spacer()
+            LabeledContent(R.string.localizable.ehSettingViewTitleThumbnailSize()) {
                 Picker(selection: $ehSetting.thumbnailConfigSize) {
                     ForEach(ehSetting.capableThumbnailConfigSizes) { size in
-                        Text(size.value).tag(size)
+                        Text(size.value)
+                            .tag(size)
                     }
                 } label: {
                     Text(ehSetting.thumbnailConfigSize.value)
                 }
-                .pickerStyle(.segmented).frame(width: 200)
+                .pickerStyle(.segmented)
+                .frame(width: 200)
             }
-            HStack {
-                Text(R.string.localizable.ehSettingViewTitleThumbnailRowCount())
-                Spacer()
+
+            LabeledContent(R.string.localizable.ehSettingViewTitleThumbnailRowCount()) {
                 Picker(selection: $ehSetting.thumbnailConfigRows) {
                     ForEach(ehSetting.capableThumbnailConfigRowCounts) { row in
-                        Text(row.value).tag(row)
+                        Text(row.value)
+                            .tag(row)
                     }
                 } label: {
                     Text(ehSetting.capableThumbnailConfigRowCount.value)
                 }
-                .pickerStyle(.segmented).frame(width: 200)
+                .pickerStyle(.segmented)
+                .frame(width: 200)
             }
         }
         .textCase(nil)
@@ -755,14 +846,17 @@ private struct ThumbnailScalingSection: View {
     }
 
     var body: some View {
-        Section(
-            header: Text(R.string.localizable.ehSettingViewSectionTitleThumbnailScaling()).newlineBold()
-            + Text(R.string.localizable.ehSettingViewDescriptionScaleFactor())
-        ) {
+        Section {
             ValuePicker(
                 title: R.string.localizable.ehSettingViewTitleScaleFactor(),
-                value: $ehSetting.thumbnailScaleFactor, range: 75...150, unit: "%"
+                value: $ehSetting.thumbnailScaleFactor,
+                range: 75...150,
+                unit: "%"
             )
+        } header: {
+            Text(R.string.localizable.ehSettingViewSectionTitleThumbnailScaling())
+                .newlineBold()
+                .appending(R.string.localizable.ehSettingViewDescriptionScaleFactor())
         }
         .textCase(nil)
     }
@@ -777,14 +871,17 @@ private struct ViewportOverrideSection: View {
     }
 
     var body: some View {
-        Section(
-            header: Text(R.string.localizable.ehSettingViewSectionTitleViewportOverride()).newlineBold()
-            + Text(R.string.localizable.ehSettingViewDescriptionVirtualWidth())
-        ) {
+        Section {
             ValuePicker(
                 title: R.string.localizable.ehSettingViewTitleVirtualWidth(),
-                value: $ehSetting.viewportVirtualWidth, range: 0...9999, unit: "px"
+                value: $ehSetting.viewportVirtualWidth,
+                range: 0...9999,
+                unit: "px"
             )
+        } header: {
+            Text(R.string.localizable.ehSettingViewSectionTitleViewportOverride())
+                .newlineBold()
+                .appending(R.string.localizable.ehSettingViewDescriptionVirtualWidth())
         }
         .textCase(nil)
     }
@@ -804,17 +901,21 @@ private struct ValuePicker: View {
     }
 
     var body: some View {
-        VStack {
-            HStack {
-                Text(title)
-                Spacer()
-                Text(String(Int(value)) + unit).foregroundStyle(.tint)
-            }
+        LabeledContent(title) {
+            Text(String(Int(value)) + unit)
+                .foregroundStyle(.tint)
         }
+
         Slider(
-            value: $value, in: range, step: 1,
-            minimumValueLabel: Text(String(Int(range.lowerBound)) + unit).fontWeight(.medium).font(.callout),
-            maximumValueLabel: Text(String(Int(range.upperBound)) + unit).fontWeight(.medium).font(.callout),
+            value: $value,
+            in: range,
+            step: 1,
+            minimumValueLabel: Text(String(Int(range.lowerBound)) + unit)
+                .fontWeight(.medium)
+                .font(.callout),
+            maximumValueLabel: Text(String(Int(range.upperBound)) + unit)
+                .fontWeight(.medium)
+                .font(.callout),
             label: EmptyView.init
         )
     }
@@ -835,16 +936,19 @@ private struct GalleryCommentsSection: View {
                 selection: $ehSetting.commentsSortOrder
             ) {
                 ForEach(EhSetting.CommentsSortOrder.allCases) { order in
-                    Text(order.value).tag(order)
+                    Text(order.value)
+                        .tag(order)
                 }
             }
             .pickerStyle(.menu)
+
             Picker(
                 R.string.localizable.ehSettingViewTitleCommentsVotesShowTiming(),
                 selection: $ehSetting.commentVotesShowTiming
             ) {
                 ForEach(EhSetting.CommentVotesShowTiming.allCases) { timing in
-                    Text(timing.value).tag(timing)
+                    Text(timing.value)
+                        .tag(timing)
                 }
             }
             .pickerStyle(.menu)
@@ -865,7 +969,8 @@ private struct GalleryTagsSection: View {
         Section(R.string.localizable.ehSettingViewSectionTitleGalleryTags()) {
             Picker(R.string.localizable.ehSettingViewTitleTagsSortOrder(), selection: $ehSetting.tagsSortOrder) {
                 ForEach(EhSetting.TagsSortOrder.allCases) { order in
-                    Text(order.value).tag(order)
+                    Text(order.value)
+                        .tag(order)
                 }
             }
             .pickerStyle(.menu)
@@ -902,16 +1007,14 @@ private struct OriginalImagesSection: View {
     }
 
     var body: some View {
-        Group {
-            if let useOriginalImagesBinding = Binding($ehSetting.useOriginalImages) {
-                Section(R.string.localizable.ehSettingViewSectionTitleOriginalImages()) {
-                    Toggle(
-                        R.string.localizable.ehSettingViewTitleUseOriginalImages(),
-                        isOn: useOriginalImagesBinding
-                    )
-                }
-                .textCase(nil)
+        if let useOriginalImagesBinding = Binding($ehSetting.useOriginalImages) {
+            Section(R.string.localizable.ehSettingViewSectionTitleOriginalImages()) {
+                Toggle(
+                    R.string.localizable.ehSettingViewTitleUseOriginalImages(),
+                    isOn: useOriginalImagesBinding
+                )
             }
+            .textCase(nil)
         }
     }
 }
@@ -925,32 +1028,33 @@ private struct MultiplePageViewerSection: View {
     }
 
     var body: some View {
-        Group {
-            if let useMultiplePageViewerBinding = Binding($ehSetting.useMultiplePageViewer),
-               let multiplePageViewerStyleBinding = Binding($ehSetting.multiplePageViewerStyle),
-               let multiplePageViewerShowPaneBinding = Binding($ehSetting.multiplePageViewerShowThumbnailPane)
-            {
-                Section(R.string.localizable.ehSettingViewSectionTitleMultiPageViewer()) {
-                    Toggle(
-                        R.string.localizable.ehSettingViewTitleUseMultiPageViewer(),
-                        isOn: useMultiplePageViewerBinding
-                    )
-                    Picker(
-                        R.string.localizable.ehSettingViewTitleDisplayStyle(),
-                        selection: multiplePageViewerStyleBinding
-                    ) {
-                        ForEach(EhSetting.MultiplePageViewerStyle.allCases) { style in
-                            Text(style.value).tag(style)
-                        }
+        if let useMultiplePageViewerBinding = Binding($ehSetting.useMultiplePageViewer),
+           let multiplePageViewerStyleBinding = Binding($ehSetting.multiplePageViewerStyle),
+           let multiplePageViewerShowPaneBinding = Binding($ehSetting.multiplePageViewerShowThumbnailPane)
+        {
+            Section(R.string.localizable.ehSettingViewSectionTitleMultiPageViewer()) {
+                Toggle(
+                    R.string.localizable.ehSettingViewTitleUseMultiPageViewer(),
+                    isOn: useMultiplePageViewerBinding
+                )
+
+                Picker(
+                    R.string.localizable.ehSettingViewTitleDisplayStyle(),
+                    selection: multiplePageViewerStyleBinding
+                ) {
+                    ForEach(EhSetting.MultiplePageViewerStyle.allCases) { style in
+                        Text(style.value)
+                            .tag(style)
                     }
-                    .pickerStyle(.menu)
-                    Toggle(
-                        R.string.localizable.ehSettingViewTitleShowThumbnailPane(),
-                        isOn: multiplePageViewerShowPaneBinding
-                    )
                 }
-                .textCase(nil)
+                .pickerStyle(.menu)
+
+                Toggle(
+                    R.string.localizable.ehSettingViewTitleShowThumbnailPane(),
+                    isOn: multiplePageViewerShowPaneBinding
+                )
             }
+            .textCase(nil)
         }
     }
 }
@@ -966,9 +1070,14 @@ private extension String {
         return count
     }
 }
+
 private extension Text {
     func newlineBold() -> Text {
         bold() + Text("\n")
+    }
+
+    func appending(_ string: some StringProtocol) -> Text {
+        self + Text(string)
     }
 }
 

@@ -228,6 +228,7 @@
 "enum.app.icon.type.value.ukiyoe" = "Ukiyo-e";
 "enum.app.icon.type.value.developer" = "Developer";
 "enum.app.icon.type.value.standWithUkraine2022" = "Stand With Ukraine (2022)";
+"enum.app.icon.type.value.notMyPresident" = "NOT MY PRESIDENT";
 // ListDisplayMode
 "enum.display.mode.value.detail" = "자세히";
 "enum.display.mode.value.thumbnail" = "썸네일";
@@ -471,6 +472,10 @@
 "eh.setting.view.section.title.tagWatchingThreshold" = "태그 보여주기 임계값";
 "eh.setting.view.title.tagWatchingThreshold" = "태그 보여주기 임계값";
 "eh.setting.view.description.tagWatchingThreshold" = "최근에 업로드된 갤러리는 최소 1개의 Watched 태그가 있고 Watched 태그의 가중치의 합이 이 값 이상이 될 경우 Watched 화면에 포함되어요. 이 임계값은 0과 9999 사이에서 설정할 수 있어요.";
+
+"eh.setting.view.section.title.filteredRemovalCount" = "Show Filtered Removal Count";
+"eh.setting.view.description.filteredRemovalCount" = "Show the \"Your default filters removed XX galleries from this page\" readout?";
+"eh.setting.view.title.showFilteredRemovalCount" = "Show filtered removal count";
 
 "eh.setting.view.section.title.excludedLanguages" = "제외된 언어";
 "eh.setting.view.description.excludedLanguages" = "갤러리 목록에서 특정 언어로 된 갤러리를 숨기고 검색하려면 아래 목록에서 해당 갤러리를 선택해주세요. 검색어에 관계없이 일치하는 갤러리는 나타나지 않아요.";

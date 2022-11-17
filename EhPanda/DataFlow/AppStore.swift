@@ -292,6 +292,7 @@ let appReducer = Reducer<AppState, AppAction, AppEnvironment>.combine(
                 databaseClient: $0.databaseClient,
                 clipboardClient: $0.clipboardClient,
                 appDelegateClient: $0.appDelegateClient,
+                userDefaultsClient: $0.userDefaultsClient,
                 uiApplicationClient: $0.uiApplicationClient
             )
         }
