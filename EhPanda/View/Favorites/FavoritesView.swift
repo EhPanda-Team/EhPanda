@@ -74,19 +74,11 @@ struct FavoritesView: View {
                     store: store.scope(state: \.quickSearchState, action: FavoritesAction.quickSearch)
                 ) { keyword in
                     viewStore.send(.setNavigation(nil))
-                    viewStore.send(.fetchGalleries(nil, keyword))
+                    viewStore.send(.fetchGalleries(keyword))
                 }
                 .accentColor(setting.accentColor)
                 .autoBlur(radius: blurRadius)
             }
-            .jumpPageAlert(
-                index: viewStore.binding(\.$jumpPageIndex),
-                isPresented: viewStore.binding(\.$jumpPageAlertPresented),
-                isFocused: viewStore.binding(\.$jumpPageAlertFocused),
-                pageNumber: viewStore.pageNumber ?? .init(),
-                jumpAction: { viewStore.send(.performJumpPage) }
-            )
-            .animation(.default, value: viewStore.jumpPageAlertPresented)
             .searchable(text: viewStore.binding(\.$keyword)) {
                 TagSuggestionView(
                     keyword: viewStore.binding(\.$keyword), translations: tagTranslator.translations,
@@ -121,7 +113,7 @@ struct FavoritesView: View {
         }
     }
     private func toolbar() -> some ToolbarContent {
-        CustomToolbarItem(tint: .primary, disabled: viewStore.jumpPageAlertPresented) {
+        CustomToolbarItem(tint: .primary) {
             FavoritesIndexMenu(user: user, index: viewStore.index) { index in
                 if index != viewStore.index {
                     viewStore.send(.setFavoritesIndex(index))
@@ -129,21 +121,11 @@ struct FavoritesView: View {
             }
             SortOrderMenu(sortOrder: viewStore.sortOrder) { order in
                 if viewStore.sortOrder != order {
-                    viewStore.send(.fetchGalleries(nil, nil, order))
+                    viewStore.send(.fetchGalleries(nil, order))
                 }
             }
-            ToolbarFeaturesMenu(symbolRenderingMode: .hierarchical) {
-                QuickSearchButton {
-                    viewStore.send(.setNavigation(.quickSearch))
-                }
-                if AppUtil.galleryHost == .ehentai {
-                    JumpPageButton(pageNumber: viewStore.pageNumber ?? .init()) {
-                        viewStore.send(.presentJumpPageAlert)
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                            viewStore.send(.setJumpPageAlertFocused(true))
-                        }
-                    }
-                }
+            QuickSearchButton(hideText: true) {
+                viewStore.send(.setNavigation(.quickSearch))
             }
         }
     }
@@ -165,6 +147,7 @@ struct FavoritesView_Previews: PreviewProvider {
                     databaseClient: .live,
                     clipboardClient: .live,
                     appDelegateClient: .live,
+                    userDefaultsClient: .live,
                     uiApplicationClient: .live
                 )
             ),

@@ -228,6 +228,7 @@
 "enum.app_icon_type.value.ukiyoe" = "Ukiyo-e";
 "enum.app_icon_type.value.developer" = "Developer";
 "enum.app_icon_type.value.stand_with_ukraine_2022" = "Stand With Ukraine (2022)";
+"enum.app.icon.type.value.not_my_president" = "NOT MY PRESIDENT";
 // ListDisplayMode
 "enum.list_display_mode.value.detail" = "詳情";
 "enum.list_display_mode.value.thumbnail" = "縮略圖";
@@ -473,8 +474,16 @@
 "eh_setting_view.title.tag_watching_threshold" = "Tag Watching Threshold";
 "eh_setting_view.description.tag_watching_threshold" = "Recently uploaded galleries will be included on the watched screen if it has at least one watched tag with positive weight, and the sum of weights on its watched tags add up to this value or higher. This threshold can be set between 0 and 9999.";
 
+"eh.setting.view.section.title.filtered_removal_count" = "Show Filtered Removal Count";
+"eh.setting.view.description.filtered_removal_count" = "Show the \"Your default filters removed XX galleries from this page\" readout?";
+"eh.setting.view.title.show_filtered_removal_count" = "Show filtered removal count";
+
 "eh_setting_view.section.title.excluded_languages" = "Excluded Languages";
 "eh_setting_view.description.excluded_languages" = "If you wish to hide galleries in certain languages from the gallery list and searches, select them from the list below. Note that matching galleries will never appear regardless of your search query.";
+
+"eh.setting.view.section.title.excludedLanguages" = "Excluded Languages";
+"eh.setting.view.description.excludedLanguages" = "If you wish to hide galleries in certain languages from the gallery list and searches, select them from the list below. Note that matching galleries will never appear regardless of your search query.";
+>>>>>>> develop
 // EhSetting.ExcludedLanguagesCategory
 "enum.eh_setting.excluded_languages_category.value.original" = "Original";
 "enum.eh_setting.excluded_languages_category.value.translated" = "Translated";

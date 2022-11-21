@@ -24,9 +24,6 @@ struct DetailSearchState: Equatable {
     @BindableState var route: Route?
     @BindableState var keyword = ""
     var lastKeyword = ""
-    @BindableState var jumpPageIndex = ""
-    @BindableState var jumpPageAlertFocused = false
-    @BindableState var jumpPageAlertPresented = false
 
     var galleries = [Gallery]()
     var pageNumber = PageNumber()
@@ -51,12 +48,8 @@ enum DetailSearchAction: BindableAction {
     case setNavigation(DetailSearchState.Route?)
     case clearSubStates
 
-    case performJumpPage
-    case presentJumpPageAlert
-    case setJumpPageAlertFocused(Bool)
-
     case teardown
-    case fetchGalleries(Int? = nil, String? = nil)
+    case fetchGalleries(String? = nil)
     case fetchGalleriesDone(Result<(PageNumber, [Gallery]), AppError>)
     case fetchMoreGalleries
     case fetchMoreGalleriesDone(Result<(PageNumber, [Gallery]), AppError>)
@@ -85,12 +78,6 @@ let detailSearchReducer = Reducer<DetailSearchState, DetailSearchAction, DetailS
         case .binding(\.$route):
             return state.route == nil ? .init(value: .clearSubStates) : .none
 
-        case .binding(\.$jumpPageAlertPresented):
-            if !state.jumpPageAlertPresented {
-                state.jumpPageAlertFocused = false
-            }
-            return .none
-
         case .binding(\.$keyword):
             if !state.keyword.isEmpty {
                 state.lastKeyword = state.keyword
@@ -113,24 +100,10 @@ let detailSearchReducer = Reducer<DetailSearchState, DetailSearchAction, DetailS
                 .init(value: .quickSearch(.teardown))
             )
 
-        case .performJumpPage:
-            guard let index = Int(state.jumpPageIndex), index > 0, index <= state.pageNumber.maximum + 1 else {
-                return environment.hapticClient.generateNotificationFeedback(.error).fireAndForget()
-            }
-            return .init(value: .fetchGalleries(index - 1))
-
-        case .presentJumpPageAlert:
-            state.jumpPageAlertPresented = true
-            return environment.hapticClient.generateFeedback(.light).fireAndForget()
-
-        case .setJumpPageAlertFocused(let isFocused):
-            state.jumpPageAlertFocused = isFocused
-            return .none
-
         case .teardown:
             return .cancel(id: DetailSearchState.CancelID())
 
-        case .fetchGalleries(let pageNum, let keyword):
+        case .fetchGalleries(let keyword):
             guard state.loadingState != .loading else { return .none }
             if let keyword = keyword {
                 state.keyword = keyword
@@ -139,8 +112,8 @@ let detailSearchReducer = Reducer<DetailSearchState, DetailSearchAction, DetailS
             state.loadingState = .loading
             state.pageNumber.resetPages()
             let filter = environment.databaseClient.fetchFilterSynchronously(range: .search)
-            return SearchGalleriesRequest(keyword: state.lastKeyword, filter: filter, pageNum: pageNum)
-                .effect.map(DetailSearchAction.fetchGalleriesDone).cancellable(id: DetailSearchState.CancelID())
+            return SearchGalleriesRequest(keyword: state.lastKeyword, filter: filter).effect
+                .map(DetailSearchAction.fetchGalleriesDone).cancellable(id: DetailSearchState.CancelID())
 
         case .fetchGalleriesDone(let result):
             state.loadingState = .idle
@@ -148,7 +121,7 @@ let detailSearchReducer = Reducer<DetailSearchState, DetailSearchAction, DetailS
             case .success(let (pageNumber, galleries)):
                 guard !galleries.isEmpty else {
                     state.loadingState = .failed(.notFound)
-                    guard pageNumber.hasNextPage else { return .none }
+                    guard pageNumber.hasNextPage() else { return .none }
                     return .init(value: .fetchMoreGalleries)
                 }
                 state.pageNumber = pageNumber
@@ -161,17 +134,15 @@ let detailSearchReducer = Reducer<DetailSearchState, DetailSearchAction, DetailS
 
         case .fetchMoreGalleries:
             let pageNumber = state.pageNumber
-            guard pageNumber.hasNextPage,
+            guard pageNumber.hasNextPage(),
                   state.footerLoadingState != .loading,
                   let lastID = state.galleries.last?.id
             else { return .none }
             state.footerLoadingState = .loading
-            let pageNum = pageNumber.current + 1
             let filter = environment.databaseClient.fetchFilterSynchronously(range: .search)
-            return MoreSearchGalleriesRequest(
-                keyword: state.lastKeyword, filter: filter, lastID: lastID, pageNum: pageNum
-            )
-            .effect.map(DetailSearchAction.fetchMoreGalleriesDone).cancellable(id: DetailSearchState.CancelID())
+            return MoreSearchGalleriesRequest(keyword: state.lastKeyword, filter: filter, lastID: lastID).effect
+                .map(DetailSearchAction.fetchMoreGalleriesDone)
+                .cancellable(id: DetailSearchState.CancelID())
 
         case .fetchMoreGalleriesDone(let result):
             state.footerLoadingState = .idle
@@ -183,7 +154,7 @@ let detailSearchReducer = Reducer<DetailSearchState, DetailSearchAction, DetailS
                 var effects: [Effect<DetailSearchAction, Never>] = [
                     environment.databaseClient.cacheGalleries(galleries).fireAndForget()
                 ]
-                if galleries.isEmpty, pageNumber.hasNextPage {
+                if galleries.isEmpty, pageNumber.hasNextPage() {
                     effects.append(.init(value: .fetchMoreGalleries))
                 } else if !galleries.isEmpty {
                     state.loadingState = .idle

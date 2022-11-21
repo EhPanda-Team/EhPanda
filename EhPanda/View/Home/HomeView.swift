@@ -57,7 +57,7 @@ struct HomeView: View {
                                     isLoading: viewStore.frontpageLoadingState == .loading,
                                     navigateAction: navigateTo(gid:),
                                     showAllAction: { viewStore.send(.setNavigation(.section(.frontpage))) },
-                                    reloadAction: { viewStore.send(.fetchFrontpageGalleries()) }
+                                    reloadAction: { viewStore.send(.fetchFrontpageGalleries) }
                                 )
                             }
                             ToplistsSection(

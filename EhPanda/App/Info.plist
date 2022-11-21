@@ -40,6 +40,13 @@
 					<string>AppIcon_Ukiyoe</string>
 				</array>
 			</dict>
+			<key>AppIcon_NotMyPresident</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>AppIcon_NotMyPresident</string>
+				</array>
+			</dict>
 		</dict>
 		<key>CFBundlePrimaryIcon</key>
 		<dict>
@@ -85,6 +92,14 @@
 					<string>AppIcon_Ukiyoe_iPad_Pro</string>
 				</array>
 			</dict>
+			<key>AppIcon_NotMyPresident</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>AppIcon_NotMyPresident_iPad</string>
+					<string>AppIcon_NotMyPresident_iPad_Pro</string>
+				</array>
+			</dict>
 		</dict>
 		<key>CFBundlePrimaryIcon</key>
 		<dict>
@@ -103,7 +118,7 @@
 	<key>CFBundlePackageType</key>
 	<string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
 	<key>CFBundleShortVersionString</key>
-	<string>2.4.5</string>
+	<string>2.5.0</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
@@ -118,7 +133,7 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>141</string>
+	<string>142</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>LSRequiresIPhoneOS</key>

@@ -176,6 +176,11 @@
 		AB86AC1327856F2700E61E6A /* AppLockStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB86AC1227856F2700E61E6A /* AppLockStore.swift */; };
 		AB86AC1A2785C2B300E61E6A /* HomeStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB86AC192785C2B300E61E6A /* HomeStore.swift */; };
 		AB8C821926BF801700E8C5E6 /* EhSetting.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB8C821826BF801700E8C5E6 /* EhSetting.swift */; };
+		AB90276B291F548700697256 /* AppIcon_NotMyPresident@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = AB902766291F548600697256 /* AppIcon_NotMyPresident@3x.png */; };
+		AB90276C291F548700697256 /* AppIcon_NotMyPresident_iPad@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = AB902767291F548600697256 /* AppIcon_NotMyPresident_iPad@2x.png */; };
+		AB90276D291F548700697256 /* AppIcon_NotMyPresident_iPad_Pro@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = AB902768291F548700697256 /* AppIcon_NotMyPresident_iPad_Pro@2x.png */; };
+		AB90276E291F548700697256 /* AppIcon_NotMyPresident_iPad.png in Resources */ = {isa = PBXBuildFile; fileRef = AB902769291F548700697256 /* AppIcon_NotMyPresident_iPad.png */; };
+		AB90276F291F548700697256 /* AppIcon_NotMyPresident@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = AB90276A291F548700697256 /* AppIcon_NotMyPresident@2x.png */; };
 		ABA12F3227D49CEB0021922D /* AccountSettingStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABA12F3127D49CEB0021922D /* AccountSettingStoreTests.swift */; };
 		ABA732D925A8018A00B3D9AB /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABA732D825A8018A00B3D9AB /* Extensions.swift */; };
 		ABA732DF25A852D800B3D9AB /* Filter.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABA732DE25A852D800B3D9AB /* Filter.swift */; };
@@ -473,6 +478,11 @@
 		AB86AC1227856F2700E61E6A /* AppLockStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLockStore.swift; sourceTree = "<group>"; };
 		AB86AC192785C2B300E61E6A /* HomeStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeStore.swift; sourceTree = "<group>"; };
 		AB8C821826BF801700E8C5E6 /* EhSetting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EhSetting.swift; sourceTree = "<group>"; };
+		AB902766291F548600697256 /* AppIcon_NotMyPresident@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AppIcon_NotMyPresident@3x.png"; sourceTree = "<group>"; };
+		AB902767291F548600697256 /* AppIcon_NotMyPresident_iPad@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AppIcon_NotMyPresident_iPad@2x.png"; sourceTree = "<group>"; };
+		AB902768291F548700697256 /* AppIcon_NotMyPresident_iPad_Pro@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AppIcon_NotMyPresident_iPad_Pro@2x.png"; sourceTree = "<group>"; };
+		AB902769291F548700697256 /* AppIcon_NotMyPresident_iPad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = AppIcon_NotMyPresident_iPad.png; sourceTree = "<group>"; };
+		AB90276A291F548700697256 /* AppIcon_NotMyPresident@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AppIcon_NotMyPresident@2x.png"; sourceTree = "<group>"; };
 		AB994DBB25986F7A00E9A367 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
 		ABA12F3127D49CEB0021922D /* AccountSettingStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountSettingStoreTests.swift; sourceTree = "<group>"; };
 		ABA732D825A8018A00B3D9AB /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
@@ -886,6 +896,11 @@
 				AB0CFB8527BBD2D7004BD372 /* AppIcon_Developer_iPad.png */,
 				AB0CFB8327BBD2D7004BD372 /* AppIcon_Developer_iPad@2x.png */,
 				AB0CFB8427BBD2D7004BD372 /* AppIcon_Developer@2x.png */,
+				AB902768291F548700697256 /* AppIcon_NotMyPresident_iPad_Pro@2x.png */,
+				AB902769291F548700697256 /* AppIcon_NotMyPresident_iPad.png */,
+				AB902767291F548600697256 /* AppIcon_NotMyPresident_iPad@2x.png */,
+				AB90276A291F548700697256 /* AppIcon_NotMyPresident@2x.png */,
+				AB902766291F548600697256 /* AppIcon_NotMyPresident@3x.png */,
 				ABE9012027F722D100F3651D /* AppIcon_StandWithUkraine2022_iPad_Pro@2x.png */,
 				ABE9011E27F722D100F3651D /* AppIcon_StandWithUkraine2022_iPad.png */,
 				ABE9012127F722D100F3651D /* AppIcon_StandWithUkraine2022_iPad@2x.png */,
@@ -1523,14 +1538,17 @@
 			files = (
 				AB0CFB8C27BBD2D7004BD372 /* AppIcon_Developer@3x.png in Resources */,
 				AB0CFB9627BBD323004BD372 /* AppIcon_Ukiyoe@2x.png in Resources */,
-				ABA9A6BF28EC7BA200EE28DE /* Constant.strings in Resources */,
+				AB90276E291F548700697256 /* AppIcon_NotMyPresident_iPad.png in Resources */,
+				AB90276D291F548700697256 /* AppIcon_NotMyPresident_iPad_Pro@2x.png in Resources */,
 				AB0CFB7A27BAB9D0004BD372 /* AppIcon_Default@2x.png in Resources */,
 				AB0CFB7527BAB9D0004BD372 /* AppIcon_Default_iPad@2x.png in Resources */,
 				AB0CFB9227BBD323004BD372 /* AppIcon_Ukiyoe_iPad@2x.png in Resources */,
 				ABC3C7852593699B00E0C11B /* Assets.xcassets in Resources */,
 				AB0CFB7B27BAB9D0004BD372 /* AppIcon_Default_iPad.png in Resources */,
+				AB90276C291F548700697256 /* AppIcon_NotMyPresident_iPad@2x.png in Resources */,
 				AB0CFB9527BBD323004BD372 /* AppIcon_Ukiyoe_iPad.png in Resources */,
 				ABE9012427F722D100F3651D /* AppIcon_StandWithUkraine2022@3x.png in Resources */,
+				AB90276B291F548700697256 /* AppIcon_NotMyPresident@3x.png in Resources */,
 				AB0CFB8827BBD2D7004BD372 /* AppIcon_Developer_iPad@2x.png in Resources */,
 				ABE9012227F722D100F3651D /* AppIcon_StandWithUkraine2022@2x.png in Resources */,
 				AB0CFB7427BAB9D0004BD372 /* AppIcon_Default@3x.png in Resources */,
@@ -1539,6 +1557,7 @@
 				AB0CFB9327BBD323004BD372 /* AppIcon_Ukiyoe@3x.png in Resources */,
 				AB0CFB8927BBD2D7004BD372 /* AppIcon_Developer@2x.png in Resources */,
 				ABEE0AFA2595C6F800C997AE /* Localizable.strings in Resources */,
+				AB90276F291F548700697256 /* AppIcon_NotMyPresident@2x.png in Resources */,
 				ABD5FDD4263D05110021A4C6 /* .swiftlint.yml in Resources */,
 				ABE9012527F722D100F3651D /* AppIcon_StandWithUkraine2022_iPad_Pro@2x.png in Resources */,
 				ABE9012327F722D100F3651D /* AppIcon_StandWithUkraine2022_iPad.png in Resources */,
@@ -1902,7 +1921,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 141;
+				CURRENT_PROJECT_VERSION = 142;
 				DEVELOPMENT_TEAM = 9SKQ7QTZ74;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ShareExtension/Info.plist;
@@ -1929,7 +1948,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 141;
+				CURRENT_PROJECT_VERSION = 142;
 				DEVELOPMENT_TEAM = 9SKQ7QTZ74;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ShareExtension/Info.plist;
@@ -2079,7 +2098,7 @@
 				CODE_SIGN_ENTITLEMENTS = EhPanda/EhPanda.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 141;
+				CURRENT_PROJECT_VERSION = 142;
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = 9SKQ7QTZ74;
 				ENABLE_PREVIEWS = YES;
@@ -2108,7 +2127,7 @@
 				CODE_SIGN_ENTITLEMENTS = EhPanda/EhPanda.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 141;
+				CURRENT_PROJECT_VERSION = 142;
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = 9SKQ7QTZ74;
 				ENABLE_PREVIEWS = YES;
@@ -2134,7 +2153,7 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 141;
+				CURRENT_PROJECT_VERSION = 142;
 				DEVELOPMENT_TEAM = 9SKQ7QTZ74;
 				GENERATE_INFOPLIST_FILE = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -2160,7 +2179,7 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 141;
+				CURRENT_PROJECT_VERSION = 142;
 				DEVELOPMENT_TEAM = 9SKQ7QTZ74;
 				GENERATE_INFOPLIST_FILE = YES;
 				LD_RUNPATH_SEARCH_PATHS = (

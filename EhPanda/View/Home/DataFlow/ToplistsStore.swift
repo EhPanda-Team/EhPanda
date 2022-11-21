@@ -158,7 +158,7 @@ let toplistsReducer = Reducer<ToplistsState, ToplistsAction, ToplistsEnvironment
             case .success(let (pageNumber, galleries)):
                 guard !galleries.isEmpty else {
                     state.rawLoadingState[type] = .failed(.notFound)
-                    guard pageNumber.current < pageNumber.maximum else { return .none }
+                    guard pageNumber.hasNextPage() else { return .none }
                     return .init(value: .fetchMoreGalleries)
                 }
                 state.rawPageNumber[type] = pageNumber
@@ -171,12 +171,12 @@ let toplistsReducer = Reducer<ToplistsState, ToplistsAction, ToplistsEnvironment
 
         case .fetchMoreGalleries:
             let pageNumber = state.pageNumber ?? .init()
-            guard pageNumber.current + 1 <= pageNumber.maximum,
-                  state.footerLoadingState != .loading
+            guard pageNumber.hasNextPage(),
+                  state.footerLoadingState != .loading,
+                  let lastID = state.rawGalleries[state.type]?.last?.id
             else { return .none }
             state.rawFooterLoadingState[state.type] = .loading
             let pageNum = pageNumber.current + 1
-            let lastID = state.rawGalleries[state.type]?.last?.id ?? ""
             return MoreToplistsGalleriesRequest(catIndex: state.type.categoryIndex, pageNum: pageNum)
                 .effect.map({ [type = state.type] in ToplistsAction.fetchMoreGalleriesDone(type, $0) })
                 .cancellable(id: ToplistsState.CancelID())
@@ -191,7 +191,7 @@ let toplistsReducer = Reducer<ToplistsState, ToplistsAction, ToplistsEnvironment
                 var effects: [Effect<ToplistsAction, Never>] = [
                     environment.databaseClient.cacheGalleries(galleries).fireAndForget()
                 ]
-                if galleries.isEmpty, pageNumber.current < pageNumber.maximum {
+                if galleries.isEmpty, pageNumber.hasNextPage() {
                     effects.append(.init(value: .fetchMoreGalleries))
                 } else if !galleries.isEmpty {
                     state.rawLoadingState[type] = .idle
