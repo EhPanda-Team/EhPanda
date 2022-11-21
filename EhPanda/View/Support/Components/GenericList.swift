@@ -99,7 +99,7 @@ private struct DetailList: View {
         guard let pageNumber = pageNumber else { return false }
 
         let isLastGallery = gallery == galleries.last
-        let isPageNumberValid = pageNumber.hasNextPage
+        let isPageNumberValid = pageNumber.hasNextPage()
         let isLoadingStateIdle = footerLoadingState == .idle
 
         return isLastGallery && isPageNumberValid && !isLoadingStateIdle
@@ -145,7 +145,7 @@ private struct WaterfallList: View {
     private var shouldShowFooter: Bool {
         guard let pageNumber = pageNumber else { return false }
 
-        let isPageNumberValid = pageNumber.hasNextPage
+        let isPageNumberValid = pageNumber.hasNextPage()
         let isLoadingStateIdle = footerLoadingState == .idle
 
         return !isLoadingStateIdle && isPageNumberValid

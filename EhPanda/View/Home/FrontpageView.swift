@@ -36,7 +36,7 @@ struct FrontpageView: View {
             pageNumber: viewStore.pageNumber,
             loadingState: viewStore.loadingState,
             footerLoadingState: viewStore.footerLoadingState,
-            fetchAction: { viewStore.send(.fetchGalleries()) },
+            fetchAction: { viewStore.send(.fetchGalleries) },
             fetchMoreAction: { viewStore.send(.fetchMoreGalleries) },
             navigateAction: { viewStore.send(.setNavigation(.detail($0))) },
             translateAction: {
@@ -61,20 +61,11 @@ struct FrontpageView: View {
             FiltersView(store: store.scope(state: \.filtersState, action: FrontpageAction.filters))
                 .autoBlur(radius: blurRadius).environment(\.inSheet, true)
         }
-        .jumpPageAlert(
-            index: viewStore.binding(\.$jumpPageIndex),
-            isPresented: viewStore.binding(\.$jumpPageAlertPresented),
-            isFocused: viewStore.binding(\.$jumpPageAlertFocused),
-            pageNumber: viewStore.pageNumber,
-            jumpAction: { viewStore.send(.performJumpPage) }
-        )
         .searchable(text: viewStore.binding(\.$keyword), prompt: R.string.localizable.searchablePromptFilter())
-        .navigationBarBackButtonHidden(viewStore.jumpPageAlertPresented)
-        .animation(.default, value: viewStore.jumpPageAlertPresented)
         .onAppear {
             if viewStore.galleries.isEmpty {
                 DispatchQueue.main.async {
-                    viewStore.send(.fetchGalleries())
+                    viewStore.send(.fetchGalleries)
                 }
             }
         }
@@ -95,19 +86,9 @@ struct FrontpageView: View {
         }
     }
     private func toolbar() -> some ToolbarContent {
-        CustomToolbarItem(disabled: viewStore.jumpPageAlertPresented) {
-            ToolbarFeaturesMenu {
-                FiltersButton {
-                    viewStore.send(.setNavigation(.filters))
-                }
-                if AppUtil.galleryHost == .ehentai {
-                    JumpPageButton(pageNumber: viewStore.pageNumber) {
-                        viewStore.send(.presentJumpPageAlert)
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                            viewStore.send(.setJumpPageAlertFocused(true))
-                        }
-                    }
-                }
+        CustomToolbarItem {
+            FiltersButton(hideText: true) {
+                viewStore.send(.setNavigation(.filters))
             }
         }
     }

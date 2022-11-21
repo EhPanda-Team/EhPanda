@@ -75,7 +75,7 @@ enum HomeAction: BindableAction {
     case fetchAllToplistsGalleries
     case fetchPopularGalleries
     case fetchPopularGalleriesDone(Result<[Gallery], AppError>)
-    case fetchFrontpageGalleries(Int? = nil)
+    case fetchFrontpageGalleries
     case fetchFrontpageGalleriesDone(Result<(PageNumber, [Gallery]), AppError>)
     case fetchToplistsGalleries(Int, Int? = nil)
     case fetchToplistsGalleriesDone(Int, Result<(PageNumber, [Gallery]), AppError>)
@@ -145,7 +145,7 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
         case .fetchAllGalleries:
             return .merge(
                 .init(value: .fetchPopularGalleries),
-                .init(value: .fetchFrontpageGalleries()),
+                .init(value: .fetchFrontpageGalleries),
                 .init(value: .fetchAllToplistsGalleries)
             )
 
@@ -178,11 +178,11 @@ let homeReducer = Reducer<HomeState, HomeAction, HomeEnvironment>.combine(
             }
             return .none
 
-        case .fetchFrontpageGalleries(let pageNum):
+        case .fetchFrontpageGalleries:
             guard state.frontpageLoadingState != .loading else { return .none }
             state.frontpageLoadingState = .loading
             let filter = environment.databaseClient.fetchFilterSynchronously(range: .global)
-            return FrontpageGalleriesRequest(filter: filter, pageNum: pageNum)
+            return FrontpageGalleriesRequest(filter: filter)
                 .effect.map(HomeAction.fetchFrontpageGalleriesDone)
 
         case .fetchFrontpageGalleriesDone(let result):

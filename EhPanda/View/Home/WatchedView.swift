@@ -67,7 +67,7 @@ struct WatchedView: View {
                 store: store.scope(state: \.quickSearchState, action: WatchedAction.quickSearch)
             ) { keyword in
                 viewStore.send(.setNavigation(nil))
-                viewStore.send(.fetchGalleries(nil, keyword))
+                viewStore.send(.fetchGalleries(keyword))
             }
             .accentColor(setting.accentColor)
             .autoBlur(radius: blurRadius)
@@ -76,15 +76,6 @@ struct WatchedView: View {
             FiltersView(store: store.scope(state: \.filtersState, action: WatchedAction.filters))
                 .autoBlur(radius: blurRadius).environment(\.inSheet, true)
         }
-        .jumpPageAlert(
-            index: viewStore.binding(\.$jumpPageIndex),
-            isPresented: viewStore.binding(\.$jumpPageAlertPresented),
-            isFocused: viewStore.binding(\.$jumpPageAlertFocused),
-            pageNumber: viewStore.pageNumber,
-            jumpAction: { viewStore.send(.performJumpPage) }
-        )
-        .animation(.default, value: viewStore.jumpPageAlertPresented)
-        .navigationBarBackButtonHidden(viewStore.jumpPageAlertPresented)
         .searchable(text: viewStore.binding(\.$keyword)) {
             TagSuggestionView(
                 keyword: viewStore.binding(\.$keyword), translations: tagTranslator.translations,
@@ -118,21 +109,13 @@ struct WatchedView: View {
         }
     }
     private func toolbar() -> some ToolbarContent {
-        CustomToolbarItem(disabled: viewStore.jumpPageAlertPresented) {
+        CustomToolbarItem {
             ToolbarFeaturesMenu {
                 FiltersButton {
                     viewStore.send(.setNavigation(.filters))
                 }
                 QuickSearchButton {
                     viewStore.send(.setNavigation(.quickSearch))
-                }
-                if AppUtil.galleryHost == .ehentai {
-                    JumpPageButton(pageNumber: viewStore.pageNumber) {
-                        viewStore.send(.presentJumpPageAlert)
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                            viewStore.send(.setJumpPageAlertFocused(true))
-                        }
-                    }
                 }
             }
         }

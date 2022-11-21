@@ -158,7 +158,7 @@ let toplistsReducer = Reducer<ToplistsState, ToplistsAction, ToplistsEnvironment
             case .success(let (pageNumber, galleries)):
                 guard !galleries.isEmpty else {
                     state.rawLoadingState[type] = .failed(.notFound)
-                    guard pageNumber.hasNextPage else { return .none }
+                    guard pageNumber.hasNextPage() else { return .none }
                     return .init(value: .fetchMoreGalleries)
                 }
                 state.rawPageNumber[type] = pageNumber
@@ -171,7 +171,7 @@ let toplistsReducer = Reducer<ToplistsState, ToplistsAction, ToplistsEnvironment
 
         case .fetchMoreGalleries:
             let pageNumber = state.pageNumber ?? .init()
-            guard pageNumber.hasNextPage,
+            guard pageNumber.hasNextPage(),
                   state.footerLoadingState != .loading,
                   let lastID = state.rawGalleries[state.type]?.last?.id
             else { return .none }
@@ -191,7 +191,7 @@ let toplistsReducer = Reducer<ToplistsState, ToplistsAction, ToplistsEnvironment
                 var effects: [Effect<ToplistsAction, Never>] = [
                     environment.databaseClient.cacheGalleries(galleries).fireAndForget()
                 ]
-                if galleries.isEmpty, pageNumber.hasNextPage {
+                if galleries.isEmpty, pageNumber.hasNextPage() {
                     effects.append(.init(value: .fetchMoreGalleries))
                 } else if !galleries.isEmpty {
                     state.rawLoadingState[type] = .idle

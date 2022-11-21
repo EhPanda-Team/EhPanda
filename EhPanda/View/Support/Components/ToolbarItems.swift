@@ -72,16 +72,20 @@ struct FiltersButton: View {
 }
 
 struct QuickSearchButton: View {
+    private let hideText: Bool
     private let action: () -> Void
 
-    init(action: @escaping () -> Void) {
+    init(hideText: Bool = false, action: @escaping () -> Void) {
+        self.hideText = hideText
         self.action = action
     }
 
     var body: some View {
         Button(action: action) {
             Image(systemSymbol: .magnifyingglass)
-            Text(R.string.localizable.toolbarItemButtonQuickSearch())
+            if !hideText {
+                Text(R.string.localizable.toolbarItemButtonQuickSearch())
+            }
         }
     }
 }
