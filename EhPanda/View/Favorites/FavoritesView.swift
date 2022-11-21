@@ -124,10 +124,8 @@ struct FavoritesView: View {
                     viewStore.send(.fetchGalleries(nil, order))
                 }
             }
-            ToolbarFeaturesMenu(symbolRenderingMode: .hierarchical) {
-                QuickSearchButton {
-                    viewStore.send(.setNavigation(.quickSearch))
-                }
+            QuickSearchButton(hideText: true) {
+                viewStore.send(.setNavigation(.quickSearch))
             }
         }
     }
