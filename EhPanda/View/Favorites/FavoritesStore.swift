@@ -22,9 +22,6 @@ struct FavoritesState: Equatable {
 
     @BindableState var route: Route?
     @BindableState var keyword = ""
-    @BindableState var jumpPageIndex = ""
-    @BindableState var jumpPageAlertFocused = false
-    @BindableState var jumpPageAlertPresented = false
 
     var index = -1
     var sortOrder: FavoritesSortOrder?
@@ -67,11 +64,7 @@ enum FavoritesAction: BindableAction {
     case clearSubStates
     case onNotLoginViewButtonTapped
 
-    case performJumpPage
-    case presentJumpPageAlert
-    case setJumpPageAlertFocused(Bool)
-
-    case fetchGalleries(Int? = nil, String? = nil, FavoritesSortOrder? = nil)
+    case fetchGalleries(String? = nil, FavoritesSortOrder? = nil)
     case fetchGalleriesDone(Int, Result<(PageNumber, FavoritesSortOrder?, [Gallery]), AppError>)
     case fetchMoreGalleries
     case fetchMoreGalleriesDone(Int, Result<(PageNumber, FavoritesSortOrder?, [Gallery]), AppError>)
@@ -102,12 +95,6 @@ let favoritesReducer = Reducer<FavoritesState, FavoritesAction, FavoritesEnviron
         case .binding(\.$route):
             return state.route == nil ? .init(value: .clearSubStates) : .none
 
-        case .binding(\.$jumpPageAlertPresented):
-            if !state.jumpPageAlertPresented {
-                state.jumpPageAlertFocused = false
-            }
-            return .none
-
         case .binding:
             return .none
 
@@ -127,24 +114,7 @@ let favoritesReducer = Reducer<FavoritesState, FavoritesAction, FavoritesEnviron
         case .onNotLoginViewButtonTapped:
             return .none
 
-        case .performJumpPage:
-            guard let index = Int(state.jumpPageIndex),
-                  let pageNumber = state.pageNumber,
-                  index > 0, index <= pageNumber.maximum + 1
-            else {
-                return environment.hapticClient.generateNotificationFeedback(.error).fireAndForget()
-            }
-            return .init(value: .fetchGalleries(index - 1))
-
-        case .presentJumpPageAlert:
-            state.jumpPageAlertPresented = true
-            return environment.hapticClient.generateFeedback(.light).fireAndForget()
-
-        case .setJumpPageAlertFocused(let isFocused):
-            state.jumpPageAlertFocused = isFocused
-            return .none
-
-        case .fetchGalleries(let pageNum, let keyword, let sortOrder):
+        case .fetchGalleries(let keyword, let sortOrder):
             guard state.loadingState != .loading else { return .none }
             state.rawLoadingState[state.index] = .loading
             if let keyword = keyword {
@@ -156,7 +126,7 @@ let favoritesReducer = Reducer<FavoritesState, FavoritesAction, FavoritesEnviron
                 state.rawPageNumber[state.index]?.resetPages()
             }
             return FavoritesGalleriesRequest(
-                favIndex: state.index, pageNum: pageNum, keyword: state.keyword, sortOrder: sortOrder
+                favIndex: state.index, keyword: state.keyword, sortOrder: sortOrder
             )
             .effect.map { [index = state.index] result in FavoritesAction.fetchGalleriesDone(index, result) }
 
@@ -166,7 +136,7 @@ let favoritesReducer = Reducer<FavoritesState, FavoritesAction, FavoritesEnviron
             case .success(let (pageNumber, sortOrder, galleries)):
                 guard !galleries.isEmpty else {
                     state.rawLoadingState[targetFavIndex] = .failed(.notFound)
-                    guard pageNumber.hasNextPage else { return .none }
+                    guard pageNumber.hasNextPage() else { return .none }
                     return .init(value: .fetchMoreGalleries)
                 }
                 state.rawPageNumber[targetFavIndex] = pageNumber
@@ -180,21 +150,16 @@ let favoritesReducer = Reducer<FavoritesState, FavoritesAction, FavoritesEnviron
 
         case .fetchMoreGalleries:
             let pageNumber = state.pageNumber ?? .init()
-            guard pageNumber.hasNextPage,
+            guard pageNumber.hasNextPage(),
                   state.footerLoadingState != .loading,
-                  let lastID = state.galleries?.last?.id
+                  let lastID = state.galleries?.last?.id,
+                  let lastItemTimestamp = pageNumber.lastItemTimestamp
             else { return .none }
-
-            let galleryHost: GalleryHost = environment.userDefaultsClient.getValue(.galleryHost) ?? .ehentai
-            guard galleryHost == .ehentai || pageNumber.lastItemTimestamp != nil
-            else { return .none }
-
             state.rawFooterLoadingState[state.index] = .loading
             return MoreFavoritesGalleriesRequest(
                 favIndex: state.index,
                 lastID: lastID,
-                lastTimestamp: pageNumber.lastItemTimestamp,
-                pageNum: pageNumber.current + 1,
+                lastTimestamp: lastItemTimestamp,
                 keyword: state.keyword
             )
             .effect.map { [index = state.index] result in FavoritesAction.fetchMoreGalleriesDone(index, result) }
@@ -210,7 +175,7 @@ let favoritesReducer = Reducer<FavoritesState, FavoritesAction, FavoritesEnviron
                 var effects: [Effect<FavoritesAction, Never>] = [
                     environment.databaseClient.cacheGalleries(galleries).fireAndForget()
                 ]
-                if galleries.isEmpty, pageNumber.hasNextPage {
+                if galleries.isEmpty, pageNumber.hasNextPage() {
                     effects.append(.init(value: .fetchMoreGalleries))
                 } else if !galleries.isEmpty {
                     state.rawLoadingState[targetFavIndex] = .idle

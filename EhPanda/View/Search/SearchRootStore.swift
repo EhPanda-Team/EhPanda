@@ -159,7 +159,7 @@ let searchRootReducer = Reducer<SearchRootState, SearchRootAction, SearchRootEnv
             state.historyGalleries = Array(galleries.prefix(min(galleries.count, 10)))
             return .none
 
-        case .search(.fetchGalleries(_, let keyword)):
+        case .search(.fetchGalleries(let keyword)):
             if let keyword = keyword {
                 state.appendHistoryKeywords([keyword])
             } else {

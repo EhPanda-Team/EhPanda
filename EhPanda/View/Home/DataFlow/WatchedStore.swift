@@ -23,9 +23,6 @@ struct WatchedState: Equatable {
 
     @BindableState var route: Route?
     @BindableState var keyword = ""
-    @BindableState var jumpPageIndex = ""
-    @BindableState var jumpPageAlertFocused = false
-    @BindableState var jumpPageAlertPresented = false
 
     var galleries = [Gallery]()
     var pageNumber = PageNumber()
@@ -51,12 +48,8 @@ enum WatchedAction: BindableAction {
     case clearSubStates
     case onNotLoginViewButtonTapped
 
-    case performJumpPage
-    case presentJumpPageAlert
-    case setJumpPageAlertFocused(Bool)
-
     case teardown
-    case fetchGalleries(Int? = nil, String? = nil)
+    case fetchGalleries(String? = nil)
     case fetchGalleriesDone(Result<(PageNumber, [Gallery]), AppError>)
     case fetchMoreGalleries
     case fetchMoreGalleriesDone(Result<(PageNumber, [Gallery]), AppError>)
@@ -85,12 +78,6 @@ let watchedReducer = Reducer<WatchedState, WatchedAction, WatchedEnvironment>.co
         case .binding(\.$route):
             return state.route == nil ? .init(value: .clearSubStates) : .none
 
-        case .binding(\.$jumpPageAlertPresented):
-            if !state.jumpPageAlertPresented {
-                state.jumpPageAlertFocused = false
-            }
-            return .none
-
         case .binding:
             return .none
 
@@ -110,24 +97,10 @@ let watchedReducer = Reducer<WatchedState, WatchedAction, WatchedEnvironment>.co
         case .onNotLoginViewButtonTapped:
             return .none
 
-        case .performJumpPage:
-            guard let index = Int(state.jumpPageIndex), index > 0, index <= state.pageNumber.maximum + 1 else {
-                return environment.hapticClient.generateNotificationFeedback(.error).fireAndForget()
-            }
-            return .init(value: .fetchGalleries(index - 1))
-
-        case .presentJumpPageAlert:
-            state.jumpPageAlertPresented = true
-            return environment.hapticClient.generateFeedback(.light).fireAndForget()
-
-        case .setJumpPageAlertFocused(let isFocused):
-            state.jumpPageAlertFocused = isFocused
-            return .none
-
         case .teardown:
             return .cancel(id: WatchedState.CancelID())
 
-        case .fetchGalleries(let pageNum, let keyword):
+        case .fetchGalleries(let keyword):
             guard state.loadingState != .loading else { return .none }
             if let keyword = keyword {
                 state.keyword = keyword
@@ -135,7 +108,7 @@ let watchedReducer = Reducer<WatchedState, WatchedAction, WatchedEnvironment>.co
             state.loadingState = .loading
             state.pageNumber.resetPages()
             let filter = environment.databaseClient.fetchFilterSynchronously(range: .watched)
-            return WatchedGalleriesRequest(filter: filter, pageNum: pageNum, keyword: state.keyword)
+            return WatchedGalleriesRequest(filter: filter, keyword: state.keyword)
                 .effect.map(WatchedAction.fetchGalleriesDone).cancellable(id: WatchedState.CancelID())
 
         case .fetchGalleriesDone(let result):
@@ -144,7 +117,7 @@ let watchedReducer = Reducer<WatchedState, WatchedAction, WatchedEnvironment>.co
             case .success(let (pageNumber, galleries)):
                 guard !galleries.isEmpty else {
                     state.loadingState = .failed(.notFound)
-                    guard pageNumber.hasNextPage else { return .none }
+                    guard pageNumber.hasNextPage() else { return .none }
                     return .init(value: .fetchMoreGalleries)
                 }
                 state.pageNumber = pageNumber
@@ -157,17 +130,15 @@ let watchedReducer = Reducer<WatchedState, WatchedAction, WatchedEnvironment>.co
 
         case .fetchMoreGalleries:
             let pageNumber = state.pageNumber
-            guard pageNumber.hasNextPage,
+            guard pageNumber.hasNextPage(),
                   state.footerLoadingState != .loading,
                   let lastID = state.galleries.last?.id
             else { return .none }
             state.footerLoadingState = .loading
-            let pageNum = pageNumber.current + 1
             let filter = environment.databaseClient.fetchFilterSynchronously(range: .watched)
-            return MoreWatchedGalleriesRequest(
-                filter: filter, lastID: lastID, pageNum: pageNum, keyword: state.keyword
-            )
-            .effect.map(WatchedAction.fetchMoreGalleriesDone).cancellable(id: WatchedState.CancelID())
+            return MoreWatchedGalleriesRequest(filter: filter, lastID: lastID, keyword: state.keyword).effect
+                .map(WatchedAction.fetchMoreGalleriesDone)
+                .cancellable(id: WatchedState.CancelID())
 
         case .fetchMoreGalleriesDone(let result):
             state.footerLoadingState = .idle
@@ -179,7 +150,7 @@ let watchedReducer = Reducer<WatchedState, WatchedAction, WatchedEnvironment>.co
                 var effects: [Effect<WatchedAction, Never>] = [
                     environment.databaseClient.cacheGalleries(galleries).fireAndForget()
                 ]
-                if galleries.isEmpty, pageNumber.hasNextPage {
+                if galleries.isEmpty, pageNumber.hasNextPage() {
                     effects.append(.init(value: .fetchMoreGalleries))
                 } else if !galleries.isEmpty {
                     state.loadingState = .idle

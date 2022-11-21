@@ -9,66 +9,36 @@ import Foundation
 
 struct URLUtil {
     // Fetch
-    static func searchList(keyword: String, filter: Filter, pageNum: Int? = nil) -> URL {
-        var queryItems: [Defaults.URL.Component.Key: String] = [.fSearch: keyword]
-        if let pageNum = pageNum {
-            queryItems[.page] = String(pageNum)
-        }
-        return Defaults.URL.host.appending(queryItems: queryItems).applyingFilter(filter)
+    static func searchList(keyword: String, filter: Filter) -> URL {
+        Defaults.URL.host.appending(queryItems: [.fSearch: keyword]).applyingFilter(filter)
     }
 
-    static func moreSearchList(keyword: String, filter: Filter, pageNum: Int, lastID: String) -> URL {
-        var queryItems: [Defaults.URL.Component.Key: String] = [.fSearch: keyword]
-        if AppUtil.galleryHost == .ehentai {
-            queryItems[.page] = String(pageNum)
-            queryItems[.from] = lastID
-        } else {
-            queryItems[.next] = lastID
-        }
-        return Defaults.URL.host.appending(queryItems: queryItems).applyingFilter(filter)
+    static func moreSearchList(keyword: String, filter: Filter, lastID: String) -> URL {
+        Defaults.URL.host.appending(queryItems: [.fSearch: keyword, .next: lastID]).applyingFilter(filter)
     }
 
-    static func frontpageList(filter: Filter, pageNum: Int? = nil) -> URL {
-        var url = Defaults.URL.host
-        if let pageNum = pageNum {
-            url.append(queryItems: [.page: String(pageNum)])
-        }
-        return url.applyingFilter(filter)
+    static func frontpageList(filter: Filter) -> URL {
+        Defaults.URL.host.applyingFilter(filter)
     }
 
-    static func moreFrontpageList(filter: Filter, pageNum: Int, lastID: String) -> URL {
-        var queryItems = [Defaults.URL.Component.Key: String]()
-        if AppUtil.galleryHost == .ehentai {
-            queryItems[.page] = String(pageNum)
-            queryItems[.from] = lastID
-        } else {
-            queryItems[.next] = lastID
-        }
-        return Defaults.URL.host.appending(queryItems: queryItems).applyingFilter(filter)
+    static func moreFrontpageList(filter: Filter, lastID: String) -> URL {
+        Defaults.URL.host.appending(queryItems: [.next: lastID]).applyingFilter(filter)
     }
 
     static func popularList(filter: Filter) -> URL {
         Defaults.URL.popular.applyingFilter(filter)
     }
 
-    static func watchedList(filter: Filter, pageNum: Int? = nil, keyword: String = "") -> URL {
+    static func watchedList(filter: Filter, keyword: String = "") -> URL {
         var url = Defaults.URL.watched
-        if let pageNum = pageNum {
-            url.append(queryItems: [.page: String(pageNum)])
-        }
         if !keyword.isEmpty {
             url.append(queryItems: [.fSearch: keyword])
         }
         return url.applyingFilter(filter)
     }
 
-    static func moreWatchedList(filter: Filter, pageNum: Int, lastID: String, keyword: String = "") -> URL {
-        var url: URL
-        if AppUtil.galleryHost == .ehentai {
-            url = Defaults.URL.watched.appending(queryItems: [.page: String(pageNum), .from: lastID])
-        } else {
-            url = Defaults.URL.watched.appending(queryItems: [.next: lastID])
-        }
+    static func moreWatchedList(filter: Filter, lastID: String, keyword: String = "") -> URL {
+        var url = Defaults.URL.watched.appending(queryItems: [.next: lastID])
         if !keyword.isEmpty {
             url.append(queryItems: [.fSearch: keyword])
         }
@@ -77,7 +47,6 @@ struct URLUtil {
 
     static func favoritesList(
         favIndex: Int,
-        pageNum: Int? = nil,
         keyword: String = "",
         sortOrder: FavoritesSortOrder? = nil
     ) -> URL {
@@ -86,9 +55,6 @@ struct URLUtil {
             url.append(queryItems: [.favcat: String(favIndex)])
         } else {
             url.append(queryItems: [.favcat: .all])
-        }
-        if let pageNum = pageNum {
-            url.append(queryItems: [.page: String(pageNum)])
         }
         if !keyword.isEmpty {
             url.append(queryItems: [.fSearch: keyword])
@@ -105,23 +71,11 @@ struct URLUtil {
 
     static func moreFavoritesList(
         favIndex: Int,
-        pageNum: Int,
         lastID: String,
-        lastTimestamp: String? = nil,
+        lastTimestamp: String,
         keyword: String = ""
     ) -> URL {
-        var url: URL
-        if AppUtil.galleryHost == .ehentai {
-            url = Defaults.URL.favorites.appending(queryItems: [.page: String(pageNum), .from: lastID])
-        } else {
-            var queryItems: [Defaults.URL.Component.Key: String]
-            if let lastTimestamp {
-                queryItems = [.next: [lastID, lastTimestamp].joined(separator: "-")]
-            } else {
-                queryItems = [.next: lastID]
-            }
-            url = Defaults.URL.favorites.appending(queryItems: queryItems)
-        }
+        var url = Defaults.URL.favorites.appending(queryItems: [.next: [lastID, lastTimestamp].joined(separator: "-")])
         if favIndex != -1 {
             url.append(queryItems: [.favcat: String(favIndex)])
         } else {
