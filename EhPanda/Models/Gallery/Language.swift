@@ -18,22 +18,14 @@ enum Language: String, Codable {
 extension Language {
     var codes: [String]? {
         switch self {
-        case .english:
-            return ["en-US"]
-        case .french:
-            return ["fr-FR"]
-        case .italian:
-            return ["it-IT"]
-        case .german:
-            return ["de-DE"]
-        case .spanish:
-            return ["es-ES"]
-        case .portuguese:
-            return ["pt-BR"]
-        case .chinese:
-            return ["zh-Hans", "zh-Hant"]
-        default:
-            return nil
+        case .english: return ["en-US"]
+        case .french: return ["fr-FR"]
+        case .italian: return ["it-IT"]
+        case .german: return ["de-DE"]
+        case .spanish: return ["es-ES"]
+        case .portuguese: return ["pt-BR"]
+        case .chinese: return ["zh-Hans", "zh-Hant"]
+        default: return nil
         }
     }
     var abbreviation: String {
@@ -45,138 +37,72 @@ extension Language {
     }
     var value: String {
         switch self {
-        case .invalid:
-            return L10n.Localizable.Enum.Language.Value.invalid
-        case .other:
-            return L10n.Localizable.Enum.Language.Value.other
-        case .afrikaans:
-            return L10n.Localizable.Enum.Language.Value.afrikaans
-        case .albanian:
-            return L10n.Localizable.Enum.Language.Value.albanian
-        case .arabic:
-            return L10n.Localizable.Enum.Language.Value.arabic
-        case .bengali:
-            return L10n.Localizable.Enum.Language.Value.bengali
-        case .bosnian:
-            return L10n.Localizable.Enum.Language.Value.bosnian
-        case .bulgarian:
-            return L10n.Localizable.Enum.Language.Value.bulgarian
-        case .burmese:
-            return L10n.Localizable.Enum.Language.Value.burmese
-        case .catalan:
-            return L10n.Localizable.Enum.Language.Value.catalan
-        case .cebuano:
-            return L10n.Localizable.Enum.Language.Value.cebuano
-        case .chinese:
-            return L10n.Localizable.Enum.Language.Value.chinese
-        case .croatian:
-            return L10n.Localizable.Enum.Language.Value.croatian
-        case .czech:
-            return L10n.Localizable.Enum.Language.Value.czech
-        case .danish:
-            return L10n.Localizable.Enum.Language.Value.danish
-        case .dutch:
-            return L10n.Localizable.Enum.Language.Value.dutch
-        case .english:
-            return L10n.Localizable.Enum.Language.Value.english
-        case .esperanto:
-            return L10n.Localizable.Enum.Language.Value.esperanto
-        case .estonian:
-            return L10n.Localizable.Enum.Language.Value.estonian
-        case .finnish:
-            return L10n.Localizable.Enum.Language.Value.finnish
-        case .french:
-            return L10n.Localizable.Enum.Language.Value.french
-        case .georgian:
-            return L10n.Localizable.Enum.Language.Value.georgian
-        case .german:
-            return L10n.Localizable.Enum.Language.Value.german
-        case .greek:
-            return L10n.Localizable.Enum.Language.Value.greek
-        case .hebrew:
-            return L10n.Localizable.Enum.Language.Value.hebrew
-        case .hindi:
-            return L10n.Localizable.Enum.Language.Value.hindi
-        case .hmong:
-            return L10n.Localizable.Enum.Language.Value.hmong
-        case .hungarian:
-            return L10n.Localizable.Enum.Language.Value.hungarian
-        case .indonesian:
-            return L10n.Localizable.Enum.Language.Value.indonesian
-        case .italian:
-            return L10n.Localizable.Enum.Language.Value.italian
-        case .japanese:
-            return L10n.Localizable.Enum.Language.Value.japanese
-        case .kazakh:
-            return L10n.Localizable.Enum.Language.Value.kazakh
-        case .khmer:
-            return L10n.Localizable.Enum.Language.Value.khmer
-        case .korean:
-            return L10n.Localizable.Enum.Language.Value.korean
-        case .kurdish:
-            return L10n.Localizable.Enum.Language.Value.kurdish
-        case .lao:
-            return L10n.Localizable.Enum.Language.Value.lao
-        case .latin:
-            return L10n.Localizable.Enum.Language.Value.latin
-        case .mongolian:
-            return L10n.Localizable.Enum.Language.Value.mongolian
-        case .ndebele:
-            return L10n.Localizable.Enum.Language.Value.ndebele
-        case .nepali:
-            return L10n.Localizable.Enum.Language.Value.nepali
-        case .norwegian:
-            return L10n.Localizable.Enum.Language.Value.norwegian
-        case .oromo:
-            return L10n.Localizable.Enum.Language.Value.oromo
-        case .pashto:
-            return L10n.Localizable.Enum.Language.Value.pashto
-        case .persian:
-            return L10n.Localizable.Enum.Language.Value.persian
-        case .polish:
-            return L10n.Localizable.Enum.Language.Value.polish
-        case .portuguese:
-            return L10n.Localizable.Enum.Language.Value.portuguese
-        case .punjabi:
-            return L10n.Localizable.Enum.Language.Value.punjabi
-        case .romanian:
-            return L10n.Localizable.Enum.Language.Value.romanian
-        case .russian:
-            return L10n.Localizable.Enum.Language.Value.russian
-        case .sango:
-            return L10n.Localizable.Enum.Language.Value.sango
-        case .serbian:
-            return L10n.Localizable.Enum.Language.Value.serbian
-        case .shona:
-            return L10n.Localizable.Enum.Language.Value.shona
-        case .slovak:
-            return L10n.Localizable.Enum.Language.Value.slovak
-        case .slovenian:
-            return L10n.Localizable.Enum.Language.Value.slovenian
-        case .somali:
-            return L10n.Localizable.Enum.Language.Value.somali
-        case .spanish:
-            return L10n.Localizable.Enum.Language.Value.spanish
-        case .swahili:
-            return L10n.Localizable.Enum.Language.Value.swahili
-        case .swedish:
-            return L10n.Localizable.Enum.Language.Value.swedish
-        case .tagalog:
-            return L10n.Localizable.Enum.Language.Value.tagalog
-        case .thai:
-            return L10n.Localizable.Enum.Language.Value.thai
-        case .tigrinya:
-            return L10n.Localizable.Enum.Language.Value.tigrinya
-        case .turkish:
-            return L10n.Localizable.Enum.Language.Value.turkish
-        case .ukrainian:
-            return L10n.Localizable.Enum.Language.Value.ukrainian
-        case .urdu:
-            return L10n.Localizable.Enum.Language.Value.urdu
-        case .vietnamese:
-            return L10n.Localizable.Enum.Language.Value.vietnamese
-        case .zulu:
-            return L10n.Localizable.Enum.Language.Value.zulu
+        case .invalid: return L10n.Localizable.Enum.Language.Value.invalid
+        case .other: return L10n.Localizable.Enum.Language.Value.other
+        case .afrikaans: return L10n.Localizable.Enum.Language.Value.afrikaans
+        case .albanian: return L10n.Localizable.Enum.Language.Value.albanian
+        case .arabic: return L10n.Localizable.Enum.Language.Value.arabic
+        case .bengali: return L10n.Localizable.Enum.Language.Value.bengali
+        case .bosnian: return L10n.Localizable.Enum.Language.Value.bosnian
+        case .bulgarian: return L10n.Localizable.Enum.Language.Value.bulgarian
+        case .burmese: return L10n.Localizable.Enum.Language.Value.burmese
+        case .catalan: return L10n.Localizable.Enum.Language.Value.catalan
+        case .cebuano: return L10n.Localizable.Enum.Language.Value.cebuano
+        case .chinese: return L10n.Localizable.Enum.Language.Value.chinese
+        case .croatian: return L10n.Localizable.Enum.Language.Value.croatian
+        case .czech: return L10n.Localizable.Enum.Language.Value.czech
+        case .danish: return L10n.Localizable.Enum.Language.Value.danish
+        case .dutch: return L10n.Localizable.Enum.Language.Value.dutch
+        case .english: return L10n.Localizable.Enum.Language.Value.english
+        case .esperanto: return L10n.Localizable.Enum.Language.Value.esperanto
+        case .estonian: return L10n.Localizable.Enum.Language.Value.estonian
+        case .finnish: return L10n.Localizable.Enum.Language.Value.finnish
+        case .french: return L10n.Localizable.Enum.Language.Value.french
+        case .georgian: return L10n.Localizable.Enum.Language.Value.georgian
+        case .german: return L10n.Localizable.Enum.Language.Value.german
+        case .greek: return L10n.Localizable.Enum.Language.Value.greek
+        case .hebrew: return L10n.Localizable.Enum.Language.Value.hebrew
+        case .hindi: return L10n.Localizable.Enum.Language.Value.hindi
+        case .hmong: return L10n.Localizable.Enum.Language.Value.hmong
+        case .hungarian: return L10n.Localizable.Enum.Language.Value.hungarian
+        case .indonesian: return L10n.Localizable.Enum.Language.Value.indonesian
+        case .italian: return L10n.Localizable.Enum.Language.Value.italian
+        case .japanese: return L10n.Localizable.Enum.Language.Value.japanese
+        case .kazakh: return L10n.Localizable.Enum.Language.Value.kazakh
+        case .khmer: return L10n.Localizable.Enum.Language.Value.khmer
+        case .korean: return L10n.Localizable.Enum.Language.Value.korean
+        case .kurdish: return L10n.Localizable.Enum.Language.Value.kurdish
+        case .lao: return L10n.Localizable.Enum.Language.Value.lao
+        case .latin: return L10n.Localizable.Enum.Language.Value.latin
+        case .mongolian: return L10n.Localizable.Enum.Language.Value.mongolian
+        case .ndebele: return L10n.Localizable.Enum.Language.Value.ndebele
+        case .nepali: return L10n.Localizable.Enum.Language.Value.nepali
+        case .norwegian: return L10n.Localizable.Enum.Language.Value.norwegian
+        case .oromo: return L10n.Localizable.Enum.Language.Value.oromo
+        case .pashto: return L10n.Localizable.Enum.Language.Value.pashto
+        case .persian: return L10n.Localizable.Enum.Language.Value.persian
+        case .polish: return L10n.Localizable.Enum.Language.Value.polish
+        case .portuguese: return L10n.Localizable.Enum.Language.Value.portuguese
+        case .punjabi: return L10n.Localizable.Enum.Language.Value.punjabi
+        case .romanian: return L10n.Localizable.Enum.Language.Value.romanian
+        case .russian: return L10n.Localizable.Enum.Language.Value.russian
+        case .sango: return L10n.Localizable.Enum.Language.Value.sango
+        case .serbian: return L10n.Localizable.Enum.Language.Value.serbian
+        case .shona: return L10n.Localizable.Enum.Language.Value.shona
+        case .slovak: return L10n.Localizable.Enum.Language.Value.slovak
+        case .slovenian: return L10n.Localizable.Enum.Language.Value.slovenian
+        case .somali: return L10n.Localizable.Enum.Language.Value.somali
+        case .spanish: return L10n.Localizable.Enum.Language.Value.spanish
+        case .swahili: return L10n.Localizable.Enum.Language.Value.swahili
+        case .swedish: return L10n.Localizable.Enum.Language.Value.swedish
+        case .tagalog: return L10n.Localizable.Enum.Language.Value.tagalog
+        case .thai: return L10n.Localizable.Enum.Language.Value.thai
+        case .tigrinya: return L10n.Localizable.Enum.Language.Value.tigrinya
+        case .turkish: return L10n.Localizable.Enum.Language.Value.turkish
+        case .ukrainian: return L10n.Localizable.Enum.Language.Value.ukrainian
+        case .urdu: return L10n.Localizable.Enum.Language.Value.urdu
+        case .vietnamese: return L10n.Localizable.Enum.Language.Value.vietnamese
+        case .zulu: return L10n.Localizable.Enum.Language.Value.zulu
         }
     }
 }

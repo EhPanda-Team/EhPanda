@@ -27,20 +27,13 @@ enum CoreDataMigrationVersion: String, CaseIterable {
 
     func nextVersion() -> CoreDataMigrationVersion? {
         switch self {
-        case .version1:
-            return .version2
-        case .version2:
-            return .version3
-        case .version3:
-            return .version4
-        case .version4:
-            return .version5
-        case .version5:
-            return .version6
-        case .version6:
-            return .version7
-        case .version7:
-            return nil
+        case .version1: return .version2
+        case .version2: return .version3
+        case .version3: return .version4
+        case .version4: return .version5
+        case .version5: return .version6
+        case .version6: return .version7
+        case .version7: return nil
         }
     }
 }
