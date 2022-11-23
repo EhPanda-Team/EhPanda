@@ -510,7 +510,7 @@
 
 "eh_setting_view.section.title.thumbnail_scaling" = "Thumbnail Scaling";
 "eh_setting_view.title.scale_factor" = "Scale factor";
-"eh_setting_view.description.scale_factor" = "Thumbnails on the thumbnail and extended gallery list views can be scaled to a custom value between 75%% and 150%%.";
+"eh_setting_view.description.scale_factor" = "Thumbnails on the thumbnail and extended gallery list views can be scaled to a custom value between 75% and 150%.";
 
 "eh_setting_view.section.title.viewport_override" = "Viewport Override";
 "eh_setting_view.title.virtual_width" = "Virtual width";
