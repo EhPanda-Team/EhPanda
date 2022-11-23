@@ -98,11 +98,11 @@ extension AutoLockPolicy {
         case .instantly:
             return R.string.localizable.enumAutoLockPolicyValueInstantly()
         case .sec15:
-            return R.string.localizable.commonValueSeconds("\(rawValue)")
+            return L10n.Localizable.Common.Value.seconds("\(rawValue)")
         case .min1:
-            return R.string.localizable.commonValueMinute("\(rawValue / 60)")
+            return L10n.Localizable.Common.Value.minute("\(rawValue / 60)")
         case .min5, .min10, .min30:
-            return R.string.localizable.commonValueMinutes("\(rawValue / 60)")
+            return L10n.Localizable.Common.Value.minutes("\(rawValue / 60)")
         }
     }
 }

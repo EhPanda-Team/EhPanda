@@ -580,7 +580,7 @@ extension AutoPlayPolicy {
         case .off:
             return R.string.localizable.enumAutoPlayPolicyValueOff()
         default:
-            return R.string.localizable.commonValueSeconds("\(rawValue)")
+            return L10n.Localizable.Common.Value.seconds("\(rawValue)")
         }
     }
 }

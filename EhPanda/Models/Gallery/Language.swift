@@ -46,137 +46,137 @@ extension Language {
     var value: String {
         switch self {
         case .invalid:
-            return R.string.localizable.enumLanguageValueInvalid()
+            return L10n.Localizable.Enum.Language.Value.invalid
         case .other:
-            return R.string.localizable.enumLanguageValueOther()
+            return L10n.Localizable.Enum.Language.Value.other
         case .afrikaans:
-            return R.string.localizable.enumLanguageValueAfrikaans()
+            return L10n.Localizable.Enum.Language.Value.afrikaans
         case .albanian:
-            return R.string.localizable.enumLanguageValueAlbanian()
+            return L10n.Localizable.Enum.Language.Value.albanian
         case .arabic:
-            return R.string.localizable.enumLanguageValueArabic()
+            return L10n.Localizable.Enum.Language.Value.arabic
         case .bengali:
-            return R.string.localizable.enumLanguageValueBengali()
+            return L10n.Localizable.Enum.Language.Value.bengali
         case .bosnian:
-            return R.string.localizable.enumLanguageValueBosnian()
+            return L10n.Localizable.Enum.Language.Value.bosnian
         case .bulgarian:
-            return R.string.localizable.enumLanguageValueBulgarian()
+            return L10n.Localizable.Enum.Language.Value.bulgarian
         case .burmese:
-            return R.string.localizable.enumLanguageValueBurmese()
+            return L10n.Localizable.Enum.Language.Value.burmese
         case .catalan:
-            return R.string.localizable.enumLanguageValueCatalan()
+            return L10n.Localizable.Enum.Language.Value.catalan
         case .cebuano:
-            return R.string.localizable.enumLanguageValueCebuano()
+            return L10n.Localizable.Enum.Language.Value.cebuano
         case .chinese:
-            return R.string.localizable.enumLanguageValueChinese()
+            return L10n.Localizable.Enum.Language.Value.chinese
         case .croatian:
-            return R.string.localizable.enumLanguageValueCroatian()
+            return L10n.Localizable.Enum.Language.Value.croatian
         case .czech:
-            return R.string.localizable.enumLanguageValueCzech()
+            return L10n.Localizable.Enum.Language.Value.czech
         case .danish:
-            return R.string.localizable.enumLanguageValueDanish()
+            return L10n.Localizable.Enum.Language.Value.danish
         case .dutch:
-            return R.string.localizable.enumLanguageValueDutch()
+            return L10n.Localizable.Enum.Language.Value.dutch
         case .english:
-            return R.string.localizable.enumLanguageValueEnglish()
+            return L10n.Localizable.Enum.Language.Value.english
         case .esperanto:
-            return R.string.localizable.enumLanguageValueEsperanto()
+            return L10n.Localizable.Enum.Language.Value.esperanto
         case .estonian:
-            return R.string.localizable.enumLanguageValueEstonian()
+            return L10n.Localizable.Enum.Language.Value.estonian
         case .finnish:
-            return R.string.localizable.enumLanguageValueFinnish()
+            return L10n.Localizable.Enum.Language.Value.finnish
         case .french:
-            return R.string.localizable.enumLanguageValueFrench()
+            return L10n.Localizable.Enum.Language.Value.french
         case .georgian:
-            return R.string.localizable.enumLanguageValueGeorgian()
+            return L10n.Localizable.Enum.Language.Value.georgian
         case .german:
-            return R.string.localizable.enumLanguageValueGerman()
+            return L10n.Localizable.Enum.Language.Value.german
         case .greek:
-            return R.string.localizable.enumLanguageValueGreek()
+            return L10n.Localizable.Enum.Language.Value.greek
         case .hebrew:
-            return R.string.localizable.enumLanguageValueHebrew()
+            return L10n.Localizable.Enum.Language.Value.hebrew
         case .hindi:
-            return R.string.localizable.enumLanguageValueHindi()
+            return L10n.Localizable.Enum.Language.Value.hindi
         case .hmong:
-            return R.string.localizable.enumLanguageValueHmong()
+            return L10n.Localizable.Enum.Language.Value.hmong
         case .hungarian:
-            return R.string.localizable.enumLanguageValueHungarian()
+            return L10n.Localizable.Enum.Language.Value.hungarian
         case .indonesian:
-            return R.string.localizable.enumLanguageValueIndonesian()
+            return L10n.Localizable.Enum.Language.Value.indonesian
         case .italian:
-            return R.string.localizable.enumLanguageValueItalian()
+            return L10n.Localizable.Enum.Language.Value.italian
         case .japanese:
-            return R.string.localizable.enumLanguageValueJapanese()
+            return L10n.Localizable.Enum.Language.Value.japanese
         case .kazakh:
-            return R.string.localizable.enumLanguageValueKazakh()
+            return L10n.Localizable.Enum.Language.Value.kazakh
         case .khmer:
-            return R.string.localizable.enumLanguageValueKhmer()
+            return L10n.Localizable.Enum.Language.Value.khmer
         case .korean:
-            return R.string.localizable.enumLanguageValueKorean()
+            return L10n.Localizable.Enum.Language.Value.korean
         case .kurdish:
-            return R.string.localizable.enumLanguageValueKurdish()
+            return L10n.Localizable.Enum.Language.Value.kurdish
         case .lao:
-            return R.string.localizable.enumLanguageValueLao()
+            return L10n.Localizable.Enum.Language.Value.lao
         case .latin:
-            return R.string.localizable.enumLanguageValueLatin()
+            return L10n.Localizable.Enum.Language.Value.latin
         case .mongolian:
-            return R.string.localizable.enumLanguageValueMongolian()
+            return L10n.Localizable.Enum.Language.Value.mongolian
         case .ndebele:
-            return R.string.localizable.enumLanguageValueNdebele()
+            return L10n.Localizable.Enum.Language.Value.ndebele
         case .nepali:
-            return R.string.localizable.enumLanguageValueNepali()
+            return L10n.Localizable.Enum.Language.Value.nepali
         case .norwegian:
-            return R.string.localizable.enumLanguageValueNorwegian()
+            return L10n.Localizable.Enum.Language.Value.norwegian
         case .oromo:
-            return R.string.localizable.enumLanguageValueOromo()
+            return L10n.Localizable.Enum.Language.Value.oromo
         case .pashto:
-            return R.string.localizable.enumLanguageValuePashto()
+            return L10n.Localizable.Enum.Language.Value.pashto
         case .persian:
-            return R.string.localizable.enumLanguageValuePersian()
+            return L10n.Localizable.Enum.Language.Value.persian
         case .polish:
-            return R.string.localizable.enumLanguageValuePolish()
+            return L10n.Localizable.Enum.Language.Value.polish
         case .portuguese:
-            return R.string.localizable.enumLanguageValuePortuguese()
+            return L10n.Localizable.Enum.Language.Value.portuguese
         case .punjabi:
-            return R.string.localizable.enumLanguageValuePunjabi()
+            return L10n.Localizable.Enum.Language.Value.punjabi
         case .romanian:
-            return R.string.localizable.enumLanguageValueRomanian()
+            return L10n.Localizable.Enum.Language.Value.romanian
         case .russian:
-            return R.string.localizable.enumLanguageValueRussian()
+            return L10n.Localizable.Enum.Language.Value.russian
         case .sango:
-            return R.string.localizable.enumLanguageValueSango()
+            return L10n.Localizable.Enum.Language.Value.sango
         case .serbian:
-            return R.string.localizable.enumLanguageValueSerbian()
+            return L10n.Localizable.Enum.Language.Value.serbian
         case .shona:
-            return R.string.localizable.enumLanguageValueShona()
+            return L10n.Localizable.Enum.Language.Value.shona
         case .slovak:
-            return R.string.localizable.enumLanguageValueSlovak()
+            return L10n.Localizable.Enum.Language.Value.slovak
         case .slovenian:
-            return R.string.localizable.enumLanguageValueSlovenian()
+            return L10n.Localizable.Enum.Language.Value.slovenian
         case .somali:
-            return R.string.localizable.enumLanguageValueSomali()
+            return L10n.Localizable.Enum.Language.Value.somali
         case .spanish:
-            return R.string.localizable.enumLanguageValueSpanish()
+            return L10n.Localizable.Enum.Language.Value.spanish
         case .swahili:
-            return R.string.localizable.enumLanguageValueSwahili()
+            return L10n.Localizable.Enum.Language.Value.swahili
         case .swedish:
-            return R.string.localizable.enumLanguageValueSwedish()
+            return L10n.Localizable.Enum.Language.Value.swedish
         case .tagalog:
-            return R.string.localizable.enumLanguageValueTagalog()
+            return L10n.Localizable.Enum.Language.Value.tagalog
         case .thai:
-            return R.string.localizable.enumLanguageValueThai()
+            return L10n.Localizable.Enum.Language.Value.thai
         case .tigrinya:
-            return R.string.localizable.enumLanguageValueTigrinya()
+            return L10n.Localizable.Enum.Language.Value.tigrinya
         case .turkish:
-            return R.string.localizable.enumLanguageValueTurkish()
+            return L10n.Localizable.Enum.Language.Value.turkish
         case .ukrainian:
-            return R.string.localizable.enumLanguageValueUkrainian()
+            return L10n.Localizable.Enum.Language.Value.ukrainian
         case .urdu:
-            return R.string.localizable.enumLanguageValueUrdu()
+            return L10n.Localizable.Enum.Language.Value.urdu
         case .vietnamese:
-            return R.string.localizable.enumLanguageValueVietnamese()
+            return L10n.Localizable.Enum.Language.Value.vietnamese
         case .zulu:
-            return R.string.localizable.enumLanguageValueZulu()
+            return L10n.Localizable.Enum.Language.Value.zulu
         }
     }
 }

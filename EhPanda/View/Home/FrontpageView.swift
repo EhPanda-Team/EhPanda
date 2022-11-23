@@ -61,7 +61,7 @@ struct FrontpageView: View {
             FiltersView(store: store.scope(state: \.filtersState, action: FrontpageAction.filters))
                 .autoBlur(radius: blurRadius).environment(\.inSheet, true)
         }
-        .searchable(text: viewStore.binding(\.$keyword), prompt: R.string.localizable.searchablePromptFilter())
+        .searchable(text: viewStore.binding(\.$keyword), prompt: L10n.Localizable.Searchable.Prompt.filter)
         .onAppear {
             if viewStore.galleries.isEmpty {
                 DispatchQueue.main.async {
@@ -71,7 +71,7 @@ struct FrontpageView: View {
         }
         .background(navigationLink)
         .toolbar(content: toolbar)
-        .navigationTitle(R.string.localizable.frontpageViewTitleFrontpage())
+        .navigationTitle(L10n.Localizable.FrontpageView.Title.frontpage)
     }
 
     @ViewBuilder private var navigationLink: some View {

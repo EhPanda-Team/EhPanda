@@ -23,72 +23,72 @@ struct GalleryInfosView: View {
 
     private var infos: [Info] {
         [
-            Info(title: R.string.localizable.galleryInfosViewTitleID(), value: galleryDetail.gid),
-            Info(title: R.string.localizable.galleryInfosViewTitleToken(), value: gallery.token),
-            Info(title: R.string.localizable.galleryInfosViewTitleTitle(), value: galleryDetail.title),
-            Info(title: R.string.localizable.galleryInfosViewTitleJapaneseTitle(), value: galleryDetail.jpnTitle),
+            Info(title: L10n.Localizable.GalleryInfosView.Title.id, value: galleryDetail.gid),
+            Info(title: L10n.Localizable.GalleryInfosView.Title.token, value: gallery.token),
+            Info(title: L10n.Localizable.GalleryInfosView.Title.title, value: galleryDetail.title),
+            Info(title: L10n.Localizable.GalleryInfosView.Title.japaneseTitle, value: galleryDetail.jpnTitle),
             Info(
-                title: R.string.localizable.galleryInfosViewTitleGalleryURL(),
+                title: L10n.Localizable.GalleryInfosView.Title.galleryURL,
                 value: gallery.galleryURL?.absoluteString
             ),
             Info(
-                title: R.string.localizable.galleryInfosViewTitleCoverURL(),
+                title: L10n.Localizable.GalleryInfosView.Title.coverURL,
                 value: galleryDetail.coverURL?.absoluteString
             ),
             Info(
-                title: R.string.localizable.galleryInfosViewTitleArchiveURL(),
+                title: L10n.Localizable.GalleryInfosView.Title.archiveURL,
                 value: galleryDetail.archiveURL?.absoluteString
             ),
             Info(
-                title: R.string.localizable.galleryInfosViewTitleTorrentURL(),
+                title: L10n.Localizable.GalleryInfosView.Title.torrentURL,
                 value: URLUtil.galleryTorrents(gid: gallery.gid, token: gallery.token).absoluteString
             ),
             Info(
-                title: R.string.localizable.galleryInfosViewTitleParentURL(),
+                title: L10n.Localizable.GalleryInfosView.Title.parentURL,
                 value: galleryDetail.parentURL?.absoluteString
             ),
             Info(
-                title: R.string.localizable.galleryInfosViewTitleCategory(),
+                title: L10n.Localizable.GalleryInfosView.Title.category,
                 value: galleryDetail.category.value
             ),
-            Info(title: R.string.localizable.galleryInfosViewTitleUploader(), value: galleryDetail.uploader),
+            Info(title: L10n.Localizable.GalleryInfosView.Title.uploader, value: galleryDetail.uploader),
             Info(
-                title: R.string.localizable.galleryInfosViewTitlePostedDate(),
+                title: L10n.Localizable.GalleryInfosView.Title.postedDate,
                 value: galleryDetail.formattedDateString
             ),
             Info(
-                title: R.string.localizable.galleryInfosViewTitleVisibility(),
+                title: L10n.Localizable.GalleryInfosView.Title.visibility,
                 value: galleryDetail.visibility.value
             ),
-            Info(title: R.string.localizable.galleryInfosViewTitleLanguage(), value: galleryDetail.language.value),
-            Info(title: R.string.localizable.galleryInfosViewTitlePageCount(), value: String(galleryDetail.pageCount)),
+            Info(title: L10n.Localizable.GalleryInfosView.Title.language, value: galleryDetail.language.value),
+            Info(title: L10n.Localizable.GalleryInfosView.Title.pageCount, value: String(galleryDetail.pageCount)),
             Info(
-                title: R.string.localizable.galleryInfosViewTitleFileSize(),
+                title: L10n.Localizable.GalleryInfosView.Title.fileSize,
                 value: String(Int(galleryDetail.sizeCount)) + galleryDetail.sizeType
             ),
             Info(
-                title: R.string.localizable.galleryInfosViewTitleFavoritedTimes(),
+                title: L10n.Localizable.GalleryInfosView.Title.favoritedTimes,
                 value: String(galleryDetail.favoritedCount)
             ),
             Info(
-                title: R.string.localizable.galleryInfosViewTitleFavorited(),
-                value: galleryDetail.isFavorited ? R.string.localizable.galleryInfosViewValueYes()
-                : R.string.localizable.galleryInfosViewValueNo()
+                title: L10n.Localizable.GalleryInfosView.Title.favorited,
+                value: galleryDetail.isFavorited ? L10n.Localizable.GalleryInfosView.Value.yes
+                : L10n.Localizable.GalleryInfosView.Value.no
             ),
             Info(
-                title: R.string.localizable.galleryInfosViewTitleRatingCount(),
+                title: L10n.Localizable.GalleryInfosView.Title.ratingCount,
                 value: String(galleryDetail.ratingCount)
             ),
             Info(
-                title: R.string.localizable.galleryInfosViewTitleAverageRating(),
+                title: L10n.Localizable.GalleryInfosView.Title.averageRating,
                 value: String(Int(galleryDetail.rating))
             ),
             Info(
-                title: R.string.localizable.galleryInfosViewTitleMyRating(),
+                title: L10n.Localizable.GalleryInfosView.Title.myRating,
                 value: galleryDetail.userRating == 0 ? nil : String(Int(galleryDetail.userRating))
             ),
             Info(
-                title: R.string.localizable.galleryInfosViewTitleTorrentCount(),
+                title: L10n.Localizable.GalleryInfosView.Title.torrentCount,
                 value: String(galleryDetail.torrentCount)
             )
         ]
@@ -109,7 +109,7 @@ struct GalleryInfosView: View {
                             viewStore.send(.copyText(text))
                         }
                     } label: {
-                        Text(info.value ?? R.string.localizable.galleryInfosViewValueNone())
+                        Text(info.value ?? L10n.Localizable.GalleryInfosView.Value.none)
                             .lineLimit(3).font(.caption)
                             .foregroundStyle(.tint)
                     }
@@ -121,7 +121,7 @@ struct GalleryInfosView: View {
             unwrapping: viewStore.binding(\.$route),
             case: /GalleryInfosState.Route.hud
         )
-        .navigationTitle(R.string.localizable.galleryInfosViewTitleGalleryInfos())
+        .navigationTitle(L10n.Localizable.GalleryInfosView.Title.galleryInfos)
     }
 }
 

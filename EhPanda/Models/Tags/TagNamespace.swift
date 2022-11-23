@@ -91,29 +91,29 @@ extension TagNamespace {
     var value: String {
         switch self {
         case .reclass:
-            return R.string.localizable.enumTagNamespaceValueReclass()
+            return L10n.Localizable.Enum.TagNamespace.Value.reclass
         case .language:
-            return R.string.localizable.enumTagNamespaceValueLanguage()
+            return L10n.Localizable.Enum.TagNamespace.Value.language
         case .parody:
-            return R.string.localizable.enumTagNamespaceValueParody()
+            return L10n.Localizable.Enum.TagNamespace.Value.parody
         case .character:
-            return R.string.localizable.enumTagNamespaceValueCharacter()
+            return L10n.Localizable.Enum.TagNamespace.Value.character
         case .group:
-            return R.string.localizable.enumTagNamespaceValueGroup()
+            return L10n.Localizable.Enum.TagNamespace.Value.group
         case .artist:
-            return R.string.localizable.enumTagNamespaceValueArtist()
+            return L10n.Localizable.Enum.TagNamespace.Value.artist
         case .male:
-            return R.string.localizable.enumTagNamespaceValueMale()
+            return L10n.Localizable.Enum.TagNamespace.Value.male
         case .female:
-            return R.string.localizable.enumTagNamespaceValueFemale()
+            return L10n.Localizable.Enum.TagNamespace.Value.female
         case .mixed:
-            return R.string.localizable.enumTagNamespaceValueMixed()
+            return L10n.Localizable.Enum.TagNamespace.Value.mixed
         case .cosplayer:
-            return R.string.localizable.enumTagNamespaceValueCosplayer()
+            return L10n.Localizable.Enum.TagNamespace.Value.cosplayer
         case .other:
-            return R.string.localizable.enumTagNamespaceValueOther()
+            return L10n.Localizable.Enum.TagNamespace.Value.other
         case .temp:
-            return R.string.localizable.enumTagNamespaceValueTemp()
+            return L10n.Localizable.Enum.TagNamespace.Value.temp
         }
     }
 }

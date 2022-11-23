@@ -67,7 +67,7 @@ struct ToplistsView: View {
             pageNumber: viewStore.pageNumber ?? .init(),
             jumpAction: { viewStore.send(.performJumpPage) }
         )
-        .searchable(text: viewStore.binding(\.$keyword), prompt: R.string.localizable.searchablePromptFilter())
+        .searchable(text: viewStore.binding(\.$keyword), prompt: L10n.Localizable.Searchable.Prompt.filter)
         .navigationBarBackButtonHidden(viewStore.jumpPageAlertPresented)
         .animation(.default, value: viewStore.jumpPageAlertPresented)
         .onAppear {

@@ -58,7 +58,7 @@ struct PopularView: View {
             FiltersView(store: store.scope(state: \.filtersState, action: PopularAction.filters))
                 .autoBlur(radius: blurRadius).environment(\.inSheet, true)
         }
-        .searchable(text: viewStore.binding(\.$keyword), prompt: R.string.localizable.searchablePromptFilter())
+        .searchable(text: viewStore.binding(\.$keyword), prompt: L10n.Localizable.Searchable.Prompt.filter)
         .onAppear {
             if viewStore.galleries.isEmpty {
                 DispatchQueue.main.async {
