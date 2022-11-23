@@ -45,7 +45,7 @@ struct AppearanceSettingView: View {
         Form {
             Section {
                 Picker(
-                    R.string.localizable.appearanceSettingViewTitleTheme(),
+                    L10n.Localizable.AppearanceSettingView.Title.theme,
                     selection: $preferredColorScheme
                 ) {
                     ForEach(PreferredColorScheme.allCases) { colorScheme in
@@ -55,17 +55,17 @@ struct AppearanceSettingView: View {
                 }
                 .pickerStyle(.menu)
 
-                ColorPicker(R.string.localizable.appearanceSettingViewTitleTintColor(), selection: $accentColor)
+                ColorPicker(L10n.Localizable.AppearanceSettingView.Title.tintColor, selection: $accentColor)
 
-                Button(R.string.localizable.appearanceSettingViewButtonAppIcon()) {
+                Button(L10n.Localizable.AppearanceSettingView.Button.appIcon) {
                     viewStore.send(.setNavigation(.appIcon))
                 }
                 .foregroundStyle(.primary)
                 .withArrow()
             }
-            Section(R.string.localizable.appearanceSettingViewSectionTitleList()) {
+            Section(L10n.Localizable.AppearanceSettingView.Section.Title.list) {
                 Picker(
-                    R.string.localizable.appearanceSettingViewTitleDisplayMode(),
+                    L10n.Localizable.AppearanceSettingView.Title.displayMode,
                     selection: $listDisplayMode,
                     content: {
                         ForEach(ListDisplayMode.allCases) { listMode in
@@ -77,14 +77,14 @@ struct AppearanceSettingView: View {
                 .pickerStyle(.menu)
 
                 Toggle(isOn: $showsTagsInList) {
-                    Text(R.string.localizable.appearanceSettingViewTitleShowsTagsInList())
+                    Text(L10n.Localizable.AppearanceSettingView.Title.showsTagsInList)
                 }
 
                 Picker(
-                    R.string.localizable.appearanceSettingViewTitleMaximumNumberOfTags(),
+                    L10n.Localizable.AppearanceSettingView.Title.maximumNumberOfTags,
                     selection: $listTagsNumberMaximum
                 ) {
-                    Text(R.string.localizable.appearanceSettingViewMenuTitleInfite())
+                    Text(L10n.Localizable.AppearanceSettingView.Menu.Title.infite)
                         .tag(0)
 
                     ForEach(Array(stride(from: 5, through: 20, by: 5)), id: \.self) { num in
@@ -95,15 +95,15 @@ struct AppearanceSettingView: View {
                 .pickerStyle(.menu)
                 .disabled(!showsTagsInList)
             }
-            Section(R.string.localizable.appearanceSettingViewSectionTitleGallery()) {
+            Section(L10n.Localizable.AppearanceSettingView.Section.Title.gallery) {
                 Toggle(
-                    R.string.localizable.appearanceSettingViewTitleDisplaysJapaneseTitle(),
+                    L10n.Localizable.AppearanceSettingView.Title.displaysJapaneseTitle,
                     isOn: $displaysJapaneseTitle
                 )
             }
         }
         .background(navigationLink)
-        .navigationTitle(R.string.localizable.appearanceSettingViewTitleAppearance())
+        .navigationTitle(L10n.Localizable.AppearanceSettingView.Title.appearance)
     }
 
     private var navigationLink: some View {
@@ -135,7 +135,7 @@ private struct AppIconView: View {
                 }
             }
         }
-        .navigationTitle(R.string.localizable.appIconViewTitleAppIcon())
+        .navigationTitle(L10n.Localizable.AppIconView.Title.appIcon)
     }
 }
 
@@ -188,19 +188,19 @@ extension AppIconType {
     var name: String {
         switch self {
         case .default:
-            return R.string.localizable.enumAppIconTypeValueDefault()
+            return L10n.Localizable.Enum.AppIconType.Value.default
 
         case .ukiyoe:
-            return R.string.localizable.enumAppIconTypeValueUkiyoe()
+            return L10n.Localizable.Enum.AppIconType.Value.ukiyoe
 
         case .developer:
-            return R.string.localizable.enumAppIconTypeValueDeveloper()
+            return L10n.Localizable.Enum.AppIconType.Value.developer
 
         case .standWithUkraine2022:
-            return R.string.localizable.enumAppIconTypeValueStandWithUkraine2022()
+            return L10n.Localizable.Enum.AppIconType.Value.standWithUkraine2022
 
         case .notMyPresidnet:
-            return R.string.localizable.enumAppIconTypeValueNotMyPresident()
+            return L10n.Localizable.Enum.AppIconType.Value.notMyPresident
         }
     }
 

@@ -228,7 +228,7 @@
 "enum.app_icon_type.value.ukiyoe" = "浮世絵";
 "enum.app_icon_type.value.developer" = "デベロッパー";
 "enum.app_icon_type.value.stand_with_ukraine_2022" = "ウクライナと共に (2022)";
-"enum.app.icon.type.value.not_my_president" = "私の大統領ではない";
+"enum.app_icon_type.value.not_my_president" = "私の大統領ではない";
 // ListDisplayMode
 "enum.list_display_mode.value.detail" = "詳細";
 "enum.list_display_mode.value.thumbnail" = "サムネイル";
@@ -474,9 +474,9 @@
 "eh_setting_view.title.tag_watching_threshold" = "タグ購読しきい値";
 "eh_setting_view.description.tag_watching_threshold" = "もしあるギャラリーは最近投稿されたもので、少なくても一つの正の重みの購読タグを持っていて、購読タグの重み総和がこのしきい値と同じまたはより高ければ、そのギャラリーは購読画面で表示されます。このしきい値はゼロから 9999 まで設定できます。";
 
-"eh.setting.view.section.title.filtered_removal_count" = "フィルター除去数";
-"eh.setting.view.description.filtered_removal_count" = "「既定フィルターにより本ページから XX 個のギャラリーが除去されました」を表示しますか？";
-"eh.setting.view.title.show_filtered_removal_count" = "フィルター除去数を表示";
+"eh_setting_view.section.title.filtered_removal_count" = "フィルター除去数";
+"eh_setting_view.description.filtered_removal_count" = "「既定フィルターにより本ページから XX 個のギャラリーが除去されました」を表示しますか？";
+"eh_setting_view.title.show_filtered_removal_count" = "フィルター除去数を表示";
 
 "eh_setting_view.section.title.excluded_languages" = "排除された言語";
 "eh_setting_view.description.excluded_languages" = "特定の言語のギャラリーをリストと検索結果から隠したい場合、下に選択してください。注意：どんな検索クエリーを使ってもこれらの言語のギャラリーは表示されません。";

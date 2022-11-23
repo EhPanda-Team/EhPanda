@@ -105,11 +105,11 @@ struct GeneralSettingView: View {
                         role: .destructive, action: { viewStore.send(.setNavigation(.removeCustomTranslations)) }
                     )
                     .confirmationDialog(
-                        message: R.string.localizable.confirmationDialogTitleRemoveCustomTranslations(),
+                        message: L10n.Localizable.ConfirmationDialog.Title.RemoveCustomTranslations(),
                         unwrapping: viewStore.binding(\.$route),
                         case: /GeneralSettingState.Route.removeCustomTranslations
                     ) {
-                        Button(R.string.localizable.confirmationDialogButtonRemove(), role: .destructive) {
+                        Button(L10n.Localizable.ConfirmationDialog.Button.Remove(), role: .destructive) {
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                                 viewStore.send(.onRemoveCustomTranslations)
                             }
@@ -163,11 +163,11 @@ struct GeneralSettingView: View {
                     .foregroundColor(.primary)
                 }
                 .confirmationDialog(
-                    message: R.string.localizable.confirmationDialogTitleClear(),
+                    message: L10n.Localizable.ConfirmationDialog.Title.Clear(),
                     unwrapping: viewStore.binding(\.$route),
                     case: /GeneralSettingState.Route.clearCache
                 ) {
-                    Button(R.string.localizable.confirmationDialogButtonClear(), role: .destructive) {
+                    Button(L10n.Localizable.ConfirmationDialog.Button.Clear(), role: .destructive) {
                         viewStore.send(.clearWebImageCache)
                     }
                 }

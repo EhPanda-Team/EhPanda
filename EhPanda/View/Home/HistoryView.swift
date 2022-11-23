@@ -88,11 +88,11 @@ struct HistoryView: View {
             }
             .disabled(viewStore.loadingState != .idle || viewStore.galleries.isEmpty)
             .confirmationDialog(
-                message: R.string.localizable.confirmationDialogTitleClear(),
+                message: L10n.Localizable.ConfirmationDialog.Title.Clear(),
                 unwrapping: viewStore.binding(\.$route),
                 case: /HistoryState.Route.clearHistory
             ) {
-                Button(R.string.localizable.confirmationDialogButtonClear(), role: .destructive) {
+                Button(L10n.Localizable.ConfirmationDialog.Button.Clear(), role: .destructive) {
                     viewStore.send(.clearHistoryGalleries)
                 }
             }

@@ -127,15 +127,15 @@ private struct AccountSection: View {
             Button(R.string.localizable.accountSettingViewButtonLogin(), action: loginAction)
         } else {
             Button(
-                R.string.localizable.confirmationDialogButtonLogout(),
+                L10n.Localizable.ConfirmationDialog.Button.Logout(),
                 role: .destructive, action: logoutDialogAction
             )
             .confirmationDialog(
-                message: R.string.localizable.confirmationDialogTitleLogout(),
+                message: L10n.Localizable.ConfirmationDialog.Title.Logout(),
                 unwrapping: $route, case: /AccountSettingState.Route.logout
             ) {
                 Button(
-                    R.string.localizable.confirmationDialogButtonLogout(),
+                    L10n.Localizable.ConfirmationDialog.Button.Logout(),
                     role: .destructive, action: logoutAction
                 )
             }

@@ -53,12 +53,12 @@ struct QuickSearchView: View {
                         }
                         .withArrow(isVisible: !viewStore.isListEditing).padding(5)
                         .confirmationDialog(
-                            message: R.string.localizable.confirmationDialogTitleDelete(),
+                            message: L10n.Localizable.ConfirmationDialog.Title.Delete(),
                             unwrapping: viewStore.binding(\.$route),
                             case: /QuickSearchState.Route.deleteWord,
                             matching: word
                         ) { route in
-                            Button(R.string.localizable.confirmationDialogButtonDelete(), role: .destructive) {
+                            Button(L10n.Localizable.ConfirmationDialog.Button.Delete(), role: .destructive) {
                                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                                     viewStore.send(.deleteWord(route))
                                 }

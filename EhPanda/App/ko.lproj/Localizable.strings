@@ -228,7 +228,7 @@
 "enum.app_icon_type.value.ukiyoe" = "Ukiyo-e";
 "enum.app_icon_type.value.developer" = "Developer";
 "enum.app_icon_type.value.stand_with_ukraine_2022" = "Stand With Ukraine (2022)";
-"enum.app.icon.type.value.not_my_president" = "NOT MY PRESIDENT";
+"enum.app_icon_type.value.not_my_president" = "NOT MY PRESIDENT";
 // ListDisplayMode
 "enum.list_display_mode.value.detail" = "자세히";
 "enum.list_display_mode.value.thumbnail" = "썸네일";
@@ -474,9 +474,9 @@
 "eh_setting_view.title.tag_watching_threshold" = "태그 보여주기 임계값";
 "eh_setting_view.description.tag_watching_threshold" = "최근에 업로드된 갤러리는 최소 1개의 Watched 태그가 있고 Watched 태그의 가중치의 합이 이 값 이상이 될 경우 Watched 화면에 포함되어요. 이 임계값은 0과 9999 사이에서 설정할 수 있어요.";
 
-"eh.setting.view.section.title.filtered_removal_count" = "Show Filtered Removal Count";
-"eh.setting.view.description.filtered_removal_count" = "Show the \"Your default filters removed XX galleries from this page\" readout?";
-"eh.setting.view.title.show_filtered_removal_count" = "Show filtered removal count";
+"eh_setting_view.section.title.filtered_removal_count" = "Show Filtered Removal Count";
+"eh_setting_view.description.filtered_removal_count" = "Show the \"Your default filters removed XX galleries from this page\" readout?";
+"eh_setting_view.title.show_filtered_removal_count" = "Show filtered removal count";
 
 "eh_setting_view.section.title.excluded_languages" = "제외된 언어";
 "eh_setting_view.description.excluded_languages" = "갤러리 목록에서 특정 언어로 된 갤러리를 숨기고 검색하려면 아래 목록에서 해당 갤러리를 선택해주세요. 검색어에 관계없이 일치하는 갤러리는 나타나지 않아요.";

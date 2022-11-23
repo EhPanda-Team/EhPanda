@@ -94,7 +94,7 @@ struct SearchRootView: View {
             }
             .background(navigationLinks)
             .toolbar(content: toolbar)
-            .navigationTitle(R.string.localizable.searchViewTitleSearch())
+            .navigationTitle(L10n.Localizable.SearchView.Title.search)
         }
     }
 
@@ -223,7 +223,7 @@ private struct QuickSearchWordsSection: View {
 
     var body: some View {
         SubSection(
-            title: R.string.localizable.searchViewSectionTitleQuickSearch(),
+            title: L10n.Localizable.SearchView.Section.Title.quickSearch,
             showAll: true, tint: .primary, showAllAction: showAllAction
         ) {
             DoubleVerticalKeywordsStack(keywords: keywords, searchAction: searchAction)
@@ -244,7 +244,7 @@ private struct HistoryKeywordsSection: View {
     }
 
     var body: some View {
-        SubSection(title: R.string.localizable.searchViewSectionTitleRecentlySearched(), showAll: false) {
+        SubSection(title: L10n.Localizable.SearchView.Section.Title.recentlySearched, showAll: false) {
             DoubleVerticalKeywordsStack(
                 keywords: keywords.map({ WrappedKeyword(keyword: $0) }),
                 searchAction: searchAction,
@@ -380,7 +380,7 @@ private struct HistoryGalleriesSection: View {
     }
 
     var body: some View {
-        SubSection(title: R.string.localizable.searchViewSectionTitleRecentlySeen(), showAll: false) {
+        SubSection(title: L10n.Localizable.SearchView.Section.Title.recentlySeen, showAll: false) {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack {
                     ForEach(galleries) { gallery in

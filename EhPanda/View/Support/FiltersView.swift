@@ -88,11 +88,11 @@ private struct BasicSection: View {
                 Text(R.string.localizable.filtersViewButtonResetFilters()).foregroundStyle(.red)
             }
             .confirmationDialog(
-                message: R.string.localizable.confirmationDialogTitleReset(),
+                message: L10n.Localizable.ConfirmationDialog.Title.Reset(),
                 unwrapping: $route, case: /FiltersState.Route.resetFilters
             ) {
                 Button(
-                    R.string.localizable.confirmationDialogButtonReset(),
+                    L10n.Localizable.ConfirmationDialog.Button.Reset(),
                     role: .destructive, action: resetFiltersAction
                 )
             }

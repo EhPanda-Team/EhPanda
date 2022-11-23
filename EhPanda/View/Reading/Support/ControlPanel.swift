@@ -140,7 +140,7 @@ private struct UpperPanel: View {
                             Button {
                                 setting.enablesDualPageMode.toggle()
                             } label: {
-                                Text(R.string.localizable.readingViewToolbarItemTitleDualPageMode())
+                                Text(L10n.Localizable.ReadingView.ToolbarItem.Title.dualPageMode)
                                 if setting.enablesDualPageMode {
                                     Image(systemSymbol: .checkmark)
                                 }
@@ -148,7 +148,7 @@ private struct UpperPanel: View {
                             Button {
                                 setting.exceptCover.toggle()
                             } label: {
-                                Text(R.string.localizable.readingViewToolbarItemTitleExceptTheCover())
+                                Text(L10n.Localizable.ReadingView.ToolbarItem.Title.exceptTheCover)
                                 if setting.exceptCover {
                                     Image(systemSymbol: .checkmark)
                                 }
@@ -160,7 +160,7 @@ private struct UpperPanel: View {
                         }
                     }
                     Menu {
-                        Text(R.string.localizable.readingViewToolbarItemTitleAutoPlay()).foregroundColor(.secondary)
+                        Text(L10n.Localizable.ReadingView.ToolbarItem.Title.autoPlay).foregroundColor(.secondary)
                         ForEach(AutoPlayPolicy.allCases) { policy in
                             Button {
                                 autoPlayPolicy = policy
@@ -177,15 +177,15 @@ private struct UpperPanel: View {
                     ToolbarFeaturesMenu {
                         Button(action: retryAllFailedImagesAction) {
                             Image(systemSymbol: .exclamationmarkArrowTriangle2Circlepath)
-                            Text(R.string.localizable.readingViewToolbarItemButtonRetryAllFailedImages())
+                            Text(L10n.Localizable.ReadingView.ToolbarItem.Button.retryAllFailedImages)
                         }
                         Button(action: reloadAllImagesAction) {
                             Image(systemSymbol: .arrowCounterclockwise)
-                            Text(R.string.localizable.readingViewToolbarItemButtonReloadAllImages())
+                            Text(L10n.Localizable.ReadingView.ToolbarItem.Button.reloadAllImages)
                         }
                         Button(action: navigateSettingAction) {
                             Image(systemSymbol: .gear)
-                            Text(R.string.localizable.readingViewToolbarItemButtonReadingSetting())
+                            Text(L10n.Localizable.ReadingView.ToolbarItem.Button.readingSetting)
                         }
                     }
                     .padding(.trailing, 20)

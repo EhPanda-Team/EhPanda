@@ -228,7 +228,7 @@
 "enum.app_icon_type.value.ukiyoe" = "浮世绘";
 "enum.app_icon_type.value.developer" = "开发者";
 "enum.app_icon_type.value.stand_with_ukraine_2022" = "与乌克兰同在 (2022)";
-"enum.app.icon.type.value.not_my_president" = "他不是我的主席";
+"enum.app_icon_type.value.not_my_president" = "他不是我的主席";
 // ListDisplayMode
 "enum.list_display_mode.value.detail" = "详情";
 "enum.list_display_mode.value.thumbnail" = "缩略图";
@@ -474,9 +474,9 @@
 "eh_setting_view.title.tag_watching_threshold" = "标签订阅阈值";
 "eh_setting_view.description.tag_watching_threshold" = "你可以通过将标签加入“我的标签”并设置一个正权重来关注它们。如果一个最近上传的作品所有标签的权重之和高于设定值，则它将会被包含在“关注”里。这个值可以设定为 0 ~ 9999。";
 
-"eh.setting.view.section.title.filtered_removal_count" = "筛选器移除数";
-"eh.setting.view.description.filtered_removal_count" = "要显示“你的默认筛选器从本页移除了 XX 个画廊”提示吗？";
-"eh.setting.view.title.show_filtered_removal_count" = "显示筛选器移除数";
+"eh_setting_view.section.title.filtered_removal_count" = "筛选器移除数";
+"eh_setting_view.description.filtered_removal_count" = "要显示“你的默认筛选器从本页移除了 XX 个画廊”提示吗？";
+"eh_setting_view.title.show_filtered_removal_count" = "显示筛选器移除数";
 
 "eh_setting_view.section.title.excluded_languages" = "屏蔽的语言";
 "eh_setting_view.description.excluded_languages" = "如果你希望以从列表或搜索结果中隐藏特定语言的画廊，请从下面的列表中选择。注意：无论搜索条件为何，这些画廊都不会出现。";

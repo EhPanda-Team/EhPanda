@@ -35,11 +35,11 @@ struct MigrationView: View {
                         viewStore.send(.setNavigation(.dropDialog))
                     }
                     .confirmationDialog(
-                        message: R.string.localizable.confirmationDialogTitleDropDatabase(),
+                        message: L10n.Localizable.ConfirmationDialog.Title.DropDatabase(),
                         unwrapping: viewStore.binding(\.$route),
                         case: /MigrationState.Route.dropDialog
                     ) {
-                        Button(R.string.localizable.confirmationDialogButtonDropDatabase(), role: .destructive) {
+                        Button(L10n.Localizable.ConfirmationDialog.Button.DropDatabase(), role: .destructive) {
                             viewStore.send(.dropDatabase)
                         }
                     }
