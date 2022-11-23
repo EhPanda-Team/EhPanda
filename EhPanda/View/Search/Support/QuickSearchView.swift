@@ -53,12 +53,12 @@ struct QuickSearchView: View {
                         }
                         .withArrow(isVisible: !viewStore.isListEditing).padding(5)
                         .confirmationDialog(
-                            message: L10n.Localizable.ConfirmationDialog.Title.Delete(),
+                            message: L10n.Localizable.ConfirmationDialog.Title.delete,
                             unwrapping: viewStore.binding(\.$route),
                             case: /QuickSearchState.Route.deleteWord,
                             matching: word
                         ) { route in
-                            Button(L10n.Localizable.ConfirmationDialog.Button.Delete(), role: .destructive) {
+                            Button(L10n.Localizable.ConfirmationDialog.Button.delete, role: .destructive) {
                                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                                     viewStore.send(.deleteWord(route))
                                 }
@@ -93,7 +93,7 @@ struct QuickSearchView: View {
             }
             .toolbar(content: toolbar)
             .background(navigationLinks)
-            .navigationTitle(R.string.localizable.quickSearchViewTitleQuickSearch())
+            .navigationTitle(L10n.Localizable.QuickSearchView.Title.quickSearch)
         }
     }
 
@@ -125,7 +125,7 @@ struct QuickSearchView: View {
     @ViewBuilder private var navigationLinks: some View {
         NavigationLink(unwrapping: viewStore.binding(\.$route), case: /QuickSearchState.Route.newWord) { _ in
             EditWordView(
-                title: R.string.localizable.quickSearchViewTitleNewWord(),
+                title: L10n.Localizable.QuickSearchView.Title.newWord,
                 word: viewStore.binding(\.$editingWord),
                 focusedField: $focusedField,
                 submitAction: onTextFieldSubmitted,
@@ -137,7 +137,7 @@ struct QuickSearchView: View {
         }
         NavigationLink(unwrapping: viewStore.binding(\.$route), case: /QuickSearchState.Route.editWord) { _ in
             EditWordView(
-                title: R.string.localizable.quickSearchViewTitleEditWord(),
+                title: L10n.Localizable.QuickSearchView.Title.editWord,
                 word: viewStore.binding(\.$editingWord),
                 focusedField: $focusedField,
                 submitAction: onTextFieldSubmitted,
@@ -173,11 +173,11 @@ extension QuickSearchView {
 
         var body: some View {
             Form {
-                Section(R.string.localizable.quickSearchViewTitleName()) {
-                    TextField(R.string.localizable.quickSearchViewPlaceholderOptional(), text: $word.name)
+                Section(L10n.Localizable.QuickSearchView.Title.name) {
+                    TextField(L10n.Localizable.QuickSearchView.Placeholder.optional, text: $word.name)
                         .submitLabel(.next).focused(focusedField, equals: .name)
                 }
-                Section(R.string.localizable.quickSearchViewTitleContent()) {
+                Section(L10n.Localizable.QuickSearchView.Title.content) {
                     TextEditor(text: $word.content)
                         .disableAutocorrection(true)
                         .textInputAutocapitalization(.never)
@@ -192,7 +192,7 @@ extension QuickSearchView {
         private func toolbar() -> some ToolbarContent {
             CustomToolbarItem {
                 Button(action: confirmAction) {
-                    Text(R.string.localizable.quickSearchViewToolbarItemButtonConfirm()).bold()
+                    Text(L10n.Localizable.QuickSearchView.ToolbarItem.Button.confirm).bold()
                 }
             }
         }

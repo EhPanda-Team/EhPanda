@@ -79,7 +79,7 @@ struct PreviewsView: View {
         .onAppear {
             viewStore.send(.fetchDatabaseInfos(gid))
         }
-        .navigationTitle(R.string.localizable.previewsViewTitlePreviews())
+        .navigationTitle(L10n.Localizable.PreviewsView.Title.previews)
     }
 }
 

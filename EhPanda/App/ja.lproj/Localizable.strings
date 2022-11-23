@@ -219,10 +219,10 @@
 "appearance_setting_view.menu.title.infite" = "無制限";
 "appearance_setting_view.section.title.list" = "リスト";
 "appearance_setting_view.section.title.gallery" = "ギャラリー";
-// PerferredColorScheme
-"enum.perferred_color_scheme.value.automatic" = "自動";
-"enum.perferred_color_scheme.value.light" = "ライト";
-"enum.perferred_color_scheme.value.dark" = "ダーク";
+// PreferredColorScheme
+"enum.preferred_color_scheme.value.automatic" = "自動";
+"enum.preferred_color_scheme.value.light" = "ライト";
+"enum.preferred_color_scheme.value.dark" = "ダーク";
 // AppIconType
 "enum.app_icon_type.value.default" = "デフォルト";
 "enum.app_icon_type.value.ukiyoe" = "浮世絵";

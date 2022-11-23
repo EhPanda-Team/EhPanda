@@ -50,10 +50,10 @@ struct Greeting: Codable, Equatable, Hashable {
     var gainContent: String? {
         let rewards = rewards
         guard !rewards.isEmpty else { return nil }
-        let and = R.string.localizable.structGreetingMarkAnd()
-        let end = R.string.localizable.structGreetingMarkEnd()
-        let start = R.string.localizable.structGreetingMarkStart()
-        let separator = R.string.localizable.structGreetingMarkSeparator()
+        let and = L10n.Localizable.Struct.Greeting.Mark.and
+        let end = L10n.Localizable.Struct.Greeting.Mark.end
+        let start = L10n.Localizable.Struct.Greeting.Mark.start
+        let separator = L10n.Localizable.Struct.Greeting.Mark.separator
         let rewardDescription = rewards.enumerated().map { (offset, element) in
             if offset == 0 {
                 return element

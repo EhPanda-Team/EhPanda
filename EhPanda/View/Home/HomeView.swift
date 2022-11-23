@@ -109,7 +109,7 @@ struct HomeView: View {
             }
             .background(navigationLinks)
             .toolbar(content: toolbar)
-            .navigationTitle(R.string.localizable.homeViewTitleHome())
+            .navigationTitle(L10n.Localizable.HomeView.Title.home)
         }
     }
 
@@ -272,7 +272,7 @@ private struct CoverWallSection: View {
 
     var body: some View {
         SubSection(
-            title: R.string.localizable.homeViewSectionTitleFrontpage(),
+            title: L10n.Localizable.HomeView.Section.Title.frontpage,
             tint: .secondary, isLoading: isLoading,
             reloadAction: reloadAction,
             showAllAction: showAllAction
@@ -362,7 +362,7 @@ private struct ToplistsSection: View {
 
     var body: some View {
         SubSection(
-            title: R.string.localizable.homeViewSectionTitleToplists(),
+            title: L10n.Localizable.HomeView.Section.Title.toplists,
             tint: .secondary, isLoading: isLoading,
             reloadAction: reloadAction,
             showAllAction: showAllAction
@@ -432,7 +432,7 @@ private struct MiscGridSection: View {
     }
 
     var body: some View {
-        SubSection(title: R.string.localizable.homeViewSectionTitleOther(), showAll: false) {
+        SubSection(title: L10n.Localizable.HomeView.Section.Title.other, showAll: false) {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack {
                     let types = HomeMiscGridType.allCases
@@ -490,11 +490,11 @@ extension HomeMiscGridType {
     var title: String {
         switch self {
         case .popular:
-            return R.string.localizable.homeMiscGridTypeTitlePopular()
+            return L10n.Localizable.Enum.HomeMiscGridType.Title.popular
         case .watched:
-            return R.string.localizable.homeMiscGridTypeTitleWatched()
+            return L10n.Localizable.Enum.HomeMiscGridType.Title.watched
         case .history:
-            return R.string.localizable.homeMiscGridTypeTitleHistory()
+            return L10n.Localizable.Enum.HomeMiscGridType.Title.history
         }
     }
     var symbol: SFSymbol {

@@ -65,7 +65,7 @@ struct FiltersButton: View {
         Button(action: action) {
             Image(systemSymbol: .line3HorizontalDecrease)
             if !hideText {
-                Text(R.string.localizable.toolbarItemButtonFilters())
+                Text(L10n.Localizable.ToolbarItem.Button.filters)
             }
         }
     }
@@ -84,7 +84,7 @@ struct QuickSearchButton: View {
         Button(action: action) {
             Image(systemSymbol: .magnifyingglass)
             if !hideText {
-                Text(R.string.localizable.toolbarItemButtonQuickSearch())
+                Text(L10n.Localizable.ToolbarItem.Button.quickSearch)
             }
         }
     }
@@ -105,7 +105,7 @@ struct JumpPageButton: View {
         Button(action: action) {
             Image(systemSymbol: .arrowshapeBounceForward)
             if !hideText {
-                Text(R.string.localizable.toolbarItemButtonJumpPage())
+                Text(L10n.Localizable.ToolbarItem.Button.jumpPage)
             }
         }
         .disabled(pageNumber.isSinglePage)

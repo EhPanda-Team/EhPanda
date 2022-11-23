@@ -219,10 +219,10 @@
 "appearance_setting_view.menu.title.infite" = "無限";
 "appearance_setting_view.section.title.list" = "列表";
 "appearance_setting_view.section.title.gallery" = "Gallery";
-// PerferredColorScheme
-"enum.perferred_color_scheme.value.automatic" = "自動";
-"enum.perferred_color_scheme.value.light" = "淺色";
-"enum.perferred_color_scheme.value.dark" = "深色";
+// PreferredColorScheme
+"enum.preferred_color_scheme.value.automatic" = "自動";
+"enum.preferred_color_scheme.value.light" = "淺色";
+"enum.preferred_color_scheme.value.dark" = "深色";
 // AppIconType
 "enum.app_icon_type.value.default" = "預設";
 "enum.app_icon_type.value.ukiyoe" = "Ukiyo-e";

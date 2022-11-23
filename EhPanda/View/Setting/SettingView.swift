@@ -34,7 +34,7 @@ struct SettingView: View {
                 .padding(.vertical, 40).padding(.horizontal)
             }
             .background(navigationLinks)
-            .navigationTitle(R.string.localizable.settingViewTitleSetting())
+            .navigationTitle(L10n.Localizable.SettingView.Title.setting)
         }
     }
 }
@@ -149,17 +149,17 @@ extension SettingState.Route {
     var value: String {
         switch self {
         case .account:
-            return R.string.localizable.enumSettingStateRouteValueAccount()
+            return L10n.Localizable.Enum.SettingStateRoute.Value.account
         case .general:
-            return R.string.localizable.enumSettingStateRouteValueGeneral()
+            return L10n.Localizable.Enum.SettingStateRoute.Value.general
         case .appearance:
-            return R.string.localizable.enumSettingStateRouteValueAppearance()
+            return L10n.Localizable.Enum.SettingStateRoute.Value.appearance
         case .reading:
-            return R.string.localizable.enumSettingStateRouteValueReading()
+            return L10n.Localizable.Enum.SettingStateRoute.Value.reading
         case .laboratory:
-            return R.string.localizable.enumSettingStateRouteValueLaboratory()
+            return L10n.Localizable.Enum.SettingStateRoute.Value.laboratory
         case .ehpanda:
-            return R.string.localizable.enumSettingStateRouteValueEhPanda()
+            return L10n.Localizable.Enum.SettingStateRoute.Value.ehPanda
         }
     }
     var symbol: SFSymbol {

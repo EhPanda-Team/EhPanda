@@ -29,7 +29,7 @@ extension CookiesClient {
         },
         getCookie: { url, key in
             var value = CookieValue(
-                rawValue: "", localizedString: R.string.localizable.structCookieValueLocalizedStringNone()
+                rawValue: "", localizedString: L10n.Localizable.Struct.CookieValue.LocalizedString.none
             )
             guard let cookies = HTTPCookieStorage.shared.cookies(for: url), !cookies.isEmpty else { return value }
 
@@ -37,14 +37,14 @@ extension CookiesClient {
                 guard let expiresDate = cookie.expiresDate, cookie.name == key && !cookie.value.isEmpty else { return }
                 guard expiresDate > .now else {
                     value = CookieValue(
-                        rawValue: "", localizedString: R.string.localizable.structCookieValueLocalizedStringExpired()
+                        rawValue: "", localizedString: L10n.Localizable.Struct.CookieValue.LocalizedString.expired
                     )
                     return
                 }
                 guard cookie.value != Defaults.Cookie.mystery else {
                     value = CookieValue(
                         rawValue: cookie.value, localizedString:
-                            R.string.localizable.structCookieValueLocalizedStringMystery()
+                            L10n.Localizable.Struct.CookieValue.LocalizedString.mystery
                     )
                     return
                 }

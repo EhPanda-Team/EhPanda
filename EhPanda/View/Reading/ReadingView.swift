@@ -403,25 +403,25 @@ private struct HorizontalImageStack: View {
         Button {
             refetchAction(index)
         } label: {
-            Label(R.string.localizable.readingViewContextMenuButtonReload(), systemSymbol: .arrowCounterclockwise)
+            Label(L10n.Localizable.ReadingView.ContextMenu.Button.reload, systemSymbol: .arrowCounterclockwise)
         }
         if let imageURL = imageURLs[index] {
             Button {
                 copyImageAction(imageURL)
             } label: {
-                Label(R.string.localizable.readingViewContextMenuButtonCopy(), systemSymbol: .plusSquareOnSquare)
+                Label(L10n.Localizable.ReadingView.ContextMenu.Button.copy, systemSymbol: .plusSquareOnSquare)
             }
             Button {
                 saveImageAction(imageURL)
             } label: {
-                Label(R.string.localizable.readingViewContextMenuButtonSave(), systemSymbol: .squareAndArrowDown)
+                Label(L10n.Localizable.ReadingView.ContextMenu.Button.save, systemSymbol: .squareAndArrowDown)
             }
             if let originalImageURL = originalImageURLs[index] {
                 Button {
                     saveImageAction(originalImageURL)
                 } label: {
                     Label(
-                        R.string.localizable.readingViewContextMenuButtonSaveOriginal(),
+                        L10n.Localizable.ReadingView.ContextMenu.Button.saveOriginal,
                         systemSymbol: .squareAndArrowDownOnSquare
                     )
                 }
@@ -429,7 +429,7 @@ private struct HorizontalImageStack: View {
             Button {
                 shareImageAction(imageURL)
             } label: {
-                Label(R.string.localizable.readingViewContextMenuButtonShare(), systemSymbol: .squareAndArrowUp)
+                Label(L10n.Localizable.ReadingView.ContextMenu.Button.share, systemSymbol: .squareAndArrowUp)
             }
         }
     }
@@ -578,7 +578,7 @@ extension AutoPlayPolicy {
     var value: String {
         switch self {
         case .off:
-            return R.string.localizable.enumAutoPlayPolicyValueOff()
+            return L10n.Localizable.Enum.AutoPlayPolicy.Value.off
         default:
             return L10n.Localizable.Common.Value.seconds("\(rawValue)")
         }

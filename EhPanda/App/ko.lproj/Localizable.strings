@@ -219,10 +219,10 @@
 "appearance_setting_view.menu.title.infite" = "제한 없음";
 "appearance_setting_view.section.title.list" = "리스트";
 "appearance_setting_view.section.title.gallery" = "Gallery";
-// PerferredColorScheme
-"enum.perferred_color_scheme.value.automatic" = "자동";
-"enum.perferred_color_scheme.value.light" = "라이트";
-"enum.perferred_color_scheme.value.dark" = "다크";
+// PreferredColorScheme
+"enum.preferred_color_scheme.value.automatic" = "자동";
+"enum.preferred_color_scheme.value.light" = "라이트";
+"enum.preferred_color_scheme.value.dark" = "다크";
 // AppIconType
 "enum.app_icon_type.value.default" = "기본";
 "enum.app_icon_type.value.ukiyoe" = "Ukiyo-e";

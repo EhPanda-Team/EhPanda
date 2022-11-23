@@ -71,7 +71,7 @@ struct AccountSettingView: View {
         }
         .onAppear { viewStore.send(.loadCookies) }
         .background(navigationLinks)
-        .navigationTitle(R.string.localizable.accountSettingViewTitleAccount())
+        .navigationTitle(L10n.Localizable.AccountSettingView.Title.account)
     }
 }
 
@@ -124,35 +124,35 @@ private struct AccountSection: View {
 
     var body: some View {
         if !CookiesUtil.didLogin {
-            Button(R.string.localizable.accountSettingViewButtonLogin(), action: loginAction)
+            Button(L10n.Localizable.AccountSettingView.Button.login, action: loginAction)
         } else {
             Button(
-                L10n.Localizable.ConfirmationDialog.Button.Logout(),
+                L10n.Localizable.ConfirmationDialog.Button.logout,
                 role: .destructive, action: logoutDialogAction
             )
             .confirmationDialog(
-                message: L10n.Localizable.ConfirmationDialog.Title.Logout(),
+                message: L10n.Localizable.ConfirmationDialog.Title.logout,
                 unwrapping: $route, case: /AccountSettingState.Route.logout
             ) {
                 Button(
-                    L10n.Localizable.ConfirmationDialog.Button.Logout(),
+                    L10n.Localizable.ConfirmationDialog.Button.logout,
                     role: .destructive, action: logoutAction
                 )
             }
             Group {
                 Button(
-                    R.string.localizable.accountSettingViewButtonAccountConfiguration(),
+                    L10n.Localizable.AccountSettingView.Button.accountConfiguration,
                     action: configureAccountAction
                 )
                 .withArrow()
                 if !bypassesSNIFiltering {
                     Button(
-                        R.string.localizable.accountSettingViewButtonTagsManagement(),
+                        L10n.Localizable.AccountSettingView.Button.tagsManagement,
                         action: manageTagsAction
                     )
                     .withArrow()
                 }
-                Toggle(R.string.localizable.accountSettingViewTitleShowsNewDawnGreeting(), isOn: $showsNewDawnGreeting)
+                Toggle(L10n.Localizable.AccountSettingView.Title.showsNewDawnGreeting, isOn: $showsNewDawnGreeting)
             }
             .foregroundColor(.primary)
         }
@@ -179,7 +179,7 @@ private struct CookieSection: View {
         Section(GalleryHost.ehentai.rawValue) {
             CookieRow(cookieState: $ehCookiesState.memberID)
             CookieRow(cookieState: $ehCookiesState.passHash)
-            Button(R.string.localizable.accountSettingViewButtonCopyCookies()) {
+            Button(L10n.Localizable.AccountSettingView.Button.copyCookies) {
                 copyAction(.ehentai)
             }
             .foregroundStyle(.tint).font(.subheadline)
@@ -188,7 +188,7 @@ private struct CookieSection: View {
             CookieRow(cookieState: $exCookiesState.igneous)
             CookieRow(cookieState: $exCookiesState.memberID)
             CookieRow(cookieState: $exCookiesState.passHash)
-            Button(R.string.localizable.accountSettingViewButtonCopyCookies()) {
+            Button(L10n.Localizable.AccountSettingView.Button.copyCookies) {
                 copyAction(.exhentai)
             }
             .foregroundStyle(.tint).font(.subheadline)

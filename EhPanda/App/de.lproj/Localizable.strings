@@ -219,10 +219,10 @@
 "appearance_setting_view.menu.title.infite" = "Infite";
 "appearance_setting_view.section.title.list" = "List";
 "appearance_setting_view.section.title.gallery" = "Gallery";
-// PerferredColorScheme
-"enum.perferred_color_scheme.value.automatic" = "Automatisch";
-"enum.perferred_color_scheme.value.light" = "Hell";
-"enum.perferred_color_scheme.value.dark" = "Dunkel";
+// PreferredColorScheme
+"enum.preferred_color_scheme.value.automatic" = "Automatisch";
+"enum.preferred_color_scheme.value.light" = "Hell";
+"enum.preferred_color_scheme.value.dark" = "Dunkel";
 // AppIconType
 "enum.app_icon_type.value.default" = "Standard";
 "enum.app_icon_type.value.ukiyoe" = "Ukiyo-e";

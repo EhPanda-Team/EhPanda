@@ -46,7 +46,7 @@ struct FiltersView: View {
                 )
             }
             .synchronize(viewStore.binding(\.$focusedBound), $focusedBound)
-            .navigationTitle(R.string.localizable.filtersViewTitleFilters())
+            .navigationTitle(L10n.Localizable.FiltersView.Title.filters)
             .onAppear { viewStore.send(.fetchFilters) }
         }
     }
@@ -85,18 +85,18 @@ private struct BasicSection: View {
             .pickerStyle(.segmented)
             CategoryView(bindings: categoryBindings)
             Button(action: resetFiltersDialogAction) {
-                Text(R.string.localizable.filtersViewButtonResetFilters()).foregroundStyle(.red)
+                Text(L10n.Localizable.FiltersView.Button.resetFilters).foregroundStyle(.red)
             }
             .confirmationDialog(
-                message: L10n.Localizable.ConfirmationDialog.Title.Reset(),
+                message: L10n.Localizable.ConfirmationDialog.Title.reset,
                 unwrapping: $route, case: /FiltersState.Route.resetFilters
             ) {
                 Button(
-                    L10n.Localizable.ConfirmationDialog.Button.Reset(),
+                    L10n.Localizable.ConfirmationDialog.Button.reset,
                     role: .destructive, action: resetFiltersAction
                 )
             }
-            Toggle(R.string.localizable.filtersViewTitleAdvancedSettings(), isOn: $filter.advanced)
+            Toggle(L10n.Localizable.FiltersView.Title.advancedSettings, isOn: $filter.advanced)
         }
     }
 }
@@ -119,24 +119,24 @@ private struct AdvancedSection: View {
 
     var body: some View {
         Group {
-            Section(R.string.localizable.filtersViewSectionTitleAdvanced()) {
-                Toggle(R.string.localizable.filtersViewTitleSearchGalleryName(), isOn: $filter.galleryName)
-                Toggle(R.string.localizable.filtersViewTitleSearchGalleryTags(), isOn: $filter.galleryTags)
-                Toggle(R.string.localizable.filtersViewTitleSearchGalleryDescription(), isOn: $filter.galleryDesc)
-                Toggle(R.string.localizable.filtersViewTitleSearchTorrentFilenames(), isOn: $filter.torrentFilenames)
+            Section(L10n.Localizable.FiltersView.Section.Title.advanced) {
+                Toggle(L10n.Localizable.FiltersView.Title.searchGalleryName, isOn: $filter.galleryName)
+                Toggle(L10n.Localizable.FiltersView.Title.searchGalleryTags, isOn: $filter.galleryTags)
+                Toggle(L10n.Localizable.FiltersView.Title.searchGalleryDescription, isOn: $filter.galleryDesc)
+                Toggle(L10n.Localizable.FiltersView.Title.searchTorrentFilenames, isOn: $filter.torrentFilenames)
                 Toggle(
-                    R.string.localizable.filtersViewTitleOnlyShowGalleriesWithTorrents(),
+                    L10n.Localizable.FiltersView.Title.onlyShowGalleriesWithTorrents,
                     isOn: $filter.onlyWithTorrents
                 )
-                Toggle(R.string.localizable.filtersViewTitleSearchLowPowerTags(), isOn: $filter.lowPowerTags)
-                Toggle(R.string.localizable.filtersViewTitleSearchDownvotedTags(), isOn: $filter.downvotedTags)
-                Toggle(R.string.localizable.filtersViewTitleShowExpungedGalleries(), isOn: $filter.expungedGalleries)
+                Toggle(L10n.Localizable.FiltersView.Title.searchLowPowerTags, isOn: $filter.lowPowerTags)
+                Toggle(L10n.Localizable.FiltersView.Title.searchDownvotedTags, isOn: $filter.downvotedTags)
+                Toggle(L10n.Localizable.FiltersView.Title.searchExpungedGalleries, isOn: $filter.expungedGalleries)
             }
             Section {
-                Toggle(R.string.localizable.filtersViewTitleSetMinimumRating(), isOn: $filter.minRatingActivated)
+                Toggle(L10n.Localizable.FiltersView.Title.setMinimumRating, isOn: $filter.minRatingActivated)
                 MinimumRatingSetter(minimum: $filter.minRating)
                     .disabled(!filter.minRatingActivated)
-                Toggle(R.string.localizable.filtersViewTitleSetPagesRange(), isOn: $filter.pageRangeActivated)
+                Toggle(L10n.Localizable.FiltersView.Title.setPagesRange, isOn: $filter.pageRangeActivated)
                     .disabled(focusedBound.wrappedValue != nil)
                 PagesRangeSetter(
                     lowerBound: $filter.pageLowerBound,
@@ -146,10 +146,10 @@ private struct AdvancedSection: View {
                 )
                 .disabled(!filter.pageRangeActivated)
             }
-            Section(R.string.localizable.filtersViewSectionTitleDefaultFilter()) {
-                Toggle(R.string.localizable.filtersViewTitleDisableLanguageFilter(), isOn: $filter.disableLanguage)
-                Toggle(R.string.localizable.filtersViewTitleDisableUploaderFilter(), isOn: $filter.disableUploader)
-                Toggle(R.string.localizable.filtersViewTitleDisableTagsFilter(), isOn: $filter.disableTags)
+            Section(L10n.Localizable.FiltersView.Section.Title.defaultFilter) {
+                Toggle(L10n.Localizable.FiltersView.Title.disableLanguageFilter, isOn: $filter.disableLanguage)
+                Toggle(L10n.Localizable.FiltersView.Title.disableUploaderFilter, isOn: $filter.disableUploader)
+                Toggle(L10n.Localizable.FiltersView.Title.disableTagsFilter, isOn: $filter.disableTags)
             }
         }
         .disabled(!filter.advanced)
@@ -165,9 +165,9 @@ private struct MinimumRatingSetter: View {
     }
 
     var body: some View {
-        Picker(R.string.localizable.filtersViewTitleMinimumRating(), selection: $minimum) {
+        Picker(L10n.Localizable.FiltersView.Title.minimumRating, selection: $minimum) {
             ForEach(Array(2...5), id: \.self) { number in
-                Text(R.string.localizable.commonValueStars("\(number)")).tag(number)
+                Text(L10n.Localizable.Common.Value.stars("\(number)")).tag(number)
             }
         }
         .pickerStyle(.menu)
@@ -195,7 +195,7 @@ private struct PagesRangeSetter: View {
 
     var body: some View {
         HStack {
-            Text(R.string.localizable.filtersViewTitlePagesRange())
+            Text(L10n.Localizable.FiltersView.Title.pagesRange)
             Spacer()
             SettingTextField(text: $lowerBound)
                 .focused(focusedBound, equals: .lower)
@@ -228,11 +228,11 @@ extension FilterRange {
     var value: String {
         switch self {
         case .search:
-            return R.string.localizable.enumFilterRangeValueSearch()
+            return L10n.Localizable.Enum.FilterRange.Value.search
         case .global:
-            return R.string.localizable.enumFilterRangeValueGlobal()
+            return L10n.Localizable.Enum.FilterRange.Value.global
         case .watched:
-            return R.string.localizable.enumFilterRangeValueWatched()
+            return L10n.Localizable.Enum.FilterRange.Value.watched
         }
     }
 }

@@ -219,10 +219,10 @@
 "appearance_setting_view.menu.title.infite" = "无限";
 "appearance_setting_view.section.title.list" = "列表";
 "appearance_setting_view.section.title.gallery" = "画廊";
-// PerferredColorScheme
-"enum.perferred_color_scheme.value.automatic" = "自动";
-"enum.perferred_color_scheme.value.light" = "浅色";
-"enum.perferred_color_scheme.value.dark" = "深色";
+// PreferredColorScheme
+"enum.preferred_color_scheme.value.automatic" = "自动";
+"enum.preferred_color_scheme.value.light" = "浅色";
+"enum.preferred_color_scheme.value.dark" = "深色";
 // AppIconType
 "enum.app_icon_type.value.default" = "默认";
 "enum.app_icon_type.value.ukiyoe" = "浮世绘";

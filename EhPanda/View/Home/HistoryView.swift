@@ -65,7 +65,7 @@ struct HistoryView: View {
         }
         .background(navigationLink)
         .toolbar(content: toolbar)
-        .navigationTitle(R.string.localizable.historyViewTitleHistory())
+        .navigationTitle(L10n.Localizable.HistoryView.Title.history)
     }
 
     @ViewBuilder private var navigationLink: some View {
@@ -88,11 +88,11 @@ struct HistoryView: View {
             }
             .disabled(viewStore.loadingState != .idle || viewStore.galleries.isEmpty)
             .confirmationDialog(
-                message: L10n.Localizable.ConfirmationDialog.Title.Clear(),
+                message: L10n.Localizable.ConfirmationDialog.Title.clear,
                 unwrapping: viewStore.binding(\.$route),
                 case: /HistoryState.Route.clearHistory
             ) {
-                Button(L10n.Localizable.ConfirmationDialog.Button.Clear(), role: .destructive) {
+                Button(L10n.Localizable.ConfirmationDialog.Button.clear, role: .destructive) {
                     viewStore.send(.clearHistoryGalleries)
                 }
             }

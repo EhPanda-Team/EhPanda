@@ -61,27 +61,27 @@ extension Category {
     var value: String {
         switch self {
         case .doujinshi:
-            return R.string.localizable.enumCategoryValueDoujinshi()
+            return L10n.Localizable.Enum.Category.Value.doujinshi
         case .manga:
-            return R.string.localizable.enumCategoryValueManga()
+            return L10n.Localizable.Enum.Category.Value.manga
         case .artistCG:
-            return R.string.localizable.enumCategoryValueArtistCG()
+            return L10n.Localizable.Enum.Category.Value.artistCG
         case .gameCG:
-            return R.string.localizable.enumCategoryValueGameCG()
+            return L10n.Localizable.Enum.Category.Value.gameCG
         case .western:
-            return R.string.localizable.enumCategoryValueWestern()
+            return L10n.Localizable.Enum.Category.Value.western
         case .nonH:
-            return R.string.localizable.enumCategoryValueNonH()
+            return L10n.Localizable.Enum.Category.Value.nonH
         case .imageSet:
-            return R.string.localizable.enumCategoryValueImageSet()
+            return L10n.Localizable.Enum.Category.Value.imageSet
         case .cosplay:
-            return R.string.localizable.enumCategoryValueCosplay()
+            return L10n.Localizable.Enum.Category.Value.cosplay
         case .asianPorn:
-            return R.string.localizable.enumCategoryValueAsianPorn()
+            return L10n.Localizable.Enum.Category.Value.asianPorn
         case .misc:
-            return R.string.localizable.enumCategoryValueMisc()
+            return L10n.Localizable.Enum.Category.Value.misc
         case .private:
-            return R.string.localizable.enumCategoryValuePrivate()
+            return L10n.Localizable.Enum.Category.Value.private
         }
     }
 }

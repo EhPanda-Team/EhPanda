@@ -68,7 +68,7 @@ struct PopularView: View {
         }
         .background(navigationLink)
         .toolbar(content: toolbar)
-        .navigationTitle(R.string.localizable.popularViewTitlePopular())
+        .navigationTitle(L10n.Localizable.PopularView.Title.popular)
     }
 
     @ViewBuilder private var navigationLink: some View {
