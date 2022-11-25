@@ -510,11 +510,11 @@
 
 "eh_setting_view.section.title.thumbnail_scaling" = "缩略图缩放";
 "eh_setting_view.title.scale_factor" = "缩放比例";
-"eh_setting_view.description.scale_factor" = "缩略图和扩展模式下的画廊列表缩略图可以缩放为 75% 到 150% 之间的自定义值。";
+"eh_setting_view.description.scale_factor" = "缩略图和扩展模式下的画廊列表缩略图可以缩放为 75%% 到 150%% 之间的自定义值。";
 
 "eh_setting_view.section.title.viewport_override" = "覆写可视区域";
 "eh_setting_view.title.virtual_width" = "虚拟宽度";
-"eh_setting_view.description.virtual_width" = "允许你覆写移动设备的可视区域，默认是根据 DPI 自动计算的，100% 缩略图比例下的合理值在 640 到 1400 之间。";
+"eh_setting_view.description.virtual_width" = "允许你覆写移动设备的可视区域，默认是根据 DPI 自动计算的，100%% 缩略图比例下的合理值在 640 到 1400 之间。";
 
 "eh_setting_view.section.title.gallery_comments" = "画廊评论";
 "eh_setting_view.title.comments_sort_order" = "评论排序方式";

@@ -510,11 +510,11 @@
 
 "eh_setting_view.section.title.thumbnail_scaling" = "縮略圖縮放";
 "eh_setting_view.title.scale_factor" = "縮放比例";
-"eh_setting_view.description.scale_factor" = "在縮略圖與放大檢視這兩種檢視模式下，縮略圖的重新採樣比率介於 75% 至 150%."; 
+"eh_setting_view.description.scale_factor" = "在縮略圖與放大檢視這兩種檢視模式下，縮略圖的重新採樣比率介於 75%% 至 150%%.";
 
 "eh_setting_view.section.title.viewport_override" = "窗口覆蓋";
 "eh_setting_view.title.virtual_width" = "虛擬寬度";
-"eh_setting_view.description.virtual_width" = "允許你覆蓋行動裝置網站的虛擬寬度。 這通常由你的設備根據其 DPI 自動確定。 100% 縮略圖比例的合理值介於 640 和 1400 之間。";
+"eh_setting_view.description.virtual_width" = "允許你覆蓋行動裝置網站的虛擬寬度。 這通常由你的設備根據其 DPI 自動確定。 100%% 縮略圖比例的合理值介於 640 和 1400 之間。";
 
 "eh_setting_view.section.title.gallery_comments" = "畫廊評論";
 "eh_setting_view.title.comments_sort_order" = "評論排序方式";

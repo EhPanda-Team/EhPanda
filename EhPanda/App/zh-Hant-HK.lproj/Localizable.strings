@@ -514,11 +514,11 @@
 
 "eh_setting_view.section.title.thumbnail_scaling" = "Thumbnail Scaling";
 "eh_setting_view.title.scale_factor" = "Scale factor";
-"eh_setting_view.description.scale_factor" = "Thumbnails on the thumbnail and extended gallery list views can be scaled to a custom value between 75% and 150%.";
+"eh_setting_view.description.scale_factor" = "Thumbnails on the thumbnail and extended gallery list views can be scaled to a custom value between 75%% and 150%%.";
 
 "eh_setting_view.section.title.viewport_override" = "Viewport Override";
 "eh_setting_view.title.virtual_width" = "Virtual width";
-"eh_setting_view.description.virtual_width" = "Allows you to override the virtual width of the site for mobile devices. This is normally determined automatically by your device based on its DPI. Sensible values at 100% thumbnail scale are between 640 and 1400.";
+"eh_setting_view.description.virtual_width" = "Allows you to override the virtual width of the site for mobile devices. This is normally determined automatically by your device based on its DPI. Sensible values at 100%% thumbnail scale are between 640 and 1400.";
 
 "eh_setting_view.section.title.gallery_comments" = "Gallery Comments";
 "eh_setting_view.title.comments_sort_order" = "Comments sort order";

@@ -510,11 +510,11 @@
 
 "eh_setting_view.section.title.thumbnail_scaling" = "썸네일 크기";
 "eh_setting_view.title.scale_factor" = "크기 비율";
-"eh_setting_view.description.scale_factor" = "썸네일 그림 및 확장된 갤러리 목록 보기의 미리 보기는 75%에서 150% 사이의 사용자 지정 값으로 조정할 수 있어요.";
+"eh_setting_view.description.scale_factor" = "썸네일 그림 및 확장된 갤러리 목록 보기의 미리 보기는 75%에서 150%% 사이의 사용자 지정 값으로 조정할 수 있어요.";
 
 "eh_setting_view.section.title.viewport_override" = "뷰포트 조정";
 "eh_setting_view.title.virtual_width" = "가상 너비";
-"eh_setting_view.description.virtual_width" = "모바일 장치의 사이트 가상 너비를 설정할 수 있어요. 일반적으로 DPI에 따라 장치에 의해 자동으로 결정되어요. 100% 썸네일 스케일의 추천 값은 640에서 1400 사이에요.";
+"eh_setting_view.description.virtual_width" = "모바일 장치의 사이트 가상 너비를 설정할 수 있어요. 일반적으로 DPI에 따라 장치에 의해 자동으로 결정되어요. 100%% 썸네일 스케일의 추천 값은 640에서 1400 사이에요.";
 
 "eh_setting_view.section.title.gallery_comments" = "갤러리 댓글";
 "eh_setting_view.title.comments_sort_order" = "댓글 순서";

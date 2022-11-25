@@ -510,11 +510,11 @@
 
 "eh_setting_view.section.title.thumbnail_scaling" = "サムネイルスケーリング";
 "eh_setting_view.title.scale_factor" = "スケール係数";
-"eh_setting_view.description.scale_factor" = "サムネイル・拡張表示モードでのサムネイルを 75% ~ 150% のカスタム値にスケールすることができます。";
+"eh_setting_view.description.scale_factor" = "サムネイル・拡張表示モードでのサムネイルを 75%% ~ 150%% のカスタム値にスケールすることができます。";
 
 "eh_setting_view.section.title.viewport_override" = "表示領域オーバーライド";
 "eh_setting_view.title.virtual_width" = "仮想幅";
-"eh_setting_view.description.virtual_width" = "モバイルデバイスの仮想幅をオーバーライドすることができます。一般的にはデバイスの DPI に基づいて自動的に決定されます。例えばサムネイルスケール係数が 100% の場合、640 ~ 1400 の幅が合理的です。";
+"eh_setting_view.description.virtual_width" = "モバイルデバイスの仮想幅をオーバーライドすることができます。一般的にはデバイスの DPI に基づいて自動的に決定されます。例えばサムネイルスケール係数が 100%% の場合、640 ~ 1400 の幅が合理的です。";
 
 "eh_setting_view.section.title.gallery_comments" = "ギャラリーコメント";
 "eh_setting_view.title.comments_sort_order" = "コメントの並び替え";
