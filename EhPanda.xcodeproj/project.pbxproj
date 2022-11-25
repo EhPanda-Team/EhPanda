@@ -185,7 +185,6 @@
 		ABA732D925A8018A00B3D9AB /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABA732D825A8018A00B3D9AB /* Extensions.swift */; };
 		ABA732DF25A852D800B3D9AB /* Filter.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABA732DE25A852D800B3D9AB /* Filter.swift */; };
 		ABA9A6BC28EC786100EE28DE /* swiftgen.yml in Resources */ = {isa = PBXBuildFile; fileRef = ABA9A6BB28EC786100EE28DE /* swiftgen.yml */; };
-		ABA9A6BF28EC7BA200EE28DE /* Constant.strings in Resources */ = {isa = PBXBuildFile; fileRef = ABA9A6BD28EC7BA200EE28DE /* Constant.strings */; };
 		ABA9A6C228EC7BD000EE28DE /* Strings.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABA9A6C128EC7BD000EE28DE /* Strings.swift */; };
 		ABAB5B9527EF023300198597 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABAB5B9427EF023300198597 /* Extensions.swift */; };
 		ABAB5B9727EF03F600198597 /* AppearanceSettingStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABAB5B9627EF03F600198597 /* AppearanceSettingStoreTests.swift */; };
@@ -549,14 +548,18 @@
 		ABD9770D27B65A7300983DE7 /* ListParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListParserTests.swift; sourceTree = "<group>"; };
 		ABD9770F27B65E3400983DE7 /* GalleryDetailParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryDetailParserTests.swift; sourceTree = "<group>"; };
 		ABD9771227B6612400983DE7 /* GreetingParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GreetingParserTests.swift; sourceTree = "<group>"; };
+		ABDD3E872930E73E009B3C2D /* zh-Hant-TW */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant-TW"; path = "zh-Hant-TW.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
+		ABDD3E882930E73E009B3C2D /* zh-Hant-TW */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant-TW"; path = "zh-Hant-TW.lproj/Localizable.strings"; sourceTree = "<group>"; };
+		ABDD3E8B2930E797009B3C2D /* zh-Hant-HK */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant-HK"; path = "zh-Hant-HK.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
+		ABDD3E8C2930E797009B3C2D /* zh-Hant-HK */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant-HK"; path = "zh-Hant-HK.lproj/Localizable.strings"; sourceTree = "<group>"; };
+		ABDD3E8D2930E879009B3C2D /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
+		ABDD3E8E2930E879009B3C2D /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		ABE1867726A1733000689FDC /* LaboratorySettingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaboratorySettingView.swift; sourceTree = "<group>"; };
 		ABE9011D27F722D000F3651D /* AppIcon_StandWithUkraine2022@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AppIcon_StandWithUkraine2022@2x.png"; sourceTree = "<group>"; };
 		ABE9011E27F722D100F3651D /* AppIcon_StandWithUkraine2022_iPad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = AppIcon_StandWithUkraine2022_iPad.png; sourceTree = "<group>"; };
 		ABE9011F27F722D100F3651D /* AppIcon_StandWithUkraine2022@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AppIcon_StandWithUkraine2022@3x.png"; sourceTree = "<group>"; };
 		ABE9012027F722D100F3651D /* AppIcon_StandWithUkraine2022_iPad_Pro@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AppIcon_StandWithUkraine2022_iPad_Pro@2x.png"; sourceTree = "<group>"; };
 		ABE9012127F722D100F3651D /* AppIcon_StandWithUkraine2022_iPad@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AppIcon_StandWithUkraine2022_iPad@2x.png"; sourceTree = "<group>"; };
-		ABE9376C265DCD9400EA8B30 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/Localizable.strings"; sourceTree = "<group>"; };
-		ABE9376D265DCD9400EA8B30 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
 		ABE9401426FF158D0085E158 /* QuickSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickSearchView.swift; sourceTree = "<group>"; };
 		ABE9401626FF2E610085E158 /* Model 4.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Model 4.xcdatamodel"; sourceTree = "<group>"; };
 		ABEA1FE525A9B40B002966B9 /* Setting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Setting.swift; sourceTree = "<group>"; };
@@ -1489,9 +1492,11 @@
 				Base,
 				ja,
 				"zh-Hans",
-				"zh-Hant",
 				ko,
 				de,
+				"zh-Hant-TW",
+				"zh-Hant-HK",
+				"zh-Hant",
 			);
 			mainGroup = ABC3C74B2593696C00E0C11B;
 			packageReferences = (
@@ -1884,9 +1889,11 @@
 				AB7E6B3125D24FE00035CC68 /* ja */,
 				AB7E6B3425D24FE40035CC68 /* zh-Hans */,
 				AB7E6B3525D24FE50035CC68 /* en */,
-				ABE9376D265DCD9400EA8B30 /* zh-Hant */,
 				ABB5013126A41EBA00B542D9 /* ko */,
 				AB253B4826AB08B500F95275 /* de */,
+				ABDD3E872930E73E009B3C2D /* zh-Hant-TW */,
+				ABDD3E8B2930E797009B3C2D /* zh-Hant-HK */,
+				ABDD3E8D2930E879009B3C2D /* zh-Hant */,
 			);
 			name = InfoPlist.strings;
 			sourceTree = "<group>";
@@ -1905,9 +1912,11 @@
 				ABEE0AFB2595C6F800C997AE /* en */,
 				ABEE0AFE2595C73D00C997AE /* zh-Hans */,
 				AB994DBB25986F7A00E9A367 /* ja */,
-				ABE9376C265DCD9400EA8B30 /* zh-Hant */,
 				ABB5013026A41EBA00B542D9 /* ko */,
 				AB253B4726AB08B500F95275 /* de */,
+				ABDD3E882930E73E009B3C2D /* zh-Hant-TW */,
+				ABDD3E8C2930E797009B3C2D /* zh-Hant-HK */,
+				ABDD3E8E2930E879009B3C2D /* zh-Hant */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";

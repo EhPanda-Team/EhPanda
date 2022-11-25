@@ -49,10 +49,12 @@
 
 // Translation contributors
 "EhPanda.translation_contributors.link.tatsuz0u" = "https://github.com/tatsuz0u";
+"EhPanda.translation_contributors.link.nebulosa-cat" = "https://github.com/Nebulosa-Cat";
 "EhPanda.translation_contributors.link.paulHaeussler" = "https://github.com/PaulHaeussler";
 "EhPanda.translation_contributors.link.caxerx" = "https://github.com/caxerx";
 "EhPanda.translation_contributors.link.nyaanim" = "https://github.com/nyaanim";
 "EhPanda.translation_contributors.text.tatsuz0u" = "Tatsuzo Araki";
+"EhPanda.translation_contributors.text.nebulosa-cat" = "雲豹 ΦωΦ";
 "EhPanda.translation_contributors.text.paulHaeussler" = "PaulHaeussler";
 "EhPanda.translation_contributors.text.caxerx" = "caxerx";
 "EhPanda.translation_contributors.text.nyaanim" = "nyaanim";
