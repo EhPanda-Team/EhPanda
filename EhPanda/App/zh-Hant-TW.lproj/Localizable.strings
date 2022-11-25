@@ -24,7 +24,7 @@
 "hud.title.error" = "錯誤";
 "hud.title.success" = "成功";
 "hud.title.loading" = "載入中...";
-"hud.title.communicating" = "Communicating...";
+"hud.title.communicating" = "連接中...";
 "hud.caption.copied_to_clipboard" = "已複製到剪貼簿";
 "hud.caption.saved_to_photo_library" = "已保存到照片";
 
@@ -290,13 +290,13 @@
 "archives_view.title.archives" = "存檔";
 "archives_view.button.download_to_hath_client" = "下載至 H@H 客戶端";
 // HathArchive
-"struct.hath_archive.price.free" = "Free";
+"struct.hath_archive.price.free" = "免費";
 "struct.hath_archive.price.not_available" = "N/A";
 // ArchiveResolution
-"enum.archive_resolution.value.original" = "Original";
+"enum.archive_resolution.value.original" = "原始畫質";
 
 // MARK: TorrentsView
-"torrents_view.title.torrents" = "Torrents";
+"torrents_view.title.torrents" = "種子";
 
 // MARK: GalleryInfosView
 "gallery_infos_view.title.gallery_infos" = "畫廊資訊";
@@ -331,8 +331,8 @@
 "enum.gallery_visibility.value.no.reason.expunged" = "已被刪除";
 
 // MARK: TagDetailView
-"tag_detail_view.section.title.images" = "Images";
-"tag_detail_view.section.title.links" = "Links";
+"tag_detail_view.section.title.images" = "圖片";
+"tag_detail_view.section.title.links" = "連結";
 
 // MARK: CommentsView
 "comments_view.title.comments" = "評論";
