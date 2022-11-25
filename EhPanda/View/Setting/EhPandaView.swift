@@ -131,6 +131,10 @@ struct EhPandaView: View {
             text: L10n.Constant.EhPanda.TranslationContributors.Text.tatsuz0u
         ),
         .init(
+            urlString: L10n.Constant.EhPanda.TranslationContributors.Link.nebulosaCat,
+            text: L10n.Constant.EhPanda.TranslationContributors.Text.nebulosaCat
+        ),
+        .init(
             urlString: L10n.Constant.EhPanda.TranslationContributors.Link.paulHaeussler,
             text: L10n.Constant.EhPanda.TranslationContributors.Text.paulHaeussler
         ),
