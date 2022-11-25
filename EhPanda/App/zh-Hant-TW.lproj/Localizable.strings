@@ -7,7 +7,7 @@
 */
 
 // MARK: BanInterval
-"enum.ban_interval.description.and" = "and";
+"enum.ban_interval.description.and" = "";
 
 // MARK: ToplistsType
 "enum.toplists_type.value.yesterday" = "昨天";
@@ -66,11 +66,11 @@
 "not_login_view.title.need_login" = "你需要登入才能完成這個動作";
 "not_login_view.button.login" = "登入";
 "error_view.button.retry" = "重試";
-"error_view.button.drop_database" = "Drop the database";
+"error_view.button.drop_database" = "刪除資料庫";
 "error_view.title.try_later" = "請稍後再試";
 "error_view.title.network" = "網路發生故障，請檢查網路狀態";
 "error_view.title.parsing" = "網頁解析器發生故障";
-"error_view.title.unknown" = "發生不明錯誤"; /*感覺可以放"發生不明錯誤，請聯繫開發人員"*/
+"error_view.title.unknown" = "發生不明錯誤";
 "error_view.title.not_found" = "這邊看起來空空如也";
 "error_view.title.database_corrupted" = "數據庫已經損壞\n請提交 issue 至 GitHub.";
 "error_view.title.ip_banned" = "你的 IP 因為頁面加載次數過於頻繁而被暫時禁止訪問，這可能是因為你正在使用爬蟲/鏡像軟體，禁止訪問將在 %@ 後解除";
@@ -81,7 +81,7 @@
 "confirmation_dialog.title.drop_database" = "繼續此操作將會清除 APP 中的所有資料\n確定要刪除資料庫?";
 "confirmation_dialog.title.remove_custom_translations" = "是否確定要刪除所有自訂翻譯?";
 "confirmation_dialog.title.logout" = "確定要登出嗎?";
-"confirmation_dialog.title.delete" = "確定要刪除?"; /*原本是Are you sure to delete this item?，感覺翻這樣就好*/
+"confirmation_dialog.title.delete" = "確定要刪除?";
 "confirmation_dialog.title.clear" = "確定要清空嗎?";
 "confirmation_dialog.title.reset" = "確定要重置嗎?";
 "confirmation_dialog.button.drop_database" = "刪除資料庫";
@@ -105,13 +105,13 @@
 
 // MARK: HomeView
 "home_view.title.home" = "首頁";
-"home_view.section.title.frontpage" = "首頁"; /*台灣Home和Frontpage應該都習慣叫首頁*/
+"home_view.section.title.frontpage" = "首頁";
 "home_view.section.title.toplists" = "排行";
 "home_view.section.title.other" = "其他";
 // HomeMiscGridType
 "enum.home_misc_grid_type.title.popular" = "熱門";
-"enum.home_misc_grid_type.title.watched" = "關注"; /*關注和追蹤感覺都可以*/
-"enum.home_misc_grid_type.title.history" = "歷程"; /*歷史 紀錄 歷程 歷史紀錄 瀏覽紀錄 感覺都可以，但是字數上來看歷程感覺最好*/
+"enum.home_misc_grid_type.title.watched" = "關注";
+"enum.home_misc_grid_type.title.history" = "歷程";
 
 // MARK: FrontpageView
 "frontpage_view.title.frontpage" = "首頁";
@@ -146,7 +146,7 @@
 "quick_search_view.title.quick_search" = "快速搜尋";
 "quick_search_view.title.edit_word" = "Edit word";
 "quick_search_view.title.new_word" = "新關鍵字";
-"quick_search_view.title.content" = "搜索內容";
+"quick_search_view.title.content" = "搜尋內容";
 "quick_search_view.title.name" = "名稱";
 "quick_search_view.placeholder.optional" = "(可選)";
 "quick_search_view.toolbar_item.button.confirm" = "確定";
@@ -252,7 +252,7 @@
 
 // MARK: LaboratorySettingView
 "laboratory_setting_view.title.laboratory" = "實驗性功能";
-"laboratory_setting_view.title.bypasses_SNI_filtering" = "繞過 SNI 防火牆";
+"laboratory_setting_view.title.bypasses_SNI_filtering" = "繞過 SNI 過濾";
 
 // MARK: EhPandaView
 "ehPanda_view.title.ehPanda" = "EhPanda";
@@ -430,7 +430,7 @@
 
 "eh_setting_view.section.title.archiver_settings" = "存檔設定";
 "eh_setting_view.title.archiver_behavior" = "存檔行為設定";
-"eh_setting_view.description.archiver_behavior" = "存檔器的預設行為是確認原始圖片或重新採樣後進行存檔的成本差異與選擇，然後顯示一個可以在其他地方點擊、複制的鏈接，你可以在此處更改他的運作方式。";
+"eh_setting_view.description.archiver_behavior" = "存檔器的預設行為是確認原始圖片或重新採樣後進行存檔的成本差異與選擇，然後顯示一個可以在其他地方點擊、複制的連結，你可以在此處更改他的運作方式。";
 // EhSetting.ArchiverBehavior
 "enum.eh_setting.archiver_behavior.value.manual_select_manual_start" = "手動選擇，手動開始下載(預設)";
 "enum.eh_setting.archiver_behavior.value.manual_select_auto_start" = "手動選擇，自動開始下載";
@@ -464,29 +464,29 @@
 "eh_setting_view.description.ratings_color" = "預設情況下，你評分的畫廊將 2 星及以下的評分顯示為紅色星，2.5 到 4 顆星的評分為綠色，4.5 或 5 顆星的評分為藍色。 你可以通過在下面輸入所需的顏色組合來自定義它。 每個字母代表一顆，預設的 RRGGB 表示第一顆和第二顆星的 R(ed)，第三顆和第四顆的 G(reen)，第五顆的 B(lue)。 你也可以將 (Y)ellow 用於普通星星。 任何五個字母的 R/G/B/Y 組合都有效";
 
 "eh_setting_view.section.title.tags_namespaces" = "標籤類型";
-"eh_setting_view.description.tags_namespaces" = "如果你想從標籤搜尋時排除從下列某些類型標籤搜尋，你可以從下面更改設置。 注意!!這不會使搜尋結果中不出現那些畫廊，僅是限定搜尋標籤所在的類型範圍!";
+"eh_setting_view.description.tags_namespaces" = "如果你想從標籤搜尋時排除從下列某些類型標籤搜尋，你可以從下面更改設定。 注意!!這不會使搜尋結果中不出現那些畫廊，僅是限定搜尋標籤所在的類型範圍!";
 
 "eh_setting_view.section.title.tag_filtering_threshold" = "過濾標籤閥值";
 "eh_setting_view.title.tag_filtering_threshold" = "閥值";
-"eh_setting_view.description.tag_filtering_threshold" = "你可以通過將標籤添加到具有負數權重的“我的標籤”清單中來過濾標籤。 如果畫廊的標籤加起來的權重低於此值，則會從列表中過濾掉，此閾值可以設置在 0 到 -9999 之間";
+"eh_setting_view.description.tag_filtering_threshold" = "你可以通過將標籤添加到具有負數權重的“我的標籤”清單中來過濾標籤。 如果畫廊的標籤加起來的權重低於此值，則會從列表中過濾掉，此閾值可以設定在 0 到 -9999 之間";
 
 "eh_setting_view.section.title.tag_watching_threshold" = "關注標籤閥值";
 "eh_setting_view.title.tag_watching_threshold" = "關注標籤生效的閥值";
-"eh_setting_view.description.tag_watching_threshold" = "如果最近上傳的畫廊中至少有一個具有正權重你正在關注/追蹤的標籤，並且這些標籤所具有的權重高於此設定中的數值，那這個畫廊將會出現在 \"追蹤標籤\" 頁面中，此閾值可以設置在 0 到 -9999 之間";
+"eh_setting_view.description.tag_watching_threshold" = "如果最近上傳的畫廊中至少有一個具有正權重你正在關注/追蹤的標籤，並且這些標籤所具有的權重高於此設定中的數值，那這個畫廊將會出現在 \"追蹤標籤\" 頁面中，此閾值可以設定在 0 到 -9999 之間";
 
 "eh_setting_view.section.title.filtered_removal_count" = "顯示過濾結果計數器";
 "eh_setting_view.description.filtered_removal_count" = "顯示 \"Your default filters removed XX galleries from this page\" ?";
 "eh_setting_view.title.show_filtered_removal_count" = "是否顯示過濾結果計數器";
 
 "eh_setting_view.section.title.excluded_languages" = "排除語言";
-"eh_setting_view.description.excluded_languages" = "如果你希望從畫廊列表和搜索中隱藏掉某些語言的畫廊，請從下面的清單中選取它們。請注意，無論你的搜索查詢如何，相符於篩除規則的畫廊都不會出現。";
+"eh_setting_view.description.excluded_languages" = "如果你希望從畫廊列表和搜尋中隱藏掉某些語言的畫廊，請從下面的清單中選取它們。請注意，無論你的搜尋查詢如何，相符於篩除規則的畫廊都不會出現。";
 // EhSetting.ExcludedLanguagesCategory
 "enum.eh_setting.excluded_languages_category.value.original" = "原始語言";
 "enum.eh_setting.excluded_languages_category.value.translated" = "翻譯語言";
 "enum.eh_setting.excluded_languages_category.value.rewrite" = "覆寫";
 
 "eh_setting_view.section.title.excluded_uploaders" = "排除的上傳者";
-"eh_setting_view.description.excluded_uploaders" = "如果你希望從畫廊列表和搜索中隱藏某些上傳者的畫廊，請將它們添加到下方，每行輸入一個用戶名。請注意，無論你的搜索查詢如何，這些上傳者的畫廊都不會出現。";
+"eh_setting_view.description.excluded_uploaders" = "如果你希望從畫廊列表和搜尋中隱藏某些上傳者的畫廊，請將它們添加到下方，每行輸入一個用戶名。請注意，無論你的搜尋查詢如何，這些上傳者的畫廊都不會出現。";
 "eh_setting_view.description.excluded_uploaders_count" = "你正在使用 **%@ / %@** 排除欄位";
 
 "eh_setting_view.section.title.search_result_count" = "搜尋結果數量上限";
@@ -538,7 +538,7 @@
 
 "eh_setting_view.section.title.hath_local_network_host" = "內網 H@H 服務 (Hath Local Network Host)";
 "eh_setting_view.title.ip_address_port" = "IP 位址:端口號";
-"eh_setting_view.description.ip_address_port" = "如果您在內網上使用與瀏覽站點相同的公共 IP 運行 H@H 客戶端，有些路由器會因此發生問題，無法將請求傳回自己的 IP，透過啟用這項設定可以解決此問題。\n如果您在瀏覽的同一設備上運行客戶端，請使用回環地址 (127.0.0.1:port)。 如果客戶端在您網絡上的另一台設備上運行，請使用其本地網絡 IP。 某些瀏覽器配置會阻止外部網站訪問具有本地網絡 IP 的 URL，你必須將站點列入白名單才能使其正常工作。";
+"eh_setting_view.description.ip_address_port" = "如果您在內網上使用與瀏覽站點相同的公共 IP 運行 H@H 客戶端，有些路由器會因此發生問題，無法將請求傳回自己的 IP，透過啟用這項設定可以解決此問題。\n如果您在瀏覽的同一設備上運行客戶端，請使用回環地址 (127.0.0.1:port)。 如果客戶端在您網路上的另一台設備上運行，請使用其本地網路 IP。 某些瀏覽器配置會阻止外部網站訪問具有本地網路 IP 的 URL，你必須將站點列入白名單才能使其正常工作。";
 
 "eh_setting_view.section.title.original_images" = "原始圖片";
 "eh_setting_view.title.use_original_images" = "使用原始圖片(原解析度)";
@@ -690,7 +690,7 @@
 "enum.browsing_country.name.cambodia" = "柬埔寨";
 "enum.browsing_country.name.cameroon" = "喀麥隆";
 "enum.browsing_country.name.canada" = "加拿大";
-"enum.browsing_country.name.cape_verde" = "維德角	";
+"enum.browsing_country.name.cape_verde" = "維德角";
 "enum.browsing_country.name.cayman_islands" = "開曼群島";
 "enum.browsing_country.name.central_african_republic" = "中非";
 "enum.browsing_country.name.chad" = "查德";
@@ -705,7 +705,7 @@
 "enum.browsing_country.name.cook_islands" = "庫克群島";
 "enum.browsing_country.name.costa_rica" = "哥斯大黎加";
 "enum.browsing_country.name.cote_d_ivoire" = "象牙海岸";
-"enum.browsing_country.name.croatia" = "克羅埃西亞	";
+"enum.browsing_country.name.croatia" = "克羅埃西亞";
 "enum.browsing_country.name.cuba" = "古巴";
 "enum.browsing_country.name.curacao" = "古拉索";
 "enum.browsing_country.name.cyprus" = "賽普勒斯";
